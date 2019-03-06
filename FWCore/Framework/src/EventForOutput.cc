@@ -11,40 +11,33 @@
 
 namespace edm {
 
-  EventForOutput::EventForOutput(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext) :
-      OccurrenceForOutput(ep, md, moduleCallingContext, true /*always at end*/),
-      aux_(ep.aux()),
-      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlockForOutput(ep.luminosityBlockPrincipal(), md, moduleCallingContext,false /*not at end*/) : nullptr),
-      streamID_(ep.streamID())
-  {
-  }
+  EventForOutput::EventForOutput(EventPrincipal const& ep,
+                                 ModuleDescription const& md,
+                                 ModuleCallingContext const* moduleCallingContext)
+      : OccurrenceForOutput(ep, md, moduleCallingContext, true /*always at end*/),
+        aux_(ep.aux()),
+        luminosityBlock_(ep.luminosityBlockPrincipalPtrValid()
+                             ? new LuminosityBlockForOutput(
+                                   ep.luminosityBlockPrincipal(), md, moduleCallingContext, false /*not at end*/)
+                             : nullptr),
+        streamID_(ep.streamID()) {}
 
-  EventForOutput::~EventForOutput() {
-  }
+  EventForOutput::~EventForOutput() {}
 
-  EventPrincipal const&
-  EventForOutput::eventPrincipal() const {
+  EventPrincipal const& EventForOutput::eventPrincipal() const {
     return dynamic_cast<EventPrincipal const&>(principal());
   }
 
-  RunForOutput const&
-  EventForOutput::getRun() const {
-    return getLuminosityBlock().getRun();
-  }
+  RunForOutput const& EventForOutput::getRun() const { return getLuminosityBlock().getRun(); }
 
-  EventSelectionIDVector const&
-  EventForOutput::eventSelectionIDs() const {
+  EventSelectionIDVector const& EventForOutput::eventSelectionIDs() const {
     return eventPrincipal().eventSelectionIDs();
   }
 
-  ProductProvenanceRetriever const*
-  EventForOutput::productProvenanceRetrieverPtr() const {
-   return eventPrincipal().productProvenanceRetrieverPtr();
+  ProductProvenanceRetriever const* EventForOutput::productProvenanceRetrieverPtr() const {
+    return eventPrincipal().productProvenanceRetrieverPtr();
   }
 
-  BranchListIndexes const&
-  EventForOutput::branchListIndexes() const {
-    return eventPrincipal().branchListIndexes();
-  }
+  BranchListIndexes const& EventForOutput::branchListIndexes() const { return eventPrincipal().branchListIndexes(); }
 
-}
+}  // namespace edm

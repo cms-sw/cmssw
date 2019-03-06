@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     ModuleChanger
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -28,20 +28,15 @@ using namespace edm;
 //
 // constructors and destructor
 //
-ModuleChanger::ModuleChanger(Schedule* iSchedule, ProductRegistry const* iRegistry):
-schedule_(iSchedule),
-registry_(iRegistry)
-{
-}
+ModuleChanger::ModuleChanger(Schedule* iSchedule, ProductRegistry const* iRegistry)
+    : schedule_(iSchedule), registry_(iRegistry) {}
 
 // ModuleChanger::ModuleChanger(const ModuleChanger& rhs)
 // {
 //    // do actual copying here;
 // }
 
-ModuleChanger::~ModuleChanger()
-{
-}
+ModuleChanger::~ModuleChanger() {}
 
 //
 // assignment operators
@@ -59,11 +54,8 @@ ModuleChanger::~ModuleChanger()
 // member functions
 //
 
-bool 
-ModuleChanger::changeModule(const std::string& iLabel,
-                            const ParameterSet& iPSet)
-{
-   return schedule_->changeModule(iLabel,iPSet, *registry_);
+bool ModuleChanger::changeModule(const std::string& iLabel, const ParameterSet& iPSet) {
+  return schedule_->changeModule(iLabel, iPSet, *registry_);
 }
 
 //

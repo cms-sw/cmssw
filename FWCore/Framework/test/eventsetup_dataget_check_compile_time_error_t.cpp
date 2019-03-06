@@ -15,12 +15,12 @@ using namespace edm;
 class DataWithNoDefaultRecord {};
 
 int main() {
-   eventsetup::EventSetupProvider provider;
-   auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(0));
-   //This should cause a compile time failure since DataWithNoDefaultRecord
-   /// does not have a default record assigned
-   ESHandle<DataWithNoDefaultRecord> pData;
-   eventSetup.getData(pData);
-   
-   return 0;
+  eventsetup::EventSetupProvider provider;
+  auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(0));
+  //This should cause a compile time failure since DataWithNoDefaultRecord
+  /// does not have a default record assigned
+  ESHandle<DataWithNoDefaultRecord> pData;
+  eventSetup.getData(pData);
+
+  return 0;
 }

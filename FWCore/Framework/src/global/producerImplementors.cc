@@ -2,7 +2,7 @@
 //
 // Package:     Package
 // Class  :     producerImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for EDProducerBase
 //
@@ -24,6 +24,6 @@ namespace edm {
       template class BeginLuminosityBlockProducer<edm::global::EDProducerBase>;
       template class EndLuminosityBlockProducer<edm::global::EDProducerBase>;
       template class ExternalWork<edm::global::EDProducerBase>;
-    }
-  }
-}
+    }  // namespace impl
+  }    // namespace global
+}  // namespace edm

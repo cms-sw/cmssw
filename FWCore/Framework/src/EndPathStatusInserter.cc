@@ -6,17 +6,11 @@
 
 #include <memory>
 
-namespace edm
-{
-  EndPathStatusInserter::EndPathStatusInserter(unsigned int):
-  token_{produces<EndPathStatus>()}
-  {
-  }
+namespace edm {
+  EndPathStatusInserter::EndPathStatusInserter(unsigned int) : token_{produces<EndPathStatus>()} {}
 
-  void
-  EndPathStatusInserter::produce(StreamID, edm::Event& event, edm::EventSetup const&) const
-  {
+  void EndPathStatusInserter::produce(StreamID, edm::Event& event, edm::EventSetup const&) const {
     //Puts a default constructed EndPathStatus
     event.emplace(token_);
   }
-}
+}  // namespace edm

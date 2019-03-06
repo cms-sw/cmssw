@@ -31,45 +31,42 @@ namespace edm {
   void DataManagingProductResolver::throwProductDeletedException() const {
     ProductDeletedException exception;
     exception << "ProductResolverBase::resolveProduct_: The product matching all criteria was already deleted\n"
-    << "Looking for type: " << branchDescription().unwrappedTypeID() << "\n"
-    << "Looking for module label: " << moduleLabel() << "\n"
-    << "Looking for productInstanceName: " << productInstanceName() << "\n"
-    << (processName().empty() ? "" : "Looking for process: ") << processName() << "\n"
-    << "This means there is a configuration error.\n"
-    << "The module which is asking for this data must be configured to state that it will read this data.";
+              << "Looking for type: " << branchDescription().unwrappedTypeID() << "\n"
+              << "Looking for module label: " << moduleLabel() << "\n"
+              << "Looking for productInstanceName: " << productInstanceName() << "\n"
+              << (processName().empty() ? "" : "Looking for process: ") << processName() << "\n"
+              << "This means there is a configuration error.\n"
+              << "The module which is asking for this data must be configured to state that it will read this data.";
     throw exception;
-    
   }
 
   //This is a templated function in order to avoid calling another virtual function
   template <bool callResolver, typename FUNC>
-  ProductResolverBase::Resolution
-  DataManagingProductResolver::resolveProductImpl(FUNC resolver) const {
-    
-    if(productWasDeleted()) {
+  ProductResolverBase::Resolution DataManagingProductResolver::resolveProductImpl(FUNC resolver) const {
+    if (productWasDeleted()) {
       throwProductDeletedException();
     }
     auto presentStatus = status();
-    
-    if(callResolver && presentStatus == ProductStatus::ResolveNotRun) {
+
+    if (callResolver && presentStatus == ProductStatus::ResolveNotRun) {
       //if resolver fails because of exception or not setting product
       // make sure the status goes to failed
       auto failedStatusSetter = [this](ProductStatus* presentStatus) {
-        if(this->status() == ProductStatus::ResolveNotRun) {
+        if (this->status() == ProductStatus::ResolveNotRun) {
           this->setFailedStatus();
         }
         *presentStatus = this->status();
       };
-      std::unique_ptr<ProductStatus, decltype(failedStatusSetter)> failedStatusGuard(&presentStatus, failedStatusSetter);
+      std::unique_ptr<ProductStatus, decltype(failedStatusSetter)> failedStatusGuard(&presentStatus,
+                                                                                     failedStatusSetter);
 
       //If successful, this will call setProduct
       resolver();
     }
-    
-    
+
     if (presentStatus == ProductStatus::ProductSet) {
       auto pd = &getProductData();
-      if(pd->wrapper()->isPresent()) {
+      if (pd->wrapper()->isPresent()) {
         return Resolution(pd);
       }
     }
@@ -77,9 +74,8 @@ namespace edm {
     return Resolution(nullptr);
   }
 
-  void
-  DataManagingProductResolver::mergeProduct(std::unique_ptr<WrapperBase> iFrom, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
-
+  void DataManagingProductResolver::mergeProduct(std::unique_ptr<WrapperBase> iFrom,
+                                                 MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
     // if its not mergeable and the previous read failed, go ahead and use this one
     if (status() == ProductStatus::ResolveFailed) {
       setProduct(std::move(iFrom));
@@ -87,26 +83,30 @@ namespace edm {
     }
 
     assert(status() == ProductStatus::ProductSet);
-    if(not iFrom) { return;}
-    
+    if (not iFrom) {
+      return;
+    }
+
     checkType(*iFrom);
-    
-    auto original =getProductData().unsafe_wrapper();
+
+    auto original = getProductData().unsafe_wrapper();
     if (original->isMergeable()) {
       if (original->isPresent() != iFrom->isPresent()) {
         throw Exception(errors::MismatchedInputFiles)
-          << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
-          << "Was trying to merge objects where one product had been put in the input file and the other had not been." << "\n"
-          << "The solution is to drop the branch on input. Or better do not create inconsistent files\n"
-          << "that need to be merged in the first place.\n";
+            << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
+            << "Was trying to merge objects where one product had been put in the input file and the other had not "
+               "been."
+            << "\n"
+            << "The solution is to drop the branch on input. Or better do not create inconsistent files\n"
+            << "that need to be merged in the first place.\n";
       }
       if (original->isPresent()) {
-
         BranchDescription const& desc = branchDescription_();
         if (mergeableRunProductMetadata == nullptr || desc.branchType() != InRun) {
           original->mergeProduct(iFrom.get());
         } else {
-          MergeableRunProductMetadata::MergeDecision decision = mergeableRunProductMetadata->getMergeDecision(desc.processName());
+          MergeableRunProductMetadata::MergeDecision decision =
+              mergeableRunProductMetadata->getMergeDecision(desc.processName());
           if (decision == MergeableRunProductMetadata::MERGE) {
             original->mergeProduct(iFrom.get());
           } else if (decision == MergeableRunProductMetadata::REPLACE) {
@@ -123,18 +123,18 @@ namespace edm {
       }
       // If both have isPresent false, do nothing
 
-    } else if(original->hasIsProductEqual()) {
+    } else if (original->hasIsProductEqual()) {
       if (original->isPresent() && iFrom->isPresent()) {
-        if(!original->isProductEqual(iFrom.get())) {
+        if (!original->isProductEqual(iFrom.get())) {
           auto const& bd = branchDescription();
           edm::LogError("RunLumiMerging")
-            << "ProductResolver::mergeTheProduct\n"
-            << "Two run/lumi products for the same run/lumi which should be equal are not\n"
-            << "Using the first, ignoring the second\n"
-            << "className = " << bd.className() << "\n"
-            << "moduleLabel = " << bd.moduleLabel() << "\n"
-            << "instance = " << bd.productInstanceName() << "\n"
-            << "process = " << bd.processName() << "\n";
+              << "ProductResolver::mergeTheProduct\n"
+              << "Two run/lumi products for the same run/lumi which should be equal are not\n"
+              << "Using the first, ignoring the second\n"
+              << "className = " << bd.className() << "\n"
+              << "moduleLabel = " << bd.moduleLabel() << "\n"
+              << "instance = " << bd.productInstanceName() << "\n"
+              << "process = " << bd.processName() << "\n";
         }
       } else if (!original->isPresent() && iFrom->isPresent()) {
         setProduct(std::move(iFrom));
@@ -142,14 +142,13 @@ namespace edm {
       // if not iFrom->isPresent(), do nothing
     } else {
       auto const& bd = branchDescription();
-      edm::LogWarning("RunLumiMerging")
-        << "ProductResolver::mergeTheProduct\n"
-        << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
-        << "Using the first, ignoring the second in merge\n"
-        << "className = " << bd.className() << "\n"
-        << "moduleLabel = " << bd.moduleLabel() << "\n"
-        << "instance = " << bd.productInstanceName() << "\n"
-        << "process = " << bd.processName() << "\n";
+      edm::LogWarning("RunLumiMerging") << "ProductResolver::mergeTheProduct\n"
+                                        << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
+                                        << "Using the first, ignoring the second in merge\n"
+                                        << "className = " << bd.className() << "\n"
+                                        << "moduleLabel = " << bd.moduleLabel() << "\n"
+                                        << "instance = " << bd.productInstanceName() << "\n"
+                                        << "process = " << bd.processName() << "\n";
       if (!original->isPresent() && iFrom->isPresent()) {
         setProduct(std::move(iFrom));
       }
@@ -157,50 +156,46 @@ namespace edm {
     }
   }
 
-  ProductResolverBase::Resolution
-  InputProductResolver::resolveProduct_(Principal const& principal,
-                                        bool,
-                                        SharedResourcesAcquirer* ,
-                                        ModuleCallingContext const* mcc) const {
-    return resolveProductImpl<true>([this,&principal,mcc]() {
+  ProductResolverBase::Resolution InputProductResolver::resolveProduct_(Principal const& principal,
+                                                                        bool,
+                                                                        SharedResourcesAcquirer*,
+                                                                        ModuleCallingContext const* mcc) const {
+    return resolveProductImpl<true>([this, &principal, mcc]() {
       auto branchType = principal.branchType();
-      if(branchType != InEvent) {
+      if (branchType != InEvent) {
         //delayed get has not been allowed with Run or Lumis
         // The file may already be closed so the reader is invalid
         return;
       }
-      if(mcc and (branchType == InEvent) and aux_) {
-        aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      if (mcc and (branchType == InEvent) and aux_) {
+        aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()), *mcc);
       }
 
-      auto sentry( make_sentry(mcc,
-                               [this, branchType](ModuleCallingContext const* iContext){
-                                 if(branchType == InEvent and aux_) {
-                                   aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext); }
-                               }));
-
-      if(auto reader=principal.reader()) {
-        std::unique_lock<std::recursive_mutex> guard;
-        if(auto sr = reader->sharedResources().second) {
-          guard =std::unique_lock<std::recursive_mutex>(*sr);
+      auto sentry(make_sentry(mcc, [this, branchType](ModuleCallingContext const* iContext) {
+        if (branchType == InEvent and aux_) {
+          aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext);
         }
-        if ( not productResolved()) {
+      }));
+
+      if (auto reader = principal.reader()) {
+        std::unique_lock<std::recursive_mutex> guard;
+        if (auto sr = reader->sharedResources().second) {
+          guard = std::unique_lock<std::recursive_mutex>(*sr);
+        }
+        if (not productResolved()) {
           //another thread could have beaten us here
-          putProduct( reader->getProduct(branchDescription().branchID(), &principal, mcc));
+          putProduct(reader->getProduct(branchDescription().branchID(), &principal, mcc));
         }
       }
     });
-                              
   }
 
-  void
-  InputProductResolver::retrieveAndMerge_(Principal const& principal, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
-
-    if(auto reader = principal.reader()) {
-
+  void InputProductResolver::retrieveAndMerge_(Principal const& principal,
+                                               MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
+    if (auto reader = principal.reader()) {
       std::unique_lock<std::recursive_mutex> guard;
-      if(auto sr = reader->sharedResources().second) {
-        guard =std::unique_lock<std::recursive_mutex>(*sr);
+      if (auto sr = reader->sharedResources().second) {
+        guard = std::unique_lock<std::recursive_mutex>(*sr);
       }
 
       //Can't use resolveProductImpl since it first checks to see
@@ -210,39 +205,41 @@ namespace edm {
       if (edp.get() != nullptr) {
         if (edp->isMergeable() && branchDescription().branchType() == InRun && !edp->hasSwap()) {
           throw Exception(errors::LogicError)
-            << "Missing definition of member function swap for branch name " << branchDescription().branchName() << "\n"
-            << "Mergeable data types written to a Run must have the swap member function defined" << "\n";
+              << "Missing definition of member function swap for branch name " << branchDescription().branchName()
+              << "\n"
+              << "Mergeable data types written to a Run must have the swap member function defined"
+              << "\n";
         }
-        if (status() == defaultStatus() ||
-            status() == ProductStatus::ProductSet ||
+        if (status() == defaultStatus() || status() == ProductStatus::ProductSet ||
             (status() == ProductStatus::ResolveFailed && !branchDescription().isMergeable())) {
           putOrMergeProduct(std::move(edp), mergeableRunProductMetadata);
-        } else { // status() == ResolveFailed && branchDescription().isMergeable()
+        } else {  // status() == ResolveFailed && branchDescription().isMergeable()
           throw Exception(errors::MismatchedInputFiles)
-            << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
-            << "The product branch was dropped in the first run or lumi fragment and present in a later one" << "\n"
-            << "The solution is to drop the branch on input. Or better do not create inconsistent files\n"
-            << "that need to be merged in the first place.\n";
+              << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
+              << "The product branch was dropped in the first run or lumi fragment and present in a later one"
+              << "\n"
+              << "The solution is to drop the branch on input. Or better do not create inconsistent files\n"
+              << "that need to be merged in the first place.\n";
         }
       } else if (status() == defaultStatus()) {
         setFailedStatus();
-      } else if ( status() != ProductStatus::ResolveFailed && branchDescription().isMergeable()) {
+      } else if (status() != ProductStatus::ResolveFailed && branchDescription().isMergeable()) {
         throw Exception(errors::MismatchedInputFiles)
-          << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
-          << "The product branch was present in first run or lumi fragment and dropped in a later one" << "\n"
-          << "The solution is to drop the branch on input. Or better do not create inconsistent files\n"
-          << "that need to be merged in the first place.\n";
+            << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
+            << "The product branch was present in first run or lumi fragment and dropped in a later one"
+            << "\n"
+            << "The solution is to drop the branch on input. Or better do not create inconsistent files\n"
+            << "that need to be merged in the first place.\n";
       }
       // Do nothing in other case. status is ResolveFailed already or
       // it is not mergeable and the status is ProductSet
     }
   }
 
-  void
-  InputProductResolver::setMergeableRunProductMetadata_(MergeableRunProductMetadata const* mrpm) {
+  void InputProductResolver::setMergeableRunProductMetadata_(MergeableRunProductMetadata const* mrpm) {
     setMergeableRunProductMetadataInProductData(mrpm);
   }
-  
+
   void InputProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                             Principal const& principal,
                                             bool skipCurrentProcess,
@@ -250,78 +247,70 @@ namespace edm {
                                             SharedResourcesAcquirer* sra,
                                             ModuleCallingContext const* mcc) const {
     m_waitingTasks.add(waitTask);
-    
+
     bool expected = false;
-    if( m_prefetchRequested.compare_exchange_strong(expected, true) ) {
-      
-      auto workToDo = [this, mcc, &principal, token] () {
+    if (m_prefetchRequested.compare_exchange_strong(expected, true)) {
+      auto workToDo = [this, mcc, &principal, token]() {
         //need to make sure Service system is activated on the reading thread
         ServiceRegistry::Operate guard(token);
         try {
-          resolveProductImpl<true>([this,&principal,mcc]() {
-            if(principal.branchType() != InEvent) { return; }
-            if(auto reader = principal.reader()) {
+          resolveProductImpl<true>([this, &principal, mcc]() {
+            if (principal.branchType() != InEvent) {
+              return;
+            }
+            if (auto reader = principal.reader()) {
               std::unique_lock<std::recursive_mutex> guard;
-              if(auto sr = reader->sharedResources().second) {
-                guard =std::unique_lock<std::recursive_mutex>(*sr);
+              if (auto sr = reader->sharedResources().second) {
+                guard = std::unique_lock<std::recursive_mutex>(*sr);
               }
-              if ( not productResolved()) {
+              if (not productResolved()) {
                 //another thread could have finished this while we were waiting
-                putProduct( reader->getProduct(branchDescription().branchID(), &principal, mcc));
+                putProduct(reader->getProduct(branchDescription().branchID(), &principal, mcc));
               }
             }
           });
-        } catch(...) {
+        } catch (...) {
           this->m_waitingTasks.doneWaiting(std::current_exception());
           return;
         }
         this->m_waitingTasks.doneWaiting(nullptr);
       };
-      
+
       SerialTaskQueueChain* queue = nullptr;
-      if(auto reader = principal.reader()) {
+      if (auto reader = principal.reader()) {
         if (auto shared_res = reader->sharedResources().first) {
           queue = &(shared_res->serialQueueChain());
         }
       }
-      if(queue) {
+      if (queue) {
         queue->push(workToDo);
       } else {
         //Have to create a new task
-        auto t = make_functor_task(tbb::task::allocate_root(),
-                                   workToDo);
+        auto t = make_functor_task(tbb::task::allocate_root(), workToDo);
         tbb::task::spawn(*t);
       }
     }
   }
 
-  void
-  InputProductResolver::resetProductData_(bool deleteEarly) {
+  void InputProductResolver::resetProductData_(bool deleteEarly) {
     m_prefetchRequested = false;
     m_waitingTasks.reset();
     DataManagingProductResolver::resetProductData_(deleteEarly);
   }
 
-  void
-  InputProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+  void InputProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     aux_ = iConfigure.auxiliary();
   }
 
-  
-  bool
-  InputProductResolver::isFromCurrentProcess() const {
-    return false;
-  }
+  bool InputProductResolver::isFromCurrentProcess() const { return false; }
 
-  
-  ProductResolverBase::Resolution
-  PuttableProductResolver::resolveProduct_(Principal const&,
-                                           bool skipCurrentProcess,
-                                           SharedResourcesAcquirer*,
-                                           ModuleCallingContext const*) const {
+  ProductResolverBase::Resolution PuttableProductResolver::resolveProduct_(Principal const&,
+                                                                           bool skipCurrentProcess,
+                                                                           SharedResourcesAcquirer*,
+                                                                           ModuleCallingContext const*) const {
     if (!skipCurrentProcess) {
       //'false' means never call the lambda function
-      return resolveProductImpl<false>([](){return;});
+      return resolveProductImpl<false>([]() { return; });
     }
     return Resolution(nullptr);
   }
@@ -332,220 +321,185 @@ namespace edm {
                                                ServiceToken const& token,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const {
-    if(not skipCurrentProcess) {
-      if(branchDescription().availableOnlyAtEndTransition() and mcc ) {
-        if( not mcc->parent().isAtEndTransition() ) {
+    if (not skipCurrentProcess) {
+      if (branchDescription().availableOnlyAtEndTransition() and mcc) {
+        if (not mcc->parent().isAtEndTransition()) {
           return;
         }
       }
       m_waitingTasks.add(waitTask);
-      
+
       bool expected = false;
-      if(worker_ and prefetchRequested_.compare_exchange_strong(expected,true)) {
+      if (worker_ and prefetchRequested_.compare_exchange_strong(expected, true)) {
         //using a waiting task to do a callback guarantees that
         // the m_waitingTasks list will be released from waiting even
         // if the module does not put this data product or the
         // module has an exception while running
-        
-        auto waiting = make_waiting_task(tbb::task::allocate_root(),
-                                         [this](std::exception_ptr const *  iException) {
-                                           if(nullptr != iException) {
-                                             m_waitingTasks.doneWaiting(*iException);
-                                           } else {
-                                             m_waitingTasks.doneWaiting(std::exception_ptr());
-                                           }
-                                         });
+
+        auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
+          if (nullptr != iException) {
+            m_waitingTasks.doneWaiting(*iException);
+          } else {
+            m_waitingTasks.doneWaiting(std::exception_ptr());
+          }
+        });
         worker_->callWhenDoneAsync(waiting);
       }
     }
   }
-  
-  void
-  PuttableProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+
+  void PuttableProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
     ProducedProductResolver::putProduct_(std::move(edp));
     bool expected = false;
-    if(prefetchRequested_.compare_exchange_strong(expected,true)) {
+    if (prefetchRequested_.compare_exchange_strong(expected, true)) {
       m_waitingTasks.doneWaiting(std::exception_ptr());
     }
   }
 
-  
-  void
-  PuttableProductResolver::resetProductData_(bool deleteEarly) {
+  void PuttableProductResolver::resetProductData_(bool deleteEarly) {
     m_waitingTasks.reset();
     DataManagingProductResolver::resetProductData_(deleteEarly);
     prefetchRequested_ = false;
   }
 
-  void
-  PuttableProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+  void PuttableProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
   }
 
-  
-  void
-  UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+  void UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     aux_ = iConfigure.auxiliary();
     worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
     assert(worker_ != nullptr);
-    
-  }  
-  
-  ProductResolverBase::Resolution
-  UnscheduledProductResolver::resolveProduct_(Principal const& principal,
-                                              bool skipCurrentProcess,
-                                              SharedResourcesAcquirer* sra,
-                                              ModuleCallingContext const* mcc) const {
+  }
+
+  ProductResolverBase::Resolution UnscheduledProductResolver::resolveProduct_(Principal const& principal,
+                                                                              bool skipCurrentProcess,
+                                                                              SharedResourcesAcquirer* sra,
+                                                                              ModuleCallingContext const* mcc) const {
     if (!skipCurrentProcess and worker_) {
-      return resolveProductImpl<true>(
-        [&principal,this,sra,mcc]() {
-          try {
-            auto const& event = static_cast<EventPrincipal const&>(principal);
-            ParentContext parentContext(mcc);
-            aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      return resolveProductImpl<true>([&principal, this, sra, mcc]() {
+        try {
+          auto const& event = static_cast<EventPrincipal const&>(principal);
+          ParentContext parentContext(mcc);
+          aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()), *mcc);
 
-            auto workCall = [this,&event,&parentContext,mcc] () {
-              auto sentry( make_sentry(mcc,[this](ModuleCallingContext const* iContext){aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext); }));
-              
-              worker_->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
-                                           event,
-                                           *(aux_->eventSetup()),
-                                           event.streamID(),
-                                           parentContext,
-                                           mcc->getStreamContext());
-            };
-            
-            if (sra) {
-              assert(false);
-            } else {
-              workCall();
-            }
+          auto workCall = [this, &event, &parentContext, mcc]() {
+            auto sentry(make_sentry(mcc, [this](ModuleCallingContext const* iContext) {
+              aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext);
+            }));
 
+            worker_->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
+                event, *(aux_->eventSetup()), event.streamID(), parentContext, mcc->getStreamContext());
+          };
+
+          if (sra) {
+            assert(false);
+          } else {
+            workCall();
           }
-          catch (cms::Exception & ex) {
-            std::ostringstream ost;
-            ost << "Calling produce method for unscheduled module "
-            << worker_->description().moduleName() << "/'"
-            << worker_->description().moduleLabel() << "'";
-            ex.addContext(ost.str());
-            throw;
-          }
-        });
+
+        } catch (cms::Exception& ex) {
+          std::ostringstream ost;
+          ost << "Calling produce method for unscheduled module " << worker_->description().moduleName() << "/'"
+              << worker_->description().moduleLabel() << "'";
+          ex.addContext(ost.str());
+          throw;
+        }
+      });
     }
     return Resolution(nullptr);
   }
-  
-  void
-  UnscheduledProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                             Principal const& principal,
-                                             bool skipCurrentProcess,
-                                             ServiceToken const& token,
-                                             SharedResourcesAcquirer* sra,
-                                             ModuleCallingContext const* mcc) const
-  {
-    if(skipCurrentProcess) { return; }
+
+  void UnscheduledProductResolver::prefetchAsync_(WaitingTask* waitTask,
+                                                  Principal const& principal,
+                                                  bool skipCurrentProcess,
+                                                  ServiceToken const& token,
+                                                  SharedResourcesAcquirer* sra,
+                                                  ModuleCallingContext const* mcc) const {
+    if (skipCurrentProcess) {
+      return;
+    }
     waitingTasks_.add(waitTask);
     bool expected = false;
-    if(prefetchRequested_.compare_exchange_strong(expected, true)) {
-      
+    if (prefetchRequested_.compare_exchange_strong(expected, true)) {
       //Have to create a new task which will make sure the state for UnscheduledProductResolver
       // is properly set after the module has run
-      auto t = make_waiting_task(tbb::task::allocate_root(),
-                                 [this](std::exception_ptr const* iPtr)
-      {
+      auto t = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iPtr) {
         //The exception is being rethrown because resolveProductImpl sets the ProductResolver to a failed
         // state for the case where an exception occurs during the call to the function.
         try {
           resolveProductImpl<true>([iPtr]() {
-            if ( iPtr) {
+            if (iPtr) {
               std::rethrow_exception(*iPtr);
             }
           });
-        } catch(...) {
+        } catch (...) {
           waitingTasks_.doneWaiting(std::current_exception());
           return;
         }
         waitingTasks_.doneWaiting(nullptr);
-      } );
+      });
       auto const& event = static_cast<EventPrincipal const&>(principal);
       ParentContext parentContext(mcc);
 
-      worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(t,
-                                                                                       event,
-                                                                                       *(aux_->eventSetup()),
-                                                                                       token,
-                                                                                       event.streamID(),
-                                                                                       parentContext,
-                                                                                       mcc->getStreamContext());
+      worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
+          t, event, *(aux_->eventSetup()), token, event.streamID(), parentContext, mcc->getStreamContext());
     }
   }
-  
-  void
-  UnscheduledProductResolver::resetProductData_(bool deleteEarly) {
+
+  void UnscheduledProductResolver::resetProductData_(bool deleteEarly) {
     prefetchRequested_ = false;
     waitingTasks_.reset();
     DataManagingProductResolver::resetProductData_(deleteEarly);
   }
 
-
-  void
-  ProducedProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
-    if(status() != defaultStatus()) {
+  void ProducedProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+    if (status() != defaultStatus()) {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
     }
-    
+
     setProduct(std::move(edp));  // ProductResolver takes ownership
   }
 
-  void
-  InputProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
-    if ( not productResolved()) {
+  void InputProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+    if (not productResolved()) {
       //Another thread could have set this
       setProduct(std::move(edp));
     }
   }
-  
-  bool
-  ProducedProductResolver::isFromCurrentProcess() const {
-    return true;
-  }
-  
-  void
-  DataManagingProductResolver::connectTo(ProductResolverBase const& iOther, Principal const*) {
-    assert(false);
-  }
-  
-  void
-  DataManagingProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
-    if(not prod) {return;}
-    if(status() == defaultStatus()) {
+
+  bool ProducedProductResolver::isFromCurrentProcess() const { return true; }
+
+  void DataManagingProductResolver::connectTo(ProductResolverBase const& iOther, Principal const*) { assert(false); }
+
+  void DataManagingProductResolver::putOrMergeProduct_(
+      std::unique_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
+    if (not prod) {
+      return;
+    }
+    if (status() == defaultStatus()) {
       //resolveProduct has not been called or it failed
       putProduct(std::move(prod));
     } else {
       mergeProduct(std::move(prod), mergeableRunProductMetadata);
     }
   }
-  
 
-  
-  void
-  DataManagingProductResolver::checkType(WrapperBase const& prod) const {
+  void DataManagingProductResolver::checkType(WrapperBase const& prod) const {
     // Check if the types match.
     TypeID typeID(prod.dynamicTypeInfo());
-    if(typeID !=TypeID{branchDescription().unwrappedType().unvalidatedTypeInfo()}) {
+    if (typeID != TypeID{branchDescription().unwrappedType().unvalidatedTypeInfo()}) {
       // Types do not match.
       throw Exception(errors::EventCorruption)
-      << "Product on branch " << branchDescription().branchName() << " is of wrong type.\n"
-      << "It is supposed to be of type " << branchDescription().className() << ".\n"
-      << "It is actually of type " << typeID.className() << ".\n";
+          << "Product on branch " << branchDescription().branchName() << " is of wrong type.\n"
+          << "It is supposed to be of type " << branchDescription().className() << ".\n"
+          << "It is actually of type " << typeID.className() << ".\n";
     }
   }
-  
 
-  void
-  DataManagingProductResolver::setProduct(std::unique_ptr<WrapperBase> edp) const {
-    if(edp) {
+  void DataManagingProductResolver::setProduct(std::unique_ptr<WrapperBase> edp) const {
+    if (edp) {
       checkType(*edp);
       productData_.unsafe_setWrapper(std::move(edp));
       theStatus_ = ProductStatus::ProductSet;
@@ -556,112 +510,97 @@ namespace edm {
   // This routine returns true if it is known that currently there is no real product.
   // If there is a real product, it returns false.
   // If it is not known if there is a real product, it returns false.
-  bool
-  DataManagingProductResolver::productUnavailable_() const {
+  bool DataManagingProductResolver::productUnavailable_() const {
     auto presentStatus = status();
-    if(presentStatus == ProductStatus::ProductSet) {
+    if (presentStatus == ProductStatus::ProductSet) {
       return !(getProductData().wrapper()->isPresent());
     }
     return presentStatus != ProductStatus::ResolveNotRun;
   }
-    
-  bool
-  DataManagingProductResolver::productResolved_() const {
+
+  bool DataManagingProductResolver::productResolved_() const {
     auto s = status();
-    return (s != defaultStatus() ) or (s == ProductStatus::ProductDeleted);
+    return (s != defaultStatus()) or (s == ProductStatus::ProductDeleted);
   }
 
-  
   // This routine returns true if the product was deleted early in order to save memory
-  bool
-  DataManagingProductResolver::productWasDeleted_() const {
-    return status() == ProductStatus::ProductDeleted;
-  }
-  
-  bool
-  DataManagingProductResolver::productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const {
-    if (iSkipCurrentProcess and isFromCurrentProcess() ) {
+  bool DataManagingProductResolver::productWasDeleted_() const { return status() == ProductStatus::ProductDeleted; }
+
+  bool DataManagingProductResolver::productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const {
+    if (iSkipCurrentProcess and isFromCurrentProcess()) {
       return false;
     }
     if (status() == ProductStatus::ProductSet) {
-      if(getProductData().wrapper()->isPresent()) {
+      if (getProductData().wrapper()->isPresent()) {
         return true;
       }
     }
     return false;
   }
 
-  
-  void DataManagingProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
-    productData_.setProvenance(provRetriever,ph,pid);
+  void DataManagingProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever,
+                                                   ProcessHistory const& ph,
+                                                   ProductID const& pid) {
+    productData_.setProvenance(provRetriever, ph, pid);
   }
 
-  void DataManagingProductResolver::setMergeableRunProductMetadataInProductData(MergeableRunProductMetadata const* mrpm) {
+  void DataManagingProductResolver::setMergeableRunProductMetadataInProductData(
+      MergeableRunProductMetadata const* mrpm) {
     productData_.setMergeableRunProductMetadata(mrpm);
   }
 
-  void DataManagingProductResolver::setProcessHistory_(ProcessHistory const& ph) {
-    productData_.setProcessHistory(ph);
-  }
-  
+  void DataManagingProductResolver::setProcessHistory_(ProcessHistory const& ph) { productData_.setProcessHistory(ph); }
+
   ProductProvenance const* DataManagingProductResolver::productProvenancePtr_() const {
     return provenance()->productProvenance();
   }
-  
+
   void DataManagingProductResolver::resetProductData_(bool deleteEarly) {
-    if(theStatus_ == ProductStatus::ProductSet) {
+    if (theStatus_ == ProductStatus::ProductSet) {
       productData_.resetProductData();
     }
-    if(deleteEarly) {
+    if (deleteEarly) {
       theStatus_ = ProductStatus::ProductDeleted;
     } else {
       resetStatus();
     }
   }
-  
-  bool DataManagingProductResolver::singleProduct_() const {
-    return true;
+
+  bool DataManagingProductResolver::singleProduct_() const { return true; }
+
+  void AliasProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever,
+                                            ProcessHistory const& ph,
+                                            ProductID const& pid) {
+    realProduct_.setProvenance(provRetriever, ph, pid);
   }
 
-  void AliasProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
-    realProduct_.setProvenance(provRetriever,ph,pid);
-  }
-
-  void AliasProductResolver::setProcessHistory_(ProcessHistory const& ph) {
-    realProduct_.setProcessHistory(ph);
-  }
+  void AliasProductResolver::setProcessHistory_(ProcessHistory const& ph) { realProduct_.setProcessHistory(ph); }
 
   ProductProvenance const* AliasProductResolver::productProvenancePtr_() const {
     return provenance()->productProvenance();
   }
 
-  void AliasProductResolver::resetProductData_(bool deleteEarly) {
-    realProduct_.resetProductData_(deleteEarly);
+  void AliasProductResolver::resetProductData_(bool deleteEarly) { realProduct_.resetProductData_(deleteEarly); }
+
+  bool AliasProductResolver::singleProduct_() const { return true; }
+
+  void AliasProductResolver::putProduct_(std::unique_ptr<WrapperBase>) const {
+    throw Exception(errors::LogicError)
+        << "AliasProductResolver::putProduct_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
-  bool AliasProductResolver::singleProduct_() const {
-    return true;
-  }
-  
-  void AliasProductResolver::putProduct_(std::unique_ptr<WrapperBase> ) const {
+  void AliasProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
+                                                MergeableRunProductMetadata const*) const {
     throw Exception(errors::LogicError)
-    << "AliasProductResolver::putProduct_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "AliasProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata "
+           "const*) not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
-  
-  void AliasProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const {
-    throw Exception(errors::LogicError)
-    << "AliasProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
-  }
-  
 
-  SwitchBaseProductResolver::SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd, DataManagingOrAliasProductResolver& realProduct):
-    realProduct_(realProduct),
-    productData_(std::move(bd)),
-    prefetchRequested_(false),
-    status_(defaultStatus_)
-  {
+  SwitchBaseProductResolver::SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd,
+                                                       DataManagingOrAliasProductResolver& realProduct)
+      : realProduct_(realProduct), productData_(std::move(bd)), prefetchRequested_(false), status_(defaultStatus_) {
     // Parentage of this branch is always the same by construction, so we can compute the ID just "once" here.
     Parentage p;
     p.setParents(std::vector<BranchID>{realProduct.branchDescription().originalBranchID()});
@@ -669,19 +608,18 @@ namespace edm {
     ParentageRegistry::instance()->insertMapped(p);
   }
 
-  void SwitchBaseProductResolver::connectTo(ProductResolverBase const& iOther, Principal const *iParentPrincipal) {
+  void SwitchBaseProductResolver::connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) {
     throw Exception(errors::LogicError)
-    << "SwitchBaseProductResolver::connectTo() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "SwitchBaseProductResolver::connectTo() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   void SwitchBaseProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
   }
 
-  ProductResolverBase::Resolution
-  SwitchBaseProductResolver::resolveProductImpl(Resolution res) const {
-    if(res.data() == nullptr)
+  ProductResolverBase::Resolution SwitchBaseProductResolver::resolveProductImpl(Resolution res) const {
+    if (res.data() == nullptr)
       return res;
     // Use the Wrapper of the pointed-to resolver, but the provenance of this resolver
     productData_.unsafe_setWrapper(res.data()->sharedConstWrapper());
@@ -697,135 +635,140 @@ namespace edm {
   }
 
   void SwitchBaseProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
-    if(status_ != defaultStatus_) {
-      throw Exception(errors::InsertFailure) << "Attempt to insert more than one product for a branch " << branchDescription().branchName() << "This makes no sense for SwitchBaseProductResolver.\nContact a Framework developer";
+    if (status_ != defaultStatus_) {
+      throw Exception(errors::InsertFailure)
+          << "Attempt to insert more than one product for a branch " << branchDescription().branchName()
+          << "This makes no sense for SwitchBaseProductResolver.\nContact a Framework developer";
     }
     // Let's use ResolveFailed to signal that produce() was called, as
     // there is no real product in this resolver
     status_ = ProductStatus::ResolveFailed;
     bool expected = false;
-    if(prefetchRequested_.compare_exchange_strong(expected, true)) {
+    if (prefetchRequested_.compare_exchange_strong(expected, true)) {
       waitingTasks_.doneWaiting(std::exception_ptr());
     }
   }
 
-  void SwitchBaseProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const {
+  void SwitchBaseProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
+                                                     MergeableRunProductMetadata const*) const {
     throw Exception(errors::LogicError)
-    << "SwitchBaseProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "SwitchBaseProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, "
+           "MergeableRunProductMetadata const*) not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
-  void SwitchBaseProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void SwitchBaseProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever,
+                                                 ProcessHistory const& ph,
+                                                 ProductID const& pid) {
     // insertIntoSet is const, so let's exploit that to fake the getting of the "input" product
     provRetriever->insertIntoSet(ProductProvenance(branchDescription().branchID(), parentageID_));
-    productData_.setProvenance(provRetriever,ph,pid);
+    productData_.setProvenance(provRetriever, ph, pid);
   }
 
   void SwitchBaseProductResolver::resetProductData_(bool deleteEarly) {
     productData_.resetProductData();
     realProduct_.resetProductData_(deleteEarly);
-    if(not deleteEarly) {
+    if (not deleteEarly) {
       status_ = defaultStatus_;
     }
   }
 
-  ProductResolverBase::Resolution
-  SwitchProducerProductResolver::resolveProduct_(Principal const& principal,
-                                                bool skipCurrentProcess,
-                                                SharedResourcesAcquirer* sra,
-                                                ModuleCallingContext const* mcc) const {
-    if(status() == ProductStatus::ResolveFailed) {
+  ProductResolverBase::Resolution SwitchProducerProductResolver::resolveProduct_(Principal const& principal,
+                                                                                 bool skipCurrentProcess,
+                                                                                 SharedResourcesAcquirer* sra,
+                                                                                 ModuleCallingContext const* mcc) const {
+    if (status() == ProductStatus::ResolveFailed) {
       return resolveProductImpl(realProduct().resolveProduct(principal, skipCurrentProcess, sra, mcc));
     }
     return Resolution(nullptr);
   }
 
   void SwitchProducerProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                                    Principal const& principal,
-                                                    bool skipCurrentProcess,
-                                                    ServiceToken const& token,
-                                                    SharedResourcesAcquirer* sra,
-                                                    ModuleCallingContext const* mcc) const {
-    if(skipCurrentProcess) { return; }
-    if(branchDescription().availableOnlyAtEndTransition() and mcc and not mcc->parent().isAtEndTransition()) {
+                                                     Principal const& principal,
+                                                     bool skipCurrentProcess,
+                                                     ServiceToken const& token,
+                                                     SharedResourcesAcquirer* sra,
+                                                     ModuleCallingContext const* mcc) const {
+    if (skipCurrentProcess) {
+      return;
+    }
+    if (branchDescription().availableOnlyAtEndTransition() and mcc and not mcc->parent().isAtEndTransition()) {
       return;
     }
     waitingTasks().add(waitTask);
 
     bool expected = false;
-    if(prefetchRequested().compare_exchange_strong(expected, true)) {
+    if (prefetchRequested().compare_exchange_strong(expected, true)) {
       //using a waiting task to do a callback guarantees that
       // the waitingTasks() list will be released from waiting even
       // if the module does not put this data product or the
       // module has an exception while running
-      auto waiting = make_waiting_task(tbb::task::allocate_root(),
-                                       [this](std::exception_ptr const *iException) {
-                                         if(nullptr != iException) {
-                                           waitingTasks().doneWaiting(*iException);
-                                         }
-                                         else {
-                                           waitingTasks().doneWaiting(std::exception_ptr());
-                                         }
-                                       });
+      auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
+        if (nullptr != iException) {
+          waitingTasks().doneWaiting(*iException);
+        } else {
+          waitingTasks().doneWaiting(std::exception_ptr());
+        }
+      });
       worker()->callWhenDoneAsync(waiting);
     }
   }
 
   bool SwitchProducerProductResolver::productUnavailable_() const {
     // if produce() was run (ResolveFailed), ask from the real resolver
-    if(status() == ProductStatus::ResolveFailed) {
+    if (status() == ProductStatus::ResolveFailed) {
       return realProduct().productUnavailable();
     }
     return true;
   }
 
-  ProductResolverBase::Resolution
-  SwitchAliasProductResolver::resolveProduct_(Principal const& principal,
-                                              bool skipCurrentProcess,
-                                              SharedResourcesAcquirer* sra,
-                                              ModuleCallingContext const* mcc) const {
+  ProductResolverBase::Resolution SwitchAliasProductResolver::resolveProduct_(Principal const& principal,
+                                                                              bool skipCurrentProcess,
+                                                                              SharedResourcesAcquirer* sra,
+                                                                              ModuleCallingContext const* mcc) const {
     return resolveProductImpl(realProduct().resolveProduct(principal, skipCurrentProcess, sra, mcc));
   }
 
   void SwitchAliasProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                                    Principal const& principal,
-                                                    bool skipCurrentProcess,
-                                                    ServiceToken const& token,
-                                                    SharedResourcesAcquirer* sra,
-                                                    ModuleCallingContext const* mcc) const {
-    if(skipCurrentProcess) { return; }
+                                                  Principal const& principal,
+                                                  bool skipCurrentProcess,
+                                                  ServiceToken const& token,
+                                                  SharedResourcesAcquirer* sra,
+                                                  ModuleCallingContext const* mcc) const {
+    if (skipCurrentProcess) {
+      return;
+    }
     realProduct().prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
   }
-  
-  
-  void ParentProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+
+  void ParentProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever,
+                                                    ProcessHistory const& ph,
+                                                    ProductID const& pid) {
     provRetriever_ = provRetriever;
   }
-  
-  void ParentProcessProductResolver::setProcessHistory_(ProcessHistory const& ph) {
-  }
-  
+
+  void ParentProcessProductResolver::setProcessHistory_(ProcessHistory const& ph) {}
+
   ProductProvenance const* ParentProcessProductResolver::productProvenancePtr_() const {
-    return provRetriever_? provRetriever_->branchIDToProvenance(bd_->originalBranchID()): nullptr;
-  }
-  
-  void ParentProcessProductResolver::resetProductData_(bool deleteEarly) {
-  }
-  
-  bool ParentProcessProductResolver::singleProduct_() const {
-    return true;
+    return provRetriever_ ? provRetriever_->branchIDToProvenance(bd_->originalBranchID()) : nullptr;
   }
 
-  void ParentProcessProductResolver::putProduct_(std::unique_ptr<WrapperBase> ) const {
+  void ParentProcessProductResolver::resetProductData_(bool deleteEarly) {}
+
+  bool ParentProcessProductResolver::singleProduct_() const { return true; }
+
+  void ParentProcessProductResolver::putProduct_(std::unique_ptr<WrapperBase>) const {
     throw Exception(errors::LogicError)
-    << "ParentProcessProductResolver::putProduct_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "ParentProcessProductResolver::putProduct_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
-  
-  void ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const {
+
+  void ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
+                                                        MergeableRunProductMetadata const*) const {
     throw Exception(errors::LogicError)
-    << "ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, "
+           "MergeableRunProductMetadata const*) not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   void ParentProcessProductResolver::throwNullRealProduct() const {
@@ -845,119 +788,113 @@ namespace edm {
     // be addressed someday is how ProductResolvers for non-kept branches are
     // connected to earlier SubProcesses.
     throw Exception(errors::LogicError)
-      << "ParentProcessProductResolver::throwNullRealProduct RealProduct pointer not set in this context.\n"
-      << "Contact a Framework developer\n";
+        << "ParentProcessProductResolver::throwNullRealProduct RealProduct pointer not set in this context.\n"
+        << "Contact a Framework developer\n";
   }
 
-  NoProcessProductResolver::
-  NoProcessProductResolver(std::vector<ProductResolverIndex> const&  matchingHolders,
-                           std::vector<bool> const& ambiguous,
-                           bool madeAtEnd) :
-  matchingHolders_(matchingHolders),
-  ambiguous_(ambiguous),
-  lastCheckIndex_(ambiguous_.size() + kUnsetOffset),
-  lastSkipCurrentCheckIndex_(lastCheckIndex_.load()),
-  prefetchRequested_(false),
-  skippingPrefetchRequested_(false),
-  madeAtEnd_{madeAtEnd}
-  {
+  NoProcessProductResolver::NoProcessProductResolver(std::vector<ProductResolverIndex> const& matchingHolders,
+                                                     std::vector<bool> const& ambiguous,
+                                                     bool madeAtEnd)
+      : matchingHolders_(matchingHolders),
+        ambiguous_(ambiguous),
+        lastCheckIndex_(ambiguous_.size() + kUnsetOffset),
+        lastSkipCurrentCheckIndex_(lastCheckIndex_.load()),
+        prefetchRequested_(false),
+        skippingPrefetchRequested_(false),
+        madeAtEnd_{madeAtEnd} {
     assert(ambiguous_.size() == matchingHolders_.size());
   }
-  
-  ProductResolverBase::Resolution
-  NoProcessProductResolver::tryResolver(unsigned int index,
-                                        Principal const& principal,
-                                        bool skipCurrentProcess,
-                                        SharedResourcesAcquirer* sra,
-                                        ModuleCallingContext const* mcc) const {
+
+  ProductResolverBase::Resolution NoProcessProductResolver::tryResolver(unsigned int index,
+                                                                        Principal const& principal,
+                                                                        bool skipCurrentProcess,
+                                                                        SharedResourcesAcquirer* sra,
+                                                                        ModuleCallingContext const* mcc) const {
     ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[index]);
     return productResolver->resolveProduct(principal, skipCurrentProcess, sra, mcc);
   }
-  
-  
-  ProductResolverBase::Resolution
-  NoProcessProductResolver::resolveProduct_(Principal const& principal,
-                                            bool skipCurrentProcess,
-                                            SharedResourcesAcquirer* sra,
-                                            ModuleCallingContext const* mcc) const {
+
+  ProductResolverBase::Resolution NoProcessProductResolver::resolveProduct_(Principal const& principal,
+                                                                            bool skipCurrentProcess,
+                                                                            SharedResourcesAcquirer* sra,
+                                                                            ModuleCallingContext const* mcc) const {
     //See if we've already cached which Resolver we should call or if
     // we know it is ambiguous
     const unsigned int choiceSize = ambiguous_.size();
 
     //madeAtEnd_==true and not at end transition is the same as skipping the current process
-    if( (not skipCurrentProcess) and (madeAtEnd_ and mcc)) {
+    if ((not skipCurrentProcess) and (madeAtEnd_ and mcc)) {
       skipCurrentProcess = not mcc->parent().isAtEndTransition();
     }
 
-    unsigned int checkCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_.load() : lastCheckIndex_.load();
-    if( checkCacheIndex != choiceSize +kUnsetOffset) {
-      if (checkCacheIndex == choiceSize+kAmbiguousOffset) {
+    unsigned int checkCacheIndex = skipCurrentProcess ? lastSkipCurrentCheckIndex_.load() : lastCheckIndex_.load();
+    if (checkCacheIndex != choiceSize + kUnsetOffset) {
+      if (checkCacheIndex == choiceSize + kAmbiguousOffset) {
         return ProductResolverBase::Resolution::makeAmbiguous();
-      } else if(checkCacheIndex == choiceSize+kMissingOffset) {
+      } else if (checkCacheIndex == choiceSize + kMissingOffset) {
         return Resolution(nullptr);
       }
-      return tryResolver(checkCacheIndex, principal, skipCurrentProcess,
-                         sra,mcc);
+      return tryResolver(checkCacheIndex, principal, skipCurrentProcess, sra, mcc);
     }
 
-    std::atomic<unsigned int>& updateCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_ : lastCheckIndex_;
+    std::atomic<unsigned int>& updateCacheIndex = skipCurrentProcess ? lastSkipCurrentCheckIndex_ : lastCheckIndex_;
 
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
-    for(unsigned int k : lookupProcessOrder) {
+    for (unsigned int k : lookupProcessOrder) {
       assert(k < ambiguous_.size());
-      if(k == 0) break; // Done
-      if(ambiguous_[k]) {
+      if (k == 0)
+        break;  // Done
+      if (ambiguous_[k]) {
         updateCacheIndex = choiceSize + kAmbiguousOffset;
         return ProductResolverBase::Resolution::makeAmbiguous();
       }
       if (matchingHolders_[k] != ProductResolverIndexInvalid) {
-        auto resolution = tryResolver(k,principal, skipCurrentProcess, sra,mcc);
-        if(resolution.data() != nullptr) {
+        auto resolution = tryResolver(k, principal, skipCurrentProcess, sra, mcc);
+        if (resolution.data() != nullptr) {
           updateCacheIndex = k;
           return resolution;
         }
       }
     }
-    
+
     updateCacheIndex = choiceSize + kMissingOffset;
     return Resolution(nullptr);
   }
-  
-  void
-  NoProcessProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                           Principal const& principal,
-                                           bool skipCurrentProcess,
-                                           ServiceToken const& token,
-                                           SharedResourcesAcquirer* sra,
-                                           ModuleCallingContext const* mcc) const {
+
+  void NoProcessProductResolver::prefetchAsync_(WaitingTask* waitTask,
+                                                Principal const& principal,
+                                                bool skipCurrentProcess,
+                                                ServiceToken const& token,
+                                                SharedResourcesAcquirer* sra,
+                                                ModuleCallingContext const* mcc) const {
     bool timeToMakeAtEnd = true;
-    if(madeAtEnd_ and mcc) {
+    if (madeAtEnd_ and mcc) {
       timeToMakeAtEnd = mcc->parent().isAtEndTransition();
     }
 
     //If timeToMakeAtEnd is false, then it is equivalent to skipping the current process
-    if(not skipCurrentProcess and timeToMakeAtEnd) {
+    if (not skipCurrentProcess and timeToMakeAtEnd) {
       waitingTasks_.add(waitTask);
-      
+
       bool expected = false;
-      if( prefetchRequested_.compare_exchange_strong(expected,true)) {
+      if (prefetchRequested_.compare_exchange_strong(expected, true)) {
         //we are the first thread to request
         tryPrefetchResolverAsync(0, principal, false, sra, mcc, token);
       }
     } else {
       skippingWaitingTasks_.add(waitTask);
       bool expected = false;
-      if( skippingPrefetchRequested_.compare_exchange_strong(expected,true)) {
-      //we are the first thread to request
+      if (skippingPrefetchRequested_.compare_exchange_strong(expected, true)) {
+        //we are the first thread to request
         tryPrefetchResolverAsync(0, principal, true, sra, mcc, token);
       }
     }
   }
-  
-  void NoProcessProductResolver::setCache(bool iSkipCurrentProcess, 
-                                          ProductResolverIndex iIndex, 
+
+  void NoProcessProductResolver::setCache(bool iSkipCurrentProcess,
+                                          ProductResolverIndex iIndex,
                                           std::exception_ptr iExceptPtr) const {
-    if( not iSkipCurrentProcess) {
+    if (not iSkipCurrentProcess) {
       lastCheckIndex_ = iIndex;
       waitingTasks_.doneWaiting(iExceptPtr);
     } else {
@@ -969,39 +906,34 @@ namespace edm {
   namespace {
     class TryNextResolverWaitingTask : public edm::WaitingTask {
     public:
-      
       TryNextResolverWaitingTask(NoProcessProductResolver const* iResolver,
                                  unsigned int iResolverIndex,
                                  Principal const* iPrincipal,
                                  SharedResourcesAcquirer* iSRA,
                                  ModuleCallingContext const* iMCC,
                                  bool iSkipCurrentProcess,
-                                 ServiceToken iToken) :
-      resolver_(iResolver),
-      principal_(iPrincipal),
-      sra_(iSRA),
-      mcc_(iMCC),
-      serviceToken_(iToken),
-      index_(iResolverIndex),
-      skipCurrentProcess_(iSkipCurrentProcess){}
-      
+                                 ServiceToken iToken)
+          : resolver_(iResolver),
+            principal_(iPrincipal),
+            sra_(iSRA),
+            mcc_(iMCC),
+            serviceToken_(iToken),
+            index_(iResolverIndex),
+            skipCurrentProcess_(iSkipCurrentProcess) {}
+
       tbb::task* execute() override {
-        auto exceptPtr =exceptionPtr();
-        if(exceptPtr) {
+        auto exceptPtr = exceptionPtr();
+        if (exceptPtr) {
           resolver_->prefetchFailed(index_, *principal_, skipCurrentProcess_, *exceptPtr);
         } else {
-          if(not resolver_->dataValidFromResolver(index_, *principal_, skipCurrentProcess_)) {
-            resolver_->tryPrefetchResolverAsync(index_+1,
-                                                *principal_,
-                                                skipCurrentProcess_,
-                                                sra_,
-                                                mcc_,
-                                                serviceToken_);
+          if (not resolver_->dataValidFromResolver(index_, *principal_, skipCurrentProcess_)) {
+            resolver_->tryPrefetchResolverAsync(
+                index_ + 1, *principal_, skipCurrentProcess_, sra_, mcc_, serviceToken_);
           }
         }
         return nullptr;
       }
-      
+
     private:
       NoProcessProductResolver const* resolver_;
       Principal const* principal_;
@@ -1011,83 +943,66 @@ namespace edm {
       unsigned int index_;
       bool skipCurrentProcess_;
     };
-  }
+  }  // namespace
 
-  void
-  NoProcessProductResolver::prefetchFailed(unsigned int iProcessingIndex,
-                                           Principal const& principal,
-                                           bool iSkipCurrentProcess,
-                                           std::exception_ptr iExceptPtr) const {
+  void NoProcessProductResolver::prefetchFailed(unsigned int iProcessingIndex,
+                                                Principal const& principal,
+                                                bool iSkipCurrentProcess,
+                                                std::exception_ptr iExceptPtr) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto k = lookupProcessOrder[iProcessingIndex];
 
     setCache(iSkipCurrentProcess, k, iExceptPtr);
   }
 
-  
-  bool
-  NoProcessProductResolver::dataValidFromResolver(unsigned int iProcessingIndex,
-                                                  Principal const& principal,
-                                                  bool iSkipCurrentProcess) const {
+  bool NoProcessProductResolver::dataValidFromResolver(unsigned int iProcessingIndex,
+                                                       Principal const& principal,
+                                                       bool iSkipCurrentProcess) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto k = lookupProcessOrder[iProcessingIndex];
     ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
 
-    if(productResolver->productWasFetchedAndIsValid(iSkipCurrentProcess)) {
-
+    if (productResolver->productWasFetchedAndIsValid(iSkipCurrentProcess)) {
       setCache(iSkipCurrentProcess, k, nullptr);
       return true;
     }
     return false;
   }
 
-  
-  void
-  NoProcessProductResolver::tryPrefetchResolverAsync(unsigned int iProcessingIndex,
-                                                     Principal const& principal,
-                                                     bool skipCurrentProcess,
-                                                     SharedResourcesAcquirer* sra,
-                                                     ModuleCallingContext const* mcc,
-                                                     ServiceToken token) const {
+  void NoProcessProductResolver::tryPrefetchResolverAsync(unsigned int iProcessingIndex,
+                                                          Principal const& principal,
+                                                          bool skipCurrentProcess,
+                                                          SharedResourcesAcquirer* sra,
+                                                          ModuleCallingContext const* mcc,
+                                                          ServiceToken token) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto index = iProcessingIndex;
 
     const unsigned int choiceSize = ambiguous_.size();
     unsigned int newCacheIndex = choiceSize + kMissingOffset;
-    while(index < lookupProcessOrder.size()) {
+    while (index < lookupProcessOrder.size()) {
       auto k = lookupProcessOrder[index];
-      if(k==0) {
+      if (k == 0) {
         break;
       }
       assert(k < ambiguous_.size());
-      if(ambiguous_[k]) {
+      if (ambiguous_[k]) {
         newCacheIndex = choiceSize + kAmbiguousOffset;
         break;
       }
       if (matchingHolders_[k] != ProductResolverIndexInvalid) {
         //make new task
-        
-        auto task = new (tbb::task::allocate_root()) TryNextResolverWaitingTask(
-                                                                                this,
-                                                                                index,
-                                                                                &principal,
-                                                                                sra,
-                                                                                mcc,
-                                                                                skipCurrentProcess,
-                                                                                token
-                                                                                );
+
+        auto task = new (tbb::task::allocate_root())
+            TryNextResolverWaitingTask(this, index, &principal, sra, mcc, skipCurrentProcess, token);
         task->increment_ref_count();
         ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
 
         //Make sure the Services are available on this thread
         ServiceRegistry::Operate guard(token);
 
-        productResolver->prefetchAsync(task,
-                                       principal,
-                                       skipCurrentProcess,
-                                       token,
-                                       sra, mcc);
-        if(0 == task->decrement_ref_count()) {
+        productResolver->prefetchAsync(task, principal, skipCurrentProcess, token, sra, mcc);
+        if (0 == task->decrement_ref_count()) {
           tbb::task::spawn(*task);
         }
         return;
@@ -1097,18 +1012,16 @@ namespace edm {
     //data product unavailable
     setCache(skipCurrentProcess, newCacheIndex, nullptr);
   }
-  
-  void NoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* , ProcessHistory const& , ProductID const& ) {
-  }
 
-  void NoProcessProductResolver::setProcessHistory_(ProcessHistory const& ) {
-  }
+  void NoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const*,
+                                                ProcessHistory const&,
+                                                ProductID const&) {}
 
-  ProductProvenance const* NoProcessProductResolver::productProvenancePtr_() const {
-    return nullptr;
-  }
+  void NoProcessProductResolver::setProcessHistory_(ProcessHistory const&) {}
 
-  inline unsigned int NoProcessProductResolver::unsetIndexValue() const { return ambiguous_.size()+kUnsetOffset; }
+  ProductProvenance const* NoProcessProductResolver::productProvenancePtr_() const { return nullptr; }
+
+  inline unsigned int NoProcessProductResolver::unsetIndexValue() const { return ambiguous_.size() + kUnsetOffset; }
 
   void NoProcessProductResolver::resetProductData_(bool) {
     const auto resetValue = unsetIndexValue();
@@ -1120,91 +1033,88 @@ namespace edm {
     skippingWaitingTasks_.reset();
   }
 
-  bool NoProcessProductResolver::singleProduct_() const {
-    return false;
-  }
+  bool NoProcessProductResolver::singleProduct_() const { return false; }
 
   bool NoProcessProductResolver::unscheduledWasNotRun_() const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductResolver::unscheduledWasNotRun_() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
+        << "NoProcessProductResolver::unscheduledWasNotRun_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   bool NoProcessProductResolver::productUnavailable_() const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductResolver::productUnavailable_() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
+        << "NoProcessProductResolver::productUnavailable_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   bool NoProcessProductResolver::productResolved_() const {
     throw Exception(errors::LogicError)
-    << "NoProcessProductResolver::productResolved_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "NoProcessProductResolver::productResolved_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   bool NoProcessProductResolver::productWasDeleted_() const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductResolver::productWasDeleted_() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
+        << "NoProcessProductResolver::productWasDeleted_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   bool NoProcessProductResolver::productWasFetchedAndIsValid_(bool /*iSkipCurrentProcess*/) const {
     throw Exception(errors::LogicError)
-    << "NoProcessProductResolver::productWasFetchedAndIsValid_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "NoProcessProductResolver::productWasFetchedAndIsValid_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductResolver::putProduct_(std::unique_ptr<WrapperBase> ) const {
+  void NoProcessProductResolver::putProduct_(std::unique_ptr<WrapperBase>) const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductResolver::putProduct_() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
+        << "NoProcessProductResolver::putProduct_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const {
+  void NoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
+                                                    MergeableRunProductMetadata const*) const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
+        << "NoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata "
+           "const*) not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   BranchDescription const& NoProcessProductResolver::branchDescription_() const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductResolver::branchDescription_() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
+        << "NoProcessProductResolver::branchDescription_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   void NoProcessProductResolver::resetBranchDescription_(std::shared_ptr<BranchDescription const>) {
     throw Exception(errors::LogicError)
-      << "NoProcessProductResolver::resetBranchDescription_() not implemented and should never be called.\n"
-      << "Contact a Framework developer\n";
+        << "NoProcessProductResolver::resetBranchDescription_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   Provenance const* NoProcessProductResolver::provenance_() const {
     throw Exception(errors::LogicError)
-    << "NoProcessProductResolver::provenance_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "NoProcessProductResolver::provenance_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
   void NoProcessProductResolver::connectTo(ProductResolverBase const&, Principal const*) {
     throw Exception(errors::LogicError)
-    << "NoProcessProductResolver::connectTo() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
-    
+        << "NoProcessProductResolver::connectTo() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
-  
+
   //---- SingleChoiceNoProcessProductResolver ----------------
   ProductResolverBase::Resolution SingleChoiceNoProcessProductResolver::resolveProduct_(
-                                             Principal const& principal,
-                                             bool skipCurrentProcess,
-                                             SharedResourcesAcquirer* sra,
-                                             ModuleCallingContext const* mcc) const
-  {
+      Principal const& principal,
+      bool skipCurrentProcess,
+      SharedResourcesAcquirer* sra,
+      ModuleCallingContext const* mcc) const {
     //NOTE: Have to lookup the other ProductResolver each time rather than cache
     // it's pointer since it appears the pointer can change at some later stage
     return principal.getProductResolverByIndex(realResolverIndex_)
-      ->resolveProduct(principal,
-                       skipCurrentProcess, sra, mcc);
+        ->resolveProduct(principal, skipCurrentProcess, sra, mcc);
   }
-  
+
   void SingleChoiceNoProcessProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                                             Principal const& principal,
                                                             bool skipCurrentProcess,
@@ -1212,93 +1122,87 @@ namespace edm {
                                                             SharedResourcesAcquirer* sra,
                                                             ModuleCallingContext const* mcc) const {
     principal.getProductResolverByIndex(realResolverIndex_)
-    ->prefetchAsync(waitTask,principal,
-                    skipCurrentProcess, token, sra, mcc);
+        ->prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
   }
-  
-  void SingleChoiceNoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* , ProcessHistory const& , ProductID const& ) {
-  }
-  
-  void SingleChoiceNoProcessProductResolver::setProcessHistory_(ProcessHistory const& ) {
-  }
-  
-  ProductProvenance const* SingleChoiceNoProcessProductResolver::productProvenancePtr_() const {
-    return nullptr;
-  }
-  
-  void SingleChoiceNoProcessProductResolver::resetProductData_(bool) {
-  }
-  
-  bool SingleChoiceNoProcessProductResolver::singleProduct_() const {
-    return false;
-  }
-  
+
+  void SingleChoiceNoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const*,
+                                                            ProcessHistory const&,
+                                                            ProductID const&) {}
+
+  void SingleChoiceNoProcessProductResolver::setProcessHistory_(ProcessHistory const&) {}
+
+  ProductProvenance const* SingleChoiceNoProcessProductResolver::productProvenancePtr_() const { return nullptr; }
+
+  void SingleChoiceNoProcessProductResolver::resetProductData_(bool) {}
+
+  bool SingleChoiceNoProcessProductResolver::singleProduct_() const { return false; }
+
   bool SingleChoiceNoProcessProductResolver::unscheduledWasNotRun_() const {
     throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::unscheduledWasNotRun_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "SingleChoiceNoProcessProductResolver::unscheduledWasNotRun_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
-  
+
   bool SingleChoiceNoProcessProductResolver::productUnavailable_() const {
     throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::productUnavailable_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "SingleChoiceNoProcessProductResolver::productUnavailable_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
-  
+
   bool SingleChoiceNoProcessProductResolver::productResolved_() const {
     throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::productResolved_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "SingleChoiceNoProcessProductResolver::productResolved_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
-  
+
   bool SingleChoiceNoProcessProductResolver::productWasDeleted_() const {
     throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::productWasDeleted_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
-  }
-  
-  bool SingleChoiceNoProcessProductResolver::productWasFetchedAndIsValid_(bool /*iSkipCurrentProcess*/) const {
-    throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::productWasFetchedAndIsValid_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "SingleChoiceNoProcessProductResolver::productWasDeleted_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
-  
-  void SingleChoiceNoProcessProductResolver::putProduct_(std::unique_ptr<WrapperBase> ) const {
-    throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::putProduct_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+  bool SingleChoiceNoProcessProductResolver::productWasFetchedAndIsValid_(bool /*iSkipCurrentProcess*/) const {
+    throw Exception(errors::LogicError) << "SingleChoiceNoProcessProductResolver::productWasFetchedAndIsValid_() not "
+                                           "implemented and should never be called.\n"
+                                        << "Contact a Framework developer\n";
   }
-  
-  void SingleChoiceNoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const {
+
+  void SingleChoiceNoProcessProductResolver::putProduct_(std::unique_ptr<WrapperBase>) const {
     throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
+        << "SingleChoiceNoProcessProductResolver::putProduct_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
-  
+
+  void SingleChoiceNoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
+                                                                MergeableRunProductMetadata const*) const {
+    throw Exception(errors::LogicError)
+        << "SingleChoiceNoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, "
+           "MergeableRunProductMetadata const*) not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
+  }
+
   BranchDescription const& SingleChoiceNoProcessProductResolver::branchDescription_() const {
     throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::branchDescription_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
-  }
-  
-  void SingleChoiceNoProcessProductResolver::resetBranchDescription_(std::shared_ptr<BranchDescription const>) {
-    throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::resetBranchDescription_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
-  }
-  
-  Provenance const* SingleChoiceNoProcessProductResolver::provenance_() const {
-    throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::provenance_() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
-  }
-  
-  void SingleChoiceNoProcessProductResolver::connectTo(ProductResolverBase const&, Principal const*) {
-    throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::connectTo() not implemented and should never be called.\n"
-    << "Contact a Framework developer\n";
-    
+        << "SingleChoiceNoProcessProductResolver::branchDescription_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
   }
 
-}
+  void SingleChoiceNoProcessProductResolver::resetBranchDescription_(std::shared_ptr<BranchDescription const>) {
+    throw Exception(errors::LogicError) << "SingleChoiceNoProcessProductResolver::resetBranchDescription_() not "
+                                           "implemented and should never be called.\n"
+                                        << "Contact a Framework developer\n";
+  }
+
+  Provenance const* SingleChoiceNoProcessProductResolver::provenance_() const {
+    throw Exception(errors::LogicError)
+        << "SingleChoiceNoProcessProductResolver::provenance_() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
+  }
+
+  void SingleChoiceNoProcessProductResolver::connectTo(ProductResolverBase const&, Principal const*) {
+    throw Exception(errors::LogicError)
+        << "SingleChoiceNoProcessProductResolver::connectTo() not implemented and should never be called.\n"
+        << "Contact a Framework developer\n";
+  }
+
+}  // namespace edm
