@@ -1,31 +1,37 @@
-#ifndef DETECTOR_DESCRIPTION_DD_UNITS_H
-#define DETECTOR_DESCRIPTION_DD_UNITS_H
+#ifndef DataFormats_Math_GeantUnits_h
+#define DataFormats_Math_GeantUnits_h
+
+// This file provides units represented with user-defined literals to more easily attach units to numerical values.
+// Units here are based upon Geant conventions: millimeter = 1, MeV = 1.
+// The CMS convention is that centimeter = 1 and GeV = 1, so care must be taken with code that converts between
+// the two conventions.
+
 
 #include <cmath>
 
-#define CONVERT_TO(_x, _y) (_x)/(1.0_##_y)
 
-namespace dd {
+namespace geant_units {
   
-  constexpr long double _pi(M_PI);
-  constexpr long double _joule(6.24150e+12);
-  constexpr long double _s(1.e+9);
+  constexpr long double piRadians(M_PI);
+  constexpr long double degPerRad = 180. / piRadians; // Degrees per radian
+  constexpr long double joule(6.24150e+12);
+  constexpr long double seconds(1.e+9);
+  constexpr long double nanoseconds(1.);
   
   namespace operators {
 
     // Angle
-    
     constexpr long double operator "" _pi( long double x ) 
-    { return x * _pi; }    
+    { return x * piRadians; }
     constexpr long double operator "" _pi( unsigned long long int x ) 
-    { return x * _pi; } 
+    { return x * piRadians; }
     constexpr long double operator"" _deg( long double deg )
     {
-      return deg*_pi/180.;
+      return deg / degPerRad;
     }
     constexpr long double operator"" _deg( unsigned long long int deg )
     {
-      return deg*_pi/180.;
+      return deg / degPerRad;
     }
     constexpr long double operator"" _rad( long double rad )
     {
@@ -56,13 +62,19 @@ namespace dd {
 
     // Time
     constexpr long double operator "" _s( long double x ) 
-    { return x * _s; }
+    { return x * seconds; }
+    constexpr long double operator "" _ns( long double x ) 
+    { return x * nanoseconds; }
 
     // Energy
     constexpr long double operator "" _MeV( long double energy ) 
     { return energy * 1.; }
     constexpr long double operator "" _eV( long double energy ) 
     { return energy * 1.e-6_MeV; }
+    constexpr long double operator "" _TeV( long double energy ) 
+    { return energy * 1.e6_MeV; }
+    constexpr long double operator "" _GeV( long double energy ) 
+    { return energy * 1000._MeV; }
 
     // Mass
     constexpr long double operator "" _kg( long double mass ) 
@@ -81,6 +93,36 @@ namespace dd {
     { return density * 1._g / 1._cm3; }
     constexpr long double operator"" _g_per_mole( long double mass )
     { return mass * 1._g / 1._mole; }
+
+    template <class NumType>
+    inline constexpr NumType convertRadToDeg(NumType radians) // Radians -> degrees
+    {
+      return (radians * degPerRad);
+    }
+
+    template <class NumType>
+    inline constexpr long double convertDegToRad(NumType degrees) // Degrees -> radians
+    {
+      return (degrees / degPerRad);
+    }
+
+    template <class NumType>
+    inline constexpr NumType convertMmToCm(NumType millimeters) // Millimeters -> centimeters
+    {
+      return (millimeters / 10.);
+    }
+
+    template <class NumType>
+    inline constexpr NumType convertMm3ToM3(NumType mm3) // Cubic millimeters -> cubic meters
+    {
+      return (mm3 / 1.e9);
+    }
+
+    template <class NumType>
+    inline constexpr NumType convertUnitsTo(long double desiredUnits, NumType val) // Convert Geant units to desired units
+    {
+      return (val / desiredUnits);
+    }
   }
 }
   
