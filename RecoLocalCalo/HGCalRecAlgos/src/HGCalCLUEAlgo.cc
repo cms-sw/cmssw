@@ -309,8 +309,9 @@ int HGCalCLUEAlgo::findAndAssignClusters(std::vector<KDNode> &nd, KDTree &lp, do
 
     nd[ds[i]].data.clusterIndex = nClustersOnLayer;
     if (verbosity_ < pINFO) {
-      std::cout << "Adding new cluster with index " << nClustersOnLayer << std::endl;
-      std::cout << "Cluster center is hit " << ds[i] << std::endl;
+      LogDebug("HGCalCLUEAlgo")
+        << "Adding new cluster with index " << nClustersOnLayer
+        << "Cluster center is hit " << ds[i] << std::endl;
     }
     nClustersOnLayer++;
   }
@@ -334,7 +335,8 @@ int HGCalCLUEAlgo::findAndAssignClusters(std::vector<KDNode> &nd, KDTree &lp, do
   // clusters
   // from this layer
   if (verbosity_ < pINFO) {
-    std::cout << "resizing cluster vector by " << nClustersOnLayer << std::endl;
+    LogDebug("HGCalCLUEAlgo")
+      << "resizing cluster vector by " << nClustersOnLayer << std::endl;
   }
   clustersOnLayer.resize(nClustersOnLayer);
 
@@ -344,14 +346,15 @@ int HGCalCLUEAlgo::findAndAssignClusters(std::vector<KDNode> &nd, KDTree &lp, do
     if (ci != -1) {
       clustersOnLayer[ci].push_back(nd[i]);
       if (verbosity_ < pINFO) {
-        std::cout << "Pushing hit " << i << " into cluster with index " << ci << std::endl;
+        LogDebug("HGCalCLUEAlgo")
+          << "Pushing hit " << i << " into cluster with index " << ci << std::endl;
       }
     }
   }
 
   // prepare the offset for the next layer if there is one
   if (verbosity_ < pINFO) {
-    std::cout << "moving cluster offset by " << nClustersOnLayer << std::endl;
+    LogDebug("HGCalCLUEAlgo") << "moving cluster offset by " << nClustersOnLayer << std::endl;
   }
   return nClustersOnLayer;
 }
