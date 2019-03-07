@@ -149,6 +149,7 @@ struct maxzbin {
       const float phistep = 2*M_PI / nphibins;
       float TRK_PTMIN;      // [GeV]
       float TRK_ETAMAX;     // [rad]
+      int nPSMin;
       //virtual void beginRun(Run const&, EventSetup const&) override;
       //virtual void endRun(Run const&, EventSetup const&) override;
       //virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
@@ -181,6 +182,7 @@ trackToken(consumes< vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getPar
       Zbins=(int)iConfig.getParameter<int>("Zbins"); 
       TRK_PTMIN=(float)iConfig.getParameter<double>("TRK_PTMIN");
       TRK_ETAMAX=(float)iConfig.getParameter<double>("TRK_ETAMAX");      
+      nPSMin=(int)iConfig.getParameter<int>("nPSStubsMin");
       zstep = 2.0 * maxz / Zbins;
 }
 
@@ -249,6 +251,16 @@ TwoLayerJets::produce(Event& iEvent, const EventSetup& iSetup)
 	//check Trk Class
 	float trk_stubPt=StubPtConsistency::getConsistency(TTTrackHandle->at(this_l1track-1), theTrackerGeom, tTopo,mMagneticFieldStrength,4);//trkPtr->getStubPtConsistency(4)/tracknstubs;
 	float trk_bstubPt=trkPtr->getStubPtConsistency(4)/tracknstubs;
+        int nPS = 0.;     // number of stubs in PS modules
+    // loop over the stubs
+        for (unsigned int istub=0; istub<(unsigned int)tracknstubs; istub++) {
+              DetId detId( trkPtr->getStubRefs().at(istub)->getDetId() );
+                     if (detId.det() == DetId::Detector::Tracker) {
+                             if ( (detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3) ||
+                             (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9) ) nPS++;
+                                   }
+         }
+	if(nPS<nPSMin)continue;
 	//trk_stubPt=trk_stubPt/tracknstubs;
         //need min pT, eta, z cut
 	if(!TrackQualityCuts(trackpT,tracknstubs,trackchi2/(2*tracknstubs-4),trk_stubPt))continue;

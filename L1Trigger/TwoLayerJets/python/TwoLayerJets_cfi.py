@@ -12,6 +12,7 @@ TwoLayerJets = cms.EDProducer('TwoLayerJets',
 		CHI2_MAX=cms.double(50.),	
 		PromptBendConsistency=cms.double(1.75), #Bend Chi2 Cut for prompt tracks
 		D0_Cut=cms.double(0.1),  #Flag for displaced tracks
+		nPSStubsMin=cms.int32(2),
 		NStubs4Chi2_rz_Loose=cms.double(0.5), ########Displaced track quality flags for loose/tight
 		NStubs4Chi2_rphi_Loose=cms.double(0.5),
 		NStubs4Displacedbend_Loose=cms.double(1.25),	
