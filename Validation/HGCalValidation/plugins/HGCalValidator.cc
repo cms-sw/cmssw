@@ -107,7 +107,7 @@ void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm::Run 
     //   dirName.replace(dirName.find("Tracks"),6,"");
     // }
 
-    if (dirName.size () > 0){dirName.resize(dirName.size() - 1);}
+    if (!dirName.empty()){dirName.resize(dirName.size() - 1);}
 
     std::cout << dirName << std::endl;
 
