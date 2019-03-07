@@ -32,6 +32,7 @@ def _setStyle():
         statSize = 0.025
 
     ROOT.gROOT.SetStyle("Plain")
+    ROOT.gStyle.SetOptStat("ksiourmen");
     ROOT.gStyle.SetPadRightMargin(0.07)
     ROOT.gStyle.SetPadLeftMargin(0.13)
     ROOT.gStyle.SetTitleFont(font, "XYZ")
@@ -1964,7 +1965,7 @@ class Plot:
             st.SetX1NDC(startingX)
             st.SetX2NDC(startingX+0.3)
             st.SetY1NDC(startingY+dy)
-            st.SetY2NDC(startingY+dy+0.15)
+            st.SetY2NDC(startingY+dy+0.25)
             st.SetTextColor(col)
 
         dy = 0.0
