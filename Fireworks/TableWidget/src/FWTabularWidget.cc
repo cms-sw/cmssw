@@ -357,4 +357,4 @@ FWTabularWidget::getDefaultGC()
    return *s_default;
 }
 
-ClassImp(FWTabularWidget)
+ClassImp(FWTabularWidget);

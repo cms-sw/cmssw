@@ -11,7 +11,7 @@
 //  Documentation: see TEcnaParPaths.h
 //--------------------------------------
 
-ClassImp(TEcnaParPaths)
+ClassImp(TEcnaParPaths);
 //______________________________________________________________________________
 //
 

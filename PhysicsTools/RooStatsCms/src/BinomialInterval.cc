@@ -6,7 +6,7 @@
 #if (defined (STANDALONE) or defined (__CINT__) )
 #include "BinomialInterval.h"
 
-ClassImp(BinomialInterval)
+ClassImp(BinomialInterval);
 #else
 #include "PhysicsTools/RooStatsCms/interface/BinomialInterval.h"
 #endif

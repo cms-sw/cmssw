@@ -7,8 +7,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-ClassImp(CDFChunk)
-ClassImp(CDFEventInfo)
+ClassImp(CDFChunk);
+ClassImp(CDFEventInfo);
 
 using namespace edm;
 using namespace std;
