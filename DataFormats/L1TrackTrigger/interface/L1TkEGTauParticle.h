@@ -56,6 +56,7 @@ namespace l1t {
     
     const std::vector< EGammaRef > getEGs() const { return clustEGs_; }
 
+    float getEt() const { return et(); }
 
     float getVtxIso() const { return vtxIso_ ; }     
 
