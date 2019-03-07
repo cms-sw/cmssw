@@ -294,7 +294,7 @@ void CaloParticleDebugger::fillSimHits(
   const HcalGeometry *bhgeom = nullptr;
   const HGCalDDDConstants* hgddd[3];
   const HGCalTopology*     hgtopo[3];
-  const HcalDDDRecConstants* hcddd;
+  const HcalDDDRecConstants* hcddd = nullptr;
   eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
   //check if it's the new geometry
   if(eegeom){
@@ -332,6 +332,7 @@ void CaloParticleDebugger::fillSimHits(
         id = simId;
       }
       else if (isHcal) {
+        assert(hcddd);
         HcalDetId hid = HcalHitRelabeller::relabel(simId, hcddd);
         if (hid.subdet() == HcalEndcap) id = hid;
       } else {
