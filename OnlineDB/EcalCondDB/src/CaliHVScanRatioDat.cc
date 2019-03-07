@@ -40,7 +40,7 @@ void CaliHVScanRatioDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("CaliHVScanRatioDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("CaliHVScanRatioDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -68,7 +68,7 @@ void CaliHVScanRatioDat::writeDB(const EcalLogicID* ecid, const CaliHVScanRatioD
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("CaliHVScanRatioDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("CaliHVScanRatioDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -100,12 +100,12 @@ void CaliHVScanRatioDat::fetchData(std::map< EcalLogicID, CaliHVScanRatioDat >* 
     std::pair< EcalLogicID, CaliHVScanRatioDat > p;
     CaliHVScanRatioDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
       
       dat.setHVRatio( rset->getFloat(7) );
       dat.setHVRatioRMS( rset->getFloat(8) );
@@ -115,6 +115,6 @@ void CaliHVScanRatioDat::fetchData(std::map< EcalLogicID, CaliHVScanRatioDat >* 
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("CaliHVScanRatioDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("CaliHVScanRatioDat::fetchData():  "+e.getMessage()));
   }
 }

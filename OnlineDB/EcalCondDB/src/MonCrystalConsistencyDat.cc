@@ -42,7 +42,7 @@ void MonCrystalConsistencyDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonCrystalConsistencyDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonCrystalConsistencyDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -72,7 +72,7 @@ void MonCrystalConsistencyDat::writeDB(const EcalLogicID* ecid, const MonCrystal
     m_writeStmt->setInt(8, item->getTaskStatus() );
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonCrystalConsistencyDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonCrystalConsistencyDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -102,12 +102,12 @@ void MonCrystalConsistencyDat::fetchData(std::map< EcalLogicID, MonCrystalConsis
     std::pair< EcalLogicID, MonCrystalConsistencyDat > p;
     MonCrystalConsistencyDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setProcessedEvents( rset->getInt(7) );
       dat.setProblematicEvents( rset->getInt(8) );
@@ -121,7 +121,7 @@ void MonCrystalConsistencyDat::fetchData(std::map< EcalLogicID, MonCrystalConsis
     }
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonCrystalConsistencyDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonCrystalConsistencyDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -232,6 +232,6 @@ void MonCrystalConsistencyDat::writeArrayDB(const std::map< EcalLogicID, MonCrys
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonCrystalConsistencyDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonCrystalConsistencyDat::writeArrayDB():  "+e.getMessage()));
   }
 }
