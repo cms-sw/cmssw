@@ -51,6 +51,8 @@ namespace l1t {
 
     const std::vector< L1TTTrackRefPtr > getTrks() const { return clustTracks_; }
 
+    float getEt() const { return et(); }
+
     float getVtxIso() const { return vtxIso_ ; } 
     
     // ---------- member functions ---------------------------
