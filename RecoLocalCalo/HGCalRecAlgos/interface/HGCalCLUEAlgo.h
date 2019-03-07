@@ -278,8 +278,6 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
                                                const std::vector<double> &);
   double calculateEnergyWithFraction(const std::vector<KDNode> &, const std::vector<double> &);
   // outputs
-  void shareEnergy(const std::vector<KDNode> &, const std::vector<unsigned> &,
-                   std::vector<std::vector<double> > &);
 };
 
 #endif

@@ -70,7 +70,6 @@ void HGCalCLUEAlgo::populate(const HGCRecHitCollection &hits) {
       maxpos_[layer][0] = std::max((float)position.x(), maxpos_[layer][0]);
       maxpos_[layer][1] = std::max((float)position.y(), maxpos_[layer][1]);
     }
-
   }  // end loop hits
 }
 // Create a vector of Hexels associated to one cluster from a collection of
@@ -102,77 +101,35 @@ void HGCalCLUEAlgo::makeClusters() {
   });
 }
 
-std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool doSharing) {
+std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
   reco::CaloID caloID = reco::CaloID::DET_HGCAL_ENDCAP;
   std::vector<std::pair<DetId, float>> thisCluster;
   for (auto &clsOnLayer : layerClustersPerLayer_) {
     for (unsigned int i = 0; i < clsOnLayer.size(); ++i) {
       double energy = 0;
       Point position;
-
       // Will save the maximum density hit of the cluster
       size_t rsmax = max_index(clsOnLayer[i]);
-
-      if (doSharing) {
-        std::vector<unsigned> seeds = findLocalMaximaInCluster(clsOnLayer[i]);
-        // sharing found seeds.size() sub-cluster seeds in cluster i
-
-        std::vector<std::vector<double>> fractions;
-        // first pass can have noise it in
-        shareEnergy(clsOnLayer[i], seeds, fractions);
-
-        // reset and run second pass after vetoing seeds
-        // that result in trivial clusters (less than 2 effective cells)
-
-        for (unsigned isub = 0; isub < fractions.size(); ++isub) {
-          double effective_hits = 0.0;
-          double energy = calculateEnergyWithFraction(clsOnLayer[i], fractions[isub]);
-          Point position = calculatePositionWithFraction(clsOnLayer[i], fractions[isub]);
-
-          for (unsigned ihit = 0; ihit < fractions[isub].size(); ++ihit) {
-            const double fraction = fractions[isub][ihit];
-            if (fraction > 1e-7) {
-              effective_hits += fraction;
-              thisCluster.emplace_back(clsOnLayer[i][ihit].data.detid, fraction);
-            }
-          }
-
-          if (verbosity_ < pINFO) {
-            std::cout << "\t******** NEW CLUSTER (SHARING) ********" << std::endl;
-            std::cout << "\tEff. No. of cells = " << effective_hits << std::endl;
-            std::cout << "\t     Energy       = " << energy << std::endl;
-            std::cout << "\t     Phi          = " << position.phi() << std::endl;
-            std::cout << "\t     Eta          = " << position.eta() << std::endl;
-            std::cout << "\t*****************************" << std::endl;
-          }
-          clusters_v_.emplace_back(energy, position, caloID, thisCluster, algoId_);
-          if (!clusters_v_.empty()) {
-            clusters_v_.back().setSeed(clsOnLayer[i][rsmax].data.detid);
-          }
-          thisCluster.clear();
-        }
-      } else {
-        position = calculatePosition(clsOnLayer[i]);  // energy-weighted position
-        //   std::vector< KDNode >::iterator it;
-        for (auto &it : clsOnLayer[i]) {
-          energy += it.data.weight;
-          thisCluster.emplace_back(it.data.detid, 1.f);
-        }
-        if (verbosity_ < pINFO) {
-          std::cout << "******** NEW CLUSTER (HGCIA) ********" << std::endl;
-          std::cout << "Index          " << i << std::endl;
-          std::cout << "No. of cells = " << clsOnLayer[i].size() << std::endl;
-          std::cout << "     Energy     = " << energy << std::endl;
-          std::cout << "     Phi        = " << position.phi() << std::endl;
-          std::cout << "     Eta        = " << position.eta() << std::endl;
-          std::cout << "*****************************" << std::endl;
-        }
-        clusters_v_.emplace_back(energy, position, caloID, thisCluster, algoId_);
-        if (!clusters_v_.empty()) {
-          clusters_v_.back().setSeed(clsOnLayer[i][rsmax].data.detid);
-        }
-        thisCluster.clear();
+      position = calculatePosition(clsOnLayer[i]);  // energy-weighted position
+      for (auto &it : clsOnLayer[i]) {
+        energy += it.data.weight;
+        thisCluster.emplace_back(it.data.detid, 1.f);
       }
+      if (verbosity_ < pINFO) {
+        LogDebug("HGCalCLUEAlgo")
+          << "******** NEW CLUSTER (HGCIA) ********"
+          << "Index          " << i
+          << "No. of cells = " << clsOnLayer[i].size()
+          << "     Energy     = " << energy
+          << "     Phi        = " << position.phi()
+          << "     Eta        = " << position.eta()
+          << "*****************************" << std::endl;
+      }
+      clusters_v_.emplace_back(energy, position, caloID, thisCluster, algoId_);
+      if (!clusters_v_.empty()) {
+        clusters_v_.back().setSeed(clsOnLayer[i][rsmax].data.detid);
+      }
+      thisCluster.clear();
     }
   }
   return clusters_v_;
@@ -450,105 +407,6 @@ double HGCalCLUEAlgo::calculateEnergyWithFraction(const std::vector<KDNode> &hit
     result += fractions[i] * hits[i].data.weight;
   }
   return result;
-}
-
-void HGCalCLUEAlgo::shareEnergy(const std::vector<KDNode> &incluster,
-                                const std::vector<unsigned> &seeds,
-                                std::vector<std::vector<double>> &outclusters) {
-  std::vector<bool> isaseed(incluster.size(), false);
-  outclusters.clear();
-  outclusters.resize(seeds.size());
-  std::vector<Point> centroids(seeds.size());
-  std::vector<double> energies(seeds.size());
-
-  if (seeds.size() == 1) {  // short circuit the case of a lone cluster
-    outclusters[0].clear();
-    outclusters[0].resize(incluster.size(), 1.0);
-    return;
-  }
-
-  // saving seeds
-
-  // create quick seed lookup
-  for (unsigned i = 0; i < seeds.size(); ++i) {
-    isaseed[seeds[i]] = true;
-  }
-
-  // initialize clusters to be shared
-  // centroids start off at seed positions
-  // seeds always have fraction 1.0, to stabilize fit
-  // initializing fit
-  for (unsigned i = 0; i < seeds.size(); ++i) {
-    outclusters[i].resize(incluster.size(), 0.0);
-    for (unsigned j = 0; j < incluster.size(); ++j) {
-      if (j == seeds[i]) {
-        outclusters[i][j] = 1.0;
-        centroids[i] =
-            math::XYZPoint(incluster[j].data.x, incluster[j].data.y, incluster[j].data.z);
-        energies[i] = incluster[j].data.weight;
-      }
-    }
-  }
-
-  // run the fit while we are less than max iterations, and clusters are still
-  // moving
-  const double minFracTot = 1e-20;
-  unsigned iter = 0;
-  const unsigned iterMax = 50;
-  double diff = std::numeric_limits<double>::max();
-  const double stoppingTolerance = 1e-8;
-  const auto numberOfSeeds = seeds.size();
-  auto toleranceScaling = numberOfSeeds > 2 ? (numberOfSeeds - 1) * (numberOfSeeds - 1) : 1;
-  std::vector<Point> prevCentroids;
-  std::vector<double> frac(numberOfSeeds), dist2(numberOfSeeds);
-  while (iter++ < iterMax && diff > stoppingTolerance * toleranceScaling) {
-    for (unsigned i = 0; i < incluster.size(); ++i) {
-      const Hexel &ihit = incluster[i].data;
-      double fracTot(0.0);
-      for (unsigned j = 0; j < numberOfSeeds; ++j) {
-        double fraction = 0.0;
-        double d2 =
-            (std::pow(ihit.x - centroids[j].x(), 2.0) + std::pow(ihit.y - centroids[j].y(), 2.0) +
-             std::pow(ihit.z - centroids[j].z(), 2.0)) /
-            sigma2_;
-        dist2[j] = d2;
-        // now we set the fractions up based on hit type
-        if (i == seeds[j]) {  // this cluster's seed
-          fraction = 1.0;
-        } else if (isaseed[i]) {
-          fraction = 0.0;
-        } else {
-          fraction = energies[j] * std::exp(-0.5 * d2);
-        }
-        fracTot += fraction;
-        frac[j] = fraction;
-      }
-      // now that we have calculated all fractions for all hits
-      // assign the new fractions
-      for (unsigned j = 0; j < numberOfSeeds; ++j) {
-        if (fracTot > minFracTot || (i == seeds[j] && fracTot > 0.0)) {
-          outclusters[j][i] = frac[j] / fracTot;
-        } else {
-          outclusters[j][i] = 0.0;
-        }
-      }
-    }
-
-    // save previous centroids
-    prevCentroids = std::move(centroids);
-    // finally update the position of the centroids from the last iteration
-    centroids.resize(numberOfSeeds);
-    double diff2 = 0.0;
-    for (unsigned i = 0; i < numberOfSeeds; ++i) {
-      centroids[i] = calculatePositionWithFraction(incluster, outclusters[i]);
-      energies[i] = calculateEnergyWithFraction(incluster, outclusters[i]);
-      // calculate convergence parameters
-      const double delta2 = (prevCentroids[i] - centroids[i]).perp2();
-      diff2 = std::max(delta2, diff2);
-    }
-    // update convergance parameter outside loop
-    diff = std::sqrt(diff2);
-  }
 }
 
 void HGCalCLUEAlgo::computeThreshold() {
