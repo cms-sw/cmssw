@@ -1,0 +1,38 @@
+import FWCore.ParameterSet.Config as cms
+
+# This cff file is based off of the L1T Phase-2 Menu group using
+# the process name "REPR"
+
+
+# --------------------------------------------------------------------------------------------
+#
+# ----    Produce the L1EGCrystal clusters using Emulator
+
+from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
+L1EGammaClusterEmuProducer.ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","REPR")
+
+
+# --------------------------------------------------------------------------------------------
+#
+# ----    Produce the calibrated tower collection combining Barrel, HGCal, HF
+
+from L1Trigger.L1CaloTrigger.L1TowerCalibrationProducer_cfi import *
+L1TowerCalibrationProducer.L1HgcalTowersInputTag = cms.InputTag("hgcalTowerProducer","HGCalTowerProcessor","REPR")
+L1TowerCalibrationProducer.l1CaloTowers = cms.InputTag("L1EGammaClusterEmuProducer","L1CaloTowerCollection","REPR")
+
+
+
+# --------------------------------------------------------------------------------------------
+#
+# ----    Produce the L1CaloJets
+
+from L1Trigger.L1CaloTrigger.L1CaloJetProducer_cfi import *
+L1CaloJetProducer.l1CaloTowers = cms.InputTag("L1TowerCalibrationProducer","L1CaloTowerCalibratedCollection","REPR")
+L1CaloJetProducer.L1CrystalClustersInputTag = cms.InputTag("L1EGammaClusterEmuProducer", "L1EGXtalClusterEmulator","REPR")
+
+
+l1CaloJetsSequence = cms.Path( 
+        L1EGammaClusterEmuProducer *
+        L1TowerCalibrationProducer *
+        L1CaloJetProducer
+)

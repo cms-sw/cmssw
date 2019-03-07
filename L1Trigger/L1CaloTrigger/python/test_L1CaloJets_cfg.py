@@ -22,7 +22,7 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(1)
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
@@ -101,33 +101,9 @@ del process.l1MetTightTKV
 
 # --------------------------------------------------------------------------------------------
 #
-# ----    Produce the L1EGCrystal clusters using Emulator
+# ----    Load the L1CaloJet sequence designed to accompany process named "REPR"
 
-process.load('L1Trigger/L1CaloTrigger/L1EGammaCrystalsEmulatorProducer_cfi')
-process.L1EGammaClusterEmuProducer.ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","REPR")
-
-
-
-# --------------------------------------------------------------------------------------------
-#
-# ----    Produce the calibrated tower collection combining Barrel, HGCal, HF
-
-process.load('L1Trigger/L1CaloTrigger/L1TowerCalibrationProducer_cfi')
-process.L1TowerCalibrationProducer.L1HgcalTowersInputTag = cms.InputTag("hgcalTowerProducer","HGCalTowerProcessor","REPR")
-
-
-
-# --------------------------------------------------------------------------------------------
-#
-# ----    Produce the L1CaloJets
-
-process.load('L1Trigger/L1CaloTrigger/L1CaloJetProducer_cfi')
-
-
-process.pL1CaloJets = cms.Path( 
-        process.L1EGammaClusterEmuProducer *
-        process.L1TowerCalibrationProducer *
-        process.L1CaloJetProducer )
+process.load('L1Trigger.L1CaloTrigger.L1CaloJets_cff')
 
 
 
