@@ -151,6 +151,9 @@ maketable = """
     metype,
     value
   ); """
+makeindex = """
+  CREATE INDEX runorder ON monitorelements(fromrun, fromlumi);
+"""
 insertinto = """
   INSERT INTO monitorelements (
     name,
@@ -166,6 +169,7 @@ dumpmes = """
 
 db = sqlite3.connect(args.output)
 db.execute(maketable)
+db.execute(makeindex)
 
 def harvestfile(fname):
     f = ROOT.TFile.Open("root://eoscms//eos/cms" + fname)
@@ -257,7 +261,7 @@ int sqlite2tree() {
   TFile outfile("/dev/shm/dqmio.root", "RECREATE");
   auto outtree = new TTree("MEs", "MonitorElements by run and lumisection");
   auto nameb     = outtree->Branch("name",    &name);
-  auto valueb    = outtree->Branch("value",   &value,128*1024,0);
+  auto valueb    = outtree->Branch("value",   &value,128*1024);
   auto runb      = outtree->Branch("run",     &run);
   auto fromlumib = outtree->Branch("fromlumi",&fromlumi);
   auto tolumib   = outtree->Branch("tolumi",  &tolumi);
