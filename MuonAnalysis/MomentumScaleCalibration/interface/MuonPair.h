@@ -41,6 +41,6 @@ class MuonPair : public TObject
       
       ClassDef(MuonPair, 4)
 	};
-ClassImp(MuonPair)
+ClassImp(MuonPair);
    
 #endif
