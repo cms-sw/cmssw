@@ -61,7 +61,6 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
         vecDeltas_(),
         kappa_(1.),
         ecut_(0.),
-        sigma2_(1.0),
         initialized_(false) {}
 
   HGCalCLUEAlgo(const std::vector<double> &thresholdW0_in,
@@ -79,35 +78,6 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
         vecDeltas_(vecDeltas_in),
         kappa_(kappa_in),
         ecut_(ecut_in),
-        sigma2_(1.0),
-        dependSensor_(dependSensor_in),
-        dEdXweights_(dEdXweights_in),
-        thicknessCorrection_(thicknessCorrection_in),
-        fcPerMip_(fcPerMip_in),
-        fcPerEle_(fcPerEle_in),
-        nonAgedNoises_(nonAgedNoises_in),
-        noiseMip_(noiseMip_in),
-        initialized_(false),
-        points_(2 * (maxlayer + 1)),
-        minpos_(2 * (maxlayer + 1), {{0.0f, 0.0f}}),
-        maxpos_(2 * (maxlayer + 1), {{0.0f, 0.0f}}) {}
-
-  HGCalCLUEAlgo(const std::vector<double> &thresholdW0_in,
-                const std::vector<double> &positionDeltaRho_c_in,
-                const std::vector<double> &vecDeltas_in, double kappa_in, double ecut_in,
-                double showerSigma, reco::CaloCluster::AlgoId algoId_in, bool dependSensor_in,
-                const std::vector<double> &dEdXweights_in,
-                const std::vector<double> &thicknessCorrection_in,
-                const std::vector<double> &fcPerMip_in, double fcPerEle_in,
-                const std::vector<double> &nonAgedNoises_in, double noiseMip_in,
-                VerbosityLevel the_verbosity = pERROR)
-      : HGCalClusteringAlgoBase(the_verbosity, algoId_in),
-        thresholdW0_(thresholdW0_in),
-        positionDeltaRho_c_(positionDeltaRho_c_in),
-        vecDeltas_(vecDeltas_in),
-        kappa_(kappa_in),
-        ecut_(ecut_in),
-        sigma2_(std::pow(showerSigma, 2.0)),
         dependSensor_(dependSensor_in),
         dEdXweights_(dEdXweights_in),
         thicknessCorrection_(thicknessCorrection_in),
@@ -163,9 +133,6 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
 
   // The hit energy cutoff
   double ecut_;
-
-  // for energy sharing
-  double sigma2_;  // transverse shower size
 
   // various parameters used for calculating the noise levels for a given sensor (and whether to use
   // them)
@@ -271,13 +238,6 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
   int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &,
                             const unsigned int, std::vector<std::vector<KDNode> > &) const;
   math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
-
-  // attempt to find subclusters within a given set of hexels
-  std::vector<unsigned> findLocalMaximaInCluster(const std::vector<KDNode> &);
-  math::XYZPoint calculatePositionWithFraction(const std::vector<KDNode> &,
-                                               const std::vector<double> &);
-  double calculateEnergyWithFraction(const std::vector<KDNode> &, const std::vector<double> &);
-  // outputs
 };
 
 #endif
