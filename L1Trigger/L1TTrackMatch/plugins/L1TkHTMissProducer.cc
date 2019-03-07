@@ -212,7 +212,7 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       if(jetIter->getNtracks()<minNtracksHighPt && et>100)continue;
       sumPx += px;
       sumPy += py;
-      HT += et;
+      HT += tmp_jet_pt;
     } // end jet loop
 
     // define missing HT

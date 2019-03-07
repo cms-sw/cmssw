@@ -15,7 +15,8 @@ L1TkCaloHTMiss = cms.EDProducer("L1TkHTMissProducer",
 )
 
 L1TrackerHTMiss = cms.EDProducer("L1TkHTMissProducer",
-	L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets"),
+	#L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets"),
+	L1TkJetInputTag = cms.InputTag("TwoLayerJets", "L1TwoLayerJets"),#Switch to use 2-layer jets
 	L1VertexInputTag = cms.InputTag("VertexProducer","l1vertextdr"),
 	jet_maxEta = cms.double(2.4),
 	jet_minPt = cms.double(5.0),
