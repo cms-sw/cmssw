@@ -12,13 +12,13 @@
 #include <iostream>
 #include "Alignment/CocoaDaq/interface/CocoaDaqRootEvent.h"
 
-ClassImp(AliDaqEventHeader)
-ClassImp(AliDaqPosition2D)
-ClassImp(AliDaqPositionCOPS)
-ClassImp(AliDaqTilt)
-ClassImp(AliDaqDistance)
-ClassImp(AliDaqTemperature)
-ClassImp(CocoaDaqRootEvent)
+ClassImp(AliDaqEventHeader);
+ClassImp(AliDaqPosition2D);
+ClassImp(AliDaqPositionCOPS);
+ClassImp(AliDaqTilt);
+ClassImp(AliDaqDistance);
+ClassImp(AliDaqTemperature);
+ClassImp(CocoaDaqRootEvent);
 
 //-----------------------------------------------------------------------------
 CocoaDaqRootEvent::CocoaDaqRootEvent()
