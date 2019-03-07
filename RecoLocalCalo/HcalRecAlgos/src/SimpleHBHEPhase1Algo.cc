@@ -207,7 +207,7 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
         int ibeg = soi + firstSampleShift_;
         if (ibeg < 0)
             ibeg = 0;
-        const int iend = std::min(ibeg + nSamplesToExamine, (int)nSamples); // actual array
+        const int iend = std::min(ibeg + nSamplesToExamine, (int)nSamples - 1); // actual array
 
         unsigned maxI = info.peakEnergyTS((unsigned)ibeg, (unsigned)iend);  // requires unsigned params
         if (maxI < HBHEChannelInfo::MAXSAMPLES)
@@ -217,7 +217,8 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
   
             // Simplified evaluation for Phase1
             float emax0 = info.tsEnergy(maxI);
-            float emax1 = info.tsEnergy(maxI + 1U);
+            float emax1 = 0.;        
+            if(maxI < (nSamples - 1U)) emax1 = info.tsEnergy(maxI + 1U);
 
 	    // consider soi reference for collisions  
             int position = (int)maxI;
