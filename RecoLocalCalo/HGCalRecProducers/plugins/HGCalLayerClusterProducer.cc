@@ -108,6 +108,8 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
 
   produces<std::vector<reco::BasicCluster> >();
   produces<std::vector<reco::BasicCluster> >("sharing");
+  //density
+  produces< Density >();
   //time for layer clusters
   produces<edm::ValueMap<float> > (timeClname);
 
@@ -168,7 +170,8 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
 
   std::unique_ptr<std::vector<reco::BasicCluster> > clusters( new std::vector<reco::BasicCluster> ),
     clusters_sharing( new std::vector<reco::BasicCluster> );
-
+  std::unique_ptr<Density> density(new Density);
+  
   algo->reset();
 
   algo->getEventSetup(es);
@@ -218,6 +221,11 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
 
   auto clusterHandle = evt.put(std::move(clusters));
   auto clusterHandleSharing = evt.put(std::move(clusters_sharing),"sharing");
+
+  //Keep the density 
+  *density = algo->getDensity();
+  evt.put(std::move(density));
+
   edm::PtrVector<reco::BasicCluster> clusterPtrs, clusterPtrsSharing;
 
   std::vector<float> times;
