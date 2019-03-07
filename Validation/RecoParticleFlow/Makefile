@@ -41,26 +41,27 @@ MinBias_dqm:
 post: QCD_post QCDPU_post ZMM_post MinBias_post
 
 QCD_post:
-	rm -f ${TMPDIR}/QCD/*withResponse.root ${TMPDIR}/QCD/DQMTotal.root
-	cd ${TMPDIR}/QCD && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponse.py DQM*.root
+	rm -f ${TMPDIR}/QCD/*withResponse*.root ${TMPDIR}/QCD/DQMTotal.root
+	cd ${TMPDIR}/QCD && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
 	hadd -f ${TMPDIR}/QCD/DQMTotal.root ${TMPDIR}/QCD/DQM_*.root
 
 QCDPU_post:
-	rm -f ${TMPDIR}/QCDPU/*withResponse.root ${TMPDIR}/QCDPU/DQMTotal.root
-	cd ${TMPDIR}/QCDPU && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponse.py DQM*.root
+	rm -f ${TMPDIR}/QCDPU/*withResponse*.root ${TMPDIR}/QCDPU/DQMTotal.root
+	cd ${TMPDIR}/QCDPU && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
 	hadd -f ${TMPDIR}/QCDPU/DQMTotal.root ${TMPDIR}/QCDPU/DQM_*.root
 
 ZMM_post:
-	rm -f ${TMPDIR}/ZMM/*withResponse.root ${TMPDIR}/ZMM/DQMTotal.root
-	cd ${TMPDIR}/ZMM && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponse.py DQM*.root
+	rm -f ${TMPDIR}/ZMM/*withResponse*.root ${TMPDIR}/ZMM/DQMTotal.root
+	cd ${TMPDIR}/ZMM && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
 	hadd -f ${TMPDIR}/ZMM/DQMTotal.root ${TMPDIR}/ZMM/DQM_*.root
 
 MinBias_post:
-	rm -f ${TMPDIR}/MinBias/*withResponse.root ${TMPDIR}/MinBias/DQMTotal.root
-	cd ${TMPDIR}/MinBias && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponse.py DQM*.root
+	rm -f ${TMPDIR}/MinBias/*withResponse*.root ${TMPDIR}/MinBias/DQMTotal.root
+	cd ${TMPDIR}/MinBias && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
 	hadd -f ${TMPDIR}/MinBias/DQMTotal.root ${TMPDIR}/MinBias/DQM_*.root
 
 .PHONY: plots # Enable re-running plots
+
 plots:
 	rm -Rf plots	
 	python test/compare.py \
