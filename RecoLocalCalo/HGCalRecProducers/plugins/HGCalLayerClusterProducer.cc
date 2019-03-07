@@ -46,7 +46,7 @@ class HGCalLayerClusterProducer : public edm::stream::EDProducer<> {
 
   reco::CaloCluster::AlgoId algoId;
 
-  std::unique_ptr<HGCalImagingAlgo> algo;
+  std::unique_ptr<HGCalClusteringAlgoBase> algo;
   bool doSharing;
   std::string detector;
 
