@@ -207,16 +207,14 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
         int ibeg = soi + firstSampleShift_;
         if (ibeg < 0)
             ibeg = 0;
-        const int iend = ibeg + nSamplesToExamine;
-        unsigned maxI = info.peakEnergyTS(ibeg, iend);
+        const int iend = std::min(ibeg + nSamplesToExamine, (int)nSamples); // actual array
 
+        unsigned maxI = info.peakEnergyTS((unsigned)ibeg, (unsigned)iend);  // requires unsigned params
         if (maxI < HBHEChannelInfo::MAXSAMPLES)
         {
-            if (!maxI)
-                maxI = 1U;
-            else if (maxI >= nSamples - 1U)
-                maxI = nSamples - 2U;
 
+	  if(maxI >= nSamples) maxI = nSamples - 1U;  // just in case 
+  
             // Simplified evaluation for Phase1
             float emax0 = info.tsEnergy(maxI);
             float emax1 = info.tsEnergy(maxI + 1U);
@@ -226,10 +224,11 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
             if(nSamplesToExamine < (int)nSamples) position  -= soi;
      
             time = 25.f * (float)position;                   
-            if(emax1 > 0.f)  time += 25.f * emax1/(emax0+emax1); // 1-st order correction 
+            if(emax0 > 0.f && emax1 > 0.f && maxI < (nSamples - 1U)) time += 25.f * emax1/(emax0+emax1); // 1st order corr.
 
             // TimeSlew correction
             time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
+
         }
     }
     return time;
