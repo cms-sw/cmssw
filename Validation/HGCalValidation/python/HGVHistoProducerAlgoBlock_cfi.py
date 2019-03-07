@@ -81,6 +81,16 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     maxDisToMaxperthickperlayerenewei  = cms.double(50.),
     nintDisToMaxperthickperlayerenewei = cms.int32(50),
 
+    #Parameters for the distance of cluster cells to max cell per thickness per layer
+    minDisSeedToMaxperthickperlayer  = cms.double(0.),
+    maxDisSeedToMaxperthickperlayer  = cms.double(300.),
+    nintDisSeedToMaxperthickperlayer = cms.int32(100),
+
+    #Parameters for the energy of a cluster per thickness per layer
+    minClEneperthickperlayer  = cms.double(0.),
+    maxClEneperthickperlayer = cms.double(300.),
+    nintClEneperthickperlayer = cms.int32(100),
+
     #Parameters for the energy density of cluster cells per thickness 
     minCellsEneDensperthick = cms.double(0.),
     maxCellsEneDensperthick = cms.double(100.),

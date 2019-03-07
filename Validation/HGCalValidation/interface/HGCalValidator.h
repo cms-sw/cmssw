@@ -24,6 +24,7 @@
 
 #include "Validation/HGCalValidation/interface/HGVHistoProducerAlgo.h"
 #include "Validation/HGCalValidation/interface/CaloParticleSelector.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 
 class PileupSummaryInfo;
 
@@ -65,6 +66,7 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
   edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
+  edm::EDGetTokenT<Density> density_;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
 
 

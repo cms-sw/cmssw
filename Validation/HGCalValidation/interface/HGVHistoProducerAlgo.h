@@ -21,6 +21,7 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
@@ -28,9 +29,12 @@
 struct HGVHistoProducerAlgoHistograms {
   //1D
   std::vector<ConcurrentMonitorElement>  h_cluster_eta;
-  std::vector<ConcurrentMonitorElement>  h_mixedhitscluster;
-  std::vector<ConcurrentMonitorElement>  h_energyclustered;
-  std::vector<ConcurrentMonitorElement>  h_longdepthbarycentre;
+  std::vector<ConcurrentMonitorElement>  h_mixedhitscluster_zminus;
+  std::vector<ConcurrentMonitorElement>  h_mixedhitscluster_zplus;
+  std::vector<ConcurrentMonitorElement>  h_energyclustered_zminus;
+  std::vector<ConcurrentMonitorElement>  h_energyclustered_zplus;
+  std::vector<ConcurrentMonitorElement>  h_longdepthbarycentre_zminus;
+  std::vector<ConcurrentMonitorElement>  h_longdepthbarycentre_zplus;
 
   std::unordered_map<int, ConcurrentMonitorElement > h_clusternum_perlayer;
   std::unordered_map<int, ConcurrentMonitorElement > h_energyclustered_perlayer;
@@ -42,6 +46,8 @@ struct HGVHistoProducerAlgoHistograms {
   std::unordered_map< std::string, ConcurrentMonitorElement > h_distancetoseedcell_perthickperlayer_eneweighted; 
   std::unordered_map< std::string, ConcurrentMonitorElement > h_distancetomaxcell_perthickperlayer;
   std::unordered_map< std::string, ConcurrentMonitorElement > h_distancetomaxcell_perthickperlayer_eneweighted; 
+  std::unordered_map< std::string, ConcurrentMonitorElement > h_distancebetseedandmaxcell_perthickperlayer;
+  std::unordered_map< std::string, ConcurrentMonitorElement > h_distancebetseedandmaxcellvsclusterenergy_perthickperlayer;
 
   std::unordered_map<int, ConcurrentMonitorElement > h_caloparticle_eta;
   std::unordered_map<int, ConcurrentMonitorElement > h_caloparticle_eta_Zorigin;
@@ -74,6 +80,7 @@ class HGVHistoProducerAlgo {
   void fill_generic_cluster_histos(const Histograms& histograms,
 				   int count,
 				   const reco::CaloClusterCollection &clusters,
+				   const Density &densities,
 				   std::vector<CaloParticle> const & cP,
 				   std::map<double, double> cummatbudg,
 				   unsigned layers, 
@@ -115,6 +122,8 @@ class HGVHistoProducerAlgo {
   double minDisToSeedperthickperlayerenewei, maxDisToSeedperthickperlayerenewei; int nintDisToSeedperthickperlayerenewei;
   double minDisToMaxperthickperlayer, maxDisToMaxperthickperlayer; int nintDisToMaxperthickperlayer;
   double minDisToMaxperthickperlayerenewei, maxDisToMaxperthickperlayerenewei; int nintDisToMaxperthickperlayerenewei;
+  double minDisSeedToMaxperthickperlayer, maxDisSeedToMaxperthickperlayer; int nintDisSeedToMaxperthickperlayer;
+  double minClEneperthickperlayer, maxClEneperthickperlayer; int nintClEneperthickperlayer;
   double minCellsEneDensperthick, maxCellsEneDensperthick; int nintCellsEneDensperthick;
 
 };
