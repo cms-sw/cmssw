@@ -54,7 +54,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
     'phase1_2018_design'       :  '105X_upgrade2018_design_v5',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    :  '105X_upgrade2018_realistic_v7',
+    'phase1_2018_realistic'    :  '105X_upgrade2018_realistic_v6',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
     'phase1_2018_realistic_hi' :  '105X_upgrade2018_realistic_HI_v4',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
