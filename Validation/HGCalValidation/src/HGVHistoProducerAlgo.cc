@@ -92,12 +92,20 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset) {
   maxDisToMaxperthickperlayerenewei  = pset.getParameter<double>("maxDisToMaxperthickperlayerenewei");
   nintDisToMaxperthickperlayerenewei = pset.getParameter<int>("nintDisToMaxperthickperlayerenewei");
 
+  //Parameters for the distance of seed cell to max cell per thickness per layer
+  minDisSeedToMaxperthickperlayer  = pset.getParameter<double>("minDisSeedToMaxperthickperlayer");
+  maxDisSeedToMaxperthickperlayer  = pset.getParameter<double>("maxDisSeedToMaxperthickperlayer");
+  nintDisSeedToMaxperthickperlayer = pset.getParameter<int>("nintDisSeedToMaxperthickperlayer");
+
+  //Parameters for the energy of a cluster per thickness per layer
+  minClEneperthickperlayer  = pset.getParameter<double>("minClEneperthickperlayer");
+  maxClEneperthickperlayer = pset.getParameter<double>("maxClEneperthickperlayer");
+  nintClEneperthickperlayer = pset.getParameter<int>("nintClEneperthickperlayer");
+
   //Parameters for the energy density of cluster cells per thickness 
   minCellsEneDensperthick  = pset.getParameter<double>("minCellsEneDensperthick");
   maxCellsEneDensperthick  = pset.getParameter<double>("maxCellsEneDensperthick");
   nintCellsEneDensperthick = pset.getParameter<int>("nintCellsEneDensperthick");
-
-
 
 
 }
@@ -123,20 +131,37 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
   histograms.h_cluster_eta.push_back( ibook.book1D("num_reco_cluster_eta","N of reco clusters vs eta",nintEta,minEta,maxEta) );
   
   //---------------------------------------------------------------------------------------------------------------------------
-  histograms.h_mixedhitscluster.push_back( ibook.book1D("mixedhitscluster","N of reco clusters that contain hits of more than one kind",nintMixedHitsCluster,minMixedHitsCluster,maxMixedHitsCluster) );
+  //z-
+  histograms.h_mixedhitscluster_zminus.push_back( ibook.book1D("mixedhitscluster_zminus","N of reco clusters that contain hits of more than one kind in z-",nintMixedHitsCluster,minMixedHitsCluster,maxMixedHitsCluster) );
+  //z+
+  histograms.h_mixedhitscluster_zplus.push_back( ibook.book1D("mixedhitscluster_zplus","N of reco clusters that contain hits of more than one kind in z+",nintMixedHitsCluster,minMixedHitsCluster,maxMixedHitsCluster) );
   
   //---------------------------------------------------------------------------------------------------------------------------
-  histograms.h_energyclustered.push_back( ibook.book1D("energyclustered","percent of total energy clustered by all layer clusters over caloparticles energy ",nintEneCl,minEneCl,maxEneCl) );
+  //z-
+  histograms.h_energyclustered_zminus.push_back( ibook.book1D("energyclustered_zminus","percent of total energy clustered by all layer clusters over caloparticles energy in z-",nintEneCl,minEneCl,maxEneCl) );
+  //z+
+  histograms.h_energyclustered_zplus.push_back( ibook.book1D("energyclustered_zplus","percent of total energy clustered by all layer clusters over caloparticles energy in z+",nintEneCl,minEneCl,maxEneCl) );
   
   //---------------------------------------------------------------------------------------------------------------------------
-  histograms.h_longdepthbarycentre.push_back( ibook.book1D("longdepthbarycentre","The longitudinal depth barycentre",nintLongDepBary,minLongDepBary,maxLongDepBary) );
+  //z-
+  histograms.h_longdepthbarycentre_zminus.push_back( ibook.book1D("longdepthbarycentre_zminus","The longitudinal depth barycentre in z-",nintLongDepBary,minLongDepBary,maxLongDepBary) );
+  //z+
+  histograms.h_longdepthbarycentre_zplus.push_back( ibook.book1D("longdepthbarycentre_zplus","The longitudinal depth barycentre in z+",nintLongDepBary,minLongDepBary,maxLongDepBary) );
 
 
   //---------------------------------------------------------------------------------------------------------------------------
-  for (unsigned ilayer = 1; ilayer <= layers; ++ilayer) {
-    auto istr = std::to_string(ilayer);
-    histograms.h_clusternum_perlayer[ilayer] = ibook.book1D("totclusternum_layer_"+istr,"total number of layer clusters for layer "+istr,nintTotNClsperlay,minTotNClsperlay,maxTotNClsperlay);
-    histograms.h_energyclustered_perlayer[ilayer] = ibook.book1D("energyclustered_perlayer"+istr,"percent of total energy clustered by layer clusters over caloparticles energy for layer "+istr,nintEneClperlay,minEneClperlay,maxEneClperlay);
+  for (unsigned ilayer = 0; ilayer < 2*layers; ++ilayer) {
+    auto istr1 = std::to_string(ilayer);
+    //We will make a mapping to the regural layer naming plus z- or z+ for convenience
+    std::string istr2 = "";
+     //First with the -z endcap
+    if (ilayer < layers){
+      istr2 = std::to_string(ilayer + 1) + " in z-";
+    }else { //Then for the +z
+      istr2 = std::to_string(ilayer - 51) + " in z+";
+    }
+    histograms.h_clusternum_perlayer[ilayer] = ibook.book1D("totclusternum_layer_"+istr1,"total number of layer clusters for layer "+istr2,nintTotNClsperlay,minTotNClsperlay,maxTotNClsperlay);
+    histograms.h_energyclustered_perlayer[ilayer] = ibook.book1D("energyclustered_perlayer"+istr1,"percent of total energy clustered by layer clusters over caloparticles energy for layer "+istr2,nintEneClperlay,minEneClperlay,maxEneClperlay);
   }
 
   //---------------------------------------------------------------------------------------------------------------------------
@@ -150,20 +175,32 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
   //---------------------------------------------------------------------------------------------------------------------------
   //Not all combination exists but we should keep them all for cross checking reason. 
   for(std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
-    for (unsigned ilayer = 1; ilayer <= layers; ++ilayer) {
+    for (unsigned ilayer = 0; ilayer < 2*layers; ++ilayer) {
       auto istr1 = std::to_string(*it);
       auto istr2 = std::to_string(ilayer);
       auto istr = istr1 + "_" + istr2;
+      //We will make a mapping to the regural layer naming plus z- or z+ for convenience
+      std::string istr3 = "";
+      //First with the -z endcap
+      if (ilayer < layers){
+	istr3 = std::to_string(ilayer + 1) + " in z- ";
+      }else { //Then for the +z
+	istr3 = std::to_string(ilayer - 51) + " in z+ ";
+      }
       //---
-      histograms.h_cellsnum_perthickperlayer[istr] = ibook.book1D("cellsnum_perthick_perlayer_"+istr,"total number of cells for layer "+ istr2+" for thickness "+istr1,nintTotNcellsperthickperlayer,minTotNcellsperthickperlayer,maxTotNcellsperthickperlayer);
+      histograms.h_cellsnum_perthickperlayer[istr] = ibook.book1D("cellsnum_perthick_perlayer_"+istr,"total number of cells for layer "+ istr3+" for thickness "+istr1,nintTotNcellsperthickperlayer,minTotNcellsperthickperlayer,maxTotNcellsperthickperlayer);
       //---
-       histograms.h_distancetoseedcell_perthickperlayer[istr] = ibook.book1D("distancetoseedcell_perthickperlayer_"+istr,"distance of cluster cells to seed cell for layer "+ istr2+" for thickness "+istr1,nintDisToSeedperthickperlayer,minDisToSeedperthickperlayer,maxDisToSeedperthickperlayer);
+      histograms.h_distancetoseedcell_perthickperlayer[istr] = ibook.book1D("distancetoseedcell_perthickperlayer_"+istr,"distance of cluster cells to seed cell for layer "+ istr3+" for thickness "+istr1,nintDisToSeedperthickperlayer,minDisToSeedperthickperlayer,maxDisToSeedperthickperlayer);
       //---
-       histograms.h_distancetoseedcell_perthickperlayer_eneweighted[istr] = ibook.book1D("distancetoseedcell_perthickperlayer_eneweighted_"+istr,"energy weighted distance of cluster cells to seed cell for layer "+ istr2+" for thickness "+istr1,nintDisToSeedperthickperlayerenewei,minDisToSeedperthickperlayerenewei,maxDisToSeedperthickperlayerenewei);
+      histograms.h_distancetoseedcell_perthickperlayer_eneweighted[istr] = ibook.book1D("distancetoseedcell_perthickperlayer_eneweighted_"+istr,"energy weighted distance of cluster cells to seed cell for layer "+ istr3+" for thickness "+istr1,nintDisToSeedperthickperlayerenewei,minDisToSeedperthickperlayerenewei,maxDisToSeedperthickperlayerenewei);
       //---
-       histograms.h_distancetomaxcell_perthickperlayer[istr] = ibook.book1D("distancetomaxcell_perthickperlayer_"+istr,"distance of cluster cells to max cell for layer "+ istr2+" for thickness "+istr1,nintDisToMaxperthickperlayer,minDisToMaxperthickperlayer,maxDisToMaxperthickperlayer);
+      histograms.h_distancetomaxcell_perthickperlayer[istr] = ibook.book1D("distancetomaxcell_perthickperlayer_"+istr,"distance of cluster cells to max cell for layer "+ istr3+" for thickness "+istr1,nintDisToMaxperthickperlayer,minDisToMaxperthickperlayer,maxDisToMaxperthickperlayer);
       //---
-       histograms.h_distancetomaxcell_perthickperlayer_eneweighted[istr] = ibook.book1D("distancetomaxcell_perthickperlayer_eneweighted_"+istr,"energy weighted distance of cluster cells to max cell for layer "+ istr2+" for thickness "+istr1,nintDisToMaxperthickperlayerenewei,minDisToMaxperthickperlayerenewei,maxDisToMaxperthickperlayerenewei);
+      histograms.h_distancetomaxcell_perthickperlayer_eneweighted[istr] = ibook.book1D("distancetomaxcell_perthickperlayer_eneweighted_"+istr,"energy weighted distance of cluster cells to max cell for layer "+ istr3+" for thickness "+istr1,nintDisToMaxperthickperlayerenewei,minDisToMaxperthickperlayerenewei,maxDisToMaxperthickperlayerenewei);
+      //---
+      histograms.h_distancebetseedandmaxcell_perthickperlayer[istr] = ibook.book1D("distancebetseedandmaxcell_perthickperlayer_"+istr,"distance of seed cell to max cell for layer "+ istr3+" for thickness "+istr1,nintDisSeedToMaxperthickperlayer,minDisSeedToMaxperthickperlayer,maxDisSeedToMaxperthickperlayer);
+      //---
+      histograms.h_distancebetseedandmaxcellvsclusterenergy_perthickperlayer[istr] = ibook.book2D("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_"+istr,"distance of seed cell to max cell vs cluster energy for layer "+ istr3+" for thickness "+istr1,nintDisSeedToMaxperthickperlayer,minDisSeedToMaxperthickperlayer,maxDisSeedToMaxperthickperlayer,nintClEneperthickperlayer,minClEneperthickperlayer,maxClEneperthickperlayer);
     }
   }
   //---------------------------------------------------------------------------------------------------------------------------
@@ -201,36 +238,47 @@ void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
 void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histograms,
 						       int count,
 						       const reco::CaloClusterCollection &clusters, 
+						       const Density &densities,
 						       std::vector<CaloParticle> const & cP,
 						       std::map<double, double> cummatbudg,
 						       unsigned layers, 
 						       std::vector<int> thicknesses) const {
   
   
+  //Each event to be treated as two events: an event in +ve endcap, 
+  //plus another event in -ve endcap. In this spirit there will be 
+  //a layer variable (layerid) that maps the layers in : 
+  //-z: 0->51
+  //+z: 52->103
+
   //To keep track of total num of layer clusters per layer
-  //tnlcpl[lay]
-  std::vector<int> tnlcpl(100, 0); //tnlcpl.clear(); tnlcpl.reserve(100);
+  //tnlcpl[layerid]
+  std::vector<int> tnlcpl(1000, 0); //tnlcpl.clear(); tnlcpl.reserve(1000);
     
-  //To keep track of the total num of clusters per thickness
-  std::map<std::string, int> tnlcpth; tnlcpth.clear();
+  //To keep track of the total num of clusters per thickness in plus and in minus endcaps
+  std::map<std::string, int> tnlcpthplus; tnlcpthplus.clear();
+  std::map<std::string, int> tnlcpthminus; tnlcpthminus.clear();
   //At the beginning of the event all layers should be initialized to zero total clusters per thickness
   for(std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) { 
-    tnlcpth.insert( std::pair<std::string, int>(std::to_string(*it), 0) ); 
+    tnlcpthplus.insert( std::pair<std::string, int>(std::to_string(*it), 0) ); 
+    tnlcpthminus.insert( std::pair<std::string, int>(std::to_string(*it), 0) ); 
   }
   //To keep track of the total num of clusters with mixed thickness hits per event
-  tnlcpth.insert( std::pair<std::string, int>( "mixed", 0) ); 
-      
+  tnlcpthplus.insert( std::pair<std::string, int>( "mixed", 0) ); 
+  tnlcpthminus.insert( std::pair<std::string, int>( "mixed", 0) ); 
 
   //To find out the total amount of energy clustered per layer
   //Initialize with zeros because I see clear gives weird numbers. 
-  std::vector<double> tecpl(100, 0.0); //tecpl.clear(); tecpl.reserve(100);
+  std::vector<double> tecpl(1000, 0.0); //tecpl.clear(); tecpl.reserve(1000);
   //for the longitudinal depth barycenter
-  std::vector<double> ldbar(100, 0.0); //ldbar.clear(); ldbar.reserve(100);
+  std::vector<double> ldbar(1000, 0.0); //ldbar.clear(); ldbar.reserve(1000);
   
   //We need to compare with the total amount of energy coming from caloparticles
-  double calopartene = 0.;
+  double caloparteneplus = 0.;
+  double caloparteneminus = 0.;
   for (auto const caloParticle : cP) {
-    calopartene = calopartene + caloParticle.energy();
+    if (caloParticle.eta() >= 0. ) {caloparteneplus = caloparteneplus + caloParticle.energy();}
+    if (caloParticle.eta() < 0. )  {caloparteneminus = caloparteneminus + caloParticle.energy();}
   }
 
   //loop through clusters of the event
@@ -238,48 +286,64 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
 
     const std::vector<std::pair<DetId, float> > hits_and_fractions = clusters[layerclusterIndex].hitsAndFractions();
 
-      const DetId seedid = clusters[layerclusterIndex].seed();
-      // std::cout << " seedid info " <<  seedid.rawId() << " " << seedid.det() << " " << HGCalDetId(seedid) << std::endl;
-      const double seedx = recHitTools_->getPosition(seedid).x();
-      const double seedy = recHitTools_->getPosition(seedid).y();
-      DetId maxid = findmaxhit( clusters[layerclusterIndex] );
+    const DetId seedid = clusters[layerclusterIndex].seed();
+    // std::cout << " seedid info " <<  seedid.rawId() << " " << seedid.det() << " " << HGCalDetId(seedid) << std::endl;
+    const double seedx = recHitTools_->getPosition(seedid).x();
+    const double seedy = recHitTools_->getPosition(seedid).y();
+    DetId maxid = findmaxhit( clusters[layerclusterIndex] );
     // const DetId maxid = clusters[layerclusterIndex].max();
     double maxx = recHitTools_->getPosition(maxid).x();
     double maxy = recHitTools_->getPosition(maxid).y();
 
     //Auxillary variables to count the number of different kind of hits in each cluster
-    int nthhits120 = 0; int nthhits200 = 0;int nthhits300 = 0;int nthhitsscint = 0;
+    int nthhits120p = 0; int nthhits200p = 0;int nthhits300p = 0;int nthhitsscintp = 0;
+    int nthhits120m = 0; int nthhits200m = 0;int nthhits300m = 0;int nthhitsscintm = 0;
     //For the hits thickness of the layer cluster. 
     double thickness = 0.;
-    //The layer the cluster belongs to 
+    //The layer the cluster belongs to. As mentioned in the mapping above, it takes into account -z and +z. 
+    int layerid = 0;
+    //We will need another layer variable for the longitudinal material budget file reading. 
+    //In this case we need no distinction between -z and +z. 
     int lay = 0;
-   //We will need here to save the combination thick_lay 
+    //We will need here to save the combination thick_lay 
     std::string istr = "";
     //boolean to check for the layer that the cluster belong to. Maybe later will check all the layer hits.  
     bool cluslay = true;
+    //zside that the current cluster belongs to. 
+    int zside = 0;
 
     for (std::vector<std::pair<DetId, float>>::const_iterator it_haf = hits_and_fractions.begin(); it_haf != hits_and_fractions.end(); ++it_haf) {
       const DetId rh_detid = it_haf->first;
       //The layer that the current hit belongs to
-      //I do not know why but it returns also 101 and 104 as values
+      layerid = recHitTools_->getLayerWithOffset(rh_detid) + layers * ((recHitTools_->zside(rh_detid) + 1) >> 1) - 1;
       lay = recHitTools_->getLayerWithOffset(rh_detid);
+      zside = recHitTools_->zside(rh_detid);
+      // std::cout << " layerid " << layerid << " layer " << lay << std::endl;
       if (rh_detid.det() == DetId::Forward || rh_detid.det() == DetId::HGCalEE || rh_detid.det() == DetId::HGCalHSi){
 	thickness = recHitTools_->getSiThickness(rh_detid);
       } else if (rh_detid.det() == DetId::HGCalHSc){
 	thickness = -1;
       } else {
-      	std::cout << "These are HGCal layer clusters, you shouldn't be here !!! " << lay  << std::endl;
+      	std::cout << "These are HGCal layer clusters, you shouldn't be here !!! " << layerid  << std::endl;
       	continue;
       }
 
       // thickness = (rh_detid.det() == DetId::Forward || rh_detid.det() == DetId::HGCalEE || rh_detid.det() == DetId::HGCalHSi) ? recHitTools_->getSiThickness(rh_detid) : -1;
-      //Count here only once the layer cluster and save the combination thick_lay
-      std::string curistr = std::to_string( (int) thickness ) + "_" + std::to_string(lay);
-      if (cluslay){ tnlcpl[lay]++; istr = curistr; cluslay = false; }
-      if (thickness == 120.) {nthhits120++;}
-      if (thickness == 200.) {nthhits200++;}
-      if (thickness == 300.) {nthhits300++;}
-      if (thickness == -1  ) {nthhitsscint++;}
+      //Count here only once the layer cluster and save the combination thick_layerid
+      std::string curistr = std::to_string( (int) thickness ) + "_" + std::to_string(layerid);
+      if (cluslay){ tnlcpl[layerid]++; istr = curistr; cluslay = false; }
+
+      if ( (thickness == 120.) && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhits120p++;}
+      if ( (thickness == 120.) && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhits120m++;}
+								     	  
+      if ( (thickness == 200.) && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhits200p++;}
+      if ( (thickness == 200.) && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhits200m++;}
+								     	  
+      if ( (thickness == 300.) && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhits300p++;}
+      if ( (thickness == 300.) && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhits300m++;}
+								     	  
+      if ( (thickness == -1)   && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhitsscintp++;}
+      if ( (thickness == -1)   && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhitsscintm++;}
 
       std::map<DetId,const HGCRecHit *>::const_iterator itcheck= hitMap_->find(rh_detid);
       if (itcheck == hitMap_->end()) {
@@ -296,9 +360,9 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       // std::cout << " hit_x " << hit_x << " hit_y " << hit_y << std::endl;
       double distancetoseed = distance(seedx, seedy, hit_x, hit_y);
       double distancetomax = distance(maxx, maxy, hit_x, hit_y);
-      std::cout << " DISTANCETOSEED " << distancetoseed << " distancetomax "<< distancetomax << " hit->energy() " << hit->energy() 
-      		<< " seed times ene  " << distancetoseed*hit->energy() << " max times ene "<< distancetomax * hit->energy() << std::endl;
-      std::cout << curistr << std::endl;
+      // std::cout << " DISTANCETOSEED " << distancetoseed << " distancetomax "<< distancetomax << " hit->energy() " << hit->energy() 
+      // 		<< " seed times ene  " << distancetoseed*hit->energy() << " max times ene "<< distancetomax * hit->energy() << std::endl;
+      // std::cout << curistr << std::endl;
       if ( distancetoseed != 0. && histograms.h_distancetoseedcell_perthickperlayer.count(curistr)){ 
       	histograms.h_distancetoseedcell_perthickperlayer.at(curistr).fill( distancetoseed  );    
       } 
@@ -311,34 +375,74 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       //----
       if ( distancetomax != 0. && histograms.h_distancetomaxcell_perthickperlayer_eneweighted.count(curistr)){ 
       	histograms.h_distancetomaxcell_perthickperlayer_eneweighted.at(curistr).fill( distancetomax , hit->energy() );    } 
+
+      //Let's check the density
+      std::map< DetId, float >::const_iterator dit = densities.find( rh_detid );
+      if ( dit == densities.end() ){
+	std::cout << " You shouldn't be here - Unable to find a density " << rh_detid.rawId() << " " << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;
+	continue;
+      }
+
+      // std::cout << " Detid " << dit->first << " Density " << dit->second << std::endl;
+      std::cout << " Density " << dit->second << std::endl;
+
+      
+
       
     } // end of loop through hits and fractions
 
     //Check for simultaneously having hits of different kind. Checking at least two combinations is sufficient.
-    if ( (nthhits120 != 0 && nthhits200 != 0  ) || (nthhits120 != 0 && nthhits300 != 0  ) || (nthhits120 != 0 && nthhitsscint != 0  ) || 
-	 (nthhits200 != 0 && nthhits300 != 0  ) || (nthhits200 != 0 && nthhitsscint != 0  ) || (nthhits300 != 0 && nthhitsscint != 0  ) ){
-      std::cout << "This cluster has hits of different kind: nthhits120 " << nthhits120 << " nthhits200 " 
-		<< nthhits200 << " nthhits300 " << nthhits300 << " nthhitsscint " << nthhitsscint <<std::endl;
-      tnlcpth["mixed"]++;
-    } else if ( (nthhits120 != 0 ||  nthhits200 != 0 || nthhits300 != 0 || nthhitsscint != 0) )  {
+    if ( (nthhits120p != 0 && nthhits200p != 0  ) || (nthhits120p != 0 && nthhits300p != 0  ) || (nthhits120p != 0 && nthhitsscintp != 0  ) || 
+	 (nthhits200p != 0 && nthhits300p != 0  ) || (nthhits200p != 0 && nthhitsscintp != 0  ) || (nthhits300p != 0 && nthhitsscintp != 0  ) ){
+      // std::cout << "This cluster has hits of different kind: nthhits120 " << nthhits120 << " nthhits200 " 
+      // 		<< nthhits200 << " nthhits300 " << nthhits300 << " nthhitsscint " << nthhitsscint <<std::endl;
+      tnlcpthplus["mixed"]++;
+    } else if ( (nthhits120p != 0 ||  nthhits200p != 0 || nthhits300p != 0 || nthhitsscintp != 0) )  {
       //This is a cluster with hits of one kind
-      tnlcpth[std::to_string((int) thickness)]++;
+      tnlcpthplus[std::to_string((int) thickness)]++;
+    }
+    if ( (nthhits120m != 0 && nthhits200m != 0  ) || (nthhits120m != 0 && nthhits300m != 0  ) || (nthhits120m != 0 && nthhitsscintm != 0  ) || 
+	 (nthhits200m != 0 && nthhits300m != 0  ) || (nthhits200m != 0 && nthhitsscintm != 0  ) || (nthhits300m != 0 && nthhitsscintm != 0  ) ){
+      // std::cout << "This cluster has hits of different kind: nthhits120 " << nthhits120 << " nthhits200 " 
+      // 		<< nthhits200 << " nthhits300 " << nthhits300 << " nthhitsscint " << nthhitsscint <<std::endl;
+      tnlcpthminus["mixed"]++;
+    } else if ( (nthhits120m != 0 ||  nthhits200m != 0 || nthhits300m != 0 || nthhitsscintm != 0) )  {
+      //This is a cluster with hits of one kind
+      tnlcpthminus[std::to_string((int) thickness)]++;
     }
     
     //To find the thickness with the biggest amount of cells
     std::vector<int> bigamoth; bigamoth.clear();
-    bigamoth.push_back(nthhits120);bigamoth.push_back(nthhits200);bigamoth.push_back(nthhits300);bigamoth.push_back(nthhitsscint);
+    if (zside > 0 ){
+      bigamoth.push_back(nthhits120p);bigamoth.push_back(nthhits200p);bigamoth.push_back(nthhits300p);bigamoth.push_back(nthhitsscintp);
+    }
+    if (zside < 0 ){
+      bigamoth.push_back(nthhits120m);bigamoth.push_back(nthhits200m);bigamoth.push_back(nthhits300m);bigamoth.push_back(nthhitsscintm);
+    }
     auto bgth = std::max_element(bigamoth.begin(),bigamoth.end());
-    istr = std::to_string(thicknesses[ std::distance(bigamoth.begin(), bgth) ]) + "_" + std::to_string(lay);
-    std::cout << istr << std::endl;
+    istr = std::to_string(thicknesses[ std::distance(bigamoth.begin(), bgth) ]) + "_" + std::to_string(layerid);
+
+    // std::cout << istr << std::endl;
 
     //Here for the per cluster plots that need the thickness_layer info
     if (histograms.h_cellsnum_perthickperlayer.count(istr)){ histograms.h_cellsnum_perthickperlayer.at(istr).fill( hits_and_fractions.size() ); }
     
+    //Now, with the distance between seed and max cell. 
+    double distancebetseedandmax = distance(seedx, seedy, maxx, maxy);
+    //The thickness_layer combination in this case will use the thickness of the seed as a convention. 
+    std::string seedstr = std::to_string( (int) recHitTools_->getSiThickness(seedid) )+ "_" + std::to_string(layerid);
+    std::cout << distancebetseedandmax << " cluster energy " << clusters[layerclusterIndex].energy() << " " << seedstr << std::endl;
+    if (histograms.h_distancebetseedandmaxcell_perthickperlayer.count(seedstr)){ 
+      histograms.h_distancebetseedandmaxcell_perthickperlayer.at(seedstr).fill( distancebetseedandmax ); 
+    }
+    if (histograms.h_distancebetseedandmaxcellvsclusterenergy_perthickperlayer.count(seedstr)){ 
+      histograms.h_distancebetseedandmaxcellvsclusterenergy_perthickperlayer.at(seedstr).fill( distancebetseedandmax , clusters[layerclusterIndex].energy() ); 
+    }
+
     //Energy clustered per layer
-    tecpl[lay] = tecpl[lay] + clusters[layerclusterIndex].energy();
-    // std::cout << lay << " " << clusters[layerclusterIndex].energy() << std::endl;
-    ldbar[lay] = ldbar[lay] + clusters[layerclusterIndex].energy() * cummatbudg[(double) lay];
+    tecpl[layerid] = tecpl[layerid] + clusters[layerclusterIndex].energy();
+    // std::cout << layerid << " " << clusters[layerclusterIndex].energy() << std::endl;
+    ldbar[layerid] = ldbar[layerid] + clusters[layerclusterIndex].energy() * cummatbudg[(double) lay];
 
   }//end of loop through clusters of the event
 
@@ -346,30 +450,64 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
   // std::cout << std::accumulate(tnlcpl.begin(), tnlcpl.end(), 0) << ;
 
   //After the end of the event we can now fill with the results. 
-  //Per layer
-  for (unsigned ilayer = 1; ilayer <= layers; ++ilayer) {
-    if (histograms.h_clusternum_perlayer.count(ilayer)){ histograms.h_clusternum_perlayer.at(ilayer).fill( tnlcpl[ilayer] ); }
-    if (histograms.h_energyclustered_perlayer.count(ilayer)){ histograms.h_energyclustered_perlayer.at(ilayer).fill( 100. * tecpl[ilayer]/calopartene ); }
-    // std::cout << "Total energy clustered for layer " << ilayer << ": " <<tecpl[ilayer] << std::endl;
+  //First a couple of variables to keep the sum of the energy of all clusters
+  double sumeneallcluspl = 0.; double sumeneallclusmi = 0.;
+  //And the longitudinal variable
+  double sumldbarpl = 0.; double sumldbarmi = 0.;
+  //Per layer : Loop 0->103
+  for (unsigned ilayer = 0; ilayer < layers*2; ++ilayer) {
+    if (histograms.h_clusternum_perlayer.count(ilayer)){ 
+      histograms.h_clusternum_perlayer.at(ilayer).fill( tnlcpl[ilayer] ); 
+    }
+    // Two times one for plus and one for minus
+    //First with the -z endcap
+    if (ilayer < layers){
+      if (histograms.h_energyclustered_perlayer.count(ilayer)){ 
+	if ( caloparteneminus != 0.) {
+	  histograms.h_energyclustered_perlayer.at(ilayer).fill( 100. * tecpl[ilayer]/caloparteneminus ); 
+	}
+      }
+      // std::cout << "Total energy clustered for layer " << ilayer << ": " <<tecpl[ilayer] << std::endl;
+      //Keep here the total energy for the event in -z
+      sumeneallclusmi = sumeneallclusmi + tecpl[ilayer];
+      //And for the longitudinal variable
+      sumldbarmi = sumldbarmi + ldbar[ilayer];
+    } else { //Then for the +z
+      if (histograms.h_energyclustered_perlayer.count(ilayer)){ 
+	if ( caloparteneplus != 0.) {
+	  histograms.h_energyclustered_perlayer.at(ilayer).fill( 100. * tecpl[ilayer]/caloparteneplus ); 
+	}
+      }
+      // std::cout << "Total energy clustered for layer " << ilayer << ": " <<tecpl[ilayer] << std::endl;
+      //Keep here the total energy for the event in -z
+      sumeneallcluspl = sumeneallcluspl + tecpl[ilayer];
+      //And for the longitudinal variable
+      sumldbarpl = sumldbarpl + ldbar[ilayer];
+    } //end of +z loop 
+
+  }//end of loop over layers 
     
-  }
   //Per thickness
   for(std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) { 
     if ( histograms.h_clusternum_perthick.count(*it) ){ 
-      histograms.h_clusternum_perthick.at(*it).fill( tnlcpth[std::to_string(*it)]); 
+      histograms.h_clusternum_perthick.at(*it).fill( tnlcpthplus[std::to_string(*it)] ); 
+      histograms.h_clusternum_perthick.at(*it).fill( tnlcpthminus[std::to_string(*it)] ); 
     } 
   }
   //Mixed thickness clusters
-  histograms.h_mixedhitscluster[count].fill( tnlcpth["mixed"]  );
+  histograms.h_mixedhitscluster_zplus[count].fill( tnlcpthplus["mixed"]  );
+  histograms.h_mixedhitscluster_zminus[count].fill( tnlcpthminus["mixed"]  );
 
-  double sumeneallclus = std::accumulate( tecpl.begin(), tecpl.end(), 0.0 );
   //Total energy clustered from all layer clusters (fraction)
-  histograms.h_energyclustered[count].fill( 100. * sumeneallclus /calopartene ); 
-  
-  // std::cout << "Total energy clustered " << std::accumulate( tecpl.begin(), tecpl.end(), 0.0 ) << " and calo particles energy " << calopartene << std::endl;
-  
+  if ( caloparteneplus != 0.) {histograms.h_energyclustered_zplus[count].fill( 100. * sumeneallcluspl /caloparteneplus ); }
+  if ( caloparteneminus != 0.) {histograms.h_energyclustered_zminus[count].fill( 100. * sumeneallclusmi /caloparteneminus ); }
+
+  std::cout << "Total energy clustered +z " << sumeneallcluspl << " and calo particles energy +z " << caloparteneplus << std::endl;
+  std::cout << "Total energy clustered -z " << sumeneallclusmi << " and calo particles energy -z " << caloparteneminus << std::endl;
+
   //For the longitudinal depth barycenter
-  histograms.h_longdepthbarycentre[count].fill( std::accumulate( ldbar.begin(), ldbar.end(), 0.0 ) / sumeneallclus ); 
+  histograms.h_longdepthbarycentre_zplus[count].fill( sumldbarpl / sumeneallcluspl ); 
+  histograms.h_longdepthbarycentre_zminus[count].fill( sumldbarmi / sumeneallclusmi ); 
 
 
 }
