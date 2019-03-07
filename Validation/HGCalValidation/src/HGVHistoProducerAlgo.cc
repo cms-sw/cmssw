@@ -499,7 +499,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
     unsigned int numberOfHitsInLC = hits_and_fractions.size();
     auto firstHitDetId = hits_and_fractions[0].first;
     int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
-    if (clusters[lcId].energy() == 0. && cpsInLayerCluster[lcId].size() != 0) {
+    if (clusters[lcId].energy() == 0. && !cpsInLayerCluster[lcId].empty()) {
       for(auto& cpPair : cpsInLayerCluster[lcId]) {
         cpPair.second = 1.;
         LogDebug("HGCalValidator") << "layerCluster Id: \t" << lcId
@@ -973,7 +973,7 @@ DetId HGVHistoProducerAlgo::findmaxhit(const reco::CaloCluster & cluster,
     std::map<DetId, const HGCRecHit*> const & hitMap) const {
 
   DetId themaxid;
-  const std::vector<std::pair<DetId, float> > hits_and_fractions = cluster.hitsAndFractions();
+  const std::vector<std::pair<DetId, float> >& hits_and_fractions = cluster.hitsAndFractions();
 
   double maxene = 0.;
   for (std::vector<std::pair<DetId, float>>::const_iterator it_haf = hits_and_fractions.begin(); it_haf != hits_and_fractions.end(); ++it_haf) {
