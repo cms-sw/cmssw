@@ -27,6 +27,7 @@ from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import *
 from RecoEgamma.EgammaPhotonProducers.reducedEgamma_cfi  import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import bunchSpacingProducer
 from HeavyFlavorAnalysis.Onia2MuMu.OniaPhotonConversionProducer_cfi import PhotonCandidates as oniaPhotonCandidates
+from RecoEgamma.EgammaPhotonProducers.gsfTracksOpenConversionSequence_cff  import  gsfTracksOpenConversions
 
 slimmingTask = cms.Task(
     packedPFCandidatesTask,
@@ -56,7 +57,8 @@ slimmingTask = cms.Task(
     metFilterPathsTask,
     reducedEgamma,
     bunchSpacingProducer,
-    oniaPhotonCandidates
+    oniaPhotonCandidates,
+    gsfTracksOpenConversions
 )
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
