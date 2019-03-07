@@ -55,7 +55,6 @@ if __name__ == '__main__':
                      1000, #data+prompt
                      1001, #data+express
                      136.731, #2016B Photon data
-                     136.7611, #2016E JetHT reMINIAOD from 80X legacy
                      140.53, #2011 HI data
                      1330, #Run2 MC Zmm
                      ],
@@ -138,12 +137,6 @@ if __name__ == '__main__':
                       help='Used with --raw. Limit the production to step1',
                       dest='step1Only',
                       default=False
-                      )
-    parser.add_option('--maxSteps',
-                      help='Only run maximum on maxSteps. Used when we are only interested in first n steps.',
-                      dest='maxSteps',
-                      default=9999,
-                      type="int"
                       )
     parser.add_option('--fromScratch',
                       help='Coma separated list of wf to be run without recycling. all is not supported as default.',
