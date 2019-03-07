@@ -5,6 +5,7 @@ import re
 import sys
 import shutil
 import subprocess
+import urllib
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -1293,13 +1294,12 @@ class SimpleValidation:
             print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
-        if (self._plotterDrawArgs.get("separate", False) == True):
+        if self._plotterDrawArgs.get("separate", False):
             if not os.path.exists("%s/res"%newdir):
               os.makedirs("%s/res"%newdir)
             downloadables = ["index.php", "res/jquery-ui.js", "res/jquery.js", "res/style.css", "res/style.js", "res/theme.css"]
             for d in downloadables:
                 if not os.path.exists("%s/%s" % (newdir,d)):
-                    import urllib
                     urllib.urlretrieve("https://raw.githubusercontent.com/musella/php-plots/master/%s"%d, "%s/%s"%(newdir,d))
 
         print("Created plots in %s" % newdir)

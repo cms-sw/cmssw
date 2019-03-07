@@ -1964,7 +1964,7 @@ class Plot:
             st.SetX1NDC(startingX)
             st.SetX2NDC(startingX+0.3)
             st.SetY1NDC(startingY+dy)
-            st.SetY2NDC(startingY+dy+0.25)
+            st.SetY2NDC(startingY+dy+0.15)
             st.SetTextColor(col)
 
         dy = 0.0
