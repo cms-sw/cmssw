@@ -272,15 +272,22 @@ L1TrkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     float iPt   = iTrk->getMomentum(cfg_tk_nFitParams).perp();
     float iEta  = iTrk->getMomentum(cfg_tk_nFitParams).eta();
     float iPhi  = iTrk->getMomentum(cfg_tk_nFitParams).phi();
-    float iChi2 = iTrk->getChi2(cfg_tk_nFitParams);
     float iz0   = iTrk->getPOCA(cfg_tk_nFitParams).z();
+    float iChi2 = iTrk->getChi2(cfg_tk_nFitParams);
+    float myChi2 = 0.0;
     std::vector< L1TTStubRef > iStubs = iTrk-> getStubRefs();
-    unsigned int iNStubs              = iStubs.size();
+    unsigned int iNStubs = iStubs.size();
+    unsigned int iDof    = (2 * iNStubs) - cfg_tk_nFitParams;
+    float iRedChi2       = iChi2/iDof;
+
+    // Determine which Chi2 value to consider in criteria
+    if (cfg_tk_useRedChiSq) myChi2 = iRedChi2;
+    else myChi2 = iChi2;
 
     // Apply seed track cuts
     if ( iPt < cfg_seedtk_minPt ) continue;
     if ( fabs(iEta) > cfg_seedtk_maxEta ) continue;
-    if ( iChi2 > cfg_seedtk_maxChiSq ) continue;
+    if ( myChi2 > cfg_seedtk_maxChiSq ) continue;
     if ( iNStubs < cfg_seedtk_minStubs ) continue;
     
     // Check that there are no close tracks (in terms of deltaR) with higher Pt
@@ -292,7 +299,7 @@ L1TrkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       float jPhi  = jTrk->getMomentum(cfg_tk_nFitParams).phi();
             
       float deltaR = reco::deltaR(iEta, iPhi, jEta, jPhi);
-      if (deltaR < cfg_seedtk_maxDeltaR && jPt > iPt) highPtNeighbourFound = true;
+      if (deltaR < cfg_isoCone_dRMax && jPt > iPt) highPtNeighbourFound = true;
       
     }
     
