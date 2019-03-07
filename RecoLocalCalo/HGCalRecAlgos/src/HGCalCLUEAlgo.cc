@@ -72,6 +72,7 @@ void HGCalCLUEAlgo::populate(const HGCRecHitCollection &hits) {
     }
   }  // end loop hits
 }
+
 // Create a vector of Hexels associated to one cluster from a collection of
 // HGCalRecHits - this can be used directly to make the final cluster list -
 // this method can be invoked multiple times for the same event with different
@@ -357,59 +358,6 @@ int HGCalCLUEAlgo::findAndAssignClusters(std::vector<KDNode> &nd, KDTree &lp, do
     LogDebug("HGCalCLUEAlgo") << "moving cluster offset by " << nClustersOnLayer << std::endl;
   }
   return nClustersOnLayer;
-}
-
-// find local maxima within delta_c, marking the indices in the cluster
-std::vector<unsigned> HGCalCLUEAlgo::findLocalMaximaInCluster(const std::vector<KDNode> &cluster) {
-  std::vector<unsigned> result;
-  std::vector<bool> seed(cluster.size(), true);
-  float delta_c = 2.;
-
-  for (unsigned i = 0; i < cluster.size(); ++i) {
-    for (unsigned j = 0; j < cluster.size(); ++j) {
-      if (i != j and distance(cluster[i].data, cluster[j].data) < delta_c) {
-        if (cluster[i].data.weight < cluster[j].data.weight) {
-          seed[i] = false;
-          break;
-        }
-      }
-    }
-  }
-
-  for (unsigned i = 0; i < cluster.size(); ++i) {
-    if (seed[i] && cluster[i].data.weight > 5e-4) {
-      // seed at i with energy cluster[i].weight
-      result.push_back(i);
-    }
-  }
-
-  // Found result.size() sub-clusters in input cluster of length cluster.size()
-
-  return result;
-}
-
-math::XYZPoint HGCalCLUEAlgo::calculatePositionWithFraction(const std::vector<KDNode> &hits,
-                                                            const std::vector<double> &fractions) {
-  double norm(0.0), x(0.0), y(0.0), z(0.0);
-  for (unsigned i = 0; i < hits.size(); ++i) {
-    const double weight = fractions[i] * hits[i].data.weight;
-    norm += weight;
-    x += weight * hits[i].data.x;
-    y += weight * hits[i].data.y;
-    z += weight * hits[i].data.z;
-  }
-  math::XYZPoint result(x, y, z);
-  result /= norm;
-  return result;
-}
-
-double HGCalCLUEAlgo::calculateEnergyWithFraction(const std::vector<KDNode> &hits,
-                                                  const std::vector<double> &fractions) {
-  double result = 0.0;
-  for (unsigned i = 0; i < hits.size(); ++i) {
-    result += fractions[i] * hits[i].data.weight;
-  }
-  return result;
 }
 
 void HGCalCLUEAlgo::computeThreshold() {
