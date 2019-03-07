@@ -10,5 +10,6 @@ siStripMatchedRecHits = cms.EDProducer("SiStripRecHitConverter",
     rphiRecHits    = cms.string('rphiRecHit'),
     stereoRecHits  = cms.string('stereoRecHit'),
     matchedRecHits = cms.string('matchedRecHit'),
-    VerbosityLevel = cms.untracked.int32(1)
+    VerbosityLevel = cms.untracked.int32(1),
+    doMatching = cms.bool(True),
 )

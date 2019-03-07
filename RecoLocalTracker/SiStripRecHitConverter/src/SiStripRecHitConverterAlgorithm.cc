@@ -16,6 +16,7 @@ TYPELOOKUP_DATA_REG(SiStripRecHitMatcher);
 SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf)
     : useQuality(conf.getParameter<bool>("useSiStripQuality")),
       maskBad128StripBlocks(conf.existsAs<bool>("MaskBadAPVFibers") && conf.getParameter<bool>("MaskBadAPVFibers")),
+      doMatching(conf.getParameter<bool>("doMatching")),
       tracker_cache_id(0),
       cpe_cache_id(0),
       quality_cache_id(0),
@@ -73,7 +74,9 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStr
     if (collector.empty())
       collector.abort();
   }
-  match(output, trackdirection);
+  if (doMatching) {
+    match(output, trackdirection);
+  }
 }
 
 namespace {

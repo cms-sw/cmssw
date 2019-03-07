@@ -14,5 +14,6 @@ private:
   SiStripRecHitConverterAlgorithm recHitConverterAlgorithm;
   std::string matchedRecHitsTag, rphiRecHitsTag, stereoRecHitsTag;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterProducer;
+  bool doMatching;
 };
 #endif
