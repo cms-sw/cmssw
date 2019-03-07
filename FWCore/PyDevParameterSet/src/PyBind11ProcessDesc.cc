@@ -85,8 +85,6 @@ void PyBind11ProcessDesc::read(std::string const& config) {
 }
 
 void PyBind11ProcessDesc::readFile(std::string const& fileName) {
-  std::string initCommand("from FWCore.ParameterSet.Types import makeCppPSet");
-  pybind11::exec(initCommand);
   pybind11::eval_file(fileName);
   std::string command("process.fillProcessDesc(processPSet)");
   pybind11::exec(command);
