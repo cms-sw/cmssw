@@ -201,6 +201,7 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
       histograms.h_distancebetseedandmaxcell_perthickperlayer[istr] = ibook.book1D("distancebetseedandmaxcell_perthickperlayer_"+istr,"distance of seed cell to max cell for layer "+ istr3+" for thickness "+istr1,nintDisSeedToMaxperthickperlayer,minDisSeedToMaxperthickperlayer,maxDisSeedToMaxperthickperlayer);
       //---
       histograms.h_distancebetseedandmaxcellvsclusterenergy_perthickperlayer[istr] = ibook.book2D("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_"+istr,"distance of seed cell to max cell vs cluster energy for layer "+ istr3+" for thickness "+istr1,nintDisSeedToMaxperthickperlayer,minDisSeedToMaxperthickperlayer,maxDisSeedToMaxperthickperlayer,nintClEneperthickperlayer,minClEneperthickperlayer,maxClEneperthickperlayer);
+
     }
   }
   //---------------------------------------------------------------------------------------------------------------------------
@@ -238,7 +239,7 @@ void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
 void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histograms,
 						       int count,
 						       const reco::CaloClusterCollection &clusters, 
-						       // const Density &densities,
+						       const Density &densities,
 						       std::vector<CaloParticle> const & cP,
 						       std::map<double, double> cummatbudg,
 						       unsigned layers, 
@@ -377,18 +378,18 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       	histograms.h_distancetomaxcell_perthickperlayer_eneweighted.at(curistr).fill( distancetomax , hit->energy() );    } 
 
       //Let's check the density
-      // std::map< DetId, float >::const_iterator dit = densities.find( rh_detid );
-      // if ( dit == densities.end() ){
-      // 	std::cout << " You shouldn't be here - Unable to find a density " << rh_detid.rawId() << " " << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;
-      // 	continue;
-      // }
+      std::map< DetId, float >::const_iterator dit = densities.find( rh_detid );
+      if ( dit == densities.end() ){
+      	std::cout << " You shouldn't be here - Unable to find a density " << rh_detid.rawId() << " " << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;
+      	continue;
+      }
 
-      // // std::cout << " Detid " << dit->first << " Density " << dit->second << std::endl;
+      // std::cout << " Detid " << dit->first << " Density " << dit->second << std::endl;
       // std::cout << " Density " << dit->second << std::endl;
-
-      
-
-      
+      if ( histograms.h_cellsenedens_perthick.count( (int) thickness ) ){
+	histograms.h_cellsenedens_perthick.at( (int) thickness ).fill( dit->second );
+      }
+	
     } // end of loop through hits and fractions
 
     //Check for simultaneously having hits of different kind. Checking at least two combinations is sufficient.
@@ -431,7 +432,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
     double distancebetseedandmax = distance(seedx, seedy, maxx, maxy);
     //The thickness_layer combination in this case will use the thickness of the seed as a convention. 
     std::string seedstr = std::to_string( (int) recHitTools_->getSiThickness(seedid) )+ "_" + std::to_string(layerid);
-    std::cout << distancebetseedandmax << " cluster energy " << clusters[layerclusterIndex].energy() << " " << seedstr << std::endl;
+    // std::cout << distancebetseedandmax << " cluster energy " << clusters[layerclusterIndex].energy() << " " << seedstr << std::endl;
     if (histograms.h_distancebetseedandmaxcell_perthickperlayer.count(seedstr)){ 
       histograms.h_distancebetseedandmaxcell_perthickperlayer.at(seedstr).fill( distancebetseedandmax ); 
     }

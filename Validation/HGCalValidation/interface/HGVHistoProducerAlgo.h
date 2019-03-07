@@ -80,7 +80,7 @@ class HGVHistoProducerAlgo {
   void fill_generic_cluster_histos(const Histograms& histograms,
 				   int count,
 				   const reco::CaloClusterCollection &clusters,
-				   /* const Density &densities, */
+				   const Density &densities,
 				   std::vector<CaloParticle> const & cP,
 				   std::map<double, double> cummatbudg,
 				   unsigned layers, 
