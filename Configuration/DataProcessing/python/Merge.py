@@ -73,7 +73,7 @@ def mergeProcess(*inputFiles, **options):
         outMod = OutputModule("PoolOutputModule")
 
     # To bypass the version check in the merge process (TRUE by default)
-    process.source.bypassVersionCheck = cms.untracked.bool(bypassVersionCheck)
+    process.source.bypassVersionCheck = CfgTypes.untracked.bool(bypassVersionCheck)
 
     outMod.fileName = CfgTypes.untracked.string(outputFilename)
     if outputLFN != None:
