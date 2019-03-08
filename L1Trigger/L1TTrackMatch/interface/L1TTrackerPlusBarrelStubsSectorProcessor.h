@@ -25,6 +25,7 @@ class L1TTrackerPlusBarrelStubsSectorProcessor {
   int tolQ_;
   double dzIsol_;
   double coneIsol_;
+  double threshIsol_;
 
   //here is an example configurable that is read from cfg file
   std::vector<double> phi1_;

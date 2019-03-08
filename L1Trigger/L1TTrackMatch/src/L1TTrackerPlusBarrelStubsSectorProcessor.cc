@@ -10,6 +10,7 @@ L1TTrackerPlusBarrelStubsSectorProcessor::L1TTrackerPlusBarrelStubsSectorProcess
   tolQ_(iConfig.getParameter<int>("toleranceQ")),
   dzIsol_(iConfig.getParameter<double>("dzForIso")),
   coneIsol_(iConfig.getParameter<double>("coneForIso")),
+  threshIsol_(iConfig.getParameter<double>("threshForIso")),
   phi1_(iConfig.getParameter<std::vector<double> > ("phi1")),
   phi2_(iConfig.getParameter<std::vector<double> > ("phi2")),
   propagation_(iConfig.getParameter<std::vector<double> > ("propagationConstants")),
@@ -167,7 +168,9 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::pro
 	    deltaR(vec.eta(),vec.phi(),vec2.eta(),vec2.phi())>0.0001
 	    ) {
 	  if (fabs(track->getPOCA().z()-track2->getPOCA().z())<dzIsol_) {
-	    sumPT+=vec2.pt();
+	    if (vec2.pt()>threshIsol_) {
+	      sumPT+=vec2.pt();
+	    }
 	  }
 	}
 
