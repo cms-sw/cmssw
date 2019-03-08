@@ -101,6 +101,7 @@ private:
   TH1F* etL1TrkObjMatched;  
   TH1F* etaL1TrkObjMatched;
   TH1F* phiL1TrkObjMatched;
+  TH1F* massL1TrkObjMatched;
 
   // Performance 
   TH1F* etL1TrkObjTurnOn;
@@ -179,29 +180,30 @@ void L1TausAnalyzer::beginJob() {
 
   // L1 Objects
   nL1TrkObj     = fs->make<TH1F>("Multiplicity","Multiplicity", 50, -0.5, 49.5);
-  etL1TrkObj    = fs->make<TH1F>("Et", "Et", 200, 0.5, 200.5);
-  etaL1TrkObj   = fs->make<TH1F>("Eta","Eta", 90, -4.5, 4.5);
-  phiL1TrkObj   = fs->make<TH1F>("Phi","Phi", 64, -3.2, 3.2);
-  massL1TrkObj  = fs->make<TH1F>("Mass","Mass", 20, 0.0, 2.0);
+  etL1TrkObj    = fs->make<TH1F>("Et"   ,"Et"   , 200, 0.5, 200.5);
+  etaL1TrkObj   = fs->make<TH1F>("Eta"  ,"Eta"  , 90, -4.5, 4.5);
+  phiL1TrkObj   = fs->make<TH1F>("Phi"  ,"Phi"  , 64, -3.2, 3.2);
+  massL1TrkObj  = fs->make<TH1F>("Mass" ,"Mass" , 20, 0.0, 2.0);
   
   if (cfg_analysisOption == "Efficiency") {
     
     // Gen Particles
     etVisGenL1Obj = fs->make<TH1F>("GenEtVis", "GenEtVis", 40, 0.5, 200.5);
-    etGenL1Obj    = fs->make<TH1F>("GenEt", "GenEt", 40, 0.5, 200.5);
-    etaGenL1Obj   = fs->make<TH1F>("GenEta", "GenEta", 90, -4.5, 4.5);
-    phiGenL1Obj   = fs->make<TH1F>("GenPhi","GenPhi", 64, -3.2, 3.2);
+    etGenL1Obj    = fs->make<TH1F>("GenEt"   , "GenEt"   , 40, 0.5, 200.5);
+    etaGenL1Obj   = fs->make<TH1F>("GenEta"  , "GenEta"  , 90, -4.5, 4.5);
+    phiGenL1Obj   = fs->make<TH1F>("GenPhi"  , "GenPhi"  , 64, -3.2, 3.2);
 
-    // L1 Matched objects
-    etL1TrkObjMatched  = fs->make<TH1F>("EtMatched", "EtMatched", 40, 0.5, 200.5);
-    etaL1TrkObjMatched = fs->make<TH1F>("EtaMatched","EtaMatched", 90, -4.5, 4.5);
-    phiL1TrkObjMatched = fs->make<TH1F>("PhiMatched","PhiMatched", 64, -3.2, 3.2);
-    
+    // L1 Matched object
+    etL1TrkObjMatched    = fs->make<TH1F>("EtMatched"   ,"EtMatched"   , 40, 0.5, 200.5);
+    etaL1TrkObjMatched   = fs->make<TH1F>("EtaMatched"  ,"EtaMatched"  , 90, -4.5, 4.5);
+    phiL1TrkObjMatched   = fs->make<TH1F>("PhiMatched"  ,"PhiMatched"  , 64, -3.2, 3.2);
+    massL1TrkObjMatched  = fs->make<TH1F>("MassMatched" ,"MassMatched" , 20, 0.0, 2.0);
+
     // 2D Plots
     etL1TrkObjVsGen = fs->make<TH2F>("EtVsGenEt", "EtVsGenEt", 200, 0.5, 200.5, 200, 0.5, 200.5);
     
     // Turn-on numerator plots
-    etL1TrkObjTurnOn = fs->make<TH1F>("EtTurnOn", "EtTurnOn", 40, 0.5, 200.5);
+    etL1TrkObjTurnOn = fs->make<TH1F>("EtTurnOn"   , "EtTurnOn"   , 40, 0.5, 200.5);
     etGenObjTurnOn   = fs->make<TH1F>("GenEtTurnOn", "GenEtTurnOn", 40, 0.5, 200.5);
     
     // Efficiency plot
@@ -273,12 +275,14 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Plot the Properties
     nL1TrkObj->Fill(l1TrkTauCollection.size());
     for (auto tkObjIter = l1TrkTauCollection.begin(); tkObjIter != l1TrkTauCollection.end(); ++tkObjIter) {
-      if (fabs(tkObjIter->eta()) < cfg_l1EtaCutoff && tkObjIter->getEt() > cfg_l1EtThreshold) {
-	etL1TrkObj  -> Fill(tkObjIter->getEt());
-	etaL1TrkObj -> Fill(tkObjIter->eta());
-	phiL1TrkObj -> Fill(tkObjIter->phi());
-	massL1TrkObj  -> Fill(tkObjIter->mass());
-      }      
+      
+      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->getEt() < cfg_l1EtThreshold) continue;
+      
+      etL1TrkObj  -> Fill(tkObjIter->getEt());
+      etaL1TrkObj -> Fill(tkObjIter->eta());
+      phiL1TrkObj -> Fill(tkObjIter->phi());
+      massL1TrkObj  -> Fill(tkObjIter->mass());
+      
     }
     
     if (cfg_analysisOption == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1TrkTauCollection);
@@ -298,12 +302,14 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Plot the Properties
     nL1TrkObj->Fill(l1TkEGTauCollection.size());
     for (auto tkObjIter = l1TkEGTauCollection.begin(); tkObjIter != l1TkEGTauCollection.end(); ++tkObjIter) {
-      if (fabs(tkObjIter->eta()) < cfg_l1EtaCutoff && tkObjIter->getEt() > cfg_l1EtThreshold) {
-	etL1TrkObj  -> Fill(tkObjIter->getEt());
-	etaL1TrkObj -> Fill(tkObjIter->eta());
-	phiL1TrkObj -> Fill(tkObjIter->phi());
-	massL1TrkObj  -> Fill(tkObjIter->mass());
-      }
+      
+      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->getEt() < cfg_l1EtThreshold) continue;
+      
+      etL1TrkObj  -> Fill(tkObjIter->getEt());
+      etaL1TrkObj -> Fill(tkObjIter->eta());
+      phiL1TrkObj -> Fill(tkObjIter->phi());
+      massL1TrkObj  -> Fill(tkObjIter->mass());
+      
     }
         
     if (cfg_analysisOption == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1TkEGTauCollection);
@@ -323,14 +329,15 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Plot the Properties
     nL1TrkObj->Fill(l1CaloTkTauCollection.size());
     for (auto tkObjIter = l1CaloTkTauCollection.begin(); tkObjIter != l1CaloTkTauCollection.end(); ++tkObjIter) {
-      if (fabs(tkObjIter->eta()) < cfg_l1EtaCutoff && tkObjIter->getEt() > cfg_l1EtThreshold) {
-	etL1TrkObj  -> Fill(tkObjIter->getEt());
-	etaL1TrkObj -> Fill(tkObjIter->eta());
-	phiL1TrkObj -> Fill(tkObjIter->phi());
-	massL1TrkObj  -> Fill(tkObjIter->mass());
-      }
+      
+      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->getEt() < cfg_l1EtThreshold) continue;
+      
+      etL1TrkObj  -> Fill(tkObjIter->getEt());
+      etaL1TrkObj -> Fill(tkObjIter->eta());
+      phiL1TrkObj -> Fill(tkObjIter->phi());
+      massL1TrkObj  -> Fill(tkObjIter->mass());
     }
-        
+    
     if (cfg_analysisOption == "Efficiency" && genIndices.size() > 0) checkEfficiency(l1CaloTkTauCollection);
     else if (cfg_analysisOption == "Rate") checkRate(l1CaloTkTauCollection);    
     
@@ -367,7 +374,7 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
     // Initializations
     float dRminTkObj = 999.9; 
     unsigned int indxTkObj = -1 ;
-    float etTkObj, etaTkObj, phiTkObj;
+    float etTkObj, etaTkObj, phiTkObj, massTkObj;
 
     // Find the closest track object to the gen particle
     unsigned int iTkObj = -1;
@@ -380,29 +387,34 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
       float seedEta = seedTk->getMomentum().eta();
       float seedPhi = seedTk->getMomentum().phi();
 
-      if (fabs(tkObjIter->eta()) < cfg_l1EtaCutoff && tkObjIter->getEt() > cfg_l1EtThreshold) { 
-	float dPhi = reco::deltaPhi(seedPhi, genPhis.at(i));
-	float dEta = (seedEta - genEtas.at(i));
-	float dR =  sqrt(dPhi*dPhi + dEta*dEta);
-	//float dR = reco::deltaR(seedEta, seedPhi, genEtas.at(i),genPhis.at(i));
-	if  (dR < dRminTkObj ) {
-	  dRminTkObj = dR;
-	  indxTkObj  = iTkObj;
-	  etTkObj  = tkObjIter->getEt();
-	  etaTkObj = tkObjIter->eta();
-	  phiTkObj = tkObjIter->phi();
-	}
+      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->getEt() < cfg_l1EtThreshold) continue; 
+      
+      
+      float dPhi = reco::deltaPhi(seedPhi, genPhis.at(i));
+      float dEta = (seedEta - genEtas.at(i));
+      float dR =  sqrt(dPhi*dPhi + dEta*dEta);
+      //float dR = reco::deltaR(seedEta, seedPhi, genEtas.at(i),genPhis.at(i));
+      if  (dR < dRminTkObj ) {
+	dRminTkObj = dR;
+	indxTkObj  = iTkObj;
+	etTkObj    = tkObjIter->getEt();
+	etaTkObj   = tkObjIter->eta();
+	phiTkObj   = tkObjIter->phi();
+	massTkObj  = tkObjIter->mass();
       }
+      
     }// End-loop: All the track objects in the event
     
     // Apply the matching dR criteria
     if (dRminTkObj < cfg_dRMatching) {
       selectedL1TkObjTot++;
       matchedL1TkObjIndices.push_back(indxTkObj);
+      
       // Fill histos with properties of the matched track objects 
-      etL1TrkObjMatched->Fill(etTkObj);
-      etaL1TrkObjMatched->Fill(etaTkObj);
-      phiL1TrkObjMatched->Fill(phiTkObj);
+      etL1TrkObjMatched   -> Fill(etTkObj);
+      etaL1TrkObjMatched  -> Fill(etaTkObj);
+      phiL1TrkObjMatched  -> Fill(phiTkObj);
+      massL1TrkObjMatched -> Fill(massTkObj);
       
       etL1TrkObjVsGen->Fill(etTkObj, genEtsVis.at(i));
       
@@ -413,7 +425,7 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
 	etGenObjTurnOn->Fill(genEtsVis.at(i));
       }
     }
-
+    
     // Debug
     if (0) {
       std::cout << " Gen Info : eta, phi, Et " << genEtas.at(i) << " " <<  genPhis.at(i) << " " << genEts.at(i) << std::endl;
@@ -448,16 +460,17 @@ void L1TausAnalyzer::checkRate(const T1 & tkObjCollection) {
   
   // For-loop: All the track objects in the event
   for (auto tkObjIter = tkObjCollection.begin(); tkObjIter != tkObjCollection.end(); ++tkObjIter) {  // not needed (could just use the first object - leading)
-    if (fabs(tkObjIter->eta()) < cfg_l1EtaCutoff && tkObjIter->getEt() > cfg_l1EtThreshold) { 
-      
-      nObj++;
-      et = tkObjIter->getEt();
-      
-      // Fill rate histo for with the et of the leading track object
-      if (nObj == 1) {
-	fillIntegralHistos(etThrL1TrkObj, et);
-      }
-    }         
+
+    if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->getEt() < cfg_l1EtThreshold) continue; 
+    
+    nObj++;
+    et = tkObjIter->getEt();
+    
+    // Fill rate histo for with the et of the leading track object
+    if (nObj == 1) {
+      fillIntegralHistos(etThrL1TrkObj, et);
+    }
+    
   }// End-loop: All the track objects in the event
   
   return;
