@@ -86,7 +86,7 @@ class CTPPSPixelSimTopology : public CTPPSPixelTopology
 
       // columns (y segmentation)
       if( acol == 0 ) {
-        lower_y = 50;
+        lower_y = 0.050;
         higher_y = 0.35;
       }
       else if ( acol <= 50 ) {
