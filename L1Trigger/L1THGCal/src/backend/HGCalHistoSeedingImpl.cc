@@ -1,15 +1,10 @@
-#include "L1Trigger/L1THGCal/interface/backend/HGCalMulticlusteringHistoImpl.h"
+#include "L1Trigger/L1THGCal/interface/backend/HGCalHistoSeedingImpl.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalShowerShape.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-HGCalMulticlusteringHistoImpl::HGCalMulticlusteringHistoImpl( const edm::ParameterSet& conf ) :
-    dr_(conf.getParameter<double>("dR_multicluster")),
-    dr_byLayer_coefficientA_(conf.existsAs<std::vector<double>>("dR_multicluster_byLayer_coefficientA") ? conf.getParameter<std::vector<double>>("dR_multicluster_byLayer_coefficientA") : std::vector<double>()),
-    dr_byLayer_coefficientB_(conf.existsAs<std::vector<double>>("dR_multicluster_byLayer_coefficientB") ? conf.getParameter<std::vector<double>>("dR_multicluster_byLayer_coefficientB") : std::vector<double>()),
-    ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster")),
-    multiclusterAlgoType_(conf.getParameter<string>("type_multicluster")),    
-    cluster_association_input_(conf.getParameter<string>("cluster_association")),
+HGCalHistoSeedingImpl::HGCalHistoSeedingImpl( const edm::ParameterSet& conf ) :
+    seedingAlgoType_(conf.getParameter<string>("type_multicluster")),    
     nBinsRHisto_(conf.getParameter<unsigned>("nBins_R_histo_multicluster")),
     nBinsPhiHisto_(conf.getParameter<unsigned>("nBins_Phi_histo_multicluster")),
     binsSumsHisto_(conf.getParameter< std::vector<unsigned> >("binSumsHisto")),
@@ -17,38 +12,27 @@ HGCalMulticlusteringHistoImpl::HGCalMulticlusteringHistoImpl( const edm::Paramet
     neighbour_weights_(conf.getParameter< std::vector<double> >("neighbour_weights"))
 {    
   
-    if(multiclusterAlgoType_=="HistoMaxC3d"){
-      multiclusteringAlgoType_ = HistoMaxC3d;
-    }else if(multiclusterAlgoType_=="HistoSecondaryMaxC3d"){
-      multiclusteringAlgoType_ = HistoSecondaryMaxC3d;
-    }else if(multiclusterAlgoType_=="HistoThresholdC3d"){
-      multiclusteringAlgoType_ = HistoThresholdC3d;
-    }else if(multiclusterAlgoType_=="HistoInterpolatedMaxC3d"){
-      multiclusteringAlgoType_ = HistoInterpolatedMaxC3d;
+    if(seedingAlgoType_=="HistoMaxC3d"){
+      seedingType_ = HistoMaxC3d;
+    }else if(seedingAlgoType_=="HistoSecondaryMaxC3d"){
+      seedingType_ = HistoSecondaryMaxC3d;
+    }else if(seedingAlgoType_=="HistoThresholdC3d"){
+      seedingType_ = HistoThresholdC3d;
+    }else if(seedingAlgoType_=="HistoInterpolatedMaxC3d"){
+      seedingType_ = HistoInterpolatedMaxC3d;
     }else {
       throw cms::Exception("HGCTriggerParameterError")
-        << "Unknown Multiclustering type '" << multiclusterAlgoType_;
+        << "Unknown Multiclustering type '" << seedingAlgoType_;
     } 
     
-    if(cluster_association_input_=="NearestNeighbour"){
-      cluster_association_strategy_ = NearestNeighbour;
-    }else if(cluster_association_input_=="EnergySplit"){
-      cluster_association_strategy_ = EnergySplit;
-    }else {
-      throw cms::Exception("HGCTriggerParameterError")
-        << "Unknown cluster association strategy'" << cluster_association_strategy_;
-    } 
-
-    edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR: " << dr_
-    <<"\nMulticluster minimum transverse-momentum: " << ptC3dThreshold_
-    <<"\nMulticluster number of R-bins for the histo algorithm: " << nBinsRHisto_
+    edm::LogInfo("HGCalMulticlusterParameters") <<"\nMulticluster number of R-bins for the histo algorithm: " << nBinsRHisto_
     <<"\nMulticluster number of Phi-bins for the histo algorithm: " << nBinsPhiHisto_
     <<"\nMulticluster MIPT threshold for histo threshold algorithm: " << histoThreshold_
-    <<"\nMulticluster type of multiclustering algortihm: " << multiclusterAlgoType_;
+    <<"\nMulticluster type of multiclustering algortihm: " << seedingAlgoType_;
 
     id_ = std::unique_ptr<HGCalTriggerClusterIdentificationBase>{ HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT") };
     id_->initialize(conf.getParameter<edm::ParameterSet>("EGIdentification"));
-    if(multiclusterAlgoType_.find("Histo")!=std::string::npos && nBinsRHisto_!=binsSumsHisto_.size()){
+    if(seedingAlgoType_.find("Histo")!=std::string::npos && nBinsRHisto_!=binsSumsHisto_.size()){
       throw cms::Exception("Inconsistent bin size") <<  "Inconsistent nBins_R_histo_multicluster ( " << nBinsRHisto_ << " ) and binSumsHisto ( " << binsSumsHisto_.size() << " ) size in HGCalMulticlustering\n";
     }
 
@@ -59,20 +43,7 @@ HGCalMulticlusteringHistoImpl::HGCalMulticlusteringHistoImpl( const edm::Paramet
 }
 
 
-
-float HGCalMulticlusteringHistoImpl::dR( const l1t::HGCalCluster & clu,
-                                         const GlobalPoint & seed) const
-{
-
-    Basic3DVector<float> seed_3dv( seed );
-    GlobalPoint seed_proj( seed_3dv / seed.z() );
-    return (seed_proj - clu.centreProj() ).mag();
-
-}
-
-
-
-HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillHistoClusters( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs ){
+HGCalHistoSeedingImpl::Histogram HGCalHistoSeedingImpl::fillHistoClusters( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs ){
 
 
     Histogram histoClusters; //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi
@@ -109,7 +80,7 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillHist
 
 
 
-HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillSmoothPhiHistoClusters( const Histogram & histoClusters,
+HGCalHistoSeedingImpl::Histogram HGCalHistoSeedingImpl::fillSmoothPhiHistoClusters( const Histogram & histoClusters,
                                                                      const vector<unsigned> & binSums ){
 
     Histogram histoSumPhiClusters; //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi
@@ -156,7 +127,7 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillSmoo
 
 
 
-HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillSmoothRPhiHistoClusters( const Histogram & histoClusters ){
+HGCalHistoSeedingImpl::Histogram HGCalHistoSeedingImpl::fillSmoothRPhiHistoClusters( const Histogram & histoClusters ){
 
     Histogram histoSumRPhiClusters; //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi
 
@@ -187,7 +158,7 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillSmoo
 
 
 
-std::vector<std::pair<GlobalPoint, double > > HGCalMulticlusteringHistoImpl::computeMaxSeeds( const Histogram & histoClusters ){
+std::vector<std::pair<GlobalPoint, double > > HGCalHistoSeedingImpl::computeMaxSeeds( const Histogram & histoClusters ){
 
     std::vector<std::pair<GlobalPoint, double > > seedPositionsEnergy;
 
@@ -245,7 +216,7 @@ std::vector<std::pair<GlobalPoint, double > > HGCalMulticlusteringHistoImpl::com
 }
 
 
-std::vector<std::pair<GlobalPoint, double > > HGCalMulticlusteringHistoImpl::computeInterpolatedMaxSeeds( const Histogram & histoClusters ){
+std::vector<std::pair<GlobalPoint, double > > HGCalHistoSeedingImpl::computeInterpolatedMaxSeeds( const Histogram & histoClusters ){
   
 
   std::vector<std::pair<GlobalPoint, double > > seedPositionsEnergy;
@@ -298,7 +269,7 @@ std::vector<std::pair<GlobalPoint, double > > HGCalMulticlusteringHistoImpl::com
 }
 
 
-std::vector<std::pair<GlobalPoint, double > > HGCalMulticlusteringHistoImpl::computeThresholdSeeds( const Histogram & histoClusters ){
+std::vector<std::pair<GlobalPoint, double > > HGCalHistoSeedingImpl::computeThresholdSeeds( const Histogram & histoClusters ){
 
 
     std::vector<std::pair<GlobalPoint, double > > seedPositionsEnergy;
@@ -332,7 +303,7 @@ std::vector<std::pair<GlobalPoint, double > > HGCalMulticlusteringHistoImpl::com
 
 
 
-std::vector<std::pair<GlobalPoint, double > > HGCalMulticlusteringHistoImpl::computeSecondaryMaxSeeds( const Histogram & histoClusters ){
+std::vector<std::pair<GlobalPoint, double > > HGCalHistoSeedingImpl::computeSecondaryMaxSeeds( const Histogram & histoClusters ){
 
     std::vector<std::pair<GlobalPoint, double > > seedPositionsEnergy;
   
@@ -468,87 +439,8 @@ std::vector<std::pair<GlobalPoint, double > > HGCalMulticlusteringHistoImpl::com
 }
 
 
-
-std::vector<l1t::HGCalMulticluster> HGCalMulticlusteringHistoImpl::clusterSeedMulticluster(const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs,
-                                                                                           const std::vector<std::pair<GlobalPoint, double> > & seeds){
-
-    std::map<int,l1t::HGCalMulticluster> mapSeedMulticluster;
-    std::vector<l1t::HGCalMulticluster> multiclustersTmp;
-
-    for(auto & clu : clustersPtrs){
-
-        int z_side = triggerTools_.zside(clu->detId());
-
-
-        double radiusCoefficientA = dr_byLayer_coefficientA_.empty() ? dr_ : dr_byLayer_coefficientA_.at(triggerTools_.layerWithOffset(clu->detId())); // use at() to get the assert, for the moment
-        double radiusCoefficientB = dr_byLayer_coefficientB_.empty() ? 0 : dr_byLayer_coefficientB_.at(triggerTools_.layerWithOffset(clu->detId())); // use at() to get the assert, for the moment
-
-        double minDist = radiusCoefficientA + radiusCoefficientB*(kMidRadius_ - std::abs(clu->eta()) ) ;
-
-        std::vector<pair<int,double> > targetSeedsEnergy;
-    
-        for( unsigned int iseed=0; iseed<seeds.size(); iseed++ ){
-
-            GlobalPoint seedPosition = seeds[iseed].first;          
-            double seedEnergy = seeds[iseed].second;        
-
-            if( z_side*seedPosition.z()<0) continue;
-            double d = this->dR(*clu, seeds[iseed].first);
-
-            if ( d < minDist ){
-                if ( cluster_association_strategy_ == EnergySplit ){
-                    targetSeedsEnergy.emplace_back( iseed, seedEnergy );
-                }
-                if ( cluster_association_strategy_ == NearestNeighbour ){
-
-                    minDist = d;
-
-                    if ( targetSeedsEnergy.empty() ) {
-                        targetSeedsEnergy.emplace_back( iseed, seedEnergy );
-                    }
-                    else {
-                        targetSeedsEnergy.at(0).first = iseed ;
-                        targetSeedsEnergy.at(0).second = seedEnergy;
-                    }
-                }
-                
-            }
-            
-        }
-        
-        if(targetSeedsEnergy.empty()) continue;
-        //Loop over target seeds and divide up the clusters energy
-        double totalTargetSeedEnergy = 0;
-        for (auto energy: targetSeedsEnergy){
-            totalTargetSeedEnergy+=energy.second;
-        }
-    
-        for (auto energy: targetSeedsEnergy){
-
-            double seedWeight = 1;
-            if ( cluster_association_strategy_ == EnergySplit) seedWeight = energy.second/totalTargetSeedEnergy;
-            if( mapSeedMulticluster[energy.first].size()==0) {
-                mapSeedMulticluster[energy.first] = l1t::HGCalMulticluster(clu, seedWeight) ;
-            }
-            mapSeedMulticluster[energy.first].addConstituent(clu, true, seedWeight);   
-          
-        }
-        
-    }
-
-
-    for(auto mclu : mapSeedMulticluster) multiclustersTmp.emplace_back(mclu.second);
-
-    return multiclustersTmp;
-
-}
-
-
-
-
-void HGCalMulticlusteringHistoImpl::clusterizeHisto( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs,
-                                                     l1t::HGCalMulticlusterBxCollection & multiclusters,
-                                                     const HGCalTriggerGeometryBase & triggerGeometry)
+void HGCalHistoSeedingImpl::findHistoSeeds( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs,
+                                                    std::vector<std::pair<GlobalPoint, double> > & seedPositionsEnergy)
 {
 
     /* put clusters into an r/z x phi histogram */
@@ -561,61 +453,10 @@ void HGCalMulticlusteringHistoImpl::clusterizeHisto( const std::vector<edm::Ptr<
     Histogram smoothRPhiHistoCluster = fillSmoothRPhiHistoClusters(histoCluster);
 
     /* seeds determined with local maximum criteria */
-    std::vector<std::pair<GlobalPoint, double> > seedPositionsEnergy;
-    if (multiclusteringAlgoType_ == HistoMaxC3d) seedPositionsEnergy = computeMaxSeeds(smoothRPhiHistoCluster);
-    else if(multiclusteringAlgoType_ == HistoThresholdC3d) seedPositionsEnergy = computeThresholdSeeds(smoothRPhiHistoCluster);
-    else if(multiclusteringAlgoType_ == HistoInterpolatedMaxC3d) seedPositionsEnergy = computeInterpolatedMaxSeeds(smoothRPhiHistoCluster);
-    else if(multiclusteringAlgoType_ == HistoSecondaryMaxC3d) seedPositionsEnergy = computeSecondaryMaxSeeds(smoothRPhiHistoCluster);
-    /* clusterize clusters around seeds */
-    std::vector<l1t::HGCalMulticluster> multiclustersTmp = clusterSeedMulticluster(clustersPtrs,seedPositionsEnergy);    
-    /* making the collection of multiclusters */
-    finalizeClusters(multiclustersTmp, multiclusters, triggerGeometry);
+    if (seedingType_ == HistoMaxC3d) seedPositionsEnergy = computeMaxSeeds(smoothRPhiHistoCluster);
+    else if(seedingType_ == HistoThresholdC3d) seedPositionsEnergy = computeThresholdSeeds(smoothRPhiHistoCluster);
+    else if(seedingType_ == HistoInterpolatedMaxC3d) seedPositionsEnergy = computeInterpolatedMaxSeeds(smoothRPhiHistoCluster);
+    else if(seedingType_ == HistoSecondaryMaxC3d) seedPositionsEnergy = computeSecondaryMaxSeeds(smoothRPhiHistoCluster);
 
 }
 
-
-
-
-
-
-
-void
-HGCalMulticlusteringHistoImpl::
-finalizeClusters(std::vector<l1t::HGCalMulticluster>& multiclusters_in,
-            l1t::HGCalMulticlusterBxCollection& multiclusters_out, 
-            const HGCalTriggerGeometryBase& triggerGeometry) {
-    for(auto& multicluster : multiclusters_in) {
-        // compute the eta, phi from its barycenter
-        // + pT as scalar sum of pT of constituents
-        double sumPt=multicluster.sumPt();
-
-        math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
-                multicluster.centre().eta(),
-                multicluster.centre().phi(),
-                0. );
-        multicluster.setP4( multiclusterP4 );
-
-        if( multicluster.pt() > ptC3dThreshold_ ){
-            //compute shower shapes
-            multicluster.showerLength(shape_.showerLength(multicluster));
-            multicluster.coreShowerLength(shape_.coreShowerLength(multicluster, triggerGeometry));
-            multicluster.firstLayer(shape_.firstLayer(multicluster));
-            multicluster.maxLayer(shape_.maxLayer(multicluster));
-            multicluster.sigmaEtaEtaTot(shape_.sigmaEtaEtaTot(multicluster));
-            multicluster.sigmaEtaEtaMax(shape_.sigmaEtaEtaMax(multicluster));
-            multicluster.sigmaPhiPhiTot(shape_.sigmaPhiPhiTot(multicluster));
-            multicluster.sigmaPhiPhiMax(shape_.sigmaPhiPhiMax(multicluster));
-            multicluster.sigmaZZ(shape_.sigmaZZ(multicluster));
-            multicluster.sigmaRRTot(shape_.sigmaRRTot(multicluster));
-            multicluster.sigmaRRMax(shape_.sigmaRRMax(multicluster));
-            multicluster.sigmaRRMean(shape_.sigmaRRMean(multicluster));
-            multicluster.eMax(shape_.eMax(multicluster));
-            // fill quality flag
-            multicluster.setHwQual(id_->decision(multicluster));
-            // fill H/E
-            multicluster.saveHOverE();            
-
-            multiclusters_out.push_back( 0, multicluster);
-        }
-    }
-}
