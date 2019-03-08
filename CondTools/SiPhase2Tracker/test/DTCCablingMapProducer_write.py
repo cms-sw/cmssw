@@ -32,10 +32,10 @@ process.otdtccablingmap_producer = cms.EDAnalyzer("DTCCablingMapProducer",
     record = cms.string('TrackerDetToDTCELinkCablingMapRcd'),
     generate_fake_valid_gbtlink_and_elinkid = cms.bool(True),
     modulesToDTCCablingCSVFileNames = cms.vstring(
-      #"SLHCUpgradeSimulations/Phase2TrackerDTCCablingMap/data/OT613_200_IT4025__ModulesToDTCsAllOuter.csv",
-      #"SLHCUpgradeSimulations/Phase2TrackerDTCCablingMap/data/OT614_200_IT404_layer2_10G__ModulesToDTCsNegOuter.csv",
-      #"SLHCUpgradeSimulations/Phase2TrackerDTCCablingMap/data/OT614_200_IT404_layer2_10G__ModulesToDTCsPosOuter.csv",
-      "SLHCUpgradeSimulations/Phase2TrackerDTCCablingMap/data/OT614_200_IT404_layer2_10G__CMSSWCablingMapOuter.csv"
+      #"CondTools/SiPhase2Tracker/data/OT613_200_IT4025__ModulesToDTCsAllOuter.csv",
+      #"CondTools/SiPhase2Tracker/data/OT614_200_IT404_layer2_10G__ModulesToDTCsNegOuter.csv",
+      #"CondTools/SiPhase2Tracker/data/OT614_200_IT404_layer2_10G__ModulesToDTCsPosOuter.csv",
+      "CondTools/SiPhase2Tracker/data/OT614_200_IT404_layer2_10G__CMSSWCablingMapOuter.csv"
     ),
     csvFormat_ncolumns = cms.uint32( 2),
     csvFormat_idetid   = cms.uint32( 0),

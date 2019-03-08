@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    SLHCUpgradeSimulations/Phase2TrackerDTC
+// Package:    CondTools/SiPhase2Tracker
 // Class:      DTCCablingMapTestReader
 // 
-/**\class DTCCablingMapTestReader DTCCablingMapTestReader.cc SLHCUpgradeSimulations/Phase2TrackerDTC/plugins/DTCCablingMapTestReader.cc
+/**\class DTCCablingMapTestReader DTCCablingMapTestReader.cc CondTools/SiPhase2Tracker/plugins/DTCCablingMapTestReader.cc
 
 Description: [one line class summary]
 
