@@ -91,8 +91,8 @@ std::vector<uint32_t> TrackerDetToDTCELinkCablingMap::getKnownDetIds() const
 
 void TrackerDetToDTCELinkCablingMap::insert(DTCELinkId const& dtcELinkId, uint32_t const detId)
 {
-	cablingMapDTCELinkIdToDetId_.insert(std::move(std::make_pair(DTCELinkId(dtcELinkId), uint32_t(detId))));
-	cablingMapDetIdToDTCELinkId_.insert(std::move(std::make_pair(uint32_t(detId), DTCELinkId(dtcELinkId))));
+	cablingMapDTCELinkIdToDetId_.insert(std::make_pair(DTCELinkId(dtcELinkId), uint32_t(detId)));
+	cablingMapDetIdToDTCELinkId_.insert(std::make_pair(uint32_t(detId), DTCELinkId(dtcELinkId)));
 }
 
 
