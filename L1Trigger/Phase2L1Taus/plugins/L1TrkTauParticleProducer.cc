@@ -299,88 +299,78 @@ L1TrkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       float jPhi  = jTrk->getMomentum(cfg_tk_nFitParams).phi();
             
       float deltaR = reco::deltaR(iEta, iPhi, jEta, jPhi);
-      if (deltaR < cfg_isoCone_dRMax && jPt > iPt) highPtNeighbourFound = true;
+      if (deltaR < cfg_seedtk_maxDeltaR && jPt > iPt) highPtNeighbourFound = true;
       
     }
     
+    if (highPtNeighbourFound) continue;
+
     // If not, build a tau-candidate with seed track the leading one
-    // Start: No highPtNeighbourFound 
-    if (!highPtNeighbourFound) {
-
-      // Build a tau candidate  
-      GetShrinkingConeSizes(iPt, cfg_shrinkCone_Constant, cfg_sigCone_cutoffDeltaR, cfg_sigCone_dRMin, sigCone_dRMax, isoCone_dRMin, cfg_isoCone_dRMax, cfg_isoCone_useCone);
-
+    
+    // Build a tau candidate  
+    GetShrinkingConeSizes(iPt, cfg_shrinkCone_Constant, cfg_sigCone_cutoffDeltaR, cfg_sigCone_dRMin, sigCone_dRMax, isoCone_dRMin, cfg_isoCone_dRMax, cfg_isoCone_useCone);
+    
 #ifdef DEBUG
-      std::cout<<"Shrinking cone for tau-seed with pT = "<< iPt <<" GeV: sigCone_dRMin = "<< cfg_sigCone_dRMin <<"  , sigCone_dRMax = "<< sigCone_dRMax <<"  , isoCone_dRMin = "<< isoCone_dRMin <<"  , isoCone_dRMax = "<< cfg_isoCone_dRMax <<std::endl;
+    std::cout<<"Shrinking cone for tau-seed with pT = "<< iPt <<" GeV: sigCone_dRMin = "<< cfg_sigCone_dRMin <<"  , sigCone_dRMax = "<< sigCone_dRMax <<"  , isoCone_dRMin = "<< isoCone_dRMin <<"  , isoCone_dRMax = "<< cfg_isoCone_dRMax <<std::endl;
 #endif 
+    
+    TrackCluster.push_back(iTrk);
+    TrackClusterIndx.push_back(i);
+    
+    // Tracks Clustering
+    for (unsigned int j=0; j < SelTTTrackPtrs.size(); j++) {
       
-      TrackCluster.push_back(iTrk);
-      TrackClusterIndx.push_back(i);
-
-      // Tracks Clustering
-      for (unsigned int j=0; j < SelTTTrackPtrs.size(); j++) {
-
-	if (i == j) continue;
-	
-	L1TTTrackRefPtr jTrk = SelTTTrackPtrs.at(j);
-	float jEta  = jTrk->getMomentum(cfg_tk_nFitParams).eta();
-	float jPhi  = jTrk->getMomentum(cfg_tk_nFitParams).phi();
-	float jz0   = jTrk->getPOCA(cfg_tk_nFitParams).z();
-   
-	// Apply dz0 and dR criteria for track clustering 
-	float deltaz0 = fabs(iz0-jz0);
-	if (deltaz0 > cfg_maxDeltaZ_trks) continue;
-	float deltaR  = reco::deltaR(iEta, iPhi, jEta, jPhi);
-	if (deltaR > sigCone_dRMax) continue;
-
-	TrackCluster.push_back(jTrk);
-	TrackClusterIndx.push_back(j);
-
-      }// Tracks Clustering
-
-      // Calculate total p4 of the tau candidate 
-      math::XYZTLorentzVector p4_total, p4_trks, p4_tmp;
+      if (i == j) continue;
       
-
-      for (unsigned int j=0; j < TrackCluster.size(); j++) {
-	L1TTTrackRefPtr jTrk = TrackCluster.at(j);
-	double px = jTrk->getMomentum(cfg_tk_nFitParams).x();
-	double py = jTrk->getMomentum(cfg_tk_nFitParams).y();
-	double pz = jTrk->getMomentum(cfg_tk_nFitParams).z();
-	double e = sqrt(px*px+py*py+pz*pz+pionMass*pionMass);
-	p4_tmp.SetCoordinates(px,py,pz,e);
-	p4_trks += p4_tmp;
-		
-	// std::cout<<"Px =  "<<px<<"   "<<p4tmp.Px()<<std::endl;
-	// std::cout<<"Py =  "<<py<<"   "<<p4tmp.Py()<<std::endl;
-	// std::cout<<"Pz =  "<<pz<<"   "<<p4tmp.Pz()<<std::endl;
-	// std::cout<<"E  =  "<<e<<"   "<<p4tmp.E()<<std::endl;
-	// std::cout<<"Mass = "<<pionMass<<"   "<<p4tmp.M()<<std::endl;
-      }
+      L1TTTrackRefPtr jTrk = SelTTTrackPtrs.at(j);
+      float jEta  = jTrk->getMomentum(cfg_tk_nFitParams).eta();
+      float jPhi  = jTrk->getMomentum(cfg_tk_nFitParams).phi();
+      float jz0   = jTrk->getPOCA(cfg_tk_nFitParams).z();
       
-      // Calculate Isolation
-      float vtxIso = CalculateVtxIso(SelTTTrackPtrs, TrackClusterIndx, cfg_isoCone_useCone);
-
+      // Apply dz0 and dR criteria for track clustering 
+      float deltaz0 = fabs(iz0-jz0);
+      if (deltaz0 > cfg_maxDeltaZ_trks) continue;
+      float deltaR  = reco::deltaR(iEta, iPhi, jEta, jPhi);
+      if (deltaR > sigCone_dRMax) continue;
       
-      // Build the tau candidate
-      p4_total = p4_trks;
-      L1TrkTauParticle trkTau(p4_total, TrackCluster, vtxIso);
-
-      // Apply Mass cut
-      if (p4_trks.M() > cfg_maxInvMass_trks) continue;
+      TrackCluster.push_back(jTrk);
+      TrackClusterIndx.push_back(j);
       
-      // Apply Isolation
-      if (cfg_useVtxIso) {
-	if ( vtxIso > cfg_vtxIso_WP ) result -> push_back( trkTau );
-      }
-
-    }// End: No highPtNeighbourFound
+    }// Tracks Clustering
+    
+    // Calculate total p4 of the tau candidate 
+    math::XYZTLorentzVector p4_total, p4_trks, p4_tmp;
+    
+    for (unsigned int j=0; j < TrackCluster.size(); j++) {
+      L1TTTrackRefPtr jTrk = TrackCluster.at(j);
+      double px = jTrk->getMomentum(cfg_tk_nFitParams).x();
+      double py = jTrk->getMomentum(cfg_tk_nFitParams).y();
+      double pz = jTrk->getMomentum(cfg_tk_nFitParams).z();
+      double e = sqrt(px*px+py*py+pz*pz+pionMass*pionMass);
+      p4_tmp.SetCoordinates(px,py,pz,e);
+      p4_trks += p4_tmp;
+    }
+      
+    // Calculate Isolation
+    float vtxIso = CalculateVtxIso(SelTTTrackPtrs, TrackClusterIndx, cfg_isoCone_useCone);
+    
+    // Build the tau candidate
+    p4_total = p4_trks;
+    L1TrkTauParticle trkTau(p4_total, TrackCluster, vtxIso);
+    
+    // Apply Mass cut
+    if (p4_trks.M() > cfg_maxInvMass_trks) continue;
+    
+    // Apply Isolation
+    if (cfg_useVtxIso) {
+      if ( vtxIso > cfg_vtxIso_WP ) result -> push_back( trkTau );
+    }
     
   }// End-loop: All the L1TTTracks
   
   // Sort the TrkTau candidates by eT before saving to the event 
   sort( result->begin(), result->end(), L1TrkTau::EtComparator() );
-
+  
   iEvent.put(std::move(result), label );
   
 }

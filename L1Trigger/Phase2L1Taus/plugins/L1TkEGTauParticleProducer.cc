@@ -347,124 +347,123 @@ L1TkEGTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       
     }
     
+    if (highPtNeighbourFound) continue;
+    
     // If not, build a tau-candidate with seed track the leading one
-    // Start: No highPtNeighbourFound 
-    if (!highPtNeighbourFound) {
-
-      // Get the sizes of the shrinking cone 
-      GetShrinkingConeSizes(iPt, cfg_shrinkCone_Constant, cfg_sigCone_cutoffDeltaR, cfg_sigCone_dRMin, sigCone_dRMax, isoCone_dRMin, cfg_isoCone_dRMax, cfg_isoCone_useCone);
-
+    
+    // Get the sizes of the shrinking cone 
+    GetShrinkingConeSizes(iPt, cfg_shrinkCone_Constant, cfg_sigCone_cutoffDeltaR, cfg_sigCone_dRMin, sigCone_dRMax, isoCone_dRMin, cfg_isoCone_dRMax, cfg_isoCone_useCone);
+    
 #ifdef DEBUG
-      std::cout<<"Shrinking cone for tau-seed with pT = "<< iPt <<" GeV: sigCone_dRMin = "<< cfg_sigCone_dRMin <<"  , sigCone_dRMax = "<< sigCone_dRMax <<"  , isoCone_dRMin = "<< isoCone_dRMin <<"  , isoCone_dRMax = "<< cfg_isoCone_dRMax <<std::endl;
+    std::cout<<"Shrinking cone for tau-seed with pT = "<< iPt <<" GeV: sigCone_dRMin = "<< cfg_sigCone_dRMin <<"  , sigCone_dRMax = "<< sigCone_dRMax <<"  , isoCone_dRMin = "<< isoCone_dRMin <<"  , isoCone_dRMax = "<< cfg_isoCone_dRMax <<std::endl;
 #endif 
+    
+    // Append leading track to the track cluster
+    TrackCluster.push_back(iTrk);
+    TrackClusterIndx.push_back(i);
+    
+    // Tracks Clustering
+    for (unsigned int j=0; j < SelTTTrackPtrs.size(); j++) {
       
-      // Append leading track to the track cluster
-      TrackCluster.push_back(iTrk);
-      TrackClusterIndx.push_back(i);
-
-      // Tracks Clustering
-      for (unsigned int j=0; j < SelTTTrackPtrs.size(); j++) {
-
-	// Do not double count the leading track
-	if (i == j) continue;
-	
-	L1TTTrackRefPtr jTrk = SelTTTrackPtrs.at(j);
-	float jEta  = jTrk->getMomentum(cfg_tk_nFitParams).eta();
-	float jPhi  = jTrk->getMomentum(cfg_tk_nFitParams).phi();
-	float jz0   = jTrk->getPOCA(cfg_tk_nFitParams).z();
-
-	// Apply dz0 and dR criteria for track clustering 
-	float deltaz0 = fabs(iz0-jz0);
-	if (deltaz0 > cfg_maxDeltaZ_trks) continue;
-	float deltaR  = reco::deltaR(iEta, iPhi, jEta, jPhi);
-	if (deltaR > sigCone_dRMax) continue;
-
-	TrackCluster.push_back(jTrk);
-	TrackClusterIndx.push_back(j);
-
-      }// Tracks Clustering
-
-      // Calculate the track cluster p4
-      math::XYZTLorentzVector p4_trks, p4_tmp;
-      p4_trks.SetCoordinates(0.,0.,0.,0.);
-
-      // Calculate track cluster p4
-      for (unsigned int j=0; j < TrackCluster.size(); j++) {
-	L1TTTrackRefPtr jTrk = TrackCluster.at(j);
-	double px = jTrk->getMomentum(cfg_tk_nFitParams).x();
-	double py = jTrk->getMomentum(cfg_tk_nFitParams).y();
-	double pz = jTrk->getMomentum(cfg_tk_nFitParams).z();
-	double e = sqrt(px*px+py*py+pz*pz+pionMass*pionMass);
-	
-	// Add track's p4 to the p4 of the track cluster
-	p4_tmp.SetCoordinates(px,py,pz,e);
-	p4_trks += p4_tmp;
-      }
+      // Do not double count the leading track
+      if (i == j) continue;
       
-      // Apply Mass cut to the Track cluster
-      if (p4_trks.M() > cfg_maxInvMass_trks) continue;
-
-      // EGs clustering 
-      math::XYZTLorentzVector p4_egs, p4_cand_tmp;
-      p4_egs.SetCoordinates(0.,0.,0.,0.);
+      L1TTTrackRefPtr jTrk = SelTTTrackPtrs.at(j);
+      float jEta  = jTrk->getMomentum(cfg_tk_nFitParams).eta();
+      float jPhi  = jTrk->getMomentum(cfg_tk_nFitParams).phi();
+      float jz0   = jTrk->getPOCA(cfg_tk_nFitParams).z();
       
-      // Cluster EGs until you reach the mass cutoff for the TkEGTau Candidate
-      for ( unsigned int j=0; j < SelEGsPtrs.size(); j++ ){
-
-	EGammaRef jEG = SelEGsPtrs.at(j);
-	float jEt  = jEG->et();
-	float jEta = jEG->eta();
-	float jPhi = jEG->phi();
-	
-	// Apply dR criteria for EG clustering
-	float deltaR = reco::deltaR(iEta, iPhi, CorrectedEta(jEta, iz0), jPhi);
-	if (deltaR > sigCone_dRMax) continue;
-
-	// Calculate p4 of EG
-	float jPt = sqrt( (jEt/(sin(2*atan(exp(-jEta)))))*(jEt/(sin(2*atan(exp(-jEta))))) - pionMass*pionMass )*sin(2*atan(exp(-jEta)));
-	Double_t px    = jPt*cos(jPhi);
-	Double_t py    = jPt*sin(jPhi);
-	Double_t theta = 2*atan(exp(-jEta));
-	Double_t pz    = jPt/tan(theta);
-	Double_t p     = sqrt(jPt*jPt+pz*pz);
-	Double_t e     = sqrt(pionMass*pionMass+p*p);
-
-	p4_tmp.SetCoordinates(px,py,pz,e);
-	
-	// Calculate the p4 of the candidate (current p4 + last EG)
-	p4_cand_tmp = p4_trks + p4_egs + p4_tmp;
-	
-	// Apply mass cut off to the candidate 
-	if (p4_cand_tmp.M() > cfg_maxInvMass_TkEGs) continue;
-	
-	// If the TkEG candidates mass remains below the cutoff value add the EG to the cluster and add its p4
-	p4_egs += p4_tmp;
-	
-	EGcluster.push_back(jEG);
-	EGclusterIndx.push_back(j);
-	
-      }// EGs Clustering
+      // Apply dz0 and dR criteria for track clustering 
+      float deltaz0 = fabs(iz0-jz0);
+      if (deltaz0 > cfg_maxDeltaZ_trks) continue;
+      float deltaR  = reco::deltaR(iEta, iPhi, jEta, jPhi);
+      if (deltaR > sigCone_dRMax) continue;
       
-      // Calculate Isolation
-      float vtxIso = CalculateVtxIso(SelTTTrackPtrs, TrackClusterIndx, cfg_isoCone_useCone);
-
-      // Build the tau candidate
-      math::XYZTLorentzVector p4_total;
-      p4_total = p4_trks + p4_egs;
-      L1TkEGTauParticle trkEG(p4_total, TrackCluster, EGcluster, vtxIso);
-
-      // Apply Isolation
-      if (cfg_useVtxIso) {
-	if ( vtxIso > cfg_vtxIso_WP ) result -> push_back( trkEG );
-      }
+      TrackCluster.push_back(jTrk);
+      TrackClusterIndx.push_back(j);
       
-    }// End: No highPtNeighbourFound
+    }// Tracks Clustering
+    
+    // Calculate the track cluster p4
+    math::XYZTLorentzVector p4_trks, p4_tmp;
+    p4_trks.SetCoordinates(0.,0.,0.,0.);
+    
+    // Calculate track cluster p4
+    for (unsigned int j=0; j < TrackCluster.size(); j++) {
+      L1TTTrackRefPtr jTrk = TrackCluster.at(j);
+      double px = jTrk->getMomentum(cfg_tk_nFitParams).x();
+      double py = jTrk->getMomentum(cfg_tk_nFitParams).y();
+      double pz = jTrk->getMomentum(cfg_tk_nFitParams).z();
+      double e = sqrt(px*px+py*py+pz*pz+pionMass*pionMass);
+      
+      // Add track's p4 to the p4 of the track cluster
+      p4_tmp.SetCoordinates(px,py,pz,e);
+      p4_trks += p4_tmp;
+    }
+    
+    // Apply Mass cut to the Track cluster
+    if (p4_trks.M() > cfg_maxInvMass_trks) continue;
+    
+    // EGs clustering 
+    math::XYZTLorentzVector p4_egs, p4_cand_tmp;
+    p4_egs.SetCoordinates(0.,0.,0.,0.);
+    
+    // Cluster EGs until you reach the mass cutoff for the TkEGTau Candidate
+    for ( unsigned int j=0; j < SelEGsPtrs.size(); j++ ){
+      
+      EGammaRef jEG = SelEGsPtrs.at(j);
+      float jEt  = jEG->et();
+      float jEta = jEG->eta();
+      float jPhi = jEG->phi();
+      
+      // Apply dR criteria for EG clustering
+      float deltaR = reco::deltaR(iEta, iPhi, CorrectedEta(jEta, iz0), jPhi);
+      if (deltaR > sigCone_dRMax) continue;
+      
+      // Calculate p4 of EG
+      float jPt = sqrt( (jEt/(sin(2*atan(exp(-jEta)))))*(jEt/(sin(2*atan(exp(-jEta))))) - pionMass*pionMass )*sin(2*atan(exp(-jEta)));
+      Double_t px    = jPt*cos(jPhi);
+      Double_t py    = jPt*sin(jPhi);
+      Double_t theta = 2*atan(exp(-jEta));
+      Double_t pz    = jPt/tan(theta);
+      Double_t p     = sqrt(jPt*jPt+pz*pz);
+      Double_t e     = sqrt(pionMass*pionMass+p*p);
+      
+      p4_tmp.SetCoordinates(px,py,pz,e);
+      
+      // Calculate the p4 of the candidate (current p4 + last EG)
+      p4_cand_tmp = p4_trks + p4_egs + p4_tmp;
+      
+      // Apply mass cut off to the candidate 
+      if (p4_cand_tmp.M() > cfg_maxInvMass_TkEGs) continue;
+      
+      // If the TkEG candidates mass remains below the cutoff value add the EG to the cluster and add its p4
+      p4_egs += p4_tmp;
+      
+      EGcluster.push_back(jEG);
+      EGclusterIndx.push_back(j);
+      
+    }// EGs Clustering
+    
+    // Calculate Isolation
+    float vtxIso = CalculateVtxIso(SelTTTrackPtrs, TrackClusterIndx, cfg_isoCone_useCone);
+    
+    // Build the tau candidate
+    math::XYZTLorentzVector p4_total;
+    p4_total = p4_trks + p4_egs;
+    L1TkEGTauParticle trkEG(p4_total, TrackCluster, EGcluster, vtxIso);
+    
+    // Apply Isolation
+    if (cfg_useVtxIso) {
+      if ( vtxIso > cfg_vtxIso_WP ) result -> push_back( trkEG );
+    }
+    
     
   }// End-loop: All the L1TTTracks
   
   // Sort the TkEG candidates by eT before saving to the event 
   sort( result->begin(), result->end(), L1TkEGTau::EtComparator() );
-
+  
   iEvent.put(std::move(result), label );
   
 }
