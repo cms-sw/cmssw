@@ -11,7 +11,8 @@
  *
  * \author Fedor Ratnikov, UMd
  *
- * \version   Original March 31, 2006 by F.R.
+ * \version   Original March 31, 2006 by F.R. 
+ *            Added GenJet specifics, 2019 by Salvatore Rappoccio
  ************************************************************/
 
 
@@ -26,10 +27,22 @@ public:
   struct Specific {
     Specific () :
       m_EmEnergy (0),
-	 m_HadEnergy (0),
-	 m_InvisibleEnergy (0),
-	 m_AuxiliaryEnergy (0) {}
+      m_HadEnergy (0),
+      m_InvisibleEnergy (0),
+      m_AuxiliaryEnergy (0),
+      mChargedHadronEnergy(0),
+      mNeutralHadronEnergy(0),
+      mChargedEmEnergy(0),
+      mNeutralEmEnergy(0),
+      mMuonEnergy(0),
+      mChargedHadronMultiplicity(0),
+      mNeutralHadronMultiplicity(0),
+      mChargedEmMultiplicity(0),
+      mNeutralEmMultiplicity(0),
+      mMuonMultiplicity(0)
+    {}
 
+    /// Calo-like definitions:
     /// Energy of EM particles
     float m_EmEnergy;
     /// Energy of Hadrons
@@ -38,6 +51,25 @@ public:
     float m_InvisibleEnergy;
     /// Anything else (undecayed Sigmas etc.)
     float m_AuxiliaryEnergy;
+
+    /// PF-like definitions:
+    /// pi+, K+, etc
+    float mChargedHadronEnergy;
+    /// K0, etc
+    float mNeutralHadronEnergy;
+    /// Electrons
+    float mChargedEmEnergy;
+    /// Photons
+    float mNeutralEmEnergy;
+    /// Muons
+    float mMuonEnergy;
+    /// Corresponding multiplicities: 
+    int   mChargedHadronMultiplicity;
+    int   mNeutralHadronMultiplicity;
+    int   mChargedEmMultiplicity;
+    int   mNeutralEmMultiplicity;
+    int   mMuonMultiplicity; 
+    
   };
 
   /** Default constructor*/
@@ -61,6 +93,19 @@ public:
   float invisibleEnergy() const {return m_specific.m_InvisibleEnergy;};
   /** Returns other energy (undecayed Sigmas etc.)*/
   float auxiliaryEnergy() const {return m_specific.m_AuxiliaryEnergy;};
+
+
+  // PF-like definitions
+  float chargedHadronEnergy() const { return m_specific.mChargedHadronEnergy;}
+  float neutralHadronEnergy() const { return m_specific.mNeutralHadronEnergy;}
+  float chargedEmEnergy    () const { return m_specific.mChargedEmEnergy    ;}
+  float neutralEmEnergy    () const { return m_specific.mNeutralEmEnergy    ;}
+  float muonEnergy         () const { return m_specific.mMuonEnergy         ;}
+  int chargedHadronMultiplicity() const { return m_specific.mChargedHadronMultiplicity;}
+  int neutralHadronMultiplicity() const { return m_specific.mNeutralHadronMultiplicity;}
+  int chargedEmMultiplicity    () const { return m_specific.mChargedEmMultiplicity    ;}
+  int neutralEmMultiplicity    () const { return m_specific.mNeutralEmMultiplicity    ;}
+  int muonMultiplicity         () const { return m_specific.mMuonMultiplicity         ;}  
 
   /// Detector Eta (use reference Z and jet kinematics only)
   float detectorEta (float fZVertex) const;
