@@ -170,8 +170,8 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
 
   std::unique_ptr<std::vector<reco::BasicCluster> > clusters( new std::vector<reco::BasicCluster> ),
     clusters_sharing( new std::vector<reco::BasicCluster> );
-  std::unique_ptr<Density> density(new Density);
-  
+  auto density = std::make_unique<Density>();
+
   algo->reset();
 
   algo->getEventSetup(es);
