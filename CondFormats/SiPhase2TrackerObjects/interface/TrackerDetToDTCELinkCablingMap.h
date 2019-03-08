@@ -24,7 +24,7 @@ Implementation:
 #include <cstdint>
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-#include "CondFormats/Phase2TrackerObjects/interface/DTCELinkId.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/DTCELinkId.h"
 
 class TrackerDetToDTCELinkCablingMap
 {

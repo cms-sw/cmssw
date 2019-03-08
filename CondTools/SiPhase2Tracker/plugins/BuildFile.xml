@@ -3,7 +3,7 @@
 <use name="CondCore/DBOutputService"/>
 <use name="CondFormats/DataRecord"/>
 <use name="DataFormats/Phase2TrackerCluster"/>
-<use name="CondFormats/Phase2TrackerObjects"/>
+<use name="CondFormats/SiPhase2TrackerObjects"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/Common"/>
 <use name="FWCore/Framework"/>

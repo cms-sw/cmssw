@@ -1,4 +1,4 @@
-#include "CondFormats/Phase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <utility>

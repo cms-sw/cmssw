@@ -31,8 +31,8 @@ Implementation:
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/Common/interface/Time.h"
-#include "CondFormats/Phase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
-#include "CondFormats/Phase2TrackerObjects/interface/DTCELinkId.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/DTCELinkId.h"
 #include "CondFormats/DataRecord/interface/TrackerDetToDTCELinkCablingMapRcd.h"
 
 

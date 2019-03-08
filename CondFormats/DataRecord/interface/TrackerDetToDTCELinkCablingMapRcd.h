@@ -5,7 +5,7 @@
 // Package:     CondFormats/DataRecord
 // Class  :     TrackerDetToDTCELinkCablingMapRcd
 // 
-/**\class TrackerDetToDTCELinkCablingMapRcd TrackerDetToDTCELinkCablingMapRcd.h CondFormats/Phase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMapRcd.h
+/**\class TrackerDetToDTCELinkCablingMapRcd TrackerDetToDTCELinkCablingMapRcd.h CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMapRcd.h
 
  Description: [one line class summary]
 

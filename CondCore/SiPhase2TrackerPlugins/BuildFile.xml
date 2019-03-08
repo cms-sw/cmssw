@@ -2,7 +2,7 @@
 <use name="CondFormats/CondTest"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/Serialization"/>
-<use name="CondFormats/Phase2TrackerObjects"/>
+<use name="CondFormats/SiPhase2TrackerObjects"/>
 <use name="rootrflx"/>
 <use name="boost"/>
 <use name="tbb"/>

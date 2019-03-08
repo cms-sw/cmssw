@@ -1,4 +1,4 @@
-#include "CondFormats/Phase2TrackerObjects/interface/DTCELinkId.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/DTCELinkId.h"
 
 #include <string>
 #include <functional>
