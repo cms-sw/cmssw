@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DTCCablingMapProducerRetrieveDEMO")
+process = cms.Process("DTCCablingMapPayloadRetrieveTest")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 

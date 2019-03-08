@@ -1,11 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DTCCablingMapTestProducerWriteDEMO")
+process = cms.Process("DTCCablingMapProducer")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
-
-process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
 
 # Load CondDB service
 process.load("CondCore.CondDB.CondDB_cfi")

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TestDTCCablingMapReaderDEMO")
+process = cms.Process("DTCCablingMapPayloadDumpTest")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
@@ -9,10 +9,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 		'cout'
 	),
 	cerr = cms.untracked.PSet(
-		threshold  = cms.untracked.string('INFO') 
+		threshold  = cms.untracked.string('INFO')
 	),
 	cout = cms.untracked.PSet(
-		threshold  = cms.untracked.string('INFO') 
+		threshold  = cms.untracked.string('INFO')
 	),
 )
 
@@ -38,16 +38,6 @@ process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(1),
     interval = cms.uint64(1)
 )
-
-## We define the output service.
-#process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    #process.CondDB,
-    #timetype = cms.untracked.string('runnumber'),
-    #toPut = cms.VPSet(cms.PSet(
-        #record = cms.string('OuterTrackerDTCCablingMapRcd'),
-        #tag = cms.string('DTCCablingMapProducer_test')
-    #))
-#)
 
 process.otdtccablingmap_producer = cms.EDAnalyzer("DTCCablingMapTestReader",)
 
