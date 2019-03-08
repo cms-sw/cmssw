@@ -12,14 +12,19 @@ from Validation.RecoTrack.plotting.html import PlotPurpose
 import Validation.RecoTrack.plotting.plotting as plotting
 import Validation.RecoTrack.plotting.validation as validation
 import Validation.RecoTrack.plotting.html as html
-from Validation.HGCalValidation.makeHGCalValidationPlots import layerscheme
 
-lastLayerEEzm = layerscheme.lastLayerEEzm  # last layer of EE -z
-lastLayerFHzm = layerscheme.lastLayerFHzm  # last layer of FH -z
-maxlayerzm = layerscheme.maxlayerzm # last layer of BH -z
-lastLayerEEzp = layerscheme.lastLayerEEzp  # last layer of EE +z
-lastLayerFHzp = layerscheme.lastLayerFHzp  # last layer of FH +z
-maxlayerzp = layerscheme.maxlayerzp # last layer of BH +z
+#To be able to spot any issues both in -z and +z a layer id was introduced 
+#that spans from 0 to 103 for hgcal_v9 geometry. The mapping for hgcal_v9 is: 
+#-z: 0->51
+#+z: 52->103
+layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 52, 'lastLayerEEzp': 80, 'lastLayerFHzp': 92, 'maxlayerzp': 104 }
+
+lastLayerEEzm = layerscheme['lastLayerEEzm']  # last layer of EE -z
+lastLayerFHzm = layerscheme['lastLayerFHzm']  # last layer of FH -z
+maxlayerzm = layerscheme['maxlayerzm'] # last layer of BH -z
+lastLayerEEzp = layerscheme['lastLayerEEzp']  # last layer of EE +z
+lastLayerFHzp = layerscheme['lastLayerFHzp']  # last layer of FH +z
+maxlayerzp = layerscheme['maxlayerzp'] # last layer of BH +z
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65 }
 _legend_common = {"legendDx": -0.3,
