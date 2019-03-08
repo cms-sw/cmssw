@@ -10,132 +10,135 @@
 
 using namespace std;
 
-HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset) {
+//Parameters for the score cut
+const double ScoreCutLCtoCP_ = 0.2;
+const double ScoreCutCPtoLC_ = 0.2;
 
+HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset) :
   //parameters for eta
-  minEta  = pset.getParameter<double>("minEta");
-  maxEta  = pset.getParameter<double>("maxEta");
-  nintEta = pset.getParameter<int>("nintEta");
-  useFabsEta = pset.getParameter<bool>("useFabsEta");
+  minEta_(pset.getParameter<double>("minEta")),
+  maxEta_(pset.getParameter<double>("maxEta")),
+  nintEta_(pset.getParameter<int>("nintEta")),
+  useFabsEta_(pset.getParameter<bool>("useFabsEta")),
 
   //parameters for energy
-  minEne  = pset.getParameter<double>("minEne");
-  maxEne  = pset.getParameter<double>("maxEne");
-  nintEne = pset.getParameter<int>("nintEne");
+  minEne_(pset.getParameter<double>("minEne")),
+  maxEne_(pset.getParameter<double>("maxEne")),
+  nintEne_(pset.getParameter<int>("nintEne")),
 
   //parameters for pt
-  minPt  = pset.getParameter<double>("minPt");
-  maxPt  = pset.getParameter<double>("maxPt");
-  nintPt = pset.getParameter<int>("nintPt");
+  minPt_(pset.getParameter<double>("minPt")),
+  maxPt_(pset.getParameter<double>("maxPt")),
+  nintPt_(pset.getParameter<int>("nintPt")),
 
   //parameters for phi
-  minPhi  = pset.getParameter<double>("minPhi");
-  maxPhi  = pset.getParameter<double>("maxPhi");
-  nintPhi = pset.getParameter<int>("nintPhi");
+  minPhi_(pset.getParameter<double>("minPhi")),
+  maxPhi_(pset.getParameter<double>("maxPhi")),
+  nintPhi_(pset.getParameter<int>("nintPhi")),
 
   //parameters for counting mixed hits clusters
-  minMixedHitsCluster  = pset.getParameter<double>("minMixedHitsCluster");
-  maxMixedHitsCluster  = pset.getParameter<double>("maxMixedHitsCluster");
-  nintMixedHitsCluster = pset.getParameter<int>("nintMixedHitsCluster");
+  minMixedHitsCluster_(pset.getParameter<double>("minMixedHitsCluster")),
+  maxMixedHitsCluster_(pset.getParameter<double>("maxMixedHitsCluster")),
+  nintMixedHitsCluster_(pset.getParameter<int>("nintMixedHitsCluster")),
 
   //parameters for the total amount of energy clustered by all layer clusters (fraction over caloparticles)
-  minEneCl  = pset.getParameter<double>("minEneCl");
-  maxEneCl  = pset.getParameter<double>("maxEneCl");
-  nintEneCl = pset.getParameter<int>("nintEneCl");
+  minEneCl_(pset.getParameter<double>("minEneCl")),
+  maxEneCl_(pset.getParameter<double>("maxEneCl")),
+  nintEneCl_(pset.getParameter<int>("nintEneCl")),
 
   //parameters for the longitudinal depth barycenter.
-  minLongDepBary  = pset.getParameter<double>("minLongDepBary");
-  maxLongDepBary  = pset.getParameter<double>("maxLongDepBary");
-  nintLongDepBary = pset.getParameter<int>("nintLongDepBary");
+  minLongDepBary_(pset.getParameter<double>("minLongDepBary")),
+  maxLongDepBary_(pset.getParameter<double>("maxLongDepBary")),
+  nintLongDepBary_(pset.getParameter<int>("nintLongDepBary")),
 
   //parameters for z positionof vertex plots
-  minZpos  = pset.getParameter<double>("minZpos");
-  maxZpos  = pset.getParameter<double>("maxZpos");
-  nintZpos = pset.getParameter<int>("nintZpos");
+  minZpos_(pset.getParameter<double>("minZpos")),
+  maxZpos_(pset.getParameter<double>("maxZpos")),
+  nintZpos_(pset.getParameter<int>("nintZpos")),
 
   //Parameters for the total number of layer clusters per layer
-  minTotNClsperlay  = pset.getParameter<double>("minTotNClsperlay");
-  maxTotNClsperlay  = pset.getParameter<double>("maxTotNClsperlay");
-  nintTotNClsperlay = pset.getParameter<int>("nintTotNClsperlay");
+  minTotNClsperlay_(pset.getParameter<double>("minTotNClsperlay")),
+  maxTotNClsperlay_(pset.getParameter<double>("maxTotNClsperlay")),
+  nintTotNClsperlay_(pset.getParameter<int>("nintTotNClsperlay")),
 
   //Parameters for the energy clustered by layer clusters per layer (fraction over caloparticles)
-  minEneClperlay  = pset.getParameter<double>("minEneClperlay");
-  maxEneClperlay  = pset.getParameter<double>("maxEneClperlay");
-  nintEneClperlay = pset.getParameter<int>("nintEneClperlay");
+  minEneClperlay_(pset.getParameter<double>("minEneClperlay")),
+  maxEneClperlay_(pset.getParameter<double>("maxEneClperlay")),
+  nintEneClperlay_(pset.getParameter<int>("nintEneClperlay")),
 
   //Parameters for the score both for: 
   //1. calo particle to layer clusters association per layer
   //2. layer cluster to calo particles association per layer
-  minScore  = pset.getParameter<double>("minScore");
-  maxScore  = pset.getParameter<double>("maxScore");
-  nintScore = pset.getParameter<int>("nintScore");
+  minScore_(pset.getParameter<double>("minScore")),
+  maxScore_(pset.getParameter<double>("maxScore")),
+  nintScore_(pset.getParameter<int>("nintScore")),
 
   //Parameters for shared energy fraction. That is: 
   //1. Fraction of each of the layer clusters energy related to a 
   //calo particle over that calo particle's energy.
   //2. Fraction of each of the calo particles energy 
   //related to a layer cluster over that layer cluster's energy.
-  minSharedEneFrac = pset.getParameter<double>("minSharedEneFrac");
-  maxSharedEneFrac = pset.getParameter<double>("maxSharedEneFrac");
-  nintSharedEneFrac = pset.getParameter<int>("nintSharedEneFrac");
+  minSharedEneFrac_(pset.getParameter<double>("minSharedEneFrac")),
+  maxSharedEneFrac_(pset.getParameter<double>("maxSharedEneFrac")),
+  nintSharedEneFrac_(pset.getParameter<int>("nintSharedEneFrac")),
 
   //Parameters for the total number of layer clusters per thickness
-  minTotNClsperthick  = pset.getParameter<double>("minTotNClsperthick");
-  maxTotNClsperthick  = pset.getParameter<double>("maxTotNClsperthick");
-  nintTotNClsperthick = pset.getParameter<int>("nintTotNClsperthick");
+  minTotNClsperthick_(pset.getParameter<double>("minTotNClsperthick")),
+  maxTotNClsperthick_(pset.getParameter<double>("maxTotNClsperthick")),
+  nintTotNClsperthick_(pset.getParameter<int>("nintTotNClsperthick")),
 
   //Parameters for the total number of cells per per thickness per layer
-  minTotNcellsperthickperlayer  = pset.getParameter<double>("minTotNcellsperthickperlayer");
-  maxTotNcellsperthickperlayer  = pset.getParameter<double>("maxTotNcellsperthickperlayer");
-  nintTotNcellsperthickperlayer = pset.getParameter<int>("nintTotNcellsperthickperlayer");
+  minTotNcellsperthickperlayer_(pset.getParameter<double>("minTotNcellsperthickperlayer")),
+  maxTotNcellsperthickperlayer_(pset.getParameter<double>("maxTotNcellsperthickperlayer")),
+  nintTotNcellsperthickperlayer_(pset.getParameter<int>("nintTotNcellsperthickperlayer")),
 
   //Parameters for the distance of cluster cells to seed cell per thickness per layer
-  minDisToSeedperthickperlayer  = pset.getParameter<double>("minDisToSeedperthickperlayer");
-  maxDisToSeedperthickperlayer  = pset.getParameter<double>("maxDisToSeedperthickperlayer");
-  nintDisToSeedperthickperlayer = pset.getParameter<int>("nintDisToSeedperthickperlayer");
+  minDisToSeedperthickperlayer_(pset.getParameter<double>("minDisToSeedperthickperlayer")),
+  maxDisToSeedperthickperlayer_(pset.getParameter<double>("maxDisToSeedperthickperlayer")),
+  nintDisToSeedperthickperlayer_(pset.getParameter<int>("nintDisToSeedperthickperlayer")),
 
   //Parameters for the energy weighted distance of cluster cells to seed cell per thickness per layer
-  minDisToSeedperthickperlayerenewei  = pset.getParameter<double>("minDisToSeedperthickperlayerenewei");
-  maxDisToSeedperthickperlayerenewei  = pset.getParameter<double>("maxDisToSeedperthickperlayerenewei");
-  nintDisToSeedperthickperlayerenewei = pset.getParameter<int>("nintDisToSeedperthickperlayerenewei");
+  minDisToSeedperthickperlayerenewei_(pset.getParameter<double>("minDisToSeedperthickperlayerenewei")),
+  maxDisToSeedperthickperlayerenewei_(pset.getParameter<double>("maxDisToSeedperthickperlayerenewei")),
+  nintDisToSeedperthickperlayerenewei_(pset.getParameter<int>("nintDisToSeedperthickperlayerenewei")),
 
   //Parameters for the distance of cluster cells to max cell per thickness per layer
-  minDisToMaxperthickperlayer  = pset.getParameter<double>("minDisToMaxperthickperlayer");
-  maxDisToMaxperthickperlayer  = pset.getParameter<double>("maxDisToMaxperthickperlayer");
-  nintDisToMaxperthickperlayer = pset.getParameter<int>("nintDisToMaxperthickperlayer");
+  minDisToMaxperthickperlayer_(pset.getParameter<double>("minDisToMaxperthickperlayer")),
+  maxDisToMaxperthickperlayer_(pset.getParameter<double>("maxDisToMaxperthickperlayer")),
+  nintDisToMaxperthickperlayer_(pset.getParameter<int>("nintDisToMaxperthickperlayer")),
 
   //Parameters for the energy weighted distance of cluster cells to max cell per thickness per layer
-  minDisToMaxperthickperlayerenewei  = pset.getParameter<double>("minDisToMaxperthickperlayerenewei");
-  maxDisToMaxperthickperlayerenewei  = pset.getParameter<double>("maxDisToMaxperthickperlayerenewei");
-  nintDisToMaxperthickperlayerenewei = pset.getParameter<int>("nintDisToMaxperthickperlayerenewei");
+  minDisToMaxperthickperlayerenewei_(pset.getParameter<double>("minDisToMaxperthickperlayerenewei")),
+  maxDisToMaxperthickperlayerenewei_(pset.getParameter<double>("maxDisToMaxperthickperlayerenewei")),
+  nintDisToMaxperthickperlayerenewei_(pset.getParameter<int>("nintDisToMaxperthickperlayerenewei")),
 
   //Parameters for the distance of seed cell to max cell per thickness per layer
-  minDisSeedToMaxperthickperlayer  = pset.getParameter<double>("minDisSeedToMaxperthickperlayer");
-  maxDisSeedToMaxperthickperlayer  = pset.getParameter<double>("maxDisSeedToMaxperthickperlayer");
-  nintDisSeedToMaxperthickperlayer = pset.getParameter<int>("nintDisSeedToMaxperthickperlayer");
+  minDisSeedToMaxperthickperlayer_(pset.getParameter<double>("minDisSeedToMaxperthickperlayer")),
+  maxDisSeedToMaxperthickperlayer_(pset.getParameter<double>("maxDisSeedToMaxperthickperlayer")),
+  nintDisSeedToMaxperthickperlayer_(pset.getParameter<int>("nintDisSeedToMaxperthickperlayer")),
 
   //Parameters for the energy of a cluster per thickness per layer
-  minClEneperthickperlayer  = pset.getParameter<double>("minClEneperthickperlayer");
-  maxClEneperthickperlayer = pset.getParameter<double>("maxClEneperthickperlayer");
-  nintClEneperthickperlayer = pset.getParameter<int>("nintClEneperthickperlayer");
+  minClEneperthickperlayer_(pset.getParameter<double>("minClEneperthickperlayer")),
+  maxClEneperthickperlayer_(pset.getParameter<double>("maxClEneperthickperlayer")),
+  nintClEneperthickperlayer_(pset.getParameter<int>("nintClEneperthickperlayer")),
 
   //Parameters for the energy density of cluster cells per thickness 
-  minCellsEneDensperthick  = pset.getParameter<double>("minCellsEneDensperthick");
-  maxCellsEneDensperthick  = pset.getParameter<double>("maxCellsEneDensperthick");
-  nintCellsEneDensperthick = pset.getParameter<int>("nintCellsEneDensperthick");
+  minCellsEneDensperthick_(pset.getParameter<double>("minCellsEneDensperthick")),
+  maxCellsEneDensperthick_(pset.getParameter<double>("maxCellsEneDensperthick")),
+  nintCellsEneDensperthick_(pset.getParameter<int>("nintCellsEneDensperthick"))
 
-}
+{}
 
 HGVHistoProducerAlgo::~HGVHistoProducerAlgo() {}
 
 void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms,int pdgid) {
 
-  histograms.h_caloparticle_eta[pdgid] = ibook.book1D("num_caloparticle_eta","N of caloparticle vs eta",nintEta,minEta,maxEta);
-  histograms.h_caloparticle_eta_Zorigin[pdgid] = ibook.book2D("Eta vs Zorigin", "Eta vs Zorigin", nintEta, minEta, maxEta, nintZpos, minZpos, maxZpos);
+  histograms.h_caloparticle_eta[pdgid] = ibook.book1D("num_caloparticle_eta","N of caloparticle vs eta",nintEta_,minEta_,maxEta_);
+  histograms.h_caloparticle_eta_Zorigin[pdgid] = ibook.book2D("Eta vs Zorigin", "Eta vs Zorigin", nintEta_, minEta_, maxEta_, nintZpos_, minZpos_, maxZpos_);
 
-  histograms.h_caloparticle_energy[pdgid] = ibook.book1D("caloparticle_energy", "Energy of caloparticle", nintEne,minEne,maxEne);
-  histograms.h_caloparticle_pt[pdgid] = ibook.book1D("caloparticle_pt", "Pt of caloparticle", nintPt,minPt,maxPt);
-  histograms.h_caloparticle_phi[pdgid] = ibook.book1D("caloparticle_phi", "Phi of caloparticle", nintPhi,minPhi,maxPhi);
+  histograms.h_caloparticle_energy[pdgid] = ibook.book1D("caloparticle_energy", "Energy of caloparticle", nintEne_,minEne_,maxEne_);
+  histograms.h_caloparticle_pt[pdgid] = ibook.book1D("caloparticle_pt", "Pt of caloparticle", nintPt_,minPt_,maxPt_);
+  histograms.h_caloparticle_phi[pdgid] = ibook.book1D("caloparticle_phi", "Phi of caloparticle", nintPhi_,minPhi_,maxPhi_);
 
 
 }
@@ -144,25 +147,25 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::ConcurrentBooker& ib
 void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms, unsigned layers, std::vector<int> thicknesses) {
 
   //---------------------------------------------------------------------------------------------------------------------------
-  histograms.h_cluster_eta.push_back( ibook.book1D("num_reco_cluster_eta","N of reco clusters vs eta",nintEta,minEta,maxEta) );
+  histograms.h_cluster_eta.push_back( ibook.book1D("num_reco_cluster_eta","N of reco clusters vs eta",nintEta_,minEta_,maxEta_) );
 
   //---------------------------------------------------------------------------------------------------------------------------
   //z-
-  histograms.h_mixedhitscluster_zminus.push_back( ibook.book1D("mixedhitscluster_zminus","N of reco clusters that contain hits of more than one kind in z-",nintMixedHitsCluster,minMixedHitsCluster,maxMixedHitsCluster) );
+  histograms.h_mixedhitscluster_zminus.push_back( ibook.book1D("mixedhitscluster_zminus","N of reco clusters that contain hits of more than one kind in z-",nintMixedHitsCluster_,minMixedHitsCluster_,maxMixedHitsCluster_) );
   //z+
-  histograms.h_mixedhitscluster_zplus.push_back( ibook.book1D("mixedhitscluster_zplus","N of reco clusters that contain hits of more than one kind in z+",nintMixedHitsCluster,minMixedHitsCluster,maxMixedHitsCluster) );
+  histograms.h_mixedhitscluster_zplus.push_back( ibook.book1D("mixedhitscluster_zplus","N of reco clusters that contain hits of more than one kind in z+",nintMixedHitsCluster_,minMixedHitsCluster_,maxMixedHitsCluster_) );
   
   //---------------------------------------------------------------------------------------------------------------------------
   //z-
-  histograms.h_energyclustered_zminus.push_back( ibook.book1D("energyclustered_zminus","percent of total energy clustered by all layer clusters over caloparticles energy in z-",nintEneCl,minEneCl,maxEneCl) );
+  histograms.h_energyclustered_zminus.push_back( ibook.book1D("energyclustered_zminus","percent of total energy clustered by all layer clusters over caloparticles energy in z-",nintEneCl_,minEneCl_,maxEneCl_) );
   //z+
-  histograms.h_energyclustered_zplus.push_back( ibook.book1D("energyclustered_zplus","percent of total energy clustered by all layer clusters over caloparticles energy in z+",nintEneCl,minEneCl,maxEneCl) );
+  histograms.h_energyclustered_zplus.push_back( ibook.book1D("energyclustered_zplus","percent of total energy clustered by all layer clusters over caloparticles energy in z+",nintEneCl_,minEneCl_,maxEneCl_) );
   
   //---------------------------------------------------------------------------------------------------------------------------
   //z-
-  histograms.h_longdepthbarycentre_zminus.push_back( ibook.book1D("longdepthbarycentre_zminus","The longitudinal depth barycentre in z-",nintLongDepBary,minLongDepBary,maxLongDepBary) );
+  histograms.h_longdepthbarycentre_zminus.push_back( ibook.book1D("longdepthbarycentre_zminus","The longitudinal depth barycentre in z-",nintLongDepBary_,minLongDepBary_,maxLongDepBary_) );
   //z+
-  histograms.h_longdepthbarycentre_zplus.push_back( ibook.book1D("longdepthbarycentre_zplus","The longitudinal depth barycentre in z+",nintLongDepBary,minLongDepBary,maxLongDepBary) );
+  histograms.h_longdepthbarycentre_zplus.push_back( ibook.book1D("longdepthbarycentre_zplus","The longitudinal depth barycentre in z+",nintLongDepBary_,minLongDepBary_,maxLongDepBary_) );
 
 
   //---------------------------------------------------------------------------------------------------------------------------
@@ -177,30 +180,30 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
     }else { //Then for the +z
       istr2 = std::to_string(ilayer - 51) + " in z+";
     }
-    histograms.h_clusternum_perlayer[ilayer] = ibook.book1D("totclusternum_layer_"+istr1,"total number of layer clusters for layer "+istr2,nintTotNClsperlay,minTotNClsperlay,maxTotNClsperlay);
-    histograms.h_energyclustered_perlayer[ilayer] = ibook.book1D("energyclustered_perlayer"+istr1,"percent of total energy clustered by layer clusters over caloparticles energy for layer "+istr2,nintEneClperlay,minEneClperlay,maxEneClperlay);
-    histograms.h_score_layercl2caloparticle_perlayer[ilayer] = ibook.book1D("Score_layercl2caloparticle_perlayer"+istr1, "Score of Layer Cluster per CaloParticle for layer "+istr2, nintScore,minScore,maxScore); 
-    histograms.h_score_caloparticle2layercl_perlayer[ilayer] = ibook.book1D("Score_caloparticle2layercl_perlayer"+istr1, "Score of CaloParticle per Layer Cluster for layer "+istr2, nintScore,minScore,maxScore);
-    histograms.h_energy_vs_score_caloparticle2layercl_perlayer[ilayer] = ibook.book2D("Energy_vs_Score_caloparticle2layer_perlayer"+istr1, "Energy vs Score of CaloParticle per Layer Cluster for layer "+istr2, nintScore,minScore,maxScore, nintSharedEneFrac, minSharedEneFrac, maxSharedEneFrac);
-    histograms.h_energy_vs_score_layercl2caloparticle_perlayer[ilayer] = ibook.book2D("Energy_vs_Score_layer2caloparticle_perlayer"+istr1, "Energy vs Score of Layer Cluster per CaloParticle Layer for layer "+istr2, nintScore,minScore,maxScore, nintSharedEneFrac, minSharedEneFrac, maxSharedEneFrac); 
-    histograms.h_sharedenergy_caloparticle2layercl_perlayer[ilayer] = ibook.book1D("SharedEnergy_caloparticle2layercl_perlayer"+istr1, "Shared Energy of CaloParticle per Layer Cluster for layer "+istr2, nintSharedEneFrac, minSharedEneFrac, maxSharedEneFrac);
-    histograms.h_sharedenergy_caloparticle2layercl_vs_eta_perlayer[ilayer] = ibook.bookProfile("SharedEnergy_caloparticle2layercl_vs_eta_perlayer"+istr1, "Shared Energy of CaloParticle vs #eta per best Layer Cluster for layer "+istr2, nintEta, minEta, maxEta, minSharedEneFrac, maxSharedEneFrac);
-    histograms.h_sharedenergy_caloparticle2layercl_vs_phi_perlayer[ilayer] = ibook.bookProfile("SharedEnergy_caloparticle2layercl_vs_phi_perlayer"+istr1, "Shared Energy of CaloParticle vs #phi per best Layer Cluster for layer "+istr2, nintPhi, minPhi, maxPhi, minSharedEneFrac, maxSharedEneFrac);
-    histograms.h_sharedenergy_layercl2caloparticle_perlayer[ilayer] = ibook.book1D("SharedEnergy_layercluster2caloparticle_perlayer"+istr1, "Shared Energy of Layer Cluster per Layer Calo Particle for layer "+istr2, nintSharedEneFrac, minSharedEneFrac, maxSharedEneFrac);
-    histograms.h_sharedenergy_layercl2caloparticle_vs_eta_perlayer[ilayer] = ibook.bookProfile("SharedEnergy_layercl2caloparticle_vs_eta_perlayer"+istr1, "Shared Energy of LayerCluster vs #eta per best Calo Particle for layer "+istr2, nintEta, minEta, maxEta, minSharedEneFrac, maxSharedEneFrac);
-    histograms.h_sharedenergy_layercl2caloparticle_vs_phi_perlayer[ilayer] = ibook.bookProfile("SharedEnergy_layercl2caloparticle_vs_phi_perlayer"+istr1, "Shared Energy of LayerCluster vs #phi per best Calo Particle for layer "+istr2, nintPhi, minPhi, maxPhi, minSharedEneFrac, maxSharedEneFrac);
-    histograms.h_num_caloparticle_eta_perlayer[ilayer] = ibook.book1D("Num_CaloParticle_Eta_perlayer"+istr1, "Num CaloParticle Eta per Layer Cluster for layer "+istr2, nintEta, minEta, maxEta);
-    histograms.h_numDup_caloparticle_eta_perlayer[ilayer] = ibook.book1D("NumDup_CaloParticle_Eta_perlayer"+istr1, "Num Duplicate CaloParticle Eta per Layer Cluster for layer "+istr2, nintEta, minEta, maxEta);
-    histograms.h_denom_caloparticle_eta_perlayer[ilayer] = ibook.book1D("Denom_CaloParticle_Eta_perlayer"+istr1, "Denom CaloParticle Eta per Layer Cluster for layer "+istr2, nintEta, minEta, maxEta);
-    histograms.h_num_caloparticle_phi_perlayer[ilayer] = ibook.book1D("Num_CaloParticle_Phi_perlayer"+istr1, "Num CaloParticle Phi per Layer Cluster for layer "+istr2, nintPhi, minPhi, maxPhi);
-    histograms.h_numDup_caloparticle_phi_perlayer[ilayer] = ibook.book1D("NumDup_CaloParticle_Phi_perlayer"+istr1, "Num Duplicate CaloParticle Phi per Layer Cluster for layer "+istr2, nintPhi, minPhi, maxPhi);
-    histograms.h_denom_caloparticle_phi_perlayer[ilayer] = ibook.book1D("Denom_CaloParticle_Phi_perlayer"+istr1, "Denom CaloParticle Phi per Layer Cluster for layer "+istr2, nintPhi, minPhi, maxPhi);
-    histograms.h_num_layercl_eta_perlayer[ilayer] = ibook.book1D("Num_LayerCluster_Eta_perlayer"+istr1, "Num LayerCluster Eta per Layer Cluster for layer "+istr2, nintEta, minEta, maxEta);
-    histograms.h_numMerge_layercl_eta_perlayer[ilayer] = ibook.book1D("NumMerge_LayerCluster_Eta_perlayer"+istr1, "Num Merge LayerCluster Eta per Layer Cluster for layer "+istr2, nintEta, minEta, maxEta);
-    histograms.h_denom_layercl_eta_perlayer[ilayer] = ibook.book1D("Denom_LayerCluster_Eta_perlayer"+istr1, "Denom LayerCluster Eta per Layer Cluster for layer "+istr2, nintEta, minEta, maxEta);
-    histograms.h_num_layercl_phi_perlayer[ilayer] = ibook.book1D("Num_LayerCluster_Phi_perlayer"+istr1, "Num LayerCluster Phi per Layer Cluster for layer "+istr2, nintPhi, minPhi, maxPhi);
-    histograms.h_numMerge_layercl_phi_perlayer[ilayer] = ibook.book1D("NumMerge_LayerCluster_Phi_perlayer"+istr1, "Num Merge LayerCluster Phi per Layer Cluster for layer "+istr2, nintPhi, minPhi, maxPhi);
-    histograms.h_denom_layercl_phi_perlayer[ilayer] = ibook.book1D("Denom_LayerCluster_Phi_perlayer"+istr1, "Denom LayerCluster Phi per Layer Cluster for layer "+istr2, nintPhi, minPhi, maxPhi);
+    histograms.h_clusternum_perlayer[ilayer] = ibook.book1D("totclusternum_layer_"+istr1,"total number of layer clusters for layer "+istr2,nintTotNClsperlay_,minTotNClsperlay_,maxTotNClsperlay_);
+    histograms.h_energyclustered_perlayer[ilayer] = ibook.book1D("energyclustered_perlayer"+istr1,"percent of total energy clustered by layer clusters over caloparticles energy for layer "+istr2,nintEneClperlay_,minEneClperlay_,maxEneClperlay_);
+    histograms.h_score_layercl2caloparticle_perlayer[ilayer] = ibook.book1D("Score_layercl2caloparticle_perlayer"+istr1, "Score of Layer Cluster per CaloParticle for layer "+istr2, nintScore_,minScore_,maxScore_); 
+    histograms.h_score_caloparticle2layercl_perlayer[ilayer] = ibook.book1D("Score_caloparticle2layercl_perlayer"+istr1, "Score of CaloParticle per Layer Cluster for layer "+istr2, nintScore_,minScore_,maxScore_);
+    histograms.h_energy_vs_score_caloparticle2layercl_perlayer[ilayer] = ibook.book2D("Energy_vs_Score_caloparticle2layer_perlayer"+istr1, "Energy vs Score of CaloParticle per Layer Cluster for layer "+istr2, nintScore_,minScore_,maxScore_, nintSharedEneFrac_, minSharedEneFrac_, maxSharedEneFrac_);
+    histograms.h_energy_vs_score_layercl2caloparticle_perlayer[ilayer] = ibook.book2D("Energy_vs_Score_layer2caloparticle_perlayer"+istr1, "Energy vs Score of Layer Cluster per CaloParticle Layer for layer "+istr2, nintScore_,minScore_,maxScore_, nintSharedEneFrac_, minSharedEneFrac_, maxSharedEneFrac_); 
+    histograms.h_sharedenergy_caloparticle2layercl_perlayer[ilayer] = ibook.book1D("SharedEnergy_caloparticle2layercl_perlayer"+istr1, "Shared Energy of CaloParticle per Layer Cluster for layer "+istr2, nintSharedEneFrac_, minSharedEneFrac_, maxSharedEneFrac_);
+    histograms.h_sharedenergy_caloparticle2layercl_vs_eta_perlayer[ilayer] = ibook.bookProfile("SharedEnergy_caloparticle2layercl_vs_eta_perlayer"+istr1, "Shared Energy of CaloParticle vs #eta per best Layer Cluster for layer "+istr2, nintEta_, minEta_, maxEta_, minSharedEneFrac_, maxSharedEneFrac_);
+    histograms.h_sharedenergy_caloparticle2layercl_vs_phi_perlayer[ilayer] = ibook.bookProfile("SharedEnergy_caloparticle2layercl_vs_phi_perlayer"+istr1, "Shared Energy of CaloParticle vs #phi per best Layer Cluster for layer "+istr2, nintPhi_, minPhi_, maxPhi_, minSharedEneFrac_, maxSharedEneFrac_);
+    histograms.h_sharedenergy_layercl2caloparticle_perlayer[ilayer] = ibook.book1D("SharedEnergy_layercluster2caloparticle_perlayer"+istr1, "Shared Energy of Layer Cluster per Layer Calo Particle for layer "+istr2, nintSharedEneFrac_, minSharedEneFrac_, maxSharedEneFrac_);
+    histograms.h_sharedenergy_layercl2caloparticle_vs_eta_perlayer[ilayer] = ibook.bookProfile("SharedEnergy_layercl2caloparticle_vs_eta_perlayer"+istr1, "Shared Energy of LayerCluster vs #eta per best Calo Particle for layer "+istr2, nintEta_, minEta_, maxEta_, minSharedEneFrac_, maxSharedEneFrac_);
+    histograms.h_sharedenergy_layercl2caloparticle_vs_phi_perlayer[ilayer] = ibook.bookProfile("SharedEnergy_layercl2caloparticle_vs_phi_perlayer"+istr1, "Shared Energy of LayerCluster vs #phi per best Calo Particle for layer "+istr2, nintPhi_, minPhi_, maxPhi_, minSharedEneFrac_, maxSharedEneFrac_);
+    histograms.h_num_caloparticle_eta_perlayer[ilayer] = ibook.book1D("Num_CaloParticle_Eta_perlayer"+istr1, "Num CaloParticle Eta per Layer Cluster for layer "+istr2, nintEta_, minEta_, maxEta_);
+    histograms.h_numDup_caloparticle_eta_perlayer[ilayer] = ibook.book1D("NumDup_CaloParticle_Eta_perlayer"+istr1, "Num Duplicate CaloParticle Eta per Layer Cluster for layer "+istr2, nintEta_, minEta_, maxEta_);
+    histograms.h_denom_caloparticle_eta_perlayer[ilayer] = ibook.book1D("Denom_CaloParticle_Eta_perlayer"+istr1, "Denom CaloParticle Eta per Layer Cluster for layer "+istr2, nintEta_, minEta_, maxEta_);
+    histograms.h_num_caloparticle_phi_perlayer[ilayer] = ibook.book1D("Num_CaloParticle_Phi_perlayer"+istr1, "Num CaloParticle Phi per Layer Cluster for layer "+istr2, nintPhi_, minPhi_, maxPhi_);
+    histograms.h_numDup_caloparticle_phi_perlayer[ilayer] = ibook.book1D("NumDup_CaloParticle_Phi_perlayer"+istr1, "Num Duplicate CaloParticle Phi per Layer Cluster for layer "+istr2, nintPhi_, minPhi_, maxPhi_);
+    histograms.h_denom_caloparticle_phi_perlayer[ilayer] = ibook.book1D("Denom_CaloParticle_Phi_perlayer"+istr1, "Denom CaloParticle Phi per Layer Cluster for layer "+istr2, nintPhi_, minPhi_, maxPhi_);
+    histograms.h_num_layercl_eta_perlayer[ilayer] = ibook.book1D("Num_LayerCluster_Eta_perlayer"+istr1, "Num LayerCluster Eta per Layer Cluster for layer "+istr2, nintEta_, minEta_, maxEta_);
+    histograms.h_numMerge_layercl_eta_perlayer[ilayer] = ibook.book1D("NumMerge_LayerCluster_Eta_perlayer"+istr1, "Num Merge LayerCluster Eta per Layer Cluster for layer "+istr2, nintEta_, minEta_, maxEta_);
+    histograms.h_denom_layercl_eta_perlayer[ilayer] = ibook.book1D("Denom_LayerCluster_Eta_perlayer"+istr1, "Denom LayerCluster Eta per Layer Cluster for layer "+istr2, nintEta_, minEta_, maxEta_);
+    histograms.h_num_layercl_phi_perlayer[ilayer] = ibook.book1D("Num_LayerCluster_Phi_perlayer"+istr1, "Num LayerCluster Phi per Layer Cluster for layer "+istr2, nintPhi_, minPhi_, maxPhi_);
+    histograms.h_numMerge_layercl_phi_perlayer[ilayer] = ibook.book1D("NumMerge_LayerCluster_Phi_perlayer"+istr1, "Num Merge LayerCluster Phi per Layer Cluster for layer "+istr2, nintPhi_, minPhi_, maxPhi_);
+    histograms.h_denom_layercl_phi_perlayer[ilayer] = ibook.book1D("Denom_LayerCluster_Phi_perlayer"+istr1, "Denom LayerCluster Phi per Layer Cluster for layer "+istr2, nintPhi_, minPhi_, maxPhi_);
     histograms.h_cellAssociation_perlayer[ilayer] = ibook.book1D("cellAssociation_perlayer"+istr1, "Cell Association for layer "+istr2, 5, -4., 1.);
     histograms.h_cellAssociation_perlayer[ilayer].setBinLabel(2, "TN(purity)");
     histograms.h_cellAssociation_perlayer[ilayer].setBinLabel(3, "FN(ineff.)");
@@ -211,9 +214,9 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
   //---------------------------------------------------------------------------------------------------------------------------
   for(std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
     auto istr = std::to_string(*it);
-    histograms.h_clusternum_perthick[(*it)] = ibook.book1D("totclusternum_thick_"+istr,"total number of layer clusters for thickness "+istr,nintTotNClsperthick,minTotNClsperthick,maxTotNClsperthick);
+    histograms.h_clusternum_perthick[(*it)] = ibook.book1D("totclusternum_thick_"+istr,"total number of layer clusters for thickness "+istr,nintTotNClsperthick_,minTotNClsperthick_,maxTotNClsperthick_);
     //---
-    histograms.h_cellsenedens_perthick[(*it)] = ibook.book1D("cellsenedens_thick_"+istr,"energy density of cluster cells for thickness "+istr,nintCellsEneDensperthick,minCellsEneDensperthick,maxCellsEneDensperthick);
+    histograms.h_cellsenedens_perthick[(*it)] = ibook.book1D("cellsenedens_thick_"+istr,"energy density of cluster cells for thickness "+istr,nintCellsEneDensperthick_,minCellsEneDensperthick_,maxCellsEneDensperthick_);
   }
 
   //---------------------------------------------------------------------------------------------------------------------------
@@ -234,19 +237,19 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
 	istr3 = std::to_string(ilayer - 51) + " in z+ ";
       }
       //---
-      histograms.h_cellsnum_perthickperlayer[istr] = ibook.book1D("cellsnum_perthick_perlayer_"+istr,"total number of cells for layer "+ istr3+" for thickness "+istr1,nintTotNcellsperthickperlayer,minTotNcellsperthickperlayer,maxTotNcellsperthickperlayer);
+      histograms.h_cellsnum_perthickperlayer[istr] = ibook.book1D("cellsnum_perthick_perlayer_"+istr,"total number of cells for layer "+ istr3+" for thickness "+istr1,nintTotNcellsperthickperlayer_,minTotNcellsperthickperlayer_,maxTotNcellsperthickperlayer_);
       //---
-      histograms.h_distancetoseedcell_perthickperlayer[istr] = ibook.book1D("distancetoseedcell_perthickperlayer_"+istr,"distance of cluster cells to seed cell for layer "+ istr3+" for thickness "+istr1,nintDisToSeedperthickperlayer,minDisToSeedperthickperlayer,maxDisToSeedperthickperlayer);
+      histograms.h_distancetoseedcell_perthickperlayer[istr] = ibook.book1D("distancetoseedcell_perthickperlayer_"+istr,"distance of cluster cells to seed cell for layer "+ istr3+" for thickness "+istr1,nintDisToSeedperthickperlayer_,minDisToSeedperthickperlayer_,maxDisToSeedperthickperlayer_);
       //---
-      histograms.h_distancetoseedcell_perthickperlayer_eneweighted[istr] = ibook.book1D("distancetoseedcell_perthickperlayer_eneweighted_"+istr,"energy weighted distance of cluster cells to seed cell for layer "+ istr3+" for thickness "+istr1,nintDisToSeedperthickperlayerenewei,minDisToSeedperthickperlayerenewei,maxDisToSeedperthickperlayerenewei);
+      histograms.h_distancetoseedcell_perthickperlayer_eneweighted[istr] = ibook.book1D("distancetoseedcell_perthickperlayer_eneweighted_"+istr,"energy weighted distance of cluster cells to seed cell for layer "+ istr3+" for thickness "+istr1,nintDisToSeedperthickperlayerenewei_,minDisToSeedperthickperlayerenewei_,maxDisToSeedperthickperlayerenewei_);
       //---
-      histograms.h_distancetomaxcell_perthickperlayer[istr] = ibook.book1D("distancetomaxcell_perthickperlayer_"+istr,"distance of cluster cells to max cell for layer "+ istr3+" for thickness "+istr1,nintDisToMaxperthickperlayer,minDisToMaxperthickperlayer,maxDisToMaxperthickperlayer);
+      histograms.h_distancetomaxcell_perthickperlayer[istr] = ibook.book1D("distancetomaxcell_perthickperlayer_"+istr,"distance of cluster cells to max cell for layer "+ istr3+" for thickness "+istr1,nintDisToMaxperthickperlayer_,minDisToMaxperthickperlayer_,maxDisToMaxperthickperlayer_);
       //---
-      histograms.h_distancetomaxcell_perthickperlayer_eneweighted[istr] = ibook.book1D("distancetomaxcell_perthickperlayer_eneweighted_"+istr,"energy weighted distance of cluster cells to max cell for layer "+ istr3+" for thickness "+istr1,nintDisToMaxperthickperlayerenewei,minDisToMaxperthickperlayerenewei,maxDisToMaxperthickperlayerenewei);
+      histograms.h_distancetomaxcell_perthickperlayer_eneweighted[istr] = ibook.book1D("distancetomaxcell_perthickperlayer_eneweighted_"+istr,"energy weighted distance of cluster cells to max cell for layer "+ istr3+" for thickness "+istr1,nintDisToMaxperthickperlayerenewei_,minDisToMaxperthickperlayerenewei_,maxDisToMaxperthickperlayerenewei_);
       //---
-      histograms.h_distancebetseedandmaxcell_perthickperlayer[istr] = ibook.book1D("distancebetseedandmaxcell_perthickperlayer_"+istr,"distance of seed cell to max cell for layer "+ istr3+" for thickness "+istr1,nintDisSeedToMaxperthickperlayer,minDisSeedToMaxperthickperlayer,maxDisSeedToMaxperthickperlayer);
+      histograms.h_distancebetseedandmaxcell_perthickperlayer[istr] = ibook.book1D("distancebetseedandmaxcell_perthickperlayer_"+istr,"distance of seed cell to max cell for layer "+ istr3+" for thickness "+istr1,nintDisSeedToMaxperthickperlayer_,minDisSeedToMaxperthickperlayer_,maxDisSeedToMaxperthickperlayer_);
       //---
-      histograms.h_distancebetseedandmaxcellvsclusterenergy_perthickperlayer[istr] = ibook.book2D("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_"+istr,"distance of seed cell to max cell vs cluster energy for layer "+ istr3+" for thickness "+istr1,nintDisSeedToMaxperthickperlayer,minDisSeedToMaxperthickperlayer,maxDisSeedToMaxperthickperlayer,nintClEneperthickperlayer,minClEneperthickperlayer,maxClEneperthickperlayer);
+      histograms.h_distancebetseedandmaxcellvsclusterenergy_perthickperlayer[istr] = ibook.book2D("distancebetseedandmaxcellvsclusterenergy_perthickperlayer_"+istr,"distance of seed cell to max cell vs cluster energy for layer "+ istr3+" for thickness "+istr1,nintDisSeedToMaxperthickperlayer_,minDisSeedToMaxperthickperlayer_,maxDisSeedToMaxperthickperlayer_,nintClEneperthickperlayer_,minClEneperthickperlayer_,maxClEneperthickperlayer_);
 
     }
   }
@@ -516,7 +519,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
       DetId rh_detid = hits_and_fractions[i].first;
       float rhFraction = hits_and_fractions[i].second;
       bool hitWithNoCP = false;
-//      if(rhFraction ==0) continue;
+
       auto hit_find_in_CP = detIdToCaloParticleId_Map.find(rh_detid);
       if(hit_find_in_CP == detIdToCaloParticleId_Map.end()) hitWithNoCP = true;
       auto itcheck= hitMap.find(rh_detid);
@@ -553,7 +556,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
     auto assoc = std::count_if(
         std::begin(cpsInLayerCluster[lcId]),
         std::end(cpsInLayerCluster[lcId]),
-        [](const auto &obj){return obj.second < 0.2;});
+        [](const auto &obj){return obj.second < ScoreCutLCtoCP_;});
     if (assoc) {
       histograms.h_num_layercl_eta_perlayer.at(lcLayerId).fill(clusters[lcId].eta());
       histograms.h_num_layercl_phi_perlayer.at(lcLayerId).fill(clusters[lcId].phi());
@@ -673,7 +676,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles (const Histograms& his
       auto assoc = std::count_if(
             std::begin(cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore),
             std::end(cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore),
-            [](const auto &obj){return obj.second.second < 0.2;});
+            [](const auto &obj){return obj.second.second < ScoreCutCPtoLC_;});
       if (assoc) {
         histograms.h_num_caloparticle_eta_perlayer.at(layerId).fill(cP[cpId].g4Tracks()[0].momentum().eta());
         histograms.h_num_caloparticle_phi_perlayer.at(layerId).fill(cP[cpId].g4Tracks()[0].momentum().phi());
@@ -788,7 +791,6 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       	continue;
       }
 
-      // thickness = (rh_detid.det() == DetId::Forward || rh_detid.det() == DetId::HGCalEE || rh_detid.det() == DetId::HGCalHSi) ? recHitTools_->getSiThickness(rh_detid) : -1;
       //Count here only once the layer cluster and save the combination thick_layerid
       std::string curistr = std::to_string( (int) thickness );
       std::string lay_string = std::to_string(layerid);
@@ -994,7 +996,7 @@ DetId HGVHistoProducerAlgo::findmaxhit(const reco::CaloCluster & cluster,
 
 
 double HGVHistoProducerAlgo::getEta(double eta) const {
-  if (useFabsEta) return fabs(eta);
+  if (useFabsEta_) return fabs(eta);
   else return eta;
 }
 

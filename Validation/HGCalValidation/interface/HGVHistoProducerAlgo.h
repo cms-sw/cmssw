@@ -6,6 +6,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <unordered_map>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -119,12 +121,8 @@ class HGVHistoProducerAlgo {
 
   void setRecHitTools(std::shared_ptr<hgcal::RecHitTools> recHitTools );
 
-//  void fillHitMap(const HGCRecHitCollection & HGCEERecHits,
-//		  const HGCRecHitCollection & HGCFHRecHits,
-//		  const HGCRecHitCollection & HGCBHRecHits);
-
   DetId findmaxhit(const reco::CaloCluster & cluster,
-      std::map<DetId, const HGCRecHit*> const &) const;
+		   std::map<DetId, const HGCRecHit*> const &) const;
 
   struct detIdInfoInCluster
   {
@@ -146,30 +144,29 @@ class HGVHistoProducerAlgo {
 
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
 
-//  std::map<DetId, const HGCRecHit *> * hitMap_;
-
   //private data members
-  double minEta, maxEta;  int nintEta; bool useFabsEta;
-  double minEne, maxEne;  int nintEne;
-  double minPt, maxPt;  int nintPt;
-  double minPhi, maxPhi;  int nintPhi;
-  double minMixedHitsCluster, maxMixedHitsCluster;  int nintMixedHitsCluster;
-  double minEneCl, maxEneCl;  int nintEneCl;
-  double minLongDepBary, maxLongDepBary;  int nintLongDepBary;
-  double minZpos, maxZpos; int nintZpos;
-  double minTotNClsperlay, maxTotNClsperlay; int nintTotNClsperlay;
-  double minEneClperlay, maxEneClperlay; int nintEneClperlay;
-  double minScore, maxScore; int nintScore;
-  double minSharedEneFrac,maxSharedEneFrac; int nintSharedEneFrac;
-  double minTotNClsperthick, maxTotNClsperthick; int nintTotNClsperthick;
-  double minTotNcellsperthickperlayer, maxTotNcellsperthickperlayer; int nintTotNcellsperthickperlayer;
-  double minDisToSeedperthickperlayer, maxDisToSeedperthickperlayer; int nintDisToSeedperthickperlayer;
-  double minDisToSeedperthickperlayerenewei, maxDisToSeedperthickperlayerenewei; int nintDisToSeedperthickperlayerenewei;
-  double minDisToMaxperthickperlayer, maxDisToMaxperthickperlayer; int nintDisToMaxperthickperlayer;
-  double minDisToMaxperthickperlayerenewei, maxDisToMaxperthickperlayerenewei; int nintDisToMaxperthickperlayerenewei;
-  double minDisSeedToMaxperthickperlayer, maxDisSeedToMaxperthickperlayer; int nintDisSeedToMaxperthickperlayer;
-  double minClEneperthickperlayer, maxClEneperthickperlayer; int nintClEneperthickperlayer;
-  double minCellsEneDensperthick, maxCellsEneDensperthick; int nintCellsEneDensperthick;
+  double minEta_, maxEta_;  int nintEta_; bool useFabsEta_;
+  double minEne_, maxEne_;  int nintEne_;
+  double minPt_, maxPt_;  int nintPt_;
+  double minPhi_, maxPhi_;  int nintPhi_;
+  double minMixedHitsCluster_, maxMixedHitsCluster_;  int nintMixedHitsCluster_;
+  double minEneCl_, maxEneCl_;  int nintEneCl_;
+  double minLongDepBary_, maxLongDepBary_;  int nintLongDepBary_;
+  double minZpos_, maxZpos_; int nintZpos_;
+  double minTotNClsperlay_, maxTotNClsperlay_; int nintTotNClsperlay_;
+  double minEneClperlay_, maxEneClperlay_; int nintEneClperlay_;
+  double minScore_, maxScore_; int nintScore_;
+  double minSharedEneFrac_,maxSharedEneFrac_; int nintSharedEneFrac_;
+  double minTotNClsperthick_, maxTotNClsperthick_; int nintTotNClsperthick_;
+  double minTotNcellsperthickperlayer_, maxTotNcellsperthickperlayer_; int nintTotNcellsperthickperlayer_;
+  double minDisToSeedperthickperlayer_, maxDisToSeedperthickperlayer_; int nintDisToSeedperthickperlayer_;
+  double minDisToSeedperthickperlayerenewei_, maxDisToSeedperthickperlayerenewei_; int nintDisToSeedperthickperlayerenewei_;
+  double minDisToMaxperthickperlayer_, maxDisToMaxperthickperlayer_; int nintDisToMaxperthickperlayer_;
+  double minDisToMaxperthickperlayerenewei_, maxDisToMaxperthickperlayerenewei_; int nintDisToMaxperthickperlayerenewei_;
+  double minDisSeedToMaxperthickperlayer_, maxDisSeedToMaxperthickperlayer_; int nintDisSeedToMaxperthickperlayer_;
+  double minClEneperthickperlayer_, maxClEneperthickperlayer_; int nintClEneperthickperlayer_;
+  double minCellsEneDensperthick_, maxCellsEneDensperthick_; int nintCellsEneDensperthick_;
+  
 };
 
 #endif

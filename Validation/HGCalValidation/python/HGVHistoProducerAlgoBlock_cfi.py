@@ -112,5 +112,6 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     minCellsEneDensperthick = cms.double(0.),
     maxCellsEneDensperthick = cms.double(100.),
     nintCellsEneDensperthick = cms.int32(200)
+
 )
 
