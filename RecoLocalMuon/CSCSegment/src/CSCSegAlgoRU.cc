@@ -20,6 +20,7 @@
 CSCSegAlgoRU::CSCSegAlgoRU(const edm::ParameterSet& ps)
   : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoRU"){
   doCollisions = ps.getParameter<bool>("doCollisions");
+  enlarge = ps.getParameter<bool>("enlarge"); 
   chi2_str_ = ps.getParameter<double>("chi2_str");
   chi2Norm_2D_ = ps.getParameter<double>("chi2Norm_2D_");
   dRMax = ps.getParameter<double>("dRMax");
@@ -93,6 +94,7 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber, 
   AlgoState aState;
   aState.aChamber = aChamber;
   aState.doCollisions = doCollisions;
+  aState.enlarge = enlarge;
   aState.dRMax = dRMax;
   aState.dPhiMax = dPhiMax;
   aState.dRIntMax = dRIntMax;
@@ -100,6 +102,9 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber, 
   aState.chi2Norm_2D_ = chi2Norm_2D_;
   aState.chi2_str_ = chi2_str_;
   aState.chi2Max = chi2Max;
+	
+  int scale_factor = 1;
+  if(aState.enlarge) scale_factor = 2;
 
   // Define buffer for segments we build
   std::vector<CSCSegment> segments;
@@ -114,9 +119,14 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber, 
   for (int ipass = 0; ipass < npass; ++ipass) {
     if(aState.windowScale >1.){
       iadd = 1;
-      aState.strip_iadd = 2;
-      aState.chi2D_iadd = 2;
+      aState.strip_iadd = 2*scale_factor;
+      aState.chi2D_iadd = 2*scale_factor;
+      if(aState.enlarge){
+        aState.chi2Max = 2*chi2Max;
+        if( rechits.size() <= 12 )iadd = 0;//allow 3 hit segments for low hit multiplicity chambers
+      }
     }
+	  
     int used_rh = 0;
     for (ChamberHitContainerCIt i1 = ib; i1 != ie; ++i1) {
       if(used[i1-ib])used_rh++;
@@ -126,13 +136,13 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber, 
     if(aState.doCollisions && search_disp && int(rechits.size()-used_rh)>2){//check if there are enough recHits left to build a segment from displaced vertices
       aState.doCollisions = false;
       aState.windowScale = 1.; // scale factor for cuts
-      aState.dRMax = 2.0;
-      aState.dPhiMax = 2*aState.dPhiMax;
-      aState.dRIntMax = 2*aState.dRIntMax;
-      aState.dPhiIntMax = 2*aState.dPhiIntMax;
-      aState.chi2Norm_2D_ = 5*aState.chi2Norm_2D_;
-      aState.chi2_str_ = 100;
-      aState.chi2Max = 2*aState.chi2Max;
+      aState.dRMax = scale_factor*2.0;
+      aState.dPhiMax = scale_factor*2*aState.dPhiMax;
+      aState.dRIntMax = scale_factor*2*aState.dRIntMax;
+      aState.dPhiIntMax = scale_factor*2*aState.dPhiIntMax;
+      aState.chi2Norm_2D_ = scale_factor*5*aState.chi2Norm_2D_;
+      aState.chi2_str_ = scale_factor*100;
+      aState.chi2Max = scale_factor*2*aState.chi2Max;
     }else{
       search_disp = false;//make sure the flag is off
     }
@@ -255,12 +265,12 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber, 
       search_disp = false;
       aState.doCollisions = true;
       aState.dRMax = 2.0;
-      aState.dPhiMax = aState.dPhiMax/2;
-      aState.dRIntMax = aState.dRIntMax/2;
-      aState.dPhiIntMax = aState.dPhiIntMax/2;
-      aState.chi2Norm_2D_ = aState.chi2Norm_2D_/5;
       aState.chi2_str_ = 100;
-      aState.chi2Max = aState.chi2Max/2;
+      aState.dPhiMax = 0.5*aState.dPhiMax/scale_factor;
+      aState.dRIntMax = 0.5*aState.dRIntMax/scale_factor;
+      aState.dPhiIntMax = 0.5*aState.dPhiIntMax/scale_factor;
+      aState.chi2Norm_2D_ = 0.2*aState.chi2Norm_2D_/scale_factor;
+      aState.chi2Max = 0.5*aState.chi2Max/scale_factor;
     }
 
     std::vector<CSCSegment>::iterator it =segments.begin();
@@ -389,11 +399,15 @@ bool CSCSegAlgoRU::areHitsCloseInR(const AlgoState& aState, const CSCRecHit2D* h
     h1z = 1;
     h2z = 1;
   }
-  if (gp2.perp() > ((gp1.perp() - aState.dRMax*maxWG_width[iStn])*h2z)/h1z && gp2.perp() < ((gp1.perp() + aState.dRMax*maxWG_width[iStn])*h2z)/h1z){
-    return true;
-  }
-  else{
-    return false;
+	
+  if(aState.enlarge) {
+	  
+    return (gp2.perp() > ((gp1.perp() - aState.dRMax*aState.strip_iadd*maxWG_width[iStn])*h2z)/h1z && gp2.perp() < ((gp1.perp() + aState.dRMax*aState.strip_iadd*maxWG_width[iStn])*h2z)/h1z)? true:false;
+ 
+  }else{
+	  
+    return (gp2.perp() > ((gp1.perp() - aState.dRMax*maxWG_width[iStn])*h2z)/h1z && gp2.perp() < ((gp1.perp() + aState.dRMax*maxWG_width[iStn])*h2z)/h1z)? true:false;
+  
   }
 }
 
@@ -476,7 +490,16 @@ bool CSCSegAlgoRU::isHitNearSegment(const AlgoState& aState, const CSCRecHit2D* 
       maxWG_width[1] = 10.75;
     }
   }
-  return (fabs(phidif) < aState.dPhiIntMax*aState.strip_iadd*pos_str+dphi_incr && fabs(dr) < aState.dRIntMax*maxWG_width[iStn])? true:false;
+	
+  if(aState.enlarge) {
+	  
+    return (fabs(phidif) < aState.dPhiIntMax*aState.strip_iadd*pos_str+dphi_incr && fabs(dr) < aState.dRIntMax*aState.strip_iadd*maxWG_width[iStn])? true:false;
+  
+  }else{
+	  
+    return (fabs(phidif) < aState.dPhiIntMax*aState.strip_iadd*pos_str+dphi_incr && fabs(dr) < aState.dRIntMax*maxWG_width[iStn])? true:false;
+  
+  }
 }
 
 float CSCSegAlgoRU::phiAtZ(const AlgoState& aState, float z) const {
@@ -495,11 +518,14 @@ float CSCSegAlgoRU::phiAtZ(const AlgoState& aState, float z) const {
 bool CSCSegAlgoRU::isSegmentGood(const AlgoState& aState,  const ChamberHitContainer& rechitsInChamber) const {
   // If the chamber has 20 hits or fewer, require at least 3 hits on segment
   // If the chamber has >20 hits require at least 4 hits
+  // If it's the second cycle of the builder and there are <= 12 hits in chamber, require at least 3 hits on segment
   //@@ THESE VALUES SHOULD BECOME PARAMETERS?
   bool ok = false;
   unsigned int iadd = ( rechitsInChamber.size() > 20)? 1 : 0;
-  if (aState.windowScale > 1.)
+  if (aState.windowScale > 1.) {
     iadd = 1;
+    if( rechitsInChamber.size() <= 12 && aState.enlarge) iadd = 0;
+  }	  
   if (aState.proto_segment.size() >= 3+iadd)
     ok = true;
   return ok;
@@ -560,7 +586,6 @@ float CSCSegAlgoRU::fit_r_phi(const AlgoState& aState, const SVector6& points, i
 
 void CSCSegAlgoRU::baseline(AlgoState& aState, int n_seg_min) const {
   int nhits = aState.proto_segment.size();
-  ChamberHitContainer::const_iterator iRH_worst;
   //initialise vectors for strip position and error within strip
   SVector6 sp;
   SVector6 se;

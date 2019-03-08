@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 RU_ME1A = cms.PSet(
     doCollisions = cms.bool(True),
+    enlarge = cms.bool(False),
     chi2Norm_2D_ = cms.double(35),
     chi2_str = cms.double(50.0),
     chi2Max = cms.double(100.0),
@@ -14,6 +15,7 @@ RU_ME1A = cms.PSet(
 )
 RU_ME1B = cms.PSet(
     doCollisions = cms.bool(True),
+    enlarge = cms.bool(False),
     chi2Norm_2D_ = cms.double(35),
     chi2_str = cms.double(50.0),
     chi2Max = cms.double(100.0),
@@ -26,6 +28,7 @@ RU_ME1B = cms.PSet(
 )
 RU_ME12 = cms.PSet(
     doCollisions = cms.bool(True),
+    enlarge = cms.bool(False),
     chi2Norm_2D_ = cms.double(35),
     chi2_str = cms.double(50.0),
     chi2Max = cms.double(100.0),
@@ -38,6 +41,7 @@ RU_ME12 = cms.PSet(
 )
 RU_ME13 = cms.PSet(
     doCollisions = cms.bool(True),
+    enlarge = cms.bool(False),
     chi2Norm_2D_ = cms.double(20),
     chi2_str = cms.double(30.0),
     chi2Max = cms.double(60.0),
@@ -50,6 +54,7 @@ RU_ME13 = cms.PSet(
 )
 RU_MEX1 = cms.PSet(
     doCollisions = cms.bool(True),
+    enlarge = cms.bool(False),
     chi2Norm_2D_ = cms.double(60),
     chi2_str = cms.double(80.0),
     chi2Max = cms.double(180.0),
@@ -62,6 +67,7 @@ RU_MEX1 = cms.PSet(
 )
 RU_MEX2 = cms.PSet(
     doCollisions = cms.bool(True),
+    enlarge = cms.bool(False),
     chi2Norm_2D_ = cms.double(35),
     chi2_str = cms.double(50.0),
     chi2Max = cms.double(100.0),
