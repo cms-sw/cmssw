@@ -385,11 +385,17 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & mcparticles,
       edm::LogWarning("DataNotFound") << " JetSpecific: MC Particle is invalid\n";
       continue;
     }
+
+    
     const Candidate* candidate = itMcParticle->get();
     if (candidate->hasMasterClone()) candidate = candidate->masterClone().get();
     //const GenParticle* genParticle = GenJet::genParticle(candidate);
+
+    
     if (candidate) {
       double e = candidate->energy();
+
+      // Legacy calo-like definitions
       switch (abs (candidate->pdgId ())) {
       case 22: // photon
       case 11: // e
@@ -412,12 +418,46 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & mcparticles,
       default: 
 	genJetSpecific->m_AuxiliaryEnergy += e;
       }
-    }
+
+      // PF-like definitions
+      switch (abs (candidate->pdgId ())) {
+      case 11: //electron
+	genJetSpecific->mChargedEmEnergy += e;
+	++(genJetSpecific->mChargedEmMultiplicity); 
+	break;
+      case 13: // muon
+	genJetSpecific->mMuonEnergy += e;
+	++(genJetSpecific->mMuonMultiplicity);
+      case 211: //pi+-
+      case 321: //K
+      case 2212: //p
+      case 3222: //Sigma+
+      case 3112: //Sigma-
+      case 3312: //Xi-
+      case 3334: //Omega-
+	genJetSpecific->mChargedHadronEnergy += e;
+	++(genJetSpecific->mChargedHadronMultiplicity);
+	break;
+      case 310: //KS0
+      case 130: //KL0
+      case 3122: //Lambda0
+      case 3212: //Sigma0
+      case 3322: //Xi0
+      case 2112: //n0
+	genJetSpecific->mNeutralHadronEnergy += e;
+	++(genJetSpecific->mNeutralHadronMultiplicity);
+	break;
+      case 22: //photon
+	genJetSpecific->mNeutralEmEnergy += e;
+	++(genJetSpecific->mNeutralEmMultiplicity);
+	break;
+      }	 
+    } // end if found a candidate
     else {
       edm::LogWarning("DataNotFound") <<"reco::makeGenJetSpecific: Referred  GenParticleCandidate "
 				      <<"is not available in the event\n";
     }
-  }
+  }// end for loop over MC particles
   
   return true;
 }
