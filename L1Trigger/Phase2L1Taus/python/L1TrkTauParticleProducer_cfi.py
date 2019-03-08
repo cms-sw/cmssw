@@ -26,9 +26,9 @@ L1TrkTaus = cms.EDProducer("L1TrkTauParticleProducer",
         shrinkCone_Constant  = cms.double( 2.5 ),
         sigCone_dRMin        = cms.double( 0.0 ), 
         # sigCone_dRMax        = cms.double( 0.15), # not needed in shrinking cone mode
-        sigCone_cutoffDeltaR = cms.double( 0.25 ),
-        isoCone_dRMax        = cms.double( 0.50 ),
-        isoCone_useCone      = cms.bool( True ),    # set to True (False) for cone (annulus)
+        sigCone_cutoffDeltaR = cms.double( 0.15 ),
+        isoCone_dRMax        = cms.double( 0.30 ),
+        isoCone_useCone      = cms.bool( False ),    # set to True (False) for cone (annulus)
 
         # Track-clustering parameters
         maxDeltaZ_trks  = cms.double( 1.00 ), # cm
@@ -36,6 +36,6 @@ L1TrkTaus = cms.EDProducer("L1TrkTauParticleProducer",
 
         # Isolation parameters
         useVtxIso = cms.bool( True ),
-        vtxIso_WP = cms.double( 0.50 ),
+        vtxIso_WP = cms.double( 1.0 ),
         
 )
