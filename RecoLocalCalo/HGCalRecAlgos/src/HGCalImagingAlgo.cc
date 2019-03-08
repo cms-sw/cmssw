@@ -676,7 +676,7 @@ void HGCalImagingAlgo::computeThreshold() {
 
 }
 
-void HGCalImagingAlgo::setDensity(std::vector<KDNode> &nd){
+void HGCalImagingAlgo::setDensity(const std::vector<KDNode> &nd){
 
   // for each node calculate local density rho and store it
   for (unsigned int i = 0; i < nd.size(); ++i) {

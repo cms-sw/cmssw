@@ -1,16 +1,16 @@
+#include <numeric>
+#include <iomanip>
+
 #include "Validation/HGCalValidation/interface/HGVHistoProducerAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "TMath.h"
 #include "TLatex.h"
-#include <TF1.h>
-#include <numeric>
-#include <iomanip>
+#include "TF1.h"
 
 using namespace std;
 
 HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset) {
-//  hitMap_ = new std::map<DetId, const HGCRecHit *>();
 
   //parameters for eta
   minEta  = pset.getParameter<double>("minEta");

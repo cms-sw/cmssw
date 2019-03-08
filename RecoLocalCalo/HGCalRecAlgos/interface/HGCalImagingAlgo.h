@@ -214,7 +214,7 @@ hgcal::RecHitTools rhtools_;
 reco::CaloCluster::AlgoId algoId_;
 
 // For keeping the density per hit
- std::map< DetId, float > density_v;
+ Density density_v;
 
 // various parameters used for calculating the noise levels for a given sensor (and whether to use them)
 bool dependSensor_;
@@ -319,7 +319,7 @@ int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &, 
 math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
 
 //For keeping the density information
- void setDensity(std::vector<KDNode> &nd);
+ void setDensity(const std::vector<KDNode> &nd);
  
 // attempt to find subclusters within a given set of hexels
 std::vector<unsigned> findLocalMaximaInCluster(const std::vector<KDNode>&);
