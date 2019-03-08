@@ -371,8 +371,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       /*  Finding the closest cell at Hcal  */
       Int_t iphitrue = -10;
       Int_t ietatrue = 100;
-      HcalDetId tempId, tempId1, tempId2;
-      
+      HcalDetId tempId;
       
       if (abs(etaParticle)<1.392)
 	{
