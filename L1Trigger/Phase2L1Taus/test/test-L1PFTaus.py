@@ -99,8 +99,8 @@ process.l1pf = cms.Path(process.pfTracksFromL1Tracks+process.l1ParticleFlow)
 
 process.load("L1Trigger.Phase2L1Taus.L1PFTauProducer_cff")
 process.L1PFTauProducer.debug = cms.untracked.bool(True)
-process.L1PFTauProducer.L1PFObjects = cms.InputTag("l1pfProducer","PF")
-process.L1PFTauProducer.L1Neutrals = cms.InputTag("l1pfProducer")
+process.L1PFTauProducer.L1PFObjects = cms.InputTag("l1pfCandidates","PF")
+process.L1PFTauProducer.L1Neutrals = cms.InputTag("l1pfCandidates")
 process.L1PFTaus = cms.Path(process.L1PFTauProducer)
 
 
