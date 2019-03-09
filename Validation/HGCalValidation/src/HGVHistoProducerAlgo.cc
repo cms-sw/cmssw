@@ -145,7 +145,7 @@ void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::ConcurrentBooker& ib
 }
 
 
-void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms, unsigned layers, std::vector<int> thicknesses) {
+void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms, unsigned layers, std::vector<int> thicknesses, std::string pathtomatbudfile) {
 
   //---------------------------------------------------------------------------------------------------------------------------
   histograms.h_cluster_eta.push_back( ibook.book1D("num_reco_cluster_eta","N of reco clusters vs eta",nintEta_,minEta_,maxEta_) );
@@ -164,9 +164,10 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
   
   //---------------------------------------------------------------------------------------------------------------------------
   //z-
-  histograms.h_longdepthbarycentre_zminus.push_back( ibook.book1D("longdepthbarycentre_zminus","The longitudinal depth barycentre in z-",nintLongDepBary_,minLongDepBary_,maxLongDepBary_) );
+  std::string subpathtomat = pathtomatbudfile.substr(pathtomatbudfile.find("Validation"));
+  histograms.h_longdepthbarycentre_zminus.push_back( ibook.book1D("longdepthbarycentre_zminus","The longitudinal depth barycentre in z- for "+subpathtomat,nintLongDepBary_,minLongDepBary_,maxLongDepBary_) );
   //z+
-  histograms.h_longdepthbarycentre_zplus.push_back( ibook.book1D("longdepthbarycentre_zplus","The longitudinal depth barycentre in z+",nintLongDepBary_,minLongDepBary_,maxLongDepBary_) );
+  histograms.h_longdepthbarycentre_zplus.push_back( ibook.book1D("longdepthbarycentre_zplus","The longitudinal depth barycentre in z+ for "+subpathtomat,nintLongDepBary_,minLongDepBary_,maxLongDepBary_) );
 
 
   //---------------------------------------------------------------------------------------------------------------------------
