@@ -14,6 +14,9 @@ L1TkCaloHTMiss = cms.EDProducer("L1TkHTMissProducer",
 
 )
 
+L1TkCaloHTMissVtx = L1TkCaloHTMiss.clone()    
+L1TkCaloHTMiss.DoVtxConstrain = cms.bool(True)
+
 L1TrackerHTMiss = cms.EDProducer("L1TkHTMissProducer",
 	#L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets"),
 	L1TkJetInputTag = cms.InputTag("TwoLayerJets", "L1TwoLayerJets"),#Switch to use 2-layer jets

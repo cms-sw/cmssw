@@ -142,6 +142,7 @@ phase2_SimL1Emulator += L1TkElectronsLooseHGC
 phase2_SimL1Emulator += L1TkPhotonsHGC
 
 phase2_SimL1Emulator += L1TkCaloJets
+phase2_SimL1Emulator += TwoLayerJets
 phase2_SimL1Emulator += L1TrackerJets
 phase2_SimL1Emulator += L1TrackerEtMiss
 phase2_SimL1Emulator += L1TkCaloHTMissVtx

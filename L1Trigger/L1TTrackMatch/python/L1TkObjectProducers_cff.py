@@ -45,6 +45,9 @@ pL1TkPhotonsHGC = cms.Path( L1TkPhotonsHGC )
 from L1Trigger.L1TTrackMatch.L1TrackerJetProducer_cfi import L1TrackerJets
 pL1TrackerJets = cms.Path( L1TrackerJets)
 
+from L1Trigger.TwoLayerJets.TwoLayerJets_cfi import TwoLayerJets
+pL1TwoLayerJets = cms.Path( TwoLayerJets)
+
 from L1Trigger.L1TTrackMatch.L1TkCaloJetProducer_cfi import L1TkCaloJets
 pL1TkCaloJets = cms.Path( L1TkCaloJets)
 
