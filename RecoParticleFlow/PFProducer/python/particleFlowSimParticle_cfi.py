@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from FastSimulation.Event.ParticleFilter_cfi import ParticleFilterBlock
+
 particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     # verbosity 
     verbose = cms.untracked.bool(False),
@@ -9,9 +11,8 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     # flags 
     process_RecTracks = cms.untracked.bool(False),
     #
-    # Now import setting from FastSimulation.Event.ParticleFilter_cfi
-    #ParticleFilter = cms.PSet(
-    #),
+    particleFilter =  ParticleFilterBlock.ParticleFilter,
+    #
     TTRHBuilder = cms.string('WithTrackAngle'),
     process_Particles = cms.untracked.bool(True),
     Propagator = cms.string('PropagatorWithMaterial'),
@@ -30,7 +31,6 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     fastSimProducer = cms.untracked.InputTag('fastSimProducer','EcalHitsEB')
 )
 
-from FastSimulation.Event.ParticleFilter_cfi import ParticleFilterBlock
-particleFlowSimParticle.ParticleFilter = ParticleFilterBlock.ParticleFilter.copy()
+# Custom setting
 particleFlowSimParticle.ParticleFilter.chargedPtMin = cms.double(0.0)
 particleFlowSimParticle.ParticleFilter.EMin = cms.double(0.0)
