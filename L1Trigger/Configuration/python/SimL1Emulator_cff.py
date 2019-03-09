@@ -110,10 +110,8 @@ phase2_SimL1Emulator += l1EGammaEEProducer
 
 #  CaloJets
 # ########################################################################
-from L1Trigger.L1CaloTrigger.L1TowerCalibrationProducer_cfi import *
-phase2_SimL1Emulator += L1TowerCalibrationProducer
-from L1Trigger.L1CaloTrigger.L1CaloJetProducer_cfi import *
-phase2_SimL1Emulator += L1CaloJetProducer
+from L1Trigger.L1CaloTrigger.L1CaloJets_cff import *
+phase2_SimL1Emulator += l1CaloJetsSequence
 
 # Barrel L1Tk + Stub
 # ########################################################################
@@ -131,7 +129,6 @@ phase2_SimL1Emulator += l1TkMuonStubEndCap
 # ########################################################################
 from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
 phase2_SimL1Emulator += L1TkPrimaryVertex
-
 #phase2_SimL1Emulator += L1TkElectrons # warning this has a PhaseI EG seed!
 #phase2_SimL1Emulator += L1TkIsoElectrons # warning this has a PhaseI EG seed!
 #phase2_SimL1Emulator += L1TkPhotons # warning this has a PhaseI EG seed!
