@@ -22,6 +22,7 @@ class RunMerge:
         self.outputLFN = None
         self.inputFiles = []
         self.newDQMIO = False
+        self.mergeNANO = False
         self.bypassVersionCheck = True
 
 
