@@ -30,7 +30,7 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     fastSimProducer = cms.untracked.InputTag('fastSimProducer','EcalHitsEB')
 )
 
-from FastSimulation.Event.ParticleFilter_cfi import  ParticleFilterBlock
+from FastSimulation.Event.ParticleFilter_cfi import ParticleFilterBlock
 particleFlowSimParticle.ParticleFilter = ParticleFilterBlock.ParticleFilter.copy()
 particleFlowSimParticle.ParticleFilter.chargedPtMin = cms.double(0.0)
 particleFlowSimParticle.ParticleFilter.EMin = cms.double(0.0)
