@@ -91,7 +91,8 @@ class HGVHistoProducerAlgo {
 
   void bookCaloParticleHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms,int pdgid);
 
-  void bookClusterHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms,unsigned layers, std::vector<int> thicknesses);
+  void bookClusterHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms,unsigned layers, 
+			 std::vector<int> thicknesses, std::string pathtomatbudfile);
   void layerClusters_to_CaloParticles(const Histograms& histograms,
       const reco::CaloClusterCollection &clusters,
       std::vector<CaloParticle> const & cP,
