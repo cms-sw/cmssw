@@ -11,7 +11,7 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     # flags 
     process_RecTracks = cms.untracked.bool(False),
     #
-    particleFilter =  ParticleFilterBlock.ParticleFilter,
+    ParticleFilter = ParticleFilterBlock.ParticleFilter,
     #
     TTRHBuilder = cms.string('WithTrackAngle'),
     process_Particles = cms.untracked.bool(True),
