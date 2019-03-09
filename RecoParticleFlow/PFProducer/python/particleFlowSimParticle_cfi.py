@@ -8,16 +8,10 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     # replace ParticleFilter.pTMin = 0.5
     # flags 
     process_RecTracks = cms.untracked.bool(False),
-    ParticleFilter = cms.PSet(
-        EProton = cms.double(5000.0),
-        # Particles with |eta| > etaMax (momentum direction at primary vertex) 
-        # are not simulated 
-        etaMax = cms.double(5.0),
-        # Charged particles with pT < pTMin (GeV/c) are not simulated
-        pTMin = cms.double(0.0),
-        # Particles with energy smaller than EMin (GeV) are not simulated
-        EMin = cms.double(0.0)
-    ),
+    #
+    # Now import setting from FastSimulation.Event.ParticleFilter_cfi
+    #ParticleFilter = cms.PSet(
+    #),
     TTRHBuilder = cms.string('WithTrackAngle'),
     process_Particles = cms.untracked.bool(True),
     Propagator = cms.string('PropagatorWithMaterial'),
@@ -35,3 +29,8 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     #retrieving fastSim SimHits                                     
     fastSimProducer = cms.untracked.InputTag('fastSimProducer','EcalHitsEB')
 )
+
+from FastSimulation.Event.ParticleFilter_cfi import  ParticleFilterBlock
+particleFlowSimParticle.ParticleFilter = ParticleFilterBlock.ParticleFilter.copy()
+particleFlowSimParticle.ParticleFilter.chargedPtMin = cms.double(0.0)
+particleFlowSimParticle.ParticleFilter.EMin = cms.double(0.0)
