@@ -81,6 +81,7 @@ private:
   AlgoType emtfMatchAlgoVersion_ ;         
 
   std::unique_ptr<L1TkMuCorrDynamicWindows> dwcorr_;
+  bool requireBX0_;
 
   const edm::EDGetTokenT< EMTFTrackCollection >          emtfTCToken; // the track collection, directly from the EMTF and not formatted by GT
   const edm::EDGetTokenT< EMTFHitCollection >            emtfHCToken; // the hit collection, directly from the EMTF which stored the input Hits
@@ -97,6 +98,8 @@ L1TkMuonStubProducer::L1TkMuonStubProducer(const edm::ParameterSet& iConfig) :
    // configuration of the EMTF algorithm type
    std::string emtfMatchAlgoVersionString = iConfig.getParameter<std::string>("emtfMatchAlgoVersion");
    std::transform(emtfMatchAlgoVersionString.begin(), emtfMatchAlgoVersionString.end(), emtfMatchAlgoVersionString.begin(), ::tolower); // make lowercase
+
+   requireBX0_ = iConfig.getParameter<bool>("require_BX0");
 
    if (emtfMatchAlgoVersionString == "dynamicwindows")
       emtfMatchAlgoVersion_ = kDynamicWindows;
@@ -189,7 +192,7 @@ L1TkMuonStubProducer::runOnMuonHitCollection(const edm::Handle<EMTFHitCollection
   const EMTFHitCollection& l1muStubs = (*muonStubH.product());
   const L1TTTrackCollectionType& l1trks = (*l1tksH.product());
   const int myStation = 2;
-  auto corr_muStub_idxs = dwcorr_->find_match_stub(l1muStubs, l1trks, myStation);
+  auto corr_muStub_idxs = dwcorr_->find_match_stub(l1muStubs, l1trks, myStation, requireBX0_);
   // it's a vector with as many entries as the L1TT vector.
   // >= 0 : the idx in the muStub vector of matched muStubs
   // < 0: no match

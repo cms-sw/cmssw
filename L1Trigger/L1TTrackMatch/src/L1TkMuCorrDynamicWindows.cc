@@ -194,7 +194,7 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match(const EMTFTrackCollection&
     return unique_out;
 }
 
-std::vector<int> L1TkMuCorrDynamicWindows::find_match_stub(const EMTFHitCollection& l1mus, const L1TTTrackCollectionType& l1trks, const int& station)
+std::vector<int> L1TkMuCorrDynamicWindows::find_match_stub(const EMTFHitCollection& l1mus, const L1TTTrackCollectionType& l1trks, const int& station, bool requireBX0)
 {
     // const int nTrkPars_ = 4; // FIXME: make confiugurable from python cfg
 
@@ -229,7 +229,7 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match_stub(const EMTFHitCollecti
         for (auto l1muit = l1mus.begin(); l1muit != l1mus.end(); ++l1muit)
         {
             // match only stubs in the central bx - as the track collection refers anyway to bx 0 only
-            if (l1muit->BX() != 0)
+            if (requireBX0 && l1muit->BX() != 0)
                 continue;
 
             // match only stubs in Station station 

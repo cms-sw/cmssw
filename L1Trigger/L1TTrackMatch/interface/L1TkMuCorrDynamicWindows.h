@@ -33,7 +33,7 @@ class L1TkMuCorrDynamicWindows{
         // void test(double eta, double pt);
         // std::vector<int> find_match(const EMTFTrackCollection& l1mus, const L1TTTrackCollectionType& l1tks l1trks, std::vector<int>* narbitrated = nullptr); // gives a vector with the idxs of muons for each L1TTT
         std::vector<int> find_match(const EMTFTrackCollection& l1mus, const L1TTTrackCollectionType& l1trks); // gives a vector with the idxs of muons for each L1TTT
-        std::vector<int> find_match_stub(const EMTFHitCollection& l1mus, const L1TTTrackCollectionType& l1trks, const int& station); // gives a vector with the idxs of muon stubs from station "station" for each L1TTT
+        std::vector<int> find_match_stub(const EMTFHitCollection& l1mus, const L1TTTrackCollectionType& l1trks, const int& station, bool requireBX0 = true); // gives a vector with the idxs of muon stubs from station "station" for each L1TTT
 
         // ------------------------------
         static std::vector<double> prepare_corr_bounds(string fname, string hname);
