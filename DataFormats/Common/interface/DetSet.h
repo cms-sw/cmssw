@@ -67,7 +67,7 @@ namespace edm {
     void reserve(size_t s) { data.reserve(s); }
     void push_back(const T & t) { data.push_back(t); }
     template<class... Args>
-    auto emplace_back(Args&&... args) { return data.emplace_back(std::forward<Args>(args)...); }
+    decltype(auto) emplace_back(Args&&... args) { return data.emplace_back(std::forward<Args>(args)...); }
     void clear() { data.clear(); }
     void swap(DetSet<T> & other) noexcept;
 
