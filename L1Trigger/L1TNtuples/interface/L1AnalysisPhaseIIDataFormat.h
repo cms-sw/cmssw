@@ -283,14 +283,13 @@ namespace L1Analysis
       puppiJetzVtx.clear();
       puppiJetEtUnCorr.clear();
 
-/*      nPuppiJetForMETs = 0;
+      nPuppiJetForMETs = 0;
       puppiJetForMETEt.clear();
       puppiJetForMETEta.clear();
       puppiJetForMETPhi.clear();
       puppiJetForMETBx.clear();
       puppiJetForMETzVtx.clear();
       puppiJetForMETEtUnCorr.clear();
-*/
 
       puppiMETEt=0;
       puppiMETPhi=0;
@@ -566,7 +565,7 @@ namespace L1Analysis
     std::vector<int>      tkMuonStubsChg;
     std::vector<int>      tkMuonStubsBx;
     std::vector<double>   tkMuonStubsTrkIso;
-    std::vector<unsigned int>      tkMuonStubsQual;
+    std::vector<unsigned int>      tkMuonStubsQuality;
     std::vector<double>   tkMuonStubszVtx;
     std::vector<double>   tkMuonStubsBarrelStubs;
     std::vector<unsigned int>   tkMuonStubsRegion;
@@ -591,7 +590,6 @@ namespace L1Analysis
     std::vector<double> puppiJetzVtx;
     std::vector<double> puppiJetEtUnCorr;
 
-/*
     unsigned int nPuppiJetForMETs;
     std::vector<double> puppiJetForMETEt;
     std::vector<double> puppiJetForMETEta;
@@ -599,7 +597,7 @@ namespace L1Analysis
     std::vector<int>    puppiJetForMETBx;
     std::vector<double> puppiJetForMETzVtx;
     std::vector<double> puppiJetForMETEtUnCorr;
-*/
+
 
 
     double puppiMETEt;
