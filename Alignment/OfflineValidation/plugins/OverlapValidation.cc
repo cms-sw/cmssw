@@ -157,8 +157,11 @@ private:
   int subdetID;
   const Point2DBase<float, LocalTag> zerozero = Point2DBase<float, LocalTag>(0, 0);
   const Point2DBase<float, LocalTag> onezero = Point2DBase<float, LocalTag>(1, 0);
+  const Point2DBase<float, LocalTag> zeroone = Point2DBase<float, LocalTag>(0, 1);
   float deltaphi_[2];
-  
+  //added by Jason
+  float deltaR_[2];
+  float deltaZ_[2];
 
 
 };
@@ -239,6 +242,9 @@ OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig) :
   rootTree_->Branch("moduleY",moduleY_,"moduleY[2]/F");
   rootTree_->Branch("moduleZ",moduleZ_,"moduleZ[2]/F");
   rootTree_->Branch("deltaphi",deltaphi_,"deltaphi[2]/F");
+  rootTree_->Branch("deltaR",deltaR_,"deltaR[2]/F");
+  rootTree_->Branch("deltaZ",deltaZ_,"deltaZ[2]/F");
+
 }
 
 
@@ -531,7 +537,12 @@ OverlapValidation::analyze (const Trajectory& trajectory,
     subdetID = (*iol).first->recHit()->geographicalId().subdetId();
     deltaphi_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).phi() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).phi();
     deltaphi_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).phi() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).phi();
-
+    //added by Jason
+    deltaZ_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).z() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).z();
+    deltaZ_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).z() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).z();
+    deltaR_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).perp() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).perp();
+    deltaR_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).perp() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).perp();
+    
 
 
 
