@@ -206,7 +206,7 @@ namespace L1Analysis
       tkGlbMuonChg.clear();
       tkGlbMuonTrkIso.clear();
       tkGlbMuonBx.clear();
-      tkGlbMuonQuality.clear();
+      tkGlbMuonQual.clear();
       tkGlbMuonzVtx.clear();
       tkGlbMuonMuRefPt.clear();
       tkGlbMuonTrkRefPt.clear();
@@ -222,7 +222,7 @@ namespace L1Analysis
       tkMuonChg.clear();
       tkMuonTrkIso.clear();
       tkMuonBx.clear();
-      tkMuonQuality.clear();
+      tkMuonQual.clear();
       tkMuonzVtx.clear();
       tkMuonMuRefPt.clear();
       tkMuonTrkRefPt.clear();
@@ -240,7 +240,7 @@ namespace L1Analysis
       tkMuonStubsChg.clear();
       tkMuonStubsTrkIso.clear();
       tkMuonStubsBx.clear();
-      tkMuonStubsQuality.clear();
+      tkMuonStubsQual.clear();
       tkMuonStubszVtx.clear();
       tkMuonStubsBarrelStubs.clear();
       tkMuonStubsRegion.clear();
@@ -495,7 +495,7 @@ namespace L1Analysis
     std::vector<unsigned int> tkGlbMuonIso;
     std::vector<double> tkGlbMuonTrkIso;
     std::vector<int>      tkGlbMuonBx;
-    std::vector<unsigned int>      tkGlbMuonQuality;
+    std::vector<unsigned int>      tkGlbMuonQual;
     std::vector<double>   tkGlbMuonzVtx;
     std::vector<double> tkGlbMuonMuRefPt;
     std::vector<double> tkGlbMuonTrkRefPt;
@@ -515,7 +515,7 @@ namespace L1Analysis
     std::vector<unsigned int> tkMuonMip;
     std::vector<unsigned int> tkMuonRPC;
     std::vector<int>      tkMuonBx;
-    std::vector<unsigned int>      tkMuonQuality;
+    std::vector<unsigned int>      tkMuonQual;
     std::vector<double>   tkMuonzVtx;
     std::vector<double> tkMuonMuRefPt;
     std::vector<double> tkMuonTrkRefPt;
@@ -533,7 +533,7 @@ namespace L1Analysis
     std::vector<int>      tkMuonStubsChg;
     std::vector<int>      tkMuonStubsBx;
     std::vector<double>   tkMuonStubsTrkIso;
-    std::vector<unsigned int>      tkMuonStubsQuality;
+    std::vector<unsigned int>      tkMuonStubsQual;
     std::vector<double>   tkMuonStubszVtx;
     std::vector<double>   tkMuonStubsBarrelStubs;
     std::vector<unsigned int>   tkMuonStubsRegion;
