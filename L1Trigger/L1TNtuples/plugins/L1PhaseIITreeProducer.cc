@@ -146,7 +146,7 @@ class L1PhaseIITreeProducer : public edm::EDAnalyzer {
                 edm::EDGetTokenT<l1t::L1TkJetParticleCollection> tkCaloJetToken_;
 
                 edm::EDGetTokenT<std::vector<l1t::PFJet>> ak4L1PF_;
-                edm::EDGetTokenT<std::vector<l1t::PFJet>> ak4L1PFForMET_;
+//                edm::EDGetTokenT<std::vector<l1t::PFJet>> ak4L1PFForMET_;
 
                 edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonKalman_;
                 edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonOverlap_;
@@ -212,7 +212,7 @@ L1PhaseIITreeProducer::L1PhaseIITreeProducer(const edm::ParameterSet& iConfig){
         tkCaloJetToken_ = consumes<l1t::L1TkJetParticleCollection>(iConfig.getParameter<edm::InputTag>("tkCaloJetToken"));
 
         ak4L1PF_ = consumes<std::vector<l1t::PFJet> > (iConfig.getParameter<edm::InputTag>("ak4L1PF"));
-        ak4L1PFForMET_ = consumes<std::vector<l1t::PFJet> > (iConfig.getParameter<edm::InputTag>("ak4L1PFForMET"));
+//        ak4L1PFForMET_ = consumes<std::vector<l1t::PFJet> > (iConfig.getParameter<edm::InputTag>("ak4L1PFForMET"));
 
         muonKalman_ = consumes<l1t::RegionalMuonCandBxCollection> (iConfig.getParameter<edm::InputTag>("muonKalman"));
         muonOverlap_ = consumes<l1t::RegionalMuonCandBxCollection> (iConfig.getParameter<edm::InputTag>("muonOverlap"));
@@ -315,8 +315,8 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
         edm::Handle<std::vector<l1t::PFJet>> ak4L1PFs;
         iEvent.getByToken(ak4L1PF_,ak4L1PFs);
-        edm::Handle<std::vector<l1t::PFJet>> ak4L1PFForMETs;
-        iEvent.getByToken(ak4L1PFForMET_,ak4L1PFForMETs);
+//        edm::Handle<std::vector<l1t::PFJet>> ak4L1PFForMETs;
+//        iEvent.getByToken(ak4L1PFForMET_,ak4L1PFForMETs);
 
         edm::Handle< std::vector<reco::PFMET> > l1PFMet;
         iEvent.getByToken(l1PFMet_, l1PFMet);
@@ -525,12 +525,13 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         } else {
                 edm::LogWarning("MissingProduct") << "L1PhaseII PFJets not found. Branch will not be filled" << std::endl;
         }
-        if (ak4L1PFForMETs.isValid()){
+
+/*        if (ak4L1PFForMETs.isValid()){
                 l1Extra->SetPFJetForMET(ak4L1PFForMETs, maxL1Extra_);
         } else {
                 edm::LogWarning("MissingProduct") << "L1PhaseII PFJetForMETs not found. Branch will not be filled" << std::endl;
         }
-
+*/
 
 
 /*        if (ak4L1PFForMETs.isValid()){

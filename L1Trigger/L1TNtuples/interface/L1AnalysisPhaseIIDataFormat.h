@@ -283,13 +283,14 @@ namespace L1Analysis
       puppiJetzVtx.clear();
       puppiJetEtUnCorr.clear();
 
-      nPuppiJetForMETs = 0;
+/*      nPuppiJetForMETs = 0;
       puppiJetForMETEt.clear();
       puppiJetForMETEta.clear();
       puppiJetForMETPhi.clear();
       puppiJetForMETBx.clear();
       puppiJetForMETzVtx.clear();
       puppiJetForMETEtUnCorr.clear();
+*/
 
       puppiMETEt=0;
       puppiMETPhi=0;
@@ -590,6 +591,7 @@ namespace L1Analysis
     std::vector<double> puppiJetzVtx;
     std::vector<double> puppiJetEtUnCorr;
 
+/*
     unsigned int nPuppiJetForMETs;
     std::vector<double> puppiJetForMETEt;
     std::vector<double> puppiJetForMETEta;
@@ -597,7 +599,7 @@ namespace L1Analysis
     std::vector<int>    puppiJetForMETBx;
     std::vector<double> puppiJetForMETzVtx;
     std::vector<double> puppiJetForMETEtUnCorr;
-
+*/
 
 
     double puppiMETEt;
