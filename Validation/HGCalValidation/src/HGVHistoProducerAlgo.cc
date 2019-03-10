@@ -809,7 +809,9 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       else if ( (thickness == 300.) && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhits300m++;}
       else if ( (thickness == -1)   && (recHitTools_->zside(rh_detid) > 0. ) ) {nthhitsscintp++;}
       else if ( (thickness == -1)   && (recHitTools_->zside(rh_detid) < 0. ) ) {nthhitsscintm++;}
-      else {assert(0);}
+      else { //assert(0);
+	LogDebug("HGCalValidator") << " You are running a geometry that contains thicknesses different than the normal ones. " << "\n";
+      }
 
       std::map<DetId,const HGCRecHit *>::const_iterator itcheck= hitMap.find(rh_detid);
       if (itcheck == hitMap.end()) {
