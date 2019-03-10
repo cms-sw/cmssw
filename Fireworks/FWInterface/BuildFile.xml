@@ -15,8 +15,8 @@
 <lib name="RGL"/>
 <lib name="GuiHtml"/>
 <lib name="GX11"/>
-<lib name="boost_python"/>
-<lib name="FWCore/PythonParameterSet"/>
+<use name="boost_python"/>
+<use name="FWCore/PythonParameterSet"/>
 <export>
 <lib name="1"/>
 </export>
