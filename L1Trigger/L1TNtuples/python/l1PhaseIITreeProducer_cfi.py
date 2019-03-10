@@ -29,7 +29,7 @@ l1PhaseIITree = cms.EDAnalyzer("L1PhaseIITreeProducer",
    tkMhtTokens = cms.VInputTag( cms.InputTag("L1TrackerHTMiss5GeV","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss10GeV","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss20GeV","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss30GeV","L1TrackerHTMiss")),
 
    ak4L1PF = cms.InputTag("ak4PFL1PuppiCorrected"),
-   ak4L1PFForMET = cms.InputTag("ak4PFL1PuppiForMETCorrected"),
+#   ak4L1PFForMET = cms.InputTag("ak4PFL1PuppiForMETCorrected"),
    l1PFCandidates = cms.InputTag("l1pfCandidates","Puppi"),
 
    caloJetToken = cms.InputTag("L1CaloJetProducer","L1CaloJetCollectionBXV"),
@@ -38,7 +38,7 @@ l1PhaseIITree = cms.EDAnalyzer("L1PhaseIITreeProducer",
    muonOverlap = cms.InputTag("simOmtfDigis","OMTF"),
    muonEndcap = cms.InputTag("simEmtfDigis","EMTF"),
 
-   l1PFMet = cms.InputTag("l1PFMetPuppiForMET"),
+   l1PFMet = cms.InputTag("l1PFMetPuppi"),
 
    zoPuppi = cms.InputTag("l1pfProducerBarrel","z0"),
    l1vertextdr = cms.InputTag("VertexProducer","l1vertextdr"),
