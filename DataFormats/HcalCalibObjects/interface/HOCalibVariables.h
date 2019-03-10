@@ -2,8 +2,8 @@
 #define AlCaHOCalibProducer_HOCalibVariables_h
 #include <vector>
 //April 2015 : Added more variables, e.g., momatho, tkpt03, ecal03, hcal03, inslumi, nprim
-struct HOCalibVariables {
-
+class HOCalibVariables {
+  public:
   int   nmuon; //number of muons in the event
   int   nprim; // number of primary vertices
 
