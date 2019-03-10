@@ -133,6 +133,9 @@ class L1CaloJetProducer : public edm::EDProducer {
                 float leadingL1EGET = 0.;
                 float l1EGjetET = 0.;
 
+                // For decay mode related checks with CaloTaus
+                std::vector< std::vector< float > > associated_l1EGs;
+
                 // Matrices to map energy per included tower in ET
                 //float total_map[9][9]; // 9x9 array
                 //float ecal_map[9][9]; // 9x9 array
@@ -964,7 +967,6 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             if (l1eg.passesTrkMatchIso ) ecal_nL1EGs_trkMatchIso++;
             l1eg.stale = true;
 
-
             // Make energy sums in rings, 1 type is centered on highest pT L1EG
             if ( fabs( d_eta_to_leading ) < 0.1   && fabs( d_phi_to_leading ) < 0.1  )  ecal_dR0p1_leading   += l1eg.GetP4().pt();
             // Other type is centered on the HCAL jet center
@@ -976,6 +978,13 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             if ( fabs( d_eta ) < 0.2   && fabs( d_phi ) < 0.2  )  ecal_dR0p2   += l1eg.GetP4().pt();
             if ( fabs( d_eta ) < 0.3   && fabs( d_phi ) < 0.3  )  ecal_dR0p3   += l1eg.GetP4().pt();
             if ( fabs( d_eta ) < 0.4   && fabs( d_phi ) < 0.4  )  ecal_dR0p4   += l1eg.GetP4().pt();
+
+            // For decay mode related checks with CaloTaus
+            // pt, dEta, dPhi, trkSS, trkIso, standaloneSS, standaloneIso
+            std::vector< float > l1EG_info = {l1eg.pt(), d_eta, d_phi, float(l1eg.passesTrkMatchSS),
+                float(l1eg.passesTrkMatchIso), float(l1eg.passesStandaloneSS), float(l1eg.passesStandaloneIso)};
+            caloJetObj.associated_l1EGs.push_back( l1EG_info );
+
         }
 
 
@@ -1087,6 +1096,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         float totalPtPUcorr = -1;
         l1slhc::L1CaloJet caloJet(caloJetObj.jetCluster, calibratedPt, hovere, ECalIsolation, totalPtPUcorr);
         caloJet.SetExperimentalParams(params);
+	caloJet.associated_l1EGs = caloJetObj.associated_l1EGs;
         //for (int i = 0; i < 9; i++)
         //{
         //    for (int j = 0; j < 9; j++)
