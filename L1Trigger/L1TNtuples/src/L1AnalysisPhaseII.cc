@@ -457,7 +457,7 @@ void L1Analysis::L1AnalysisPhaseII::SetTkMuon(const edm::Handle<l1t::L1TkMuonPar
     l1extra_.tkMuonMuRefPhi.push_back(-777);
     l1extra_.tkMuonDRMuTrack.push_back(-777);
     l1extra_.tkMuonNMatchedTracks.push_back(0);
-    l1extra_.tkMuonQuality .push_back(999);
+    l1extra_.tkMuonQual .push_back(999);
     l1extra_.tkMuonMuRefChg.push_back(0);
     }
     l1extra_.tkMuonRegion.push_back(it->muonDetector());
@@ -480,7 +480,7 @@ void L1Analysis::L1AnalysisPhaseII::SetTkMuonStubs(const edm::Handle<l1t::L1TkMu
     l1extra_.tkMuonStubsTrkIso.push_back(it->getTrkIsol());
     l1extra_.tkMuonStubszVtx.push_back(it->getTrkzVtx());
     l1extra_.tkMuonStubsBx .push_back(0); //it->bx());
-    l1extra_.tkMuonStubsQuality .push_back(1);
+    l1extra_.tkMuonStubsQual .push_back(1);
     l1extra_.tkMuonStubsBarrelStubs.push_back(it->getBarrelStubs().size());
     l1extra_.tkMuonStubsRegion.push_back(muonDetector);
     l1extra_.nTkMuonStubs++;

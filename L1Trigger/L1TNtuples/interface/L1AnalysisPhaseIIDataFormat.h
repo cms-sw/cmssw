@@ -566,7 +566,7 @@ namespace L1Analysis
     std::vector<int>      tkMuonStubsChg;
     std::vector<int>      tkMuonStubsBx;
     std::vector<double>   tkMuonStubsTrkIso;
-    std::vector<unsigned int>      tkMuonStubsQuality;
+    std::vector<unsigned int>      tkMuonStubsQual;
     std::vector<double>   tkMuonStubszVtx;
     std::vector<double>   tkMuonStubsBarrelStubs;
     std::vector<unsigned int>   tkMuonStubsRegion;
