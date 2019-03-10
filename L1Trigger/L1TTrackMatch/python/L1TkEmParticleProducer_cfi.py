@@ -28,13 +28,14 @@ L1TkPhotons = cms.EDProducer("L1TkEmParticleProducer",
         DRmin = cms.double( 0.07),
         DRmax = cms.double( 0.30 ),
         PrimaryVtxConstrain = cms.bool( False ),  # default = False
-						  # if set to True, the L1TkPrimaryVertex is used to constrain
-						  # the tracks entering in the calculation of the isolatiom.
+						  # if set to True, the default isolation is the PV constrained one, where L1TkPrimaryVertex is used to constrain
+						  # the tracks entering in the calculation of the isolation 
+                                      # if set to False, the isolation is computed and stored, but not used 
         #DeltaZConstrain = cms.bool( False ),  # default = False
                                                   # if set to True, constrain to the z of the leading
 						  # track within DR < DRmax
-        DeltaZMax = cms.double( 999. ),    # in cm. Used only when PrimaryVtxConstrain = True
-        L1VertexInputTag = cms.InputTag("NotUsed"),     # Used only when PrimaryVtxConstrain = True
+        DeltaZMax = cms.double( 0.6 ),    # in cm. Used only to compute the isolation with PrimaryVtxConstrain 
+        L1VertexInputTag = cms.InputTag("L1TkPrimaryVertex"),     # in cm. Used to compute the isolation with PrimaryVtxConstrain 
 )
 
 

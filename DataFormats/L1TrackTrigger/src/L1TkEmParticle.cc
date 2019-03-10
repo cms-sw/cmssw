@@ -19,10 +19,23 @@ L1TkEmParticle::L1TkEmParticle( const LorentzVector& p4,
 	 float tkisol )
    : L1Candidate( p4 ),
      egRef_ ( egRef ),
-     TrkIsol_ ( tkisol ) 
+     TrkIsol_ ( tkisol ), 
+     TrkIsolPV_ ( -999 )
 {
 
 }
+
+L1TkEmParticle::L1TkEmParticle( const LorentzVector& p4,
+         const edm::Ref< EGammaBxCollection >& egRef,
+       float tkisol , float tkisolPV)
+   : L1Candidate( p4 ),
+     egRef_ ( egRef ),
+     TrkIsol_ ( tkisol ), 
+     TrkIsolPV_ ( tkisolPV )
+{
+
+}
+
 
 
 

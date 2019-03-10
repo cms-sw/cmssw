@@ -28,6 +28,11 @@ namespace l1t {
 			    const edm::Ref< EGammaBxCollection >& egRef,
 			    float tkisol = -999. );
 
+       L1TkEmParticle( const LorentzVector& p4,
+                      const edm::Ref< EGammaBxCollection >& egRef,
+                      float tkisol = -999. , float tkisolPV = -999);
+
+
 	virtual ~L1TkEmParticle() {}
 
          // ---------- const member functions ---------------------
@@ -44,12 +49,16 @@ namespace l1t {
          const double l1RefEt() const
          { return egRef_->et() ; }
 
-	 float getTrkIsol() const { return TrkIsol_ ; } 
+	 float getTrkIsol() const { return TrkIsol_ ; } // not constrained to the PV, just track ptSum 
+
+       float getTrkIsolPV() const { return TrkIsolPV_ ; } // constrained to the PV by DZ
+ 
 
 
          // ---------- member functions ---------------------------
 
 	 void setTrkIsol(float TrkIsol)  { TrkIsol_ = TrkIsol ; }
+       void setTrkIsolPV(float TrkIsolPV)  { TrkIsolPV_ = TrkIsolPV ; }
 
      //	 int bx() const;
 
@@ -57,6 +66,7 @@ namespace l1t {
 
 	 edm::Ref< EGammaBxCollection > egRef_ ;
 	 float TrkIsol_;
+       float TrkIsolPV_;
 
     };
 }

@@ -149,7 +149,7 @@ L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    
    // the primary vertex (used only if PrimaryVtxConstrain = true)
    float zvtxL1tk = -999;
-   if (PrimaryVtxConstrain) {
+   //if (PrimaryVtxConstrain) {
      edm::Handle<L1TkPrimaryVertexCollection> L1VertexHandle;
      iEvent.getByToken(vertexToken, L1VertexHandle);
      if (!L1VertexHandle.isValid() ) {
@@ -164,7 +164,7 @@ L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
        // be used by default
        zvtxL1tk = vtxIter -> getZvertex();
      }
-   }
+   //}
    
   if (!L1TTTrackHandle.isValid() ) {
     LogError("L1TkEmParticleProducer")
@@ -191,12 +191,11 @@ L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       
       
       float eta = egIter -> eta();
-      if (PrimaryVtxConstrain) {
 	// The eta of the L1EG object is seen from (0,0,0).
-	// if PrimaryVtxConstrain = true, use the zvtxL1tk to correct the eta(L1EG)
+	// if PrimaryVtxConstrain = true, and for the PV constrained iso, use the zvtxL1tk to correct the eta(L1EG)
 	// that is used in the calculation of DeltaR.
-	eta = CorrectedEta( (float)eta, zvtxL1tk);
-      }
+	float etaPV = CorrectedEta( (float)eta, zvtxL1tk);
+
       float phi = egIter -> phi();
       float et = egIter -> et();
       
@@ -207,7 +206,10 @@ L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       
       float trkisol = -999;
       float sumPt = 0;
+      float sumPtPV = 0;
+      float trkisolPV = -999;
       
+ 
       //std::cout << " here an EG w et = " << et << std::endl;
       
       //float z_leadingTrack = -999;
@@ -247,35 +249,35 @@ L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	float chi2 = trackIter->getChi2();
 	if (chi2 > CHI2MAX) continue;
 	
-	if (PrimaryVtxConstrain) {
-	  if ( zvtxL1tk > -999 && fabs( z - zvtxL1tk) >= DeltaZMax) continue;
-	}
-	
-	/*
-	  if (DeltaZConstrain) {
-	  if ( fabs( z - z_leadingTrack) >= DeltaZMax) continue;
-	  }
-	*/
-	
 	float dr = deltaR(Eta, eta, Phi,phi);
 	if (dr < DRmax && dr >= DRmin)  {
 	  //std::cout << " a track in the cone, z Pt = " << z << " " << Pt << std::endl;
 	  sumPt += Pt;
-	}
-	
-      }  // end loop over tracks
+      }
       
+      if ( zvtxL1tk > -999 && fabs( z - zvtxL1tk) >= DeltaZMax) continue; // Now, PV constrained trackSum:
+
+      dr = deltaR(Eta, etaPV, Phi,phi); // recompute using the corrected eta
+
+      if (dr < DRmax && dr >= DRmin)  {
+            sumPtPV += Pt;
+	}
+      }  // end loop over tracks
+     
       if (RelativeIsolation) {
-	if (et > 0) trkisol = sumPt / et;	// relative isolation
+	if (et > 0) { trkisol = sumPt / et; trkisolPV=sumPtPV/et; } 	 // relative isolation
       }
       else {	// absolute isolation
-	trkisol = sumPt ;
+	              trkisol = sumPt ; trkisolPV=sumPtPV;
       }
+
+      float isolation=trkisol;
+      if (PrimaryVtxConstrain) {isolation=trkisolPV;}
       
       const math::XYZTLorentzVector P4 = egIter -> p4() ;
       L1TkEmParticle trkEm(  P4,
 			     EGammaRef,
-			     trkisol );
+			     trkisol,trkisolPV);
       
       if (IsoCut <= 0) {
 	// write the L1TkEm particle to the collection, 
@@ -285,7 +287,7 @@ L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       else {
 	// the object is written to the collection only
 	// if it passes the isolation cut
-	if (trkisol <= IsoCut) result -> push_back( trkEm );
+	if (isolation <= IsoCut) result -> push_back( trkEm );
       }
       
       
