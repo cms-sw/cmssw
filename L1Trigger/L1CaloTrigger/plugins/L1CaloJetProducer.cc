@@ -813,19 +813,22 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                     caloJetObj.ecal_seed += ecalP4.pt();
                     caloJetObj.total_seed += totalP4.pt();
                 }
-                if ( abs( d_iEta ) <= 2    && abs( d_iPhi ) <= 2)
+                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 2) || 
+                    (!l1CaloTower.isBarrel && fabs( d_eta ) < 0.15 && fabs( d_phi ) < 0.15 ) )
                 {
                     caloJetObj.hcal_3x3 += hcalP4.pt();
                     caloJetObj.ecal_3x3 += ecalP4.pt();
                     caloJetObj.total_3x3 += totalP4.pt();
                 }
-                if ( abs( d_iEta ) <= 3    && abs( d_iPhi ) <= 3)
+                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) || 
+                    (!l1CaloTower.isBarrel && fabs( d_eta ) < 0.2 && fabs( d_phi ) < 0.2 ) )
                 {
                     caloJetObj.hcal_5x5 += hcalP4.pt();
                     caloJetObj.ecal_5x5 += ecalP4.pt();
                     caloJetObj.total_5x5 += totalP4.pt();
                 }
-                if ( abs( d_iEta ) <= 4    && abs( d_iPhi ) <= 4)
+                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 4) || 
+                    (!l1CaloTower.isBarrel && fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) )
                 {
                     caloJetObj.hcal_7x7 += hcalP4.pt();
                     caloJetObj.ecal_7x7 += ecalP4.pt();
@@ -833,25 +836,29 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 }
 
                 // Some discrimination vars, 2x2s including central seed
-                if ( ( d_iEta == 0 || d_iEta == 1 )  &&  ( d_iPhi == 0 || d_iPhi == 1 ) )
+                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && ( d_iEta == 0 || d_iEta == 1 ) && ( d_iPhi == 0 || d_iPhi == 1 ) ) || 
+                    (!l1CaloTower.isBarrel && fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
                 {
                     caloJetObj.hcal_2x2_1 += hcalP4.pt();
                     caloJetObj.ecal_2x2_1 += ecalP4.pt();
                     caloJetObj.total_2x2_1 += totalP4.pt();
                 }
-                if ( ( d_iEta == 0 || d_iEta == 1 )  &&  ( d_iPhi == 0 || d_iPhi == -1 ) )
+                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && ( d_iEta == 0 || d_iEta == 1 ) && ( d_iPhi == 0 || d_iPhi == -1 ) ) || 
+                    (!l1CaloTower.isBarrel && fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
                 {
                     caloJetObj.hcal_2x2_2 += hcalP4.pt();
                     caloJetObj.ecal_2x2_2 += ecalP4.pt();
                     caloJetObj.total_2x2_2 += totalP4.pt();
                 }
-                if ( ( d_iEta == 0 || d_iEta == -1 )  &&  ( d_iPhi == 0 || d_iPhi == 1 ) )
+                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && ( d_iEta == 0 || d_iEta == -1 ) && ( d_iPhi == 0 || d_iPhi == 1 ) ) || 
+                    (!l1CaloTower.isBarrel && fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
                 {
                     caloJetObj.hcal_2x2_3 += hcalP4.pt();
                     caloJetObj.ecal_2x2_3 += ecalP4.pt();
                     caloJetObj.total_2x2_3 += totalP4.pt();
                 }
-                if ( ( d_iEta == 0 || d_iEta == -1 )  &&  ( d_iPhi == 0 || d_iPhi == -1 ) )
+                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && ( d_iEta == 0 || d_iEta == -1 ) && ( d_iPhi == 0 || d_iPhi == -1 ) ) || 
+                    (!l1CaloTower.isBarrel && fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
                 {
                     caloJetObj.hcal_2x2_4 += hcalP4.pt();
                     caloJetObj.ecal_2x2_4 += ecalP4.pt();
