@@ -47,7 +47,9 @@
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticleFwd.h"
 
-#include "DataFormats/JetReco/interface/PFJet.h"
+//#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/Phase2L1ParticleFlow/interface/PFJet.h"
+
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/Phase2L1ParticleFlow/interface/PFCandidate.h" 
 
@@ -77,6 +79,7 @@ namespace L1Analysis
     // Add new standalone objects 
     void SetEG   (const edm::Handle<l1t::EGammaBxCollection> EG,  const edm::Handle<l1t::EGammaBxCollection> EGHGC, unsigned maxL1Extra);
     void SetMuonKF (const edm::Handle<l1t::RegionalMuonCandBxCollection>   muonKF, unsigned maxL1Extra, unsigned int muonDetector);
+    void SetCaloJet  (const edm::Handle<l1t::JetBxCollection>    calojet,  unsigned maxL1Extra);
 
     // Add L1TrackTriggerObjects
     void SetTkEG   (const  edm::Handle<l1t::L1TkElectronParticleCollection>   tkEG,  const  edm::Handle<l1t::L1TkElectronParticleCollection>   tkEGHGC,    unsigned maxL1Extra);
@@ -94,9 +97,10 @@ namespace L1Analysis
     void SetTkMHT  (const  edm::Handle<l1t::L1TkHTMissParticleCollection> trackerMHTs);
 
     // Add new PFJet collections 
-    void SetPFJet  (const      edm::Handle<reco::PFJetCollection>  PFJet,    unsigned maxL1Extra);
+    void SetPFJet  (const      edm::Handle<l1t::PFJetCollection>  PFJet,    unsigned maxL1Extra);
     void SetL1METPF(const edm::Handle< std::vector<reco::PFMET> > l1MetPF);
     void SetPFObjects(const edm::Handle< vector<l1t::PFCandidate> > l1pfCandidates,unsigned maxL1Extra);
+    void SetPFJetForMET  (const      edm::Handle<l1t::PFJetCollection>  PFJet,    unsigned maxL1Extra); // this needs to be done better 
 
 
     // Add new PFTau
