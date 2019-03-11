@@ -324,9 +324,9 @@ void L1Analysis::L1AnalysisPhaseII::SetTkEM(const edm::Handle<l1t::L1TkEmParticl
     l1extra_.tkPhotonEGRefEta.push_back(it->getEGRef()->eta());
     l1extra_.tkPhotonEGRefPhi.push_back(it->getEGRef()->phi());
     l1extra_.tkPhotonHGC.push_back( 0 );
-    bool quality= ( ( it->getEGRef()->hwQual() >> 2 ) & 1   ) > 0 ; 
+    bool quality= ( ( it->getEGRef()->hwQual() >> 1 ) & 1   ) > 0 ; 
     l1extra_.tkPhotonPassesLooseTrackID.push_back(quality);
-    quality= ( ( it->getEGRef()->hwQual() >> 1 ) & 1   ) > 0 ; // Photon Id should be the third bit 
+    quality= ( ( it->getEGRef()->hwQual() >> 2 ) & 1   ) > 0 ; // Photon Id should be the third bit 
     l1extra_.tkPhotonPassesPhotonID.push_back(quality);
     l1extra_.nTkPhotons++;
   }}
