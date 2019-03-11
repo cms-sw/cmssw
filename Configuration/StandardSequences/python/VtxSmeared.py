@@ -59,6 +59,8 @@ VtxSmeared = {
     'Realistic25ns13TeVEarly2017Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeVEarly2017Collision_cfi',
     'Realistic25ns13TeVEarly2018Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeVEarly2018Collision_cfi',
     'RealisticPbPbCollision2018' : 'IOMC.EventVertexGenerators.VtxSmearedRealisticPbPbCollision2018_cfi',
+    'Run3RoundOptics25ns13TeVLowSigmaZ'  : 'IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVLowSigmaZ_cfi',
+    'Run3RoundOptics25ns13TeVHighSigmaZ' : 'IOMC.EventVertexGenerators.VtxSmearedRun3RoundOptics25ns13TeVHighSigmaZ_cfi',
 }
 VtxSmearedDefaultKey='Realistic50ns13TeVCollision'
 VtxSmearedHIDefaultKey='RealisticPbPbCollision2018'
