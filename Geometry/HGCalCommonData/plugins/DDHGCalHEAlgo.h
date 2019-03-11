@@ -53,6 +53,7 @@ private:
   std::vector<int>         layerType_;     //Type of the layer
   std::vector<int>         layerSense_;    //Content of a layer (sensitive?)
   int                      firstLayer_;    //Copy # of the first sensitive layer
+  int                      absorbMode_;    //Absorber mode
   std::vector<std::string> materialsTop_;  //Materials of top layers
   std::vector<std::string> namesTop_;      //Names of top layers
   std::vector<double>      layerThickTop_; //Thickness of the top sections
