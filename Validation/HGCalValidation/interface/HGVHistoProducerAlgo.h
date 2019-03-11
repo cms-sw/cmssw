@@ -14,8 +14,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include <unordered_map>
-
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"

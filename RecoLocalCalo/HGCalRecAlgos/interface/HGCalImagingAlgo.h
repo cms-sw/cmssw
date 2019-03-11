@@ -214,7 +214,7 @@ hgcal::RecHitTools rhtools_;
 reco::CaloCluster::AlgoId algoId_;
 
 // For keeping the density per hit
- Density density_v;
+ Density density_;
 
 // various parameters used for calculating the noise levels for a given sensor (and whether to use them)
 bool dependSensor_;
@@ -225,7 +225,7 @@ double fcPerEle_;
 std::vector<double> nonAgedNoises_;
 double noiseMip_;
 std::vector<std::vector<double> > thresholds_;
-std::vector<std::vector<double> > v_sigmaNoise_;
+std::vector<std::vector<double> > sigmaNoise_;
 
 // The verbosity level
 VerbosityLevel verbosity_;

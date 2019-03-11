@@ -37,7 +37,7 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection &hits) {
       if (thickness_index == -1)
         thickness_index = 3;
       double storedThreshold = thresholds_[layer - 1][thickness_index];
-      sigmaNoise = v_sigmaNoise_[layer - 1][thickness_index];
+      sigmaNoise = sigmaNoise_[layer - 1][thickness_index];
 
       if (hgrh.energy() < storedThreshold)
         continue; // this sets the ZS threshold at ecut times the sigma noise
@@ -659,7 +659,7 @@ void HGCalImagingAlgo::computeThreshold() {
   const unsigned maxNumberOfThickIndices = 3;
   dummy.resize(maxNumberOfThickIndices + 1, 0); // +1 to accomodate for the Scintillators
   thresholds_.resize(maxlayer, dummy);
-  v_sigmaNoise_.resize(maxlayer, dummy);
+  sigmaNoise_.resize(maxlayer, dummy);
 
   for (unsigned ilayer = 1; ilayer <= maxlayer; ++ilayer) {
     for (unsigned ithick = 0; ithick < maxNumberOfThickIndices; ++ithick) {
@@ -667,11 +667,11 @@ void HGCalImagingAlgo::computeThreshold() {
           0.001f * fcPerEle_ * nonAgedNoises_[ithick] * dEdXweights_[ilayer] /
           (fcPerMip_[ithick] * thicknessCorrection_[ithick]);
       thresholds_[ilayer - 1][ithick] = sigmaNoise * ecut_;
-      v_sigmaNoise_[ilayer - 1][ithick] = sigmaNoise;
+      sigmaNoise_[ilayer - 1][ithick] = sigmaNoise;
     }
     float scintillators_sigmaNoise = 0.001f * noiseMip_ * dEdXweights_[ilayer];
     thresholds_[ilayer - 1][maxNumberOfThickIndices] = ecut_ * scintillators_sigmaNoise;
-    v_sigmaNoise_[ilayer -1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
+    sigmaNoise_[ilayer -1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
   }
 
 }
@@ -679,16 +679,13 @@ void HGCalImagingAlgo::computeThreshold() {
 void HGCalImagingAlgo::setDensity(const std::vector<KDNode> &nd){
 
   // for each node calculate local density rho and store it
-  for (unsigned int i = 0; i < nd.size(); ++i) {
-
-    density_v[ nd[i].data.detid ] =  nd[i].data.rho ;
-
+  for (auto &i : nd){
+    density_[ i.data.detid ] =  i.data.rho ;
   }   // end loop nodes
-  
 }
 
 //Density 
 Density HGCalImagingAlgo::getDensity(){
-  return density_v;
+  return density_;
 }
 

@@ -76,9 +76,6 @@ HGCalValidator::~HGCalValidator() {}
 
 void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm::Run const&, edm::EventSetup const& setup, Histograms& histograms) const {
 
-  // rechittools_->getEventSetup(setup);
-  // histoProducerAlgo_->setRecHitTools(rechittools_);
-
   if(doCaloParticlePlots_) {
     ibook.cd();
 
@@ -96,20 +93,17 @@ void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm::Run 
     string dirName=dirName_;
     if (!algo.process().empty())
       dirName+=algo.process()+"_";
-    std::cout << dirName << std::endl;
+    LogDebug("HGCalValidator") << dirName << "\n";
     if(!algo.label().empty())
       dirName+=algo.label()+"_";
-    std::cout << dirName << std::endl;
+    LogDebug("HGCalValidator") << dirName << "\n";
     if(!algo.instance().empty())
       dirName+=algo.instance()+"_";
-    std::cout << dirName << std::endl;
-    // if (dirName.find("Tracks")<dirName.length()){
-    //   dirName.replace(dirName.find("Tracks"),6,"");
-    // }
+    LogDebug("HGCalValidator") << dirName << "\n";
 
     if (!dirName.empty()){dirName.resize(dirName.size() - 1);}
 
-    std::cout << dirName << std::endl;
+    LogDebug("HGCalValidator") << dirName << "\n";
 
     ibook.setCurrentFolder(dirName);
 
@@ -202,10 +196,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
 						    thicknesses_to_monitor_);
 
     for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
-
-      //std::cout << "TESTING HERE " << clusters[layerclusterIndex].eta() << std::endl;
       histoProducerAlgo_->fill_cluster_histos(histograms.histoProducerAlgo,w,clusters[layerclusterIndex]);
-
     }
 
     LogTrace("HGCalValidator") << "\n# of layer clusters with "
