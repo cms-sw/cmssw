@@ -24,6 +24,14 @@ class L1CaloTower
         int tower_iEta = -99;
         float tower_phi = -99;
         float tower_eta = -99;
+
+        // L1EG info
+        float l1eg_tower_et = 0.0;
+        int n_l1eg = 0;
+        int l1eg_trkSS = 0;
+        int l1eg_trkIso = 0;
+        int l1eg_standaloneSS = 0;
+        int l1eg_standaloneIso = 0;
 };
   
   
