@@ -55,7 +55,6 @@ EcalDBConnection::EcalDBConnection( string sid,
   this->sid = sid;
   this->user = user;
   this->pass = pass;
-  this->port = port;
 }
 
 EcalDBConnection::~EcalDBConnection()  noexcept(false) {
