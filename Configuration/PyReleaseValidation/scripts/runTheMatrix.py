@@ -51,12 +51,12 @@ if __name__ == '__main__':
                      8, #BH/Cosmic MC
                      25, #MC ttbar
                      4.22, #cosmic data
+                     4.53, #run1 data + miniAOD
                      1000, #data+prompt
                      1001, #data+express
                      136.731, #2016B Photon data
                      140.53, #2011 HI data
                      1330, #Run2 MC Zmm
-                     135.4 #Run 2 Zee ttbar
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
@@ -68,6 +68,12 @@ if __name__ == '__main__':
     usage = 'usage: runTheMatrix.py --show -s '
 
     parser = optparse.OptionParser(usage)
+
+    parser.add_option('-b','--batchName',
+                      help='relval batch: suffix to be appended to Campaign name',
+                      dest='batchName',
+                      default=''
+                     )
 
     parser.add_option('-m','--memoryOffset',
                       help='memory of the wf for single core',
@@ -209,7 +215,7 @@ if __name__ == '__main__':
                       action='store_true')
 
     parser.add_option('--das-options',
-                      help='Options to be passed to dasgoclient.py.',
+                      help='Options to be passed to das_client.py.',
                       dest='dasOptions',
                       default="--limit 0",
                       action='store')
