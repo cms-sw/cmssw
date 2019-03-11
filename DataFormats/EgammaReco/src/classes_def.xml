@@ -159,8 +159,6 @@
   <class name="std::pair<const DetId,float>"/>
   <class name="std::map<DetId,float>"/>
   <class name="edm::Wrapper<std::map<DetId,float> >"/>
-  <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
-  <class name="std::map<DetId, std::pair<unsigned long, unsigned long> >"/>
 
 </lcgdict>
 
