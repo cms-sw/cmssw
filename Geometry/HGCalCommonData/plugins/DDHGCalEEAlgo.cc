@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -12,8 +13,6 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalEEAlgo.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define EDM_ML_DEBUG
 
@@ -103,6 +102,8 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   waferSize_    = nArgs["waferSize"];
   waferSepar_   = nArgs["SensorSeparation"];
   sectors_      = (int)(nArgs["Sectors"]);
+  alpha_        = geant_units::piRadians/sectors_;
+  cosAlpha_     = cos(alpha_);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ 
 				<< " radius for wafer type separation uses "
@@ -111,7 +112,9 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
 				<< ":" << nCutRadPar_ << ":" << fracAreaMin_
 				<< " wafer width " << waferSize_ 
 				<< " separations " << waferSepar_
-				<< " sectors " << sectors_;
+				<< " sectors " << sectors_ << ":"
+				<< alpha_*geant_units::degPerRad
+				<< ":"  << cosAlpha_;
   for (unsigned int k=0; k<rad100to200_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] 100-200 " <<rad100to200_[k]
 				  << " 200-300 " << rad200to300_[k];
@@ -205,12 +208,11 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
       DDMaterial matter(matName);
       DDLogicalPart glog;
       if (layerSense_[ly] < 1) {
-	double alpha = CLHEP::pi/sectors_;
 	int    nsec  = (layerSense_[ly] == 0 || absorbMode_ == 0 ||
 			zr.first < 0) ? 2 : 3;
 	std::vector<double> pgonZ(nsec), pgonRin(nsec), pgonRout(nsec);
 	if (layerSense_[ly] == 0 || absorbMode_ == 0) {
-	  double rmax  = routF*cos(alpha) - tol;
+	  double rmax  = routF*cosAlpha_ - tol;
 	  pgonZ[0]    =-hthick;  pgonZ[1]    = hthick;
 	  pgonRin[0]  = rinB;    pgonRin[1]  = rinB;   
 	  pgonRout[0] = rmax;    pgonRout[1] = rmax;
@@ -220,22 +222,23 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
 			 (zz+hthick) : zr.first);
             double rm = (((isec == 0) || (isec == nsec-1)) ?
 			 HGCalGeomTools::radius(zs,zFrontT_,rMaxFront_,slopeT_)
-			 : zr.second)*cos(alpha) - tol;
+			 : zr.second)*cosAlpha_ - tol;
 	    pgonZ[isec]    = zs-zz;
 	    pgonRin[isec]  = rinB;
 	    pgonRout[isec] = rm;
 	  }
 	}
 	DDSolid solid = DDSolidFactory::polyhedra(DDName(name, nameSpace_),
-						  sectors_,-alpha,CLHEP::twopi,
+						  sectors_, -alpha_,
+						  2*geant_units::piRadians,
 						  pgonZ, pgonRin, pgonRout);
 	glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
 	edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << solid.name() 
 				      << " polyhedra of " << sectors_ 
 				      << " sectors covering " 
-				      << -alpha/CLHEP::deg << ":" 
-				      << (-alpha+CLHEP::twopi)/CLHEP::deg
+				      << -alpha_*geant_units::degPerRad << ":" 
+				      << (-alpha_+2*geant_units::piRadians)*geant_units::degPerRad
 				      << " with " << pgonZ.size()
 				      << " sections and filled with "
 				      << matName << ":" << &matter;
@@ -247,14 +250,14 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
       } else {
 	DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), 
 					     hthick, rinB, routF, 0.0,
-					     CLHEP::twopi);
+					     2*geant_units::piRadians);
 	glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
 	edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << solid.name() 
 				      << " Tubs made of " << matName << ":"
 				      << &matter << " of dimensions " << rinB 
 				      << ", " << routF << ", " << hthick
-				      << ", 0.0, " << CLHEP::twopi/CLHEP::deg
+				      << ", 0.0, " << 2*geant_units::piRadians/geant_units::degPerRad
 				      << " and position " << glog.name() 
 				      << " number " << copy;
 #endif
