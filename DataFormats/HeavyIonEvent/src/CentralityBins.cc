@@ -28,8 +28,8 @@ CentralityBins::RunMap getCentralityFromFile(TDirectoryFile* file, const char* d
   return map;
 }
 
-ClassImp(CBin)
-ClassImp(CentralityBins)
+ClassImp(CBin);
+ClassImp(CentralityBins);
 
 
 

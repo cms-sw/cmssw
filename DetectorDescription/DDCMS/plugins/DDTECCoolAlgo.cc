@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DD4hep/Printout.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -8,6 +9,7 @@
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 static long algorithm(Detector& /* description */,
                       cms::DDParsingContext& ctxt,
@@ -28,7 +30,7 @@ static long algorithm(Detector& /* description */,
     for (int i=0; i<(int)(phiPosition.size()); i++)   {
       LogDebug("TECGeom") << "debug: Insert[" << i << "]: "
 			  << coolInsert.at(i) << " at Phi " 
-			  << ConvertTo( phiPosition.at(i), deg );
+			  << convertRadToDeg( phiPosition.at(i) );
     }
   }
   else {
@@ -48,7 +50,7 @@ static long algorithm(Detector& /* description */,
     LogDebug("TECGeom") << "test " << child.name() << "["  
                         << copyNo << "] positioned in " << mother.name()
                         << " at " << tran
-                        << " phi " << ConvertTo( phiPosition.at(i), deg ) << " r " 
+                        << " phi " << convertRadToDeg( phiPosition.at(i) ) << " r " 
                         << rPosition;
     copyNo++;
   }

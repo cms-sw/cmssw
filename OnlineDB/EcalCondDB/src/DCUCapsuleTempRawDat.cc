@@ -40,7 +40,7 @@ void DCUCapsuleTempRawDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUCapsuleTempRawDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUCapsuleTempRawDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -67,7 +67,7 @@ void DCUCapsuleTempRawDat::writeDB(const EcalLogicID* ecid, const DCUCapsuleTemp
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUCapsuleTempRawDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUCapsuleTempRawDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -99,12 +99,12 @@ void DCUCapsuleTempRawDat::fetchData(std::map< EcalLogicID, DCUCapsuleTempRawDat
     std::pair< EcalLogicID, DCUCapsuleTempRawDat > p;
     DCUCapsuleTempRawDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setCapsuleTempADC( rset->getFloat(7) );
       dat.setCapsuleTempRMS( rset->getFloat(8) );
@@ -113,7 +113,7 @@ void DCUCapsuleTempRawDat::fetchData(std::map< EcalLogicID, DCUCapsuleTempRawDat
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUCapsuleTempRawDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUCapsuleTempRawDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -189,6 +189,6 @@ void DCUCapsuleTempRawDat::writeArrayDB(const std::map< EcalLogicID, DCUCapsuleT
     delete [] y_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCUCapsuleTempRawDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCUCapsuleTempRawDat::writeArrayDB():  "+e.getMessage()));
   }
 }

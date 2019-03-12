@@ -2,6 +2,7 @@
 #define gen_Herwig6Instance_h
 
 #include "GeneratorInterface/Core/interface/FortranInstance.h"
+#include <memory>
 
 namespace CLHEP {
     class HepRandomEngine;

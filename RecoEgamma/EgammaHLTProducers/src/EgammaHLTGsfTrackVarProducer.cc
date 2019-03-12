@@ -219,9 +219,7 @@ EgammaHLTGsfTrackVarProducer::TrackExtrapolator::TrackExtrapolator(const EgammaH
   cacheIDTDGeom_(rhs.cacheIDTDGeom_),
   cacheIDMagField_(rhs.cacheIDMagField_),
   magField_(rhs.magField_),
-  trackerHandle_(rhs.trackerHandle_),
-  mtsMode_(rhs.mtsMode_)
- 
+  trackerHandle_(rhs.trackerHandle_)
 {
   if(rhs.mtsTransform_) mtsTransform_ = new MultiTrajectoryStateTransform(*rhs.mtsTransform_);
   else mtsTransform_ =nullptr;
@@ -235,7 +233,6 @@ EgammaHLTGsfTrackVarProducer::TrackExtrapolator* EgammaHLTGsfTrackVarProducer::T
     cacheIDMagField_ = rhs.cacheIDMagField_;
     magField_ = rhs.magField_;
     trackerHandle_ = rhs.trackerHandle_;
-    mtsMode_ = rhs.mtsMode_;
     
     delete mtsTransform_;
     if(rhs.mtsTransform_) mtsTransform_ = new MultiTrajectoryStateTransform(*rhs.mtsTransform_);
@@ -271,7 +268,7 @@ GlobalPoint EgammaHLTGsfTrackVarProducer::TrackExtrapolator::extrapolateTrackPos
   TrajectoryStateOnSurface innTSOS = mtsTransform()->innerStateOnSurface(gsfTrack);
   TrajectoryStateOnSurface posTSOS = mtsTransform()->extrapolatedState(innTSOS,pointToExtrapTo);
   GlobalPoint  extrapolatedPos;
-  mtsMode()->positionFromModeCartesian(posTSOS,extrapolatedPos);
+  multiTrajectoryStateMode::positionFromModeCartesian(posTSOS,extrapolatedPos);
   return extrapolatedPos;
 }
 
@@ -280,7 +277,7 @@ GlobalVector EgammaHLTGsfTrackVarProducer::TrackExtrapolator::extrapolateTrackMo
   TrajectoryStateOnSurface innTSOS = mtsTransform()->innerStateOnSurface(gsfTrack);
   TrajectoryStateOnSurface posTSOS = mtsTransform()->extrapolatedState(innTSOS,pointToExtrapTo);
   GlobalVector  extrapolatedMom;
-  mtsMode()->momentumFromModeCartesian(posTSOS,extrapolatedMom);
+  multiTrajectoryStateMode::momentumFromModeCartesian(posTSOS,extrapolatedMom);
   return extrapolatedMom;
 }
 

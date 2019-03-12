@@ -5,15 +5,15 @@
 
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
 //#define EDM_ML_DEBUG
-using namespace dd;
-using namespace dd::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 HcalNumberingFromDDD::HcalNumberingFromDDD(const HcalDDDSimConstants *hcons) :
   hcalConstants(hcons) {

@@ -10,7 +10,7 @@
 //  Documentation: see TEcnaParCout.h
 //--------------------------------------
 
-ClassImp(TEcnaParCout)
+ClassImp(TEcnaParCout);
 //______________________________________________________________________________
 //
 

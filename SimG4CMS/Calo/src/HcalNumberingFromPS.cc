@@ -1,6 +1,6 @@
 // to make hits in EB/EE/HC
 #include "SimG4CMS/Calo/interface/HcalNumberingFromPS.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
@@ -8,8 +8,8 @@
 #include <iomanip>
 
 //#define EDM_ML_DEBUG
-using namespace dd;
-using namespace dd::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 HcalNumberingFromPS::HcalNumberingFromPS(const edm::ParameterSet& conf) {
 
