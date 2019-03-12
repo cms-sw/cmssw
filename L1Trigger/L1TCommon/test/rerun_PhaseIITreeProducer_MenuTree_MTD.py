@@ -47,12 +47,12 @@ process.configurationMetadata = cms.untracked.PSet(
 # Output definition
 
 process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW'),
-        filterName = cms.untracked.string('')
-    ),
+#    dataset = cms.untracked.PSet(
+#        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW'),
+#        filterName = cms.untracked.string('')
+#    ),
     fileName = cms.untracked.string('file:step2_2ev_reprocess_slim.root'),
-    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
+#    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
 
@@ -76,15 +76,14 @@ process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 process.load("L1Trigger.L1TNtuples.l1PhaseIITreeProducer_cfi")
 
+
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('L1NtuplePhaseII_MTD.root')
 )
 
 
-
-
 # Schedule definition
-process.schedule = cms.Schedule(process.L1simulation_step,process.extraCollectionsMenuTree,
+process.schedule = cms.Schedule(process.L1simulation_step,#process.extraCollectionsMenuTree,
             process.runmenutree,process.endjob_step)#,process.FEVTDEBUGHLToutput_step)
 
 # Schedule definition
@@ -99,7 +98,7 @@ from L1Trigger.Configuration.customiseUtils import L1TrackTriggerTracklet
 process = L1TrackTriggerTracklet(process)
 
 process.MessageLogger.cout = cms.untracked.PSet(
-    threshold = cms.untracked.string('INFO'),
+    threshold = cms.untracked.string('ERROR'),
     default = cms.untracked.PSet(
         limit = cms.untracked.int32(10000)
     )
