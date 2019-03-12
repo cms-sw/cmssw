@@ -3,7 +3,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,7 +17,7 @@
 
 class DDCompactView;
 
-using namespace dd::operators;
+using namespace geant_units::operators;
 
 DDLRotationAndReflection::DDLRotationAndReflection( DDLElementRegistry* myreg )
   : DDXMLElement( myreg ) 
@@ -108,17 +108,17 @@ DDLRotationAndReflection::isLeftHanded (const DD3Vector& x, const DD3Vector& y, 
 	      << " check=" << std::abs(check)  << ")" 
 	      << std::endl
 	      << " thetaX=" << (atts.find("thetaX")->second) 
-	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("thetaX")->second), deg ) << std::endl
+	      << ' ' << convertRadToDeg( ev.eval(nmspace, atts.find("thetaX")->second) ) << std::endl
 	      << " phiX=" << (atts.find("phiX")->second) 
-	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("phiX")->second), deg ) << std::endl
+	      << ' ' << convertRadToDeg( ev.eval(nmspace, atts.find("phiX")->second) ) << std::endl
 	      << " thetaY=" << (atts.find("thetaY")->second) 
-	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("thetaY")->second), deg ) << std::endl
+	      << ' ' << convertRadToDeg( ev.eval(nmspace, atts.find("thetaY")->second) ) << std::endl
 	      << " phiY=" << (atts.find("phiY")->second)
-	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("phiY")->second), deg ) << std::endl
+	      << ' ' << convertRadToDeg( ev.eval(nmspace, atts.find("phiY")->second) ) << std::endl
 	      << " thetaZ=" << (atts.find("thetaZ")->second)
-	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("thetaZ")->second), deg ) << std::endl
+	      << ' ' << convertRadToDeg( ev.eval(nmspace, atts.find("thetaZ")->second) ) << std::endl
 	      << " phiZ=" << (atts.find("phiZ")->second)
-	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("phiZ")->second), deg ) 
+	      << ' ' << convertRadToDeg( ev.eval(nmspace, atts.find("phiZ")->second) ) 
 	      << std::endl
 	      << "  WAS NOT CREATED!" << std::endl;
     ret = -1;

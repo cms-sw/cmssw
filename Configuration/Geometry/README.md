@@ -5,11 +5,10 @@ Different versions of various subdetectors can be combined. The available versio
 Tracker:
 * T5: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.0.2.5) 
 * T6: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.0.4) (TEDD slighly rotated + Inner Tracker barrel has lower radii than TDR T5 geometry)
-* T7: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.2.0) (same as T6 but 25x100 in 1x2 modules, 50x200 in 2x2 modules)
-* T8: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.2.1) (same as T6 but 25x100 in 1x2 modules, 100x100 in 2x2 modules)
 * T11: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.0.5) (same as T6 but 50x50 in all modules)
 * T12: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.6.1) (same as T6 but includes latest Tracker MB (notably, significant increase in IT modules Caps RL). OTST update not included yet. Slightly tuned LpGBTs Z positions over service cylinder.
-* T13: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.6.0) (same as T9 but TBPX Lp GBTs placed over TBPX)
+* T13: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.6.0) (same as T12 but TBPX Lp GBTs placed over TBPX)
+* T14: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Based from T12. OT: reduced envelope. IT: new chip size, different radii, 2x2 modules everywhere in TEPX, new ring paradigm in TEPX)
 
 Calorimeters:
 * C3: HGCal (v8) + Phase2 HCAL and EB
@@ -39,9 +38,7 @@ The script also handles the common and forward elements of the geometry:
 Several detector combinations have been generated:
 * D17 = T5+C3+M2+I1+O2+F2 
 * D19 = T5+C3+M2+I2+O2+F2 
-* D21 = T6+C3+M2+I1+O2+F2 
-* D22 = T7+C3+M2+I1+O2+F2 
-* D23 = T8+C3+M2+I1+O2+F2 
+* D21 = T6+C3+M2+I1+O2+F2
 * D24 = T6+C3+M2+I3+O2+F2 
 * D25 = T6+C3+M2+I4+O2+F2 
 * D28 = T6+C4+M2+I1+O2+F2
@@ -56,5 +53,6 @@ Several detector combinations have been generated:
 * D37 = T13+C3+M2+I1+O2+F2
 * D38 = T6+C4+M2+I7+O2+F2
 * D39 = T6+C4+M2+I8+O2+F2
+* D40 = T14+C3+M2+I1+O2+F2
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.

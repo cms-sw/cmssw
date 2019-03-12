@@ -178,7 +178,7 @@ void HcalQIEManager::getTableFromDb( std::string query_file, std::string output_
 	  _id.eta = rs->getInt(1);
 	  _id.phi = rs->getInt(2);
 	  _id.depth = rs->getInt(3);
-	  _id.subdetector  = getOraString(rs, 4);
+	  _id.subdetector  = rs -> getString(4);
 	  for (int j=0; j!=32; j++){
 	    _caps.caps[j] = rs -> getDouble(j+5);
 	  }
@@ -205,7 +205,7 @@ void HcalQIEManager::getTableFromDb( std::string query_file, std::string output_
 	//std::cout << "Query count: " << count << std::endl;
 	cout << "Query line count: " << _lines.getCount() << std::endl;
       } catch (SQLException& e) {
-	XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+	XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
       }
     }
   }
@@ -358,8 +358,8 @@ int HcalQIEManager::getHfQieTable( std::string input_file, std::string output_fi
       _id.eta = rs->getInt(1);
       _id.phi = rs->getInt(2);
       _id.depth = rs->getInt(3);
-      _id.subdetector  = getOraString(rs, 4);
-      rbx = getOraString(rs,5);
+      _id.subdetector  = rs -> getString(4);
+      rbx = rs->getString(5);
       rm_slot = rs->getInt(6);
       qie_slot = rs->getInt(7);
       adc = rs->getInt(8);
@@ -421,7 +421,7 @@ int HcalQIEManager::getHfQieTable( std::string input_file, std::string output_fi
 	_connection -> terminateStatement(stmt2);
 	
       } catch (SQLException& e) {
-	XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+	XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
       }
     }
     //Always terminate statement
@@ -430,7 +430,7 @@ int HcalQIEManager::getHfQieTable( std::string input_file, std::string output_fi
     //std::cout << "Query count: " << count << std::endl;
     std::cout << "Query line count: " << _lines.getCount() << std::endl;
   } catch (SQLException& e) {
-    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
   }
   
   db -> disconnect();

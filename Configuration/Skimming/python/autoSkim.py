@@ -22,7 +22,7 @@ autoSkim = {
  'ZeroBias' : 'LogError+LogErrorMonitor',
  'Commissioning' : 'EcalActivity+LogError+LogErrorMonitor',
  'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor',
-
+ 'ParkingBPH':'SkimBPark+LogError+LogErrorMonitor',
  
 }
 

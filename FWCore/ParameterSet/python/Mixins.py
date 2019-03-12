@@ -656,13 +656,11 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return (converter(x).value() for x in strings)
 
 def saveOrigin(obj, level):
-    #frame = inspect.stack()[level+1]
-    frame = inspect.getframeinfo(inspect.currentframe(level+1))
-    # not safe under old python versions
-    #obj._filename = frame.filename
-    #obj._lineNumber = frame.lineno
-    obj._filename = frame[0]
-    obj._lineNumber = frame[1]
+    frame = inspect.stack()[level+1]
+    if isinstance(frame,tuple): frame=frame[0] #python3 changes this to a tuple where the first thing is the frame
+    fInfo=inspect.getframeinfo(frame)
+    obj._filename = fInfo.filename
+    obj._lineNumber =fInfo.lineno
 
 def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
     if len(newParams):

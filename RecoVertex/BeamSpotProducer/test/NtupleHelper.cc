@@ -5,7 +5,7 @@
 #include <TCanvas.h>
 #include <TMath.h>
 
-ClassImp(NtupleHelper)
+ClassImp(NtupleHelper);
 
 	
 void NtupleHelper::Book()
