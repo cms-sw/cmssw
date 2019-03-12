@@ -32,6 +32,8 @@ class L1CaloTower
         int l1eg_trkIso = 0;
         int l1eg_standaloneSS = 0;
         int l1eg_standaloneIso = 0;
+
+        bool isBarrel = false;
 };
   
   

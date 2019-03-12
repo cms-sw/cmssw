@@ -1272,6 +1272,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                     l1CaloTower.tower_iPhi = getToweriPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
                     l1CaloTower.tower_eta = getTowerEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]);
                     l1CaloTower.tower_phi = getTowerPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
+                    l1CaloTower.isBarrel = true;
 
                     // Add L1EGs if they match in iEta / iPhi
                     // L1EGs are already pT ordered, we will take the ID info for the leading one, but pT as the sum
