@@ -12,7 +12,6 @@
 #include "TrackPropagation/RungeKutta/interface/defaultRKPropagator.h"
 #include "TrackPropagation/RungeKutta/interface/RKPropagatorInS.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
