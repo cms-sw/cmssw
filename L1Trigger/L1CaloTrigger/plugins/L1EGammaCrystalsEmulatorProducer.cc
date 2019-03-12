@@ -20,6 +20,7 @@ Implementation:
 #include <array>
 
 // user include files
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
@@ -1225,7 +1226,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
    std::unique_ptr< L1CaloTowerCollection > l1CaloTowerCollection(new L1CaloTowerCollection);
 
     // Fill the cluster collection and towers as well
-    printf("\n\n\n\n--------------\n");
+    //printf("\n--------\n");
     for (int ii=0; ii<48; ++ii){ // 48 links
         for (int ll=0; ll<3; ++ll){ // 3 cards
             // For looping over the Towers a few lines below
@@ -1265,48 +1266,51 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             // Fill the tower collection
             for (int jj=0; jj<17; ++jj){ // 17 TTs
                 L1CaloTower l1CaloTower;
-                if (HCAL_tower_L2Card[ii][jj][ll]>0 or ECAL_tower_L2Card[ii][jj][ll]>0){
-                    l1CaloTower.ecal_tower_et = ECAL_tower_L2Card[ii][jj][ll];
-                    l1CaloTower.hcal_tower_et = HCAL_tower_L2Card[ii][jj][ll];
-                    l1CaloTower.tower_iEta = getToweriEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]);
-                    l1CaloTower.tower_iPhi = getToweriPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
-                    l1CaloTower.tower_eta = getTowerEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]);
-                    l1CaloTower.tower_phi = getTowerPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
-                    l1CaloTower.isBarrel = true;
+                //if (HCAL_tower_L2Card[ii][jj][ll]>0 or ECAL_tower_L2Card[ii][jj][ll]>0){
+                l1CaloTower.ecal_tower_et = ECAL_tower_L2Card[ii][jj][ll];
+                l1CaloTower.hcal_tower_et = HCAL_tower_L2Card[ii][jj][ll];
+                l1CaloTower.tower_iEta = getToweriEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]);
+                l1CaloTower.tower_iPhi = getToweriPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
+                l1CaloTower.tower_eta = getTowerEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]);
+                l1CaloTower.tower_phi = getTowerPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
+                l1CaloTower.isBarrel = true;
 
-                    // Add L1EGs if they match in iEta / iPhi
-                    // L1EGs are already pT ordered, we will take the ID info for the leading one, but pT as the sum
-                    for (auto l1eg : l1egs_for_towers){
-                        //int absEtaID = getTower_absoluteEtaID( l1eg.eta() );
-                        //int absPhiID = getTower_absolutePhiID( l1eg.phi() );
-                        //printf(" - eta %f    phi %f       absEtaID %i       absPhiID %i\n", l1eg.eta(), l1eg.phi(), absEtaID, absPhiID);
-                        int iEta = getToweriEta_fromAbsoluteID( getTower_absoluteEtaID( l1eg.eta() ) );
-                        int iPhi = getToweriPhi_fromAbsoluteID( getTower_absolutePhiID( l1eg.phi() ) );
-                        //printf(" --- iEta %i    iPhi %i\n", iEta, iPhi);
-                        if (iEta != l1CaloTower.tower_iEta) continue;
-                        if (iPhi != l1CaloTower.tower_iPhi) continue;
-                        l1CaloTower.n_l1eg++;
-                        l1CaloTower.l1eg_tower_et += l1eg.pt();
-                        if (l1CaloTower.n_l1eg > 1) continue; // Don't record L1EG quality info for subleading L1EG
-                        l1CaloTower.l1eg_trkSS = l1eg.GetExperimentalParam("trkMatchWP_showerShape");
-                        l1CaloTower.l1eg_trkIso = l1eg.GetExperimentalParam("trkMatchWP_isolation");
-                        l1CaloTower.l1eg_standaloneSS = l1eg.GetExperimentalParam("standaloneWP_showerShape");
-                        l1CaloTower.l1eg_standaloneIso = l1eg.GetExperimentalParam("standaloneWP_isolation");
-                    }
-                    //std::cout << "Tower TP Position eta,iEta: " << l1CaloTower.tower_eta << "," << l1CaloTower.tower_iEta << std::endl;
-                    //std::cout << "Tower TP Position phi,iPhi: " << l1CaloTower.tower_phi << "," << l1CaloTower.tower_iPhi << std::endl;
-                    
-                    //for(const auto& hit : hcalhits)
-                    //{
-                    //   if (l1CaloTower.tower_iPhi == hit.id_hcal.iphi() && l1CaloTower.tower_iEta == hit.id_hcal.ieta() )
-                    //   {
-                    //       //printf("\nMatching Towers iEta:iPhi %i %i - eta1:eta2 %f %f - phi1:phi2 %f %f", l1CaloTower.tower_iEta,l1CaloTower.tower_iPhi,l1CaloTower.tower_eta,hit.position.eta(),l1CaloTower.tower_phi,(float)hit.position.phi());
-                    //       if (l1CaloTower.hcal_tower_et == hit.pt()) std::cout << ".";
-                    //       else printf("\n - Mismatch in HCAL energy, l1CaloTower ET: %f hit direct ET: %f", l1CaloTower.hcal_tower_et, hit.pt());
-                    //   }
-                    //}
-                    l1CaloTowerCollection->push_back( l1CaloTower );
+                // Add L1EGs if they match in iEta / iPhi
+                // L1EGs are already pT ordered, we will take the ID info for the leading one, but pT as the sum
+                for (auto l1eg : l1egs_for_towers){
+                    //int absEtaID = getTower_absoluteEtaID( l1eg.eta() );
+                    //int absPhiID = getTower_absolutePhiID( l1eg.phi() );
+                    int iEta = getToweriEta_fromAbsoluteID( getTower_absoluteEtaID( l1eg.eta() ) );
+                    int iPhi = getToweriPhi_fromAbsoluteID( getTower_absolutePhiID( l1eg.phi() ) );
+                    //float etaX  = l1t::CaloTools::towerEta(iEta);
+                    //float phiX  = l1t::CaloTools::towerPhi(iEta, iPhi);
+                    //printf(" -   eta %f    phi %f (l1eg)    EtaID %i  PhiID %i  iEta %i   iPhi %i\n", l1eg.eta(), l1eg.phi(), absEtaID, absPhiID, iEta, iPhi);
+                    //printf(" -   eta %f    phi %f (caloTools)\n", etaX, phiX);
+                    //printf(" === eta %f    phi %f (l1eg-caloTools)\n", (l1eg.eta() - etaX), (l1eg.phi() - phiX) );
+                    if (iEta != l1CaloTower.tower_iEta) continue;
+                    if (iPhi != l1CaloTower.tower_iPhi) continue;
+                    l1CaloTower.n_l1eg++;
+                    l1CaloTower.l1eg_tower_et += l1eg.pt();
+                    if (l1CaloTower.n_l1eg > 1) continue; // Don't record L1EG quality info for subleading L1EG
+                    l1CaloTower.l1eg_trkSS = l1eg.GetExperimentalParam("trkMatchWP_showerShape");
+                    l1CaloTower.l1eg_trkIso = l1eg.GetExperimentalParam("trkMatchWP_isolation");
+                    l1CaloTower.l1eg_standaloneSS = l1eg.GetExperimentalParam("standaloneWP_showerShape");
+                    l1CaloTower.l1eg_standaloneIso = l1eg.GetExperimentalParam("standaloneWP_isolation");
                 }
+                //std::cout << "Tower TP Position eta,iEta: " << l1CaloTower.tower_eta << "," << l1CaloTower.tower_iEta << std::endl;
+                //std::cout << "Tower TP Position phi,iPhi: " << l1CaloTower.tower_phi << "," << l1CaloTower.tower_iPhi << std::endl;
+                
+                //for(const auto& hit : hcalhits)
+                //{
+                //   if (l1CaloTower.tower_iPhi == hit.id_hcal.iphi() && l1CaloTower.tower_iEta == hit.id_hcal.ieta() )
+                //   {
+                //       //printf("\nMatching Towers iEta:iPhi %i %i - eta1:eta2 %f %f - phi1:phi2 %f %f", l1CaloTower.tower_iEta,l1CaloTower.tower_iPhi,l1CaloTower.tower_eta,hit.position.eta(),l1CaloTower.tower_phi,(float)hit.position.phi());
+                //       if (l1CaloTower.hcal_tower_et == hit.pt()) std::cout << ".";
+                //       else printf("\n - Mismatch in HCAL energy, l1CaloTower ET: %f hit direct ET: %f", l1CaloTower.hcal_tower_et, hit.pt());
+                //   }
+                //}
+                l1CaloTowerCollection->push_back( l1CaloTower );
+                //}
             }
         }
     }
