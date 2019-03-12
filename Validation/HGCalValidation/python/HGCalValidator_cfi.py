@@ -13,7 +13,7 @@ hgcalValidator = cms.EDAnalyzer(
     ### reco input configuration ###
     #2dlayerclusters, pfclusters, multiclusters
     #label = cms.VInputTag(cms.InputTag("hgcalLayerClusters"), cms.InputTag("particleFlowClusterHGCal"), cms.InputTag("hgcalMultiClusters") ),
-    label = cms.VInputTag(cms.InputTag("hgcalLayerClusters")),
+    label = cms.VInputTag(cms.InputTag("hgcalLayerClusters"), cms.InputTag("hgcalMultiClusters") ),
     
     #General info on layers etc. 
     SaveGeneralInfo = cms.untracked.bool(True),
