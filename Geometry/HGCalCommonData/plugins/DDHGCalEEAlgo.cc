@@ -187,6 +187,8 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
       int     copy   = copyNumber_[ii];
       double  hthick = 0.5*thick_[ii];
       double  rinB   = HGCalGeomTools::radius(zo,zFrontB_,rMinFront_,slopeB_);
+      std::pair<double,double> zr = HGCalGeomTools::zradius(zz,zz+thick_[ii],
+							    zFrontT_,rMaxFront_);
       zz            += hthick;
       thickTot      += thick_[ii];
 
@@ -204,12 +206,26 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
       DDLogicalPart glog;
       if (layerSense_[ly] < 1) {
 	double alpha = CLHEP::pi/sectors_;
-	int    nsec  = (layerSense_[ly] == 0 || absorbMode_ == 0) ? 2 : 2;
+	int    nsec  = (layerSense_[ly] == 0 || absorbMode_ == 0 ||
+			zr.first < 0) ? 2 : 3;
 	std::vector<double> pgonZ(nsec), pgonRin(nsec), pgonRout(nsec);
-	double rmax  = routF*cos(alpha) - tol;
-	pgonZ[0]    =-hthick;  pgonZ[1]    = hthick;
-	pgonRin[0]  = rinB;    pgonRin[1]  = rinB;   
-	pgonRout[0] = rmax;    pgonRout[1] = rmax;   
+	if (layerSense_[ly] == 0 || absorbMode_ == 0) {
+	  double rmax  = routF*cos(alpha) - tol;
+	  pgonZ[0]    =-hthick;  pgonZ[1]    = hthick;
+	  pgonRin[0]  = rinB;    pgonRin[1]  = rinB;   
+	  pgonRout[0] = rmax;    pgonRout[1] = rmax;
+	} else {
+	  for (int isec=0; isec<nsec; ++isec) {
+	    double zs = ((isec == 0) ? (zz-hthick) : (isec == nsec-1) ?
+			 (zz+hthick) : zr.first);
+            double rm = (((isec == 0) || (isec == nsec-1)) ?
+			 HGCalGeomTools::radius(zs,zFrontT_,rMaxFront_,slopeT_)
+			 : zr.second)*cos(alpha) - tol;
+	    pgonZ[isec]    = zs-zz;
+	    pgonRin[isec]  = rinB;
+	    pgonRout[isec] = rm;
+	  }
+	}
 	DDSolid solid = DDSolidFactory::polyhedra(DDName(name, nameSpace_),
 						  sectors_,-alpha,CLHEP::twopi,
 						  pgonZ, pgonRin, pgonRout);
