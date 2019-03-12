@@ -111,7 +111,7 @@
     std::cout<<"Exception thrown for insertBind"<<std::endl;
     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    std::cout << getOraMessage(&ex) << std::endl;
+    std::cout << ex.getMessage() << std::endl;
 #endif
    }
   }

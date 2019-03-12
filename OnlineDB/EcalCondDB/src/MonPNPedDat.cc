@@ -43,7 +43,7 @@ void MonPNPedDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNPedDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNPedDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -73,7 +73,7 @@ void MonPNPedDat::writeDB(const EcalLogicID* ecid, const MonPNPedDat* item, MonR
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNPedDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNPedDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -105,12 +105,12 @@ void MonPNPedDat::fetchData(std::map< EcalLogicID, MonPNPedDat >* fillMap, MonRu
     std::pair< EcalLogicID, MonPNPedDat > p;
     MonPNPedDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setPedMeanG1( rset->getFloat(7) );
       dat.setPedRMSG1( rset->getFloat(8) );
@@ -121,7 +121,7 @@ void MonPNPedDat::fetchData(std::map< EcalLogicID, MonPNPedDat >* fillMap, MonRu
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNPedDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNPedDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -229,6 +229,6 @@ void MonPNPedDat::writeArrayDB(const std::map< EcalLogicID, MonPNPedDat >* data,
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNPedDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNPedDat::writeArrayDB():  "+e.getMessage()));
   }
 }

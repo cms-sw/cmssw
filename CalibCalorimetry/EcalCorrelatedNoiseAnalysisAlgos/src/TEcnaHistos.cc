@@ -10,7 +10,7 @@
 //  Documentation: see TEcnaHistos.h
 //--------------------------------------
 
-ClassImp(TEcnaHistos)
+ClassImp(TEcnaHistos);
 //______________________________________________________________________________
 //
 

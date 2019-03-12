@@ -159,7 +159,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "datadir":os.getcwd(),
             "logdir":os.getcwd(),
             }
-	mandatories = [
+        mandatories = [
             "eosdir",
         ]
         self.checkInput("general", knownSimpleOptions = defaults.keys() + mandatories)

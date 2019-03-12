@@ -65,9 +65,14 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   layerType_    = dbl_to_int(vArgs["LayerType"]);
   layerSense_   = dbl_to_int(vArgs["LayerSense"]);
   firstLayer_   = (int)(nArgs["FirstLayer"]);
+  absorbMode_   = (int)(nArgs["AbsorberMode"]);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "First Layere " << firstLayer_ << " and "
+				<< "Absober mode " << absorbMode_;
+#endif
   if (firstLayer_ > 0) {
     for (unsigned int i=0; i<layerType_.size(); ++i) {
-      if (layerSense_[i] != 0) {
+      if (layerSense_[i] > 0) {
 	int ii = layerType_[i];
 	copyNumber_[ii] = firstLayer_;
 #ifdef EDM_ML_DEBUG
@@ -177,7 +182,6 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
     int     laymax = laymin+layers_[i];
     double  zz     = zi;
     double  thickTot(0);
-    std::vector<double> pgonZ(2), pgonRin(2), pgonRout(2);
     for (int ly=laymin; ly<laymax; ++ly) {
       int     ii     = layerType_[ly];
       int     copy   = copyNumber_[ii];
@@ -198,8 +202,10 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
 		     DDSplit(materials_[ii]).second);
       DDMaterial matter(matName);
       DDLogicalPart glog;
-      if (layerSense_[ly] == 0) {
+      if (layerSense_[ly] < 1) {
 	double alpha = CLHEP::pi/sectors_;
+	int    nsec  = (layerSense_[ly] == 0 || absorbMode_ == 0) ? 2 : 2;
+	std::vector<double> pgonZ(nsec), pgonRin(nsec), pgonRout(nsec);
 	double rmax  = routF*cos(alpha) - tol;
 	pgonZ[0]    =-hthick;  pgonZ[1]    = hthick;
 	pgonRin[0]  = rinB;    pgonRin[1]  = rinB;   

@@ -1,10 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 static void doPos(cms::DDParsingContext& ctxt, dd4hep::Volume toPos, dd4hep::Volume mother, 
                   int copyNr, double x, double y, double z, 
@@ -124,7 +126,7 @@ static long algorithm(Detector& /* description */,
   string         siReenforceMat = args.value<string>("SiReenforcementMaterial");  //             Materieal
 
   LogDebug("TECGeom") << "debug: ModuleThick " << moduleThick
-		      << " Detector Tilt " << ConvertTo( detTilt, deg ) << " Height "
+		      << " Detector Tilt " << convertRadToDeg( detTilt ) << " Height "
 		      << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) "
 		      << dlBottom << " dl(Hybrid) " << dlHybrid
 		      << " rPos " << rPos << " standrad rotation " 
@@ -451,7 +453,7 @@ static long algorithm(Detector& /* description */,
     ns.addSolidNS(name,solid);
     LogDebug("TECGeom") << "Solid:\t" << solid.name()
 			<< " Trap made of " <<  pitchMat
-			<< " of dimensions " << dz << ", " << ConvertTo( thet, deg )
+			<< " of dimensions " << dz << ", " << convertRadToDeg( thet )
 			<< ", 0, " << h1 << ", " << bl1 << ", " << bl1
 			<< ", 0, " << h1 << ", " << bl2 << ", " << bl2
 			<< ", 0";
@@ -500,7 +502,7 @@ static long algorithm(Detector& /* description */,
     ns.addSolid(name,solid);
     LogDebug("TECGeom") << "Solid:\t" << solid.name()
 			<< " Trap made of " << topFrameMat << " of dimensions "
-			<< dz << ", " << ConvertTo( thet, deg ) << ", 0, " << h1 
+			<< dz << ", " << convertRadToDeg( thet ) << ", 0, " << h1 
 			<< ", " << bl1 << ", " << bl1 << ", 0, " << h1 
 			<< ", " << bl2 << ", " << bl2 << ", 0";
   }

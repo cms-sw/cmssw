@@ -207,34 +207,29 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
         int ibeg = soi + firstSampleShift_;
         if (ibeg < 0)
             ibeg = 0;
-        const int iend = ibeg + nSamplesToExamine;
-        unsigned maxI = info.peakEnergyTS(ibeg, iend);
+        const int iend = std::min(ibeg + nSamplesToExamine, (int)nSamples - 1); // actual array
+
+        unsigned maxI = info.peakEnergyTS((unsigned)ibeg, (unsigned)iend);  // requires unsigned params
         if (maxI < HBHEChannelInfo::MAXSAMPLES)
         {
-            if (!maxI)
-                maxI = 1U;
-            else if (maxI >= nSamples - 1U)
-                maxI = nSamples - 2U;
 
-            // The remaining code in this scope emulates
-            // the historic algorithm
-            float t0 = info.tsEnergy(maxI - 1U);
-            float maxA = info.tsEnergy(maxI);
-            float t2 = info.tsEnergy(maxI + 1U);
+	  if(maxI >= nSamples) maxI = nSamples - 1U;  // just in case 
+  
+            // Simplified evaluation for Phase1
+            float emax0 = info.tsEnergy(maxI);
+            float emax1 = 0.;        
+            if(maxI < (nSamples - 1U)) emax1 = info.tsEnergy(maxI + 1U);
 
-            // Handle negative excursions by moving "zero"
-            float minA = t0;
-            if (maxA < minA) minA = maxA;
-            if (t2 < minA)   minA=t2;
-            if (minA < 0.f) { maxA-=minA; t0-=minA; t2-=minA; }
-            float wpksamp = (t0 + maxA + t2);
-            if (wpksamp) wpksamp = (maxA + 2.f*t2) / wpksamp;
-            time = (maxI - soi)*25.f + timeshift_ns_hbheho(wpksamp);
+	    // consider soi reference for collisions  
+            int position = (int)maxI;
+            if(nSamplesToExamine < (int)nSamples) position  -= soi;
+     
+            time = 25.f * (float)position;                   
+            if(emax0 > 0.f && emax1 > 0.f && maxI < (nSamples - 1U)) time += 25.f * emax1/(emax0+emax1); // 1st order corr.
 
-            // Legacy QIE8 timing correction
+            // TimeSlew correction
             time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
-            // Time calibration
-            time -= calibs.timecorr();
+
         }
     }
     return time;

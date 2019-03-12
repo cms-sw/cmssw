@@ -11,7 +11,7 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDValuePair.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
@@ -21,7 +21,7 @@
 #include <iomanip>
 #include <vector>
 
-using namespace dd::operators;
+using namespace geant_units::operators;
 
 void 
 DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos ) 
@@ -95,8 +95,8 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	     << " rMin=\"" << rs.rIn() << "*mm\""
 	     << " rMax=\"" << rs.rOut() << "*mm\""
 	     << " dz=\"" << rs.zhalf() << "*mm\""
-	     << " startPhi=\"" << CONVERT_TO( rs.startPhi(), deg ) << "*deg\""
-	     << " deltaPhi=\"" << CONVERT_TO( rs.deltaPhi(), deg ) << "*deg\"/>"
+	     << " startPhi=\"" << convertRadToDeg( rs.startPhi() ) << "*deg\""
+	     << " deltaPhi=\"" << convertRadToDeg( rs.deltaPhi() ) << "*deg\"/>"
 	     << std::endl;
          break;
       }
@@ -109,16 +109,16 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	DDTrap rs(solid);
 	xos << "<Trapezoid name=\""  << rs.toString() << "\""
 	    << " dz=\"" << rs.halfZ() << "*mm\""
-	    << " theta=\"" << CONVERT_TO( rs.theta(), deg ) << "*deg\""
-	    << " phi=\"" << CONVERT_TO( rs.phi(), deg ) << "*deg\""
+	    << " theta=\"" << convertRadToDeg( rs.theta() ) << "*deg\""
+	    << " phi=\"" << convertRadToDeg( rs.phi() ) << "*deg\""
 	    << " h1=\"" << rs.y1() << "*mm\""
 	    << " bl1=\"" << rs.x1() << "*mm\""
 	    << " tl1=\"" << rs.x2() << "*mm\""
-	    << " alp1=\"" << CONVERT_TO( rs.alpha1(), deg ) << "*deg\""
+	    << " alp1=\"" << convertRadToDeg( rs.alpha1() ) << "*deg\""
 	    << " h2=\"" << rs.y2() << "*mm\""
 	    << " bl2=\"" << rs.x3() << "*mm\""
 	    << " tl2=\"" << rs.x4() << "*mm\""
-	    << " alp2=\"" << CONVERT_TO( rs.alpha2(), deg ) << "*deg\"/>"
+	    << " alp2=\"" << convertRadToDeg( rs.alpha2() ) << "*deg\"/>"
 	    << std::endl;
 	break;
       }
@@ -131,8 +131,8 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	    << " rMax1=\"" << rs.rOutMinusZ() << "*mm\""
 	    << " rMin2=\"" << rs.rInPlusZ() << "*mm\""
 	    << " rMax2=\"" << rs.rOutPlusZ() << "*mm\""
-	    << " startPhi=\"" << CONVERT_TO( rs.phiFrom(), deg ) << "*deg\""
-	    << " deltaPhi=\"" << CONVERT_TO( rs.deltaPhi(), deg ) << "*deg\"/>"
+	    << " startPhi=\"" << convertRadToDeg( rs.phiFrom() ) << "*deg\""
+	    << " deltaPhi=\"" << convertRadToDeg( rs.deltaPhi() ) << "*deg\"/>"
 	    << std::endl;
 	break;
       }
@@ -140,8 +140,8 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
       {
 	DDPolycone rs(solid);
 	xos << "<Polycone name=\""  << rs.toString() << "\""
-	    << " startPhi=\"" << CONVERT_TO( rs.startPhi(), deg ) << "*deg\""
-	    << " deltaPhi=\"" << CONVERT_TO( rs.deltaPhi(), deg ) << "*deg\">"
+	    << " startPhi=\"" << convertRadToDeg( rs.startPhi() ) << "*deg\""
+	    << " deltaPhi=\"" << convertRadToDeg( rs.deltaPhi() ) << "*deg\">"
 	    << std::endl;
 	const std::vector<double> & zV(rs.zVec());
 	const std::vector<double> & rV(rs.rVec());
@@ -158,8 +158,8 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	DDPolyhedra rs(solid);
 	xos << "<Polyhedra name=\""  << rs.toString() << "\""
 	    << " numSide=\"" << rs.sides() << "\""
-	    << " startPhi=\"" << CONVERT_TO( rs.startPhi(), deg ) << "*deg\""
-	    << " deltaPhi=\"" << CONVERT_TO( rs.deltaPhi(), deg ) << "*deg\">"
+	    << " startPhi=\"" << convertRadToDeg( rs.startPhi() ) << "*deg\""
+	    << " deltaPhi=\"" << convertRadToDeg( rs.deltaPhi() ) << "*deg\">"
 	    << std::endl;
 	const std::vector<double> & zV(rs.zVec());
 	const std::vector<double> & rV(rs.rVec());
@@ -182,8 +182,8 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	//    <ZSection z="[CMSZ1]"   rMin="[Rmin]"  rMax="[CMSR2]" />
 	DDPolycone rs(solid);
 	xos << "<Polycone name=\""  << rs.toString() << "\""
-	    << " startPhi=\"" << CONVERT_TO( rs.startPhi(), deg ) << "*deg\""
-	    << " deltaPhi=\"" << CONVERT_TO( rs.deltaPhi(), deg ) << "*deg\">"
+	    << " startPhi=\"" << convertRadToDeg( rs.startPhi() ) << "*deg\""
+	    << " deltaPhi=\"" << convertRadToDeg( rs.deltaPhi() ) << "*deg\">"
 	    << std::endl;
 	const std::vector<double> & zV(rs.zVec());
 	const std::vector<double> & rMinV(rs.rMinVec());
@@ -202,8 +202,8 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	DDPolyhedra rs(solid);
 	xos << "<Polyhedra name=\""  << rs.toString() << "\""
 	    << " numSide=\"" << rs.sides() << "\""
-	    << " startPhi=\"" << CONVERT_TO( rs.startPhi(), deg ) << "*deg\""
-	    << " deltaPhi=\"" << CONVERT_TO( rs.deltaPhi(), deg ) << "*deg\">"
+	    << " startPhi=\"" << convertRadToDeg( rs.startPhi() ) << "*deg\""
+	    << " deltaPhi=\"" << convertRadToDeg( rs.deltaPhi() ) << "*deg\">"
 	    << std::endl;
 	const std::vector<double> & zV(rs.zVec());
 	const std::vector<double> & rMinV(rs.rMinVec());
@@ -242,8 +242,8 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	    << " zHalf=\"" << rs.zHalf() << "*mm\""
 	    << " rMin=\"" << rs.rIn() << "*mm\""
 	    << " rMax=\"" << rs.rOut() << "*mm\""
-	    << " startPhi=\"" << CONVERT_TO( rs.startPhi(), deg ) << "*deg\""
-	    << " deltaPhi=\"" << CONVERT_TO( rs.deltaPhi(), deg ) << "*deg\""
+	    << " startPhi=\"" << convertRadToDeg( rs.startPhi() ) << "*deg\""
+	    << " deltaPhi=\"" << convertRadToDeg( rs.deltaPhi() ) << "*deg\""
 	    << " cutAtStart=\"" << rs.cutAtStart() << "*mm\""
 	    << " cutAtDelta=\"" << rs.cutAtDelta() << "*mm\""
 	    << " cutInside=\"" << ( rs.cutInside() ? "true" : "false" ) << "\"/>"
@@ -266,8 +266,8 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	    << " innerRadius=\"" << rs.rMin() << "*mm\""
 	    << " outerRadius=\"" << rs.rMax() << "*mm\""
 	    << " torusRadius=\"" << rs.rTorus() << "*mm\""
-	    << " startPhi=\"" << CONVERT_TO( rs.startPhi(), deg ) << "*deg\""
-	    << " deltaPhi=\"" << CONVERT_TO( rs.deltaPhi(), deg ) << "*deg\"/>"
+	    << " startPhi=\"" << convertRadToDeg( rs.startPhi() ) << "*deg\""
+	    << " deltaPhi=\"" << convertRadToDeg( rs.deltaPhi() ) << "*deg\"/>"
 	    << std::endl;
 	break;
       }
@@ -297,8 +297,8 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	    << " dz=\"" << rs.zhalf() << "*mm\""
 	    << " rMin=\"" << rs.rIn() << "*mm\""
 	    << " rMax=\"" << rs.rOut() << "*mm\""
-	    << " startPhi=\"" << CONVERT_TO( rs.startPhi(), deg ) << "*deg\""
-	    << " deltaPhi=\"" << CONVERT_TO( rs.deltaPhi(), deg ) << "*deg\""
+	    << " startPhi=\"" << convertRadToDeg( rs.startPhi() ) << "*deg\""
+	    << " deltaPhi=\"" << convertRadToDeg( rs.deltaPhi() ) << "*deg\""
 	    << " lx=\"" << pLowNorm[0] << "\""
 	    << " ly=\"" << pLowNorm[1] << "\""
 	    << " lz=\"" << pLowNorm[2] << "\""
@@ -343,10 +343,10 @@ void DDCoreToDDXMLOutput::material( const DDMaterial& material, std::ostream& xo
      xos << "<ElementaryMaterial name=\""  << material.toString() << "\""
 	 << " density=\"" 
 	 << std::scientific << std::setprecision(5)
-	 << CONVERT_TO( material.density(), mg_per_cm3 ) << "*mg/cm3\""
+	 << convertUnitsTo(1._mg_per_cm3, material.density()) << "*mg/cm3\""
 	 << " atomicWeight=\"" 
 	 << std::fixed  
-	 << CONVERT_TO( material.a(), g_per_mole ) << "*g/mole\""
+	 << convertUnitsTo(1._g_per_mole, material.a()) << "*g/mole\""
 	 << std::setprecision(0) << std::fixed << " atomicNumber=\"" << material.z() << "\"/>"
 	 << std::endl;
    } 
@@ -355,7 +355,7 @@ void DDCoreToDDXMLOutput::material( const DDMaterial& material, std::ostream& xo
      xos << "<CompositeMaterial name=\""  << material.toString() << "\""
 	 << " density=\"" 
 	 << std::scientific << std::setprecision(5)
-	 << CONVERT_TO( material.density(), mg_per_cm3 ) << "*mg/cm3\""
+	 << convertUnitsTo(1._mg_per_cm3, material.density()) << "*mg/cm3\""
 	 << " method=\"mixture by weight\">" << std::endl;
       
      int j=0;
@@ -405,12 +405,12 @@ DDCoreToDDXMLOutput::rotation( const DDRotation& rotation, std::ostream& xos,
       xos << "<ReflectionRotation ";
    }
    xos << "name=\"" << rotName << "\""
-       << " phiX=\"" << CONVERT_TO( x.phi(), deg ) << "*deg\""
-       << " thetaX=\"" << CONVERT_TO( x.theta(), deg ) << "*deg\""
-       << " phiY=\"" << CONVERT_TO( y.phi(), deg ) << "*deg\""
-       << " thetaY=\"" << CONVERT_TO( y.theta(), deg ) << "*deg\""
-       << " phiZ=\"" << CONVERT_TO( z.phi(), deg ) << "*deg\""
-       << " thetaZ=\"" << CONVERT_TO( z.theta(), deg ) << "*deg\"/>"
+       << " phiX=\"" << convertRadToDeg( x.phi() ) << "*deg\""
+       << " thetaX=\"" << convertRadToDeg( x.theta() ) << "*deg\""
+       << " phiY=\"" << convertRadToDeg( y.phi() ) << "*deg\""
+       << " thetaY=\"" << convertRadToDeg( y.theta() ) << "*deg\""
+       << " phiZ=\"" << convertRadToDeg( z.phi() ) << "*deg\""
+       << " thetaZ=\"" << convertRadToDeg( z.theta() ) << "*deg\"/>"
        << std::endl;
 }
 

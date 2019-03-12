@@ -25,6 +25,7 @@ class HGCalTowerMap2DImpl{
 
   void eventSetup(const edm::EventSetup& es) {
         triggerTools_.eventSetup(es);
+        towerGeometryHelper_.eventSetup(es);
   }
 
  private:

@@ -66,6 +66,8 @@ namespace edm {
     const_reference operator[](size_type i) const { return data[ i ]; }
     void reserve(size_t s) { data.reserve(s); }
     void push_back(const T & t) { data.push_back(t); }
+    template<class... Args>
+    decltype(auto) emplace_back(Args&&... args) { return data.emplace_back(std::forward<Args>(args)...); }
     void clear() { data.clear(); }
     void swap(DetSet<T> & other) noexcept;
 
