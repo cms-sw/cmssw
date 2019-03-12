@@ -56,8 +56,8 @@ def customiseFor25811(process):
 # type of parameter changed
 def customiseFor24501(process):
     for producer in producers_by_type(process, "PFRecoTauDiscriminationByIsolation"):
-        if hasattr(producer, "deltaBetaPUTrackPtCutOverride"):
-            deltaBetaPUTrackPtCutOverride_val = producer.deltaBetaPUTrackPtCutOverride
+        if hasattr(producer, "deltaBetaPUTrackPtCutOverride") and not isinstance(producer.deltaBetaPUTrackPtCutOverride, cms.bool):
+            producer.deltaBetaPUTrackPtCutOverride_val = producer.deltaBetaPUTrackPtCutOverride
             producer.deltaBetaPUTrackPtCutOverride = cms.bool(True)
     return process
 
