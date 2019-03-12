@@ -653,6 +653,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     if (computeMiniIso_){
       // MiniIsolation working points
       double miniIsoValue = getRelMiniIsoPUCorrected(muon,*rho);
+
       muon.setSelector(reco::Muon::MiniIsoLoose,     miniIsoValue<0.40);
       muon.setSelector(reco::Muon::MiniIsoMedium,    miniIsoValue<0.20);
       muon.setSelector(reco::Muon::MiniIsoTight,     miniIsoValue<0.10);
@@ -662,6 +663,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     double puppiCombinedIsolationPAT = -1;
     if(computePuppiCombinedIso_){
       puppiCombinedIsolationPAT=puppiCombinedIsolation(muon, pc.product());
+
+     std::cout<<"PUPPI Isolation value: "<<puppiCombinedIsolationPAT<<std::endl;
 
       muon.setSelector(reco::Muon::PuppiIsoLoose, puppiCombinedIsolationPAT<0.27);
       muon.setSelector(reco::Muon::PuppiIsoMedium, puppiCombinedIsolationPAT<0.22);
@@ -696,6 +699,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
       // multi-isolation
       if (computeMiniIso_){
+
+
 	muon.setSelector(reco::Muon::MultiIsoLoose,  miniIsoValue<0.40 && (muon.jetPtRatio() > 0.80 || muon.jetPtRel() > 7.2) );
 	muon.setSelector(reco::Muon::MultiIsoMedium, miniIsoValue<0.16 && (muon.jetPtRatio() > 0.76 || muon.jetPtRel() > 7.2) );
       }
@@ -861,11 +866,13 @@ double PATMuonProducer::puppiCombinedIsolation(const pat::Muon& muon, const pat:
      }
      
      double d_eta = fabs( cand->eta() - muon.eta() ) ;
+
      if( d_eta > dR_threshold ) continue ;
 
-     double d_phi = fabs( cand->phi() - muon.phi() ) ;
-     d_phi = ( d_phi < 3.14 ) ? d_phi : 2 * 3.14 - d_phi ;
+     double d_phi = fabs(reco::deltaPhi(cand->phi(),muon.phi()));
+
      if( d_phi > dR_threshold ) continue ;
+
 
      double dR2 = d_eta * d_eta  + d_phi * d_phi ;
      if(  dR2 > dR2_threshold ) continue ;
@@ -884,6 +891,9 @@ double PATMuonProducer::puppiCombinedIsolation(const pat::Muon& muon, const pat:
   double reliso_Puppi_withoutlep = ( val_PuppiWithoutLep[CH] + val_PuppiWithoutLep[NH] + val_PuppiWithoutLep[PH] ) / muon.pt() ;
   double reliso_Puppi_combined = mix_fraction * reliso_Puppi_withLep + ( 1.0 - mix_fraction) * reliso_Puppi_withoutlep;
 
+  std::cout<<"reliso_Puppi_withLep: "<<reliso_Puppi_withLep<<std::endl;
+  std::cout<<"reliso_Puppi_withoutlep: "<<reliso_Puppi_withoutlep<<std::endl;
+  std::cout<<"reliso_Puppi_combined: "<<reliso_Puppi_combined<<std::endl;
   return reliso_Puppi_combined;
 
 }
