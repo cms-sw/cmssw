@@ -41,21 +41,23 @@ class CTPPSPixelTopology
 
     static bool isPixelHit(float xLocalCoordinate, float yLocalCoordinate, bool is3x2 = true)
     {
-      float tmpXlocalCoordinate = xLocalCoordinate + (79*0.1 + 0.2);
-      float tmpYlocalCoordinate = yLocalCoordinate + (0.15*51 + 0.3*2 + 0.15*25);
-
-      if(tmpXlocalCoordinate<0) return false;
-      if(tmpYlocalCoordinate<0) return false;
-      int xModuleSize = 0.1*79 + 0.2*2 + 0.1*79; // mm - 100 um pitch direction
-      int yModuleSize; // mm - 150 um pitch direction
-      if (is3x2) yModuleSize = 0.15*51 + 0.3*2 + 0.15*50 + 0.3*2 + 0.15*51;
-      else       yModuleSize = 0.15*51 + 0.3*2 + 0.15*51;
-      if(tmpXlocalCoordinate>xModuleSize) return false;
-      if(tmpYlocalCoordinate>yModuleSize) return false;
+// check hit fiducial boundaries
+      double xModuleSize = 2*((no_of_pixels_simX_/2. + 1)*pitch_simX_ + dead_edge_width_);
+      if(xLocalCoordinate < -xModuleSize/2. || xLocalCoordinate > xModuleSize/2.)
+	return false;
+      
+      double yModuleSize = (no_of_pixels_simY_ + 4.)*pitch_simY_ + 2.*dead_edge_width_;
+      double y2x2top = no_of_pixels_simY_/6.*pitch_simY_ + dead_edge_width_;
+      if(is3x2 && (yLocalCoordinate < -yModuleSize/2. || yLocalCoordinate > yModuleSize/2.))
+	return false;
+      
+      if(!is3x2 && (yLocalCoordinate < -yModuleSize/2. || yLocalCoordinate > y2x2top))
+	return false;
+         
       return true;
+      
     }
     
-
     CTPPSPixelIndices indices_;
 };
 
