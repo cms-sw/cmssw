@@ -29,7 +29,7 @@ l1PhaseIITree = cms.EDAnalyzer("L1PhaseIITreeProducer",
    tkTrackerJetToken = cms.InputTag("TwoLayerJets", "L1TwoLayerJets"),                                            
    tkCaloJetToken = cms.InputTag("L1TkCaloJets","L1TkCaloJets"),
    tkMetToken = cms.InputTag("L1TrackerEtMiss","trkMET"),
-   tkMhtTokens = cms.VInputTag( cms.InputTag("L1TrackerHTMiss5GeV","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss10GeV","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss20GeV","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss30GeV","L1TrackerHTMiss")),
+   tkMhtTokens = cms.VInputTag( cms.InputTag("L1TrackerHTMiss","L1TrackerHTMiss") ),
 
    ak4L1PF = cms.InputTag("ak4PFL1PuppiCorrected"),
 #   ak4L1PFForMET = cms.InputTag("ak4PFL1PuppiForMETCorrected"),
