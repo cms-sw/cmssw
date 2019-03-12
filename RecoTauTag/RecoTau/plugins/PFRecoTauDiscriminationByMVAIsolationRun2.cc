@@ -379,7 +379,7 @@ PFRecoTauDiscriminationByMVAIsolationRun2::fillDescriptions(edm::ConfigurationDe
   desc.add<edm::InputTag>("srcPhotonPtSumOutsideSignalCone");
   desc.add<edm::InputTag>("srcFootprintCorrection");
 
-  desc.add<int>("verbosity");
+  desc.add<int>("verbosity", 0);
 
   fillProducerDescriptions(desc); // inherited from the base
 
