@@ -665,7 +665,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     if(computePuppiCombinedIso_){
       puppiCombinedIsolationPAT=puppiCombinedIsolation(muon, pc.product());
 
-     std::cout<<"PUPPI Isolation value: "<<puppiCombinedIsolationPAT<<std::endl;
+     
 
       muon.setSelector(reco::Muon::PuppiIsoLoose, puppiCombinedIsolationPAT<0.27);
       muon.setSelector(reco::Muon::PuppiIsoMedium, puppiCombinedIsolationPAT<0.22);
@@ -892,9 +892,7 @@ double PATMuonProducer::puppiCombinedIsolation(const pat::Muon& muon, const pat:
   double reliso_Puppi_withoutlep = ( val_PuppiWithoutLep[CH] + val_PuppiWithoutLep[NH] + val_PuppiWithoutLep[PH] ) / muon.pt() ;
   double reliso_Puppi_combined = mix_fraction * reliso_Puppi_withLep + ( 1.0 - mix_fraction) * reliso_Puppi_withoutlep;
 
-  std::cout<<"reliso_Puppi_withLep: "<<reliso_Puppi_withLep<<std::endl;
-  std::cout<<"reliso_Puppi_withoutlep: "<<reliso_Puppi_withoutlep<<std::endl;
-  std::cout<<"reliso_Puppi_combined: "<<reliso_Puppi_combined<<std::endl;
+  
   return reliso_Puppi_combined;
 
 }
