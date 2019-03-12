@@ -524,9 +524,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         l1Hit.l1eg_trkIso = hit.l1eg_trkIso;
         l1Hit.l1eg_standaloneSS = hit.l1eg_standaloneSS;
         l1Hit.l1eg_standaloneIso = hit.l1eg_standaloneIso;
-
-        if ( abs(l1Hit.tower_iEta ) <= 18 ) l1Hit.isBarrel = true;
-        else l1Hit.isBarrel = false;
+        l1Hit.isBarrel = hit.isBarrel;
 
         // FIXME There is an error in the L1EGammaCrystalsEmulatorProducer.cc which is
         // returning towers with minimal ECAL energy, and no HCAL energy with these
@@ -800,7 +798,8 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             }
 
             // Unused l1CaloTowers which are not the initial seed
-            // Depending on seed and tower locations calculate iEta/iPhi or eta/phi comparisons
+            // Depending on seed and tower locations calculate iEta/iPhi or eta/phi comparisons.
+            // The defaults of 99 will automatically fail comparisons for the incorrect regions.
             int hit_iPhi = 99;
             int d_iEta = 99;
             int d_iPhi = 99;
@@ -812,7 +811,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 d_iEta = tower_diEta( caloJetObj.seed_iEta, l1CaloTower.tower_iEta );
                 d_iPhi = tower_diPhi( caloJetObj.seed_iPhi, hit_iPhi );
             }
-            else // either seed or tower are in HGCal, use eta/phi
+            else // either seed or tower are in HGCal or HF, use eta/phi
             {
                 d_eta = caloJetObj.seedTower.eta() - l1CaloTower.tower_eta;
                 d_phi = reco::deltaPhi( caloJetObj.seedTower.phi(), l1CaloTower.tower_phi );
@@ -821,8 +820,8 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             // 7x7 HCAL Trigger Towers
             // If seeded in barrel and hit is barrel then we can compare iEta/iPhi, else need to use eta/phi
             // in HGCal / transition region
-            if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) ||
-                    ( (!caloJetObj.barrelSeeded || !l1CaloTower.isBarrel) && fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) )
+            if ( (abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) ||
+                    ( fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) )
             {
 
                 // 3 4-vectors for ECAL, HCAL, ECAL+HCAL for adding together
@@ -876,16 +875,16 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                     caloJetObj.l1eg_seed += l1egP4.pt();
                     caloJetObj.total_seed += totalP4.pt();
                 }
-                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 2) || 
-                    ( (!l1CaloTower.isBarrel || !caloJetObj.barrelSeeded) && fabs( d_eta ) < 0.15 && fabs( d_phi ) < 0.15 ) )
+                if ( (abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 2) || 
+                    ( fabs( d_eta ) < 0.15 && fabs( d_phi ) < 0.15 ) )
                 {
                     caloJetObj.hcal_3x3 += hcalP4.pt();
                     caloJetObj.ecal_3x3 += ecalP4.pt();
                     caloJetObj.l1eg_3x3 += l1egP4.pt();
                     caloJetObj.total_3x3 += totalP4.pt();
                 }
-                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) || 
-                    ( (!l1CaloTower.isBarrel || !caloJetObj.barrelSeeded) && fabs( d_eta ) < 0.2 && fabs( d_phi ) < 0.2 ) )
+                if ( ( abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) || 
+                    ( fabs( d_eta ) < 0.2 && fabs( d_phi ) < 0.2 ) )
                 {
                     caloJetObj.hcal_5x5 += hcalP4.pt();
                     caloJetObj.ecal_5x5 += ecalP4.pt();
@@ -897,8 +896,8 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                     caloJetObj.l1eg_nL1EGs_trkMatchSS += l1CaloTower.l1eg_trkSS;
                     caloJetObj.l1eg_nL1EGs_trkMatchIso += l1CaloTower.l1eg_trkIso;
                 }
-                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 4) || 
-                    ( (!l1CaloTower.isBarrel || !caloJetObj.barrelSeeded) && fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) )
+                if ( (abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 4) || 
+                    ( fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) )
                 {
                     caloJetObj.hcal_7x7 += hcalP4.pt();
                     caloJetObj.ecal_7x7 += ecalP4.pt();
@@ -907,32 +906,32 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 }
 
                 // Some discrimination vars, 2x2s including central seed
-                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && ( d_iEta == 0 || d_iEta == 1 ) && ( d_iPhi == 0 || d_iPhi == 1 ) ) || 
-                    ( (!l1CaloTower.isBarrel || !caloJetObj.barrelSeeded) && fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
+                if ( ( ( d_iEta == 0 || d_iEta == 1 ) && ( d_iPhi == 0 || d_iPhi == 1 ) ) || 
+                    ( fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
                 {
                     caloJetObj.hcal_2x2_1 += hcalP4.pt();
                     caloJetObj.ecal_2x2_1 += ecalP4.pt();
                     caloJetObj.l1eg_2x2_1 += l1egP4.pt();
                     caloJetObj.total_2x2_1 += totalP4.pt();
                 }
-                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && ( d_iEta == 0 || d_iEta == 1 ) && ( d_iPhi == 0 || d_iPhi == -1 ) ) || 
-                    ( (!l1CaloTower.isBarrel || !caloJetObj.barrelSeeded) && fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
+                if ( ( ( d_iEta == 0 || d_iEta == 1 ) && ( d_iPhi == 0 || d_iPhi == -1 ) ) || 
+                    ( fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
                 {
                     caloJetObj.hcal_2x2_2 += hcalP4.pt();
                     caloJetObj.ecal_2x2_2 += ecalP4.pt();
                     caloJetObj.l1eg_2x2_2 += l1egP4.pt();
                     caloJetObj.total_2x2_2 += totalP4.pt();
                 }
-                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && ( d_iEta == 0 || d_iEta == -1 ) && ( d_iPhi == 0 || d_iPhi == 1 ) ) || 
-                    ( (!l1CaloTower.isBarrel || !caloJetObj.barrelSeeded) && fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
+                if ( ( ( d_iEta == 0 || d_iEta == -1 ) && ( d_iPhi == 0 || d_iPhi == 1 ) ) || 
+                    ( fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
                 {
                     caloJetObj.hcal_2x2_3 += hcalP4.pt();
                     caloJetObj.ecal_2x2_3 += ecalP4.pt();
                     caloJetObj.l1eg_2x2_3 += l1egP4.pt();
                     caloJetObj.total_2x2_3 += totalP4.pt();
                 }
-                if ( (caloJetObj.barrelSeeded && l1CaloTower.isBarrel && ( d_iEta == 0 || d_iEta == -1 ) && ( d_iPhi == 0 || d_iPhi == -1 ) ) || 
-                    ( (!l1CaloTower.isBarrel || !caloJetObj.barrelSeeded) && fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
+                if ( ( ( d_iEta == 0 || d_iEta == -1 ) && ( d_iPhi == 0 || d_iPhi == -1 ) ) || 
+                    ( fabs( d_eta ) < 0.1 && fabs( d_phi ) < 0.1 ) )
                 {
                     caloJetObj.hcal_2x2_4 += hcalP4.pt();
                     caloJetObj.ecal_2x2_4 += ecalP4.pt();
