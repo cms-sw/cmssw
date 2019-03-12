@@ -11,7 +11,7 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     # flags 
     process_RecTracks = cms.untracked.bool(False),
     #
-    ParticleFilter = ParticleFilterBlock.ParticleFilter,
+    ParticleFilter = ParticleFilterBlock.ParticleFilter.clone(chargedPtMin = 0, EMin = 0),
     #
     TTRHBuilder = cms.string('WithTrackAngle'),
     process_Particles = cms.untracked.bool(True),
@@ -31,6 +31,3 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     fastSimProducer = cms.untracked.InputTag('fastSimProducer','EcalHitsEB')
 )
 
-# Custom setting
-particleFlowSimParticle.ParticleFilter.chargedPtMin = cms.double(0.0)
-particleFlowSimParticle.ParticleFilter.EMin = cms.double(0.0)
