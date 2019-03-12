@@ -321,6 +321,7 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       vpsd_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
       vpsd_builders.add<std::string>("name", "1");
       vpsd_builders.add<std::string>("plugin", "RecoTauPiZeroTrivialPlugin");
+      vpsd_builders.add<int>("verbosity", 0);
 
       vpsd_builders.addOptional<bool>("makeCombinatoricStrips");
       vpsd_builders.addOptional<int>("maxStripBuildIterations");
@@ -329,7 +330,6 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       vpsd_builders.addOptional<double>("minStripEt");
       vpsd_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
       vpsd_builders.addOptional<bool>("updateStripAfterEachDaughter");
-      vpsd_builders.addOptional<int>("verbosity");
       vpsd_builders.addOptional<bool>("applyElecTrackQcuts");
 
       desc.addVPSet("builders", vpsd_builders);
@@ -357,6 +357,7 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       vpsd_builders.add<double>("stripMassWhenCombining", 0.0);
       vpsd_builders.add<double>("stripPhiAssociationDistance", 0.2);
       vpsd_builders.add<double>("stripEtaAssociationDistance", 0.05);
+      vpsd_builders.add<int>("verbosity", 0);
 
       vpsd_builders.addOptional<bool>("makeCombinatoricStrips");
       vpsd_builders.addOptional<int>("maxStripBuildIterations");
@@ -365,7 +366,6 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       vpsd_builders.addOptional<double>("minStripEt");
       vpsd_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
       vpsd_builders.addOptional<bool>("updateStripAfterEachDaughter");
-      vpsd_builders.addOptional<int>("verbosity");
       vpsd_builders.addOptional<bool>("applyElecTrackQcuts");
 
       desc.addVPSet("builders", vpsd_builders);
@@ -393,6 +393,7 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       vpsd_builders.add<double>("minMass", 0.0);
       vpsd_builders.add<unsigned int>("choose", 2);
       vpsd_builders.addOptional<unsigned int>("maxInputGammas");
+      vpsd_builders.add<int>("verbosity", 0);
 
       vpsd_builders.addOptional<bool>("makeCombinatoricStrips");
       vpsd_builders.addOptional<int>("maxStripBuildIterations");
@@ -401,7 +402,6 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       vpsd_builders.addOptional<double>("minStripEt");
       vpsd_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
       vpsd_builders.addOptional<bool>("updateStripAfterEachDaughter");
-      vpsd_builders.addOptional<int>("verbosity");
       vpsd_builders.addOptional<bool>("applyElecTrackQcuts");
       {
        	edm::ParameterSetDescription psd0;
@@ -458,6 +458,7 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 
       vpsd_builders.add<std::string>("name");
       vpsd_builders.add<std::string>("plugin");
+      vpsd_builders.add<int>("verbosity", 0);
 
       vpsd_builders.addOptional<bool>("makeCombinatoricStrips");
       vpsd_builders.addOptional<int>("maxStripBuildIterations");
@@ -466,7 +467,6 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       vpsd_builders.addOptional<double>("minStripEt");
       vpsd_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
       vpsd_builders.addOptional<bool>("updateStripAfterEachDaughter");
-      vpsd_builders.addOptional<int>("verbosity");
       vpsd_builders.addOptional<bool>("applyElecTrackQcuts");
 
       desc.addVPSet("builders", vpsd_builders);
@@ -505,6 +505,7 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       vpsd_builders.add<std::string>("plugin", "RecoTauPiZeroStripPlugin2");
       vpsd_builders.add<double>("stripPhiAssociationDistance", 0.2);
       vpsd_builders.add<double>("stripEtaAssociationDistance", 0.05);
+      vpsd_builders.add<int>("verbosity", 0);
 
       vpsd_builders.addOptional<bool>("makeCombinatoricStrips");
       vpsd_builders.addOptional<int>("maxStripBuildIterations");
@@ -513,7 +514,6 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       vpsd_builders.addOptional<double>("minStripEt");
       vpsd_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
       vpsd_builders.addOptional<bool>("updateStripAfterEachDaughter");
-      vpsd_builders.addOptional<int>("verbosity");
       vpsd_builders.addOptional<bool>("applyElecTrackQcuts");
 
       desc.addVPSet("builders", vpsd_builders);

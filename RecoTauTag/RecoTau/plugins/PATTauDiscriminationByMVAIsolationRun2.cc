@@ -224,7 +224,7 @@ PATTauDiscriminationByMVAIsolationRun2::fillDescriptions(edm::ConfigurationDescr
   desc.add<std::string>("srcPUcorrPtSum");
   desc.add<std::string>("srcPhotonPtSumOutsideSignalCone");
   desc.add<std::string>("srcFootprintCorrection");
-  desc.add<int>("verbosity");
+  desc.add<int>("verbosity", 0);
 
   fillProducerDescriptions(desc); // inherited from the base
 

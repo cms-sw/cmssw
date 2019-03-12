@@ -293,6 +293,7 @@ RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
     edm::ParameterSetDescription vpsd_modifiers;
     vpsd_modifiers.add<std::string>("name");
     vpsd_modifiers.add<std::string>("plugin");
+    vpsd_modifiers.add<int>("verbosity", 0);
 
     vpsd_modifiers.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
     vpsd_modifiers.addOptional<edm::InputTag>("ElectronPreIDProducer");
@@ -309,8 +310,6 @@ RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
     vpsd_modifiers.addOptional<double>("minNeutralHadronEt");
     vpsd_modifiers.addOptional<edm::InputTag>("pfTauTagInfoSrc");
 
-    vpsd_modifiers.addOptional<int>("verbosity");
-
     desc.addVPSet("modifiers", vpsd_modifiers);
   }
 
@@ -325,7 +324,7 @@ RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
     edm::ParameterSetDescription vpsd_builders;
     vpsd_builders.add<std::string>("name");
     vpsd_builders.add<std::string>("plugin");
-    vpsd_builders.add<int>("verbosity");
+    vpsd_builders.add<int>("verbosity", 0);
 
     vpsd_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
     {

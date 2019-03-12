@@ -255,7 +255,7 @@ PFRecoTauDiscriminationByIsolationMVA2::fillDescriptions(edm::ConfigurationDescr
   desc.add<edm::InputTag>("srcChargedIsoPtSum");
   desc.add<edm::InputTag>("srcNeutralIsoPtSum");
   desc.add<edm::InputTag>("srcPUcorrPtSum");
-  desc.add<int>("verbosity");
+  desc.add<int>("verbosity", 0);
 
   fillProducerDescriptions(desc); // inherited from the base
 
