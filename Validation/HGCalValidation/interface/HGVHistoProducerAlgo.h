@@ -17,6 +17,7 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
@@ -90,6 +91,57 @@ struct HGVHistoProducerAlgoHistograms {
   std::unordered_map<int, ConcurrentMonitorElement> h_caloparticle_energy;
   std::unordered_map<int, ConcurrentMonitorElement> h_caloparticle_pt;
   std::unordered_map<int, ConcurrentMonitorElement> h_caloparticle_phi;
+
+  //For multiclusters
+  ConcurrentMonitorElement h_score_multicl2caloparticle;
+  ConcurrentMonitorElement h_score_caloparticle2multicl;
+  ConcurrentMonitorElement h_energy_vs_score_multicl2caloparticle;
+  ConcurrentMonitorElement h_energy_vs_score_caloparticle2multicl;
+  //contiguous multiclusters
+  ConcurrentMonitorElement h_score_contimulticl2caloparticle;
+  ConcurrentMonitorElement h_score_caloparticle2contimulticl;
+  ConcurrentMonitorElement h_energy_vs_score_contimulticl2caloparticle;
+  ConcurrentMonitorElement h_energy_vs_score_caloparticle2contimulticl;
+  //non contiguous multiclusters
+  ConcurrentMonitorElement h_score_noncontimulticl2caloparticle;
+  ConcurrentMonitorElement h_score_caloparticle2noncontimulticl;
+  ConcurrentMonitorElement h_energy_vs_score_noncontimulticl2caloparticle;
+  ConcurrentMonitorElement h_energy_vs_score_caloparticle2noncontimulticl;
+  //Back to all multiclusters
+  ConcurrentMonitorElement h_num_multicl_eta;
+  ConcurrentMonitorElement h_num_multicl_phi;
+  ConcurrentMonitorElement h_numMerge_multicl_eta;
+  ConcurrentMonitorElement h_numMerge_multicl_phi;
+  ConcurrentMonitorElement h_sharedenergy_multicl2caloparticle;
+  ConcurrentMonitorElement h_sharedenergy_caloparticle2multicl;
+  ConcurrentMonitorElement h_sharedenergy_multicl2caloparticle_vs_eta;
+  ConcurrentMonitorElement h_sharedenergy_multicl2caloparticle_vs_phi;
+  ConcurrentMonitorElement h_sharedenergy_caloparticle2multicl_vs_eta;
+  ConcurrentMonitorElement h_sharedenergy_caloparticle2multicl_vs_phi;
+  ConcurrentMonitorElement h_denom_multicl_eta;
+  ConcurrentMonitorElement h_denom_multicl_phi;
+  ConcurrentMonitorElement h_num_caloparticle_eta;
+  ConcurrentMonitorElement h_num_caloparticle_phi;
+  ConcurrentMonitorElement h_numDup_caloparticle_eta;
+  ConcurrentMonitorElement h_numDup_caloparticle_phi;
+  ConcurrentMonitorElement h_denom_caloparticle_eta;
+  ConcurrentMonitorElement h_denom_caloparticle_phi;
+  ConcurrentMonitorElement h_cellAssociation;
+  ConcurrentMonitorElement h_multiclusternum;
+  ConcurrentMonitorElement h_contmulticlusternum;
+  ConcurrentMonitorElement h_noncontmulticlusternum;
+  ConcurrentMonitorElement h_clusternum_in_multicluster;
+  std::unordered_map<int, ConcurrentMonitorElement> h_clusternum_in_multicluster_perlayer;
+  ConcurrentMonitorElement h_multicluster_pt;
+  ConcurrentMonitorElement h_multicluster_eta;
+  ConcurrentMonitorElement h_multicluster_phi;
+  ConcurrentMonitorElement h_multicluster_energy;
+  ConcurrentMonitorElement h_multicluster_x;
+  ConcurrentMonitorElement h_multicluster_y;
+  ConcurrentMonitorElement h_multicluster_z;
+  ConcurrentMonitorElement h_multicluster_firstlayer;
+  ConcurrentMonitorElement h_multicluster_lastlayer;
+  ConcurrentMonitorElement h_multicluster_layersnum;
 };
 
 using Density = hgcal_clustering::Density;
@@ -109,19 +161,24 @@ public:
                          unsigned layers,
                          std::vector<int> thicknesses,
                          std::string pathtomatbudfile);
+  void bookMultiClusterHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms, unsigned layers);
   void layerClusters_to_CaloParticles(const Histograms& histograms,
                                       const reco::CaloClusterCollection& clusters,
                                       std::vector<CaloParticle> const& cP,
                                       std::map<DetId, const HGCRecHit*> const&,
                                       unsigned layers) const;
+  void multiClusters_to_CaloParticles(const Histograms& histograms,
+                                      const std::vector<reco::HGCalMultiCluster>& multiClusters,
+                                      std::vector<CaloParticle> const& cP,
+                                      std::map<DetId, const HGCRecHit*> const&,
+                                      unsigned layers,
+                                      std::vector<bool> contimulti) const;
   void fill_info_histos(const Histograms& histograms, unsigned layers) const;
   void fill_caloparticle_histos(const Histograms& histograms,
                                 int pdgid,
                                 const CaloParticle& caloparticle,
                                 std::vector<SimVertex> const& simVertices) const;
-
   void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
-
   void fill_generic_cluster_histos(const Histograms& histograms,
                                    int count,
                                    const reco::CaloClusterCollection& clusters,
@@ -131,7 +188,12 @@ public:
                                    std::map<double, double> cummatbudg,
                                    unsigned layers,
                                    std::vector<int> thicknesses) const;
-
+  void fill_multi_cluster_histos(const Histograms& histograms,
+                                 int count,
+                                 const std::vector<reco::HGCalMultiCluster>& multiClusters,
+                                 std::vector<CaloParticle> const& cP,
+                                 std::map<DetId, const HGCRecHit*> const&,
+                                 unsigned layers) const;
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
@@ -141,6 +203,13 @@ public:
 
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster& o) const { return clusterId == o.clusterId; };
+    unsigned int clusterId;
+    float fraction;
+  };
+
+  struct detIdInfoInMultiCluster {
+    bool operator==(const detIdInfoInMultiCluster& o) const { return multiclusterId == o.multiclusterId; };
+    unsigned int multiclusterId;
     unsigned int clusterId;
     float fraction;
   };
@@ -183,6 +252,8 @@ private:
   int nintScore_;
   double minSharedEneFrac_, maxSharedEneFrac_;
   int nintSharedEneFrac_;
+  double minMCLSharedEneFrac_, maxMCLSharedEneFrac_;
+  int nintMCLSharedEneFrac_;
   double minTotNClsperthick_, maxTotNClsperthick_;
   int nintTotNClsperthick_;
   double minTotNcellsperthickperlayer_, maxTotNcellsperthickperlayer_;
@@ -201,6 +272,18 @@ private:
   int nintClEneperthickperlayer_;
   double minCellsEneDensperthick_, maxCellsEneDensperthick_;
   int nintCellsEneDensperthick_;
+  double minTotNMCLs_, maxTotNMCLs_;
+  int nintTotNMCLs_;
+  double minTotNClsinMCLs_, maxTotNClsinMCLs_;
+  int nintTotNClsinMCLs_;
+  double minTotNClsinMCLsperlayer_, maxTotNClsinMCLsperlayer_;
+  int nintTotNClsinMCLsperlayer_;
+  double minX_, maxX_;
+  int nintX_;
+  double minY_, maxY_;
+  int nintY_;
+  double minZ_, maxZ_;
+  int nintZ_;
 };
 
 #endif
