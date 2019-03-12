@@ -257,7 +257,7 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
 				      << " Tubs made of " << matName << ":"
 				      << &matter << " of dimensions " << rinB 
 				      << ", " << routF << ", " << hthick
-				      << ", 0.0, " << 2*geant_units::piRadians/geant_units::degPerRad
+				      << ", 0.0, " << 2*geant_units::piRadians*geant_units::degPerRad
 				      << " and position " << glog.name() 
 				      << " number " << copy;
 #endif
