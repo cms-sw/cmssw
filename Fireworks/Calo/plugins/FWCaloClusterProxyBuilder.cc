@@ -24,7 +24,7 @@ class FWCaloClusterProxyBuilder : public FWHeatmapProxyBuilderTemplate<reco::Cal
    bool heatmap;
    bool z_plus;
    bool z_minus;
-   bool p_showClusterWithoutTimeInfo;
+   bool enableTimeFilter;
 
    FWCaloClusterProxyBuilder(const FWCaloClusterProxyBuilder &) = delete;                  // stop default
    const FWCaloClusterProxyBuilder &operator=(const FWCaloClusterProxyBuilder &) = delete; // stop default
@@ -37,44 +37,40 @@ class FWCaloClusterProxyBuilder : public FWHeatmapProxyBuilderTemplate<reco::Cal
 
 void FWCaloClusterProxyBuilder::setItem(const FWEventItem *iItem)
 {
-   FWProxyBuilderBase::setItem(iItem);
+   FWHeatmapProxyBuilderTemplate::setItem(iItem);
    if (iItem)
    {
-      // const reco::CaloCluster &iData = modelData(0);
-      // isHGCal = (iData.algo() >= 6 && iData.algo() <= 8);
-
-      iItem->getConfig()->keepEntries(true);
-      iItem->getConfig()->assertParam("TimeLowerBound", 0.2, 0.01, 1.0);
-      iItem->getConfig()->assertParam("TimeUpperBound", 0.3, 0.01, 1.0);
-      iItem->getConfig()->assertParam("ShowClusterWithoutTimeInfo", false);
-
-      iItem->getConfig()->assertParam("Layer", 0L, 0L, 52L);
-      iItem->getConfig()->assertParam("EnergyCutOff", 0.5, 0.2, 5.0);
-      iItem->getConfig()->assertParam("Heatmap", true);
-      iItem->getConfig()->assertParam("Z+", true);
-      iItem->getConfig()->assertParam("Z-", true);
+      iItem->getConfig()->assertParam("Cluster(0)/RecHit(1)", false);
+      iItem->getConfig()->assertParam("EnableTimeFilter", false);
+      iItem->getConfig()->assertParam("TimeLowerBound(ns)", 0.01, 0.0, 75.0);
+      iItem->getConfig()->assertParam("TimeUpperBound(ns)", 0.01, 0.0, 75.0);
    }
 }
 
 void FWCaloClusterProxyBuilder::build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc)
 {
    iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters", "timeLayerCluster"), CaloToParticleBasedIsoMapHandle);
-   timeLowerBound = std::min(item()->getConfig()->value<double>("TimeLowerBound"), item()->getConfig()->value<double>("TimeUpperBound"));
-   timeUpperBound = std::max(item()->getConfig()->value<double>("TimeLowerBound"), item()->getConfig()->value<double>("TimeUpperBound"));
+   if(CaloToParticleBasedIsoMapHandle.isValid()){
+      timeLowerBound = std::min(item()->getConfig()->value<double>("TimeLowerBound(ns)"), item()->getConfig()->value<double>("TimeUpperBound(ns)"));
+      timeUpperBound = std::max(item()->getConfig()->value<double>("TimeLowerBound(ns)"), item()->getConfig()->value<double>("TimeUpperBound(ns)"));
+   }
+   else {
+      std::cerr << "Warning: couldn't locate 'timeLayerCluster' ValueMap in root file." << std::endl;
+   }
 
    layer = item()->getConfig()->value<long>("Layer");
    saturation_energy = item()->getConfig()->value<double>("EnergyCutOff");
    heatmap = item()->getConfig()->value<bool>("Heatmap");
    z_plus = item()->getConfig()->value<bool>("Z+");
    z_minus = item()->getConfig()->value<bool>("Z-");
-   p_showClusterWithoutTimeInfo = item()->getConfig()->value<bool>("ShowClusterWithoutTimeInfo");
+   enableTimeFilter = item()->getConfig()->value<bool>("EnableTimeFilter");
 
    FWHeatmapProxyBuilderTemplate::build(iItem, product, vc);
 }
 
 void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *)
 {
-   if (!p_showClusterWithoutTimeInfo && CaloToParticleBasedIsoMapHandle.isValid())
+   if (enableTimeFilter && CaloToParticleBasedIsoMapHandle.isValid())
    {
       const float time = CaloToParticleBasedIsoMapHandle->get(iIndex);
       if (time < timeLowerBound || time > timeUpperBound)
@@ -205,6 +201,9 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
             oItemHolder.AddElement(marker);
          }
 
+         const float energy = fmin((item()->getConfig()->value<bool>("Cluster(0)/RecHit(1)") ? hitmap[it->first]->energy() : iData.energy()) / saturation_energy, 1.0f);
+         const uint8_t colorFactor = gradient_steps*energy;
+
          // Scintillator
          if (isScintillator)
          {
@@ -224,8 +223,9 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
             boxset->AddBox(&pnts[0]);
             if (heatmap)
             {
-               const uint8_t colorFactor = gradient_steps * (fmin(hitmap[it->first]->energy() / saturation_energy, 1.0f));
-               boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]);
+               energy ? 
+                  boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]) : 
+                  boxset->DigitColor(0.7f, 0.7f, 0.7f);
             }
 
             h_box = true;
@@ -242,8 +242,9 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
                                radius, 90.0, shapes[3]);
             if (heatmap)
             {
-               const uint8_t colorFactor = gradient_steps * (fmin(hitmap[it->first]->energy() / saturation_energy, 1.0f));
-               hex_boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]);
+               energy ? 
+                  hex_boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]) : 
+                  hex_boxset->DigitColor(0.7f, 0.7f, 0.7f);
             }
 
             h_hex = true;
