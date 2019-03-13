@@ -1,6 +1,7 @@
 #include "EgammaAnalysis/ElectronTools/interface/SuperClusterHelper.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
 
 
@@ -129,9 +130,9 @@ void SuperClusterHelper::localCoordinates() {
   if (localCoordinatesComputed_) return;
 
   if (barrel_) {
-    local_.localCoordsEB(*seedCluster_, *geometry_, etaCrySeed_ , phiCrySeed_ ,ietaSeed_ , iphiSeed_ , thetaTilt_ , phiTilt_);
+    egammaTools::localEcalClusterCoordsEB(*seedCluster_, *geometry_, etaCrySeed_ , phiCrySeed_ ,ietaSeed_ , iphiSeed_ , thetaTilt_ , phiTilt_);
   } else {
-    local_.localCoordsEE(*seedCluster_, *geometry_, etaCrySeed_ , phiCrySeed_ ,ietaSeed_ , iphiSeed_ , thetaTilt_ , phiTilt_);
+    egammaTools::localEcalClusterCoordsEE(*seedCluster_, *geometry_, etaCrySeed_ , phiCrySeed_ ,ietaSeed_ , iphiSeed_ , thetaTilt_ , phiTilt_);
   }
     localCoordinatesComputed_ = true;
 }
