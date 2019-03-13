@@ -1,14 +1,24 @@
 import FWCore.ParameterSet.Config as cms
-import EventFilter.SiPixelRawToDigi.siPixelRawToDigi_cfi
+from EventFilter.SiPixelRawToDigi.siPixelRawToDigi_cfi import siPixelRawToDigi as _siPixelRawToDigi
 
-siPixelDigis = EventFilter.SiPixelRawToDigi.siPixelRawToDigi_cfi.siPixelRawToDigi.clone()
+from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
+siPixelDigis = SwitchProducerCUDA(
+    cpu = _siPixelRawToDigi.clone()
+)
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toModify(siPixelDigis, UsePhase1=True)
-
-import RecoLocalTracker.SiPixelClusterizer.siPixelDigiHeterogeneousConverter_cfi
-_siPixelDigis_gpu = RecoLocalTracker.SiPixelClusterizer.siPixelDigiHeterogeneousConverter_cfi.siPixelDigiHeterogeneousConverter.clone()
-_siPixelDigis_gpu.includeErrors = cms.bool(True)
+phase1Pixel.toModify(siPixelDigis.cpu, UsePhase1=True)
 
 from Configuration.ProcessModifiers.gpu_cff import gpu
-gpu.toReplaceWith(siPixelDigis, _siPixelDigis_gpu)
+gpu.toModify(siPixelDigis,
+    cuda = cms.EDAlias(
+        siPixelDigiErrors = cms.VPSet(
+            cms.PSet(type = cms.string("DetIdedmEDCollection")),
+            cms.PSet(type = cms.string("SiPixelRawDataErroredmDetSetVector")),
+            cms.PSet(type = cms.string("PixelFEDChanneledmNewDetSetVector"))
+        ),
+        siPixelDigisClustersPreSplitting = cms.VPSet(
+            cms.PSet(type = cms.string("PixelDigiedmDetSetVector"))
+        )
+    )
+)
