@@ -19,7 +19,7 @@ class LHCInterpolatedOpticalFunctionsSet : public LHCOpticalFunctionsSet
 
     ~LHCInterpolatedOpticalFunctionsSet() = default;
 
-    const std::vector<std::shared_ptr<const TSpline3>>& getSplines() const { return m_splines; }
+    const std::vector<std::shared_ptr<const TSpline3>>& splines() const { return m_splines; }
 
     /// builds splines from m_*_values fields
     void initializeSplines();
