@@ -22,9 +22,7 @@ class RunMerge:
         self.outputLFN = None
         self.inputFiles = []
         self.newDQMIO = False
-        self.mergeNANO = False
-        self.bypassVersionCheck = True
-
+        
 
     def __call__(self):
         if self.inputFiles == []:
@@ -38,8 +36,7 @@ class RunMerge:
                 output_file = self.outputFile,
                 output_lfn = self.outputLFN,
                 newDQMIO = self.newDQMIO,
-                mergeNANO = self.mergeNANO,
-                bypassVersionCheck = self.bypassVersionCheck)
+                mergeNANO = self.mergeNANO)
         except Exception as ex:
             msg = "Error creating process for Merge:\n"
             msg += str(ex)
@@ -55,7 +52,7 @@ class RunMerge:
 
 
 if __name__ == '__main__':
-    valid = ["input-files=", "output-file=", "output-lfn=", "dqmroot", "mergeNANO", "bypassVersionCheck" ]
+    valid = ["input-files=", "output-file=", "output-lfn=", "dqmroot", "mergeNANO" ]
              
     usage = """RunMerge.py <options>"""
     try:
@@ -79,9 +76,7 @@ if __name__ == '__main__':
             merger.outputLFN = arg
         if opt == "--dqmroot" :
             merger.newDQMIO = True
-        if opt == "--mergeNANO" :
+        if  opt == "--mergeNANO" :
             merger.mergeNANO = True
-        if opt == "--bypassVersionCheck" :
-            merger.bypassVersionCheck = True
 
     merger()
