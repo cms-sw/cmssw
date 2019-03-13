@@ -225,7 +225,7 @@ std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const Fr
   Lvect && someLayers = nextLayers(fts,timeDirection);
   if (someLayers.empty()) {
     LogDebug("SimpleNavigableLayer")  <<"Number of compatible layers: "<< 0;
-    return someLayers;
+    return std::move(someLayers);
   }
 
 
