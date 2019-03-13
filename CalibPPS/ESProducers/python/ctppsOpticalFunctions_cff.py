@@ -19,4 +19,4 @@ ctppsOpticalFunctionsESSource = _optics_tmp.clone(
   )
 )
 
-ctppsInterpolatedOpticalFunctionsESSource = cms.ESProducer("CTPPSInterpolatedOpticalFunctionsESSource")
+from CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cfi import *

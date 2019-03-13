@@ -23,6 +23,8 @@ class CTPPSInterpolatedOpticalFunctionsESSource : public edm::ESProducer
     CTPPSInterpolatedOpticalFunctionsESSource(const edm::ParameterSet&);
     ~CTPPSInterpolatedOpticalFunctionsESSource() override {}
 
+    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
     std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> produce(const CTPPSInterpolatedOpticsRcd&);
 
   private:
@@ -42,6 +44,18 @@ CTPPSInterpolatedOpticalFunctionsESSource::CTPPSInterpolatedOpticalFunctionsESSo
   currentDataValid_(false)
 {
   setWhatProduced(this, &CTPPSInterpolatedOpticalFunctionsESSource::produce);
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void CTPPSInterpolatedOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
+{
+  edm::ParameterSetDescription desc;
+
+  desc.add<std::string>("lhcInfoLabel", "")
+    ->setComment("label of the LHCInfo record");
+
+  descriptions.add("ctppsInterpolatedOpticalFunctionsESSource", desc);
 }
 
 //----------------------------------------------------------------------------------------------------
