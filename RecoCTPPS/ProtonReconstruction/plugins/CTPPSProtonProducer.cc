@@ -42,6 +42,8 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
 
     edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
 
+    std::string lhcInfoLabel_;
+
     unsigned int verbosity_;
 
     bool doSingleRPReconstruction_;
@@ -59,7 +61,8 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
 //----------------------------------------------------------------------------------------------------
 
 CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
-  tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
+  tracksToken_                (consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagLocalTrackLite"))),
+  lhcInfoLabel_               (iConfig.getParameter<std::string>("lhcInfoLabel")),
   verbosity_                  (iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
   doSingleRPReconstruction_   (iConfig.getParameter<bool>("doSingleRPReconstruction")),
   doMultiRPReconstruction_    (iConfig.getParameter<bool>("doMultiRPReconstruction")),
@@ -81,22 +84,30 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
 void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<unsigned int>("verbosity", 0)->setComment("verbosity level");
+
   desc.add<edm::InputTag>("tagLocalTrackLite", edm::InputTag("ctppsLocalTrackLiteProducer"))
     ->setComment("specification of the input lite-track collection");
 
+  desc.add<std::string>("lhcInfoLabel", "")
+    ->setComment("label of the LHCInfo record");
+
+  desc.addUntracked<unsigned int>("verbosity", 0)->setComment("verbosity level");
+
   desc.add<bool>("doSingleRPReconstruction", true)
     ->setComment("flag whether to apply single-RP reconstruction strategy");
-  desc.add<std::string>("singleRPReconstructionLabel", "singleRP")
-    ->setComment("output label for single-RP reconstruction products");
 
   desc.add<bool>("doMultiRPReconstruction", true)
     ->setComment("flag whether to apply multi-RP reconstruction strategy");
+
+  desc.add<std::string>("singleRPReconstructionLabel", "singleRP")
+    ->setComment("output label for single-RP reconstruction products");
+
   desc.add<std::string>("multiRPReconstructionLabel", "multiRP")
     ->setComment("output label for multi-RP reconstruction products");
 
   desc.add<bool>("fitVtxY", true)
     ->setComment("for multi-RP reconstruction, flag whether y* should be free fit parameter");
+
   desc.add<bool>("useImprovedInitialEstimate", true)
     ->setComment("for multi-RP reconstruction, flag whether a quadratic estimate of the initial point should be used");
 
@@ -109,7 +120,7 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 {
   // get conditions
   edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(hLHCInfo);
+  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
 
   edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
   iSetup.get<CTPPSInterpolatedOpticsRcd>().get(hOpticalFunctions);

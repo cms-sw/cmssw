@@ -26,6 +26,8 @@ class CTPPSInterpolatedOpticalFunctionsESSource : public edm::ESProducer
     std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> produce(const CTPPSInterpolatedOpticsRcd&);
 
   private:
+    std::string lhcInfoLabel_;
+
     float currentCrossingAngle_;
     bool currentDataValid_;
     std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> currentData_;
@@ -35,6 +37,7 @@ class CTPPSInterpolatedOpticalFunctionsESSource : public edm::ESProducer
 //----------------------------------------------------------------------------------------------------
 
 CTPPSInterpolatedOpticalFunctionsESSource::CTPPSInterpolatedOpticalFunctionsESSource(const edm::ParameterSet& iConfig) :
+  lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
   currentCrossingAngle_(-1.),
   currentDataValid_(false)
 {
@@ -50,7 +53,7 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
   iRecord.getRecord<CTPPSOpticsRcd>().get(hOFColl);
 
   edm::ESHandle<LHCInfo> hLHCInfo;
-  iRecord.getRecord<LHCInfoRcd>().get(hLHCInfo);
+  iRecord.getRecord<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
 
   // is there anything to do?
   if (currentDataValid_ && hLHCInfo->crossingAngle() == currentCrossingAngle_)

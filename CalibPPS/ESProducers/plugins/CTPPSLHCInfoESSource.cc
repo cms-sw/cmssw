@@ -25,6 +25,8 @@ class CTPPSLHCInfoESSource: public edm::ESProducer, public edm::EventSetupRecord
   private:
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
+    std::string m_label;
+
     edm::EventRange m_validityRange;
     double m_beamEnergy;
     double m_xangle;
@@ -36,12 +38,13 @@ class CTPPSLHCInfoESSource: public edm::ESProducer, public edm::EventSetupRecord
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLHCInfoESSource::CTPPSLHCInfoESSource(const edm::ParameterSet& conf) :
+  m_label(conf.getParameter<std::string>("label")),
   m_validityRange(conf.getParameter<edm::EventRange>("validityRange")),
   m_beamEnergy(conf.getParameter<double>("beamEnergy")),
   m_xangle(conf.getParameter<double>("xangle")),
   m_insideValidityRange(false)
 {
-  setWhatProduced(this);
+  setWhatProduced(this, m_label);
   findingRecord<LHCInfoRcd>();
 }
 
