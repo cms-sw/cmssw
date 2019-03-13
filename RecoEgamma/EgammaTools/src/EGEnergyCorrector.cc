@@ -1,4 +1,3 @@
-
 #include <TFile.h>
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
@@ -9,6 +8,9 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 using namespace reco;
 
@@ -220,7 +222,9 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithError(const Photo
     //seed cluster
     float betacry, bphicry, bthetatilt, bphitilt;
     int bieta, biphi;
-    _ecalLocal.localCoordsEB(*b,es,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+    edm::ESHandle<CaloGeometry> caloGeometry;
+    es.get<CaloGeometryRecord>().get(caloGeometry); 
+    egammaTools::localEcalClusterCoordsEB(*b,*caloGeometry,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
 
     fVals[56] = bieta; //crystal ieta
     fVals[57] = biphi; //crystal iphi
@@ -235,7 +239,8 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithError(const Photo
     //2nd cluster (meaningful gap corrections for converted photons)
     float bc2etacry, bc2phicry, bc2thetatilt, bc2phitilt;
     int bc2ieta, bc2iphi;
-    if (hasbc2) _ecalLocal.localCoordsEB(*b2,es,bc2etacry,bc2phicry,bc2ieta,bc2iphi,bc2thetatilt,bc2phitilt);
+    if (hasbc2) egammaTools::localEcalClusterCoordsEB( *b2,*caloGeometry,bc2etacry,bc2phicry,
+                                                       bc2ieta,bc2iphi,bc2thetatilt,bc2phitilt );
 
     fVals[64] = hasbc2 ? bc2ieta : 0.;
     fVals[65] = hasbc2 ? bc2iphi : 0.;
@@ -416,7 +421,9 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithError(const GsfEl
 
     float betacry, bphicry, bthetatilt, bphitilt;
     int bieta, biphi;
-    _ecalLocal.localCoordsEB(*b,es,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+    edm::ESHandle<CaloGeometry> caloGeometry;
+    es.get<CaloGeometryRecord>().get(caloGeometry); 
+    egammaTools::localEcalClusterCoordsEB(*b,*caloGeometry,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
 
     fVals[56] = bieta;
     fVals[57] = biphi;
@@ -429,7 +436,8 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithError(const GsfEl
 
     float bc2etacry, bc2phicry, bc2thetatilt, bc2phitilt;
     int bc2ieta, bc2iphi;
-    if (hasbc2) _ecalLocal.localCoordsEB(*b2,es,bc2etacry,bc2phicry,bc2ieta,bc2iphi,bc2thetatilt,bc2phitilt);
+    if (hasbc2) egammaTools::localEcalClusterCoordsEB( *b2,*caloGeometry,bc2etacry,bc2phicry,
+                                                       bc2ieta,bc2iphi,bc2thetatilt,bc2phitilt );
 
     fVals[64] = hasbc2 ? bc2ieta : 0.;
     fVals[65] = hasbc2 ? bc2iphi : 0.;
@@ -540,7 +548,9 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Pho
     //seed cluster
     float betacry, bphicry, bthetatilt, bphitilt;
     int bieta, biphi;
-    _ecalLocal.localCoordsEB(*b,es,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+    edm::ESHandle<CaloGeometry> caloGeometry;
+    es.get<CaloGeometryRecord>().get(caloGeometry); 
+    egammaTools::localEcalClusterCoordsEB(*b,*caloGeometry,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
 
     fVals[30] = bieta; //crystal ieta
     fVals[31] = biphi; //crystal iphi
@@ -702,7 +712,9 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Gsf
     //seed cluster
     float betacry, bphicry, bthetatilt, bphitilt;
     int bieta, biphi;
-    _ecalLocal.localCoordsEB(*b,es,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+    edm::ESHandle<CaloGeometry> caloGeometry;
+    es.get<CaloGeometryRecord>().get(caloGeometry); 
+    egammaTools::localEcalClusterCoordsEB(*b,*caloGeometry,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
 
     fVals[30] = bieta; //crystal ieta
     fVals[31] = biphi; //crystal iphi
