@@ -755,7 +755,7 @@ void SiStripConfigDb::handleException( const std::string& method_name,
   catch ( oracle::occi::SQLException& e ) {
     ss << " Caught oracle::occi::SQLException in method "
        << method_name << " with message: " << std::endl 
-       << getOraMessage(&e);
+       << e.getMessage();
     if ( !extra_info.empty() ) { ss << "Additional info: " << extra_info << std::endl; }
     //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
