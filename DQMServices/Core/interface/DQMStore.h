@@ -89,31 +89,160 @@ public:
   public:
     friend class DQMStore;
 
-#define IBOOKER_FUNCTION_WITH_SUFFIX(suffix)                            \
-    template <typename... Args>                                         \
-    MonitorElement* book##suffix(Args&&... args)                        \
-    {                                                                   \
-      return owner_->book##suffix(std::forward<Args>(args)...);         \
-    }
+    MonitorElement* bookInt(TString const& name)
+    {
+      return owner_->bookInt(name);
+    };
 
-    // For the supported interface, see the DQMStore function that
-    // starts with "book" and ends with the supplied suffix.  For
-    // example, giving an argument of "String" generates a function
-    // that interfaces with DQMStore::bookString.
-    IBOOKER_FUNCTION_WITH_SUFFIX(String);
-    IBOOKER_FUNCTION_WITH_SUFFIX(Int);
-    IBOOKER_FUNCTION_WITH_SUFFIX(Float);
-    IBOOKER_FUNCTION_WITH_SUFFIX(1D);
-    IBOOKER_FUNCTION_WITH_SUFFIX(1S);
-    IBOOKER_FUNCTION_WITH_SUFFIX(1DD);
-    IBOOKER_FUNCTION_WITH_SUFFIX(2D);
-    IBOOKER_FUNCTION_WITH_SUFFIX(2S);
-    IBOOKER_FUNCTION_WITH_SUFFIX(2DD);
-    IBOOKER_FUNCTION_WITH_SUFFIX(3D);
-    IBOOKER_FUNCTION_WITH_SUFFIX(Profile);
-    IBOOKER_FUNCTION_WITH_SUFFIX(Profile2D);
+    MonitorElement* bookFloat(TString const& name)
+    {
+      return owner_->bookFloat(name);
+    };
 
-#undef IBOOKER_FUNCTION_WITH_SUFFIX
+    MonitorElement* bookString(TString const& name, TString const& value)
+    {
+      return owner_->bookString(name, value);
+    };
+
+    MonitorElement* book1D(TString const& name, TString const& title, int const nchX, double const lowX, double const highX)
+    {
+      return owner_->book1D(name, title, nchX, lowX, highX);
+    };
+
+    MonitorElement* book1D(TString const& name, TString const& title, int nchX, float const* xbinsize)
+    {
+      return owner_->book1D(name, title, nchX, xbinsize);
+    };
+                        
+    MonitorElement* book1D(TString const& name, TH1F* object)
+    {
+      return owner_->book1D(name, object);
+    };
+
+    MonitorElement* book1S(TString const& name, TString const& title, int nchX, double lowX, double highX)
+    {
+      return owner_->book1S(name, title, nchX, lowX, highX);
+    };
+
+    MonitorElement* book1S(TString const& name, TString const& title, int nchX, float const* xbinsize)
+    {
+      return owner_->book1S(name, title, nchX, xbinsize);
+    };
+
+    MonitorElement* book1S(TString const& name, TH1S* object)
+    {
+      return owner_->book1S(name, object);
+    };
+
+    MonitorElement* book1DD(TString const& name, TString const& title, int nchX, double lowX, double highX)
+    {
+      return owner_->book1DD(name, title, nchX, lowX, highX);
+    };
+
+    MonitorElement* book1DD(TString const& name, TString const& title, int nchX, float const* xbinsize)
+    {
+      return owner_->book1DD(name, title, nchX, xbinsize);
+    };
+
+    MonitorElement* book1DD(TString const& name, TH1D* object)
+    {
+      return owner_->book1DD(name, object);
+    };
+
+    MonitorElement* book2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+    {
+      return owner_->book2D(name, title, nchX, lowX, highX, nchY, lowY, highY);
+    };
+
+    MonitorElement* book2D(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize)
+    {
+      return owner_->book2D(name, title, nchX, xbinsize, nchY, ybinsize);
+    };
+
+    MonitorElement* book2D(TString const& name, TH2F* object)
+    {
+      return owner_->book2D(name, object);
+    };
+
+    MonitorElement* book2S(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+    {
+      return owner_->book2S(name, title, nchX, lowX, highX, nchY, lowY, highY);
+    };
+
+    MonitorElement* book2S(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize)
+    {
+      return owner_->book2S(name, title, nchX, xbinsize, nchY, ybinsize);
+    };
+
+    MonitorElement* book2S(TString const& name, TH2S* object)
+    {
+      return owner_->book2S(name, object);
+    };
+
+    MonitorElement* book2DD(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+    {
+      return owner_->book2DD(name, title, nchX, lowX, highX, nchY, lowY, highY);
+    };
+
+    MonitorElement* book2DD(TString const& name, TString const& title, int nchX, float const* xbinsize, int nchY, float const* ybinsize)
+    {
+      return owner_->book2DD(name, title, nchX, xbinsize, nchY, ybinsize);
+    };
+
+    MonitorElement* book2DD(TString const& name, TH2D* object)
+    {
+      return owner_->book2DD(name, object);
+    };
+
+    MonitorElement* book3D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ)
+    {
+      return owner_->book3D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ);
+    };
+
+    MonitorElement* book3D(TString const& name, TH3F* object)
+    {
+      return owner_->book3D(name, object);
+    };
+
+    MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, char const* option = "s")
+    {
+      return owner_->bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY, option); // 9
+    };
+
+    DQM_DEPRECATED MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, /*double*/ int lowX, double highX, double lowY, double highY, char const* option = "s")
+    {
+      return owner_->bookProfile(name, title, nchX, lowX, highX, lowY, highY, option); // 8
+    };
+
+    DQM_DEPRECATED MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, int nchY, double lowY, double highY, char const* option = "s")
+    {
+      return owner_->bookProfile(name, title, nchX, xbinsize, nchY, lowY, highY, option); // 8
+    };
+
+    MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, double lowY, double highY, char const* option = "s")
+    {
+      return owner_->bookProfile(name, title, nchX, xbinsize, lowY, highY, option); // 7
+    };
+
+    MonitorElement* bookProfile(TString const& name, TProfile* object)
+    {
+      return owner_->bookProfile(name, object);
+    };
+
+    MonitorElement* bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, double lowZ, double highZ, char const* option = "s")
+    {
+      return owner_->bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, lowZ, highZ, option);
+    };
+
+    MonitorElement* bookProfile2D(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, int nchZ, double lowZ, double highZ, char const* option = "s")
+    {
+      return owner_->bookProfile2D(name, title, nchX, lowX, highX, nchY, lowY, highY, nchZ, lowZ, highZ, option);
+    };
+
+    MonitorElement* bookProfile2D(TString const& name, TProfile2D* object)
+    {
+      return owner_->bookProfile2D(name, object);
+    };
 
     void cd();
     void cd(std::string const& dir);

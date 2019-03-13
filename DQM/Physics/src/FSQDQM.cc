@@ -143,12 +143,12 @@ FSQDQM::~FSQDQM()
    h_ntracks_transverse      = bei.book1D("h_ntracks_transverse",";h_ntracks_transverse",50,-0.5,49.5);
    h_ntracks_away      = bei.book1D("h_ntracks_away",";h_ntracks_away",50,-0.5,49.5);
    
-   h_leadingtrkpt_ntrk_away =bei.bookProfile("h_leadingtrkpt_ntrk_away","h_leadingtrkpt_ntrk_away",50,0,50,0,30," ");
-   h_leadingtrkpt_ntrk_towards =bei.bookProfile("h_leadingtrkpt_ntrk_towards","h_leadingtrkpt_ntrk_towards",50,0,50,0,30," ");
-   h_leadingtrkpt_ntrk_transverse =bei.bookProfile("h_leadingtrkpt_ntrk_transverse","h_leadingtrkpt_ntrk_transverse",50,0,50,0,30," ");
-   h_leadingtrkpt_ptsum_away =bei.bookProfile("h_leadingtrkpt_ptsum_away","h_leadingtrkpt_ptsum_away",50,0,50,0,30," ");
-   h_leadingtrkpt_ptsum_towards =bei.bookProfile("h_leadingtrkpt_ptsum_towards","h_leadingtrkpt_ptsum_towards",50,0,50,0,30," ");
-   h_leadingtrkpt_ptsum_transverse =bei.bookProfile("h_leadingtrkpt_ptsum_transverse","h_leadingtrkpt_ptsum_transverse",50,0,50,0,30," ");
+   h_leadingtrkpt_ntrk_away =bei.bookProfile("h_leadingtrkpt_ntrk_away","h_leadingtrkpt_ntrk_away",50,0.0,50,0,30," ");
+   h_leadingtrkpt_ntrk_towards =bei.bookProfile("h_leadingtrkpt_ntrk_towards","h_leadingtrkpt_ntrk_towards",50,0.0,50,0,30," ");
+   h_leadingtrkpt_ntrk_transverse =bei.bookProfile("h_leadingtrkpt_ntrk_transverse","h_leadingtrkpt_ntrk_transverse",50,0.0,50,0,30," ");
+   h_leadingtrkpt_ptsum_away =bei.bookProfile("h_leadingtrkpt_ptsum_away","h_leadingtrkpt_ptsum_away",50,0.0,50,0,30," ");
+   h_leadingtrkpt_ptsum_towards =bei.bookProfile("h_leadingtrkpt_ptsum_towards","h_leadingtrkpt_ptsum_towards",50,0.0,50,0,30," ");
+   h_leadingtrkpt_ptsum_transverse =bei.bookProfile("h_leadingtrkpt_ptsum_transverse","h_leadingtrkpt_ptsum_transverse",50,0.0,50,0,30," ");
      
  }
 
