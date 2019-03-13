@@ -1625,11 +1625,25 @@ digiPremixUp2015Defaults50ns=merge([{'-s':'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,
                                     {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/PREMIX'%baseDataSetRelease[6]},
                                     {'--era'            : 'Run2_50ns'},
                                     digiPremixUp2015Defaults25ns])
+digiPremixUp2015NoHLT50ns=merge([{'-s':'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW'},
+                                 {'--eventcontent' : 'RAWSIM'},
+                                 {'--datatier'     : 'GEN-SIM-RAW'},
+                                 digiPremixUp2015Defaults50ns])
+ulhltonly2016 = {
+    '--conditions':'auto:run2_mc_50ns',
+    '-s' : 'HLT:@relval50ns', #25ns15e33_v4
+    #'--eventcontent' : 'FEVTDEBUGHLT',
+    #'--datatier' : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
+    '--eventcontent' : 'RAWSIM',
+    '--datatier' : 'GEN-SIM-RAW',
+    '--era' : 'Run2_2016',
+    '--customise_commands' : '"process.source.bypassVersionCheck = cms.untracked.bool(True)"',
+    '--outputCommand' : '"keep *_mix_*_*","keep *_genPUProtons_*_*"'}
 
 digiPremixUp2017Defaults25ns = {
     '--conditions'   : 'auto:phase1_2017_realistic',
     '-s'             : 'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval2017',
-    '--pileup_input'  :  'das:/RelValPREMIXUP17_PU25/%s/PREMIX'%baseDataSetRelease[14],
+    #'--pileup_input'  :  'das:/RelValPREMIXUP17_PU25/%s/PREMIX'%baseDataSetRelease[14],
     '--eventcontent' : 'FEVTDEBUGHLT',
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
     '--datamix'      : 'PreMix',
@@ -1638,7 +1652,23 @@ digiPremixUp2017Defaults25ns = {
     }
 digiPremixLocalPileupUp2017Defaults25ns = merge([digiPremixLocalPileup,
                                                  digiPremixUp2017Defaults25ns])
-
+digiPremixUp2017NoHLT25ns = merge([{'-s' : 'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW'},
+                                   #{'--eventcontent' : 'RAWSIM'},
+                                   #{'--datatier'     : 'GEN-SIM-RAW'},
+                                   digiPremixUp2017Defaults25ns])
+ulhltonly2017 = {
+    '--conditions' : 'auto:phase1_2017_realistic',
+    #'--conditions' : '94X_mc2017_realistic_v15', 
+    '-s' : 'HLT:@relval2017', #2e34v40
+    #'-s' : 'HLT:2e34v40 ', #2e34v40
+    '--eventcontent' : 'FEVTDEBUGHLT',
+    '--datatier' : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
+    #'--eventcontent' : 'RAWSIM',
+    #'--datatier' : 'GEN-SIM-RAW',
+    '--era' : 'Run2_2017',
+    '--customise_commands' : '"process.source.bypassVersionCheck = cms.untracked.bool(True)"',
+    '--inputCommand' : '"keep *","drop *_simCscTriggerPrimitiveDigis_*_*"',
+    '--outputCommand' : '"keep *_mix_*_*","keep *_genPUProtons_*_*"'}
 
 digiPremixUp2018Defaults25ns = {
     '--conditions'   : 'auto:phase1_2018_realistic',
@@ -1661,6 +1691,14 @@ steps['DIGIPRMXUP17_PU25']=merge([digiPremixUp2017Defaults25ns])
 steps['DIGIPRMXLOCALUP17_PU25']=merge([digiPremixLocalPileupUp2017Defaults25ns])
 steps['DIGIPRMXUP18_PU25']=merge([digiPremixUp2018Defaults25ns])
 steps['DIGIPRMXLOCALUP18_PU25']=merge([digiPremixLocalPileupUp2018Defaults25ns])
+
+#steps for UL
+steps['DIGIPRMXUP15_NoHLT_PU50']=merge([digiPremixUp2015NoHLT50ns])
+steps['DIGIPRMXUP17_NoHLT_PU25']=merge([digiPremixUp2017NoHLT25ns])
+#steps['DIGIPRMXUP18_NoHLT_PU25']=merge([digiPremixUp2018NoHLT25ns])
+steps['ULHLT16']=merge([ulhltonly2016])
+steps['ULHLT17']=merge([ulhltonly2017])
+#steps['ULHLT18']=merge([ulhltonly2018])
 
 premixProd25ns = {'-s'             : 'DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval2016',
                  '--eventcontent' : 'PREMIXRAW',
@@ -2215,6 +2253,13 @@ steps['RECOPRMXUP15_PU50']=merge([
         step3Up2015Defaults50ns])
 steps['RECOPRMXUP17_PU25']=merge([
         {'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--procModifiers':'premix_stage2'},
+        step3Up2015Defaults])
+
+steps['RECOPRMXUP17_PU25_PRODLIKE']=merge([
+        {'--conditions':'auto:phase1_2017_realistic',
+         '--era':'Run2_2017',
+         '--procModifiers':'premix_stage2',
+         '-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT'},
         step3Up2015Defaults])
 
 steps['RECOPRMXUP18_PU25']=merge([

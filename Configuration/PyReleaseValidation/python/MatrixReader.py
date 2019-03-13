@@ -53,7 +53,8 @@ class MatrixReader(object):
                              'relval_identity':'id-',
                              'relval_machine': 'mach-',
                              'relval_unsch': 'unsch-',
-                             'relval_premix': 'premix-'
+                             'relval_premix': 'premix-',
+                             'relval_run2UL': 'run2UL'
                              }
 
         self.files = ['relval_standard' ,
@@ -69,7 +70,8 @@ class MatrixReader(object):
                       'relval_identity',
                       'relval_machine',
                       'relval_unsch',
-                      'relval_premix'
+                      'relval_premix',
+                      'relval_run2UL'
                       ]
         self.filesDefault = {'relval_standard':True ,
                              'relval_highstats':True ,
@@ -84,7 +86,8 @@ class MatrixReader(object):
                              'relval_identity':False,
                              'relval_machine':True,
                              'relval_unsch':True,
-                             'relval_premix':True
+                             'relval_premix':True,
+                             'relval_run2UL':True
                              }
 
         self.relvalModule = None
@@ -242,6 +245,10 @@ class MatrixReader(object):
                         ]:
                         continue
                     
+                if stepName in ['ULHLT']:
+                    cmd_setuparea = 'echo "PHATDEBUG: "$PWD; mkdir PHATTEST'
+                    commands.append(cmd_setuparea)
+
                 #replace stepName is needed
                 #if stepName in self.replaceStep
                 if len(name) > 0 : name += '+'

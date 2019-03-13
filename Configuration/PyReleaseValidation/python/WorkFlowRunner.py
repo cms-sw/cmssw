@@ -3,9 +3,10 @@ from threading import Thread
 from Configuration.PyReleaseValidation import WorkFlow
 import os,time
 import shutil
-from subprocess import Popen 
+from subprocess import Popen
 from os.path import exists, basename, join
 from datetime import datetime
+import MatrixSpecialParameters
 
 class WorkFlowRunner(Thread):
     def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False, nThreads=1, maxSteps=9999):
@@ -28,7 +29,7 @@ class WorkFlowRunner(Thread):
         return
 
     def doCmd(self, cmd):
-
+        
         msg = "\n# in: " +os.getcwd()
         if self.dryRun: msg += " dryRun for '"
         else:      msg += " going to execute "
@@ -38,9 +39,67 @@ class WorkFlowRunner(Thread):
         cmdLog = open(self.wfDir+'/cmdLog','a')
         cmdLog.write(msg+'\n')
         cmdLog.close()
-        
+
         ret = 0
-        if not self.dryRun:
+
+        #Where cmsDriver runs for ULHLT
+        #Check and add ULHLT directory
+        if not self.dryRun and "python ULHLT" in cmd:
+            #Keep current SCRAM_ARCH as parameter, to be used later to reset it back to original
+            scramarch_ul = os.getenv('SCRAM_ARCH')
+            release_ul = os.getenv('CMSSW_VERSION')
+            shell_ul = os.getenv('SHELL')
+
+            #Set the proper release and scram_arch in cc7
+            #This is for configuration dump only; slc6/cc7 version should not matter
+            if "python ULHLT16" in cmd:
+                ULHLTRelease = MatrixSpecialParameters.CMSSW_Run2UL_HLT16
+                ULHLTARCHCC7 = MatrixSpecialParameters.SCRAMARCH_Run2UL_HLT16_SLC7
+            if "python ULHLT17" in cmd:
+                ULHLTRelease = MatrixSpecialParameters.CMSSW_Run2UL_HLT17
+                ULHLTARCHCC7 = MatrixSpecialParameters.SCRAMARCH_Run2UL_HLT17_SLC7
+
+            print(" ")
+            print("We are running UL-HLT step")
+            print(" ")
+            
+            startDir = os.getcwd()
+            print("DEBUG-WorkFlowRunner-startDir: " + startDir);
+            rootDir = startDir.split(release_ul)[0]
+            print("DEBUG-WorkFlowRunner-rootDir: " + rootDir);
+            
+            #set SCRAM_ARCH for HL
+            os.environ['SCRAM_ARCH'] = ULHLTARCHCC7
+
+            ulhltcmd = "cd " + rootDir
+            ulhltcmd += "; rm -rf " + ULHLTRelease
+            ulhltcmd += "; scram project CMSSW " + ULHLTRelease
+            ulhltcmd += "; cd " + ULHLTRelease + "/src"
+            ulhltcmd += "; eval `scram runtime -sh`"
+            ulhltcmd += "; echo 'DEBUG-WorkFlowRunner-Check-SCRAM_ARCH @ULHLT: ' $SCRAM_ARCH"
+            ulhltcmd += "; echo 'DEBUG-WorkFlowRunner-Check-CMSSW_VERSION @ULHLT: ' $CMSSW_VERSION"
+            ulhltcmd += "; mkdir " + self.wfDir
+            ulhltcmd += "; " + cmd
+            ulhltcmd += "cp ULHLT* " + startDir + "/" + self.wfDir + "/"
+            p = Popen(ulhltcmd, shell=True)
+            ret = os.waitpid(p.pid, 0)[1]
+            if ret != 0:
+                print("ERROR of ULHLT directory and configuration creation")
+                return ret
+
+            #reset SCRAM_ARCH back to the UL CMSSW, then cmsenv
+            time.sleep(10)
+            os.environ['SCRAM_ARCH'] = scramarch_ul
+            ulhltcmd = "cd " + startDir
+            ulhltcmd += "; eval `scram runtime -sh`"
+            #ulhltcmd += ";cd " + self.wfDir
+            p = Popen(ulhltcmd, shell=True)
+            time.sleep(10)
+
+        #Where cmsDriver runs normally
+        if not self.dryRun and not "python ULHLT" in cmd:
+            p = Popen('echo "DEBUG-WorkFlowRunner-SCRAM_ARCH: " $SCRAM_ARCH', shell=True)
+            p = Popen('echo "DEBUG-WorkFlowRunner-CMSSW_VERSION: " $CMSSW_VERSION', shell=True)
             p = Popen(cmd, shell=True)
             ret = os.waitpid(p.pid, 0)[1]
             if ret != 0:

@@ -5,6 +5,9 @@ import os
 import copy
 import multiprocessing
 import time
+import imp
+from subprocess import Popen
+import MatrixSpecialParameters
 
 def performInjectionOptionTest(opt):
     if opt.show:
@@ -26,6 +29,24 @@ def performInjectionOptionTest(opt):
 def upload_to_couch_oneArg(arguments):
     from modules.wma import upload_to_couch
     (filePath,labelInCouch,user,group,where) = arguments
+    scramarch_ul=os.getenv('SCRAM_ARCH')
+    release_ul=os.getenv('CMSSW_VERSION')
+    print("DEBUG-UploadToCouch-filePath: " + filePath)
+    #print("DEBUG-UploadToCouch: " + scramarch_ul)
+    #print("DEBUG-UploadToCouch: " + release_ul)
+    Popen("echo $PYTHON27PATH",shell=True)
+    time.sleep(10)
+    
+    cfgBaseName = os.path.basename(filePath).replace(".py", "")
+    cfgDirName = os.path.dirname(filePath)
+    modPath = imp.find_module(cfgBaseName, [cfgDirName])
+    print(cfgBaseName)
+    print(cfgDirName)
+    print(modPath[0])
+    print(modPath[1])
+    print(modPath[2])
+    time.sleep(10)
+
     cacheId=upload_to_couch(filePath,
                             labelInCouch,
                             user,
@@ -33,7 +54,6 @@ def upload_to_couch_oneArg(arguments):
                             test_mode=False,
                             url=where)
     return cacheId
-
 
 class MatrixInjector(object):
 
@@ -147,6 +167,8 @@ class MatrixInjector(object):
             "KeepOutput" : False
             }
         self.defaultTask={
+            "CMSSWVersion" : os.getenv('CMSSW_VERSION'),
+            "ScramArch": os.getenv('SCRAM_ARCH'), 
             "TaskName" : None,                                 #Task Name
             "InputTask" : None,                                #Input Task Name (Task Name field of a previous Task entry)
             "InputFromOutputModule" : None,                    #OutputModule name in the input task that will provide files to process
@@ -160,7 +182,6 @@ class MatrixInjector(object):
             }
 
         self.chainDicts={}
-
 
     def prepare(self,mReader, directories, mode='init'):
         try:
@@ -349,6 +370,19 @@ class MatrixInjector(object):
                             else:
                                 #not first step and no inputDS
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultTask))
+
+                                if ('ULHLT' in step):
+                                    if ('ULHLT16' in step):
+                                        print ("")
+                                        print ("Need to change CMSSWVersion for HLT step")
+                                        chainDict['nowmTasklist'][-1]['CMSSWVersion'] = MatrixSpecialParameters.CMSSW_Run2UL_HLT16
+                                        chainDict['nowmTasklist'][-1]['ScramArch'] = MatrixSpecialParameters.SCRAMARCH_Run2UL_HLT16
+                                    if ('ULHLT17' in step):
+                                        print ("")
+                                        print ("Need to change CMSSWVersion for HLT step")
+                                        chainDict['nowmTasklist'][-1]['CMSSWVersion'] = MatrixSpecialParameters.CMSSW_Run2UL_HLT17
+                                        chainDict['nowmTasklist'][-1]['ScramArch'] = MatrixSpecialParameters.SCRAMARCH_Run2UL_HLT17
+
                                 try:
                                     chainDict['nowmTasklist'][-1]['nowmIO']=json.loads(open('%s/%s.io'%(dir,step)).read())
                                 except:
@@ -516,9 +550,56 @@ class MatrixInjector(object):
     def uploadConf(self,filePath,label,where):
         labelInCouch=self.label+'_'+label
         cacheName=filePath.split('/')[-1]
+        workingDir=filePath.split('/')[0]
+        scramarch_ul=os.getenv('SCRAM_ARCH')
+        release_ul=os.getenv('CMSSW_VERSION')
+        shell_ul=os.getenv('SHELL')
+        startDir=os.getcwd()
+        rootDir = startDir.split(release_ul)[0]
+        print("")
+        print("DEBUG-startDir: " + startDir)
+        print("DEBUG-rootDir: " + rootDir)
+        print("DEBUG-filePath: " + filePath)
+        print("DEBUG-cacheName: " + cacheName)
+        print("DEBUG-working: " + workingDir)
+        
         if self.testMode:
             self.count+=1
             print('\tFake upload of',filePath,'to couch with label',labelInCouch)
+            ##
+            ##set the environment to native HLT release                                                                             
+            #if "ULHLT" in cacheName:
+            #    if "ULHLT16" in cacheName:
+            #        ULHLTRelease = MatrixSpecialParameters.CMSSW_Run2UL_HLT16
+            #        ULHLTARCHCC7 = MatrixSpecialParameters.SCRAMARCH_Run2UL_HLT16_SLC7
+            #        os.environ["PYTHON27PATH"] += os.pathsep +  MatrixSpecialParameters.PYTHONPATH_Run2UL_HLT16
+            #    if "ULHLT17" in cacheName:
+            #        ULHLTRelease = MatrixSpecialParameters.CMSSW_Run2UL_HLT17
+            #        ULHLTARCHCC7 = MatrixSpecialParameters.SCRAMARCH_Run2UL_HLT17_SLC7
+            #        os.environ["PYTHON27PATH"] += os.pathsep +  MatrixSpecialParameters.PYTHONPATH_Run2UL_HLT17
+            #    os.environ['SCRAM_ARCH'] = ULHLTARCHCC7
+            #    os.environ['CMSSW_VERSION'] = ULHLTRelease
+            #    ulhltcmd = "cd " + rootDir + "/" + ULHLTRelease + "/src"
+            #    ulhltcmd += "; eval `scram runtime -sh`"
+            #    #ulhltcmd += "; pwd"                                                                                               
+            #    p = Popen(ulhltcmd, shell=True)
+            #    time.sleep(10)
+            #    filePath = rootDir + ULHLTRelease + "/src/" + workingDir + "/" + cacheName
+            #    print("DEBUG - new filePath (ULHLT) = " + filePath)
+            #    print("DEBUG - PYTHON27PATH = ")
+            #    Popen("echo $PYTHON27PATH",shell=True)
+            #    time.sleep(10)
+            
+            #reset the environment                                                                                                
+            #if "ULHLT" in cacheName:
+            #    os.environ['SCRAM_ARCH'] = scramarch_ul
+            #    os.environ['CMSSW_VERSION'] = release_ul
+            #    print("***** Reset back to original directory *****")
+            #    ulhltcmd = "cd " + startDir
+            #    ulhltcmd += "; eval `scram runtime -sh`"
+            #    p = Popen(ulhltcmd, shell=True)
+
+            #
             return self.count
         else:
             try:
@@ -533,18 +614,51 @@ class MatrixInjector(object):
                 cacheId=self.couchCache[cacheName]
             else:
                 print("Loading",filePath,"to",where,"for",label)
+                
+                #set the environment to native HLT release
+                if "ULHLT" in cacheName:
+                    if "ULHLT16" in cacheName:
+                        ULHLTRelease = MatrixSpecialParameters.CMSSW_Run2UL_HLT16
+                        ULHLTARCHCC7 = MatrixSpecialParameters.SCRAMARCH_Run2UL_HLT16_SLC7
+                        os.environ["PYTHON27PATH"] += os.pathsep +  MatrixSpecialParameters.PYTHONPATH_Run2UL_HLT16
+                    if "ULHLT17" in cacheName:
+                        ULHLTRelease = MatrixSpecialParameters.CMSSW_Run2UL_HLT17
+                        ULHLTARCHCC7 = MatrixSpecialParameters.SCRAMARCH_Run2UL_HLT17_SLC7
+                        os.environ["PYTHON27PATH"] += os.pathsep +  MatrixSpecialParameters.PYTHONPATH_Run2UL_HLT17
+                    os.environ['SCRAM_ARCH'] = ULHLTARCHCC7
+                    os.environ['CMSSW_VERSION'] = ULHLTRelease
+                    ulhltcmd = "cd " + rootDir + "/" + ULHLTRelease + "/src"
+                    ulhltcmd += "; eval `scram runtime -sh`"
+                    ulhltcmd += "; cd ../../../../"
+                    ulhltcmd += "; pwd"
+                    p = Popen(ulhltcmd, shell=True)
+                    time.sleep(10)
+                    filePath = rootDir + ULHLTRelease + "/src/" + workingDir + "/" + cacheName
+                    print("DEBUG - new filePath (ULHLT) = " + filePath)
+
                 ## totally fork the upload to couch to prevent cross loading of process configurations
                 pool = multiprocessing.Pool(1)
                 cacheIds = pool.map( upload_to_couch_oneArg, [(filePath,labelInCouch,self.user,self.group,where)] )
                 cacheId = cacheIds[0]
                 self.couchCache[cacheName]=cacheId
+                
+                # reset the environment
+                #set the environment to native HLT release
+                if "ULHLT" in cacheName:                
+                    os.environ['SCRAM_ARCH'] = scramarch_ul
+                    os.environ['CMSSW_VERSION'] = release_ul
+                    print("***** Reset back to original directory *****")
+                    ulhltcmd = "cd " + startDir
+                    ulhltcmd += "; eval `scram runtime -sh`"
+                    #ulhltcmd += "; pwd"
+                    p = Popen(ulhltcmd, shell=True)
+
             return cacheId
     
     def upload(self):
         for (n,d) in self.chainDicts.items():
             for it in d:
                 if it.startswith("Task") and it!='TaskChain':
-                    #upload
                     couchID=self.uploadConf(d[it]['ConfigCacheID'],
                                             str(n)+d[it]['TaskName'],
                                             d['ConfigCacheUrl']
