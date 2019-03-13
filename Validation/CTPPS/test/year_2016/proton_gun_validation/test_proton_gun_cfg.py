@@ -25,7 +25,8 @@ process.maxEvents = cms.untracked.PSet(
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # provide LHC info
-process.load("Validation.CTPPS.year_2016.ctppsLHCInfoESSource_cfi")
+# TODO: remove this line once data are available in CondDB
+process.load("CalibPPS.ESProducers.ctppsLHCInfo_cff")
 
 # particle generator
 process.load("Validation.CTPPS.year_2016.randomXiThetaGunProducer_cfi")
@@ -39,7 +40,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 # plotter
 process.ctppsHepMCDistributionPlotter = cms.EDAnalyzer("CTPPSHepMCDistributionPlotter",
     tagHepMC = cms.InputTag("generator", "unsmeared"),
-
+    lhcInfoLabel = process.ctppsLHCInfoESSource.label, # TODO: replace with "" once data loaded from DB
     outputFile = cms.string("test_proton_gun.root")
 )
 
