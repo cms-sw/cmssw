@@ -5,10 +5,13 @@
 #include <cuda_runtime.h>
 #include "cuda/api_wrappers.h"
 
-#include "CUDADataFormats/Common/interface/host_unique_ptr.h"
+#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
+#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
+#include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
-#include "siPixelRawToClusterHeterogeneousProduct.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+#include "DataFormats/SiPixelDigi/interface/PixelErrors.h"
 
 struct SiPixelFedCablingMapGPU;
 class SiPixelGainForHLTonGPU;
@@ -152,34 +155,8 @@ namespace pixelgpudetails {
   }
 
 
-  using error_obj = siPixelRawToClusterHeterogeneousProduct::error_obj;
-
-
   class SiPixelRawToClusterGPUKernel {
   public:
-
-    using GPUProduct = siPixelRawToClusterHeterogeneousProduct::GPUProduct;
-
-    struct CPUData {
-      CPUData() = default;
-      ~CPUData() = default;
-
-      CPUData(const CPUData&) = delete;
-      CPUData& operator=(const CPUData&) = delete;
-      CPUData(CPUData&&) = default;
-      CPUData& operator=(CPUData&&) = default;
-      
-      edm::cuda::host::unique_ptr<uint32_t[]> nModules_Clusters; // These should really be part of the GPU product
-
-      edm::cuda::host::unique_ptr<pixelgpudetails::error_obj[]> data;
-      edm::cuda::host::unique_ptr<GPU::SimpleVector<pixelgpudetails::error_obj>> error;
-
-      edm::cuda::host::unique_ptr<uint32_t[]> pdigi;
-      edm::cuda::host::unique_ptr<uint32_t[]> rawIdArr;
-      edm::cuda::host::unique_ptr<uint16_t[]> adc;
-      edm::cuda::host::unique_ptr<int32_t[]> clus;
-    };
-
     class WordFedAppender {
     public:
       WordFedAppender(cuda::stream_t<>& cudaStream);
@@ -191,8 +168,8 @@ namespace pixelgpudetails {
       const unsigned char *fedId() const { return fedId_.get(); }
 
     private:
-      edm::cuda::host::unique_ptr<unsigned int[]> word_;
-      edm::cuda::host::unique_ptr<unsigned char[]> fedId_;
+      cudautils::host::unique_ptr<unsigned int[]> word_;
+      cudautils::host::unique_ptr<unsigned char[]> fedId_;
     };
 
     SiPixelRawToClusterGPUKernel() = default;
@@ -207,61 +184,37 @@ namespace pixelgpudetails {
     void makeClustersAsync(const SiPixelFedCablingMapGPU *cablingMap, const unsigned char *modToUnp,
                            const SiPixelGainForHLTonGPU *gains,
                            const WordFedAppender& wordFed,
+                           PixelFormatterErrors&& errors,
                            const uint32_t wordCounter, const uint32_t fedCounter, bool convertADCtoElectrons,
-                           bool useQualityInfo, bool includeErrors, bool transferToCPU_, bool debug,
+                           bool useQualityInfo, bool includeErrors, bool debug,
                            cuda::stream_t<>& stream);
 
-    siPixelRawToClusterHeterogeneousProduct::GPUProduct getProduct() {
-      return siPixelRawToClusterHeterogeneousProduct::GPUProduct(
-        std::move(digis_d), std::move(clusters_d),
-        nDigis,
-        digis_clusters_h.nModules_Clusters[0],
-        digis_clusters_h.nModules_Clusters[1]
-      );
+    std::pair<SiPixelDigisCUDA, SiPixelClustersCUDA> getResults() {
+      digis_d.setNModulesDigis(nModules_Clusters_h[0], nDigis);
+      clusters_d.setNClusters(nModules_Clusters_h[1]);
+      // need to explicitly deallocate while the associated CUDA
+      // stream is still alive
+      //
+      // technically the statement above is not true anymore now that
+      // the CUDA streams are cached within the CUDAService, but it is
+      // still better to release as early as possible
+      nModules_Clusters_h.reset();
+      return std::make_pair(std::move(digis_d), std::move(clusters_d));
     }
 
-    CPUData&& getCPUData() {
-      // Set the vector data pointer to point to CPU
-      digis_clusters_h.error->set_data(digis_clusters_h.data.get());
-      return std::move(digis_clusters_h);
+    SiPixelDigiErrorsCUDA&& getErrors() {
+      return std::move(digiErrors_d);
     }
 
   private:
     uint32_t nDigis = 0;
 
-    // CPU data
-    CPUData digis_clusters_h;
-
     // Data to be put in the event
+    cudautils::host::unique_ptr<uint32_t[]> nModules_Clusters_h;
     SiPixelDigisCUDA digis_d;
     SiPixelClustersCUDA clusters_d;
+    SiPixelDigiErrorsCUDA digiErrors_d;
   };
-
-  // configuration and memory buffers alocated on the GPU
-  struct context {
-    uint32_t * word_d;
-    uint8_t *  fedId_d;
-    uint32_t * pdigi_d;
-    uint16_t * xx_d;
-    uint16_t * yy_d;
-    uint16_t * adc_d;
-    uint16_t * moduleInd_d;
-    uint32_t * rawIdArr_d;
-
-    GPU::SimpleVector<error_obj> * error_d;
-    error_obj * data_d;
-
-    // these are for the clusterizer (to be moved)
-    uint32_t * moduleStart_d;
-    int32_t *  clus_d;
-    uint32_t * clusInModule_d;
-    uint32_t * moduleId_d;
-    uint32_t * debug_d;
-  };
-
-  // void initCablingMap();
-  context initDeviceMemory();
-  void freeMemory(context &);
 
   // see RecoLocalTracker/SiPixelClusterizer
   // all are runtime const, should be specified in python _cfg.py
