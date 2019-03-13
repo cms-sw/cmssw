@@ -140,79 +140,83 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
 
-  // stop if conditions invalid
-  if (!opticsValid_)
-    return;
+  // book output
+  std::unique_ptr<reco::ForwardProtonCollection> pOutSingleRP(new reco::ForwardProtonCollection);
+  std::unique_ptr<reco::ForwardProtonCollection> pOutMultiRP(new reco::ForwardProtonCollection);
 
-  // prepare log
-  std::ostringstream ssLog;
-  if (verbosity_)
-    ssLog << "input tracks:";
-
-  // get input
-  edm::Handle<CTPPSLocalTrackLiteCollection> hTracks;
-  iEvent.getByToken(tracksToken_, hTracks);
-
-  // keep only tracks from tracker RPs, split them by LHC sector
-  CTPPSLocalTrackLiteRefVector tracks_45, tracks_56;
-  std::map<CTPPSDetId, unsigned int> nTracksPerRP;
-  for (unsigned int idx = 0; idx < hTracks->size(); ++idx) {
-    const auto& tr = hTracks->at(idx);
-    const CTPPSDetId rpId(tr.getRPId());
-    if (rpId.subdetId() != CTPPSDetId::sdTrackingStrip && rpId.subdetId() != CTPPSDetId::sdTrackingPixel)
-      continue;
-
+  // do reconstruction only if optics is valid
+  if (opticsValid_)
+  {
+    // prepare log
+    std::ostringstream ssLog;
     if (verbosity_)
-      ssLog << "\n\t"
-        << tr.getRPId() << " (" << (rpId.arm()*100 + rpId.station()*10 + rpId.rp()) << "): "
-        << "x=" << tr.getX() << " +- " << tr.getXUnc() << " mm, "
-        << "y=" << tr.getY() << " +- " << tr.getYUnc() << " mm";
+      ssLog << "input tracks:";
 
-    CTPPSLocalTrackLiteRef r_track(hTracks, idx);
-    if (rpId.arm() == 0)
-      tracks_45.push_back(r_track);
-    if (rpId.arm() == 1)
-      tracks_56.push_back(r_track);
+    // get input
+    edm::Handle<CTPPSLocalTrackLiteCollection> hTracks;
+    iEvent.getByToken(tracksToken_, hTracks);
 
-    nTracksPerRP[rpId]++;
-  }
+    // keep only tracks from tracker RPs, split them by LHC sector
+    CTPPSLocalTrackLiteRefVector tracks_45, tracks_56;
+    std::map<CTPPSDetId, unsigned int> nTracksPerRP;
+    for (unsigned int idx = 0; idx < hTracks->size(); ++idx) {
+      const auto& tr = hTracks->at(idx);
+      const CTPPSDetId rpId(tr.getRPId());
+      if (rpId.subdetId() != CTPPSDetId::sdTrackingStrip && rpId.subdetId() != CTPPSDetId::sdTrackingPixel)
+        continue;
 
-  // for the moment: check whether there is no more than 1 track in each arm
-  bool singleTrack_45 = true, singleTrack_56 = true;
-  for (const auto& detid_num : nTracksPerRP) {
-    if (detid_num.second > 1) {
-      const CTPPSDetId& rpId = detid_num.first;
+      if (verbosity_)
+        ssLog << "\n\t"
+          << tr.getRPId() << " (" << (rpId.arm()*100 + rpId.station()*10 + rpId.rp()) << "): "
+          << "x=" << tr.getX() << " +- " << tr.getXUnc() << " mm, "
+          << "y=" << tr.getY() << " +- " << tr.getYUnc() << " mm";
+
+      CTPPSLocalTrackLiteRef r_track(hTracks, idx);
       if (rpId.arm() == 0)
-        singleTrack_45 = false;
+        tracks_45.push_back(r_track);
       if (rpId.arm() == 1)
-        singleTrack_56 = false;
+        tracks_56.push_back(r_track);
+
+      nTracksPerRP[rpId]++;
     }
+
+    // for the moment: check whether there is no more than 1 track in each arm
+    bool singleTrack_45 = true, singleTrack_56 = true;
+    for (const auto& detid_num : nTracksPerRP) {
+      if (detid_num.second > 1) {
+        const CTPPSDetId& rpId = detid_num.first;
+        if (rpId.arm() == 0)
+          singleTrack_45 = false;
+        if (rpId.arm() == 1)
+          singleTrack_56 = false;
+      }
+    }
+
+    // single-RP reconstruction
+    if (doSingleRPReconstruction_) {
+      algorithm_.reconstructFromSingleRP(tracks_45, *pOutSingleRP, *hLHCInfo, ssLog);
+      algorithm_.reconstructFromSingleRP(tracks_56, *pOutSingleRP, *hLHCInfo, ssLog);
+    }
+
+    // multi-RP reconstruction
+    if (doMultiRPReconstruction_) {
+      if (singleTrack_45)
+        algorithm_.reconstructFromMultiRP(tracks_45, *pOutMultiRP, *hLHCInfo, ssLog);
+      if (singleTrack_56)
+        algorithm_.reconstructFromMultiRP(tracks_56, *pOutMultiRP, *hLHCInfo, ssLog);
+    }
+
+    // dump log
+    if (verbosity_)
+      edm::LogInfo("CTPPSProtonProducer") << ssLog.str();
   }
 
-  // single-RP reconstruction
-  if (doSingleRPReconstruction_) {
-    std::unique_ptr<reco::ForwardProtonCollection> pOut(new reco::ForwardProtonCollection);
+  // save output
+  if (doSingleRPReconstruction_)
+    iEvent.put(std::move(pOutSingleRP), singleRPReconstructionLabel_);
 
-    algorithm_.reconstructFromSingleRP(tracks_45, *pOut, *hLHCInfo, ssLog);
-    algorithm_.reconstructFromSingleRP(tracks_56, *pOut, *hLHCInfo, ssLog);
-
-    iEvent.put(std::move(pOut), singleRPReconstructionLabel_);
-  }
-
-  // multi-RP reconstruction
-  if (doMultiRPReconstruction_) {
-    std::unique_ptr<reco::ForwardProtonCollection> pOut(new reco::ForwardProtonCollection);
-
-    if (singleTrack_45)
-      algorithm_.reconstructFromMultiRP(tracks_45, *pOut, *hLHCInfo, ssLog);
-    if (singleTrack_56)
-      algorithm_.reconstructFromMultiRP(tracks_56, *pOut, *hLHCInfo, ssLog);
-
-    iEvent.put(std::move(pOut), multiRPReconstructionLabel_);
-  }
-
-  if (verbosity_)
-    edm::LogInfo("CTPPSProtonProducer") << ssLog.str();
+  if (doMultiRPReconstruction_)
+    iEvent.put(std::move(pOutMultiRP), multiRPReconstructionLabel_);
 }
 
 //----------------------------------------------------------------------------------------------------
