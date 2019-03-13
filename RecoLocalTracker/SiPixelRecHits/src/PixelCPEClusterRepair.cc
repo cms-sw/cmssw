@@ -508,6 +508,7 @@ void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, Clus
     }
     // The 1d pixel template
     SiPixelTemplate templ(thePixelTemp_);
+    templ.interpolate(ID, theClusterParam.cotalpha, theClusterParam.cotbeta, theDetParam.bz, theDetParam.bx);
 
     //length of the cluster taking into account double sized pixels
     float nypix = clusterPayload.mcol;
