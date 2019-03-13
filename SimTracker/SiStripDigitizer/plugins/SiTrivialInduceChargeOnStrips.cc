@@ -71,9 +71,6 @@ namespace {
     return signalCoupling;
   }
 
-  inline unsigned int indexOf(const std::string& t) { return std::find( type, type + Ntypes, t) - type;}
-
-
   inline unsigned int typeOf(const StripGeomDetUnit& det, const TrackerTopology *tTopo) {
     DetId id = det.geographicalId();
     switch (det.specificType().subDetector()) {
