@@ -39,6 +39,7 @@
 
        GBRTree();
        explicit GBRTree(const TMVA::DecisionTree *tree, double scale, bool useyesnoleaf, bool adjustboundary);
+       explicit GBRTree(int nIntermediate, int nTerminal);
        virtual ~GBRTree();
        
        double GetResponse(const float* vector) const;
