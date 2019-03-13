@@ -35,6 +35,7 @@ class CTPPSHepMCDistributionPlotter : public edm::one::EDAnalyzer<>
     void endJob() override;
 
     edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
+    std::string lhcInfoLabel_;
     std::string outputFile_;
 
     std::unique_ptr<TH1D> h_xi_, h_th_x_, h_th_y_;
@@ -50,6 +51,7 @@ using namespace HepMC;
 
 CTPPSHepMCDistributionPlotter::CTPPSHepMCDistributionPlotter(const edm::ParameterSet& iConfig) :
   tokenHepMC_( consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMC")) ),
+  lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
   outputFile_(iConfig.getParameter<string>("outputFile")),
   h_xi_(new TH1D("h_xi", ";#xi", 100, 0., 0.30)),
   h_th_x_(new TH1D("h_th_x", ";#theta^{*}_{x}", 100, -300E-6, +300E-6)),
@@ -62,7 +64,7 @@ void CTPPSHepMCDistributionPlotter::analyze(const edm::Event& iEvent, const edm:
 {
   // get conditions
   edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(hLHCInfo);
+  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
 
   // get input
   edm::Handle<edm::HepMCProduct> hHepMC;
