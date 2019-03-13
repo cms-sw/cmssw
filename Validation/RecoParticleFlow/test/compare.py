@@ -88,7 +88,8 @@ def parse_args():
     sample_strings = args.sample
     for ss in sample_strings:
         name, files = parse_sample_string(ss)
-        samp = SimpleSample(name, name, [(fn, "Option {0}".format(i)) for fn, i in zip(files, range(len(files)))])
+#        samp = SimpleSample(name, name, [(fn, "Option {0}".format(i)) for fn, i in zip(files, range(len(files)))])
+        samp = SimpleSample(name, name, [(fn, fn.split('/')[-2]) for fn in files])
         samples += [samp]
     
     for ss in args.plots:
@@ -172,38 +173,37 @@ def main():
         os.makedirs( fullOffsetDir )
 
         for s in samples :
-            cmd = "offsetStack " + s.label() + ":" + s.files()[0] + " " + offsetOpts + " " + fullOffsetDir
-            print cmd
-            os.system(cmd)
-
             offFile = open( outputDir + "/" + s.label() + "_offset.html", "r")
             lines = offFile.readlines()
             offFile.close()
 
-            stackLines = [
-                '   <td><a href="{0}/stack_{1}.pdf">stack_{1}.pdf</a></td>\n'.format(offsetDir, s.label()),
-                '  <br/>\n',
-                '  <br/>\n'
-            ]
-            lines[8:len(stackLines)] = stackLines
+            for f in s.files() :
+                fname = f.split('/')[-2]
+                cmd = "offsetStack " + fname + ":" + f + " " + offsetOpts + " " + fullOffsetDir
+                print cmd
+                os.system(cmd)
+                addLine( offsetDir, 'stack_{}.pdf'.format(fname), lines )
 
-            for s2 in samples :
-                if s == s2 : continue
-                cmd2 = cmd + " " + s2.label() + ":" + s2.files()[0]
-                print cmd2
-                os.system(cmd2)
-
-                stackLines = [
-                    '   <td><a href="{0}/stack_{1}_vs_{2}.pdf">stack_{1}_vs_{2}.pdf</a></td>\n'.format(offsetDir, s.label(), s2.label()),
-                    '  <br/>\n',
-                    '  <br/>\n'
-                ]
-                lines[8:len(stackLines)] = stackLines
+                for f2 in s.files() :
+                    if f == f2 : continue
+                    fname2 = f2.split('/')[-2]
+                    cmd2 = cmd + " " + fname2 + ":" + f2
+                    print cmd2
+                    os.system(cmd2)
+                    addLine( offsetDir, 'stack_{}_vs_{}.pdf'.format(fname, fname2), lines)
 
             offFile = open( outputDir + "/" + s.label() + "_offset.html", "w")
             lines = "".join(lines)
             offFile.write(lines)
             offFile.close()
+
+def addLine(dir, name, oldLines) :
+    newLines = [
+        '   <td><a href="{0}/{1}">{1}</a></td>\n'.format(dir, name),
+        '  <br/>\n',
+        '  <br/>\n'
+    ]
+    oldLines[8:len(newLines)] = newLines
 
 if __name__ == "__main__":
     main()

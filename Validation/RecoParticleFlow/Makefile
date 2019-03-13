@@ -65,9 +65,13 @@ MinBias_post:
 plots:
 	rm -Rf plots	
 	python test/compare.py \
-		--sample FlatQCD_noPU:${TMPDIR}/QCD/DQMTotal.root:${TMPDIR}/QCD/DQMTotal.root \
-		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/DQMTotal.root:${TMPDIR}/QCDPU/DQMTotal.root \
-		--sample MinBias:${TMPDIR}/MinBias/DQMTotal.root:${TMPDIR}/MinBias/DQMTotal.root \
-		--sample ZMM:${TMPDIR}/ZMM/DQMTotal.root:${TMPDIR}/ZMM/DQMTotal.root \
+		--sample HS:${TMPDIR}/HS_old/DQMTotal.root:${TMPDIR}/HS/DQMTotal.root \
+		--sample FlatQCD:${TMPDIR}/QCD/DQMTotal.root:${TMPDIR}/QCDPU/DQMTotal.root \
 		--doResponsePlots --doOffsetPlots
+
+#		--sample FlatQCD_noPU:${TMPDIR}/QCD/DQMTotal.root:${TMPDIR}/QCD/DQMTotal.root \
+#		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/DQMTotal.root:${TMPDIR}/QCDPU/DQMTotal.root \
+#		--sample MinBias:${TMPDIR}/MinBias/DQMTotal.root:${TMPDIR}/MinBias/DQMTotal.root \
+#		--sample ZMM:${TMPDIR}/ZMM/DQMTotal.root:${TMPDIR}/ZMM/DQMTotal.root \
+#		--doResponsePlots --doOffsetPlots
 
