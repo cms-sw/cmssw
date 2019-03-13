@@ -720,7 +720,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection & electrons, El
   edm::Handle<reco::TrackCollection> ctfTracks = eventData.originalCtfTracks ;
   if (!ctfTracks.isValid()) { ctfTracks = eventData.currentCtfTracks ; }
 
-  // values of conversionInfo.flag()
+  // values of conversionInfo.flag
   // -9999 : Partner track was not found
   // 0     : Partner track found in the CTF collection using
   // 1     : Partner track found in the CTF collection using
@@ -730,14 +730,14 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection & electrons, El
    (*electronData.coreRef,ctfTracks,eventData.originalGsfTracks,BInTesla) ;
 
   reco::GsfElectron::ConversionRejection conversionVars ;
-  conversionVars.flags = conversionInfo.flag()  ;
-  conversionVars.dist = conversionInfo.dist()  ;
-  conversionVars.dcot = conversionInfo.dcot()  ;
-  conversionVars.radius = conversionInfo.radiusOfConversion()  ;
+  conversionVars.flags = conversionInfo.flag  ;
+  conversionVars.dist = conversionInfo.dist  ;
+  conversionVars.dcot = conversionInfo.dcot  ;
+  conversionVars.radius = conversionInfo.radiusOfConversion  ;
   if ((conversionVars.flags==0)or(conversionVars.flags==1))
-    conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerCtfTk())  ;
+    conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerCtfTk)  ;
   else if ((conversionVars.flags==2)or(conversionVars.flags==3))
-    conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerGsfTk())  ;
+    conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerGsfTk)  ;
 
 
   //====================================================
