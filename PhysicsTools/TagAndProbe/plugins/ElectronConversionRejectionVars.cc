@@ -97,9 +97,9 @@ ElectronConversionRejectionVars::produce(edm::Event & iEvent, const edm::EventSe
 	    && fabs(eleIt->phi() - probe->phi() ) < 0.01 ){
 	  //we have a match
 	  ConversionInfo convInfo = egammaTools::getConversionInfo(*eleIt, tracks_h, evt_bField);
-	  dist = convInfo.dist();
-	  dcot = convInfo.dcot();
-	  convradius = convInfo.radiusOfConversion();
+	  dist = convInfo.dist;
+	  dcot = convInfo.dcot;
+	  convradius = convInfo.radiusOfConversion;
 	  if( fabs(dist)>0.02 && fabs(dcot)>0.02)  passConvRej = 1.0;
 	  break; //got our guy, so break
 	}

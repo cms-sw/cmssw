@@ -20,7 +20,7 @@ const reco::Track* getElectronTrack(const reco::GsfElectronCore &, const float m
 bool isFromConversion(const ConversionInfo &convInfo,
         double maxAbsDist, double maxAbsDcot)
 {
-  return (std::abs(convInfo.dist()) < maxAbsDist) && (std::abs(convInfo.dcot()) < maxAbsDcot);
+  return (std::abs(convInfo.dist) < maxAbsDist) && (std::abs(convInfo.dcot) < maxAbsDcot);
 }
 
 //-----------------------------------------------------------------------------
@@ -133,16 +133,15 @@ std::vector<ConversionInfo> getConversionInfos(const reco::GsfElectronCore& gsfE
       int deltaMissingHits = ctftk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)
           - el_ctftrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
-      convInfo = ConversionInfo(convInfo.dist(),
-				convInfo.dcot(),
-				convInfo.radiusOfConversion(),
-				convInfo.pointOfConversion(),
-				TrackRef(ctftracks_h, ctftk_i),
-				GsfTrackRef() ,
-				deltaMissingHits,
-				0);
 
-      v_candidatePartners.push_back(convInfo);
+      v_candidatePartners.push_back({convInfo.dist,
+                                     convInfo.dcot,
+                                     convInfo.radiusOfConversion,
+                                     convInfo.pointOfConversion,
+                                     TrackRef(ctftracks_h, ctftk_i),
+                                     GsfTrackRef() ,
+                                     deltaMissingHits,
+                                     0});
 
     }//using the electron's CTF track
 
@@ -156,16 +155,15 @@ std::vector<ConversionInfo> getConversionInfos(const reco::GsfElectronCore& gsfE
           - el_gsftrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
       ConversionInfo convInfo = getConversionInfo((const reco::Track*)(el_gsftrack.get()), &(*ctftk), bFieldAtOrigin);
-      convInfo = ConversionInfo(convInfo.dist(),
-				convInfo.dcot(),
-				convInfo.radiusOfConversion(),
-				convInfo.pointOfConversion(),
-				TrackRef(ctftracks_h, ctftk_i),
-				GsfTrackRef(),
-				deltaMissingHits,
-				1);
 
-      v_candidatePartners.push_back(convInfo);
+      v_candidatePartners.push_back({convInfo.dist,
+                                     convInfo.dcot,
+                                     convInfo.radiusOfConversion,
+                                     convInfo.pointOfConversion,
+                                     TrackRef(ctftracks_h, ctftk_i),
+                                     GsfTrackRef(),
+                                     deltaMissingHits,
+                                     1});
     }//using the electron's GSF track
 
   }//loop over the CTF track collection
@@ -202,16 +200,14 @@ std::vector<ConversionInfo> getConversionInfos(const reco::GsfElectronCore& gsfE
       
       ConversionInfo convInfo = getConversionInfo((const reco::Track*)(el_ctftrack.get()), (const reco::Track*)(&(*gsftk)), bFieldAtOrigin);
       //fill the Ref info
-      convInfo = ConversionInfo(convInfo.dist(),
-				convInfo.dcot(),
-				convInfo.radiusOfConversion(),
-				convInfo.pointOfConversion(),
-				TrackRef(),
-				GsfTrackRef(gsftracks_h, gsftk_i),
-				deltaMissingHits,
-				2);
-      v_candidatePartners.push_back(convInfo);
-
+      v_candidatePartners.push_back({convInfo.dist,
+                                     convInfo.dcot,
+                                     convInfo.radiusOfConversion,
+                                     convInfo.pointOfConversion,
+                                     TrackRef(),
+                                     GsfTrackRef(gsftracks_h, gsftk_i),
+                                     deltaMissingHits,
+                                     2});
     }
 
     //use the electron's gsf track
@@ -224,16 +220,15 @@ std::vector<ConversionInfo> getConversionInfos(const reco::GsfElectronCore& gsfE
       int deltaMissingHits = gsftk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)
           - el_gsftrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
-      convInfo = ConversionInfo(convInfo.dist(),
-				convInfo.dcot(),
-				convInfo.radiusOfConversion(),
-				convInfo.pointOfConversion(),
-				TrackRef(),
-				GsfTrackRef(gsftracks_h, gsftk_i),
-				deltaMissingHits,
-				3);
 
-      v_candidatePartners.push_back(convInfo);
+      v_candidatePartners.push_back({convInfo.dist,
+                                     convInfo.dcot,
+                                     convInfo.radiusOfConversion,
+                                     convInfo.pointOfConversion,
+                                     TrackRef(),
+                                     GsfTrackRef(gsftracks_h, gsftk_i),
+                                     deltaMissingHits,
+                                     3});
     }
   }//loop over the gsf track collection
 
@@ -287,7 +282,7 @@ ConversionInfo getConversionInfo(const reco::Track *el_track,
   rconv = tempsign*rconv;
 
   //return an instance of ConversionInfo, but with a NULL track refs
-  return ConversionInfo(dist, dcot, rconv, convPoint, TrackRef(), GsfTrackRef(), -9999, -9999);
+  return ConversionInfo{dist, dcot, rconv, convPoint, TrackRef(), GsfTrackRef(), -9999, -9999};
 
 }
 
@@ -311,20 +306,21 @@ ConversionInfo arbitrateConversionPartnersbyR(const std::vector<ConversionInfo>&
   if(v_convCandidates.size() == 1)
     return v_convCandidates.at(0);
 
-  ConversionInfo arbitratedConvInfo = v_convCandidates.at(0);
-  double R = sqrt(pow(arbitratedConvInfo.dist(),2) + pow(arbitratedConvInfo.dcot(),2));
+  double R = sqrt(pow(v_convCandidates.at(0).dist,2) + pow(v_convCandidates.at(0).dcot,2));
 
-  for(unsigned int i = 1; i < v_convCandidates.size(); i++) {
-    ConversionInfo temp = v_convCandidates.at(i);
-    double temp_R = sqrt(pow(temp.dist(),2) + pow(temp.dcot(),2));
+  int iArbitrated = 0;
+  int i = 0;
+
+  for(auto const& temp : v_convCandidates) {
+    double temp_R = sqrt(pow(temp.dist,2) + pow(temp.dcot,2));
     if(temp_R < R) {
       R = temp_R;
-      arbitratedConvInfo = temp;
+      iArbitrated = i;
     }
-
+    ++i;
   }
 
-  return arbitratedConvInfo;
+  return v_convCandidates.at(iArbitrated);
 
  }
 
@@ -334,10 +330,10 @@ ConversionInfo findBestConversionMatch(const std::vector<ConversionInfo>& v_conv
   using namespace std;
 
   if(v_convCandidates.empty())
-    return   ConversionInfo(-9999.,-9999.,-9999.,
+    return   ConversionInfo{-9999.,-9999.,-9999.,
 			    math::XYZPoint(-9999.,-9999.,-9999),
 			    reco::TrackRef(), reco::GsfTrackRef(),
-			    -9999, -9999);
+			    -9999, -9999};
 
 
   if(v_convCandidates.size() == 1)
@@ -351,42 +347,42 @@ ConversionInfo findBestConversionMatch(const std::vector<ConversionInfo>& v_conv
   for(unsigned int i = 1; i < v_convCandidates.size(); i++) {
     ConversionInfo temp = v_convCandidates.at(i);
 
-    if(temp.flag() == 0) {
+    if(temp.flag == 0) {
       bool isConv = false;
-      if(fabs(temp.dist()) < 0.02 &&
-	 fabs(temp.dcot()) < 0.02 &&
-	 temp.deltaMissingHits() < 3 &&
-	 temp.radiusOfConversion() > -2)
+      if(fabs(temp.dist) < 0.02 &&
+	 fabs(temp.dcot) < 0.02 &&
+	 temp.deltaMissingHits < 3 &&
+	 temp.radiusOfConversion > -2)
 	isConv = true;
-      if(sqrt(pow(temp.dist(),2) + pow(temp.dcot(),2)) < 0.05  &&
-	 temp.deltaMissingHits() < 2 &&
-	 temp.radiusOfConversion() > -2)
+      if(sqrt(pow(temp.dist,2) + pow(temp.dcot,2)) < 0.05  &&
+	 temp.deltaMissingHits < 2 &&
+	 temp.radiusOfConversion > -2)
 	isConv = true;
 
       if(isConv)
 	v_0.push_back(temp);
     }
 
-    if(temp.flag() == 1) {
+    if(temp.flag == 1) {
 
-      if(sqrt(pow(temp.dist(),2) + pow(temp.dcot(),2)) < 0.05  &&
-	 temp.deltaMissingHits() < 2 &&
-	 temp.radiusOfConversion() > -2)
+      if(sqrt(pow(temp.dist,2) + pow(temp.dcot,2)) < 0.05  &&
+	 temp.deltaMissingHits < 2 &&
+	 temp.radiusOfConversion > -2)
 	v_1.push_back(temp);
     }
-    if(temp.flag() == 2) {
+    if(temp.flag == 2) {
 
-      if(sqrt(pow(temp.dist(),2) + pow(temp.dcot()*temp.dcot(),2)) < 0.05 &&
-	 temp.deltaMissingHits() < 2 &&
-	 temp.radiusOfConversion() > -2)
+      if(sqrt(pow(temp.dist,2) + pow(temp.dcot*temp.dcot,2)) < 0.05 &&
+	 temp.deltaMissingHits < 2 &&
+	 temp.radiusOfConversion > -2)
 	v_2.push_back(temp);
 
     }
-    if(temp.flag() == 3) {
+    if(temp.flag == 3) {
 
-      if(sqrt(temp.dist()*temp.dist() + temp.dcot()*temp.dcot()) < 0.05
-	 && temp.deltaMissingHits() < 2
-	 && temp.radiusOfConversion() > -2)
+      if(sqrt(temp.dist*temp.dist + temp.dcot*temp.dcot) < 0.05
+	 && temp.deltaMissingHits < 2
+	 && temp.radiusOfConversion > -2)
 	v_3.push_back(temp);
 
     }
@@ -518,10 +514,10 @@ ConversionInfo getConversionInfo(const reco::GsfElectron& gsfElectron,
 
 
   if(!candCtfTrackRef.isNonnull())
-    return ConversionInfo(-9999.,-9999.,-9999.,
+    return ConversionInfo{-9999.,-9999.,-9999.,
 			  math::XYZPoint(-9999.,-9999.,-9999),
 			  reco::TrackRef(), reco::GsfTrackRef(),
-			  -9999, -9999);
+			  -9999, -9999};
 
 
 
@@ -565,7 +561,7 @@ ConversionInfo getConversionInfo(const reco::GsfElectron& gsfElectron,
   deltaMissingHits = candCtfTrackRef->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)
       - el_track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
-  return ConversionInfo(dist, dcot, rconv, convPoint, candCtfTrackRef, GsfTrackRef(), deltaMissingHits, flag);
+  return ConversionInfo{dist, dcot, rconv, convPoint, candCtfTrackRef, GsfTrackRef(), deltaMissingHits, flag};
 
  }
 
