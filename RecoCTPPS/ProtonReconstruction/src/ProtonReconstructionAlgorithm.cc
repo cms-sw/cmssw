@@ -49,9 +49,9 @@ void ProtonReconstructionAlgorithm::init(const LHCInterpolatedOpticalFunctionsSe
     // make record
     RPOpticsData rpod;
     rpod.optics = &p.second;
-    rpod.s_y_d_vs_xi = ofs.getSplines()[LHCOpticalFunctionsSet::eyd];
-    rpod.s_v_y_vs_xi = ofs.getSplines()[LHCOpticalFunctionsSet::evy];
-    rpod.s_L_y_vs_xi = ofs.getSplines()[LHCOpticalFunctionsSet::eLy];
+    rpod.s_y_d_vs_xi = ofs.splines()[LHCOpticalFunctionsSet::eyd];
+    rpod.s_v_y_vs_xi = ofs.splines()[LHCOpticalFunctionsSet::evy];
+    rpod.s_L_y_vs_xi = ofs.splines()[LHCOpticalFunctionsSet::eLy];
 
     vector<double> xiValues = ofs.getXiValues();  // local copy made since the TSpline constructor needs non-const parameters
     vector<double> xDValues = ofs.getFcnValues()[LHCOpticalFunctionsSet::exd];
