@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
@@ -98,7 +99,7 @@ namespace {
     cudaCheck(cudaGetDevice(&device));
     for(int i=0; i<numberOfDevices; ++i) {
       cudaCheck(cudaSetDevice(i));
-      preallocate<edm::cuda::device::unique_ptr>([&](size_t size, cuda::stream_t<>& stream) {
+      preallocate<cudautils::device::unique_ptr>([&](size_t size, cuda::stream_t<>& stream) {
           return cs.make_device_unique<char[]>(size, stream);
         }, bufferSizes);
     }
@@ -106,7 +107,7 @@ namespace {
   }
 
   void hostPreallocate(CUDAService& cs, const std::vector<unsigned int>& bufferSizes) {
-    preallocate<edm::cuda::device::unique_ptr>([&](size_t size, cuda::stream_t<>& stream) {
+    preallocate<cudautils::host::unique_ptr>([&](size_t size, cuda::stream_t<>& stream) {
         return cs.make_host_unique<char[]>(size, stream);
       }, bufferSizes);
   }
@@ -336,6 +337,11 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
     log << "cub::CachingDeviceAllocator disabled\n";
   }
 
+  cudaStreamCache_ = std::make_unique<CUDAStreamCache>(numberOfDevices_);
+  cudaEventCache_ = std::make_unique<CUDAEventCache>(numberOfDevices_);
+
+  log << "\n";
+
   log << "CUDAService fully initialized";
   enabled_ = true;
 
@@ -350,6 +356,8 @@ CUDAService::~CUDAService() {
     if(allocator_) {
       allocator_.reset();
     }
+    cudaEventCache_.reset();
+    cudaStreamCache_.reset();
 
     for (int i = 0; i < numberOfDevices_; ++i) {
       cudaCheck(cudaSetDevice(i));
@@ -489,4 +497,37 @@ void CUDAService::free_host(void *ptr) {
   else {
     cuda::throw_if_error(cudaFreeHost(ptr));
   }
+}
+
+
+// CUDA stream cache
+struct CUDAService::CUDAStreamCache {
+  explicit CUDAStreamCache(int ndev): cache(ndev) {}
+
+  // Separate caches for each device for fast lookup
+  std::vector<edm::ReusableObjectHolder<cuda::stream_t<>>> cache;
+};
+
+std::shared_ptr<cuda::stream_t<>> CUDAService::getCUDAStream() {
+  return cudaStreamCache_->cache[getCurrentDevice()].makeOrGet([](){
+      auto current_device = cuda::device::current::get();
+      return std::make_unique<cuda::stream_t<>>(current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream));
+    });
+}
+
+// CUDA event cache
+struct CUDAService::CUDAEventCache {
+  explicit CUDAEventCache(int ndev): cache(ndev) {}
+
+  // Separate caches for each device for fast lookup
+  std::vector<edm::ReusableObjectHolder<cuda::event_t>> cache;
+};
+
+std::shared_ptr<cuda::event_t> CUDAService::getCUDAEvent() {
+  return cudaEventCache_->cache[getCurrentDevice()].makeOrGet([](){
+      auto current_device = cuda::device::current::get();
+      // We should not return a recorded, but not-yet-occurred event
+      return std::make_unique<cuda::event_t>(current_device.create_event(cuda::event::sync_by_busy_waiting,   // default; we should try to avoid explicit synchronization, so maybe the value doesn't matter much?
+                                                                         cuda::event::dont_record_timings)); // it should be a bit faster to ignore timings
+    });
 }

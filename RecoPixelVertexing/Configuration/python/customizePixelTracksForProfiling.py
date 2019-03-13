@@ -21,7 +21,6 @@ def customizePixelTracksForProfilingDisableConversion(process):
     process = customizePixelTracksForProfiling(process)
 
     # Disable conversions to legacy
-    process.siPixelClustersPreSplitting.gpuEnableConversion = False
     process.siPixelRecHitsPreSplitting.gpuEnableConversion = False
     process.pixelTracksHitQuadruplets.gpuEnableConversion = False
     process.pixelTracks.gpuEnableConversion = False
@@ -33,7 +32,6 @@ def customizePixelTracksForProfilingDisableTransfer(process):
     process = customizePixelTracksForProfilingDisableConversion(process)
 
     # Disable "unnecessary" transfers to CPU
-    process.siPixelClustersPreSplitting.gpuEnableTransfer = False
     process.siPixelRecHitsPreSplitting.gpuEnableTransfer = False
     process.pixelTracksHitQuadruplets.gpuEnableTransfer = False
     process.pixelVertices.gpuEnableTransfer = False

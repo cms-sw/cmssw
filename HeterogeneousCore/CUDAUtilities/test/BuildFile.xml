@@ -66,3 +66,7 @@
   <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
 </bin>
 
+<bin file="testCatch2Main.cpp,copyAsync_t.cpp,memsetAsync_t.cpp" name="cudaMemUtils_t">
+  <use name="HeterogeneousCore/CUDAServices"/>
+  <use name="catch2"/>
+</bin>

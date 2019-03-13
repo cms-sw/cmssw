@@ -135,7 +135,7 @@ const unsigned char *SiPixelFedCablingMapGPUWrapper::getModToUnpAllAsync(cuda::s
   return data.modToUnpDefault;
 }
 
-edm::cuda::device::unique_ptr<unsigned char[]> SiPixelFedCablingMapGPUWrapper::getModToUnpRegionalAsync(std::set<unsigned int> const& modules, cuda::stream_t<>& cudaStream) const {
+cudautils::device::unique_ptr<unsigned char[]> SiPixelFedCablingMapGPUWrapper::getModToUnpRegionalAsync(std::set<unsigned int> const& modules, cuda::stream_t<>& cudaStream) const {
   edm::Service<CUDAService> cs;
   auto modToUnpDevice = cs->make_device_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);
   auto modToUnpHost = cs->make_host_unique<unsigned char[]>(pixelgpudetails::MAX_SIZE, cudaStream);

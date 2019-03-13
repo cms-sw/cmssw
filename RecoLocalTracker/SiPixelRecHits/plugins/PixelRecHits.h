@@ -1,7 +1,8 @@
 #ifndef RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHits_h
 #define RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHits_h
 
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/siPixelRawToClusterHeterogeneousProduct.h"
+#include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
+#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusteringConstants.h"
 
 #include <cuda/api_wrappers.h>
@@ -31,7 +32,8 @@ namespace pixelgpudetails {
     PixelRecHitGPUKernel& operator=(const PixelRecHitGPUKernel&) = delete;
     PixelRecHitGPUKernel& operator=(PixelRecHitGPUKernel&&) = delete;
 
-    void makeHitsAsync(const siPixelRawToClusterHeterogeneousProduct::GPUProduct& input,
+    void makeHitsAsync(SiPixelDigisCUDA const& digis_d,
+                       SiPixelClustersCUDA const& clusters_d,
                        float const * bs,
                        pixelCPEforGPU::ParamsOnGPU const * cpeParams,
                        bool transferToCPU,

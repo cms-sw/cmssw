@@ -3,8 +3,6 @@
 #include <mutex>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
-#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
-#include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/SiPixelRawToClusterGPUKernel.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
@@ -14,7 +12,7 @@
 using ClusterSLGPU = trackerHitAssociationHeterogeneousProduct::ClusterSLGPU;
 
 __global__
-void simLink(const SiPixelDigisCUDA::DeviceConstView *dd, uint32_t ndigis, const SiPixelClustersCUDA::DeviceConstView *cc, clusterSLOnGPU::HitsOnGPU const * hhp, ClusterSLGPU const * slp, uint32_t n)
+void simLink(const SiPixelDigisCUDA::DeviceConstView *dd, uint32_t ndigis, clusterSLOnGPU::HitsOnGPU const * hhp, ClusterSLGPU const * slp, uint32_t n)
 {
   assert(slp == slp->me_d);
 
@@ -35,7 +33,7 @@ void simLink(const SiPixelDigisCUDA::DeviceConstView *dd, uint32_t ndigis, const
 
   auto ch = pixelgpudetails::pixelToChannel(dd->xx(i), dd->yy(i));
   auto first = hh.hitsModuleStart_d[id];
-  auto cl = first + cc->clus(i);
+  auto cl = first + dd->clus(i);
   assert(cl < 2000 * blockDim.x);
 
   const std::array<uint32_t, 4> me{{id, ch, 0, 0}};
@@ -162,7 +160,7 @@ namespace clusterSLOnGPU {
     cudaCheck(cudaMemsetAsync(slgpu.n2_d, 0, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t), stream));
   }
 
-  void Kernel::algo(DigisOnGPU const & dd, uint32_t ndigis, HitsOnCPU const & hh, uint32_t nhits, uint32_t n, cuda::stream_t<>& stream) {
+  void Kernel::algo(SiPixelDigisCUDA const & dd, uint32_t ndigis, HitsOnCPU const & hh, uint32_t nhits, uint32_t n, cuda::stream_t<>& stream) {
     zero(stream.id());
 
     ClusterSLGPU const & sl = slgpu;
@@ -177,7 +175,7 @@ namespace clusterSLOnGPU {
     blocks = (ndigis + threadsPerBlock - 1) / threadsPerBlock;
 
     assert(sl.me_d);
-    simLink<<<blocks, threadsPerBlock, 0, stream.id()>>>(dd.digis_d.view(), ndigis, dd.clusters_d.view(), hh.gpu_d, sl.me_d, n);
+    simLink<<<blocks, threadsPerBlock, 0, stream.id()>>>(dd.view(), ndigis, hh.gpu_d, sl.me_d, n);
     cudaCheck(cudaGetLastError());
 
     if (doDump) {

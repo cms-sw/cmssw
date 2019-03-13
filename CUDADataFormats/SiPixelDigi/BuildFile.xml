@@ -1,6 +1,8 @@
+<use name="DataFormats/SiPixelRawData"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="HeterogeneousCore/CUDAServices"/>
 <use name="cuda-api-wrappers"/>
+<use name="rootcore"/>
 
 <export>
     <lib name="1"/>

@@ -129,18 +129,19 @@ namespace pixelgpudetails {
 #endif
   }
 
-  void PixelRecHitGPUKernel::makeHitsAsync(const siPixelRawToClusterHeterogeneousProduct::GPUProduct& input,
+  void PixelRecHitGPUKernel::makeHitsAsync(SiPixelDigisCUDA const& digis_d,
+                                           SiPixelClustersCUDA const& clusters_d,
                                            float const * bs,
                                            pixelCPEforGPU::ParamsOnGPU const * cpeParams,
                                            bool transferToCPU,
                                            cuda::stream_t<>& stream) {
     cudaCheck(cudaMemcpyAsync(gpu_.bs_d, bs, 3 * sizeof(float), cudaMemcpyDefault, stream.id()));
-    gpu_.hitsModuleStart_d = input.clusters_d.clusModuleStart();
+    gpu_.hitsModuleStart_d = clusters_d.clusModuleStart();
     gpu_.cpeParams = cpeParams; // copy it for use in clients
     cudaCheck(cudaMemcpyAsync(gpu_d, &gpu_, sizeof(HitsOnGPU), cudaMemcpyDefault, stream.id()));
 
     int threadsPerBlock = 256;
-    int blocks = input.nModules; // active modules (with digis)
+    int blocks = digis_d.nModules(); // active modules (with digis)
 
 #ifdef GPU_DEBUG
     std::cout << "launching getHits kernel for " << blocks << " blocks" << std::endl;
@@ -148,12 +149,12 @@ namespace pixelgpudetails {
     gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream.id()>>>(
       cpeParams,
       gpu_.bs_d,
-      input.digis_d.moduleInd(),
-      input.digis_d.xx(), input.digis_d.yy(), input.digis_d.adc(),
-      input.clusters_d.moduleStart(),
-      input.clusters_d.clusInModule(), input.clusters_d.moduleId(),
-      input.clusters_d.clus(),
-      input.nDigis,
+      digis_d.moduleInd(),
+      digis_d.xx(), digis_d.yy(), digis_d.adc(),
+      clusters_d.moduleStart(),
+      clusters_d.clusInModule(), clusters_d.moduleId(),
+      digis_d.clus(),
+      digis_d.nDigis(),
       gpu_.hitsModuleStart_d,
       gpu_.charge_d,
       gpu_.detInd_d,
@@ -170,7 +171,7 @@ namespace pixelgpudetails {
     cudaCheck(cudaGetLastError());
 
     // needed only if hits on CPU are required...
-    nhits_ = input.nClusters;
+    nhits_ = clusters_d.nClusters();
     if(transferToCPU) {
       cudaCheck(cudaMemcpyAsync(h_hitsModuleStart_, gpu_.hitsModuleStart_d, (gpuClustering::MaxNumModules+1) * sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
 #ifdef GPU_DEBUG

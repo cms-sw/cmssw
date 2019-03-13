@@ -4,6 +4,8 @@
 
 #include <cuda_runtime.h>
 
+#include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -22,15 +24,16 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "HeterogeneousCore/CUDACore/interface/GPUCuda.h"
+#include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/siPixelRawToClusterHeterogeneousProduct.h"
 #include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
@@ -52,7 +55,6 @@ public:
   using CPUProduct = trackerHitAssociationHeterogeneousProduct::CPUProduct;
   using Output = trackerHitAssociationHeterogeneousProduct::ClusterTPAHeterogeneousProduct;
 
-  using PixelDigiClustersH = siPixelRawToClusterHeterogeneousProduct::HeterogeneousDigiCluster;
   using PixelRecHitsH = siPixelRecHitsHeterogeneousProduct::HeterogeneousPixelRecHit;
 
   explicit ClusterTPAssociationHeterogeneous(const edm::ParameterSet&);
@@ -89,7 +91,7 @@ private:
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> phase2OTClustersToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
 
-  edm::EDGetTokenT<HeterogeneousProduct> tGpuDigis;
+  edm::EDGetTokenT<CUDAProduct<SiPixelDigisCUDA>> tGpuDigis;
   edm::EDGetTokenT<HeterogeneousProduct> tGpuHits;
 
   std::unique_ptr<clusterSLOnGPU::Kernel> gpuAlgo;
@@ -111,7 +113,7 @@ ClusterTPAssociationHeterogeneous::ClusterTPAssociationHeterogeneous(const edm::
     stripClustersToken_(consumes<edmNew::DetSetVector<SiStripCluster>>(cfg.getParameter<edm::InputTag>("stripClusterSrc"))),
     phase2OTClustersToken_(consumes<edmNew::DetSetVector<Phase2TrackerCluster1D>>(cfg.getParameter<edm::InputTag>("phase2OTClusterSrc"))),
     trackingParticleToken_(consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc"))),
-    tGpuDigis(consumesHeterogeneous(cfg.getParameter<edm::InputTag>("heterogeneousPixelDigiClusterSrc"))),
+    tGpuDigis(consumes<CUDAProduct<SiPixelDigisCUDA>>(cfg.getParameter<edm::InputTag>("heterogeneousPixelDigiClusterSrc"))),
     tGpuHits(consumesHeterogeneous(cfg.getParameter<edm::InputTag>("heterogeneousPixelRecHitSrc"))),
     doDump(cfg.getParameter<bool>("dumpCSV"))
 {
@@ -128,7 +130,7 @@ void ClusterTPAssociationHeterogeneous::fillDescriptions(edm::ConfigurationDescr
   desc.add<edm::InputTag>("stripClusterSrc", edm::InputTag("siStripClusters"));
   desc.add<edm::InputTag>("phase2OTClusterSrc", edm::InputTag("siPhase2Clusters"));
   desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
-  desc.add<edm::InputTag>("heterogeneousPixelDigiClusterSrc", edm::InputTag("siPixelClustersPreSplitting"));
+  desc.add<edm::InputTag>("heterogeneousPixelDigiClusterSrc", edm::InputTag("siPixelClustersCUDAPreSplitting"));
   desc.add<edm::InputTag>("heterogeneousPixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplitting"));
 
   desc.add<bool>("dumpCSV", false);
@@ -184,13 +186,27 @@ void ClusterTPAssociationHeterogeneous::acquireGPUCuda(const edm::HeterogeneousE
 
     //  gpu stuff ------------------------
 
-    edm::Handle<siPixelRawToClusterHeterogeneousProduct::GPUProduct> gd;
+    edm::Handle<CUDAProduct<SiPixelDigisCUDA>> gd;
+    iEvent.getByToken(tGpuDigis, gd);
+    // temporary check (until the migration)
+    edm::Service<CUDAService> cs;
+    assert(gd->device() == cs->getCurrentDevice());
+
+    CUDAScopedContext ctx{*gd};
+    auto const &gDigis = ctx.get(*gd);
+
+    // We're processing in a stream given by base class, so need to
+    // synchronize explicitly (implementation is from
+    // CUDAScopedContext). In practice these should not be needed
+    // (because of synchronizations upstream), but let's play generic.
+    if(not gd->event().has_occurred()) {
+      cudaCheck(cudaStreamWaitEvent(cudaStream.id(), gd->event().id(), 0));
+    }
+
     edm::Handle<siPixelRecHitsHeterogeneousProduct::GPUProduct> gh;
-    iEvent.getByToken<siPixelRawToClusterHeterogeneousProduct::HeterogeneousDigiCluster>(tGpuDigis, gd);
     iEvent.getByToken<siPixelRecHitsHeterogeneousProduct::HeterogeneousPixelRecHit>(tGpuHits, gh);
-    auto const & gDigis = *gd;
     auto const & gHits = *gh;
-    auto ndigis = gDigis.nDigis;
+    auto ndigis = gDigis.nDigis();
     auto nhits = gHits.nHits;
 
     digi2tp.clear();

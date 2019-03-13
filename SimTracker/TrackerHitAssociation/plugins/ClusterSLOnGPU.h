@@ -4,8 +4,8 @@
 #include <cuda_runtime.h>
 #include <cuda/api_wrappers.h>
 
+#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/siPixelRawToClusterHeterogeneousProduct.h"
 #include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
 
 #include "trackerHitAssociationHeterogeneousProduct.h"
@@ -15,7 +15,6 @@ namespace clusterSLOnGPU {
   using ClusterSLGPU = trackerHitAssociationHeterogeneousProduct::ClusterSLGPU;
   using GPUProduct   = trackerHitAssociationHeterogeneousProduct::GPUProduct;
 
-  using DigisOnGPU   = siPixelRawToClusterHeterogeneousProduct::GPUProduct;
   using HitsOnGPU    = siPixelRecHitsHeterogeneousProduct::HitsOnGPU;
   using HitsOnCPU    = siPixelRecHitsHeterogeneousProduct::HitsOnCPU;
 
@@ -23,7 +22,7 @@ namespace clusterSLOnGPU {
   public:
     Kernel(cuda::stream_t<>& stream, bool dump);
     ~Kernel() {deAlloc();}
-    void algo(DigisOnGPU const & dd, uint32_t ndigis, HitsOnCPU const & hh, uint32_t nhits, uint32_t n, cuda::stream_t<>& stream);
+    void algo(SiPixelDigisCUDA const & dd, uint32_t ndigis, HitsOnCPU const & hh, uint32_t nhits, uint32_t n, cuda::stream_t<>& stream);
     GPUProduct getProduct() { return GPUProduct{slgpu.me_d};}
     
   private:

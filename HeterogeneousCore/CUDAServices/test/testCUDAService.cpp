@@ -179,8 +179,8 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
     ps.addUntrackedParameter("allocator", alloc);
     auto cs = makeCUDAService(ps, ar);
     cs.setCurrentDevice(0);
-    auto current_device = cuda::device::current::get();
-    auto cudaStream = current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream);
+    auto cudaStreamPtr = cs.getCUDAStream();
+    auto& cudaStream = *cudaStreamPtr;
     
     SECTION("Destructor") {
       auto ptr = cs.make_device_unique<int>(cudaStream);
@@ -214,8 +214,8 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
     ps.addUntrackedParameter("allocator", alloc);
     auto cs = makeCUDAService(ps, ar);
     cs.setCurrentDevice(0);
-    auto current_device = cuda::device::current::get();
-    auto cudaStream = current_device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream);
+    auto cudaStreamPtr = cs.getCUDAStream();
+    auto& cudaStream = *cudaStreamPtr;
     
     SECTION("Destructor") {
       auto ptr = cs.make_host_unique<int>(cudaStream);
