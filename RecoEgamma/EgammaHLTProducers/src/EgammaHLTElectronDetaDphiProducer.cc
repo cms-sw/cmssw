@@ -134,11 +134,10 @@ std::pair<float,float> EgammaHLTElectronDetaDphiProducer::calDEtaDPhiSCTrk(reco:
       deltaphi = fabs(scAtVtx.dPhi());
     }
   } else if (useTrackProjectionToEcal_) { 
-    ECALPositionCalculator posCalc;
     const math::XYZPoint vertex(bsPosition.x(),bsPosition.y(),eleref->track()->vz());
     
-    float phi1= posCalc.ecalPhi(magField,trackMom,vertex,1);
-    float phi2= posCalc.ecalPhi(magField,trackMom,vertex,-1);
+    float phi1 = egammaTools::ecalPhi(*magField,trackMom,vertex,1);
+    float phi2 = egammaTools::ecalPhi(*magField,trackMom,vertex,-1);
     
     float deltaphi1=fabs( phi1 - theClus->position().phi() );
     if(deltaphi1>6.283185308) deltaphi1 -= 6.283185308;

@@ -5,22 +5,26 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TMath.h"
 
+namespace egammaTools {
+
 typedef math::XYZTLorentzVector LorentzVector;
 
-bool ConversionFinder::isFromConversion(const ConversionInfo &convInfo,
+ConversionInfo getConversionInfo(const reco::Track *el_track,
+                                 const reco::Track *candPartnerTk,
+                                 const double bFieldAtOrigin);
+
+const reco::Track* getElectronTrack(const reco::GsfElectron &, const float minFracSharedHits = 0.45);
+
+const reco::Track* getElectronTrack(const reco::GsfElectronCore &, const float minFracSharedHits = 0.45);
+
+bool isFromConversion(const ConversionInfo &convInfo,
         double maxAbsDist, double maxAbsDcot)
 {
   return (std::abs(convInfo.dist()) < maxAbsDist) && (std::abs(convInfo.dcot()) < maxAbsDcot);
 }
 
 //-----------------------------------------------------------------------------
-ConversionFinder::ConversionFinder() {}
-
-//-----------------------------------------------------------------------------
-ConversionFinder::~ConversionFinder() {}
-
-//-----------------------------------------------------------------------------
-ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectron& gsfElectron,
+ConversionInfo getConversionInfo(const reco::GsfElectron& gsfElectron,
 								const edm::Handle<reco::TrackCollection>& ctftracks_h,
 								const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
 								const double bFieldAtOrigin,
@@ -31,7 +35,7 @@ ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectron& gsfE
 
 }
 //-----------------------------------------------------------------------------
-ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectronCore& gsfElectron,
+ConversionInfo getConversionInfo(const reco::GsfElectronCore& gsfElectron,
 						    const edm::Handle<reco::TrackCollection>& ctftracks_h,
 						    const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
 						    const double bFieldAtOrigin,
@@ -44,7 +48,7 @@ ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectronCore& 
 
 
 //-----------------------------------------------------------------------------
-std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::GsfElectronCore& gsfElectron,
+std::vector<ConversionInfo> getConversionInfos(const reco::GsfElectronCore& gsfElectron,
 								const edm::Handle<reco::TrackCollection>& ctftracks_h,
 								const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
 								const double bFieldAtOrigin,
@@ -240,7 +244,7 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
 
 
 //-------------------------------------------------------------------------------------
-ConversionInfo ConversionFinder::getConversionInfo(const reco::Track *el_track,
+ConversionInfo getConversionInfo(const reco::Track *el_track,
 						   const reco::Track *candPartnerTk,
 						   const double bFieldAtOrigin) {
 
@@ -288,7 +292,7 @@ ConversionInfo ConversionFinder::getConversionInfo(const reco::Track *el_track,
 }
 
 //-------------------------------------------------------------------------------------
-const reco::Track* ConversionFinder::getElectronTrack(const reco::GsfElectron& electron, const float minFracSharedHits) {
+const reco::Track* getElectronTrack(const reco::GsfElectron& electron, const float minFracSharedHits) {
 
   if(electron.closestCtfTrackRef().isNonnull() &&
      electron.shFracInnerHits() > minFracSharedHits)
@@ -302,7 +306,7 @@ const reco::Track* ConversionFinder::getElectronTrack(const reco::GsfElectron& e
 //takes in a vector of candidate conversion partners
 //and arbitrates between them returning the one with the
 //smallest R=sqrt(dist*dist + dcot*dcot)
-ConversionInfo ConversionFinder::arbitrateConversionPartnersbyR(const std::vector<ConversionInfo>& v_convCandidates) {
+ConversionInfo arbitrateConversionPartnersbyR(const std::vector<ConversionInfo>& v_convCandidates) {
 
   if(v_convCandidates.size() == 1)
     return v_convCandidates.at(0);
@@ -325,7 +329,7 @@ ConversionInfo ConversionFinder::arbitrateConversionPartnersbyR(const std::vecto
  }
 
 //------------------------------------------------------------------------------------
-ConversionInfo ConversionFinder::findBestConversionMatch(const std::vector<ConversionInfo>& v_convCandidates)
+ConversionInfo findBestConversionMatch(const std::vector<ConversionInfo>& v_convCandidates)
  {
   using namespace std;
 
@@ -420,7 +424,7 @@ ConversionInfo ConversionFinder::findBestConversionMatch(const std::vector<Conve
 
 //------------------------------------------------------------------------------------
 // Exists here for backwards compatibility only. Provides only the dist and dcot
-std::pair<double, double> ConversionFinder::getConversionInfo(LorentzVector trk1_p4,
+std::pair<double, double> getConversionInfo(LorentzVector trk1_p4,
 							      int trk1_q, float trk1_d0,
 							      LorentzVector trk2_p4,
 							      int trk2_q, float trk2_d0,
@@ -450,7 +454,7 @@ std::pair<double, double> ConversionFinder::getConversionInfo(LorentzVector trk1
 
 
 //-------------------------------------- Also for backwards compatibility reasons  ---------------------------------------------------------------
-ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectron& gsfElectron,
+ConversionInfo getConversionInfo(const reco::GsfElectron& gsfElectron,
 						   const edm::Handle<reco::TrackCollection>& track_h,
 						   const double bFieldAtOrigin,
 						   const double minFracSharedHits) {
@@ -564,5 +568,7 @@ ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectron& gsfE
   return ConversionInfo(dist, dcot, rconv, convPoint, candCtfTrackRef, GsfTrackRef(), deltaMissingHits, flag);
 
  }
+
+}
 
 //-------------------------------------------------------------------------------------
