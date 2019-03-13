@@ -785,7 +785,50 @@ muonDict = {
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
         "era" : "phase2_muon, run3_GEM",
-    }
+    },
+
+    "M3" : {
+        1 : [
+            'Geometry/MuonCommonData/data/mbCommon/2017/v2/mbCommon.xml',
+            'Geometry/MuonCommonData/data/mb1/2015/v1/mb1.xml',
+            'Geometry/MuonCommonData/data/mb2/2015/v1/mb2.xml',
+            'Geometry/MuonCommonData/data/mb3/2015/v1/mb3.xml',
+            'Geometry/MuonCommonData/data/mb4/2015/v1/mb4.xml',
+            'Geometry/MuonCommonData/data/design/muonYoke.xml',
+            'Geometry/MuonCommonData/data/mf/2023/v2/mf.xml',
+            'Geometry/MuonCommonData/data/rpcf/2023/v1/rpcf.xml',
+            'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
+            'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
+            'Geometry/MuonCommonData/data/gem21/TDR_Dev/gem21.xml',
+            'Geometry/MuonCommonData/data/csc/2015/v1/csc.xml',
+            'Geometry/MuonCommonData/data/mfshield/2023/v1/mfshield.xml',
+            'Geometry/MuonCommonData/data/me0/TDR_Dev/me0.xml',
+        ],
+        2 : [
+            'Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/muonNumbering.xml',
+        ],
+        3 : [
+            'Geometry/MuonSimData/data/PhaseII/ME0EtaPart/muonSens.xml',
+            'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
+            'Geometry/RPCGeometryBuilder/data/2023/v1/RPCSpecs.xml',
+            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecsFilter.xml',
+            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml',
+        ],
+        4 : [
+            'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
+        ],
+        "reco" : [
+            'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
+            'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *',
+            'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
+            'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
+        ],
+        "era" : "phase2_muon, run3_GEM",
+    },
 
 }
 
@@ -1096,7 +1139,7 @@ detectorVersionDict = {
     ("O2","T6","C4","M2","F2","I7") : "D38",
     ("O2","T6","C4","M2","F2","I8") : "D39",
     ("O2","T14","C3","M2","F2","I1") : "D40",
-    ("O3","T14","C8","M2","F2","I9") : "D41",
+    ("O3","T14","C8","M3","F2","I9") : "D41",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D18", "D20", "D22", "D23", "D26", "D27" ])

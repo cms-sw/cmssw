@@ -20,6 +20,7 @@ Calorimeters:
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
+* M3: same as M2 with change to the number of iRPC strips from 192 to 96 as in TDR
 
 Fast Timing system:
 * I1: No Fast Timing detector
@@ -57,6 +58,6 @@ Several detector combinations have been generated:
 * D38 = T6+C4+M2+I7+O2+F2
 * D39 = T6+C4+M2+I8+O2+F2
 * D40 = T14+C3+M2+I1+O2+F2
-* D41 = T14+C8+M2+I9+O3+F2
+* D41 = T14+C8+M3+I9+O3+F2
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
