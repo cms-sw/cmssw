@@ -50,6 +50,8 @@ class CTPPSProtonReconstructionSimulationValidator : public edm::one::EDAnalyzer
     edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsSingleRP_;
     edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
 
+    std::string lhcInfoLabel_;
+
     std::string outputFile_;
 
     struct PlotGroup
@@ -158,6 +160,7 @@ CTPPSProtonReconstructionSimulationValidator::CTPPSProtonReconstructionSimulatio
   tokenHepMCAfterSmearing_ (consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("tagHepMCAfterSmearing"))),
   tokenRecoProtonsSingleRP_(consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
   tokenRecoProtonsMultiRP_ (consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
+  lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
   outputFile_(iConfig.getParameter<string>("outputFile"))
 {}
 
@@ -167,7 +170,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event& iEv
 {
   // get conditions
   edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(hLHCInfo);
+  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
 
   // get input
   edm::Handle<edm::HepMCProduct> hHepMCBeforeSmearing;
