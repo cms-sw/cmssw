@@ -206,22 +206,22 @@ public:
 
     MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY, char const* option = "s")
     {
-      return owner_->bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY, option); // 9
+      return owner_->bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY, option);
     };
 
-    DQM_DEPRECATED MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, /*double*/ int lowX, double highX, double lowY, double highY, char const* option = "s")
+    MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double lowX, double highX, double lowY, double highY, char const* option = "s")
     {
-      return owner_->bookProfile(name, title, nchX, lowX, highX, lowY, highY, option); // 8
+      return owner_->bookProfile(name, title, nchX, lowX, highX, lowY, highY, option);
     };
 
-    DQM_DEPRECATED MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, int nchY, double lowY, double highY, char const* option = "s")
+    MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, int nchY, double lowY, double highY, char const* option = "s")
     {
-      return owner_->bookProfile(name, title, nchX, xbinsize, nchY, lowY, highY, option); // 8
+      return owner_->bookProfile(name, title, nchX, xbinsize, nchY, lowY, highY, option);
     };
 
     MonitorElement* bookProfile(TString const& name, TString const& title, int nchX, double const* xbinsize, double lowY, double highY, char const* option = "s")
     {
-      return owner_->bookProfile(name, title, nchX, xbinsize, lowY, highY, option); // 7
+      return owner_->bookProfile(name, title, nchX, xbinsize, lowY, highY, option);
     };
 
     MonitorElement* bookProfile(TString const& name, TProfile* object)
