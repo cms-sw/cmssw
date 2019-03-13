@@ -206,7 +206,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker &iBook, edm::Run c
 						  TrackPtHistoPar.getParameter<double>("Xmin"),
 						  TrackPtHistoPar.getParameter<double>("Xmax"),0.0,0.0,"g");
   if (!nHitsVsnVtxH_) 
-    nHitsVsnVtxH_ = iBook.bookProfile("nHitsVsnVtx", "Number of Hits Vs Number of Vertex", 100,0,50,0.0,0.0,"g");
+    nHitsVsnVtxH_ = iBook.bookProfile("nHitsVsnVtx", "Number of Hits Vs Number of Vertex", 100,0.0,50,0.0,0.0,"g");
   if (!nHitsVsEtaH_) 
     nHitsVsEtaH_ = iBook.bookProfile("nHitsVsEta", "Number of Hits Vs Eta", 
 						    TrackEtaHistoPar.getParameter<int32_t>("Xbins"),

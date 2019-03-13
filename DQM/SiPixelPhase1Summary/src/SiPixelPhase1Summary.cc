@@ -201,8 +201,8 @@ void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker & iBooker){
     }
   }
   else {
-    deadROCTrends_[offline] = iBooker.bookProfile("deadRocTotal","N dead ROCs",6,0,6,0.,8192,"");
-    ineffROCTrends_[offline] = iBooker.bookProfile("ineffRocTotal","N inefficient ROCs",6,0,6,0.,8192,""); 
+    deadROCTrends_[offline] = iBooker.bookProfile("deadRocTotal","N dead ROCs",6,0.,6,0.,8192,"");
+    ineffROCTrends_[offline] = iBooker.bookProfile("ineffRocTotal","N inefficient ROCs",6,0.,6,0.,8192,"");
     deadROCTrends_[offline]->setAxisTitle("Subdetector",1);
     ineffROCTrends_[offline]->setAxisTitle("Subdetector",1);
     for (unsigned int i = 1; i <= binAxisLabels.size(); i++){
