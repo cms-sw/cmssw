@@ -17,7 +17,7 @@ class FWCaloClusterProxyBuilder : public FWHeatmapProxyBuilderTemplate<reco::Cal
    REGISTER_PROXYBUILDER_METHODS();
 
  private:
-   edm::Handle<edm::ValueMap<float>> CaloToParticleBasedIsoMapHandle;
+   edm::Handle<edm::ValueMap<float>> TimeValueMapHandle;
    double timeLowerBound, timeUpperBound;
    long layer;
    double saturation_energy;
@@ -49,8 +49,8 @@ void FWCaloClusterProxyBuilder::setItem(const FWEventItem *iItem)
 
 void FWCaloClusterProxyBuilder::build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc)
 {
-   iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters", "timeLayerCluster"), CaloToParticleBasedIsoMapHandle);
-   if(CaloToParticleBasedIsoMapHandle.isValid()){
+   iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters", "timeLayerCluster"), TimeValueMapHandle);
+   if(TimeValueMapHandle.isValid()){
       timeLowerBound = std::min(item()->getConfig()->value<double>("TimeLowerBound(ns)"), item()->getConfig()->value<double>("TimeUpperBound(ns)"));
       timeUpperBound = std::max(item()->getConfig()->value<double>("TimeLowerBound(ns)"), item()->getConfig()->value<double>("TimeUpperBound(ns)"));
    }
@@ -70,9 +70,9 @@ void FWCaloClusterProxyBuilder::build(const FWEventItem *iItem, TEveElementList 
 
 void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *)
 {
-   if (enableTimeFilter && CaloToParticleBasedIsoMapHandle.isValid())
+   if (enableTimeFilter && TimeValueMapHandle.isValid())
    {
-      const float time = CaloToParticleBasedIsoMapHandle->get(iIndex);
+      const float time = TimeValueMapHandle->get(iIndex);
       if (time < timeLowerBound || time > timeUpperBound)
          return;
    }
