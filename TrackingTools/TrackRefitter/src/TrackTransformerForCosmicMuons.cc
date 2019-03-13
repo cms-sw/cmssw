@@ -341,7 +341,7 @@ vector<Trajectory> TrackTransformerForCosmicMuons::transform(const reco::Track& 
     return vector<Trajectory>();
   }
   
-  return trajectoriesSM;
+  return std::move(trajectoriesSM);
 
 }
 
