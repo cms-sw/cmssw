@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <RVersion.h>
 #include <cmath>
-#include <tinyxml2.h>
+#include "tinyxml2.h"
 
 namespace {
 
