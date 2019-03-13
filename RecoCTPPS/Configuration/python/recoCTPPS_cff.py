@@ -10,23 +10,6 @@ from RecoCTPPS.ProtonReconstruction.ctppsProtons_cfi import *
 
 from Geometry.VeryForwardGeometry.geometryRPFromDB_cfi import *
 
-# TODO: get this from standard DB and GT
-from CondCore.CondDB.CondDB_cfi import *
-CondDB.connect = 'frontier://FrontierPrep/CMS_CONDITIONS'
-ctppsAlignmentPoolDBESSource = cms.ESSource("PoolDBESSource",
-  CondDB,
-  DumpStat = cms.untracked.bool(False),
-  toGet = cms.VPSet(
-    cms.PSet(
-      record = cms.string("RPRealAlignmentRecord"),
-      tag = cms.string("CTPPSRPAlignmentCorrections_real_test")
-    )
-  )
-)
-
-# TODO: remove this line once alignment is loaded using global tag
-es_prefer_ctppsAlignment = cms.ESPrefer("PoolDBESSource", "ctppsAlignmentPoolDBESSource")
-
 # TODO: load these data from DB
 # NB: this example only works for 2016 data
 ctppsLHCInfoESSource = cms.ESSource("CTPPSLHCInfoESSource",
