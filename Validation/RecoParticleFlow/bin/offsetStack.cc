@@ -11,7 +11,7 @@
 #include <iostream>
 #include <map>
 
-void getHists( std::map<TString, TH1D*>& hists, TFile*& file, TString var, int var_val, float r );
+bool getHists( std::map<TString, TH1D*>& hists, TFile*& file, TString var, int var_val, float r );
 void setStyle();
 void setStack( THStack*& stack, std::map<TString, TH1D*>& hists );
 void split( const TString& str, TString& sub1, TString& sub2 );
@@ -38,10 +38,11 @@ int main(int argc, char* argv[]) {
   if (!file1) {std::cout << "Invalid file1: " << fname1 << std::endl; return -1;}
 
   TH1F* h = (TH1F*) file1->FindObjectAny( var );
+  if (!h) {std::cout << "Could not find " + var + " hist" << std::endl;  return -1;}
   int avg = h->GetMean()+0.5;
 
   std::map<TString, TH1D*> hists1 = { {"chm",0}, {"chu",0}, {"nh",0}, {"ne",0}, {"hfh",0}, {"hfe",0}, {"lep",0} };
-  getHists( hists1, file1, var, avg, r );
+  if (!getHists( hists1, file1, var, avg, r )) return -1;
 
   setStyle();
   TCanvas c("c", "c", 600, 600);
@@ -62,7 +63,7 @@ int main(int argc, char* argv[]) {
     if (!file2) {std::cout << "Invalid file2: " << fname2 << std::endl; return -1;}
 
     std::map<TString, TH1D*> hists2 = hists1;
-    getHists( hists2, file2, var, avg, r );
+    if (!getHists( hists2, file2, var, avg, r )) return -1;
 
     THStack* stack2 = new THStack( "stack2", "stack2" );
     setStack( stack2, hists2 );
@@ -123,11 +124,13 @@ int main(int argc, char* argv[]) {
   c.Print( outdir + "/stack_" + label + ".pdf" );
 }
 
-void getHists( std::map<TString, TH1D*>& hists, TFile*& file, TString var, int var_val, float r ) {
+bool getHists( std::map<TString, TH1D*>& hists, TFile*& file, TString var, int var_val, float r ) {
 
   for ( auto& pair : hists ) {
 
-    TProfile* p = (TProfile*) file->FindObjectAny( Form("p_offset_eta_%s%i_%s", var.Data(), var_val, pair.first.Data()) );
+    TString name = Form("p_offset_eta_%s%i_%s", var.Data(), var_val, pair.first.Data());
+    TProfile* p = (TProfile*) file->FindObjectAny(name);
+    if (!p) {std::cout << "Could not find " + name << std::endl;  return false;}
     pair.second = p->ProjectionX( pair.first );
     pair.second->Scale( r*r / 2 / var_val );
 
@@ -137,6 +140,7 @@ void getHists( std::map<TString, TH1D*>& hists, TFile*& file, TString var, int v
       pair.second->SetBinError( i, pair.second->GetBinError(i) / (xbins[i]-xbins[i-1]) );
     }
   }
+  return true;
 }
 
 void setStyle() {
