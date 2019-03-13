@@ -54,6 +54,7 @@ def mergeProcess(*inputFiles, **options):
         process.add_(Service("DQMStore"))
     else:
         process.source = Source("PoolSource")
+        process.source.bypassVersionCheck = CfgTypes.untracked.bool(bypassVersionCheck)
         if dropDQM:
             process.source.inputCommands = CfgTypes.untracked.vstring('keep *','drop *_EDMtoMEConverter_*_*')
     process.source.fileNames = CfgTypes.untracked(CfgTypes.vstring())
@@ -68,9 +69,6 @@ def mergeProcess(*inputFiles, **options):
     else:
         outMod = OutputModule("PoolOutputModule")
  
-    # To bypass the version check in the merge process (TRUE by default)
-    process.source.bypassVersionCheck = CfgTypes.untracked.bool(bypassVersionCheck)
-
     outMod.fileName = CfgTypes.untracked.string(outputFilename)
     if outputLFN != None:
         outMod.logicalFileName = CfgTypes.untracked.string(outputLFN)
