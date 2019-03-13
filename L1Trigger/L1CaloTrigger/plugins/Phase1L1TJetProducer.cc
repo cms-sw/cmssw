@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package: L1CaloTrigger
-// Class: L1TJetPhase1Producer
+// Class: Phase1L1TJetProducer
 //
-/**\class L1TJetPhase1Producer L1TJetPhase1Producer.cc L1Trigger/L1CaloTrigger/plugin/L1TJetPhase1Producer.cc
+/**\class Phase1L1TJetProducer Phase1L1TJetProducer.cc L1Trigger/L1CaloTrigger/plugin/Phase1L1TJetProducer.cc
 
 Description: Produces jets with sliding window algorithm using pfcluster and pfcandidates
 
@@ -31,17 +31,13 @@ Description: Produces jets with sliding window algorithm using pfcluster and pfc
 
 #include "TH2F.h"
 
-#include <csignal>
 #include <algorithm>
 
-//UNCOMMENT TO CREATE DEBUG HISTO
-//#define DEBUG
-
-//class L1TJetPhase1Producer : public edm::EDProducer {
-class L1TJetPhase1Producer : public edm::one::EDProducer<edm::one::SharedResources> {
+//class Phase1L1TJetProducer : public edm::EDProducer {
+class Phase1L1TJetProducer : public edm::one::EDProducer<edm::one::SharedResources> {
    public:
-      explicit L1TJetPhase1Producer(const edm::ParameterSet&);
-      ~L1TJetPhase1Producer();
+      explicit Phase1L1TJetProducer(const edm::ParameterSet&);
+      ~Phase1L1TJetProducer();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -78,11 +74,8 @@ class L1TJetPhase1Producer : public edm::one::EDProducer<edm::one::SharedResourc
 
 };
 
-L1TJetPhase1Producer::L1TJetPhase1Producer(const edm::ParameterSet& iConfig)
+Phase1L1TJetProducer::Phase1L1TJetProducer(const edm::ParameterSet& iConfig)
 {
-
-  usesResource("TFileService");
-  edm::Service<TFileService> fs;
 
   this -> _etaBinning = iConfig.getParameter<std::vector<double> >("etaBinning");
   this -> _nBinsEta = this -> _etaBinning.size() - 1;
@@ -97,12 +90,7 @@ L1TJetPhase1Producer::L1TJetPhase1Producer(const edm::ParameterSet& iConfig)
   this -> _vetoZeroPt = iConfig.getParameter<bool>("vetoZeroPt");
 
   this -> _inputCollectionTag = new edm::EDGetTokenT< edm::View<reco::Candidate> >(consumes< edm::View<reco::Candidate> > (iConfig.getParameter< edm::InputTag >("inputCollectionTag")));
-  #ifndef DEBUG
   this -> _caloGrid = new TH2F("caloGrid", "Calorimeter grid", this -> _nBinsEta, this-> _etaBinning.data(), this -> _nBinsPhi, this -> _phiLow, this -> _phiUp);
-  #endif
-  #ifdef DEBUG
-  this -> _caloGrid = fs -> make<TH2F>("caloGrid", "Calorimeter grid", this -> _nBinsEta, this-> _etaBinning.data(), this -> _nBinsPhi, this -> _phiLow, this -> _phiUp);
-  #endif
   this -> _caloGrid -> GetXaxis() -> SetTitle("#eta");
   this -> _caloGrid -> GetYaxis() -> SetTitle("#phi");
   produces<std::vector<reco::CaloJet> >( this->_outputCollectionName ).setBranchAlias(this->_outputCollectionName);
@@ -110,15 +98,13 @@ L1TJetPhase1Producer::L1TJetPhase1Producer(const edm::ParameterSet& iConfig)
   
 }
 
-L1TJetPhase1Producer::~L1TJetPhase1Producer()
+Phase1L1TJetProducer::~Phase1L1TJetProducer()
 {
   delete this -> _inputCollectionTag;
-  #ifndef DEBUG
   if (this -> _caloGrid) delete this -> _caloGrid;
-  #endif
 }
 
-float L1TJetPhase1Producer::_getTowerEnergy(const TH2F & caloGrid, int iEta, int iPhi)
+float Phase1L1TJetProducer::_getTowerEnergy(const TH2F & caloGrid, int iEta, int iPhi)
 {
   // We return the pt of a certain bin in the calo grid, taking account of the phi periodicity when overflowing (e.g. phi > phiSize), and returning 0 for the eta out of bounds
 
@@ -142,30 +128,16 @@ float L1TJetPhase1Producer::_getTowerEnergy(const TH2F & caloGrid, int iEta, int
   return caloGrid.GetBinContent(iEta, iPhi);
 }
 
-void L1TJetPhase1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void Phase1L1TJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   
-  #ifdef DEBUG
-  this -> _caloGrid -> Reset();
-  //#include "L1Trigger/L1CaloTrigger/debug/CaloGridTestingCode.cdebug"
-  #endif
-
   if (this -> _inputCollectionTag) {
     edm::Handle < edm::View< reco::Candidate > > inputCollectionHandle;
     iEvent.getByToken(*(this -> _inputCollectionTag), inputCollectionHandle);
     // dumping the data
-    #ifdef DEBUG
-    std::cout << ">>>>>> DUMPING INPUTS <<<<<<" << std::endl;
-    for (auto inputIterator = inputCollectionHandle -> begin(); pfCandidateIterator != inputCollectionHandle -> end(); pfCandidateIterator++) 
-    {
-      std::cout << inputIterator -> pt() << "\t" << inputIterator -> eta() << "\t" << inputIterator -> phi() << "\t" << std::endl;
-    }
-    #endif 
-    #ifndef DEBUG
     this -> _caloGrid -> Reset();
     this -> _fillCaloGrid<>(*(this -> _caloGrid), *inputCollectionHandle);
-    #endif
     const auto seedsVector = this -> _findSeeds(*(this -> _caloGrid), this -> _seedPtThreshold); // seedPtThreshold = 6
     std::vector<reco::CaloJet> l1jetVector;
     if (this -> _puSubtraction)
@@ -176,14 +148,6 @@ void L1TJetPhase1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       l1jetVector = this -> _buildJetsFromSeeds(*(this -> _caloGrid), seedsVector);
     }
 
-    #ifdef DEBUG
-    std::cout << ">>>>>> DUMPING JETS <<<<<<" << std::endl;
-    for (const auto & l1jet: l1jetVector)
-    {
-      std::cout << l1jet.pt() << "\t" << l1jet.eta() << "\t" << l1jet.phi() << "\t" << std::endl;
-    }
-    #endif 
-    
     std::unique_ptr< std::vector<reco::CaloJet> > l1jetVectorPtr(new std::vector<reco::CaloJet>(l1jetVector));
     iEvent.put(std::move(l1jetVectorPtr), this -> _outputCollectionName);
   }
@@ -192,7 +156,7 @@ void L1TJetPhase1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 }
 
-void L1TJetPhase1Producer::_subtract9x9Pileup(const TH2F & caloGrid, reco::CaloJet & jet) {
+void Phase1L1TJetProducer::_subtract9x9Pileup(const TH2F & caloGrid, reco::CaloJet & jet) {
   //For each jet we compute the 4 side bands
   //for (reco::CaloJet & jet: jetCollection) {
   //for (auto jetIterator = jetCollection.begin(0); jetIterator != jetCollection.end(0); jetIterator++)
@@ -242,7 +206,7 @@ void L1TJetPhase1Producer::_subtract9x9Pileup(const TH2F & caloGrid, reco::CaloJ
   return;
 }
 
-std::vector<std::tuple<int, int>> L1TJetPhase1Producer::_findSeeds(const TH2F & caloGrid, float seedThreshold) 
+std::vector<std::tuple<int, int>> Phase1L1TJetProducer::_findSeeds(const TH2F & caloGrid, float seedThreshold) 
 {
   int nBinsX = caloGrid.GetNbinsX();
   int nBinsY = caloGrid.GetNbinsY();
@@ -297,7 +261,7 @@ std::vector<std::tuple<int, int>> L1TJetPhase1Producer::_findSeeds(const TH2F & 
   return seeds;
 }
 
-reco::CaloJet L1TJetPhase1Producer::_buildJetFromSeed(const TH2F & caloGrid, const std::tuple<int, int> & seed) 
+reco::CaloJet Phase1L1TJetProducer::_buildJetFromSeed(const TH2F & caloGrid, const std::tuple<int, int> & seed) 
 {
   int iEta = std::get<0>(seed);
   int iPhi = std::get<1>(seed);
@@ -328,7 +292,7 @@ reco::CaloJet L1TJetPhase1Producer::_buildJetFromSeed(const TH2F & caloGrid, con
   return jet;
 }
 
-std::vector<reco::CaloJet> L1TJetPhase1Producer::_buildJetsFromSeedsWithPUSubtraction(const TH2F & caloGrid, const std::vector<std::tuple<int, int>> & seeds, bool killZeroPt)
+std::vector<reco::CaloJet> Phase1L1TJetProducer::_buildJetsFromSeedsWithPUSubtraction(const TH2F & caloGrid, const std::vector<std::tuple<int, int>> & seeds, bool killZeroPt)
 {
 
   // For each seed take a grid centered on the seed of the size specified by the user
@@ -346,7 +310,7 @@ std::vector<reco::CaloJet> L1TJetPhase1Producer::_buildJetsFromSeedsWithPUSubtra
   return jets;
 }
 
-std::vector<reco::CaloJet> L1TJetPhase1Producer::_buildJetsFromSeeds(const TH2F & caloGrid, const std::vector<std::tuple<int, int>> & seeds)
+std::vector<reco::CaloJet> Phase1L1TJetProducer::_buildJetsFromSeeds(const TH2F & caloGrid, const std::vector<std::tuple<int, int>> & seeds)
 {
 
   // For each seed take a grid centered on the seed of the size specified by the user
@@ -363,7 +327,7 @@ std::vector<reco::CaloJet> L1TJetPhase1Producer::_buildJetsFromSeeds(const TH2F 
 
 
 template <class Container>
-void L1TJetPhase1Producer::_fillCaloGrid(TH2F & caloGrid, const Container & triggerPrimitives)
+void Phase1L1TJetProducer::_fillCaloGrid(TH2F & caloGrid, const Container & triggerPrimitives)
 {
   //Filling the calo grid with the primitives
   for (auto primitiveIterator = triggerPrimitives.begin(); primitiveIterator != triggerPrimitives.end(); primitiveIterator++) 
@@ -374,7 +338,7 @@ void L1TJetPhase1Producer::_fillCaloGrid(TH2F & caloGrid, const Container & trig
 }
 
 void
-L1TJetPhase1Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+Phase1L1TJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -382,4 +346,4 @@ L1TJetPhase1Producer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.addDefault(desc);
 }
 
-DEFINE_FWK_MODULE(L1TJetPhase1Producer);
+DEFINE_FWK_MODULE(Phase1L1TJetProducer);
