@@ -12,7 +12,6 @@ class CTPPSPixelSimTopology : public CTPPSPixelTopology
        |         |
        |         |  y
        |_________|
-
        x
     */
     class PixelInfo
@@ -60,7 +59,7 @@ class CTPPSPixelSimTopology : public CTPPSPixelTopology
 
       // rows (x segmentation)
       if ( arow == 0 ) {
-        lower_x = 0;
+        lower_x = 0.05;
         higher_x = 0.3;
       }
       else if ( arow <= 78 ) {
@@ -81,12 +80,12 @@ class CTPPSPixelSimTopology : public CTPPSPixelTopology
       }
       else if ( arow == 159) {
         lower_x =  0.3 + ( arow+1 )*pitch_simX_;
-        higher_x = 0.3 + ( arow+4 )*pitch_simX_;
+        higher_x = 0.3 + ( arow+2 )*pitch_simX_ + 0.15;
       }
 
       // columns (y segmentation)
       if( acol == 0 ) {
-        lower_y = 0;
+        lower_y = 0.05;
         higher_y = 0.35;
       }
       else if ( acol <= 50 ) {
@@ -119,7 +118,7 @@ class CTPPSPixelSimTopology : public CTPPSPixelTopology
       }
       else if ( acol == 155 ) {
         lower_y =  0.35 + ( acol+3 )*pitch_simY_;
-        higher_y = 0.35 + ( acol+4 )*pitch_simY_ + 0.2;
+        higher_y = 0.35 + ( acol+4 )*pitch_simY_ + 0.15;
       }
 
       lower_x = lower_x - simX_width_/2.;
