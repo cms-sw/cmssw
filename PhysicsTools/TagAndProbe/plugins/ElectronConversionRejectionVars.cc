@@ -86,7 +86,6 @@ ElectronConversionRejectionVars::produce(edm::Event & iEvent, const edm::EventSe
     double dcot = 0.0;
     double convradius = 0.0;
     double passConvRej = 0.0;
-    ConversionFinder convFinder;
 
     View<reco::Candidate>::const_iterator probe, endprobes = probes->end();
     const reco::GsfElectronCollection* electronCollection = elHandle.product();
@@ -97,7 +96,7 @@ ElectronConversionRejectionVars::produce(edm::Event & iEvent, const edm::EventSe
 	if( fabs(eleIt->et() - probe->et() ) < 0.05 && fabs(eleIt->eta() - probe->eta() ) < 0.01
 	    && fabs(eleIt->phi() - probe->phi() ) < 0.01 ){
 	  //we have a match
-	  ConversionInfo convInfo = convFinder.getConversionInfo(*eleIt, tracks_h, evt_bField);
+	  ConversionInfo convInfo = egammaTools::getConversionInfo(*eleIt, tracks_h, evt_bField);
 	  dist = convInfo.dist();
 	  dcot = convInfo.dcot();
 	  convradius = convInfo.radiusOfConversion();

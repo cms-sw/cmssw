@@ -1,7 +1,6 @@
 #include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-//#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include <algorithm>
