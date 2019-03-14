@@ -218,7 +218,7 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(std::vector<std::s
 							for  (elink_id = 0; elink_id < 7; ++elink_id)
 							{
 								if ( !(pCablingMap_->knowsDTCELinkId( DTCELinkId(dtc_id, gbt_id, elink_id) )) )
-									goto gbtlink_and_elinkid_generator_end;
+									goto gbtlink_and_elinkid_generator_end; //break out of this double loop
 							}
 						}
 						gbtlink_and_elinkid_generator_end:
@@ -238,14 +238,12 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(std::vector<std::s
 						edm::LogInfo("CSVParser") << "-- DetId = " << detIdRaw << " (dtc_id, gbt_id, elink_id) = (" << dtc_id << "," << gbt_id << "," << elink_id << ")" << endl;
 					}
 					
+					if (pCablingMap_->knowsDTCELinkId(dtcELinkId))
 					{
-						if (pCablingMap_->knowsDTCELinkId(dtcELinkId))
-						{
-							ostringstream message;
-							message << "Reading CSV file: CRITICAL ERROR, duplicated dtcELinkId entry about (dtc_id, gbt_id, elink_id) = (" << dtc_id << "," << gbt_id << "," << elink_id << ")";
-							
-							throw cms::Exception(message.str());
-						}
+						ostringstream message;
+						message << "Reading CSV file: CRITICAL ERROR, duplicated dtcELinkId entry about (dtc_id, gbt_id, elink_id) = (" << dtc_id << "," << gbt_id << "," << elink_id << ")";
+						
+						throw cms::Exception(message.str());
 					}
 					
 					pCablingMap_->insert(dtcELinkId, detIdRaw);

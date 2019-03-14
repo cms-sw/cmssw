@@ -58,8 +58,8 @@ void DTCCablingMapTestProducer::fillDescriptions(edm::ConfigurationDescriptions&
 {
 	edm::ParameterSetDescription desc;
 	desc.setComment("Stores a dummy TrackerDetToDTCELinkCablingMap database object from a CSV file.");
-  desc.add<long long unsigned int>("iovBeginTime", 1);
-  desc.add<std::string>("record","TrackerDetToDTCELinkCablingMap");
+	desc.add<long long unsigned int>("iovBeginTime", 1);
+	desc.add<std::string>("record","TrackerDetToDTCELinkCablingMap");
 	descriptions.addDefault(desc);
 }
 
@@ -84,7 +84,6 @@ void DTCCablingMapTestProducer::beginJob()
 	edm::Service<cond::service::PoolDBOutputService> poolDbService;
 	
 	if( poolDbService.isAvailable() )
-// 		poolDbService->writeOne( pCablingMap, poolDbService->currentTime(), "OuterTrackerDTCCablingMapRcd" );
 		poolDbService->writeOne( pCablingMap_.release(), iovBeginTime_, recordName_ );
 	else
 		throw std::runtime_error("PoolDBService required.");
