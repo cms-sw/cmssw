@@ -7,52 +7,37 @@
  *  \author M. Maggim -- INFN Bari
  */
 
-
-#include <memory>
-#include <fstream>
-#include <iostream>
-#include <cstdint>
-#include <cstdlib>
-#include <bitset>
-#include <map>
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-
-// #include "CondFormats/GEMObjects/interface/GEMMaskedStrips.h"
-// #include "CondFormats/DataRecord/interface/GEMMaskedStripsRcd.h"
-// #include "CondFormats/GEMObjects/interface/GEMDeadStrips.h"
-// #include "CondFormats/DataRecord/interface/GEMDeadStripsRcd.h"
-
-#include "GEMEtaPartitionMask.h"
-
-
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}
-
-class GEMRecHitBaseAlgo;
+#include "CondFormats/GEMObjects/interface/GEMMaskedStrips.h"
+#include "CondFormats/GEMObjects/interface/GEMDeadStrips.h"
+#include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitBaseAlgo.h"
 
 class GEMRecHitProducer : public edm::stream::EDProducer<> {
 
-public:
+ public:
   /// Constructor
   GEMRecHitProducer(const edm::ParameterSet& config);
 
   /// Destructor
   ~GEMRecHitProducer() override;
-
+  
   // Method that access the EventSetup for each run
   void beginRun(const edm::Run&, const edm::EventSetup& ) override;
 
   /// The method which produces the rechits
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
-private:
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  
+ private:
 
   // The token to be used to retrieve GEM digis from the event
   edm::EDGetTokenT<GEMDigiCollection> theGEMDigiToken;
@@ -60,19 +45,20 @@ private:
   // The reconstruction algorithm
   std::unique_ptr<GEMRecHitBaseAlgo> theAlgo;
 
-  // GEMMaskedStrips* GEMMaskedStripsObj;
   // Object with mask-strips-vector for all the GEM Detectors
+  std::unique_ptr<GEMMaskedStrips> theGEMMaskedStripsObj;
 
-  // GEMDeadStrips* GEMDeadStripsObj;
   // Object with dead-strips-vector for all the GEM Detectors
+  std::unique_ptr<GEMDeadStrips> theGEMDeadStripsObj;
 
-  // std::string maskSource;
-  // std::string deadSource;
+  enum class MaskSource { File, EventSetup } maskSource_, deadSource_;
 
-  // std::vector<GEMMaskedStrips::MaskItem> MaskVec;
-  // std::vector<GEMDeadStrips::DeadItem> DeadVec;
+  edm::ESHandle<GEMGeometry> gemGeom_;
 
+  // map of mask and dead strips
+  std::map<GEMDetId,EtaPartitionMask> gemMask_;
+
+  bool applyMasking_;
+  
 };
-
 #endif
-
