@@ -11,57 +11,181 @@
 using namespace cms;
 using namespace std;
 
-DDFilteredView::DDFilteredView(const DDDetector* det)
+DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume)
   : registry_(&det->specpars()) {
-  dd4hep::DetElement world = det->description()->world();
-  parents_.emplace_back(DDExpandedNode(world.volume(), DDTranslation(), DDRotationMatrix(), 1, 0));
-  topVolume_ = world.volume();
-  TGeoIterator next(topVolume_);
-  next.SetType(0); // 0: DFS; 1: BFS
+  it_.emplace_back(TGeoIterator(volume));
 }
 
-const DDVolume&
+const PlacedVolume
 DDFilteredView::volume() const {
-  return parents_.back().volume;
+  return PlacedVolume(node_);
 }
 
-const DDTranslation&
-DDFilteredView::translation() const {
-  return parents_.back().trans;
+const Double_t*
+DDFilteredView::trans() const {
+  return it_.back().GetCurrentMatrix()->GetTranslation();
 }
 
-const DDRotationMatrix&
-DDFilteredView::rotation() const {
-  return parents_.back().rot;
+const Double_t*
+DDFilteredView::rot() const {
+  return it_.back().GetCurrentMatrix()->GetRotationMatrix();
 }
 
 void
-DDFilteredView::mergedSpecifics(DDSpecParRefs const& refs) {
-  for(const auto& i : refs) {
-    auto tops = vPathsTo(*i, 1);
-    //    auto tops = vPathsTo(*i.second, 1);
-    topNodes_.insert(end(topNodes_), begin(tops), end(tops));
+DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
+  for(const auto& i : specs) {
+    for(const auto& j : i->paths) {
+      vector<string_view> toks = split(j, "/");
+      auto const& filter = find_if(begin(filters_), end(filters_), [&](auto const& f) {
+	  auto const& k = find(begin(f->keys), end(f->keys), toks.front());
+	  if(k != end(f->keys)) {
+	    currentFilter_ = f.get();
+	    return true;
+	  }
+	  return false;
+	});
+      if(filter == end(filters_)) {
+	filters_.emplace_back(unique_ptr<Filter>(new Filter{{toks.front()}, nullptr, nullptr}));
+	currentFilter_ = filters_.back().get();
+      }
+      // all next levels
+      for(size_t pos = 1; pos < toks.size(); ++pos) {
+	if(currentFilter_->next != nullptr) {
+	  currentFilter_ = currentFilter_->next.get();
+	  auto const& l = find(begin(currentFilter_->keys), end(currentFilter_->keys), toks[pos]);
+	  if(l == end(currentFilter_->keys)) {
+	    currentFilter_->keys.emplace_back(toks[pos]);
+	  }
+	} else {
+	  currentFilter_->next.reset(new Filter{{toks[pos]}, nullptr, currentFilter_});
+	}
+      }
+    }
   }
 }
 
 bool
 DDFilteredView::firstChild() {
+  it_.back().SetType(0);
+  TGeoNode *node = nullptr;
+  while((node = it_.back().Next())) {
+    if(accepted(noNamespace(node->GetVolume()->GetName()))) {
+      TString path;
+      it_.back().GetPath(path);
+      addPath(path, node);
+
+      return true;
+    }
+  }
+  return false;
+}
+
+bool
+DDFilteredView::firstSibling() {
+  next(0);
+  it_.emplace_back(TGeoIterator(it_.back()));
+  it_.back().SetType(1);
+  if(currentFilter_->next)
+    currentFilter_ = currentFilter_->next.get();
+  else
+    return false;
+  do {
+    if(accepted(currentFilter_->keys, noNamespace(node_->GetVolume()->GetName()))) {
+      addNode(node_);
+      return true;
+    }
+  } while((node_ = it_.back().Next()));
+
   return false;
 }
 
 bool
 DDFilteredView::nextSibling() {
+  it_.back().SetType(1);
+  unCheckNode();
+  do {
+    if(accepted(currentFilter_->keys, noNamespace(node_->GetVolume()->GetName()))) {
+      addNode(node_);
+      return true;
+    }
+  } while((node_ = it_.back().Next()));
+
   return false;
 }
 
 bool
-DDFilteredView::next() {
+DDFilteredView::sibling() {
+  it_.back().SetType(1);
+  TGeoNode *node = nullptr;
+  while((node = it_.back().Next())) {
+    if(accepted(currentFilter_->keys, noNamespace(node->GetVolume()->GetName()))) {
+      addNode(node);
+      return true;
+    }
+  }
   return false;
 }
 
-const DDGeoHistory&
-DDFilteredView::geoHistory() const {
-  return parents_;
+bool
+DDFilteredView::siblingNoCheck() {
+  it_.back().SetType(1);
+  TGeoNode *node = nullptr;
+  while((node = it_.back().Next())) {
+    if(accepted(currentFilter_->keys, noNamespace(node->GetVolume()->GetName()))) {
+      //addNode(node);
+      node_ = node;
+      return true;
+    }
+  }
+  return false;
+}
+
+bool
+DDFilteredView::checkChild() {
+  it_.back().SetType(1);
+  TGeoNode *node = nullptr;
+  while((node = it_.back().Next())) {
+    if(accepted(currentFilter_->keys, noNamespace(node->GetVolume()->GetName()))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool
+DDFilteredView::parent() {
+  up();
+  it_.back().SetType(0);
+  it_.back().Skip();
+  
+  return true;
+}
+
+bool
+DDFilteredView::next(int type) {
+  it_.back().SetType(type);
+  TGeoNode *node = nullptr;
+  if((node = it_.back().Next())) {
+    node_ = node;
+    return true;
+  }
+  else
+    return false;
+}
+
+void
+DDFilteredView::down() {
+  it_.emplace_back(TGeoIterator(it_.back()));
+  next(0);
+  if(currentFilter_->next)
+    currentFilter_ = currentFilter_->next.get();
+}
+
+void
+DDFilteredView::up() {
+  it_.pop_back();
+  if(currentFilter_->up)
+    currentFilter_ = currentFilter_->up;
 }
 
 bool
@@ -81,6 +205,18 @@ DDFilteredView::acceptRegex(string_view name, string_view node) const {
 }
 
 bool
+DDFilteredView::accepted(std::string_view name) {
+  bool result = false;
+  for(const auto& it : filters_) {
+    currentFilter_ = it.get();
+    result = accepted(currentFilter_->keys, name);
+    if(result)
+      return result;
+  }
+  return result; 
+}
+
+bool
 DDFilteredView::accepted(string_view name, string_view node) const {
   if(!isRegex(name)) {
     return (name == node);
@@ -92,22 +228,9 @@ DDFilteredView::accepted(string_view name, string_view node) const {
 
 bool
 DDFilteredView::accepted(vector<string_view> const& names, string_view node) const {
-  for(auto const& i : names) {
-    if(accepted(i, node)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool
-DDFilteredView::acceptedM(vector<string_view>& names, string_view node) const {
-  auto itr = find_if(names.begin(), names.end(), [ & ]( const auto& i){ return accepted(i, node); });
-  if(itr != names.end() && (!isRegex(*itr))) {
-    names.erase(itr);
-    return true;
-  }
-  return false;
+  return (find_if(begin(names), end(names),
+		  [&](const auto& n) -> bool { return accepted(n, node); })
+	  != end(names));
 }
 
 string_view
@@ -179,12 +302,12 @@ DDFilteredView::contains(string_view input, string_view needle) const {
 }
 
 bool
-DDFilteredView::checkPath(string_view path, TGeoNode *node) {
+DDFilteredView::addPath(string_view path, TGeoNode* const node) {
   assert(registry_);
   node_ = node;
-  nodes.tags.clear();
-  nodes.offsets.clear();
-  nodes.copyNos.clear();
+  nodes_.tags.clear();
+  nodes_.offsets.clear();
+  nodes_.copyNos.clear();
   
   bool result(false);
   auto v = split(path, "/");
@@ -199,9 +322,9 @@ DDFilteredView::checkPath(string_view path, TGeoNode *node) {
   		     i.second.hasValue("CopyNoOffset")));
   	  });
   	if(k != end(i.second.paths)) {
-  	  nodes.tags.emplace_back(i.second.dblValue("CopyNoTag"));
-  	  nodes.offsets.emplace_back(i.second.dblValue("CopyNoOffset"));
-  	  nodes.copyNos.emplace_back(copyNo(rv));
+  	  nodes_.tags.emplace_back(i.second.dblValue("CopyNoTag"));
+  	  nodes_.offsets.emplace_back(i.second.dblValue("CopyNoOffset"));
+  	  nodes_.copyNos.emplace_back(copyNo(rv));
   	  result = true;
   	}
       });
@@ -210,7 +333,7 @@ DDFilteredView::checkPath(string_view path, TGeoNode *node) {
 }
 
 bool
-DDFilteredView::checkNode(TGeoNode *node) {
+DDFilteredView::addNode(TGeoNode* const node) {
   assert(registry_);
   node_ = node;
   bool result(false);
@@ -221,9 +344,9 @@ DDFilteredView::checkNode(TGeoNode *node) {
 		   i.second.hasValue("CopyNoOffset")));
 	});
       if(k != end(i.second.paths)) {
-	nodes.tags.emplace_back(i.second.dblValue("CopyNoTag"));
-	nodes.offsets.emplace_back(i.second.dblValue("CopyNoOffset"));
-	nodes.copyNos.emplace_back(copyNo(node_->GetName()));
+	nodes_.tags.emplace_back(i.second.dblValue("CopyNoTag"));
+	nodes_.offsets.emplace_back(i.second.dblValue("CopyNoOffset"));
+	nodes_.copyNos.emplace_back(copyNo(node_->GetName()));
 	result = true;
       }
     });
@@ -232,9 +355,9 @@ DDFilteredView::checkNode(TGeoNode *node) {
 
 void
 DDFilteredView::unCheckNode() {
-   nodes.tags.pop_back();
-   nodes.offsets.pop_back();
-   nodes.copyNos.pop_back();
+   nodes_.tags.pop_back();
+   nodes_.offsets.pop_back();
+   nodes_.copyNos.pop_back();
 }
 
 vector<string_view>
@@ -253,27 +376,4 @@ DDFilteredView::split(string_view str, const char* delims) const {
   if(start < str.length())
     ret.emplace_back(str.substr(start, str.length() - start));
   return ret;
-}
-
-vector<string_view>
-DDFilteredView::vPathsTo(const DDSpecPar& specpar, unsigned int level) const {
-  vector<string_view> result;
-  for(auto const& i : specpar.paths) {
-    vector<string_view> toks = split(i, "/");
-    if(level == toks.size())
-      result.emplace_back(realTopName(i));
-  }
-  return result;
-}
-
-vector<string_view>
-DDFilteredView::tails(const vector<string_view>& fullPath) const {
-  vector<string_view> result;
-  for(auto const& v : fullPath) {
-    auto found = v.find_last_of("/");
-    if(found != v.npos) {
-      result.emplace_back(v.substr(found + 1));
-    }
-  }
-  return result;
 }

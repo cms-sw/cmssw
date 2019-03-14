@@ -1,5 +1,8 @@
 <use   name="cppunit"/>
 <bin   name="testDDUnits" file="DDUnits.cppunit.cc,testRunner.cpp"/>
+<bin   name="testDDFilteredView" file="DDFilteredView.cppunit.cc,testRunner.cpp">
+  <use name="DetectorDescription/DDCMS"/>
+</bin>
 <bin file="dummyMain.cpp" name="DetectorDescriptionDDCMSTestDriver">
   <use   name="FWCore/Utilities"/>
   <flags   TEST_RUNNER_ARGS="/bin/bash DetectorDescription/DDCMS/test runTest.sh"/>
