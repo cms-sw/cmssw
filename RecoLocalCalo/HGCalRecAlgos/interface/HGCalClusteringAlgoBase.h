@@ -65,6 +65,7 @@ enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
  inline void setVerbosity(VerbosityLevel the_verbosity) {
    verbosity_ = the_verbosity;
  }
+ inline void setAlgoId(reco::CaloCluster::AlgoId algo) {algoId_ = algo;}
 
  //max number of layers
  static const unsigned int maxlayer = 52;

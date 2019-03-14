@@ -54,8 +54,6 @@ class HGCalLayerClusterProducer : public edm::stream::EDProducer<> {
 
   std::string timeClname;
   double timeOffset;
-
-  HGCalImagingAlgo::VerbosityLevel verbosity;
 };
 
 DEFINE_FWK_MODULE(HGCalLayerClusterProducer);
@@ -65,21 +63,7 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
   doSharing(ps.getParameter<bool>("doSharing")),
   detector(ps.getParameter<std::string >("detector")), // one of EE, FH, BH or "all"
   timeClname(ps.getParameter<std::string >("timeClname")),
-  timeOffset(ps.getParameter<double>("timeOffset")),
-  verbosity((HGCalImagingAlgo::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity",3)){
-  double ecut = ps.getParameter<double>("ecut");
-  std::vector<double> thresholdW0 = ps.getParameter<std::vector<double> >("thresholdW0");
-  std::vector<double> positionDeltaRho_c = ps.getParameter<std::vector<double> >("positionDeltaRho_c");
-  std::vector<double> vecDeltas = ps.getParameter<std::vector<double> >("deltac");
-  double kappa = ps.getParameter<double>("kappa");
-  std::vector<double> dEdXweights = ps.getParameter<std::vector<double> >("dEdXweights");
-  std::vector<double> thicknessCorrection = ps.getParameter<std::vector<double> >("thicknessCorrection");
-  std::vector<double> fcPerMip = ps.getParameter<std::vector<double> >("fcPerMip");
-  double fcPerEle = ps.getParameter<double>("fcPerEle");
-  std::vector<double> nonAgedNoises = ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double> >("values");
-  double noiseMip = ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("value");
-  bool dependSensor = ps.getParameter<bool>("dependSensor");
-
+  timeOffset(ps.getParameter<double>("timeOffset")) {
 
   if(detector=="all") {
     hits_ee_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCEEInput"));
@@ -100,16 +84,7 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
 
   auto pluginPSet = ps.getParameter<edm::ParameterSet>("plugin");
   algo.reset(HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet));
-
-//  if(doSharing){
-//    double showerSigma =  ps.getParameter<double>("showerSigma");
-//    algo = std::make_unique<HGCalImagingAlgo>(thresholdW0, positionDeltaRho_c,
-//					      vecDeltas, kappa, ecut, showerSigma, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
-//  }else{
-//    algo = std::make_unique<HGCalImagingAlgo>(thresholdW0, positionDeltaRho_c,
-//					      vecDeltas, kappa, ecut, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
-//  }
-
+  algo->setAlgoId(algoId);
 
   produces<std::vector<reco::BasicCluster> >();
   produces<std::vector<reco::BasicCluster> >("sharing");
@@ -128,10 +103,15 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   pluginDesc.addNode(edm::PluginDescription<HGCalLayerClusterAlgoFactory>("type", "Imaging", true));
 
   desc.add<edm::ParameterSetDescription>("plugin", pluginDesc);
+  desc.add<std::string>("detector", "all");
+  desc.add<bool>("doSharing", false);
+  desc.add<edm::InputTag>("HGCEEInput", edm::InputTag("HGCalRecHit","HGCEERecHits"));
+  desc.add<edm::InputTag>("HGCFHInput", edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
+  desc.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
+  desc.add<std::string>("timeClname", "timeLayerCluster");
+  desc.add<double>("timeOffset", 0.0);
   descriptions.add("hgcalLayerClusters", desc);
-
 }
-
 
 void HGCalLayerClusterProducer::produce(edm::Event& evt,
 				       const edm::EventSetup& es) {
