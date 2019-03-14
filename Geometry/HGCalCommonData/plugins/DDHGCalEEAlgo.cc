@@ -15,6 +15,8 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
 //#define EDM_ML_DEBUG
+using namespace geant_units;
+using namespace geant_units::operators;
 
 DDHGCalEEAlgo::DDHGCalEEAlgo() {
 #ifdef EDM_ML_DEBUG
@@ -102,7 +104,7 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   waferSize_    = nArgs["waferSize"];
   waferSepar_   = nArgs["SensorSeparation"];
   sectors_      = (int)(nArgs["Sectors"]);
-  alpha_        = geant_units::piRadians/sectors_;
+  alpha_        = piRadians/sectors_;
   cosAlpha_     = cos(alpha_);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ 
@@ -113,8 +115,7 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
 				<< " wafer width " << waferSize_ 
 				<< " separations " << waferSepar_
 				<< " sectors " << sectors_ << ":"
-				<< alpha_*geant_units::degPerRad
-				<< ":"  << cosAlpha_;
+				<< convertRadToDeg(alpha_) << ":" << cosAlpha_;
   for (unsigned int k=0; k<rad100to200_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] 100-200 " <<rad100to200_[k]
 				  << " 200-300 " << rad200to300_[k];
@@ -229,16 +230,15 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
 	  }
 	}
 	DDSolid solid = DDSolidFactory::polyhedra(DDName(name, nameSpace_),
-						  sectors_, -alpha_,
-						  2*geant_units::piRadians,
+						  sectors_, -alpha_, 2._pi,
 						  pgonZ, pgonRin, pgonRout);
 	glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
 	edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << solid.name() 
 				      << " polyhedra of " << sectors_ 
 				      << " sectors covering " 
-				      << -alpha_*geant_units::degPerRad << ":" 
-				      << (-alpha_+2*geant_units::piRadians)*geant_units::degPerRad
+				      << convertRadToDeg(-alpha_) << ":" 
+				      << convertRadToDeg(-alpha_+2._pi)
 				      << " with " << pgonZ.size()
 				      << " sections and filled with "
 				      << matName << ":" << &matter;
@@ -249,15 +249,14 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
 #endif
       } else {
 	DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), 
-					     hthick, rinB, routF, 0.0,
-					     2*geant_units::piRadians);
+					     hthick, rinB, routF, 0.0, 2._pi);
 	glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
 	edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << solid.name() 
 				      << " Tubs made of " << matName << ":"
 				      << &matter << " of dimensions " << rinB 
 				      << ", " << routF << ", " << hthick
-				      << ", 0.0, " << 2*geant_units::piRadians*geant_units::degPerRad
+				      << ", 0.0, " << convertRadToDeg(2._pi)
 				      << " and position " << glog.name() 
 				      << " number " << copy;
 #endif
