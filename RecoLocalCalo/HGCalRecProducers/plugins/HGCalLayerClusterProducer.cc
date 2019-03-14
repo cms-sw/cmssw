@@ -7,9 +7,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
@@ -17,16 +19,16 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalLayerClusterAlgoFactory.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 
@@ -96,14 +98,17 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
   }
 
 
-  if(doSharing){
-    double showerSigma =  ps.getParameter<double>("showerSigma");
-    algo = std::make_unique<HGCalImagingAlgo>(thresholdW0, positionDeltaRho_c,
-					      vecDeltas, kappa, ecut, showerSigma, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
-  }else{
-    algo = std::make_unique<HGCalImagingAlgo>(thresholdW0, positionDeltaRho_c,
-					      vecDeltas, kappa, ecut, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
-  }
+  auto pluginPSet = ps.getParameter<edm::ParameterSet>("plugin");
+  algo.reset(HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet));
+
+//  if(doSharing){
+//    double showerSigma =  ps.getParameter<double>("showerSigma");
+//    algo = std::make_unique<HGCalImagingAlgo>(thresholdW0, positionDeltaRho_c,
+//					      vecDeltas, kappa, ecut, showerSigma, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
+//  }else{
+//    algo = std::make_unique<HGCalImagingAlgo>(thresholdW0, positionDeltaRho_c,
+//					      vecDeltas, kappa, ecut, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
+//  }
 
 
   produces<std::vector<reco::BasicCluster> >();
@@ -119,45 +124,10 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
 void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalLayerClusters
   edm::ParameterSetDescription desc;
-//  edm::ParameterSetDescription pluginDesc;
-//      pluginDesc.addNode(edm::PluginDescription<HelperFactory>(“type”, true));
+  edm::ParameterSetDescription pluginDesc;
+  pluginDesc.addNode(edm::PluginDescription<HGCalLayerClusterAlgoFactory>("type", "Imaging", true));
 
-  desc.add<std::string>("detector", "all");
-  desc.add<bool>("doSharing", false);
-  desc.add<std::vector<double>>("thresholdW0", {
-    2.9,
-    2.9,
-    2.9
-  });
-  desc.add<std::vector<double>>("positionDeltaRho_c", {
-    1.3,
-    1.3,
-    1.3
-  });
-  desc.add<std::vector<double>>("deltac", {
-    2.0,
-    2.0,
-    5.0,
-  });
-  desc.add<bool>("dependSensor", true);
-  desc.add<double>("ecut", 3.0);
-  desc.add<double>("kappa", 9.0);
-  desc.add<std::string>("timeClname", "timeLayerCluster");
-  desc.add<double>("timeOffset",0.0);
-  desc.addUntracked<unsigned int>("verbosity", 3);
-  desc.add<edm::InputTag>("HGCEEInput", edm::InputTag("HGCalRecHit","HGCEERecHits"));
-  desc.add<edm::InputTag>("HGCFHInput", edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
-  desc.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
-  desc.add<std::vector<double>>("dEdXweights",{});
-  desc.add<std::vector<double>>("thicknessCorrection",{});
-  desc.add<std::vector<double>>("fcPerMip",{});
-  desc.add<double>("fcPerEle",0.0);
-  edm::ParameterSetDescription descNestedNoises;
-  descNestedNoises.add<std::vector<double> >("values", {});
-  desc.add<edm::ParameterSetDescription>("noises", descNestedNoises);
-  edm::ParameterSetDescription descNestedNoiseMIP;
-  descNestedNoiseMIP.add<double>("value", 0 );
-  desc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
+  desc.add<edm::ParameterSetDescription>("plugin", pluginDesc);
   descriptions.add("hgcalLayerClusters", desc);
 
 }
