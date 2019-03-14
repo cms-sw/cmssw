@@ -5,7 +5,7 @@
  *  \author M. Maggi -- INFN Bari
 */
 
-#include "ME0RecHitProducer.h"
+#include "RecoLocalMuon/GEMRecHit/plugins/ME0RecHitProducer.h"
 
 
 ME0RecHitProducer::ME0RecHitProducer(const edm::ParameterSet& config):

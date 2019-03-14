@@ -6,7 +6,7 @@
  *  \author M. Maggi -- INFN
  */
 
-#include "RecoLocalMuon/GEMRecHit/src/ME0RecHitStandardAlgo.h"
+#include "RecoLocalMuon/GEMRecHit/plugins/ME0RecHitStandardAlgo.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
