@@ -52,6 +52,9 @@ public:
 
   int numberOfDevices() const { return numberOfDevices_; }
 
+  // devices supported by the CUDA configuration and compilation flags
+  std::vector<int> const& devices() const { return supportedDevices_; }
+
   // major, minor
   std::pair<int, int> computeCapability(int device) { return computeCapabilities_.at(device); }
 
@@ -152,6 +155,7 @@ private:
   std::unique_ptr<CUDAEventCache> cudaEventCache_;
 
   int numberOfDevices_ = 0;
+  std::vector<int> supportedDevices_;
   std::vector<std::pair<int, int>> computeCapabilities_;
   bool enabled_ = false;
 };

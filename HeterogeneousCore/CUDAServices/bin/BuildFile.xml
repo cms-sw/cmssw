@@ -4,4 +4,5 @@
 
 <bin name="cudaIsEnabled" file="cudaIsEnabled.cpp">
   <use name="cuda"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
 </bin>

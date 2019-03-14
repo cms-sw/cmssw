@@ -30,7 +30,7 @@ public:
   void postEvent(edm::StreamContext const& sc);
 
 private:
-  int numberOfDevices_ = 0;
+  std::vector<int> devices_;
 };
 
 CUDAMonitoringService::CUDAMonitoringService(edm::ParameterSet const& config, edm::ActivityRegistry& registry) {
@@ -38,7 +38,7 @@ CUDAMonitoringService::CUDAMonitoringService(edm::ParameterSet const& config, ed
   edm::Service<CUDAService> cudaService;
   if(!cudaService->enabled())
     return;
-  numberOfDevices_ = cudaService->numberOfDevices();
+  devices_ = cudaService->devices();
 
   if(config.getUntrackedParameter<bool>("memoryConstruction")) {
     registry.watchPostModuleConstruction(this, &CUDAMonitoringService::postModuleConstruction);
@@ -66,10 +66,10 @@ void CUDAMonitoringService::fillDescriptions(edm::ConfigurationDescriptions & de
 // activity handlers
 namespace {
   template <typename T>
-  void dumpUsedMemory(T& log, int num) {
+  void dumpUsedMemory(T& log, std::vector<int> const& devices) {
     int old = 0;
     cudaCheck(cudaGetDevice(&old));
-    for(int i = 0; i < num; ++i) {
+    for(int i: devices) {
       size_t freeMemory, totalMemory;
       cudaCheck(cudaSetDevice(i));
       cudaCheck(cudaMemGetInfo(&freeMemory, &totalMemory));
@@ -82,19 +82,19 @@ namespace {
 void CUDAMonitoringService::postModuleConstruction(edm::ModuleDescription const& desc) {
   auto log = edm::LogPrint("CUDAMonitoringService");
   log << "CUDA device memory after construction of " << desc.moduleLabel() << " (" << desc.moduleName() << ")";
-  dumpUsedMemory(log, numberOfDevices_);
+  dumpUsedMemory(log, devices_);
 }
 
 void CUDAMonitoringService::postModuleBeginStream(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
   auto log = edm::LogPrint("CUDAMonitoringService");
   log<< "CUDA device memory after beginStream() of " << mcc.moduleDescription()->moduleLabel() << " (" << mcc.moduleDescription()->moduleName() << ")";
-  dumpUsedMemory(log, numberOfDevices_);
+  dumpUsedMemory(log, devices_);
 }
 
 void CUDAMonitoringService::postEvent(edm::StreamContext const& sc) {
   auto log = edm::LogPrint("CUDAMonitoringService");
   log << "CUDA device memory after event";
-  dumpUsedMemory(log, numberOfDevices_);
+  dumpUsedMemory(log, devices_);
 }
 
 DEFINE_FWK_SERVICE(CUDAMonitoringService);
