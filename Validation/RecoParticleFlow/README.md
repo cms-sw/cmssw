@@ -26,8 +26,14 @@ make QCD_dqm
 #Do postprocessing on the DQM histograms
 make QCD_post
 
+# Repeat for QCDPU, ZMM and MinBias (make QCDPU_reco etc.) or edit the 'make plots' part of
+# Makefile for successfully running 'make plots'
+
 #Do final HTML plots
 make plots
+
+# The 'plots' directory can be viewed from a web browser once it is moved to e.g. /afs/cern.ch/user/f/foo/www/.
+# In this case the URL for the directory is 'http://cern.ch/foo/plots', where 'foo' is the username
 ~~~
 
 
