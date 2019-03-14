@@ -1,7 +1,6 @@
 #include "RecoParticleFlow/PFProducer/plugins/PFLinker.h"
 
 
-#include "RecoParticleFlow/PFProducer/interface/GsfElectronEqual.h"
 #include "RecoParticleFlow/PFProducer/interface/PhotonEqual.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -109,8 +108,8 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // if it is an electron. Find the GsfElectron with the same GsfTrack
       if (iselectron) {
 	const reco::GsfTrackRef & gsfTrackRef(cand.gsfTrackRef());
-	GsfElectronEqual myEqual(gsfTrackRef);
-	std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(gsfElectrons->begin(),gsfElectrons->end(),myEqual);
+	auto itcheck = find_if( gsfElectrons->begin(),gsfElectrons->end(),
+                            [&gsfTrackRef](const auto& ele) {return (ele.gsfTrack()==gsfTrackRef);} );
 	if(itcheck==gsfElectrons->end()) {
           if (!forceElectronsInHGCAL_) {
             std::ostringstream err;
