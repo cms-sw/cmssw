@@ -51,20 +51,20 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
      minpos_(2*(maxlayer+1),{ {0.0f,0.0f} }),
      maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} }) {}
 
-  virtual ~HGCalCLUEAlgo() {}
+  ~HGCalCLUEAlgo() override {}
 
-  virtual void populate(const HGCRecHitCollection &hits) override;
+  void populate(const HGCRecHitCollection &hits) override;
   // this is the method that will start the clusterisation (it is possible to invoke this method
   // more than once - but make sure it is with different hit collections (or else use reset)
 
-  virtual void makeClusters() override;
+  void makeClusters() override;
 
   // this is the method to get the cluster collection out
-  virtual std::vector<reco::BasicCluster> getClusters(bool) override;
+  std::vector<reco::BasicCluster> getClusters(bool) override;
 
   // use this if you want to reuse the same cluster object but don't want to accumulate clusters
   // (hardly useful?)
-  virtual void reset() override {
+  void reset() override {
     clusters_v_.clear();
     layerClustersPerLayer_.clear();
     for (auto &it : points_) {
