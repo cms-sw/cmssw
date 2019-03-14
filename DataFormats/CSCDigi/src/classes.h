@@ -27,6 +27,8 @@
 #include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 
 // dummy structs to ensure backward compatibility
 struct GEMCSCLCTDigi {};
