@@ -1,7 +1,7 @@
-#ifndef RecoLocalCalo_HGCalRecAlgos_HGCalImagingAlgo_h
-#define RecoLocalCalo_HGCalRecAlgos_HGCalImagingAlgo_h
+#ifndef RecoLocalCalo_HGCalRecProducers_HGCalImagingAlgo_h
+#define RecoLocalCalo_HGCalRecProducers_HGCalImagingAlgo_h
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalClusteringAlgoBase.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -19,13 +19,13 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/KDTreeLinkerAlgoT.h"
 
 // C/C++ headers
 #include <string>
 #include <vector>
 #include <set>
 
-#include "KDTreeLinkerAlgoT.h"
 
 //Density collection
 typedef std::map< DetId, float > Density;
