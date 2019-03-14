@@ -234,8 +234,7 @@ void PFAlgo::setPFPhotonRegWeights(
 void
 PFAlgo::setPFMuonAndFakeParameters(const edm::ParameterSet& pset)
 {
-  pfmu_ = new PFMuonAlgo();
-  pfmu_->setParameters(pset);
+  pfmu_ = new PFMuonAlgo(pset);
 
   // Muon parameters
   muonHCAL_= pset.getParameter<std::vector<double> >("muon_HCAL");
