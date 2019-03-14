@@ -98,6 +98,7 @@ def parse_args():
     
     if args.doResponsePlots:
         plots += [("JetResponse", "reso_pt", ["preso_eta05", "preso_eta13","preso_eta21","preso_eta25","preso_eta30"])]
+        plots += [("JetResponse", "reso_pt_rms", ["preso_eta05_rms", "preso_eta13_rms","preso_eta21_rms","preso_eta25_rms","preso_eta30_rms"])]
         plots += [("JetResponse", "response_pt", ["presponse_eta05", "presponse_eta13", "presponse_eta21", "presponse_eta25", "presponse_eta30"])]
         for iptbin in range(len(ptbins)-1):
             pthistograms = []
@@ -133,6 +134,7 @@ def main():
     #plot-dependent style options
     plot_opts = {
         "reso_pt": {"xlog": True},
+        "reso_pt_rms": {"xlog": True},
         "response_pt": {"xlog": True},
     }
     for iptbin in range(len(ptbins)-1):
