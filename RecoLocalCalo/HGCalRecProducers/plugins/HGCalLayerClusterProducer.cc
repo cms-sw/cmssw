@@ -99,7 +99,7 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   // hgcalLayerClusters
   edm::ParameterSetDescription desc;
   edm::ParameterSetDescription pluginDesc;
-  pluginDesc.addNode(edm::PluginDescription<HGCalLayerClusterAlgoFactory>("type", "Imaging", true));
+  pluginDesc.addNode(edm::PluginDescription<HGCalLayerClusterAlgoFactory>("type", "CLUE", true));
 
   desc.add<edm::ParameterSetDescription>("plugin", pluginDesc);
   desc.add<std::string>("detector", "all");
