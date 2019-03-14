@@ -30,6 +30,3 @@ process.p.associate(process.t)
 
 # Example of disabling CUDA device type for one module via configuration
 #process.prod4.heterogeneousEnabled_.GPUCuda = False
-
-# Example of limiting the number of EDM streams per device
-#process.CUDAService.numberOfStreamsPerDevice = 1

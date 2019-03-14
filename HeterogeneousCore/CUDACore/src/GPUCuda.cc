@@ -26,7 +26,7 @@ namespace heterogeneous {
 
   void GPUCuda::call_beginStreamGPUCuda(edm::StreamID id) {
     edm::Service<CUDAService> cudaService;
-    enabled_ = (enabled_ && cudaService->enabled(id));
+    enabled_ = (enabled_ && cudaService->enabled());
     if(!enabled_) {
       if(forced_) {
         throw cms::Exception("LogicError") << "This module was forced to run on GPUCuda, but the device is not available.";

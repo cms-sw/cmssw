@@ -41,7 +41,6 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
   SECTION("CUDAService enabled") {
     edm::ParameterSet ps;
     ps.addUntrackedParameter("enabled", true);
-    ps.addUntrackedParameter("numberOfStreamsPerDevice", 0U);
     SECTION("Enabled only if there are CUDA capable GPUs") {
       auto cs = makeCUDAService(ps, ar);
       if(deviceCount <= 0) {
@@ -129,45 +128,9 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
   SECTION("Force to be disabled") {
     edm::ParameterSet ps;
     ps.addUntrackedParameter("enabled", false);
-    ps.addUntrackedParameter("numberOfStreamsPerDevice", 0U);
     auto cs = makeCUDAService(ps, ar);
     REQUIRE(cs.enabled() == false);
     REQUIRE(cs.numberOfDevices() == 0);
-  }
-
-  SECTION("Limit number of edm::Streams per device") {
-    edm::ParameterSet ps;
-    ps.addUntrackedParameter("enabled", true);
-    SECTION("Unlimited") {
-      ps.addUntrackedParameter("numberOfStreamsPerDevice", 0U);
-      auto cs = makeCUDAService(ps, ar);
-      REQUIRE(cs.enabled() == true);
-      REQUIRE(cs.enabled(0) == true);
-      REQUIRE(cs.enabled(100) == true);
-      REQUIRE(cs.enabled(100*deviceCount) == true);
-      REQUIRE(cs.enabled(std::numeric_limits<unsigned int>::max()) == true);
-    }
-
-    SECTION("Limit to 1") {
-      ps.addUntrackedParameter("numberOfStreamsPerDevice", 1U);
-      auto cs = makeCUDAService(ps, ar);
-      REQUIRE(cs.enabled() == true);
-      REQUIRE(cs.enabled(0) == true);
-      REQUIRE(cs.enabled(1*deviceCount-1) == true);
-      REQUIRE(cs.enabled(1*deviceCount) == false);
-      REQUIRE(cs.enabled(1*deviceCount+1) == false);
-    }
-
-    SECTION("Limit to 2") {
-      ps.addUntrackedParameter("numberOfStreamsPerDevice", 2U);
-      auto cs = makeCUDAService(ps, ar);
-      REQUIRE(cs.enabled() == true);
-      REQUIRE(cs.enabled(0) == true);
-      REQUIRE(cs.enabled(1*deviceCount) == true);
-      REQUIRE(cs.enabled(2*deviceCount-1) == true);
-      REQUIRE(cs.enabled(2*deviceCount) == false);
-    }
-
   }
 
   SECTION("Device allocator") {

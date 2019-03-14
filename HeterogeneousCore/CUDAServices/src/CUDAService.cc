@@ -130,12 +130,6 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
   computeCapabilities_.reserve(numberOfDevices_);
   log << "CUDA runtime successfully initialised, found " << numberOfDevices_ << " compute devices.\n\n";
 
-  auto numberOfStreamsPerDevice = config.getUntrackedParameter<unsigned int>("numberOfStreamsPerDevice");
-  if (numberOfStreamsPerDevice > 0) {
-    numberOfStreamsTotal_ = numberOfStreamsPerDevice * numberOfDevices_;
-    log << "Number of edm::Streams per CUDA device has been set to " << numberOfStreamsPerDevice << ", for a total of " << numberOfStreamsTotal_ << " edm::Streams across all CUDA device(s).\n\n";
-  }
-
   auto const& limits = config.getUntrackedParameter<edm::ParameterSet>("limits");
   auto printfFifoSize               = limits.getUntrackedParameter<int>("cudaLimitPrintfFifoSize");
   auto stackSize                    = limits.getUntrackedParameter<int>("cudaLimitStackSize");
@@ -373,7 +367,6 @@ CUDAService::~CUDAService() {
 void CUDAService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<bool>("enabled", true);
-  desc.addUntracked<unsigned int>("numberOfStreamsPerDevice", 0)->setComment("Upper limit of the number of edm::Streams that will run on a single CUDA GPU device. The remaining edm::Streams will be run only on other devices (for time being this means CPU in practice).\nThe value '0' means 'unlimited', a value >= 1 imposes the limit.");
 
   edm::ParameterSetDescription limits;
   limits.addUntracked<int>("cudaLimitPrintfFifoSize", -1)->setComment("Size in bytes of the shared FIFO used by the printf() device system call.");
