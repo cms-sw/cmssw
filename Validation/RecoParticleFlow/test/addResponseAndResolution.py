@@ -102,11 +102,12 @@ def add_response_and_resolution(sforig, treepath):
          response, response_unc, resolution, resolution_unc = \
             help.fit_response(h,ngenjet,elow,recoptcut)
          
-         preso.SetBinContent(idx,resolution)
-         preso.SetBinError(idx,resolution_unc)
+         if (idx>0): ## skip the lowest pt bin for now, as the fit needs to be carefully validated
+            preso.SetBinContent(idx+1,resolution)
+            preso.SetBinError(idx+1,resolution_unc)
          
-         response_pt.SetBinContent(idx,response)
-         response_pt.SetBinError(idx,response_unc)
+            response_pt.SetBinContent(idx+1,response)
+            response_pt.SetBinError(idx+1,response_unc)
                   
       fout.Write()
    
@@ -143,15 +144,15 @@ def add_response_and_resolution(sforig, treepath):
              err = std/mean * math.sqrt(std_error**2 / std**2 + mean_error**2 / mean**2)
 
          #fill the pt-dependent resolution plot
-         preso_rms.SetBinContent(idx, std/mean)
-         preso_rms.SetBinError(idx, err)
+         preso_rms.SetBinContent(idx+1, std/mean)
+         preso_rms.SetBinError(idx+1, err)
         
          #fill the pt-dependent response plot with the mean of the response.
-         response_pt_rms.SetBinContent(idx, mean)
+         response_pt_rms.SetBinContent(idx+1, mean)
          err2 = 0.0
          if std > 0.0 and mean > 0.0: 
              err2 = mean * math.sqrt(std_error**2 / std**2 + mean_error**2 / mean**2)
-         response_pt_rms.SetBinError(idx, err2)
+         response_pt_rms.SetBinError(idx+1, err2)
          
       fout.Write()
    fout.Close()   

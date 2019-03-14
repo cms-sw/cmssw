@@ -83,15 +83,15 @@ def pf_resolution(sforig, treepath):
              err = std/mean * math.sqrt(std_error**2 / std**2 + mean_error**2 / mean**2)
 
          #fill the pt-dependent resolution plot
-         preso.SetBinContent(idx, std/mean)
-         preso.SetBinError(idx, err)
+         preso.SetBinContent(idx+1, std/mean)
+         preso.SetBinError(idx+1, err)
         
          #fill the pt-dependent response plot with the mean of the response.
-         response_pt.SetBinContent(idx, mean)
+         response_pt.SetBinContent(idx+1, mean)
          err2 = 0.0
          if std > 0.0 and mean > 0.0: 
              err2 = mean * math.sqrt(std_error**2 / std**2 + mean_error**2 / mean**2)
-         response_pt.SetBinError(idx, err2)
+         response_pt.SetBinError(idx+1, err2)
          
       fout.Write()
    fout.Close()   
