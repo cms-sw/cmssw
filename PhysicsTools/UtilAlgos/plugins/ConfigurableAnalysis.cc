@@ -45,16 +45,16 @@
 class ConfigurableAnalysis : public edm::EDFilter {
    public:
       explicit ConfigurableAnalysis(const edm::ParameterSet&);
-      ~ConfigurableAnalysis() override;
+      ~ConfigurableAnalysis() override = default;
 
    private:
       void beginJob() override;
       bool filter(edm::Event&, const edm::EventSetup&) override;
       void endJob() override ;
 
-  FilterSelections * selections_;
-  Plotter * plotter_;
-  NTupler * ntupler_;
+  std::unique_ptr<FilterSelections> selections_;
+  std::unique_ptr<Plotter> plotter_;
+  std::unique_ptr<NTupler> ntupler_;
 
   std::vector<std::string> flows_;
   bool workAsASelector_;
@@ -71,8 +71,7 @@ class ConfigurableAnalysis : public edm::EDFilter {
 //
 // constructors and destructor
 //
-ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
-  selections_(nullptr), plotter_(nullptr), ntupler_(nullptr)
+ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig)
 {
 
   std::string moduleLabel = iConfig.getParameter<std::string>("@module_label");
@@ -85,24 +84,21 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
   edm::Service<VariableHelperService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("Variables"), consumesCollector());
 
   //list of selections
-  selections_ = new FilterSelections(iConfig.getParameter<edm::ParameterSet>("Selections"), consumesCollector());
+  selections_ = std::make_unique<FilterSelections>(iConfig.getParameter<edm::ParameterSet>("Selections"), consumesCollector());
 
   //plotting device
   edm::ParameterSet plotPset = iConfig.getParameter<edm::ParameterSet>("Plotter");
   if (!plotPset.empty()){
     std::string plotterName = plotPset.getParameter<std::string>("ComponentName");
-    plotter_ = PlotterFactory::get()->create(plotterName, plotPset);
+    plotter_ = std::unique_ptr<Plotter>(PlotterFactory::get()->create(plotterName, plotPset));
   }
-  else
-    plotter_ = nullptr;
 
   //ntupling device
   edm::ParameterSet ntPset = iConfig.getParameter<edm::ParameterSet>("Ntupler");
   if (!ntPset.empty()){
     std::string ntuplerName=ntPset.getParameter<std::string>("ComponentName");
-    ntupler_ = NTuplerFactory::get()->create(ntuplerName, ntPset);
+    ntupler_ = std::unique_ptr<NTupler>(NTuplerFactory::get()->create(ntuplerName, ntPset));
   }
-  else ntupler_=nullptr;
 
   flows_ = iConfig.getParameter<std::vector<std::string> >("flows");
   workAsASelector_ = iConfig.getParameter<bool>("workAsASelector");
@@ -113,12 +109,6 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
   //ntupler needs to register its products
   if (ntupler_) ntupler_->registerleaves(this);
 }
-
-ConfigurableAnalysis::~ConfigurableAnalysis()
-{
-  delete selections_;
-}
-
 
 //
 // member functions

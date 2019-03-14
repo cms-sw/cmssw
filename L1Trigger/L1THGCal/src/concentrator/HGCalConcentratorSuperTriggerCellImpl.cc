@@ -8,6 +8,7 @@ HGCalConcentratorSuperTriggerCellImpl(const edm::ParameterSet& conf){}
 
 int
 HGCalConcentratorSuperTriggerCellImpl::getSuperTriggerCellId(int detid) const {
+  // FIXME: won't work in the V9 geometry
   HGCalDetId TC_id(detid);
   if(TC_id.subdetId()==HGCHEB) {
     return TC_id.cell(); //scintillator

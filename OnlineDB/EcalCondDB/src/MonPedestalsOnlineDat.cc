@@ -41,7 +41,7 @@ void MonPedestalsOnlineDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":adc_mean_g12, :adc_rms_g12, :task_status)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPedestalsOnlineDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPedestalsOnlineDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -68,7 +68,7 @@ void MonPedestalsOnlineDat::writeDB(const EcalLogicID* ecid, const MonPedestalsO
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPedestalsOnlineDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPedestalsOnlineDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -100,12 +100,12 @@ void MonPedestalsOnlineDat::fetchData(std::map< EcalLogicID, MonPedestalsOnlineD
     std::pair< EcalLogicID, MonPedestalsOnlineDat > p;
     MonPedestalsOnlineDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setADCMeanG12( rset->getFloat(7) );
       dat.setADCRMSG12( rset->getFloat(8) );
@@ -115,7 +115,7 @@ void MonPedestalsOnlineDat::fetchData(std::map< EcalLogicID, MonPedestalsOnlineD
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPedestalsOnlineDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPedestalsOnlineDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -202,6 +202,6 @@ void MonPedestalsOnlineDat::writeArrayDB(const std::map< EcalLogicID, MonPedesta
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPedestalsDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

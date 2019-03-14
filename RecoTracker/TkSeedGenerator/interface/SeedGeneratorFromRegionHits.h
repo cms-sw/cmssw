@@ -17,11 +17,17 @@ namespace edm { class Event; class EventSetup; }
 class SeedGeneratorFromRegionHits {
 public:
 
-  SeedGeneratorFromRegionHits(
-      OrderedHitsGenerator * aGenerator, 
-      SeedComparitor * aComparitor = nullptr,
-      SeedCreator * aSeedCreator = nullptr
-    );
+  template <typename GEN>
+  SeedGeneratorFromRegionHits(GEN aGenerator): SeedGeneratorFromRegionHits(std::move(aGenerator), nullptr, nullptr) {}
+
+  template <typename GEN, typename COMP>
+  SeedGeneratorFromRegionHits(GEN aGenerator, COMP aComparitor): SeedGeneratorFromRegionHits(std::move(aGenerator), std::move(aComparitor), nullptr) {}
+
+  template <typename GEN, typename COMP, typename CREA>
+  SeedGeneratorFromRegionHits(GEN aGenerator, COMP aComparitor, CREA aSeedCreator):
+    theHitsGenerator{std::move(aGenerator)}, theComparitor{std::move(aComparitor)}, theSeedCreator{std::move(aSeedCreator)}
+  {}
+
 
 
   // make job

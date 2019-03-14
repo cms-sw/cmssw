@@ -21,6 +21,28 @@
 #include "DataFormats/EcalRecHit/interface/EcalSeverityLevel.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
+
+
+namespace {
+
+  void logElectrons(reco::GsfElectronCollection const& electrons, edm::Event const& event, const std::string& title)
+  {
+    LogTrace("GsfElectronAlgo") << "========== " << title << " ==========";
+    LogTrace("GsfElectronAlgo") << "Event: " << event.id();
+    LogTrace("GsfElectronAlgo") << "Number of electrons: " << electrons.size();
+    for (auto const& ele : electrons) {
+      LogTrace("GsfElectronAlgo") << "Electron with charge, pt, eta, phi: " << ele.charge() << " , " << ele.pt()
+                                  << " , " << ele.eta() << " , " << ele.phi();
+    }
+    LogTrace("GsfElectronAlgo") << "=================================================";
+  }
+
+}  // namespace
+
+
 using namespace reco;
 
 void GsfElectronBaseProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
@@ -357,34 +379,31 @@ void GsfElectronBaseProducer::beginEvent( edm::Event & event, const edm::EventSe
       checkEcalSeedingParameters(edm::parameterSet(*seeds.provenance())) ;
      }
    }
-
-  // init the algo
-  algo_->checkSetup(setup) ;
-  algo_->beginEvent(event) ;
  }
 
-void GsfElectronBaseProducer::fillEvent( edm::Event & event )
+void GsfElectronBaseProducer::fillEvent( reco::GsfElectronCollection & electrons, edm::Event & event )
  {
   // all electrons
-  algo_->displayInternalElectrons("GsfElectronAlgo Info (before preselection)") ;
+  logElectrons(electrons, event, "GsfElectronAlgo Info (before preselection)") ;
   // preselection
   if (strategyCfg_.applyPreselection)
    {
-    algo_->removeNotPreselectedElectrons() ;
-    algo_->displayInternalElectrons("GsfElectronAlgo Info (after preselection)") ;
+    electrons.erase( std::remove_if(electrons.begin(), electrons.end(),
+                     [this](auto const& ele){ return !isPreselected(ele); }), electrons.end() );
+    logElectrons(electrons, event, "GsfElectronAlgo Info (after preselection)") ;
    }
   // ambiguity
-  algo_->setAmbiguityData() ;
+  setAmbiguityData(electrons,event) ;
   if (strategyCfg_.applyAmbResolution)
    {
-    algo_->removeAmbiguousElectrons() ;
-    algo_->displayInternalElectrons("GsfElectronAlgo Info (after amb. solving)") ;
+    electrons.erase( std::remove_if(electrons.begin(), electrons.end(),
+                     std::mem_fn(&reco::GsfElectron::ambiguous)), electrons.end() );
+    logElectrons(electrons, event, "GsfElectronAlgo Info (after amb. solving)") ;
    }
   // final filling
-  orphanHandle_ = event.emplace(electronPutToken_, std::move(algo_->electrons()));
+  orphanHandle_ = event.emplace(electronPutToken_, std::move(electrons));
 }
 
-void GsfElectronBaseProducer::endEvent() { algo_->endEvent(); }
 
 void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSet const & pset )
  {
@@ -406,3 +425,130 @@ void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSet cons
   if (cutsCfg_.minSCEtEndcaps<seedConfiguration.getParameter<double>("SCEtCut"))
    { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The minimum super-cluster Et in endcaps is lower than during ecal seeding." ; }
  }
+
+//=======================================================================================
+// Ambiguity solving
+//=======================================================================================
+
+void GsfElectronBaseProducer::setAmbiguityData(reco::GsfElectronCollection& electrons,
+                                               edm::Event const& event,
+                                               bool ignoreNotPreselected) const
+{
+  // Getting required event data
+  auto const& beamspot = event.get(inputCfg_.beamSpotTag);
+  auto gsfPfRecTracks = strategyCfg_.useGsfPfRecTracks ? event.getHandle(inputCfg_.gsfPfRecTracksTag)
+                                                       : edm::Handle<reco::GsfPFRecTrackCollection>{};
+  auto const& barrelRecHits = event.get(inputCfg_.barrelRecHitCollection);
+  auto const& endcapRecHits = event.get(inputCfg_.endcapRecHitCollection);
+
+  if (strategyCfg_.ambSortingStrategy == 0) {
+    std::sort(electrons.begin(), electrons.end(), EgAmbiguityTools::isBetter);
+  } else if (strategyCfg_.ambSortingStrategy == 1) {
+    std::sort(electrons.begin(), electrons.end(), EgAmbiguityTools::isInnerMost);
+  } else {
+    throw cms::Exception("GsfElectronAlgo|UnknownAmbiguitySortingStrategy")
+        << "value of strategyCfg_.ambSortingStrategy is : " << strategyCfg_.ambSortingStrategy;
+  }
+
+  // init
+  for (auto e1 = electrons.begin(); e1 != electrons.end(); ++e1) {
+    e1->clearAmbiguousGsfTracks();
+    e1->setAmbiguous(false);
+  }
+
+  // get ambiguous from GsfPfRecTracks
+  if (strategyCfg_.useGsfPfRecTracks) {
+    for (auto& e1 : electrons) {
+      bool found = false;
+      for (auto const& gsfPfRecTrack : *gsfPfRecTracks.product()) {
+        if (gsfPfRecTrack.gsfTrackRef() == e1.gsfTrack()) {
+          if (found) {
+            edm::LogWarning("GsfElectronAlgo") << "associated gsfPfRecTrack already found";
+          } else {
+            found = true;
+            for (auto const& duplicate : gsfPfRecTrack.convBremGsfPFRecTrackRef()) {
+              e1.addAmbiguousGsfTrack(duplicate->gsfTrackRef());
+            }
+          }
+        }
+      }
+    }
+  }
+  // or search overlapping clusters
+  else {
+    for (auto e1 = electrons.begin(); e1 != electrons.end(); ++e1) {
+      if (e1->ambiguous())
+        continue;
+      if (ignoreNotPreselected && !isPreselected(*e1))
+        continue;
+
+      SuperClusterRef scRef1 = e1->superCluster();
+      CaloClusterPtr eleClu1 = e1->electronCluster();
+      LogDebug("GsfElectronAlgo") << "Blessing electron with E/P " << e1->eSuperClusterOverP() << ", cluster "
+                                  << scRef1.get() << " & track " << e1->gsfTrack().get();
+
+      for (auto e2 = e1 + 1; e2 != electrons.end(); ++e2) {
+        if (e2->ambiguous())
+          continue;
+        if (ignoreNotPreselected && !isPreselected(*e2))
+          continue;
+
+        SuperClusterRef scRef2 = e2->superCluster();
+        CaloClusterPtr eleClu2 = e2->electronCluster();
+
+        // search if same cluster
+        bool sameCluster = false;
+        if (strategyCfg_.ambClustersOverlapStrategy == 0) {
+          sameCluster = (scRef1 == scRef2);
+        } else if (strategyCfg_.ambClustersOverlapStrategy == 1) {
+          float eMin = 1.;
+          float threshold = eMin * cosh(EleRelPoint(scRef1->position(), beamspot.position()).eta());
+          sameCluster =
+              ((EgAmbiguityTools::sharedEnergy(*eleClu1, *eleClu2, barrelRecHits, endcapRecHits) >= threshold) ||
+               (EgAmbiguityTools::sharedEnergy(*scRef1->seed(), *eleClu2, barrelRecHits, endcapRecHits) >= threshold) ||
+               (EgAmbiguityTools::sharedEnergy(*eleClu1, *scRef2->seed(), barrelRecHits, endcapRecHits) >= threshold) ||
+               (EgAmbiguityTools::sharedEnergy(*scRef1->seed(), *scRef2->seed(), barrelRecHits, endcapRecHits) >=
+                threshold));
+        } else {
+          throw cms::Exception("GsfElectronAlgo|UnknownAmbiguityClustersOverlapStrategy")
+              << "value of strategyCfg_.ambClustersOverlapStrategy is : " << strategyCfg_.ambClustersOverlapStrategy;
+        }
+
+        // main instructions
+        if (sameCluster) {
+          LogDebug("GsfElectronAlgo") << "Discarding electron with E/P " << e2->eSuperClusterOverP() << ", cluster "
+                                      << scRef2.get() << " and track " << e2->gsfTrack().get();
+          e1->addAmbiguousGsfTrack(e2->gsfTrack());
+          e2->setAmbiguous(true);
+        } else if (e1->gsfTrack() == e2->gsfTrack()) {
+          edm::LogWarning("GsfElectronAlgo") << "Forgetting electron with E/P " << e2->eSuperClusterOverP()
+                                             << ", cluster " << scRef2.get() << " and track " << e2->gsfTrack().get();
+          e2->setAmbiguous(true);
+        }
+      }
+    }
+  }
+}
+
+
+bool GsfElectronBaseProducer::isPreselected(GsfElectron const& ele) const
+{
+  bool passCutBased = ele.passingCutBasedPreselection();
+  bool passPF = ele.passingPflowPreselection();
+  // it is worth nothing for gedGsfElectrons, this does nothing as its not set
+  // till GedGsfElectron finaliser, this is always false
+  if (strategyCfg_.gedElectronMode) {
+    bool passmva = ele.passingMvaPreselection();
+    if (!ele.ecalDrivenSeed()) {
+      if (ele.pt() > strategyCfg_.MaxElePtForOnlyMVA)
+        return passmva && passCutBased;
+      else
+        return passmva;
+    } else
+      return (passCutBased || passPF || passmva);
+  } else {
+    return passCutBased || passPF;
+  }
+
+  return true;
+}

@@ -39,7 +39,7 @@ void ODDelaysDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, sm_id, fed_id, tt_id, time_offset ) "
 			"VALUES (:1, :2, :3, :4, :5 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDelaysDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODDelaysDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -59,7 +59,7 @@ void ODDelaysDat::writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov )
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDelaysDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODDelaysDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -99,7 +99,7 @@ void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, int iovID)
 
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDelaysDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODDelaysDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -174,6 +174,6 @@ void ODDelaysDat::writeArrayDB(const std::vector< ODDelaysDat >& data, ODFEDelay
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDelaysDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODDelaysDat::writeArrayDB():  "+e.getMessage()));
   }
 }

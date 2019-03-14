@@ -18,6 +18,7 @@ class GEMMaskedStrips {
   ~GEMMaskedStrips(){}
 
   std::vector<MaskItem> const & getMaskVec() const {return maskVec_;}
+  void fillMaskVec(MaskItem m) {maskVec_.push_back(m);}
 
  private:
   std::vector<MaskItem> maskVec_;

@@ -4,7 +4,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 class HGCalVFECompressionImpl
 {

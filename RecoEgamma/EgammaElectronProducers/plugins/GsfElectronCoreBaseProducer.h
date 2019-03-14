@@ -54,12 +54,6 @@ class GsfElectronCoreBaseProducer : public edm::stream::EDProducer<>
     edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag_ ;
     edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracksTag_ ;
     edm::EDGetTokenT<reco::TrackCollection> ctfTracksTag_ ;
-
-    // From Puneeth Kalavase : returns the CTF track that has the highest fraction
-    // of shared hits in Pixels and the inner strip tracker with the electron Track
-    std::pair<reco::TrackRef,float> getCtfTrackRef
-     ( const reco::GsfTrackRef & ) ;
-
  } ;
 
 

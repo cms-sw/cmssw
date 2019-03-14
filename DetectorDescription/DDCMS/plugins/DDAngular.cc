@@ -1,4 +1,5 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <Math/Rotation3D.h>
@@ -8,6 +9,8 @@
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
 using DDAxisAngle = ROOT::Math::AxisAngle;
@@ -54,8 +57,8 @@ static long algorithm( Detector& /* description */,
 
   LogDebug("DDAlgorithm") << "debug: Parameters for positioning:: n "
 			  << n << " Start, Range, Delta " 
-			  << ConvertTo( startAngle, deg ) << " " 
-			  << ConvertTo( rangeAngle, deg ) << " " << ConvertTo( delta, deg )
+			  << convertRadToDeg( startAngle ) << " " 
+			  << convertRadToDeg( rangeAngle ) << " " << convertRadToDeg( delta )
 			  << " Radius " << radius << " Centre " << center[0]
 			  << ", " << center[1] << ", " << center[2]
 			  << ", Rotate solid " << rotateSolid[0] << ", " << rotateSolid[1]
@@ -76,12 +79,12 @@ static long algorithm( Detector& /* description */,
     if(( i > 180._deg ) || ( i < 0._deg ))
     {
       LogDebug( "DDAlgorithm" ) << "\trotateSolid \'theta\' must be in range [0,180*deg]\n"
-				<< "\t  currently it is " << ConvertTo( i, deg )
+				<< "\t  currently it is " << convertRadToDeg( i )
 				<< "*deg in rotateSolid[" << double(i) << "]!\n";
     }
     DDAxisAngle temp( fUnitVector( rotateSolid[i], rotateSolid[i + 1] ),
 		      rotateSolid[i + 2] );
-    LogDebug( "DDAlgorithm" ) << "  rotsolid[" << i <<  "] axis=" << temp.Axis() << " rot.angle=" << ConvertTo( temp.Angle(), deg );
+    LogDebug( "DDAlgorithm" ) << "  rotsolid[" << i <<  "] axis=" << temp.Axis() << " rot.angle=" << convertRadToDeg( temp.Angle() );
     solidRot = temp * solidRot;
   }
 
@@ -92,7 +95,7 @@ static long algorithm( Detector& /* description */,
   {
     double phix = phi;
     double phiy = phix + 90._deg;
-    double phideg = ConvertTo( phix, deg );
+    double phideg = convertRadToDeg( phix );
 
     Rotation3D rotation = makeRotation3D( theta, phix, theta, phiy, 0., 0. ) * solidRot;
     string rotstr = ns.nsName( child.name()) + std::to_string( phideg * 10. );

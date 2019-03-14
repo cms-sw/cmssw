@@ -24,7 +24,9 @@ class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
   inline const Histo& hPeds() const;
   inline const Histo& hNoise() const;
   inline const Histo& histo() const;
-  
+  inline const Histo& headerLow() const;
+  inline const Histo& headerHigh() const;  
+
  private:
   
   DaqScopeModeAlgorithm() {;}
@@ -37,6 +39,10 @@ class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
   
   /** Histogram of scope mode data. */
   Histo histo_;
+  /** Histogram of header low. */
+  Histo headerLow_;
+  /** Histogram of header high. */
+  Histo headerHigh_;
   /** Pedestals and raw noise */
   Histo hPeds_;
   /** Residuals and noise */
@@ -49,6 +55,8 @@ class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
 };
 
 const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::histo() const { return histo_; }
+const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::headerLow() const { return headerLow_; }
+const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::headerHigh() const { return headerHigh_; }
 const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::hPeds() const { return hPeds_; }
 const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::hNoise() const { return hNoise_; }
 

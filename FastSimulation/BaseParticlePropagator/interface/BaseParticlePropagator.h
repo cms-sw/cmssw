@@ -77,9 +77,9 @@
 * \version 15-Dec-2003 */
 
 //FAMOS
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "FastSimulation/BaseParticlePropagator/interface/RawParticle.h"
 
-class BaseParticlePropagator : public RawParticle {
+class BaseParticlePropagator {
   
 public:
 
@@ -129,6 +129,7 @@ public:
   void setPropagationConditions(double r, double z, bool firstLoop=true);
 
 private:
+  RawParticle particle_;
   /// Simulated particle that is to be resp has been propagated
   //  RawParticle   particle;
   /// Radius of the cylinder (centred at 0,0,0) to which propagation is done
@@ -164,6 +165,11 @@ private:
 
 public:
 
+  /// The particle being propagated
+  inline RawParticle const& particle() const { return particle_;}
+  inline RawParticle& particle() { return particle_;}
+  void setParticle(RawParticle const& iParticle) { particle_=iParticle;}
+
   /// Set the proper decay time
   inline void setProperDecayTime(double t) { properDecayTime = t; }
 
@@ -176,7 +182,7 @@ public:
   /// Longitudinal impact parameter
   inline double zImpactParameter(double x0=0, double y0=0.) const {
     // Longitudinal impact parameter
-    return Z() - Pz() * std::sqrt( ((X()-x0)*(X()-x0) + (Y()-y0)*(Y()-y0) ) / Perp2());
+    return particle_.Z() - particle_.Pz() * std::sqrt( ((particle_.X()-x0)*(particle_.X()-x0) + (particle_.Y()-y0)*(particle_.Y()-y0) ) / particle_.Perp2());
   }
 
   /// The helix Radius
@@ -189,40 +195,40 @@ public:
     // Positive means anti-clockwise, negative means clockwise rotation.
     //
     // The radius is returned in cm to match the units in RawParticle.
-    return charge() == 0 ? 0.0 : - Pt() / ( c_light() * 1e-5 * bField * charge() );
+    return particle_.charge() == 0 ? 0.0 : - particle_.Pt() / ( c_light() * 1e-5 * bField * particle_.charge() );
   }
 
   inline double helixRadius(double pT) const { 
     // a faster version of helixRadius, once Perp() has been computed
-    return charge() == 0 ? 0.0 : - pT / ( c_light() * 1e-5 * bField * charge() );
+    return particle_.charge() == 0 ? 0.0 : - pT / ( c_light() * 1e-5 * bField * particle_.charge() );
   }
 
   /// The azimuth of the momentum at the vertex
   inline double helixStartPhi() const { 
     // The azimuth of the momentum at the vertex
-    return Px() == 0.0 && Py() == 0.0 ? 0.0 : std::atan2(Py(),Px());
+    return particle_.Px() == 0.0 && particle_.Py() == 0.0 ? 0.0 : std::atan2(particle_.Py(),particle_.Px());
   }
   
   /// The x coordinate of the helix axis
   inline double helixCentreX() const { 
     // The x coordinate of the helix axis
-    return X() - helixRadius() * std::sin ( helixStartPhi() );
+    return particle_.X() - helixRadius() * std::sin ( helixStartPhi() );
   }
 
   inline double helixCentreX(double radius, double phi) const { 
     // Fast version of helixCentreX()
-    return X() - radius * std::sin (phi);
+    return particle_.X() - radius * std::sin (phi);
   }
 
   /// The y coordinate of the helix axis
   inline double helixCentreY() const { 
     // The y coordinate of the helix axis
-    return Y() + helixRadius() * std::cos ( helixStartPhi() );
+    return particle_.Y() + helixRadius() * std::cos ( helixStartPhi() );
 }
 
   inline double helixCentreY(double radius, double phi) const { 
     // Fast version of helixCentreX()
-    return Y() + radius * std::cos (phi);
+    return particle_.Y() + radius * std::cos (phi);
   }
 
   /// The distance between the cylinder and the helix axes
@@ -253,10 +259,10 @@ public:
 
   /// Is the vertex inside the cylinder ? (stricly inside : true) 
   inline bool inside() const {
-    return (R2()<rCyl2-0.00001*rCyl && fabs(Z())<zCyl-0.00001);}
+    return (particle_.R2()<rCyl2-0.00001*rCyl && fabs(particle_.Z())<zCyl-0.00001);}
 
   inline bool inside(double rPos2) const {
-    return (rPos2<rCyl2-0.00001*rCyl && fabs(Z())<zCyl-0.00001);}
+    return (rPos2<rCyl2-0.00001*rCyl && fabs(particle_.Z())<zCyl-0.00001);}
 
 
   /// Is the vertex already on the cylinder surface ? 
@@ -270,21 +276,21 @@ public:
 
   /// Is the vertex already on the cylinder barrel ? 
   inline bool onBarrel() const {
-    double rPos2 = R2();
-    return ( fabs(rPos2-rCyl2) < 0.00001*rCyl && fabs(Z()) <= zCyl );
+    double rPos2 = particle_.R2();
+    return ( fabs(rPos2-rCyl2) < 0.00001*rCyl && fabs(particle_.Z()) <= zCyl );
   }
 
   inline bool onBarrel(double rPos2) const {
-    return ( fabs(rPos2-rCyl2) < 0.00001*rCyl && fabs(Z()) <= zCyl );
+    return ( fabs(rPos2-rCyl2) < 0.00001*rCyl && fabs(particle_.Z()) <= zCyl );
   }
 
   /// Is the vertex already on the cylinder endcap ? 
   inline bool onEndcap() const {
-    return ( fabs(fabs(Z())-zCyl) < 0.00001 && R2() <= rCyl2 ); 
+    return ( fabs(fabs(particle_.Z())-zCyl) < 0.00001 && particle_.R2() <= rCyl2 ); 
   }
   
   inline bool onEndcap(double rPos2) const {
-    return ( fabs(fabs(Z())-zCyl) < 0.00001 && rPos2 <= rCyl2 ); 
+    return ( fabs(fabs(particle_.Z())-zCyl) < 0.00001 && rPos2 <= rCyl2 ); 
   }
 
   /// Is the vertex on some material ?

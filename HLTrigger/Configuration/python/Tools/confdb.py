@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
 import sys
 import re
 import os
 import urllib, urllib2
-from pipe import pipe as _pipe
-from options import globalTag
+from .pipe import pipe as _pipe
+from .options import globalTag
 from itertools import islice
 import six
 
@@ -50,7 +51,7 @@ class HLTProcess(object):
       self.labels['prescale'] = self.config.prescale
 
     # get the configuration from ConfdB
-    from confdbOfflineConverter import OfflineConverter
+    from .confdbOfflineConverter import OfflineConverter
     self.converter = OfflineConverter(version = self.config.menu.version, database = self.config.menu.database)
     self.buildPathList()
     self.buildOptions()
@@ -839,7 +840,7 @@ if 'GlobalTag' in %%(dict)s:
   def expand_filenames(self, input):
     # check if the input is a dataset or a list of files
     if input[0:8] == 'dataset:':
-      from dasFileQuery import dasFileQuery
+      from .dasFileQuery import dasFileQuery
       # extract the dataset name, and use DAS to fine the list of LFNs
       dataset = input[8:]
       files = dasFileQuery(dataset)

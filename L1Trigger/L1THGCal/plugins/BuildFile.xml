@@ -39,7 +39,6 @@
   <use   name="SimDataFormats/GeneratorProducts"/>
   <use   name="TrackPropagation/RungeKutta"/>
   <use   name="FastSimulation/Event"/>
-  <use   name="FastSimulation/CaloGeometryTools"/>
   <use   name="MagneticField/Engine"/>
   <use   name="MagneticField/Records"/>
   <use name="heppdt"/>

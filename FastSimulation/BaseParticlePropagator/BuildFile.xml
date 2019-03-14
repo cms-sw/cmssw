@@ -1,4 +1,5 @@
-<use   name="FastSimulation/Particle"/>
+<use   name="DataFormats/Math"/>
+<use   name="rootmath"/>
 <export>
   <lib   name="1"/>
 </export>

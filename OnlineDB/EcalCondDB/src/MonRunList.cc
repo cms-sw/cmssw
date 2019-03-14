@@ -140,7 +140,7 @@ void MonRunList::fetchRuns()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunIOV::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
   }
 
 
@@ -250,7 +250,7 @@ void MonRunList::fetchRuns(int min_run, int max_run)
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunIOV::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
   }
 
 
@@ -343,7 +343,7 @@ void MonRunList::fetchLastNRuns( int max_run, int n_runs  )
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonRunList::fetchLastNRuns:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonRunList::fetchLastNRuns:  "+e.getMessage()));
   }
 
 

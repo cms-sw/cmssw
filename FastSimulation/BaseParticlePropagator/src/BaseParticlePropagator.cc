@@ -1,20 +1,21 @@
 //FAMOS headers
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include <array>
 
 BaseParticlePropagator::BaseParticlePropagator() :
-  RawParticle(), rCyl(0.), rCyl2(0.), zCyl(0.), bField(0), properDecayTime(1E99)
+  rCyl(0.), rCyl2(0.), zCyl(0.), bField(0), properDecayTime(1E99)
 {;}
 
 BaseParticlePropagator::BaseParticlePropagator( 
          const RawParticle& myPart,double R, double Z, double B, double t ) :
-  RawParticle(myPart), rCyl(R), rCyl2(R*R), zCyl(Z), bField(B), properDecayTime(t) 
+  particle_(myPart), rCyl(R), rCyl2(R*R), zCyl(Z), bField(B), properDecayTime(t) 
 {
   init();
 }
 
 BaseParticlePropagator::BaseParticlePropagator( 
          const RawParticle& myPart,double R, double Z, double B) :
-  RawParticle(myPart), rCyl(R), rCyl2(R*R), zCyl(Z), bField(B), properDecayTime(1E99) 
+  particle_(myPart), rCyl(R), rCyl2(R*R), zCyl(Z), bField(B), properDecayTime(1E99) 
 {
   init();
 }
@@ -46,7 +47,7 @@ BaseParticlePropagator::propagate() {
   //
   // Check that the particle is not already on the cylinder surface
   //
-  double rPos2 = R2();
+  double rPos2 = particle_.R2();
 
   if ( onBarrel(rPos2) ) { 
     success = 1;
@@ -60,16 +61,16 @@ BaseParticlePropagator::propagate() {
   //
   // Treat neutral particles (or no magnetic field) first 
   //
-  if ( fabs(charge()) < 1E-12 || bField < 1E-12 ) {
+  if ( fabs(particle_.charge()) < 1E-12 || bField < 1E-12 ) {
 
     //
     // First check that the particle crosses the cylinder
     //
-    double pT2 = Perp2();
+    double pT2 = particle_.Perp2();
     //    double pT2 = pT*pT;
     //    double b2 = rCyl * pT;
     double b2 = rCyl2 * pT2;
-    double ac = fabs ( X()*Py() - Y()*Px() );
+    double ac = fabs ( particle_.X()*particle_.Py() - particle_.Y()*particle_.Px() );
     double ac2 = ac*ac;
     //
     // The particle never crosses (or never crossed) the cylinder
@@ -79,8 +80,8 @@ BaseParticlePropagator::propagate() {
 
     //    double delta  = std::sqrt(b2*b2 - ac*ac);
     double delta  = std::sqrt(b2 - ac2);
-    double tplus  = -( X()*Px()+Y()*Py() ) + delta;
-    double tminus = -( X()*Px()+Y()*Py() ) - delta;
+    double tplus  = -( particle_.X()*particle_.Px()+particle_.Y()*particle_.Py() ) + delta;
+    double tminus = -( particle_.X()*particle_.Px()+particle_.Y()*particle_.Py() ) - delta;
     //
     // Find the first (time-wise) intersection point with the cylinder
     //
@@ -90,13 +91,13 @@ BaseParticlePropagator::propagate() {
     //
     // Check that the particle does (did) not exit from the endcaps first.
     //
-    double zProp = Z() + Pz() * solution;
+    double zProp = particle_.Z() + particle_.Pz() * solution;
     if ( fabs(zProp) > zCyl ) {
-      tplus  = ( zCyl - Z() ) / Pz();
-      tminus = (-zCyl - Z() ) / Pz();
+      tplus  = ( zCyl - particle_.Z() ) / particle_.Pz();
+      tminus = (-zCyl - particle_.Z() ) / particle_.Pz();
       solution = tminus < 0 ? tplus : tminus;
       if ( solution < 0. ) return false;
-      zProp = Z() + Pz() * solution;
+      zProp = particle_.Z() + particle_.Pz() * solution;
       success = 2;
     }
     else {
@@ -106,7 +107,7 @@ BaseParticlePropagator::propagate() {
     //
     // Check the decay time
     //
-    double delTime = propDir * mass() * solution;
+    double delTime = propDir * particle_.mass() * solution;
     double factor = 1.;
     properTime += delTime;
     if ( properTime > properDecayTime ) {
@@ -118,10 +119,10 @@ BaseParticlePropagator::propagate() {
     //
     // Compute the coordinates of the RawParticle after propagation
     //
-    double xProp = X() + Px() * solution * factor;
-    double yProp = Y() + Py() * solution * factor;
-           zProp = Z() + Pz() * solution * factor;
-    double tProp = T() + E()  * solution * factor;
+    double xProp = particle_.X() + particle_.Px() * solution * factor;
+    double yProp = particle_.Y() + particle_.Py() * solution * factor;
+           zProp = particle_.Z() + particle_.Pz() * solution * factor;
+    double tProp = particle_.T() + particle_.E()  * solution * factor;
 
     //
     // Last check : Although propagated to the endcaps, R could still be
@@ -135,7 +136,7 @@ BaseParticlePropagator::propagate() {
     //
     // ... and update the particle with its propagated coordinates
     //
-    setVertex( XYZTLorentzVector(xProp,yProp,zProp,tProp) );
+    particle_.setVertex( XYZTLorentzVector(xProp,yProp,zProp,tProp) );
     
     return true;
   }
@@ -146,7 +147,7 @@ BaseParticlePropagator::propagate() {
     //
     // First check that the particle can cross the cylinder
     //
-    double pT = Pt();
+    double pT = particle_.Pt();
     double radius = helixRadius(pT);
     double phi0 = helixStartPhi();
     double xC = helixCentreX(radius,phi0);
@@ -160,12 +161,12 @@ BaseParticlePropagator::propagate() {
     // The particle is already away from the endcaps, and will never come back
     // Could be back-propagated, so warn the user that it is so.
     // 
-    if ( Z() * Pz() > zCyl * fabs(Pz()) ) { 
+    if ( particle_.Z() * particle_.Pz() > zCyl * fabs(particle_.Pz()) ) { 
       success = -2;
       return true;
     }
 
-    double pZ = Pz();
+    double pZ = particle_.Pz();
     double phiProp, zProp;
     //
     // Does the helix cross the cylinder barrel ? If not, do the first half-loop
@@ -184,9 +185,9 @@ BaseParticlePropagator::propagate() {
 
       double cphi0 = std::cos(phi0);
       double sphi0 = std::sin(phi0);
-      double r0 = (X()*cphi0 + Y()*sphi0)/radius;
-      double q0 = (X()*sphi0 - Y()*cphi0)/radius;
-      double rcyl2 = (rCyl2 - X()*X() - Y()*Y())/(radius*radius);
+      double r0 = (particle_.X()*cphi0 + particle_.Y()*sphi0)/radius;
+      double q0 = (particle_.X()*sphi0 - particle_.Y()*cphi0)/radius;
+      double rcyl2 = (rCyl2 - particle_.X()*particle_.X() - particle_.Y()*particle_.Y())/(radius*radius);
       double delta = r0*r0 + rcyl2*(1.-q0);
 
       // This is a solution of a second order equation, assuming phi = phi0 + epsilon
@@ -234,11 +235,11 @@ BaseParticlePropagator::propagate() {
     //
     // Check that the particle does not exit from the endcaps first.
     //
-    zProp = Z() + ( phiProp - phi0 ) * pZ * radius / pT ;
+    zProp = particle_.Z() + ( phiProp - phi0 ) * pZ * radius / pT ;
     if ( fabs(zProp) > zCyl ) {
 
       zProp = zCyl * fabs(pZ)/pZ;
-      phiProp = phi0 + (zProp - Z()) / radius * pT / pZ;
+      phiProp = phi0 + (zProp - particle_.Z()) / radius * pT / pZ;
       success = 2;
 
     } else {
@@ -256,7 +257,7 @@ BaseParticlePropagator::propagate() {
 	} else {
 
 	  zProp = zCyl * fabs(pZ)/pZ;
-	  phiProp = phi0 + (zProp - Z()) / radius * pT / pZ;
+	  phiProp = phi0 + (zProp - particle_.Z()) / radius * pT / pZ;
 	  success = 2;
 
 	}
@@ -275,7 +276,7 @@ BaseParticlePropagator::propagate() {
     //
     // Check the decay time
     //
-    double delTime = propDir * (phiProp-phi0)*radius*mass() / pT;
+    double delTime = propDir * (phiProp-phi0)*radius*particle_.mass() / pT;
     double factor = 1.;
     properTime += delTime;
     if ( properTime > properDecayTime ) {
@@ -284,7 +285,7 @@ BaseParticlePropagator::propagate() {
       decayed = true;
     }
 
-    zProp = Z() + (zProp-Z())*factor;
+    zProp = particle_.Z() + (zProp-particle_.Z())*factor;
 
     phiProp = phi0 + (phiProp-phi0)*factor;
 
@@ -292,7 +293,7 @@ BaseParticlePropagator::propagate() {
     double cProp = std::cos(phiProp);
     double xProp = xC + radius * sProp;
     double yProp = yC - radius * cProp;
-    double tProp = T() + (phiProp-phi0)*radius*E()/pT;
+    double tProp = particle_.T() + (phiProp-phi0)*radius*particle_.E()/pT;
     double pxProp = pT * cProp;
     double pyProp = pT * sProp;
 
@@ -307,10 +308,10 @@ BaseParticlePropagator::propagate() {
     //
     // ... and update the particle vertex and momentum
     //
-    setVertex( XYZTLorentzVector(xProp,yProp,zProp,tProp) );
-    SetXYZT(pxProp,pyProp,pZ,E());
-    //    SetPx(pxProp);
-    //    SetPy(pyProp);
+    particle_.setVertex( XYZTLorentzVector(xProp,yProp,zProp,tProp) );
+    particle_.setMomentum(pxProp,pyProp,pZ,particle_.E());
+    //    particle_.SetPx(pxProp);
+    //    particle_.SetPy(pyProp);
     return true;
  
   }
@@ -320,12 +321,12 @@ bool
 BaseParticlePropagator::backPropagate() {
 
   // Backpropagate
-  SetXYZT(-Px(),-Py(),-Pz(),E());
-  setCharge(-charge());
+  particle_.setMomentum(-particle_.Px(),-particle_.Py(),-particle_.Pz(),particle_.E());
+  particle_.setCharge(-particle_.charge());
   propDir = -1;
   bool done = propagate();
-  SetXYZT(-Px(),-Py(),-Pz(),E());
-  setCharge(-charge());
+  particle_.setMomentum(-particle_.Px(),-particle_.Py(),-particle_.Pz(),particle_.E());
+  particle_.setCharge(-particle_.charge());
   propDir = +1;
 
   return done;
@@ -358,7 +359,7 @@ bool
 BaseParticlePropagator::propagateToClosestApproach(double x0, double y0, bool first) {
 
   // Pre-computed quantities
-  double pT = Pt();
+  double pT = particle_.Pt();
   double radius = helixRadius(pT);
   double phi0 = helixStartPhi();
 
@@ -373,12 +374,12 @@ BaseParticlePropagator::propagateToClosestApproach(double x0, double y0, bool fi
   // Propagation to point of clostest approach to z axis
   //
   double rz,r0,z;
-  if ( charge() != 0.0 && bField != 0.0 ) {
+  if ( particle_.charge() != 0.0 && bField != 0.0 ) {
     rz = fabs ( fabs(radius) - distz ) + std::sqrt(x0*x0+y0*y0) + 0.0000001;
     r0 = fabs ( fabs(radius) - dist0 ) + 0.0000001;
   } else {
-    rz = fabs( Px() * (Y()-y0) - Py() * (X()-x0) ) / Pt(); 
-    r0 = fabs( Px() *  Y()     - Py() *  X() ) / Pt(); 
+    rz = fabs( particle_.Px() * (particle_.Y()-y0) - particle_.Py() * (particle_.X()-x0) ) / particle_.Pt(); 
+    r0 = fabs( particle_.Px() *  particle_.Y()     - particle_.Py() *  particle_.X() ) / particle_.Pt(); 
   }
 
   z = 999999.;
@@ -393,14 +394,14 @@ BaseParticlePropagator::propagateToClosestApproach(double x0, double y0, bool fi
 
   // The z axis is (0,0) - no need to go further
   if ( fabs(rz-r0) < 1E-10 ) return done;
-  double dist1 = (X()-x0)*(X()-x0) + (Y()-y0)*(Y()-y0);
+  double dist1 = (particle_.X()-x0)*(particle_.X()-x0) + (particle_.Y()-y0)*(particle_.Y()-y0);
 
   // We are already at closest approach - no need to go further
   if ( dist1 < 1E-10 ) return done;
 
   // Keep for later if it happens to be the right solution
-  XYZTLorentzVector vertex1 = vertex();
-  XYZTLorentzVector momentum1 = momentum();
+  XYZTLorentzVector vertex1 = particle_.vertex();
+  XYZTLorentzVector momentum1 = particle_.momentum();
   
   // Propagate to the distance of closest approach to (0,0)
   setPropagationConditions(r0 , z, first);
@@ -412,12 +413,12 @@ BaseParticlePropagator::propagateToClosestApproach(double x0, double y0, bool fi
   setPropagationConditions(rz , z, first);
   done = backPropagate();
   if ( !done ) return done; 
-  double dist2 = (X()-x0)*(X()-x0) + (Y()-y0)*(Y()-y0);
+  double dist2 = (particle_.X()-x0)*(particle_.X()-x0) + (particle_.Y()-y0)*(particle_.Y()-y0);
 
   // Keep the good solution.
   if ( dist2 > dist1 ) { 
-    setVertex(vertex1);
-    SetXYZT(momentum1.X(),momentum1.Y(),momentum1.Z(),momentum1.E());
+    particle_.setVertex(vertex1);
+    particle_.setMomentum(momentum1.X(),momentum1.Y(),momentum1.Z(),momentum1.E());
     dist2 = dist1;
   }
 
@@ -456,7 +457,7 @@ BaseParticlePropagator::propagateToPreshowerLayer1(bool first) {
   bool done = propagate();
 
   // Check that were are on the Layer 1 
-  if ( done && (R2() > 125.0*125.0 || R2() < 45.0*45.0) ) 
+  if ( done && (particle_.R2() > 125.0*125.0 || particle_.R2() < 45.0*45.0) ) 
     success = 0;
   
   return done;
@@ -476,7 +477,7 @@ BaseParticlePropagator::propagateToPreshowerLayer2(bool first) {
   bool done = propagate();
 
   // Check that we are on Layer 2 
-  if ( done && (R2() > 125.0*125.0 || R2() < 45.0*45.0 ) )
+  if ( done && (particle_.R2() > 125.0*125.0 || particle_.R2() < 45.0*45.0 ) )
     success = 0;
 
   return done;
@@ -497,14 +498,14 @@ BaseParticlePropagator::propagateToEcalEntrance(bool first) {
   // Go to endcap cylinder in the "barrel cut corner" 
   // eta = 1.479 -> cos^2(theta) = 0.81230
   //  if ( done && eta > 1.479 && success == 1 ) {
-  if ( done && cos2ThetaV() > 0.81230 && success == 1 ) {
+  if ( done && particle_.cos2ThetaV() > 0.81230 && success == 1 ) {
     setPropagationConditions(152.6 , 320.9, first);
     done = propagate();
   }
 
   // We are not in the ECAL acceptance
   // eta = 3.0 -> cos^2(theta) = 0.99013
-  if ( cos2ThetaV() > 0.99014 ) success = 0;
+  if ( particle_.cos2ThetaV() > 0.99014 ) success = 0;
 
   return done;
 }
@@ -534,7 +535,7 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
 
   // out of the HB/HE acceptance
   // eta = 3.0 -> cos^2(theta) = 0.99014
-  if ( done && cos2ThetaV() > 0.99014 ) success = 0;
+  if ( done && particle_.cos2ThetaV() > 0.99014 ) success = 0;
 
   return done;
 }
@@ -556,7 +557,7 @@ BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
   // We are not in the VFCAL acceptance
   // eta = 3.0  -> cos^2(theta) = 0.99014
   // eta = 5.2  -> cos^2(theta) = 0.9998755
-  double c2teta = cos2ThetaV();
+  double c2teta = particle_.cos2ThetaV();
   if ( done && ( c2teta < 0.99014 || c2teta > 0.9998755 ) ) success = 0;
 
   return done;
@@ -572,7 +573,7 @@ BaseParticlePropagator::propagateToHcalExit(bool first) {
 
   // Approximate it to a single cylinder as it is not that crucial.
   setPropagationConditions(263.9 , 554.1, first);
-  //  this->rawPart().setCharge(0.0); ?? Shower Propagation ??
+  //  this->rawPart().particle_.setCharge(0.0); ?? Shower Propagation ??
   propDir = 0;
   bool done = propagate();
   propDir = 1;
@@ -596,7 +597,7 @@ BaseParticlePropagator::propagateToHOLayer(bool first) {
   bool done = propagate();
   propDir = 1;
   
-  if ( done && std::abs(Z()) > 700.25) success = 0;
+  if ( done && std::abs(particle_.Z()) > 700.25) success = 0;
   
   return done;
 }
@@ -608,19 +609,19 @@ BaseParticlePropagator::propagateToNominalVertex(const XYZTLorentzVector& v)
 
 
   // Not implemented for neutrals (used for electrons only)
-  if ( charge() == 0. || bField == 0.) return false;
+  if ( particle_.charge() == 0. || bField == 0.) return false;
 
   // Define the proper pT direction to meet the point (vx,vy) in (x,y)
-  double dx = X()-v.X();
-  double dy = Y()-v.Y();
+  double dx = particle_.X()-v.X();
+  double dy = particle_.Y()-v.Y();
   double phi = std::atan2(dy,dx) + std::asin ( std::sqrt(dx*dx+dy*dy)/(2.*helixRadius()) );
 
   // The absolute pT (kept to the original value)
-  double pT = pt();
+  double pT = particle_.pt();
 
   // Set the new pT
-  SetPx(pT*std::cos(phi));
-  SetPy(pT*std::sin(phi));
+  particle_.SetPx(pT*std::cos(phi));
+  particle_.SetPy(pT*std::sin(phi));
 
   return propagateToClosestApproach(v.X(),v.Y());
   
@@ -631,8 +632,8 @@ BaseParticlePropagator::propagateToBeamCylinder(const XYZTLorentzVector& v, doub
 {
 
   // For neutral (or BField = 0, simply check that the track passes through the cylinder
-  if ( charge() == 0. || bField == 0.) 
-    return fabs( Px() * Y() - Py() * X() ) / Pt() < radius; 
+  if ( particle_.charge() == 0. || bField == 0.) 
+    return fabs( particle_.Px() * particle_.Y() - particle_.Py() * particle_.X() ) / particle_.Pt() < radius; 
 
   // Now go to the charged particles
 
@@ -642,11 +643,11 @@ BaseParticlePropagator::propagateToBeamCylinder(const XYZTLorentzVector& v, doub
   double r2 = r*r;
   double r4 = r2*r2;
   // The two hits
-  double dx = X()-v.X();
-  double dy = Y()-v.Y();
-  double dz = Z()-v.Z();
-  double Sxy = X()*v.X() + Y()*v.Y();
-  double Dxy = Y()*v.X() - X()*v.Y();
+  double dx = particle_.X()-v.X();
+  double dy = particle_.Y()-v.Y();
+  double dz = particle_.Z()-v.Z();
+  double Sxy = particle_.X()*v.X() + particle_.Y()*v.Y();
+  double Dxy = particle_.Y()*v.X() - particle_.X()*v.Y();
   double Dxy2 = Dxy*Dxy;
   double Sxy2 = Sxy*Sxy;
   double SDxy = dx*dx + dy*dy;
@@ -659,13 +660,13 @@ BaseParticlePropagator::propagateToBeamCylinder(const XYZTLorentzVector& v, doub
 
   // Here are the four possible solutions for
   // 1) The trajectory radius
-  std::vector<double> helixRs(4,static_cast<double>(0.));
+  std::array<double,4> helixRs = {{0.}};
   helixRs[0] = (b - std::sqrt(b*b - a*c))/(2.*a); 
   helixRs[1] = (b + std::sqrt(b*b - a*c))/(2.*a); 
   helixRs[2] = -helixRs[0]; 
   helixRs[3] = -helixRs[1]; 
   // 2) The azimuthal direction at the second point
-  std::vector<double> helixPhis(4,static_cast<double>(0.));
+  std::array<double,4> helixPhis = {{0.}};
   helixPhis[0] = std::asin ( SSDxy/(2.*helixRs[0]) );
   helixPhis[1] = std::asin ( SSDxy/(2.*helixRs[1]) );
   helixPhis[2] = -helixPhis[0];
@@ -726,24 +727,24 @@ BaseParticlePropagator::propagateToBeamCylinder(const XYZTLorentzVector& v, doub
   } else if ( solution1*solution2 < 0. ) { 
     pT = 1000.;
     double norm = pT/SSDxy;
-    setCharge(+1.);
-    SetXYZT(dx*norm,dy*norm,dz*norm,0.);
-    SetE(std::sqrt(Vect().Mag2()));
+    particle_.setCharge(+1.);
+    particle_.setMomentum(dx*norm,dy*norm,dz*norm,0.);
+    particle_.SetE(std::sqrt(particle_.momentum().Vect().Mag2()));
   // Otherwise take the solution that gives the largest transverse momentum 
   } else { 
     if (solution1<0.) { 
       helixR   = solution1;
       helixPhi = phi1;
-      setCharge(+1.);
+      particle_.setCharge(+1.);
     } else {
       helixR = solution2;
       helixPhi = phi2;
-      setCharge(-1.);
+      particle_.setCharge(-1.);
     }
     pT = fabs(helixR) * 1e-5 * c_light() *bField;
     double norm = pT/SSDxy;
-    SetXYZT(pT*std::cos(helixPhi),pT*std::sin(helixPhi),dz*norm,0.);
-    SetE(std::sqrt(Vect().Mag2()));      
+    particle_.setMomentum(pT*std::cos(helixPhi),pT*std::sin(helixPhi),dz*norm,0.);
+    particle_.SetE(std::sqrt(particle_.momentum().Vect().Mag2()));      
   }
     
   // Propagate to closest approach to get the Z value (a bit of an overkill)
@@ -755,9 +756,9 @@ double
 BaseParticlePropagator::xyImpactParameter(double x0, double y0) const {
 
   double ip=0.;
-  double pT = Pt();
+  double pT = particle_.Pt();
 
-  if ( charge() != 0.0 && bField != 0.0 ) {
+  if ( particle_.charge() != 0.0 && bField != 0.0 ) {
     double radius = helixRadius(pT);
     double phi0 = helixStartPhi();
     
@@ -767,7 +768,7 @@ BaseParticlePropagator::xyImpactParameter(double x0, double y0) const {
     double distz = helixCentreDistToAxis(xC-x0,yC-y0);
     ip = distz - fabs(radius);
   } else {
-    ip = fabs( Px() * (Y()-y0) - Py() * (X()-x0) ) / pT; 
+    ip = fabs( particle_.Px() * (particle_.Y()-y0) - particle_.Py() * (particle_.X()-x0) ) / pT; 
   }
 
   return ip;
