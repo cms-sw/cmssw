@@ -1,5 +1,5 @@
 //FAMOS headers
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include <array>
 
 BaseParticlePropagator::BaseParticlePropagator() :

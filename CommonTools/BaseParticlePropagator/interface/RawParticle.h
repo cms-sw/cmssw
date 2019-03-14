@@ -1,5 +1,6 @@
-#ifndef RAWPARTTICLE_H
-#define RAWPARTTICLE_H
+#ifndef CommonTools_BaseParticlePropagator_RawParticle_h
+#define CommonTools_BaseParticlePropagator_RawParticle_h
+
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
