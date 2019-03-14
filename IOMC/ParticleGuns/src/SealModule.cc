@@ -58,7 +58,7 @@ using edm::FlatRandomPtAndDxyGunProducer;
 DEFINE_FWK_MODULE(FlatRandomPtAndDxyGunProducer);
 using edm::RandomMultiParticlePGunProducer;
 DEFINE_FWK_MODULE(RandomMultiParticlePGunProducer);
-using edm::CloseByParticleGunProducer; 
+using edm::CloseByParticleGunProducer;
 DEFINE_FWK_MODULE(CloseByParticleGunProducer);
 using edm::RandomXiThetaGunProducer;
 DEFINE_FWK_MODULE(RandomXiThetaGunProducer);
