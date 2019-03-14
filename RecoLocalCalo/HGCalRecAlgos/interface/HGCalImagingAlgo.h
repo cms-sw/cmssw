@@ -24,7 +24,6 @@
 #include <string>
 #include <vector>
 #include <set>
-#include <numeric>
 
 #include "KDTreeLinkerAlgoT.h"
 
@@ -36,83 +35,27 @@ class HGCalImagingAlgo : public HGCalClusteringAlgoBase
 {
 public:
 
-
- HGCalImagingAlgo() : HGCalClusteringAlgoBase(pERROR, reco::CaloCluster::undefined),
-  thresholdW0_(), positionDeltaRho_c_(),
-  vecDeltas_(), kappa_(1.), ecut_(0.),
-  sigma2_(1.0),
-  initialized_(false) {
-}
-
- HGCalImagingAlgo(const edm::ParameterSet&)
-  : HGCalClusteringAlgoBase(pERROR, reco::CaloCluster::undefined) {}
-
- HGCalImagingAlgo(const std::vector<double>& thresholdW0_in, const std::vector<double>& positionDeltaRho_c_in,
-		 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
-                 reco::CaloCluster::AlgoId algoId_in,
-                 bool dependSensor_in,
-                 const std::vector<double>& dEdXweights_in,
-                 const std::vector<double>& thicknessCorrection_in,
-                 const std::vector<double>& fcPerMip_in,
-                 double fcPerEle_in,
-                 const std::vector<double>& nonAgedNoises_in,
-                 double noiseMip_in,
-                 VerbosityLevel the_verbosity = pERROR) :
-        HGCalClusteringAlgoBase(the_verbosity, algoId_in),
-        thresholdW0_(thresholdW0_in),
-        positionDeltaRho_c_(positionDeltaRho_c_in),
-        vecDeltas_(vecDeltas_in), kappa_(kappa_in),
-        ecut_(ecut_in),
-        sigma2_(1.0),
-        dependSensor_(dependSensor_in),
-        dEdXweights_(dEdXweights_in),
-        thicknessCorrection_(thicknessCorrection_in),
-        fcPerMip_(fcPerMip_in),
-        fcPerEle_(fcPerEle_in),
-        nonAgedNoises_(nonAgedNoises_in),
-        noiseMip_(noiseMip_in),
-        initialized_(false),
-        points_(2*(maxlayer+1)),
-        minpos_(2*(maxlayer+1),{
-                {0.0f,0.0f}
-        }),
-        maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} })
-{
-}
-
-HGCalImagingAlgo(const std::vector<double>& thresholdW0_in, const std::vector<double>& positionDeltaRho_c_in,
-                 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
-                 double showerSigma,
-                 reco::CaloCluster::AlgoId algoId_in,
-                 bool dependSensor_in,
-                 const std::vector<double>& dEdXweights_in,
-                 const std::vector<double>& thicknessCorrection_in,
-                 const std::vector<double>& fcPerMip_in,
-                 double fcPerEle_in,
-                 const std::vector<double>& nonAgedNoises_in,
-                 double noiseMip_in,
-                 VerbosityLevel the_verbosity = pERROR) :
-        HGCalClusteringAlgoBase(the_verbosity, algoId_in),
-        thresholdW0_(thresholdW0_in),
-        positionDeltaRho_c_(positionDeltaRho_c_in),
-        vecDeltas_(vecDeltas_in), kappa_(kappa_in),
-        ecut_(ecut_in),
-        sigma2_(std::pow(showerSigma,2.0)),
-        dependSensor_(dependSensor_in),
-        dEdXweights_(dEdXweights_in),
-        thicknessCorrection_(thicknessCorrection_in),
-        fcPerMip_(fcPerMip_in),
-        fcPerEle_(fcPerEle_in),
-        nonAgedNoises_(nonAgedNoises_in),
-        noiseMip_(noiseMip_in),
-        initialized_(false),
-        points_(2*(maxlayer+1)),
-        minpos_(2*(maxlayer+1),{
-                {0.0f,0.0f}
-        }),
-        maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} })
-{
-}
+ HGCalImagingAlgo(const edm::ParameterSet& ps)
+  : HGCalClusteringAlgoBase(
+      (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity",3),
+      reco::CaloCluster::undefined),
+     thresholdW0_(ps.getParameter<std::vector<double> >("thresholdW0")),
+     positionDeltaRho_c_(ps.getParameter<std::vector<double> >("positionDeltaRho_c")),
+     vecDeltas_(ps.getParameter<std::vector<double> >("deltac")),
+     kappa_(ps.getParameter<double>("kappa")),
+     ecut_(ps.getParameter<double>("ecut")),
+     sigma2_(1.0),
+     dependSensor_(ps.getParameter<bool>("dependSensor")),
+     dEdXweights_(ps.getParameter<std::vector<double> >("dEdXweights")),
+     thicknessCorrection_(ps.getParameter<std::vector<double> >("thicknessCorrection")),
+     fcPerMip_(ps.getParameter<std::vector<double> >("fcPerMip")),
+     fcPerEle_(ps.getParameter<double>("fcPerEle")),
+     nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double> >("values")),
+     noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("value")),
+     initialized_(false),
+     points_(2*(maxlayer+1)),
+     minpos_(2*(maxlayer+1),{ {0.0f,0.0f} }),
+     maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} }) {}
 
 virtual ~HGCalImagingAlgo() {}
 
@@ -147,9 +90,6 @@ void computeThreshold();
  Density getDensity();
 
 static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-  iDesc.add<int>("value",5);
-  iDesc.add<std::string>("detector", "all");
-  iDesc.add<bool>("doSharing", false);
   iDesc.add<std::vector<double>>("thresholdW0", {
     2.9,
     2.9,
@@ -168,12 +108,7 @@ static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   iDesc.add<bool>("dependSensor", true);
   iDesc.add<double>("ecut", 3.0);
   iDesc.add<double>("kappa", 9.0);
-  iDesc.add<std::string>("timeClname", "timeLayerCluster");
-  iDesc.add<double>("timeOffset",0.0);
   iDesc.addUntracked<unsigned int>("verbosity", 3);
-  iDesc.add<edm::InputTag>("HGCEEInput", edm::InputTag("HGCalRecHit","HGCEERecHits"));
-  iDesc.add<edm::InputTag>("HGCFHInput", edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
-  iDesc.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
   iDesc.add<std::vector<double>>("dEdXweights",{});
   iDesc.add<std::vector<double>>("thicknessCorrection",{});
   iDesc.add<std::vector<double>>("fcPerMip",{});
