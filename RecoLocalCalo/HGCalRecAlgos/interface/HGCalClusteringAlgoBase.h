@@ -11,6 +11,36 @@
 
 // C/C++ headers
 #include <vector>
+#include <numeric>
+
+template <typename T>
+std::vector<size_t> sorted_indices(const std::vector<T> &v) {
+
+        // initialize original index locations
+        std::vector<size_t> idx(v.size());
+        std::iota (std::begin(idx), std::end(idx), 0);
+
+        // sort indices based on comparing values in v
+        std::sort(idx.begin(), idx.end(),
+                  [&v](size_t i1, size_t i2) {
+                return v[i1] > v[i2];
+        });
+
+        return idx;
+}
+
+template <typename T>
+size_t max_index(const std::vector<T> &v) {
+
+        // initialize original index locations
+        std::vector<size_t> idx(v.size(),0);
+        std::iota (std::begin(idx), std::end(idx), 0);
+
+        // take the max index based on comparing values in v
+        auto maxidx = std::max_element(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) {return v[i1].data.rho < v[i2].data.rho;});
+
+        return (*maxidx);
+}
 
 class HGCalClusteringAlgoBase
 {

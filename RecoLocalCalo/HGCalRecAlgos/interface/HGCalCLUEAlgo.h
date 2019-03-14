@@ -3,6 +3,8 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalClusteringAlgoBase.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -19,38 +21,11 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 // C/C++ headers
-#include <numeric>
 #include <set>
 #include <string>
 #include <vector>
 
 #include "KDTreeLinkerAlgoT.h"
-
-template <typename T>
-std::vector<size_t> sorted_indices(const std::vector<T> &v) {
-  // initialize original index locations
-  std::vector<size_t> idx(v.size());
-  std::iota(std::begin(idx), std::end(idx), 0);
-
-  // sort indices based on comparing values in v
-  std::sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) { return v[i1] > v[i2]; });
-
-  return idx;
-}
-
-template <typename T>
-size_t max_index(const std::vector<T> &v) {
-  // initialize original index locations
-  std::vector<size_t> idx(v.size(), 0);
-  std::iota(std::begin(idx), std::end(idx), 0);
-
-  // take the max index based on comparing values in v
-  auto maxidx = std::max_element(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) {
-    return v[i1].data.rho < v[i2].data.rho;
-  });
-
-  return (*maxidx);
-}
 
 class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
  public:
@@ -62,6 +37,9 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
         kappa_(1.),
         ecut_(0.),
         initialized_(false) {}
+
+  HGCalCLUEAlgo(const edm::ParameterSet&)
+      : HGCalClusteringAlgoBase(pERROR, reco::CaloCluster::undefined) {}
 
   HGCalCLUEAlgo(const std::vector<double> &thresholdW0_in,
                 const std::vector<double> &positionDeltaRho_c_in,
@@ -118,6 +96,10 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
     }
   }
   void computeThreshold();
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+    iDesc.add<int>("value",5);
+  }
 
   /// point in the space
   typedef math::XYZPoint Point;

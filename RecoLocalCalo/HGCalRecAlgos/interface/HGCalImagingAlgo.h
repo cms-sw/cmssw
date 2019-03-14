@@ -3,6 +3,8 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalClusteringAlgoBase.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -29,34 +31,6 @@
 //Density collection
 typedef std::map< DetId, float > Density;
 
-template <typename T>
-std::vector<size_t> sorted_indices(const std::vector<T> &v) {
-
-        // initialize original index locations
-        std::vector<size_t> idx(v.size());
-        std::iota (std::begin(idx), std::end(idx), 0);
-
-        // sort indices based on comparing values in v
-        std::sort(idx.begin(), idx.end(),
-                  [&v](size_t i1, size_t i2) {
-                return v[i1] > v[i2];
-        });
-
-        return idx;
-}
-
-template <typename T>
-size_t max_index(const std::vector<T> &v) {
-
-        // initialize original index locations
-        std::vector<size_t> idx(v.size(),0);
-        std::iota (std::begin(idx), std::end(idx), 0);
-
-        // take the max index based on comparing values in v
-        auto maxidx = std::max_element(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) {return v[i1].data.rho < v[i2].data.rho;});
-
-        return (*maxidx);
-}
 
 class HGCalImagingAlgo : public HGCalClusteringAlgoBase
 {
@@ -69,6 +43,9 @@ public:
   sigma2_(1.0),
   initialized_(false) {
 }
+
+ HGCalImagingAlgo(const edm::ParameterSet&)
+  : HGCalClusteringAlgoBase(pERROR, reco::CaloCluster::undefined) {}
 
  HGCalImagingAlgo(const std::vector<double>& thresholdW0_in, const std::vector<double>& positionDeltaRho_c_in,
 		 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
@@ -168,6 +145,10 @@ void computeThreshold();
 
 //getDensity
  Density getDensity();
+
+static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+      iDesc.add<int>("value",5);
+}
 
 /// point in the space
 typedef math::XYZPoint Point;

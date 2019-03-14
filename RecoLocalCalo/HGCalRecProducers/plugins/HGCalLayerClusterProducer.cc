@@ -119,6 +119,9 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
 void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // hgcalLayerClusters
   edm::ParameterSetDescription desc;
+//  edm::ParameterSetDescription pluginDesc;
+//      pluginDesc.addNode(edm::PluginDescription<HelperFactory>(“type”, true));
+
   desc.add<std::string>("detector", "all");
   desc.add<bool>("doSharing", false);
   desc.add<std::vector<double>>("thresholdW0", {

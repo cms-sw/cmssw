@@ -117,7 +117,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
     for (unsigned int i = 0; i < clsOnLayer.size(); ++i) {
       double energy = 0;
       Point position;
-      
+
       //Will save the maximum density hit of the cluster
       size_t rsmax = max_index(clsOnLayer[i]);
 
@@ -332,6 +332,9 @@ HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd) const {
     // and the ones AFTER to have lower rho
     for (unsigned int oj = 0; oj < oi; ++oj) {
       unsigned int j = rs[oj];
+      // Limit the search box
+      if ((nd[i].data.x - nd[j].data.x)*(nd[i].data.x - nd[j].data.x) > dist2) continue;
+      if ((nd[i].data.y - nd[j].data.y)*(nd[i].data.y - nd[j].data.y) > dist2) continue;
       double tmp = distance2(nd[i].data, nd[j].data);
       if (tmp <= dist2) { // this "<=" instead of "<" addresses the (rare) case
                           // when there are only two hits
