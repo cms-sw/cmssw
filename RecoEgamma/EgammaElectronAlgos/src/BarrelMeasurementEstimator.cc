@@ -91,7 +91,7 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate
 
   float rhPhi = gp.barePhi() ;
   float tsPhi = ts.barePhi();  
-  float phiDiff = normalized_phi(rhPhi-tsPhi) ;
+  float phiDiff = normalizePhi(rhPhi-tsPhi) ;
 
   if ( (phiDiff < thePhiMax) & (phiDiff > thePhiMin) )
    { return std::pair<bool,double>(true,1.) ; }
