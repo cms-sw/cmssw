@@ -13,6 +13,8 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
+using namespace geant_units;
+using namespace geant_units::operators;
 //#define EDM_ML_DEBUG
 
 DDHGCalHEAlgo::DDHGCalHEAlgo() {
@@ -146,7 +148,7 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments & nArgs,
   waferSize_    = nArgs["waferSize"];
   waferSepar_   = nArgs["SensorSeparation"];
   sectors_      = (int)(nArgs["Sectors"]);
-  alpha_        = geant_units::piRadians/sectors_;
+  alpha_        = piRadians/sectors_;
   cosAlpha_     = cos(alpha_);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: zStart " << zMinBlock_ 
@@ -157,8 +159,7 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments & nArgs,
 				<< " wafer width " << waferSize_ 
 				<< " separations " << waferSepar_
 				<< " sectors " << sectors_ << ":"
-				<< alpha_*geant_units::degPerRad
-				<< ":"  << cosAlpha_;
+				<< convertRadToDeg(alpha_) << ":" << cosAlpha_;
   for (unsigned int k=0; k<rad100to200_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] 100-200 " <<rad100to200_[k]
 				  << " 200-300 " << rad200to300_[k];
@@ -275,16 +276,15 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module,
           }
         }
 	DDSolid solid = DDSolidFactory::polyhedra(DDName(name, nameSpace_),
-						  sectors_, -alpha_,
-						  2*geant_units::piRadians,
+						  sectors_, -alpha_, 2._pi,
 						  pgonZ, pgonRin, pgonRout);
 	glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
 	edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name()
 				      << " polyhedra of " << sectors_ 
 				      << " sectors covering " 
-				      << -alpha_*geant_units::degPerRad << ":" 
-				      << (-alpha_+2*geant_units::piRadians)*geant_units::degPerRad
+				      << convertRadToDeg(-alpha_) << ":" 
+				      << convertRadToDeg(-alpha_+2._pi)
 				      << " with " << pgonZ.size()<<" sections";
 	for (unsigned int k=0; k<pgonZ.size(); ++k)
 	  edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] 
@@ -293,16 +293,15 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module,
 #endif
       } else {
 	DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), 
-					     hthick, rinB, routF, 0.0,
-					     2*geant_units::piRadians);
+					     hthick, rinB, routF, 0.0, 2._pi);
 	glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
 	edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name()
 				      << " Tubs made of " << matName 
 				      << " of dimensions " << rinB 
 				      << ", " << routF << ", " << hthick
-				      << ", 0.0, " << 2*geant_units::piRadians*geant_units::degPerRad
-	edm::LogVerbatim("HGCalGeom") << "Position in: " << glog.name() 
+				      << ", 0.0, " << convertRadToDeg(2._pi)
+				      << " positioned in: " << glog.name() 
 				      << " number "	<< copy;
 #endif
 	positionMix(glog, name, copy, thick_[ii], matter, rinB, rMixLayer_[i],
@@ -357,15 +356,14 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   // Make the top part first
   std::string name = nameM+"Top";
   DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), 
-				       hthick, rmid, rout, 0.0,
-				       2*geant_units::piRadians);
+				       hthick, rmid, rout, 0.0, 2._pi);
   glog1 = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name() 
 				<< " Tubs made of " << matter.name() 
 				<< " of dimensions " << rmid << ", " << rout 
 				<< ", " << hthick << ", 0.0, " 
-				<< 2*geant_units::piRadians*geant_units::degPerRad;
+				<< convertRadToDeg(2._pi);
 #endif
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
@@ -389,7 +387,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
 		   DDSplit(materialsTop_[ii]).second);
     DDMaterial matter1(matName);
     solid = DDSolidFactory::tubs(DDName(name,nameSpace_), hthickl, rmid, rout,
-				 0.0, CLHEP::twopi);
+				 0.0, 2._pi);
     DDLogicalPart glog2 = DDLogicalPart(solid.ddname(), matter1, solid);
 #ifdef EDM_ML_DEBUG
     double eta1 = -log(tan(0.5*atan(rmid/zz)));
@@ -401,7 +399,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
 				  << " Tubs made of " << matName 
 				  << " of dimensions " << rmid << ", " << rout
 				  << ", " << hthickl <<", 0.0, "
-				  << 2*geant_units::piRadians*geant_units::degPerRad;
+				  << convertRadToDeg(2._pi);
 #endif
     zpos += hthickl;
     DDTranslation r1(0,0,zpos);
@@ -430,14 +428,15 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   // Make the bottom part next
   name  = nameM+"Bottom";
   solid = DDSolidFactory::tubs(DDName(name, nameSpace_), 
-			       hthick, rin, rmid, 0.0, CLHEP::twopi);
+			       hthick, rin, rmid, 0.0, 2._pi);
   glog1 = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name() 
 				<< " Tubs made of " << matter.name() 
 				<< " of dimensions " << rin << ", " << rmid 
 				<< ", " << hthick << ", 0.0, " 
-				<< 2*geant_units::piRadians*geant_units::degPerRad;
+				<< convertRadToDeg(2._pi);
+
 #endif
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
@@ -462,7 +461,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
 		   DDSplit(materialsBot_[ii]).second);
     DDMaterial matter1(matName);
     solid = DDSolidFactory::tubs(DDName(name,nameSpace_), hthickl, rin, rmid,
-				 0.0, CLHEP::twopi);
+				 0.0, 2._pi);
     DDLogicalPart glog2 = DDLogicalPart(solid.ddname(), matter1, solid);
 #ifdef EDM_ML_DEBUG
     double eta1 = -log(tan(0.5*atan(rin/zz)));
@@ -474,7 +473,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
 				  << " Tubs made of " << matName 
 				  << " of dimensions " << rin << ", " << rmid 
 				  << ", " << hthickl <<", 0.0, "
-				  << 2*geant_units::piRadians*geant_units::degPerRad;
+				  << convertRadToDeg(2._pi);
 #endif
     zpos += hthickl;
     DDTranslation r1(0,0,zpos);
