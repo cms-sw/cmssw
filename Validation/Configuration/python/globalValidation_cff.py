@@ -41,6 +41,7 @@ from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_sourceV_cff import 
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from Validation.RecoB.BDHadronTrackValidation_cff import *
 from Validation.Configuration.hgcalSimValid_cff import *
+from Validation.Configuration.mtdSimValid_cff import *
 from Validation.SiOuterTrackerV.OuterTrackerSourceConfigV_cff import *
 
 
@@ -159,6 +160,8 @@ globalValidationHCAL = cms.Sequence(
 )
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
+
+globalValidationMTD = cms.Sequence(mtdSimValid+mtdDigiValid+mtdRecoValid)
 
 globalValidationOuterTracker = cms.Sequence(OuterTrackerSourceV)
 

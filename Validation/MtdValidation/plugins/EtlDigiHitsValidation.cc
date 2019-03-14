@@ -10,15 +10,9 @@
  Implementation:
      [Notes on implementation]
 */
-//
-// Original Author:  Massimo Casarsa
-//         Created:  Mon, 11 Mar 2019 14:30:22 GMT
-//
-//
 
 #include <string>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,11 +27,6 @@
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
-
-
-//
-// class declaration
-//
 
 
 class EtlDigiHitsValidation : public DQMEDAnalyzer {
@@ -68,6 +57,8 @@ private:
 
   edm::EDGetTokenT<ETLDigiCollection> etlDigiHitsToken_;
 
+  // --- histograms declaration
+
   MonitorElement* meHitCharge_[2];
   MonitorElement* meHitTime_[2];
 
@@ -75,17 +66,8 @@ private:
 
 };
 
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
+// ------------ constructor and destructor --------------
 EtlDigiHitsValidation::EtlDigiHitsValidation(const edm::ParameterSet& iConfig):
   geom_(nullptr),
   folder_(iConfig.getParameter<std::string>("folder")),
@@ -98,16 +80,9 @@ EtlDigiHitsValidation::EtlDigiHitsValidation(const edm::ParameterSet& iConfig):
 
 }
 
-
 EtlDigiHitsValidation::~EtlDigiHitsValidation() {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 }
 
-
-//
-// member functions
-//
 
 // ------------ method called for each event  ------------
 void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -123,7 +98,10 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::Handle<ETLDigiCollection> etlDigiHitsHandle;
   iEvent.getByToken(etlDigiHitsToken_, etlDigiHitsHandle);
 
-  if( ! etlDigiHitsHandle.isValid() ) return;
+  if( ! etlDigiHitsHandle.isValid() ) {
+    edm::LogWarning("DataNotFound") << "No ETL DIGI hits found";
+    return;
+  }
 
   eventCount_++;
   
@@ -141,70 +119,64 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
     if( thedet == nullptr )
-      throw cms::Exception("EtlSimHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId()
-						     << " (" << detId.rawId()<< ") is invalid!" << std::dec
-						     << std::endl;
+      throw cms::Exception("EtlDigiHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId()
+						    << " (" << detId.rawId()<< ") is invalid!" << std::dec
+						    << std::endl;
     
     Local3DPoint local_point(0.,0.,0.);
     const auto& global_point = thedet->toGlobal(local_point);
 
     // --- Fill the histograms
-    if ( detId.zside()>0. ){
 
-      meHitCharge_[0]->Fill(sample.data());
-      meHitTime_[0]->Fill(sample.toa());
-      meOccupancy_[0]->Fill(global_point.x(),global_point.y());
+    int idet = (detId.zside()+1)/2;
 
-    }
-    else {
-
-      meHitCharge_[1]->Fill(sample.data());
-      meHitTime_[1]->Fill(sample.toa());
-      meOccupancy_[1]->Fill(global_point.x(),global_point.y());
-
-    }
+    meHitCharge_[idet]->Fill(sample.data());
+    meHitTime_[idet]->Fill(sample.toa());
+    meOccupancy_[idet]->Fill(global_point.x(),global_point.y());
 
   } // dataFrame loop
 
 }
 
+
+// ------------ method for histogram booking ------------
 void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
                                edm::Run const& run,
                                edm::EventSetup const & iSetup) {
 
   ibook.setCurrentFolder(folder_);
 
-  meHitCharge_[0] = ibook.book1D("EtlHitChargeZpos", "ETL DIGI hits charge (+Z);amplitude [ADC counts]",
+  // --- histograms booking
+
+  meHitCharge_[0] = ibook.book1D("EtlHitChargeZneg", "ETL DIGI hits charge (-Z);amplitude [ADC counts]",
 				 256, 0., 256.);
-  meHitCharge_[1] = ibook.book1D("EtlHitChargeZneg", "ETL DIGI hits charge (-Z);amplitude [ADC counts]",
+  meHitCharge_[1] = ibook.book1D("EtlHitChargeZpos", "ETL DIGI hits charge (+Z);amplitude [ADC counts]",
 				 256, 0., 256.);
 
-  meHitTime_[0]   = ibook.book1D("EtlHitTimeZpos", "ETL DIGI hits ToA (+Z);ToA [TDC counts]", 
+  meHitTime_[0]   = ibook.book1D("EtlHitTimeZneg", "ETL DIGI hits ToA (-Z);ToA [TDC counts]", 
 				 1000, 0., 2000.);
-  meHitTime_[1]   = ibook.book1D("EtlHitTimeZneg", "ETL DIGI hits ToA (-Z);ToA [TDC counts]", 
+  meHitTime_[1]   = ibook.book1D("EtlHitTimeZpos", "ETL DIGI hits ToA (+Z);ToA [TDC counts]", 
 				 1000, 0., 2000.);
 
-  meOccupancy_[0] = ibook.book2D("EtlOccupancyZpos","ETL DIGI hits occupancy (+Z);x [cm];y [cm]",
+  meOccupancy_[0] = ibook.book2D("EtlOccupancyZneg","ETL DIGI hits occupancy (-Z);x [cm];y [cm]",
 				 135, -135., 135.,  135, -135., 135.);
-  meOccupancy_[1] = ibook.book2D("EtlOccupancyZneg","ETL DIGI hits occupancy (-Z);x [cm];y [cm]",
+  meOccupancy_[1] = ibook.book2D("EtlOccupancyZpos","ETL DIGI hits occupancy (+Z);x [cm];y [cm]",
 				 135, -135., 135.,  135, -135., 135.);
 
 }
-
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void EtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // The following says we do not know what parameters are allowed so do no
-  // validation
-  // Please change this to state exactly what you do use, even if it is no
-  // parameters
+
   edm::ParameterSetDescription desc;
+
   desc.add<std::string>("folder", "MTD/ETL/DigiHits");
   desc.add<std::string>("moduleLabel","mix");
   desc.add<std::string>("etlDigiHitsCollection","FTLEndcap");
+
   descriptions.add("etlDigiHits", desc);
+
 }
 
-//define this as a plug-in
 DEFINE_FWK_MODULE(EtlDigiHitsValidation);

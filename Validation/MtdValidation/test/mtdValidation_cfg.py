@@ -33,12 +33,14 @@ process.source = cms.Source("PoolSource",
 # --- BTL Validation
 process.load("Validation.MtdValidation.btlSimHits_cfi")
 process.load("Validation.MtdValidation.btlDigiHits_cfi")
-btlValidation = cms.Sequence(process.btlSimHits + process.btlDigiHits)
+process.load("Validation.MtdValidation.btlRecHits_cfi")
+btlValidation = cms.Sequence(process.btlSimHits + process.btlDigiHits + process.btlRecHits)
 
 # --- ETL Validation
 process.load("Validation.MtdValidation.etlSimHits_cfi")
 process.load("Validation.MtdValidation.etlDigiHits_cfi")
-etlValidation = cms.Sequence(process.etlSimHits + process.etlDigiHits)
+process.load("Validation.MtdValidation.etlRecHits_cfi")
+etlValidation = cms.Sequence(process.etlSimHits + process.etlDigiHits + process.etlRecHits)
 
 process.DQMStore = cms.Service("DQMStore")
 

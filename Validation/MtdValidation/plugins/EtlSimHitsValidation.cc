@@ -10,15 +10,9 @@
  Implementation:
      [Notes on implementation]
 */
-//
-// Original Author:  Massimo Casarsa
-//         Created:  Mon, 11 Mar 2019 13:56:22 GMT
-//
-//
 
 #include <string>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,9 +29,13 @@
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 
 
-//
-// class declaration
-//
+struct MTDHit {
+  float energy;
+  float time;
+  float x;
+  float y;
+  float z;
+};
 
 
 class EtlSimHitsValidation : public DQMEDAnalyzer {
@@ -56,7 +54,7 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-// ------------ member data ------------
+  // ------------ member data ------------
 
   const MTDGeometry* geom_;
 
@@ -70,6 +68,8 @@ private:
 
   edm::EDGetTokenT<edm::PSimHitContainer> etlSimHitsToken_;
 
+  // --- histograms declaration
+
   MonitorElement* meHitEnergyZpos_;
   MonitorElement* meHitEnergyZneg_;
   MonitorElement* meHitTimeZpos_;
@@ -80,25 +80,8 @@ private:
 
 };
 
-//
-// constants, enums and typedefs
-//
 
-struct MTDHit {
-  float energy;
-  float time;
-  float x;
-  float y;
-  float z;
-};
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
+// ------------ constructor and destructor --------------
 EtlSimHitsValidation::EtlSimHitsValidation(const edm::ParameterSet& iConfig):
   geom_(nullptr),
   folder_(iConfig.getParameter<std::string>("folder")),
@@ -112,16 +95,9 @@ EtlSimHitsValidation::EtlSimHitsValidation(const edm::ParameterSet& iConfig):
 
 }
 
-
 EtlSimHitsValidation::~EtlSimHitsValidation() {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 }
 
-
-//
-// member functions
-//
 
 // ------------ method called for each event  ------------
 void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -137,7 +113,10 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<edm::PSimHitContainer> etlSimHitsHandle;
   iEvent.getByToken(etlSimHitsToken_, etlSimHitsHandle);
 
-  if( ! etlSimHitsHandle.isValid() ) return;
+  if( ! etlSimHitsHandle.isValid() ) {
+    edm::LogWarning("DataNotFound") << "No ETL SIM hits found";
+    return;
+  }
 
   eventCount_++;
   
@@ -146,7 +125,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   // --- Loop over the BLT SIM hits
   for (auto const& simHit: *etlSimHitsHandle) {
 
-    // --- Only hits compatible with the in-time bunch-crossing
+    // --- Use only hits compatible with the in-time bunch-crossing
     if ( simHit.tof() < 0 || simHit.tof() > 25. ) continue;
 
     DetId id = simHit.detUnitId();
@@ -212,11 +191,15 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
 }
 
+
+// ------------ method for histogram booking ------------
 void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
                                edm::Run const& run,
                                edm::EventSetup const & iSetup) {
 
   ibook.setCurrentFolder(folder_);
+
+  // --- histograms booking
 
   meHitEnergyZpos_ = ibook.book1D("EtlHitEnergyZpos", "ETL SIM hits energy (+Z);E_{SIM} [MeV]", 200, 0., 2.);
   meHitEnergyZneg_ = ibook.book1D("EtlHitEnergyZneg", "ETL SIM hits energy (-Z);E_{SIM} [MeV]", 200, 0., 2.);
@@ -231,21 +214,18 @@ void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
 }
 
 
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void EtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // The following says we do not know what parameters are allowed so do no
-  // validation
-  // Please change this to state exactly what you do use, even if it is no
-  // parameters
+
   edm::ParameterSetDescription desc;
+
   desc.add<std::string>("folder", "MTD/ETL/SimHits");
   desc.add<std::string>("moduleLabelG4","g4SimHits");
   desc.add<std::string>("etlSimHitsCollection","FastTimerHitsEndcap");
   desc.add<double>("hitMinimumEnergy",0.1); // [MeV]
+
   descriptions.add("etlSimHits", desc);
 
 }
 
-//define this as a plug-in
 DEFINE_FWK_MODULE(EtlSimHitsValidation);
