@@ -81,7 +81,35 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
   void computeThreshold();
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    iDesc.add<int>("value",5);
+    iDesc.add<std::vector<double>>("thresholdW0", {
+        2.9,
+        2.9,
+        2.9
+        });
+    iDesc.add<std::vector<double>>("positionDeltaRho_c", {
+        1.3,
+        1.3,
+        1.3
+        });
+    iDesc.add<std::vector<double>>("deltac", {
+        1.3,
+        1.3,
+        5.0,
+        });
+    iDesc.add<bool>("dependSensor", true);
+    iDesc.add<double>("ecut", 3.0);
+    iDesc.add<double>("kappa", 9.0);
+    iDesc.addUntracked<unsigned int>("verbosity", 3);
+    iDesc.add<std::vector<double>>("dEdXweights",{});
+    iDesc.add<std::vector<double>>("thicknessCorrection",{});
+    iDesc.add<std::vector<double>>("fcPerMip",{});
+    iDesc.add<double>("fcPerEle",0.0);
+    edm::ParameterSetDescription descNestedNoises;
+    descNestedNoises.add<std::vector<double> >("values", {});
+    iDesc.add<edm::ParameterSetDescription>("noises", descNestedNoises);
+    edm::ParameterSetDescription descNestedNoiseMIP;
+    descNestedNoiseMIP.add<double>("value", 0 );
+    iDesc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
   }
 
   /// point in the space
