@@ -1,8 +1,8 @@
-#include "RecoParticleFlow/PFProducer/plugins/PFLinker.h"
-
-
-#include "RecoParticleFlow/PFProducer/interface/PhotonEqual.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoParticleFlow/PFProducer/plugins/PFLinker.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 
 PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
@@ -136,8 +136,8 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // if it is a photon, find the one with the same PF super-cluster
       if (isphoton) {
 	const reco::SuperClusterRef & scRef(cand.superClusterRef());
-	PhotonEqual myEqual(scRef);
-	std::vector<reco::Photon>::const_iterator itcheck=find_if(photons->begin(),photons->end(),myEqual);
+	auto itcheck = find_if( photons->begin(),photons->end(),
+                            [&scRef](const auto& photon) {return photon.superCluster() == scRef;} );
 	if(itcheck==photons->end()) {
 	  std::ostringstream err;
 	  err << " Problem in PFLinker: no Photon " << std::endl;
