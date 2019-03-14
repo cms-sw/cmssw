@@ -1338,12 +1338,12 @@ bool AntiElectronIDMVA6::atECalEntrance(const reco::Candidate* part, math::XYZPo
 				       math::XYZTLorentzVector(part->vertex().x(),
 							       part->vertex().y(),
 							       part->vertex().z(),
-							       0.)), 
+							       0.),
+                                       part->charge()), 
 			   0.,0.,bField_);
-  theParticle.setCharge(part->charge());
   theParticle.propagateToEcalEntrance(false);
   if(theParticle.getSuccess()!=0){
-    pos = math::XYZPoint(theParticle.vertex());
+    pos = math::XYZPoint(theParticle.particle().vertex());
     result = true;
   }
   else {

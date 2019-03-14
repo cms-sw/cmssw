@@ -79,7 +79,7 @@ typedef reco::Particle::LorentzVector lorentzVector;
 	
 	ClassDef(MuScleFitMuon, 2)
 	  };
-ClassImp(MuScleFitMuon)
+ClassImp(MuScleFitMuon);
   
 
 #endif

@@ -30,178 +30,136 @@
 //
 // -- Contructor
 //
-SiStripDcsInfo::SiStripDcsInfo(edm::ParameterSet const& pSet) : 
-    dqmStore_(edm::Service<DQMStore>().operator->()), 
-    m_cacheIDCabling_(0),
-    m_cacheIDDcs_(0),
-    bookedStatus_(false),
-    nLumiAnalysed_(0),
-    nGoodDcsLumi_(0)
-{ 
-  // Create MessageSender
+SiStripDcsInfo::SiStripDcsInfo(edm::ParameterSet const& pSet)
+{
   LogDebug( "SiStripDcsInfo") << "SiStripDcsInfo::Deleting SiStripDcsInfo ";
 }
-//
-// -- Destructor
-//
-SiStripDcsInfo::~SiStripDcsInfo() {
-  LogDebug("SiStripDcsInfo") << "SiStripDcsInfo::Deleting SiStripDcsInfo ";
 
-}
-//
-// -- Begin Job
-//
-void SiStripDcsInfo::beginJob() {
-  std::string tag;
-  SubDetMEs local_mes;
-  
-  tag = "TIB";   
-  local_mes.folder_name = "TIB";
-  local_mes.DcsFractionME  = nullptr;
-  local_mes.TotalDetectors = 0; 
-  local_mes.FaultyDetectors.clear();
-  SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
-      
-  tag = "TOB";
-  local_mes.folder_name = "TOB";
-  local_mes.DcsFractionME  = nullptr;
-  local_mes.TotalDetectors = 0; 
-  local_mes.FaultyDetectors.clear();
-  SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
-
-  tag = "TECB";
-  local_mes.folder_name = "TEC/MINUS";
-  local_mes.DcsFractionME  = nullptr;
-  local_mes.TotalDetectors = 0; 
-  local_mes.FaultyDetectors.clear();
-  SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
-
-  tag = "TECF";
-  local_mes.folder_name = "TEC/PLUS";
-  local_mes.DcsFractionME  = nullptr;
-  local_mes.TotalDetectors = 0; 
-  local_mes.FaultyDetectors.clear();
-  SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
-
-  tag = "TIDB";
-  local_mes.folder_name = "TID/MINUS";
-  local_mes.DcsFractionME  = nullptr;
-  local_mes.TotalDetectors = 0; 
-  local_mes.FaultyDetectors.clear();
-  SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
-
-  tag = "TIDF";
-  local_mes.folder_name = "TID/PLUS";
-  local_mes.DcsFractionME  = nullptr;
-  local_mes.TotalDetectors = 0; 
-  local_mes.FaultyDetectors.clear();
-  SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
+void
+SiStripDcsInfo::beginJob()
+{
+  // Since SubDetMEs is a struct, using the brace initialization will
+  // zero-initialize all members that are not specified in the call.
+  SubDetMEsMap.emplace("TIB", SubDetMEs{"TIB"});
+  SubDetMEsMap.emplace("TOB", SubDetMEs{"TOB"});
+  SubDetMEsMap.emplace("TECB", SubDetMEs{"TEC/MINUS"});
+  SubDetMEsMap.emplace("TECF", SubDetMEs{"TEC/PLUS"});
+  SubDetMEsMap.emplace("TIDB", SubDetMEs{"TID/MINUS"});
+  SubDetMEsMap.emplace("TIDF", SubDetMEs{"TID/PLUS"});
 }
 //
 // -- Begin Run
 //
-void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
+void
+SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup)
+{
   LogDebug ("SiStripDcsInfo") <<"SiStripDcsInfo:: Begining of Run";
   nFEDConnected_ = 0;
-  const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
-  const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
+  constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};
+  constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};
 
   // Count Tracker FEDs from RunInfo
-  if(auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
+
+  if (auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
     
     edm::ESHandle<RunInfo> sumFED;
     runInfoRec->get(sumFED);
     
     if ( sumFED.isValid() ) {
-      std::vector<int> FedsInIds= sumFED->m_fed_in;   
+      std::vector<int> FedsInIds = sumFED->m_fed_in;
       for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
-        int fedID = FedsInIds[it];     
-	if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected_;
+        int fedID = FedsInIds[it];
+        if (fedID >= siStripFedIdMin && fedID <= siStripFedIdMax)
+          ++nFEDConnected_;
       }
       LogDebug ("SiStripDcsInfo") << " SiStripDcsInfo :: Connected FEDs " << nFEDConnected_;
     }
-  } 
+  }
 
-  bookStatus();
-  fillDummyStatus();
+  auto& dqm_store = *edm::Service<DQMStore>{};
+  bookStatus(dqm_store);
+  fillDummyStatus(dqm_store);
   if (nFEDConnected_ > 0) readCabling(eSetup);
 }
-//
-// -- Analyze
-//
+
 void SiStripDcsInfo::analyze(edm::Event const& event, edm::EventSetup const& eSetup) {
 }
-//
-// -- Begin Luminosity Block
-//
-void SiStripDcsInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
+
+void
+SiStripDcsInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+                                     edm::EventSetup const& eSetup)
+{
   LogDebug( "SiStripDcsInfo") << "SiStripDcsInfo::beginLuminosityBlock";
 
   if (nFEDConnected_ == 0) return;
 
-  // initialise BadModule list 
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-    it->second.FaultyDetectors.clear();
+  // initialise BadModule list
+  for (auto& subDetME : SubDetMEsMap) {
+    subDetME.second.FaultyDetectors.clear();
   }
   readStatus(eSetup);
   nLumiAnalysed_++;
 }
 
-//
-// -- End Luminosity Block
-//
-void SiStripDcsInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
+void
+SiStripDcsInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+                                   edm::EventSetup const& eSetup)
+{
   LogDebug( "SiStripDcsInfo") << "SiStripDcsInfo::endLuminosityBlock";
 
   if (nFEDConnected_ == 0) return;
+  auto& dqm_store = *edm::Service<DQMStore>{};
   readStatus(eSetup);
-  fillStatus();
+  fillStatus(dqm_store);
 }
-//
-// -- End Run
-//
-void SiStripDcsInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
+
+void
+SiStripDcsInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
+{
   LogDebug ("SiStripDcsInfo") <<"SiStripDcsInfo::EndRun";
 
   if (nFEDConnected_ == 0) return;
 
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-    it->second.FaultyDetectors.clear();
+  for (auto& subDetME : SubDetMEsMap) {
+    subDetME.second.FaultyDetectors.clear();
   }
-  readStatus(eSetup); 
-  addBadModules();
-} 
+  readStatus(eSetup);
+  auto& dqm_store = *edm::Service<DQMStore>{};
+  addBadModules(dqm_store);
+}
 //
 // -- Book MEs for SiStrip Dcs Fraction
 //
-void SiStripDcsInfo::bookStatus() {
-  if (!bookedStatus_) {
-    std::string strip_dir = "";
-    SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir); 
-    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
-    else dqmStore_->setCurrentFolder("SiStrip/EventInfo");
-       
-    DcsFraction_= dqmStore_->bookFloat("DCSSummary");  
-    
-    DcsFraction_->setLumiFlag();
-    
-    dqmStore_->cd();
-    if (!strip_dir.empty())  dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
-    else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DCSContents"); 
-    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      SubDetMEs local_mes;	
-      std::string me_name;
-      me_name = "SiStrip_" + it->first;
-      it->second.DcsFractionME = dqmStore_->bookFloat(me_name);  
-      it->second.DcsFractionME->setLumiFlag();	
-    } 
-    bookedStatus_ = true;
-    dqmStore_->cd();
+void
+SiStripDcsInfo::bookStatus(DQMStore& dqm_store)
+{
+  if (bookedStatus_) return;
+
+  std::string strip_dir = "";
+  SiStripUtility::getTopFolderPath(dqm_store, "SiStrip", strip_dir);
+  if (!strip_dir.empty())
+    dqm_store.setCurrentFolder(strip_dir + "/EventInfo");
+  else
+    dqm_store.setCurrentFolder("SiStrip/EventInfo");
+
+  DcsFraction_ = dqm_store.bookFloat("DCSSummary");
+
+  DcsFraction_->setLumiFlag();
+
+  dqm_store.cd();
+  if (!strip_dir.empty())
+    dqm_store.setCurrentFolder(strip_dir + "/EventInfo/DCSContents");
+  else
+    dqm_store.setCurrentFolder("SiStrip/EventInfo/DCSContents");
+  for (auto& [suffix, subDetME] : SubDetMEsMap) {
+    std::string const me_name{"SiStrip_" + suffix};
+    subDetME.DcsFractionME = dqm_store.bookFloat(me_name);
+    subDetME.DcsFractionME->setLumiFlag();
   }
+  bookedStatus_ = true;
+  dqm_store.cd();
 }
-//
-// -- Read Cabling
-// 
+
 void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
 
   //Retrieve tracker topology from geometry
@@ -212,30 +170,31 @@ void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
   unsigned long long cacheID = eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
   if (m_cacheIDCabling_ != cacheID) {
     m_cacheIDCabling_ = cacheID;
-    LogDebug("SiStripDcsInfo") <<"SiStripDcsInfo::readCabling : "
-				   << " Change in Cache";
+    LogDebug("SiStripDcsInfo") << "SiStripDcsInfo::readCabling : "
+                               << " Change in Cache";
     eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
 
     std::vector<uint32_t> SelectedDetIds;
     detCabling_->addActiveDetectorsRawIds(SelectedDetIds);
-    LogDebug( "SiStripDcsInfo") << " SiStripDcsInfo::readCabling : "  
-				    << " Total Detectors " << SelectedDetIds.size();
-    
+    LogDebug("SiStripDcsInfo") << " SiStripDcsInfo::readCabling : "
+                               << " Total Detectors " << SelectedDetIds.size();
 
     // initialise total # of detectors first
     for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
       it->second.TotalDetectors = 0;
     }
-    
-    for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(); idetid != SelectedDetIds.end(); ++idetid){    
+
+    for (std::vector<uint32_t>::const_iterator idetid = SelectedDetIds.begin();
+         idetid != SelectedDetIds.end();
+         ++idetid) {
       uint32_t detId = *idetid;
       if (detId == 0 || detId == 0xFFFFFFFF) continue;
       std::string subdet_tag;
-      SiStripUtility::getSubDetectorTag(detId,subdet_tag,tTopo);         
-      
+      SiStripUtility::getSubDetectorTag(detId, subdet_tag, tTopo);
+
       std::map<std::string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(subdet_tag);
-      if (iPos != SubDetMEsMap.end()){    
-	iPos->second.TotalDetectors++;
+      if (iPos != SubDetMEsMap.end()) {
+        iPos->second.TotalDetectors++;
       }
     }
   }
@@ -253,17 +212,17 @@ void SiStripDcsInfo::readStatus(edm::EventSetup const& eSetup) {
   eSetup.get<SiStripDetVOffRcd>().get(siStripDetVOff_);
   std::vector <uint32_t> FaultyDetIds;
   siStripDetVOff_->getDetIds(FaultyDetIds);
-  LogDebug( "SiStripDcsInfo") << " SiStripDcsInfo::readStatus : "
-				  << " Faulty Detectors " << FaultyDetIds.size();
+  LogDebug("SiStripDcsInfo") << " SiStripDcsInfo::readStatus : "
+                             << " Faulty Detectors " << FaultyDetIds.size();
   // Read and fille bad modules
   for (std::vector<uint32_t>::const_iterator ihvoff=FaultyDetIds.begin(); ihvoff!=FaultyDetIds.end();++ihvoff){
     uint32_t detId_hvoff = (*ihvoff);
-    if (!detCabling_->IsConnected(detId_hvoff)) continue;    
+    if (!detCabling_->IsConnected(detId_hvoff)) continue;
     std::string subdet_tag;
-    SiStripUtility::getSubDetectorTag(detId_hvoff,subdet_tag,tTopo);         
-    
+    SiStripUtility::getSubDetectorTag(detId_hvoff, subdet_tag, tTopo);
+
     std::map<std::string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(subdet_tag);
-    if (iPos != SubDetMEsMap.end()){  
+    if (iPos != SubDetMEsMap.end()) {
       std::vector<uint32_t>::iterator ibad = std::find(iPos->second.FaultyDetectors.begin(), iPos->second.FaultyDetectors.end(), detId_hvoff);
       if (ibad ==  iPos->second.FaultyDetectors.end()) iPos->second.FaultyDetectors.push_back( detId_hvoff);
     }
@@ -272,93 +231,100 @@ void SiStripDcsInfo::readStatus(edm::EventSetup const& eSetup) {
 //
 // -- Fill Status
 //
-void SiStripDcsInfo::fillStatus(){
-  if (!bookedStatus_) bookStatus();
-  if (bookedStatus_) {
-    float total_det = 0.0;
-    float faulty_det = 0.0;
-    float fraction;
-    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      int total_subdet  = it->second.TotalDetectors;
-      int faulty_subdet = it->second.FaultyDetectors.size(); 
-      if  (nFEDConnected_ == 0  || total_subdet == 0) fraction = -1;
-      else fraction = 1.0  - faulty_subdet*1.0/total_subdet;   
-      it->second.DcsFractionME->Reset();
-      it->second.DcsFractionME->Fill(fraction);
-      edm::LogInfo( "SiStripDcsInfo") << " SiStripDcsInfo::fillStatus : Sub Detector "
-	<< it->first << " Total Number " << total_subdet  
-        << " Faulty ones " << faulty_subdet;
-      total_det += total_subdet;
-      faulty_det += faulty_subdet;
+void
+SiStripDcsInfo::fillStatus(DQMStore& dqm_store)
+{
+  if (!bookedStatus_) bookStatus(dqm_store);
+  assert(bookedStatus_);
+
+  float total_det = 0.0;
+  float faulty_det = 0.0;
+  float fraction;
+  for (auto const& [name, subDetMEs] : SubDetMEsMap) {
+    int total_subdet = subDetMEs.TotalDetectors;
+    int faulty_subdet = subDetMEs.FaultyDetectors.size();
+    if (nFEDConnected_ == 0 || total_subdet == 0)
+      fraction = -1;
+    else
+      fraction = 1.0 - faulty_subdet * 1.0 / total_subdet;
+    subDetMEs.DcsFractionME->Reset();
+    subDetMEs.DcsFractionME->Fill(fraction);
+    edm::LogInfo("SiStripDcsInfo")
+      << " SiStripDcsInfo::fillStatus : Sub Detector " << name
+      << " Total Number " << total_subdet << " Faulty ones " << faulty_subdet;
+    total_det += total_subdet;
+    faulty_det += faulty_subdet;
+  }
+  if (nFEDConnected_ == 0 || total_det == 0)
+    fraction = -1.0;
+  else
+    fraction = 1 - faulty_det / total_det;
+  DcsFraction_->Reset();
+  DcsFraction_->Fill(fraction);
+  IsLumiGoodDcs_ = fraction > MinAcceptableDcsDetFrac_;
+  if (!IsLumiGoodDcs_) return;
+
+  ++nGoodDcsLumi_;
+  for (auto& pr : SubDetMEsMap) {
+    for (auto const detId_faulty : pr.second.FaultyDetectors) {
+      pr.second.NLumiDetectorIsFaulty[detId_faulty]++;
     }
-    if (nFEDConnected_ == 0 || total_det == 0) fraction = -1.0;
-    else fraction = 1 - faulty_det/total_det;
-    DcsFraction_->Reset();
-    DcsFraction_->Fill(fraction);
-    IsLumiGoodDcs_ = fraction > MinAcceptableDcsDetFrac_;
-    if(IsLumiGoodDcs_) nGoodDcsLumi_++;
-    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      for (std::vector<uint32_t>::iterator ifaulty = it->second.FaultyDetectors.begin(); ifaulty != it->second.FaultyDetectors.end(); ifaulty++) {
-        uint32_t detId_faulty = (*ifaulty);
-        if(IsLumiGoodDcs_) it->second.NLumiDetectorIsFaulty[detId_faulty]++;
-      }
-    }
-  } 
+  }
 }
+
 //
 // -- Fill with Dummy values
 //
-void SiStripDcsInfo::fillDummyStatus() {
-  if (!bookedStatus_) bookStatus();
-  if (bookedStatus_) {
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      it->second.DcsFractionME->Reset();
-      it->second.DcsFractionME->Fill(-1.0);
-    }
-    DcsFraction_->Reset();
-    DcsFraction_->Fill(-1.0);
+void
+SiStripDcsInfo::fillDummyStatus(DQMStore& dqm_store)
+{
+  if (!bookedStatus_) bookStatus(dqm_store);
+  assert(bookedStatus_);
+
+  for (auto& pr : SubDetMEsMap) {
+    pr.second.DcsFractionME->Reset();
+    pr.second.DcsFractionME->Fill(-1.0);
   }
+  DcsFraction_->Reset();
+  DcsFraction_->Fill(-1.0);
 }
-//
-// -- Add Bad Modules
-//
-void SiStripDcsInfo::addBadModules() {
-    
-  dqmStore_->cd();
+
+void
+SiStripDcsInfo::addBadModules(DQMStore& dqm_store)
+{
+  dqm_store.cd();
   std::string mdir = "MechanicalView";
-  if (!SiStripUtility::goToDir(dqmStore_, mdir)) {
-    dqmStore_->setCurrentFolder("SiStrip/"+mdir);
+  if (!SiStripUtility::goToDir(dqm_store, mdir)) {
+    dqm_store.setCurrentFolder("SiStrip/" + mdir);
   }
-  std::string mechanical_dir = dqmStore_->pwd();
+  std::string mechanical_dir = dqm_store.pwd();
   std::string tag = "DCSError";
 
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-
-    std::unordered_map<uint32_t,uint16_t> lumiCountBadModules = it->second.NLumiDetectorIsFaulty;
-    for(std::unordered_map<uint32_t,uint16_t>::iterator ilumibad = lumiCountBadModules.begin(); 
-        ilumibad != lumiCountBadModules.end(); ilumibad++) {
-      uint32_t ibad = (*ilumibad).first;
-      uint32_t nBadLumi = (*ilumibad).second;
+  for (auto const& pr : SubDetMEsMap) {
+    auto const& lumiCountBadModules = pr.second.NLumiDetectorIsFaulty;
+    for (auto const [ibad, nBadLumi] : lumiCountBadModules) {
       if(nBadLumi <= MaxAcceptableBadDcsLumi_) continue;
       std::string bad_module_folder = mechanical_dir + "/" +
-                                      it->second.folder_name + "/"     
-                                      "BadModuleList";      
-      dqmStore_->setCurrentFolder(bad_module_folder);
+                                      pr.second.folder_name +
+                                      "/"
+                                      "BadModuleList";
+      dqm_store.setCurrentFolder(bad_module_folder);
 
       std::ostringstream detid_str;
       detid_str << ibad;
       std::string full_path = bad_module_folder + "/" + detid_str.str();
-      MonitorElement* me = dqmStore_->get(full_path);
-      uint16_t flag = 0; 
+      MonitorElement* me = dqm_store.get(full_path);
+      uint16_t flag = 0;
       if (me) {
-	flag = me->getIntValue();
-	me->Reset();
-      } else me = dqmStore_->bookInt(detid_str.str());
+        flag = me->getIntValue();
+        me->Reset();
+      } else
+        me = dqm_store.bookInt(detid_str.str());
       SiStripUtility::setBadModuleFlag(tag, flag);
       me->Fill(flag);
     }
-  }   
-  dqmStore_->cd();
+  }
+  dqm_store.cd();
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

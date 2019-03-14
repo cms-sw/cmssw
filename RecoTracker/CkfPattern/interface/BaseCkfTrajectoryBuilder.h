@@ -66,8 +66,8 @@ public:
 
   // Claims ownership of TrajectoryFilter pointers
   BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
-                           TrajectoryFilter *filter,
-                           TrajectoryFilter *inOutFilter=nullptr);
+                           std::unique_ptr<TrajectoryFilter> filter,
+                           std::unique_ptr<TrajectoryFilter> inOutFilter=nullptr);
   BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &) = delete;
   BaseCkfTrajectoryBuilder& operator=(const BaseCkfTrajectoryBuilder&) = delete;
   ~BaseCkfTrajectoryBuilder() override;
@@ -102,7 +102,7 @@ public:
   const TransientTrackingRecHitBuilder* hitBuilder() const { return theTTRHBuilder;}
 
  protected:    
-  static TrajectoryFilter *createTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
+  static std::unique_ptr<TrajectoryFilter> createTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
 
   virtual void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) = 0;
 

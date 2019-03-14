@@ -21,7 +21,7 @@
 #include "RecoEgamma/EgammaTools/interface/LongDeps.h"
 #include "RecoEgamma/EgammaTools/interface/ShowerDepth.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
+#include "Math/Transform3D.h"
 #include <map>
 
 #include "TPrincipal.h"
@@ -33,8 +33,8 @@ namespace hgcal {
   class EGammaPCAHelper
   {
     public:
-      typedef ROOT::Math::Transform3DPJ Transform3D;
-      typedef ROOT::Math::Transform3DPJ::Point Point;
+      typedef ROOT::Math::Transform3D Transform3D;
+      typedef ROOT::Math::Transform3D::Point Point;
 
       EGammaPCAHelper();
       ~EGammaPCAHelper();

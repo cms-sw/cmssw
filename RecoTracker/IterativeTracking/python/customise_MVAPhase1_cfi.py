@@ -18,11 +18,11 @@ from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 
 
 def customise_MVAPhase1(process):
-	trackingPhase1.toReplaceWith(detachedQuadStep, TrackMVAClassifierDetached.clone(
-		mva = dict(GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1'),
-		src = 'detachedQuadStepTracks',
-		qualityCuts = [-0.5,0.0,0.5]
-	))
+        trackingPhase1.toReplaceWith(detachedQuadStep, TrackMVAClassifierDetached.clone(
+                mva = dict(GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1'),
+                src = 'detachedQuadStepTracks',
+                qualityCuts = [-0.5,0.0,0.5]
+        ))
 
         trackingPhase1.toReplaceWith(detachedTripletStep, TrackMVAClassifierDetached.clone(
                 mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1'),
@@ -36,13 +36,13 @@ def customise_MVAPhase1(process):
                 qualityCuts = [0.2,0.3,0.4]
         ))
 
-	trackingPhase1.toReplaceWith(initialStep, TrackMVAClassifierPrompt.clone(
-		mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1'),
-		src = 'initialStepTracks',
-		qualityCuts = [-0.95,-0.85,-0.75]
-	))
+        trackingPhase1.toReplaceWith(initialStep, TrackMVAClassifierPrompt.clone(
+                mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1'),
+                src = 'initialStepTracks',
+                qualityCuts = [-0.95,-0.85,-0.75]
+        ))
 
-	trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone(
+        trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone(
                 mva = dict(GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1'),
                 src = 'jetCoreRegionalStepTracks',
                 qualityCuts = [-0.2,0.0,0.4]
@@ -60,7 +60,7 @@ def customise_MVAPhase1(process):
                 qualityCuts = [-0.4,0.0,0.3]
         ))
 
-	trackingPhase1.toReplaceWith(mixedTripletStep, TrackMVAClassifierDetached.clone(
+        trackingPhase1.toReplaceWith(mixedTripletStep, TrackMVAClassifierDetached.clone(
                 mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1'),
                 src = 'mixedTripletStepTracks',
                 qualityCuts = [-0.5,0.0,0.5]
@@ -84,4 +84,4 @@ def customise_MVAPhase1(process):
                 qualityCuts = [-0.6,-0.45,-0.3]
         ))
 
-	return process
+        return process

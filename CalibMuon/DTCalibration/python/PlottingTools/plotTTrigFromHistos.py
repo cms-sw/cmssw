@@ -1,6 +1,7 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import ROOT
-from drawHistoAllChambers import drawHisto
+from .drawHistoAllChambers import drawHisto
 
 def binNumber(station,sector):
     start = (station - 1)*12

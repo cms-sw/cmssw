@@ -73,8 +73,6 @@ AlCaECALRecHitReducer::produce (edm::Event& iEvent,
   using namespace edm;
   //using namespace std;
   
-  EcalRecHitCollection::const_iterator recHit_itr;
-
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
   const CaloTopology *caloTopology = theCaloTopology.product();

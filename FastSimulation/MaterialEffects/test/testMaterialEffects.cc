@@ -12,7 +12,6 @@
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -665,8 +664,6 @@ void testMaterialEffects::dqmBeginRun(edm::Run const&, edm::EventSetup const& es
 void
 testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  ParticleTable::Sentry(mySimEvent[0]->theTable());
-
   if( ( nevt < 100 && nevt%10 == 0)   || 
       ( nevt < 1000 && nevt%100 == 0) || 
       nevt%1000 == 0 ) 

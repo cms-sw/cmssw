@@ -6,13 +6,13 @@
 //   Luca Scodellaro
 #include "Alignment/CocoaFit/interface/NtupleObjects.h"
 
-ClassImp(FitParam)
-ClassImp(OptObject)
-ClassImp(Sensor2DMeas)
-ClassImp(DistancemeterMeas) 
-ClassImp(Distancemeter1DimMeas)
-ClassImp(TiltmeterMeas)
-ClassImp(CopsMeas)  
+ClassImp(FitParam);
+ClassImp(OptObject);
+ClassImp(Sensor2DMeas);
+ClassImp(DistancemeterMeas); 
+ClassImp(Distancemeter1DimMeas);
+ClassImp(TiltmeterMeas);
+ClassImp(CopsMeas);  
 
 FitParam::FitParam() {
   Name = "Null";

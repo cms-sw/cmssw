@@ -6,6 +6,7 @@ Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
 from __future__ import print_function
+from __future__ import absolute_import
 import sys
 import re
 import time
@@ -24,7 +25,7 @@ from httplib import BadStatusLine
 try:
     from Utilities.RelMon.authentication import X509CertOpen
 except ImportError:
-    from authentication import X509CertOpen
+    from .authentication import X509CertOpen
 
 ##-----------------   Make files pairs:  RelValData utils   --------------------
 def get_relvaldata_id(file):

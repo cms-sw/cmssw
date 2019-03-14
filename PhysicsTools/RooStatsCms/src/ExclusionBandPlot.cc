@@ -15,7 +15,7 @@
 
 //For Cint
 #if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(ExclusionBandPlot)
+ClassImp(ExclusionBandPlot);
 #endif
 /*----------------------------------------------------------------------------*/
 ExclusionBandPlot::ExclusionBandPlot(const char* name,

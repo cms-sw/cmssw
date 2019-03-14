@@ -1,27 +1,26 @@
-from FWCore.ParameterSet.Config import *
+import FWCore.ParameterSet.Config as cms
+from Configuration.AlCa.GlobalTag import GlobalTag
 
-process = Process("test")
-process.extend(include("FWCore/MessageLogger/data/MessageLogger.cfi"))
-#process.MessageLogger.cerr.FwkReport.reportEvery = 50
+process = cms.Process("test")
 
-process.extend(include("RecoEcal/EgammaClusterProducers/data/geometryForClustering.cff"))
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-input_files = vstring()
-#input_files.append( "/store/relval/2008/4/17/RelVal-RelValTTbar-1208465820/0000/0ABDA540-EE0C-DD11-BA9F-000423D94990.root" )
-input_files.append( "file:/data/ferriff/ClusterMulti5x5/CMSSW_2_1_X_2008-05-14-0200/src/reco.root" )
+input_files = cms.vstring("/store/data/Run2018A/EGamma/AOD/17Sep2018-v2/100000/01EB9686-9A6F-BF48-903A-02F7D9AEB9B9.root")
 
-process.source = Source("PoolSource",
-    fileNames = untracked( input_files )
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+
+process.source = cms.Source("PoolSource", fileNames = cms.untracked( input_files ) )
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 10 ) )
+
+
+process.testEcalClusterTools = cms.EDAnalyzer("testEcalClusterTools",
+    barrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+    endcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+    barrelClusterCollection = cms.InputTag("hybridSuperClusters:hybridBarrelBasicClusters"),
+    endcapClusterCollection = cms.InputTag("multi5x5SuperClusters:multi5x5EndcapBasicClusters")
 )
 
-process.maxEvents = untracked.PSet( input = untracked.int32( 10 ) )
-
-
-process.testEcalClusterTools = EDAnalyzer("testEcalClusterTools",
-    reducedBarrelRecHitCollection = InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = InputTag("reducedEcalRecHitsEE"),
-    barrelClusterCollection = InputTag("hybridSuperClusters"),
-    endcapClusterCollection = InputTag("fixedMatrixBasicClusters:fixedMatrixEndcapBasicClusters")
-)
-
-process.p1 = Path( process.testEcalClusterTools )
+process.p1 = cms.Path( process.testEcalClusterTools )

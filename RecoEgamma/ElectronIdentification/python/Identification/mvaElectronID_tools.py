@@ -86,8 +86,7 @@ class EleMVARaw_WP:
         self.cuts = cuts
 
     def getCutStrings(self):
-        keylist = self.cuts.keys()
-        keylist.sort()
+        keylist = sorted(self.cuts.keys())
         return [self.cuts[key] for key in keylist]
 
 # ================================

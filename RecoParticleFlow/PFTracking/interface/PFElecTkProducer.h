@@ -135,7 +135,6 @@ class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<c
 
       ///PFTrackTransformer
       std::unique_ptr<PFTrackTransformer> pfTransformer_;     
-      const MultiTrajectoryStateMode *mtsMode_;
       MultiTrajectoryStateTransform  mtsTransform_;
       std::unique_ptr<ConvBremPFTrackFinder> convBremFinder_;
 

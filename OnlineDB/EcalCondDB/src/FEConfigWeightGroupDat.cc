@@ -44,7 +44,7 @@ void FEConfigWeightGroupDat::prepareWrite()
 		      "VALUES (:wei_conf_id, :group_id, "
 		      ":w0, :w1, :w2, :w3, :w4 )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigWeightGroupDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigWeightGroupDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -75,7 +75,7 @@ void FEConfigWeightGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigWeig
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigWeightGroupDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigWeightGroupDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -121,7 +121,7 @@ void FEConfigWeightGroupDat::fetchData(map< EcalLogicID, FEConfigWeightGroupDat 
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigWeightGroupDat::fetchData:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigWeightGroupDat::fetchData:  "+e.getMessage()));
   }
 }
 
@@ -227,6 +227,6 @@ void FEConfigWeightGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigW
     delete [] t_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigWeightGroupDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigWeightGroupDat::writeArrayDB():  "+e.getMessage()));
   }
 }

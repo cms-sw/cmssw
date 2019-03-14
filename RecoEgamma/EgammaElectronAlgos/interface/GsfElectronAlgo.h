@@ -199,20 +199,10 @@ class GsfElectronAlgo {
       ) ;
 
     // main methods
-    void checkSetup( const edm::EventSetup & ) ;
-    void beginEvent( edm::Event & ) ;
-    void displayInternalElectrons( const std::string & title ) const ;
-    void clonePreviousElectrons() ;
-    void completeElectrons(const gsfAlgoHelpers::HeavyObjectCache*) ; // do not redo cloned electrons done previously
-    void addPflowInfo() ; // now deprecated
-    void setAmbiguityData( bool ignoreNotPreselected = true ) ;
-    void removeNotPreselectedElectrons() ;
-    void removeAmbiguousElectrons() ;
-    reco::GsfElectronCollection & electrons() ;
-    void setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs)  ;
-    void setMVAOutputs(const gsfAlgoHelpers::HeavyObjectCache*,
-                       const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs) ;
-    void endEvent() ;
+    void completeElectrons( reco::GsfElectronCollection & electrons, // do not redo cloned electrons done previously
+                            edm::Event const& event,
+                            edm::EventSetup const& eventSetup,
+                            const gsfAlgoHelpers::HeavyObjectCache* hoc);
 
   private :
 
@@ -263,9 +253,7 @@ class GsfElectronAlgo {
 
        std::unique_ptr<const MultiTrajectoryStateTransform> mtsTransform ;
        std::unique_ptr<GsfConstraintAtVertex> constraintAtVtx ;
-       const MultiTrajectoryStateMode mtsMode ;
     } ;
-
 
     //===================================================================
     // GsfElectronAlgo::EventData
@@ -278,7 +266,7 @@ class GsfElectronAlgo {
        ( const reco::TrackRef &, const reco::GsfTrackRef & ) ;
 
       // general
-      edm::Event * event ;
+      edm::Event const* event ;
       const reco::BeamSpot * beamspot ;
 
       // input collections
@@ -310,8 +298,6 @@ class GsfElectronAlgo {
 
       bool originalCtfTrackCollectionRetreived = false ;
       bool originalGsfTrackCollectionRetreived = false ;
-
-      reco::GsfElectronCollection electrons ;
      } ;
 
     //===================================================================
@@ -334,11 +320,10 @@ class GsfElectronAlgo {
          const reco::BeamSpot & bs ) ;
 
       // utilities
-      void checkCtfTrack( edm::Handle<reco::TrackCollection> currentCtfTracks ) ;
       void computeCharge( int & charge, reco::GsfElectron::ChargeInfo & info ) ;
       reco::CaloClusterPtr getEleBasicCluster( MultiTrajectoryStateTransform const& ) ;
       bool calculateTSOS( MultiTrajectoryStateTransform const&, GsfConstraintAtVertex const& ) ;
-      void calculateMode( MultiTrajectoryStateMode const& mtsMode ) ;
+      void calculateMode() ;
       reco::Candidate::LorentzVector calculateMomentum() ;
 
       // TSOS
@@ -356,25 +341,27 @@ class GsfElectronAlgo {
       GlobalVector vtxMomWithConstraint ;
      } ;
 
-    std::unique_ptr<GeneralData> generalData_ ;
-    std::unique_ptr<EventSetupData> eventSetupData_ ;
-    std::unique_ptr<EventData> eventData_ ;
-    std::unique_ptr<ElectronData> electronData_ ;
+    GeneralData generalData_ ;
+    EventSetupData eventSetupData_ ;
 
     EleTkIsolFromCands tkIsol03Calc_;
     EleTkIsolFromCands tkIsol04Calc_;
 
-    void createElectron(const gsfAlgoHelpers::HeavyObjectCache*) ;
+    void checkSetup( edm::EventSetup const& eventSetup ) ;
+    EventData beginEvent( edm::Event const& event ) ;
+
+    void createElectron(reco::GsfElectronCollection & electrons, ElectronData & electronData, EventData & eventData, const gsfAlgoHelpers::HeavyObjectCache*) ;
 
     void setMVAepiBasedPreselectionFlag(reco::GsfElectron & ele);
     void setCutBasedPreselectionFlag( reco::GsfElectron & ele, const reco::BeamSpot & ) ;
-    void setPflowPreselectionFlag( reco::GsfElectron & ele ) ;
-    bool isPreselected( reco::GsfElectron const& ele ) ;
 
     template<bool full5x5>
-    void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, 
-                               reco::GsfElectron::ShowerShape & ) ;
-    void calculateSaturationInfo(const reco::SuperClusterRef&, reco::GsfElectron::SaturationInfo&);
+    void calculateShowerShape( const reco::SuperClusterRef &,
+                               ElectronHcalHelper const& hcalHelper,
+                               reco::GsfElectron::ShowerShape &,
+                               EventData const& eventData );
+    void calculateSaturationInfo(const reco::SuperClusterRef&, reco::GsfElectron::SaturationInfo&,
+                                 EventData const& eventData);
 
     // associations
     const reco::SuperClusterRef getTrSuperCluster( const reco::GsfTrackRef & trackRef ) ;

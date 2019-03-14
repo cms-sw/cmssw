@@ -5,15 +5,15 @@
 
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
 //#define EDM_ML_DEBUG
-using namespace dd;
-using namespace dd::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 HcalNumberingFromDDD::HcalNumberingFromDDD(const HcalDDDSimConstants *hcons) :
   hcalConstants(hcons) {
@@ -62,10 +62,10 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
   }
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalNumberingFromDDD: point = " << point
-	    << " det " << det << ":" << hsubdet << " eta/R " 
-	    << etaR << " phi " << hphi << " depth " << depth
-	    << " layer " << lay << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalNumberingFromDDD: point = " << point
+			       << " det " << det << ":" << hsubdet << " eta/R "
+			       << etaR << " phi " << hphi << " depth " << depth
+			       << " layer " << lay;
 #endif
   return unitID(hsubdet,etaR,hphi,depth,lay);
 }
@@ -96,9 +96,9 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
   if (iphi > nphi) iphi = 1;
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalNumberingFromDDD: etaR = " << etaR << " : "
-	    << zside << "/" << ieta << " phi " << hphi << " : "
-	    << iphi << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalNumberingFromDDD: etaR = " << etaR 
+			       << " : " << zside << "/" << ieta << " phi "
+			       << hphi << " : " << iphi << std::endl;
 #endif
   return unitID(det,zside,depth,ieta,iphi,lay);
 }
@@ -118,17 +118,17 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
   std::pair<int,int> etaDepth = hcalConstants->getEtaDepth(det, etaR, iphi_skip, zside, depth, lay);
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalNumberingFromDDD: phi units= " << units  
-	    << "  iphi_skip= " << iphi_skip << std::endl; 
+  edm::LogVerbatim("HCalGeom") << "HcalNumberingFromDDD: phi units= " << units
+			       << "  iphi_skip= " << iphi_skip; 
 #endif
   HcalNumberingFromDDD::HcalID tmp(det,zside,etaDepth.second,etaDepth.first,phi,iphi_skip,lay);
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HcalNumberingFromDDD: det = " << det << " " 
-	    << tmp.subdet << " zside = " << tmp.zside 
-	    << " depth = " << tmp.depth << " eta/R = " 
-	    << tmp.etaR << " phi = "   << tmp.phi << " layer = "
-	    << tmp.lay << std::endl;
+  edm::LogVerbatim("HCalGeom") << "HcalNumberingFromDDD: det = " << det << " " 
+			       << tmp.subdet << " zside = " << tmp.zside 
+			       << " depth = " << tmp.depth << " eta/R = " 
+			       << tmp.etaR << " phi = "   << tmp.phi 
+			       << " layer = " << tmp.lay;
 #endif
   return tmp;
 }

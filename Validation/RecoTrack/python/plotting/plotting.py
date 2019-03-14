@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import os
 import sys
 import math
@@ -12,7 +13,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-import html
+from . import html
 
 verbose=False
 _ratioYTitle = "Ratio"

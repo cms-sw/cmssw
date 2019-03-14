@@ -2,24 +2,25 @@
 
 ### command line options helper
 from __future__ import print_function
+from __future__ import absolute_import
 import six
-from  Options import Options
+from  .Options import Options
 options = Options()
 
 
 ## imports
 import sys
-from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase, _modifyParametersFromDict
-from Mixins import *
-from Types import *
-from Modules import *
-from Modules import _Module
-from SequenceTypes import *
-from SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
-from SequenceVisitors import PathValidator, EndPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor, ModuleNamesFromGlobalsVisitor
-import DictTypes
+from .Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase, _modifyParametersFromDict
+from .Mixins import *
+from .Types import *
+from .Modules import *
+from .Modules import _Module
+from .SequenceTypes import *
+from .SequenceTypes import _ModuleSequenceType, _Sequenceable  #extend needs it
+from .SequenceVisitors import PathValidator, EndPathValidator, ScheduleTaskValidator, NodeVisitor, CompositeVisitor, ModuleNamesFromGlobalsVisitor
+from . import DictTypes
 
-from ExceptionHandling import *
+from .ExceptionHandling import *
 
 #when building RECO paths we have hit the default recursion limit
 if sys.getrecursionlimit()<5000:
@@ -628,10 +629,7 @@ class Process(object):
                 self.extend(item)
 
         #now create a sequence that uses the newly made items
-        for name in seqs.iterkeys():
-            seq = seqs[name]
-            #newSeq = seq.copy()
-            #
+        for name,seq in six.iteritems(seqs):
             if id(seq) not in self._cloneToObjectDict:
                 self.__setattr__(name,seq)
             else:
@@ -641,8 +639,7 @@ class Process(object):
                 #now put in proper bucket
                 newSeq._place(name,self)
 
-        for name in tasksToAttach.iterkeys():
-            task = tasksToAttach[name]
+        for name, task in six.iteritems(tasksToAttach):
             self.__setattr__(name, task)
 
         #apply modifiers now that all names have been added
@@ -1297,11 +1294,11 @@ class _ParameterModifier(object):
         self.__args = args
     def __call__(self,obj):
         params = {}
-        for k in self.__args.iterkeys():
+        for k in six.iterkeys(self.__args):
             if hasattr(obj,k):
                 params[k] = getattr(obj,k)
         _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
-        for k in self.__args.iterkeys():
+        for k in six.iterkeys(self.__args):
             if k in params:
                 setattr(obj,k,params[k])
             else:
@@ -1675,7 +1672,7 @@ if __name__=="__main__":
         def testProcessExtend(self):
             class FromArg(object):
                 def __init__(self,*arg,**args):
-                    for name in args.iterkeys():
+                    for name in six.iterkeys(args):
                         self.__dict__[name]=args[name]
 
             a=EDAnalyzer("MyAnalyzer")

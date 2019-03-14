@@ -46,7 +46,7 @@ class NTuplingDevice : public edm::EDProducer {
       void endJob() override ;
       
       // ----------member data ---------------------------
-  NTupler * ntupler_;
+  std::unique_ptr<NTupler> ntupler_;
 };
 
 //
@@ -65,7 +65,7 @@ NTuplingDevice::NTuplingDevice(const edm::ParameterSet& iConfig)
   //this Ntupler can work with the InputTagDistributor, but should not be configured as such.
   edm::ParameterSet ntPset = iConfig.getParameter<edm::ParameterSet>("Ntupler");
   std::string ntuplerName=ntPset.getParameter<std::string>("ComponentName");
-  ntupler_ = NTuplerFactory::get()->create(ntuplerName, ntPset);
+  ntupler_ = std::unique_ptr<NTupler>(NTuplerFactory::get()->create(ntuplerName, ntPset));
 
   //register the leaves from the ntupler
   ntupler_->registerleaves(this);

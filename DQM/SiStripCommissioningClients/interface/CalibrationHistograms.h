@@ -19,12 +19,16 @@ class CalibrationHistograms : virtual public CommissioningHistograms {
 
   void printAnalyses() override; // override
 
- protected: 
+  void save( std::string& filename,
+             uint32_t run_number = 0,
+             std::string partitionName = "");
 
-  int calchan_;
-  int isha_;
-  int vfs_;
-  
+ private:
+
+  // Needed for the calibration-scan analysis
+  float targetRiseTime_;
+  float targetDecayTime_;
+  bool tuneSimultaneously_;
 };
 
 #endif // DQM_SiStripCommissioningClients_CalibrationHistograms_H

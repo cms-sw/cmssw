@@ -11,7 +11,7 @@
 //  Documentation: see TEcnaResultType.h
 //--------------------------------------
 
-ClassImp(TEcnaResultType)
+ClassImp(TEcnaResultType);
 //___________________________________________________________________________
 //
 

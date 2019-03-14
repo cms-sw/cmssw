@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
-import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
+from . import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
 
 
 def custom_cluster_calibration_global(process,
