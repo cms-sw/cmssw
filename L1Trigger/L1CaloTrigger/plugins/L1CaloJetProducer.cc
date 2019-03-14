@@ -759,6 +759,22 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                     caloJetObj.l1egJetCluster += l1egP4;
                     caloJetObj.l1egJetClusterET += l1CaloTower.l1eg_tower_et;
                     caloJetObj.l1eg_nL1EGs += l1CaloTower.n_l1eg;
+
+                    caloJetObj.l1eg_nL1EGs_standaloneSS += l1CaloTower.l1eg_standaloneSS;
+                    caloJetObj.l1eg_nL1EGs_standaloneIso += l1CaloTower.l1eg_standaloneIso;
+                    caloJetObj.l1eg_nL1EGs_trkMatchSS += l1CaloTower.l1eg_trkSS;
+                    caloJetObj.l1eg_nL1EGs_trkMatchIso += l1CaloTower.l1eg_trkIso;
+
+                    if (l1CaloTower.isBarrel)
+                    {
+                        // For decay mode related checks with CaloTaus
+                        // only applicable in the barrel at the moment:
+                        // l1eg pt, HCAL ET, ECAL ET, dEta, dPhi, trkSS, trkIso, standaloneSS, standaloneIso
+                        std::vector< float > l1EG_info = {float(l1egP4.pt()), float(hcalP4.pt()), float(ecalP4.pt()), 0., 0., float(l1CaloTower.l1eg_trkSS),
+                            float(l1CaloTower.l1eg_trkIso), float(l1CaloTower.l1eg_standaloneSS), float(l1CaloTower.l1eg_standaloneIso)};
+                        caloJetObj.associated_l1EGs.push_back( l1EG_info );
+                    }
+
                 }
                 if (totalP4.pt() > 0) 
                 {
@@ -838,11 +854,6 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 caloJetObj.total_2x2_2 += totalP4.pt();
                 caloJetObj.total_2x2_3 += totalP4.pt();
                 caloJetObj.total_2x2_4 += totalP4.pt();
-
-                caloJetObj.l1eg_nL1EGs_standaloneSS += l1CaloTower.l1eg_standaloneSS;
-                caloJetObj.l1eg_nL1EGs_standaloneIso += l1CaloTower.l1eg_standaloneIso;
-                caloJetObj.l1eg_nL1EGs_trkMatchSS += l1CaloTower.l1eg_trkSS;
-                caloJetObj.l1eg_nL1EGs_trkMatchIso += l1CaloTower.l1eg_trkIso;
                 continue;
             }
 
@@ -950,11 +961,24 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                     caloJetObj.ecal_5x5 += ecalP4.pt();
                     caloJetObj.l1eg_5x5 += l1egP4.pt();
                     caloJetObj.total_5x5 += totalP4.pt();
+
                     // Do this for 5x5 only
-                    caloJetObj.l1eg_nL1EGs_standaloneSS += l1CaloTower.l1eg_standaloneSS;
-                    caloJetObj.l1eg_nL1EGs_standaloneIso += l1CaloTower.l1eg_standaloneIso;
-                    caloJetObj.l1eg_nL1EGs_trkMatchSS += l1CaloTower.l1eg_trkSS;
-                    caloJetObj.l1eg_nL1EGs_trkMatchIso += l1CaloTower.l1eg_trkIso;
+                    if (l1egP4.pt() > 0) 
+                    {
+                        caloJetObj.l1eg_nL1EGs_standaloneSS += l1CaloTower.l1eg_standaloneSS;
+                        caloJetObj.l1eg_nL1EGs_standaloneIso += l1CaloTower.l1eg_standaloneIso;
+                        caloJetObj.l1eg_nL1EGs_trkMatchSS += l1CaloTower.l1eg_trkSS;
+                        caloJetObj.l1eg_nL1EGs_trkMatchIso += l1CaloTower.l1eg_trkIso;
+
+                        // For decay mode related checks with CaloTaus
+                        // only applicable in the barrel at the moment:
+                        // l1eg pt, HCAL ET, ECAL ET, d_iEta, d_iPhi, trkSS, trkIso, standaloneSS, standaloneIso
+                        std::vector< float > l1EG_info = {float(l1egP4.pt()), float(hcalP4.pt()), float(ecalP4.pt()),
+                            float(d_iEta), float(d_iPhi), float(l1CaloTower.l1eg_trkSS), float(l1CaloTower.l1eg_trkIso),
+                            float(l1CaloTower.l1eg_standaloneSS), float(l1CaloTower.l1eg_standaloneIso)};
+                        caloJetObj.associated_l1EGs.push_back( l1EG_info );
+                    }
+
                 }
                 if ( ( abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 3) || 
                     ( fabs( d_eta ) < 0.22 && fabs( d_phi ) < 0.3 ) )
@@ -1285,7 +1309,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         float totalPtPUcorr = -1;
         l1slhc::L1CaloJet caloJet(caloJetObj.jetCluster, calibratedPt, hovere, ECalIsolation, totalPtPUcorr);
         caloJet.SetExperimentalParams(params);
-	caloJet.associated_l1EGs = caloJetObj.associated_l1EGs;
+        caloJet.associated_l1EGs = caloJetObj.associated_l1EGs;
         //for (int i = 0; i < 9; i++)
         //{
         //    for (int j = 0; j < 9; j++)
