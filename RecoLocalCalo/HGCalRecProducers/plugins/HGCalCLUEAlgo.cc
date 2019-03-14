@@ -223,7 +223,7 @@ double HGCalCLUEAlgo::calculateLocalDensity(std::vector<KDNode> &nd, KDTree &lp,
     const unsigned int found_size = found.size();
     for (unsigned int j = 0; j < found_size; j++) {
       if (distance(nd[i].data, found[j].data) < delta_c) {
-        nd[i].data.rho += found[j].data.weight;
+        nd[i].data.rho += (nd[i].data.detid == found[j].data.detid ? 1. : 0.5) * found[j].data.weight;
         maxdensity = std::max(maxdensity, nd[i].data.rho);
       }
     }  // end loop found
