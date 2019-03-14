@@ -88,7 +88,7 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate
   float myPhimin = thePhiMin;
   float myPhimax = thePhiMax;  
 
-  float phiDiff = normalized_phi(rhPhi - tsPhi) ;  
+  float phiDiff = normalizePhi(rhPhi - tsPhi) ;  
 
   if ( phiDiff < myPhimax && phiDiff > myPhimin )
    { return std::pair<bool,double>(true,1.) ; }
