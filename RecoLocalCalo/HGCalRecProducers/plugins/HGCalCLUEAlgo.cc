@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalCLUEAlgo.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalCLUEAlgo.h"
 
 // Geometry
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"

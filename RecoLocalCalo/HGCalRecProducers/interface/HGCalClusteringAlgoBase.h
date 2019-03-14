@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_HGCalRecAlgos_HGCalClusteringAlgoBase_h
-#define RecoLocalCalo_HGCalRecAlgos_HGCalClusteringAlgoBase_h
+#ifndef RecoLocalCalo_HGCalRecProducers_HGCalClusteringAlgoBase_h
+#define RecoLocalCalo_HGCalRecProducers_HGCalClusteringAlgoBase_h
 
 #include "FWCore/Framework/interface/EventSetup.h"
 

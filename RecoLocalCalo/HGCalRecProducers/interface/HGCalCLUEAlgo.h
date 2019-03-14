@@ -1,7 +1,7 @@
-#ifndef RecoLocalCalo_HGCalRecAlgos_HGCalCLUEAlgo_h
-#define RecoLocalCalo_HGCalRecAlgos_HGCalCLUEAlgo_h
+#ifndef RecoLocalCalo_HGCalRecProducers_HGCalCLUEAlgo_h
+#define RecoLocalCalo_HGCalRecProducers_HGCalCLUEAlgo_h
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalClusteringAlgoBase.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -19,13 +19,13 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/KDTreeLinkerAlgoT.h"
 
 // C/C++ headers
 #include <set>
 #include <string>
 #include <vector>
 
-#include "KDTreeLinkerAlgoT.h"
 
 class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
  public:

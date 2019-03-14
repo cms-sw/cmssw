@@ -1,3 +1,4 @@
+
 #include "RecoEgamma/EgammaTools/interface/EgammaPCAHelper.h"
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
@@ -5,9 +6,11 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // To retrieve HGCalImagingAlgo::maxlayer
 // Also available as HGCal3DClustering::lastLayerBH and HGCalDepthPreClusterer::lastLayerBH
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
 #include <algorithm>
 #include <iostream>
@@ -257,7 +260,7 @@ LongDeps  EGammaPCAHelper::energyPerLayer(float radius, bool withHalo) {
     if (debug_) checkIteration();
     std::set<int> layers;
     float radius2 = radius*radius;
-    std::vector<float> energyPerLayer(HGCalImagingAlgo::maxlayer+1, 0.f);
+    std::vector<float> energyPerLayer(HGCalClusteringAlgoBase::maxlayer+1, 0.f);
     math::XYZVector mainAxis(axis_);
     mainAxis.unit();
     math::XYZVector phiAxis(barycenter_.x(), barycenter_.y(), 0);
@@ -299,7 +302,7 @@ void EGammaPCAHelper::printHits(float radius) const {
 
 float EGammaPCAHelper::findZFirstLayer(const LongDeps & ld) const {
     unsigned int firstLayer = 0;
-    for(unsigned il=1;il<=HGCalImagingAlgo::maxlayer;++il) {
+    for(unsigned il=1;il<=HGCalClusteringAlgoBase::maxlayer;++il) {
         if (ld.energyPerLayer()[il] > 0.) {
             firstLayer = il;
             break;
