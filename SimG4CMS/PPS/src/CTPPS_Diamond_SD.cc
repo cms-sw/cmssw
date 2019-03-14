@@ -49,7 +49,7 @@ CTPPS_Diamond_SD::CTPPS_Diamond_SD(const std::string & name, const DDCompactView
     << "*                                                     *\n"
     << "* Constructing a CTPPS_Diamond_SD  with name " << name << "\n"
     << "*                                                     *\n"
-    << "*******************************************************" << std::endl;
+    << "*******************************************************" << "\n";
 
 
   slave  = new TrackingSlaveSD(name);
@@ -90,28 +90,25 @@ void CTPPS_Diamond_SD::Initialize(G4HCofThisEvent * HCE) {
 
 void CTPPS_Diamond_SD::Print_Hit_Info()
 {
-  //LogDebug("CTPPSSimDiamond")
-  std::cout
+  LogDebug("CTPPSSimDiamond")
   << theTrack->GetDefinition()->GetParticleName()
   << " PPS_Timing_SD CreateNewHit for"
   << " PV "     << currentPV->GetName()
   << " PVid = " << currentPV->GetCopyNo()
-  << " Unit "   << unitID<<std::endl;
-  //LogDebug("CTPPSSimDiamond")
-  std::cout 
+  << " Unit "   << unitID<<"\n";
+  LogDebug("CTPPSSimDiamond")
   << " primary "    << primaryID
   << " time slice " << tSliceID 
   << " of energy " << theTrack->GetTotalEnergy()
   << " Eloss " << Eloss
-  << " positions "<<std::endl;
+  << " positions "<<"\n";
   printf(" PreStepPoint(%10f,%10f,%10f)",preStepPoint->GetPosition().x(),preStepPoint->GetPosition().y(),preStepPoint->GetPosition().z());
   printf(" PosStepPoint(%10f,%10f,%10f)\n",postStepPoint->GetPosition().x(),postStepPoint->GetPosition().y(),postStepPoint->GetPosition().z());
-//  LogDebug("CTPPSSimDiamond") 
-   std::cout
+  LogDebug("CTPPSSimDiamond") 
   << " positions " << "(" <<postStepPoint->GetPosition().x()<<","<<postStepPoint->GetPosition().y()<<","<<postStepPoint->GetPosition().z()<<")"
   << " For Track  " << theTrack->GetTrackID()
   << " which is a " << theTrack->GetDefinition()->GetParticleName()
-  << " ParentID is " << theTrack->GetParentID()<<std::endl;
+  << " ParentID is " << theTrack->GetParentID()<<"\n";
      
   if(theTrack->GetTrackID()==1)
   {
@@ -129,7 +126,7 @@ void CTPPS_Diamond_SD::Print_Hit_Info()
   else 
     LogDebug("CTPPSSimDiamond") << "NO process";
     
-  LogDebug("CTPPSSimDiamond") << std::endl;
+  LogDebug("CTPPSSimDiamond") << "\n";
 }
 
 
@@ -143,12 +140,11 @@ bool CTPPS_Diamond_SD::ProcessHits(G4Step * aStep, G4TouchableHistory * )
   else
   {  
     LogDebug("CTPPSSimDiamond")
-       //std::cout
     << "*******************************************************\n"
     << "*                                                     *\n"
     << "* PPS Diamond Hit initialized  with name " << name << "\n" 
     << "*                                                     *\n" 
-    << "*******************************************************" << std::endl;
+    << "*******************************************************" << "\n";
 
 
 
@@ -186,7 +182,7 @@ void CTPPS_Diamond_SD::GetStepInfo(G4Step* aStep)
   unitID = setDetUnitId(aStep);
 
   if(verbosity_)
-    LogDebug("CTPPSSimDiamond") << "UNITa " << unitID <<std::endl;
+    LogDebug("CTPPSSimDiamond") << "UNITa " << unitID <<"\n";
 
   primaryID = theTrack->GetTrackID();
   Pabs = (aStep->GetPreStepPoint()->GetMomentum().mag())/GeV;
@@ -228,7 +224,7 @@ void CTPPS_Diamond_SD::StoreHit(CTPPS_Diamond_G4Hit* hit)
   if (hit == nullptr )
   {
     if(verbosity_)
-      LogDebug("CTPPSSimDiamond") << "CTPPS_Diamond: hit to be stored is NULL !!" <<std::endl;
+      LogDebug("CTPPSSimDiamond") << "CTPPS_Diamond: hit to be stored is NULL !!" <<"\n";
     return;
   }
 
@@ -263,7 +259,7 @@ void CTPPS_Diamond_SD::ImportInfotoHit()
   currentHit->setGlobalTimehit(Globaltimehit);
 
   StoreHit(currentHit);
-  LogDebug("CTPPSSimDiamond") << "STORED HIT IN: " << unitID << std::endl;
+  LogDebug("CTPPSSimDiamond") << "STORED HIT IN: " << unitID << "\n";
 }	 
 
 
@@ -317,7 +313,7 @@ void CTPPS_Diamond_SD::DrawAll()
 
 void CTPPS_Diamond_SD::PrintAll()
 {
-  LogDebug("CTPPSSimDiamond") << "CTPPS_Diamond: Collection " << theHC->GetName() << std::endl;
+  LogDebug("CTPPSSimDiamond") << "CTPPS_Diamond: Collection " << theHC->GetName() << "\n";
   theHC->PrintAllHits();
 } 
 
@@ -332,12 +328,12 @@ void CTPPS_Diamond_SD::SetNumberingScheme(PPSVDetectorOrganization* scheme)
   if (numberingScheme)
     delete numberingScheme;
   numberingScheme = scheme;
-  LogDebug("CTPPSSimDiamond") << "SetNumberingScheme " << numberingScheme << std::endl;
+  LogDebug("CTPPSSimDiamond") << "SetNumberingScheme " << numberingScheme << "\n";
 }
 
 void CTPPS_Diamond_SD::update(const BeginOfEvent * i)
 {
-  LogDebug("CTPPSSimDiamond") <<" Dispatched BeginOfEvent !"<<std::endl;
+  LogDebug("CTPPSSimDiamond") <<" Dispatched BeginOfEvent !"<<"\n";
   clearHits();
   eventno = (*i)()->GetEventID();
 

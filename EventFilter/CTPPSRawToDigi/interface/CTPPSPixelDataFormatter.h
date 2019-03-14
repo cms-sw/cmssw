@@ -30,7 +30,6 @@
  * The CTPPSPixelDataFormatter interpret/format ONLY detector data words
  * (not FED headers or trailer, which are treated elsewhere).
  */
-//
 
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h" 
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h" 

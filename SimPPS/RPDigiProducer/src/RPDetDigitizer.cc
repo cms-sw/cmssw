@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimPPS/RPDigiProducer/interface/RPDetDigitizer.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 RPDetDigitizer::RPDetDigitizer(const edm::ParameterSet &params, CLHEP::HepRandomEngine& eng, RPDetId det_id, const edm::EventSetup& iSetup)
@@ -39,7 +40,7 @@ void RPDetDigitizer::run(const std::vector<PSimHit> &input, const std::vector<in
     SimRP::DigiPrimaryMapType &output_digi_links) 
 {
   if(verbosity_)
-    std::cout<<"RPDetDigitizer "<<det_id_<<" received input.size()="<<input.size()<<std::endl;
+    LogDebug("RPDetDigitizer ")<<det_id_<<" received input.size()="<<input.size()<<"\n";
   theRPPileUpSignals->reset();
   
   bool links_persistence_checked = _links_persistence && input_links.size()==input.size();
@@ -55,7 +56,7 @@ void RPDetDigitizer::run(const std::vector<PSimHit> &input, const std::vector<in
       the_strip_charge_map = theRPHitChargeConverter->processHit(input[i]);
       
     if(verbosity_)
-      std::cout<<"RPHitChargeConverter "<<det_id_<<" returned hits="<<the_strip_charge_map.size()<<std::endl;
+      LogDebug("RPHitChargeConverter ")<<det_id_<<" returned hits="<<the_strip_charge_map.size()<<"\n";
     if(links_persistence_checked)
       theRPPileUpSignals->add(the_strip_charge_map, input_links[i]);
     else

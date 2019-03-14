@@ -17,12 +17,8 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 
-//----------------------------------------------------------------------------------------------------
-
 using namespace std;
 using namespace edm;
-
-//----------------------------------------------------------------------------------------------------
 
 RawToDigiConverter::RawToDigiConverter(const edm::ParameterSet &conf) :
   verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
@@ -42,8 +38,6 @@ RawToDigiConverter::RawToDigiConverter(const edm::ParameterSet &conf) :
   BC_fraction(conf.getUntrackedParameter<double>("BC_fraction", 0.6))
 {
 }
-
-//----------------------------------------------------------------------------------------------------
 
 void RawToDigiConverter::runCommon(const VFATFrameCollection &input, const TotemDAQMapping &mapping,
       map<TotemFramePosition, RawToDigiConverter::Record> &records)
@@ -194,8 +188,6 @@ void RawToDigiConverter::runCommon(const VFATFrameCollection &input, const Totem
   }
 }
 
-//----------------------------------------------------------------------------------------------------
-
 void RawToDigiConverter::run(const VFATFrameCollection &input,
   const TotemDAQMapping &mapping, const TotemAnalysisMask &analysisMask,
   DetSetVector<TotemRPDigi> &rpData, DetSetVector<TotemVFATStatus> &finalStatus)
@@ -258,8 +250,6 @@ void RawToDigiConverter::run(const VFATFrameCollection &input,
   }
 }
 
-//----------------------------------------------------------------------------------------------------
-
 void RawToDigiConverter::run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
       edm::DetSetVector<CTPPSDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status)
 {
@@ -295,8 +285,6 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll, const TotemDAQMapp
     statusDetSet.push_back(record.status);
   }
 }
-
-//----------------------------------------------------------------------------------------------------
 
 void RawToDigiConverter::run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
       edm::DetSetVector<TotemTimingDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status)
@@ -384,9 +372,6 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll, const TotemDAQMapp
     }
   }
 }
-
-
-//----------------------------------------------------------------------------------------------------
 
 void RawToDigiConverter::printSummaries() const
 {

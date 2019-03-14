@@ -1,4 +1,5 @@
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimPPS/RPDigiProducer/interface/RPPileUpSignals.h"
 #include <iostream>
 
@@ -27,7 +28,7 @@ void RPPileUpSignals::add(const SimRP::strip_charge_map &charge_induced, int PSi
       the_strip_charge_piled_up_map_links_[i->first].push_back(std::pair<int, double>(PSimHitIndex, i->second));
       if(verbosity_)
       {
-        std::cout<<"Det id="<<det_id_<<" strip="<<i->first<<" charge="<<i->second<<std::endl;
+        edm::LogInfo("RPPileUpSignals")<<"Det id="<<det_id_<<" strip="<<i->first<<" charge="<<i->second<<"\n";
       }
     }
   }

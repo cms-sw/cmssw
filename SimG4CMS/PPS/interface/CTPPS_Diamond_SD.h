@@ -8,7 +8,6 @@
 #define PPS_CTPPSDiamondSD_h
 
 
-#include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4CMS/PPS/interface/CTPPS_Diamond_G4Hit.h"
 #include "SimG4CMS/PPS/interface/CTPPS_Diamond_G4HitCollection.h"
 #include "SimG4CMS/PPS/interface/PPSVDetectorOrganization.h"
@@ -21,17 +20,13 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
  
-#include "G4Step.hh"
-#include "G4StepPoint.hh"
-#include "G4Track.hh"
- 
 #include <string>
 
 
 class G4Step;
 class G4HCofThisEvent;
 class TrackingSlaveSD;
-
+class SimTrackManager;
 
 class CTPPS_Diamond_SD : public SensitiveTkDetector,
     public Observer<const BeginOfEvent*>,

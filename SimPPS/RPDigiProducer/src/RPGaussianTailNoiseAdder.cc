@@ -1,4 +1,5 @@
 #include "SimPPS/RPDigiProducer/interface/RPGaussianTailNoiseAdder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Random/RandGauss.h"
 #include <iostream>
 #include "TMath.h"
@@ -28,7 +29,7 @@ SimRP::strip_charge_map RPGaussianTailNoiseAdder::addNoise(
     double noise = CLHEP::RandGauss::shoot(0.0, theNoiseInElectrons_);
     the_strip_charge_map_[i->first] = i->second + noise;
     if(verbosity_)
-      cout<<"noise added to signal strips: "<<noise<<endl;
+      edm::LogInfo("RPDigiProducer")<<"noise added to signal strips: "<<noise<<"\n";
   }
   
   // noise on the other strips
@@ -44,7 +45,7 @@ SimRP::strip_charge_map RPGaussianTailNoiseAdder::addNoise(
       //only binary decision later, no need to simulate the noise precisely, 
       //enough to know that it exceeds the threshold
       if(verbosity_)
-        cout<<"nonsignal strips noise :"<<strip<<" "<<the_strip_charge_map_[strip]<<endl;
+        edm::LogInfo("RPDigiProducer")<<"nonsignal strips noise :"<<strip<<" "<<the_strip_charge_map_[strip]<<"\n";
     }
   }
   

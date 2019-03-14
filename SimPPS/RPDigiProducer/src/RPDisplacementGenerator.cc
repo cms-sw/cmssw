@@ -7,6 +7,7 @@
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <Math/RotationZYX.h>
 #include <Math/Rotation3D.h>
 
@@ -14,10 +15,6 @@
 
 using namespace std;
 using namespace edm;
-
-//-------------------------------- static members ---------------------------------------
-//const uint32_t startArmBit = 24, maskArm = 0x1, startStationBit = 22, maskStation = 0x3, startRPBit = 19, maskRP = 0x7 ;
-//static const uint32_t startPlaneBit = 15, maskPlane = 0xF; 
 
 RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps, RPDetId _detId, const edm::EventSetup &iSetup) : detId(_detId)
 {
@@ -45,23 +42,18 @@ RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps, RP
   ESHandle<CTPPSGeometry> geom;
   iSetup.get<VeryForwardRealGeometryRecord>().get(geom);
   const DetGeomDesc *g = geom->getSensor(detId);
-
-  //const DDTranslation& S_l = g->translation();
   const DDRotationMatrix& R_l = g->rotation();
-
   rotation = R_l.Inverse() * R_m.Inverse() * R_l;
   shift = R_l.Inverse() * R_m.Inverse() * S_m;
 
 #ifdef DEBUG
-  cout << ">> RPDisplacementGenerator::RPDisplacementGenerator, det id = " << decId << ", isOn = " << isOn << endl;
+  edm::LogDebug("RPDisplacementGenerator")<<" det id = " << decId << ", isOn = " << isOn << "\n";
   if (isOn) {
-    cout << " shift = " << shift << endl;
-    cout << " rotation = " << rotation << endl;
+    edm::LogDebug("RPDisplacementGenerator") << " shift = " << shift << "\n";
+    edm::LogDebug("RPDisplacementGenerator") << " rotation = " << rotation << "\n";
   }
 #endif
 }
-
-//----------------------------------------------------------------------------------------------------
 
 Local3DPoint RPDisplacementGenerator::DisplacePoint(const Local3DPoint &p)
 {
@@ -73,8 +65,6 @@ Local3DPoint RPDisplacementGenerator::DisplacePoint(const Local3DPoint &p)
   return Local3DPoint(v.x(), v.y(), v.z());
 }
 
-//----------------------------------------------------------------------------------------------------
-
 PSimHit RPDisplacementGenerator::Displace(const PSimHit &input)
 {
   if (!isOn)
@@ -84,9 +74,9 @@ PSimHit RPDisplacementGenerator::Displace(const PSimHit &input)
   const Local3DPoint &dep = DisplacePoint(ep), &dxp = DisplacePoint(xp);
 
 #ifdef DEBUG
-  printf(">> RPDisplacementGenerator::Displace\n");
-  cout << " entry point: " << ep << " -> " << dep << endl;
-  cout << " exit point : " << xp << " -> " << dxp << endl;
+  edm::LogDebug("RPDisplacementGenerator::Displace\n")
+       << " entry point: " << ep << " -> " << dep << "\n";
+       << " exit point : " << xp << " -> " << dxp << "\n";
 #endif
 
 

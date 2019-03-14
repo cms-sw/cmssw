@@ -3,6 +3,7 @@
 #include "SimPPS/RPDigiProducer/interface/RPLinearChargeDivider.h"
 #include "SimPPS/RPDigiProducer/interface/RPLinearChargeCollectionDrifter.h"
 #include "SimPPS/RPDigiProducer/interface/RPLinearInduceChargeOnStrips.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 RPHitChargeConverter::RPHitChargeConverter(const edm::ParameterSet &params, CLHEP::HepRandomEngine& eng, RPDetId det_id)
@@ -26,7 +27,7 @@ SimRP::strip_charge_map RPHitChargeConverter::processHit(const PSimHit &hit)
 {  
   SimRP::energy_path_distribution ions_along_path = theRPChargeDivider->divide(hit);
   if(verbosity_)
-    std::cout<<"HitChargeConverter "<<det_id_<<" clouds no generated on the path="<<ions_along_path.size()<<std::endl;
+    edm::LogInfo("HitChargeConverter")<<det_id_<<" clouds no generated on the path="<<ions_along_path.size()<<"\n";
   return theRPInduceChargeOnStrips->Induce(theRPChargeCollectionDrifter->Drift(ions_along_path));
 }
 

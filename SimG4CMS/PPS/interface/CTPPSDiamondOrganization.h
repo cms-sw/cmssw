@@ -1,7 +1,5 @@
-// ///////////////////////
 // Author 
 // Seyed Mohsen Etesami setesami@cern.ch
-// //////////////////////////////
 
 #ifndef PPS_CTPPSDiamondOrganization_h
 #define PPS_CTPPSDiamondOrganization_h 

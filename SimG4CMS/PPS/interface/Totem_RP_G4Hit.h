@@ -23,11 +23,11 @@
 #define PPS_Totem_RP_G4Hit_h 1
 
 #include "G4VHit.hh"
-#include <CLHEP/Vector/ThreeVector.h>
+#include "G4ThreeVector.hh"
+#include "DataFormats/Math/interface/Point3D.h"
 #include <boost/cstdint.hpp>
 #include <iostream>
 
-using CLHEP::Hep3Vector;
 
 class Totem_RP_G4Hit : public G4VHit {
   
@@ -42,15 +42,15 @@ public:
   void Print() override;
   
 public:
-  Hep3Vector getEntry() const;
-  void setEntry(Hep3Vector xyz);
-  Hep3Vector getExit() const;
-  void setExit(Hep3Vector xyz);
+  G4ThreeVector getEntry() const;
+  void setEntry(G4ThreeVector xyz);
+  G4ThreeVector getExit() const;
+  void setExit(G4ThreeVector xyz);
   
-  void setLocalEntry(const Hep3Vector &theLocalEntryPoint);
-  void setLocalExit(const Hep3Vector &theLocalExitPoint);
-  Hep3Vector getLocalEntry() const;
-  Hep3Vector getLocalExit() const;
+  void setLocalEntry(const G4ThreeVector &theLocalEntryPoint);
+  void setLocalExit(const G4ThreeVector &theLocalExitPoint);
+  G4ThreeVector getLocalEntry() const;
+  G4ThreeVector getLocalExit() const;
   
   double getIncidentEnergy() const;
   void setIncidentEnergy (double e);
@@ -109,10 +109,10 @@ public:
   double get_p_z() const;
 
 private:
-  Hep3Vector entry;             //Entry point
-  Hep3Vector exit;    //Exit point
-  Hep3Vector local_entry;    //local entry point
-  Hep3Vector local_exit;     //local exit point
+  G4ThreeVector entry;             //Entry point
+  G4ThreeVector exit;    //Exit point
+  G4ThreeVector local_entry;    //local entry point
+  G4ThreeVector local_exit;     //local exit point
   double theIncidentEnergy; //Energy of the primary particle
   int theTrackID;        //Identification number of the primary
                                   //particle
@@ -129,8 +129,8 @@ private:
 
   double theThetaAtEntry;
   double thePhiAtEntry;
-  Hep3Vector theEntryPoint;
-  Hep3Vector theExitPoint;
+  G4ThreeVector theEntryPoint;
+  G4ThreeVector theExitPoint;
 
   int theParentId;
   double theVx;

@@ -184,8 +184,8 @@ void PPSPixelSD::GetStepInfo(G4Step* aStep) {
     Local3DPoint TheExitPoint = SensitiveDetector::FinalStepPosition(aStep,LocalCoordinates);  
 
 #ifdef _PRINT_HITS_
-    std::cout << "theEntryPoint "<<TheEntryPoint << std::endl;
-    std::cout <<"position "<< preStepPoint->GetPosition()<<std::endl;
+    LogDebug("PPSSim") << "theEntryPoint "<<TheEntryPoint << "\n";
+    LogDebug("PPSSim") <<"position "<< preStepPoint->GetPosition()<<"\n";
 #endif
     hitPoint     = preStepPoint->GetPosition();	
     currentPV    = preStepPoint->GetPhysicalVolume();
@@ -347,7 +347,6 @@ void PPSPixelSD::CreateNewHitEvo() {
     if(flagAcc==1){
         currentHit->setMeanPosition(_PosizioEvo);
 
-        // if(flagAcc==1)
         UpdateHit();
 
         StoreHit(currentHit);

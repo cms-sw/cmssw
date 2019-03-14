@@ -1,8 +1,8 @@
 #include "SimPPS/RPDigiProducer/interface/RPLinearChargeDivider.h"
-//#include "Geometry/VeryForwardRPTopology/interface/RPHepPDTWrapper.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RPLinearChargeDivider::RPLinearChargeDivider(const edm::ParameterSet &params,  CLHEP::HepRandomEngine& eng,
     RPDetId det_id) : params_(params), rndEngine(eng) , _det_id(det_id)
@@ -11,22 +11,21 @@ RPLinearChargeDivider::RPLinearChargeDivider(const edm::ParameterSet &params,  C
 
   fluctuate = new SiG4UniversalFluctuation();
 
-    // Run APV in peak instead of deconvolution mode, which degrades the 
-  // time resolution.
-  //SimpleConfigurable<bool> SiLinearChargeDivider::peakMode(false,"SiStripDigitizer:APVpeakmode");
+  // To Run APV in peak instead of deconvolution mode, which degrades the time resolution.
+  //use: SimpleConfigurable<bool> SiLinearChargeDivider::peakMode(false,"SiStripDigitizer:APVpeakmode");
 
-  // Enable interstrip Landau fluctuations within a cluster.
-  //SimpleConfigurable<bool> SiLinearChargeDivider::fluctuateCharge(true,"SiStripDigitizer:LandauFluctuations");
+  // To Enable interstrip Landau fluctuations within a cluster.
+  //use: SimpleConfigurable<bool> SiLinearChargeDivider::fluctuateCharge(true,"SiStripDigitizer:LandauFluctuations");
   fluctuateCharge_ = params.getParameter<bool>("RPLandauFluctuations");
-  
+
   // Number of segments per strip into which charge is divided during
   // simulation. If large, precision of simulation improves.
-  //SimpleConfigurable<int> SiLinearChargeDivider::chargeDivisionsPerStrip(10,"SiStripDigitizer:chargeDivisionsPerStrip");
+  //to do so: SimpleConfigurable<int> SiLinearChargeDivider::chargeDivisionsPerStrip(10,"SiStripDigitizer:chargeDivisionsPerStrip");
   chargedivisionsPerStrip_ = params.getParameter<int>("RPChargeDivisionsPerStrip");
   chargedivisionsPerThickness_ = params.getParameter<int>("RPChargeDivisionsPerThickness");
  
   // delta cutoff in MeV, has to be same as in OSCAR (0.120425 MeV corresponding // to 100um range for electrons)
-  //SimpleConfigurable<double>  SiLinearChargeDivider::deltaCut(0.120425,
+  //        SimpleConfigurable<double>  SiLinearChargeDivider::deltaCut(0.120425,
   deltaCut_ = params.getParameter<double>("RPDeltaProductionCut");
   
   RPTopology rp_det_topol;
@@ -80,17 +79,17 @@ SimRP::energy_path_distribution RPLinearChargeDivider::divide(const PSimHit& hit
   
   if(verbosity_)
   {
-    std::cout<<_det_id<<" charge along the track:"<<std::endl;
+    edm::LogInfo("RPLinearChargeDivider")<<_det_id<<" charge along the track:\n";
     double sum=0;
     for(unsigned int i=0; i<the_energy_path_distribution_.size(); i++)
     {
-      std::cout<<the_energy_path_distribution_[i].X()<<" "
-          <<the_energy_path_distribution_[i].Y()<<" "
-          <<the_energy_path_distribution_[i].Z()<<" "
-          <<the_energy_path_distribution_[i].Energy()<<std::endl;
+      edm::LogInfo("RPLinearChargeDivider")<<the_energy_path_distribution_[i].X()<<" "
+              <<the_energy_path_distribution_[i].Y()<<" "
+              <<the_energy_path_distribution_[i].Z()<<" "
+              <<the_energy_path_distribution_[i].Energy()<<"\n";
       sum += the_energy_path_distribution_[i].Energy();
     }
-    std::cout<<"energy dep. sum="<<sum<<std::endl;
+    edm::LogInfo("RPLinearChargeDivider")<<"energy dep. sum="<<sum<<"\n";
   }
   
   return the_energy_path_distribution_;
@@ -100,14 +99,6 @@ void RPLinearChargeDivider::FluctuateEloss(int pid, double particleMomentum,
       double eloss, double length, int NumberOfSegs, 
       SimRP::energy_path_distribution &elossVector)
 {
-  // Get dedx for this track
-//  double dedx;
-//  if( length > 0.) dedx = eloss/length;
-//  else dedx = eloss;
-
-//  double particleMass = RPHepPDTWrapper::GetMass(pid)*1000; //to have the mass in MeV
-//  if(particleMass==-1)
-//    particleMass = 139.57; // Mass in MeV, Assume pion
   double particleMass = 139.6; // Mass in MeV, Assume pion
   pid = std::abs(pid);
   if (pid != 211) {       // Mass in MeV
@@ -128,7 +119,6 @@ void RPLinearChargeDivider::FluctuateEloss(int pid, double particleMomentum,
     // The G4 routine needs momentum in MeV, mass in Mev, delta-cut in MeV,
     // track segment length in mm, segment eloss in MeV 
     // Returns fluctuated eloss in MeV
-    //    double deltaCutoff = deltaCut.value(); // the cutoff is sometimes redefined inside, so fix it.
     double deltaCutoff = deltaCut_;
     de = fluctuate->SampleFluctuations(particleMomentum*1000, particleMass, 
         deltaCutoff, segmentLength, segmentEloss, &(rndEngine))/1000; //convert to GeV

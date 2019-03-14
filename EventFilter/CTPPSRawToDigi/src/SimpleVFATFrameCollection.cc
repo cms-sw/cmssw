@@ -9,22 +9,16 @@
 
 #include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
 
-//----------------------------------------------------------------------------------------------------
-
 using namespace std;
 
 SimpleVFATFrameCollection::SimpleVFATFrameCollection()
 {
 }
 
-//----------------------------------------------------------------------------------------------------
-
 SimpleVFATFrameCollection::~SimpleVFATFrameCollection()
 {
   data.clear();
 }
-
-//----------------------------------------------------------------------------------------------------
 
 const VFATFrame* SimpleVFATFrameCollection::GetFrameByID(unsigned int ID) const
 {
@@ -39,8 +33,6 @@ const VFATFrame* SimpleVFATFrameCollection::GetFrameByID(unsigned int ID) const
   return nullptr;
 }
 
-//----------------------------------------------------------------------------------------------------
-
 const VFATFrame* SimpleVFATFrameCollection::GetFrameByIndex(TotemFramePosition index) const
 {
   MapType::const_iterator it = data.find(index);
@@ -50,15 +42,11 @@ const VFATFrame* SimpleVFATFrameCollection::GetFrameByIndex(TotemFramePosition i
     return nullptr;
 }
 
-//----------------------------------------------------------------------------------------------------
-
 VFATFrameCollection::value_type SimpleVFATFrameCollection::BeginIterator() const
 {
   MapType::const_iterator it = data.begin();
   return (it == data.end()) ? value_type(TotemFramePosition(), nullptr) : value_type(it->first, &it->second);
 }
-
-//----------------------------------------------------------------------------------------------------
 
 VFATFrameCollection::value_type SimpleVFATFrameCollection::NextIterator(const value_type &value) const
 {
@@ -70,8 +58,6 @@ VFATFrameCollection::value_type SimpleVFATFrameCollection::NextIterator(const va
 
   return (it == data.end()) ? value_type(TotemFramePosition(), nullptr) : value_type(it->first, &it->second);
 }
-
-//----------------------------------------------------------------------------------------------------
 
 bool SimpleVFATFrameCollection::IsEndIterator(const value_type &value) const
 {

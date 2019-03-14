@@ -24,12 +24,10 @@
 #include <iostream>
 #include <iomanip>
 
-//----------------------------------------------------------------------------------------------------
 using namespace std;
 using namespace edm;
 typedef uint64_t word;
 
-//----------------------------------------------------------------------------------------------------
 CTPPSTotemDataFormatter::CTPPSTotemDataFormatter(std::map<TotemFramePosition, TotemVFATInfo> const &mapping)  :  m_WordCounter(0), m_DigiCounter(0)
 {
   int s32 = sizeof(Word32);
@@ -45,7 +43,6 @@ CTPPSTotemDataFormatter::CTPPSTotemDataFormatter(std::map<TotemFramePosition, To
   }
 }
 
-//----------------------------------------------------------------------------------------------------
 void CTPPSTotemDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis, std::vector<PPSStripIndex> iDdet2fed)
 {
   std::map<int, vector<std::array<uint16_t,12> > > words;

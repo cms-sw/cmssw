@@ -1,7 +1,6 @@
 #ifndef SimPPS_PPSPixelDigiProducer_RPix_SignalPoint_H
 #define SimPPS_PPSPixelDigiProducer_RPix_SignalPoint_H
 
-
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 

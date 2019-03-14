@@ -22,8 +22,6 @@
 #include <string>
 #include <iostream>
 
-//----------------------------------------------------------------------------------------------------
-
 class TotemTriggerRawToDigi : public edm::stream::EDProducer<>
 {
   public:
@@ -41,12 +39,8 @@ class TotemTriggerRawToDigi : public edm::stream::EDProducer<>
     int ProcessLoneGFrame(uint64_t *oBuf, unsigned long size, TotemTriggerCounters &data);
 };
 
-//----------------------------------------------------------------------------------------------------
-
 using namespace edm;
 using namespace std;
-
-//----------------------------------------------------------------------------------------------------
 
 TotemTriggerRawToDigi::TotemTriggerRawToDigi(const edm::ParameterSet &conf):
   fedId(conf.getParameter<unsigned int>("fedId"))
@@ -59,13 +53,9 @@ TotemTriggerRawToDigi::TotemTriggerRawToDigi(const edm::ParameterSet &conf):
   produces<TotemTriggerCounters>();
 }
 
-//----------------------------------------------------------------------------------------------------
-
 TotemTriggerRawToDigi::~TotemTriggerRawToDigi()
 {
 }
-
-//----------------------------------------------------------------------------------------------------
 
 void TotemTriggerRawToDigi::produce(edm::Event& event, const edm::EventSetup &es)
 {
@@ -86,8 +76,6 @@ void TotemTriggerRawToDigi::produce(edm::Event& event, const edm::EventSetup &es
   // commit products to event
   event.put(make_unique<TotemTriggerCounters>(totemTriggerCounters));
 }
-
-//----------------------------------------------------------------------------------------------------
 
 int TotemTriggerRawToDigi::ProcessLoneGFrame(uint64_t *oBuf, unsigned long size, TotemTriggerCounters &td)
 {
@@ -138,7 +126,5 @@ int TotemTriggerRawToDigi::ProcessLoneGFrame(uint64_t *oBuf, unsigned long size,
 
   return 0;
 }
-
-//----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(TotemTriggerRawToDigi);

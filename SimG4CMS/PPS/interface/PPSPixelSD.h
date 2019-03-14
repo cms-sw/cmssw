@@ -31,14 +31,14 @@
 #include "SimG4CMS/PPS/interface/PPSPixelG4HitCollection.h"
 #include "SimG4CMS/PPS/interface/PPSVDetectorOrganization.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
-#include "G4Step.hh"
-#include "G4StepPoint.hh"
-#include "G4Track.hh"
  
 #include <string>
 
 class TrackingSlaveSD;
 class SimTrackManager;
+class G4Step;
+class G4StepPoint;
+class G4Track;
 
 class PPSPixelSD : public SensitiveTkDetector,
 	  	public Observer<const BeginOfEvent*>,

@@ -13,8 +13,6 @@
 #include <cstdio>
 #include <cstring>
 
-//----------------------------------------------------------------------------------------------------
-
 VFATFrame::VFATFrame(const VFATFrame::word *_data) :
   presenceFlags(15),    // by default BC, EC, ID and CRC are present
   daqErrorFlags(0),     // by default, no DAQ error
@@ -26,14 +24,10 @@ VFATFrame::VFATFrame(const VFATFrame::word *_data) :
     memset(data, 0, 12 * sizeof(word));
 }
 
-//----------------------------------------------------------------------------------------------------
-
 void VFATFrame::setData(const VFATFrame::word *_data)
 {
   memcpy(data, _data, 24);
 }
-
-//----------------------------------------------------------------------------------------------------
 
 std::vector<unsigned char> VFATFrame::getActiveChannels() const
 {
@@ -58,8 +52,6 @@ std::vector<unsigned char> VFATFrame::getActiveChannels() const
   return channels;
 }
 
-//----------------------------------------------------------------------------------------------------
-
 bool VFATFrame::checkFootprint() const
 {
   if (isIDPresent() && (data[9] & 0xF000) != 0xE000)
@@ -73,8 +65,6 @@ bool VFATFrame::checkFootprint() const
 
   return true;
 }
-
-//----------------------------------------------------------------------------------------------------
 
 bool VFATFrame::checkCRC() const
 {
@@ -94,8 +84,6 @@ bool VFATFrame::checkCRC() const
   
   return (crc_fin == data[0]);
 }
-
-//----------------------------------------------------------------------------------------------------
 
 VFATFrame::word VFATFrame::calculateCRC(VFATFrame::word crc_in, VFATFrame::word dato)
 {
@@ -122,8 +110,6 @@ VFATFrame::word VFATFrame::calculateCRC(VFATFrame::word crc_in, VFATFrame::word 
 
   return crc_temp;
 }
-
-//----------------------------------------------------------------------------------------------------
 
 void VFATFrame::Print(bool binary) const
 {

@@ -1,6 +1,7 @@
 #include "SimPPS/RPDigiProducer/interface/RPDigiProducer.h"
 
 // user include files
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -89,19 +90,19 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   iEvent.getByLabel("mix", "g4SimHitsTotemHitsRP", cf);
 
   if (verbosity_) {
-    std::cout << "\n\n=================== Starting SimHit access" << "  ===================" << std::endl;
+    edm::LogInfo("RPDigiProducer") << "\n\n=================== Starting SimHit access" << "  ===================" << "\n";
 
     std::auto_ptr<MixCollection<PSimHit> > col(
 	new MixCollection<PSimHit> (cf.product(), std::pair<int, int>(-0, 0)));
-    std::cout << *(col.get()) << std::endl;
+    edm::LogInfo("RPDigiProducer") << *(col.get()) << "\n";
     MixCollection<PSimHit>::iterator cfi;
     int count = 0;
     for (cfi = col->begin(); cfi != col->end(); cfi++) {
-      std::cout << " Hit " << count << " has tof " << cfi->timeOfFlight() << " trackid "
+      edm::LogInfo("RPDigiProducer") << " Hit " << count << " has tof " << cfi->timeOfFlight() << " trackid "
 	<< cfi->trackId() << " bunchcr " << cfi.bunch() << " trigger " << cfi.getTrigger()
 	<< ", from EncodedEventId: " << cfi->eventId().bunchCrossing() << " "
-	<< cfi->eventId().event() << " bcr from MixCol " << cfi.bunch() << std::endl;
-      std::cout << " Hit: " << (*cfi) << std::endl;
+	<< cfi->eventId().event() << " bcr from MixCol " << cfi.bunch() << "\n";
+      edm::LogInfo("RPDigiProducer") << " Hit: " << (*cfi) << "\n";
       count++;
     }
   }
@@ -110,7 +111,7 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       new MixCollection<PSimHit> (cf.product(), std::pair<int, int>(0, 0)));
 
   if (verbosity_)
-    std::cout << "Input MixCollection size = " << allRPHits->size() << std::endl;
+    edm::LogInfo("RPDigiProducer") << "Input MixCollection size = " << allRPHits->size() << "\n";
 
   //Loop on PSimHit
   SimHitMap.clear();
@@ -149,7 +150,7 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       new edm::DetSetVector<TotemRPDigi>(theDigiVector));
 
   if (verbosity_) {
-    std::cout << "digi_output->size()=" << digi_output->size() << std::endl;
+    edm::LogInfo("RPDigiProducer") << "digi_output->size()=" << digi_output->size() << "\n";
   }
   // Step D: write output to file
   iEvent.put(std::move(digi_output));

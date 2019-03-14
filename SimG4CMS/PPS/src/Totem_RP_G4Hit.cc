@@ -1,8 +1,6 @@
-///////////////////////////////////////////////////////////////////////////////
 // File: CaloG4Hit.cc
 // Date: 11.10.02
 // Description: Transient Hit class for the calorimeters
-///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/PPS/interface/Totem_RP_G4Hit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -88,16 +86,16 @@ void Totem_RP_G4Hit::Print() {
 }
 
 
-Hep3Vector Totem_RP_G4Hit::getEntry() const {return entry;}
-void Totem_RP_G4Hit::setEntry(Hep3Vector xyz) { entry = xyz; }
+G4ThreeVector Totem_RP_G4Hit::getEntry() const {return entry;}
+void Totem_RP_G4Hit::setEntry(G4ThreeVector xyz) { entry = xyz; }
 
-Hep3Vector Totem_RP_G4Hit::getExit() const {return exit;}
-void Totem_RP_G4Hit::setExit(Hep3Vector xyz) { exit = xyz; }
+G4ThreeVector Totem_RP_G4Hit::getExit() const {return exit;}
+void Totem_RP_G4Hit::setExit(G4ThreeVector xyz) { exit = xyz; }
 
-Hep3Vector Totem_RP_G4Hit::getLocalEntry() const {return local_entry;}
-void Totem_RP_G4Hit::setLocalEntry(const Hep3Vector &xyz) { local_entry = xyz;}
-Hep3Vector Totem_RP_G4Hit::getLocalExit() const {return local_exit;}
-void Totem_RP_G4Hit::setLocalExit(const Hep3Vector &xyz) { local_exit = xyz;}
+G4ThreeVector Totem_RP_G4Hit::getLocalEntry() const {return local_entry;}
+void Totem_RP_G4Hit::setLocalEntry(const G4ThreeVector &xyz) { local_entry = xyz;}
+G4ThreeVector Totem_RP_G4Hit::getLocalExit() const {return local_exit;}
+void Totem_RP_G4Hit::setLocalExit(const G4ThreeVector &xyz) { local_exit = xyz;}
 
 double Totem_RP_G4Hit::getIncidentEnergy() const {return theIncidentEnergy; }
 void Totem_RP_G4Hit::setIncidentEnergy (double e) {theIncidentEnergy  = e; }

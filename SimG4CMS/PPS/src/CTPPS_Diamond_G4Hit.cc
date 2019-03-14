@@ -1,10 +1,8 @@
-///////////////////////////////////////////////////////////////////////////////
 // Author
 //Seyed Mohsen Etesami setesami@cern.ch
-//
-///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/PPS/interface/CTPPS_Diamond_G4Hit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
 
 CTPPS_Diamond_G4Hit::CTPPS_Diamond_G4Hit():entry(0),exit(0),local_entry(0),local_exit(0)
@@ -104,16 +102,16 @@ void CTPPS_Diamond_G4Hit::Print()
 }
 
 
-Hep3Vector CTPPS_Diamond_G4Hit::getEntry() const {return entry;}
-void CTPPS_Diamond_G4Hit::setEntry(Hep3Vector xyz) { entry = xyz; }
+G4ThreeVector CTPPS_Diamond_G4Hit::getEntry() const {return entry;}
+void CTPPS_Diamond_G4Hit::setEntry(G4ThreeVector xyz) { entry = xyz; }
 
-Hep3Vector CTPPS_Diamond_G4Hit::getExit() const {return exit;}
-void CTPPS_Diamond_G4Hit::setExit(Hep3Vector xyz) { exit = xyz; }
+G4ThreeVector CTPPS_Diamond_G4Hit::getExit() const {return exit;}
+void CTPPS_Diamond_G4Hit::setExit(G4ThreeVector xyz) { exit = xyz; }
 
-Hep3Vector CTPPS_Diamond_G4Hit::getLocalEntry() const {return local_entry;}
-void CTPPS_Diamond_G4Hit::setLocalEntry(const Hep3Vector &xyz) { local_entry = xyz;}
-Hep3Vector CTPPS_Diamond_G4Hit::getLocalExit() const {return local_exit;}
-void CTPPS_Diamond_G4Hit::setLocalExit(const Hep3Vector &xyz) { local_exit = xyz;}
+G4ThreeVector CTPPS_Diamond_G4Hit::getLocalEntry() const {return local_entry;}
+void CTPPS_Diamond_G4Hit::setLocalEntry(const G4ThreeVector &xyz) { local_entry = xyz;}
+G4ThreeVector CTPPS_Diamond_G4Hit::getLocalExit() const {return local_exit;}
+void CTPPS_Diamond_G4Hit::setLocalExit(const G4ThreeVector &xyz) { local_exit = xyz;}
 
 double CTPPS_Diamond_G4Hit::getIncidentEnergy() const {return theIncidentEnergy; }
 void CTPPS_Diamond_G4Hit::setIncidentEnergy (double e) {theIncidentEnergy  = e; }

@@ -1,5 +1,6 @@
 #include "SimPPS/RPDigiProducer/interface/RPVFATSimulator.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 #include "TRandom.h"
 #include <iostream>
@@ -38,10 +39,10 @@ void RPVFATSimulator::ConvertChargeToHits(const SimRP::strip_charge_map &signals
         output_digi_links.push_back(theSignalProvenance[strip_no]);
         if(verbosity_)
         {
-          std::cout<<"digi links size="<<theSignalProvenance[strip_no].size()<<std::endl;
+          edm::LogInfo("RPVFatSimulator")<<" digi links size="<<theSignalProvenance[strip_no].size()<<"\n";
           for(unsigned int u=0; u<theSignalProvenance[strip_no].size(); ++u)
           {
-            std::cout<<"   digi: particle="<<theSignalProvenance[strip_no][u].first<<" energy [electrons]="<<theSignalProvenance[strip_no][u].second<<std::endl;
+            edm::LogInfo("RPVFatSimulator")<<" digi: particle="<<theSignalProvenance[strip_no][u].first<<" energy [electrons]="<<theSignalProvenance[strip_no][u].second<<"\n";
           }
         }
       }
@@ -52,8 +53,8 @@ void RPVFATSimulator::ConvertChargeToHits(const SimRP::strip_charge_map &signals
   {
     for(unsigned int i=0; i<output_digi.size(); ++i)
     {
-      std::cout<<"VFAT Simulator "
-          <<output_digi[i].getStripNumber()<<std::endl;
+      edm::LogInfo("RPVFATSimulator")
+          <<output_digi[i].getStripNumber()<<"\n";
     }
   }
 }

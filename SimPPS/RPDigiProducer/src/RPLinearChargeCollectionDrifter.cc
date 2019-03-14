@@ -1,5 +1,6 @@
 #include "SimPPS/RPDigiProducer/interface/RPLinearChargeCollectionDrifter.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <vector>
 
@@ -24,8 +25,8 @@ SimRP::charge_induced_on_surface RPLinearChargeCollectionDrifter::Drift
     _temp[i].Charge() = energy_deposition[i].Energy()/GeV_per_electron_;
     if(verbosity_)
     {
-      std::cout<<"RPLinearChargeCollectionDrifter "<<_det_id<<" :"<<_temp[i].Position()<<" "
-        <<_temp[i].Sigma()<<" "<<_temp[i].Charge()<<std::endl;
+      edm::LogInfo("RPLinearChargeCollectionDrifter")<<_det_id<<" :"<<_temp[i].Position()<<" "
+        <<_temp[i].Sigma()<<" "<<_temp[i].Charge()<<"\n";
     }
   }
   return _temp;

@@ -13,6 +13,7 @@
 // system include files
 
 // user include files
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/PPS/interface/PPSPixelG4Hit.h"
 #include <iostream>
 
@@ -137,13 +138,13 @@ void PPSPixelG4Hit::addEnergyDeposit(const PPSPixelG4Hit& aHit) {
 
 
 void PPSPixelG4Hit::Print() {
-  std::cout << (*this);
+  edm::LogInfo("PPSPixelG4Hit") << (*this);
 }
 
-Hep3Vector PPSPixelG4Hit::getEntryPoint() const           {return theEntryPoint;}
-void       PPSPixelG4Hit::setEntryPoint(Hep3Vector xyz)   { theEntryPoint    = xyz; }
-Hep3Vector PPSPixelG4Hit::getExitPoint() const           {return theExitPoint;}
-void       PPSPixelG4Hit::setExitPoint(Hep3Vector xyz)   { theExitPoint    = xyz; }
+G4ThreeVector PPSPixelG4Hit::getEntryPoint() const           {return theEntryPoint;}
+void       PPSPixelG4Hit::setEntryPoint(G4ThreeVector xyz)   { theEntryPoint    = xyz; }
+G4ThreeVector PPSPixelG4Hit::getExitPoint() const           {return theExitPoint;}
+void       PPSPixelG4Hit::setExitPoint(G4ThreeVector xyz)   { theExitPoint    = xyz; }
 
 double     PPSPixelG4Hit::getEM() const              {return elem; }
 void       PPSPixelG4Hit::setEM (double e)           { elem     = e; }

@@ -14,7 +14,6 @@
    In this example the TotemSensitiveDetector serves as a master for two different ExampleSD
  */
 
-#include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4CMS/PPS/interface/Totem_RP_G4Hit.h"
 #include "SimG4CMS/PPS/interface/Totem_RP_G4HitCollection.h"
 #include "SimG4CMS/PPS/interface/TotemRPVDetectorOrganization.h"
@@ -24,18 +23,14 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
-#include "G4Step.hh"
-#include "G4StepPoint.hh"
-#include "G4Track.hh"
- 
 #include <string>
 
 class G4Step;
 class G4HCofThisEvent;
-
+class G4Track;
+class G4StepPoint;
 class TrackingSlaveSD;
 class SimTrackManager;
-//class FrameRotation;
 class TotemTestHitHBNtuple;
 
 class Totem_RP_SD : public SensitiveTkDetector,
@@ -69,7 +64,6 @@ class Totem_RP_SD : public SensitiveTkDetector,
   TrackingSlaveSD* slave;
   TotemRPVDetectorOrganization * numberingScheme;
 
-//  int eventno;
 
 private:
   int verbosity_;
@@ -124,10 +118,7 @@ private:
   int ParentId;
   double Vx,Vy,Vz;
 
-
-  //
   // Hist
-  //
   static TotemTestHitHBNtuple* theNtuple;
   int eventno;
 };

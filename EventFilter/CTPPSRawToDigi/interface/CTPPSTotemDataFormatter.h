@@ -28,7 +28,8 @@
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrame.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-/// \brief Collection of code to convert TOTEM raw data into digi.
+
+//brief Collection of code to convert TOTEM raw data into digi.
 
 class FEDRawData;
 class CTPPSTotemDigiToRaw;  
@@ -65,7 +66,7 @@ class CTPPSTotemDataFormatter {
     void formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis, std::vector<PPSStripIndex> v_iDdet2fed ) ; 
 
     static bool compare(const PPSStripIndex& a, const PPSStripIndex& b) {
-      return a.id < b.id; // || (a.id == b.id && a.roc < b.roc);
+      return a.id < b.id; 
     }
 
     std::string print(const Word64 & word) const;

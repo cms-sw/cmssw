@@ -28,5 +28,4 @@ private:
   Local3DPoint _position;
 };
 
-
 #endif  //SimPPS_PPSPixelDigiProducer_ENERGY_DEPOSIT_UNIT_H

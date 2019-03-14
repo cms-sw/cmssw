@@ -1,4 +1,3 @@
-
 #ifndef SimPPS_PPSPixelDigiProducer_PPSPixelDigiProducer_h
 #define SimPPS_PPSPixelDigiProducer_PPSPixelDigiProducer_h
 

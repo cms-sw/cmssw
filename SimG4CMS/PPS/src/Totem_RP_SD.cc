@@ -1,9 +1,7 @@
-///////////////////////////////////////////////////////////////////////////////
 // File: Totem_RP_SD.cc
 // Date: 18.10.2005
 // Description: Sensitive Detector class for TOTEM RP Detectors
 // Modifications: 
-///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/PPS/interface/Totem_RP_SD.h"
 #include "SimG4CMS/PPS/interface/PPSStripNumberingScheme.h"
 
@@ -47,15 +45,6 @@ Totem_RP_SD::Totem_RP_SD(const std::string & name, const DDCompactView & cpv, co
   
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("Totem_RP_SD");
   verbosity_ = m_Anal.getParameter<int>("Verbosity");
-/*  
-  std::cout 
-    << "*******************************************************\n"
-    << "*                                                     *\n"
-    << "* Constructing a Totem_RP_SD  with name " << name << "\n"
-    << "*                                                     *\n"
-    << "*******************************************************" << std::endl;
-*/
-  
 
   slave  = new TrackingSlaveSD(name);
   
@@ -93,7 +82,6 @@ void Totem_RP_SD::Print_Hit_Info()
        << " Totem_RP_SD CreateNewHit for"
        << " PV "     << currentPV->GetName()
        << " PVid = " << currentPV->GetCopyNo()
-       //<< " MVid = " << currentPV->GetMother()->GetCopyNo()
        << " Unit "   << unitID;
   LogDebug("TotemRP") << " primary "    << primaryID
        << " time slice " << tSliceID 
@@ -133,7 +121,6 @@ bool Totem_RP_SD::ProcessHits(G4Step * aStep, G4TouchableHistory * )
     return true;
   } else {
     GetStepInfo(aStep);
-    //Print_Hit_Info();
  
     CreateNewHit();
     return true;
@@ -183,7 +170,6 @@ void Totem_RP_SD::GetStepInfo(G4Step* aStep)
   ThetaAtEntry = lnmd.theta();
   PhiAtEntry = lnmd.phi();
 
-//    numberingScheme->GetUnitID(aStep) << std::endl ;
   if(IsPrimary(theTrack))
     ParentId = 0;
   else ParentId = theTrack->GetParentID();
@@ -249,7 +235,6 @@ void Totem_RP_SD::CreateNewHit()
   currentHit->set_p_z(p_z);
 
   StoreHit(currentHit);
-// LogDebug("TotemRP") << "STORED HIT IN: " << unitID << std::endl;
 }	 
 
 

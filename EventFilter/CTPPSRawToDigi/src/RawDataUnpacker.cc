@@ -11,19 +11,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-//----------------------------------------------------------------------------------------------------
-
 using namespace std;
 using namespace edm;
 using namespace ctpps;
 
-//----------------------------------------------------------------------------------------------------
-
 RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet& iConfig) :
   verbosity(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0))
 {}
-
-//----------------------------------------------------------------------------------------------------
 
 int RawDataUnpacker::run(int fedId, const FEDRawData &data, vector<TotemFEDInfo> &fedInfoColl, SimpleVFATFrameCollection &coll) const
 {
@@ -40,8 +34,6 @@ int RawDataUnpacker::run(int fedId, const FEDRawData &data, vector<TotemFEDInfo>
 
   return processOptoRxFrame((const word *) data.data(), size_in_words, fedInfoColl.back(), &coll);
 }
-
-//----------------------------------------------------------------------------------------------------
 
 int RawDataUnpacker::processOptoRxFrame(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const
 {
@@ -99,8 +91,6 @@ int RawDataUnpacker::processOptoRxFrame(const word *buf, unsigned int frameSize,
 
   return 0;
 }
-
-//----------------------------------------------------------------------------------------------------
 
 int RawDataUnpacker::processOptoRxFrameSerial(const word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc) const
 {
@@ -186,8 +176,6 @@ int RawDataUnpacker::processOptoRxFrameSerial(const word *buf, unsigned int fram
   return errorCounter;
 }
 
-//----------------------------------------------------------------------------------------------------
-
 int RawDataUnpacker::processOptoRxFrameParallel(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const
 {
   // get OptoRx metadata
@@ -214,8 +202,6 @@ int RawDataUnpacker::processOptoRxFrameParallel(const word *buf, unsigned int fr
 
   return 0;
 }
-
-//----------------------------------------------------------------------------------------------------
 
 int RawDataUnpacker::processVFATDataParallel(const uint16_t *buf, unsigned int maxWords, unsigned int optoRxId, SimpleVFATFrameCollection *fc) const
 {
@@ -431,8 +417,6 @@ int RawDataUnpacker::processVFATDataParallel(const uint16_t *buf, unsigned int m
 
   return wordsProcessed;
 }
-
-//----------------------------------------------------------------------------------------------------
 
 int RawDataUnpacker::processOptoRxFrameSampic(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const
 {

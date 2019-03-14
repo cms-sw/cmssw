@@ -32,11 +32,10 @@
 // user include files
 
 #include "G4VHit.hh"
-#include <CLHEP/Vector/ThreeVector.h>
+#include "G4ThreeVector.hh"
 #include <boost/cstdint.hpp>
 #include <iostream>
 
-using CLHEP::Hep3Vector;
 
 class PPSPixelG4Hit : public G4VHit {
   
@@ -55,13 +54,13 @@ public:
   void         Draw() override{}
   void         Print() override;
 
-  Hep3Vector   getMeanPosition() const {return MeanPosition;};
-  void         setMeanPosition(Hep3Vector a) {MeanPosition = a;};
+  G4ThreeVector   getMeanPosition() const {return MeanPosition;};
+  void         setMeanPosition(G4ThreeVector a) {MeanPosition = a;};
 
-  Hep3Vector   getEntryPoint() const;
-  void         setEntryPoint(Hep3Vector );
-  Hep3Vector   getExitPoint() const;
-  void         setExitPoint(Hep3Vector);
+  G4ThreeVector   getEntryPoint() const;
+  void         setEntryPoint(G4ThreeVector );
+  G4ThreeVector   getExitPoint() const;
+  void         setExitPoint(G4ThreeVector);
   
   double       getEM() const;
   void         setEM (double e);
@@ -102,19 +101,19 @@ public:
 
   void         setThetaAtEntry(float t);
   void         setPhiAtEntry(float f) ;
- float getPx() const;
-  float getPy() const;
-  float getPz() const;
-  float getVPx() const;
-  float getVPy() const;
-  float getVPz() const;
+  float        getPx() const;
+  float        getPy() const;
+  float        getPz() const;
+  float        getVPx() const;
+  float        getVPy() const;
+  float        getVPz() const;
 
- void setPx(float e)      ;
- void setPy(float e)      ;
- void setPz(float e)      ;
- void setVPx(float e)      ;
- void setVPy(float e)      ;
- void setVPz(float e)      ;
+  void         setPx(float e);
+  void         setPy(float e);
+  void         setPz(float e);
+  void         setVPx(float e);
+  void         setVPy(float e);
+  void         setVPz(float e);
   float        getX() const;
   float        getY() const;
   float        getZ() const;
@@ -135,11 +134,7 @@ public:
 
 
 private:
-  /*
-  Hep3Vector   entry;          
-  Hep3Vector   exit;
-  */
-  Hep3Vector   MeanPosition;
+  G4ThreeVector   MeanPosition;
   double       elem;              //EnergyDeposit of EM particles
   double       hadr;              //EnergyDeposit of HD particles
   double       theIncidentEnergy; //Energy of the primary particle
@@ -159,8 +154,8 @@ private:
 
   float        theThetaAtEntry;
   float        thePhiAtEntry;
-  Hep3Vector   theEntryPoint;
-  Hep3Vector   theExitPoint;
+  G4ThreeVector   theEntryPoint;
+  G4ThreeVector   theExitPoint;
   float thePx,thePy,thePz,theVPx,theVPy,theVPz;
   int          theParentId;
   float        theVx;
