@@ -104,7 +104,8 @@ private:
   float cfg_seedTk_maxEta;              // Max |eta| of L1TkEG seed L1TTTracks [unitless]
   float cfg_seedTk_maxChiSq;            // Max chi squared of L1TkEG seed L1TTTracks [unitless]
   float cfg_seedTk_minStubs;            // Min number of stubs of L1TkEG seed L1TTTracks [unitless]
-  float cfg_seedTk_maxDeltaR;           // Max opening of the cone in which the seed track is the leading one in pT [unitless]
+  bool  cfg_seedTk_useMaxDeltaR;        // Require the seed track to be the leading track within the cone of cfg_seedTk_maxDeltaR
+  float cfg_seedTk_maxDeltaR;           // Cone in which the seed track is required to be the leading one in pT [unitless]
 
   // Signal cone and clustering parameters
   float cfg_shrinkCone_Constant;        // Constant which is used for defining the opening of the signal cone : sigCone_dRMax = (cfg_shrinkCone_Constant)/(pT of the seed track) [GeV]    
@@ -117,8 +118,14 @@ private:
   bool cfg_isoCone_useCone;             // Usage of isolation cone (true) or isolation annulus (false)
   float cfg_isoCone_dRMax;              // Max dR of isolation cone/annulus [unitless]
 
+  // Matching parameters
+  float cfg_matching_maxDeltaR;         // Matching cone around the CaloTau, inside which the seed track with the smallest dR (or highest pT, see the next parameter) is chosen
+  bool cfg_matchHighestPt;              // Match track with highest pT (inside the mathcing cone) instead of the one with the smallest dR
+
+
   // CaloTau parameters
-  bool cfg_calibrateCaloTaus;               // Calibrate the Et values of CaloTaus (true) or use the default values (false)
+  float cfg_caloTauEtMin;               // Minimum (non-calibrated) Et for CaloTaus considered by the algorithm
+  bool cfg_calibrateCaloTaus;           // Calibrate the Et values of CaloTaus (true) or use the default values (false)
 
   // Isolation parameters
   bool  cfg_useVtxIso;                  // Usage of vertex isolation on (no tracks in the isolation cone coming from the same vertex with the seed track) 
@@ -167,7 +174,12 @@ L1CaloTkTauParticleProducer::L1CaloTkTauParticleProducer(const edm::ParameterSet
   cfg_seedTk_maxEta         = (float)iConfig.getParameter<double>("seedTk_maxEta");
   cfg_seedTk_maxChiSq       = (float)iConfig.getParameter<double>("seedTk_maxChiSq");
   cfg_seedTk_minStubs       = (unsigned int)iConfig.getParameter<unsigned int>("seedTk_minStubs");
+  cfg_seedTk_useMaxDeltaR   = (bool)iConfig.getParameter<bool>("seedTk_useMaxDeltaR");
   cfg_seedTk_maxDeltaR      = (float)iConfig.getParameter<double>("seedTk_maxDeltaR");
+
+  // Matching parameters
+  cfg_matching_maxDeltaR    = (float)iConfig.getParameter<double>("matching_maxDeltaR");
+  cfg_matchHighestPt        = (bool)iConfig.getParameter<bool>("matchHighestPt");
 
   // Signal cone and clustering parameters
   cfg_shrinkCone_Constant   = (float)iConfig.getParameter<double>("shrinkCone_Constant");
@@ -181,9 +193,11 @@ L1CaloTkTauParticleProducer::L1CaloTkTauParticleProducer(const edm::ParameterSet
   cfg_isoCone_dRMax         = (float)iConfig.getParameter<double>("isoCone_dRMax");
 
   // CaloTaus
+  cfg_caloTauEtMin          = (float)iConfig.getParameter<double>("caloTauEtMin");
   cfg_calibrateCaloTaus     = (bool)iConfig.getParameter<bool>("calibrateCaloTaus");
 
   // Isolation
+  cfg_useVtxIso             = (bool)iConfig.getParameter<bool>("useVtxIso");
   cfg_vtxIso_WP             = (float)iConfig.getParameter<double>("vtxIso_WP");
 //  cfg_jetWidth_WP           = (float)iConfig.getParameter<double>("jetWidth_WP");
 //  cfg_relIso_WP             = (float)iConfig.getParameter<double>("relIso_WP");
@@ -255,15 +269,15 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
     unsigned int NStubs              = Stubs.size();
     // Select seed tracks
     if ( Pt   > cfg_seedTk_minPt  &&
-         fabs(Eta)  > cfg_seedTk_minEta && //marina
-         fabs(Eta)  < cfg_seedTk_maxEta && //marina
+         fabs(Eta)  > cfg_seedTk_minEta && 
+         fabs(Eta)  < cfg_seedTk_maxEta && 
          Chi2 < cfg_seedTk_maxChiSq &&
          NStubs > cfg_seedTk_minStubs )  
             SeedTTTrackPtrs.push_back(track_RefPtr);
     // Select signal cone tracks
     if ( Pt   > cfg_tk_minPt  &&
-         fabs(Eta)  > cfg_tk_minEta && //marina
-         fabs(Eta)  < cfg_tk_maxEta && //marina
+         fabs(Eta)  > cfg_tk_minEta && 
+         fabs(Eta)  < cfg_tk_maxEta && 
          Chi2 < cfg_tk_maxChiSq &&
          NStubs > cfg_tk_minStubs )  
             SigConeTTTrackPtrs.push_back(track_RefPtr);
@@ -278,7 +292,8 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
   ///////////////////////////////////////////////////////////////
   
   bool foundMatchTrk;
-  double matchTk_dR = 999.9;  
+  double matchTk_dR;  
+  double matchTk_pT;
 
   // Loop over calo taus
   for (std::vector<Tau>::iterator caloTauIter = caloTaus.begin(); caloTauIter != caloTaus.end(); ++caloTauIter) {
@@ -286,19 +301,31 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       // Calibrate calo taus if needed
       float caloEt = caloTauIter->et();
       float caloEta = caloTauIter->eta();
+      if (caloEt < cfg_caloTauEtMin) continue; 
       if(cfg_calibrateCaloTaus) {
-          caloEt = (CalibrateCaloTau(caloEt, caloEta));
+          caloEt = CalibrateCaloTau(caloEt, caloEta);
       }
 
       // Find a matching track
       foundMatchTrk = false;
+      matchTk_dR = 999.9;
+      matchTk_pT = 0.0;
       // Loop over seed tracks
       L1TTTrackRefPtr matchedTrack;
       for ( unsigned int i=0; i < SeedTTTrackPtrs.size(); i++ ){
 //        std::cout << "Checking track #" << i << std::endl;
         L1TTTrackRefPtr iTrk = SeedTTTrackPtrs.at(i);
         double dR = reco::deltaR(iTrk->getMomentum(cfg_tk_nFitParams).eta(), iTrk->getMomentum(cfg_tk_nFitParams).phi(), caloTauIter->eta(), caloTauIter->phi());
-        if (dR < 0.1 && dR < matchTk_dR) { //TODO: add 0.1 (matchingDR as input parameter)
+        double iTrkPt = iTrk->getMomentum(cfg_tk_nFitParams).perp();
+        // Pick the highest-pT track inside the cone...
+        if (cfg_matchHighestPt && iTrkPt > matchTk_pT && dR < cfg_matching_maxDeltaR){
+          matchTk_pT = iTrkPt;
+          foundMatchTrk = true;
+          matchedTrack = iTrk;
+        } 
+        // ..or pick the track with the smallest dR w.r.t. CaloTau
+        if (!cfg_matchHighestPt && dR < matchTk_dR && dR < cfg_matching_maxDeltaR) {
+          matchTk_dR = dR;
           foundMatchTrk = true;
           matchedTrack = iTrk;
         }
@@ -314,7 +341,7 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       float isolationCone_dRmax = cfg_isoCone_dRMax; // unchanged by GetShrinkingConeSizes function
       GetShrinkingConeSizes(caloEt, cfg_shrinkCone_Constant, cfg_sigCone_cutoffDeltaR, // input parameters
                             signalCone_dRmin, signalCone_dRmax,isolationCone_dRmin, isolationCone_dRmax, // these values are updated by this function
-                            cfg_isoCone_useCone); // input parameter (if useCone is selected, isolationCone_dRmin = 0)
+                            cfg_isoCone_useCone); // input parameter (if useCone is selected, isolationCone_dRmin is set to 0)
 
       // Initialize track lists
       std::vector< L1TTTrackRefPtr > sigConeTks;
@@ -335,13 +362,13 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
 	  sigTks_p4.SetCoordinates(px,py,pz,e);
 	  
       // Loop over tracks to select signal and isolation cone tracks
-      bool isSignalTk = false;
+      bool isSignalTk;
       for ( unsigned int i=0; i < SigConeTTTrackPtrs.size(); i++ ){
         L1TTTrackRefPtr iTrk = SigConeTTTrackPtrs.at(i);
         // Skip the matched track (already added)
 	    if( iTrk == matchedTrack ) continue;
-
-         // Calculate dR and dPOCAz
+        isSignalTk = false;
+        // Calculate dR and dPOCAz
         double dR = reco::deltaR(iTrk->getMomentum(cfg_tk_nFitParams).eta(), iTrk->getMomentum(cfg_tk_nFitParams).phi(), 
                          matchedTrack->getMomentum(cfg_tk_nFitParams).eta(), matchedTrack->getMomentum(cfg_tk_nFitParams).phi());     
         double dPOCAz = fabs(matchedTrack->getPOCA(cfg_tk_nFitParams).z() - iTrk->getPOCA(cfg_tk_nFitParams).z());
@@ -404,7 +431,7 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       }	// end of loop over tracks
 
 	  // Proceed only if there is no higher pT track within signal or isolation cones
-	  if (!bIsLdgTrack) continue;      
+	  if (cfg_seedTk_useMaxDeltaR && !bIsLdgTrack) continue;      
 
       // Jet width
 //      double jetWidth = 0;
@@ -420,7 +447,7 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       
       // Vertex isolation      
       bool bPassVtxIso = (vtxIso > cfg_vtxIso_WP); // orthogonal to RelIso
-      if (!bPassVtxIso) continue;
+      if (cfg_useVtxIso && !bPassVtxIso) continue;
 	  
       const math::XYZTLorentzVector p4 = sigTks_p4;
       Tau finalTau = *caloTauIter;
@@ -431,7 +458,6 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
 
   // Sort the final CaloTkTau candidates
   std::sort( L1CaloTkTauCandidates->begin(), L1CaloTkTauCandidates->end(), L1CaloTkTau::EtComparator() );
-
 
   // Add final CaloTkTau candidates to the event
   iEvent.put(std::move(L1CaloTkTauCandidates), label );
