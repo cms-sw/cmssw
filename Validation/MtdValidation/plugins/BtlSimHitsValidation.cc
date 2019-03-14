@@ -10,15 +10,9 @@
  Implementation:
      [Notes on implementation]
 */
-//
-// Original Author:  Massimo Casarsa
-//         Created:  Fri, 08 Mar 2019 14:04:22 GMT
-//
-//
 
 #include <string>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,9 +34,13 @@
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
 
-//
-// class declaration
-//
+struct MTDHit {
+  float energy;
+  float time;
+  float x;
+  float y;
+  float z;
+};
 
 
 class BtlSimHitsValidation : public DQMEDAnalyzer {
@@ -61,7 +59,7 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-// ------------ member data ------------
+  // ------------ member data ------------
 
   const MTDGeometry* geom_;
   const MTDTopology* topo_;
@@ -76,6 +74,8 @@ private:
 
   edm::EDGetTokenT<edm::PSimHitContainer> btlSimHitsToken_;
 
+  // --- histograms declaration
+
   MonitorElement* meHitEnergy_;
   MonitorElement* meHitTime_;
 
@@ -83,25 +83,8 @@ private:
 
 };
 
-//
-// constants, enums and typedefs
-//
 
-struct MTDHit {
-  float energy;
-  float time;
-  float x;
-  float y;
-  float z;
-};
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
+// ------------ constructor and destructor --------------
 BtlSimHitsValidation::BtlSimHitsValidation(const edm::ParameterSet& iConfig):
   geom_(nullptr),
   topo_(nullptr),
@@ -116,16 +99,9 @@ BtlSimHitsValidation::BtlSimHitsValidation(const edm::ParameterSet& iConfig):
 
 }
 
-
 BtlSimHitsValidation::~BtlSimHitsValidation() {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 }
 
-
-//
-// member functions
-//
 
 // ------------ method called for each event  ------------
 void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -145,7 +121,10 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<edm::PSimHitContainer> btlSimHitsHandle;
   iEvent.getByToken(btlSimHitsToken_, btlSimHitsHandle);
 
-  if( ! btlSimHitsHandle.isValid() ) return;
+  if( ! btlSimHitsHandle.isValid() ) {
+    edm::LogWarning("DataNotFound") << "No BTL SIM hits found";
+    return;
+  }
 
   eventCount_++;
   
@@ -154,7 +133,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   // --- Loop over the BLT SIM hits
   for (auto const& simHit: *btlSimHitsHandle) {
 
-    // --- Only hits compatible with the in-time bunch-crossing
+    // --- Use only hits compatible with the in-time bunch-crossing
     if ( simHit.tof() < 0 || simHit.tof() > 25. ) continue;
 
     DetId id = simHit.detUnitId();
@@ -211,11 +190,15 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
 }
 
+
+// ------------ method for histogram booking ------------
 void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
                                edm::Run const& run,
                                edm::EventSetup const & iSetup) {
 
   ibook.setCurrentFolder(folder_);
+
+  // --- histograms booking
 
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL SIM hits energy;E_{SIM} [MeV]", 200, 0., 20.);
   meHitTime_   = ibook.book1D("BtlHitTime", "BTL SIM hits ToA;ToA_{SIM} [ns]", 250, 0., 25.);
@@ -226,21 +209,18 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
 }
 
 
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void BtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // The following says we do not know what parameters are allowed so do no
-  // validation
-  // Please change this to state exactly what you do use, even if it is no
-  // parameters
+
   edm::ParameterSetDescription desc;
+
   desc.add<std::string>("folder", "MTD/BTL/SimHits");
   desc.add<std::string>("moduleLabelG4","g4SimHits");
   desc.add<std::string>("btlSimHitsCollection","FastTimerHitsBarrel");
   desc.add<double>("hitMinimumEnergy",1.); // [MeV]
+
   descriptions.add("btlSimHits", desc);
 
 }
 
-//define this as a plug-in
 DEFINE_FWK_MODULE(BtlSimHitsValidation);

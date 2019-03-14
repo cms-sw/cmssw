@@ -10,15 +10,9 @@
  Implementation:
      [Notes on implementation]
 */
-//
-// Original Author:  Massimo Casarsa
-//         Created:  Mon, 11 Mar 2019 14:12:22 GMT
-//
-//
 
 #include <string>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,11 +32,6 @@
 
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
-
-
-//
-// class declaration
-//
 
 
 class BtlDigiHitsValidation : public DQMEDAnalyzer {
@@ -74,6 +63,8 @@ private:
 
   edm::EDGetTokenT<BTLDigiCollection> btlDigiHitsToken_;
 
+  // --- histograms declaration
+
   MonitorElement* meHitCharge_[2];
   MonitorElement* meHitTime1_[2];
   MonitorElement* meHitTime2_[2];
@@ -82,17 +73,8 @@ private:
 
 };
 
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
+// ------------ constructor and destructor --------------
 BtlDigiHitsValidation::BtlDigiHitsValidation(const edm::ParameterSet& iConfig):
   geom_(nullptr),
   topo_(nullptr),
@@ -106,16 +88,9 @@ BtlDigiHitsValidation::BtlDigiHitsValidation(const edm::ParameterSet& iConfig):
 
 }
 
-
 BtlDigiHitsValidation::~BtlDigiHitsValidation() {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 }
 
-
-//
-// member functions
-//
 
 // ------------ method called for each event  ------------
 void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -135,15 +110,30 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::Handle<BTLDigiCollection> btlDigiHitsHandle;
   iEvent.getByToken(btlDigiHitsToken_, btlDigiHitsHandle);
 
-  if( ! btlDigiHitsHandle.isValid() ) return;
+  if( ! btlDigiHitsHandle.isValid() ) {
+    edm::LogWarning("DataNotFound") << "No BTL DIGI hits found";
+    return;
+  }
 
   eventCount_++;
   
   // --- Loop over the BLT DIGI hits
   for (const auto& dataFrame: *btlDigiHitsHandle) {
 
-    //DetId id =  dataFrame.id();
-      
+    BTLDetId detId = dataFrame.id();
+    DetId geoId = detId.geographicalId( static_cast<BTLDetId::CrysLayout>(topo_->getMTDTopologyMode()) );
+    const MTDGeomDet* thedet = geom_->idToDet(geoId);
+    if( thedet == nullptr )
+      throw cms::Exception("BtlDigiHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId()
+						    << " (" << detId.rawId()<< ") is invalid!" << std::dec
+						    << std::endl;
+    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+    const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+
+    Local3DPoint local_point(0.,0.,0.);
+    local_point = topo.pixelToModuleLocalPoint(local_point,detId.row(topo.nrows()),detId.column(topo.nrows()));
+    const auto& global_point = thedet->toGlobal(local_point);
+
     const auto& sample_L = dataFrame.sample(0);
     const auto& sample_R = dataFrame.sample(1);
 
@@ -161,17 +151,27 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     meHitTime2_[0]->Fill(tdc2L);
     meHitTime2_[1]->Fill(tdc2R);
 
+    if ( adcL > 0 ) 
+      meOccupancy_[0]->Fill(global_point.z(),global_point.phi());
+
+    if ( adcR > 0 ) 
+      meOccupancy_[1]->Fill(global_point.z(),global_point.phi());
+
   } // dataFrame loop
 
 
 
 }
 
+
+// ------------ method for histogram booking ------------
 void BtlDigiHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
                                edm::Run const& run,
                                edm::EventSetup const & iSetup) {
 
   ibook.setCurrentFolder(folder_);
+
+  // --- histograms booking
 
   meHitCharge_[0] = ibook.book1D("BtlHitChargeL", "BTL DIGI hits charge (L);amplitude [ADC counts]",
 				 1024, 0., 1024.);
@@ -193,19 +193,17 @@ void BtlDigiHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
 }
 
 
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void BtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // The following says we do not know what parameters are allowed so do no
-  // validation
-  // Please change this to state exactly what you do use, even if it is no
-  // parameters
+
   edm::ParameterSetDescription desc;
+
   desc.add<std::string>("folder", "MTD/BTL/DigiHits");
   desc.add<std::string>("moduleLabel","mix");
   desc.add<std::string>("btlDigiHitsCollection","FTLBarrel");
+
   descriptions.add("btlDigiHits", desc);
+
 }
 
-//define this as a plug-in
 DEFINE_FWK_MODULE(BtlDigiHitsValidation);
