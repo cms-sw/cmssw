@@ -6,6 +6,9 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+class HcalChannelQuality;
+class HcalSeverityLevelComputer;
+
 class HFStripFilter
 {
 public:
@@ -20,7 +23,9 @@ public:
     ~HFStripFilter();
 
     // The actual rechit tagging is performed by the following function
-    void runFilter(HFRecHitCollection& rec) const;
+    void runFilter(HFRecHitCollection& rec,
+                   const HcalChannelQuality* myqual,
+                   const HcalSeverityLevelComputer* mySeverity) const;
 
     // Parser function to create this object from a parameter set
     static std::unique_ptr<HFStripFilter> parseParameterSet(
