@@ -14,7 +14,6 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/supportedCUDADevices.h"
 
 namespace {
   CUDAService makeCUDAService(edm::ParameterSet ps, edm::ActivityRegistry& ar) {
@@ -30,10 +29,13 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
 
   // Test setup: check if a simple CUDA runtime API call fails:
   // if so, skip the test with the CUDAService enabled
-  int deviceCount = supportedCUDADevices().size();
+  int deviceCount = 0;
+  auto ret = cudaGetDeviceCount( &deviceCount );
 
-  if (deviceCount == 0) {
-    WARN("No supported CUDA devices available. Running only tests not requiring devices.");
+  if( ret != cudaSuccess ) {
+    WARN("Unable to query the CUDA capable devices from the CUDA runtime API: ("
+         << ret << ") " << cudaGetErrorString( ret ) 
+         << ". Running only tests not requiring devices.");
   }
 
   SECTION("CUDAService enabled") {
@@ -56,7 +58,6 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
     }
 
     auto cs = makeCUDAService(ps, ar);
-    cudaError_t ret;
 
     SECTION("CUDA Queries") {
       int driverVersion = 0, runtimeVersion = 0;

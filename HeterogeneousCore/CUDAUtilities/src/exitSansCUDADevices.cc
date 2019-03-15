@@ -4,7 +4,6 @@
 #include <cuda_runtime.h>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/supportedCUDADevices.h"
 
 void exitSansCUDADevices() {
   int devices = 0;
@@ -15,11 +14,6 @@ void exitSansCUDADevices() {
   }
   if (devices == 0) {
     std::cerr << "No CUDA devices available, the test will be skipped." << "\n";
-    exit(EXIT_SUCCESS);
-  }
-  int supported = supportedCUDADevices().size();
-  if (supported == 0) {
-    std::cerr << "No supported CUDA devices available, the test will be skipped." << "\n";
     exit(EXIT_SUCCESS);
   }
 }

@@ -13,6 +13,6 @@ namespace cudacore {
     // (and even then there is no load balancing).
     //
     // TODO: improve the "assignment" logic
-    return cudaService->devices()[id % cudaService->numberOfDevices()];
+    return id % cudaService->numberOfDevices();
   }
 }
