@@ -276,9 +276,9 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     nL1TrkObj->Fill(l1TrkTauCollection.size());
     for (auto tkObjIter = l1TrkTauCollection.begin(); tkObjIter != l1TrkTauCollection.end(); ++tkObjIter) {
       
-      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->getEt() < cfg_l1EtThreshold) continue;
+      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->et() < cfg_l1EtThreshold) continue;
       
-      etL1TrkObj  -> Fill(tkObjIter->getEt());
+      etL1TrkObj  -> Fill(tkObjIter->et());
       etaL1TrkObj -> Fill(tkObjIter->eta());
       phiL1TrkObj -> Fill(tkObjIter->phi());
       massL1TrkObj  -> Fill(tkObjIter->mass());
@@ -303,9 +303,9 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     nL1TrkObj->Fill(l1TkEGTauCollection.size());
     for (auto tkObjIter = l1TkEGTauCollection.begin(); tkObjIter != l1TkEGTauCollection.end(); ++tkObjIter) {
       
-      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->getEt() < cfg_l1EtThreshold) continue;
+      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->et() < cfg_l1EtThreshold) continue;
       
-      etL1TrkObj  -> Fill(tkObjIter->getEt());
+      etL1TrkObj  -> Fill(tkObjIter->et());
       etaL1TrkObj -> Fill(tkObjIter->eta());
       phiL1TrkObj -> Fill(tkObjIter->phi());
       massL1TrkObj  -> Fill(tkObjIter->mass());
@@ -330,9 +330,9 @@ L1TausAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     nL1TrkObj->Fill(l1CaloTkTauCollection.size());
     for (auto tkObjIter = l1CaloTkTauCollection.begin(); tkObjIter != l1CaloTkTauCollection.end(); ++tkObjIter) {
       
-      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->getEt() < cfg_l1EtThreshold) continue;
+      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->et() < cfg_l1EtThreshold) continue;
       
-      etL1TrkObj  -> Fill(tkObjIter->getEt());
+      etL1TrkObj  -> Fill(tkObjIter->et());
       etaL1TrkObj -> Fill(tkObjIter->eta());
       phiL1TrkObj -> Fill(tkObjIter->phi());
       massL1TrkObj  -> Fill(tkObjIter->mass());
@@ -387,7 +387,7 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
       float seedEta = seedTk->getMomentum().eta();
       float seedPhi = seedTk->getMomentum().phi();
 
-      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->getEt() < cfg_l1EtThreshold) continue; 
+      if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->et() < cfg_l1EtThreshold) continue; 
       
       
       float dPhi = reco::deltaPhi(seedPhi, genPhis.at(i));
@@ -397,7 +397,7 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
       if  (dR < dRminTkObj ) {
 	dRminTkObj = dR;
 	indxTkObj  = iTkObj;
-	etTkObj    = tkObjIter->getEt();
+	etTkObj    = tkObjIter->et();
 	etaTkObj   = tkObjIter->eta();
 	phiTkObj   = tkObjIter->phi();
 	massTkObj  = tkObjIter->mass();
@@ -443,7 +443,7 @@ void L1TausAnalyzer::checkEfficiency(const T1 & tkObjCollection) {
   float maxEt = 0;
   for (unsigned int i=0; i < matchedL1TkObjIndices.size(); i++) {
     unsigned int indx = matchedL1TkObjIndices.at(i);
-    if (tkObjCollection.at(indx).getEt() > maxEt) maxEt = tkObjCollection.at(indx).getEt(); 
+    if (tkObjCollection.at(indx).et() > maxEt) maxEt = tkObjCollection.at(indx).et(); 
   }
   
   // Fill  efficiency histo 
@@ -461,10 +461,10 @@ void L1TausAnalyzer::checkRate(const T1 & tkObjCollection) {
   // For-loop: All the track objects in the event
   for (auto tkObjIter = tkObjCollection.begin(); tkObjIter != tkObjCollection.end(); ++tkObjIter) {  // not needed (could just use the first object - leading)
 
-    if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->getEt() < cfg_l1EtThreshold) continue; 
+    if (fabs(tkObjIter->eta()) > cfg_l1EtaCutoff && tkObjIter->et() < cfg_l1EtThreshold) continue; 
     
     nObj++;
-    et = tkObjIter->getEt();
+    et = tkObjIter->et();
     
     // Fill rate histo for with the et of the leading track object
     if (nObj == 1) {

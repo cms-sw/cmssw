@@ -83,6 +83,7 @@
   <class name="edm::Ref<std::vector<l1t::L1TrkTauParticle>,l1t::L1TrkTauParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TrkTauParticle>,l1t::L1TrkTauParticle> >"/>
 
   <class name="l1t::L1CaloTkTauParticle" ClassVersion="17">
+   <version ClassVersion="17" checksum="4265295581"/> 
    <version ClassVersion="17" checksum="1859218518"/> 
    <version ClassVersion="16" checksum="3866766711"/> 
    <version ClassVersion="15" checksum="3464188151"/>

@@ -213,7 +213,7 @@ L1CaloTkTauParticleProducer::~L1CaloTkTauParticleProducer() {}
 void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   
-  std::unique_ptr<L1CaloTkTauParticleCollection> L1CaloTkTauCandidates(new L1CaloTkTauParticleCollection);
+  std::unique_ptr<L1CaloTkTauParticleCollection> result(new L1CaloTkTauParticleCollection);
 
   // Constants 
   const float pionMass  = 0.13957018;
@@ -408,42 +408,43 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
       } // end of loop over tracks
                
       // Sanity check:
-//      std::cout << "Signal cone now contains " << sigConeTks.size() << " tracks; signalCone_dRmin = " 
-//      << signalCone_dRmin << "; signalCone_dRmax = " << signalCone_dRmax << "; total mass = " << sigTks_p4.M() << std::endl;
-//      std::cout << "Isolation cone now contains " << isoConeTks.size() << " tracks; isolationCone_dRmin = " 
-//      << isolationCone_dRmin << "; isolationCone_dRmax = " << isolationCone_dRmax << std::endl;
-
+      if (0) {
+	std::cout << "Signal cone now contains " << sigConeTks.size() << " tracks; signalCone_dRmin = " 
+      << signalCone_dRmin << "; signalCone_dRmax = " << signalCone_dRmax << "; total mass = " << sigTks_p4.M() << std::endl;
+      std::cout << "Isolation cone now contains " << isoConeTks.size() << " tracks; isolationCone_dRmin = " 
+      << isolationCone_dRmin << "; isolationCone_dRmax = " << isolationCone_dRmax << std::endl;
+      }
 
       // Loop over seed tracks and check for higher-pT tracks inside the isolation cone
       bool bIsLdgTrack = true;
       for ( unsigned int i=0; i < SeedTTTrackPtrs.size(); i++ ){
         L1TTTrackRefPtr iTrk = SeedTTTrackPtrs.at(i);
         double dR = reco::deltaR(iTrk->getMomentum(cfg_tk_nFitParams).eta(), iTrk->getMomentum(cfg_tk_nFitParams).phi(), 
-                         matchedTrack->getMomentum(cfg_tk_nFitParams).eta(), matchedTrack->getMomentum(cfg_tk_nFitParams).phi());
+				 matchedTrack->getMomentum(cfg_tk_nFitParams).eta(), matchedTrack->getMomentum(cfg_tk_nFitParams).phi());
 	    // Skip tracks outside the cone defined by  cfg_seedTk_maxDeltaR
-	    if (dR > cfg_seedTk_maxDeltaR) continue;
-	    // Compare pT
+	if (dR > cfg_seedTk_maxDeltaR) continue;
+	// Compare pT
         if (iTrk->getMomentum(cfg_tk_nFitParams).perp() > matchedTrack->getMomentum(cfg_tk_nFitParams).perp()){
-//            std::cout << "Seed track not the leading track! Reject candidate!" << std::endl;
-		    bIsLdgTrack = false;
-		    break;
-	    }
+	  //            std::cout << "Seed track not the leading track! Reject candidate!" << std::endl;
+	  bIsLdgTrack = false;
+	  break;
+	}
       }	// end of loop over tracks
-
-	  // Proceed only if there is no higher pT track within signal or isolation cones
-	  if (cfg_seedTk_useMaxDeltaR && !bIsLdgTrack) continue;      
-
+      
+      // Proceed only if there is no higher pT track within signal or isolation cones
+      if (cfg_seedTk_useMaxDeltaR && !bIsLdgTrack) continue;      
+      
       // Jet width
-//      double jetWidth = 0;
-//      if (dRtimesPtSum > 0.0 && isoConePtSum > 0.0)
-//          jetWidth = dRtimesPtSum / isoConePtSum;
-//      bool bPassJetWidth = (jetWidth  < cfg_jetWidth_WP);
-//      if (!bPassJetWidth) continue;
-
+      //      double jetWidth = 0;
+      //      if (dRtimesPtSum > 0.0 && isoConePtSum > 0.0)
+      //          jetWidth = dRtimesPtSum / isoConePtSum;
+      //      bool bPassJetWidth = (jetWidth  < cfg_jetWidth_WP);
+      //      if (!bPassJetWidth) continue;
+      
       // Relative isolation
-//      double relIso = isoConePtSum / matchedTrack->getMomentum(cfg_tk_nFitParams).perp();
-//      bool bPassRelIso = (relIso < cfg_relIso_WP); // orthogonal to VtxIso
-//      if (!bPassRelIso) continue;
+      //      double relIso = isoConePtSum / matchedTrack->getMomentum(cfg_tk_nFitParams).perp();
+      //      bool bPassRelIso = (relIso < cfg_relIso_WP); // orthogonal to VtxIso
+      //      if (!bPassRelIso) continue;
       
       // Vertex isolation      
       bool bPassVtxIso = (vtxIso > cfg_vtxIso_WP); // orthogonal to RelIso
@@ -451,16 +452,20 @@ void L1CaloTkTauParticleProducer::produce(edm::Event& iEvent, const edm::EventSe
 	  
       const math::XYZTLorentzVector p4 = sigTks_p4;
       Tau finalTau = *caloTauIter;
-      L1CaloTkTauParticle caloTauCandidate(p4, sigConeTks, finalTau, vtxIso, caloEt);
-      L1CaloTkTauCandidates -> push_back( caloTauCandidate );
+      math::XYZTLorentzVector caloTaucalibratedp4;
+      if(cfg_calibrateCaloTaus)	caloTaucalibratedp4 = finalTau.p4(); // fixme: use CalibrateCaloTauP4(finalTau) 
+      else caloTaucalibratedp4 = finalTau.p4(); 
+
+      L1CaloTkTauParticle caloTauCandidate(caloTaucalibratedp4, p4, sigConeTks, finalTau, vtxIso); //, caloEt);
+      result -> push_back( caloTauCandidate );
       
   } // end of loop over calo taus
 
   // Sort the final CaloTkTau candidates
-  std::sort( L1CaloTkTauCandidates->begin(), L1CaloTkTauCandidates->end(), L1CaloTkTau::EtComparator() );
+  std::sort( result->begin(), result->end(), L1CaloTkTau::EtComparator() );
 
   // Add final CaloTkTau candidates to the event
-  iEvent.put(std::move(L1CaloTkTauCandidates), label );
+  iEvent.put(std::move(result), label );
   
 }
 
