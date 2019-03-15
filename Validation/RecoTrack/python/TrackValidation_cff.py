@@ -756,15 +756,17 @@ PixelVertexAssociatorByPositionAndTracks = VertexAssociatorByPositionAndTracks.c
     trackAssociation = "trackingParticlePixelTrackAsssociation"
 )
 
-pixelTracksFromPV = generalTracksFromPV.clone(
+_pixelTracksCustom = dict(
     src = "pixelTracks",
     vertexTag = "pixelVertices",
-    quality = "undefQuality",
 )
+pixelTracksPt09 = generalTracksPt09.clone(quality = ["undefQuality"], **_pixelTracksCustom)
+pixelTracksFromPV = generalTracksFromPV.clone(quality = "undefQuality", **_pixelTracksCustom)
+pixelTracksFromPVPt09 = pixelTracksPt09.clone(src = "pixelTracksFromPV")
 
 trackValidatorPixelTrackingOnly = trackValidator.clone(
     dirName = "Tracking/PixelTrack/",
-    label = ["pixelTracks"],
+    label = ["pixelTracks", "pixelTracksPt09"],
     doResolutionPlotsForLabels = [],
     trackCollectionForDrCalculation = "pixelTracks",
     associators = ["trackingParticlePixelTrackAsssociation"],
@@ -774,7 +776,7 @@ trackValidatorPixelTrackingOnly = trackValidator.clone(
 )
 trackValidatorFromPVPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
     dirName = "Tracking/PixelTrackFromPV/",
-    label = ["pixelTracksFromPV"],
+    label = ["pixelTracksFromPV", "pixelTracksFromPVPt09"],
     label_tp_effic = "trackingParticlesSignal",
     label_tp_fake = "trackingParticlesSignal",
     label_tp_effic_refvector = True,
@@ -811,7 +813,9 @@ tracksValidationTruthPixelTrackingOnly.add(trackingParticlesBHadron)
 tracksPreValidationPixelTrackingOnly = cms.Task(
     tracksValidationTruthPixelTrackingOnly,
     trackingParticlesSignal,
-    pixelTracksFromPV,
+    pixelTracksPt09,
+    pixelTracksFromPV, 
+    pixelTracksFromPVPt09,
 )
 tracksValidationPixelTrackingOnly = cms.Sequence(
     trackValidatorPixelTrackingOnly +
