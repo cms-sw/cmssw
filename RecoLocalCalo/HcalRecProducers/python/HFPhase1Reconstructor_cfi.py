@@ -199,8 +199,6 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
     # Parameters for HFStripFilter.
     # Please add some descriptions of their meaning.
     HFStripFilter = cms.PSet(
-        energyMax1 = cms.double(-10.0),
-        energyMax2 = cms.double(-10.0),
         stripThreshold = cms.double(40.0),
         maxThreshold = cms.double(100.0),
         timeMax = cms.double(6.0),
@@ -208,6 +206,7 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
         wedgeCut = cms.double(0.05),
         gap = cms.int32(2),
         lstrips = cms.int32(2),
+        acceptSeverityLevel = cms.int32(9),
         verboseLevel = cms.int32(20)
     )
 )

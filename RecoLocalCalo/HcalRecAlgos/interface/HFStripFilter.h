@@ -13,11 +13,11 @@ class HFStripFilter
 {
 public:
     // Construct this object with all necessary parameters
-    HFStripFilter(double energyMax1, double energyMax2,
-                  double stripThreshold, double maxThreshold,
+    HFStripFilter(double stripThreshold, double maxThreshold,
                   double timeMax, double maxStripTime,
                   double wedgeCut, int gap,
-                  int lstrips, int verboseLevel);
+                  int lstrips, int acceptSeverityLevel,
+                  int verboseLevel);
 
     // Destructor
     ~HFStripFilter();
@@ -35,8 +35,6 @@ public:
     static edm::ParameterSetDescription fillDescription();
 
 private:
-    double energyMax1_;
-    double energyMax2_;
     double stripThreshold_;
     double maxThreshold_;
     double timeMax_;
@@ -44,6 +42,7 @@ private:
     double wedgeCut_;
     int gap_;
     int lstrips_;
+    int acceptSeverityLevel_;
     int verboseLevel_;
 };
 
