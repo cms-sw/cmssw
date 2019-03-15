@@ -67,7 +67,7 @@ RawToDigi = cms.Sequence(RawToDigiTask)
 RawToDigiTask_noTk = RawToDigiTask.copyAndExclude([siPixelDigisTask, siStripDigis])
 RawToDigi_noTk = cms.Sequence(RawToDigiTask_noTk)
 
-RawToDigiTask_pixelOnly = cms.Task(siPixelDigisTask)
+RawToDigiTask_pixelOnly = cms.Task(siPixelDigisTask, scalersRawToDigi)
 RawToDigi_pixelOnly = cms.Sequence(RawToDigiTask_pixelOnly)
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
