@@ -36,7 +36,7 @@ void FWECaloParticleProxyBuilder::build(const CaloParticle &iData, unsigned int 
    {
       for (const auto &it : (*c).hits_and_fractions())
       {
-         if(DetId(it.first).det() == DetId::Detector::Ecal){
+         if(DetId(it.first).det() != DetId::Detector::Ecal){
             std::cerr << "this proxy should be used only for ECAL";
             return;
          }
