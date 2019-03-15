@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn import trackdnn
+
 ### high-pT triplets ###
 
 # NEW CLUSTERS (remove previously used clusters)
@@ -244,15 +247,19 @@ highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
 fastSim.toModify(highPtTripletStepTracks,TTRHBuilder = 'WithoutRefit')
 
 # Final selection
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-highPtTripletStep = TrackLwtnnClassifier.clone(
-    src = 'highPtTripletStepTracks',
-    qualityCuts = [0.75, 0.775, 0.8],
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
+highPtTripletStep = TrackMVAClassifierPrompt.clone(
+     mva = dict(GBRForestLabel = 'MVASelectorHighPtTripletStep_Phase1'),
+     src = 'highPtTripletStepTracks',
+     qualityCuts = [0.2,0.3,0.4]
 )
 fastSim.toModify(highPtTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
-from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+trackdnn.toReplaceWith(highPtTripletStep, TrackLwtnnClassifier.clone(
+    src = 'highPtTripletStepTracks',
+    qualityCuts = [0.75, 0.775, 0.8],
+))
 
 highBetaStar_2018.toReplaceWith(highPtTripletStep, TrackMVAClassifierPrompt.clone(
      qualityCuts = [-0.2,0.3,0.4],
