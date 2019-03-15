@@ -1,10 +1,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFStripFilter.h"
-
 
 HFStripFilter::HFStripFilter(const double energyMax1, const double energyMax2,
                              const double stripThreshold, const double maxThreshold,
@@ -34,7 +34,9 @@ HFStripFilter::~HFStripFilter()
         edm::LogInfo("HFStripFilter") << "destructor called";
 }
 
-void HFStripFilter::runFilter(HFRecHitCollection& rec) const
+void HFStripFilter::runFilter(HFRecHitCollection& rec,
+                              const HcalChannelQuality* myqual,
+                              const HcalSeverityLevelComputer* mySeverity) const
 {
     if (verboseLevel_ >= 20)
         edm::LogInfo("HFStripFilter") << "runFilter called";

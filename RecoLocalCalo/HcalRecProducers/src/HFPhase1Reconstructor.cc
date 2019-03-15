@@ -289,7 +289,7 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 
         // Step 4:  Run HFStripFilter if requested
         if (runHFStripFilter_)
-            hfStripFilter_->runFilter(*rec);
+            hfStripFilter_->runFilter(*rec, myqual, mySeverity);
     }
 
     // Add the output collection to the event record
