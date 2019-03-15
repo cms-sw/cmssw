@@ -39,6 +39,21 @@ Implementation:
 #include "CondFormats/SiPhase2TrackerObjects/interface/DTCELinkId.h"
 
 
+//
+// CONSTANTS
+//
+
+static constexpr const unsigned int gbt_id_minvalue   = 0;
+static constexpr const unsigned int gbt_id_maxvalue   = 72;
+static constexpr const unsigned int elink_id_minvalue = 0;
+static constexpr const unsigned int elink_id_maxvalue = 7;
+
+
+//
+// SOME HELPER FUNCTIONS
+//
+
+
 
 
 // trim from start (in place)
@@ -208,14 +223,15 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(std::vector<std::s
 					}
 					
 					unsigned const dtc_id = strtoul(csvColumn[csvFormat_idtcid_].c_str(), nullptr, 10);
-					unsigned gbt_id ;
+					unsigned gbt_id;
 					unsigned elink_id;
+					
 					
 					if (generate_fake_valid_gbtlink_and_elinkid_)
 					{
-						for (gbt_id = 0; gbt_id < 72; ++gbt_id)
+						for (gbt_id = gbt_id_minvalue; gbt_id < gbt_id_maxvalue + 1u; ++gbt_id)
 						{
-							for  (elink_id = 0; elink_id < 7; ++elink_id)
+							for  (elink_id = elink_id_minvalue; elink_id < elink_id_maxvalue + 1u; ++elink_id)
 							{
 								if ( !(pCablingMap_->knowsDTCELinkId( DTCELinkId(dtc_id, gbt_id, elink_id) )) )
 									goto gbtlink_and_elinkid_generator_end; //break out of this double loop
