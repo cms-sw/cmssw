@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
+
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn import trackdnn
+
 ###############################################################
 # Large impact parameter Tracking using mixed-triplet seeding #
 ###############################################################
@@ -337,14 +341,20 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 mixedTripletStep = ClassifierMerger.clone()
 mixedTripletStep.inputClassifiers=['mixedTripletStepClassifier1','mixedTripletStepClassifier2']
 
-#LWTNN selector
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackingPhase1.toReplaceWith(mixedTripletStep, TrackLwtnnClassifier.clone(
-     src = 'mixedTripletStepTracks',
-     qualityCuts = [-0.8, -0.35, 0.1],
+trackingPhase1.toReplaceWith(mixedTripletStep, TrackMVAClassifierDetached.clone(
+	mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1'),
+	src = 'mixedTripletStepTracks',
+	qualityCuts = [-0.5,0.0,0.5]
 ))
 (trackingPhase1 & fastSim).toModify(mixedTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+
+
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+trackdnn.toReplaceWith(mixedTripletStep, TrackLwtnnClassifier.clone(
+     src = 'mixedTripletStepTracks',
+     qualityCuts = [-0.8, -0.35, 0.1]
+))
+
 
 highBetaStar_2018.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
      qualityCuts = [-0.7,0.0,0.5],

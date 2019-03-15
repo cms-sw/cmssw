@@ -3,6 +3,9 @@ from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_v
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn import trackdnn
+
 # NEW CLUSTERS (remove previously used clusters)
 lowPtTripletStepClusters = _cfg.clusterRemoverForIter("LowPtTripletStep")
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
@@ -274,12 +277,16 @@ lowPtTripletStep.src = 'lowPtTripletStepTracks'
 lowPtTripletStep.mva.GBRForestLabel = 'MVASelectorIter1_13TeV'
 lowPtTripletStep.qualityCuts = [-0.6,-0.3,-0.1]
 
-#LWTNN selector
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackingPhase1.toReplaceWith(lowPtTripletStep, TrackLwtnnClassifier.clone(
+trackingPhase1.toReplaceWith(lowPtTripletStep, TrackMVAClassifierPrompt.clone(
+     mva = dict(GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1'),
      src = 'lowPtTripletStepTracks',
-     qualityCuts = [0.2, 0.5, 0.8],
+     qualityCuts = [-0.4,0.0,0.3]
+))
+
+from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+trackdnn.toReplaceWith(lowPtTripletStep, TrackLwtnnClassifier.clone(
+    src = 'lowPtQuadStepTracks',
+    qualityCuts = [0.2, 0.425, 0.75]
 ))
 
 fastSim.toModify(lowPtTripletStep, vertices = "firstStepPrimaryVerticesBeforeMixing")

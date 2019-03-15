@@ -6,6 +6,8 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
 
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn import trackdnn
 
 ###############################################
 # Low pT and detached tracks from pixel triplets
@@ -252,15 +254,18 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 detachedTripletStep = ClassifierMerger.clone()
 detachedTripletStep.inputClassifiers=['detachedTripletStepClassifier1','detachedTripletStepClassifier2']
 
+trackingPhase1.toReplaceWith(detachedTripletStep, TrackMVAClassifierDetached.clone(
+     mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1'),
+     src = 'detachedTripletStepTracks',
+     qualityCuts = [-0.2,0.3,0.8]
+))
+(trackingPhase1 & fastSim).toModify(detachedTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
-#LWTNN selector
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackingPhase1.toReplaceWith(detachedTripletStep, TrackLwtnnClassifier.clone(
+trackdnn.toReplaceWith(detachedTripletStep, TrackLwtnnClassifier.clone(
      src = 'detachedTripletStepTracks',
      qualityCuts = [0.0, 0.4, 0.8],
 ))
-(trackingPhase1 & fastSim).toModify(detachedTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 highBetaStar_2018.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
      qualityCuts = [-0.5,0.0,0.5],

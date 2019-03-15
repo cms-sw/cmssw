@@ -3,6 +3,9 @@ from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_v
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn import trackdnn
+
 # NEW CLUSTERS (remove previously used clusters)
 pixelPairStepClusters = _cfg.clusterRemoverForIter("PixelPairStep")
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
@@ -333,12 +336,16 @@ pixelPairStep.src = 'pixelPairStepTracks'
 pixelPairStep.mva.GBRForestLabel = 'MVASelectorIter2_13TeV'
 pixelPairStep.qualityCuts = [-0.2,0.0,0.3]
 
-#LWTNN selector
+trackingPhase1.toReplaceWith(pixelPairStep, TrackMVAClassifierPrompt.clone(
+     mva = dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'),
+     src = 'pixelPairStepTracks',
+     qualityCuts = [-0.2,0.0,0.3]
+))
+
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackingPhase1.toReplaceWith(pixelPairStep, TrackLwtnnClassifier.clone(
+trackdnn.toReplaceWith(pixelPairStep, TrackLwtnnClassifier.clone(
     src='pixelPairStepTracks',
-    qualityCuts=[-0.6, -0.1, 0.4],
+    qualityCuts=[-0.6, -0.1, 0.4]
 ))
 
 highBetaStar_2018.toReplaceWith(pixelPairStep, TrackMVAClassifierPrompt.clone(
