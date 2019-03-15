@@ -256,9 +256,8 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
 				      << " Tubs made of " << matName << ":"
 				      << &matter << " of dimensions " << rinB 
 				      << ", " << routF << ", " << hthick
-				      << ", 0.0, " << convertRadToDeg(2._pi)
-				      << " and position " << glog.name() 
-				      << " number " << copy;
+				      << ", 0.0, 360.0 and position " 
+				      << glog.name() << " number " << copy;
 #endif
 	positionSensitive(glog,rinB,routF,zz,layerSense_[ly],cpv);
       }
