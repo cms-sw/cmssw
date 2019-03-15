@@ -94,8 +94,8 @@ std::string LMFColor::setByIDSql(Statement *stmt, int id) {
 
 void LMFColor::getParameters(ResultSet *rset) {
   setInt("color", rset->getInt(1));
-  setString("sname", getOraString(rset,2));
-  setString("lname", getOraString(rset,3));
+  setString("sname", rset->getString(2));
+  setString("lname", rset->getString(3));
 }
 
 bool LMFColor::isValid() {
