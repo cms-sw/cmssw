@@ -49,6 +49,7 @@ from DQM.Physics.DQMTopMiniAOD_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 from DQM.TrackingMonitorSource.pixelTracksMonitoring_cff import *
+from DQMOffline.RecoB.PixelVertexMonitor_cff import *
 from DQM.SiOuterTracker.OuterTrackerSourceConfig_cff import *
 # miniAOD DQM validation
 from Validation.RecoParticleFlow.miniAODDQM_cff import *
@@ -114,7 +115,8 @@ DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0Common *
                                    materialDumperAnalyzer
                                  )
 
-DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring )
+DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring +
+                                        pixelPVMonitor )
 
 DQMOuterTracker = cms.Sequence( dqmDcsInfo *
                                 OuterTrackerSource *
