@@ -12,6 +12,8 @@
 #include "tbb/task_arena.h"
 #include "tbb/tbb.h"
 
+using namespace hgcal_clustering;
+
 void HGCalImagingAlgo::populate(const HGCRecHitCollection &hits) {
   // loop over all hits and create the Hexel structure, skip energies below ecut
 
@@ -687,7 +689,7 @@ void HGCalImagingAlgo::setDensity(const std::vector<KDNode> &nd){
   }   // end loop nodes
 }
 
-//Density 
+//Density
 Density HGCalImagingAlgo::getDensity(){
   return density_;
 }

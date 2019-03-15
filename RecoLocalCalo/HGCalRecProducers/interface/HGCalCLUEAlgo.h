@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 
+using Density=hgcal_clustering::Density;
 
 class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
  public:
@@ -78,6 +79,9 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
       maxpos_[i][1] = 0.;
     }
   }
+
+  Density getDensity() override;
+
   void computeThreshold();
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
@@ -126,6 +130,9 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
 
   // The hit energy cutoff
   double ecut_;
+
+  // For keeping the density per hit
+  Density density_;
 
   // various parameters used for calculating the noise levels for a given sensor (and whether to use
   // them)
@@ -231,6 +238,7 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
   int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &,
                             const unsigned int, std::vector<std::vector<KDNode> > &) const;
   math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
+  void setDensity(const std::vector<KDNode> &nd);
 };
 
 #endif

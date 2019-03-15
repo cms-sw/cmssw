@@ -30,6 +30,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+using Density = hgcal_clustering::Density;
 
 class HGCalLayerClusterProducer : public edm::stream::EDProducer<> {
  public:
@@ -174,7 +175,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
   auto clusterHandle = evt.put(std::move(clusters));
   auto clusterHandleSharing = evt.put(std::move(clusters_sharing),"sharing");
 
-  //Keep the density 
+  //Keep the density
   *density = algo->getDensity();
   evt.put(std::move(density));
 
