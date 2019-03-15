@@ -225,7 +225,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
             {
                energy ? 
                   boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]) : 
-                  boxset->DigitColor(0.7f, 0.7f, 0.7f);
+                  boxset->DigitColor(64, 64, 64);
             }
 
             h_box = true;
@@ -244,7 +244,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
             {
                energy ? 
                   hex_boxset->DigitColor(gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor]) : 
-                  hex_boxset->DigitColor(0.7f, 0.7f, 0.7f);
+                  hex_boxset->DigitColor(64, 64, 64);
             }
 
             h_hex = true;
