@@ -300,9 +300,8 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module,
 				      << " Tubs made of " << matName 
 				      << " of dimensions " << rinB 
 				      << ", " << routF << ", " << hthick
-				      << ", 0.0, " << convertRadToDeg(2._pi)
-				      << " positioned in: " << glog.name() 
-				      << " number "	<< copy;
+				      << ", 0.0, 360.0 and positioned in: "
+				      << glog.name() << " number " << copy;
 #endif
 	positionMix(glog, name, copy, thick_[ii], matter, rinB, rMixLayer_[i],
 		    routF, zz, cpv);
@@ -362,8 +361,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name() 
 				<< " Tubs made of " << matter.name() 
 				<< " of dimensions " << rmid << ", " << rout 
-				<< ", " << hthick << ", 0.0, " 
-				<< convertRadToDeg(2._pi);
+				<< ", " << hthick << ", 0.0, 360.0";
 #endif
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
@@ -398,8 +396,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name() 
 				  << " Tubs made of " << matName 
 				  << " of dimensions " << rmid << ", " << rout
-				  << ", " << hthickl <<", 0.0, "
-				  << convertRadToDeg(2._pi);
+				  << ", " << hthickl <<", 0.0, 360.0";
 #endif
     zpos += hthickl;
     DDTranslation r1(0,0,zpos);
@@ -434,9 +431,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name() 
 				<< " Tubs made of " << matter.name() 
 				<< " of dimensions " << rin << ", " << rmid 
-				<< ", " << hthick << ", 0.0, " 
-				<< convertRadToDeg(2._pi);
-
+				<< ", " << hthick << ", 0.0, 360.0";
 #endif
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
@@ -472,8 +467,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name() 
 				  << " Tubs made of " << matName 
 				  << " of dimensions " << rin << ", " << rmid 
-				  << ", " << hthickl <<", 0.0, "
-				  << convertRadToDeg(2._pi);
+				  << ", " << hthickl <<", 0.0, 360.0";
 #endif
     zpos += hthickl;
     DDTranslation r1(0,0,zpos);
