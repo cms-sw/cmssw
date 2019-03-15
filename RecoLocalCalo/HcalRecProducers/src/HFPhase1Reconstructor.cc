@@ -40,6 +40,7 @@
 // Noise cleanup algos
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_PETalgorithm.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_S9S1algorithm.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HFStripFilter.h"
 
 // Parser for Phase 1 HF reco algorithms
 #include "RecoLocalCalo/HcalRecAlgos/interface/parseHFPhase1AlgoDescription.h"
@@ -65,6 +66,7 @@ private:
     // Configuration parameters
     std::string algoConfigClass_;
     bool setNoiseFlags_;
+    bool runHFStripFilter_;
     bool useChannelQualityFromDB_;
     bool checkChannelQualityForDepth3and4_;
 
@@ -77,6 +79,7 @@ private:
     std::unique_ptr<HcalHF_S9S1algorithm> hfS9S1_;
     std::unique_ptr<HcalHF_S9S1algorithm> hfS8S1_;
     std::unique_ptr<HcalHF_PETalgorithm>  hfPET_;
+    std::unique_ptr<HFStripFilter>        hfStripFilter_;
 };
 
 //
@@ -85,6 +88,7 @@ private:
 HFPhase1Reconstructor::HFPhase1Reconstructor(const edm::ParameterSet& conf)
     : algoConfigClass_(conf.getParameter<std::string>("algoConfigClass")),
       setNoiseFlags_(conf.getParameter<bool>("setNoiseFlags")),
+      runHFStripFilter_(conf.getParameter<bool>("runHFStripFilter")),
       useChannelQualityFromDB_(conf.getParameter<bool>("useChannelQualityFromDB")),
       checkChannelQualityForDepth3and4_(conf.getParameter<bool>("checkChannelQualityForDepth3and4")),
       reco_(parseHFPhase1AlgoDescription(conf.getParameter<edm::ParameterSet>("algorithm")))
@@ -131,6 +135,13 @@ HFPhase1Reconstructor::HFPhase1Reconstructor(const edm::ParameterSet& conf)
             psPET.getParameter<int>("HcalAcceptSeverityLevel"),
             psPET.getParameter<std::vector<double> >("short_R_29"),
             psPET.getParameter<std::vector<double> >("long_R_29") );
+
+        // Configure HFStripFilter
+        if (runHFStripFilter_)
+        {
+            const edm::ParameterSet& psStripFilter = conf.getParameter<edm::ParameterSet>("HFStripFilter");
+            hfStripFilter_ = HFStripFilter::parseParameterSet(psStripFilter);
+        }
     }
 
     // Describe consumed data
@@ -266,7 +277,7 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
                 hfS8S1_->HFSetFlagFromS9S1(*i, *rec, myqual, mySeverity);
         }
 
-        // Set 3:  Set S9S1 flag (long fibers)
+        // Step 3:  Set S9S1 flag (long fibers)
         for (HFRecHitCollection::iterator i = rec->begin(); i != rec->end(); ++i)
         {
             int depth=i->id().depth();
@@ -275,6 +286,10 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
             if (depth==1 && abs(ieta)!=29 ) 
                 hfS9S1_->HFSetFlagFromS9S1(*i, *rec, myqual, mySeverity);
         }
+
+        // Step 4:  Run HFStripFilter if requested
+        if (runHFStripFilter_)
+            hfStripFilter_->runFilter(*rec);
     }
 
     // Add the output collection to the event record
@@ -295,9 +310,11 @@ HFPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descript
     desc.add<edm::InputTag>("inputLabel");
     desc.add<std::string>("algoConfigClass");
     desc.add<bool>("setNoiseFlags");
+    desc.add<bool>("runHFStripFilter", false);
     desc.add<bool>("useChannelQualityFromDB");
     desc.add<bool>("checkChannelQualityForDepth3and4");
     desc.add<edm::ParameterSetDescription>("algorithm", fillDescriptionForParseHFPhase1AlgoDescription());
+    desc.add<edm::ParameterSetDescription>("HFStripFilter", HFStripFilter::fillDescription());
 
     add_param_set(S9S1stat);
     add_param_set(S8S1stat);

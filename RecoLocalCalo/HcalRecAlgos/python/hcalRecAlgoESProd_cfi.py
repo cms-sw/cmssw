@@ -31,7 +31,10 @@ from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify(hcalRecAlgos,
     phase = cms.uint32(1),
     SeverityLevels = {
-        2 : dict( RecHitFlags = cms.vstring('HBHEIsolatedNoise') ),
+        2 : dict( RecHitFlags = cms.vstring('HBHEIsolatedNoise',
+                                            'HFAnomalousHit'
+                )
+            ),
         3 : dict( RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity',  
                                             'HBHEFlatNoise', 
                                             'HBHESpikeNoise', 
@@ -40,10 +43,10 @@ run2_HCAL_2017.toModify(hcalRecAlgos,
                                             'HBHEOOTPU'
                 )
             ),
-        4: dict( RecHitFlags = cms.vstring('HFLongShort', 
-                                           'HFS8S1Ratio',  
-                                           'HFPET', 
-                                           'HFSignalAsymmetry'
+        4 : dict( RecHitFlags = cms.vstring('HFLongShort', 
+                                            'HFS8S1Ratio',  
+                                            'HFPET', 
+                                            'HFSignalAsymmetry'
                 )
             ),
     },

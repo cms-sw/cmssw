@@ -74,6 +74,10 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
     # Turn on/off the noise cleanup algorithms
     setNoiseFlags = cms.bool(True),
 
+    # Run HFStripFilter in the noise cleanup sequence? This switch
+    # is meaningful only if "setNoiseFlags" is set to True.
+    runHFStripFilter = cms.bool(True),
+
     # Parameters for the S9S1 test.
     #
     #   optimumSlopes are slopes for each of the |ieta| values
@@ -190,5 +194,20 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
         short_R_29 = cms.vdouble([0.8]),
         long_R_29  = cms.vdouble([0.8]), # should move from 0.98 to 0.8?
         HcalAcceptSeverityLevel = cms.int32(9), # allow hits with severity up to AND INCLUDING 9
+    ),
+
+    # Parameters for HFStripFilter.
+    # Please add some descriptions of their meaning.
+    HFStripFilter = cms.PSet(
+        energyMax1 = cms.double(-10.0),
+        energyMax2 = cms.double(-10.0),
+        stripThreshold = cms.double(40.0),
+        maxThreshold = cms.double(100.0),
+        timeMax = cms.double(6.0),
+        maxStripTime = cms.double(10.0),
+        wedgeCut = cms.double(0.05),
+        gap = cms.int32(2),
+        lstrips = cms.int32(2),
+        verboseLevel = cms.int32(20)
     )
 )
