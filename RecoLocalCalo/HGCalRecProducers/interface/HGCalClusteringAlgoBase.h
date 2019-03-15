@@ -13,6 +13,7 @@
 #include <vector>
 #include <numeric>
 
+namespace hgcal_clustering {
 template <typename T>
 std::vector<size_t> sorted_indices(const std::vector<T> &v) {
 
@@ -42,6 +43,11 @@ size_t max_index(const std::vector<T> &v) {
         return (*maxidx);
 }
 
+//Density collection
+typedef std::map< DetId, float > Density;
+
+};
+
 class HGCalClusteringAlgoBase
 {
 
@@ -58,6 +64,7 @@ enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
  virtual void makeClusters() = 0;
  virtual std::vector<reco::BasicCluster> getClusters(bool) = 0;
  virtual void reset() = 0;
+ virtual hgcal_clustering::Density getDensity() = 0;
 
  inline void getEventSetup(const edm::EventSetup& es){
    rhtools_.getEventSetup(es);

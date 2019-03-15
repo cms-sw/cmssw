@@ -21,7 +21,7 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
@@ -81,7 +81,7 @@ struct HGVHistoProducerAlgoHistograms {
   std::unordered_map< std::string, ConcurrentMonitorElement > h_distancetoseedcell_perthickperlayer;
   std::unordered_map< std::string, ConcurrentMonitorElement > h_distancetoseedcell_perthickperlayer_eneweighted;
   std::unordered_map< std::string, ConcurrentMonitorElement > h_distancetomaxcell_perthickperlayer;
-  std::unordered_map< std::string, ConcurrentMonitorElement > h_distancetomaxcell_perthickperlayer_eneweighted; 
+  std::unordered_map< std::string, ConcurrentMonitorElement > h_distancetomaxcell_perthickperlayer_eneweighted;
   std::unordered_map< std::string, ConcurrentMonitorElement > h_distancebetseedandmaxcell_perthickperlayer;
   std::unordered_map< std::string, ConcurrentMonitorElement > h_distancebetseedandmaxcellvsclusterenergy_perthickperlayer;
 
@@ -93,6 +93,8 @@ struct HGVHistoProducerAlgoHistograms {
 
 };
 
+using Density = hgcal_clustering::Density;
+
 class HGVHistoProducerAlgo {
  public:
   HGVHistoProducerAlgo(const edm::ParameterSet& pset) ;
@@ -103,7 +105,7 @@ class HGVHistoProducerAlgo {
   void bookInfo(DQMStore::ConcurrentBooker& ibook, Histograms& histograms);
   void bookCaloParticleHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms,int pdgid);
 
-  void bookClusterHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms,unsigned layers, 
+  void bookClusterHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms,unsigned layers,
 			 std::vector<int> thicknesses, std::string pathtomatbudfile);
   void layerClusters_to_CaloParticles(const Histograms& histograms,
       const reco::CaloClusterCollection &clusters,
@@ -180,7 +182,7 @@ class HGVHistoProducerAlgo {
   double minDisSeedToMaxperthickperlayer_, maxDisSeedToMaxperthickperlayer_; int nintDisSeedToMaxperthickperlayer_;
   double minClEneperthickperlayer_, maxClEneperthickperlayer_; int nintClEneperthickperlayer_;
   double minCellsEneDensperthick_, maxCellsEneDensperthick_; int nintCellsEneDensperthick_;
-  
+
 };
 
 #endif

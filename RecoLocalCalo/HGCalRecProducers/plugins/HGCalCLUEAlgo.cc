@@ -12,6 +12,8 @@
 #include "tbb/task_arena.h"
 #include "tbb/tbb.h"
 
+using namespace hgcal_clustering;
+
 void HGCalCLUEAlgo::populate(const HGCRecHitCollection &hits) {
   // loop over all hits and create the Hexel structure, skip energies below ecut
 
@@ -93,6 +95,8 @@ void HGCalCLUEAlgo::makeClusters() {
       double maxdensity = calculateLocalDensity(points_[i], hit_kdtree,
                                                 actualLayer);  // also stores rho (energy
                                                                // density) for each point (node)
+      //Now that we have the density per point we can store it
+      setDensity(points_[i]);
       // calculate distance to nearest point with higher density storing
       // distance (delta) and point's index
       calculateDistanceToHigher(points_[i]);
@@ -389,4 +393,16 @@ void HGCalCLUEAlgo::computeThreshold() {
     thresholds_[ilayer - 1][maxNumberOfThickIndices] = ecut_ * scintillators_sigmaNoise;
     v_sigmaNoise_[ilayer - 1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
   }
+}
+
+void HGCalCLUEAlgo::setDensity(const std::vector<KDNode> &nd){
+
+  // for each node store the computer local density
+  for (auto &i : nd){
+    density_[ i.data.detid ] =  i.data.rho ;
+  }
+}
+
+Density HGCalCLUEAlgo::getDensity() {
+  return density_;
 }

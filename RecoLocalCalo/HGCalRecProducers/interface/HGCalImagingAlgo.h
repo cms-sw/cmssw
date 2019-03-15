@@ -26,10 +26,7 @@
 #include <vector>
 #include <set>
 
-
-//Density collection
-typedef std::map< DetId, float > Density;
-
+using Density = hgcal_clustering::Density;
 
 class HGCalImagingAlgo : public HGCalClusteringAlgoBase
 {
@@ -87,7 +84,7 @@ void reset() override {
 void computeThreshold();
 
 //getDensity
- Density getDensity();
+ Density getDensity() override;
 
 static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   iDesc.add<std::vector<double>>("thresholdW0", {
@@ -142,11 +139,6 @@ double sigma2_;   // transverse shower size
 
 // The vector of clusters
 std::vector<reco::BasicCluster> clusters_v_;
-
-hgcal::RecHitTools rhtools_;
-
-// The algo id
-reco::CaloCluster::AlgoId algoId_;
 
 // For keeping the density per hit
  Density density_;
