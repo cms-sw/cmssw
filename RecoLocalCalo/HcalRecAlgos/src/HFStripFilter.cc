@@ -6,20 +6,19 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFStripFilter.h"
 
-HFStripFilter::HFStripFilter(const double energyMax1, const double energyMax2,
-                             const double stripThreshold, const double maxThreshold,
+HFStripFilter::HFStripFilter(const double stripThreshold, const double maxThreshold,
                              const double timeMax, const double maxStripTime,
                              const double wedgeCut, const int gap,
-                             const int lstrips, const int verboseLevel)
-    : energyMax1_(energyMax1),
-      energyMax2_(energyMax2),
-      stripThreshold_(stripThreshold),
+                             const int lstrips, const int acceptSeverityLevel,
+                             const int verboseLevel)
+    : stripThreshold_(stripThreshold),
       maxThreshold_(maxThreshold),
       timeMax_(timeMax),
       maxStripTime_(maxStripTime),
       wedgeCut_(wedgeCut),
       gap_(gap),
       lstrips_(lstrips),
+      acceptSeverityLevel_(acceptSeverityLevel),
       verboseLevel_(verboseLevel)
 {
     // For the description of CMSSW message logging, see
@@ -55,8 +54,6 @@ std::unique_ptr<HFStripFilter> HFStripFilter::parseParameterSet(
     const edm::ParameterSet& ps)
 {
     return std::make_unique<HFStripFilter>(
-        ps.getParameter<double>("energyMax1"),
-        ps.getParameter<double>("energyMax2"),
         ps.getParameter<double>("stripThreshold"),
         ps.getParameter<double>("maxThreshold"),
         ps.getParameter<double>("timeMax"),
@@ -64,6 +61,7 @@ std::unique_ptr<HFStripFilter> HFStripFilter::parseParameterSet(
         ps.getParameter<double>("wedgeCut"),
         ps.getParameter<int>("gap"),
         ps.getParameter<int>("lstrips"),
+        ps.getParameter<int>("acceptSeverityLevel"),
         ps.getParameter<int>("verboseLevel")
     );
 }
@@ -72,8 +70,6 @@ edm::ParameterSetDescription HFStripFilter::fillDescription()
 {
     edm::ParameterSetDescription desc;
 
-    desc.add<double>("energyMax1", -10.0);
-    desc.add<double>("energyMax2", -10.0);
     desc.add<double>("stripThreshold", 40.0);
     desc.add<double>("maxThreshold", 100.0);
     desc.add<double>("timeMax", 6.0);
@@ -81,6 +77,7 @@ edm::ParameterSetDescription HFStripFilter::fillDescription()
     desc.add<double>("wedgeCut", 0.05);
     desc.add<int>("gap", 2);
     desc.add<int>("lstrips", 2);
+    desc.add<int>("acceptSeverityLevel", 9);
     desc.add<int>("verboseLevel", 0);
 
     return desc;
