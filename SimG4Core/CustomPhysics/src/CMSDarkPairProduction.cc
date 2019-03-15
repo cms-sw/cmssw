@@ -12,9 +12,6 @@
 
 using namespace std;
 
-static const G4double xsfactor =
-  4*CLHEP::fine_structure_const*CLHEP::classic_electr_radius*CLHEP::classic_electr_radius;
-
 CMSDarkPairProduction::CMSDarkPairProduction(const G4ParticleDefinition* p,G4double df,
    const G4String& nam) : G4PairProductionRelModel(p,nam), dark_factor(df) {}
 
