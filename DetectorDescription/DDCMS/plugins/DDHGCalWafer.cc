@@ -67,8 +67,8 @@ static long  algorithm(dd4hep::Detector& /* description */,
 				      << "rotation " << "\t90, " << irot 
 				      << ", 90, " << (irot+90) << ", 0, 0";
 #endif
-	double phix = irot/geant_units::degPerRad;
-	double phiy = (90+irot)/geant_units::degPerRad;
+	double phix = convertDegToRad(irot);
+	double phiy = convertDegToRad(90+irot);
 	rotation = cms::makeRotation3D(90._deg, phix, 90._deg, phiy, 0., 0.);
       }
       double xpos = dx*nx;
