@@ -43,7 +43,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" 
-#include "RecoEcal/EgammaCoreTools/interface/Utils.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <vector>
 #include <TROOT.h>
@@ -281,7 +281,7 @@ EgGEDPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  float phi =  (*it).phi();
 
 	  float deta = etamc - eta;
-	  float dphi = normalizePhi(phimc - phi);
+	  float dphi = normalizedPhi(phimc - phi);
 	  float dR = sqrt(deta*deta + dphi*dphi);
 
 	  if(dR < 0.1){
@@ -350,7 +350,7 @@ EgGEDPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
 	float deta = etamc - etareco;
-	float dphi = normalizePhi(phimc - phireco);
+	float dphi = normalizedPhi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
 
 	float SCEnergy = (theRecoPh[j]).energy();
@@ -414,7 +414,7 @@ EgGEDPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	
 	
 	float deta = etamc - etareco;
-	float dphi = normalizePhi(phimc - phireco);
+	float dphi = normalizedPhi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
 	
 	float SCEnergy = (theGedPh[j]).energy();

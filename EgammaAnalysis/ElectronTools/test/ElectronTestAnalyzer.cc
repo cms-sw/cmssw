@@ -46,7 +46,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "RecoEcal/EgammaCoreTools/interface/Utils.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <cmath>
 #include <vector>
@@ -357,7 +357,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	float etareco = theEGamma[j].eta();
 	float phireco = theEGamma[j].phi();
 	float deta = etamc - etareco;
-	float dphi = normalizePhi(phimc - phireco);
+	float dphi = normalizedPhi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
 
 
