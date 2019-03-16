@@ -3,7 +3,7 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn import trackdnn
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 
 # NEW CLUSTERS (remove previously used clusters)
 lowPtQuadStepClusters = _cfg.clusterRemoverForIter("LowPtQuadStep")
@@ -207,6 +207,7 @@ lowPtQuadStep = TrackMVAClassifierPrompt.clone(
 fastSim.toModify(lowPtQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 trackdnn.toReplaceWith(lowPtQuadStep, TrackLwtnnClassifier.clone(
     src = 'lowPtQuadStepTracks',
     qualityCuts = [0.2, 0.425, 0.75]

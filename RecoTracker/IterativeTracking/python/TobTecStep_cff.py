@@ -3,7 +3,7 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn import trackdnn
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 
 #######################################################################
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
@@ -372,6 +372,7 @@ trackingPhase1.toReplaceWith(tobTecStep, TrackMVAClassifierDetached.clone(
 (trackingPhase1 & fastSim).toModify(tobTecStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 trackdnn.toReplaceWith(tobTecStep, TrackLwtnnClassifier.clone(
      src = 'tobTecStepTracks',
      qualityCuts = [-0.4, -0.25, -0.1]

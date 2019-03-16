@@ -4,7 +4,7 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn import trackdnn
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 
 ###############################################################
 # Large impact parameter Tracking using mixed-triplet seeding #
@@ -350,6 +350,7 @@ trackingPhase1.toReplaceWith(mixedTripletStep, TrackMVAClassifierDetached.clone(
 
 
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 trackdnn.toReplaceWith(mixedTripletStep, TrackLwtnnClassifier.clone(
      src = 'mixedTripletStepTracks',
      qualityCuts = [-0.8, -0.35, 0.1]

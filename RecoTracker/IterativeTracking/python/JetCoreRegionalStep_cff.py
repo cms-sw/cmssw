@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn import trackdnn
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 
 # This step runs over all clusters
 
@@ -200,6 +200,7 @@ trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone
 (trackingPhase1 & fastSim).toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 trackdnn.toReplaceWith(jetCoreRegionalStep, TrackLwtnnClassifier.clone(
      src = 'jetCoreRegionalStepTracks',
      qualityCuts = [0.6, 0.7, 0.8],

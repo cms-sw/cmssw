@@ -3,7 +3,7 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn import trackdnn
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 
 ### high-pT triplets ###
 
@@ -256,6 +256,7 @@ highPtTripletStep = TrackMVAClassifierPrompt.clone(
 fastSim.toModify(highPtTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 trackdnn.toReplaceWith(highPtTripletStep, TrackLwtnnClassifier.clone(
     src = 'highPtTripletStepTracks',
     qualityCuts = [0.75, 0.775, 0.8],

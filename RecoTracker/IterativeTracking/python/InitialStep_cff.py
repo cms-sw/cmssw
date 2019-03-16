@@ -3,7 +3,7 @@ from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_v
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
-from Configuration.ProcessModifiers.trackdnn import trackdnn
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
 
 ### STEP 0 ###
 
@@ -301,6 +301,7 @@ trackingPhase1.toReplaceWith(initialStep, TrackMVAClassifierPrompt.clone(
 (trackingPhase1 & fastSim).toModify(initialStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
 trackdnn.toReplaceWith(initialStep, TrackLwtnnClassifier.clone(
         src = 'initialStepTracks',
         qualityCuts = [0.0, 0.3, 0.6]
