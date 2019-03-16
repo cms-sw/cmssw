@@ -13,7 +13,7 @@
  *
  */
 
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboard.h"
 
 class CSCMotherboardME11 : public CSCUpgradeMotherboard
 {
