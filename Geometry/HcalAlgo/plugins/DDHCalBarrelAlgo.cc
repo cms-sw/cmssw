@@ -452,7 +452,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
     
     DDRotation rotation;
     std::string rotstr("NULL");
-    if (phideg != 0) {
+    if (std::lround(phideg) != 0) {
       rotstr = "R"; 
       if (phideg < 100)	rotstr = "R0"; 
       rotstr = rotstr + std::to_string(phideg);
