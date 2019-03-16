@@ -11,13 +11,13 @@
  *
  */
 
-#ifndef CSCTriggerPrimitives_CSCAnodeLCTAnalyzer_H
-#define CSCTriggerPrimitives_CSCAnodeLCTAnalyzer_H
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCAnodeLCTAnalyzer_H
+#define L1Trigger_CSCTriggerPrimitives_CSCAnodeLCTAnalyzer_H
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "L1Trigger/CSCTriggerPrimitives/test/CSCLayerInfo.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLayerInfo.h"
 
 typedef CSCLayerInfo<CSCWireDigi> CSCAnodeLayerInfo;
 

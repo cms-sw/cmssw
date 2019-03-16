@@ -11,7 +11,7 @@
  *
  */
 
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboard.h"
 
 class CSCGEMMotherboardME21 : public CSCGEMMotherboard
 {

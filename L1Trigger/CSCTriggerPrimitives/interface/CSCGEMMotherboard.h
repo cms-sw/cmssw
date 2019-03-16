@@ -12,8 +12,8 @@
  *
  */
 
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/GEMCoPadProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/GEMCoPadProcessor.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
