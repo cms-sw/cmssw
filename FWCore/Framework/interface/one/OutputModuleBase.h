@@ -102,8 +102,8 @@ namespace edm {
       bool wantsStreamRuns() const {return false;}
       bool wantsStreamLuminosityBlocks() const {return false;};
 
-      SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
-      SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
+      virtual SerialTaskQueue* globalRunsQueue() { return nullptr; }
+      virtual SerialTaskQueue* globalLuminosityBlocksQueue() { return nullptr; }
       SharedResourcesAcquirer& sharedResourcesAcquirer() {
         return resourcesAcquirer_;
       }
@@ -128,6 +128,7 @@ namespace edm {
       ParameterSetID selectorConfig() const { return selector_config_id_; }
 
       void doPreallocate(PreallocationConfiguration const&);
+      virtual void preallocLumis(unsigned int) ;
 
       void doBeginJob();
       void doEndJob();
