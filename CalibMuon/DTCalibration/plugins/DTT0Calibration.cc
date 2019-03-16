@@ -25,7 +25,7 @@
 #include "TKey.h"
 #include "TF1.h"
 
-#include <assert.h>
+#include <cassert>
 
 using namespace std;
 using namespace edm;

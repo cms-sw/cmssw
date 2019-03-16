@@ -32,12 +32,12 @@ bool DTSegmentSelector::operator() (DTRecSegment4D const& segment, edm::Event co
 
   /* get the muon collection if one is specified
     (not specifying a muon collection switches off muon matching */
-  if (muonTags_.label()!="") {
+  if (!muonTags_.label().empty()) {
     edm::Handle<reco::MuonCollection> muonH;
     event.getByToken(muonToken_,muonH);
     const std::vector<reco::Muon>* muons = muonH.product();
     //std::cout << " Muon collection size: " << muons->size() << std::endl;
-    if (!muons->size()) return false;
+    if (muons->empty()) return false;
 
     DTChamberId segId(segment.rawId());
 
