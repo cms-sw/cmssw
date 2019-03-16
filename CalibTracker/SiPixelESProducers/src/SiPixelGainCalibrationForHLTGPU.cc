@@ -26,7 +26,7 @@ SiPixelGainCalibrationForHLTGPU::SiPixelGainCalibrationForHLTGPU(const SiPixelGa
   */
 
   cudaCheck(cudaMallocHost((void**) & gainForHLTonHost_, sizeof(SiPixelGainForHLTonGPU)));
-  //gainForHLTonHost_->v_pedestals = gainDataOnGPU_; // how to do this?
+  gainForHLTonHost_->v_pedestals = (SiPixelGainForHLTonGPU_DecodingStructure*)this->gains_->data().data();  // so it can be used on CPU as well...
 
   // do not read back from the (possibly write-combined) memory buffer
   auto minPed  = gains.getPedLow();
