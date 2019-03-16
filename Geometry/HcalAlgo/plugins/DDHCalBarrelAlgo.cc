@@ -251,86 +251,26 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
   double rmid3  =(getZoff(4) - getZoff(2))/getTanTheta(2);
   double rmid4  = getRmax(2);
 
-  std::vector<double> pgonZ;
-  pgonZ.emplace_back( -zmax); 
-  pgonZ.emplace_back( -zstep5); 
-  pgonZ.emplace_back( -zstep5); 
-  pgonZ.emplace_back( -zstep4); 
-  pgonZ.emplace_back( -zstep3); 
-  pgonZ.emplace_back( -zstep2); 
-  pgonZ.emplace_back( -zstep1); 
-  pgonZ.emplace_back(       0); 
-  pgonZ.emplace_back(  zstep1); 
-  pgonZ.emplace_back(  zstep2); 
-  pgonZ.emplace_back(  zstep3); 
-  pgonZ.emplace_back(  zstep4); 
-  pgonZ.emplace_back(  zstep5); 
-  pgonZ.emplace_back(  zstep5); 
-  pgonZ.emplace_back(    zmax);
+  std::vector<double> pgonZ = {-zmax,  -zstep5,-zstep5,-zstep4,-zstep3,
+			       -zstep2,-zstep1,      0, zstep1, zstep2, 
+			        zstep3, zstep4, zstep5, zstep5,   zmax};
 
-  std::vector<double> pgonRmin;
-  pgonRmin.emplace_back(   rmid4); 
-  pgonRmin.emplace_back(   rmid3); 
-  pgonRmin.emplace_back(   rmid3); 
-  pgonRmin.emplace_back(   rmid2); 
-  pgonRmin.emplace_back(   rmid1); 
-  pgonRmin.emplace_back(   rmid1); 
-  pgonRmin.emplace_back(     rin); 
-  pgonRmin.emplace_back(     rin); 
-  pgonRmin.emplace_back(     rin); 
-  pgonRmin.emplace_back(   rmid1); 
-  pgonRmin.emplace_back(   rmid1); 
-  pgonRmin.emplace_back(   rmid2); 
-  pgonRmin.emplace_back(   rmid3); 
-  pgonRmin.emplace_back(   rmid3); 
-  pgonRmin.emplace_back(   rmid4);
+  std::vector<double> pgonRmin = {rmid4,rmid3,rmid3,rmid2,rmid1, 
+				  rmid1,  rin,  rin,  rin,rmid1, 
+				  rmid1,rmid2,rmid3,rmid3,rmid4};
 
-  std::vector<double> pgonRmax;
-  pgonRmax.emplace_back(   rout1); 
-  pgonRmax.emplace_back(   rout1); 
-  pgonRmax.emplace_back(    rout); 
-  pgonRmax.emplace_back(    rout); 
-  pgonRmax.emplace_back(    rout); 
-  pgonRmax.emplace_back(    rout); 
-  pgonRmax.emplace_back(    rout); 
-  pgonRmax.emplace_back(    rout); 
-  pgonRmax.emplace_back(    rout); 
-  pgonRmax.emplace_back(    rout); 
-  pgonRmax.emplace_back(    rout); 
-  pgonRmax.emplace_back(    rout); 
-  pgonRmax.emplace_back(    rout); 
-  pgonRmax.emplace_back(   rout1);
-  pgonRmax.emplace_back(   rout1);
+  std::vector<double> pgonRmax = {rout1,rout1,rout, rout, rout, rout, 
+				  rout, rout, rout, rout, rout, rout, 
+				  rout, rout1,rout1};
 
-  std::vector<double> pgonZHalf;
-  pgonZHalf.emplace_back(       0); 
-  pgonZHalf.emplace_back(  zstep1); 
-  pgonZHalf.emplace_back(  zstep2); 
-  pgonZHalf.emplace_back(  zstep3); 
-  pgonZHalf.emplace_back(  zstep4); 
-  pgonZHalf.emplace_back(  zstep5); 
-  pgonZHalf.emplace_back(  zstep5); 
-  pgonZHalf.emplace_back(    zmax);
+  std::vector<double> pgonZHalf = {0,     zstep1,zstep2,zstep3,zstep4,zstep5, 
+				   zstep5,zmax};
 
-  std::vector<double> pgonRminHalf;
-  pgonRminHalf.emplace_back(     rin); 
-  pgonRminHalf.emplace_back(     rin); 
-  pgonRminHalf.emplace_back(   rmid1); 
-  pgonRminHalf.emplace_back(   rmid1); 
-  pgonRminHalf.emplace_back(   rmid2); 
-  pgonRminHalf.emplace_back(   rmid3); 
-  pgonRminHalf.emplace_back(   rmid3); 
-  pgonRminHalf.emplace_back(   rmid4);
+  std::vector<double> pgonRminHalf = {rin,  rin,rmid1,rmid1,rmid2,rmid3, 
+				      rmid3,rmid4};
 
-  std::vector<double> pgonRmaxHalf;
-  pgonRmaxHalf.emplace_back(    rout); 
-  pgonRmaxHalf.emplace_back(    rout); 
-  pgonRmaxHalf.emplace_back(    rout); 
-  pgonRmaxHalf.emplace_back(    rout); 
-  pgonRmaxHalf.emplace_back(    rout); 
-  pgonRmaxHalf.emplace_back(    rout); 
-  pgonRmaxHalf.emplace_back(   rout1);
-  pgonRmaxHalf.emplace_back(   rout1);
+  std::vector<double> pgonRmaxHalf = {rout, rout, rout, rout, rout, rout, 
+				      rout1,rout1};
 
   std::string name("Null");
   DDSolid solid;
