@@ -69,3 +69,11 @@ pL1TkGlbMuon = cms.Path( L1TkGlbMuons )
 
 from L1Trigger.L1TTrackMatch.L1TkTauFromCaloProducer_cfi import L1TkTauFromCalo
 pL1TkTauFromCalo = cms.Path( L1TkTauFromCalo )
+
+from L1Trigger.Phase2L1Taus.L1TrkTauParticleProducer_cfi import L1TrkTaus
+L1TrackerTaus = L1TrkTaus.clone()
+
+from L1Trigger.Phase2L1Taus.L1TkEGTauParticleProducer_cfi import L1TkEGTaus 
+
+from L1Trigger.Phase2L1Taus.L1CaloTkTauParticleProducer_cfi import L1CaloTkTaus 
+L1TkCaloTaus = L1CaloTkTaus.clone()
