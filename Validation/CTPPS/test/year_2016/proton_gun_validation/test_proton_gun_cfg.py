@@ -40,7 +40,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 # plotter
 process.ctppsHepMCDistributionPlotter = cms.EDAnalyzer("CTPPSHepMCDistributionPlotter",
     tagHepMC = cms.InputTag("generator", "unsmeared"),
-    lhcInfoLabel = process.ctppsLHCInfoESSource.label, # TODO: replace with "" once data loaded from DB
+    lhcInfoLabel = process.ctppsLHCInfoESSource_2016.label, # TODO: replace with "" once data loaded from DB
     outputFile = cms.string("test_proton_gun.root")
 )
 

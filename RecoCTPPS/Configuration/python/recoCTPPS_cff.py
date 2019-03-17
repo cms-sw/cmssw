@@ -10,13 +10,9 @@ from RecoCTPPS.ProtonReconstruction.ctppsProtons_cfi import *
 
 from Geometry.VeryForwardGeometry.geometryRPFromDB_cfi import *
 
-# TODO: remove these lines once LHCInfo available in DB
-from CalibPPS.ESProducers.ctppsLHCInfo_cff import *
-ctppsProtons.lhcInfoLabel = ctppsLHCInfoESSource.label
-
-# TODO: remove these lines once optical functions available in DB
+# TODO: remove these lines once optical functions and LHCInfo are available in DB
 from CalibPPS.ESProducers.ctppsOpticalFunctions_cff import *
-ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ctppsLHCInfoESSource.label
+ctppsProtons.lhcInfoLabel = ctppsLHCInfoLabel
 
 recoCTPPS = cms.Sequence(
     totemRPLocalReconstruction *

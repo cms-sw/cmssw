@@ -25,10 +25,8 @@ process.maxEvents = cms.untracked.PSet(
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # supply LHC info and optics
-# TODO: remove these lines once data are available in CondDB
-process.load("CalibPPS.ESProducers.ctppsLHCInfo_cff")
+# TODO: remove this line once data are available in CondDB
 process.load("CalibPPS.ESProducers.ctppsOpticalFunctions_cff")
-process.ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = process.ctppsLHCInfoESSource.label
 
 # random seeds
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
@@ -66,7 +64,7 @@ process.ctppsLocalTrackLiteProducer.includePixels = False
 # proton reconstruction
 process.load("RecoCTPPS.ProtonReconstruction.ctppsProtons_cfi")
 process.ctppsProtons.tagLocalTrackLite = cms.InputTag('ctppsLocalTrackLiteProducer')
-process.ctppsProtons.lhcInfoLabel = process.ctppsLHCInfoESSource.label # TODO: remove this line once data loaded from DB
+process.ctppsProtons.lhcInfoLabel = process.ctppsLHCInfoESSource_2016.label # TODO: remove this line once data loaded from DB
 #process.ctppsProtons.fitVtxY = False
 
 # reconstruction validation
@@ -76,7 +74,7 @@ process.ctppsProtonReconstructionSimulationValidator = cms.EDAnalyzer("CTPPSProt
   tagRecoProtonsSingleRP = cms.InputTag("ctppsProtons", "singleRP"),
   tagRecoProtonsMultiRP = cms.InputTag("ctppsProtons", "multiRP"),
 
-  lhcInfoLabel = process.ctppsLHCInfoESSource.label,  # TODO: replace with "" once data loaded from DB
+  lhcInfoLabel = process.ctppsLHCInfoESSource_2016.label,  # TODO: replace with "" once data loaded from DB
 
   outputFile = cms.string("")
 )

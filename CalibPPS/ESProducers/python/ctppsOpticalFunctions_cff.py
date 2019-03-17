@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
+from CalibPPS.ESProducers.ctppsLHCInfo_cff import *
+
 from CalibPPS.ESProducers.ctppsOpticalFunctionsESSource_cfi import ctppsOpticalFunctionsESSource as _optics_tmp
 
 # optical functions for 2016 data
-ctppsOpticalFunctionsESSource = _optics_tmp.clone(
+ctppsOpticalFunctionsESSource_2016 = _optics_tmp.clone(
   validityRange = cms.EventRange("270293:min - 290872:max"),
 
   opticalFunctions = cms.VPSet(
@@ -19,4 +21,6 @@ ctppsOpticalFunctionsESSource = _optics_tmp.clone(
   )
 )
 
+# optics interpolation between crossing angles
 from CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cfi import *
+ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ctppsLHCInfoLabel
