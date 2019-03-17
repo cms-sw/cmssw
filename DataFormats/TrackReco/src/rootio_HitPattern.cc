@@ -9,7 +9,7 @@ using namespace reco;
 namespace {
   constexpr unsigned short HitSize = 11;
   constexpr unsigned short PatternSize = 50;
-  constexpr int MaxHits = (PatternSize * sizeof(uint16_t) * 8) / HitSize;
+  constexpr int MaxHitsV12 = (PatternSize * sizeof(uint16_t) * 8) / HitSize;
   
   auto getHitFromOldHitPattern(const uint16_t hitPattern[], const int position) {
     const uint16_t bitEndOffset = (position + 1) * HitSize;
@@ -66,7 +66,7 @@ reco::HitPattern::fillNewHitPatternWithOldHitPattern_v12(const uint16_t oldHitPa
                                                          HitPattern* newObj) {
   newObj->clear();
   bool ret = true;
-  for (int i = 0; i < MaxHits; i++) {
+  for (int i = 0; i < MaxHitsV12; i++) {
     uint16_t pattern = getHitFromOldHitPattern(oldHitPattern, i);
     //if (pattern == 0) {
     //  break;
