@@ -362,21 +362,48 @@ void L1Analysis::L1AnalysisPhaseII::SetTkEM(const edm::Handle<l1t::L1TkEmParticl
   }}
 }
 
-//TkTau
-void L1Analysis::L1AnalysisPhaseII::SetTkTau(const edm::Handle<l1t::L1TkTauParticleCollection> tkTau, unsigned maxL1Extra)
+void L1Analysis::L1AnalysisPhaseII::SetTrkTau(const edm::Handle<l1t::L1TrkTauParticleCollection> tkTau, unsigned maxL1Extra)
 {
 
-  for(l1t::L1TkTauParticleCollection::const_iterator it=tkTau->begin(); it!=tkTau->end() && l1extra_.nTkTau<maxL1Extra; it++){
+  for(l1t::L1TrkTauParticleCollection::const_iterator it=tkTau->begin(); it!=tkTau->end() && l1extra_.nTkTau<maxL1Extra; it++){
 
     l1extra_.tkTauEt.push_back(it->et());
     l1extra_.tkTauEta.push_back(it->eta());
     l1extra_.tkTauPhi.push_back(it->phi());
-    l1extra_.tkTauzVtx.push_back(it->getTrkzVtx());
-    l1extra_.tkTauTrkIso.push_back(it->getTrkIsol());
+    l1extra_.tkTauTrkIso.push_back(it->getVtxIso());
     l1extra_.tkTauBx.push_back(0);//it->bx());
     l1extra_.nTkTau++;
   }
 }
+
+void L1Analysis::L1AnalysisPhaseII::SetCaloTkTau(const edm::Handle<l1t::L1CaloTkTauParticleCollection> caloTkTau, unsigned maxL1Extra)
+{
+
+  for(l1t::L1CaloTkTauParticleCollection::const_iterator it=caloTkTau->begin(); it!=caloTkTau->end() && l1extra_.nCaloTkTau<maxL1Extra; it++){
+
+    l1extra_.caloTkTauEt.push_back(it->et());
+    l1extra_.caloTkTauEta.push_back(it->eta());
+    l1extra_.caloTkTauPhi.push_back(it->phi());
+    l1extra_.caloTkTauTrkIso.push_back(it->getVtxIso());
+    l1extra_.caloTkTauBx.push_back(0);//it->bx());
+    l1extra_.nCaloTkTau++;
+  }
+}
+
+void L1Analysis::L1AnalysisPhaseII::SetTkEGTau(const edm::Handle<l1t::L1TkEGTauParticleCollection> tkEGTau, unsigned maxL1Extra)
+{
+
+  for(l1t::L1TkEGTauParticleCollection::const_iterator it=tkEGTau->begin(); it!=tkEGTau->end() && l1extra_.nTkEGTau<maxL1Extra; it++){
+
+    l1extra_.tkEGTauEt.push_back(it->et());
+    l1extra_.tkEGTauEta.push_back(it->eta());
+    l1extra_.tkEGTauPhi.push_back(it->phi());
+    l1extra_.tkEGTauTrkIso.push_back(it->getVtxIso());
+    l1extra_.tkEGTauBx.push_back(0);//it->bx());
+    l1extra_.nTkEGTau++;
+  }
+}
+
 
 // TkJet
 void L1Analysis::L1AnalysisPhaseII::SetTkJet(const edm::Handle<l1t::L1TkJetParticleCollection> trackerJet, unsigned maxL1Extra)

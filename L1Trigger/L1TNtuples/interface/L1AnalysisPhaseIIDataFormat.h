@@ -181,7 +181,23 @@ namespace L1Analysis
       tkTauPhi.clear();
       tkTauBx.clear();
       tkTauTrkIso.clear();
-      tkTauzVtx.clear();
+//      tkTauzVtx.clear();
+
+      nCaloTkTau = 0;
+      caloTkTauEt.clear();
+      caloTkTauEta.clear();
+      caloTkTauPhi.clear();
+      caloTkTauBx.clear();
+      caloTkTauTrkIso.clear();
+//      caloTkTauzVtx.clear();
+
+      nTkEGTau = 0;
+      tkEGTauEt.clear();
+      tkEGTauEta.clear();
+      tkEGTauPhi.clear();
+      tkEGTauBx.clear();
+      tkEGTauTrkIso.clear();
+//      tkEGTauzVtx.clear();
 
       // TkJets
       nTrackerJets = 0;
@@ -471,7 +487,24 @@ namespace L1Analysis
     std::vector<double> tkTauPhi;
     std::vector<int>    tkTauBx;
     std::vector<double> tkTauTrkIso;
-    std::vector<double> tkTauzVtx;
+//    std::vector<double> tkTauzVtx;
+
+    unsigned int nCaloTkTau;
+    std::vector<double> caloTkTauEt;
+    std::vector<double> caloTkTauEta;
+    std::vector<double> caloTkTauPhi;
+    std::vector<int>    caloTkTauBx;
+    std::vector<double> caloTkTauTrkIso;
+//    std::vector<double> caloTkTauzVtx;
+
+    unsigned int nTkEGTau;
+    std::vector<double> tkEGTauEt;
+    std::vector<double> tkEGTauEta;
+    std::vector<double> tkEGTauPhi;
+    std::vector<int>    tkEGTauBx;
+    std::vector<double> tkEGTauTrkIso;
+//    std::vector<double> tkEGTauzVtx;
+
 
     unsigned int nTrackerJets;
     std::vector<double> trackerJetEt;

@@ -17,7 +17,10 @@ l1PhaseIITree = cms.EDAnalyzer("L1PhaseIITreeProducer",
    tkEGLooseTokenHGC = cms.InputTag("L1TkElectronsLooseHGC","EG"),
    tkEMTokenHGC = cms.InputTag("L1TkPhotonsHGC","EG"),
 
-   tkTauToken = cms.InputTag("L1TkTauFromCalo",""), # ?
+   tkTauToken     = cms.InputTag("L1TrackerTaus","TrkTau"), # ?
+   caloTkTauToken = cms.InputTag("L1TkCaloTaus","CaloTk"), # ?
+   tkEGTauToken   = cms.InputTag("L1TkEGTaus","TkEG"), # ?
+
    TkGlbMuonToken = cms.InputTag("L1TkGlbMuons",""),
    TkMuonToken = cms.InputTag("L1TkMuons",""),                                            
    TkMuonStubsTokenBMTF = cms.InputTag("l1KBmtfStubMatchedMuons",""),

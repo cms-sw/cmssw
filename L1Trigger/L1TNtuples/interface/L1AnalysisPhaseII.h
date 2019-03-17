@@ -42,10 +42,14 @@
 #include "DataFormats/L1TrackTrigger/interface/L1TkElectronParticleFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticleFwd.h"
-#include "DataFormats/L1TrackTrigger/interface/L1TkTauParticle.h"
-#include "DataFormats/L1TrackTrigger/interface/L1TkTauParticleFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticleFwd.h"
+
+#include "DataFormats/L1TrackTrigger/interface/L1TkTauParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkTauParticleFwd.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TrkTauParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkEGTauParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1CaloTkTauParticle.h"
 
 //#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/Phase2L1ParticleFlow/interface/PFJet.h"
@@ -89,7 +93,9 @@ namespace L1Analysis
     void SetTkMuon (const  edm::Handle<l1t::L1TkMuonParticleCollection> TkMuon,   unsigned maxL1Extra);
     void SetTkMuonStubs (const  edm::Handle<l1t::L1TkMuonParticleCollection> TkMuon,   unsigned maxL1Extra,unsigned int muonDetector);
 
-    void SetTkTau  (const  edm::Handle<l1t::L1TkTauParticleCollection> tkTau, unsigned maxL1Extra);
+    void SetTrkTau  (const  edm::Handle<l1t::L1TrkTauParticleCollection> tkTau, unsigned maxL1Extra);
+    void SetCaloTkTau  (const  edm::Handle<l1t::L1CaloTkTauParticleCollection> CaloTkTau, unsigned maxL1Extra);
+    void SetTkEGTau  (const  edm::Handle<l1t::L1TkEGTauParticleCollection> TkEGTau, unsigned maxL1Extra);
 
     void SetTkJet  (const  edm::Handle<l1t::L1TkJetParticleCollection>  tkTrackerJet,    unsigned maxL1Extra);
     void SetTkCaloJet  (const  edm::Handle<l1t::L1TkJetParticleCollection>  tkCaloJet,    unsigned maxL1Extra);
