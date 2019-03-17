@@ -6,8 +6,7 @@ process = cms.Process("CTPPSTestProtonReconstruction", eras.ctpps_2016)
 # declare global tag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, "105X_dataRun2_relval_v2")
-#process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_data")
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_data")
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
