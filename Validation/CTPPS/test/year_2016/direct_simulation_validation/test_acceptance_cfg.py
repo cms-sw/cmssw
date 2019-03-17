@@ -25,10 +25,8 @@ process.maxEvents = cms.untracked.PSet(
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # supply LHC info and optics
-# TODO: remove these lines once data are available in CondDB
-process.load("CalibPPS.ESProducers.ctppsLHCInfo_cff")
+# TODO: remove this line once data are available in CondDB
 process.load("CalibPPS.ESProducers.ctppsOpticalFunctions_cff")
-process.ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = process.ctppsLHCInfoESSource.label
 
 # supply beam parameters
 process.load("Validation.CTPPS.year_2016.ctppsBeamParametersESSource_cfi")
