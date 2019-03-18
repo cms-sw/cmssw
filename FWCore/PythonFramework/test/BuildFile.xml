@@ -7,5 +7,6 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/Framework"/>
   <use name="boost"/>
+  <use   name="boost_python"/>
 </library>
 
