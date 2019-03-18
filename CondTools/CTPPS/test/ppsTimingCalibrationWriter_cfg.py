@@ -13,7 +13,7 @@ from CondFormats.CTPPSReadoutObjects.PPSTimingDetEnum_cff import PPSTimingDetEnu
 
 # load calibrations from JSON file
 process.load('CondFormats.CTPPSReadoutObjects.ppsTimingCalibrationESSource_cfi')
-process.ppsTimingCalibrationESSource.calibrationFile = cms.FileInPath('DiamondCalibrationExample.json')
+process.ppsTimingCalibrationESSource.calibrationFile = cms.FileInPath('RecoCTPPS/TotemRPLocal/data/timing_calibration_diamond_2018_mar19.ex.json')
 process.ppsTimingCalibrationESSource.subDetector = PPSTimingDetEnum.PPS_DIAMOND
 
 # output service for database
