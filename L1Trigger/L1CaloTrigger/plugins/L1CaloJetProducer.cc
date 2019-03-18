@@ -953,16 +953,8 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                     caloJetObj.ecal_3x5 += ecalP4.pt();
                     caloJetObj.l1eg_3x5 += l1egP4.pt();
                     caloJetObj.total_3x5 += totalP4.pt();
-                }
-                if ( ( abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 2) || 
-                    ( fabs( d_eta ) < 0.22 && fabs( d_phi ) < 0.22 ) )
-                {
-                    caloJetObj.hcal_5x5 += hcalP4.pt();
-                    caloJetObj.ecal_5x5 += ecalP4.pt();
-                    caloJetObj.l1eg_5x5 += l1egP4.pt();
-                    caloJetObj.total_5x5 += totalP4.pt();
 
-                    // Do this for 5x5 only
+                    // Do this for 3x5 only
                     if (l1egP4.pt() > 0) 
                     {
                         caloJetObj.l1eg_nL1EGs_standaloneSS += l1CaloTower.l1eg_standaloneSS;
@@ -979,6 +971,14 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                         caloJetObj.associated_l1EGs.push_back( l1EG_info );
                     }
 
+                }
+                if ( ( abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 2) || 
+                    ( fabs( d_eta ) < 0.22 && fabs( d_phi ) < 0.22 ) )
+                {
+                    caloJetObj.hcal_5x5 += hcalP4.pt();
+                    caloJetObj.ecal_5x5 += ecalP4.pt();
+                    caloJetObj.l1eg_5x5 += l1egP4.pt();
+                    caloJetObj.total_5x5 += totalP4.pt();
                 }
                 if ( ( abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 3) || 
                     ( fabs( d_eta ) < 0.22 && fabs( d_phi ) < 0.3 ) )
