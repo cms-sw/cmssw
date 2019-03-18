@@ -97,9 +97,14 @@ def parse_args():
         plots += [(folder, name, histograms)]
     
     if args.doResponsePlots:
-        plots += [("JetResponse", "reso_pt", ["preso_eta05", "preso_eta13","preso_eta21","preso_eta25","preso_eta30"])]
-        plots += [("JetResponse", "reso_pt_rms", ["preso_eta05_rms", "preso_eta13_rms","preso_eta21_rms","preso_eta25_rms","preso_eta30_rms"])]
-        plots += [("JetResponse", "response_pt", ["presponse_eta05", "presponse_eta13", "presponse_eta21", "presponse_eta25", "presponse_eta30"])]
+        plots += [("JetResponse", "reso_pt", ["preso_eta05", "preso_eta13",
+         "preso_eta21","preso_eta25","preso_eta30","preso_eta40","preso_eta50"])]
+        plots += [("JetResponse", "reso_pt_rms", ["preso_eta05_rms",
+         "preso_eta13_rms","preso_eta21_rms","preso_eta25_rms","preso_eta30_rms",
+         "preso_eta40_rms","preso_eta50_rms"])]
+        plots += [("JetResponse", "response_pt", ["presponse_eta05",
+         "presponse_eta13", "presponse_eta21", "presponse_eta25", "presponse_eta30",
+         "presponse_eta40","presponse_eta50"])]
         for iptbin in range(len(ptbins)-1):
             pthistograms = []
             for ietabin in range(len(etabins)-1):
