@@ -334,14 +334,14 @@ vector<Trajectory> TrackTransformerForCosmicMuons::transform(const reco::Track& 
   
   Trajectory const & trajectoryBW = trajectories.front();
     
-  vector<Trajectory> && trajectoriesSM = smoother(up, quadrant, sumdy)->trajectories(trajectoryBW);
+  const vector<Trajectory> & trajectoriesSM = smoother(up, quadrant, sumdy)->trajectories(trajectoryBW);
 
   if(trajectoriesSM.empty()){
     LogTrace(metname)<<"No Track smoothed!"<<endl;
     return vector<Trajectory>();
   }
   
-  return std::move(trajectoriesSM);
+  return trajectoriesSM;
 
 }
 
