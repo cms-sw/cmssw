@@ -3,6 +3,29 @@
 
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+
+
+class HGCHEbackSignalScaler
+{
+  public:
+    HGCHEbackSignalScaler(const DetId, const CaloSubdetectorGeometry*);
+    ~HGCHEbackSignalScaler() {};
+
+    float scaleByArea();
+    float scaleByDose();
+
+  private:
+    float computeEdge();
+
+    const HGCScintillatorDetId cellId_;
+    const HGCalGeometry* hgcalGeom_;
+
+    //float doseConstant_;
+
+};
+
+
 
 class HGCHEbackDigitizer : public HGCDigitizerBase<HGCalDataFrame>
 {
