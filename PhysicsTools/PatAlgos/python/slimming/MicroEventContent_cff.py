@@ -93,6 +93,7 @@ _bParking_extraCommands = ['keep *_slimmedLowPtElectrons_*_*',
                            'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
                            'keep floatedmValueMap_lowPtGsfElectronID_*_*',
                            'keep *_lowPtGsfLinks_*_*',
+                           'keep *_gsfTracksOpenConversions_*_*', 
                            ]
 bParking.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _bParking_extraCommands)
 
