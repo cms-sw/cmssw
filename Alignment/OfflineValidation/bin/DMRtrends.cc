@@ -104,9 +104,9 @@ vector<int> runlistfromlumifile(TString Year="2018");
 bool checkrunlist(vector<int> runs, vector<int> IOVlist={}, TString Year="2018");
 TString lumifileperyear(TString Year="2018", string RunOrIOV="IOV");
 void scalebylumi(TGraphErrors *g, TString Year="2018", double min=0.); 
-//DPG ../interface/lumiperIOV2018.txt
+//DPG ../data/lumiperIOV2018.txt
 //2018 /afs/cern.ch/work/h/hpeterse/public/lumiPerRun80.csv
-//2017 ../interface/lumiperIOV2017.txt
+//2017 ../data/lumiperIOV2017.txt
 double getintegratedlumiuptorun(int run, TString Year="2018", double min=0.);
 void PixelUpdateLines(TCanvas *c, bool showlumi=false, vector<int>pixelupdateruns={314881, 316758, 317527, 318228, 320377});
 //TO DO: Add IOV list
@@ -185,7 +185,7 @@ TString getName (TString structure, int layer, TString geometry){
  */
 
 TString lumifileperyear(TString Year, string RunOrIOV){
-  TString LumiFile="../interface/lumiper";
+  TString LumiFile="../data/lumiper";
   if(RunOrIOV!="run"&&RunOrIOV!="IOV") cout << "ERROR: Please specify \"run\" or \"IOV\" to retrieve the luminosity run by run or for each IOV"<<endl;
   LumiFile+=RunOrIOV;
   if(Year!="2017"&&Year!="2018") cout << "ERROR: Only 2017 and 2018 lumi-per-run/IOV are available, please check!"<<endl;
@@ -223,7 +223,7 @@ bool checkrunlist(vector<int> runs,vector<int> IOVlist, TString Year){
 	    missingruns.push_back(run);
 	}
     }
-    if(IOVlist.size()!=0) for(int IOV : IOVlist){
+    if(!IOVlist.empty()) for(int IOV : IOVlist){
         if(find(runs.begin(),runs.end(),IOV)==runs.end()){
 	    problemfound=true;
 	    lostruns.push_back(IOV);
@@ -231,12 +231,12 @@ bool checkrunlist(vector<int> runs,vector<int> IOVlist, TString Year){
     }
     std::sort(missingruns.begin(),missingruns.end());
     if(problemfound){
-        if(lostruns.size()!=0){ 
+      if(!lostruns.empty()){ 
 	    cout << "WARNING: some IOVs where not found among the list of available DMRs" << endl << "List of missing IOVs:" << endl;
 	    for (int lostrun : lostruns) cout << to_string(lostrun) << " ";
 	    cout << endl;
 	}
-	if(missingruns.size()!=0){
+      if(!missingruns.empty()){
 	    cout << "WARNING: some runs are missing in the run/luminosity txt file" << endl << "List of missing runs:" << endl;
 	    for (int missingrun : missingruns) cout << to_string(missingrun) << " ";
 	    cout << endl;
@@ -514,7 +514,7 @@ void scalebylumi(TGraphErrors *g, TString Year, double min){
 
     } 
     g->GetHistogram()->Delete(); 
-    g->SetHistogram(0); 
+    g->SetHistogram(nullptr);
     for(size_t i=0;i<N;i++){ g->SetPoint(i, x.at(i),y.at(i)); g->SetPointError(i, xerr.at(i),yerr.at(i));}
 
 }
@@ -656,7 +656,7 @@ void PlotDMRTrends(vector<string> labels, TString Year, string myValidation, vec
 		legend->SetHeader("#scale[1.2]{#bf{CMS} Work in progress}");
                 //TLegendEntry *header = (TLegendEntry*)legend->GetListOfPrimitives()->First();
                 //header->SetTextSize(.04);
-		legend->AddEntry((TObject*)0,structtitle.Data(),"h");
+		legend->AddEntry((TObject*)nullptr,structtitle.Data(),"h");
                
 		//TLegendEntry *str = (TLegendEntry*)legend->GetListOfPrimitives()->Last();
                 //str->SetTextSize(.03);
