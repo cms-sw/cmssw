@@ -4,9 +4,12 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include <unordered_set>
+
+using namespace geant_units::operators;
 
 class DDHGCalTBModuleX : public DDAlgorithm {
  
@@ -34,9 +37,9 @@ protected:
 
 private:
 
-  static constexpr double factor_ = 0.5*sqrt(2.0);
+  static constexpr double factor_    = 0.5*sqrt(2.0);
   static constexpr double tolerance_ = 0.00001;
-  const double            tan30deg_;
+  static constexpr double tan30deg_  = tan(30._deg);
 
   std::vector<std::string> wafer_;        //Wafers
   std::vector<std::string> covers_;       //Insensitive layers of hexagonal size
