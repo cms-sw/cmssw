@@ -13,7 +13,7 @@ HGCAL_noise_fC = cms.PSet(
     )
 
 HGCAL_noise_MIP = cms.PSet(
-    value = cms.double(1.0/7.0)
+    value = cms.double(1.0/100.0)
     )
 
 HGCAL_chargeCollectionEfficiencies = cms.PSet(
@@ -171,20 +171,20 @@ hgchebackDigitizer = cms.PSet(
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
-        keV2MIP           = cms.double(1./616.0),
+        keV2MIP           = cms.double(1./500.0),
         noise_MIP         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_MIP")),
         doTimeSamples = cms.bool(False),
-        nPEperMIP = cms.double(11.0),
-        nTotalPE  = cms.double(1156), #1156 pixels => saturation ~600MIP
-        xTalk     = cms.double(0.25),
+        nPEperMIP = cms.double(30.0),
+        nTotalPE  = cms.double(7500),
+        xTalk     = cms.double(0.2),
         sdPixels  = cms.double(1e-6), # this is additional photostatistics noise (as implemented), not sure why it's here...
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion       = cms.uint32(0),
-            # n bits for the ADC
-            adcNbits        = cms.uint32(12),
+            # n bits for the ADC (same as the silicon ROC)
+            adcNbits        = cms.uint32(10),
             # ADC saturation : in this case we use the same variable but fC=MIP
-            adcSaturation_fC = cms.double(1024.0),
+            adcSaturation_fC = cms.double(68.5), #value chosen to have 1MIP at 15ADC
             # threshold for digi production : in this case we use the same variable but fC=MIP
             adcThreshold_fC = cms.double(0.50),
             thresholdFollowsMIP = cms.bool(False)
