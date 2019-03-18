@@ -1092,7 +1092,7 @@ timingDict = {
         1 : [
             'Geometry/MTDCommonData/data/btl.xml',
             'Geometry/MTDCommonData/data/etl/v2/etl.xml',
-            'Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtd.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlat/v2/mtd.xml',
             'Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdStructureTopology.xml',
             'Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdParameters.xml',
             ],
