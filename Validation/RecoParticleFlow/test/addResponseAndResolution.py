@@ -61,9 +61,11 @@ def add_response_and_resolution(sforig, treepath):
    recoptcut = 15.
  
    
-   etabins = [[0,0.5],[0.5,1.3],[1.3,2.1],[2.1,2.5],[2.5,3.0]]
+   etabins = [
+      [0,0.5],[0.5,1.3],[1.3,2.1],[2.1,2.5],[2.5,3.0],[3.0,4.0],[4.0,5.0]]
    
-   etadict = {0.5:"eta05", 1.3:"eta13", 2.1:"eta21", 2.5:"eta25", 3.0:"eta30"}
+   etadict = {0.5:"eta05", 1.3:"eta13", 2.1:"eta21",2.5:"eta25", 3.0:"eta30",
+               4.0:"eta40",5.0:"eta50"}
    
    ptbins = ar.array('d',[10,24,32,43,56,74,97,133,174,245,300,362,430,
                   507,592,686,846,1032,1248,1588,2000,2500,3000,4000,6000])
@@ -166,6 +168,9 @@ def main():
    sforig = argv[1]
    
    treepath = "DQMData/Run 1/Physics/Run summary"
+   
+   # Run in batch mode for avoiding pop-up windows when fitting
+   r.gROOT.SetBatch(r.kTRUE)
    
    add_response_and_resolution(sforig, treepath)
 
