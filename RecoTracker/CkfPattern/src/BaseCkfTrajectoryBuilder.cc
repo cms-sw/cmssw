@@ -26,16 +26,16 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
-                                                   TrajectoryFilter *filter,
-                                                   TrajectoryFilter *inOutFilter):
+                                                   std::unique_ptr<TrajectoryFilter> filter,
+                                                   std::unique_ptr<TrajectoryFilter> inOutFilter):
   theUpdator(nullptr),
   thePropagatorAlong(nullptr),
   thePropagatorOpposite(nullptr),
   theEstimator(nullptr),
   theTTRHBuilder(nullptr),
   theMeasurementTracker(nullptr),
-  theFilter(filter),
-  theInOutFilter(inOutFilter),
+  theFilter(std::move(filter)),
+  theInOutFilter(std::move(inOutFilter)),
   theUpdatorName(conf.getParameter<std::string>("updator")),
   thePropagatorAlongName(conf.getParameter<std::string>("propagatorAlong")),
   thePropagatorOppositeName(conf.getParameter<std::string>("propagatorOpposite")),
@@ -49,8 +49,8 @@ BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf
 BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
 }
 
-TrajectoryFilter *BaseCkfTrajectoryBuilder::createTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
-  return TrajectoryFilterFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
+std::unique_ptr<TrajectoryFilter> BaseCkfTrajectoryBuilder::createTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
+  return std::unique_ptr<TrajectoryFilter>{TrajectoryFilterFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC)};
 }
 
 void

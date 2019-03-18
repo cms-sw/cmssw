@@ -1,10 +1,11 @@
+from __future__ import absolute_import
 import os
-import configTemplates
-import globalDictionaries
-from dataset import Dataset
-from genericValidation import GenericValidationData
-from helperFunctions import replaceByMap
-from TkAlExceptions import AllInOneError
+from . import configTemplates
+from . import globalDictionaries
+from .dataset import Dataset
+from .genericValidation import GenericValidationData
+from .helperFunctions import replaceByMap
+from .TkAlExceptions import AllInOneError
 
 
 class MonteCarloValidation(GenericValidationData):

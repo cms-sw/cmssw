@@ -729,5 +729,5 @@ FWCollectionSummaryWidget::colorTable()
 // static member functions
 //
 
-ClassImp(FWCollectionSummaryWidget)
+ClassImp(FWCollectionSummaryWidget);
 

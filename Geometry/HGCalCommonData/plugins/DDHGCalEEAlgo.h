@@ -47,6 +47,7 @@ private:
   std::vector<int>         layerType_;    //Type of the layer
   std::vector<int>         layerSense_;   //Content of a layer (sensitive?)
   int                      firstLayer_;   //Copy # of the first sensitive layer
+  int                      absorbMode_;   //Absorber mode
   double                   zMinBlock_;    //Starting z-value of the block
   std::vector<double>      rad100to200_;  //Parameters for 120-200mum trans.
   std::vector<double>      rad200to300_;  //Parameters for 200-300mum trans.

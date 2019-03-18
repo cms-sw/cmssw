@@ -1,11 +1,12 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
 # Parameters for runType
 import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 import fnmatch
-from dqmPythonTypes import *
+from .dqmPythonTypes import *
 
 # part of the runTheMatrix magic
 from Configuration.Applications.ConfigBuilder import filesFromDASQuery

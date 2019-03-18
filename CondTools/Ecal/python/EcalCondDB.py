@@ -6,6 +6,7 @@
 #
 #
 from __future__ import print_function
+from __future__ import absolute_import
 import os,sys,getopt
 
 
@@ -151,7 +152,7 @@ a = FWIncantation()
 rdbms = RDBMS(authpath)
 db = rdbms.getReadOnlyDB(dbName)
 
-import EcalCondTools
+from . import EcalCondTools
 
 if do_list :
    EcalCondTools.listTags(db)

@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -27,9 +28,9 @@ sys.argv=argv
 
 gROOT.SetBatch(True)
 
-from authentication import X509CertOpen
-from dirstructure import Comparison,Directory,tcanvas_print_processes
-from utils import Chi2,KS,BinToBin,Statistical_Tests,literal2root
+from .authentication import X509CertOpen
+from .dirstructure import Comparison,Directory,tcanvas_print_processes
+from .utils import Chi2,KS,BinToBin,Statistical_Tests,literal2root
 
 #-------------------------------------------------------------------------------  
 

@@ -8,6 +8,7 @@
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FastSimulation/MaterialEffects/interface/PetrukhinModel.h"
+#include "FastSimulation/Particle/interface/makeParticle.h"
 
 #include <cmath>
 #include <string>
@@ -40,18 +41,18 @@ MuonBremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineA
   double NA = 6.022e+23;  //Avogadro's number
 
   if ( radLengths > 4. )  {
-    Particle.SetXYZT(0.,0.,0.,0.);
+    Particle.particle().setMomentum(0.,0.,0.,0.);
     deltaPMuon.SetXYZT(0.,0.,0.,0.);
     brem_photon.SetXYZT(0.,0.,0.,0.);
   }
 
 // Hard brem probability with a photon Energy above photonEnergy.
   
-  double EMuon = Particle.e();//Muon Energy
+  double EMuon = Particle.particle().e();//Muon Energy
   if (EMuon<photonEnergy) return;
   xmin = std::max(photonEnergy/EMuon,photonFractE);//fraction of muon's energy transferred to the photon
 
- //  xmax = photonEnergy/Particle.e();
+ //  xmax = photonEnergy/Particle.particle().e();
   if ( xmin >=1. || xmin <=0. ) return;
  
   xmax = 1.;
@@ -78,8 +79,8 @@ MuonBremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineA
   if ( !nPhotons ) return;
  
   //Rotate to the lab frame
-  double chi = Particle.theta();
-  double psi = Particle.phi();
+  double chi = Particle.particle().theta();
+  double psi = Particle.particle().phi();
   RawParticle::RotationZ rotZ(psi);
   RawParticle::RotationY rotY(chi);
 
@@ -89,7 +90,7 @@ MuonBremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineA
   for ( unsigned int i=0; i<nPhotons; ++i ) {
 
      // Check that there is enough energy left.
-    if ( Particle.e() < photonEnergy ) break;
+    if ( Particle.particle().e() < photonEnergy ) break;
     LogDebug("MuonBremsstrahlungSimulator")<< "MuonBremsstrahlungSimulator parameters:"<< std::endl;
     LogDebug("MuonBremsstrahlungSimulator")<< "xmin-> " << xmin << std::endl; 
     LogDebug("MuonBremsstrahlungSimulator")<< "Atomic Weight-> " << A << std::endl;
@@ -102,7 +103,7 @@ MuonBremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineA
     LogDebug("MuonBremsstrahlungSimulator")<< " radLengths-> " << radLengths << std::endl; 
 
     // Add a photon
-    RawParticle thePhoton(22,brem(Particle, random));
+    RawParticle thePhoton=makeParticle(Particle.particleDataTable(),22,brem(Particle, random));
     if (thePhoton.E()>0.){
 
     thePhoton.rotate(rotY);
@@ -111,7 +112,7 @@ MuonBremsstrahlungSimulator::compute(ParticlePropagator &Particle, RandomEngineA
     _theUpdatedState.push_back(thePhoton);
 	
     // Update the original mu +/-
-    deltaPMuon = Particle -= thePhoton.momentum();
+    deltaPMuon = Particle.particle().momentum() -= thePhoton.momentum();
     // Information of brem photon
     brem_photon.SetXYZT(thePhoton.Px(),thePhoton.Py(),thePhoton.Pz(),thePhoton.E());     
 
@@ -153,7 +154,7 @@ MuonBremsstrahlungSimulator::brem(ParticlePropagator& pp, RandomEngineAndDistrib
   // Isotropic in phi
   const double phi = random->flatShoot()*2*M_PI;
   // theta from universal distribution
-  const double theta = gbteth(pp.e(),mumass,xp,random)*mumass/pp.e();
+  const double theta = gbteth(pp.particle().e(),mumass,xp,random)*mumass/pp.particle().e();
 
   // Make momentum components
   double stheta = std::sin(theta);
@@ -161,7 +162,7 @@ MuonBremsstrahlungSimulator::brem(ParticlePropagator& pp, RandomEngineAndDistrib
   double sphi   = std::sin(phi);
   double cphi   = std::cos(phi);
 
-  return xp * pp.e() * XYZTLorentzVector(stheta*cphi,stheta*sphi,ctheta,1.);
+  return xp * pp.particle().e() * XYZTLorentzVector(stheta*cphi,stheta*sphi,ctheta,1.);
  
 }
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -30,9 +31,9 @@ sys.argv=theargv
 from urllib2  import Request,build_opener,urlopen
 
 if "RELMON_SA" in os.environ:
-  from definitions import *
-  from authentication import X509CertOpen
-  from utils import __file__ as this_module_name  
+  from .definitions import *
+  from .authentication import X509CertOpen
+  from .utils import __file__ as this_module_name  
 else:
   from Utilities.RelMon.definitions import *
   from Utilities.RelMon.authentication import X509CertOpen

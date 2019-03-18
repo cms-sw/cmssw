@@ -1,0 +1,4 @@
+<bin file="makeMuon_catch2.cc" name="TestFastSimulationBaseParticlePropagator">
+  <use name="catch2"/>
+  <use   name="FastSimulation/BaseParticlePropagator"/>
+</bin>

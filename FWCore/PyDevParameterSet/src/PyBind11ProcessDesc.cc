@@ -26,7 +26,7 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config) :
   read(config);
 }
 
-/*
+
 PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, char* argv[]) :
    theProcessPSet(),
    theMainModule()
@@ -34,11 +34,28 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, ch
   pybind11::initialize_interpreter();
   edm::python::initializePyBind11Module();
   prepareToRead();
-  PySys_SetArgv(argc, argv);
+  {
+#if PY_MAJOR_VERSION >= 3
+  typedef std::unique_ptr<wchar_t[], decltype(&PyMem_RawFree)> WArgUPtr;
+  std::vector<WArgUPtr> v_argv;
+  std::vector<wchar_t *> vp_argv;
+  v_argv.reserve(argc);
+  vp_argv.reserve(argc);
+  for (int i = 0; i < argc; i++) {
+    v_argv.emplace_back(Py_DecodeLocale(argv[i], NULL), &PyMem_RawFree);
+    vp_argv.emplace_back(v_argv.back().get());
+  }
+
+  wchar_t **argvt = vp_argv.data();
+#else
+  char **argvt = argv;
+#endif
+
+  PySys_SetArgv(argc, argvt);
+  }
   read(config);
-  //py::module::import("sys").attr("argv") = py::make_tuple("test.py", "embed.cpp"); might work
 }
-*/
+
 
 PyBind11ProcessDesc::~PyBind11ProcessDesc() {
   theMainModule=pybind11::object();
@@ -68,13 +85,9 @@ void PyBind11ProcessDesc::read(std::string const& config) {
 }
 
 void PyBind11ProcessDesc::readFile(std::string const& fileName) {
-  std::string initCommand("import FWCore.ParameterSet.Config as cms\n"
-                          "execfile('");
-  initCommand += fileName + "')";
-
-  pybind11::exec(initCommand.c_str());
+  pybind11::eval_file(fileName);
   std::string command("process.fillProcessDesc(processPSet)");
-  pybind11::exec(command.c_str());
+  pybind11::exec(command);
 }
 
 void PyBind11ProcessDesc::readString(std::string const& pyConfig) {

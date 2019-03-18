@@ -31,6 +31,7 @@ public:
   
 protected:
 
+  using TimingSD::update;
   void     update(const BeginOfJob *) override;
 
 private:

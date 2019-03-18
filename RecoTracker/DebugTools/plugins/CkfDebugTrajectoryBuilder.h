@@ -4,12 +4,12 @@
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 #include "CkfDebugger.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
-
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
  public:
   CkfDebugTrajectoryBuilder(const edm::ParameterSet& conf):
-    CkfTrajectoryBuilder(conf, nullptr)
+    CkfTrajectoryBuilder(conf, std::unique_ptr<TrajectoryFilter>{})
     {
       //edm::LogVerbatim("CkfDebugger") <<"CkfDebugTrajectoryBuilder::CkfDebugTrajectoryBuilder";
     }

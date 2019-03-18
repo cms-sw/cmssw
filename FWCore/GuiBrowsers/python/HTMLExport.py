@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import sys
 import os
 import os.path
@@ -11,7 +12,7 @@ import FWCore.ParameterSet.Modules as mod
 import FWCore.ParameterSet.Types as typ
 import FWCore.ParameterSet.Mixins as mix
 
-from Vispa.Plugins.ConfigEditor.ConfigDataAccessor import ConfigDataAccessor
+from .Vispa.Plugins.ConfigEditor.ConfigDataAccessor import ConfigDataAccessor
 from FWCore.GuiBrowsers.FileExportPlugin import FileExportPlugin
 
 

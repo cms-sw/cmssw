@@ -13,7 +13,7 @@ using namespace std;
 
 #include "MECanvasHolder.hh"
 
-ClassImp(MECanvasHolder)
+ClassImp(MECanvasHolder);
 
 MECanvasHolder::MECanvasHolder()
 : fCanvas(0), fWelcomePave(0), fWelcomeState(true), fWelcomeTitle(0), fWelcomeL0(0), _h(0), _scale(1), _refw( 1092 )
