@@ -2,7 +2,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -12,9 +11,8 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalTBModuleX.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
 
-DDHGCalTBModuleX::DDHGCalTBModuleX() : tan30deg_(tan(30._deg)) {
+DDHGCalTBModuleX::DDHGCalTBModuleX() {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX info: Creating instance";
 #endif
