@@ -126,7 +126,7 @@ void DTCCablingMapProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 	desc.add<long long unsigned int>("iovBeginTime" ,  1);
 	desc.add<std::string>("record","TrackerDTCCablingMapRcd");
 	desc.add<std::vector<std::string>>("modulesToDTCCablingCSVFileNames",std::vector<std::string>());
-	descriptions.addDefault("DTCCablingMapProducer", desc);
+	descriptions.add("DTCCablingMapProducer", desc);
 }
 
 DTCCablingMapProducer::DTCCablingMapProducer(const edm::ParameterSet& iConfig):

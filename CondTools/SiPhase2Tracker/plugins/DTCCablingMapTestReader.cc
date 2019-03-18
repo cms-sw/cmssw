@@ -63,7 +63,7 @@ void DTCCablingMapTestReader::fillDescriptions(edm::ConfigurationDescriptions& d
 	// Please change this to state exactly what you do use, even if it is no parameters
 	edm::ParameterSetDescription desc;
 	desc.setUnknown();
-	descriptions.addDefault(desc);
+	descriptions.add("DTCCablingMapTestReader", desc);
 }
 
 
