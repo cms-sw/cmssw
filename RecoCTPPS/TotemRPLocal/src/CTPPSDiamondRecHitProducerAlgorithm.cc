@@ -72,20 +72,15 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
         + ch_t_offset
         - ( !std::isnan( t_mean ) ? t_mean : 0. );
 
-      rec_hits.push_back( CTPPSDiamondRecHit(
+      rec_hits.emplace_back(
         // spatial information
-        x_pos, x_width,
-        y_pos, y_width,
-        z_pos, z_width,
+        x_pos, x_width, y_pos, y_width, z_pos, z_width,
         // timing information
-        t0,
-        tot,
-        ch_t_precis,
-        time_slice,
+        t0, tot, ch_t_precis, time_slice,
         // readout information
         digi.getHPTDCErrorFlags(),
         digi.getMultipleHit()
-      ) );
+      );
     }
   }
 }
