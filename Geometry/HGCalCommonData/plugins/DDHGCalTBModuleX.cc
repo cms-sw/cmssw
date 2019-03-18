@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -9,13 +10,11 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HGCalCommonData/plugins/DDHGCalTBModuleX.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define EDM_ML_DEBUG
+using namespace geant_units::operators;
 
-DDHGCalTBModuleX::DDHGCalTBModuleX() : factor_(0.5*sqrt(2.0)),
-				       tan30deg_(tan(30.0*CLHEP::deg)) {
+DDHGCalTBModuleX::DDHGCalTBModuleX() : tan30deg_(tan(30._deg)) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX info: Creating instance";
 #endif
@@ -157,7 +156,7 @@ void DDHGCalTBModuleX::constructBlocks(const DDLogicalPart& parent,
     DDMaterial matter(matName);
     DDSolid solid      = DDSolidFactory::tubs(DDName(name, idNameSpace_), 
 					      0.5*blockThick_[i], 0, rMax_,
-					      0.0, CLHEP::twopi);
+					      0.0, 2._pi);
     DDLogicalPart glog = DDLogicalPart(solid.ddname(), matter, solid);
     double  zz         = zi + 0.5*blockThick_[i];
     DDTranslation r1(0,0,zz);
@@ -242,7 +241,7 @@ void DDHGCalTBModuleX::constructLayers(int block, int firstLayer,
     zi     = zo;
   } // End of loop over layers in a block
 
-  if (fabs(thickTot-totalWidth) < 0.00001) {
+  if (fabs(thickTot-totalWidth) < tolerance_) {
   } else if (thickTot > totalWidth) {
     edm::LogError("HGCalGeom") << "Thickness of the partition " 
 			       << totalWidth << " is smaller than " << thickTot
