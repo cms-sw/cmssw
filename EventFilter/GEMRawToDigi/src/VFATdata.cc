@@ -1,5 +1,5 @@
 #include "EventFilter/GEMRawToDigi/interface/VFATdata.h"
-
+#include <iostream>
 using namespace gem;
 
 VFATdata::VFATdata() {
@@ -44,20 +44,23 @@ VFATdata::VFATdata(const int vfatVer,
   sw.msData2 = msDatas & 0x0000ffffffffffff;
   ver_ = vfatVer;
   
-  tw.crc = checkCRC();// crc check not yet implemented for v3
-  
   fw_ = fw.word;
   sw_ = sw.word;
+  tw_ = tw.word;
+  // checkCRC only works after words are set
+  // checkCRC not yet implemented for v3
+  tw.crc = checkCRC();
+  // once crc is found, save new third word
   tw_ = tw.word;
 }
 
 uint8_t VFATdata::quality() {  
   uint8_t q = 0;  
   if (ver_ == 2) {
-    if (VFATthird{tw_}.crc != checkCRC()) q |= 1UL << 1;
-    if (VFATfirst{fw_}.b1010 != 10) q |= 1UL << 2;
-    if (VFATfirst{fw_}.b1100 != 12) q |= 1UL << 3;
-    if (VFATfirst{fw_}.b1110 != 14) q |= 1UL << 4;
+    if (VFATthird{tw_}.crc != checkCRC()) q = 1;
+    if (VFATfirst{fw_}.b1010 != 10) q |= 1UL << 1;
+    if (VFATfirst{fw_}.b1100 != 12) q |= 1UL << 2;
+    if (VFATfirst{fw_}.b1110 != 14) q |= 1UL << 3;
   }
   // quality test not yet implemented in v3  
   return q;
@@ -83,8 +86,8 @@ uint16_t VFATdata::crc_cal(uint16_t crc_in, uint16_t dato)
 uint16_t VFATdata::checkCRC()
 {
   uint16_t vfatBlockWords[12];
-  vfatBlockWords[11] = ((0x000f & VFATfirst{fw_}.b1010)<<12) | bc();
-  vfatBlockWords[10] = ((0x000f & VFATfirst{fw_}.b1100)<<12) | ((0x00ff & ec()) <<4) | (0x000f & VFATfirst{fw_}.flag);
+  vfatBlockWords[11] = ((0x000f & VFATfirst{fw_}.b1010)<<12) | VFATfirst{fw_}.bcV2;
+  vfatBlockWords[10] = ((0x000f & VFATfirst{fw_}.b1100)<<12) | ((0x00ff & VFATfirst{fw_}.ecV2) <<4) | (0x000f & VFATfirst{fw_}.flag);
   vfatBlockWords[9]  = ((0x000f & VFATfirst{fw_}.b1110)<<12) | VFATfirst{fw_}.chipID;
   vfatBlockWords[8]  = (0xffff000000000000 & msData()) >> 48;
   vfatBlockWords[7]  = (0x0000ffff00000000 & msData()) >> 32;
@@ -94,7 +97,7 @@ uint16_t VFATdata::checkCRC()
   vfatBlockWords[3]  = (0x0000ffff00000000 & lsData()) >> 32;
   vfatBlockWords[2]  = (0x00000000ffff0000 & lsData()) >> 16;
   vfatBlockWords[1]  = (0x000000000000ffff & lsData());
-
+  
   uint16_t crc_fin = 0xffff;
   for (int i = 11; i >= 1; i--) {
     crc_fin = crc_cal(crc_fin, vfatBlockWords[i]);
