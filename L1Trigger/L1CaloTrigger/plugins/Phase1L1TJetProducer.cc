@@ -5,7 +5,21 @@
 //
 /**\class Phase1L1TJetProducer Phase1L1TJetProducer.cc L1Trigger/L1CaloTrigger/plugin/Phase1L1TJetProducer.cc
 
-Description: Produces jets with sliding window algorithm using pfcluster and pfcandidates
+Description: Produces jets with a phase-1 like sliding window algorithm using a collection of reco::Candidates in input.
+
+*** INPUT PARAMETERS ***
+  * etaBinning: vdouble with eta binning (allows non-homogeneous binning in eta)
+  * nBinsPhi: uint32, number of bins in phi
+  * phiLow: double, min phi (typically -pi)
+  * phiUp: double, max phi (typically +pi)
+  * jetIEtaSize: uint32, jet cluster size in ieta
+  * jetIPhiSize: uint32, jet cluster size in iphi
+  * seedPtThreshold: double, threshold of the seed tower
+  * puSubtraction: bool, runs chunky doughnut pile-up subtraction, 9x9 jet only
+  * outputCollectionName: string, tag for the output collection
+  * vetoZeroPt: bool, controls whether jets with 0 pt should be save. 
+    It matters if PU is ON, as you can get negative or zero pt jets after it.
+  * inputCollectionTag: inputtag, collection of reco::candidates used as input to the algo
 
 */
 //
@@ -33,7 +47,6 @@ Description: Produces jets with sliding window algorithm using pfcluster and pfc
 
 #include <algorithm>
 
-//class Phase1L1TJetProducer : public edm::EDProducer {
 class Phase1L1TJetProducer : public edm::one::EDProducer<edm::one::SharedResources> {
    public:
       explicit Phase1L1TJetProducer(const edm::ParameterSet&);
@@ -43,13 +56,18 @@ class Phase1L1TJetProducer : public edm::one::EDProducer<edm::one::SharedResourc
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&);
+      
       /// Finds the seeds in the caloGrid, seeds are saved in a vector that contain the index in the TH2F of each seed
       std::vector<std::tuple<int, int>> _findSeeds(const TH2F & caloGrid, float seedThreshold);
+      
       std::vector<reco::CaloJet> _buildJetsFromSeedsWithPUSubtraction(const TH2F & caloGrid, const std::vector<std::tuple<int, int>> & seeds, bool killZeroPt);
       std::vector<reco::CaloJet> _buildJetsFromSeeds(const TH2F & caloGrid, const std::vector<std::tuple<int, int>> & seeds);
+      
       void _subtract9x9Pileup(const TH2F & caloGrid, reco::CaloJet & jet);
+      
       /// Get the energy of a certain tower while correctly handling phi periodicity in case of overflow
       float _getTowerEnergy(const TH2F & caloGrid, int iEta, int iPhi);
+      
       reco::CaloJet _buildJetFromSeed(const TH2F & caloGrid, const std::tuple<int, int> & seed);
 
       // <3 handy method to fill the calogrid with whatever type
@@ -57,6 +75,7 @@ class Phase1L1TJetProducer : public edm::one::EDProducer<edm::one::SharedResourc
       void _fillCaloGrid(TH2F & caloGrid, const Container & triggerPrimitives);
 
       edm::EDGetTokenT<edm::View<reco::Candidate>> *_inputCollectionTag;
+      // histogram containing our clustered inputs
       TH2F* _caloGrid;
 
       std::vector<double> _etaBinning;
@@ -74,9 +93,11 @@ class Phase1L1TJetProducer : public edm::one::EDProducer<edm::one::SharedResourc
 
 };
 
+
 Phase1L1TJetProducer::Phase1L1TJetProducer(const edm::ParameterSet& iConfig)
 {
 
+  // getting configuration settings
   this -> _etaBinning = iConfig.getParameter<std::vector<double> >("etaBinning");
   this -> _nBinsEta = this -> _etaBinning.size() - 1;
   this -> _nBinsPhi = iConfig.getParameter<unsigned int>("nBinsPhi");
