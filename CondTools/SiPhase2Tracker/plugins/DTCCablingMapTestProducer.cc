@@ -60,7 +60,7 @@ void DTCCablingMapTestProducer::fillDescriptions(edm::ConfigurationDescriptions&
 	desc.setComment("Stores a dummy TrackerDetToDTCELinkCablingMap database object from a CSV file.");
 	desc.add<long long unsigned int>("iovBeginTime", 1);
 	desc.add<std::string>("record","TrackerDetToDTCELinkCablingMap");
-	descriptions.addDefault(desc);
+	descriptions.addDefault("DTCCablingMapTestProducer", desc);
 }
 
 DTCCablingMapTestProducer::DTCCablingMapTestProducer(const edm::ParameterSet& iConfig):
