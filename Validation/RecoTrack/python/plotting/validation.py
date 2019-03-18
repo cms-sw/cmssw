@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import os
 import re
 import sys
@@ -9,8 +10,8 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-import plotting
-import html
+from . import plotting
+from . import html
 
 # Mapping from releases to GlobalTags
 _globalTags = {

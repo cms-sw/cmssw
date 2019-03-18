@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from __future__ import absolute_import
 import sys, os, string
 import time
 
 import FWCore.ParameterSet.Config as cms
-from hcalLaserEventFilter_cfi import hcalLaserEventFilter
+from .hcalLaserEventFilter_cfi import hcalLaserEventFilter
 
 ''' Program reads existing bad run/event list from hcalLaserEventFilter_cfi.py, and an (optional) new list from a text file.  If a text file is specified, this is assumed to be the desired new bad list, and its output will be sent to badEvents.py in the form needed by the cfi file.
 

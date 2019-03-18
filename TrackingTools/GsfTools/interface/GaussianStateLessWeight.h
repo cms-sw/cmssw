@@ -2,7 +2,7 @@
 #define GaussianStateLessWeight_h_
 
 #include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 /** \class GaussianStateLessWeight
  * Compare two SingleGaussianState acc. to their weight.

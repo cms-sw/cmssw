@@ -227,7 +227,7 @@ int ODEcalCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODEcalCycle::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODEcalCycle::fetchID:  "+e.getMessage()));
   }
   setByID(m_ID);
   return m_ID;
@@ -253,12 +253,12 @@ void ODEcalCycle::setByID(int id)
 
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
-       m_tag = getOraString(rset,1);
+       m_tag = rset->getString(1);
        m_version = rset->getInt(2);
        m_seq_num = rset->getInt(3);
        m_cycle_num = rset->getInt(4);
-       m_cycle_tag = getOraString(rset,5);
-       m_cycle_description = getOraString(rset,6);
+       m_cycle_tag = rset->getString(5);
+       m_cycle_description = rset->getString(6);
        m_ccs = rset->getInt(7);
        m_dcc = rset->getInt(8);
        m_laser = rset->getInt(9);
@@ -278,7 +278,7 @@ void ODEcalCycle::setByID(int id)
      }
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error(std::string("ODEcalCycle::setByID:  ")+getOraMessage(&e)));
+     throw(std::runtime_error("ODEcalCycle::setByID:  "+e.getMessage()));
    }
 }
 
@@ -328,12 +328,12 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
 
     rset->next();
 
-    result->setTag(          getOraString(rset,1) );
+    result->setTag(          rset->getString(1) );
     result->setVersion(      rset->getInt(2) );
     result->setSeqNum(       rset->getInt(3) );
     result->setCycleNum(     rset->getInt(4) );
-    result->setCycleTag(     getOraString(rset,5) );
-    result->setCycleDescription( getOraString(rset,6) );
+    result->setCycleTag(     rset->getString(5) );
+    result->setCycleDescription( rset->getString(6) );
     result->setCCSId(        rset->getInt(7) );
     result->setDCCId(        rset->getInt(8) );
     result->setLaserId(      rset->getInt(9) );
@@ -352,7 +352,7 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
     result->setTCCEEId(      rset->getInt(19) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODEcalCycle::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODEcalCycle::fetchData():  "+e.getMessage()));
   }
 }
 

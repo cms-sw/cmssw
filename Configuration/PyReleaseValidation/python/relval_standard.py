@@ -337,6 +337,7 @@ workflows[136.858] = ['',['RunNoBPTX2018A','HLTDR2_2018','RECODR2_2018reHLTAlCaT
 workflows[136.859] = ['',['RunDisplacedJet2018A','HLTDR2_2018','RECODR2_2018reHLT_skimDisplacedJet_Prompt','HARVEST2018']]
 workflows[136.860] = ['',['RunCharmonium2018A','HLTDR2_2018','RECODR2_2018reHLT_skimCharmonium_Prompt','HARVEST2018']]
 ### wf to test 90 m beta* Totem run reconstruction ###
+workflows[136.8501] = ['',['RunEGamma2018A','HLTDR2_2018','RECODR2_2018reHLT_skimParkingBPH_Prompt','HARVEST2018']]
 workflows[136.8561] = ['',['RunZeroBias_hBStarTk','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Prompt_hBStar','HARVEST2018_hBStar']]
 workflows[136.8562] = ['',['RunZeroBias1_hBStarRP','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Prompt_hBStar','HARVEST2018_hBStar']]
 
@@ -604,6 +605,10 @@ workflows[1361.17] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP17','DIGIUP17',
 workflows[1362.17] = ['', ['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP17','DIGIUP17','RECOUP17','HARVESTUP17']]
 workflows[1363.17] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13UP17','DIGIUP17','RECOUP17','HARVESTUP17']]
 
+# 2018 workflows starting from gridpacks LHE generation
+workflows[1361.18] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP18','DIGIUP18','RECOUP18','HARVESTUP18']]
+workflows[1362.18] = ['', ['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP18','DIGIUP18','RECOUP18','HARVESTUP18']]
+workflows[1363.18] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13UP18','DIGIUP18','RECOUP18','HARVESTUP18']]
 
 ### HI test ###
 

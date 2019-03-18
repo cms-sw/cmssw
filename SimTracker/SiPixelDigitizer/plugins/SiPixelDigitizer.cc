@@ -115,11 +115,9 @@ namespace cms
         "which is not present in the configuration file.  You must add the service\n"
         "in the configuration file or remove the modules that require it.";
     }
-
+    
     _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig));
-    if (_pixeldigialgo->killBadFEDChannels()){
-      mixMod.produces<PixelFEDChannelCollection>();
-    }
+    mixMod.produces<PixelFEDChannelCollection>();
   }
   
   SiPixelDigitizer::~SiPixelDigitizer(){  

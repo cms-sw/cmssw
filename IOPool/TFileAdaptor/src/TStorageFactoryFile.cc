@@ -69,7 +69,7 @@ public:
 };
 #endif
 
-ClassImp(TStorageFactoryFile)
+ClassImp(TStorageFactoryFile);
 static StorageAccount::Counter *s_statsCtor = nullptr;
 static StorageAccount::Counter *s_statsOpen = nullptr;
 static StorageAccount::Counter *s_statsClose = nullptr;

@@ -2,7 +2,6 @@
 #define SingleGaussianState1D_H
 
 #include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
-#include "boost/shared_ptr.hpp"
 
 /** One-dimensional (single) Gaussian state. Used for the description 
  *  of Gaussian mixtures in one dimension.

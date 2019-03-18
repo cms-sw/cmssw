@@ -56,9 +56,6 @@
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 
-// for particle table
-#include "FastSimulation/Particle/interface/ParticleTable.h"
-
 ////////////////////////////////////////////////////////////////////////////
 // Geometry, Magnetic Field
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -157,7 +154,6 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   // using namespace std;
   edm::ESHandle < HepPDT::ParticleDataTable > pdg;
   iSetup.getData(pdg);
-  ParticleTable::Sentry ptable(pdg.product());
 
   RandomEngineAndDistribution random(iEvent.streamID());
 
@@ -315,7 +311,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       // Insert dE/dx fluctuations and multiple scattering
       // Skip this step if nextNoMaterial.first is not valid 
       // This happens rarely (~0.02% of ttbar events)
-      if ( theMaterialEffects && nextNoMaterial.first.isValid() ) applyMaterialEffects(propagatedState, nextNoMaterial.first, radPath, &random);
+      if ( theMaterialEffects && nextNoMaterial.first.isValid() ) applyMaterialEffects(propagatedState, nextNoMaterial.first, radPath, &random, *pdg);
       // Check that the 'shaken' propagatedState is still valid, otherwise continue
       if ( !propagatedState.isValid() ) continue; 
       // (No evidence that this ever happens)
@@ -573,7 +569,8 @@ void
 MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
 					 TrajectoryStateOnSurface& tsos,
 					 double radPath,
-                                         RandomEngineAndDistribution const* random) {
+                                         RandomEngineAndDistribution const* random,
+                                         HepPDT::ParticleDataTable const& table) {
 
   // The energy loss simulator
   EnergyLossSimulator* energyLoss = theMaterialEffects->energyLossSimulator();
@@ -596,8 +593,7 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
   XYZTLorentzVector position(gPos.x(),gPos.y(),gPos.z(),0.);
   XYZTLorentzVector momentum(gMom.x(),gMom.y(),gMom.z(),en);
   float charge = (float)(tsos.charge());
-  ParticlePropagator theMuon(momentum,position,charge,nullptr);
-  theMuon.setID(-(int)charge*13);
+  ParticlePropagator theMuon(rawparticle::makeMuon(charge<1.,momentum,position),nullptr,nullptr,&table);
 
   // Recompute the energy loss to get the fluctuations
   if ( energyLoss ) { 
@@ -622,13 +618,13 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
     double fac = energyLoss->deltaMom().E()/energyLoss->mostLikelyLoss();
 
     // Particle momentum & position after energy loss + fluctuation
-    XYZTLorentzVector theNewMomentum = theMuon.momentum() + energyLoss->deltaMom() + fac * deltaMom;
-    XYZTLorentzVector theNewPosition = theMuon.vertex() + fac * deltaPos;
+    XYZTLorentzVector theNewMomentum = theMuon.particle().momentum() + energyLoss->deltaMom() + fac * deltaMom;
+    XYZTLorentzVector theNewPosition = theMuon.particle().vertex() + fac * deltaPos;
     fac  = (theNewMomentum.E()*theNewMomentum.E()-mu*mu)/theNewMomentum.Vect().Mag2();
     fac  = fac>0.? std::sqrt(fac) : 1E-9;
-    theMuon.SetXYZT(theNewMomentum.Px()*fac,theNewMomentum.Py()*fac,
+    theMuon.particle().setMomentum(theNewMomentum.Px()*fac,theNewMomentum.Py()*fac,
                     theNewMomentum.Pz()*fac,theNewMomentum.E());    
-    theMuon.setVertex(theNewPosition);
+    theMuon.particle().setVertex(theNewPosition);
 
   }
 
@@ -649,8 +645,8 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
 
 
   // Fill the propagated state
-  GlobalPoint propagatedPosition(theMuon.X(),theMuon.Y(),theMuon.Z());
-  GlobalVector propagatedMomentum(theMuon.Px(),theMuon.Py(),theMuon.Pz());
+  GlobalPoint propagatedPosition(theMuon.particle().X(),theMuon.particle().Y(),theMuon.particle().Z());
+  GlobalVector propagatedMomentum(theMuon.particle().Px(),theMuon.particle().Py(),theMuon.particle().Pz());
   GlobalTrajectoryParameters propagatedGtp(propagatedPosition,propagatedMomentum,(int)charge,magfield);
   tsosWithdEdx = TrajectoryStateOnSurface(propagatedGtp,nextSurface);
 

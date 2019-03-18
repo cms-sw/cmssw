@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
 
@@ -110,7 +111,7 @@ def AddFlag(sevLevelComputer,flag="UserDefinedBit0",severity=10,verbose=True):
 ##########################
 
 if __name__=="__main__":
-    import hcalRecAlgoESProd_cfi as ES
+    from . import hcalRecAlgoESProd_cfi as ES
     ES.hcalRecAlgos=RemoveFlag(ES.hcalRecAlgos)
     ES.hcalRecAlgos=AddFlag(ES.hcalRecAlgos,flag="HOBit",severity=5)
     PrintLevels(ES.hcalRecAlgos)

@@ -60,9 +60,9 @@ HcalTimeSlewEP::produce(const HcalTimeSlewRecord& iRecord){
 
   //loop over the VPSets  
   for(const auto& p_timeslew : p_TimeSlewM2){
-    double t0       = p_timeslew.getParameter<double>("tzero");
-    double m        = p_timeslew.getParameter<double>("slope");
-    double tmaximum = p_timeslew.getParameter<double>("tmax");
+    float t0       = p_timeslew.getParameter<double>("tzero");
+    float m        = p_timeslew.getParameter<double>("slope");
+    float tmaximum = p_timeslew.getParameter<double>("tmax");
     hcalTimeSlew->addM2ParameterSet(t0, m, tmaximum);				      
   }
 
