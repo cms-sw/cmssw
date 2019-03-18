@@ -19,9 +19,17 @@ class HGCHEbackDigitizer : public HGCDigitizerBase<HGCalDataFrame>
   //calice-like digitization parameters
   float keV2MIP_, noise_MIP_;
   float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_;
-  void runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,hgc::HGCSimHitDataAccumulator &simData, 
+  void runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,hgc::HGCSimHitDataAccumulator &simData,
+                         const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
+                         CLHEP::HepRandomEngine* engine);
+
+  void runRealisticDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,hgc::HGCSimHitDataAccumulator &simData,
+                             const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
+                             CLHEP::HepRandomEngine* engine);
+
+  void runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,hgc::HGCSimHitDataAccumulator &simData,
 			      const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
 			      CLHEP::HepRandomEngine* engine);
 };
 
-#endif 
+#endif

@@ -29,8 +29,118 @@ void HGCHEbackDigitizer::runDigitizer(std::unique_ptr<HGCalDigiCollection> &digi
 				      const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
 				      uint32_t digitizationType, CLHEP::HepRandomEngine* engine)
 {
-  runCaliceLikeDigitizer(digiColl,simData,theGeom,validIds,engine);
+  runRealisticDigitizer(digiColl,simData,theGeom,validIds,engine);
 }
+
+void HGCHEbackDigitizer::runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,
+					   const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
+					   CLHEP::HepRandomEngine* engine)
+{
+  HGCSimHitData chargeColl, toa;
+  // this represents a cell with no signal charge
+  HGCCellInfo zeroData;
+  zeroData.hit_info[0].fill(0.f); //accumulated energy
+  zeroData.hit_info[1].fill(0.f); //time-of-flight
+
+  for( const auto& id : validIds ) {
+
+    chargeColl.fill(0.f);
+    toa.fill(0.f);
+    HGCSimHitDataAccumulator::iterator it = simData.find(id);
+    HGCCellInfo& cell = ( simData.end() == it ? zeroData : it->second );
+    addCellMetadata(cell,theGeom,id);
+
+    for(size_t i=0; i<cell.hit_info[0].size(); ++i)
+    {
+      //convert total energy keV->MIP, since converted to keV in accumulator
+      const float totalIniMIPs( cell.hit_info[0][i]*keV2MIP_ );
+
+      //store
+      chargeColl[i] = totalIniMIPs;
+    }
+
+    //init a new data frame and run shaper
+    HGCalDataFrame newDataFrame( id );
+    this->myFEelectronics_->runShaper( newDataFrame, chargeColl, toa, 1, engine );
+
+    //prepare the output
+    this->updateOutput(digiColl,newDataFrame);
+  }
+}
+
+void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,
+  const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
+  CLHEP::HepRandomEngine* engine)
+  {
+    //switch to true if you want to print some details
+    constexpr bool debug(false);
+
+    HGCSimHitData chargeColl, toa;
+    // this represents a cell with no signal charge
+    HGCCellInfo zeroData;
+    zeroData.hit_info[0].fill(0.f); //accumulated energy
+    zeroData.hit_info[1].fill(0.f); //time-of-flight
+
+    for( const auto& id : validIds ) {
+
+      chargeColl.fill(0.f);
+      toa.fill(0.f);
+      HGCSimHitDataAccumulator::iterator it = simData.find(id);
+      HGCCellInfo& cell = ( simData.end() == it ? zeroData : it->second );
+      addCellMetadata(cell,theGeom,id);
+
+      for(size_t i=0; i<cell.hit_info[0].size(); ++i)
+      {
+        //convert total energy keV->MIP, since converted to keV in accumulator
+        const float totalIniMIPs( cell.hit_info[0][i]*keV2MIP_ );
+
+        //generate the number of photo-electrons from the energy deposit
+        //FDG: the darkening is missing
+        const uint32_t npeS = std::floor(CLHEP::RandPoissonQ::shoot(engine, totalIniMIPs * nPEperMIP_) + 0.5);
+
+        //generate the noise associated to the dark current
+        float meanN = std::pow(nPEperMIP_ * noise_MIP_, 2);
+        const uint32_t npeN = std::floor(CLHEP::RandPoissonQ::shoot(engine, meanN) + 0.5);
+
+        //total number of pe from signal + noise  (not subtracting pedestal)
+        const uint32_t npe = npeS + npeN;
+
+        //take into account SiPM saturation
+        const float x = vdt::fast_expf( -((float)npe)/nTotalPE_ );
+        uint32_t nPixel(0);
+        if(xTalk_*x!=1)  nPixel = (uint32_t) std::max( nTotalPE_ * (1.f - x)/(1.f - xTalk_ * x), 0.f );
+
+        //take into account the gain fluctuations of each pixel
+        //const float nPixelTot = nPixel + sqrt(nPixel) * CLHEP::RandGaussQ::shoot(engine, 0., 0.05); //FDG: just a note for now, par to be defined
+
+        //convert back to MIP without un-doing the saturation
+        const float totalMIPs = nPixel / nPEperMIP_;
+
+        if(debug && totalIniMIPs > 0)
+        {
+          std::cout << "npeS: " << npeS
+          << " npeN: " << npeN
+          << " npe: " << npe
+          << " meanN: " << meanN
+          << " noise_MIP_: " << noise_MIP_
+          << " nPEperMIP_: " << nPEperMIP_
+          << " nPixel: " << nPixel << std::endl;
+          std::cout << "totalIniMIPs: " << totalIniMIPs << " totalMIPs: " << totalMIPs << std::endl;
+        }
+
+        //store
+        chargeColl[i] = totalMIPs;
+      }
+
+
+      //init a new data frame and run shaper
+      HGCalDataFrame newDataFrame( id );
+      this->myFEelectronics_->runShaper( newDataFrame, chargeColl, toa, 1, engine );
+
+      //prepare the output
+      this->updateOutput(digiColl,newDataFrame);
+    }
+  }
 
 //
 void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,
@@ -40,7 +150,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollect
   //switch to true if you want to print some details
   constexpr bool debug(false);
 
-  HGCSimHitData chargeColl;
+  HGCSimHitData chargeColl, toa;
 
   // this represents a cell with no signal charge
   HGCCellInfo zeroData;
@@ -88,7 +198,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollect
 
       //init a new data frame and run shaper
       HGCalDataFrame newDataFrame( id );
-      this->myFEelectronics_->runTrivialShaper( newDataFrame, chargeColl, 1 );
+      this->myFEelectronics_->runShaper( newDataFrame, chargeColl, toa, 1, engine );
 
       //prepare the output
       this->updateOutput(digiColl,newDataFrame);
