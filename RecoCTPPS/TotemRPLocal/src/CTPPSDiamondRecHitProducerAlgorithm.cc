@@ -55,22 +55,22 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert( detid );
 
     for ( const auto& digi : vec ) {
-      if ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() == 0 )
+      const int t_lead = digi.getLeadingEdge(), t_trail = digi.getTrailingEdge();
+      if ( t_lead == 0 && t_trail == 0 )
         continue;
 
-      const int t_lead = digi.getLeadingEdge(), t_trail = digi.getTrailingEdge();
       const int time_slice = ( t_lead != 0 )
         ? t_lead / 1024
         : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
 
-      const double tot = ( t_lead != 0 && t_trail != 0 )
-        ? ( t_trail-t_lead )*ts_to_ns_
-        : 0.;
-
-      const double t_mean = calib_fct_->evaluate( std::vector<double>{ tot }, ch_params );
-      const double t0 = ( t_lead % 1024 )*ts_to_ns_
-        + ch_t_offset
-        - ( !std::isnan( t_mean ) ? t_mean : 0. );
+      double tot = -1., t_mean = 0.;
+      if ( t_lead != 0 && t_trail != 0 ) {
+        tot = ( t_trail-t_lead )*ts_to_ns_;
+        t_mean = calib_fct_->evaluate( std::vector<double>{ tot }, ch_params );
+        if ( std::isnan( t_mean ) )
+          t_mean = 0.;
+      }
+      const double t0 = ( t_lead % 1024 )*ts_to_ns_+ ch_t_offset-t_mean;
 
       rec_hits.emplace_back(
         // spatial information
