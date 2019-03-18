@@ -11,6 +11,48 @@
 using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
+#define PI 3.1415927
+
+HGCHEbackSignalScaler::HGCHEbackSignalScaler(const DetId id, const CaloSubdetectorGeometry* geom):
+  cellId_(id)
+{
+  hgcalGeom_ = static_cast<const HGCalGeometry*>(geom);
+}
+
+float HGCHEbackSignalScaler::scaleByArea()
+{
+  float edge = computeEdge();
+  float scaleFactor = 3. / edge;  //assume reference 3cm of edge
+  return scaleFactor;
+}
+
+float HGCHEbackSignalScaler::scaleByDose()
+{
+  return 1;
+}
+
+float HGCHEbackSignalScaler::computeEdge()
+{
+  GlobalPoint global = hgcalGeom_->getPosition(cellId_);
+  float radius = sqrt( std::pow(global.x(), 2) + std::pow(global.y(), 2));
+  float circ = 2 * PI * radius;
+
+  float edge(3.);
+  if(cellId_.type() == 0)
+  {
+    edge = circ / 360; //1 degree
+  }
+  else
+  {
+    edge = circ / 288; //1.25 degrees
+  }
+
+  return edge;
+}
+
+
+
+
 //
 HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
 {
@@ -89,13 +131,17 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       HGCCellInfo& cell = ( simData.end() == it ? zeroData : it->second );
       addCellMetadata(cell,theGeom,id);
 
+      HGCHEbackSignalScaler scal(id, theGeom);
+
       for(size_t i=0; i<cell.hit_info[0].size(); ++i)
       {
         //convert total energy keV->MIP, since converted to keV in accumulator
-        const float totalIniMIPs( cell.hit_info[0][i]*keV2MIP_ );
+         float totalIniMIPs( cell.hit_info[0][i]*keV2MIP_ );
+         //take into account the different size of the tiles
+         totalIniMIPs *= scal.scaleByArea();
+         //FDG: darkening is still missing
 
         //generate the number of photo-electrons from the energy deposit
-        //FDG: the darkening is missing
         const uint32_t npeS = std::floor(CLHEP::RandPoissonQ::shoot(engine, totalIniMIPs * nPEperMIP_) + 0.5);
 
         //generate the noise associated to the dark current
