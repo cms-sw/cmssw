@@ -14,7 +14,7 @@ options.register ("tau"         , 10.,    VarParsing.multiplicity.singleton, Var
 options.register ("dt"          , 0.5,    VarParsing.multiplicity.singleton, VarParsing.varType.float)
 options.register ("nPreciseBins", 500,    VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register ("fitname"     , "pol2", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register ("signalShape" , 203,    VarParsing.multiplicity.singleton, VarParsing.varType.int)
+options.register ("signalShape" , 206,    VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.parseArguments()
 
 process = cms.Process("demo")
