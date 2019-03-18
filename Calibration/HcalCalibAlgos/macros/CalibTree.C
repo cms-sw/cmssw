@@ -551,7 +551,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	  else          isItRBX = !(temp);
 	}
 	++kprint;
-	if (cSelect_ && !(isItRBX)) {
+	if (!(isItRBX)) {
 	  for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
 	    if (selectPhi((*t_DetIds)[idet])) {
 	      unsigned int detid = truncateId((*t_DetIds)[idet],
