@@ -131,7 +131,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	  }
           // check vfat data
 	  if (vfatData->quality()) {
-	    edm::LogWarning("GEMRawToDigiModule") << "Quality "<< vfatData->quality()
+	    edm::LogWarning("GEMRawToDigiModule") << "Quality "<< int(vfatData->quality())
 						  << " b1010 "<< int(vfatData->b1010())
 						  << " b1100 "<< int(vfatData->b1100())
 						  << " b1110 "<< int(vfatData->b1110());
