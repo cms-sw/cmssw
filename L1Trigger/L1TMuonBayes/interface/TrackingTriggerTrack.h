@@ -24,7 +24,11 @@ public:
 
   TrackingTriggerTrack(const SimTrack& simMuon, unsigned int index);
 
+  TrackingTriggerTrack(const edm::Ptr< SimTrack >& simTrackPtr);
+
   TrackingTriggerTrack(const TTTrack< Ref_Phase2TrackerDigi_>& ttTRack, unsigned int index, int l1Tk_nPar);
+
+  TrackingTriggerTrack(const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& ttTrackPtr, int l1Tk_nPar);
 
   int getCharge() const {
     return charge;
@@ -98,6 +102,14 @@ public:
 
   friend std::ostream & operator << (std::ostream &out, const TrackingTriggerTrack& ttTrack);
 
+  const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> >& getTTTrackPtr() const {
+    return ttTrackPtr;
+  }
+
+  const edm::Ptr<SimTrack>& getSimTrackPtr() const {
+    return simTrackPtr;
+  }
+
 private:
   double phi = 0;
   double eta = 0;
@@ -117,6 +129,11 @@ private:
   unsigned int etaBin = 0;
 
   unsigned int index = 0;
+
+
+  //the "pointers" the either sim Track ot ttTrack that was use to create this TrackingTriggerTrack, needed only for analysis
+  edm::Ptr< SimTrack > simTrackPtr;
+  edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > ttTrackPtr;
 };
 
 typedef std::shared_ptr<const TrackingTriggerTrack> TrackingTriggerTrackPtr;

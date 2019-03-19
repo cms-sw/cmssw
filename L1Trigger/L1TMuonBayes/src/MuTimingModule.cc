@@ -68,9 +68,9 @@ void MuTimingModule::process(AlgoMuonBase* algoMuon) {
     entriesSum += one_betaHist[i];
   }
 
-  LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" maxBin "<<maxBin<<" maxVal "<<maxVal<<" beta "<<one_betaBinToBeta(maxBin)<<std::endl;
+  float beta = one_betaBinToBeta(maxBin);
+  LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" maxBin "<<maxBin<<" maxVal "<<maxVal<<" beta "<<beta<<std::endl;
   if(maxVal >= 3) {
-    float beta = one_betaBinToBeta(maxBin);
     algoMuon->setBeta(beta);
   }
   else

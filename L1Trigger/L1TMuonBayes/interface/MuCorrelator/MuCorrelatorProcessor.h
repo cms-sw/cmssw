@@ -9,6 +9,7 @@
 #define MUCORRELATOR_MUCORRELATORPROCESSOR_H_
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1TMuon/interface/BayesMuCorrelatorTrack.h"
 
 #include "L1Trigger/L1TMuonBayes/interface/MuonStub.h"
 #include "L1Trigger/L1TMuonBayes/interface/TrackingTriggerTrack.h"
@@ -86,6 +87,8 @@ public:
   }
 
   virtual std::vector<l1t::RegionalMuonCand> getFinalCandidates(unsigned int iProcessor, l1t::tftype mtfType, AlgoTTMuons& algoTTMuons);
+
+  virtual l1t::BayesMuCorrTrackCollection getMuCorrTrackCollection(unsigned int iProcessor, AlgoTTMuons& algoTTMuons);
 
   virtual bool assignQuality(AlgoTTMuons& algoTTMuons);
 

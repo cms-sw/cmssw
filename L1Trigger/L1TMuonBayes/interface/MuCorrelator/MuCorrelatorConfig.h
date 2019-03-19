@@ -30,6 +30,11 @@ public:
     return std::floor(phi / phiGmtUnit);
   }
 
+  //phi in radians
+  virtual double hwPhiToGlobalPhi(int phi) const {
+    return phi * phiGmtUnit;
+  }
+
   virtual unsigned int nPhiBins() const {
     return phiBins;
   }

@@ -21,6 +21,20 @@ TrackingTriggerTrack::TrackingTriggerTrack(const SimTrack& simMuon, unsigned int
   }
 }
 
+TrackingTriggerTrack::TrackingTriggerTrack(const edm::Ptr< SimTrack >& simTrackPtr): simTrackPtr(simTrackPtr) {
+  eta = simTrackPtr->momentum().eta();
+  phi = simTrackPtr->momentum().phi();
+  pt = simTrackPtr->momentum().pt();
+  charge = simTrackPtr->type()/-13;
+  if(simTrackPtr->type() == 13) //muon
+    charge = -1;
+  else if(simTrackPtr->type() == -13) //muon
+        charge = 1;
+  else {
+    charge = (simTrackPtr->type() < 0 ? 1 : -1); //not necessary correct
+  }
+}
+
 TrackingTriggerTrack::TrackingTriggerTrack(const TTTrack< Ref_Phase2TrackerDigi_>& ttTRack, unsigned int index, int l1Tk_nPar) :
         index(index)
 {
@@ -31,6 +45,15 @@ TrackingTriggerTrack::TrackingTriggerTrack(const TTTrack< Ref_Phase2TrackerDigi_
   charge = (ttTRack.getRInv() > 0 ? 1 : -1); //ttTRack.ge //where is the charge???? TODO
 }
 
+TrackingTriggerTrack::TrackingTriggerTrack(const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& ttTrackPtr, int l1Tk_nPar): ttTrackPtr(ttTrackPtr) {
+  pt   = ttTrackPtr->getMomentum(l1Tk_nPar).perp();
+  eta  = ttTrackPtr->getMomentum(l1Tk_nPar).eta();
+  phi  = ttTrackPtr->getMomentum(l1Tk_nPar).phi();
+
+  charge = (ttTrackPtr->getRInv() > 0 ? 1 : -1); //ttTRack.ge //where is the charge???? TODO
+
+  index = ttTrackPtr.key();
+}
 
 std::ostream & operator << (std::ostream &out, const TrackingTriggerTrack& ttTrack) {
   out <<"ttTrack: "

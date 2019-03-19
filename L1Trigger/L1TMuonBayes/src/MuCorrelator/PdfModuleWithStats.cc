@@ -85,7 +85,7 @@ void PdfModuleWithStats::generateCoefficients() {
           pdfHistInPtBin->Scale(1./pdfHistInPtBin->Integral());
 
           const double minPlog =  log(config->minPdfVal());
-          const double pdfMaxLogVal = config->pdfMaxLogValue();
+          const double pdfMaxLogVal = config->pdfMaxLogValue(); //the maximum value tha the logPdf can have (n.b. logPdf = pdfMaxLogVal - log(pdfVal) * pdfMaxLogVal / minPlog)
 
           //removing points with small statiscticas before calculating mean and sigma
           int notEmtyBins = 0;

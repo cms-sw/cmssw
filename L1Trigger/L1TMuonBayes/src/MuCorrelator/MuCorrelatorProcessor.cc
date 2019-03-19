@@ -310,6 +310,34 @@ std::vector<l1t::RegionalMuonCand> MuCorrelatorProcessor::getFinalCandidates(uns
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
+l1t::BayesMuCorrTrackCollection MuCorrelatorProcessor::getMuCorrTrackCollection(unsigned int iProcessor, AlgoTTMuons& algoTTMuons) {
+  l1t::BayesMuCorrTrackCollection candidates;
+
+  for(auto& algoTTMuon: algoTTMuons) {
+    l1t::BayesMuCorrelatorTrack candidate;
+    candidate.setHwPt(algoTTMuon->getTTTrack()->getPtHw());
+    candidate.setHwEtaAtVtx(algoTTMuon->getTTTrack()->getEtaHw());
+    candidate.setHwPhiAtVtx(config->phiToGlobalHwPhi(algoTTMuon->getTTTrack()->getPhi())); //TODO use hw phi
+
+    candidate.setHwQual(algoTTMuon->getQuality());
+
+    candidate.setHwSign(algoTTMuon->getTTTrack()->getCharge() < 0 ? 1 : 0  );
+    //candidate.setHwSignValid(1);
+
+    candidate.setFiredLayerBits(algoTTMuon->getFiredLayerBits() );
+    candidate.setPdfSum(algoTTMuon->getPdfSum());
+
+    candidate.setBeta(algoTTMuon->getBeta());
+
+    candidate.setTtTrackPtr(algoTTMuon->getTTTrack()->getTTTrackPtr() );
+    candidate.setSimTrackPtr(algoTTMuon->getTTTrack()->getSimTrackPtr());
+    if (candidate.hwPt() > 0)
+      candidates.push_back(candidate);
+  }
+  return candidates;
+}
+
+
 
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////

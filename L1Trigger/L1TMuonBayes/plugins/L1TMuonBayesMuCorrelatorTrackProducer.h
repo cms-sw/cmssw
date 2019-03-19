@@ -57,7 +57,7 @@ class L1TMuonBayesMuCorrelatorTrackProducer : public edm::EDProducer {
 
   edm::EDGetTokenT< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > ttTrackToken;
 
-  edm::EDGetTokenT<edm::SimTrackContainer> inputTokenSimHit; //TODO remove
+  edm::EDGetTokenT<edm::SimTrackContainer> inputTokenSimTracks; //TODO remove
 
   bool dumpResultToXML = false;
 
