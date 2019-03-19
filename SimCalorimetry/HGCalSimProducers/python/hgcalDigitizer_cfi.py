@@ -178,6 +178,7 @@ hgchebackDigitizer = cms.PSet(
         nTotalPE  = cms.double(7500),
         xTalk     = cms.double(0.2),
         sdPixels  = cms.double(1e-6), # this is additional photostatistics noise (as implemented), not sure why it's here...
+        doseMap   = cms.FileInPath("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt"), #FDG to be moved to the customization
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion       = cms.uint32(0),
@@ -186,7 +187,7 @@ hgchebackDigitizer = cms.PSet(
             # ADC saturation : in this case we use the same variable but fC=MIP
             adcSaturation_fC = cms.double(68.5), #value chosen to have 1MIP at 15ADC
             # threshold for digi production : in this case we use the same variable but fC=MIP
-            adcThreshold_fC = cms.double(0.50),
+            adcThreshold_fC = cms.double(0.),
             thresholdFollowsMIP = cms.bool(False)
             )
         )

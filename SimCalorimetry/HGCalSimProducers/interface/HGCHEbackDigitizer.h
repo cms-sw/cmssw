@@ -9,19 +9,30 @@
 class HGCHEbackSignalScaler
 {
   public:
-    HGCHEbackSignalScaler(const DetId, const CaloSubdetectorGeometry*);
+
+    struct DoseParameters {
+      DoseParameters(): a_(0.), b_(0.), c_(0.) {}
+      float a_;
+      float b_;
+      float c_;
+    };
+
+    HGCHEbackSignalScaler(const CaloSubdetectorGeometry*, const std::string&);
     ~HGCHEbackSignalScaler() {};
 
-    float scaleByArea();
-    float scaleByDose();
+    float scaleByArea(const HGCScintillatorDetId&);
+    float scaleByDose(const HGCScintillatorDetId&);
 
   private:
-    float computeEdge();
+    std::map<int, DoseParameters> readDosePars(const std::string&);
+    float computeEdge(const HGCScintillatorDetId&);
+    float computeRadius(const HGCScintillatorDetId&);
 
-    const HGCScintillatorDetId cellId_;
     const HGCalGeometry* hgcalGeom_;
-
+    std::map<int, DoseParameters> doseMap_;
     //float doseConstant_;
+
+    bool verbose_ = true;
 
 };
 
@@ -42,6 +53,7 @@ class HGCHEbackDigitizer : public HGCDigitizerBase<HGCalDataFrame>
   //calice-like digitization parameters
   float keV2MIP_, noise_MIP_;
   float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_;
+  std::string doseMapFile_;
   void runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,hgc::HGCSimHitDataAccumulator &simData,
                          const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
                          CLHEP::HepRandomEngine* engine);
