@@ -1,5 +1,4 @@
 <lcgdict>
-  <class name="Ref_Phase2TrackerDigi_" />
   <class name="std::vector<Ref_Phase2TrackerDigi_>" />
   <class name="TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
   <class name="TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
