@@ -30,9 +30,8 @@ class HGCHEbackSignalScaler
 
     const HGCalGeometry* hgcalGeom_;
     std::map<int, DoseParameters> doseMap_;
-    //float doseConstant_;
 
-    bool verbose_ = true;
+    bool verbose_ = false;
 
 };
 
