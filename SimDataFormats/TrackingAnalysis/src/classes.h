@@ -5,5 +5,4 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
 
