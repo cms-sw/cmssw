@@ -12,7 +12,7 @@
 
 //#define EDM_ML_DEBUG
 
-DDHGCalTBModuleX::DDHGCalTBModuleX() {
+DDHGCalTBModuleX::DDHGCalTBModuleX() : factor_(0.5*sqrt(2.0)) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX info: Creating instance";
 #endif
