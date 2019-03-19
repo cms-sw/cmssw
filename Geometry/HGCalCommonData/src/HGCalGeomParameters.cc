@@ -74,8 +74,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	if ((sol.shape() == DDSolidShape::ddpolyhedra_rz) ||
 	    (sol.shape() == DDSolidShape::ddpolyhedra_rrz)) {
 	  const DDPolyhedra& polyhedra = static_cast<DDPolyhedra>(sol);
-	  std::vector<double> rmin = polyhedra.rMinVec();
-	  std::vector<double> rmax = polyhedra.rMaxVec();
+	  const std::vector<double>& rmin = polyhedra.rMinVec();
+	  const std::vector<double>& rmax = polyhedra.rMaxVec();
 	  rin  = 0.5*HGCalParameters::k_ScaleFromDDD*(rmin[0]+rmin[1]);
 	  rout = 0.5*HGCalParameters::k_ScaleFromDDD*(rmax[0]+rmax[1]);
 	} else if (sol.shape() == DDSolidShape::ddtubs) {
