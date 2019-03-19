@@ -123,7 +123,7 @@ void IsFromLostTrackMapProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("lostTracks")->setComment("lost tracks collection");
 
   std::string modname;
-  modname="isFromLostTrack map producer";
+  modname="isFromLostTrackMapProducer";
   descriptions.add(modname,desc);
 
 }
