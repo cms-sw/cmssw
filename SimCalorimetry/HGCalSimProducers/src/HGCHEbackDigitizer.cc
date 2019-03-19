@@ -11,34 +11,72 @@
 using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
-#define PI 3.1415927
 
-HGCHEbackSignalScaler::HGCHEbackSignalScaler(const DetId id, const CaloSubdetectorGeometry* geom):
-  cellId_(id)
+HGCHEbackSignalScaler::HGCHEbackSignalScaler(const CaloSubdetectorGeometry* geom, const std::string& fullpath)
 {
   hgcalGeom_ = static_cast<const HGCalGeometry*>(geom);
+  doseMap_ = readDosePars(fullpath);
 }
 
-float HGCHEbackSignalScaler::scaleByArea()
+
+std::map<int, HGCHEbackSignalScaler::DoseParameters> HGCHEbackSignalScaler::readDosePars(const std::string& fullpath)
 {
-  float edge = computeEdge();
+  std::ifstream infile(fullpath.c_str());
+  if(!infile.is_open())
+  {
+    throw cms::Exception("FileNotFound") << "Unable to open '" << fullpath << "'" << std::endl;
+  }
+  std::map<int, DoseParameters> result;
+  std::string line;
+  while(getline(infile,line)){
+
+    int layer;
+    DoseParameters dosePars;
+
+		//space-separated
+		std::stringstream linestream(line);
+    linestream >> layer >> dosePars.a_ >>  dosePars.b_ >> dosePars.c_;
+
+		result[layer] = dosePars;
+	}
+	return result;
+}
+
+float HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId)
+{
+  float radius = computeRadius(cellId);
+  int layer = cellId.layer();
+  float cellDose = doseMap_[layer].a_ + doseMap_[layer].b_*radius + doseMap_[layer].c_*std::pow(radius,2);
+  //convert to kRad
+  cellDose /= 1000.;
+
+  float scaleFactor = std::exp( -std::pow(cellDose, 0.65) / 199.6 );
+
+  if(verbose_)
+  {
+    std::cout << "HGCHEbackSignalScaler::scaleByDose - Dose, scaleFactor: "
+              << cellDose << " "
+              << scaleFactor << std::endl;
+  }
+
+  return scaleFactor;
+}
+
+
+float HGCHEbackSignalScaler::scaleByArea(const HGCScintillatorDetId& cellId)
+{
+  float edge = computeEdge(cellId);
   float scaleFactor = 3. / edge;  //assume reference 3cm of edge
   return scaleFactor;
 }
 
-float HGCHEbackSignalScaler::scaleByDose()
+float HGCHEbackSignalScaler::computeEdge(const HGCScintillatorDetId& cellId)
 {
-  return 1;
-}
-
-float HGCHEbackSignalScaler::computeEdge()
-{
-  GlobalPoint global = hgcalGeom_->getPosition(cellId_);
-  float radius = sqrt( std::pow(global.x(), 2) + std::pow(global.y(), 2));
-  float circ = 2 * PI * radius;
+  float radius = computeRadius(cellId);
+  float circ = 2 * M_PI * radius;
 
   float edge(3.);
-  if(cellId_.type() == 0)
+  if(cellId.type() == 0)
   {
     edge = circ / 360; //1 degree
   }
@@ -47,23 +85,40 @@ float HGCHEbackSignalScaler::computeEdge()
     edge = circ / 288; //1.25 degrees
   }
 
+  if(verbose_)
+  {
+    std::cout << "HGCHEbackSignalScaler::computeEdge - Type, layer, edge, radius: "
+              << cellId.type() << " "
+              <<  cellId.layer() << " "
+              << edge << " "
+              << radius << std::endl;
+  }
+
   return edge;
+}
+
+float HGCHEbackSignalScaler::computeRadius(const HGCScintillatorDetId& cellId)
+{
+  GlobalPoint global = hgcalGeom_->getPosition(cellId);
+  float radius = sqrt( std::pow(global.x(), 2) + std::pow(global.y(), 2));
+  return radius;
 }
 
 
 
 
-//
+//--- the actual digitizer --------------------------------------------------------------------------------------------------
 HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
 {
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
   keV2MIP_   = cfg.getParameter<double>("keV2MIP");
   this->keV2fC_    = 1.0; //keV2MIP_; // hack for HEB
-  noise_MIP_ = cfg.getParameter<edm::ParameterSet>("noise_MIP").getParameter<double>("value");
-  nPEperMIP_ = cfg.getParameter<double>("nPEperMIP");
-  nTotalPE_  = cfg.getParameter<double>("nTotalPE");
-  xTalk_     = cfg.getParameter<double>("xTalk");
-  sdPixels_  = cfg.getParameter<double>("sdPixels");
+  noise_MIP_   = cfg.getParameter<edm::ParameterSet>("noise_MIP").getParameter<double>("value");
+  nPEperMIP_   = cfg.getParameter<double>("nPEperMIP");
+  nTotalPE_    = cfg.getParameter<double>("nTotalPE");
+  xTalk_       = cfg.getParameter<double>("xTalk");
+  sdPixels_    = cfg.getParameter<double>("sdPixels");
+  doseMapFile_ = cfg.getParameter<edm::FileInPath>("doseMap").fullPath();
 }
 
 //
@@ -123,6 +178,9 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
     zeroData.hit_info[0].fill(0.f); //accumulated energy
     zeroData.hit_info[1].fill(0.f); //time-of-flight
 
+    // needed to compute the radiation and geometry scale factors
+    HGCHEbackSignalScaler scal(theGeom, doseMapFile_);
+
     for( const auto& id : validIds ) {
 
       chargeColl.fill(0.f);
@@ -131,15 +189,17 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       HGCCellInfo& cell = ( simData.end() == it ? zeroData : it->second );
       addCellMetadata(cell,theGeom,id);
 
-      HGCHEbackSignalScaler scal(id, theGeom);
-
       for(size_t i=0; i<cell.hit_info[0].size(); ++i)
       {
         //convert total energy keV->MIP, since converted to keV in accumulator
          float totalIniMIPs( cell.hit_info[0][i]*keV2MIP_ );
          //take into account the different size of the tiles
-         totalIniMIPs *= scal.scaleByArea();
-         //FDG: darkening is still missing
+         totalIniMIPs *= scal.scaleByArea(id);
+         //take into account the darkening of the scintillator
+         if(doseMapFile_ != "")
+         {
+          totalIniMIPs *= scal.scaleByDose(id);
+         }
 
         //generate the number of photo-electrons from the energy deposit
         const uint32_t npeS = std::floor(CLHEP::RandPoissonQ::shoot(engine, totalIniMIPs * nPEperMIP_) + 0.5);
