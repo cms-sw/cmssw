@@ -7,11 +7,13 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-static const float R_ECAL           = 136.5;
-static const float Z_Endcap         = 328.0;
-static const float etaBarrelEndcap  = 1.479;
+static constexpr float R_ECAL           = 136.5;
+static constexpr float Z_Endcap         = 328.0;
+static constexpr float etaBarrelEndcap  = 1.479;
 
-double ECALPositionCalculator::ecalPhi(const MagneticField *magField,const math::XYZVector &momentum, const math::XYZPoint &vertex, int charge)
+namespace egammaTools {
+
+double ecalPhi(const MagneticField &magField,const math::XYZVector &momentum, const math::XYZPoint &vertex, const int charge)
 {
 
    // Get kinematic variables
@@ -27,7 +29,7 @@ double ECALPositionCalculator::ecalPhi(const MagneticField *magField,const math:
    const float ZENDM = 3.186 ;  	// was 3.15 , updated on 16122003
 
    float rbend = RBARM-(vRho/100.0); 	//Assumed vRho in cm
-   float bend  = 0.3 * magField->inTesla(GlobalPoint(0.,0.,0.)).z() * rbend / 2.0; 
+   float bend  = 0.3 * magField.inTesla(GlobalPoint(0.,0.,0.)).z() * rbend / 2.0; 
    float phi = 0.0;
 
    if( fabs(etaParticle) <=  etaBarrelEndcap)
@@ -66,7 +68,7 @@ double ECALPositionCalculator::ecalPhi(const MagneticField *magField,const math:
 
 }
 
-double ECALPositionCalculator::ecalEta(const math::XYZVector &momentum, const math::XYZPoint &vertex)
+double ecalEta(const math::XYZVector &momentum, const math::XYZPoint &vertex)
 {
 
    // Get kinematic variables
@@ -105,3 +107,4 @@ double ECALPositionCalculator::ecalEta(const math::XYZVector &momentum, const ma
 
 }
 
+}

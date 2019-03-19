@@ -20,11 +20,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
-
-
-
-class EcalClusterLocal;
 
 class RegressionHelper {
   public:
@@ -77,7 +72,6 @@ class RegressionHelper {
   const GBRForest * ecalRegErrorEndcap_ ;  
   const GBRForest * combinationReg_ ;
    
-  EcalClusterLocal ecl_;
 };
 
 #endif
