@@ -178,7 +178,7 @@ hgchebackDigitizer = cms.PSet(
         nTotalPE  = cms.double(7500),
         xTalk     = cms.double(0.2),
         sdPixels  = cms.double(1e-6), # this is additional photostatistics noise (as implemented), not sure why it's here...
-        doseMap   = cms.FileInPath("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt"), #FDG to be moved to the customization
+        doseMap   = cms.FileInPath(""),
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion       = cms.uint32(0),
@@ -277,6 +277,8 @@ def HGCal_setEndOfLifeNoise(process):
     process.HGCAL_noise_MIP = cms.PSet(
         value = cms.double( 1.0/5.0 )
         )
+    process.hgchebackDigitizer.digiCfg.doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt")
+
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])
         )

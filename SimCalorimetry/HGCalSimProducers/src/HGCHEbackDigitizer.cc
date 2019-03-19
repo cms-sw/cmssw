@@ -18,7 +18,6 @@ HGCHEbackSignalScaler::HGCHEbackSignalScaler(const CaloSubdetectorGeometry* geom
   doseMap_ = readDosePars(fullpath);
 }
 
-
 std::map<int, HGCHEbackSignalScaler::DoseParameters> HGCHEbackSignalScaler::readDosePars(const std::string& fullpath)
 {
   std::ifstream infile(fullpath.c_str());
@@ -28,32 +27,39 @@ std::map<int, HGCHEbackSignalScaler::DoseParameters> HGCHEbackSignalScaler::read
   }
   std::map<int, DoseParameters> result;
   std::string line;
-  while(getline(infile,line)){
-
+  while(getline(infile,line))
+  {
     int layer;
     DoseParameters dosePars;
 
-		//space-separated
-		std::stringstream linestream(line);
+    //space-separated
+    std::stringstream linestream(line);
     linestream >> layer >> dosePars.a_ >>  dosePars.b_ >> dosePars.c_;
 
-		result[layer] = dosePars;
-	}
-	return result;
+    result[layer] = dosePars;
+  }
+  return result;
 }
 
 float HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId)
 {
-  float radius = computeRadius(cellId);
+  float radius = computeRadius(cellId) / 100.; //radius in m
   int layer = cellId.layer();
-  float cellDose = doseMap_[layer].a_ + doseMap_[layer].b_*radius + doseMap_[layer].c_*std::pow(radius,2);
+  double cellDose = std::pow(10, doseMap_[layer].a_ + doseMap_[layer].b_*radius + doseMap_[layer].c_*std::pow(radius, 2)); //dose in rad
   //convert to kRad
   cellDose /= 1000.;
 
-  float scaleFactor = std::exp( -std::pow(cellDose, 0.65) / 199.6 );
+  double scaleFactor = std::exp( -std::pow(cellDose, 0.65) / 199.6 );
 
   if(verbose_)
   {
+    std::cout << "HGCHEbackSignalScaler::scaleByDose - layer, radius, a, b, c: "
+              << layer << " "
+              << radius << " "
+              << doseMap_[layer].a_ << " "
+              << doseMap_[layer].b_ << " "
+              << doseMap_[layer].c_ << std::endl;
+
     std::cout << "HGCHEbackSignalScaler::scaleByDose - Dose, scaleFactor: "
               << cellDose << " "
               << scaleFactor << std::endl;
