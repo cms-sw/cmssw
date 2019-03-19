@@ -1,7 +1,6 @@
 #ifndef HGCalCommonData_DDHGCalTBModuleX_h
 #define HGCalCommonData_DDHGCalTBModuleX_h
 
-#include <map>
 #include <string>
 #include <vector>
 #include "DetectorDescription/Core/interface/DDTypes.h"
