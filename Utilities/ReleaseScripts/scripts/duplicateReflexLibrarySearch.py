@@ -34,14 +34,13 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
-         {'TrajectoryState'       : ['TrajectoryStateOnSurface']},
-         {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
-                                       '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},
-         {'L1TrackTrigger'        : ['(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
+         {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
+         {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap).*Phase2TrackerDigi',
+                                       '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
          {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
-         {'PatCandidates'         : ['pat::PATObject','pat::Lepton', 'reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)', 'pat::UserHolder']},
+         {'PatCandidates'         : ['pat::PATObject','pat::Lepton']},
          {'BTauReco'              : ['reco::.*SoftLeptonTagInfo', 'reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo','reco::IPTagInfo','reco::TemplatedSecondaryVertexTagInfo', 'reco::CATopJetProperties','reco::HTTTopJetProperties']},
          {'CastorReco'            : ['reco::CastorJet']},
          {'JetMatching'           : ['reco::JetFlavourInfo', 'reco::JetFlavour','reco::MatchedPartons']},
@@ -73,6 +72,7 @@ equivDict = \
          {'TrackReco'             : ['reco::Track','reco::TrackRef']},
          {'VertexReco'            : ['reco::Vertex']},
          {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
+         {'PatCandidates'         : ['reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)']},
          {'TauReco'               : ['reco::PFJetRef']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
          {'HGCDigi'               : ['HGCSample']},
