@@ -37,9 +37,9 @@ protected:
 
 private:
 
-  static constexpr double factor_    = 0.5*sqrt(2.0);
   static constexpr double tolerance_ = 0.00001;
   static constexpr double tan30deg_  = tan(30._deg);
+  const double factor_;
 
   std::vector<std::string> wafer_;        //Wafers
   std::vector<std::string> covers_;       //Insensitive layers of hexagonal size
