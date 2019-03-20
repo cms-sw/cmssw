@@ -8,6 +8,7 @@ using namespace edm;
 
 HGCalValidator::HGCalValidator(const edm::ParameterSet& pset):
   label(pset.getParameter< std::vector<edm::InputTag> >("label")),
+  SaveGeneralInfo_(pset.getUntrackedParameter<bool>("SaveGeneralInfo")),
   doCaloParticlePlots_(pset.getUntrackedParameter<bool>("doCaloParticlePlots")),
   dolayerclustersPlots_(pset.getUntrackedParameter<bool>("dolayerclustersPlots")),
   cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo"))
@@ -75,6 +76,12 @@ HGCalValidator::~HGCalValidator() {}
 
 
 void HGCalValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm::Run const&, edm::EventSetup const& setup, Histograms& histograms) const {
+
+  if (SaveGeneralInfo_){
+    ibook.cd();
+    ibook.setCurrentFolder(dirName_ + "GeneralInfo");
+    histoProducerAlgo_->bookInfo(ibook, histograms.histoProducerAlgo);
+  }
 
   if(doCaloParticlePlots_) {
     ibook.cd();
@@ -163,6 +170,11 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event, const edm::EventSetup& 
 
   std::map<DetId, const HGCRecHit* > hitMap;
   fillHitMap(hitMap, *recHitHandleEE,*recHitHandleFH,*recHitHandleBH);
+  
+  //Some general info on layers etc. 
+  if (SaveGeneralInfo_){
+    histoProducerAlgo_->fill_info_histos(histograms.histoProducerAlgo,totallayers_to_monitor_);
+  }
 
   // ##############################################
   // fill caloparticles histograms

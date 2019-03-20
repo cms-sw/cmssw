@@ -132,6 +132,17 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset) :
 
 HGVHistoProducerAlgo::~HGVHistoProducerAlgo() {}
 
+void HGVHistoProducerAlgo::bookInfo(DQMStore::ConcurrentBooker& ibook, Histograms& histograms) {
+
+  histograms.lastLayerEEzm = ibook.bookInt("lastLayerEEzm");
+  histograms.lastLayerFHzm = ibook.bookInt("lastLayerFHzm");
+  histograms.maxlayerzm    = ibook.bookInt("maxlayerzm"); 
+  histograms.lastLayerEEzp = ibook.bookInt("lastLayerEEzp"); 
+  histograms.lastLayerFHzp = ibook.bookInt("lastLayerFHzp"); 
+  histograms.maxlayerzp    = ibook.bookInt("maxlayerzp"); 
+
+}
+
 void HGVHistoProducerAlgo::bookCaloParticleHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms,int pdgid) {
 
   histograms.h_caloparticle_eta[pdgid] = ibook.book1D("num_caloparticle_eta","N of caloparticle vs eta",nintEta_,minEta_,maxEta_);
@@ -257,8 +268,20 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::ConcurrentBooker& ibook, 
   }
   //---------------------------------------------------------------------------------------------------------------------------
 
+}
 
-
+void HGVHistoProducerAlgo::fill_info_histos(const Histograms& histograms, unsigned layers) const {
+  
+  //We will save some info straight from geometry to avoid mistakes from updates
+  //----------- TODO ----------------------------------------------------------
+  //For now values returned for 'lastLayerFHzp': '104', 'lastLayerFHzm': '52' are not the one expected. 
+  //Will come back to this when there will be info in CMSSW to put in DQM file.  
+  histograms.lastLayerEEzm.fill( recHitTools_->lastLayerEE() );    
+  histograms.lastLayerFHzm.fill( recHitTools_->lastLayerFH() );
+  histograms.maxlayerzm.fill( layers );
+  histograms.lastLayerEEzp.fill( recHitTools_->lastLayerEE() + layers );
+  histograms.lastLayerFHzp.fill( recHitTools_->lastLayerFH() + layers);
+  histograms.maxlayerzp.fill( layers + layers);
 
 }
 

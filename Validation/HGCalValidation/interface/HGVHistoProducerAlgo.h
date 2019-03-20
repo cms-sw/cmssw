@@ -27,6 +27,19 @@
 #include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 
 struct HGVHistoProducerAlgoHistograms {
+  //Info
+  //To be able to spot any issues both in -z and +z a layer id was introduced 
+  //that spans from 0 to 103 for hgcal_v9 geometry. The mapping for hgcal_v9 is: 
+  //-z: 0->51
+  //+z: 52->103
+  //We will pick the numbers below from RecHitTools just to avoid future problems
+  ConcurrentMonitorElement lastLayerEEzm; // last layer of EE -z
+  ConcurrentMonitorElement lastLayerFHzm; // last layer of FH -z
+  ConcurrentMonitorElement maxlayerzm; // last layer of BH -z
+  ConcurrentMonitorElement lastLayerEEzp; // last layer of EE +z
+  ConcurrentMonitorElement lastLayerFHzp; // last layer of FH +z
+  ConcurrentMonitorElement maxlayerzp; // last layer of BH +z
+
   //1D
   std::vector<ConcurrentMonitorElement>  h_cluster_eta;
   std::vector<ConcurrentMonitorElement>  h_mixedhitscluster_zminus;
@@ -87,6 +100,7 @@ class HGVHistoProducerAlgo {
 
   using Histograms = HGVHistoProducerAlgoHistograms;
 
+  void bookInfo(DQMStore::ConcurrentBooker& ibook, Histograms& histograms);
   void bookCaloParticleHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms,int pdgid);
 
   void bookClusterHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms,unsigned layers, 
@@ -96,6 +110,7 @@ class HGVHistoProducerAlgo {
       std::vector<CaloParticle> const & cP,
       std::map<DetId, const HGCRecHit*> const &,
       unsigned layers) const ;
+  void fill_info_histos(const Histograms& histograms, unsigned layers) const;
   void fill_caloparticle_histos(const Histograms& histograms,
 				int pdgid,
 				const CaloParticle & caloparticle,

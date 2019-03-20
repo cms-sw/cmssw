@@ -15,6 +15,8 @@ hgcalValidator = cms.EDAnalyzer(
     #label = cms.VInputTag(cms.InputTag("hgcalLayerClusters"), cms.InputTag("particleFlowClusterHGCal"), cms.InputTag("hgcalMultiClusters") ),
     label = cms.VInputTag(cms.InputTag("hgcalLayerClusters")),
     
+    #General info on layers etc. 
+    SaveGeneralInfo = cms.untracked.bool(True),
     #CaloParticle related plots
     doCaloParticlePlots = cms.untracked.bool(True),
     dolayerclustersPlots = cms.untracked.bool(True),
