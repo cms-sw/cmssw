@@ -55,6 +55,7 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
  protected:
 
   std::vector<edm::InputTag> label;
+  const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
   const bool dolayerclustersPlots_;
   const edm::FileInPath cummatbudinxo_;
