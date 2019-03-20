@@ -111,6 +111,13 @@ EDAnalyzerAdaptorBase::updateLookup(BranchType iType,
   }
 }
 
+void
+EDAnalyzerAdaptorBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
+  for(auto mod: m_streamModules) {
+    mod->updateLookup(iPI);
+  }
+}
+
 const edm::EDConsumerBase*
 EDAnalyzerAdaptorBase::consumer() const {
   return m_streamModules[0];

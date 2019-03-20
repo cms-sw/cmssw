@@ -46,6 +46,7 @@ namespace edm::eventsetup {
       return std::numeric_limits<unsigned int>::max();
     }
 
+    unsigned int recordIndexFor(EventSetupRecordKey const& iRK) const noexcept;
     // ---------- member functions ---------------------------
     ///This should be called for all records in the list passed to the constructor and
     /// in the same order as the list.

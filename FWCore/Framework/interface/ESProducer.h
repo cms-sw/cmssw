@@ -87,6 +87,7 @@ Example: two algorithms each creating only one objects
 namespace edm {
   namespace eventsetup {
 
+    class ESRecordsToProxyIndices;
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
     //  the argument as the decorator itself
@@ -107,6 +108,7 @@ namespace edm {
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
+    void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
   protected:
     /** \param iThis the 'this' pointer to an inheriting class instance
         The method determines the Record argument and return value of the 'produce'
@@ -210,6 +212,10 @@ namespace edm {
     }
 
     std::vector<std::unique_ptr<ESConsumesInfo>> consumesInfos_;
+    std::vector<std::vector<int>> itemsToGetFromRecords_;
+    //need another structure to say which reocrd to get the data from in
+    // order to make prefetching work
+    std::vector<std::vector<int>> recordsUsedDuringGet_;
   };
 }
 #endif

@@ -20,6 +20,8 @@
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Likely.h"
@@ -194,6 +196,30 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
   itemsToGet(iBranchType, itemsToGetFromBranch_[iBranchType]);
   if(iPrefetchMayGet) {
     itemsMayGet(iBranchType, itemsToGetFromBranch_[iBranchType]);
+  }
+}
+
+void
+EDConsumerBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
+  unsigned int index=0;
+  for(auto it = m_esTokenInfo.begin<kESLookupInfo>();
+      it !=m_esTokenInfo.end<kESLookupInfo>(); ++it,++index) {
+    eventsetup::DataKey dataKey{it->m_dataType,
+                            &(m_tokenLabels[it->m_startOfName]),
+      eventsetup::DataKey::kDoNotCopyMemory
+    };
+    auto indexInRecord = iPI.indexInRecord(it->m_record,
+                                           dataKey );
+    if(indexInRecord != eventsetup::ESRecordsToProxyIndices::missingIndex()) {
+      const char* componentName =&(m_tokenLabels[it->m_startOfComponentName]);
+      if(componentName) {
+        auto component = iPI.component(it->m_record, dataKey);
+        if(component->label_ != componentName) {
+          indexInRecord =eventsetup::ESRecordsToProxyIndices::missingIndex();
+        }
+      }
+    }
+    m_esTokenInfo.get<kESProxyIndex>(index) = indexInRecord;
   }
 }
 

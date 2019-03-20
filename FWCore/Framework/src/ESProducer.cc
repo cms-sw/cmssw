@@ -14,6 +14,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 
 
 //
@@ -56,6 +57,32 @@ ESProducer::~ESProducer() noexcept(false)
 //
 // member functions
 //
+  void
+  ESProducer::updateLookup(eventsetup::ESRecordsToProxyIndices const& iProxyToIndices) {
+    itemsToGetFromRecords_.reserve(consumesInfos_.size());
+    recordsUsedDuringGet_.reserve(consumesInfos_.size());
+    
+    for(auto& info: consumesInfos_) {
+      auto & items = itemsToGetFromRecords_.emplace_back();
+      items.reserve(info->size());
+      auto & records =recordsUsedDuringGet_.emplace_back();
+      records.reserve(info->size());
+      for(auto& proxyInfo: *info) {
+        auto index = iProxyToIndices.indexInRecord(std::get<0>(proxyInfo),std::get<1>(proxyInfo) );
+        if(index != eventsetup::ESRecordsToProxyIndices::missingIndex()) {
+          if(not std::get<2>(proxyInfo).empty()) {
+            if( nullptr == iProxyToIndices.component(std::get<0>(proxyInfo),std::get<1>(proxyInfo)) ) {
+              index = eventsetup::ESRecordsToProxyIndices::missingIndex();
+            }
+          }
+        }
+        items.push_back(index);
+        if(index != eventsetup::ESRecordsToProxyIndices::missingIndex()) {
+          records.push_back(iProxyToIndices.recordIndexFor(std::get<0>(proxyInfo)));
+        }
+      }
+    }
+  }
 
 //
 // const member functions

@@ -54,6 +54,10 @@ namespace edm {
     template<typename T> class ModuleHolderT;
   }
   
+  namespace eventsetup {
+    class ESRecordsToProxyIndices;
+  }
+  
   namespace stream {
     template<typename T>
     class ProducingModuleAdaptorBase
@@ -90,6 +94,7 @@ namespace edm {
       void updateLookup(BranchType iBranchType,
                         ProductResolverIndexHelper const&,
                         bool iPrefetchMayGet);
+      void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
 
       void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                            ProductRegistry const& preg,

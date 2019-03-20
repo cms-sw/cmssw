@@ -52,6 +52,10 @@ namespace edm {
     template<typename T> class ModuleHolderT;
   }
   
+  namespace eventsetup {
+    class ESRecordsToProxyIndices;
+  }
+  
   namespace stream {
     class EDAnalyzerBase;
 
@@ -96,6 +100,7 @@ namespace edm {
       void updateLookup(BranchType iBranchType,
                         ProductResolverIndexHelper const&,
                         bool iPrefetchMayGet);
+      void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
       
       const EDConsumerBase* consumer() const;
       
