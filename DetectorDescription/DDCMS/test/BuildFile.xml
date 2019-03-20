@@ -1,6 +1,7 @@
 <use   name="cppunit"/>
 <bin   name="testDDFilteredView" file="DDFilteredView.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
 </bin>
 <bin   name="testFilter" file="Filter.cppunit.cc,testRunner.cpp">
   <use name="DetectorDescription/DDCMS"/>
