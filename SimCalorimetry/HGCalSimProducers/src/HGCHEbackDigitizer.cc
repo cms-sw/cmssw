@@ -41,21 +41,24 @@ std::map<int, HGCHEbackSignalScaler::DoseParameters> HGCHEbackSignalScaler::read
   return result;
 }
 
-float HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId)
+double HGCHEbackSignalScaler::getDoseValue(const HGCScintillatorDetId& cellId)
 {
   float radius = computeRadius(cellId) / 100.; //radius in m
   int layer = cellId.layer();
   double cellDose = std::pow(10, doseMap_[layer].a_ + doseMap_[layer].b_*radius + doseMap_[layer].c_*std::pow(radius, 2)); //dose in rad
-  //convert to kRad
-  cellDose /= 1000.;
+  return cellDose/1000.; //convert to kRad
+}
 
+float HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId)
+{
+  double cellDose = getDoseValue(cellId); //in kRad
   double scaleFactor = std::exp( -std::pow(cellDose, 0.65) / 199.6 );
 
   if(verbose_)
   {
-    std::cout << "HGCHEbackSignalScaler::scaleByDose - layer, radius, a, b, c: "
+    int layer = cellId.layer();
+    std::cout << "HGCHEbackSignalScaler::scaleByDose - layer, a, b, c: "
               << layer << " "
-              << radius << " "
               << doseMap_[layer].a_ << " "
               << doseMap_[layer].b_ << " "
               << doseMap_[layer].c_ << std::endl;
@@ -84,11 +87,11 @@ float HGCHEbackSignalScaler::computeEdge(const HGCScintillatorDetId& cellId)
   float edge(3.);
   if(cellId.type() == 0)
   {
-    edge = circ / 360; //1 degree
+    edge = circ / 360.; //1 degree
   }
   else
   {
-    edge = circ / 288; //1.25 degrees
+    edge = circ / 288.; //1.25 degrees
   }
 
   if(verbose_)
