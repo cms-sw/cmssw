@@ -304,7 +304,6 @@ EventSetupProvider::finishConfiguration()
          recProvider->add(*itProvider);
       }
    }
-   dataProviders_.reset();
 
    eventSetup_.setKeyIters(recordKeys_.begin(), recordKeys_.end());
 
@@ -360,6 +359,13 @@ EventSetupProvider::finishConfiguration()
          itRecordProvider->setDependentProviders(depProviders);
       }
    }
+
+   auto indices = recordsToProxyIndices();
+   for(auto& provider: *dataProviders_) {
+      provider->updateLookup(indices);
+   }
+   dataProviders_.reset();
+
    mustFinishConfiguration_ = false;
 }
 

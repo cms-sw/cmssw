@@ -68,6 +68,16 @@ namespace edm::eventsetup {
     return std::distance(dataKeys_.begin()+beginOffset, itDK);
   }
   
+  unsigned int
+  ESRecordsToProxyIndices::recordIndexFor(EventSetupRecordKey const& iRK) const noexcept {
+    auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);
+    if( it == recordKeys_.end() or *it != iRK) {
+      return missingIndex();
+    }
+    return it-recordKeys_.begin();
+  }
+
+  
   ComponentDescription const*
   ESRecordsToProxyIndices::component(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept {
     auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);

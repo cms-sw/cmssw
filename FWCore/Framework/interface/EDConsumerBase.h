@@ -52,6 +52,10 @@ namespace edm {
   class ProductRegistry;
   class ConsumesCollector;
   template<typename T> class WillGetIfMatch;
+  
+  namespace eventsetup {
+    class ESRecordsToProxyIndices;
+  }
 
   class EDConsumerBase
   {
@@ -90,6 +94,7 @@ namespace edm {
     void updateLookup(BranchType iBranchType,
                       ProductResolverIndexHelper const&,
                       bool iPrefetchMayGet);
+    void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
 
     typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;

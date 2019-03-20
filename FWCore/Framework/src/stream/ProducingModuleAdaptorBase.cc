@@ -141,6 +141,13 @@ namespace edm {
         mod->updateLookup(iType,iHelper,iPrefetchMayGet);
       }
     }
+    template< typename T>
+    void
+    ProducingModuleAdaptorBase<T>::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
+      for(auto mod: m_streamModules) {
+        mod->updateLookup(iPI);
+      }
+    }
 
     template< typename T>
     void
