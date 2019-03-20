@@ -349,7 +349,7 @@ highBetaStar_2018.toReplaceWith(pixelPairStep, TrackMVAClassifierPrompt.clone(
 
 pp_on_AA_2018.toReplaceWith(pixelPairStep, TrackMVAClassifierPrompt.clone( 
     src='pixelPairStepTracks',
-    qualityCuts = [-0.2, 0.0, 0.9],
+    qualityCuts = [-0.2, 0.0, 0.98],
     mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1') 
 ))
 
