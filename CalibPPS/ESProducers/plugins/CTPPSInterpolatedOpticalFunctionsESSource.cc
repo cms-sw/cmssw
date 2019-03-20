@@ -76,7 +76,7 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
   // is crossing angle reasonable (LHCInfo is correctly filled in DB)?
   if (currentCrossingAngle_ == 0.)
   {
-    edm::LogWarning("CTPPSInterpolatedOpticalFunctionsESSource") << "Invalid crossing angle, no optical functions produced.";
+    edm::LogInfo("CTPPSInterpolatedOpticalFunctionsESSource") << "Invalid crossing angle, no optical functions produced.";
 
     currentDataValid_ = false;
     currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
@@ -91,7 +91,7 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
   // is input optics available ?
   if (hOFColl->empty())
   {
-    edm::LogWarning("CTPPSInterpolatedOpticalFunctionsESSource") << "No input optics available, no optical functions produced.";
+    edm::LogInfo("CTPPSInterpolatedOpticalFunctionsESSource") << "No input optics available, no optical functions produced.";
 
     currentDataValid_ = false;
     currentData_ = std::make_shared<LHCInterpolatedOpticalFunctionsSetCollection>();
