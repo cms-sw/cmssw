@@ -96,10 +96,8 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     }
   }
 
+  useTriple=false;
   if(tstrig >= ts4Thresh_ && tsTOT > 0) {
-
-    useTriple=false;
-
     // only do pre-fit with 1 pulse if chiSq threshold is positive
     if (chiSqSwitch_>0) {
       doFit(reconstructedVals,1);
