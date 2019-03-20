@@ -15,8 +15,9 @@
             hepmc_rootio::clear_particles_in(newObj);
 ]]>
  </ioread>
-	<class name="HepMC::GenParticle" ClassVersion="10">
+	<class name="HepMC::GenParticle" ClassVersion="11">
   <version ClassVersion="10" checksum="3138667414"/>
+  <version ClassVersion="11" checksum="3138667414"/>
 		<!-- <field name="itsParticleData" transient="true"/> -->
 		<!-- <field name="itsDecayData" transient="true"/> -->
 	</class>
