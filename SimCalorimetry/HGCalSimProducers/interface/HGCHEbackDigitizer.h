@@ -22,6 +22,7 @@ class HGCHEbackSignalScaler
 
     float scaleByArea(const HGCScintillatorDetId&);
     float scaleByDose(const HGCScintillatorDetId&);
+    double getDoseValue(const HGCScintillatorDetId&);
 
   private:
     std::map<int, DoseParameters> readDosePars(const std::string&);
