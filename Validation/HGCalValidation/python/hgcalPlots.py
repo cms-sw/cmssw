@@ -1221,6 +1221,104 @@ for i in range(maxlayerzm,maxlayerzp):
   _energyscore_lc2cp_zplus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))
 #_energyclustered =
 
+#--------------------------------------------------------------------------------------------
+# MULTICLUSTERS
+#--------------------------------------------------------------------------------------------
+_common_score = {"title": "Score CaloParticle to MultiClusters",
+                 "stat": False,
+                 "ymin": 0.1,
+                 "ymax": 1000,
+                 "xmin": 0,
+                 "xmax": 1,
+                 "drawStyle": "hist",
+                 "lineWidth": 1,
+                 "ylog": True
+                }
+_common_score.update(_legend_common)
+_score_caloparticle_to_multiclusters = PlotGroup("score_caloparticle_to_multicluster", [
+        Plot("Score_caloparticle2multicl", **_common_score) 
+        ])
+
+_common_score = {"title": "Score MultiCluster to CaloParticles",
+                 "stat": False,
+                 "ymin": 0.1,
+                 "ymax": 1000,
+                 "xmin": 0,
+                 "xmax": 1,
+                 "drawStyle": "hist",
+                 "lineWidth": 1,
+                 "ylog": True
+                }
+_common_score.update(_legend_common)
+_score_multicluster_to_caloparticles = PlotGroup("score_multicluster_to_caloparticle", [
+        Plot("Score_multicl2caloparticle", **_common_score) 
+        ])
+
+_common_shared= {"title": "Shared Energy CaloParticle To Multi Cluster ",
+                 "stat": False,
+                 "legend": False,
+                }
+_common_shared.update(_legend_common)
+_shared_plots = [ Plot("SharedEnergy_caloparticle2multicl", **_common_shared) ]
+_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_eta", **_common_shared)])
+_shared_plots.extend([Plot("SharedEnergy_caloparticle2multicl_vs_phi", **_common_shared)])
+_sharedEnergy_caloparticle_to_multicluster = PlotGroup("sharedEnergy_caloparticle_to_multicluster", _shared_plots, ncols=3)
+
+_common_shared= {"title": "Shared Energy Multi Cluster To CaloParticle ",
+                 "stat": False,
+                 "legend": False,
+                }
+_common_shared.update(_legend_common)
+_shared_plots2 = [Plot("SharedEnergy_multicluster2caloparticle", **_common_shared)]
+_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_eta", **_common_shared)])
+_shared_plots2.extend([Plot("SharedEnergy_multicl2caloparticle_vs_phi", **_common_shared)])
+_sharedEnergy_multicluster_to_caloparticle = PlotGroup("sharedEnergy_multicluster_to_caloparticle", _shared_plots2, ncols=3)
+
+
+_common_assoc = {#"title": "Cell Association Table",
+                 "stat": False,
+                 "legend": False,
+                 "xbinlabels": ["", "TN(pur)", "FN(ineff.)", "FP(fake)", "TP(eff)"],
+                 "xbinlabeloption": "h",
+                 "drawStyle": "hist",
+                 "ymin": 0.1,
+                 "ymax": 10000,
+                 "ylog": True}
+_common_assoc.update(_legend_common)
+_cell_association_table = PlotGroup("cellAssociation_table", [
+        Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzm)
+        ], ncols=8 )
+
+_common_eff = {"stat": False, "legend": False}
+_effplots = [Plot("effic_eta", xtitle="", **_common_eff)]
+_effplots.extend([Plot("effic_phi", xtitle="", **_common_eff)])
+_effplots.extend([Plot("globalEfficiencies", xtitle="", **_common_eff)])
+_efficiencies = PlotGroup("Efficiencies", _effplots, ncols=3)
+
+
+_common_dup = {"stat": False, "legend": False, "title": "Global Duplicates", "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_dupplots = [Plot("duplicate_eta", xtitle="", **_common_dup)]
+_dupplots.extend([Plot("duplicate_phi", xtitle="", **_common_dup)])
+_dupplots.extend([Plot("globalEfficiencies", xtitle="", **_common_dup)])
+_duplicates = PlotGroup("Duplicates", _dupplots, ncols=3)
+
+_common_fake = {"stat": False, "legend": False, "title": "Global Fake Rates", "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_fakeplots = [Plot("fake_eta", xtitle="", **_common_fake)]
+_fakeplots.extend([Plot("fake_phi", xtitle="", **_common_fake)])
+_fakeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_fake)])
+_fakes = PlotGroup("FakeRate", _fakeplots, ncols=3)
+
+_common_merge = {"stat": False, "legend": False, "title": "Global Merge Rates", "xbinlabelsize": 12, "xbinlabeloptions": "v"}
+_mergeplots = [Plot("merge_eta", xtitle="", **_common_merge)]
+_mergeplots.extend([Plot("merge_phi", xtitle="", **_common_merge)])
+_mergeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_merge)])
+_merges = PlotGroup("MergeRate", _mergeplots, ncols=3)
+
+_common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d")
+_energyscore_cp2mcl = [PlotOnSideGroup("energyscore",Plot("Energy_vs_Score_caloparticle2multi", drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score))]
+_energyscore_mcl2cp = [PlotOnSideGroup("energyscore",Plot("Energy_vs_Score_multi2caloparticle", drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score))]
+#_energyclustered =
+
 #=================================================================================================
 hgcalLayerClustersPlotter = Plotter()
 #We follow Chris categories in folders
@@ -1713,4 +1811,104 @@ for i,item in enumerate(_energyscore_lc2cp_zplus, start=1):
               item,
               loopSubFolders=False,
               purpose=PlotPurpose.Timing, page="Energy_vs_Score_LC2CP_zplus"))
+
+#=================================================================================================
+hgcalMultiClustersPlotter = Plotter()
+# [A] Score of CaloParticles wrt Multi Clusters
+hgcalMultiClustersPlotter.append("ScoreCaloParticlesToMultiClusters", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _score_caloparticle_to_multiclusters,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="ScoreCaloParticlesToMultiClusters"))
+
+# [B] Score of MultiClusters wrt CaloParticles
+hgcalMultiClustersPlotter.append("ScoreMultiClustersToCaloParticles", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _score_multicluster_to_caloparticles,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="ScoreMultiClustersToCaloParticles"))
+
+# [C] Shared Energy between CaloParticle and MultiClusters
+hgcalMultiClustersPlotter.append("SharedEnergy", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _sharedEnergy_caloparticle_to_multicluster,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="SharedEnergyCaloParticleToMultiCluster"))
+
+# [C2] Shared Energy between MultiClusters and CaloParticle
+hgcalMultiClustersPlotter.append("SharedEnergy", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _sharedEnergy_multicluster_to_caloparticle,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="SharedEnergyMultiClusterToCaloParticle"))
+
+# [D] Cell Association per Multi
+# z-
+hgcalMultiClustersPlotter.append("CellAssociation_zminus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _cell_association_table_zminus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="CellAssociation_zminus"))
+
+# z+
+hgcalMultiClustersPlotter.append("CellAssociation_zplus", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _cell_association_table_zplus,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="CellAssociation_zplus"))
+
+# [E] Efficiency Plots
+hgcalMultiClustersPlotter.append("Efficiencies", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _efficiencies,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Efficiencies"))
+
+# [F] Duplicate Plots
+hgcalMultiClustersPlotter.append("Duplicates", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _duplicates,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Duplicates"))
+
+# [G] Fake Rate Plots
+hgcalMultiClustersPlotter.append("FakeRate", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _fakes,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Fakes"))
+
+# [H] Merge Rate Plots
+hgcalMultiClustersPlotter.append("MergeRate", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _merges,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Merges"))
+'''
+# [I] Energy vs Score 2D plots CP to MCL
+hgcalMultiClustersPlotter.append("Energy_vs_Score_CP2MCL", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _energyscore_cp2mcl,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Energy_vs_Score_CP2MCL"))
+
+# [J] Energy vs Score 2D plots MCL to CP
+hgcalMultiClustersPlotter.append("Energy_vs_Score_MCL2CP", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _energyscore_mcl2cp,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="Energy_vs_Score_MCL2CP"))
+'''
 
