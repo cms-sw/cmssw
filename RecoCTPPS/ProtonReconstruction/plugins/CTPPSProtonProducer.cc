@@ -130,7 +130,7 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     currentCrossingAngle_ = hLHCInfo->crossingAngle();
 
     if (hOpticalFunctions->empty()) {
-      edm::LogWarning("CTPPSProtonProducer") << "No optical functions available, reconstruction disabled.";
+      edm::LogInfo("CTPPSProtonProducer") << "No optical functions available, reconstruction disabled.";
       algorithm_.release();
       opticsValid_ = false;
     }
