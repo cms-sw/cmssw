@@ -255,7 +255,7 @@ PFRecoTauDiscriminationAgainstMuonMVA::fillDescriptions(edm::ConfigurationDescri
   desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfTauProducer"));
   desc.add<int>("verbosity", 0);
   desc.add<bool>("returnMVA", true);
-  desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/test/dummyMVAinputFile"));
+  desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
   desc.add<bool>("loadMVAfromDB", true);
   {
     edm::ParameterSetDescription psd0;

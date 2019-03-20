@@ -315,7 +315,7 @@ RecoTauDiscriminantCutMultiplexer::fillDescriptions(edm::ConfigurationDescriptio
   // RecoTauTag/Configuration/python/HPSPFTaus_cff.py:hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone()
   // RecoTauTag/Configuration/python/HPSPFTaus_cff.py:hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBdR03oldDMwLTv1_WPEff80")
 
-  desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/test/dummyMVAinputFile"));
+  desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
   desc.add<bool>("loadMVAfromDB", true);
   {
     edm::ParameterSetDescription prediscriminants;

@@ -156,12 +156,6 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
    endEvent(event);
 }
 
-//template<class TauType, class TauDiscriminator>
-//void TauDiscriminationProducerBase<TauType, TauDiscriminator>::fillProducerDescriptions(edm::ParameterSetDescription desc) {
-//template<>
-//void TauDiscriminationProducerBase::fillProducerDescriptions(edm::ParameterSetDescription desc) {
-//void TauDiscriminationProducerBase<TauType, TauDiscriminator>::fillProducerDescriptions(edm::ParameterSetDescription& desc) {
-//void TauDiscriminationProducerBase::fillProducerDescriptions(edm::ParameterSetDescription& desc) {
 template<class TauType, class TauDiscriminator>
 void TauDiscriminationProducerBase<TauType, TauDiscriminator>::fillProducerDescriptions(edm::ParameterSetDescription& desc) {
   // helper function, it fills the description of the Producers parameter

@@ -68,7 +68,7 @@ discriminationByIsolationMVArun2v1raw = cms.EDProducer("PFRecoTauDiscriminationB
     #  2) a track OR a pi-zero in the signal cone has pT > 5 GeV
     Prediscriminants = requireLeadTrack,
     loadMVAfromDB = cms.bool(True),
-    inputFileName = cms.FileInPath("RecoTauTag/RecoTau/test/dummyMVAinputFile"), # the filename for MVA if it is not loaded from DB
+    inputFileName = cms.FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"), # the filename for MVA if it is not loaded from DB
     mvaName = cms.string("tauIdMVAnewDMwLT"),
     mvaOpt = cms.string("newDMwLT"),
 
