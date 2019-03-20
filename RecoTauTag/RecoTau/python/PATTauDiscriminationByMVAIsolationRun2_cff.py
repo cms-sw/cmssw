@@ -13,7 +13,7 @@ patDiscriminationByIsolationMVArun2v1raw = cms.EDProducer("PATTauDiscriminationB
     PATTauProducer = cms.InputTag('replaceMeByTauCollectionToBeUsed'), # in MiniAOD: slimmedTaus
     Prediscriminants = noPrediscriminants,
     loadMVAfromDB = cms.bool(True),
-    inputFileName = cms.FileInPath("RecoTauTag/RecoTau/test/dummyMVAinputFile"), # the filename for MVA if it is not loaded from DB
+    inputFileName = cms.FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"), # the filename for MVA if it is not loaded from DB
     mvaName = cms.string("replaceMeByNameOfMVATraining"), # e.g. RecoTauTag_tauIdMVADBoldDMwLTv1
     mvaOpt = cms.string("replaceMeByMVAOption"), # e.g. DBoldDMwLT
     

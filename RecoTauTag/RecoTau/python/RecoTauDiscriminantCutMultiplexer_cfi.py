@@ -23,7 +23,7 @@ recoTauDiscriminantCutMultiplexer = cms.EDProducer(
         ),
     key = cms.InputTag("fixme"), # a discriminator
     loadMVAfromDB = cms.bool(True),
-    inputFileName = cms.FileInPath("RecoTauTag/RecoTau/test/dummyMVAinputFile"), # the filename for MVA if it is not loaded from DB
+    inputFileName = cms.FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"), # the filename for MVA if it is not loaded from DB
     mvaOutput_normalization = cms.string(""), # empty basicaly does nothing: it rewrites the attribute which is initialized as empty string
     mapping = cms.VPSet(
         cms.PSet(

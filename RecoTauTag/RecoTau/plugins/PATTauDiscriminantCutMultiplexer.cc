@@ -291,7 +291,7 @@ PATTauDiscriminantCutMultiplexer::fillDescriptions(edm::ConfigurationDescription
     vpset_mapping.setAllowAnything(); //option cut can be double or (string plus additional option variable)
     desc.addVPSet("mapping", vpset_mapping);
   }
-  desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/test/dummyMVAinputFile"));
+  desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
   desc.add<bool>("loadMVAfromDB", true);
   {
     edm::ParameterSetDescription psd0;
