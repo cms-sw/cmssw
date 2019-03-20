@@ -8,6 +8,10 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_data")
 
+# TODO: these lines can be useful before all necessary data available in DB with an auto GT
+#process.GlobalTag = GlobalTag(process.GlobalTag, "105X_dataRun2_relval_v2")
+#process.alignmentEsPrefer = cms.ESPrefer("PoolDBESSource", "GlobalTag")
+
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
   statistics = cms.untracked.vstring(),
