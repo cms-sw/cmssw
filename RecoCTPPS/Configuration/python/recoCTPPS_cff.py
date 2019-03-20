@@ -10,7 +10,8 @@ from RecoCTPPS.ProtonReconstruction.ctppsProtons_cfi import *
 
 from Geometry.VeryForwardGeometry.geometryRPFromDB_cfi import *
 
-# TODO: remove these lines once optical functions and LHCInfo are available in DB
+# TODO: remove these lines once conditions data are available in DB
+from CalibPPS.ESProducers.ctppsAlignment_cff import *
 from CalibPPS.ESProducers.ctppsOpticalFunctions_cff import *
 ctppsProtons.lhcInfoLabel = ctppsLHCInfoLabel
 
