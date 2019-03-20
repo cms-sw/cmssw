@@ -25,7 +25,7 @@ namespace cms {
   
   struct Filter {
     std::vector<std::string_view> keys;
-    struct std::unique_ptr<Filter> next;
+    std::unique_ptr<Filter> next;
     struct Filter* up;
   };
 
