@@ -1,9 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 
-def create_supertriggercell(process, inputs):
-    producer = process.hgcalConcentratorProducer.clone() 
+def create_supertriggercell(process, inputs,
+        stcSize = cms.vuint32(4,4,4) 
+        ):
+    producer = process.hgcalConcentratorProducer.clone()     
     producer.ProcessorParameters.Method = cms.string('superTriggerCellSelect')
+    producer.ProcessorParameters.stcSize = stcSize
     producer.InputTriggerCells = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs))
     producer.InputTriggerSums = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs))
     return producer
