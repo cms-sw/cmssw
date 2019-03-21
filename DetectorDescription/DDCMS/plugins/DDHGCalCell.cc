@@ -2,6 +2,7 @@
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //#define EDM_ML_DEBUG
 
@@ -44,6 +45,20 @@ static long  algorithm(dd4hep::Detector& /* description */,
 				 << truncCN.size() << ":3 Extended " 
 				 << extenCN.size() <<":3" << " Corners " 
 				 << cornrCN.size() << ":6";
+  if ((truncCN.size() > 3) || (extenCN.size() > 3) ||
+      (cornrCN.size() > 6)) {
+    edm::LogError("HGCalGeom") << "DDHGCalCell: Possible memory issue - please"
+				 << " check size of Truncated " 
+				 << truncCN.size() << " > 3; or Extended " 
+				 << extenCN.size() << " > 3' or Corners " 
+				 << cornrCN.size() << " > 6";
+      throw cms::Exception("DDException") << "Wrong size of truncated|extended"
+					  << "|corner cells: " 
+					  << truncCN.size() << ":"
+					  << extenCN.size() << ":"
+					  << cornrCN.size();
+
+  }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << waferSize
 				<< " T " << waferT << " Cell T " << cellT
