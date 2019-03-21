@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 silent = True
 #silent = False
 
+#includeAnalyzer = True
+includeAnalyzer = False
+
 from Configuration.ProcessModifiers.gpu_cff import gpu
 process = cms.Process("Test")
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -66,6 +69,13 @@ process.prod4 = SwitchProducerCUDA(
     cuda = testCUDAProducerGPUtoCPU.clone(src = "prod4CUDA")
 )
 
+# GPU analyzer (optionally)
+from HeterogeneousCore.CUDATest.testCUDAAnalyzerGPU_cfi import testCUDAAnalyzerGPU
+process.anaCUDA = testCUDAAnalyzerGPU.clone(src="prod6CUDA")
+if silent:
+    process.anaCUDA.minValue = 2.3e7
+    process.anaCUDA.maxValue = 2.5e7
+
 process.out = cms.OutputModule("AsciiOutputModule",
     outputCommands = cms.untracked.vstring(
         "keep *_prod3_*_*",
@@ -88,5 +98,7 @@ process.t = cms.Task(
     process.prod6Task
 )
 process.p = cms.Path()
+if includeAnalyzer:
+    process.p += process.anaCUDA
 process.p.associate(process.t)
 process.ep = cms.EndPath(process.out)

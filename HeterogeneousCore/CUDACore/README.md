@@ -12,6 +12,7 @@
   * [Producer with CUDA output](#producer-with-cuda-input)
   * [Producer with CUDA input and output (with ExternalWork)](#producer-with-cuda-input-and-output-with-externalwork)
   * [Producer with CUDA input and output (without ExternalWork)](#producer-with-cuda-input-and-output-without-externalwork)
+  * [Analyzer with CUDA input](#analyzer-with-cuda-input)
   * [Configuration](#configuration)
     * [GPU-only configuration](#gpu-only-configuration)
     * [Automatic switching between CPU and GPU modules](#automatic-switching-between-cpu-and-gpu-modules)
@@ -340,6 +341,60 @@ void ProducerInputOutputCUDA::produce(edm::StreamID streamID, edm::Event& iEvent
   // waitingTaskHolder when the queued asynchronous work has finished
 }
 ```
+
+### Analyzer with CUDA input
+
+Analyzer with CUDA input is similar to [producer with CUDA
+input](#producer-with-cuda-input). Note that currently we do not have
+a mechanism for portable configurations with analyzers (like
+[`SwitchProducer`](#automatic-switching-between-cpu-and-gpu-modules)
+for producers). This means that a configuration with a CUDA analyzer
+can only run on a machine with CUDA device(s).
+
+```cpp
+class AnalyzerInputCUDA: public edm::global::EDAnalyzer<> {
+public:
+  ...
+  void analyzer(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  ...
+private:
+  ...
+  AnalyzerInputGPUAlgo gpuAlgo_;
+  edm::EDGetTokenT<CUDAProduct<InputData>> inputToken_;
+  edm::EDGetTokenT<CUDAProduct<OtherInputData>> otherInputToken_;
+};
+...
+void AnalyzerInputCUDA::analyze(edm::Event const& iEvent, edm::EventSetup& iSetup) {
+  CUDAProduct<InputData> const& inputDataWrapped = iEvent.get(inputToken_);
+
+  // Set the current device to the same that was used to produce
+  // InputData, and also use the same CUDA stream
+  CUDAScopedContext ctx{inputDataWrapped};
+
+  // Alternatively a new CUDA stream can be created here. This is for
+  // a case where there are two (or more) consumers of
+  // CUDAProduct<InputData> whose work is independent and thus can be run
+  // in parallel.
+  CUDAScopedContext ctx{iEvent.streamID());
+
+  // Grab the real input data. Checks that the input data is on the
+  // current device. If the input data was produced in a different CUDA
+  // stream than the CUDAScopedContext holds, create an inter-stream
+  // synchronization point with CUDA event and cudaStreamWaitEvent()
+  auto const& inputData = ctx.get(inputDataWrapped);
+
+  // Input data from another producer
+  auto const& otherInputData = ctx.get(iEvent.get(otherInputToken_));
+  // or
+  auto const& otherInputData = ctx.get(iEvent, otherInputToken_);
+
+
+  // Queues asynchronous data transfers and kernels to the CUDA stream
+  // returned by CUDAScopedContext::stream()
+  gpuAlgo.analyzeAsync(inputData, otherInputData, ctx.stream());
+}
+```
+
 
 ### Configuration
 
