@@ -199,8 +199,8 @@ void ClusterTPAssociationHeterogeneous::acquireGPUCuda(const edm::HeterogeneousE
     // synchronize explicitly (implementation is from
     // CUDAScopedContext). In practice these should not be needed
     // (because of synchronizations upstream), but let's play generic.
-    if(not gd->event().has_occurred()) {
-      cudaCheck(cudaStreamWaitEvent(cudaStream.id(), gd->event().id(), 0));
+    if(not gd->isAvailable() and gd->event()->has_occurred()) {
+      cudaCheck(cudaStreamWaitEvent(cudaStream.id(), gd->event()->id(), 0));
     }
 
     edm::Handle<siPixelRecHitsHeterogeneousProduct::GPUProduct> gh;

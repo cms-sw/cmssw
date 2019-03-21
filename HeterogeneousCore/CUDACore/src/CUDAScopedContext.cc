@@ -16,13 +16,17 @@ CUDAScopedContext::CUDAScopedContext(edm::StreamID streamID):
   stream_ = cs->getCUDAStream();
 }
 
-CUDAScopedContext::CUDAScopedContext(int device, std::unique_ptr<cuda::stream_t<>> stream):
+CUDAScopedContext::CUDAScopedContext(int device, std::unique_ptr<cuda::stream_t<>> stream, std::unique_ptr<cuda::event_t> event):
   currentDevice_(device),
   setDeviceForThisScope_(device),
-  stream_(std::move(stream))
+  stream_(std::move(stream)),
+  event_(std::move(event))
 {}
 
 CUDAScopedContext::~CUDAScopedContext() {
+  if(event_) {
+    event_->record(stream_->id());
+  }
   if(waitingTaskHolder_.has_value()) {
     stream_->enqueue.callback([device=currentDevice_,
                                waitingTaskHolder=*waitingTaskHolder_]
@@ -45,7 +49,15 @@ CUDAScopedContext::~CUDAScopedContext() {
   }
 }
 
-void CUDAScopedContext::synchronizeStreams(int dataDevice, const cuda::stream_t<>& dataStream, const cuda::event_t& dataEvent) {
+void CUDAScopedContext::createEventIfStreamBusy() {
+  if(event_ or stream_->is_clear()) {
+    return;
+  }
+  edm::Service<CUDAService> cs;
+  event_ = cs->getCUDAEvent();
+}
+
+void CUDAScopedContext::synchronizeStreams(int dataDevice, const cuda::stream_t<>& dataStream, bool available, const cuda::event_t *dataEvent) {
   if(dataDevice != currentDevice_) {
     // Eventually replace with prefetch to current device (assuming unified memory works)
     // If we won't go to unified memory, need to figure out something else...
@@ -54,13 +66,13 @@ void CUDAScopedContext::synchronizeStreams(int dataDevice, const cuda::stream_t<
 
   if(dataStream.id() != stream_->id()) {
     // Different streams, need to synchronize
-    if(!dataEvent.has_occurred()) {
+    if(not available and not dataEvent->has_occurred()) {
       // Event not yet occurred, so need to add synchronization
       // here. Sychronization is done by making the CUDA stream to
       // wait for an event, so all subsequent work in the stream
       // will run only after the event has "occurred" (i.e. data
       // product became available).
-      auto ret = cudaStreamWaitEvent(stream_->id(), dataEvent.id(), 0);
+      auto ret = cudaStreamWaitEvent(stream_->id(), dataEvent->id(), 0);
       cuda::throw_if_error(ret, "Failed to make a stream to wait for an event");
     }
   }

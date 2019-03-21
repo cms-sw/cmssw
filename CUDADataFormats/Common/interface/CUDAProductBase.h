@@ -14,6 +14,7 @@ public:
   CUDAProductBase() = default; // Needed only for ROOT dictionary generation
 
   bool isValid() const { return stream_.get() != nullptr; }
+  bool isAvailable() const;
 
   int device() const { return device_; }
 
@@ -21,11 +22,11 @@ public:
   cuda::stream_t<>& stream() { return *stream_; }
   const std::shared_ptr<cuda::stream_t<>>& streamPtr() const { return stream_; }
 
-  const cuda::event_t& event() const { return *event_; }
-  cuda::event_t& event() { return *event_; }
+  const cuda::event_t *event() const { return event_.get(); }
+  cuda::event_t *event() { return event_.get(); }
 
 protected:
-  explicit CUDAProductBase(int device, std::shared_ptr<cuda::stream_t<>> stream);
+  explicit CUDAProductBase(int device, std::shared_ptr<cuda::stream_t<>> stream, std::shared_ptr<cuda::event_t> event);
 
 private:
   // The cuda::stream_t is really shared among edm::Event products, so

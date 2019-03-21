@@ -11,9 +11,15 @@ namespace cudatest {
   class TestCUDAScopedContext {
   public:
     static
-    CUDAScopedContext make(int dev) {
+    CUDAScopedContext make(int dev, bool createEvent) {
       auto device = cuda::device::get(dev);
-      return CUDAScopedContext(dev, std::make_unique<cuda::stream_t<>>(device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream)));
+      std::unique_ptr<cuda::event_t> event;
+      if(createEvent) {
+        event = std::make_unique<cuda::event_t>(device.create_event());
+      }
+      return CUDAScopedContext(dev,
+                               std::make_unique<cuda::stream_t<>>(device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream)),
+                               std::move(event));
     }
   };
 }
@@ -30,7 +36,7 @@ TEST_CASE("Use of CUDAProduct template", "[CUDACore]") {
 
   constexpr int defaultDevice = 0;
   {
-    auto ctx = cudatest::TestCUDAScopedContext::make(defaultDevice);
+    auto ctx = cudatest::TestCUDAScopedContext::make(defaultDevice, true);
     std::unique_ptr<CUDAProduct<int>> dataPtr = ctx.wrap(10);
     auto& data = *dataPtr;
 
@@ -38,7 +44,7 @@ TEST_CASE("Use of CUDAProduct template", "[CUDACore]") {
       REQUIRE(data.isValid());
       REQUIRE(data.device() == defaultDevice);
       REQUIRE(data.stream().id() == ctx.stream().id());
-      REQUIRE(&data.event() != nullptr);
+      REQUIRE(data.event() != nullptr);
     }
 
     SECTION("Move constructor") {
