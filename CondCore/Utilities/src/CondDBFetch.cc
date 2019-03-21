@@ -292,6 +292,8 @@ namespace cond {
       FETCH_PAYLOAD_CASE( SiStripNoises )
       FETCH_PAYLOAD_CASE( SiStripPedestals )
       FETCH_PAYLOAD_CASE( SiStripThreshold )
+      FETCH_PAYLOAD_CASE( DTCELinkId )
+      FETCH_PAYLOAD_CASE( TrackerDetToDTCELinkCablingMap )
       FETCH_PAYLOAD_CASE( TrackProbabilityCalibration )
       FETCH_PAYLOAD_CASE( cond::BaseKeyed )
       FETCH_PAYLOAD_CASE( ESCondObjectContainer<ESChannelStatusCode> )
