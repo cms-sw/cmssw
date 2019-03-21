@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     FastSimulation/Particle
+// Package:     CommonTools/BaseParticlePropagator
 // Class  :     makeMuon
 // 
 // Implementation:
@@ -13,9 +13,9 @@
 // system include files
 
 // user include files
-#include "FastSimulation/BaseParticlePropagator/interface/makeMuon.h"
+#include "CommonTools/BaseParticlePropagator/interface/makeMuon.h"
 
-#include "FastSimulation/BaseParticlePropagator/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 namespace rawparticle {
   RawParticle makeMuon(bool isParticle, const math::XYZTLorentzVector& p, 
                        const math::XYZTLorentzVector& xStart) {

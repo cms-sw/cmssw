@@ -1,6 +1,6 @@
 /*Emacs: -*- C++ -*- */
-#ifndef BASEPARTICLEPROPAGATOR_H
-#define BASEPARTICLEPROPAGATOR_H
+#ifndef CommonTools_BaseParticlePropagator_BaseParticlePropagator_h
+#define CommonTools_BaseParticlePropagator_BaseParticlePropagator_h
 
 /**
 * This class is aimed at propagating charged and neutral 
@@ -77,7 +77,7 @@
 * \version 15-Dec-2003 */
 
 //FAMOS
-#include "FastSimulation/BaseParticlePropagator/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 
 class BaseParticlePropagator {
   

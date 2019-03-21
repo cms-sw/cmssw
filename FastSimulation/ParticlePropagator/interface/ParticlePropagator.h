@@ -17,7 +17,7 @@
 * \version 15-Dec-2003 */
 
 // FAMOS Headers
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 class TrackerLayer;
