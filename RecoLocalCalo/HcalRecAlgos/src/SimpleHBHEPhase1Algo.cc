@@ -23,6 +23,7 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
     const float phaseNS,
     const float timeShift,
     const bool correctForPhaseContainment,
+    const bool applyLegacyHBMCorrection,
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
     std::unique_ptr<HcalDeterministicFit> detFit,
     std::unique_ptr<MahiFit> mahi)
@@ -33,6 +34,7 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
       timeShift_(timeShift),
       runnum_(0),
       corrFPC_(correctForPhaseContainment),
+      applyLegacyHBMCorrection_(applyLegacyHBMCorrection),
       psFitOOTpuCorr_(std::move(m2)),
       hltOOTpuCorr_(std::move(detFit)),
       mahiOOTpuCorr_(std::move(mahi))
@@ -161,7 +163,7 @@ float SimpleHBHEPhase1Algo::hbminusCorrectionFactor(const HcalDetId& cell,
                                                     const bool isRealData) const
 {
     float corr = 1.f;
-    if (isRealData && runnum_ > 0)
+    if (applyLegacyHBMCorrection_ && isRealData && runnum_ > 0)
         if (cell.subdet() == HcalBarrel)
         {
             const int ieta = cell.ieta();
@@ -217,7 +219,7 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
   
             // Simplified evaluation for Phase1
             float emax0 = info.tsEnergy(maxI);
-            float emax1 = 0.;        
+            float emax1 = 0.f;        
             if(maxI < (nSamples - 1U)) emax1 = info.tsEnergy(maxI + 1U);
 
 	    // consider soi reference for collisions  
@@ -225,7 +227,7 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
             if(nSamplesToExamine < (int)nSamples) position  -= soi;
      
             time = 25.f * (float)position;                   
-            if(emax0 > 0.f && emax1 > 0.f && maxI < (nSamples - 1U)) time += 25.f * emax1/(emax0+emax1); // 1st order corr.
+            if(emax0 > 0.f && emax1 > 0.f) time += 25.f * emax1/(emax0+emax1); // 1st order corr.
 
             // TimeSlew correction
             time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
