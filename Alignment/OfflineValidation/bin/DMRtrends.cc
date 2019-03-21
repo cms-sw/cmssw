@@ -595,7 +595,7 @@ void PlotDMRTrends(vector<string> labels, TString Year, string myValidation, vec
  		    h->SetLineColor(*colour);
  		    h->SetMarkerColor(*colour);
  		    h->SetMarkerSize(0);
-		    h->SetLineWidth(1.5);
+		    h->SetLineWidth(1);
 
                     if(i<8){
 		      mg->Add(g,"PL");
