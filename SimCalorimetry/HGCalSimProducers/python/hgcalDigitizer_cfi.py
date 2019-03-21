@@ -171,14 +171,18 @@ hgchebackDigitizer = cms.PSet(
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
-        keV2MIP           = cms.double(1./500.0),
-        noise_MIP         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_MIP")),
+        #0 empty digitizer, 1 calice digitizer, 2 realistic digitizer
+        algo          = cms.uint32(2),
+        scaleByArea   = cms.bool(True),
+        scaleByDose   = cms.bool(True),
+        doseMap       = cms.FileInPath(""),
+        keV2MIP       = cms.double(1./500.0),
+        noise_MIP     = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_MIP")),
         doTimeSamples = cms.bool(False),
         nPEperMIP = cms.double(30.0),
         nTotalPE  = cms.double(7500),
         xTalk     = cms.double(0.2),
         sdPixels  = cms.double(1e-6), # this is additional photostatistics noise (as implemented), not sure why it's here...
-        doseMap   = cms.FileInPath(""),
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion       = cms.uint32(0),
@@ -277,7 +281,7 @@ def HGCal_setEndOfLifeNoise(process):
     process.HGCAL_noise_MIP = cms.PSet(
         value = cms.double( 1.0/5.0 )
         )
-    process.hgchebackDigitizer.digiCfg.doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt")
+    process.hgchebackDigitizer.digiCfg.doseMap = cms.FileInPath("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt")
 
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])

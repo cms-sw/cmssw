@@ -120,14 +120,17 @@ float HGCHEbackSignalScaler::computeRadius(const HGCScintillatorDetId& cellId)
 HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
 {
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
-  keV2MIP_   = cfg.getParameter<double>("keV2MIP");
+  algo_        = cfg.getParameter<uint32_t>("algo");
+  scaleByArea_ = cfg.getParameter<bool>("scaleByArea");
+  scaleByDose_ = cfg.getParameter<bool>("scaleByDose");
+  doseMapFile_ = cfg.getParameter<edm::FileInPath>("doseMap").fullPath();
+  keV2MIP_     = cfg.getParameter<double>("keV2MIP");
   this->keV2fC_    = 1.0; //keV2MIP_; // hack for HEB
   noise_MIP_   = cfg.getParameter<edm::ParameterSet>("noise_MIP").getParameter<double>("value");
   nPEperMIP_   = cfg.getParameter<double>("nPEperMIP");
   nTotalPE_    = cfg.getParameter<double>("nTotalPE");
   xTalk_       = cfg.getParameter<double>("xTalk");
   sdPixels_    = cfg.getParameter<double>("sdPixels");
-  doseMapFile_ = cfg.getParameter<edm::FileInPath>("doseMap").fullPath();
 }
 
 //
@@ -135,7 +138,15 @@ void HGCHEbackDigitizer::runDigitizer(std::unique_ptr<HGCalDigiCollection> &digi
 				      const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
 				      uint32_t digitizationType, CLHEP::HepRandomEngine* engine)
 {
-  runRealisticDigitizer(digiColl,simData,theGeom,validIds,engine);
+  switch(algo_)
+  {
+    case 0:
+      runEmptyDigitizer(digiColl,simData,theGeom,validIds,engine);
+    case 1:
+      runCaliceLikeDigitizer(digiColl,simData,theGeom,validIds,engine);
+    case 2:
+      runRealisticDigitizer(digiColl,simData,theGeom,validIds,engine);
+  }
 }
 
 void HGCHEbackDigitizer::runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,

@@ -51,6 +51,8 @@ class HGCHEbackDigitizer : public HGCDigitizerBase<HGCalDataFrame>
  private:
 
   //calice-like digitization parameters
+  uint32_t algo_;
+  bool scaleByArea_, scaleByDose_;
   float keV2MIP_, noise_MIP_;
   float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_;
   std::string doseMapFile_;
