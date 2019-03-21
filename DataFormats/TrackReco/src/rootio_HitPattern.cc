@@ -68,9 +68,9 @@ reco::HitPattern::fillNewHitPatternWithOldHitPattern_v12(const uint16_t oldHitPa
   bool ret = true;
   for (int i = 0; i < MaxHitsV12; i++) {
     uint16_t pattern = getHitFromOldHitPattern(oldHitPattern, i);
-    //if (pattern == 0) {
-    //  break;
-    //}
+    if (pattern == 0) {
+      break;
+    }
     if(! newObj->appendHit(pattern, hitTypeFromOldHitPattern(pattern)) ) {
       ret = false;
       break;
