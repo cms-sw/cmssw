@@ -109,6 +109,7 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
       auto const & acluster = aclusters[ic];
       if ( acluster.charge < clusterThreshold) continue;
       SiPixelCluster cluster(acluster.isize,acluster.adc, acluster.x,acluster.y, acluster.xmin,acluster.ymin);
+      cluster.setOriginalId(ic);
       ++totCluseFilled;
       // std::cout << "putting in this cluster " << ic << " " << cluster.charge() << " " << cluster.pixelADC().size() << endl;
       // sort by row (x)

@@ -67,7 +67,6 @@ private:
   const bool includeErrors_;
   const bool useQuality_;
   const bool usePilotBlade_;
-  const bool convertADCtoElectrons_;
 };
 
 SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfig):
@@ -77,8 +76,7 @@ SiPixelRawToClusterCUDA::SiPixelRawToClusterCUDA(const edm::ParameterSet& iConfi
   cablingMapLabel_(iConfig.getParameter<std::string>("CablingMapLabel")),
   includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
   useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
-  usePilotBlade_(iConfig.getParameter<bool> ("UsePilotBlade")), // Control the usage of pilot-blade data, FED=40
-  convertADCtoElectrons_(iConfig.getParameter<bool>("ConvertADCtoElectrons"))
+  usePilotBlade_(iConfig.getParameter<bool> ("UsePilotBlade")) // Control the usage of pilot-blade data, FED=40
 {
   if(includeErrors_) {
     digiErrorPutToken_ = produces<CUDAProduct<SiPixelDigiErrorsCUDA>>();
@@ -97,7 +95,6 @@ void SiPixelRawToClusterCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<bool>("IncludeErrors",true);
   desc.add<bool>("UseQualityInfo",false);
   desc.add<bool>("UsePilotBlade",false)->setComment("##  Use pilot blades");
-  desc.add<bool>("ConvertADCtoElectrons", false)->setComment("## do the calibration ADC-> Electron and apply the threshold, requried for clustering");
   desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
   {
     edm::ParameterSetDescription psd0;
@@ -220,7 +217,7 @@ void SiPixelRawToClusterCUDA::acquire(const edm::Event& iEvent, const edm::Event
   gpuAlgo_.makeClustersAsync(gpuMap, gpuModulesToUnpack, gpuGains,
                              wordFedAppender,
                              std::move(errors_),
-                             wordCounterGPU, fedCounter, convertADCtoElectrons_,
+                             wordCounterGPU, fedCounter, 
                              useQuality_, includeErrors_,
                              edm::MessageDrop::instance()->debugEnabled,
                              ctx.stream());
