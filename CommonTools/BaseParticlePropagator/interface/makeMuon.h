@@ -1,11 +1,11 @@
-#ifndef FastSimulation_BaseParticlePropagator_makeMuon_h
-#define FastSimulation_BaseParticlePropagator_makeMuon_h
+#ifndef CommonTools_BaseParticlePropagator_makeMuon_h
+#define CommonTools_BaseParticlePropagator_makeMuon_h
 // -*- C++ -*-
 //
-// Package:     FastSimulation/BaseParticlePropagator
+// Package:     CommonTools/BaseParticlePropagator
 // Class  :     makeMuon
 // 
-/**\class makeMuon makeMuon.h "FastSimulation/BaseParticlePropagator/interface/makeMuon.h"
+/**\class makeMuon makeMuon.h "CommonTools/BaseParticlePropagator/interface/makeMuon.h"
 
  Description: Creates a RawParticle of type muon
 
