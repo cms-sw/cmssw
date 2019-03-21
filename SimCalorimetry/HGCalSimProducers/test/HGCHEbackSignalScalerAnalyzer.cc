@@ -90,7 +90,7 @@ HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   int iradiusMin = 1;
   int iradiusMax = 48;
 
-  TProfile2D* doseMap = fs->make<TProfile2D>("doseMap","doseMap", layerMax-layerMin+1, layerMin, layerMax+1, iradiusMax-iiradiusMin+1, iradiusMin, iradiusMax+1);
+  TProfile2D* doseMap = fs->make<TProfile2D>("doseMap","doseMap", layerMax-layerMin+1, layerMin, layerMax+1, iradiusMax-iradiusMin+1, iradiusMin, iradiusMax+1);
   TProfile2D* scaleByDoseMap = fs->make<TProfile2D>("scaleByDoseMap","scaleByDoseMap", layerMax-layerMin+1, layerMin, layerMax+1, iradiusMax-iradiusMin+1, iradiusMin, iradiusMax+1);
   TProfile2D* scaleByAreaMap = fs->make<TProfile2D>("scaleByAreaMap","scaleByAreaMap", layerMax-layerMin+1, layerMin, layerMax+1, iradiusMax-iradiusMin+1, iradiusMin, iradiusMax+1);
 
@@ -105,7 +105,7 @@ HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
     double dose = scal.getDoseValue(scId);
     float scaleFactorByArea = scal.scaleByArea(scId);
 
-    GlobalPoint global = gHGCal->getPosition(scId);
+    //GlobalPoint global = gHGCal->getPosition(scId);
     //float radius = sqrt( std::pow(global.x(), 2) + std::pow(global.y(), 2));
 
 
