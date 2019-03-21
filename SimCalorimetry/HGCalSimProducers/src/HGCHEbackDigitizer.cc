@@ -20,12 +20,18 @@ HGCHEbackSignalScaler::HGCHEbackSignalScaler(const CaloSubdetectorGeometry* geom
 
 std::map<int, HGCHEbackSignalScaler::DoseParameters> HGCHEbackSignalScaler::readDosePars(const std::string& fullpath)
 {
-  std::ifstream infile(fullpath.c_str());
+  std::map<int, DoseParameters> result;
+
+  //no dose file means no aging
+  if(fullpath == "")
+    return result;
+
+  edm::FileInPath fp(fullpath);
+  std::ifstream infile(fp.fullPath());
   if(!infile.is_open())
   {
     throw cms::Exception("FileNotFound") << "Unable to open '" << fullpath << "'" << std::endl;
   }
-  std::map<int, DoseParameters> result;
   std::string line;
   while(getline(infile,line))
   {
@@ -51,6 +57,9 @@ double HGCHEbackSignalScaler::getDoseValue(const HGCScintillatorDetId& cellId)
 
 float HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId)
 {
+  if(doseMap_.empty())
+    return 1.;
+
   double cellDose = getDoseValue(cellId); //in kRad
   double scaleFactor = std::exp( -std::pow(cellDose, 0.65) / 199.6 );
 
@@ -123,7 +132,7 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitiz
   algo_        = cfg.getParameter<uint32_t>("algo");
   scaleByArea_ = cfg.getParameter<bool>("scaleByArea");
   scaleByDose_ = cfg.getParameter<bool>("scaleByDose");
-  doseMapFile_ = cfg.getParameter<edm::FileInPath>("doseMap").fullPath();
+  doseMapFile_ = cfg.getParameter<std::string>("doseMap");
   keV2MIP_     = cfg.getParameter<double>("keV2MIP");
   this->keV2fC_    = 1.0; //keV2MIP_; // hack for HEB
   noise_MIP_   = cfg.getParameter<edm::ParameterSet>("noise_MIP").getParameter<double>("value");
@@ -212,14 +221,14 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       for(size_t i=0; i<cell.hit_info[0].size(); ++i)
       {
         //convert total energy keV->MIP, since converted to keV in accumulator
-         float totalIniMIPs( cell.hit_info[0][i]*keV2MIP_ );
-         //take into account the different size of the tiles
-         totalIniMIPs *= scal.scaleByArea(id);
-         //take into account the darkening of the scintillator
-         if(doseMapFile_ != "")
-         {
+        float totalIniMIPs( cell.hit_info[0][i]*keV2MIP_ );
+
+        //take into account the different size of the tiles
+        if(scaleByArea_)
+          totalIniMIPs *= scal.scaleByArea(id);
+        //take into account the darkening of the scintillator
+        if(scaleByDose_)
           totalIniMIPs *= scal.scaleByDose(id);
-         }
 
         //generate the number of photo-electrons from the energy deposit
         const uint32_t npeS = std::floor(CLHEP::RandPoissonQ::shoot(engine, totalIniMIPs * nPEperMIP_) + 0.5);

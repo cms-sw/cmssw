@@ -175,7 +175,7 @@ hgchebackDigitizer = cms.PSet(
         algo          = cms.uint32(2),
         scaleByArea   = cms.bool(True),
         scaleByDose   = cms.bool(True),
-        doseMap       = cms.FileInPath(""),
+        doseMap       = cms.string(""),
         keV2MIP       = cms.double(1./500.0),
         noise_MIP     = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_MIP")),
         doTimeSamples = cms.bool(False),
@@ -281,7 +281,7 @@ def HGCal_setEndOfLifeNoise(process):
     process.HGCAL_noise_MIP = cms.PSet(
         value = cms.double( 1.0/5.0 )
         )
-    process.hgchebackDigitizer.digiCfg.doseMap = cms.FileInPath("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt")
+    process.hgchebackDigitizer.digiCfg.doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt")
 
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])
