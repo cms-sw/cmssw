@@ -6,9 +6,12 @@
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToROC.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
+
+      
 #include <array>
 #include <vector>
 
@@ -23,15 +26,15 @@ class HGCalConcentratorSuperTriggerCellImpl
   private:
 
     int getSuperTriggerCellId(int detid) const ;
-    static const int kSplit12_ = 0x3a;
-    static const int kSplit3_ = 0x30;
+    static std::map<int,int> kSplit_;
     static const int kWafer_offset_ = 6;
-
-    static const int kSTCsize16_ = 16;
-    static const int kSTCsize4_ = 4;
+    static const int kSTCsizeCoarse_ = 16;
+    static const int kSTCsizeFine_ = 4;
     static const int kNLayers_ = 3;
+    static const int kSplit_v9_ = 0x36;
 
     HGCalTriggerTools triggerTools_;
+    HGCSiliconDetIdToROC detIdToROC_;
     std::vector<unsigned> stcSize_;
 
     class SuperTriggerCell {
@@ -40,7 +43,7 @@ class HGCalConcentratorSuperTriggerCellImpl
         float sumPt_, sumMipPt_;
         int sumHwPt_, maxHwPt_; 
         unsigned maxId_;
-
+        
     public:
         SuperTriggerCell(){  sumPt_=0, sumMipPt_=0, sumHwPt_=0, maxHwPt_=0, maxId_=0 ;}
         void add(const l1t::HGCalTriggerCell &c) {
