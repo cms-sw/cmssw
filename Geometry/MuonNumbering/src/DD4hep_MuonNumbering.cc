@@ -1,4 +1,4 @@
-#include "DetectorDescription/DDCMS/interface/MuonNumbering.h"
+#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -51,8 +51,17 @@ MuonNumbering::geoHistoryToBaseNumber(const cms::ExpandedNodes &nodes) const {
 const int
 MuonNumbering::get(const char* key) const {
   int result(0);
-  auto const& it = values.find(key);
-  if(it != end(values)) 
+  auto const& it = values_.find(key);
+  if(it != end(values_)) 
     result = it->second;
   return result;
 }
+
+void
+MuonNumbering::put(string_view str, int num) {
+  values_.emplace(str, num);
+}
+
+#include "FWCore/Utilities/interface/typelookup.h"
+
+TYPELOOKUP_DATA_REG(MuonNumbering);
