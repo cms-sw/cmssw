@@ -77,7 +77,7 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   //Layers
   nLayers = int(nArgs["NLayers"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo debug: Layer\t" << nLayers;
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Layer\t" << nLayers;
 #endif
   layerId     = dbl_to_int (vArgs["Id"]);
   layerLabel  = vsArgs["LayerLabel"];
@@ -109,7 +109,7 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   nAbsorber   = absorbName.size();
 #ifdef EDM_ML_DEBUG
   for (int i = 0; i < nAbsorber; i++)
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo debug: " << absorbName[i]
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << absorbName[i]
 				 <<" Material " <<  absorbMat[i] << " d "
 				 << absorbD[i] << " t " <<absorbT[i];
 #endif
@@ -117,7 +117,7 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   middleD     = nArgs["MiddleD"];
   middleW     = nArgs["MiddleW"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo debug: Middle material " 
+  edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Middle material " 
 			       << middleMat << " d " << middleD << " w "
 			       << middleW;
 #endif
@@ -128,7 +128,7 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   nMidAbs     = midName.size();
 #ifdef EDM_ML_DEBUG
   for (int i = 0; i < nMidAbs; i++)
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo debug: " << midName[i]
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << midName[i]
 				 << " Material " <<  midMat[i] << " W " 
 				 << midW[i] << " T " << midT[i];
 #endif
@@ -225,7 +225,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
   DDRotation rot = DDRotation();
 
   double alpha = piRadians/getNsectors();
-  double dphi  = getNsectortot()*2._pi/getNsectors();
+  double dphi  = getNsectortot()*(2._pi)/getNsectors();
   int nsec, ntot=15;
   if (getNhalf() == 1)
     nsec = 8;
@@ -650,7 +650,7 @@ void DDHCalBarrelAlgo::constructInsideLayers(const DDLogicalPart& laylog,
   edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() 
 			       << " Number " << idOffset+3 << " positioned in "
 			       << mother.name() << " at " << r21 
-			       << " with no rotation\nDDHCalBarrelAlgot: "
+			       << " with no rotation\nDDHCalBarrelAlgo: "
 			       << glog.name() << " Number " << idOffset+4 
 			       << " positioned in " << mother.name() << " at " 
 			       << r22 << " with " << rot;

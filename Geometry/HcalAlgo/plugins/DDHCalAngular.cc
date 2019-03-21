@@ -68,11 +68,14 @@ void DDHCalAngular::execute(DDCompactView& cpv) {
   double theta  = 90._deg;
 
   for (int ii=0; ii<n; ii++) {
-    if      (phix >= 2._pi) phix -= 2._pi;
-    else if (phix <  0)     phix += 2._pi;
-    double phiy   = phix + 90._deg;
     double phideg = convertRadToDeg(phix);
     int    iphi   = std::lround(phideg);
+    if (iphi >= 360) {
+      iphi   -= 360;
+      phideg  = iphi;
+      phix    = convertDegToRad(phideg);
+    }
+    double phiy   = phix + 90._deg;
     DDRotation rotation;
     std::string rotstr("NULL");
 
