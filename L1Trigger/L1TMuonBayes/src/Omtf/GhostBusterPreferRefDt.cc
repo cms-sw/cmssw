@@ -19,6 +19,13 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
 
   // sorting within GB.
   auto customLess = [&](const AlgoMuons::value_type& a, const AlgoMuons::value_type& b)->bool {
+    if(!a->isValid()) {
+      return true;
+    }
+    if(!b->isValid()) {
+      return false;
+    }
+
     int aRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[a->getRefLayer()];
     int bRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[b->getRefLayer()];
     if(a->getQ() > b->getQ())
