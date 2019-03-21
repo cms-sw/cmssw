@@ -42,6 +42,8 @@ static long  algorithm(dd4hep::Detector& /* description */,
 				  << detectorType[2*k+1];
 #endif
 
+  static const int incAlongX = 2;
+  static const int incAlongY = 6;
   double dx = 0.5*waferSize/nColumns;
   double dy = 0.5*dx*tan(30._deg);
   int    ny = nBottomY;
@@ -72,7 +74,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
 	rotation = cms::makeRotation3D(90._deg, phix, 90._deg, phiy, 0., 0.);
       }
       double xpos = dx*nx;
-      nx         += 2;
+      nx         += incAlongX;
       dd4hep::Position tran(xpos, ypos, 0);
       int copy = cellType*1000+kount;
       mother.placeVolume(ns.volume(name), copy, 
@@ -84,7 +86,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
 				    << " at " << tran << " with " << rotation;
 #endif
     }
-    ny         += 6;
+    ny         += incAlongY;
   }
   return 1;
 }

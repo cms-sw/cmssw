@@ -72,12 +72,14 @@ static long  algorithm(dd4hep::Detector& /* description */,
 #endif
   dd4hep::Volume glog1, glog2;
 
-  static const double sqrt3 = std::sqrt(3.0);
-  double R   = waferSize/(3.0*nCells);
+  static const double sqrt3    = std::sqrt(3.0);
+  static const double waf2cell = 3.0;
+  static const double cornerfac= 2.5;
+  double R   = waferSize/(waf2cell*nCells);
   double r   = 0.5*R*sqrt3;
   double dx1 = R;
   double dx2 = 0.5*dx1;
-  double dx3 = 2.5*dx2;
+  double dx3 = cornerfac*dx2;
   double dx4 = 0.5*dx2;
   double dy1 = r;
   double dy2 = 0.5*dy1;
