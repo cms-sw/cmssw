@@ -144,7 +144,7 @@ public:
 
   /// true if ME is meant to be stored for each luminosity section
   bool getLumiFlag() const
-    { return data_.flags & DQMNet::DQM_PROP_LUMI; }
+    { return true; }
 
   /// this ME is meant to be stored for each luminosity section
   void setLumiFlag()
