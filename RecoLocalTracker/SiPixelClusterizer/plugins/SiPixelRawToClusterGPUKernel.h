@@ -185,7 +185,7 @@ namespace pixelgpudetails {
                            const SiPixelGainForHLTonGPU *gains,
                            const WordFedAppender& wordFed,
                            PixelFormatterErrors&& errors,
-                           const uint32_t wordCounter, const uint32_t fedCounter, bool convertADCtoElectrons,
+                           const uint32_t wordCounter, const uint32_t fedCounter,
                            bool useQualityInfo, bool includeErrors, bool debug,
                            cuda::stream_t<>& stream);
 

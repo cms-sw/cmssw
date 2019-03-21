@@ -2,8 +2,6 @@
  *
  * File Name: RawToClusterGPU.cu
  * Description: It converts Raw data into Digi Format on GPU
- * then it converts adc -> electron and
- * applies the adc threshold to needed for clustering
  * Finaly the Output of RawToDigi data is given to pixelClusterizer
  *
 **/
@@ -341,51 +339,6 @@ namespace pixelgpudetails {
     return rID;
   }
 
-  /*----------
-   * Name: applyADCthreshold_kernel()
-   * Desc: converts adc count to electrons and then applies the
-   * threshold on each channel.
-   * make pixel to 0 if it is below the threshold
-   * Input: xx_d[], yy_d[], layer_d[], wordCounter, adc[], ADCThreshold
-   *-----------
-   * Output: xx_adc[], yy_adc[] with pixel threshold applied
-   */
-  // kernel to apply adc threshold on the channels
-
-
-  // Felice: gains and pedestals are not the same for each pixel. This code should be rewritten to take
-  // in account local gains/pedestals
-  // __global__ void applyADCthreshold_kernel(const uint32_t *xx_d, const uint32_t *yy_d, const uint32_t *layer_d, uint32_t *adc, const uint32_t wordCounter,
-  //  const ADCThreshold adcThreshold, uint32_t *xx_adc, uint32_t *yy_adc ) {
-  //   int tid = threadIdx.x;
-  //   int gIndex = blockDim.x*blockIdx.x+tid;
-  //   if (gIndex<wordCounter) {
-  //     uint32_t adcOld = adc[gIndex];
-  //     const float gain = adcThreshold.theElectronPerADCGain_; // default: 1 adc = 135 electrons
-  //     const float pedestal = 0; //
-  //     int adcNew = int(adcOld*gain+pedestal);
-  //     // rare chance of entering into the if ()
-  //     if (layer_d[gIndex]>=adcThreshold.theFirstStack_) {
-  //       if (adcThreshold.theStackADC_==1 && adcOld==1) {
-  //         adcNew = int(255*135); // Arbitrarily use overflow value.
-  //       }
-  //       if (adcThreshold.theStackADC_ >1 && adcThreshold.theStackADC_!=255 && adcOld>=1){
-  //         adcNew = int((adcOld-1) * gain * 255/float(adcThreshold.theStackADC_-1));
-  //       }
-  //     }
-  //
-  //     if (adcNew >adcThreshold.thePixelThreshold ) {
-  //       xx_adc[gIndex]=xx_d[gIndex];
-  //       yy_adc[gIndex]=yy_d[gIndex];
-  //     }
-  //     else {
-  //       xx_adc[gIndex]=0; // 0: dead pixel
-  //       yy_adc[gIndex]=0;
-  //     }
-  //     adc[gIndex] = adcNew;
-  //   }
-  // }
-
 
   // Kernel to perform Raw to Digi conversion
   __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *cablingMap, const unsigned char *modToUnp,
@@ -397,14 +350,15 @@ namespace pixelgpudetails {
   {
     //if (threadIdx.x==0) printf("Event: %u blockIdx.x: %u start: %u end: %u\n", eventno, blockIdx.x, begin, end);
 
-    auto gIndex  = threadIdx.x + blockIdx.x * blockDim.x;
-    xx[gIndex]   = 0;
-    yy[gIndex]   = 0;
-    adc[gIndex]  = 0;
-    bool skipROC = false;
+  int32_t first = threadIdx.x + blockIdx.x*blockDim.x;
+  for (int32_t iloop=first, nend=wordCounter; iloop<nend; iloop+=blockDim.x*gridDim.x) { 
 
-    do {  // too many coninue below.... (to be fixed)
-      if (gIndex < wordCounter) {
+        auto gIndex  = iloop;
+        xx[gIndex]   = 0;
+        yy[gIndex]   = 0;
+        adc[gIndex]  = 0;
+        bool skipROC = false;
+
         uint8_t fedId = fedIds[gIndex/2]; // +1200;
 
         // initialize (too many coninue below)
@@ -499,8 +453,8 @@ namespace pixelgpudetails {
         pdigi[gIndex] = pixelgpudetails::pack(globalPix.row, globalPix.col, adc[gIndex]);
         moduleId[gIndex] = detId.moduleId;
         rawIdArr[gIndex] = rawId;
-      } // end of if (gIndex < end)
-    } while (false); // end fake loop
+    } // end of loop (gIndex < end)
+
   } // end of Raw to Digi kernel
 
   // Interface to outside
@@ -511,7 +465,6 @@ namespace pixelgpudetails {
       const WordFedAppender& wordFed,
       PixelFormatterErrors&& errors,
       const uint32_t wordCounter, const uint32_t fedCounter,
-      bool convertADCtoElectrons,
       bool useQualityInfo, bool includeErrors, bool debug,
       cuda::stream_t<>& stream)
   {

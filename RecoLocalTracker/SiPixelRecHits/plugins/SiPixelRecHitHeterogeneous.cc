@@ -234,7 +234,6 @@ void SiPixelRecHitHeterogeneous::run(const edm::Handle<SiPixelClusterCollectionN
 
   int numberOfDetUnits = 0;
   int numberOfClusters = 0;
-  int numberOfLostClusters = 0;
   for (auto DSViter=input.begin(); DSViter != input.end() ; DSViter++) {
     numberOfDetUnits++;
     unsigned int detid = DSViter->detId();
@@ -247,50 +246,26 @@ void SiPixelRecHitHeterogeneous::run(const edm::Handle<SiPixelClusterCollectionN
     auto fc = hoc.hitsModuleStart[gind];
     auto lc = hoc.hitsModuleStart[gind+1];
     auto nhits = lc-fc;
-    int32_t ind[nhits];
-    auto mrp = &hoc.mr[fc];
-    uint32_t ngh=0;
-    for (uint32_t i=0; i<nhits;++i) {
-      if (hoc.charge[fc+i]<2000 || (gind>=96 && hoc.charge[fc+i]<4000) ) { ++numberOfLostClusters; continue;}
-      ind[ngh]=i;std::push_heap(ind, ind+ngh+1,[&](auto a, auto b) { return mrp[a]<mrp[b];});
-      ++ngh;
-    }
-    std::sort_heap(ind, ind+ngh,[&](auto a, auto b) { return mrp[a]<mrp[b];});
     uint32_t ic=0;
-    auto jnd = [&](int k) { return fc+ind[k]; };
-    assert(ngh<=DSViter->size());
+    auto jnd = [&](int k) { return fc+k; };
+    assert(nhits<=DSViter->size());
+    if (nhits!=DSViter->size()) {
+       edm::LogWarning("GPUHits2CPU") <<"nhits!= ndigi " << nhits << ' ' << DSViter->size() << std::endl;
+    }
     for (auto const & clust : *DSViter) {
-      if (ic>=ngh) {
+      if (ic>=nhits) {
         // FIXME add a way to handle this case, or at least notify via edm::LogError
         break;
       }
-      // order is not stable... assume minPixelCol to be unique...
-      auto ij = jnd(ic);
-      // assert( clust.minPixelRow()==hoc.mr[ij] );
-      if( clust.minPixelRow()!=hoc.mr[ij] )
-        edm::LogWarning("GPUHits2CPU") <<"Missing pixels on CPU? "
-                                       << gind <<'/'<<fc<<'/'<<ic<<'/'<<ij << ' ' << clust.size()
-                                       << ' ' << clust.charge()<<"/"<<hoc.charge[ij]
-                                       << ' ' << clust.minPixelRow()<<"!="<< mrp[ij]
-                                       << ' ' << clust.minPixelCol()<<" "<< hoc.mc[ij] << std::endl;
-
-      if(clust.minPixelCol()!=hoc.mc[ij]) {
-        auto fd=false;
-        auto k = ic;
-        while (k<(ngh-1) && clust.minPixelRow()==hoc.mr[jnd(++k)]) if(clust.minPixelCol()==hoc.mc[jnd(k)]) {fd=true; break;}
-        if (!fd) {
-          k = ic;
-          while (k>0 && clust.minPixelRow()==hoc.mr[jnd(--k)])  if(clust.minPixelCol()==hoc.mc[jnd(k)]) {fd=true; break;}
-        }
-        // assert(fd && k!=ij);
-        if(fd) ij=jnd(k);
-      }
+      auto ij = jnd(clust.originalId());
+      assert(clust.originalId()>=0); assert(clust.originalId()<nhits);
       if(clust.charge()!=hoc.charge[ij])
-        edm::LogWarning("GPUHits2CPU") << "perfect Match not found "
-                                       << gind <<'/'<<fc<<'/'<<ic<<'/'<<ij << '	' << clust.size()
+        edm::LogWarning("GPUHits2CPU") << "not a perfect Match "
+                                       << gind <<' '<<fc<<' '
+                                       << ic<<'/'<<clust.originalId()<<'/'<< (ij-fc) << ' ' << clust.size()
                                        << ' ' << clust.charge()<<"!="<<hoc.charge[ij]
                                        << ' ' << clust.minPixelCol()<<"?"<< hoc.mc[ij]
-                                       << ' ' << clust.minPixelRow()<<'/'<< mrp[ij] <<'/'<< mrp[fc+ind[ic]] << std::endl;
+                                       << ' ' << clust.minPixelRow()<<'/'<< hoc.mr[ij] << std::endl;
 
       LocalPoint lp(hoc.xl[ij], hoc.yl[ij]);
       LocalError le(hoc.xe[ij], 0, hoc.ye[ij]);
@@ -332,7 +307,6 @@ void SiPixelRecHitHeterogeneous::run(const edm::Handle<SiPixelClusterCollectionN
   std::cout << "SiPixelRecHitGPUVI $ det, clus, lost "
     <<  numberOfDetUnits << ' '
     << numberOfClusters  << ' '
-    << numberOfLostClusters
     << std::endl;
   */
 }
