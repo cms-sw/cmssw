@@ -35,6 +35,7 @@ class CTPPSTimingTrackRecognition
       thresholdFromMaximum_   (iConfig.getParameter<double>("thresholdFromMaximum")),
       resolution_             (iConfig.getParameter<double>("resolution")),
       sigma_                  (iConfig.getParameter<double>("sigma")),
+      tolerance_              (iConfig.getParameter<double>("tolerance")),
       pixelEfficiencyFunction_(iConfig.getParameter<std::string>("pixelEfficiencyFunction")) {
       if (pixelEfficiencyFunction_.numberOfParameters() != 3)
         throw cms::Exception("CTPPSTimingTrackRecognition")
@@ -58,6 +59,7 @@ class CTPPSTimingTrackRecognition
     const float thresholdFromMaximum_;
     const float resolution_;
     const float sigma_;
+    const float tolerance_;
     reco::FormulaEvaluator pixelEfficiencyFunction_;
 
     typedef std::vector<TRACK_TYPE> TrackVector;

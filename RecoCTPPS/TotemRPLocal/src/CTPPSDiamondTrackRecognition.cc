@@ -13,8 +13,7 @@
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::ParameterSet& iConfig ) :
-  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( iConfig ),
-  tolerance_( iConfig.getParameter<double>( "tolerance" ) )
+  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( iConfig )
 {}
 
 //----------------------------------------------------------------------------------------------------
