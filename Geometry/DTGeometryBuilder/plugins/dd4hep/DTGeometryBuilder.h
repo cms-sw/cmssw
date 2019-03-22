@@ -19,7 +19,7 @@ namespace cms {
 
   class DDDetector;
   class DDFilteredView;
-  struct MuonNumbering;
+  class MuonNumbering;
   struct DDSpecPar;
   
   class DTGeometryBuilder {
