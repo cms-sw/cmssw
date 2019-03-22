@@ -31,33 +31,33 @@ static long  algorithm(dd4hep::Detector& /* description */,
 
   if ((truncCN.size() != truncSensN.size()) ||
       (extenCN.size() != extenSensN.size()) ||
-      (cornrCN.size() != cornrSensN.size()))
-    edm::LogWarning("HGCalGeom") << "The number of cells & sensitive differ:"
-				 << " Truncated " << truncCN.size() << ":"
-				 << truncSensN.size() << " Extended "
-				 << extenCN.size() <<":" << extenSensN.size()
-				 << " Corners " << cornrCN.size() << ":"
-				 << cornrSensN.size();
+      (cornrCN.size() != cornrSensN.size())) {
+    edm::LogError("HGCalGeom") << "The number of cells & sensitive differ:"
+			       << " Truncated " << truncCN.size() << ":"
+			       << truncSensN.size() << " Extended "
+			       << extenCN.size() <<":" << extenSensN.size()
+			       << " Corners " << cornrCN.size() << ":"
+			       << cornrSensN.size();
+    throw cms::Exception("DDException") << "The number of cells & sensitive "
+					<< "differ: Truncated " 
+					<< truncCN.size() << ":"
+					<< truncSensN.size() << " Extended "
+					<< extenCN.size() <<":" 
+					<< extenSensN.size() << " Corners " 
+					<< cornrCN.size() << ":"
+					<< cornrSensN.size();
+  }
   if ((truncCN.size() != 3) || (extenCN.size() != 3) ||
-      (cornrCN.size() != 6))
-    edm::LogWarning("HGCalGeom") << "DDHGCalCell: The number of cells does not"
-				 << " match with Standard: Truncated " 
-				 << truncCN.size() << ":3 Extended " 
-				 << extenCN.size() <<":3" << " Corners " 
-				 << cornrCN.size() << ":6";
-  if ((truncCN.size() > 3) || (extenCN.size() > 3) ||
-      (cornrCN.size() > 6)) {
-    edm::LogError("HGCalGeom") << "DDHGCalCell: Possible memory issue - please"
-				 << " check size of Truncated " 
-				 << truncCN.size() << " > 3; or Extended " 
-				 << extenCN.size() << " > 3' or Corners " 
-				 << cornrCN.size() << " > 6";
-      throw cms::Exception("DDException") << "Wrong size of truncated|extended"
-					  << "|corner cells: " 
-					  << truncCN.size() << ":"
-					  << extenCN.size() << ":"
-					  << cornrCN.size();
-
+      (cornrCN.size() != 6)) {
+    edm::LogError("HGCalGeom") << "DDHGCalCell: The number of cells does not"
+			       << " match with Standard: Truncated " 
+			       << truncCN.size() << ":3 Extended " 
+			       << extenCN.size() <<":3" << " Corners " 
+			       << cornrCN.size() << ":6";
+    throw cms::Exception("DDException") << "Wrong size of truncated|extended"
+					<< "|corner cells: " << truncCN.size()
+					<< ":" << extenCN.size() << ":"
+					<< cornrCN.size();
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << waferSize
