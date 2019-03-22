@@ -44,8 +44,8 @@ protected:
 
   virtual unsigned int timingToTimingBin(int timing) const;
 
-  //[layer][roll][etaBin][timing]
-  std::vector<std::vector<std::vector<std::vector<int> > > >  timigTo1_Beta; //gives average 1/beta
+  //[layer][roll][etaBin][timing]1_Beta_bin]
+  std::vector<std::vector<std::vector<std::vector<std::vector<short> > > > > timigTo1_Beta; //gives average 1/beta
 
   //[layer][etaBin][timing]
   //std::vector<std::vector<std::vector<int> > >  timigTo1_Beta;

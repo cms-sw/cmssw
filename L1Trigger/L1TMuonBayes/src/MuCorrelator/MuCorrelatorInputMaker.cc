@@ -62,6 +62,11 @@ void MuCorrelatorInputMaker::addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers, con
 
   stub.bx = digi.bxNum(); //TODO sholdn't  it be BxCnt()?
   //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
+  stub.timing = digi.bxNum() * 2; //TODO temporary solution untill the real sub-bx timing is provided
+
+  stub.roll = abs(digi.whNum());
+  //if(roll.ring() == 0 && roll.sector() %2) {//in wheel zero in the odd sectors the chambers are placed from the other side than in even, thus the rolls have to be swapped
+    //not so easy - the cells are also readout from the other side. separate rolls are needed
 
   //stub.etaType = ?? TODO
 
@@ -130,11 +135,17 @@ void MuCorrelatorInputMaker::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers, unsi
 
     stub.bx = digi.getBX(); //TODO sholdn't  it be getBX0()?
     //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
+    stub.timing = digi.getBX() - 6; //TODO move 6 to config
 
     //stub.etaType = ?? TODO
 
     stub.logicLayer = iLayer;
     stub.detId = rawid;
+
+    if(detId.ring() == 4) //ME1/1 a, for //ME1/1 there is separate layer, so it should be ok move it to roll 1
+      stub.roll = 1;
+    else
+      stub.roll = abs(detId.ring()-1);
 
     //stub.phi = config->getProcScalePhiToRad(stub.phiHw);
     //stub.eta = config->hwEtaToEta(stub.etaHw);
@@ -157,7 +168,7 @@ void MuCorrelatorInputMaker::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers, unsi
 
     stub.qualityHw = digi.getQuality();
 
-    stub.bx = digi.getBX(); //TODO sholdn't  it be getBX0()?
+    stub.bx = digi.getBX() * 2; //TODO sholdn't  it be getBX0()?
     //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
 
     //stub.etaType = ?? TODO

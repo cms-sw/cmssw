@@ -27,10 +27,6 @@ MuCorrelatorProcessor::MuCorrelatorProcessor(MuCorrelatorConfigPtr& config, uniq
       std::pair<int, boost::dynamic_bitset<> >(4,  boost::dynamic_bitset<>(config->nLayers(), 0b000000000000000010000000000001) ), //MB1, RB1in
       std::pair<int, boost::dynamic_bitset<> >(4,  boost::dynamic_bitset<>(config->nLayers(), 0b000000000000000100000000000001) ), //MB1, RB1out
       std::pair<int, boost::dynamic_bitset<> >(4,  boost::dynamic_bitset<>(config->nLayers(), 0b000000000010000000001000000000) ), //ME1/2  or ME1/3, RE1
-
-
-      std::pair<int, boost::dynamic_bitset<> >(4,  boost::dynamic_bitset<>(config->nLayers(), 0b000000000000101010000000111111) ), //remowe!!!!!!!!
-
      // std::pair<int, boost::dynamic_bitset<> >(4,  boost::dynamic_bitset<>(config->nLayers(), 0b000000010000000001000000000000) )
   };
 

@@ -24,7 +24,7 @@ public:
 
   void generateCoefficients();
 private:
-  //[layer][wheel_ring][etaBin][timing][1_Beta]
+  //[layer][wheel_ring][etaBin][x=timing, y = 1_Beta]
   std::vector<std::vector<std::vector<TH2I*> > >  timigVs1_BetaHists; //gives average 1/beta
 
   TH1I* betaDist = nullptr;

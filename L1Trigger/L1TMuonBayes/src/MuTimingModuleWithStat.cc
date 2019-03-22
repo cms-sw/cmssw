@@ -19,12 +19,12 @@ timigVs1_BetaHists(config->nLayers()) {
     for(unsigned int iRoll = 0; iRoll < timigTo1_Beta[iLayer].size(); ++iRoll) {
       timigVs1_BetaHists[iLayer].emplace_back();
       for(unsigned int iEtaBin = 0; iEtaBin < timigTo1_Beta[iLayer][iRoll].size(); ++iEtaBin) {
-        if(iLayer < 13 || iLayer > 22) {//TODO for the moment only RPC chambers
+        /*if(iLayer < 13 || iLayer > 22) {//TODO for the moment only RPC chambers
           timigVs1_BetaHists[iLayer][iRoll].emplace_back(nullptr);
           continue;
-        }
+        }*/
         std::ostringstream name;
-        name<<"pdfHist_layer_"<<iLayer<<"_roll_"<<iRoll<<"_eta_"<<iEtaBin;
+        name<<"timingHist_layer_"<<iLayer<<"_roll_"<<iRoll<<"_eta_"<<iEtaBin;
         //LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" creating timigVs1_BetaHists "<<name.str()<<std::endl;
         TH2I* hist = subDir.make<TH2I>(name.str(). c_str(), name.str(). c_str(), 50, -10, 90, betaBins, -0.5, betaBins -0.5);
         hist->GetXaxis()->SetTitle("hit timing [ns]");
@@ -39,7 +39,6 @@ timigVs1_BetaHists(config->nLayers()) {
 }
 
 MuTimingModuleWithStat::~MuTimingModuleWithStat() {
-  // TODO Auto-generated destructor stub
 }
 
 void MuTimingModuleWithStat::process(AlgoMuonBase* algoMuon) {
@@ -57,8 +56,8 @@ void MuTimingModuleWithStat::process(AlgoMuonBase* algoMuon) {
     if(!stubResult.getValid())
       continue;
 
-    if(stubResult.getMuonStub()->type != MuonStub::RPC) //TODO add another types if available
-      continue;
+    //if(stubResult.getMuonStub()->type != MuonStub::RPC) //TODO add another types if available
+    //  continue;
 
     unsigned int layer = stubResult.getMuonStub()->logicLayer;
     unsigned int roll =  stubResult.getMuonStub()->roll;
@@ -77,9 +76,76 @@ void MuTimingModuleWithStat::process(AlgoMuonBase* algoMuon) {
 }
 
 
-
-
 void MuTimingModuleWithStat::generateCoefficients() {
+  for(unsigned int iLayer = 0; iLayer < timigTo1_Beta.size(); ++iLayer) {
+    for(unsigned int iRoll = 0; iRoll < timigTo1_Beta[iLayer].size(); ++iRoll) {
+      for(unsigned int iEtaBin = 0; iEtaBin < timigTo1_Beta[iLayer][iRoll].size(); ++iEtaBin) {
+        auto timigVs1_BetaHist = timigVs1_BetaHists.at(iLayer).at(iRoll).at(iEtaBin);
+        if(!timigVs1_BetaHist)
+          continue;
+
+        for(unsigned int iBetaBin = 0; iBetaBin < betaBins; iBetaBin++) {
+          for(unsigned int iTimingBin = 0; iTimingBin < timingBins; iTimingBin++) {
+            timigTo1_Beta.at(iLayer).at(iRoll).at(iEtaBin).at(iTimingBin).at(iBetaBin) = 0; //cleanig previous values
+          }
+        }
+
+        //timigVs1_BetaHist->Sumw2();
+        if(timigVs1_BetaHist->Integral() <= 0) {
+          //LogTrace("omtfEventPrintout")<<__FUNCTION__<<": "<<__LINE__<<" iLayer "<<iLayer<<" iRoll "<<iRoll<<" iEtaBin "<<iEtaBin<<" - no entries, coefficients not calculated"<<std::endl;
+          continue;
+        }
+
+        for(unsigned int iBetaBin = 0; iBetaBin < betaBins; iBetaBin++) {
+          //Normalize pdf in each ptBin separately, to get p(timing | beta, eta)
+          std::ostringstream ostr;
+          ostr<<timigVs1_BetaHist->GetName()<<"_ptBin_"<<iBetaBin;
+          TH1D* timingHistInBetaBin = timigVs1_BetaHist->ProjectionX(ostr.str().c_str(), iBetaBin +1, iBetaBin +1); //+1 Because the bins in root hist are counted from 1
+
+          timingHistInBetaBin->SetTitle(ostr.str().c_str());
+
+          //timingHistInBetaBin->Sumw2();
+          if(timingHistInBetaBin->Integral() <= 0) {
+            edm::LogVerbatim("omtfEventPrintout")<<__FUNCTION__<<": "<<__LINE__<<" iLayer "<<iLayer<<" iEtaBin "<<iEtaBin<<" iBetaBin "<<iBetaBin<<" - no entries, coefficients not calculated"<<std::endl;
+            continue;
+          }
+
+          timingHistInBetaBin->Scale(1./timingHistInBetaBin->Integral());
+
+          const double minPdfVal = 0.01;
+          const double minPlog =  log(minPdfVal);
+          const double pdfMaxLogVal = 3; //the maximum value tha the logPdf can have (n.b. logPdf = pdfMaxLogVal - log(pdfVal) * pdfMaxLogVal / minPlog)
+
+
+          for(int iTimingHistBin = 1; iTimingHistBin <= timingHistInBetaBin->GetXaxis()->GetNbins(); iTimingHistBin++) {
+            double pdfVal = timingHistInBetaBin->GetBinContent(iTimingHistBin);
+            double logPdf = 0;
+            //double error = 0;
+            if(pdfVal >= minPdfVal) {
+              logPdf = pdfMaxLogVal - log(pdfVal) * pdfMaxLogVal / minPlog;
+            }
+
+            int timing = timingHistInBetaBin->GetXaxis()->GetBinLowEdge(iTimingHistBin);
+            unsigned int timingBin = timingToTimingBin(timing);
+
+            timigTo1_Beta.at(iLayer).at(iRoll).at(iEtaBin).at(timingBin).at(iBetaBin) = + round(logPdf); //in the timingHistInBetaBin there are bins with negative timing. after round it will not be very good
+            //pdfHistInPtBin->SetBinContent(iTimingHistBin, logPdf);
+
+            if(timigTo1_Beta.at(iLayer).at(iRoll).at(iEtaBin).at(timingBin).at(iBetaBin) > pdfMaxLogVal)
+              timigTo1_Beta.at(iLayer).at(iRoll).at(iEtaBin).at(timingBin).at(iBetaBin) = pdfMaxLogVal; //should be not needed if the above is corrected
+
+            edm::LogVerbatim("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" layer "<<iLayer<<" roll "<<iRoll<<" etaBin "<<iEtaBin<<" iBetaBin "<<iBetaBin
+                <<" iTimingHistBin "<<iTimingHistBin<<" iTimingBin "<<timingBin<<" timing "<<timing<<" logPdf "<<logPdf<<std::endl;
+          }
+
+        }
+      }
+    }
+  }
+}
+
+
+/*void MuTimingModuleWithStat::generateCoefficients() {
   for(unsigned int iLayer = 0; iLayer < timigTo1_Beta.size(); ++iLayer) {
     for(unsigned int iRoll = 0; iRoll < timigTo1_Beta[iLayer].size(); ++iRoll) {
       for(unsigned int iEtaBin = 0; iEtaBin < timigTo1_Beta[iLayer][iRoll].size(); ++iEtaBin) {
@@ -105,7 +171,7 @@ void MuTimingModuleWithStat::generateCoefficients() {
             }
           }
           int timing =  timigVs1_BetaHist->GetXaxis()->GetBinLowEdge(iTimingBin);
-          if(timing < 6) {//assuming everything with timing  6 is muon, due to timing resolution TODO optimize when real resolution available
+          if((iLayer < 13 || iLayer > 22)  && timing < 6) {//for RPPC assuming everything with timing  6 is muon, due to timing resolution TODO optimize when real resolution available
             one_beta = 1;
             //if timing < 0 hitTimingBin then is 0
           }
@@ -119,4 +185,4 @@ void MuTimingModuleWithStat::generateCoefficients() {
       }
     }
   }
-}
+}*/

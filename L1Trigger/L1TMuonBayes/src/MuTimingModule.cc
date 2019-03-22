@@ -17,7 +17,7 @@ MuTimingModule::MuTimingModule(const ProcConfigurationBase* config): config(conf
 {
   for(unsigned int iLayer = 0; iLayer < timigTo1_Beta.size(); ++iLayer) {
     //TODO rolls, eta and bins can depend on layer
-    timigTo1_Beta[iLayer].assign(rolls, std::vector<std::vector<int> >(etaBins, std::vector<int>(timingBins)) );
+    timigTo1_Beta[iLayer].assign(rolls, std::vector<std::vector<std::vector<short> > >(etaBins, std::vector<std::vector<short> >(timingBins, std::vector<short>(betaBins))) );
   }
 }
 
@@ -33,26 +33,19 @@ void MuTimingModule::process(AlgoMuonBase* algoMuon) {
     if(!stubResult.getValid())
       continue;
 
-    if(stubResult.getMuonStub()->type != MuonStub::RPC) //TODO add aother types if available
-      continue;
+/*    if(stubResult.getMuonStub()->type != MuonStub::RPC) //TODO add aother types if available
+      continue;*/
 
     unsigned int layer = stubResult.getMuonStub()->logicLayer;
     unsigned int roll =  stubResult.getMuonStub()->roll;
     unsigned int etaBin = etaHwToEtaBin(algoMuon->getEtaHw(), stubResult.getMuonStub());
     unsigned int hitTimingBin = timingToTimingBin(stubResult.getMuonStub()->timing);
 
-    unsigned int one_beta = timigTo1_Beta.at(layer).at(roll).at(etaBin).at(hitTimingBin);
+    for(unsigned int iOne_beta = 0; iOne_beta < betaBins; iOne_beta++) {
+      int logPVal = timigTo1_Beta.at(layer).at(roll).at(etaBin).at(hitTimingBin).at(iOne_beta);
 
-    LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" layer "<<layer<<" roll "<<roll<<" etaBin "<<etaBin<<" hitTiming "<<stubResult.getMuonStub()->timing<<" hitTimingBin "<<hitTimingBin<<" = one_beta "<<one_beta<<std::endl;
-
-    if(one_beta != 0) {
-      //pseudo-Gauss
-      one_betaHist.at(one_beta) +=2;
-      if(one_beta != 0)
-        one_betaHist.at(one_beta-1) +=1;
-      if(one_beta != one_betaHist.size() -1)
-        one_betaHist.at(one_beta+1) +=1;
-
+      LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" layer "<<layer<<" roll "<<roll<<" etaBin "<<etaBin<<" hitTiming "<<stubResult.getMuonStub()->timing<<" hitTimingBin "<<hitTimingBin<<" = one_beta "<<iOne_beta<<" logPVal "<<logPVal<<std::endl;
+      one_betaHist.at(iOne_beta) += logPVal;
     }
   }
 

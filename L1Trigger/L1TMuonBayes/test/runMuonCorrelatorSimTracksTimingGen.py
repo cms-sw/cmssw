@@ -184,7 +184,7 @@ process.simBayesMuCorrelatorTrackProducer.pdfModuleType = cms.string("PdfModuleW
 process.simBayesMuCorrelatorTrackProducer.useStubsFromAdditionalBxs = cms.int32(3)
 
 process.simBayesMuCorrelatorTrackProducer.generateTiming = cms.bool(True)
-process.simBayesMuCorrelatorTrackProducer.outputTimingFile = cms.string("muTimingModule.xml")
+process.simBayesMuCorrelatorTrackProducer.outputTimingFile = cms.string("muTimingModuleTest.xml")
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
@@ -205,7 +205,7 @@ process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 ############################################################
 
 process.omtfTTAnalyzer= cms.EDAnalyzer("MuCorrelatorAnalyzer", 
-                                 outRootFile = cms.string("muCorrelatorTTAnalysis1.root"),
+                                 #outRootFile = cms.string("muCorrelatorTTAnalysis1Test.root"),
                                  etaCutFrom = cms.double(0.), #OMTF eta range
                                  etaCutTo = cms.double(2.35),
                                           

@@ -34,7 +34,7 @@ void XMLEventWriter::observeProcesorEmulation(unsigned int iProcessor, l1t::tfty
     return;
 
   //if(currentElement == nullptr)
-    currentElement = xmlWriter.writeEventHeader(eventId);
+  //  currentElement = xmlWriter.writeEventHeader(eventId);
 
   xercesc::DOMElement * aProcElement = xmlWriter.writeEventData(currentElement, board, input);
 
@@ -60,6 +60,7 @@ void XMLEventWriter::observeEventBegin(const edm::Event& iEvent) {
     return;
   //currentElement = xmlWriter.writeEventHeader(iEvent.id().event());
   eventId = iEvent.id().event();
+  currentElement = xmlWriter.writeEventHeader(eventId);
 }
 
 void XMLEventWriter::observeEventEnd(const edm::Event& iEvent) {
