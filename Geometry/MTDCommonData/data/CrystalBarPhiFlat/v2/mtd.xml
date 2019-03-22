@@ -930,7 +930,7 @@ note: see MTD_D38ETLV2_V0001_2019_03_14.cfg for full config files
 </LogicalPart>
 <LogicalPart name="BModule1Layer1Timingactive" category="unspecified">
 <rSolid name="mtd:BModule1Layer1Timingactive"/>
-<rMaterial name="mtd:tkLayout_SenLYSO"/>
+<rMaterial name="materials:LYSO"/>
 </LogicalPart>
 <LogicalPart name="BModule1Layer1PositiveZFSide" category="unspecified">
 <rSolid name="mtd:BModule1Layer1PositiveZFSide"/>
@@ -966,7 +966,7 @@ note: see MTD_D38ETLV2_V0001_2019_03_14.cfg for full config files
 </LogicalPart>
 <LogicalPart name="BModule17Layer1Timingactive" category="unspecified">
 <rSolid name="mtd:BModule17Layer1Timingactive"/>
-<rMaterial name="mtd:tkLayout_SenLYSO"/>
+<rMaterial name="materials:LYSO"/>
 </LogicalPart>
 <LogicalPart name="BModule17Layer1PositiveZFSide" category="unspecified">
 <rSolid name="mtd:BModule17Layer1PositiveZFSide"/>
@@ -1002,7 +1002,7 @@ note: see MTD_D38ETLV2_V0001_2019_03_14.cfg for full config files
 </LogicalPart>
 <LogicalPart name="BModule33Layer1Timingactive" category="unspecified">
 <rSolid name="mtd:BModule33Layer1Timingactive"/>
-<rMaterial name="mtd:tkLayout_SenLYSO"/>
+<rMaterial name="materials:LYSO"/>
 </LogicalPart>
 <LogicalPart name="BModule33Layer1PositiveZFSide" category="unspecified">
 <rSolid name="mtd:BModule33Layer1PositiveZFSide"/>
