@@ -133,6 +133,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       const unsigned int rpId = rpv.detId();
       for ( const auto& trk : rpv ) {
         if ( !trk.isValid() ) continue;
+        if ( trk.getOOTIndex() != timeSlice_ ) continue;
         float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getX0());
         float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
         float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
