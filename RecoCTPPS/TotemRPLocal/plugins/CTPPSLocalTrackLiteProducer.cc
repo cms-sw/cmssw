@@ -49,12 +49,14 @@ private:
 /// if true, this module will do nothing
 /// needed for consistency with CTPPS-less workflows
   bool doNothing_;
+  unsigned int timeSlice_;
 };
 
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSet& iConfig ) :
-  doNothing_( iConfig.getParameter<bool>( "doNothing" ) )
+  doNothing_( iConfig.getParameter<bool>( "doNothing" ) ),
+  timeSlice_( iConfig.getParameter<unsigned int>( "timeSlice" ) )
 {
   if ( doNothing_ ) return;
 
@@ -65,7 +67,7 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSe
   diamondTrackToken_ = consumes< edm::DetSetVector<CTPPSDiamondLocalTrack> >( iConfig.getParameter<edm::InputTag>("tagDiamondTrack") );
 
   includePixels_ = iConfig.getParameter<bool>("includePixels");
-  auto tagPixelTrack = iConfig.getParameter<edm::InputTag>("tagPixelTrack"); 
+  auto tagPixelTrack = iConfig.getParameter<edm::InputTag>("tagPixelTrack");
   if (not tagPixelTrack.label().empty()){
     pixelTrackToken_   = consumes< edm::DetSetVector<CTPPSPixelLocalTrack> >  (tagPixelTrack);
   }
@@ -78,7 +80,7 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSe
 }
 
 //----------------------------------------------------------------------------------------------------
- 
+
 void
 CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup& )
 {
@@ -87,7 +89,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 
   // prepare output
   std::unique_ptr< std::vector<CTPPSLocalTrackLite> > pOut( new std::vector<CTPPSLocalTrackLite>() );
-  
+
   //----- TOTEM strips
 
   // get input from Si strips
@@ -112,7 +114,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
           float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTySigma());
           float roundedChiSquaredOverNDF = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getChiSquaredOverNDF());
 
-        pOut->emplace_back( rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, roundedTx, roundedTxSigma, roundedTy, roundedTySigma, 
+        pOut->emplace_back( rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, roundedTx, roundedTxSigma, roundedTy, roundedTySigma,
         roundedChiSquaredOverNDF, CTPPSpixelLocalTrackReconstructionInfo::invalid, trk.getNumberOfPointsUsedForFit(),0,0 );
       }
     }
@@ -138,7 +140,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
         float roundedT = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getT());
         float roundedTSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getTSigma());
 
-        pOut->emplace_back( rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, 0., 0., 0., 0., 0., 
+        pOut->emplace_back( rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, 0., 0., 0., 0., 0.,
         CTPPSpixelLocalTrackReconstructionInfo::invalid, trk.getNumOfPlanes(), roundedT, roundedTSigma);
       }
     }
@@ -170,7 +172,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
             float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTySigma());
             float roundedChiSquaredOverNDF = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getChiSquaredOverNDF());
 
-            pOut->emplace_back( rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, roundedTx, roundedTxSigma, roundedTy, roundedTySigma, 
+            pOut->emplace_back( rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, roundedTx, roundedTxSigma, roundedTy, roundedTySigma,
             roundedChiSquaredOverNDF, trk.getRecoInfo(), trk.getNumberOfPointsUsedForFit(),0.,0. );
           }
         }
@@ -184,7 +186,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 
 //----------------------------------------------------------------------------------------------------
 
-void 
+void
 CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
 {
   edm::ParameterSetDescription desc;
@@ -202,6 +204,8 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
     ->setComment( "input pixel detectors' local tracks collection to retrieve" );
   desc.add<bool>( "doNothing", true ) // disable the module by default
     ->setComment( "disable the module" );
+  desc.add<unsigned int>( "timeSlice", 0 )
+    ->setComment( "time slice to select for timing detectors" );
 
   desc.add<double>("pixelTrackTxMin",-10.0);
   desc.add<double>("pixelTrackTxMax", 10.0);
@@ -214,3 +218,4 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE( CTPPSLocalTrackLiteProducer );
+
