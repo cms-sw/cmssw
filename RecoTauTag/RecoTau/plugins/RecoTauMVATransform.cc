@@ -20,6 +20,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "TGraph.h"
 
 namespace {
@@ -49,6 +52,7 @@ class RecoTauMVATransform : public PFTauDiscriminationProducerBase {
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
     double discriminate(const reco::PFTauRef&) const override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
     // Map a decay mode to a transformation
     typedef boost::ptr_map<reco::PFTau::hadronicDecayMode, TGraph> TransformMap;
@@ -107,6 +111,32 @@ double RecoTauMVATransform::discriminate(const reco::PFTauRef& tau) const {
   double result = transform->Eval(value);
   return result;
 }
+
+void
+RecoTauMVATransform::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // recoTauMVATransform
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("toTransform");
+
+  edm::ParameterSetDescription vpsd_transforms;
+  vpsd_transforms.add<uint32_t>("nCharged");
+  vpsd_transforms.add<uint32_t>("nPiZeros");
+
+  edm::ParameterSetDescription pset_transform;
+  pset_transform.add<double>("min");
+  pset_transform.add<double>("max");
+  pset_transform.add<std::vector<double>>("transform");
+  vpsd_transforms.add<edm::ParameterSetDescription>("transform", pset_transform);
+
+  //            name          description       no defaults items
+  desc.addVPSet("transforms", vpsd_transforms);
+
+  fillProducerDescriptions(desc); // inherited from the base
+
+  descriptions.add("recoTauMVATransform", desc);
+}
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RecoTauMVATransform);

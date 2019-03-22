@@ -26,6 +26,9 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
@@ -82,12 +85,10 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
 	category_output_()
     {
        mvaName_ = cfg.getParameter<std::string>("mvaName");
-       loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
+       loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
        if ( !loadMVAfromDB_ ) {
-         if(cfg.exists("inputFileName")){
 	   inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
-	 }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
-       }    
+       }
        std::string mvaOpt_string = cfg.getParameter<std::string>("mvaOpt");
        if      ( mvaOpt_string == "oldDMwoLT" ) mvaOpt_ = kOldDMwoLT;
        else if ( mvaOpt_string == "oldDMwLT"  ) mvaOpt_ = kOldDMwLT;
@@ -115,18 +116,17 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
        photonPtSumOutsideSignalCone_ = cfg.getParameter<std::string>("srcPhotonPtSumOutsideSignalCone");
        footprintCorrection_ = cfg.getParameter<std::string>("srcFootprintCorrection");
 		  
-       verbosity_ = ( cfg.exists("verbosity") ) ?
-         cfg.getParameter<int>("verbosity") : 0;
+       verbosity_ = cfg.getParameter<int>("verbosity");
 
        produces<pat::PATTauDiscriminator>("category");
     }  
-		
+
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
-		
+
     double discriminate(const TauRef&) const override;
-		
+
     void endEvent(edm::Event&) override;
-		
+
     ~PATTauDiscriminationByMVAIsolationRun2() override
     {
       if(!loadMVAfromDB_) delete mvaReader_;
@@ -136,7 +136,9 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
         delete (*it);
       }
     }
-    	
+
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
   private:
 		
     std::string moduleLabel_;
@@ -205,6 +207,28 @@ void PATTauDiscriminationByMVAIsolationRun2::endEvent(edm::Event& evt)
 {
   // add all category indices to event
   evt.put(std::move(category_output_), "category");
+}
+
+void
+PATTauDiscriminationByMVAIsolationRun2::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // patTauDiscriminationByMVAIsolationRun2
+  edm::ParameterSetDescription desc;
+
+  desc.add<std::string>("mvaName");
+  desc.add<bool>("loadMVAfromDB");
+  desc.addOptional<edm::FileInPath>("inputFileName");
+  desc.add<std::string>("mvaOpt");
+
+  desc.add<std::string>("srcChargedIsoPtSum");
+  desc.add<std::string>("srcNeutralIsoPtSum");
+  desc.add<std::string>("srcPUcorrPtSum");
+  desc.add<std::string>("srcPhotonPtSumOutsideSignalCone");
+  desc.add<std::string>("srcFootprintCorrection");
+  desc.add<int>("verbosity", 0);
+
+  fillProducerDescriptions(desc); // inherited from the base
+
+  descriptions.add("patTauDiscriminationByMVAIsolationRun2", desc);
 }
 
 DEFINE_FWK_MODULE(PATTauDiscriminationByMVAIsolationRun2);

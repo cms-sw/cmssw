@@ -6,6 +6,8 @@ Plugins for ranking PFTau candidates
 
 '''
 
+tolerance_default = cms.double(0)
+
 matchingConeCut = cms.PSet(
     name = cms.string("MatchingCone"),
     plugin = cms.string("RecoTauStringCleanerPlugin"),
@@ -13,6 +15,7 @@ matchingConeCut = cms.PSet(
     selection = cms.string("deltaR(eta, phi, jetRef().eta, jetRef().phi) < 0.1"),
     selectionPassFunction = cms.string("0"),
     selectionFailValue = cms.double(1e3),
+    tolerance = tolerance_default,
 )
 
 # Prefer taus with charge == 1 (no three prongs with charge = 3)
@@ -26,6 +29,7 @@ unitCharge = cms.PSet(
     # If it is a one prong, consider it just as good as a
     # three prong with unit charge
     selectionFailValue = cms.double(0),
+    tolerance = tolerance_default,
 )
 
 # similar to unitCharge but handles also cases where tau is made up of
@@ -38,6 +42,7 @@ charge = cms.PSet(
     # taus with charge != 1 are rejected
     passForCharge = cms.int32(1),
     selectionFailValue = cms.double(0),
+    tolerance = tolerance_default,
 )
 
 # Prefer taus with pt greater 15
@@ -46,7 +51,8 @@ ptGt15 = cms.PSet(
     plugin = cms.string("RecoTauStringCleanerPlugin"),
     selection = cms.string("pt > 15."),
     selectionPassFunction = cms.string("0"),
-    selectionFailValue = cms.double(1e3)
+    selectionFailValue = cms.double(1e3),
+    tolerance = tolerance_default,
 )
 
 # Prefer taus that have higher TaNC output values
@@ -54,12 +60,14 @@ tanc = cms.PSet(
     name = cms.string("TaNC"),
     plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
     src = cms.InputTag("DISCRIMINATOR_SRC"),
+    tolerance = tolerance_default,
 )
 
 leadPionFinding = cms.PSet(
     name = cms.string("LeadPion"),
     plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
     src = cms.InputTag("DISCRIMINATOR_SRC"),
+    tolerance = tolerance_default,
 )
 
 pt = cms.PSet(
@@ -74,7 +82,8 @@ pt = cms.PSet(
 
 chargedHadronMultiplicity = cms.PSet(
     name = cms.string("ChargedHadronMultiplicity"),
-    plugin = cms.string("RecoTauChargedHadronMultiplicityCleanerPlugin")
+    plugin = cms.string("RecoTauChargedHadronMultiplicityCleanerPlugin"),
+    tolerance = tolerance_default,
 )
 
 stripMultiplicity = cms.PSet(
@@ -83,7 +92,8 @@ stripMultiplicity = cms.PSet(
     # Require that cones were built by ensuring the a leadCand exits
     selection = cms.string("leadPFCand().isNonnull()"),
     selectionPassFunction = cms.string("-signalPiZeroCandidates().size()"),
-    selectionFailValue = cms.double(1e3)
+    selectionFailValue = cms.double(1e3),
+    tolerance = tolerance_default,
 )
 
 combinedIsolation = cms.PSet(
@@ -92,7 +102,8 @@ combinedIsolation = cms.PSet(
     # Require that cones were built by ensuring the a leadCand exits
     selection = cms.string("leadPFCand().isNonnull()"),
     selectionPassFunction = cms.string("isolationPFChargedHadrCandsPtSum() + isolationPFGammaCandsEtSum()"),
-    selectionFailValue = cms.double(1e3)
+    selectionFailValue = cms.double(1e3),
+    tolerance = tolerance_default,
 )
 
 chargeIsolation = cms.PSet(
@@ -102,7 +113,8 @@ chargeIsolation = cms.PSet(
     selection = cms.string("leadPFCand().isNonnull()"),
     # Prefer lower isolation activity
     selectionPassFunction = cms.string("isolationPFChargedHadrCandsPtSum()"),
-    selectionFailValue = cms.double(1e3)
+    selectionFailValue = cms.double(1e3),
+    tolerance = tolerance_default,
 )
 
 ecalIsolation = cms.PSet(
@@ -112,7 +124,8 @@ ecalIsolation = cms.PSet(
     selection = cms.string("leadPFCand().isNonnull()"),
     # Prefer lower isolation activity
     selectionPassFunction = cms.string("isolationPFGammaCandsEtSum()"),
-    selectionFailValue = cms.double(1e3)
+    selectionFailValue = cms.double(1e3),
+    tolerance = tolerance_default,
 )
 
 # CV: Reject 2-prong candidates in which one of the tracks has low pT,
@@ -120,5 +133,6 @@ ecalIsolation = cms.PSet(
 killSoftTwoProngTaus = cms.PSet(
     name = cms.string("killSoftTwoProngTaus"),
     plugin = cms.string("RecoTauSoftTwoProngTausCleanerPlugin"),
-    minTrackPt = cms.double(5.)
+    minTrackPt = cms.double(5.),
+    tolerance = tolerance_default,
 )
