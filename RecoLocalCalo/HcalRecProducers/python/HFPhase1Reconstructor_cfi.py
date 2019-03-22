@@ -206,7 +206,6 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
         wedgeCut = cms.double(0.05),
         gap = cms.int32(2),
         lstrips = cms.int32(2),
-        acceptSeverityLevel = cms.int32(9),
         verboseLevel = cms.int32(20)
     )
 )
