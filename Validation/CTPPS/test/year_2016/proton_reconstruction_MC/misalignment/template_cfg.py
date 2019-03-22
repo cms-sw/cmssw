@@ -24,10 +24,6 @@ process.maxEvents = cms.untracked.PSet(
 # particle-data table
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-# supply LHC info and optics
-# TODO: remove this line once data are available in CondDB
-process.load("CalibPPS.ESProducers.ctppsOpticalFunctions_cff")
-
 # random seeds
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     sourceSeed = cms.PSet(initialSeed =cms.untracked.uint32(98765)),
@@ -64,9 +60,8 @@ process.ctppsLocalTrackLiteProducer.includeDiamonds = False
 process.ctppsLocalTrackLiteProducer.includePixels = False
 
 # proton reconstruction
-process.load("RecoCTPPS.ProtonReconstruction.ctppsProtons_cfi")
+process.load("RecoCTPPS.ProtonReconstruction.ctppsProtons_cff")
 process.ctppsProtons.tagLocalTrackLite = cms.InputTag('ctppsLocalTrackLiteProducer')
-process.ctppsProtons.lhcInfoLabel = process.ctppsLHCInfoESSource_2016.label # TODO: remove this line once data loaded from DB
 #process.ctppsProtons.fitVtxY = False
 
 # reconstruction validation

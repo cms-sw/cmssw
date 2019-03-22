@@ -6,14 +6,10 @@ from RecoCTPPS.TotemRPLocal.totemTimingLocalReconstruction_cff import *
 from RecoCTPPS.PixelLocal.ctppsPixelLocalReconstruction_cff import *
 
 from RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff import ctppsLocalTrackLiteProducer
-from RecoCTPPS.ProtonReconstruction.ctppsProtons_cfi import *
+
+from RecoCTPPS.ProtonReconstruction.ctppsProtons_cff import *
 
 from Geometry.VeryForwardGeometry.geometryRPFromDB_cfi import *
-
-# TODO: remove these lines once conditions data are available in DB
-from CalibPPS.ESProducers.ctppsAlignment_cff import *
-from CalibPPS.ESProducers.ctppsOpticalFunctions_cff import *
-ctppsProtons.lhcInfoLabel = ctppsLHCInfoLabel
 
 recoCTPPS = cms.Sequence(
     totemRPLocalReconstruction *
