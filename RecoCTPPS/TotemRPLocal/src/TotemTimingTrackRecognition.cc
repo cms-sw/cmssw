@@ -13,8 +13,7 @@
 //----------------------------------------------------------------------------------------------------
 
 TotemTimingTrackRecognition::TotemTimingTrackRecognition( const edm::ParameterSet& iConfig ) :
-  CTPPSTimingTrackRecognition<TotemTimingLocalTrack, TotemTimingRecHit>( iConfig ),
-  tolerance_( iConfig.getParameter<double>( "tolerance" ) )
+  CTPPSTimingTrackRecognition<TotemTimingLocalTrack, TotemTimingRecHit>( iConfig )
 {}
 
 //----------------------------------------------------------------------------------------------------

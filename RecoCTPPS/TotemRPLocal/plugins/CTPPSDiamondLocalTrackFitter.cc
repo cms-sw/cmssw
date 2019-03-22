@@ -116,6 +116,8 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
     ->setComment( "starting horizontal coordinate of rechits for the track recognition" );
   trackingAlgoParams.add<double>( "stopAtX", 19.5 /* mm */ )
     ->setComment( "ending horizontal coordinate of rechits for the track recognition" );
+  trackingAlgoParams.add<double>( "tolerance", 0.1 /* mm */)
+    ->setComment( "tolerance used for checking if the track contains certain hit" );
 
   trackingAlgoParams.add<std::string>( "pixelEfficiencyFunction", "(x>[0]-0.5*[1])*(x<[0]+0.5*[1])+0*[2]" )
     ->setComment( "efficiency function for single pixel\n"
