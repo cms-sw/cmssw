@@ -1,6 +1,9 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 /* class PFRecoTauDiscriminationByDeltaE
  * created : August 30 2010,
  * contributors : Sami Lehti (sami.lehti@cern.ch ; HIP, Helsinki)
@@ -27,6 +30,7 @@ class PFRecoTauDiscriminationByDeltaE : public PFTauDiscriminationProducerBase  
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 	double discriminate(const reco::PFTauRef&) const override;
 
+        static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     private:
 	double DeltaE(const PFTauRef&) const ;
 
@@ -66,5 +70,26 @@ double PFRecoTauDiscriminationByDeltaE::DeltaE(const PFTauRef& tau) const {
  	}
 }
 
-DEFINE_FWK_MODULE(PFRecoTauDiscriminationByDeltaE);
+void
+PFRecoTauDiscriminationByDeltaE::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationByDeltaE
+  edm::ParameterSetDescription desc;
+  desc.add<double>("deltaEmin", -0.15);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<double>("deltaEmax", 1.0);
+  desc.add<bool>("BooleanOutput", true);
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
+  descriptions.add("pfRecoTauDiscriminationByDeltaE", desc);
+}
 
+DEFINE_FWK_MODULE(PFRecoTauDiscriminationByDeltaE);
