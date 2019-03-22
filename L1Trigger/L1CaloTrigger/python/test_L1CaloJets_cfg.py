@@ -82,6 +82,7 @@ process.Out = cms.OutputModule( "PoolOutputModule",
      outputCommands = cms.untracked.vstring(
                           "keep *_L1EGammaClusterEmuProducer_*_*",
                           "keep *_L1CaloJetProducer_*_*",
+                          "keep *_L1CaloJetHTTProducer_*_*",
                           "keep *_TriggerResults_*_*",
                           "keep *_simHcalTriggerPrimitiveDigis_*_*",
                           "keep *_EcalEBTrigPrimProducer_*_*",

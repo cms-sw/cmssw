@@ -31,8 +31,18 @@ L1CaloJetProducer.l1CaloTowers = cms.InputTag("L1TowerCalibrationProducer","L1Ca
 L1CaloJetProducer.L1CrystalClustersInputTag = cms.InputTag("L1EGammaClusterEmuProducer", "L1EGXtalClusterEmulator","")
 
 
+
+# --------------------------------------------------------------------------------------------
+#
+# ----    Produce the CaloJet HTT Sums
+
+from L1Trigger.L1CaloTrigger.L1CaloJetHTTProducer_cfi import *
+
+
+
 l1CaloJetsSequence = cms.Sequence( 
         L1EGammaClusterEmuProducer *
         L1TowerCalibrationProducer *
-        L1CaloJetProducer
+        L1CaloJetProducer *
+        L1CaloJetHTTProducer
 )
