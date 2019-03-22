@@ -24,7 +24,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
+#include "Geometry/Records/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 
