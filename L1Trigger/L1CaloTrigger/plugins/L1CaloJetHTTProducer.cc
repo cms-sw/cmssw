@@ -20,9 +20,6 @@ Implementation:
 //
 
 
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,11 +29,8 @@ Implementation:
 
 #include <iostream>
 
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/Phase2L1CaloTrig/interface/L1CaloJet.h"
-
-
 // Run2/PhaseI output formats
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 
 
@@ -50,9 +44,6 @@ class L1CaloJetHTTProducer : public edm::EDProducer {
         double EtaMax;
         double PtMin;
 
-        edm::EDGetTokenT<l1slhc::L1CaloJetsCollection> caloJetsToken_;
-        edm::Handle<l1slhc::L1CaloJetsCollection> caloJetsHandle; 
-
         edm::EDGetTokenT<BXVector<l1t::Jet>> bxvCaloJetsToken_;
         edm::Handle<BXVector<l1t::Jet>> bxvCaloJetsHandle;        
 
@@ -65,7 +56,6 @@ class L1CaloJetHTTProducer : public edm::EDProducer {
 L1CaloJetHTTProducer::L1CaloJetHTTProducer(const edm::ParameterSet& iConfig) :
     EtaMax(iConfig.getParameter<double>("EtaMax")),
     PtMin(iConfig.getParameter<double>("PtMin")),
-    caloJetsToken_(consumes<l1slhc::L1CaloJetsCollection>(iConfig.getParameter<edm::InputTag>("L1CaloJetsInputTag"))),
     bxvCaloJetsToken_(consumes<BXVector<l1t::Jet>>(iConfig.getParameter<edm::InputTag>("BXVCaloJetsInputTag"))),
     debug(iConfig.getParameter<bool>("debug"))
 
@@ -88,22 +78,7 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 
 
-    iEvent.getByToken(caloJetsToken_,caloJetsHandle);
     iEvent.getByToken(bxvCaloJetsToken_,bxvCaloJetsHandle);
-
-
-
-    float tmp_CaloJetHTT = 0.;
-    if (caloJetsHandle.isValid())
-    {
-        for(const auto& caloJet : *caloJetsHandle.product())
-        {
-            if (caloJet.GetExperimentalParam("jet_pt_calibration") < PtMin) continue;
-            if ( fabs(caloJet.GetExperimentalParam("jet_eta")) > EtaMax) continue;
-            tmp_CaloJetHTT += float(caloJet.GetExperimentalParam("jet_pt_calibration"));
-        }
-    }
-
 
 
     *CaloJetHTT = 0.;
@@ -119,10 +94,7 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     if (debug)
     {
-        if (*CaloJetHTT != tmp_CaloJetHTT)
-        {
-            printf("BXV Method: %f    CaloJetCustom Method: %f    BXV/Cust: %f\n", *CaloJetHTT, tmp_CaloJetHTT, *CaloJetHTT/tmp_CaloJetHTT);
-        }
+        printf("BXV L1CaloJetCollection JetHTT = %f   for PtMin %f   and EtaMax %f\n", *CaloJetHTT, PtMin, EtaMax);
     }
 
 
