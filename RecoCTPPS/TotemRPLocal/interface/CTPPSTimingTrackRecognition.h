@@ -135,8 +135,7 @@ void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
   bool underThreshold = true;
   float rangeMaximum = -1.0f;
   bool trackRangeFound = false;
-  int trackRangeBegin = 0;
-  int trackRangeEnd;
+  int trackRangeBegin = 0, trackRangeEnd = 0;
 
   // Searches for tracks in the hit profile
   for (unsigned int i = 0; i < hitProfile.size(); i++) {
@@ -192,30 +191,26 @@ CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::getHitSpatialRange(const HitV
   SpatialRange result;
 
   for (const auto& hit : hits) {
-    const float xBegin = hit.getX() - 0.5f*hit.getXWidth();
-    const float yBegin = hit.getY() - 0.5f*hit.getYWidth();
-    const float zBegin = hit.getZ() - 0.5f*hit.getZWidth();
-    const float xEnd = hit.getX() + 0.5f*hit.getXWidth();
-    const float yEnd = hit.getY() + 0.5f*hit.getYWidth();
-    const float zEnd = hit.getZ() + 0.5f*hit.getZWidth();
+    const float xBegin = hit.getX() - 0.5f*hit.getXWidth(), xEnd = hit.getX() + 0.5f*hit.getXWidth();
+    const float yBegin = hit.getY() - 0.5f*hit.getYWidth(), yEnd = hit.getY() + 0.5f*hit.getYWidth();
+    const float zBegin = hit.getZ() - 0.5f*hit.getZWidth(), zEnd = hit.getZ() + 0.5f*hit.getZWidth();
 
     if (!initialized) {
       result.xBegin = xBegin;
-      result.yBegin = yBegin;
-      result.zBegin = zBegin;
       result.xEnd = xEnd;
+      result.yBegin = yBegin;
       result.yEnd = yEnd;
+      result.zBegin = zBegin;
       result.zEnd = zEnd;
       initialized = true;
       continue;
     }
-    if (xBegin < result.xBegin) result.xBegin = xBegin;
-    if (yBegin < result.yBegin) result.yBegin = yBegin;
-    if (zBegin < result.zBegin) result.zBegin = zBegin;
-
-    if (xEnd > result.xEnd) result.xEnd = xEnd;
-    if (yEnd > result.yEnd) result.yEnd = yEnd;
-    if (zEnd > result.zEnd) result.zEnd = zEnd;
+    result.xBegin = std::min(result.xBegin, xBegin);
+    result.xEnd = std::max(result.xEnd, xEnd);
+    result.yBegin = std::min(result.yBegin, yBegin);
+    result.yEnd = std::max(result.yEnd, yEnd);
+    result.zBegin = std::min(result.zBegin, zBegin);
+    result.zEnd = std::max(result.zEnd, zEnd);
   }
 
   return result;
