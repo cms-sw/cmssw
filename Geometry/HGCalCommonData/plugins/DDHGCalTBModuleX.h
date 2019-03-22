@@ -5,6 +5,8 @@
 #include <vector>
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include <unordered_set>
 
 class DDHGCalTBModuleX : public DDAlgorithm {
@@ -29,6 +31,7 @@ protected:
 				 const DDLogicalPart&, DDCompactView&);
   void          positionSensitive(double zpos, int copyIn, int type, 
 				  double rmax, int ncrMax, bool ignoreCenter,
+				  const std::string&, const DDMaterial&, 
 				  const DDLogicalPart&, DDCompactView& cpv);
 
 private:

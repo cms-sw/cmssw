@@ -70,7 +70,11 @@
     <ZSection z="[zminAH]" rMin="[rminAH]" rMax="[rmaxAH]"/>
     <ZSection z="[zmaxAH]" rMin="[rminAH]" rMax="[rmaxAH]"/>
   </Polycone>
-  <Polyhedra name="HGCalSensitive" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+  <Polyhedra name="HGCalEESensitive" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+    <ZSection z="-[thSilicon]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+    <ZSection z= "[thSilicon]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+  </Polyhedra>
+  <Polyhedra name="HGCalHESiliconSensitive" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
     <ZSection z="-[thSilicon]/2" rMin="0*fm" rMax="[WaferW]/2"/>
     <ZSection z= "[thSilicon]/2" rMin="0*fm" rMax="[WaferW]/2"/>
   </Polyhedra>
@@ -147,11 +151,11 @@
     <rMaterial name="materials:Air"/>
   </LogicalPart>
   <LogicalPart name="HGCalEESensitive" category="unspecified">
-    <rSolid name="HGCalSensitive"/>
+    <rSolid name="HGCalEESensitive"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
   <LogicalPart name="HGCalHESiliconSensitive" category="unspecified">
-    <rSolid name="HGCalSensitive"/>
+    <rSolid name="HGCalHESiliconSensitive"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
   <LogicalPart name="HGCalEEPCB" category="unspecified">
