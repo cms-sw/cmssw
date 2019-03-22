@@ -13,7 +13,8 @@
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::ParameterSet& iConfig ) :
-  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( iConfig )
+  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( iConfig ),
+  tolerance_( iConfig.getParameter<double>( "tolerance" ) )
 {}
 
 //----------------------------------------------------------------------------------------------------
@@ -76,6 +77,27 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
         ? mhMap_[oot]
         : 0;
       CTPPSDiamondLocalTrack newTrack( position, positionSigma, 0.f, 0.f, oot, multipleHits );
+
+      // find contributing hits
+      std::vector<CTPPSDiamondRecHit> componentHits;
+      for ( const auto& hit : hits )
+        if ( newTrack.containsHit( hit, tolerance_ ) )
+          componentHits.emplace_back( hit );
+      // compute timing information
+      float meanNumerator = 0.f, meanDenominator = 0.f;
+      bool validHits = false;
+      for ( const auto& hit : componentHits ) {
+        if ( hit.getTPrecision() == 0. )
+          continue;
+        validHits = true; // at least one valid hit to account for
+        const float weight = 1.f / ( hit.getTPrecision() * hit.getTPrecision() );
+        meanNumerator += weight * hit.getT();
+        meanDenominator += weight;
+      }
+      const float meanTime = validHits ? ( meanNumerator / meanDenominator ) : 0.f;
+      const float timeSigma = validHits ? ( std::sqrt( 1.f / meanDenominator ) ) : 0.f;
+      newTrack.setT( meanTime );
+      newTrack.setTSigma( timeSigma );
       newTrack.setValid( true );
 
       tracks.push_back( newTrack );

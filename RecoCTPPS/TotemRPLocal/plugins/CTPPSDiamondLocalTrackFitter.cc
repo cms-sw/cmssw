@@ -55,7 +55,7 @@ CTPPSDiamondLocalTrackFitter::~CTPPSDiamondLocalTrackFitter()
 void
 CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::unique_ptr<edm::DetSetVector<CTPPSDiamondLocalTrack> > pOut( new edm::DetSetVector<CTPPSDiamondLocalTrack> );
+  auto pOut = std::make_unique<edm::DetSetVector<CTPPSDiamondLocalTrack> >();
 
   edm::Handle<edm::DetSetVector<CTPPSDiamondRecHit> > recHits;
   iEvent.getByToken( recHitsToken_, recHits );
