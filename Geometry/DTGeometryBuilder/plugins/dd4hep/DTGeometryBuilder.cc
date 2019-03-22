@@ -37,7 +37,7 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_DTNumberingScheme.h"
-#include "DetectorDescription/RecoGeometry/interface/DTGeometryBuilder.h"
+#include "DTGeometryBuilder.h"
 #include "DD4hep/Detector.h"
 
 #include <memory>
@@ -182,7 +182,7 @@ DTGeometryBuilder::build(DTGeometry& geom,
 			 const DDDetector* det,
 			 const MuonNumbering& num,
 			 const DDSpecParRefs& refs) {
-  DDFilteredView fview(det, det->description()->worldVolume());
+  DDFilteredView fview(det, det->worldVolume());
   fview.mergedSpecifics(refs);
   dtnum_ = make_unique<DTNumberingScheme>(num.values());
   buildGeometry(fview, geom, num);
