@@ -72,7 +72,7 @@ L1CaloJetHTTProducer::L1CaloJetHTTProducer(const edm::ParameterSet& iConfig) :
 {
 
 
-    produces< double >("CaloJetHTT");
+    produces< float >("CaloJetHTT");
 
 
 }
@@ -84,7 +84,7 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 
     // Output collections
-    std::unique_ptr< double > CaloJetHTT(new double);
+    std::unique_ptr< float > CaloJetHTT(new float);
 
 
 
@@ -100,7 +100,7 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         {
             if (caloJet.GetExperimentalParam("jet_pt_calibration") < PtMin) continue;
             if ( fabs(caloJet.GetExperimentalParam("jet_eta")) > EtaMax) continue;
-            tmp_CaloJetHTT += caloJet.GetExperimentalParam("jet_pt_calibration");
+            tmp_CaloJetHTT += float(caloJet.GetExperimentalParam("jet_pt_calibration"));
         }
     }
 
@@ -113,13 +113,16 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         {
             if (caloJet.pt() < PtMin) continue;
             if ( fabs(caloJet.eta()) > EtaMax) continue;
-            *CaloJetHTT += caloJet.pt();
+            *CaloJetHTT += float(caloJet.pt());
         }
     }
 
-    if (*CaloJetHTT != tmp_CaloJetHTT)
+    if (debug)
     {
-        printf("BXV Method: %f    CaloJetCustom Method: %f    BXV/Cust: %f\n", *CaloJetHTT, tmp_CaloJetHTT, *CaloJetHTT/tmp_CaloJetHTT);
+        if (*CaloJetHTT != tmp_CaloJetHTT)
+        {
+            printf("BXV Method: %f    CaloJetCustom Method: %f    BXV/Cust: %f\n", *CaloJetHTT, tmp_CaloJetHTT, *CaloJetHTT/tmp_CaloJetHTT);
+        }
     }
 
 
