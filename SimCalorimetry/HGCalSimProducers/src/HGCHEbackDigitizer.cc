@@ -147,15 +147,12 @@ void HGCHEbackDigitizer::runDigitizer(std::unique_ptr<HGCalDigiCollection> &digi
 				      const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
 				      uint32_t digitizationType, CLHEP::HepRandomEngine* engine)
 {
-  switch(algo_)
-  {
-    case 0:
-      runEmptyDigitizer(digiColl,simData,theGeom,validIds,engine);
-    case 1:
-      runCaliceLikeDigitizer(digiColl,simData,theGeom,validIds,engine);
-    case 2:
-      runRealisticDigitizer(digiColl,simData,theGeom,validIds,engine);
-  }
+  if(algo_ == 0)
+    runEmptyDigitizer(digiColl,simData,theGeom,validIds,engine);
+  else if (algo_ == 1)
+    runCaliceLikeDigitizer(digiColl,simData,theGeom,validIds,engine);
+  else if (algo_ == 2)
+    runRealisticDigitizer(digiColl,simData,theGeom,validIds,engine);
 }
 
 void HGCHEbackDigitizer::runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,
