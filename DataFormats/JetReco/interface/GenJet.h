@@ -30,16 +30,16 @@ public:
       m_HadEnergy (0),
       m_InvisibleEnergy (0),
       m_AuxiliaryEnergy (0),
-      mChargedHadronEnergy(0),
-      mNeutralHadronEnergy(0),
-      mChargedEmEnergy(0),
-      mNeutralEmEnergy(0),
-      mMuonEnergy(0),
-      mChargedHadronMultiplicity(0),
-      mNeutralHadronMultiplicity(0),
-      mChargedEmMultiplicity(0),
-      mNeutralEmMultiplicity(0),
-      mMuonMultiplicity(0)
+      m_ChargedHadronEnergy(0),
+      m_NeutralHadronEnergy(0),
+      m_ChargedEmEnergy(0),
+      m_NeutralEmEnergy(0),
+      m_MuonEnergy(0),
+      m_ChargedHadronMultiplicity(0),
+      m_NeutralHadronMultiplicity(0),
+      m_ChargedEmMultiplicity(0),
+      m_NeutralEmMultiplicity(0),
+      m_MuonMultiplicity(0)
     {}
 
     /// Calo-like definitions:
@@ -54,21 +54,21 @@ public:
 
     /// PF-like definitions:
     /// pi+, K+, etc
-    float mChargedHadronEnergy;
+    float m_ChargedHadronEnergy;
     /// K0, etc
-    float mNeutralHadronEnergy;
+    float m_NeutralHadronEnergy;
     /// Electrons
-    float mChargedEmEnergy;
+    float m_ChargedEmEnergy;
     /// Photons
-    float mNeutralEmEnergy;
+    float m_NeutralEmEnergy;
     /// Muons
-    float mMuonEnergy;
+    float m_MuonEnergy;
     /// Corresponding multiplicities: 
-    int   mChargedHadronMultiplicity;
-    int   mNeutralHadronMultiplicity;
-    int   mChargedEmMultiplicity;
-    int   mNeutralEmMultiplicity;
-    int   mMuonMultiplicity; 
+    int   m_ChargedHadronMultiplicity;
+    int   m_NeutralHadronMultiplicity;
+    int   m_ChargedEmMultiplicity;
+    int   m_NeutralEmMultiplicity;
+    int   m_MuonMultiplicity; 
     
   };
 
@@ -96,16 +96,16 @@ public:
 
 
   // PF-like definitions
-  float chargedHadronEnergy() const { return m_specific.mChargedHadronEnergy;}
-  float neutralHadronEnergy() const { return m_specific.mNeutralHadronEnergy;}
-  float chargedEmEnergy    () const { return m_specific.mChargedEmEnergy    ;}
-  float neutralEmEnergy    () const { return m_specific.mNeutralEmEnergy    ;}
-  float muonEnergy         () const { return m_specific.mMuonEnergy         ;}
-  int chargedHadronMultiplicity() const { return m_specific.mChargedHadronMultiplicity;}
-  int neutralHadronMultiplicity() const { return m_specific.mNeutralHadronMultiplicity;}
-  int chargedEmMultiplicity    () const { return m_specific.mChargedEmMultiplicity    ;}
-  int neutralEmMultiplicity    () const { return m_specific.mNeutralEmMultiplicity    ;}
-  int muonMultiplicity         () const { return m_specific.mMuonMultiplicity         ;}  
+  float chargedHadronEnergy() const { return m_specific.m_ChargedHadronEnergy;}
+  float neutralHadronEnergy() const { return m_specific.m_NeutralHadronEnergy;}
+  float chargedEmEnergy    () const { return m_specific.m_ChargedEmEnergy    ;}
+  float neutralEmEnergy    () const { return m_specific.m_NeutralEmEnergy    ;}
+  float muonEnergy         () const { return m_specific.m_MuonEnergy         ;}
+  int chargedHadronMultiplicity() const { return m_specific.m_ChargedHadronMultiplicity;}
+  int neutralHadronMultiplicity() const { return m_specific.m_NeutralHadronMultiplicity;}
+  int chargedEmMultiplicity    () const { return m_specific.m_ChargedEmMultiplicity    ;}
+  int neutralEmMultiplicity    () const { return m_specific.m_NeutralEmMultiplicity    ;}
+  int muonMultiplicity         () const { return m_specific.m_MuonMultiplicity         ;}  
 
   /// Detector Eta (use reference Z and jet kinematics only)
   float detectorEta (float fZVertex) const;
