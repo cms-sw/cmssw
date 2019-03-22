@@ -60,6 +60,7 @@ class CTPPSTimingTrackRecognition
     const float sigma_;
     reco::FormulaEvaluator pixelEfficiencyFunction_;
 
+    typedef std::vector<TRACK_TYPE> TrackVector;
     typedef std::vector<HIT_TYPE> HitVector;
     typedef std::unordered_map<int, HitVector> HitVectorMap;
 
@@ -92,7 +93,7 @@ class CTPPSTimingTrackRecognition
         float (*getHitRangeWidth)(const HIT_TYPE&),
         void (*setTrackCenter)(TRACK_TYPE&, float),
         void (*setTrackSigma)(TRACK_TYPE&, float),
-        std::vector<TRACK_TYPE>& result);
+        TrackVector& result);
 
     /** Retrieve the bounds of a 3D range in which all hits from given collection are contained.
      * \param[in] hits hits collection to retrieve the range from
@@ -112,7 +113,7 @@ void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
     float (*getHitRangeWidth)(const HIT_TYPE&),
     void (*setTrackCenter)(TRACK_TYPE&, float),
     void (*setTrackSigma)(TRACK_TYPE&, float),
-    std::vector<TRACK_TYPE>& result) {
+    TrackVector& result) {
   int numberOfTracks = 0;
   const float invResolution = 1./resolution_;
   const float profileRangeMargin = sigma_ * 3.;

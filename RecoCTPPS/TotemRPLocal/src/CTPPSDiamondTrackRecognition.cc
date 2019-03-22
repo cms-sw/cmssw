@@ -49,14 +49,15 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
   auto setXSigma = []( CTPPSDiamondLocalTrack& track, float sigma ){ track.setPositionSigma( math::XYZPoint( sigma, 0., 0. ) ); };
 
   for ( const auto& hitBatch: hitVectorMap_ ) {
+    // separate the tracking for each bunch crossing
     const auto& oot = hitBatch.first;
     const auto& hits = hitBatch.second;
 
     auto hitRange = getHitSpatialRange( hits );
 
-    std::vector<CTPPSDiamondLocalTrack> xPartTracks;
+    TrackVector xPartTracks;
 
-    // Produces tracks in x dimension
+    // produce tracks in x dimension
     param.rangeBegin = hitRange.xBegin;
     param.rangeEnd = hitRange.xEnd;
     producePartialTracks( hits, param, getX, getXWidth, setX, setXSigma, xPartTracks );
@@ -79,7 +80,7 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
       CTPPSDiamondLocalTrack newTrack( position, positionSigma, 0.f, 0.f, oot, multipleHits );
 
       // find contributing hits
-      std::vector<CTPPSDiamondRecHit> componentHits;
+      HitVector componentHits;
       for ( const auto& hit : hits )
         if ( newTrack.containsHit( hit, tolerance_ ) )
           componentHits.emplace_back( hit );
