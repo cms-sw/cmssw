@@ -44,7 +44,8 @@ class PFEGammaFilters {
   const float ph_loose_hoe_;
   const float ph_sietaieta_eb_;
   const float ph_sietaieta_ee_;
-  const float pho_sumPtTrackIso, pho_sumPtTrackIsoSlope;
+  float pho_sumPtTrackIso_;
+  float pho_sumPtTrackIsoSlope_;
 
   // Electron selections 
   const float ele_iso_pt_;
@@ -56,24 +57,32 @@ class PFEGammaFilters {
   const unsigned int ele_missinghits_;
   const float ele_ecalDrivenHademPreselCut_;
   const float ele_maxElePtForOnlyMVAPresel_;
-  const float ele_maxNtracks, ele_maxHcalE, ele_maxTrackPOverEele, ele_maxE,
-    ele_maxEleHcalEOverEcalE, ele_maxEcalEOverPRes, ele_maxEeleOverPoutRes,
-    ele_maxHcalEOverP, ele_maxHcalEOverEcalE, ele_maxEcalEOverP_1,
-    ele_maxEcalEOverP_2, ele_maxEeleOverPout, ele_maxDPhiIN;
+  float ele_maxNtracks_;
+  float ele_maxHcalE_;
+  float ele_maxTrackPOverEele_;
+  float ele_maxE_;
+  float ele_maxEleHcalEOverEcalE_;
+  float ele_maxEcalEOverPRes_;
+  float ele_maxEeleOverPoutRes_;
+  float ele_maxHcalEOverP_;
+  float ele_maxHcalEOverEcalE_;
+  float ele_maxEcalEOverP_1_;
+  float ele_maxEcalEOverP_2_;
+  float ele_maxEeleOverPout_;
+  float ele_maxDPhiIN_;
 
   // dead hcal selections (electrons)
   std::array<float,2> badHcal_full5x5_sigmaIetaIeta_;
   std::array<float,2> badHcal_eInvPInv_;
   std::array<float,2> badHcal_dEta_;
   std::array<float,2> badHcal_dPhi_;
-  const bool badHcal_eleEnable_;
+  bool badHcal_eleEnable_;
 
   // dead hcal selections (photons)
-  const float badHcal_phoTrkSolidConeIso_offs_, badHcal_phoTrkSolidConeIso_slope_;
-  const bool badHcal_phoEnable_;
+  float badHcal_phoTrkSolidConeIso_offs_;
+  float badHcal_phoTrkSolidConeIso_slope_;
+  bool badHcal_phoEnable_;
 
-  // Event variables 
-  
   const bool debug_ = false;
 };
 #endif
