@@ -17,6 +17,9 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -72,11 +75,9 @@ class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationPr
       mvaInput_(nullptr)
   {
     mvaName_ = cfg.getParameter<std::string>("mvaName");
-    loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
+    loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
     if ( !loadMVAfromDB_ ) {
-      if(cfg.exists("inputFileName")){
 	inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
-      }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
     }
     mvaInput_ = new float[11];
     
@@ -84,8 +85,7 @@ class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationPr
     Muons_token=consumes<reco::MuonCollection>(srcMuons_);
     dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
 
-    verbosity_ = ( cfg.exists("verbosity") ) ?
-      cfg.getParameter<int>("verbosity") : 0;
+    verbosity_ = cfg.getParameter<int>("verbosity");
 
     produces<PFTauDiscriminator>("category");
   }
@@ -105,6 +105,8 @@ class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationPr
       delete (*it);
     }
   }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
 
@@ -242,6 +244,33 @@ void PFRecoTauDiscriminationAgainstMuonMVA::endEvent(edm::Event& evt)
   evt.put(std::move(category_output_), "category");
 }
 
+}
+
+void
+PFRecoTauDiscriminationAgainstMuonMVA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationAgainstMuonMVA
+  edm::ParameterSetDescription desc;
+  desc.add<double>("mvaMin", 0.0);
+  desc.add<std::string>("mvaName", "againstMuonMVA");
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfTauProducer"));
+  desc.add<int>("verbosity", 0);
+  desc.add<bool>("returnMVA", true);
+  desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
+  desc.add<bool>("loadMVAfromDB", true);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<double>("dRmuonMatch", 0.3);
+  desc.add<edm::InputTag>("srcMuons", edm::InputTag("muons"));
+  descriptions.add("pfRecoTauDiscriminationAgainstMuonMVA", desc);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstMuonMVA);

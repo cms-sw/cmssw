@@ -1,6 +1,9 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 /* class PFRecoTauDiscriminationByFlightPathSignificance
  * created : August 30 2010,
  * contributors : Sami Lehti (sami.lehti@cern.ch ; HIP, Helsinki)
@@ -38,6 +41,7 @@ class PFRecoTauDiscriminationByFlightPathSignificance
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
     double discriminate(const reco::PFTauRef&) const override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
     double threeProngFlightPathSig(const PFTauRef&) const ;
     double vertexSignificance(reco::Vertex const&,reco::Vertex const &,GlobalVector const&) const;
@@ -118,5 +122,27 @@ double PFRecoTauDiscriminationByFlightPathSignificance::vertexSignificance(
   return SecondaryVertex::computeDist3d(pv,sv,direction,withPVError).significance();
 }
 
-DEFINE_FWK_MODULE(PFRecoTauDiscriminationByFlightPathSignificance);
+void
+PFRecoTauDiscriminationByFlightPathSignificance::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationByFlightPathSignificance
+  edm::ParameterSetDescription desc;
+  desc.add<double>("flightPathSig", 1.5);
+  desc.add<edm::InputTag>("PVProducer", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("BooleanOutput", true);
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<bool>("UsePVerror", true);
+  descriptions.add("pfRecoTauDiscriminationByFlightPathSignificance", desc);
+}
 
+DEFINE_FWK_MODULE(PFRecoTauDiscriminationByFlightPathSignificance);
