@@ -2,7 +2,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFStripFilter.h"
 
@@ -11,8 +10,7 @@
 HFStripFilter::HFStripFilter(const double stripThreshold, const double maxThreshold,
                              const double timeMax, const double maxStripTime,
                              const double wedgeCut, const int gap,
-                             const int lstrips, const int acceptSeverityLevel,
-                             const int verboseLevel)
+                             const int lstrips, const int verboseLevel)
     : stripThreshold_(stripThreshold),
       maxThreshold_(maxThreshold),
       timeMax_(timeMax),
@@ -20,7 +18,6 @@ HFStripFilter::HFStripFilter(const double stripThreshold, const double maxThresh
       wedgeCut_(wedgeCut),
       gap_(gap),
       lstrips_(lstrips),
-      acceptSeverityLevel_(acceptSeverityLevel),
       verboseLevel_(verboseLevel)
 {
     // For the description of CMSSW message logging, see
@@ -36,9 +33,7 @@ HFStripFilter::~HFStripFilter()
 }
 
 
-void HFStripFilter::runFilter(HFRecHitCollection& rec,
-                              const HcalChannelQuality* myqual,
-                              const HcalSeverityLevelComputer* mySeverity) const
+void HFStripFilter::runFilter(HFRecHitCollection& rec) const
 {
   if (verboseLevel_ >= 20)
     edm::LogInfo("HFStripFilter") << "runFilter called";
@@ -358,7 +353,6 @@ std::unique_ptr<HFStripFilter> HFStripFilter::parseParameterSet(
         ps.getParameter<double>("wedgeCut"),
         ps.getParameter<int>("gap"),
         ps.getParameter<int>("lstrips"),
-        ps.getParameter<int>("acceptSeverityLevel"),
         ps.getParameter<int>("verboseLevel")
     );
 }
@@ -374,7 +368,6 @@ edm::ParameterSetDescription HFStripFilter::fillDescription()
     desc.add<double>("wedgeCut", 0.05);
     desc.add<int>("gap", 2);
     desc.add<int>("lstrips", 2);
-    desc.add<int>("acceptSeverityLevel", 9);
     desc.add<int>("verboseLevel", 0);
 
     return desc;
