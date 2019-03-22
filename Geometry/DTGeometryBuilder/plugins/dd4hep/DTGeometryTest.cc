@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "DetectorDescription/DDCMS/interface/MuonGeometryRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRcd.h"
 
 #include <iostream>
 #include <string>

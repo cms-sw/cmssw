@@ -46,7 +46,7 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "DetectorDescription/RecoGeometry/interface/DTGeometryBuilder.h"
+#include "DTGeometryBuilder.h"
 
 #include <memory>
 #include <iostream>

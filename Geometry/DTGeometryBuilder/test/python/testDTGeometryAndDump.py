@@ -1,6 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DTGeometryTest")
+process.add_(cms.Service("InitRootHandlers", ResetRootErrHandler = cms.untracked.bool(False)))
+##process.add_(cms.ESProducer("FWTGeoRecoGeometryESProducer",
+##                            Tracker = cms.untracked.bool(False),
+##                            Muon = cms.untracked.bool(True),
+##                            Calo = cms.untracked.bool(False),
+##                            Timing = cms.untracked.bool(False)))
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
@@ -67,10 +73,10 @@ process.test = cms.EDAnalyzer("DTGeometryTest",
                               )
 
 process.FWTGeoRecoGeometryESProducer = cms.ESProducer("FWTGeoRecoGeometryESProducer",
-                                                  Tracker = cms.untracked.bool(False),
-                                                  Muon = cms.untracked.bool(True),
-                                                  Calo = cms.untracked.bool(False),
-                                                  Timing = cms.untracked.bool(False))
+                                                      Tracker = cms.untracked.bool(False),
+                                                      Muon = cms.untracked.bool(True),
+                                                      Calo = cms.untracked.bool(False),
+                                                      Timing = cms.untracked.bool(False))
 
 process.dump = cms.EDAnalyzer("DumpFWRecoGeometry",
                               level   = cms.untracked.int32(1),
