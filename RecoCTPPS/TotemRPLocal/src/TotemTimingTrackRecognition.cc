@@ -47,7 +47,7 @@ TotemTimingTrackRecognition::produceTracks( edm::DetSet<TotemTimingLocalTrack>& 
     const auto& hits = hitBatch.second;
     const auto& hitRange = getHitSpatialRange( hits );
 
-    std::vector<TotemTimingLocalTrack> xPartTracks, yPartTracks;
+    TrackVector xPartTracks, yPartTracks;
 
     param.rangeBegin = hitRange.xBegin;
     param.rangeEnd = hitRange.xEnd;
@@ -69,7 +69,7 @@ TotemTimingTrackRecognition::produceTracks( edm::DetSet<TotemTimingLocalTrack>& 
 
         TotemTimingLocalTrack newTrack( position, positionSigma, 0., 0. );
 
-        std::vector<TotemTimingRecHit> componentHits;
+        HitVector componentHits;
         for ( const auto& hit : hits )
           if ( newTrack.containsHit( hit, tolerance_ ) )
             componentHits.emplace_back( hit );
