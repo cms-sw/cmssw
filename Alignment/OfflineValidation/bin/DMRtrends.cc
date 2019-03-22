@@ -104,12 +104,8 @@ vector<int> runlistfromlumifile(TString Year="2018");
 bool checkrunlist(vector<int> runs, vector<int> IOVlist={}, TString Year="2018");
 TString lumifileperyear(TString Year="2018", string RunOrIOV="IOV");
 void scalebylumi(TGraphErrors *g, TString Year="2018", double min=0.); 
-//DPG ../data/lumiperIOV2018.txt
-//2018 /afs/cern.ch/work/h/hpeterse/public/lumiPerRun80.csv
-//2017 ../data/lumiperIOV2017.txt
 double getintegratedlumiuptorun(int run, TString Year="2018", double min=0.);
-void PixelUpdateLines(TCanvas *c, bool showlumi=false, vector<int>pixelupdateruns={314881, 316758, 317527, 318228, 320377});
-//TO DO: Add IOV list
+void PixelUpdateLines(TCanvas *c, TString Year="2018", bool showlumi=false, vector<int>pixelupdateruns={314881, 316758, 317527, 318228, 320377});
 void PlotDMRTrends(vector<string>labels={"MB"}, TString Year="2018", string myValidation="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/", vector<string> geometries={"GT","SG", "MP pix LBL","PIX HLS+ML STR fix"}, vector<Color_t> colours={kBlue, kRed, kGreen, kCyan}, TString outputdir="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/alignmentObjects/acardini/DMRsTrends/", bool pixelupdate=false, vector<int> pixelupdateruns={314881, 316758, 317527, 318228, 320377}, bool showlumi=false);
 void compileDMRTrends(vector<int> IOVlist, vector<string>labels={"MB"}, TString Year="2018", string myValidation="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/", vector<string> geometries={"GT","SG", "MP pix LBL","PIX HLS+ML STR fix"} ,bool showlumi=false, bool FORCE=false);
 void DMRtrends(vector<int> IOVlist, vector<string>labels={"MB"}, TString Year="2018", string myValidation="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/", vector<string> geometries={"GT","SG", "MP pix LBL","PIX HLS+ML STR fix"}, vector<Color_t> colours={kBlue, kRed, kGreen, kCyan}, TString outputdir="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/alignmentObjects/acardini/DMRsTrends/", bool pixelupdate=false, vector<int> pixelupdateruns={314881, 316758, 317527, 318228, 320377}, bool showlumi=false, bool FORCE=false);
@@ -185,7 +181,7 @@ TString getName (TString structure, int layer, TString geometry){
  */
 
 TString lumifileperyear(TString Year, string RunOrIOV){
-  TString LumiFile="../data/lumiper";
+  TString LumiFile=getenv("CMSSW_BASE"); LumiFile +="/src/Alignment/OfflineValidation/data/lumiper";
   if(RunOrIOV!="run"&&RunOrIOV!="IOV") cout << "ERROR: Please specify \"run\" or \"IOV\" to retrieve the luminosity run by run or for each IOV"<<endl;
   LumiFile+=RunOrIOV;
   if(Year!="2017"&&Year!="2018") cout << "ERROR: Only 2017 and 2018 lumi-per-run/IOV are available, please check!"<<endl;
@@ -284,7 +280,6 @@ void compileDMRTrends(vector<int> IOVlist, vector<string> labels, TString Year, 
 	    }
 	}
     }
-    //IOVlist=RunNumbers; //TO DO: when the IOVs are properly given as argument this line has to be removed 
     if(checkrunlist(RunNumbers,IOVlist,Year)&&showlumi&&!FORCE){
         cout << "Please fix the run/luminosities file!" << endl;
 	exit(EXIT_FAILURE);
@@ -321,17 +316,23 @@ void compileDMRTrends(vector<int> IOVlist, vector<string> labels, TString Year, 
                     TH1F *histo      = dynamic_cast<TH1F*>(f->Get( name));
                     //Geometry *geom =nullptr;
                     Point * point = nullptr;
+		    // Three possibilities:
+                    //  - All histograms are produced correctly
+                    //  - Only the non-split histograms are produced
+                    //  - No histogram is produced correctly
+                    //  FORCE means that the Point is not added to the points collection in the chosen geometry for that structure
+		    //  If FORCE is not enabled a default value for the Point is used (-9999) which will appear in the plots
                     if(!histo){
                         cout << "Run" << runN << " Histogram: " << name << " not found" << endl;
-                        point= new Point(runN);
 			if(FORCE)continue;
+                        point= new Point(runN);
                     }else if(structure!="TID"&&structure!="TEC"){
                         TH1F *histoplus  = dynamic_cast<TH1F*>(f->Get((name+"_plus")));
                         TH1F *histominus = dynamic_cast<TH1F*>(f->Get((name+"_minus")));						  
                         if(!histoplus||!histominus){
                             cout << "Run" << runN << " Histogram: " << name << " plus or minus not found" << endl;
-                            point= new Point(runN, histo);
 			    if(FORCE)continue;
+                            point= new Point(runN, histo);
                         }else point= new Point(runN, histo, histoplus, histominus);
 
                     }else point= new Point(runN, histo);
@@ -341,8 +342,9 @@ void compileDMRTrends(vector<int> IOVlist, vector<string> labels, TString Year, 
         }
         f->Close();
     }
-    TString outname=myValidation+"DMRtrends_";
-    outname+=labels.at(1); outname+="_"; outname+=labels.at(0); outname+=".root";	
+    TString outname=myValidation+"DMRtrends";
+    for(TString label : labels){outname+="_"; outname+=label;}
+    outname+=".root";
     TFile * fout = TFile::Open(outname, "RECREATE");
     for (TString& structure: structures) {
         TString structname = structure;
@@ -388,19 +390,17 @@ void compileDMRTrends(vector<int> IOVlist, vector<string> labels, TString Year, 
 /*! \fn PixelUpdateLines
  *  \brief  Adds to the canvas vertical lines corresponding to the pixelupdateruns
  */
-//TO DO: add check so that only pixelupdates within the time frame of interest are plotted
-void PixelUpdateLines(TCanvas *c, bool showlumi, vector<int>pixelupdateruns){
+void PixelUpdateLines(TCanvas *c, TString Year, bool showlumi, vector<int>pixelupdateruns){
 	vector<TPaveText*> labels;
 	double lastlumi=0.;
 	c->cd();
 	size_t index = 0;
 	for(int pixelupdaterun : pixelupdateruns){
 	       double lumi=0.;
-	       if(showlumi)lumi=getintegratedlumiuptorun(pixelupdaterun); //The vertical line needs to be drawn at the beginning of the run where the pixel update was implemented, thus only the integrated luminosity up to that run is required.
+	       if(showlumi)lumi=getintegratedlumiuptorun(pixelupdaterun,Year); //The vertical line needs to be drawn at the beginning of the run where the pixel update was implemented, thus only the integrated luminosity up to that run is required.
 	       else lumi=pixelupdaterun;
 	       TLine *line = new TLine (lumi,c->GetUymin(),lumi,c->GetUymax());
 	       line->SetLineColor(kBlue);
-	       //line->SetLineWidth(1);
 	       line->SetLineStyle(9);
 	       line->Draw();
 	       //Due to the way the coordinates within the Canvas are set, the following steps are required to draw the TPaveText:
@@ -559,7 +559,9 @@ void PlotDMRTrends(vector<string> labels, TString Year, string myValidation, vec
     const map<TString,int> nlayers{ {"BPIX", 4}, {"FPIX", 3}, {"TIB", 4}, {"TID", 3}, {"TOB", 6}, {"TEC", 9} };
 
 
-    TString filename=myValidation+"DMRtrends_"+labels.at(1)+"_"+labels.at(0)+".root";
+    TString filename=myValidation+"DMRtrends";
+    for(TString label : labels){ filename+="_"; filename+=label;}
+    filename+=".root";
     TFile *in= new TFile(filename);
     for (TString& structure: structures) {
         TString structname = structure;
@@ -660,17 +662,18 @@ void PlotDMRTrends(vector<string> labels, TString Year, string myValidation, vec
                
 		//TLegendEntry *str = (TLegendEntry*)legend->GetListOfPrimitives()->Last();
                 //str->SetTextSize(.03);
-                PixelUpdateLines(c, showlumi, pixelupdateruns);
+                PixelUpdateLines(c, Year, showlumi, pixelupdateruns);
 
 		legend->Draw();
 		mh->Draw("nostack same");
                 c->Update();
                 TString structandlayer = getName(structure,layer,"");
-                TString printfile=outputdir+labels.at(0)+"-"+labels.at(1)+"_"+variable+structandlayer;
-                c->SaveAs(printfile+".pdf");
+                TString printfile=outputdir;
+		for(TString label : labels){printfile+=label;printfile+="_";}
+		printfile+=variable+structandlayer;
+		c->SaveAs(printfile+".pdf");
                 c->SaveAs(printfile+".eps");
                 c->SaveAs(printfile+".png");
-		//c->Close();
 		c->Destructor();
             }
 
@@ -704,13 +707,14 @@ int main (int argc, char * argv[]) {
 
 	        cout << "WARNING: Running function with arguments specified in DMRtrends.cc" << endl << "If you want to specify the arguments from command line run the macro as follows:" << endl << "DMRtrends labels pathtoDMRs geometriesandcolourspairs outputdirectory showpixelupdate showlumi FORCE" << endl;
 
+		//Example provided for a currently working set of parameters
 		DMRtrends(IOVlist,{"vUL17","MB"},"2017", "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/EOY17/", {"EOY17","full ML pixel + strip","SG-mp2607","mp2993"}, {kRed, kBlack, kBlue, kGreen}, "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/alignmentObjects/acardini/DMRsTrends/", true, pixelupdateruns, true, true); 
 		
 		
 		return 0;
 	}
 	else if (argc < 11) {
-		cout << "DMRtrends IOVlist labels pathtoDMRs geometriesandcolourspairs outputdirectory pixelupdatelist showpixelupdate showlumi FORCE" << endl;
+		cout << "DMRtrends IOVlist labels Year pathtoDMRs geometriesandcolourspairs outputdirectory pixelupdatelist showpixelupdate showlumi FORCE" << endl;
 		
 		return 1;
 	}
@@ -738,7 +742,7 @@ int main (int argc, char * argv[]) {
 	vector<Color_t> colours;
 	TObjArray *geometrieandcolourspairs = geometrieandcolours.Tokenize(",");
 	for (int i=0; i < geometrieandcolourspairs->GetEntries(); i++) {
-	        TObjArray *geomandcolourvec = TString(geometrieandcolourspairs->GetName()).Tokenize(":");
+	        TObjArray *geomandcolourvec = TString(geometrieandcolourspairs->At(i)->GetName()).Tokenize(":");
 		geometries.push_back(geomandcolourvec->At(0)->GetName());
 		colours.push_back((Color_t)(atoi(geomandcolourvec->At(1)->GetName())));
 	}
