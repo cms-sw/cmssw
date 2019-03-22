@@ -49,14 +49,14 @@ private:
 /// if true, this module will do nothing
 /// needed for consistency with CTPPS-less workflows
   bool doNothing_;
-  unsigned int timeSlice_;
+  int timeSlice_;
 };
 
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSet& iConfig ) :
   doNothing_( iConfig.getParameter<bool>( "doNothing" ) ),
-  timeSlice_( iConfig.getParameter<unsigned int>( "timeSlice" ) )
+  timeSlice_( iConfig.getParameter<int>( "timeSlice" ) )
 {
   if ( doNothing_ ) return;
 
@@ -205,7 +205,7 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
     ->setComment( "input pixel detectors' local tracks collection to retrieve" );
   desc.add<bool>( "doNothing", true ) // disable the module by default
     ->setComment( "disable the module" );
-  desc.add<unsigned int>( "timeSlice", 0 )
+  desc.add<int>( "timeSlice", 0 )
     ->setComment( "time slice to select for timing detectors" );
 
   desc.add<double>("pixelTrackTxMin",-10.0);
