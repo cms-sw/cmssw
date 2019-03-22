@@ -151,7 +151,7 @@ DTGeometryValidate::validateDTLayerGeometry() {
 
   clearData();
   
-  vector<double> wire_positions(172000, 0.);
+  vector<double> wire_positions;
 
   for(auto const& it : dtGeometry_->layers()) {
     DTLayerId layerId = it->id();
@@ -204,7 +204,7 @@ DTGeometryValidate::validateDTLayerGeometry() {
     for(int wireN = firstChannel; wireN - lastChannel <= 0; ++wireN) {
       double localX1 = it->specificTopology().wirePosition(wireN);
       double localX2 = (wireN -(firstChannel-1)-0.5f)*parameters[0] - nChannels/2.0f*parameters[0];
-      wire_positions.push_back(getDiff(localX1, localX2));
+      wire_positions.emplace_back(getDiff(localX1, localX2));
     }
   }
   
