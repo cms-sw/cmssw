@@ -20,7 +20,7 @@ L1TkMuons = cms.EDProducer("L1TkMuonProducer",
 #    closest = cms.bool( True ),
     correctGMTPropForTkZ = cms.bool(True),
     use5ParameterFit = cms.bool(False), #use 4-pars by defaults
-    useTPMatchWindows = cms.bool(False),
+    useTPMatchWindows = cms.bool(True),
     # emtfMatchAlgoVersion = cms.int32( 1 ),        # version of matching EMTF with Trackes (1 or 2)
     emtfMatchAlgoVersion = cms.string( 'DynamicWindows' ), # version of matching EMTF with Trackes (string ID) : TP, DynamicWindows
     ###############################################
