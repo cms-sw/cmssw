@@ -94,7 +94,7 @@
    <version ClassVersion="10" checksum="1136403928"/>
   </class>
   <class name="reco::GenJet::Specific" ClassVersion="11">
-    <version ClassVersion="11" checksum="1739165020"/>
+    <version ClassVersion="11" checksum="1280150924"/>
    <version ClassVersion="10" checksum="3126154868"/>
   </class>
   <class name="std::vector<reco::GenJet>"/>
