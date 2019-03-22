@@ -49,7 +49,7 @@
     <Vector name="VolumeNames" type="string" nEntries="64">
       HEPCB,          HEKapton,           HECuWShield, 
       HECuShield,     HEPCBShield,        HEFeAbsorber,
-      HECuHeatShield, HESensitive,        HEFeBox, 
+      HECuHeatShield, HESiliconSensitive, HEFeBox, 
       HEAirGap1,      HEAirGap2,          HEAirGap3, 
       HEAirGap4,      HEAirGap5,          HEAirGap6, 
       HEAirGap7,      HEAirGap8,          HEAirGap9,
@@ -60,7 +60,7 @@
       HEAirGap20,     HEAirGap21,
       HEPCB,          HEKapton,           HECuWShield, 
       HECuShield,     HEPCBShield,        HEFeAbsorber,
-      HECuHeatShield, HESensitive,        HEFeBox, 
+      HECuHeatShield, HESiliconSensitive, HEFeBox, 
       HEAirGap1,      HEAirGap2,          HEAirGap3, 
       HEAirGap4,      HEAirGap5,          HEAirGap6, 
       HEAirGap7,      HEAirGap8,          HEAirGap9,
