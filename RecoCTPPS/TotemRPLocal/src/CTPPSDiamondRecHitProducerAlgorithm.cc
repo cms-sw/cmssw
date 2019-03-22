@@ -1,6 +1,6 @@
 /****************************************************************************
 *
-* This is a part of CTPPS offline software.
+* This is a part of PPS offline software.
 * Authors:
 *   Laurent Forthomme (laurent.forthomme@cern.ch)
 *
@@ -46,7 +46,6 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
                 z_width = 2.0 * det->params().at( 2 );
 
     // retrieve the timing calibration part for this channel
-    //const int sector = detid.arm(), station = detid.station(), plane = detid.plane(), channel = detid.channel();
     const int sector = detid.arm(), station = 0, plane = detid.plane(), channel = detid.channel();
     const auto& ch_params = calib_.parameters( sector, station, plane, channel );
     const double ch_t_offset = calib_.timeOffset( sector, station, plane, channel );
@@ -64,7 +63,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
         : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
 
       double tot = -1., t_mean = 0.;
-      if ( t_lead != 0 && t_trail != 0 ) {
+      if ( calib_fct_ && t_lead != 0 && t_trail != 0 ) {
         tot = ( t_trail-t_lead )*ts_to_ns_;
         t_mean = calib_fct_->evaluate( std::vector<double>{ tot }, ch_params );
         if ( std::isnan( t_mean ) )
