@@ -127,7 +127,7 @@ def sizeSumpt(locpath,dataType,var):
     return stdFill.substitute(locpath=locpath,rows=strow)
 
 variables = {'a%s':'pt','b%s':'pileup','c%s':'eta','d%s':'phi'}
-sumVar = dict( list(zip(string.letters,[elem for elem in ['signalPFCands','isolationPFChargedHadrCands','isolationPFGammaCands','isolationPFNeutrHadrCands'] ])) )
+sumVar = dict( list(zip(string.letters,[elem for elem in ['signalCands','isolationChargedHadrCands','isolationGammaCands','isolationNeutrHadrCands'] ])) )
 
 
 #

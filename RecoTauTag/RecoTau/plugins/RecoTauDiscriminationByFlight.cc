@@ -97,7 +97,7 @@ double PFRecoTauDiscriminationByFlight::discriminate(
   // The tau direction, to determine the sign of the IP.
   // In the case that it is a one prong, take the jet direction.
   // This may give better result due to out-of-cone stuff.
-  GlobalVector direction = (tau->signalPFCands().size() == 1 ?
+  GlobalVector direction = (tau->signalCands().size() == 1 ?
       GlobalVector(
           tau->jetRef()->px(), tau->jetRef()->py(), tau->jetRef()->pz()) :
       GlobalVector(tau->px(), tau->py(), tau->pz()));

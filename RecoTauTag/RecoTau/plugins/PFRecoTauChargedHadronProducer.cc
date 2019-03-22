@@ -72,7 +72,7 @@ public:
 
   // input jet collection
   edm::InputTag srcJets_;
-  edm::EDGetTokenT<reco::CandidateView> Jets_token;
+  edm::EDGetTokenT<reco::JetView> Jets_token;
   double minJetPt_;
   double maxJetAbsEta_;
 
@@ -93,7 +93,7 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
   srcJets_ = cfg.getParameter<edm::InputTag>("jetSrc");
-  Jets_token = consumes<reco::CandidateView>(srcJets_);
+  Jets_token = consumes<reco::JetView>(srcJets_);
   minJetPt_ = ( cfg.exists("minJetPt") ) ? cfg.getParameter<double>("minJetPt") : -1.0;
   maxJetAbsEta_ = ( cfg.exists("maxJetAbsEta") ) ? cfg.getParameter<double>("maxJetAbsEta") : 99.0;
   verbosity_ = ( cfg.exists("verbosity") ) ?
@@ -146,26 +146,28 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   }
   
   // get a view of our jets via the base candidates
-  edm::Handle<reco::CandidateView> jets;
+  edm::Handle<reco::JetView> jets;
   evt.getByToken(Jets_token, jets);
   
   // convert the view to a RefVector of actual PFJets
-  reco::PFJetRefVector pfJets = reco::tau::castView<reco::PFJetRefVector>(jets);
+  edm::RefToBaseVector<reco::Jet> pfJets;
+  size_t nElements = jets->size();
+  for (size_t i = 0; i < nElements; ++i) {
+    pfJets.push_back(jets->refAt(i));
+  }
 
   // make our association
   std::unique_ptr<reco::PFJetChargedHadronAssociation> pfJetChargedHadronAssociations;
 
 
   if ( !pfJets.empty() ) {
-    edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
-    evt.get(pfJets.id(), pfJetCollectionHandle);
-    pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>(reco::PFJetRefProd(pfJetCollectionHandle));
+    pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>(reco::JetRefBaseProd(jets));
   } else {
     pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>();
   }
 
   // loop over our jets
-  for(auto const& pfJet : pfJets ) {
+  for(const auto& pfJet : pfJets ) {
     
     if(pfJet->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(pfJet->eta()) - maxJetAbsEta_ > -1e-5) continue;
@@ -199,7 +201,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
     // keep track of neutral PFCandidates, charged PFCandidates and tracks "used" by ChargedHadron candidates in the clean collection
     typedef std::pair<double, double> etaPhiPair;
     std::list<etaPhiPair> tracksInCleanCollection;
-    std::set<reco::PFCandidatePtr> neutralPFCandsInCleanCollection;
+    std::set<reco::CandidatePtr> neutralPFCandsInCleanCollection;
 
     while ( !uncleanedChargedHadrons.empty() ) {
       
@@ -215,12 +217,14 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 
       const reco::Track* track = nullptr;
       if ( nextChargedHadron->getChargedPFCandidate().isNonnull() ) {
-	const reco::PFCandidatePtr& chargedPFCand = nextChargedHadron->getChargedPFCandidate();
-	if ( chargedPFCand->trackRef().isNonnull() ) track = chargedPFCand->trackRef().get();
-	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->innerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->innerTrack().get();
-	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->globalTrack().isNonnull() ) track = chargedPFCand->muonRef()->globalTrack().get();
-	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->outerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->outerTrack().get();
-	else if ( chargedPFCand->gsfTrackRef().isNonnull() ) track = chargedPFCand->gsfTrackRef().get();
+	const reco::PFCandidate* chargedPFCand = dynamic_cast<const reco::PFCandidate*> (&*nextChargedHadron->getChargedPFCandidate());
+        if (chargedPFCand) {
+          if ( chargedPFCand->trackRef().isNonnull() ) track = chargedPFCand->trackRef().get();
+          else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->innerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->innerTrack().get();
+          else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->globalTrack().isNonnull() ) track = chargedPFCand->muonRef()->globalTrack().get();
+          else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->outerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->outerTrack().get();
+          else if ( chargedPFCand->gsfTrackRef().isNonnull() ) track = chargedPFCand->gsfTrackRef().get();
+        }
       } 
       if ( nextChargedHadron->getTrack().isNonnull() && !track ) {
 	track = nextChargedHadron->getTrack().get();
@@ -245,9 +249,10 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       // discard ChargedHadron candidates without track in case they are close to neutral PFCandidates "used" by ChargedHadron candidates in the clean collection
       bool isNeutralPFCand_overlap = false;
       if ( nextChargedHadron->algoIs(reco::PFRecoTauChargedHadron::kPFNeutralHadron) ) {
-	for ( std::set<reco::PFCandidatePtr>::const_iterator neutralPFCandInCleanCollection = neutralPFCandsInCleanCollection.begin();
+	for ( std::set<reco::CandidatePtr>::const_iterator neutralPFCandInCleanCollection = neutralPFCandsInCleanCollection.begin();
 	      neutralPFCandInCleanCollection != neutralPFCandsInCleanCollection.end(); ++neutralPFCandInCleanCollection ) {
-	  if ( (*neutralPFCandInCleanCollection) == nextChargedHadron->getChargedPFCandidate() ) isNeutralPFCand_overlap = true;
+          if ( (*neutralPFCandInCleanCollection) == nextChargedHadron->getChargedPFCandidate() )  isNeutralPFCand_overlap = true;
+
 	}
       }
       if ( verbosity_ ) {
@@ -256,7 +261,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       if ( isNeutralPFCand_overlap ) continue;
       
       // find neutral PFCandidates that are not "used" by any ChargedHadron in the clean collection
-      std::vector<reco::PFCandidatePtr> uniqueNeutralPFCands;
+      std::vector<reco::CandidatePtr> uniqueNeutralPFCands;
       std::set_difference(nextChargedHadron->getNeutralPFCandidates().begin(),
 			  nextChargedHadron->getNeutralPFCandidates().end(),
 			  neutralPFCandsInCleanCollection.begin(),
