@@ -334,6 +334,35 @@ unsigned int Muon::stationGapMaskPull( float sigmaCut ) const
    return totMask;
 }
 
+int Muon::nDigisInStation( int index, DigiRange range ) const
+{
+
+  int nDigis(0);
+
+  for ( auto & match : muMatches_ )
+    {
+      if ( match.detector() != MuonSubdetId::CSC  &&
+	   match.detector() != MuonSubdetId::DT  )
+	continue;
+	  
+      int nDigisInCh = range == InRange ? match.nDigisInRange : match.nDigisInChamb;
+      int iStation = match.detector() == MuonSubdetId::CSC ? index - 3 : index + 1;
+
+      if( iStation == match.station() && nDigisInCh > nDigis)
+	nDigis = nDigisInCh;
+    }
+
+  return nDigis;
+}
+
+bool Muon::hasShowerInStation( int index, DigiRange range, int nDtDigisCut, int nCscDigisCut ) const
+{
+  bool hasShower = index < 4 ? 
+			   nDigisInStation(index, range) >= nDtDigisCut :
+                           nDigisInStation(index, range) >= nCscDigisCut;
+  return hasShower;   
+}
+
 int Muon::numberOfSegments( int station, int muonSubdetId, ArbitrationType type ) const
 {
    int segments(0);
