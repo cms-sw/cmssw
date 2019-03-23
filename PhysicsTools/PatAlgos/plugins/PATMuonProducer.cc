@@ -883,28 +883,15 @@ double PATMuonProducer::puppiCombinedIsolation(const pat::Muon& muon, const pat:
 }
 
 bool PATMuonProducer::isNeutralHadron( long pdgid ){
-  const long id = abs( pdgid );
-  if( id == 111 ) return true ;
-  if( id == 130 ) return true ;
-  if( id == 310 ) return true ;
-  if( id == 2112 ) return true ;
-  return false;
-
+ return std::abs(pdgid) == 130;
 }
 
 bool PATMuonProducer::isChargedHadron( long pdgid ){
-  const long id = abs( pdgid );
-  if( id == 211    ) return true ;
-  if( id == 321    ) return true ;
-  if( id == 999211 ) return true ;
-  if( id == 2212   ) return true ;
-  return false;
+ return std::abs(pdgid) == 211;
 }
 
 bool PATMuonProducer::isPhoton( long pdgid ){
-  const long id = abs( pdgid );
-  if( id == 22 ) return true ;
-  return false;
+ return pdgid==22;
 }
 
 // ParameterSet description for module
