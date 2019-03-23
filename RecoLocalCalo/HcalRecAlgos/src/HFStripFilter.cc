@@ -5,7 +5,6 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFStripFilter.h"
 
-#include <iostream>
 
 HFStripFilter::HFStripFilter(const double stripThreshold, const double maxThreshold,
                              const double timeMax, const double maxStripTime,
@@ -98,8 +97,8 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
     stripIetaMax = d2max.id().ieta();
   }
 
+  std::stringstream ss;
   if (verboseLevel_ >= 30) {
-    std::stringstream ss;
     if (d1max.energy() > 0) {
       ss << "  MaxHit in Depth 1: ieta = " << d1max.id().ieta() << " iphi = " << stripIphiMax 
 	 << " energy = " << d1max.energy() << " time = " << d1max.time() << std::endl; }
@@ -107,9 +106,6 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
       ss << "  MaxHit in Depth 2: ieta = " << d2max.id().ieta() << " iphi = " << d2max.id().iphi() 
 	 << " energy = " << d2max.energy() << " time = " << d2max.time() << std::endl; } 
     ss << "  stripThreshold_ = " << stripThreshold_ << std::endl;
-    
-    //edm::LogInfo("HFStripFilter") << ss.str();
-    std::cout << ss.str();
   }
 
   // prepare the strips: all hits along given ieta in one wedge (d1strip and d2strip)
@@ -120,12 +116,9 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
       int signIeta = (*it).id().ieta()/fabs((*it).id().ieta());
       
       if (verboseLevel_ >= 30) {
-	std::stringstream ss;
 	ss << " HF hit: ieta = " << (*it).id().ieta() << "\t iphi = " << (*it).id().iphi()
 	   << "\t depth = " << (*it).id().depth() << "\t time = " << (*it).time() << "\t energy = "
 	   << (*it).energy() << "\t flags = " << (*it).flags() << std::endl;
-	//edm::LogInfo("HFStripFilter") << ss.str();
-	std::cout << ss.str();
       }
       
       // collect hits with the same iphi but different ieta into strips
@@ -188,7 +181,6 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
     }
   
   if (verboseLevel_ >= 30) {
-    std::stringstream ss;
     ss << " Lstrip1 = " << (int)d1strip.size() << " (iphi = " << stripIphiMax
        << ")  Lstrip2 = " << (int)d2strip.size() << std::endl << " Strip1: ";
     for (it1 = d1strip.begin(); it1 < d1strip.end(); it1++) {
@@ -197,13 +189,15 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
     for (it1 = d2strip.begin(); it1 < d2strip.end(); it1++) {
       ss << (*it1).energy() << " (" << (*it1).id().ieta() << ") "; }
     ss << std::endl;
-    
-    //edm::LogInfo("HFStripFilter") << ss.str();
-    std::cout << ss.str();
   }
   
   // check if one of strips in depth1 or depth2 >= lstrips_
-  if ((int)d1strip.size() < lstrips_ && (int)d2strip.size() < lstrips_) return; 
+  if ((int)d1strip.size() < lstrips_ && (int)d2strip.size() < lstrips_) {
+    if (verboseLevel_ >= 30) {
+      LogDebug("HFSFilter") << ss.str();
+    }
+    return;
+  } 
   
   // define range of strips in ieta 
   int ietaMin1 = 1000;  // for d1strip
@@ -242,13 +236,9 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   }
   
   if (verboseLevel_ >= 30) {
-    std::stringstream ss;
     ss << " ietaMin1 = " << ietaMin1 << "  ietaMax1 = " << ietaMax1 << std::endl
        << " ietaMin2 = " << ietaMin2 << "  ietaMax2 = " << ietaMax2 << std::endl   
        << " Common strip:  ietaMin = " << ietaMin << "  ietaMax = " << ietaMax << std::endl; 
-
-    //edm::LogInfo("HFStripFilter") << ss.str();
-    std::cout << ss.str();
   }
   
   int phiseg = 2; // 10 degrees segmentation for most of HF (1 iphi unit = 5 degrees)
@@ -275,28 +265,20 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   double ratio2 = eStrip > 0 ? energyIphi2/eStrip : 0;
     
   if (verboseLevel_ >= 30) {
-    std::stringstream ss;
     ss << "  iphi = " << d1strip[0].id().iphi() << "  iphi1 = " << iphi1 << "  iphi2 = " 
        << iphi2 << std::endl
        << "  Estrip = " << eStrip << "  EnergyIphi1 = " << energyIphi1
        << "  Ratio = "	<< ratio1 << std::endl
        << "                  " << "  EnergyIphi2 = " << energyIphi2
        << "  Ratio = "	<< ratio2 << std::endl;
-
-    //edm::LogInfo("HFStripFilter") << ss.str();
-    std::cout << ss.str();
   }
   
   // check if our wedge does not have substantial leak into adjacent wedges
   if (ratio1 < wedgeCut_ && ratio2 < wedgeCut_) { // noise event with strips (d1 and/or d2)
     
     if (verboseLevel_ >= 30) {
-      std::stringstream ss;
       ss << "  stripPass = false" << std::endl 
 	 << "  mark hits in strips now " << std::endl;
-
-      //edm::LogInfo("HFStripFilter") << ss.str();
-      std::cout << ss.str();
     }
     
     // Figure out which rechits need to be tagged (d1.strip)
@@ -306,10 +288,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
       if (hit != rec.end()) {
 	// tag a rechit with the anomalous hit flag
 	if (verboseLevel_ >= 30) {
-	  std::stringstream ss;
 	  ss << " d1strip: marked hit = " << (*hit) << std::endl;
-	  //edm::LogInfo("HFStripFilter") << ss.str();
-	  std::cout << ss.str();
 	}
 	hit->setFlagField(1U, HcalPhase1FlagLabels::HFAnomalousHit);
       }
@@ -321,22 +300,19 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
       if (hit != rec.end()) {
 	// tag a rechit with the anomalous hit flag
 	if (verboseLevel_ >= 30) {
-	  std::stringstream ss;
 	  ss << " d2strip: marked hit = " << (*hit) << std::endl;
-	  //edm::LogInfo("HFStripFilter") << ss.str();
-	  std::cout << ss.str();
 	}
 	hit->setFlagField(1U, HcalPhase1FlagLabels::HFAnomalousHit);
       }
     }
+    if (verboseLevel_ >= 30) {
+      LogDebug("HFSFilter") << ss.str();
+    }
   }
   else {
     if (verboseLevel_ >= 30) {
-      std::stringstream ss;
       ss << "  stripPass = true" << std::endl;
-
-      //edm::LogInfo("HFStripFilter") << ss.str();
-      std::cout << ss.str();      
+      LogDebug("HFSFilter") << ss.str();
     }
   } 
 }
