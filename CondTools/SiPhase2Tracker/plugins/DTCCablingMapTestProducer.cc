@@ -95,7 +95,7 @@ void DTCCablingMapTestProducer::analyze(const edm::Event& iEvent, const edm::Eve
 	
 }
 
-void DTCCablingMapTestProducer::endJob() 
+void DTCCablingMapTestProducer::endJob()
 {
 	
 }
