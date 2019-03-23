@@ -34,6 +34,52 @@ L1TkMuonStub = cms.EDProducer("L1TkMuonStubProducer",
     max_trk_chi2   = cms.double(100.0),
     min_trk_nstubs = cms.int32(4),
     require_BX0    = cms.bool(False),
+    mu_stub_station = cms.int32(2),
 
+
+)
+
+# Station = 1, windows 90
+L1TkMuonStubS1 = L1TkMuonStub.clone(
+
+    emtfcorr_theta_windows  = cms.FileInPath('L1Trigger/L1TMuon/data/emtf_luts/matching_windows_theta_q90.root'),
+    emtfcorr_phi_windows    = cms.FileInPath('L1Trigger/L1TMuon/data/emtf_luts/matching_windows_phi_q90.root'),
+    mu_stub_station = cms.int32(1),
+
+)
+
+# Station = 2, windows 90 
+L1TkMuonStubS2 = L1TkMuonStub.clone(
+
+    emtfcorr_theta_windows  = cms.FileInPath('L1Trigger/L1TMuon/data/emtf_luts/matching_windows_theta_q90.root'),
+    emtfcorr_phi_windows    = cms.FileInPath('L1Trigger/L1TMuon/data/emtf_luts/matching_windows_phi_q90.root'),
+    mu_stub_station = cms.int32(2),
+
+)
+
+# Station = 12, windows 90
+L1TkMuonStubS12 = L1TkMuonStub.clone(
+
+    emtfcorr_theta_windows  = cms.FileInPath('L1Trigger/L1TMuon/data/emtf_luts/matching_windows_theta_q90.root'),
+    emtfcorr_phi_windows    = cms.FileInPath('L1Trigger/L1TMuon/data/emtf_luts/matching_windows_phi_q90.root'),
+    mu_stub_station = cms.int32(12),
+
+)
+
+# Station = 12, windows 99
+L1TkMuonStubS12q99 = L1TkMuonStub.clone(
+
+    emtfcorr_theta_windows  = cms.FileInPath('L1Trigger/L1TMuon/data/emtf_luts/matching_windows_theta_q99.root'),
+    emtfcorr_phi_windows    = cms.FileInPath('L1Trigger/L1TMuon/data/emtf_luts/matching_windows_phi_q99.root'),
+    mu_stub_station = cms.int32(12),
+
+)
+
+# Station = 1234, windows 90
+L1TkMuonStubS1234 = L1TkMuonStub.clone(
+
+    emtfcorr_theta_windows  = cms.FileInPath('L1Trigger/L1TMuon/data/emtf_luts/matching_windows_theta_q90.root'),
+    emtfcorr_phi_windows    = cms.FileInPath('L1Trigger/L1TMuon/data/emtf_luts/matching_windows_phi_q90.root'),
+    mu_stub_station = cms.int32(1234),
 
 )

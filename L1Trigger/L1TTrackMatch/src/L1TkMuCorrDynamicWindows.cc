@@ -232,17 +232,20 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match_stub(const EMTFHitCollecti
             if (requireBX0 && l1muit->BX() != 0)
                 continue;
 
-            // match only stubs in Station station 
-            if (l1muit->Station() != station)
-                continue;
+            // allow only track matching to stubs from the given station, station= 1,2,3,4
+            if ( station < 5 && l1muit->Station() != station) 
+              continue;
+            // in case of station=12 allow track matching to stubs from either station 1 or 2.
+            else if(station == 12 && l1muit->Station() > 2)  // good for tkMuStub12
+              continue;
+            // in case of station=123 allow track matching to stubs from either station 1, 2, or 3.
+            else if(station == 123 && l1muit->Station() > 3)  // good for tkMuStub123
+              continue;
+            // in case of station=1234 allow track matching to stubs from either station 1, 2, 3, or 4.
+            else if(station == 1234 && l1muit->Station() > 4)  // good for tkMuStub1234
+              continue;
 
-            // putting everything in rad
-            //float emtf_theta  = to_mpio2_pio2(eta_to_theta(l1muit->Eta())) ;
-            //float emtf_phi    = deg_to_rad(l1muit->Phi_glob()) ;
-            
-               // emtf_theta = to_mpio2_pio2(eta_to_theta(mtkt.mu_hit_sim_eta.At(ih))) ;
             float emtf_theta = to_mpio2_pio2(eta_to_theta(l1muit->Eta_sim())) ;
-               // emtf_phi = deg_to_rad(mtkt.mu_hit_sim_phi.At(ih)) ;
             float emtf_phi = deg_to_rad(l1muit->Phi_sim()) ;
 
             float dtheta = std::abs(emtf_theta - trk_theta);
