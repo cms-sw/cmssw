@@ -68,6 +68,11 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     maxSharedEneFrac = cms.double(1.),
     nintSharedEneFrac = cms.int32(100),
 
+    #Same as above for multiclusters
+    minMCLSharedEneFrac = cms.double(0.),
+    maxMCLSharedEneFrac = cms.double(8.0),
+    nintMCLSharedEneFrac = cms.int32(100),
+
     #Parameters for the total number of layer clusters per thickness
     minTotNClsperthick = cms.double(0.),
     maxTotNClsperthick = cms.double(800.),
