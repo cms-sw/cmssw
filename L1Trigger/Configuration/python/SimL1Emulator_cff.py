@@ -123,6 +123,8 @@ phase2_SimL1Emulator += l1KBmtfStubMatchedMuons
 from L1Trigger.L1TTrackMatch.L1TkMuonStubProducer_cfi import *
 l1TkMuonStubEndCap = L1TkMuonStub.clone()
 phase2_SimL1Emulator += l1TkMuonStubEndCap
+l1TkMuonStubEndCapS12 = L1TkMuonStubS12.clone()
+phase2_SimL1Emulator += l1TkMuonStubEndCapS12
 
 # Tk + StandaloneObj
 # (include L1TkPrimaryVertex)
