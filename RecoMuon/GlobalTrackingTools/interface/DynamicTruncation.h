@@ -45,6 +45,10 @@ class DynamicTruncation {
   
  public:
 
+  /* Variables for v2 */
+  double p_reco;
+  double eta_reco;
+
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
@@ -63,7 +67,7 @@ class DynamicTruncation {
   void setUseAPE(bool);
   
   // Return the vector with the tracker plus the selected muon hits
-  TransientTrackingRecHit::ConstRecHitContainer filter(const Trajectory&);
+  TransientTrackingRecHit::ConstRecHitContainer filter(const Trajectory&, double globalMomentum, double globalEta);
 
   // Return the DYTInfo object 
   reco::DYTInfo getDYTInfo() {
@@ -77,7 +81,7 @@ class DynamicTruncation {
  private:
 
   void                 compatibleDets(TrajectoryStateOnSurface&, std::map<int, std::vector<DetId> >&);
-  void                 filteringAlgo();
+  void                 filteringAlgo(double momentum,double eta);
   void                 fillSegmentMaps(std::map<int, std::vector<DetId> >&, std::map<int, std::vector<DTRecSegment4D> >&, std::map<int, std::vector<CSCSegment> >&);
   void                 preliminaryFit(std::map<int, std::vector<DetId> >, std::map<int, std::vector<DTRecSegment4D> >, std::map<int, std::vector<CSCSegment> >);
   bool                 chooseLayers(int&, double const &, DTRecSegment4D const &, TrajectoryStateOnSurface const &, double const &, CSCSegment const &, TrajectoryStateOnSurface const &);
