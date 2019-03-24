@@ -48,7 +48,7 @@ if __name__ == "__main__":
     parser.add_argument("--png", action="store_true",
                         help="Save plots in PNG instead of PDF")
     parser.add_argument("--no-html", action="store_true",
-                        help="Disable HTML page genration")
+                        help="Disable HTML page generation")
     parser.add_argument("--html-sample", default="Sample",
                         help="Sample name for HTML page generation (default 'Sample')")
     parser.add_argument("--html-validation-name", default="",
