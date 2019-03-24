@@ -1282,12 +1282,14 @@ _common_assoc = {#"title": "Cell Association Table",
                  "xbinlabeloption": "h",
                  "drawStyle": "hist",
                  "ymin": 0.1,
-                 "ymax": 10000,
+                 "ymax": 100000,
                  "ylog": True}
 _common_assoc.update(_legend_common)
 _cell_association_table = PlotGroup("cellAssociation_table", [
         Plot("cellAssociation_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_assoc) for i in range(0,maxlayerzm)
         ], ncols=8 )
+
+_cell_association_multi = PlotGroup("cellAssociation_multi", [ Plot("cellAssociation", xtitle="", **_common_assoc) ] )
 
 _common_eff = {"stat": False, "legend": False}
 _effplots = [Plot("effic_eta", xtitle="", **_common_eff)]
@@ -1315,8 +1317,11 @@ _mergeplots.extend([Plot("globalEfficiencies", xtitle="", **_common_merge)])
 _merges = PlotGroup("MergeRate", _mergeplots, ncols=3)
 
 _common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d")
-_energyscore_cp2mcl = [PlotOnSideGroup("energyscore",Plot("Energy_vs_Score_caloparticle2multi", drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score))]
-_energyscore_mcl2cp = [PlotOnSideGroup("energyscore",Plot("Energy_vs_Score_multi2caloparticle", drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score))]
+_common_energy_score["ymax"] = 1.
+_energyscore_cp2mcl = PlotOnSideGroup("_energyscore_cp2mcl",Plot("Energy_vs_Score_caloparticle2multi", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score))
+_common_energy_score["ymax"] = 8.
+_energyscore_mcl2cp = PlotOnSideGroup("_energyscore_mcl2cp",Plot("Energy_vs_Score_multi2caloparticle", drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score))
+
 #_energyclustered =
 
 #=================================================================================================
@@ -1847,6 +1852,13 @@ hgcalMultiClustersPlotter.append("SharedEnergy", [
             purpose=PlotPurpose.Timing, page="SharedEnergyMultiClusterToCaloParticle"))
 
 # [D] Cell Association per Multi
+hgcalMultiClustersPlotter.append("CellAssociation_per_multicluster", [
+            "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
+            ], PlotFolder(
+            _cell_association_multi,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="CellAssociation_per_multicluster"))
+
 # z-
 hgcalMultiClustersPlotter.append("CellAssociation_zminus", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
@@ -1894,12 +1906,13 @@ hgcalMultiClustersPlotter.append("MergeRate", [
             _merges,
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="Merges"))
-'''
-# [I] Energy vs Score 2D plots CP to MCL
-hgcalMultiClustersPlotter.append("Energy_vs_Score_CP2MCL", [
+
+# [I] Energy vs Score 2D plots CP to MCL and MCL to CP
+hgcalMultiClustersPlotter.append("Energy_vs_Score_CP2MCL_MCL2CP", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
             ], PlotFolder(
-            _energyscore_cp2mcl,
+            #_energyscore_cp2mcl_mcl2cp,
+            _energyscore_cp2mcl, 
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="Energy_vs_Score_CP2MCL"))
 
@@ -1907,8 +1920,6 @@ hgcalMultiClustersPlotter.append("Energy_vs_Score_CP2MCL", [
 hgcalMultiClustersPlotter.append("Energy_vs_Score_MCL2CP", [
             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/hgcalMultiClusters",
             ], PlotFolder(
-            _energyscore_mcl2cp,
+            _energyscore_mcl2cp, 
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page="Energy_vs_Score_MCL2CP"))
-'''
-
