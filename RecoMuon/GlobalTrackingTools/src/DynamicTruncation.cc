@@ -135,13 +135,16 @@ void DynamicTruncation::setThr(const vector<int>& thr) {
 
 
 //===> filter
-TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Trajectory& traj) {
+TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Trajectory& traj, double globalMomentum, double globalEta) {
   result.clear();
   prelFitMeas.clear();
   
   // Get APE maps 
   dtApeMap = thrManager->GetDTApeMap();
   cscApeMap = thrManager->GetCSCApeMap();
+
+  double momentum = globalMomentum;
+  double eta = globalEta;
 
   // Get Last tracker TSOS (updated)
   vector<TrajectoryMeasurement> muonMeasurements = traj.measurements();
@@ -164,19 +167,22 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
   prelFitMeas = result;
 
   // Run the DYT
-  filteringAlgo();
+  filteringAlgo(momentum,eta); //filteringAlgo();
   
   return result;
 }
 
 
 //===> filteringAlgo
-void DynamicTruncation::filteringAlgo() {
+void DynamicTruncation::filteringAlgo(double momentum,double eta) {
   map<int, vector<DetId> > compatibleIds;
   map<int, vector<DTRecSegment4D> > dtSegMap;
   map<int, vector<CSCSegment> > cscSegMap;
   int incompConLay = 0;
   nStationsUsed = 0;
+
+  p_reco = momentum;
+  eta_reco = eta;
 
   // Get list of compatible layers
   compatibleDets(currentState, compatibleIds);
@@ -460,10 +466,31 @@ void DynamicTruncation::getThresholdFromDB(double& thr, DetId const& id) {
 //===> correctThrByPtAndEta
 void DynamicTruncation::correctThrByPtAndEta(double& thr) {
 
-  //////////////////////////////////////
-  // This section will be implemented //
-  //    after the release of APEs     //
-  //////////////////////////////////////
+	//double p = p_reco;
+	//double   p08[2] = { -0.919853, 0.990742};
+	//double   p12[4] = { -0.897354, 0.987738};
+	//double   p20[3] = { -0.986855, 0.998516};
+	//double   p22[2] = { -0.940342, 0.992955};
+	//double   p24[2] = { -0.947633, 0.993762};
+	//double thr50[5] = { 1, 1, 4, 1, 1};
+
+	if( TMath::Abs(eta_reco) > 0 && TMath::Abs(eta_reco) <= 0.8 ){
+		thr = 24; //3000-> 26; //400-> 11; //1000-> 19; //2000-> 25;
+		//thr = thr50[0] * ( 1 + p08[0]*p + TMath::Power( p, p08[1])); 	
+	} else if( TMath::Abs(eta_reco) > 0.8 && TMath::Abs(eta_reco) <= 1.2 ){
+		thr = 38; //3000-> 29; //400-> 14; //1000-> 22; //2000-> 27;
+                //thr = thr50[1] * ( 1 + p12[0]*p + TMath::Power( p, p12[1])); 
+        } else if( TMath::Abs(eta_reco) > 1.2 && TMath::Abs(eta_reco) <= 2.0 ){
+		thr = 19; //3000-> 20; //400-> 10; //1000-> 16; //2000-> 19;
+        	//thr = thr50[2] * ( 1 + p20[0]*p + TMath::Power( p, p20[1])); 
+        } else if( TMath::Abs(eta_reco) > 2.0 && TMath::Abs(eta_reco) <= 2.2 ){
+		thr = 16; //3000-> 16; //400-> 8; //1000-> 13; //2000-> 15;
+        	//thr = thr50[3] * ( 1 + p22[0]*p + TMath::Power( p, p22[1]));
+        } else if( TMath::Abs(eta_reco) > 2.2 && TMath::Abs(eta_reco) <= 2.4 ){
+		thr = 14; //3000-> 12; //400-> 8; //1000-> 11; //2000-> 13;
+        	//thr = thr50[4] * ( 1 + p24[0]*p + TMath::Power( p, p24[1]));
+	}
+	//thr = 10;
 
 }
 

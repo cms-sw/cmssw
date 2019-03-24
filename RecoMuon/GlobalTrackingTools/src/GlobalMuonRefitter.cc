@@ -271,13 +271,15 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       //
       // DYT 2.0 
       //
+      double momentum = globalTrack.p();
+      double eta = globalTrack.eta();
       DynamicTruncation dytRefit(*theEvent,*theService);
       dytRefit.setProd(all4DSegments, CSCSegments);
       dytRefit.setSelector(theDYTselector);
       dytRefit.setThr(theDYTthrs);
       dytRefit.setUpdateState(theDYTupdator);
       dytRefit.setUseAPE(theDYTuseAPE);
-      DYTRecHits = dytRefit.filter(globalTraj.front());
+      DYTRecHits = dytRefit.filter(globalTraj.front() ,momentum, eta);
       dytInfo->CopyFrom(dytRefit.getDYTInfo());
       if ((DYTRecHits.size() > 1) && (DYTRecHits.front()->globalPosition().mag() > DYTRecHits.back()->globalPosition().mag()))
         stable_sort(DYTRecHits.begin(),DYTRecHits.end(),RecHitLessByDet(alongMomentum));
