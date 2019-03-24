@@ -116,7 +116,38 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     #Parameters for the energy density of cluster cells per thickness 
     minCellsEneDensperthick = cms.double(0.),
     maxCellsEneDensperthick = cms.double(100.),
-    nintCellsEneDensperthick = cms.int32(200)
+    nintCellsEneDensperthick = cms.int32(200), 
+
+    #Parameters for the total number of multiclusters per event
+    #We always treet one event as two events, one in +z one in -z
+    minTotNMCLs = cms.double(0.),
+    maxTotNMCLs = cms.double(50.),
+    nintTotNMCLs = cms.int32(50),
+
+    #Parameters for the total number of layer clusters in multicluster
+    minTotNClsinMCLs = cms.double(0.),
+    maxTotNClsinMCLs = cms.double(400.),
+    nintTotNClsinMCLs = cms.int32(100),
+
+    #Parameters for the total number of layer clusters in multicluster per layer
+    minTotNClsinMCLsperlayer = cms.double(0.),
+    maxTotNClsinMCLsperlayer = cms.double(50.),
+    nintTotNClsinMCLsperlayer = cms.int32(50),
+
+    #parameters for X
+    minX  = cms.double(-300.),
+    maxX  = cms.double(300.),
+    nintX = cms.int32(100),
+
+    #parameters for Y
+    minY  = cms.double(-300.),
+    maxY  = cms.double(300.),
+    nintY = cms.int32(100),
+
+    #parameters for Z
+    minZ  = cms.double(-550.),
+    maxZ  = cms.double(550.),
+    nintZ = cms.int32(1100)
 
 )
 
