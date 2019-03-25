@@ -66,15 +66,15 @@ static long  algorithm(dd4hep::Detector& /* description */,
 				<< material << "Sensitive Position "
 				<< posSens << " Full Cell: " << fullCN << ":"
 				<< fullSensN;
-  for (unsigned int k=0; k<truncCN.size(); ++k)
+  for (int k=0; k<3; ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Truncated Cell[" << k
 				  << "] " << truncCN[k] << ":"
 				  << truncSensN[k];
-  for (unsigned int k=0; k<extenCN.size(); ++k)
+  for (int k=0; k<3; ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Extended Cell[" << k
 				  << "] " << extenCN[k] << ":"
 				  << extenSensN[k];
-  for (unsigned int k=0; k<cornrCN.size(); ++k)
+  for (int k=0; k<6; ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Corner Cell[" << k
 				  << "] " << cornrCN[k] << ":"
 				  << cornrSensN[k];
@@ -156,7 +156,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
   static const int ir2[] = {2,3,3};
   static const int ir3[] = {3,4,4};
   static const int ir4[] = {5,5,5};
-  for (unsigned int i=0; i<truncCN.size(); ++i) {
+  for (int i=0; i<3; ++i) {
     std::vector<double> xw = {xx[ir0[i]],xx[ir1[i]],xx[ir2[i]],xx[ir3[i]],xx[ir4[i]]};
     std::vector<double> yw = {yy[ir0[i]],yy[ir1[i]],yy[ir2[i]],yy[ir3[i]],yy[ir4[i]]};
 
@@ -206,7 +206,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
   static const int ie2[] = {3,7,8};
   static const int ie3[] = {10,3,9};
   static const int ie4[] = {11,4,5};
-  for (unsigned int i=0; i<extenCN.size(); ++i) {
+  for (int i=0; i<3; ++i) {
     std::vector<double> xw = {xx[ie0[i]],xx[ie1[i]],xx[ie2[i]],xx[ie3[i]],xx[ie4[i]]};
     std::vector<double> yw = {yy[ie0[i]],yy[ie1[i]],yy[ie2[i]],yy[ie3[i]],yy[ie4[i]]};
     solid = dd4hep::ExtrudedPolygon(xw, yw, zw, zx, zy, scale); 
@@ -254,7 +254,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
   static const int ic2[] = {8,3,3,3,4,3};
   static const int ic3[] = {3,5,10,4,5,9};
   static const int ic4[] = {5,11,5,5,6,5};
-  for (unsigned int i=0; i<cornrCN.size(); ++i) {
+  for (int i=0; i<6; ++i) {
     std::vector<double> xw = {xx[ic0[i]],xx[ic1[i]],xx[ic2[i]],xx[ic3[i]],xx[ic4[i]]};
     std::vector<double> yw = {yy[ic0[i]],yy[ic1[i]],yy[ic2[i]],yy[ic3[i]],yy[ic4[i]]};
     solid = dd4hep::ExtrudedPolygon(xw, yw, zw, zx, zy, scale);
