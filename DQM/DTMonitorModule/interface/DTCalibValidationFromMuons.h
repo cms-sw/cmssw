@@ -36,8 +36,8 @@
 #include <vector>
 
 
-// To remove into CMSSW versions before 20X
-class DQMStore;
+// To remove into CMSSW versions before 20X; removed in CMSSW 10_5_X onwards
+//class DQMStore;
 // To add into CMSSW versions before 20X
 //class DaqMonitorBEInterface;
 
