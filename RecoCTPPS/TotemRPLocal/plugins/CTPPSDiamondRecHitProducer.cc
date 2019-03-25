@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * This is a part of CTPPS offline software.
+ * This is a part of PPS offline software.
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
  *   Nicola Minafra (nicola.minafra@cern.ch)
