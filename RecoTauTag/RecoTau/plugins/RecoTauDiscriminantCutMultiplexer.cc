@@ -285,7 +285,6 @@ RecoTauDiscriminantCutMultiplexer::fillDescriptions(edm::ConfigurationDescriptio
   // recoTauDiscriminantCutMultiplexer
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("toMultiplex", edm::InputTag("fixme"));
-  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("fixme"));
   desc.add<int>("verbosity", 0);
 
   {
@@ -317,17 +316,7 @@ RecoTauDiscriminantCutMultiplexer::fillDescriptions(edm::ConfigurationDescriptio
 
   desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
   desc.add<bool>("loadMVAfromDB", true);
-  {
-    edm::ParameterSetDescription prediscriminants;
-    prediscriminants.add<std::string>("BooleanOperator", "and");
-    {
-      edm::ParameterSetDescription psd1;
-      psd1.add<double>("cut", 0.0);
-      psd1.add<edm::InputTag>("Producer", edm::InputTag("fixme"));
-      prediscriminants.add<edm::ParameterSetDescription>("decayMode", psd1);
-    }
-    desc.add<edm::ParameterSetDescription>("Prediscriminants", prediscriminants);
-  }
+  fillProducerDescriptions(desc); // inherited from the base
   desc.add<std::string>("mvaOutput_normalization", "");
   desc.add<edm::InputTag>("key", edm::InputTag("fixme"));
   descriptions.add("recoTauDiscriminantCutMultiplexer", desc);
