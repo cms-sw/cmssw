@@ -5,8 +5,9 @@ import RecoTauTag.RecoTau.RecoTauPiZeroQualityPlugins_cfi as ranking
 from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 
-ak4PFJetsLegacyHPSPiZeros = cms.EDProducer(
-    "RecoTauPiZeroProducer",
+
+from RecoTauTag.RecoTau.ak4PFJetsLegacyHPSPiZeros_cfi import ak4PFJetsLegacyHPSPiZeros
+ak4PFJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
@@ -25,7 +26,8 @@ ak4PFJetsLegacyHPSPiZeros = cms.EDProducer(
 phase2_common.toModify(ak4PFJetsLegacyHPSPiZeros, 
                        builders = cms.VPSet(builders.modStrips) )
 
-ak4PFJetsRecoTauGreedyPiZeros = ak4PFJetsLegacyHPSPiZeros.clone( 
+from RecoTauTag.RecoTau.ak4PFJetsRecoTauGreedyPiZeros_cfi import ak4PFJetsRecoTauGreedyPiZeros
+ak4PFJetsRecoTauGreedyPiZeros = ak4PFJetsRecoTauGreedyPiZeros.clone( 
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
@@ -39,7 +41,8 @@ ak4PFJetsRecoTauGreedyPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
     ),
 )
 
-ak4PFJetsRecoTauPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
+from RecoTauTag.RecoTau.ak4PFJetsRecoTauPiZeros_cfi import ak4PFJetsRecoTauPiZeros
+ak4PFJetsRecoTauPiZeros = ak4PFJetsRecoTauPiZeros.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
@@ -58,6 +61,7 @@ ak4PFJetsRecoTauPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
     ),
 )
 
+from RecoTauTag.RecoTau.ak4PFJetsLegacyTaNCPiZeros_cfi import ak4PFJetsLegacyTaNCPiZeros
 ak4PFJetsLegacyTaNCPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
