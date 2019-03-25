@@ -101,7 +101,12 @@ class CTPPSTimingTrackRecognition
      * \param[in] hits hits collection to retrieve the range from
      */
     SpatialRange getHitSpatialRange(const HitVector& hits);
-    /// Evaluate the time + associated uncertainty for a given track
+    /** Evaluate the time + associated uncertainty for a given track
+     * \note General remarks:
+     * - track's time = weighted mean of all hit times with time precision as weight,
+     * - track's time sigma = uncertainty of the weighted mean
+     * - hit is ignored if the time precision is equal to 0
+     */
     bool timeEval(const HitVector& hits, float& meanTime, float& timeSigma);
 };
 
