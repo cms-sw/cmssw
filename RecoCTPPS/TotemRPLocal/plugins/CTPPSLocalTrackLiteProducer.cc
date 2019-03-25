@@ -49,14 +49,14 @@ private:
 /// if true, this module will do nothing
 /// needed for consistency with CTPPS-less workflows
   bool doNothing_;
-  int timeSlice_;
+  std::vector<double> trackTimeSel_;
 };
 
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSet& iConfig ) :
-  doNothing_( iConfig.getParameter<bool>( "doNothing" ) ),
-  timeSlice_( iConfig.getParameter<int>( "timeSlice" ) )
+  doNothing_   ( iConfig.getParameter<bool>( "doNothing" ) ),
+  trackTimeSel_( iConfig.getParameter<std::vector<double> >( "trackTimeSelection" ) )
 {
   if ( doNothing_ ) return;
 
@@ -133,7 +133,7 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       const unsigned int rpId = rpv.detId();
       for ( const auto& trk : rpv ) {
         if ( !trk.isValid() ) continue;
-        if ( trk.getOOTIndex() != timeSlice_ ) continue;
+        if ( trk.getT() < trackTimeSel_.at( 0 ) || trk.getT() > trackTimeSel_.at( 1 ) ) continue;
         float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getX0());
         float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
         float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
@@ -205,8 +205,8 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
     ->setComment( "input pixel detectors' local tracks collection to retrieve" );
   desc.add<bool>( "doNothing", true ) // disable the module by default
     ->setComment( "disable the module" );
-  desc.add<int>( "timeSlice", 0 )
-    ->setComment( "time slice to select for timing detectors" );
+  desc.add<std::vector<double> >( "trackTimeSelection", { 0., 1. } )
+    ->setComment( "time slice to select for timing detectors [ns]" );
 
   desc.add<double>("pixelTrackTxMin",-10.0);
   desc.add<double>("pixelTrackTxMax", 10.0);
