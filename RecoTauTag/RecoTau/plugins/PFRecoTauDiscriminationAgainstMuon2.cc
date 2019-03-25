@@ -184,7 +184,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
     }
   }
   
-  if ( srcMuons_.label() != "" ) {
+  if ( !srcMuons_.label().empty() ) {
     size_t numMuons = muons_->size();
     for ( size_t idxMuon = 0; idxMuon < numMuons; ++idxMuon ) {
       reco::MuonRef muon(muons_, idxMuon);
