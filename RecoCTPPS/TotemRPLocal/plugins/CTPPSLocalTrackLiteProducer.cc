@@ -211,7 +211,7 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
     ->setComment( "input pixel detectors' local tracks collection to retrieve" );
   desc.add<bool>( "doNothing", true ) // disable the module by default
     ->setComment( "disable the module" );
-  desc.add<std::vector<double> >( "trackTimeSelection", { 0., 1. } )
+  desc.add<std::vector<double> >( "trackTimeSelection", { -1000., 1000. } )
     ->setComment( "time slice to select for timing detectors [ns]" );
 
   desc.add<double>("pixelTrackTxMin",-10.0);
