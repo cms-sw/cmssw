@@ -65,6 +65,9 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSe
 
   includeDiamonds_ = iConfig.getParameter<bool>("includeDiamonds");
   diamondTrackToken_ = consumes< edm::DetSetVector<CTPPSDiamondLocalTrack> >( iConfig.getParameter<edm::InputTag>("tagDiamondTrack") );
+  if ( trackTimeSel_.size() != 2 )
+    throw cms::Exception("CTPPSLocalTrackLiteProducer")
+      << "Invalid track timing selection! should be vector<double>{lower time, upper time}.";
 
   includePixels_ = iConfig.getParameter<bool>("includePixels");
   auto tagPixelTrack = iConfig.getParameter<edm::InputTag>("tagPixelTrack");
