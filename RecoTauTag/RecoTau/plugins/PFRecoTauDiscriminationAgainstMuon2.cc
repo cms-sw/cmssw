@@ -96,7 +96,7 @@ class PFRecoTauDiscriminationAgainstMuon2 final : public PFTauDiscriminationProd
 
 void PFRecoTauDiscriminationAgainstMuon2::beginEvent(const edm::Event& evt, const edm::EventSetup& es) 
 {
-  if ( srcMuons_.label() != "" ) {
+  if ( !srcMuons_.label().empty() ) {
     evt.getByToken(Muons_token, muons_);
   }
 }
