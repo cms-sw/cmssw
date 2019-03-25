@@ -36,6 +36,8 @@ public:
   static void fillDescriptions( edm::ConfigurationDescriptions& );
 
 private:
+  /// HPTDC time slice width, in ns
+  static constexpr float HPTDC_TIME_SLICE_WIDTH = 25.;
   bool includeStrips_;
   edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > siStripTrackToken_;
 
@@ -136,12 +138,13 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       const unsigned int rpId = rpv.detId();
       for ( const auto& trk : rpv ) {
         if ( !trk.isValid() ) continue;
-        if ( trk.getT() < trackTimeSel_.at( 0 ) || trk.getT() > trackTimeSel_.at( 1 ) ) continue;
+        const float abs_time = trk.getT()+trk.getOOTIndex()*HPTDC_TIME_SLICE_WIDTH;
+        if ( abs_time < trackTimeSel_.at( 0 ) || abs_time > trackTimeSel_.at( 1 ) ) continue;
         float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getX0());
         float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
         float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
         float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getY0Sigma());
-        float roundedT = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getT());
+        float roundedT = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(abs_time);
         float roundedTSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getTSigma());
 
         pOut->emplace_back( rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, 0., 0., 0., 0., 0.,
