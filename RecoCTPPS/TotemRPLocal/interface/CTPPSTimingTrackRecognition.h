@@ -101,6 +101,8 @@ class CTPPSTimingTrackRecognition
      * \param[in] hits hits collection to retrieve the range from
      */
     SpatialRange getHitSpatialRange(const HitVector& hits);
+    /// Evaluate the time + associated uncertainty for a given track
+    bool timeEval(const HitVector& hits, float& meanTime, float& timeSigma);
 };
 
 /****************************************************************************
@@ -216,6 +218,25 @@ CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::getHitSpatialRange(const HitV
   }
 
   return result;
+}
+
+template<class TRACK_TYPE, class HIT_TYPE> inline
+bool
+CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const HitVector& hits, float& mean_time, float& time_sigma)
+{
+  float mean_num = 0.f, mean_denom = 0.f;
+  bool valid_hits = false;
+  for (const auto& hit : hits) {
+    if (hit.getTPrecision() <= 0.)
+      continue;
+    valid_hits = true; // at least one valid hit to account for
+    const float weight = 1.f / ( hit.getTPrecision() * hit.getTPrecision() );
+    mean_num += weight * hit.getT();
+    mean_denom += weight;
+  }
+  mean_time = valid_hits ? (mean_num/mean_denom) : 0.f;
+  time_sigma = valid_hits ? std::sqrt(1.f/mean_denom) : 0.f;
+  return valid_hits;
 }
 
 #endif
