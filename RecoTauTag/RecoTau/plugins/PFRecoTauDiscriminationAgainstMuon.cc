@@ -5,9 +5,6 @@
  * Authors : Sho Maruyama,M.Bachtis
  */
 
-#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
-#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
-
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -31,15 +28,13 @@ class PFRecoTauDiscriminationAgainstMuon : public PFTauDiscriminationProducerBas
     a  = iConfig.getParameter<double>("a");  
     b  = iConfig.getParameter<double>("b");  
     c  = iConfig.getParameter<double>("c");  	 
-    maxNumberOfMatches_ = iConfig.getParameter<int>("maxNumberOfMatches");
-    checkNumMatches_ = iConfig.getParameter<bool>("checkNumMatches");
+    maxNumberOfMatches_ = iConfig.exists("maxNumberOfMatches") ? iConfig.getParameter<int>("maxNumberOfMatches") : 0;
+    checkNumMatches_ = iConfig.exists("checkNumMatches") ? iConfig.getParameter<bool>("checkNumMatches") : false;
   }
 
   ~PFRecoTauDiscriminationAgainstMuon() override {} 
 
   double discriminate(const PFTauRef& pfTau) const override;
-
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:  
   std::string discriminatorOption_;
@@ -99,31 +94,5 @@ double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTau
 
   return (decision ? 1. : 0.);
 } 
-
-void
-PFRecoTauDiscriminationAgainstMuon::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // pfRecoTauDiscriminationAgainstMuon
-  edm::ParameterSetDescription desc;
-  desc.add<double>("a", 0.5);
-  desc.add<double>("c", 0.0);
-  desc.add<double>("b", 0.5);
-  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("BooleanOperator", "and");
-    {
-      edm::ParameterSetDescription psd1;
-      psd1.add<double>("cut");
-      psd1.add<edm::InputTag>("Producer");
-      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
-    }
-    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
-  }
-  desc.add<std::string>("discriminatorOption", "noSegMatch");
-  desc.add<double>("HoPMin", 0.2);
-  desc.add<int>("maxNumberOfMatches", 0);
-  desc.add<bool>("checkNumMatches", false);
-  descriptions.add("pfRecoTauDiscriminationAgainstMuon", desc);
-}
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstMuon);

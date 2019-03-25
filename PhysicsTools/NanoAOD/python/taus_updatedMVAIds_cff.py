@@ -15,6 +15,7 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw = patDiscriminationByIsola
    loadMVAfromDB = cms.bool(True),
    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2"), # name of the training you want to use
    mvaOpt = cms.string("DBoldDMwLTwGJ"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
+   requireDecayMode = cms.bool(True),
    verbosity = cms.int32(0)
 )
 # VVLoose WP
@@ -70,6 +71,7 @@ patTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw = patDiscriminationByIsola
    loadMVAfromDB = cms.bool(True),
    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2"), # name of the training you want to use
    mvaOpt = cms.string("DBnewDMwLTwGJ"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
+   requireDecayMode = cms.bool(True),
    verbosity = cms.int32(0)
 )
 # VVLoose WP
@@ -125,6 +127,7 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMdR0p3wLTraw = patDiscriminationBy
    loadMVAfromDB = cms.bool(True),
    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2"), # name of the training you want to use
    mvaOpt = cms.string("DBoldDMwLTwGJ"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
+   requireDecayMode = cms.bool(True),
    srcChargedIsoPtSum = cms.string('chargedIsoPtSumdR03'),
    srcFootprintCorrection = cms.string('footprintCorrectiondR03'),
    srcNeutralIsoPtSum = cms.string('neutralIsoPtSumdR03'),
@@ -186,6 +189,7 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2017v1 = patDiscriminationB
    loadMVAfromDB = cms.bool(True),
    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1"), # name of the training you want to use
    mvaOpt = cms.string("DBoldDMwLTwGJ"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
+   requireDecayMode = cms.bool(True),
    verbosity = cms.int32(0)
 )
 # VVLoose WP
@@ -242,6 +246,7 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw2015 = patDiscriminationByI
    loadMVAfromDB = cms.bool(True),
    mvaName = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1"), # name of the training you want to use
    mvaOpt = cms.string("DBoldDMwLT"), # option you want to use for your training (i.e., which variables are used to compute the BDT score)
+   requireDecayMode = cms.bool(True),
    verbosity = cms.int32(0)
 )
 # VLoose WP

@@ -131,7 +131,8 @@ RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2(const edm::ParameterSet& ps
     combinatoricStripMassHypo_ = pset.getParameter<double>("stripMassWhenCombining");
   }
 
-  verbosity_ = pset.getParameter<int>("verbosity");
+  verbosity_ = ( pset.exists("verbosity") ) ?
+    pset.getParameter<int>("verbosity") : 0;
 }
   
 RecoTauPiZeroStripPlugin2::~RecoTauPiZeroStripPlugin2()

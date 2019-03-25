@@ -145,6 +145,7 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
                 mvaOpt = self.cms.string("DBoldDMwLTwGJ"),
+                requireDecayMode = self.cms.bool(True),
                 verbosity = self.cms.int32(0)
             )
 
@@ -227,6 +228,7 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
                 mvaOpt = self.cms.string("DBoldDMwLTwGJ"),
+                requireDecayMode = self.cms.bool(True),
                 verbosity = self.cms.int32(0)
             )
 
@@ -309,6 +311,7 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
                 mvaOpt = self.cms.string("DBnewDMwLTwGJ"),
+                requireDecayMode = self.cms.bool(True),
                 verbosity = self.cms.int32(0)
             )
 
@@ -391,6 +394,7 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2"),
                 mvaOpt = self.cms.string("DBoldDMwLTwGJ"),
+                requireDecayMode = self.cms.bool(True),
                 srcChargedIsoPtSum = self.cms.string('chargedIsoPtSumdR03'),
                 srcFootprintCorrection = self.cms.string('footprintCorrectiondR03'),
                 srcNeutralIsoPtSum = self.cms.string('neutralIsoPtSumdR03'),
@@ -457,6 +461,7 @@ class TauIDEmbedder(object):
         #     loadMVAfromDB = self.cms.bool(True),
         #     mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
         #     mvaOpt = self.cms.string("DBoldDMwLTwGJ"),
+        #     requireDecayMode = self.cms.bool(True),
         #     verbosity = self.cms.int32(0)
         # )
         # #
@@ -484,6 +489,7 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1"),
                 mvaOpt = self.cms.string("DBoldDMwLT"),
+                requireDecayMode = self.cms.bool(True),
                 verbosity = self.cms.int32(0)
             )
 
@@ -542,6 +548,7 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2016v1"),
                 mvaOpt = self.cms.string("DBnewDMwLT"),
+                requireDecayMode = self.cms.bool(True),
                 verbosity = self.cms.int32(0)
             )
 

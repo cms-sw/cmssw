@@ -4,10 +4,9 @@ discriminantConfiguration = cms.PSet(
 
     FlightPathSignificance = cms.PSet(
         plugin = cms.string("RecoTauDiscriminantFromDiscriminator"),
-        discSrc = cms.VInputTag(cms.InputTag('hpsTancTausDiscriminationByFlightPath')),
+        discSrc = cms.InputTag('hpsTancTausDiscriminationByFlightPath'),
         minValue = cms.double(-25),
         maxValue = cms.double(25),
-        takeAbs = cms.bool(False),
     ),
 
     InvariantOpeningAngle = cms.PSet(

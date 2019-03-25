@@ -9,6 +9,5 @@ RecoTauJetRegionProducer = cms.EDProducer(
             minJetPt = PFRecoTauPFJetInputs.minJetPt,
             maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
             pfCandSrc = cms.InputTag("particleFlow"),
-            pfCandAssocMapSrc = cms.InputTag(""),
-            verbosity = cms.int32(0)
+            pfCandAssocMapSrc = cms.InputTag("")
         )

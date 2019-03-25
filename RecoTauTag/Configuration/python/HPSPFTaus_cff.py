@@ -90,8 +90,7 @@ hpsPFTauDiscriminationByTightIsolation.qualityCuts.isolationQualityCuts.minGamma
 hpsPFTauDiscriminationByTightIsolation.Prediscriminants.preIso.Producer = cms.InputTag("hpsPFTauDiscriminationByTightChargedIsolation")
 ## ByLooseIsolationDBSumPtCorr
 hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseIsolation.clone(
-    deltaBetaPUTrackPtCutOverride     = True, # Set the boolean = True to override.
-    deltaBetaPUTrackPtCutOverride_val = 0.5,  # Set the value for new value.
+    deltaBetaPUTrackPtCutOverride = cms.double(0.5),
     applyDeltaBetaCorrection = True,
     isoConeSizeForDeltaBeta = 0.8,
     deltaBetaFactor = "%0.4f"%(0.0123/0.1687),
@@ -101,8 +100,7 @@ hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr = hpsPFTauDiscriminationByLoos
 hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.maximumSumPtCut = hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 ## ByMediumIsolationDBSumPtCorr
 hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr = hpsPFTauDiscriminationByMediumIsolation.clone(
-    deltaBetaPUTrackPtCutOverride     = True, # Set the boolean = True to override.
-    deltaBetaPUTrackPtCutOverride_val = 0.5,  # Set the value for new value.
+    deltaBetaPUTrackPtCutOverride = cms.double(0.5),
     applyDeltaBetaCorrection = True,
     isoConeSizeForDeltaBeta = 0.8,
     deltaBetaFactor = "%0.4f"%(0.0462/0.1687),
@@ -112,8 +110,7 @@ hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr = hpsPFTauDiscriminationByMed
 hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.maximumSumPtCut = hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 ## ByTightIsolationDBSumPtCorr
 hpsPFTauDiscriminationByTightIsolationDBSumPtCorr = hpsPFTauDiscriminationByTightIsolation.clone(
-    deltaBetaPUTrackPtCutOverride     = True, # Set the boolean = True to override.
-    deltaBetaPUTrackPtCutOverride_val = 0.5,  # Set the value for new value.
+    deltaBetaPUTrackPtCutOverride = cms.double(0.5),
     applyDeltaBetaCorrection = True,
     isoConeSizeForDeltaBeta = 0.8,
     deltaBetaFactor = "%0.4f"%(ak4dBetaCorrection),

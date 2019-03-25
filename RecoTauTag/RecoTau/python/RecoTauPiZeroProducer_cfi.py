@@ -19,8 +19,7 @@ ak4PFJetsLegacyHPSPiZeros = cms.EDProducer(
     ),
     ranking = cms.VPSet(
         ranking.isInStrip
-    ),
-    verbosity = cms.int32(0)
+    )
 )
 phase2_common.toModify(ak4PFJetsLegacyHPSPiZeros, 
                        builders = cms.VPSet(builders.modStrips) )

@@ -1,6 +1,4 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
-#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
 /* 
  * class PFRecoTauDiscriminationByLeadingObjectPtCut
@@ -19,7 +17,6 @@ class PFRecoTauDiscriminationByLeadingObjectPtCut : public PFTauDiscriminationPr
       }
       ~PFRecoTauDiscriminationByLeadingObjectPtCut() override{} 
       double discriminate(const PFTauRef& pfTau) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
    private:
       bool chargedOnly_;
       double minPtLeadObject_;
@@ -51,21 +48,6 @@ double PFRecoTauDiscriminationByLeadingObjectPtCut::discriminate(const PFTauRef&
    }
 
    return ( leadObjectPt > minPtLeadObject_ ? 1. : 0. );
-}
-
-void
-PFRecoTauDiscriminationByLeadingObjectPtCut::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // pfRecoTauDiscriminationByLeadingObjectPtCut
-  edm::ParameterSetDescription desc;
-  desc.add<double>("MinPtLeadingObject", 5.0);
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("BooleanOperator", "and");
-    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
-  }
-  desc.add<bool>("UseOnlyChargedHadrons", false);
-  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
-  descriptions.add("pfRecoTauDiscriminationByLeadingObjectPtCut", desc);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByLeadingObjectPtCut);

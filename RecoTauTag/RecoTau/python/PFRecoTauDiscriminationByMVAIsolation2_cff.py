@@ -53,7 +53,6 @@ discriminationByIsolationMVA2raw = cms.EDProducer("PFRecoTauDiscriminationByIsol
     #  2) a track OR a pi-zero in the signal cone has pT > 5 GeV
     Prediscriminants = requireLeadTrack,
     loadMVAfromDB = cms.bool(True),
-    inputFileName = cms.FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"), # the filename for MVA if it is not loaded from DB
     mvaName = cms.string("tauIdMVAnewDMwLT"),
     mvaOpt = cms.string("newDMwLT"),
 
@@ -62,9 +61,7 @@ discriminationByIsolationMVA2raw = cms.EDProducer("PFRecoTauDiscriminationByIsol
     
     srcChargedIsoPtSum = cms.InputTag('chargedIsoPtSum'),
     srcNeutralIsoPtSum = cms.InputTag('neutralIsoPtSum'),
-    srcPUcorrPtSum = cms.InputTag('puCorrPtSum'),
-
-    verbosity = cms.int32(0)
+    srcPUcorrPtSum = cms.InputTag('puCorrPtSum')
 )
 
 discriminationByIsolationMVA2VLoose = recoTauDiscriminantCutMultiplexer.clone(

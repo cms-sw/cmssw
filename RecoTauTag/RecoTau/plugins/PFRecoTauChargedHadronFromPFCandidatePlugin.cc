@@ -102,7 +102,8 @@ class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadro
   minMergeGammaEt_ = pset.getParameter<double>("minMergeGammaEt"); 
   minMergeChargedHadronPt_ = pset.getParameter<double>("minMergeChargedHadronPt"); 
 
-  verbosity_ = pset.getParameter<int>("verbosity");
+  verbosity_ = ( pset.exists("verbosity") ) ?
+    pset.getParameter<int>("verbosity") : 0;
 }
   
 PFRecoTauChargedHadronFromPFCandidatePlugin::~PFRecoTauChargedHadronFromPFCandidatePlugin()

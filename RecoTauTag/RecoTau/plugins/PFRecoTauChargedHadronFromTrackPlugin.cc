@@ -95,7 +95,8 @@ class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuild
   numWarnings_ = 0;
   maxWarnings_ = 3;
 
-  verbosity_ = pset.getParameter<int>("verbosity");
+  verbosity_ = ( pset.exists("verbosity") ) ?
+    pset.getParameter<int>("verbosity") : 0;
 }
   
 PFRecoTauChargedHadronFromTrackPlugin::~PFRecoTauChargedHadronFromTrackPlugin()

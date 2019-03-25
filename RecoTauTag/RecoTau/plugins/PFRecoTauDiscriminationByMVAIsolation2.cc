@@ -17,9 +17,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
-#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
-
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -76,9 +73,11 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
       category_output_()
   {
     mvaName_ = cfg.getParameter<std::string>("mvaName");
-    loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
+    loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
     if ( !loadMVAfromDB_ ) {
+      if(cfg.exists("inputFileName")){
 	inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
+      }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
     }    
     std::string mvaOpt_string = cfg.getParameter<std::string>("mvaOpt");
     if      ( mvaOpt_string == "oldDMwoLT" ) mvaOpt_ = kOldDMwoLT;
@@ -98,7 +97,8 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
     NeutralIsoPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcNeutralIsoPtSum"));
     PUcorrPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPUcorrPtSum"));
   
-    verbosity_ = cfg.getParameter<int>("verbosity");
+    verbosity_ = ( cfg.exists("verbosity") ) ?
+      cfg.getParameter<int>("verbosity") : 0;
 
     produces<PFTauDiscriminator>("category");
   }
@@ -119,7 +119,6 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
     }
   }
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
  private:
 
   std::string moduleLabel_;
@@ -239,27 +238,6 @@ void PFRecoTauDiscriminationByIsolationMVA2::endEvent(edm::Event& evt)
 {
   // add all category indices to event
   evt.put(std::move(category_output_), "category");
-}
-
-void
-PFRecoTauDiscriminationByIsolationMVA2::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // pfRecoTauDiscriminationByIsolationMVA2
-  edm::ParameterSetDescription desc;
-
-  desc.add<std::string>("mvaName");
-  desc.add<bool>("loadMVAfromDB");
-  desc.addOptional<edm::FileInPath>("inputFileName");
-  desc.add<std::string>("mvaOpt");
-
-  desc.add<edm::InputTag>("srcTauTransverseImpactParameters");
-  desc.add<edm::InputTag>("srcChargedIsoPtSum");
-  desc.add<edm::InputTag>("srcNeutralIsoPtSum");
-  desc.add<edm::InputTag>("srcPUcorrPtSum");
-  desc.add<int>("verbosity", 0);
-
-  fillProducerDescriptions(desc); // inherited from the base
-
-  descriptions.add("pfRecoTauDiscriminationByIsolationMVA2", desc);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByIsolationMVA2);

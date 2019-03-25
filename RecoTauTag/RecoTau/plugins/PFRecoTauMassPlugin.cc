@@ -39,7 +39,8 @@ class PFRecoTauMassPlugin : public RecoTauModifierPlugin
   PFRecoTauMassPlugin::PFRecoTauMassPlugin(const edm::ParameterSet& cfg, edm::ConsumesCollector &&iC)
     : RecoTauModifierPlugin(cfg, std::move(iC))
 {
-  verbosity_ = cfg.getParameter<int>("verbosity");
+  verbosity_ = ( cfg.exists("verbosity") ) ?
+    cfg.getParameter<int>("verbosity") : 0;
 }
 
 PFRecoTauMassPlugin::~PFRecoTauMassPlugin()

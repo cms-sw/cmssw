@@ -26,9 +26,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
-#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
-
 #include <string>
 #include <iostream>
 
@@ -41,8 +38,6 @@ class RecoTauJetRegionProducer : public edm::stream::EDProducer<>
   ~RecoTauJetRegionProducer() override {}
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
-
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   std::string moduleLabel_;
@@ -75,10 +70,11 @@ RecoTauJetRegionProducer::RecoTauJetRegionProducer(const edm::ParameterSet& cfg)
   
   double deltaR = cfg.getParameter<double>("deltaR"); 
   deltaR2_ = deltaR*deltaR;
-  minJetPt_ = cfg.getParameter<double>("minJetPt");
-  maxJetAbsEta_ = cfg.getParameter<double>("maxJetAbsEta");
+  minJetPt_ = ( cfg.exists("minJetPt") ) ? cfg.getParameter<double>("minJetPt") : -1.0;
+  maxJetAbsEta_ = ( cfg.exists("maxJetAbsEta") ) ? cfg.getParameter<double>("maxJetAbsEta") : 99.0;
   
-  verbosity_ = cfg.getParameter<int>("verbosity");
+  verbosity_ = ( cfg.exists("verbosity") ) ?
+    cfg.getParameter<int>("verbosity") : 0;
   
   produces<reco::PFJetCollection>("jets");
   produces<PFJetMatchMap>();
@@ -112,10 +108,10 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   size_t nJets = jets.size();
 
   // Get the association map matching jets to PFCandidates
-  // (needed for reconstruction of boosted taus)
+  // (needed for recinstruction of boosted taus)
   edm::Handle<JetToPFCandidateAssociation> jetToPFCandMap;
   std::vector<std::unordered_set<unsigned> > fastJetToPFCandMap;
-  if ( !pfCandAssocMapSrc_.label().empty() ) {
+  if ( pfCandAssocMapSrc_.label() != "" ) {
     evt.getByToken(pfCandAssocMap_token, jetToPFCandMap);
     fastJetToPFCandMap.resize(nJets);
     for ( size_t ijet = 0; ijet < nJets; ++ijet ) {
@@ -208,20 +204,6 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
     filler.fill();
   }
   evt.put(std::move(matching));
-}
-
-void
-RecoTauJetRegionProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // RecoTauJetRegionProducer
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("ak4PFJets"));
-  desc.add<double>("deltaR", 0.8);
-  desc.add<edm::InputTag>("pfCandAssocMapSrc", edm::InputTag(""));
-  desc.add<int>("verbosity", 0);
-  desc.add<double>("maxJetAbsEta", 2.5);
-  desc.add<double>("minJetPt", 14.0);
-  desc.add<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
-  descriptions.add("RecoTauJetRegionProducer", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
