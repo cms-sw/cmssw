@@ -141,9 +141,9 @@ RecoTauPiZeroStripPlugin3::RecoTauPiZeroStripPlugin3(const edm::ParameterSet& ps
   qcuts_.reset(new RecoTauQualityCuts(qcuts_pset));
 
   inputPdgIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
-  const edm::ParameterSet& stripSize_eta_pset = pset.getParameterSet("stripEtaAssociationDistance");
+  const edm::ParameterSet& stripSize_eta_pset = pset.getParameterSet("stripEtaAssociationDistanceFunc");
   etaAssociationDistance_ = makeFunction("etaAssociationDistance", stripSize_eta_pset);
-  const edm::ParameterSet& stripSize_phi_pset = pset.getParameterSet("stripPhiAssociationDistance");
+  const edm::ParameterSet& stripSize_phi_pset = pset.getParameterSet("stripPhiAssociationDistanceFunc");
   phiAssociationDistance_ = makeFunction("phiAssociationDistance", stripSize_phi_pset);
 
   updateStripAfterEachDaughter_ = pset.getParameter<bool>("updateStripAfterEachDaughter");
