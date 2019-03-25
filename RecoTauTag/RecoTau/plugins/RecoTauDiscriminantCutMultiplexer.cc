@@ -288,17 +288,17 @@ RecoTauDiscriminantCutMultiplexer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<int>("verbosity", 0);
 
   {
-    edm::ParameterSetDescription vpsd1;
-    vpsd1.add<unsigned int>("category");
+    edm::ParameterSetDescription vpsd_desc;
+    vpsd_desc.add<unsigned int>("category");
     //vpsd1.add<double>("cut");
     // the cut can be either double or string
     // the ParameterDescription constructor signatures = ("<name>", true|false) or ("<name>", <default_value>, true|false)
     // the true|false = tracked|untracked
-    vpsd1.addNode(edm::ParameterDescription<std::string>("cut", true) xor
+    vpsd_desc.addNode(edm::ParameterDescription<std::string>("cut", true) xor
                   edm::ParameterDescription<double>("cut", true));
     // it seems the parameter string "variable" exists only when "cut" is string
     // see hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT in RecoTauTag/Configuration/python/HPSPFTaus_cff.py
-    vpsd1.addOptional<std::string>("variable")->setComment("the parameter is required when \"cut\" is string");
+    vpsd_desc.addOptional<std::string>("variable")->setComment("the parameter is required when \"cut\" is string");
     //vpsd1.ifExists(edm::ParameterDescription<std::string>("cut", true),
     //               edm::ParameterDescription<std::string>("variable", true));
     /* -- crashes the compilation with:
@@ -307,7 +307,16 @@ RecoTauDiscriminantCutMultiplexer::fillDescriptions(edm::ConfigurationDescriptio
       must be unique.  The following duplicate labels were detected:
        "cut"
      */
-    desc.addVPSet("mapping", vpsd1);
+    std::vector<edm::ParameterSet> vpsd;
+    edm::ParameterSet psd1;
+    psd1.addParameter<unsigned int>("category", 0);
+    psd1.addParameter<double>("cut", 0.5);
+    vpsd.push_back(psd1);
+    edm::ParameterSet psd2;
+    psd2.addParameter<unsigned int>("category", 1);
+    psd2.addParameter<double>("cut", 0.2);
+    vpsd.push_back(psd2);
+    desc.addVPSet("mapping", vpsd_desc, vpsd);
   }
 
   // the cut in the mapping is sometimes string:
