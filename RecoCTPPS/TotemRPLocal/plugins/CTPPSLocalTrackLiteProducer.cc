@@ -51,14 +51,13 @@ private:
 /// if true, this module will do nothing
 /// needed for consistency with CTPPS-less workflows
   bool doNothing_;
-  std::vector<double> trackTimeSel_;
+  double timingTrackTMin_, timingTrackTMax_;
 };
 
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSet& iConfig ) :
-  doNothing_   ( iConfig.getParameter<bool>( "doNothing" ) ),
-  trackTimeSel_( iConfig.getParameter<std::vector<double> >( "trackTimeSelection" ) )
+  doNothing_   ( iConfig.getParameter<bool>( "doNothing" ) )
 {
   if ( doNothing_ ) return;
 
@@ -67,9 +66,9 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSe
 
   includeDiamonds_ = iConfig.getParameter<bool>("includeDiamonds");
   diamondTrackToken_ = consumes< edm::DetSetVector<CTPPSDiamondLocalTrack> >( iConfig.getParameter<edm::InputTag>("tagDiamondTrack") );
-  if ( trackTimeSel_.size() != 2 )
-    throw cms::Exception("CTPPSLocalTrackLiteProducer")
-      << "Invalid track timing selection! should be vector<double>{lower time, upper time}.";
+
+  timingTrackTMin_ = iConfig.getParameter<double>( "timingTrackTMin" );
+  timingTrackTMax_ = iConfig.getParameter<double>( "timingTrackTMax" );
 
   includePixels_ = iConfig.getParameter<bool>("includePixels");
   auto tagPixelTrack = iConfig.getParameter<edm::InputTag>("tagPixelTrack");
@@ -138,8 +137,10 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       const unsigned int rpId = rpv.detId();
       for ( const auto& trk : rpv ) {
         if ( !trk.isValid() ) continue;
+
         const float abs_time = trk.getT()+trk.getOOTIndex()*HPTDC_TIME_SLICE_WIDTH;
-        if ( abs_time < trackTimeSel_.at( 0 ) || abs_time > trackTimeSel_.at( 1 ) ) continue;
+        if ( abs_time < timingTrackTMin_ || abs_time > timingTrackTMax_ ) continue;
+
         float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getX0());
         float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
         float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
@@ -211,8 +212,10 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
     ->setComment( "input pixel detectors' local tracks collection to retrieve" );
   desc.add<bool>( "doNothing", true ) // disable the module by default
     ->setComment( "disable the module" );
-  desc.add<std::vector<double> >( "trackTimeSelection", { -1000., 1000. } )
-    ->setComment( "time slice to select for timing detectors [ns]" );
+  desc.add<double>( "timingTrackTMin", -1000. )
+    ->setComment( "minimal track time selection for timing detectors [ns]" );
+  desc.add<double>( "timingTrackTMax", +1000. )
+    ->setComment( "maximal track time selection for timing detectors [ns]" );
 
   desc.add<double>("pixelTrackTxMin",-10.0);
   desc.add<double>("pixelTrackTxMax", 10.0);
