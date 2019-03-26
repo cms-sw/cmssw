@@ -80,12 +80,6 @@ namespace std {
     typedef unsigned int value_type;
     value_type operator()(const arg_type& arg) const { return arg.first ^ (arg.second << 1); }
   };
-  template <> struct equal_to<std::pair<unsigned int, unsigned int> > {
-    typedef std::pair<unsigned int, unsigned int> arg_type;
-    bool operator()(const arg_type& arg1, const arg_type& arg2) const {
-      return ((arg1.first == arg2.first) & (arg1.second == arg2.second));
-    }
-  };
 }  // namespace std
 
 /**\class PFBlockProducer
@@ -118,9 +112,6 @@ private:
 
   void setImporters(const std::vector<edm::ParameterSet>&, edm::ConsumesCollector&);
 
-  // update event setup info of all linkers
-  void updateEventSetup(const edm::EventSetup&);
-
   // run all of the importers and build KDtrees
   void buildElements(const edm::Event&);
 
@@ -139,11 +130,10 @@ private:
   inline bool linkPrefilter(const reco::PFBlockElement* last, const reco::PFBlockElement* next) const;
 
   /// check whether 2 elements are linked. Returns distance and linktype
-  inline void link(const reco::PFBlockElement* el1,
+  inline double link(const reco::PFBlockElement* el1,
                    const reco::PFBlockElement* el2,
                    PFBlockLink::Type& linktype,
-                   reco::PFBlock::LinkTest& linktest,
-                   double& dist) const;
+                   reco::PFBlock::LinkTest& linktest) const;
 
   // the test elements will be transferred to the blocks
   std::vector<std::unique_ptr<reco::PFBlockElement>> elements_;
@@ -152,7 +142,6 @@ private:
   /// if true, debug printouts activated
   bool debug_;
 
-  friend std::ostream& operator<<(std::ostream&, const PFBlockProducer&);
   bool useHO_;
 
   std::vector<std::unique_ptr<BlockElementImporterBase>> importers_;
@@ -221,13 +210,12 @@ namespace {
 
 
 void PFBlockProducer::setLinkers(const std::vector<edm::ParameterSet>& confs) {
-  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
-  for (unsigned i = 0; i < rowsize; ++i) {
-    for (unsigned j = 0; j < rowsize; ++j) {
+  for (unsigned i = 0; i < reco::PFBlockElement::kNBETypes; ++i) {
+    for (unsigned j = 0; j < reco::PFBlockElement::kNBETypes; ++j) {
       linkTestSquare_[i][j] = 0;
     }
   }
-  linkTests_.resize(rowsize * rowsize);
+  linkTests_.resize(reco::PFBlockElement::kNBETypes * reco::PFBlockElement::kNBETypes);
   const std::string prefix("PFBlockElement::");
   const std::string pfx_kdtree("KDTree");
   for (const auto& conf : confs) {
@@ -246,7 +234,7 @@ void PFBlockProducer::setLinkers(const std::vector<edm::ParameterSet>& confs) {
     }
     const PFBlockElement::Type type1 = elementTypes_.at(link1);
     const PFBlockElement::Type type2 = elementTypes_.at(link2);
-    const unsigned index = rowsize * std::max(type1, type2) + std::min(type1, type2);
+    const unsigned index = reco::PFBlockElement::kNBETypes * std::max(type1, type2) + std::min(type1, type2);
     linkTests_[index] = std::unique_ptr<BlockElementLinkerBase>{BlockElementLinkerFactory::get()->create(linkerName, conf)};
     linkTestSquare_[type1][type2] = index;
     linkTestSquare_[type2][type1] = index;
@@ -283,11 +271,11 @@ reco::PFBlockCollection PFBlockProducer::findBlocks() {
   // the blocks have not been passed to the event, and need to be cleared
   blocks.reserve(elements_.size());
 
-  QuickUnion qu(elements_.size());
+  QuickUnion quickUnion(elements_.size());
   const auto elem_size = elements_.size();
   for (unsigned i = 0; i < elem_size; ++i) {
     for (unsigned j = 0; j < elem_size; ++j) {
-      if (qu.connected(i, j) || j == i)
+      if (quickUnion.connected(i, j) || j == i)
         continue;
       if (!linkTests_[linkTestSquare_[elements_[i]->type()][elements_[j]->type()]]) {
         j = ranges_[elements_[j]->type()].second;
@@ -301,7 +289,7 @@ reco::PFBlockCollection PFBlockProducer::findBlocks() {
         const double dist = linkTests_[index]->testLink(p1, p2);
         // compute linking info if it is possible
         if (dist > -0.5) {
-          qu.unite(i, j);
+          quickUnion.unite(i, j);
         }
       }
     }
@@ -312,8 +300,8 @@ reco::PFBlockCollection PFBlockProducer::findBlocks() {
   keys.reserve(elements_.size());
   for (unsigned i = 0; i < elements_.size(); ++i) {
     unsigned key = i;
-    while (key != qu.find(key))
-      key = qu.find(key);  // make sure we always find the root node...
+    while (key != quickUnion.find(key))
+      key = quickUnion.find(key);  // make sure we always find the root node...
     auto pos = std::lower_bound(keys.begin(), keys.end(), key);
     if (pos == keys.end() || *pos != key) {
       keys.insert(pos, key);
@@ -327,16 +315,14 @@ reco::PFBlockCollection PFBlockProducer::findBlocks() {
     blocks.push_back(reco::PFBlock());
     auto range = blocksmap.equal_range(key);
     auto& the_block = blocks.back();
-    std::vector<std::unique_ptr<reco::PFBlockElement>>::value_type::pointer p1(elements_[range.first->second].get());
+    reco::PFBlockElement* p1(elements_[range.first->second].get());
     the_block.addElement(p1);
     const unsigned block_size = blocksmap.count(key) + 1;
     //reserve up to 1M or 8MB; pay rehash cost for more
     std::unordered_map<std::pair<unsigned int, unsigned int>, PFBlockLink> links(
         min(1000000u, block_size * block_size));
-    auto itr = range.first;
-    ++itr;
-    for (; itr != range.second; ++itr) {
-      std::vector<std::unique_ptr<reco::PFBlockElement>>::value_type::pointer p2(elements_[itr->second].get());
+    for (auto itr = std::next(range.first); itr != range.second; ++itr) {
+      reco::PFBlockElement* p2(elements_[itr->second].get());
       const PFBlockElement::Type type1 = p1->type();
       const PFBlockElement::Type type2 = p2->type();
       the_block.addElement(p2);
@@ -359,7 +345,6 @@ reco::PFBlockCollection PFBlockProducer::findBlocks() {
 
 void PFBlockProducer::packLinks(reco::PFBlock& block,
                             const std::unordered_map<std::pair<unsigned int, unsigned int>, PFBlockLink>& links) const {
-  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
 
   const edm::OwnVector<reco::PFBlockElement>& els = block.elements();
 
@@ -368,8 +353,6 @@ void PFBlockProducer::packLinks(reco::PFBlock& block,
   //First Loop: update all link data
   for (unsigned i1 = 0; i1 < elsize; ++i1) {
     for (unsigned i2 = 0; i2 < i1; ++i2) {
-      // no reflexive link
-      //if( i1==i2 ) continue;
 
       double dist = -1;
 
@@ -389,12 +372,12 @@ void PFBlockProducer::packLinks(reco::PFBlock& block,
         const PFBlockElement::Type type1 = els[i1].type();
         const PFBlockElement::Type type2 = els[i2].type();
         const auto minmax = std::minmax(type1, type2);
-        const unsigned index = rowsize * minmax.second + minmax.first;
+        const unsigned index = reco::PFBlockElement::kNBETypes * minmax.second + minmax.first;
         PFBlockLink::Type linktype = PFBlockLink::NONE;
         bool bTestLink =
             (nullptr == linkTests_[index] ? false : linkTests_[index]->linkPrefilter(&(els[i1]), &(els[i2])));
         if (bTestLink)
-          link(&els[i1], &els[i2], linktype, linktest, dist);
+          dist = link(&els[i1], &els[i2], linktype, linktest);
       }
 
       //loading link data according to link test used: RECHIT
@@ -410,38 +393,30 @@ void PFBlockProducer::packLinks(reco::PFBlock& block,
 // see plugins/linkers for the functions that calculate distances
 // for each available link type
 inline bool PFBlockProducer::linkPrefilter(const reco::PFBlockElement* last, const reco::PFBlockElement* next) const {
-  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
   const PFBlockElement::Type type1 = (last)->type();
   const PFBlockElement::Type type2 = (next)->type();
-  const unsigned index = rowsize * std::max(type1, type2) + std::min(type1, type2);
+  const unsigned index = reco::PFBlockElement::kNBETypes * std::max(type1, type2) + std::min(type1, type2);
   bool result = linkTests_[index]->linkPrefilter(last, next);
   return result;
 }
 
-inline void PFBlockProducer::link(const reco::PFBlockElement* el1,
+inline double PFBlockProducer::link(const reco::PFBlockElement* el1,
                               const reco::PFBlockElement* el2,
                               PFBlockLink::Type& linktype,
-                              reco::PFBlock::LinkTest& linktest,
-                              double& dist) const {
-  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
-  dist = -1.0;
+                              reco::PFBlock::LinkTest& linktest) const {
+  double dist = -1.0;
   linktest = PFBlock::LINKTEST_RECHIT;  //rechit by default
   const PFBlockElement::Type type1 = el1->type();
   const PFBlockElement::Type type2 = el2->type();
   linktype = static_cast<PFBlockLink::Type>(1 << (type1 - 1) | 1 << (type2 - 1));
-  const unsigned index = rowsize * std::max(type1, type2) + std::min(type1, type2);
+  const unsigned index = reco::PFBlockElement::kNBETypes * std::max(type1, type2) + std::min(type1, type2);
   if (debug_) {
     std::cout << " PFBlockProducer links type1 " << type1 << " type2 " << type2 << std::endl;
   }
 
   // index is always checked in the preFilter above, no need to check here
   dist = linkTests_[index]->testLink(el1, el2);
-}
-
-void PFBlockProducer::updateEventSetup(const edm::EventSetup& es) {
-  for (auto& importer : importers_) {
-    importer->updateEventSetup(es);
-  }
+  return dist;
 }
 
 // see plugins/importers and plugins/kdtrees
@@ -475,33 +450,17 @@ void PFBlockProducer::buildElements(const edm::Event& evt) {
   // Here we provide to all KDTree linkers the collections to link.
   // Glowinski & Gouzevitch
 
-  for (std::vector<std::unique_ptr<reco::PFBlockElement>>::iterator it = elements_.begin(); it != elements_.end(); ++it) {
+  for(auto const& element : elements_) {
     for (const auto& kdtree : kdtrees_) {
-      if ((*it)->type() == kdtree->targetType()) {
-        kdtree->insertTargetElt(it->get());
+      if (element->type() == kdtree->targetType()) {
+        kdtree->insertTargetElt(element.get());
       }
-      if ((*it)->type() == kdtree->fieldType()) {
-        kdtree->insertFieldClusterElt(it->get());
+      if (element->type() == kdtree->fieldType()) {
+        kdtree->insertFieldClusterElt(element.get());
       }
     }
   }
   //std::cout << "(new) imported: " << elements_.size() << " elements!" << std::endl;
-}
-
-std::ostream& operator<<(std::ostream& out, const PFBlockProducer& a) {
-  if (!out)
-    return out;
-
-  out << "====== Particle Flow Block Algorithm ======= ";
-  out << endl;
-  out << "number of unassociated elements : " << a.elements_.size() << endl;
-  out << endl;
-
-  for (auto ie = a.elements_.begin(); ie != a.elements_.end(); ++ie) {
-    out << "\t" << **ie << endl;
-  }
-
-  return out;
 }
 
 PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig)
@@ -533,7 +492,10 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig)
 }
 
 void PFBlockProducer::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  updateEventSetup(es);
+  // update event setup info of all linkers
+  for (auto& importer : importers_) {
+    importer->updateEventSetup(es);
+  }
 }
 
 void PFBlockProducer::produce(Event& iEvent, const EventSetup& iSetup) {
@@ -543,12 +505,19 @@ void PFBlockProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
   if (verbose_) {
     ostringstream str;
-    str << *this << endl;
+    str << "====== Particle Flow Block Algorithm ======= ";
+    str << endl;
+    str << "number of unassociated elements : " << elements_.size() << endl;
+    str << endl;
+
+    for(auto const& element : elements_) {
+      str << "\t" << *element << endl;
+    }
     str << "number of blocks : " << blocks.size() << endl;
     str << endl;
 
-    for (auto ib = blocks.begin(); ib != blocks.end(); ++ib) {
-      str << (*ib) << endl;
+    for(auto const& block : blocks) {
+      str << block << endl;
     }
 
     LogInfo("PFBlockProducer") << str.str() << endl;
