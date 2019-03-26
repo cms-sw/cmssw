@@ -51,79 +51,68 @@
   <class name="edm::reftobase::Holder<reco::PFTau, reco::PFTauRef>" />
   <class name="edm::reftobase::RefHolder<reco::PFTauRef>" />
 
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFChargedHadrCand_;" targetClass="reco::PFTau" target="leadPFChargedHadrCand_,leadChargedHadrCand_">
-   <![CDATA[
-   leadPFChargedHadrCand_.reset();
-   leadChargedHadrCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFChargedHadrCand_);]]>
-  </ioread>
-
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFNeutralCand_;" targetClass="reco::PFTau" target="leadPFNeutralCand_,leadNeutralCand_">
-    <![CDATA[
-    leadPFNeutralCand_.reset();
-    leadNeutralCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFNeutralCand_);]]>
-  </ioread>
-
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFCand_;" targetClass="reco::PFTau" target="leadPFCand_,leadCand_">
-    <![CDATA[
-    leadPFCand_.reset();
-    leadCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFCand_);]]>
-  </ioread>
-
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<reco::PFCandidatePtr> selectedSignalPFCands_;" targetClass="reco::PFTau" target="selectedSignalCands_">
-    <![CDATA[
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFChargedHadrCand_; edm::Ptr<reco::PFCandidate> leadPFNeutralCand_; edm::Ptr<reco::PFCandidate> leadPFCand_; std::vector<reco::PFCandidatePtr> selectedSignalPFCands_; std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFChargedHadrCands_; std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFNeutrHadrCands_; std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFGammaCands_; std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFCands_; std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFChargedHadrCands_; std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFNeutrHadrCands_; std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFGammaCands_;  edm::RefVector<std::vector<reco::PFRecoTauChargedHadron> > isolationTauChargedHadronCandidatesRefs_; reco::JetBaseRef jetRef_;" targetClass="reco::PFTau" target="leadChargedHadrCand_,leadNeutralCand_,leadCand_,selectedSignalCands_,selectedSignalChargedHadrCands_,selectedSignalNeutrHadrCands_,selectedSignalGammaCands_,selectedIsolationCands_,selectedIsolationChargedHadrCands_,selectedIsolationNeutrHadrCands_,selectedIsolationGammaCands_,leadPFChargedHadrCand_,leadPFNeutralCand_,leadPFCand_">
+  <![CDATA[
+    selectedSignalCands_.clear();
     selectedSignalCands_.reserve(onfile.selectedSignalPFCands_.size());
     for (const edm::Ptr<reco::PFCandidate>& cand : onfile.selectedSignalPFCands_) {
       selectedSignalCands_.push_back(edm::Ptr<reco::Candidate>(cand));}
-      ]]>
-  </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFChargedHadrCands_;" targetClass="reco::PFTau" target="selectedSignalChargedHadrCands_">
-    <![CDATA[
+    selectedSignalChargedHadrCands_.clear();
     selectedSignalChargedHadrCands_.reserve(onfile.selectedSignalPFChargedHadrCands_.size());
     for (const auto& cand : onfile.selectedSignalPFChargedHadrCands_)
-      selectedSignalChargedHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
-  </ioread>
+      selectedSignalChargedHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));
 
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFNeutrHadrCands_;" targetClass="reco::PFTau" target="selectedSignalNeutrHadrCands_">
-    <![CDATA[
+    selectedSignalNeutrHadrCands_.clear();
     selectedSignalNeutrHadrCands_.reserve(onfile.selectedSignalPFNeutrHadrCands_.size());
     for (const auto& cand : onfile.selectedSignalPFNeutrHadrCands_)
-      selectedSignalNeutrHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));;]]>
-  </ioread>
+      selectedSignalNeutrHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));;
 
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFGammaCands_;" targetClass="reco::PFTau" target="selectedSignalGammaCands_">
-    <![CDATA[
+    selectedSignalGammaCands_.clear();
     selectedSignalGammaCands_.reserve(onfile.selectedSignalPFGammaCands_.size());
     for (const auto& cand : onfile.selectedSignalPFGammaCands_)
-      selectedSignalGammaCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
-  </ioread>
+      selectedSignalGammaCands_.push_back(edm::Ptr<reco::Candidate>(cand));
 
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFCands_;" targetClass="reco::PFTau" target="selectedIsolationCands_">
-    <![CDATA[
+    selectedIsolationCands_.clear();
     selectedIsolationCands_.reserve(onfile.selectedIsolationPFCands_.size());
     for (const auto& cand : onfile.selectedIsolationPFCands_)
-      selectedIsolationCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
-  </ioread>
+      selectedIsolationCands_.push_back(edm::Ptr<reco::Candidate>(cand));
 
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFChargedHadrCands_;" targetClass="reco::PFTau" target="selectedIsolationChargedHadrCands_">
-    <![CDATA[
+    selectedIsolationChargedHadrCands_.clear();
     selectedIsolationChargedHadrCands_.reserve(onfile.selectedIsolationPFChargedHadrCands_.size());
     for (const auto& cand : onfile.selectedIsolationPFChargedHadrCands_)
-      selectedIsolationChargedHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
-  </ioread>
+      selectedIsolationChargedHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));
 
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFNeutrHadrCands_;" targetClass="reco::PFTau" target="selectedIsolationNeutrHadrCands_">
-    <![CDATA[
+    selectedIsolationNeutrHadrCands_.clear();
     selectedIsolationNeutrHadrCands_.reserve(onfile.selectedIsolationPFNeutrHadrCands_.size());
     for (const auto& cand : onfile.selectedIsolationPFNeutrHadrCands_)
-      selectedIsolationNeutrHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
-  </ioread>
+      selectedIsolationNeutrHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));
 
-<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFGammaCands_;" targetClass="reco::PFTau" target="selectedIsolationGammaCands_">
-    <![CDATA[
+    selectedIsolationGammaCands_.clear();
     selectedIsolationGammaCands_.reserve(onfile.selectedIsolationPFGammaCands_.size());
     for (const auto& cand : onfile.selectedIsolationPFGammaCands_)
-      selectedIsolationGammaCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
+      selectedIsolationGammaCands_.push_back(edm::Ptr<reco::Candidate>(cand));
+
+    if (selectedSignalChargedHadrCands_.size() > 0) {
+      leadChargedHadrCand_ = selectedSignalChargedHadrCands_[0];
+    } else {
+      leadChargedHadrCand_ = edm::Ptr<reco::Candidate>();
+    }
+    if (selectedSignalGammaCands_.size() > 0) {
+      leadNeutralCand_ = selectedSignalGammaCands_[0];
+    } else {
+      leadNeutralCand_ = edm::Ptr<reco::Candidate>();
+    }
+    if (selectedSignalCands_.size() > 0) {
+      leadCand_ = selectedSignalCands_[0];
+    } else {
+      leadCand_ = edm::Ptr<reco::Candidate>();
+    }
+
+    leadPFChargedHadrCand_.reset();
+    leadPFNeutralCand_.reset();
+    leadPFCand_.reset();
+  ]]>
   </ioread>
 
 <ioread sourceClass="reco::PFTau" version="[-20]" source="edm::Ref<vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<vector<reco::PFJet>,reco::PFJet> > jetRef_;" targetClass="reco::PFTau" target="jetRef_" include="DataFormats/JetReco/interface/PFJet.h">
@@ -250,98 +239,18 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
 <ioread sourceClass = "reco::PFTau" version="[21-]"
  targetClass="reco::PFTau"
 source = ""
-target="leadPFChargedHadrCand_">
+target="leadPFChargedHadrCand_,leadPFNeutralCand_,leadPFCand_,selectedTransientSignalPFCands_,selectedTransientSignalPFChargedHadrCands_,selectedTransientSignalPFNeutrHadrCands_,selectedTransientSignalPFGammaCands_,selectedTransientIsolationPFCands_,selectedTransientIsolationPFChargedHadrCands_,selectedTransientIsolationPFNeutrHadrCands_,selectedTransientIsolationPFGammaCands_">
 <![CDATA[
 leadPFChargedHadrCand_.reset();
-]]>
-</ioread>
-
-<ioread sourceClass = "reco::PFTau" version="[21-]"
- targetClass="reco::PFTau"
-source = ""
-target="leadPFNeutralCand_">
-<![CDATA[
 leadPFNeutralCand_.reset();
-]]>
-</ioread>
-
-<ioread sourceClass = "reco::PFTau" version="[21-]"
- targetClass="reco::PFTau"
-source = ""
-target="leadPFCand_">
-<![CDATA[
 leadPFCand_.reset();
-]]>
-</ioread>
-
-<ioread sourceClass = "reco::PFTau" version="[21-]"
- targetClass="reco::PFTau"
-source = ""
-target="selectedTransientSignalPFCands_">
-<![CDATA[
 selectedTransientSignalPFCands_.reset();
-]]>
-</ioread>
-
-<ioread sourceClass = "reco::PFTau" version="[21-]"
- targetClass="reco::PFTau"
-source = ""
-target="selectedTransientSignalPFChargedHadrCands_">
-<![CDATA[
 selectedTransientSignalPFChargedHadrCands_.reset();
-]]>
-</ioread>
-
-<ioread sourceClass = "reco::PFTau" version="[21-]"
- targetClass="reco::PFTau"
-source = ""
-target="selectedTransientSignalPFNeutrHadrCands_">
-<![CDATA[
 selectedTransientSignalPFNeutrHadrCands_.reset();
-]]>
-</ioread>
-
-<ioread sourceClass = "reco::PFTau" version="[21-]"
- targetClass="reco::PFTau"
-source = ""
-target="selectedTransientSignalPFGammaCands_">
-<![CDATA[
 selectedTransientSignalPFGammaCands_.reset();
-]]>
-</ioread>
-
-<ioread sourceClass = "reco::PFTau" version="[21-]"
- targetClass="reco::PFTau"
-source = ""
-target="selectedTransientIsolationPFCands_">
-<![CDATA[
 selectedTransientIsolationPFCands_.reset();
-]]>
-</ioread>
-
-<ioread sourceClass = "reco::PFTau" version="[21-]"
- targetClass="reco::PFTau"
-source = ""
-target="selectedTransientIsolationPFChargedHadrCands_">
-<![CDATA[
 selectedTransientIsolationPFChargedHadrCands_.reset();
-]]>
-</ioread>
-
-<ioread sourceClass = "reco::PFTau" version="[21-]"
- targetClass="reco::PFTau"
-source = ""
-target="selectedTransientIsolationPFNeutrHadrCands_">
-<![CDATA[
 selectedTransientIsolationPFNeutrHadrCands_.reset();
-]]>
-</ioread>
-
-<ioread sourceClass = "reco::PFTau" version="[21-]"
- targetClass="reco::PFTau"
-source = ""
-target="selectedTransientIsolationPFGammaCands_">
-<![CDATA[
 selectedTransientIsolationPFGammaCands_.reset();
 ]]>
 </ioread>
