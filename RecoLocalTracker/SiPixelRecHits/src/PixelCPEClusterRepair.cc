@@ -19,6 +19,8 @@
 
 #include <vector>
 #include "boost/multi_array.hpp"
+#include <boost/regex.hpp>
+#include <map>
 
 #include <iostream>
 
@@ -91,6 +93,18 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
    maxSizeMismatchInY_ = conf.getParameter<double>("MaxSizeMismatchInY");
    minChargeRatio_ = conf.getParameter<double>("MinChargeRatio");
 
+   // read sub-detectors to recommend 2D
+   // can be: 
+   //     XYX (XYZ = PXB, PXE)
+   //     XYZ n (XYZ as above, n = layer, wheel or disk = 1 .. 6 ;)
+   std::vector<std::string> str_Recommend2D = conf.getParameter<std::vector<std::string> >("Recommend2D");
+   Recommend2D_.reserve(str_Recommend2D.size());
+   for (std::vector<std::string>::const_iterator it = str_Recommend2D.begin(), ed = str_Recommend2D.end(); it != ed; ++it) {
+     Recommend2D_.push_back(Rule(*it));
+   }
+
+   // run CR on damaged clusters (and not only on edge hits)
+   RunDamagedClusters_ = conf.existsAs<bool>("RunDamagedClusters")?conf.getParameter<bool>("RunDamagedClusters"):false;
 }
 
 
@@ -492,10 +506,15 @@ void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, Clus
 {
 
     DetId id = (theDetParam.theDet->geographicalId());
-    bool isBarrel  = GeomDetEnumerators::isBarrel(theDetParam.thePart);
-    int layer=ttopo_.layer(id);
-    if(!isBarrel){
-        //only run on barrel
+
+    bool recommend = false;
+    for (std::vector<Rule>::const_iterator itr = Recommend2D_.begin(), edr = Recommend2D_.end(); itr != edr; ++itr) {
+        recommend = itr->recommend(id, ttopo_);
+	if(recommend) break;
+    }
+
+    // only run on those layers recommended by configuration
+    if(!recommend) {
         theClusterParam.recommended2D_ = false;
         return;
     }
@@ -534,8 +553,10 @@ void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, Clus
         theClusterParam.recommended2D_ = true;
         theClusterParam.hasBadPixels_ = true;
 
-        //for now, don't try to fix any clusters in layer 1
-        if( layer == 1 ) theClusterParam.recommended2D_ = false;
+	// if not RunDamagedClusters flag, don't try to fix any clusters
+	if(!RunDamagedClusters_) {
+	    theClusterParam.recommended2D_ = false;
+	}
 
         // Figure out what edge flags to set for truncated cluster
         // Truncated clusters usually come from dead double columns
@@ -644,3 +665,24 @@ PixelCPEClusterRepair::localError(DetParam const & theDetParam,  ClusterParam & 
    return LocalError(xerr*xerr, 0, yerr*yerr);
 }
 
+PixelCPEClusterRepair::Rule::Rule(const std::string &str) {
+  static const boost::regex rule("([A-Z]+)(\\s+(\\d+))?");
+  boost::cmatch match;
+  // match and check it works
+  if (!regex_match(str.c_str(), match, rule)) 
+    throw cms::Exception("Configuration") << "Rule '" << str << "' not understood.\n";
+
+  // subdet
+  subdet_ = -1;
+  if      (strncmp(match[1].first, "PXB", 3) == 0) subdet_ = PixelSubdetector::PixelBarrel;
+  else if (strncmp(match[1].first, "PXE", 3) == 0) subdet_ = PixelSubdetector::PixelEndcap;
+  if (subdet_ == -1) {
+    throw cms::Exception("PixelCPEClusterRepair::Configuration") << "Detector '" << match[1].first << "' not understood. Should be PXB, PXE.\n";
+  }
+  // layer (if present)
+  if (match[3].first != match[3].second) {
+    layer_ = atoi(match[3].first);
+  } else {
+    layer_ = 0;
+  }
+}//end Rule::Rule
