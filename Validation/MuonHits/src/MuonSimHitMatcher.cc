@@ -59,8 +59,8 @@ MuonSimHitMatcher::getIdsOfSimTrackShower(unsigned int initial_trk_id,
   {
     SimTrack last_trk = t;
     //if (std::abs(t.type()) != 13) continue;
-    bool is_child = 0;
-    while (1)
+    bool is_child = false;
+    while (true)
     {
       if ( last_trk.noVertex() ) break;
       if ( simVertices_[last_trk.vertIndex()].noParent() ) break;
@@ -68,7 +68,7 @@ MuonSimHitMatcher::getIdsOfSimTrackShower(unsigned int initial_trk_id,
       unsigned parentId = simVertices_[last_trk.vertIndex()].parentIndex();
       if ( parentId == initial_trk_id )
       {
-        is_child = 1;
+        is_child = true;
         break;
       }
 
