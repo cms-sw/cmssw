@@ -41,6 +41,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 
 using namespace std::string_literals;
 
@@ -290,7 +291,7 @@ private:
 
   std::vector<std::string>                  highlightModules_;
   const bool                                showModulePrefetching_;
-  bool                                      skipFirstEvent_;
+  const bool                                skipFirstEvent_;
 
   unsigned int                              concurrentStreams_;
   std::atomic<bool>                         globalFirstEventDone_ = false;
@@ -347,6 +348,9 @@ NVProfilerService::NVProfilerService(edm::ParameterSet const & config, edm::Acti
   concurrentStreams_(0),
   domains_(this)
 {
+  // make sure that CUDA is initialised, and that the CUDAService destructor is called after this service's destructor
+  edm::Service<CUDAService> cudaService;
+
   std::sort(highlightModules_.begin(), highlightModules_.end());
 
   // enables profile collection; if profiling is already enabled it has no effect

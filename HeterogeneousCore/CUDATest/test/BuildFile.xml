@@ -1,0 +1,10 @@
+<bin file="test*.cc" name="testHeterogeneousCoreCUDATest">
+  <use name="FWCore/TestProcessor"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="catch2"/>
+</bin>
+
+<bin file="TestCUDATest.cc">
+  <flags TEST_RUNNER_ARGS=" /bin/bash HeterogeneousCore/CUDATest/test runtests.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>
