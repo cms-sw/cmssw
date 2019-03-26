@@ -286,27 +286,26 @@ PATTauDiscriminantCutMultiplexer::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("toMultiplex", edm::InputTag("fixme"));
   desc.add<int>("verbosity", 0);
   {
-    edm::ParameterSetDescription vpset_mapping;
-    vpset_mapping.add<unsigned int>("category");
-    vpset_mapping.setAllowAnything(); //option cut can be double or (string plus additional option variable)
-    desc.addVPSet("mapping", vpset_mapping);
+    edm::ParameterSetDescription desc_mapping;
+    desc_mapping.add<unsigned int>("category");
+    desc_mapping.setAllowAnything(); //option cut can be double or (string plus additional option variable)
+
+    std::vector<edm::ParameterSet> vpsd_mapping;
+    edm::ParameterSet psd1;
+    psd1.addParameter<unsigned int>("category", 0);
+    psd1.addParameter<double>("cut", 0.5);
+    vpsd_mapping.push_back(psd1);
+    edm::ParameterSet psd2;
+    psd2.addParameter<unsigned int>("category", 1);
+    psd2.addParameter<double>("cut", 0.2);
+    vpsd_mapping.push_back(psd2);
+    desc.addVPSet("mapping", desc_mapping, vpsd_mapping);
   }
   desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
   desc.add<bool>("loadMVAfromDB", true);
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("BooleanOperator", "and");
-    {
-      edm::ParameterSetDescription psd1;
-      psd1.add<double>("cut");
-      psd1.add<edm::InputTag>("Producer");
-      psd0.addOptional<edm::ParameterSetDescription>("decayMode", psd1);
-    }
-    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
-  }
+  fillProducerDescriptions(desc); // inherited from the base
   desc.add<std::string>("mvaOutput_normalization", "");
   desc.add<edm::InputTag>("key", edm::InputTag("fixme"));
-  desc.add<edm::InputTag>("PATTauProducer", edm::InputTag("fixme"));
   descriptions.add("patTauDiscriminantCutMultiplexer", desc);
 }
 
