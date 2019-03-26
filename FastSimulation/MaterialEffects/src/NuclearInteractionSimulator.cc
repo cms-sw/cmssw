@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
+#include "FastSimulation/Particle/interface/makeParticle.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
@@ -216,16 +217,16 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 
   // Read a Nuclear Interaction in a random manner
 
-  double pHadron = std::sqrt(Particle.Vect().Mag2()); 
+  double pHadron = std::sqrt(Particle.particle().Vect().Mag2()); 
   //  htot->Fill(pHadron);
 
   // The hadron has enough momentum to create some relevant final state
   if ( pHadron > thePionEnergy ) { 
 
     // The particle type
-    std::map<int,int>::const_iterator thePit = theIDMap.find(Particle.pid());
+    std::map<int,int>::const_iterator thePit = theIDMap.find(Particle.particle().pid());
     
-    int thePid = thePit != theIDMap.end() ? thePit->second : Particle.pid(); 
+    int thePid = thePit != theIDMap.end() ? thePit->second : Particle.particle().pid(); 
 
     // Is this particle type foreseen?
     unsigned fPid = abs(thePid);
@@ -262,27 +263,26 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 	//       	helas->Fill(pHadron);
 	
 	// Characteristic scattering angle for the elastic part
-	double theta0 = std::sqrt(3.)/ std::pow(theA(),1./3.) * Particle.mass()/pHadron; 
+	double theta0 = std::sqrt(3.)/ std::pow(theA(),1./3.) * Particle.particle().mass()/pHadron; 
 	
 	// Draw an angle with theta/theta0*exp[(-theta/2theta0)**2] shape 
 	double theta = theta0 * std::sqrt(-2.*std::log(random->flatShoot()));
 	double phi = 2. * 3.14159265358979323 * random->flatShoot();
 	
 	// Rotate the particle accordingly
-	RawParticle::Rotation rotation1(orthogonal(Particle.Vect()),theta);
-	RawParticle::Rotation rotation2(Particle.Vect(),phi);
-	Particle.rotate(rotation1);
-	Particle.rotate(rotation2);
+	RawParticle::Rotation rotation1(orthogonal(Particle.particle().Vect()),theta);
+	RawParticle::Rotation rotation2(Particle.particle().Vect(),phi);
+	Particle.particle().rotate(rotation1);
+	Particle.particle().rotate(rotation2);
 	
 	// Distance 
 	double distance = std::sin(theta);
 
 	// Create a daughter if the kink is large engough 
 	if ( distance > theDistCut ) { 
-	  _theUpdatedState.resize(1);
-	  _theUpdatedState[0].SetXYZT(Particle.Px(), Particle.Py(),
-				      Particle.Pz(), Particle.E());
-	  _theUpdatedState[0].setID(Particle.pid());
+	  _theUpdatedState.reserve(1);
+          _theUpdatedState.clear();
+	  _theUpdatedState.emplace_back(Particle.particle());
 	}
 
 	//	hscatter->Fill(myTheta);
@@ -304,7 +304,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 	// The smallest momentum for inelastic interactions
 	double pMin = thePionPMin[thePidIndex]; 
 	// The correspong smallest four vector
-	XYZTLorentzVector Hadron0(0.,0.,pMin,std::sqrt(pMin*pMin+Particle.M2()));
+	XYZTLorentzVector Hadron0(0.,0.,pMin,std::sqrt(pMin*pMin+Particle.particle().M2()));
 
 	// The current centre-of-mass energy
 	double ecm = (Proton+Hadron).M();
@@ -428,8 +428,9 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 	  unsigned lastTrack = anInteraction.last;
 	  //      std::cout << "First and last tracks are " << firstTrack << " " << lastTrack << std::endl;
 	  
-	  _theUpdatedState.resize(lastTrack-firstTrack+1);
-
+	  _theUpdatedState.reserve(lastTrack-firstTrack+1);
+          _theUpdatedState.clear();
+          
 	  double distMin = 1E99;
 
 	  // Some rotation around the boost axis, for more randomness
@@ -467,11 +468,11 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 				     + aParticle.pz*aParticle.pz
 				     + aParticle.mass*aParticle.mass/(ecm*ecm) );
 
-	    RawParticle& aDaughter = _theUpdatedState[idaugh]; 
-	    aDaughter.SetXYZT(aParticle.px*ecm,aParticle.py*ecm,
-			      aParticle.pz*ecm,energy*ecm);	    
-	    aDaughter.setID(aParticle.id);
-
+	    RawParticle& aDaughter = _theUpdatedState.emplace_back(makeParticle(Particle.particleDataTable(),
+                                                                   aParticle.id,
+                                                                   XYZTLorentzVector(
+                                                                                     aParticle.px*ecm,aParticle.py*ecm,
+                                                                                     aParticle.pz*ecm,energy*ecm)));
 	    // Rotate to the collision axis
 	    aDaughter.rotate(orthRotation);
 
@@ -482,7 +483,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 	    aDaughter.boost(axisBoost);
 
 	    // Store the closest daughter index (for later tracking purposes, so charged particles only) 
-	    double distance = distanceToPrimary(Particle,aDaughter);
+	    double distance = distanceToPrimary(Particle.particle(),aDaughter);
 	    // Find the closest daughter, if closer than a given upper limit.
 	    if ( distance < distMin && distance < theDistCut ) {
 	      distMin = distance;
@@ -515,9 +516,10 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEn
 		    elastic > 1.- (inelastic4*theInelasticLength)
 		                  /theTotalInteractionLength ) { 
 	  // A fake particle with 0 momentum as a daughter!
-	  _theUpdatedState.resize(1);
-	  _theUpdatedState[0].SetXYZT(0.,0.,0.,0.);
-	  _theUpdatedState[0].setID(22);
+	  _theUpdatedState.reserve(1);
+          _theUpdatedState.clear();
+	  _theUpdatedState.emplace_back(makeParticle(Particle.particleDataTable(),
+                                                     22, XYZTLorentzVector(0.,0.,0.,0.)));
 	}
 
       }

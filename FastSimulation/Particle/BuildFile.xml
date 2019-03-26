@@ -1,5 +1,6 @@
 <use   name="DataFormats/Math"/>
 <use   name="SimGeneral/HepPDTRecord"/>
+<use   name="CommonTools/BaseParticlePropagator"/>
 <use   name="rootmath"/>
 <export>
   <lib   name="1"/>

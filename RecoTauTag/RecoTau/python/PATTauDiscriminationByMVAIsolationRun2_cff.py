@@ -13,16 +13,18 @@ patDiscriminationByIsolationMVArun2v1raw = cms.EDProducer("PATTauDiscriminationB
     PATTauProducer = cms.InputTag('replaceMeByTauCollectionToBeUsed'), # in MiniAOD: slimmedTaus
     Prediscriminants = noPrediscriminants,
     loadMVAfromDB = cms.bool(True),
+    inputFileName = cms.FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"), # the filename for MVA if it is not loaded from DB
     mvaName = cms.string("replaceMeByNameOfMVATraining"), # e.g. RecoTauTag_tauIdMVADBoldDMwLTv1
     mvaOpt = cms.string("replaceMeByMVAOption"), # e.g. DBoldDMwLT
-    requireDecayMode = cms.bool(True),
     
     # change these only if input isolation sums changed for the MVA training you want to use
     srcChargedIsoPtSum = cms.string('chargedIsoPtSum'),
     srcNeutralIsoPtSum = cms.string('neutralIsoPtSum'),
     srcPUcorrPtSum = cms.string('puCorrPtSum'),
     srcPhotonPtSumOutsideSignalCone = cms.string('photonPtSumOutsideSignalCone'),
-    srcFootprintCorrection = cms.string('footprintCorrection') 
+    srcFootprintCorrection = cms.string('footprintCorrection'),
+
+    verbosity = cms.int32(0)
 )
 
 patDiscriminationByIsolationMVArun2v1VLoose = patTauDiscriminantCutMultiplexer.clone(

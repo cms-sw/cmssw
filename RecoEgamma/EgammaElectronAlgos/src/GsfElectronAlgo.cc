@@ -716,29 +716,28 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection & electrons, El
 
   eventData.retreiveOriginalTrackCollections(electronData.ctfTrackRef,electronData.coreRef->gsfTrack()) ;
 
-  ConversionFinder conversionFinder ;
   double BInTesla = eventSetupData_.magField->inTesla(GlobalPoint(0.,0.,0.)).z() ;
   edm::Handle<reco::TrackCollection> ctfTracks = eventData.originalCtfTracks ;
   if (!ctfTracks.isValid()) { ctfTracks = eventData.currentCtfTracks ; }
 
-  // values of conversionInfo.flag()
+  // values of conversionInfo.flag
   // -9999 : Partner track was not found
   // 0     : Partner track found in the CTF collection using
   // 1     : Partner track found in the CTF collection using
   // 2     : Partner track found in the GSF collection using
   // 3     : Partner track found in the GSF collection using the electron's GSF track
-  ConversionInfo conversionInfo = conversionFinder.getConversionInfo
+  ConversionInfo conversionInfo = egammaTools::getConversionInfo
    (*electronData.coreRef,ctfTracks,eventData.originalGsfTracks,BInTesla) ;
 
   reco::GsfElectron::ConversionRejection conversionVars ;
-  conversionVars.flags = conversionInfo.flag()  ;
-  conversionVars.dist = conversionInfo.dist()  ;
-  conversionVars.dcot = conversionInfo.dcot()  ;
-  conversionVars.radius = conversionInfo.radiusOfConversion()  ;
+  conversionVars.flags = conversionInfo.flag  ;
+  conversionVars.dist = conversionInfo.dist  ;
+  conversionVars.dcot = conversionInfo.dcot  ;
+  conversionVars.radius = conversionInfo.radiusOfConversion  ;
   if ((conversionVars.flags==0)or(conversionVars.flags==1))
-    conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerCtfTk())  ;
+    conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerCtfTk)  ;
   else if ((conversionVars.flags==2)or(conversionVars.flags==3))
-    conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerGsfTk())  ;
+    conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerGsfTk)  ;
 
 
   //====================================================

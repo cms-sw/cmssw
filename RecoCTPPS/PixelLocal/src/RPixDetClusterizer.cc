@@ -4,7 +4,6 @@
 #include "RecoCTPPS/PixelLocal/interface/RPixDetClusterizer.h"
 
 namespace {
-  constexpr int max16bits = 65535;
   constexpr int maxCol = CTPPSPixelCluster::MAXCOL;
   constexpr int maxRow = CTPPSPixelCluster::MAXROW;
   constexpr double highRangeCal = 1800.;

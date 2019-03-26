@@ -6,6 +6,9 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "RecoTauTag/RecoTau/interface/AntiElectronIDCut2.h"
 
@@ -58,8 +61,7 @@ public:
 
     etaCracks_string_ = iConfig.getParameter<std::vector<std::string>>("etaCracks");
     
-    verbosity_ = ( iConfig.exists("verbosity") ) ?
-      iConfig.getParameter<int>("verbosity") : 0;
+    verbosity_ = iConfig.getParameter<int>("verbosity");
 
     cuts2_ = new AntiElectronIDCut2();
   }
@@ -71,6 +73,7 @@ public:
   ~PFRecoTauDiscriminationAgainstElectron2() override
   {  }
 
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 private:
   bool isInEcalCrack(double) const;
   std::vector<pdouble> etaCracks_;
@@ -190,6 +193,55 @@ PFRecoTauDiscriminationAgainstElectron2::isInEcalCrack(double eta) const
           (eta>0.770 && eta<0.806) ||
           (eta>1.127 && eta<1.163) ||
           (eta>1.460 && eta<1.558));
+}
+
+void
+PFRecoTauDiscriminationAgainstElectron2::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationAgainstElectron2
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("rejectTausInEcalCrack", false);
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
+  desc.add<bool>("applyCut_GammaEnFrac", true);
+  desc.add<bool>("applyCut_HLTSpecific", true);
+  desc.add<double>("GammaEnFrac_barrel_max", 0.15);
+  desc.add<bool>("keepTausInEcalCrack", true);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<bool>("applyCut_GammaPhiMom", false);
+  desc.add<double>("GammaPhiMom_endcap_max", 1.5);
+  desc.add<double>("GammaPhiMom_barrel_max", 1.5);
+  desc.add<bool>("applyCut_leadPFChargedHadrEoP", true);
+  desc.add<double>("LeadPFChargedHadrEoP_barrel_max", 1.01);
+  desc.add<double>("GammaEtaMom_endcap_max", 1.5);
+  desc.add<double>("GammaEtaMom_barrel_max", 1.5);
+  desc.add<double>("Hcal3x3OverPLead_endcap_max", 0.1);
+  desc.add<double>("LeadPFChargedHadrEoP_barrel_min", 0.99);
+  desc.add<double>("LeadPFChargedHadrEoP_endcap_max2", 1.01);
+  desc.add<double>("LeadPFChargedHadrEoP_endcap_min1", 0.7);
+  desc.add<double>("LeadPFChargedHadrEoP_endcap_min2", 0.99);
+  desc.add<double>("LeadPFChargedHadrEoP_endcap_max1", 1.3);
+  desc.add<int>("verbosity", 0);
+  desc.add<double>("GammaEnFrac_endcap_max", 0.2);
+  desc.add<bool>("applyCut_hcal3x3OverPLead", true);
+  desc.add<bool>("applyCut_GammaEtaMom", false);
+  desc.add<std::vector<std::string>>("etaCracks", {
+    "0.0:0.018",
+    "0.423:0.461",
+    "0.770:0.806",
+    "1.127:1.163",
+    "1.460:1.558",
+  });
+  desc.add<double>("Hcal3x3OverPLead_barrel_max", 0.2);
+  descriptions.add("pfRecoTauDiscriminationAgainstElectron2", desc);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectron2);

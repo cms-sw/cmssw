@@ -12,7 +12,6 @@
 #include "TrackPropagation/RungeKutta/interface/defaultRKPropagator.h"
 #include "TrackPropagation/RungeKutta/interface/RKPropagatorInS.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -296,7 +295,6 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
     triggerTools_.eventSetup(es);
 
     // This balck magic is needed to use the mySimEvent_
-    ParticleTable::Sentry ptable(mySimEvent_->theTable());
     edm::Handle<edm::HepMCProduct> hevH;
     edm::Handle<std::vector<SimTrack>> simTracksHandle;
     edm::Handle<std::vector<SimVertex>> simVerticesHandle;

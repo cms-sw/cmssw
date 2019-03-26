@@ -64,7 +64,8 @@ modStrips = strips.clone(
     minGammaEtStripAdd = cms.double(1.0),
     minStripEt = cms.double(1.0),
     updateStripAfterEachDaughter = cms.bool(False),
-    maxStripBuildIterations = cms.int32(-1)
+    maxStripBuildIterations = cms.int32(-1),
+    verbosity = cms.int32(0)
 )
 
 # Produce a "strips" of photons
@@ -89,5 +90,6 @@ modStrips2 = strips.clone(
         par1 = cms.double(7.07716e-01)
     ),
     updateStripAfterEachDaughter = cms.bool(False),
-    maxStripBuildIterations = cms.int32(-1)
+    maxStripBuildIterations = cms.int32(-1),
+    verbosity = cms.int32(0)
 )

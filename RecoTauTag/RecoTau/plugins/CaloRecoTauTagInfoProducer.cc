@@ -22,6 +22,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 
 #include "CLHEP/Random/RandGauss.h"
@@ -39,6 +42,7 @@ class CaloRecoTauTagInfoProducer : public EDProducer {
   explicit CaloRecoTauTagInfoProducer(const edm::ParameterSet&);
   ~CaloRecoTauTagInfoProducer() override;
   void produce(edm::Event&,const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
  private:
   CaloRecoTauTagInfoAlgorithm* CaloRecoTauTagInfoAlgo_;
   edm::InputTag CaloJetTracksAssociatorProducer_;
@@ -93,5 +97,31 @@ void CaloRecoTauTagInfoProducer::produce(edm::Event& iEvent,const edm::EventSetu
   iEvent.put(std::move(resultExt));  
 
   //  iEvent.put(std::move(selectedDetIds));
+}
+
+void
+CaloRecoTauTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // caloRecoTauTagInfoProducer
+  edm::ParameterSetDescription desc;
+  desc.add<int>("tkminTrackerHitsn", 3);
+  desc.add<double>("ECALBasicClustersAroundCaloJet_DRConeSize", 0.5);
+  desc.add<int>("tkminPixelHitsn", 0);
+  desc.add<double>("ECALBasicClusterpropagTrack_matchingDRConeSize", 0.015);
+  desc.add<edm::InputTag>("PVProducer", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<double>("tkminPt", 0.5);
+  desc.add<double>("smearedPVsigmaX", 0.0015);
+  desc.add<bool>("UsePVconstraint", true);
+  desc.add<double>("tkmaxChi2", 100.0);
+  desc.add<edm::InputTag>("EndcapBasicClustersSource", edm::InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"));
+  desc.add<double>("smearedPVsigmaY", 0.0015);
+  desc.add<edm::InputTag>("BarrelBasicClustersSource", edm::InputTag("hybridSuperClusters","hybridBarrelBasicClusters"));
+  desc.add<double>("ECALBasicClusterminE", 1.0);
+  desc.add<double>("smearedPVsigmaZ", 0.005);
+  desc.add<double>("tkPVmaxDZ", 1.0);
+  desc.add<bool>("UseTrackQuality", true);
+  desc.add<std::string>("tkQuality", "highPurity");
+  desc.add<double>("tkmaxipt", 0.1);
+  desc.add<edm::InputTag>("CaloJetTracksAssociatorProducer", edm::InputTag("ic5JetTracksAssociatorAtVertex"));
+  descriptions.add("caloRecoTauTagInfoProducer", desc);
 }
 DEFINE_FWK_MODULE(CaloRecoTauTagInfoProducer );
