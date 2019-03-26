@@ -1,4 +1,4 @@
-#include "Validation/MuonHits/src/MuonSimHitsValidAnalyzer.h"
+#include "Validation/MuonHits/plugins/MuonSimHitsValidAnalyzer.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -504,6 +504,3 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
     edm::LogInfo("MuonSimHitsValidAnalyzer::fillDT") << eventout << "\n";
 return;
 }
-
-
-
