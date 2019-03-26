@@ -127,7 +127,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
 	if ((*it).id().depth() == 1) {
 	  // check if hit = (*it) is already in d1strip
 	  bool pass = false;
-          if (d1strip.size() == 0) {
+          if (d1strip.empty()) {
 	    if (abs((*it).id().iphi() - stripIetaMax) <= gap_) {
 	      d1strip.push_back((*it));
 	      pass = true;
@@ -153,7 +153,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
 	else if ((*it).id().depth() == 2) {
 	  // check if hit = (*it) is already in d2strip
           bool pass= false;
-	  if (d2strip.size() == 0) {
+	  if (d2strip.empty()) {
 	    if (abs((*it).id().ieta() - stripIetaMax) <= gap_) {
 	      d2strip.push_back((*it));
 	      pass = true;
