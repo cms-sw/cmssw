@@ -99,6 +99,7 @@ void DDHGCalTBModuleX::initialize(const DDNumericArguments & nArgs,
   absorbW_      = nArgs["absorberW"];
   absorbH_      = nArgs["absorberH"];
   rMax_         = nArgs["rMax"];
+  rMaxB_        = nArgs["rMaxB"];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: zStart " << zMinBlock_ 
 				<< " rFineCoarse " << rMaxFine_ 
@@ -106,7 +107,7 @@ void DDHGCalTBModuleX::initialize(const DDNumericArguments & nArgs,
 				<< " gap among wafers " << waferGap_ 
 				<< " absorber width " << absorbW_ 
 				<<" absorber height " << absorbH_ 
-				<< " rMax " << rMax_;
+				<< " rMax " << rMax_ << ":" << rMaxB_;
 #endif
   idNameSpace_  = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
@@ -150,12 +151,12 @@ void DDHGCalTBModuleX::constructBlocks(const DDLogicalPart& parent,
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: Block " << i 
 				  << ":" << name << " z " << zi << ":" << zo 
-				  << " R " << rMax_ << " T " << blockThick_[i];
+				  << " R " << rMaxB_ << " T " <<blockThick_[i];
 #endif
     DDName matName(DDSplit(genMat_).first, DDSplit(genMat_).second);
     DDMaterial matter(matName);
     DDSolid solid      = DDSolidFactory::tubs(DDName(name, idNameSpace_), 
-					      0.5*blockThick_[i], 0, rMax_,
+					      0.5*blockThick_[i], 0, rMaxB_,
 					      0.0, 2._pi);
     DDLogicalPart glog = DDLogicalPart(solid.ddname(), matter, solid);
     double  zz         = zi + 0.5*blockThick_[i];
