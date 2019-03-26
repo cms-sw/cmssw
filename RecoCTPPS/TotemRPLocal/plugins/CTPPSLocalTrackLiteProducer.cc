@@ -148,8 +148,13 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
         float roundedT = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(abs_time);
         float roundedTSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getTSigma());
 
-        pOut->emplace_back( rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, 0., 0., 0., 0., 0.,
-        CTPPSpixelLocalTrackReconstructionInfo::invalid, trk.getNumOfPlanes(), roundedT, roundedTSigma);
+        pOut->emplace_back(
+          rpId, // detector info
+          roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, // spatial info
+          0., 0., 0., 0., 0., // angular info
+          CTPPSpixelLocalTrackReconstructionInfo::invalid, trk.getNumOfPlanes(), // reconstruction info
+          roundedT, roundedTSigma // timing info
+        );
       }
     }
   }
