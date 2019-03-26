@@ -3,7 +3,4 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "Validation/MuonHits/src/MuonSimHitsValidAnalyzer.h"
-
-
-
 DEFINE_FWK_MODULE(MuonSimHitsValidAnalyzer);
