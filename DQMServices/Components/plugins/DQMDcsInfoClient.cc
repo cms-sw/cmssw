@@ -90,7 +90,7 @@ DQMDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igett
 
   reportSummaryMap_ = ibooker.book2D("reportSummaryMap",
                      "HV and GT vs Lumi", nlsmax, 0., nlsmax, 25, 0., 25.);
-  if (processedLS_.size() < 1) return;
+  if (processedLS_.empty()) return;
   unsigned int lastProcessedLS = *(--processedLS_.end());
   meProcessedLS_ = ibooker.book1D("ProcessedLS",
                                   "Processed Lumisections",
