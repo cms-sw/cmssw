@@ -270,7 +270,7 @@ typename PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::return_type P
     //
     XYZTLorentzVector chargedPionPos(getTrackPos(track));
     RawParticle p(chargedPionP4, chargedPionPos);
-    p.setCharge(track->charge());
+    p.setCharge(track.charge());
     BaseParticlePropagator trackPropagator(p, 0., 0., magneticFieldStrength_.z());
     trackPropagator.propagateToEcalEntrance(false);
     if ( trackPropagator.getSuccess() != 0 ) { 

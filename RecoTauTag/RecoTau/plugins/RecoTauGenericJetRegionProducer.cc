@@ -47,6 +47,7 @@ class RecoTauGenericJetRegionProducer : public edm::stream::EDProducer<>
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptionsBase(edm::ConfigurationDescriptions & descriptions, const std::string& name);
 
  private:
   std::string moduleLabel_;
@@ -214,9 +215,10 @@ void RecoTauGenericJetRegionProducer<JetType, CandType>::produce(edm::Event& evt
   evt.put(std::move(matching));
 }
 
+template<class JetType, class CandType>
 void
-RecoTauJetRegionProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // RecoTauJetRegionProducer
+RecoTauGenericJetRegionProducer<JetType, CandType>::fillDescriptionsBase(edm::ConfigurationDescriptions& descriptions, const std::string& name) {
+  // RecoTauGenericJetRegionProducer
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("ak4PFJets"));
   desc.add<double>("deltaR", 0.8);
@@ -225,7 +227,23 @@ RecoTauJetRegionProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("maxJetAbsEta", 2.5);
   desc.add<double>("minJetPt", 14.0);
   desc.add<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
-  descriptions.add("RecoTauJetRegionProducer", desc);
+  descriptions.add(name, desc);
+}
+
+
+template<>
+void
+RecoTauGenericJetRegionProducer<reco::PFJet, reco::PFCandidate>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // RecoTauGenericJetRegionProducer
+  RecoTauGenericJetRegionProducer::fillDescriptionsBase(descriptions, "RecoTauJetRegionProducer");
+  
+}
+
+template<>
+void
+RecoTauGenericJetRegionProducer<pat::Jet, pat::PackedCandidate>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // RecoTauGenericJetRegionProducer
+  RecoTauGenericJetRegionProducer::fillDescriptionsBase(descriptions, "RecoTauPatJetRegionProducer");
 }
 
 typedef RecoTauGenericJetRegionProducer<reco::PFJet, reco::PFCandidate> RecoTauJetRegionProducer;
