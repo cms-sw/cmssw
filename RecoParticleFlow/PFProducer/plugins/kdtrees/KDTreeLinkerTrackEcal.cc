@@ -76,13 +76,13 @@ KDTreeLinkerTrackEcal::buildTree()
     
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
-    if (rh1.dim2 > (M_PI - getPhiOffset())) {
+    if (rh1.dim2 > (M_PI - phiOffset_)) {
       double phi = rh1.dim2 - 2 * M_PI;
       KDTreeNodeInfo rh2(*it, posrep.eta(), phi); 
       eltList.push_back(rh2);
     }
 
-    if (rh1.dim2 < (M_PI * -1.0 + getPhiOffset())) {
+    if (rh1.dim2 < (M_PI * -1.0 + phiOffset_)) {
       double phi = rh1.dim2 + 2 * M_PI;
       KDTreeNodeInfo rh3(*it, posrep.eta(), phi); 
       eltList.push_back(rh3);
@@ -90,8 +90,8 @@ KDTreeLinkerTrackEcal::buildTree()
   }
 
   // Here we define the upper/lower bounds of the 2D space (eta/phi).
-  double phimin = -1.0 * M_PI - getPhiOffset();
-  double phimax = M_PI + getPhiOffset();
+  double phimin = -1.0 * M_PI - phiOffset_;
+  double phimax = M_PI + phiOffset_;
 
   // etamin-etamax, phimin-phimax
   KDTreeBox region(-3.0, 3.0, phimin, phimax);
@@ -133,7 +133,7 @@ KDTreeLinkerTrackEcal::searchLinks()
     
     // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
     // Same envelope for cap et barrel rechits.
-    double range = getCristalPhiEtaMaxSize() * (2.0 + 1.0 / std::min(1., trackPt / 2.)); 
+    double range = cristalPhiEtaMaxSize_ * (2.0 + 1.0 / std::min(1., trackPt / 2.)); 
 
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
     std::vector<KDTreeNodeInfo> recHits;

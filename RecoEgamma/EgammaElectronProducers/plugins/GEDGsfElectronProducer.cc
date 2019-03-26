@@ -21,7 +21,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
-#include "RecoParticleFlow/PFProducer/interface/GsfElectronEqual.h"
 
 #include <iostream>
 #include <string>
@@ -76,9 +75,8 @@ void GEDGsfElectronProducer::fillGsfElectronValueMap(edm::Event & event, edm::Va
     // First check that the GsfTrack is non null
     if( it->gsfTrackRef().isNonnull()) {
       // now look for the corresponding GsfElectron
-      GsfElectronEqual myEqual(it->gsfTrackRef());
-      const reco::GsfElectronCollection::const_iterator itcheck=
-	std::find_if(orphanHandle()->begin(),orphanHandle()->end(),myEqual);
+      const auto itcheck = std::find_if( orphanHandle()->begin(),orphanHandle()->end(),
+                                         [it](const auto& ele) {return (ele.gsfTrack() == it->gsfTrackRef());} );
       if (itcheck != orphanHandle()->end()) {
 	// Build the Ref from the handle and the index
 	myRef = reco::GsfElectronRef(orphanHandle(),itcheck-orphanHandle()->begin());
