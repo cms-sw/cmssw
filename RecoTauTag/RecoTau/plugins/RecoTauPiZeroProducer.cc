@@ -355,7 +355,7 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       desc.addVPSet("builders", desc_builders, vpsd_builders);
     }
 
-    descriptions.add("ak4PFJetsLegacyTaNCPiZeros", desc);
+    descriptions.add("ak4PFJetsLegacyTaNCPiZerosDefault", desc);
   }
 
   {
@@ -393,7 +393,7 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       vpsd_builders.push_back(pset_builders); 
       desc.addVPSet("builders", desc_builders, vpsd_builders);
     }
-    descriptions.add("ak4PFJetsRecoTauGreedyPiZeros", desc);
+    descriptions.add("ak4PFJetsRecoTauGreedyPiZerosDefault", desc);
   }
 
   {
@@ -448,7 +448,7 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       desc.addVPSet("builders", desc_builders, vpsd_builders);
     }
 
-    descriptions.add("ak4PFJetsRecoTauPiZeros", desc);
+    descriptions.add("ak4PFJetsRecoTauPiZerosDefault", desc);
   }
 
   {
@@ -502,58 +502,13 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
       desc.addVPSet("builders", desc_builders, vpsd_builders);
     }
 
-    descriptions.add("ak4PFJetsLegacyHPSPiZeros", desc);
-    descriptions.add("ak4PFJetsLegacyHPSPiZerosBoosted", desc); // this one is generated in configs with a strange procedure
-    descriptions.add("pfJetsLegacyHPSPiZeros", desc);
+    descriptions.add("ak4PFJetsLegacyHPSPiZerosDefault", desc);
+    descriptions.add("ak4PFJetsLegacyHPSPiZerosBoostedDefault", desc); // this one is generated in configs with a strange procedure
+    descriptions.add("pfJetsLegacyHPSPiZerosDefault", desc);
     // RecoTauTag/Configuration/python/boostedHPSPFTaus_cfi.py
     //    process.PATTauSequenceBoosted = cloneProcessingSnippet(process,process.PATTauSequence, "Boosted", addToTask = True)
   }
 
-  {
-    //hltPFTauPiZeros & hltPFTauPiZerosReg
-    edm::ParameterSetDescription desc;
-    desc.add<double>("massHypothesis", 0.136);
-    desc.addVPSet("ranking", desc_ranking, vpsd_ranking);
-    desc.add<int>("verbosity", 0);
-    desc.add<double>("maxJetAbsEta", 99.0);
-    desc.add<std::string>("outputSelection", "pt > 0");
-    desc.add<double>("minJetPt", -1.0);
-    desc.add<edm::InputTag>("jetSrc");
-
-    {
-      edm::ParameterSetDescription desc_builders;
-      desc_builders.setAllowAnything();
-      {
-        edm::ParameterSetDescription desc_hlt_qualityCuts;
-        desc_hlt_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts", desc_signalQualityCuts);
-        desc_hlt_qualityCuts.add<std::string>("pvFindingAlgo", "closestInDeltaZ");
-        desc_hlt_qualityCuts.add<bool>("vertexTrackFiltering", false);
-        desc_hlt_qualityCuts.add<edm::InputTag>("primaryVertexSrc", edm::InputTag("hltPixelVertices"));
-        desc_hlt_qualityCuts.add<bool>("recoverLeadingTrk", false);
-        desc_builders.add<edm::ParameterSetDescription>("qualityCuts", desc_hlt_qualityCuts);
-      }
-      desc_builders.add<std::string>("name", "s");
-      desc_builders.add<std::string>("plugin", "RecoTauPiZeroStripPlugin2");
-      desc_builders.add<double>("stripPhiAssociationDistance", 0.2);
-      desc_builders.add<double>("stripEtaAssociationDistance", 0.05);
-      desc_builders.add<int>("verbosity", 0);
-
-      desc_builders.addOptional<bool>("makeCombinatoricStrips");
-      desc_builders.addOptional<int>("maxStripBuildIterations");
-      desc_builders.addOptional<double>("minGammaEtStripAdd");
-      desc_builders.addOptional<double>("minGammaEtStripSeed");
-      desc_builders.addOptional<double>("minStripEt");
-      desc_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
-      desc_builders.addOptional<bool>("updateStripAfterEachDaughter");
-      desc_builders.addOptional<bool>("applyElecTrackQcuts");
-
-      std::vector<edm::ParameterSet> vpsd_builders;
-      vpsd_builders.push_back(pset_builders);
-      desc.addVPSet("builders", desc_builders, vpsd_builders);
-    }
-    descriptions.add("hltPFTauPiZeros", desc);
-    descriptions.add("hltPFTauPiZerosReg", desc);
-  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
