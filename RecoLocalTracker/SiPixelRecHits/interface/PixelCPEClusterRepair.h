@@ -110,7 +110,32 @@ private:
    
    //bool DoCosmics_;
    //bool LoadTemplatesFromDB_;
-   
+
+   // read sub-detectors to recommend 2D
+   class Rule {
+   public:
+     // parse a rule from a string
+     Rule(const std::string &str) ;
+     // check this DetId to recommend 2D or not (default false)
+     bool recommend(DetId detid, const TrackerTopology &tTopo) const {
+       // check detector
+       if (detid.subdetId() == subdet_) {
+	 // check layer
+	 if ( (layer_ == 0) || (layer_ == int(tTopo.layer(detid))) ) {
+	   return true;
+	 }
+	 else return false;
+       }
+       else return false;
+     }
+   private:
+     int  subdet_;
+     int  layer_;
+   };
+   std::vector<Rule> Recommend2D_;
+
+   // run on damaged hits or not
+   bool RunDamagedClusters_;
 };
 
 #endif
