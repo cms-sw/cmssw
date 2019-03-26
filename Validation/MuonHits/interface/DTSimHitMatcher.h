@@ -28,10 +28,10 @@ public:
   void match(const SimTrack& t, const SimVertex& v);
 
   // partitions' detIds with SimHits
-  std::set<unsigned int> detIds(int type MuonHitHelper::DT_ALL) const;
+  std::set<unsigned int> detIds(int type = MuonHitHelper::DT_ALL) const;
 
   // chamber detIds with SimHits
-  std::set<unsigned int> chamberIds(int type MuonHitHelper::DT_ALL) const;
+  std::set<unsigned int> chamberIds(int type = MuonHitHelper::DT_ALL) const;
 
   // DT station detIds with SimHits
   std::set<unsigned int> chamberIdsStation(int station) const;

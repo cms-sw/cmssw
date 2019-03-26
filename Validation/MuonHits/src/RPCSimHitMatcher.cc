@@ -117,7 +117,7 @@ bool
 RPCSimHitMatcher::hitStation(int st) const
 {
   int nst=0;
-  for(const auto& ddt: chamberIds()) {
+  for(const auto& ddt: chamberIds(0)) {
     const RPCDetId id(ddt);
     if (id.station()!=st) continue;
     ++nst;

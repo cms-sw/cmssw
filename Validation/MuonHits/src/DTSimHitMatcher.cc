@@ -39,7 +39,7 @@ void DTSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex)
       cout<<"nTrackIds "<<track_ids_.size()<<" nSelectedGEMSimHits "<< hits_.size()<<endl;
       cout<<"detids GEM " << detIds(0).size()<<endl;
 
-      const auto& dt_det_ids = detIds();
+      const auto& dt_det_ids = detIds(0);
       for (const auto& id: dt_det_ids) {
         const auto& dt_simhits = MuonSimHitMatcher::hitsInDetId(id);
         const auto& dt_simhits_gp = simHitsMeanPosition(dt_simhits);

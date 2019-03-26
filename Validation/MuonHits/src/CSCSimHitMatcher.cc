@@ -318,7 +318,7 @@ int
 CSCSimHitMatcher::nCoincidenceChambers(int min_n_layers) const
 {
   int result = 0;
-  const auto& chamber_ids = chamberIds();
+  const auto& chamber_ids = chamberIds(0);
   for (const auto& id: chamber_ids)
   {
     if (nLayersWithHitsInChamber(id) >= min_n_layers) result += 1;
@@ -376,5 +376,3 @@ CSCSimHitMatcher::chamberIdsStation(int station) const
   };
   return result;
 }
-
-

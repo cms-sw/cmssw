@@ -28,10 +28,10 @@ class RPCSimHitMatcher : public MuonSimHitMatcher
   void match(const SimTrack& t, const SimVertex& v);
 
   // partitions' detIds with SimHits
-  std::set<unsigned int> detIds(int type MuonHitHelper::RPC_ALL) const;
+  std::set<unsigned int> detIds(int type = MuonHitHelper::RPC_ALL) const;
 
   // chamber detIds with SimHits
-  std::set<unsigned int> chamberIds(int type MuonHitHelper::RPC_ALL) const;
+  std::set<unsigned int> chamberIds(int type = MuonHitHelper::RPC_ALL) const;
 
   bool hitStation(int st) const;
 
