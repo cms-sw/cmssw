@@ -64,7 +64,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   int stripIetaMax = 0;
   
   if (d1max.energy() > 0) {
-    signStripIeta = d1max.id().ieta()/fabs(d1max.id().ieta());
+    signStripIeta = d1max.id().ieta()/abs(d1max.id().ieta());
     stripIphiMax = d1max.id().iphi();
     stripIetaMax = d1max.id().ieta();
   }
@@ -76,7 +76,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
       // find HFhit with maximum signal in depth = 2
       if ((*it).id().depth() == 2 && (*it).energy() > d2max.energy() && abs((*it).id().ieta()) < 35) {
 	if (d1max.energy() > 0) {
-	  int signIeta = (*it).id().ieta()/fabs((*it).id().ieta());
+	  int signIeta = (*it).id().ieta()/abs((*it).id().ieta());
 	  if ((*it).id().iphi() == stripIphiMax && signIeta == signStripIeta) {
 	    d2max = (*it);
 	  }
@@ -92,7 +92,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   if (d1max.energy() < maxThreshold_ && d2max.energy() < maxThreshold_) return; 
  
   if (stripIphiMax == 0 && d2max.energy() > 0) {
-    signStripIeta = d2max.id().ieta()/fabs(d2max.id().ieta());
+    signStripIeta = d2max.id().ieta()/abs(d2max.id().ieta());
     stripIphiMax = d2max.id().iphi();
     stripIetaMax = d2max.id().ieta();
   }
@@ -113,7 +113,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   for (HFRecHitCollection::const_iterator it = rec.begin(); it != rec.end(); ++it)
     {
       if ((*it).energy() < stripThreshold_) continue;
-      int signIeta = (*it).id().ieta()/fabs((*it).id().ieta());
+      int signIeta = (*it).id().ieta()/abs((*it).id().ieta());
       
       if (verboseLevel_ >= 30) {
 	ss << " HF hit: ieta = " << (*it).id().ieta() << "\t iphi = " << (*it).id().iphi()
