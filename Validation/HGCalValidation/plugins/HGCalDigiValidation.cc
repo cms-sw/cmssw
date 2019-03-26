@@ -136,7 +136,7 @@ void HGCalDigiValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<bool>("ifNose",false);
   desc.add<bool>("ifHCAL",false);
   desc.addUntracked<int>("Verbosity",0);
-  desc.addUntracked<int>("SampleIndx",2);
+  desc.addUntracked<int>("SampleIndx",2); // central bx
   descriptions.add("hgcalDigiValidationEEDefault",desc);
 }
 
@@ -302,9 +302,10 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
     edm::LogWarning("HGCalValidation") << "invalid detector name !! " 
 				       << nameDetector_;
   }
-  edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event()
-				      << " with " << ntot << " total and "
-				      << nused << " used digis";
+  if (verbosity_>0)
+    edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event()
+					<< " with " << ntot << " total and "
+					<< nused << " used digis";
 }
 
 template<class T1, class T2>
@@ -353,6 +354,7 @@ void HGCalDigiValidation::fillOccupancyMap(std::map<int, int>& OccupancyMap,
 
 void HGCalDigiValidation::fillDigiInfo(digiInfo& hinfo) {
   int ilayer = hinfo.layer;
+  //charge_.at(ilayer)->Fill(hinfo.charge);
   TOA_.at(ilayer)->Fill(hinfo.charge);
     
   if (hinfo.mode) {
