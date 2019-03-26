@@ -253,7 +253,6 @@ highPtTripletStep = TrackMVAClassifierPrompt.clone(
      src = 'highPtTripletStepTracks',
      qualityCuts = [0.2,0.3,0.4]
 )
-fastSim.toModify(highPtTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
@@ -273,6 +272,8 @@ pp_on_AA_2018.toReplaceWith(highPtTripletStep, TrackMVAClassifierPrompt.clone(
      src = 'highPtTripletStepTracks',
      mva = dict(GBRForestLabel = 'HIMVASelectorHighPtTripletStep_Phase1')
 ))
+
+fastSim.toModify(highPtTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

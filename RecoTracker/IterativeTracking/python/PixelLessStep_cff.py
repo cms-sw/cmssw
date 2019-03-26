@@ -292,7 +292,7 @@ pixelLessStep.inputClassifiers=['pixelLessStepClassifier1','pixelLessStepClassif
 
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 
-trackingPhase1.toReplaceWith(pixelLessStep, TrackMVAClassifierDetached.clone(
+trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
 	mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
 	src = 'pixelLessStepTracks',
 	qualityCuts = [-0.4,0.0,0.4]
@@ -305,6 +305,7 @@ trackdnn.toReplaceWith(pixelLessStep, TrackLwtnnClassifier.clone(
      src = 'pixelLessStepTracks',
      qualityCuts = [-0.6, -0.05, 0.5]
 ))
+(trackdnn & fastSim).toModify(pixelLessStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 pp_on_AA_2018.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
      qualityCuts = [-0.4,0.0,0.8],
