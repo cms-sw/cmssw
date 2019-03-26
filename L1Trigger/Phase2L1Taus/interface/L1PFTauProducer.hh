@@ -45,6 +45,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
+#include "DataFormats/Phase2L1ParticleFlow/interface/PFTau.h"
 #include "DataFormats/L1Trigger/interface/L1PFTau.h"
 #include "DataFormats/Phase2L1ParticleFlow/interface/PFCandidate.h"
 #include "L1Trigger/Phase2L1Taus/interface/TauMapper.h"
@@ -95,7 +96,7 @@ class L1PFTauProducer : public edm::EDProducer {
   tauMapperCollection tauCandidates;
   
   void createTaus(tauMapperCollection &inputCollection);
-  void tau_cand_sort(tauMapperCollection tauCandidates, std::unique_ptr<L1PFTauCollection> &newL1PFTauCollection, unsigned int nCands);
+  void tau_cand_sort(tauMapperCollection tauCandidates, std::unique_ptr<PFTauCollection> &newL1PFTauCollection, unsigned int nCands);
 
   /// ///////////////// ///
   /// MANDATORY METHODS ///

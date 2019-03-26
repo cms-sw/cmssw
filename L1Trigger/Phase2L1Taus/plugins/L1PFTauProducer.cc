@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    L1PFTauProducer
@@ -20,12 +21,12 @@ L1PFTauProducer::L1PFTauProducer(const edm::ParameterSet& cfg) :
   L1PFToken_(           consumes< vector<l1t::PFCandidate> >(cfg.getParameter<edm::InputTag>("L1PFObjects"))),
   L1NeutralToken_(      consumes< vector<l1t::PFCandidate> >(cfg.getParameter<edm::InputTag>("L1Neutrals")) )
 {
-  produces< L1PFTauCollection >( "L1PFTaus" ).setBranchAlias("L1PFTaus");
+  produces< l1t::PFTauCollection >( "L1PFTaus" ).setBranchAlias("L1PFTaus");
 }
 
 void L1PFTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::unique_ptr<L1PFTauCollection> newL1PFTauCollection(new L1PFTauCollection);
+  std::unique_ptr<l1t::PFTauCollection> newL1PFTauCollection(new l1t::PFTauCollection);
 
   edm::Handle<  l1t::PFCandidateCollection > l1PFCandidates;
   iEvent.getByToken( L1PFToken_, l1PFCandidates);
@@ -111,11 +112,12 @@ void L1PFTauProducer::createTaus(tauMapperCollection &inputCollection){
 }
 
 
-void L1PFTauProducer::tau_cand_sort(tauMapperCollection tauCandidates, std::unique_ptr<L1PFTauCollection> &newL1PFTauCollection, unsigned int nCands){
+void L1PFTauProducer::tau_cand_sort(tauMapperCollection tauCandidates, std::unique_ptr<l1t::PFTauCollection> &newL1PFTauCollection, unsigned int nCands){
   std::sort(tauCandidates.begin(), tauCandidates.end(), [](TauMapper i,TauMapper j){return(i.l1PFTau.pt() > j.l1PFTau.pt());});   
   
   for(unsigned int i = 0; i < nCands && i < tauCandidates.size(); i++){
-    newL1PFTauCollection->push_back(tauCandidates.at(i).l1PFTau);
+    l1t::PFTau pTau(tauCandidates.at(i).l1PFTau.polarP4(),tauCandidates.at(i).l1PFTau.chargedIso(),tauCandidates.at(i).sumEGIso+tauCandidates.at(i).l1PFTau.chargedIso(),tauCandidates.at(i).l1PFTau.tauType());
+    newL1PFTauCollection->push_back(pTau);
   }
 
 }
