@@ -84,6 +84,7 @@ private:
   std::vector<double>      rMaxFront_;    //Corresponding rMax's
   std::string              nameSpace_;    //Namespace of this and ALL sub-parts
   std::unordered_set<int>  copies_;       //List of copy #'s
+  double                   alpha_, cosAlpha_;
 };
 
 #endif

@@ -754,13 +754,18 @@ TH1* AddOverflow(TH1* h) {
   ++overflowCounter;
 
   TString  name = h->GetName();
-  Int_t    nx   = h->GetNbinsX()+1;
-  Double_t bw   = h->GetBinWidth(nx);
+  const Int_t nx = h->GetNbinsX();
   Double_t x1   = h->GetBinLowEdge(1);
-  Double_t x2   = h->GetBinLowEdge(nx) + bw;
-  
-  // Book a new histogram having an extra bin for overflows
-  TH1F* htmp = new TH1F(Form(name + "_overflow_%d", overflowCounter), "", nx, x1, x2);
+
+  Double_t xbins[nx+1];
+
+  //Loop necessary since some histograms are TH1 while some are TProfile and do not allow us to use the clone function (SetBinContent do not exists for TProfiles)
+  for (Int_t ibin=1; ibin<=nx+1; ibin++) {
+    Float_t xmin = h->GetBinLowEdge(ibin);
+    xbins[ibin-1] = xmin;
+  }
+
+  TH1F* htmp = new TH1F(Form(name + "_overflow_%d", overflowCounter), "", nx, xbins);
 
   // Fill the new histogram including the extra bin for overflows
   for (Int_t i=1; i<=nx; i++) {

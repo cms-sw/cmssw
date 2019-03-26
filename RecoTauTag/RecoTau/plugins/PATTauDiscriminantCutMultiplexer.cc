@@ -23,6 +23,9 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTGraphPayload.h"
 #include "CondFormats/DataRecord/interface/PhysicsTGraphPayloadRcd.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
@@ -41,7 +44,8 @@ class PATTauDiscriminantCutMultiplexer : public PATTauDiscriminationProducerBase
     ~PATTauDiscriminantCutMultiplexer() override;
     double discriminate(const pat::TauRef&) const override;
     void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
-	
+
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
     std::string moduleLabel_;
 	
@@ -147,19 +151,13 @@ PATTauDiscriminantCutMultiplexer::PATTauDiscriminantCutMultiplexer(const edm::Pa
   key_ = cfg.getParameter<edm::InputTag>("key");
   key_token = consumes<pat::PATTauDiscriminator>(key_);
 
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
-
-  loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
+  verbosity_ = cfg.getParameter<int>("verbosity");
+  loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
   if ( !loadMVAfromDB_ ) {
-    if(cfg.exists("inputFileName")){
       inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
-    }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
   }
   if(verbosity_)  std::cout << moduleLabel_ << " loadMVA = " << loadMVAfromDB_ << std::endl;
-  if ( cfg.exists("mvaOutput_normalization") ) {
-    mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization"); 
-  }
+  mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization");  // default value is "" which should just overwrite existing value with same empty string
 
   // Setup our cut map
   typedef std::vector<edm::ParameterSet> VPSet;
@@ -182,7 +180,7 @@ PATTauDiscriminantCutMultiplexer::PATTauDiscriminantCutMultiplexer(const edm::Pa
     }
     cuts_[category] = std::move(cut);
   }
-
+  verbosity_ = cfg.getParameter<int>("verbosity");
   if(verbosity_) std::cout << "constructed " << moduleLabel_ << std::endl;
 }
 
@@ -279,6 +277,37 @@ PATTauDiscriminantCutMultiplexer::discriminate(const pat::TauRef& tau) const
   } else assert(0);
 
   return passesCuts;
+}
+
+void
+PATTauDiscriminantCutMultiplexer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // patTauDiscriminantCutMultiplexer
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("toMultiplex", edm::InputTag("fixme"));
+  desc.add<int>("verbosity", 0);
+  {
+    edm::ParameterSetDescription vpset_mapping;
+    vpset_mapping.add<unsigned int>("category");
+    vpset_mapping.setAllowAnything(); //option cut can be double or (string plus additional option variable)
+    desc.addVPSet("mapping", vpset_mapping);
+  }
+  desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
+  desc.add<bool>("loadMVAfromDB", true);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("decayMode", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<std::string>("mvaOutput_normalization", "");
+  desc.add<edm::InputTag>("key", edm::InputTag("fixme"));
+  desc.add<edm::InputTag>("PATTauProducer", edm::InputTag("fixme"));
+  descriptions.add("patTauDiscriminantCutMultiplexer", desc);
 }
 
 DEFINE_FWK_MODULE(PATTauDiscriminantCutMultiplexer);

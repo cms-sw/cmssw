@@ -9,7 +9,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 // FAMOS headers
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 
 #include <vector>
 

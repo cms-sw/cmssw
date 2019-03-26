@@ -4,6 +4,9 @@
  * Authorss : Chi Nhan Nguyen (Texas A&M)
  */
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -58,6 +61,8 @@ class PFRecoTauDiscriminationAgainstElectron final : public PFTauDiscriminationP
       }
 
       double discriminate(const PFTauRef& pfTau) const override;
+
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
       ~PFRecoTauDiscriminationAgainstElectron() override{}
 
@@ -240,6 +245,53 @@ PFRecoTauDiscriminationAgainstElectron::isInEcalCrack(double eta) const
 	  (eta>1.127 && eta<1.163) ||
 	  (eta>1.460 && eta<1.558));
 }
+}
+
+void
+PFRecoTauDiscriminationAgainstElectron::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationAgainstElectron
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("ApplyCut_ElectronPreID_2D", false);
+  desc.add<double>("ElecPreID0_HOverPLead_minValue", 0.05);
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
+  desc.add<bool>("ApplyCut_ElectronPreID", false);
+  desc.add<bool>("ApplyCut_HcalTotOverPLead", false);
+  desc.add<double>("EOverPLead_minValue", 0.8);
+  desc.add<double>("ElecPreID1_EOverPLead_maxValue", 0.8);
+  desc.add<double>("HcalMaxOverPLead_minValue", 0.1);
+  desc.add<double>("BremCombined_HOP", 0.1);
+  desc.add<bool>("ApplyCut_EmFraction", false);
+  desc.add<double>("EmFraction_maxValue", 0.9);
+  desc.add<double>("BremCombined_Mass", 0.55);
+  desc.add<bool>("ApplyCut_PFElectronMVA", true);
+  desc.add<double>("PFElectronMVA_maxValue", -0.1);
+  desc.add<bool>("ApplyCut_HcalMaxOverPLead", false);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<bool>("ApplyCut_BremCombined", false);
+  desc.add<double>("Hcal3x3OverPLead_minValue", 0.1);
+  desc.add<double>("ElecPreID1_HOverPLead_minValue", 0.15);
+  desc.add<double>("ElecPreID0_EOverPLead_maxValue", 0.95);
+  desc.add<double>("BremsRecoveryEOverPLead_minValue", 0.8);
+  desc.add<bool>("ApplyCut_EcalCrackCut", false);
+  desc.add<double>("BremCombined_StripSize", 0.03);
+  desc.add<double>("EOverPLead_maxValue", 1.8);
+  desc.add<double>("HcalTotOverPLead_minValue", 0.1);
+  desc.add<bool>("ApplyCut_BremsRecoveryEOverPLead", false);
+  desc.add<bool>("ApplyCut_Hcal3x3OverPLead", false);
+  desc.add<bool>("ApplyCut_EOverPLead", false);
+  desc.add<double>("BremCombined_Fraction", 0.99);
+  desc.add<double>("BremsRecoveryEOverPLead_maxValue", 1.8);
+  descriptions.add("pfRecoTauDiscriminationAgainstElectron", desc);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectron);

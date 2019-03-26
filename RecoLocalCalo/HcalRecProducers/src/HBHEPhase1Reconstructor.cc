@@ -788,7 +788,7 @@ HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descri
     desc.add<bool>("setLegacyFlagsQIE8");
     desc.add<bool>("setLegacyFlagsQIE11");
 
-    add_param_set(algorithm);
+    desc.add<edm::ParameterSetDescription>("algorithm", fillDescriptionForParseHBHEPhase1Algo());
     add_param_set(flagParametersQIE8);
     add_param_set(flagParametersQIE11);
     add_param_set(pulseShapeParametersQIE8);

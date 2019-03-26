@@ -445,6 +445,14 @@ public:
     int numberOfDTStationsWithRZView() const;
     int numberOfDTStationsWithBothViews() const;
 
+  //only used by ROOT IO rule to read v12 HitPatterns
+  static bool fillNewHitPatternWithOldHitPattern_v12(const uint16_t oldHitPattern[], 
+                                                     uint8_t hitCount,
+                                                     uint8_t beginTrackHits, uint8_t endTrackHits,
+                                                     uint8_t beginInner, uint8_t endInner,
+                                                     uint8_t beginOuter, uint8_t endOuter,
+                                                     reco::HitPattern* newObj);
+
 private:
 
     // 3 bits for hit type

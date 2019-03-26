@@ -1,5 +1,6 @@
 #include "FastSimulation/MaterialEffects/interface/PairProductionSimulator.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
+#include "FastSimulation/Particle/interface/makeParticle.h"
 
 #include <cmath>
 
@@ -13,7 +14,7 @@ void
 PairProductionSimulator::compute(ParticlePropagator& Particle, RandomEngineAndDistribution const* random)
 {
 
-  double eGamma = Particle.e(); 
+  double eGamma = Particle.particle().e(); 
 
   // The photon has enough energy to create a pair
   if ( eGamma>=photonEnergy ) { 
@@ -65,28 +66,31 @@ PairProductionSimulator::compute(ParticlePropagator& Particle, RandomEngineAndDi
       }
       
       
-      double chi = Particle.theta();
-      double psi = Particle.phi();
+      double chi = Particle.particle().theta();
+      double psi = Particle.particle().phi();
       RawParticle::RotationZ rotZ(psi);
       RawParticle::RotationY rotY(chi);
      
-      _theUpdatedState.resize(2,RawParticle());
+      _theUpdatedState.reserve(2);
+      _theUpdatedState.clear();
 
-      // The eletron
-      _theUpdatedState[0].SetXYZT(pElectron*stheta1*cphi,
-				  pElectron*stheta1*sphi,
-				  pElectron*ctheta1,
-				  eElectron);
-      _theUpdatedState[0].setID(+11);
+      // The electron
+      _theUpdatedState.emplace_back(
+                                    makeParticle(Particle.particleDataTable(),
+                                                 +11,XYZTLorentzVector(pElectron*stheta1*cphi,
+                                                                       pElectron*stheta1*sphi,
+                                                                       pElectron*ctheta1,
+                                                                       eElectron) ));
       _theUpdatedState[0].rotate(rotY);
       _theUpdatedState[0].rotate(rotZ);
       
       // The positron
-      _theUpdatedState[1].SetXYZT(-pPositron*stheta2*cphi,
-				  -pPositron*stheta2*sphi,
-				   pPositron*ctheta2,
-				   ePositron);
-      _theUpdatedState[1].setID(-11);
+      _theUpdatedState.emplace_back(
+                                    makeParticle(Particle.particleDataTable(),
+                                                 -11,XYZTLorentzVector(-pPositron*stheta2*cphi,
+                                                                       -pPositron*stheta2*sphi,
+                                                                       pPositron*ctheta2,
+                                                                       ePositron)));
       _theUpdatedState[1].rotate(rotY);
       _theUpdatedState[1].rotate(rotZ);
       

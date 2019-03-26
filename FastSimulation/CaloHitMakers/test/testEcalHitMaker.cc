@@ -39,7 +39,7 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"

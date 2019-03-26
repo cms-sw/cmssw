@@ -51,6 +51,9 @@ namespace edm {
         return WantsGlobalLuminosityBlockTransitions<T...>::value;
       }
 
+      SerialTaskQueue* globalRunsQueue() final { return globalRunsQueue_.queue();}
+      SerialTaskQueue* globalLuminosityBlocksQueue() final { return globalLuminosityBlocksQueue_.queue();}
+
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------
@@ -61,6 +64,8 @@ namespace edm {
       const OutputModule& operator=(const OutputModule&) =delete; // stop default
       
       // ---------- member data --------------------------------
+      impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalRunTransitions<T...>::value> globalRunsQueue_;
+      impl::OptionalSerialTaskQueueHolder<WantsSerialGlobalLuminosityBlockTransitions<T...>::value> globalLuminosityBlocksQueue_;
       
     };
   }

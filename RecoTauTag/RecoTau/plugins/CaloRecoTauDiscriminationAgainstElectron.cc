@@ -4,6 +4,9 @@
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 /* class CaloRecoTauDiscriminationAgainstElectron
  * created : Feb 17 2008,
  * revised : ,
@@ -27,6 +30,7 @@ class CaloRecoTauDiscriminationAgainstElectron final  : public  CaloTauDiscrimin
       ~CaloRecoTauDiscriminationAgainstElectron() override{} 
       double discriminate(const CaloTauRef& theCaloTauRef) const override;
       void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
    private:  
       edm::ESHandle<MagneticField> theMagneticField;
       edm::InputTag CaloTauProducer_;
@@ -125,4 +129,28 @@ void CaloRecoTauDiscriminationAgainstElectron::produce(edm::Event& iEvent,const 
 */
 
 }
+
+void
+CaloRecoTauDiscriminationAgainstElectron::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // caloRecoTauDiscriminationAgainstElectron
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("CaloTauProducer", edm::InputTag("caloRecoTauProducer"));
+  desc.add<double>("leadTrack_HCAL3x3hitsEtSumOverPt_minvalue", 0.1);
+  desc.add<double>("maxleadTrackHCAL3x3hottesthitDEta", 0.1);
+  desc.add<bool>("ApplyCut_maxleadTrackHCAL3x3hottesthitDEta", false);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<bool>("ApplyCut_leadTrackavoidsECALcrack", true);
+  descriptions.add("caloRecoTauDiscriminationAgainstElectron", desc);
+}
+
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationAgainstElectron);
