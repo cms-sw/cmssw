@@ -62,6 +62,7 @@ private:
   double                   absorbW_;      //Width of the absorber
   double                   absorbH_;      //Height of the absorber
   double                   rMax_;         //Maximum radial extent
+  double                   rMaxB_;        //Maximum radial extent of a block
   std::string              idName_;       //Name of the "parent" volume.  
   std::string              idNameSpace_;  //Namespace of this and ALL sub-parts
   std::unordered_set<int>  copies_;        //List of copy #'s

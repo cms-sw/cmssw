@@ -8,6 +8,7 @@
   <Constant name="rMaxCoarse" value="2000.0*cm"/>
   <Constant name="rMin"       value="[hgcal:rminHE]"/>
   <Constant name="rMax"       value="[hgcal:rmaxHE]"/>
+  <Constant name="rMaxB"      value="[hgcal:rmaxHEF]"/>
   <Constant name="absorbW"    value="1.5*[hgcal:WaferW]"/>
   <Constant name="absorbH"    value="1.5*[hgcal:WaferW]"/>
 </ConstantsSection>
@@ -192,6 +193,7 @@
     <Numeric name="absorberW"   value="[hgcalHE:absorbW]"/>
     <Numeric name="absorberH"   value="[hgcalHE:absorbH]"/>
     <Numeric name="rMax"        value="[rMax]"/>
+    <Numeric name="rMaxB"       value="[rMaxB]"/>
   </Algorithm>
 </PosPartSection> 
 
