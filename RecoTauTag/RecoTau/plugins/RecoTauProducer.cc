@@ -354,6 +354,14 @@ RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
     vpsd_builders.addOptional<std::string>("signalConePiZeros");
     vpsd_builders.addOptional<bool>("usePFLeptons");
 
+    edm::ParameterSet pset_default_builders;
+    pset_default_builders.addParameter<std::string>("name","");
+    pset_default_builders.addParameter<std::string>("plugin","");
+    pset_default_builders.addParameter<int>("verbosity",0);
+    pset_default_builders.addParameter<double>("minAbsPhotonSumPt_insideSignalCone", 2.5);
+    pset_default_builders.addParameter<double>("minRelPhotonSumPt_insideSignalCone", 0.1);
+    pset_default_builders.addParameter<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
+
     desc.addVPSet("builders", vpsd_builders);
   }
 
