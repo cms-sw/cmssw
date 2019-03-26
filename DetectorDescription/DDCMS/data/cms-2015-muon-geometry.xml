@@ -6,9 +6,9 @@
     <debug_rotations/>
     <debug_includes/>
     <debug_volumes/>
-    <debug_constants/>
+    <debug_constants/-->
     <debug_materials/>
-    <debug_namespaces/>
+    <!--debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
     <debug_materials/>
@@ -30,7 +30,7 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2019/v1/materials.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cms.xml'/>
