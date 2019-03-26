@@ -356,7 +356,17 @@ PFRecoTauDiscriminationByHPSSelection::fillDescriptions(edm::ConfigurationDescri
       vpset_decayModes.add<edm::ParameterSetDescription>("applyBendCorrection", psd0);
     }
     vpset_decayModes.add<double>("assumeStripMass", -1.0);
-    desc.addVPSet("decayModes", vpset_decayModes);
+    std::vector<edm::ParameterSet> vpset_default;
+    {
+      edm::ParameterSet pset;
+      pset.addParameter<double>("minPi0Mass", -1.e3);
+      pset.addParameter<double>("maxPi0Mass", 1.e9);
+      pset.addParameter<unsigned int>("nChargedPFCandsMin", 0);
+      pset.addParameter<unsigned int>("nTracksMin", 0);
+      pset.addParameter<double>("assumeStripMass", -1.0);
+      vpset_default.push_back(pset);
+    }
+    desc.addVPSet("decayModes", vpset_decayModes, vpset_default);
   }
 
   desc.add<double>("matchingCone", 0.5);

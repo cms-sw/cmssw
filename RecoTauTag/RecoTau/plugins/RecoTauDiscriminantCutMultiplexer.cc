@@ -285,52 +285,32 @@ RecoTauDiscriminantCutMultiplexer::fillDescriptions(edm::ConfigurationDescriptio
   // recoTauDiscriminantCutMultiplexer
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("toMultiplex", edm::InputTag("fixme"));
-  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("fixme"));
   desc.add<int>("verbosity", 0);
 
   {
-    edm::ParameterSetDescription vpsd1;
-    vpsd1.add<unsigned int>("category");
-    //vpsd1.add<double>("cut");
-    // the cut can be either double or string
-    // the ParameterDescription constructor signatures = ("<name>", true|false) or ("<name>", <default_value>, true|false)
-    // the true|false = tracked|untracked
-    vpsd1.addNode(edm::ParameterDescription<std::string>("cut", true) xor
-                  edm::ParameterDescription<double>("cut", true));
+    edm::ParameterSet pset_mapping;
+    pset_mapping.addParameter<unsigned int>("category",0);
+    pset_mapping.addParameter<double>("cut",0.);
+    edm::ParameterSetDescription desc_mapping;
+    desc_mapping.add<unsigned int>("category",0);
+    desc_mapping.addNode(edm::ParameterDescription<std::string>("cut", true) xor
+                         edm::ParameterDescription<double>("cut", true));
     // it seems the parameter string "variable" exists only when "cut" is string
     // see hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT in RecoTauTag/Configuration/python/HPSPFTaus_cff.py
-    vpsd1.addOptional<std::string>("variable")->setComment("the parameter is required when \"cut\" is string");
-    //vpsd1.ifExists(edm::ParameterDescription<std::string>("cut", true),
-    //               edm::ParameterDescription<std::string>("variable", true));
-    /* -- crashes the compilation with:
-      Exception Message:
-      Labels used in different nodes of a ParameterSetDescription
-      must be unique.  The following duplicate labels were detected:
-       "cut"
-     */
-    desc.addVPSet("mapping", vpsd1);
+    desc_mapping.addOptional<std::string>("variable")->setComment("the parameter is required when \"cut\" is string");
+    //  desc_mapping.add<double>("cut",0.);
+    std::vector<edm::ParameterSet> vpsd_mapping;
+    vpsd_mapping.push_back(pset_mapping);
+    desc.addVPSet("mapping",desc_mapping,vpsd_mapping);
   }
-
-  // the cut in the mapping is sometimes string:
-  // RecoTauTag/Configuration/python/HPSPFTaus_cff.py:hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone()
-  // RecoTauTag/Configuration/python/HPSPFTaus_cff.py:hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVADBdR03oldDMwLTv1_WPEff80")
-
+ 
   desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
   desc.add<bool>("loadMVAfromDB", true);
-  {
-    edm::ParameterSetDescription prediscriminants;
-    prediscriminants.add<std::string>("BooleanOperator", "and");
-    {
-      edm::ParameterSetDescription psd1;
-      psd1.add<double>("cut", 0.0);
-      psd1.add<edm::InputTag>("Producer", edm::InputTag("fixme"));
-      prediscriminants.add<edm::ParameterSetDescription>("decayMode", psd1);
-    }
-    desc.add<edm::ParameterSetDescription>("Prediscriminants", prediscriminants);
-  }
+  fillProducerDescriptions(desc); // inherited from the base
   desc.add<std::string>("mvaOutput_normalization", "");
   desc.add<edm::InputTag>("key", edm::InputTag("fixme"));
-  descriptions.add("recoTauDiscriminantCutMultiplexer", desc);
+  descriptions.add("recoTauDiscriminantCutMultiplexerDefault", desc);
 }
+
 
 DEFINE_FWK_MODULE(RecoTauDiscriminantCutMultiplexer);
