@@ -94,7 +94,7 @@ void go(bool useShared) {
 
   if (i<2) std::cout << "lauch for " << offsets[blocks] << std::endl;
 
-  auto ntXBl = 1==i%4 ? 256 : 256;
+  auto ntXBl __attribute__((unused)) = 1==i%4 ? 256 : 256;
 
   delta -= (std::chrono::high_resolution_clock::now()-start);
   constexpr int MaxSize = 256*32;

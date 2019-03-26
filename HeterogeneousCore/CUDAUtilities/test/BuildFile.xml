@@ -27,6 +27,7 @@
 <bin file="radixSort_t.cu" name="gpuRadixSort_debug">
   <use name="cuda-api-wrappers"/>
   <flags CUDA_FLAGS="-g -G -DGPU_DEBUG"/>
+  <flags REM_CUDA_FLAGS="--generate-line-info -lineinfo"/>
 </bin>
 
 <bin file="HistoContainer_t.cpp">
@@ -43,6 +44,7 @@
   <use name="cuda-api-wrappers"/>
   <use name="cub"/>
   <flags CUDA_FLAGS="-g -G -DGPU_DEBUG"/>
+  <flags REM_CUDA_FLAGS="--generate-line-info -lineinfo"/>
 </bin>
 
 <bin file="OneHistoContainer_t.cu" name="gpuOneHistoContainer_t">
