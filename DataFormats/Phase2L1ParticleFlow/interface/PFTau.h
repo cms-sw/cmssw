@@ -1,6 +1,7 @@
 #ifndef DataFormats_Phase2L1ParticleFlow_PFTau_h
 #define DataFormats_Phase2L1ParticleFlow_PFTau_h
 
+#include <algorithm>
 #include <vector>
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 
@@ -17,9 +18,9 @@ namespace l1t
           float chargedIso() const { return iso_; }
           float fullIso()    const { return fullIso_; }
 	  int   id()         const { return id_; }
-	  bool  passLooseNN()  const { return iso_*(0.1+0.2*(min(pt,100)))*1./20.1 > 0.05;}
+	  bool  passLooseNN()  const { return iso_*(0.1+0.2*(min(pt(),100.)))*1./20.1 > 0.05;}
 	  bool  passLoosePF()  const { return fullIso_ < 10.0;}
-	  bool  passTightNN()  const { return iso_*(0.1+0.2*(min(pt,100)))*1./20.1 > 0.25;}
+	  bool  passTightNN()  const { return iso_*(0.1+0.2*(min(pt(),100.)))*1./20.1 > 0.25;}
 	  bool  passTightPF()  const { return fullIso_ < 5.0;}
 
       private:
