@@ -57,7 +57,7 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSet& iConfig ) :
-  doNothing_   ( iConfig.getParameter<bool>( "doNothing" ) )
+  doNothing_( iConfig.getParameter<bool>( "doNothing" ) )
 {
   if ( doNothing_ ) return;
 
