@@ -166,9 +166,6 @@ private:
 using namespace std;
 using namespace reco;
 
-#define INIT_ENTRY(name) \
-  { #name, name }
-
 namespace {
   class QuickUnion {
     std::vector<unsigned> id_;
@@ -215,23 +212,21 @@ namespace {
   };
 }  // namespace
 
-//for debug only
-//#define PFLOW_DEBUG
 
 PFBlockAlgo::PFBlockAlgo()
     : debug_(false),
-      elementTypes_({INIT_ENTRY(PFBlockElement::TRACK),
-                     INIT_ENTRY(PFBlockElement::PS1),
-                     INIT_ENTRY(PFBlockElement::PS2),
-                     INIT_ENTRY(PFBlockElement::ECAL),
-                     INIT_ENTRY(PFBlockElement::HCAL),
-                     INIT_ENTRY(PFBlockElement::GSF),
-                     INIT_ENTRY(PFBlockElement::BREM),
-                     INIT_ENTRY(PFBlockElement::HFEM),
-                     INIT_ENTRY(PFBlockElement::HFHAD),
-                     INIT_ENTRY(PFBlockElement::SC),
-                     INIT_ENTRY(PFBlockElement::HO),
-                     INIT_ENTRY(PFBlockElement::HGCAL)}) {}
+      elementTypes_({{"PFBlockElement::TRACK", PFBlockElement::TRACK},
+                     {"PFBlockElement::PS1", PFBlockElement::PS1},
+                     {"PFBlockElement::PS2", PFBlockElement::PS2},
+                     {"PFBlockElement::ECAL", PFBlockElement::ECAL},
+                     {"PFBlockElement::HCAL", PFBlockElement::HCAL},
+                     {"PFBlockElement::GSF", PFBlockElement::GSF},
+                     {"PFBlockElement::BREM", PFBlockElement::BREM},
+                     {"PFBlockElement::HFEM", PFBlockElement::HFEM},
+                     {"PFBlockElement::HFHAD", PFBlockElement::HFHAD},
+                     {"PFBlockElement::SC", PFBlockElement::SC},
+                     {"PFBlockElement::HO", PFBlockElement::HO},
+                     {"PFBlockElement::HGCAL", PFBlockElement::HGCAL}}) {}
 
 void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
   constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
@@ -282,10 +277,8 @@ void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs, edm:
 }
 
 PFBlockAlgo::~PFBlockAlgo() {
-#ifdef PFLOW_DEBUG
   if (debug_)
     cout << "~PFBlockAlgo - number of remaining elements: " << elements_.size() << endl;
-#endif
 }
 
 reco::PFBlockCollection PFBlockAlgo::findBlocks() {
@@ -414,11 +407,9 @@ void PFBlockAlgo::packLinks(reco::PFBlock& block,
 
       //loading link data according to link test used: RECHIT
       //block.setLink( i1, i2, chi2, block.linkData() );
-#ifdef PFLOW_DEBUG
       if (debug_)
         cout << "Setting link between elements " << i1 << " and " << i2 << " of dist =" << dist
              << " computed from link test " << linktest << endl;
-#endif
       block.setLink(i1, i2, dist, block.linkData(), linktest);
     }
   }
