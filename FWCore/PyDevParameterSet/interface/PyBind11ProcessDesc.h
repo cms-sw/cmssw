@@ -25,7 +25,7 @@ public:
   */
   PyBind11ProcessDesc(std::string const& config);
 
-  //  PyBind11ProcessDesc(std::string const& config, int argc, char * argv[]);
+  PyBind11ProcessDesc(std::string const& config, int argc, char * argv[]);
 
   ~PyBind11ProcessDesc();
 

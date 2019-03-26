@@ -11,7 +11,7 @@
 #include "XML/Utilities.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "DetectorDescription/DDCMS/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 #include "DetectorDescription/DDCMS/interface/DDNamespace.h"
 #include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
@@ -31,6 +31,7 @@
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 namespace dd4hep {
 
@@ -1168,8 +1169,8 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
   TClass* cl = shape->IsA();
   if(  cl == TGeoTubeSeg::Class()) {
     const TGeoTubeSeg* sh = ( const TGeoTubeSeg* )shape;
-    double widthInDeg = ConvertTo( width, deg );
-    double startInDeg = ConvertTo( offset, deg );
+    double widthInDeg = convertRadToDeg( width );
+    double startInDeg = convertRadToDeg( offset );
     int numCopies = ( int )(( sh->GetPhi2() - sh->GetPhi1())/ widthInDeg );
     printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
 	      "DD4CMS","+++    ...divide %s along %s (%d) with offset %6.3f deg and %6.3f deg to produce %d copies",

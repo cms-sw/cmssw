@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam
-import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
+from . import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
 
 
 fcPerMip = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP

@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 import os
 import logging
 
-import tools
+from . import tools
 import FWCore.ParameterSet.Config as cms
-from DTWorkflow import DTWorkflow
+from .DTWorkflow import DTWorkflow
 
 log = logging.getLogger(__name__)
 

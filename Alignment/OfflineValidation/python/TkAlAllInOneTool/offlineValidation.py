@@ -1,10 +1,11 @@
+from __future__ import absolute_import
 import os
-import configTemplates
-import globalDictionaries
-from genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationWithComparison, ValidationForPresentation, ValidationWithPlots, ValidationWithPlotsSummary
-from helperFunctions import replaceByMap, addIndex, pythonboolstring
-from presentation import SubsectionFromList, SubsectionOnePage
-from TkAlExceptions import AllInOneError
+from . import configTemplates
+from . import globalDictionaries
+from .genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationWithComparison, ValidationForPresentation, ValidationWithPlots, ValidationWithPlotsSummary
+from .helperFunctions import replaceByMap, addIndex, pythonboolstring
+from .presentation import SubsectionFromList, SubsectionOnePage
+from .TkAlExceptions import AllInOneError
 
 class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, ValidationWithComparison, ValidationWithPlotsSummary, ValidationForPresentation):
     configBaseName = "TkAlOfflineValidation"
@@ -92,7 +93,7 @@ class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, Validati
 
     @classmethod
     def initMerge(cls):
-        from plottingOptions import PlottingOptions
+        from .plottingOptions import PlottingOptions
         outFilePath = replaceByMap(".oO[scriptsdir]Oo./TkAlOfflineJobsMerge.C", PlottingOptions(None, cls.valType))
         with open(outFilePath, "w") as theFile:
             theFile.write(replaceByMap(configTemplates.mergeOfflineParJobsTemplate, {}))

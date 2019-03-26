@@ -49,7 +49,7 @@ class PlottingDevice : public edm::EDAnalyzer {
       // ----------member data ---------------------------
   std::string vHelperInstance_;
   std::string plotDirectoryName_;
-  Plotter * plotter_;
+  std::unique_ptr<Plotter> plotter_;
 };
 
 //
@@ -78,7 +78,7 @@ PlottingDevice::PlottingDevice(const edm::ParameterSet& iConfig)
   //configure the plotting device
   edm::ParameterSet plotPset = iConfig.getParameter<edm::ParameterSet>("Plotter");
   std::string plotterName = plotPset.getParameter<std::string>("ComponentName");
-  plotter_ = PlotterFactory::get()->create(plotterName, plotPset);
+  plotter_ = std::unique_ptr<Plotter>(PlotterFactory::get()->create(plotterName, plotPset));
 }
 
 

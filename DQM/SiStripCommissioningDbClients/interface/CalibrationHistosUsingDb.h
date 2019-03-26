@@ -25,12 +25,10 @@ class CalibrationHistosUsingDb : public CommissioningHistosUsingDb, public Calib
   void uploadConfigurations() override;
   
  private:
-  
-  void update( SiStripConfigDb::DeviceDescriptionsRange& );
-  
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
 
-  TH1F *ishaHistogram_, *vfsHistogram_; 
+  bool allowSelectiveUpload_;   
+  void update( SiStripConfigDb::DeviceDescriptionsRange& );  
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
 
 };
 

@@ -1,12 +1,14 @@
-from Mixins import _ConfigureComponent, saveOrigin
-from Mixins import _Unlabelable, _Labelable
-from Mixins import _TypedParameterizable, _Parameterizable, PrintOptions, specialImportRegistry
-from SequenceTypes import _SequenceLeaf
-from Types import vstring, EDAlias
+from __future__ import absolute_import
+from .Mixins import _ConfigureComponent, saveOrigin
+from .Mixins import _Unlabelable, _Labelable
+from .Mixins import _TypedParameterizable, _Parameterizable, PrintOptions, specialImportRegistry
+from .SequenceTypes import _SequenceLeaf
+from .Types import vstring, EDAlias
+
 
 import six
 import copy
-from ExceptionHandling import *
+from .ExceptionHandling import *
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type_,*arg,**kargs):
         super(Service,self).__init__(type_,*arg,**kargs)
@@ -411,8 +413,8 @@ class SwitchProducer(EDProducer):
 
 if __name__ == "__main__":
     import unittest
-    from Types import *
-    from SequenceTypes import *
+    from .Types import *
+    from .SequenceTypes import *
 
     class SwitchProducerTest(SwitchProducer):
         def __init__(self, **kargs):
@@ -573,7 +575,7 @@ if __name__ == "__main__":
             self.assertRaises(RuntimeError, sp._getProducer)
 
             # Mofications
-            from Types import int32, string, PSet
+            from .Types import int32, string, PSet
             sp = SwitchProducerTest(test1 = EDProducer("Foo",
                                                        a = int32(1),
                                                        b = PSet(c = int32(2))),
@@ -657,7 +659,7 @@ if __name__ == "__main__":
             self.assertTrue(isinstance(sp.test2, EDAlias))
 
             # Modifications
-            from Types import int32, string, PSet, VPSet
+            from .Types import int32, string, PSet, VPSet
             sp = SwitchProducerTest(test1 = EDProducer("Foo"),
                                     test2 = EDAlias(foo = VPSet(PSet(type = string("Foo2")))))
 
@@ -683,7 +685,7 @@ if __name__ == "__main__":
 
 
             # Dump
-            from Types import int32, string, PSet, VPSet
+            from .Types import int32, string, PSet, VPSet
             sp = SwitchProducerTest(test1 = EDProducer("Foo"),
                                     test2 = EDAlias(foo = VPSet(PSet(type = string("Foo2")))))
 

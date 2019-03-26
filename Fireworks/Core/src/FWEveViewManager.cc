@@ -225,10 +225,10 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
       std::string builderName = info.m_name;
       int builderViewBit =  info.m_viewBit;
       
-      FWProxyBuilderBase* builder = nullptr;
+      std::shared_ptr<FWProxyBuilderBase> builder;
       try
       {
-         builder = FWProxyBuilderFactory::get()->create(builderName);
+         builder = std::shared_ptr<FWProxyBuilderBase>{FWProxyBuilderFactory::get()->create(builderName)};
 
       }
       catch (std::exception& exc)
@@ -242,7 +242,6 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
       // 2.
       // printf("FWEveViewManager::makeProxyBuilderFor NEW builder %s \n", builderName.c_str());
       
-      std::shared_ptr<FWProxyBuilderBase> pB(builder);
       builder->setItem(iItem);
       iItem->changed_.connect(boost::bind(&FWEveViewManager::modelChanges,this,_1));
       iItem->goingToBeDestroyed_.connect(boost::bind(&FWEveViewManager::removeItem,this,_1));
@@ -293,7 +292,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
          }
       }
       
-      m_builders[builderViewBit].push_back(pB);
+      m_builders[builderViewBit].emplace_back(std::move(builder));
    } // loop views
 }
 

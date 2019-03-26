@@ -10,9 +10,8 @@ static
 void
 makePSetsFromFile(std::string const& fileName) { 
   std::string initCommand("from FWCore.ParameterSet.Types import makeCppPSet\n"
-                          "execfile('");
-  initCommand += fileName + "')";
-
+                          "exec(open('");
+  initCommand += fileName + "').read())";
   pybind11::exec(initCommand);
   pybind11::exec("makeCppPSet(locals(), topPSet)");
 }
@@ -35,7 +34,7 @@ namespace edm {
 
     std::unique_ptr<ParameterSet>
     readConfig(std::string const& config, int argc, char* argv[]) {
-      PyBind11ProcessDesc pythonProcessDesc(config);//, argc, argv);
+      PyBind11ProcessDesc pythonProcessDesc(config, argc, argv);
       return pythonProcessDesc.parameterSet();
     }
 

@@ -187,7 +187,6 @@ public:
 	cout<<" effSta == "<< (double)(nSta + nMureco) / nMuMC<<endl;
       }
 
-vector< int >::const_iterator p2;
     for (unsigned int i =0 ; i < v_.size(); ++i )
       {
 	cout<<" delta R Mu Sta == "<< v_[i]<<endl;

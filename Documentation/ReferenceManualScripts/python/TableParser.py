@@ -1,11 +1,12 @@
 from __future__ import print_function
+from __future__ import absolute_import
 # email: cmsdoxy@cern.ch, ali.mehmet.altundag@cern.ch
 
 # please have a look at the namespaces.html (namespace list) and annotated.html
 # (~class list) html files to understand the tags/attributes that we use in
 # this script.
 
-from BeautifulSoup import *
+from .BeautifulSoup import *
 import sys, os, copy
 
 htmlFullPath     = None

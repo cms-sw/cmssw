@@ -100,8 +100,8 @@ VarProcessor *ProcessRegistry<VarProcessor, Calibration::VarProcessor,
 	if (!result) {
 		// try to load the shared library and retry
 		try {
-			delete VPPluginFactory::get()->create(
-					std::string("VarProcessor/") + name);
+			std::unique_ptr<PhysicsTools::VarProcessor::Dummy> tmp {VPPluginFactory::get()->create(
+					std::string("VarProcessor/") + name)};
 			result = ProcessRegistry::create(name, calib, parent);
 		} catch(const cms::Exception &e) {
 			// caller will have to deal with the null pointer

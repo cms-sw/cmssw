@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import re, os
-from FileNamesHelper import *
+from .FileNamesHelper import *
 
 
 test_edm_file = re.compile("_EdmSize$", re.IGNORECASE)

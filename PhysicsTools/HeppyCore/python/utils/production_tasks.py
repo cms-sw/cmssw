@@ -1,18 +1,19 @@
 from __future__ import print_function
+from __future__ import absolute_import
 
 import copy, datetime, inspect, fnmatch, os, re, subprocess, sys, tempfile, time
 import glob
 import gzip
 import errno
-from edmIntegrityCheck import PublishToFileSystem, IntegrityCheck
-from addToDatasets import addToDatasets
+from .edmIntegrityCheck import PublishToFileSystem, IntegrityCheck
+from .addToDatasets import addToDatasets
 
-import eostools as castortools
-import das as Das
+from . import eostools as castortools
+from . import das as Das
 
-from dataset import Dataset
-from datasetToSource import createDataset
-from castorBaseDir import castorBaseDir
+from .dataset import Dataset
+from .datasetToSource import createDataset
+from .castorBaseDir import castorBaseDir
 import six
 
 def mkdir_p(path):

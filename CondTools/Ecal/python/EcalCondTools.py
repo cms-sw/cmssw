@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 #
 # Misc functions to manipulate Ecal records
 # author: Stefano Argiro
@@ -12,7 +13,7 @@ from __future__ import print_function
 #from pluginCondDBPyInterface import *
 from CondCore.Utilities import iovInspector as inspect
 from ROOT import TCanvas,TH1F, TH2F, gStyle, TChain, TTree, TLegend, TFile
-import EcalPyUtils
+from . import EcalPyUtils
 import sys
 from math import sqrt
 

@@ -44,7 +44,7 @@ class MuScleFitEvent : public TObject
   ClassDef(MuScleFitEvent, 1)
     };
 
-ClassImp(MuScleFitEvent)
+ClassImp(MuScleFitEvent);
 
 #endif
 

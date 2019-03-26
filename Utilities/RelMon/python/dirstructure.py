@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -19,8 +20,8 @@ argv=sys.argv
 from ROOT import *
 sys.argv=argv
 
-from definitions import *
-from utils import setTDRStyle
+from .definitions import *
+from .utils import setTDRStyle
 
 
 # Something nice and familiar

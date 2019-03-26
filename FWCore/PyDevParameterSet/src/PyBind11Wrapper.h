@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <iostream>
 
 namespace edm {
@@ -15,10 +16,7 @@ void
 
   template<typename T>
     pybind11::list toPython11List(const std::vector<T> & v) {
-    pybind11::list result;
-    for(const auto & i: v) {
-       result.append(i);
-    }
+    pybind11::list result=pybind11::cast(v);
     return result;
   }
 

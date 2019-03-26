@@ -287,9 +287,10 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
     edm::LogWarning("HGCalValidation") << "invalid detector name !! " 
 				       << nameDetector_;
   }
-  edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event()
-				      << " with " << ntot << " total and "
-				      << nused << " used digis";
+  if (verbosity_>0) 
+    edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event()
+					<< " with " << ntot << " total and "
+					<< nused << " used digis";
 }
 
 template<class T1, class T2>

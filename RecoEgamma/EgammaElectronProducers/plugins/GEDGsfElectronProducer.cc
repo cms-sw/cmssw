@@ -35,17 +35,16 @@ GEDGsfElectronProducer::GEDGsfElectronProducer( const edm::ParameterSet & cfg, c
    produces<edm::ValueMap<reco::GsfElectronRef> >();
 }
 
-GEDGsfElectronProducer::~GEDGsfElectronProducer() {}
 
 // ------------ method called to produce the data  ------------
 void GEDGsfElectronProducer::produce( edm::Event & event, const edm::EventSetup & setup )
  {
-  beginEvent(event,setup) ;
   matchWithPFCandidates(event);
-  algo_->completeElectrons(globalCache()) ;
-  algo_->setMVAOutputs(globalCache(),gsfMVAOutputMap_);
-  algo_->setMVAInputs(gsfMVAInputMap_);
-  fillEvent(event) ;
+  reco::GsfElectronCollection electrons;
+  algo_->completeElectrons(electrons, event, setup, globalCache()) ;
+  setMVAOutputs(electrons, globalCache(),gsfMVAOutputMap_, event.get(inputCfg_.vtxCollectionTag));
+  for(auto& el : electrons) el.setMvaInput(gsfMVAInputMap_.find(el.gsfTrack())->second); // set MVA inputs
+  fillEvent(electrons, event) ;
 
   // ValueMap
   auto valMap_p = std::make_unique<edm::ValueMap<reco::GsfElectronRef>>();
@@ -54,8 +53,6 @@ void GEDGsfElectronProducer::produce( edm::Event & event, const edm::EventSetup 
   valMapFiller.fill();
   event.put(std::move(valMap_p));  
   // Done with the ValueMap
-
-  endEvent() ;
  }
 
 void GEDGsfElectronProducer::fillGsfElectronValueMap(edm::Event & event, edm::ValueMap<reco::GsfElectronRef>::Filler & filler)
@@ -132,5 +129,21 @@ void GEDGsfElectronProducer::matchWithPFCandidates(edm::Event & event)
       myMvaInput.hadEnergy = it->egammaExtraRef()->hadEnergy();
       gsfMVAInputMap_[it->gsfTrackRef()] = myMvaInput;
     }
+  }
+}
+
+
+void GEDGsfElectronProducer::setMVAOutputs(reco::GsfElectronCollection& electrons,
+                                           const gsfAlgoHelpers::HeavyObjectCache* hoc,
+                                           const std::map<reco::GsfTrackRef, reco::GsfElectron::MvaOutput>& mvaOutputs,
+                                           reco::VertexCollection const& vertices) const
+{
+  for (auto el = electrons.begin(); el != electrons.end(); el++) {
+    float mva_NIso_Value = hoc->sElectronMVAEstimator->mva(*el, vertices);
+    float mva_Iso_Value = hoc->iElectronMVAEstimator->mva(*el, vertices.size());
+    GsfElectron::MvaOutput mvaOutput;
+    mvaOutput.mva_e_pi = mva_NIso_Value;
+    mvaOutput.mva_Isolated = mva_Iso_Value;
+    el->setMvaOutput(mvaOutput);
   }
 }
