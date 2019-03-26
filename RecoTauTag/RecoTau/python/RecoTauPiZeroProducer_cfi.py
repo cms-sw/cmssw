@@ -62,7 +62,7 @@ ak4PFJetsRecoTauPiZeros = ak4PFJetsRecoTauPiZeros.clone(
 )
 
 from RecoTauTag.RecoTau.ak4PFJetsLegacyTaNCPiZeros_cfi import ak4PFJetsLegacyTaNCPiZeros
-ak4PFJetsLegacyTaNCPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
+ak4PFJetsLegacyTaNCPiZeros = ak4PFJetsLegacyTaNCPiZeros.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
