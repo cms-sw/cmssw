@@ -272,6 +272,22 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const {
   return glob;
 }
 
+double HGCalGeometry::getArea(const DetId& detid) const {
+
+  HGCalGeometry::CornersVec corners = getNewCorners(detid);
+  double area(0);
+  if (corners.size() > 1) {
+    int n = corners.size()-1;
+    int j = n-1;
+    for (int i=0; i<n; ++i) {
+      area += ((corners[j].x()+corners[i].x())*
+	       (corners[i].y()-corners[j].y()));
+      j     = i;
+    }
+  }
+  return (0.5*area);
+}
+
 HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
 
   unsigned int ncorner = ((m_det == DetId::HGCalHSc) ? FlatTrd::ncorner_ :
