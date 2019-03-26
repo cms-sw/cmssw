@@ -934,6 +934,10 @@ DQMStore::book_(std::string const& dir,
     // Create and initialise core object.
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
+    if (run_ != 0 && moduleId_ != 0) {
+      proto.setLumiFlag(); // default to per-lumi mode for all non-legacy MEs.
+      // for legacy (moduleId_ == 0) this is not always safe.
+    }
     me = const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first)
       .initialise((MonitorElement::Kind)kind, h);
 
@@ -992,6 +996,10 @@ DQMStore::book_(std::string const& dir,
     // Create it and return for initialisation.
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
+    if (run_ != 0 && moduleId_ != 0) {
+      proto.setLumiFlag(); // default to per-lumi mode for all non-legacy MEs.
+      // for legacy (moduleId_ == 0) this is not always safe.
+    }
     return &const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first);
   }
 }
