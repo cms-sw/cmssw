@@ -1,5 +1,5 @@
-#ifndef MuonSimHitsValidAnalyzer_h
-#define MuonSimHitsValidAnalyzer_h
+#ifndef Validation_MuonHits_MuonSimHitsValidAnalyzer_h
+#define Validation_MuonHits_MuonSimHitsValidAnalyzer_h
 
 /// framework & common header files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
