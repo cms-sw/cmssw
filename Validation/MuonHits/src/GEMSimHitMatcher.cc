@@ -78,6 +78,77 @@ GEMSimHitMatcher::matchSimHitsToSimTrack(std::vector<unsigned int> track_ids, co
       superchamber_to_hits_[ p_id.superChamberId().rawId() ].push_back(h);
     }
   }
+
+  // find pads with hits
+  const auto& detids = detIds();
+  // find 2-layer coincidence pads with hits
+  for (const auto& d: detids) {
+    GEMDetId id(d);
+    const auto& hits = hitsInDetId(d);
+    const auto& roll = dynamic_cast<const GEMGeometry*>(geometry_)->etaPartition(id);
+    //int max_npads = roll->npads();
+    set<int> pads;
+    for (const auto& h: hits) {
+      const LocalPoint& lp = h.entryPoint();
+      pads.insert( 1 + static_cast<int>(roll->padTopology().channel(lp)) );
+    }
+    detids_to_pads_[d] = pads;
+  }
+
+  // find 2-layer coincidence pads with hits
+  for (const auto& d: detids) {
+    GEMDetId id1(d);
+    if (id1.layer() != 1) continue;
+
+    // find pads with hits in layer1
+    const auto& hits1 = hitsInDetId(d);
+    const auto& roll1 = dynamic_cast<const GEMGeometry*>(geometry_)->etaPartition(id1);
+    set<int> pads1;
+    set<int> pads2;
+    set<int> copads;
+
+    for (const auto& h: hits1) {
+      const LocalPoint& lp = h.entryPoint();
+      pads1.insert( 1 + static_cast<int>(roll1->padTopology().channel(lp)) );
+      if (verbose_) std::cout <<"GEMHits detid1 "<<id1 <<" pad1 "<< 1 + static_cast<int>(roll1->padTopology().channel(lp)) << std::endl;
+    }
+
+    // find pads with hits in layer2
+    for (const auto& d2 : detids){
+      //staggered geometry???? improve here !!
+      GEMDetId id2(d2);
+      // does layer 2 has simhits?
+      if (id2.layer() !=2 or
+          id2.region() != id1.region() or
+          id2.ring()!=id1.ring() or
+          id2.station()!=id1.station() or
+          abs(id2.roll()-id1.roll())>1)
+        continue;
+      const auto& hits2 = hitsInDetId(id2());
+      const auto& roll2 = dynamic_cast<const GEMGeometry*>(geometry_)->etaPartition(id2);
+      for (const auto& h: hits2) {
+        const LocalPoint& lp = h.entryPoint();
+        pads2.insert( 1 + static_cast<int>(roll2->padTopology().channel(lp)) );
+        if (verbose_) std::cout <<"GEMHits detid2 "<<id2 <<" pad2 "<< 1 + static_cast<int>(roll2->padTopology().channel(lp)) << std::endl;
+      }
+    }
+
+    for (const auto& pad1 : pads1) {
+      for (const auto& pad2 : pads2){
+        if (abs(pad1-pad2) <= 2) {
+          if (copads.find(pad1) == copads.end())
+            copads.insert(pad1);
+          if (copads.find(pad2) == copads.end())
+            copads.insert(pad2);
+        }
+      }
+    }
+
+    if (copads.empty()) continue;
+
+    //detids here is layer1 id
+    detids_to_copads_[d] = copads;
+  }
 }
 
 std::set<unsigned int>

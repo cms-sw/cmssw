@@ -72,7 +72,23 @@ ME0SimHitMatcher::matchSimHitsToSimTrack(std::vector<unsigned int> track_ids, co
       superChamber_to_hits_[ layer_id.chamberId().rawId() ].push_back(h);
     }
   }
+
+  // find pads with hits
+  const auto& detids = detIds();
+  for (const auto& d: detids) {
+    GEMDetId id(d);
+    const auto& hits = hitsInDetId(d);
+    const auto& roll = dynamic_cast<const ME0Geometry*>(geometry_)->etaPartition(id);
+    //int max_npads = roll->npads();
+    set<int> pads;
+    for (const auto& h: hits) {
+      const LocalPoint& lp = h.entryPoint();
+      pads.insert( 1 + static_cast<int>(roll->padTopology().channel(lp)) );
+    }
+    detids_to_pads_[d] = pads;
+  }
 }
+
 std::set<unsigned int>
 ME0SimHitMatcher::detIds() const
 {
@@ -82,27 +98,18 @@ ME0SimHitMatcher::detIds() const
 }
 
 std::set<unsigned int>
-ME0SimHitMatcher::detIdsCoincidences(int min_n_layers) const
-{
-  std::set<unsigned int> result;
-
-  //   int result = 0;
-  //   const auto& chamber_ids = chamberIds();
-  //   for (const auto& id: chamber_ids)
-  //   {
-  //     if (nLayersWithHitsInSuperChamber(id) >= min_n_layers) result += 1;
-  //   }
-  //   return result;
-
-  //   for (const auto& p: detids_to_copads_) result.insert(p.first);
-  return result;
-}
-
-std::set<unsigned int>
 ME0SimHitMatcher::chamberIds() const
 {
   std::set<unsigned int> result;
   for (const auto& p: chamber_to_hits_) result.insert(p.first);
+  return result;
+}
+
+std::set<unsigned int>
+ME0SimHitMatcher::superChamberIds() const
+{
+  std::set<unsigned int> result;
+  for (const auto& p: superChamber_to_hits_) result.insert(p.first);
   return result;
 }
 
@@ -126,24 +133,24 @@ ME0SimHitMatcher::nLayersWithHitsInSuperChamber(unsigned int detid) const
   return layers_with_hits.size();
 }
 
-float
-ME0SimHitMatcher::simHitsCentralPosition(const edm::PSimHitContainer& sim_hits) const
+std::set<unsigned int>
+ME0SimHitMatcher::superChamberIdsCoincidences(int min_n_layers) const
 {
-  if (sim_hits.empty()) return -0.0; // point "zero"
-
-  float central = -0.0;
-  size_t n = 0;
-  for (const auto& h: sim_hits)
-  {
-    LocalPoint lp( 0., 0., 0. );//local central
-    const GlobalPoint& gp = dynamic_cast<const ME0Geometry*>(geometry_)->idToDet(h.detUnitId())->surface().toGlobal(lp);
-    central = gp.perp();
-    if (n>=1) std::cout <<"warning! find more than one simhits in ME0 chamber " << std::endl;
-    ++n;
+  set<unsigned int> result;
+  // loop over the super chamber Ids
+  for (const auto& p : superChamberIds()) {
+    if (nLayersWithHitsInSuperChamber(p) >= min_n_layers) {
+      result.insert(p);
+    }
   }
-
-  return central;
+  return result;
 }
+
+int ME0SimHitMatcher::nCoincidenceChambers(int min_n_layers) const
+{
+  return superChamberIdsCoincidences(min_n_layers).size();
+}
+
 
 float
 ME0SimHitMatcher::simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const
@@ -221,4 +228,3 @@ ME0SimHitMatcher::nPadsWithHits() const
   }
   return result;
 }
-
