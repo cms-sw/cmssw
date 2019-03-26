@@ -88,29 +88,31 @@ namespace std {
   };
 }  // namespace std
 
-/// \brief Particle Flow Algorithm
-/*!
-  \author Colin Bernet (rewrite/refactor by L. Gray)
-  \date January 2006 (April 2014)
+/**\class PFBlockProducer
+\brief Producer for particle flow blocks
+
+This producer makes use of PFBlockProducer, the particle flow block algorithm.
+Particle flow itself consists in reconstructing particles from the particle
+flow blocks This is done at a later stage, see PFProducer and PFAlgo.
+
+\author Colin Bernet
+\date   April 2007
 */
 
-class PFBlockAlgo {
+class PFBlockProducer : public edm::stream::EDProducer<> {
 public:
-  // the element list should **always** be a list of (smart) pointers
-  typedef std::vector<std::unique_ptr<reco::PFBlockElement> > ElementList;
-  typedef std::unique_ptr<BlockElementImporterBase> ImporterPtr;
-  typedef std::unique_ptr<BlockElementLinkerBase> LinkTestPtr;
-  typedef std::unique_ptr<KDTreeLinkerBase> KDTreePtr;
-  /// define these in *Fwd files in DataFormats/ParticleFlowReco?
-  typedef ElementList::iterator IE;
-  typedef ElementList::const_iterator IEC;
-  typedef reco::PFBlockCollection::const_iterator IBC;
-  //for skipping ranges
-  typedef std::array<std::pair<unsigned int, unsigned int>, reco::PFBlockElement::kNBETypes> ElementRanges;
+  explicit PFBlockProducer(const edm::ParameterSet&);
 
-  PFBlockAlgo();
+  ~PFBlockProducer() override;
 
-  ~PFBlockAlgo();
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  /// verbose ?
+  const bool verbose_;
+  const edm::EDPutTokenT<reco::PFBlockCollection> putToken_;
 
   void setLinkers(const std::vector<edm::ParameterSet>&);
 
@@ -128,7 +130,6 @@ public:
   /// sets debug printout flag
   void setDebug(bool debug) { debug_ = debug; }
 
-private:
   /// compute missing links in the blocks
   /// (the recursive procedure does not build all links)
   void packLinks(reco::PFBlock& block,
@@ -145,26 +146,32 @@ private:
                    double& dist) const;
 
   // the test elements will be transferred to the blocks
-  ElementList elements_;
-  ElementRanges ranges_;
+  std::vector<std::unique_ptr<reco::PFBlockElement>> elements_;
+  std::array<std::pair<unsigned int, unsigned int>, reco::PFBlockElement::kNBETypes> ranges_;
 
   /// if true, debug printouts activated
   bool debug_;
 
-  friend std::ostream& operator<<(std::ostream&, const PFBlockAlgo&);
+  friend std::ostream& operator<<(std::ostream&, const PFBlockProducer&);
   bool useHO_;
 
-  std::vector<ImporterPtr> importers_;
+  std::vector<std::unique_ptr<BlockElementImporterBase>> importers_;
 
   const std::unordered_map<std::string, reco::PFBlockElement::Type> elementTypes_;
-  std::vector<LinkTestPtr> linkTests_;
+  std::vector<std::unique_ptr<BlockElementLinkerBase>> linkTests_;
   unsigned int linkTestSquare_[reco::PFBlockElement::kNBETypes][reco::PFBlockElement::kNBETypes];
 
-  std::vector<KDTreePtr> kdtrees_;
+  std::vector<std::unique_ptr<KDTreeLinkerBase>> kdtrees_;
+
 };
+
+DEFINE_FWK_MODULE(PFBlockProducer);
+
 
 using namespace std;
 using namespace reco;
+using namespace edm;
+
 
 namespace {
   class QuickUnion {
@@ -210,25 +217,10 @@ namespace {
       --count_;
     }
   };
-}  // namespace
+} // namespace
 
 
-PFBlockAlgo::PFBlockAlgo()
-    : debug_(false),
-      elementTypes_({{"PFBlockElement::TRACK", PFBlockElement::TRACK},
-                     {"PFBlockElement::PS1", PFBlockElement::PS1},
-                     {"PFBlockElement::PS2", PFBlockElement::PS2},
-                     {"PFBlockElement::ECAL", PFBlockElement::ECAL},
-                     {"PFBlockElement::HCAL", PFBlockElement::HCAL},
-                     {"PFBlockElement::GSF", PFBlockElement::GSF},
-                     {"PFBlockElement::BREM", PFBlockElement::BREM},
-                     {"PFBlockElement::HFEM", PFBlockElement::HFEM},
-                     {"PFBlockElement::HFHAD", PFBlockElement::HFHAD},
-                     {"PFBlockElement::SC", PFBlockElement::SC},
-                     {"PFBlockElement::HO", PFBlockElement::HO},
-                     {"PFBlockElement::HGCAL", PFBlockElement::HGCAL}}) {}
-
-void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
+void PFBlockProducer::setLinkers(const std::vector<edm::ParameterSet>& confs) {
   constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
   for (unsigned i = 0; i < rowsize; ++i) {
     for (unsigned j = 0; j < rowsize; ++j) {
@@ -255,7 +247,7 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
     const PFBlockElement::Type type1 = elementTypes_.at(link1);
     const PFBlockElement::Type type2 = elementTypes_.at(link2);
     const unsigned index = rowsize * std::max(type1, type2) + std::min(type1, type2);
-    linkTests_[index] = LinkTestPtr{BlockElementLinkerFactory::get()->create(linkerName, conf)};
+    linkTests_[index] = std::unique_ptr<BlockElementLinkerBase>{BlockElementLinkerFactory::get()->create(linkerName, conf)};
     linkTestSquare_[type1][type2] = index;
     linkTestSquare_[type2][type1] = index;
     // setup KDtree if requested
@@ -268,7 +260,7 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
   }
 }
 
-void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs, edm::ConsumesCollector& sumes) {
+void PFBlockProducer::setImporters(const std::vector<edm::ParameterSet>& confs, edm::ConsumesCollector& sumes) {
   importers_.reserve(confs.size());
   for (const auto& conf : confs) {
     const std::string& importerName = conf.getParameter<std::string>("importerName");
@@ -276,12 +268,12 @@ void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs, edm:
   }
 }
 
-PFBlockAlgo::~PFBlockAlgo() {
+PFBlockProducer::~PFBlockProducer() {
   if (debug_)
-    cout << "~PFBlockAlgo - number of remaining elements: " << elements_.size() << endl;
+    cout << "~PFBlockProducer - number of remaining elements: " << elements_.size() << endl;
 }
 
-reco::PFBlockCollection PFBlockAlgo::findBlocks() {
+reco::PFBlockCollection PFBlockProducer::findBlocks() {
   // Glowinski & Gouzevitch
   for (const auto& kdtree : kdtrees_) {
     kdtree->process();
@@ -335,7 +327,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     blocks.push_back(reco::PFBlock());
     auto range = blocksmap.equal_range(key);
     auto& the_block = blocks.back();
-    ElementList::value_type::pointer p1(elements_[range.first->second].get());
+    std::vector<std::unique_ptr<reco::PFBlockElement>>::value_type::pointer p1(elements_[range.first->second].get());
     the_block.addElement(p1);
     const unsigned block_size = blocksmap.count(key) + 1;
     //reserve up to 1M or 8MB; pay rehash cost for more
@@ -344,7 +336,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     auto itr = range.first;
     ++itr;
     for (; itr != range.second; ++itr) {
-      ElementList::value_type::pointer p2(elements_[itr->second].get());
+      std::vector<std::unique_ptr<reco::PFBlockElement>>::value_type::pointer p2(elements_[itr->second].get());
       const PFBlockElement::Type type1 = p1->type();
       const PFBlockElement::Type type2 = p2->type();
       the_block.addElement(p2);
@@ -365,7 +357,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
   return blocks;
 }
 
-void PFBlockAlgo::packLinks(reco::PFBlock& block,
+void PFBlockProducer::packLinks(reco::PFBlock& block,
                             const std::unordered_map<std::pair<unsigned int, unsigned int>, PFBlockLink>& links) const {
   constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
 
@@ -417,7 +409,7 @@ void PFBlockAlgo::packLinks(reco::PFBlock& block,
 
 // see plugins/linkers for the functions that calculate distances
 // for each available link type
-inline bool PFBlockAlgo::linkPrefilter(const reco::PFBlockElement* last, const reco::PFBlockElement* next) const {
+inline bool PFBlockProducer::linkPrefilter(const reco::PFBlockElement* last, const reco::PFBlockElement* next) const {
   constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
   const PFBlockElement::Type type1 = (last)->type();
   const PFBlockElement::Type type2 = (next)->type();
@@ -426,7 +418,7 @@ inline bool PFBlockAlgo::linkPrefilter(const reco::PFBlockElement* last, const r
   return result;
 }
 
-inline void PFBlockAlgo::link(const reco::PFBlockElement* el1,
+inline void PFBlockProducer::link(const reco::PFBlockElement* el1,
                               const reco::PFBlockElement* el2,
                               PFBlockLink::Type& linktype,
                               reco::PFBlock::LinkTest& linktest,
@@ -439,14 +431,14 @@ inline void PFBlockAlgo::link(const reco::PFBlockElement* el1,
   linktype = static_cast<PFBlockLink::Type>(1 << (type1 - 1) | 1 << (type2 - 1));
   const unsigned index = rowsize * std::max(type1, type2) + std::min(type1, type2);
   if (debug_) {
-    std::cout << " PFBlockAlgo links type1 " << type1 << " type2 " << type2 << std::endl;
+    std::cout << " PFBlockProducer links type1 " << type1 << " type2 " << type2 << std::endl;
   }
 
   // index is always checked in the preFilter above, no need to check here
   dist = linkTests_[index]->testLink(el1, el2);
 }
 
-void PFBlockAlgo::updateEventSetup(const edm::EventSetup& es) {
+void PFBlockProducer::updateEventSetup(const edm::EventSetup& es) {
   for (auto& importer : importers_) {
     importer->updateEventSetup(es);
   }
@@ -455,7 +447,7 @@ void PFBlockAlgo::updateEventSetup(const edm::EventSetup& es) {
 // see plugins/importers and plugins/kdtrees
 // for the definitions of available block element importers
 // and kdtree preprocessors
-void PFBlockAlgo::buildElements(const edm::Event& evt) {
+void PFBlockProducer::buildElements(const edm::Event& evt) {
   // import block elements as defined in python configuration
   ranges_.fill(std::make_pair(0, 0));
   elements_.clear();
@@ -483,7 +475,7 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   // Here we provide to all KDTree linkers the collections to link.
   // Glowinski & Gouzevitch
 
-  for (ElementList::iterator it = elements_.begin(); it != elements_.end(); ++it) {
+  for (std::vector<std::unique_ptr<reco::PFBlockElement>>::iterator it = elements_.begin(); it != elements_.end(); ++it) {
     for (const auto& kdtree : kdtrees_) {
       if ((*it)->type() == kdtree->targetType()) {
         kdtree->insertTargetElt(it->get());
@@ -496,7 +488,7 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   //std::cout << "(new) imported: " << elements_.size() << " elements!" << std::endl;
 }
 
-std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {
+std::ostream& operator<<(std::ostream& out, const PFBlockProducer& a) {
   if (!out)
     return out;
 
@@ -505,81 +497,57 @@ std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {
   out << "number of unassociated elements : " << a.elements_.size() << endl;
   out << endl;
 
-  for (PFBlockAlgo::IEC ie = a.elements_.begin(); ie != a.elements_.end(); ++ie) {
+  for (auto ie = a.elements_.begin(); ie != a.elements_.end(); ++ie) {
     out << "\t" << **ie << endl;
   }
 
   return out;
 }
 
-/**\class PFBlockProducer
-\brief Producer for particle flow blocks
-
-This producer makes use of PFBlockAlgo, the particle flow block algorithm.
-Particle flow itself consists in reconstructing particles from the particle
-flow blocks This is done at a later stage, see PFProducer and PFAlgo.
-
-\author Colin Bernet
-\date   April 2007
-*/
-
-class FSimEvent;
-
-class PFBlockProducer : public edm::stream::EDProducer<> {
-public:
-  explicit PFBlockProducer(const edm::ParameterSet&);
-
-  ~PFBlockProducer() override;
-
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
-  void produce(edm::Event&, const edm::EventSetup&) override;
-
-private:
-  /// verbose ?
-  const bool verbose_;
-  const edm::EDPutTokenT<reco::PFBlockCollection> putToken_;
-
-  /// Particle flow block algorithm
-  PFBlockAlgo pfBlockAlgo_;
-};
-
-DEFINE_FWK_MODULE(PFBlockProducer);
-
-using namespace std;
-using namespace edm;
-
 PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig)
-    : verbose_{iConfig.getUntrackedParameter<bool>("verbose", false)}, putToken_{produces<reco::PFBlockCollection>()} {
+    : verbose_{iConfig.getUntrackedParameter<bool>("verbose", false)}
+    , putToken_{produces<reco::PFBlockCollection>()}
+    , debug_(false)
+    , elementTypes_({{"PFBlockElement::TRACK", PFBlockElement::TRACK},
+                     {"PFBlockElement::PS1", PFBlockElement::PS1},
+                     {"PFBlockElement::PS2", PFBlockElement::PS2},
+                     {"PFBlockElement::ECAL", PFBlockElement::ECAL},
+                     {"PFBlockElement::HCAL", PFBlockElement::HCAL},
+                     {"PFBlockElement::GSF", PFBlockElement::GSF},
+                     {"PFBlockElement::BREM", PFBlockElement::BREM},
+                     {"PFBlockElement::HFEM", PFBlockElement::HFEM},
+                     {"PFBlockElement::HFHAD", PFBlockElement::HFHAD},
+                     {"PFBlockElement::SC", PFBlockElement::SC},
+                     {"PFBlockElement::HO", PFBlockElement::HO},
+                     {"PFBlockElement::HGCAL", PFBlockElement::HGCAL}})
+{
   bool debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
-  pfBlockAlgo_.setDebug(debug_);
+  setDebug(debug_);
 
   edm::ConsumesCollector coll = consumesCollector();
   const std::vector<edm::ParameterSet>& importers = iConfig.getParameterSetVector("elementImporters");
-  pfBlockAlgo_.setImporters(importers, coll);
+  setImporters(importers, coll);
 
   const std::vector<edm::ParameterSet>& linkdefs = iConfig.getParameterSetVector("linkDefinitions");
-  pfBlockAlgo_.setLinkers(linkdefs);
+  setLinkers(linkdefs);
 }
 
-PFBlockProducer::~PFBlockProducer() {}
-
 void PFBlockProducer::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  pfBlockAlgo_.updateEventSetup(es);
+  updateEventSetup(es);
 }
 
 void PFBlockProducer::produce(Event& iEvent, const EventSetup& iSetup) {
-  pfBlockAlgo_.buildElements(iEvent);
+  buildElements(iEvent);
 
-  auto blocks = pfBlockAlgo_.findBlocks();
+  auto blocks = findBlocks();
 
   if (verbose_) {
     ostringstream str;
-    str << pfBlockAlgo_ << endl;
+    str << *this << endl;
     str << "number of blocks : " << blocks.size() << endl;
     str << endl;
 
-    for (PFBlockAlgo::IBC ib = blocks.begin(); ib != blocks.end(); ++ib) {
+    for (auto ib = blocks.begin(); ib != blocks.end(); ++ib) {
       str << (*ib) << endl;
     }
 
