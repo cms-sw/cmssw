@@ -3,7 +3,7 @@
 
 /**\class RPCSimHitMatcher
 
-   Description: Matching of muon SimHit to SimTrack
+   Description: Matching of RPC SimHit to SimTrack
 
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
@@ -28,20 +28,20 @@ class RPCSimHitMatcher : public MuonSimHitMatcher
   void match(const SimTrack& t, const SimVertex& v);
 
   // partitions' detIds with SimHits
-  std::set<unsigned int> detIds(int type = 0) const;
+  std::set<unsigned int> detIds(int type MuonHitHelper::RPC_ALL) const;
 
   // chamber detIds with SimHits
-  std::set<unsigned int> chamberIds(int type = 0) const;
+  std::set<unsigned int> chamberIds(int type MuonHitHelper::RPC_ALL) const;
 
   bool hitStation(int st) const;
 
-  // number of stations with hits in at least X layers
+  // number of stations with hits
   int nStations() const;
 
   // calculate average strip number for a provided collection of simhits
   float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;
 
-  std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;  // GEM/ME0 or CSC
+  std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;
 
 private:
 
