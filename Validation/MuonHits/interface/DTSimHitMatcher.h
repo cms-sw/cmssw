@@ -3,7 +3,7 @@
 
 /**\class DTSimHitMatcher
 
-   Description: Matching of muon SimHit to SimTrack
+   Description: Matching of DT SimHit to SimTrack
 
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
@@ -28,10 +28,10 @@ public:
   void match(const SimTrack& t, const SimVertex& v);
 
   // partitions' detIds with SimHits
-  std::set<unsigned int> detIds(int type = 0) const;
+  std::set<unsigned int> detIds(int type MuonHitHelper::DT_ALL) const;
 
   // chamber detIds with SimHits
-  std::set<unsigned int> chamberIds(int type = 0) const;
+  std::set<unsigned int> chamberIds(int type MuonHitHelper::DT_ALL) const;
 
   // DT station detIds with SimHits
   std::set<unsigned int> chamberIdsStation(int station) const;
@@ -57,7 +57,7 @@ public:
   const edm::PSimHitContainer& hitsInSuperLayer(unsigned int) const;
   const edm::PSimHitContainer& hitsInChamber(unsigned int) const;
 
-  // calculate average wg number for a provided collection of simhits (for DT)
+  // calculate average wg number for a provided collection of simhits
   float simHitsMeanWire(const edm::PSimHitContainer& sim_hits) const;
 
   // calculate the average position at the second station

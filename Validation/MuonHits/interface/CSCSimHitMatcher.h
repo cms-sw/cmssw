@@ -3,7 +3,7 @@
 
 /**\class CSCSimHitMatcher
 
-   Description: Matching of muon SimHit to SimTrack
+   Description: Matching of CSC SimHit to SimTrack
 
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
@@ -28,15 +28,15 @@ public:
   void match(const SimTrack& t, const SimVertex& v);
 
   // partitions' detIds with SimHits
-  std::set<unsigned int> detIds(int type = 0) const;
+  std::set<unsigned int> detIds(int type MuonHitHelper::CSC_ALL) const;
 
   // chamber detIds with SimHits
-  std::set<unsigned int> chamberIds(int type = 0) const;
+  std::set<unsigned int> chamberIds(int type MuonHitHelper::CSC_ALL) const;
 
   // CSC station detIds with SimHits
   std::set<unsigned int> chamberIdsStation(int station) const;
 
-  // was there a hit in a particular DT/CSC station?
+  // was there a hit in a particular CSC station?
   bool hitStation(int, int) const;
 
   // number of stations with hits in at least X layers
@@ -54,7 +54,7 @@ public:
   // local bending in a CSC chamber
   float LocalBendingInChamber(unsigned int detid) const;
 
-  // calculate average strip (strip for GEM/ME0, half-strip for CSC) number for a provided collection of simhits
+  // calculate average strip number for a provided collection of simhits
   float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;
 
   // calculate average wg number for a provided collection of simhits (for CSC)
@@ -65,8 +65,8 @@ public:
   // calculate the average position at the second station
   GlobalPoint simHitsMeanPositionStation(int n) const;
 
-  std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;  // GEM/ME0 or CSC
-  std::set<int> hitWiregroupsInDetId(unsigned int, int margin_n_wg = 0) const; // CSC
+  std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;
+  std::set<int> hitWiregroupsInDetId(unsigned int, int margin_n_wg = 0) const;
 
   void camberIdsToString(const std::set<unsigned int>&) const;
 

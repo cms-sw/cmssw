@@ -3,7 +3,7 @@
 
 /**\class GEMSimHitMatcher
 
-   Description: Matching of muon SimHit to SimTrack
+   Description: Matching of GEM SimHit to SimTrack
 
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
@@ -43,7 +43,7 @@ public:
   // GEM superchamber detIds with SimHits 2 layers of coincidence pads
   std::set<unsigned int> superChamberIdsCoincidences() const;
 
-  // simhits from a particular partition (GEM)/layer (CSC)/ME0, chamber or superchamber
+  // simhits from a particular superchamber
   const edm::PSimHitContainer& hitsInSuperChamber(unsigned int) const;
 
   // was there a hit in a particular station?
@@ -53,7 +53,6 @@ public:
   int nStations(int nl=2) const;
 
   // #layers with hits
-  // for CSC: "super-chamber" means chamber
   int nLayersWithHitsInSuperChamber(unsigned int) const;
 
   // How many pads with simhits in GEM did this simtrack get?

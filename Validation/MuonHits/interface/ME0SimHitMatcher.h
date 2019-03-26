@@ -3,7 +3,7 @@
 
 /**\class ME0SimHitMatcher
 
-   Description: Matching of muon SimHit to SimTrack
+   Description: Matching of ME0 SimHit to SimTrack
 
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
@@ -48,16 +48,16 @@ public:
   // How many ME0 chambers with minimum number of layer with simhits did this simtrack get?
   int nCoincidenceChambers(int min_n_layers = 4) const;
 
-  // calculate average strip (strip for GEM/ME0, half-strip for CSC) number for a provided collection of simhits
+  // calculate average strip for a provided collection of simhits
   float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;
 
-  std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;  // GEM/ME0 or CSC
-  std::set<int> hitPadsInDetId(unsigned int) const; // GEM
+  std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;
+  std::set<int> hitPadsInDetId(unsigned int) const;
 
   // what unique partitions numbers were hit by this simtrack?
-  std::set<int> hitPartitions() const; // GEM
+  std::set<int> hitPartitions() const;
 
-  // How many pads with simhits in GEM did this simtrack get?
+  // How many pads with simhits in ME0 did this simtrack get?
   int nPadsWithHits() const;
 
 private:
