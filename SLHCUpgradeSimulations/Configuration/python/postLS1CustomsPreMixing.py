@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 
 import FWCore.ParameterSet.Config as cms
 
 from SLHCUpgradeSimulations.Configuration.muonCustomsPreMixing import customise_csc_PostLS1
-import postLS1Customs
+from . import postLS1Customs
 
 
 def customisePostLS1(process):

@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 
-from Mixins import _ConfigureComponent, PrintOptions
-from Mixins import _Labelable, _Unlabelable
-from Mixins import _ValidatingParameterListBase
-from ExceptionHandling import *
-from OrderedSet import OrderedSet
+from .Mixins import _ConfigureComponent, PrintOptions
+from .Mixins import _Labelable, _Unlabelable
+from .Mixins import _ValidatingParameterListBase
+from .ExceptionHandling import *
+from .OrderedSet import OrderedSet
 
 class _HardDependency(object):
     """Information relevant for when a hard dependency, 
@@ -581,7 +582,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
     def __init__(self,*arg,**argv):
         super(Schedule,self).__init__(*arg)
         self._tasks = OrderedSet()
-        theKeys = argv.keys()
+        theKeys = list(argv.keys())
         if theKeys:
             if len(theKeys) > 1 or theKeys[0] != "tasks":
                 raise RuntimeError("The Schedule constructor can only have one keyword argument after its Path and\nEndPath arguments and it must use the keyword 'tasks'")

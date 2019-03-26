@@ -1,6 +1,6 @@
 #include "Fireworks/Core/interface/FWIntValueListenerBase.h"
 
-ClassImp(FWIntValueListenerBase)
+ClassImp(FWIntValueListenerBase);
 
 void FWIntValueListenerBase::setValue(Int_t val) {
    setValueImp(val);

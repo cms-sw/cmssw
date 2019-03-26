@@ -37,25 +37,26 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   edm::ParameterSet regfactoryPSet = 
       cfg.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
+  theRegionProducer = std::unique_ptr<TrackingRegionProducer>{TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector())};
 
   edm::ConsumesCollector iC = consumesCollector();
   edm::ParameterSet hitsfactoryPSet =
       cfg.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
-  OrderedHitsGenerator*  hitsGenerator =
-    OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
 
   edm::ParameterSet comparitorPSet =
       cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
-  SeedComparitor * aComparitor = (comparitorName == "none") ?
-      nullptr :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet, iC);
+  std::unique_ptr<SeedComparitor> aComparitor;
+  if(comparitorName != "none") {
+    aComparitor = std::unique_ptr<SeedComparitor>{SeedComparitorFactory::get()->create( comparitorName, comparitorPSet, iC)};
+  }
 
   std::string creatorName = creatorPSet.getParameter<std::string>("ComponentName");
-  SeedCreator * aCreator = SeedCreatorFactory::get()->create( creatorName, creatorPSet);
 
-  theGenerator.reset(new SeedGeneratorFromRegionHits(hitsGenerator, aComparitor, aCreator));
+  theGenerator = std::make_unique<SeedGeneratorFromRegionHits>(OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC),
+                                                               std::move(aComparitor),
+                                                               SeedCreatorFactory::get()->create( creatorName, creatorPSet));
 
   produces<TrajectorySeedCollection>();
 }

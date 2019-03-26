@@ -83,12 +83,9 @@ void VariableComputer::doesNotCompute(std::string var) const{
 
 
 ComputedVariable::ComputedVariable(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC ) :
-  CachingVariable("ComputedVariable",arg.n,arg.iConfig,iC){
-  // instanciate the computer
-    std::string computerType = arg.iConfig.getParameter<std::string>("computer");
-    myComputer = VariableComputerFactory::get()->create(computerType,arg,iC);
-    //there is a memory leak here, because the object we are in is not register anywhere. since it happens once per job, this is not a big deal.
-}
+  CachingVariable("ComputedVariable",arg.n,arg.iConfig,iC),
+  myComputer{VariableComputerFactory::get()->create(arg.iConfig.getParameter<std::string>("computer"),arg,iC)}
+{}
 
 VariableComputerTest::VariableComputerTest(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) : VariableComputer(arg, iC){
   declare("toto", iC);

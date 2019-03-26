@@ -66,7 +66,7 @@ int ODLTSConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODLTSConfig::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODLTSConfig::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -88,7 +88,7 @@ void ODLTSConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODLTSConfig::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODLTSConfig::prepareWrite():  ")+e.getMessage()));
   }
 }
 
@@ -112,7 +112,7 @@ void ODLTSConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODLTSConfig::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODLTSConfig::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -145,16 +145,16 @@ void ODLTSConfig::fetchData(ODLTSConfig * result)
     rset->next();
     // 1 is the id and 2 is the config tag
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
 
-    result->setTriggerType(        getOraString(rset,3) );
+    result->setTriggerType(        rset->getString(3) );
     result->setNumberOfEvents(     rset->getInt(4) );
     result->setRate(               rset->getInt(5) );
     result->setTrigLocL1Delay(     rset->getInt(6) );
   
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODLTSConfig::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODLTSConfig::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -183,7 +183,7 @@ int ODLTSConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODLTSConfig::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODLTSConfig::fetchID:  ")+e.getMessage()));
   }
 
   return m_ID;

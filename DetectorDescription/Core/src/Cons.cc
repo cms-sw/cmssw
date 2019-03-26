@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/Cons.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cmath>
 #include <ostream>
@@ -8,8 +8,8 @@
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
-using namespace dd;
-using namespace dd::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 DDI::Cons::Cons(double zhalf,
 		double rInMinusZ,
@@ -32,13 +32,13 @@ DDI::Cons::Cons(double zhalf,
 void
 DDI::Cons::stream( std::ostream & os ) const
 {
-  os << " zhalf=" << CONVERT_TO( p_[0], cm )
-     << " rIn-Z=" << CONVERT_TO( p_[1], cm )
-     << " rOut-Z=" << CONVERT_TO( p_[2], cm )
-     << " rIn+Z=" << CONVERT_TO( p_[3], cm )
-     << " rOut+Z=" << CONVERT_TO( p_[4], cm )
-     << " startPhi=" << CONVERT_TO( p_[5], deg )
-     << " deltaPhi=" << CONVERT_TO( p_[6], deg );
+  os << " zhalf=" << convertMmToCm( p_[0] )
+     << " rIn-Z=" << convertMmToCm( p_[1] )
+     << " rOut-Z=" << convertMmToCm( p_[2] )
+     << " rIn+Z=" << convertMmToCm( p_[3] )
+     << " rOut+Z=" << convertMmToCm( p_[4] )
+     << " startPhi=" << convertRadToDeg( p_[5] )
+     << " deltaPhi=" << convertRadToDeg( p_[6] );
 }
 
 double DDI::Cons::volume() const
@@ -67,7 +67,7 @@ double DDI::Cons::volume() const
    double rInPlusZ=p_[3]; 
    double rOutPlusZ=p_[4];
    //double phiFrom=p_[5]/rad;
-   double deltaPhi=std::abs( CONVERT_TO( p_[6], rad )); 
+   double deltaPhi=std::abs( p_[6]); 
    double z=2*zhalf;
 
   double volume1=1_pi*(rInPlusZ*rInPlusZ+rInMinusZ*rInMinusZ+rInMinusZ*rInPlusZ)*z/3;

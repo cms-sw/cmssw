@@ -163,7 +163,7 @@ class ComputedVariable : public CachingVariable {
     return cache_;
   }
  private:
-  const VariableComputer * myComputer;
+  std::unique_ptr<const VariableComputer> myComputer;
 };
 
 class VariableComputerTest : public VariableComputer {
@@ -523,8 +523,7 @@ class SimpleValueVariable : public CachingVariable {
     src_(iC.consumes<TYPE>(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig))) { arg.m[arg.n]=this;}
   CachingVariable::evalType eval(const edm::Event & iEvent) const override{
     edm::Handle<TYPE> value;
-    try{    iEvent.getByToken(src_,value);   }
-    catch(...){ return std::make_pair(false,0); }
+    iEvent.getByToken(src_,value);
     if (value.failedToGet() || !value.isValid()) return std::make_pair(false,0);
     else return std::make_pair(true, *value);
   }
@@ -541,8 +540,7 @@ class SimpleValueVectorVariable : public CachingVariable {
     index_(arg.iConfig.getParameter<unsigned int>("index")) { arg.m[arg.n]=this;}
   CachingVariable::evalType eval(const edm::Event & iEvent) const override{
     edm::Handle<std::vector<TYPE> > values;
-    try { iEvent.getByToken(src_,values);}
-    catch(...){ return std::make_pair(false,0); }
+    iEvent.getByToken(src_,values);
     if (values.failedToGet() || !values.isValid()) return std::make_pair(false,0);
     else if (index_>=values->size()) return std::make_pair(false,0);
     else return std::make_pair(true, (*values)[index_]);
