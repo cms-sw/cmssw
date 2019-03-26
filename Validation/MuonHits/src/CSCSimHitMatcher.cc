@@ -185,10 +185,10 @@ CSCSimHitMatcher::LocalBendingInChamber(unsigned int detid) const
     const edm::PSimHitContainer& hits1b = MuonSimHitMatcher::hitsInDetId(cscid1b.rawId());
     const GlobalPoint& gp1a = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid1a.rawId()));
     const GlobalPoint& gp1b = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid1b.rawId()));
-    if (hits1a.size()>0 and hits1b.size()>0)
+    if (!hits1a.empty() and !hits1b.empty())
 	    phi_layer1 = (gp1a.phi()+gp1b.phi())/2.0;
-    else if (hits1a.size()>0) phi_layer1 = gp1a.phi();
-    else if (hits1b.size()>0) phi_layer1 = gp1b.phi();
+    else if (!hits1a.empty()) phi_layer1 = gp1a.phi();
+    else if (!hits1b.empty()) phi_layer1 = gp1b.phi();
     else std::cerr <<" no hits in layer1, cant not find global phi of hits " << std::endl;
 
     // phi in layer 6
@@ -198,10 +198,10 @@ CSCSimHitMatcher::LocalBendingInChamber(unsigned int detid) const
     const edm::PSimHitContainer& hits6b = MuonSimHitMatcher::hitsInDetId(cscid6b.rawId());
     const GlobalPoint& gp6a = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid6a.rawId()));
     const GlobalPoint& gp6b = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid6b.rawId()));
-    if (hits6a.size()>0 and hits6b.size()>0)
+    if (!hits6a.empty() and !hits6b.empty())
 	    phi_layer6 = (gp6a.phi()+gp6b.phi())/2.0;
-    else if (hits6a.size()>0) phi_layer6 = gp6a.phi();
-    else if (hits6b.size()>0) phi_layer6 = gp6b.phi();
+    else if (!hits6a.empty()) phi_layer6 = gp6a.phi();
+    else if (!hits6b.empty()) phi_layer6 = gp6b.phi();
     else std::cerr <<" no hits in layer6, cant not find global phi of hits " << std::endl;
 
 
@@ -210,14 +210,14 @@ CSCSimHitMatcher::LocalBendingInChamber(unsigned int detid) const
     // phi in layer 1
   	const CSCDetId cscid1(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber(), 1);
     const edm::PSimHitContainer& hits1 = MuonSimHitMatcher::hitsInDetId(cscid1.rawId());
-    if (hits1.size()==0) std::cerr <<" no hits in layer1, cant not find global phi of hits " << std::endl;
+    if (hits1.empty()) std::cerr <<" no hits in layer1, cant not find global phi of hits " << std::endl;
     const GlobalPoint& gp1 = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid1.rawId()));
     phi_layer1 = gp1.phi();
 
     // phi in layer 6
   	const CSCDetId cscid6(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber(), 6);
     const edm::PSimHitContainer& hits6 = MuonSimHitMatcher::hitsInDetId(cscid6.rawId());
-    if (hits6.size()==0) std::cerr <<" no hits in layer6, cant not find global phi of hits " << std::endl;
+    if (hits6.empty()) std::cerr <<" no hits in layer6, cant not find global phi of hits " << std::endl;
     const GlobalPoint& gp6 = simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid6.rawId()));
     phi_layer6 = gp6.phi();
   }
