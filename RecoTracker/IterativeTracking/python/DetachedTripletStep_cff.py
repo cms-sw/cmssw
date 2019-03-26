@@ -254,7 +254,7 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 detachedTripletStep = ClassifierMerger.clone()
 detachedTripletStep.inputClassifiers=['detachedTripletStepClassifier1','detachedTripletStepClassifier2']
 
-trackingPhase1.toReplaceWith(detachedTripletStep, TrackMVAClassifierDetached.clone(
+trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
      mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1'),
      src = 'detachedTripletStepTracks',
      qualityCuts = [-0.2,0.3,0.8]
@@ -267,6 +267,7 @@ trackdnn.toReplaceWith(detachedTripletStep, TrackLwtnnClassifier.clone(
      src = 'detachedTripletStepTracks',
      qualityCuts = [0.0, 0.4, 0.8],
 ))
+(trackdnn & fastSim).toModify(detachedTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 highBetaStar_2018.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
      qualityCuts = [-0.5,0.0,0.5],

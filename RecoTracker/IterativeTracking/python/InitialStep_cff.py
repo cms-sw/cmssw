@@ -293,7 +293,7 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 initialStep = ClassifierMerger.clone()
 initialStep.inputClassifiers=['initialStepClassifier1','initialStepClassifier2','initialStepClassifier3']
 
-trackingPhase1.toReplaceWith(initialStep, TrackMVAClassifierPrompt.clone(
+trackingPhase1.toReplaceWith(initialStep, initialStepClassifier1.clone(
      mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1'),
      src = 'initialStepTracks',
      qualityCuts = [-0.95,-0.85,-0.75]
@@ -306,6 +306,7 @@ trackdnn.toReplaceWith(initialStep, TrackLwtnnClassifier.clone(
         src = 'initialStepTracks',
         qualityCuts = [0.0, 0.3, 0.6]
 ))
+(trackdnn & fastSim).toModify(initialStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 pp_on_AA_2018.toReplaceWith(initialStep, initialStepClassifier1.clone( 
      qualityCuts = [-0.9, -0.5, 0.2],
