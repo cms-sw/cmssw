@@ -321,40 +321,52 @@ RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJets"));
 
   {
-    edm::ParameterSetDescription vpsd_builders;
-    vpsd_builders.add<std::string>("name");
-    vpsd_builders.add<std::string>("plugin");
-    vpsd_builders.add<int>("verbosity", 0);
+    edm::ParameterSetDescription desc_builders;
+    desc_builders.add<std::string>("name");
+    desc_builders.add<std::string>("plugin");
+    desc_builders.add<int>("verbosity", 0);
 
-    vpsd_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
+    desc_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
     {
-      edm::ParameterSetDescription vpsd_decayModes;
-      vpsd_decayModes.add<unsigned int>("nPiZeros", 0);
-      vpsd_decayModes.add<unsigned int>("maxPiZeros", 0);
-      vpsd_decayModes.add<unsigned int>("nCharged", 1);
-      vpsd_decayModes.add<unsigned int>("maxTracks", 6);
-      vpsd_builders.addVPSetOptional("decayModes", vpsd_decayModes);
+      edm::ParameterSetDescription desc_decayModes;
+      desc_decayModes.add<unsigned int>("nPiZeros", 0);
+      desc_decayModes.add<unsigned int>("maxPiZeros", 0);
+      desc_decayModes.add<unsigned int>("nCharged", 1);
+      desc_decayModes.add<unsigned int>("maxTracks", 6);
+      desc_builders.addVPSetOptional("decayModes", desc_decayModes);
     }
-    vpsd_builders.add<double>("minAbsPhotonSumPt_insideSignalCone", 2.5);
-    vpsd_builders.add<double>("minRelPhotonSumPt_insideSignalCone", 0.1);
-    vpsd_builders.add<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
+    desc_builders.add<double>("minAbsPhotonSumPt_insideSignalCone", 2.5);
+    desc_builders.add<double>("minRelPhotonSumPt_insideSignalCone", 0.1);
+    desc_builders.add<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
     
-    vpsd_builders.addOptional<std::string>("signalConeSize");
-    vpsd_builders.addOptional<double>("isolationConeSize");
-    vpsd_builders.addOptional<double>("minAbsPhotonSumPt_outsideSignalCone");
-    vpsd_builders.addOptional<double>("minRelPhotonSumPt_outsideSignalCone");
-    vpsd_builders.addOptional<std::string>("isoConeChargedHadrons");
-    vpsd_builders.addOptional<std::string>("isoConeNeutralHadrons");
-    vpsd_builders.addOptional<std::string>("isoConePiZeros");
-    vpsd_builders.addOptional<double>("leadObjectPt");
-    vpsd_builders.addOptional<std::string>("matchingCone");
-    vpsd_builders.addOptional<int>("maxSignalConeChargedHadrons");
-    vpsd_builders.addOptional<std::string>("signalConeChargedHadrons");
-    vpsd_builders.addOptional<std::string>("signalConeNeutralHadrons");
-    vpsd_builders.addOptional<std::string>("signalConePiZeros");
-    vpsd_builders.addOptional<bool>("usePFLeptons");
+    desc_builders.addOptional<std::string>("signalConeSize");
+    desc_builders.addOptional<double>("isolationConeSize");
+    desc_builders.addOptional<double>("minAbsPhotonSumPt_outsideSignalCone");
+    desc_builders.addOptional<double>("minRelPhotonSumPt_outsideSignalCone");
+    desc_builders.addOptional<std::string>("isoConeChargedHadrons");
+    desc_builders.addOptional<std::string>("isoConeNeutralHadrons");
+    desc_builders.addOptional<std::string>("isoConePiZeros");
+    desc_builders.addOptional<double>("leadObjectPt");
+    desc_builders.addOptional<std::string>("matchingCone");
+    desc_builders.addOptional<int>("maxSignalConeChargedHadrons");
+    desc_builders.addOptional<std::string>("signalConeChargedHadrons");
+    desc_builders.addOptional<std::string>("signalConeNeutralHadrons");
+    desc_builders.addOptional<std::string>("signalConePiZeros");
+    desc_builders.addOptional<bool>("usePFLeptons");
 
-    desc.addVPSet("builders", vpsd_builders);
+    std::vector<edm::ParameterSet> vpset_default;
+    {
+      edm::ParameterSet pset_default_builders;
+      pset_default_builders.addParameter<std::string>("name","");
+      pset_default_builders.addParameter<std::string>("plugin","");
+      pset_default_builders.addParameter<int>("verbosity",0);
+      pset_default_builders.addParameter<double>("minAbsPhotonSumPt_insideSignalCone", 2.5);
+      pset_default_builders.addParameter<double>("minRelPhotonSumPt_insideSignalCone", 0.1);
+      pset_default_builders.addParameter<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
+      vpset_default.push_back(pset_default_builders);
+    }
+    desc.addVPSet("builders", desc_builders, vpset_default);
+
   }
 
   desc.add<bool>("buildNullTaus", false);

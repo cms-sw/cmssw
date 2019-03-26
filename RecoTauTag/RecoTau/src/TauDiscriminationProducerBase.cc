@@ -159,16 +159,16 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
 template<class TauType, class TauDiscriminator>
 void TauDiscriminationProducerBase<TauType, TauDiscriminator>::fillProducerDescriptions(edm::ParameterSetDescription& desc) {
   // helper function, it fills the description of the Producers parameter
-  desc.add<edm::InputTag>(getProducerString<TauType>());
+  desc.add<edm::InputTag>(getProducerString<TauType>(),edm::InputTag("fixme"));
   {
     edm::ParameterSetDescription pset_prediscriminants;
-    pset_prediscriminants.add<std::string>("BooleanOperator");
+    pset_prediscriminants.add<std::string>("BooleanOperator","AND");
     // optional producers // will it pass if I don't specify them?
 
     {
       edm::ParameterSetDescription producer_params;
-      producer_params.add<double>("cut");
-      producer_params.add<edm::InputTag>("Producer");
+      producer_params.add<double>("cut",0.);
+      producer_params.add<edm::InputTag>("Producer",edm::InputTag("fixme"));
 
       pset_prediscriminants.addOptional<edm::ParameterSetDescription>("leadTrack", producer_params);
       pset_prediscriminants.addOptional<edm::ParameterSetDescription>("decayMode", producer_params);
