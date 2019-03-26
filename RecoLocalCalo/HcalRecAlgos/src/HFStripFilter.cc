@@ -39,20 +39,19 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   
   std::vector<HFRecHit> d1strip;
   std::vector<HFRecHit> d2strip;
-  std::vector<HFRecHit>::const_iterator it1;  
   
   HFRecHit d1max;
   HFRecHit d2max;
   
   d1max.setEnergy(-10);
   // find d1 and d2 seed hits with max energy and time < timeMax_
-  for (HFRecHitCollection::const_iterator it = rec.begin(); it != rec.end(); ++it)
+  for (auto& it : rec)
     {
-      if ((*it).time() > timeMax_ || (*it).time() < 0 || (*it).energy() < stripThreshold_) continue;	
+      if (it.time() > timeMax_ || it.time() < 0 || it.energy() < stripThreshold_) continue;	
       // find HF hit with maximum signal in depth = 1
-      if ((*it).id().depth() == 1) {
-	if ((*it).energy() > d1max.energy() && abs((*it).id().ieta()) < 35) {
-	  d1max = (*it);
+      if (it.id().depth() == 1) {
+	if (it.energy() > d1max.energy() && std::abs(it.id().ieta()) < 35) {
+	  d1max = it;
 	}
       }
     }
@@ -64,24 +63,24 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   int stripIetaMax = 0;
   
   if (d1max.energy() > 0) {
-    signStripIeta = d1max.id().ieta()/abs(d1max.id().ieta());
+    signStripIeta = d1max.id().ieta()/std::abs(d1max.id().ieta());
     stripIphiMax = d1max.id().iphi();
     stripIetaMax = d1max.id().ieta();
   }
 
   d2max.setEnergy(-10);
-  for (HFRecHitCollection::const_iterator it = rec.begin(); it != rec.end(); ++it)
+  for (auto& it : rec)
     {
-      if ((*it).time() > timeMax_ || (*it).time() < 0 || (*it).energy() < stripThreshold_) continue;	
+      if (it.time() > timeMax_ || it.time() < 0 || it.energy() < stripThreshold_) continue;	
       // find HFhit with maximum signal in depth = 2
-      if ((*it).id().depth() == 2 && (*it).energy() > d2max.energy() && abs((*it).id().ieta()) < 35) {
+      if (it.id().depth() == 2 && it.energy() > d2max.energy() && std::abs(it.id().ieta()) < 35) {
 	if (d1max.energy() > 0) {
-	  int signIeta = (*it).id().ieta()/abs((*it).id().ieta());
-	  if ((*it).id().iphi() == stripIphiMax && signIeta == signStripIeta) {
-	    d2max = (*it);
+	  int signIeta = it.id().ieta()/std::abs(it.id().ieta());
+	  if (it.id().iphi() == stripIphiMax && signIeta == signStripIeta) {
+	    d2max = it;
 	  }
 	} else {
-	  d2max = (*it);
+	  d2max = it;
 	}	  
       }
     }
@@ -92,7 +91,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   if (d1max.energy() < maxThreshold_ && d2max.energy() < maxThreshold_) return; 
  
   if (stripIphiMax == 0 && d2max.energy() > 0) {
-    signStripIeta = d2max.id().ieta()/abs(d2max.id().ieta());
+    signStripIeta = d2max.id().ieta()/std::abs(d2max.id().ieta());
     stripIphiMax = d2max.id().iphi();
     stripIetaMax = d2max.id().ieta();
   }
@@ -110,31 +109,31 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
 
   // prepare the strips: all hits along given ieta in one wedge (d1strip and d2strip)
   //---------------------------------------------------------------------------------
-  for (HFRecHitCollection::const_iterator it = rec.begin(); it != rec.end(); ++it)
+  for (auto& it : rec)
     {
-      if ((*it).energy() < stripThreshold_) continue;
-      int signIeta = (*it).id().ieta()/abs((*it).id().ieta());
+      if (it.energy() < stripThreshold_) continue;
+      int signIeta = it.id().ieta()/std::abs(it.id().ieta());
       
       if (verboseLevel_ >= 30) {
-	ss << " HF hit: ieta = " << (*it).id().ieta() << "\t iphi = " << (*it).id().iphi()
-	   << "\t depth = " << (*it).id().depth() << "\t time = " << (*it).time() << "\t energy = "
-	   << (*it).energy() << "\t flags = " << (*it).flags() << std::endl;
+	ss << " HF hit: ieta = " << it.id().ieta() << "\t iphi = " << it.id().iphi()
+	   << "\t depth = " << it.id().depth() << "\t time = " << it.time() << "\t energy = "
+	   << it.energy() << "\t flags = " << it.flags() << std::endl;
       }
       
       // collect hits with the same iphi but different ieta into strips
-      if ((*it).id().iphi() == stripIphiMax && signIeta == signStripIeta 
-         && (*it).time() < maxStripTime_) {	  
-	if ((*it).id().depth() == 1) {
+      if (it.id().iphi() == stripIphiMax && signIeta == signStripIeta && 
+          it.time() < maxStripTime_) {	  
+	if (it.id().depth() == 1) {
 	  // check if hit = (*it) is already in d1strip
 	  bool pass = false;
           if (d1strip.empty()) {
-	    if (abs((*it).id().iphi() - stripIetaMax) <= gap_) {
-	      d1strip.push_back((*it));
+	    if (std::abs(it.id().iphi() - stripIetaMax) <= gap_) {
+	      d1strip.push_back(it);
 	      pass = true;
 	    }
 	  } else {
-            for (it1 = d1strip.begin(); it1 < d1strip.end(); it1++) {
- 	      if ((*it).id().ieta() == (*it1).id().ieta() && (*it).energy() == (*it1).energy()) {
+            for (auto& it1 : d1strip) {
+ 	      if (it.id().ieta() == it1.id().ieta() && it.energy() == it1.energy()) {
 	        pass = true;
 	        break;
 	      }
@@ -142,25 +141,25 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
 	  }
           if (pass) continue;
 	  // add hit = (*it) to d1strip if distance to the closest hit in d1strip <= gap_
-	  for (it1 = d1strip.begin(); it1 < d1strip.end(); it1++) {
+	  for (auto& it1 : d1strip) {
 	    // check distance along Ieta to the closest hit 
-	    if (abs((*it1).id().ieta() - (*it).id().ieta()) <= gap_) {
-	      d1strip.push_back((*it));
+	    if (std::abs(it1.id().ieta() - it.id().ieta()) <= gap_) {
+	      d1strip.push_back(it);
 	      break;
 	    }
 	  }
 	}
-	else if ((*it).id().depth() == 2) {
+	else if (it.id().depth() == 2) {
 	  // check if hit = (*it) is already in d2strip
           bool pass= false;
 	  if (d2strip.empty()) {
-	    if (abs((*it).id().ieta() - stripIetaMax) <= gap_) {
-	      d2strip.push_back((*it));
+	    if (std::abs(it.id().ieta() - stripIetaMax) <= gap_) {
+	      d2strip.push_back(it);
 	      pass = true;
 	    }
 	  } else {
-            for (it1 = d2strip.begin(); it1 < d2strip.end(); it1++) {
-              if ((*it).id().ieta() == (*it1).id().ieta() && (*it).energy() == (*it1).energy()) {
+            for (auto& it1 : d2strip) {
+              if (it.id().ieta() == it1.id().ieta() && it.energy() == it1.energy()) {
                 pass = true;
                 break;
               }
@@ -169,10 +168,10 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
           if (pass) continue;
 	  
 	  // add hit = (*it) to d2strip if distance to the closest hit in d1strip <= gap_
-	  for (it1 = d2strip.begin(); it1 < d2strip.end(); it1++) {
+	  for (auto& it1 : d2strip) {
 	    // check distance along Ieta to the closest hit 
-	    if (abs((*it1).id().ieta() - (*it).id().ieta()) <= gap_) {
-	      d2strip.push_back((*it));
+	    if (std::abs(it1.id().ieta() - it.id().ieta()) <= gap_) {
+	      d2strip.push_back(it);
 	      break;
 	    }
 	  }
@@ -183,11 +182,11 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   if (verboseLevel_ >= 30) {
     ss << " Lstrip1 = " << (int)d1strip.size() << " (iphi = " << stripIphiMax
        << ")  Lstrip2 = " << (int)d2strip.size() << std::endl << " Strip1: ";
-    for (it1 = d1strip.begin(); it1 < d1strip.end(); it1++) {
-      ss << (*it1).energy() << " (" << (*it1).id().ieta() << ") "; }
+    for (auto& it1 : d1strip) {
+      ss << it1.energy() << " (" << it1.id().ieta() << ") "; }
     ss << std::endl << " Strip2: ";
-    for (it1 = d2strip.begin(); it1 < d2strip.end(); it1++) {
-      ss << (*it1).energy() << " (" << (*it1).id().ieta() << ") "; }
+    for (auto& it1 : d2strip) {
+      ss << it1.energy() << " (" << it1.id().ieta() << ") "; }
     ss << std::endl;
   }
   
@@ -202,15 +201,15 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   // define range of strips in ieta 
   int ietaMin1 = 1000;  // for d1strip
   int ietaMax1 = -1000;
-  for (it1 = d1strip.begin(); it1 < d1strip.end(); ++it1) {
-    if ((*it1).id().ieta() < ietaMin1) ietaMin1 = (*it1).id().ieta();
-    if ((*it1).id().ieta() > ietaMax1) ietaMax1 = (*it1).id().ieta();
+  for (auto& it1 : d1strip) {
+    if (it1.id().ieta() < ietaMin1) ietaMin1 = it1.id().ieta();
+    if (it1.id().ieta() > ietaMax1) ietaMax1 = it1.id().ieta();
   }
   int ietaMin2 = 1000;  // for d2strip
   int ietaMax2 = -1000;
-  for (it1 = d2strip.begin(); it1 < d2strip.end(); ++it1) {
-    if ((*it1).id().ieta() < ietaMin2) ietaMin2 = (*it1).id().ieta();
-    if ((*it1).id().ieta() > ietaMax2) ietaMax2 = (*it1).id().ieta();
+  for (auto& it1 : d2strip) {
+    if (it1.id().ieta() < ietaMin2) ietaMin2 = it1.id().ieta();
+    if (it1.id().ieta() > ietaMax2) ietaMax2 = it1.id().ieta();
   }
   
   // define ietamin and ietamax - common area for d1strip and d2strip
@@ -226,13 +225,13 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
     
   // calculate the total energy in strips
   double eStrip = 0;    
-  for (it1 = d1strip.begin(); it1 < d1strip.end(); ++it1) {   
-    if ((*it1).id().ieta() < ietaMin || (*it1).id().ieta() > ietaMax) continue;
-    eStrip += (*it1).energy();
+  for (auto& it1 : d1strip) {   
+    if (it1.id().ieta() < ietaMin || it1.id().ieta() > ietaMax) continue;
+    eStrip += it1.energy();
   }
-  for (it1 = d2strip.begin(); it1 < d2strip.end(); ++it1) {   
-    if ((*it1).id().ieta() < ietaMin || (*it1).id().ieta() > ietaMax) continue;
-    eStrip += (*it1).energy();
+  for (auto& it1 : d2strip) {   
+    if (it1.id().ieta() < ietaMin || it1.id().ieta() > ietaMax) continue;
+    eStrip += it1.energy();
   }
   
   if (verboseLevel_ >= 30) {
@@ -242,7 +241,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   }
   
   int phiseg = 2; // 10 degrees segmentation for most of HF (1 iphi unit = 5 degrees)
-  if (abs(d1strip[0].id().ieta()) > 39) phiseg = 4; // 20 degrees segmentation for |ieta| > 39
+  if (std::abs(d1strip[0].id().ieta()) > 39) phiseg = 4; // 20 degrees segmentation for |ieta| > 39
   
   // Check if seed hit has neighbours with (iphi +/- phiseg) and the same ieta    
   int iphi1 = d1strip[0].id().iphi() - phiseg;
@@ -253,12 +252,12 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   // energies in the neighboring wedges  
   double energyIphi1 = 0;
   double energyIphi2 = 0;
-  for (HFRecHitCollection::const_iterator it = rec.begin(); it != rec.end(); ++it) 
+  for (auto& it : rec)
     {
-      if ((*it).energy() < stripThreshold_) continue;
-      if ((*it).id().ieta() < ietaMin || (*it).id().ieta() > ietaMax) continue;
-      if ((*it).id().iphi() == iphi1) energyIphi1 += (*it).energy();      // iphi1
-      else if ((*it).id().iphi() == iphi2) energyIphi2 += (*it).energy(); // iphi2
+      if (it.energy() < stripThreshold_) continue;
+      if (it.id().ieta() < ietaMin || it.id().ieta() > ietaMax) continue;
+      if (it.id().iphi() == iphi1) energyIphi1 += it.energy();      // iphi1
+      else if (it.id().iphi() == iphi2) energyIphi2 += it.energy(); // iphi2
     }
   
   double ratio1 = eStrip > 0 ? energyIphi1/eStrip : 0;
@@ -280,11 +279,11 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
       ss << "  stripPass = false" << std::endl 
 	 << "  mark hits in strips now " << std::endl;
     }
-    
+   
     // Figure out which rechits need to be tagged (d1.strip)
-    for (it1 = d1strip.begin(); it1 < d1strip.end(); ++it1) {
-      if ((*it1).id().ieta() < ietaMin || (*it1).id().ieta() > ietaMax) continue;
-      HFRecHitCollection::iterator hit = rec.find((*it1).id());
+    for (auto& it1 : d1strip) {
+      if (it1.id().ieta() < ietaMin || it1.id().ieta() > ietaMax) continue;
+      HFRecHitCollection::iterator hit = rec.find(it1.id());
       if (hit != rec.end()) {
 	// tag a rechit with the anomalous hit flag
 	if (verboseLevel_ >= 30) {
@@ -293,10 +292,11 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
 	hit->setFlagField(1U, HcalPhase1FlagLabels::HFAnomalousHit);
       }
     }
+
     // Figure out which rechits need to be tagged (d2.strip)
-    for (it1 = d2strip.begin(); it1 < d2strip.end(); ++it1) {
-      if ((*it1).id().ieta() < ietaMin || (*it1).id().ieta() > ietaMax) continue;
-      HFRecHitCollection::iterator hit = rec.find((*it1).id());
+    for (auto& it1 : d2strip) {
+      if (it1.id().ieta() < ietaMin || it1.id().ieta() > ietaMax) continue;
+      HFRecHitCollection::iterator hit = rec.find(it1.id());
       if (hit != rec.end()) {
 	// tag a rechit with the anomalous hit flag
 	if (verboseLevel_ >= 30) {
@@ -322,14 +322,14 @@ std::unique_ptr<HFStripFilter> HFStripFilter::parseParameterSet(
     const edm::ParameterSet& ps)
 {
     return std::make_unique<HFStripFilter>(
-        ps.getParameter<double>("stripThreshold"),
-        ps.getParameter<double>("maxThreshold"),
-        ps.getParameter<double>("timeMax"),
-        ps.getParameter<double>("maxStripTime"),
-        ps.getParameter<double>("wedgeCut"),
-        ps.getParameter<int>("gap"),
-        ps.getParameter<int>("lstrips"),
-        ps.getParameter<int>("verboseLevel")
+        ps.getUntrackedParameter<double>("stripThreshold"),
+        ps.getUntrackedParameter<double>("maxThreshold"),
+        ps.getUntrackedParameter<double>("timeMax"),
+        ps.getUntrackedParameter<double>("maxStripTime"),
+        ps.getUntrackedParameter<double>("wedgeCut"),
+        ps.getUntrackedParameter<int>("gap"),
+        ps.getUntrackedParameter<int>("lstrips"),
+        ps.getUntrackedParameter<int>("verboseLevel")
     );
 }
 
@@ -337,14 +337,14 @@ edm::ParameterSetDescription HFStripFilter::fillDescription()
 {
     edm::ParameterSetDescription desc;
 
-    desc.add<double>("stripThreshold", 40.0);
-    desc.add<double>("maxThreshold", 100.0);
-    desc.add<double>("timeMax", 6.0);
-    desc.add<double>("maxStripTime", 10.0);
-    desc.add<double>("wedgeCut", 0.05);
-    desc.add<int>("gap", 2);
-    desc.add<int>("lstrips", 2);
-    desc.add<int>("verboseLevel", 0);
+    desc.addUntracked<double>("stripThreshold", 40.0);
+    desc.addUntracked<double>("maxThreshold", 100.0);
+    desc.addUntracked<double>("timeMax", 6.0);
+    desc.addUntracked<double>("maxStripTime", 10.0);
+    desc.addUntracked<double>("wedgeCut", 0.05);
+    desc.addUntracked<int>("gap", 2);
+    desc.addUntracked<int>("lstrips", 2);
+    desc.addUntracked<int>("verboseLevel", 0);
 
     return desc;
 }
