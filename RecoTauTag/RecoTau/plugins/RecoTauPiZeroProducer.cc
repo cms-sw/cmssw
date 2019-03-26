@@ -269,15 +269,6 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   std::vector<edm::ParameterSet> vpsd_ranking;
   vpsd_ranking.push_back(pset_ranking);
 
-  edm::ParameterSet pset_builders;
-  //pset_builders.addParameter<edm::ParameterSetDescription>("qualityCuts");
-  pset_builders.addParameter<std::string>("name","");
-  pset_builders.addParameter<std::string>("plugin","");
-  pset_builders.addParameter<int>("verbosity",0);
-
-  //  edm::ParameterSetDescription desc_builders;
-  //  desc_builders.setAllowAnything();  //This is done because due to the modification in https://github.com/cms-sw/cmssw/blob/master/RecoTauTag/RecoTau/python/RecoTauPiZeroProducer_cfi.py#L18-L25
-
   edm::ParameterSetDescription desc_signalQualityCuts;
   desc_signalQualityCuts.add<double>("maxDeltaZ", 0.4);
   desc_signalQualityCuts.add<double>("minTrackPt", 0.5);
@@ -321,6 +312,11 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc_qualityCuts.add<bool>("vertexTrackFiltering", false);
   desc_qualityCuts.add<bool>("recoverLeadingTrk", false);
 
+  edm::ParameterSet pset_builders;
+  //pset_builders.addParameter<edm::ParameterSet>("qualityCuts");
+  pset_builders.addParameter<std::string>("name","");
+  pset_builders.addParameter<std::string>("plugin","");
+  pset_builders.addParameter<int>("verbosity",0);
 
   {
     // ak4PFJetsLegacyTaNCPiZeros
