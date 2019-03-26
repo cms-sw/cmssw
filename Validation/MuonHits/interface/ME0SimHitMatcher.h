@@ -33,34 +33,20 @@ public:
   // chamber detIds with SimHits
   std::set<unsigned int> chamberIds() const;
 
-  // simhits from a particular partition, chamber
-  const edm::PSimHitContainer& hitsInSuperChamber(unsigned int) const;
-
-  // detid's with hits in 2 layers of coincidence pads
-  std::set<unsigned int> detIdsCoincidences(int min_n_layers = 2) const;
-
   // ME0 superchamber detIds with SimHits
   std::set<unsigned int> superChamberIds() const;
 
-  // ME0 superchamber detIds with SimHits >=4 layers of coincidence pads
-  std::set<unsigned int> superChamberIdsCoincidences(int min_n_layers = 2) const;
+  // simhits from a particular partition, chamber
+  const edm::PSimHitContainer& hitsInSuperChamber(unsigned int) const;
 
   // #layers with hits
   int nLayersWithHitsInSuperChamber(unsigned int) const;
 
-  float simHitsCentralPosition(const edm::PSimHitContainer& sim_hits) const;
-
-  // How many pads with simhits in GEM did this simtrack get?
-  int nPadsWithHits() const;
-
-  // How many coincidence pads with simhits in GEM did this simtrack get?
-  int nCoincidencePadsWithHits() const;
+  // ME0 superchamber detIds with SimHits >=4 layers of coincidence pads
+  std::set<unsigned int> superChamberIdsCoincidences(int min_n_layers = 4) const;
 
   // How many ME0 chambers with minimum number of layer with simhits did this simtrack get?
   int nCoincidenceChambers(int min_n_layers = 4) const;
-
-  // calculated the fitted position in a given layer for CSC simhits in a chamber
-  GlobalPoint simHitPositionKeyLayer(unsigned int chamberid) const;
 
   // calculate average strip (strip for GEM/ME0, half-strip for CSC) number for a provided collection of simhits
   float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;
@@ -70,6 +56,9 @@ public:
 
   // what unique partitions numbers were hit by this simtrack?
   std::set<int> hitPartitions() const; // GEM
+
+  // How many pads with simhits in GEM did this simtrack get?
+  int nPadsWithHits() const;
 
 private:
 
