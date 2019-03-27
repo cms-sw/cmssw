@@ -20,6 +20,7 @@ parseHBHEMahiDescription(const edm::ParameterSet& conf)
 
   const bool iApplyTimeSlew   = conf.getParameter<bool>   ("applyTimeSlew");
 
+  const bool iCalculateArrivalTime   = conf.getParameter<bool>   ("calculateArrivalTime");
   const double iMeanTime      = conf.getParameter<double> ("meanTime");
   const double iTimeSigmaHPD  = conf.getParameter<double> ("timeSigmaHPD");
   const double iTimeSigmaSiPM = conf.getParameter<double> ("timeSigmaSiPM");
@@ -33,7 +34,7 @@ parseHBHEMahiDescription(const edm::ParameterSet& conf)
   std::unique_ptr<MahiFit> corr = std::make_unique<MahiFit>();
 
   corr->setParameters(iDynamicPed, iTS4Thresh, chiSqSwitch, iApplyTimeSlew, HcalTimeSlew::Medium,
-		      iMeanTime, iTimeSigmaHPD, iTimeSigmaSiPM,
+		      iCalculateArrivalTime, iMeanTime, iTimeSigmaHPD, iTimeSigmaSiPM,
 		      iActiveBXs, iNMaxItersMin, iNMaxItersNNLS,
 		      iDeltaChiSqThresh, iNnlsThresh);
 
@@ -149,6 +150,7 @@ edm::ParameterSetDescription fillDescriptionForParseHBHEPhase1Algo()
     desc.add<double>("tdcTimeShift", 0.0);
     desc.add<bool>("correctForPhaseContainment", true);
     desc.add<bool>("applyLegacyHBMCorrection", true);
+    desc.add<bool>("calculateArrivalTime", true);
 
     return desc;
 }
