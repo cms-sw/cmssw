@@ -322,13 +322,13 @@ std::unique_ptr<HFStripFilter> HFStripFilter::parseParameterSet(
     const edm::ParameterSet& ps)
 {
     return std::make_unique<HFStripFilter>(
-        ps.getUntrackedParameter<double>("stripThreshold"),
-        ps.getUntrackedParameter<double>("maxThreshold"),
-        ps.getUntrackedParameter<double>("timeMax"),
-        ps.getUntrackedParameter<double>("maxStripTime"),
-        ps.getUntrackedParameter<double>("wedgeCut"),
-        ps.getUntrackedParameter<int>("gap"),
-        ps.getUntrackedParameter<int>("lstrips"),
+        ps.getParameter<double>("stripThreshold"),
+        ps.getParameter<double>("maxThreshold"),
+        ps.getParameter<double>("timeMax"),
+        ps.getParameter<double>("maxStripTime"),
+        ps.getParameter<double>("wedgeCut"),
+        ps.getParameter<int>("gap"),
+        ps.getParameter<int>("lstrips"),
         ps.getUntrackedParameter<int>("verboseLevel")
     );
 }
@@ -337,13 +337,13 @@ edm::ParameterSetDescription HFStripFilter::fillDescription()
 {
     edm::ParameterSetDescription desc;
 
-    desc.addUntracked<double>("stripThreshold", 40.0);
-    desc.addUntracked<double>("maxThreshold", 100.0);
-    desc.addUntracked<double>("timeMax", 6.0);
-    desc.addUntracked<double>("maxStripTime", 10.0);
-    desc.addUntracked<double>("wedgeCut", 0.05);
-    desc.addUntracked<int>("gap", 2);
-    desc.addUntracked<int>("lstrips", 2);
+    desc.add<double>("stripThreshold", 40.0);
+    desc.add<double>("maxThreshold", 100.0);
+    desc.add<double>("timeMax", 6.0);
+    desc.add<double>("maxStripTime", 10.0);
+    desc.add<double>("wedgeCut", 0.05);
+    desc.add<int>("gap", 2);
+    desc.add<int>("lstrips", 2);
     desc.addUntracked<int>("verboseLevel", 0);
 
     return desc;
