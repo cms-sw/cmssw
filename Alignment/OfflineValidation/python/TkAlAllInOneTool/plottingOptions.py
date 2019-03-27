@@ -170,8 +170,6 @@ class PlottingOptionsZMuMu(BasePlottingOptions):
                 "rebineta": "2",
                 "rebinpt": "8",
                 "AutoSetRange": "false",                
-                "CustomMinY": "90.85",
-                "CustomMaxY": "91.5",
                }
     needpackages = {"MuonAnalysis/MomentumScaleCalibration"}
     validationclass = ZMuMuValidation

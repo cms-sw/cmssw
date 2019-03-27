@@ -4,8 +4,6 @@
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
-#include <Math/Rotation3D.h>
-#include <Math/Vector3D.h>
 
 namespace dd4hep {
   class Detector;
@@ -19,7 +17,7 @@ class DTLayer;
 namespace cms {
 
   class DDDetector;
-  struct DDFilteredView;
+  class DDFilteredView;
   struct MuonNumbering;
   struct DDSpecPar;
   
@@ -29,9 +27,6 @@ namespace cms {
     ~DTGeometryBuilder() {}
     
     using Detector = dd4hep::Detector;
-    using DDRotationMatrix = ROOT::Math::Rotation3D;
-    using DDTranslation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
-    using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
     using DDSpecParRefs = std::vector<const DDSpecPar*>;
 
     void build(DTGeometry&,
@@ -40,33 +35,25 @@ namespace cms {
 	       const DDSpecParRefs&);
   private:
     void buildGeometry(DDFilteredView&,
-		       const DDSpecPar&,
 		       DTGeometry&, const MuonNumbering&) const;
 
     /// create the chamber
     DTChamber* buildChamber(const DDFilteredView&,
-			    const DDTranslation&,
-			    const DDRotationMatrix&,
                             const MuonNumbering&) const;
     
     /// create the SL
     DTSuperLayer* buildSuperLayer(const DDFilteredView&,
 				  DTChamber*,
-				  const DDTranslation&,
-				  const DDRotationMatrix&,
 				  const MuonNumbering&) const;
 
     /// create the layer
-    DTLayer* buildLayer(const DDFilteredView&,
+    DTLayer* buildLayer(DDFilteredView&,
 			DTSuperLayer*,
-			const DDTranslation&,
-			const DDRotationMatrix&,
 			const MuonNumbering&) const;
 
     using RCPPlane = ReferenceCountingPointer<Plane>;
 
-    RCPPlane plane(const DDTranslation&,
-		   const DDRotationMatrix&,
+    RCPPlane plane(const DDFilteredView&,
 		   Bounds* bounds) const;
   };
 }

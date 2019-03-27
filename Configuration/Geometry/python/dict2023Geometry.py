@@ -30,6 +30,34 @@ commonDict = {
             'Geometry/CMSCommonData/data/FieldParameters.xml',
         ],
         "era" : "run2_common, run3_common, phase2_common",
+    },
+
+    "O3" : {
+        1 : [
+            'Geometry/CMSCommonData/data/materials.xml',
+            'Geometry/CMSCommonData/data/rotations.xml',
+            'Geometry/CMSCommonData/data/extend/v2/cmsextent.xml',
+            'Geometry/CMSCommonData/data/cms/2023/v2/cms.xml',
+            'Geometry/CMSCommonData/data/eta3/etaMax.xml',        
+            'Geometry/CMSCommonData/data/cmsMother.xml',
+            'Geometry/CMSCommonData/data/cmsTracker.xml',
+            'Geometry/CMSCommonData/data/caloBase/2023/v2/caloBase.xml',
+            'Geometry/CMSCommonData/data/cmsCalo.xml',
+            'Geometry/CMSCommonData/data/muonBase/2023/v2/muonBase.xml',
+            'Geometry/CMSCommonData/data/cmsMuon.xml',
+            'Geometry/CMSCommonData/data/mgnt.xml',
+            'Geometry/CMSCommonData/data/beampipe/2023/v1/beampipe.xml',
+            'Geometry/CMSCommonData/data/cmsBeam/2023/v1/cmsBeam.xml',
+            'Geometry/CMSCommonData/data/muonMB.xml',
+            'Geometry/CMSCommonData/data/muonMagnet.xml',
+            'Geometry/CMSCommonData/data/cavern/2017/v2/cavern.xml',
+            'Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml',
+            'Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml',
+        ],
+        5 : [
+            'Geometry/CMSCommonData/data/FieldParameters.xml',
+        ],
+        "era" : "run2_common, run3_common, phase2_common",
     }    
 }
 
@@ -636,6 +664,80 @@ caloDict = {
         "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, hcalSkipPacker",
     },
 
+    "C8" : {
+        1 : [
+            'Geometry/EcalCommonData/data/PhaseII/v2/eregalgo.xml',
+            'Geometry/EcalCommonData/data/PhaseII/v2/ectkcable.xml',
+            'Geometry/EcalCommonData/data/PhaseII/v2/ectkcablemat.xml',
+            'Geometry/EcalCommonData/data/ebalgo.xml',
+            'Geometry/EcalCommonData/data/ebcon.xml',
+            'Geometry/EcalCommonData/data/ebrot.xml',
+            'Geometry/HcalCommonData/data/hcalrotations.xml',
+            'Geometry/HcalCommonData/data/hcal/v2/hcalalgo.xml',
+            'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
+            'Geometry/HcalCommonData/data/hcalcablealgo/v2/hcalcablealgo.xml',
+            'Geometry/HcalCommonData/data/hcalouteralgo.xml',
+            'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
+            'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml',
+            'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
+            'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
+            'Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml',
+            'Geometry/HGCalCommonData/data/hgcal/v10/hgcal.xml',
+            'Geometry/HGCalCommonData/data/hgcalEE/v10/hgcalEE.xml',
+            'Geometry/HGCalCommonData/data/hgcalHEsil/v10/hgcalHEsil.xml',
+            'Geometry/HGCalCommonData/data/hgcalHEmix/v10/hgcalHEmix.xml',
+            'Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml',
+            'Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml',
+            'Geometry/HGCalCommonData/data/hgcalCons/v10/hgcalCons.xml',
+        ],
+        3 : [
+            'Geometry/EcalSimData/data/PhaseII/ecalsens.xml',
+            'Geometry/HcalCommonData/data/hcalsens/NoHE/hcalsenspmf.xml',
+            'Geometry/HcalSimData/data/hf.xml',
+            'Geometry/HcalSimData/data/hfpmt.xml',
+            'Geometry/HcalSimData/data/hffibrebundle.xml',
+            'Geometry/HcalSimData/data/CaloUtil.xml',
+            'Geometry/HGCalSimData/data/hgcsensv9.xml',
+        ],
+        4 : [
+            'Geometry/HcalSimData/data/HcalProdCuts.xml',
+            'Geometry/EcalSimData/data/EcalProdCuts.xml',
+            'Geometry/HGCalSimData/data/hgcProdCutsv9.xml',
+        ],
+        "sim" : [
+            'from Geometry.HcalCommonData.hcalParameters_cfi      import *',
+            'from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *',
+            'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
+            'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
+        ],
+        "reco" : [
+            'from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *',
+            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
+            'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
+            'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
+            '    SelectedCalos = cms.vstring("HCAL",',
+            '                                "ZDC",',
+            '                                "EcalBarrel",',
+            '                                "TOWER",',
+            '                                "HGCalEESensitive",',
+            '                                "HGCalHESiliconSensitive",',
+            '                                "HGCalHEScintillatorSensitive"',
+            '    )',
+            ')',
+            'from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *',
+            'from Geometry.HcalEventSetup.HcalGeometry_cfi import *',
+            'from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *',
+            'from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *',
+            'from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *',
+            'from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *',
+            'from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *',
+            'from Geometry.EcalMapping.EcalMapping_cfi import *',
+            'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
+        ],
+        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, hcalSkipPacker",
+    },
+
 }
 
 muonDict = {
@@ -683,7 +785,50 @@ muonDict = {
             'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
         ],
         "era" : "phase2_muon, run3_GEM",
-    }
+    },
+
+    "M3" : {
+        1 : [
+            'Geometry/MuonCommonData/data/mbCommon/2017/v2/mbCommon.xml',
+            'Geometry/MuonCommonData/data/mb1/2015/v1/mb1.xml',
+            'Geometry/MuonCommonData/data/mb2/2015/v1/mb2.xml',
+            'Geometry/MuonCommonData/data/mb3/2015/v1/mb3.xml',
+            'Geometry/MuonCommonData/data/mb4/2015/v1/mb4.xml',
+            'Geometry/MuonCommonData/data/design/muonYoke.xml',
+            'Geometry/MuonCommonData/data/mf/2023/v2/mf.xml',
+            'Geometry/MuonCommonData/data/rpcf/2023/v1/rpcf.xml',
+            'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
+            'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
+            'Geometry/MuonCommonData/data/gem21/TDR_Dev/gem21.xml',
+            'Geometry/MuonCommonData/data/csc/2015/v1/csc.xml',
+            'Geometry/MuonCommonData/data/mfshield/2023/v1/mfshield.xml',
+            'Geometry/MuonCommonData/data/me0/TDR_Dev/me0.xml',
+        ],
+        2 : [
+            'Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/muonNumbering.xml',
+        ],
+        3 : [
+            'Geometry/MuonSimData/data/PhaseII/ME0EtaPart/muonSens.xml',
+            'Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
+            'Geometry/RPCGeometryBuilder/data/2023/v1/RPCSpecs.xml',
+            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecsFilter.xml',
+            'Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml',
+        ],
+        4 : [
+            'Geometry/MuonSimData/data/PhaseII/muonProdCuts.xml',
+        ],
+        "reco" : [
+            'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
+            'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.me0Geometry_cfi import *',
+            'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
+            'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
+        ],
+        "era" : "phase2_muon, run3_GEM",
+    },
 
 }
 
@@ -942,6 +1087,35 @@ timingDict = {
         ],
         "era" : "phase2_timing, phase2_timing_layer_bar",
     },
+
+    "I9" : {
+        1 : [
+            'Geometry/MTDCommonData/data/btl.xml',
+            'Geometry/MTDCommonData/data/etl/v2/etl.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlat/v2/mtd.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdParameters.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+        ],
+        "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
+        ],
+        "era" : "phase2_timing, phase2_timing_layer_bar",
+    },
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
@@ -965,6 +1139,7 @@ detectorVersionDict = {
     ("O2","T6","C4","M2","F2","I7") : "D38",
     ("O2","T6","C4","M2","F2","I8") : "D39",
     ("O2","T14","C3","M2","F2","I1") : "D40",
+    ("O3","T14","C8","M3","F2","I9") : "D41",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D18", "D20", "D22", "D23", "D26", "D27" ])
