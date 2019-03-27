@@ -309,7 +309,7 @@ process.preselectedBackgroundJets = cms.EDProducer(
 )
 
 # Build pizeros for our final jet collection
-import RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi as PiZeroProd
+import RecoTauTag.RecoTau.RecoTauPiZeroProducer_cff as PiZeroProd
 process.backgroundJetsRecoTauPiZeros = PiZeroProd.ak5PFJetsRecoTauPiZeros.clone(
     jetSrc = cms.InputTag("preselectedBackgroundJets")
 )
