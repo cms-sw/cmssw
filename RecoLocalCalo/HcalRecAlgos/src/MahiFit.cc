@@ -8,7 +8,7 @@ MahiFit::MahiFit() :
 
 void MahiFit::setParameters(bool iDynamicPed, double iTS4Thresh, double chiSqSwitch, 
 			    bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
-			    double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM, 
+			    bool iCalculateArrivalTime, double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM,
 			    const std::vector <int> &iActiveBXs, int iNMaxItersMin, int iNMaxItersNNLS,
 			    double iDeltaChiSqThresh, double iNnlsThresh) {
 
@@ -20,6 +20,7 @@ void MahiFit::setParameters(bool iDynamicPed, double iTS4Thresh, double chiSqSwi
   applyTimeSlew_ = iApplyTimeSlew;
   slewFlavor_    = slewFlavor;
 
+  calculateArrivalTime_ = iCalculateArrivalTime;
   meanTime_      = iMeanTime;
   timeSigmaHPD_  = iTimeSigmaHPD;
   timeSigmaSiPM_ = iTimeSigmaSiPM;
@@ -197,7 +198,9 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
   if (foundintime) {
     correctedOutput.at(0) = nnlsWork_.ampVec.coeff(ipulseintime); //charge
     if (correctedOutput.at(0)!=0) {
-	float arrivalTime = calculateArrivalTime();
+      // fixME store the timeslew
+	float arrivalTime = 0.;
+	if(calculateArrivalTime_) arrivalTime = calculateArrivalTime();
 	correctedOutput.at(1) = arrivalTime; //time
     }
     else correctedOutput.at(1) = -9999;//time
