@@ -39,6 +39,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -80,6 +81,23 @@ PFTauTransverseImpactParameters::~PFTauTransverseImpactParameters(){
 
 }
 
+namespace {
+  inline const reco::Track* getTrack(const Candidate& cand)
+  {
+    const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
+    if (pfCandPtr != nullptr) {
+      if      ( pfCandPtr->trackRef().isNonnull()    ) return pfCandPtr->trackRef().get();
+      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return pfCandPtr->gsfTrackRef().get();
+      else return nullptr;
+    }
+    const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    if (packedCand != nullptr && packedCand->hasTrackDetails())
+        return &packedCand->pseudoTrack();
+
+   return nullptr;
+  }
+}
+
 void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
   // Obtain Collections
   edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
@@ -109,12 +127,8 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
       reco::Vertex::Point poca(0,0,0);
       double ip3d(-999), ip3d_err(-999);
       reco::Vertex::Point ip3d_poca(0,0,0);
-      if(RefPFTau->leadPFChargedHadrCand().isNonnull()){
-	const reco::Track* track = nullptr;
-	if(RefPFTau->leadPFChargedHadrCand()->trackRef().isNonnull())
-	  track = RefPFTau->leadPFChargedHadrCand()->trackRef().get();
-	else if(RefPFTau->leadPFChargedHadrCand()->gsfTrackRef().isNonnull())
-	  track = RefPFTau->leadPFChargedHadrCand()->gsfTrackRef().get();
+      if(RefPFTau->leadChargedHadrCand().isNonnull()){
+	const reco::Track* track = getTrack(*RefPFTau->leadChargedHadrCand());
 	if(track != nullptr){
 	  if(useFullCalculation_){
 	    reco::TransientTrack transTrk=transTrackBuilder->build(*track);

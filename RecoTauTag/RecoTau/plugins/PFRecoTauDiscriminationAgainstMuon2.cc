@@ -24,9 +24,13 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "RecoTauTag/RecoTau/interface/RecoTauMuonTools.h"
+
 #include <vector>
 #include <string>
 #include <iostream>
+
+using reco::tau::format_vint;
 
 namespace {
 
@@ -104,56 +108,6 @@ void PFRecoTauDiscriminationAgainstMuon2::beginEvent(const edm::Event& evt, cons
   }
 }
 
-namespace
-{
-  void countHits(const reco::Muon& muon, std::vector<int>& numHitsDT, std::vector<int>& numHitsCSC, std::vector<int>& numHitsRPC)
-  {
-    if ( muon.outerTrack().isNonnull() ) {
-      const reco::HitPattern &muonHitPattern = muon.outerTrack()->hitPattern();
-      for (int iHit = 0; iHit < muonHitPattern.numberOfAllHits(reco::HitPattern::TRACK_HITS); ++iHit) {
-          uint32_t hit = muonHitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, iHit);
-	if ( hit == 0 ) break;	    
-	if ( muonHitPattern.muonHitFilter(hit) && (muonHitPattern.getHitType(hit) == TrackingRecHit::valid || muonHitPattern.getHitType(hit) == TrackingRecHit::bad) ) {
-	  int muonStation = muonHitPattern.getMuonStation(hit) - 1; // CV: map into range 0..3
-	  if ( muonStation >= 0 && muonStation < 4 ) {
-	    if      ( muonHitPattern.muonDTHitFilter(hit)  ) ++numHitsDT[muonStation];
-	    else if ( muonHitPattern.muonCSCHitFilter(hit) ) ++numHitsCSC[muonStation];
-	    else if ( muonHitPattern.muonRPCHitFilter(hit) ) ++numHitsRPC[muonStation];
-	  }
-	}
-      }
-    }
-  }
-
-  std::string format_vint(const std::vector<int>& vi)
-  {
-    std::ostringstream os;    
-    os << "{ ";
-    unsigned numEntries = vi.size();
-    for ( unsigned iEntry = 0; iEntry < numEntries; ++iEntry ) {
-      os << vi[iEntry];
-      if ( iEntry < (numEntries - 1) ) os << ", ";
-    }
-    os << " }";
-    return os.str();
-  }
-
-  void countMatches(const reco::Muon& muon, std::vector<int>& numMatchesDT, std::vector<int>& numMatchesCSC, std::vector<int>& numMatchesRPC)
-  {
-    const std::vector<reco::MuonChamberMatch>& muonSegments = muon.matches();
-    for ( std::vector<reco::MuonChamberMatch>::const_iterator muonSegment = muonSegments.begin();
-	  muonSegment != muonSegments.end(); ++muonSegment ) {
-      if ( muonSegment->segmentMatches.empty() ) continue;
-      int muonDetector = muonSegment->detector();
-      int muonStation = muonSegment->station() - 1;
-      assert(muonStation >= 0 && muonStation <= 3);
-      if      ( muonDetector == MuonSubdetId::DT  ) ++numMatchesDT[muonStation];
-      else if ( muonDetector == MuonSubdetId::CSC ) ++numMatchesCSC[muonStation];
-      else if ( muonDetector == MuonSubdetId::RPC ) ++numMatchesRPC[muonStation];      
-    }
-  }
-}
-
 double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& pfTau) const
 {
   if ( verbosity_ ) {
@@ -179,11 +133,11 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 
   const reco::PFCandidatePtr& pfLeadChargedHadron = pfTau->leadPFChargedHadrCand();
   if ( pfLeadChargedHadron.isNonnull() ) {
-    reco::MuonRef muonRef = pfLeadChargedHadron->muonRef();      
+    reco::MuonRef muonRef = pfLeadChargedHadron->muonRef();
     if ( muonRef.isNonnull() ) {
       if ( verbosity_ ) edm::LogPrint("PFTauAgainstMuon2") << " has muonRef." ;
-      countMatches(*muonRef, numMatchesDT, numMatchesCSC, numMatchesRPC);
-      countHits(*muonRef, numHitsDT, numHitsCSC, numHitsRPC);
+      reco::tau::countMatches(*muonRef, numMatchesDT, numMatchesCSC, numMatchesRPC);
+      reco::tau::countHits(*muonRef, numHitsDT, numHitsCSC, numHitsRPC);
     }
   }
   
@@ -196,9 +150,12 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 	if ( verbosity_ ){ edm::LogPrint("PFTauAgainstMuon2") << " fails Pt cut --> skipping it." ;}
 	continue;
        }
-      if ( pfLeadChargedHadron.isNonnull() && pfLeadChargedHadron->muonRef().isNonnull() && muon == pfLeadChargedHadron->muonRef() ) {	
-	if ( verbosity_ ){ edm::LogPrint("PFTauAgainstMuon2") << " matches muonRef of tau --> skipping it." ;}
-	continue;
+      if ( pfLeadChargedHadron.isNonnull()) {
+	reco::MuonRef muonRef = pfLeadChargedHadron->muonRef();
+	if (muonRef.isNonnull() && muon == pfLeadChargedHadron->muonRef() ) {
+	  if ( verbosity_ ) { edm::LogPrint("PFTauAgainstMuon2") << " matches muonRef of tau --> skipping it."; }
+	  continue;
+	}
       }
       double dR = deltaR(muon->p4(), pfTau->p4());
       double dRmatch = dRmuonMatch_;
@@ -218,8 +175,8 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
       }
       if ( dR < dRmatch ) {
 	if ( verbosity_ ) edm::LogPrint("PFTauAgainstMuon2") << " overlaps with tau, dR = " << dR ;
-	countMatches(*muon, numMatchesDT, numMatchesCSC, numMatchesRPC);
-	countHits(*muon, numHitsDT, numHitsCSC, numHitsRPC);
+	reco::tau::countMatches(*muon, numMatchesDT, numMatchesCSC, numMatchesRPC);
+	reco::tau::countHits(*muon, numHitsDT, numHitsCSC, numHitsRPC);
       }
     }
   }
@@ -251,7 +208,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
   
   bool passesCaloMuonVeto = true;
   if ( pfLeadChargedHadron.isNonnull() ) {
-    double energyECALplusHCAL = pfLeadChargedHadron->ecalEnergy() + pfLeadChargedHadron->hcalEnergy();    
+    double energyECALplusHCAL = pfLeadChargedHadron->ecalEnergy() + pfLeadChargedHadron->hcalEnergy();
     if ( verbosity_ ) {
       if ( pfLeadChargedHadron->trackRef().isNonnull() ) {
 	edm::LogPrint("PFTauAgainstMuon2") << "decayMode = " << pfTau->decayMode() << ", energy(ECAL+HCAL) = " << energyECALplusHCAL << ", leadPFChargedHadronP = " << pfLeadChargedHadron->trackRef()->p() ;
@@ -260,9 +217,12 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
       }
     }
     const reco::Track* leadTrack = nullptr;
-    if ( pfLeadChargedHadron->trackRef().isNonnull() ) leadTrack = pfLeadChargedHadron->trackRef().get();
-    else if ( pfLeadChargedHadron->gsfTrackRef().isNonnull() ) leadTrack = pfLeadChargedHadron->gsfTrackRef().get();
-    if ( pfTau->decayMode() == 0 && leadTrack && energyECALplusHCAL < (hop_*leadTrack->p()) ) passesCaloMuonVeto = false;
+    if ( pfLeadChargedHadron->trackRef().isNonnull() )
+      leadTrack = pfLeadChargedHadron->trackRef().get();
+    else if ( pfLeadChargedHadron->gsfTrackRef().isNonnull() )
+      leadTrack = pfLeadChargedHadron->gsfTrackRef().get();
+    if ( pfTau->decayMode() == 0 && leadTrack && energyECALplusHCAL < (hop_*leadTrack->p()) )
+      passesCaloMuonVeto = false;
   }
   
   double discriminatorValue = 0.;
