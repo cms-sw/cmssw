@@ -7,6 +7,8 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
 #include "TMath.h"
 #include "TFormula.h"
@@ -36,18 +38,15 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
     includeGammas_ = pset.getParameter<bool>(
       "ApplyDiscriminationByECALIsolation");
 
-    calculateWeights_ = pset.exists("ApplyDiscriminationByWeightedECALIsolation") ?
-      pset.getParameter<bool>("ApplyDiscriminationByWeightedECALIsolation") : false;
+    calculateWeights_ = pset.getParameter<bool>("ApplyDiscriminationByWeightedECALIsolation");
 
     // RIC: multiply neutral isolation by a flat factor.
     //      Useful, for instance, to combine charged and neutral isolations
     //      with different relative weights
-    weightGammas_ = pset.exists("WeightECALIsolation") ?
-      pset.getParameter<double>("WeightECALIsolation") : 1.0;
+    weightGammas_ = pset.getParameter<double>("WeightECALIsolation");
 
     // RIC: allow to relax the isolation completely beyond a given tau pt
-    minPtForNoIso_ = pset.exists("minTauPtForNoIso") ?
-      pset.getParameter<double>("minTauPtForNoIso") : -99.;
+    minPtForNoIso_ = pset.getParameter<double>("minTauPtForNoIso");
     
     applyOccupancyCut_ = pset.getParameter<bool>("applyOccupancyCut");
     maximumOccupancy_ = pset.getParameter<uint32_t>("maximumOccupancy");
@@ -55,23 +54,15 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
     applySumPtCut_ = pset.getParameter<bool>("applySumPtCut");
     maximumSumPt_ = pset.getParameter<double>("maximumSumPtCut");
 
-    applyRelativeSumPtCut_ = pset.getParameter<bool>(
-      "applyRelativeSumPtCut");
-    maximumRelativeSumPt_ = pset.getParameter<double>(
-      "relativeSumPtCut");
-    offsetRelativeSumPt_ = pset.exists("relativeSumPtOffset") ?
-      pset.getParameter<double>("relativeSumPtOffset") : 0.0;
+    applyRelativeSumPtCut_ = pset.getParameter<bool>("applyRelativeSumPtCut");
+    maximumRelativeSumPt_ = pset.getParameter<double>("relativeSumPtCut");
+    offsetRelativeSumPt_ = pset.getParameter<double>("relativeSumPtOffset");
 
-    storeRawOccupancy_ = pset.exists("storeRawOccupancy") ?
-      pset.getParameter<bool>("storeRawOccupancy") : false;
-    storeRawSumPt_ = pset.exists("storeRawSumPt") ?
-      pset.getParameter<bool>("storeRawSumPt") : false;
-    storeRawPUsumPt_ = pset.exists("storeRawPUsumPt") ?
-      pset.getParameter<bool>("storeRawPUsumPt") : false;
-    storeRawFootprintCorrection_ = pset.exists("storeRawFootprintCorrection") ?
-      pset.getParameter<bool>("storeRawFootprintCorrection") : false;
-    storeRawPhotonSumPt_outsideSignalCone_ = pset.exists("storeRawPhotonSumPt_outsideSignalCone") ?
-      pset.getParameter<bool>("storeRawPhotonSumPt_outsideSignalCone") : false;
+    storeRawOccupancy_                     = pset.getParameter<bool>("storeRawOccupancy");
+    storeRawSumPt_                         = pset.getParameter<bool>("storeRawSumPt");
+    storeRawPUsumPt_                       = pset.getParameter<bool>("storeRawPUsumPt");
+    storeRawFootprintCorrection_           = pset.getParameter<bool>("storeRawFootprintCorrection");
+    storeRawPhotonSumPt_outsideSignalCone_ = pset.getParameter<bool>("storeRawPhotonSumPt_outsideSignalCone");
 
     // Sanity check on requested options.  We can't apply cuts and store the
     // raw output at the same time
@@ -103,21 +94,15 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
 	<< " These options are mutually exclusive.";
     }
 
-    if ( pset.exists("customOuterCone") ) {
-      customIsoCone_ = pset.getParameter<double>("customOuterCone");
-    } else {
-      customIsoCone_ = -1;
-    }
+    customIsoCone_ = pset.getParameter<double>("customOuterCone");
 
-    applyPhotonPtSumOutsideSignalConeCut_ = ( pset.exists("applyPhotonPtSumOutsideSignalConeCut") ) ?
-      pset.getParameter<bool>("applyPhotonPtSumOutsideSignalConeCut") : false;
+    applyPhotonPtSumOutsideSignalConeCut_ = pset.getParameter<bool>("applyPhotonPtSumOutsideSignalConeCut");
     if ( applyPhotonPtSumOutsideSignalConeCut_ ) {
       maxAbsPhotonSumPt_outsideSignalCone_ = pset.getParameter<double>("maxAbsPhotonSumPt_outsideSignalCone");
       maxRelPhotonSumPt_outsideSignalCone_ = pset.getParameter<double>("maxRelPhotonSumPt_outsideSignalCone");
     }
     
-    applyFootprintCorrection_ = ( pset.exists("applyFootprintCorrection") ) ?
-      pset.getParameter<bool>("applyFootprintCorrection") : false;
+    applyFootprintCorrection_ = pset.getParameter<bool>("applyFootprintCorrection");
     if ( applyFootprintCorrection_ || storeRawFootprintCorrection_ ) {
       edm::VParameterSet cfgFootprintCorrections = pset.getParameter<edm::VParameterSet>("footprintCorrections");
       for ( edm::VParameterSet::const_iterator cfgFootprintCorrection = cfgFootprintCorrections.begin();
@@ -138,8 +123,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
     vertexAssociator_.reset(
       new tau::RecoTauVertexAssociator(qualityCutsPSet_,consumesCollector()));
 
-    applyDeltaBeta_ = pset.exists("applyDeltaBetaCorrection") ?
-      pset.getParameter<bool>("applyDeltaBetaCorrection") : false;
+    applyDeltaBeta_ = pset.getParameter<bool>("applyDeltaBetaCorrection");
 
     if ( applyDeltaBeta_ || calculateWeights_ ) {
       // Factorize the isolation QCuts into those that are used to
@@ -149,10 +133,13 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
 
       // Determine the pt threshold for the PU tracks
       // First check if the user specifies explicitly the cut.
-      if ( pset.exists("deltaBetaPUTrackPtCutOverride") ) {
+      // For that the user has to provide a >= 0  value for the PtCutOverride.
+      bool deltaBetaPUTrackPtCutOverride = pset.getParameter<bool>("deltaBetaPUTrackPtCutOverride");
+      if ( deltaBetaPUTrackPtCutOverride ) {
+	double deltaBetaPUTrackPtCutOverride_val = pset.getParameter<double>("deltaBetaPUTrackPtCutOverride_val");
 	puFactorizedIsoQCuts.second.addParameter<double>(
 	  "minTrackPt",
-	  pset.getParameter<double>("deltaBetaPUTrackPtCutOverride"));
+	  deltaBetaPUTrackPtCutOverride_val);
       } else {
 	// Secondly take it from the minGammaEt
 	puFactorizedIsoQCuts.second.addParameter<double>(
@@ -178,8 +165,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
         new TFormula("DB_corr", deltaBetaFactorFormula.c_str()));
     }
 
-    applyRhoCorrection_ = pset.exists("applyRhoCorrection") ?
-      pset.getParameter<bool>("applyRhoCorrection") : false;
+    applyRhoCorrection_ = pset.getParameter<bool>("applyRhoCorrection");
     if ( applyRhoCorrection_ ) {
       rhoProducer_ = pset.getParameter<edm::InputTag>("rhoProducer");
       rho_token=consumes<double>(rhoProducer_);
@@ -187,11 +173,9 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
       rhoUEOffsetCorrection_ =
 	pset.getParameter<double>("rhoUEOffsetCorrection");
     }
-    useAllPFCands_ = pset.exists("UseAllPFCandsForWeights") ?
-      pset.getParameter<bool>("UseAllPFCandsForWeights") : false;
+    useAllPFCands_ = pset.getParameter<bool>("UseAllPFCandsForWeights");
 
-    verbosity_ = ( pset.exists("verbosity") ) ?
-      pset.getParameter<int>("verbosity") : 0;
+    verbosity_ = pset.getParameter<int>("verbosity");
   }
 
   ~PFRecoTauDiscriminationByIsolation() override
@@ -209,6 +193,8 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
     }
     return out;
   }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   std::string moduleLabel_;
@@ -616,6 +602,149 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
   } else {
     return (fails ? 0. : 1.);
   }
+}
+
+void
+PFRecoTauDiscriminationByIsolation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationByIsolation
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("storeRawFootprintCorrection", false);
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
+  desc.add<bool>("storeRawOccupancy", false);
+  desc.add<double>("maximumSumPtCut", 6.0);
+
+  {
+    edm::ParameterSetDescription pset_signalQualityCuts;
+    pset_signalQualityCuts.add<double>("maxDeltaZ", 0.4);
+    pset_signalQualityCuts.add<double>("minTrackPt", 0.5);
+    pset_signalQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+    pset_signalQualityCuts.add<double>("maxTrackChi2", 100.0);
+    pset_signalQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+    pset_signalQualityCuts.add<double>("minGammaEt", 1.0);
+    pset_signalQualityCuts.add<unsigned int>("minTrackHits", 3);
+    pset_signalQualityCuts.add<double>("minNeutralHadronEt", 30.0);
+    pset_signalQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
+    pset_signalQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+    edm::ParameterSetDescription pset_vxAssocQualityCuts;
+    pset_vxAssocQualityCuts.add<double>("minTrackPt", 0.5);
+    pset_vxAssocQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+    pset_vxAssocQualityCuts.add<double>("maxTrackChi2", 100.0);
+    pset_vxAssocQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+    pset_vxAssocQualityCuts.add<double>("minGammaEt", 1.0);
+    pset_vxAssocQualityCuts.add<unsigned int>("minTrackHits", 3);
+    pset_vxAssocQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
+    pset_vxAssocQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+    edm::ParameterSetDescription pset_isolationQualityCuts;
+    pset_isolationQualityCuts.add<double>("maxDeltaZ", 0.2);
+    pset_isolationQualityCuts.add<double>("minTrackPt", 1.0);
+    pset_isolationQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+    pset_isolationQualityCuts.add<double>("maxTrackChi2", 100.0);
+    pset_isolationQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+    pset_isolationQualityCuts.add<double>("minGammaEt", 1.5);
+    pset_isolationQualityCuts.add<unsigned int>("minTrackHits", 8);
+    pset_isolationQualityCuts.add<double>("maxTransverseImpactParameter", 0.03);
+    pset_isolationQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+    edm::ParameterSetDescription pset_qualityCuts;
+    pset_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts",    pset_signalQualityCuts);
+    pset_qualityCuts.add<edm::ParameterSetDescription>("vxAssocQualityCuts",   pset_vxAssocQualityCuts);
+    pset_qualityCuts.add<edm::ParameterSetDescription>("isolationQualityCuts", pset_isolationQualityCuts);
+    pset_qualityCuts.add<std::string>("leadingTrkOrPFCandOption", "leadPFCand");
+    pset_qualityCuts.add<std::string>("pvFindingAlgo", "closestInDeltaZ");
+    pset_qualityCuts.add<edm::InputTag>("primaryVertexSrc", edm::InputTag("offlinePrimaryVertices"));
+    pset_qualityCuts.add<bool>("vertexTrackFiltering", false);
+    pset_qualityCuts.add<bool>("recoverLeadingTrk", false);
+
+    desc.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
+  }
+
+  desc.add<double>("minTauPtForNoIso", -99.0);
+  desc.add<double>("maxAbsPhotonSumPt_outsideSignalCone", 1000000000.0);
+  desc.add<edm::InputTag>("vertexSrc", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("applySumPtCut", false);
+  desc.add<double>("rhoConeSize", 0.5);
+  desc.add<bool>("ApplyDiscriminationByTrackerIsolation", true);
+  desc.add<bool>("storeRawPhotonSumPt_outsideSignalCone", false);
+  desc.add<edm::InputTag>("rhoProducer", edm::InputTag("fixedGridRhoFastjetAll"));
+
+  {
+    edm::ParameterSetDescription vpsd1;
+    vpsd1.add<std::string>("selection");
+    vpsd1.add<std::string>("offset");
+    desc.addVPSet("footprintCorrections", vpsd1);
+  }
+
+  desc.add<std::string>("deltaBetaFactor", "0.38");
+  desc.add<bool>("applyFootprintCorrection", false);
+  desc.add<bool>("UseAllPFCandsForWeights", false);
+  desc.add<double>("relativeSumPtCut", 0.0);
+  {
+    edm::ParameterSetDescription pset_Prediscriminants;
+    pset_Prediscriminants.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    {
+      // encountered this at
+      // RecoTauTag/Configuration/python/HPSPFTaus_cff.py
+      // Prediscriminants = requireDecayMode.clone(),
+      // requireDecayMode = cms.PSet(
+      //     BooleanOperator = cms.string("and"),
+      //     decayMode = cms.PSet(
+      //         Producer = cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs'),
+      //         cut = cms.double(0.5)
+      //     )
+      // )
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("decayMode", psd1);
+    }
+    {
+      // encountered this at
+      // RecoTauTag/Configuration/python/HPSPFTaus_cff.py
+      // Prediscriminants = requireDecayMode.clone(),
+      // hpsPFTauDiscriminationByLooseIsolation.Prediscriminants.preIso = cms.PSet(
+      //     Producer = cms.InputTag("hpsPFTauDiscriminationByLooseChargedIsolation"),
+      //     cut = cms.double(0.5)
+      // )
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("preIso", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", pset_Prediscriminants);
+  }
+
+  desc.add<unsigned int>("maximumOccupancy", 0);
+  desc.add<int>("verbosity", 0);
+
+  desc.add<bool>("applyOccupancyCut", true);
+  desc.add<bool>("applyDeltaBetaCorrection", false);
+  desc.add<bool>("applyRelativeSumPtCut", false);
+  desc.add<bool>("storeRawPUsumPt", false);
+  desc.add<bool>("applyPhotonPtSumOutsideSignalConeCut", false);
+  desc.add<bool>("deltaBetaPUTrackPtCutOverride", false);
+  desc.add<bool>("ApplyDiscriminationByWeightedECALIsolation", false);
+  desc.add<bool>("storeRawSumPt", false);
+  desc.add<bool>("ApplyDiscriminationByECALIsolation", true);
+  desc.add<bool>("applyRhoCorrection", false);
+
+  desc.add<double>("WeightECALIsolation", 1.0);
+  desc.add<double>("rhoUEOffsetCorrection", 1.0);
+  desc.add<double>("maxRelPhotonSumPt_outsideSignalCone", 0.1);
+  desc.add<double>("deltaBetaPUTrackPtCutOverride_val", -1.5);
+  desc.add<double>("isoConeSizeForDeltaBeta", 0.5);
+  desc.add<double>("relativeSumPtOffset", 0.0);
+  desc.add<double>("customOuterCone", -1.0);
+  desc.add<edm::InputTag>("particleFlowSrc", edm::InputTag("particleFlow"));
+
+  descriptions.add("pfRecoTauDiscriminationByIsolation", desc);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByIsolation);

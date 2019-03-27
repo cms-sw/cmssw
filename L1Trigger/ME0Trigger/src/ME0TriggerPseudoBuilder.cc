@@ -1,4 +1,4 @@
-#include "L1Trigger/ME0Trigger/src/ME0TriggerPseudoBuilder.h"
+#include "L1Trigger/ME0Trigger/interface/ME0TriggerPseudoBuilder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"

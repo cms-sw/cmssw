@@ -14,7 +14,7 @@
 
 // user include files
 #include "FastSimulation/Particle/interface/makeParticle.h"
-#include "FastSimulation/BaseParticlePropagator/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 
 
 inline RawParticle unchecked_makeParticle(int id, const math::XYZTLorentzVector& p, double mass, double charge) {

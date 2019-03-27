@@ -58,11 +58,9 @@ class PFRecoTauEnergyAlgorithmPlugin : public RecoTauModifierPlugin
     dRaddNeutralHadron_(cfg.getParameter<double>("dRaddNeutralHadron")),
     minNeutralHadronEt_(cfg.getParameter<double>("minNeutralHadronEt")),
     dRaddPhoton_(cfg.getParameter<double>("dRaddPhoton")),
-    minGammaEt_(cfg.getParameter<double>("minGammaEt"))
-{
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
-}
+    minGammaEt_(cfg.getParameter<double>("minGammaEt")),
+    verbosity_(cfg.getParameter<int>("verbosity"))
+{}
 
 PFRecoTauEnergyAlgorithmPlugin::~PFRecoTauEnergyAlgorithmPlugin()
 {}

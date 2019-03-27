@@ -8,10 +8,10 @@ namespace ecalMGPA {
   typedef uint16_t sample_type;
  
   /// get the ADC sample (12 bits)
-  inline int adc(sample_type sample) { return sample&0xFFF; }
+  constexpr int adc(sample_type sample) { return sample&0xFFF; }
   /// get the gainId (2 bits)
-  inline int gainId(sample_type sample) { return (sample>>12)&0x3; }
-  inline sample_type pack(int adc, int gainId) {
+  constexpr int gainId(sample_type sample) { return (sample>>12)&0x3; }
+  constexpr sample_type pack(int adc, int gainId) {
     return (adc&0xFFF) | ((gainId&0x3)<<12);
   }
 }
