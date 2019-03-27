@@ -234,10 +234,10 @@ CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const HitVector& hit
   for (const auto& hit : hits) {
     if (hit.getTPrecision() <= 0.)
       continue;
-    valid_hits = true; // at least one valid hit to account for
-    const float weight = 1.f / ( hit.getTPrecision() * hit.getTPrecision() );
-    mean_num += weight * hit.getT();
+    const float weight = std::pow(hit.getTPrecision(), -2);
+    mean_num += weight*hit.getT();
     mean_denom += weight;
+    valid_hits = true; // at least one valid hit to account for
   }
   mean_time = valid_hits ? (mean_num/mean_denom) : 0.f;
   time_sigma = valid_hits ? std::sqrt(1.f/mean_denom) : 0.f;
