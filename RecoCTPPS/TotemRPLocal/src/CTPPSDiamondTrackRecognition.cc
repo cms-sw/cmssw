@@ -31,6 +31,8 @@ CTPPSDiamondTrackRecognition::clear()
 void
 CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit& recHit )
 {
+  if ( excludeSingleEdgeHits_ && recHit.getToT() <= 0. )
+    return;
   // store hit parameters
   hitVectorMap_[recHit.getOOTIndex()].emplace_back( recHit );
 }
