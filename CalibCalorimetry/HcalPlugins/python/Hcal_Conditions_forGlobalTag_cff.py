@@ -220,6 +220,8 @@ from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
 from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 
 run2_HCAL_2017.toModify( es_hardcode, useLayer0Weight = cms.bool(True), useIeta18depth1 = cms.bool(False) )
 run2_HF_2017.toModify( es_hardcode, useHFUpgrade = cms.bool(True) )
@@ -228,9 +230,6 @@ run2_HEPlan1_2017.toModify( es_hardcode, testHEPlan1 = cms.bool(True), useHEUpgr
 
 run2_HCAL_2018.toModify( es_hardcode, useLayer0Weight = cms.bool(True), useIeta18depth1 = cms.bool(False) )
 run3_HB.toModify( es_hardcode, useHBUpgrade = cms.bool(True), HBreCalibCutoff = cms.double(100.0) )
-# now that we have an emap
-run3_HB.toModify( es_hardcode, toGet = cms.untracked.vstring(_toGet_noEmap),  )
 
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hcal.toModify( es_hardcode, toGet = cms.untracked.vstring(_toGet_noEmap)) 
 phase2_hgcal.toModify( es_hardcode, killHE = cms.bool(True) )
-                            

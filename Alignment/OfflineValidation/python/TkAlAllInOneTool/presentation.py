@@ -186,8 +186,8 @@ def plotSortKey(plot):
         return 'chi2b'
     return plot
 
-from . import geometryComparison
-from . import offlineValidation
-from . import trackSplittingValidation
-from . import primaryVertexValidation
-from . import zMuMuValidation
+import Alignment.OfflineValidation.TkAlAllInOneTool.geometryComparison
+import Alignment.OfflineValidation.TkAlAllInOneTool.offlineValidation
+import Alignment.OfflineValidation.TkAlAllInOneTool.trackSplittingValidation
+import Alignment.OfflineValidation.TkAlAllInOneTool.primaryVertexValidation
+import Alignment.OfflineValidation.TkAlAllInOneTool.zMuMuValidation

@@ -18,6 +18,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -101,7 +102,10 @@ int main(int, char* argv[]) {
       "}";
 
 // D.  Create the services.
-    edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(config));
+    std::unique_ptr<edm::ParameterSet> params;
+    edm::makeParameterSets(config, params);
+    edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
+    
 
 // E.  Make the services available.
     edm::ServiceRegistry::Operate operate(tempToken);

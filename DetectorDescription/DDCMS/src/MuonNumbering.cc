@@ -9,7 +9,7 @@ using namespace std;
 using namespace edm;
 
 const MuonBaseNumber
-MuonNumbering::geoHistoryToBaseNumber(const DDFilteredView::ExpandedNodes &nodes) const {
+MuonNumbering::geoHistoryToBaseNumber(const cms::ExpandedNodes &nodes) const {
   MuonBaseNumber num;
   
   int levelPart = get("level");

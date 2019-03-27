@@ -29,6 +29,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include <string>
 #include <iostream>
 
@@ -42,6 +45,9 @@ class RecoTauGenericJetRegionProducer : public edm::stream::EDProducer<>
   ~RecoTauGenericJetRegionProducer() override {}
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptionsBase(edm::ConfigurationDescriptions & descriptions, const std::string& name);
 
  private:
   std::string moduleLabel_;
@@ -75,11 +81,10 @@ RecoTauGenericJetRegionProducer<JetType, CandType>::RecoTauGenericJetRegionProdu
   
   double deltaR = cfg.getParameter<double>("deltaR"); 
   deltaR2_ = deltaR*deltaR;
-  minJetPt_ = ( cfg.exists("minJetPt") ) ? cfg.getParameter<double>("minJetPt") : -1.0;
-  maxJetAbsEta_ = ( cfg.exists("maxJetAbsEta") ) ? cfg.getParameter<double>("maxJetAbsEta") : 99.0;
+  minJetPt_ = cfg.getParameter<double>("minJetPt");
+  maxJetAbsEta_ = cfg.getParameter<double>("maxJetAbsEta");
   
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
+  verbosity_ = cfg.getParameter<int>("verbosity");
   
   produces<std::vector<JetType> >("jets");
   produces<JetMatchMap>();
@@ -114,7 +119,7 @@ void RecoTauGenericJetRegionProducer<JetType, CandType>::produce(edm::Event& evt
   size_t nJets = jets.size();
 
   // Get the association map matching jets to Candidates
-  // (needed for recinstruction of boosted taus)
+  // (needed for reconstruction of boosted taus)
   edm::Handle<JetToCandidateAssociation> jetToPFCandMap;
   std::vector<std::unordered_set<unsigned> > fastJetToPFCandMap;
   if ( !pfCandAssocMapSrc_.label().empty() ) {
@@ -208,6 +213,37 @@ void RecoTauGenericJetRegionProducer<JetType, CandType>::produce(edm::Event& evt
     matching->insert(edm::RefToBase<reco::Jet>(jets[ijet]), edm::RefToBase<reco::Jet>(edm::Ref<std::vector<JetType> >(newJetsInEvent, matchInfo[ijet])));
   }
   evt.put(std::move(matching));
+}
+
+template<class JetType, class CandType>
+void
+RecoTauGenericJetRegionProducer<JetType, CandType>::fillDescriptionsBase(edm::ConfigurationDescriptions& descriptions, const std::string& name) {
+  // RecoTauGenericJetRegionProducer
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("ak4PFJets"));
+  desc.add<double>("deltaR", 0.8);
+  desc.add<edm::InputTag>("pfCandAssocMapSrc", edm::InputTag(""));
+  desc.add<int>("verbosity", 0);
+  desc.add<double>("maxJetAbsEta", 2.5);
+  desc.add<double>("minJetPt", 14.0);
+  desc.add<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
+  descriptions.add(name, desc);
+}
+
+
+template<>
+void
+RecoTauGenericJetRegionProducer<reco::PFJet, reco::PFCandidate>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // RecoTauGenericJetRegionProducer
+  RecoTauGenericJetRegionProducer::fillDescriptionsBase(descriptions, "RecoTauJetRegionProducer");
+  
+}
+
+template<>
+void
+RecoTauGenericJetRegionProducer<pat::Jet, pat::PackedCandidate>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // RecoTauGenericJetRegionProducer
+  RecoTauGenericJetRegionProducer::fillDescriptionsBase(descriptions, "RecoTauPatJetRegionProducer");
 }
 
 typedef RecoTauGenericJetRegionProducer<reco::PFJet, reco::PFCandidate> RecoTauJetRegionProducer;

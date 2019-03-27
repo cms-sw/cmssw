@@ -6,7 +6,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
 #include <algorithm>
 
@@ -119,12 +119,12 @@ math::XYZPointF atECALEntrance(const reco::Candidate* part, double bField) {
                math::XYZTLorentzVector(part->vertex().x(),
                      part->vertex().y(),
                      part->vertex().z(),
-                     0.)), 
-         0.,0.,bField);
-  theParticle.setCharge(part->charge());
+                     0.)),
+               part->charge(),
+               0.,0.,bField);
   theParticle.propagateToEcalEntrance(false);
   if(theParticle.getSuccess()!=0){
-    pos = math::XYZPointF(theParticle.vertex());
+    pos = math::XYZPointF(theParticle.particle().vertex());
   }
   return pos;
 }

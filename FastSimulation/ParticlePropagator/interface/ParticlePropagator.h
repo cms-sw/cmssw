@@ -17,7 +17,8 @@
 * \version 15-Dec-2003 */
 
 // FAMOS Headers
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 class TrackerLayer;
 class FSimTrack;
@@ -36,37 +37,43 @@ public:
   ParticlePropagator(const RawParticle& myPart, 
 		     double R, double Z,
 		     const MagneticFieldMap* aFieldMap,
-		     const RandomEngineAndDistribution* engine);
+		     const RandomEngineAndDistribution* engine,
+                     const HepPDT::ParticleDataTable* table);
   
   /** Constructor with only a RawParticle as argument for subsequent 
       propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const RawParticle& myPart,
 		     const MagneticFieldMap* aFieldMap,
-		     const RandomEngineAndDistribution* engine);
+		     const RandomEngineAndDistribution* engine,
+                     const HepPDT::ParticleDataTable* table);
 
   /** Constructor with two LorentzVector (momentum and vertex (in cm)) and 
       an electric charge propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const XYZTLorentzVector& p, 
 		     const XYZTLorentzVector& v, 
 		     float q,
-		     const MagneticFieldMap* aFieldMap);
+		     const MagneticFieldMap* aFieldMap,
+                     const HepPDT::ParticleDataTable* table);
 
   /** Constructor with a LorentzVector (momentum), a Hep3Vector (vertex in cm)
       and an electric charge propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const XYZTLorentzVector& p, 
 		     const XYZVector& v, float q,
-		     const MagneticFieldMap* aFieldMap);
+		     const MagneticFieldMap* aFieldMap,
+                     const HepPDT::ParticleDataTable* table);
 
   /** Constructor with a FSimTrack from the FSimEvent*/
   ParticlePropagator(const FSimTrack& simTrack,
 		     const MagneticFieldMap* aFieldMap,
-		     const RandomEngineAndDistribution* engine);
+		     const RandomEngineAndDistribution* engine,
+                     const HepPDT::ParticleDataTable* table);
 
   /** Constructor with a (Base)ParticlePropagator*/
   ParticlePropagator(const ParticlePropagator& myPropPart);
   //  ParticlePropagator(BaseParticlePropagator myPropPart);
   ParticlePropagator(const BaseParticlePropagator &myPropPart,
-		     const MagneticFieldMap* aFieldMap);
+		     const MagneticFieldMap* aFieldMap,
+                     const HepPDT::ParticleDataTable* table);
 
   /**Initialize the proper decay time of the particle*/
   void initProperDecayTime();
@@ -91,10 +98,12 @@ public:
   void setPropagationConditions(const TrackerLayer&, 
 				bool firstLoop=true);
 
+  const HepPDT::ParticleDataTable* particleDataTable() const { return theTable; }
 private:
 
   const MagneticFieldMap* theFieldMap;
   const RandomEngineAndDistribution* random;
+  const HepPDT::ParticleDataTable* theTable = nullptr;
 
 };
 

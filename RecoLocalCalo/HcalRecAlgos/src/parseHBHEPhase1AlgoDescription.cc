@@ -125,9 +125,30 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
                                      ps.getParameter<double>("correctionPhaseNS"),
                                      ps.getParameter<double>("tdcTimeShift"),
                                      ps.getParameter<bool>  ("correctForPhaseContainment"),
+                                     ps.getParameter<bool>  ("applyLegacyHBMCorrection"),
                                      std::move(m2), std::move(detFit), std::move(mahi))
             );
     }
 
     return algo;
+}
+
+
+edm::ParameterSetDescription fillDescriptionForParseHBHEPhase1Algo()
+{
+    edm::ParameterSetDescription desc;
+
+    desc.setAllowAnything();
+    desc.add<std::string>("Class", "SimpleHBHEPhase1Algo");
+    desc.add<bool>("useM2", false);
+    desc.add<bool>("useM3", true);
+    desc.add<bool>("useMahi", true);
+    desc.add<int>("firstSampleShift", 0);
+    desc.add<int>("samplesToAdd", 2);
+    desc.add<double>("correctionPhaseNS", 6.0);
+    desc.add<double>("tdcTimeShift", 0.0);
+    desc.add<bool>("correctForPhaseContainment", true);
+    desc.add<bool>("applyLegacyHBMCorrection", true);
+
+    return desc;
 }

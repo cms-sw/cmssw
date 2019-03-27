@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -52,6 +53,8 @@ class PFTauPrimaryVertexProducerBase : public edm::stream::EDProducer<> {
   explicit PFTauPrimaryVertexProducerBase(const edm::ParameterSet& iConfig);
   ~PFTauPrimaryVertexProducerBase() override;
   void produce(edm::Event&,const edm::EventSetup&) override;
+
+  static edm::ParameterSetDescription getDescriptionsBase();
 
   // called at the beginning of every event - override if necessary
   virtual void beginEvent(const edm::Event&, const edm::EventSetup&) {}
