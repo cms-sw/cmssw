@@ -78,9 +78,9 @@ void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   // *** access the PFCandidateCollection in the event in order to retrieve the PFCandidateRefVector which constitutes each PFJet
   edm::Handle<PFCandidateCollection> thePFCandidateCollection;
   iEvent.getByToken(PFCandidate_token,thePFCandidateCollection);
-  vector<PFCandidatePtr> thePFCandsInTheEvent;
+  vector<CandidatePtr> thePFCandsInTheEvent;
   for(unsigned int i_PFCand=0;i_PFCand!=thePFCandidateCollection->size();i_PFCand++) { 
-        thePFCandsInTheEvent.push_back(PFCandidatePtr(thePFCandidateCollection,i_PFCand));
+        thePFCandsInTheEvent.push_back(CandidatePtr(thePFCandidateCollection,i_PFCand));
   }
   // ***
   // query a rec/sim PV
@@ -102,7 +102,7 @@ else{
   
   auto resultExt = std::make_unique<PFTauTagInfoCollection>();  
   for(JetTracksAssociationCollection::const_iterator iAssoc=thePFJetTracksAssociatorCollection->begin();iAssoc!=thePFJetTracksAssociatorCollection->end();iAssoc++){
-    PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo((*iAssoc).first.castTo<PFJetRef>(),thePFCandsInTheEvent,(*iAssoc).second,thePV);
+    PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo(JetBaseRef((*iAssoc).first),thePFCandsInTheEvent,(*iAssoc).second,thePV);
     resultExt->push_back(myPFTauTagInfo);
   }
   
