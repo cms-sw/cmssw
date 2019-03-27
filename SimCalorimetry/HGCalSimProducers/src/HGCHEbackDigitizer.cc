@@ -132,7 +132,7 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitiz
   algo_        = cfg.getParameter<uint32_t>("algo");
   scaleByArea_ = cfg.getParameter<bool>("scaleByArea");
   scaleByDose_ = cfg.getParameter<bool>("scaleByDose");
-  doseMapFile_ = cfg.getParameter<std::string>("doseMap");
+  doseMapFile_ = cfg.getParameter<edm::ParameterSet>("doseMap").getParameter<std::string>("value");
   keV2MIP_     = cfg.getParameter<double>("keV2MIP");
   this->keV2fC_    = 1.0; //keV2MIP_; // hack for HEB
   noise_MIP_   = cfg.getParameter<edm::ParameterSet>("noise_MIP").getParameter<double>("value");
