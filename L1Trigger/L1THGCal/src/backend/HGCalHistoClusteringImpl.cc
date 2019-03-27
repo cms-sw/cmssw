@@ -23,7 +23,7 @@ HGCalHistoClusteringImpl::HGCalHistoClusteringImpl( const edm::ParameterSet& con
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR: " << dr_
                                                 <<"\nMulticluster minimum transverse-momentum: " << ptC3dThreshold_ ;
 
-    id_.reset( HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT") );
+    id_ = std::unique_ptr<HGCalTriggerClusterIdentificationBase>{ HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT") };
     id_->initialize(conf.getParameter<edm::ParameterSet>("EGIdentification"));
 
 }

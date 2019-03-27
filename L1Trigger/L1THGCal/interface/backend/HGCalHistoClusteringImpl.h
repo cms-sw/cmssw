@@ -22,8 +22,8 @@ public:
     {
         triggerTools_.eventSetup(es);
         shape_.eventSetup(es);
-        if ( (!dr_byLayer_coefficientA_.empty() && (dr_byLayer_coefficientA_.size()-1) != triggerTools_.lastLayerBH())
-             || (!dr_byLayer_coefficientB_.empty() && (dr_byLayer_coefficientB_.size()-1) != triggerTools_.lastLayerBH())
+        if ( (!dr_byLayer_coefficientA_.empty() && (dr_byLayer_coefficientA_.size()-1) < triggerTools_.lastLayerBH())
+             || (!dr_byLayer_coefficientB_.empty() && (dr_byLayer_coefficientB_.size()-1) < triggerTools_.lastLayerBH())
              ) {
             throw cms::Exception("Configuration") << 
                 "The per-layer dR values go up to " << (dr_byLayer_coefficientA_.size()-1) << 
