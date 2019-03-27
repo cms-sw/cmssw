@@ -1935,6 +1935,8 @@ class ConfigBuilder(object):
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
 
+        # any 'DQM' job should use DQMStore in non-legacy mode (but not HARVESTING)
+        self.loadAndRemember("DQMServices/Core/DQMStoreNonLegacy_cff")
         self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
         sequenceList=sequence.split('.')[-1].split('+')
         postSequenceList=sequence.split('.')[-1].split('+')
