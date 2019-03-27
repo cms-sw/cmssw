@@ -319,7 +319,7 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   pset_builders.addParameter<int>("verbosity",0);
 
   {
-    // ak4PFJetsLegacyHPSPiZeros
+    // Tailored on ak4PFJetsLegacyHPSPiZeros
     edm::ParameterSetDescription desc;
     desc.add<double>("massHypothesis", 0.136);
     desc.addVPSet("ranking", desc_ranking, vpsd_ranking);
@@ -328,51 +328,46 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
     desc.add<std::string>("outputSelection", "pt > 0");
     desc.add<double>("minJetPt", 14.0);
     desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJets"));
+
     edm::ParameterSetDescription desc_builders;
-    desc_builders.setAllowAnything();
     {
-      // both of the following uncommented version need to be accepted.
-      {
-        edm::ParameterSetDescription psd0;
-        psd0.add<std::string>("function", "TMath::Min(0.3, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))");
-        psd0.add<double>("par1", 0.707716);
-        psd0.add<double>("par0", 0.352476);
-        desc_builders.addOptional<edm::ParameterSetDescription>("stripPhiAssociationDistanceFunc", psd0);
-      }
-      {
-        edm::ParameterSetDescription psd0;
-        psd0.add<std::string>("function", "TMath::Min(0.15, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))");
-        psd0.add<double>("par1", 0.658701);
-        psd0.add<double>("par0", 0.197077);
-        desc_builders.addOptional<edm::ParameterSetDescription>("stripEtaAssociationDistanceFunc", psd0);
-      }
-      desc_builders.addOptional<double>("stripEtaAssociationDistance", 0.05);
-      desc_builders.addOptional<double>("stripPhiAssociationDistance", 0.2);
-
-      desc_builders.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
-
-      desc_builders.add<std::string>("name");
-      desc_builders.add<std::string>("plugin");
-      desc_builders.add<int>("verbosity", 0);
-
-      desc_builders.addOptional<bool>("makeCombinatoricStrips");
-      desc_builders.addOptional<int>("maxStripBuildIterations");
-      desc_builders.addOptional<double>("minGammaEtStripAdd");
-      desc_builders.addOptional<double>("minGammaEtStripSeed");
-      desc_builders.addOptional<double>("minStripEt");
-      desc_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
-      desc_builders.addOptional<bool>("updateStripAfterEachDaughter");
-      desc_builders.addOptional<bool>("applyElecTrackQcuts");
-
-      std::vector<edm::ParameterSet> vpsd_builders;
-      vpsd_builders.push_back(pset_builders);
-      desc.addVPSet("builders", desc_builders, vpsd_builders);
+      edm::ParameterSetDescription psd0;
+      psd0.add<std::string>("function", "TMath::Min(0.3, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))");
+      psd0.add<double>("par1", 0.707716);
+      psd0.add<double>("par0", 0.352476);
+      desc_builders.addOptional<edm::ParameterSetDescription>("stripPhiAssociationDistanceFunc", psd0);
     }
+    {
+      edm::ParameterSetDescription psd0;
+      psd0.add<std::string>("function", "TMath::Min(0.15, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))");
+      psd0.add<double>("par1", 0.658701);
+      psd0.add<double>("par0", 0.197077);
+      desc_builders.addOptional<edm::ParameterSetDescription>("stripEtaAssociationDistanceFunc", psd0);
+    }
+    desc_builders.addOptional<double>("stripEtaAssociationDistance", 0.05);
+    desc_builders.addOptional<double>("stripPhiAssociationDistance", 0.2);
+    
+    desc_builders.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
+    
+    desc_builders.add<std::string>("name");
+    desc_builders.add<std::string>("plugin");
+    desc_builders.add<int>("verbosity", 0);
+    
+    desc_builders.addOptional<bool>("makeCombinatoricStrips");
+    desc_builders.addOptional<int>("maxStripBuildIterations");
+    desc_builders.addOptional<double>("minGammaEtStripAdd");
+    desc_builders.addOptional<double>("minGammaEtStripSeed");
+    desc_builders.addOptional<double>("minStripEt");
+    desc_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
+    desc_builders.addOptional<bool>("updateStripAfterEachDaughter");
+    desc_builders.addOptional<bool>("applyElecTrackQcuts");
+
+    std::vector<edm::ParameterSet> vpsd_builders;
+    vpsd_builders.push_back(pset_builders);
+    desc.addVPSet("builders", desc_builders, vpsd_builders);
 
     descriptions.add("recoTauPiZeroProducer", desc);
-    //    descriptions.add("ak4PFJetsLegacyHPSPiZerosBoostedDefault", desc); // this one is generated in configs with a strange procedure
-    // RecoTauTag/Configuration/python/boostedHPSPFTaus_cfi.py
-    //    process.PATTauSequenceBoosted = cloneProcessingSnippet(process,process.PATTauSequence, "Boosted", addToTask = True)
+
   }
 
 }
