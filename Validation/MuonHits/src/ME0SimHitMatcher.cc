@@ -23,7 +23,7 @@ void ME0SimHitMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSe
     hasGeometry_ = false;
     std::cout << "+++ Info: ME0 geometry is unavailable. +++\n";
   }
-  ME0SimHitMatcher::init(iEvent, iSetup);
+  MuonSimHitMatcher::init(iEvent, iSetup);
 }
 
 /// do the matching
