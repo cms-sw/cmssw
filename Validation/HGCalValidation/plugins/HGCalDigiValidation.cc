@@ -92,7 +92,6 @@ private:
   std::map<int, int> OccupancyMap_plus_;
   std::map<int, int> OccupancyMap_minus_;
 
-  //std::vector<MonitorElement*> charge_;
   std::vector<MonitorElement*> TOA_;
   std::vector<MonitorElement*> DigiOccupancy_XY_;
   std::vector<MonitorElement*> ADC_;
@@ -192,7 +191,6 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	//double     charge    = adc*gain;
 	double     charge    = gain;
 	bool       totmode   = hgcSample.mode();
 	bool   zerothreshold = hgcSample.threshold();
@@ -222,7 +220,6 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	//double     charge    = adc*gain;
 	double     charge    = gain;
 	bool       totmode   = hgcSample.mode();
 	bool   zerothreshold = hgcSample.threshold();
@@ -249,7 +246,6 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
-	//double     charge    = adc*gain;
 	double     charge    = gain;
 	bool       totmode   = hgcSample.mode();
 	bool   zerothreshold = hgcSample.threshold();
@@ -354,7 +350,6 @@ void HGCalDigiValidation::fillOccupancyMap(std::map<int, int>& OccupancyMap,
 
 void HGCalDigiValidation::fillDigiInfo(digiInfo& hinfo) {
   int ilayer = hinfo.layer;
-  //charge_.at(ilayer)->Fill(hinfo.charge);
   TOA_.at(ilayer)->Fill(hinfo.charge);
     
   if (hinfo.mode) {
@@ -412,8 +407,6 @@ void HGCalDigiValidation::bookHistograms(DQMStore::IBooker& iB,
   std::ostringstream histoname;
   for (int il = 0; il < layers_; ++il) {
     int ilayer = firstLayer_ + il;
-    //histoname.str(""); histoname << "charge_"<< "layer_" << ilayer;
-    //charge_.push_back(iB.book1D(histoname.str().c_str(),"charge_",100,-25,25));
     histoname.str(""); histoname << "TOA_"<< "layer_" << ilayer;
     TOA_.push_back(iB.book1D(histoname.str().c_str(),"toa_",1024,0,1024));
       
