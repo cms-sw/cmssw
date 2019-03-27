@@ -78,7 +78,6 @@ filterType_(pset.getUntrackedParameter<string>("filterType","None"))
   }
   selector_ = HiGenEvtSelectorFactory::get(filterType_,pset);
 
-  HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);
   int cm=1, va, vb, vc;
   PYQVER(cm,va,vb,vc);
 
