@@ -221,12 +221,10 @@ trackdnn.toReplaceWith(detachedQuadStep, TrackLwtnnClassifier.clone(
 ))
 
 highBetaStar_2018.toModify(detachedQuadStep,qualityCuts = [-0.7,0.0,0.5])
-
-pp_on_AA_2018.toReplaceWith(detachedQuadStep, TrackMVAClassifierDetached.clone(
-    src = 'detachedQuadStepTracks',
-    qualityCuts = [-0.2, 0.2, 0.5],
-    mva = dict(GBRForestLabel = 'HIMVASelectorDetachedQuadStep_Phase1')
-))
+pp_on_AA_2018.toModify(detachedQuadStep, 
+        mva = dict(GBRForestLabel = 'HIMVASelectorDetachedQuadStep_Phase1'),
+        qualityCuts = [-0.2, 0.2, 0.5],
+)
 
 fastSim.toModify(detachedQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 

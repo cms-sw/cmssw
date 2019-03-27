@@ -366,10 +366,8 @@ tobTecStep.inputClassifiers=['tobTecStepClassifier1','tobTecStepClassifier2']
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
      mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1'),
-     src = 'tobTecStepTracks',
      qualityCuts = [-0.6,-0.45,-0.3]
 ))
-(trackingPhase1 & fastSim).toModify(tobTecStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
