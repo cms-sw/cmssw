@@ -343,11 +343,8 @@ mixedTripletStep.inputClassifiers=['mixedTripletStepClassifier1','mixedTripletSt
 
 trackingPhase1.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
 	mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1'),
-	src = 'mixedTripletStepTracks',
 	qualityCuts = [-0.5,0.0,0.5]
 ))
-(trackingPhase1 & fastSim).toModify(mixedTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
-
 
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
@@ -357,17 +354,8 @@ trackdnn.toReplaceWith(mixedTripletStep, TrackLwtnnClassifier.clone(
 ))
 (trackdnn & fastSim).toModify(mixedTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
-
-highBetaStar_2018.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
-     qualityCuts = [-0.7,0.0,0.5],
-     mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1')
-))
-
-pp_on_AA_2018.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
-     qualityCuts = [-0.5,0.0,0.9],
-     mva = dict(GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1')
-))
-
+highBetaStar_2018.toModify(mixedTripletStep,qualityCuts = [-0.7,0.0,0.5])
+pp_on_AA_2018.toModify(mixedTripletStep, qualityCuts = [-0.5,0.0,0.9])
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

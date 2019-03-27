@@ -261,17 +261,11 @@ trackdnn.toReplaceWith(highPtTripletStep, TrackLwtnnClassifier.clone(
     qualityCuts = [0.75, 0.775, 0.8],
 ))
 
-highBetaStar_2018.toReplaceWith(highPtTripletStep, TrackMVAClassifierPrompt.clone(
-     qualityCuts = [-0.2,0.3,0.4],
-     src = 'highPtTripletStepTracks',
-     mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1') 
-))
-
-pp_on_AA_2018.toReplaceWith(highPtTripletStep, TrackMVAClassifierPrompt.clone(
-     qualityCuts = [-0.9, -0.3, 0.85],
-     src = 'highPtTripletStepTracks',
-     mva = dict(GBRForestLabel = 'HIMVASelectorHighPtTripletStep_Phase1')
-))
+highBetaStar_2018.toModify(highPtTripletStep,qualityCuts = [-0.2,0.3,0.4])
+pp_on_AA_2018.toModify(highPtTripletStep, 
+        mva = dict(GBRForestLabel = 'HIMVASelectorHighPtTripletStep_Phase1'),
+        qualityCuts = [-0.9, -0.3, 0.85],
+)
 
 fastSim.toModify(highPtTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 

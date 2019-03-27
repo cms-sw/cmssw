@@ -294,10 +294,8 @@ from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 
 trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
 	mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
-	src = 'pixelLessStepTracks',
 	qualityCuts = [-0.4,0.0,0.4]
 ))
-(trackingPhase1 & fastSim).toModify(pixelLessStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
@@ -307,10 +305,7 @@ trackdnn.toReplaceWith(pixelLessStep, TrackLwtnnClassifier.clone(
 ))
 (trackdnn & fastSim).toModify(pixelLessStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
-pp_on_AA_2018.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
-     qualityCuts = [-0.4,0.0,0.8],
-     mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1')
-))
+pp_on_AA_2018.toModify(pixelLessStep, qualityCuts = [-0.4,0.0,0.8])
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
