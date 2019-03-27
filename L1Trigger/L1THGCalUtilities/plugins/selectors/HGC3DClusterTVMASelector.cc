@@ -16,7 +16,7 @@ namespace l1t {
     class HGC3DClusterTMVASelector : public edm::stream::EDProducer<> {
         public:
             explicit HGC3DClusterTMVASelector(const edm::ParameterSet&) ;
-            ~HGC3DClusterTMVASelector() {}
+            ~HGC3DClusterTMVASelector() override {}
 
         private:
             class Var {
@@ -39,7 +39,7 @@ namespace l1t {
             StringObjectFunction<l1t::HGCalMulticluster> wp_;
 
 
-            virtual void produce(edm::Event&, const edm::EventSetup&) override;
+            void produce(edm::Event&, const edm::EventSetup&) override;
 
     }; // class
 } // namespace

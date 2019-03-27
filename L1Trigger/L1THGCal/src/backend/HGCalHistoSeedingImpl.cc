@@ -30,8 +30,6 @@ HGCalHistoSeedingImpl::HGCalHistoSeedingImpl( const edm::ParameterSet& conf ) :
     <<"\nMulticluster MIPT threshold for histo threshold algorithm: " << histoThreshold_
     <<"\nMulticluster type of multiclustering algortihm: " << seedingAlgoType_;
 
-    id_ = std::unique_ptr<HGCalTriggerClusterIdentificationBase>{ HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT") };
-    id_->initialize(conf.getParameter<edm::ParameterSet>("EGIdentification"));
     if(seedingAlgoType_.find("Histo")!=std::string::npos && nBinsRHisto_!=binsSumsHisto_.size()){
       throw cms::Exception("Inconsistent bin size") <<  "Inconsistent nBins_R_histo_multicluster ( " << nBinsRHisto_ << " ) and binSumsHisto ( " << binsSumsHisto_.size() << " ) size in HGCalMulticlustering\n";
     }

@@ -11,12 +11,12 @@ namespace l1t {
     class HGC3DClusterSimpleSelector : public edm::stream::EDProducer<> {
         public:
             explicit HGC3DClusterSimpleSelector(const edm::ParameterSet&) ;
-            ~HGC3DClusterSimpleSelector() {}
+            ~HGC3DClusterSimpleSelector() override {}
 
         private:
             edm::EDGetTokenT<l1t::HGCalMulticlusterBxCollection> src_;
             StringCutObjectSelector<l1t::HGCalMulticluster> cut_;
-            virtual void produce(edm::Event&, const edm::EventSetup&) override;
+            void produce(edm::Event&, const edm::EventSetup&) override;
 
     }; // class
 } // namespace
