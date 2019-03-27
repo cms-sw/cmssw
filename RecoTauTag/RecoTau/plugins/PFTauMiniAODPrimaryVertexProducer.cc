@@ -11,6 +11,7 @@ class PFTauMiniAODPrimaryVertexProducer final : public PFTauPrimaryVertexProduce
   ~PFTauMiniAODPrimaryVertexProducer() override;
 
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  protected:
   void nonTauTracksInPV(const reco::VertexRef&,
@@ -86,6 +87,15 @@ void PFTauMiniAODPrimaryVertexProducer::nonTauTracksInPVFromPackedCands(const si
     }
     if( !matched ) nonTauTracks.push_back(track);
   }
+}
+
+void
+PFTauMiniAODPrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  auto desc = PFTauPrimaryVertexProducerBase::getDescriptionsBase();
+  desc.add<edm::InputTag>("lostCandidatesTag", edm::InputTag("lostTracks"));
+  desc.add<edm::InputTag>("packedCandidatesTag", edm::InputTag("packedPFCandidates"));
+
+  descriptions.add("PFTauMiniAODPrimaryVertexProducer", desc);
 }
 
 DEFINE_FWK_MODULE(PFTauMiniAODPrimaryVertexProducer);

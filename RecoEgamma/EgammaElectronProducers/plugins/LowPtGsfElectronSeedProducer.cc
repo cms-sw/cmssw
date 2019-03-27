@@ -18,8 +18,8 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -406,15 +406,14 @@ void LowPtGsfElectronSeedProducer::propagateTrackToCalo( const reco::TrackRef& k
 					     kfTrackRef->outerPosition().z(),
 					     0. );
   math::XYZVector field(field_->inTesla(GlobalPoint(0,0,0)));
-  BaseParticlePropagator particle( RawParticle(mom,pos), 0, 0, field.z() );
-  particle.setCharge(kfTrackRef->charge());
+  BaseParticlePropagator particle( RawParticle(mom,pos,kfTrackRef->charge()), 0, 0, field.z() );
   particle.propagateToEcalEntrance(false);
   if ( particle.getSuccess() == 0 ) { return; }
   
   // ECAL entry point for track
-  GlobalPoint ecal_pos(particle.vertex().x(),
-		       particle.vertex().y(),
-		       particle.vertex().z());
+  GlobalPoint ecal_pos(particle.particle().vertex().x(),
+		       particle.particle().vertex().y(),
+		       particle.particle().vertex().z());
 
   // Preshower limit
   bool below_ps = pow(ecal_pos.z(),2.) > boundary_*ecal_pos.perp2();
@@ -428,9 +427,9 @@ void LowPtGsfElectronSeedProducer::propagateTrackToCalo( const reco::TrackRef& k
 							      below_ps,
 							      false);
     GlobalPoint showerPos = ecal_pos + 
-      GlobalVector(particle.momentum().x(),
-		   particle.momentum().y(),
-		   particle.momentum().z()).unit() * shower_depth;
+      GlobalVector(particle.particle().momentum().x(),
+		   particle.particle().momentum().y(),
+		   particle.particle().momentum().z()).unit() * shower_depth;
 
     // Determine dR squared
     float dr2 = reco::deltaR2( cluRef->positionREP(), showerPos );

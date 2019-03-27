@@ -7,6 +7,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "RecoTauTag/RecoTau/interface/AntiElectronIDMVA5.h"
 
@@ -39,8 +42,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA5 : public PFTauDiscriminationPro
     srcGsfElectrons_ = cfg.getParameter<edm::InputTag>("srcGsfElectrons");
     GsfElectrons_token = consumes<reco::GsfElectronCollection>(srcGsfElectrons_);
 
-    verbosity_ = ( cfg.exists("verbosity") ) ?
-      cfg.getParameter<int>("verbosity") : 0;
+    verbosity_ = cfg.getParameter<int>("verbosity");
 
     // add category index
     produces<PFTauDiscriminator>("category");
@@ -57,6 +59,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA5 : public PFTauDiscriminationPro
     delete mva_;
   }
 
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 private:
   bool isInEcalCrack(double) const;
 
@@ -235,6 +238,62 @@ PFRecoTauDiscriminationAgainstElectronMVA5::isInEcalCrack(double eta) const
 {
   double absEta = fabs(eta);
   return (absEta > 1.460 && absEta < 1.558);
+}
+
+void
+PFRecoTauDiscriminationAgainstElectronMVA5::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationAgainstElectronMVA5
+  edm::ParameterSetDescription desc;
+  desc.add<double>("minMVANoEleMatchWOgWOgsfBL", 0.0);
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfTauProducer"));
+  desc.add<std::string>("mvaName_woGwoGSF_EC", "gbr_woGwoGSF_EC");
+  desc.add<double>("minMVANoEleMatchWgWOgsfBL", 0.0);
+  desc.add<std::string>("mvaName_woGwGSF_EC", "gbr_woGwGSF_EC");
+  desc.add<std::string>("mvaName_wGwGSF_EC", "gbr_wGwGSF_EC");
+  desc.add<double>("minMVAWgWgsfBL", 0.0);
+  desc.add<double>("minMVAWgWOgsfBL", 0.0);
+  desc.add<double>("minMVANoEleMatchWgWgsfBL", 0.0);
+  desc.add<double>("minMVAWOgWgsfEC", 0.0);
+  desc.add<std::string>("mvaName_wGwGSF_BL", "gbr_wGwGSF_BL");
+  desc.add<std::string>("mvaName_woGwGSF_BL", "gbr_woGwGSF_BL");
+  desc.add<bool>("returnMVA", true);
+  desc.add<double>("minMVANoEleMatchWgWOgsfEC", 0.0);
+  desc.add<bool>("loadMVAfromDB", true);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<std::string>("mvaName_wGwoGSF_EC", "gbr_wGwoGSF_EC");
+  desc.add<std::string>("mvaName_NoEleMatch_woGwoGSF_BL", "gbr_NoEleMatch_woGwoGSF_BL");
+  desc.add<double>("minMVAWOgWOgsfEC", 0.0);
+  desc.add<std::string>("mvaName_woGwoGSF_BL", "gbr_woGwoGSF_BL");
+  desc.add<std::string>("mvaName_wGwoGSF_BL", "gbr_wGwoGSF_BL");
+  desc.add<double>("minMVANoEleMatchWOgWOgsfEC", 0.0);
+  desc.add<std::string>("mvaName_NoEleMatch_woGwGSF_BL", "gbr_NoEleMatch_woGwGSF_BL");
+  desc.add<double>("minMVANoEleMatchWgWgsfEC", 0.0);
+  desc.add<double>("minMVAWOgWgsfBL", 0.0);
+  desc.add<double>("minMVANoEleMatchWOgWgsfEC", 0.0);
+  desc.add<double>("minMVAWgWOgsfEC", 0.0);
+  desc.add<std::string>("mvaName_NoEleMatch_wGwGSF_EC", "gbr_NoEleMatch_wGwGSF_EC");
+  desc.add<double>("minMVAWgWgsfEC", 0.0);
+  desc.add<int>("verbosity", 0);
+  desc.add<double>("minMVANoEleMatchWOgWgsfBL", 0.0);
+  desc.add<std::string>("mvaName_NoEleMatch_wGwoGSF_EC", "gbr_NoEleMatch_wGwoGSF_EC");
+  desc.add<std::string>("method", "BDTG");
+  desc.add<std::string>("mvaName_NoEleMatch_wGwGSF_BL", "gbr_NoEleMatch_wGwGSF_BL");
+  desc.add<std::string>("mvaName_NoEleMatch_wGwoGSF_BL", "gbr_NoEleMatch_wGwoGSF_BL");
+  desc.add<edm::InputTag>("srcGsfElectrons", edm::InputTag("gedGsfElectrons"));
+  desc.add<double>("minMVAWOgWOgsfBL", 0.0);
+  desc.add<std::string>("mvaName_NoEleMatch_woGwoGSF_EC", "gbr_NoEleMatch_woGwoGSF_EC");
+  desc.add<std::string>("mvaName_NoEleMatch_woGwGSF_EC", "gbr_NoEleMatch_woGwGSF_EC");
+  descriptions.add("pfRecoTauDiscriminationAgainstElectronMVA5", desc);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectronMVA5);

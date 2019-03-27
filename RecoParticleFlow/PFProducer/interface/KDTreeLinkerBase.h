@@ -9,9 +9,7 @@
 class KDTreeLinkerBase
 {
  public:
-  KDTreeLinkerBase();
-
-  virtual ~KDTreeLinkerBase();
+  virtual ~KDTreeLinkerBase() {}
 
   void setTargetType(const reco::PFBlockElement::Type& tgt) { 
     _targetType = tgt; 
@@ -31,15 +29,9 @@ class KDTreeLinkerBase
 
   // Get/Set of the maximal size of the cristal (ECAL, HCAL,...) in phi/eta and
   // X/Y. By default, thus value are set for the ECAL cristal.
-  void setCristalPhiEtaMaxSize(float size);
-  void setCristalXYMaxSize(float size);
-  float getCristalPhiEtaMaxSize() const;
-  float getCristalXYMaxSize() const;
 
   // Get/Set phi offset. See bellow in the description of phiOffset_ to understand
   // the application.
-  void setPhiOffset(double phiOffset);
-  float getPhiOffset() const;
 
   // Debug flag. 
   void setDebug(bool isDebug);
@@ -69,23 +61,29 @@ class KDTreeLinkerBase
 
   // This method calls is the good order buildTree(), searchLinks(), 
   // updatePFBlockEltWithLinks() and clear()
-  virtual void process();
+  inline void process()
+  {
+    buildTree();
+    searchLinks();
+    updatePFBlockEltWithLinks();
+    clear();
+  }
 
  protected:
   // target and field
   reco::PFBlockElement::Type _targetType,_fieldType;
   // Cristal maximal size. By default, thus value are set for the ECAL cristal.
-  float			cristalPhiEtaMaxSize_;
-  float			cristalXYMaxSize_;
+  float			cristalPhiEtaMaxSize_ = 0.04;
+  float			cristalXYMaxSize_ = 3.;
 
   // Usually, phi is between -Pi and +Pi. But phi space is circular, that's why an element 
   // with phi = 3.13 and another with phi = -3.14 are close. To solve this problem, during  
   // the kdtree building step, we duplicate some elements close enough to +Pi (resp -Pi) by
   // substracting (adding) 2Pi. This field define the threshold of this operation.
-  float			phiOffset_;
+  float			phiOffset_ = 0.25;
 
   // Debug boolean. Not used until now.
-  bool			debug_;
+  bool			debug_ = false;
 };
 
 

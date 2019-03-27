@@ -10,6 +10,8 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include <vdt/vdtMath.h>
 
@@ -214,11 +216,12 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
   int iEta;
   float cryPhi;
   float cryEta;
-  EcalClusterLocal ecalLocal;
+  edm::ESHandle<CaloGeometry> caloGeometry;
+  iSetup_->get<CaloGeometryRecord>().get(caloGeometry); 
   if (ele.isEB())
-    ecalLocal.localCoordsEB(*theseed, *iSetup_, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
+    egammaTools::localEcalClusterCoordsEB(*theseed, *caloGeometry, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
   else
-    ecalLocal.localCoordsEE(*theseed, *iSetup_, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
+    egammaTools::localEcalClusterCoordsEE(*theseed, *caloGeometry, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
 
   if (isEB) {
     eval[29] = cryEta;

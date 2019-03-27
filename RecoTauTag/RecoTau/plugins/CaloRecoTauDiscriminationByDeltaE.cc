@@ -2,6 +2,9 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 /* class CaloRecoTauDiscriminationByDeltaE
  * created : September 23 2010,
  * contributors : Sami Lehti (sami.lehti@cern.ch ; HIP, Helsinki)
@@ -29,6 +32,7 @@ class CaloRecoTauDiscriminationByDeltaE final : public CaloTauDiscriminationProd
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 	double discriminate(const reco::CaloTauRef&) const override;
 
+        static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     private:
 	double DeltaE(const CaloTauRef&) const ;
 
@@ -61,6 +65,28 @@ double CaloRecoTauDiscriminationByDeltaE::DeltaE(const CaloTauRef& tau) const {
 	}
 	if(tau->leadTrackHCAL3x3hitsEtSum() == 0) return -1; // electron
 	return tracksE/tau->leadTrackHCAL3x3hitsEtSum() - 1.0;
+}
+
+void
+CaloRecoTauDiscriminationByDeltaE::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // caloRecoTauDiscriminationByDeltaE
+  edm::ParameterSetDescription desc;
+  desc.add<double>("deltaEmin", -0.15);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<double>("deltaEmax", 1.0);
+  desc.add<bool>("BooleanOutput", true);
+  desc.add<edm::InputTag>("TauProducer", edm::InputTag("caloRecoTauProducer"));
+  descriptions.add("caloRecoTauDiscriminationByDeltaE", desc);
 }
 
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByDeltaE);

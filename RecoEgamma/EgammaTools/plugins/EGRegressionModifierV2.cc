@@ -8,6 +8,8 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include <vdt/vdtMath.h>
 
@@ -162,13 +164,14 @@ void EGRegressionModifierV2::modifyObject(reco::GsfElectron& ele) const {
   eval[25]  = std::max(0,numberOfClusters);
 
   // calculate coordinate variables
-  EcalClusterLocal ecalLocal;
+  edm::ESHandle<CaloGeometry> caloGeometry;
+  iSetup_->get<CaloGeometryRecord>().get(caloGeometry); 
   if (isEB) {
 
     float dummy;
     int ieta;
     int iphi;
-    ecalLocal.localCoordsEB(*seed, *iSetup_, dummy, dummy, ieta, iphi, dummy, dummy);
+    egammaTools::localEcalClusterCoordsEB(*seed, *caloGeometry, dummy, dummy, ieta, iphi, dummy, dummy);
     eval[26] = ieta;
     eval[27] = iphi;
     int signieta = ieta > 0 ? +1 : -1;
@@ -182,7 +185,7 @@ void EGRegressionModifierV2::modifyObject(reco::GsfElectron& ele) const {
     float dummy;
     int ix;
     int iy;
-    ecalLocal.localCoordsEE(*seed, *iSetup_, dummy, dummy, ix, iy, dummy, dummy);
+    egammaTools::localEcalClusterCoordsEE(*seed, *caloGeometry, dummy, dummy, ix, iy, dummy, dummy);
     eval[26] = ix;
     eval[27] = iy;
     eval[28] = raw_es_energy/rawEnergy;
@@ -354,14 +357,15 @@ void EGRegressionModifierV2::modifyObject(reco::Photon& pho) const {
   eval[25]  = std::max(0,numberOfClusters);
 
   // calculate coordinate variables
-  EcalClusterLocal ecalLocal;
+  edm::ESHandle<CaloGeometry> caloGeometry;
+  iSetup_->get<CaloGeometryRecord>().get(caloGeometry); 
 
   if (isEB) {
 
     float dummy;
     int ieta;
     int iphi;
-    ecalLocal.localCoordsEB(*seed, *iSetup_, dummy, dummy, ieta, iphi, dummy, dummy);
+    egammaTools::localEcalClusterCoordsEB(*seed, *caloGeometry, dummy, dummy, ieta, iphi, dummy, dummy);
     eval[26] = ieta;
     eval[27] = iphi;
     int signieta = ieta > 0 ? +1 : -1;
@@ -375,7 +379,7 @@ void EGRegressionModifierV2::modifyObject(reco::Photon& pho) const {
     float dummy;
     int ix;
     int iy;
-    ecalLocal.localCoordsEE(*seed, *iSetup_, dummy, dummy, ix, iy, dummy, dummy);
+    egammaTools::localEcalClusterCoordsEE(*seed, *caloGeometry, dummy, dummy, ix, iy, dummy, dummy);
     eval[26] = ix;
     eval[27] = iy;
     eval[28] = raw_es_energy/rawEnergy;

@@ -1,6 +1,9 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 class RecoTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
   public:
     explicit RecoTauDecayModeCutMultiplexer(const edm::ParameterSet& pset);
@@ -9,6 +12,7 @@ class RecoTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
     double discriminate(const reco::PFTauRef&) const override;
     void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
     typedef std::pair<unsigned int, unsigned int> IntPair;
     typedef std::map<IntPair, double> DecayModeCutMap;
@@ -59,5 +63,27 @@ RecoTauDecayModeCutMultiplexer::discriminate(const reco::PFTauRef& tau) const {
   // See if the discriminator passes our cuts
   return disc_result > cutIter->second;
 }
+
+void
+RecoTauDecayModeCutMultiplexer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // recoTauDecayModeCutMultiplexer
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("toMultiplex");
+
+  edm::ParameterSetDescription vpsd_decayModes;
+
+  vpsd_decayModes.add<uint32_t>("nCharged");
+  vpsd_decayModes.add<uint32_t>("nPiZeros");
+  vpsd_decayModes.add<double>("cut");
+
+  //            name          description       no defaults items
+  desc.addVPSet("decayModes", vpsd_decayModes);
+
+  fillProducerDescriptions(desc); // inherited from the base
+
+  descriptions.add("recoTauDecayModeCutMultiplexer", desc);
+}
+
 
 DEFINE_FWK_MODULE(RecoTauDecayModeCutMultiplexer);
