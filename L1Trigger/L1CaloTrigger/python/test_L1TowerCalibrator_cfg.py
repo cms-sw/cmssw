@@ -59,48 +59,16 @@ process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 
 
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
-# Delete processes with tracks to avoid making them
-del process.l1TkMuonStubEndCap
-del process.L1TkPrimaryVertex
-del process.L1TkElectrons
-del process.L1TkIsoElectrons
-del process.L1TkPhotons
-del process.L1TkCaloJets
-del process.L1TrackerJets
-del process.L1TrackerEtMiss
-del process.L1TkCaloHTMissVtx
-del process.L1TrackerHTMiss
-del process.L1TkMuons
-del process.L1TkGlbMuons
-del process.L1TkTauFromCalo
-del process.l1ParticleFlow
-del process.l1PFMets
-del process.l1PFJets
-del process.l1pfTauProducer
-del process.L1TkMuonStub
-del process.VertexProducer
-del process.l1KBmtfStubMatchedMuons
-del process.l1StubMatchedMuons
-del process.pfTracksFromL1Tracks
-del process.l1pfProducer
-del process.ak4L1Calo
-del process.ak4L1TK
-del process.ak4L1TKV
-del process.ak4L1PF
-del process.ak4L1Puppi
-del process.ak4L1TightTK
-del process.ak4L1TightTKV
-del process.pfClustersFromL1EGClusters
-del process.pfClustersFromCombinedCalo
-del process.l1pfProducerForMET
-del process.l1pfProducerTightTK
-del process.l1MetCalo
-del process.l1MetTK
-del process.l1MetTKV
-del process.l1MetPF
-del process.l1MetPuppi
-del process.l1MetTightTK
-del process.l1MetTightTKV
+
+
+
+### Based on: L1Trigger/L1TCommon/test/reprocess_test_10_4_0_mtd5.py
+### This code is a portion of what is imported and excludes the 'schedule' portion
+### of the two lines below.  It makes the test script run!
+### from L1Trigger.Configuration.customiseUtils import L1TrackTriggerTracklet
+### process = L1TrackTriggerTracklet(process)
+process.load('L1Trigger.TrackFindingTracklet.L1TrackletTracks_cff')
+process.L1TrackTriggerTracklet_step = cms.Path(process.L1TrackletTracksWithAssociators)
 
 
 
