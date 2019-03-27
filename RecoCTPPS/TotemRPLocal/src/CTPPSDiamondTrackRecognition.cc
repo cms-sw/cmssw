@@ -13,7 +13,8 @@
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::ParameterSet& iConfig ) :
-  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( iConfig )
+  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( iConfig ),
+  excludeSingleEdgeHits_( iConfig.getParameter<bool>( "excludeSingleEdgeHits" ) )
 {}
 
 //----------------------------------------------------------------------------------------------------
@@ -81,7 +82,7 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
       // find contributing hits
       HitVector componentHits;
       for ( const auto& hit : hits )
-        if ( newTrack.containsHit( hit, tolerance_ ) )
+        if ( newTrack.containsHit( hit, tolerance_ ) && ( !excludeSingleEdgeHits_ || hit.getToT() > 0. ) )
           componentHits.emplace_back( hit );
       // compute timing information
       float mean_time = 0.f, time_sigma = 0.f;

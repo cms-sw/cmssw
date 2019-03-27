@@ -135,6 +135,8 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
     ->setComment( "vertical offset of the outcoming track centre" );
   trackingAlgoParams.add<double>( "yWidth", 0.0 )
     ->setComment( "vertical track width" );
+  trackingAlgoParams.add<bool>( "excludeSingleEdgeHits", true )
+    ->setComment( "exclude rechits with missing leading/trailing edge" );
 
   desc.add<edm::ParameterSetDescription>( "trackingAlgorithmParams", trackingAlgoParams )
     ->setComment( "list of parameters associated to the track recognition algorithm" );
