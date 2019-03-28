@@ -29,9 +29,12 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   ParameterSet pgun_params =
     pset.getParameter<ParameterSet>("PGunParameters") ;
 
-  fEn = pgun_params.getParameter<double>("En");
-  fR = pgun_params.getParameter<double>("R");
-  fZ = pgun_params.getParameter<double>("Z");
+  fEnMax = pgun_params.getParameter<double>("EnMax");
+  fEnMin = pgun_params.getParameter<double>("EnMin");
+  fRMax = pgun_params.getParameter<double>("RMax");
+  fRMin = pgun_params.getParameter<double>("RMin");
+  fZMax = pgun_params.getParameter<double>("ZMax");
+  fZMin = pgun_params.getParameter<double>("ZMin");
   fDelta = pgun_params.getParameter<double>("Delta");
   fPartIDs = pgun_params.getParameter< vector<int> >("PartID");
   fPointing = pgun_params.getParameter<bool>("Pointing");
@@ -60,6 +63,10 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
    //
    int barcode = 1 ;
    double phi = CLHEP::RandFlat::shoot(engine, -3.14159265358979323846, 3.14159265358979323846);
+   double fR = CLHEP::RandFlat::shoot(engine,fRMin,fRMax);
+   double fZ = CLHEP::RandFlat::shoot(engine,fZMin,fZMax);
+   double fEn = CLHEP::RandFlat::shoot(engine,fEnMin,fEnMax);
+
    for (unsigned int ip=0; ip<fPartIDs.size(); ++ip, phi += fDelta/fR)
    {
 
