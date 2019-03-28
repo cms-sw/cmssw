@@ -339,7 +339,7 @@ workflows[136.860] = ['',['RunCharmonium2018A','HLTDR2_2018','RECODR2_2018reHLT_
 ### wf to test 90 m beta* Totem run reconstruction ###
 workflows[136.8501] = ['',['RunEGamma2018A','HLTDR2_2018','RECODR2_2018reHLT_skimParkingBPH_Offline','HARVEST2018']]
 workflows[136.8561] = ['',['RunZeroBias_hBStarTk','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Offline_hBStar','HARVEST2018_hBStar']]
-workflows[136.8562] = ['',['RunZeroBias1_hBStarRP','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Prompt_hBStar','HARVEST2018_hBStar']]
+workflows[136.8562] = ['',['RunZeroBias1_hBStarRP','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Offline_hBStar','HARVEST2018_hBStar']]
 
 ### NANOAOD wf on 2018 prompt reco MINIADD
 workflows[136.8521] = ['',['RunJetHT2018A_nano','NANOEDM2018','HARVESTNANOAOD2018']]
