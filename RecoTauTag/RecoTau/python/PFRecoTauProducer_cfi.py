@@ -1,4 +1,4 @@
-from RecoTauTag.RecoTau.PFRecoTauProducerDef_cfi import PFRecoTauProducerDef
+from RecoTauTag.RecoTau.pfRecoTauProducerDef_cfi import pfRecoTauProducerDef
 
-pfRecoTauProducer = PFRecoTauProducerDef.clone()
+pfRecoTauProducer = pfRecoTauProducerDef.clone()
 
