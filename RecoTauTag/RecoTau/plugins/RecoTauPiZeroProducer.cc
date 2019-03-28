@@ -313,9 +313,10 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc_qualityCuts.add<bool>("recoverLeadingTrk", false);
 
   edm::ParameterSet pset_builders;
-  //pset_builders.addParameter<edm::ParameterSet>("qualityCuts");
   pset_builders.addParameter<std::string>("name","");
   pset_builders.addParameter<std::string>("plugin","");
+  edm::ParameterSet qualityCuts;
+  pset_builders.addParameter<edm::ParameterSet>("qualityCuts",qualityCuts);
   pset_builders.addParameter<int>("verbosity",0);
 
   {
