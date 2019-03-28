@@ -45,7 +45,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('TPEHists.root')
 )
 
-process.load("CSCTriggerPrimitivesReader_cfi")
+process.load("L1Trigger.CSCTriggerPrimitives.CSCTriggerPrimitivesReader_cfi")
 process.lctreader.debug = True
 
 process.p = cms.Path(process.lctreader)
