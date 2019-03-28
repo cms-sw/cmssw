@@ -109,22 +109,23 @@ void HGCalCLUEAlgo::makeClusters() {
 std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
   reco::CaloID caloID = reco::CaloID::DET_HGCAL_ENDCAP;
   std::vector<std::pair<DetId, float>> thisCluster;
-  for (auto &clsOnLayer : layerClustersPerLayer_) {
-    for (unsigned int i = 0; i < clsOnLayer.size(); ++i) {
+  for (const auto &clsOnLayer : layerClustersPerLayer_) {
+    int index = 0;
+    for (const auto &cl : clsOnLayer) {
       double energy = 0;
       Point position;
       // Will save the maximum density hit of the cluster
-      size_t rsmax = max_index(clsOnLayer[i]);
-      position = calculatePosition(clsOnLayer[i]);  // energy-weighted position
-      for (auto &it : clsOnLayer[i]) {
+      size_t rsmax = max_index(cl);
+      position = calculatePosition(cl);  // energy-weighted position
+      for (const auto &it : cl) {
         energy += it.data.weight;
         thisCluster.emplace_back(it.data.detid, 1.f);
       }
       if (verbosity_ < pINFO) {
         LogDebug("HGCalCLUEAlgo")
           << "******** NEW CLUSTER (HGCIA) ********"
-          << "Index          " << i
-          << "No. of cells = " << clsOnLayer[i].size()
+          << "Index          " << index
+          << "No. of cells = " << cl.size()
           << "     Energy     = " << energy
           << "     Phi        = " << position.phi()
           << "     Eta        = " << position.eta()
@@ -132,15 +133,16 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
       }
       clusters_v_.emplace_back(energy, position, caloID, thisCluster, algoId_);
       if (!clusters_v_.empty()) {
-        clusters_v_.back().setSeed(clsOnLayer[i][rsmax].data.detid);
+        clusters_v_.back().setSeed(cl[rsmax].data.detid);
       }
       thisCluster.clear();
+      index++;
     }
   }
   return clusters_v_;
 }
 
-math::XYZPoint HGCalCLUEAlgo::calculatePosition(std::vector<KDNode> &v) const {
+math::XYZPoint HGCalCLUEAlgo::calculatePosition(const std::vector<KDNode> &v) const {
   float total_weight = 0.f;
   float x = 0.f;
   float y = 0.f;
@@ -188,7 +190,7 @@ math::XYZPoint HGCalCLUEAlgo::calculatePosition(std::vector<KDNode> &v) const {
     for (auto idx : innerIndices) {
       float rhEnergy = v[idx].data.weight;
       if (rhEnergy == 0.) continue;
-      float Wi = std::max(thresholdW0_[thick] + log(rhEnergy / total_weight), 0.);
+      float Wi = std::max(thresholdW0_[thick] + std::log(rhEnergy / total_weight), 0.);
       x_log += v[idx].data.x * Wi;
       y_log += v[idx].data.y * Wi;
       total_weight_log += Wi;
@@ -237,7 +239,7 @@ double HGCalCLUEAlgo::calculateLocalDensity(std::vector<KDNode> &nd, KDTree &lp,
 
 double HGCalCLUEAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd) const {
   // sort vector of Hexels by decreasing local density
-  std::vector<size_t> rs = sorted_indices(nd);
+  std::vector<size_t> &&rs = sorted_indices(nd);
 
   double maxdensity = 0.0;
   int nearestHigher = -1;
@@ -250,7 +252,7 @@ double HGCalCLUEAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd) const {
   // start by setting delta for the highest density hit to
   // the most distant hit - this is a convention
 
-  for (auto &j : nd) {
+  for (const auto &j : nd) {
     double tmp = distance2(nd[rs[0]].data, j.data);
     if (tmp > dist2) dist2 = tmp;
   }
