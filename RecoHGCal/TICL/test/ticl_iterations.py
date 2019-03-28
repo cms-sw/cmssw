@@ -20,9 +20,9 @@ def TICL_iterations_withReco(process):
   process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_TrackstersToMultiCluster*_*_*'])
 
   process.FilteredLayerClustersMIP = FilteredLayerClusters.clone()
-  process.FilteredLayerClustersMIP.ClusterFilter = "ClusterFilterByAlgoOrSize"
-  process.FilteredLayerClustersMIP.algo_number = 9
-  process.FilteredLayerClustersMIP.max_cluster_size = 5 # inclusive
+  process.FilteredLayerClustersMIP.ClusterFilter = "ClusterFilterBySize"
+  process.FilteredLayerClustersMIP.algo_number = 8
+  process.FilteredLayerClustersMIP.max_cluster_size = 2 # inclusive
   process.FilteredLayerClustersMIP.iteration_label = "MIP"
   process.TrackstersMIP = Tracksters.clone()
   process.TrackstersMIP.original_layerclusters_mask = cms.InputTag("hgcalLayerClusters", "InitialLayerClustersMask")
@@ -39,6 +39,7 @@ def TICL_iterations_withReco(process):
   process.FilteredLayerClusters = FilteredLayerClusters.clone()
   process.FilteredLayerClusters.algo_number = 8
   process.FilteredLayerClusters.iteration_label = "algo8"
+  process.FilteredLayerClusters.LayerClustersInputMask = cms.InputTag("TrackstersMIP")
   process.Tracksters = Tracksters.clone()
   process.Tracksters.original_layerclusters_mask = cms.InputTag("TrackstersMIP")
   process.Tracksters.filtered_layerclusters_mask = cms.InputTag("FilteredLayerClusters", "algo8")
@@ -51,13 +52,13 @@ def TICL_iterations_withReco(process):
   process.TrackstersToMultiCluster.Tracksters = cms.InputTag("Tracksters", "TrackstersByCA")
 
 
-  process.hgcalLayerClusters.ecut = 5
-  process.hgcalLayerClusters.splitFullHaloClusters = True
-  process.hgcalLayerClusters.promote_single_nodes = True
-  process.hgcalLayerClusters.ecut_miplike = 15
-  process.hgcalLayerClusters.apply_cutoff_distance = False
-  process.hgcalLayerClusters.cutoff_distance = 15.
-  process.hgcalLayerClusters.verbosity = 10
+#  process.hgcalLayerClusters.ecut = 5
+#  process.hgcalLayerClusters.splitFullHaloClusters = True
+#  process.hgcalLayerClusters.promote_single_nodes = True
+#  process.hgcalLayerClusters.ecut_miplike = 15
+#  process.hgcalLayerClusters.apply_cutoff_distance = False
+#  process.hgcalLayerClusters.cutoff_distance = 15.
+#  process.hgcalLayerClusters.verbosity = 10
   process.hgcalMultiClusters = hgcalMultiClusters
   process.TICL = cms.Path(
       process.FilteredLayerClustersMIP
@@ -72,9 +73,9 @@ def TICL_iterations(process):
   process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_TrackstersToMultiCluster*_*_*'])
 
   process.FilteredLayerClustersMIP = FilteredLayerClusters.clone()
-  process.FilteredLayerClustersMIP.ClusterFilter = "ClusterFilterByAlgoOrSize"
-  process.FilteredLayerClustersMIP.algo_number = 9
-  process.FilteredLayerClustersMIP.max_cluster_size = 3 # inclusive
+  process.FilteredLayerClustersMIP.ClusterFilter = "ClusterFilterBySize"
+  process.FilteredLayerClustersMIP.algo_number = 8
+  process.FilteredLayerClustersMIP.max_cluster_size = 2 # inclusive
   process.FilteredLayerClustersMIP.iteration_label = "MIP"
   process.TrackstersMIP = Tracksters.clone()
   process.TrackstersMIP.original_layerclusters_mask = cms.InputTag("hgcalLayerClusters", "InitialLayerClustersMask")
@@ -105,13 +106,13 @@ def TICL_iterations(process):
   process.HGCalUncalibRecHit = HGCalUncalibRecHit
   process.HGCalRecHit = HGCalRecHit
   process.hgcalLayerClusters = hgcalLayerClusters
-  process.hgcalLayerClusters.ecut = 5
-  process.hgcalLayerClusters.splitFullHaloClusters = True
-  process.hgcalLayerClusters.promote_single_nodes = True
-  process.hgcalLayerClusters.ecut_miplike = 15
-  process.hgcalLayerClusters.apply_cutoff_distance = False
-  process.hgcalLayerClusters.cutoff_distance = 15.
-  process.hgcalLayerClusters.verbosity = 10
+#  process.hgcalLayerClusters.ecut = 5
+#  process.hgcalLayerClusters.splitFullHaloClusters = True
+#  process.hgcalLayerClusters.promote_single_nodes = True
+#  process.hgcalLayerClusters.ecut_miplike = 15
+#  process.hgcalLayerClusters.apply_cutoff_distance = False
+#  process.hgcalLayerClusters.cutoff_distance = 15.
+#  process.hgcalLayerClusters.verbosity = 10
   process.hgcalMultiClusters = hgcalMultiClusters
   process.TICL = cms.Path(process.HGCalUncalibRecHit
       + process.HGCalRecHit
