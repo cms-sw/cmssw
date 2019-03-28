@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import copy
@@ -25,7 +26,7 @@ layerscheme = { 'lastLayerEEzm': 0, 'lastLayerFHzm': 0, 'maxlayerzm': 0, 'lastLa
 #Let's take the relevant values of layerscheme from the dqm file.
 theDQMfile =  "DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root" 
 if not os.path.isfile(theDQMfile):
-    print "Error: file", theDQMfile, "not found, exit" 
+    print("Error: file", theDQMfile, "not found, exit")
     sys.exit(0)
 
 #Take general info from the first file is sufficient.        
@@ -33,7 +34,7 @@ thefile = TFile( theDQMfile )
 GeneralInfoDirectory = 'DQMData/Run 1/HGCAL/Run summary/HGCalValidator/GeneralInfo'
 
 if not gDirectory.GetDirectory( GeneralInfoDirectory ):
-  print "Error: GeneralInfo directory not found in DQM file, exit"
+  print("Error: GeneralInfo directory not found in DQM file, exit")
   sys.exit(0)
 
 keys = gDirectory.GetDirectory( GeneralInfoDirectory ).GetListOfKeys()
@@ -45,18 +46,18 @@ while key:
       if laykey in obj.GetName():
         layvalue = obj.GetName()[len("<"+laykey+">i="):-len("</"+laykey+">")]
         layerscheme[laykey] = layvalue
-        #print layvalue
+        #print(layvalue)
     key = keys.After(key)
 
 thefile.Close()
 
-print layerscheme
+print(layerscheme)
 #TODO: Anticipating the fine/coarse layer information in CMSSW we overwrite values from DQM file
 #For now values returned for 
 # 'lastLayerFHzp': '104', 'lastLayerFHzm': '52' 
 #are not the one expected. Will come back to this when there will be info in CMSSW to put in DQM file.  
 layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 52, 'lastLayerEEzp': 80, 'lastLayerFHzp': 92, 'maxlayerzp': 104 }
-print layerscheme
+print(layerscheme)
 
 lastLayerEEzm = layerscheme['lastLayerEEzm']  # last layer of EE -z
 lastLayerFHzm = layerscheme['lastLayerFHzm']  # last layer of FH -z
