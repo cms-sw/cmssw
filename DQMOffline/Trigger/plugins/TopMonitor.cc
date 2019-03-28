@@ -1024,7 +1024,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   unsigned int j = 0;
   for (auto & bjet: bjets){
     if (j >=nbjets_) break;
-    bjetPhi_.at(j).numerator -> Fill(bjet.first->pt());
+    bjetPhi_.at(j).numerator -> Fill(bjet.first->phi());
     bjetEta_.at(j).numerator -> Fill(bjet.first->eta());
     bjetPt_.at(j).numerator  -> Fill(bjet.first->pt());
     bjetCSV_.at(j).numerator -> Fill(std::fmax(0.0,bjet.second));
