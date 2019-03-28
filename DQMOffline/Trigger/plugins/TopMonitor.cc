@@ -9,13 +9,12 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DQMOffline/Trigger/plugins/TopMonitor.h"
 
-
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
 
-TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
-  folderName_             ( iConfig.getParameter<std::string>("FolderName") )
+TopMonitor::TopMonitor( const edm::ParameterSet& iConfig )
+  : folderName_           ( iConfig.getParameter<std::string>("FolderName") )
   , metToken_             ( consumes<reco::PFMETCollection>      (iConfig.getParameter<edm::InputTag>("met")       ) )
   , jetToken_             ( mayConsume<reco::PFJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )
   , eleToken_             ( mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons") ) )
@@ -369,7 +368,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       histname = "muEtaPhi_"; histtitle = "muon #eta - #phi - ";
       histname.append(index); histtitle.append(index);
       bookME(ibooker,muEtaPhi_.at(iMu),histname,histtitle, muEta_variable_binning_2D_, phi_variable_binning_2D_);
-      setMETitle(muEtaPhi_.at(iMu),"muon #phi","muon #eta");
+      setMETitle(muEtaPhi_.at(iMu),"muon #eta","muon #phi");
 
   }
 
@@ -405,7 +404,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       histname = "eleEtaPhi_"; histtitle = "electron #eta - #phi - ";
       histname.append(index); histtitle.append(index);
       bookME(ibooker,eleEtaPhi_.at(iEle),histname,histtitle, eleEta_variable_binning_2D_, phi_variable_binning_2D_);
-      setMETitle(eleEtaPhi_.at(iEle),"electron #phi","electron #eta");
+      setMETitle(eleEtaPhi_.at(iEle),"electron #eta","electron #phi");
 
 
   }
@@ -438,7 +437,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
         histname = "phoEtaPhi_"; histtitle = "photon #eta - #phi - ";
         histname.append(index); histtitle.append(index);
         bookME(ibooker,phoEtaPhi_[iPho],histname,histtitle, phoEta_variable_binning_2D_, phi_variable_binning_2D_);
-        setMETitle(phoEtaPhi_[iPho],"photon p_{T} [GeV]","photon #eta");
+        setMETitle(phoEtaPhi_[iPho],"photon #eta","photon #phi");
 
     }
   }
@@ -458,7 +457,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       histname = "jetEta_"; histtitle = "jet #eta - ";
       histname.append(index); histtitle.append(index);
       bookME(ibooker,jetEta_.at(iJet),histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
-      setMETitle(jetEta_.at(iJet)," jet #eta","events");
+      setMETitle(jetEta_.at(iJet),"jet #eta","events");
       histname.append("_variableBinning");
       bookME(ibooker,jetEta_variableBinning_.at(iJet),histname,histtitle, jetEta_variable_binning_);
       setMETitle(jetEta_variableBinning_.at(iJet),"jet #eta","events");
@@ -466,7 +465,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       histname = "jetPhi_"; histtitle = "jet #phi - ";
       histname.append(index); histtitle.append(index);
       bookME(ibooker,jetPhi_.at(iJet),histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-      setMETitle(jetPhi_.at(iJet)," jet #phi","events");
+      setMETitle(jetPhi_.at(iJet),"jet #phi","events");
 
       histname = "jetPtEta_"; histtitle = "jet p_{T} - #eta - ";
       histname.append(index); histtitle.append(index);
@@ -476,7 +475,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
       histname = "jetEtaPhi_"; histtitle = "jet #eta - #phi - ";
       histname.append(index); histtitle.append(index);
       bookME(ibooker,jetEtaPhi_.at(iJet),histname,histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
-      setMETitle(jetEtaPhi_.at(iJet),"#phi","jet #eta");
+      setMETitle(jetEtaPhi_.at(iJet),"jet #eta","jet #phi");
 
 
 
@@ -489,7 +488,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
     histname = "bjetPt_"; histtitle = "b-jet p_{T} - ";
     histname.append(index); histtitle.append(index);
     bookME(ibooker,bjetPt_.at(iBJet),histname,histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
-    setMETitle(bjetPt_.at(iBJet)," b-jet p_{T} [GeV]","events");
+    setMETitle(bjetPt_.at(iBJet),"b-jet p_{T} [GeV]","events");
     histname.append("_variableBinning");
     bookME(ibooker,bjetPt_variableBinning_.at(iBJet),histname,histtitle, jetPt_variable_binning_);
     setMETitle(bjetPt_variableBinning_.at(iBJet),"b-jet p_{T} [GeV]","events");
@@ -497,7 +496,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
     histname = "bjetEta_"; histtitle = "b-jet #eta - ";
     histname.append(index); histtitle.append(index);
     bookME(ibooker,bjetEta_.at(iBJet),histname,histtitle, eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
-    setMETitle(bjetEta_.at(iBJet)," b-jet #eta","events");
+    setMETitle(bjetEta_.at(iBJet),"b-jet #eta","events");
     histname.append("_variableBinning");
     bookME(ibooker,bjetEta_variableBinning_.at(iBJet),histname,histtitle, jetEta_variable_binning_);
     setMETitle(bjetEta_variableBinning_.at(iBJet),"b-jet #eta","events");
@@ -505,12 +504,12 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
     histname = "bjetPhi_"; histtitle = "b-jet #phi - ";
     histname.append(index); histtitle.append(index);
     bookME(ibooker,bjetPhi_.at(iBJet),histname,histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-    setMETitle(bjetPhi_.at(iBJet)," b-jet #phi","events");
+    setMETitle(bjetPhi_.at(iBJet),"b-jet #phi","events");
 
     histname = "bjetCSV_"; histtitle = "b-jet CSV - ";
     histname.append(index); histtitle.append(index);
     bookME(ibooker,bjetCSV_.at(iBJet),histname,histtitle, csv_binning_.nbins, csv_binning_.xmin, csv_binning_.xmax);
-    setMETitle(bjetCSV_.at(iBJet)," b-jet CSV","events");
+    setMETitle(bjetCSV_.at(iBJet),"b-jet CSV","events");
 
     histname = "bjetPtEta_"; histtitle = "b-jet p_{T} - #eta - ";
     histname.append(index); histtitle.append(index);
@@ -520,7 +519,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
     histname = "bjetEtaPhi_"; histtitle = "b-jet #eta - #phi - ";
     histname.append(index); histtitle.append(index);
     bookME(ibooker,bjetEtaPhi_.at(iBJet),histname,histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
-    setMETitle(bjetEtaPhi_.at(iBJet),"b-jet #phi","b-jet #eta");
+    setMETitle(bjetEtaPhi_.at(iBJet),"b-jet #eta","b-jet #phi");
 
     histname = "bjetCSVHT_"; histtitle = "HT - b-jet CSV - ";
     histname.append(index); histtitle.append(index);
@@ -730,7 +729,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
           // Apply Selections
           if (!bjetSelection_(*dynamic_cast<const reco::Jet*>(bTags[i].first.get())) ) continue;
           if (bTags[i].second < workingpoint_                  ) continue;
-          
+
           // Fill JetTag Map
           bjets.insert(JetTagMap::value_type(bTags[i].first, bTags[i].second));
       }
@@ -896,9 +895,6 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     iBJet++;
   }
 
-
-
-
   // applying selection for numerator
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
@@ -1000,7 +996,8 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       elePtEta_.at(iEle).numerator   -> Fill(electrons.at(iEle).pt(), electrons.at(iEle).eta() );
       eleEtaPhi_.at(iEle).numerator   -> Fill(electrons.at(iEle).eta(), electrons.at(iEle).phi() );
   }
-	//Menglei
+
+  //Menglei
   if(enablePhotonPlot_){
     for (unsigned int iPho=0; iPho<photons.size(); ++iPho){
         if (iPho>=nphotons_) break;
@@ -1120,8 +1117,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   // Marina
   edm::ParameterSetDescription csvPSet;
   //george
- edm::ParameterSetDescription invMassPSet;
- edm::ParameterSetDescription MHTPSet;
+  edm::ParameterSetDescription invMassPSet;
+  edm::ParameterSetDescription MHTPSet;
   fillHistoPSetDescription(metPSet);
   fillHistoPSetDescription(phiPSet);
   fillHistoPSetDescription(ptPSet);
@@ -1190,4 +1187,3 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(TopMonitor);
-
