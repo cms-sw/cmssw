@@ -17,7 +17,7 @@
  * Removing usage of outdated class CSCTriggerGeometry by Sven Dildick (TAMU)
  */
 
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
 
 #include <vector>
 

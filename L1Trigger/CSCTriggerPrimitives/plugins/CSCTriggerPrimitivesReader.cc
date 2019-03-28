@@ -15,7 +15,7 @@
 //-----------------------
 // This Class's Header --
 //-----------------------
-#include "CSCTriggerPrimitivesReader.h"
+#include "L1Trigger/CSCTriggerPrimitives/plugins/CSCTriggerPrimitivesReader.h"
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -36,8 +36,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 // MC tests
-#include "L1Trigger/CSCTriggerPrimitives/test/CSCAnodeLCTAnalyzer.h"
-#include "L1Trigger/CSCTriggerPrimitives/test/CSCCathodeLCTAnalyzer.h"
+#include "L1Trigger/CSCTriggerPrimitives/plugins/CSCAnodeLCTAnalyzer.h"
+#include "L1Trigger/CSCTriggerPrimitives/plugins/CSCCathodeLCTAnalyzer.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 

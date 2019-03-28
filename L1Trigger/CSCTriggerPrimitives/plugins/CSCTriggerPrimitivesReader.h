@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCTriggerPrimitivesReader_h
-#define CSCTriggerPrimitives_CSCTriggerPrimitivesReader_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCTriggerPrimitivesReader_h
+#define L1Trigger_CSCTriggerPrimitives_CSCTriggerPrimitivesReader_h
 
 /** \class CSCTriggerPrimitivesReader
  *
@@ -28,7 +28,7 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h" // TMB07
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h" // TMB07
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 

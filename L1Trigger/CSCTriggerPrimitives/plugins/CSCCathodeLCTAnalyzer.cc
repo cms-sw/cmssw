@@ -14,8 +14,8 @@
 #include "Geometry/CSCGeometry/interface/OffsetRadialStripTopology.h"
 
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
-#include "L1Trigger/CSCTriggerPrimitives/test/CSCCathodeLCTAnalyzer.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/plugins/CSCCathodeLCTAnalyzer.h"
 
 using namespace std;
 

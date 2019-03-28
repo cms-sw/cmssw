@@ -6,7 +6,7 @@ from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import cscTrigg
 # =====================================================
 lctreader = cms.EDAnalyzer("CSCTriggerPrimitivesReader",
     # Parameters common for all boards
-    commonParam = cscTriggerPrimitiveDigis.commonParam
+    commonParam = cscTriggerPrimitiveDigis.commonParam,
     # Switch on/off the verbosity and turn on/off histogram production
     debug = cms.untracked.bool(False),
     # Define which LCTs are present in the input file.  This will determine the
