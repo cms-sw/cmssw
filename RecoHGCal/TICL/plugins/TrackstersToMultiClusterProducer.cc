@@ -94,7 +94,7 @@ void TrackstersToMultiClusterProducer::produce(edm::Event& evt, const edm::Event
       );
       temp.setEnergy(total_weight);
       temp.setPosition(math::XYZPoint(baricenter[0], baricenter[1], baricenter[2]));
-      temp.setAlgoId(reco::CaloCluster::hgcal_mip);
+      temp.setAlgoId(reco::CaloCluster::hgcal_em);
       multiclusters->push_back(temp);
     }
   );
