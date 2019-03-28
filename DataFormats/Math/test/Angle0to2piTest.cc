@@ -1,6 +1,7 @@
-#include "DataFormats/Math/interface/Angle0to2pi.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <iostream>
+#include <iomanip>
 #include <math.h>
 #include <ctime>
 #include <chrono>
@@ -8,8 +9,27 @@
 
 using namespace angle0to2pi;
 using namespace std;
+using namespace reco;
 using namespace std::chrono;
 
+
+template <class valType>
+inline constexpr valType useReduceRange(valType angle) {
+	constexpr valType twoPi = 2._pi;
+	angle = reduceRange(angle);
+	if (angle < 0.) angle += twoPi;
+	return angle;
+}
+
+template <class valType>
+inline constexpr valType simpleMake0to2pi(valType angle)
+{
+    constexpr valType twoPi = 2._pi;
+		
+		angle = fmod(angle, twoPi);
+		if (angle < 0.) angle += twoPi;
+			return angle;
+}
 
 template <class valType>
 static int testSmall()
@@ -68,21 +88,57 @@ static int iterationTest(valType increm) {
 }
 
 
+template <class valType>
+static int iter3Test(valType increm) {
+  // const int iters = 1234567899;
+  const int iters = 1234567980;
+	valType ang1 = 0.;
+  steady_clock::time_point startTime = steady_clock::now();
+  for (int cnt = 0; cnt < iters; ++cnt) {
+    ang1 = make0to2pi(increm + ang1);
+  }
+  steady_clock::time_point endTime = steady_clock::now();
+  cout << "Fast version after "<< iters << " iterations is " << ang1 << endl;
+  duration<double> time_span = duration_cast<duration<double>>(endTime - startTime);
+  cout << "Time diff is  " << time_span.count() << endl;
+  valType plainAng = 0.;
+  startTime = steady_clock::now();
+  for (int cnt = 0; cnt < iters; ++cnt) {
+    plainAng = simpleMake0to2pi(increm + plainAng);
+  }
+  endTime = steady_clock::now();
+  cout << "Simple version after "<< iters << " iterations is " << plainAng << endl;
+  duration<double> time_span2 = duration_cast<duration<double>>(endTime - startTime);
+  cout << "Time diff is  " << time_span2.count() << endl;
+	plainAng = 0.;
+  startTime = steady_clock::now();
+  for (int cnt = 0; cnt < iters; ++cnt) {
+    plainAng = useReduceRange(increm + plainAng);
+  }
+  endTime = steady_clock::now();
+  cout << "ReduceRange after "<< iters << " iterations is " << plainAng << endl;
+  time_span2 = duration_cast<duration<double>>(endTime - startTime);
+  cout << "Time diff is  " << time_span2.count() << endl;
+  return (0);
+}
+
+
 int main() {
+	cout << "long pi   = " << std::setprecision(32) << M_PIl << endl;
+	cout << "double pi = " << std::setprecision(32) << M_PI << endl;
+	cout << "pi difference = " << M_PIl - M_PI << endl;
   Angle0to2pi<double> testval = 39.3_pi;
-  cout << "Sizes of Angle0to2pi<double> and double = " << sizeof(testval) << ", " << sizeof(double) << endl;
+  cout << "Sizes of Angle0to2pi<double> and double = " << setprecision(16) << sizeof(testval) << ", " << sizeof(double) << endl;
   {
-    double angle = 3.3_pi;
-    angle = make0to2pi(angle);
-    if (angle < 0. || angle >= 2._pi) {
+    Angle0to2pi<double> angle = 3.3_pi;
+    if (! angle.nearEqual(1.3_pi)) {
       cout << "Angle should be from 0-2pi but it is out of range = " << angle << endl;
       return (1);
     }
   }
   {
-    long double angle = -3.3_pi;
-    angle = make0to2pi(angle);
-    if (angle < 0. || angle >= 2._pi) {
+    Angle0to2pi<long double> angle = -3.3_pi;
+    if (! angle.nearEqual(0.7_pi)) {
       cout << "Angle should be from 0-2pi but it is out of range = " << angle << endl;
       return (1);
     }
@@ -96,7 +152,6 @@ int main() {
   cout << "Test with long double\n";
   if (testSmall<long double>() == 1)
     return (1);
-  cout << "Test repeated large increment\n";
   if (iterationTest<float>(7.77_pi) == 1)
     return (1);
   cout << "Test repeated large decrement\n";
@@ -107,6 +162,37 @@ int main() {
     return (1);
   cout << "Test repeated small decrement\n";
   if (iterationTest<double>(-1._deg) == 1)
+    return (1);
+	
+	// long double smallincr = 1.39_deg;
+	long double smallincr = 1._deg;
+	long double bigincr = 7.77_deg;
+
+  cout << "** Use double arithmetic **\n";
+  cout << "Test 3 versions small decr\n";
+  if (iter3Test<double>(-smallincr) == 1)
+    return (1);
+  cout << "Test 3 versions small incr\n";
+  if (iter3Test<double>(smallincr) == 1)
+    return (1);
+  cout << "Test 3 versions big decre\n";
+  if (iter3Test<double>(-bigincr) == 1)
+    return (1);
+  cout << "Test 3 versions big incr\n";
+  if (iter3Test<double>(bigincr) == 1)
+    return (1);
+  cout << "** Use long double arithmetic **\n";
+  cout << "Test 3 versions small decr\n";
+  if (iter3Test<long double>(-smallincr) == 1)
+    return (1);
+  cout << "Test 3 versions small incr\n";
+  if (iter3Test<long double>(smallincr) == 1)
+    return (1);
+  cout << "Test 3 versions big decre\n";
+  if (iter3Test<long double>(-bigincr) == 1)
+    return (1);
+  cout << "Test 3 versions big incr\n";
+  if (iter3Test<long double>(bigincr) == 1)
     return (1);
    return (0);
 }
