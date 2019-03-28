@@ -46,3 +46,8 @@ hgcalValidator = cms.EDAnalyzer(
 
 )
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(hgcalValidator,
+    label_cp_effic = "mixData:MergedCaloTruth",
+    label_cp_fake = "mixData:MergedCaloTruth"
+)
