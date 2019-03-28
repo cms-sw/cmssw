@@ -46,8 +46,6 @@ strips = cms.PSet(
 comboStrips = strips.clone(
     name = cms.string("cs"),
     plugin = cms.string("RecoTauPiZeroStripPlugin"),
-    # Clusterize photons and electrons (PF numbering)
-    stripCandidatesParticleIds  = cms.vint32(2, 4),
     makeCombinatoricStrips = cms.bool(True),
     maxInputStrips = cms.int32(5),
     stripMassWhenCombining = cms.double(0.0), # assume photon like
@@ -72,8 +70,6 @@ modStrips = strips.clone(
 modStrips2 = strips.clone(
     plugin = cms.string('RecoTauPiZeroStripPlugin3'),
     applyElecTrackQcuts = cms.bool(False),
-    # Clusterize photons and electrons (PF numbering)
-    stripCandidatesParticleIds  = cms.vint32(2, 4),
     stripEtaAssociationDistanceFunc = cms.PSet(
         function = cms.string("TMath::Min(0.15, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))"),
         par0 = cms.double(1.97077e-01),
