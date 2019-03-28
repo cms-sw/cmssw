@@ -237,7 +237,7 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
   double calculateDistanceToHigher(std::vector<KDNode> &) const;
   int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &,
                             const unsigned int, std::vector<std::vector<KDNode> > &) const;
-  math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
+  math::XYZPoint calculatePosition(const std::vector<KDNode> &) const;
   void setDensity(const std::vector<KDNode> &nd);
 };
 
