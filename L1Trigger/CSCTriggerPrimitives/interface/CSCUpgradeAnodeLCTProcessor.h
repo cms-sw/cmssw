@@ -11,7 +11,7 @@
  * Updates for high pileup running by Vadim Khotilovich (TAMU), December 2012
  */
 
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 
 class CSCUpgradeAnodeLCTProcessor : public CSCAnodeLCTProcessor
 {

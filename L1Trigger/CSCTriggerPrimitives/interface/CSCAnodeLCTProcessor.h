@@ -37,7 +37,7 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCBaseboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 
 #include <vector>
 

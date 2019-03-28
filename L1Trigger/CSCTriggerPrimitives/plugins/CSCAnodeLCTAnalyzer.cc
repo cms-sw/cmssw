@@ -14,8 +14,8 @@
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h"
-#include "L1Trigger/CSCTriggerPrimitives/test/CSCAnodeLCTAnalyzer.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/plugins/CSCAnodeLCTAnalyzer.h"
 
 using namespace std;
 
