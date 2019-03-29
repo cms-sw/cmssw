@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 
+from __future__ import print_function
 import shutil
 import glob
 import json
@@ -81,7 +82,13 @@ def deserialize_iovs(db, plugin_name, plot_name, tag, time_type, iovs):
     plot = getattr(plugin_obj, plot_name)()
     output('plot object: ', plot)
 
-    db_name = 'oracle://cms_orcon_adg/CMS_CONDITIONS' if db == 'Prod' else 'oracle://cms_orcoff_prep/CMS_CONDITIONS'
+    if db == "Prod":
+        db_name = 'frontier://FrontierProd/CMS_CONDITIONS'
+    elif db == 'Prep' :
+        db_name = 'frontier://FrontierPrep/CMS_CONDITIONS'
+    else:
+        db_name = db
+
     output('full DB name: ', db_name)
 
 
