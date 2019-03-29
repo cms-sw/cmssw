@@ -68,7 +68,6 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
    double phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
    double fR = CLHEP::RandFlat::shoot(engine,fRMin,fRMax);
    double fZ = CLHEP::RandFlat::shoot(engine,fZMin,fZMax);
-   double fEn = CLHEP::RandFlat::shoot(engine,fEnMin,fEnMax);
 
    for (unsigned int ip=0; ip<fPartIDs.size(); ++ip)
    {
@@ -80,6 +79,7 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
      else
        phi += fDelta/fR;
        
+     double fEn = CLHEP::RandFlat::shoot(engine,fEnMin,fEnMax);
      int PartID = fPartIDs[ip] ;
      const HepPDT::ParticleData *PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
      double mass   = PData->mass().value() ;
