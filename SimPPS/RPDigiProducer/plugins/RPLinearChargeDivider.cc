@@ -9,7 +9,7 @@ RPLinearChargeDivider::RPLinearChargeDivider(const edm::ParameterSet &params,  C
 {
   verbosity_ = params.getParameter<int>("RPVerbosity");
 
-  fluctuate = new SiG4UniversalFluctuation();
+  fluctuate_ = std::make_unique<SiG4UniversalFluctuation>();
 
   // To Run APV in peak instead of deconvolution mode, which degrades the time resolution.
   //use: SimpleConfigurable<bool> SiLinearChargeDivider::peakMode(false,"SiStripDigitizer:APVpeakmode");
@@ -34,11 +34,10 @@ RPLinearChargeDivider::RPLinearChargeDivider(const edm::ParameterSet &params,  C
 }
 
 RPLinearChargeDivider::~RPLinearChargeDivider(){
-  delete fluctuate;
 }
 
 
-SimRP::energy_path_distribution RPLinearChargeDivider::divide(const PSimHit& hit)
+simRP::energy_path_distribution RPLinearChargeDivider::divide(const PSimHit& hit)
 {
   LocalVector direction = hit.exitPoint() - hit.entryPoint();
   if(direction.z()>10 || direction.x()>200 || direction.y()>200)
@@ -97,7 +96,7 @@ SimRP::energy_path_distribution RPLinearChargeDivider::divide(const PSimHit& hit
     
 void RPLinearChargeDivider::FluctuateEloss(int pid, double particleMomentum, 
       double eloss, double length, int NumberOfSegs, 
-      SimRP::energy_path_distribution &elossVector)
+      simRP::energy_path_distribution &elossVector)
 {
   double particleMass = 139.6; // Mass in MeV, Assume pion
   pid = std::abs(pid);
@@ -120,7 +119,7 @@ void RPLinearChargeDivider::FluctuateEloss(int pid, double particleMomentum,
     // track segment length in mm, segment eloss in MeV 
     // Returns fluctuated eloss in MeV
     double deltaCutoff = deltaCut_;
-    de = fluctuate->SampleFluctuations(particleMomentum*1000, particleMass, 
+    de = fluctuate_->SampleFluctuations(particleMomentum*1000, particleMass, 
         deltaCutoff, segmentLength, segmentEloss, &(rndEngine))/1000; //convert to GeV
     elossVector[i].Energy()=de;
     sum+=de;

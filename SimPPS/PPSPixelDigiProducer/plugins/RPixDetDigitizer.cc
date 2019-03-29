@@ -5,7 +5,7 @@
 #include "Geometry/VeryForwardGeometry/interface/CTPPSPixelTopology.h"
 
 RPixDetDigitizer::RPixDetDigitizer(const edm::ParameterSet &params, CLHEP::HepRandomEngine& eng, uint32_t det_id, const edm::EventSetup& iSetup)
-  : params_(params), det_id_(det_id)
+  : det_id_(det_id)
 {
   verbosity_ = params.getParameter<int>("RPixVerbosity");
   numPixels = CTPPSPixelTopology().detPixelNo();
@@ -13,17 +13,15 @@ RPixDetDigitizer::RPixDetDigitizer(const edm::ParameterSet &params, CLHEP::HepRa
   thePixelThresholdInE = params.getParameter<double>("RPixDummyROCThreshold");
   noNoise = params.getParameter<bool>("RPixNoNoise");
 
-  _links_persistence = params.getParameter<bool>("CTPPSPixelDigiSimHitRelationsPersistence");
+  links_persistence_ = params.getParameter<bool>("CTPPSPixelDigiSimHitRelationsPersistence");
 
-  theRPixPileUpSignals = new RPixPileUpSignals(params_, det_id_);
-  theRPixDummyROCSimulator = new RPixDummyROCSimulator(params_, det_id_);
-  theRPixHitChargeConverter = new RPixHitChargeConverter(params_, eng, det_id_);
+  theRPixPileUpSignals = std::make_unique<RPixPileUpSignals>(params, det_id_);
+  theRPixDummyROCSimulator = std::make_unique<RPixDummyROCSimulator>(params, det_id_);
+  theRPixHitChargeConverter = std::make_unique<RPixHitChargeConverter>(params, eng, det_id_);
 }
 
 RPixDetDigitizer::~RPixDetDigitizer()
 {
-  delete theRPixDummyROCSimulator;
-  delete theRPixHitChargeConverter;
 }
 
 void RPixDetDigitizer::run(const std::vector<PSimHit> &input, const std::vector<int> &input_links, 
@@ -35,7 +33,7 @@ void RPixDetDigitizer::run(const std::vector<PSimHit> &input, const std::vector<
   if(verbosity_)
     edm::LogInfo("RPixDetDigitizer")<<det_id_<<" received input.size()="<<input.size();
   theRPixPileUpSignals->reset();
-  bool links_persistence_checked = _links_persistence && input_links.size()==input.size();
+  bool links_persistence_checked = links_persistence_ && input_links.size()==input.size();
   int input_size = input.size();
   for (int i=0; i<input_size; ++i)
     {

@@ -10,9 +10,9 @@
 
 typedef uint32_t RPDetId;
 
-namespace SimRP
+namespace simRP
 {
-  typedef std::map<unsigned short, double, std::less<unsigned short> > strip_charge_map;
+  typedef std::map<unsigned short, double > strip_charge_map;
   typedef std::vector<RPSignalPoint> charge_induced_on_surface;
   typedef std::vector<RPEnergyDepositUnit> energy_path_distribution;
   typedef std::set<short, std::less<short> > HitsContainer;

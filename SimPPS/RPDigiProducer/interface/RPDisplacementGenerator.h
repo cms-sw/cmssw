@@ -34,7 +34,7 @@ class RPDisplacementGenerator
     RPDisplacementGenerator(const edm::ParameterSet &, RPDetId, const edm::EventSetup &);
   
     /// returns displaced PSimHit
-    PSimHit Displace(const PSimHit &);
+    PSimHit displace(const PSimHit &);
     
     static uint32_t rawToDecId(uint32_t raw);
   
@@ -50,7 +50,7 @@ class RPDisplacementGenerator
     bool isOn;
 
     /// displaces a point
-    Local3DPoint DisplacePoint(const Local3DPoint &);
+    Local3DPoint displacePoint(const Local3DPoint &);
 };
 
 #endif

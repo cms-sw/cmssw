@@ -68,9 +68,7 @@ class CTPPSPixelDigiToRaw : public edm::stream::EDProducer<> {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    void beginStream(edm::StreamID) override;
     void produce(edm::Event&, const edm::EventSetup&) override;
-    void endStream() override;
 
     // ----------member data ---------------------------
     unsigned long eventCounter_;
@@ -172,17 +170,6 @@ CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       <<"  all: "<< allDigiCounter_ <<"/"<<allWordCounter_;
 
   iEvent.put(std::move(buffers));
-}
-
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-  void
-CTPPSPixelDigiToRaw::beginStream(edm::StreamID)
-{
-}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void
-CTPPSPixelDigiToRaw::endStream() {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

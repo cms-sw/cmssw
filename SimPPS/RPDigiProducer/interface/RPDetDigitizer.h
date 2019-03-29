@@ -32,19 +32,16 @@ class RPDetDigitizer
     RPDetDigitizer(const edm::ParameterSet &params, CLHEP::HepRandomEngine& eng, RPDetId det_id, const edm::EventSetup& iSetup);
     void run(const std::vector<PSimHit> &input, const std::vector<int> &input_links, 
         std::vector<TotemRPDigi> &output_digi, 
-        SimRP::DigiPrimaryMapType &output_digi_links); 
-    ~RPDetDigitizer();
+        simRP::DigiPrimaryMapType &output_digi_links); 
       
   private:
-    RPGaussianTailNoiseAdder *theRPGaussianTailNoiseAdder;
-    RPPileUpSignals *theRPPileUpSignals;
-    RPHitChargeConverter *theRPHitChargeConverter;
-    RPVFATSimulator *theRPVFATSimulator;
-    RPDisplacementGenerator *theRPDisplacementGenerator;
+    std::unique_ptr<RPGaussianTailNoiseAdder> theRPGaussianTailNoiseAdder;
+    std::unique_ptr<RPPileUpSignals> theRPPileUpSignals;
+    std::unique_ptr<RPHitChargeConverter> theRPHitChargeConverter;
+    std::unique_ptr<RPVFATSimulator> theRPVFATSimulator;
+    std::unique_ptr<RPDisplacementGenerator> theRPDisplacementGenerator;
 
   private:
-    const edm::ParameterSet &params_;
-
     int numStrips;
     double theNoiseInElectrons;   // Noise (RMS) in units of electrons.
     double theStripThresholdInE;  // Strip noise treshold in electorns.
@@ -52,7 +49,7 @@ class RPDetDigitizer
     RPDetId det_id_;
     bool misalignment_simulation_on_;
     int verbosity_;
-    bool  _links_persistence;
+    bool links_persistence_;
 };
 
 #endif  //SimCTPPS_RPDigiProducer_RP_DET_DIGITIZER_H

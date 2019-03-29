@@ -10,10 +10,10 @@ class RPLinearChargeCollectionDrifter
 {
   public:
     RPLinearChargeCollectionDrifter(const edm::ParameterSet &params, RPDetId det_id);
-    SimRP::charge_induced_on_surface Drift(const SimRP::energy_path_distribution &energy_deposition);
+    simRP::charge_induced_on_surface Drift(const simRP::energy_path_distribution &energy_deposition);
   
   private:
-    SimRP::charge_induced_on_surface _temp;
+    simRP::charge_induced_on_surface _temp;
     std::vector<double> charge_cloud_sigmas_vect_;
     double GeV_per_electron_;
     int verbosity_;

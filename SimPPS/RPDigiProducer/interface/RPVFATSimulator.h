@@ -12,10 +12,10 @@ class RPVFATSimulator
 {
   public:
     RPVFATSimulator(const edm::ParameterSet &params, RPDetId det_id);
-    void ConvertChargeToHits(const SimRP::strip_charge_map &signals, 
-          SimRP::strip_charge_map_links_type &theSignalProvenance, 
+    void ConvertChargeToHits(const simRP::strip_charge_map &signals, 
+          simRP::strip_charge_map_links_type &theSignalProvenance, 
           std::vector<TotemRPDigi> &output_digi, 
-          SimRP::DigiPrimaryMapType &output_digi_links);
+          simRP::DigiPrimaryMapType &output_digi_links);
   private:
     typedef std::set<unsigned short, std::less<unsigned short> > dead_strip_set;
     void SetDeadStrips();

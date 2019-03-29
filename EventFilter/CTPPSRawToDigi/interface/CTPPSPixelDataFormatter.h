@@ -93,7 +93,7 @@ class CTPPSPixelDataFormatter {
 
   private:
 
-    mutable int m_WordCounter;
+    int m_WordCounter;
 
     bool m_IncludeErrors;
     RPixErrorChecker m_ErrorCheck;
@@ -107,7 +107,7 @@ class CTPPSPixelDataFormatter {
 
     const std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> &m_Mapping;
 
-    mutable int m_DigiCounter;
+    int m_DigiCounter;
     int m_allDetDigis;
     int m_hasDetDigis;
     CTPPSPixelIndices theIndices;

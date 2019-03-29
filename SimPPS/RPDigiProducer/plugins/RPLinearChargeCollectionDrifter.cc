@@ -14,8 +14,8 @@ RPLinearChargeCollectionDrifter::RPLinearChargeCollectionDrifter
   _det_id=det_id;
 }
 
-SimRP::charge_induced_on_surface RPLinearChargeCollectionDrifter::Drift
-      (const SimRP::energy_path_distribution &energy_deposition)
+simRP::charge_induced_on_surface RPLinearChargeCollectionDrifter::Drift
+      (const simRP::energy_path_distribution &energy_deposition)
 {
   _temp.resize(energy_deposition.size());
   for(unsigned int i=0; i<energy_deposition.size(); i++)

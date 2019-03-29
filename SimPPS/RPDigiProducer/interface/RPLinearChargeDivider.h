@@ -16,7 +16,7 @@ class RPLinearChargeDivider
   public:
     RPLinearChargeDivider(const edm::ParameterSet &params, CLHEP::HepRandomEngine& eng, RPDetId det_id);
     ~RPLinearChargeDivider();
-    SimRP::energy_path_distribution divide(const PSimHit& hit);
+    simRP::energy_path_distribution divide(const PSimHit& hit);
   private:
     const edm::ParameterSet &params_;
     CLHEP::HepRandomEngine& rndEngine;
@@ -28,13 +28,13 @@ class RPLinearChargeDivider
     double deltaCut_;
     double pitch_;
     double thickness_;
-    SimRP::energy_path_distribution the_energy_path_distribution_;
-    SiG4UniversalFluctuation * fluctuate; 
+    simRP::energy_path_distribution the_energy_path_distribution_;
+    std::unique_ptr<SiG4UniversalFluctuation> fluctuate_; 
     int verbosity_;
     
     void FluctuateEloss(int pid, double particleMomentum, 
         double eloss, double length, int NumberOfSegs, 
-        SimRP::energy_path_distribution &elossVector);
+        simRP::energy_path_distribution &elossVector);
 };
 
 #endif  //SimPPS_RPDigiProducer_RP_LINEAR_CHARGE_DIVIDER_H

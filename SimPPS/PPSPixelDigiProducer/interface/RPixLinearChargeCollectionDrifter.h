@@ -12,13 +12,13 @@ public:
   std::vector<RPixSignalPoint> Drift(const std::vector<RPixEnergyDepositUnit>  &energy_deposition);
 
 private:
-  std::vector<RPixSignalPoint>  _temp;
+  std::vector<RPixSignalPoint> temp_;
 
   std::vector<double> charge_cloud_sigmas_vect_; 
   double GeV_per_electron_;
   int verbosity_;
   double det_thickness_;
-  uint32_t _det_id;
+  uint32_t det_id_;
     
   inline double GetSigma(double z) 
   {

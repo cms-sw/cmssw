@@ -111,15 +111,15 @@ void CTPPSTotemDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedR
     while(words16.find(fedId)->second.size() %4 != 0) words16[fedId].push_back( Word16(0) );
 
     // size in Bytes; create output structure
-    int dataSize = (words16.find(fedId)->second.size()) * sizeof(Word16); 
+    auto dataSize = (words16.find(fedId)->second.size()) * sizeof(Word16); 
     int nHeaders = 1;
     int nTrailers = 1;
     dataSize += (nHeaders+nTrailers)*sizeof(Word64);
 
-    FEDRawData *rawData = new FEDRawData(dataSize);
+    FEDRawData rawData{dataSize};
 
     // get begining of data;
-    Word64 * word = reinterpret_cast<Word64* >(rawData->data());
+    Word64 * word = reinterpret_cast<Word64* >(rawData.data());
 
     // write one header
     FEDHeader::set(  reinterpret_cast<unsigned char*>(word), 0, lvl1_ID, 0, fedId,3);
@@ -140,11 +140,10 @@ void CTPPSTotemDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedR
     word++;
 
     // check memory
-    if (word != reinterpret_cast<Word64* >(rawData->data()+dataSize)) {
+    if (word != reinterpret_cast<Word64* >(rawData.data()+dataSize)) {
       string s = "** PROBLEM in CTPPSTotemDataFormatter !!!";
       throw cms::Exception(s);
     }
-    fedRawData[fedId] = *rawData;
-    delete rawData;
+    fedRawData[fedId] = rawData;
   } // end of rawData  
 }

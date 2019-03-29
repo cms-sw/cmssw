@@ -20,12 +20,12 @@ RPVFATSimulator::RPVFATSimulator(const edm::ParameterSet &params, RPDetId det_id
     SetDeadStrips();
 }
 
-void RPVFATSimulator::ConvertChargeToHits(const SimRP::strip_charge_map &signals, 
-    SimRP::strip_charge_map_links_type &theSignalProvenance, 
+void RPVFATSimulator::ConvertChargeToHits(const simRP::strip_charge_map &signals, 
+    simRP::strip_charge_map_links_type &theSignalProvenance, 
     std::vector<TotemRPDigi> &output_digi, 
-    SimRP::DigiPrimaryMapType &output_digi_links) 
+    simRP::DigiPrimaryMapType &output_digi_links) 
 {
-  for(SimRP::strip_charge_map::const_iterator i=signals.begin(); 
+  for(simRP::strip_charge_map::const_iterator i=signals.begin(); 
         i!=signals.end(); ++i)
   {
     //one threshold per hybrid

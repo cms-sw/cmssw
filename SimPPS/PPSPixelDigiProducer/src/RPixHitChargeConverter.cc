@@ -6,19 +6,16 @@
 
 
 RPixHitChargeConverter::RPixHitChargeConverter(const edm::ParameterSet &params, CLHEP::HepRandomEngine& eng, uint32_t det_id)
-  : params_(params), det_id_(det_id)
+  : det_id_(det_id)
 {
   verbosity_ = params.getParameter<int>("RPixVerbosity");
-  theRPixChargeDivider = new RPixLinearChargeDivider(params, eng, det_id);
-  theRPixChargeCollectionDrifter = new RPixLinearChargeCollectionDrifter(params, det_id);
-  theRPixChargeShare = new RPixChargeShare(params, det_id);
+  theRPixChargeDivider = std::make_unique<RPixLinearChargeDivider>(params, eng, det_id);
+  theRPixChargeCollectionDrifter = std::make_unique<RPixLinearChargeCollectionDrifter>(params, det_id);
+  theRPixChargeShare = std::make_unique<RPixChargeShare>(params, det_id);
 }
 
 RPixHitChargeConverter::~RPixHitChargeConverter()
 {
-  delete theRPixChargeDivider;
-  delete theRPixChargeCollectionDrifter;
-  delete theRPixChargeShare;
 }
 
 std::map<unsigned short, double, std::less<unsigned short> > RPixHitChargeConverter::processHit(const PSimHit &hit)

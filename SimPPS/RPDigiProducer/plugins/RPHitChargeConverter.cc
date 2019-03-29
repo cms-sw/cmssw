@@ -7,25 +7,21 @@
 
 
 RPHitChargeConverter::RPHitChargeConverter(const edm::ParameterSet &params, CLHEP::HepRandomEngine& eng, RPDetId det_id)
-  : params_(params), det_id_(det_id)
+  : det_id_(det_id)
 {
   verbosity_ = params.getParameter<int>("RPVerbosity");
-  theRPChargeDivider = new RPLinearChargeDivider(params, eng, det_id);
-  theRPChargeCollectionDrifter = new RPLinearChargeCollectionDrifter(params, det_id);
-  theRPInduceChargeOnStrips = new RPLinearInduceChargeOnStrips(params, det_id);
+  theRPChargeDivider = std::make_unique<RPLinearChargeDivider>(params, eng, det_id);
+  theRPChargeCollectionDrifter = std::make_unique<RPLinearChargeCollectionDrifter>(params, det_id);
+  theRPInduceChargeOnStrips = std::make_unique<RPLinearInduceChargeOnStrips>(params, det_id);
 }
 
 RPHitChargeConverter::~RPHitChargeConverter()
 {
-  delete theRPChargeDivider;
-  delete theRPChargeCollectionDrifter;
-  delete theRPInduceChargeOnStrips;
 }
 
-
-SimRP::strip_charge_map RPHitChargeConverter::processHit(const PSimHit &hit)
+simRP::strip_charge_map RPHitChargeConverter::processHit(const PSimHit &hit)
 {  
-  SimRP::energy_path_distribution ions_along_path = theRPChargeDivider->divide(hit);
+  simRP::energy_path_distribution ions_along_path = theRPChargeDivider->divide(hit);
   if(verbosity_)
     edm::LogInfo("HitChargeConverter")<<det_id_<<" clouds no generated on the path="<<ions_along_path.size()<<"\n";
   return theRPInduceChargeOnStrips->Induce(theRPChargeCollectionDrifter->Drift(ions_along_path));

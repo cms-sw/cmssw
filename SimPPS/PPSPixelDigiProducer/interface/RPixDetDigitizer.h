@@ -43,13 +43,11 @@ public:
   ~RPixDetDigitizer();
       
 private:
-  RPixPileUpSignals *theRPixPileUpSignals;
-  RPixHitChargeConverter *theRPixHitChargeConverter;
-  RPixDummyROCSimulator *theRPixDummyROCSimulator;
+  std::unique_ptr<RPixPileUpSignals> theRPixPileUpSignals;
+  std::unique_ptr<RPixHitChargeConverter> theRPixHitChargeConverter;
+  std::unique_ptr<RPixDummyROCSimulator> theRPixDummyROCSimulator;
 
 private:
-  const edm::ParameterSet &params_;
-
   int numPixels;
   double theNoiseInElectrons;   // Noise (RMS) in units of electrons.
   double thePixelThresholdInE;  // Pixel noise treshold in electorns.
@@ -57,7 +55,7 @@ private:
   uint32_t det_id_;
   bool misalignment_simulation_on_;
   int verbosity_;
-  bool  _links_persistence;
+  bool links_persistence_;
 };
 
 #endif

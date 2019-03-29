@@ -46,16 +46,26 @@ RPDisplacementGenerator::RPDisplacementGenerator(const edm::ParameterSet &ps, RP
   rotation = R_l.Inverse() * R_m.Inverse() * R_l;
   shift = R_l.Inverse() * R_m.Inverse() * S_m;
 
-#ifdef DEBUG
-  edm::LogDebug("RPDisplacementGenerator")<<" det id = " << decId << ", isOn = " << isOn << "\n";
+LogDebug("RPDisplacementGenerator").log([&](auto& log){
+  log << " det id = " << decId << ", isOn = " << isOn << "\n";
   if (isOn) {
-    edm::LogDebug("RPDisplacementGenerator") << " shift = " << shift << "\n";
-    edm::LogDebug("RPDisplacementGenerator") << " rotation = " << rotation << "\n";
+    log << " shift = " << shift << "\n";
+    log << " rotation = " << rotation << "\n";
   }
-#endif
+});
+
+
+/*  LogDebug("RPDisplacementGenerator").log([&](auto& l){
+    l << " det id = " << decId << ", isOn = " << isOn << "\n";
+    if (isOn) {
+      l << " shift = " << shift << "\n";
+      l << " rotation = " << rotation << "\n";
+    }
+  });
+*/
 }
 
-Local3DPoint RPDisplacementGenerator::DisplacePoint(const Local3DPoint &p)
+Local3DPoint RPDisplacementGenerator::displacePoint(const Local3DPoint &p)
 {
   /// input is in mm, shifts are in mm too
 
@@ -65,30 +75,27 @@ Local3DPoint RPDisplacementGenerator::DisplacePoint(const Local3DPoint &p)
   return Local3DPoint(v.x(), v.y(), v.z());
 }
 
-PSimHit RPDisplacementGenerator::Displace(const PSimHit &input)
+PSimHit RPDisplacementGenerator::displace(const PSimHit &input)
 {
   if (!isOn)
     return input;
 
   const Local3DPoint &ep = input.entryPoint(), &xp = input.exitPoint();
-  const Local3DPoint &dep = DisplacePoint(ep), &dxp = DisplacePoint(xp);
+  const Local3DPoint &dep = displacePoint(ep), &dxp = displacePoint(xp);
 
-#ifdef DEBUG
-  edm::LogDebug("RPDisplacementGenerator::Displace\n")
-       << " entry point: " << ep << " -> " << dep << "\n";
-       << " exit point : " << xp << " -> " << dxp << "\n";
-#endif
-
+  LogDebug("RPDisplacementGenerator::displace\n")
+    << " entry point: " << ep << " -> " << dep << "\n"
+    << " exit point : " << xp << " -> " << dxp << "\n";
 
   return PSimHit(dep, dxp, input.pabs(), input.tof(), input.energyLoss(), input.particleType(),
-    input.detUnitId(), input.trackId(), input.thetaAtEntry(), input.phiAtEntry(), input.processType());
+      input.detUnitId(), input.trackId(), input.thetaAtEntry(), input.phiAtEntry(), input.processType());
 }
 
 uint32_t RPDisplacementGenerator::rawToDecId(uint32_t raw)
 {
-      return ((raw >> CTPPSDetId::startArmBit) & CTPPSDetId::maskArm) * 1000
-             + ((raw >> CTPPSDetId::startStationBit) & CTPPSDetId::maskStation) * 100
-             + ((raw >> CTPPSDetId::startRPBit) & CTPPSDetId::maskRP) * 10
-             + ((raw >> TotemRPDetId::startPlaneBit) & TotemRPDetId::maskPlane);
+  return ((raw >> CTPPSDetId::startArmBit) & CTPPSDetId::maskArm) * 1000
+    + ((raw >> CTPPSDetId::startStationBit) & CTPPSDetId::maskStation) * 100
+    + ((raw >> CTPPSDetId::startRPBit) & CTPPSDetId::maskRP) * 10
+    + ((raw >> TotemRPDetId::startPlaneBit) & TotemRPDetId::maskPlane);
     
 }

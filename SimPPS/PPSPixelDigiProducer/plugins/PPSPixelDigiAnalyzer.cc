@@ -1,22 +1,31 @@
+#ifndef SimPPS_RPIXDigiAnalyzer_h
+#define SimPPS_RPIXDigiAnalyzer_h
 
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "SimPPS/PPSPixelDigiProducer/interface/PPSPixelDigiAnalyzer.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h>
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
+#include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigiCollection.h"
+#include "Geometry/VeryForwardGeometry/interface/CTPPSPixelSimTopology.h"
 
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-
-
 
 #include <iostream>
 #include <string>
 
 #include "TFile.h"
-
+#include "TH2D.h"
 
 #define SELECTED_PIXEL_ROW 89
 #define SELECTED_PIXEL_COLUMN 23
@@ -30,10 +39,43 @@
 using namespace edm;
 using namespace std;
 
+class TFile;
+class PSimHit;
+
+namespace edm {
+        class ParameterSet; class Event; class EventSetup;}
+
+class PPSPixelDigiAnalyzer : public edm::EDAnalyzer{
+  
+ public:
+   explicit PPSPixelDigiAnalyzer(const edm::ParameterSet& pset);
+   ~PPSPixelDigiAnalyzer() override;
+   void endJob() override;
+   void beginJob() override;
+   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+
+ private:
+   TH2D *hAllHits;
+   TH2D *hOneHitperEvent;
+   TH2D *hOneHitperEvent2;
+   TH2D *hOneHitperEventCenter;
+   TH2D *hOneHitperEvent2Center;
+   TFile *file;
+   std::string label_;
+
+   int verbosity_;
+   edm::EDGetTokenT< edm::PSimHitContainer > psim_token;
+   edm::EDGetTokenT< edm::DetSetVector<CTPPSPixelDigi> > pixel_token;
+
+   CTPPSPixelSimTopology theRPixDetTopology_;
+   unsigned int found_corresponding_digi_count_;
+   unsigned int cumulative_cluster_size_[3];
+};
+
 PPSPixelDigiAnalyzer:: PPSPixelDigiAnalyzer(const ParameterSet& pset) : theRPixDetTopology_()
 {
 
-  label = pset.getUntrackedParameter<string>("label");  
+  label_ = pset.getUntrackedParameter<string>("label");  
   verbosity_ = pset.getParameter<int> ("Verbosity");
 #ifdef USE_MIDDLE_OF_PIXEL
   file = new TFile("CTPPSPixelDigiPlots2.root","RECREATE");
@@ -54,15 +96,15 @@ PPSPixelDigiAnalyzer:: PPSPixelDigiAnalyzer(const ParameterSet& pset) : theRPixD
   else edm::LogInfo("PPSPixelDigiAnalyzer")<<"*** Error in opening file ***";
 
   psim_token = consumes<PSimHitContainer>( edm::InputTag("g4SimHits","CTPPSPixelHits") );
-  pixel_token = consumes<edm::DetSetVector<CTPPSPixelDigi>>( edm::InputTag(label,"") ); //label=RPixDetDigitizer???
+  pixel_token = consumes<edm::DetSetVector<CTPPSPixelDigi>>( edm::InputTag(label_,"") ); //label=RPixDetDigitizer???
 }
 
 PPSPixelDigiAnalyzer::~PPSPixelDigiAnalyzer(){
 }
 
 void PPSPixelDigiAnalyzer::beginJob(){
-  found_corresponding_digi_count=0;
-  for(int a=0; a<3; a++)  cumulative_cluster_size[a]=0;
+  found_corresponding_digi_count_=0;
+  for(int a=0; a<3; a++)  cumulative_cluster_size_[a]=0;
 }
 void PPSPixelDigiAnalyzer::endJob(){
   file->cd();
@@ -73,8 +115,8 @@ void PPSPixelDigiAnalyzer::endJob(){
   hOneHitperEvent2Center->Write();
   file->Close();
 
-  edm::LogInfo("PPSPixelDigiAnalyzer") << "found_corresponding_digi_count: " << found_corresponding_digi_count ;
-  edm::LogInfo("PPSPixelDigiAnalyzer") << "Cumulative cluster size (1,2,>2) = " << cumulative_cluster_size[0] << ", " << cumulative_cluster_size[1] << ", " << cumulative_cluster_size[2] ;
+  edm::LogInfo("PPSPixelDigiAnalyzer") << "found_corresponding_digi_count_: " << found_corresponding_digi_count_ ;
+  edm::LogInfo("PPSPixelDigiAnalyzer") << "Cumulative cluster size (1,2,>2) = " << cumulative_cluster_size_[0] << ", " << cumulative_cluster_size_[1] << ", " << cumulative_cluster_size_[2] ;
 
   delete file;
   delete hAllHits;
@@ -206,7 +248,7 @@ void  PPSPixelDigiAnalyzer::analyze(const Event & event, const EventSetup& event
 	       edm::LogInfo("PPSPixelDigiAnalyzer") << "           Digi row  " << di->row() << ", col "<<di->column() ;
 	
 	     if( di->row() == SELECTED_PIXEL_ROW && di->column() == SELECTED_PIXEL_COLUMN ){
-	       found_corresponding_digi_count++;
+	       found_corresponding_digi_count_++;
 	       found_corresponding_digi = true;
 	       corresponding_digi_cluster_size = 1;
 	     }
@@ -235,14 +277,14 @@ void  PPSPixelDigiAnalyzer::analyze(const Event & event, const EventSetup& event
 	   hOneHitperEvent->Fill(myY,myX);
 	   hOneHitperEventCenter->Fill(myY-CENTERY,myX-CENTERX);
 	   if(corresponding_digi_cluster_size<3){
-	     cumulative_cluster_size[corresponding_digi_cluster_size-1]++;
+	     cumulative_cluster_size_[corresponding_digi_cluster_size-1]++;
 	     if(corresponding_digi_cluster_size>1){
 	       hOneHitperEvent2->Fill(myY,myX);
 	       hOneHitperEvent2Center->Fill(myY-CENTERY,myX-CENTERX);
 	     }
 	   }
 	   else{
-	     cumulative_cluster_size[2]++;
+	     cumulative_cluster_size_[2]++;
 	     hOneHitperEvent2->Fill(myY,myX);
 	     hOneHitperEvent2Center->Fill(myY-CENTERY,myX-CENTERX);
 	   }
@@ -257,3 +299,5 @@ void  PPSPixelDigiAnalyzer::analyze(const Event & event, const EventSetup& event
 #include "FWCore/Framework/interface/MakerMacros.h"
 
     DEFINE_FWK_MODULE(PPSPixelDigiAnalyzer);
+
+#endif 

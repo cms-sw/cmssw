@@ -3,7 +3,7 @@
 #include <iostream>
 
 RPLinearInduceChargeOnStrips::RPLinearInduceChargeOnStrips(const edm::ParameterSet &params, RPDetId det_id):
-   det_id_(det_id), theRPDetTopology_(params), sqrt_2(sqrt(2.0))
+   det_id_(det_id), theRPDetTopology(params), sqrt_2(sqrt(2.0))
 {
    verbosity_ = params.getParameter<int>("RPVerbosity");
    signalCoupling_.clear();
@@ -11,19 +11,19 @@ RPLinearInduceChargeOnStrips::RPLinearInduceChargeOnStrips(const edm::ParameterS
    signalCoupling_.push_back(coupling_constant_);
    signalCoupling_.push_back( (1.0-coupling_constant_)/2 );
 
-   no_of_strips_ = theRPDetTopology_.DetStripNo();
+   no_of_strips_ = theRPDetTopology.DetStripNo();
 }
 
-SimRP::strip_charge_map RPLinearInduceChargeOnStrips::Induce(
-      const SimRP::charge_induced_on_surface &charge_map)
+simRP::strip_charge_map RPLinearInduceChargeOnStrips::Induce(
+      const simRP::charge_induced_on_surface &charge_map)
 {
    theStripChargeMap.clear();
    if(verbosity_)
       edm::LogInfo("RPLinearInduceChargeOnStrips ")<<det_id_<<" : Clouds to be induced:"<<charge_map.size()<<"\n";
-   for(SimRP::charge_induced_on_surface::const_iterator i=charge_map.begin(); 
+   for(simRP::charge_induced_on_surface::const_iterator i=charge_map.begin(); 
          i!=charge_map.end(); ++i) {
       double hit_pos;
-      std::vector<strip_info> relevant_strips = theRPDetTopology_.GetStripsInvolved(
+      std::vector<strip_info> relevant_strips = theRPDetTopology.GetStripsInvolved(
             (*i).X(), (*i).Y(), (*i).Sigma(), hit_pos);
       if(verbosity_)
       {

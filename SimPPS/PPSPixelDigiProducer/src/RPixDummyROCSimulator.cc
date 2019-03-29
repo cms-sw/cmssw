@@ -5,7 +5,7 @@
 #include <iostream>
 
 RPixDummyROCSimulator::RPixDummyROCSimulator(const edm::ParameterSet &params, uint32_t det_id)
-  : params_(params), det_id_(det_id)
+  : det_id_(det_id)
 {
   threshold_ = params.getParameter<double>("RPixDummyROCThreshold");
   electron_per_adc_ = params.getParameter<double>("RPixDummyROCElectronPerADC");

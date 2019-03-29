@@ -27,7 +27,6 @@ public:
 private:
   typedef std::set<unsigned short, std::less<unsigned short> > dead_pixel_set;
   void SetDeadPixels();
-  const edm::ParameterSet &params_;
   uint32_t det_id_;
   double dead_pixel_probability_;
   bool dead_pixels_simulation_on_;

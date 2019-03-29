@@ -15,14 +15,13 @@ class RPHitChargeConverter
     RPHitChargeConverter(const edm::ParameterSet &params_, CLHEP::HepRandomEngine& eng, RPDetId det_id);
     ~RPHitChargeConverter();
     
-    SimRP::strip_charge_map processHit(const PSimHit &hit);
+    simRP::strip_charge_map processHit(const PSimHit &hit);
   private:
-    const edm::ParameterSet &params_;
     const RPDetId det_id_;
     
-    RPLinearChargeDivider* theRPChargeDivider;
-    RPLinearChargeCollectionDrifter* theRPChargeCollectionDrifter;
-    RPLinearInduceChargeOnStrips* theRPInduceChargeOnStrips;
+    std::unique_ptr<RPLinearChargeDivider> theRPChargeDivider;
+    std::unique_ptr<RPLinearChargeCollectionDrifter> theRPChargeCollectionDrifter;
+    std::unique_ptr<RPLinearInduceChargeOnStrips> theRPInduceChargeOnStrips;
     int verbosity_;
 };
 

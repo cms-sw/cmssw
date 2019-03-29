@@ -241,15 +241,15 @@ void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedR
     if (words.find(fedId)->second.size() %2 != 0) words[fedId].push_back( Word32(0) );
 
     // size in Bytes; create output structure
-    int dataSize = words.find(fedId)->second.size() * sizeof(Word32);
+    size_t dataSize = words.find(fedId)->second.size() * sizeof(Word32);
     int nHeaders = 1;
     int nTrailers = 1;
     dataSize += (nHeaders+nTrailers)*sizeof(Word64);
 
-    FEDRawData * rawData = new FEDRawData(dataSize);
+    FEDRawData rawData{dataSize};
 
     // get begining of data;
-    Word64 * word = reinterpret_cast<Word64* >(rawData->data());
+    Word64 *word = reinterpret_cast<Word64* >(rawData.data());
 
     // write one header
     FEDHeader::set(  reinterpret_cast<unsigned char*>(word), 0, lvl1_ID, 0, fedId);
@@ -268,13 +268,13 @@ void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedR
     word++;
 
     // check memory
-    if (word != reinterpret_cast<Word64* >(rawData->data()+dataSize)) {
+    if (word != reinterpret_cast<Word64* >(rawData.data()+dataSize)) {
+    //if (word != reinterpret_cast<Word64* >(rawData->data()+dataSize)) {
       string s = "** PROBLEM in CTPPSPixelDataFormatter !!!";
       LogError("CTPPSPixelDataFormatter") << "** PROBLEM in CTPPSPixelDataFormatter!!!";
       throw cms::Exception(s);
     } // if (word !=
-    fedRawData[fedId] = *rawData;
-    delete rawData;
+    fedRawData[fedId] = rawData;
   } // for (RI feddata 
 }
 

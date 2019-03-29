@@ -4,7 +4,7 @@
 #include "Geometry/VeryForwardGeometry/interface/CTPPSPixelTopology.h"
 
 RPixLinearChargeDivider::RPixLinearChargeDivider(const edm::ParameterSet &params,  CLHEP::HepRandomEngine& eng,
-						 uint32_t det_id) : params_(params), rndEngine(eng) , _det_id(det_id)
+						 uint32_t det_id) : rndEngine(eng) , _det_id(det_id)
 {
   verbosity_ = params.getParameter<int>("RPixVerbosity");
   fluctuate = new SiG4UniversalFluctuation();

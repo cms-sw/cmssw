@@ -8,50 +8,41 @@
 
 
 RPDetDigitizer::RPDetDigitizer(const edm::ParameterSet &params, CLHEP::HepRandomEngine& eng, RPDetId det_id, const edm::EventSetup& iSetup)
-  : params_(params), det_id_(det_id)
+  : det_id_(det_id)
 {
   verbosity_ = params.getParameter<int>("RPVerbosity");
   numStrips = RPTopology().DetStripNo();
   theNoiseInElectrons = params.getParameter<double>("RPEquivalentNoiseCharge300um");
   theStripThresholdInE = params.getParameter<double>("RPVFATThreshold");
   noNoise = params.getParameter<bool>("RPNoNoise");
-  misalignment_simulation_on_ = params_.getParameter<bool>("RPDisplacementOn");
-  _links_persistence = params.getParameter<bool>("RPDigiSimHitRelationsPresistence");
+  misalignment_simulation_on_ = params.getParameter<bool>("RPDisplacementOn");
+  links_persistence_ = params.getParameter<bool>("RPDigiSimHitRelationsPresistence");
 
-  theRPGaussianTailNoiseAdder = new RPGaussianTailNoiseAdder(numStrips, 
+  theRPGaussianTailNoiseAdder = std::make_unique<RPGaussianTailNoiseAdder>(numStrips, 
       theNoiseInElectrons, theStripThresholdInE, verbosity_);
-  theRPPileUpSignals = new RPPileUpSignals(params_, det_id_);
-  theRPVFATSimulator = new RPVFATSimulator(params_, det_id_);
-  theRPHitChargeConverter = new RPHitChargeConverter(params_, eng, det_id_);
-  theRPDisplacementGenerator = new RPDisplacementGenerator(params_, det_id_, iSetup);
-}
-
-RPDetDigitizer::~RPDetDigitizer()
-{
-  delete theRPGaussianTailNoiseAdder;
-  delete theRPPileUpSignals;
-  delete theRPVFATSimulator;
-  delete theRPHitChargeConverter;
-  delete theRPDisplacementGenerator;
+  theRPPileUpSignals = std::make_unique<RPPileUpSignals>(params, det_id_);
+  theRPVFATSimulator = std::make_unique<RPVFATSimulator>(params, det_id_);
+  theRPHitChargeConverter = std::make_unique<RPHitChargeConverter>(params, eng, det_id_);
+  theRPDisplacementGenerator = std::make_unique<RPDisplacementGenerator>(params, det_id_, iSetup);
 }
 
 void RPDetDigitizer::run(const std::vector<PSimHit> &input, const std::vector<int> &input_links, 
     std::vector<TotemRPDigi> &output_digi, 
-    SimRP::DigiPrimaryMapType &output_digi_links) 
+    simRP::DigiPrimaryMapType &output_digi_links) 
 {
   if(verbosity_)
     LogDebug("RPDetDigitizer ")<<det_id_<<" received input.size()="<<input.size()<<"\n";
   theRPPileUpSignals->reset();
   
-  bool links_persistence_checked = _links_persistence && input_links.size()==input.size();
+  bool links_persistence_checked = links_persistence_ && input_links.size()==input.size();
   
   int input_size = input.size();
   for (int i=0; i<input_size; ++i)
   {
-    SimRP::strip_charge_map the_strip_charge_map;
+    simRP::strip_charge_map the_strip_charge_map;
     if(misalignment_simulation_on_)
       the_strip_charge_map = theRPHitChargeConverter->processHit(
-            theRPDisplacementGenerator->Displace(input[i]));
+            theRPDisplacementGenerator->displace(input[i]));
     else
       the_strip_charge_map = theRPHitChargeConverter->processHit(input[i]);
       
@@ -63,9 +54,9 @@ void RPDetDigitizer::run(const std::vector<PSimHit> &input, const std::vector<in
       theRPPileUpSignals->add(the_strip_charge_map, 0);
   }
 
-  const SimRP::strip_charge_map &theSignal = theRPPileUpSignals->dumpSignal();
-  SimRP::strip_charge_map_links_type &theSignalProvenance = theRPPileUpSignals->dumpLinks();
-  SimRP::strip_charge_map afterNoise;
+  const simRP::strip_charge_map &theSignal = theRPPileUpSignals->dumpSignal();
+  simRP::strip_charge_map_links_type &theSignalProvenance = theRPPileUpSignals->dumpLinks();
+  simRP::strip_charge_map afterNoise;
   if(noNoise)
     afterNoise = theSignal;
   else

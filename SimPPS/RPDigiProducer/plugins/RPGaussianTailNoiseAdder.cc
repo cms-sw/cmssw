@@ -9,25 +9,25 @@ using namespace std;
 
 RPGaussianTailNoiseAdder::RPGaussianTailNoiseAdder(int numStrips, 
     double theNoiseInElectrons, double theStripThresholdInE, int verbosity)
-     : numStrips_(numStrips), theNoiseInElectrons_(theNoiseInElectrons), 
-     theStripThresholdInE_(theStripThresholdInE)
+     : numStrips_(numStrips), theNoiseInElectrons(theNoiseInElectrons), 
+     theStripThresholdInE(theStripThresholdInE)
 {
   verbosity_ = verbosity;
   strips_above_threshold_prob_ = 
-      TMath::Erfc(theStripThresholdInE_/sqrt(2.0)/theNoiseInElectrons_)/2;
+      TMath::Erfc(theStripThresholdInE/sqrt(2.0)/theNoiseInElectrons)/2;
 }
 
-SimRP::strip_charge_map RPGaussianTailNoiseAdder::addNoise(
-    const SimRP::strip_charge_map &theSignal)
+simRP::strip_charge_map RPGaussianTailNoiseAdder::addNoise(
+    const simRP::strip_charge_map &theSignal)
 {
-  the_strip_charge_map_.clear();
+  the_strip_charge_map.clear();
   
   // noise on strips with signal:
-  for (SimRP::strip_charge_map::const_iterator i=theSignal.begin();
+  for (simRP::strip_charge_map::const_iterator i=theSignal.begin();
        i!=theSignal.end(); ++i)
   {
-    double noise = CLHEP::RandGauss::shoot(0.0, theNoiseInElectrons_);
-    the_strip_charge_map_[i->first] = i->second + noise;
+    double noise = CLHEP::RandGauss::shoot(0.0, theNoiseInElectrons);
+    the_strip_charge_map[i->first] = i->second + noise;
     if(verbosity_)
       edm::LogInfo("RPDigiProducer")<<"noise added to signal strips: "<<noise<<"\n";
   }
@@ -39,15 +39,15 @@ SimRP::strip_charge_map RPGaussianTailNoiseAdder::addNoise(
   for(int j=0; j<strips_no_above_threshold; j++)
   {
     int strip = gRandom->Integer(numStrips_);
-    if(the_strip_charge_map_[strip] == 0)
+    if(the_strip_charge_map[strip] == 0)
     {
-      the_strip_charge_map_[strip] = 2*theStripThresholdInE_;  
+      the_strip_charge_map[strip] = 2*theStripThresholdInE;  
       //only binary decision later, no need to simulate the noise precisely, 
       //enough to know that it exceeds the threshold
       if(verbosity_)
-        edm::LogInfo("RPDigiProducer")<<"nonsignal strips noise :"<<strip<<" "<<the_strip_charge_map_[strip]<<"\n";
+        edm::LogInfo("RPDigiProducer")<<"nonsignal strips noise :"<<strip<<" "<<the_strip_charge_map[strip]<<"\n";
     }
   }
   
-  return the_strip_charge_map_;
+  return the_strip_charge_map;
 }

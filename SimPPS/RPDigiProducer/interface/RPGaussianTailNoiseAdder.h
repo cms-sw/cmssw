@@ -9,13 +9,13 @@ class RPGaussianTailNoiseAdder
   public:
     RPGaussianTailNoiseAdder(int numStrips, double theNoiseInElectrons, 
         double theStripThresholdInE, int verbosity);
-    SimRP::strip_charge_map addNoise(
-        const SimRP::strip_charge_map &theSignal);
+    simRP::strip_charge_map addNoise(
+        const simRP::strip_charge_map &theSignal);
   private:
-    SimRP::strip_charge_map the_strip_charge_map_;
+    simRP::strip_charge_map the_strip_charge_map;
     int numStrips_;
-    double theNoiseInElectrons_;
-    double theStripThresholdInE_;
+    double theNoiseInElectrons;
+    double theStripThresholdInE;
     double strips_above_threshold_prob_;
     int verbosity_;
 };

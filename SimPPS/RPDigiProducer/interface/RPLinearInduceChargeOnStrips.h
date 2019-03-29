@@ -10,13 +10,13 @@ class RPLinearInduceChargeOnStrips
 {
   public:
     RPLinearInduceChargeOnStrips(const edm::ParameterSet &params, RPDetId det_id);
-    SimRP::strip_charge_map 
-        Induce(const SimRP::charge_induced_on_surface &charge_map);
+    simRP::strip_charge_map 
+        Induce(const simRP::charge_induced_on_surface &charge_map);
   private:
     RPDetId det_id_;
     std::vector<double> signalCoupling_;
-    SimRP::strip_charge_map theStripChargeMap;
-    RPSimTopology theRPDetTopology_;
+    simRP::strip_charge_map theStripChargeMap;
+    RPSimTopology theRPDetTopology;
     double sqrt_2;
     int no_of_strips_;
     int verbosity_;

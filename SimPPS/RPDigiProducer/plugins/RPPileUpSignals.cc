@@ -17,9 +17,9 @@ void RPPileUpSignals::reset()
   the_strip_charge_piled_up_map_links_.clear();
 }
 
-void RPPileUpSignals::add(const SimRP::strip_charge_map &charge_induced, int PSimHitIndex)
+void RPPileUpSignals::add(const simRP::strip_charge_map &charge_induced, int PSimHitIndex)
 {
-  for(SimRP::strip_charge_map::const_iterator i=charge_induced.begin();
+  for(simRP::strip_charge_map::const_iterator i=charge_induced.begin();
       i!=charge_induced.end(); ++i)
   {
     the_strip_charge_piled_up_map_[i->first]+=i->second;
