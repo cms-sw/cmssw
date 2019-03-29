@@ -2,6 +2,7 @@
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
+#include <cassert>
 
 using namespace cms;
 
@@ -12,6 +13,7 @@ DTNumberingScheme::DTNumberingScheme(const MuonConstants& muonConstants) {
 void
 DTNumberingScheme::initMe(const MuonConstants& muonConstants) {
   int levelPart = get("level", muonConstants);
+  assert(levelPart != 0);
   theRegionLevel = get("mb_region", muonConstants)/levelPart;
   theWheelLevel = get("mb_wheel", muonConstants)/levelPart;
   theStationLevel = get("mb_station", muonConstants)/levelPart;

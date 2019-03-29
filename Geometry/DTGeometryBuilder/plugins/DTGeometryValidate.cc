@@ -53,29 +53,13 @@ private:
   void validateDTLayerGeometry();
 
   void compareTransform(const GlobalPoint&, const TGeoMatrix*);
-
   void compareShape(const GeomDet*, const float*);
   
-  double getDistance(const GlobalPoint&, const GlobalPoint&);
-  double getDiff(const double, const double);
+  float getDistance(const GlobalPoint&, const GlobalPoint&);
+  float getDiff(const float, const float);
 
   void makeHistograms(const char*);
-  void makeHistogram(const string&, vector<double>&);
-  
-  string infileName_;
-  string outfileName_;
-
-  edm::ESHandle<DTGeometry> dtGeometry_;
-
-  FWGeometry fwGeometry_;
-
-  TFile* outFile_;
-
-  vector<double> globalDistances_;
-  vector<double> topWidths_;
-  vector<double> bottomWidths_;
-  vector<double> lengths_;
-  vector<double> thicknesses_;
+  void makeHistogram(const string&, vector<float>&);
 
   void clearData() {
     globalDistances_.clear();
@@ -84,14 +68,25 @@ private:
     lengths_.clear();
     thicknesses_.clear();
   }
-
-  int tolerance_ = 2;
+  
+  edm::ESHandle<DTGeometry> dtGeometry_;
+  FWGeometry                fwGeometry_;
+  TFile*                    outFile_;
+  vector<float> globalDistances_;
+  vector<float> topWidths_;
+  vector<float> bottomWidths_;
+  vector<float> lengths_;
+  vector<float> thicknesses_;
+  string infileName_;
+  string outfileName_;
+  int    tolerance_;
 };
 
 
 DTGeometryValidate::DTGeometryValidate(const edm::ParameterSet& iConfig)
-  : infileName_(iConfig.getUntrackedParameter<string>("infileName")),
-    outfileName_(iConfig.getUntrackedParameter<string>("outfileName"))
+  : infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
+    outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateDTGeometry.root")),
+    tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6))
 {
   fwGeometry_.loadMap(infileName_.c_str());
   outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
@@ -151,7 +146,7 @@ DTGeometryValidate::validateDTLayerGeometry() {
 
   clearData();
   
-  vector<double> wire_positions;
+  vector<float> wire_positions;
 
   for(auto const& it : dtGeometry_->layers()) {
     DTLayerId layerId = it->id();
@@ -185,13 +180,13 @@ DTGeometryValidate::validateDTLayerGeometry() {
       continue;
     }
            
-    double width = it->surface().bounds().width();
+    float width = it->surface().bounds().width();
     assert(width == parameters[6]); 
 
-    double thickness = it->surface().bounds().thickness();
+    float thickness = it->surface().bounds().thickness();
     assert(thickness == parameters[7]);
 
-    double length = it->surface().bounds().length();
+    float length = it->surface().bounds().length();
     assert(length == parameters[8]);
 
     int firstChannel = it->specificTopology().firstChannel();
@@ -202,8 +197,8 @@ DTGeometryValidate::validateDTLayerGeometry() {
     assert(nChannels == (lastChannel-firstChannel)+1);
 
     for(int wireN = firstChannel; wireN - lastChannel <= 0; ++wireN) {
-      double localX1 = it->specificTopology().wirePosition(wireN);
-      double localX2 = (wireN -(firstChannel-1)-0.5f)*parameters[0] - nChannels/2.0f*parameters[0];
+      float localX1 = it->specificTopology().wirePosition(wireN);
+      float localX2 = (wireN -(firstChannel-1)-0.5f)*parameters[0] - nChannels/2.0f*parameters[0];
       wire_positions.emplace_back(getDiff(localX1, localX2));
     }
   }
@@ -212,7 +207,7 @@ DTGeometryValidate::validateDTLayerGeometry() {
   makeHistograms("DT Layer");
 }
 
-void    
+void
 DTGeometryValidate::compareTransform(const GlobalPoint& gp,
 				     const TGeoMatrix* matrix)
 {
@@ -221,7 +216,7 @@ DTGeometryValidate::compareTransform(const GlobalPoint& gp,
 
   matrix->LocalToMaster(local, global);
 
-  double distance = getDistance(GlobalPoint(global[0], global[1], global[2]), gp);
+  float distance = getDistance(GlobalPoint(global[0], global[1], global[2]), gp);
   globalDistances_.push_back(distance);
 }
 
@@ -280,11 +275,9 @@ DTGeometryValidate::compareShape(const GeomDet* det, const float* shape)
   bottomWidths_.push_back(fabs(shapeBottomWidth - bottomWidth));
   lengths_.push_back(fabs(shapeLength - length));
   thicknesses_.push_back(fabs(shapeThickness - thickness));
-
-  return;
 }
 
-double
+float
 DTGeometryValidate::getDistance(const GlobalPoint& p1, const GlobalPoint& p2)
 {
   return sqrt((p1.x()-p2.x())*(p1.x()-p2.x())+
@@ -292,11 +285,10 @@ DTGeometryValidate::getDistance(const GlobalPoint& p1, const GlobalPoint& p2)
               (p1.z()-p2.z())*(p1.z()-p2.z()));
 }
 
-
-double
-DTGeometryValidate::getDiff(const double val1, const double val2) {
+float
+DTGeometryValidate::getDiff(const float val1, const float val2) {
   if(almost_equal(val1, val2, tolerance_))
-    return double(0.0);
+    return 0.0f;
   else
     return (val1 - val2);
 }
@@ -325,26 +317,18 @@ DTGeometryValidate::makeHistograms(const char* detector)
 }
 
 void
-DTGeometryValidate::makeHistogram(const string& name, vector<double>& data)
+DTGeometryValidate::makeHistogram(const string& name, vector<float>& data)
 {
   if(data.empty())
     return;
 
-  vector<double>::iterator it;
+  const auto [minE, maxE] = minmax_element(begin(data), end(data));
   
-  it = min_element(data.begin(), data.end());
-  double minE = *it;
+  TH1D hist(name.c_str(), name.c_str(), 100, *minE*(1+0.10), *maxE*(1+0.10));
 
-  it = max_element(data.begin(), data.end());
-  double maxE = *it;
-
-  vector<double>::iterator itEnd = data.end();
-
-  TH1D hist(name.c_str(), name.c_str(), 100, minE*(1+0.10), maxE*(1+0.10));
+  for(auto const& it : data)
+    hist.Fill(it);
   
-  for( it = data.begin(); it != itEnd; ++it )
-    hist.Fill(*it);
- 
   hist.GetXaxis()->SetTitle("[cm]");
   hist.Write();
 }
