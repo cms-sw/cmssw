@@ -1,4 +1,5 @@
 <use name="CUDADataFormats/BeamSpot"/>
+<use name="CUDADataFormats/TrackingRecHit"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/Producer"/>

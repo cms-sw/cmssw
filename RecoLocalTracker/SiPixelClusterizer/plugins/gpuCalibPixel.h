@@ -5,6 +5,9 @@
 #include <cstdio>
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainForHLTonGPU.h"
+
+#include "gpuClusteringConstants.h"
+
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 namespace gpuCalibPixel {
@@ -22,104 +25,46 @@ namespace gpuCalibPixel {
                            uint16_t const * __restrict__ y,
                            uint16_t * adc,
                            SiPixelGainForHLTonGPU const * __restrict__ ped,
-                           int numElements
+                           int numElements,
+                           uint32_t * __restrict__ moduleStart,    // just to zero first
+                           uint32_t * __restrict__ nClustersInModule, // just to zero them
+                           uint32_t * __restrict__ clusModuleStart  // just to zero first
                          )
 {
 
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
-    if (i >= numElements) return;
-    if (InvId==id[i]) return;
+    int first = blockDim.x * blockIdx.x + threadIdx.x;
 
-    float conversionFactor = id[i]<96 ? VCaltoElectronGain_L1 : VCaltoElectronGain;
-    float offset =  id[i]<96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset;
+    // zero for next kernels...
+    if (0==first) clusModuleStart[0] = moduleStart[0]=0;
+    for (int i = first; i < gpuClustering::MaxNumModules; i += gridDim.x*blockDim.x) {
+      nClustersInModule[i]=0;
+    }
 
-    bool isDeadColumn=false, isNoisyColumn=false;
+    for (int i = first; i < numElements; i += gridDim.x*blockDim.x) {
+      if (InvId==id[i]) continue;
+
+      float conversionFactor = id[i]<96 ? VCaltoElectronGain_L1 : VCaltoElectronGain;
+      float offset =  id[i]<96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset;
+
+      bool isDeadColumn=false, isNoisyColumn=false;
  
-    int row = x[i];
-    int col = y[i];
-    auto ret = ped->getPedAndGain(id[i], col, row, isDeadColumn, isNoisyColumn);
-    float pedestal = ret.first; float gain = ret.second;
-    // float pedestal = 0; float gain = 1.;
-    if ( isDeadColumn | isNoisyColumn )
+      int row = x[i];
+      int col = y[i];
+      auto ret = ped->getPedAndGain(id[i], col, row, isDeadColumn, isNoisyColumn);
+      float pedestal = ret.first; float gain = ret.second;
+      // float pedestal = 0; float gain = 1.;
+      if ( isDeadColumn | isNoisyColumn )
       { 
-        id[i]=InvId; adc[i] =0; 
-        printf("bad pixel at %d in %d\n",i,id[i]);
+         id[i]=InvId; adc[i] =0; 
+         printf("bad pixel at %d in %d\n",i,id[i]);
+      }
+      else {
+        float vcal = adc[i] * gain  - pedestal*gain;
+        adc[i] = std::max(100, int( vcal * conversionFactor + offset));
+      }
     }
-    else {
-      float vcal = adc[i] * gain  - pedestal*gain;
-      adc[i] = std::max(100, int( vcal * conversionFactor + offset));
-    }
-
-    // if (threadIdx.x==0)
-    //  printf ("calibrated %d\n",id[i]);
+  
+  }
 }
 
- __global__ void calibADCByModule(uint16_t * id,
-			   uint16_t const * __restrict__ x,
-			   uint16_t const * __restrict__ y,
-			   uint16_t * adc,
-			   uint32_t * moduleStart,
-                           SiPixelGainForHLTonGPU const * __restrict__ ped,
-                           int numElements
-                         )
-{
-
-
-    auto first = moduleStart[1 + blockIdx.x];  
-    
-    auto me = id[first];
-    
-    assert(me<2000);
-
-    /// depends on "me"
-
-    float conversionFactor = me<96 ? VCaltoElectronGain_L1 : VCaltoElectronGain; 
-    float offset =  me<96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset; 
- 
-
-#ifdef GPU_DEBUG
-    if (me%100==1)
-      if (threadIdx.x==0) printf("start pixel calibration for module %d in block %d\n",me,blockIdx.x);
 #endif
-
-    first+=threadIdx.x;
- 
-    // __syncthreads();
-
-    float pedestal=0,gain=0;
-    bool isDeadColumn=false, isNoisyColumn=false;
-    int oldCol=-1, oldAveragedBlock=-1;
-
-    for (int i=first; i<numElements; i+=blockDim.x) {
-       if (id[i]==InvId) continue;  // not valid
-       if (id[i]!=me) break;  // end of module
-       int row = x[i];
-       int col = y[i];
-       int averagedBlock = row / ped->numberOfRowsAveragedOver_; // 80....  ( row<80 will be faster...)
-       if ( (col!=oldCol) | ( averagedBlock != oldAveragedBlock) ) {
-        oldCol=col; oldAveragedBlock= averagedBlock;
-        auto ret = ped->getPedAndGain(me,col, row, isDeadColumn, isNoisyColumn);
-        pedestal = ret.first; gain = ret.second;
-       }
-       if ( isDeadColumn | isNoisyColumn ) 
-         { id[i]=InvId; adc[i] =0; }
-       else {
-         float vcal = adc[i] * gain  - pedestal*gain;
-         adc[i] = std::max(100, int( vcal * conversionFactor + offset)); 
-       }
-    } 
-
-    __syncthreads(); 
-    //reset start
-    if(0==threadIdx.x) {
-     auto & k = moduleStart[1 + blockIdx.x];
-     while (id[k]==InvId) ++k;
-    }
-     
-
- }
-
-
-}
-
-#endif // RecoLocalTracker_SiPixelClusterizer_plugins_gpuCalibPixel_h

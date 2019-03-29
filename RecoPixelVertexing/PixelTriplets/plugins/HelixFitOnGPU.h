@@ -4,9 +4,11 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/FitResult.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/pixelTuplesHeterogeneousProduct.h"
 
-namespace siPixelRecHitsHeterogeneousProduct {
-   struct HitsOnCPU;
-}
+#include <cuda/api_wrappers.h>
+
+class TrackingRecHit2DSOAView;
+class TrackingRecHit2DCUDA;
+
 
 namespace Rfit {
   constexpr uint32_t maxNumberOfConcurrentFits() { return 6*1024;}
@@ -35,8 +37,8 @@ namespace Rfit {
 class HelixFitOnGPU {
 public:
 
-   using HitsOnGPU = siPixelRecHitsHeterogeneousProduct::HitsOnGPU;
-   using HitsOnCPU = siPixelRecHitsHeterogeneousProduct::HitsOnCPU;
+   using HitsOnGPU = TrackingRecHit2DSOAView;
+   using HitsOnCPU = TrackingRecHit2DCUDA;
 
    using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
    using TupleMultiplicity = CAConstants::TupleMultiplicity;
@@ -45,8 +47,8 @@ public:
    ~HelixFitOnGPU() { deallocateOnGPU();}
 
    void setBField(double bField) { bField_ = bField;}
-   void launchRiemannKernels(HitsOnCPU const & hh, uint32_t nhits, uint32_t maxNumberOfTuples, cudaStream_t cudaStream);
-   void launchBrokenLineKernels(HitsOnCPU const & hh, uint32_t nhits, uint32_t maxNumberOfTuples, cudaStream_t cudaStream);
+   void launchRiemannKernels(HitsOnCPU const & hh, uint32_t nhits, uint32_t maxNumberOfTuples, cuda::stream_t<> &cudaStream);
+   void launchBrokenLineKernels(HitsOnCPU const & hh, uint32_t nhits, uint32_t maxNumberOfTuples, cuda::stream_t<> &cudaStream);
 
    void allocateOnGPU(TuplesOnGPU::Container const * tuples, TupleMultiplicity const * tupleMultiplicity, Rfit::helix_fit * helix_fit_results);
    void deallocateOnGPU();
@@ -61,12 +63,6 @@ private:
     TupleMultiplicity const * tupleMultiplicity_d = nullptr;
     double bField_;
     Rfit::helix_fit * helix_fit_results_d = nullptr;
-
-   // Riemann Fit internals
-   double *hitsGPU_ = nullptr;
-   float *hits_geGPU_ = nullptr;
-   double *fast_fit_resultsGPU_ = nullptr;
-   Rfit::circle_fit *circle_fit_resultsGPU_ = nullptr;
 
     const bool fit5as4_;
 

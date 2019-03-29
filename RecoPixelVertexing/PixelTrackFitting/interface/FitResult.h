@@ -38,7 +38,7 @@ namespace Rfit
       |cov(X0, R)|cov(Y0, R)|cov( R, R)|
     */
     int32_t q;  //!< particle charge
-    float chi2 = 0.0;
+    float chi2;
   };
   
   struct line_fit
@@ -49,7 +49,7 @@ namespace Rfit
       |cov(c_t,c_t)|cov(Zip,c_t)| \n
       |cov(c_t,Zip)|cov(Zip,Zip)|
     */
-    double chi2 = 0.0;
+    double chi2;
   };
   
   struct helix_fit

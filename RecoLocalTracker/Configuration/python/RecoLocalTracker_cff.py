@@ -13,17 +13,13 @@ from RecoLocalTracker.SiPixelClusterizer.siPixelClustersPreSplitting_cff import 
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
 from RecoLocalTracker.SubCollectionProducers.clustersummaryproducer_cfi import *
 
-pixeltrackerlocalrecoTask = cms.Task(siPixelClustersPreSplittingTask,siPixelRecHitsPreSplitting)
+pixeltrackerlocalrecoTask = cms.Task(siPixelClustersPreSplittingTask,siPixelRecHitsPreSplittingTask)
 striptrackerlocalrecoTask = cms.Task(siStripZeroSuppression,siStripClusters,siStripMatchedRecHits)
 trackerlocalrecoTask = cms.Task(pixeltrackerlocalrecoTask,striptrackerlocalrecoTask,clusterSummaryProducer)
 
 pixeltrackerlocalreco = cms.Sequence(pixeltrackerlocalrecoTask)
 striptrackerlocalreco = cms.Sequence(striptrackerlocalrecoTask)
 trackerlocalreco = cms.Sequence(trackerlocalrecoTask)
-
-from Configuration.ProcessModifiers.gpu_cff import gpu
-from RecoLocalTracker.SiPixelRecHits.siPixelRecHitHeterogeneous_cfi import siPixelRecHitHeterogeneous as _siPixelRecHitHeterogeneous
-gpu.toReplaceWith(siPixelRecHitsPreSplitting, _siPixelRecHitHeterogeneous)
 
 from RecoLocalTracker.SiPhase2Clusterizer.phase2TrackerClusterizer_cfi import *
 from RecoLocalTracker.Phase2TrackerRecHits.Phase2StripCPEGeometricESProducer_cfi import *

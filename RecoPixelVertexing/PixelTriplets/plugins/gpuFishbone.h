@@ -10,7 +10,6 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 #include "DataFormats/Math/interface/approx_atan2.h"
-#include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
 #include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
 
 #include "GPUCACell.h"
@@ -32,8 +31,7 @@ namespace gpuPixelDoublets {
 
 
     auto const & hh = *hhp;
-    uint8_t const * __restrict__ layerp =  hh.phase1TopologyLayer_d;
-    auto layer = [&](uint16_t id) { return __ldg(layerp+id/phase1PixelTopology::maxModuleStride);};
+    auto layer = [&](uint16_t id) { return hh.cpeParams().layer(id);};
 
     // x run faster...
     auto idy = threadIdx.y + blockIdx.y * blockDim.y;
@@ -54,7 +52,7 @@ namespace gpuPixelDoublets {
     auto sg=0;
     for (uint32_t ic=0; ic<s; ++ic) {
       auto & ci = cells[vc[ic]];
-      if (checkTrack && ci.theTracks.empty()) continue;
+      if (checkTrack && ci.tracks().empty()) continue;
       cc[sg] = vc[ic];
       d[sg] = ci.get_inner_detId(hh);
 //      l[sg] = layer(d[sg]);

@@ -12,9 +12,7 @@
 
 #include "RecoPixelVertexing/PixelTriplets/plugins/CAConstants.h"
 
-namespace siPixelRecHitsHeterogeneousProduct {
-  struct HitsOnGPU;
-}
+class TrackingRecHit2DSOAView;
 
 namespace pixelTuplesHeterogeneousProduct {
 
@@ -42,7 +40,7 @@ namespace pixelTuplesHeterogeneousProduct {
 
     using Container = TuplesOnGPU::Container;
 
-    siPixelRecHitsHeterogeneousProduct::HitsOnGPU const * hitsOnGPU_d = nullptr; // forwarding
+    TrackingRecHit2DSOAView const * hitsOnGPU_d = nullptr; // forwarding
 
     Container const * tuples = nullptr;
 

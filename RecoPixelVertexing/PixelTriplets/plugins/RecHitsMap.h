@@ -8,6 +8,9 @@
 #include <unordered_map>
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // store T for each cluster

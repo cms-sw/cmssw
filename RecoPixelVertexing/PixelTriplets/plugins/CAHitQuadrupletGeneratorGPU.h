@@ -4,11 +4,11 @@
 #include <cuda_runtime.h>
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
-#include "RecoLocalTracker/SiPixelClusterizer/interface/PixelTrackingGPUConstants.h"
-#include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/RecHitsMap.h"
@@ -20,7 +20,6 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/RecHitsMap.h"
 
 #include "CAHitQuadrupletGeneratorKernels.h"
 #include "HelixFitOnGPU.h"
@@ -41,9 +40,9 @@ namespace edm {
 class CAHitQuadrupletGeneratorGPU {
 public:
 
-    using HitsOnGPU = siPixelRecHitsHeterogeneousProduct::HitsOnGPU;
-    using HitsOnCPU = siPixelRecHitsHeterogeneousProduct::HitsOnCPU;
-    using hindex_type = siPixelRecHitsHeterogeneousProduct::hindex_type;
+    using HitsOnGPU = TrackingRecHit2DSOAView;
+    using HitsOnCPU = TrackingRecHit2DCUDA;
+    using hindex_type = TrackingRecHit2DSOAView::hindex_type;
 
     using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
     using TuplesOnCPU = pixelTuplesHeterogeneousProduct::TuplesOnCPU;
@@ -65,16 +64,16 @@ public:
 
     void initEvent(const edm::Event& ev, const edm::EventSetup& es);
 
-    void buildDoublets(HitsOnCPU const & hh, cudaStream_t stream);
+    void buildDoublets(HitsOnCPU const & hh, cuda::stream_t<>& stream);
 
     void hitNtuplets(HitsOnCPU const & hh,
                      const edm::EventSetup& es,
                      bool useRiemannFit,
                      bool transferToCPU,
-                     cudaStream_t stream);
+                     cuda::stream_t<> &cudaStream);
 
     TuplesOnCPU getOutput() const {
-       return TuplesOnCPU { std::move(indToEdm), hitsOnCPU->gpu_d, tuples_,  helix_fit_results_, quality_, gpu_d, nTuples_};
+       return TuplesOnCPU { std::move(indToEdm), hitsOnCPU->view(), tuples_,  helix_fit_results_, quality_, gpu_d, nTuples_};
     }
 
     void cleanup(cudaStream_t stream);
@@ -87,7 +86,7 @@ public:
 
 private:
 
-    void launchKernels(HitsOnCPU const & hh, bool useRiemannFit, bool transferToCPU, cudaStream_t);
+    void launchKernels(HitsOnCPU const & hh, bool useRiemannFit, bool transferToCPU, cuda::stream_t<> &cudaStream);
 
 
     std::vector<std::array<int,4>> fetchKernelResult(int);
@@ -114,7 +113,7 @@ private:
     // input
     HitsOnCPU const * hitsOnCPU=nullptr;
 
-    RecHitsMap<TrackingRecHit const *> hitmap_ = RecHitsMap<TrackingRecHit const *>(nullptr);
+    std::vector<TrackingRecHit const *> hitmap_;
 
 };
 

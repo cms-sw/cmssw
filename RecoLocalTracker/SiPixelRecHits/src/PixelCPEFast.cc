@@ -22,6 +22,8 @@ namespace {
    constexpr float micronsToCm = 1.0e-4;
 }
 
+
+
 //-----------------------------------------------------------------------------
 //!  The constructor.
 //-----------------------------------------------------------------------------
@@ -68,13 +70,16 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const & conf,
 
 const pixelCPEforGPU::ParamsOnGPU *PixelCPEFast::getGPUProductAsync(cuda::stream_t<>& cudaStream) const {
   const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cuda::stream_t<>& stream) {
+
       // and now copy to device...
       cudaCheck(cudaMalloc((void**) & data.h_paramsOnGPU.m_commonParams, sizeof(pixelCPEforGPU::CommonParams)));
       cudaCheck(cudaMalloc((void**) & data.h_paramsOnGPU.m_detParams, this->m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams)));
+      cudaCheck(cudaMalloc((void**) & data.h_paramsOnGPU.m_layerGeometry, sizeof(pixelCPEforGPU::LayerGeometry)));
       cudaCheck(cudaMalloc((void**) & data.d_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU)));
 
       cudaCheck(cudaMemcpyAsync(data.d_paramsOnGPU, &data.h_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyDefault, stream.id()));
       cudaCheck(cudaMemcpyAsync(data.h_paramsOnGPU.m_commonParams, &this->m_commonParamsGPU, sizeof(pixelCPEforGPU::CommonParams), cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(data.h_paramsOnGPU.m_layerGeometry, &this->m_layerGeometry, sizeof(pixelCPEforGPU::LayerGeometry), cudaMemcpyDefault, stream.id())); 
       cudaCheck(cudaMemcpyAsync(data.h_paramsOnGPU.m_detParams, this->m_detParamsGPU.data(), this->m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams), cudaMemcpyDefault, stream.id()));
     });
   return data.d_paramsOnGPU;
@@ -86,7 +91,13 @@ void PixelCPEFast::fillParamsForGpu() {
   m_commonParamsGPU.thePitchX = m_DetParams[0].thePitchX;
   m_commonParamsGPU.thePitchY = m_DetParams[0].thePitchY;
 
-  //uint32_t oldLayer = 0;
+  uint32_t oldLayer = 0;
+  uint32_t oldLadder=0;
+  float rl=0;
+  float zl = 0;
+  float miz = 90, mxz=0;
+  float pl = 0;
+  int nl=0;
   m_detParamsGPU.resize(m_DetParams.size());
   for (auto i=0U; i<m_DetParams.size(); ++i) {
     auto & p=m_DetParams[i];
@@ -107,11 +118,26 @@ void PixelCPEFast::fillParamsForGpu() {
 
     //if (m_commonParamsGPU.theThickness!=p.theThickness)   
     //  std::cout << i << (g.isBarrel ? "B " : "E ") << m_commonParamsGPU.theThickness<<"!="<<p.theThickness << std::endl;
+    auto ladder = ttopo_.pxbLadder(p.theDet->geographicalId());
 
-    //if (oldLayer != g.layer) {
-    //  oldLayer = g.layer;
-    //  std::cout << "new layer at " << i << (g.isBarrel ? " B  " :  (g.isPosZ ? " E+ " : " E- ")) << g.layer << " starting at " << g.rawId << std::endl;
-    //}
+    if (oldLayer != g.layer) {
+      oldLayer = g.layer;
+      // std::cout << "new layer at " << i << (g.isBarrel ? " B  " :  (g.isPosZ ? " E+ " : " E- ")) << g.layer << " starting at " << g.rawId << std::endl;
+      // std::cout << "old layer had " << nl << " ladders" << std::endl;
+      nl=0;
+    }
+    if (oldLadder != ladder) {
+      oldLadder = ladder;
+      // std::cout << "new ladder at " << i << (g.isBarrel ? " B  " :  (g.isPosZ ? " E+ " : " E- ")) << ladder << " starting at " << g.rawId << std::endl;
+      // std::cout << "old ladder ave z,r,p mz " << zl/8.f << " " << rl/8.f << " " << pl/8.f  << ' ' << miz << ' ' << mxz << std::endl;
+      rl=0;
+      zl = 0;
+      pl = 0;
+      miz=90; mxz=0;
+      nl++;
+    }
+   
+
 
     g.shiftX = 0.5f*p.lorentzShiftInCmX;
     g.shiftY = 0.5f*p.lorentzShiftInCmY;
@@ -126,6 +152,11 @@ void PixelCPEFast::fillParamsForGpu() {
     auto rr = pixelCPEforGPU::Rotation(p.theDet->surface().rotation());
     g.frame = pixelCPEforGPU::Frame(vv.x(),vv.y(),vv.z(),rr);
 
+    zl+=vv.z();
+    miz = std::min(miz,std::abs(vv.z()));
+    mxz = std::max(mxz,std::abs(vv.z()));
+    rl+=vv.perp();
+    pl+=vv.phi(); // (not obvious)
 
     // errors .....
    ClusterParamGeneric cp;
@@ -196,13 +227,19 @@ void PixelCPEFast::fillParamsForGpu() {
    }
    */
    
-
    for (int i=0; i<3; ++i) {
      g.sx[i] = std::sqrt(g.sx[i]*g.sx[i]+lape.xx());
      g.sy[i] = std::sqrt(g.sy[i]*g.sy[i]+lape.yy());
    }
 
  }
+
+ // fill Layer and ladders geometry
+ memcpy(m_layerGeometry.layerStart, phase1PixelTopology::layerStart, sizeof(phase1PixelTopology::layerStart));
+ memcpy(m_layerGeometry.layer, phase1PixelTopology::layer.data(), phase1PixelTopology::layer.size());
+
+
+
 }
 
 PixelCPEFast::~PixelCPEFast() {}

@@ -65,7 +65,7 @@ void CAHitQuadrupletGeneratorGPU::hitNtuplets(
     edm::EventSetup const& es,
     bool useRiemannFit,
     bool transferToCPU,
-    cudaStream_t cudaStream)
+    cuda::stream_t<> &cudaStream)
 {
   hitsOnCPU = &hh;
   launchKernels(hh, useRiemannFit, transferToCPU, cudaStream);
@@ -75,12 +75,29 @@ void CAHitQuadrupletGeneratorGPU::fillResults(
     const TrackingRegion &region, SiPixelRecHitCollectionNew const & rechits,
     std::vector<OrderedHitSeeds> &result, const edm::EventSetup &es)
 {
-  hitmap_.clear();
-  auto const & rcs = rechits.data();
-  for (auto const & h : rcs) hitmap_.add(h, &h);
 
   assert(hitsOnCPU);
-  auto nhits = hitsOnCPU->nHits;
+  auto nhits = hitsOnCPU->nHits();
+
+   uint32_t hitsModuleStart[gpuClustering::MaxNumModules+1];
+  // to be understood where to locate
+  cudaCheck(cudaMemcpy(hitsModuleStart, hitsOnCPU->hitsModuleStart(), (gpuClustering::MaxNumModules+1) * sizeof(uint32_t), cudaMemcpyDefault));
+
+  auto fc = hitsModuleStart;
+
+  hitmap_.clear();
+  auto const & rcs = rechits.data();
+  hitmap_.resize(nhits);
+  for (auto const & h : rcs) {
+       auto const & thit = static_cast<BaseTrackerRecHit const&>(h);
+       auto detI = thit.det()->index();
+       auto const & clus = thit.firstClusterRef();
+       assert(clus.isPixel());  
+       auto i = fc[detI] + clus.pixelCluster().originalId();
+       assert(i<nhits);
+       hitmap_[i] = &h;
+  } 
+
   int index = 0;
 
   auto const & foundQuads = fetchKernelResult(index);
@@ -99,8 +116,9 @@ void CAHitQuadrupletGeneratorGPU::fillResults(
       auto k = foundQuads[quadId][i];
       if (k<0) { phits[i] = nullptr;continue; } // (actually break...)
       assert(k<int(nhits));
-      auto hp = hitmap_.get((*hitsOnCPU).detInd[k],(*hitsOnCPU).mr[k], (*hitsOnCPU).mc[k]);
+      auto hp = hitmap_[k];
       if (hp==nullptr) {
+        edm::LogWarning("CAHitQuadrupletGeneratorGPU") << "hit not found????  " << k << std::endl;
         bad=true;
         break;
       }
@@ -164,29 +182,29 @@ void CAHitQuadrupletGeneratorGPU::allocateOnGPU()
 void CAHitQuadrupletGeneratorGPU::launchKernels(HitsOnCPU const & hh,
                                                 bool useRiemannFit,
                                                 bool transferToCPU,
-                                                cudaStream_t cudaStream)
+                                                cuda::stream_t<> &cudaStream)
 {
 
-  kernels.launchKernels(hh, gpu_, cudaStream); 
+  kernels.launchKernels(hh, gpu_, cudaStream.id()); 
   if (useRiemannFit) {
-    fitter.launchRiemannKernels(hh, hh.nHits, CAConstants::maxNumberOfQuadruplets(), cudaStream);
+    fitter.launchRiemannKernels(hh, hh.nHits(), CAConstants::maxNumberOfQuadruplets(), cudaStream);
   } else {
-    fitter.launchBrokenLineKernels(hh, hh.nHits, CAConstants::maxNumberOfQuadruplets(), cudaStream);
+    fitter.launchBrokenLineKernels(hh, hh.nHits(), CAConstants::maxNumberOfQuadruplets(), cudaStream);
   }
-  kernels.classifyTuples(hh, gpu_, cudaStream);
+  kernels.classifyTuples(hh, gpu_, cudaStream.id());
 
   if (transferToCPU) {
     cudaCheck(cudaMemcpyAsync(tuples_,gpu_.tuples_d,
                               sizeof(TuplesOnGPU::Container),
-                              cudaMemcpyDeviceToHost, cudaStream));
+                              cudaMemcpyDeviceToHost, cudaStream.id()));
 
     cudaCheck(cudaMemcpyAsync(helix_fit_results_,gpu_.helix_fit_results_d, 
                               sizeof(Rfit::helix_fit)*CAConstants::maxNumberOfQuadruplets(),
-                              cudaMemcpyDeviceToHost, cudaStream));
+                              cudaMemcpyDeviceToHost, cudaStream.id()));
 
     cudaCheck(cudaMemcpyAsync(quality_,gpu_.quality_d,
                               sizeof(Quality)*CAConstants::maxNumberOfQuadruplets(),
-                              cudaMemcpyDeviceToHost, cudaStream));
+                              cudaMemcpyDeviceToHost, cudaStream.id()));
 
   }
 
@@ -233,6 +251,6 @@ CAHitQuadrupletGeneratorGPU::fetchKernelResult(int)
   return quadsInterface;
 }
 
-void CAHitQuadrupletGeneratorGPU::buildDoublets(HitsOnCPU const & hh, cudaStream_t stream) {
+void CAHitQuadrupletGeneratorGPU::buildDoublets(HitsOnCPU const & hh, cuda::stream_t<>& stream) {
    kernels.buildDoublets(hh,stream);
 }
