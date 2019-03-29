@@ -4,22 +4,19 @@
 #include "RecoHGCal/TICL/interface/ClusterFilterBase.h"
 
 class FilteredLayerClustersProducer : public edm::stream::EDProducer<> {
-public:
+ public:
   FilteredLayerClustersProducer(const edm::ParameterSet &);
   ~FilteredLayerClustersProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void produce(edm::Event &, const edm::EventSetup &) override;
 
-
-private:
-
+ private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   edm::EDGetTokenT<std::vector<float>> clustersMask_token_;
   std::string clusterFilter_;
   std::string iteration_label_;
-  const ClusterFilterBase* theFilter_ = nullptr;
+  const ClusterFilterBase *theFilter_ = nullptr;
 };
-
 
 #endif

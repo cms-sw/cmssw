@@ -1,6 +1,6 @@
+#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
 
 #include "RecoHGCal/TICL/interface/ClusterFilterFactory.h"
 

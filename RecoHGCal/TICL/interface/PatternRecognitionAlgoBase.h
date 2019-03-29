@@ -5,30 +5,31 @@
 #ifndef RecoHGCal_TICL_PatternRecognitionAlgoBase_H__
 #define RecoHGCal_TICL_PatternRecognitionAlgoBase_H__
 
-#include <vector>
 #include <memory>
+#include <vector>
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoHGCal/TICL/interface/Trackster.h"
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
-namespace edm {class Event; class EventSetup;}
-
+namespace edm {
+class Event;
+class EventSetup;
+}  // namespace edm
 
 class PatternRecognitionAlgoBase {
-public:
+ public:
   PatternRecognitionAlgoBase(const edm::ParameterSet& conf)
-    : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
-  virtual ~PatternRecognitionAlgoBase() {};
+      : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
+  virtual ~PatternRecognitionAlgoBase(){};
 
-  virtual void makeTracksters(
-      const edm::Event& ev,
-      const edm::EventSetup& es,
-      const std::vector<reco::CaloCluster>& layerClusters,
-      const std::vector<std::pair<unsigned int, float> >& mask, std::vector<Trackster>& result) = 0;
-  enum VerbosityLevel {None = 0, Basic, Advanced, Expert, Guru};
-protected:
+  virtual void makeTracksters(const edm::Event& ev, const edm::EventSetup& es,
+                              const std::vector<reco::CaloCluster>& layerClusters,
+                              const std::vector<std::pair<unsigned int, float> >& mask,
+                              std::vector<Trackster>& result) = 0;
+  enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
+
+ protected:
   int algo_verbosity_;
 };
-
 
 #endif

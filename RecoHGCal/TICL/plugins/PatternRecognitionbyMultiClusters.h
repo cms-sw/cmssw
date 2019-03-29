@@ -6,26 +6,27 @@
 #define __RecoHGCal_TICL_PRbyMultiClusters_H__
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 
-
 #include <iostream>
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+class ParameterSet;
+class Event;
+class EventSetup;
+}  // namespace edm
 // namespace reco {class CaloCluster;}
 
 class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBase {
-public:
-    PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf) : PatternRecognitionAlgoBase(conf) {
-        std::cout << "constructing PatternRecognitionbyMultiClusters from conf" << std::endl;
+ public:
+  PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf)
+      : PatternRecognitionAlgoBase(conf) {
+    std::cout << "constructing PatternRecognitionbyMultiClusters from conf" << std::endl;
+  }
+  ~PatternRecognitionbyMultiClusters() override {};
 
-    }
-    ~PatternRecognitionbyMultiClusters(){};
-
-    void makeTracksters(
-        const edm::Event& ev,
-        const edm::EventSetup& es,
-        const std::vector<reco::CaloCluster>& layerClusters,
-        const std::vector<std::pair<unsigned int, float> >& mask, std::vector<Trackster>& result) override;
-
+  void makeTracksters(const edm::Event& ev, const edm::EventSetup& es,
+                      const std::vector<reco::CaloCluster>& layerClusters,
+                      const std::vector<std::pair<unsigned int, float> >& mask,
+                      std::vector<Trackster>& result) override;
 };
 
 #endif
