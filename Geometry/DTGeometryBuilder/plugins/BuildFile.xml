@@ -13,14 +13,13 @@
  <flags EDM_PLUGIN="1"/>
 </library>
 
-<library name="DD4hep_DTGeometryValidationPlugins" file="dd4hep/DTGeometryValidate.cc">
+<library name="DTGeometryValidationPlugins" file="DTGeometryValidate.cc">
   <use name="Fireworks/Core"/>
   <use name="Geometry/DTGeometry"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library name="DD4hep_DTGeometryPlugins" file="dd4hep/*.cc">
-  <flags SKIP_FILES="dd4hep/DTGeometryValidate.cc"/>
   <use name="DetectorDescription/DDCMS"/>
   <use name="Geometry/DTGeometry"/>
   <use name="dd4hep"/>

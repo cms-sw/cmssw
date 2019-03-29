@@ -39,7 +39,8 @@ process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
 #
 process.valid = cms.EDAnalyzer("DTGeometryValidate",
                                infileName = cms.untracked.string('cmsGeom10.root'),
-                               outfileName = cms.untracked.string('validateDTGeometry.root')
+                               outfileName = cms.untracked.string('validateDTGeometry.root'),
+                               tolerance = cms.untracked.int32(7)
                                )
 
 process.p = cms.Path(process.valid)
