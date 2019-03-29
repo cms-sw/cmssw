@@ -60,7 +60,8 @@ int Muon::numberOfChambersCSCorDT() const
   return total;
 }
 
-int Muon::numberOfMatches( unsigned int type ) const
+//int Muon::numberOfMatches( unsigned int type ) const
+int Muon::numberOfMatches( ArbitrationType type ) const
 {
    int matches(0);
    for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
@@ -109,11 +110,11 @@ int Muon::numberOfMatches( unsigned int type ) const
 	     matches++;
 	     break;
 	   }
-         if(type > 1<<7)
-            if(segmentMatch->isMask(type)) {
-               matches++;
-               break;
-            }
+         // if(type > 1<<7)
+         //    if(segmentMatch->isMask(type)) {
+         //       matches++;
+         //       break;
+         //    }
       }
    }
 
@@ -152,7 +153,8 @@ unsigned int Muon::expectedNnumberOfMatchedStations( float minDistanceFromEdge )
   return n;
 }
 
-unsigned int Muon::stationMask( unsigned int type ) const
+// unsigned int Muon::stationMask( unsigned int type ) const
+unsigned int Muon::stationMask( ArbitrationType type ) const
 {
    unsigned int totMask(0);
    unsigned int curMask(0);
@@ -218,14 +220,14 @@ unsigned int Muon::stationMask( unsigned int type ) const
                   totMask += curMask;
                break;
             }
-         if(type > 1<<7)
-            if(segmentMatch->isMask(type)) {
-               curMask = 1<<( (chamberMatch->station()-1)+4*(chamberMatch->detector()-1) );
-               // do not double count
-               if(!(totMask & curMask))
-                  totMask += curMask;
-               break;
-            }
+         // if(type > 1<<7)
+         //    if(segmentMatch->isMask(type)) {
+         //       curMask = 1<<( (chamberMatch->station()-1)+4*(chamberMatch->detector()-1) );
+         //       // do not double count
+         //       if(!(totMask & curMask))
+         //          totMask += curMask;
+         //       break;
+         //    }
       }
    }
 
@@ -347,7 +349,8 @@ unsigned int Muon::stationGapMaskPull( float sigmaCut ) const
    return totMask;
 }
 
-int Muon::numberOfSegments( int station, int muonSubdetId, unsigned int type ) const
+// int Muon::numberOfSegments( int station, int muonSubdetId, unsigned int type ) const
+int Muon::numberOfSegments( int station, int muonSubdetId, ArbitrationType type ) const
 {
    int segments(0);
    for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
@@ -382,11 +385,11 @@ int Muon::numberOfSegments( int station, int muonSubdetId, unsigned int type ) c
                segments++;
                break;
             }
-         if(type > 1<<7)
-            if(segmentMatch->isMask(type)) {
-               segments++;
-               break;
-            }
+         // if(type > 1<<7)
+         //    if(segmentMatch->isMask(type)) {
+         //       segments++;
+         //       break;
+         //    }
       }
    }
 
@@ -403,8 +406,10 @@ const std::vector<const MuonChamberMatch*> Muon::chambers( int station, int muon
    return chambers;
 }
 
+// std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> Muon::pair( const std::vector<const MuonChamberMatch*> &chambers,
+//      unsigned int type ) const
 std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> Muon::pair( const std::vector<const MuonChamberMatch*> &chambers,
-     unsigned int type ) const
+     ArbitrationType type ) const
 {
    MuonChamberMatch* m = nullptr;
    MuonSegmentMatch* s = nullptr;
@@ -433,9 +438,9 @@ std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> Muon::pair( const std
 	          segmentMatch->isMask(MuonSegmentMatch::BelongsToTrackByDR) &&
 	          segmentMatch->isMask(MuonSegmentMatch::BelongsToTrackByCleaning))
                return std::make_pair(*chamberMatch, &(*segmentMatch));
-         if(type > 1<<7)
-            if(segmentMatch->isMask(type))
-               return std::make_pair(*chamberMatch, &(*segmentMatch));
+         // if(type > 1<<7)
+         //    if(segmentMatch->isMask(type))
+         //       return std::make_pair(*chamberMatch, &(*segmentMatch));
       }
    }
 
