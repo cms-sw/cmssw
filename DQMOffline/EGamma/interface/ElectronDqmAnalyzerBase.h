@@ -19,7 +19,7 @@ class MonitorElement ;
 namespace edab {
   struct Empty {};
 }
-class ElectronDqmAnalyzerBase : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<edab::Empty>>
+class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
  {
 
   protected:
@@ -28,17 +28,12 @@ class ElectronDqmAnalyzerBase : public one::DQMEDAnalyzer<edm::LuminosityBlockCa
     ~ElectronDqmAnalyzerBase() override ;
 
     // specific implementation of EDAnalyzer
-    void endRun( edm::Run const &, edm::EventSetup const & )  override;
-    std::shared_ptr<edab::Empty> globalBeginLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) const final ;
-    void globalEndLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) final ;
-    void dqmBeginRun( edm::Run const & , edm::EventSetup const & )  override;
     void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
     // interface to implement in derived classes
     void analyze( const edm::Event & e, const edm::EventSetup & c ) override {}
 
     // utility methods
-    bool finalStepDone() { return finalDone_ ; }
     int verbosity() { return verbosity_ ; }
 
     void setBookPrefix( const std::string & ) ;
@@ -101,7 +96,6 @@ class ElectronDqmAnalyzerBase : public one::DQMEDAnalyzer<edm::LuminosityBlockCa
     std::string outputFile_ ;
     std::string inputInternalPath_ ;
     std::string outputInternalPath_ ;
-    bool finalDone_ ;
 
     // utility methods
     std::string newName( const std::string & name ) ;
