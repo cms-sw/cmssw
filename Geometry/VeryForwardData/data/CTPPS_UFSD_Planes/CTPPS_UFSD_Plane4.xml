@@ -222,38 +222,38 @@
       <rRotation name="rotations:000D"/>
     </PosPart>
 
-    <PosPart copyNumber="307">
+    <PosPart copyNumber="308">
       <rParent name="CTPPS_UFSD_Plane"/>
       <rChild name="CTPPS_UFSD_Pattern2_SegmentA:CTPPS_UFSD_Segment"/>
       <Translation x="[Strip8_dx]" y="-[StripA_dy]" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3071">
+    <PosPart copyNumber="3081">
       <rParent name="CTPPS_UFSD_Plane"/>
       <rChild name="CTPPS_UFSD_Pattern2_SegmentA:Metalized_Layer"/>
       <Translation x="[Strip8_dx]" y="-[StripA_dy]" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3072">
+    <PosPart copyNumber="3082">
       <rParent name="CTPPS_UFSD_Plane"/>
       <rChild name="CTPPS_UFSD_Pattern2_SegmentA:Metalized_Layer"/>
       <Translation x="[Strip8_dx]" y="-[StripA_dy]" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
-    <PosPart copyNumber="308">
+    <PosPart copyNumber="307">
       <rParent name="CTPPS_UFSD_Plane"/>
       <rChild name="CTPPS_UFSD_Pattern2_SegmentA:CTPPS_UFSD_Segment"/>
       <Translation x="[Strip9_dx]" y="-[StripA_dy]" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3081">
+    <PosPart copyNumber="3071">
       <rParent name="CTPPS_UFSD_Plane"/>
       <rChild name="CTPPS_UFSD_Pattern2_SegmentA:Metalized_Layer"/>
       <Translation x="[Strip9_dx]" y="-[StripA_dy]" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3082">
+    <PosPart copyNumber="3072">
       <rParent name="CTPPS_UFSD_Plane"/>
       <rChild name="CTPPS_UFSD_Pattern2_SegmentA:Metalized_Layer"/>
       <Translation x="[Strip9_dx]" y="-[StripA_dy]" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
