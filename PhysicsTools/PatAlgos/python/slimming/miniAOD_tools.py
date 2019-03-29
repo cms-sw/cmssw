@@ -30,6 +30,7 @@ def miniAOD_customizeCommon(process):
     process.patMuons.computeSoftMuonMVA = cms.bool(True)
 
     process.patMuons.addTriggerMatching = True
+    #process.patMuons.activeEra = "Run2_2018"
 
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
@@ -56,6 +57,11 @@ def miniAOD_customizeCommon(process):
                                     addPFClusterIso = cms.bool(True),
                                     ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleEcalPFClusIso"),
                                     hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleHcalPFClusIso"))
+
+    run2_miniAOD_80XLegacy.toModify(process.patMuons, activeEra=cms.string("run2_miniAOD_80XLegacy"))
+    run2_miniAOD_94XFall17.toModify(process.patMuons, activeEra=cms.string("run2_miniAOD_94XFall17"))
+    
+
 
     #add puppi isolation in miniAOD
     process.patElectrons.addPuppiIsolation = cms.bool(True)
