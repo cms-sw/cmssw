@@ -19,7 +19,6 @@ class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBas
  public:
   PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf)
       : PatternRecognitionAlgoBase(conf) {
-    std::cout << "constructing PatternRecognitionbyMultiClusters from conf" << std::endl;
   }
   ~PatternRecognitionbyMultiClusters() override {};
 

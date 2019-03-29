@@ -64,7 +64,6 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   evt.getByToken(clusters_token_, cluster_h);
   evt.getByToken(filtered_layerclusters_mask_token_, filtered_layerclusters_mask_h);
   evt.getByToken(original_layerclusters_mask_token_, original_layerclusters_mask_h);
-  std::cout << "TrackstersProducer::produce" << std::endl;
 
   const auto& layerClusters = *cluster_h;
   const auto& inputClusterMask = *filtered_layerclusters_mask_h;

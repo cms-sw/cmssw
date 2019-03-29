@@ -1,6 +1,3 @@
-#ifndef __RecoHGCal_TICL_TracksterToMultiClusterProducer_H__
-#define __RecoHGCal_TICL_TracksterToMultiClusterProducer_H__
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -35,11 +32,9 @@ class TrackstersToMultiClusterProducer : public edm::stream::EDProducer<> {
 DEFINE_FWK_MODULE(TrackstersToMultiClusterProducer);
 
 TrackstersToMultiClusterProducer::TrackstersToMultiClusterProducer(const edm::ParameterSet& ps)
-    : label_(ps.getParameter<std::string>("label")) {
-  layer_clusters_token_ =
-      consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("LayerClusters"));
-  tracksters_token_ =
-      consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("Tracksters"));
+    : label_(ps.getParameter<std::string>("label")),
+  layer_clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("LayerClusters"))),
+  tracksters_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("Tracksters"))) {
   produces<std::vector<reco::HGCalMultiCluster>>(label_);
 }
 
@@ -95,4 +90,3 @@ void TrackstersToMultiClusterProducer::produce(edm::Event& evt, const edm::Event
   evt.put(std::move(multiclusters), label_);
 }
 
-#endif
