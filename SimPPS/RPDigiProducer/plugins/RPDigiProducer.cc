@@ -176,13 +176,12 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   MixCollection<PSimHit>::iterator isim;
   for (isim = allRPHits.begin(); isim != allRPHits.end(); ++isim) {
     simHitMap_[(*isim).detUnitId()].push_back((*isim));
-
   }
 
   // Step B: LOOP on hits in event
-  std::vector<edm::DetSet<TotemRPDigi> > theDigiVector;
-  theDigiVector.reserve(400);
-  theDigiVector.clear();
+  std::vector<edm::DetSet<TotemRPDigi> > DigiVector;
+  DigiVector.reserve(400);
+  DigiVector.clear();
 
   for (simhit_map_iterator it = simHitMap_.begin(); it != simHitMap_.end(); ++it) {
     edm::DetSet<TotemRPDigi> digi_collector(it->first);
@@ -199,13 +198,13 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         output_digi_links);
 
     if (!digi_collector.data.empty()) {
-      theDigiVector.push_back(convertRPStripDetSet(digi_collector));
+      DigiVector.push_back(convertRPStripDetSet(digi_collector));
     }
   }
 
   // Step C: create empty output collection
   std::unique_ptr<edm::DetSetVector<TotemRPDigi> > digi_output(
-      new edm::DetSetVector<TotemRPDigi>(theDigiVector));
+      new edm::DetSetVector<TotemRPDigi>(DigiVector));
 
   if (verbosity_) {
     edm::LogInfo("RPDigiProducer") << "digi_output->size()=" << digi_output->size() << "\n";
