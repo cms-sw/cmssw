@@ -13,11 +13,6 @@
 // layer clusters together in a 3D object.
 
 struct Trackster {
-  // // The type of the objects that the edges connect
-  // enum class VertexType = {
-  //     HGCALLAYERCLUSTER,
-  //     HGCRECHIT
-  // };
 
   // The vertices of the DAG are the indices of the
   // 2d objects in the global collection

@@ -51,14 +51,6 @@ def TICL_iterations_withReco(process):
   process.TrackstersToMultiCluster = TrackstersToMultiCluster.clone()
   process.TrackstersToMultiCluster.Tracksters = cms.InputTag("Tracksters", "TrackstersByCA")
 
-
-#  process.hgcalLayerClusters.ecut = 5
-#  process.hgcalLayerClusters.splitFullHaloClusters = True
-#  process.hgcalLayerClusters.promote_single_nodes = True
-#  process.hgcalLayerClusters.ecut_miplike = 15
-#  process.hgcalLayerClusters.apply_cutoff_distance = False
-#  process.hgcalLayerClusters.cutoff_distance = 15.
-#  process.hgcalLayerClusters.verbosity = 10
   process.hgcalMultiClusters = hgcalMultiClusters
   process.TICL = cms.Path(
       process.FilteredLayerClustersMIP
@@ -106,13 +98,6 @@ def TICL_iterations(process):
   process.HGCalUncalibRecHit = HGCalUncalibRecHit
   process.HGCalRecHit = HGCalRecHit
   process.hgcalLayerClusters = hgcalLayerClusters
-#  process.hgcalLayerClusters.ecut = 5
-#  process.hgcalLayerClusters.splitFullHaloClusters = True
-#  process.hgcalLayerClusters.promote_single_nodes = True
-#  process.hgcalLayerClusters.ecut_miplike = 15
-#  process.hgcalLayerClusters.apply_cutoff_distance = False
-#  process.hgcalLayerClusters.cutoff_distance = 15.
-#  process.hgcalLayerClusters.verbosity = 10
   process.hgcalMultiClusters = hgcalMultiClusters
   process.TICL = cms.Path(process.HGCalUncalibRecHit
       + process.HGCalRecHit

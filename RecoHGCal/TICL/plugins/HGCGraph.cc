@@ -1,6 +1,7 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 11/2018
 // Copyright CERN
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoHGCal/TICL/interface/TICLConstants.h"
 
 #include "HGCDoublet.h"
@@ -10,17 +11,17 @@ void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<
                                       int nEtaBins, int nPhiBins,
                                       const std::vector<reco::CaloCluster> &layerClusters,
                                       int deltaIEta, int deltaIPhi, float minCosTheta,
-                                      float minCosPointing, int missing_layers) {
+                                      float minCosPointing, int missing_layers, int maxNumberOfLayers) {
   isOuterClusterOfDoublets_.clear();
   isOuterClusterOfDoublets_.resize(layerClusters.size());
   allDoublets_.clear();
   theRootDoublets_.clear();
   for (int zSide = 0; zSide < 2; ++zSide) {
-    for (int il = 0; il < ticlConstants::maxNumberOfLayers - 1; ++il) {
+    for (int il = 0; il < maxNumberOfLayers - 1; ++il) {
       for (int outer_layer = 0;
-           outer_layer < std::min(1 + missing_layers, ticlConstants::maxNumberOfLayers - 1 - il);
+           outer_layer < std::min(1 + missing_layers, maxNumberOfLayers - 1 - il);
            ++outer_layer) {
-        int currentInnerLayerId = il + ticlConstants::maxNumberOfLayers * zSide;
+        int currentInnerLayerId = il + maxNumberOfLayers * zSide;
         int currentOuterLayerId = currentInnerLayerId + 1 + outer_layer;
         auto &outerLayerHisto = h[currentOuterLayerId];
         auto &innerLayerHisto = h[currentInnerLayerId];
@@ -46,18 +47,20 @@ void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<
                     allDoublets_.emplace_back(innerClusterId, outerClusterId, doubletId,
                                               &layerClusters);
                     if (verbosity_ > Advanced) {
-                      std::cout << "Creating doubletsId: " << doubletId << " layerLink in-out: ["
-                                << currentInnerLayerId << ", " << currentOuterLayerId
-                                << "] clusterLink in-out: [" << innerClusterId << ", "
-                                << outerClusterId << "]" << std::endl;
+                      LogDebug("HGCGraph")
+                          << "Creating doubletsId: " << doubletId << " layerLink in-out: ["
+                          << currentInnerLayerId << ", " << currentOuterLayerId
+                          << "] clusterLink in-out: [" << innerClusterId << ", " << outerClusterId
+                          << "]" << std::endl;
                     }
                     isOuterClusterOfDoublets_[outerClusterId].push_back(doubletId);
                     auto &neigDoublets = isOuterClusterOfDoublets_[innerClusterId];
                     auto &thisDoublet = allDoublets_[doubletId];
                     if (verbosity_ > Expert) {
-                      std::cout << "Checking compatibility of doubletId: " << doubletId
-                                << " with all possible inners doublets link by the innerClusterId: "
-                                << innerClusterId << std::endl;
+                      LogDebug("HGCGraph")
+                          << "Checking compatibility of doubletId: " << doubletId
+                          << " with all possible inners doublets link by the innerClusterId: "
+                          << innerClusterId << std::endl;
                     }
                     bool isRootDoublet = thisDoublet.checkCompatibilityAndTag(
                         allDoublets_, neigDoublets, minCosTheta, minCosPointing,
@@ -74,8 +77,8 @@ void HGCGraph::makeAndConnectDoublets(const std::vector<std::vector<std::vector<
   }
   // #ifdef FP_DEBUG
   if (verbosity_ > None) {
-    std::cout << "number of Root doublets " << theRootDoublets_.size()
-              << " over a total number of doublets " << allDoublets_.size() << std::endl;
+    LogDebug("HGCGraph") << "number of Root doublets " << theRootDoublets_.size()
+                         << " over a total number of doublets " << allDoublets_.size() << std::endl;
   }
   // #endif
 }

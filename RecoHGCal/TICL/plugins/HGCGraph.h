@@ -14,7 +14,7 @@ class HGCGraph {
                               int nEtaBins, int nPhiBins,
                               const std::vector<reco::CaloCluster> &layerClusters, int deltaIEta,
                               int deltaIPhi, float minCosThetai, float maxCosPointing,
-                              int missing_layers);
+                              int missing_layers, int maxNumberOfLayers);
 
   std::vector<HGCDoublet> &getAllDoublets() { return allDoublets_; }
   void findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
