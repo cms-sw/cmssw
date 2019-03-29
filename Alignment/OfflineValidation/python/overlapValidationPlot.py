@@ -2,12 +2,12 @@ import math
 import ROOT
 from TkAlStyle import TkAlStyle
 
-def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction):
+def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction,profile_direction):
     f = ROOT.TFile(tree_file_name)
     t = f.Get("analysis/Overlaps")
-
-    h = ROOT.TH1F(hist_name, hist_name, 100, -300, 300)
-
+    if profile_direction is None:
+        h = ROOT.TH1F(hist_name, hist_name, 100, -300, 300)
+    else: h = ROOT.TProfile(hist_name, hist_name, 10, -100, 100) 
     h.SetDirectory(0)
 	
     for entry in t:
@@ -80,10 +80,14 @@ def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction)
             residualB *= -1
         
         A = 10000*(residualA - residualB)
-        h.Fill(A)
+        if profile_direction is None:
+            h.Fill(A)
+        elif profile_direction == "z":
+            h.Fill((t.moduleZ[0]+t.moduleZ[1])/2, A)
+        
     return h
 
-def plot(file_name,subdet_id,module_direction,overlap_direction, *filesTitlesColorsStyles):
+def plot(file_name,subdet_id,module_direction,overlap_direction,profile_direction,*filesTitlesColorsStyles):
     hstack = ROOT.THStack("hstack","")
     legend = TkAlStyle.legend(len(filesTitlesColorsStyles), 0.3)
     legend.SetBorderSize(0)
@@ -91,7 +95,7 @@ def plot(file_name,subdet_id,module_direction,overlap_direction, *filesTitlesCol
     hs = []
     
     for files, title, color, style in filesTitlesColorsStyles:
-        h = hist(files,files.replace("/",""),subdet_id,module_direction,overlap_direction)
+        h = hist(files,files.replace("/",""),subdet_id,module_direction,overlap_direction,profile_direction)
         h.SetLineColor(color)
         h.SetLineStyle(style)
         legend.AddEntry(h, title, "l")
