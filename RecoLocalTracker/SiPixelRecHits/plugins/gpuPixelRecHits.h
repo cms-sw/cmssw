@@ -6,13 +6,11 @@
 #include <limits>
 
 #include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
-
 namespace gpuPixelRecHits {
-
-
 
 
   __global__ void getHits(pixelCPEforGPU::ParamsOnGPU const * __restrict__  cpeParams,
@@ -27,19 +25,15 @@ namespace gpuPixelRecHits {
 			  int32_t  const * __restrict__  clus,
 			  int numElements,
 			  uint32_t const * __restrict__  hitsModuleStart,
-                          int32_t * chargeh,
-                          uint16_t * detInd,
-			  float * xg, float * yg, float * zg, float * rg, int16_t * iph,
-                          float * xl, float * yl,
-                          float * xe, float * ye, 
-                          uint16_t * mr, uint16_t * mc,
-                          int16_t * xs, int16_t * ys
-                          )
-  {
+                          TrackingRecHit2DSOAView * phits
+                         )
+{
+
+    auto & hits = *phits;
 
     // to be moved in common namespace...
     constexpr uint16_t InvId=9999; // must be > MaxNumModules
-    constexpr uint32_t MaxClusInModule = pixelCPEforGPU::MaxClusInModule;
+    constexpr uint32_t MaxHitsInModule = pixelCPEforGPU::MaxHitsInModule;
 
     using ClusParams = pixelCPEforGPU::ClusParams;
 
@@ -66,14 +60,14 @@ namespace gpuPixelRecHits {
       if (threadIdx.x==0) printf("hitbuilder: %d clusters in module %d. will write at %d\n", nclus, me, hitsModuleStart[me]);
 #endif
 
-    assert(blockDim.x >= MaxClusInModule);
+    assert(blockDim.x >= MaxHitsInModule);
 
-    if (threadIdx.x==0 && nclus > MaxClusInModule) { 
-      printf("WARNING: too many clusters %d in Module %d. Only first %d processed\n", nclus,me,MaxClusInModule);
+    if (threadIdx.x==0 && nclus > MaxHitsInModule) { 
+      printf("WARNING: too many clusters %d in Module %d. Only first %d processed\n", nclus,me,MaxHitsInModule);
       // zero charge: do not bother to do it in parallel
-      for (auto d=MaxClusInModule; d<nclus; ++d) { chargeh[d]=0; detInd[d]=InvId;}
+      for (auto d=MaxHitsInModule; d<nclus; ++d) { hits.charge(d)=0; hits.detectorIndex(d)=InvId;}
     }
-    nclus = std::min(nclus, MaxClusInModule);
+    nclus = std::min(nclus, MaxHitsInModule);
 
     auto ic = threadIdx.x;
 
@@ -121,42 +115,50 @@ namespace gpuPixelRecHits {
     __syncthreads();
 
     // next one cluster per thread...
+
     if (ic >= nclus) return;
 
     first = hitsModuleStart[me];
     auto h = first+ic;  // output index in global memory
 
-    assert(h < 2000*256);
+    if (h >= TrackingRecHit2DSOAView::maxHits()) return; // overflow...
 
     pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
     pixelCPEforGPU::errorFromDB(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
 
-    chargeh[h] = clusParams.charge[ic];
 
-    detInd[h] = me;
+    // store it
 
-    xl[h]= clusParams.xpos[ic];   
-    yl[h]= clusParams.ypos[ic]; 
+    hits.charge(h) = clusParams.charge[ic];
 
-    xs[h]= clusParams.xsize[ic];
-    ys[h]= clusParams.ysize[ic];
+    hits.detectorIndex(h) = me;
+
+    float xl,yl;
+    hits.xLocal(h) = xl = clusParams.xpos[ic];   
+    hits.yLocal(h) = yl = clusParams.ypos[ic]; 
+
+    hits.clusterSizeX(h) = clusParams.xsize[ic];
+    hits.clusterSizeY(h) = clusParams.ysize[ic];
 
 
-    xe[h]= clusParams.xerr[ic]*clusParams.xerr[ic];
-    ye[h]= clusParams.yerr[ic]*clusParams.yerr[ic];
-    mr[h]= clusParams.minRow[ic];
-    mc[h]= clusParams.minCol[ic];
+    hits.xerrLocal(h) = clusParams.xerr[ic]*clusParams.xerr[ic];
+    hits.yerrLocal(h) = clusParams.yerr[ic]*clusParams.yerr[ic];
 
-  
+    // keep it local for computations
+    float xg,yg,zg;  
     // to global and compute phi... 
-    cpeParams->detParams(me).frame.toGlobal(xl[h],yl[h], xg[h],yg[h],zg[h]);
+    cpeParams->detParams(me).frame.toGlobal(xl,yl, xg,yg,zg);
     // here correct for the beamspot...
-    xg[h]-=bs->x;
-    yg[h]-=bs->y;
-    zg[h]-=bs->z;
+    xg-=bs->x;
+    yg-=bs->y;
+    zg-=bs->z;
 
-    rg[h] = std::sqrt(xg[h]*xg[h]+yg[h]*yg[h]);
-    iph[h] = unsafe_atan2s<7>(yg[h],xg[h]);
+    hits.xGlobal(h) = xg;
+    hits.yGlobal(h) = yg;
+    hits.zGlobal(h) = zg;
+
+    hits.rGlobal(h) = std::sqrt(xg*xg+yg*yg);
+    hits.iphi(h) = unsafe_atan2s<7>(yg,xg);
     
   }
 

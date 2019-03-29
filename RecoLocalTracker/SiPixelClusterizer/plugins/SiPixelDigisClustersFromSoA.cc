@@ -149,7 +149,7 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
   }
 
   // fill final clusters
-  fillClusters((*detDigis).detId());
+  if (detDigis) fillClusters((*detDigis).detId());
   //std::cout << "filled " << totCluseFilled << " clusters" << std::endl;
 
   iEvent.put(digiPutToken_, std::move(collection));
