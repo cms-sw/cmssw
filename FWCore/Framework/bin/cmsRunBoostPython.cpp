@@ -24,7 +24,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/TimingServiceBase.h"
-#include "FWCore/PyDevParameterSet/interface/MakePyBind11ParameterSets.h"
+#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "TError.h"
 
 #include "boost/program_options.hpp"
@@ -277,7 +277,7 @@ int main(int argc, char* argv[]) {
       context += fileName;
       std::shared_ptr<edm::ProcessDesc> processDesc;
       try {
-        std::unique_ptr<edm::ParameterSet> parameterSet = edm::cmspybind11::readConfig(fileName, argc, argv);
+        std::unique_ptr<edm::ParameterSet> parameterSet = edm::boost_python::readConfig(fileName, argc, argv);
         processDesc.reset(new edm::ProcessDesc(std::move(parameterSet)));
       }
       catch(cms::Exception& iException) {
