@@ -1239,15 +1239,23 @@ namespace edm {
     }) );
   }
 
-  void EventProcessor::globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus) {
-    //Need to be sure iTask is always destroyed after iLumiStatus since iLumiStatus can cause endRun to start.
-    auto t = edm::make_waiting_task(tbb::task::allocate_root(), [ items = std::make_pair(iLumiStatus,std::move(iTask)), this] (std::exception_ptr const* iPtr) mutable {
+  void EventProcessor::globalEndLumiAsync(edm::WaitingTaskHolder iTask,
+                                          std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus) {
+
+    // Get some needed info out of the status object before moving
+    // it into finalTaskForThisLumi.
+    auto& lp = *(iLumiStatus->lumiPrincipal());
+    bool didGlobalBeginSucceed = iLumiStatus->didGlobalBeginSucceed();
+    bool cleaningUpAfterException = iLumiStatus->cleaningUpAfterException();
+
+    auto finalTaskForThisLumi = edm::make_waiting_task(
+        tbb::task::allocate_root(),
+        [status = std::move(iLumiStatus), iTask = std::move(iTask), this] (std::exception_ptr const* iPtr) mutable {
+
       std::exception_ptr ptr;
-      //use an easier to remember variable name
-      auto status = std::move(items.first);
       if(iPtr) {
         ptr = *iPtr;
-        WaitingTaskHolder tmp(items.second);
+        WaitingTaskHolder tmp(iTask);
         //set the exception early to prevent a beginLumi from running
         // we use a copy to keep t from resetting on doneWaiting call.
         tmp.doneWaiting(ptr);
@@ -1283,25 +1291,24 @@ namespace edm {
           ptr = std::current_exception();
         }
       }
-      //have to wait until reset is called since that could call endRun
-      items.second.doneWaiting(ptr);
+
+      // This call to doneWaiting must be after the call to status.reset().
+      // Otherwise there will be a data race which could result in
+      // endRun being delayed until it is too late to successfully call
+      // it.
+      iTask.doneWaiting(ptr);
     });
 
-    auto& lp = *(iLumiStatus->lumiPrincipal());
-    bool cleaningUpAfterException = iLumiStatus->cleaningUpAfterException();
-  
-    auto writeT = edm::make_waiting_task(tbb::task::allocate_root(), [this,status = std::move(iLumiStatus), task = WaitingTaskHolder(t)] (std::exception_ptr const* iExcept) mutable {
+    auto writeT = edm::make_waiting_task(
+        tbb::task::allocate_root(),
+        [this, didGlobalBeginSucceed, &lumiPrincipal = lp, task = WaitingTaskHolder(finalTaskForThisLumi)] (std::exception_ptr const* iExcept) mutable {
+
       if(iExcept) {
-        status.reset();
         task.doneWaiting(*iExcept);
       } else {
         //Only call writeLumi if beginLumi succeeded
-        if(status->didGlobalBeginSucceed()) {
-          LuminosityBlockPrincipal& lumiPrincipal = *(status->lumiPrincipal());
-          status.reset();
+        if(didGlobalBeginSucceed) {
           writeLumiAsync(std::move(task), lumiPrincipal);
-        } else {
-          status.reset();
         }
       }
     });
