@@ -338,6 +338,7 @@ TwoLayerJets::produce(Event& iEvent, const EventSetup& iSetup)
 	}
         //free(mzb.clusters);
 	iEvent.put( std::move(L1TwoLayerJets), "L1TwoLayerJets");
+	delete[] mzb.clusters;
 	}
 }
 void TwoLayerJets::L2_cluster(vector< Ptr< L1TTTrackType > > L1TrackPtrs, vector<int>ttrk, vector<int>tdtrk,vector<int>ttdtrk,maxzbin &mzb){
@@ -595,7 +596,7 @@ for(phibin = 0; phibin < nphibins; ++phibin)delete [] L1clusters[phibin];
     float ht = 0;
     for(int k = 0; k < nclust; ++k){
                         if(L2cluster[k].pTtot>50 && L2cluster[k].numtracks<2)continue;
-                        if(L2cluster[k].pTtot>100 && L2cluster[k].numtracks<=4)continue;
+                        if(L2cluster[k].pTtot>100 && L2cluster[k].numtracks<3)continue;
                         if(L2cluster[k].pTtot>5){
       			ht += L2cluster[k].pTtot;
                 }
@@ -632,7 +633,8 @@ for(phibin = 0; phibin < nphibins; ++phibin)delete [] L1clusters[phibin];
     //for(int zbin = 0; zbin < Zbins-1; ++zbin)free(all_zbins[zbin].clusters);
     //for(int k = 0; k < mzb.nclust; ++k)std::cout<<"L2 Eta, Phi "<<mzb.clusters[k].eta<<", "<<mzb.clusters[k].phi<<", "<<mzb.clusters[k].pTtot<<std::endl;
     for(int zbin = 0; zbin < Zbins-1; ++zbin){
-      delete[] all_zbins[zbin].clusters;
+       if(zbin==mzb.znum)continue;
+       delete[] all_zbins[zbin].clusters;
     }
 }
 
