@@ -18,6 +18,11 @@ namespace angle0to2pi {
     {
     }
 
+    Angle0to2pi() :
+    ang0to2pi (0.)
+    {
+    }
+
     inline operator valType() const {
       return (ang0to2pi);
     }
