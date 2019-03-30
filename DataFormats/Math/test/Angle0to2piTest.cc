@@ -194,7 +194,6 @@ int main() {
   cout << "Test 3 versions big incr\n";
   if (iter3Test<long double>(bigincr) == 1)
     return (1);
-   return (0);
 
    // Tetst operations
    Angle0to2pi<double> phi1, phi2;
@@ -204,5 +203,7 @@ int main() {
    cout << "pi/4 - pi/6 = " << phi1 - phi2 << endl;
    cout << "pi/4 * pi/6 = " << phi1 * phi2 << endl;
    cout << "pi/4 / pi/6 = " << phi1 / phi2 << endl;
+
+   return (0);
 }
 
