@@ -13,6 +13,7 @@
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
  *
+ *  \modified by C. Caputo, UCLouvain
  **/
 
 #include <memory>
@@ -40,23 +41,22 @@
 #include "RecoMuon/GlobalTrackingTools/interface/ThrParameters.h"
 #include "RecoMuon/GlobalTrackingTools/interface/ChamberSegmentUtility.h"
 
+namespace dyt_utils{
+  enum class etaRegion {eta0p8, eta1p2, eta2p0, eta2p2, eta2p4};
+};
 
 class DynamicTruncation {
-  
- public:
 
-  /* Variables for v2 */
-  double p_reco;
-  double eta_reco;
+ public:
 
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
-  DynamicTruncation(const edm::Event&, const MuonServiceProxy&);
+  DynamicTruncation(const edm::Event&, const MuonServiceProxy&, const edm::ParameterSet&);
 
   ~DynamicTruncation();
 
-  void setProd(const edm::Handle<DTRecSegment4DCollection>& DTSegProd, 
+  void setProd(const edm::Handle<DTRecSegment4DCollection>& DTSegProd,
 	       const edm::Handle<CSCSegmentCollection>& CSCSegProd) {
     getSegs->initCSU(DTSegProd, CSCSegProd);
   }
@@ -65,11 +65,21 @@ class DynamicTruncation {
   void setThr(const std::vector<int>&);
   void setUpdateState(bool);
   void setUseAPE(bool);
-  
-  // Return the vector with the tracker plus the selected muon hits
-  TransientTrackingRecHit::ConstRecHitContainer filter(const Trajectory&, double globalMomentum, double globalEta);
+  /*---- DyT v2-----*/
+  void setRecoP(double p) {
+    p_reco = p;
+    useParametrizedThr = true;
+   }
+  void setRecoEta(double eta) {
+    eta_reco = eta;
+    useParametrizedThr = true;
+    setEtaRegion();
+  }
 
-  // Return the DYTInfo object 
+  // Return the vector with the tracker plus the selected muon hits
+  TransientTrackingRecHit::ConstRecHitContainer filter(const Trajectory&);
+
+  // Return the DYTInfo object
   reco::DYTInfo getDYTInfo() {
     dytInfo.setNStUsed(nStationsUsed);
     dytInfo.setDYTEstimators(estimatorMap);
@@ -78,10 +88,12 @@ class DynamicTruncation {
     return dytInfo;
   }
 
+  void                 correctThrByPtAndEta();
+
  private:
 
   void                 compatibleDets(TrajectoryStateOnSurface&, std::map<int, std::vector<DetId> >&);
-  void                 filteringAlgo(double momentum,double eta);
+  void                 filteringAlgo();
   void                 fillSegmentMaps(std::map<int, std::vector<DetId> >&, std::map<int, std::vector<DTRecSegment4D> >&, std::map<int, std::vector<CSCSegment> >&);
   void                 preliminaryFit(std::map<int, std::vector<DetId> >, std::map<int, std::vector<DTRecSegment4D> >, std::map<int, std::vector<CSCSegment> >);
   bool                 chooseLayers(int&, double const &, DTRecSegment4D const &, TrajectoryStateOnSurface const &, double const &, CSCSegment const &, TrajectoryStateOnSurface const &);
@@ -98,7 +110,8 @@ class DynamicTruncation {
   void                 useSegment(DTRecSegment4D const &, TrajectoryStateOnSurface const &);
   void                 useSegment(CSCSegment const &, TrajectoryStateOnSurface const &);
   void                 sort(ConstRecHitContainer&);
-  
+  void                 setEtaRegion();
+
   ConstRecHitContainer result, prelFitMeas;
   bool useAPE;
   std::vector<int> Thrs;
@@ -121,15 +134,19 @@ class DynamicTruncation {
   TrajectoryStateOnSurface prelFitState;
   reco::DYTInfo dytInfo;
   std::map<DTChamberId, GlobalError> dtApeMap;
-  std::map<CSCDetId, GlobalError> cscApeMap; 
+  std::map<CSCDetId, GlobalError> cscApeMap;
   double muonPTest, muonETAest;
   const DYTThrObject* dytThresholds;
   ChamberSegmentUtility* getSegs;
   ThrParameters* thrManager;
   bool useDBforThr;
   bool doUpdateOfKFStates;
+  /* Variables for v2 */
+  double p_reco;
+  double eta_reco;
+  bool useParametrizedThr;
+  dyt_utils::etaRegion region;
+  std::map<dyt_utils::etaRegion, std::vector<double>> parameters;
 };
 
 #endif
-
-

@@ -9,7 +9,7 @@
  *  \author C. Liu 		 Purdue University
  *  \author A. Everett 		 Purdue University
  *
- *  \modified by C. Calabria     INFN & Universita  Bari
+ *  \modified by C. Calabria     INFN & Universitaï¿½ Bari
  *  \modified by D. Nash         Northeastern University
  */
 
@@ -67,7 +67,7 @@ class GlobalMuonRefitter {
 
     /// constructor with Parameter Set and MuonServiceProxy
     GlobalMuonRefitter(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
-          
+
     /// destructor
     virtual ~GlobalMuonRefitter();
 
@@ -78,7 +78,7 @@ class GlobalMuonRefitter {
     void setServices(const edm::EventSetup&);
 
     /// build combined trajectory from sta Track and tracker RecHits
-    std::vector<Trajectory> refit(const reco::Track& globalTrack, const int theMuonHitsOption, 
+    std::vector<Trajectory> refit(const reco::Track& globalTrack, const int theMuonHitsOption,
 				  const TrackerTopology *tTopo) const;
 
     /// build combined trajectory from subset of sta Track and tracker RecHits
@@ -92,30 +92,30 @@ class GlobalMuonRefitter {
     std::vector<Trajectory> transform(const reco::Track& newTrack,
                                       const reco::TransientTrack track,
                                       const TransientTrackingRecHit::ConstRecHitContainer& recHitsForReFit) const;
-    
+
     // get rid of selected station RecHits
     ConstRecHitContainer getRidOfSelectStationHits(const ConstRecHitContainer& hits,
 						   const TrackerTopology *tTopo) const;
 
-    // return DYT-related informations           
+    // return DYT-related informations
     const reco::DYTInfo* getDYTInfo() {return dytInfo;}
-    
+
   protected:
 
     enum RefitDirection{insideOut,outsideIn,undetermined};
-    
+
     /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
-    void checkMuonHits(const reco::Track&, ConstRecHitContainer&, 
+    void checkMuonHits(const reco::Track&, ConstRecHitContainer&,
                        std::map<DetId, int> &) const;
 
-    /// get the RecHits in the tracker and the first muon chamber with hits 
-    void getFirstHits(const reco::Track&, ConstRecHitContainer&, 
+    /// get the RecHits in the tracker and the first muon chamber with hits
+    void getFirstHits(const reco::Track&, ConstRecHitContainer&,
                        ConstRecHitContainer&) const;
- 
+
     /// select muon hits compatible with trajectory; check hits in chambers with showers
-    ConstRecHitContainer selectMuonHits(const Trajectory&, 
+    ConstRecHitContainer selectMuonHits(const Trajectory&,
                                         const std::map<DetId, int> &) const;
- 
+
     /// print all RecHits of a trajectory
     void printHits(const ConstRecHitContainer&) const;
 
@@ -129,7 +129,7 @@ class GlobalMuonRefitter {
     float thePtCut;
 
   private:
-  
+
     int   theMuonHitsOption;
     float theProbCut;
     int   theHitThreshold;
@@ -157,10 +157,10 @@ class GlobalMuonRefitter {
     int   theTrackerSkipSystem;
     int   theTrackerSkipSection;
 
-    unsigned long long theCacheId_TRH;        
+    unsigned long long theCacheId_TRH;
 
     std::string thePropagatorName;
-  
+
     bool theRPCInTheFit;
 
     double theRescaleErrorFactor;
@@ -172,14 +172,15 @@ class GlobalMuonRefitter {
     bool theDYTupdator;
     bool theDYTuseAPE;
     reco::DYTInfo *dytInfo;
+    edm::ParameterSet theDYTthrsParameters;
 
     std::string theFitterName;
     std::unique_ptr<TrajectoryFitter> theFitter;
-  
+
     std::string theTrackerRecHitBuilderName;
     edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
     TkClonerImpl hitCloner;
-  
+
     std::string theMuonRecHitBuilderName;
     edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
 
