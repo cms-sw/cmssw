@@ -166,7 +166,7 @@ int main() {
 	
 	// long double smallincr = 1.39_deg;
 	long double smallincr = 1._deg;
-	long double bigincr = 7.77_deg;
+	long double bigincr = 7.77_pi;
 
   cout << "** Use double arithmetic **\n";
   cout << "Test 3 versions small decr\n";

@@ -18,6 +18,7 @@ namespace geant_units {
   
   namespace operators {
 
+		using namespace angle_units;
 		using namespace angle_units::operators;
 
     // Length 
