@@ -6,7 +6,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFStripFilter.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
-#include <math.h>
+#include <cmath>
 
 HFStripFilter::HFStripFilter(const double stripThreshold, const double maxThreshold,
                              const double timeMax, const double maxStripTime,
@@ -67,7 +67,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec,
   int stripIetaMax = 0;
   
   if (d1max.energy() > 0) {
-    signStripIeta = signbit(d1max.id().ieta());
+    signStripIeta = std::signbit(d1max.id().ieta());
     stripIphiMax = d1max.id().iphi();
     stripIetaMax = d1max.id().ieta();
   }
@@ -80,7 +80,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec,
       if (it.id().depth() == 2 && it.energy() > d2max.energy() && std::abs(it.id().ieta()) 
           < seedHitIetaMax_) {
 	if (d1max.energy() > 0) {
-	  int signIeta = signbit(it.id().ieta());
+	  int signIeta = std::signbit(it.id().ieta());
 	  if (it.id().iphi() == stripIphiMax && signIeta == signStripIeta) {
 	    d2max = it;
 	  }
@@ -96,7 +96,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec,
   if (d1max.energy() < maxThreshold_ && d2max.energy() < maxThreshold_) return; 
  
   if (d1max.energy() <= 0 && d2max.energy() > 0) {
-    signStripIeta = signbit(d2max.id().ieta());
+    signStripIeta = std::signbit(d2max.id().ieta());
     stripIphiMax = d2max.id().iphi();
     stripIetaMax = d2max.id().ieta();
   }
@@ -117,7 +117,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec,
   for (auto& it : rec)
     {
       if (it.energy() < stripThreshold_) continue;
-      int signIeta = signbit(it.id().ieta());
+      int signIeta = std::signbit(it.id().ieta());
       
       if (verboseLevel_ >= 30) {
 	ss << " HF hit: ieta = " << it.id().ieta() << "\t iphi = " << it.id().iphi()
