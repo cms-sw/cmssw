@@ -65,11 +65,13 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec,
   int signStripIeta = 0;
   int stripIphiMax = 0;
   int stripIetaMax = 0;
+  int stripDepthMax = 0;
   
   if (d1max.energy() > 0) {
     signStripIeta = std::signbit(d1max.id().ieta());
     stripIphiMax = d1max.id().iphi();
     stripIetaMax = d1max.id().ieta();
+    stripDepthMax = d1max.id().depth();
   }
 
   d2max.setEnergy(-10);
@@ -99,6 +101,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec,
     signStripIeta = std::signbit(d2max.id().ieta());
     stripIphiMax = d2max.id().iphi();
     stripIetaMax = d2max.id().ieta();
+    stripDepthMax = d2max.id().depth();
   }
 
   std::stringstream ss;
@@ -107,7 +110,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec,
       ss << "  MaxHit in Depth 1: ieta = " << d1max.id().ieta() << " iphi = " << stripIphiMax 
 	 << " energy = " << d1max.energy() << " time = " << d1max.time() << std::endl; }
     if (d2max.energy() > 0) {
-      ss << "  MaxHit in Depth 2: ieta = " << d2max.id().ieta() << " iphi = " << d2max.id().iphi() 
+      ss << "  MaxHit in Depth 2: ieta = " << d2max.id().ieta() << " iphi = " << stripIphiMax 
 	 << " energy = " << d2max.energy() << " time = " << d2max.time() << std::endl; } 
     ss << "  stripThreshold_ = " << stripThreshold_ << std::endl;
   }
@@ -257,7 +260,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec,
     {
       if (it.energy() < stripThreshold_) continue;
       if (it.id().ieta() < ietaMin || it.id().ieta() > ietaMax) continue;
-      HcalDetId id(HcalForward, it.id().ieta(), d1strip[0].id().iphi(), d1strip[0].id().depth());
+      HcalDetId id(HcalForward, it.id().ieta(), stripIphiMax, stripDepthMax);
       bool neigh = myqual->topo()->decIPhi(id, neighbour);
       iphi1 = (neigh) ? neighbour.iphi() : 0;
       neigh = myqual->topo()->incIPhi(id, neighbour);
@@ -270,7 +273,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec,
   double ratio2 = eStrip > 0 ? energyIphi2/eStrip : 0;
     
   if (verboseLevel_ >= 30) {
-    ss << "  iphi = " << d1strip[0].id().iphi() << "  iphi1 = " << iphi1 << "  iphi2 = " 
+    ss << "  iphi = " << stripIphiMax << "  iphi1 = " << iphi1 << "  iphi2 = " 
        << iphi2 << std::endl
        << "  Estrip = " << eStrip << "  EnergyIphi1 = " << energyIphi1
        << "  Ratio = "	<< ratio1 << std::endl
