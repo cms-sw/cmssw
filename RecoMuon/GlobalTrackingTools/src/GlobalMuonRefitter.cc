@@ -118,10 +118,11 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 
   theDYTthrs     = par.getParameter< std::vector<int> >("DYTthrs");
   theDYTselector = par.existsAs<int>("DYTselector")?par.getParameter<int>("DYTselector"):1;
-  theDYTupdator = par.existsAs<bool>("DYTupdator")?par.getParameter<bool>("DYTupdator"):false;
-  theDYTuseAPE = par.existsAs<bool>("DYTuseAPE")?par.getParameter<bool>("DYTuseAPE"):false;
+  theDYTupdator  = par.existsAs<bool>("DYTupdator")?par.getParameter<bool>("DYTupdator"):false;
+  theDYTuseAPE   = par.existsAs<bool>("DYTuseAPE")?par.getParameter<bool>("DYTuseAPE"):false;
+  dytParThrsMode = par.existsAs<bool>("DYTuseThrsParametrization")?par.getParameter<bool>("DYTuseThrsParametrization"):false;
+  theDYTthrsParameters = par.getParameter< edm::ParameterSet >("DYTthrsParameters");
   dytInfo        = new reco::DYTInfo();
-	theDYTthrsParameters = par.getParameter< edm::ParameterSet >("DYTthrsParameters");
 
   if (par.existsAs<double>("RescaleErrorFactor")) {
     theRescaleErrorFactor = par.getParameter<double>("RescaleErrorFactor");
@@ -272,18 +273,17 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       //
       // DYT 2.0
       //
-			cout << " New DyT Version !!!!!!!! ----  " << endl;
-      double momentum = globalTrack.p();
-      double eta = globalTrack.eta();
       DynamicTruncation dytRefit(*theEvent,*theService,theDYTthrsParameters);
       dytRefit.setProd(all4DSegments, CSCSegments);
       dytRefit.setSelector(theDYTselector);
       dytRefit.setThr(theDYTthrs);
       dytRefit.setUpdateState(theDYTupdator);
       dytRefit.setUseAPE(theDYTuseAPE);
-			dytRefit.setRecoP(momentum);
-			dytRefit.setRecoEta(eta);
-			dytRefit.correctThrByPtAndEta();
+      if(dytParThrsMode) {
+        dytRefit.setParThrsMode(dytParThrsMode);
+        dytRefit.setRecoP(globalTrack.p());
+        dytRefit.setRecoEta(globalTrack.eta());
+      }
       DYTRecHits = dytRefit.filter(globalTraj.front());
       dytInfo->CopyFrom(dytRefit.getDYTInfo());
       if ((DYTRecHits.size() > 1) && (DYTRecHits.front()->globalPosition().mag() > DYTRecHits.back()->globalPosition().mag()))

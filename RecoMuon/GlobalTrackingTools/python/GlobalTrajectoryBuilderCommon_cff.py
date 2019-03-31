@@ -59,12 +59,11 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         ## Parameters for DYT threshold parametrization
         DYTuseThrsParametrization = cms.bool(True),
         DYTthrsParameters = cms.PSet(
-                                      eta0p8 = cms.vdouble(-0.919853, 0.990742),
-                                      eta1p2 = cms.vdouble(-0.897354, 0.987738),
-                                      eta2p0 = cms.vdouble(-0.986855, 0.998516),
-                                      eta2p2 = cms.vdouble(-0.940342, 0.992955),
-                                      eta2p4 = cms.vdouble(-0.947633, 0.993762),
-                                      thr50  = cms.vdouble(1, 1, 4, 1, 1),
+                                  eta0p8 = cms.vdouble(1, -0.919853, 0.990742),
+                                  eta1p2 = cms.vdouble(1, -0.897354, 0.987738),
+                                  eta2p0 = cms.vdouble(4, -0.986855, 0.998516),
+                                  eta2p2 = cms.vdouble(1, -0.940342, 0.992955),
+                                  eta2p4 = cms.vdouble(1, -0.947633, 0.993762),
                                     ),
 
         # muon station to be skipped

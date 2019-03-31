@@ -171,8 +171,9 @@ class GlobalMuonRefitter {
     int theDYTselector;
     bool theDYTupdator;
     bool theDYTuseAPE;
-    reco::DYTInfo *dytInfo;
+    bool dytParThrsMode;
     edm::ParameterSet theDYTthrsParameters;
+    reco::DYTInfo *dytInfo;
 
     std::string theFitterName;
     std::unique_ptr<TrajectoryFitter> theFitter;
