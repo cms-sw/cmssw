@@ -85,8 +85,6 @@ class DynamicTruncation {
     return dytInfo;
   }
 
-  void                 correctThrByPtAndEta();
-
  private:
 
   void                 compatibleDets(TrajectoryStateOnSurface&, std::map<int, std::vector<DetId> >&);
@@ -100,7 +98,7 @@ class DynamicTruncation {
   void                 updateWithDThits(TrajectoryStateOnSurface&, DTRecSegment4D const &);
   void                 updateWithCSChits(TrajectoryStateOnSurface&, CSCSegment const &);
   void                 getThresholdFromDB(double&, DetId const&);
-  void                 correctThrByPtAndEta(double&);
+  void                 correctThrByPAndEta(double&);
   void                 getThresholdFromCFG(double&, DetId const&);
   void                 testDTstation(TrajectoryStateOnSurface&, std::vector<DTRecSegment4D> const &, double&, DTRecSegment4D&, TrajectoryStateOnSurface&);
   void                 testCSCstation(TrajectoryStateOnSurface&, std::vector<CSCSegment> const &, double&, CSCSegment&, TrajectoryStateOnSurface&);

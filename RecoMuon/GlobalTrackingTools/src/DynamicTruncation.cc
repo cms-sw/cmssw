@@ -467,12 +467,12 @@ void DynamicTruncation::getThresholdFromDB(double& thr, DetId const& id) {
       break;
     }
   }
-  if (useParametrizedThr) correctThrByPtAndEta(thr);
+  if (useParametrizedThr) correctThrByPAndEta(thr);
 }
 
 
-//===> correctThrByPtAndEta
-void DynamicTruncation::correctThrByPtAndEta(double& thr) {
+//===> correctThrByPAndEta
+void DynamicTruncation::correctThrByPAndEta(double& thr) {
 
 
 
@@ -509,7 +509,7 @@ void DynamicTruncation::getThresholdFromCFG(double& thr, DetId const& id) {
     thr = Thrs[1];
   }
 
-  if (useParametrizedThr) correctThrByPtAndEta(thr);
+  if (useParametrizedThr) correctThrByPAndEta(thr);
 }
 
 
