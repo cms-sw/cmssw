@@ -25,15 +25,6 @@
 #include "DataFormats/GEMDigi/interface/ME0TriggerDigi.h"
 #include "DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h"
 
-#include "DataFormats/GEMDigi/interface/GEMVfatStatusDigi.h"
-#include "DataFormats/GEMDigi/interface/GEMVfatStatusDigiCollection.h"
-
-#include "DataFormats/GEMDigi/interface/GEMGEBStatusDigi.h"
-#include "DataFormats/GEMDigi/interface/GEMGEBStatusDigiCollection.h"
-
-#include "DataFormats/GEMDigi/interface/GEMAMCStatusDigi.h"
-#include "DataFormats/GEMDigi/interface/GEMAMCStatusDigiCollection.h"
-
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 

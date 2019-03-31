@@ -46,13 +46,13 @@ process.muonGEMDigis.unPackStatusDigis = True
 ############## DB file ################# 
 from CondCore.CondDB.CondDB_cfi import *
 CondDB.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-CondDB.connect = cms.string('sqlite_fip:DQM/GEM/data/GEMELMap.db')
+CondDB.connect = cms.string('sqlite_fip:DQM/GEM/data/GEMeMap.db')
 
 process.GEMCabling = cms.ESSource("PoolDBESSource",
     CondDB,
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('GEMELMapRcd'),
-        tag = cms.string('GEMELMap_v2')
+        record = cms.string('GEMeMapRcd'),
+        tag = cms.string('GEMeMap_v2')
     )),
 )
 ####################################
