@@ -11,7 +11,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # load alignment corrections
-process.load("CondFormats.CTPPSReadoutObjects.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
+process.load("CalibPPS.ESProducers.ctppsRPAlignmentCorrectionsDataESSourceXML_cfi")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.RealFiles = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/sample_alignment_corrections.xml")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.MeasuredFiles = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/sample_alignment_corrections.xml")
 process.ctppsRPAlignmentCorrectionsDataESSourceXML.MisalignedFiles = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/sample_alignment_corrections.xml")

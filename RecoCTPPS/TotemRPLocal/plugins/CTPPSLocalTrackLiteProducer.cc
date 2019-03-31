@@ -189,19 +189,24 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
 {
   edm::ParameterSetDescription desc;
 
-  desc.add<bool>("includeStrips", true)->setComment("whether tracks from Si strips should be included");
+  // By default: module enabled (doNothing=false), but all includeXYZ flags set to false.
+  // The includeXYZ are switched on when the "ctpps_2016" era is declared in python config, see:
+  // RecoCTPPS/TotemRPLocal/python/ctppsLocalTrackLiteProducer_cff.py
+
+  desc.add<bool>("includeStrips", false)->setComment("whether tracks from Si strips should be included");
   desc.add<edm::InputTag>( "tagSiStripTrack", edm::InputTag( "totemRPLocalTrackFitter" ) )
     ->setComment( "input TOTEM strips' local tracks collection to retrieve" );
 
-  desc.add<bool>("includeDiamonds", true)->setComment("whether tracks from diamonds strips should be included");
+  desc.add<bool>("includeDiamonds", false)->setComment("whether tracks from diamonds strips should be included");
   desc.add<edm::InputTag>( "tagDiamondTrack", edm::InputTag( "ctppsDiamondLocalTracks" ) )
     ->setComment( "input diamond detectors' local tracks collection to retrieve" );
 
-  desc.add<bool>("includePixels", true)->setComment("whether tracks from pixels should be included");
-  desc.add<edm::InputTag>( "tagPixelTrack"  , edm::InputTag( "ctppsPixelLocalTracks"   ) )
+  desc.add<bool>("includePixels", false)->setComment("whether tracks from pixels should be included");
+  desc.add<edm::InputTag>( "tagPixelTrack", edm::InputTag( "ctppsPixelLocalTracks"   ) )
     ->setComment( "input pixel detectors' local tracks collection to retrieve" );
-  desc.add<bool>( "doNothing", true ) // disable the module by default
-    ->setComment( "disable the module" );
+
+  desc.add<bool>("doNothing", false)
+    ->setComment("disable the module");
 
   desc.add<double>("pixelTrackTxMin",-10.0);
   desc.add<double>("pixelTrackTxMax", 10.0);
