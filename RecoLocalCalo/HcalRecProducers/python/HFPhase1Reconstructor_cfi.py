@@ -204,8 +204,9 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
         timeMax = cms.double(6.0),
         maxStripTime = cms.double(10.0),
         wedgeCut = cms.double(0.05),
+        seedHitIetaMax = cms.int32(35),
         gap = cms.int32(2),
         lstrips = cms.int32(2),
-        verboseLevel = cms.untracked.int32(20)
+        verboseLevel = cms.untracked.int32(10)
     )
 )

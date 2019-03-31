@@ -4,17 +4,20 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFStripFilter.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
+#include <math.h>
 
 HFStripFilter::HFStripFilter(const double stripThreshold, const double maxThreshold,
                              const double timeMax, const double maxStripTime,
-                             const double wedgeCut, const int gap,
-                             const int lstrips, const int verboseLevel)
+                             const double wedgeCut, const int seedHitIetaMax, 
+                             const int gap, const int lstrips, const int verboseLevel)
     : stripThreshold_(stripThreshold),
       maxThreshold_(maxThreshold),
       timeMax_(timeMax),
       maxStripTime_(maxStripTime),
       wedgeCut_(wedgeCut),
+      seedHitIetaMax_(seedHitIetaMax),
       gap_(gap),
       lstrips_(lstrips),
       verboseLevel_(verboseLevel)
@@ -32,7 +35,8 @@ HFStripFilter::~HFStripFilter()
 }
 
 
-void HFStripFilter::runFilter(HFRecHitCollection& rec) const
+void HFStripFilter::runFilter(HFRecHitCollection& rec,
+                      const HcalChannelQuality* myqual) const
 {
   if (verboseLevel_ >= 20)
     edm::LogInfo("HFStripFilter") << "runFilter called";
@@ -50,7 +54,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
       if (it.time() > timeMax_ || it.time() < 0 || it.energy() < stripThreshold_) continue;	
       // find HF hit with maximum signal in depth = 1
       if (it.id().depth() == 1) {
-	if (it.energy() > d1max.energy() && std::abs(it.id().ieta()) < 35) {
+	if (it.energy() > d1max.energy() && std::abs(it.id().ieta()) < seedHitIetaMax_) {
 	  d1max = it;
 	}
       }
@@ -63,7 +67,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   int stripIetaMax = 0;
   
   if (d1max.energy() > 0) {
-    signStripIeta = d1max.id().ieta()/std::abs(d1max.id().ieta());
+    signStripIeta = signbit(d1max.id().ieta());
     stripIphiMax = d1max.id().iphi();
     stripIetaMax = d1max.id().ieta();
   }
@@ -73,9 +77,10 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
     {
       if (it.time() > timeMax_ || it.time() < 0 || it.energy() < stripThreshold_) continue;	
       // find HFhit with maximum signal in depth = 2
-      if (it.id().depth() == 2 && it.energy() > d2max.energy() && std::abs(it.id().ieta()) < 35) {
+      if (it.id().depth() == 2 && it.energy() > d2max.energy() && std::abs(it.id().ieta()) 
+          < seedHitIetaMax_) {
 	if (d1max.energy() > 0) {
-	  int signIeta = it.id().ieta()/std::abs(it.id().ieta());
+	  int signIeta = signbit(it.id().ieta());
 	  if (it.id().iphi() == stripIphiMax && signIeta == signStripIeta) {
 	    d2max = it;
 	  }
@@ -90,8 +95,8 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   // check if possible seed hits have energies not too small  
   if (d1max.energy() < maxThreshold_ && d2max.energy() < maxThreshold_) return; 
  
-  if (stripIphiMax == 0 && d2max.energy() > 0) {
-    signStripIeta = d2max.id().ieta()/std::abs(d2max.id().ieta());
+  if (d1max.energy() <= 0 && d2max.energy() > 0) {
+    signStripIeta = signbit(d2max.id().ieta());
     stripIphiMax = d2max.id().iphi();
     stripIetaMax = d2max.id().ieta();
   }
@@ -112,7 +117,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
   for (auto& it : rec)
     {
       if (it.energy() < stripThreshold_) continue;
-      int signIeta = it.id().ieta()/std::abs(it.id().ieta());
+      int signIeta = signbit(it.id().ieta());
       
       if (verboseLevel_ >= 30) {
 	ss << " HF hit: ieta = " << it.id().ieta() << "\t iphi = " << it.id().iphi()
@@ -124,7 +129,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
       if (it.id().iphi() == stripIphiMax && signIeta == signStripIeta && 
           it.time() < maxStripTime_) {	  
 	if (it.id().depth() == 1) {
-	  // check if hit = (*it) is already in d1strip
+	  // check if hit = it is already in d1strip
 	  bool pass = false;
           if (d1strip.empty()) {
 	    if (std::abs(it.id().iphi() - stripIetaMax) <= gap_) {
@@ -150,7 +155,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
 	  }
 	}
 	else if (it.id().depth() == 2) {
-	  // check if hit = (*it) is already in d2strip
+	  // check if hit = it is already in d2strip
           bool pass= false;
 	  if (d2strip.empty()) {
 	    if (std::abs(it.id().ieta() - stripIetaMax) <= gap_) {
@@ -240,24 +245,25 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec) const
        << " Common strip:  ietaMin = " << ietaMin << "  ietaMax = " << ietaMax << std::endl; 
   }
   
-  int phiseg = 2; // 10 degrees segmentation for most of HF (1 iphi unit = 5 degrees)
-  if (std::abs(d1strip[0].id().ieta()) > 39) phiseg = 4; // 20 degrees segmentation for |ieta| > 39
-  
-  // Check if seed hit has neighbours with (iphi +/- phiseg) and the same ieta    
-  int iphi1 = d1strip[0].id().iphi() - phiseg;
-  while (iphi1 < 0) iphi1 += 72;
-  int iphi2 = d1strip[0].id().iphi() + phiseg;
-  while (iphi2 > 72) iphi2 -= 72;
-  
   // energies in the neighboring wedges  
   double energyIphi1 = 0;
   double energyIphi2 = 0;
+  int iphi1 = 0, iphi2 = 0;
+
+  // get information about the neighboring wedges from HcalTopology
+  HcalDetId neighbour;
+  
   for (auto& it : rec)
     {
       if (it.energy() < stripThreshold_) continue;
       if (it.id().ieta() < ietaMin || it.id().ieta() > ietaMax) continue;
-      if (it.id().iphi() == iphi1) energyIphi1 += it.energy();      // iphi1
-      else if (it.id().iphi() == iphi2) energyIphi2 += it.energy(); // iphi2
+      HcalDetId id(HcalForward, it.id().ieta(), d1strip[0].id().iphi(), d1strip[0].id().depth());
+      bool neigh = myqual->topo()->decIPhi(id, neighbour);
+      iphi1 = (neigh) ? neighbour.iphi() : 0;
+      neigh = myqual->topo()->incIPhi(id, neighbour);
+      iphi2 = (neigh) ? neighbour.iphi() : 0;
+      if (it.id().iphi() == iphi1) energyIphi1 += it.energy();      // Energy iphi1
+      else if (it.id().iphi() == iphi2) energyIphi2 += it.energy(); // Energy iphi2
     }
   
   double ratio1 = eStrip > 0 ? energyIphi1/eStrip : 0;
@@ -327,6 +333,7 @@ std::unique_ptr<HFStripFilter> HFStripFilter::parseParameterSet(
         ps.getParameter<double>("timeMax"),
         ps.getParameter<double>("maxStripTime"),
         ps.getParameter<double>("wedgeCut"),
+        ps.getParameter<int>("seedHitIetaMax"),
         ps.getParameter<int>("gap"),
         ps.getParameter<int>("lstrips"),
         ps.getUntrackedParameter<int>("verboseLevel")
@@ -342,6 +349,7 @@ edm::ParameterSetDescription HFStripFilter::fillDescription()
     desc.add<double>("timeMax", 6.0);
     desc.add<double>("maxStripTime", 10.0);
     desc.add<double>("wedgeCut", 0.05);
+    desc.add<int>("seedHitIetaMax", 35);
     desc.add<int>("gap", 2);
     desc.add<int>("lstrips", 2);
     desc.addUntracked<int>("verboseLevel", 0);

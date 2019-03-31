@@ -12,14 +12,14 @@ public:
     // Construct this object with all necessary parameters
     HFStripFilter(double stripThreshold, double maxThreshold,
                   double timeMax, double maxStripTime,
-                  double wedgeCut, int gap,
-                  int lstrips, int verboseLevel);
+                  double wedgeCut, int seedHitIetaMax, 
+                  int gap, int lstrips, int verboseLevel);
 
     // Destructor
     ~HFStripFilter();
 
     // The actual rechit tagging is performed by the following function
-    void runFilter(HFRecHitCollection& rec) const;
+    void runFilter(HFRecHitCollection& rec, const HcalChannelQuality* myqual) const;
 
     // Parser function to create this object from a parameter set
     static std::unique_ptr<HFStripFilter> parseParameterSet(
@@ -34,6 +34,7 @@ private:
     double timeMax_;
     double maxStripTime_;
     double wedgeCut_;
+    int seedHitIetaMax_;
     int gap_;
     int lstrips_;
     int verboseLevel_;
