@@ -474,38 +474,19 @@ void DynamicTruncation::getThresholdFromDB(double& thr, DetId const& id) {
 //===> correctThrByPtAndEta
 void DynamicTruncation::correctThrByPtAndEta(double& thr) {
 
-	//double p = p_reco;
-	//double   p08[2] = { -0.919853, 0.990742};
-	//double   p12[4] = { -0.897354, 0.987738};
-	//double   p20[3] = { -0.986855, 0.998516};
-	//double   p22[2] = { -0.940342, 0.992955};
-	//double   p24[2] = { -0.947633, 0.993762};
-	//double thr50[5] = { 1, 1, 4, 1, 1};
 
-  // auto parametricThreshold = [this](float thr50, float p0, float p1){
-  //   return thr50 * ( 1 + p0*p_reco + TMath::Power( this->p_reco, p1));
-  // };
 
-  // printf("parametricThreshold(1,-0.919853, 0.990742) = %f", parametricThreshold(1,-0.919853, 0.990742));
+    auto parametricThreshold = [this]{
+      double thr50 = this->parameters[this->region].at(0);
+      double p0    = this->parameters[this->region].at(1);
+      double p1    = this->parameters[this->region].at(2);
+      return thr50 * ( 1 + p0*p_reco + TMath::Power( this->p_reco, p1));
+    };
 
-	if( TMath::Abs(eta_reco) > 0 && TMath::Abs(eta_reco) <= 0.8 ){
-		thr = 24; //3000-> 26; //400-> 11; //1000-> 19; //2000-> 25;
-		//thr = thr50[0] * ( 1 + p08[0]*p + TMath::Power( p, p08[1]));
-	} else if( TMath::Abs(eta_reco) > 0.8 && TMath::Abs(eta_reco) <= 1.2 ){
-		thr = 38; //3000-> 29; //400-> 14; //1000-> 22; //2000-> 27;
-                //thr = thr50[1] * ( 1 + p12[0]*p + TMath::Power( p, p12[1]));
-        } else if( TMath::Abs(eta_reco) > 1.2 && TMath::Abs(eta_reco) <= 2.0 ){
-		thr = 19; //3000-> 20; //400-> 10; //1000-> 16; //2000-> 19;
-        	//thr = thr50[2] * ( 1 + p20[0]*p + TMath::Power( p, p20[1]));
-        } else if( TMath::Abs(eta_reco) > 2.0 && TMath::Abs(eta_reco) <= 2.2 ){
-		thr = 16; //3000-> 16; //400-> 8; //1000-> 13; //2000-> 15;
-        	//thr = thr50[3] * ( 1 + p22[0]*p + TMath::Power( p, p22[1]));
-        } else if( TMath::Abs(eta_reco) > 2.2 && TMath::Abs(eta_reco) <= 2.4 ){
-		thr = 14; //3000-> 12; //400-> 8; //1000-> 11; //2000-> 13;
-        	//thr = thr50[4] * ( 1 + p24[0]*p + TMath::Power( p, p24[1]));
-	}
-	//thr = 10;
-
+    // printf("thr before = %f \n", thr);
+    // printf("Muon with pt equal to = %f  --  eta = %f\n", p_reco, eta_reco );
+    // printf("parametricThreshold(1,%f, %f) = %f \n", this->parameters[this->region].at(0), this->parameters[this->region].at(1), parametricThreshold());
+    thr = parametricThreshold();
 }
 
 void DynamicTruncation::setEtaRegion(){
@@ -516,28 +497,6 @@ void DynamicTruncation::setEtaRegion(){
 	else if( TMath::Abs(eta_reco) > 2.0 && TMath::Abs(eta_reco) <= 2.2 ) region = dyt_utils::etaRegion::eta2p2;
 	else if( TMath::Abs(eta_reco) > 2.2 && TMath::Abs(eta_reco) <= 2.4 ) region = dyt_utils::etaRegion::eta2p4;
 
-}
-
-//===> correctThrByPtAndEta
-void DynamicTruncation::correctThrByPtAndEta() {
-
-	//double p = p_reco;
-	//double   p08[2] = { -0.919853, 0.990742};
-	//double   p12[4] = { -0.897354, 0.987738};
-	//double   p20[3] = { -0.986855, 0.998516};
-	//double   p22[2] = { -0.940342, 0.992955};
-	//double   p24[2] = { -0.947633, 0.993762};
-	//double thr50[5] = { 1, 1, 4, 1, 1};
-
-
-  auto parametricThreshold = [this](float thr50){
-    double p0 = this->parameters[this->region].at(0);
-    double p1 = this->parameters[this->region].at(1);
-    return thr50 * ( 1 + p0*p_reco + TMath::Power( this->p_reco, p1));
-  };
-
-  printf("Muon with pt equal to = %f  --  eta = %f\n", p_reco, eta_reco );
-  printf("parametricThreshold(1,%f, %f) = %f \n", this->parameters[this->region].at(0), this->parameters[this->region].at(1), parametricThreshold(1));
 }
 
 

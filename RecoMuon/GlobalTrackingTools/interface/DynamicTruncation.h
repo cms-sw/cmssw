@@ -66,13 +66,10 @@ class DynamicTruncation {
   void setUpdateState(bool);
   void setUseAPE(bool);
   /*---- DyT v2-----*/
-  void setRecoP(double p) {
-    p_reco = p;
-    useParametrizedThr = true;
-   }
+  void setParThrsMode(bool dytParThrsMode) { useParametrizedThr = dytParThrsMode;}
+  void setRecoP(double p) { p_reco = p; }
   void setRecoEta(double eta) {
     eta_reco = eta;
-    useParametrizedThr = true;
     setEtaRegion();
   }
 
