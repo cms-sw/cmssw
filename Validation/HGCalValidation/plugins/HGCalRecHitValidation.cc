@@ -324,7 +324,7 @@ void HGCalRecHitValidation::bookHistograms(DQMStore::IBooker& iB,
     EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 31, -3.0, -1.45, 72, -CLHEP::pi, CLHEP::pi));
       
     histoname.str(""); histoname << "energy_layer_" << ilayer; 
-    energy_.push_back(iB.book1D(histoname.str().c_str(),"energy_",100,0,0.002));
+    energy_.push_back(iB.book1D(histoname.str().c_str(),"energy_",500,0,1));
   }//loop over layers ends here 
 
   histoname.str(""); histoname << "SUMOfRecHitOccupancy_Plus";
