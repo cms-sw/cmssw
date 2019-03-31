@@ -198,21 +198,20 @@ void TotemRPDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   // loop over arms
   for (unsigned int arm : {0, 1})
   {
-    // loop over stations
-    for (unsigned int st : {0, 2})
+    // loop over RPs
+    for (unsigned int st_rp : {2, 3, 4, 5, 24, 25})
     {
-      // loop over RPs
-      for (unsigned int rp : {4, 5})
-      {
-        TotemRPDetId rpId(arm, st, rp);
-        potPlots[rpId] = PotPlots(ibooker, rpId);
+      const unsigned int st = st_rp / 10;
+      const unsigned int rp = st_rp % 10;
 
-        // loop over planes
-        for (unsigned int pl = 0; pl < 10; ++pl)
-        {
-          TotemRPDetId plId(arm, st, rp, pl);
-          planePlots[plId] = PlanePlots(ibooker, plId);
-        }
+      TotemRPDetId rpId(arm, st, rp);
+      potPlots[rpId] = PotPlots(ibooker, rpId);
+
+      // loop over planes
+      for (unsigned int pl = 0; pl < 10; ++pl)
+      {
+        TotemRPDetId plId(arm, st, rp, pl);
+        planePlots[plId] = PlanePlots(ibooker, plId);
       }
     }
   }
