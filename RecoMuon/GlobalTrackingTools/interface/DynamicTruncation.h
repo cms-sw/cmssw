@@ -52,7 +52,7 @@ class DynamicTruncation {
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
-  DynamicTruncation(const edm::Event&, const MuonServiceProxy&, const edm::ParameterSet&);
+  DynamicTruncation(const edm::Event&, const MuonServiceProxy&);
 
   ~DynamicTruncation();
 
@@ -66,6 +66,7 @@ class DynamicTruncation {
   void setUpdateState(bool);
   void setUseAPE(bool);
   /*---- DyT v2-----*/
+  void setThrsMap(const edm::ParameterSet&);
   void setParThrsMode(bool dytParThrsMode) { useParametrizedThr = dytParThrsMode;}
   void setRecoP(double p) { p_reco = p; }
   void setRecoEta(double eta) {
