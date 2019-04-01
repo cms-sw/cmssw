@@ -86,7 +86,7 @@ class Eras (object):
 
     def inspectEra(self,e,details):
         print('\nEra:',e)
-        print('   isChosen:',getattr(self,e).isChosen())
+        print('   isChosen:',getattr(self,e)._isChosen())
         if details: print('   Modifiers:')
         nmod=0
         for value in getattr(self,e).__dict__['_ModifierChain__chain']:
