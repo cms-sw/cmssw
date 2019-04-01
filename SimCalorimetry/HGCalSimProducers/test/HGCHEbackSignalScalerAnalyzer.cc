@@ -31,6 +31,8 @@
 #include <sstream>
 #include <string>
 
+#include "vdt/vdtMath.h"
+
 //
 // class declaration
 //
@@ -52,6 +54,7 @@ class HGCHEbackSignalScalerAnalyzer : public edm::one::EDAnalyzer<edm::one::Shar
 		edm::Service<TFileService> fs;
 
     std::string doseMap_;
+		uint32_t nPEperMIP_;
     std::map<int, std::map<int, float>> layerRadiusMap_;
 
     const HGCalGeometry* gHGCal_;
@@ -77,7 +80,8 @@ class HGCHEbackSignalScalerAnalyzer : public edm::one::EDAnalyzer<edm::one::Shar
 // constructors and destructor
 //
 HGCHEbackSignalScalerAnalyzer::HGCHEbackSignalScalerAnalyzer(const edm::ParameterSet& iConfig) :
-	doseMap_(iConfig.getParameter<std::string>("doseMap"))
+	doseMap_(iConfig.getParameter<std::string>("doseMap")),
+	nPEperMIP_(iConfig.getParameter<uint32_t>("nPEperMIP"))
 {
 	usesResource("TFileService");
   fs->file().cd();
@@ -122,9 +126,19 @@ HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   createRadiusMap();
   createZVector();
   TProfile2D* doseMap = fs->make<TProfile2D>("doseMap","doseMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
+	TProfile2D* fluenceMap = fs->make<TProfile2D>("fluenceMap","fluenceMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
   TProfile2D* scaleByDoseMap = fs->make<TProfile2D>("scaleByDoseMap","scaleByDoseMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* scaleByAreaMap = fs->make<TProfile2D>("scaleByAreaMap","scaleByAreaMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* scaleByAll = fs->make<TProfile2D>("scaleByAll","scaleByAll", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
+	TProfile2D* scaleByAreaMap = fs->make<TProfile2D>("scaleByAreaMap","scaleByAreaMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
+	TProfile2D* scaleByDoseAreaMap = fs->make<TProfile2D>("scaleByDoseAreaMap","scaleByDoseAreaMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
+	TProfile2D* noiseByFluenceMap = fs->make<TProfile2D>("noiseByFluenceMap","noiseByFluenceMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
+
+	TProfile2D* signalToNoiseFlatAreaMap = fs->make<TProfile2D>("signalToNoiseFlatAreaMap","signalToNoiseFlatAreaMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
+	TProfile2D* signalToNoiseDoseMap = fs->make<TProfile2D>("signalToNoiseDoseMap","signalToNoiseDoseMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
+	TProfile2D* signalToNoiseAreaMap = fs->make<TProfile2D>("signalToNoiseAreaMap","signalToNoiseAreaMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* signalToNoiseDoseAreaMap = fs->make<TProfile2D>("signalToNoiseDoseAreaMap","signalToNoiseDoseAreaMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
+
+	TProfile2D* saturationMap = fs->make<TProfile2D>("saturationMap","saturationMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
+	TProfile2D* signalToNoiseDoseAreaLinMap = fs->make<TProfile2D>("signalToNoiseDoseAreaLinMap","signalToNoiseDoseAreaLinMap", nxBins_, xBins_, radiusBins_, radiusMin_, radiusMax_);
 
   //instantiate scaler
   HGCHEbackSignalScaler scal(gHGCal_, doseMap_);
@@ -135,7 +149,9 @@ HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   {
     HGCScintillatorDetId scId(myId->rawId());
     double dose = scal.getDoseValue(scId);
+		double fluence = scal.getFluenceValue(scId);
     float scaleFactorByDose = scal.scaleByDose(scId);
+    float noiseByFluence = scal.noiseByFluence(scId);
     float scaleFactorByArea = scal.scaleByArea(scId);
 
     int ilayer = scId.layer();
@@ -156,10 +172,30 @@ HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
                   << " type = " << scId.type()
                   << " ilayer = " << scId.layer() << std::endl;
 
+
+
+
       doseMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), dose);
+			fluenceMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), fluence);
       scaleByDoseMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByDose);
-      scaleByAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByArea);
-      scaleByAll->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByArea * scaleFactorByDose);
+			scaleByAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByArea);
+			scaleByDoseAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByDose * scaleFactorByArea);
+			noiseByFluenceMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), noiseByFluence);
+
+      signalToNoiseFlatAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), 100 * scaleFactorByArea);
+      signalToNoiseDoseMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByDose / noiseByFluence);
+      signalToNoiseAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByArea / noiseByFluence);
+      signalToNoiseDoseAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByArea * scaleFactorByDose / noiseByFluence);
+			saturationMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByArea * scaleFactorByDose + std::pow(noiseByFluence,2));
+
+			//sipm non linearity
+			float nTotalPE_ = 7500.;
+			float x = vdt::fast_expf( -(nPEperMIP_ * scaleFactorByArea * scaleFactorByDose + std::pow(noiseByFluence,2))/nTotalPE_ );
+			int nPixel = (uint32_t) std::max( nTotalPE_ * (1.f - x), 0.f);
+			float signal = nPixel/(nPEperMIP_ * scaleFactorByArea * scaleFactorByDose);
+			signalToNoiseDoseAreaLinMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), signal / noiseByFluence);
+
+
       ++bin;
     }
 
