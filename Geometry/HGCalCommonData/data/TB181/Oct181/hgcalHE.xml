@@ -8,6 +8,7 @@
   <Constant name="rMaxCoarse" value="2000.0*cm"/>
   <Constant name="rMin"       value="[hgcal:rminHE]"/>
   <Constant name="rMax"       value="[hgcal:rmaxHE]"/>
+  <Constant name="rMaxB"      value="[hgcal:rmaxHEF]"/>
   <Constant name="absorbW"    value="1.5*[hgcal:WaferW]"/>
   <Constant name="absorbH"    value="1.5*[hgcal:WaferW]"/>
 </ConstantsSection>
@@ -49,7 +50,7 @@
     <Vector name="VolumeNames" type="string" nEntries="64">
       HEPCB,          HEKapton,           HECuWShield, 
       HECuShield,     HEPCBShield,        HEFeAbsorber,
-      HECuHeatShield, HESensitive,        HEFeBox, 
+      HECuHeatShield, HESiliconSensitive, HEFeBox, 
       HEAirGap1,      HEAirGap2,          HEAirGap3, 
       HEAirGap4,      HEAirGap5,          HEAirGap6, 
       HEAirGap7,      HEAirGap8,          HEAirGap9,
@@ -60,7 +61,7 @@
       HEAirGap20,     HEAirGap21,
       HEPCB,          HEKapton,           HECuWShield, 
       HECuShield,     HEPCBShield,        HEFeAbsorber,
-      HECuHeatShield, HESensitive,        HEFeBox, 
+      HECuHeatShield, HESiliconSensitive, HEFeBox, 
       HEAirGap1,      HEAirGap2,          HEAirGap3, 
       HEAirGap4,      HEAirGap5,          HEAirGap6, 
       HEAirGap7,      HEAirGap8,          HEAirGap9,
@@ -192,6 +193,7 @@
     <Numeric name="absorberW"   value="[hgcalHE:absorbW]"/>
     <Numeric name="absorberH"   value="[hgcalHE:absorbH]"/>
     <Numeric name="rMax"        value="[rMax]"/>
+    <Numeric name="rMaxB"       value="[rMaxB]"/>
   </Algorithm>
 </PosPartSection> 
 
