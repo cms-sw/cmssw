@@ -11,10 +11,8 @@ class HGCHEbackSignalScaler
   public:
 
     struct DoseParameters {
-      DoseParameters(): a_(0.), b_(0.), c_(0.) {}
-      float a_;
-      float b_;
-      float c_;
+      DoseParameters(): a_(0.), b_(0.), c_(0.), d_(0.), e_(0.), f_(0.) {}
+      float a_, b_, c_, d_, e_, f_;
     };
 
     HGCHEbackSignalScaler(const CaloSubdetectorGeometry*, const std::string&);
@@ -22,7 +20,9 @@ class HGCHEbackSignalScaler
 
     float scaleByArea(const HGCScintillatorDetId&);
     float scaleByDose(const HGCScintillatorDetId&);
+    float noiseByFluence(const HGCScintillatorDetId&);
     double getDoseValue(const HGCScintillatorDetId&);
+    double getFluenceValue(const HGCScintillatorDetId&);
 
   private:
     std::map<int, DoseParameters> readDosePars(const std::string&);
