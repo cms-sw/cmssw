@@ -21,6 +21,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 
 // zero value indicates incompatible ts - hit pair
@@ -53,9 +54,7 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
 
   float rhPhi = gp.phi();
   
-  float phiDiff = tsPhi - rhPhi;
-  if (phiDiff > pi) phiDiff -= twopi;
-  if (phiDiff < -pi) phiDiff += twopi;
+  float phiDiff = normalizedPhi(tsPhi - rhPhi);
 
   if ( phiDiff < thePhiMax && phiDiff > thePhiMin ) {
 
@@ -91,7 +90,7 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate
 
   float rhPhi = gp.barePhi() ;
   float tsPhi = ts.barePhi();  
-  float phiDiff = normalized_phi(rhPhi-tsPhi) ;
+  float phiDiff = normalizedPhi(rhPhi-tsPhi) ;
 
   if ( (phiDiff < thePhiMax) & (phiDiff > thePhiMin) )
    { return std::pair<bool,double>(true,1.) ; }

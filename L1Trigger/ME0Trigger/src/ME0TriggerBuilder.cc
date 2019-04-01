@@ -1,5 +1,5 @@
-#include "L1Trigger/ME0Trigger/src/ME0TriggerBuilder.h"
-#include "L1Trigger/ME0Trigger/src/ME0Motherboard.h"
+#include "L1Trigger/ME0Trigger/interface/ME0TriggerBuilder.h"
+#include "L1Trigger/ME0Trigger/interface/ME0Motherboard.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"

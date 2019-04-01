@@ -24,6 +24,8 @@
 
 #include "KDTreeLinkerAlgoT.h"
 
+//Density collection
+typedef std::map< DetId, float > Density;
 
 template <typename T>
 std::vector<size_t> sorted_indices(const std::vector<T> &v) {
@@ -39,6 +41,19 @@ std::vector<size_t> sorted_indices(const std::vector<T> &v) {
         });
 
         return idx;
+}
+
+template <typename T>
+size_t max_index(const std::vector<T> &v) {
+
+        // initialize original index locations
+        std::vector<size_t> idx(v.size(),0);
+        std::iota (std::begin(idx), std::end(idx), 0);
+
+        // take the max index based on comparing values in v
+        auto maxidx = std::max_element(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) {return v[i1].data.rho < v[i2].data.rho;});
+
+        return (*maxidx);
 }
 
 class HGCalImagingAlgo
@@ -161,6 +176,9 @@ void reset(){
 }
 void computeThreshold();
 
+//getDensity
+ Density getDensity();
+
 /// point in the space
 typedef math::XYZPoint Point;
 
@@ -195,6 +213,9 @@ hgcal::RecHitTools rhtools_;
 // The algo id
 reco::CaloCluster::AlgoId algoId_;
 
+// For keeping the density per hit
+ Density density_;
+
 // various parameters used for calculating the noise levels for a given sensor (and whether to use them)
 bool dependSensor_;
 std::vector<double> dEdXweights_;
@@ -204,7 +225,7 @@ double fcPerEle_;
 std::vector<double> nonAgedNoises_;
 double noiseMip_;
 std::vector<std::vector<double> > thresholds_;
-std::vector<std::vector<double> > v_sigmaNoise_;
+std::vector<std::vector<double> > sigmaNoise_;
 
 // The verbosity level
 VerbosityLevel verbosity_;
@@ -297,6 +318,9 @@ double calculateDistanceToHigher(std::vector<KDNode> &) const;
 int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &, const unsigned int, std::vector<std::vector<KDNode> >&) const;
 math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
 
+//For keeping the density information
+ void setDensity(const std::vector<KDNode> &nd);
+ 
 // attempt to find subclusters within a given set of hexels
 std::vector<unsigned> findLocalMaximaInCluster(const std::vector<KDNode>&);
 math::XYZPoint calculatePositionWithFraction(const std::vector<KDNode>&, const std::vector<double>&);

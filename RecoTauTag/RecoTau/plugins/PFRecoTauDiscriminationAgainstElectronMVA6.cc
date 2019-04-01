@@ -7,6 +7,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "RecoTauTag/RecoTau/interface/AntiElectronIDMVA6.h"
 
@@ -37,8 +40,8 @@ class PFRecoTauDiscriminationAgainstElectronMVA6 : public PFTauDiscriminationPro
     srcGsfElectrons_ = cfg.getParameter<edm::InputTag>("srcGsfElectrons");
     GsfElectrons_token = consumes<reco::GsfElectronCollection>(srcGsfElectrons_);
     vetoEcalCracks_ = cfg.getParameter<bool>("vetoEcalCracks");
-    verbosity_ = ( cfg.exists("verbosity") ) ?
-      cfg.getParameter<int>("verbosity") : 0;
+
+    verbosity_ = cfg.getParameter<int>("verbosity");
 
     // add category index
     produces<PFTauDiscriminator>("category");
@@ -51,6 +54,8 @@ class PFRecoTauDiscriminationAgainstElectronMVA6 : public PFTauDiscriminationPro
   void endEvent(edm::Event&) override;
 
   ~PFRecoTauDiscriminationAgainstElectronMVA6() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   bool isInEcalCrack(double) const;
@@ -232,6 +237,56 @@ PFRecoTauDiscriminationAgainstElectronMVA6::isInEcalCrack(double eta) const
 {
   double absEta = fabs(eta);
   return (absEta > 1.460 && absEta < 1.558);
+}
+
+void
+PFRecoTauDiscriminationAgainstElectronMVA6::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationAgainstElectronMVA6
+  edm::ParameterSetDescription desc;
+  desc.add<double>("minMVANoEleMatchWOgWOgsfBL", 0.0);
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfTauProducer"));
+  desc.add<double>("minMVANoEleMatchWgWOgsfBL", 0.0);
+  desc.add<std::string>("mvaName_wGwGSF_EC", "gbr_wGwGSF_EC");
+  desc.add<double>("minMVAWgWgsfBL", 0.0);
+  desc.add<std::string>("mvaName_woGwGSF_EC", "gbr_woGwGSF_EC");
+  desc.add<double>("minMVAWOgWgsfEC", 0.0);
+  desc.add<std::string>("mvaName_wGwGSF_BL", "gbr_wGwGSF_BL");
+  desc.add<std::string>("mvaName_woGwGSF_BL", "gbr_woGwGSF_BL");
+  desc.add<bool>("returnMVA", true);
+  desc.add<bool>("loadMVAfromDB", true);
+  {
+    edm::ParameterSetDescription pset_Prediscriminants;
+    pset_Prediscriminants.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    {
+      // encountered this at
+      // RecoTauTag/Configuration/python/HPSPFTaus_cff.py
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("decayMode", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", pset_Prediscriminants);
+  }
+  desc.add<std::string>("mvaName_NoEleMatch_woGwoGSF_BL", "gbr_NoEleMatch_woGwoGSF_BL");
+  desc.add<bool>("vetoEcalCracks", true);
+  desc.add<bool>("usePhiAtEcalEntranceExtrapolation", false);
+  desc.add<std::string>("mvaName_NoEleMatch_wGwoGSF_BL", "gbr_NoEleMatch_wGwoGSF_BL");
+  desc.add<double>("minMVANoEleMatchWOgWOgsfEC", 0.0);
+  desc.add<double>("minMVAWOgWgsfBL", 0.0);
+  desc.add<double>("minMVAWgWgsfEC", 0.0);
+  desc.add<int>("verbosity", 0);
+  desc.add<std::string>("mvaName_NoEleMatch_wGwoGSF_EC", "gbr_NoEleMatch_wGwoGSF_EC");
+  desc.add<std::string>("method", "BDTG");
+  desc.add<edm::InputTag>("srcGsfElectrons", edm::InputTag("gedGsfElectrons"));
+  desc.add<std::string>("mvaName_NoEleMatch_woGwoGSF_EC", "gbr_NoEleMatch_woGwoGSF_EC");
+  desc.add<double>("minMVANoEleMatchWgWOgsfEC", 0.0);
+  descriptions.add("pfRecoTauDiscriminationAgainstElectronMVA6", desc);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectronMVA6);

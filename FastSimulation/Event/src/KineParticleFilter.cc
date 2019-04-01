@@ -1,5 +1,5 @@
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 KineParticleFilter::KineParticleFilter(const edm::ParameterSet & cfg)

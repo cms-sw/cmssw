@@ -1,5 +1,4 @@
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
-#include "RecoParticleFlow/PFProducer/interface/Utils.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/TrackReco/interface/Track.h"

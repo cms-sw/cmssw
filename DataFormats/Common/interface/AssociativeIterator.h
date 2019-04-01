@@ -40,7 +40,6 @@
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "FWCore/Framework/interface/Event.h"
 
 namespace edm {
     class Event;
@@ -74,12 +73,12 @@ namespace edm {
 
     /// Helper class that fetches some type of Ref given ProductID and index, using the edm::Event
     //  the implementation uses View, and works for RefType = Ref, RefToBase and Ptr
-    template<typename RefType>
-    class EdmEventItemGetter {
+    template<typename RefType, typename EventType>
+    class EventItemGetter {
         public: 
             typedef typename RefType::value_type element_type;
-            EdmEventItemGetter(const edm::Event &iEvent) : iEvent_(iEvent) { }
-            ~EdmEventItemGetter() { }
+            EventItemGetter(const EventType &iEvent) : iEvent_(iEvent) { }
+            ~EventItemGetter() { }
 
             RefType get(const ProductID &id, size_t idx) const {
                 typedef typename edm::RefToBase<element_type> BaseRefType; // could also use Ptr, but then I can't do Ptr->RefToBase
@@ -94,7 +93,7 @@ namespace edm {
         private:
             mutable Handle<View<element_type> > view_;
             mutable ProductID id_;
-            const edm::Event &iEvent_;
+            const EventType &iEvent_;
     };
 
     // unfortunately it's not possible to define value_type of an Association<C> correctly
@@ -111,8 +110,7 @@ namespace edm {
         };
     }
 
-template<typename KeyRefType, typename AssociativeCollection, 
-            typename ItemGetter = EdmEventItemGetter<KeyRefType> >
+template<typename KeyRefType, typename AssociativeCollection, typename ItemGetter >
 class AssociativeIterator {
     public:
         typedef KeyRefType                                  key_type;
@@ -228,6 +226,12 @@ class AssociativeIterator {
         pairOk_ = true;
     }
 
+    template<typename KeyRefType, typename AC, typename EventType>
+      AssociativeIterator<KeyRefType, AC, edm::EventItemGetter<KeyRefType, EventType > >
+      makeAssociativeIterator(const AC &map, const EventType &event) {
+      using Getter =  edm::EventItemGetter<KeyRefType,EventType>;
+      return AssociativeIterator<KeyRefType, AC, Getter >(map, Getter{event});
+    }
 }
 
 #endif

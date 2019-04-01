@@ -20,7 +20,7 @@ process.source = cms.Source('EmptyIOVSource',
 
 # load calibrations from database
 process.load('CondCore.CondDB.CondDB_cfi')
-process.CondDB.connect = 'sqlite_file:totemTiming_calibration.sqlite' # SQLite input
+process.CondDB.connect = 'sqlite_file:ppsDiamondTiming_calibration.sqlite' # SQLite input
 
 process.PoolDBESSource = cms.ESSource('PoolDBESSource',
     process.CondDB,
@@ -28,7 +28,7 @@ process.PoolDBESSource = cms.ESSource('PoolDBESSource',
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('PPSTimingCalibrationRcd'),
-            tag = cms.string('TotemTimingCalibration')
+            tag = cms.string('PPSDiamondTimingCalibration')
         )
     )
 )

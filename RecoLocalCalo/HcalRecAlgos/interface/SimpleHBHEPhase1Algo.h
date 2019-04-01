@@ -45,6 +45,7 @@ public:
                          float phaseNS,
                          float timeShift,
                          bool correctForPhaseContainment,
+                         bool applyLegacyHBMCorrection,
                          std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
                          std::unique_ptr<HcalDeterministicFit> detFit,
 			 std::unique_ptr<MahiFit> mahi);
@@ -98,6 +99,7 @@ private:
     float timeShift_;
     int runnum_;
     bool corrFPC_;
+    bool applyLegacyHBMCorrection_;
 
     // "Metod 2" algorithm
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;

@@ -22,6 +22,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
@@ -54,6 +57,8 @@ class PFTauSecondaryVertexProducer : public edm::global::EDProducer<> {
   explicit PFTauSecondaryVertexProducer(const edm::ParameterSet& iConfig);
   ~PFTauSecondaryVertexProducer() override;
   void produce(edm::StreamID, edm::Event&,const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
  private:
   const edm::InputTag PFTauTag_;
   const edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;
@@ -124,6 +129,14 @@ void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent,con
   }
   iEvent.put(std::move(VertexCollection_out),"PFTauSecondaryVertices");
   iEvent.put(std::move(AVPFTauSV));
+}
+
+void
+PFTauSecondaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // PFTauSecondaryVertexProducer
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("PFTauTag", edm::InputTag("hpsPFTauProducer"));
+  descriptions.add("PFTauSecondaryVertexProducer", desc);
 }
 
 DEFINE_FWK_MODULE(PFTauSecondaryVertexProducer);

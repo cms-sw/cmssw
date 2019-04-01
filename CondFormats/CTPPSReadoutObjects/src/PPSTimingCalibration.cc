@@ -34,9 +34,9 @@ operator<<( std::ostream& os, const PPSTimingCalibration::Key& key )
 //--------------------------------------------------------------------------
 
 std::vector<double>
-PPSTimingCalibration::parameters( int db, int sampic, int channel, int cell ) const
+PPSTimingCalibration::parameters( int key1, int key2, int key3, int key4 ) const
 {
-  Key key{ db, sampic, channel, cell };
+  Key key{ key1, key2, key3, key4 };
   auto out = parameters_.find( key );
   if ( out == parameters_.end() )
     return {};
@@ -44,9 +44,9 @@ PPSTimingCalibration::parameters( int db, int sampic, int channel, int cell ) co
 }
 
 double
-PPSTimingCalibration::timeOffset( int db, int sampic, int channel ) const
+PPSTimingCalibration::timeOffset( int key1, int key2, int key3, int key4 ) const
 {
-  Key key{ db, sampic, channel, -1 };
+  Key key{ key1, key2, key3, key4 };
   auto out = timeInfo_.find( key );
   if ( out == timeInfo_.end() )
     return 0.;
@@ -54,9 +54,9 @@ PPSTimingCalibration::timeOffset( int db, int sampic, int channel ) const
 }
 
 double
-PPSTimingCalibration::timePrecision( int db, int sampic, int channel ) const
+PPSTimingCalibration::timePrecision( int key1, int key2, int key3, int key4 ) const
 {
-  Key key{ db, sampic, channel, -1 };
+  Key key{ key1, key2, key3, key4 };
   auto out = timeInfo_.find( key );
   if ( out == timeInfo_.end() )
     return 0.;
@@ -71,9 +71,7 @@ operator<<( std::ostream& os, const PPSTimingCalibration& data )
     os << kv.first <<" [";
     for ( size_t i = 0; i < kv.second.size(); ++i )
       os << ( i > 0 ? ", " : "" ) << kv.second.at( i );
-    PPSTimingCalibration::Key k = kv.first;
-    k.cell = -1;
-    const auto& time = data.timeInfo_.at( k );
+    const auto& time = data.timeInfo_.at( kv.first );
     os << "] " << time.first << " " <<  time.second << "\n";
   }
   return os;

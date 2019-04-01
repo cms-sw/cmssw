@@ -276,7 +276,8 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
         LogError( "triggerMatchValid" ) << "pat::TriggerObjectStandAloneMatch product with InputTag '" << labelTriggerObjectMatcher << "' not in event";
         continue;
       }
-      AssociativeIterator< reco::CandidateBaseRef, TriggerObjectStandAloneMatch > it( *handleTriggerObjectStandAloneMatch, EdmEventItemGetter< reco::CandidateBaseRef >( iEvent ) ), itEnd( it.end() );
+      auto it = makeAssociativeIterator< reco::CandidateBaseRef>( *handleTriggerObjectStandAloneMatch, iEvent );
+      auto itEnd =  it.end();
       Handle< reco::CandidateView > handleCands;
       if ( it != itEnd ) iEvent.get( it->first.id(), handleCands );
       std::vector< int > indices;

@@ -16,6 +16,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -28,6 +31,8 @@ class RecoTauPiZeroUnembedder : public edm::stream::EDProducer<> {
     RecoTauPiZeroUnembedder(const edm::ParameterSet& pset);
     ~RecoTauPiZeroUnembedder() override{}
     void produce(edm::Event& evt, const edm::EventSetup& es) override;
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
   private:
     edm::InputTag src_;
     edm::EDGetTokenT<reco::CandidateView> token; 
@@ -89,6 +94,14 @@ void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es
 
   evt.put(std::move(piZerosOut), "pizeros");
   evt.put(std::move(tausOut));
+}
+
+void
+RecoTauPiZeroUnembedder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // RecoTauPiZeroUnembedder
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("hpsPFTauProducerSansRefs"));
+  descriptions.add("RecoTauPiZeroUnembedder", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
