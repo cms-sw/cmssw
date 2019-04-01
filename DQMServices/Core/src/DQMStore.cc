@@ -423,6 +423,10 @@ DQMStore::initializeFrom(edm::ParameterSet const& pset)
   if (LSbasedMode_)
     std::cout << "DQMStore: LSbasedMode option is enabled\n";
 
+  doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
+  if (doSaveByLumi_)
+    std::cout << "DQMStore: saveByLumi option is enabled\n";
+
   std::string ref = pset.getUntrackedParameter<std::string>("referenceFileName", "");
   if (! ref.empty()) {
     std::cout << "DQMStore: using reference file '" << ref << "'\n";
@@ -934,9 +938,9 @@ DQMStore::book_(std::string const& dir,
     // Create and initialise core object.
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
-    if (run_ != 0 && moduleId_ != 0) {
+    if (doSaveByLumi_ && canSaveByLumi_) {
       proto.setLumiFlag(); // default to per-lumi mode for all non-legacy MEs.
-      // for legacy (moduleId_ == 0) this is not always safe.
+      // for legacy (not DQMEDAnalyzer) this is not save.
     }
     me = const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first)
       .initialise((MonitorElement::Kind)kind, h);
@@ -996,9 +1000,9 @@ DQMStore::book_(std::string const& dir,
     // Create it and return for initialisation.
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
-    if (run_ != 0 && moduleId_ != 0) {
+    if (doSaveByLumi_ && canSaveByLumi_) {
       proto.setLumiFlag(); // default to per-lumi mode for all non-legacy MEs.
-      // for legacy (moduleId_ == 0) this is not always safe.
+      // for legacy (not DQMEDAnalyzer) this is not save.
     }
     return &const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first);
   }

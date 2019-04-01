@@ -240,13 +240,14 @@ public:
   // into the DQMStore via a public API. The central mutex is acquired
   // *before* invoking and automatically released upon returns.
   template <typename iFunc>
-  void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId)
+  void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId, bool canSaveByLumi)
   {
     std::lock_guard<std::mutex> guard(book_mutex_);
     /* Set the run number and module id only if multithreading is enabled */
     if (enableMultiThread_) {
       run_ = run;
       moduleId_ = moduleId;
+      canSaveByLumi_ = canSaveByLumi;
     }
     IBooker booker{this};
     f(booker);
@@ -255,6 +256,7 @@ public:
     if (enableMultiThread_) {
       run_ = 0;
       moduleId_ = 0;
+      canSaveByLumi_ = false;
     }
   }
 
@@ -638,6 +640,10 @@ private:
   std::string readSelectedDirectory_{};
   uint32_t run_{};
   uint32_t moduleId_{};
+  // set to true in the transaction if module supports per-lumi saving.
+  bool canSaveByLumi_{false};
+  // set to true in configuration if per-lumi saving is requested.
+  bool doSaveByLumi_{false};
   std::unique_ptr<std::ostream> stream_{nullptr};
 
   std::string pwd_{};
