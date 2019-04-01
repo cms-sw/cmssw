@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('PROD',eras.Phase2C4)
+#process = cms.Process('PROD',eras.Phase2C4)
+#process.load('Configuration.Geometry.GeometryExtended2023D28_cff')
+
+process = cms.Process('PROD',eras.Phase2C4_timing_layer_bar)
+process.load('Configuration.Geometry.GeometryExtended2023D41_cff')
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load('Configuration.Geometry.GeometryExtended2023D28_cff')
-#process.load("Geometry.HGCalCommonData.testHGCV9XML_cfi")
-#process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-#process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -19,10 +19,10 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
-    process.MessageLogger.categories.append('HGCSim')
-    process.MessageLogger.categories.append('HGCalValidation')
+#if hasattr(process,'MessageLogger'):
+#    process.MessageLogger.categories.append('HGCalGeom')
+#    process.MessageLogger.categories.append('HGCSim')
+#    process.MessageLogger.categories.append('HGCalValidation')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
