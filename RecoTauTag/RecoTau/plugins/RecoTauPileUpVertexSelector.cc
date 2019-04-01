@@ -13,6 +13,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -23,6 +26,7 @@ class RecoTauPileUpVertexSelector : public edm::stream::EDFilter<> {
     explicit RecoTauPileUpVertexSelector(const edm::ParameterSet &pset);
     ~RecoTauPileUpVertexSelector() override {}
     bool filter(edm::Event& evt, const edm::EventSetup& es) override;
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
     edm::InputTag src_;
     double minPt_;
@@ -35,7 +39,7 @@ RecoTauPileUpVertexSelector::RecoTauPileUpVertexSelector(
       pset.getParameter<double>("minTrackSumPt")) {
   src_ = pset.getParameter<edm::InputTag>("src");
   token = consumes<reco::VertexCollection>(src_);
-  filter_ = pset.exists("filter") ? pset.getParameter<bool>("filter") : false;
+  filter_ = pset.getParameter<bool>("filter");
   produces<reco::VertexCollection>();
 }
 
@@ -67,6 +71,18 @@ bool RecoTauPileUpVertexSelector::filter(
     return true;
   else
     return nPUVtx;
+}
+
+void
+RecoTauPileUpVertexSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // recoTauPileUpVertexSelector
+  edm::ParameterSetDescription desc;
+
+  desc.add<double>("minTrackSumPt");
+  desc.add<edm::InputTag>("src");
+  desc.add<bool>("filter");
+
+  descriptions.add("recoTauPileUpVertexSelector", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

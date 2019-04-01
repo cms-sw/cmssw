@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+
 ### STEP 0 ###
 
 # hit building
@@ -290,19 +293,23 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 initialStep = ClassifierMerger.clone()
 initialStep.inputClassifiers=['initialStepClassifier1','initialStepClassifier2','initialStepClassifier3']
 
-#LWTNN selector
+trackingPhase1.toReplaceWith(initialStep, initialStepClassifier1.clone(
+     mva = dict(GBRForestLabel = 'MVASelectorInitialStep_Phase1'),
+     qualityCuts = [-0.95,-0.85,-0.75]
+))
+
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackingPhase1.toReplaceWith(initialStep, TrackLwtnnClassifier.clone(
-	src = 'initialStepTracks',
-	qualityCuts = [0.0, 0.3, 0.6],
+trackdnn.toReplaceWith(initialStep, TrackLwtnnClassifier.clone(
+        src = 'initialStepTracks',
+        qualityCuts = [0.0, 0.3, 0.6]
 ))
-(trackingPhase1 & fastSim).toModify(initialStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+(trackdnn & fastSim).toModify(initialStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
-pp_on_AA_2018.toReplaceWith(initialStep, initialStepClassifier1.clone( 
-     qualityCuts = [-0.9, -0.5, 0.2],
-     mva = dict(GBRForestLabel = 'HIMVASelectorInitialStep_Phase1') 
-))
+pp_on_AA_2018.toModify(initialStep, 
+        mva = dict(GBRForestLabel = 'HIMVASelectorInitialStep_Phase1'),
+        qualityCuts = [-0.9, -0.5, 0.2],
+)
 
 # For LowPU and Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

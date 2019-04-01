@@ -796,12 +796,16 @@ void CalibMonitor::Loop() {
   unsigned int  kp1 = ps_.size() - 1;
   unsigned int  kv1 = 0;
   std::vector<int> kounts(kp1,0);
+  std::vector<int> kount50(20,0);
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     if (jentry%100000 == 0) std::cout << "Entry " << jentry << " Run " << t_Run
 				      << " Event " << t_Event << std::endl;
+    double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
+    bool   p4060= ((pmom >= 40.0) && (pmom <= 60.0));
+    if (p4060) ++kount50[0];
     bool select = (std::find(entries_.begin(),entries_.end(),jentry) == entries_.end());
     if (!select) {
       ++duplicate;
@@ -810,11 +814,14 @@ void CalibMonitor::Loop() {
 		  << " " << t_p << std::endl;
       continue;
     }
+    if (p4060) ++kount50[1];
     bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) :
 		   ((t_Run < runlo_) || (t_Run > runhi_)));
+    if (select && p4060) ++kount50[2];
     select      = (selRun && (fabs(t_ieta) >= etalo_) &&
 		   (fabs(t_ieta) <= etahi_) && (t_nVtx >= nvxlo_) && 
 		   (t_nVtx <= nvxhi_));
+    if (select && p4060) ++kount50[3];
     if (!select) {
       if (debug)
 	std::cout << "Run # " << t_Run << " out of range of " << runlo_ << ":" 
@@ -825,11 +832,12 @@ void CalibMonitor::Loop() {
     }
     if (cSelect_ != nullptr) {
       if (exclude_) {
-	if (cSelect_->isItRBX(t_DetIds))         continue;
+	if (cSelect_->isItRBX(t_DetIds))          continue;
       } else {
 	if (!(cSelect_->isItRBX(t_ieta,t_iphi)))  continue;
       }
     }
+    if (p4060) ++kount50[4];
     select = (!cutL1T_ || (t_mindR1 >= 0.5));
     if (!select) {
       if (debug)
@@ -837,6 +845,7 @@ void CalibMonitor::Loop() {
 		  << " too close to L1 trigger " << t_mindR1 << std::endl;
       continue;
     }
+    if (p4060) ++kount50[5];
     select = ((events_.size() == 0) ||
 	      (std::find(events_.begin(),events_.end(),
 			 std::pair<int,int>(t_Run,t_Event)) != events_.end()));
@@ -846,10 +855,10 @@ void CalibMonitor::Loop() {
 		  << " not in the selection list" << std::endl;
       continue;
     }
+    if (p4060) ++kount50[6];
 
     // if (Cut(ientry) < 0) continue;
     int kp(-1), jp(-1), jp1(-1);
-    double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     for (unsigned int k=1; k<ps_.size(); ++k ) {
       if (pmom >= ps_[k-1] && pmom < ps_[k]) {
 	kp = k - 1; break;
@@ -911,7 +920,9 @@ void CalibMonitor::Loop() {
       }
     }
     bool goodTk = goodTrack(eHcal, cut, debug);
+    if (goodTk && p4060) ++kount50[7];
     bool selPhi = selectPhi(debug);
+    if (goodTk && selPhi && p4060) ++kount50[8];
     if (pmom > 0) rat =  (eHcal/(pmom-t_eMipDR));
     if (debug) {
       std::cout << "Entry " << jentry << " p|eHcal|ratio " << pmom << "|" 
@@ -924,6 +935,7 @@ void CalibMonitor::Loop() {
 		<< ":" << kd << ":" << kd1 << ":" << jp << std::endl;
     }
     if (goodTk && kp >=0 && selPhi) {
+      if (p4060) ++kount50[9];
       if (t_eHcal < 0.01) {
 	std::map<int,counter>::const_iterator itr = runEn1.find(t_Run);
 	if (itr == runEn1.end()) {
@@ -939,6 +951,7 @@ void CalibMonitor::Loop() {
 	}
       }
       if (t_eMipDR < 0.01 && t_eHcal < 0.01) {
+	if (p4060) ++kount50[10];
 	std::map<int,counter>::const_iterator itr = runEn2.find(t_Run);
 	if (itr == runEn2.end()) {
 	  counter knt;
@@ -953,6 +966,7 @@ void CalibMonitor::Loop() {
 	}
       }
       if (rat > rcut) {
+	if (p4060) ++kount50[11];
 	if (plotType_ <= 1) {
 	  h_etaX[kp][kv]->Fill(eta,rat,t_EventWeight);
 	  h_etaX[kp][kv1]->Fill(eta,rat,t_EventWeight);
@@ -983,6 +997,7 @@ void CalibMonitor::Loop() {
 	  }
 	}
 	if ((!dataMC_) || (t_mindR1 > 0.5) || (t_DataType == 1)) {
+	  if (p4060) ++kount50[12];
 	  ++kounts[kp];
 	  if (plotType_ <= 1) {
 	    if (jp > 0) h_etaF[kp][jp]->Fill(rat,t_EventWeight);
@@ -1017,6 +1032,7 @@ void CalibMonitor::Loop() {
 	      h_etaB[kp][jp1]->Fill(rat,t_EventWeight);
 	      h_etaB[kp][jp2]->Fill(rat,t_EventWeight);
 	    }
+	    if (p4060) ++kount50[13];
 	  }
 	}
       }
@@ -1066,6 +1082,9 @@ void CalibMonitor::Loop() {
   for (unsigned int k=1; k<ps_.size(); ++k)
     if (ps_[k] > 21)  std::cout << ps_[k-1] <<":"<< ps_[k] << "     " 
 				<< kounts[k-1] << std::endl;
+  std::cout << "Number in each step: ";
+  for (unsigned int k=0; k < 14; ++k) std::cout << " [" << k << "] " << kount50[k];
+  std::cout <<std::endl;
 }
 
 bool CalibMonitor::goodTrack(double& eHcal, double &cuti, bool debug) {

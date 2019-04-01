@@ -16,9 +16,11 @@ Calorimeters:
 * C5: HGCal (v9 without virtual wafers) + Phase2 HCAL and EB
 * C6: HGCal (v9) + HFNose + Phase2 HCAL and EB
 * C7: HGCal (v9a with inner support structure) + Phase2 HCAL and EB
+* C8: HGCal (v10 post TDR HGCal Geometry) + Phase2 HCAL and EB + Tracker cables in calorimeter region
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
+* M3: same as M2 with change to the number of iRPC strips from 192 to 96 as in TDR
 
 Fast Timing system:
 * I1: No Fast Timing detector
@@ -29,9 +31,11 @@ Fast Timing system:
 * I6: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat no hole between modules
 * I7: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along phi flat
 * I8: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along phi flat, crystal thickness as I5
+* I9: Same as I7 but with ETL in the position defined in O3
 
 The script also handles the common and forward elements of the geometry:
 * O2: detailed cavern description
+* O3: O2 + changes due to modified CALO region due to changes in the Endcap part
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
 * F3: same as F2 but changes due to HFNose
 
@@ -54,5 +58,6 @@ Several detector combinations have been generated:
 * D38 = T6+C4+M2+I7+O2+F2
 * D39 = T6+C4+M2+I8+O2+F2
 * D40 = T14+C3+M2+I1+O2+F2
+* D41 = T14+C8+M3+I9+O3+F2
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.

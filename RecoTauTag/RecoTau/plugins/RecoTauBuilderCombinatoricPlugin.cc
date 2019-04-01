@@ -82,8 +82,7 @@ RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(const edm::Pa
     decayModesToBuild_.push_back(info);
   }
 
-  verbosity_ = ( pset.exists("verbosity") ) ?
-    pset.getParameter<int>("verbosity") : 0;
+  verbosity_ = pset.getParameter<int>("verbosity");
 }
 
 // define template specialization for cross-cleaning 

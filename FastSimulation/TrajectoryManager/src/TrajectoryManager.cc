@@ -28,6 +28,7 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
+#include "FastSimulation/Particle/interface/pdg_functions.h"
 
 //#include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
@@ -167,7 +168,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
     // Get the geometry elements 
     cyliter = _theGeometry->cylinderBegin();
     // Prepare the propagation  
-    ParticlePropagator PP(mySimEvent->track(fsimi),_theFieldMap,random);
+    ParticlePropagator PP(mySimEvent->track(fsimi),_theFieldMap,random,mySimEvent->theTable());
     //The real work starts here
     int success = 1;
     int sign = +1;
@@ -190,8 +191,8 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
     // 08/02/06 - pv: increase protection from 0.99 (eta=2.9932) to 0.9998 (eta=4.9517)
     //                to simulate material effects at large eta 
     // if above 0.99: propagate to the last tracker cylinder where the material is concentrated!
-    double ppcos2T =  PP.cos2Theta();
-    double ppcos2V =  PP.cos2ThetaV();
+    double ppcos2T =  PP.particle().cos2Theta();
+    double ppcos2V =  PP.particle().cos2ThetaV();
 
     if(use_hardcoded){
       if ( ( ppcos2T > 0.99 && ppcos2T < 0.9998 ) && ( cyl == 0 || ( ppcos2V > 0.99 && ppcos2V < 0.9998 ) ) ){ 
@@ -213,7 +214,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
     // Loop over the cylinders
     while ( cyliter != _theGeometry->cylinderEnd() &&
 	    loop<100 &&                            // No more than 100 loops
-	    mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex())) { // The particle decayed
+	    mySimEvent->track(fsimi).notYetToEndVertex(PP.particle().vertex())) { // The particle decayed
 
       // Skip layers with no material (kept just for historical reasons)
       if ( cyliter->surface().mediumProperties().radLen() < 1E-10 ) { 
@@ -259,7 +260,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
 
       // The particle may have decayed on its way... in which the daughters
       // have to be added to the event record
-      if ( PP.hasDecayed() || (!mySimEvent->track(fsimi).nDaughters() && PP.PDGcTau()<1E-3 ) ) { 
+      if ( PP.hasDecayed() || (!mySimEvent->track(fsimi).nDaughters() && pdg::cTau(PP.particle().pid(),mySimEvent->theTable())<1E-3 ) ) { 
 	updateWithDaughters(PP, fsimi, random);
 	break;
       }
@@ -274,22 +275,22 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
 
 	bool saveHit = 
 	  ( (loop==0 && sign>0) || !firstLoop ) &&   // Save only first half loop
-	  PP.charge()!=0. &&                         // Consider only charged particles
+	  PP.particle().charge()!=0. &&                         // Consider only charged particles
 	  cyliter->sensitive() &&                    // Consider only sensitive layers
-	  PP.Perp2()>pTmin*pTmin;                    // Consider only pT > pTmin
+	  PP.particle().Perp2()>pTmin*pTmin;                    // Consider only pT > pTmin
 
         // Material effects are simulated there
 	if ( theMaterialEffects )
           theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi, random);
 
 	// There is a PP.setXYZT=(0,0,0,0) if bremss fails
-	saveHit &= PP.E()>1E-6;
+	saveHit &= PP.particle().E()>1E-6;
 
 	if ( saveHit ) { 
 	  // Consider only active layers
 	  if ( cyliter->sensitive() ) {
 	    // Add information to the FSimTrack (not yet available)
-	    //	    myTrack.addSimHit(PP,layer);
+	    //	    myTrack.addSimHit(PP.particle(),layer);
 
 	    // Return one or two (for overlap regions) PSimHits in the full 
 	    // tracker geometry
@@ -297,11 +298,11 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
 	      createPSimHits(*cyliter, PP, thePSimHits[fsimi], fsimi,mySimEvent->track(fsimi).type(), tTopo);
 
 	    /*
-	      myHistos->fill("h302",PP.X() ,PP.Y());
-	      if ( sin(PP.vertex().Phi()) > 0. ) 
-	      myHistos->fill("h303",PP.Z(),PP.R());
+	      myHistos->fill("h302",PP.particle().X() ,PP.particle().Y());
+	      if ( sin(PP.particle().vertex().Phi()) > 0. ) 
+	      myHistos->fill("h303",PP.particle().Z(),PP.particle().R());
 	      else
-	      myHistos->fill("h303",PP.Z(),-PP.R());
+	      myHistos->fill("h303",PP.Z(),-PP.particle().R());
 	    */
 
 	  }
@@ -309,22 +310,22 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
 
 	// Fill Histos (~poor man event display)
 	/*	 
-		 myHistos->fill("h300",PP.x(),PP.y());
-		 if ( sin(PP.vertex().phi()) > 0. ) 
-		 myHistos->fill("h301",PP.z(),sqrt(PP.vertex().Perp2()));
+		 myHistos->fill("h300",PP.particle().x(),PP.particle().y());
+		 if ( sin(PP.particle().vertex().phi()) > 0. ) 
+		 myHistos->fill("h301",PP.particle().z(),sqrt(PP.particle().vertex().Perp2()));
 		 else
-		 myHistos->fill("h301",PP.z(),-sqrt(PP.vertex().Perp2()));
+		 myHistos->fill("h301",PP.particle().z(),-sqrt(PP.particle().vertex().Perp2()));
 	*/
 
 	//The particle may have lost its energy in the material
-	if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex()) && 
-	     !mySimEvent->filter().acceptParticle(PP)  ) 
-	  mySimEvent->addSimVertex(PP.vertex(),fsimi, FSimVertexType::END_VERTEX);
+	if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.particle().vertex()) && 
+	     !mySimEvent->filter().acceptParticle(PP.particle())  ) 
+	  mySimEvent->addSimVertex(PP.particle().vertex(),fsimi, FSimVertexType::END_VERTEX);
 	  
       }
 
       // Stop here if the particle has reached an end
-      if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex()) ) {
+      if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.particle().vertex()) ) {
 
 	// Otherwise increment the cylinder iterator
 	//	do { 
@@ -362,7 +363,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
 
     // Propagate all particles without a end vertex to the Preshower, 
     // theECAL and the HCAL.
-    if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex()) )
+    if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.particle().vertex()) )
       propagateToCalorimeters(PP, fsimi, random);
 
   }
@@ -378,8 +379,8 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi, Ra
   FSimTrack& myTrack = mySimEvent->track(fsimi);
 
   // Set the position and momentum at the end of the tracker volume
-  myTrack.setTkPosition(PP.vertex().Vect());
-  myTrack.setTkMomentum(PP.momentum());
+  myTrack.setTkPosition(PP.particle().vertex().Vect());
+  myTrack.setTkMomentum(PP.particle().momentum());
 
   // Propagate to Preshower Layer 1 
   PP.propagateToPreshowerLayer1(false);
@@ -387,8 +388,8 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi, Ra
     updateWithDaughters(PP, fsimi, random);
     return;
   }
-  if ( myTrack.notYetToEndVertex(PP.vertex()) && PP.getSuccess() > 0 )
-    myTrack.setLayer1(PP,PP.getSuccess());
+  if ( myTrack.notYetToEndVertex(PP.particle().vertex()) && PP.getSuccess() > 0 )
+    myTrack.setLayer1(PP.particle(),PP.getSuccess());
   
   // Propagate to Preshower Layer 2 
   PP.propagateToPreshowerLayer2(false);
@@ -396,8 +397,8 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi, Ra
     updateWithDaughters(PP, fsimi, random);
     return;
   }
-  if ( myTrack.notYetToEndVertex(PP.vertex()) && PP.getSuccess() > 0 )
-    myTrack.setLayer2(PP,PP.getSuccess());
+  if ( myTrack.notYetToEndVertex(PP.particle().vertex()) && PP.getSuccess() > 0 )
+    myTrack.setLayer2(PP.particle(),PP.getSuccess());
 
   // Propagate to Ecal Endcap
   PP.propagateToEcalEntrance(false);
@@ -405,8 +406,8 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi, Ra
     updateWithDaughters(PP, fsimi, random);
     return;
   }
-  if ( myTrack.notYetToEndVertex(PP.vertex()) )
-    myTrack.setEcal(PP,PP.getSuccess());
+  if ( myTrack.notYetToEndVertex(PP.particle().vertex()) )
+    myTrack.setEcal(PP.particle(),PP.getSuccess());
 
   // Propagate to HCAL entrance
   PP.propagateToHcalEntrance(false);
@@ -414,8 +415,8 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi, Ra
     updateWithDaughters(PP,fsimi, random);
     return;
   }
-  if ( myTrack.notYetToEndVertex(PP.vertex()) )
-    myTrack.setHcal(PP,PP.getSuccess());
+  if ( myTrack.notYetToEndVertex(PP.particle().vertex()) )
+    myTrack.setHcal(PP.particle(),PP.getSuccess());
 
   // Propagate to VFCAL entrance
   PP.propagateToVFcalEntrance(false);
@@ -423,8 +424,8 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi, Ra
     updateWithDaughters(PP,fsimi, random);
     return;
   }
-  if ( myTrack.notYetToEndVertex(PP.vertex()) )
-    myTrack.setVFcal(PP,PP.getSuccess());
+  if ( myTrack.notYetToEndVertex(PP.particle().vertex()) )
+    myTrack.setVFcal(PP.particle(),PP.getSuccess());
     
 }
 
@@ -468,11 +469,11 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi, Random
 
     // Move the vertex
     unsigned vertexId = mySimEvent->track(fsimi).endVertex().id();
-    mySimEvent->vertex(vertexId).setPosition(PP.vertex());
+    mySimEvent->vertex(vertexId).setPosition(PP.particle().vertex());
 
     // Before-propagation and after-propagation momentum and vertex position
     XYZTLorentzVector momentumBefore = mySimEvent->track(fsimi).momentum();
-    const XYZTLorentzVector& momentumAfter = PP.momentum();
+    const XYZTLorentzVector& momentumAfter = PP.particle().momentum();
     double magBefore = std::sqrt(momentumBefore.Vect().mag2());
     double magAfter = std::sqrt(momentumAfter.Vect().mag2());
     // Rotation to be applied
@@ -507,8 +508,8 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi, Random
 	for ( ; daughter != daughters.end(); ++daughter) {
 	  int theDaughterId = mySimEvent->addSimTrack(&(*daughter), ivertex);
 	  // Find the closest charged daughter (if charged mother)
-	  if ( PP.charge() * daughter->charge() > 1E-10 ) {
-	    double dist = (daughter->Vect().Unit().Cross(PP.Vect().Unit())).R();
+	  if ( PP.particle().charge() * daughter->charge() > 1E-10 ) {
+	    double dist = (daughter->Vect().Unit().Cross(PP.particle().Vect().Unit())).R();
 	    if ( dist < distCut && dist < distMin ) { 
 	      distMin = dist;
 	      theClosestChargedDaughterId = theDaughterId;
@@ -565,7 +566,7 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
   //   std::cout << "PP.Z() = " << PP.Z() << std::endl;
   
   typedef GeometricSearchDet::DetWithState   DetWithState;
-  const DetLayer* tkLayer = detLayer(layer,PP.Z());
+  const DetLayer* tkLayer = detLayer(layer,PP.particle().Z());
 
   TrajectoryStateOnSurface trajState = makeTrajectoryState( tkLayer, PP, &mf);
   float thickness = theMaterialEffects ? theMaterialEffects->thickness() : 0.;
@@ -591,11 +592,11 @@ TrajectoryManager::makeTrajectoryState( const DetLayer* layer,
 					const ParticlePropagator& pp,
 					const MagneticField* field) const
 {
-  GlobalPoint  pos( pp.X(), pp.Y(), pp.Z());
-  GlobalVector mom( pp.Px(), pp.Py(), pp.Pz());
+  GlobalPoint  pos( pp.particle().X(), pp.particle().Y(), pp.particle().Z());
+  GlobalVector mom( pp.particle().Px(), pp.particle().Py(), pp.particle().Pz());
   auto plane = layer->surface().tangentPlane(pos);
   return TrajectoryStateOnSurface
-    (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.charge()), field), *plane);
+    (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.particle().charge()), field), *plane);
 }
 
 void 

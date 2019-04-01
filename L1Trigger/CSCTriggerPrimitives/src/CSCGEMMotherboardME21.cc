@@ -1,4 +1,4 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboardME21.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboardME21.h"
 
 CSCGEMMotherboardME21::CSCGEMMotherboardME21(unsigned endcap, unsigned station,
 					     unsigned sector, unsigned subsector,

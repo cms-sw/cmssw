@@ -36,6 +36,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml',
         'Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml',
         'Geometry/HGCalCommonData/data/hgcalCons/v10/hgcalCons.xml',
+        'Geometry/HGCalSimData/data/hgcsensv9.xml',
+        'Geometry/HGCalSimData/data/hgcProdCutsv9.xml',
     )+
     cms.vstring(
         'Geometry/CMSCommonData/data/FieldParameters.xml',

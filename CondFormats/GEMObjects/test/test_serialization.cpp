@@ -16,4 +16,9 @@ int main()
   testSerialization<std::vector<GEMeMap::GEMVFatMap>>();
   testSerialization<GEMeMap::GEMStripMap>();
   testSerialization<std::vector<GEMeMap::GEMStripMap>>();  
+
+  testSerialization<GEMDeadStrips>();
+  testSerialization<GEMDeadStrips::DeadItem>();
+  testSerialization<GEMMaskedStrips>();
+  testSerialization<GEMMaskedStrips::MaskItem>();
 }

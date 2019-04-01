@@ -21,7 +21,8 @@ using namespace pat::helper;
 TriggerObjectRef TriggerMatchHelper::triggerMatchObject( const reco::CandidateBaseRef & candRef, const TriggerObjectMatch * matchResult, const edm::Event & event, const TriggerEvent & triggerEvent ) const
 {
   if ( matchResult ) {
-    edm::AssociativeIterator< reco::CandidateBaseRef, TriggerObjectMatch > it( *matchResult, edm::EdmEventItemGetter< reco::CandidateBaseRef >( event ) ), itEnd( it.end() );
+    auto it = edm::makeAssociativeIterator< reco::CandidateBaseRef>( *matchResult, event  );
+    auto itEnd =  it.end() ;
     while ( it != itEnd ) {
       if ( it->first.isNonnull() && it->second.isNonnull() && it->second.isAvailable() ) {
         if ( it->first.id() == candRef.id() && it->first.key() == candRef.key() ) {
@@ -60,7 +61,8 @@ reco::CandidateBaseRefVector TriggerMatchHelper::triggerMatchCandidates( const T
 {
   reco::CandidateBaseRefVector theCands;
   if ( matchResult ) {
-    edm::AssociativeIterator< reco::CandidateBaseRef, TriggerObjectMatch > it( *matchResult, edm::EdmEventItemGetter< reco::CandidateBaseRef >( event ) ), itEnd( it.end() );
+    auto it = edm::makeAssociativeIterator< reco::CandidateBaseRef>( *matchResult, event );
+    auto itEnd = it.end() ;
     while ( it != itEnd ) {
       if ( it->first.isNonnull() && it->second.isNonnull() && it->second.isAvailable() ) {
         if ( it->second == objectRef ) {

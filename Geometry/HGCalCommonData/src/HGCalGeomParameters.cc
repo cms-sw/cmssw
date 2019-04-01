@@ -50,8 +50,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   DDFilteredView fv = _fv;
   bool dodet(true);
   std::map<int,HGCalGeomParameters::layerParameters> layers;
-  std::vector<HGCalParameters::hgtrform> trforms;
-  std::vector<bool>                      trformUse;
+  std::vector<HGCalParameters::hgtrform>             trforms;
+  std::vector<bool>                                  trformUse;
   
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();
@@ -70,10 +70,20 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
           php.layer_.end()) php.layer_.emplace_back(lay);
       auto itr = layers.find(lay);
       if (itr == layers.end()) {
-        const DDTubs & tube = static_cast<DDTubs>(sol);
-        double rin = HGCalParameters::k_ScaleFromDDD*tube.rIn();
-        double rout= HGCalParameters::k_ScaleFromDDD*tube.rOut();
-        double zp  = HGCalParameters::k_ScaleFromDDD*fv.translation().Z();
+	double rin(0), rout(0);
+	if ((sol.shape() == DDSolidShape::ddpolyhedra_rz) ||
+	    (sol.shape() == DDSolidShape::ddpolyhedra_rrz)) {
+	  const DDPolyhedra& polyhedra = static_cast<DDPolyhedra>(sol);
+	  const std::vector<double>& rmin = polyhedra.rMinVec();
+	  const std::vector<double>& rmax = polyhedra.rMaxVec();
+	  rin  = 0.5*HGCalParameters::k_ScaleFromDDD*(rmin[0]+rmin[1]);
+	  rout = 0.5*HGCalParameters::k_ScaleFromDDD*(rmax[0]+rmax[1]);
+	} else if (sol.shape() == DDSolidShape::ddtubs) {
+	  const DDTubs & tube = static_cast<DDTubs>(sol);
+	  rin  = HGCalParameters::k_ScaleFromDDD*tube.rIn();
+	  rout = HGCalParameters::k_ScaleFromDDD*tube.rOut();
+	}
+	double zp   = HGCalParameters::k_ScaleFromDDD*fv.translation().Z();
         HGCalGeomParameters::layerParameters laypar(rin,rout,zp);
         layers[lay] = laypar;
       }
@@ -133,13 +143,18 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
         edm::LogError("HGCalGeom") << "Funny wafer # " << wafer << " in "
                                    << nsiz << " components";
         throw cms::Exception("DDException") << "Funny wafer # " << wafer;
+      } else if (layer > (int)(layers.size())) {
+        edm::LogWarning("HGCalGeom") << "Funny wafer # " << wafer 
+				     << " Layer " << layer << ":" 
+				     << layers.size() << " among "
+				     << nsiz << " components";
       } else {          
         auto itr = copies.find(wafer);
         auto cpy = copiesInLayers[layer].find(wafer);
         if (itr != copies.end() && cpy == copiesInLayers[layer].end()) {
           copiesInLayers[layer][wafer] = itr->second;
-      }
-         if (itr == copies.end()) {            
+	}
+	if (itr == copies.end()) {            
           copies[wafer] = wafer2copy.size();
           copiesInLayers[layer][wafer] = wafer2copy.size();
           double xx = HGCalParameters::k_ScaleFromDDD*fv1.translation().X();
@@ -182,7 +197,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       dodet = fv1.next();
     }
   }
-  
+
   // Finally the cells
   std::map<int,int>         wafertype;
   std::map<int,HGCalGeomParameters::cellParameters> cellsf, cellsc;
@@ -250,7 +265,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       dodet = fv2.next();
     }
   }
-  
+
   if (((cellsf.size()+cellsc.size())==0) || (wafers.empty()) || 
       (layers.empty())) {
     edm::LogError("HGCalGeom") << "HGCalGeomParameters : number of cells "

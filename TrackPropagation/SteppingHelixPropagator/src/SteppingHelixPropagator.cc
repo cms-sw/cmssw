@@ -1977,11 +1977,12 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     const Surface* cPlane = nullptr; //only need to know the loc->glob transform
     const Cylinder* cCyl = nullptr;
     const Cone* cCone = nullptr;
-    if (typeid(cVolFaces[iFace].surface()) == typeid(const Plane&)){
+    auto& iSurface = cVolFaces[iFace].surface();
+    if (typeid(iSurface) == typeid(const Plane&)){
       cPlane = &cVolFaces[iFace].surface();
-    } else if (typeid(cVolFaces[iFace].surface()) == typeid(const Cylinder&)){
+    } else if (typeid(iSurface) == typeid(const Cylinder&)){
       cCyl = dynamic_cast<const Cylinder*>(&cVolFaces[iFace].surface());
-    } else if (typeid(cVolFaces[iFace].surface()) == typeid(const Cone&)){
+    } else if (typeid(iSurface) == typeid(const Cone&)){
       cCone = dynamic_cast<const Cone*>(&cVolFaces[iFace].surface());
     } else {
       edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Could not cast a volume side surface to a known type"<<std::endl;
