@@ -44,7 +44,7 @@ namespace dyt_utils{
 
 
 
-DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceProxy& theService, const edm::ParameterSet& par) {
+DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceProxy& theService) {
   propagator = theService.propagator("SmartPropagatorAny");
   propagatorPF = theService.propagator("SmartPropagatorAny");
   propagatorCompatibleDet = theService.propagator("SmartPropagatorAny");
@@ -62,9 +62,6 @@ DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceP
 
   doUpdateOfKFStates = true;
   useParametrizedThr = false;
-  for (auto const& region : dyt_utils::etaRegionStr ){
-      parameters[region.first] = par.getParameter< std::vector<double> >(region.second);
-  }
 }
 
 DynamicTruncation::~DynamicTruncation() {
@@ -141,6 +138,12 @@ void DynamicTruncation::setThr(const vector<int>& thr) {
     return;
   }
   throw cms::Exception("NotAvailable") << "WARNING: wrong size for the threshold vector!\nExpected size: 2\n   Found size: " << thr.size();
+}
+
+void DynamicTruncation::setThrsMap(const edm::ParameterSet& par) {
+  for (auto const& region : dyt_utils::etaRegionStr ){
+      parameters[region.first] = par.getParameter< std::vector<double> >(region.second);
+  }
 }
 /////////////////////////////////
 /////////////////////////////////

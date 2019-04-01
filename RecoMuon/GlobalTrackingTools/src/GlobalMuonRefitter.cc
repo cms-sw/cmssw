@@ -121,7 +121,7 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theDYTupdator  = par.existsAs<bool>("DYTupdator")?par.getParameter<bool>("DYTupdator"):false;
   theDYTuseAPE   = par.existsAs<bool>("DYTuseAPE")?par.getParameter<bool>("DYTuseAPE"):false;
   dytParThrsMode = par.existsAs<bool>("DYTuseThrsParametrization")?par.getParameter<bool>("DYTuseThrsParametrization"):false;
-  theDYTthrsParameters = par.getParameter< edm::ParameterSet >("DYTthrsParameters");
+  if (dytParThrsMode) theDYTthrsParameters = par.getParameter< edm::ParameterSet >("DYTthrsParameters");
   dytInfo        = new reco::DYTInfo();
 
   if (par.existsAs<double>("RescaleErrorFactor")) {
@@ -273,7 +273,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       //
       // DYT 2.0
       //
-      DynamicTruncation dytRefit(*theEvent,*theService,theDYTthrsParameters);
+      DynamicTruncation dytRefit(*theEvent,*theService);
       dytRefit.setProd(all4DSegments, CSCSegments);
       dytRefit.setSelector(theDYTselector);
       dytRefit.setThr(theDYTthrs);
@@ -281,6 +281,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       dytRefit.setUseAPE(theDYTuseAPE);
       if(dytParThrsMode) {
         dytRefit.setParThrsMode(dytParThrsMode);
+				dytRefit.setThrsMap(theDYTthrsParameters);
         dytRefit.setRecoP(globalTrack.p());
         dytRefit.setRecoEta(globalTrack.eta());
       }
