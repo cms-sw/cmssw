@@ -97,7 +97,7 @@ void TestAssociator::printRechitSimhit(const edm::Handle<edmNew::DetSetVector<re
       int i=0;
       hitCounter++;
       cout << hitCounter <<") " << rechitName << " RecHit subDet, DetId " << detid.subdetId() << ", " << myid << " Pos = " << rechit.localPosition() << endl;
-      bool isPixel;
+      bool isPixel=false;
       float mindist = 999999;
       float dist, distx, disty;
       PSimHit closest;
