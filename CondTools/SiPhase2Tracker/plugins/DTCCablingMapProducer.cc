@@ -213,7 +213,7 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(std::vector<std::s
 					{
 						detIdRaw = std::stoi( csvColumn[csvFormat_idetid_] );
 					}
-					catch (std::exception e)
+					catch (std::exception const& e)
 					{
 						if (verbosity_ >= 0)
 						{
