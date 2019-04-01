@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('testHGCalRecoLocal',eras.Phase2C4)
+process = cms.Process('testHGCalRecoLocal',eras.Phase2C4_timing_layer_bar)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D28Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D28_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D41_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
@@ -63,7 +63,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 #       'keep *_mix_*_*',
 	'keep *_*HGC*_*_*',
         ),
-    fileName = cms.untracked.string('file:testHGCalSimWatcherV9.root'),
+    fileName = cms.untracked.string('file:testHGCalSimWatcherV10.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-RECO')
@@ -137,15 +137,15 @@ process.out_step = cms.EndPath(process.output)
 process.schedule = cms.Schedule(process.generation_step,
 				process.simulation_step,
 				process.digitisation_step,
-  			        process.L1simulation_step,
-#                               process.L1TrackTrigger_step,
-				process.digi2raw_step,
-#                               process.HLTSchedule,
-				process.raw2digi_step,
-				process.L1Reco_step,
-				process.reconstruction_step,
+                                process.L1simulation_step,
+                                process.L1TrackTrigger_step,
+                                process.digi2raw_step,
+#                                process.HLTSchedule,
+                                process.raw2digi_step,
+                                process.L1Reco_step,
+                                process.reconstruction_step,
                                 process.recosim_step,
-				process.out_step
+                                process.out_step
 				)
 
 # filter all path with the production filter sequence
