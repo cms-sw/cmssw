@@ -6,6 +6,7 @@ from Configuration.StandardSequences.Eras import eras
 
 options = VarParsing()
 options.register ("doseMap", "",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register ("nPEperMIP", "",  VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.parseArguments()
 
 process = cms.Process("demo",eras.Phase2C4)
@@ -19,6 +20,7 @@ process.source = cms.Source("EmptySource")
 
 process.plotter = cms.EDAnalyzer("HGCHEbackSignalScalerAnalyzer",
     doseMap  = cms.string( options.doseMap ),
+    nPEperMIP = cms.uint32( options.nPEperMIP )
 )
 
 process.TFileService = cms.Service("TFileService",

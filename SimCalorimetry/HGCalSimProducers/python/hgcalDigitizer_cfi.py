@@ -12,12 +12,10 @@ HGCAL_noise_fC = cms.PSet(
     values = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
     )
 
-HGCAL_noise_MIP = cms.PSet(
-    value = cms.double(1.0/100.0)
-    )
-
-HGCAL_doseMap = cms.PSet(
-    value = cms.string("")
+HGCAL_noise_heback = cms.PSet(
+    scaleByDose = cms.bool(False),
+    doseMap = cms.string(""), #empty dose map at begin-of-life
+    noise_MIP = cms.double(1./100.)
     )
 
 HGCAL_chargeCollectionEfficiencies = cms.PSet(
@@ -178,10 +176,8 @@ hgchebackDigitizer = cms.PSet(
         #0 empty digitizer, 1 calice digitizer, 2 realistic digitizer
         algo          = cms.uint32(2),
         scaleByArea   = cms.bool(True),
-        scaleByDose   = cms.bool(True),
-        doseMap       = cms.PSet(refToPSet_ = cms.string("HGCAL_doseMap")),
+        noise         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_heback")), #scales both for scint raddam and sipm dark current
         keV2MIP       = cms.double(1./500.0),
-        noise_MIP     = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_MIP")),
         doTimeSamples = cms.bool(False),
         nPEperMIP = cms.double(30.0),
         nTotalPE  = cms.double(7500),
@@ -282,11 +278,10 @@ def HGCal_setEndOfLifeNoise(process):
     process.HGCAL_chargeCollectionEfficiencies = cms.PSet(
         values = cms.vdouble(endOfLifeCCEs)
         )
-    process.HGCAL_noise_MIP = cms.PSet(
-        value = cms.double( 1.0/5.0 )
-        )
-    process.HGCAL_doseMap = cms.PSet(
-        value = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt")
+    process.HGCAL_noise_heback = cms.PSet(
+        scaleByDose = cms.bool(True),
+        doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt"),
+        noise_MIP = cms.double(1./5.) #uses noise map
         )
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])
@@ -297,9 +292,11 @@ def HGCal_disableNoise(process):
     process.HGCAL_noise_fC = cms.PSet(
         values = cms.vdouble(0,0,0), #100,200,300 um
     )
-    process.HGCAL_noise_MIP = cms.PSet(
-        value = cms.double(0)
-    )
+    process.HGCAL_noise_heback = cms.PSet(
+        scaleByDose = cms.bool(False),
+        doseMap = cms.string(""),
+        noise_MIP = cms.double(0.) #zero noise
+        )
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble(0,0,0)
     )

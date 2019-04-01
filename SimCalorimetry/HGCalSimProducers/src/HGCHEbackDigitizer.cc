@@ -40,7 +40,7 @@ std::map<int, HGCHEbackSignalScaler::DoseParameters> HGCHEbackSignalScaler::read
 
     //space-separated
     std::stringstream linestream(line);
-    linestream >> layer >> dosePars.a_ >>  dosePars.b_ >> dosePars.c_;
+    linestream >> layer >> dosePars.a_ >>  dosePars.b_ >> dosePars.c_ >> dosePars.d_ >> dosePars.e_ >> dosePars.f_;
 
     result[layer] = dosePars;
   }
@@ -53,6 +53,13 @@ double HGCHEbackSignalScaler::getDoseValue(const HGCScintillatorDetId& cellId)
   int layer = cellId.layer();
   double cellDose = std::pow(10, doseMap_[layer].a_ + doseMap_[layer].b_*radius + doseMap_[layer].c_*std::pow(radius, 2)); //dose in rad
   return cellDose/1000.; //convert to kRad
+}
+double HGCHEbackSignalScaler::getFluenceValue(const HGCScintillatorDetId& cellId)
+{
+  float radius = computeRadius(cellId) / 100.; //radius in m
+  int layer = cellId.layer();
+  double cellFluence = std::pow(10, doseMap_[layer].d_ + doseMap_[layer].e_*radius + doseMap_[layer].f_*std::pow(radius, 2)); //dose in rad
+  return cellFluence;
 }
 
 float HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId)
@@ -78,6 +85,31 @@ float HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId)
   }
 
   return scaleFactor;
+}
+
+float HGCHEbackSignalScaler::noiseByFluence(const HGCScintillatorDetId& cellId)
+{
+  if(doseMap_.empty())
+    return 0.;
+
+  double cellFluence = getFluenceValue(cellId); //in 1-Mev-equivalent neutrons per cm2
+  double noise = 2.18 * sqrt(cellFluence / (2*std::pow(10,13)));
+
+  if(verbose_)
+  {
+    int layer = cellId.layer();
+    std::cout << "HGCHEbackSignalScaler::noiseByFluence - layer, d, e, f: "
+              << layer << " "
+              << doseMap_[layer].d_ << " "
+              << doseMap_[layer].e_ << " "
+              << doseMap_[layer].f_ << std::endl;
+
+    std::cout << "HGCHEbackSignalScaler::noiseByFluence - Fluence, noise: "
+              << cellFluence << " "
+              << noise << std::endl;
+  }
+
+  return noise;
 }
 
 
@@ -131,15 +163,17 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitiz
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
   algo_        = cfg.getParameter<uint32_t>("algo");
   scaleByArea_ = cfg.getParameter<bool>("scaleByArea");
-  scaleByDose_ = cfg.getParameter<bool>("scaleByDose");
-  doseMapFile_ = cfg.getParameter<edm::ParameterSet>("doseMap").getParameter<std::string>("value");
+  scaleByDose_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<bool>("scaleByDose");
+  doseMapFile_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<std::string>("doseMap");
+  noise_MIP_   = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("noise_MIP");
   keV2MIP_     = cfg.getParameter<double>("keV2MIP");
   this->keV2fC_    = 1.0; //keV2MIP_; // hack for HEB
-  noise_MIP_   = cfg.getParameter<edm::ParameterSet>("noise_MIP").getParameter<double>("value");
   nPEperMIP_   = cfg.getParameter<double>("nPEperMIP");
   nTotalPE_    = cfg.getParameter<double>("nTotalPE");
   xTalk_       = cfg.getParameter<double>("xTalk");
   sdPixels_    = cfg.getParameter<double>("sdPixels");
+
+  //std::cout << "algo: " << algo_ << " scaleByDose = " << scaleByDose_ << " scaleByArea = " << scaleByArea_ << " doseMapFile = " << doseMapFile_ << std::endl;
 }
 
 //
@@ -221,17 +255,23 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
         float totalIniMIPs( cell.hit_info[0][i]*keV2MIP_ );
 
         //take into account the different size of the tiles
+        float scaledPePerMip = nPEperMIP_;
         if(scaleByArea_)
-          totalIniMIPs *= scal.scaleByArea(id);
-        //take into account the darkening of the scintillator
+          scaledPePerMip *= scal.scaleByArea(id);
+
+        //take into account the darkening of the scintillator and SiPM dark current
+        float tunedNoise = nPEperMIP_ * noise_MIP_; //flat noise case
         if(scaleByDose_)
-          totalIniMIPs *= scal.scaleByDose(id);
+        {
+          scaledPePerMip *= scal.scaleByDose(id); //signal loss from dose
+          tunedNoise = scal.noiseByFluence(id);   //noise from fluence
+        }
 
         //generate the number of photo-electrons from the energy deposit
-        const uint32_t npeS = std::floor(CLHEP::RandPoissonQ::shoot(engine, totalIniMIPs * nPEperMIP_) + 0.5);
+        const uint32_t npeS = std::floor(CLHEP::RandPoissonQ::shoot(engine, totalIniMIPs * scaledPePerMip) + 0.5);
 
         //generate the noise associated to the dark current
-        float meanN = std::pow(nPEperMIP_ * noise_MIP_, 2);
+        float meanN = std::pow(tunedNoise, 2);
         const uint32_t npeN = std::floor(CLHEP::RandPoissonQ::shoot(engine, meanN) + 0.5);
 
         //total number of pe from signal + noise  (not subtracting pedestal)
@@ -246,6 +286,9 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
         //const float nPixelTot = nPixel + sqrt(nPixel) * CLHEP::RandGaussQ::shoot(engine, 0., 0.05); //FDG: just a note for now, par to be defined
 
         //convert back to MIP without un-doing the saturation
+        //in principle should divide by nPEperMIP_ and recalibrate in the reco
+        //const float totalMIPs = npe / scaledPePerMip;
+        //const float totalMIPs = npe / nPEperMIP_;
         const float totalMIPs = nPixel / nPEperMIP_;
 
         if(debug && totalIniMIPs > 0)
@@ -256,6 +299,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
           << " meanN: " << meanN
           << " noise_MIP_: " << noise_MIP_
           << " nPEperMIP_: " << nPEperMIP_
+          << " scaledPePerMip: " << scaledPePerMip
           << " nPixel: " << nPixel << std::endl;
           std::cout << "totalIniMIPs: " << totalIniMIPs << " totalMIPs: " << totalMIPs << std::endl;
         }
