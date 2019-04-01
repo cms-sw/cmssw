@@ -1,10 +1,11 @@
-#include "SimG4CMS/HGCalTestBeam/interface/HGCalTBMB.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
+#include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 
@@ -12,9 +13,43 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 
+#include <TH1F.h>
+
 #include <iostream>
+#include <string>
+#include <vector>
 
 //#define EDM_ML_DEBUG
+
+class HGCalTBMB : public SimWatcher, 
+                  public Observer<const BeginOfTrack*>,
+                  public Observer<const G4Step*>,
+                  public Observer<const EndOfTrack*> {
+
+public:
+
+  HGCalTBMB(const edm::ParameterSet&);
+  ~HGCalTBMB() override;
+  
+private:
+
+  HGCalTBMB(const HGCalTBMB&) = delete;          // stop default
+  const HGCalTBMB& operator=(const HGCalTBMB&) = delete; // ...
+  
+  void update(const BeginOfTrack*) override;
+  void update(const G4Step*) override;
+  void update(const EndOfTrack*) override;
+
+  bool stopAfter(const G4Step*);
+  int  findVolume(const G4VTouchable* touch, bool stop) const;
+  
+  std::vector<std::string>      listNames_;
+  std::string                   stopName_;
+  double                        stopZ_;
+  unsigned int                  nList_;
+  std::vector<double>           radLen_, intLen_, stepLen_;
+  std::vector<TH1D*>            me100_, me200_, me300_;
+};
 
 HGCalTBMB::HGCalTBMB(const edm::ParameterSet& p) {
   
@@ -23,11 +58,12 @@ HGCalTBMB::HGCalTBMB(const edm::ParameterSet& p) {
   stopName_    = m_p.getParameter<std::string>("StopName");
   stopZ_       = m_p.getParameter<double>("MaximumZ");
   nList_       = listNames_.size();
-  edm::LogInfo("HGCSim") << "HGCalTBMB initialized for " << nList_ <<" volumes\n";
+  edm::LogVerbatim("HGCSim") << "HGCalTBMB initialized for " << nList_ 
+			     << " volumes";
   for (unsigned int k=0; k<nList_; ++k)
-    edm::LogInfo("HGCSim") << " [" << k << "] " << listNames_[k] << std::endl;
-  edm::LogInfo("HGCSim") << "Stop after " << stopZ_ << " or reaching volume "
-			 << stopName_ << std::endl;
+    edm::LogVerbatim("HGCSim") << " [" << k << "] " << listNames_[k];
+  edm::LogVerbatim("HGCSim") << "Stop after " << stopZ_ 
+			     << " or reaching volume " << stopName_;
 
   edm::Service<TFileService> tfile;
   if ( !tfile.isAvailable() )
@@ -53,11 +89,10 @@ HGCalTBMB::HGCalTBMB(const edm::ParameterSet& p) {
     hist->Sumw2(true);
     me300_.push_back(hist);
   }
-  edm::LogInfo("HGCSim") << "HGCalTBMB: Booking user histos done ===";
+  edm::LogVerbatim("HGCSim") << "HGCalTBMB: Booking user histos done ===";
 }
 
 HGCalTBMB::~HGCalTBMB() { }
-
 
 void HGCalTBMB::update(const BeginOfTrack* trk) {
 
@@ -70,9 +105,10 @@ void HGCalTBMB::update(const BeginOfTrack* trk) {
   const G4ThreeVector& mom = aTrack->GetMomentum() ;
   double         theEnergy = aTrack->GetTotalEnergy();
   int            theID     = (int)(aTrack->GetDefinition()->GetPDGEncoding());
-  std::cout << "MaterialBudgetHcalHistos: Track " << aTrack->GetTrackID()
-	    << " Code " << theID << " Energy " <<theEnergy/CLHEP::GeV
-	    << " GeV; Momentum " << mom << std::endl;
+  edm::LogVerbatim("HGCSim") << "MaterialBudgetHcalHistos: Track " 
+			     << aTrack->GetTrackID() << " Code " << theID 
+			     << " Energy " << theEnergy/CLHEP::GeV
+			     << " GeV; Momentum " << mom ;
 #endif
 }
  
@@ -95,10 +131,10 @@ void HGCalTBMB::update(const G4Step* aStep) {
   radLen_[nList_]  += (step/radl);
   intLen_[nList_]  += (step/intl);
 #ifdef EDM_ML_DEBUG
-  std::cout << "HGCalTBMB::Step in "
-	    << touch->GetVolume(0)->GetLogicalVolume()->GetName()
-	    << " Index " << indx <<" Step " << step << " RadL " << step/radl
-	    << " IntL " << step/intl << std::endl;
+  edm::LogVerbatim("HGCSim") << "HGCalTBMB::Step in "
+			     << touch->GetVolume(0)->GetLogicalVolume()->GetName()
+			     << " Index " << indx <<" Step " << step 
+			     << " RadL " << step/radl << " IntL " << step/intl;
 #endif
 
   if (stopAfter(aStep)) {
@@ -116,9 +152,9 @@ void HGCalTBMB::update(const EndOfTrack* trk) {
 #ifdef EDM_ML_DEBUG
     std::string name("Total");
     if (ii < nList_) name = listNames_[ii];
-    std::cout << "HGCalTBMB::Volume[" << ii << "]: " << name  << " == Step "
-	      << stepLen_[ii] << " RadL " << radLen_[ii] << " IntL "
-	      << intLen_[ii] << std::endl;
+    edm::LogVerbatim("HGCSim") << "HGCalTBMB::Volume[" << ii << "]: " << name  
+			       << " == Step " << stepLen_[ii] << " RadL " 
+			       << radLen_[ii] << " IntL " << intLen_[ii];
 #endif
   }
 }
@@ -134,8 +170,9 @@ bool HGCalTBMB::stopAfter(const G4Step* aStep) {
 
   if ((findVolume(touch,true) == 0) || (zz > stopZ_)) flag = true;
 #ifdef EDM_ML_DEBUG
-  std::cout << " HGCalTBMB::Name " << touch->GetVolume(0)->GetName() << " z "
-	    << zz << " Flag" << flag << std::endl;
+  edm::LogVerbatim("HGCSim") << " HGCalTBMB::Name " 
+			     << touch->GetVolume(0)->GetName() << " z "
+			     << zz << " Flag" << flag;
 #endif
   return flag;
 }
@@ -159,4 +196,10 @@ int HGCalTBMB::findVolume(const G4VTouchable* touch, bool stop) const {
   }
   return ivol;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+
+DEFINE_SIMWATCHER (HGCalTBMB);
 
