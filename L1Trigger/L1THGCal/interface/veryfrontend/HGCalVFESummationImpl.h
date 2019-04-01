@@ -19,10 +19,13 @@ public:
   void triggerCellSums(const HGCalTriggerGeometryBase&,
                        const std::vector<std::pair<DetId, uint32_t> >&,
                        std::unordered_map<uint32_t, uint32_t>& payload);
-  const std::vector<double>& thicknessCorrections() const { return thickness_corrections_; }
 
 private:
   std::vector<double> thickness_corrections_;
+  double LSB_silicon_fC_;
+  double LSB_scintillator_MIP_;
+  std::vector<double> thresholds_silicon_;
+  double threshold_scintillator_;
   HGCalTriggerTools triggerTools_;
 };
 
