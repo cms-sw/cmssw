@@ -656,9 +656,8 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return (converter(x).value() for x in strings)
 
 def saveOrigin(obj, level):
-    frame = inspect.stack()[level+1]
-    if isinstance(frame,tuple): frame=frame[0] #python3 changes this to a tuple where the first thing is the frame
-    fInfo=inspect.getframeinfo(frame)
+    import sys
+    fInfo = inspect.getframeinfo(sys._getframe(level+1))
     obj._filename = fInfo.filename
     obj._lineNumber =fInfo.lineno
 
