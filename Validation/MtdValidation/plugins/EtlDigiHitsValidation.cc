@@ -59,10 +59,24 @@ private:
 
   // --- histograms declaration
 
+  MonitorElement* meNhits_[2];
+
   MonitorElement* meHitCharge_[2];
   MonitorElement* meHitTime_[2];
 
   MonitorElement* meOccupancy_[2];
+
+  MonitorElement* meHitX_[2];
+  MonitorElement* meHitY_[2];
+  MonitorElement* meHitZ_[2];
+  MonitorElement* meHitPhi_[2];
+  MonitorElement* meHitEta_[2];
+
+  MonitorElement* meHitTvsQ_[2];
+  MonitorElement* meHitQvsPhi_[2];
+  MonitorElement* meHitQvsEta_[2];
+  MonitorElement* meHitTvsPhi_[2];
+  MonitorElement* meHitTvsEta_[2];
 
 };
 
@@ -106,6 +120,9 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   eventCount_++;
   
   // --- Loop over the ELT DIGI hits
+
+  unsigned int n_digi_etl[2] = {0,0};
+
   for (const auto& dataFrame: *etlDigiHitsHandle) {
 
     // --- Get the on-time sample
@@ -134,7 +151,25 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     meHitTime_[idet]->Fill(sample.toa());
     meOccupancy_[idet]->Fill(global_point.x(),global_point.y());
 
+    
+    meHitX_[idet]->Fill(global_point.x());
+    meHitY_[idet]->Fill(global_point.y());
+    meHitZ_[idet]->Fill(global_point.z());
+    meHitPhi_[idet]->Fill(global_point.phi());
+    meHitEta_[idet]->Fill(global_point.eta());
+
+    meHitTvsQ_[idet]->Fill(sample.data(),sample.toa());
+    meHitQvsPhi_[idet]->Fill(global_point.phi(),sample.data());
+    meHitQvsEta_[idet]->Fill(global_point.eta(),sample.data());
+    meHitTvsPhi_[idet]->Fill(global_point.phi(),sample.toa());
+    meHitTvsEta_[idet]->Fill(global_point.eta(),sample.toa());
+
+    n_digi_etl[idet]++;
+
   } // dataFrame loop
+
+  meNhits_[0]->Fill(n_digi_etl[0]);
+  meNhits_[1]->Fill(n_digi_etl[1]);
 
 }
 
@@ -148,20 +183,56 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
 
   // --- histograms booking
 
-  meHitCharge_[0] = ibook.book1D("EtlHitChargeZneg", "ETL DIGI hits charge (-Z);amplitude [ADC counts]",
-				 256, 0., 256.);
-  meHitCharge_[1] = ibook.book1D("EtlHitChargeZpos", "ETL DIGI hits charge (+Z);amplitude [ADC counts]",
-				 256, 0., 256.);
+  meNhits_[0]     = ibook.book1D("EtlNhitsZneg", "Number of ETL DIGI hits (-Z);N_{DIGI}", 250, 0., 5000.);
+  meNhits_[1]     = ibook.book1D("EtlNhitsZpos", "Number of ETL DIGI hits (+Z);N_{DIGI}", 250, 0., 5000.);
 
-  meHitTime_[0]   = ibook.book1D("EtlHitTimeZneg", "ETL DIGI hits ToA (-Z);ToA [TDC counts]", 
+  meHitCharge_[0] = ibook.book1D("EtlHitChargeZneg", "ETL DIGI hits charge (-Z);Q_{DIGI} [ADC counts]",
+				 256, 0., 256.);
+  meHitCharge_[1] = ibook.book1D("EtlHitChargeZpos", "ETL DIGI hits charge (+Z);Q_{DIGI} [ADC counts]",
+				 256, 0., 256.);
+  meHitTime_[0]   = ibook.book1D("EtlHitTimeZneg", "ETL DIGI hits ToA (-Z);ToA_{DIGI} [TDC counts]", 
 				 1000, 0., 2000.);
-  meHitTime_[1]   = ibook.book1D("EtlHitTimeZpos", "ETL DIGI hits ToA (+Z);ToA [TDC counts]", 
+  meHitTime_[1]   = ibook.book1D("EtlHitTimeZpos", "ETL DIGI hits ToA (+Z);ToA_{DIGI} [TDC counts]", 
 				 1000, 0., 2000.);
 
-  meOccupancy_[0] = ibook.book2D("EtlOccupancyZneg","ETL DIGI hits occupancy (-Z);x [cm];y [cm]",
+  meOccupancy_[0] = ibook.book2D("EtlOccupancyZneg","ETL DIGI hits occupancy (-Z);X_{DIGI} [cm];Y_{DIGI} [cm]",
 				 135, -135., 135.,  135, -135., 135.);
-  meOccupancy_[1] = ibook.book2D("EtlOccupancyZpos","ETL DIGI hits occupancy (+Z);x [cm];y [cm]",
+  meOccupancy_[1] = ibook.book2D("EtlOccupancyZpos","ETL DIGI hits occupancy (+Z);X_{DIGI} [cm];Y_{DIGI} [cm]",
 				 135, -135., 135.,  135, -135., 135.);
+
+  meHitX_[0]      = ibook.book1D("EtlHitXZneg", "ETL DIGI hits X (-Z);X_{DIGI} [cm]", 135, -135., 135.);
+  meHitX_[1]      = ibook.book1D("EtlHitXZpos", "ETL DIGI hits X (+Z);X_{DIGI} [cm]", 135, -135., 135.);
+  meHitY_[0]      = ibook.book1D("EtlHitYZneg", "ETL DIGI hits Y (-Z);Y_{DIGI} [cm]", 135, -135., 135.);
+  meHitY_[1]      = ibook.book1D("EtlHitYZpos", "ETL DIGI hits Y (+Z);Y_{DIGI} [cm]", 135, -135., 135.);
+  meHitZ_[0]      = ibook.book1D("EtlHitZZneg", "ETL DIGI hits Z (-Z);Z_{DIGI} [cm]", 100, -304.5, -303.);
+  meHitZ_[1]      = ibook.book1D("EtlHitZZpos", "ETL DIGI hits Z (+Z);Z_{DIGI} [cm]", 100,  303.,  304.5);
+
+  meHitPhi_[0]    = ibook.book1D("EtlHitPhiZneg", "ETL DIGI hits #phi (-Z);#phi_{DIGI} [rad]", 315, -3.15, 3.15);
+  meHitPhi_[1]    = ibook.book1D("EtlHitPhiZpos", "ETL DIGI hits #phi (+Z);#phi_{DIGI} [rad]", 315, -3.15, 3.15);
+  meHitEta_[0]    = ibook.book1D("EtlHitEtaZneg", "ETL DIGI hits #eta (-Z);#eta_{DIGI}", 200,  1.55,  3.05);
+  meHitEta_[1]    = ibook.book1D("EtlHitEtaZpos", "ETL DIGI hits #eta (+Z);#eta_{DIGI}", 200, -3.05, -1.55);
+
+
+  meHitTvsQ_[0]   = ibook.bookProfile("EtlHitTvsQZneg", "ETL DIGI ToA vs charge (-Z);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
+				       256, 0., 256., 0., 1024.);
+  meHitTvsQ_[1]   = ibook.bookProfile("EtlHitTvsQZpos", "ETL DIGI ToA vs charge (+Z);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
+				       256, 0., 256., 0., 1024.);
+  meHitQvsPhi_[0] = ibook.bookProfile("EtlHitQvsPhiZneg", "ETL DIGI charge vs #phi (-Z);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
+				      100, -3.15, 3.15, 0., 1024.);
+  meHitQvsPhi_[1] = ibook.bookProfile("EtlHitQvsPhiZpos", "ETL DIGI charge vs #phi (+Z);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
+				      100, -3.15, 3.15, 0., 1024.);
+  meHitQvsEta_[0] = ibook.bookProfile("EtlHitQvsEtaZneg","ETL DIGI charge vs #eta (-Z);#eta_{DIGI};Q_{DIGI} [ADC counts]",
+				      100, -3.05, -1.55, 0., 1024.);
+  meHitQvsEta_[1] = ibook.bookProfile("EtlHitQvsEtaZpos","ETL DIGI charge vs #eta (+Z);#eta_{DIGI};Q_{DIGI} [ADC counts]",
+				      100, 1.55,  3.05, 0., 1024.);
+  meHitTvsPhi_[0] = ibook.bookProfile("EtlHitTvsPhiZneg", "ETL DIGI ToA vs #phi (-Z);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
+				      100, -3.15, 3.15, 0., 1024.);
+  meHitTvsPhi_[1] = ibook.bookProfile("EtlHitTvsPhiZpos", "ETL DIGI ToA vs #phi (+Z);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
+				      100, -3.15, 3.15, 0., 1024.);
+  meHitTvsEta_[0] = ibook.bookProfile("EtlHitTvsEtaZneg","ETL DIGI ToA vs #eta (-Z);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
+				      100, -3.05, -1.55, 0., 1024.);
+  meHitTvsEta_[1] = ibook.bookProfile("EtlHitTvsEtaZpos","ETL DIGI ToA vs #eta (+Z);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
+				      100, 1.55,  3.05, 0., 1024.);
 
 }
 

@@ -76,10 +76,31 @@ private:
 
   // --- histograms declaration
 
+  MonitorElement* meNhits_;
+  MonitorElement* meNtrkPerCell_;
+
   MonitorElement* meHitEnergy_;
   MonitorElement* meHitTime_;
 
+  MonitorElement* meHitXlocal_;
+  MonitorElement* meHitYlocal_;
+  MonitorElement* meHitZlocal_;
+
   MonitorElement* meOccupancy_;
+
+  MonitorElement* meHitX_;
+  MonitorElement* meHitY_;
+  MonitorElement* meHitZ_;
+  MonitorElement* meHitPhi_;
+  MonitorElement* meHitEta_;
+
+  MonitorElement* meHitTvsE_;
+  MonitorElement* meHitEvsPhi_;
+  MonitorElement* meHitEvsEta_;
+  MonitorElement* meHitEvsZ_;
+  MonitorElement* meHitTvsPhi_;
+  MonitorElement* meHitTvsEta_;
+  MonitorElement* meHitTvsZ_;
 
 };
 
@@ -128,7 +149,8 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   eventCount_++;
   
-  std::map<uint32_t, MTDHit> m_btlHits;
+  std::unordered_map<uint32_t, MTDHit> m_btlHits;
+  std::unordered_map<uint32_t, std::set<int> > m_btlTrkPerCell;
 
   // --- Loop over the BLT SIM hits
   for (auto const& simHit: *btlSimHitsHandle) {
@@ -137,6 +159,8 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     if ( simHit.tof() < 0 || simHit.tof() > 25. ) continue;
 
     DetId id = simHit.detUnitId();
+
+    m_btlTrkPerCell[id.rawId()].insert(simHit.trackId());
 
     auto simHitIt = m_btlHits.emplace(id.rawId(),MTDHit()).first;
 
@@ -162,6 +186,12 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   //  Histogram filling
   // ==============================================================================
 
+  meNhits_->Fill(m_btlHits.size());
+
+  for (auto const& hit: m_btlTrkPerCell)
+    meNtrkPerCell_->Fill((hit.second).size());
+
+
   for (auto const& hit: m_btlHits) {
 
     if ( (hit.second).energy < hitMinEnergy_ ) continue;
@@ -184,7 +214,26 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     // --- Fill the histograms
     meHitEnergy_->Fill((hit.second).energy);
     meHitTime_->Fill((hit.second).time);
+
+    meHitXlocal_->Fill((hit.second).x);
+    meHitYlocal_->Fill((hit.second).y);
+    meHitZlocal_->Fill((hit.second).z);
+
     meOccupancy_->Fill(global_point.z(),global_point.phi());
+
+    meHitX_->Fill(global_point.x()); 
+    meHitY_->Fill(global_point.y()); 
+    meHitZ_->Fill(global_point.z()); 
+    meHitPhi_->Fill(global_point.phi()); 
+    meHitEta_->Fill(global_point.eta()); 
+
+    meHitTvsE_->Fill((hit.second).energy,(hit.second).time);  
+    meHitEvsPhi_->Fill(global_point.phi(),(hit.second).energy);
+    meHitEvsEta_->Fill(global_point.eta(),(hit.second).energy);
+    meHitEvsZ_->Fill(global_point.z(),(hit.second).energy);
+    meHitTvsPhi_->Fill(global_point.phi(),(hit.second).time);
+    meHitTvsEta_->Fill(global_point.eta(),(hit.second).time);
+    meHitTvsZ_->Fill(global_point.z(),(hit.second).time);
 
   } // hit loop
 
@@ -193,18 +242,46 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
 // ------------ method for histogram booking ------------
 void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
-                               edm::Run const& run,
-                               edm::EventSetup const & iSetup) {
+					  edm::Run const& run,
+					  edm::EventSetup const & iSetup) {
 
   ibook.setCurrentFolder(folder_);
 
   // --- histograms booking
 
-  meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL SIM hits energy;E_{SIM} [MeV]", 200, 0., 20.);
-  meHitTime_   = ibook.book1D("BtlHitTime", "BTL SIM hits ToA;ToA_{SIM} [ns]", 250, 0., 25.);
+  meNhits_       = ibook.book1D("BtlNhits", "Number of BTL cells with SIM hits;N_{BTL cells}", 250, 0., 5000.);
+  meNtrkPerCell_ = ibook.book1D("BtlNtrkPerCell", "Number of tracks per BTL cell;N_{trk}", 10, 0., 10.);
 
-  meOccupancy_ = ibook.book2D("BtlOccupancy","BTL SIM hits occupancy;z_{SIM} [cm];#phi_{SIM} [rad]",
-			      520, -260., 260., 315, -3.15, 3.15 );
+  meHitEnergy_   = ibook.book1D("BtlHitEnergy", "BTL SIM hits energy;E_{SIM} [MeV]", 200, 0., 20.);
+  meHitTime_     = ibook.book1D("BtlHitTime", "BTL SIM hits ToA;ToA_{SIM} [ns]", 250, 0., 25.);
+
+  meHitXlocal_   = ibook.book1D("BtlHitXlocal", "BTL SIM local X;X_{SIM}^{LOC} [mm]", 400, -2., 2.);
+  meHitYlocal_   = ibook.book1D("BtlHitYlocal", "BTL SIM local Y;Y_{SIM}^{LOC} [mm]", 600, -30., 30.);
+  meHitZlocal_   = ibook.book1D("BtlHitZlocal", "BTL SIM local z;z_{SIM}^{LOC} [mm]", 400, -2., 2.);
+
+  meOccupancy_   = ibook.book2D("BtlOccupancy","BTL SIM hits occupancy;z_{SIM} [cm];#phi_{SIM} [rad]",
+				520, -260., 260., 315, -3.15, 3.15 );
+
+  meHitX_        = ibook.book1D("BtlHitX", "BTL SIM hits X;X_{SIM} [cm]", 135, -135., 135.);
+  meHitY_        = ibook.book1D("BtlHitY", "BTL SIM hits Y;Y_{SIM} [cm]", 135, -135., 135.);
+  meHitZ_        = ibook.book1D("BtlHitZ", "BTL SIM hits Z;Z_{SIM} [cm]", 520, -260., 260.);
+  meHitPhi_      = ibook.book1D("BtlHitPhi", "BTL SIM hits #phi;#phi_{SIM} [rad]", 315, -3.15, 3.15);
+  meHitEta_      = ibook.book1D("BtlHitEta", "BTL SIM hits #eta;#eta_{SIM}", 200, -1.6, 1.6);
+
+  meHitTvsE_     = ibook.bookProfile("BtlHitTvsE", "BTL SIM time vs energy;E_{SIM} [MeV];T_{SIM} [ns]",
+				     100, 0., 20., 0., 100.);
+  meHitEvsPhi_   = ibook.bookProfile("BtlHitEvsPhi", "BTL SIM energy vs #phi;#phi_{SIM} [rad];E_{SIM} [MeV]",
+				     100, -3.15, 3.15, 0., 100.);
+  meHitEvsEta_   = ibook.bookProfile("BtlHitEvsEta","BTL SIM energy vs #eta;#eta_{SIM};E_{SIM} [MeV]",
+				     200, -1.6, 1.6, 0., 100.);
+  meHitEvsZ_     = ibook.bookProfile("BtlHitEvsZ","BTL SIM energy vs Z;Z_{SIM} [cm];E_{SIM} [MeV]",
+				     520, -260., 260., 0., 100.);
+  meHitTvsPhi_   = ibook.bookProfile("BtlHitTvsPhi", "BTL SIM time vs #phi;#phi_{SIM} [rad];T_{SIM} [ns]",
+				     100, -3.15, 3.15, 0., 100.);
+  meHitTvsEta_   = ibook.bookProfile("BtlHitTvsEta","BTL SIM time vs #eta;#eta_{SIM};T_{SIM} [ns]",
+				     200, -1.6, 1.6, 0., 100.);
+  meHitTvsZ_     = ibook.bookProfile("BtlHitTvsZ","BTL SIM time vs Z;Z_{SIM} [cm];T_{SIM} [ns]",
+				     520, -260., 260., 0., 100.);
 
 }
 
