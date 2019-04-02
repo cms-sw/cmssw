@@ -10,7 +10,7 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
-#include "SimMuon/GEMDigitizer/interface/GEMDigiProducer.h"
+#include "SimMuon/GEMDigitizer/plugins/GEMDigiProducer.h"
 #include "SimMuon/GEMDigitizer/interface/GEMDigiModule.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -102,3 +102,4 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   e.put(std::move(gemDigiSimLinks),"GEM");
 }
 
+DEFINE_FWK_MODULE(GEMDigiProducer);
