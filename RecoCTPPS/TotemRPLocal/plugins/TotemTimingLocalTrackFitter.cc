@@ -111,8 +111,8 @@ TotemTimingLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& d
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>( "recHitsTag", edm::InputTag( "totemTimingRecHits" ) )
     ->setComment( "input rechits collection to retrieve" );
-  desc.add<int>( "verbosity", 0 )
-    ->setComment( "general verbosity of this module" );
+  desc.add<int>( "maxPlaneActiveChannels", 2 )
+    ->setComment( "threshold for discriminating noisy planes" );
 
   edm::ParameterSetDescription trackingAlgoParams;
   trackingAlgoParams.add<double>( "threshold", 1.5 )
@@ -125,8 +125,6 @@ TotemTimingLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& d
     ->setComment( "pixel efficiency function parameter determining the smoothness of the step" );
   trackingAlgoParams.add<double>( "tolerance", 0.1 /* mm */)
     ->setComment( "tolerance used for checking if the track contains certain hit" );
-  trackingAlgoParams.add<int>( "maxPlaneActiveChannels", 2 )
-    ->setComment( "threshold for discriminating noisy planes" );
 
   trackingAlgoParams.add<std::string>( "pixelEfficiencyFunction", "(x>[0]-0.5*[1]-0.05)*(x<[0]+0.5*[1]-0.05)+0*[2]" )
     ->setComment( "efficiency function for single pixel\n"
