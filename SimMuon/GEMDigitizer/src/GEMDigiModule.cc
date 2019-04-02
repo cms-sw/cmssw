@@ -1,8 +1,48 @@
-#include "SimMuon/GEMDigitizer/interface/GEMDigiModel.h"
+#include "SimMuon/GEMDigitizer/interface/GEMDigiModule.h"
+#include "SimMuon/GEMDigitizer/interface/GEMSignalModel.h"
+#include "SimMuon/GEMDigitizer/interface/GEMBkgModel.h"
+#include "SimMuon/GEMDigitizer/interface/GEMNoiseModel.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
+GEMDigiModule::GEMDigiModule(const edm::ParameterSet& config)
+{
+  bool doBkgNoise_(config.getParameter<bool> ("doBkgNoise"));
+  bool simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"));
+  if (simulateIntrinsicNoise_){
+    GEMNoiseModel* model = new GEMNoiseModel(config, this);
+    models.push_back(model);
+  }
+  if (doBkgNoise_) {
+    GEMBkgModel* model = new GEMBkgModel(config, this);
+    models.push_back(model);
+  }
+  GEMSignalModel* model = new GEMSignalModel(config, this);
+  models.push_back(model);
+}
+
+GEMDigiModule::~GEMDigiModule()
+{
+  for (auto model : models) {
+    delete model;
+  }
+}
+
+void GEMDigiModule::simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer& simHits, CLHEP::HepRandomEngine* engine)
+{
+  stripDigiSimLinks_.clear();
+  detectorHitMap_.clear();
+  stripDigiSimLinks_ = StripDigiSimLinks(roll->id().rawId());
+  theGemDigiSimLinks_.clear();
+  theGemDigiSimLinks_ = GEMDigiSimLinks(roll->id().rawId());
+  for (auto model : models) {
+    model->simulate(roll, simHits, engine);
+  }
+  return;
+}
+
 void 
-GEMDigiModel::fillDigis(int rollDetId, GEMDigiCollection& digis)
+GEMDigiModule::fillDigis(int rollDetId, GEMDigiCollection& digis)
 {
   for (const auto& d: strips_)
   {
@@ -18,7 +58,7 @@ GEMDigiModel::fillDigis(int rollDetId, GEMDigiCollection& digis)
 }
 
 void 
-GEMDigiModel::addLinks(unsigned int strip, int bx)
+GEMDigiModule::addLinks(unsigned int strip, int bx)
 {
   std::pair<unsigned int, int> digi(strip, bx);
   auto channelHitItr = detectorHitMap_.equal_range(digi);
@@ -57,7 +97,7 @@ GEMDigiModel::addLinks(unsigned int strip, int bx)
   }
 }
 
-void GEMDigiModel::addLinksWithPartId(unsigned int strip, int bx)
+void GEMDigiModule::addLinksWithPartId(unsigned int strip, int bx)
 {
  
   std::pair<unsigned int, int > digi(strip, bx);
@@ -76,3 +116,14 @@ void GEMDigiModel::addLinksWithPartId(unsigned int strip, int bx)
   }
 }
 
+void GEMDigiModule::emplaceStrip( std::pair<int,int> digi )
+{
+  strips_.emplace(digi);
+  return;
+}
+
+void GEMDigiModule::emplaceHitMap( std::pair<int,int> digi, const PSimHit* simHit )
+{
+  detectorHitMap_.emplace(digi, simHit);
+  return;
+}

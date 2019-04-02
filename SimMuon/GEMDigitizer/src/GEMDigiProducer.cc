@@ -11,8 +11,7 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "SimMuon/GEMDigitizer/interface/GEMDigiProducer.h"
-#include "SimMuon/GEMDigitizer/interface/GEMDigiModelFactory.h"
-#include "SimMuon/GEMDigitizer/interface/GEMDigiModel.h"
+#include "SimMuon/GEMDigitizer/interface/GEMDigiModule.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -27,8 +26,7 @@ namespace CLHEP {
 }
 
 GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
-  : gemDigiModel_{GEMDigiModelFactory::get()->create("GEM" + ps.getParameter<std::string>("digiModelString") + "Model",
-                                                     ps)}
+  : gemDigiModule_{new GEMDigiModule(ps)}
 {
   produces<GEMDigiCollection>();
   produces<StripDigiSimLinks>("GEM");
@@ -40,8 +38,7 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
       << "GEMDigiProducer::GEMDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
       << "Add the service in the configuration file or remove the modules that require it.";
   }
-
-  LogDebug("GEMDigiProducer") << "Using GEM" + ps.getParameter<std::string>("digiModelString") + "Model";
+  //gemDigiModule_ = new GEMDigiModule(ps);
 
   std::string mix_(ps.getParameter<std::string>("mixLabel"));
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
@@ -52,13 +49,12 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
 
 GEMDigiProducer::~GEMDigiProducer() = default;
 
-
 void GEMDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup)
 {
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get(hGeom);
-  gemDigiModel_->setGeometry(&*hGeom);
-  gemDigiModel_->setup();
+  gemDigiModule_->setGeometry(&*hGeom);
+  gemDigiModule_->setup();
 }
 
 
@@ -70,21 +66,21 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   edm::Handle<CrossingFrame<PSimHit> > cf;
   e.getByToken(cf_token, cf);
 
-  MixCollection<PSimHit> hits{cf.product()};
+  std::unique_ptr<MixCollection<PSimHit> > hits(new MixCollection<PSimHit>(cf.product()));
 
   // Create empty output
-  auto digis = std::make_unique<GEMDigiCollection>();
-  auto stripDigiSimLinks = std::make_unique<StripDigiSimLinks>();
-  auto gemDigiSimLinks = std::make_unique<GEMDigiSimLinks>();
+  std::unique_ptr<GEMDigiCollection> digis(new GEMDigiCollection());
+  std::unique_ptr<StripDigiSimLinks> stripDigiSimLinks(new StripDigiSimLinks() );
+  std::unique_ptr<GEMDigiSimLinks> gemDigiSimLinks(new GEMDigiSimLinks() );
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
-  for (const auto& hit: hits){
+  for (const auto& hit: *hits){
     hitMap[hit.detUnitId()].emplace_back(hit);
   }
 
   // simulate signal and noise for each eta partition
-  const auto & etaPartitions(gemDigiModel_->getGeometry()->etaPartitions());
+  const auto & etaPartitions(gemDigiModule_->getGeometry()->etaPartitions());
 
   for (const auto& roll: etaPartitions){
     const GEMDetId detId(roll->id());
@@ -94,11 +90,10 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     LogDebug("GEMDigiProducer")
       << "GEMDigiProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
 
-    gemDigiModel_->simulateSignal(roll, simHits, engine);
-    gemDigiModel_->simulateNoise(roll, engine);
-    gemDigiModel_->fillDigis(rawId, *digis);
-    (*stripDigiSimLinks).insert(gemDigiModel_->stripDigiSimLinks());
-    (*gemDigiSimLinks).insert(gemDigiModel_->gemDigiSimLinks());
+    gemDigiModule_->simulate(roll, simHits, engine);
+    gemDigiModule_->fillDigis(rawId, *digis);
+    (*stripDigiSimLinks).insert(gemDigiModule_->stripDigiSimLinks());
+    (*gemDigiSimLinks).insert(gemDigiModule_->gemDigiSimLinks());
   }
 
   // store them in the event
