@@ -627,12 +627,12 @@ DQMRootSource::readLuminosityBlock_( edm::LuminosityBlockPrincipal& lbCache)
     
     edm::Service<DQMStore> store;
     std::vector<MonitorElement*> allMEs = (*store).getAllContents("");
-    for(auto const& ME : allMEs) {
-      // We do not want to reset Run Products here!
-      if (ME->getLumiFlag()) {
-	ME->Reset();
-      }
-    }
+    //for(auto const& ME : allMEs) {
+    //  // We do not want to reset Run Products here!
+    //  if (ME->getLumiFlag()) {
+    //    ME->Reset();
+    //  }
+    //}
     m_lastSeenReducedPHID2 = m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex);
     m_lastSeenRun2 = runLumiRange.m_run;
     m_lastSeenLumi2 = runLumiRange.m_lumi;
