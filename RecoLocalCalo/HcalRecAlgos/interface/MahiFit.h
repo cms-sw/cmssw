@@ -103,7 +103,7 @@ class MahiFit
 
   void setParameters(bool iDynamicPed, double iTS4Thresh, double chiSqSwitch, 
 		     bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
-		     double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM, 
+		     bool iCalculateArrivalTime, double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM,
 		     const std::vector <int> &iActiveBXs, int iNMaxItersMin, int iNMaxItersNNLS,
 		     double iDeltaChiSqThresh, double iNnlsThresh);
 
@@ -165,6 +165,7 @@ class MahiFit
   HcalTimeSlew::BiasSetting slewFlavor_;
   float tsDelay1GeV_=0.f;
 
+  bool calculateArrivalTime_;
   float meanTime_;
   float timeSigmaHPD_; 
   float timeSigmaSiPM_;
