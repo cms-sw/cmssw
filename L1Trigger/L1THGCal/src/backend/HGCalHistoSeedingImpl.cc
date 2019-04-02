@@ -185,14 +185,14 @@ std::vector<std::pair<GlobalPoint, double > > HGCalHistoSeedingImpl::computeMaxS
                 float MIPT_SW = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binLeft}}) : 0;
                 float MIPT_SE = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binRight}}) : 0;
 
-                isMax &= MIPT_seed>=MIPT_S;
-                isMax &= MIPT_seed>MIPT_N;
-                isMax &= MIPT_seed>=MIPT_E;
-                isMax &= MIPT_seed>=MIPT_SE;
-                isMax &= MIPT_seed>=MIPT_NE;
-                isMax &= MIPT_seed>MIPT_W;
-                isMax &= MIPT_seed>MIPT_SW;
-                isMax &= MIPT_seed>MIPT_NW;
+                isMax &= MIPT_seed>=MIPT_S
+                      && MIPT_seed>MIPT_N
+                      && MIPT_seed>=MIPT_E
+                      && MIPT_seed>=MIPT_SE
+                      && MIPT_seed>=MIPT_NE
+                      && MIPT_seed>MIPT_W
+                      && MIPT_seed>MIPT_SW
+                      && MIPT_seed>MIPT_NW;
 
                 if(isMax){
 
@@ -336,14 +336,14 @@ std::vector<std::pair<GlobalPoint, double > > HGCalHistoSeedingImpl::computeSeco
                 float MIPT_SW = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binLeft}}) : 0;
                 float MIPT_SE = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binRight}}) : 0;
 
-                isMax &= MIPT_seed>=MIPT_S;
-                isMax &= MIPT_seed>MIPT_N;
-                isMax &= MIPT_seed>=MIPT_E;
-                isMax &= MIPT_seed>=MIPT_SE;
-                isMax &= MIPT_seed>=MIPT_NE;
-                isMax &= MIPT_seed>MIPT_W;
-                isMax &= MIPT_seed>MIPT_SW;
-                isMax &= MIPT_seed>MIPT_NW;
+                isMax &= MIPT_seed>=MIPT_S
+                      && MIPT_seed>MIPT_N
+                      && MIPT_seed>=MIPT_E
+                      && MIPT_seed>=MIPT_SE
+                      && MIPT_seed>=MIPT_NE
+                      && MIPT_seed>MIPT_W
+                      && MIPT_seed>MIPT_SW
+                      && MIPT_seed>MIPT_NW;
 
                 if(isMax){
                   
@@ -408,14 +408,16 @@ std::vector<std::pair<GlobalPoint, double > > HGCalHistoSeedingImpl::computeSeco
                 float MIPT_SE = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binRight}}) : 0;
 
 
-                if (  !vetoPositions[std::make_tuple(bin_R+1,bin_phi,z_side)]  ) isMax &= MIPT_seed>=MIPT_S;
-                if (  !vetoPositions[std::make_tuple(bin_R-1,bin_phi,z_side)]  ) isMax &= MIPT_seed>MIPT_N;
-                if (  !vetoPositions[std::make_tuple(bin_R,binRight,z_side)]  ) isMax &= MIPT_seed>=MIPT_E;
-                if (  !vetoPositions[std::make_tuple(bin_R+1,binRight,z_side)]  ) isMax &= MIPT_seed>=MIPT_SE;
-                if (  !vetoPositions[std::make_tuple(bin_R-1,binRight,z_side)]  ) isMax &= MIPT_seed>=MIPT_NE;
-                if (  !vetoPositions[std::make_tuple(bin_R,binLeft,z_side)]  ) isMax &= MIPT_seed>MIPT_W;
-                if (  !vetoPositions[std::make_tuple(bin_R+1,binLeft,z_side)]  ) isMax &= MIPT_seed>MIPT_SW;
-                if (  !vetoPositions[std::make_tuple(bin_R-1,binLeft,z_side)]  ) isMax &= MIPT_seed>MIPT_NW;
+                isMax &= ( vetoPositions[std::make_tuple(bin_R+1,bin_phi,z_side)] or MIPT_seed>=MIPT_S )
+                      && ( vetoPositions[std::make_tuple(bin_R-1,bin_phi,z_side)] or MIPT_seed>MIPT_N )
+                      && ( vetoPositions[std::make_tuple(bin_R,binRight,z_side)] or MIPT_seed>=MIPT_E )
+                      && ( vetoPositions[std::make_tuple(bin_R+1,binRight,z_side)] or MIPT_seed>=MIPT_SE )
+                      && ( vetoPositions[std::make_tuple(bin_R-1,binRight,z_side)] or MIPT_seed>=MIPT_NE )
+                      && ( vetoPositions[std::make_tuple(bin_R,binLeft,z_side)] or MIPT_seed>MIPT_W )
+                      && ( vetoPositions[std::make_tuple(bin_R+1,binLeft,z_side)] or MIPT_seed>MIPT_SW )
+                      && ( vetoPositions[std::make_tuple(bin_R-1,binLeft,z_side)] or MIPT_seed>MIPT_NW );
+                  
+
 
                 if(isMax){
                     float ROverZ_seed = kROverZMin_ + (bin_R+0.5) * (kROverZMax_-kROverZMin_)/nBinsRHisto_;

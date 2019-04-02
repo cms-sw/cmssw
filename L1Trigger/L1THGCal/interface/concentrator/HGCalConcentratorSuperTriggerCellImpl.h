@@ -30,8 +30,15 @@ class HGCalConcentratorSuperTriggerCellImpl
     static const int kWafer_offset_ = 6;
     static const int kSTCsizeCoarse_ = 16;
     static const int kSTCsizeFine_ = 4;
+    static const int kSplit_v8_Coarse_ = 0x30;
+    static const int kSplit_v8_Fine_ = 0x3a;
     static const int kNLayers_ = 3;
     static const int kSplit_v9_ = 0x36;
+
+    static const int kRocShift_ = 6;
+    static const int kRotate4_ = 4;
+    static const int kUShift_ = 3;
+
 
     HGCalTriggerTools triggerTools_;
     HGCSiliconDetIdToROC detIdToROC_;
