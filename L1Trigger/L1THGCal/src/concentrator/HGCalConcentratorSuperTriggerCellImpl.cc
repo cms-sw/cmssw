@@ -15,7 +15,8 @@ HGCalConcentratorSuperTriggerCellImpl(const edm::ParameterSet& conf)
     for(auto stc : stcSize_) {
         if ( stc!=kSTCsizeFine_ && stc!=kSTCsizeCoarse_ ){
             throw cms::Exception("HGCTriggerParameterError")
-              << "Super Trigger Cell should be of size 4 or 16" ;
+              << "Super Trigger Cell should be of size "<<
+              kSTCsizeFine_ << " or " << kSTCsizeCoarse_;
         }
     }
     
@@ -23,8 +24,8 @@ HGCalConcentratorSuperTriggerCellImpl(const edm::ParameterSet& conf)
 
 std::map<int,int> 
 HGCalConcentratorSuperTriggerCellImpl::kSplit_ = {
-  {4, 0x3a},
-  {16, 0x30}
+  {kSTCsizeFine_, kSplit_v8_Fine_},
+  {kSTCsizeCoarse_, kSplit_v8_Coarse_}
 };
 
 int
@@ -80,12 +81,12 @@ HGCalConcentratorSuperTriggerCellImpl::getSuperTriggerCellId(int detid) const {
       }
       else if ( rocnum == 3 ){
 
-          Uprime = TC_idV9.triggerCellU()-4;
-          Vprime = TC_idV9.triggerCellV()-4;
+          Uprime = TC_idV9.triggerCellU()-kRotate4_;
+          Vprime = TC_idV9.triggerCellV()-kRotate4_;
 
       }
 
-      TC_12th =  (rocnum << 6) | ( (Uprime << 3 | Vprime) & kSplit_v9_ );
+      TC_12th =  (rocnum << kRocShift_) | ( (Uprime << kUShift_ | Vprime) & kSplit_v9_ );
 
       int TC_split =  TC_12th;
       if (stcSize_.at(thickness) == kSTCsizeCoarse_){

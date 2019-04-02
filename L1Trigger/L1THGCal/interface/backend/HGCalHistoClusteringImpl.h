@@ -38,7 +38,7 @@ public:
                           const std::vector<std::pair<GlobalPoint, double> > & seedPositionsEnergy,
                           const HGCalTriggerGeometryBase & triggerGeometry,
                           l1t::HGCalMulticlusterBxCollection & multiclusters
-                          );
+                          ) const;
 
 
 private:
@@ -48,11 +48,11 @@ private:
     };
 
     std::vector<l1t::HGCalMulticluster> clusterSeedMulticluster(const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs,
-                                                                const std::vector<std::pair<GlobalPoint, double> > & seeds);
+                                                                const std::vector<std::pair<GlobalPoint, double> > & seeds) const;
 
     void finalizeClusters(std::vector<l1t::HGCalMulticluster>&,
             l1t::HGCalMulticlusterBxCollection&,
-            const HGCalTriggerGeometryBase&);
+            const HGCalTriggerGeometryBase&) const;
     
     double dr_;
     std::vector<double> dr_byLayer_coefficientA_;
