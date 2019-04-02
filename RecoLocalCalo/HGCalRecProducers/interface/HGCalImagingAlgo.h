@@ -1,5 +1,9 @@
-#ifndef RecoLocalCalo_HGCalRecAlgos_HGCalImagingAlgo_h
-#define RecoLocalCalo_HGCalRecAlgos_HGCalImagingAlgo_h
+#ifndef RecoLocalCalo_HGCalRecProducers_HGCalImagingAlgo_h
+#define RecoLocalCalo_HGCalRecProducers_HGCalImagingAlgo_h
+
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
@@ -15,152 +19,55 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/KDTreeLinkerAlgoT.h"
 
 // C/C++ headers
 #include <string>
 #include <vector>
 #include <set>
-#include <numeric>
 
-#include "KDTreeLinkerAlgoT.h"
+using Density = hgcal_clustering::Density;
 
-//Density collection
-typedef std::map< DetId, float > Density;
-
-template <typename T>
-std::vector<size_t> sorted_indices(const std::vector<T> &v) {
-
-        // initialize original index locations
-        std::vector<size_t> idx(v.size());
-        std::iota (std::begin(idx), std::end(idx), 0);
-
-        // sort indices based on comparing values in v
-        std::sort(idx.begin(), idx.end(),
-                  [&v](size_t i1, size_t i2) {
-                return v[i1] > v[i2];
-        });
-
-        return idx;
-}
-
-template <typename T>
-size_t max_index(const std::vector<T> &v) {
-
-        // initialize original index locations
-        std::vector<size_t> idx(v.size(),0);
-        std::iota (std::begin(idx), std::end(idx), 0);
-
-        // take the max index based on comparing values in v
-        auto maxidx = std::max_element(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) {return v[i1].data.rho < v[i2].data.rho;});
-
-        return (*maxidx);
-}
-
-class HGCalImagingAlgo
+class HGCalImagingAlgo : public HGCalClusteringAlgoBase
 {
-
-
 public:
 
-enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
+ HGCalImagingAlgo(const edm::ParameterSet& ps)
+  : HGCalClusteringAlgoBase(
+      (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity",3),
+      reco::CaloCluster::undefined),
+     thresholdW0_(ps.getParameter<std::vector<double> >("thresholdW0")),
+     positionDeltaRho_c_(ps.getParameter<std::vector<double> >("positionDeltaRho_c")),
+     vecDeltas_(ps.getParameter<std::vector<double> >("deltac")),
+     kappa_(ps.getParameter<double>("kappa")),
+     ecut_(ps.getParameter<double>("ecut")),
+     sigma2_(1.0),
+     dependSensor_(ps.getParameter<bool>("dependSensor")),
+     dEdXweights_(ps.getParameter<std::vector<double> >("dEdXweights")),
+     thicknessCorrection_(ps.getParameter<std::vector<double> >("thicknessCorrection")),
+     fcPerMip_(ps.getParameter<std::vector<double> >("fcPerMip")),
+     fcPerEle_(ps.getParameter<double>("fcPerEle")),
+     nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double> >("values")),
+     noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("value")),
+     initialized_(false),
+     points_(2*(maxlayer+1)),
+     minpos_(2*(maxlayer+1),{ {0.0f,0.0f} }),
+     maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} }) {}
 
- HGCalImagingAlgo() : thresholdW0_(), positionDeltaRho_c_(),
-        vecDeltas_(), kappa_(1.), ecut_(0.),
-        sigma2_(1.0),
-        algoId_(reco::CaloCluster::undefined),
-        verbosity_(pERROR),initialized_(false){
-}
+~HGCalImagingAlgo() override {}
 
- HGCalImagingAlgo(const std::vector<double>& thresholdW0_in, const std::vector<double>& positionDeltaRho_c_in,
-		 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
-                 reco::CaloCluster::AlgoId algoId_in,
-                 bool dependSensor_in,
-                 const std::vector<double>& dEdXweights_in,
-                 const std::vector<double>& thicknessCorrection_in,
-                 const std::vector<double>& fcPerMip_in,
-                 double fcPerEle_in,
-                 const std::vector<double>& nonAgedNoises_in,
-                 double noiseMip_in,
-                 VerbosityLevel the_verbosity = pERROR) :
-        thresholdW0_(thresholdW0_in),
-        positionDeltaRho_c_(positionDeltaRho_c_in),
-        vecDeltas_(vecDeltas_in), kappa_(kappa_in),
-        ecut_(ecut_in),
-        sigma2_(1.0),
-        algoId_(algoId_in),
-        dependSensor_(dependSensor_in),
-        dEdXweights_(dEdXweights_in),
-        thicknessCorrection_(thicknessCorrection_in),
-        fcPerMip_(fcPerMip_in),
-        fcPerEle_(fcPerEle_in),
-        nonAgedNoises_(nonAgedNoises_in),
-        noiseMip_(noiseMip_in),
-        verbosity_(the_verbosity),
-        initialized_(false),
-        points_(2*(maxlayer+1)),
-        minpos_(2*(maxlayer+1),{
-                {0.0f,0.0f}
-        }),
-        maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} })
-{
-}
 
-HGCalImagingAlgo(const std::vector<double>& thresholdW0_in, const std::vector<double>& positionDeltaRho_c_in,
-                 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
-                 double showerSigma,
-                 reco::CaloCluster::AlgoId algoId_in,
-                 bool dependSensor_in,
-                 const std::vector<double>& dEdXweights_in,
-                 const std::vector<double>& thicknessCorrection_in,
-                 const std::vector<double>& fcPerMip_in,
-                 double fcPerEle_in,
-                 const std::vector<double>& nonAgedNoises_in,
-                 double noiseMip_in,
-                 VerbosityLevel the_verbosity = pERROR) :
-        thresholdW0_(thresholdW0_in),
-        positionDeltaRho_c_(positionDeltaRho_c_in),
-        vecDeltas_(vecDeltas_in), kappa_(kappa_in),
-        ecut_(ecut_in),
-        sigma2_(std::pow(showerSigma,2.0)),
-        algoId_(algoId_in),
-        dependSensor_(dependSensor_in),
-        dEdXweights_(dEdXweights_in),
-        thicknessCorrection_(thicknessCorrection_in),
-        fcPerMip_(fcPerMip_in),
-        fcPerEle_(fcPerEle_in),
-        nonAgedNoises_(nonAgedNoises_in),
-        noiseMip_(noiseMip_in),
-        verbosity_(the_verbosity),
-        initialized_(false),
-        points_(2*(maxlayer+1)),
-        minpos_(2*(maxlayer+1),{
-                {0.0f,0.0f}
-        }),
-        maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} })
-{
-}
-
-virtual ~HGCalImagingAlgo()
-{
-}
-
-void setVerbosity(VerbosityLevel the_verbosity)
-{
-        verbosity_ = the_verbosity;
-}
-
-void populate(const HGCRecHitCollection &hits);
+void populate(const HGCRecHitCollection &hits) override;
 // this is the method that will start the clusterisation (it is possible to invoke this method more than once - but make sure it is with
 // different hit collections (or else use reset)
-void makeClusters();
+
+void makeClusters() override;
+
 // this is the method to get the cluster collection out
-std::vector<reco::BasicCluster> getClusters(bool);
-// needed to switch between EE and HE with the same algorithm object (to get a single cluster collection)
-void getEventSetup(const edm::EventSetup& es){
-        rhtools_.getEventSetup(es);
-}
+std::vector<reco::BasicCluster> getClusters(bool) override;
+
 // use this if you want to reuse the same cluster object but don't want to accumulate clusters (hardly useful?)
-void reset(){
+void reset() override {
         clusters_v_.clear();
         layerClustersPerLayer_.clear();
         for( auto& it: points_)
@@ -177,19 +84,44 @@ void reset(){
 void computeThreshold();
 
 //getDensity
- Density getDensity();
+ Density getDensity() override;
+
+static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  iDesc.add<std::vector<double>>("thresholdW0", {
+    2.9,
+    2.9,
+    2.9
+  });
+  iDesc.add<std::vector<double>>("positionDeltaRho_c", {
+    1.3,
+    1.3,
+    1.3
+  });
+  iDesc.add<std::vector<double>>("deltac", {
+    2.0,
+    2.0,
+    5.0,
+  });
+  iDesc.add<bool>("dependSensor", true);
+  iDesc.add<double>("ecut", 3.0);
+  iDesc.add<double>("kappa", 9.0);
+  iDesc.addUntracked<unsigned int>("verbosity", 3);
+  iDesc.add<std::vector<double>>("dEdXweights",{});
+  iDesc.add<std::vector<double>>("thicknessCorrection",{});
+  iDesc.add<std::vector<double>>("fcPerMip",{});
+  iDesc.add<double>("fcPerEle",0.0);
+  edm::ParameterSetDescription descNestedNoises;
+  descNestedNoises.add<std::vector<double> >("values", {});
+  iDesc.add<edm::ParameterSetDescription>("noises", descNestedNoises);
+  edm::ParameterSetDescription descNestedNoiseMIP;
+  descNestedNoiseMIP.add<double>("value", 0 );
+  iDesc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
+}
 
 /// point in the space
 typedef math::XYZPoint Point;
 
-//max number of layers
-static const unsigned int maxlayer = 52;
-
-
 private:
-// last layer per subdetector
-static const unsigned int lastLayerEE = 28;
-static const unsigned int lastLayerFH = 40;
 
 // To compute the cluster position
 std::vector<double> thresholdW0_;
@@ -208,11 +140,6 @@ double sigma2_;   // transverse shower size
 // The vector of clusters
 std::vector<reco::BasicCluster> clusters_v_;
 
-hgcal::RecHitTools rhtools_;
-
-// The algo id
-reco::CaloCluster::AlgoId algoId_;
-
 // For keeping the density per hit
  Density density_;
 
@@ -226,9 +153,6 @@ std::vector<double> nonAgedNoises_;
 double noiseMip_;
 std::vector<std::vector<double> > thresholds_;
 std::vector<std::vector<double> > sigmaNoise_;
-
-// The verbosity level
-VerbosityLevel verbosity_;
 
 // initialization bool
 bool initialized_;
@@ -320,7 +244,7 @@ math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
 
 //For keeping the density information
  void setDensity(const std::vector<KDNode> &nd);
- 
+
 // attempt to find subclusters within a given set of hexels
 std::vector<unsigned> findLocalMaximaInCluster(const std::vector<KDNode>&);
 math::XYZPoint calculatePositionWithFraction(const std::vector<KDNode>&, const std::vector<double>&);
