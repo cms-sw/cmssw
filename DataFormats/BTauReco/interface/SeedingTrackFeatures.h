@@ -10,29 +10,29 @@ class SeedingTrackFeatures {
 
   public:
 
-    float seed_pt;
-    float seed_eta;
-    float seed_phi;
-    float seed_mass;    
-    float seed_dz;
-    float seed_dxy;
-    float seed_3D_ip;
-    float seed_3D_sip;
-    float seed_2D_ip;
-    float seed_2D_sip;    
-    float seed_3D_signedIp;
-    float seed_3D_signedSip;
-    float seed_2D_signedIp;
-    float seed_2D_signedSip;  
-    float seed_3D_TrackProbability;
-    float seed_2D_TrackProbability;
-    float seed_chi2reduced;
-    float seed_nPixelHits;
-    float seed_nHits;
-    float seed_jetAxisDistance;
-    float seed_jetAxisDlength;
+    float pt;
+    float eta;
+    float phi;
+    float mass;    
+    float dz;
+    float dxy;
+    float ip3D;
+    float sip3D;
+    float ip2D;
+    float sip2D;    
+    float signedIp3D;
+    float signedSip3D;
+    float signedIp2D;
+    float signedSip2D;  
+    float trackProbability3D;
+    float trackProbability2D;
+    float chi2reduced;
+    float nPixelHits;
+    float nHits;
+    float jetAxisDistance;
+    float jetAxisDlength;
     
-    std::vector<btagbtvdeep::TrackPairFeatures> seed_nearTracks;
+    std::vector<btagbtvdeep::TrackPairFeatures> nearTracks;
     
 
 };
