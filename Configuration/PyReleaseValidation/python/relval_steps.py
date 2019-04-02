@@ -387,18 +387,18 @@ steps['RunJetHT2017C_94Xv2NanoAODINPUT']={'INPUT':InputInfo(dataSet='/JetHT/CMSS
 
 #### run2 2018A ####
 Run2018A={315489: [[1, 100]]} #AVGPU 35
-steps['RunHLTPhy2018A']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2018A-v1/RAW',label='hltPhy2018A',events=100000,location='STD', ls=Run2018A)}
-steps['RunEGamma2018A']={'INPUT':InputInfo(dataSet='/EGamma/Run2018A-v1/RAW',label='EGamma2018A',events=100000,location='STD', ls=Run2018A)}
-steps['RunDoubleMuon2018A']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2018A-v1/RAW',label='doubMu2018A',events=100000,location='STD', ls=Run2018A)}
-steps['RunJetHT2018A']={'INPUT':InputInfo(dataSet='/JetHT/Run2018A-v1/RAW',label='jetHT2018A',events=100000,location='STD', ls=Run2018A)}
-steps['RunMET2018A']={'INPUT':InputInfo(dataSet='/MET/Run2018A-v1/RAW',label='met2018A',events=100000,location='STD', ls=Run2018A)}
-steps['RunMuonEG2018A']={'INPUT':InputInfo(dataSet='/MuonEG/Run2018A-v1/RAW',label='muEG2018A',events=100000,location='STD', ls=Run2018A)}
-steps['RunSingleMu2018A']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2018A-v1/RAW',label='sigMu2018A',events=100000,location='STD', ls=Run2018A)}
-steps['RunZeroBias2018A']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2018A-v1/RAW',label='zb2018A',events=100000,location='STD', ls=Run2018A)}
-steps['RunMuOnia2018A']={'INPUT':InputInfo(dataSet='/MuOnia/Run2018A-v1/RAW',label='muOnia2018A',events=100000,location='STD', ls=Run2018A)}
-steps['RunNoBPTX2018A']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2018A-v1/RAW',label='noBptx2018A',events=100000,location='STD', ls=Run2018A)}
-steps['RunDisplacedJet2018A']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018A-v1/RAW',label='displacedJet2018A',events=100000,location='STD', ls=Run2018A)}
-steps['RunCharmonium2018A']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018A-v1/RAW',label='charm2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunHLTPhy2018A']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunEGamma2018A']={'INPUT':InputInfo(dataSet='/EGamma/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunDoubleMuon2018A']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunJetHT2018A']={'INPUT':InputInfo(dataSet='/JetHT/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunMET2018A']={'INPUT':InputInfo(dataSet='/MET/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunMuonEG2018A']={'INPUT':InputInfo(dataSet='/MuonEG/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunSingleMu2018A']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunZeroBias2018A']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunMuOnia2018A']={'INPUT':InputInfo(dataSet='/MuOnia/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunNoBPTX2018A']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunDisplacedJet2018A']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
+steps['RunCharmonium2018A']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018A-v1/RAW',label='2018A',events=100000,location='STD', ls=Run2018A)}
 #### for 90 m beta* Totem run relvals ####
 RunhBStarTk={314890: [[500, 700]]} #for central tracking system
 steps['RunZeroBias_hBStarTk']={'INPUT':InputInfo(dataSet='/ZeroBias/Commissioning2018-v1/RAW',label='zbhBSTk',events=100000,location='STD', ls=RunhBStarTk)}
