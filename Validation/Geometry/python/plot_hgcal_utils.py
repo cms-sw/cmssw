@@ -84,7 +84,7 @@ hist_label_to_num = OrderedDict()
 hist_label_to_num['COP'] = [100, 2, 'Copper'] # Index first, color second, legend label third
 hist_label_to_num['SCI'] = [200, 3, 'Scintillator']
 hist_label_to_num['CAB'] = [300, 4, 'Cables']
-hist_label_to_num['MNE'] = [400, 5, 'M_NEMA_FR4 plate']
+hist_label_to_num['MNE'] = [400, 5, 'HGC_G10-FR4']
 hist_label_to_num['SIL'] = [500, 6, 'Silicon']
 hist_label_to_num['OTH'] = [600, 7, 'Other']
 hist_label_to_num['AIR'] = [700, 8, 'Air']
@@ -199,7 +199,7 @@ dEdx['Copper'] = 1.257
 dEdx['H_Scintillator'] = 0.91512109*dEdx['C'] + 0.084878906*dEdx['H']
 dEdx['Silicon'] = 0.3876
 #http://cmslxr.fnal.gov/source/Geometry/CMSCommonData/data/materials.xml#2730
-dEdx['M_NEMA_FR4_plate'] = 0.18077359*dEdx['Silicon'] + 0.4056325*dEdx['0'] + 0.27804208*dEdx['C'] + 0.068442752*dEdx['H'] + 0.067109079*dEdx['Br']
+dEdx['HGC_G10-FR4'] = 0.18077359*dEdx['Silicon'] + 0.4056325*dEdx['0'] + 0.27804208*dEdx['C'] + 0.068442752*dEdx['H'] + 0.067109079*dEdx['Br']
 dEdx['Other'] = 0.
 #http://cmslxr.fnal.gov/source/Geometry/CMSCommonData/data/materials.xml#0290
 dEdx['Air'] = 0.
@@ -218,7 +218,7 @@ MatXo = OrderedDict()
 MatXo['Copper'] = 14.3559
 MatXo['H_Scintillator'] = 425.393
 MatXo['Cables'] = 66.722
-MatXo['M_NEMA_FR4_plate'] = 175.056
+MatXo['HGC_G10-FR4'] = 175.056
 MatXo['Silicon'] = 93.6762
 MatXo['Other'] = 0.
 MatXo['Air'] = 301522.

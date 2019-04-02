@@ -88,13 +88,13 @@ void MaterialBudgetCategorizer::buildHGCalCategoryMap(std::string theMaterialFil
     cms::Exception("LogicError") <<" File not found " << theMaterialFileName;
   
   // fill everything as "other"
-  float Air,Cables,Copper,H_Scintillator,Lead,M_NEMA_FR4_plate,Silicon,StainlessSteel,WCu, oth; 
-  Air=Cables=Copper=H_Scintillator=Lead=M_NEMA_FR4_plate=Silicon=StainlessSteel=WCu=0.;
+  float Air,Cables,Copper,H_Scintillator,Lead,HGC_G10_FR4,Silicon,StainlessSteel,WCu, oth; 
+  Air=Cables=Copper=H_Scintillator=Lead=HGC_G10_FR4=Silicon=StainlessSteel=WCu=0.;
 
   std::string materialName;
   while(theMaterialFile) {
     theMaterialFile >> materialName;
-    theMaterialFile >> Air >> Cables >> Copper >> H_Scintillator >> Lead >> M_NEMA_FR4_plate >> Silicon >> StainlessSteel >> WCu;
+    theMaterialFile >> Air >> Cables >> Copper >> H_Scintillator >> Lead >> HGC_G10_FR4 >> Silicon >> StainlessSteel >> WCu;
     // Skip comments
     if (materialName[0] == '#')
       continue;
@@ -107,7 +107,7 @@ void MaterialBudgetCategorizer::buildHGCalCategoryMap(std::string theMaterialFil
     theMap[materialName].push_back(Copper          ); // Copper          
     theMap[materialName].push_back(H_Scintillator  ); // H_Scintillator  
     theMap[materialName].push_back(Lead            ); // Lead            
-    theMap[materialName].push_back(M_NEMA_FR4_plate); // M_NEMA_FR4_plate
+    theMap[materialName].push_back(HGC_G10_FR4); // HGC_G10_FR4
     theMap[materialName].push_back(Silicon         ); // Silicon         
     theMap[materialName].push_back(StainlessSteel  ); // StainlessSteel
     theMap[materialName].push_back(WCu             ); // WCu
@@ -120,7 +120,7 @@ void MaterialBudgetCategorizer::buildHGCalCategoryMap(std::string theMaterialFil
       << "\tCopper           " << Copper << std::endl
       << "\tH_Scintillator   " << H_Scintillator << std::endl
       << "\tLead             " << Lead << std::endl
-      << "\tM_NEMA_FR4_plate " << M_NEMA_FR4_plate << std::endl
+      << "\tHGC_G10_FR4      " << HGC_G10_FR4 << std::endl
       << "\tSilicon          " << Silicon << std::endl
       << "\tStainlessSteel   " << StainlessSteel << std::endl
       << "\tWCu              " << WCu << std::endl
