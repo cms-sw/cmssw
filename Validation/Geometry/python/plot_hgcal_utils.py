@@ -91,6 +91,8 @@ hist_label_to_num['AIR'] = [700, 8, 'Air']
 hist_label_to_num['SST'] = [800, 9, 'Stainless Steel']
 hist_label_to_num['WCU'] = [900, 28, 'WCu']
 hist_label_to_num['LEA'] = [1000, 12, 'Lead']
+hist_label_to_num['EPX'] = [1100, 46, 'Epoxy']
+hist_label_to_num['KAP'] = [1200, 49, 'Kapton']
 
 def TwikiPrintout(plotname, label, zoom): 
     """The plots in the twiki are already too much and to avoid mistakes 
@@ -209,6 +211,8 @@ dEdx['StainlessSteel'] = 0.6996*dEdx['Fe']+0.01*dEdx['Mn']+0.19*dEdx['Cr']+0.1*d
 dEdx['WCu'] = 0.75*dEdx['W']+0.25*dEdx['Copper']
 #--------
 dEdx['Lead'] = 1.274 #Pb
+dEdx['Epoxy'] = 0.53539691*dEdx['C'] + 0.13179314*dEdx['H'] + 0.33280996*dEdx['0']
+dEdx['Kapton'] = 0.59985105*dEdx['C'] + 0.080541353*dEdx['H'] + 0.31960759*dEdx['0']
 #Composition of cable as Sunanda uses them is here: 
 #http://cmslxr.fnal.gov/source/Geometry/CMSCommonData/data/materials.xml#2841
 dEdx['Cables'] = 0.586*dEdx['Copper'] + 0.259*dEdx['C'] + 0.138*dEdx['0'] + 0.017*dEdx['H']
@@ -225,3 +229,6 @@ MatXo['Air'] = 301522.
 MatXo['StainlessSteel'] = 17.3555
 MatXo['WCu'] = 5.1225
 MatXo['Lead'] = 5.6118
+MatXo['Epoxy'] = 315.901
+MatXo['Kapton'] = 365.309
+
