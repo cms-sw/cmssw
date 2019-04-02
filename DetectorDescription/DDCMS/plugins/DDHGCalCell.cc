@@ -4,7 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 static long  algorithm(dd4hep::Detector& /* description */,
                        cms::DDParsingContext& ctxt,
@@ -78,6 +78,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Corner Cell[" << k
 				  << "] " << cornrCN[k] << ":"
 				  << cornrSensN[k];
+  edm::LogVerbatim("HGCalGeom") << "Name space " << ns.name();
 #endif
 
   dd4hep::Material matter = ns.material(material);
@@ -112,7 +113,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
   std::vector<double> zw = {-0.5*waferT,0.5*waferT};
   std::vector<double> zx(2,0), zy(2,0), scale(2,1.0);
   dd4hep::Solid solid = dd4hep::ExtrudedPolygon(xw, yw, zw, zx, zy, scale); 
-  ns.addSolidNS(fullCN, solid);
+  ns.addSolidNS(ns.prepend(fullCN), solid);
   glog1 = dd4hep::Volume(solid.name(), solid, matter);
   ns.addVolumeNS(glog1);
 #ifdef EDM_ML_DEBUG
@@ -128,7 +129,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
 #endif
   std::vector<double> zc = {-0.5*cellT,0.5*cellT};
   solid = dd4hep::ExtrudedPolygon(xw, yw, zc, zx, zy, scale);
-  ns.addSolidNS(fullSensN, solid);
+  ns.addSolidNS(ns.prepend(fullSensN), solid);
   glog2 = dd4hep::Volume(solid.name(), solid, matter);
   ns.addVolumeNS(glog2);
 #ifdef EDM_ML_DEBUG
@@ -161,7 +162,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
     std::vector<double> yw = {yy[ir0[i]],yy[ir1[i]],yy[ir2[i]],yy[ir3[i]],yy[ir4[i]]};
 
     solid = dd4hep::ExtrudedPolygon(xw, yw, zw, zx, zy, scale);
-    ns.addSolidNS(truncCN[i], solid);
+    ns.addSolidNS(ns.prepend(truncCN[i]), solid);
     glog1 = dd4hep::Volume(solid.name(), solid, matter);
     ns.addVolumeNS(glog1);
 #ifdef EDM_ML_DEBUG
@@ -178,7 +179,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
 #endif
 
     solid = dd4hep::ExtrudedPolygon(xw, yw, zc, zx, zy, scale);
-    ns.addSolidNS(truncSensN[i], solid);
+    ns.addSolidNS(ns.prepend(truncSensN[i]), solid);
     glog2 = dd4hep::Volume(solid.name(), solid, matter);
     ns.addVolumeNS(glog2);
 #ifdef EDM_ML_DEBUG
@@ -210,7 +211,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
     std::vector<double> xw = {xx[ie0[i]],xx[ie1[i]],xx[ie2[i]],xx[ie3[i]],xx[ie4[i]]};
     std::vector<double> yw = {yy[ie0[i]],yy[ie1[i]],yy[ie2[i]],yy[ie3[i]],yy[ie4[i]]};
     solid = dd4hep::ExtrudedPolygon(xw, yw, zw, zx, zy, scale); 
-    ns.addSolidNS(extenCN[i], solid);
+    ns.addSolidNS(ns.prepend(extenCN[i]), solid);
     glog1 = dd4hep::Volume(solid.name(), solid, matter);
     ns.addVolumeNS(glog1);
 #ifdef EDM_ML_DEBUG
@@ -226,7 +227,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
 				    << yw[k];
 #endif
     solid = dd4hep::ExtrudedPolygon(xw, yw, zc, zx, zy, scale);
-    ns.addSolidNS(extenSensN[i], solid);
+    ns.addSolidNS(ns.prepend(extenSensN[i]), solid);
     glog2 = dd4hep::Volume(solid.name(), solid, matter);
     ns.addVolumeNS(glog2);
 #ifdef EDM_ML_DEBUG
@@ -258,7 +259,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
     std::vector<double> xw = {xx[ic0[i]],xx[ic1[i]],xx[ic2[i]],xx[ic3[i]],xx[ic4[i]]};
     std::vector<double> yw = {yy[ic0[i]],yy[ic1[i]],yy[ic2[i]],yy[ic3[i]],yy[ic4[i]]};
     solid = dd4hep::ExtrudedPolygon(xw, yw, zw, zx, zy, scale);
-    ns.addSolidNS(cornrCN[i], solid);
+    ns.addSolidNS(ns.prepend(cornrCN[i]), solid);
     glog1 = dd4hep::Volume(solid.name(), solid, matter);
     ns.addVolumeNS(glog1);
 #ifdef EDM_ML_DEBUG
@@ -274,7 +275,7 @@ static long  algorithm(dd4hep::Detector& /* description */,
 				    << yw[k];
 #endif
     solid = dd4hep::ExtrudedPolygon(xw, yw, zc, zx, zy, scale);
-    ns.addSolidNS(cornrSensN[i], solid);
+    ns.addSolidNS(ns.prepend(cornrSensN[i]), solid);
     glog2 = dd4hep::Volume(solid.name(), solid, matter);
     ns.addVolumeNS(glog2);
 #ifdef EDM_ML_DEBUG
