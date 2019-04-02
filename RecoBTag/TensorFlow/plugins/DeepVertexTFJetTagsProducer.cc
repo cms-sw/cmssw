@@ -140,19 +140,15 @@ void DeepVertexTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("src", edm::InputTag("pfDeepFlavourTagInfos"));
   desc.add<std::vector<std::string>>("input_names", 
     { "input_1", "input_2", "input_3",  "input_4","input_5","input_6","input_7","input_8","input_9","input_10","input_11","input_12" });
-  desc.add<edm::FileInPath>("graph_path",
-    edm::FileInPath("RecoBTag/TensorFlow/data/Converted_retraining.pb"));
-
-  desc.add<std::vector<std::string>>("lp_names",
-    { "globals_input_batchnorm/keras_learning_phase" });
-  desc.add<std::vector<std::string>>("output_names",
-    { "output_node0" }); ///SIGMOID
+  desc.add<edm::FileInPath>("graph_path",     edm::FileInPath("RecoBTag/TensorFlow/data/Converted_retraining.pb"));
+  desc.add<std::vector<std::string>>("lp_names",    { });
+  desc.add<std::vector<std::string>>("output_names",     { "output_node0" }); ///SIGMOID
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<unsigned int>>("probb", {0});
-    psd0.add<std::vector<unsigned int>>("probc", {1});
-    psd0.add<std::vector<unsigned int>>("probu", {2});
-    psd0.add<std::vector<unsigned int>>("probg", {3});
+    psd0.add<std::vector<unsigned int>>("probb",   {0});
+    psd0.add<std::vector<unsigned int>>("probc",   {1});
+    psd0.add<std::vector<unsigned int>>("probuds", {2});
+    psd0.add<std::vector<unsigned int>>("probg",   {3});
     desc.add<edm::ParameterSetDescription>("flav_table", psd0);
   }
 
@@ -215,7 +211,7 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
   std::vector<tensorflow::TensorShape> input_sizes {
     {n_batch_jets, 4},         // input_1 - global jet features
  
-     {n_batch_jets, 10, 21},    // input_2 - seeds 
+    {n_batch_jets, 10, 21},     // input_2 - seeds 
     {n_batch_jets,20, 36},      // input_3 - neighbours  
     {n_batch_jets,20, 36},      // input_4 - neighbours  
     {n_batch_jets,20, 36},      // input_5 - neighbours  
@@ -242,11 +238,10 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
       input_names_[i], tensorflow::Tensor(tensorflow::DT_FLOAT, input_sizes.at(i)));
   }
   
-  //can be useful if we use batchnorm
-  // add learning-phase tensors behind them
-  //for (std::size_t i=0; i < lp_tensors_.size(); i++) {
-  //input_tensors[input_sizes.size() + i] = tensorflow::NamedTensor(lp_names_[i], lp_tensors_[i]);
-  // }  
+   // add learning-phase tensors behind them
+  for (std::size_t i=0; i < lp_tensors_.size(); i++) {
+  input_tensors[input_sizes.size() + i] = tensorflow::NamedTensor(lp_names_[i], lp_tensors_[i]);
+  }  
     
   std::size_t n_batches = n_jets/n_batch_jets; // either 1 or n_jets
   for (std::size_t batch_n=0; batch_n < n_batches; batch_n++) {
@@ -264,11 +259,8 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
 
       // jet and other global features
       const auto & features = tag_infos->at(jet_n).features();   
-            
-      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 0) = (features.jet_features.pt);
-      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 1) = (features.jet_features.eta);
-      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 2) = (features.jet_features.phi);
-      input_tensors.at(kGlobal).second.matrix<float>()(jet_bn, 3) = (features.jet_features.mass);      
+
+      jet4vec_tensor_filler(input_tensors.at(kGlobal).second, jet_bn, features);
 
       // seed features
       auto max_seed_n = std::min(features.seed_features.size(), (std::size_t) input_sizes.at(kSeedingTracks).dim_size(1));
