@@ -44,7 +44,7 @@ autoCond = {
     # GlobalTag for Run2 HLT for HI (not 2018 HI): it points to the online GT
     'run2_hlt_hi'       :   '101X_dataRun2_HLTHI_frozen_v8',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
-    'phase1_2017_design'       :  '106X_mc2017_design_IdealBS_v1',
+    'phase1_2017_design'       :  '106X_mc2017_design_IdealBS_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
     'phase1_2017_realistic'    :  '106X_mc2017_realistic_v1',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
