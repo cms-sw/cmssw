@@ -52,6 +52,7 @@ namespace edm {
   class ProcessDesc;
   class SubProcess;
   class WaitingTaskHolder;
+  class LuminosityBlockPrincipal;
   class LuminosityBlockProcessingStatus;
   class IOVSyncValue;
   
@@ -231,7 +232,7 @@ namespace edm {
     int readAndMergeLumi(LuminosityBlockProcessingStatus&);
     void writeRunAsync(WaitingTaskHolder, ProcessHistoryID const& phid, RunNumber_t run, MergeableRunProductMetadata const*);
     void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
-    void writeLumiAsync(WaitingTaskHolder, std::shared_ptr<LuminosityBlockProcessingStatus> );
+    void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal& lumiPrincipal);
     void deleteLumiFromCache(LuminosityBlockProcessingStatus&);
 
     bool shouldWeStop() const;

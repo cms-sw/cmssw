@@ -39,7 +39,7 @@ private:
   typedef std::map<DTChamberId, std::vector<TH1F*> > ChamberHistosMap;
   void bookHistos(DTChamberId);
 
-  DTSegmentSelector select_;
+  DTSegmentSelector *select_;
 
   edm::InputTag  theRecHits4DLabel_;
   bool doTTrigCorrection_;
