@@ -102,8 +102,6 @@ CTPPSDiamondLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& 
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>( "recHitsTag", edm::InputTag( "ctppsDiamondRecHits" ) )
     ->setComment( "input rechits collection to retrieve" );
-  desc.add<int>( "verbosity", 0 )
-    ->setComment( "general verbosity of this module" );
 
   edm::ParameterSetDescription trackingAlgoParams;
   trackingAlgoParams.add<double>( "threshold", 1.5 )
