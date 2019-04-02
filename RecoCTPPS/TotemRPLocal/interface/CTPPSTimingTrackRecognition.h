@@ -107,7 +107,7 @@ class CTPPSTimingTrackRecognition
      * - track's time sigma = uncertainty of the weighted mean
      * - hit is ignored if the time precision is equal to 0
      */
-    bool timeEval(const HitVector& hits, float& meanTime, float& timeSigma);
+    bool timeEval(const HitVector& hits, float& meanTime, float& timeSigma) const;
 };
 
 /****************************************************************************
@@ -227,7 +227,7 @@ CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::getHitSpatialRange(const HitV
 
 template<class TRACK_TYPE, class HIT_TYPE> inline
 bool
-CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const HitVector& hits, float& mean_time, float& time_sigma)
+CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const HitVector& hits, float& mean_time, float& time_sigma) const
 {
   float mean_num = 0.f, mean_denom = 0.f;
   bool valid_hits = false;
