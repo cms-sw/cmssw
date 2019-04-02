@@ -12,7 +12,7 @@
  *  \author G. Bruno - CERN, EP Division
  */
 
-#include <vector>
+#include <array>
 #include <string>
 
 class FEDNumbering {
@@ -20,11 +20,9 @@ class FEDNumbering {
 
  public:
 
-  virtual ~FEDNumbering(){};
-
-  static int lastFEDId();
-
-  static void init();
+  static constexpr int lastFEDId() {
+    return MAXFEDID;
+  }
 
   static bool inRange(int);
   static bool inRangeNoGT(int);
@@ -137,11 +135,6 @@ class FEDNumbering {
      MINDAQvFEDFEDID = 2815,
      MAXDAQvFEDFEDID = 4095
    };
- private:
-  static std::vector<std::string> from_;
-  static bool *in_;
-  static bool init_;
-
 };
 
 #endif // FEDNumbering_H
