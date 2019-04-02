@@ -2,6 +2,7 @@
 <use name="CondFormats/GEMObjects"/>
 <use name="EventFilter/GEMRawToDigi"/>
 <use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/GEMDigi"/>
 <use name="Utilities/StorageFactory"/>
 <use name="FWCore/Sources"/>
 <library   file="*.cc" name="EventFilterGEMRawToDigiPlugins">

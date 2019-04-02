@@ -25,12 +25,13 @@ def miniAOD_customizeCommon(process):
     process.patMuons.puppiNoLeptonsIsolationNeutralHadrons = cms.InputTag("muonPUPPINoLeptonsIsolation","h0-DR040-ThresholdVeto000-ConeVeto001")
     process.patMuons.puppiNoLeptonsIsolationPhotons        = cms.InputTag("muonPUPPINoLeptonsIsolation","gamma-DR040-ThresholdVeto000-ConeVeto001")
 
-    process.patMuons.computeMiniIso = cms.bool(True)
-    process.patMuons.computeMuonMVA = cms.bool(True)
-    process.patMuons.computeSoftMuonMVA = cms.bool(True)
+    process.patMuons.computeMiniIso = True
+    process.patMuons.computeMuonMVA = True
+    process.patMuons.computeSoftMuonMVA = True
 
     process.patMuons.addTriggerMatching = True
 
+    process.patMuons.computePuppiCombinedIso = True
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
     process.patElectrons.embedGsfElectronCore = False  ## process.patElectrons.embed in AOD externally stored gsf electron core
@@ -512,8 +513,10 @@ def miniAOD_customizeData(process):
     from PhysicsTools.PatAlgos.tools.coreTools import runOnData
     runOnData( process, outputModules = [] )
     process.load("RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff")
+    process.load("RecoCTPPS.ProtonReconstruction.ctppsProtons_cff")
     task = getPatAlgosToolsTask(process)
     task.add(process.ctppsLocalTrackLiteProducer)
+    task.add(process.ctppsProtons)
 
 def miniAOD_customizeAllData(process):
     miniAOD_customizeCommon(process)

@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,6 +33,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
 
+//#define EDM_ML_DEBUG
 
 //
 // class declaration
@@ -99,7 +101,7 @@ bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent,
   iEvent.getByToken(hepMCproductLabel_, hepmc);
 #ifdef DebugLog
   if (verbosity_) 
-    std::cout << "isHandle valid: " << isHandle valid << std::endl;
+    edm::LogVerbatim("HGCSim") << "isHandle valid: " << isHandle valid;
 #endif
   double x(0), y(0);
    
@@ -108,7 +110,7 @@ bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent,
      
 #ifdef DebugLog
     if (verbosity_) 
-      std::cout << "vertex " << Evt->vertices_size() << std::endl;
+      edm::LogVerbatim("HGCSim") << "vertex " << Evt->vertices_size();
 #endif
     for (HepMC::GenEvent::vertex_const_iterator p = Evt->vertices_begin();
 	 p != Evt->vertices_end(); ++p) {
@@ -117,10 +119,10 @@ bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent,
 #ifdef DebugLog
       z = (*p)->position().z()/10.; // in cm
       if (verbosity_) 
-	std::cout << " x: " << (*p)->position().x() << ":" << x
-		  << " y: " << (*p)->position().y() << ":" << y
-		  << " z: " << (*p)->position().z() << ":" << z
-		  << std::endl;
+	edm::LogVerbatim("HGCSim") << " x: " << (*p)->position().x() << ":" 
+				   << x << " y: " << (*p)->position().y() 
+				   <<":" << y << " z: " << (*p)->position().z()
+				   << ":" << z;
 #endif
     }
   }//if (genEventInfoHandle.isValid())
@@ -144,7 +146,8 @@ bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent,
   }
   
 #ifdef DebugLog
-  if (verbosity_) std::cout << "Selection Flag " << flag << std::endl;
+  if (verbosity_) 
+    edm::LogVerbatim("HGCSim") << "Selection Flag " << flag;
 #endif
   return flag;
 }
