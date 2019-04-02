@@ -10,7 +10,6 @@
 #include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
 #include "DataFormats/BTauReco/interface/SeedingTrackFeatures.h"
 
-
 namespace btagbtvdeep {
 
 class DeepFlavourFeatures {
