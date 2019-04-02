@@ -17,7 +17,10 @@ namespace btagbtvdeep {
   void jet_tensor_filler(tensorflow::Tensor & tensor,
                          std::size_t jet_n,
                          const btagbtvdeep::DeepFlavourFeatures & features) ;
-
+                         
+  void jet4vec_tensor_filler(tensorflow::Tensor & tensor,
+                         std::size_t jet_n,
+                         const btagbtvdeep::DeepFlavourFeatures & features) ;                        
 
   void db_tensor_filler(tensorflow::Tensor & tensor,
                          std::size_t jet_n,
