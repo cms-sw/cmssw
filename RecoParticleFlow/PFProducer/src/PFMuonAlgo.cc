@@ -14,137 +14,48 @@ using namespace std;
 using namespace reco;
 using namespace boost;
 
-PFMuonAlgo::PFMuonAlgo() {
-  pfCosmicsMuonCleanedCandidates_ = std::make_unique<reco::PFCandidateCollection>();
-  pfCleanedTrackerAndGlobalMuonCandidates_= std::make_unique<reco::PFCandidateCollection>();
-  pfFakeMuonCleanedCandidates_= std::make_unique<reco::PFCandidateCollection>();
-  pfPunchThroughMuonCleanedCandidates_= std::make_unique<reco::PFCandidateCollection>();
-  pfPunchThroughHadronCleanedCandidates_= std::make_unique<reco::PFCandidateCollection>();
-  pfAddedMuonCandidates_ = std::make_unique<reco::PFCandidateCollection>();
-  
+namespace {
+
+    template<class T>
+    T getParameter(edm::ParameterSet const& pset, std::string && name, T && defaultValue) {
+        return pset.exists(name) ? pset.getParameter<T>(name) : defaultValue;
+    }
+
 }
 
+PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig)
 
+  : pfCosmicsMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>())
+  , pfCleanedTrackerAndGlobalMuonCandidates_(std::make_unique<reco::PFCandidateCollection>())
+  , pfFakeMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>())
+  , pfPunchThroughMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>())
+  , pfPunchThroughHadronCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>())
+  , pfAddedMuonCandidates_(std::make_unique<reco::PFCandidateCollection>())
 
-void PFMuonAlgo::setParameters(const edm::ParameterSet& iConfig )
-{
-
-  if(iConfig.exists("maxDPtOPt"))
-    maxDPtOPt_ = iConfig.getParameter<double>("maxDPtOPt");
-  else
-    maxDPtOPt_=1.0;
-
-  if(iConfig.exists("minTrackerHits"))
-    minTrackerHits_ = iConfig.getParameter<int>("minTrackerHits");
-  else
-    minTrackerHits_ = 8;
-
-  if(iConfig.exists("minPixelHits"))
-    minPixelHits_ = iConfig.getParameter<int>("minPixelHits");
-  else
-    minPixelHits_ = 1;
-
-  if(iConfig.exists("trackQuality"))
-    trackQuality_  = reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"));
-  else
-    trackQuality_  = reco::TrackBase::qualityByName("highPurity");
-
-  if(iConfig.exists("ptErrorScale"))
-    errorCompScale_ = iConfig.getParameter<double>("ptErrorScale");
-  else
-    errorCompScale_ = 4.;
-
-  if(iConfig.exists("eventFractionForCleaning"))
-    eventFractionCleaning_ = iConfig.getParameter<double>("eventFractionForCleaning");
-  else
-    eventFractionCleaning_ = 0.75;
-
-  if(iConfig.exists("dzPV"))
-    dzPV_ = iConfig.getParameter<double>("dzPV");
-  else
-    dzPV_ = 0.2;
-
-  if(iConfig.exists("postMuonCleaning"))
-    postCleaning_ = iConfig.getParameter<bool>("postMuonCleaning");
-  else
-    postCleaning_ = false; //Disable by default (for HLT)
-
-  if(iConfig.exists("minPtForPostCleaning"))
-    minPostCleaningPt_ = iConfig.getParameter<double>("minPtForPostCleaning");
-  else
-    minPostCleaningPt_ = 20.;
-
-  if(iConfig.exists("eventFactorForCosmics"))
-    eventFactorCosmics_ = iConfig.getParameter<double>("eventFactorForCosmics");
-  else
-    eventFactorCosmics_ = 10.;
-
-
-  if(iConfig.exists("metSignificanceForCleaning"))
-    metSigForCleaning_ = iConfig.getParameter<double>("metSignificanceForCleaning");
-  else
-    metSigForCleaning_ = 3.;
-
-  if(iConfig.exists("metSignificanceForRejection"))
-    metSigForRejection_ = iConfig.getParameter<double>("metSignificanceForRejection");
-  else
-    metSigForRejection_ = 4.;
-
-  if(iConfig.exists("metFactorForCleaning"))
-    metFactorCleaning_ = iConfig.getParameter<double>("metFactorForCleaning");
-  else
-    metFactorCleaning_ = 4.;
-
-  if(iConfig.exists("eventFractionForRejection"))
-    eventFractionRejection_ = iConfig.getParameter<double>("eventFractionForRejection");
-  else
-    eventFractionRejection_ = 0.75;
-
-  if(iConfig.exists("metFactorForRejection"))
-    metFactorRejection_ = iConfig.getParameter<double>("metFactorForRejection");
-  else
-    metFactorRejection_ =4.;
-
-  if(iConfig.exists("metFactorForHighEta"))
-    metFactorHighEta_ = iConfig.getParameter<double>("metFactorForHighEta");
-  else
-    metFactorHighEta_=4;
-
-  if(iConfig.exists("ptFactorForHighEta"))
-    ptFactorHighEta_ = iConfig.getParameter<double>("ptFactorForHighEta");
-  else
-    ptFactorHighEta_ = 2.;
-
-  if(iConfig.exists("metFactorForFakes"))
-    metFactorFake_ = iConfig.getParameter<double>("metFactorForFakes");
-  else
-    metFactorFake_ = 4.;
-
-  if(iConfig.exists("minMomentumForPunchThrough"))
-    minPunchThroughMomentum_ = iConfig.getParameter<double>("minMomentumForPunchThrough");
-  else
-    minPunchThroughMomentum_=100.;
-
-  if(iConfig.exists("minEnergyForPunchThrough"))
-    minPunchThroughEnergy_ = iConfig.getParameter<double>("minEnergyForPunchThrough");
-  else
-    minPunchThroughEnergy_ = 100.;
-
-  if(iConfig.exists("punchThroughFactor"))
-    punchThroughFactor_ = iConfig.getParameter<double>("punchThroughFactor");
-  else
-    punchThroughFactor_ = 3.;
-
-  if(iConfig.exists("punchThroughMETFactor"))
-    punchThroughMETFactor_ = iConfig.getParameter<double>("punchThroughMETFactor");
-  else
-    punchThroughMETFactor_ = 4.;
-
-  if(iConfig.exists("cosmicRejectionDistance"))
-    cosmicRejDistance_ = iConfig.getParameter<double>("cosmicRejectionDistance");
-  else
-    cosmicRejDistance_ = 1.0;
-}
+  , maxDPtOPt_(getParameter<double>(iConfig, "maxDPtOPt", 1.0))
+  , minTrackerHits_(getParameter<int>(iConfig, "minTrackerHits", 8))
+  , minPixelHits_(getParameter<int>(iConfig, "minPixelHits", 1))
+  , trackQuality_(reco::TrackBase::qualityByName(getParameter<std::string>(iConfig, "trackQuality", "highPurity")))
+  , errorCompScale_(getParameter<double>(iConfig, "ptErrorScale", 4.0))
+  , eventFractionCleaning_(getParameter<double>(iConfig, "eventFractionForCleaning", 0.75))
+  , dzPV_(getParameter<double>(iConfig, "dzPV", 0.2))
+  , postCleaning_(getParameter<bool>(iConfig, "postMuonCleaning", false)) // disable by default (for HLT)
+  , minPostCleaningPt_(getParameter<double>(iConfig, "minPtForPostCleaning", 20.))
+  , eventFactorCosmics_(getParameter<double>(iConfig, "eventFactorForCosmics", 10.))
+  , metSigForCleaning_(getParameter<double>(iConfig, "metSignificanceForCleaning", 3.))
+  , metSigForRejection_(getParameter<double>(iConfig, "metSignificanceForRejection", 4.))
+  , metFactorCleaning_(getParameter<double>(iConfig, "metFactorForCleaning", 4.))
+  , eventFractionRejection_(getParameter<double>(iConfig, "eventFractionForRejection", 0.75))
+  , metFactorRejection_(getParameter<double>(iConfig, "metFactorForRejection", 4.))
+  , metFactorHighEta_(getParameter<double>(iConfig, "metFactorForHighEta", 4.))
+  , ptFactorHighEta_(getParameter<double>(iConfig, "ptFactorForHighEta", 2.))
+  , metFactorFake_(getParameter<double>(iConfig, "metFactorForFakes", 4.))
+  , minPunchThroughMomentum_(getParameter<double>(iConfig, "minMomentumForPunchThrough", 100.))
+  , minPunchThroughEnergy_(getParameter<double>(iConfig, "minEnergyForPunchThrough", 100.))
+  , punchThroughFactor_(getParameter<double>(iConfig, "punchThroughFactor", 3.))
+  , punchThroughMETFactor_(getParameter<double>(iConfig, "punchThroughMETFactor", 4.))
+  , cosmicRejDistance_(getParameter<double>(iConfig, "cosmicRejectionDistance", 1.))
+{}
 
 
 
@@ -154,8 +65,7 @@ void PFMuonAlgo::setParameters(const edm::ParameterSet& iConfig )
 bool
 PFMuonAlgo::isMuon( const reco::PFBlockElement& elt ) {
 
-  const reco::PFBlockElementTrack* eltTrack 
-    = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+  const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   assert ( eltTrack );
   reco::MuonRef muonRef = eltTrack->muonRef();
