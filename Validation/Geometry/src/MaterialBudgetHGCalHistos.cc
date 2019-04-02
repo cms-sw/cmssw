@@ -82,16 +82,16 @@ void MaterialBudgetHGCalHistos::book()
   hmgr->addHistoProf2( new TProfile2D("370", "MB prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHistoProf2( new TProfile2D("372", "MB ortho prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
 
-  // M_NEMA_FR4_plate
-  hmgr->addHistoProf1( new TProfile("410", "MB prof Eta [M_NEMA_FR4_plate];#eta;x/X_{0}", 250, -5.0, 5.0 ) );
-  hmgr->addHistoProf1( new TProfile("420", "MB prof Phi [M_NEMA_FR4_plate];#varphi [rad];x/X_{0}", 180, -3.2, 3.2 ) );
-  hmgr->addHistoProf2( new TProfile2D("430", "MB prof Eta  Phi [M_NEMA_FR4_plate];#eta;#varphi;x/X_{0}", 250, -5., 5., 180, -3.2, 3.2 ) );
-  hmgr->addHistoProf1( new TProfile("440", "MB prof R [M_NEMA_FR4_plate];R [mm];x/X_{0}", 300, 0., 3000. ) );
-  hmgr->addHistoProf2( new TProfile2D("450", "MB prof sum R  z [M_NEMA_FR4_plate];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
-  hmgr->addHistoProf2( new TProfile2D("452", "MB ortho prof sum R  z [M_NEMA_FR4_plate];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
-  hmgr->addHisto2( new TH2F("460", "MB prof local R  z [M_NEMA_FR4_plate];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
-  hmgr->addHistoProf2( new TProfile2D("470", "MB prof local R  z [M_NEMA_FR4_plate];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
-  hmgr->addHistoProf2( new TProfile2D("472", "MB ortho prof local R  z [M_NEMA_FR4_plate];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  // HGC_G10_FR4
+  hmgr->addHistoProf1( new TProfile("410", "MB prof Eta [HGC_G10_FR4];#eta;x/X_{0}", 250, -5.0, 5.0 ) );
+  hmgr->addHistoProf1( new TProfile("420", "MB prof Phi [HGC_G10_FR4];#varphi [rad];x/X_{0}", 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf2( new TProfile2D("430", "MB prof Eta  Phi [HGC_G10_FR4];#eta;#varphi;x/X_{0}", 250, -5., 5., 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf1( new TProfile("440", "MB prof R [HGC_G10_FR4];R [mm];x/X_{0}", 300, 0., 3000. ) );
+  hmgr->addHistoProf2( new TProfile2D("450", "MB prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("452", "MB ortho prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHisto2( new TH2F("460", "MB prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("470", "MB prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("472", "MB ortho prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
 
   // Silicon
   hmgr->addHistoProf1( new TProfile("510", "MB prof Eta [Silicon];#eta;x/X_{0}", 250, -5.0, 5.0 ) );
@@ -207,16 +207,16 @@ void MaterialBudgetHGCalHistos::book()
   hmgr->addHistoProf2( new TProfile2D("10370", "IL prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHistoProf2( new TProfile2D("10372", "IL ortho prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
 
-  // M_NEMA_FR4_plate
-  hmgr->addHistoProf1( new TProfile("10410", "IL prof Eta [M_NEMA_FR4_plate];#eta;#lambda/#lambda_{0}", 250, -5.0, 5.0 ) );
-  hmgr->addHistoProf1( new TProfile("10420", "IL prof Phi [M_NEMA_FR4_plate];#varphi [rad];#lambda/#lambda_{0}", 180, -3.2, 3.2 ) );
-  hmgr->addHistoProf2( new TProfile2D("10430", "IL prof Eta  Phi [M_NEMA_FR4_plate];#eta;#varphi;#lambda/#lambda_{0}", 250, -5., 5., 180, -3.2, 3.2 ) );
-  hmgr->addHistoProf1( new TProfile("10440", "IL prof R [M_NEMA_FR4_plate];R [mm];#lambda/#lambda_{0}", 300, 0., 3000. ) );
-  hmgr->addHistoProf2( new TProfile2D("10450", "IL prof sum R  z [M_NEMA_FR4_plate];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
-  hmgr->addHistoProf2( new TProfile2D("10452", "IL ortho prof sum R  z [M_NEMA_FR4_plate];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
-  hmgr->addHisto2( new TH2F("10460", "IL prof local R  z [M_NEMA_FR4_plate];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
-  hmgr->addHistoProf2( new TProfile2D("10470", "IL prof local R  z [M_NEMA_FR4_plate];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
-  hmgr->addHistoProf2( new TProfile2D("10472", "IL ortho prof local R  z [M_NEMA_FR4_plate];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  // HGC_G10_FR4
+  hmgr->addHistoProf1( new TProfile("10410", "IL prof Eta [HGC_G10_FR4];#eta;#lambda/#lambda_{0}", 250, -5.0, 5.0 ) );
+  hmgr->addHistoProf1( new TProfile("10420", "IL prof Phi [HGC_G10_FR4];#varphi [rad];#lambda/#lambda_{0}", 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf2( new TProfile2D("10430", "IL prof Eta  Phi [HGC_G10_FR4];#eta;#varphi;#lambda/#lambda_{0}", 250, -5., 5., 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf1( new TProfile("10440", "IL prof R [HGC_G10_FR4];R [mm];#lambda/#lambda_{0}", 300, 0., 3000. ) );
+  hmgr->addHistoProf2( new TProfile2D("10450", "IL prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("10452", "IL ortho prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHisto2( new TH2F("10460", "IL prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("10470", "IL prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("10472", "IL ortho prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
 
   // Silicon
   hmgr->addHistoProf1( new TProfile("10510", "IL prof Eta [Silicon];#eta;#lambda/#lambda_{0}", 250, -5.0, 5.0 ) );
@@ -336,10 +336,10 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
     hmgr->getHistoProf1(320)->Fill(theData->getPhi(),theData->getCablesMB());
     hmgr->getHistoProf2(330)->Fill(theData->getEta(),theData->getPhi(),theData->getCablesMB());
     
-    // M_NEMA_FR4_plate
-    hmgr->getHistoProf1(410)->Fill(theData->getEta(),theData->getM_NEMA_FR4_plateMB());
-    hmgr->getHistoProf1(420)->Fill(theData->getPhi(),theData->getM_NEMA_FR4_plateMB());
-    hmgr->getHistoProf2(430)->Fill(theData->getEta(),theData->getPhi(),theData->getM_NEMA_FR4_plateMB());
+    // HGC_G10_FR4
+    hmgr->getHistoProf1(410)->Fill(theData->getEta(),theData->getHGC_G10_FR4MB());
+    hmgr->getHistoProf1(420)->Fill(theData->getPhi(),theData->getHGC_G10_FR4MB());
+    hmgr->getHistoProf2(430)->Fill(theData->getEta(),theData->getPhi(),theData->getHGC_G10_FR4MB());
     
     // Silicon
     hmgr->getHistoProf1(510)->Fill(theData->getEta(),theData->getSiliconMB());
@@ -379,7 +379,7 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
     float theTotalMB_COP = 0.0;
     float theTotalMB_SCI = 0.0;
     float theTotalMB_CAB = 0.0;
-    float theTotalMB_MNE = 0.0;
+    float theTotalMB_HGF = 0.0;
     float theTotalMB_NIM = 0.0;
     float theTotalMB_OTH = 0.0;
     float theTotalMB_AIR = 0.0;
@@ -391,7 +391,7 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       theTotalMB_COP += theData->getCopperDmb(iStep);
       theTotalMB_SCI += theData->getH_ScintillatorDmb(iStep);
       theTotalMB_CAB += theData->getCablesDmb(iStep);
-      theTotalMB_MNE += theData->getM_NEMA_FR4_plateDmb(iStep);
+      theTotalMB_HGF += theData->getHGC_G10_FR4Dmb(iStep);
       theTotalMB_NIM += theData->getSiliconDmb(iStep);
       theTotalMB_OTH += theData->getOtherDmb(iStep);
       theTotalMB_AIR += theData->getAirDmb(iStep);        
@@ -402,7 +402,7 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       int iCop = 0;
       int iSci = 0;
       int iCab = 0;
-      int iMne = 0;
+      int iHgf = 0;
       int iSil = 0;
       int iOth = 0;
       int iAir = 0;
@@ -412,7 +412,7 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       if( theData->getCopperDmb(iStep)>0.     ) { iCop = 1; }
       if( theData->getH_ScintillatorDmb(iStep)>0.   ) { iSci = 1; }
       if( theData->getCablesDmb(iStep)>0.      ) { iCab = 1; }
-      if( theData->getM_NEMA_FR4_plateDmb(iStep)>0.     ) { iMne = 1; }
+      if( theData->getHGC_G10_FR4Dmb(iStep)>0.     ) { iHgf = 1; }
       if( theData->getSiliconDmb(iStep)>0. ) { iSil = 1; }
       if( theData->getOtherDmb(iStep)>0.       ) { iOth = 1; }
       if( theData->getAirDmb(iStep)>0.         ) { iAir = 1; }
@@ -503,13 +503,13 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
 	hmgr->getHistoProf2(370)->Fill(z,polarRadius,iCab*fillValue);
 	hmgr->getHistoProf2(372)->Fill(z,polarRadius, iCab * fillValue * costhetacorrection );
 
-	// M_NEMA_FR4_plate
-	hmgr->getHistoProf1(440)->Fill(polarRadius,theTotalMB_MNE);
-	hmgr->getHistoProf2(450)->Fill(z,polarRadius,theTotalMB_MNE);
-	hmgr->getHistoProf2(452)->Fill(z,polarRadius,theTotalMB_MNE * costhetacorrection );
-	hmgr->getHisto2(460)->Fill(z,polarRadius,iMne*fillValue);
-	hmgr->getHistoProf2(470)->Fill(z,polarRadius,iMne*fillValue);
-	hmgr->getHistoProf2(472)->Fill(z,polarRadius, iMne * fillValue * costhetacorrection );
+	// HGC_G10_FR4
+	hmgr->getHistoProf1(440)->Fill(polarRadius,theTotalMB_HGF);
+	hmgr->getHistoProf2(450)->Fill(z,polarRadius,theTotalMB_HGF);
+	hmgr->getHistoProf2(452)->Fill(z,polarRadius,theTotalMB_HGF * costhetacorrection );
+	hmgr->getHisto2(460)->Fill(z,polarRadius,iHgf*fillValue);
+	hmgr->getHistoProf2(470)->Fill(z,polarRadius,iHgf*fillValue);
+	hmgr->getHistoProf2(472)->Fill(z,polarRadius, iHgf * fillValue * costhetacorrection );
 
 	// Silicon
 	hmgr->getHistoProf1(540)->Fill(polarRadius,theTotalMB_NIM);
@@ -583,10 +583,10 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
     hmgr->getHistoProf1(10320)->Fill(theData->getPhi(),theData->getCablesIL());
     hmgr->getHistoProf2(10330)->Fill(theData->getEta(),theData->getPhi(),theData->getCablesIL());
     
-    // M_NEMA_FR4_plate
-    hmgr->getHistoProf1(10410)->Fill(theData->getEta(),theData->getM_NEMA_FR4_plateIL());
-    hmgr->getHistoProf1(10420)->Fill(theData->getPhi(),theData->getM_NEMA_FR4_plateIL());
-    hmgr->getHistoProf2(10430)->Fill(theData->getEta(),theData->getPhi(),theData->getM_NEMA_FR4_plateIL());
+    // HGC_G10_FR4
+    hmgr->getHistoProf1(10410)->Fill(theData->getEta(),theData->getHGC_G10_FR4IL());
+    hmgr->getHistoProf1(10420)->Fill(theData->getPhi(),theData->getHGC_G10_FR4IL());
+    hmgr->getHistoProf2(10430)->Fill(theData->getEta(),theData->getPhi(),theData->getHGC_G10_FR4IL());
     
     // Silicon
     hmgr->getHistoProf1(10510)->Fill(theData->getEta(),theData->getSiliconIL());
@@ -623,7 +623,7 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
     float theTotalIL_COP = 0.0;
     float theTotalIL_SCI = 0.0;
     float theTotalIL_CAB = 0.0;
-    float theTotalIL_MNE = 0.0;
+    float theTotalIL_HGF = 0.0;
     float theTotalIL_NIM = 0.0;
     float theTotalIL_OTH = 0.0;
     float theTotalIL_AIR = 0.0;
@@ -635,7 +635,7 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       theTotalIL_COP += theData->getCopperDil(iStep);
       theTotalIL_SCI += theData->getH_ScintillatorDil(iStep);
       theTotalIL_CAB += theData->getCablesDil(iStep);
-      theTotalIL_MNE += theData->getM_NEMA_FR4_plateDil(iStep);
+      theTotalIL_HGF += theData->getHGC_G10_FR4Dil(iStep);
       theTotalIL_NIM += theData->getSiliconDil(iStep);
       theTotalIL_OTH += theData->getOtherDil(iStep);
       theTotalIL_AIR += theData->getAirDil(iStep);
@@ -646,7 +646,7 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       int iCop = 0;
       int iSci = 0;
       int iCab = 0;
-      int iMne = 0;
+      int iHgf = 0;
       int iSil = 0;
       int iOth = 0;
       int iAir = 0;
@@ -657,7 +657,7 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       if( theData->getCopperDil(iStep)>0.     ) { iCop = 1; }
       if( theData->getH_ScintillatorDil(iStep)>0.   ) { iSci = 1; }
       if( theData->getCablesDil(iStep)>0.      ) { iCab = 1; }
-      if( theData->getM_NEMA_FR4_plateDil(iStep)>0.     ) { iMne = 1; }
+      if( theData->getHGC_G10_FR4Dil(iStep)>0.     ) { iHgf = 1; }
       if( theData->getSiliconDil(iStep)>0. ) { iSil = 1; }
       if( theData->getOtherDil(iStep)>0.       ) { iOth = 1; }
       if( theData->getAirDil(iStep)>0.         ) { iAir = 1; }
@@ -746,13 +746,13 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
 	hmgr->getHistoProf2(10370)->Fill(z,polarRadius,iCab*fillValue);
 	hmgr->getHistoProf2(10372)->Fill(z,polarRadius, iCab * fillValue * costhetacorrection );
 
-	// M_NEMA_FR4_plate
-	hmgr->getHistoProf1(10440)->Fill(polarRadius,theTotalIL_MNE);
-	hmgr->getHistoProf2(10450)->Fill(z,polarRadius,theTotalIL_MNE);
-	hmgr->getHistoProf2(10452)->Fill(z,polarRadius,theTotalIL_MNE * costhetacorrection );
-	hmgr->getHisto2(10460)->Fill(z,polarRadius,iMne*fillValue);
-	hmgr->getHistoProf2(10470)->Fill(z,polarRadius,iMne*fillValue);
-	hmgr->getHistoProf2(10472)->Fill(z,polarRadius, iMne * fillValue * costhetacorrection );
+	// HGC_G10_FR4
+	hmgr->getHistoProf1(10440)->Fill(polarRadius,theTotalIL_HGF);
+	hmgr->getHistoProf2(10450)->Fill(z,polarRadius,theTotalIL_HGF);
+	hmgr->getHistoProf2(10452)->Fill(z,polarRadius,theTotalIL_HGF * costhetacorrection );
+	hmgr->getHisto2(10460)->Fill(z,polarRadius,iHgf*fillValue);
+	hmgr->getHistoProf2(10470)->Fill(z,polarRadius,iHgf*fillValue);
+	hmgr->getHistoProf2(10472)->Fill(z,polarRadius, iHgf * fillValue * costhetacorrection );
 
 	// Silicon
 	hmgr->getHistoProf1(10540)->Fill(polarRadius,theTotalIL_NIM);
