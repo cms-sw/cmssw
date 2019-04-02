@@ -159,6 +159,28 @@ void MaterialBudgetHGCalHistos::book()
   hmgr->addHistoProf2( new TProfile2D("1070", "MB prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHistoProf2( new TProfile2D("1072", "MB ortho prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
 
+  // Epoxy
+  hmgr->addHistoProf1( new TProfile("1110", "MB prof Eta [Epoxy];#eta;x/X_{0}", 250, -5.0, 5.0 ) );
+  hmgr->addHistoProf1( new TProfile("1120", "MB prof Phi [Epoxy];#varphi [rad];x/X_{0}", 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf2( new TProfile2D("1130", "MB prof Eta  Phi [Epoxy];#eta;#varphi;x/X_{0}", 250, -5., 5., 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf1( new TProfile("1140", "MB prof R [Epoxy];R [mm];x/X_{0}", 300, 0., 3000. ) );
+  hmgr->addHistoProf2( new TProfile2D("1150", "MB prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("1152", "MB ortho prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHisto2( new TH2F("1160", "MB prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("1170", "MB prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("1172", "MB ortho prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+
+  // Kapton
+  hmgr->addHistoProf1( new TProfile("1210", "MB prof Eta [Kapton];#eta;x/X_{0}", 250, -5.0, 5.0 ) );
+  hmgr->addHistoProf1( new TProfile("1220", "MB prof Phi [Kapton];#varphi [rad];x/X_{0}", 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf2( new TProfile2D("1230", "MB prof Eta  Phi [Kapton];#eta;#varphi;x/X_{0}", 250, -5., 5., 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf1( new TProfile("1240", "MB prof R [Kapton];R [mm];x/X_{0}", 300, 0., 3000. ) );
+  hmgr->addHistoProf2( new TProfile2D("1250", "MB prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("1252", "MB ortho prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHisto2( new TH2F("1260", "MB prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("1270", "MB prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("1272", "MB ortho prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+
   //=========================================================================================================
   // total Lambda0
   hmgr->addHistoProf1( new TProfile("10010", "IL prof Eta;#eta;#lambda/#lambda_{0} ", 250, -5., 5. ) );
@@ -284,6 +306,28 @@ void MaterialBudgetHGCalHistos::book()
   hmgr->addHistoProf2( new TProfile2D("11070", "IL prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHistoProf2( new TProfile2D("11072", "IL ortho prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
 
+  // Epoxy
+  hmgr->addHistoProf1( new TProfile("11110", "IL prof Eta [Epoxy];#eta;#lambda/#lambda_{0}", 250, -5.0, 5.0 ) );
+  hmgr->addHistoProf1( new TProfile("11120", "IL prof Phi [Epoxy];#varphi [rad];#lambda/#lambda_{0}", 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf2( new TProfile2D("11130", "IL prof Eta  Phi [Epoxy];#eta;#varphi;#lambda/#lambda_{0}", 250, -5., 5., 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf1( new TProfile("11140", "IL prof R [Epoxy];R [mm];#lambda/#lambda_{0}", 300, 0., 3000. ) );
+  hmgr->addHistoProf2( new TProfile2D("11150", "IL prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("11152", "IL ortho prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHisto2( new TH2F("11160", "IL prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("11170", "IL prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("11172", "IL ortho prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+
+  // Kapton
+  hmgr->addHistoProf1( new TProfile("11210", "IL prof Eta [Kapton];#eta;#lambda/#lambda_{0}", 250, -5.0, 5.0 ) );
+  hmgr->addHistoProf1( new TProfile("11220", "IL prof Phi [Kapton];#varphi [rad];#lambda/#lambda_{0}", 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf2( new TProfile2D("11230", "IL prof Eta  Phi [Kapton];#eta;#varphi;#lambda/#lambda_{0}", 250, -5., 5., 180, -3.2, 3.2 ) );
+  hmgr->addHistoProf1( new TProfile("11240", "IL prof R [Kapton];R [mm];#lambda/#lambda_{0}", 300, 0., 3000. ) );
+  hmgr->addHistoProf2( new TProfile2D("11250", "IL prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("11252", "IL ortho prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHisto2( new TH2F("11260", "IL prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("11270", "IL prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+  hmgr->addHistoProf2( new TProfile2D("11272", "IL ortho prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
+
   
   std::cout << "=== booking user histos done ===" << std::endl;
 
@@ -371,6 +415,16 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
     hmgr->getHistoProf1(1020)->Fill(theData->getPhi(),theData->getLeadMB());
     hmgr->getHistoProf2(1030)->Fill(theData->getEta(),theData->getPhi(),theData->getLeadMB());
 
+    // Epoxy
+    hmgr->getHistoProf1(1110)->Fill(theData->getEta(),theData->getEpoxyMB());
+    hmgr->getHistoProf1(1120)->Fill(theData->getPhi(),theData->getEpoxyMB());
+    hmgr->getHistoProf2(1130)->Fill(theData->getEta(),theData->getPhi(),theData->getEpoxyMB());
+
+    // Kapton
+    hmgr->getHistoProf1(1210)->Fill(theData->getEta(),theData->getKaptonMB());
+    hmgr->getHistoProf1(1220)->Fill(theData->getPhi(),theData->getKaptonMB());
+    hmgr->getHistoProf2(1230)->Fill(theData->getEta(),theData->getPhi(),theData->getKaptonMB());
+
     //
     // Compute the total x/X0 crossed at each step radius for each path
     //
@@ -386,6 +440,8 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
     float theTotalMB_SST = 0.0;
     float theTotalMB_WCU = 0.0;
     float theTotalMB_LEA = 0.0;
+    float theTotalMB_EPX = 0.0;
+    float theTotalMB_KAP = 0.0;
     for(int iStep = 0; iStep < theData->getNumberOfSteps(); iStep++) {
       theTotalMB_TOT += theData->getStepDmb(iStep);
       theTotalMB_COP += theData->getCopperDmb(iStep);
@@ -398,6 +454,8 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       theTotalMB_SST += theData->getStainlessSteelDmb(iStep);        
       theTotalMB_WCU += theData->getWCuDmb(iStep);        
       theTotalMB_LEA += theData->getLeadDmb(iStep);        
+      theTotalMB_EPX += theData->getEpoxyDmb(iStep);        
+      theTotalMB_KAP += theData->getKaptonDmb(iStep);        
 
       int iCop = 0;
       int iSci = 0;
@@ -409,6 +467,8 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       int iSst = 0;
       int iWcu = 0;
       int iLea = 0;
+      int iEpx = 0;
+      int iKap = 0;
       if( theData->getCopperDmb(iStep)>0.     ) { iCop = 1; }
       if( theData->getH_ScintillatorDmb(iStep)>0.   ) { iSci = 1; }
       if( theData->getCablesDmb(iStep)>0.      ) { iCab = 1; }
@@ -419,6 +479,8 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       if( theData->getStainlessSteelDmb(iStep)>0.         ) { iSst = 1; }
       if( theData->getWCuDmb(iStep)>0.         ) { iWcu = 1; }
       if( theData->getLeadDmb(iStep)>0.         ) { iLea = 1; }
+      if( theData->getEpoxyDmb(iStep)>0.         ) { iEpx = 1; }
+      if( theData->getKaptonDmb(iStep)>0.         ) { iKap = 1; }
 
       float deltaRadius = sqrt(
 			       pow( theData->getStepFinalX(iStep)-theData->getStepInitialX(iStep),2 )
@@ -559,6 +621,22 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
 	hmgr->getHistoProf2(1070)->Fill(z,polarRadius,iLea*fillValue);
 	hmgr->getHistoProf2(1072)->Fill(z,polarRadius, iLea * fillValue  * costhetacorrection );
 
+	// Epoxy
+	hmgr->getHistoProf1(1140)->Fill(polarRadius,theTotalMB_EPX);
+	hmgr->getHistoProf2(1150)->Fill(z,polarRadius,theTotalMB_EPX);
+	hmgr->getHistoProf2(1152)->Fill(z,polarRadius,theTotalMB_EPX * costhetacorrection );
+	hmgr->getHisto2(1160)->Fill(z,polarRadius,iEpx*fillValue);
+	hmgr->getHistoProf2(1170)->Fill(z,polarRadius,iEpx*fillValue);
+	hmgr->getHistoProf2(1172)->Fill(z,polarRadius, iEpx * fillValue  * costhetacorrection );
+
+	// Kapton
+	hmgr->getHistoProf1(1240)->Fill(polarRadius,theTotalMB_KAP);
+	hmgr->getHistoProf2(1250)->Fill(z,polarRadius,theTotalMB_KAP);
+	hmgr->getHistoProf2(1252)->Fill(z,polarRadius,theTotalMB_KAP * costhetacorrection );
+	hmgr->getHisto2(1260)->Fill(z,polarRadius,iKap*fillValue);
+	hmgr->getHistoProf2(1270)->Fill(z,polarRadius,iKap*fillValue);
+	hmgr->getHistoProf2(1272)->Fill(z,polarRadius, iKap * fillValue  * costhetacorrection );
+
       }
     }
  
@@ -618,6 +696,16 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
     hmgr->getHistoProf1(11020)->Fill(theData->getPhi(),theData->getLeadIL());
     hmgr->getHistoProf2(11030)->Fill(theData->getEta(),theData->getPhi(),theData->getLeadIL());
 
+    // Epoxy
+    hmgr->getHistoProf1(11110)->Fill(theData->getEta(),theData->getEpoxyIL());
+    hmgr->getHistoProf1(11120)->Fill(theData->getPhi(),theData->getEpoxyIL());
+    hmgr->getHistoProf2(11130)->Fill(theData->getEta(),theData->getPhi(),theData->getEpoxyIL());
+
+    // Kapton
+    hmgr->getHistoProf1(11210)->Fill(theData->getEta(),theData->getKaptonIL());
+    hmgr->getHistoProf1(11220)->Fill(theData->getPhi(),theData->getKaptonIL());
+    hmgr->getHistoProf2(11230)->Fill(theData->getEta(),theData->getPhi(),theData->getKaptonIL());
+
     // Compute the total l/l0 crossed at each step radius for each path
     float theTotalIL_TOT = 0.0;
     float theTotalIL_COP = 0.0;
@@ -630,6 +718,8 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
     float theTotalIL_SST = 0.0;
     float theTotalIL_WCU = 0.0;
     float theTotalIL_LEA = 0.0;
+    float theTotalIL_EPX = 0.0;
+    float theTotalIL_KAP = 0.0;
     for(int iStep = 0; iStep < theData->getNumberOfSteps(); iStep++) {
       theTotalIL_TOT += theData->getStepDil(iStep);
       theTotalIL_COP += theData->getCopperDil(iStep);
@@ -642,6 +732,8 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       theTotalIL_SST += theData->getStainlessSteelDil(iStep);
       theTotalIL_WCU += theData->getWCuDil(iStep);
       theTotalIL_LEA += theData->getLeadDil(iStep);
+      theTotalIL_EPX += theData->getEpoxyDil(iStep);
+      theTotalIL_KAP += theData->getKaptonDil(iStep);
 
       int iCop = 0;
       int iSci = 0;
@@ -653,6 +745,8 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       int iSst = 0;
       int iWcu = 0;
       int iLea = 0;
+      int iEpx = 0;
+      int iKap = 0;
 
       if( theData->getCopperDil(iStep)>0.     ) { iCop = 1; }
       if( theData->getH_ScintillatorDil(iStep)>0.   ) { iSci = 1; }
@@ -664,6 +758,8 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       if( theData->getStainlessSteelDil(iStep)>0.         ) { iSst = 1; }
       if( theData->getWCuDil(iStep)>0.         ) { iWcu = 1; }
       if( theData->getLeadDil(iStep)>0.         ) { iLea = 1; }
+      if( theData->getEpoxyDil(iStep)>0.         ) { iEpx = 1; }
+      if( theData->getKaptonDil(iStep)>0.         ) { iKap = 1; }
 
       float deltaRadius = sqrt(
 			       pow( theData->getStepFinalX(iStep)-theData->getStepInitialX(iStep),2 )
@@ -802,6 +898,22 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
 	hmgr->getHistoProf2(11070)->Fill(z,polarRadius,iLea*fillValue);
 	hmgr->getHistoProf2(11072)->Fill(z,polarRadius, iLea * fillValue * costhetacorrection );
 
+	// Epoxy
+	hmgr->getHistoProf1(11140)->Fill(polarRadius,theTotalIL_EPX);
+	hmgr->getHistoProf2(11150)->Fill(z,polarRadius,theTotalIL_EPX);
+	hmgr->getHistoProf2(11152)->Fill(z,polarRadius,theTotalIL_EPX * costhetacorrection );
+	hmgr->getHisto2(11160)->Fill(z,polarRadius,iEpx*fillValue);
+	hmgr->getHistoProf2(11170)->Fill(z,polarRadius,iEpx*fillValue);
+	hmgr->getHistoProf2(11172)->Fill(z,polarRadius, iEpx * fillValue * costhetacorrection );
+
+	// Kapton
+	hmgr->getHistoProf1(11240)->Fill(polarRadius,theTotalIL_KAP);
+	hmgr->getHistoProf2(11250)->Fill(z,polarRadius,theTotalIL_KAP);
+	hmgr->getHistoProf2(11252)->Fill(z,polarRadius,theTotalIL_KAP * costhetacorrection );
+	hmgr->getHisto2(11260)->Fill(z,polarRadius,iKap*fillValue);
+	hmgr->getHistoProf2(11270)->Fill(z,polarRadius,iKap*fillValue);
+	hmgr->getHistoProf2(11272)->Fill(z,polarRadius, iKap * fillValue * costhetacorrection );
+
       }
 
     }
@@ -835,6 +947,8 @@ void MaterialBudgetHGCalHistos::endOfRun()
   hmgr->getHisto2(860)->Divide(hmgr->getHisto2(999));
   hmgr->getHisto2(960)->Divide(hmgr->getHisto2(999));
   hmgr->getHisto2(1060)->Divide(hmgr->getHisto2(999));
+  hmgr->getHisto2(1160)->Divide(hmgr->getHisto2(999));
+  hmgr->getHisto2(1260)->Divide(hmgr->getHisto2(999));
 
   hmgr->getHisto2(10060)->Divide(hmgr->getHisto2(1999));
   hmgr->getHisto2(10160)->Divide(hmgr->getHisto2(1999));
@@ -847,6 +961,8 @@ void MaterialBudgetHGCalHistos::endOfRun()
   hmgr->getHisto2(10860)->Divide(hmgr->getHisto2(1999));
   hmgr->getHisto2(10960)->Divide(hmgr->getHisto2(1999));
   hmgr->getHisto2(11060)->Divide(hmgr->getHisto2(1999));
+  hmgr->getHisto2(11160)->Divide(hmgr->getHisto2(1999));
+  hmgr->getHisto2(11260)->Divide(hmgr->getHisto2(1999));
 
   std::cout << "=== save user histos ===" << std::endl;
   hmgr->save( theFileName );

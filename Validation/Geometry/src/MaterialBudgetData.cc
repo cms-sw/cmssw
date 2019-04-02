@@ -57,6 +57,8 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   theCopperMB           = 0.f;
   theH_ScintillatorMB   = 0.f;
   theLeadMB             = 0.f;
+  theEpoxyMB            = 0.f;
+  theKaptonMB           = 0.f;
   theHGC_G10_FR4MB = 0.f;
   theSiliconMB          = 0.f;
   theStainlessSteelMB   = 0.f;
@@ -74,6 +76,8 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   theCopperIL           = 0.f;
   theH_ScintillatorIL   = 0.f;
   theLeadIL             = 0.f;
+  theEpoxyIL            = 0.f;
+  theKaptonIL           = 0.f;
   theHGC_G10_FR4IL = 0.f;
   theSiliconIL          = 0.f;
   theStainlessSteelIL   = 0.f;
@@ -90,6 +94,8 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   theCopperFractionMB            = 0.f;
   theH_ScintillatorFractionMB    = 0.f;
   theLeadFractionMB              = 0.f;
+  theEpoxyFractionMB             = 0.f;
+  theKaptonFractionMB            = 0.f;
   theHGC_G10_FR4FractionMB  = 0.f;
   theSiliconFractionMB           = 0.f;
   theStainlessSteelFractionMB    = 0.f;
@@ -106,6 +112,8 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   theCopperFractionIL            = 0.f;
   theH_ScintillatorFractionIL    = 0.f;
   theLeadFractionIL              = 0.f;
+  theEpoxyFractionIL             = 0.f;
+  theKaptonFractionIL            = 0.f;
   theHGC_G10_FR4FractionIL  = 0.f;
   theSiliconFractionIL           = 0.f;
   theStainlessSteelFractionIL    = 0.f;
@@ -159,7 +167,7 @@ void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
 			       << " Eta " << theEta << " Phi " << thePhi 
 			       << " TotaLMB" << theTotalMB 
 			       << " theCopperMB " << theCopperMB << " theH_ScintillatorMB " << theH_ScintillatorMB 
-			       << " CAB " << theCablesMB << " theLeadMB " << theLeadMB << " theHGC_G10_FR4MB " 
+			       << " CAB " << theCablesMB << " theLeadMB " << theLeadMB << " theEpoxyMB " << theEpoxyMB << " theKaptonMB " << theKaptonMB << " theHGC_G10_FR4MB " 
 			       << theHGC_G10_FR4MB << " theSiliconMB " << theSiliconMB 
 			       << " theAirMB " << theAirMB << " theStainlessSteelMB " << theStainlessSteelMB 
 			       << " theWCuMB " << theWCuMB;
@@ -169,8 +177,8 @@ void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
 			       << " Eta " << theEta << " Phi " << thePhi 
 			       << " TotalIL " << theTotalIL << " theCopperIL " << theCopperIL 
 			       << " theH_ScintillatorIL " << theH_ScintillatorIL 
-			       << " CAB " << theCablesIL << " theLeadIL " << theLeadIL 
-			       << " theHGC_G10_FR4IL " << theHGC_G10_FR4IL 
+			       << " CAB " << theCablesIL << " theLeadIL " << theLeadIL  << " theEpoxyIL " << theEpoxyIL
+			       << " theKaptonIL " << theKaptonIL << " theHGC_G10_FR4IL " << theHGC_G10_FR4IL 
 			       << " theSiliconIL " << theSiliconIL << " Air " 
 			       << theAirIL << " theStainlessSteelIL " << theStainlessSteelIL 
 			       << " theWCuIL " << theWCuIL << std::endl;
@@ -288,6 +296,8 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
       theStainlessSteelFractionMB   = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[7];
       theWCuFractionMB              = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[8];
       theOtherFractionMB            = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[9];
+      theEpoxyFractionMB            = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[10];
+      theKaptonFractionMB           = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[11];
 
     
       if(theOtherFractionMB!=0) 
@@ -304,6 +314,8 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
       theStainlessSteelFractionIL   = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[7];
       theWCuFractionIL              = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[8];
       theOtherFractionIL            = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[9];
+      theEpoxyFractionIL            = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[10];
+      theKaptonFractionIL            = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[11];
 
 
       if(theOtherFractionIL!=0) 
@@ -348,6 +360,8 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theCopperDmb[theStepN]              = (dmb * theCopperFractionMB);                       
     theH_ScintillatorDmb[theStepN]      = (dmb * theH_ScintillatorFractionMB);       
     theLeadDmb[theStepN]                = (dmb * theLeadFractionMB);                           
+    theEpoxyDmb[theStepN]               = (dmb * theEpoxyFractionMB);                           
+    theKaptonDmb[theStepN]              = (dmb * theKaptonFractionMB);                           
     theHGC_G10_FR4Dmb[theStepN]    = (dmb * theHGC_G10_FR4FractionMB);   
     theSiliconDmb[theStepN]             = (dmb * theSiliconFractionMB);                     
     theStainlessSteelDmb[theStepN]      = (dmb * theStainlessSteelFractionMB);       
@@ -364,6 +378,8 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theCopperDil[theStepN]              = (dil * theCopperFractionIL);                       
     theH_ScintillatorDil[theStepN]      = (dil * theH_ScintillatorFractionIL);       
     theLeadDil[theStepN]                = (dil * theLeadFractionIL);                           
+    theEpoxyDil[theStepN]               = (dil * theEpoxyFractionIL);                           
+    theKaptonDil[theStepN]              = (dil * theKaptonFractionIL);                           
     theHGC_G10_FR4Dil[theStepN]    = (dil * theHGC_G10_FR4FractionIL);   
     theSiliconDil[theStepN]             = (dil * theSiliconFractionIL);                     
     theStainlessSteelDil[theStepN]      = (dil * theStainlessSteelFractionIL);       
@@ -546,6 +562,8 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   theCopperMB              += (dmb * theCopperFractionMB);                       
   theH_ScintillatorMB      += (dmb * theH_ScintillatorFractionMB);       
   theLeadMB                += (dmb * theLeadFractionMB);                           
+  theEpoxyMB               += (dmb * theEpoxyFractionMB);                           
+  theKaptonMB              += (dmb * theKaptonFractionMB);                           
   theHGC_G10_FR4MB         += (dmb * theHGC_G10_FR4FractionMB);   
   theSiliconMB             += (dmb * theSiliconFractionMB);                     
   theStainlessSteelMB      += (dmb * theStainlessSteelFractionMB);       
@@ -562,6 +580,8 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   theCopperIL              += (dil * theCopperFractionIL);                       
   theH_ScintillatorIL      += (dil * theH_ScintillatorFractionIL);       
   theLeadIL                += (dil * theLeadFractionIL);                           
+  theEpoxyIL               += (dil * theEpoxyFractionIL);                           
+  theKaptonIL              += (dil * theKaptonFractionIL);                           
   theHGC_G10_FR4IL         += (dil * theHGC_G10_FR4FractionIL);   
   theSiliconIL             += (dil * theSiliconFractionIL);                     
   theStainlessSteelIL      += (dil * theStainlessSteelFractionIL);       

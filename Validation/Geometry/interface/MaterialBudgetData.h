@@ -56,6 +56,10 @@ public:
     return theH_ScintillatorFractionMB; }
   float getLeadFractionMB()       const {                    
     return theLeadFractionMB; }
+  float getEpoxyFractionMB()       const {                    
+    return theEpoxyFractionMB; }
+  float getKaptonFractionMB()       const {                    
+    return theKaptonFractionMB; }
   float getHGC_G10_FR4FractionMB()   const {
     return theHGC_G10_FR4FractionMB; }
   float getSiliconFractionMB()    const {                 
@@ -86,6 +90,10 @@ public:
     return theH_ScintillatorMB; }
   float getLeadMB()       const {                    
     return theLeadMB; }
+  float getEpoxyMB()       const {                    
+    return theEpoxyMB; }
+  float getKaptonMB()       const {                    
+    return theKaptonMB; }
   float getHGC_G10_FR4MB()   const {
     return theHGC_G10_FR4MB; }
   float getSiliconMB()    const {                 
@@ -115,6 +123,10 @@ public:
     return theH_ScintillatorFractionIL; }
   float getLeadFractionIL()       const {                    
     return theLeadFractionIL; }
+  float getEpoxyFractionIL()       const {                    
+    return theEpoxyFractionIL; }
+  float getKaptonFractionIL()       const {                    
+    return theKaptonFractionIL; }
   float getHGC_G10_FR4FractionIL()   const {
     return theHGC_G10_FR4FractionIL; }
   float getSiliconFractionIL()    const {                 
@@ -145,6 +157,10 @@ public:
     return theH_ScintillatorIL; }
   float getLeadIL()       const {                    
     return theLeadIL; }
+  float getEpoxyIL()       const {                    
+    return theEpoxyIL; }
+  float getKaptonIL()       const {                    
+    return theKaptonIL; }
   float getHGC_G10_FR4IL()   const {
     return theHGC_G10_FR4IL; }
   float getSiliconIL()    const {                 
@@ -207,6 +223,10 @@ public:
     return theH_ScintillatorDmb[is]; }
   float getLeadDmb( int is ) const {       
     return theLeadDmb[is]; }
+  float getEpoxyDmb( int is ) const {       
+    return theEpoxyDmb[is]; }
+  float getKaptonDmb( int is ) const {       
+    return theKaptonDmb[is]; }
   float getHGC_G10_FR4Dmb( int is ) const {
     return theHGC_G10_FR4Dmb[is]; }
   float getSiliconDmb( int is ) const {        
@@ -240,6 +260,10 @@ public:
     return theH_ScintillatorDil[is]; }
   float getLeadDil( int is ) const {       
     return theLeadDil[is]; }
+  float getEpoxyDil( int is ) const {       
+    return theEpoxyDil[is]; }
+  float getKaptonDil( int is ) const {       
+    return theKaptonDil[is]; }
   float getHGC_G10_FR4Dil( int is ) const {
     return theHGC_G10_FR4Dil[is]; }
   float getSiliconDil( int is ) const {        
@@ -425,6 +449,8 @@ public:
   float theCopperFractionMB;
   float theH_ScintillatorFractionMB;
   float theLeadFractionMB;
+  float theEpoxyFractionMB;
+  float theKaptonFractionMB;
   float theHGC_G10_FR4FractionMB;
   float theSiliconFractionMB;
   float theStainlessSteelFractionMB;
@@ -432,6 +458,8 @@ public:
   float theCopperMB;
   float theH_ScintillatorMB;
   float theLeadMB;
+  float theEpoxyMB;
+  float theKaptonMB;
   float theHGC_G10_FR4MB;
   float theSiliconMB;
   float theStainlessSteelMB;
@@ -449,6 +477,8 @@ public:
   float theCopperFractionIL;
   float theH_ScintillatorFractionIL;
   float theLeadFractionIL;
+  float theEpoxyFractionIL;
+  float theKaptonFractionIL;
   float theHGC_G10_FR4FractionIL;
   float theSiliconFractionIL;
   float theStainlessSteelFractionIL;
@@ -456,6 +486,8 @@ public:
   float theCopperIL;
   float theH_ScintillatorIL;
   float theLeadIL;
+  float theEpoxyIL;
+  float theKaptonIL;
   float theHGC_G10_FR4IL;
   float theSiliconIL;
   float theStainlessSteelIL;
@@ -481,6 +513,8 @@ public:
   std::array<float,MAXNUMBERSTEPS> theCopperDmb;
   std::array<float,MAXNUMBERSTEPS> theH_ScintillatorDmb;
   std::array<float,MAXNUMBERSTEPS> theLeadDmb;
+  std::array<float,MAXNUMBERSTEPS> theEpoxyDmb;
+  std::array<float,MAXNUMBERSTEPS> theKaptonDmb;
   std::array<float,MAXNUMBERSTEPS> theHGC_G10_FR4Dmb;
   std::array<float,MAXNUMBERSTEPS> theSiliconDmb;
   std::array<float,MAXNUMBERSTEPS> theStainlessSteelDmb;
@@ -497,6 +531,8 @@ public:
   std::array<float,MAXNUMBERSTEPS> theCopperDil;
   std::array<float,MAXNUMBERSTEPS> theH_ScintillatorDil;
   std::array<float,MAXNUMBERSTEPS> theLeadDil;
+  std::array<float,MAXNUMBERSTEPS> theEpoxyDil;
+  std::array<float,MAXNUMBERSTEPS> theKaptonDil;
   std::array<float,MAXNUMBERSTEPS> theHGC_G10_FR4Dil;
   std::array<float,MAXNUMBERSTEPS> theSiliconDil;
   std::array<float,MAXNUMBERSTEPS> theStainlessSteelDil;
