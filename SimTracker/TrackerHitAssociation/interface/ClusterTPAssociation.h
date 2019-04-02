@@ -31,12 +31,16 @@ public:
   explicit ClusterTPAssociation(const edm::HandleBase& mappedHandle): ClusterTPAssociation(mappedHandle.id()) {}
   explicit ClusterTPAssociation(const edm::ProductID& mappedProductId): mappedProductId_(mappedProductId) {}
 
+  void addKeyID(edm::ProductID id) {
+    auto foundKeyID = std::find(std::begin(keyProductIDs_), std::end(keyProductIDs_), id);
+    if(foundKeyID == std::end(keyProductIDs_)) {
+      keyProductIDs_.emplace_back(id);
+    }
+  }
+
   void emplace_back(const OmniClusterRef& cluster, const TrackingParticleRef& tp) {
     checkMappedProductID(tp);
-    auto foundKeyID = std::find(std::begin(keyProductIDs_), std::end(keyProductIDs_), cluster.id());
-    if(foundKeyID == std::end(keyProductIDs_)) {
-      keyProductIDs_.emplace_back(cluster.id());
-    }
+    checkKeyProductID(cluster.id());
     map_.emplace_back(cluster, tp);
   }
   void sortAndUnique() {
