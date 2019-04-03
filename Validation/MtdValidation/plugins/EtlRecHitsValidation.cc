@@ -27,6 +27,7 @@
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 
 class EtlRecHitsValidation : public DQMEDAnalyzer {
@@ -133,8 +134,10 @@ void EtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       throw cms::Exception("EtlRecHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId()
 						   << " (" << detId.rawId()<< ") is invalid!" << std::dec
 						   << std::endl;
+    const PixelTopology& topo = static_cast<const PixelTopology&>(thedet->topology());
 
-    const auto& global_point = thedet->toGlobal(Local3DPoint(0.,0.,0.));
+    Local3DPoint local_point(topo.localX(recHit.row()),topo.localY(recHit.column()),0.);
+    const auto& global_point = thedet->toGlobal(local_point);
 
     // --- Fill the histograms
 
@@ -176,52 +179,52 @@ void EtlRecHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
 
   // --- histograms booking
 
-  meNhits_[0]     = ibook.book1D("EtlNhitsZneg", "Number of ETL RECO hits (-Z);N_{RECO}", 250, 0., 5000.);
-  meNhits_[1]     = ibook.book1D("EtlNhitsZpos", "Number of ETL RECO hits (+Z);N_{RECO}", 250, 0., 5000.);
+  meNhits_[0]     = ibook.book1D("EtlNhitsZneg", "Number of ETL RECO hits (-Z);N_{RECO}", 100, 0., 5000.);
+  meNhits_[1]     = ibook.book1D("EtlNhitsZpos", "Number of ETL RECO hits (+Z);N_{RECO}", 100, 0., 5000.);
 
-  meHitEnergy_[0] = ibook.book1D("EtlHitEnergyZneg", "ETL RECO hits energy (-Z);E_{RECO} [MeV]", 150, 0., 3.);
-  meHitEnergy_[1] = ibook.book1D("EtlHitEnergyZpos", "ETL RECO hits energy (+Z);E_{RECO} [MeV]", 150, 0., 3.);
+  meHitEnergy_[0] = ibook.book1D("EtlHitEnergyZneg", "ETL RECO hits energy (-Z);E_{RECO} [MeV]", 100, 0., 3.);
+  meHitEnergy_[1] = ibook.book1D("EtlHitEnergyZpos", "ETL RECO hits energy (+Z);E_{RECO} [MeV]", 100, 0., 3.);
 
-  meHitTime_[0] = ibook.book1D("EtlHitTimeZneg", "ETL RECO hits ToA (-Z);ToA_{RECO} [ns]", 250, 0., 25.);
-  meHitTime_[1] = ibook.book1D("EtlHitTimeZpos", "ETL RECO hits ToA (+Z);ToA_{RECO} [ns]", 250, 0., 25.);
+  meHitTime_[0] = ibook.book1D("EtlHitTimeZneg", "ETL RECO hits ToA (-Z);ToA_{RECO} [ns]", 100, 0., 25.);
+  meHitTime_[1] = ibook.book1D("EtlHitTimeZpos", "ETL RECO hits ToA (+Z);ToA_{RECO} [ns]", 100, 0., 25.);
 
   meOccupancy_[0] = ibook.book2D("EtlOccupancyZneg","ETL RECO hits occupancy (-Z);X_{RECO} [cm];Y_{RECO} [cm]",
-				 59, -130., 130.,  59, -130., 130.);
+				 135, -135., 135., 135, -135., 135.);
   meOccupancy_[1] = ibook.book2D("EtlOccupancyZpos","ETL DIGI hits occupancy (+Z);X_{RECO} [cm];Y_{RECO} [cm]",
-				 59, -130., 130.,  59, -130., 130.);
+				 135, -135., 135., 135, -135., 135.);
 
-  meHitX_[1]      = ibook.book1D("EtlHitXZpos", "ETL RECO hits X (+Z);X_{RECO} [cm]", 135, -135., 135.);
-  meHitX_[0]      = ibook.book1D("EtlHitXZneg", "ETL RECO hits X (-Z);X_{RECO} [cm]", 135, -135., 135.);
-  meHitY_[1]      = ibook.book1D("EtlHitYZpos", "ETL RECO hits Y (+Z);Y_{RECO} [cm]", 135, -135., 135.);
-  meHitY_[0]      = ibook.book1D("EtlHitYZneg", "ETL RECO hits Y (-Z);Y_{RECO} [cm]", 135, -135., 135.);
-  meHitZ_[1]      = ibook.book1D("EtlHitZZpos", "ETL RECO hits Z (+Z);Z_{RECO} [cm]", 100,  303.,  304.5);
-  meHitZ_[0]      = ibook.book1D("EtlHitZZneg", "ETL RECO hits Z (-Z);Z_{RECO} [cm]", 100, -304.5, -303.);
+  meHitX_[1]      = ibook.book1D("EtlHitXZpos", "ETL RECO hits X (+Z);X_{RECO} [cm]", 100, -130., 130.);
+  meHitX_[0]      = ibook.book1D("EtlHitXZneg", "ETL RECO hits X (-Z);X_{RECO} [cm]", 100, -130., 130.);
+  meHitY_[1]      = ibook.book1D("EtlHitYZpos", "ETL RECO hits Y (+Z);Y_{RECO} [cm]", 100, -130., 130.);
+  meHitY_[0]      = ibook.book1D("EtlHitYZneg", "ETL RECO hits Y (-Z);Y_{RECO} [cm]", 100, -130., 130.);
+  meHitZ_[1]      = ibook.book1D("EtlHitZZpos", "ETL RECO hits Z (+Z);Z_{RECO} [cm]", 100,  303.4,  304.2);
+  meHitZ_[0]      = ibook.book1D("EtlHitZZneg", "ETL RECO hits Z (-Z);Z_{RECO} [cm]", 100, -304.2, -303.4);
 
-  meHitPhi_[1]    = ibook.book1D("EtlHitPhiZpos", "ETL RECO hits #phi (+Z);#phi_{RECO} [rad]", 315, -3.15, 3.15);
-  meHitPhi_[0]    = ibook.book1D("EtlHitPhiZneg", "ETL RECO hits #phi (-Z);#phi_{RECO} [rad]", 315, -3.15, 3.15);
-  meHitEta_[1]    = ibook.book1D("EtlHitEtaZpos", "ETL RECO hits #eta (+Z);#eta_{RECO}", 200,  1.55,  3.05);
-  meHitEta_[0]    = ibook.book1D("EtlHitEtaZneg", "ETL RECO hits #eta (-Z);#eta_{RECO}", 200, -3.05, -1.55);
+  meHitPhi_[1]    = ibook.book1D("EtlHitPhiZpos", "ETL RECO hits #phi (+Z);#phi_{RECO} [rad]", 100, -3.15, 3.15);
+  meHitPhi_[0]    = ibook.book1D("EtlHitPhiZneg", "ETL RECO hits #phi (-Z);#phi_{RECO} [rad]", 100, -3.15, 3.15);
+  meHitEta_[1]    = ibook.book1D("EtlHitEtaZpos", "ETL RECO hits #eta (+Z);#eta_{RECO}", 100,  1.56,  2.96);
+  meHitEta_[0]    = ibook.book1D("EtlHitEtaZneg", "ETL RECO hits #eta (-Z);#eta_{RECO}", 100, -2.96, -1.56);
 
   meHitTvsE_[1]    = ibook.bookProfile("EtlHitTvsEZpos", "ETL RECO time vs energy (+Z);E_{RECO} [MeV];ToA_{RECO} [ns]",
-				       100, 0., 2., 0., 100.);
+				       50, 0., 2., 0., 100.);
   meHitTvsE_[0]    = ibook.bookProfile("EtlHitTvsEZneg", "ETL RECO time vs energy (-Z);E_{RECO} [MeV];ToA_{RECO} [ns]",
-				       100, 0., 2., 0., 100.);
+				       50, 0., 2., 0., 100.);
   meHitEvsPhi_[1]  = ibook.bookProfile("EtlHitEvsPhiZpos", "ETL RECO energy vs #phi (+Z);#phi_{RECO} [rad];E_{RECO} [MeV]",
-				       100, -3.15, 3.15, 0., 100.);
+				       50, -3.15, 3.15, 0., 100.);
   meHitEvsPhi_[0]  = ibook.bookProfile("EtlHitEvsPhiZneg", "ETL RECO energy vs #phi (-Z);#phi_{RECO} [rad];E_{RECO} [MeV]",
-				       100, -3.15, 3.15, 0., 100.);
+				       50, -3.15, 3.15, 0., 100.);
   meHitEvsEta_[1]  = ibook.bookProfile("EtlHitEvsEtaZpos","ETL RECO energy vs #eta (+Z);#eta_{RECO};E_{RECO} [MeV]",
-				       200, 1.55, 3.05, 0., 100.);
+				       50, 1.56, 2.96, 0., 100.);
   meHitEvsEta_[0]  = ibook.bookProfile("EtlHitEvsEtaZneg","ETL RECO energy vs #eta (-Z);#eta_{RECO};E_{RECO} [MeV]",
-				       200, -3.05, -1.55, 0., 100.);
+				       50, -2.96, -1.56, 0., 100.);
   meHitTvsPhi_[1]  = ibook.bookProfile("EtlHitTvsPhiZpos", "ETL RECO time vs #phi (+Z);#phi_{RECO} [rad];ToA_{RECO} [ns]",
-				       100, -3.15, 3.15, 0., 100.);
+				       50, -3.15, 3.15, 0., 100.);
   meHitTvsPhi_[0]  = ibook.bookProfile("EtlHitTvsPhiZneg", "ETL RECO time vs #phi (-Z);#phi_{RECO} [rad];ToA_{RECO} [ns]",
-				       100, -3.15, 3.15, 0., 100.);
+				       50, -3.15, 3.15, 0., 100.);
   meHitTvsEta_[1] = ibook.bookProfile("EtlHitTvsEtaZpos","ETL RECO time vs #eta (+Z);#eta_{RECO};ToA_{RECO} [ns]",
-				       200, 1.55, 3.05, 0., 100.);
+				       50, 1.56, 2.96, 0., 100.);
   meHitTvsEta_[0] = ibook.bookProfile("EtlHitTvsEtaZpos","ETL RECO time vs #eta (-Z);#eta_{RECO};ToA_{RECO} [ns]",
-				       200, -3.05, -1.55, 0., 100.);
+				       50, -2.96, -1.56, 0., 100.);
 
 }
 

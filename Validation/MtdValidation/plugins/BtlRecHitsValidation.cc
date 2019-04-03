@@ -189,34 +189,34 @@ void BtlRecHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
 
   // --- histograms booking
 
-  meNhits_     = ibook.book1D("BtlNhits", "Number of BTL RECO hits;N_{RECO}", 250, 0., 5000.);
+  meNhits_     = ibook.book1D("BtlNhits", "Number of BTL RECO hits;N_{RECO}", 100, 0., 5000.);
 
-  meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL RECO hits energy;E_{RECO} [MeV]", 200, 0., 20.);
-  meHitTime_   = ibook.book1D("BtlHitTime", "BTL RECO hits ToA;ToA_{RECO} [ns]", 250, 0., 25.);
+  meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL RECO hits energy;E_{RECO} [MeV]", 100, 0., 20.);
+  meHitTime_   = ibook.book1D("BtlHitTime", "BTL RECO hits ToA;ToA_{RECO} [ns]", 100, 0., 25.);
 
   meOccupancy_ = ibook.book2D("BtlOccupancy","BTL RECO hits occupancy;Z_{RECO} [cm]; #phi_{RECO} [rad]",
-			      65, -260., 260., 315, -3.15, 3.15 );
+			      65, -260., 260., 126, -3.15, 3.15 );
 
-  meHitX_      = ibook.book1D("BtlHitX", "BTL RECO hits X;X_{RECO} [cm]", 135, -135., 135.);
-  meHitY_      = ibook.book1D("BtlHitY", "BTL RECO hits Y;Y_{RECO} [cm]", 135, -135., 135.);
-  meHitZ_      = ibook.book1D("BtlHitZ", "BTL RECO hits Z;Z_{RECO} [cm]", 520, -260., 260.);
-  meHitPhi_    = ibook.book1D("BtlHitPhi", "BTL RECO hits #phi;#phi_{RECO} [rad]", 315, -3.15, 3.15);
-  meHitEta_    = ibook.book1D("BtlHitEta", "BTL RECO hits #eta;#eta_{RECO}", 200, -1.6, 1.6);
+  meHitX_      = ibook.book1D("BtlHitX", "BTL RECO hits X;X_{RECO} [cm]", 60, -120., 120.);
+  meHitY_      = ibook.book1D("BtlHitY", "BTL RECO hits Y;Y_{RECO} [cm]", 60, -120., 120.);
+  meHitZ_      = ibook.book1D("BtlHitZ", "BTL RECO hits Z;Z_{RECO} [cm]", 100, -260., 260.);
+  meHitPhi_    = ibook.book1D("BtlHitPhi", "BTL RECO hits #phi;#phi_{RECO} [rad]", 126, -3.15, 3.15);
+  meHitEta_    = ibook.book1D("BtlHitEta", "BTL RECO hits #eta;#eta_{RECO}", 100, -1.55, 1.55);
 
   meHitTvsE_   = ibook.bookProfile("BtlHitTvsE", "BTL RECO ToA vs energy;E_{RECO} [MeV];ToA_{RECO} [ns]",
-				   100, 0., 20., 0., 100.);
+				   50, 0., 20., 0., 100.);
   meHitEvsPhi_ = ibook.bookProfile("BtlHitEvsPhi", "BTL RECO energy vs #phi;#phi_{RECO} [rad];E_{RECO} [MeV]",
-				   100, -3.15, 3.15, 0., 100.);
+				   50, -3.15, 3.15, 0., 100.);
   meHitEvsEta_ = ibook.bookProfile("BtlHitEvsEta","BTL RECO energy vs #eta;#eta_{RECO};E_{RECO} [MeV]",
-				   200, -1.6, 1.6, 0., 100.);
+				   50, -1.55, 1.55, 0., 100.);
   meHitEvsZ_   = ibook.bookProfile("BtlHitEvsZ","BTL RECO energy vs Z;Z_{RECO} [cm];E_{RECO} [MeV]",
-				   520, -260., 260., 0., 100.);
+				   50, -260., 260., 0., 100.);
   meHitTvsPhi_ = ibook.bookProfile("BtlHitTvsPhi", "BTL RECO ToA vs #phi;#phi_{RECO} [rad];ToA_{RECO} [ns]",
-				   100, -3.15, 3.15, 0., 100.);
+				   50, -3.15, 3.15, 0., 100.);
   meHitTvsEta_ = ibook.bookProfile("BtlHitTvsEta","BTL RECO ToA vs #eta;#eta_{RECO};ToA_{RECO} [ns]",
-				   200, -1.6, 1.6, 0., 100.);
+				   50, -1.6, 1.6, 0., 100.);
   meHitTvsZ_   = ibook.bookProfile("BtlHitTvsZ","BTL RECO ToA vs Z;Z_{RECO} [cm];ToA_{RECO} [ns]",
-				   520, -260., 260., 0., 100.);
+				   50, -260., 260., 0., 100.);
 
 
 }
