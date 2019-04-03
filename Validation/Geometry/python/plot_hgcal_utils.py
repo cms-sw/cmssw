@@ -93,6 +93,7 @@ hist_label_to_num['WCU'] = [900, 28, 'WCu']
 hist_label_to_num['LEA'] = [1000, 12, 'Lead']
 hist_label_to_num['EPX'] = [1100, 46, 'Epoxy']
 hist_label_to_num['KAP'] = [1200, 49, 'Kapton']
+hist_label_to_num['ALU'] = [1300, 33, 'Aluminium']
 
 def TwikiPrintout(plotname, label, zoom): 
     """The plots in the twiki are already too much and to avoid mistakes 
@@ -194,6 +195,7 @@ dEdx['0']  = 0. # 2.398E-04 -> essentially zero
 dEdx['H']  = 0. #3.437E-05 -> essentially zero
 dEdx['Br'] = 0. #9.814E-04 -> essentially zero
 dEdx['W'] = 2.210
+dEdx['Al'] = 0.4358
 #-------- 
 
 dEdx['Copper'] = 1.257
