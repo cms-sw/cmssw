@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_10_5_0/HIon --type HIon
+# hltGetConfiguration --cff --data /dev/CMSSW_10_6_0/HIon --type HIon
 
-# /dev/CMSSW_10_5_0/HIon/V2 (CMSSW_10_5_0_pre2)
+# /dev/CMSSW_10_6_0/HIon/V1 (CMSSW_10_6_0_pre3_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_5_0/HIon/V2')
+  tableName = cms.string('/dev/CMSSW_10_6_0/HIon/V1')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -9838,6 +9838,7 @@ fragment.hltIterL3MuonsNoIDPPOnAA = cms.EDProducer( "MuonIdProducer",
       dRHcalPreselection = cms.double( 0.2 ),
       HORecHitCollectionLabel = cms.InputTag( "Notused" )
     ),
+    storeCrossedHcalRecHits = cms.bool( False ),
     JetExtractorPSet = cms.PSet( 
       JetCollectionLabel = cms.InputTag( "Notused" ),
       DR_Veto = cms.double( 0.1 ),
@@ -11431,6 +11432,7 @@ fragment.hltMuonsPPOnAA = cms.EDProducer( "MuonIdProducer",
       dRHcalPreselection = cms.double( 0.2 ),
       HORecHitCollectionLabel = cms.InputTag( "hltHoreco" )
     ),
+    storeCrossedHcalRecHits = cms.bool( False ),
     JetExtractorPSet = cms.PSet( 
       JetCollectionLabel = cms.InputTag( "hltAK4CaloJetsPFEt5" ),
       DR_Veto = cms.double( 0.1 ),
