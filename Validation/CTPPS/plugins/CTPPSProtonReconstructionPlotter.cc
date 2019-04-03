@@ -76,9 +76,9 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
       std::unique_ptr<TProfile> p_th_y_vs_xi;
 
       SingleRPPlots() :
-        h_xi(new TH1D("", ";#xi", 100, 0., 0.25)),
-        h2_th_y_vs_xi(new TH2D("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25, 100, -500E-6, +500E-6)),
-        p_th_y_vs_xi(new TProfile("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25))
+        h_xi(new TH1D("", ";#xi", 100, 0., 0.3)),
+        h2_th_y_vs_xi(new TH2D("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.3, 100, -500E-6, +500E-6)),
+        p_th_y_vs_xi(new TProfile("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.3))
       {}
 
       void fill(const reco::ForwardProton &p)
@@ -105,24 +105,27 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
     struct MultiRPPlots
     {
-      std::unique_ptr<TH1D> h_xi, h_th_x, h_th_y, h_vtx_y, h_t, h_chi_sq, h_chi_sq_norm;
+      std::unique_ptr<TH1D> h_xi, h_th_x, h_th_y, h_vtx_y, h_t_unif, h_t, h_chi_sq, h_chi_sq_norm;
       std::unique_ptr<TH1D> h_t_xi_range1, h_t_xi_range2, h_t_xi_range3;
+      std::unique_ptr<TH1D> h_n_tracking_RPs, h_n_timing_RPs;
       std::unique_ptr<TH2D> h2_th_x_vs_xi, h2_th_y_vs_xi, h2_vtx_y_vs_xi, h2_t_vs_xi;
       std::unique_ptr<TProfile> p_th_x_vs_xi, p_th_y_vs_xi, p_vtx_y_vs_xi;
 
       MultiRPPlots() :
-        h_xi(new TH1D("", ";#xi", 100, 0., 0.25)),
+        h_xi(new TH1D("", ";#xi", 100, 0., 0.3)),
         h_th_x(new TH1D("", ";#theta_{x}   (rad)", 100, -500E-6, +500E-6)),
         h_th_y(new TH1D("", ";#theta_{y}   (rad)", 100, -500E-6, +500E-6)),
         h_vtx_y(new TH1D("", ";vtx_{y}   (cm)", 100, -2., +2.)),
         h_chi_sq(new TH1D("", ";#chi^{2}", 100, 0., 0.)),
         h_chi_sq_norm(new TH1D("", ";#chi^{2}/ndf", 100, 0., 5.)),
-        h2_th_x_vs_xi(new TH2D("", ";#xi;#theta_{x}   (rad)", 100, 0., 0.25, 100, -500E-6, +500E-6)),
-        h2_th_y_vs_xi(new TH2D("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25, 100, -500E-6, +500E-6)),
-        h2_vtx_y_vs_xi(new TH2D("", ";#xi;vtx_{y}   (cm)", 100, 0., 0.25, 100, -500E-3, +500E-3)),
-        p_th_x_vs_xi(new TProfile("", ";#xi;#theta_{x}   (rad)", 100, 0., 0.25)),
-        p_th_y_vs_xi(new TProfile("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.25)),
-        p_vtx_y_vs_xi(new TProfile("", ";#xi;vtx_{y}   (cm)", 100, 0., 0.25))
+        h_n_tracking_RPs(new TH1D("", ";n of tracking RPs", 4, -0.5, +3.5)),
+        h_n_timing_RPs(new TH1D("", ";n of timing RPs", 4, -0.5, +3.5)),
+        h2_th_x_vs_xi(new TH2D("", ";#xi;#theta_{x}   (rad)", 100, 0., 0.3, 100, -500E-6, +500E-6)),
+        h2_th_y_vs_xi(new TH2D("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.3, 100, -500E-6, +500E-6)),
+        h2_vtx_y_vs_xi(new TH2D("", ";#xi;vtx_{y}   (cm)", 100, 0., 0.3, 100, -500E-3, +500E-3)),
+        p_th_x_vs_xi(new TProfile("", ";#xi;#theta_{x}   (rad)", 100, 0., 0.3)),
+        p_th_y_vs_xi(new TProfile("", ";#xi;#theta_{y}   (rad)", 100, 0., 0.3)),
+        p_vtx_y_vs_xi(new TProfile("", ";#xi;vtx_{y}   (cm)", 100, 0., 0.3))
       {
         std::vector<double> v_t_bin_edges;
         for (double t = 0; t <= 5.; ) {
@@ -130,17 +133,28 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
           const double de_t = 0.05 + 0.09 * t + 0.02 * t*t;
           t += de_t;
         }
+        h_t_unif.reset(new TH1D("", ";|t|   (GeV^2)", 100, 0., 5.));
         h_t.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
         h_t_xi_range1.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
         h_t_xi_range2.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
         h_t_xi_range3.reset(new TH1D("", ";|t|   (GeV^2)", v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
-        h2_t_vs_xi.reset(new TH2D("", ";#xi;|t|   (GeV^2)", 100, 0., 0.25, v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
+        h2_t_vs_xi.reset(new TH2D("", ";#xi;|t|   (GeV^2)", 100, 0., 0.3, v_t_bin_edges.size() - 1, v_t_bin_edges.data()));
       }
 
       void fill(const reco::ForwardProton &p)
       {
         if (!p.validFit())
           return;
+
+        unsigned int n_tracking_RPs=0, n_timing_RPs=0;
+        for (const auto &tr : p.contributingLocalTracks())
+        {
+          CTPPSDetId detId(tr->getRPId());
+          if (detId.subdetId() == CTPPSDetId::sdTrackingStrip || detId.subdetId() == CTPPSDetId::sdTrackingPixel)
+            n_tracking_RPs++;
+          if (detId.subdetId() == CTPPSDetId::sdTimingDiamond || detId.subdetId() == CTPPSDetId::sdTimingFastSilicon)
+            n_timing_RPs++;
+        }
 
         const double th_x = p.thetaX();
         const double th_y = p.thetaY();
@@ -150,6 +164,9 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         if (p.ndof() > 0)
           h_chi_sq_norm->Fill(p.normalizedChi2());
 
+        h_n_tracking_RPs->Fill(n_tracking_RPs);
+        h_n_timing_RPs->Fill(n_timing_RPs);
+
         h_xi->Fill(p.xi());
 
         h_th_x->Fill(th_x);
@@ -157,6 +174,7 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
         h_vtx_y->Fill(p.vertex().y());
 
+        h_t_unif->Fill(mt);
         h_t->Fill(mt);
         if (p.xi() > 0.04 && p.xi() < 0.07) h_t_xi_range1->Fill(mt);
         if (p.xi() > 0.07 && p.xi() < 0.10) h_t_xi_range2->Fill(mt);
@@ -176,6 +194,9 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
       {
         h_chi_sq->Write("h_chi_sq");
         h_chi_sq_norm->Write("h_chi_sq_norm");
+
+        h_n_tracking_RPs->Write("h_n_tracking_RPs");
+        h_n_timing_RPs->Write("h_n_timing_RPs");
 
         h_xi->Write("h_xi");
 
@@ -200,6 +221,9 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
         profileToRMSGraph(p_vtx_y_vs_xi.get(), g_vtx_y_RMS_vs_xi.get());
         g_vtx_y_RMS_vs_xi->Write("g_vtx_y_RMS_vs_xi");
 
+        h_t->Scale(1., "width");
+
+        h_t_unif->Write("h_t_unif");
         h_t->Write("h_t");
         h_t_xi_range1->Write("h_t_xi_range1");
         h_t_xi_range2->Write("h_t_xi_range2");
@@ -222,11 +246,11 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
       std::unique_ptr<TH2D> h2_th_y_mu_vs_th_y_si;
 
       SingleMultiCorrelationPlots() :
-        h2_xi_mu_vs_xi_si(new TH2D("", ";#xi_{single};#xi_{multi}", 100, 0., 0.25, 100, 0., 0.25)),
+        h2_xi_mu_vs_xi_si(new TH2D("", ";#xi_{single};#xi_{multi}", 100, 0., 0.3, 100, 0., 0.3)),
         h_xi_diff_mu_si(new TH1D("", ";#xi_{multi} - #xi_{single}", 100, -0.1, +0.1)),
         h_xi_diff_si_mu(new TH1D("", ";#xi_{single} - #xi_{multi}", 100, -0.1, +0.1)),
-        h2_xi_diff_si_mu_vs_xi_mu(new TH2D("", ";#xi_{multi};#xi_{single} - #xi_{multi}", 100, 0., 0.25, 100, -0.10, 0.10)),
-        p_xi_diff_si_mu_vs_xi_mu(new TProfile("", ";#xi_{multi};#xi_{single} - #xi_{multi}", 100, 0., 0.25)),
+        h2_xi_diff_si_mu_vs_xi_mu(new TH2D("", ";#xi_{multi};#xi_{single} - #xi_{multi}", 100, 0., 0.3, 100, -0.10, 0.10)),
+        p_xi_diff_si_mu_vs_xi_mu(new TProfile("", ";#xi_{multi};#xi_{single} - #xi_{multi}", 100, 0., 0.3)),
         h2_th_y_mu_vs_th_y_si(new TH2D("", ";#theta^{*}_{y,si};#theta^{*}_{y,mu}", 100, -500E-6, +500E-6, 100, -500E-6, +500E-6))
       {}
 
@@ -272,9 +296,9 @@ class CTPPSProtonReconstructionPlotter : public edm::one::EDAnalyzer<>
 
       ArmCorrelationPlots() :
         h_xi_si_diffNF(new TH1D("", ";#xi_{sF} - #xi_{sN}", 100, -0.02, +0.02)),
-        p_xi_si_diffNF_vs_xi_mu(new TProfile("", ";#xi_{m};#xi_{sF} - #xi_{sN}", 100, 0., 0.25)),
+        p_xi_si_diffNF_vs_xi_mu(new TProfile("", ";#xi_{m};#xi_{sF} - #xi_{sN}", 100, 0., 0.3)),
         h_th_y_si_diffNF(new TH1D("", ";#theta_{y,sF} - #theta_{y,sN}", 100, -100E-6, +100E-6)),
-        p_th_y_si_diffNF_vs_xi_mu(new TProfile("", ";#xi_{m};#theta_{y,sF} - #theta_{y,sN}", 100, 0., 0.25))
+        p_th_y_si_diffNF_vs_xi_mu(new TProfile("", ";#xi_{m};#theta_{y,sF} - #theta_{y,sN}", 100, 0., 0.3))
       {}
 
       void fill(const reco::ForwardProton &p_s_N, const reco::ForwardProton &p_s_F, const reco::ForwardProton &p_m)
