@@ -18,6 +18,9 @@
 <use   name="Geometry/GEMGeometry"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="RelationalAccess"/>
+<use   name="FWCore/Sources"/>
+<use   name="rootrflx"/>
+<use   name="boost"/>
 <use   name="root"/>
 
 <use   name="SimDataFormats/CrossingFrame"/>
@@ -25,4 +28,6 @@
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="Utilities/General"/>
 <use   name="CommonTools/UtilAlgos"/>
-<flags   EDM_PLUGIN="1"/>
+<export>
+  <lib   name="1"/>
+</export>

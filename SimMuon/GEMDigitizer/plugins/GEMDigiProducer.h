@@ -15,7 +15,7 @@
 #include <string>
 
 class GEMGeometry;
-class GEMDigiModel;
+class GEMDigiModule;
 
 class GEMDigiProducer : public edm::stream::EDProducer<>
 {
@@ -38,8 +38,9 @@ private:
   //Name of Collection used for create the XF 
   edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token; 
   
-  std::unique_ptr<GEMDigiModel> gemDigiModel_;
+  const GEMGeometry* geometry_;
+
+  std::unique_ptr<GEMDigiModule> gemDigiModule_;
 };
 
 #endif
-
