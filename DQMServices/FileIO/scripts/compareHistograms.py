@@ -88,7 +88,7 @@ def create_dif(base_file_path, pr_file_path, pr_number, test_number, cmssw_versi
    nr_of_removed_elements = len(paths_to_save_in_base) - nr_of_changed_elements
    nr_of_added_elements = len(paths_to_save_in_pr) - nr_of_changed_elements
 
-   print('Base output file. PR output file. Changed elements, removed elements, deleted elements:')
+   print('Base output file. PR output file. Changed elements, removed elements, added elements:')
    print(base_output_filename)
    print(pr_output_filename)
    print('%s %s %s' % (nr_of_changed_elements, nr_of_removed_elements, nr_of_added_elements))
