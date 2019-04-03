@@ -8,8 +8,9 @@
  *  Authors :
  *  P. Traczyk, SINS Warsaw
  *
- *  \modified by C. Calabria, INFN & Universita� Bari
+ *  \modified by C. Calabria, INFN & Universita Bari
  *  \modified by D. Nash, Northeastern University
+ *  \modified by C. Caputo, UCLouvain
  *
  **/
 
@@ -74,7 +75,7 @@ using namespace edm;
 
 GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 				       const MuonServiceProxy* service,
-				       edm::ConsumesCollector& iC) :
+				       edm::ConsumesCollector& iC) : 
   theCosmicFlag(par.getParameter<bool>("PropDirForCosmics")),
   theDTRecHitLabel(par.getParameter<InputTag>("DTRecSegmentLabel")),
   theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
@@ -96,15 +97,15 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 
   if (refitDirectionName == "insideOut" ) theRefitDirection = insideOut;
   else if (refitDirectionName == "outsideIn" ) theRefitDirection = outsideIn;
-  else
-    throw cms::Exception("TrackTransformer constructor")
+  else 
+    throw cms::Exception("TrackTransformer constructor") 
       <<"Wrong refit direction chosen in TrackTransformer ParameterSet"
       << "\n"
       << "Possible choices are:"
       << "\n"
       << "RefitDirection = insideOut or RefitDirection = outsideIn";
 
-  theFitterName = par.getParameter<string>("Fitter");
+  theFitterName = par.getParameter<string>("Fitter");  
   thePropagatorName = par.getParameter<string>("Propagator");
 
   theSkipStation        = par.getParameter<int>("SkipStation");
@@ -134,7 +135,7 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theCacheId_TRH = 0;
   theDTRecHitToken=iC.consumes<DTRecHitCollection>(theDTRecHitLabel);
   theCSCRecHitToken=iC.consumes<CSCRecHit2DCollection>(theCSCRecHitLabel);
-  theGEMRecHitToken=iC.consumes<GEMRecHitCollection>(theGEMRecHitLabel);
+  theGEMRecHitToken=iC.consumes<GEMRecHitCollection>(theGEMRecHitLabel); 
   theME0RecHitToken=iC.consumes<ME0SegmentCollection>(theME0RecHitLabel);
   CSCSegmentsToken = iC.consumes<CSCSegmentCollection>(InputTag("cscSegments"));
   all4DSegmentsToken=iC.consumes<DTRecSegment4DCollection>(InputTag("dt4DSegments"));
@@ -157,8 +158,8 @@ void GlobalMuonRefitter::setEvent(const edm::Event& event) {
   theEvent = &event;
   event.getByToken(theDTRecHitToken, theDTRecHits);
   event.getByToken(theCSCRecHitToken, theCSCRecHits);
-  event.getByToken(theGEMRecHitToken, theGEMRecHits);
-  event.getByToken(theME0RecHitToken, theME0RecHits);
+  event.getByToken(theGEMRecHitToken, theGEMRecHits);   
+  event.getByToken(theME0RecHitToken, theME0RecHits);   
   event.getByToken(CSCSegmentsToken, CSCSegments);
   event.getByToken(all4DSegmentsToken, all4DSegments);
 }
@@ -204,7 +205,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 	allRecHitsTemp.push_back((**hit).cloneForFit(*tkbuilder->geometry()->idToDet( (**hit).geographicalId() ) ) );
       else if ((*hit)->geographicalId().det() == DetId::Muon) {
 	if ((*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit) {
-	  LogTrace(theCategory) << "RPC Rec Hit discarged";
+	  LogTrace(theCategory) << "RPC Rec Hit discarged"; 
 	  continue;
 	}
 	allRecHitsTemp.push_back(theMuonRecHitBuilder->build(&**hit));
@@ -241,7 +242,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
   LogTrace(theCategory) << " Track momentum before refit: " << globalTrack.pt() << endl;
   LogTrace(theCategory) << " Hits size before : " << allRecHitsTemp.size() << endl;
 
-  allRecHits = getRidOfSelectStationHits(allRecHitsTemp, tTopo);
+  allRecHits = getRidOfSelectStationHits(allRecHitsTemp, tTopo);  
   //    printHits(allRecHits);
   LogTrace(theCategory) << " Hits size: " << allRecHits.size() << endl;
 
@@ -256,7 +257,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       return vector<Trajectory>();
     }
 
-    LogTrace(theCategory) << " Initial trajectory state: "
+    LogTrace(theCategory) << " Initial trajectory state: " 
                           << globalTraj.front().lastMeasurement().updatedState().freeState()->parameters() << endl;
 
     if (theMuonHitsOption == 1 )
@@ -312,7 +313,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 //
 //
 //
-void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
+void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon, 
 				       ConstRecHitContainer& all,
 				       map<DetId, int> &hitMap) const {
 
@@ -498,8 +499,8 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 
   } // end of loop over muon rechits
 
-  for (map<DetId,int>::iterator imap=hitMap.begin(); imap!=hitMap.end(); imap++ )
-    LogTrace(theCategory) << " Station " << imap->first.rawId() << ": " << imap->second <<endl;
+  for (map<DetId,int>::iterator imap=hitMap.begin(); imap!=hitMap.end(); imap++ ) 
+    LogTrace(theCategory) << " Station " << imap->first.rawId() << ": " << imap->second <<endl; 
 
   LogTrace(theCategory) << "CheckMuonHits: "<<all.size();
 
@@ -516,7 +517,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 //
 // Get the hits from the first muon station (containing hits)
 //
-void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
+void GlobalMuonRefitter::getFirstHits(const reco::Track& muon, 
 				       ConstRecHitContainer& all,
 				       ConstRecHitContainer& first) const {
 
@@ -551,7 +552,7 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
   }
 
   if (station_to_keep <= 0 || station_to_keep > 4 || stations.size() != all.size())
-    LogInfo(theCategory) << "failed to getFirstHits (all muon hits are outliers/bad ?)! station_to_keep = "
+    LogInfo(theCategory) << "failed to getFirstHits (all muon hits are outliers/bad ?)! station_to_keep = " 
 			    << station_to_keep << " stations.size " << stations.size() << " all.size " << all.size();
 
   for (unsigned i = 0; i < stations.size(); ++i)
@@ -562,17 +563,17 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
 
 
 //
-// select muon hits compatible with trajectory;
+// select muon hits compatible with trajectory; 
 // check hits in chambers with showers
 //
-GlobalMuonRefitter::ConstRecHitContainer
-GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
+GlobalMuonRefitter::ConstRecHitContainer 
+GlobalMuonRefitter::selectMuonHits(const Trajectory& traj, 
                                    const map<DetId, int> &hitMap) const {
 
   ConstRecHitContainer muonRecHits;
   const double globalChi2Cut = 200.0;
 
-  vector<TrajectoryMeasurement> muonMeasurements = traj.measurements();
+  vector<TrajectoryMeasurement> muonMeasurements = traj.measurements(); 
 
   // loop through all muon hits and skip hits with bad chi2 in chambers with high occupancy
   for (std::vector<TrajectoryMeasurement>::const_iterator im = muonMeasurements.begin(); im != muonMeasurements.end(); im++ ) {
@@ -627,19 +628,19 @@ GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
     } else
       continue;
 
-    double chi2ndf = (*im).estimate()/(*im).recHit()->dimension();
+    double chi2ndf = (*im).estimate()/(*im).recHit()->dimension();  
 
     bool keep = true;
     map<DetId,int>::const_iterator imap=hitMap.find(chamberId);
-    if ( imap!=hitMap.end() )
+    if ( imap!=hitMap.end() ) 
       if (imap->second>threshold) keep = false;
 
     if ( (keep || (chi2ndf<chi2Cut)) && (chi2ndf<globalChi2Cut) ) {
       muonRecHits.push_back((*im).recHit());
     } else {
       LogTrace(theCategory)
-	<< "Skip hit: " << id.rawId() << " chi2="
-	<< chi2ndf << " ( threshold: " << chi2Cut << ") Det: "
+	<< "Skip hit: " << id.rawId() << " chi2=" 
+	<< chi2ndf << " ( threshold: " << chi2Cut << ") Det: " 
 	<< imap->second << endl;
     }
   }
@@ -659,12 +660,12 @@ void GlobalMuonRefitter::printHits(const ConstRecHitContainer& hits) const {
   for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
     if ( !(*ir)->isValid() ) {
       LogTrace(theCategory) << "invalid RecHit";
-      continue;
+      continue; 
     }
 
     const GlobalPoint& pos = (*ir)->globalPosition();
 
-    LogTrace(theCategory)
+    LogTrace(theCategory) 
       << "r = " << sqrt(pos.x() * pos.x() + pos.y() * pos.y())
       << "  z = " << pos.z()
       << "  dimension = " << (*ir)->dimension()

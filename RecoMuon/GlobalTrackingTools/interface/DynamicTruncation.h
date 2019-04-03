@@ -46,7 +46,7 @@ namespace dyt_utils{
 };
 
 class DynamicTruncation {
-
+  
  public:
 
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
@@ -56,7 +56,7 @@ class DynamicTruncation {
 
   ~DynamicTruncation();
 
-  void setProd(const edm::Handle<DTRecSegment4DCollection>& DTSegProd,
+  void setProd(const edm::Handle<DTRecSegment4DCollection>& DTSegProd, 
 	       const edm::Handle<CSCSegmentCollection>& CSCSegProd) {
     getSegs->initCSU(DTSegProd, CSCSegProd);
   }
@@ -77,7 +77,7 @@ class DynamicTruncation {
   // Return the vector with the tracker plus the selected muon hits
   TransientTrackingRecHit::ConstRecHitContainer filter(const Trajectory&);
 
-  // Return the DYTInfo object
+  // Return the DYTInfo object 
   reco::DYTInfo getDYTInfo() {
     dytInfo.setNStUsed(nStationsUsed);
     dytInfo.setDYTEstimators(estimatorMap);
