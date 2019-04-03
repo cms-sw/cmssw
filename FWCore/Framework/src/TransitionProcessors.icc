@@ -10,6 +10,8 @@
 
 //Transition processing helpers
 
+#include <cassert>
+
 struct FileResources {
   FileResources(EventProcessor& iEP):
   ep_(iEP) {}
@@ -143,6 +145,7 @@ public:
     lumis_.normalEnd();
     if(currentRun_) {
       currentRun_->normalEnd();
+      assert(currentRun_.use_count() == 1);
     }
     currentRun_.reset();
   }

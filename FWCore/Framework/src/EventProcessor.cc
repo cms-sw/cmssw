@@ -244,6 +244,7 @@ namespace edm {
     exceptionMessageFiles_(),
     exceptionMessageRuns_(),
     exceptionMessageLumis_(),
+    exceptionMessageLumisIsSet_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
@@ -280,6 +281,7 @@ namespace edm {
     exceptionMessageFiles_(),
     exceptionMessageRuns_(),
     exceptionMessageLumis_(),
+    exceptionMessageLumisIsSet_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
@@ -318,6 +320,7 @@ namespace edm {
     exceptionMessageFiles_(),
     exceptionMessageRuns_(),
     exceptionMessageLumis_(),
+    exceptionMessageLumisIsSet_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
@@ -1155,7 +1158,9 @@ namespace edm {
                                                           [this,i,h = holder](std::exception_ptr const* iPtr) mutable
                   {
                     if(iPtr) {
-                      h.doneWaiting(*iPtr);
+                      WaitingTaskHolder tmp(h);
+                      tmp.doneWaiting(*iPtr);
+                      streamEndLumiAsync(h, i, streamLumiStatus_[i]);
                     } else {
                       handleNextEventForStreamAsync(std::move(h), i);
                     }
@@ -1511,15 +1516,19 @@ namespace edm {
 
   bool EventProcessor::readNextEventForStream(unsigned int iStreamIndex,
                                               LuminosityBlockProcessingStatus& iStatus) {
-    if(shouldWeStop()) {
-      return false;
-    }
-    
     if(deferredExceptionPtrIsSet_.load(std::memory_order_acquire)) {
+      iStatus.endLumi();
       return false;
     }
     
     if(iStatus.wasEventProcessingStopped()) {
+      return false;
+    }
+
+    if (shouldWeStop()) {
+      lastSourceTransition_ = InputSource::IsStop;
+      iStatus.stopProcessingEvents();
+      iStatus.endLumi();
       return false;
     }
 
@@ -1562,6 +1571,7 @@ namespace edm {
       bool expected =false;
       if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
         deferredExceptionPtr_ = std::current_exception();
+        iStatus.endLumi();
       }
       return false;
     }
@@ -1578,10 +1588,36 @@ namespace edm {
              if(readNextEventForStream(iStreamIndex, *status) ) {
                auto recursionTask = make_waiting_task(tbb::task::allocate_root(), [this,iTask,iStreamIndex](std::exception_ptr const* iPtr) mutable {
                  if(iPtr) {
+                   // Try to end the stream properly even if an exception was
+                   // thrown on an event.
                    bool expected = false;
                    if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
+                     // This is the case where the exception in iPtr is the primary
+                     // exception and we want to see its message.
                      deferredExceptionPtr_ = *iPtr;
-                     iTask.doneWaiting(*iPtr);
+                     std::exception_ptr excpt = *iPtr;
+                     auto delayError = make_waiting_task(tbb::task::allocate_root(), [this, iTask, excpt](std::exception_ptr const* jPtr) mutable {
+                       if (jPtr) {
+                         std::string message("Another exception was caught while trying to clean up lumis after the primary fatal exception.");
+                         setExceptionMessageLumis(message);
+                       }
+                       iTask.doneWaiting(excpt);
+                     });
+                     WaitingTaskHolder delayErrorHolder(delayError);
+                     streamEndLumiAsync(std::move(delayErrorHolder), iStreamIndex, streamLumiStatus_[iStreamIndex]);
+                   } else {
+                     // Something else already threw and set the deferred exception so
+                     // we simply ignore subsequent exceptions.
+                     std::exception_ptr excpt;
+                     auto ignoreError = make_waiting_task(tbb::task::allocate_root(), [this, iTask, excpt](std::exception_ptr const* jPtr) mutable {
+                       if (jPtr) {
+                         std::string message("Another exception was caught while trying to clean up lumis after the primary fatal exception.");
+                         setExceptionMessageLumis(message);
+                       }
+                       iTask.doneWaiting(excpt);
+                     });
+                     WaitingTaskHolder ignoreErrorHolder(ignoreError);
+                     streamEndLumiAsync(std::move(ignoreErrorHolder), iStreamIndex, streamLumiStatus_[iStreamIndex]);
                    }
                    //the stream will stop now
                    return;
@@ -1603,6 +1639,11 @@ namespace edm {
                }
              }
            } catch(...) {
+             // It is unlikely we will ever get in here ...
+             // But if we do try to clean up and propagate the exception
+             if (streamLumiStatus_[iStreamIndex]) {
+               streamEndLumiAsync(iTask, iStreamIndex, streamLumiStatus_[iStreamIndex]);
+             }
              bool expected = false;
              if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
                auto e =std::current_exception();
@@ -1747,7 +1788,10 @@ namespace edm {
   }
 
   void EventProcessor::setExceptionMessageLumis(std::string& message) {
-    exceptionMessageLumis_ = message;
+    bool expected = false;
+    if (exceptionMessageLumisIsSet_.compare_exchange_strong(expected,true)) {
+      exceptionMessageLumis_ = message;
+    }
   }
 
   bool EventProcessor::setDeferredException(std::exception_ptr iException) {
