@@ -1,5 +1,6 @@
 #include "SimMuon/GEMDigitizer/interface/GEMPadDigiProducer.h"
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -77,3 +78,5 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDig
     }
   }
 }
+
+DEFINE_FWK_MODULE(GEMPadDigiProducer);

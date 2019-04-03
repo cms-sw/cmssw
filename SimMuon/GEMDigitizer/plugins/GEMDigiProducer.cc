@@ -1,3 +1,6 @@
+#include "SimMuon/GEMDigitizer/plugins/GEMDigiProducer.h"
+#include "SimMuon/GEMDigitizer/plugins/GEMDigiModule.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -9,9 +12,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-
-#include "SimMuon/GEMDigitizer/plugins/GEMDigiProducer.h"
-#include "SimMuon/GEMDigitizer/plugins/GEMDigiModule.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
