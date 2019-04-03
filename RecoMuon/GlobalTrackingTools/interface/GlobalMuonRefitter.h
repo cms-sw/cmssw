@@ -9,8 +9,9 @@
  *  \author C. Liu 		 Purdue University
  *  \author A. Everett 		 Purdue University
  *
- *  \modified by C. Calabria     INFN & Universita� Bari
+ *  \modified by C. Calabria     INFN & Universita Bari
  *  \modified by D. Nash         Northeastern University
+ *  \modified by C. Caputo       UCLouvain
  */
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -67,7 +68,7 @@ class GlobalMuonRefitter {
 
     /// constructor with Parameter Set and MuonServiceProxy
     GlobalMuonRefitter(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
-
+          
     /// destructor
     virtual ~GlobalMuonRefitter();
 
@@ -105,15 +106,15 @@ class GlobalMuonRefitter {
     enum RefitDirection{insideOut,outsideIn,undetermined};
 
     /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
-    void checkMuonHits(const reco::Track&, ConstRecHitContainer&,
+    void checkMuonHits(const reco::Track&, ConstRecHitContainer&, 
                        std::map<DetId, int> &) const;
 
     /// get the RecHits in the tracker and the first muon chamber with hits
-    void getFirstHits(const reco::Track&, ConstRecHitContainer&,
+    void getFirstHits(const reco::Track&, ConstRecHitContainer&, 
                        ConstRecHitContainer&) const;
 
     /// select muon hits compatible with trajectory; check hits in chambers with showers
-    ConstRecHitContainer selectMuonHits(const Trajectory&,
+    ConstRecHitContainer selectMuonHits(const Trajectory&, 
                                         const std::map<DetId, int> &) const;
 
     /// print all RecHits of a trajectory
@@ -129,7 +130,7 @@ class GlobalMuonRefitter {
     float thePtCut;
 
   private:
-
+  
     int   theMuonHitsOption;
     float theProbCut;
     int   theHitThreshold;
