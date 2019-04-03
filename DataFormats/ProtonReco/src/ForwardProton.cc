@@ -17,9 +17,10 @@ ForwardProton::ForwardProton() :
 
 ForwardProton::ForwardProton( double chi2, double ndof, const Point& vtx, const Vector& momentum, float xi,
                               const CovarianceMatrix& cov, ReconstructionMethod method,
-                              const CTPPSLocalTrackLiteRefVector& local_tracks, bool valid ) :
+                              const CTPPSLocalTrackLiteRefVector& local_tracks, bool valid,
+                              const float time, const float time_err ) :
   vertex_( vtx ), momentum_( momentum ),
-  time_( 0. ), time_err_( 0. ), xi_( xi ),
+  time_( time ), time_err_( time_err ), xi_( xi ),
   covariance_( cov ), chi2_( chi2 ), ndof_( ndof ),
   valid_fit_( valid ), method_( method ), contributing_local_tracks_( local_tracks )
 {}

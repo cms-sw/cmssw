@@ -38,8 +38,9 @@ namespace reco
       ForwardProton();
       /// constructor from refit parameters, fitted vertex and momentum, and longitudinal fractional momentum loss
       ForwardProton( double chi2, double ndof, const Point& vtx, const Vector& momentum, float xi,
-                     const CovarianceMatrix& cov, ReconstructionMethod method,
-                     const CTPPSLocalTrackLiteRefVector& local_tracks, bool valid );
+                      const CovarianceMatrix& cov, ReconstructionMethod method,
+                      const CTPPSLocalTrackLiteRefVector& local_tracks, bool valid,
+                      const float time=0., const float time_err=0. );
 
       /// fitted vertex position
       const Point& vertex() const { return vertex_; }
@@ -107,8 +108,11 @@ namespace reco
 
       /// time of proton arrival at forward stations
       float time() const { return time_; }
+      void setTime(float time) { time_ = time; }
+
       /// uncertainty on time of proton arrival at forward stations
       float timeError() const { return time_err_; }
+      void setTimeError(float time_err) { time_err_ = time_err; }
 
       /// set the flag for the fit validity
       void setValidFit( bool valid = true ) { valid_fit_ = valid; }
