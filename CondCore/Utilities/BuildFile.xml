@@ -33,6 +33,7 @@
 <use   name="CondFormats/BTauObjects"/>
 <use   name="CondFormats/MFObjects"/>
 <use   name="CondFormats/PCLConfig"/>
+<use   name="CondFormats/SiPhase2TrackerObjects"/>
 <use   name="CondFormats/CTPPSReadoutObjects"/>
 <use   name="rootgraphics"/>
 <export>

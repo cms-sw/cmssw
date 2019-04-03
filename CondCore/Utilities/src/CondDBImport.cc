@@ -313,6 +313,8 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( SiStripNoises )
       IMPORT_PAYLOAD_CASE( SiStripPedestals )
       IMPORT_PAYLOAD_CASE( SiStripThreshold )
+      IMPORT_PAYLOAD_CASE( DTCELinkId )
+      IMPORT_PAYLOAD_CASE( TrackerDetToDTCELinkCablingMap )
       IMPORT_PAYLOAD_CASE( TrackProbabilityCalibration )
       IMPORT_PAYLOAD_CASE( cond::BaseKeyed )
       IMPORT_PAYLOAD_CASE( ESCondObjectContainer<ESChannelStatusCode> )
