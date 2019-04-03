@@ -11,12 +11,10 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
-class RPCSimHitMatcher : public MuonSimHitMatcher
-{
+class RPCSimHitMatcher : public MuonSimHitMatcher {
  public:
-
   // constructor
-  RPCSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector && iC);
+  RPCSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
   // destructor
   ~RPCSimHitMatcher() {}
@@ -43,9 +41,9 @@ class RPCSimHitMatcher : public MuonSimHitMatcher
 
   std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;
 
-private:
-
-  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids, const edm::PSimHitContainer& rpc_hits);
+ private:
+  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
+                              const edm::PSimHitContainer& rpc_hits);
 
   edm::ESHandle<RPCGeometry> rpc_geom_;
 };

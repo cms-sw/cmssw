@@ -8,15 +8,13 @@
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
 
-#include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+#include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
-class ME0SimHitMatcher : public MuonSimHitMatcher
-{
-public:
-
+class ME0SimHitMatcher : public MuonSimHitMatcher {
+ public:
   // constructor
-  ME0SimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector && iC);
+  ME0SimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
   // destructor
   ~ME0SimHitMatcher() {}
@@ -43,9 +41,11 @@ public:
   int nLayersWithHitsInSuperChamber(unsigned int) const;
 
   // ME0 superchamber detIds with SimHits >=4 layers of coincidence pads
-  std::set<unsigned int> superChamberIdsCoincidences(int min_n_layers = 4) const;
+  std::set<unsigned int> superChamberIdsCoincidences(
+      int min_n_layers = 4) const;
 
-  // How many ME0 chambers with minimum number of layer with simhits did this simtrack get?
+  // How many ME0 chambers with minimum number of layer with simhits did this
+  // simtrack get?
   int nCoincidenceChambers(int min_n_layers = 4) const;
 
   // calculate average strip for a provided collection of simhits
@@ -60,9 +60,9 @@ public:
   // How many pads with simhits in ME0 did this simtrack get?
   int nPadsWithHits() const;
 
-private:
-
-  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids, const edm::PSimHitContainer& me0_hits);
+ private:
+  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
+                              const edm::PSimHitContainer& me0_hits);
 
   edm::ESHandle<ME0Geometry> me0_geom_;
 
@@ -72,7 +72,7 @@ private:
   // detids with hits in 2-layer pad coincidences
   std::map<unsigned int, std::set<int> > detids_to_copads_;
 
-  std::map<unsigned int, edm::PSimHitContainer > superChamber_to_hits_;
+  std::map<unsigned int, edm::PSimHitContainer> superChamber_to_hits_;
 };
 
 #endif

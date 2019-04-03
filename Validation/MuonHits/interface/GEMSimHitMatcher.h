@@ -8,15 +8,13 @@
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
 
-#include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
-class GEMSimHitMatcher : public MuonSimHitMatcher
-{
-public:
-
+class GEMSimHitMatcher : public MuonSimHitMatcher {
+ public:
   // constructor
-  GEMSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector && iC);
+  GEMSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
   // destructor
   ~GEMSimHitMatcher() {}
@@ -31,7 +29,8 @@ public:
   std::set<unsigned int> detIds(int gem_type = MuonHitHelper::GEM_ALL) const;
 
   // chamber detIds with SimHits
-  std::set<unsigned int> chamberIds(int gem_type = MuonHitHelper::GEM_ALL) const;
+  std::set<unsigned int> chamberIds(
+      int gem_type = MuonHitHelper::GEM_ALL) const;
 
   // GEM detid's with hits in 2 layers of coincidence pads
   // those are layer==1 only detid's
@@ -50,7 +49,7 @@ public:
   bool hitStation(int, int) const;
 
   // number of stations with hits in at least X layers
-  int nStations(int nl=2) const;
+  int nStations(int nl = 2) const;
 
   // #layers with hits
   int nLayersWithHitsInSuperChamber(unsigned int) const;
@@ -62,7 +61,7 @@ public:
   int nCoincidencePadsWithHits() const;
 
   // transverse position in GEM
-  float	simHitsGEMCentralPosition(const edm::PSimHitContainer& sim_hits) const;
+  float simHitsGEMCentralPosition(const edm::PSimHitContainer& sim_hits) const;
 
   // calculate average strip number for a provided collection of simhits
   float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;
@@ -74,13 +73,13 @@ public:
   // what unique partitions numbers were hit by this simtrack?
   std::set<int> hitPartitions() const;
 
-private:
-
-  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids, const edm::PSimHitContainer& hits);
+ private:
+  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
+                              const edm::PSimHitContainer& hits);
 
   edm::ESHandle<GEMGeometry> gem_geom_;
 
-  std::map<unsigned int, edm::PSimHitContainer > superchamber_to_hits_;
+  std::map<unsigned int, edm::PSimHitContainer> superchamber_to_hits_;
 
   // detids with hits in pads
   std::map<unsigned int, std::set<int> > detids_to_pads_;

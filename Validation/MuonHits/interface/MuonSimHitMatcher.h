@@ -8,34 +8,32 @@
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Validation/MuonHits/interface/MuonHitHelper.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "Validation/MuonHits/interface/MuonHitHelper.h"
 
-#include <vector>
 #include <map>
 #include <set>
+#include <vector>
 
-class MuonSimHitMatcher
-{
+class MuonSimHitMatcher {
  public:
-
   // constructor
-  MuonSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector && iC);
+  MuonSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
   // destructor
   ~MuonSimHitMatcher() {}
@@ -62,18 +60,17 @@ class MuonSimHitMatcher
   // calculate Global average position for a provided collection of simhits
   GlobalPoint simHitsMeanPosition(const edm::PSimHitContainer& sim_hits) const;
 
-  // calculate Global average momentum for a provided collection of simhits in CSC
+  // calculate Global average momentum for a provided collection of simhits in
+  // CSC
   GlobalVector simHitsMeanMomentum(const edm::PSimHitContainer& sim_hits) const;
 
   // calculate the average position at the second station
   GlobalPoint simHitsMeanPositionStation(int n) const;
 
-protected:
-
-  std::vector<unsigned int>
-  getIdsOfSimTrackShower(unsigned  trk_id,
-                         const edm::SimTrackContainer& simTracks,
-                         const edm::SimVertexContainer& simVertices);
+ protected:
+  std::vector<unsigned int> getIdsOfSimTrackShower(
+      unsigned trk_id, const edm::SimTrackContainer& simTracks,
+      const edm::SimVertexContainer& simVertices);
 
   bool verboseSimTrack_;
   bool simMuOnly_;
@@ -103,8 +100,8 @@ protected:
 
   // selected hits
   edm::PSimHitContainer hits_;
-  std::map<unsigned int, edm::PSimHitContainer > detid_to_hits_;
-  std::map<unsigned int, edm::PSimHitContainer > chamber_to_hits_;
+  std::map<unsigned int, edm::PSimHitContainer> detid_to_hits_;
+  std::map<unsigned int, edm::PSimHitContainer> chamber_to_hits_;
 
   edm::ParameterSet simHitPSet_;
 };
