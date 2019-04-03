@@ -88,13 +88,13 @@ void MaterialBudgetCategorizer::buildHGCalCategoryMap(std::string theMaterialFil
     cms::Exception("LogicError") <<" File not found " << theMaterialFileName;
   
   // fill everything as "other"
-  float Air,Cables,Copper,H_Scintillator,Lead,HGC_G10_FR4,Silicon,StainlessSteel,WCu,oth,Epoxy,Kapton; 
-  Air=Cables=Copper=H_Scintillator=Lead=HGC_G10_FR4=Silicon=StainlessSteel=WCu=Epoxy=Kapton=0.;
+  float Air,Cables,Copper,H_Scintillator,Lead,HGC_G10_FR4,Silicon,StainlessSteel,WCu,oth,Epoxy,Kapton,Aluminium; 
+  Air=Cables=Copper=H_Scintillator=Lead=HGC_G10_FR4=Silicon=StainlessSteel=WCu=Epoxy=Kapton=Aluminium=0.;
 
   std::string materialName;
   while(theMaterialFile) {
     theMaterialFile >> materialName;
-    theMaterialFile >> Air >> Cables >> Copper >> H_Scintillator >> Lead >> HGC_G10_FR4 >> Silicon >> StainlessSteel >> WCu >> Epoxy >> Kapton;
+    theMaterialFile >> Air >> Cables >> Copper >> H_Scintillator >> Lead >> HGC_G10_FR4 >> Silicon >> StainlessSteel >> WCu >> Epoxy >> Kapton >> Aluminium;
     // Skip comments
     if (materialName[0] == '#')
       continue;
@@ -114,6 +114,7 @@ void MaterialBudgetCategorizer::buildHGCalCategoryMap(std::string theMaterialFil
     theMap[materialName].push_back(oth             ); // oth
     theMap[materialName].push_back(Epoxy             ); // Epoxy
     theMap[materialName].push_back(Kapton             ); // Kapton
+    theMap[materialName].push_back(Aluminium             ); // Aluminium
     edm::LogInfo("MaterialBudget") 
       << "MaterialBudgetCategorizer: material " << materialName << " filled " 
       << std::endl
@@ -128,6 +129,7 @@ void MaterialBudgetCategorizer::buildHGCalCategoryMap(std::string theMaterialFil
       << "\tWCu              " << WCu << std::endl
       << "\tEpoxy              " << Epoxy << std::endl
       << "\tKapton            " << Kapton<< std::endl
+      << "\tAluminium            " << Aluminium<< std::endl
       << "\tOTH              " << oth;
   }
 
