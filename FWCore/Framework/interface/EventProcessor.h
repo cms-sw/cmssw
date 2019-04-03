@@ -331,6 +331,7 @@ namespace edm {
     std::string                                   exceptionMessageFiles_;
     std::string                                   exceptionMessageRuns_;
     std::string                                   exceptionMessageLumis_;
+    std::atomic<bool>                             exceptionMessageLumisIsSet_;
     bool                                          forceLooperToEnd_;
     bool                                          looperBeginJobRun_;
     bool                                          forceESCacheClearOnNewRun_;
