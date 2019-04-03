@@ -25,11 +25,11 @@ class GEMNoiseModel: public GEMDigiModel
 {
 public:
 
-  GEMNoiseModel(const edm::ParameterSet&, GEMDigiModule*);
+  GEMNoiseModel(const edm::ParameterSet&);
 
   ~GEMNoiseModel() override;
 
-  void simulate(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*) override;
+  void simulate(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*, Strips&, DetectorHitMap&) override;
 
 private:
 

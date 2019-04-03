@@ -43,29 +43,22 @@ public:
   typedef edm::DetSet<StripDigiSimLink> StripDigiSimLinks;
   typedef edm::DetSet<GEMDigiSimLink> GEMDigiSimLinks;
 
-  void setGeometry(const GEMGeometry *geom) {geometry_ = geom;}
-
-  const GEMGeometry* getGeometry() {return geometry_;}
+  void setGeometry(const GEMGeometry*);
 
   void simulate(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*);
 
   void fillDigis(int rollDetId, GEMDigiCollection&);
 
-  void setup() { return; }
-
   const StripDigiSimLinks & stripDigiSimLinks() const {return stripDigiSimLinks_;}
   const GEMDigiSimLinks & gemDigiSimLinks() const {return theGemDigiSimLinks_;}
   
-  void emplaceStrip( std::pair<int,int>);
-  void emplaceHitMap( std::pair<int,int>, const PSimHit*);
-
 private:
 
   const GEMGeometry * geometry_;
 
-  std::vector<GEMDigiModel*> models;
+  std::vector< std::unique_ptr<GEMDigiModel> > models;
   
-  std::set< std::pair<int, int> > strips_;
+  typedef std::set< std::pair<int, int> > Strips;
 
   /// creates links from Digi to SimTrack
   void addLinks(unsigned int strip,int bx);
@@ -78,6 +71,7 @@ private:
       std::less<std::pair<unsigned int, int> >
     >  DetectorHitMap;
 
+  Strips strips_;
   DetectorHitMap detectorHitMap_;
   StripDigiSimLinks stripDigiSimLinks_;
   GEMDigiSimLinks theGemDigiSimLinks_;

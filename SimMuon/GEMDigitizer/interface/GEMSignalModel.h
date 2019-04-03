@@ -25,11 +25,11 @@ class GEMSignalModel: public GEMDigiModel
 {
 public:
 
-  GEMSignalModel(const edm::ParameterSet&, GEMDigiModule*);
+  GEMSignalModel(const edm::ParameterSet&);
 
   ~GEMSignalModel() override;
 
-  void simulate(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*) override;
+  void simulate(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*, Strips&, DetectorHitMap&) override;
 
   int getSimHitBx(const PSimHit*, CLHEP::HepRandomEngine*);
 

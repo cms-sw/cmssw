@@ -38,6 +38,8 @@ private:
   //Name of Collection used for create the XF 
   edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token; 
   
+  const GEMGeometry* geometry_;
+
   std::unique_ptr<GEMDigiModule> gemDigiModule_;
 };
 
