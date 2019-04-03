@@ -9,7 +9,7 @@ namespace ZCountingTrigger
   class TTrigger 
   {
     public:
-      TTrigger();
+      TTrigger(std::vector<std::string>, std::vector<std::string>);
       ~TTrigger(){}
 
       // Methods

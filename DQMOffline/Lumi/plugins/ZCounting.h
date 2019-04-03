@@ -81,8 +81,14 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> fHLTTag_token;
   std::string fPVName;
   edm::EDGetTokenT<reco::VertexCollection> fPVName_token;
+
+  // Muons
   std::string fMuonName;
   edm::EDGetTokenT<reco::MuonCollection> fMuonName_token;
+  std::vector<std::string> fMuonHLTNames;
+  std::vector<std::string> fMuonHLTObjectNames;
+
+  // Tracks
   std::string fTrackName;
   edm::EDGetTokenT<reco::TrackCollection> fTrackName_token;
 
