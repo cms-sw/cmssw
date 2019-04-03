@@ -72,8 +72,8 @@ l1t::HGC3DClusterTMVASelector::HGC3DClusterTMVASelector(const edm::ParameterSet 
 void 
 l1t::HGC3DClusterTMVASelector::produce(edm::Event & iEvent, const edm::EventSetup &) 
 {
-  std::unique_ptr<l1t::HGCalMulticlusterBxCollection> out(new l1t::HGCalMulticlusterBxCollection());
-  std::unique_ptr<l1t::HGCalMulticlusterBxCollection> fail(new l1t::HGCalMulticlusterBxCollection());
+  std::unique_ptr<l1t::HGCalMulticlusterBxCollection> out = std::make_unique<l1t::HGCalMulticlusterBxCollection>();
+  std::unique_ptr<l1t::HGCalMulticlusterBxCollection> fail = std::make_unique<l1t::HGCalMulticlusterBxCollection>();
 
   edm::Handle<l1t::HGCalMulticlusterBxCollection> multiclusters;
   iEvent.getByToken(src_, multiclusters);
