@@ -6,11 +6,11 @@
 //#include "SimMuon/GEMDigitizer/interface/GEMDigiProducer.h"
 //DEFINE_FWK_MODULE(GEMDigiProducer);
 
-#include "SimMuon/GEMDigitizer/interface/GEMPadDigiProducer.h"
-DEFINE_FWK_MODULE(GEMPadDigiProducer);
+//#include "SimMuon/GEMDigitizer/interface/GEMPadDigiProducer.h"
+//DEFINE_FWK_MODULE(GEMPadDigiProducer);
 
-#include "SimMuon/GEMDigitizer/interface/GEMPadDigiClusterProducer.h"
-DEFINE_FWK_MODULE(GEMPadDigiClusterProducer);
+//#include "SimMuon/GEMDigitizer/interface/GEMPadDigiClusterProducer.h"
+//DEFINE_FWK_MODULE(GEMPadDigiClusterProducer);
 
 #include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoProducer.h"
 DEFINE_FWK_MODULE(ME0DigiPreRecoProducer);
