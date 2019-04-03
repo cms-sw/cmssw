@@ -1,4 +1,5 @@
-#include "SimMuon/GEMDigitizer/interface/GEMDigiModule.h"
+#include "SimMuon/GEMDigitizer/plugins/GEMDigiModule.h"
+
 #include "SimMuon/GEMDigitizer/interface/GEMSignalModel.h"
 #include "SimMuon/GEMDigitizer/interface/GEMBkgModel.h"
 #include "SimMuon/GEMDigitizer/interface/GEMNoiseModel.h"
@@ -10,23 +11,15 @@ GEMDigiModule::GEMDigiModule(const edm::ParameterSet& config)
   bool doBkgNoise_(config.getParameter<bool> ("doBkgNoise"));
   bool simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"));
   if (simulateIntrinsicNoise_){
-    GEMNoiseModel* model = new GEMNoiseModel(config, this);
-    models.push_back(model);
+    models.push_back(std::make_unique<GEMNoiseModel>(config));
   }
   if (doBkgNoise_) {
-    GEMBkgModel* model = new GEMBkgModel(config, this);
-    models.push_back(model);
+    models.push_back(std::make_unique<GEMBkgModel>(config));
   }
-  GEMSignalModel* model = new GEMSignalModel(config, this);
-  models.push_back(model);
+  models.push_back(std::make_unique<GEMSignalModel>(config));
 }
 
-GEMDigiModule::~GEMDigiModule()
-{
-  for (auto model : models) {
-    delete model;
-  }
-}
+GEMDigiModule::~GEMDigiModule() = default;
 
 void GEMDigiModule::simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer& simHits, CLHEP::HepRandomEngine* engine)
 {
@@ -35,8 +28,8 @@ void GEMDigiModule::simulate(const GEMEtaPartition* roll, const edm::PSimHitCont
   stripDigiSimLinks_ = StripDigiSimLinks(roll->id().rawId());
   theGemDigiSimLinks_.clear();
   theGemDigiSimLinks_ = GEMDigiSimLinks(roll->id().rawId());
-  for (auto model : models) {
-    model->simulate(roll, simHits, engine);
+  for (auto&& model : models) {
+    model->simulate(roll, simHits, engine, strips_, detectorHitMap_);
   }
   return;
 }
@@ -116,14 +109,9 @@ void GEMDigiModule::addLinksWithPartId(unsigned int strip, int bx)
   }
 }
 
-void GEMDigiModule::emplaceStrip( std::pair<int,int> digi )
+void GEMDigiModule::setGeometry(const GEMGeometry *geom)
 {
-  strips_.emplace(digi);
-  return;
-}
-
-void GEMDigiModule::emplaceHitMap( std::pair<int,int> digi, const PSimHit* simHit )
-{
-  detectorHitMap_.emplace(digi, simHit);
-  return;
+  for (auto&& model : models) {
+    model->setGeometry(geom);
+  }
 }

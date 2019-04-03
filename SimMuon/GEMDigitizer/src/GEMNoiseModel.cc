@@ -10,8 +10,8 @@
 #include <utility>
 #include <map>
 
-GEMNoiseModel::GEMNoiseModel(const edm::ParameterSet& config, GEMDigiModule* digiModule) :
-GEMDigiModel(config, digiModule)
+GEMNoiseModel::GEMNoiseModel(const edm::ParameterSet& config) :
+GEMDigiModel(config)
 , averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))
 , bxwidth_(config.getParameter<int> ("bxwidth"))
 , minBunch_(config.getParameter<int> ("minBunch"))
@@ -23,7 +23,7 @@ GEMNoiseModel::~GEMNoiseModel()
 {
 }
 
-void GEMNoiseModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer&, CLHEP::HepRandomEngine* engine)
+void GEMNoiseModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer&, CLHEP::HepRandomEngine* engine, Strips& strips_, DetectorHitMap& detectorHitMap_)
 {
   const GEMDetId& gemId(roll->id());
   const int nstrips(roll->nstrips());
@@ -48,7 +48,7 @@ void GEMNoiseModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitCont
     const int centralStrip(static_cast<int> (CLHEP::RandFlat::shoot(engine, 1, nstrips)));
     const int time_hit(static_cast<int>(CLHEP::RandFlat::shoot(engine, nBxing)) + minBunch_);
     std::pair<int, int> digi(centralStrip, time_hit);
-    digiModule_->emplaceStrip(digi);
+    strips_.emplace(digi);
   }
   //end simulate intrinsic noise
 

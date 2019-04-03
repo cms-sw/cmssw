@@ -10,8 +10,8 @@
 #include <utility>
 #include <map>
 
-GEMBkgModel::GEMBkgModel(const edm::ParameterSet& config, GEMDigiModule* digiModule) :
-GEMDigiModel(config, digiModule)
+GEMBkgModel::GEMBkgModel(const edm::ParameterSet& config) :
+GEMDigiModel(config)
 , averageEfficiency_(config.getParameter<double> ("averageEfficiency"))
 , bxwidth_(config.getParameter<int> ("bxwidth"))
 , minBunch_(config.getParameter<int> ("minBunch"))
@@ -41,7 +41,7 @@ GEMBkgModel::~GEMBkgModel()
 {
 }
 
-void GEMBkgModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer&, CLHEP::HepRandomEngine* engine)
+void GEMBkgModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer&, CLHEP::HepRandomEngine* engine, Strips& strips_, DetectorHitMap& detectorHitMap_)
 {
   const GEMDetId& gemId(roll->id());
   const int nstrips(roll->nstrips());
@@ -125,12 +125,12 @@ void GEMBkgModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitContai
       }
       for (const auto& digi : cluster_)
       {
-        digiModule_->emplaceStrip(digi);
+        strips_.emplace(digi);
       }
     } //end doNoiseCLS_
     else
     {
-      digiModule_->emplaceStrip(std::make_pair(centralStrip, time_hit));
+      strips_.emplace(std::make_pair(centralStrip, time_hit));
     }
   }
   return;

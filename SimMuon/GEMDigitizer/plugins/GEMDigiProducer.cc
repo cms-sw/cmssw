@@ -11,7 +11,7 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "SimMuon/GEMDigitizer/plugins/GEMDigiProducer.h"
-#include "SimMuon/GEMDigitizer/interface/GEMDigiModule.h"
+#include "SimMuon/GEMDigitizer/plugins/GEMDigiModule.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
@@ -26,7 +26,7 @@ namespace CLHEP {
 }
 
 GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
-  : gemDigiModule_{new GEMDigiModule(ps)}
+  : gemDigiModule_(std::make_unique<GEMDigiModule>(ps))
 {
   produces<GEMDigiCollection>();
   produces<StripDigiSimLinks>("GEM");
@@ -38,7 +38,6 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
       << "GEMDigiProducer::GEMDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
       << "Add the service in the configuration file or remove the modules that require it.";
   }
-  //gemDigiModule_ = new GEMDigiModule(ps);
 
   std::string mix_(ps.getParameter<std::string>("mixLabel"));
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
@@ -54,7 +53,7 @@ void GEMDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetu
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get(hGeom);
   gemDigiModule_->setGeometry(&*hGeom);
-  gemDigiModule_->setup();
+  geometry_ = &*hGeom;
 }
 
 
@@ -80,7 +79,7 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   }
 
   // simulate signal and noise for each eta partition
-  const auto & etaPartitions(gemDigiModule_->getGeometry()->etaPartitions());
+  const auto & etaPartitions(geometry_->etaPartitions());
 
   for (const auto& roll: etaPartitions){
     const GEMDetId detId(roll->id());

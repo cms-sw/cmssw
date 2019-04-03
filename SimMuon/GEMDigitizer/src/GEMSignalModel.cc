@@ -10,8 +10,8 @@
 #include <utility>
 #include <map>
 
-GEMSignalModel::GEMSignalModel(const edm::ParameterSet& config, GEMDigiModule* digiModule) :
-GEMDigiModel(config, digiModule)
+GEMSignalModel::GEMSignalModel(const edm::ParameterSet& config) :
+GEMDigiModel(config)
 , averageEfficiency_(config.getParameter<double> ("averageEfficiency"))
 , averageShapingTime_(config.getParameter<double> ("averageShapingTime"))
 , timeResolution_(config.getParameter<double> ("timeResolution"))
@@ -27,7 +27,7 @@ GEMSignalModel::~GEMSignalModel()
 {
 }
 
-void GEMSignalModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer& simHits, CLHEP::HepRandomEngine* engine)
+void GEMSignalModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer& simHits, CLHEP::HepRandomEngine* engine, Strips& strips_, DetectorHitMap& detectorHitMap_)
 {
   bool digiMuon = false;
   bool digiElec = false;
@@ -59,8 +59,8 @@ void GEMSignalModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitCon
     const std::vector<std::pair<int, int> >& cluster(simulateClustering(roll, &hit, bx, engine));
     for (const auto & digi : cluster)
     {
-      digiModule_->emplaceHitMap(digi,&hit);
-      digiModule_->emplaceStrip(digi);
+      detectorHitMap_.emplace(digi,&hit);
+      strips_.emplace(digi);
     }
   }
 }
@@ -73,7 +73,7 @@ int GEMSignalModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   // random Gaussian time correction due to electronics jitter
   float randomJitterTime = CLHEP::RandGaussQ::shoot(engine, 0., timeJitter_);
   const GEMDetId id(simhit->detUnitId());
-  const GEMEtaPartition* roll(digiModule_->getGeometry()->etaPartition(id));
+  const GEMEtaPartition* roll(geometry_->etaPartition(id));
   if (!roll)
   {
     throw cms::Exception("Geometry")<< "GEMSignalModel::getSimHitBx() - GEM simhit id does not match any GEM roll id: " << id << "\n";

@@ -25,11 +25,11 @@ class GEMBkgModel: public GEMDigiModel
 {
 public:
 
-  GEMBkgModel(const edm::ParameterSet&, GEMDigiModule*);
+  GEMBkgModel(const edm::ParameterSet&);
 
   ~GEMBkgModel() override;
 
-  void simulate(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*) override;
+  void simulate(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*, Strips&, DetectorHitMap&) override;
 
 private:
 
