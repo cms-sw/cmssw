@@ -16,7 +16,7 @@
 <lib name="GuiHtml"/>
 <lib name="GX11"/>
 <use name="boost_python"/>
-<use name="FWCore/PythonParameterSet"/>
+<use name="FWCore/PyDevParameterSet"/>
 <export>
 <lib name="1"/>
 </export>
