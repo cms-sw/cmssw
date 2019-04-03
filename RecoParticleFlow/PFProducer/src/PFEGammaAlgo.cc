@@ -2134,7 +2134,7 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
       if(condP2 == 1) ePS2 = -1.;
 
       cluscalibe = 
-	cfg_.thePFEnergyCalibration->energyEm(*clusptr,
+	thePFEnergyCalibration_.energyEm(*clusptr,
 					      PS1_clus_sum,PS2_clus_sum,
 					      ePS1, ePS2,
 					      cfg_.applyCrackCorrections);

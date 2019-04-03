@@ -3,9 +3,6 @@
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 
 #include "TDecompChol.h"
 
@@ -28,14 +25,14 @@ PFAlgo::PFAlgo(bool debug)
 void
 PFAlgo::setParameters(double nSigmaECAL,
                       double nSigmaHCAL,
-                      const std::shared_ptr<PFEnergyCalibration>& calibration,
-                      const std::shared_ptr<PFEnergyCalibrationHF>&  thepfEnergyCalibrationHF) {
+                      PFEnergyCalibration& calibration,
+                      PFEnergyCalibrationHF&  thepfEnergyCalibrationHF) {
 
   nSigmaECAL_ = nSigmaECAL;
   nSigmaHCAL_ = nSigmaHCAL;
 
-  calibration_ = calibration;
-  thepfEnergyCalibrationHF_ = thepfEnergyCalibrationHF;
+  calibration_ = &calibration;
+  thepfEnergyCalibrationHF_ = &thepfEnergyCalibrationHF;
 
 }
 

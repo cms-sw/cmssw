@@ -138,8 +138,6 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
     
   algo_config.mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");  
 
-  algo_config.thePFEnergyCalibration.reset(new PFEnergyCalibration());
-
   //PFEGamma
   //for MVA pass PV if there is one in the collection otherwise pass a dummy  
   if(!useVerticesForNeutral_) { // create a dummy PV  

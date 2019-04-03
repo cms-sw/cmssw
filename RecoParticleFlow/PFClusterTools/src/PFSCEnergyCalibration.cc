@@ -6,14 +6,16 @@ using namespace std;
 
 PFSCEnergyCalibration::PFSCEnergyCalibration() {}
 
-PFSCEnergyCalibration::PFSCEnergyCalibration(std::vector<double>& barrelFbremCorr,
-                                             std::vector<double>& endcapFbremCorr,
-                                             std::vector<double>& barrelCorr,
-                                             std::vector<double>& endcapCorr)
-    : barrelFbremCorr_(barrelFbremCorr),
-      endcapFbremCorr_(endcapFbremCorr),
-      barrelCorr_(barrelCorr),
-      endcapCorr_(endcapCorr) {
+PFSCEnergyCalibration::PFSCEnergyCalibration(std::vector<double> const& barrelFbremCorr,
+                                             std::vector<double> const& endcapFbremCorr,
+                                             std::vector<double> const& barrelCorr,
+                                             std::vector<double> const& endcapCorr):
+  barrelFbremCorr_(barrelFbremCorr),
+  endcapFbremCorr_(endcapFbremCorr),
+  barrelCorr_(barrelCorr),
+  endcapCorr_(endcapCorr)
+{
+
   // intial parameters
 
   bool log = false;
