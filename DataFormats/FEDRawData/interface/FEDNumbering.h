@@ -13,7 +13,6 @@
  */
 
 #include <array>
-#include <string>
 
 class FEDNumbering {
 
@@ -26,8 +25,6 @@ class FEDNumbering {
 
   static bool inRange(int);
   static bool inRangeNoGT(int);
-
-  static const std::string &fromDet(int);
 
    enum {
      NOT_A_FEDID = -1,
