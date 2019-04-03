@@ -52,7 +52,7 @@ class DQMReader(object):
                 yield (fullname, t_tree.Value, )
 
     def read_objects_root(self):
-        xml_re = re.compile(r"^<(.+)>(.+)=(.+)<\/\1>$")
+        xml_re = re.compile(r"^<(.+)>(.+)=(.*)<\/\1>$")
         def parse_directory(di):
             directory = self._root_file.GetDirectory(di)
             for key in directory.GetListOfKeys():
