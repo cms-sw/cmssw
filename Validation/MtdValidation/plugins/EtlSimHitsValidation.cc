@@ -240,60 +240,60 @@ void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
 
   // --- histograms booking
 
-  meNhits_[1]     = ibook.book1D("EtlNhitsZpos", "Number of ETL cells with SIM hits (+Z);N_{ETL cells}", 250, 0., 5000.);
-  meNhits_[0]     = ibook.book1D("EtlNhitsZneg", "Number of ETL cells with SIM hits (-Z);N_{ETL cells}", 250, 0., 5000.);
+  meNhits_[1]     = ibook.book1D("EtlNhitsZpos", "Number of ETL cells with SIM hits (+Z);N_{ETL cells}", 100, 0., 5000.);
+  meNhits_[0]     = ibook.book1D("EtlNhitsZneg", "Number of ETL cells with SIM hits (-Z);N_{ETL cells}", 100, 0., 5000.);
   meNtrkPerCell_[1] = ibook.book1D("EtlNtrkPerCellZpos", "Number of tracks per ETL sensor (+Z);N_{trk}", 10, 0., 10.);
   meNtrkPerCell_[0] = ibook.book1D("EtlNtrkPerCellZneg", "Number of tracks per ETL sensor (-Z);N_{trk}", 10, 0., 10.);
 
-  meHitEnergy_[1] = ibook.book1D("EtlHitEnergyZpos", "ETL SIM hits energy (+Z);E_{SIM} [MeV]", 200, 0., 2.);
-  meHitEnergy_[0] = ibook.book1D("EtlHitEnergyZneg", "ETL SIM hits energy (-Z);E_{SIM} [MeV]", 200, 0., 2.);
-  meHitTime_[1]   = ibook.book1D("EtlHitTimeZpos", "ETL SIM hits ToA (+Z);ToA_{SIM} [ns]", 250, 0., 25.);
-  meHitTime_[0]   = ibook.book1D("EtlHitTimeZneg", "ETL SIM hits ToA (-Z);ToA_{SIM} [ns]", 250, 0., 25.);
+  meHitEnergy_[1] = ibook.book1D("EtlHitEnergyZpos", "ETL SIM hits energy (+Z);E_{SIM} [MeV]", 100, 0., 3.);
+  meHitEnergy_[0] = ibook.book1D("EtlHitEnergyZneg", "ETL SIM hits energy (-Z);E_{SIM} [MeV]", 100, 0., 3.);
+  meHitTime_[1]   = ibook.book1D("EtlHitTimeZpos", "ETL SIM hits ToA (+Z);ToA_{SIM} [ns]", 100, 0., 25.);
+  meHitTime_[0]   = ibook.book1D("EtlHitTimeZneg", "ETL SIM hits ToA (-Z);ToA_{SIM} [ns]", 100, 0., 25.);
 
   meHitXlocal_[1] = ibook.book1D("EtlHitXlocalZpos", "ETL SIM local X (+Z);X_{SIM}^{LOC} [mm]", 100, -25., 25.);
   meHitXlocal_[0] = ibook.book1D("EtlHitXlocalZneg", "ETL SIM local X (-Z);X_{SIM}^{LOC} [mm]", 100, -25., 25.);
-  meHitYlocal_[1] = ibook.book1D("EtlHitYlocalZpos", "ETL SIM local Y (+Z);Y_{SIM}^{LOC} [mm]", 200, -50., 50.);
-  meHitYlocal_[0] = ibook.book1D("EtlHitYlocalZneg", "ETL SIM local Y (-Z);Y_{SIM}^{LOC} [mm]", 200, -50., 50.);
-  meHitZlocal_[1] = ibook.book1D("EtlHitZlocalZpos", "ETL SIM local Z (+Z);Z_{SIM}^{LOC} [mm]", 80, -0.2, 0.2);
-  meHitZlocal_[0] = ibook.book1D("EtlHitZlocalZneg", "ETL SIM local Z (-Z);Z_{SIM}^{LOC} [mm]", 80, -0.2, 0.2);
+  meHitYlocal_[1] = ibook.book1D("EtlHitYlocalZpos", "ETL SIM local Y (+Z);Y_{SIM}^{LOC} [mm]", 100, -48., 48.);
+  meHitYlocal_[0] = ibook.book1D("EtlHitYlocalZneg", "ETL SIM local Y (-Z);Y_{SIM}^{LOC} [mm]", 100, -48., 48.);
+  meHitZlocal_[1] = ibook.book1D("EtlHitZlocalZpos", "ETL SIM local Z (+Z);Z_{SIM}^{LOC} [mm]", 80, -0.16, 0.16);
+  meHitZlocal_[0] = ibook.book1D("EtlHitZlocalZneg", "ETL SIM local Z (-Z);Z_{SIM}^{LOC} [mm]", 80, -0.16, 0.16);
 
   meOccupancy_[1] = ibook.book2D("EtlOccupancyZpos", "ETL SIM hits occupancy (+Z);X_{SIM} [cm];Y_{SIM} [cm]",
 				  135, -135., 135.,  135, -135., 135.);
   meOccupancy_[0] = ibook.book2D("EtlOccupancyZneg", "ETL SIM hits occupancy (-Z);X_{SIM} [cm];Y_{SIM} [cm]",
 				  135, -135., 135.,  135, -135., 135.);
 
-  meHitX_[1]      = ibook.book1D("EtlHitXZpos", "ETL SIM hits X (+Z);X_{SIM} [cm]", 135, -135., 135.);
-  meHitX_[0]      = ibook.book1D("EtlHitXZneg", "ETL SIM hits X (-Z);X_{SIM} [cm]", 135, -135., 135.);
-  meHitY_[1]      = ibook.book1D("EtlHitYZpos", "ETL SIM hits Y (+Z);Y_{SIM} [cm]", 135, -135., 135.);
-  meHitY_[0]      = ibook.book1D("EtlHitYZneg", "ETL SIM hits Y (-Z);Y_{SIM} [cm]", 135, -135., 135.);
-  meHitZ_[1]      = ibook.book1D("EtlHitZZpos", "ETL SIM hits Z (+Z);Z_{SIM} [cm]", 100,  303.,  304.5);
-  meHitZ_[0]      = ibook.book1D("EtlHitZZneg", "ETL SIM hits Z (-Z);Z_{SIM} [cm]", 100, -304.5, -303.);
+  meHitX_[1]      = ibook.book1D("EtlHitXZpos", "ETL SIM hits X (+Z);X_{SIM} [cm]", 100, -130., 130.);
+  meHitX_[0]      = ibook.book1D("EtlHitXZneg", "ETL SIM hits X (-Z);X_{SIM} [cm]", 100, -130., 130.);
+  meHitY_[1]      = ibook.book1D("EtlHitYZpos", "ETL SIM hits Y (+Z);Y_{SIM} [cm]", 100, -130., 130.);
+  meHitY_[0]      = ibook.book1D("EtlHitYZneg", "ETL SIM hits Y (-Z);Y_{SIM} [cm]", 100, -130., 130.);
+  meHitZ_[1]      = ibook.book1D("EtlHitZZpos", "ETL SIM hits Z (+Z);Z_{SIM} [cm]", 100,  303.4,  304.2);
+  meHitZ_[0]      = ibook.book1D("EtlHitZZneg", "ETL SIM hits Z (-Z);Z_{SIM} [cm]", 100, -304.2, -303.4);
 
-  meHitPhi_[1]    = ibook.book1D("EtlHitPhiZpos", "ETL SIM hits #phi (+Z);#phi_{SIM} [rad]", 315, -3.15, 3.15);
-  meHitPhi_[0]    = ibook.book1D("EtlHitPhiZneg", "ETL SIM hits #phi (-Z);#phi_{SIM} [rad]", 315, -3.15, 3.15);
-  meHitEta_[1]    = ibook.book1D("EtlHitEtaZpos", "ETL SIM hits #eta (+Z);#eta_{SIM}", 200,  1.55,  3.05);
-  meHitEta_[0]    = ibook.book1D("EtlHitEtaZneg", "ETL SIM hits #eta (-Z);#eta_{SIM}", 200, -3.05, -1.55);
+  meHitPhi_[1]    = ibook.book1D("EtlHitPhiZpos", "ETL SIM hits #phi (+Z);#phi_{SIM} [rad]", 100, -3.15, 3.15);
+  meHitPhi_[0]    = ibook.book1D("EtlHitPhiZneg", "ETL SIM hits #phi (-Z);#phi_{SIM} [rad]", 100, -3.15, 3.15);
+  meHitEta_[1]    = ibook.book1D("EtlHitEtaZpos", "ETL SIM hits #eta (+Z);#eta_{SIM}", 100,  1.56,  2.96);
+  meHitEta_[0]    = ibook.book1D("EtlHitEtaZneg", "ETL SIM hits #eta (-Z);#eta_{SIM}", 100, -2.96, -1.56);
 
   meHitTvsE_[1]    = ibook.bookProfile("EtlHitTvsEZpos", "ETL SIM time vs energy (+Z);E_{SIM} [MeV];T_{SIM} [ns]",
-				       100, 0., 2., 0., 100.);
+				       50, 0., 2., 0., 100.);
   meHitTvsE_[0]    = ibook.bookProfile("EtlHitTvsEZneg", "ETL SIM time vs energy (-Z);E_{SIM} [MeV];T_{SIM} [ns]",
-				       100, 0., 2., 0., 100.);
+				       50, 0., 2., 0., 100.);
   meHitEvsPhi_[1]  = ibook.bookProfile("EtlHitEvsPhiZpos", "ETL SIM energy vs #phi (+Z);#phi_{SIM} [rad];E_{SIM} [MeV]",
-				       100, -3.15, 3.15, 0., 100.);
+				       50, -3.15, 3.15, 0., 100.);
   meHitEvsPhi_[0]  = ibook.bookProfile("EtlHitEvsPhiZneg", "ETL SIM energy vs #phi (-Z);#phi_{SIM} [rad];E_{SIM} [MeV]",
-				       100, -3.15, 3.15, 0., 100.);
+				       50, -3.15, 3.15, 0., 100.);
   meHitEvsEta_[1]  = ibook.bookProfile("EtlHitEvsEtaZpos","ETL SIM energy vs #eta (+Z);#eta_{SIM};E_{SIM} [MeV]",
-				       200, 1.55, 3.05, 0., 100.);
+				       50, 1.56, 2.96, 0., 100.);
   meHitEvsEta_[0]  = ibook.bookProfile("EtlHitEvsEtaZneg","ETL SIM energy vs #eta (-Z);#eta_{SIM};E_{SIM} [MeV]",
-				       200, -3.05, -1.55, 0., 100.);
+				       50, -2.96, -1.56, 0., 100.);
   meHitTvsPhi_[1]  = ibook.bookProfile("EtlHitTvsPhiZpos", "ETL SIM time vs #phi (+Z);#phi_{SIM} [rad];T_{SIM} [ns]",
-				       100, -3.15, 3.15, 0., 100.);
+				       50, -3.15, 3.15, 0., 100.);
   meHitTvsPhi_[0]  = ibook.bookProfile("EtlHitTvsPhiZneg", "ETL SIM time vs #phi (-Z);#phi_{SIM} [rad];T_{SIM} [ns]",
-				       100, -3.15, 3.15, 0., 100.);
+				       50, -3.15, 3.15, 0., 100.);
   meHitTvsEta_[1] = ibook.bookProfile("EtlHitTvsEtaZpos","ETL SIM time vs #eta (+Z);#eta_{SIM};T_{SIM} [ns]",
-				       200, 1.55, 3.05, 0., 100.);
+				       50, 1.56, 2.96, 0., 100.);
   meHitTvsEta_[0] = ibook.bookProfile("EtlHitTvsEtaZpos","ETL SIM time vs #eta (-Z);#eta_{SIM};T_{SIM} [ns]",
-				       200, -3.05, -1.55, 0., 100.);
+				       50, -2.96, -1.56, 0., 100.);
 
 }
 
