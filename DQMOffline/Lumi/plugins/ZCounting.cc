@@ -61,6 +61,9 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig):
   // Trigger-specific Parameters
   fMuonHLTNames         = iConfig.getParameter<std::vector<std::string>>("MuonTriggerNames");
   fMuonHLTObjectNames   = iConfig.getParameter<std::vector<std::string>>("MuonTriggerObjectNames");
+  if(fMuonHLTNames.size() != fMuonHLTObjectNames.size()){
+    edm::LogError("ZCounting") << "List of MuonTriggerNames and MuonTriggerObjectNames has to be the same length" << std::endl;
+  }
 
   // Electron-specific parameters
   fGsfElectronName_token  = consumes<edm::View<reco::GsfElectron>>(fElectronName);
@@ -138,26 +141,56 @@ void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, e
 
 
   // Muon histograms
-  h_mass_HLT_pass_central = ibooker_.book2D("h_mass_HLT_pass_central", "h_mass_HLT_pass_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_HLT_pass_forward = ibooker_.book2D("h_mass_HLT_pass_forward", "h_mass_HLT_pass_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_HLT_fail_central = ibooker_.book2D("h_mass_HLT_fail_central", "h_mass_HLT_fail_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_HLT_fail_forward = ibooker_.book2D("h_mass_HLT_fail_forward", "h_mass_HLT_fail_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_HLT_pass_central = ibooker_.book2D("h_mass_HLT_pass_central", "Muon HLT passing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_HLT_pass_forward = ibooker_.book2D("h_mass_HLT_pass_forward", "Muon HLT passing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_HLT_fail_central = ibooker_.book2D("h_mass_HLT_fail_central", "Muon HLT failing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_HLT_fail_forward = ibooker_.book2D("h_mass_HLT_fail_forward", "Muon HLT failing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
 
-  h_mass_SIT_pass_central = ibooker_.book2D("h_mass_SIT_pass_central", "h_mass_SIT_pass_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_SIT_pass_forward = ibooker_.book2D("h_mass_SIT_pass_forward", "h_mass_SIT_pass_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_SIT_fail_central = ibooker_.book2D("h_mass_SIT_fail_central", "h_mass_SIT_fail_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_SIT_fail_forward = ibooker_.book2D("h_mass_SIT_fail_forward", "h_mass_SIT_fail_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_SIT_pass_central = ibooker_.book2D("h_mass_SIT_pass_central", "Muon SIT passing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_SIT_pass_forward = ibooker_.book2D("h_mass_SIT_pass_forward", "Muon SIT passing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_SIT_fail_central = ibooker_.book2D("h_mass_SIT_fail_central", "Muon SIT_failing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_SIT_fail_forward = ibooker_.book2D("h_mass_SIT_fail_forward", "Muon SIT failing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
 
-  h_mass_Sta_pass_central = ibooker_.book2D("h_mass_Sta_pass_central", "h_mass_Sta_pass_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_Sta_pass_forward = ibooker_.book2D("h_mass_Sta_pass_forward", "h_mass_Sta_pass_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_Sta_fail_central = ibooker_.book2D("h_mass_Sta_fail_central", "h_mass_Sta_fail_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_Sta_fail_forward = ibooker_.book2D("h_mass_Sta_fail_forward", "h_mass_Sta_fail_forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_Sta_pass_central = ibooker_.book2D("h_mass_Sta_pass_central", "Muon Sta passing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_Sta_pass_forward = ibooker_.book2D("h_mass_Sta_pass_forward", "Muon Sta passing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_Sta_fail_central = ibooker_.book2D("h_mass_Sta_fail_central", "Muon Sta failing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_Sta_fail_forward = ibooker_.book2D("h_mass_Sta_fail_forward", "Muon Sta failing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
 
-  h_npv                   = ibooker_.book2D("h_npv",     "h_npv",     LumiBin_, LumiMin_, LumiMax_, PVBin_, PVMin_, PVMax_);
-  h_yield_Z               = ibooker_.book1D("h_yield_Z", "h_yield_Z", LumiBin_, LumiMin_, LumiMax_);
-  h_yieldBB_Z             = ibooker_.book1D("h_yieldBB_Z", "h_yieldBB_Z", LumiBin_, LumiMin_, LumiMax_);
-  h_yieldEE_Z             = ibooker_.book1D("h_yieldEE_Z", "h_yieldEE_Z", LumiBin_, LumiMin_, LumiMax_);
+  h_npv                   = ibooker_.book2D("h_npv", "Events with valid primary vertex",     LumiBin_, LumiMin_, LumiMax_, PVBin_, PVMin_, PVMax_);
+  h_yield_Z               = ibooker_.book1D("h_yield_Z", "reconstructed Z bosons", LumiBin_, LumiMin_, LumiMax_);
+  h_yieldBB_Z             = ibooker_.book1D("h_yieldBB_Z", "reconstructed Z bosons in barrel", LumiBin_, LumiMin_, LumiMax_);
+  h_yieldEE_Z             = ibooker_.book1D("h_yieldEE_Z", "reconstructed Z bosons in endcap", LumiBin_, LumiMin_, LumiMax_);
 
+  // Axis titles
+  h_mass_HLT_pass_central ->setAxisTitle("luminosiry section",1);
+  h_mass_HLT_pass_forward ->setAxisTitle("luminosiry section",1);
+  h_mass_HLT_fail_central ->setAxisTitle("luminosiry section",1);
+  h_mass_HLT_fail_forward ->setAxisTitle("luminosiry section",1);
+  h_mass_SIT_pass_central ->setAxisTitle("luminosiry section",1);
+  h_mass_SIT_pass_forward ->setAxisTitle("luminosiry section",1);
+  h_mass_SIT_fail_central ->setAxisTitle("luminosiry section",1);
+  h_mass_SIT_fail_forward ->setAxisTitle("luminosiry section",1);
+  h_mass_Sta_pass_central ->setAxisTitle("luminosiry section",1);
+  h_mass_Sta_pass_forward ->setAxisTitle("luminosiry section",1);
+  h_mass_Sta_fail_central ->setAxisTitle("luminosiry section",1);
+  h_mass_Sta_fail_forward ->setAxisTitle("luminosiry section",1);
+  h_mass_HLT_pass_central ->setAxisTitle("tag and probe mass",2);
+  h_mass_HLT_pass_forward ->setAxisTitle("tag and probe mass",2);
+  h_mass_HLT_fail_central ->setAxisTitle("tag and probe mass",2);
+  h_mass_HLT_fail_forward ->setAxisTitle("tag and probe mass",2);
+  h_mass_SIT_pass_central ->setAxisTitle("tag and probe mass",2);
+  h_mass_SIT_pass_forward ->setAxisTitle("tag and probe mass",2);
+  h_mass_SIT_fail_central ->setAxisTitle("tag and probe mass",2);
+  h_mass_SIT_fail_forward ->setAxisTitle("tag and probe mass",2);
+  h_mass_Sta_pass_central ->setAxisTitle("tag and probe mass",2);
+  h_mass_Sta_pass_forward ->setAxisTitle("tag and probe mass",2);
+  h_mass_Sta_fail_central ->setAxisTitle("tag and probe mass",2);
+  h_mass_Sta_fail_forward ->setAxisTitle("tag and probe mass",2);
+  h_npv ->setAxisTitle("luminosity section", 1);
+  h_npv ->setAxisTitle("number of primary vertices", 2); 
+  h_yield_Z ->setAxisTitle("luminosiry section",1);
+  h_yieldBB_Z ->setAxisTitle("luminosiry section",1);
+  h_yieldEE_Z ->setAxisTitle("luminosiry section",1);
 
   // Electron histograms
   h_ee_mass_id_pass_central  = ibooker_.book2D("h_ee_mass_id_pass_central", "h_ee_mass_id_pass_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
@@ -183,7 +216,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {// Fill event tree on the fly 
   edm::LogInfo("ZCounting") <<  "ZCounting::analyze" << std::endl;
   analyzeMuons(iEvent, iSetup);
-  //analyzeElectrons(iEvent, iSetup);
+  analyzeElectrons(iEvent, iSetup);
 }
 
 void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -295,7 +328,6 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
       if(pt2        < PtCutL2_)  continue;
       if(fabs(eta2) > EtaCutL2_) continue;
       if(q1 == q2)               continue;
-      std::cout<<"good probe found"<<std::endl;
 
       vProbe.SetPtEtaPhiM(pt2, eta2, phi2, MUON_MASS);
 
@@ -687,7 +719,6 @@ void ZCounting::initHLT(const edm::TriggerResults& result, const edm::TriggerNam
 bool ZCounting::isMuonTrigger(const ZCountingTrigger::TTrigger &triggerMenu, const TriggerBits &hltBits)
 {
   for(unsigned int i = 0; i< fMuonHLTNames.size(); ++i){
-    std::cout<<" trigger " << fMuonHLTNames.at(i) << " is " << triggerMenu.pass(fMuonHLTNames.at(i), hltBits) << std::endl;
     if(triggerMenu.pass(fMuonHLTNames.at(i), hltBits)) return true;
   }
   return false;
