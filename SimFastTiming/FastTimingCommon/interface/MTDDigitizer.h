@@ -246,7 +246,7 @@ namespace mtd_digitizer {
 					   CLHEP::HepRandomEngine* hre) {
     if(premixStage1_) {
       auto simResult = std::make_unique<PMTDSimAccumulator>();
-      saveSimHitAccumulator(*simResult, simHitAccumulator_, premixStage1MinCharge_, premixStage1MaxCharge_); // FIXME
+      saveSimHitAccumulator(*simResult, simHitAccumulator_, premixStage1MinCharge_, premixStage1MaxCharge_);
       e.put(std::move(simResult), digiCollection_);
     }
     else {
