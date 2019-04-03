@@ -95,7 +95,7 @@ PFTauMiniAODPrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("lostCandidatesTag", edm::InputTag("lostTracks"));
   desc.add<edm::InputTag>("packedCandidatesTag", edm::InputTag("packedPFCandidates"));
 
-  descriptions.add("PFTauMiniAODPrimaryVertexProducer", desc);
+  descriptions.add("pfTauMiniAODPrimaryVertexProducer", desc);
 }
 
 DEFINE_FWK_MODULE(PFTauMiniAODPrimaryVertexProducer);
