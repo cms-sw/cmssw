@@ -14,7 +14,6 @@ class testFEDNumbering: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testFEDNumbering);
 
   CPPUNIT_TEST(test_inRange);
-  CPPUNIT_TEST(test_fromDet);
  
   CPPUNIT_TEST_SUITE_END();
 
@@ -145,121 +144,5 @@ void testFEDNumbering::test_inRange(){
   for(i=FEDNumbering::MINTriggerUpgradeFEDID; i<=FEDNumbering::MAXTriggerUpgradeFEDID; i++)
     {
       CPPUNIT_ASSERT(FEDNumbering::inRange(i));
-    }
-}
-
-void testFEDNumbering::test_fromDet(){
-  int i = 0;
-  for(i=FEDNumbering::MINSiPixelFEDID; i<=FEDNumbering::MAXSiPixelFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="SiPixel");
-    }
-  for(i=FEDNumbering::MAXSiPixelFEDID+1; i<=FEDNumbering::MINSiStripFEDID-1; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i).empty());
-    }
-  for(i=FEDNumbering::MINSiStripFEDID; i<=FEDNumbering::MAXSiStripFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="SiStrip");
-    }
-  for(i=FEDNumbering::MINPreShowerFEDID; i<=FEDNumbering::MAXPreShowerFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="PreShower");
-    }
-  for(i=FEDNumbering::MINECALFEDID; i<=FEDNumbering::MAXECALFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="Ecal");
-    }
-  for(i=FEDNumbering::MINCASTORFEDID; i<=FEDNumbering::MAXCASTORFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="Castor");
-    }
-  for(i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="Hcal");
-    }
-  for(i=FEDNumbering::MINLUMISCALERSFEDID; i<=FEDNumbering::MAXLUMISCALERSFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="LumiScalers");
-    }
-  for(i=FEDNumbering::MINCSCFEDID; i<=FEDNumbering::MAXCSCFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="CSC");
-    }
-  for(i=FEDNumbering::MINCSCTFFEDID; i<=FEDNumbering::MAXCSCTFFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="CSCTF");
-    }
-  for(i=FEDNumbering::MINDTFEDID; i<=FEDNumbering::MAXDTFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="DT");
-    }
-  for(i=FEDNumbering::MINDTTFFEDID; i<=FEDNumbering::MAXDTTFFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="DTTF");
-    }
-  for(i=FEDNumbering::MINRPCFEDID; i<=FEDNumbering::MAXRPCFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="RPC");
-    }
-  for(i=FEDNumbering::MINTriggerGTPFEDID; i<=FEDNumbering::MAXTriggerGTPFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="TriggerGTP");
-    }
-  for(i=FEDNumbering::MINTriggerEGTPFEDID; i<=FEDNumbering::MAXTriggerEGTPFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="TriggerEGTP");
-    }
-  for(i=FEDNumbering::MINTriggerGCTFEDID; i<=FEDNumbering::MAXTriggerGCTFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="TriggerGCT");
-    }
-  for(i=FEDNumbering::MINTriggerLTCFEDID; i<=FEDNumbering::MAXTriggerLTCFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="TriggerLTC");
-    }
-  for(i=FEDNumbering::MINTriggerLTCmtccFEDID; i<=FEDNumbering::MAXTriggerLTCmtccFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="TriggerLTCmtcc");
-    }
-  for(i=FEDNumbering::MINCSCDDUFEDID; i<=FEDNumbering::MAXCSCDDUFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="CSCDDU");
-    }
-  for(i=FEDNumbering::MINCSCContingencyFEDID; i<=FEDNumbering::MAXCSCContingencyFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="CSCContingency");
-    }
-  for(i=FEDNumbering::MINCSCTFSPFEDID; i<=FEDNumbering::MAXCSCTFSPFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="CSCTFSP");
-    }
-  for(i=FEDNumbering::MINDAQeFEDFEDID; i<=FEDNumbering::MAXDAQeFEDFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="DAQ");
-    }
-  for(i=FEDNumbering::MINDAQmFEDFEDID; i<=FEDNumbering::MAXDAQmFEDFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="DAQ");
-    }
-  for(i=FEDNumbering::MINTCDSuTCAFEDID; i<=FEDNumbering::MAXTCDSuTCAFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="TCDS");
-    }
-  for(i=FEDNumbering::MINHCALuTCAFEDID; i<=FEDNumbering::MAXHCALuTCAFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="Hcal");
-    }
-  for(i=FEDNumbering::MINSiPixeluTCAFEDID; i<=FEDNumbering::MAXSiPixeluTCAFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="SiPixel");
-    }
-  for(i=FEDNumbering::MINDTUROSFEDID; i<=FEDNumbering::MAXDTUROSFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="DTUROS");
-    }
-  for(i=FEDNumbering::MINTriggerUpgradeFEDID; i<=FEDNumbering::MAXTriggerUpgradeFEDID; i++)
-    {
-      CPPUNIT_ASSERT(FEDNumbering::fromDet(i) =="L1T");
     }
 }
