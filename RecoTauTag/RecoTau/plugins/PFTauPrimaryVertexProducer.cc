@@ -43,7 +43,7 @@ void PFTauPrimaryVertexProducer::nonTauTracksInPV(const reco::VertexRef &thePVRe
 void
 PFTauPrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   auto desc = PFTauPrimaryVertexProducerBase::getDescriptionsBase();
-  descriptions.add("PFTauPrimaryVertexProducer", desc);
+  descriptions.add("pfTauPrimaryVertexProducer", desc);
 }
 
 DEFINE_FWK_MODULE(PFTauPrimaryVertexProducer);
