@@ -8,6 +8,22 @@ binSums = cms.vuint32(13,               #0
                       3, 3, 3, 3, 3, 3, 3, 3  # 28 - 35
                       )
 
+EE_DR_GROUP = 7
+FH_DR_GROUP = 6
+BH_DR_GROUP = 12
+MAX_LAYERS = 52
+
+dr_layerbylayer = ([0] + # no layer 0
+        [0.015]*EE_DR_GROUP + [0.020]*EE_DR_GROUP + [0.030]*EE_DR_GROUP + [0.040]*EE_DR_GROUP + # EM
+        [0.040]*FH_DR_GROUP + [0.050]*FH_DR_GROUP + # FH
+        [0.050]*BH_DR_GROUP) # BH
+
+
+dr_layerbylayer_Bcoefficient = ([0] + # no layer 0
+        [0.020]*EE_DR_GROUP + [0.020]*EE_DR_GROUP + [0.02]*EE_DR_GROUP + [0.020]*EE_DR_GROUP + # EM
+        [0.020]*FH_DR_GROUP + [0.020]*FH_DR_GROUP + # FH
+        [0.020]*BH_DR_GROUP) # BH
+
 
 def custom_2dclustering_distance(process, 
         distance=6.,# cm
@@ -107,16 +123,6 @@ def custom_3dclustering_histoSecondaryMax(process,
     parameters_c3d.type_multicluster = cms.string('HistoSecondaryMaxC3d')
     return process
 
-dr_layerbylayer = ([0] + # no layer 0
-        [0.015]*7 + [0.020]*7 + [0.030]*7 + [0.040]*7 + # EM
-        [0.040]*6 + [0.050]*6 + # FH
-        [0.050]*12) # BH
-
-
-dr_layerbylayer_Bcoefficient = ([0] + # no layer 0
-        [0.020]*7 + [0.020]*7 + [0.02]*7 + [0.020]*7 + # EM
-        [0.020]*6 + [0.020]*6 + # FH
-        [0.020]*12) # BH
 
 def custom_3dclustering_histoMax_variableDr(process,
         distances = dr_layerbylayer,
@@ -197,23 +203,23 @@ def custom_3dclustering_clusteringRadiusLayerbyLayerFixedEta(process, distance_c
     
     parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
     parameters_c3d.dR_multicluster_byLayer_coefficientA = distance_coefficientA
-    parameters_c3d.dR_multicluster_byLayer_coefficientB = cms.vdouble( [0]*53 )
+    parameters_c3d.dR_multicluster_byLayer_coefficientB = cms.vdouble( [0]*(MAX_LAYERS+1) )
 
     return process
 
 def custom_3dclustering_clusteringRadiusNoLayerDependenceFixedEta(process, distance_coefficientA = 0.03):
     
     parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
-    parameters_c3d.dR_multicluster_byLayer_coefficientA = cms.vdouble( [distance_coefficientA]*53 )
-    parameters_c3d.dR_multicluster_byLayer_coefficientB = cms.vdouble( [0]*53 )
+    parameters_c3d.dR_multicluster_byLayer_coefficientA = cms.vdouble( [distance_coefficientA]*(MAX_LAYERS+1) )
+    parameters_c3d.dR_multicluster_byLayer_coefficientB = cms.vdouble( [0]*(MAX_LAYERS+1) )
 
     return process
 
 def custom_3dclustering_clusteringRadiusNoLayerDependenceVariableEta(process, distance_coefficientA = 0.03, distance_coefficientB = 0.02):
     
     parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
-    parameters_c3d.dR_multicluster_byLayer_coefficientA = cms.vdouble( [distance_coefficientA]*53 )
-    parameters_c3d.dR_multicluster_byLayer_coefficientB = cms.vdouble( [distance_coefficientB]*53 )
+    parameters_c3d.dR_multicluster_byLayer_coefficientA = cms.vdouble( [distance_coefficientA]*(MAX_LAYERS+1) )
+    parameters_c3d.dR_multicluster_byLayer_coefficientB = cms.vdouble( [distance_coefficientB]*(MAX_LAYERS+1) )
 
     return process
 
