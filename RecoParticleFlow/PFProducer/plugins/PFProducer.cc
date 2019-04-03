@@ -101,6 +101,11 @@ class PFProducer : public edm::stream::EDProducer<> {
   /// particle flow algorithm
   PFAlgo pfAlgo_;
 
+  // calibrations
+  PFEnergyCalibration pfEnergyCalibration_;
+  PFEnergyCalibrationHF pfEnergyCalibrationHF_;
+  PFSCEnergyCalibration pfSCEnergyCalibration_;
+
 };
 
 DEFINE_FWK_MODULE(PFProducer);
@@ -114,18 +119,17 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   : pfCandidatesToken_{produces<reco::PFCandidateCollection>()}
   , pfCleanedCandidatesToken_{produces<reco::PFCandidateCollection>("CleanedHF")}
   , pfAlgo_(iConfig.getUntrackedParameter<bool>("debug",false))
+  , pfEnergyCalibrationHF_(iConfig.getParameter<bool>("calibHF_use"),
+                           iConfig.getParameter<std::vector<double> >("calibHF_eta_step"),
+                           iConfig.getParameter<std::vector<double> >("calibHF_a_EMonly"),
+                           iConfig.getParameter<std::vector<double> >("calibHF_b_HADonly"),
+                           iConfig.getParameter<std::vector<double> >("calibHF_a_EMHAD"),
+                           iConfig.getParameter<std::vector<double> >("calibHF_b_EMHAD"))
+  , pfSCEnergyCalibration_(iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_barrel"),
+                           iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap"),
+                           iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel"),
+                           iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap"))
 {
-  //--ab: get calibration factors for HF:
-  auto thepfEnergyCalibrationHF = std::make_shared<PFEnergyCalibrationHF>(
-      iConfig.getParameter<bool>("calibHF_use"),
-      iConfig.getParameter<std::vector<double> >("calibHF_eta_step"),
-      iConfig.getParameter<std::vector<double> >("calibHF_a_EMonly"),
-      iConfig.getParameter<std::vector<double> >("calibHF_b_HADonly"),
-      iConfig.getParameter<std::vector<double> >("calibHF_a_EMHAD"),
-      iConfig.getParameter<std::vector<double> >("calibHF_b_EMHAD")
-  );
-  //-----------------
-
   inputTagBlocks_ = consumes<reco::PFBlockCollection>(iConfig.getParameter<InputTag>("blocks"));
   
   //Post cleaning of the muons
@@ -157,10 +161,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
   calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
   calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
-  std::shared_ptr<PFSCEnergyCalibration>  
-    thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
-							 calibPFSCEle_barrel,calibPFSCEle_endcap )); 
-
 
   // register products
   produces<reco::PFCandidateCollection>("CleanedCosmicsMuons");
@@ -233,12 +233,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   if (useCalibrationsFromDB_)
     calibrationsLabel_ = iConfig.getParameter<std::string>("calibrationsLabel");
 
-  auto calibration = std::make_shared<PFEnergyCalibration>();
-  
   pfAlgo_.setParameters( nSigmaECAL, 
 			  nSigmaHCAL,
-			  calibration,
-			  thepfEnergyCalibrationHF);
+			  pfEnergyCalibration_,
+			  pfEnergyCalibrationHF_);
 
   // NEW EGamma Filters
    pfAlgo_.setEGammaParameters(use_EGammaFilters_, useProtectionsForJetMET);
@@ -318,9 +316,8 @@ PFProducer::beginRun(const edm::Run & run,
 
     PerformancePayloadFromTFormula const * pfCalibrations = static_cast< const PerformancePayloadFromTFormula *>(perfH.product());
     
-    pfAlgo_.thePFEnergyCalibration()->setCalibrationFunctions(pfCalibrations);
+    pfEnergyCalibration_.setCalibrationFunctions(pfCalibrations);
   }
-  
 }
 
 

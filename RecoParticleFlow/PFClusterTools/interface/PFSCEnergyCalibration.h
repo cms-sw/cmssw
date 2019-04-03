@@ -22,16 +22,17 @@
 // Original Author:  Daniele Benedetti
 //         Created:  Fri Dec  4 10:18:18 CDT 2006
 
-class PFSCEnergyCalibration {
-public:
-  PFSCEnergyCalibration();  // default constructor;
-                            // needed by PFRootEvent
-
-  PFSCEnergyCalibration(std::vector<double> &barrelFbremCorr,
-                        std::vector<double> &endcapFbremCorr,
-                        std::vector<double> &barrelCorr,
-                        std::vector<double> &endcapCorr);
-
+class PFSCEnergyCalibration 
+{
+ public:
+  PFSCEnergyCalibration(); // default constructor;
+                           // needed by PFRootEvent
+  
+  PFSCEnergyCalibration(std::vector<double> const& barrelFbremCorr,
+                        std::vector<double> const& endcapFbremCorr,
+                        std::vector<double> const& barrelCorr,
+                        std::vector<double> const& endcapCorr);
+  
   ~PFSCEnergyCalibration();
 
   // ecal calibration

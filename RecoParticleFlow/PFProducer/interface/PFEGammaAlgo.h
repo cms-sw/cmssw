@@ -113,7 +113,6 @@ class PFEGammaAlgo {
   
   struct PFEGConfigInfo {
     double mvaEleCut;
-    std::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration;
     bool applyCrackCorrections;
     bool produceEGCandsWithNoSuperCluster;
     double mvaConvCut;
@@ -131,7 +130,7 @@ class PFEGammaAlgo {
   void setEEtoPSAssociation(EEtoPSAssociation const& eetops) { eetops_ = &eetops; }
 
   void setAlphaGamma_ESplanes_fromDB(const ESEEIntercalibConstants* esEEInterCalib){
-    cfg_.thePFEnergyCalibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalib);
+    thePFEnergyCalibration_.initAlphaGamma_ESplanes_fromDB(esEEInterCalib);
   }
 
   void setESChannelStatus(const ESChannelStatus* channelStatus){
@@ -147,6 +146,7 @@ private:
 
   GBRForests const& gbrForests_;
   
+  PFEnergyCalibration thePFEnergyCalibration_;
 
   // ------ rewritten basic processing pieces and cleaning algorithms
 

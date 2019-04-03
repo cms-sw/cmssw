@@ -26,6 +26,11 @@
 
 #include <iostream>
 
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
+
+
 /// \brief Particle Flow Algorithm
 /*!
   \author Colin Bernet
@@ -33,9 +38,6 @@
 */
 
 
-class PFEnergyCalibration;
-class PFSCEnergyCalibration;
-class PFEnergyCalibrationHF;
 class PFMuonAlgo;
 
 class ElementIndices {
@@ -63,8 +65,8 @@ class PFAlgo {
 
   void setParameters(double nSigmaECAL,
                      double nSigmaHCAL, 
-                     const std::shared_ptr<PFEnergyCalibration>& calibration,
-		     const std::shared_ptr<PFEnergyCalibrationHF>& thepfEnergyCalibrationHF);
+                     PFEnergyCalibration& calibration,
+                     PFEnergyCalibrationHF& thepfEnergyCalibrationHF);
   
   void setCandConnectorParameters( const edm::ParameterSet& iCfgCandConnector ){
     connector_.setParameters(iCfgCandConnector);
@@ -130,11 +132,6 @@ class PFAlgo {
     return connector_.connect(*pfCandidates_);
   }
   
-  /// return the pointer to the calibration function
-  PFEnergyCalibration* thePFEnergyCalibration() { 
-    return calibration_.get();
-  }
-
   friend std::ostream& operator<<(std::ostream& out, const PFAlgo& algo);
   
  private:
@@ -213,9 +210,9 @@ void createCandidatesECAL(const reco::PFBlock &block, reco::PFBlock::LinkData& l
   /// number of sigma to judge energy excess in HCAL
   double             nSigmaHCAL_;
   
-  std::shared_ptr<PFEnergyCalibration>  calibration_;
-  std::shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF_;
-  std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;
+  PFEnergyCalibration * calibration_;
+  PFEnergyCalibrationHF * thepfEnergyCalibrationHF_;
+  PFSCEnergyCalibration * thePFSCEnergyCalibration_;
 
   bool               useHO_;
   const bool         debug_;
