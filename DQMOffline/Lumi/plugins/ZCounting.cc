@@ -58,6 +58,10 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig):
   fMuonName_token  = consumes<reco::MuonCollection>(fMuonName);
   fTrackName_token = consumes<reco::TrackCollection>(fTrackName);
 
+  // Trigger-specific Parameters
+  fMuonHLTNames         = iConfig.getParameter<std::vector<std::string>>("MuonTriggerNames");
+  fMuonHLTObjectNames   = iConfig.getParameter<std::vector<std::string>>("MuonTriggerObjectNames");
+
   // Electron-specific parameters
   fGsfElectronName_token  = consumes<edm::View<reco::GsfElectron>>(fElectronName);
   fSCName_token           = consumes<edm::View<reco::SuperCluster>>(fSCName);
@@ -120,7 +124,7 @@ void ZCounting::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
   edm::LogInfo("ZCounting") <<  "ZCounting::beginRun" << std::endl;
 
   // Triggers
-  fTrigger.reset(new ZCountingTrigger::TTrigger());
+  fTrigger.reset(new ZCountingTrigger::TTrigger(fMuonHLTNames,fMuonHLTObjectNames));
   
 }
 //
@@ -129,7 +133,6 @@ void ZCounting::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
 void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)
 {
   edm::LogInfo("ZCounting") <<  "ZCounting::bookHistograms" << std::endl;
-
   ibooker_.cd();
   ibooker_.setCurrentFolder("ZCounting/Histograms");
 
@@ -180,7 +183,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {// Fill event tree on the fly 
   edm::LogInfo("ZCounting") <<  "ZCounting::analyze" << std::endl;
   analyzeMuons(iEvent, iSetup);
-  analyzeElectrons(iEvent, iSetup);
+  //analyzeElectrons(iEvent, iSetup);
 }
 
 void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -190,8 +193,10 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
   //-------------------------------
   edm::Handle<reco::VertexCollection> hVertexProduct;
   iEvent.getByToken(fPVName_token,hVertexProduct);
-  if(!hVertexProduct.isValid()) return;
-
+  if(!hVertexProduct.isValid()){
+    edm::LogWarning("ZCounting") << "ZCounting::analyzeMuons - no valid primary vertex product found" << std::endl;
+    return;
+  }
   const reco::VertexCollection *pvCol = hVertexProduct.product();
   const reco::Vertex* pv = &(*pvCol->begin());
   int nvtx = 0;
@@ -261,7 +266,7 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
   TLorentzVector vProbe(0.,0.,0.,0.);
   TLorentzVector vTrack(0.,0.,0.,0.);
 
-  // Tag loop
+// Tag loop
   for(auto const & itMu1 : *hMuonProduct) {
 
     float pt1  = itMu1.muonBestTrack()->pt();
@@ -290,6 +295,7 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
       if(pt2        < PtCutL2_)  continue;
       if(fabs(eta2) > EtaCutL2_) continue;
       if(q1 == q2)               continue;
+      std::cout<<"good probe found"<<std::endl;
 
       vProbe.SetPtEtaPhiM(pt2, eta2, phi2, MUON_MASS);
 
@@ -680,13 +686,20 @@ void ZCounting::initHLT(const edm::TriggerResults& result, const edm::TriggerNam
 //--------------------------------------------------------------------------------------------------
 bool ZCounting::isMuonTrigger(const ZCountingTrigger::TTrigger &triggerMenu, const TriggerBits &hltBits)
 {
-  return triggerMenu.pass("HLT_IsoMu27_v*",hltBits);
+  for(unsigned int i = 0; i< fMuonHLTNames.size(); ++i){
+    std::cout<<" trigger " << fMuonHLTNames.at(i) << " is " << triggerMenu.pass(fMuonHLTNames.at(i), hltBits) << std::endl;
+    if(triggerMenu.pass(fMuonHLTNames.at(i), hltBits)) return true;
+  }
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 bool ZCounting::isMuonTriggerObj(const ZCountingTrigger::TTrigger &triggerMenu, const TriggerObjects &hltMatchBits)
 {
-  return triggerMenu.passObj("HLT_IsoMu27_v*","hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07",hltMatchBits);
+  for(unsigned int i = 0; i< fMuonHLTNames.size(); ++i){
+    if(triggerMenu.passObj(fMuonHLTNames.at(i), fMuonHLTObjectNames.at(i), hltMatchBits)) return true;
+  }
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------

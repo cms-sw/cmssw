@@ -17,6 +17,9 @@ zcounting = DQMEDAnalyzer('ZCounting',
                                  beamspotName = cms.InputTag('offlineBeamSpot'),
                                  conversionsName = cms.InputTag('conversions'),
 
+                                 MuonTriggerNames = cms.vstring("HLT_IsoMu27_v*"),
+                                 MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07"),
+
                                  IDType   = cms.untracked.string("Tight"),# Tight, Medium, Loose
                                  IsoType  = cms.untracked.string("NULL"),  # Tracker-based, PF-based
                                  IsoCut   = cms.untracked.double(0.),     # {0.05, 0.10} for Tracker-based, {0.15, 0.25} for PF-based
