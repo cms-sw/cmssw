@@ -3,7 +3,7 @@
 #include <pybind11/pybind11.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PyDevParameterSet/src/PyBind11Wrapper.h"
+#include "FWCore/PyDevParameterSet/interface/PyBind11Wrapper.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
