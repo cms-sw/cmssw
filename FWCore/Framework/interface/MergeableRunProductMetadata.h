@@ -51,7 +51,6 @@ namespace edm {
 
   class MergeableRunProductMetadata : public MergeableRunProductMetadataBase {
   public:
-
     enum MergeDecision { MERGE, REPLACE, IGNORE };
 
     MergeableRunProductMetadata(MergeableRunProductProcesses const&);
@@ -65,10 +64,9 @@ namespace edm {
     // should be called before the run products themselves are read
     // because it sets the decision whether to merge, replace, or ignore
     // run products as they read.
-    void readRun(
-      long long inputRunEntry,
-      StoredMergeableRunProductMetadata const& inputStoredMergeableRunProductMetadata,
-      IndexIntoFileItrHolder const& inputIndexIntoFileItr);
+    void readRun(long long inputRunEntry,
+                 StoredMergeableRunProductMetadata const& inputStoredMergeableRunProductMetadata,
+                 IndexIntoFileItrHolder const& inputIndexIntoFileItr);
 
     // Called to record which lumis were processed by the current run
     void writeLumi(LuminosityBlockNumber_t lumi);
@@ -92,7 +90,6 @@ namespace edm {
 
     class MetadataForProcess {
     public:
-
       MetadataForProcess() = default;
 
       std::vector<LuminosityBlockNumber_t>& lumis() { return lumis_; }
@@ -113,7 +110,6 @@ namespace edm {
       void reset();
 
     private:
-
       std::vector<LuminosityBlockNumber_t> lumis_;
       MergeDecision mergeDecision_ = MERGE;
       bool valid_ = true;
@@ -124,19 +120,15 @@ namespace edm {
     MetadataForProcess const* metadataForOneProcess(std::string const& processName) const;
 
     // The next few functions are only intended to be used in tests.
-    std::vector<MetadataForProcess> const&
-    metadataForProcesses() const { return metadataForProcesses_; }
+    std::vector<MetadataForProcess> const& metadataForProcesses() const { return metadataForProcesses_; }
 
-    std::vector<LuminosityBlockNumber_t> const &
-    lumisFromIndexIntoFile() const { return lumisFromIndexIntoFile_; }
+    std::vector<LuminosityBlockNumber_t> const& lumisFromIndexIntoFile() const { return lumisFromIndexIntoFile_; }
 
     bool gotLumisFromIndexIntoFile() const { return gotLumisFromIndexIntoFile_; }
 
-    tbb::concurrent_vector<LuminosityBlockNumber_t> const&
-    lumisProcessed() const { return lumisProcessed_; }
+    tbb::concurrent_vector<LuminosityBlockNumber_t> const& lumisProcessed() const { return lumisProcessed_; }
 
   private:
-
     void mergeLumisFromIndexIntoFile();
 
     bool addProcess(StoredMergeableRunProductMetadata& storedMetadata,
@@ -158,5 +150,5 @@ namespace edm {
 
     tbb::concurrent_vector<LuminosityBlockNumber_t> lumisProcessed_;
   };
-}
+}  // namespace edm
 #endif

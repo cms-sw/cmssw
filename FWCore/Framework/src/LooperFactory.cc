@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     LooperFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -19,28 +19,24 @@
 // static member functions
 //
 namespace edm {
-   namespace eventsetup {
-      std::string LooperMakerTraits::name() { return "CMS EDM Framework EDLooper"; }
-      
-      void 
-      LooperMakerTraits::replaceExisting(EventSetupProvider&, std::shared_ptr<EDLooperBase>) {
-         throw edm::Exception(edm::errors::LogicError)
-            << "LooperMakerTraits::replaceExisting\n"
-            << "This function is not implemented and should never be called.\n"
-            << "Please report this to a Framework Developer\n";
-      }
+  namespace eventsetup {
+    std::string LooperMakerTraits::name() { return "CMS EDM Framework EDLooper"; }
 
-      std::shared_ptr<LooperMakerTraits::base_type>
-      LooperMakerTraits::getComponentAndRegisterProcess(EventSetupsController&,
-                                                        ParameterSet const&) {
-        return std::shared_ptr<LooperMakerTraits::base_type>();
-      }
+    void LooperMakerTraits::replaceExisting(EventSetupProvider&, std::shared_ptr<EDLooperBase>) {
+      throw edm::Exception(edm::errors::LogicError) << "LooperMakerTraits::replaceExisting\n"
+                                                    << "This function is not implemented and should never be called.\n"
+                                                    << "Please report this to a Framework Developer\n";
+    }
 
-      void LooperMakerTraits::putComponent(EventSetupsController&,
-                                           ParameterSet const&,
-                                           std::shared_ptr<base_type> const&) {
-      }
-   }
-}
+    std::shared_ptr<LooperMakerTraits::base_type> LooperMakerTraits::getComponentAndRegisterProcess(
+        EventSetupsController&, ParameterSet const&) {
+      return std::shared_ptr<LooperMakerTraits::base_type>();
+    }
+
+    void LooperMakerTraits::putComponent(EventSetupsController&,
+                                         ParameterSet const&,
+                                         std::shared_ptr<base_type> const&) {}
+  }  // namespace eventsetup
+}  // namespace edm
 
 COMPONENTFACTORY_GET(edm::eventsetup::LooperMakerTraits);

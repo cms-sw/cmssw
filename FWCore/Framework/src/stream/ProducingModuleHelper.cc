@@ -19,10 +19,6 @@ namespace edm {
       base->acquire(ev, es, holder);
     }
 
-    void doAcquireIfNeeded(void*,
-                           Event const&,
-                           EventSetup const&,
-                           WaitingTaskWithArenaHolder&) {
-    }
-  }
-}
+    void doAcquireIfNeeded(void*, Event const&, EventSetup const&, WaitingTaskWithArenaHolder&) {}
+  }  // namespace stream
+}  // namespace edm

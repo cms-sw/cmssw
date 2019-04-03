@@ -13,16 +13,14 @@ namespace edm {
 
   class HistoryAppender {
   public:
-
     HistoryAppender();
 
     // Used to append the current process to the process history
     // when necessary. Optimized to cache the results so it
     // does not need to repeat the same calculations many times.
-    std::shared_ptr<ProcessHistory const>
-    appendToProcessHistory(ProcessHistoryID const& inputPHID,
-                           ProcessHistory const* inputProcessHistory,
-                           ProcessConfiguration const& pc);
+    std::shared_ptr<ProcessHistory const> appendToProcessHistory(ProcessHistoryID const& inputPHID,
+                                                                 ProcessHistory const* inputProcessHistory,
+                                                                 ProcessConfiguration const& pc);
 
   private:
     HistoryAppender(HistoryAppender const&) = delete;
@@ -30,11 +28,10 @@ namespace edm {
 
     // Throws if the new process name is already in the process
     // process history
-    void checkProcessHistory(ProcessHistory const& ph,
-                             ProcessConfiguration const& pc) const;
+    void checkProcessHistory(ProcessHistory const& ph, ProcessConfiguration const& pc) const;
 
     ProcessHistoryID m_cachedInputPHID;
     std::shared_ptr<ProcessHistory const> m_cachedHistory;
   };
-}
+}  // namespace edm
 #endif

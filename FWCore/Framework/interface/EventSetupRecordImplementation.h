@@ -32,66 +32,57 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-      struct ComponentDescription;
+  namespace eventsetup {
+    struct ComponentDescription;
 
-      template<typename T>
-      class EventSetupRecordImplementation : public EventSetupRecord {
+    template <typename T> class EventSetupRecordImplementation : public EventSetupRecord {
+    public:
+      //virtual ~EventSetupRecordImplementation();
 
-      public:
-         //virtual ~EventSetupRecordImplementation();
+      // ---------- const member functions ---------------------
+      EventSetupRecordKey key() const override { return EventSetupRecordKey::makeKey<T>(); }
 
-         // ---------- const member functions ---------------------
-         EventSetupRecordKey key() const override {
-            return EventSetupRecordKey::makeKey<T>();
-         }
+      template <typename PRODUCT> ESHandle<PRODUCT> getHandle(ESGetToken<PRODUCT, T> const& iToken) const {
+        return getHandleImpl(iToken);
+      }
 
-         template<typename PRODUCT>
-         ESHandle<PRODUCT> getHandle(ESGetToken<PRODUCT,T> const& iToken) const {
-           return getHandleImpl(iToken);
-         }
+      template <typename PRODUCT>
+      ESHandle<PRODUCT> getHandle(ESGetToken<PRODUCT, edm::DefaultRecord> const& iToken) const {
+        static_assert(std::is_same_v<T, eventsetup::default_record_t<ESHandle<PRODUCT>>>,
+                      "The Record being used to retrieve the product is not the default record for the product type");
+        return getHandleImpl(iToken);
+      }
 
-         template<typename PRODUCT>
-         ESHandle<PRODUCT> getHandle(ESGetToken<PRODUCT,edm::DefaultRecord> const& iToken) const {
-           static_assert(std::is_same_v<T, eventsetup::default_record_t<ESHandle<PRODUCT>>>, "The Record being used to retrieve the product is not the default record for the product type");
-           return getHandleImpl(iToken);
-         }
+      using EventSetupRecord::get;
 
-         using EventSetupRecord::get;
-        
-         template<typename PRODUCT>
-         PRODUCT const& get(ESGetToken<PRODUCT,T> const& iToken) const {
-           return *getHandleImpl(iToken);
-         }
-        template<typename PRODUCT>
-        PRODUCT const& get(ESGetToken<PRODUCT,T>& iToken) const {
-          return *getHandleImpl(const_cast<const ESGetToken<PRODUCT,T>&>(iToken));
-        }
+      template <typename PRODUCT> PRODUCT const& get(ESGetToken<PRODUCT, T> const& iToken) const {
+        return *getHandleImpl(iToken);
+      }
+      template <typename PRODUCT> PRODUCT const& get(ESGetToken<PRODUCT, T>& iToken) const {
+        return *getHandleImpl(const_cast<const ESGetToken<PRODUCT, T>&>(iToken));
+      }
 
-         template<typename PRODUCT>
-         PRODUCT const& get(ESGetToken<PRODUCT,edm::DefaultRecord> const& iToken) const {
-           static_assert(std::is_same_v<T, eventsetup::default_record_t<ESHandle<PRODUCT>>>, "The Record being used to retrieve the product is not the default record for the product type");
-           return *getHandleImpl(iToken);
-         }
-        template<typename PRODUCT>
-        PRODUCT const& get(ESGetToken<PRODUCT,edm::DefaultRecord>& iToken) const {
-          return get(const_cast<const ESGetToken<PRODUCT,edm::DefaultRecord>&>(iToken) );
-        }
+      template <typename PRODUCT> PRODUCT const& get(ESGetToken<PRODUCT, edm::DefaultRecord> const& iToken) const {
+        static_assert(std::is_same_v<T, eventsetup::default_record_t<ESHandle<PRODUCT>>>,
+                      "The Record being used to retrieve the product is not the default record for the product type");
+        return *getHandleImpl(iToken);
+      }
+      template <typename PRODUCT> PRODUCT const& get(ESGetToken<PRODUCT, edm::DefaultRecord>& iToken) const {
+        return get(const_cast<const ESGetToken<PRODUCT, edm::DefaultRecord>&>(iToken));
+      }
 
-         // ---------- static member functions --------------------
-         static EventSetupRecordKey keyForClass()  {
-            return EventSetupRecordKey::makeKey<T>();
-         }
+      // ---------- static member functions --------------------
+      static EventSetupRecordKey keyForClass() { return EventSetupRecordKey::makeKey<T>(); }
 
-         // ---------- member functions ---------------------------
+      // ---------- member functions ---------------------------
 
-      protected:
-         EventSetupRecordImplementation() {}
+    protected:
+      EventSetupRecordImplementation() {}
 
-      private:
-         // ---------- member data --------------------------------
-      };
-   }
-}
+    private:
+      // ---------- member data --------------------------------
+    };
+  }  // namespace eventsetup
+}  // namespace edm
 
 #endif
