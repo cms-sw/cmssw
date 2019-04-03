@@ -208,7 +208,7 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
 	int jetConstituentPdgId = std::abs(jetConstituent->pdgId());
 	if ( !(jetConstituentPdgId == 130 || jetConstituentPdgId == 22) ) continue;
 
-	double dR = deltaR(atECALEntrance(jetConstituent.get(), bField_), atECALEntrance(&*chargedHadron, bField_));
+	double dR = deltaR(atECALEntrance(jetConstituent.get(), bField_), atECALEntrance(chargedHadron->chargedPFCandidate_.get(), bField_));
 	double dRmerge = -1.;      
 	int minBlockElementMatches = 1000;
 	int maxUnmatchedBlockElements = 0;
