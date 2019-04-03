@@ -8,15 +8,13 @@
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
 
-#include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
-class DTSimHitMatcher : public MuonSimHitMatcher
-{
-public:
-
+class DTSimHitMatcher : public MuonSimHitMatcher {
+ public:
   // constructor
-  DTSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector && iC);
+  DTSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
   // destructor
   ~DTSimHitMatcher() {}
@@ -46,7 +44,7 @@ public:
   bool hitStation(int, int, int) const;
 
   // number of stations with hits in at least X layers
-  int nStations(int nsl=1, int nl=3) const;
+  int nStations(int nsl = 1, int nl = 3) const;
 
   // access to DT hits
   int nCellsWithHitsInLayer(unsigned int) const;
@@ -63,18 +61,21 @@ public:
   // calculate the average position at the second station
   GlobalPoint simHitsMeanPositionStation(int n) const;
 
-  std::set<unsigned int> hitWiresInDTLayerId(unsigned int, int margin_n_wires = 0) const;  // DT
-  std::set<unsigned int> hitWiresInDTSuperLayerId(unsigned int, int margin_n_wires = 0) const;  // DT
-  std::set<unsigned int> hitWiresInDTChamberId(unsigned int, int margin_n_wires = 0) const;  // DT
+  std::set<unsigned int> hitWiresInDTLayerId(
+      unsigned int, int margin_n_wires = 0) const;  // DT
+  std::set<unsigned int> hitWiresInDTSuperLayerId(
+      unsigned int, int margin_n_wires = 0) const;  // DT
+  std::set<unsigned int> hitWiresInDTChamberId(
+      unsigned int, int margin_n_wires = 0) const;  // DT
 
   void dtChamberIdsToString(const std::set<unsigned int>&) const;
 
-private:
+ private:
+  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
+                              const edm::PSimHitContainer& hits);
 
-  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids, const edm::PSimHitContainer& hits);
-
-  std::map<unsigned int, edm::PSimHitContainer > layer_to_hits_;
-  std::map<unsigned int, edm::PSimHitContainer > superlayer_to_hits_;
+  std::map<unsigned int, edm::PSimHitContainer> layer_to_hits_;
+  std::map<unsigned int, edm::PSimHitContainer> superlayer_to_hits_;
 
   edm::ESHandle<DTGeometry> dt_geom_;
 };

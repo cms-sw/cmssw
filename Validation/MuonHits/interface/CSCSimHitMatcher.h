@@ -11,12 +11,10 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
-class CSCSimHitMatcher : public MuonSimHitMatcher
-{
-public:
-
+class CSCSimHitMatcher : public MuonSimHitMatcher {
+ public:
   // constructor
-  CSCSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector && iC);
+  CSCSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
   // destructor
   ~CSCSimHitMatcher() {}
@@ -40,15 +38,17 @@ public:
   bool hitStation(int, int) const;
 
   // number of stations with hits in at least X layers
-  int nStations(int nl=4) const;
+  int nStations(int nl = 4) const;
 
   // #layers with hits
   int nLayersWithHitsInChamber(unsigned int) const;
 
-  // How many CSC chambers with minimum number of layer with simhits did this simtrack get?
+  // How many CSC chambers with minimum number of layer with simhits did this
+  // simtrack get?
   int nCoincidenceChambers(int min_n_layers = 4) const;
 
-  // calculated the fitted position in a given layer for CSC simhits in a chamber
+  // calculated the fitted position in a given layer for CSC simhits in a
+  // chamber
   GlobalPoint simHitPositionKeyLayer(unsigned int chamberid) const;
 
   // local bending in a CSC chamber
@@ -70,9 +70,9 @@ public:
 
   void camberIdsToString(const std::set<unsigned int>&) const;
 
-private:
-
-  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids, const edm::PSimHitContainer& csc_hits);
+ private:
+  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
+                              const edm::PSimHitContainer& csc_hits);
 
   edm::ESHandle<CSCGeometry> csc_geom_;
 };
