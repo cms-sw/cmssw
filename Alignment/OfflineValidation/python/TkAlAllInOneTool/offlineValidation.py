@@ -19,6 +19,7 @@ class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, Validati
         "stripYResiduals": "False",
         "maxtracks": "0",
         "chargeCut": "0",
+        "multiIOV": "False",
         }
     deprecateddefaults = {
         "DMRMethod":"",
@@ -96,11 +97,13 @@ class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, Validati
     def initMerge(cls):
         from .plottingOptions import PlottingOptions
         outFilePath = replaceByMap(".oO[scriptsdir]Oo./TkAlOfflineJobsMerge.C", PlottingOptions(None, cls.valType))
+        print("outFilePath")
+        print(outFilePath)
         with open(outFilePath, "w") as theFile:
             theFile.write(replaceByMap(configTemplates.mergeOfflineParJobsTemplate, {}))
         result = super(OfflineValidation, cls).initMerge()
         result += ("cp .oO[Alignment/OfflineValidation]Oo./scripts/merge_TrackerOfflineValidation.C .\n"
-                   "rfcp .oO[mergeOfflineParJobsScriptPath]Oo. .\n")
+                   "cp .oO[mergeOfflineParJobsScriptPath]Oo. .\n")
         return result
 
     def appendToMerge(self):
