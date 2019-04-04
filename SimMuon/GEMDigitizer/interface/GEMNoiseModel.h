@@ -34,7 +34,6 @@ public:
 private:
 
   double averageNoiseRate_;
-  int bxwidth_;
   int minBunch_;
   int maxBunch_;
 };

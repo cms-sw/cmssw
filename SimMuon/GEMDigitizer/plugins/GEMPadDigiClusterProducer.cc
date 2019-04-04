@@ -33,9 +33,9 @@ GEMPadDigiClusterProducer::~GEMPadDigiClusterProducer()
 void GEMPadDigiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("inputCollection", "simMuonGEMDigis");
-  desc.add<int>("maxClusters", 8);
-  desc.add<int>("maxClusterSize", 8);
+  desc.add<edm::InputTag>("InputCollection", edm::InputTag("simMuonGEMPadDigis"));
+  desc.add<unsigned int>("maxClusters", 8);
+  desc.add<unsigned int>("maxClusterSize", 8);
 
   descriptions.add("simMuonGEMPadDigiClustersDef",desc);
 }

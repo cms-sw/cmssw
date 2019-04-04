@@ -8,12 +8,12 @@
 
 GEMDigiModule::GEMDigiModule(const edm::ParameterSet& config)
 {
-  bool doBkgNoise_(config.getParameter<bool> ("doBkgNoise"));
+  bool simulateBkgNoise_(config.getParameter<bool> ("simulateBkgNoise"));
   bool simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"));
   if (simulateIntrinsicNoise_){
     models.push_back(std::make_unique<GEMNoiseModel>(config));
   }
-  if (doBkgNoise_) {
+  if (simulateBkgNoise_) {
     models.push_back(std::make_unique<GEMBkgModel>(config));
   }
   models.push_back(std::make_unique<GEMSignalModel>(config));

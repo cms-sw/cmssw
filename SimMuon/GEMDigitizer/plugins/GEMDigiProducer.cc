@@ -67,8 +67,14 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<bool>("fixedRollRadius", true);
   desc.add<bool>("digitizeOnlyMuons", false);
   desc.add<bool>("simulateBkgNoise", false);
+  desc.add<bool>("simulateNoiseCLS", true);
   desc.add<bool>("simulateElectronBkg", false);
-  desc.add<bool>("simulateIntrinsicNoise", false);
+  desc.add<bool>("simulateIntrinsicNoise", true);
+
+  desc.add<double>("instLumi", 7.5);
+  desc.add<double>("rateFact", 1.0);
+  desc.add<double>("referenceInstLumi", 5.);
+  desc.add<double>("resolutionX", 0.03);
   
   desc.add<double>("GE11ModNeuBkgParam0", 5710.23);  
   desc.add<double>("GE11ModNeuBkgParam1", -43.3928); 
