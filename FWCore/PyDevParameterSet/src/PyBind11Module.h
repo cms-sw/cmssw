@@ -34,8 +34,13 @@
 
 PYBIND11_MODULE(libFWCorePyDevParameterSet,m) 
 {
-
-  //  pybind11::register_exception_translator<cms::Exception>(translatorlibFWCorePythonParameterSet);
+  pybind11::register_exception_translator([](std::exception_ptr p) {
+      try {
+        if (p) std::rethrow_exception(p);
+      } catch (const cms::Exception &e) {
+        PyErr_SetString(PyExc_RuntimeError, e.what());
+      }
+    });
 
   pybind11::class_<edm::InputTag>(m,"InputTag")
     .def(pybind11::init<>())
