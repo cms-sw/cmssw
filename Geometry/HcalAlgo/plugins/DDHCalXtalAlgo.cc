@@ -76,14 +76,15 @@ void DDHCalXtalAlgo::execute(DDCompactView& cpv) {
       phi[2]     = (2-3*iaxis)*90._deg;
     }
     pos[iaxis]   = angle*(dz+radius);
-    pos[2]       = dx*abs(sin(angle)) + offset;
+    pos[2]       = dx*std::abs(sin(angle)) + offset;
   
     DDRotation rotation;
     std::string rotstr = names[i];
     DDTranslation tran(pos[0], pos[1], pos[2]);
     DDName parentName = parent().name(); 
 
-    if (std::lround(100.0*convertRadToDeg(angle)) != 0) {
+    static const int tol = 0.000174523292; // 0.01 degree
+    if (std::abs(angle) > tol) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo: Creating a rotation " 
 				   << rotstr << "\t" 

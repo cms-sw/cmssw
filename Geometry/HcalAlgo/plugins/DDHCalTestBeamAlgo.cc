@@ -59,8 +59,8 @@ void DDHCalTestBeamAlgo::execute(DDCompactView& cpv) {
 
   double thetax = 90._deg + theta;
   double sthx   = sin(thetax);
-  if (abs(sthx)>1.e-12) sthx = 1./sthx;
-  else                  sthx = 1.;
+  if (std::abs(sthx)>1.e-12) sthx = 1./sthx;
+  else                       sthx = 1.;
   double phix   = atan2(sthx*cos(theta)*sin(phi),sthx*cos(theta)*cos(phi));
   double thetay = 90._deg;
   double phiy   = 90._deg + phi;
