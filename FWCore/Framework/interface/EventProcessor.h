@@ -222,6 +222,7 @@ namespace edm {
                         edm::WaitingTaskHolder iHolder);
     void continueLumiAsync(edm::WaitingTaskHolder iHolder);
     
+    void handleEndLumiExceptions(std::exception_ptr const* iPtr, WaitingTaskHolder& holder);
     void globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
     void streamEndLumiAsync(edm::WaitingTaskHolder iTask,
                             unsigned int iStreamIndex,
@@ -239,7 +240,7 @@ namespace edm {
 
     void setExceptionMessageFiles(std::string& message);
     void setExceptionMessageRuns(std::string& message);
-    void setExceptionMessageLumis(std::string& message);
+    void setExceptionMessageLumis();
 
     bool setDeferredException(std::exception_ptr);
 
@@ -330,8 +331,7 @@ namespace edm {
     bool                                          fileModeNoMerge_;
     std::string                                   exceptionMessageFiles_;
     std::string                                   exceptionMessageRuns_;
-    std::string                                   exceptionMessageLumis_;
-    std::atomic<bool>                             exceptionMessageLumisIsSet_;
+    std::atomic<bool>                             exceptionMessageLumis_;
     bool                                          forceLooperToEnd_;
     bool                                          looperBeginJobRun_;
     bool                                          forceESCacheClearOnNewRun_;
