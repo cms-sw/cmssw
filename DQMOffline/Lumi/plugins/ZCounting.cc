@@ -151,10 +151,10 @@ void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, e
   h_mass_SIT_fail_central = ibooker_.book2D("h_mass_SIT_fail_central", "Muon SIT_failing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
   h_mass_SIT_fail_forward = ibooker_.book2D("h_mass_SIT_fail_forward", "Muon SIT failing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
 
-  h_mass_Sta_pass_central = ibooker_.book2D("h_mass_Sta_pass_central", "Muon Sta passing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_Sta_pass_forward = ibooker_.book2D("h_mass_Sta_pass_forward", "Muon Sta passing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_Sta_fail_central = ibooker_.book2D("h_mass_Sta_fail_central", "Muon Sta failing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
-  h_mass_Sta_fail_forward = ibooker_.book2D("h_mass_Sta_fail_forward", "Muon Sta failing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_Glo_pass_central = ibooker_.book2D("h_mass_Glo_pass_central", "Muon Glo passing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_Glo_pass_forward = ibooker_.book2D("h_mass_Glo_pass_forward", "Muon Glo passing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_Glo_fail_central = ibooker_.book2D("h_mass_Glo_fail_central", "Muon Glo failing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_Glo_fail_forward = ibooker_.book2D("h_mass_Glo_fail_forward", "Muon Glo failing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
 
   h_npv                   = ibooker_.book2D("h_npv", "Events with valid primary vertex",     LumiBin_, LumiMin_, LumiMax_, PVBin_, PVMin_, PVMax_);
   h_yield_Z               = ibooker_.book1D("h_yield_Z", "reconstructed Z bosons", LumiBin_, LumiMin_, LumiMax_);
@@ -170,10 +170,10 @@ void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, e
   h_mass_SIT_pass_forward ->setAxisTitle("luminosiry section",1);
   h_mass_SIT_fail_central ->setAxisTitle("luminosiry section",1);
   h_mass_SIT_fail_forward ->setAxisTitle("luminosiry section",1);
-  h_mass_Sta_pass_central ->setAxisTitle("luminosiry section",1);
-  h_mass_Sta_pass_forward ->setAxisTitle("luminosiry section",1);
-  h_mass_Sta_fail_central ->setAxisTitle("luminosiry section",1);
-  h_mass_Sta_fail_forward ->setAxisTitle("luminosiry section",1);
+  h_mass_Glo_pass_central ->setAxisTitle("luminosiry section",1);
+  h_mass_Glo_pass_forward ->setAxisTitle("luminosiry section",1);
+  h_mass_Glo_fail_central ->setAxisTitle("luminosiry section",1);
+  h_mass_Glo_fail_forward ->setAxisTitle("luminosiry section",1);
   h_mass_HLT_pass_central ->setAxisTitle("tag and probe mass",2);
   h_mass_HLT_pass_forward ->setAxisTitle("tag and probe mass",2);
   h_mass_HLT_fail_central ->setAxisTitle("tag and probe mass",2);
@@ -182,16 +182,17 @@ void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, e
   h_mass_SIT_pass_forward ->setAxisTitle("tag and probe mass",2);
   h_mass_SIT_fail_central ->setAxisTitle("tag and probe mass",2);
   h_mass_SIT_fail_forward ->setAxisTitle("tag and probe mass",2);
-  h_mass_Sta_pass_central ->setAxisTitle("tag and probe mass",2);
-  h_mass_Sta_pass_forward ->setAxisTitle("tag and probe mass",2);
-  h_mass_Sta_fail_central ->setAxisTitle("tag and probe mass",2);
-  h_mass_Sta_fail_forward ->setAxisTitle("tag and probe mass",2);
+  h_mass_Glo_pass_central ->setAxisTitle("tag and probe mass",2);
+  h_mass_Glo_pass_forward ->setAxisTitle("tag and probe mass",2);
+  h_mass_Glo_fail_central ->setAxisTitle("tag and probe mass",2);
+  h_mass_Glo_fail_forward ->setAxisTitle("tag and probe mass",2);
   h_npv ->setAxisTitle("luminosity section", 1);
   h_npv ->setAxisTitle("number of primary vertices", 2); 
   h_yield_Z ->setAxisTitle("luminosiry section",1);
   h_yieldBB_Z ->setAxisTitle("luminosiry section",1);
   h_yieldEE_Z ->setAxisTitle("luminosiry section",1);
 
+  /*
   // Electron histograms
   h_ee_mass_id_pass_central  = ibooker_.book2D("h_ee_mass_id_pass_central", "h_ee_mass_id_pass_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
   h_ee_mass_id_fail_central  = ibooker_.book2D("h_ee_mass_id_fail_central", "h_ee_mass_id_fail_central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
@@ -205,7 +206,7 @@ void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, e
 
   h_ee_yield_Z_ebeb       = ibooker_.book1D("h_ee_yield_Z_ebeb", "h_ee_yield_Z_ebeb", LumiBin_, LumiMin_, LumiMax_);
   h_ee_yield_Z_ebee       = ibooker_.book1D("h_ee_yield_Z_ebee", "h_ee_yield_Z_ebee", LumiBin_, LumiMin_, LumiMax_);
-  h_ee_yield_Z_eeee       = ibooker_.book1D("h_ee_yield_Z_eeee", "h_ee_yield_Z_eeee", LumiBin_, LumiMin_, LumiMax_);
+  h_ee_yield_Z_eeee       = ibooker_.book1D("h_ee_yield_Z_eeee", "h_ee_yield_Z_eeee", LumiBin_, LumiMin_, LumiMax_);*/
 }
 
 //
@@ -216,7 +217,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {// Fill event tree on the fly 
   edm::LogInfo("ZCounting") <<  "ZCounting::analyze" << std::endl;
   analyzeMuons(iEvent, iSetup);
-  analyzeElectrons(iEvent, iSetup);
+  //analyzeElectrons(iEvent, iSetup);
 }
 
 void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -351,25 +352,25 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
           if(isTagCentral){
             h_mass_HLT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
             h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Glo_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
           }
           else
           {
             h_mass_HLT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
             h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Glo_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
           }
 
           if(isProbeCentral){
             h_mass_HLT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
             h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Glo_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
           }
           else
           {
             h_mass_HLT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
             h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Glo_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
           }
 
         }
@@ -378,13 +379,13 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
           if(isProbeCentral){
             h_mass_HLT_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
             h_mass_SIT_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Glo_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
           }
           else
           {
             h_mass_HLT_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
             h_mass_SIT_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-            h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+            h_mass_Glo_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
           }
 
         }
@@ -394,35 +395,35 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
 	else if(!isTagCentral && !isProbeCentral) h_yieldEE_Z->Fill(iEvent.luminosityBlock());
       }
       else if(itMu2.isGlobalMuon()){
-        // category NoSel: probe is a GLB muon but failing selection 
+        // category Glo: probe is a Global muon but failing selection 
         if(isProbeCentral){
           h_mass_SIT_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
-          h_mass_Sta_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_Glo_pass_central->Fill(iEvent.luminosityBlock(), dilepMass);
         }
         else
         {
           h_mass_SIT_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
-          h_mass_Sta_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_Glo_pass_forward->Fill(iEvent.luminosityBlock(), dilepMass);
         }
       }
       else if(itMu2.isStandAloneMuon()){
-        // category STA: probe is a STA muon
+        // category Sta: probe is a Standalone muon
         if(isProbeCentral){
-          h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_Glo_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
         }
         else
         {
-          h_mass_Sta_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_Glo_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
         }
       }
       else if(itMu2.innerTrack()->hitPattern().trackerLayersWithMeasurement() >= 6 && itMu2.innerTrack()->hitPattern().numberOfValidPixelHits() >= 1){
         // cateogry Trk: probe is a tracker track
         if(isProbeCentral){
-          h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_Glo_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
         }
         else
         {
-          h_mass_Sta_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_Glo_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
         }
       }
 
@@ -461,8 +462,8 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
       if(fabs(eta2) > MUON_BOUND) isTrackCentral = true;
 
       if(itTrk.hitPattern().trackerLayersWithMeasurement() >= 6 && itTrk.hitPattern().numberOfValidPixelHits() >= 1){
-        if(isTrackCentral) h_mass_Sta_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
-        else               h_mass_Sta_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
+        if(isTrackCentral) h_mass_Glo_fail_central->Fill(iEvent.luminosityBlock(), dilepMass);
+        else               h_mass_Glo_fail_forward->Fill(iEvent.luminosityBlock(), dilepMass);
       }
 
     }//End of probe loop over tracks
