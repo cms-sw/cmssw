@@ -13,7 +13,6 @@
 GEMNoiseModel::GEMNoiseModel(const edm::ParameterSet& config) :
 GEMDigiModel(config)
 , averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))
-, bxwidth_(config.getParameter<int> ("bxwidth"))
 , minBunch_(config.getParameter<int> ("minBunch"))
 , maxBunch_(config.getParameter<int> ("maxBunch"))
 {
@@ -39,7 +38,7 @@ void GEMNoiseModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitCont
   float trArea(trStripArea*nstrips);
   const int nBxing(maxBunch_ - minBunch_ + 1);
   //simulate intrinsic noise
-  const double aveIntrinsicNoise(averageNoiseRate_ * nBxing * bxwidth_ * trArea * 1.0e-9);
+  const double aveIntrinsicNoise(averageNoiseRate_ * nBxing * trArea * 25.0e-9);
   CLHEP::RandPoissonQ randPoissonQ(*engine, aveIntrinsicNoise);
   const int n_intrHits(randPoissonQ.fire());
   

@@ -34,11 +34,10 @@ public:
 private:
 
   double averageEfficiency_;
-  int bxwidth_;
   int minBunch_;
   int maxBunch_;
   bool digitizeOnlyMuons_;
-  bool doNoiseCLS_;
+  bool simulateNoiseCLS_;
   bool fixedRollRadius_;
   bool simulateElectronBkg_;
   double instLumi_;

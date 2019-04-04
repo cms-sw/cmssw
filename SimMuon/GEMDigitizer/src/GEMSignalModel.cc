@@ -17,7 +17,6 @@ GEMDigiModel(config)
 , timeResolution_(config.getParameter<double> ("timeResolution"))
 , timeJitter_(config.getParameter<double> ("timeJitter"))
 , signalPropagationSpeed_(config.getParameter<double> ("signalPropagationSpeed"))
-, bxwidth_(config.getParameter<int> ("bxwidth"))
 , digitizeOnlyMuons_(config.getParameter<bool> ("digitizeOnlyMuons"))
 , resolutionX_(config.getParameter<double>("resolutionX"))
 {
@@ -107,7 +106,7 @@ int GEMSignalModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   referenceTime = timeCalibrationOffset_ + halfStripLength / signalPropagationSpeedTrue + averageShapingTime_;
   const float timeDifference(simhitTime - referenceTime);
   // assign the bunch crossing
-  bx = static_cast<int> (std::round((timeDifference) / bxwidth_));
+  bx = static_cast<int> (std::round((timeDifference) / 25.));
 
   // check time
   const bool debug(false);

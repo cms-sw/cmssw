@@ -43,7 +43,6 @@ private:
   double timeResolution_;
   double timeJitter_;
   double signalPropagationSpeed_;
-  int bxwidth_;
   bool digitizeOnlyMuons_;
   double resolutionX_; 
 

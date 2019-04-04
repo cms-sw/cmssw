@@ -13,10 +13,9 @@
 GEMBkgModel::GEMBkgModel(const edm::ParameterSet& config) :
 GEMDigiModel(config)
 , averageEfficiency_(config.getParameter<double> ("averageEfficiency"))
-, bxwidth_(config.getParameter<int> ("bxwidth"))
 , minBunch_(config.getParameter<int> ("minBunch"))
 , maxBunch_(config.getParameter<int> ("maxBunch"))
-, doNoiseCLS_(config.getParameter<bool> ("doNoiseCLS"))
+, simulateNoiseCLS_(config.getParameter<bool> ("simulateNoiseCLS"))
 , fixedRollRadius_(config.getParameter<bool> ("fixedRollRadius"))
 , simulateElectronBkg_(config.getParameter<bool> ("simulateElectronBkg"))
 , instLumi_(config.getParameter<double>("instLumi"))
@@ -97,14 +96,14 @@ void GEMBkgModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitContai
   }
 
   //simulate bkg contribution
-  const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
+  const double averageNoise(averageNoiseRatePerRoll * nBxing * trArea * 25.0e-9);
   CLHEP::RandPoissonQ randPoissonQ(*engine, averageNoise);
   const int n_hits(randPoissonQ.fire());
   for (int i = 0; i < n_hits; ++i)
   {
     const int centralStrip(static_cast<int> (CLHEP::RandFlat::shoot(engine, 1, nstrips)));
     const int time_hit(static_cast<int>(CLHEP::RandFlat::shoot(engine, nBxing)) + minBunch_);
-    if (doNoiseCLS_)
+    if (simulateNoiseCLS_)
     {
       std::vector < std::pair<int, int> > cluster_;
       cluster_.clear();
@@ -127,7 +126,7 @@ void GEMBkgModel::simulate(const GEMEtaPartition* roll, const edm::PSimHitContai
       {
         strips_.emplace(digi);
       }
-    } //end doNoiseCLS_
+    } //end simulateNoiseCLS_
     else
     {
       strips_.emplace(std::make_pair(centralStrip, time_hit));
