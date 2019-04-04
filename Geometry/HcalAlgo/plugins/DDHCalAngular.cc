@@ -72,7 +72,7 @@ void DDHCalAngular::execute(DDCompactView& cpv) {
     DDRotation rotation;
     std::string rotstr("NULL");
  
-    static const int tol = 0.1;
+    static const double tol = 0.1;
     if (std::abs(phix) > tol) {
       rotstr = "R" + formatAsDegreesInInteger(phix);
       rotation = DDRotation(DDName(rotstr, rotns)); 
