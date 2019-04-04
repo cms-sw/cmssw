@@ -64,7 +64,9 @@ int main(int argc, char *argv[])
       "process.e = cms.EndPath(process.out)\n";
 
     // D.  Create the services.
-    edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::make_unique<edm::ParameterSet>(config)));
+    std::unique_ptr<edm::ParameterSet> params;
+    edm::makeParameterSets(config, params);
+    edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
 
     // E.  Make the services available.
     edm::ServiceRegistry::Operate operate(tempToken);
