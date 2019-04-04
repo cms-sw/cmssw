@@ -83,7 +83,7 @@ void DDHCalXtalAlgo::execute(DDCompactView& cpv) {
     DDTranslation tran(pos[0], pos[1], pos[2]);
     DDName parentName = parent().name(); 
 
-    static const int tol = 0.000174523292; // 0.01 degree
+    static const double tol = 0.000174523292; // 0.01 degree
     if (std::abs(angle) > tol) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo: Creating a rotation " 
