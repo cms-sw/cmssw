@@ -7,7 +7,7 @@
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/Records/interface/MuonGeometryRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "Fireworks/Core/interface/FWGeometry.h"
 
@@ -95,7 +95,7 @@ DTGeometryValidate::DTGeometryValidate(const edm::ParameterSet& iConfig)
 void 
 DTGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  eventSetup.get<MuonGeometryRcd>().get(dtGeometry_);
+  eventSetup.get<MuonGeometryRecord>().get(dtGeometry_);
 
   if(dtGeometry_.isValid()) {
     LogVerbatim("DTGeometry") << "Validating DT chamber geometry";

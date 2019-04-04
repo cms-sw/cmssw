@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/DetectorDescriptionRcd.h"
+#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "Geometry/Records/interface/DDVectorRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
@@ -39,7 +39,7 @@ void
 DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup)
 {
   ESTransientHandle<DDDetector> det;
-  iEventSetup.get<DetectorDescriptionRcd>().get(m_tag.module(), det);
+  iEventSetup.get<GeometryFileRcd>().get(m_tag.module(), det);
 
   LogInfo("DDCMS") << "Iterate over the detectors:\n";
   for( auto const& it : det->description()->detectors()) {
