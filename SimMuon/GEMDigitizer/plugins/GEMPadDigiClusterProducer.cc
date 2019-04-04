@@ -1,4 +1,4 @@
-#include "SimMuon/GEMDigitizer/interface/GEMPadDigiClusterProducer.h"
+#include "SimMuon/GEMDigitizer/plugins/GEMPadDigiClusterProducer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -30,6 +30,15 @@ GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps
 GEMPadDigiClusterProducer::~GEMPadDigiClusterProducer()
 {}
 
+void GEMPadDigiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("inputCollection", "simMuonGEMDigis");
+  desc.add<int>("maxClusters", 8);
+  desc.add<int>("maxClusterSize", 8);
+
+  descriptions.add("simMuonGEMPadDigiClustersDef",desc);
+}
 
 void GEMPadDigiClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup)
 {

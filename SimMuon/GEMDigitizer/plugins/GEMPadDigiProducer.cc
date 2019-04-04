@@ -1,4 +1,4 @@
-#include "SimMuon/GEMDigitizer/interface/GEMPadDigiProducer.h"
+#include "SimMuon/GEMDigitizer/plugins/GEMPadDigiProducer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,6 +22,13 @@ GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps)
   consumes<GEMDigiCollection>(digis_);
 }
 
+void GEMPadDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("inputCollection", "simMuonGEMDigis");
+
+  descriptions.add("simMuonGEMPadDigisDef",desc);
+}
 
 GEMPadDigiProducer::~GEMPadDigiProducer()
 {}

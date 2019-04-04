@@ -30,6 +30,8 @@ public:
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
 
   void buildPads(const GEMDigiCollection &digis, GEMPadDigiCollection &out_pads) const;
