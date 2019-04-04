@@ -156,10 +156,11 @@ void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, e
   h_mass_Glo_fail_central = ibooker_.book2D("h_mass_Glo_fail_central", "Muon Glo failing probes central", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
   h_mass_Glo_fail_forward = ibooker_.book2D("h_mass_Glo_fail_forward", "Muon Glo failing probes forward", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
 
-  h_npv                   = ibooker_.book2D("h_npv", "Events with valid primary vertex",     LumiBin_, LumiMin_, LumiMax_, PVBin_, PVMin_, PVMax_);
-  h_yield_Z               = ibooker_.book1D("h_yield_Z", "reconstructed Z bosons", LumiBin_, LumiMin_, LumiMax_);
-  h_yieldBB_Z             = ibooker_.book1D("h_yieldBB_Z", "reconstructed Z bosons in barrel", LumiBin_, LumiMin_, LumiMax_);
-  h_yieldEE_Z             = ibooker_.book1D("h_yieldEE_Z", "reconstructed Z bosons in endcap", LumiBin_, LumiMin_, LumiMax_);
+  h_npv                   = ibooker_.book2D("h_npv", "Events with valid primary vertex",     	LumiBin_, LumiMin_, LumiMax_, PVBin_, PVMin_, PVMax_);
+  h_mass_yield_Z          = ibooker_.book2D("h_mass_yield_Z", "reconstructed Z bosons", 	LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_npv_yield_Z           = ibooker_.book2D("h_npv_yield_Z", "reconstructed Z bosons",         	LumiBin_, LumiMin_, LumiMax_, PVBin_, PVMin_, PVMax_);
+  h_yieldBB_Z             = ibooker_.book1D("h_yieldBB_Z", "reconstructed Z bosons in barrel", 	LumiBin_, LumiMin_, LumiMax_);
+  h_yieldEE_Z             = ibooker_.book1D("h_yieldEE_Z", "reconstructed Z bosons in endcap", 	LumiBin_, LumiMin_, LumiMax_);
 
   // Axis titles
   h_mass_HLT_pass_central ->setAxisTitle("luminosiry section",1);
@@ -186,9 +187,13 @@ void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, e
   h_mass_Glo_pass_forward ->setAxisTitle("tag and probe mass",2);
   h_mass_Glo_fail_central ->setAxisTitle("tag and probe mass",2);
   h_mass_Glo_fail_forward ->setAxisTitle("tag and probe mass",2);
-  h_npv ->setAxisTitle("luminosity section", 1);
-  h_npv ->setAxisTitle("number of primary vertices", 2); 
-  h_yield_Z ->setAxisTitle("luminosiry section",1);
+  h_npv 		->setAxisTitle("luminosity section", 1);
+  h_npv 		->setAxisTitle("number of primary vertices", 2); 
+  h_npv_yield_Z 	->setAxisTitle("luminosiry section",1);
+  h_npv_yield_Z 	->setAxisTitle("number of primary vertices",2);
+  h_mass_yield_Z 	->setAxisTitle("luminosiry section",1);
+  h_mass_yield_Z 	->setAxisTitle("tag and probe mass",2);
+
   h_yieldBB_Z ->setAxisTitle("luminosiry section",1);
   h_yieldEE_Z ->setAxisTitle("luminosiry section",1);
 
@@ -390,7 +395,8 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
 
         }
         // category 2HLT + 1HLT: Fill once for Z yield 
-        h_yield_Z->Fill(iEvent.luminosityBlock());
+        h_npv_yield_Z->Fill(iEvent.luminosityBlock(), nvtx);
+        h_mass_yield_Z->Fill(iEvent.luminosityBlock(), dilepMass);
         if(isTagCentral && isProbeCentral) h_yieldBB_Z->Fill(iEvent.luminosityBlock());
 	else if(!isTagCentral && !isProbeCentral) h_yieldEE_Z->Fill(iEvent.luminosityBlock());
       }
