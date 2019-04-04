@@ -48,6 +48,44 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
 
 GEMDigiProducer::~GEMDigiProducer() = default;
 
+void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("inputCollection", "g4SimHitsMuonGEMHits");
+  desc.add<std::string>("mixLabel", "mix");
+
+  desc.add<double>("signalPropagationSpeed", 0.66);
+  desc.add<double>("timeResolution", 5.);
+  desc.add<double>("timeJitter", 1.0);
+  desc.add<double>("averageShapingTime", 50.0);
+  desc.add<double>("averageEfficiency", 0.98);
+  desc.add<double>("averageNoiseRate", 0.001);
+  
+  desc.add<int>("minBunch", -5);
+  desc.add<int>("maxBunch", 3);
+
+  desc.add<bool>("fixedRollRadius", true);
+  desc.add<bool>("digitizeOnlyMuons", false);
+  desc.add<bool>("simulateBkgNoise", false);
+  desc.add<bool>("simulateElectronBkg", false);
+  desc.add<bool>("simulateIntrinsicNoise", false);
+  
+  desc.add<double>("GE11ModNeuBkgParam0", 5710.23);  
+  desc.add<double>("GE11ModNeuBkgParam1", -43.3928); 
+  desc.add<double>("GE11ModNeuBkgParam2", 0.0863681); 
+  desc.add<double>("GE21ModNeuBkgParam0", 1440.44);
+  desc.add<double>("GE21ModNeuBkgParam1", -7.48607); 
+  desc.add<double>("GE21ModNeuBkgParam2", 0.0103078);
+  desc.add<double>("GE11ElecBkgParam0", 406.249);
+  desc.add<double>("GE11ElecBkgParam1", -2.90939);
+  desc.add<double>("GE11ElecBkgParam2", 0.00548191);
+  desc.add<double>("GE21ElecBkgParam0", 97.0505);
+  desc.add<double>("GE21ElecBkgParam1", -43.3928);
+  desc.add<double>("GE21ElecBkgParam2", 00.000550599);
+
+  descriptions.add("simMuonGEMDigisDef",desc);
+}
+
 void GEMDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup)
 {
   edm::ESHandle<GEMGeometry> hGeom;
