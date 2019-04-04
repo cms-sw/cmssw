@@ -139,12 +139,16 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     edm::Handle< edm::View<reco::Vertex> > vertexHandle;
     iEvent.getByToken(pvToken, vertexHandle);
 
+    unsigned int nPVall = vertexHandle->size();
+    bool isGoodPV[ nPVall ] = {false};
     int npv = 0;
-    for (unsigned int i=0, n=vertexHandle->size(); i<n; i++) {
+    for (unsigned int i=0; i<nPVall; i++) {
         const auto& pv = vertexHandle->at(i);
 
-        if( !pv.isFake() && pv.ndof() >= 4 && fabs(pv.z()) <= 24.0 && fabs(pv.position().rho()) <= 2.0 )
+        if( !pv.isFake() && pv.ndof() >= 4 && fabs(pv.z()) <= 24.0 && fabs(pv.position().rho()) <= 2.0 ) {
             npv++;
+            isGoodPV[i] = true;
+        }
     }
     th1dPlots["npv"].fill( npv );
 
@@ -153,7 +157,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     edm::Handle< edm::View<PileupSummaryInfo> > muHandle;
     if ( iEvent.getByToken(muToken, muHandle) ) {
 
-      int bx = muHandle->size()==1 ? 0 : 1;
+      int bx = muHandle->size()==1 ? 0 : 12; //12 is in time BX
       float mu = muHandle->at(bx).getTrueNumInteractions();
       th1dPlots["mu"].fill( mu );
       int_mu = mu + 0.5;
@@ -172,11 +176,8 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
         if ( pftype == "chm" ) { //check charged hadrons ONLY
             bool attached = false;
 
-            for (unsigned int ipv=0, endpv=vertexHandle->size(); ipv<endpv && !attached; ipv++) {
-                const auto& pv = vertexHandle->at(ipv);
-                if ( !pv.isFake() && pv.ndof() >= 4 && fabs(pv.z()) <= 24.0 && fabs(pv.position().rho()) <= 2.0 ) { //must be attached to a good pv
-                    if ( cand.fromPV(ipv) == 3 ) attached = true; //pv used in fit
-                }
+            for (unsigned int ipv=0; ipv<nPVall && !attached; ipv++) {
+                if ( isGoodPV[ipv] && cand.fromPV(ipv) == 3 ) attached = true; //pv used in fit
             }
             if (!attached) pftype = "chu"; //unmatched charged hadron
         }

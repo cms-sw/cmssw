@@ -50,12 +50,12 @@ def createTH1DVPSet():
     #hname, title, xmax
     toplot = ( ("mu", "#mu", default.muHighOffset), ("npv", "N_{PV}", default.npvHighOffset) )
 
-    for tup in toplot :
+    for hname, title, xmax in toplot :
         plots += [ plotPSet(
-                tup[0],
-                tup[0] + ";" + tup[1],
+                hname,
+                hname + ";" + title,
                 default.offsetDir,
-                tup[2]*2, 0, tup[2]
+                xmax*2, 0, xmax
             )]
     return plots
 

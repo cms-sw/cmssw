@@ -13,6 +13,7 @@ from Validation.RecoTrack.plotting.plotting import Subtract, FakeDuplicate, CutE
 from Validation.RecoTrack.plotting.html import PlotPurpose
 
 from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, muLowOffset, muHighOffset, npvLowOffset, npvHighOffset, candidateType, offset_name
+from offsetStack import offsetStack
 
 def parse_sample_string(ss):
     spl = ss.split(":")
@@ -74,11 +75,8 @@ def parse_args():
         required=False,
         help="If enabled, do all offset plots"
     )
-    parser.add_argument("--offsetOpts", type=str, action='append',
-        required=False,
-        help="Options for offset plots: variable and deltaR",
-        default="npv 0.4"
-    )
+    parser.add_argument( "--offsetVar", type=str,   action='store', default="npv", help="variable to bin offset eT" )
+    parser.add_argument( "--offsetDR",  type=float, action='store', default=0.4,   help="offset deltaR value" )
     args = parser.parse_args()
 
     #collect all the SimpleSample objects    
@@ -112,18 +110,17 @@ def parse_args():
             plots += [("JetResponse", "response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1]), pthistograms)]
 
     if args.doOffsetPlots:
-        var = "npv"
-        varHigh, varLow = npvHighOffset, npvLowOffset
-        if var not in args.offsetOpts :
-            var = "mu"
+        if args.offsetVar == "npv" :
+            varHigh, varLow = npvHighOffset, npvLowOffset
+        else :
             varHigh, varLow = muHighOffset, muLowOffset
         for ivar in range( varLow, varHigh ) :
             offsetHists = []
             for itype in candidateType :
-                offsetHists += [ offset_name( var, ivar, itype ) ]
-            plots += [("Offset/{0}Plots/{0}{1}".format(var, ivar), "{0}{1}".format(var, ivar), offsetHists)]
+                offsetHists += [ offset_name( args.offsetVar, ivar, itype ) ]
+            plots += [("Offset/{0}Plots/{0}{1}".format(args.offsetVar, ivar), "{0}{1}".format(args.offsetVar, ivar), offsetHists)]
 
-    return samples, plots, args.doOffsetPlots, args.offsetOpts
+    return samples, plots, args.doOffsetPlots, args.offsetVar, args.offsetDR
 
 def addPlots(plotter, folder, name, section, histograms, opts, offset=False):
     folders = [folder]
@@ -145,7 +142,7 @@ def main():
     for iptbin in range(len(ptbins)-1):
         plot_opts["response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1])] = {"stat": True}
 
-    samples, plots, doOffsetPlots, offsetOpts = parse_args()
+    samples, plots, doOffsetPlots, offsetVar, offsetDR = parse_args()
 
     plotter = Plotter()
 
@@ -186,18 +183,14 @@ def main():
 
             for f in s.files() :
                 fname = f.split('/')[-2]
-                cmd = "offsetStack " + fname + ":" + f + " " + offsetOpts + " " + fullOffsetDir
-                print cmd
-                os.system(cmd)
-                addLine( offsetDir, 'stack_{}.pdf'.format(fname), lines )
+                outName = offsetStack( [(fname,f)], offsetVar, offsetDR, fullOffsetDir )
+                addLine( offsetDir, outName, lines )
 
                 for f2 in s.files() :
                     if f == f2 : continue
                     fname2 = f2.split('/')[-2]
-                    cmd2 = cmd + " " + fname2 + ":" + f2
-                    print cmd2
-                    os.system(cmd2)
-                    addLine( offsetDir, 'stack_{}_vs_{}.pdf'.format(fname, fname2), lines)
+                    outName = offsetStack( [(fname,f), (fname2,f2)], offsetVar, offsetDR, fullOffsetDir )
+                    addLine( offsetDir, outName, lines )
 
             offFile = open( outputDir + "/" + s.label() + "_offset.html", "w")
             lines = "".join(lines)

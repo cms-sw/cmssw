@@ -62,8 +62,12 @@ int main(int argc, char* argv[]) {
     TFile* file2 = TFile::Open( fname2 );
     if (!file2) {std::cout << "Invalid file2: " << fname2 << std::endl; return -1;}
 
+    TH1F* h2 = (TH1F*) file2->FindObjectAny( var );
+    if (!h2) {std::cout << "Could not find " + var + " hist in file2" << std::endl;  return -1;}
+    int avg2 = h2->GetMean()+0.5;
+
     std::map<TString, TH1D*> hists2 = hists1;
-    if (!getHists( hists2, file2, var, avg, r )) return -1;
+    if (!getHists( hists2, file2, var, avg2, r )) return -1;
 
     THStack* stack2 = new THStack( "stack2", "stack2" );
     setStack( stack2, hists2 );
