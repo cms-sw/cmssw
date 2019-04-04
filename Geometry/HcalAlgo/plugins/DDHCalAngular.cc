@@ -8,8 +8,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalAngular.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -71,19 +72,16 @@ void DDHCalAngular::execute(DDCompactView& cpv) {
     DDRotation rotation;
     std::string rotstr("NULL");
  
-    int    phideg = std::lround(convertRadToDeg(phix));
-    if (phideg >= 360) phideg -= 360;
-    if (phideg != 0) {
-      rotstr = "R"; 
-      if (phideg >=0 && phideg < 100) rotstr = "R0"; 
-      rotstr = rotstr + std::to_string(phideg);
+    static const int tol = 0.1;
+    if (std::abs(phix) > tol) {
+      rotstr = "R" + formatAsDegreesInInteger(phix);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Creating a rotation "
 				     << DDName(rotstr, idNameSpace) << "\t90, "
-				     << phideg << ", 90, " << (phideg+90) 
-				     << ", 0, 0";
+				     << convertRadToDeg(phi) << ", 90, " 
+				     << (90+convertRadToDeg(phi)) << ", 0, 0";
 #endif
         rotation = DDrot(DDName(rotstr, rotns), theta, phix, theta, phiy, 0,0);
       } 
