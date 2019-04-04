@@ -108,7 +108,7 @@ void CTPPSOpticalFunctionsESSource::setIntervalFor(const edm::eventsetup::EventS
   }
 
   // not within any entry
-  m_currentEntryValid = true;
+  m_currentEntryValid = false;
   m_currentEntry = 0;
 
   edm::LogInfo("") << "No configuration entry found for event " << iosv.eventID() << ", no optical functions will be available.";
