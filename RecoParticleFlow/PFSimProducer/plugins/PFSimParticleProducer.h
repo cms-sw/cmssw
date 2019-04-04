@@ -25,8 +25,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 
-#include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
-
 
 /**\class PFSimParticleProducer 
 \brief Producer for PFRecTracks and PFSimParticles
