@@ -16,6 +16,7 @@ F11=${LOCAL_TEST_DIR}/python/testMuonGeometry.py
 F12=${LOCAL_TEST_DIR}/python/testShapes.py
 F13=${LOCAL_TEST_DIR}/python/testNavigateGeometry.py
 F14=${LOCAL_TEST_DIR}/python/testTGeoIterator.py
+F15=${LOCAL_TEST_DIR}/python/testDDHGCalCellAlgorithm.py
  
 echo " testing DetectorDescription/DDCMS"
 
@@ -50,3 +51,5 @@ echo "===== Test \"cmsRun testNavigateGeometry.py\" ===="
 (cmsRun $F13) || die "Failure using cmsRun $F13" $?
 echo "===== Test \"cmsRun testTGeoIterator.py\" ===="
 (cmsRun $F14) || die "Failure using cmsRun $F14" $?
+echo "===== Test \"cmsRun testDDHGCalCellAlgorithm.py\" ===="
+(cmsRun $F15) || die "Failure using cmsRun $F15" $?
