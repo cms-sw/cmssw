@@ -939,8 +939,8 @@ DQMStore::book_(std::string const& dir,
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
     if (doSaveByLumi_ && canSaveByLumi_) {
-      proto.setLumiFlag(); // default to per-lumi mode for all non-legacy MEs.
       // for legacy (not DQMEDAnalyzer) this is not save.
+      proto.setLumiFlag(); // default to per-lumi mode for all non-legacy MEs.
     }
     me = const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first)
       .initialise((MonitorElement::Kind)kind, h);
@@ -1000,10 +1000,8 @@ DQMStore::book_(std::string const& dir,
     // Create it and return for initialisation.
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
-    if (doSaveByLumi_ && canSaveByLumi_) {
-      proto.setLumiFlag(); // default to per-lumi mode for all non-legacy MEs.
-      // for legacy (not DQMEDAnalyzer) this is not save.
-    }
+    // this is used only for Int/String/Float. We don't save these by lumi by
+    // default, since we can't merge them properly.
     return &const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first);
   }
 }
