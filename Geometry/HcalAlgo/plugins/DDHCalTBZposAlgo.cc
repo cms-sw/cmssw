@@ -67,9 +67,8 @@ void DDHCalTBZposAlgo::execute(DDCompactView& cpv) {
   double y      = shiftY*cos(tilt);
   DDTranslation tran(x,y,z);
   DDRotation rot;
-  double tiltdeg = convertRadToDeg(tilt);
-  int    itilt   = int(tiltdeg+0.1);
-  if (itilt != 0) {
+  if (tilt != 0) {
+    int  tiltdeg = std::lround(convertRadToDeg(tilt));
     std::string rotstr = "R";
     if (tiltdeg < 100) rotstr = "R0"; 
     rotstr = rotstr + std::to_string(tiltdeg);
