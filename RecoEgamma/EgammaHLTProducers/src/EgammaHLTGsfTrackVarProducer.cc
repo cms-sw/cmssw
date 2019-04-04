@@ -20,7 +20,6 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
-#include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"

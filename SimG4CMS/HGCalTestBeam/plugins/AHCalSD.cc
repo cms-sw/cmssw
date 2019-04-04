@@ -1,6 +1,7 @@
-#include "SimG4CMS/HGCalTestBeam/interface/AHCalSD.h"
+#include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
@@ -15,7 +16,33 @@
 #include "G4PhysicalConstants.hh"
 
 #include <iomanip>
+#include <map>
+#include <string>
+
 //#define EDM_ML_DEBUG
+
+class AHCalSD : public CaloSD {
+
+public:    
+
+  AHCalSD(const std::string& , const DDCompactView &, 
+	  const SensitiveDetectorCatalog &,
+	  edm::ParameterSet const &, const SimTrackManager*);
+  ~AHCalSD() override = default;
+  uint32_t              setDetUnitId(const G4Step* step) override;
+  bool                  unpackIndex(const uint32_t & idx, int & row, 
+				    int& col, int& depth);
+protected:
+
+  double                getEnergyDeposit(const G4Step*) override;
+  bool                  filterHit(CaloG4Hit*, double) override;
+
+private:    
+
+  bool                          useBirk;
+  double                        birk1, birk2, birk3, betaThr;
+  double                        eminHit;
+};
 
 AHCalSD::AHCalSD(const std::string& name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
@@ -31,11 +58,11 @@ AHCalSD::AHCalSD(const std::string& name, const DDCompactView & cpv,
   birk3            = m_HC.getParameter<double>("BirkC3");
   eminHit          = m_HC.getParameter<double>("EminHit")*CLHEP::MeV;
 
-  edm::LogInfo("HcalSim") << "AHCalSD::  Use of Birks law is set to      " 
-                          << useBirk << "  with three constants kB = "
-                          << birk1 << ", C1 = " << birk2 << ", C2 = " << birk3
-			  << "\nAHCalSD:: Threshold for storing hits: "
-                          << eminHit << std::endl;
+  edm::LogVerbatim("HcalSim") << "AHCalSD::  Use of Birks law is set to      " 
+			      << useBirk << "  with three constants kB = "
+			      << birk1 << ", C1 = " << birk2 << ", C2 = " 
+			      << birk3 << "\nAHCalSD:: Threshold for storing"
+			      << " hits: " << eminHit;
 }
 
 double AHCalSD::getEnergyDeposit(const G4Step* aStep) {
@@ -48,8 +75,8 @@ double AHCalSD::getEnergyDeposit(const G4Step* aStep) {
 #endif
   if (useBirk) weight *= getAttenuation(aStep, birk1, birk2, birk3);
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HcalSim") << "AHCalSD: weight " << weight0 << " " << weight 
-			  << std::endl;
+  edm::LogVerbatim("HcalSim") << "AHCalSD: weight " << weight0 << " " 
+			      << weight;
 #endif
   double edep = weight*destep;
   return edep;
@@ -69,15 +96,15 @@ uint32_t AHCalSD::setDetUnitId(const G4Step * aStep) {
   int row   = (jnrow == 0) ? inrow : -inrow;
   uint32_t index = AHCalDetId(row,col,depth).rawId();
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HcalSim") << "AHCalSD: det = " << HcalOther 
-                          << " depth = " << depth << " row = " << row 
-                          << " column = " << col << " packed index = 0x" 
-			  << std::hex << index << std::dec << std::endl;
+  edm::LogVerbatim("HcalSim") << "AHCalSD: det = " << HcalOther 
+			      << " depth = " << depth << " row = " << row 
+			      << " column = " << col << " packed index = 0x" 
+			      << std::hex << index << std::dec;
   bool flag = unpackIndex(index, row, col, depth);
-  edm::LogInfo("HcalSim") << "Results from unpacker for 0x" << std::hex 
-			  << index << std::dec << " Flag " << flag << " Row " 
-			  << row << " Col " << col << " Depth " << depth 
-			  << std::endl;
+  edm::LogVerbatim("HcalSim") << "Results from unpacker for 0x" << std::hex 
+			      << index << std::dec << " Flag " << flag 
+			      << " Row " << row << " Col " << col << " Depth "
+			      << depth;
 #endif
   return index;
 }
@@ -94,9 +121,10 @@ bool AHCalSD::unpackIndex(const uint32_t& idx, int& row, int& col, int& depth) {
     depth = AHCalDetId(idx).depth();
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HcalSim") << "AHCalSD: packed index = 0x" << std::hex << idx 
-			  << std::dec << " Row " << row << " Column " << col
-			  << " Depth " << depth << " OK " << rcode << std::endl;
+  edm::LogVerbatim("HcalSim") << "AHCalSD: packed index = 0x" << std::hex 
+			      << idx << std::dec << " Row " << row 
+			      << " Column " << col << " Depth " << depth 
+			      << " OK " << rcode;
 #endif
   return rcode;
 }
@@ -104,3 +132,11 @@ bool AHCalSD::unpackIndex(const uint32_t& idx, int& row, int& col, int& depth) {
 bool AHCalSD::filterHit(CaloG4Hit* aHit, double time) {
   return ((time <= tmaxHit) && (aHit->getEnergyDeposit() > eminHit));
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
+
+typedef AHCalSD AHcalSensitiveDetector;
+DEFINE_SENSITIVEDETECTOR(AHcalSensitiveDetector);
+

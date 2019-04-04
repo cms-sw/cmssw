@@ -213,7 +213,7 @@ static long algorithm(Detector& /* description */,
   if (isStereo) tag = "Stereo";
   //usefull constants
   const double topFrameEndZ = 0.5 * (-waferPosition + fullHeight) + pitchHeight + hybridHeight - topFrameHeight;
-  string idName     = ns.prepend(ns.objName(mother.name()));
+  string idName     = ns.prepend(ns.realName(mother.name()));
   LogDebug("TECGeom") << "idName: " << idName << " parent " << mother.name() << " namespace " << ns.name();
   Solid solid;
   

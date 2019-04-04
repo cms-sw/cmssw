@@ -33,8 +33,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
+process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('ValidHGCal')
+    process.MessageLogger.categories.append('HGCalGeom')
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -58,7 +60,7 @@ process.output = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'keep *_*hbhe*_*_*',
 	'keep *_g4SimHits_*_*',
-        'keep *_mix_*_*',
+#       'keep *_mix_*_*',
 	'keep *_*HGC*_*_*',
         ),
     fileName = cms.untracked.string('file:testHGCalSimWatcherV9.root'),

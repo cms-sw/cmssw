@@ -67,11 +67,8 @@ DDFilteredView::firstChild() {
   it_.back().SetType(0);
   Node *node = nullptr;
   while((node = it_.back().Next())) {
-    if(accept(noNamespace(node->GetVolume()->GetName()))) {
-      TString path;
-      it_.back().GetPath(path);
-      addPath(path, node);
-
+    if(accept(node->GetVolume()->GetName())) {
+      addPath(node);
       return true;
     }
   }
@@ -88,7 +85,7 @@ DDFilteredView::firstSibling() {
   else
     return false;
   do {
-    if(accepted(currentFilter_->keys, noNamespace(node_->GetVolume()->GetName()))) {
+    if(accepted(currentFilter_->keys, node_->GetVolume()->GetName())) {
       addNode(node_);
       return true;
     }
@@ -102,7 +99,7 @@ DDFilteredView::nextSibling() {
   it_.back().SetType(1);
   unCheckNode();
   do {
-    if(accepted(currentFilter_->keys, noNamespace(node_->GetVolume()->GetName()))) {
+    if(accepted(currentFilter_->keys, node_->GetVolume()->GetName())) {
       addNode(node_);
       return true;
     }
@@ -116,7 +113,7 @@ DDFilteredView::sibling() {
   it_.back().SetType(1);
   Node *node = nullptr;
   while((node = it_.back().Next())) {
-    if(accepted(currentFilter_->keys, noNamespace(node->GetVolume()->GetName()))) {
+    if(accepted(currentFilter_->keys, node->GetVolume()->GetName())) {
       addNode(node);
       return true;
     }
@@ -129,7 +126,7 @@ DDFilteredView::siblingNoCheck() {
   it_.back().SetType(1);
   Node *node = nullptr;
   while((node = it_.back().Next())) {
-    if(accepted(currentFilter_->keys, noNamespace(node->GetVolume()->GetName()))) {
+    if(accepted(currentFilter_->keys, node->GetVolume()->GetName())) {
       node_ = node;
       return true;
     }
@@ -142,7 +139,7 @@ DDFilteredView::checkChild() {
   it_.back().SetType(1);
   Node *node = nullptr;
   while((node = it_.back().Next())) {
-    if(accepted(currentFilter_->keys, noNamespace(node->GetVolume()->GetName()))) {
+    if(accepted(currentFilter_->keys, node->GetVolume()->GetName())) {
       return true;
     }
   }
@@ -217,29 +214,26 @@ DDFilteredView::extractParameters() const {
 }
 
 bool
-DDFilteredView::addPath(string_view path, Node* const node) {
+DDFilteredView::addPath(Node* const node) {
   assert(registry_);
   node_ = node;
   nodes_.tags.clear();
   nodes_.offsets.clear();
   nodes_.copyNos.clear();
-  
   bool result(false);
-  auto v = split(path, "/");
-  transform(v.begin(), v.end(), v.begin(),
-	    [&](string_view s) -> string_view { return noNamespace(s); });
-  
-  for(auto const& rv : v) {
+ 
+  int level = it_.back().GetLevel();
+  for(int nit = level; nit > 0; --nit) {
     for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
   	auto k = find_if(begin(i.second.paths), end(i.second.paths),[&](auto const& j) {
-  	    return (compareEqual(noCopyNo(rv), *begin(split(realTopName(j), "/"))) &&
+  	    return (compareEqual(it_.back().GetNode(nit)->GetVolume()->GetName(), *begin(split(realTopName(j), "/"))) &&
   		    (i.second.hasValue("CopyNoTag") ||
   		     i.second.hasValue("CopyNoOffset")));
   	  });
   	if(k != end(i.second.paths)) {
   	  nodes_.tags.emplace_back(i.second.dblValue("CopyNoTag"));
   	  nodes_.offsets.emplace_back(i.second.dblValue("CopyNoOffset"));
-  	  nodes_.copyNos.emplace_back(copyNo(rv));
+  	  nodes_.copyNos.emplace_back(it_.back().GetNode(nit)->GetNumber());
   	  result = true;
   	}
       });
@@ -254,14 +248,14 @@ DDFilteredView::addNode(Node* const node) {
   bool result(false);
   for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
       auto k = find_if(begin(i.second.paths), end(i.second.paths),[&](auto const& j) {
-	  return (compareEqual(noCopyNo(noNamespace(node_->GetName())), *begin(split(realTopName(j), "/"))) &&
+	  return (compareEqual(node_->GetVolume()->GetName(), *begin(split(realTopName(j), "/"))) &&
 		  (i.second.hasValue("CopyNoTag") ||
 		   i.second.hasValue("CopyNoOffset")));
 	});
       if(k != end(i.second.paths)) {
 	nodes_.tags.emplace_back(i.second.dblValue("CopyNoTag"));
 	nodes_.offsets.emplace_back(i.second.dblValue("CopyNoOffset"));
-	nodes_.copyNos.emplace_back(copyNo(node_->GetName()));
+	nodes_.copyNos.emplace_back(node_->GetNumber());
 	result = true;
       }
     });

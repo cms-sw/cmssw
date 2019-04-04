@@ -25,6 +25,9 @@
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 using namespace reco;
 
 class PFTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
@@ -43,6 +46,7 @@ class PFTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
       double discriminate(const PFTauRef& thePFTau) const override;
       void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
    private:
       // PFTau discriminator continaing the decaymode index of the tau collection
       edm::InputTag                  pfTauDecayModeIndexSrc_;
@@ -128,6 +132,28 @@ double PFTauDecayModeCutMultiplexer::discriminate(const PFTauRef& pfTau) const
 
    // no computer associated to this decay mode; it fails
    return 0.;
+}
+
+void
+PFTauDecayModeCutMultiplexer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfTauDecayModeCutMultiplexer
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("PFTauDecayModeSrc");
+  desc.add<edm::InputTag>("PFTauDiscriminantToMultiplex");
+
+  edm::ParameterSetDescription vpsd_computers;
+  vpsd_computers.add<std::string>("computerName");
+  vpsd_computers.add<double>("cut");
+  vpsd_computers.add<std::vector<int> >("decayModeIndices");
+
+  //               name        description    defaults items
+  //desc.addVPSet("computers", vpsd_builders, builders_vector);
+  desc.addVPSet("computers", vpsd_computers);
+
+  fillProducerDescriptions(desc); // inherited from the base
+
+  descriptions.add("pfTauDecayModeCutMultiplexer", desc);
 }
 
 DEFINE_FWK_MODULE(PFTauDecayModeCutMultiplexer);
