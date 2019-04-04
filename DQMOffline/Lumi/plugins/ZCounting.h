@@ -173,10 +173,10 @@ private:
   MonitorElement* h_mass_SIT_fail_central;
   MonitorElement* h_mass_SIT_fail_forward;
 
-  MonitorElement* h_mass_Sta_pass_central;
-  MonitorElement* h_mass_Sta_pass_forward;
-  MonitorElement* h_mass_Sta_fail_central;
-  MonitorElement* h_mass_Sta_fail_forward;
+  MonitorElement* h_mass_Glo_pass_central;
+  MonitorElement* h_mass_Glo_pass_forward;
+  MonitorElement* h_mass_Glo_fail_central;
+  MonitorElement* h_mass_Glo_fail_forward;
 
   MonitorElement* h_npv;
   MonitorElement* h_yield_Z;
