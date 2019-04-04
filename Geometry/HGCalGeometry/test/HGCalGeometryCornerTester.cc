@@ -72,7 +72,7 @@ void HGCalGeometryCornerTester::doTest(const HGCalGeometry* geom) {
     std::cout << "Center" << gp << "with " << cor.size() << " Corners: ";
     for (unsigned k=0; k<cor.size(); ++k)
       std::cout << "[" << k << "]" << cor[k];
-    std::cout << std::endl;
+    std::cout << " Area " << geom->getArea(id) << std::endl;
     ++kount;
   }
 }

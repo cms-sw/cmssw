@@ -44,8 +44,8 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" 
-#include "RecoParticleFlow/PFProducer/interface/Utils.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 
 #include <vector>
@@ -366,7 +366,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 
 	  float deta = etamc - eta;
-	  float dphi = Utils::mpi_pi(phimc - phi);
+	  float dphi = normalizedPhi(phimc - phi);
 	  float dR = sqrt(deta*deta + dphi*dphi);
 
 	  if(dR < 0.05){
@@ -421,7 +421,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 
 	float deta = etamc - etareco;
-	float dphi = Utils::mpi_pi(phimc - phireco);
+	float dphi = normalizedPhi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
 
 	float SCEnergy = (theGsfEle[j]).superCluster()->energy();
@@ -559,7 +559,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	
 	
 	float deta = etamc - etareco;
-	float dphi = Utils::mpi_pi(phimc - phireco);
+	float dphi = normalizedPhi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
 	
 	float SCEnergy = (theGedEle[j]).superCluster()->energy();

@@ -19,6 +19,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
@@ -54,6 +57,8 @@ class PFTauTransverseImpactParameters : public edm::stream::EDProducer<> {
   explicit PFTauTransverseImpactParameters(const edm::ParameterSet& iConfig);
   ~PFTauTransverseImpactParameters() override;
   void produce(edm::Event&,const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
  private:
   edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;
   edm::EDGetTokenT<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > > PFTauPVAToken_;
@@ -160,6 +165,17 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
   }
   iEvent.put(std::move(TIPCollection_out),"PFTauTIP");
   iEvent.put(std::move(AVPFTauTIP));
+}
+
+void
+PFTauTransverseImpactParameters::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // PFTauTransverseImpactParameters
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("PFTauPVATag", edm::InputTag("PFTauPrimaryVertexProducer"));
+  desc.add<bool>("useFullCalculation", false);
+  desc.add<edm::InputTag>("PFTauTag", edm::InputTag("hpsPFTauProducer"));
+  desc.add<edm::InputTag>("PFTauSVATag", edm::InputTag("PFTauSecondaryVertexProducer"));
+  descriptions.add("PFTauTransverseImpactParameters", desc);
 }
 
 DEFINE_FWK_MODULE(PFTauTransverseImpactParameters);

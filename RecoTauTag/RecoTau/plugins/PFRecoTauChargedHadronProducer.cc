@@ -19,6 +19,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "RecoTauTag/RecoTau/interface/PFRecoTauChargedHadronPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCleaningTools.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
@@ -60,6 +63,8 @@ public:
   template <typename T>
   void print(const T& chargedHadrons);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
  private:
   typedef boost::ptr_vector<Builder> builderList;
   typedef boost::ptr_vector<Ranker> rankerList;
@@ -94,10 +99,9 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
 {
   srcJets_ = cfg.getParameter<edm::InputTag>("jetSrc");
   Jets_token = consumes<reco::CandidateView>(srcJets_);
-  minJetPt_ = ( cfg.exists("minJetPt") ) ? cfg.getParameter<double>("minJetPt") : -1.0;
-  maxJetAbsEta_ = ( cfg.exists("maxJetAbsEta") ) ? cfg.getParameter<double>("maxJetAbsEta") : 99.0;
-  verbosity_ = ( cfg.exists("verbosity") ) ?
-    cfg.getParameter<int>("verbosity") : 0;
+  minJetPt_ = cfg.getParameter<double>("minJetPt");
+  maxJetAbsEta_ = cfg.getParameter<double>("maxJetAbsEta");
+  verbosity_ = cfg.getParameter<int>("verbosity");
   
   // get set of ChargedHadron builder plugins
   edm::VParameterSet psets_builders = cfg.getParameter<edm::VParameterSet>("builders");
@@ -123,11 +127,9 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
   predicate_ = std::auto_ptr<ChargedHadronPredicate>(new ChargedHadronPredicate(rankers_));
   
   // check if we want to apply a final output selection
-  if ( cfg.exists("outputSelection") ) {
-    std::string selection = cfg.getParameter<std::string>("outputSelection");
-    if ( !selection.empty() ) {
-      outputSelector_.reset(new StringCutObjectSelector<reco::PFRecoTauChargedHadron>(selection));
-    }
+  std::string selection = cfg.getParameter<std::string>("outputSelection");
+  if ( !selection.empty() ) {
+    outputSelector_.reset(new StringCutObjectSelector<reco::PFRecoTauChargedHadron>(selection));
   }
 
   produces<reco::PFJetChargedHadronAssociation>();
@@ -312,6 +314,108 @@ void PFRecoTauChargedHadronProducer::print(const T& chargedHadrons)
 	     << " " << std::resetiosflags(std::ios::left) << std::setprecision(3) << (*ranker)(*chargedHadron) << std::endl;
     }
   }
+}
+
+void
+PFRecoTauChargedHadronProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // ak4PFJetsRecoTauChargedHadrons
+  edm::ParameterSetDescription desc;
+  {
+    edm::ParameterSetDescription vpsd_ranking;
+    vpsd_ranking.add<std::string>("selectionPassFunction", "-pt");
+    vpsd_ranking.add<double>("selectionFailValue", 1000.0);
+    vpsd_ranking.add<std::string>("selection", "algoIs(\"kChargedPFCandidate\")");
+    vpsd_ranking.add<std::string>("name", "ChargedPFCandidate");
+    vpsd_ranking.add<std::string>("plugin", "PFRecoTauChargedHadronStringQuality");
+    desc.addVPSet("ranking", vpsd_ranking);
+  }
+
+  desc.add<int>("verbosity", 0);
+  desc.add<double>("maxJetAbsEta", 2.5);
+  desc.add<std::string>("outputSelection", "pt > 0.5");
+  desc.add<double>("minJetPt", 14.0);
+  desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJets"));
+
+  {
+    edm::ParameterSetDescription vpsd_builders;
+    vpsd_builders.add<double>("minMergeChargedHadronPt");
+    vpsd_builders.add<std::string>("name");
+    vpsd_builders.add<std::string>("plugin");
+    vpsd_builders.addOptional<double>("dRcone");
+    vpsd_builders.addOptional<bool>("dRconeLimitedToJetArea");
+    vpsd_builders.addOptional<double>("dRmergeNeutralHadron");
+    vpsd_builders.addOptional<double>("dRmergePhoton");
+    vpsd_builders.addOptional<edm::InputTag>("srcTracks");
+
+    {
+      edm::ParameterSetDescription pset_signalQualityCuts;
+      pset_signalQualityCuts.add<double>("maxDeltaZ", 0.4);
+      pset_signalQualityCuts.add<double>("minTrackPt", 0.5);
+      pset_signalQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+      pset_signalQualityCuts.add<double>("maxTrackChi2", 100.0);
+      pset_signalQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+      pset_signalQualityCuts.add<double>("minGammaEt", 1.0);
+      pset_signalQualityCuts.add<unsigned int>("minTrackHits", 3);
+      pset_signalQualityCuts.add<double>("minNeutralHadronEt", 30.0);
+      pset_signalQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
+      pset_signalQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+      edm::ParameterSetDescription pset_vxAssocQualityCuts;
+      pset_vxAssocQualityCuts.add<double>("minTrackPt", 0.5);
+      pset_vxAssocQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+      pset_vxAssocQualityCuts.add<double>("maxTrackChi2", 100.0);
+      pset_vxAssocQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+      pset_vxAssocQualityCuts.add<double>("minGammaEt", 1.0);
+      pset_vxAssocQualityCuts.add<unsigned int>("minTrackHits", 3);
+      pset_vxAssocQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
+      pset_vxAssocQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+      edm::ParameterSetDescription pset_isolationQualityCuts;
+      pset_isolationQualityCuts.add<double>("maxDeltaZ", 0.2);
+      pset_isolationQualityCuts.add<double>("minTrackPt", 1.0);
+      pset_isolationQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+      pset_isolationQualityCuts.add<double>("maxTrackChi2", 100.0);
+      pset_isolationQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+      pset_isolationQualityCuts.add<double>("minGammaEt", 1.5);
+      pset_isolationQualityCuts.add<unsigned int>("minTrackHits", 8);
+      pset_isolationQualityCuts.add<double>("maxTransverseImpactParameter", 0.03);
+      pset_isolationQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons"); 
+
+      edm::ParameterSetDescription pset_qualityCuts;
+      pset_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts",    pset_signalQualityCuts);
+      pset_qualityCuts.add<edm::ParameterSetDescription>("vxAssocQualityCuts",   pset_vxAssocQualityCuts);
+      pset_qualityCuts.add<edm::ParameterSetDescription>("isolationQualityCuts", pset_isolationQualityCuts);
+      pset_qualityCuts.add<std::string>("leadingTrkOrPFCandOption", "leadPFCand");
+      pset_qualityCuts.add<std::string>("pvFindingAlgo", "closestInDeltaZ");
+      pset_qualityCuts.add<edm::InputTag>("primaryVertexSrc", edm::InputTag("offlinePrimaryVertices"));
+      pset_qualityCuts.add<bool>("vertexTrackFiltering", false);
+      pset_qualityCuts.add<bool>("recoverLeadingTrk", false);
+
+      vpsd_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
+    }
+
+    vpsd_builders.add<double>("minMergeGammaEt");
+    vpsd_builders.add<int>("verbosity", 0);
+    vpsd_builders.add<double>("minMergeNeutralHadronEt");
+
+    vpsd_builders.addOptional<double>("dRmergePhotonWrtChargedHadron");
+    vpsd_builders.addOptional<double>("dRmergePhotonWrtNeutralHadron");
+    vpsd_builders.addOptional<int>("maxUnmatchedBlockElementsNeutralHadron");
+    vpsd_builders.addOptional<double>("dRmergePhotonWrtElectron");
+    vpsd_builders.addOptional<std::vector<int>>("chargedHadronCandidatesParticleIds");
+    vpsd_builders.addOptional<int>("minBlockElementMatchesPhoton");
+    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtNeutralHadron");
+    vpsd_builders.addOptional<int>("maxUnmatchedBlockElementsPhoton");
+    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtOther");
+    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtElectron");
+    vpsd_builders.addOptional<int>("minBlockElementMatchesNeutralHadron");
+    vpsd_builders.addOptional<double>("dRmergePhotonWrtOther");
+    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtChargedHadron");
+
+    desc.addVPSet("builders", vpsd_builders);
+  }
+
+  descriptions.add("ak4PFJetsRecoTauChargedHadrons", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
