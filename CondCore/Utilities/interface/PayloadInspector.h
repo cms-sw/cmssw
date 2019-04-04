@@ -8,8 +8,6 @@
 #include <string>
 #include <tuple>
 #include <vector>
-#include <boost/python/list.hpp>
-#include <boost/python/extract.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
