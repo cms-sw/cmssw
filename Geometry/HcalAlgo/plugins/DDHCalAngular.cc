@@ -11,9 +11,9 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalAngular.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define EDM_ML_DEBUG                                                         
-using namespace geant_units;
 using namespace geant_units::operators;
 
 DDHCalAngular::DDHCalAngular() {
@@ -66,20 +66,14 @@ void DDHCalAngular::execute(DDCompactView& cpv) {
   double phix   = startAngle;
   int    copyNo = startCopyNo;
   double theta  = 90._deg;
-
   for (int ii=0; ii<n; ii++) {
-    double phideg = convertRadToDeg(phix);
-    int    iphi   = std::lround(phideg);
-    if (iphi >= 360) {
-      iphi   -= 360;
-      phideg  = iphi;
-      phix    = convertDegToRad(phideg);
-    }
     double phiy   = phix + 90._deg;
     DDRotation rotation;
     std::string rotstr("NULL");
-
-    if (iphi != 0) {
+ 
+    int    phideg = std::lround(convertRadToDeg(phix));
+    if (phideg >= 360) phideg -= 360;
+    if (phideg != 0) {
       rotstr = "R"; 
       if (phideg >=0 && phideg < 100) rotstr = "R0"; 
       rotstr = rotstr + std::to_string(phideg);
