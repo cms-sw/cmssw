@@ -47,7 +47,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   int nSide(7);
   const std::string& sideName ( baseNumber.getLevelName( nSide ) ) ;
   // Side choice: from scenario D41 is given by level 8 (HGCal v10)
-  if ( sideName == "caloBase:CALOECTSFront" ) { nSide = 8 ;}  
+  if ( sideName.find("CALOECTSFront") != std::string::npos ) { nSide = 8 ;}
   const uint32_t sideCopy ( baseNumber.getCopyNumber( nSide ) ) ;
   const uint32_t zside ( sideCopy == 1 ? 1 : 0 ) ;
 
