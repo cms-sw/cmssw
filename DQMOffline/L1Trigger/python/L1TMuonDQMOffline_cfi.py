@@ -1,16 +1,14 @@
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 # define binning for efficiency plots
 # pt
-effVsPtBins = range(0, 30, 1)
-effVsPtBins += range(30, 50, 2)
-effVsPtBins += range(50, 70, 5)
-effVsPtBins += range(70, 100, 10)
-effVsPtBins += range(100, 200, 25)
-effVsPtBins += range(200, 300, 50)
-effVsPtBins += range(300, 500, 100)
-effVsPtBins += range(500, 700, 200)
-effVsPtBins += range(700, 1000, 300)
+import itertools
+effVsPtBins=list(itertools.chain(range(0, 30, 1), range(30, 50, 2), 
+                                 range(50, 70, 5), range(70, 100, 10), 
+                                 range(100, 200, 25), range(200, 300, 50), 
+                                 range(300, 500, 100), range(500, 700, 200), 
+                                 range(700, 1000, 300)))
 effVsPtBins.append(1000)
 
 # phi
