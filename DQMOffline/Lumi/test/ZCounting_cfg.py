@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('RECODQM')
+process = cms.Process('RECODQM', eras.Run2_2018)
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -52,9 +53,9 @@ from DQMOffline.Lumi.ZCounting_cff import zcounting
 
 process.load("DQMOffline.Lumi.ZCounting_cff") 
 
-process.zcounting.MuonTriggerNames = cms.vstring("HLT_IsoMu27_v*","HLT_IsoMu24_v*")
-process.zcounting.MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07",
-                                                      "hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07")
+#process.zcounting.MuonTriggerNames = cms.vstring("HLT_IsoMu27_v*","HLT_IsoMu24_v*")
+#process.zcounting.MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07",
+#                                                      "hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07")
 
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
                                      fileName = cms.untracked.string("OUT_step1.root"))
