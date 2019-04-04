@@ -50,7 +50,7 @@ private:
 
   Python11ParameterSet theProcessPSet;
   pybind11::object theMainModule;
-  //  pybind11::object theMainNamespace;
+  bool theOwnsInterpreter;
 };
 
 #endif
