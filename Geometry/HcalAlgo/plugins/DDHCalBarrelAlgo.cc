@@ -322,7 +322,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
   edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " 
 			       << DDName(idName, idNameSpace)
 			       << " number 1 positioned in " << parentName 
-			       << " at " << r0 <<" with "<<rot;
+			       << " at " << r0 << " with " << rot;
 #endif
   //Forward and backwards halfs
   name = idName + "Half";
@@ -387,15 +387,15 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
   double theta = 90._deg;
   for (int ii=0; ii<getNsectortot(); ii++) {
     double phi    = ii*2*alpha;
-    double phideg = convertRadToDeg(phi);
     double phiy   = phi + 90._deg;
     
     DDRotation rotation;
     std::string rotstr("NULL");
-    if (std::lround(phideg) != 0) {
+    if (phi != 0) {
+      double phideg = convertRadToDeg(phi);
       rotstr = "R"; 
       if (phideg < 100)	rotstr = "R0"; 
-      rotstr = rotstr + std::to_string(phideg);
+      rotstr   = rotstr + std::to_string(std::lround(phideg));
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
 #ifdef EDM_ML_DEBUG
