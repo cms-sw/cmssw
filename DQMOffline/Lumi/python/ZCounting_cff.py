@@ -55,3 +55,25 @@ zcounting = DQMEDAnalyzer('ZCounting',
                                  VtxAbsZMax       = cms.untracked.double(24.),
                                  VtxRhoMax        = cms.untracked.double(2.)
                                  )
+
+
+from Configuration.StandardSequences.Eras import eras
+
+eras.run2_zcount_2016.toModify( zcounting, MuonTriggerNames = cms.vstring("HLT_IsoMu24_v*","HLT_IsoTkMu24_v*"),
+                                    MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07",
+                                                                         "hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09"),
+                                    PtCutL1  = cms.untracked.double(27.0),
+                                    PtCutL2  = cms.untracked.double(27.0)
+                       )
+
+eras.run2_zcount_2017.toModify(zcounting, MuonTriggerNames = cms.vstring("HLT_IsoMu27_v*"),
+                                   MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07"),
+                                   PtCutL1  = cms.untracked.double(30.0),
+                                   PtCutL2  = cms.untracked.double(30.0)
+                       )
+
+eras.run2_zcount_2018.toModify(zcounting, MuonTriggerNames = cms.vstring("HLT_IsoMu24_v*"),
+                                   MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07"),
+                                   PtCutL1  = cms.untracked.double(27.0),
+                                   PtCutL2  = cms.untracked.double(27.0)
+                       )
