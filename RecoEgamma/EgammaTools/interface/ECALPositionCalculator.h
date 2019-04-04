@@ -6,14 +6,10 @@
 
 class MagneticField;
 
-class ECALPositionCalculator
+namespace egammaTools
 {
-   public:
-      ECALPositionCalculator() { };
-      double ecalPhi(const MagneticField *magField, const math::XYZVector &momentum, const math::XYZPoint &vertex, const int charge);
-      double ecalEta(const math::XYZVector &momentum, const math::XYZPoint &vertex);
-   private:
-
+    double ecalPhi(const MagneticField &magField, const math::XYZVector &momentum, const math::XYZPoint &vertex, const int charge);
+    double ecalEta(const math::XYZVector &momentum, const math::XYZPoint &vertex);
 };
 
 #endif

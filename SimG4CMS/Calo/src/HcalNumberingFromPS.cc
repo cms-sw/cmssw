@@ -8,7 +8,6 @@
 #include <iomanip>
 
 //#define EDM_ML_DEBUG
-using namespace geant_units;
 using namespace geant_units::operators;
 
 HcalNumberingFromPS::HcalNumberingFromPS(const edm::ParameterSet& conf) {

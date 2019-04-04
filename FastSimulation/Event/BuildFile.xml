@@ -3,7 +3,7 @@
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/Provenance"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FastSimulation/BaseParticlePropagator"/>
+<use   name="CommonTools/BaseParticlePropagator"/>
 <use   name="FastSimulation/Particle"/>
 <use   name="FastSimulation/Utilities"/>
 <use   name="SimDataFormats/Track"/>

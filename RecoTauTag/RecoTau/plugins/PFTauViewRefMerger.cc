@@ -11,6 +11,9 @@
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -24,6 +27,7 @@ class PFTauViewRefMerger : public edm::EDProducer {
         src_(cfg.getParameter<std::vector<edm::InputTag> >("src")) {
           produces<reco::PFTauRefVector>();
         }
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
     void produce(edm::Event & evt, const edm::EventSetup &) override {
       auto out = std::make_unique<reco::PFTauRefVector>();
@@ -41,5 +45,16 @@ class PFTauViewRefMerger : public edm::EDProducer {
     }
     std::vector<edm::InputTag> src_;
 };
+
+void
+PFTauViewRefMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfTauViewRefMerger
+  edm::ParameterSetDescription desc;
+
+  desc.add<std::vector<edm::InputTag>>("src");
+
+  descriptions.add("pfTauViewRefMerger", desc);
+}
+
 
 DEFINE_FWK_MODULE(PFTauViewRefMerger);

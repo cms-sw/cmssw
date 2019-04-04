@@ -27,6 +27,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
@@ -52,6 +54,8 @@ class RecoTauProducer : public edm::stream::EDProducer<>
   explicit RecoTauProducer(const edm::ParameterSet& pset);
   ~RecoTauProducer() override {}
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   edm::InputTag jetSrc_;
@@ -84,8 +88,8 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   chargedHadronSrc_ = pset.getParameter<edm::InputTag>("chargedHadronSrc");
   piZeroSrc_ = pset.getParameter<edm::InputTag>("piZeroSrc");
   
-  minJetPt_ = ( pset.exists("minJetPt") ) ? pset.getParameter<double>("minJetPt") : -1.0;
-  maxJetAbsEta_ = ( pset.exists("maxJetAbsEta") ) ? pset.getParameter<double>("maxJetAbsEta") : 99.0;
+  minJetPt_ = pset.getParameter<double>("minJetPt");
+  maxJetAbsEta_ = pset.getParameter<double>("maxJetAbsEta");
   //consumes definition
   jet_token=consumes<reco::CandidateView>(jetSrc_);
   jetRegion_token = consumes<edm::Association<reco::PFJetCollection> >(jetRegionSrc_);
@@ -113,11 +117,9 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   }
 
   // Check if we want to apply a final output selection
-  if ( pset.exists("outputSelection") ) {
-    std::string selection = pset.getParameter<std::string>("outputSelection");
-    if ( !selection.empty() ) {
-      outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
-    }
+  std::string selection = pset.getParameter<std::string>("outputSelection");
+  if ( !selection.empty() ) {
+    outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
   }
   buildNullTaus_ = pset.getParameter<bool>("buildNullTaus");
 
@@ -236,6 +238,140 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
   
   evt.put(std::move(output));
+}
+
+void
+RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // combinatoricRecoTaus
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("piZeroSrc", edm::InputTag("ak4PFJetsRecoTauPiZeros"));
+
+  edm::ParameterSetDescription pset_signalQualityCuts;
+  pset_signalQualityCuts.add<double>("maxDeltaZ", 0.4);
+  pset_signalQualityCuts.add<double>("minTrackPt", 0.5);
+  pset_signalQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+  pset_signalQualityCuts.add<double>("maxTrackChi2", 100.0);
+  pset_signalQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+  pset_signalQualityCuts.add<double>("minGammaEt", 1.0);
+  pset_signalQualityCuts.add<unsigned int>("minTrackHits", 3);
+  pset_signalQualityCuts.add<double>("minNeutralHadronEt", 30.0);
+  pset_signalQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
+  pset_signalQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+  edm::ParameterSetDescription pset_vxAssocQualityCuts;
+  pset_vxAssocQualityCuts.add<double>("minTrackPt", 0.5);
+  pset_vxAssocQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+  pset_vxAssocQualityCuts.add<double>("maxTrackChi2", 100.0);
+  pset_vxAssocQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+  pset_vxAssocQualityCuts.add<double>("minGammaEt", 1.0);
+  pset_vxAssocQualityCuts.add<unsigned int>("minTrackHits", 3);
+  pset_vxAssocQualityCuts.add<double>("maxTransverseImpactParameter", 0.1);
+  pset_vxAssocQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+  edm::ParameterSetDescription pset_isolationQualityCuts;
+  pset_isolationQualityCuts.add<double>("maxDeltaZ", 0.2);
+  pset_isolationQualityCuts.add<double>("minTrackPt", 1.0);
+  pset_isolationQualityCuts.add<double>("minTrackVertexWeight", -1.0);
+  pset_isolationQualityCuts.add<double>("maxTrackChi2", 100.0);
+  pset_isolationQualityCuts.add<unsigned int>("minTrackPixelHits", 0);
+  pset_isolationQualityCuts.add<double>("minGammaEt", 1.5);
+  pset_isolationQualityCuts.add<unsigned int>("minTrackHits", 8);
+  pset_isolationQualityCuts.add<double>("maxTransverseImpactParameter", 0.03);
+  pset_isolationQualityCuts.addOptional<bool>("useTracksInsteadOfPFHadrons");
+
+  edm::ParameterSetDescription pset_qualityCuts;
+  pset_qualityCuts.add<edm::ParameterSetDescription>("signalQualityCuts",    pset_signalQualityCuts);
+  pset_qualityCuts.add<edm::ParameterSetDescription>("vxAssocQualityCuts",   pset_vxAssocQualityCuts);
+  pset_qualityCuts.add<edm::ParameterSetDescription>("isolationQualityCuts", pset_isolationQualityCuts);
+  pset_qualityCuts.add<std::string>("leadingTrkOrPFCandOption", "leadPFCand");
+  pset_qualityCuts.add<std::string>("pvFindingAlgo", "closestInDeltaZ");
+  pset_qualityCuts.add<edm::InputTag>("primaryVertexSrc", edm::InputTag("offlinePrimaryVertices"));
+  pset_qualityCuts.add<bool>("vertexTrackFiltering", false);
+  pset_qualityCuts.add<bool>("recoverLeadingTrk", false);
+
+  {
+    edm::ParameterSetDescription vpsd_modifiers;
+    vpsd_modifiers.add<std::string>("name");
+    vpsd_modifiers.add<std::string>("plugin");
+    vpsd_modifiers.add<int>("verbosity", 0);
+
+    vpsd_modifiers.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
+    vpsd_modifiers.addOptional<edm::InputTag>("ElectronPreIDProducer");
+    vpsd_modifiers.addOptional<std::string>("DataType");
+    vpsd_modifiers.addOptional<double>("maximumForElectrionPreIDOutput");
+    vpsd_modifiers.addOptional<double>("ElecPreIDLeadTkMatch_maxDR");
+    vpsd_modifiers.addOptional<double>("EcalStripSumE_minClusEnergy");
+    vpsd_modifiers.addOptional<double>("EcalStripSumE_deltaPhiOverQ_minValue");
+    vpsd_modifiers.addOptional<double>("EcalStripSumE_deltaPhiOverQ_maxValue");
+    vpsd_modifiers.addOptional<double>("EcalStripSumE_deltaEta");
+    vpsd_modifiers.addOptional<double>("dRaddNeutralHadron");
+    vpsd_modifiers.addOptional<double>("minGammaEt");
+    vpsd_modifiers.addOptional<double>("dRaddPhoton");
+    vpsd_modifiers.addOptional<double>("minNeutralHadronEt");
+    vpsd_modifiers.addOptional<edm::InputTag>("pfTauTagInfoSrc");
+
+    desc.addVPSet("modifiers", vpsd_modifiers);
+  }
+
+  desc.add<edm::InputTag>("jetRegionSrc", edm::InputTag("recoTauAK4PFJets08Region"));
+  desc.add<double>("maxJetAbsEta", 2.5);
+  desc.add<std::string>("outputSelection", "leadPFChargedHadrCand().isNonnull()");
+  desc.add<edm::InputTag>("chargedHadronSrc", edm::InputTag("ak4PFJetsRecoTauChargedHadrons"));
+  desc.add<double>("minJetPt", 14.0);
+  desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJets"));
+
+  {
+    edm::ParameterSetDescription desc_builders;
+    desc_builders.add<std::string>("name");
+    desc_builders.add<std::string>("plugin");
+    desc_builders.add<int>("verbosity", 0);
+
+    desc_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
+    {
+      edm::ParameterSetDescription desc_decayModes;
+      desc_decayModes.add<unsigned int>("nPiZeros", 0);
+      desc_decayModes.add<unsigned int>("maxPiZeros", 0);
+      desc_decayModes.add<unsigned int>("nCharged", 1);
+      desc_decayModes.add<unsigned int>("maxTracks", 6);
+      desc_builders.addVPSetOptional("decayModes", desc_decayModes);
+    }
+    desc_builders.add<double>("minAbsPhotonSumPt_insideSignalCone", 2.5);
+    desc_builders.add<double>("minRelPhotonSumPt_insideSignalCone", 0.1);
+    desc_builders.add<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
+    
+    desc_builders.addOptional<std::string>("signalConeSize");
+    desc_builders.addOptional<double>("isolationConeSize");
+    desc_builders.addOptional<double>("minAbsPhotonSumPt_outsideSignalCone");
+    desc_builders.addOptional<double>("minRelPhotonSumPt_outsideSignalCone");
+    desc_builders.addOptional<std::string>("isoConeChargedHadrons");
+    desc_builders.addOptional<std::string>("isoConeNeutralHadrons");
+    desc_builders.addOptional<std::string>("isoConePiZeros");
+    desc_builders.addOptional<double>("leadObjectPt");
+    desc_builders.addOptional<std::string>("matchingCone");
+    desc_builders.addOptional<int>("maxSignalConeChargedHadrons");
+    desc_builders.addOptional<std::string>("signalConeChargedHadrons");
+    desc_builders.addOptional<std::string>("signalConeNeutralHadrons");
+    desc_builders.addOptional<std::string>("signalConePiZeros");
+    desc_builders.addOptional<bool>("usePFLeptons");
+
+    std::vector<edm::ParameterSet> vpset_default;
+    {
+      edm::ParameterSet pset_default_builders;
+      pset_default_builders.addParameter<std::string>("name","");
+      pset_default_builders.addParameter<std::string>("plugin","");
+      pset_default_builders.addParameter<int>("verbosity",0);
+      pset_default_builders.addParameter<double>("minAbsPhotonSumPt_insideSignalCone", 2.5);
+      pset_default_builders.addParameter<double>("minRelPhotonSumPt_insideSignalCone", 0.1);
+      pset_default_builders.addParameter<edm::InputTag>("pfCandSrc", edm::InputTag("particleFlow"));
+      vpset_default.push_back(pset_default_builders);
+    }
+    desc.addVPSet("builders", desc_builders, vpset_default);
+
+  }
+
+  desc.add<bool>("buildNullTaus", false);
+  desc.add<int>("verbosity", 0);
+  descriptions.add("combinatoricRecoTaus", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

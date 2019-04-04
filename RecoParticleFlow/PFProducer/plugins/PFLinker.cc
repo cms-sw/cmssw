@@ -1,9 +1,8 @@
-#include "RecoParticleFlow/PFProducer/plugins/PFLinker.h"
-
-
-#include "RecoParticleFlow/PFProducer/interface/GsfElectronEqual.h"
-#include "RecoParticleFlow/PFProducer/interface/PhotonEqual.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoParticleFlow/PFProducer/plugins/PFLinker.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 
 PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
@@ -109,8 +108,8 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // if it is an electron. Find the GsfElectron with the same GsfTrack
       if (iselectron) {
 	const reco::GsfTrackRef & gsfTrackRef(cand.gsfTrackRef());
-	GsfElectronEqual myEqual(gsfTrackRef);
-	std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(gsfElectrons->begin(),gsfElectrons->end(),myEqual);
+	auto itcheck = find_if( gsfElectrons->begin(),gsfElectrons->end(),
+                            [&gsfTrackRef](const auto& ele) {return (ele.gsfTrack()==gsfTrackRef);} );
 	if(itcheck==gsfElectrons->end()) {
           if (!forceElectronsInHGCAL_) {
             std::ostringstream err;
@@ -137,8 +136,8 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // if it is a photon, find the one with the same PF super-cluster
       if (isphoton) {
 	const reco::SuperClusterRef & scRef(cand.superClusterRef());
-	PhotonEqual myEqual(scRef);
-	std::vector<reco::Photon>::const_iterator itcheck=find_if(photons->begin(),photons->end(),myEqual);
+	auto itcheck = find_if( photons->begin(),photons->end(),
+                            [&scRef](const auto& photon) {return photon.superCluster() == scRef;} );
 	if(itcheck==photons->end()) {
 	  std::ostringstream err;
 	  err << " Problem in PFLinker: no Photon " << std::endl;

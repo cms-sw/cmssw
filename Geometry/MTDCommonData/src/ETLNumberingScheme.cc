@@ -43,7 +43,12 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   std::string baseName = ringName.substr(ringName.find(":")+1);
   const int ringCopy ( ::atoi( baseName.c_str() + 4 ) );
 
-  const uint32_t sideCopy ( baseNumber.getCopyNumber( 7 ) ) ;
+  // Side choice: up to scenario D38 is given by level 7 (HGCal v9)
+  int nSide(7);
+  const std::string& sideName ( baseNumber.getLevelName( nSide ) ) ;
+  // Side choice: from scenario D41 is given by level 8 (HGCal v10)
+  if ( sideName == "caloBase:CALOECTSFront" ) { nSide = 8 ;}  
+  const uint32_t sideCopy ( baseNumber.getCopyNumber( nSide ) ) ;
   const uint32_t zside ( sideCopy == 1 ? 1 : 0 ) ;
 
 #ifdef EDM_ML_DEBUG

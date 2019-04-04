@@ -5,6 +5,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Concurrency"/>
 <use   name="boost"/>
+<use   name="boost_python"/>
 <use   name="boost_program_options"/>
 <use   name="CondCore/CondDB"/>
 <use   name="CondFormats/HLTObjects"/>
@@ -32,6 +33,7 @@
 <use   name="CondFormats/BTauObjects"/>
 <use   name="CondFormats/MFObjects"/>
 <use   name="CondFormats/PCLConfig"/>
+<use   name="CondFormats/SiPhase2TrackerObjects"/>
 <use   name="CondFormats/CTPPSReadoutObjects"/>
 <use   name="rootgraphics"/>
 <export>
