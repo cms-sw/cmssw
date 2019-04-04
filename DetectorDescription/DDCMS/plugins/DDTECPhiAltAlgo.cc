@@ -35,7 +35,7 @@ static long algorithm(Detector& /* description */,
   LogDebug("TECGeom") << "debug: Parent " << mother.name() 
 		      << "\tChild " << child.name() << " NameSpace " 
 		      << ns.name();
-
+  
   if (number > 0) {
     double theta  = 90._deg;
     int    copyNo = startCopyNo;

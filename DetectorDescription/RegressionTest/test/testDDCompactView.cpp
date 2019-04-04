@@ -11,6 +11,7 @@
 #include "DetectorDescription/RegressionTest/src/DDCheck.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"

@@ -1,7 +1,6 @@
 <use   name="DataFormats/Provenance"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSetReader"/>
 <use   name="FWCore/Utilities"/>
 <export>
   <lib   name="1"/>

@@ -49,6 +49,7 @@
 #include <map>
 #include <string>
 #include <cmath>
+#include <iostream>
    
 template <class Format>
 class DaqData {
@@ -112,8 +113,8 @@ class DaqData {
 
     catch (std::string s){
 
-      cout<<"DaqData - Exception caught: " << s <<endl;
-      cout<<"Object compression failed! No data has been constructed for format: "<< string(typeid(Format).name())<<endl; 
+      std::cout<<"DaqData - Exception caught: " << s <<endl;
+      std::cout<<"Object compression failed! No data has been constructed for format: "<< string(typeid(Format).name())<<endl;
       
     }
 
@@ -136,7 +137,7 @@ class DaqData {
       // cout<<"The buffer will be "<<size_ <<" bytes long"<<endl;      
 
       if ((sizeinbytes*8)%ObjSize != 0) {
-	cout<<"DaqData: there will be  " << (sizeinbytes*8)%ObjSize <<" meaningless bits at the end of the buffer"<<endl;
+	std::cout<<"DaqData: there will be  " << (sizeinbytes*8)%ObjSize <<" meaningless bits at the end of the buffer"<<endl;
       }
 
       //     buffer_ = new char[sizeinbytes];
@@ -237,11 +238,11 @@ class DaqData {
       std::map < int, std::vector<unsigned int> >::const_iterator it = data_.find(indobj);
       if (it != data_.end()) return ((*it).second)[indfield];
       else {
-	cout<<"DaqData - Strange: object should exist but was not found "<<endl;
+	std::cout<<"DaqData - Strange: object should exist but was not found "<<endl;
 	return 0;
       }
     }
-    else  cout<<"DaqData - Non existent field or object"<<endl;
+    else  std::cout<<"DaqData - Non existent field or object"<<endl;
     return 0;
 
   }

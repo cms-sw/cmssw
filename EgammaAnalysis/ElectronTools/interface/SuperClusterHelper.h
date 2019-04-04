@@ -6,7 +6,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
@@ -79,7 +78,6 @@ class SuperClusterHelper {
   const EcalRecHitCollection * rechits_;
   const CaloTopology* topology_;
   const CaloGeometry* geometry_;
-  EcalClusterLocal local_;
   bool barrel_;
 
   
