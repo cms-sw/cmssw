@@ -77,7 +77,7 @@ extendedValidationExecution="""
 #run extended offline validation scripts
 echo -e "\n\nRunning extended offline validation"
 
-rfcp .oO[extendedValScriptPath]Oo. .
+cp .oO[extendedValScriptPath]Oo. .
 root -x -b -q -l TkAlExtendedOfflineValidation.C
 
 """

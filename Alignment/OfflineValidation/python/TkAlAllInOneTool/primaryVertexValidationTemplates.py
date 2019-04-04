@@ -164,8 +164,7 @@ process.p = cms.Path(process.goodvertexSkim*
 
 ####################################################################
 ####################################################################
-PVValidationScriptTemplate="""
-#!/bin/bash
+PVValidationScriptTemplate="""#!/bin/bash
 source /afs/cern.ch/cms/caf/setup.sh
 export X509_USER_PROXY=.oO[scriptsdir]Oo./.user_proxy
 
@@ -182,15 +181,15 @@ export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scram runtime -sh`
 cd $cwd
 
-rfmkdir -p .oO[datadir]Oo.
-rfmkdir -p .oO[workingdir]Oo.
-rfmkdir -p .oO[logdir]Oo.
+mkdir -p .oO[datadir]Oo.
+mkdir -p .oO[workingdir]Oo.
+mkdir -p .oO[logdir]Oo.
 rm -f .oO[logdir]Oo./*.stdout
 rm -f .oO[logdir]Oo./*.stderr
 
 if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
-    rfmkdir -p .oO[workdir]Oo.
+    mkdir -p .oO[workdir]Oo.
     rm -f .oO[workdir]Oo./*
     cd .oO[workdir]Oo.
 else
@@ -206,7 +205,7 @@ eos mkdir -p /store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./p
 for RootOutputFile in $(ls *root )
 do
     xrdcp -f ${RootOutputFile} root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./${RootOutputFile}
-    rfcp ${RootOutputFile}  .oO[workingdir]Oo.
+    cp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
 cp .oO[Alignment/OfflineValidation]Oo./macros/FitPVResiduals.C .
@@ -220,12 +219,12 @@ root -b -q "FitPVResiduals.C(\\"${PWD}/${RootOutputFile}=${theLabel},${PWD}/PVVa
 mkdir -p .oO[plotsdir]Oo.
 for PngOutputFile in $(ls *png ); do
     xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PngOutputFile}
-    rfcp ${PngOutputFile}  .oO[plotsdir]Oo.
+    cp ${PngOutputFile}  .oO[plotsdir]Oo.
 done
 
 for PdfOutputFile in $(ls *pdf ); do
     xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PdfOutputFile}
-    rfcp ${PdfOutputFile}  .oO[plotsdir]Oo.
+    cp ${PdfOutputFile}  .oO[plotsdir]Oo.
 done
 
 mkdir .oO[plotsdir]Oo./Biases/
@@ -288,17 +287,17 @@ echo  -----------------------
 PrimaryVertexPlotExecution="""
 #make primary vertex validation plots
 
-rfcp .oO[plottingscriptpath]Oo. .
+cp .oO[plottingscriptpath]Oo. .
 root -x -b -q .oO[plottingscriptname]Oo.++
 
 for PdfOutputFile in $(ls *pdf ); do
     xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PdfOutputFile}
-    rfcp ${PdfOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
+    cp ${PdfOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done
 
 for PngOutputFile in $(ls *png ); do
     xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PngOutputFile}
-    rfcp ${PngOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
+    cp ${PngOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done
 
 """
