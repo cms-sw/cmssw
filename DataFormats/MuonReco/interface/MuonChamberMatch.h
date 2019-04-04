@@ -26,7 +26,6 @@ namespace reco {
          float dYdZErr;     // propagation uncertainty in dY/dZ
          DetId id;          // chamber ID
 
-	 int nDigisInChamb; // # of DT/CSC digis in the chamber
 	 int nDigisInRange; // # of DT/CSC digis in the chamber close-by to the propagated track
 
          int detector() const { return id.subdetId(); }

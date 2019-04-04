@@ -73,7 +73,6 @@ void
 MuonShowerDigiFiller::fill( reco::MuonChamberMatch & muChMatch ) const 
 {
 
-  int nDigisInChamb = 0;
   int nDigisInRange = 0;
 
   // DT chamber
@@ -96,7 +95,6 @@ MuonShowerDigiFiller::fill( reco::MuonChamberMatch & muChMatch ) const
 		  double xWire = topo.wirePosition((*digiIt).wire());
 		  double dX = std::abs(xWire - xTrack);
 		  
-		  nDigisInChamb++;
 		  if (dX < m_digiMaxDistanceX)
 		    nDigisInRange++;
 		}
@@ -144,14 +142,12 @@ MuonShowerDigiFiller::fill( reco::MuonChamberMatch & muChMatch ) const
 	      Float_t xStrip = layerGeom->xOfStrip(digiIt->getStrip(), yTrack);
 	      float dX = std::abs(xStrip - xTrack);
 	      
-	      nDigisInChamb++;
 	      if (dX < m_digiMaxDistanceX)
 		nDigisInRange++;
 	    }
 	}
     }
 
-  muChMatch.nDigisInChamb = nDigisInChamb;
   muChMatch.nDigisInRange = nDigisInRange;
   
 }

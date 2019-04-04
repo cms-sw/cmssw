@@ -186,9 +186,6 @@ namespace reco {
     enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned,
 			   RPCHitAndTrackArbitration, GEMSegmentAndTrackArbitration, ME0SegmentAndTrackArbitration };
 
-    /// ranges to be used for digi-based shower counting
-    enum DigiRange { FullChamber, InRange };
-    
     ///
     /// ====================== STANDARD SELECTORS ===========================
     ///
@@ -264,11 +261,13 @@ namespace reco {
     /// same as above for given number of sigmas
     unsigned int stationGapMaskPull( float sigmaCut = 3. ) const;
     /// # of digis in a given station layer
-    /// index 0-1-2-3 = DT stations 1-2-3-4                                                             /// index 4-5-6-7 = CSC stations 1-2-3-4
-    int nDigisInStation( int index, DigiRange range = InRange ) const;
-    /// # of digis in a given station layer
-    /// index 0-1-2-3 = DT stations 1-2-3-4                                                             /// index 4-5-6-7 = CSC stations 1-2-3-4
-    bool hasShowerInStation( int index, DigiRange range = InRange, int nDtDigisCut = 20, int nCscDigisCut = 36 ) const;
+    /// index 0-1-2-3 = DT stations 1-2-3-4                                                             
+    /// index 4-5-6-7 = CSC stations 1-2-3-4
+    int nDigisInStation( int index) const;
+    /// tag a shower in a given station layer
+    /// index 0-1-2-3 = DT stations 1-2-3-4
+    /// index 4-5-6-7 = CSC stations 1-2-3-4
+    bool hasShowerInStation( int index, int nDtDigisCut = 20, int nCscDigisCut = 36 ) const;
 
     /// muon type - type of the algorithm that reconstructed this muon
     /// multiple algorithms can reconstruct the same muon

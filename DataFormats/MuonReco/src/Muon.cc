@@ -334,7 +334,7 @@ unsigned int Muon::stationGapMaskPull( float sigmaCut ) const
    return totMask;
 }
 
-int Muon::nDigisInStation( int index, DigiRange range ) const
+int Muon::nDigisInStation( int index ) const
 {
   int nDigis(0);
   std::map<int, int> me11DigisPerCh;
@@ -345,7 +345,7 @@ int Muon::nDigisInStation( int index, DigiRange range ) const
 	   match.detector() != MuonSubdetId::DT  )
 	continue;
 	  
-      int nDigisInCh = range == InRange ? match.nDigisInRange : match.nDigisInChamb;
+      int nDigisInCh = match.nDigisInRange;
       int iStation = match.detector() == MuonSubdetId::CSC ? index - 3 : index + 1;
 
       if( match.detector() == MuonSubdetId::CSC && iStation == 1)
@@ -381,11 +381,11 @@ int Muon::nDigisInStation( int index, DigiRange range ) const
   return nDigis;
 }
 
-bool Muon::hasShowerInStation( int index, DigiRange range, int nDtDigisCut, int nCscDigisCut ) const
+bool Muon::hasShowerInStation( int index, int nDtDigisCut, int nCscDigisCut ) const
 {
   bool hasShower = index < 4 ? 
-			   nDigisInStation(index, range) >= nDtDigisCut :
-                           nDigisInStation(index, range) >= nCscDigisCut;
+			   nDigisInStation(index) >= nDtDigisCut :
+                           nDigisInStation(index) >= nCscDigisCut;
   return hasShower;   
 }
 

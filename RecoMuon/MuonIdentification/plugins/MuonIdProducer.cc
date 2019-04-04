@@ -893,7 +893,6 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
        theShowerDigiFiller_->fill(matchedChamber);
      }
      else {
-       matchedChamber.nDigisInChamb = 0;
        matchedChamber.nDigisInRange = 0;
      }
 
@@ -979,7 +978,6 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
        matchedChamber.edgeX = chamber.localDistanceX;
        matchedChamber.edgeY = chamber.localDistanceY;
 
-       matchedChamber.nDigisInChamb = 0;
        matchedChamber.nDigisInRange = 0;
 
        matchedChamber.id = chamber.id;
