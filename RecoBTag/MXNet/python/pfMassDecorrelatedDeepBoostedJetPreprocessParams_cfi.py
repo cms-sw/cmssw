@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-pfDeepBoostedJetPreprocessParams = cms.PSet(
+pfMassDecorrelatedDeepBoostedJetPreprocessParams = cms.PSet(
     input_names = cms.vstring(
         'pfcand', 
         'sv'
     ),
     pfcand = cms.PSet(
-        input_shape = cms.vuint32(1, 42, 100, 1),
+        input_shape = cms.vuint32(1, 36, 100, 1),
         var_infos = cms.PSet(
             pfcand_VTX_ass = cms.PSet(
                 median = cms.double(7.0),
@@ -124,30 +124,6 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
                 median = cms.double(-0.00711047858931),
                 norm_factor = cms.double(4.2642743837)
             ),
-            pfcand_hcalFrac = cms.PSet(
-                median = cms.double(0.0),
-                norm_factor = cms.double(1.0)
-            ),
-            pfcand_isChargedHad = cms.PSet(
-                median = cms.double(1.0),
-                norm_factor = cms.double(1.0)
-            ),
-            pfcand_isEl = cms.PSet(
-                median = cms.double(0.0),
-                norm_factor = cms.double(1.0)
-            ),
-            pfcand_isGamma = cms.PSet(
-                median = cms.double(0.0),
-                norm_factor = cms.double(1.0)
-            ),
-            pfcand_isMu = cms.PSet(
-                median = cms.double(0.0),
-                norm_factor = cms.double(1.0)
-            ),
-            pfcand_isNeutralHad = cms.PSet(
-                median = cms.double(0.0),
-                norm_factor = cms.double(1.0)
-            ),
             pfcand_lostInnerHits = cms.PSet(
                 median = cms.double(-1.0),
                 norm_factor = cms.double(1.0)
@@ -191,12 +167,6 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
             'pfcand_drsubjet1', 
             'pfcand_drsubjet2', 
             'pfcand_charge', 
-            'pfcand_isMu', 
-            'pfcand_isEl', 
-            'pfcand_isChargedHad', 
-            'pfcand_isGamma', 
-            'pfcand_isNeutralHad', 
-            'pfcand_hcalFrac', 
             'pfcand_VTX_ass', 
             'pfcand_lostInnerHits', 
             'pfcand_normchi2', 
