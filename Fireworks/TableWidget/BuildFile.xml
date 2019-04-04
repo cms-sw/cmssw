@@ -1,3 +1,4 @@
+<release name="_CXXMODULE_"><flags   GENREFLEX_ARGS="--deep --cxxmodule"/></release>
 <use name="rootinteractive"/>
 <export>
   <lib name="1"/>

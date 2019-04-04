@@ -1,6 +1,8 @@
 <use   name="DataFormats/Provenance"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
+<use   name="DataFormats/Common" sourcE_only="1"/>
 <export>
   <lib   name="1"/>
 </export>
+<release name="_CXXMODULE_"><flags   GENREFLEX_ARGS="--deep --cxxmodule"/></release>

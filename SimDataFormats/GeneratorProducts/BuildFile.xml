@@ -7,3 +7,4 @@
 <export>
   <lib   name="1"/>
 </export>
+<release name="_CXXMODULE_"><flags   GENREFLEX_ARGS="--deep --cxxmodule"/></release>

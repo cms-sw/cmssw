@@ -1,4 +1,4 @@
-
+<release name="_CXXMODULE_"><flags   GENREFLEX_ARGS="--deep --cxxmodule"/></release>
 <use   name="boost_header"/>
 <use   name="rootcore"/>
 <export>
