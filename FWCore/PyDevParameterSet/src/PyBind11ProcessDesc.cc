@@ -11,14 +11,15 @@
 
 PyBind11ProcessDesc::PyBind11ProcessDesc() :
    theProcessPSet(),
-   theMainModule()
+   theMainModule(),
+   theOwnsInterpreter(false)
 {
-  pybind11::initialize_interpreter();
 }
 
 PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config) :
    theProcessPSet(),
-   theMainModule()
+   theMainModule(),
+   theOwnsInterpreter(true)
 {
   pybind11::initialize_interpreter();
   edm::python::initializePyBind11Module();
@@ -29,7 +30,9 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config) :
 
 PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, char* argv[]) :
    theProcessPSet(),
-   theMainModule()
+   theMainModule(),
+   theOwnsInterpreter(true)
+
 {
   pybind11::initialize_interpreter();
   edm::python::initializePyBind11Module();
@@ -58,9 +61,10 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, int argc, ch
 
 
 PyBind11ProcessDesc::~PyBind11ProcessDesc() {
-  theMainModule=pybind11::object();
-  pybind11::finalize_interpreter();
-
+  if ( theOwnsInterpreter ) {
+    theMainModule=pybind11::object();
+    pybind11::finalize_interpreter();
+  }
 }
 
 void PyBind11ProcessDesc::prepareToRead() {
