@@ -494,11 +494,14 @@ void DynamicTruncation::correctThrByPAndEta(double& thr) {
 
 void DynamicTruncation::setEtaRegion(){
 
+  // Defaul value for muons with abs(eta) > 2.4
+  region = dyt_utils::etaRegion::eta2p4;
+
   if( TMath::Abs(eta_reco) > 0 && TMath::Abs(eta_reco) <= 0.8 ) region = dyt_utils::etaRegion::eta0p8;
-	else if( TMath::Abs(eta_reco) > 0.8 && TMath::Abs(eta_reco) <= 1.2 ) region = dyt_utils::etaRegion::eta1p2;
-	else if( TMath::Abs(eta_reco) > 1.2 && TMath::Abs(eta_reco) <= 2.0 ) region = dyt_utils::etaRegion::eta2p0;
-	else if( TMath::Abs(eta_reco) > 2.0 && TMath::Abs(eta_reco) <= 2.2 ) region = dyt_utils::etaRegion::eta2p2;
-	else if( TMath::Abs(eta_reco) > 2.2 && TMath::Abs(eta_reco) <= 2.4 ) region = dyt_utils::etaRegion::eta2p4;
+  else if( TMath::Abs(eta_reco) > 0.8 && TMath::Abs(eta_reco) <= 1.2 ) region = dyt_utils::etaRegion::eta1p2;
+  else if( TMath::Abs(eta_reco) > 1.2 && TMath::Abs(eta_reco) <= 2.0 ) region = dyt_utils::etaRegion::eta2p0;
+  else if( TMath::Abs(eta_reco) > 2.0 && TMath::Abs(eta_reco) <= 2.2 ) region = dyt_utils::etaRegion::eta2p2;
+  else if( TMath::Abs(eta_reco) > 2.2 && TMath::Abs(eta_reco) <= 2.4 ) region = dyt_utils::etaRegion::eta2p4;
 
 }
 
