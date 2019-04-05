@@ -1,6 +1,6 @@
 /*
  * TensorFlow interface helpers.
- * Based on TensorFlow C++ API 1.3.
+ * Based on TensorFlow C++ API 1.13.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
@@ -15,7 +15,10 @@
 #include "tensorflow/cc/saved_model/tag_constants.h"
 #include "tensorflow/cc/saved_model/constants.h"
 #include "tensorflow/core/lib/io/path.h"
+#include "tensorflow/core/lib/strings/stringprintf.h"
 #include "tensorflow/core/util/tensor_bundle/naming.h"
+
+#include <boost/filesystem.hpp>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -24,6 +27,7 @@ namespace tensorflow
 
 typedef std::pair<std::string, Tensor> NamedTensor;
 typedef std::vector<NamedTensor> NamedTensorList;
+typedef boost::filesystem::path fspath;
 
 // set the tensorflow log level
 void setLogging(const std::string& level = "3");

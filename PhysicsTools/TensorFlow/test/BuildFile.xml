@@ -1,4 +1,5 @@
 <bin name="testTFHelloWorld" file="testRunner.cpp,testHelloWorld.cc">
+    <use name="tensorflow" />
     <use name="tensorflow-cc" />
     <use name="boost_filesystem" />
     <use name="cppunit" />
@@ -22,10 +23,9 @@
     <use name="PhysicsTools/TensorFlow" />
 </bin>
 
-
 <bin file="tfadd_t.cpp">
-  <flags DNN_NAME="test_graph_tfadd"/>
-  <use name="tensorflow-runtime"/>
-  <use name="tensorflow-xla_compiled_cpu_function"/> 
-</bin>
+    <flags DNN_NAME="test_graph_tfadd"/>
 
+    <use name="tensorflow-runtime"/>
+    <use name="tensorflow-xla_compiled_cpu_function"/>
+</bin>

@@ -1,6 +1,6 @@
 /*
  * HelloWorld test of the TensorFlow interface.
- * Based on TensorFlow C++ API 1.3.
+ * Based on TensorFlow C++ API 1.13.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
@@ -98,11 +98,11 @@ void testSession::checkAll()
     status = LoadSavedModel(sessionOptions, runOptions, modelDir, { "serve" }, &bundle);
     if (!status.ok())
     {
-        std::cout << status.ToString() << std::endl;
+        std::cerr << status.ToString() << std::endl;
         return;
     }
 
-    // fetch the session 
+    // fetch the session
     Session* session = bundle.session.release();
 
     // prepare inputs
@@ -122,7 +122,7 @@ void testSession::checkAll()
     status = session->Run({ { "input", input }, { "scale", scale } }, { "output" }, {}, &outputs);
     if (!status.ok())
     {
-        std::cout << status.ToString() << std::endl;
+        std::cerr << status.ToString() << std::endl;
         return;
     }
 
