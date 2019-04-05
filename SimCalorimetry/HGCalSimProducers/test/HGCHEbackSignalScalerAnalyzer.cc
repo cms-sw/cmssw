@@ -72,8 +72,6 @@ private:
 	//double xBins_[18] = {380.0, 395.1, 399.8, 404.7, 409.6, 417.5, 426.2, 434.9, 443.6, 452.3, 461.0, 469.7, 478.4, 487.1, 495.8, 504.5, 510.0, 515.5};
 	double xBins_[17];
 	int nxBins_ = sizeof(xBins_)/sizeof(*xBins_) - 1;
-
-	bool verbose_ = false;
 };
 
 //
@@ -145,7 +143,7 @@ HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 	scal.setGeometry(gHGCal_);
 
 	//loop over valid detId from the HGCHEback
-	std::cout << "Total number of DetIDs: " << detIdVec.size() << std::endl;
+	LogDebug("HGCHEbackSignalScalerAnalyzer") << "Total number of DetIDs: " << detIdVec.size();
 	for(std::vector<DetId>::const_iterator myId = detIdVec.begin(); myId != detIdVec.end(); ++myId)
 	{
 		HGCScintillatorDetId scId(myId->rawId());
@@ -171,15 +169,7 @@ HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 		int bin = doseMap->GetYaxis()->FindBin(inradius);
 		while(scaleByDoseMap->GetYaxis()->GetBinLowEdge(bin) < layerRadiusMap_[ilayer][iradius+1])
 		{
-			if(verbose_)
-			std::cout << "rIN = " << layerRadiusMap_[ilayer][iradius]
-			<< " rIN+1 = " << layerRadiusMap_[ilayer][iradius+1]
-			<< " inradius = " << inradius
-			<< " type = " << scId.type()
-			<< " ilayer = " << scId.layer() << std::endl;
-
-
-
+			LogDebug("HGCHEbackSignalScalerAnalyzer") << "rIN = " << layerRadiusMap_[ilayer][iradius] << " rIN+1 = " << layerRadiusMap_[ilayer][iradius+1] << " inradius = " << inradius << " type = " << scId.type() << " ilayer = " << scId.layer();
 
 			doseMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), dose);
 			fluenceMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), fluence);
