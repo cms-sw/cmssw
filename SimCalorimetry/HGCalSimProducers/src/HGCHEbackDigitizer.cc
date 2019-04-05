@@ -79,18 +79,18 @@ std::pair<float, float> HGCHEbackSignalScaler::scaleByDose(const HGCScintillator
 
   if(verbose_)
   {
-    std::cout << "HGCHEbackSignalScaler::scaleByDose - Dose, scaleFactor, fluence, noise: "
-              << cellDose << " " << scaleFactor << " "
-              << cellFluence << " " << noise << std::endl;
+    LogDebug("HGCHEbackSignalScaler") << "HGCHEbackSignalScaler::scaleByDose - Dose, scaleFactor, fluence, noise: "
+                                      << cellDose << " " << scaleFactor << " "
+                                      << cellFluence << " " << noise;
 
-    std::cout << "HGCHEbackSignalScaler::setDoseMap - layer, a, b, c, d, e, f: "
-              << layer << " "
-              << doseMap_[layer].a_ << " "
-              << doseMap_[layer].b_ << " "
-              << doseMap_[layer].c_ << " "
-              << doseMap_[layer].d_ << " "
-              << doseMap_[layer].e_ << " "
-              << doseMap_[layer].f_ << std::endl;
+    LogDebug("HGCHEbackSignalScaler") << "HGCHEbackSignalScaler::setDoseMap - layer, a, b, c, d, e, f: "
+                                      << layer << " "
+                                      << doseMap_[layer].a_ << " "
+                                      << doseMap_[layer].b_ << " "
+                                      << doseMap_[layer].c_ << " "
+                                      << doseMap_[layer].d_ << " "
+                                      << doseMap_[layer].e_ << " "
+                                      << doseMap_[layer].f_;
   }
 
   return std::make_pair(scaleFactor, noise);
@@ -120,11 +120,11 @@ float HGCHEbackSignalScaler::computeEdge(const HGCScintillatorDetId& cellId)
 
   if(verbose_)
   {
-    std::cout << "HGCHEbackSignalScaler::computeEdge - Type, layer, edge, radius: "
-              << cellId.type() << " "
-              <<  cellId.layer() << " "
-              << edge << " "
-              << radius << std::endl;
+    LogDebug("HGCHEbackSignalScaler") << "HGCHEbackSignalScaler::computeEdge - Type, layer, edge, radius: "
+                                      << cellId.type() << " "
+                                      <<  cellId.layer() << " "
+                                      << edge << " "
+                                      << radius;
   }
 
   return edge;
@@ -280,15 +280,15 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
         if(debug && totalIniMIPs > 0)
         {
-          std::cout << "npeS: " << npeS
-          << " npeN: " << npeN
-          << " npe: " << npe
-          << " meanN: " << meanN
-          << " noise_MIP_: " << noise_MIP_
-          << " nPEperMIP_: " << nPEperMIP_
-          << " scaledPePerMip: " << scaledPePerMip
-          << " nPixel: " << nPixel << std::endl;
-          std::cout << "totalIniMIPs: " << totalIniMIPs << " totalMIPs: " << totalMIPs << std::endl;
+          LogDebug("HGCHEbackDigitizer")  << "npeS: " << npeS
+                                          << " npeN: " << npeN
+                                          << " npe: " << npe
+                                          << " meanN: " << meanN
+                                          << " noise_MIP_: " << noise_MIP_
+                                          << " nPEperMIP_: " << nPEperMIP_
+                                          << " scaledPePerMip: " << scaledPePerMip
+                                          << " nPixel: " << nPixel;
+          LogDebug("HGCHEbackDigitizer")  << "totalIniMIPs: " << totalIniMIPs << " totalMIPs: " << totalMIPs << std::endl;
         }
 
         //store
@@ -330,7 +330,6 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollect
       {
 	//convert total energy keV->MIP, since converted to keV in accumulator
 	const float totalIniMIPs( cell.hit_info[0][i]*keV2MIP_ );
-	//std::cout << "energy in MIP: " << std::scientific << totalIniMIPs << std::endl;
 
 	  //generate random number of photon electrons
 	  const uint32_t npe = std::floor(CLHEP::RandPoissonQ::shoot(engine,totalIniMIPs*nPEperMIP_));
