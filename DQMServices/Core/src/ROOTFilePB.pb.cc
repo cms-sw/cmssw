@@ -7,7 +7,6 @@
 
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/stubs/port.h>
-#include <google/protobuf/stubs/once.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/wire_format_lite_inl.h>
 #include <google/protobuf/descriptor.h>
@@ -19,6 +18,10 @@
 #include "third_party/protobuf/version.h"
 #endif
 // @@protoc_insertion_point(includes)
+
+namespace protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto {
+extern PROTOBUF_INTERNAL_EXPORT_protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_ROOTFilePB_Histo;
+}  // namespace protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto
 namespace dqmstorepb {
 class ROOTFilePB_HistoDefaultTypeInternal {
  public:
@@ -32,14 +35,9 @@ class ROOTFilePBDefaultTypeInternal {
 } _ROOTFilePB_default_instance_;
 }  // namespace dqmstorepb
 namespace protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto {
-void InitDefaultsROOTFilePB_HistoImpl() {
+static void InitDefaultsROOTFilePB_Histo() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
   {
     void* ptr = &::dqmstorepb::_ROOTFilePB_Histo_default_instance_;
     new (ptr) ::dqmstorepb::ROOTFilePB_Histo();
@@ -48,20 +46,12 @@ void InitDefaultsROOTFilePB_HistoImpl() {
   ::dqmstorepb::ROOTFilePB_Histo::InitAsDefaultInstance();
 }
 
-void InitDefaultsROOTFilePB_Histo() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsROOTFilePB_HistoImpl);
-}
+::google::protobuf::internal::SCCInfo<0> scc_info_ROOTFilePB_Histo =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsROOTFilePB_Histo}, {}};
 
-void InitDefaultsROOTFilePBImpl() {
+static void InitDefaultsROOTFilePB() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  ::google::protobuf::internal::InitProtobufDefaultsForceUnique();
-#else
-  ::google::protobuf::internal::InitProtobufDefaults();
-#endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
-  protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::InitDefaultsROOTFilePB_Histo();
   {
     void* ptr = &::dqmstorepb::_ROOTFilePB_default_instance_;
     new (ptr) ::dqmstorepb::ROOTFilePB();
@@ -70,9 +60,13 @@ void InitDefaultsROOTFilePBImpl() {
   ::dqmstorepb::ROOTFilePB::InitAsDefaultInstance();
 }
 
-void InitDefaultsROOTFilePB() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsROOTFilePBImpl);
+::google::protobuf::internal::SCCInfo<1> scc_info_ROOTFilePB =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsROOTFilePB}, {
+      &protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::scc_info_ROOTFilePB_Histo.base,}};
+
+void InitDefaults() {
+  ::google::protobuf::internal::InitSCC(&scc_info_ROOTFilePB_Histo.base);
+  ::google::protobuf::internal::InitSCC(&scc_info_ROOTFilePB.base);
 }
 
 ::google::protobuf::Metadata file_level_metadata[2];
@@ -111,15 +105,14 @@ static ::google::protobuf::Message const * const file_default_instances[] = {
 
 void protobuf_AssignDescriptors() {
   AddDescriptors();
-  ::google::protobuf::MessageFactory* factory = nullptr;
   AssignDescriptors(
-      "DQMServices/Core/src/ROOTFilePB.proto", schemas, file_default_instances, TableStruct::offsets, factory,
+      "DQMServices/Core/src/ROOTFilePB.proto", schemas, file_default_instances, TableStruct::offsets,
       file_level_metadata, NULL, NULL);
 }
 
 void protobuf_AssignDescriptorsOnce() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &protobuf_AssignDescriptors);
+  static ::google::protobuf::internal::once_flag once;
+  ::google::protobuf::internal::call_once(once, protobuf_AssignDescriptors);
 }
 
 void protobuf_RegisterTypes(const ::std::string&) GOOGLE_PROTOBUF_ATTRIBUTE_COLD;
@@ -144,8 +137,8 @@ void AddDescriptorsImpl() {
 }
 
 void AddDescriptors() {
-  static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &AddDescriptorsImpl);
+  static ::google::protobuf::internal::once_flag once;
+  ::google::protobuf::internal::call_once(once, AddDescriptorsImpl);
 }
 // Force AddDescriptors() to be called at dynamic initialization time.
 struct StaticDescriptorInitializer {
@@ -168,18 +161,16 @@ const int ROOTFilePB_Histo::kFlagsFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 ROOTFilePB_Histo::ROOTFilePB_Histo()
-  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::InitDefaultsROOTFilePB_Histo();
-  }
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  ::google::protobuf::internal::InitSCC(
+      &protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::scc_info_ROOTFilePB_Histo.base);
   SharedCtor();
   // @@protoc_insertion_point(constructor:dqmstorepb.ROOTFilePB.Histo)
 }
 ROOTFilePB_Histo::ROOTFilePB_Histo(const ROOTFilePB_Histo& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(nullptr),
-      _has_bits_(from._has_bits_),
-      _cached_size_(0) {
+      _internal_metadata_(NULL),
+      _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   full_pathname_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (from.has_full_pathname()) {
@@ -196,7 +187,6 @@ ROOTFilePB_Histo::ROOTFilePB_Histo(const ROOTFilePB_Histo& from)
 }
 
 void ROOTFilePB_Histo::SharedCtor() {
-  _cached_size_ = 0;
   full_pathname_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   streamed_histo_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&size_, 0, static_cast<size_t>(
@@ -215,9 +205,7 @@ void ROOTFilePB_Histo::SharedDtor() {
 }
 
 void ROOTFilePB_Histo::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
 const ::google::protobuf::Descriptor* ROOTFilePB_Histo::descriptor() {
   ::protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::protobuf_AssignDescriptorsOnce();
@@ -225,17 +213,10 @@ const ::google::protobuf::Descriptor* ROOTFilePB_Histo::descriptor() {
 }
 
 const ROOTFilePB_Histo& ROOTFilePB_Histo::default_instance() {
-  ::protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::InitDefaultsROOTFilePB_Histo();
+  ::google::protobuf::internal::InitSCC(&protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::scc_info_ROOTFilePB_Histo.base);
   return *internal_default_instance();
 }
 
-ROOTFilePB_Histo* ROOTFilePB_Histo::New(::google::protobuf::Arena* arena) const {
-  ROOTFilePB_Histo* n = new ROOTFilePB_Histo;
-  if (arena != nullptr) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void ROOTFilePB_Histo::Clear() {
 // @@protoc_insertion_point(message_clear_start:dqmstorepb.ROOTFilePB.Histo)
@@ -246,12 +227,10 @@ void ROOTFilePB_Histo::Clear() {
   cached_has_bits = _has_bits_[0];
   if (cached_has_bits & 3u) {
     if (cached_has_bits & 0x00000001u) {
-      GOOGLE_DCHECK(!full_pathname_.IsDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited()));
-      (*full_pathname_.UnsafeRawStringPointer())->clear();
+      full_pathname_.ClearNonDefaultToEmptyNoArena();
     }
     if (cached_has_bits & 0x00000002u) {
-      GOOGLE_DCHECK(!streamed_histo_.IsDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited()));
-      (*streamed_histo_.UnsafeRawStringPointer())->clear();
+      streamed_histo_.ClearNonDefaultToEmptyNoArena();
     }
   }
   if (cached_has_bits & 12u) {
@@ -269,7 +248,7 @@ bool ROOTFilePB_Histo::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:dqmstorepb.ROOTFilePB.Histo)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
@@ -501,9 +480,7 @@ size_t ROOTFilePB_Histo::ByteSizeLong() const {
     total_size += RequiredFieldsByteSizeFallback();
   }
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  SetCachedSize(cached_size);
   return total_size;
 }
 
@@ -513,7 +490,7 @@ void ROOTFilePB_Histo::MergeFrom(const ::google::protobuf::Message& from) {
   const ROOTFilePB_Histo* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const ROOTFilePB_Histo>(
           &from);
-  if (source == nullptr) {
+  if (source == NULL) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:dqmstorepb.ROOTFilePB.Histo)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -574,13 +551,14 @@ void ROOTFilePB_Histo::Swap(ROOTFilePB_Histo* other) {
 }
 void ROOTFilePB_Histo::InternalSwap(ROOTFilePB_Histo* other) {
   using std::swap;
-  full_pathname_.Swap(&other->full_pathname_);
-  streamed_histo_.Swap(&other->streamed_histo_);
+  full_pathname_.Swap(&other->full_pathname_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  streamed_histo_.Swap(&other->streamed_histo_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(size_, other->size_);
   swap(flags_, other->flags_);
   swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
 ::google::protobuf::Metadata ROOTFilePB_Histo::GetMetadata() const {
@@ -598,25 +576,22 @@ const int ROOTFilePB::kHistoFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 ROOTFilePB::ROOTFilePB()
-  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
-  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::InitDefaultsROOTFilePB();
-  }
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  ::google::protobuf::internal::InitSCC(
+      &protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::scc_info_ROOTFilePB.base);
   SharedCtor();
   // @@protoc_insertion_point(constructor:dqmstorepb.ROOTFilePB)
 }
 ROOTFilePB::ROOTFilePB(const ROOTFilePB& from)
   : ::google::protobuf::Message(),
-      _internal_metadata_(nullptr),
+      _internal_metadata_(NULL),
       _has_bits_(from._has_bits_),
-      _cached_size_(0),
       histo_(from.histo_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   // @@protoc_insertion_point(copy_constructor:dqmstorepb.ROOTFilePB)
 }
 
 void ROOTFilePB::SharedCtor() {
-  _cached_size_ = 0;
 }
 
 ROOTFilePB::~ROOTFilePB() {
@@ -628,9 +603,7 @@ void ROOTFilePB::SharedDtor() {
 }
 
 void ROOTFilePB::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  _cached_size_.Set(size);
 }
 const ::google::protobuf::Descriptor* ROOTFilePB::descriptor() {
   ::protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::protobuf_AssignDescriptorsOnce();
@@ -638,17 +611,10 @@ const ::google::protobuf::Descriptor* ROOTFilePB::descriptor() {
 }
 
 const ROOTFilePB& ROOTFilePB::default_instance() {
-  ::protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::InitDefaultsROOTFilePB();
+  ::google::protobuf::internal::InitSCC(&protobuf_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto::scc_info_ROOTFilePB.base);
   return *internal_default_instance();
 }
 
-ROOTFilePB* ROOTFilePB::New(::google::protobuf::Arena* arena) const {
-  ROOTFilePB* n = new ROOTFilePB;
-  if (arena != nullptr) {
-    arena->Own(n);
-  }
-  return n;
-}
 
 void ROOTFilePB::Clear() {
 // @@protoc_insertion_point(message_clear_start:dqmstorepb.ROOTFilePB)
@@ -667,7 +633,7 @@ bool ROOTFilePB::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:dqmstorepb.ROOTFilePB)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
@@ -675,7 +641,8 @@ bool ROOTFilePB::MergePartialFromCodedStream(
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_histo()));
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+                input, add_histo()));
         } else {
           goto handle_unusual;
         }
@@ -712,7 +679,9 @@ void ROOTFilePB::SerializeWithCachedSizes(
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->histo_size()); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->histo(static_cast<int>(i)), output);
+      1,
+      this->histo(static_cast<int>(i)),
+      output);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -766,9 +735,7 @@ size_t ROOTFilePB::ByteSizeLong() const {
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = cached_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  SetCachedSize(cached_size);
   return total_size;
 }
 
@@ -778,7 +745,7 @@ void ROOTFilePB::MergeFrom(const ::google::protobuf::Message& from) {
   const ROOTFilePB* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const ROOTFilePB>(
           &from);
-  if (source == nullptr) {
+  if (source == NULL) {
   // @@protoc_insertion_point(generalized_merge_from_cast_fail:dqmstorepb.ROOTFilePB)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
@@ -822,10 +789,9 @@ void ROOTFilePB::Swap(ROOTFilePB* other) {
 }
 void ROOTFilePB::InternalSwap(ROOTFilePB* other) {
   using std::swap;
-  histo_.InternalSwap(&other->histo_);
+  CastToBase(&histo_)->InternalSwap(CastToBase(&other->histo_));
   swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_cached_size_, other->_cached_size_);
 }
 
 ::google::protobuf::Metadata ROOTFilePB::GetMetadata() const {
@@ -836,5 +802,15 @@ void ROOTFilePB::InternalSwap(ROOTFilePB* other) {
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace dqmstorepb
+namespace google {
+namespace protobuf {
+template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::dqmstorepb::ROOTFilePB_Histo* Arena::CreateMaybeMessage< ::dqmstorepb::ROOTFilePB_Histo >(Arena* arena) {
+  return Arena::CreateInternal< ::dqmstorepb::ROOTFilePB_Histo >(arena);
+}
+template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::dqmstorepb::ROOTFilePB* Arena::CreateMaybeMessage< ::dqmstorepb::ROOTFilePB >(Arena* arena) {
+  return Arena::CreateInternal< ::dqmstorepb::ROOTFilePB >(arena);
+}
+}  // namespace protobuf
+}  // namespace google
 
 // @@protoc_insertion_point(global_scope)
