@@ -49,7 +49,8 @@ for subdetid in (1,2,3,4,5,6):
 				continue
 			if (subdetid == 4 or subdetid == 6) and (overlapdirection != "phi" or moduledirection == "z"):
                                 continue
-			plot(".oO[datadir]Oo./.oO[PlotsDirName]Oo./{0}_{1}_{2}".format(moduledirection,overlapdirection,detNameList[subdetid-1]),subdetid,moduledirection,overlapdirection, .oO[PlottingInstantiation]Oo.)
+			for m in (0):
+				plot(".oO[datadir]Oo./.oO[PlotsDirName]Oo./{0}_{1}_{2}".format(moduledirection,overlapdirection,detNameList[subdetid-1]),subdetid,moduledirection,overlapdirection,m, .oO[PlottingInstantiation]Oo.)
 
 
 """

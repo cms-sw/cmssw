@@ -1,8 +1,8 @@
 import math
 import ROOT
 from TkAlStyle import TkAlStyle
-
-def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction):
+from random import randint
+def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction,l):
     f = ROOT.TFile(tree_file_name)
     t = f.Get("analysis/Overlaps")
     if (subdet_id==4 or subdet_id==6):
@@ -32,45 +32,45 @@ def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction)
                  hitXB = t.hitX[0]
                  predXA = t.predX[1]
                  predXB = t.predX[0]
-                 overlapSignA = t.deltaphi[1]
-                 overlapSignB = t.deltaphi[0]
+                 overlapSignA = t.localxdotglobalphi[1]
+                 overlapSignB = t.localxdotglobalphi[0]
              else:
                  hitXA = t.hitX[0]
                  hitXB = t.hitX[1]
                  predXA = t.predX[0]
                  predXB = t.predX[1]
-                 overlapSignA = t.deltaphi[0]
-                 overlapSignB = t.deltaphi[1]
+                 overlapSignA = t.localxdotglobalphi[0]
+                 overlapSignB = t.localxdotglobalphi[1]
 	if overlap_direction == "z":
              if t.moduleZ[0] > t.moduleZ[1]:
                  hitXA = t.hitY[1]
                  hitXB = t.hitY[0]
                  predXA = t.predY[1]
                  predXB = t.predY[0]
-                 overlapSignA = t.deltaZ[1]
-                 overlapSignB = t.deltaZ[0]
+                 overlapSignA = t.localydotglobalz[1]
+                 overlapSignB = t.localydotglobalz[0]
              else:
                  hitXA = t.hitY[0]
                  hitXB = t.hitY[1]
                  predXA = t.predY[0]
                  predXB = t.predY[1]
-                 overlapSignA = t.deltaZ[0]
-                 overlapSignB = t.deltaZ[1]
+                 overlapSignA = t.localydotglobalz[0]
+                 overlapSignB = t.localydotglobalz[1]
 	if overlap_direction == "r":
              if moduleR0 > moduleR1:
                  hitXA = t.hitY[1]
                  hitXB = t.hitY[0]
                  predXA = t.predY[1]
                  predXB = t.predY[0]
-                 overlapSignA = t.deltaR[1]
-                 overlapSignB = t.deltaR[0]
+                 overlapSignA = t.localydotglobalr[1]
+                 overlapSignB = t.localydotglobalr[0]
              else:
                  hitXA = t.hitY[0]
                  hitXB = t.hitY[1]
                  predXA = t.predY[0]
                  predXB = t.predY[1]
-                 overlapSignA = t.deltaR[0]
-                 overlapSignB = t.deltaR[1]
+                 overlapSignA = t.localydotglobalr[0]
+                 overlapSignB = t.localydotglobalr[1]
 
         residualA = hitXA - predXA
         residualB = hitXB - predXB
@@ -80,10 +80,17 @@ def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction)
             residualB *= -1
         
         A = 10000*(residualA - residualB)
-        h.Fill(A)
+        if (l==0):
+		h.Fill(A)
+    	elif (l==1):
+		h.Fill(10000*residualA)
+	elif (l==2):
+		h.Fill(10000*residualB)
+	elif (l==3):
+		h.Fill(10000*(residualA+((-1)^randint(0,1))*residualB))
     return h
 
-def plot(file_name,subdet_id,module_direction,overlap_direction, *filesTitlesColorsStyles):
+def plot(file_name,subdet_id,module_direction,overlap_direction,m, *filesTitlesColorsStyles):
     hstack = ROOT.THStack("hstack","")
     legend = TkAlStyle.legend(len(filesTitlesColorsStyles), 1)
     legend.SetBorderSize(0)
@@ -91,7 +98,7 @@ def plot(file_name,subdet_id,module_direction,overlap_direction, *filesTitlesCol
     hs = []
     
     for files, title, color, style in filesTitlesColorsStyles:
-        h = hist(files,files.replace("/",""),subdet_id,module_direction,overlap_direction)
+        h = hist(files,files.replace("/",""),subdet_id,module_direction,overlap_direction,m)
         h.SetLineColor(color)
         h.SetLineStyle(style)
 	hMean = h.GetMean(1)
@@ -104,14 +111,25 @@ def plot(file_name,subdet_id,module_direction,overlap_direction, *filesTitlesCol
     c = ROOT.TCanvas()
     hstack.Draw("nostack")
     legend.Draw()
-    
-    hstack.GetXaxis().SetTitle("hit_{A} - pred_{A} - (hit_{B} - pred_{B}) (#mum)")
+    if (m==0):
+	xTitle = "hit_{A} - pred_{A} - (hit_{B} - pred_{B}) (#mum)"
+    elif (m==1):
+	xTitle = "hit_{A} - pred_{A} (#mum)"
+    elif (m==2):
+	xTitle = "(hit_{B} - pred_{B}) (#mum)"
+    elif (m==3):
+	xTitle = "hit_{A} - pred_{A} \pm  (hit_{B} - pred_{B}) (#mum)"
+
+    hstack.GetXaxis().SetTitle(xTitle)
     hstack.GetYaxis().SetTitle("number of events")
     hstack.GetXaxis().SetNdivisions(404)
 
     TkAlStyle.drawStandardTitle()
-    
-    save_as_file_name = file_name
+        
+    save_as_file_name = file_name+str(m)
+
+    if (m==0):
+	save_as_file_name = file_name
 
     for ext in "png", "eps", "root", "pdf":
         c.SaveAs(save_as_file_name+"." +ext)

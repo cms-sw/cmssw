@@ -158,11 +158,17 @@ private:
   const Point2DBase<float, LocalTag> zerozero = Point2DBase<float, LocalTag>(0, 0);
   const Point2DBase<float, LocalTag> onezero = Point2DBase<float, LocalTag>(1, 0);
   const Point2DBase<float, LocalTag> zeroone = Point2DBase<float, LocalTag>(0, 1);
-  float deltaphi_[2];
   //added by Jason
-  float deltaR_[2];
-  float deltaZ_[2];
-
+  float localxdotglobalphi_[2];
+  float localxdotglobalr_[2];
+  float localxdotglobalz_[2];
+  float localxdotglobalx_[2];
+  float localxdotglobaly_[2];
+  float localydotglobalphi_[2];
+  float localydotglobalr_[2];
+  float localydotglobalz_[2];
+  float localydotglobalx_[2];
+  float localydotglobaly_[2];
 
 };
 
@@ -241,9 +247,16 @@ OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig) :
   rootTree_->Branch("moduleX",moduleX_,"moduleX[2]/F");
   rootTree_->Branch("moduleY",moduleY_,"moduleY[2]/F");
   rootTree_->Branch("moduleZ",moduleZ_,"moduleZ[2]/F");
-  rootTree_->Branch("deltaphi",deltaphi_,"deltaphi[2]/F");
-  rootTree_->Branch("deltaR",deltaR_,"deltaR[2]/F");
-  rootTree_->Branch("deltaZ",deltaZ_,"deltaZ[2]/F");
+  rootTree_->Branch("localxdotglobalphi",localxdotglobalphi_,"localxdotglobalphi[2]/F");
+  rootTree_->Branch("localxdotglobalr",localxdotglobalr_,"localxdotglobalr[2]/F");
+  rootTree_->Branch("localxdotglobalz",localxdotglobalz_,"localxdotglobalz[2]/F");
+  rootTree_->Branch("localxdotglobalx",localxdotglobalx_,"localxdotglobalx[2]/F");
+  rootTree_->Branch("localxdotglobaly",localxdotglobaly_,"localxdotglobaly[2]/F");
+  rootTree_->Branch("localydotglobalphi",localydotglobalphi_,"localydotglobalphi[2]/F");
+  rootTree_->Branch("localydotglobalr",localydotglobalr_,"localydotglobalr[2]/F");
+  rootTree_->Branch("localydotglobalz",localydotglobalz_,"localydotglobalz[2]/F");
+  rootTree_->Branch("localydotglobalx",localydotglobalx_,"localydotglobalx[2]/F");
+  rootTree_->Branch("localydotglobaly",localydotglobaly_,"localydotglobaly[2]/F");
 
 }
 
@@ -535,14 +548,28 @@ OverlapValidation::analyze (const Trajectory& trajectory,
     moduleZ_[0] = (*iol).first->recHit()->det()->surface().position().z();
     moduleZ_[1] = (*iol).second->recHit()->det()->surface().position().z();
     subdetID = (*iol).first->recHit()->geographicalId().subdetId();
-    deltaphi_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).phi() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).phi();
-    deltaphi_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).phi() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).phi();
+    localxdotglobalphi_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).phi() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).phi();
+    localxdotglobalphi_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).phi() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).phi();
     //added by Jason
-    deltaZ_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).z() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).z();
-    deltaZ_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).z() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).z();
-    deltaR_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).perp() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).perp();
-    deltaR_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).perp() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).perp();
-    
+    localxdotglobalr_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).perp() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).perp();
+    localxdotglobalr_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).perp() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).perp();
+    localxdotglobalz_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).z() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).z();
+    localxdotglobalz_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).z() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).z();
+    localxdotglobalx_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).x() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).x();
+    localxdotglobalx_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).x() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).x();
+    localxdotglobaly_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).y() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).y();
+    localxdotglobaly_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).y() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).y();
+    localydotglobalr_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).perp() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).perp();
+    localydotglobalr_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).perp() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).perp();
+    localydotglobalz_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).z() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).z();
+    localydotglobalz_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).z() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).z();
+    localydotglobalx_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).x() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).x();
+    localydotglobalx_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).x() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).x();
+    localydotglobaly_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).y() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).y();
+    localydotglobaly_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).y() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).y();
+    localydotglobalphi_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).phi() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).phi();
+    localydotglobalphi_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).phi() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).phi();
+
 
 
 
