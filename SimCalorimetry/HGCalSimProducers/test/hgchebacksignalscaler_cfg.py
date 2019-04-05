@@ -1,4 +1,4 @@
-#run with: cmsRun hgchebacksignalscaler_cfg.py doseMap=../data/doseParams_3000fb.txt
+#run with: cmsRun hgchebacksignalscaler_cfg.py doseMap=SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt nPEperMIP=30
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
