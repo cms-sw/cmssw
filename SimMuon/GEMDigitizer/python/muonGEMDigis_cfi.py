@@ -6,8 +6,17 @@ gemDigiCommonParameters = cms.PSet(
     referenceInstLumi = cms.double(5.), #In units of 10^34 Hz/cm^2. Internally the functions based on the FLUKA+GEANT simulation are normalized to 5x10^34 Hz/cm^2, this is needed to rescale them properly
 )
 
-from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 from SimMuon.GEMDigitizer.simMuonGEMDigisDef_cfi import *
-
-premix_stage2.toModify(simMuonGEMDigisDef, mixLabel = "mixData")
 simMuonGEMDigis = simMuonGEMDigisDef.clone()
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(simMuonGEMDigis, mixLabel = "mixData")
+
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( simMuonGEMDigis, instLumi = 1.5)
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify( simMuonGEMDigis, instLumi = 2.0)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify( simMuonGEMDigis, instLumi = 5)
