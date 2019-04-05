@@ -4,7 +4,7 @@ from .Mixins import _ValidatingParameterListBase, specialImportRegistry
 from .Mixins import saveOrigin
 from .ExceptionHandling import format_typename, format_outerframe
 from past.builtins import long
-
+import codecs
 import copy
 import math
 import six
@@ -167,7 +167,8 @@ class string(_SimpleParameterTypeBase):
     @staticmethod
     def formatValueForConfig(value):
         l = len(value)
-        value = value.encode("string-escape")
+        t=codecs.escape_encode(value.encode('utf-8'))
+        value = t[0].decode('utf-8')
         newL = len(value)
         if l != newL:
             #get rid of the hex encoding
@@ -481,13 +482,26 @@ class InputTag(_ParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return True
-    def __cmp__(self,other):
-        v = self.__moduleLabel != other.__moduleLabel
-        if not v:
-            v= self.__productInstance != other.__productInstance
-            if not v:
-                v=self.__processName != other.__processName
-        return v
+    def __eq__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) ==
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __ne__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) !=
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __lt__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) <
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __gt__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) >
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __le__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) <=
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __ge__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) >=
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+
+
     def value(self):
         "Return the string rep"
         return self.configValue()
@@ -505,7 +519,6 @@ class InputTag(_ParameterTypeBase):
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
         self.__processName=processName
-
         if -1 != moduleLabel.find(":"):
             toks = moduleLabel.split(":")
             self.__moduleLabel = toks[0]
@@ -557,11 +570,18 @@ class ESInputTag(_ParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return True
-    def __cmp__(self,other):
-        v = self.__moduleLabel != other.__moduleLabel
-        if not v:
-            v= self.__data != other.__data
-        return v
+    def __eq__(self,other):
+        return ((self.__moduleLabel,self.__data) == (other.__moduleLabel,other.__data))
+    def __ne__(self,other):
+        return ((self.__moduleLabel,self.__data) != (other.__moduleLabel,other.__data))
+    def __lt__(self,other):
+        return ((self.__moduleLabel,self.__data) < (other.__moduleLabel,other.__data))
+    def __gt__(self,other):
+        return ((self.__moduleLabel,self.__data) > (other.__moduleLabel,other.__data))
+    def __le__(self,other):
+        return ((self.__moduleLabel,self.__data) <= (other.__moduleLabel,other.__data))
+    def __ge__(self,other):
+        return ((self.__moduleLabel,self.__data) >= (other.__moduleLabel,other.__data))
     def value(self):
         "Return the string rep"
         return self.configValue()
