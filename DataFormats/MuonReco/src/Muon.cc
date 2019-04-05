@@ -348,7 +348,7 @@ int Muon::nDigisInStation( int index ) const
       int nDigisInCh = match.nDigisInRange;
       int iStation = match.detector() == MuonSubdetId::CSC ? index - 3 : index + 1;
 
-      if( match.detector() == MuonSubdetId::CSC && iStation == 1)
+      if( match.detector() == MuonSubdetId::CSC && iStation == 1 )
 	{
 	  CSCDetId id(match.id.rawId());
 	  
@@ -358,7 +358,7 @@ int Muon::nDigisInStation( int index ) const
 	    
 	  if ( station == 1 && (ring == 1 || ring == 4) ) // merge ME1/1a and ME1/1b digis
 	    {
-	      if(me11DigisPerCh.find(chamber) == me11DigisPerCh.end())
+	      if( me11DigisPerCh.find(chamber) == me11DigisPerCh.end() )
 		me11DigisPerCh[chamber] = 0;
 	      
 	      me11DigisPerCh[chamber] += nDigisInCh;
@@ -367,11 +367,11 @@ int Muon::nDigisInStation( int index ) const
 	    }
 	}
 
-      if( iStation == match.station() && nDigisInCh > nDigis)
+      if( iStation == match.station() && nDigisInCh > nDigis )
 	nDigis = nDigisInCh;
     }
 
-  for (const auto & me11DigisInCh : me11DigisPerCh)
+  for ( const auto & me11DigisInCh : me11DigisPerCh )
     {  
       int nMe11DigisInCh = me11DigisInCh.second;
       if (nMe11DigisInCh > nDigis)
@@ -387,6 +387,18 @@ bool Muon::hasShowerInStation( int index, int nDtDigisCut, int nCscDigisCut ) co
 			   nDigisInStation(index) >= nDtDigisCut :
                            nDigisInStation(index) >= nCscDigisCut;
   return hasShower;   
+}
+
+int Muon::numberOfShowers( int nDtDigisCut, int nCscDigisCut ) const
+{
+  int nShowers = 0;
+  for ( int iCh = 0; iCh < 8; ++iCh )
+    {
+      if ( hasShowerInStation(iCh,nDtDigisCut,nCscDigisCut) )
+	nShowers++;
+    }
+
+  return nShowers;
 }
 
 int Muon::numberOfSegments( int station, int muonSubdetId, ArbitrationType type ) const
