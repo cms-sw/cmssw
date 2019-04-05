@@ -38,12 +38,16 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   fDelta = pgun_params.getParameter<double>("Delta");
   fPhiMin = pgun_params.getParameter<double>("MinPhi");
   fPhiMax = pgun_params.getParameter<double>("MaxPhi");
-  fPartIDs = pgun_params.getParameter< vector<int> >("PartID");
   fPointing = pgun_params.getParameter<bool>("Pointing");
   fOverlapping = pgun_params.getParameter<bool>("Overlapping");
+  fRandomParticles = pgun_params.getParameter<bool>("RandomParticles");
+  if(!fRandomParticles)
+    fPartIDs = pgun_params.getParameter< vector<int> >("PartID");
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
+  
+  srand(time(NULL));
 }
 
 CloseByParticleGunProducer::~CloseByParticleGunProducer()
@@ -65,16 +69,28 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
    // loop over particles
    //
    int barcode = 1 ;
+
+   if(fRandomParticles){
+     std::vector<int> part = {11, 13, 22, 111};
+     int numParticles = rand() % 10 + 1;
+     for(int i=0; i<numParticles; i++){
+       int partIdx = rand() % 4;
+       fPartIDs.push_back(part[partIdx]);
+     }
+   }
+
    double phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
    double fR = CLHEP::RandFlat::shoot(engine,fRMin,fRMax);
    double fZ = CLHEP::RandFlat::shoot(engine,fZMin,fZMax);
+   double tmpPhi = phi;
+   double tmpR = fR;
 
    for (unsigned int ip=0; ip<fPartIDs.size(); ++ip)
    {
      if(fOverlapping)
        {
-        phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
-        fR = CLHEP::RandFlat::shoot(engine,fRMin,fRMax);
+        fR = CLHEP::RandFlat::shoot(engine,tmpR-fDelta,tmpR+fDelta);
+        phi = CLHEP::RandFlat::shoot(engine, tmpPhi-fDelta/fR, tmpPhi+fDelta/fR);
        }
      else
        phi += fDelta/fR;
@@ -138,5 +154,7 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
      {
        LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Event Generation Done " << endl;
      }
+
+   fPartIDs.clear();
 }
 
