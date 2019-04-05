@@ -268,6 +268,8 @@ namespace reco {
     /// index 0-1-2-3 = DT stations 1-2-3-4
     /// index 4-5-6-7 = CSC stations 1-2-3-4
     bool hasShowerInStation( int index, int nDtDigisCut = 20, int nCscDigisCut = 36 ) const;
+    /// count the number of showers along a muon track
+    int numberOfShowers( int nDtDigisCut = 20, int nCscDigisCut = 36 ) const;
 
     /// muon type - type of the algorithm that reconstructed this muon
     /// multiple algorithms can reconstruct the same muon
