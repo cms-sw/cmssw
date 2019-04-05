@@ -24,6 +24,7 @@ namespace edm
 
     bool fPointing = false;
     bool fOverlapping = false;
+    bool fRandomParticles = false;
     std::vector<int> fPartIDs;
   };
 }
