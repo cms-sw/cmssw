@@ -23,7 +23,6 @@ private:
 public:
   explicit DummyLHEAnalyzer( const ParameterSet & cfg ) :
     dumpHeader_( cfg.getUntrackedParameter<bool>("dumpHeader",false) ),
-    src_( cfg.getParameter<InputTag>( "src" ) ),
     tokenLHERunInfo_(consumes<LHERunInfoProduct,edm::InRun>(cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")) ) ),
     tokenLHEEvent_(consumes<LHEEventProduct>(cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")) ) )
   {
@@ -32,7 +31,6 @@ private:
   void analyze( const Event & iEvent, const EventSetup & iSetup ) override {
 
     edm::Handle<LHEEventProduct> evt;
-    //iEvent.getByLabel(src_, evt);
     iEvent.getByToken(tokenLHEEvent_, evt);
 
     const lhef::HEPEUP hepeup_ = evt->hepeup();
@@ -119,7 +117,6 @@ private:
 
   }
 
-  InputTag src_;
   edm::EDGetTokenT<LHERunInfoProduct> tokenLHERunInfo_;
   edm::EDGetTokenT<LHEEventProduct> tokenLHEEvent_;
 
