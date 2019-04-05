@@ -52,6 +52,7 @@ bool HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
         else if (mybit == "HFS8S1Ratio")        setBit(HcalPhase1FlagLabels::HFS8S1Ratio, mydef.HFFlagMask);
         else if (mybit == "HFPET")              setBit(HcalPhase1FlagLabels::HFPET, mydef.HFFlagMask);
         else if (mybit == "HFSignalAsymmetry")  setBit(HcalPhase1FlagLabels::HFSignalAsymmetry, mydef.HFFlagMask);
+        else if (mybit == "HFAnomalousHit")     setBit(HcalPhase1FlagLabels::HFAnomalousHit, mydef.HFFlagMask);
 
         // Common subdetector bits ++++++++++++++++++++++
         else if (mybit == "TimingFromTDC")      setAllRHMasks(HcalPhase1FlagLabels::TimingFromTDC, mydef);
