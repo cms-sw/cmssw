@@ -36,7 +36,6 @@
     <Include ref='Geometry/CMSCommonData/data/cms/2023/v2/cms.xml'/>
     <Include ref='Geometry/CMSCommonData/data/eta3/etaMax.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsMother.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/cmsTracker.xml'/>
     <Include ref='Geometry/CMSCommonData/data/caloBase/2023/v1/caloBase.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsCalo.xml'/>
     <Include ref='Geometry/CMSCommonData/data/muonBase/2023/v2/muonBase.xml'/>
