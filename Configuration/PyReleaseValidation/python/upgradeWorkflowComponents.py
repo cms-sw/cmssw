@@ -428,7 +428,7 @@ upgradeProperties[2023] = {
         'Geom' : 'Extended2023D41',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2C4_timing_layer_bar',
+        'Era' : 'Phase2C8_timing_layer_bar',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
 }
