@@ -60,14 +60,14 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
       if ( t_lead == 0 && t_trail == 0 )
         continue;
 
-      double tot = -1., t_mean = 0.;
+      double tot = -1., ch_t_twc = 0.;
       if ( t_lead != 0 && t_trail != 0 ) {
         tot = ( t_trail-t_lead )*ts_to_ns_; // in ns
         if ( calib_fct_ ) {
           // compute the time-walk correction
-          t_mean = calib_fct_->evaluate( std::vector<double>{ tot }, ch_params );
-          if ( std::isnan( t_mean ) )
-            t_mean = 0.;
+          ch_t_twc = calib_fct_->evaluate( std::vector<double>{ tot }, ch_params );
+          if ( std::isnan( ch_t_twc ) )
+            ch_t_twc = 0.;
         }
       }
 
@@ -76,7 +76,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
         : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
 
       // calibrated time of arrival
-      const double t0 = ( t_lead % 1024 )*ts_to_ns_-t_mean;
+      const double t0 = ( t_lead % 1024 )*ts_to_ns_-ch_t_twc;
 
       rec_hits.emplace_back(
         // spatial information
