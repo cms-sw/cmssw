@@ -74,7 +74,9 @@ using namespace l1t;
     unsigned long long m_l1GtMenuCacheID;
     std::map<std::string, unsigned int> m_extBitMap;
 
+    bool makeTriggerRulePrefireVetoBit_;
     edm::EDGetTokenT<TCDSRecord> tcdsRecordToken_;
+    edm::InputTag tcdsInputTag_;
   };
 
   //
@@ -87,8 +89,21 @@ using namespace l1t;
     setBptxPlus_ (iConfig.getParameter<bool>("setBptxPlus")),
     setBptxMinus_ (iConfig.getParameter<bool>("setBptxMinus")),
     setBptxOR_ (iConfig.getParameter<bool>("setBptxOR")),
-    tcdsRecordToken_(consumes<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel")))
+    tcdsInputTag_(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))
   {
+
+    makeTriggerRulePrefireVetoBit_=false;
+    if(!(tcdsInputTag_ == edm::InputTag("")))
+      {
+	tcdsRecordToken_ = consumes<TCDSRecord>(tcdsInputTag_);
+	makeTriggerRulePrefireVetoBit_ = true;
+      }
+
+    if (makeTriggerRulePrefireVetoBit_){
+      std::cout << "CCLA makeTriggerRulePrefireVetoBit is set to True" << std::endl;
+    }else{
+      std::cout << "CCLA makeTriggerRulePrefireVetoBit is set to False" << std::endl;
+    }
     // register what you produce
     produces<GlobalExtBlkBxCollection>();
 
@@ -134,8 +149,9 @@ using namespace l1t;
     }
 
     bool TriggerRulePrefireVetoBit(false);
-    if (iEvent.run() != 1){
+    if (makeTriggerRulePrefireVetoBit_){
       // code taken from Nick Smith's EventFilter/L1TRawToDigi/plugins/TriggerRulePrefireVetoFilter.cc
+
       edm::Handle<TCDSRecord> tcdsRecordH;
       iEvent.getByToken(tcdsRecordToken_, tcdsRecordH);
       const auto& tcdsRecord = *tcdsRecordH.product();
@@ -233,7 +249,7 @@ using namespace l1t;
     desc.add<bool>("setBptxOR", true);
     desc.add<int>("bxLast", 2);
     desc.add<bool>("setBptxPlus", true);
-    desc.add<edm::InputTag> ("tcdsRecordLabel", edm::InputTag("tcdsDigis","tcdsRecord"));
+    desc.add<edm::InputTag> ("tcdsRecordLabel", edm::InputTag(""));
     descriptions.add("simGtExtFakeProd", desc);
   }
 

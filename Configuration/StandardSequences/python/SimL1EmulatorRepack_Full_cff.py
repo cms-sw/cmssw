@@ -16,7 +16,7 @@ stage2L1Trigger.toModify(None, _print)
 # First, Unpack all inputs to L1:
 
 import EventFilter.Utilities.tcdsRawToDigi_cfi
-tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone(
+unpackTcds = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
 import EventFilter.L1TRawToDigi.bmtfDigis_cfi
@@ -123,6 +123,15 @@ simEmtfDigis.RPCInput            = 'unpackRPC'
 simCaloStage2Layer1Digis.ecalToken = 'unpackEcal:EcalTriggerPrimitives'
 simCaloStage2Layer1Digis.hcalToken = 'unpackLayer1'
 
+
+## GT
+stage2L1Trigger_2017.toModify(simGtExtFakeStage2Digis,
+    tcdsRecordLabel= cms.InputTag("unpackTcds","tcdsRecord")
+)
+stage2L1Trigger.toModify(simGtExtFakeStage2Digis,
+    tcdsRecordLabel= cms.InputTag("unpackTcds","tcdsRecord")
+)
+
 # Finally, pack the new L1T output back into RAW
     
 from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import caloStage2Raw as packCaloStage2
@@ -145,7 +154,7 @@ rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawD
 SimL1Emulator = cms.Sequence()
 stage2L1Trigger.toReplaceWith(SimL1Emulator, cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackRPCTwinMux+unpackTwinMux+unpackOmtf+unpackEmtf+unpackCsctf+unpackBmtf
                                                           +unpackLayer1
-                                                          +tcdsDigis
+                                                          +unpackTcds
                                                           +SimL1EmulatorCore+packCaloStage2
                                                           +packGmtStage2+packGtStage2+rawDataCollector))
 
