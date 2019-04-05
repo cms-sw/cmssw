@@ -13,7 +13,21 @@ def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction,
         else:
     	    h = ROOT.TH1F(hist_name, hist_name, 100, -300, 300)
 
-    else: h = ROOT.TProfile(hist_name, hist_name, 10, -100, 100) 
+    else:
+        if profile_direction == "phi": bins, xmin, xmax = 10, -math.pi, math.pi
+        if subdet_id == 1 and profile_direction == "z": bins, xmin, xmax = 10, -30, -30
+        if subdet_id == 2 and profile_direction == "z": bins, xmin, xmax = 40, -60, 60 
+        if subdet_id == 3 and profile_direction == "z": bins, xmin, xmax = 10, -70, 70 
+        if subdet_id == 4 and profile_direction == "z": bins, xmin, xmax = 40, -110, 110 
+        if subdet_id == 5 and profile_direction == "z": bins, xmin, xmax = 10, -110, 110
+        if subdet_id == 6 and profile_direction == "z": bins, xmin, xmax = 20, -280, 280 
+        if subdet_id == 1 and profile_direction == "r": bins, xmin, xmax = 10, 0, 20 
+        if subdet_id == 2 and profile_direction == "r": bins, xmin, xmax = 10, 0, 20
+        if subdet_id == 3 and profile_direction == "r": bins, xmin, xmax = 10, 20, 55 
+        if subdet_id == 4 and profile_direction == "r": bins, xmin, xmax = 10, 20, 55 
+        if subdet_id == 5 and profile_direction == "r": bins, xmin, xmax = 10, 55, 110 
+        if subdet_id == 6 and profile_direction == "r": bins, xmin, xmax = 10, 20, 110 
+        h = ROOT.TProfile(hist_name, hist_name, bins, xmin, xmax) 
 
     h.SetDirectory(0)
 
