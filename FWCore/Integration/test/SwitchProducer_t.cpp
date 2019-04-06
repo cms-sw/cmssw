@@ -3,7 +3,7 @@
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PyDevParameterSet/interface/MakePyBind11ParameterSets.h"
+#include "FWCore/PythonParameterSet/interface/MakePyBind11ParameterSets.h"
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 
 #include <iostream>

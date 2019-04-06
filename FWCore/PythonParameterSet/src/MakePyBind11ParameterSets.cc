@@ -1,8 +1,8 @@
-#include "FWCore/PyDevParameterSet/interface/MakePyBind11ParameterSets.h"
+#include "FWCore/PythonParameterSet/interface/MakePyBind11ParameterSets.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/PyDevParameterSet/interface/Python11ParameterSet.h"
-#include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/Python11ParameterSet.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 #include "initializePyBind11Module.h"
 #include <pybind11/embed.h>
 
@@ -25,23 +25,23 @@ makePSetsFromString(std::string const& module) {
 }
 
 namespace edm {
-  namespace cmspybind11_p3 {
+  namespace cmspybind11 {
     std::unique_ptr<ParameterSet>
     readConfig(std::string const& config) {
-      cmspython3::PyBind11ProcessDesc pythonProcessDesc(config);
+      PyBind11ProcessDesc pythonProcessDesc(config);
       return pythonProcessDesc.parameterSet();
     }
 
     std::unique_ptr<ParameterSet>
     readConfig(std::string const& config, int argc, char* argv[]) {
-      cmspython3::PyBind11ProcessDesc pythonProcessDesc(config, argc, argv);
+      PyBind11ProcessDesc pythonProcessDesc(config, argc, argv);
       return pythonProcessDesc.parameterSet();
     }
 
     void
     makeParameterSets(std::string const& configtext,
 		      std::unique_ptr<ParameterSet>& main) {
-      cmspython3::PyBind11ProcessDesc pythonProcessDesc(configtext);
+      PyBind11ProcessDesc pythonProcessDesc(configtext);
       main = pythonProcessDesc.parameterSet();
     }
 
@@ -49,10 +49,10 @@ namespace edm {
     readPSetsFrom(std::string const& module) {
 
       pybind11::scoped_interpreter guard{};
-      edm::python3::initializePyBind11Module();
+      python::initializePyBind11Module();
       std::unique_ptr<ParameterSet> retVal;
       {
-	cmspython3::Python11ParameterSet theProcessPSet; 
+	Python11ParameterSet theProcessPSet; 
 	pybind11::object mainModule = pybind11::module::import("__main__");
 	mainModule.attr("topPSet") = pybind11::cast(&theProcessPSet);
 	
@@ -65,7 +65,7 @@ namespace edm {
 	  }
 	}
 	catch( pybind11::error_already_set const &e ) {
-	  cmspython3::pythonToCppException("Configuration",e.what());
+	  pythonToCppException("Configuration",e.what());
 	}
 	retVal=std::make_unique<edm::ParameterSet>(ParameterSet(theProcessPSet.pset()));
       }

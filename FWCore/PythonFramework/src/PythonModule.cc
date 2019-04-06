@@ -2,7 +2,7 @@
 #define FWCore_PythonFramework_PythonModule_h
 
 
-#include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 
 #include "FWCore/PythonFramework/interface/PythonEventProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
