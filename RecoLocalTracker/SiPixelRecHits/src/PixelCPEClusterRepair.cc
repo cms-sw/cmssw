@@ -15,7 +15,6 @@
 // Commented for now (3/10/17) until we figure out how to resuscitate 2D template splitter
 /// #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateSplit.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include "boost/multi_array.hpp"
@@ -61,8 +60,8 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
       // Initialize template store to the selected ID [Morris, 6/25/08]
       if ( !SiPixelTemplate2D::pushfile( *templateDBobject2D , thePixelTemp2D_) )
          throw cms::Exception("PixelCPEClusterRepair")
-         << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-         << (*templateDBobject_).version() << "\n\n";
+         << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject2D version "
+         << (*templateDBobject2D).version() << "\n\n";
    }
    else
    {
@@ -82,6 +81,8 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
 	 << "\nERROR: Template ID " << forwardTemplateID_ << " not loaded correctly from text file. Reconstruction will fail.\n\n";
    }
    
+   templateDBobject2D_ = templateDBobject2D;
+   fill2DTemplIDs();
    speed_ = conf.getParameter<int>( "speed");
    LogDebug("PixelCPEClusterRepair::PixelCPEClusterRepair:") <<
    "Template speed = " << speed_ << "\n";
@@ -105,6 +106,43 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
 
    // run CR on damaged clusters (and not only on edge hits)
    RunDamagedClusters_ = conf.existsAs<bool>("RunDamagedClusters")?conf.getParameter<bool>("RunDamagedClusters"):false;
+}
+
+//-----------------------------------------------------------------------------
+//  Fill all 2D template IDs
+//-----------------------------------------------------------------------------
+void PixelCPEClusterRepair::fill2DTemplIDs()
+{
+   auto const & dus = geom_.detUnits();
+   unsigned m_detectors = dus.size();
+   for(unsigned int i=1;i<7;++i) {
+      LogDebug("PixelCPEClusterRepair:: LookingForFirstStrip") << "Subdetector " << i
+      << " GeomDetEnumerator " << GeomDetEnumerators::tkDetEnum[i]
+      << " offset " << geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])
+      << " is it strip? " << (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() ?
+                              dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip() : false);
+      if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() &&
+         dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()) {
+         if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_detectors) m_detectors = geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
+      }
+   }
+   LogDebug("LookingForFirstStrip") << " Chosen offset: " << m_detectors;
+   
+   
+   m_DetParams.resize(m_detectors);
+   LogDebug("PixelCPEClusterRepair::fillDetParams():") <<"caching "<<m_detectors<<" pixel detectors"<<endl;
+   //Loop through detectors and store 2D template ID
+   bool printed_info = false;
+   for (unsigned i=0; i!=m_detectors;++i) {
+      auto & p=m_DetParams[i];
+
+      p.detTemplateId2D = templateDBobject2D_->getTemplateID(p.theDet->geographicalId());
+      if(p.detTemplateId != p.detTemplateId2D && !printed_info){
+          edm::LogInfo("PixelCPEClusterRepair") << "different template ID between 1D and 2D " << p.detTemplateId << " " << p.detTemplateId2D << endl;
+          printed_info = true;
+      }
+   }
+
 }
 
 
@@ -144,18 +182,18 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
       << "A non-pixel detector type in here?";
 
    
-   int ID = -9999;
+   int ID1 = -9999;
+   int ID2 = -9999;
    if ( LoadTemplatesFromDB_ ) {
-      int ID0 = templateDBobject_->getTemplateID(theDetParam.theDet->geographicalId()); // just to comapre
-      ID = theDetParam.detTemplateId;
-      if(ID0!=ID) edm::LogError("PixelCPEClusterRepair") <<" different id"<< ID<<" "<<ID0<<endl;
+      ID1 = theDetParam.detTemplateId;
+      ID2 = theDetParam.detTemplateId2D;
    } else { // from asci file
       if ( ! GeomDetEnumerators::isEndcap(theDetParam.thePart) )
-	ID = barrelTemplateID_  ; // barrel
+	ID1 = ID2 = barrelTemplateID_  ; // barrel
       else
-	ID = forwardTemplateID_ ; // forward
+	ID1 = ID2 = forwardTemplateID_ ; // forward
    }
-   //cout << "PixelCPEClusterRepair : ID = " << ID << endl;
+   //cout << "PixelCPEClusterRepair : ID1 = " << ID1 << endl;
 
    // &&& PM, note for later: PixelCPEBase calculates minInX,Y, and maxInX,Y
    //     Why can't we simply use that and save time with row_offset, col_offset
@@ -246,15 +284,15 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
 
 
    //--- Should we run the 2D reco?
-   checkRecommend2D(theDetParam, theClusterParam, clusterPayload, ID);
+   checkRecommend2D(theDetParam, theClusterParam, clusterPayload, ID1);
    if ( theClusterParam.recommended2D_ ) {
      //--- Call the Template Reco 2d with cluster repair
      filled_from_2d = true;
-     callTempReco2D( theDetParam, theClusterParam, clusterPayload2d, ID, lp );
+     callTempReco2D( theDetParam, theClusterParam, clusterPayload2d, ID2, lp );
    }
    else {
      //--- Call the vanilla Template Reco
-     callTempReco1D( theDetParam, theClusterParam, clusterPayload, ID, lp );
+     callTempReco1D( theDetParam, theClusterParam, clusterPayload, ID1, lp );
      filled_from_2d = false;
    }
 

@@ -87,6 +87,8 @@ private:
 			SiPixelTemplateReco::ClusMatrix & clusterPayload,
 			int ID) const;
 
+   //Fill IDs for 2D template
+   void fill2DTemplIDs();
 
 
    
@@ -103,6 +105,8 @@ private:
    int barrelTemplateID_ ;
    int forwardTemplateID_ ;
    std::string templateDir_ ;
+
+   const SiPixel2DTemplateDBObject * templateDBobject2D_;
 
    // Configure 2D reco.
    float minChargeRatio_;
