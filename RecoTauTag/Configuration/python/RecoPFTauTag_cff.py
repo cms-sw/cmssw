@@ -34,7 +34,7 @@ ak4PFJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZeros.clone()
 ak4PFJetsLegacyHPSPiZeros.jetSrc = PFRecoTauPFJetInputs.inputJetCollection
 
 # import charged hadrons
-from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cfi import ak4PFJetsRecoTauChargedHadrons
+from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cff import ak4PFJetsRecoTauChargedHadrons
 ak4PFJetsRecoTauChargedHadrons = ak4PFJetsRecoTauChargedHadrons.clone()
 
 #-------------------------------------------------------------------------------
