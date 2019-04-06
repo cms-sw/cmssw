@@ -74,6 +74,8 @@ using namespace l1t;
     unsigned long long m_l1GtMenuCacheID;
     std::map<std::string, unsigned int> m_extBitMap;
 
+    unsigned int m_triggerRulePrefireVetoBit;
+
     bool makeTriggerRulePrefireVetoBit_;
     edm::EDGetTokenT<TCDSRecord> tcdsRecordToken_;
     edm::InputTag tcdsInputTag_;
@@ -93,17 +95,21 @@ using namespace l1t;
   {
 
     makeTriggerRulePrefireVetoBit_=false;
+
+    m_triggerRulePrefireVetoBit=255;
+    if (m_triggerRulePrefireVetoBit > GlobalExtBlk::maxExternalConditions-1){
+      m_triggerRulePrefireVetoBit = GlobalExtBlk::maxExternalConditions-1;
+      edm::LogWarning("L1TExtCondProducer") << "Default trigger rule prefire veto bit number too large. Resetting to "
+					    << m_triggerRulePrefireVetoBit; 
+    }
+
     if(!(tcdsInputTag_ == edm::InputTag("")))
       {
 	tcdsRecordToken_ = consumes<TCDSRecord>(tcdsInputTag_);
 	makeTriggerRulePrefireVetoBit_ = true;
+
       }
 
-    if (makeTriggerRulePrefireVetoBit_){
-      std::cout << "CCLA makeTriggerRulePrefireVetoBit is set to True" << std::endl;
-    }else{
-      std::cout << "CCLA makeTriggerRulePrefireVetoBit is set to False" << std::endl;
-    }
     // register what you produce
     produces<GlobalExtBlkBxCollection>();
 
@@ -225,7 +231,7 @@ using namespace l1t;
 
     // set the bit for the TriggerRulePrefireVeto if true
     if (TriggerRulePrefireVetoBit)
-      extCond_bx.setExternalDecision(GlobalExtBlk::maxExternalConditions-1,true);
+      extCond_bx.setExternalDecision(m_triggerRulePrefireVetoBit,true);
 
 
     // Fill Externals
