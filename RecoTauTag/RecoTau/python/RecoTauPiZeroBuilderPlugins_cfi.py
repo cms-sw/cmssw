@@ -75,6 +75,7 @@ modStrips = strips.clone(
 modStrips2 = cms.PSet(
     name = cms.string("s"),
     plugin = cms.string('RecoTauPiZeroStripPlugin3'),
+    qualityCuts = PFTauQualityCuts,
     applyElecTrackQcuts = cms.bool(False),
     # Clusterize photons and electrons (PF numbering)
     stripCandidatesParticleIds  = cms.vint32(2, 4),
