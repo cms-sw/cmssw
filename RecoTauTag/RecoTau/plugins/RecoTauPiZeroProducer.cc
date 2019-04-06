@@ -70,7 +70,7 @@ class RecoTauPiZeroProducer : public edm::stream::EDProducer<> {
       outputSelector_;
 
     //consumes interface
-    edm::EDGetTokenT<reco::CandidateView> cand_token;
+    edm::EDGetTokenT<reco::JetView> cand_token;
 
     double minJetPt_;
     double maxJetAbsEta_;
@@ -80,7 +80,7 @@ class RecoTauPiZeroProducer : public edm::stream::EDProducer<> {
 
 RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) 
 {
-  cand_token = consumes<reco::CandidateView>( pset.getParameter<edm::InputTag>("jetSrc"));
+  cand_token = consumes<reco::JetView>( pset.getParameter<edm::InputTag>("jetSrc"));
   minJetPt_ = pset.getParameter<double>("minJetPt");
   maxJetAbsEta_ = pset.getParameter<double>("maxJetAbsEta");
 
@@ -129,7 +129,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset)
 void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 {
   // Get a view of our jets via the base candidates
-  edm::Handle<reco::CandidateView> jetView;
+  edm::Handle<reco::JetView> jetView;
   evt.getByToken(cand_token, jetView);
 
   // Give each of our plugins a chance at doing something with the edm::Event
@@ -137,22 +137,15 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     builder.setup(evt, es);
   }
 
-  // Convert the view to a RefVector of actual PFJets
-  reco::PFJetRefVector jetRefs =
-      reco::tau::castView<reco::PFJetRefVector>(jetView);
   // Make our association
   std::unique_ptr<reco::JetPiZeroAssociation> association;
 
-  if (!jetRefs.empty()) {
-    edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
-    evt.get(jetRefs.id(), pfJetCollectionHandle);
-    association = std::make_unique<reco::JetPiZeroAssociation>(reco::PFJetRefProd(pfJetCollectionHandle));
-  } else {
-    association = std::make_unique<reco::JetPiZeroAssociation>();
-  }
+  association = std::make_unique<reco::JetPiZeroAssociation>(reco::JetRefBaseProd(jetView));
 
   // Loop over our jets
-  for(auto const& jet : jetRefs) {
+  size_t nJets = jetView->size();
+  for (size_t i = 0; i < nJets; ++i) {
+    const reco::JetBaseRef jet(jetView->refAt(i));
 
     if(jet->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(jet->eta()) - maxJetAbsEta_ > -1e-5) continue;

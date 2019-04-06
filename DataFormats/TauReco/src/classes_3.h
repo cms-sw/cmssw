@@ -31,8 +31,11 @@
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryFwd.h"
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryAssociation.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include <vector>
 #include <map>

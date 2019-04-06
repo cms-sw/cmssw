@@ -32,10 +32,10 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin
   ~RecoTauBuilderCombinatoricPlugin() override {}
 
   return_type operator()(
-      const reco::PFJetRef&, 
+      const reco::JetBaseRef&, 
       const std::vector<reco::PFRecoTauChargedHadron>&, 
       const std::vector<RecoTauPiZero>&, 
-      const std::vector<PFCandidatePtr>&) const override;
+      const std::vector<CandidatePtr>&) const override;
 
  private:
   RecoTauQualityCuts qcuts_;
@@ -166,10 +166,10 @@ namespace
 
 RecoTauBuilderCombinatoricPlugin::return_type
 RecoTauBuilderCombinatoricPlugin::operator()(
-    const reco::PFJetRef& jet, 
+    const reco::JetBaseRef& jet, 
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons, 
     const std::vector<RecoTauPiZero>& piZeros, 
-    const std::vector<PFCandidatePtr>& regionalExtras) const 
+    const std::vector<CandidatePtr>& regionalExtras) const 
 {
   if ( verbosity_ ) {
     std::cout << "<RecoTauBuilderCombinatoricPlugin::operator()>:" << std::endl;
@@ -184,7 +184,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
   // the base class.
   qcuts_.setPV( primaryVertex(jet) );
   
-  typedef std::vector<PFCandidatePtr> PFCandPtrs;
+  typedef std::vector<CandidatePtr> CandPtrs;
   
   if ( verbosity_ ) {
     std::cout << "#chargedHadrons = " << chargedHadrons.size() << std::endl;
@@ -205,13 +205,13 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     }
   }
 
-  PFCandPtrs pfchs = qcuts_.filterCandRefs(pfChargedCands(*jet));
-  PFCandPtrs pfnhs = qcuts_.filterCandRefs(pfCandidates(*jet, reco::PFCandidate::h0));
-  PFCandPtrs pfgammas = qcuts_.filterCandRefs(pfCandidates(*jet, reco::PFCandidate::gamma));
+  CandPtrs pfchs = qcuts_.filterCandRefs(pfChargedCands(*jet));
+  CandPtrs pfnhs = qcuts_.filterCandRefs(pfCandidatesByPdgId(*jet, 130));
+  CandPtrs pfgammas = qcuts_.filterCandRefs(pfCandidatesByPdgId(*jet, 22));
 
   /// Apply quality cuts to the regional junk around the jet.  Note that the
   /// particle contents of the junk is exclusive to the jet content.
-  PFCandPtrs regionalJunk = qcuts_.filterCandRefs(regionalExtras);
+  CandPtrs regionalJunk = qcuts_.filterCandRefs(regionalExtras);
     
   // Loop over the decay modes we want to build
   for ( std::vector<decayModeInfo>::const_iterator decayMode = decayModesToBuild_.begin();
@@ -238,7 +238,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     // Build our track combo generator
     ChargedHadronCombo trackCombos(chargedHadron_begin, chargedHadron_end, tracksToBuild);
 
-    PFCandPtrs::iterator pfch_end = pfchs.end();
+    CandPtrs::iterator pfch_end = pfchs.end();
     pfch_end = takeNElements(pfchs.begin(), pfch_end, decayMode->maxPFCHs_);
 
     //-------------------------------------------------------
@@ -348,7 +348,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
         // Now build isolation collections
         // Load our isolation tools
         using namespace reco::tau::cone;
-        PFCandPtrDRFilter isolationConeFilter(tau.p4(), -0.1, isolationConeSize_);
+        CandPtrDRFilter isolationConeFilter(tau.p4(), -0.1, isolationConeSize_);
 
         // Cross cleaning predicate: Remove any PFCandidatePtrs that are contained within existing ChargedHadrons or PiZeros.  
 	// The predicate will return false for any object that overlaps with chargedHadrons or cleanPiZeros.
@@ -356,29 +356,29 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 	typedef xclean::CrossCleanPtrs<ChargedHadronCombo::combo_iterator> pfChargedHadronXCleanerType;
 	pfChargedHadronXCleanerType pfChargedHadronXCleaner_comboChargedHadrons(trackCombo->combo_begin(), trackCombo->combo_end());
 	// And this cleaning filter predicate with our Iso cone filter
-        xclean::PredicateAND<PFCandPtrDRFilter, pfChargedHadronXCleanerType> pfCandFilter_comboChargedHadrons(isolationConeFilter, pfChargedHadronXCleaner_comboChargedHadrons);
+        xclean::PredicateAND<CandPtrDRFilter, pfChargedHadronXCleanerType> pfCandFilter_comboChargedHadrons(isolationConeFilter, pfChargedHadronXCleaner_comboChargedHadrons);
 	//  2.) to select neutral PFCandidates within jet
 	xclean::CrossCleanPtrs<ChargedHadronList::const_iterator> pfChargedHadronXCleaner_allChargedHadrons(chargedHadrons.begin(), chargedHadrons.end());
 	xclean::CrossCleanPtrs<PiZeroList::const_iterator> piZeroXCleaner(piZeros.begin(), piZeros.end());
 	typedef xclean::PredicateAND<xclean::CrossCleanPtrs<ChargedHadronList::const_iterator>, xclean::CrossCleanPtrs<PiZeroList::const_iterator> > pfCandXCleanerType;
         pfCandXCleanerType pfCandXCleaner_allChargedHadrons(pfChargedHadronXCleaner_allChargedHadrons, piZeroXCleaner);
         // And this cleaning filter predicate with our Iso cone filter
-        xclean::PredicateAND<PFCandPtrDRFilter, pfCandXCleanerType> pfCandFilter_allChargedHadrons(isolationConeFilter, pfCandXCleaner_allChargedHadrons);
+        xclean::PredicateAND<CandPtrDRFilter, pfCandXCleanerType> pfCandFilter_allChargedHadrons(isolationConeFilter, pfCandXCleaner_allChargedHadrons);
 
 	ChargedHadronDRFilter isolationConeFilterChargedHadron(tau.p4(), -0.1, isolationConeSize_);
         PiZeroDRFilter isolationConeFilterPiZero(tau.p4(), -0.1, isolationConeSize_);
 
         // Additionally make predicates to select the different PF object types
         // of the regional junk objects to add
-        typedef xclean::PredicateAND<xclean::FilterPFCandByParticleId,
-	    PFCandPtrDRFilter> RegionalJunkConeAndIdFilter;
+        typedef xclean::PredicateAND<xclean::FilterCandByAbsPdgId,
+	    CandPtrDRFilter> RegionalJunkConeAndIdFilter;
 
-        xclean::FilterPFCandByParticleId
-          pfchCandSelector(reco::PFCandidate::h);
-        xclean::FilterPFCandByParticleId
-          pfgammaCandSelector(reco::PFCandidate::gamma);
-        xclean::FilterPFCandByParticleId
-          pfnhCandSelector(reco::PFCandidate::h0);
+        xclean::FilterCandByAbsPdgId
+          pfchCandSelector(211);
+        xclean::FilterCandByAbsPdgId
+          pfgammaCandSelector(22);
+        xclean::FilterCandByAbsPdgId
+          pfnhCandSelector(130);
 
         RegionalJunkConeAndIdFilter pfChargedJunk(
             pfchCandSelector, // select charged stuff from junk

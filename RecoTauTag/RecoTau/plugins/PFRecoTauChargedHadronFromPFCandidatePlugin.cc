@@ -21,14 +21,19 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
+
 
 #include <memory>
 
@@ -44,18 +49,18 @@ class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadro
   explicit PFRecoTauChargedHadronFromPFCandidatePlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
   ~PFRecoTauChargedHadronFromPFCandidatePlugin() override;
   // Return type is auto_ptr<ChargedHadronVector>
-  return_type operator()(const reco::PFJet&) const override;
+  return_type operator()(const reco::Jet&) const override;
   // Hook to update PV information
   void beginEvent() override;
   
  private:
-  typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
+  typedef std::vector<reco::CandidatePtr> CandPtrs;
 
   RecoTauVertexAssociator vertexAssociator_;
 
   RecoTauQualityCuts* qcuts_;
 
-  std::vector<int> inputPdgIds_;  // type of candidates to clusterize
+  std::vector<int> inputParticleIds_;  // type of candidates to clusterize
 
   double dRmergeNeutralHadronWrtChargedHadron_;
   double dRmergeNeutralHadronWrtNeutralHadron_;
@@ -73,6 +78,8 @@ class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadro
   double minMergeGammaEt_;
   double minMergeChargedHadronPt_;
 
+  double bField_;
+
   int verbosity_;
 };
 
@@ -84,7 +91,7 @@ class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadro
   edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");
   qcuts_ = new RecoTauQualityCuts(qcuts_pset);
 
-  inputPdgIds_ = pset.getParameter<std::vector<int> >("chargedHadronCandidatesParticleIds");
+  inputParticleIds_ = pset.getParameter<std::vector<int> >("chargedHadronCandidatesParticleIds");
 
   dRmergeNeutralHadronWrtChargedHadron_ = pset.getParameter<double>("dRmergeNeutralHadronWrtChargedHadron");
   dRmergeNeutralHadronWrtNeutralHadron_ = pset.getParameter<double>("dRmergeNeutralHadronWrtNeutralHadron");
@@ -114,23 +121,14 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::~PFRecoTauChargedHadronFromPFCandid
 void PFRecoTauChargedHadronFromPFCandidatePlugin::beginEvent() 
 {
   vertexAssociator_.setEvent(*evt());
+  
+  edm::ESHandle<MagneticField> pSetup;
+  evtSetup()->get<IdealMagneticFieldRecord>().get(pSetup);
+  bField_ = pSetup->inTesla(GlobalPoint(0,0,0)).z();
 }
 
 namespace
 {
-  std::string getPFCandidateType(reco::PFCandidate::ParticleType pfCandidateType)
-  {
-    if      ( pfCandidateType == reco::PFCandidate::X         ) return "undefined";
-    else if ( pfCandidateType == reco::PFCandidate::h         ) return "PFChargedHadron";
-    else if ( pfCandidateType == reco::PFCandidate::e         ) return "PFElectron";
-    else if ( pfCandidateType == reco::PFCandidate::mu        ) return "PFMuon";
-    else if ( pfCandidateType == reco::PFCandidate::gamma     ) return "PFGamma";
-    else if ( pfCandidateType == reco::PFCandidate::h0        ) return "PFNeutralHadron";
-    else if ( pfCandidateType == reco::PFCandidate::h_HF      ) return "HF_had";
-    else if ( pfCandidateType == reco::PFCandidate::egamma_HF ) return "HF_em";
-    else assert(0);
-  }
-
   bool isMatchedByBlockElement(const reco::PFCandidate& pfCandidate1, const reco::PFCandidate& pfCandidate2, int minMatches1, int minMatches2, int maxUnmatchedBlockElements1plus2)
   {
     reco::PFCandidate::ElementsInBlocks blockElements1 = pfCandidate1.elementsInBlocks();
@@ -162,7 +160,7 @@ namespace
   }
 }
 
-PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronFromPFCandidatePlugin::operator()(const reco::PFJet& jet) const 
+PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronFromPFCandidatePlugin::operator()(const reco::Jet& jet) const 
 {
   if ( verbosity_ ) {
     edm::LogPrint("TauChHadronFromPF") << "<PFRecoTauChargedHadronFromPFCandidatePlugin::operator()>:";
@@ -173,67 +171,81 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
 
   // Get the candidates passing our quality cuts
   qcuts_->setPV(vertexAssociator_.associatedVertex(jet));
-  PFCandPtrs candsVector = qcuts_->filterCandRefs(pfCandidates(jet, inputPdgIds_));
+  CandPtrs candsVector = qcuts_->filterCandRefs(pfCandidates(jet, inputParticleIds_));
 
-  for ( PFCandPtrs::iterator cand = candsVector.begin();
+  for ( CandPtrs::iterator cand = candsVector.begin();
 	cand != candsVector.end(); ++cand ) {
     if ( verbosity_ ) {
       edm::LogPrint("TauChHadronFromPF") << "processing PFCandidate: Pt = " << (*cand)->pt() << ", eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi() 
-		<< " (type = " << getPFCandidateType((*cand)->particleId()) << ", charge = " << (*cand)->charge() << ")" ;
+		<< " (pdgId = " << (*cand)->pdgId() << ", charge = " << (*cand)->charge() << ")" ;
     }
     
     PFRecoTauChargedHadron::PFRecoTauChargedHadronAlgorithm algo = PFRecoTauChargedHadron::kUndefined;
     if ( std::abs((*cand)->charge()) > 0.5 ) algo = PFRecoTauChargedHadron::kChargedPFCandidate;
     else algo = PFRecoTauChargedHadron::kPFNeutralHadron;
     std::auto_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(**cand, algo));
-    if ( (*cand)->trackRef().isNonnull() ) chargedHadron->track_ = edm::refToPtr((*cand)->trackRef());
-    else if ( (*cand)->muonRef().isNonnull() && (*cand)->muonRef()->innerTrack().isNonnull()  ) chargedHadron->track_ = edm::refToPtr((*cand)->muonRef()->innerTrack());
-    else if ( (*cand)->muonRef().isNonnull() && (*cand)->muonRef()->globalTrack().isNonnull() ) chargedHadron->track_ = edm::refToPtr((*cand)->muonRef()->globalTrack());
-    else if ( (*cand)->muonRef().isNonnull() && (*cand)->muonRef()->outerTrack().isNonnull()  ) chargedHadron->track_ = edm::refToPtr((*cand)->muonRef()->outerTrack());
-    else if ( (*cand)->gsfTrackRef().isNonnull() ) chargedHadron->track_ = edm::refToPtr((*cand)->gsfTrackRef());
+    
+    const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(&**cand);
+    if (pfCand) {
+      if ( pfCand->trackRef().isNonnull() ) chargedHadron->track_ = edm::refToPtr(pfCand->trackRef());
+      else if ( pfCand->muonRef().isNonnull() && pfCand->muonRef()->innerTrack().isNonnull()  ) chargedHadron->track_ = edm::refToPtr(pfCand->muonRef()->innerTrack());
+      else if ( pfCand->muonRef().isNonnull() && pfCand->muonRef()->globalTrack().isNonnull() ) chargedHadron->track_ = edm::refToPtr(pfCand->muonRef()->globalTrack());
+      else if ( pfCand->muonRef().isNonnull() && pfCand->muonRef()->outerTrack().isNonnull()  ) chargedHadron->track_ = edm::refToPtr(pfCand->muonRef()->outerTrack());
+      else if ( pfCand->gsfTrackRef().isNonnull() ) chargedHadron->track_ = edm::refToPtr(pfCand->gsfTrackRef());
+    } // TauReco@MiniAOD: Tracks only available dynamically, so no possiblity to save ref here; checked by code downstream
+
+    chargedHadron->positionAtECALEntrance_ = atECALEntrance(&**cand, bField_);
     chargedHadron->chargedPFCandidate_ = (*cand);
     chargedHadron->addDaughter(*cand);
-
-    chargedHadron->positionAtECALEntrance_ = (*cand)->positionAtECALEntrance();
-
-    reco::PFCandidate::ParticleType chargedPFCandidateType = chargedHadron->chargedPFCandidate_->particleId();
+    
+    int pdgId = std::abs(chargedHadron->chargedPFCandidate_->pdgId());
 
     if ( chargedHadron->pt() > minMergeChargedHadronPt_ ) {
-      std::vector<reco::PFCandidatePtr> jetConstituents = jet.getPFConstituents();
-      for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = jetConstituents.begin();
-	    jetConstituent != jetConstituents.end(); ++jetConstituent ) {
+      for (const auto& jetConstituent : jet.daughterPtrVector()) {
 	// CV: take care of not double-counting energy in case "charged" PFCandidate is in fact a PFNeutralHadron
-	if ( (*jetConstituent) == chargedHadron->chargedPFCandidate_ ) continue;
+	if ( jetConstituent == chargedHadron->chargedPFCandidate_ ) continue;
 	
-	reco::PFCandidate::ParticleType jetConstituentType = (*jetConstituent)->particleId();
-	if ( !(jetConstituentType == reco::PFCandidate::h0 || jetConstituentType == reco::PFCandidate::gamma) ) continue;
+	int jetConstituentPdgId = std::abs(jetConstituent->pdgId());
+	if ( !(jetConstituentPdgId == 130 || jetConstituentPdgId == 22) ) continue;
 
-	double dR = deltaR((*jetConstituent)->positionAtECALEntrance(), chargedHadron->positionAtECALEntrance_);
+	double dR = deltaR(atECALEntrance(jetConstituent.get(), bField_), atECALEntrance(chargedHadron->chargedPFCandidate_.get(), bField_));
 	double dRmerge = -1.;      
 	int minBlockElementMatches = 1000;
 	int maxUnmatchedBlockElements = 0;
 	double minMergeEt = 1.e+6;
-	if ( jetConstituentType == reco::PFCandidate::h0 ) {
-	  if      ( chargedPFCandidateType == reco::PFCandidate::h  ) dRmerge = dRmergeNeutralHadronWrtChargedHadron_;
-	  else if ( chargedPFCandidateType == reco::PFCandidate::h0 ) dRmerge = dRmergeNeutralHadronWrtNeutralHadron_;
-	  else if ( chargedPFCandidateType == reco::PFCandidate::e  ) dRmerge = dRmergeNeutralHadronWrtElectron_;
+	if ( jetConstituentPdgId == 130 ) {
+	  if      ( pdgId == 211  ) dRmerge = dRmergeNeutralHadronWrtChargedHadron_;
+	  else if ( pdgId == 130 ) dRmerge = dRmergeNeutralHadronWrtNeutralHadron_;
+	  else if ( pdgId == 11  ) dRmerge = dRmergeNeutralHadronWrtElectron_;
 	  else                                                        dRmerge = dRmergeNeutralHadronWrtOther_;
 	  minBlockElementMatches = minBlockElementMatchesNeutralHadron_;
 	  maxUnmatchedBlockElements = maxUnmatchedBlockElementsNeutralHadron_;
 	  minMergeEt = minMergeNeutralHadronEt_;
-	} else if ( jetConstituentType == reco::PFCandidate::gamma ) {
-	  if      ( chargedPFCandidateType == reco::PFCandidate::h  ) dRmerge = dRmergePhotonWrtChargedHadron_;
-	  else if ( chargedPFCandidateType == reco::PFCandidate::h0 ) dRmerge = dRmergePhotonWrtNeutralHadron_;
-	  else if ( chargedPFCandidateType == reco::PFCandidate::e  ) dRmerge = dRmergePhotonWrtElectron_;
+	} else if ( jetConstituentPdgId == 22 ) {
+	  if      ( pdgId == 211  ) dRmerge = dRmergePhotonWrtChargedHadron_;
+	  else if ( pdgId == 130 ) dRmerge = dRmergePhotonWrtNeutralHadron_;
+	  else if ( pdgId == 11  ) dRmerge = dRmergePhotonWrtElectron_;
 	  else                                                        dRmerge = dRmergePhotonWrtOther_;
 	  minBlockElementMatches = minBlockElementMatchesPhoton_;
 	  maxUnmatchedBlockElements = maxUnmatchedBlockElementsPhoton_;
 	  minMergeEt = minMergeGammaEt_;
 	}
-	if ( (*jetConstituent)->et() > minMergeEt && 
-	     (dR < dRmerge || isMatchedByBlockElement(**jetConstituent, *chargedHadron->chargedPFCandidate_, minBlockElementMatches, minBlockElementMatches, maxUnmatchedBlockElements)) ) {
-	  chargedHadron->neutralPFCandidates_.push_back(*jetConstituent);
-	  chargedHadron->addDaughter(*jetConstituent);
+
+	if (jetConstituent->et() > minMergeEt) {
+	  if (dR < dRmerge) {
+	    chargedHadron->neutralPFCandidates_.push_back(jetConstituent);
+	    chargedHadron->addDaughter(jetConstituent);
+	  }
+	  else {
+	    // TauReco@MiniAOD: No access to PF blocks at MiniAOD level, but the code below seems to have very minor impact
+	    const reco::PFCandidate* pfJetConstituent = dynamic_cast<const reco::PFCandidate*>(jetConstituent.get());
+	    if (pfCand != nullptr && pfJetConstituent != nullptr) {
+	      if (isMatchedByBlockElement(*pfJetConstituent, *pfCand, minBlockElementMatches, minBlockElementMatches, maxUnmatchedBlockElements)) {
+		chargedHadron->neutralPFCandidates_.push_back(jetConstituent);
+		chargedHadron->addDaughter(jetConstituent);
+	      }
+	    }
+	  }
 	}
       }
     }

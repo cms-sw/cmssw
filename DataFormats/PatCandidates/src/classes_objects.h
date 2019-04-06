@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
