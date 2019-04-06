@@ -1,3 +1,5 @@
+<flags REM_CXXFLAGS="-Werror=sign-compare" />
+
 <use name="tensorflow" />
 <use name="tensorflow-cc" />
 <use name="boost_filesystem" />
@@ -5,6 +7,9 @@
 <use name="FWCore/Framework" />
 <use name="FWCore/Utilities" />
 <use name="FWCore/Concurrency" />
+
+<lib name="tensorflow" />
+<lib name="tensorflow_cc" />
 
 <export>
     <lib name="1" />
