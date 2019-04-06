@@ -46,7 +46,7 @@ namespace cmspython3 {
       v_argv.reserve(argc);
       vp_argv.reserve(argc);
       for (int i = 0; i < argc; i++) {
-	v_argv.emplace_back(Py_DecodeLocale(argv[i], NULL), &PyMem_RawFree);
+	v_argv.emplace_back(Py_DecodeLocale(argv[i], nullptr), &PyMem_RawFree);
 	vp_argv.emplace_back(v_argv.back().get());
       }
 
