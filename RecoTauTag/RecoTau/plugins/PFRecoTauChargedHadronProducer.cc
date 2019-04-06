@@ -326,13 +326,23 @@ PFRecoTauChargedHadronProducer::fillDescriptions(edm::ConfigurationDescriptions&
   // ak4PFJetsRecoTauChargedHadrons
   edm::ParameterSetDescription desc;
   {
-    edm::ParameterSetDescription vpsd_ranking;
-    vpsd_ranking.add<std::string>("selectionPassFunction", "-pt");
-    vpsd_ranking.add<double>("selectionFailValue", 1000.0);
-    vpsd_ranking.add<std::string>("selection", "algoIs(\"kChargedPFCandidate\")");
-    vpsd_ranking.add<std::string>("name", "ChargedPFCandidate");
-    vpsd_ranking.add<std::string>("plugin", "PFRecoTauChargedHadronStringQuality");
-    desc.addVPSet("ranking", vpsd_ranking);
+    edm::ParameterSetDescription desc_ranking;
+    desc_ranking.add<std::string>("selectionPassFunction", "-pt");
+    desc_ranking.add<double>("selectionFailValue", 1000.0);
+    desc_ranking.add<std::string>("selection", "algoIs(\"kChargedPFCandidate\")");
+    desc_ranking.add<std::string>("name", "ChargedPFCandidate");
+    desc_ranking.add<std::string>("plugin", "PFRecoTauChargedHadronStringQuality");
+
+    edm::ParameterSet pset_ranking;
+    pset_ranking.addParameter<std::string>("selectionPassFunction", "-pt");
+    pset_ranking.addParameter<double>("selectionFailValue", 1000.0);
+    pset_ranking.addParameter<std::string>("selection", "algoIs(\"kChargedPFCandidate\")");
+    pset_ranking.addParameter<std::string>("name", "ChargedPFCandidate");
+    pset_ranking.addParameter<std::string>("plugin", "PFRecoTauChargedHadronStringQuality");
+    std::vector<edm::ParameterSet> vpsd_ranking;
+    vpsd_ranking.push_back(pset_ranking);
+
+    desc.addVPSet("ranking", desc_ranking, vpsd_ranking);
   }
 
   desc.add<int>("verbosity", 0);
@@ -342,15 +352,15 @@ PFRecoTauChargedHadronProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJets"));
 
   {
-    edm::ParameterSetDescription vpsd_builders;
-    vpsd_builders.add<double>("minMergeChargedHadronPt");
-    vpsd_builders.add<std::string>("name");
-    vpsd_builders.add<std::string>("plugin");
-    vpsd_builders.addOptional<double>("dRcone");
-    vpsd_builders.addOptional<bool>("dRconeLimitedToJetArea");
-    vpsd_builders.addOptional<double>("dRmergeNeutralHadron");
-    vpsd_builders.addOptional<double>("dRmergePhoton");
-    vpsd_builders.addOptional<edm::InputTag>("srcTracks");
+    edm::ParameterSetDescription desc_builders;
+    desc_builders.add<double>("minMergeChargedHadronPt");
+    desc_builders.add<std::string>("name");
+    desc_builders.add<std::string>("plugin");
+    desc_builders.addOptional<double>("dRcone");
+    desc_builders.addOptional<bool>("dRconeLimitedToJetArea");
+    desc_builders.addOptional<double>("dRmergeNeutralHadron");
+    desc_builders.addOptional<double>("dRmergePhoton");
+    desc_builders.addOptional<edm::InputTag>("srcTracks");
 
     {
       edm::ParameterSetDescription pset_signalQualityCuts;
@@ -396,31 +406,40 @@ PFRecoTauChargedHadronProducer::fillDescriptions(edm::ConfigurationDescriptions&
       pset_qualityCuts.add<bool>("vertexTrackFiltering", false);
       pset_qualityCuts.add<bool>("recoverLeadingTrk", false);
 
-      vpsd_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
+      desc_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
     }
 
-    vpsd_builders.add<double>("minMergeGammaEt");
-    vpsd_builders.add<int>("verbosity", 0);
-    vpsd_builders.add<double>("minMergeNeutralHadronEt");
+    desc_builders.add<double>("minMergeGammaEt");
+    desc_builders.add<int>("verbosity", 0);
+    desc_builders.add<double>("minMergeNeutralHadronEt");
 
-    vpsd_builders.addOptional<double>("dRmergePhotonWrtChargedHadron");
-    vpsd_builders.addOptional<double>("dRmergePhotonWrtNeutralHadron");
-    vpsd_builders.addOptional<int>("maxUnmatchedBlockElementsNeutralHadron");
-    vpsd_builders.addOptional<double>("dRmergePhotonWrtElectron");
-    vpsd_builders.addOptional<std::vector<int>>("chargedHadronCandidatesParticleIds");
-    vpsd_builders.addOptional<int>("minBlockElementMatchesPhoton");
-    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtNeutralHadron");
-    vpsd_builders.addOptional<int>("maxUnmatchedBlockElementsPhoton");
-    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtOther");
-    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtElectron");
-    vpsd_builders.addOptional<int>("minBlockElementMatchesNeutralHadron");
-    vpsd_builders.addOptional<double>("dRmergePhotonWrtOther");
-    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtChargedHadron");
+    desc_builders.addOptional<double>("dRmergePhotonWrtChargedHadron");
+    desc_builders.addOptional<double>("dRmergePhotonWrtNeutralHadron");
+    desc_builders.addOptional<int>("maxUnmatchedBlockElementsNeutralHadron");
+    desc_builders.addOptional<double>("dRmergePhotonWrtElectron");
+    desc_builders.addOptional<std::vector<int>>("chargedHadronCandidatesParticleIds");
+    desc_builders.addOptional<int>("minBlockElementMatchesPhoton");
+    desc_builders.addOptional<double>("dRmergeNeutralHadronWrtNeutralHadron");
+    desc_builders.addOptional<int>("maxUnmatchedBlockElementsPhoton");
+    desc_builders.addOptional<double>("dRmergeNeutralHadronWrtOther");
+    desc_builders.addOptional<double>("dRmergeNeutralHadronWrtElectron");
+    desc_builders.addOptional<int>("minBlockElementMatchesNeutralHadron");
+    desc_builders.addOptional<double>("dRmergePhotonWrtOther");
+    desc_builders.addOptional<double>("dRmergeNeutralHadronWrtChargedHadron");
 
-    desc.addVPSet("builders", vpsd_builders);
+    edm::ParameterSet pset_builders;
+    pset_builders.addParameter<std::string>("name","");
+    pset_builders.addParameter<std::string>("plugin","");
+    edm::ParameterSet qualityCuts;
+    pset_builders.addParameter<edm::ParameterSet>("qualityCuts",qualityCuts);
+    pset_builders.addParameter<int>("verbosity",0);
+    std::vector<edm::ParameterSet> vpsd_builders;
+    vpsd_builders.push_back(pset_builders);
+
+    desc.addVPSet("builders", desc_builders, vpsd_builders);
   }
 
-  descriptions.add("ak4PFJetsRecoTauChargedHadrons", desc);
+  descriptions.add("pfRecoTauChargedHadronProducer", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
