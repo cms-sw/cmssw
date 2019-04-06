@@ -7,7 +7,7 @@
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/resolveSymbolicLinks.h"
 
@@ -94,7 +94,7 @@ void testmakepset::secsourceAux() {
   std::string config(kTest);
 
   // Create the ParameterSet object from this configuration string.
-  cmspython3::PyBind11ProcessDesc builder(config);
+  PyBind11ProcessDesc builder(config);
   std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
 
   CPPUNIT_ASSERT(nullptr != ps.get());
@@ -149,7 +149,7 @@ void testmakepset::usingBlockAux() {
 
   std::string config(kTest);
   // Create the ParameterSet object from this configuration string.
-  cmspython3::PyBind11ProcessDesc builder(config);
+  PyBind11ProcessDesc builder(config);
   std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
   CPPUNIT_ASSERT(nullptr != ps.get());
 
@@ -188,8 +188,8 @@ void testmakepset::fileinpathAux() {
   "process = cms.Process('PROD')\n"
   "process.main = cms.PSet(\n"
   "    topo = cms.FileInPath('Geometry/TrackerSimData/data/trackersens.xml'),\n"
-  "    fip = cms.FileInPath('FWCore/PyDevParameterSet/test/fip.txt'),\n"
-  "    ufip = cms.untracked.FileInPath('FWCore/PyDevParameterSet/test/ufip.txt'),\n"
+  "    fip = cms.FileInPath('FWCore/PythonParameterSet/test/fip.txt'),\n"
+  "    ufip = cms.untracked.FileInPath('FWCore/PythonParameterSet/test/ufip.txt'),\n"
   "    extraneous = cms.int32(12)\n"
   ")\n"
   "process.source = cms.Source('EmptySource')\n";
@@ -199,7 +199,7 @@ void testmakepset::fileinpathAux() {
   bool localArea=false;
   // Create the ParameterSet object from this configuration string.
   {
-  cmspython3::PyBind11ProcessDesc builder(config);
+  PyBind11ProcessDesc builder(config);
   std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
   CPPUNIT_ASSERT(nullptr != ps.get());
 
@@ -224,15 +224,15 @@ void testmakepset::fileinpathAux() {
   if(localArea) {
     CPPUNIT_ASSERT(fip.location() == edm::FileInPath::Local);
   }
-  CPPUNIT_ASSERT(fip.relativePath()  == "FWCore/PyDevParameterSet/test/fip.txt");
-  CPPUNIT_ASSERT(ufip.relativePath() == "FWCore/PyDevParameterSet/test/ufip.txt");
+  CPPUNIT_ASSERT(fip.relativePath()  == "FWCore/PythonParameterSet/test/fip.txt");
+  CPPUNIT_ASSERT(ufip.relativePath() == "FWCore/PythonParameterSet/test/ufip.txt");
   std::string fullpath = fip.fullPath();
   std::cerr << "fullPath is: " << fip.fullPath() << std::endl;
   std::cerr << "copy of fullPath is: " << fullpath << std::endl;
 
   CPPUNIT_ASSERT(!fullpath.empty());
 
-  tmpout = fullpath.substr(0, fullpath.find("FWCore/PyDevParameterSet/test/fip.txt")) + "tmp.py";
+  tmpout = fullpath.substr(0, fullpath.find("FWCore/PythonParameterSet/test/fip.txt")) + "tmp.py";
 
   edm::FileInPath topo = innerps.getParameter<edm::FileInPath>("topo");
   // if the file is local, then just disable this check as then it is expected to fail
@@ -276,7 +276,7 @@ void testmakepset::fileinpathAux() {
 
   std::string config2(kTest2);
   // Create the ParameterSet object from this configuration string.
-  cmspython3::PyBind11ProcessDesc builder2(config2);
+  PyBind11ProcessDesc builder2(config2);
   unlink(tmpout.c_str());
   std::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
 
@@ -355,7 +355,7 @@ void testmakepset::typesTest() {
 
    std::string config2(kTest);
    // Create the ParameterSet object from this configuration string.
-   cmspython3::PyBind11ProcessDesc builder2(config2);
+   PyBind11ProcessDesc builder2(config2);
    std::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
    edm::ParameterSet const& test = ps2->getParameterSet("p");
 

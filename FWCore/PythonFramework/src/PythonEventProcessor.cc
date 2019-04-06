@@ -15,7 +15,7 @@
 
 // user include files
 #include "FWCore/PythonFramework/interface/PythonEventProcessor.h"
-#include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 
 #include "FWCore/Framework/interface/defaultCmsRunServices.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
