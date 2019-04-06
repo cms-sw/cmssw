@@ -42,10 +42,10 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   //* Helper Methods *//
 
   //Creators of the Decay Modes
-  void buildOneProng(const reco::PFTauTagInfoRef&,const std::vector<reco::PFCandidatePtr>& );
-  void buildOneProngStrip(const reco::PFTauTagInfoRef&,const std::vector<std::vector<reco::PFCandidatePtr>>&,const std::vector<reco::PFCandidatePtr>&);
-  void buildOneProngTwoStrips(const reco::PFTauTagInfoRef&,const std::vector<std::vector<reco::PFCandidatePtr>>&,const std::vector<reco::PFCandidatePtr>&);
-  void buildThreeProngs(const reco::PFTauTagInfoRef&,const std::vector<reco::PFCandidatePtr>&);
+  void buildOneProng(const reco::PFTauTagInfoRef&,const std::vector<reco::CandidatePtr>& );
+  void buildOneProngStrip(const reco::PFTauTagInfoRef&,const std::vector<std::vector<reco::CandidatePtr>>&,const std::vector<reco::CandidatePtr>&);
+  void buildOneProngTwoStrips(const reco::PFTauTagInfoRef&,const std::vector<std::vector<reco::CandidatePtr>>&,const std::vector<reco::CandidatePtr>&);
+  void buildThreeProngs(const reco::PFTauTagInfoRef&,const std::vector<reco::CandidatePtr>&);
 
   //Narrowness selection
   bool isNarrowTau(const reco::PFTau&,double);
@@ -60,9 +60,9 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   void applyElectronRejection(reco::PFTau&,double);
 
   //Method to create a candidate from the merged EM Candidates vector;
-  math::XYZTLorentzVector createMergedLorentzVector(const std::vector<reco::PFCandidatePtr>&);
+  math::XYZTLorentzVector createMergedLorentzVector(const std::vector<reco::CandidatePtr>&);
 
-  void removeCandidateFromRefVector(const reco::PFCandidatePtr&,std::vector<reco::PFCandidatePtr>&); 
+  void removeCandidateFromRefVector(const reco::CandidatePtr&,std::vector<reco::CandidatePtr>&); 
   void applyMassConstraint(math::XYZTLorentzVector&,double );
 
   bool refitThreeProng(reco::PFTau&); 
