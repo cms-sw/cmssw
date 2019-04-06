@@ -365,7 +365,6 @@ SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSe
   auto FillerWordEventNumbers2 = std::make_unique<std::vector<uint32_t>>();
   auto SaveFillerWords = std::make_unique<std::vector<uint32_t>>();
   //===== Loop over all the FEDs ========================================================
-  FEDNumbering fednum;
   std::pair<int,int> fedIds;
   fedIds.first  = 0;
   fedIds.second = 39; 
