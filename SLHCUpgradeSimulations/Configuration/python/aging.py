@@ -232,23 +232,27 @@ def customise_aging_300(process):
 
 def customise_aging_1000(process):
     process=ageHcal(process,1000,5.0e34,"nominal")
+    process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,1000,5.0e34)
     return process
 
 def customise_aging_3000(process):
     process=ageHcal(process,3000,5.0e34,"nominal")
+    process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,3000,5.0e34)
     process=agedHGCal(process)
     return process
 
 def customise_aging_3000_ultimate(process):
     process=ageHcal(process,3000,7.5e34,"ultimate")
+    process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,3000,7.5e34)
     process=agedHGCal(process)
     return process
 
 def customise_aging_4500_ultimate(process):
     process=ageHcal(process,4500,7.5e34,"ultimate")
+    process=turn_off_HE_aging(process) #avoid conflict between HGCal and Hcal in phase2 geom configuration
     process=ageEcal(process,4500,7.5e34)
     process=agedHGCal(process)
     return process
