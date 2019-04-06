@@ -274,9 +274,9 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
         float totalMIPs = nPixel / nPEperMIP_;
 
-        //no sipm saturation, subtract pedestal, scale to calibrated response
+        //no sipm saturation, scale to calibrated response
         if( calibDigis_)
-          totalMIPs = (npe - meanN) / scaledPePerMip;
+          totalMIPs = (float)npe / scaledPePerMip;
 
         if(debug && totalIniMIPs > 0)
         {
