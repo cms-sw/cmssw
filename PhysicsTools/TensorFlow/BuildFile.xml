@@ -8,9 +8,6 @@
 <use name="FWCore/Utilities" />
 <use name="FWCore/Concurrency" />
 
-<lib name="tensorflow" />
-<lib name="tensorflow_cc" />
-
 <export>
     <lib name="1" />
 </export>

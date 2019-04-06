@@ -18,7 +18,7 @@ limitations under the License.
 
 /*
 This file is an adaptation of the original direct_session.cc file located at
-https://github.com/tensorflow/tensorflow/blob/v1.6.0/tensorflow/core/common_runtime/direct_session.cc
+https://raw.githubusercontent.com/tensorflow/tensorflow/v1.13.1/tensorflow/core/common_runtime/direct_session.cc
 to meet the demands of the software environment developed and used by the CMS collaboration.
 
 Changes with respect to the original code are documented in the TBBSession.h header file.
@@ -38,14 +38,21 @@ Changes with respect to the original code are documented in the TBBSession.h hea
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
 
+#include "tensorflow/core/common_runtime/collective_executor_mgr.h"
+#include "tensorflow/core/common_runtime/collective_param_resolver_local.h"
 #include "tensorflow/core/common_runtime/constant_folding.h"
 #include "tensorflow/core/common_runtime/debugger_state_interface.h"
 #include "tensorflow/core/common_runtime/device_factory.h"
+#include "tensorflow/core/common_runtime/device_resolver_local.h"
 #include "tensorflow/core/common_runtime/executor.h"
+#include "tensorflow/core/common_runtime/executor_factory.h"
 #include "tensorflow/core/common_runtime/function.h"
 #include "tensorflow/core/common_runtime/graph_optimizer.h"
 #include "tensorflow/core/common_runtime/memory_types.h"
+#include "tensorflow/core/common_runtime/metrics.h"
 #include "tensorflow/core/common_runtime/optimization_registry.h"
+#include "tensorflow/core/common_runtime/process_util.h"
+#include "tensorflow/core/common_runtime/scoped_allocator_mgr.h"
 #include "tensorflow/core/common_runtime/step_stats_collector.h"
 #include "tensorflow/core/framework/function.h"
 #include "tensorflow/core/framework/graph.pb_text.h"
@@ -53,6 +60,7 @@ Changes with respect to the original code are documented in the TBBSession.h hea
 #include "tensorflow/core/framework/graph_def_util.h"
 #include "tensorflow/core/framework/log_memory.h"
 #include "tensorflow/core/framework/node_def.pb.h"
+#include "tensorflow/core/framework/run_handler.h"
 #include "tensorflow/core/framework/tensor.h"
 #include "tensorflow/core/framework/versions.pb.h"
 #include "tensorflow/core/graph/algorithm.h"
@@ -71,10 +79,11 @@ Changes with respect to the original code are documented in the TBBSession.h hea
 #include "tensorflow/core/lib/strings/numbers.h"
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/lib/strings/strcat.h"
-#include "tensorflow/core/platform/cpu_info.h"
+#include "tensorflow/core/platform/byte_order.h"
 #include "tensorflow/core/platform/device_tracer.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/tracing.h"
 #include "tensorflow/core/platform/types.h"
 #include "tensorflow/core/util/device_name_utils.h"
 #include "tensorflow/core/util/env_var.h"
@@ -109,26 +118,24 @@ class TBBSessionFactory : public SessionFactory {
     return options.target == "tbb";
   }
 
-  Session* NewSession(const SessionOptions& options) override {
+  Status NewSession(const SessionOptions& options,
+                    Session** out_session) override {
     // Must do this before the CPU allocator is created.
     if (options.config.graph_options().build_cost_model() > 0) {
       EnableCPUAllocatorFullStats(true);
     }
-    std::vector<Device*> devices;
-    const Status s = DeviceFactory::AddDevices(
-        options, "/job:localhost/replica:0/task:0", &devices);
-    if (!s.ok()) {
-      LOG(ERROR) << s;
-      return nullptr;
-    }
+    std::vector<std::unique_ptr<Device>> devices;
+    TF_RETURN_IF_ERROR(DeviceFactory::AddDevices(
+        options, "/job:localhost/replica:0/task:0", &devices));
 
     TBBSession* session =
-        new TBBSession(options, new DeviceMgr(devices), this);
+        new TBBSession(options, new DeviceMgr(std::move(devices)), this);
     {
       mutex_lock l(sessions_lock_);
       sessions_.push_back(session);
     }
-    return session;
+    *out_session = session;
+    return Status::OK();
   }
 
   Status Reset(const SessionOptions& options,
@@ -190,13 +197,16 @@ std::atomic_int_fast64_t TBBSession::step_id_counter_(1);
 // devices that run concurrently, in which case we will need to
 // revisit this decision.
 // Override to allow CMSSW FWK to schedule
-void TBBSession::SchedClosure(tbb::task_arena& arena, tbb::task_group& g, std::function<void()> c) {
-  arena.execute( [&g, &c] () {g.run( c ); } );
+void TBBSession::SchedClosure(tbb::task_arena& task_arena, tbb::task_group& task_group,
+                              std::function<void()> c) {
+  task_arena.execute( [&task_group, &c] () {
+    task_group.run(c);
+  });
 }
 
 TBBSession::TBBSession(const SessionOptions& options,
-                       const DeviceMgr* device_mgr,
-                       TBBSessionFactory* const factory)
+                             const DeviceMgr* device_mgr,
+                             TBBSessionFactory* const factory)
     : options_(options),
       device_mgr_(device_mgr),
       factory_(factory),
@@ -245,6 +255,7 @@ TBBSession::~TBBSession() {
   for (auto& it : executors_) {
     it.second.reset();
   }
+  callables_.clear();
   for (auto d : device_mgr_->ListDevices()) {
     d->op_segment()->RemoveHold(session_handle_);
   }
@@ -292,7 +303,7 @@ Status TBBSession::MaybeInitializeExecutionState(
 Status TBBSession::Create(const GraphDef& graph) {
   TF_RETURN_IF_ERROR(init_error_);
   if (graph.node_size() > 0) {
-    mutex_lock l(graph_def_lock_);
+    mutex_lock l(graph_state_lock_);
     if (graph_created_) {
       return errors::AlreadyExists(
           "A Graph has already been created for this session.");
@@ -304,7 +315,7 @@ Status TBBSession::Create(const GraphDef& graph) {
 
 Status TBBSession::Extend(const GraphDef& graph) {
   TF_RETURN_IF_ERROR(CheckNotClosed());
-  mutex_lock l(graph_def_lock_);
+  mutex_lock l(graph_state_lock_);
   return ExtendLocked(graph);
 }
 
@@ -333,16 +344,21 @@ Status TBBSession::Run(const NamedTensorList& inputs,
 }
 
 Status TBBSession::CreateDebuggerState(
-    const DebugOptions& debug_options, int64 session_run_index,
-    int64 executor_step_index, const std::vector<string>& input_names,
-    const std::vector<string>& output_names,
-    const std::vector<string>& target_names,
+    const CallableOptions& callable_options, int64 global_step,
+    int64 session_run_index, int64 executor_step_index,
     std::unique_ptr<DebuggerStateInterface>* debugger_state) {
-  TF_RETURN_IF_ERROR(
-      DebuggerStateRegistry::CreateState(debug_options, debugger_state));
+  TF_RETURN_IF_ERROR(DebuggerStateRegistry::CreateState(
+      callable_options.run_options().debug_options(), debugger_state));
+  std::vector<string> input_names(callable_options.feed().begin(),
+                                  callable_options.feed().end());
+  std::vector<string> output_names(callable_options.fetch().begin(),
+                                   callable_options.fetch().end());
+  std::vector<string> target_names(callable_options.target().begin(),
+                                   callable_options.target().end());
+
   TF_RETURN_IF_ERROR(debugger_state->get()->PublishDebugMetadata(
-      debug_options.global_step(), session_run_index, executor_step_index,
-      input_names, output_names, target_names));
+      global_step, session_run_index, executor_step_index, input_names,
+      output_names, target_names));
   return Status::OK();
 }
 
@@ -357,85 +373,70 @@ Status TBBSession::DecorateAndPublishGraphForDebug(
   return Status::OK();
 }
 
-Status TBBSession::Run(const RunOptions& run_options,
-                          const NamedTensorList& inputs,
-                          const std::vector<string>& output_names,
-                          const std::vector<string>& target_nodes,
-                          std::vector<Tensor>* outputs,
-                          RunMetadata* run_metadata) {
-  TF_RETURN_IF_ERROR(CheckNotClosed());
-  tbb_session_runs->GetCell()->IncrementBy(1);
-  {
-    mutex_lock l(graph_def_lock_);
-    if (!graph_created_) {
-      return errors::InvalidArgument(
-          "Session was not created with a graph before Run()!");
-    }
-  }
+Status TBBSession::RunInternal(int64 step_id, const RunOptions& run_options,
+                                  CallFrameInterface* call_frame,
+                                  ExecutorsAndKeys* executors_and_keys,
+                                  RunMetadata* run_metadata) {
+  const uint64 start_time_usecs = Env::Default()->NowMicros();
+  string session_id_meta = strings::StrCat("SessionRun #id=", step_id, "#");
+  tracing::ScopedActivity activity(session_id_meta);
 
-  // Extract the inputs names for this run of the session.
-  std::vector<string> input_tensor_names;
-  input_tensor_names.reserve(inputs.size());
-  for (const auto& it : inputs) {
-    input_tensor_names.push_back(it.first);
-  }
-
-  // Check if we already have an executor for these arguments.
-  ExecutorsAndKeys* executors_and_keys;
-  RunStateArgs run_state_args(run_options.debug_options());
-
-  Executor::Args args;
-  args.step_id = step_id_counter_.fetch_add(1);
-
-  TF_RETURN_IF_ERROR(
-      GetOrCreateExecutors(input_tensor_names, output_names,
-                           target_nodes, &executors_and_keys,
-                           &run_state_args));
   const int64 executor_step_count = executors_and_keys->step_count.fetch_add(1);
 
   std::unique_ptr<DebuggerStateInterface> debugger_state;
   if (!run_options.debug_options().debug_tensor_watch_opts().empty()) {
-    TF_RETURN_IF_ERROR(CreateDebuggerState(
-        run_options.debug_options(), args.step_id, executor_step_count,
-        input_tensor_names, output_names, target_nodes, &debugger_state));
-  }
-
-  // Configure a call frame for the step, which we use to feed and
-  // fetch values to and from the executors.
-  FunctionCallFrame call_frame(executors_and_keys->input_types,
-                               executors_and_keys->output_types);
-  gtl::InlinedVector<Tensor, 4> feed_args(inputs.size());
-  for (const auto& it : inputs) {
-    if (it.second.dtype() == DT_RESOURCE) {
-      Tensor tensor_from_handle;
-      TF_RETURN_IF_ERROR(
-          ResourceHandleToInputTensor(it.second, &tensor_from_handle));
-      feed_args[executors_and_keys->input_name_to_index[it.first]] =
-          tensor_from_handle;
-    } else {
-      feed_args[executors_and_keys->input_name_to_index[it.first]] = it.second;
-    }
-  }
-  const Status s = call_frame.SetArgs(feed_args);
-  if (errors::IsInternal(s)) {
-    return errors::InvalidArgument(s.error_message());
-  } else if (!s.ok()) {
-    return s;
+    TF_RETURN_IF_ERROR(
+        CreateDebuggerState(executors_and_keys->callable_options,
+                            run_options.debug_options().global_step(), step_id,
+                            executor_step_count, &debugger_state));
   }
 
   // Create a run state and start execution.
-  RunState run_state(args.step_id, &devices_);
+  RunState run_state(step_id, &devices_);
   run_state.rendez = new IntraProcessRendezvous(device_mgr_.get());
-  CancellationManager step_cancellation_manager;
-  args.call_frame = &call_frame;
+#ifndef __ANDROID__
+  // Set up for collectives if ExecutorsAndKeys declares a key.
+  if (executors_and_keys->collective_graph_key !=
+      BuildGraphOptions::kNoCollectiveGraphKey) {
+    if (run_options.experimental().collective_graph_key() !=
+        BuildGraphOptions::kNoCollectiveGraphKey) {
+      // If a collective_graph_key was specified in run_options, ensure that it
+      // matches what came out of GraphExecutionState::BuildGraph().
+      if (run_options.experimental().collective_graph_key() !=
+          executors_and_keys->collective_graph_key) {
+        return errors::Internal(
+            "collective_graph_key in RunOptions ",
+            run_options.experimental().collective_graph_key(),
+            " should match collective_graph_key from optimized graph ",
+            executors_and_keys->collective_graph_key);
+      }
+    }
+    if (!collective_executor_mgr_) {
+      std::unique_ptr<DeviceResolverInterface> drl(
+          new DeviceResolverLocal(device_mgr_.get()));
+      std::unique_ptr<ParamResolverInterface> cprl(
+          new CollectiveParamResolverLocal(device_mgr_.get(), drl.get(),
+                                           "/job:localhost/replica:0/task:0"));
+      collective_executor_mgr_.reset(new CollectiveExecutorMgr(
+          options_.config, device_mgr_.get(), std::move(drl), std::move(cprl)));
+    }
+    run_state.collective_executor.reset(new CollectiveExecutor::Handle(
+        collective_executor_mgr_->FindOrCreate(step_id), true /*inherit_ref*/));
+  }
+#endif
 
   // Use a task_arena to avoid having unrelated tasks start
   // running on this thread (which could start deadlocks)
-  tbb::task_arena taskArena;
-  tbb::task_group taskGroup;
+  tbb::task_arena task_arena;
+  tbb::task_group task_group;
   // we are required to always call wait before destructor
-  auto doneWithTaskGroup = [&taskArena, &taskGroup](void *) { taskArena.execute([&taskGroup]() { taskGroup.wait();}); };
-  std::unique_ptr<tbb::task_group, decltype(doneWithTaskGroup) > guard(&taskGroup, doneWithTaskGroup);
+  auto done_with_task_group = [&task_arena, &task_group](void *) {
+      task_arena.execute([&task_group]() {
+        task_group.wait();
+      });
+  };
+  std::unique_ptr<tbb::task_group, decltype(done_with_task_group) > guard(&task_group,
+                                                                          done_with_task_group);
 
   // Start parallel Executors.
   const size_t num_executors = executors_and_keys->items.size();
@@ -448,15 +449,18 @@ Status TBBSession::Run(const RunOptions& run_options,
         run_state.executors_done.Notify();
       });
 
+  Executor::Args args;
+  args.step_id = step_id;
+  args.call_frame = call_frame;
   args.rendezvous = run_state.rendez;
+  args.collective_executor =
+      (run_state.collective_executor ? run_state.collective_executor->get()
+                                     : nullptr);
+  CancellationManager step_cancellation_manager;
   args.cancellation_manager = &step_cancellation_manager;
-
   args.session_state = &session_state_;
   args.tensor_store = &run_state.tensor_store;
   args.step_container = &run_state.step_container;
-  if (LogMemory::IsEnabled()) {
-    LogMemory::RecordStep(args.step_id, run_state_args.handle);
-  }
   args.sync_on_finish = sync_on_finish_;
 
   const bool do_trace = (run_options.trace_level() > RunOptions::NO_TRACE);
@@ -511,31 +515,16 @@ Status TBBSession::Run(const RunOptions& run_options,
     return errors::Cancelled("Run call was cancelled");
   }
 
-  // pass taskArena and taskGroup to SchedClosure
-  // consequently, disable TF's own thread logic inside the loop
-  Executor::Args::Runner default_runner = [this, &taskArena, &taskGroup](Executor::Args::Closure c) {
-    SchedClosure(taskArena, taskGroup, std::move(c));
+  Executor::Args::Runner default_runner = [this, &task_arena, &task_group](Executor::Args::Closure c) {
+    SchedClosure(task_arena, task_group, std::move(c));
   };
+
   for (const auto& item : executors_and_keys->items) {
-    // TODO(zhengxq): support partial run.
-    // TODO(zhengxq): if the device picks its own threadpool, we need to assign
-    //     less threads to the main compute pool by default.
-    // thread::ThreadPool* device_thread_pool =
-    //     item.device->tensorflow_device_thread_pool();
-    // if (!device_thread_pool) {
-    //   args.runner = default_runner;
-    // } else {
-    //   args.runner = [this, device_thread_pool](Executor::Args::Closure c) {
-    //     SchedClosure(device_thread_pool, std::move(c));
-    //   };
-    // }
     args.runner = default_runner;
     item.executor->RunAsync(args, barrier->Get());
   }
 
-  // WaitForNotification will handle calling wait on taskGroup
-  guard.release();
-  WaitForNotification(taskArena, taskGroup, &run_state, &step_cancellation_manager,
+  WaitForNotification(task_arena, task_group, &run_state, &step_cancellation_manager,
                       run_options.timeout_in_ms() > 0
                           ? run_options.timeout_in_ms()
                           : operation_timeout_in_ms_);
@@ -549,7 +538,7 @@ Status TBBSession::Run(const RunOptions& run_options,
 
   if (tracer) {
     TF_RETURN_IF_ERROR(tracer->Stop());
-    TF_RETURN_IF_ERROR(tracer->Collect(args.stats_collector));
+    TF_RETURN_IF_ERROR(tracer->Collect(run_state.collector.get()));
   }
 
   {
@@ -557,10 +546,123 @@ Status TBBSession::Run(const RunOptions& run_options,
     TF_RETURN_IF_ERROR(run_state.status);
   }
 
+  // Save the output tensors of this run we choose to keep.
+  if (!run_state.tensor_store.empty()) {
+    TF_RETURN_IF_ERROR(run_state.tensor_store.SaveTensors(
+        {executors_and_keys->callable_options.fetch().begin(),
+         executors_and_keys->callable_options.fetch().end()},
+        &session_state_));
+  }
+
+  if (run_state.collector) {
+    run_state.collector->Finalize();
+  }
+
+  // Build and return the cost model as instructed.
+  if (update_cost_model) {
+    // Build the cost model
+    std::unordered_map<string, const Graph*> device_to_graph;
+    for (const PerPartitionExecutorsAndLib& partition :
+         executors_and_keys->items) {
+      const Graph* graph = partition.graph;
+      const string device = partition.flib->device()->name();
+      device_to_graph[device] = graph;
+    }
+
+    mutex_lock l(executor_lock_);
+    run_state.collector->BuildCostModel(&cost_model_manager_, device_to_graph);
+
+    // annotate stats onto cost graph.
+    CostGraphDef* cost_graph = run_metadata->mutable_cost_graph();
+    for (const auto& item : executors_and_keys->items) {
+      TF_RETURN_IF_ERROR(
+          cost_model_manager_.AddToCostGraphDef(item.graph, cost_graph));
+    }
+  }
+
+  // If requested via RunOptions, output the partition graphs.
+  if (run_options.output_partition_graphs()) {
+    protobuf::RepeatedPtrField<GraphDef>* partition_graph_defs =
+        run_metadata->mutable_partition_graphs();
+    for (const PerPartitionExecutorsAndLib& exec_and_lib :
+         executors_and_keys->items) {
+      GraphDef* partition_graph_def = partition_graph_defs->Add();
+      exec_and_lib.graph->ToGraphDef(partition_graph_def);
+    }
+  }
+  UpdateGraphExecTime(Env::Default()->NowMicros() - start_time_usecs);
+
+  return Status::OK();
+}
+
+Status TBBSession::Run(const RunOptions& run_options,
+                          const NamedTensorList& inputs,
+                          const std::vector<string>& output_names,
+                          const std::vector<string>& target_nodes,
+                          std::vector<Tensor>* outputs,
+                          RunMetadata* run_metadata) {
+  TF_RETURN_IF_ERROR(CheckNotClosed());
+  TF_RETURN_IF_ERROR(CheckGraphCreated("Run()"));
+  tbb_session_runs->GetCell()->IncrementBy(1);
+
+  // Extract the inputs names for this run of the session.
+  std::vector<string> input_tensor_names;
+  input_tensor_names.reserve(inputs.size());
+  for (const auto& it : inputs) {
+    input_tensor_names.push_back(it.first);
+  }
+
+  // Check if we already have an executor for these arguments.
+  ExecutorsAndKeys* executors_and_keys;
+  RunStateArgs run_state_args(run_options.debug_options());
+  run_state_args.collective_graph_key =
+      run_options.experimental().collective_graph_key();
+
+  TF_RETURN_IF_ERROR(GetOrCreateExecutors(input_tensor_names, output_names,
+                                          target_nodes, &executors_and_keys,
+                                          &run_state_args));
+  {
+    mutex_lock l(collective_graph_key_lock_);
+    collective_graph_key_ = executors_and_keys->collective_graph_key;
+  }
+
+  // Configure a call frame for the step, which we use to feed and
+  // fetch values to and from the executors.
+  FunctionCallFrame call_frame(executors_and_keys->input_types,
+                               executors_and_keys->output_types);
+  gtl::InlinedVector<Tensor, 4> feed_args(inputs.size());
+  for (const auto& it : inputs) {
+    if (it.second.dtype() == DT_RESOURCE) {
+      Tensor tensor_from_handle;
+      TF_RETURN_IF_ERROR(
+          ResourceHandleToInputTensor(it.second, &tensor_from_handle));
+      feed_args[executors_and_keys->input_name_to_index[it.first]] =
+          tensor_from_handle;
+    } else {
+      feed_args[executors_and_keys->input_name_to_index[it.first]] = it.second;
+    }
+  }
+  const Status s = call_frame.SetArgs(feed_args);
+  if (errors::IsInternal(s)) {
+    return errors::InvalidArgument(s.error_message());
+  } else if (!s.ok()) {
+    return s;
+  }
+
+  const int64 step_id = step_id_counter_.fetch_add(1);
+
+  if (LogMemory::IsEnabled()) {
+    LogMemory::RecordStep(step_id, run_state_args.handle);
+  }
+
+  TF_RETURN_IF_ERROR(RunInternal(step_id, run_options, &call_frame,
+                                 executors_and_keys, run_metadata));
+
   // Receive outputs.
   if (outputs) {
     std::vector<Tensor> sorted_outputs;
-    const Status s = call_frame.ConsumeRetvals(&sorted_outputs);
+    const Status s = call_frame.ConsumeRetvals(
+        &sorted_outputs, /* allow_dead_tensors = */ false);
     if (errors::IsInternal(s)) {
       return errors::InvalidArgument(s.error_message());
     } else if (!s.ok()) {
@@ -596,45 +698,6 @@ Status TBBSession::Run(const RunOptions& run_options,
     }
   }
 
-  // Save the output tensors of this run we choose to keep.
-  TF_RETURN_IF_ERROR(
-      run_state.tensor_store.SaveTensors(output_names, &session_state_));
-  if (args.stats_collector) {
-    args.stats_collector->Finalize();
-  }
-
-  // Build and return the cost model as instructed.
-  mutex_lock l(executor_lock_);
-  if (update_cost_model) {
-    // Build the cost model
-    std::unordered_map<string, const Graph*> device_to_graph;
-    for (const PerPartitionExecutorsAndLib& partition :
-         executors_and_keys->items) {
-      const Graph* graph = partition.graph;
-      const string device = partition.flib->device()->name();
-      device_to_graph[device] = graph;
-    }
-    args.stats_collector->BuildCostModel(&cost_model_manager_, device_to_graph);
-
-    // annotate stats onto cost graph.
-    CostGraphDef* cost_graph = run_metadata->mutable_cost_graph();
-    for (const auto& item : executors_and_keys->items) {
-      TF_RETURN_IF_ERROR(
-          cost_model_manager_.AddToCostGraphDef(item.graph, cost_graph));
-    }
-  }
-
-  // If requested via RunOptions, output the partition graphs.
-  if (run_options.output_partition_graphs()) {
-    protobuf::RepeatedPtrField<GraphDef>* partition_graph_defs =
-        run_metadata->mutable_partition_graphs();
-    for (const PerPartitionExecutorsAndLib& exec_and_lib :
-         executors_and_keys->items) {
-      GraphDef* partition_graph_def = partition_graph_defs->Add();
-      exec_and_lib.graph->ToGraphDef(partition_graph_def);
-    }
-  }
-
   return Status::OK();
 }
 
@@ -662,6 +725,162 @@ Status TBBSession::ResourceHandleToInputTensor(const Tensor& resource_tensor,
         "https://github.com/tensorflow/tensorflow/issues/new, ideally with a "
         "short code snippet that leads to this error message."));
   }
+}
+
+Status TBBSession::CreateExecutors(
+    const CallableOptions& callable_options,
+    std::unique_ptr<ExecutorsAndKeys>* out_executors_and_keys,
+    std::unique_ptr<FunctionInfo>* out_func_info,
+    RunStateArgs* run_state_args) {
+  BuildGraphOptions options;
+  options.callable_options = callable_options;
+  options.use_function_convention = !run_state_args->is_partial_run;
+  options.collective_graph_key =
+      callable_options.run_options().experimental().collective_graph_key();
+
+  std::unique_ptr<FunctionInfo> func_info(new FunctionInfo);
+  std::unique_ptr<ExecutorsAndKeys> ek(new ExecutorsAndKeys);
+
+  ek->callable_options = callable_options;
+
+  std::unordered_map<string, std::unique_ptr<Graph>> graphs;
+  TF_RETURN_IF_ERROR(CreateGraphs(
+      options, &graphs, &func_info->flib_def, run_state_args, &ek->input_types,
+      &ek->output_types, &ek->collective_graph_key));
+
+  if (run_state_args->is_partial_run) {
+    ek->graph = std::move(run_state_args->graph);
+    std::unordered_set<StringPiece, StringPieceHasher> names;
+    for (const string& input : callable_options.feed()) {
+      TensorId id(ParseTensorName(input));
+      names.emplace(id.first);
+    }
+    for (const string& output : callable_options.fetch()) {
+      TensorId id(ParseTensorName(output));
+      names.emplace(id.first);
+    }
+    for (Node* n : ek->graph->nodes()) {
+      if (names.count(n->name()) > 0) {
+        ek->name_to_node.insert({n->name(), n});
+      }
+    }
+  }
+  ek->items.reserve(graphs.size());
+  const auto& optimizer_opts =
+      options_.config.graph_options().optimizer_options();
+
+  int graph_def_version;
+  {
+    mutex_lock l(graph_state_lock_);
+    graph_def_version =
+        execution_state_->original_graph_def().versions().producer();
+  }
+  func_info->proc_flr.reset(new ProcessFunctionLibraryRuntime(
+      device_mgr_.get(), options_.env, graph_def_version,
+      func_info->flib_def.get(), optimizer_opts));
+
+  GraphOptimizer optimizer(optimizer_opts);
+  for (auto iter = graphs.begin(); iter != graphs.end(); ++iter) {
+    const string& partition_name = iter->first;
+    std::unique_ptr<Graph>& partition_graph = iter->second;
+
+    Device* device;
+    TF_RETURN_IF_ERROR(device_mgr_->LookupDevice(partition_name, &device));
+
+    ek->items.resize(ek->items.size() + 1);
+    auto* item = &(ek->items.back());
+    auto lib = func_info->proc_flr->GetFLR(partition_name);
+    if (lib == nullptr) {
+      return errors::Internal("Could not find device: ", partition_name);
+    }
+    item->flib = lib;
+
+    LocalExecutorParams params;
+    params.device = device;
+    params.function_library = lib;
+    auto opseg = device->op_segment();
+    params.create_kernel = [this, lib, opseg](const NodeDef& ndef,
+                                              OpKernel** kernel) {
+      // NOTE(mrry): We must not share function kernels (implemented
+      // using `CallOp`) between subgraphs, because `CallOp::handle_`
+      // is tied to a particular subgraph. Even if the function itself
+      // is stateful, the `CallOp` that invokes it is not.
+      if (!OpSegment::ShouldOwnKernel(lib, ndef.op())) {
+        return lib->CreateKernel(ndef, kernel);
+      }
+      auto create_fn = [lib, &ndef](OpKernel** kernel) {
+        return lib->CreateKernel(ndef, kernel);
+      };
+      // Kernels created for subgraph nodes need to be cached.  On
+      // cache miss, create_fn() is invoked to create a kernel based
+      // on the function library here + global op registry.
+      return opseg->FindOrCreate(session_handle_, ndef.name(), kernel,
+                                 create_fn);
+    };
+    params.delete_kernel = [lib](OpKernel* kernel) {
+      if (kernel && !OpSegment::ShouldOwnKernel(lib, kernel->type_string()))
+        delete kernel;
+    };
+
+    optimizer.Optimize(lib, options_.env, device, &partition_graph,
+                       /*shape_map=*/nullptr);
+
+    // TensorFlow Debugger (tfdbg) inserts debug nodes in the graph.
+    const DebugOptions& debug_options =
+        options.callable_options.run_options().debug_options();
+    if (!debug_options.debug_tensor_watch_opts().empty()) {
+      TF_RETURN_IF_ERROR(DecorateAndPublishGraphForDebug(
+          debug_options, partition_graph.get(), params.device));
+    }
+
+    TF_RETURN_IF_ERROR(EnsureMemoryTypes(DeviceType(device->device_type()),
+                                         device->name(),
+                                         partition_graph.get()));
+    // NewLocalExecutor takes ownership of partition_graph.
+    item->graph = partition_graph.get();
+    item->executor = nullptr;
+    item->device = device;
+    auto executor_type = options_.config.experimental().executor_type();
+    TF_RETURN_IF_ERROR(NewExecutor(
+        executor_type, params, std::move(partition_graph), &item->executor));
+  }
+
+  // Cache the mapping from input/output names to graph elements to
+  // avoid recomputing it every time.
+  if (!run_state_args->is_partial_run) {
+    // For regular `Run()`, we use the function calling convention, and so
+    // maintain a mapping from input/output names to
+    // argument/return-value ordinal index.
+    for (int i = 0; i < static_cast<int>(callable_options.feed().size()); ++i) {
+      const string& input = callable_options.feed(i);
+      ek->input_name_to_index[input] = i;
+    }
+    for (int i = 0; i < static_cast<int>(callable_options.fetch().size()); ++i) {
+      const string& output = callable_options.fetch(i);
+      ek->output_name_to_index[output] = i;
+    }
+  } else {
+    // For `PRun()`, we use the rendezvous calling convention, and so
+    // maintain a mapping from input/output names to rendezvous keys.
+    //
+    // We always use the first device as the device name portion of the
+    // key, even if we're feeding another graph.
+    for (int i = 0; i < static_cast<int>(callable_options.feed().size()); ++i) {
+      const string& input = callable_options.feed(i);
+      ek->input_name_to_rendezvous_key[input] = GetRendezvousKey(
+          input, device_set_.client_device()->attributes(), FrameAndIter(0, 0));
+    }
+    for (int i = 0; i < static_cast<int>(callable_options.fetch().size()); ++i) {
+      const string& output = callable_options.fetch(i);
+      ek->output_name_to_rendezvous_key[output] =
+          GetRendezvousKey(output, device_set_.client_device()->attributes(),
+                           FrameAndIter(0, 0));
+    }
+  }
+
+  *out_executors_and_keys = std::move(ek);
+  *out_func_info = std::move(func_info);
+  return Status::OK();
 }
 
 Status TBBSession::GetOrCreateExecutors(
@@ -736,159 +955,27 @@ Status TBBSession::GetOrCreateExecutors(
   }
 
   // Nothing found, so create the executors and store in the cache.
-  BuildGraphOptions options;
-  options.feed_endpoints = inputs_sorted;
-  options.fetch_endpoints = outputs_sorted;
-  options.target_nodes = tn_sorted;
-  options.use_function_convention = !run_state_args->is_partial_run;
-  if (!run_state_args->debug_options.debug_tensor_watch_opts().empty()) {
-    options.debug_options = run_state_args->debug_options;
-  }
-
-  std::unique_ptr<FunctionInfo> func_info(new FunctionInfo);
-  std::shared_ptr<ExecutorsAndKeys> ek(new ExecutorsAndKeys);
-
-  // The executor_lock_ is intentionally released while executor is
+  // The executor_lock_ is intentionally released while executors are
   // being created.
-  std::unordered_map<string, std::unique_ptr<Graph>> graphs;
-  TF_RETURN_IF_ERROR(CreateGraphs(options, &graphs, &func_info->flib_def,
-                                  run_state_args, &ek->input_types,
-                                  &ek->output_types));
-
-  if (run_state_args->is_partial_run) {
-    ek->graph = std::move(run_state_args->graph);
-    std::unordered_set<StringPiece, StringPieceHasher> names;
-    for (const string& input : inputs) {
-      TensorId id(ParseTensorName(input));
-      names.emplace(id.first);
-    }
-    for (const string& output : outputs) {
-      TensorId id(ParseTensorName(output));
-      names.emplace(id.first);
-    }
-    for (Node* n : ek->graph->nodes()) {
-      if (names.count(n->name()) > 0) {
-        ek->name_to_node.insert({n->name(), n});
-      }
-    }
+  CallableOptions callable_options;
+  for (const string& input : inputs_sorted) {
+    callable_options.add_feed(input);
   }
-  ek->items.reserve(graphs.size());
-  const auto& optimizer_opts =
-      options_.config.graph_options().optimizer_options();
-
-  int graph_def_version;
-  {
-    mutex_lock l(graph_def_lock_);
-    graph_def_version =
-        execution_state_->original_graph_def().versions().producer();
+  for (const string& output : outputs_sorted) {
+    callable_options.add_fetch(output);
   }
-  func_info->proc_flr.reset(new ProcessFunctionLibraryRuntime(
-      device_mgr_.get(), options_.env, graph_def_version,
-      func_info->flib_def.get(), optimizer_opts));
-
-  GraphOptimizer optimizer(optimizer_opts);
-  for (auto iter = graphs.begin(); iter != graphs.end(); ++iter) {
-    const string& partition_name = iter->first;
-    std::unique_ptr<Graph>& partition_graph = iter->second;
-
-    Device* device;
-    TF_RETURN_IF_ERROR(device_mgr_->LookupDevice(partition_name, &device));
-
-    ek->items.resize(ek->items.size() + 1);
-    auto* item = &(ek->items.back());
-    auto lib = func_info->proc_flr->GetFLR(partition_name);
-    if (lib == nullptr) {
-      return errors::Internal("Could not find device: ", partition_name);
-    }
-    item->flib = lib;
-
-    LocalExecutorParams params;
-    params.device = device;
-    params.function_library = lib;
-    auto opseg = device->op_segment();
-    params.create_kernel = [this, lib, opseg](const NodeDef& ndef,
-                                              OpKernel** kernel) {
-      // We do not share the kernel via the OpSegment if the node is
-      // stateless, or a function.
-      // NOTE(mrry): We must not share function kernels (implemented
-      // using `CallOp`) between subgraphs, because `CallOp::handle_`
-      // is tied to a particular subgraph. Even if the function itself
-      // is stateful, the `CallOp` that invokes it is not.
-      if (!lib->IsStateful(ndef.op()) ||
-          lib->GetFunctionLibraryDefinition()->Find(ndef.op()) != nullptr) {
-        return lib->CreateKernel(ndef, kernel);
-      }
-      auto create_fn = [lib, &ndef](OpKernel** kernel) {
-        return lib->CreateKernel(ndef, kernel);
-      };
-      // Kernels created for subgraph nodes need to be cached.  On
-      // cache miss, create_fn() is invoked to create a kernel based
-      // on the function library here + global op registry.
-      return opseg->FindOrCreate(session_handle_, ndef.name(), kernel,
-                                 create_fn);
-    };
-    params.delete_kernel = [lib](OpKernel* kernel) {
-      // If the node is stateful, opseg owns it. Otherwise, delete it.
-      if (kernel && !lib->IsStateful(kernel->type_string())) {
-        delete kernel;
-      }
-    };
-    params.node_outputs_cb = node_outputs_callback_;
-
-    optimizer.Optimize(lib, options_.env, device, &iter->second,
-                       /*shape_map=*/nullptr);
-
-    // EXPERIMENTAL: tfdbg inserts debug nodes in the graph.
-    if (!options.debug_options.debug_tensor_watch_opts().empty()) {
-      TF_RETURN_IF_ERROR(DecorateAndPublishGraphForDebug(
-          options.debug_options, partition_graph.get(), params.device));
-    }
-
-    TF_RETURN_IF_ERROR(EnsureMemoryTypes(DeviceType(device->device_type()),
-                                         device->name(),
-                                         partition_graph.get()));
-    // NewLocalExecutor takes ownership of partition_graph.
-    item->graph = partition_graph.get();
-    item->executor = nullptr;
-    item->device = device;
-    Executor* executor;
-    TF_RETURN_IF_ERROR(
-        NewLocalExecutor(params, partition_graph.release(), &executor));
-    item->executor.reset(executor);
+  for (const string& target : tn_sorted) {
+    callable_options.add_target(target);
   }
-
-  // Cache the mapping from input/output names to graph elements to
-  // avoid recomputing it every time.
-  if (!run_state_args->is_partial_run) {
-    // For regular `Run()`, we use the function calling convention, and so
-    // maintain a mapping from input/output names to
-    // argument/return-value ordinal index.
-    for (size_t i = 0; i < inputs_sorted.size(); ++i) {
-      const string& input = inputs_sorted[i];
-      ek->input_name_to_index[input] = i;
-    }
-    for (size_t i = 0; i < outputs_sorted.size(); ++i) {
-      const string& output = outputs_sorted[i];
-      ek->output_name_to_index[output] = i;
-    }
-  } else {
-    // For `PRun()`, we use the rendezvous calling convention, and so
-    // maintain a mapping from input/output names to rendezvous keys.
-    //
-    // We always use the first device as the device name portion of the
-    // key, even if we're feeding another graph.
-    for (size_t i = 0; i < inputs_sorted.size(); ++i) {
-      const string& input = inputs_sorted[i];
-      ek->input_name_to_rendezvous_key[input] = GetRendezvousKey(
-          input, device_set_.client_device()->attributes(), FrameAndIter(0, 0));
-    }
-    for (size_t i = 0; i < outputs_sorted.size(); ++i) {
-      const string& output = outputs_sorted[i];
-      ek->output_name_to_rendezvous_key[output] =
-          GetRendezvousKey(output, device_set_.client_device()->attributes(),
-                           FrameAndIter(0, 0));
-    }
-  }
+  *callable_options.mutable_run_options()->mutable_debug_options() =
+      run_state_args->debug_options;
+  callable_options.mutable_run_options()
+      ->mutable_experimental()
+      ->set_collective_graph_key(run_state_args->collective_graph_key);
+  std::unique_ptr<ExecutorsAndKeys> ek;
+  std::unique_ptr<FunctionInfo> func_info;
+  TF_RETURN_IF_ERROR(
+      CreateExecutors(callable_options, &ek, &func_info, run_state_args));
 
   // Reacquire the lock, try to insert into the map.
   mutex_lock l(executor_lock_);
@@ -896,7 +983,8 @@ Status TBBSession::GetOrCreateExecutors(
 
   // Another thread may have created the entry before us, in which case we will
   // reuse the already created one.
-  auto insert_result = executors_.emplace(sorted_key, ek);
+  auto insert_result = executors_.emplace(
+      sorted_key, std::shared_ptr<ExecutorsAndKeys>(std::move(ek)));
   // Insert the value under the original key, so the fast path lookup will work
   // if the user uses the same order of inputs, outputs, and targets again.
   executors_.emplace(key, insert_result.first->second);
@@ -910,8 +998,8 @@ Status TBBSession::CreateGraphs(
     std::unordered_map<string, std::unique_ptr<Graph>>* outputs,
     std::unique_ptr<FunctionLibraryDefinition>* flib_def,
     RunStateArgs* run_state_args, DataTypeVector* input_types,
-    DataTypeVector* output_types) {
-  mutex_lock l(graph_def_lock_);
+    DataTypeVector* output_types, int64* collective_graph_key) {
+  mutex_lock l(graph_state_lock_);
   std::unique_ptr<ClientGraph> client_graph;
 
   std::unique_ptr<GraphExecutionState> temp_exec_state_holder;
@@ -934,20 +1022,21 @@ Status TBBSession::CreateGraphs(
     TF_RETURN_IF_ERROR(
         execution_state->BuildGraph(subgraph_options, &client_graph));
   }
+  *collective_graph_key = client_graph->collective_graph_key;
 
-  if (subgraph_options.feed_endpoints.size() !=
-      client_graph->feed_types.size()) {
+  if (subgraph_options.callable_options.feed_size() !=
+      static_cast<int>(client_graph->feed_types.size())) {
     return errors::Internal(
         "Graph pruning failed: requested number of feed endpoints = ",
-        subgraph_options.feed_endpoints.size(),
+        subgraph_options.callable_options.feed_size(),
         " versus number of pruned feed endpoints = ",
         client_graph->feed_types.size());
   }
-  if (subgraph_options.fetch_endpoints.size() !=
-      client_graph->fetch_types.size()) {
+  if (subgraph_options.callable_options.fetch_size() !=
+      static_cast<int>(client_graph->fetch_types.size())) {
     return errors::Internal(
         "Graph pruning failed: requested number of fetch endpoints = ",
-        subgraph_options.fetch_endpoints.size(),
+        subgraph_options.callable_options.fetch_size(),
         " versus number of pruned fetch endpoints = ",
         client_graph->fetch_types.size());
   }
@@ -1092,11 +1181,13 @@ TBBSession::RunState::RunState(
     const std::vector<string>& pending_input_names,
     const std::vector<string>& pending_output_names, int64 step_id,
     const std::vector<Device*>* devices)
-    : step_container(step_id, [devices](const string& name) {
+    : step_container(step_id, [devices, step_id](const string& name) {
         for (auto d : *devices) {
           if (!d->resource_manager()->Cleanup(name).ok()) {
             // Do nothing...
           }
+          ScopedAllocatorMgr* sam = d->GetScopedAllocatorMgr();
+          if (sam) sam->Cleanup(step_id);
         }
       }) {
   // Initially all the feeds and fetches are pending.
@@ -1132,14 +1223,15 @@ bool TBBSession::RunState::PendingDone() const {
   return true;
 }
 
-void TBBSession::WaitForNotification(tbb::task_arena& arena, tbb::task_group& taskGroup,
-    RunState* run_state, CancellationManager* cm, int64 timeout_in_ms) {
+void TBBSession::WaitForNotification(tbb::task_arena& task_arena, tbb::task_group& task_group,
+                                     RunState* run_state, CancellationManager* cm,
+                                     int64 timeout_in_ms) {
   // Doing the wait in the arena adds this thread to the arena
   // and therefore tasks associated to the group can run on this thread
-  arena.execute([&taskGroup]() { taskGroup.wait();} );
+  task_arena.execute([&task_group]() { task_group.wait();} );
 
   const Status status =
-      WaitForNotification(&run_state->executors_done, timeout_in_ms);
+      WaitForNotification(task_arena, task_group, &run_state->executors_done, timeout_in_ms);
   if (!status.ok()) {
     {
       mutex_lock l(run_state->mu_);
@@ -1153,8 +1245,12 @@ void TBBSession::WaitForNotification(tbb::task_arena& arena, tbb::task_group& ta
   }
 }
 
-::tensorflow::Status TBBSession::WaitForNotification(
-    Notification* notification, int64 timeout_in_ms) {
+::tensorflow::Status TBBSession::WaitForNotification(tbb::task_arena& task_arena,
+    tbb::task_group& task_group, Notification* notification, int64 timeout_in_ms) {
+  // Doing the wait in the arena adds this thread to the arena
+  // and therefore tasks associated to the group can run on this thread
+  task_arena.execute([&task_group]() { task_group.wait();} );
+
   if (timeout_in_ms > 0) {
     const int64 timeout_in_us = timeout_in_ms * 1000;
     const bool notified =
@@ -1167,6 +1263,149 @@ void TBBSession::WaitForNotification(tbb::task_arena& arena, tbb::task_group& ta
     notification->WaitForNotification();
   }
   return Status::OK();
+}
+
+Status TBBSession::MakeCallable(const CallableOptions& callable_options,
+                                   CallableHandle* out_handle) {
+  TF_RETURN_IF_ERROR(CheckNotClosed());
+  TF_RETURN_IF_ERROR(CheckGraphCreated("MakeCallable()"));
+
+  std::unique_ptr<ExecutorsAndKeys> ek;
+  std::unique_ptr<FunctionInfo> func_info;
+  RunStateArgs run_state_args(callable_options.run_options().debug_options());
+  TF_RETURN_IF_ERROR(
+      CreateExecutors(callable_options, &ek, &func_info, &run_state_args));
+  {
+    mutex_lock l(callables_lock_);
+    *out_handle = next_callable_handle_++;
+    callables_[*out_handle] = {std::move(ek), std::move(func_info)};
+  }
+  return Status::OK();
+}
+
+class TBBSession::RunCallableCallFrame : public CallFrameInterface {
+ public:
+  RunCallableCallFrame(TBBSession* session,
+                       ExecutorsAndKeys* executors_and_keys,
+                       const std::vector<Tensor>* feed_tensors,
+                       std::vector<Tensor>* fetch_tensors)
+      : session_(session),
+        executors_and_keys_(executors_and_keys),
+        feed_tensors_(feed_tensors),
+        fetch_tensors_(fetch_tensors) {}
+
+  size_t num_args() const override {
+    return executors_and_keys_->input_types.size();
+  }
+  size_t num_retvals() const override {
+    return executors_and_keys_->output_types.size();
+  }
+
+  Status GetArg(int index, Tensor* val) const override {
+    if (index > static_cast<int>(feed_tensors_->size())) {
+      return errors::Internal("Args index out of bounds: ", index);
+    } else if (executors_and_keys_->input_types[index] == DT_RESOURCE) {
+      TF_RETURN_IF_ERROR(
+          session_->ResourceHandleToInputTensor((*feed_tensors_)[index], val));
+    } else {
+      *val = (*feed_tensors_)[index];
+    }
+    return Status::OK();
+  }
+
+  Status SetRetval(int index, const Tensor& val) override {
+    if (index > static_cast<int>(fetch_tensors_->size())) {
+      return errors::Internal("RetVal index out of bounds: ", index);
+    }
+    (*fetch_tensors_)[index] = val;
+    return Status::OK();
+  }
+
+ private:
+  TBBSession* const session_;                   // Not owned.
+  ExecutorsAndKeys* const executors_and_keys_;     // Not owned.
+  const std::vector<Tensor>* const feed_tensors_;  // Not owned.
+  std::vector<Tensor>* const fetch_tensors_;       // Not owned.
+};
+
+::tensorflow::Status TBBSession::RunCallable(
+    CallableHandle handle, const std::vector<Tensor>& feed_tensors,
+    std::vector<Tensor>* fetch_tensors, RunMetadata* run_metadata) {
+  TF_RETURN_IF_ERROR(CheckNotClosed());
+  TF_RETURN_IF_ERROR(CheckGraphCreated("RunCallable()"));
+  tbb_session_runs->GetCell()->IncrementBy(1);
+
+  // Check if we already have an executor for these arguments.
+  std::shared_ptr<ExecutorsAndKeys> executors_and_keys;
+  const int64 step_id = step_id_counter_.fetch_add(1);
+
+  {
+    tf_shared_lock l(callables_lock_);
+    if (handle >= next_callable_handle_) {
+      return errors::InvalidArgument("No such callable handle: ", handle);
+    }
+    executors_and_keys = callables_[handle].executors_and_keys;
+  }
+
+  if (!executors_and_keys) {
+    return errors::InvalidArgument(
+        "Attempted to run callable after handle was released: ", handle);
+  }
+
+  // NOTE(mrry): Debug options are not currently supported in the
+  // callable interface.
+  DebugOptions debug_options;
+  RunStateArgs run_state_args(debug_options);
+
+  // Configure a call frame for the step, which we use to feed and
+  // fetch values to and from the executors.
+  if (feed_tensors.size() != executors_and_keys->input_types.size()) {
+    return errors::InvalidArgument(
+        "Expected ", executors_and_keys->input_types.size(),
+        " feed tensors, but got ", feed_tensors.size());
+  }
+  if (fetch_tensors != nullptr) {
+    fetch_tensors->resize(executors_and_keys->output_types.size());
+  } else if (!executors_and_keys->output_types.empty()) {
+    return errors::InvalidArgument(
+        "`fetch_tensors` must be provided when the callable has one or more "
+        "outputs.");
+  }
+
+  // A specialized CallFrame implementation that takes advantage of the
+  // optimized RunCallable interface.
+
+  RunCallableCallFrame call_frame(this, executors_and_keys.get(), &feed_tensors,
+                                  fetch_tensors);
+
+  if (LogMemory::IsEnabled()) {
+    LogMemory::RecordStep(step_id, run_state_args.handle);
+  }
+
+  TF_RETURN_IF_ERROR(
+      RunInternal(step_id, executors_and_keys->callable_options.run_options(),
+                  &call_frame, executors_and_keys.get(), run_metadata));
+
+  return Status::OK();
+}
+
+::tensorflow::Status TBBSession::ReleaseCallable(CallableHandle handle) {
+  mutex_lock l(callables_lock_);
+  if (handle >= next_callable_handle_) {
+    return errors::InvalidArgument("No such callable handle: ", handle);
+  }
+  callables_.erase(handle);
+  return Status::OK();
+}
+
+TBBSession::Callable::~Callable() {
+  // We must delete the fields in this order, because the destructor
+  // of `executors_and_keys` will call into an object owned by
+  // `function_info` (in particular, when deleting a kernel, it relies
+  // on the `FunctionLibraryRuntime` to know if the kernel is stateful
+  // or not).
+  executors_and_keys.reset();
+  function_info.reset();
 }
 
 }  // namespace tensorflow
