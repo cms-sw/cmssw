@@ -167,8 +167,13 @@ class string(_SimpleParameterTypeBase):
     @staticmethod
     def formatValueForConfig(value):
         l = len(value)
-        t=codecs.escape_encode(value.encode('utf-8'))
-        value = t[0].decode('utf-8')
+        import sys
+        if sys.version_info >= (3, 0): #python2 and python3 are different due to byptes vs strings
+            import codecs
+            t=codecs.escape_encode(value.encode('utf-8'))
+            value = t[0].decode('utf-8')
+        else: #be conservative and don't change the python2 version
+            value = value.encode("string-escape")
         newL = len(value)
         if l != newL:
             #get rid of the hex encoding
