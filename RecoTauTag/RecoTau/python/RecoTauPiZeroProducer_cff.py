@@ -3,17 +3,16 @@ import FWCore.ParameterSet.Config as cms
 import RecoTauTag.RecoTau.RecoTauPiZeroBuilderPlugins_cfi as builders
 import RecoTauTag.RecoTau.RecoTauPiZeroQualityPlugins_cfi as ranking
 from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
+from RecoTauTag.RecoTau.recoTauPiZeroProducer_cfi import recoTauPiZeroProducer
+
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 
 
-from RecoTauTag.RecoTau.ak4PFJetsLegacyHPSPiZerosDefault_cfi import ak4PFJetsLegacyHPSPiZerosDefault
-ak4PFJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZerosDefault.clone(
+ak4PFJetsLegacyHPSPiZeros = recoTauPiZeroProducer.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
     builders = cms.VPSet(
-        #builders.strips
-        #builders.modStrips
         builders.modStrips2
     ),
     ranking = cms.VPSet(
@@ -23,13 +22,11 @@ ak4PFJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZerosDefault.clone(
 phase2_common.toModify(ak4PFJetsLegacyHPSPiZeros, 
                        builders = cms.VPSet(builders.modStrips) )
 
-from RecoTauTag.RecoTau.ak4PFJetsRecoTauGreedyPiZerosDefault_cfi import ak4PFJetsRecoTauGreedyPiZerosDefault
-#ak4PFJetsRecoTauGreedyPiZeros = ak4PFJetsLegacyHPSPiZerosDefault.clone(
-ak4PFJetsRecoTauGreedyPiZeros = ak4PFJetsRecoTauGreedyPiZerosDefault.clone( 
+
+ak4PFJetsRecoTauGreedyPiZeros = recoTauPiZeroProducer.clone( 
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
-    massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
         builders.comboStrips
@@ -39,18 +36,14 @@ ak4PFJetsRecoTauGreedyPiZeros = ak4PFJetsRecoTauGreedyPiZerosDefault.clone(
     ),
 )
 
-from RecoTauTag.RecoTau.ak4PFJetsRecoTauPiZerosDefault_cfi import ak4PFJetsRecoTauPiZerosDefault
-#ak4PFJetsRecoTauPiZeros = ak4PFJetsLegacyHPSPiZerosDefault.clone(
-ak4PFJetsRecoTauPiZeros = ak4PFJetsRecoTauPiZerosDefault.clone(
+
+ak4PFJetsRecoTauPiZeros = recoTauPiZeroProducer.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
-    massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
         builders.combinatoricPhotonPairs,
-        #builders.strips
-        #builders.modStrips
         builders.modStrips2
     ),
     ranking = cms.VPSet(
@@ -60,9 +53,8 @@ ak4PFJetsRecoTauPiZeros = ak4PFJetsRecoTauPiZerosDefault.clone(
     ),
 )
 
-from RecoTauTag.RecoTau.ak4PFJetsLegacyTaNCPiZerosDefault_cfi import ak4PFJetsLegacyTaNCPiZerosDefault
-# ak4PFJetsLegacyTaNCPiZeros = ak4PFJetsLegacyHPSPiZerosDefault.clone(
-ak4PFJetsLegacyTaNCPiZeros = ak4PFJetsLegacyTaNCPiZerosDefault.clone(
+
+ak4PFJetsLegacyTaNCPiZeros = recoTauPiZeroProducer.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
