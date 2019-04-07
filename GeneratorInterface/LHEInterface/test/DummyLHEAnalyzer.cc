@@ -17,11 +17,11 @@ using namespace lhef;
 
 class DummyLHEAnalyzer : public EDAnalyzer {
 private: 
-  bool dumpLHE_;
-  bool checkPDG_;
+  bool dumpEvent_;
   bool dumpHeader_;
 public:
   explicit DummyLHEAnalyzer( const ParameterSet & cfg ) :
+    dumpEvent_( cfg.getUntrackedParameter<bool>("dumpEvent",true) ),
     dumpHeader_( cfg.getUntrackedParameter<bool>("dumpHeader",false) ),
     tokenLHERunInfo_(consumes<LHERunInfoProduct,edm::InRun>(cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")) ) ),
     tokenLHEEvent_(consumes<LHEEventProduct>(cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")) ) )
@@ -39,6 +39,7 @@ private:
     const std::vector<int> idup_ = hepeup_.IDUP;
     const std::vector<lhef::HEPEUP::FiveVector> pup_ = hepeup_.PUP;
 
+    if ( !dumpEvent_ ) { return; }
     std::cout << "Number of particles = " << nup_ << std::endl;
 
     if ( evt->pdf() != NULL ) {
