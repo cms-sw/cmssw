@@ -48,7 +48,7 @@ public:
      fcPerMip_(ps.getParameter<std::vector<double> >("fcPerMip")),
      fcPerEle_(ps.getParameter<double>("fcPerEle")),
      nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double> >("values")),
-     noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("value")),
+     noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
      initialized_(false),
      points_(2*(maxlayer+1)),
      minpos_(2*(maxlayer+1),{ {0.0f,0.0f} }),
