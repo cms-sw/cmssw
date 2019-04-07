@@ -1,3 +1,4 @@
+
 # simple test for the BunchCrossingFilter
 
 # colliding bunches in run 317435, fill 6759, scheme 25ns_2556b_2544_2215_2332_144bpi_20injV2:
@@ -23,8 +24,10 @@
 # (see https://lpc.web.cern.ch/fillingSchemes/2018/25ns_2556b_2544_2215_2332_144bpi_20injV2.csv)
 
 import FWCore.ParameterSet.Config as cms
-from FWCore.ParameterSet.pfnInPath import *
+from test.ParameterSet.pfnInPath import *
 
+
+#process = cms.Process('BunchCrossingFilter')
 process = cms.Process('TEST')
 
 process.maxEvents = cms.untracked.PSet(
@@ -39,10 +42,16 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # input data
 process.source = cms.Source('PoolSource',
-    fileNames = cms.untracked.pfnInPaths('FWCore/Modules/data/rawData_empty_CMSSW_10_2_0.root')
+    fileNames = cms.untracked.pfnInPaths('/eos/user/m/moanwar/highpu_dataset/56B0D026-39AB-0443-A4AA-0CCB3381AD10.root')
 )
 
 from FWCore.Modules.bunchCrossingFilter_cfi import bunchCrossingFilter as _bunchCrossingFilter
+
+
+#process.TFileService = cms.Service("TFileService",
+#                                       fileName = cms.string('/eos/user/m/moanwar/highpu_dataset/histodemo.root')
+#                                   )
+
 
 # empty input, do not select any bunch crossings
 process.selectNone = _bunchCrossingFilter.clone(
@@ -51,17 +60,19 @@ process.selectNone = _bunchCrossingFilter.clone(
 
 # full range of possible bunch crossings [1,3564]
 process.selectAll = _bunchCrossingFilter.clone(
-   bunches = cms.vuint32(range(1,3565))
+   #bunches = cms.vuint32(range(1646,1651))
+   bunches = cms.vuint32(range(757,759))
 )
 
 # select bx 536
 process.selectSingle = _bunchCrossingFilter.clone(
-   bunches = cms.vuint32(536)
+   bunches = cms.vuint32(755)
 )
 
 # select the whole train 514-561
 process.selectTrain = _bunchCrossingFilter.clone(
-   bunches = cms.vuint32(range(514,562))
+    bunches = cms.vuint32(range(1646,1651)) 
+   #bunches = cms.vuint32(range(757,759))
 )
 
 # inverted to veto (non-colliding) bx 1
@@ -76,4 +87,21 @@ process.SelectTrain       = cms.Path( process.selectTrain )
 process.VetoEmpty         = cms.Path( ~ process.selectEmpty )
 process.VetoSingle        = cms.Path( ~ process.selectSingle )
 process.VetoTrain         = cms.Path( ~ process.selectTrain )
-process.SelectTrainButOne = cms.Path( process.selectTrain * ~ process.selectSingle )
+process.SelectTrainButOne = cms.Path( process.selectTrain *  process.selectSingle * process.selectAll)
+
+#process.p = cms.Path(process.hltHighLevel)
+
+process.out = cms.OutputModule( "PoolOutputModule",
+                                fileName = cms.untracked.string(
+        "/eos/user/m/moanwar/highpu_dataset/histodemo.root" ),
+                                outputCommands = cms.untracked.vstring( 'keep *' ), #this keeps the full event content of your input files                                                                 
+                                SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('SelectTrain','SelectSingle','SelectAll')
+        )
+                                )
+process.end = cms.EndPath( process.out )
+
+
+
+
+
