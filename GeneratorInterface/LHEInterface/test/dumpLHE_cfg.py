@@ -12,6 +12,7 @@ process.source = cms.Source("PoolSource",
 
 process.dummy = cms.EDAnalyzer("DummyLHEAnalyzer",
     moduleLabel = cms.untracked.InputTag("externalLHEProducer"),
+    dumpEvent = cms.untracked.bool(True),
     dumpHeader = cms.untracked.bool(True)
 )
 
