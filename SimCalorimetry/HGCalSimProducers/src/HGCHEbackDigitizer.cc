@@ -27,7 +27,7 @@ std::map<int, HGCHEbackSignalScaler::DoseParameters> HGCHEbackSignalScaler::read
   std::map<int, DoseParameters> result;
 
   //no dose file means no aging
-  if(fullpath == "")
+  if(fullpath.empty())
     return result;
 
   edm::FileInPath fp(fullpath);
