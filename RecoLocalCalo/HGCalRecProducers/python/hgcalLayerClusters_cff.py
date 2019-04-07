@@ -16,4 +16,4 @@ hgcalLayerClusters.plugin.fcPerMip = cms.vdouble(HGCalUncalibRecHit.HGCEEConfig.
 hgcalLayerClusters.plugin.thicknessCorrection = cms.vdouble(HGCalRecHit.thicknessCorrection)
 hgcalLayerClusters.plugin.fcPerEle = cms.double(fC_per_ele)
 hgcalLayerClusters.plugin.noises = cms.PSet(refToPSet_ = cms.string('HGCAL_noises'))
-hgcalLayerClusters.plugin.noiseMip = hgchebackDigitizer.digiCfg.noise_MIP
+hgcalLayerClusters.plugin.noiseMip = hgchebackDigitizer.digiCfg.noise

@@ -52,7 +52,7 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
     hgcEE_cce_ = ps.getParameter<edm::ParameterSet>("HGCEE_cce").getParameter< std::vector<double> > ("values");
     hgcHEF_noise_fC_ = ps.getParameter<edm::ParameterSet>("HGCHEF_noise_fC").getParameter < std::vector<double> > ("values");
     hgcHEF_cce_ = ps.getParameter<edm::ParameterSet>("HGCHEF_cce").getParameter< std::vector<double> > ("values");
-    hgcHEB_noise_MIP_ = ps.getParameter<edm::ParameterSet>("HGCHEB_noise_MIP").getParameter<double>("value");
+    hgcHEB_noise_MIP_ = ps.getParameter<edm::ParameterSet>("HGCHEB_noise_MIP").getParameter<double>("noise_MIP");
 
     // don't produce rechit if detid is a ghost one
     rangeMatch_ = ps.getParameter<uint32_t>("rangeMatch");
