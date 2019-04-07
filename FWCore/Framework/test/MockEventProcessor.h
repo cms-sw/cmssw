@@ -78,7 +78,7 @@ namespace edm {
 
     void setExceptionMessageFiles(std::string& message);
     void setExceptionMessageRuns(std::string& message);
-    void setExceptionMessageLumis(std::string& message);
+    void setExceptionMessageLumis();
 
 
     bool setDeferredException(std::exception_ptr);
