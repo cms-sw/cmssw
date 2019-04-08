@@ -55,4 +55,8 @@ process.test = cms.EDAnalyzer("DDCMSDetector",
                               DDDetector = cms.ESInputTag('MTD')
                               )
 
-process.p = cms.Path(process.test)
+process.dump = cms.EDAnalyzer("DDTestDumpFile",
+                              DDDetector = cms.ESInputTag('MTD')
+)
+
+process.p = cms.Path(process.test+process.dump)
