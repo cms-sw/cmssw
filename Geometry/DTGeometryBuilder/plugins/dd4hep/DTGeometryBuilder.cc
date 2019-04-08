@@ -29,27 +29,20 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
-#include "DetectorDescription/DDCMS/interface/MuonNumbering.h"
-#include "DetectorDescription/DDCMS/interface/MuonNumberingRcd.h"
-#include "DetectorDescription/DDCMS/interface/MuonGeometryRcd.h"
-#include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
+#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
+#include "Geometry/Records/interface/MuonNumberingRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRcd.h"
+#include "Geometry/Records/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "DetectorDescription/RecoGeometry/interface/DTNumberingScheme.h"
-#include "DetectorDescription/RecoGeometry/interface/DTGeometryBuilder.h"
+#include "Geometry/MuonNumbering/interface/DD4hep_DTNumberingScheme.h"
+#include "DTGeometryBuilder.h"
 #include "DD4hep/Detector.h"
-#include "DD4hep/DetectorTools.h"
-#include "DD4hep/VolumeProcessor.h"
-#include "TGeoManager.h"
-#include "TClass.h"
 
 #include <memory>
-#include <iostream>
-#include <iterator>
 #include <string>
 #include <string_view>
-#include <regex>
 
 using namespace edm;
 using namespace std;
@@ -109,10 +102,7 @@ DTGeometryBuilder::plane(const DDFilteredView& fview,
 DTChamber*
 DTGeometryBuilder::buildChamber(const DDFilteredView& fview,
 				const MuonNumbering& muonConstants) const {
-  MuonConstants cons = muonConstants.values;
-  DTNumberingScheme dtnum(cons);
-  
-  int rawid = dtnum.getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
+  int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
   DTChamberId detId(rawid);
   auto const& par = fview.extractParameters();
   // par[0] r-phi  dimension - different in different chambers
@@ -130,10 +120,7 @@ DTSuperLayer*
 DTGeometryBuilder::buildSuperLayer(const DDFilteredView& fview,
 				   DTChamber* chamber,
 				   const MuonNumbering& muonConstants) const {
-  MuonConstants cons = muonConstants.values;
-  DTNumberingScheme dtnum(cons);
-
-  int rawid = dtnum.getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
+  int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
   DTSuperLayerId slId(rawid);
   
   auto const& par = fview.extractParameters();
@@ -156,10 +143,7 @@ DTLayer*
 DTGeometryBuilder::buildLayer(DDFilteredView& fview,
 			      DTSuperLayer* sl,
 			      const MuonNumbering& muonConstants) const {
-  MuonConstants cons = muonConstants.values;
-  DTNumberingScheme dtnum(cons);
-
-  int rawid = dtnum.getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
+  int rawid = dtnum_->getDetId(muonConstants.geoHistoryToBaseNumber(fview.history()));
   DTLayerId layId(rawid);
   
   auto const& par = fview.extractParameters();
@@ -195,12 +179,12 @@ DTGeometryBuilder::buildLayer(DDFilteredView& fview,
 
 void
 DTGeometryBuilder::build(DTGeometry& geom,
-			 const cms::DDDetector* det,
+			 const DDDetector* det,
 			 const MuonNumbering& num,
 			 const DDSpecParRefs& refs) {
-
-  dd4hep::DetElement world = det->description()->world();
-  DDFilteredView fview(det, world.volume());
+  Volume top = det->worldVolume();
+  DDFilteredView fview(det, top);
   fview.mergedSpecifics(refs);
+  dtnum_ = make_unique<DTNumberingScheme>(num.values());
   buildGeometry(fview, geom, num);
 }

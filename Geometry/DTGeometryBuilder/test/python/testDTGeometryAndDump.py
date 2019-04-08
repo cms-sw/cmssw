@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DTGeometryTest")
-
+process.add_(cms.Service("InitRootHandlers", ResetRootErrHandler = cms.untracked.bool(False)))
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -9,13 +9,13 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service(
     "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'dtGeometry'),
+    statistics = cms.untracked.vstring('cout', 'dumpGeometry'),
     categories = cms.untracked.vstring('Geometry'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
         ),
-    dtGeometry = cms.untracked.PSet(
+    dumpGeometry = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
             ),
@@ -35,7 +35,7 @@ process.MessageLogger = cms.Service(
             )
         ),
     destinations = cms.untracked.vstring('cout',
-                                         'dtGeometry')
+                                         'dumpGeometry')
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
@@ -66,16 +66,8 @@ process.test = cms.EDAnalyzer("DTGeometryTest",
                               DDDetector = cms.ESInputTag('MUON')
                               )
 
-process.FWTGeoRecoGeometryESProducer = cms.ESProducer("FWTGeoRecoGeometryESProducer",
-                                                  Tracker = cms.untracked.bool(False),
-                                                  Muon = cms.untracked.bool(True),
-                                                  Calo = cms.untracked.bool(False),
-                                                  Timing = cms.untracked.bool(False))
-
-process.dump = cms.EDAnalyzer("DumpFWRecoGeometry",
-                              level   = cms.untracked.int32(1),
-                              tagInfo = cms.untracked.string('DT'),
-                              outputFileName = cms.untracked.string('cmsRecoGeom')
+process.dump = cms.EDAnalyzer("DDTestDumpGeometry",
+                              DDDetector = cms.ESInputTag('MUON')
                               )
 
 process.p = cms.Path(process.test+process.dump)

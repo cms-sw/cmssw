@@ -23,9 +23,9 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/DDCMS/interface/MuonNumberingRcd.h"
-#include "DetectorDescription/DDCMS/interface/MuonNumbering.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistryRcd.h"
+#include "Geometry/Records/interface/MuonNumberingRcd.h"
+#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
+#include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 
 using namespace std;
@@ -71,7 +71,7 @@ MuonNumberingESProducer::produce(const MuonNumberingRcd& iRecord)
       if(l.first == "OnlyForMuonNumbering") {
 	for(const auto& k : it->second.numpars) {
 	  for(const auto& ik : k.second) {
-	    product->values.emplace(k.first, static_cast<int>(ik)); 
+	    product->put(k.first, static_cast<int>(ik));//values.emplace(k.first, static_cast<int>(ik)); 
 	  }
 	}
       }
