@@ -98,6 +98,12 @@ premix_stage2.toModify(theDigitizers,
 (premix_stage2 & phase2_hfnose).toModify(theDigitizers,
     hfnoseDigitizer = dict(premixStage1 = True),
 )
+(premix_stage2 & (phase2_timing_layer_tile | phase2_timing_layer_bar)).toModify(theDigitizers,
+    fastTimingLayer = dict(
+        barrelDigitizer = dict(premixStage1 = True),
+        endcapDigitizer = dict(premixStage1 = True)
+    )
+)
 
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
