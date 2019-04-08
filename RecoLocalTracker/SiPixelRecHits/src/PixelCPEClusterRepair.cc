@@ -138,7 +138,7 @@ void PixelCPEClusterRepair::fill2DTemplIDs()
 
       p.detTemplateId2D = templateDBobject2D_->getTemplateID(p.theDet->geographicalId());
       if(p.detTemplateId != p.detTemplateId2D && !printed_info){
-          edm::LogInfo("PixelCPEClusterRepair") << "different template ID between 1D and 2D " << p.detTemplateId << " " << p.detTemplateId2D << endl;
+          edm::LogWarning("PixelCPEClusterRepair") << "different template ID between 1D and 2D " << p.detTemplateId << " " << p.detTemplateId2D << endl;
           printed_info = true;
       }
    }
