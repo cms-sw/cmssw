@@ -50,7 +50,8 @@ void go() {
     assert(h4.size()==N);
 
     auto verify = [&](uint32_t i, uint32_t j, uint32_t k, uint32_t t1, uint32_t t2) {
-      assert(t1<N); assert(t2<N);
+      assert((int32_t) t1 < N);
+      assert((int32_t) t2 < N);
       if (i!=j && T(v[t1]-v[t2])<=0) std::cout << "for " << i <<':'<< v[k] <<" failed " << v[t1] << ' ' << v[t2] << std::endl;
     };
 

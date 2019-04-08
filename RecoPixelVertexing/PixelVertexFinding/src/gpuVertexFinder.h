@@ -47,8 +47,8 @@ namespace gpuVertexFinder {
   struct OnCPU {
     OnCPU() = default;
 
-    std::vector<float,    CUDAHostAllocator<float>> z,zerr, chi2;
-    std::vector<int16_t, CUDAHostAllocator<uint16_t>> sortInd;
+    std::vector<float,   CUDAHostAllocator<float>> z,zerr, chi2;
+    std::vector<int16_t, CUDAHostAllocator<int16_t>> sortInd;
     std::vector<int32_t, CUDAHostAllocator<int32_t>> ivtx;
     std::vector<uint16_t, CUDAHostAllocator<uint16_t>> itrk;
 
