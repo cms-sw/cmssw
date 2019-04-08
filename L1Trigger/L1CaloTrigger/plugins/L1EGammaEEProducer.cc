@@ -85,7 +85,7 @@ void L1EGammaEEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
          l1t::EGamma eg=l1t::EGamma(reco::Candidate::PolarLorentzVector(cl3d->pt()/calib_factor, cl3d->eta(), cl3d->phi(), 0.));
          eg.setHwQual(hw_quality);
          eg.setHwIso(1);
-         eg.setIsoEt(-1); // just temporarily as a dummy value 
+         eg.setIsoEt(-1); // just temporarily as a dummy value
          l1EgammaBxCollection->push_back(0,eg);
          if (hw_quality == 2) {
            selected_multiclusters.push_back(&(*cl3d));
@@ -110,7 +110,13 @@ void L1EGammaEEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::set<const l1t::HGCalMulticluster *> used_clusters;
   for(auto cl3d : selected_multiclusters) {
     if(used_clusters.find(cl3d) == used_clusters.end()) {
-      reco::Candidate::LorentzVector mom = cl3d->p4();
+      // reco::Candidate::LorentzVector mom = cl3d->p4();
+      float pt = cl3d->pt();
+      // we drop the Had component of the energy
+      if(cl3d->hOverE() != -1) pt = cl3d->pt()/(1+cl3d->hOverE());
+      reco::Candidate::PolarLorentzVector mom(pt, cl3d->eta(), cl3d->phi(), 0.);
+      // cl3d->pt()/(1+cl3d->hOverE())
+
       // this is not yet used
       used_clusters.insert(cl3d);
       auto eta_phi_bin = get_eta_phi_bin(cl3d);
@@ -134,7 +140,9 @@ void L1EGammaEEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
                     //           << " eta: " << other_cl_ptr->eta()
                     //           << " phi: " << other_cl_ptr->phi()
                     //           <<  std::endl;
-                    mom+=other_cl_ptr->p4();
+                    float pt_other = other_cl_ptr->pt();
+                    if(other_cl_ptr->hOverE() != -1) pt_other = other_cl_ptr->pt()/(1+other_cl_ptr->hOverE());
+                    mom+=reco::Candidate::PolarLorentzVector(pt_other, other_cl_ptr->eta(), other_cl_ptr->phi(), 0.);
                     used_clusters.insert(other_cl_ptr);
                   }
                 }
