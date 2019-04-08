@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
+#include "Geometry/Records/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 #include "DD4hep/DD4hepRootPersistency.h"
