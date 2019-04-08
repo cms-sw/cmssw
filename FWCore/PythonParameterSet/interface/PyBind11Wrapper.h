@@ -1,5 +1,5 @@
-#ifndef FWCore_PyDevParameterSet_PyBind11Wrapper_h
-#define FWCore_PyDevParameterSet_PyBind11Wrapper_h
+#ifndef FWCore_PyBind11ParameterSet_PyBind11Wrapper_h
+#define FWCore_PyBind11ParameterSet_PyBind11Wrapper_h
 
 #include <vector>
 #include <string>
@@ -7,7 +7,7 @@
 #include <pybind11/stl.h>
 #include <iostream>
 
-namespace cmspython3 {
+namespace edm {
 void
   pythonToCppException(const std::string& iType, const std::string& error);
 

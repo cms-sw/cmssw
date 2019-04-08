@@ -1,9 +1,9 @@
-#ifndef FWCore_PythonParameterSet_PythonParameterSet_h
-#define FWCore_PythonParameterSet_PythonParameterSet_h
+#ifndef FWCore_PyBind11ParameterSet_Python11ParameterSet_h
+#define FWCore_PyBind11ParameterSet_Python11ParameterSet_h
+#include <pybind11/pybind11.h>
 
-#include "FWCore/PythonParameterSet/interface/BoostPython.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PythonParameterSet/src/PythonWrapper.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11Wrapper.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
@@ -16,11 +16,11 @@
 #include <string>
 #include <vector>
 
-class PythonParameterSet {
+class Python11ParameterSet {
 public:
-  PythonParameterSet();
+  Python11ParameterSet();
 
-  PythonParameterSet(edm::ParameterSet const& p)
+  Python11ParameterSet(edm::ParameterSet const& p)
   : theParameterSet(p) {}
 
   template<typename T>
@@ -49,17 +49,17 @@ public:
 
   /// templated on the type of the contained object
   template<typename T>
-  boost::python::list
+  pybind11::list
   getParameters(bool tracked, std::string const& name) const {
     std::vector<T> v = getParameter<std::vector<T> >(tracked, name);
-    return edm::toPythonList(v);
+    return edm::toPython11List(v);
   }
 
   /// unfortunate side effect: destroys the original list!
   template<typename T>
   void
   addParameters(bool tracked, std::string const& name,
-                boost::python::list  value) {
+                pybind11::list  value) {
     std::vector<T> v = edm::toVector<T>(value);
     addParameter(tracked, name, v);
   }
@@ -69,20 +69,20 @@ public:
   /// to wrap, compared to, say, InputTag
   /// maybe we will need to template these someday
   void addPSet(bool tracked, std::string const& name,
-               PythonParameterSet const& ppset) {
+               Python11ParameterSet const& ppset) {
     addParameter(tracked, name, ppset.theParameterSet);
   }
 
 
-  PythonParameterSet getPSet(bool tracked, std::string const& name) const {
-    return PythonParameterSet(getParameter<edm::ParameterSet>(tracked, name));
+  Python11ParameterSet getPSet(bool tracked, std::string const& name) const {
+    return Python11ParameterSet(getParameter<edm::ParameterSet>(tracked, name));
   }
 
 
   void addVPSet(bool tracked, std::string const& name,
-                boost::python::list  value);
+                pybind11::list  value);
 
-  boost::python::list getVPSet(bool tracked, std::string const& name);
+  pybind11::list getVPSet(bool tracked, std::string const& name);
 
   // no way to interface straight into the other python InputTag
   edm::InputTag newInputTag(std::string const& label,
@@ -116,7 +116,7 @@ public:
 
   void addNewFileInPath(bool tracked, std::string const& name, std::string const& value);
 
-  PythonParameterSet newPSet() const {return PythonParameterSet();}
+  Python11ParameterSet newPSet() const {return Python11ParameterSet();}
 
   edm::ParameterSet& pset() {return theParameterSet;}
 
