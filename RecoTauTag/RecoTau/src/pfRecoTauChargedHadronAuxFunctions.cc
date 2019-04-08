@@ -14,11 +14,11 @@ const reco::Track* getTrackFromChargedHadron(const reco::PFRecoTauChargedHadron&
     return chargedHadron.getTrack().get();
   }
   // In MiniAOD, even isolated tracks are saved as candidates, so the track Ptr doesn't exist
-  const pat::PackedCandidate* chargedPFPCand = dynamic_cast<const pat::PackedCandidate*> (&*chargedHadron.getChargedPFCandidate());
+  const pat::PackedCandidate* chargedPFPCand = dynamic_cast<const pat::PackedCandidate*> (chargedHadron.getChargedPFCandidate().get());
   if (chargedPFPCand != nullptr) {
     return chargedPFPCand->bestTrack();
   }
-  const pat::PackedCandidate* lostTrackCand = dynamic_cast<const pat::PackedCandidate*> (&*chargedHadron.getLostTrackCandidate());
+  const pat::PackedCandidate* lostTrackCand = dynamic_cast<const pat::PackedCandidate*> (chargedHadron.getLostTrackCandidate().get());
   if (lostTrackCand != nullptr) {
     return lostTrackCand->bestTrack();
   }
