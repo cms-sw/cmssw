@@ -36,17 +36,17 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
-#include "DetectorDescription/DDCMS/interface/MuonNumbering.h"
-#include "DetectorDescription/DDCMS/interface/MuonNumberingRcd.h"
-#include "DetectorDescription/DDCMS/interface/MuonGeometryRcd.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistryRcd.h"
+#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
+#include "Geometry/Records/interface/MuonNumberingRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRcd.h"
+#include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
+#include "Geometry/Records/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
-#include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "DetectorDescription/RecoGeometry/interface/DTGeometryBuilder.h"
+#include "DTGeometryBuilder.h"
 
 #include <memory>
 #include <iostream>
@@ -195,7 +195,3 @@ DTGeometryESProducer::setupDBGeometry( const DTRecoGeometryRcd& record,
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(DTGeometryESProducer);
-
-#include "DetectorDescription/DDCMS/interface/MuonGeometryRcd.h"
-#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
-EVENTSETUP_RECORD_REG(MuonGeometryRcd);

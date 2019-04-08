@@ -4,6 +4,7 @@
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+#include "Geometry/MuonNumbering/interface/DD4hep_DTNumberingScheme.h"
 
 namespace dd4hep {
   class Detector;
@@ -18,7 +19,7 @@ namespace cms {
 
   class DDDetector;
   class DDFilteredView;
-  struct MuonNumbering;
+  class MuonNumbering;
   struct DDSpecPar;
   
   class DTGeometryBuilder {
@@ -55,6 +56,8 @@ namespace cms {
 
     RCPPlane plane(const DDFilteredView&,
 		   Bounds* bounds) const;
+
+    std::unique_ptr<cms::DTNumberingScheme> dtnum_ = nullptr;
   };
 }
 
