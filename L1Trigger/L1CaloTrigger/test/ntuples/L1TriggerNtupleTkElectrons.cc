@@ -16,6 +16,7 @@ class L1TriggerNtupleTkElectrons : public HGCalTriggerNtupleBase
   private:
     void clear() final;
     // HGCalTriggerTools triggerTools_;
+    std::string branch_name_prefix_;
 
     edm::EDGetToken tkEle_token_;
 
@@ -44,14 +45,15 @@ L1TriggerNtupleTkElectrons::
 initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& collector)
 {
   tkEle_token_ = collector.consumes<l1t::L1TkElectronParticleCollection>(conf.getParameter<edm::InputTag>("TkElectrons"));
+  branch_name_prefix_ = conf.getUntrackedParameter<std::string>("BranchNamePrefix", "tkEle");
 
-  tree.Branch("tkEle_n",      &tkEle_n_, "tkEle_n/I");
-  tree.Branch("tkEle_pt",     &tkEle_pt_);
-  tree.Branch("tkEle_energy", &tkEle_energy_);
-  tree.Branch("tkEle_eta",    &tkEle_eta_);
-  tree.Branch("tkEle_phi",    &tkEle_phi_);
-  tree.Branch("tkEle_hwQual", &tkEle_hwQual_);
-  tree.Branch("tkEle_tkIso", &tkEle_tkIso_);
+  tree.Branch((branch_name_prefix_+"_n").c_str(),      &tkEle_n_, (branch_name_prefix_+"_n/I").c_str());
+  tree.Branch((branch_name_prefix_+"_pt").c_str(),     &tkEle_pt_);
+  tree.Branch((branch_name_prefix_+"_energy").c_str(), &tkEle_energy_);
+  tree.Branch((branch_name_prefix_+"_eta").c_str(),    &tkEle_eta_);
+  tree.Branch((branch_name_prefix_+"_phi").c_str(),    &tkEle_phi_);
+  tree.Branch((branch_name_prefix_+"_hwQual").c_str(), &tkEle_hwQual_);
+  tree.Branch((branch_name_prefix_+"_tkIso").c_str(), &tkEle_tkIso_);
 
 }
 
