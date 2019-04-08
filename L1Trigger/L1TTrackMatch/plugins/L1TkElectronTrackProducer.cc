@@ -2,8 +2,8 @@
 //
 // Package:    L1TrackTrigger
 // Class:      L1TkElectronTrackMatchAlgo
-// 
-/**\class L1TkElectronTrackMatchAlgo 
+//
+/**\class L1TkElectronTrackMatchAlgo
 
  Description: Producer of a L1TkElectronParticle, for the algorithm matching a L1Track to the L1EG object
 
@@ -41,7 +41,7 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // Matching Algorithm
@@ -89,27 +89,32 @@ class L1TkElectronTrackProducer : public edm::EDProducer {
 
       // ----------member data ---------------------------
 	std::string label;
-         
+
 	float ETmin; 	// min ET in GeV of L1EG objects
 
 	float DRmin;
 	float DRmax;
 	float PTMINTRA;
+  float maxChi2IsoTracks;
+  unsigned int minNStubsIsoTracks;
+
 	bool PrimaryVtxConstrain;	// use the primary vertex (default = false)
-	float DeltaZ;      	// | z_track - z_ref_track | < DeltaZ in cm. 
+	float DeltaZ;      	// | z_track - z_ref_track | < DeltaZ in cm.
 				// Used only when PrimaryVtxConstrain = True.
 	float IsoCut;
 	bool RelativeIsolation;
 
         float trkQualityChi2;
 	bool useTwoStubsPT;
-        float trkQualityPtMin; 
+        float trkQualityPtMin;
         std::vector<double> dPhiCutoff;
         std::vector<double> dRCutoff;
         float dEtaCutoff;
-  
+        bool debug;
+
         const edm::EDGetTokenT< EGammaBxCollection > egToken;
         const edm::EDGetTokenT< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
+
 } ;
 
 
@@ -134,7 +139,8 @@ L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iC
    DRmin = (float)iConfig.getParameter<double>("DRmin");
    DRmax = (float)iConfig.getParameter<double>("DRmax");
    DeltaZ = (float)iConfig.getParameter<double>("DeltaZ");
-
+   maxChi2IsoTracks = iConfig.getUntrackedParameter<double>("maxChi2IsoTracks" , 9999999);
+   minNStubsIsoTracks = iConfig.getUntrackedParameter<int>("minNStubsIsoTracks", 0);
    // cut applied on the isolation (if this number is <= 0, no cut is applied)
    IsoCut = (float)iConfig.getParameter<double>("IsoCut");
    RelativeIsolation = iConfig.getParameter<bool>("RelativeIsolation");
@@ -143,9 +149,13 @@ L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iC
    trkQualityChi2  = (float)iConfig.getParameter<double>("TrackChi2");
    trkQualityPtMin = (float)iConfig.getParameter<double>("TrackMinPt");
    useTwoStubsPT   = iConfig.getParameter<bool>("useTwoStubsPT");
-   dPhiCutoff      = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaPhi"); 
-   dRCutoff        = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaR"); 
-   dEtaCutoff      = (float)iConfig.getParameter<double>("TrackEGammaDeltaEta"); 
+   dPhiCutoff      = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaPhi");
+   dRCutoff        = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaR");
+   dEtaCutoff      = (float)iConfig.getParameter<double>("TrackEGammaDeltaEta");
+
+   debug = iConfig.getUntrackedParameter<bool>("debug", false);
+
+   if(debug) std::cout << "CONSTRUCTOR: " << maxChi2IsoTracks << " , " << minNStubsIsoTracks << std::endl;
 
    produces<L1TkElectronParticleCollection>(label);
 }
@@ -157,16 +167,16 @@ L1TkElectronTrackProducer::~L1TkElectronTrackProducer() {
 void
 L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::unique_ptr<L1TkElectronParticleCollection> result(new L1TkElectronParticleCollection);
-  
+
 
   // geometry needed to call pTFrom2Stubs
   edm::ESHandle<TrackerGeometry> geomHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get("idealForDigi", geomHandle);
-  const TrackerGeometry* tGeom = geomHandle.product();  
+  const TrackerGeometry* tGeom = geomHandle.product();
 
 	// the L1EGamma objects
   edm::Handle<EGammaBxCollection> eGammaHandle;
-  iEvent.getByToken(egToken, eGammaHandle);  
+  iEvent.getByToken(egToken, eGammaHandle);
   EGammaBxCollection eGammaCollection = (*eGammaHandle.product());
   EGammaBxCollection::const_iterator egIter;
 
@@ -191,7 +201,7 @@ L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   int ieg = 0;
   for (egIter = eGammaCollection.begin(0); egIter != eGammaCollection.end(0);  ++egIter){ // considering BX = only
     edm::Ref< EGammaBxCollection > EGammaRef( eGammaHandle, ieg );
-    ieg ++; 
+    ieg ++;
 
     float e_ele   = egIter->energy();
     float eta_ele = egIter->eta();
@@ -211,38 +221,38 @@ L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       if ( useTwoStubsPT ) trkPt = trkPt_stubs ;
 
       if ( trkPt > trkQualityPtMin && trackIter->getChi2() < trkQualityChi2) {
-	double dPhi = 99.;
-	double dR = 99.;
-	double dEta = 99.;   
-	L1TkElectronTrackMatchAlgo::doMatch(egIter, L1TrackPtr, dPhi, dR, dEta); 
-
-	if (fabs(dPhi) < getPtScaledCut(trkPt, dPhiCutoff) && dR < getPtScaledCut(trkPt, dRCutoff) && dR < drmin) {
-	  drmin = dR;
-	  itrack = itr;
-	}
-      }
+  	     double dPhi = 99.;
+  	     double dR = 99.;
+  	     double dEta = 99.;
+  	     L1TkElectronTrackMatchAlgo::doMatch(egIter, L1TrackPtr, dPhi, dR, dEta);
+         if (fabs(dPhi) < getPtScaledCut(trkPt, dPhiCutoff) && dR < getPtScaledCut(trkPt, dRCutoff) && dR < drmin) {
+        	  drmin = dR;
+        	  itrack = itr;
+          }
+        }
       itr++;
     }
     if (itrack >= 0)  {
-      edm::Ptr< L1TTTrackType > matchedL1TrackPtr(L1TTTrackHandle, itrack);      
-      
-      const math::XYZTLorentzVector P4 = egIter -> p4() ;      
+      if(debug) std::cout << "  Matched to track: " << itrack << std::endl;
+      edm::Ptr< L1TTTrackType > matchedL1TrackPtr(L1TTTrackHandle, itrack);
+
+      const math::XYZTLorentzVector P4 = egIter -> p4() ;
       float trkisol = isolation(L1TTTrackHandle, itrack);
       if (RelativeIsolation && et_ele > 0.0) {   // relative isolation
 	trkisol = trkisol  / et_ele;
       }
-      
-      L1TkElectronParticle trkEm( P4, 
+
+      L1TkElectronParticle trkEm( P4,
 				  EGammaRef,
-				  matchedL1TrackPtr, 
+				  matchedL1TrackPtr,
 				  trkisol );
-     
-      trkEm.setTrackCurvature(matchedL1TrackPtr->getRInv());   // should this have npars? 4? 5? 
- 
+
+      trkEm.setTrackCurvature(matchedL1TrackPtr->getRInv());   // should this have npars? 4? 5?
+
       //std::cout<<matchedL1TrackPtr->getRInv()<<"  "<<matchedL1TrackPtr->getRInv(4)<<"   "<<matchedL1TrackPtr->getRInv(5)<<std::endl;
 
       if (IsoCut <= 0) {
-	// write the L1TkEm particle to the collection, 
+	// write the L1TkEm particle to the collection,
 	// irrespective of its relative isolation
 	result -> push_back( trkEm );
       }	else {
@@ -250,11 +260,13 @@ L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	// if it passes the isolation cut
 	if (trkisol <= IsoCut) result -> push_back( trkEm );
       }
-     
+
+    } else {
+      if(debug) std::cout << " not matched!" << std::endl;
     }
-   
+
   } // end loop over EGamma objects
-  
+
   iEvent.put(std::move(result), label );
 
 }
@@ -312,29 +324,43 @@ L1TkElectronTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   descriptions.addDefault(desc);
 }
 // method to calculate isolation
-float 
+float
 L1TkElectronTrackProducer::isolation(const edm::Handle<L1TTTrackCollectionType> & trkHandle, int match_index) {
-  edm::Ptr< L1TTTrackType > matchedTrkPtr (trkHandle, match_index) ; 
+  edm::Ptr< L1TTTrackType > matchedTrkPtr (trkHandle, match_index) ;
   L1TTTrackCollectionType::const_iterator trackIter;
 
+  if(debug) std::cout << "# of tracks: " << trkHandle->size() << " matched idx: " << match_index << std::endl;
   float sumPt = 0.0;
   int itr = 0;
   for (trackIter = trkHandle->begin(); trackIter != trkHandle->end(); ++trackIter) {
-    if (itr != match_index) {   
+    if(debug) std::cout << " -- itr: " << itr << std::endl;
+    if (itr++ != match_index) {
+      if(debug) std::cout << "   chi2: " << trackIter->getChi2() << " (" << maxChi2IsoTracks << ")"
+                << " pt: " << trackIter->getMomentum().perp() << " (" << PTMINTRA << ")"
+                << " #stubs: " << trackIter->getStubRefs().size() << " (" << minNStubsIsoTracks << ")" << std::endl;
+      if (trackIter->getChi2() > maxChi2IsoTracks ||
+          trackIter->getMomentum().perp() <= PTMINTRA ||
+          trackIter->getStubRefs().size() < minNStubsIsoTracks) {
+            if(debug) std::cout << "    rejecting this one! " << std::endl;
+            continue;
+          }
+
       float dZ = fabs(trackIter->getPOCA().z() - matchedTrkPtr->getPOCA().z() );
-    
+
       float phi1 = trackIter->getMomentum().phi();
       float phi2 = matchedTrkPtr->getMomentum().phi();
       float dPhi = reco::deltaPhi(phi1, phi2);
       float dEta = (trackIter->getMomentum().eta() - matchedTrkPtr->getMomentum().eta());
       float dR =  sqrt(dPhi*dPhi + dEta*dEta);
-      
+
       if (dR > DRmin && dR < DRmax && dZ < DeltaZ && trackIter->getMomentum().perp() > PTMINTRA) {
-	sumPt += trackIter->getMomentum().perp();
+	       sumPt += trackIter->getMomentum().perp();
+         if(debug) std::cout << " new sumPt: " << sumPt << std::endl;
       }
     }
-    itr++;
   }
+  if(debug) std::cout << " return sumPt: " << sumPt << std::endl;
+
   return sumPt;
 }
 double
@@ -343,7 +369,3 @@ L1TkElectronTrackProducer::getPtScaledCut(double pt, std::vector<double>& parame
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TkElectronTrackProducer);
-
-
-
-
