@@ -15,11 +15,10 @@ public:
 private:
   uint32_t det_id_;
   std::vector<double> signalCoupling_;
-  std::map<unsigned short, double, std::less<unsigned short> > thePixelChargeMap;
   CTPPSPixelSimTopology theRPixDetTopology_;
   CTPPSPixelIndices pxlInd;
-  const int pxlRowSize = pxlInd.getDefaultRowDetSize();
-  const int pxlColSize = pxlInd.getDefaultColDetSize();
+  const int pxlRowSize_ = pxlInd.getDefaultRowDetSize();
+  const int pxlColSize_ = pxlInd.getDefaultColDetSize();
   int no_of_pixels_;
 
   double sqrt_2;

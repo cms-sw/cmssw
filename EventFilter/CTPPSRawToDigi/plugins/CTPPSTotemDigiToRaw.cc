@@ -74,7 +74,6 @@ class CTPPSTotemDigiToRaw : public edm::stream::EDProducer<> {
   private:
     void beginStream(edm::StreamID) override;
     void produce(edm::Event&, const edm::EventSetup&) override;
-    void endStream() override;
 
     unsigned long eventCounter_;
     std::set<unsigned int> fedIds_;
@@ -180,18 +179,12 @@ CTPPSTotemDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       <<"  all: "<< allDigiCounter_ <<"/"<<allWordCounter_;
 
   iEvent.put(std::move(buffers));
-
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
   void
 CTPPSTotemDigiToRaw::beginStream(edm::StreamID)
 {
-}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void
-CTPPSTotemDigiToRaw::endStream() {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

@@ -47,8 +47,6 @@ void RPixDummyROCSimulator::ConvertChargeToHits(const std::map<unsigned short, d
 
           // Avoid exception due to col > 103 in case of 2x2 plane. To be removed
           if (col >= DetCalibs.getNCols()) continue;
-          if (col >= DetCalibs.getNCols()) throw cms::Exception("CorruptedData")
-	   << "[RPixDummyROCSimulator::ConvertChargeToHits] Pixel out of range: col " << col << " row " << row;;
 
           if (doSingleCalibration_){
            adc = int(round(i->second / electron_per_adc_));

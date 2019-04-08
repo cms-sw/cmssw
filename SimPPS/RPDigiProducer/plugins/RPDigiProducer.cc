@@ -31,10 +31,10 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
-#include "SimPPS/RPDigiProducer/interface/RPDetDigitizer.h"
+#include "SimPPS/RPDigiProducer/plugins/RPDetDigitizer.h"
 
 #include "DataFormats/Common/interface/DetSet.h"
-#include "SimPPS/RPDigiProducer/interface/DeadChannelsManager.h"
+#include "SimPPS/RPDigiProducer/plugins/DeadChannelsManager.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -66,9 +66,8 @@ class RPDigiProducer : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      void beginRun(edm::Run&, edm::EventSetup const&);
+      void beginRun(const edm::Run&, const edm::EventSetup &) override; 
       void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
 
       edm::DetSet<TotemRPDigi> convertRPStripDetSet(const edm::DetSet<TotemRPDigi>&);
 
@@ -80,7 +79,7 @@ class RPDigiProducer : public edm::EDProducer {
       edm::ParameterSet conf_;
       std::map<RPDetId, boost::shared_ptr<RPDetDigitizer> > theAlgoMap;
 
-      CLHEP::HepRandomEngine* rndEngine = nullptr;
+      CLHEP::HepRandomEngine* rndEngine_ = nullptr;
       int verbosity_;
 
       /**
@@ -129,14 +128,14 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   using namespace edm;
 
   // initialize random engine
-  if(!rndEngine) {
+  if(!rndEngine_) {
     Service<RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration") << "This class requires the RandomNumberGeneratorService\n"
         "which is not present in the configuration file.  You must add the service\n"
         "in the configuration file or remove the modules that require it.";
     }
-    rndEngine = &(rng->getEngine(iEvent.streamID()));
+    rndEngine_ = &(rng->getEngine(iEvent.streamID()));
   }
 
   // Step A: Get Inputs
@@ -188,7 +187,7 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
       theAlgoMap[it->first] = boost::shared_ptr<RPDetDigitizer>(
-          new RPDetDigitizer(conf_, *rndEngine, it->first, iSetup));
+          new RPDetDigitizer(conf_, *rndEngine_, it->first, iSetup));
     }
 
     std::vector<int> input_links;
@@ -214,17 +213,13 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void RPDigiProducer::beginRun(edm::Run&, edm::EventSetup const& es){
+void RPDigiProducer::beginRun(const edm::Run& beginrun, const edm::EventSetup & es) {
   // get analysis mask to mask channels
   if (simulateDeadChannels) {
     edm::ESHandle<TotemAnalysisMask> analysisMask;
     es.get<TotemReadoutRcd> ().get(analysisMask);
     deadChannelsManager = DeadChannelsManager(analysisMask); //set analysisMask in deadChannelsManager
   }
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void RPDigiProducer::endJob() {
 }
 
 edm::DetSet<TotemRPDigi> RPDigiProducer::convertRPStripDetSet(const edm::DetSet<TotemRPDigi>& rpstrip_detset){

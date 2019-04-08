@@ -19,8 +19,8 @@ class RPLinearChargeDivider
     simRP::energy_path_distribution divide(const PSimHit& hit);
   private:
     const edm::ParameterSet &params_;
-    CLHEP::HepRandomEngine& rndEngine;
-    RPDetId _det_id;
+    CLHEP::HepRandomEngine& rndEngine_;
+    RPDetId det_id_;
 
     bool fluctuateCharge_;
     int chargedivisionsPerStrip_;

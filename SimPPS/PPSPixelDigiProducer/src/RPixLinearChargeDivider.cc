@@ -4,7 +4,7 @@
 #include "Geometry/VeryForwardGeometry/interface/CTPPSPixelTopology.h"
 
 RPixLinearChargeDivider::RPixLinearChargeDivider(const edm::ParameterSet &params,  CLHEP::HepRandomEngine& eng,
-						 uint32_t det_id) : rndEngine(eng) , _det_id(det_id)
+						 uint32_t det_id) : rndEngine_(eng) , det_id_(det_id)
 {
   verbosity_ = params.getParameter<int>("RPixVerbosity");
   fluctuate = new SiG4UniversalFluctuation();
@@ -54,7 +54,7 @@ std::vector<RPixEnergyDepositUnit> RPixLinearChargeDivider::divide(const PSimHit
   
   if(verbosity_)
     {
-      edm::LogInfo("RPixLinearChargeDivider")<<_det_id<<" charge along the track:";
+      edm::LogInfo("RPixLinearChargeDivider")<<det_id_<<" charge along the track:";
       double sum=0;
       for(unsigned int i=0; i<the_energy_path_distribution_.size(); i++)
 	{
@@ -93,7 +93,7 @@ void RPixLinearChargeDivider::FluctuateEloss(int pid, double particleMomentum,
     {
        double deltaCutoff = deltaCut_;
       de = fluctuate->SampleFluctuations(particleMomentum*1000, particleMass, 
-	 deltaCutoff, segmentLength, segmentEloss, &(rndEngine))/1000; //convert to GeV
+	 deltaCutoff, segmentLength, segmentEloss, &(rndEngine_))/1000; //convert to GeV
       elossVector[i].Energy()=de;
       sum+=de;
     }

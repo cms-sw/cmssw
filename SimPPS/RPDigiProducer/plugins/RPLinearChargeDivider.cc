@@ -1,11 +1,11 @@
-#include "SimPPS/RPDigiProducer/interface/RPLinearChargeDivider.h"
+#include "SimPPS/RPDigiProducer/plugins/RPLinearChargeDivider.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RPLinearChargeDivider::RPLinearChargeDivider(const edm::ParameterSet &params,  CLHEP::HepRandomEngine& eng,
-    RPDetId det_id) : params_(params), rndEngine(eng) , _det_id(det_id)
+    RPDetId det_id) : params_(params), rndEngine_(eng) , det_id_(det_id)
 {
   verbosity_ = params.getParameter<int>("RPVerbosity");
 
@@ -78,7 +78,7 @@ simRP::energy_path_distribution RPLinearChargeDivider::divide(const PSimHit& hit
   
   if(verbosity_)
   {
-    edm::LogInfo("RPLinearChargeDivider")<<_det_id<<" charge along the track:\n";
+    edm::LogInfo("RPLinearChargeDivider")<<det_id_<<" charge along the track:\n";
     double sum=0;
     for(unsigned int i=0; i<the_energy_path_distribution_.size(); i++)
     {
@@ -120,7 +120,7 @@ void RPLinearChargeDivider::FluctuateEloss(int pid, double particleMomentum,
     // Returns fluctuated eloss in MeV
     double deltaCutoff = deltaCut_;
     de = fluctuate_->SampleFluctuations(particleMomentum*1000, particleMass, 
-        deltaCutoff, segmentLength, segmentEloss, &(rndEngine))/1000; //convert to GeV
+        deltaCutoff, segmentLength, segmentEloss, &(rndEngine_))/1000; //convert to GeV
     elossVector[i].Energy()=de;
     sum+=de;
   }

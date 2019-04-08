@@ -1,4 +1,4 @@
-#include "SimPPS/RPDigiProducer/interface/RPLinearInduceChargeOnStrips.h"
+#include "SimPPS/RPDigiProducer/plugins/RPLinearInduceChargeOnStrips.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 

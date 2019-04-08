@@ -13,14 +13,13 @@ class RPLinearChargeCollectionDrifter
     simRP::charge_induced_on_surface Drift(const simRP::energy_path_distribution &energy_deposition);
   
   private:
-    simRP::charge_induced_on_surface _temp;
     std::vector<double> charge_cloud_sigmas_vect_;
     double GeV_per_electron_;
     int verbosity_;
     double det_thickness_;
-    RPDetId _det_id;
+    RPDetId det_id_;
     
-    inline double GetSigma(double z)  //z - z position
+    double getSigma_(double z)  //z - z position
     {
        if(charge_cloud_sigmas_vect_.size()==1)
          return charge_cloud_sigmas_vect_[0];

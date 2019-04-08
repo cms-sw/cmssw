@@ -43,7 +43,7 @@ RPixChargeShare::RPixChargeShare(const edm::ParameterSet &params, uint32_t det_i
 std::map<unsigned short, double, std::less<unsigned short> >  RPixChargeShare::Share(
      const std::vector<RPixSignalPoint> &charge_map)
 {
-  thePixelChargeMap.clear();
+  std::map<unsigned short, double, std::less<unsigned short> > thePixelChargeMap;
   if(verbosity_>1)
     edm::LogInfo("RPixChargeShare")<<det_id_<<" : Clouds to be induced= "<<charge_map.size();
 
@@ -92,8 +92,8 @@ std::map<unsigned short, double, std::less<unsigned short> >  RPixChargeShare::S
 	    theRPixDetTopology_.pixelRange(pixel_row,pixel_col,pixel_lower_x,pixel_upper_x,pixel_lower_y,pixel_upper_y);
 	    double pixel_width_x = pixel_upper_x-pixel_lower_x;
 	    double pixel_width_y = pixel_upper_y-pixel_lower_y;
-            if(pixel_row==0 || pixel_row==pxlRowSize-1) pixel_width_x = 0.1; // Correct edge pixel width
-            if(pixel_col==0 || pixel_col==pxlColSize-1) pixel_width_y = 0.15; //
+            if(pixel_row==0 || pixel_row==pxlRowSize_-1) pixel_width_x = 0.1; // Correct edge pixel width
+            if(pixel_col==0 || pixel_col==pxlColSize_-1) pixel_width_y = 0.15; //
 	    double pixel_center_x = pixel_lower_x + (pixel_width_x)/2.;
 	    double pixel_center_y = pixel_lower_y + (pixel_width_y)/2.;
 // xbin and ybin are coordinates (um) ??nside the pixel as in the test beam, swapped wrt plane coodinates.
@@ -125,7 +125,7 @@ std::map<unsigned short, double, std::less<unsigned short> >  RPixChargeShare::S
 //      Considering the 8 neighbours to share charge
 	    for (int k = pixel_row - 1; k <= pixel_row + 1; k++){
 	      for (int l = pixel_col - 1; l <= pixel_col + 1; l++){
-		if ((k<0) || k>pxlRowSize-1 || l<0 || l>pxlColSize-1) continue;
+		if ((k<0) || k>pxlRowSize_-1 || l<0 || l>pxlColSize_-1) continue;
 		if ((k==pixel_row) && (l==pixel_col)) continue;
 		double neighbour_pixel_lower_x=0;
 		double neighbour_pixel_lower_y=0;
@@ -140,7 +140,7 @@ std::map<unsigned short, double, std::less<unsigned short> >  RPixChargeShare::S
 		neighbour_pixel_center_y = neighbour_pixel_lower_y + 
 		  (neighbour_pixel_upper_y - neighbour_pixel_lower_y)/2.;
 		hit2neighbour[m] = 1/sqrt(pow((*i).X()-neighbour_pixel_center_x,2.)+pow((*i).Y()-neighbour_pixel_center_y,2.));
-		neighbour_no[m]=l*pxlRowSize+k;
+		neighbour_no[m]=l*pxlRowSize_+k;
 		if (hit2neighbour[m]>closer_neighbour){
 		  closer_neighbour=hit2neighbour[m];
 		  closer_no = neighbour_no[m];

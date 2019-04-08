@@ -1,6 +1,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimPPS/RPDigiProducer/interface/RPPileUpSignals.h"
+#include "SimPPS/RPDigiProducer/plugins/RPPileUpSignals.h"
 #include <iostream>
 
 

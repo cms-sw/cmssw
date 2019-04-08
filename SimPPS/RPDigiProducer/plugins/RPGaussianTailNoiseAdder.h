@@ -1,7 +1,7 @@
 #ifndef SimPPS_RPDigiProducer_RP_GAUSSIAN_TAIL_NOISE_ADDER_H
 #define SimPPS_RPDigiProducer_RP_GAUSSIAN_TAIL_NOISE_ADDER_H
 
-#include "SimPPS/RPDigiProducer/interface/RPHitChargeConverter.h"
+#include "SimPPS/RPDigiProducer/plugins/RPHitChargeConverter.h"
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
 
 class RPGaussianTailNoiseAdder
@@ -12,7 +12,6 @@ class RPGaussianTailNoiseAdder
     simRP::strip_charge_map addNoise(
         const simRP::strip_charge_map &theSignal);
   private:
-    simRP::strip_charge_map the_strip_charge_map;
     int numStrips_;
     double theNoiseInElectrons;
     double theStripThresholdInE;

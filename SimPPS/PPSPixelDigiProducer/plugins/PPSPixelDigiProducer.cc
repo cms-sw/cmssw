@@ -27,7 +27,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -76,28 +76,24 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class CTPPSPixelDigiProducer : public edm::EDProducer {
+class CTPPSPixelDigiProducer : public edm::stream::EDProducer<> {
    public:
       explicit CTPPSPixelDigiProducer(const edm::ParameterSet&);
       ~CTPPSPixelDigiProducer() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
    private:
-      void beginRun(edm::Run&, edm::EventSetup const&);
       void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
       std::vector<std::string> RPix_hit_containers_;
       typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
       typedef simhit_map::iterator simhit_map_iterator;
-      //simhit_map SimHitMap;
       
       edm::ParameterSet conf_;
 
       std::map<uint32_t, boost::shared_ptr<RPixDetDigitizer> > theAlgoMap;  //DetId = uint32_t 
 
-      //std::vector<edm::DetSet<CTPPSPixelDigi> > theDigiVector;
-
-      CLHEP::HepRandomEngine* rndEngine = nullptr;
+      CLHEP::HepRandomEngine* rndEngine_ = nullptr;
       int verbosity_;
 
       CTPPSPixelGainCalibrationDBService theGainCalibrationDB;
@@ -172,14 +168,14 @@ void CTPPSPixelDigiProducer::fillDescriptions(edm::ConfigurationDescriptions & d
 // ------------ method called to produce the data  ------------
 void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  if(!rndEngine) {
+  if(!rndEngine_) {
     Service<RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration") << "This class requires the RandomNumberGeneratorService\n"
 	"which is not present in the configuration file.  You must add the service\n"
 	"in the configuration file or remove the modules that require it.";
     }
-    rndEngine = &(rng->getEngine(iEvent.streamID()));
+    rndEngine_ = &(rng->getEngine(iEvent.streamID()));
   }
 
 // get calibration DB
@@ -233,7 +229,7 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
       theAlgoMap[it->first] = boost::shared_ptr<RPixDetDigitizer>(
-								  new RPixDetDigitizer(conf_, *rndEngine, it->first, iSetup)); //a digitizer for eny detector
+								  new RPixDetDigitizer(conf_, *rndEngine_, it->first, iSetup)); //a digitizer for eny detector
     }
 
     std::vector<int> input_links;

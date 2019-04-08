@@ -1,8 +1,8 @@
-#include "SimPPS/RPDigiProducer/interface/DeadChannelsManager.h"
+#include "SimPPS/RPDigiProducer/plugins/DeadChannelsManager.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemSymbId.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
-#include "SimPPS/RPDigiProducer/interface/RPDisplacementGenerator.h"
+#include "SimPPS/RPDigiProducer/plugins/RPDisplacementGenerator.h"
 #include <map>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

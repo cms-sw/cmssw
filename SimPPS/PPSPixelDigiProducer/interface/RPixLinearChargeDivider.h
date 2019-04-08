@@ -19,8 +19,8 @@ public:
   std::vector<RPixEnergyDepositUnit> divide(const PSimHit& hit);
 
 private:
-  CLHEP::HepRandomEngine& rndEngine;
-  uint32_t _det_id;
+  CLHEP::HepRandomEngine& rndEngine_;
+  uint32_t det_id_;
   bool fluctuateCharge_;
   int chargedivisions_;
   double deltaCut_;

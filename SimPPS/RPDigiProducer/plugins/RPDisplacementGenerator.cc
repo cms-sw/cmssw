@@ -11,7 +11,7 @@
 #include <Math/RotationZYX.h>
 #include <Math/Rotation3D.h>
 
-#include "SimPPS/RPDigiProducer/interface/RPDisplacementGenerator.h"
+#include "SimPPS/RPDigiProducer/plugins/RPDisplacementGenerator.h"
 
 using namespace std;
 using namespace edm;

@@ -1,4 +1,4 @@
-#include "SimPPS/RPDigiProducer/interface/RPGaussianTailNoiseAdder.h"
+#include "SimPPS/RPDigiProducer/plugins/RPGaussianTailNoiseAdder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Random/RandGauss.h"
 #include <iostream>
@@ -20,7 +20,7 @@ RPGaussianTailNoiseAdder::RPGaussianTailNoiseAdder(int numStrips,
 simRP::strip_charge_map RPGaussianTailNoiseAdder::addNoise(
     const simRP::strip_charge_map &theSignal)
 {
-  the_strip_charge_map.clear();
+  simRP::strip_charge_map the_strip_charge_map;
   
   // noise on strips with signal:
   for (simRP::strip_charge_map::const_iterator i=theSignal.begin();

@@ -1,8 +1,8 @@
-#include "SimPPS/RPDigiProducer/interface/RPHitChargeConverter.h"
+#include "SimPPS/RPDigiProducer/plugins/RPHitChargeConverter.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "SimPPS/RPDigiProducer/interface/RPLinearChargeDivider.h"
-#include "SimPPS/RPDigiProducer/interface/RPLinearChargeCollectionDrifter.h"
-#include "SimPPS/RPDigiProducer/interface/RPLinearInduceChargeOnStrips.h"
+#include "SimPPS/RPDigiProducer/plugins/RPLinearChargeDivider.h"
+#include "SimPPS/RPDigiProducer/plugins/RPLinearChargeCollectionDrifter.h"
+#include "SimPPS/RPDigiProducer/plugins/RPLinearInduceChargeOnStrips.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

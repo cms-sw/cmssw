@@ -4,9 +4,9 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include <map>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimPPS/RPDigiProducer/interface/RPLinearChargeCollectionDrifter.h"
-#include "SimPPS/RPDigiProducer/interface/RPLinearChargeDivider.h"
-#include "SimPPS/RPDigiProducer/interface/RPLinearInduceChargeOnStrips.h"
+#include "SimPPS/RPDigiProducer/plugins/RPLinearChargeCollectionDrifter.h"
+#include "SimPPS/RPDigiProducer/plugins/RPLinearChargeDivider.h"
+#include "SimPPS/RPDigiProducer/plugins/RPLinearInduceChargeOnStrips.h"
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
 
 class RPHitChargeConverter

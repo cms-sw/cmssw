@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimPPS/RPDigiProducer/interface/RPDetDigitizer.h"
+#include "SimPPS/RPDigiProducer/plugins/RPDetDigitizer.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

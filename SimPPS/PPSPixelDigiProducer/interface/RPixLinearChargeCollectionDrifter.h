@@ -20,7 +20,7 @@ private:
   double det_thickness_;
   uint32_t det_id_;
     
-  inline double GetSigma(double z) 
+  double getSigma_(double z) 
   {
     if(charge_cloud_sigmas_vect_.size()==1)
       return charge_cloud_sigmas_vect_[0];

@@ -1,4 +1,4 @@
-#include "SimPPS/RPDigiProducer/interface/RPVFATSimulator.h"
+#include "SimPPS/RPDigiProducer/plugins/RPVFATSimulator.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>

@@ -10,22 +10,22 @@
  */
 class RPixEnergyDepositUnit{
 public:
-RPixEnergyDepositUnit(): _energy(0),_position(0,0,0){}
+RPixEnergyDepositUnit(): energy_(0),position_(0,0,0){}
 RPixEnergyDepositUnit(double energy, double x, double y, double z):
-  _energy(energy),_position(x,y,z){}
+  energy_(energy),position_(x,y,z){}
 RPixEnergyDepositUnit(double energy, const Local3DPoint &position):
-  _energy(energy),_position(position){}
-  inline double X() const{return _position.x();}
-  inline double Y() const{return _position.y();}
-  inline double Z() const{return _position.z();}
-  inline double & Energy() { return _energy;}
-  inline double Energy() const { return _energy;}
-  inline Local3DPoint Position() const { return _position;}
-  inline Local3DPoint& Position() { return _position;}
+  energy_(energy),position_(position){}
+  inline double X() const{return position_.x();}
+  inline double Y() const{return position_.y();}
+  inline double Z() const{return position_.z();}
+  inline double & Energy() { return energy_;}
+  inline double Energy() const { return energy_;}
+  inline Local3DPoint Position() const { return position_;}
+  inline Local3DPoint& Position() { return position_;}
   
 private:
-  double _energy;
-  Local3DPoint _position;
+  double energy_;
+  Local3DPoint position_;
 };
 
 #endif  //SimPPS_PPSPixelDigiProducer_ENERGY_DEPOSIT_UNIT_H

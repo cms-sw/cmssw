@@ -23,7 +23,7 @@ std::vector<RPixSignalPoint> RPixLinearChargeCollectionDrifter::Drift
     {
       temp_[i].Position() = LocalPoint(energy_deposition[i].X(), energy_deposition[i].Y());
 
-      temp_[i].Sigma() = GetSigma(energy_deposition[i].Z()); 
+      temp_[i].Sigma() = getSigma_(energy_deposition[i].Z()); 
       temp_[i].Charge() = energy_deposition[i].Energy()/GeV_per_electron_;
       if(verbosity_>1)
 	{

@@ -13,12 +13,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include "SimPPS/RPDigiProducer/interface/RPHitChargeConverter.h"
-#include "SimPPS/RPDigiProducer/interface/RPVFATSimulator.h"
+#include "SimPPS/RPDigiProducer/plugins/RPHitChargeConverter.h"
+#include "SimPPS/RPDigiProducer/plugins/RPVFATSimulator.h"
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
-#include "SimPPS/RPDigiProducer/interface/RPDisplacementGenerator.h"
-#include "SimPPS/RPDigiProducer/interface/RPGaussianTailNoiseAdder.h"
-#include "SimPPS/RPDigiProducer/interface/RPPileUpSignals.h"
+#include "SimPPS/RPDigiProducer/plugins/RPDisplacementGenerator.h"
+#include "SimPPS/RPDigiProducer/plugins/RPGaussianTailNoiseAdder.h"
+#include "SimPPS/RPDigiProducer/plugins/RPPileUpSignals.h"
 
 
 namespace CLHEP{
