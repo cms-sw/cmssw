@@ -3,7 +3,7 @@
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DDG4/Geant4Converter.h"
 #include "DDG4/Geant4GeometryInfo.h"
-#include "DDG4/Detector.h"
+#include "DD4hep/Detector.h"
 
 #include "G4RunManagerKernel.hh"
 #include "G4PVPlacement.hh"
