@@ -20,6 +20,7 @@
 
 // system include files
 #include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 
 // user include files
 
@@ -30,7 +31,7 @@ class PythonEventProcessor
 {
 
    public:
-      PythonEventProcessor(PythonProcessDesc const&);
+      PythonEventProcessor(PyBind11ProcessDesc const&);
       ~PythonEventProcessor();
       // ---------- const member functions ---------------------
       /// Return the number of events this EventProcessor has tried to process

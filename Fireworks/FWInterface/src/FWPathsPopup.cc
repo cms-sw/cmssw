@@ -24,7 +24,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
-#include "FWCore/PythonParameterSet/src/PythonWrapper.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11Wrapper.h"
 #include <boost/python/errors.hpp>
 #include "TGLabel.h"
 #include "KeySymbols.h"
@@ -253,7 +253,7 @@ FWPathsPopup::scheduleReloadEvent()
    }
    catch (boost::python::error_already_set const&)
    {
-      edm::pythonToCppException("Configuration");
+     edm::pythonToCppException("Configuration","");
       Py_Finalize();
    }
    catch (cms::Exception &exception)

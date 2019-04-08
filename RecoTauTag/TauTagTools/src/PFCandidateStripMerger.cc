@@ -22,7 +22,7 @@ PFCandidateStripMerger::~PFCandidateStripMerger()
 
 
 bool 
-PFCandidateStripMerger::candidateMatches(const reco::PFCandidatePtr& cand)
+PFCandidateStripMerger::candidateMatches(const reco::CandidatePtr& cand)
 {
   bool matches = false;
   for(unsigned int i=0; i < inputPdgIds_.size(); ++i) {
@@ -39,12 +39,12 @@ PFCandidateStripMerger::candidateMatches(const reco::PFCandidatePtr& cand)
 
 
 
-vector<vector<PFCandidatePtr>> 
-PFCandidateStripMerger::mergeCandidates(const vector<PFCandidatePtr>& candidates) 
+vector<vector<CandidatePtr>> 
+PFCandidateStripMerger::mergeCandidates(const vector<CandidatePtr>& candidates) 
 {
 
   //Copy the input getting the relevant candidates and sort by pt 
-  vector<PFCandidatePtr> cands;
+  vector<CandidatePtr> cands;
   for(unsigned int i=0;i<candidates.size();++i)
     if(candidateMatches(candidates.at(i)))
       cands.push_back(candidates.at(i));
@@ -52,17 +52,17 @@ PFCandidateStripMerger::mergeCandidates(const vector<PFCandidatePtr>& candidates
   if(cands.size()>1)
   TauTagTools::sortRefVectorByPt(cands);
 
-  std::vector<vector<PFCandidatePtr>> strips;
+  std::vector<vector<CandidatePtr>> strips;
 
 
   //Repeat while there are still unclusterized gammas
   while(!cands.empty()) {
 
     //save the non associated candidates to a different collection
-    vector<PFCandidatePtr> notAssociated;
+    vector<CandidatePtr> notAssociated;
     
     //Create a cluster from the Seed Photon
-    vector<PFCandidatePtr> strip;
+    vector<CandidatePtr> strip;
     math::XYZTLorentzVector stripVector;
     strip.push_back(cands.at(0));
     stripVector=cands.at(0)->p4();

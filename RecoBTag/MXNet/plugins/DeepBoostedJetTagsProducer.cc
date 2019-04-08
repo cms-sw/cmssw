@@ -31,8 +31,8 @@ struct MXBlockCache {
 struct PreprocessParams {
   struct VarInfo {
     VarInfo() {}
-    VarInfo(float median, float upper) :
-      center(median), norm_factor(upper==median ? 1 : 1./(upper-median)) {}
+    VarInfo(float median, float norm_factor) :
+      center(median), norm_factor(norm_factor) {}
     float center = 0;
     float norm_factor = 1;
   };
@@ -107,8 +107,8 @@ DeepBoostedJetTagsProducer::DeepBoostedJetTagsProducer(const edm::ParameterSet& 
     for (const auto &var_name : prep_params.var_names){
       const auto &var_pset = var_info_pset.getParameterSet(var_name);
       double median = var_pset.getParameter<double>("median");
-      double upper = var_pset.getParameter<double>("upper");
-      prep_params.var_info_map[var_name] = PreprocessParams::VarInfo(median, upper);
+      double norm_factor = var_pset.getParameter<double>("norm_factor");
+      prep_params.var_info_map[var_name] = PreprocessParams::VarInfo(median, norm_factor);
     }
 
     // create data storage with a fixed size vector initilized w/ 0

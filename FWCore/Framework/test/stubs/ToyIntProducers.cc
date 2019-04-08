@@ -158,17 +158,20 @@ namespace edmtest {
     token_{produces<IntProduct>()},
     value_(p.getParameter<int>("ivalue")),
     iterations_(p.getParameter<unsigned int>("iterations")),
-    pi_(std::acos(-1)){
+    pi_(std::acos(-1)),
+    lumiNumberToThrow_(p.getParameter<unsigned int>("lumiNumberToThrow")) {
     }
 
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
-    
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     const edm::EDPutTokenT<IntProduct> token_;
     const int value_;
     const unsigned int iterations_;
     const double pi_;
-    
+    const unsigned int lumiNumberToThrow_;
   };
   
   void
@@ -181,6 +184,19 @@ namespace edmtest {
     }
     
     e.emplace(token_,value_+sum);
+
+    if (e.luminosityBlock() == lumiNumberToThrow_) {
+      throw cms::Exception("Test");
+    }
+  }
+
+  void
+  BusyWaitIntProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<int>("ivalue");
+    desc.add<unsigned int>("iterations");
+    desc.add<unsigned int>("lumiNumberToThrow", 0);
+    descriptions.addDefault(desc);
   }
 
   //--------------------------------------------------------------------

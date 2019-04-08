@@ -7,4 +7,5 @@
 
 class DDSpecParRegistryRcd : public edm::eventsetup::DependentRecordImplementation<
 DDSpecParRegistryRcd, boost::mpl::vector<GeometryFileRcd>> {};
+
 #endif
