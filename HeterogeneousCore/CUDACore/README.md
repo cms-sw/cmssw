@@ -202,15 +202,9 @@ void ProducerInputCUDA::acquire(edm::Event const& iEvent, edm::EventSetup& iSetu
   CUDAProduct<InputData> const& inputDataWrapped = iEvent.get(inputToken_);
 
   // Set the current device to the same that was used to produce
-  // InputData, and also use the same CUDA stream
+  // InputData, and possibly use the same CUDA stream
   CUDAScopedContext ctx{inputDataWrapped, std::move(waitingTaskHolder)};
 
-  // Alternatively a new CUDA stream can be created here. This is for
-  // a case where there are two (or more) consumers of
-  // CUDAProduct<InputData> whose work is independent and thus can be run
-  // in parallel.
-  CUDAScopedContext ctx{iEvent.streamID(), std::move(waitingTaskHolder);
-  
   // Grab the real input data. Checks that the input data is on the
   // current device. If the input data was produced in a different CUDA
   // stream than the CUDAScopedContext holds, create an inter-stream
@@ -239,6 +233,12 @@ void ProducerInputCUDA::produce(edm::Event& iEvent, edm::EventSetup& iSetup) {
   iEvent.emplace(outputToken_, gpuAlgo_.getResult());
 }
 ```
+
+See [further below](#setting-the-current-device) for the conditions
+when the `CUDAScopedContext` constructor reuses the CUDA stream. Note
+that the `CUDAScopedContext` constructor taking `edm::StreamID` is
+allowed, it will just always create a new CUDA stream.
+
 
 ### Producer with CUDA input and output (with ExternalWork)
 
@@ -319,8 +319,8 @@ void ProducerInputOutputCUDA::produce(edm::StreamID streamID, edm::Event& iEvent
   CUDAProduct<InputData> const& inputDataWrapped = iEvent.get(inputToken_);
 
   // Set the current device to the same that was used to produce
-  // InputData, and also use the same CUDA stream
-  CUDAScopedContext ctx{streamID};
+  // InputData, and possibly use the same CUDA stream
+  CUDAScopedContext ctx{inputDataWrapped};
 
   // Grab the real input data. Checks that the input data is on the
   // current device. If the input data was produced in a different CUDA
@@ -368,7 +368,7 @@ void AnalyzerInputCUDA::analyze(edm::Event const& iEvent, edm::EventSetup& iSetu
   CUDAProduct<InputData> const& inputDataWrapped = iEvent.get(inputToken_);
 
   // Set the current device to the same that was used to produce
-  // InputData, and also use the same CUDA stream
+  // InputData, and possibly use the same CUDA stream
   CUDAScopedContext ctx{inputDataWrapped};
 
   // Alternatively a new CUDA stream can be created here. This is for
@@ -540,7 +540,13 @@ CUDAScopedContext ctx{cclus};
 `CUDAScopedContext` works in the RAII way and does the following
 * Sets the current device for the current scope
   - If constructed from the `edm::StreamID`, chooses the device and creates a new CUDA stream
-  - If constructed from the `CUDAProduct<T>`, uses the same device and CUDA stream as was used to produce the `CUDAProduct<T>`
+  - If constructed from the `CUDAProduct<T>`, uses the same device and possibly the same CUDA stream as was used to produce the `CUDAProduct<T>`
+    * The CUDA stream is reused if this producer is the first consumer
+      of the `CUDAProduct<T>`, otherwise a new CUDA stream is created.
+      This approach is simple compromise to automatically express the work of
+      parallel producers in different CUDA streams, and at the same
+      time allow a chain of producers to queue their work to the same
+      CUDA stream.
 * Gives access to the CUDA stream the algorithm should use to queue asynchronous work
 * Calls `edm::WaitingTaskWithArenaHolder::doneWaiting()` when necessary
 * [Synchronizes between CUDA streams if necessary](#synchronizing-between-cuda-streams)

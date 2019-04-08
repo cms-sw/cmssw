@@ -1,6 +1,8 @@
 #include "catch.hpp"
 
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/exitSansCUDADevices.h"
@@ -59,6 +61,11 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
       CUDAScopedContext ctx2{data};
       REQUIRE(cuda::device::current::get().id() == data.device());
       REQUIRE(ctx2.stream().id() == data.stream().id());
+
+      // Second use of a product should lead to new stream
+      CUDAScopedContext ctx3{data};
+      REQUIRE(cuda::device::current::get().id() == data.device());
+      REQUIRE(ctx3.stream().id() != data.stream().id());
     }
 
     SECTION("Storing state as CUDAContextToken") {
@@ -118,9 +125,7 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
     }
   }
 
-  // Destroy and clean up all resources so that the next test can
-  // assume to start from a clean state.
   cudaCheck(cudaSetDevice(defaultDevice));
   cudaCheck(cudaDeviceSynchronize());
-  cudaDeviceReset();
+  // Note: CUDA resources are cleaned up by CUDAService destructor
 }

@@ -16,6 +16,20 @@ CUDAScopedContext::CUDAScopedContext(edm::StreamID streamID):
   stream_ = cs->getCUDAStream();
 }
 
+CUDAScopedContext::CUDAScopedContext(const CUDAProductBase& data):
+  currentDevice_(data.device()),
+  setDeviceForThisScope_(currentDevice_)
+{
+  if(data.mayReuseStream()) {
+    stream_ = data.streamPtr();
+  }
+  else {
+    edm::Service<CUDAService> cs;
+    stream_ = cs->getCUDAStream();
+  }
+}
+
+
 CUDAScopedContext::CUDAScopedContext(int device, std::unique_ptr<cuda::stream_t<>> stream, std::unique_ptr<cuda::event_t> event):
   currentDevice_(device),
   setDeviceForThisScope_(device),

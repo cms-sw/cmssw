@@ -34,12 +34,7 @@ public:
     stream_(std::move(token.streamPtr()))
   {}
 
-  template<typename T>
-  explicit CUDAScopedContext(const CUDAProduct<T>& data):
-    currentDevice_(data.device()),
-    setDeviceForThisScope_(currentDevice_),
-    stream_(data.streamPtr())
-  {}
+  explicit CUDAScopedContext(const CUDAProductBase& data);
 
   explicit CUDAScopedContext(edm::StreamID streamID, edm::WaitingTaskWithArenaHolder waitingTaskHolder):
     CUDAScopedContext(streamID)
@@ -47,8 +42,7 @@ public:
     waitingTaskHolder_ = std::move(waitingTaskHolder);
   }
 
-  template <typename T>
-  explicit CUDAScopedContext(const CUDAProduct<T>& data, edm::WaitingTaskWithArenaHolder waitingTaskHolder):
+  explicit CUDAScopedContext(const CUDAProductBase& data, edm::WaitingTaskWithArenaHolder waitingTaskHolder):
     CUDAScopedContext(data)
   {
     waitingTaskHolder_ = std::move(waitingTaskHolder);
