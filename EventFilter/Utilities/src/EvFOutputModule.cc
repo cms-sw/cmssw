@@ -6,8 +6,6 @@
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/FastMonitor.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
@@ -16,7 +14,6 @@
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-#include "IOPool/Streamer/interface/StreamerOutputFile.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 
@@ -25,7 +22,7 @@
 #include <boost/algorithm/string.hpp>
 
 namespace evf {
-
+/*
   class EvFOutputEventWriter
   {
   public:
@@ -65,10 +62,8 @@ namespace evf {
 
   };
 
-
-  class EvFOutputJSONWriter {
-    public:
-    EvFOutputJSONWriter(edm::ParameterSet const& ps, edm::SelectedProducts const* selections, std::string const& streamLabel):
+*/
+  EvFOutputJSONWriter::EvFOutputJSONWriter(edm::ParameterSet const& ps, edm::SelectedProducts const* selections, std::string const& streamLabel):
       streamerCommon_(ps, selections),
       processed_(0),
       accepted_(0),
@@ -145,28 +140,10 @@ namespace evf {
       jsonMonitor_->registerGlobalMonitorable(&mergeType_,false);
       jsonMonitor_->registerGlobalMonitorable(&hltErrorEvents_,false);
       jsonMonitor_->commit(nullptr);
-    }
-
-    edm::StreamerOutputModuleCommon streamerCommon_;
-
-    jsoncollector::IntJ processed_;
-    jsoncollector::IntJ accepted_;
-    jsoncollector::IntJ errorEvents_; 
-    jsoncollector::IntJ retCodeMask_; 
-    jsoncollector::StringJ filelist_;
-    jsoncollector::IntJ filesize_; 
-    jsoncollector::StringJ inputFiles_;
-    jsoncollector::IntJ fileAdler32_; 
-    jsoncollector::StringJ transferDestination_; 
-    jsoncollector::StringJ mergeType_;
-    jsoncollector::IntJ hltErrorEvents_; 
-    std::shared_ptr<jsoncollector::FastMonitor> jsonMonitor_;
-    jsoncollector::DataPointDefinition outJsonDef_;
-
-  };
+  }
 
   EvFOutputModule::EvFOutputModule(edm::ParameterSet const& ps) :
-    edm::limited::OutputModuleBase(ps),
+    edm::one::OutputModuleBase(ps),
     EvFOutputModuleType(ps),
     ps_(ps),
     streamLabel_(ps.getParameter<std::string>("@module_label")),
@@ -221,11 +198,11 @@ namespace evf {
   }
 
 
-  std::shared_ptr<EvFOutputJSONWriter>
-  EvFOutputModule::globalBeginRun(edm::RunForOutput const& run) const
+  void
+  EvFOutputModule::beginRun(edm::RunForOutput const& run)
   {
     //create run Cache holding JSON file writer and variables
-    auto rc = std::make_shared<EvFOutputJSONWriter>(ps_,&keptProducts()[edm::InEvent],streamLabel_);
+    jsonWriter_ = std::make_shared<EvFOutputJSONWriter>(ps_,&keptProducts()[edm::InEvent],streamLabel_);
 
     //output INI file (non-const). This doesn't require globalBeginRun to be finished
     const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(streamLabel_);
@@ -237,7 +214,7 @@ namespace evf {
     edm::BranchIDLists const* bidlPtr =  branchIDLists();
 
     std::unique_ptr<InitMsgBuilder> init_message = 
-      rc->streamerCommon_.serializeRegistry(*bidlPtr, *thinnedAssociationsHelper(), 
+      jsonWriter_->streamerCommon_.serializeRegistry(*bidlPtr, *thinnedAssociationsHelper(), 
                         OutputModule::processName(), description().moduleLabel(), moduleDescription().mainParameterSetID());
  
     //Let us turn it into a View
@@ -267,7 +244,7 @@ namespace evf {
     fclose(src);
 
     //clear serialization buffers
-    rc->streamerCommon_.clearSerializeDataBuffer();
+    jsonWriter_->streamerCommon_.clearSerializeDataBuffer();
 
     //free output buffer needed only for the file write
     delete [] outBuf;
@@ -283,7 +260,6 @@ namespace evf {
       boost::filesystem::rename(openIniFileName,edm::Service<evf::EvFDaqDirector>()->getInitFilePath(streamLabel_));
     }
 
-    return rc;
   }
 
 
@@ -299,8 +275,8 @@ namespace evf {
   EvFOutputModule::globalBeginLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const
   {
     auto openDatFilePath = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(iLB.luminosityBlock(),streamLabel_);
-    auto lumiWriter = std::make_shared<EvFOutputEventWriter>(openDatFilePath);
-    return lumiWriter;
+
+    return std::make_shared<EvFOutputEventWriter>(openDatFilePath);
   }
 
 
@@ -309,55 +285,55 @@ namespace evf {
 
     edm::Handle<edm::TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
 
-    //runCache parameter at this time is ignored. Obtaning index is also currently not possible from RunOutput returned by e.getRun() 
-    auto rc = const_cast<EvFOutputJSONWriter*>(EvFOutputModuleType::runCache(edm::RunIndex::invalidRunIndex()));
-    auto lumiWriter = const_cast<EvFOutputEventWriter*>(luminosityBlockCache(e.getLuminosityBlock().index() ));
+    //auto lumiWriter = const_cast<EvFOutputEventWriter*>(luminosityBlockCache(e.getLuminosityBlock().index() ));
+    auto lumiWriter = luminosityBlockCache(e.getLuminosityBlock().index() );
 
-    std::unique_ptr<EventMsgBuilder> msg = rc->streamerCommon_.serializeEvent(e, triggerResults, selectorConfig());
+    std::unique_ptr<EventMsgBuilder> msg = jsonWriter_->streamerCommon_.serializeEvent(e, triggerResults, selectorConfig());
     lumiWriter->incAccepted();
     lumiWriter->doOutputEvent(*msg); //msg is written and discarded at this point
   }
 
 
   void
-  EvFOutputModule::globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const
+  EvFOutputModule::globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB)
   {
-    //runCache parameter at this time is ignored. Obtaning index is also currently not possible from RunOutput returned by iLB.getRun() 
-    auto rc = const_cast<EvFOutputJSONWriter*>(EvFOutputModuleType::runCache(edm::RunIndex::invalidRunIndex()));
     auto lumiWriter = luminosityBlockCache(iLB.index());
+    //close dat file
+    lumiWriter->close();
 
-    rc->fileAdler32_.value() = lumiWriter->get_adler32();
-    const_cast<EvFOutputEventWriter*>(lumiWriter)->close();
+    jsonWriter_->fileAdler32_.value() = lumiWriter->get_adler32();
+    jsonWriter_->accepted_.value() = lumiWriter->getAccepted();
 
     bool abortFlag = false;
-    rc->processed_.value() = fms_->getEventsProcessedForLumi(iLB.luminosityBlock(),&abortFlag);
-    rc->accepted_.value() = lumiWriter->getAccepted();
+    jsonWriter_->processed_.value() = fms_->getEventsProcessedForLumi(iLB.luminosityBlock(),&abortFlag);
     if (abortFlag) {
         edm::LogInfo("EvFOutputModule") << "Abort flag has been set. Output is suppressed";
         return;
     }
     
-    if(rc->processed_.value()!=0) {
+    if (jsonWriter_->processed_.value()!=0) {
       struct stat istat;
       boost::filesystem::path openDatFilePath = lumiWriter->getFilePath();
       stat(openDatFilePath.string().c_str(), &istat);
-      rc->filesize_ = istat.st_size;
+      jsonWriter_->filesize_ = istat.st_size;
       boost::filesystem::rename(openDatFilePath.string().c_str(), edm::Service<evf::EvFDaqDirector>()->getDatFilePath(iLB.luminosityBlock(),streamLabel_));
-      rc->filelist_ = openDatFilePath.filename().string();
+      jsonWriter_->filelist_ = openDatFilePath.filename().string();
     } else {
       //remove empty file when no event processing has occurred
       remove(lumiWriter->getFilePath().c_str());
-      rc->filesize_ = 0;
-      rc->filelist_ = "";
-      rc->fileAdler32_.value()=-1; //no files in signed long
+      jsonWriter_->filesize_ = 0;
+      jsonWriter_->filelist_ = "";
+      jsonWriter_->fileAdler32_.value()=-1; //no files in signed long
     }
 
     //produce JSON file
-    rc->jsonMonitor_->snap(iLB.luminosityBlock());
+    jsonWriter_->jsonMonitor_->snap(iLB.luminosityBlock());
     const std::string outputJsonNameStream =
       edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(iLB.luminosityBlock(),streamLabel_);
-    rc->jsonMonitor_->outputFullJSON(outputJsonNameStream,iLB.luminosityBlock());
+    jsonWriter_->jsonMonitor_->outputFullJSON(outputJsonNameStream,iLB.luminosityBlock());
+
   }
+
 
 } // end of namespace-evf
 
