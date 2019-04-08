@@ -136,10 +136,10 @@ private:
      int  subdet_;
      int  layer_;
    };
-   std::vector<Rule> Recommend2D_;
+   std::vector<Rule> recommend2D_;
 
    // run on damaged hits or not
-   bool RunDamagedClusters_;
+   bool runDamagedClusters_;
 };
 
 #endif
