@@ -94,18 +94,18 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
    maxSizeMismatchInY_ = conf.getParameter<double>("MaxSizeMismatchInY");
    minChargeRatio_ = conf.getParameter<double>("MinChargeRatio");
 
-   // read sub-detectors to recommend 2D
+   // read sub-detectors and apply rule to recommend 2D 
    // can be: 
    //     XYX (XYZ = PXB, PXE)
    //     XYZ n (XYZ as above, n = layer, wheel or disk = 1 .. 6 ;)
-   std::vector<std::string> str_Recommend2D = conf.getParameter<std::vector<std::string> >("Recommend2D");
-   Recommend2D_.reserve(str_Recommend2D.size());
-   for (std::vector<std::string>::const_iterator it = str_Recommend2D.begin(), ed = str_Recommend2D.end(); it != ed; ++it) {
-     Recommend2D_.push_back(Rule(*it));
+   std::vector<std::string> str_recommend2D = conf.getParameter<std::vector<std::string> >("Recommend2D");
+   recommend2D_.reserve(str_recommend2D.size());
+   for (unsigned int i=0; i<str_recommend2D.size();++i){
+     recommend2D_.push_back(Rule(str_recommend2D.at(i)));
    }
 
    // run CR on damaged clusters (and not only on edge hits)
-   RunDamagedClusters_ = conf.existsAs<bool>("RunDamagedClusters")?conf.getParameter<bool>("RunDamagedClusters"):false;
+   runDamagedClusters_ = conf.existsAs<bool>("RunDamagedClusters")?conf.getParameter<bool>("RunDamagedClusters"):false;
 }
 
 //-----------------------------------------------------------------------------
@@ -193,7 +193,6 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
       else
 	ID1 = ID2 = forwardTemplateID_ ; // forward
    }
-   //cout << "PixelCPEClusterRepair : ID1 = " << ID1 << endl;
 
    // &&& PM, note for later: PixelCPEBase calculates minInX,Y, and maxInX,Y
    //     Why can't we simply use that and save time with row_offset, col_offset
@@ -546,8 +545,8 @@ void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, Clus
     DetId id = (theDetParam.theDet->geographicalId());
 
     bool recommend = false;
-    for (std::vector<Rule>::const_iterator itr = Recommend2D_.begin(), edr = Recommend2D_.end(); itr != edr; ++itr) {
-        recommend = itr->recommend(id, ttopo_);
+    for (unsigned int i=0; i<recommend2D_.size(); i++){
+        recommend = recommend2D_.at(i).recommend(id, ttopo_);
 	if(recommend) break;
     }
 
@@ -592,7 +591,7 @@ void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, Clus
         theClusterParam.hasBadPixels_ = true;
 
 	// if not RunDamagedClusters flag, don't try to fix any clusters
-	if(!RunDamagedClusters_) {
+	if(!runDamagedClusters_) {
 	    theClusterParam.recommended2D_ = false;
 	}
 
