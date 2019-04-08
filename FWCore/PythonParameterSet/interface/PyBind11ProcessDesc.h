@@ -1,8 +1,7 @@
-#ifndef FWCore_PythonParameterSet_PythonProcessDesc_h
-#define FWCore_PythonParameterSet_PythonProcessDesc_h
+#ifndef FWCore_PyBind11ParameterSet_PyBind11ProcessDesc_h
+#define FWCore_PyBind11ParameterSet_PyBind11ProcessDesc_h
 
-#include "FWCore/PythonParameterSet/interface/BoostPython.h"
-#include "FWCore/PythonParameterSet/interface/PythonParameterSet.h"
+#include "FWCore/PythonParameterSet/interface/Python11ParameterSet.h"
 
 #include <memory>
 
@@ -14,9 +13,9 @@ namespace edm {
   class ProcessDesc;
 }
 
-class PythonProcessDesc {
+class PyBind11ProcessDesc {
 public:
-  PythonProcessDesc();
+  PyBind11ProcessDesc();
   /** This constructor will parse the given file or string
       and create two objects in python-land:
     * a PythonProcessDesc named 'processDesc'
@@ -24,13 +23,15 @@ public:
     It decides whether it's a file or string by seeing if
     it ends in '.py'
   */
-  PythonProcessDesc(std::string const& config);
+  PyBind11ProcessDesc(std::string const& config);
 
-  PythonProcessDesc(std::string const& config, int argc, char * argv[]);
+  PyBind11ProcessDesc(std::string const& config, int argc, char * argv[]);
 
-  PythonParameterSet newPSet() const {return PythonParameterSet();}
+  ~PyBind11ProcessDesc();
 
-  PythonParameterSet& pset() { return theProcessPSet;}
+  Python11ParameterSet newPSet() const {return Python11ParameterSet();}
+
+  Python11ParameterSet& pset() { return theProcessPSet;}
   
   std::string dump() const;
 
@@ -39,7 +40,7 @@ public:
 
   // makes a new (copy) of a ProcessDesc
   // For backward compatibility only.  Remove when no longer needed.
-  std::shared_ptr<edm::ProcessDesc> processDesc() const;
+  std::unique_ptr<edm::ProcessDesc> processDesc() const;
 
 private:
   void prepareToRead();
@@ -47,9 +48,9 @@ private:
   void readFile(std::string const& fileName);
   void readString(std::string const& pyConfig);
 
-  PythonParameterSet theProcessPSet;
-  boost::python::object theMainModule;
-  boost::python::object theMainNamespace;
+  Python11ParameterSet theProcessPSet;
+  pybind11::object theMainModule;
+  bool theOwnsInterpreter;
 };
 
 #endif
