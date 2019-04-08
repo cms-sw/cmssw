@@ -52,7 +52,7 @@ private:
   ParameterSetPtr pSet(char const* c) {
 
     //ParameterSetPtr result( new edm::ProcessDesc(std::string(c)) );
-    ParameterSetPtr result = PyBind11ProcessDesc(std::string(c)).parameterSet();
+    ParameterSetPtr result = cmspython3::PyBind11ProcessDesc(std::string(c)).parameterSet();
     CPPUNIT_ASSERT(result->getParameter<std::string>("@process_name") == "test");
     return result;
   }
@@ -206,7 +206,7 @@ void testmakeprocess::emptyModuleTest() {
 void testmakeprocess::taskTest() {
    char const* kTest =  "import FWCore.ParameterSet.Config as cms\n"
    "process = cms.Process('test')\n"
-   "process.load(\"FWCore.PythonParameterSet.test.testTask_cff\")\n"
+   "process.load(\"FWCore.PyDevParameterSet.test.testTask_cff\")\n"
    "t10 = cms.Task(process.m29, process.m30, process.f29, process.f30,"
                    "process.ess27, process.ess28, process.esp27, process.esp28,"
                    "process.serv27, process.serv28)\n";
@@ -384,7 +384,7 @@ void testmakeprocess::taskTest() {
 void testmakeprocess::taskTestWithEmptySchedule() {
    char const* kTest =  "import FWCore.ParameterSet.Config as cms\n"
    "process = cms.Process('test')\n"
-   "process.load(\"FWCore.PythonParameterSet.test.testTask_cff\")\n"
+   "process.load(\"FWCore.PyDevParameterSet.test.testTask_cff\")\n"
    "t10 = cms.Task(process.m29, process.m30, process.f29, process.f30,"
                    "process.ess27, process.ess28, process.esp27, process.esp28,"
                    "process.serv27, process.serv28)\n"
@@ -546,7 +546,7 @@ void testmakeprocess::taskTestWithEmptySchedule() {
 void testmakeprocess::taskTestWithSchedule() {
    char const* kTest =  "import FWCore.ParameterSet.Config as cms\n"
    "process = cms.Process('test')\n"
-   "process.load(\"FWCore.PythonParameterSet.test.testTask_cff\")\n"
+   "process.load(\"FWCore.PyDevParameterSet.test.testTask_cff\")\n"
    "t10 = cms.Task(process.m29, process.m30, process.f29, process.f30,"
                    "process.ess27, process.ess28, process.esp27, process.esp28,"
                    "process.serv27, process.serv28)\n"

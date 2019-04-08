@@ -1,8 +1,8 @@
-#ifndef FWCore_PyDevParameterSet_PyBind11Module_h
-#define FWCore_PyDevParameterSet_PyBind11Module_h
+#ifndef FWCore_PythonParameterSet_PyBind11Module_h
+#define FWCore_PythonParameterSet_PyBind11Module_h
 
-#include "FWCore/PyDevParameterSet/interface/Python11ParameterSet.h"
-#include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/Python11ParameterSet.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -32,9 +32,7 @@
 
 #include <pybind11/pybind11.h>
 
-using namespace cmspython3;
-
-PYBIND11_MODULE(libFWCorePyDevParameterSet,m) 
+PYBIND11_MODULE(libFWCorePythonParameterSet,m) 
 {
   pybind11::register_exception_translator([](std::exception_ptr p) {
       try {

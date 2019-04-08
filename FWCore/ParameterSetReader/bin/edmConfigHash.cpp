@@ -6,7 +6,7 @@
 // additional parameters into the configuration.
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <memory>
@@ -29,7 +29,7 @@ int main(int argc, char **argv) try {
     config = std::string(argv[1]);
   }
 
-  std::shared_ptr<edm::ParameterSet> parameterSet = edm::boost_python::readConfig(config);
+  std::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(config);
   parameterSet->registerIt();
   std::cout << parameterSet->id() << std::endl;
   return 0;

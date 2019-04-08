@@ -24,7 +24,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
-#include "FWCore/PyDevParameterSet/interface/PyBind11Wrapper.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11Wrapper.h"
 #include <boost/python/errors.hpp>
 #include "TGLabel.h"
 #include "KeySymbols.h"

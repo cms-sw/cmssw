@@ -1,5 +1,5 @@
 import libFWCorePythonFramework as _pf
-import libFWCorePyDevParameterSet as _pp
+import libFWCorePythonParameterSet as _pp
 
 class CmsRun(object):
   def __init__(self,process):

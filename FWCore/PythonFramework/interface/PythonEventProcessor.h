@@ -20,7 +20,7 @@
 
 // system include files
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 
 // user include files
 
