@@ -11,7 +11,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/PythonParameterSet/interface/MakePyBind11ParameterSets.h"
 
 #include <memory>
 
@@ -45,7 +45,7 @@ void testreadpsetsfrom::simpleTest()
                       "dummy =  cms.PSet(b = cms.bool(True))\n"
                       "foo = cms.PSet(a = cms.string('blah'))\n"
    ;
-   std::shared_ptr<edm::ParameterSet> test = edm::boost_python::readPSetsFrom(kTest);
+   std::shared_ptr<edm::ParameterSet> test = edm::cmspybind11::readPSetsFrom(kTest);
    
    CPPUNIT_ASSERT(test->getParameterSet("dummy").getParameter<bool>("b")==true);
    CPPUNIT_ASSERT(test->getParameterSet("foo").getParameter<std::string>("a")==std::string("blah"));

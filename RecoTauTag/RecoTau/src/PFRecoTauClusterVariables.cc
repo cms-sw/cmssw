@@ -1,7 +1,7 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 
 namespace {
-  struct PFTau_traits{ typedef reco::PFTau Tau_t; typedef const std::vector<reco::PFCandidatePtr>& Ret_t; };
+  struct PFTau_traits{ typedef reco::PFTau Tau_t; typedef const std::vector<reco::CandidatePtr>& Ret_t; };
   struct PATTau_traits{ typedef pat::Tau Tau_t; typedef reco::CandidatePtrVector Ret_t; };
 
   template<typename T>
@@ -10,11 +10,11 @@ namespace {
   }
   /// return pf photon candidates that are associated to signal
   template<>
-  const std::vector<reco::PFCandidatePtr>& getGammas_T<PFTau_traits>(const reco::PFTau& tau, bool signal) {
+  const std::vector<reco::CandidatePtr>& getGammas_T<PFTau_traits>(const reco::PFTau& tau, bool signal) {
     if (signal){
-      return tau.signalPFGammaCands();
+      return tau.signalGammaCands();
     }
-    return tau.isolationPFGammaCands();
+    return tau.isolationGammaCands();
   }
 
   template<>
@@ -44,11 +44,20 @@ namespace reco { namespace tau {
   /// return chi2 of the leading track ==> deprecated? <==
   float lead_track_chi2(const reco::PFTau& tau) {
     float LeadingTracknormalizedChi2 = 0;
-    const reco::PFCandidatePtr& leadingPFCharged = tau.leadPFChargedHadrCand() ;
-    if (leadingPFCharged.isNonnull()) {
-      reco::TrackRef tref = leadingPFCharged -> trackRef();
-      if (tref.isNonnull()) {
-        LeadingTracknormalizedChi2 = (float)(tref -> normalizedChi2());
+    const reco::CandidatePtr& leadingCharged = tau.leadChargedHadrCand();
+    if (leadingCharged.isNonnull()) {
+      const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(leadingCharged.get());
+      if (pfcand != nullptr) {
+	reco::TrackRef tref = pfcand->trackRef();
+	if (tref.isNonnull()) {
+	  LeadingTracknormalizedChi2 = tref->normalizedChi2();
+	}
+      }
+      else {
+	const pat::PackedCandidate* patcand = dynamic_cast<const pat::PackedCandidate*>(leadingCharged.get());
+	if (patcand != nullptr && patcand->hasTrackDetails()) {
+	  LeadingTracknormalizedChi2 = patcand->pseudoTrack().normalizedChi2();
+	}
       }
     }
     return LeadingTracknormalizedChi2;
@@ -57,13 +66,17 @@ namespace reco { namespace tau {
   float eratio(const reco::PFTau& tau) {
     float ecal_en_in_signal_pf_cands = 0;
     float hcal_en_in_signal_pf_cands = 0;
-    for (const auto& signal_cand : tau.signalPFCands()) {
-      ecal_en_in_signal_pf_cands += signal_cand->ecalEnergy();
-      hcal_en_in_signal_pf_cands += signal_cand->hcalEnergy();
+    for (const auto& signal_cand : tau.signalCands()) {
+      const reco::PFCandidate* signal_pfcand = dynamic_cast<const reco::PFCandidate*>(signal_cand.get());
+      if (signal_pfcand != nullptr) {
+        ecal_en_in_signal_pf_cands += signal_pfcand->ecalEnergy();
+        hcal_en_in_signal_pf_cands += signal_pfcand->hcalEnergy();
+      }
+      // TauReco@MiniAOD: recalculate for PackedCandidate if added to MiniAOD event content
     }
     float total = ecal_en_in_signal_pf_cands + hcal_en_in_signal_pf_cands;
-    if(total==0){ 
-      return -1;
+    if(total == 0.){
+      return -1.;
     }
     return ecal_en_in_signal_pf_cands/total;
   }
@@ -71,8 +84,8 @@ namespace reco { namespace tau {
     float ecal_en_in_signal_cands = tau.ecalEnergy();
     float hcal_en_in_signal_cands = tau.hcalEnergy();
     float total = ecal_en_in_signal_cands + hcal_en_in_signal_cands;
-    if(total == 0){ 
-      return -1;
+    if(total == 0.){
+      return -1.;
     }
     return ecal_en_in_signal_cands/total;
   }
@@ -132,11 +145,11 @@ namespace reco { namespace tau {
   /// return total number of pf photon candidates with pT>500 MeV, which are associated to signal
   unsigned int n_photons_total(const reco::PFTau& tau) {
     unsigned int n_photons = 0;
-    for (auto& cand : tau.signalPFGammaCands()) {
+    for (auto& cand : tau.signalGammaCands()) {
       if (cand->pt() > 0.5)
         ++n_photons;
     }
-    for (auto& cand : tau.isolationPFGammaCands()) {
+    for (auto& cand : tau.isolationGammaCands()) {
       if (cand->pt() > 0.5)
         ++n_photons;
     }

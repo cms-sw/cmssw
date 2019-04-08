@@ -43,11 +43,11 @@ void RecoTauTagInfoWorkaroundModifer::beginEvent() {
 
 void RecoTauTagInfoWorkaroundModifer::operator()(PFTau& tau) const {
   // Find the PFTauTagInfo that comes from the same PFJet
-  PFJetRef tauJetRef = tau.jetRef();
+  JetBaseRef tauJetRef = tau.jetRef();
   for(size_t iInfo = 0; iInfo < infos_->size(); ++iInfo) {
     // Get jet ref from tau tag info
     PFTauTagInfoRef infoRef = PFTauTagInfoRef(infos_, iInfo);
-    PFJetRef infoJetRef = infoRef->pfjetRef();
+    JetBaseRef infoJetRef = infoRef->pfjetRef();
     // Check if they come from the same jet
     if (infoJetRef == tauJetRef) {
       // This tau "comes" from this PFJetRef

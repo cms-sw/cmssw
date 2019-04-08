@@ -7,7 +7,7 @@
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -52,7 +52,7 @@ private:
   ParameterSetPtr pSet(char const* c) {
 
     //ParameterSetPtr result( new edm::ProcessDesc(std::string(c)) );
-    ParameterSetPtr result = PythonProcessDesc(std::string(c)).parameterSet();
+    ParameterSetPtr result = PyBind11ProcessDesc(std::string(c)).parameterSet();
     CPPUNIT_ASSERT(result->getParameter<std::string>("@process_name") == "test");
     return result;
   }
@@ -114,8 +114,6 @@ void testmakeprocess::pathTest() {
 
    edm::ParameterSet& myparams = *(test);
    myparams.registerIt();
-//    std::cout << "ParameterSet looks like:\n";
-//    std::cout << myparams.toString() << std::endl;
    std::string rep = myparams.toString();
    edm::ParameterSet copy(rep);
    CPPUNIT_ASSERT(copy == myparams);
@@ -200,8 +198,6 @@ void testmakeprocess::emptyModuleTest() {
 
    edm::ParameterSet& myparams = *(test);
    myparams.registerIt();
-//    std::cout << "ParameterSet looks like:\n";
-//    std::cout << myparams.toString() << std::endl;
    std::string rep = myparams.toString();
    edm::ParameterSet copy(rep);
    CPPUNIT_ASSERT(copy == myparams);
@@ -217,12 +213,6 @@ void testmakeprocess::taskTest() {
 
    ParameterSetPtr test = pSet(kTest);
 
-   //std::cout << "Dumping parameter names\n";
-   //std::vector<std::string> names = test->getParameterNames();
-   //std::sort(names.begin(), names.end());
-   //for (auto const& name : names) {
-   //  std::cout << name << std::endl;
-   //}
 
    CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("m1") &&
                   !test->existsAs<edm::ParameterSet>("m2") &&
@@ -357,7 +347,6 @@ void testmakeprocess::taskTest() {
    std::set<std::string> serviceNames;
    for (auto const& pset : vpsetServices) {
      serviceNames.insert(pset.getParameter<std::string>("@service_type"));
-     // std::cout << "serviceName = " << pset.getParameter<std::string>("@service_type") << std::endl;
    }
    std::vector<std::string> expectedServiceNames;
    expectedServiceNames.emplace_back("serv1");
@@ -402,13 +391,6 @@ void testmakeprocess::taskTestWithEmptySchedule() {
    "process.schedule = cms.Schedule()\n";
 
    ParameterSetPtr test = pSet(kTest);
-
-   //std::cout << "Dumping parameter names\n";
-   //std::vector<std::string> names = test->getParameterNames();
-   //std::sort(names.begin(), names.end());
-   //for (auto const& name : names) {
-   //  std::cout << name << std::endl;
-   //}
 
    CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("m1") &&
                   !test->existsAs<edm::ParameterSet>("m2") &&
@@ -543,7 +525,6 @@ void testmakeprocess::taskTestWithEmptySchedule() {
    std::set<std::string> serviceNames;
    for (auto const& pset : vpsetServices) {
      serviceNames.insert(pset.getParameter<std::string>("@service_type"));
-     // std::cout << "serviceName = " << pset.getParameter<std::string>("@service_type") << std::endl;
    }
    std::vector<std::string> expectedServiceNames;
    expectedServiceNames.emplace_back("serv1");
@@ -578,13 +559,6 @@ void testmakeprocess::taskTestWithSchedule() {
                                     "process.tserv10])\n";
 
    ParameterSetPtr test = pSet(kTest);
-
-   //std::cout << "Dumping parameter names\n";
-   //std::vector<std::string> names = test->getParameterNames();
-   //std::sort(names.begin(), names.end());
-   //for (auto const& name : names) {
-   //  std::cout << name << std::endl;
-   //}
 
    CPPUNIT_ASSERT(!test->existsAs<edm::ParameterSet>("m1") &&
                   !test->existsAs<edm::ParameterSet>("m2") &&
@@ -719,7 +693,6 @@ void testmakeprocess::taskTestWithSchedule() {
    std::set<std::string> serviceNames;
    for (auto const& pset : vpsetServices) {
      serviceNames.insert(pset.getParameter<std::string>("@service_type"));
-     // std::cout << "serviceName = " << pset.getParameter<std::string>("@service_type") << std::endl;
    }
    std::vector<std::string> expectedServiceNames;
    expectedServiceNames.emplace_back("serv1");
