@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/MuonNumberingRcd.h"
+#include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
@@ -39,7 +39,7 @@ public:
   
   using ReturnType = unique_ptr<MuonNumbering>;
   
-  ReturnType produce(const MuonNumberingRcd&);
+  ReturnType produce(const MuonNumberingRecord&);
 
 private:
   const string m_label;
@@ -58,7 +58,7 @@ MuonNumberingESProducer::~MuonNumberingESProducer()
 {}
 
 MuonNumberingESProducer::ReturnType
-MuonNumberingESProducer::produce(const MuonNumberingRcd& iRecord)
+MuonNumberingESProducer::produce(const MuonNumberingRecord& iRecord)
 {
   LogDebug("Geometry") << "MuonNumberingESProducer::produce from " << m_label << " with " << m_key;
   auto product = make_unique<MuonNumbering>();
