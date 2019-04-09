@@ -161,6 +161,8 @@ def save_paths(flat_dict, paths, result_file_path):
 
    for path in paths:
       save_to_file(flat_dict, path, result_file)
+   
+   ROOT.gROOT.GetListOfFiles().Remove(result_file)
 
    result_file.Close()
    print('Output written to %s file' % result_file_path, file=sys.stderr)
