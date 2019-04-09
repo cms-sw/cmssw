@@ -1,16 +1,27 @@
+from __future__ import print_function
+
 import math
 import ROOT
 from TkAlStyle import TkAlStyle
-from random import randint
-def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction,l):
+
+def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction,profile_direction):
     f = ROOT.TFile(tree_file_name)
     t = f.Get("analysis/Overlaps")
-    if (subdet_id==4 or subdet_id==6):
+    if profile_direction is None:
+        if (subdet_id==4 or subdet_id==6):
 	    h = ROOT.TH1F(hist_name, hist_name, 100, -5000, 5000)
-    else:
-    	h = ROOT.TH1F(hist_name, hist_name, 100, -300, 300)
+        else:
+    	    h = ROOT.TH1F(hist_name, hist_name, 100, -300, 300)
+
+    else: h = ROOT.TProfile(hist_name, hist_name, 10, -100, 100) 
+
     h.SetDirectory(0)
-    for entry in t:
+
+    nentries = t.GetEntries()
+
+    for i, entry in enumerate(t, start=1):
+        if i % 10000 == 0 or i == nentries:
+            print(i, "/", nentries)
         if not ((t.subdetID == subdet_id)):
             continue
 	if module_direction not in ("r" ,"phi", "z"): 
@@ -78,19 +89,16 @@ def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction,
             residualA *= -1
         if overlapSignB < 0:
             residualB *= -1
-        
+
         A = 10000*(residualA - residualB)
-        if (l==0):
-		h.Fill(A)
-    	elif (l==1):
-		h.Fill(10000*residualA)
-	elif (l==2):
-		h.Fill(10000*residualB)
-	elif (l==3):
-		h.Fill(10000*(residualA+((-1)^randint(0,1))*residualB))
+        if profile_direction is None:
+            h.Fill(A)
+        elif profile_direction == "z":
+            h.Fill((t.moduleZ[0]+t.moduleZ[1])/2, A)
+
     return h
 
-def plot(file_name,subdet_id,module_direction,overlap_direction,m, *filesTitlesColorsStyles):
+def plot(file_name,subdet_id,module_direction,overlap_direction,profile_direction,*filesTitlesColorsStyles):
     hstack = ROOT.THStack("hstack","")
     legend = TkAlStyle.legend(len(filesTitlesColorsStyles), 1)
     legend.SetBorderSize(0)
@@ -98,7 +106,7 @@ def plot(file_name,subdet_id,module_direction,overlap_direction,m, *filesTitlesC
     hs = []
     
     for files, title, color, style in filesTitlesColorsStyles:
-        h = hist(files,files.replace("/",""),subdet_id,module_direction,overlap_direction,m)
+        h = hist(files,files.replace("/",""),subdet_id,module_direction,overlap_direction,profile_direction)
         h.SetLineColor(color)
         h.SetLineStyle(style)
 	hMean = h.GetMean(1)
@@ -111,14 +119,7 @@ def plot(file_name,subdet_id,module_direction,overlap_direction,m, *filesTitlesC
     c = ROOT.TCanvas()
     hstack.Draw("nostack")
     legend.Draw()
-    if (m==0):
-	xTitle = "hit_{A} - pred_{A} - (hit_{B} - pred_{B}) (#mum)"
-    elif (m==1):
-	xTitle = "hit_{A} - pred_{A} (#mum)"
-    elif (m==2):
-	xTitle = "(hit_{B} - pred_{B}) (#mum)"
-    elif (m==3):
-	xTitle = "hit_{A} - pred_{A} \pm  (hit_{B} - pred_{B}) (#mum)"
+    xTitle = "hit_{A} - pred_{A} - (hit_{B} - pred_{B}) (#mum)"
 
     hstack.GetXaxis().SetTitle(xTitle)
     hstack.GetYaxis().SetTitle("number of events")
@@ -126,10 +127,8 @@ def plot(file_name,subdet_id,module_direction,overlap_direction,m, *filesTitlesC
 
     TkAlStyle.drawStandardTitle()
         
-    save_as_file_name = file_name+str(m)
+    save_as_file_name = file_name
 
-    if (m==0):
-	save_as_file_name = file_name
 
     for ext in "png", "eps", "root", "pdf":
         c.SaveAs(save_as_file_name+"." +ext)
