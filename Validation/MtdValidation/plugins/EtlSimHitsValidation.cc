@@ -56,15 +56,9 @@ private:
 
   // ------------ member data ------------
 
-  const MTDGeometry* geom_;
-
   const std::string folder_;
-  const std::string g4InfoLabel_;
-  const std::string etlHitsCollection_;
 
   const float hitMinEnergy_;
-
-  int eventCount_;
 
   edm::EDGetTokenT<edm::PSimHitContainer> etlSimHitsToken_;
 
@@ -99,15 +93,14 @@ private:
 
 // ------------ constructor and destructor --------------
 EtlSimHitsValidation::EtlSimHitsValidation(const edm::ParameterSet& iConfig):
-  geom_(nullptr),
   folder_(iConfig.getParameter<std::string>("folder")),
-  g4InfoLabel_(iConfig.getParameter<std::string>("moduleLabelG4")),
-  etlHitsCollection_(iConfig.getParameter<std::string>("etlSimHitsCollection")),
-  hitMinEnergy_( iConfig.getParameter<double>("hitMinimumEnergy") ),
-  eventCount_(0) {
+  hitMinEnergy_( iConfig.getParameter<double>("hitMinimumEnergy") ) {
   
-  etlSimHitsToken_ = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(g4InfoLabel_),
-								     std::string(etlHitsCollection_)));
+  const std::string g4InfoLabel = iConfig.getParameter<std::string>("moduleLabelG4");
+  const std::string etlHitsCollection = iConfig.getParameter<std::string>("etlSimHitsCollection");
+
+  etlSimHitsToken_ = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(g4InfoLabel),
+								     std::string(etlHitsCollection)));
 
 }
 
@@ -120,11 +113,9 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   using namespace edm;
 
-  edm::LogInfo("EventInfo") << " Run = " << iEvent.id().run() << " Event = " << iEvent.id().event();
-
   edm::ESHandle<MTDGeometry> geometryHandle;
   iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
-  geom_ = geometryHandle.product();
+  const MTDGeometry* geom = geometryHandle.product();
 
   edm::Handle<edm::PSimHitContainer> etlSimHitsHandle;
   iEvent.getByToken(etlSimHitsToken_, etlSimHitsHandle);
@@ -134,8 +125,6 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     return;
   }
 
-  eventCount_++;
-  
   std::unordered_map<uint32_t, MTDHit> m_etlHits[2];
   std::unordered_map<uint32_t, std::set<int> > m_etlTrkPerCell[2];
 
@@ -191,7 +180,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       ETLDetId detId(hit.first); 
 
       DetId geoId = detId.geographicalId();
-      const MTDGeomDet* thedet = geom_->idToDet(geoId);
+      const MTDGeomDet* thedet = geom->idToDet(geoId);
       if( thedet == nullptr )
 	throw cms::Exception("EtlSimHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId()
 						     << " (" << detId.rawId()<< ") is invalid!" << std::dec
@@ -271,8 +260,8 @@ void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
 
   meHitPhi_[1]    = ibook.book1D("EtlHitPhiZpos", "ETL SIM hits #phi (+Z);#phi_{SIM} [rad]", 100, -3.15, 3.15);
   meHitPhi_[0]    = ibook.book1D("EtlHitPhiZneg", "ETL SIM hits #phi (-Z);#phi_{SIM} [rad]", 100, -3.15, 3.15);
-  meHitEta_[1]    = ibook.book1D("EtlHitEtaZpos", "ETL SIM hits #eta (+Z);#eta_{SIM}", 100,  1.56,  2.96);
-  meHitEta_[0]    = ibook.book1D("EtlHitEtaZneg", "ETL SIM hits #eta (-Z);#eta_{SIM}", 100, -2.96, -1.56);
+  meHitEta_[1]    = ibook.book1D("EtlHitEtaZpos", "ETL SIM hits #eta (+Z);#eta_{SIM}", 100,  1.56,  3.);
+  meHitEta_[0]    = ibook.book1D("EtlHitEtaZneg", "ETL SIM hits #eta (-Z);#eta_{SIM}", 100, 3., -1.56);
 
   meHitTvsE_[1]    = ibook.bookProfile("EtlHitTvsEZpos", "ETL SIM time vs energy (+Z);E_{SIM} [MeV];T_{SIM} [ns]",
 				       50, 0., 2., 0., 100.);
@@ -283,17 +272,17 @@ void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
   meHitEvsPhi_[0]  = ibook.bookProfile("EtlHitEvsPhiZneg", "ETL SIM energy vs #phi (-Z);#phi_{SIM} [rad];E_{SIM} [MeV]",
 				       50, -3.15, 3.15, 0., 100.);
   meHitEvsEta_[1]  = ibook.bookProfile("EtlHitEvsEtaZpos","ETL SIM energy vs #eta (+Z);#eta_{SIM};E_{SIM} [MeV]",
-				       50, 1.56, 2.96, 0., 100.);
+				       50, 1.56, 3., 0., 100.);
   meHitEvsEta_[0]  = ibook.bookProfile("EtlHitEvsEtaZneg","ETL SIM energy vs #eta (-Z);#eta_{SIM};E_{SIM} [MeV]",
-				       50, -2.96, -1.56, 0., 100.);
+				       50, 3., -1.56, 0., 100.);
   meHitTvsPhi_[1]  = ibook.bookProfile("EtlHitTvsPhiZpos", "ETL SIM time vs #phi (+Z);#phi_{SIM} [rad];T_{SIM} [ns]",
 				       50, -3.15, 3.15, 0., 100.);
   meHitTvsPhi_[0]  = ibook.bookProfile("EtlHitTvsPhiZneg", "ETL SIM time vs #phi (-Z);#phi_{SIM} [rad];T_{SIM} [ns]",
 				       50, -3.15, 3.15, 0., 100.);
   meHitTvsEta_[1] = ibook.bookProfile("EtlHitTvsEtaZpos","ETL SIM time vs #eta (+Z);#eta_{SIM};T_{SIM} [ns]",
-				       50, 1.56, 2.96, 0., 100.);
+				       50, 1.56, 3., 0., 100.);
   meHitTvsEta_[0] = ibook.bookProfile("EtlHitTvsEtaZpos","ETL SIM time vs #eta (-Z);#eta_{SIM};T_{SIM} [ns]",
-				       50, -2.96, -1.56, 0., 100.);
+				       50, 3., -1.56, 0., 100.);
 
 }
 

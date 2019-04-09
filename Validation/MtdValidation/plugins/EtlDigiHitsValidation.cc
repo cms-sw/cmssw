@@ -48,13 +48,7 @@ private:
 
   // ------------ member data ------------
 
-  const MTDGeometry* geom_;
-
   const std::string folder_;
-  const std::string infoLabel_;
-  const std::string etlDigisCollection_;
-
-  int eventCount_;
 
   edm::EDGetTokenT<ETLDigiCollection> etlDigiHitsToken_;
 
@@ -84,14 +78,13 @@ private:
 
 // ------------ constructor and destructor --------------
 EtlDigiHitsValidation::EtlDigiHitsValidation(const edm::ParameterSet& iConfig):
-  geom_(nullptr),
-  folder_(iConfig.getParameter<std::string>("folder")),
-  infoLabel_(iConfig.getParameter<std::string>("moduleLabel")),
-  etlDigisCollection_(iConfig.getParameter<std::string>("etlDigiHitsCollection")),
-  eventCount_(0) {
+  folder_(iConfig.getParameter<std::string>("folder")) {
 
-  etlDigiHitsToken_ = consumes <ETLDigiCollection> (edm::InputTag(std::string(infoLabel_),
-								  std::string(etlDigisCollection_)));
+  const std::string infoLabel = iConfig.getParameter<std::string>("moduleLabel");
+  const std::string etlDigisCollection = iConfig.getParameter<std::string>("etlDigiHitsCollection");
+
+  etlDigiHitsToken_ = consumes <ETLDigiCollection> (edm::InputTag(std::string(infoLabel),
+								  std::string(etlDigisCollection)));
 
 }
 
@@ -104,11 +97,9 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   using namespace edm;
 
-  edm::LogInfo("EventInfo") << " Run = " << iEvent.id().run() << " Event = " << iEvent.id().event();
-
   edm::ESHandle<MTDGeometry> geometryHandle;
   iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
-  geom_ = geometryHandle.product();
+  const MTDGeometry* geom = geometryHandle.product();
 
   edm::Handle<ETLDigiCollection> etlDigiHitsHandle;
   iEvent.getByToken(etlDigiHitsToken_, etlDigiHitsHandle);
@@ -118,8 +109,6 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     return;
   }
 
-  eventCount_++;
-  
   // --- Loop over the ELT DIGI hits
 
   unsigned int n_digi_etl[2] = {0,0};
@@ -135,7 +124,7 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
     DetId geoId = detId.geographicalId();
 
-    const MTDGeomDet* thedet = geom_->idToDet(geoId);
+    const MTDGeomDet* thedet = geom->idToDet(geoId);
     if( thedet == nullptr )
       throw cms::Exception("EtlDigiHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId()
 						    << " (" << detId.rawId()<< ") is invalid!" << std::dec
@@ -211,8 +200,8 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
 
   meHitPhi_[0]    = ibook.book1D("EtlHitPhiZneg", "ETL DIGI hits #phi (-Z);#phi_{DIGI} [rad]", 100, -3.15, 3.15);
   meHitPhi_[1]    = ibook.book1D("EtlHitPhiZpos", "ETL DIGI hits #phi (+Z);#phi_{DIGI} [rad]", 100, -3.15, 3.15);
-  meHitEta_[0]    = ibook.book1D("EtlHitEtaZneg", "ETL DIGI hits #eta (-Z);#eta_{DIGI}", 100, -2.96, -1.56);
-  meHitEta_[1]    = ibook.book1D("EtlHitEtaZpos", "ETL DIGI hits #eta (+Z);#eta_{DIGI}", 100,  1.56,  2.96);
+  meHitEta_[0]    = ibook.book1D("EtlHitEtaZneg", "ETL DIGI hits #eta (-Z);#eta_{DIGI}", 100, -3., -1.56);
+  meHitEta_[1]    = ibook.book1D("EtlHitEtaZpos", "ETL DIGI hits #eta (+Z);#eta_{DIGI}", 100,  1.56,  3.);
 
 
   meHitTvsQ_[0]   = ibook.bookProfile("EtlHitTvsQZneg", "ETL DIGI ToA vs charge (-Z);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
@@ -224,17 +213,17 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
   meHitQvsPhi_[1] = ibook.bookProfile("EtlHitQvsPhiZpos", "ETL DIGI charge vs #phi (+Z);#phi_{DIGI} [rad];Q_{DIGI} [ADC counts]",
 				      50, -3.15, 3.15, 0., 1024.);
   meHitQvsEta_[0] = ibook.bookProfile("EtlHitQvsEtaZneg","ETL DIGI charge vs #eta (-Z);#eta_{DIGI};Q_{DIGI} [ADC counts]",
-				      50, -2.96, -1.56, 0., 1024.);
+				      50, -3., -1.56, 0., 1024.);
   meHitQvsEta_[1] = ibook.bookProfile("EtlHitQvsEtaZpos","ETL DIGI charge vs #eta (+Z);#eta_{DIGI};Q_{DIGI} [ADC counts]",
-				      50, 1.56,  2.96, 0., 1024.);
+				      50, 1.56,  3., 0., 1024.);
   meHitTvsPhi_[0] = ibook.bookProfile("EtlHitTvsPhiZneg", "ETL DIGI ToA vs #phi (-Z);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
 				      50, -3.15, 3.15, 0., 1024.);
   meHitTvsPhi_[1] = ibook.bookProfile("EtlHitTvsPhiZpos", "ETL DIGI ToA vs #phi (+Z);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
 				      50, -3.15, 3.15, 0., 1024.);
   meHitTvsEta_[0] = ibook.bookProfile("EtlHitTvsEtaZneg","ETL DIGI ToA vs #eta (-Z);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
-				      50, -2.96, -1.56, 0., 1024.);
+				      50, -3., -1.56, 0., 1024.);
   meHitTvsEta_[1] = ibook.bookProfile("EtlHitTvsEtaZpos","ETL DIGI ToA vs #eta (+Z);#eta_{DIGI};ToA_{DIGI} [TDC counts]",
-				      50, 1.56,  2.96, 0., 1024.);
+				      50, 1.56,  3., 0., 1024.);
 
 }
 
@@ -248,7 +237,7 @@ void EtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<std::string>("moduleLabel","mix");
   desc.add<std::string>("etlDigiHitsCollection","FTLEndcap");
 
-  descriptions.add("etlDigiHits", desc);
+  descriptions.add("etlDigiHitsDefault", desc);
 
 }
 

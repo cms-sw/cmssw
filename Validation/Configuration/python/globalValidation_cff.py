@@ -161,7 +161,7 @@ globalValidationHCAL = cms.Sequence(
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
 
-globalValidationMTD = cms.Sequence(mtdSimValid+mtdDigiValid+mtdRecoValid)
+globalValidationMTD = cms.Sequence()
 
 globalValidationOuterTracker = cms.Sequence(OuterTrackerSourceV)
 
@@ -200,3 +200,6 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( globalValidation, _phase2_globalValidation )
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toReplaceWith(globalValidation, globalValidation.copyAndExclude([pfTauRunDQMValidation]))
+from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(globalValidationMTD, cms.Sequence(mtdSimValid+mtdDigiValid+mtdRecoValid))

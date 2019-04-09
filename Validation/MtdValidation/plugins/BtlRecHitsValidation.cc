@@ -52,14 +52,7 @@ private:
 
   // ------------ member data ------------
 
-  const MTDGeometry* geom_;
-  const MTDTopology* topo_;
-
   const std::string folder_;
-  const std::string infoLabel_;
-  const std::string btlRecHitsCollection_;
-
-  int eventCount_;
 
   edm::EDGetTokenT<FTLRecHitCollection> btlRecHitsToken_;
 
@@ -91,15 +84,13 @@ private:
 
 // ------------ constructor and destructor --------------
 BtlRecHitsValidation::BtlRecHitsValidation(const edm::ParameterSet& iConfig):
-  geom_(nullptr),
-  topo_(nullptr),
-  folder_(iConfig.getParameter<std::string>("folder")),
-  infoLabel_(iConfig.getParameter<std::string>("moduleLabel")),
-  btlRecHitsCollection_(iConfig.getParameter<std::string>("btlRecHitsCollection")),
-  eventCount_(0) {
+  folder_(iConfig.getParameter<std::string>("folder")) {
 
-  btlRecHitsToken_ = consumes <FTLRecHitCollection> (edm::InputTag(std::string(infoLabel_),
-								   std::string(btlRecHitsCollection_)));
+  const std::string infoLabel = iConfig.getParameter<std::string>("moduleLabel");
+  const std::string btlRecHitsCollection = iConfig.getParameter<std::string>("btlRecHitsCollection");
+
+  btlRecHitsToken_ = consumes <FTLRecHitCollection> (edm::InputTag(std::string(infoLabel),
+								   std::string(btlRecHitsCollection)));
 
 }
 
@@ -112,15 +103,13 @@ void BtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   using namespace edm;
 
-  edm::LogInfo("EventInfo") << " Run = " << iEvent.id().run() << " Event = " << iEvent.id().event();
-
   edm::ESHandle<MTDGeometry> geometryHandle;
   iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
-  geom_ = geometryHandle.product();
+  const MTDGeometry* geom = geometryHandle.product();
 
   edm::ESHandle<MTDTopology> topologyHandle;
   iSetup.get<MTDTopologyRcd>().get(topologyHandle);
-  topo_ = topologyHandle.product();
+  const MTDTopology* topology = topologyHandle.product();
 
   edm::Handle<FTLRecHitCollection> btlRecHitsHandle;
   iEvent.getByToken(btlRecHitsToken_, btlRecHitsHandle);
@@ -130,7 +119,6 @@ void BtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     return;
   }
 
-  eventCount_++;
 
   // --- Loop over the BLT RECO hits
 
@@ -139,8 +127,8 @@ void BtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   for (const auto& recHit: *btlRecHitsHandle) {
 
     BTLDetId detId = recHit.id();
-    DetId geoId = detId.geographicalId( static_cast<BTLDetId::CrysLayout>(topo_->getMTDTopologyMode()) );
-    const MTDGeomDet* thedet = geom_->idToDet(geoId);
+    DetId geoId = detId.geographicalId( static_cast<BTLDetId::CrysLayout>(topology->getMTDTopologyMode()) );
+    const MTDGeomDet* thedet = geom->idToDet(geoId);
     if( thedet == nullptr )
       throw cms::Exception("BtlRecHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId()
 						   << " (" << detId.rawId()<< ") is invalid!" << std::dec
