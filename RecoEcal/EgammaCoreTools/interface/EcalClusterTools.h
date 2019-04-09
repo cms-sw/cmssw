@@ -69,6 +69,7 @@ struct Cluster2ndMoments {
   float sMin;
   // angle between sMaj and phi:
   float alpha;
+  Cluster2ndMoments():sMaj(0.),sMin(0.),alpha(0.){}
 
 };
 
@@ -1229,8 +1230,7 @@ std::vector<float> EcalClusterToolsT<noZS>::scLocalCovariances(const reco::Super
 template<bool noZS>
 Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments( const reco::BasicCluster &basicCluster, const EcalRecHitCollection &recHits, double phiCorrectionFactor, double w0, bool useLogWeights) {
 
-  // for now implemented only for EB:
-  //  if( fabs( basicCluster.eta() ) < 1.479 ) { 
+  if(recHits.empty()) return Cluster2ndMoments();
 
   std::vector<std::pair<const EcalRecHit*, float> > RH_ptrs_fracs;
   
@@ -1239,7 +1239,9 @@ Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments( const reco::BasicC
   for(unsigned int i=0; i<myHitsPair.size(); i++){
     //get pointer to recHit object
     EcalRecHitCollection::const_iterator myRH = recHits.find(myHitsPair[i].first);
-    RH_ptrs_fracs.push_back(  std::make_pair(&(*myRH) , myHitsPair[i].second)  );
+    if(myRH != recHits.end()){
+      RH_ptrs_fracs.push_back(  std::make_pair(&(*myRH) , myHitsPair[i].second)  );
+    }
   }
   
   return EcalClusterToolsT<noZS>::cluster2ndMoments(RH_ptrs_fracs, phiCorrectionFactor, w0, useLogWeights);
@@ -1248,23 +1250,14 @@ Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments( const reco::BasicC
 template<bool noZS>
 Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments( const reco::SuperCluster &superCluster, const EcalRecHitCollection &recHits, double phiCorrectionFactor, double w0, bool useLogWeights) {
 
-  // for now returns second moments of supercluster seed cluster:
-  Cluster2ndMoments returnMoments;
-  returnMoments.sMaj = -1.;
-  returnMoments.sMin = -1.;
-  returnMoments.alpha = 0.;
-
-  // for now implemented only for EB:
-  //  if( fabs( superCluster.eta() ) < 1.479 ) { 
-    returnMoments = EcalClusterToolsT<noZS>::cluster2ndMoments( *(superCluster.seed()), recHits, phiCorrectionFactor, w0, useLogWeights);
-    //  }
-
-  return returnMoments;
+  return EcalClusterToolsT<noZS>::cluster2ndMoments( *(superCluster.seed()), recHits, phiCorrectionFactor, w0, useLogWeights);
 
 }
 
 template<bool noZS>
 Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments( const std::vector<std::pair<const EcalRecHit*, float> >& RH_ptrs_fracs, double phiCorrectionFactor, double w0, bool useLogWeights) {
+
+  if(RH_ptrs_fracs.empty()) return Cluster2ndMoments();
 
   double mid_eta(0),mid_phi(0),mid_x(0),mid_y(0);
   
