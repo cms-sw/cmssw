@@ -15,9 +15,14 @@ ootPhotons = _gedPhotons.clone(
     candidateP4type = "fromEcalEnergy",
     reconstructionStep = "ootfinal",
     pfEgammaCandidates = "",
-    chargedHadronIsolation = cms.InputTag(""),
-    neutralHadronIsolation = cms.InputTag(""),
-    photonIsolation = cms.InputTag(""),
+    pfIsolCfg = cms.PSet(
+        chargedHadronIso = cms.InputTag(""),
+        neutralHadronIso = cms.InputTag(""),
+        photonIso = cms.InputTag(""),
+        chargedHadronWorstVtxIso = cms.InputTag(""),
+        chargedHadronWorstVtxGeomVetoIso = cms.InputTag(""),
+        chargedHadronPFPVIso = cms.InputTag(""),
+    ),
     pfECALClusIsolation = cms.InputTag("ootPhotonEcalPFClusterIsolationProducer"),
     pfHCALClusIsolation = cms.InputTag("ootPhotonHcalPFClusterIsolationProducer"),
     valueMapPhotons = ""
