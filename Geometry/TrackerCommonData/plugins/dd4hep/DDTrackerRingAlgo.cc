@@ -9,9 +9,9 @@ using namespace cms;
 using namespace geant_units::operators;
 
 namespace {
-  static long algorithm(Detector& /* description */,
-			cms::DDParsingContext& ctxt, xml_h e,
-			SensitiveDetector& /* sens */)
+  long algorithm(Detector& /* description */,
+		 cms::DDParsingContext& ctxt, xml_h e,
+		 SensitiveDetector& /* sens */)
   {
     DDNamespace ns(ctxt, e, true);
     DDAlgoArguments args(ctxt, e);
