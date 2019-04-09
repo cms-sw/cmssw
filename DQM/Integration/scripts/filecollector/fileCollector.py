@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 from __future__ import print_function
+from builtins import range
 import os, time, sys, glob, re, shutil, stat, smtplib, socket
 from email.MIMEText import MIMEText
 from fcntl import lockf, LOCK_EX, LOCK_UN

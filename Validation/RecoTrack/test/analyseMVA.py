@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from builtins import range
 import array
 import collections
 import itertools
@@ -112,7 +113,7 @@ def makeHistos():
             new_bins = array.array("d", [0]*(bins+1))
             new_bins[0] = 10**minLog10
             mult = 10**width
-            for i in xrange(1, bins+1):
+            for i in range(1, bins+1):
                 new_bins[i] = new_bins[i-1]*mult
             axis.Set(bins, new_bins)
         h[name] = _h

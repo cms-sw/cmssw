@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 from __future__ import print_function
+from builtins import range
 import inspect
 import itertools
 import logging
@@ -148,7 +149,7 @@ if __name__ == "__main__":
             chain2.toBegin()
             logging.info("Testing identity for handle=%s, label=%s" % (handleName, label))
             # Use itertools to iterate over lists in ||
-            for ev1, ev2, count in itertools.izip(chain1, chain2, xrange(numEvents)):
+            for ev1, ev2, count in itertools.izip(chain1, chain2, range(numEvents)):
                 evCount, evMismatch = compareEvents(event1=ev1, event2=ev2, handleName=handleName, label=label, options=options)
                 totalCount += evCount
                 mismatches += evMismatch

@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import ROOT as R
 import sys
 
@@ -46,22 +47,22 @@ nHistsBar = 2
 nLumiPerRun = 20
 startIndex = 0
 lastIndex =-1
-for i in xrange(0, nRuns):
+for i in range(0, nRuns):
     # LS-based histograms follow
-    for l in xrange(0, nLumiPerRun):
-        for j in xrange(0, nHistsBar):
+    for l in range(0, nLumiPerRun):
+        for j in range(0, nHistsBar):
             lastIndex += 1
             values.append((folder + "Bar" + str(j) + "_lumi", 0, 55.0))
-        for j in xrange(0, nHistsFoo):
+        for j in range(0, nHistsFoo):
             lastIndex += 1
             values.append((folder + "Foo" + str(j) + "_lumi", 0, 1.0))
         expectedIndices.append( (i + 1, l + 1, 3, startIndex, lastIndex) )
         startIndex = lastIndex + 1
     # Run-based histograms follow
-    for j in xrange(0, nHistsBar):
+    for j in range(0, nHistsBar):
         lastIndex += 1
         values.append((folder + "Bar" + str(j), 0, 110.0))
-    for j in xrange(0, nHistsFoo):
+    for j in range(0, nHistsFoo):
         lastIndex += 1
         values.append((folder + "Foo" + str(j), 0, 2.0))
     expectedIndices.append( (i + 1, 0, 3, startIndex, lastIndex) )
@@ -78,8 +79,8 @@ if nRuns+nRuns*nLumiPerRun != indices.GetEntries():
     sys.exit(1)
 
 indexTreeIndex = 0
-for run in xrange(0, nRuns):
-    for lumi in xrange(0, nLumiPerRun):
+for run in range(0, nRuns):
+    for lumi in range(0, nLumiPerRun):
         indices.GetEntry(indexTreeIndex)
         v = (indices.Run, indices.Lumi, indices.Type, indices.FirstIndex, indices.LastIndex)
         if v != expectedIndices[indexTreeIndex]:
@@ -87,7 +88,7 @@ for run in xrange(0, nRuns):
             print(' expected:', expectedIndices[indexTreeIndex])
             print(' found:', v)
             sys.exit(1)
-        for ihist in xrange(indices.FirstIndex,indices.LastIndex+1):
+        for ihist in range(indices.FirstIndex,indices.LastIndex+1):
             index = ihist
             th1fs.GetEntry(ihist)
             v = (th1fs.FullName,th1fs.Flags,th1fs.Value.GetEntries())
@@ -98,7 +99,7 @@ for run in xrange(0, nRuns):
                 sys.exit(1)
         indexTreeIndex +=1
     indices.GetEntry(indexTreeIndex)
-    for ihist in xrange(indices.FirstIndex,indices.LastIndex+1):
+    for ihist in range(indices.FirstIndex,indices.LastIndex+1):
         index = ihist
         th1fs.GetEntry(ihist)
         v = (th1fs.FullName,th1fs.Flags,th1fs.Value.GetEntries())
