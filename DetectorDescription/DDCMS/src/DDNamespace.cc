@@ -192,15 +192,12 @@ DDNamespace::addVolume( dd4hep::Volume vol ) const
 dd4hep::Volume
 DDNamespace::volume( const string& name, bool exc ) const
 {
-  size_t idx;
   auto i = m_context->volumes.find( name );
   if( i != m_context->volumes.end()) {
     return (*i).second;
   }
-  if(( idx = name.find( NAMESPACE_SEP )) != string::npos )  {
-    string n = name;
-    n[idx] = NAMESPACE_SEP;
-    i = m_context->volumes.find( n );
+  if(name.front() == NAMESPACE_SEP) {
+    i = m_context->volumes.find(name.substr(1,name.size()));
     if( i != m_context->volumes.end())
       return (*i).second;
   }

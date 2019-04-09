@@ -655,6 +655,9 @@ template <> void Converter<DDLPosPart>::operator()( xml_h element ) const {
   int         copy        = e.attr<int>( DD_CMU( copyNumber ));
   string      parentName  = ns.attr<string>( e.child( DD_CMU( rParent )), _U( name ));
   string      childName   = ns.attr<string>( e.child( DD_CMU( rChild )), _U( name ));
+
+  if( strchr( parentName.c_str(), NAMESPACE_SEP ) == nullptr )
+    parentName = ns.name() + parentName;
   Volume      parent      = ns.volume( parentName );
   
   if( strchr( childName.c_str(), NAMESPACE_SEP ) == nullptr )
@@ -1312,12 +1315,11 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
   cms::DDParsingContext* context = _param<cms::DDParsingContext>();
   DDRegistry* res = _option<DDRegistry>();
   cms::DDNamespace ns( context );
-
+  int count = 0;
+  
   printout( context->debug_constants ? ALWAYS : DEBUG,
 	    "DD4CMS","+++ RESOLVING %ld unknown constants.....", res->unresolvedConst.size());
 
-  // FIXME: Avoid an infinite loop in a case
-  // when a referred constant is not defined
   while( !res->unresolvedConst.empty()) {
     for( auto i : res->unresolvedConst ) {
       const string& n = i.first;
@@ -1348,6 +1350,7 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
         break;
       }
     }
+    if( ++count > 10000) break;
   }
   if( !res->unresolvedConst.empty()) {
     for(const auto& e : res->unresolvedConst)
