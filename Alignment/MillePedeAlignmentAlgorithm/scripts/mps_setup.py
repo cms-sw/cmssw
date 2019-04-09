@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from builtins import range
 import os
 import re
 import sys
@@ -166,7 +167,7 @@ if nJobExist == 0 or nJobExist <=0 or nJobExist > 999: # quite rude method... ->
     os.makedirs("jobData")
     nJobExist = 0;
 
-for j in xrange(1, args.n_jobs + 1):
+for j in range(1, args.n_jobs + 1):
     i = j+nJobExist
     jobdir = "job{0:03d}".format(i)
     print("jobdir", jobdir)
@@ -216,7 +217,7 @@ if args.append:
 
 
 # Create (update) the local database
-for j in xrange(1, args.n_jobs + 1):
+for j in range(1, args.n_jobs + 1):
     i = j+nJobExist
     jobdir = "job{0:03d}".format(i)
     lib.JOBDIR.append(jobdir)
