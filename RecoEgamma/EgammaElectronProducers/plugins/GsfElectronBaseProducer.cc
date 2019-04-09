@@ -55,6 +55,7 @@ void GsfElectronBaseProducer::fillDescriptions( edm::ConfigurationDescriptions &
   desc.add<edm::InputTag>("previousGsfElectronsTag", edm::InputTag(""));
   desc.add<edm::InputTag>("hcalTowers", edm::InputTag("towerMaker"));
   desc.add<edm::InputTag>("vtxTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("conversionsTag", edm::InputTag("allConversions"));
   desc.add<edm::InputTag>("gsfPfRecTracksTag", edm::InputTag("pfTrackElec"));
   desc.add<edm::InputTag>("barrelRecHitCollectionTag", edm::InputTag("ecalRecHit","EcalRecHitsEB"));
   desc.add<edm::InputTag>("endcapRecHitCollectionTag", edm::InputTag("ecalRecHit","EcalRecHitsEE"));
@@ -86,6 +87,8 @@ void GsfElectronBaseProducer::fillDescriptions( edm::ConfigurationDescriptions &
   // Isolation algos configuration
   desc.add("trkIsol03Cfg",EleTkIsolFromCands::pSetDescript());
   desc.add("trkIsol04Cfg",EleTkIsolFromCands::pSetDescript());
+  desc.add("trkIsolHEEP03Cfg",EleTkIsolFromCands::pSetDescript());
+  desc.add("trkIsolHEEP04Cfg",EleTkIsolFromCands::pSetDescript());
   desc.add<bool>("useNumCrystals", true);
   desc.add<double>("etMinBarrel", 0.0);
   desc.add<double>("etMinEndcaps", 0.11);
@@ -251,6 +254,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   inputCfg_.beamSpotTag = consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpotTag"));
   inputCfg_.gsfPfRecTracksTag = consumes<reco::GsfPFRecTrackCollection>(cfg.getParameter<edm::InputTag>("gsfPfRecTracksTag"));
   inputCfg_.vtxCollectionTag = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vtxTag"));
+  inputCfg_.conversions = consumes<reco::ConversionCollection>(cfg.getParameter<edm::InputTag>("conversionsTag"));
 
   if ( cfg.getParameter<bool>("useIsolationValues") ) {
     inputCfg_.pfIsoVals = cfg.getParameter<edm::ParameterSet> ("pfIsolationValues");
@@ -354,7 +358,9 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
      crackCorrectionFunction,
      regressionCfg,
      cfg.getParameter<edm::ParameterSet>("trkIsol03Cfg"),
-     cfg.getParameter<edm::ParameterSet>("trkIsol04Cfg")
+     cfg.getParameter<edm::ParameterSet>("trkIsol04Cfg"),
+     cfg.getParameter<edm::ParameterSet>("trkIsolHEEP03Cfg"),
+     cfg.getParameter<edm::ParameterSet>("trkIsolHEEP04Cfg")
    ) ;
  }
 
