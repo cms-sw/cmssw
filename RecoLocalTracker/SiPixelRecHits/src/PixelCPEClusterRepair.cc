@@ -105,7 +105,7 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
    }
 
    // run CR on damaged clusters (and not only on edge hits)
-   runDamagedClusters_ = conf.existsAs<bool>("RunDamagedClusters")?conf.getParameter<bool>("RunDamagedClusters"):false;
+   runDamagedClusters_ = conf.getParameter<bool>("RunDamagedClusters");
 }
 
 //-----------------------------------------------------------------------------
