@@ -11,6 +11,7 @@ from __future__ import absolute_import
 #                                                                              
 ################################################################################
 
+from builtins import range
 from os import chdir,getcwd,listdir,makedirs
 from os.path import basename,join,exists
 import cgi
@@ -379,7 +380,7 @@ def get_rank_section(directory):
     h=directory.rank_histo
     rank_histof=TH1F(h.GetName(),"",h.GetNbinsX(),h.GetXaxis().GetXmin(),h.GetXaxis().GetXmax())
     rank_histof.SetLineWidth(2)
-    for i in xrange(0,h.GetNbinsX()+1):
+    for i in range(0,h.GetNbinsX()+1):
       rank_histof.SetBinContent(i,h.GetBinContent(i))
     h.SetTitle("Ranks Summary;Rank;Frequency")
     h.Draw("Hist")
@@ -804,14 +805,14 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   page_html+='<div id="dir_chart"></div> <a href="#top">Top...</a><hr>'
   
   # Barbarian vertical space. Suggestions are welcome
-  for i in xrange(2):
+  for i in range(2):
     page_html+='<div class="span-24"><p></p></div>\n'
 
  
   # Prepare the table
   page_html+='<div class="span-24"><h2 class="alt"><a name="summary_table">Summary Table</a></h2></div>'
 
-  for i in xrange(5):
+  for i in range(5):
     page_html+='<div class="span-24"><p></p></div>\n'
     
   page_html+="""
