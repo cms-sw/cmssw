@@ -10,7 +10,7 @@ _vplots80X = nanoDQM.vplots.clone()
 # Tau plots
 _tauPlots80X = cms.VPSet()
 for plot in _vplots80X.Tau.plots:
-    if plot.name.value().find("MVA")>-1 and plot.name.value().find("2017")>-1:
+    if (plot.name.value().find("MVA")>-1 and plot.name.value().find("2017")>-1) or (plot.name.value().find("AntiEle")>-1 and plot.name.value().find("2018")>-1):
         continue
     _tauPlots80X.append(plot)
 _tauPlots80X.append(Plot1D('idMVAnewDM', 'idMVAnewDM', 64, -0.5, 63.5, 'IsolationMVArun2v1DBnewDMwLT ID working point: bitmask 1 = VLoose, 2 = Loose, 4 = Medium, 8 = Tight, 16 = VTight, 32 = VVTight'))

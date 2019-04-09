@@ -105,9 +105,15 @@ _mvaIsoVars2017v2 = cms.PSet(
     idMVAoldDM2017v2 = _tauId7WPMask( "by%sIsolationMVArun2v1DBoldDMwLT2017v2", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v2)"),
     idMVAoldDMdR032017v2 = _tauId7WPMask( "by%sIsolationMVArun2v1DBdR03oldDMwLT2017v2", doc="IsolationMVArun2v1DBoldDMdR0p3wLT ID working point (2017v2)")
 )
+_mvaAntiEVars2018 = cms.PSet(
+       rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw2018')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
+       rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
+       idAntiEle2018 = _tauId5WPMask("againstElectron%sMVA62018", doc= "Anti-electron MVA discriminator V6 (2018)"),
+)
 
 _variablesMiniV2 = cms.PSet(
     _tauVarsBase,
+    _mvaAntiEVars2018,
     _mvaIsoVars2015Reduced,
     _mvaIsoVars2017v1,
     _mvaIsoVars2017v2
