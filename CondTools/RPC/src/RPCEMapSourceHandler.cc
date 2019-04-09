@@ -222,10 +222,8 @@ void popcon::RPCEMapSourceHandler::readEMap1()
           for (int i=0; i<3; i++) if (char2==char2Val[i]) n2=i;
           for (int i=0; i<9; i++) if (char4==char4Val[i]) n3=i;
           thisLB.theCode=n3+num3*10+n2*100+n1*1000+wheel*10000+sector*100000;
-          FEBStruct tmpFEB;
           std::vector<FEBStruct> theFEB;
 // get FEBs
-          RPCEMap::febItem thisFeb;
           coral::IQuery* query6 = schema.newQuery();
           query6->addToTableList("FEBLOCATION");
           query6->addToTableList("FEBCONNECTOR");
@@ -244,6 +242,7 @@ void popcon::RPCEMapSourceHandler::readEMap1()
           coral::ICursor& cursor6 = query6->execute();
           int nfebs=0;
           while (cursor6.next()) {
+            FEBStruct tmpFEB;
             nfebs++;
             const coral::AttributeList& row = cursor6.currentRow();
             tmpFEB.febId=row["FEBLOCATIONID"].data<long long>();
@@ -258,6 +257,7 @@ void popcon::RPCEMapSourceHandler::readEMap1()
           }
           delete query6;
           for(unsigned int iFEB=0; iFEB<theFEB.size(); iFEB++) {
+            RPCEMap::febItem thisFeb;
             std::string temp=theFEB[iFEB].localEtaPart;
             std::string localEtaVal[6]={"Forward","Central","Backward","A","B","C"};
             char localEtaPartition=0;
@@ -284,6 +284,7 @@ void popcon::RPCEMapSourceHandler::readEMap1()
             condition = "CHAMBERLOCATION.CHAMBERLOCATIONID="+IntToString(theFEB[iFEB].chamberId);
             query7->setCondition( condition, conditionData );
             coral::ICursor& cursor7 = query7->execute();
+            thisFeb.theChamber = -1;
             while (cursor7.next()) {
               const coral::AttributeList& row = cursor7.currentRow();
               char diskOrWheel=row["DISKORWHEEL"].data<short>()+3;

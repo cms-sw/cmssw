@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include "CalibMuon/DTCalibration/interface/vDriftHistos.h"
 #include "CalibMuon/DTCalibration/interface/DTTMax.h"
@@ -48,7 +49,7 @@ protected:
 
 private:
 
-  DTSegmentSelector select_;
+  std::unique_ptr<DTSegmentSelector> select_;
 
   // The class containing TMax information
   typedef DTTMax::TMax TMax;
@@ -88,7 +89,7 @@ private:
   TMaxGranularity theGranularity;
  
   // The label used to retrieve 4D segments from the event
-  edm::InputTag theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> theRecHits4DToken;
 
   // Debug flag
   bool debug;

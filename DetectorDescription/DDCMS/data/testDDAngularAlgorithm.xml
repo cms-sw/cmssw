@@ -41,7 +41,7 @@
   </Algorithm>
   <PosPartSection label="">
     <PosPart copyNumber="2">
-      <rParent name="world_volume"/>
+      <rParent name=":world_volume"/>
       <rChild name="testDDAngularAlgorithm:MotherOfAllBoxes"/>
     </PosPart>
     <PosPart copyNumber="13">

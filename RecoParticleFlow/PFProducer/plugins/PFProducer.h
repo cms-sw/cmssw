@@ -25,6 +25,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
 
 class PFAlgo;
 class PFEnergyCalibrationHF;
@@ -42,7 +43,6 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 class PFProducer : public edm::stream::EDProducer<> {
  public:
   explicit PFProducer(const edm::ParameterSet&);
-  ~PFProducer() override;
   
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
@@ -65,6 +65,7 @@ class PFProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<edm::View<reco::PFCandidate> > inputTagPFEGammaCandidates_;
 
   bool use_EGammaFilters_;
+  std::unique_ptr<PFEGammaFilters> pfegamma_ = nullptr;
 
 
   //Use of HO clusters and links in PF Reconstruction

@@ -41,6 +41,9 @@ lowPtGsfEleGsfTracks.src = 'lowPtGsfEleCkfTrackCandidates'
 
 fastSim.toModify(lowPtGsfEleGsfTracks,src = cms.InputTag("fastLowPtGsfTkfTrackCandidates"))
 
+# GSFTrack to track association
+from RecoEgamma.EgammaElectronProducers.lowPtGsfToTrackLinks_cfi import *
+
 # GsfPFRecTracks
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
 lowPtGsfElePfGsfTracks = pfTrackElec.clone()
@@ -73,6 +76,7 @@ lowPtGsfElectronTask = cms.Task(lowPtGsfElePfTracks,
                                 lowPtGsfElectronSeeds,
                                 lowPtGsfEleCkfTrackCandidates,
                                 lowPtGsfEleGsfTracks,
+                                lowPtGsfToTrackLinks,
                                 lowPtGsfElePfGsfTracks,
                                 lowPtGsfElectronSuperClusters,
                                 lowPtGsfElectronCores,

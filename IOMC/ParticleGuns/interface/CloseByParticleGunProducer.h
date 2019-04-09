@@ -20,8 +20,10 @@ namespace edm
   protected :
 
     // data members
-    double fEn,fR,fZ,fDelta;
+    double fEnMin,fEnMax,fRMin,fRMax,fZMin,fZMax,fDelta,fPhiMin,fPhiMax;
+
     bool fPointing = false;
+    bool fOverlapping = false;
     std::vector<int> fPartIDs;
   };
 }

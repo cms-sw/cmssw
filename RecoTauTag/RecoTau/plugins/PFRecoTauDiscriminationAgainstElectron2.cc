@@ -163,7 +163,7 @@ double PFRecoTauDiscriminationAgainstElectron2::discriminate(const PFTauRef& the
   
   // ensure tau has at least one charged object
 
-  if( (*thePFTauRef).leadPFChargedHadrCand().isNull() )
+  if( (*thePFTauRef).leadChargedHadrCand().isNull() )
     {
       return 0.;
     } 
@@ -178,7 +178,7 @@ double PFRecoTauDiscriminationAgainstElectron2::discriminate(const PFTauRef& the
     std::cout << "<PFRecoTauDiscriminationAgainstElectron2::discriminate>:" << std::endl;
     std::cout << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi() << std::endl;
     std::cout << " discriminator value = " << discriminator << std::endl;
-    std::cout << " Prongs in tau: " << thePFTauRef->signalPFChargedHadrCands().size() << std::endl;
+    std::cout << " Prongs in tau: " << thePFTauRef->signalChargedHadrCands().size() << std::endl;
   }
 
   return discriminator;

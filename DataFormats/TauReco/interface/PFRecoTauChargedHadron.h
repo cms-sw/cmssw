@@ -2,14 +2,15 @@
 #define DataFormats_TauReco_PFRecoTauChargedHadron_h
 
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 namespace reco { namespace tau {
+  template<class TrackClass>
+  class PFRecoTauChargedHadronFromGenericTrackPlugin;
   class PFRecoTauChargedHadronFromPFCandidatePlugin;
-  class PFRecoTauChargedHadronFromTrackPlugin;
   class RecoTauConstructor;
   class PFRecoTauEnergyAlgorithmPlugin;
 }} 
@@ -47,13 +48,16 @@ class PFRecoTauChargedHadron : public CompositePtrCandidate
   ~PFRecoTauChargedHadron() override;
 
   /// reference to "charged" PFCandidate (either charged PFCandidate or PFNeutralHadron)
-  const PFCandidatePtr& getChargedPFCandidate() const;
+  const CandidatePtr& getChargedPFCandidate() const;
 
   /// reference to reco::Track
   const TrackPtr& getTrack() const;
 
+  /// reference to "lostTrack Candidate" when chadron built with tracks stored as pat::PackedCandidates
+  const CandidatePtr& getLostTrackCandidate() const;
+
   /// references to additional neutral PFCandidates
-  const std::vector<PFCandidatePtr>& getNeutralPFCandidates() const;  
+  const std::vector<CandidatePtr>& getNeutralPFCandidates() const;  
 
   /// position at ECAL entrance
   const math::XYZPointF& positionAtECALEntrance() const;
@@ -68,16 +72,18 @@ class PFRecoTauChargedHadron : public CompositePtrCandidate
     
  private:
   friend class tau::PFRecoTauChargedHadronFromPFCandidatePlugin;
-  friend class tau::PFRecoTauChargedHadronFromTrackPlugin;
+  template<class TrackClass>
+  friend class tau::PFRecoTauChargedHadronFromGenericTrackPlugin;
   friend class tau::RecoTauConstructor;
   friend class tau::PFRecoTauEnergyAlgorithmPlugin;
   friend class ::PFRecoTauChargedHadronProducer;
 
   PFRecoTauChargedHadronAlgorithm algo_;
 
-  PFCandidatePtr chargedPFCandidate_;
+  CandidatePtr chargedPFCandidate_;
+  CandidatePtr lostTrackCandidate_;
   TrackPtr track_;
-  std::vector<PFCandidatePtr> neutralPFCandidates_;
+  std::vector<CandidatePtr> neutralPFCandidates_;
 
   math::XYZPointF positionAtECALEntrance_;
 };

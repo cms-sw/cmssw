@@ -425,7 +425,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, hcalSkipPacker",
     },
 
     "C5" : {
@@ -500,7 +500,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, hcalSkipPacker",
     },
 
     "C6" : {
@@ -586,7 +586,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, hcalSkipPacker, phase2_hfnose",
+        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, hcalSkipPacker, phase2_hfnose",
     },
 
     "C7" : {
@@ -661,7 +661,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, hcalSkipPacker",
     },
 
     "C8" : {
@@ -735,7 +735,7 @@ caloDict = {
             'from Geometry.EcalMapping.EcalMapping_cfi import *',
             'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
         ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, hcalSkipPacker",
+        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, phase2_hgcalV10, hcalHardcodeConditions, hcalSkipPacker",
     },
 
 }

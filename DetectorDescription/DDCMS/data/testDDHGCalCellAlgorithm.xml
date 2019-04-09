@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd">
+  <ConstantsSection label="hgcalcell.xml" eval="true">
+    <Constant name="WaferSize"             value="167.4408*mm"/>
+    <Constant name="WaferThickness"        value="0.30*mm"/>
+    <Constant name="CellThicknessFine"     value="0.12*mm"/>
+    <Constant name="CellThicknessCoarse1"  value="0.20*mm"/>
+    <Constant name="CellThicknessCoarse2"  value="0.30*mm"/>
+    <Constant name="NumberOfCellsFine"     value="12"/>
+    <Constant name="NumberOfCellsCoarse"   value="8"/>
+  </ConstantsSection>
+  <SolidSection>
+    <Box name="MotherOfAllBoxes" dx="10*m" dy="10*m" dz="10*m"/>
+  </SolidSection>
+  <LogicalPartSection>
+    <LogicalPart name="MotherOfAllBoxes">
+      <rMaterial name="materials:Air"/>
+      <rSolid name="MotherOfAllBoxes"/>
+    </LogicalPart> 
+  </LogicalPartSection>
+  <Algorithm name="HGCal:DDHGCalCell">
+    <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+    <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferThick"   value="[WaferThickness]"/>
+    <Numeric name="CellThick"    value="[CellThicknessFine]"/>
+    <Numeric name="NCells"       value="[NumberOfCellsFine]"/>
+    <Numeric name="PosSensitive" value="0"/>
+    <String name="Material"      value="materials:Silicon"/>
+    <String name="FullCell"      value="HGCalEECellFull0Fine"/>
+    <String name="FullSensitive" value="HGCalEESensitiveFull0Fine"/>
+    <Vector name="TruncatedCell" type="string" nEntries="3">
+      HGCalEECellTrunc01Fine, HGCalEECellTrunc02Fine,
+      HGCalEECellTrunc03Fine
+    </Vector>
+    <Vector name="TruncatedSensitive" type="string" nEntries="3">
+      HGCalEESensitiveTrunc01Fine, HGCalEESensitiveTrunc02Fine,
+      HGCalEESensitiveTrunc03Fine
+    </Vector>
+    <Vector name="ExtendedCell" type="string" nEntries="3">
+      HGCalEECellExten01Fine, HGCalEECellExten02Fine,
+      HGCalEECellExten03Fine
+    </Vector>
+    <Vector name="ExtendedSensitive" type="string" nEntries="3">
+      HGCalEESensitiveExten01Fine, HGCalEESensitiveExten02Fine,
+      HGCalEESensitiveExten03Fine
+    </Vector>
+    <Vector name="CornerCell" type="string" nEntries="6">
+      HGCalEECellCorner01Fine, HGCalEECellCorner02Fine,
+      HGCalEECellCorner03Fine, HGCalEECellCorner04Fine,
+      HGCalEECellCorner05Fine, HGCalEECellCorner06Fine
+    </Vector>
+    <Vector name="CornerSensitive" type="string" nEntries="6">
+      HGCalEESensitiveCorner01Fine, HGCalEESensitiveCorner02Fine,
+      HGCalEESensitiveCorner03Fine, HGCalEESensitiveCorner04Fine,
+      HGCalEESensitiveCorner05Fine, HGCalEESensitiveCorner06Fine
+    </Vector>
+  </Algorithm>
+  <PosPartSection label="">
+    <PosPart copyNumber="2">
+      <rParent name=":world_volume"/>
+      <rChild name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellFull0Fine"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellTrunc01Fine"/>
+      <Translation x="-1.5*cm" y="-1.5*cm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellTrunc02Fine"/>
+      <Translation x="0*fm" y="-1.5*cm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellTrunc03Fine"/>
+      <Translation x="1.5*cm" y="-1.5*cm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellExten01Fine"/>
+      <Translation x="-1.5*cm" y="-3.0*cm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellExten02Fine"/>
+      <Translation x="0*fm" y="-3.0*cm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellExten03Fine"/>
+      <Translation x="1.5*cm" y="-3.0*cm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellCorner01Fine"/>
+      <Translation x="-1.5*cm" y="3.0*cm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellCorner02Fine"/>
+      <Translation x="0*fm" y="3.0*cm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellCorner03Fine"/>
+      <Translation x="1.5*cm" y="3.0*cm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellCorner04Fine"/>
+      <Translation x="-1.5*cm" y="1.5*cm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellCorner05Fine"/>
+      <Translation x="0*fm" y="1.5*cm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
+      <rChild name="testDDHGCalCellAlgorithm:HGCalEECellCorner06Fine"/>
+      <Translation x="1.5*cm" y="1.5*cm" z="0*fm"/>
+    </PosPart>
+  </PosPartSection>
+</DDDefinition>

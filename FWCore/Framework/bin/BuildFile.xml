@@ -70,7 +70,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/ParameterSetReader"/>
 </bin>
-<bin   name="cmsRunBoostPython" file="cmsRunBoostPython.cpp">
+<bin   name="cmsRunPython3" file="cmsRunPython3.cpp">
   <use   name="tbb"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
@@ -84,6 +84,5 @@
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PythonParameterSet"/>
-  <use   name="boost_python"/>
+  <use   name="FWCore/PyDevParameterSet"/>
 </bin>

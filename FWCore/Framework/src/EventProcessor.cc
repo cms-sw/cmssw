@@ -243,7 +243,7 @@ namespace edm {
     fileModeNoMerge_(false),
     exceptionMessageFiles_(),
     exceptionMessageRuns_(),
-    exceptionMessageLumis_(),
+    exceptionMessageLumis_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
@@ -279,7 +279,7 @@ namespace edm {
     fileModeNoMerge_(false),
     exceptionMessageFiles_(),
     exceptionMessageRuns_(),
-    exceptionMessageLumis_(),
+    exceptionMessageLumis_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
@@ -317,7 +317,7 @@ namespace edm {
     fileModeNoMerge_(false),
     exceptionMessageFiles_(),
     exceptionMessageRuns_(),
-    exceptionMessageLumis_(),
+    exceptionMessageLumis_(false),
     forceLooperToEnd_(false),
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
@@ -754,10 +754,11 @@ namespace edm {
         
       } // Try block
       catch (cms::Exception & e) {
-        if (!exceptionMessageLumis_.empty()) {
-          e.addAdditionalInfo(exceptionMessageLumis_);
+        if (exceptionMessageLumis_) {
+          std::string message("Another exception was caught while trying to clean up lumis after the primary fatal exception.");
+          e.addAdditionalInfo(message);
           if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << exceptionMessageLumis_;
+            LogAbsolute("Additional Exceptions") << message;
           }
         }
         if (!exceptionMessageRuns_.empty()) {
@@ -1087,14 +1088,21 @@ namespace edm {
                                  std::shared_ptr<void> const& iRunResource, edm::WaitingTaskHolder iHolder) {
     if(iHolder.taskHasFailed()) { return; }
     
+    // We must be careful with the status object here and in code this function calls. IF we want
+    // endRun to be called, then the status object must be destroyed before the things waiting on
+    // iHolder are allowed to proceed. Otherwise, there will be race condition (possibly causing
+    // endRun to be called much later than it should be, because it is holding iRunResource).
     auto status= std::make_shared<LuminosityBlockProcessingStatus>(this, preallocations_.numberOfStreams(), iRunResource) ;
 
-    auto lumiWork = [this, iHolder, status](edm::LimitedTaskQueue::Resumer iResumer) mutable {
-      if(iHolder.taskHasFailed()) { return; }
+    auto lumiWork = [this, iHolder, status = std::move(status)](edm::LimitedTaskQueue::Resumer iResumer) mutable {
+      if (iHolder.taskHasFailed()) {
+        status.reset();
+        return;
+      }
 
       status->setResumer(std::move(iResumer));
-      
-      sourceResourcesAcquirer_.serialQueueChain().push([this,iHolder,status]() mutable {
+
+      sourceResourcesAcquirer_.serialQueueChain().push([this, iHolder, status = std::move(status)]() mutable {
         //make the services available
         ServiceRegistry::Operate operate(serviceToken_);
 
@@ -1119,8 +1127,9 @@ namespace edm {
 
           //Task to start the stream beginLumis
           auto beginStreamsTask= make_waiting_task(tbb::task::allocate_root()
-                                                   ,[this, holder = iHolder, status, ts] (std::exception_ptr const* iPtr) mutable {
+                                                   ,[this, holder = iHolder, status = std::move(status), ts] (std::exception_ptr const* iPtr) mutable {
             if (iPtr) {
+              status.reset();
               holder.doneWaiting(*iPtr);
             } else {
 
@@ -1132,6 +1141,7 @@ namespace edm {
                   ServiceRegistry::Operate operate(serviceToken_);
                   looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
                 }catch(...) {
+                  status.reset();
                   holder.doneWaiting(std::current_exception());
                   return;
                 }
@@ -1139,14 +1149,16 @@ namespace edm {
               typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
               
               for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
-                streamQueues_[i].push([this,i,status,holder,ts,&es] () {
+                streamQueues_[i].push([this,i,status,holder,ts,&es] () mutable {
                   streamQueues_[i].pause();
                   
                   auto eventTask = edm::make_waiting_task(tbb::task::allocate_root(),
                                                           [this,i,h = holder](std::exception_ptr const* iPtr) mutable
                   {
                     if(iPtr) {
-                      h.doneWaiting(*iPtr);
+                      WaitingTaskHolder tmp(h);
+                      tmp.doneWaiting(*iPtr);
+                      streamEndLumiAsync(h, i, streamLumiStatus_[i]);
                     } else {
                       handleNextEventForStreamAsync(std::move(h), i);
                     }
@@ -1159,11 +1171,13 @@ namespace edm {
                   beginStreamTransitionAsync<Traits>(WaitingTaskHolder{eventTask},
                                                      *schedule_,i,*lp,ts,es,
                                                      serviceToken_,subProcesses_);
+                  status.reset();
                 });
               }
+              status.reset();
             }
-          });
-          
+          });  // beginStreamTask
+
           //task to start the global begin lumi
           WaitingTaskHolder beginStreamsHolder{beginStreamsTask};
           auto const& es = esp_->eventSetup();
@@ -1171,17 +1185,18 @@ namespace edm {
             typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
             beginGlobalTransitionAsync<Traits>(beginStreamsHolder,
                                                *schedule_,
-                                               *(status->lumiPrincipal()),
+                                               lumiPrincipal,
                                                ts,
                                                es,
                                                serviceToken_,
                                                subProcesses_);
           }
         } catch(...) {
+          status.reset();
           iHolder.doneWaiting(std::current_exception());
         }
-      });
-    };
+      });  // task in sourceResourcesAcquirer
+    };  // end lumiWork
         
     //Safe to do check now since can not have multiple beginLumis at same time in this part of the code
     // because we do not attempt to read from the source again until we try to get the first event in a lumi
@@ -1227,18 +1242,31 @@ namespace edm {
     }) );
   }
 
-  void EventProcessor::globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus) {
-    //Need to be sure iTask is always destroyed after iLumiStatus since iLumiStatus can cause endRun to start.
-    auto t = edm::make_waiting_task(tbb::task::allocate_root(), [ items = std::make_pair(iLumiStatus,std::move(iTask)), this] (std::exception_ptr const* iPtr) mutable {
+  void EventProcessor::handleEndLumiExceptions(std::exception_ptr const* iPtr, WaitingTaskHolder& holder) {
+    if (setDeferredException(*iPtr)) {
+      WaitingTaskHolder tmp(holder);
+      tmp.doneWaiting(*iPtr);
+    } else {
+      setExceptionMessageLumis();
+    }
+  }
+
+  void EventProcessor::globalEndLumiAsync(edm::WaitingTaskHolder iTask,
+                                          std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus) {
+
+    // Get some needed info out of the status object before moving
+    // it into finalTaskForThisLumi.
+    auto& lp = *(iLumiStatus->lumiPrincipal());
+    bool didGlobalBeginSucceed = iLumiStatus->didGlobalBeginSucceed();
+    bool cleaningUpAfterException = iLumiStatus->cleaningUpAfterException();
+
+    auto finalTaskForThisLumi = edm::make_waiting_task(
+        tbb::task::allocate_root(),
+        [status = std::move(iLumiStatus), iTask = std::move(iTask), this] (std::exception_ptr const* iPtr) mutable {
+
       std::exception_ptr ptr;
-      //use an easier to remember variable name
-      auto status = std::move(items.first);
       if(iPtr) {
-        ptr = *iPtr;
-        WaitingTaskHolder tmp(items.second);
-        //set the exception early to prevent a beginLumi from running
-        // we use a copy to keep t from resetting on doneWaiting call.
-        tmp.doneWaiting(ptr);
+        handleEndLumiExceptions(iPtr, iTask);
       } else {
         try {
           ServiceRegistry::Operate operate(serviceToken_);
@@ -1247,45 +1275,70 @@ namespace edm {
             auto const& es = esp_->eventSetup();
             looper_->doEndLuminosityBlock(lp, es, &processContext_);
           }
-        }catch(...) {
-          if(not ptr) {
-            ptr = std::current_exception();
-          }
+        } catch(...) {
+          ptr = std::current_exception();
         }
       }
       ServiceRegistry::Operate operate(serviceToken_);
+
+      // Try hard to clean up resources so the
+      // process can terminate in a controlled
+      // fashion even after exceptions have occurred.
+
       try {
         deleteLumiFromCache(*status);
+      } catch(...) {
+        if (not ptr) {
+          ptr = std::current_exception();
+        }
+      }
+
+      try {
         //release our hold on the IOV
         iovQueue_.resume();
+      } catch(...) {
+        if (not ptr) {
+          ptr = std::current_exception();
+        }
+      }
+
+      try {
         status->resumeGlobalLumiQueue();
       } catch(...) {
-        if( not ptr) {
+        if (not ptr) {
           ptr = std::current_exception();
         }
       }
+
       try {
+        // This call to status.reset() must occur before iTask is destroyed.
+        // Otherwise there will be a data race which could result in endRun
+        // being delayed until it is too late to successfully call it.
         status.reset();
       } catch(...) {
-        if( not ptr) {
+        if (not ptr) {
           ptr = std::current_exception();
         }
       }
-      //have to wait until reset is called since that could call endRun
-      items.second.doneWaiting(ptr);
+
+      if (ptr) {
+        handleEndLumiExceptions(&ptr, iTask);
+      }
     });
 
-    auto writeT = edm::make_waiting_task(tbb::task::allocate_root(), [this,status =iLumiStatus, task = WaitingTaskHolder(t)] (std::exception_ptr const* iExcept) mutable {
+    auto writeT = edm::make_waiting_task(
+        tbb::task::allocate_root(),
+        [this, didGlobalBeginSucceed, &lumiPrincipal = lp, task = WaitingTaskHolder(finalTaskForThisLumi)] (std::exception_ptr const* iExcept) mutable {
+
       if(iExcept) {
         task.doneWaiting(*iExcept);
       } else {
         //Only call writeLumi if beginLumi succeeded
-        if(status->didGlobalBeginSucceed()) {
-          writeLumiAsync(std::move(task),status);
+        if(didGlobalBeginSucceed) {
+          writeLumiAsync(std::move(task), lumiPrincipal);
         }
       }
     });
-    auto& lp = *(iLumiStatus->lumiPrincipal());
 
     IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()),
                     lp.beginTime());
@@ -1301,7 +1354,7 @@ namespace edm {
                                      es,
                                      serviceToken_,
                                      subProcesses_,
-                                     iLumiStatus->cleaningUpAfterException());
+                                     cleaningUpAfterException);
   }
 
   void EventProcessor::streamEndLumiAsync(edm::WaitingTaskHolder iTask,
@@ -1309,9 +1362,8 @@ namespace edm {
                                           std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus) {
     
     auto t =edm::make_waiting_task(tbb::task::allocate_root(), [this, iStreamIndex, iTask](std::exception_ptr const* iPtr) mutable {
-      std::exception_ptr ptr;
       if(iPtr) {
-        ptr = *iPtr;
+        handleEndLumiExceptions(iPtr, iTask);
       }
       auto status =streamLumiStatus_[iStreamIndex];
       //reset status before releasing queue else get race condtion
@@ -1322,10 +1374,11 @@ namespace edm {
       //are we the last one?
       if( status->streamFinishedLumi()) {
         globalEndLumiAsync(iTask, std::move(status));
+      } else {
+        status.reset();
       }
-      iTask.doneWaiting(ptr);
     });
-    
+
     edm::WaitingTaskHolder lumiDoneTask{t};
     
     iLumiStatus->setEndTime();
@@ -1345,6 +1398,7 @@ namespace edm {
                                        serviceToken_,
                                        subProcesses_,cleaningUpAfterException);
     }
+    iLumiStatus.reset();
   }
 
   
@@ -1458,23 +1512,22 @@ namespace edm {
     FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
   }
 
-  void EventProcessor::writeLumiAsync(WaitingTaskHolder task, std::shared_ptr<LuminosityBlockProcessingStatus> iStatus) {
-    auto subsT = edm::make_waiting_task(tbb::task::allocate_root(), [this,task, iStatus](std::exception_ptr const* iExcept) mutable {
+  void EventProcessor::writeLumiAsync(WaitingTaskHolder task, LuminosityBlockPrincipal& lumiPrincipal) {
+    auto subsT = edm::make_waiting_task(tbb::task::allocate_root(), [this, task, &lumiPrincipal](std::exception_ptr const* iExcept) mutable {
       if(iExcept) {
         task.doneWaiting(*iExcept);
       } else {
         ServiceRegistry::Operate op(serviceToken_);
         for(auto&s : subProcesses_) {
-          s.writeLumiAsync(task,*(iStatus->lumiPrincipal()));
+          s.writeLumiAsync(task, lumiPrincipal);
         }
       }
     });
     ServiceRegistry::Operate op(serviceToken_);
 
-    std::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipal = iStatus->lumiPrincipal();
-    lumiPrincipal->runPrincipal().mergeableRunProductMetadata()->writeLumi(lumiPrincipal->luminosityBlock());
+    lumiPrincipal.runPrincipal().mergeableRunProductMetadata()->writeLumi(lumiPrincipal.luminosityBlock());
 
-    schedule_->writeLumiAsync(WaitingTaskHolder{subsT}, *lumiPrincipal, &processContext_, actReg_.get());
+    schedule_->writeLumiAsync(WaitingTaskHolder{subsT}, lumiPrincipal, &processContext_, actReg_.get());
   }
 
   void EventProcessor::deleteLumiFromCache(LuminosityBlockProcessingStatus& iStatus) {
@@ -1485,15 +1538,19 @@ namespace edm {
 
   bool EventProcessor::readNextEventForStream(unsigned int iStreamIndex,
                                               LuminosityBlockProcessingStatus& iStatus) {
-    if(shouldWeStop()) {
-      return false;
-    }
-    
     if(deferredExceptionPtrIsSet_.load(std::memory_order_acquire)) {
+      iStatus.endLumi();
       return false;
     }
     
     if(iStatus.wasEventProcessingStopped()) {
+      return false;
+    }
+
+    if (shouldWeStop()) {
+      lastSourceTransition_ = InputSource::IsStop;
+      iStatus.stopProcessingEvents();
+      iStatus.endLumi();
       return false;
     }
 
@@ -1536,6 +1593,7 @@ namespace edm {
       bool expected =false;
       if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
         deferredExceptionPtr_ = std::current_exception();
+        iStatus.endLumi();
       }
       return false;
     }
@@ -1552,11 +1610,17 @@ namespace edm {
              if(readNextEventForStream(iStreamIndex, *status) ) {
                auto recursionTask = make_waiting_task(tbb::task::allocate_root(), [this,iTask,iStreamIndex](std::exception_ptr const* iPtr) mutable {
                  if(iPtr) {
+                   // Try to end the stream properly even if an exception was
+                   // thrown on an event.
                    bool expected = false;
                    if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
+                     // This is the case where the exception in iPtr is the primary
+                     // exception and we want to see its message.
                      deferredExceptionPtr_ = *iPtr;
-                     iTask.doneWaiting(*iPtr);
+                     WaitingTaskHolder tempHolder(iTask);
+                     tempHolder.doneWaiting(*iPtr);
                    }
+                   streamEndLumiAsync(std::move(iTask), iStreamIndex, streamLumiStatus_[iStreamIndex]);
                    //the stream will stop now
                    return;
                  }
@@ -1577,6 +1641,11 @@ namespace edm {
                }
              }
            } catch(...) {
+             // It is unlikely we will ever get in here ...
+             // But if we do try to clean up and propagate the exception
+             if (streamLumiStatus_[iStreamIndex]) {
+               streamEndLumiAsync(iTask, iStreamIndex, streamLumiStatus_[iStreamIndex]);
+             }
              bool expected = false;
              if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
                auto e =std::current_exception();
@@ -1720,8 +1789,8 @@ namespace edm {
     exceptionMessageRuns_ = message;
   }
 
-  void EventProcessor::setExceptionMessageLumis(std::string& message) {
-    exceptionMessageLumis_ = message;
+  void EventProcessor::setExceptionMessageLumis() {
+    exceptionMessageLumis_ = true;
   }
 
   bool EventProcessor::setDeferredException(std::exception_ptr iException) {
