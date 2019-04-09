@@ -90,8 +90,8 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
                         break;
                     case MTau:
 		        // CV: assignment of status codes according to https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
-		        if      ( match.isNonnull() && match->isPromptFinalState()                      && abs(match->pdgId()) == 11 ) flav[i] = 1;
-                        else if ( match.isNonnull() && match->isPromptFinalState()                      && abs(match->pdgId()) == 13 ) flav[i] = 2;
+		        if      ( match.isNonnull() && match->statusFlags().isPrompt()                  && abs(match->pdgId()) == 11 ) flav[i] = 1;
+                        else if ( match.isNonnull() && match->statusFlags().isPrompt()                  && abs(match->pdgId()) == 13 ) flav[i] = 2;
 			else if ( match.isNonnull() && match->isDirectPromptTauDecayProductFinalState() && abs(match->pdgId()) == 11 ) flav[i] = 3;
 			else if ( match.isNonnull() && match->isDirectPromptTauDecayProductFinalState() && abs(match->pdgId()) == 13 ) flav[i] = 4;
 			else if ( matchVisTau.isNonnull()                                                                            ) flav[i] = 5;
