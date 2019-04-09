@@ -52,6 +52,8 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
     // TODO decide if the preferred input tags must be given as input parameters
     // or stay hardwired
 
+  if (branchDescription.dropped()) { return; }
+
   std::vector<edm::InputTag> preferredL1TAlgBlkInputTag = {
     edm::InputTag("gtStage2Digis"), edm::InputTag("hltGtStage2Digis") };
 
