@@ -10,7 +10,7 @@ class RPixChargeShare
 {
 public:
   RPixChargeShare(const edm::ParameterSet &params, uint32_t det_id);
-  std::map<unsigned short, double, std::less<unsigned short> > Share(const std::vector<RPixSignalPoint> &charge_map);
+  std::map<unsigned short, double > Share(const std::vector<RPixSignalPoint> &charge_map);
 
 private:
   uint32_t det_id_;

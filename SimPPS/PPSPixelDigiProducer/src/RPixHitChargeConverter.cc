@@ -18,7 +18,7 @@ RPixHitChargeConverter::~RPixHitChargeConverter()
 {
 }
 
-std::map<unsigned short, double, std::less<unsigned short> > RPixHitChargeConverter::processHit(const PSimHit &hit)
+std::map<unsigned short, double > RPixHitChargeConverter::processHit(const PSimHit &hit)
 {  
   std::vector<RPixEnergyDepositUnit> ions_along_path = theRPixChargeDivider->divide(hit);
   if(verbosity_)

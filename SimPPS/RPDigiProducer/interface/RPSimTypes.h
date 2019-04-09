@@ -18,7 +18,6 @@ namespace simRP
   typedef std::set<short, std::less<short> > HitsContainer;
   typedef std::set<short, std::less<short> >::const_iterator HitsContainerIter;
   typedef std::set<short, std::less<short> > TriggerContainer;
-  //typedef map<unsigned short, vector<pair<int, double> >, std::less<unsigned short> > TriggerContainerLinkMap;
   typedef std::set<short, std::less<short> >::const_iterator TriggerContainerIter;
   typedef std::vector<std::vector<std::pair<int, double> > > DigiPrimaryMapType; //for each digi in the output the vector of the number of PSimHit and its weight
   typedef std::vector<std::pair<int, double> >  SingleDigiPrimaryMapType; //for one digi in the output the vector of the number of PSimHit and its weight

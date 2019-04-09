@@ -17,10 +17,9 @@ RPixDummyROCSimulator::RPixDummyROCSimulator(const edm::ParameterSet &params, ui
   pixels_no_ = CTPPSPixelTopology().detPixelNo();
   verbosity_ = params.getParameter<int>("RPixVerbosity");
   links_persistence_ = params.getParameter<bool>("CTPPSPixelDigiSimHitRelationsPersistence");
-  if(dead_pixels_simulation_on_) SetDeadPixels();
 }
 
-void RPixDummyROCSimulator::ConvertChargeToHits(const std::map<unsigned short, double, std::less<unsigned short> > &signals, 
+void RPixDummyROCSimulator::ConvertChargeToHits(const std::map<unsigned short, double > &signals, 
 						std::map<unsigned short, std::vector< std::pair<int, double> > > &theSignalProvenance, 
 						std::vector<CTPPSPixelDigi> &output_digi, 
 						std::vector<std::vector<std::pair<int, double> > >  &output_digi_links,
@@ -28,7 +27,7 @@ void RPixDummyROCSimulator::ConvertChargeToHits(const std::map<unsigned short, d
 						)
 {
 
-  for(std::map<unsigned short, double, std::less<unsigned short> >::const_iterator i=signals.begin(); 
+  for(std::map<unsigned short, double >::const_iterator i=signals.begin(); 
       i!=signals.end(); ++i)
     {
     //one threshold per hybrid
@@ -85,15 +84,3 @@ void RPixDummyROCSimulator::ConvertChargeToHits(const std::map<unsigned short, d
 	}
     }
 }
-
-void RPixDummyROCSimulator::SetDeadPixels()
-{
-  dead_pixels_.clear();
-  double dead_pixel_number = gRandom->Binomial(pixels_no_, dead_pixel_probability_);
-  
-  for(int i=0; i<dead_pixel_number; ++i)
-    {
-      dead_pixels_.insert(gRandom->Integer(pixels_no_));
-    }
-}
-

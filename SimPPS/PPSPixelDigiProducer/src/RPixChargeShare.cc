@@ -40,10 +40,10 @@ RPixChargeShare::RPixChargeShare(const edm::ParameterSet &params, uint32_t det_i
   }
 }
 
-std::map<unsigned short, double, std::less<unsigned short> >  RPixChargeShare::Share(
+std::map<unsigned short, double >  RPixChargeShare::Share(
      const std::vector<RPixSignalPoint> &charge_map)
 {
-  std::map<unsigned short, double, std::less<unsigned short> > thePixelChargeMap;
+  std::map<unsigned short, double > thePixelChargeMap;
   if(verbosity_>1)
     edm::LogInfo("RPixChargeShare")<<det_id_<<" : Clouds to be induced= "<<charge_map.size();
 

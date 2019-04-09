@@ -15,9 +15,6 @@ RPVFATSimulator::RPVFATSimulator(const edm::ParameterSet &params, RPDetId det_id
   strips_no_ = RPTopology().DetStripNo();
   verbosity_ = params.getParameter<int>("RPVerbosity");
   links_persistence_ = params.getParameter<bool>("RPDigiSimHitRelationsPresistence");
-  
-  if(dead_strips_simulation_on_)
-    SetDeadStrips();
 }
 
 void RPVFATSimulator::ConvertChargeToHits(const simRP::strip_charge_map &signals, 
@@ -58,15 +55,3 @@ void RPVFATSimulator::ConvertChargeToHits(const simRP::strip_charge_map &signals
     }
   }
 }
-
-void RPVFATSimulator::SetDeadStrips()
-{
-  dead_strips_.clear();
-  double dead_strip_number = gRandom->Binomial(strips_no_, dead_strip_probability_);
-  
-  for(int i=0; i<dead_strip_number; ++i)
-  {
-    dead_strips_.insert(gRandom->Integer(strips_no_));
-  }
-}
-

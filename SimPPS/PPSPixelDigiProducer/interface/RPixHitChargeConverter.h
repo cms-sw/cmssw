@@ -12,7 +12,7 @@ public:
   RPixHitChargeConverter(const edm::ParameterSet &params_, CLHEP::HepRandomEngine& eng, uint32_t det_id);
   ~RPixHitChargeConverter();
     
-  std::map<unsigned short, double, std::less<unsigned short> > processHit(const PSimHit &hit);
+  std::map<unsigned short, double > processHit(const PSimHit &hit);
 
 private:
   const uint32_t det_id_;    

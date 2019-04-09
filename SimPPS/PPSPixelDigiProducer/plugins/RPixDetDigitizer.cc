@@ -37,7 +37,7 @@ void RPixDetDigitizer::run(const std::vector<PSimHit> &input, const std::vector<
   int input_size = input.size();
   for (int i=0; i<input_size; ++i)
     {
-      std::map<unsigned short, double, std::less<unsigned short> >  the_pixel_charge_map;
+      std::map<unsigned short, double >  the_pixel_charge_map;
       the_pixel_charge_map = theRPixHitChargeConverter->processHit(input[i]);
       
       if(verbosity_)
@@ -47,9 +47,9 @@ void RPixDetDigitizer::run(const std::vector<PSimHit> &input, const std::vector<
       else
 	theRPixPileUpSignals->add(the_pixel_charge_map, 0);
     }
-  const std::map<unsigned short, double, std::less<unsigned short> >  &theSignal = theRPixPileUpSignals->dumpSignal();
+  const std::map<unsigned short, double >  &theSignal = theRPixPileUpSignals->dumpSignal();
   std::map<unsigned short, std::vector< std::pair<int, double> > >  &theSignalProvenance = theRPixPileUpSignals->dumpLinks();
-  std::map<unsigned short, double, std::less<unsigned short> >  afterNoise;
+  std::map<unsigned short, double >  afterNoise;
   afterNoise = theSignal;
   theRPixDummyROCSimulator->ConvertChargeToHits(afterNoise, theSignalProvenance, 
 						output_digi,  output_digi_links, pcalibrations);
