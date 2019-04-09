@@ -50,25 +50,25 @@ public:
   float getAirFractionMB() const {
     return theAirFractionMB; }
   //HGCal
-  float getCopperFractionMB()   const {             
+  float getCopperFractionMB() const {             
     return theCopperFractionMB; }
-  float getH_ScintillatorFractionMB()  const {     
+  float getH_ScintillatorFractionMB() const {     
     return theH_ScintillatorFractionMB; }
-  float getLeadFractionMB()       const {                    
+  float getLeadFractionMB() const {                    
     return theLeadFractionMB; }
-  float getEpoxyFractionMB()       const {                    
+  float getEpoxyFractionMB() const {                    
     return theEpoxyFractionMB; }
-  float getKaptonFractionMB()       const {                    
+  float getKaptonFractionMB() const {                    
     return theKaptonFractionMB; }
-  float getAluminiumFractionMB()       const {                    
+  float getAluminiumFractionMB() const {                    
     return theAluminiumFractionMB; }
-  float getHGC_G10_FR4FractionMB()   const {
+  float getHGC_G10_FR4FractionMB() const {
     return theHGC_G10_FR4FractionMB; }
-  float getSiliconFractionMB()    const {                 
+  float getSiliconFractionMB() const {                 
     return theSiliconFractionMB; }
-  float getStainlessSteelFractionMB()     const {  
+  float getStainlessSteelFractionMB() const {  
     return theStainlessSteelFractionMB; }
-  float getWCuFractionMB()     const {         
+  float getWCuFractionMB() const {         
     return theWCuFractionMB; }
 
   float getSupportMB() const {
@@ -86,25 +86,25 @@ public:
   float getAirMB() const {
     return theAirMB; }
   //HGCal
-  float getCopperMB()   const {                    
+  float getCopperMB() const {                    
     return theCopperMB; }
-  float getH_ScintillatorMB()  const {     
+  float getH_ScintillatorMB() const {     
     return theH_ScintillatorMB; }
-  float getLeadMB()       const {                    
+  float getLeadMB() const {                    
     return theLeadMB; }
-  float getEpoxyMB()       const {                    
+  float getEpoxyMB() const {                    
     return theEpoxyMB; }
-  float getKaptonMB()       const {                    
+  float getKaptonMB() const {                    
     return theKaptonMB; }
-  float getAluminiumMB()       const {                    
+  float getAluminiumMB() const {                    
     return theAluminiumMB; }
-  float getHGC_G10_FR4MB()   const {
+  float getHGC_G10_FR4MB() const {
     return theHGC_G10_FR4MB; }
-  float getSiliconMB()    const {                 
+  float getSiliconMB() const {                 
     return theSiliconMB; }
-  float getStainlessSteelMB()     const {  
+  float getStainlessSteelMB() const {  
     return theStainlessSteelMB; }
-  float getWCuMB()     const {         
+  float getWCuMB() const {         
     return theWCuMB; }
 
   float getSupportFractionIL() const {
@@ -121,25 +121,25 @@ public:
     return theOtherFractionIL; }
   float getAirFractionIL() const {
     return theAirFractionIL; }
-  float getCopperFractionIL()   const {                    
+  float getCopperFractionIL() const {                    
     return theCopperFractionIL; }
-  float getH_ScintillatorFractionIL()  const {     
+  float getH_ScintillatorFractionIL() const {     
     return theH_ScintillatorFractionIL; }
-  float getLeadFractionIL()       const {                    
+  float getLeadFractionIL() const {                    
     return theLeadFractionIL; }
-  float getEpoxyFractionIL()       const {                    
+  float getEpoxyFractionIL() const {                    
     return theEpoxyFractionIL; }
-  float getKaptonFractionIL()       const {                    
+  float getKaptonFractionIL() const {                    
     return theKaptonFractionIL; }
-  float getAluminiumFractionIL()       const {                    
+  float getAluminiumFractionIL() const {                    
     return theAluminiumFractionIL; }
-  float getHGC_G10_FR4FractionIL()   const {
+  float getHGC_G10_FR4FractionIL() const {
     return theHGC_G10_FR4FractionIL; }
-  float getSiliconFractionIL()    const {                 
+  float getSiliconFractionIL() const {                 
     return theSiliconFractionIL; }
-  float getStainlessSteelFractionIL()     const {  
+  float getStainlessSteelFractionIL() const {  
     return theStainlessSteelFractionIL; }
-  float getWCuFractionIL()     const {         
+  float getWCuFractionIL() const {         
     return theWCuFractionIL; }
   float getTotalIL() const {
     return theTotalIL; }
@@ -157,25 +157,25 @@ public:
     return theOtherIL; }
   float getAirIL() const {
     return theAirIL; }
-  float getCopperIL()   const {                    
+  float getCopperIL() const {                    
     return theCopperIL; }
-  float getH_ScintillatorIL()  const {     
+  float getH_ScintillatorIL() const {     
     return theH_ScintillatorIL; }
-  float getLeadIL()       const {                    
+  float getLeadIL() const {                    
     return theLeadIL; }
-  float getEpoxyIL()       const {                    
+  float getEpoxyIL() const {                    
     return theEpoxyIL; }
-  float getKaptonIL()       const {                    
+  float getKaptonIL() const {                    
     return theKaptonIL; }
-  float getAluminiumIL()       const {                    
+  float getAluminiumIL() const {                    
     return theAluminiumIL; }
-  float getHGC_G10_FR4IL()   const {
+  float getHGC_G10_FR4IL() const {
     return theHGC_G10_FR4IL; }
-  float getSiliconIL()    const {                 
+  float getSiliconIL() const {                 
     return theSiliconIL; }
-  float getStainlessSteelIL()     const {  
+  float getStainlessSteelIL() const {  
     return theStainlessSteelIL; }
-  float getWCuIL()     const {         
+  float getWCuIL() const {         
     return theWCuIL; }
 
   
