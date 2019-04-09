@@ -1236,7 +1236,7 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const {
 	   "DD4CMS","+++ Start executing algorithm %s....", type.c_str());
 
   long ret = PluginService::Create<long>(type, &description, ns.context(), &element, &sd);
-  if(ret == 1) {
+  if(ret == s_executed) {
     printout(ns.context()->debug_algorithms ? ALWAYS : DEBUG,
 	     "DD4CMS", "+++ Executed algorithm: %08lX = %s", ret, name.c_str());
     return;
