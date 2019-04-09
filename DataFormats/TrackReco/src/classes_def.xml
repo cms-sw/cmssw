@@ -358,6 +358,8 @@
   <class name="std::vector<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>
   <class name="edm::Ptr<reco::Track>" />
   <class name="std::vector<edm::Ptr<reco::Track> >" />
+  <class name="edm::Association<reco::TrackCollection>"/>
+  <class name="edm::Wrapper<edm::Association<reco::TrackCollection> >"/>
 
   <!-- <class pattern="edm::Wrapper<edm::AssociationMap<*>" /> -->
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<vector<reco::Track>,vector<TrajectorySeed>,unsigned int> > >" />
