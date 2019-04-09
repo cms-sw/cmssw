@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     one::EDAnalyzerBase
-// 
+//
 /**\class one::EDAnalyzerBase EDAnalyzerBase.h "FWCore/Framework/interface/one/EDAnalyzerBase.h"
 
  Description: Base class for edm::one::EDAnalyzer<>
@@ -38,24 +38,24 @@ namespace edm {
   class WaitingTask;
 
   namespace maker {
-    template<typename T> class ModuleHolderT;
+    template <typename T>
+    class ModuleHolderT;
   }
 
   namespace one {
 
-    class EDAnalyzerBase : public EDConsumerBase
-    {
-      
+    class EDAnalyzerBase : public EDConsumerBase {
     public:
-      template <typename T> friend class edm::WorkerT;
-      template <typename T> friend class edm::maker::ModuleHolderT;
-      
+      template <typename T>
+      friend class edm::WorkerT;
+      template <typename T>
+      friend class edm::maker::ModuleHolderT;
+
       typedef EDAnalyzerBase ModuleType;
 
-      
       EDAnalyzerBase();
       ~EDAnalyzerBase() override;
-      
+
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
@@ -63,53 +63,50 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
-      virtual bool wantsGlobalRuns() const =0;
-      virtual bool wantsGlobalLuminosityBlocks() const =0;
-      bool wantsStreamRuns() const {return false;}
-      bool wantsStreamLuminosityBlocks() const {return false;};
+      virtual bool wantsGlobalRuns() const = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const = 0;
+      bool wantsStreamRuns() const { return false; }
+      bool wantsStreamLuminosityBlocks() const { return false; };
 
       virtual SerialTaskQueue* globalRunsQueue();
       virtual SerialTaskQueue* globalLuminosityBlocksQueue();
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
     private:
-      bool doEvent(EventPrincipal const& ep, EventSetupImpl const&  c,
-                   ActivityRegistry*,
-                   ModuleCallingContext const*);
+      bool doEvent(EventPrincipal const& ep, EventSetupImpl const& c, ActivityRegistry*, ModuleCallingContext const*);
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
+                                                    ModuleCallingContext const& iModuleCallingContext,
+                                                    Principal const& iPrincipal) const {}
 
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocLumis(unsigned int);
       void doBeginJob();
       void doEndJob();
-      
-      void doBeginRun(RunPrincipal const& rp, EventSetupImpl const&  c,
-                      ModuleCallingContext const*);
-      void doEndRun(RunPrincipal const& rp, EventSetupImpl const&  c,
-                    ModuleCallingContext const*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
+
+      void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
+      void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                  EventSetupImpl const& c,
                                   ModuleCallingContext const*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
+      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+                                EventSetupImpl const& c,
                                 ModuleCallingContext const*);
-      
+
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
-      void doRegisterThinnedAssociations(ProductRegistry const&,
-                                         ThinnedAssociationsHelper&) { }
+      void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       void registerProductsAndCallbacks(EDAnalyzerBase const* module, ProductRegistry* reg);
-      std::string workerType() const {return "WorkerT<EDAnalyzer>";}
-      
-      SharedResourcesAcquirer& sharedResourcesAcquirer() {
-        return resourcesAcquirer_;
-      }
-      
+      std::string workerType() const { return "WorkerT<EDAnalyzer>"; }
+
+      SharedResourcesAcquirer& sharedResourcesAcquirer() { return resourcesAcquirer_; }
+
       virtual void analyze(Event const&, EventSetup const&) = 0;
       virtual void beginJob() {}
-      virtual void endJob(){}
-      
+      virtual void endJob() {}
+
       virtual void doBeginRun_(Run const& rp, EventSetup const& c);
       virtual void doEndRun_(Run const& rp, EventSetup const& c);
       virtual void doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);
@@ -120,14 +117,12 @@ namespace edm {
 
       virtual SharedResourcesAcquirer createAcquirer();
 
-      void setModuleDescription(ModuleDescription const& md) {
-        moduleDescription_ = md;
-      }
+      void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }
       ModuleDescription moduleDescription_;
       std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
-      
+
       SharedResourcesAcquirer resourcesAcquirer_;
     };
-  }
-}
+  }  // namespace one
+}  // namespace edm
 #endif

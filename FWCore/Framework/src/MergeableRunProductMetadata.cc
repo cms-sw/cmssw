@@ -11,39 +11,29 @@
 
 namespace edm {
 
-  MergeableRunProductMetadata::
-  MergeableRunProductMetadata(MergeableRunProductProcesses const& mergeableRunProductProcesses) :
-    mergeableRunProductProcesses_(&mergeableRunProductProcesses),
-    metadataForProcesses_(mergeableRunProductProcesses.size()) {
-  }
+  MergeableRunProductMetadata::MergeableRunProductMetadata(
+      MergeableRunProductProcesses const& mergeableRunProductProcesses)
+      : mergeableRunProductProcesses_(&mergeableRunProductProcesses),
+        metadataForProcesses_(mergeableRunProductProcesses.size()) {}
 
-  MergeableRunProductMetadata::~MergeableRunProductMetadata() {
-  }
+  MergeableRunProductMetadata::~MergeableRunProductMetadata() {}
 
-  void MergeableRunProductMetadata::preReadFile() {
-    mergeLumisFromIndexIntoFile();
-  }
+  void MergeableRunProductMetadata::preReadFile() { mergeLumisFromIndexIntoFile(); }
 
   void MergeableRunProductMetadata::readRun(
-    long long inputRunEntry,
-    StoredMergeableRunProductMetadata const& inputStoredMergeableRunProductMetadata,
-    IndexIntoFileItrHolder const& inputIndexIntoFileItr) {
-
-    unsigned int processIndex {0};
-    for (auto & metadataForProcess : metadataForProcesses_) {
-
+      long long inputRunEntry,
+      StoredMergeableRunProductMetadata const& inputStoredMergeableRunProductMetadata,
+      IndexIntoFileItrHolder const& inputIndexIntoFileItr) {
+    unsigned int processIndex{0};
+    for (auto& metadataForProcess : metadataForProcesses_) {
       bool valid = true;
       std::vector<LuminosityBlockNumber_t>::const_iterator lumisInRunBeingReadBegin;
       std::vector<LuminosityBlockNumber_t>::const_iterator lumisInRunBeingReadEnd;
 
       std::string const& processName = mergeableRunProductProcesses_->processesWithMergeableRunProducts()[processIndex];
 
-      if (inputStoredMergeableRunProductMetadata.getLumiContent(inputRunEntry,
-                                                                processName,
-                                                                valid,
-                                                                lumisInRunBeingReadBegin,
-                                                                lumisInRunBeingReadEnd)) {
-
+      if (inputStoredMergeableRunProductMetadata.getLumiContent(
+              inputRunEntry, processName, valid, lumisInRunBeingReadBegin, lumisInRunBeingReadEnd)) {
         // This is a reference to the container accumulating the luminosity
         // block numbers for the run entries read associated with the current
         // run being processed that correspond to the luminosity block content
@@ -62,7 +52,7 @@ namespace edm {
         std::vector<LuminosityBlockNumber_t>::const_iterator end1 = lumis.end();
         std::vector<LuminosityBlockNumber_t>::const_iterator end2 = lumisInRunBeingReadEnd;
         for (std::vector<LuminosityBlockNumber_t>::const_iterator iter1 = lumis.begin(),
-             iter2 = lumisInRunBeingReadBegin;
+                                                                  iter2 = lumisInRunBeingReadBegin;
              iter1 != end1 || iter2 != end2;) {
           if (iter1 == end1) {
             temp.push_back(*iter2);
@@ -111,7 +101,6 @@ namespace edm {
         }
 
       } else {
-
         metadataForProcess.setMergeDecision(MERGE);
         if (!valid) {
           metadataForProcess.setValid(false);
@@ -123,11 +112,10 @@ namespace edm {
         }
       }
       ++processIndex;
-    } // end of loop over processes
-  } // end of readRun function
+    }  // end of loop over processes
+  }    // end of readRun function
 
   void MergeableRunProductMetadata::writeLumi(LuminosityBlockNumber_t lumi) {
-
     if (metadataForProcesses_.empty()) {
       return;
     }
@@ -135,7 +123,6 @@ namespace edm {
   }
 
   void MergeableRunProductMetadata::preWriteRun() {
-
     if (metadataForProcesses_.empty()) {
       return;
     }
@@ -157,28 +144,22 @@ namespace edm {
     std::sort(lumisProcessed.begin(), lumisProcessed.end());
     auto uniqueEnd = std::unique(lumisProcessed.begin(), lumisProcessed.end());
 
-    for (auto & metadataForProcess : metadataForProcesses_) {
-
+    for (auto& metadataForProcess : metadataForProcesses_) {
       // Did we process all the lumis in this process that were processed
       // in the process that created the mergeable run products.
-      metadataForProcess.setAllLumisProcessed(
-        std::includes(lumisProcessed.begin(), uniqueEnd,
-                      metadataForProcess.lumis().begin(),
-                      metadataForProcess.lumis().end()));
+      metadataForProcess.setAllLumisProcessed(std::includes(
+          lumisProcessed.begin(), uniqueEnd, metadataForProcess.lumis().begin(), metadataForProcess.lumis().end()));
     }
   }
 
   void MergeableRunProductMetadata::postWriteRun() {
-
     lumisProcessed_.clear();
-    for (auto & metadataForProcess : metadataForProcesses_) {
+    for (auto& metadataForProcess : metadataForProcesses_) {
       metadataForProcess.reset();
     }
   }
 
-  void MergeableRunProductMetadata::
-  addEntryToStoredMetadata(StoredMergeableRunProductMetadata& storedMetadata) const {
-
+  void MergeableRunProductMetadata::addEntryToStoredMetadata(StoredMergeableRunProductMetadata& storedMetadata) const {
     if (metadataForProcesses_.empty()) {
       return;
     }
@@ -191,14 +172,10 @@ namespace edm {
     unsigned long long beginProcess = storedMetadata.singleRunEntryAndProcesses().size();
     unsigned long long endProcess = beginProcess;
 
-
     std::vector<std::string> const& processesWithMergeableRunProducts =
-      mergeableRunProductProcesses_->processesWithMergeableRunProducts();
+        mergeableRunProductProcesses_->processesWithMergeableRunProducts();
 
-    for (unsigned int storedProcessIndex = 0;
-         storedProcessIndex < storedProcesses.size();
-         ++storedProcessIndex) {
-
+    for (unsigned int storedProcessIndex = 0; storedProcessIndex < storedProcesses.size(); ++storedProcessIndex) {
       // Look for a matching process. It is intentional that no process
       // is added when there is no match. storedProcesses only contains
       // processes which created mergeable run products selected by the
@@ -207,16 +184,12 @@ namespace edm {
       // read from the input data files. Note storedProcesses may be
       // missing processes because the output module dropped products.
       // The other vector may be missing processes because of SubProcesses.
-      for (unsigned int transientProcessIndex = 0;
-           transientProcessIndex < processesWithMergeableRunProducts.size();
+      for (unsigned int transientProcessIndex = 0; transientProcessIndex < processesWithMergeableRunProducts.size();
            ++transientProcessIndex) {
-
         // This string comparison could be optimized away by storing an index mapping in
         // OutputModuleBase calculated once early in a job. (? Given how rare
         // mergeable run products are this optimization may not be worth doing)
-        if (processesWithMergeableRunProducts[transientProcessIndex] ==
-            storedProcesses[storedProcessIndex]) {
-
+        if (processesWithMergeableRunProducts[transientProcessIndex] == storedProcesses[storedProcessIndex]) {
           if (addProcess(storedMetadata,
                          metadataForProcesses_.at(transientProcessIndex),
                          storedProcessIndex,
@@ -231,15 +204,12 @@ namespace edm {
     storedMetadata.singleRunEntries().emplace_back(beginProcess, endProcess);
   }
 
-  bool MergeableRunProductMetadata::
-  addProcess(StoredMergeableRunProductMetadata& storedMetadata,
-             MetadataForProcess const& metadataForProcess,
-             unsigned int storedProcessIndex,
-             unsigned long long beginProcess,
-             unsigned long long endProcess) const {
-
-    if (metadataForProcess.valid() &&
-        metadataForProcess.allLumisProcessed()) {
+  bool MergeableRunProductMetadata::addProcess(StoredMergeableRunProductMetadata& storedMetadata,
+                                               MetadataForProcess const& metadataForProcess,
+                                               unsigned int storedProcessIndex,
+                                               unsigned long long beginProcess,
+                                               unsigned long long endProcess) const {
+    if (metadataForProcess.valid() && metadataForProcess.allLumisProcessed()) {
       return false;
     }
 
@@ -262,15 +232,12 @@ namespace edm {
       // the only thing that can happen is more lumi numbers appear
       // at steps where a run was only partially processed.
       bool found = false;
-      for (unsigned long long kProcess = beginProcess;
-           kProcess < endProcess;
-           ++kProcess) {
+      for (unsigned long long kProcess = beginProcess; kProcess < endProcess; ++kProcess) {
         StoredMergeableRunProductMetadata::SingleRunEntryAndProcess const& storedSingleRunEntryAndProcess =
-          storedMetadata.singleRunEntryAndProcesses().at(kProcess);
+            storedMetadata.singleRunEntryAndProcesses().at(kProcess);
 
         if (metadataForProcess.lumis().size() ==
             (storedSingleRunEntryAndProcess.endLumi() - storedSingleRunEntryAndProcess.beginLumi())) {
-
           iBeginLumi = storedSingleRunEntryAndProcess.beginLumi();
           iEndLumi = storedSingleRunEntryAndProcess.endLumi();
           found = true;
@@ -281,35 +248,28 @@ namespace edm {
         std::vector<LuminosityBlockNumber_t>& storedLumis = storedMetadata.lumis();
         std::vector<LuminosityBlockNumber_t> const& metdataLumis = metadataForProcess.lumis();
         iBeginLumi = storedLumis.size();
-        storedLumis.insert( storedLumis.end(), metdataLumis.begin(), metdataLumis.end() );
+        storedLumis.insert(storedLumis.end(), metdataLumis.begin(), metdataLumis.end());
         iEndLumi = storedLumis.size();
       }
     }
-    storedMetadata.singleRunEntryAndProcesses().emplace_back(iBeginLumi,
-                                                             iEndLumi,
-                                                             storedProcessIndex,
-                                                             metadataForProcess.valid(),
-                                                             metadataForProcess.allLumisProcessed());
+    storedMetadata.singleRunEntryAndProcesses().emplace_back(
+        iBeginLumi, iEndLumi, storedProcessIndex, metadataForProcess.valid(), metadataForProcess.allLumisProcessed());
     return true;
   }
 
-  MergeableRunProductMetadata::MergeDecision
-  MergeableRunProductMetadata::getMergeDecision(std::string const& processThatCreatedProduct) const {
-
+  MergeableRunProductMetadata::MergeDecision MergeableRunProductMetadata::getMergeDecision(
+      std::string const& processThatCreatedProduct) const {
     MetadataForProcess const* metadataForProcess = metadataForOneProcess(processThatCreatedProduct);
     if (metadataForProcess) {
       return metadataForProcess->mergeDecision();
     }
-    throw Exception(errors::LogicError)
-      << "MergeableRunProductMetadata::getMergeDecision could not find process.\n"
-      << "It should not be possible for this error to occur.\n"
-      << "Contact a Framework developer\n";
+    throw Exception(errors::LogicError) << "MergeableRunProductMetadata::getMergeDecision could not find process.\n"
+                                        << "It should not be possible for this error to occur.\n"
+                                        << "Contact a Framework developer\n";
     return MERGE;
   }
 
-  bool
-  MergeableRunProductMetadata::knownImproperlyMerged(std::string const& processThatCreatedProduct) const {
-
+  bool MergeableRunProductMetadata::knownImproperlyMerged(std::string const& processThatCreatedProduct) const {
     MetadataForProcess const* metadataForProcess = metadataForOneProcess(processThatCreatedProduct);
     if (metadataForProcess) {
       return !metadataForProcess->valid();
@@ -325,8 +285,8 @@ namespace edm {
     allLumisProcessed_ = false;
   }
 
-  MergeableRunProductMetadata::MetadataForProcess const*
-  MergeableRunProductMetadata::metadataForOneProcess(std::string const& processName) const {
+  MergeableRunProductMetadata::MetadataForProcess const* MergeableRunProductMetadata::metadataForOneProcess(
+      std::string const& processName) const {
     unsigned int processIndex = 0;
     for (auto const& metadataForProcess : metadataForProcesses_) {
       // This string comparison could be optimized away by storing an index in
@@ -340,8 +300,7 @@ namespace edm {
   }
 
   void MergeableRunProductMetadata::mergeLumisFromIndexIntoFile() {
-
-    for (auto & metadataForProcess : metadataForProcesses_) {
+    for (auto& metadataForProcess : metadataForProcesses_) {
       if (metadataForProcess.useIndexIntoFile()) {
         metadataForProcess.setUseIndexIntoFile(false);
 
@@ -350,7 +309,7 @@ namespace edm {
         std::vector<LuminosityBlockNumber_t>::const_iterator end1 = metadataForProcess.lumis().end();
         std::vector<LuminosityBlockNumber_t>::const_iterator end2 = lumisFromIndexIntoFile_.end();
         for (std::vector<LuminosityBlockNumber_t>::const_iterator iter1 = metadataForProcess.lumis().begin(),
-             iter2 = lumisFromIndexIntoFile_.begin();
+                                                                  iter2 = lumisFromIndexIntoFile_.begin();
              iter1 != end1 || iter2 != end2;) {
           if (iter1 == end1) {
             temp.push_back(*iter2);
@@ -379,4 +338,4 @@ namespace edm {
     lumisFromIndexIntoFile_.clear();
     gotLumisFromIndexIntoFile_ = false;
   }
-}
+}  // namespace edm

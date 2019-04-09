@@ -117,79 +117,75 @@ There are some variants for special cases
 
 namespace edm {
 
-   template <typename T>
-   class GetterOfProducts {
-   public:
+  template <typename T>
+  class GetterOfProducts {
+  public:
+    GetterOfProducts() : branchType_(edm::InEvent) {}
 
-      GetterOfProducts() : branchType_(edm::InEvent) { }
+    template <typename U, typename M>
+    GetterOfProducts(U const& match, M* module, edm::BranchType branchType = edm::InEvent)
+        : matcher_(WillGetIfMatch<T>(match, module)),
+          tokens_(new std::vector<edm::EDGetTokenT<T>>),
+          branchType_(branchType) {}
 
-      template <typename U, typename M>
-      GetterOfProducts(U const& match, M* module, edm::BranchType branchType = edm::InEvent) : 
-        matcher_(WillGetIfMatch<T>(match, module)),
-        tokens_(new std::vector<edm::EDGetTokenT<T>>),
-        branchType_(branchType) {
+    void operator()(edm::BranchDescription const& branchDescription) {
+      if (branchDescription.dropped())
+        return;
+      if (branchDescription.branchType() == branchType_ &&
+          branchDescription.unwrappedTypeID() == edm::TypeID(typeid(T))) {
+        auto const& token = matcher_(branchDescription);
+        if (not token.isUninitialized()) {
+          tokens_->push_back(token);
+        }
       }
+    }
 
-      void operator()(edm::BranchDescription const& branchDescription) {
-
-         if (branchDescription.dropped()) return;
-         if (branchDescription.branchType() == branchType_ &&
-             branchDescription.unwrappedTypeID() == edm::TypeID(typeid(T))) {
-
-            auto const& token =matcher_(branchDescription);
-            if (not token.isUninitialized()) {
-               tokens_->push_back(token);
-           }
-         }
+    void fillHandles(edm::Event const& event, std::vector<edm::Handle<T>>& handles) const {
+      handles.clear();
+      if (branchType_ == edm::InEvent) {
+        handles.reserve(tokens_->size());
+        edm::Handle<T> handle;
+        for (auto const& token : *tokens_) {
+          if (auto handle = event.getHandle(token)) {
+            handles.push_back(handle);
+          }
+        }
       }
+    }
 
-      void fillHandles(edm::Event const& event, std::vector<edm::Handle<T> >& handles) const {
-         handles.clear();
-         if(branchType_ == edm::InEvent) {
-            handles.reserve(tokens_->size());
-            edm::Handle<T> handle;
-            for (auto const& token : *tokens_) {
-               if (auto handle = event.getHandle(token)) {
-                  handles.push_back(handle);
-               }
-            }
-         }
+    void fillHandles(edm::LuminosityBlock const& lumi, std::vector<edm::Handle<T>>& handles) const {
+      handles.clear();
+      if (branchType_ == edm::InLumi) {
+        handles.reserve(tokens_->size());
+        for (auto const& token : *tokens_) {
+          if (auto handle = lumi.getHandle(token)) {
+            handles.push_back(handle);
+          }
+        }
       }
+    }
 
-      void fillHandles(edm::LuminosityBlock const& lumi, std::vector<edm::Handle<T> >& handles) const {
-         handles.clear();
-         if(branchType_ == edm::InLumi ) {
-            handles.reserve(tokens_->size());
-            for (auto const& token : *tokens_) {
-               if (auto handle = lumi.getHandle(token)) {
-                  handles.push_back(handle);
-               }
-            }
-         }
+    void fillHandles(edm::Run const& run, std::vector<edm::Handle<T>>& handles) const {
+      handles.clear();
+      if (branchType_ == edm::InRun) {
+        handles.reserve(tokens_->size());
+        for (auto const& token : *tokens_) {
+          if (auto handle = run.getHandle(token)) {
+            handles.push_back(handle);
+          }
+        }
       }
+    }
 
-      void fillHandles(edm::Run const& run, std::vector<edm::Handle<T> >& handles) const {
-         handles.clear();
-         if(branchType_ == edm::InRun) {
-            handles.reserve(tokens_->size());
-            for (auto const& token : *tokens_) {
-               if (auto handle = run.getHandle(token)) {
-                  handles.push_back(handle);
-               }
-            }
-         }
-      }
+    std::vector<edm::EDGetTokenT<T>> const& tokens() const { return *tokens_; }
+    edm::BranchType branchType() const { return branchType_; }
 
-      std::vector<edm::EDGetTokenT<T>> const& tokens() const { return *tokens_; }
-      edm::BranchType branchType() const { return branchType_; }
-
-   private:
-
-      std::function<EDGetTokenT<T> (BranchDescription const&)> matcher_;
-      // A shared pointer is needed because objects of this type get assigned
-      // to std::function's and we want the copies in those to share the same vector.
-      std::shared_ptr<std::vector<edm::EDGetTokenT<T>> > tokens_;
-      edm::BranchType branchType_;
-   };
-}
+  private:
+    std::function<EDGetTokenT<T>(BranchDescription const&)> matcher_;
+    // A shared pointer is needed because objects of this type get assigned
+    // to std::function's and we want the copies in those to share the same vector.
+    std::shared_ptr<std::vector<edm::EDGetTokenT<T>>> tokens_;
+    edm::BranchType branchType_;
+  };
+}  // namespace edm
 #endif

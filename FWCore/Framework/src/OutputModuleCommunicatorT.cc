@@ -24,54 +24,50 @@
 
 namespace {
   template <typename F>
-  void async( edm::OutputModule& iMod, F&& iFunc ) {
+  void async(edm::OutputModule& iMod, F&& iFunc) {
     iMod.sharedResourcesAcquirer().serialQueueChain().push(std::move(iFunc));
   }
-  
+
   template <typename F>
-  void async( edm::one::OutputModuleBase& iMod, F&& iFunc ) {
+  void async(edm::one::OutputModuleBase& iMod, F&& iFunc) {
     iMod.sharedResourcesAcquirer().serialQueueChain().push(std::move(iFunc));
   }
-  
+
   template <typename F>
-  void async( edm::limited::OutputModuleBase& iMod, F&& iFunc ) {
+  void async(edm::limited::OutputModuleBase& iMod, F&& iFunc) {
     iMod.queue().push(std::move(iFunc));
   }
-  
+
   template <typename F>
-  void async( edm::global::OutputModuleBase&, F iFunc ) {
+  void async(edm::global::OutputModuleBase&, F iFunc) {
     auto t = edm::make_functor_task(tbb::task::allocate_root(), iFunc);
     tbb::task::spawn(*t);
   }
-}
+}  // namespace
 
 namespace edm {
 
-  template<typename T>
-  void
-  OutputModuleCommunicatorT<T>::closeFile() {
+  template <typename T>
+  void OutputModuleCommunicatorT<T>::closeFile() {
     module().doCloseFile();
   }
 
-  template<typename T>
-  bool
-  OutputModuleCommunicatorT<T>::shouldWeCloseFile() const {
+  template <typename T>
+  bool OutputModuleCommunicatorT<T>::shouldWeCloseFile() const {
     return module().shouldWeCloseFile();
   }
 
-  template<typename T>
-  void
-  OutputModuleCommunicatorT<T>::openFile(edm::FileBlock const& fb) {
+  template <typename T>
+  void OutputModuleCommunicatorT<T>::openFile(edm::FileBlock const& fb) {
     module().doOpenFile(fb);
   }
 
-  template<typename T>
-  void
-  OutputModuleCommunicatorT<T>::writeRunAsync(WaitingTaskHolder iTask,
-                                              edm::RunPrincipal const& rp,
-                                              ProcessContext const* processContext,
-                                              ActivityRegistry* activityRegistry,
-                                              MergeableRunProductMetadata const* mergeableRunProductMetadata) {
+  template <typename T>
+  void OutputModuleCommunicatorT<T>::writeRunAsync(WaitingTaskHolder iTask,
+                                                   edm::RunPrincipal const& rp,
+                                                   ProcessContext const* processContext,
+                                                   ActivityRegistry* activityRegistry,
+                                                   MergeableRunProductMetadata const* mergeableRunProductMetadata) {
     auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
                                 LuminosityBlockID(rp.run(), 0),
@@ -79,7 +75,14 @@ namespace edm {
                                 LuminosityBlockIndex::invalidLuminosityBlockIndex(),
                                 rp.endTime(),
                                 processContext);
-    auto t = [&mod = module(), &rp, globalContext, token, desc = &description(), activityRegistry, mergeableRunProductMetadata, iTask]() mutable {
+    auto t = [& mod = module(),
+              &rp,
+              globalContext,
+              token,
+              desc = &description(),
+              activityRegistry,
+              mergeableRunProductMetadata,
+              iTask]() mutable {
       std::exception_ptr ex;
       try {
         ServiceRegistry::Operate op(token);
@@ -87,12 +90,11 @@ namespace edm {
         ModuleCallingContext mcc(desc);
         ModuleContextSentry moduleContextSentry(&mcc, parentContext);
         activityRegistry->preModuleWriteRunSignal_(globalContext, mcc);
-        auto sentry( make_sentry(activityRegistry,
-                               [&globalContext, &mcc](ActivityRegistry* activityRegistry) {
-                                 activityRegistry->postModuleWriteRunSignal_(globalContext, mcc);
-                               }));
+        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* activityRegistry) {
+          activityRegistry->postModuleWriteRunSignal_(globalContext, mcc);
+        }));
         mod.doWriteRun(rp, &mcc, mergeableRunProductMetadata);
-      } catch(...) {
+      } catch (...) {
         ex = std::current_exception();
       }
       iTask.doneWaiting(ex);
@@ -100,12 +102,11 @@ namespace edm {
     async(module(), std::move(t));
   }
 
-  template<typename T>
-  void
-  OutputModuleCommunicatorT<T>::writeLumiAsync(WaitingTaskHolder iTask,
-                                               edm::LuminosityBlockPrincipal const& lbp,
-                                               ProcessContext const* processContext,
-                                               ActivityRegistry* activityRegistry) {
+  template <typename T>
+  void OutputModuleCommunicatorT<T>::writeLumiAsync(WaitingTaskHolder iTask,
+                                                    edm::LuminosityBlockPrincipal const& lbp,
+                                                    ProcessContext const* processContext,
+                                                    ActivityRegistry* activityRegistry) {
     auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteLuminosityBlock,
                                 lbp.id(),
@@ -113,7 +114,7 @@ namespace edm {
                                 lbp.index(),
                                 lbp.beginTime(),
                                 processContext);
-    auto t=[&mod = module(), &lbp, activityRegistry, token, globalContext,desc = &description(),iTask]() mutable {
+    auto t = [& mod = module(), &lbp, activityRegistry, token, globalContext, desc = &description(), iTask]() mutable {
       std::exception_ptr ex;
       try {
         ServiceRegistry::Operate op(token);
@@ -122,12 +123,11 @@ namespace edm {
         ModuleCallingContext mcc(desc);
         ModuleContextSentry moduleContextSentry(&mcc, parentContext);
         activityRegistry->preModuleWriteLumiSignal_(globalContext, mcc);
-        auto sentry( make_sentry(activityRegistry,
-                               [&globalContext, &mcc](ActivityRegistry* activityRegistry) {
-                                 activityRegistry->postModuleWriteLumiSignal_(globalContext, mcc);
-                               }));
+        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* activityRegistry) {
+          activityRegistry->postModuleWriteLumiSignal_(globalContext, mcc);
+        }));
         mod.doWriteLuminosityBlock(lbp, &mcc);
-      } catch(...) {
+      } catch (...) {
         ex = std::current_exception();
       }
       iTask.doneWaiting(ex);
@@ -135,58 +135,66 @@ namespace edm {
     async(module(), std::move(t));
   }
 
-  template<typename T>
-  bool OutputModuleCommunicatorT<T>::wantAllEvents() const {return module().wantAllEvents();}
+  template <typename T>
+  bool OutputModuleCommunicatorT<T>::wantAllEvents() const {
+    return module().wantAllEvents();
+  }
 
-  template<typename T>
-  bool OutputModuleCommunicatorT<T>::limitReached() const {return module().limitReached();}
+  template <typename T>
+  bool OutputModuleCommunicatorT<T>::limitReached() const {
+    return module().limitReached();
+  }
 
-  template<typename T>
-  void OutputModuleCommunicatorT<T>::configure(OutputModuleDescription const& desc) {module().configure(desc);}
+  template <typename T>
+  void OutputModuleCommunicatorT<T>::configure(OutputModuleDescription const& desc) {
+    module().configure(desc);
+  }
 
-  template<typename T>
+  template <typename T>
   edm::SelectedProductsForBranchType const& OutputModuleCommunicatorT<T>::keptProducts() const {
     return module().keptProducts();
   }
 
-  template<typename T>
-  void OutputModuleCommunicatorT<T>::selectProducts(edm::ProductRegistry const& preg, ThinnedAssociationsHelper const& helper) {
+  template <typename T>
+  void OutputModuleCommunicatorT<T>::selectProducts(edm::ProductRegistry const& preg,
+                                                    ThinnedAssociationsHelper const& helper) {
     module().selectProducts(preg, helper);
   }
 
-  template<typename T>
-  void OutputModuleCommunicatorT<T>::setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
-                                                    bool anyProductProduced) {
+  template <typename T>
+  void OutputModuleCommunicatorT<T>::setEventSelectionInfo(
+      std::map<std::string, std::vector<std::pair<std::string, int>>> const& outputModulePathPositions,
+      bool anyProductProduced) {
     module().setEventSelectionInfo(outputModulePathPositions, anyProductProduced);
   }
 
-  template<typename T>
+  template <typename T>
   ModuleDescription const& OutputModuleCommunicatorT<T>::description() const {
     return module().description();
   }
 
   namespace impl {
-    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(void *) {
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(void*) {
       return std::unique_ptr<edm::OutputModuleCommunicator>{};
     }
-    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::OutputModule * iMod){
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::OutputModule* iMod) {
       return std::make_unique<OutputModuleCommunicatorT<edm::OutputModule>>(iMod);
     }
-    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::global::OutputModuleBase * iMod){
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::global::OutputModuleBase* iMod) {
       return std::make_unique<OutputModuleCommunicatorT<edm::global::OutputModuleBase>>(iMod);
     }
-    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::one::OutputModuleBase * iMod){
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::one::OutputModuleBase* iMod) {
       return std::make_unique<OutputModuleCommunicatorT<edm::one::OutputModuleBase>>(iMod);
     }
-    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::limited::OutputModuleBase * iMod){
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::limited::OutputModuleBase* iMod) {
       return std::make_unique<OutputModuleCommunicatorT<edm::limited::OutputModuleBase>>(iMod);
     }
-  }
-}
+  }  // namespace impl
+}  // namespace edm
 
 namespace edm {
   template class OutputModuleCommunicatorT<OutputModule>;
   template class OutputModuleCommunicatorT<one::OutputModuleBase>;
   template class OutputModuleCommunicatorT<global::OutputModuleBase>;
   template class OutputModuleCommunicatorT<limited::OutputModuleBase>;
-}
+}  // namespace edm

@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     outputmoduleImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for OutputModuleBase
 //
@@ -20,14 +20,8 @@ namespace edm {
 
   namespace global {
     namespace outputmodule {
-      void InputFileWatcher::doRespondToOpenInputFile_(FileBlock const& iB)
-      {
-        respondToOpenInputFile(iB);
-      }
-      void InputFileWatcher::doRespondToCloseInputFile_(FileBlock const& iB)
-      {
-        respondToCloseInputFile(iB);
-      }
-    }
-  }
-}
+      void InputFileWatcher::doRespondToOpenInputFile_(FileBlock const& iB) { respondToOpenInputFile(iB); }
+      void InputFileWatcher::doRespondToCloseInputFile_(FileBlock const& iB) { respondToCloseInputFile(iB); }
+    }  // namespace outputmodule
+  }    // namespace global
+}  // namespace edm

@@ -18,36 +18,31 @@ See comments in the file GetterOfProducts.h.
 
 namespace edm {
 
-  template<typename T>
+  template <typename T>
   class WillGetIfMatch {
   public:
-
     template <typename U>
-    WillGetIfMatch(U const& match, EDConsumerBase* module):
-      match_(match),
-      module_(module) {
-    }
-    
-    EDGetTokenT<T>  operator()(BranchDescription const& branchDescription) {
-      if (match_(branchDescription)){
+    WillGetIfMatch(U const& match, EDConsumerBase* module) : match_(match), module_(module) {}
+
+    EDGetTokenT<T> operator()(BranchDescription const& branchDescription) {
+      if (match_(branchDescription)) {
         auto transition = branchDescription.branchType();
-        edm::InputTag tag{branchDescription.moduleLabel(),
-                          branchDescription.productInstanceName(),
-                          branchDescription.processName()};
-        if(transition == edm::InEvent) {
+        edm::InputTag tag{
+            branchDescription.moduleLabel(), branchDescription.productInstanceName(), branchDescription.processName()};
+        if (transition == edm::InEvent) {
           return module_->template consumes<T>(tag);
-        } else if(transition == edm::InLumi) {
-          return module_->template consumes<T,edm::InLumi>(tag);
-        } else if(transition == edm::InRun) {
-          return module_->template consumes<T,edm::InRun>(tag);
+        } else if (transition == edm::InLumi) {
+          return module_->template consumes<T, edm::InLumi>(tag);
+        } else if (transition == edm::InRun) {
+          return module_->template consumes<T, edm::InRun>(tag);
         }
       }
       return EDGetTokenT<T>{};
     }
-    
+
   private:
     std::function<bool(BranchDescription const&)> match_;
     EDConsumerBase* module_;
   };
-}
+}  // namespace edm
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::ProductResolverIndexAndSkipBit
-// 
+//
 /**\class edm::ProductResolverIndexAndSkipBit
 
  Description:  This class holds a ProductIndexHolder and a boolean value
@@ -27,24 +27,20 @@ namespace edm {
 
   class ProductResolverIndexAndSkipBit {
   public:
-    ProductResolverIndexAndSkipBit(ProductResolverIndex productResolverIndex, bool skipCurrentProcess) :
-      value_(skipCurrentProcess ? s_skipMask | productResolverIndex :
-                                  ~s_skipMask & productResolverIndex) { }
-      ProductResolverIndex productResolverIndex() const {
-        bool specialIndexValue = (value_ & ProductResolverIndexValuesBit) != 0;
-        return specialIndexValue ? value_ | s_skipMask :
-                                   value_ & ~s_skipMask;
-      }
-      bool skipCurrentProcess() const { return (value_ & s_skipMask) != 0; }
+    ProductResolverIndexAndSkipBit(ProductResolverIndex productResolverIndex, bool skipCurrentProcess)
+        : value_(skipCurrentProcess ? s_skipMask | productResolverIndex : ~s_skipMask & productResolverIndex) {}
+    ProductResolverIndex productResolverIndex() const {
+      bool specialIndexValue = (value_ & ProductResolverIndexValuesBit) != 0;
+      return specialIndexValue ? value_ | s_skipMask : value_ & ~s_skipMask;
+    }
+    bool skipCurrentProcess() const { return (value_ & s_skipMask) != 0; }
 
-      bool operator==(ProductResolverIndexAndSkipBit const& r) {
-        return value_ == r.value_;
-      }
+    bool operator==(ProductResolverIndexAndSkipBit const& r) { return value_ == r.value_; }
 
   private:
-      static const unsigned int s_skipMask = 1U << 31;
+    static const unsigned int s_skipMask = 1U << 31;
 
-      unsigned int value_;
+    unsigned int value_;
   };
-}
+}  // namespace edm
 #endif

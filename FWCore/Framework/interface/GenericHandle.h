@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     GenericHandle
-// 
+//
 /**\class GenericHandle GenericHandle.h FWCore/Framework/interface/GenericHandle.h
 
  Description: Allows interaction with data in the Event without actually using the C++ class
@@ -36,116 +36,101 @@
 
 // forward declarations
 namespace edm {
-   ///This class is just a 'tag' used to allow a specialization of edm::Handle
-struct GenericObject {
-};
+  ///This class is just a 'tag' used to allow a specialization of edm::Handle
+  struct GenericObject {};
 
-template<>
-class Handle<GenericObject> {
-public:
+  template <>
+  class Handle<GenericObject> {
+  public:
     ///Throws exception if iName is not a known C++ class type
-    Handle(std::string const& iName) : 
-       type_(TypeWithDict::byName(iName)), prod_(), prov_(nullptr) {
-          if(!bool(type_)) {
-             Exception::throwThis(errors::NotFound,
-             "Handle<GenericObject> told to use uknown type '",
-             iName.c_str(),
-             "'.\n Please check spelling or that a module uses this type in the job.");
-           }
-        }
-   
-   ///Throws exception if iType is invalid
-   Handle(TypeWithDict const& iType) :
-      type_(iType), prod_(), prov_(nullptr) {
-         if(!bool(iType)) {
-            Exception::throwThis(errors::NotFound, "Handle<GenericObject> given an invalid type");
-         }
+    Handle(std::string const& iName) : type_(TypeWithDict::byName(iName)), prod_(), prov_(nullptr) {
+      if (!bool(type_)) {
+        Exception::throwThis(errors::NotFound,
+                             "Handle<GenericObject> told to use uknown type '",
+                             iName.c_str(),
+                             "'.\n Please check spelling or that a module uses this type in the job.");
       }
-   
-   Handle(Handle<GenericObject> const& h):
-   type_(h.type_),
-   prod_(h.prod_),
-   prov_(h.prov_),
-   whyFailedFactory_(h.whyFailedFactory_) {
-   }
-   
-   Handle(ObjectWithDict const& prod, Provenance const* prov, ProductID const&):
-   type_(prod.typeOf()),
-   prod_(prod),
-   prov_(prov) { 
+    }
+
+    ///Throws exception if iType is invalid
+    Handle(TypeWithDict const& iType) : type_(iType), prod_(), prov_(nullptr) {
+      if (!bool(iType)) {
+        Exception::throwThis(errors::NotFound, "Handle<GenericObject> given an invalid type");
+      }
+    }
+
+    Handle(Handle<GenericObject> const& h)
+        : type_(h.type_), prod_(h.prod_), prov_(h.prov_), whyFailedFactory_(h.whyFailedFactory_) {}
+
+    Handle(ObjectWithDict const& prod, Provenance const* prov, ProductID const&)
+        : type_(prod.typeOf()), prod_(prod), prov_(prov) {
       assert(prod_);
       assert(prov_);
-   }
-   
-      //~Handle();
-      
-   void swap(Handle<GenericObject>& other) {
+    }
+
+    //~Handle();
+
+    void swap(Handle<GenericObject>& other) {
       // use unqualified swap for user defined classes
       using std::swap;
       swap(type_, other.type_);
       std::swap(prod_, other.prod_);
       swap(prov_, other.prov_);
       swap(whyFailedFactory_, other.whyFailedFactory_);
-   }
-   
-   
-   Handle<GenericObject>& operator=(Handle<GenericObject> const& rhs) {
+    }
+
+    Handle<GenericObject>& operator=(Handle<GenericObject> const& rhs) {
       Handle<GenericObject> temp(rhs);
       this->swap(temp);
       return *this;
-   }
-   
-   bool isValid() const {
-      return prod_ && nullptr!= prov_;
-   }
+    }
 
-   bool failedToGet() const {
-     return bool(whyFailedFactory_);
-   }
-   ObjectWithDict const* product() const { 
-     if(this->failedToGet()) {
-       whyFailedFactory_->make()->raise();
-     } 
-     return &prod_;
-   }
-   ObjectWithDict const* operator->() const {return this->product();}
-   ObjectWithDict const& operator*() const {return *(this->product());}
-   
-   TypeWithDict const& type() const {return type_;}
-   Provenance const* provenance() const {return prov_;}
-   
-   ProductID id() const {return prov_->productID();}
+    bool isValid() const { return prod_ && nullptr != prov_; }
 
-   void clear() { prov_ = nullptr; whyFailedFactory_=nullptr;}
-      
-  void setWhyFailedFactory(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed) {
-    whyFailedFactory_=iWhyFailed;
-  }
-private:
-   TypeWithDict type_;
-   ObjectWithDict prod_;
-   Provenance const* prov_;    
-  std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
+    bool failedToGet() const { return bool(whyFailedFactory_); }
+    ObjectWithDict const* product() const {
+      if (this->failedToGet()) {
+        whyFailedFactory_->make()->raise();
+      }
+      return &prod_;
+    }
+    ObjectWithDict const* operator->() const { return this->product(); }
+    ObjectWithDict const& operator*() const { return *(this->product()); }
 
-};
+    TypeWithDict const& type() const { return type_; }
+    Provenance const* provenance() const { return prov_; }
 
-typedef Handle<GenericObject> GenericHandle;
+    ProductID id() const { return prov_->productID(); }
 
-///specialize this function for GenericHandle
-void convert_handle(BasicHandle && orig,
-                    Handle<GenericObject>& result);
+    void clear() {
+      prov_ = nullptr;
+      whyFailedFactory_ = nullptr;
+    }
 
+    void setWhyFailedFactory(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed) {
+      whyFailedFactory_ = iWhyFailed;
+    }
 
-///Specialize the Event's getByLabel method to work with a Handle<GenericObject>
-template<>
-bool
-edm::Event::getByLabel<GenericObject>(std::string const& label,
-                                      std::string const& productInstanceName,
-                                      Handle<GenericObject>& result) const;
+  private:
+    TypeWithDict type_;
+    ObjectWithDict prod_;
+    Provenance const* prov_;
+    std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
+  };
 
-template <>
-bool
-edm::Event::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const;
+  typedef Handle<GenericObject> GenericHandle;
 
-}
+  ///specialize this function for GenericHandle
+  void convert_handle(BasicHandle&& orig, Handle<GenericObject>& result);
+
+  ///Specialize the Event's getByLabel method to work with a Handle<GenericObject>
+  template <>
+  bool edm::Event::getByLabel<GenericObject>(std::string const& label,
+                                             std::string const& productInstanceName,
+                                             Handle<GenericObject>& result) const;
+
+  template <>
+  bool edm::Event::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const;
+
+}  // namespace edm
 #endif

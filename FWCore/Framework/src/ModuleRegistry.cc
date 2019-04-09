@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     edm::ModuleRegistry
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -16,36 +16,32 @@
 #include "FWCore/Framework/src/ModuleRegistry.h"
 #include "FWCore/Framework/src/Factory.h"
 
-
 namespace edm {
-  std::shared_ptr<maker::ModuleHolder>
-  ModuleRegistry::getModule(MakeModuleParams const& p,
-                            std::string const& moduleLabel,
-                            signalslot::Signal<void(ModuleDescription const&)>& iPre,
-                            signalslot::Signal<void(ModuleDescription const&)>& iPost) {
+  std::shared_ptr<maker::ModuleHolder> ModuleRegistry::getModule(
+      MakeModuleParams const& p,
+      std::string const& moduleLabel,
+      signalslot::Signal<void(ModuleDescription const&)>& iPre,
+      signalslot::Signal<void(ModuleDescription const&)>& iPost) {
     auto modItr = labelToModule_.find(moduleLabel);
-    if(modItr == labelToModule_.end()) {
-      auto modPtr=
-      Factory::get()->makeModule(p,iPre,iPost);
-      
+    if (modItr == labelToModule_.end()) {
+      auto modPtr = Factory::get()->makeModule(p, iPre, iPost);
+
       // Transfer ownership of worker to the registry
       labelToModule_[moduleLabel] = modPtr;
       return modPtr;
     }
     return get_underlying_safe(modItr->second);
   }
-  
-  maker::ModuleHolder*
-  ModuleRegistry::replaceModule(std::string const& iModuleLabel,
-                                edm::ParameterSet const& iPSet,
-                                edm::PreallocationConfiguration const& iPrealloc) {
+
+  maker::ModuleHolder* ModuleRegistry::replaceModule(std::string const& iModuleLabel,
+                                                     edm::ParameterSet const& iPSet,
+                                                     edm::PreallocationConfiguration const& iPrealloc) {
     auto modItr = labelToModule_.find(iModuleLabel);
     if (modItr == labelToModule_.end()) {
       return nullptr;
     }
-    
-    auto modPtr=
-    Factory::get()->makeReplacementModule(iPSet);
+
+    auto modPtr = Factory::get()->makeReplacementModule(iPSet);
     modPtr->setModuleDescription(modItr->second->moduleDescription());
     modPtr->preallocate(iPrealloc);
 
@@ -53,4 +49,4 @@ namespace edm {
     modItr->second = modPtr;
     return modItr->second.get();
   }
-}
+}  // namespace edm

@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     SourceFactory
-// 
+//
 /**\class SourceFactory SourceFactory.h FWCore/Framework/interface/SourceFactory.h
 
  Description: <one line class summary>
@@ -30,67 +30,66 @@
 // forward declarations
 
 namespace edm {
-   class EventSetupRecordIntervalFinder;
-   class ParameterSet;
+  class EventSetupRecordIntervalFinder;
+  class ParameterSet;
 
-   namespace eventsetup {
-      class DataProxyProvider;
-      class EventSetupsController;
-      
-      template<class T>
-         void addProviderTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, const DataProxyProvider*) 
-      {
-            std::shared_ptr<DataProxyProvider> pProvider(iComponent);
-            ComponentDescription description = pProvider->description();
-            description.isSource_=true;
-            pProvider->setDescription(description);
-            iProvider.add(pProvider);
+  namespace eventsetup {
+    class DataProxyProvider;
+    class EventSetupsController;
+
+    template <class T>
+    void addProviderTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, const DataProxyProvider*) {
+      std::shared_ptr<DataProxyProvider> pProvider(iComponent);
+      ComponentDescription description = pProvider->description();
+      description.isSource_ = true;
+      pProvider->setDescription(description);
+      iProvider.add(pProvider);
+    }
+    template <class T>
+    void addProviderTo(EventSetupProvider& /* iProvider */, std::shared_ptr<T> /*iComponent*/, const void*) {
+      //do nothing
+    }
+
+    struct SourceMakerTraits {
+      typedef EventSetupRecordIntervalFinder base_type;
+      static std::string name();
+      template <class T>
+      static void addTo(EventSetupProvider& iProvider,
+                        std::shared_ptr<T> iComponent,
+                        ParameterSet const& iConfiguration,
+                        bool matchesPreceding) {
+        if (matchesPreceding) {
+          logInfoWhenSharing(iConfiguration);
+        }
+        //a source does not always have to be a provider
+        addProviderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
+        std::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
+        iProvider.add(pFinder);
       }
-      template<class T>
-         void addProviderTo(EventSetupProvider& /* iProvider */, std::shared_ptr<T> /*iComponent*/, const void*) 
-      {
-            //do nothing
-      }
-      
-      struct SourceMakerTraits {
-         typedef EventSetupRecordIntervalFinder base_type;
-         static std::string name();
-         template<class T>
-         static void addTo(EventSetupProvider& iProvider,
-                           std::shared_ptr<T> iComponent,
-                           ParameterSet const& iConfiguration,
-                           bool matchesPreceding)
-            {
-               if (matchesPreceding) {
-                  logInfoWhenSharing(iConfiguration);
-               }
-               //a source does not always have to be a provider
-               addProviderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
-               std::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
-               iProvider.add(pFinder);
-            }
-         static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<EventSetupRecordIntervalFinder> iComponent); 
-               
-         static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
-                                                                            ParameterSet const& iConfiguration);
+      static void replaceExisting(EventSetupProvider& iProvider,
+                                  std::shared_ptr<EventSetupRecordIntervalFinder> iComponent);
 
-         static void putComponent(EventSetupsController& esController,
-                                  ParameterSet const& iConfiguration,
-                                  std::shared_ptr<base_type> const& component);
+      static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
+                                                                       ParameterSet const& iConfiguration);
 
-         static void logInfoWhenSharing(ParameterSet const& iConfiguration);
-      };
+      static void putComponent(EventSetupsController& esController,
+                               ParameterSet const& iConfiguration,
+                               std::shared_ptr<base_type> const& component);
 
-      template< class TType>
-         struct SourceMaker : public ComponentMaker<edm::eventsetup::SourceMakerTraits,TType> {};
-      typedef  ComponentFactory<SourceMakerTraits> SourceFactory ;
-      
-      typedef edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<edm::eventsetup::SourceMakerTraits>* ()> SourcePluginFactory;
-   }
-}
+      static void logInfoWhenSharing(ParameterSet const& iConfiguration);
+    };
 
-#define DEFINE_FWK_EVENTSETUP_SOURCE(type) \
-DEFINE_EDM_PLUGIN (edm::eventsetup::SourcePluginFactory,edm::eventsetup::SourceMaker<type>,#type); \
-DEFINE_DESC_FILLER_FOR_ESSOURCES(type)
+    template <class TType>
+    struct SourceMaker : public ComponentMaker<edm::eventsetup::SourceMakerTraits, TType> {};
+    typedef ComponentFactory<SourceMakerTraits> SourceFactory;
+
+    typedef edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<edm::eventsetup::SourceMakerTraits>*()>
+        SourcePluginFactory;
+  }  // namespace eventsetup
+}  // namespace edm
+
+#define DEFINE_FWK_EVENTSETUP_SOURCE(type)                                                            \
+  DEFINE_EDM_PLUGIN(edm::eventsetup::SourcePluginFactory, edm::eventsetup::SourceMaker<type>, #type); \
+  DEFINE_DESC_FILLER_FOR_ESSOURCES(type)
 
 #endif

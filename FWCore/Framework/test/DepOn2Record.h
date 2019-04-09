@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     DepOn2Record
-// 
+//
 /**\class DepOn2Record DepOn2Record.h FWCore/Framework/test/DepOn2Record.h
 
  Description: A test Record that is dependent on DummyRecord and Dummy2Record
@@ -28,9 +28,8 @@
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/Framework/test/Dummy2Record.h"
 
-class DepOn2Record 
-: public edm::eventsetup::DependentRecordImplementation<DepOn2Record, boost::mpl::vector<DummyRecord,Dummy2Record> >
-{
-};
+class DepOn2Record
+    : public edm::eventsetup::DependentRecordImplementation<DepOn2Record,
+                                                            boost::mpl::vector<DummyRecord, Dummy2Record> > {};
 
 #endif

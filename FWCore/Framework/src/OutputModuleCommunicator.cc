@@ -2,7 +2,7 @@
 //
 // Package:     Package
 // Class  :     OutputModuleCommunicator
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -17,6 +17,4 @@
 
 using namespace edm;
 
-OutputModuleCommunicator::~OutputModuleCommunicator()
-{
-}
+OutputModuleCommunicator::~OutputModuleCommunicator() {}
