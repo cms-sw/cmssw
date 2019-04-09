@@ -33,10 +33,10 @@
 using namespace edm;
 
 GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet & p)
-  : alignmentsLabel(p.getParameter<std::string>("alignmentsLabel"))
+  : useDDD(p.getParameter<bool>("useDDD")),
+    applyAlignment(p.getParameter<bool>("applyAlignment")),
+    alignmentsLabel(p.getParameter<std::string>("alignmentsLabel"))
 {
-  useDDD = p.getParameter<bool>("useDDD");
-  applyAlignment = p.getParameter<bool>("applyAlignment");
   setWhatProduced(this);
 }
 
