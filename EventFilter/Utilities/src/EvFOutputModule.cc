@@ -149,11 +149,6 @@ namespace evf {
     streamLabel_(ps.getParameter<std::string>("@module_label")),
     trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults")))
   {
-    unsigned int concurrencyLimit = ps.getUntrackedParameter<unsigned int>("concurrencyLimit");
-    if (concurrencyLimit!=1) {
-      throw cms::Exception("EvFOutputModule")
-        << "Concurrency limit " << concurrencyLimit << " detected. Parameter values other than 1 are not supported by this output module";
-    }
     //replace hltOutoputA with stream if the HLT menu uses this convention
     std::string testPrefix="hltOutput";
     if (streamLabel_.find(testPrefix)==0) 
