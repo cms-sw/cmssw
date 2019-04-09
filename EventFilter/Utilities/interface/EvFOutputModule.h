@@ -93,14 +93,9 @@ namespace evf {
     void write(edm::EventForOutput const& e) override;
 
     //pure in parent class but unused here
-    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {} //?
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
     void writeRun(edm::RunForOutput const&) override {}
     void endRun(edm::RunForOutput const&) override {}
-//    void globalEndRun(edm::RunForOutput const&) const override {}
-
-    //void beginLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) override;
-//    void beginLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) override;
-//    void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
     std::shared_ptr<EvFOutputEventWriter> globalBeginLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) const override;
     void globalEndLuminosityBlock(edm::LuminosityBlockForOutput const& iLB) override;
