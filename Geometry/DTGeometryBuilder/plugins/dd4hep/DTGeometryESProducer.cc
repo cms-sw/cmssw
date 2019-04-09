@@ -37,10 +37,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
-#include "Geometry/Records/interface/MuonNumberingRcd.h"
-#include "Geometry/Records/interface/MuonGeometryRcd.h"
+#include "Geometry/Records/interface/MuonNumberingRecord.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
-#include "Geometry/Records/interface/DetectorDescriptionRcd.h"
+#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
@@ -65,15 +65,15 @@ public:
   using ReturnType = shared_ptr<DTGeometry>;
   using Detector = dd4hep::Detector;
   
-  ReturnType produce(const MuonGeometryRcd& record);
+  ReturnType produce(const MuonGeometryRecord& record);
 
 private:
 
   using HostType = ESProductHost<DTGeometry,
-				 MuonNumberingRcd,
+				 MuonNumberingRecord,
 				 DTRecoGeometryRcd>;
 
-  void setupGeometry(MuonNumberingRcd const&, shared_ptr<HostType>&);
+  void setupGeometry(MuonNumberingRecord const&, shared_ptr<HostType>&);
   void setupDBGeometry(DTRecoGeometryRcd const&, shared_ptr<HostType>&);
 
   ReusableObjectHolder<HostType> m_holder;
@@ -108,7 +108,7 @@ DTGeometryESProducer::DTGeometryESProducer(const ParameterSet & iConfig)
 DTGeometryESProducer::~DTGeometryESProducer(){}
 
 std::shared_ptr<DTGeometry> 
-DTGeometryESProducer::produce(const MuonGeometryRcd & record) {
+DTGeometryESProducer::produce(const MuonGeometryRecord & record) {
   
   auto host = m_holder.makeOrGet([]() {
     return new HostType;
@@ -118,7 +118,7 @@ DTGeometryESProducer::produce(const MuonGeometryRcd & record) {
     BenchmarkGrd counter("DTGeometryESProducer");
 
     if(m_fromDDD) {
-      host->ifRecordChanges<MuonNumberingRcd>(record,
+      host->ifRecordChanges<MuonNumberingRecord>(record,
 					      [this, &host](auto const& rec) {
 						setupGeometry(rec, host);
 					      });
@@ -159,7 +159,7 @@ DTGeometryESProducer::produce(const MuonGeometryRcd & record) {
 }
 
 void
-DTGeometryESProducer::setupGeometry(const MuonNumberingRcd& record,
+DTGeometryESProducer::setupGeometry(const MuonNumberingRecord& record,
 				    shared_ptr<HostType>& host) {
   host->clear();
   
@@ -167,7 +167,7 @@ DTGeometryESProducer::setupGeometry(const MuonNumberingRcd& record,
   record.get(mdc);
   
   edm::ESTransientHandle<DDDetector> cpv;
-  record.getRecord<DetectorDescriptionRcd>().get(m_tag.module(), cpv);
+  record.getRecord<GeometryFileRcd>().get(m_tag.module(), cpv);
   
   ESTransientHandle<DDSpecParRegistry> registry;
   record.getRecord<DDSpecParRegistryRcd>().get(m_tag.module(), registry);

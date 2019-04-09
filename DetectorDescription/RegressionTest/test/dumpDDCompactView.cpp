@@ -68,7 +68,6 @@ int main(int argc, char *argv[])
     edm::makeParameterSets(config, params);
     edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
 
-
     // E.  Make the services available.
     edm::ServiceRegistry::Operate operate(tempToken);
 

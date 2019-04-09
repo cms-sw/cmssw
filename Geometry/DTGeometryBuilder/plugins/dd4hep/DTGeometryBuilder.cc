@@ -30,9 +30,9 @@
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
-#include "Geometry/Records/interface/MuonNumberingRcd.h"
-#include "Geometry/Records/interface/MuonGeometryRcd.h"
-#include "Geometry/Records/interface/DetectorDescriptionRcd.h"
+#include "Geometry/Records/interface/MuonNumberingRecord.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"

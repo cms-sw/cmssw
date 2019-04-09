@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <iostream>
 #include <string>
@@ -34,7 +34,7 @@ DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup)
 {
   LogVerbatim("Geometry") << "DTGeometryTest::analyze: " << m_label;
   ESTransientHandle<DTGeometry> pDD;
-  iEventSetup.get<MuonGeometryRcd>().get(m_label, pDD);
+  iEventSetup.get<MuonGeometryRecord>().get(m_label, pDD);
   
   LogVerbatim("Geometry") << " Geometry node for DTGeom is  " << &(*pDD);   
   LogVerbatim("Geometry") << " I have " << pDD->detTypes().size()    << " detTypes";
