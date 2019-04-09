@@ -13,7 +13,7 @@ namespace {
 			cms::DDParsingContext& ctxt, xml_h e,
 			SensitiveDetector& /* sens */)
   {
-    cms::DDNamespace ns(ctxt, e, true);
+    DDNamespace ns(ctxt, e, true);
     DDAlgoArguments args(ctxt, e);
     Volume mother     = ns.volume(args.parentName());
     string childName  = args.value<string>("ChildName");
@@ -123,7 +123,7 @@ namespace {
       copy += incrCopyNo;
       phi  += delta;
     }
-    return 1;
+    return s_executed;
   }
 }
 // first argument is the type from the xml file
