@@ -716,6 +716,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	muon.setSelector(reco::Muon::MvaLoose,  muon.mvaValue()>-0.60);
 	muon.setSelector(reco::Muon::MvaMedium, muon.mvaValue()>-0.20);
 	muon.setSelector(reco::Muon::MvaTight,  muon.mvaValue()> 0.15);
+	muon.setSelector(reco::Muon::MvaVTight,  muon.mvaValue()> 0.45);
+	muon.setSelector(reco::Muon::MvaVVTight,  muon.mvaValue()> 0.9);
       }
     }
 

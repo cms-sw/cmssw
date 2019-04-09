@@ -30,10 +30,10 @@ namespace {
       kMiniRelIsoCharged,
       kMiniRelIsoNeutral,
       kJetPtRel,
-      kJetPtRatio,
       kJetBTagCSV,
-      kSip,
+      kJetPtRatio,
       kLog_abs_dxyBS,
+      kSip,
       kLog_abs_dzPV,
       kSegmentCompatibility,
       kLast
