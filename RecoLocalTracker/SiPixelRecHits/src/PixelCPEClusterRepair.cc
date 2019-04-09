@@ -100,8 +100,8 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
    //     XYZ n (XYZ as above, n = layer, wheel or disk = 1 .. 6 ;)
    std::vector<std::string> str_recommend2D = conf.getParameter<std::vector<std::string> >("Recommend2D");
    recommend2D_.reserve(str_recommend2D.size());
-   for (unsigned int i=0; i<str_recommend2D.size();++i){
-     recommend2D_.push_back(Rule(str_recommend2D.at(i)));
+   for (auto & str: str_recommend2D){
+     recommend2D_.push_back(str);
    }
 
    // run CR on damaged clusters (and not only on edge hits)
@@ -545,9 +545,9 @@ void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, Clus
     DetId id = (theDetParam.theDet->geographicalId());
 
     bool recommend = false;
-    for (unsigned int i=0; i<recommend2D_.size(); i++){
-        recommend = recommend2D_.at(i).recommend(id, ttopo_);
-	if(recommend) break;
+    for (auto & rec: recommend2D_){
+        recommend = rec.recommend(id, ttopo_);
+        if(recommend) break;
     }
 
     // only run on those layers recommended by configuration
