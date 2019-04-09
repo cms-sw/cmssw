@@ -15,6 +15,7 @@
 #____________________________________________________________
 
 from __future__ import print_function
+from builtins import range
 import sys,os,re,string
 import commands
 

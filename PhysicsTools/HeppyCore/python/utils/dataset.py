@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import range
 import os
 import pprint
 import re
@@ -170,7 +171,7 @@ class CMSDataset( BaseDataset ):
         if num_files > limit:
             num_steps = int(num_files/limit)+1
             self.files = []
-            for i in xrange(num_steps):
+            for i in range(num_steps):
                 DBSFiles=self.buildListOfFilesDBS(pattern,
                                                   i*limit,
                                                   ((i+1)*limit)-1)

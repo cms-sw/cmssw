@@ -4,6 +4,7 @@ rootmath description
 from __future__ import absolute_import
 from __future__ import print_function
 
+from builtins import range
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
 

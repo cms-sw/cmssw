@@ -2,6 +2,7 @@ from __future__ import print_function
 # word-wrap functions
 # written by Mike Brown
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/148061
+from builtins import range
 import math,re
 from functools import reduce
 def wrap_always(text, width):
@@ -10,7 +11,7 @@ def wrap_always(text, width):
     It doesn't split the text in words.
     """
     return '\n'.join([ text[width*i:width*(i+1)] \
-                       for i in xrange(int(math.ceil(1.*len(text)/width))) ])
+                       for i in range(int(math.ceil(1.*len(text)/width))) ])
 
 def wrap_onspace(text,width):
     """

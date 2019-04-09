@@ -20,6 +20,7 @@ from __future__ import print_function
 # date:   May 2006
 # @author: Sebastien Binet <binet@cern.ch>
 
+from builtins import range
 import datetime
 import commands
 import os
@@ -39,7 +40,7 @@ def group(iterator, count):
     """
     itr = iter(iterator)
     while True:
-        yield tuple([next(itr) for i in xrange(count)])
+        yield tuple([next(itr) for i in range(count)])
 
 __author__  = "Sebastien Binet <binet@cern.ch>"
 __doc__ = """A set of simple helper methods to handle simple tasks with CASTOR.
@@ -191,7 +192,7 @@ def pool_nsls( path ) :
     for an xmlfile_catalog file.
     """
     files = nsls(path)
-    for i in xrange(len(files)) :
+    for i in range(len(files)) :
         files[i] = "rfio:"+files[i]
         pass
 

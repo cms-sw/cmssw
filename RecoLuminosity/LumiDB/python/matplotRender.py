@@ -5,6 +5,7 @@ Specs:
 -- we support http mode by sending string buf via meme type image/png. Sending a premade static plot to webserver is considered a uploading process instead of http dynamic graphical mode. 
 '''
 from __future__ import print_function
+from builtins import range
 import sys,os
 import numpy,datetime
 import matplotlib
@@ -471,7 +472,7 @@ class matplotRender():
         flat=[]
         MinDay=minTime.date().toordinal()
         MaxDay=maxTime.date().toordinal()
-        fulldays=range(MinDay,MaxDay+1)
+        fulldays=list(range(MinDay,MaxDay+1))
         allstarts=[]
         allstops=[]
         for label,yvalues in rawdata.items():
@@ -617,7 +618,7 @@ class matplotRender():
         flat=[]
         MinDay=minTime.date().toordinal()
         MaxDay=maxTime.date().toordinal()
-        fulldays=range(MinDay,MaxDay+1)
+        fulldays=list(range(MinDay,MaxDay+1))
         for label in rawdata.keys():
             yvalues=sorted(rawdata[label])
             alldays=[t[0] for t in yvalues]
@@ -729,7 +730,7 @@ class matplotRender():
         peakinst=max(rawydata['Delivered'])/lslength
         totaldelivered=sum(rawydata['Delivered'])
         totalrecorded=sum(rawydata['Recorded'])
-        xpoints=range(1,totalls+1)        
+        xpoints=list(range(1,totalls+1))        
         #print len(xpoints)
         ypoints={}
         ymax={}

@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import json
 class selectionParser(object):
     def __init__(self,selectStr):

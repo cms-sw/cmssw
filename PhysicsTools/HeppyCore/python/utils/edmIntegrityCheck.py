@@ -5,6 +5,7 @@ Classes to check that a set of ROOT files are OK and publish a report
 from __future__ import print_function
 from __future__ import absolute_import
 
+from builtins import range
 import datetime, fnmatch, json, os, shutil, sys, tempfile, time
 import subprocess
 
@@ -145,7 +146,7 @@ class IntegrityCheck(object):
         good_duplicates = {}
         bad_jobs = set()
         sum_dup = 0
-        for i in xrange(mmin, mmax+1):
+        for i in range(mmin, mmax+1):
             if i in files:
                 duplicates = sorted(files[i])
 

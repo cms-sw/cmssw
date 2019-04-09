@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import sys,os,csv,re,coral,array
 from RecoLuminosity.LumiDB import argparse,sessionManager,CommonUtil,dataDML,revisionDML,nameDealer,dbUtil
 DATABRANCH_ID=3
@@ -144,7 +145,7 @@ def parsepresc(inputlistoflist,minlsnum,maxlsnum,lsboundaries):
         minlsnum=int(minlsnum)
     pathnames=[]
     dataresult={}#{cmslsnum:[presc...]}
-    alllsnum=range(minlsnum,maxlsnum+1)
+    alllsnum=list(range(minlsnum,maxlsnum+1))
     prescidxdict={}#{cmsls:prescidx}
     for cmsls in alllsnum:
         dataresult[cmsls]=[]
