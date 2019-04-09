@@ -97,13 +97,13 @@ void HGCGeometryCheck::beginJob() {
   edm::Service<TFileService> fs;
 
   //initiating histograms
-  heedzVsZ     = fs->make<TH2F>("heedzVsZ","", 800,315,355,100,-1,1);
-  hefdzVsZ     = fs->make<TH2F>("hefdzVsZ","",1200,350,410,100,-1,1);
-  hebdzVsZ     = fs->make<TH2F>("hebdzVsZ","", 320,400,560,100,-5,5);
+  heedzVsZ     = fs->make<TH2F>("heedzVsZ","",1400,315,385,100,-1,1);
+  hefdzVsZ     = fs->make<TH2F>("hefdzVsZ","",2000,350,550,100,-1,1);
+  hebdzVsZ     = fs->make<TH2F>("hebdzVsZ","", 360,380,560,100,-5,5);
 
-  heezVsLayer = fs->make<TH2F>("heezVsLayer","",100,0,100, 800,315,355);
-  hefzVsLayer = fs->make<TH2F>("hefzVsLayer","", 40,0, 40,1200,350,410);
-  hebzVsLayer = fs->make<TH2F>("hebzVsLayer","", 50,0, 25, 320,400,560);
+  heezVsLayer = fs->make<TH2F>("heezVsLayer","",100,0,100,1400,315,385);
+  hefzVsLayer = fs->make<TH2F>("hefzVsLayer","", 40,0, 40,2000,350,550);
+  hebzVsLayer = fs->make<TH2F>("hebzVsLayer","", 50,0, 25, 360,380,560);
 
   heerVsLayer = fs->make<TH2F>("heerVsLayer","",100,0,100,600,0,300);
   hefrVsLayer = fs->make<TH2F>("hefrVsLayer","", 40,0, 40,600,0,300);

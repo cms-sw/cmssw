@@ -15,6 +15,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 namespace reco { namespace tau {
   /// return chi2 of the leading track ==> deprecated? <==

@@ -3,12 +3,10 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
-#include "DetectorDescription/Core/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 #include "Geometry/HGCalCommonData/plugins/DDHGCalTBModuleX.h"
 
 //#define EDM_ML_DEBUG
@@ -101,6 +99,7 @@ void DDHGCalTBModuleX::initialize(const DDNumericArguments & nArgs,
   absorbW_      = nArgs["absorberW"];
   absorbH_      = nArgs["absorberH"];
   rMax_         = nArgs["rMax"];
+  rMaxB_        = nArgs["rMaxB"];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: zStart " << zMinBlock_ 
 				<< " rFineCoarse " << rMaxFine_ 
@@ -108,12 +107,13 @@ void DDHGCalTBModuleX::initialize(const DDNumericArguments & nArgs,
 				<< " gap among wafers " << waferGap_ 
 				<< " absorber width " << absorbW_ 
 				<<" absorber height " << absorbH_ 
-				<< " rMax " << rMax_;
+				<< " rMax " << rMax_ << ":" << rMaxB_;
 #endif
   idNameSpace_  = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: NameSpace " 
-				<< idNameSpace_;
+				<< idNameSpace_ << " Parent Name "
+				<< parent().name().name();
 #endif
 }
 
@@ -147,16 +147,16 @@ void DDHGCalTBModuleX::constructBlocks(const DDLogicalPart& parent,
   double       zi(zMinBlock_);
   for (unsigned int i=0; i<blockThick_.size(); i++) {
     double  zo       = zi + blockThick_[i];
-    std::string name = "HGCalBlock"+std::to_string(i);
+    std::string name = parent.ddname().name() + "Block" + std::to_string(i);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: Block " << i 
 				  << ":" << name << " z " << zi << ":" << zo 
-				  << " R " << rMax_ << " T " << blockThick_[i];
+				  << " R " << rMaxB_ << " T " <<blockThick_[i];
 #endif
     DDName matName(DDSplit(genMat_).first, DDSplit(genMat_).second);
     DDMaterial matter(matName);
     DDSolid solid      = DDSolidFactory::tubs(DDName(name, idNameSpace_), 
-					      0.5*blockThick_[i], 0, rMax_,
+					      0.5*blockThick_[i], 0, rMaxB_,
 					      0.0, 2._pi);
     DDLogicalPart glog = DDLogicalPart(solid.ddname(), matter, solid);
     double  zz         = zi + 0.5*blockThick_[i];
@@ -236,7 +236,7 @@ void DDHGCalTBModuleX::constructLayers(int block, int firstLayer,
 #endif
     } else if (layerSense_[ly] > 0) {
       positionSensitive(zz, copy, layerSense_[ly], rMax_, maxModule_[ly],
-			ignoreCenter, module, cpv);
+			ignoreCenter, name, matter, module, cpv);
     }
     ++copyNumber_[ii];
     zi     = zo;
@@ -261,7 +261,9 @@ void DDHGCalTBModuleX::constructLayers(int block, int firstLayer,
 
 void DDHGCalTBModuleX::positionSensitive(double zpos, int copyIn, int type, 
 					 double rout, int ncrMax, 
-					 bool ignoreCenter,
+					 bool ignoreCenter, 
+					 const std::string& nameIn,
+					 const DDMaterial& matter, 
 					 const DDLogicalPart& glog, 
 					 DDCompactView& cpv) {
   double ww   = (waferW_+waferGap_);
@@ -272,10 +274,12 @@ void DDHGCalTBModuleX::positionSensitive(double zpos, int copyIn, int type,
   int    nrow = (int)(rout/(ww*tan30deg_)) + 1;
 #ifdef EDM_ML_DEBUG
   int    incm(0), inrm(0);
-  edm::LogVerbatim("HGCalGeom") << glog.ddname() << " rout " << rout << " Row "
-				<< nrow << " column " << ncol << " ncrMax " 
-				<< ncrMax << " Z " << zpos << " copy "
-				<< copyIn << " Center " << ignoreCenter;
+  edm::LogVerbatim("HGCalGeom") << glog.ddname() << " Copy " << copyIn
+				<< " Type " << type << " rout " << rout 
+				<< " Row " << nrow << " column " << ncol 
+				<< " ncrMax " << ncrMax << " Z " << zpos 
+				<< " Center " << ignoreCenter << " name "
+				<< nameIn << " matter " << matter.name();
   int    kount(0);
 #endif
   if (ncrMax >= 0) {
@@ -310,13 +314,16 @@ void DDHGCalTBModuleX::positionSensitive(double zpos, int copyIn, int type,
 	  if (nr < 0) copy += 100000;
 	  DDName name, nameX;
 	  if (type == 1) {
-	    nameX = DDName(DDSplit(covers_[type-1]).first, 
-			   DDSplit(covers_[type-1]).second); 
-	    cpv.position(nameX, glog.ddname(), copyIn, tran, rotation);
+	    nameX = DDName(DDSplit(covers_[0]).first,
+			   DDSplit(covers_[0]).second);
+	    std::string name0   = nameIn + "M" + std::to_string(copy);
+	    DDLogicalPart glog1 = DDLogicalPart(DDName(name0, idNameSpace_),
+						matter, nameX);
+	    cpv.position(glog1.ddname(),glog.ddname(),copyIn,tran,rotation);
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: " << nameX
-					  << " number " << copyIn 
-					  << " positioned in "
+	    edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: " 
+					  << glog1.ddname() << " number " 
+					  << copyIn << " positioned in "
 					  << glog.ddname() << " at " << tran 
 					  << " with " << rotation;
 #endif
@@ -324,12 +331,12 @@ void DDHGCalTBModuleX::positionSensitive(double zpos, int copyIn, int type,
 	      DDName(DDSplit(wafer_[0]).first, DDSplit(wafer_[0]).second) : 
 	      DDName(DDSplit(wafer_[1]).first, DDSplit(wafer_[1]).second);
 	    DDTranslation tran1;
-	    cpv.position(name, nameX, copy, tran1, rotation);
+	    cpv.position(name, glog1.ddname(), copy, tran1, rotation);
 #ifdef EDM_ML_DEBUG
 	    edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: " << name
 					  << " number " << copy 
 					  << " positioned in "
-					  << nameX << " at " << tran1
+					  << glog1.ddname() << " at " << tran1
 					  << " with " << rotation;
 #endif
 	    if (copies_.count(copy) == 0 && type == 1) copies_.insert(copy);
@@ -337,14 +344,13 @@ void DDHGCalTBModuleX::positionSensitive(double zpos, int copyIn, int type,
 	    name   = DDName(DDSplit(covers_[type-1]).first, 
 			    DDSplit(covers_[type-1]).second); 
 	    copy  += copyIn*1000000;
-	    nameX  = glog.ddname();
  	    cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: " << name 
-					<< " number " << copy 
-					<< " positioned in "
-					<< nameX << " at " << tran 
-					<< " with " << rotation;
+	    edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModuleX: " << name 
+					  << " number " << copy 
+					  << " positioned in "
+					  << glog.ddname() << " at " << tran 
+					  << " with " << rotation;
 #endif
 	  }
 #ifdef EDM_ML_DEBUG

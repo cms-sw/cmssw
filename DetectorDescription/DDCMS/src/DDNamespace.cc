@@ -181,7 +181,7 @@ DDNamespace::addVolume( dd4hep::Volume vol ) const
   string   n = prepend(vol.name());
   dd4hep::Solid    s = vol.solid();
   dd4hep::Material m = vol.material();
-  vol->SetName(n.c_str());
+  //vol->SetName(n.c_str());
   m_context->volumes[n] = vol;
   dd4hep::printout( m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS",
            "+++ Add volume:%-38s Solid:%-26s[%-16s] Material:%s",
@@ -192,15 +192,12 @@ DDNamespace::addVolume( dd4hep::Volume vol ) const
 dd4hep::Volume
 DDNamespace::volume( const string& name, bool exc ) const
 {
-  size_t idx;
   auto i = m_context->volumes.find( name );
   if( i != m_context->volumes.end()) {
     return (*i).second;
   }
-  if(( idx = name.find( NAMESPACE_SEP )) != string::npos )  {
-    string n = name;
-    n[idx] = NAMESPACE_SEP;
-    i = m_context->volumes.find( n );
+  if(name.front() == NAMESPACE_SEP) {
+    i = m_context->volumes.find(name.substr(1,name.size()));
     if( i != m_context->volumes.end())
       return (*i).second;
   }
@@ -216,7 +213,7 @@ DDNamespace::addSolidNS( const string& name, dd4hep::Solid solid ) const
   dd4hep::printout( m_context->debug_shapes ? dd4hep::ALWAYS : dd4hep::DEBUG, "DD4CMS",
            "+++ Add shape of type %s : %s", solid->IsA()->GetName(), name.c_str());
 
-  m_context->shapes.emplace( name,  solid.setName( name ));
+  m_context->shapes.emplace( name,  solid.setName(name));
 
   return solid;
 }

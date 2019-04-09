@@ -54,14 +54,14 @@ void PFRecoTauDiscriminationByNProngs::beginEvent(const Event& iEvent, const Eve
 double PFRecoTauDiscriminationByNProngs::discriminate(const PFTauRef& tau) const{
 
 	reco::VertexRef pv = vertexAssociator_->associatedVertex(*tau);
-	const PFCandidatePtr leadingTrack = tau->leadPFChargedHadrCand();
+	const CandidatePtr leadingTrack = tau->leadChargedHadrCand();
 
 	uint np = 0;
 	if(leadingTrack.isNonnull() && pv.isNonnull()){
 	    qcuts_->setPV(pv);
-	    qcuts_->setLeadTrack(tau->leadPFChargedHadrCand());
+	    qcuts_->setLeadTrack(*tau->leadChargedHadrCand());
 
-	    for(auto const& cand : tau->signalPFChargedHadrCands() ) {
+	    for(auto const& cand : tau->signalChargedHadrCands() ) {
 	        if ( qcuts_->filterCandRef(cand) ) np++;
  	    }
 	}

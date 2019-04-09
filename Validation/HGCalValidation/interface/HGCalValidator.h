@@ -24,7 +24,7 @@
 
 #include "Validation/HGCalValidation/interface/HGVHistoProducerAlgo.h"
 #include "Validation/HGCalValidation/interface/CaloParticleSelector.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
 class PileupSummaryInfo;
 

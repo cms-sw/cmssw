@@ -241,7 +241,7 @@ namespace reco {
     /// number of chambers CSC or DT matches only (MuonChamberMatches include RPC rolls)
     int numberOfChambersCSCorDT() const;
     /// get number of chambers with matched segments
-    int numberOfMatches( unsigned int type = SegmentAndTrackArbitration ) const;
+    int numberOfMatches( ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// get number of stations with matched segments
     /// just adds the bits returned by stationMask
     int numberOfMatchedStations( ArbitrationType type = SegmentAndTrackArbitration ) const;
@@ -251,7 +251,7 @@ namespace reco {
     /// get bit map of stations with matched segments
     /// bits 0-1-2-3 = DT stations 1-2-3-4
     /// bits 4-5-6-7 = CSC stations 1-2-3-4
-    unsigned int stationMask( unsigned int type = SegmentAndTrackArbitration ) const;
+    unsigned int stationMask( ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// get bit map of stations with tracks within
     /// given distance (in cm) of chamber edges 
     /// bit assignments are same as above
@@ -272,8 +272,10 @@ namespace reco {
     static const unsigned int GEMMuon =  1<<7;
     static const unsigned int ME0Muon =  1<<8;
 
-    void setType( unsigned int type ) { type_ = type; }
-    unsigned int type() const { return type_; }
+    void setType( unsigned int type ) { type_ = type; } 
+    unsigned int type() const { return type_; } 
+
+   
     // override of method in base class reco::Candidate
     bool isMuon() const override { return true; }
     bool isGlobalMuon()     const override { return type_ & GlobalMuon; }
@@ -331,7 +333,7 @@ namespace reco {
 
     /// muon type mask
     unsigned int type_;
-
+    
     //PF muon p4
     reco::Candidate::LorentzVector pfP4_;
 
@@ -341,12 +343,12 @@ namespace reco {
     const std::vector<const MuonChamberMatch*> chambers( int station, int muonSubdetId ) const;
     /// get pointers to best segment and corresponding chamber in vector of chambers
     std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> pair( const std::vector<const MuonChamberMatch*> &,
-								     unsigned int type = SegmentAndTrackArbitration ) const;
+								     ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// selector bitmap
     unsigned int selectors_;
    public:
      /// get number of segments
-     int numberOfSegments( int station, int muonSubdetId, unsigned int type = SegmentAndTrackArbitration ) const;
+    int numberOfSegments( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
      /// get deltas between (best) segment and track
      /// If no chamber or no segment returns 999999
      float dX       ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;

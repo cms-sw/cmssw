@@ -24,16 +24,16 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '105X_mcRun2_pA_v2',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '105X_dataRun2_v8',
+    'run1_data'         :   '106X_dataRun2_v1',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '105X_dataRun2_v8',
+    'run2_data'         :   '106X_dataRun2_v1',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '105X_dataRun2_relval_v8',
+    'run2_data_relval'  :   '106X_dataRun2_relval_v1',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
-    'run2_data_promptlike_HEfail' : '105X_dataRun2_PromptLike_HEfail_v7',
+    'run2_data_promptlike_HEfail' : '106X_dataRun2_PromptLike_HEfail_v1',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
-    'run2_data_promptlike'    : '105X_dataRun2_PromptLike_v8',
-    'run2_data_promptlike_hi' : '105X_dataRun2_PromptLike_HI_v3',
+    'run2_data_promptlike'    : '106X_dataRun2_PromptLike_v1',
+    'run2_data_promptlike_hi' : '106X_dataRun2_PromptLike_HI_v1',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v8',
     # GlobalTag for Run2 HLT: it points to the online GT
@@ -44,7 +44,7 @@ autoCond = {
     # GlobalTag for Run2 HLT for HI (not 2018 HI): it points to the online GT
     'run2_hlt_hi'       :   '101X_dataRun2_HLTHI_frozen_v8',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
-    'phase1_2017_design'       :  '106X_mc2017_design_IdealBS_v1',
+    'phase1_2017_design'       :  '106X_mc2017_design_IdealBS_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
     'phase1_2017_realistic'    :  '106X_mc2017_realistic_v1',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode

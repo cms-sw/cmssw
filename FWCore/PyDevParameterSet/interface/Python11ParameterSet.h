@@ -1,9 +1,9 @@
-#ifndef FWCore_PyBind11ParameterSet_Python11ParameterSet_h
-#define FWCore_PyBind11ParameterSet_Python11ParameterSet_h
+#ifndef FWCore_PyDevParameterSet_Python11ParameterSet_h
+#define FWCore_PyDevParameterSet_Python11ParameterSet_h
 #include <pybind11/pybind11.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PyDevParameterSet/src/PyBind11Wrapper.h"
+#include "FWCore/PyDevParameterSet/interface/PyBind11Wrapper.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 
+namespace cmspython3 {
 class Python11ParameterSet {
 public:
   Python11ParameterSet();
@@ -52,7 +53,7 @@ public:
   pybind11::list
   getParameters(bool tracked, std::string const& name) const {
     std::vector<T> v = getParameter<std::vector<T> >(tracked, name);
-    return edm::toPython11List(v);
+    return cmspython3::toPython11List(v);
   }
 
   /// unfortunate side effect: destroys the original list!
@@ -60,7 +61,7 @@ public:
   void
   addParameters(bool tracked, std::string const& name,
                 pybind11::list  value) {
-    std::vector<T> v = edm::toVector<T>(value);
+    std::vector<T> v = cmspython3::toVector<T>(value);
     addParameter(tracked, name, v);
   }
 
@@ -127,5 +128,5 @@ public:
 private:
   edm::ParameterSet theParameterSet;
 };
-
+}
 #endif

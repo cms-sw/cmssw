@@ -15,7 +15,7 @@
 
 // user include files
 #include "FWCore/PythonFramework/interface/PythonEventProcessor.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 
 #include "FWCore/Framework/interface/defaultCmsRunServices.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -58,7 +58,7 @@ namespace {
 //
 // constructors and destructor
 //
-PythonEventProcessor::PythonEventProcessor(PythonProcessDesc const& iDesc)
+PythonEventProcessor::PythonEventProcessor(PyBind11ProcessDesc const& iDesc)
 : forcePluginSetupFirst_(setupPluginSystem())
   ,processor_(addDefaultServicesToProcessDesc(iDesc.processDesc()),createJobReport(),edm::serviceregistry::kOverlapIsError)
 {

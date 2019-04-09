@@ -32,7 +32,7 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(10000)
 )
 
 process.source = cms.Source("EmptySource",
@@ -72,6 +72,7 @@ process.out_step = cms.EndPath(process.output)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
 process.hgcalSimHitStudy.verbosity = 0
+process.hgcalSimHitStudy.nBinZ = 3000
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
