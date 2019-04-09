@@ -102,6 +102,11 @@ EcalDQMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker& _ibooker, DQMStore
   ecaldqmEndLuminosityBlock(_lumi, _es);
 
   runWorkers(_igetter, ecaldqm::DQWorkerClient::kLumi);
+
+  executeOnWorkers_([](ecaldqm::DQWorker* worker){
+    ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
+    client->resetPerLumi();
+  }, "dqmEndLuminosityBlock", "Reset per-lumi MEs");
 }
 
 void
