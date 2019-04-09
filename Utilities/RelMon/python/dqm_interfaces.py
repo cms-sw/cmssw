@@ -10,6 +10,7 @@ from __future__ import absolute_import
 #                                                                              
 ################################################################################
 
+from builtins import range
 from copy import deepcopy
 from os import chdir,getcwd,makedirs
 from os.path import abspath,exists,join, basename
@@ -111,7 +112,7 @@ class DQMcommunicator(object):
             raw_folder=eval(self.get_data(url))
         except:
             print("Retrying..")
-            for ntrials in xrange(5):
+            for ntrials in range(5):
                 try:
                     if ntrials!=0:
                         sleep(2)
