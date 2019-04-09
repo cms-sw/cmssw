@@ -1,5 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+# Slopes for the S9S1 filter
+_slopes_S9S1_run1 = [-99999,0.0164905,0.0238698,0.0321383,
+                     0.041296,0.0513428,0.0622789,0.0741041,
+                     0.0868186,0.100422,0.135313,0.136289,0.0589927]
+
+_coeffs = [1.0, 2.5, 2.2, 2.0, 1.8, 1.6, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+_slopes_S9S1_run2 = [s*c for s, c in zip(_slopes_S9S1_run1, _coeffs)]
+
+
 hfreco = cms.EDProducer("HFPhase1Reconstructor",
     # Label for the input HFPreRecHitCollection
     inputLabel = cms.InputTag("hfprereco"),
@@ -88,10 +98,7 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
     #
     S9S1stat = cms.PSet(
         # WARNING!  ONLY LONG PARAMETERS ARE USED IN DEFAULT RECO; SHORT S9S1 IS NOT USED!
-        short_optimumSlope   = cms.vdouble([-99999,0.0164905,0.0238698,0.0321383,
-                                            0.041296,0.0513428,0.0622789,0.0741041,
-                                            0.0868186,0.100422,0.135313,0.136289,
-                                            0.0589927]),
+        short_optimumSlope   = cms.vdouble(_slopes_S9S1_run2),
 
         # Short energy cut is 129.9 - 6.61*|ieta|+0.1153*|ieta|^2
         shortEnergyParams    = cms.vdouble([35.1773, 35.37, 35.7933, 36.4472,
@@ -102,10 +109,7 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
                                             0,0,0,0,
                                             0,0,0,0,0]),
 
-        long_optimumSlope    = cms.vdouble([-99999,0.0164905,0.0238698,0.0321383,
-                                            0.041296,0.0513428,0.0622789,0.0741041,
-                                            0.0868186,0.100422,0.135313,0.136289,
-                                            0.0589927]),
+        long_optimumSlope    = cms.vdouble(_slopes_S9S1_run2),
 
         # Long energy cut is 162.4-10.9*abs(ieta)+0.21*ieta*ieta
         longEnergyParams     = cms.vdouble([43.5, 45.7, 48.32, 51.36,
