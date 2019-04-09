@@ -41,23 +41,27 @@ DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup)
   ESTransientHandle<DDDetector> det;
   iEventSetup.get<GeometryFileRcd>().get(m_tag.module(), det);
 
-  LogInfo("DDCMS") << "Iterate over the detectors:\n";
-  for( auto const& it : det->description()->detectors()) {
-    dd4hep::DetElement det(it.second);
-    LogInfo("DDCMS") << it.first << ": " << det.path() << "\n";
-  }
-  LogInfo("DDCMS") << "..done!\n";
+  LogVerbatim("Geometry") << "Iterate over the detectors:\n";
+  LogVerbatim("Geometry").log([&](auto& log) {
+      for(auto const& it : det->description()->detectors()) {
+	dd4hep::DetElement det(it.second);
+	log << it.first << ": " << det.path();
+      }
+    });
+  LogVerbatim("Geometry") << "..done!";
   
   ESTransientHandle<DDVectorRegistry> registry;
   iEventSetup.get<DDVectorRegistryRcd>().get(m_tag.module(), registry);
 
-  LogInfo("DDCMS") << "DD Vector Registry size: " << registry->vectors.size() << "\n";
-  for( const auto& p: registry->vectors ) {
-    LogInfo("DDCMS") << " " << p.first << " => ";
-    for( const auto& i : p.second )
-      LogInfo("DDCMS") << i << ", ";
-    LogInfo("DDCMS") << '\n';
-  }
+  LogVerbatim("Geometry") << "DD Vector Registry size: " << registry->vectors.size();
+  LogVerbatim("Geometry").log([&](auto& log) {
+      for(const auto& p: registry->vectors) {
+	log << " " << p.first << " => ";
+	for(const auto& i : p.second)
+	  log << i << ", ";
+	log << '\n';
+      }
+    });
 }
 
 void
