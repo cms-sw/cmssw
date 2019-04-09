@@ -61,16 +61,9 @@ private:
 
   // ------------ member data ------------
 
-  const MTDGeometry* geom_;
-  const MTDTopology* topo_;
-
   const std::string folder_;
-  const std::string g4InfoLabel_;
-  const std::string btlHitsCollection_;
 
   const float hitMinEnergy_;
-
-  int eventCount_;
 
   edm::EDGetTokenT<edm::PSimHitContainer> btlSimHitsToken_;
 
@@ -107,16 +100,14 @@ private:
 
 // ------------ constructor and destructor --------------
 BtlSimHitsValidation::BtlSimHitsValidation(const edm::ParameterSet& iConfig):
-  geom_(nullptr),
-  topo_(nullptr),
   folder_(iConfig.getParameter<std::string>("folder")),
-  g4InfoLabel_(iConfig.getParameter<std::string>("moduleLabelG4")),
-  btlHitsCollection_(iConfig.getParameter<std::string>("btlSimHitsCollection")),
-  hitMinEnergy_( iConfig.getParameter<double>("hitMinimumEnergy") ),
-  eventCount_(0) {
+  hitMinEnergy_( iConfig.getParameter<double>("hitMinimumEnergy") ) {
 
-  btlSimHitsToken_ = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(g4InfoLabel_),
-								     std::string(btlHitsCollection_)));
+  const std::string g4InfoLabel = iConfig.getParameter<std::string>("moduleLabelG4");
+  const std::string btlHitsCollection = iConfig.getParameter<std::string>("btlSimHitsCollection");
+
+  btlSimHitsToken_ = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(g4InfoLabel),
+								     std::string(btlHitsCollection)));
 
 }
 
@@ -129,15 +120,13 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   using namespace edm;
 
-  edm::LogInfo("EventInfo") << " Run = " << iEvent.id().run() << " Event = " << iEvent.id().event();
-
   edm::ESHandle<MTDGeometry> geometryHandle;
   iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
-  geom_ = geometryHandle.product();
+  const MTDGeometry* geom = geometryHandle.product();
 
   edm::ESHandle<MTDTopology> topologyHandle;
   iSetup.get<MTDTopologyRcd>().get(topologyHandle);
-  topo_ = topologyHandle.product();
+  const MTDTopology* topology = topologyHandle.product();
 
   edm::Handle<edm::PSimHitContainer> btlSimHitsHandle;
   iEvent.getByToken(btlSimHitsToken_, btlSimHitsHandle);
@@ -147,8 +136,6 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     return;
   }
 
-  eventCount_++;
-  
   std::unordered_map<uint32_t, MTDHit> m_btlHits;
   std::unordered_map<uint32_t, std::set<int> > m_btlTrkPerCell;
 
@@ -198,8 +185,8 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
     // --- Get the SIM hit global position
     BTLDetId detId(hit.first); 
-    DetId geoId = detId.geographicalId( static_cast<BTLDetId::CrysLayout>(topo_->getMTDTopologyMode()) );
-    const MTDGeomDet* thedet = geom_->idToDet(geoId);
+    DetId geoId = detId.geographicalId( static_cast<BTLDetId::CrysLayout>(topology->getMTDTopologyMode()) );
+    const MTDGeomDet* thedet = geom->idToDet(geoId);
     if( thedet == nullptr )
       throw cms::Exception("BtlSimHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId()
 						   << " (" << detId.rawId()<< ") is invalid!" << std::dec

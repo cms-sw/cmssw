@@ -52,14 +52,7 @@ private:
 
   // ------------ member data ------------
 
-  const MTDGeometry* geom_;
-  const MTDTopology* topo_;
-
   const std::string folder_;
-  const std::string infoLabel_;
-  const std::string btlDigisCollection_;
-
-  int eventCount_;
 
   edm::EDGetTokenT<BTLDigiCollection> btlDigiHitsToken_;
 
@@ -91,15 +84,13 @@ private:
 
 // ------------ constructor and destructor --------------
 BtlDigiHitsValidation::BtlDigiHitsValidation(const edm::ParameterSet& iConfig):
-  geom_(nullptr),
-  topo_(nullptr),
-  folder_(iConfig.getParameter<std::string>("folder")),
-  infoLabel_(iConfig.getParameter<std::string>("moduleLabel")),
-  btlDigisCollection_(iConfig.getParameter<std::string>("btlDigiHitsCollection")),
-  eventCount_(0) {
+  folder_(iConfig.getParameter<std::string>("folder")) {
 
-  btlDigiHitsToken_ = consumes <BTLDigiCollection> (edm::InputTag(std::string(infoLabel_),
-								  std::string(btlDigisCollection_)));
+  const std::string infoLabel = iConfig.getParameter<std::string>("moduleLabel");
+  const std::string btlDigisCollection = iConfig.getParameter<std::string>("btlDigiHitsCollection");
+
+  btlDigiHitsToken_ = consumes <BTLDigiCollection> (edm::InputTag(std::string(infoLabel),
+								  std::string(btlDigisCollection)));
 
 }
 
@@ -112,15 +103,13 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   using namespace edm;
 
-  edm::LogInfo("EventInfo") << " Run = " << iEvent.id().run() << " Event = " << iEvent.id().event();
-
   edm::ESHandle<MTDGeometry> geometryHandle;
   iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
-  geom_ = geometryHandle.product();
+  const MTDGeometry* geom = geometryHandle.product();
 
   edm::ESHandle<MTDTopology> topologyHandle;
   iSetup.get<MTDTopologyRcd>().get(topologyHandle);
-  topo_ = topologyHandle.product();
+  const MTDTopology* topology = topologyHandle.product();
 
   edm::Handle<BTLDigiCollection> btlDigiHitsHandle;
   iEvent.getByToken(btlDigiHitsToken_, btlDigiHitsHandle);
@@ -130,8 +119,6 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     return;
   }
 
-  eventCount_++;
-  
   // --- Loop over the BLT DIGI hits
 
   unsigned int n_digi_btl[2] = {0,0};
@@ -139,8 +126,8 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   for (const auto& dataFrame: *btlDigiHitsHandle) {
 
     BTLDetId detId = dataFrame.id();
-    DetId geoId = detId.geographicalId( static_cast<BTLDetId::CrysLayout>(topo_->getMTDTopologyMode()) );
-    const MTDGeomDet* thedet = geom_->idToDet(geoId);
+    DetId geoId = detId.geographicalId( static_cast<BTLDetId::CrysLayout>(topology->getMTDTopologyMode()) );
+    const MTDGeomDet* thedet = geom->idToDet(geoId);
     if( thedet == nullptr )
       throw cms::Exception("BtlDigiHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId()
 						    << " (" << detId.rawId()<< ") is invalid!" << std::dec
@@ -272,7 +259,7 @@ void BtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<std::string>("moduleLabel","mix");
   desc.add<std::string>("btlDigiHitsCollection","FTLBarrel");
 
-  descriptions.add("btlDigiHits", desc);
+  descriptions.add("btlDigiHitsDefault", desc);
 
 }
 

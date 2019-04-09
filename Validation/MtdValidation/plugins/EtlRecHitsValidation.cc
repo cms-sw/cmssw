@@ -48,13 +48,7 @@ private:
 
   // ------------ member data ------------
 
-  const MTDGeometry* geom_;
-
   const std::string folder_;
-  const std::string infoLabel_;
-  const std::string etlRecHitsCollection_;
-
-  int eventCount_;
 
   edm::EDGetTokenT<FTLRecHitCollection> etlRecHitsToken_;
 
@@ -84,14 +78,13 @@ private:
 
 // ------------ constructor and destructor --------------
 EtlRecHitsValidation::EtlRecHitsValidation(const edm::ParameterSet& iConfig):
-  geom_(nullptr),
-  folder_(iConfig.getParameter<std::string>("folder")),
-  infoLabel_(iConfig.getParameter<std::string>("moduleLabel")),
-  etlRecHitsCollection_(iConfig.getParameter<std::string>("etlRecHitsCollection")),
-  eventCount_(0) {
+  folder_(iConfig.getParameter<std::string>("folder")) {
 
-  etlRecHitsToken_ = consumes <FTLRecHitCollection> (edm::InputTag(std::string(infoLabel_),
-								   std::string(etlRecHitsCollection_)));
+  const std::string infoLabel = iConfig.getParameter<std::string>("moduleLabel");
+  const std::string etlRecHitsCollection = iConfig.getParameter<std::string>("etlRecHitsCollection");
+
+  etlRecHitsToken_ = consumes <FTLRecHitCollection> (edm::InputTag(std::string(infoLabel),
+								   std::string(etlRecHitsCollection)));
 
 }
 
@@ -104,11 +97,9 @@ void EtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
   using namespace edm;
 
-  edm::LogInfo("EventInfo") << " Run = " << iEvent.id().run() << " Event = " << iEvent.id().event();
-
   edm::ESHandle<MTDGeometry> geometryHandle;
   iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
-  geom_ = geometryHandle.product();
+  const MTDGeometry* geom = geometryHandle.product();
 
   edm::Handle<FTLRecHitCollection> etlRecHitsHandle;
   iEvent.getByToken(etlRecHitsToken_, etlRecHitsHandle);
@@ -117,8 +108,6 @@ void EtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     edm::LogWarning("DataNotFound") << "No ETL RecHits found";
     return;
   }
-
-  eventCount_++;
 
   // --- Loop over the ELT RECO hits
 
@@ -129,7 +118,7 @@ void EtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     ETLDetId detId = recHit.id();
 
     DetId geoId = detId.geographicalId();
-    const MTDGeomDet* thedet = geom_->idToDet(geoId);
+    const MTDGeomDet* thedet = geom->idToDet(geoId);
     if( thedet == nullptr )
       throw cms::Exception("EtlRecHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId()
 						   << " (" << detId.rawId()<< ") is invalid!" << std::dec
@@ -202,8 +191,8 @@ void EtlRecHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
 
   meHitPhi_[1]    = ibook.book1D("EtlHitPhiZpos", "ETL RECO hits #phi (+Z);#phi_{RECO} [rad]", 100, -3.15, 3.15);
   meHitPhi_[0]    = ibook.book1D("EtlHitPhiZneg", "ETL RECO hits #phi (-Z);#phi_{RECO} [rad]", 100, -3.15, 3.15);
-  meHitEta_[1]    = ibook.book1D("EtlHitEtaZpos", "ETL RECO hits #eta (+Z);#eta_{RECO}", 100,  1.56,  2.96);
-  meHitEta_[0]    = ibook.book1D("EtlHitEtaZneg", "ETL RECO hits #eta (-Z);#eta_{RECO}", 100, -2.96, -1.56);
+  meHitEta_[1]    = ibook.book1D("EtlHitEtaZpos", "ETL RECO hits #eta (+Z);#eta_{RECO}", 100,  1.56,  3.);
+  meHitEta_[0]    = ibook.book1D("EtlHitEtaZneg", "ETL RECO hits #eta (-Z);#eta_{RECO}", 100, -3., -1.56);
 
   meHitTvsE_[1]    = ibook.bookProfile("EtlHitTvsEZpos", "ETL RECO time vs energy (+Z);E_{RECO} [MeV];ToA_{RECO} [ns]",
 				       50, 0., 2., 0., 100.);
@@ -214,17 +203,17 @@ void EtlRecHitsValidation::bookHistograms(DQMStore::IBooker & ibook,
   meHitEvsPhi_[0]  = ibook.bookProfile("EtlHitEvsPhiZneg", "ETL RECO energy vs #phi (-Z);#phi_{RECO} [rad];E_{RECO} [MeV]",
 				       50, -3.15, 3.15, 0., 100.);
   meHitEvsEta_[1]  = ibook.bookProfile("EtlHitEvsEtaZpos","ETL RECO energy vs #eta (+Z);#eta_{RECO};E_{RECO} [MeV]",
-				       50, 1.56, 2.96, 0., 100.);
+				       50, 1.56, 3., 0., 100.);
   meHitEvsEta_[0]  = ibook.bookProfile("EtlHitEvsEtaZneg","ETL RECO energy vs #eta (-Z);#eta_{RECO};E_{RECO} [MeV]",
-				       50, -2.96, -1.56, 0., 100.);
+				       50, -3., -1.56, 0., 100.);
   meHitTvsPhi_[1]  = ibook.bookProfile("EtlHitTvsPhiZpos", "ETL RECO time vs #phi (+Z);#phi_{RECO} [rad];ToA_{RECO} [ns]",
 				       50, -3.15, 3.15, 0., 100.);
   meHitTvsPhi_[0]  = ibook.bookProfile("EtlHitTvsPhiZneg", "ETL RECO time vs #phi (-Z);#phi_{RECO} [rad];ToA_{RECO} [ns]",
 				       50, -3.15, 3.15, 0., 100.);
   meHitTvsEta_[1] = ibook.bookProfile("EtlHitTvsEtaZpos","ETL RECO time vs #eta (+Z);#eta_{RECO};ToA_{RECO} [ns]",
-				       50, 1.56, 2.96, 0., 100.);
+				       50, 1.56, 3., 0., 100.);
   meHitTvsEta_[0] = ibook.bookProfile("EtlHitTvsEtaZpos","ETL RECO time vs #eta (-Z);#eta_{RECO};ToA_{RECO} [ns]",
-				       50, -2.96, -1.56, 0., 100.);
+				       50, -3., -1.56, 0., 100.);
 
 }
 
