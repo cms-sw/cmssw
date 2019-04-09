@@ -1,3 +1,4 @@
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 MuonGeometrySanityCheck = cms.EDAnalyzer(
@@ -16,7 +17,7 @@ def detectors(dt=True, csc=True, me42=False, chambers=True, superlayers=False, l
             for stationName in "1", "2", "3", "4":
                 numSectors = 12
                 if stationName == "4": numSectors = 14
-                for sectorName in map(str, range(1, numSectors+1)):
+                for sectorName in map(str, list(range(1, numSectors+1))):
                     name = "MB" + wheelName + "/" + stationName + "/" + sectorName
                     if chambers: output.append(name)
 
@@ -37,7 +38,7 @@ def detectors(dt=True, csc=True, me42=False, chambers=True, superlayers=False, l
             for ringName in ringNames:
                 numChambers = 36
                 if stationName + "/" + ringName in ("-4/1", "-3/1", "-2/1", "+2/1", "+3/1", "+4/1"): numChambers = 18
-                for chamberName in map(str, range(1, numChambers+1)):
+                for chamberName in map(str, list(range(1, numChambers+1))):
                     name = "ME" + stationName + "/" + ringName + "/" + chamberName
                     if chambers:
                         if me42 or stationName + "/" + ringName not in ("-4/2", "+4/2"):

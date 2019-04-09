@@ -12,6 +12,7 @@
 #  It also retirieves number of events from alignment.log and cputime from STDOUT
 
 from __future__ import print_function
+from builtins import range
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import subprocess
 import re
@@ -28,7 +29,7 @@ except subprocess.CalledProcessError:
     eoslsoutput = ""
 
 # loop over FETCH jobs
-for i in xrange(len(lib.JOBID)):
+for i in range(len(lib.JOBID)):
     # FIXME use bools?
     batchSuccess = 0
     batchExited = 0
