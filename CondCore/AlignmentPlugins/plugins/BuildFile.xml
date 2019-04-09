@@ -7,7 +7,6 @@
   <use   name="CondFormats/Alignment"/>
   <use   name="CommonTools/TrackerMap"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/> 
-  <use   name="boost_python"/>
 </library>
 
 <library  file="TrackerAlignment_PayloadInspector.cc" name="TrackerAlignment_PayloadInspector">
@@ -18,7 +17,6 @@
   <use   name="CommonTools/TrackerMap"/>
   <use   name="Alignment/CommonAlignment"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/> 
-  <use   name="boost_python"/>
 </library>
 
 <library  file="TrackerSurfaceDeformations_PayloadInspector.cc" name="TrackerSurfaceDeformations_PayloadInspector">
@@ -29,5 +27,4 @@
   <use   name="CommonTools/TrackerMap"/>
   <use   name="Alignment/CommonAlignment"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/> 
-  <use   name="boost_python"/>
 </library>
