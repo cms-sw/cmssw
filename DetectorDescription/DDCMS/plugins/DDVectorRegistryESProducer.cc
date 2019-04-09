@@ -27,7 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/Records/interface/DDVectorRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
-#include "Geometry/Records/interface/DetectorDescriptionRcd.h"
+#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 
@@ -73,7 +73,7 @@ DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord)
 {
   LogDebug("Geometry") << "DDVectorRegistryESProducer::produce\n";
   edm::ESHandle<DDDetector> det;
-  iRecord.getRecord<DetectorDescriptionRcd>().get(m_label, det);
+  iRecord.getRecord<GeometryFileRcd>().get(m_label, det);
 
   const DDVectorsMap& registry = det->vectors();
 
