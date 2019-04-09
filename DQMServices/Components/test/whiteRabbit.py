@@ -1,6 +1,7 @@
 #!/usr/bin/env python -u
 
 from __future__ import print_function
+from builtins import range
 import os, sys, re, time, commands, glob
 from optparse import OptionParser, OptionGroup
 from threading import Thread
