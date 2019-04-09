@@ -7,7 +7,6 @@
 
 #include <memory>
 #include <tbb/concurrent_unordered_set.h>
-#include <tbb/concurrent_hash_map.h>
 
 
 #include "DataFormats/DetId/interface/DetId.h"
