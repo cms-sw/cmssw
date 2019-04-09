@@ -8,6 +8,7 @@ Working with ROOT histograms
 This example demonstrates how to create and work with ROOT histogram in rootpy.
 """
 from __future__ import print_function
+from builtins import range
 print(__doc__)
 from rootpy.extern.six.moves import range
 from rootpy.plotting import Hist, Hist2D, Hist3D, HistStack, Legend, Canvas

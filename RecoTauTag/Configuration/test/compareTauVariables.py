@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import sys
 import numpy as np
 
@@ -60,15 +61,15 @@ def interSect(tree1, tree2, var='ull_dumpTauVariables_EventNumber_DUMP.obj', com
     tree1.Draw(var)
     r_evt1 = tree1.GetV1()
     if len(titles) > 0 and titles[0] == 'Reference':
-        evt1 = np.array([int(r_evt1[i]) & 0xffffffff for i in xrange(tree2.GetEntries())], dtype=int)
+        evt1 = np.array([int(r_evt1[i]) & 0xffffffff for i in range(tree2.GetEntries())], dtype=int)
     else:
-        evt1 = np.array([r_evt1[i] for i in xrange(tree1.GetEntries())], dtype=int)
+        evt1 = np.array([r_evt1[i] for i in range(tree1.GetEntries())], dtype=int)
     tree2.Draw(var)
     r_evt2 = tree2.GetV1()
     if len(titles) > 1 and titles[1] == 'Reference':
-        evt2 = np.array([int(r_evt2[i]) & 0xffffffff for i in xrange(tree2.GetEntries())], dtype=int)
+        evt2 = np.array([int(r_evt2[i]) & 0xffffffff for i in range(tree2.GetEntries())], dtype=int)
     else:
-        evt2 = np.array([int(r_evt2[i]) for i in xrange(tree2.GetEntries())], dtype=int)
+        evt2 = np.array([int(r_evt2[i]) for i in range(tree2.GetEntries())], dtype=int)
     if common:
         indices1 = np.nonzero(np.in1d(evt1, evt2))
         indices2 = np.nonzero(np.in1d(evt2, evt1))

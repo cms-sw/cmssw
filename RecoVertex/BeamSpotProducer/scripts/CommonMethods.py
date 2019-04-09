@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import math, re, optparse, commands, os, sys, time, datetime
 from BeamSpotObj import BeamSpot
 from IOVObj import IOV

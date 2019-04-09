@@ -5,6 +5,7 @@
 ######################################################################
 
 from __future__ import print_function
+from builtins import range
 import sys
 import os
 import commands
@@ -729,8 +730,8 @@ if __name__ == "__main__":
     print("  last day to consider:  %s (%d, week %d)" % \
           (date_end.isoformat(), year_end, week_end))
     num_days = (date_end - date_begin).days + 1
-    days = [date_begin + datetime.timedelta(days=i) for i in xrange(num_days)]
-    years = range(year_begin, year_end + 1)
+    days = [date_begin + datetime.timedelta(days=i) for i in range(num_days)]
+    years = list(range(year_begin, year_end + 1))
     weeks = []
     day_cur = date_begin
     while day_cur <= date_end:
@@ -1588,7 +1589,7 @@ if __name__ == "__main__":
                                                  for i in times_tmp]
                         times = [matplotlib.dates.date2num(i) for i in times_tmp]
                         # DEBUG DEBUG DEBUG
-                        for i in xrange(len(times) - 1):
+                        for i in range(len(times) - 1):
                             assert times[i] < times[i + 1]
                         # DEBUG DEBUG DEBUG end
                         weights_del = lumi_data.lum_del(units)
@@ -1748,7 +1749,7 @@ if __name__ == "__main__":
                     times_tmp = [AtMidnight(i) for i in lumi_data.times()]
                     times = [matplotlib.dates.date2num(i) for i in times_tmp]
                     # DEBUG DEBUG DEBUG
-                    for i in xrange(len(times) - 1):
+                    for i in range(len(times) - 1):
                         assert times[i] < times[i + 1]
                     # DEBUG DEBUG DEBUG end
                     weights_inst = lumi_data.lum_inst_max(units)

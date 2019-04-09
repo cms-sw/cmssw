@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from builtins import range
 import commands
 import sys, os, string, fileinput
 import Tkinter as tk

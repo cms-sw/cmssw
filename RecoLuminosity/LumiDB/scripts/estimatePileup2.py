@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from builtins import range
 VERSION='2.00'
 import os, sys
 import coral

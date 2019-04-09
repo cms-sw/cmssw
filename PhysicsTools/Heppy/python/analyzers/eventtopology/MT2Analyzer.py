@@ -1,3 +1,4 @@
+from builtins import range
 import operator 
 import itertools
 import copy
