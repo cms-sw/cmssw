@@ -17,7 +17,7 @@ SiPixelDigiErrorsCUDA::SiPixelDigiErrorsCUDA(size_t maxFedWords, PixelFormatterE
 
   error_h = cs->make_host_unique<GPU::SimpleVector<PixelErrorCompact>>(stream);
   GPU::make_SimpleVector(error_h.get(), maxFedWords, data_d.get());
-  assert(error_h->size() == 0);
+  assert(error_h->empty());
   assert(error_h->capacity() == static_cast<int>(maxFedWords));
 
   cudautils::copyAsync(error_d, error_h, stream);
@@ -35,7 +35,7 @@ SiPixelDigiErrorsCUDA::HostDataError SiPixelDigiErrorsCUDA::dataErrorToHostAsync
   auto data = cs->make_host_unique<PixelErrorCompact[]>(error_h->capacity(), stream);
 
   // but transfer only the required amount
-  if(error_h->size() > 0) {
+  if (not error_h->empty()) {
     cudautils::copyAsync(data, data_d, error_h->size(), stream);
   }
   auto err = *error_h;

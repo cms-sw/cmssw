@@ -21,7 +21,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
-  void endJob();
+  void endJob() override;
 
 private:
   std::string label_;

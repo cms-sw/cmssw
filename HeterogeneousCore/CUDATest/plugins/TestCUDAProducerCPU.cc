@@ -16,7 +16,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const;
+  void produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 private:
   std::string label_;
   edm::EDGetTokenT<int> srcToken_;
