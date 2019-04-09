@@ -31,7 +31,7 @@
   
   <PosPartSection label="">
     <PosPart copyNumber="2">
-      <rParent name="world_volume"/>
+      <rParent name=":world_volume"/>
       <rChild name="cms:MCMS"/>
     </PosPart>
   </PosPartSection>
