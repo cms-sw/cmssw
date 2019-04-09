@@ -498,19 +498,19 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       int iEpx = 0;
       int iKap = 0;
       int iAlu = 0;
-      if( theData->getCopperDmb(iStep)>0.     ) { iCop = 1; }
-      if( theData->getH_ScintillatorDmb(iStep)>0.   ) { iSci = 1; }
-      if( theData->getCablesDmb(iStep)>0.      ) { iCab = 1; }
-      if( theData->getHGC_G10_FR4Dmb(iStep)>0.     ) { iHgf = 1; }
-      if( theData->getSiliconDmb(iStep)>0. ) { iSil = 1; }
-      if( theData->getOtherDmb(iStep)>0.       ) { iOth = 1; }
-      if( theData->getAirDmb(iStep)>0.         ) { iAir = 1; }
-      if( theData->getStainlessSteelDmb(iStep)>0.         ) { iSst = 1; }
-      if( theData->getWCuDmb(iStep)>0.         ) { iWcu = 1; }
-      if( theData->getLeadDmb(iStep)>0.         ) { iLea = 1; }
-      if( theData->getEpoxyDmb(iStep)>0.         ) { iEpx = 1; }
-      if( theData->getKaptonDmb(iStep)>0.         ) { iKap = 1; }
-      if( theData->getAluminiumDmb(iStep)>0.         ) { iAlu = 1; }
+      if(theData->getCopperDmb(iStep)>0.) { iCop = 1; }
+      if(theData->getH_ScintillatorDmb(iStep)>0.) { iSci = 1; }
+      if(theData->getCablesDmb(iStep)>0.) { iCab = 1; }
+      if(theData->getHGC_G10_FR4Dmb(iStep)>0.) { iHgf = 1; }
+      if(theData->getSiliconDmb(iStep)>0.) { iSil = 1; }
+      if(theData->getOtherDmb(iStep)>0.) { iOth = 1; }
+      if(theData->getAirDmb(iStep)>0.) { iAir = 1; }
+      if(theData->getStainlessSteelDmb(iStep)>0.) { iSst = 1; }
+      if(theData->getWCuDmb(iStep)>0.) { iWcu = 1; }
+      if(theData->getLeadDmb(iStep)>0.) { iLea = 1; }
+      if(theData->getEpoxyDmb(iStep)>0.) { iEpx = 1; }
+      if(theData->getKaptonDmb(iStep)>0.) { iKap = 1; }
+      if(theData->getAluminiumDmb(iStep)>0.) { iAlu = 1; }
 
       float deltaRadius = sqrt(
 			       pow( theData->getStepFinalX(iStep)-theData->getStepInitialX(iStep),2 )
@@ -794,19 +794,19 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
       int iKap = 0;
       int iAlu = 0;
 
-      if( theData->getCopperDil(iStep)>0.     ) { iCop = 1; }
-      if( theData->getH_ScintillatorDil(iStep)>0.   ) { iSci = 1; }
-      if( theData->getCablesDil(iStep)>0.      ) { iCab = 1; }
-      if( theData->getHGC_G10_FR4Dil(iStep)>0.     ) { iHgf = 1; }
-      if( theData->getSiliconDil(iStep)>0. ) { iSil = 1; }
-      if( theData->getOtherDil(iStep)>0.       ) { iOth = 1; }
-      if( theData->getAirDil(iStep)>0.         ) { iAir = 1; }
-      if( theData->getStainlessSteelDil(iStep)>0.         ) { iSst = 1; }
-      if( theData->getWCuDil(iStep)>0.         ) { iWcu = 1; }
-      if( theData->getLeadDil(iStep)>0.         ) { iLea = 1; }
-      if( theData->getEpoxyDil(iStep)>0.         ) { iEpx = 1; }
-      if( theData->getKaptonDil(iStep)>0.         ) { iKap = 1; }
-      if( theData->getAluminiumDil(iStep)>0.         ) { iAlu = 1; }
+      if(theData->getCopperDil(iStep)>0.) { iCop = 1; }
+      if(theData->getH_ScintillatorDil(iStep)>0.) { iSci = 1; }
+      if(theData->getCablesDil(iStep)>0.) { iCab = 1; }
+      if(theData->getHGC_G10_FR4Dil(iStep)>0.) { iHgf = 1; }
+      if(theData->getSiliconDil(iStep)>0.) { iSil = 1; }
+      if(theData->getOtherDil(iStep)>0.) { iOth = 1; }
+      if(theData->getAirDil(iStep)>0.) { iAir = 1; }
+      if(theData->getStainlessSteelDil(iStep)>0.) { iSst = 1; }
+      if(theData->getWCuDil(iStep)>0.) { iWcu = 1; }
+      if(theData->getLeadDil(iStep)>0.) { iLea = 1; }
+      if(theData->getEpoxyDil(iStep)>0.) { iEpx = 1; }
+      if(theData->getKaptonDil(iStep)>0.) { iKap = 1; }
+      if(theData->getAluminiumDil(iStep)>0.) { iAlu = 1; }
 
       float deltaRadius = sqrt(
 			       pow( theData->getStepFinalX(iStep)-theData->getStepInitialX(iStep),2 )
