@@ -56,24 +56,27 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
 
     for ( const auto& digi : vec ) {
       const int t_lead = digi.getLeadingEdge(), t_trail = digi.getTrailingEdge();
+      // skip invalid digis
       if ( t_lead == 0 && t_trail == 0 )
         continue;
 
-      const int time_slice = ( t_lead != 0 )
-        ? t_lead / 1024
-        : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
-
-      double tot = -1., t_mean = 0.;
+      double tot = -1., ch_t_twc = 0.;
       if ( t_lead != 0 && t_trail != 0 ) {
-        tot = ( t_trail-t_lead )*ts_to_ns_;
+        tot = ( t_trail-t_lead )*ts_to_ns_; // in ns
         if ( calib_fct_ ) {
-          t_mean = calib_fct_->evaluate( std::vector<double>{ tot }, ch_params );
-          if ( std::isnan( t_mean ) )
-            t_mean = 0.;
+          // compute the time-walk correction
+          ch_t_twc = calib_fct_->evaluate( std::vector<double>{ tot }, ch_params );
+          if ( std::isnan( ch_t_twc ) )
+            ch_t_twc = 0.;
         }
       }
+
+      const int time_slice = ( t_lead != 0 )
+        ? ( t_lead-ch_t_offset/ts_to_ns_ ) / 1024
+        : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
+
       // calibrated time of arrival
-      const double t0 = ( t_lead % 1024 )*ts_to_ns_+ ch_t_offset-t_mean;
+      const double t0 = ( t_lead % 1024 )*ts_to_ns_-ch_t_twc;
 
       rec_hits.emplace_back(
         // spatial information
