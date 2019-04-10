@@ -33,29 +33,6 @@ SKIMStreamJetHTJetPlusHOFilter = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
 )
 
-####### Bunch Crossing skims ######
-from DPGAnalysis.Skims.BunchCrossingSkim_cff import *
-bunchcrossing1 = cms.Path(BunchCrossingSequence)
-BXfilter1 = cms.FilteredStream(
-    responsible = 'TSG',
-    name = 'bxfilter1',
-    paths = (bunchcrossing1),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-)
-
-bunchcrossing2 = cms.Path(BunchCrossingSeqtest)
-BXfilter2 = cms.FilteredStream(
-    responsible = 'TSG',
-    name = 'bxfilter2',
-    paths = (bunchcrossing2),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-)
-
-
 #############
 from  DPGAnalysis.Skims.logErrorSkim_cff import *
 pathlogerror =cms.Path(logerrorseq)
@@ -80,6 +57,19 @@ SKIMStreamLogErrorMonitor = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('USER')
     )
+#############
+from DPGAnalysis.Skims.BunchCrossingSkim_cff import *
+BXfilter1 = cms.Path(BXSeq1)
+BXfilter2 = cms.Path(BXSeq2)
+BXfilter3 = cms.Path(BXSeq3)
+SKIMStreamBunchCrossingSkim = cms.FilteredStream(
+    responsible = 'TSG',
+    name = 'BunchCrossingSkim',
+    paths = (BXfilter1,BXfilter2,BXfilter3),
+    content = cms.untracked.vstring( 'keep *' ),
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW')
+)
 
 ##############
 #from  DPGAnalysis.Skims.BeamBkgSkim_cff import *
@@ -416,7 +406,7 @@ ZElectronPathGsf = cms.Path( zdiElectronSequence )
 
 SKIMStreamZElectron = cms.FilteredStream(
     responsible = 'ECAL DPG',
-    name = 'ZElectrontest',
+    name = 'ZElectron',
     paths = ( ZElectronPathGsf ),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
@@ -468,8 +458,4 @@ SKIMStreamZHbb = cms.FilteredStream(
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
-    )
-
-
-
-
+)
