@@ -21,6 +21,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 // Fast Sim headers
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Particle.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/SimplifiedGeometry.h"
@@ -200,8 +202,8 @@ namespace fastsim
     // TODO: Is this correct?
     // Thread safety
     static std::once_flag initializeOnce;
-    [[cms::thread_guard("initializeOnce")]] std::vector< std::vector<double> > NuclearInteraction::theRatiosMap;
-    [[cms::thread_guard("initializeOnce")]] std::map<int, int> NuclearInteraction::theIDMap;
+    CMS_THREAD_GUARD(initializeOnce) std::vector< std::vector<double> > NuclearInteraction::theRatiosMap;
+    CMS_THREAD_GUARD(initializeOnce) std::map<int, int> NuclearInteraction::theIDMap;
 }
 
 
