@@ -51,31 +51,32 @@ std::map<int, HGCHEbackSignalScaler::DoseParameters> HGCHEbackSignalScaler::read
   return result;
 }
 
-double HGCHEbackSignalScaler::getDoseValue(int layer, float radius)
+double HGCHEbackSignalScaler::getDoseValue(const int layer, const std::pair<double, double>& radius)
 {
-  double cellDose = std::pow(10, doseMap_[layer].a_ + doseMap_[layer].b_*radius + doseMap_[layer].c_*std::pow(radius, 2)); //dose in rad
-  return cellDose/1000.; //convert to kRad
+  double cellDose = std::pow(10, doseMap_[layer].a_ + doseMap_[layer].b_*radius.first + doseMap_[layer].c_*radius.second); //dose in rad
+  return cellDose * radToKrad_; //convert to kRad
 }
 
-double HGCHEbackSignalScaler::getFluenceValue(int layer, float radius)
+double HGCHEbackSignalScaler::getFluenceValue(const int layer, const std::pair<double, double>& radius)
 {
-  double cellFluence = std::pow(10, doseMap_[layer].d_ + doseMap_[layer].e_*radius + doseMap_[layer].f_*std::pow(radius, 2)); //dose in rad
+  double cellFluence = std::pow(10, doseMap_[layer].d_ + doseMap_[layer].e_*radius.first + doseMap_[layer].f_*radius.second); //dose in rad
   return cellFluence;
 }
 
-std::pair<float, float> HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId)
+std::pair<float, float> HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId,  const std::pair<double, double>& radius)
 {
   if(doseMap_.empty())
     return std::make_pair(1., 0.);
 
   int layer = cellId.layer();
-  float radius = computeRadius(cellId) / 100.; //radius in m
-
   double cellDose = getDoseValue(layer, radius); //in kRad
-  double scaleFactor = std::exp( -std::pow(cellDose, 0.65) / 199.6 );
+  constexpr double expofactor = 1./199.6;
+  double scaleFactor = std::exp( -std::pow(cellDose, 0.65) * expofactor );
 
   double cellFluence = getFluenceValue(layer, radius); //in 1-Mev-equivalent neutrons per cm2
-  double noise = 2.18 * sqrt(cellFluence / (2*std::pow(10,13)));
+
+  constexpr double factor = 1. / (2*1e13);
+  double noise = 2.18 * sqrt(cellFluence * factor);
 
   if(verbose_)
   {
@@ -96,45 +97,42 @@ std::pair<float, float> HGCHEbackSignalScaler::scaleByDose(const HGCScintillator
   return std::make_pair(scaleFactor, noise);
 }
 
-float HGCHEbackSignalScaler::scaleByArea(const HGCScintillatorDetId& cellId)
+float HGCHEbackSignalScaler::scaleByArea(const HGCScintillatorDetId& cellId, const std::pair<double, double>& radius)
 {
-  float edge = computeEdge(cellId);
-  float scaleFactor = 3. / edge;  //assume reference 3cm of edge
-  return scaleFactor;
-}
+  float circ = 2 * M_PI * radius.first;
 
-float HGCHEbackSignalScaler::computeEdge(const HGCScintillatorDetId& cellId)
-{
-  float radius = computeRadius(cellId);
-  float circ = 2 * M_PI * radius;
-
-  float edge(3.);
+  float edge(refEdge_);
   if(cellId.type() == 0)
   {
-    edge = circ / 360.; //1 degree
+    constexpr double factor = 1./360.;
+    edge = circ * factor; //1 degree
   }
   else
   {
-    edge = circ / 288.; //1.25 degrees
+    constexpr double factor = 1./288.;
+    edge = circ * factor; //1.25 degrees
   }
+
+  float scaleFactor = refEdge_ / edge;  //assume reference 3cm of edge
 
   if(verbose_)
   {
-    LogDebug("HGCHEbackSignalScaler") << "HGCHEbackSignalScaler::computeEdge - Type, layer, edge, radius: "
+    LogDebug("HGCHEbackSignalScaler") << "HGCHEbackSignalScaler::scaleByArea - Type, layer, edge, radius: "
                                       << cellId.type() << " "
-                                      <<  cellId.layer() << " "
+                                      << cellId.layer() << " "
                                       << edge << " "
                                       << radius;
   }
 
-  return edge;
+  return scaleFactor;
 }
 
-float HGCHEbackSignalScaler::computeRadius(const HGCScintillatorDetId& cellId)
+std::pair<double, double> HGCHEbackSignalScaler::computeRadius(const HGCScintillatorDetId& cellId)
 {
   GlobalPoint global = hgcalGeom_->getPosition(cellId);
-  float radius = sqrt( std::pow(global.x(), 2) + std::pow(global.y(), 2));
-  return radius;
+  double radius2 = (std::pow(global.x(), 2) + std::pow(global.y(), 2)) * 0.0001; //in m
+  double radius = sqrt(radius2);
+  return std::make_pair(radius, radius2);
 }
 
 
@@ -158,8 +156,6 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitiz
   sdPixels_    = cfg.getParameter<double>("sdPixels");
 
   scal_.setDoseMap(doseMapFile_);
-
-  //std::cout << "algo: " << algo_ << " scaleByDose = " << scaleByDose_ << " scaleByArea = " << scaleByArea_ << " doseMapFile = " << doseMapFile_ << std::endl;
 }
 
 //
@@ -235,30 +231,39 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       HGCCellInfo& cell = ( simData.end() == it ? zeroData : it->second );
       addCellMetadata(cell,theGeom,id);
 
+      float scaledPePerMip = nPEperMIP_; //needed to scale according to tile geometry
+      float tunedNoise = nPEperMIP_ * noise_MIP_; //flat noise case
+
+      if(id.det() == DetId::HGCalHSc) //skip those geometries that have HE used as BH
+      {
+        std::pair<double, double> radius;
+        if(scaleByArea_ or scaleByDose_)
+          radius = scal_.computeRadius(id);
+
+        if(scaleByArea_)
+          scaledPePerMip *= scal_.scaleByArea(id, radius);
+
+        //take into account the darkening of the scintillator and SiPM dark current
+        if(scaleByDose_)
+        {
+          auto dosePair = scal_.scaleByDose(id, radius);
+          scaledPePerMip *= dosePair.first;
+          tunedNoise = dosePair.second;
+        }
+      }
+
+      //set mean for poissonian noise
+      float meanN = std::pow(tunedNoise, 2);
+
       for(size_t i=0; i<cell.hit_info[0].size(); ++i)
       {
         //convert total energy keV->MIP, since converted to keV in accumulator
         float totalIniMIPs( cell.hit_info[0][i]*keV2MIP_ );
 
-        //take into account the different size of the tiles
-        float scaledPePerMip = nPEperMIP_;
-        if(scaleByArea_)
-          scaledPePerMip *= scal_.scaleByArea(id);
-
-        //take into account the darkening of the scintillator and SiPM dark current
-        float tunedNoise = nPEperMIP_ * noise_MIP_; //flat noise case
-        if(scaleByDose_)
-        {
-          auto dosePair = scal_.scaleByDose(id);
-          scaledPePerMip *= dosePair.first;
-          tunedNoise = dosePair.second;
-        }
-
         //generate the number of photo-electrons from the energy deposit
         const uint32_t npeS = std::floor(CLHEP::RandPoissonQ::shoot(engine, totalIniMIPs * scaledPePerMip) + 0.5);
 
         //generate the noise associated to the dark current
-        float meanN = std::pow(tunedNoise, 2);
         const uint32_t npeN = std::floor(CLHEP::RandPoissonQ::shoot(engine, meanN) + 0.5);
 
         //total number of pe from signal + noise  (not subtracting pedestal)
@@ -272,11 +277,9 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
         //take into account the gain fluctuations of each pixel
         //const float nPixelTot = nPixel + sqrt(nPixel) * CLHEP::RandGaussQ::shoot(engine, 0., 0.05); //FDG: just a note for now, par to be defined
 
-        float totalMIPs = nPixel / nPEperMIP_;
+        //scale to calibrated response depending on the calibDigis_ flag
+        float totalMIPs = calibDigis_ ? (float)npe / scaledPePerMip : nPixel / nPEperMIP_;
 
-        //no sipm saturation, scale to calibrated response
-        if( calibDigis_)
-          totalMIPs = (float)npe / scaledPePerMip;
 
         if(debug && totalIniMIPs > 0)
         {
