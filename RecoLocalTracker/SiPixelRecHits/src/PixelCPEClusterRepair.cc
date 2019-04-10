@@ -541,7 +541,9 @@ void PixelCPEClusterRepair::checkRecommend2D( DetParam const & theDetParam, Clus
 			SiPixelTemplateReco::ClusMatrix & clusterPayload, int ID ) const
 
 {
-
+    // recommend2D is false by default
+    theClusterParam.recommended2D_  = false;
+  
     DetId id = (theDetParam.theDet->geographicalId());
 
     bool recommend = false;
