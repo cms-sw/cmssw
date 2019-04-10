@@ -118,7 +118,7 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
 			    << "rotation: " << rots << "\t90., " 
 			    << convertRadToDeg( phix ) << ", 90.," << convertRadToDeg( phiy )
           << ", 0, 0";
-      rot = makeRotation3D(90_deg, phix, 90_deg, phiy, 0.,0.);
+      rot = makeRotation3D(90_deg, phix, 90_deg, phiy, 0., 0.);
 
       //cpv.position(ladderHalf, layer, copy, tran, rot);
       pv = layer.placeVolume(ladderHalfVol, copy, Transform3D(rot,tran));
