@@ -376,8 +376,10 @@ DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry& ar)
     ar.watchPostSourceRun([this](edm::RunIndex){ forceReset(); });
   }
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginLumi",false) && enableMultiThread_ == false) {
+#if !WITHOUT_CMS_FRAMEWORK
     forceResetOnBeginLumi_ = true;
     ar.watchPreSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
+#endif
   }
   ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
 }
