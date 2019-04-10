@@ -21,6 +21,7 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
+#include <cmath>
 
 /**
  * Class intended to perform general CTPPS timing detectors track recognition,
