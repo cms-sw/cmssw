@@ -23,7 +23,8 @@ void RPCSimHitMatcher::init(const edm::Event& iEvent,
     geometry_ = &*rpc_geom_;
   } else {
     hasGeometry_ = false;
-    std::cout << "+++ Info: RPC geometry is unavailable. +++\n";
+    edm::LogWarning("RPCSimHitMatcher")
+        << "+++ Info: RPC geometry is unavailable. +++\n";
   }
   MuonSimHitMatcher::init(iEvent, iSetup);
 }
@@ -36,23 +37,25 @@ void RPCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
     matchSimHitsToSimTrack(track_ids_, simHits_);
 
     if (verbose_) {
-      cout << "nSimHits " << simHits_.size() << " nTrackIds "
-           << track_ids_.size() << endl;
-      cout << "detids RPC " << detIds().size() << endl;
+      edm::LogInfo("RPCSimHitMatcher")
+          << "nSimHits " << simHits_.size() << " nTrackIds "
+          << track_ids_.size() << endl;
+      edm::LogInfo("RPCSimHitMatcher")
+          << "detids RPC " << detIds().size() << endl;
 
       const auto& ch_ids = chamberIds();
       for (const auto& id : ch_ids) {
         const auto& simhits = MuonSimHitMatcher::hitsInChamber(id);
         const auto& simhits_gp = simHitsMeanPosition(simhits);
-        cout << "RPCDetId " << RPCDetId(id) << ": nHits " << simhits.size()
-             << " eta " << simhits_gp.eta() << " phi " << simhits_gp.phi()
-             << " nCh " << chamber_to_hits_[id].size() << endl;
+        edm::LogInfo("RPCSimHitMatcher")
+            << "RPCDetId " << RPCDetId(id) << ": nHits " << simhits.size()
+            << " eta " << simhits_gp.eta() << " phi " << simhits_gp.phi()
+            << " nCh " << chamber_to_hits_[id].size() << endl;
         const auto& strips = hitStripsInDetId(id);
-        cout << "nStrips " << strips.size() << endl;
-        cout << "strips : ";
+        edm::LogInfo("RPCSimHitMatcher") << "nStrips " << strips.size() << endl;
+        edm::LogInfo("RPCSimHitMatcher") << "strips : ";
         std::copy(strips.begin(), strips.end(),
-                  ostream_iterator<int>(cout, " "));
-        cout << endl;
+                  ostream_iterator<int>(std::cout, " "));
       }
     }
   }

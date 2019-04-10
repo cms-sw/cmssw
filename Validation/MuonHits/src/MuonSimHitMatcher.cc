@@ -43,8 +43,8 @@ void MuonSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
   track_ids_ =
       getIdsOfSimTrackShower(track.trackId(), simTracks_, simVertices_);
   if (verboseSimTrack_) {
-    std::cout << "Printing track_ids" << std::endl;
-    for (const auto& id : track_ids_) std::cout << "id: " << id << std::endl;
+    edm::LogInfo("MuonSimHitMatcher") << "Printing track_ids" << std::endl;
+    for (const auto& id : track_ids_) edm::LogInfo("MuonSimHitMatcher") << "id: " << id << std::endl;
   }
 }
 
