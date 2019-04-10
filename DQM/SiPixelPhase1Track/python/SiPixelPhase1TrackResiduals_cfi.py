@@ -35,9 +35,55 @@ SiPixelPhase1TrackResidualsResidualsY = SiPixelPhase1TrackResidualsResidualsX.cl
   xlabel = "(y_rec - y_pred) [cm]",
 )
 
+SiPixelPhase1TrackResidualsResOnEdgeX = DefaultHistoTrack.clone(
+  name = "residual_OnEdge_x",
+  title = "Track Residuals X (OnEdge Clusters)",
+  range_min = -0.1, range_max = 0.1, range_nbins = 100,
+  xlabel = "(x_rec - x_pred) [cm]",
+  dimensions = 1,
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").saveAll(),
+    Specification().groupBy("PXForward/PXDisk").saveAll(),
+    Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
+    Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing/PXDisk").save()
+  )
+)
+
+SiPixelPhase1TrackResidualsResOnEdgeY = SiPixelPhase1TrackResidualsResOnEdgeX.clone(
+  name = "residual_OnEdge_y",
+  title = "Track Residuals Y (OnEdge Clusters)",
+  xlabel = "(y_rec - y_pred) [cm]",
+)
+
+
+SiPixelPhase1TrackResidualsResOtherBadX = DefaultHistoTrack.clone(
+  name = "residual_OtherBad_x",
+  title = "Track Residuals X (OtherBad Clusters)",
+  range_min = -0.1, range_max = 0.1, range_nbins = 100,
+  xlabel = "(x_rec - x_pred) [cm]",
+  dimensions = 1,
+  specs = VPSet(
+    Specification().groupBy("PXBarrel/PXLayer").saveAll(),
+    Specification().groupBy("PXForward/PXDisk").saveAll(),
+    Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
+    Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXRing/PXDisk").save()
+  )
+)
+
+SiPixelPhase1TrackResidualsResOtherBadY = SiPixelPhase1TrackResidualsResOtherBadX.clone(
+  name = "residual_OtherBad_y",
+  title = "Track Residuals Y (OtherBad Clusters)",
+  xlabel = "(y_rec - y_pred) [cm]",
+)
+
+
 SiPixelPhase1TrackResidualsConf = cms.VPSet(
   SiPixelPhase1TrackResidualsResidualsX,
-  SiPixelPhase1TrackResidualsResidualsY
+  SiPixelPhase1TrackResidualsResidualsY,
+  SiPixelPhase1TrackResidualsResOnEdgeX,
+  SiPixelPhase1TrackResidualsResOnEdgeY,
+  SiPixelPhase1TrackResidualsResOtherBadX,
+  SiPixelPhase1TrackResidualsResOtherBadY
 )
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
