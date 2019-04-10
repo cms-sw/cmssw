@@ -477,31 +477,27 @@ void DynamicTruncation::getThresholdFromDB(double& thr, DetId const& id) {
 //===> correctThrByPAndEta
 void DynamicTruncation::correctThrByPAndEta(double& thr) {
 
-
-
     auto parametricThreshold = [this]{
       double thr50 = this->parameters[this->region].at(0);
       double p0    = this->parameters[this->region].at(1);
       double p1    = this->parameters[this->region].at(2);
-      return thr50 * ( 1 + p0*p_reco + TMath::Power( this->p_reco, p1));
+      return thr50 * ( 1 + p0*p_reco + std::pow( this->p_reco, p1));
     };
 
-    // printf("thr before = %f \n", thr);
-    // printf("Muon with pt equal to = %f  --  eta = %f\n", p_reco, eta_reco );
-    // printf("parametricThreshold(1,%f, %f) = %f \n", this->parameters[this->region].at(0), this->parameters[this->region].at(1), parametricThreshold());
     thr = parametricThreshold();
 }
 
 void DynamicTruncation::setEtaRegion(){
 
+  float absEta = std::abs(eta_reco);
   // Defaul value for muons with abs(eta) > 2.4
   region = dyt_utils::etaRegion::eta2p4;
 
-  if( TMath::Abs(eta_reco) > 0 && TMath::Abs(eta_reco) <= 0.8 ) region = dyt_utils::etaRegion::eta0p8;
-  else if( TMath::Abs(eta_reco) > 0.8 && TMath::Abs(eta_reco) <= 1.2 ) region = dyt_utils::etaRegion::eta1p2;
-  else if( TMath::Abs(eta_reco) > 1.2 && TMath::Abs(eta_reco) <= 2.0 ) region = dyt_utils::etaRegion::eta2p0;
-  else if( TMath::Abs(eta_reco) > 2.0 && TMath::Abs(eta_reco) <= 2.2 ) region = dyt_utils::etaRegion::eta2p2;
-  else if( TMath::Abs(eta_reco) > 2.2 && TMath::Abs(eta_reco) <= 2.4 ) region = dyt_utils::etaRegion::eta2p4;
+  if( absEta <= 0.8 ) region = dyt_utils::etaRegion::eta0p8;
+  else if( absEta <= 1.2 ) region = dyt_utils::etaRegion::eta1p2;
+  else if( absEta <= 2.0 ) region = dyt_utils::etaRegion::eta2p0;
+  else if( absEta <= 2.2 ) region = dyt_utils::etaRegion::eta2p2;
+  else if( absEta <= 2.4 ) region = dyt_utils::etaRegion::eta2p4;
 
 }
 
