@@ -38,6 +38,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
@@ -86,7 +89,8 @@ class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
 	evt.getByToken(disc_token, handle); 
       };
     };
-    
+
+    static void fillProducerDescriptions(edm::ParameterSetDescription& desc);
 
   protected:
     //value given to taus that fail prediscriminants

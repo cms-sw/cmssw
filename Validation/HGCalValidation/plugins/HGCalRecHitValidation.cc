@@ -156,8 +156,8 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
 	  }
 	} else {
 	  ok = false;
-	  edm::LogVerbatim("HGCalValidation") << "HBHERecHitCollection Handle "
-					      << "does not exist !!!";
+	  edm::LogVerbatim("HGCalValidation") << "HBHERecHitCollection "
+					      << "Handle does not exist !!!";
 	}
       } else {
 	edm::Handle<HGChebRecHitCollection> hbhecoll;
@@ -216,9 +216,10 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
     }
   }
   if (ok) fillHitsInfo();
-  edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event()
-				      << " with " << ntot << " total and "
-				      << nused << " used recHits";
+  if (verbosity_>0) 
+    edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event()
+					<< " with " << ntot << " total and "
+					<< nused << " used recHits";
 }
 
 template<class T1, class T2>

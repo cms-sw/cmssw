@@ -21,11 +21,11 @@ class HcalTimeSlew {
   class HcalTimeSlewM2Parameters{
   public:
     //M2 Parameters
-    double tzero; 
-    double slope; 
-    double  tmax; 
+    float tzero;
+    float slope;
+    float  tmax;
     
-    HcalTimeSlewM2Parameters(double t0, double m, double tmaximum):tzero(t0), slope(m), tmax(tmaximum){}
+    HcalTimeSlewM2Parameters(float t0, float m, float tmaximum):tzero(t0), slope(m), tmax(tmaximum){}
   };
 
   class HcalTimeSlewM3Parameters{
@@ -45,7 +45,7 @@ class HcalTimeSlew {
   HcalTimeSlew() {};
   ~HcalTimeSlew() {}
 
-  void addM2ParameterSet(double tzero, double slope, double tmax);
+  void addM2ParameterSet(float tzero, float slope, float tmax);
   void addM3ParameterSet(double cap, double tspar0, double tspar1, double tspar2, double tspar0_siPM, double tspar1_siPM, double tspar2_siPM);
 
   enum ParaSource { TestStand=0, Data=1, MC=2, HBHE=3 };
@@ -53,7 +53,7 @@ class HcalTimeSlew {
   /** \brief Returns the amount (ns) by which a pulse of the given
    number of fC will be delayed by the timeslew effect, for the
    specified bias setting. */
-  double delay(double fC, BiasSetting bias=Medium) const; 
+  float delay(float fC, BiasSetting bias=Medium) const;
   double delay(double fC, ParaSource source=HBHE, BiasSetting bias=Medium, bool isHPD=true) const;
   
  private:

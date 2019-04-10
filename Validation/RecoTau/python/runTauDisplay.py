@@ -1,8 +1,9 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import ROOT, os, math, sys
 import numpy as num
 from DataFormats.FWLite import Events, Handle
-from DeltaR import *
+from .DeltaR import *
 
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Muon import Muon

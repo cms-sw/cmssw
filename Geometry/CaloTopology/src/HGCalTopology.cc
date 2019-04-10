@@ -70,7 +70,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Type:WaferU:WaferV " << id.iType << ":"
 				  << id.iCell1 << ":" << id.iCell2 
-				  << " CellType " << celltype;
+				  << " CellType " << static_cast<std::underlying_type<HGCalDDDConstants::CellType>::type>(celltype);
 #endif
     switch (celltype) {
     case(HGCalDDDConstants::CellType::CentralType): {

@@ -1,10 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 static long algorithm(Detector& /* description */,
                       cms::DDParsingContext& ctxt,
@@ -29,7 +31,7 @@ static long algorithm(Detector& /* description */,
                       << moduleName[1] << "\tICC " << iccName 
                       << "\tNameSpace " << ns.name();
   LogDebug("TIDGeom") << "Parameters for positioning--"
-                      << " StartAngle " << ConvertTo( startAngle, deg )
+                      << " StartAngle " << convertRadToDeg( startAngle )
                       << " Copy Numbers " << number << " Modules at R " 
                       << rModule << " Z " << zModule[0] << ", " << zModule[1] 
                       << " ICCs at R " << rICC << " Z " << zICC[0] << ", " 

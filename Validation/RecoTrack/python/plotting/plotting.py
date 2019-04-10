@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import os
 import sys
 import math
@@ -12,7 +13,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-import html
+from . import html
 
 verbose=False
 _ratioYTitle = "Ratio"
@@ -532,7 +533,7 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
     ymin -- Minimum y value; if None, take the minimum of TH1s
     ymax -- Maximum y value; if None, take the maximum of TH1s
     coverage -- If set, use only values within the 'coverage' part around the median are used for min/max (useful for ratio)
-    coverageRange -- If coverage and this are set, use only the x axis specified by an (xmin,xmax) pair for the coverage 
+    coverageRange -- If coverage and this are set, use only the x axis specified by an (xmin,xmax) pair for the coverage
     """
     if coverage is not None or isinstance(th1s[0], ROOT.TH2):
         # the only use case for coverage for now is ratio, for which
@@ -2531,6 +2532,7 @@ class PlotOnSideGroup(PlotGroup):
     def draw(self, *args, **kwargs):
         kargs = copy.copy(kwargs)
         kargs["ratio"] = False
+        kargs["separate"] = False
         return super(PlotOnSideGroup, self).draw(*args, **kargs)
 
 class PlotFolder:
@@ -2671,7 +2673,7 @@ class PlotFolder:
         """Return True if this subfolder should be processed
 
         Arguments:
-        limitOnlyTo            -- List/set/similar containing the translatedDqmSubFolder 
+        limitOnlyTo            -- List/set/similar containing the translatedDqmSubFolder
         translatedDqmSubFolder -- Return value of translateSubFolder
         """
         return translatedDqmSubFolder in limitOnlyTo

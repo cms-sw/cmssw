@@ -5,6 +5,7 @@ from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_cff import *
+from RecoMTD.Configuration.RecoMTD_cff import *
 from RecoTracker.Configuration.RecoTracker_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
@@ -49,6 +50,14 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
 # Cosmic During Collisions
 from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
+
+# Low pT electrons
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSequence_cff import *
+
+# Conversions from lowPtGsfTracks
+from RecoEgamma.EgammaPhotonProducers.conversionOpenTrackSequence_cff import *
+from RecoEgamma.EgammaPhotonProducers.gsfTracksOpenConversionSequence_cff import *
+
 
 localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
 localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
@@ -124,6 +133,12 @@ globalreco = cms.Sequence(globalreco_tracking*
 _run3_globalreco = globalreco.copyAndExclude([CastorFullReco])
 run3_common.toReplaceWith(globalreco, _run3_globalreco)
 
+_phase2_timing_layer_globalreco = _run3_globalreco.copy()
+_phase2_timing_layer_globalreco += fastTimingGlobalReco
+from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
+from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(globalreco,_phase2_timing_layer_globalreco)
+
 _fastSim_globalreco = globalreco.copyAndExclude([CastorFullReco,muoncosmicreco])
 # insert the few tracking modules to be run after mixing back in the globalreco sequence
 _fastSim_globalreco.insert(0,newCombinedSeeds+trackExtrapolator+caloTowerForTrk+firstStepPrimaryVerticesUnsorted+ak4CaloJetsForTrk+initialStepTrackRefsForJets+firstStepPrimaryVertices)
@@ -146,7 +161,10 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              recoPFMET*
                              PFTau*
                              reducedRecHits*
-                             cosmicDCTracksSeq
+                             cosmicDCTracksSeq*
+                             lowPtGsfElectronSequence*
+                             conversionOpenTrackSequence*
+                             gsfTracksOpenConversionSequence 
                              )
 
 # AA data with pp reco

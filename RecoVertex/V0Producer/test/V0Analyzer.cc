@@ -740,15 +740,14 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
       if( theVtxTrax[0]->recHitsSize() && theVtxTrax[1]->recHitsSize() ) {
 	double nHits1 = (double) theVtxTrax[0]->numberOfValidHits();
 	double nHits2 = (double) theVtxTrax[1]->numberOfValidHits();
-	/*trackingRecHit_iterator tk1HitIt = theVtxTrax[0]->recHitsBegin();
-	trackingRecHit_iterator tk2HitIt = theVtxTrax[1]->recHitsBegin();
+	/*
 
 	double nHits1 = 0.;
 	double nHits2 = 0.;
-	for( ; tk1HitIt < theVtxTrax[0]->recHitsEnd(); tk1HitIt++) {
-	  const TrackingRecHit* tk1HitPtr = (*tk1HitIt).get();
-	  if( (*tk1HitIt)->isValid() ) nHits1 += 1.;
-	  if( (*tk1HitIt)->isValid() && hitsOkay) {
+    for(auto const& tk1Hit : theVtxTrax[0]->recHits()) {
+	  const TrackingRecHit* tk1HitPtr = tk1Hit.get();
+	  if( tk1Hit->isValid() ) nHits1 += 1.;
+	  if( tk1Hit->isValid() && hitsOkay) {
 	    GlobalPoint tk1HitPosition
 	      = trackerGeom->idToDet(tk1HitPtr->
 				     geographicalId())->
@@ -766,10 +765,10 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 	  }
 	}
 
-	for( ; tk2HitIt < theVtxTrax[1]->recHitsEnd(); tk2HitIt++) {
-	  const TrackingRecHit* tk2HitPtr = (*tk2HitIt).get();
-	  if( (*tk2HitIt)->isValid() ) nHits2 += 1.;
-	  if( (*tk2HitIt)->isValid() && hitsOkay) {
+	for(auto const& tk2Hit : theVtxTrax[1]->recHits()) {
+	  const TrackingRecHit* tk2HitPtr = tk2Hit.get();
+	  if( tk2Hit->isValid() ) nHits2 += 1.;
+	  if( tk2Hit->isValid() && hitsOkay) {
 	    GlobalPoint tk2HitPosition
 	      = trackerGeom->idToDet(tk2HitPtr->
 				     geographicalId())->

@@ -9,11 +9,11 @@
 #include <DQMServices/Core/interface/MonitorElement.h>
 
 #include <arpa/inet.h>
-#include <sys/unistd.h>
-#include <sys/socket.h>
-#include <netdb.h>
 #include <cstdio>
 #include <fstream>
+#include <netdb.h>
+#include <sys/socket.h>
+#include <sys/unistd.h>
 
 // -----------------------------------------------------------------------------
 //
@@ -25,7 +25,7 @@ CalibrationTask::CalibrationTask( DQMStore* dqm,
 			      const edm::EventSetup& setup) :
   CommissioningTask( dqm, conn, "CalibrationTask" ),
   runType_(rtype),
-  nBins_(64),
+  nBins_(0), 
   lastCalChan_(1000),
   lastCalSel_(1000),
   lastLatency_(1000),
@@ -33,10 +33,13 @@ CalibrationTask::CalibrationTask( DQMStore* dqm,
   run_(run)
 {
 
+  // each latency point is 25ns, each calSel is 25/8 --> 64 points = 8 calsel + 8 latency --> as set in the DAQ configuration
   if(runType_ == sistrip::CALIBRATION) nBins_ = 64;
+  // each latency point is 25ns, each calSel is 25/8 --> 80 points = 8 calsel + 10 latency --> as set in the DAQ configuration
   else if(runType_ == sistrip::CALIBRATION_DECO) nBins_ = 80;
 
   LogDebug("Commissioning") << "[CalibrationTask::CalibrationTask] Constructing object...";
+
   // load the pedestals
   edm::ESHandle<SiStripPedestals> pedestalsHandle;
   setup.get<SiStripPedestalsRcd>().get(pedestalsHandle);
@@ -61,9 +64,10 @@ CalibrationTask::~CalibrationTask() {
 // -----------------------------------------------------------------------------
 //
 void CalibrationTask::book() {
+
   LogDebug("Commissioning") << "[CalibrationTask::book]";
 
-  // book 16 histograms, one for each strip in a calibration group --> APV1
+  // book 16 histograms, one for each strip in a calibration group --> APV1 --> 16 = dimension of one calChan
   if(calib1_.find(extrainfo_) == calib1_.end()){  
     dqm()->setCurrentFolder(directory_);      
     calib1_[extrainfo_].resize(16);
@@ -77,16 +81,16 @@ void CalibrationTask::book() {
 					     connection().i2cAddr(0),
 					     postfix).title(); 
 
-      if(runType_ == sistrip::CALIBRATION) // each latency point is 25ns, each calSel is 25/8 --> 64 points = 8 calsel + 8 latency
+      if(runType_ == sistrip::CALIBRATION) 
 	calib1_[extrainfo_][i].histo( dqm()->book1D( title, title, nBins_, 0, 200));
-      else if(runType_ == sistrip::CALIBRATION_DECO) // each latency point is 25ns, each calSel is 25/8 --> 80 points = 8 calsel + 10 latency
+      else if(runType_ == sistrip::CALIBRATION_DECO) 
 	calib1_[extrainfo_][i].histo( dqm()->book1D( title, title, nBins_, 0, 250));
       calib1_[extrainfo_][i].isProfile_ = false;
       calib1_[extrainfo_][i].vNumOfEntries_.resize(nBins_,0);      
     }
   }
 
-  // book 16 histograms, one for each strip in a calibration group --> APV2
+  // book 16 histograms, one for each strip in a calibration group --> APV2  --> 16 = dimension of one calChan
   if(calib2_.find(extrainfo_) == calib2_.end()){  
 
     dqm()->setCurrentFolder(directory_);    
@@ -101,9 +105,9 @@ void CalibrationTask::book() {
 					     connection().i2cAddr(1),
 					     postfix).title(); 
 
-      if(runType_ == sistrip::CALIBRATION) // each latency point is 25ns, each calSel is 25/8 --> 64 points = 8 calsel + 8 latency                                                                     
-        calib2_[extrainfo_][i].histo( dqm()->book1D( title, title, nBins_, 0, 200));
-      else if(runType_ == sistrip::CALIBRATION_DECO) // each latency point is 25ns, each calSel is 25/8 --> 80 points = 8 calsel + 10 latency                                                          
+      if(runType_ == sistrip::CALIBRATION) 
+	calib2_[extrainfo_][i].histo( dqm()->book1D( title, title, nBins_, 0, 200));
+      else if(runType_ == sistrip::CALIBRATION_DECO) 
         calib2_[extrainfo_][i].histo( dqm()->book1D( title, title, nBins_, 0, 250));
       
       calib2_[extrainfo_][i].isProfile_ = false;
@@ -140,8 +144,7 @@ void CalibrationTask::fill( const SiStripEventSummary& summary,
   if(runType_ == sistrip::CALIBRATION) bin = (100-summary.latency())*8+(7-summary.calSel());
   else if(runType_ == sistrip::CALIBRATION_DECO) bin = (102-summary.latency())*8+(7-summary.calSel());
 
-  // Fill the histograms data-ped -(data-ped)_isub
-  // the second term corresponds to the common mode substraction, looking at a strip far away.
+  // Fill the histograms data-ped -(data-ped)_isub, the second term corresponds to the common mode substraction, looking at a strip far away.
   for (int k=0;k<16;++k)  {
     updateHistoSet(calib1_[extrainfo_][k],bin,digis.data[lastCalChan_+k*8].adc()-ped[lastCalChan_+k*8]-(digis.data[isub+k*8].adc()-ped[isub+k*8]));
     updateHistoSet(calib2_[extrainfo_][k],bin,digis.data[128+lastCalChan_+k*8].adc()-ped[128+lastCalChan_+k*8]-(digis.data[128+isub+k*8].adc()-ped[128+isub+k*8]));

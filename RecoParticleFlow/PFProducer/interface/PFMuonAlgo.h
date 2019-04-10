@@ -79,7 +79,7 @@ class PFMuonAlgo {
   //Assign a different track to the muon
   void changeTrack(reco::PFCandidate&,const MuonTrackTypePair&);
   //PF Post cleaning algorithm
-  void setInputsForCleaning(const reco::VertexCollection*); 
+  void setInputsForCleaning(reco::VertexCollection const&); 
   void postClean(reco::PFCandidateCollection *);
   void addMissingMuons(edm::Handle<reco::MuonCollection>, reco::PFCandidateCollection* cands);
 

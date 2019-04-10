@@ -62,7 +62,7 @@ namespace cms {
     DDParsingContext* const context() const { return m_context; }
     DDParsingContext* setContext() { return m_context; }
     
-    const std::string& name() const {
+    std::string_view name() const {
       return m_name;
     }
    

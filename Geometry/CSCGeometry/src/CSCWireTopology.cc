@@ -6,9 +6,12 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cmath>
+
+using namespace geant_units;
+using namespace geant_units::operators;
 
 CSCWireTopology::~CSCWireTopology() { 
   delete theWireGrouping;
@@ -31,13 +34,13 @@ CSCWireTopology::CSCWireTopology(
 
   const float zeroprecision = 1.E-06; // blur zero a bit, for comparisons
 
-  float wireAngleInRadians = wireAngleInDegrees*degree;
+  float wireAngleInRadians = convertDegToRad( wireAngleInDegrees );
 
   //@@ Conversion from mm to cm
-  float wireSpacing = wg.wireSpacing   / 10.; // in cm
-  float nw = wg.narrowWidthOfWirePlane / 10.; // in cm
-  float ww = wg.wideWidthOfWirePlane   / 10.; // in cm
-  float lw = wg.lengthOfWirePlane      / 10.; // in cm
+  float wireSpacing = convertMmToCm( wg.wireSpacing );
+  float nw =          convertMmToCm( wg.narrowWidthOfWirePlane );
+  float ww =          convertMmToCm( wg.wideWidthOfWirePlane );
+  float lw =          convertMmToCm( wg.lengthOfWirePlane );
 
    LogTrace("CSCWireTopology|CSC") <<  
        "CSCWireTopology constructing CSCWireGeometry with:\n" <<

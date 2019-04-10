@@ -19,12 +19,15 @@
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 /* C++ Headers */
 #include <iostream>
 using namespace std;
+
+using namespace geant_units;
+using namespace geant_units::operators;
 
 /* ====================================================================== */
 
@@ -77,21 +80,27 @@ DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometr
   if (chamber) theGeometry->add(chamber); // add the last chamber
 }
 
+// Calling function has the responsibility to delete the allocated RectangularPlaneBounds object
+RectangularPlaneBounds* dtGeometryBuilder::getRecPlaneBounds( const std::vector<double>::const_iterator &shapeStart ) {
+  float width =     convertMmToCm( *(shapeStart) );     // r-phi  dimension - different in different chambers
+  float length =    convertMmToCm( *(shapeStart + 1) );    // z      dimension - constant
+  float thickness = convertMmToCm( *(shapeStart + 2) );   // radial thickness - almost constant
+  return new RectangularPlaneBounds(width, length, thickness);
+}
+
+
 DTChamber* DTGeometryBuilderFromCondDB::buildChamber(const DetId& id,
                                                      const RecoIdealGeometry& rig,
 						     size_t idt ) const {
   DTChamberId detId(id);  
 
-
-  float width = (*(rig.shapeStart(idt) + 1))/cm;     // r-phi  dimension - different in different chambers
-  float length = (*(rig.shapeStart(idt) + 2))/cm;    // z      dimension - constant 125.55 cm
-  float thickness = (*(rig.shapeStart(idt) + 3))/cm; // radial thickness - almost constant about 18 cm
-
   ///SL the definition of length, width, thickness depends on the local reference frame of the Det
   // width is along local X
   // length is along local Y
-  // thickness is long local Z
-  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), new RectangularPlaneBounds(width, length, thickness) ));
+  // length z      dimension - constant 125.55 cm
+  // thickness is along local Z
+  // radial thickness - almost constant about 18 cm
+  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), dtGeometryBuilder::getRecPlaneBounds(++rig.shapeStart(idt))));
 
   DTChamber* chamber = new DTChamber(detId, surf);
 
@@ -106,12 +115,12 @@ DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
 
   DTSuperLayerId slId(id);
 
-  float width = (*(rig.shapeStart(idt) + 1))/cm;     // r-phi  dimension - different in different chambers
-  float length = (*(rig.shapeStart(idt) + 2))/cm;    // z      dimension - constant 126.8 cm
-  float thickness = (*(rig.shapeStart(idt) + 3))/cm; // radial thickness - almost constant about 5 cm
+  // r-phi  dimension - different in different chambers
+  // z      dimension - constant 126.8 cm
+  // radial thickness - almost constant about 5 cm
 
   // Ok this is the slayer position...
-  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), new RectangularPlaneBounds(width, length, thickness) ));
+  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), dtGeometryBuilder::getRecPlaneBounds(++rig.shapeStart(idt))));
 
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
@@ -130,18 +139,19 @@ DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
   DTLayerId layId(id);
 
   // Layer specific parameter (size)
-  float width = (*(rig.shapeStart(idt) + 1))/cm;     // r-phi  dimension - changes in different chambers
-  float length = (*(rig.shapeStart(idt) + 2))/cm;    // z      dimension - constant 126.8 cm
-  float thickness = (*(rig.shapeStart(idt) + 3))/cm; // radial thickness - almost constant about 20 cm
+  // r-phi  dimension - different in different chambers
+  // z      dimension - constant 126.8 cm
+  // radial thickness - almost constant about 20 cm
 
 
-  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), new RectangularPlaneBounds(width, length, thickness) ));
+  auto shapeStartPtr = rig.shapeStart(idt);
+  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), dtGeometryBuilder::getRecPlaneBounds((shapeStartPtr + 1))));
 
   // Loop on wires
-  int firstWire=int(*(rig.shapeStart(idt) + 4 ));//par[4]);
-  int WCounter=int(*(rig.shapeStart(idt) + 5 ));//par[5]);
-  double sensibleLenght=(*(rig.shapeStart(idt) + 6 ))/cm;//par[6]/cm;
-  DTTopology topology(firstWire, WCounter, sensibleLenght);
+  int firstWire = static_cast<int>(*(shapeStartPtr + 4 )); //par[4]);
+  int WCounter = static_cast<int>(*(shapeStartPtr  + 5 )); //par[5]);
+  double sensibleLength = convertMmToCm( *(shapeStartPtr  + 6 ) ); //par[6] in cm;
+  DTTopology topology(firstWire, WCounter, sensibleLength);
 
   DTLayerType layerType;
 

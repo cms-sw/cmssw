@@ -1,4 +1,4 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCBaseboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 
 CSCBaseboard::CSCBaseboard(unsigned endcap, unsigned station,
                            unsigned sector, unsigned subsector,

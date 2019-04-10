@@ -102,8 +102,8 @@ namespace edm {
       bool wantsStreamRuns() const {return false;}
       bool wantsStreamLuminosityBlocks() const {return false;};
 
-      SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
-      SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
+      virtual SerialTaskQueue* globalRunsQueue() { return nullptr; }
+      virtual SerialTaskQueue* globalLuminosityBlocksQueue() { return nullptr; }
       SharedResourcesAcquirer& sharedResourcesAcquirer() {
         return resourcesAcquirer_;
       }
@@ -128,19 +128,20 @@ namespace edm {
       ParameterSetID selectorConfig() const { return selector_config_id_; }
 
       void doPreallocate(PreallocationConfiguration const&);
+      virtual void preallocLumis(unsigned int) ;
 
       void doBeginJob();
       void doEndJob();
-      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+      bool doEvent(EventPrincipal const& ep, EventSetupImpl const&  c,
                    ActivityRegistry*,
                    ModuleCallingContext const*);
-      bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+      bool doBeginRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                       ModuleCallingContext const*);
-      bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
+      bool doEndRun(RunPrincipal const& rp, EventSetupImpl const&  c,
                     ModuleCallingContext const*);
-      bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+      bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
                                   ModuleCallingContext const*);
-      bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+      bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetupImpl const&  c,
                                 ModuleCallingContext const*);
       
       void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,

@@ -308,7 +308,7 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
     for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
 	digiItr != barrelDigis.end(); ++digiItr){
       int interestLevel
-	= ecalSelectiveReadout->getCrystalInterest(EBDigiCollection::DetId(digiItr->id())) && ~EcalSelectiveReadout::FORCED_MASK;
+	= ecalSelectiveReadout->getCrystalInterest(EBDigiCollection::DetId(digiItr->id())) & ~EcalSelectiveReadout::FORCED_MASK;
       if(accept(*digiItr, zsThreshold[BARREL][interestLevel])){
 	selectedBarrelDigis->push_back(digiItr->id(), digiItr->begin());
       } 

@@ -23,6 +23,7 @@ L1MuKBMTrack::L1MuKBMTrack(const L1MuKBMTCombinedStubRef& seed,int phi,int phiB)
   phiB_(phiB),
   coarseEta_(0),
   approxChi2_(0),
+  trackCompatibility_(0),
   hitPattern_(0),
   step_(seed->stNum()),
   sector_(seed->scNum()),
@@ -81,6 +82,9 @@ int L1MuKBMTrack::coarseEta() const{
 
 int L1MuKBMTrack::approxChi2() const{
    return approxChi2_;
+}
+int L1MuKBMTrack::trackCompatibility() const{
+   return trackCompatibility_;
 }
 
 int L1MuKBMTrack::hitPattern() const{
@@ -164,6 +168,9 @@ void L1MuKBMTrack::setHitPattern(int pattern) {
 
 void L1MuKBMTrack::setApproxChi2(int chi) {
   approxChi2_ = chi;
+}
+void L1MuKBMTrack::setTrackCompatibility(int chi) {
+  trackCompatibility_ = chi;
 }
 
 void L1MuKBMTrack::setPtEtaPhi(double pt ,double eta, double phi) {

@@ -24,6 +24,8 @@
 
 #include "KDTreeLinkerAlgoT.h"
 
+//Density collection
+typedef std::map< DetId, float > Density;
 
 template <typename T>
 std::vector<size_t> sorted_indices(const std::vector<T> &v) {
@@ -41,6 +43,19 @@ std::vector<size_t> sorted_indices(const std::vector<T> &v) {
         return idx;
 }
 
+template <typename T>
+size_t max_index(const std::vector<T> &v) {
+
+        // initialize original index locations
+        std::vector<size_t> idx(v.size(),0);
+        std::iota (std::begin(idx), std::end(idx), 0);
+
+        // take the max index based on comparing values in v
+        auto maxidx = std::max_element(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) {return v[i1].data.rho < v[i2].data.rho;});
+
+        return (*maxidx);
+}
+
 class HGCalImagingAlgo
 {
 
@@ -49,13 +64,15 @@ public:
 
 enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 
-HGCalImagingAlgo() : vecDeltas_(), kappa_(1.), ecut_(0.),
+ HGCalImagingAlgo() : thresholdW0_(), positionDeltaRho_c_(),
+        vecDeltas_(), kappa_(1.), ecut_(0.),
         sigma2_(1.0),
         algoId_(reco::CaloCluster::undefined),
         verbosity_(pERROR),initialized_(false){
 }
 
-HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
+ HGCalImagingAlgo(const std::vector<double>& thresholdW0_in, const std::vector<double>& positionDeltaRho_c_in,
+		 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
                  reco::CaloCluster::AlgoId algoId_in,
                  bool dependSensor_in,
                  const std::vector<double>& dEdXweights_in,
@@ -65,6 +82,8 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
                  const std::vector<double>& nonAgedNoises_in,
                  double noiseMip_in,
                  VerbosityLevel the_verbosity = pERROR) :
+        thresholdW0_(thresholdW0_in),
+        positionDeltaRho_c_(positionDeltaRho_c_in),
         vecDeltas_(vecDeltas_in), kappa_(kappa_in),
         ecut_(ecut_in),
         sigma2_(1.0),
@@ -86,7 +105,8 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
 {
 }
 
-HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
+HGCalImagingAlgo(const std::vector<double>& thresholdW0_in, const std::vector<double>& positionDeltaRho_c_in,
+                 const std::vector<double>& vecDeltas_in, double kappa_in, double ecut_in,
                  double showerSigma,
                  reco::CaloCluster::AlgoId algoId_in,
                  bool dependSensor_in,
@@ -96,7 +116,10 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
                  double fcPerEle_in,
                  const std::vector<double>& nonAgedNoises_in,
                  double noiseMip_in,
-                 VerbosityLevel the_verbosity = pERROR) : vecDeltas_(vecDeltas_in), kappa_(kappa_in),
+                 VerbosityLevel the_verbosity = pERROR) :
+        thresholdW0_(thresholdW0_in),
+        positionDeltaRho_c_(positionDeltaRho_c_in),
+        vecDeltas_(vecDeltas_in), kappa_(kappa_in),
         ecut_(ecut_in),
         sigma2_(std::pow(showerSigma,2.0)),
         algoId_(algoId_in),
@@ -110,10 +133,10 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
         verbosity_(the_verbosity),
         initialized_(false),
         points_(2*(maxlayer+1)),
-	minpos_(2*(maxlayer+1),{
+        minpos_(2*(maxlayer+1),{
                 {0.0f,0.0f}
         }),
-	maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} })
+        maxpos_(2*(maxlayer+1),{ {0.0f,0.0f} })
 {
 }
 
@@ -153,6 +176,9 @@ void reset(){
 }
 void computeThreshold();
 
+//getDensity
+ Density getDensity();
+
 /// point in the space
 typedef math::XYZPoint Point;
 
@@ -164,6 +190,10 @@ private:
 // last layer per subdetector
 static const unsigned int lastLayerEE = 28;
 static const unsigned int lastLayerFH = 40;
+
+// To compute the cluster position
+std::vector<double> thresholdW0_;
+std::vector<double> positionDeltaRho_c_;
 
 // The two parameters used to identify clusters
 std::vector<double> vecDeltas_;
@@ -183,6 +213,9 @@ hgcal::RecHitTools rhtools_;
 // The algo id
 reco::CaloCluster::AlgoId algoId_;
 
+// For keeping the density per hit
+ Density density_;
+
 // various parameters used for calculating the noise levels for a given sensor (and whether to use them)
 bool dependSensor_;
 std::vector<double> dEdXweights_;
@@ -192,7 +225,7 @@ double fcPerEle_;
 std::vector<double> nonAgedNoises_;
 double noiseMip_;
 std::vector<std::vector<double> > thresholds_;
-std::vector<std::vector<double> > v_sigmaNoise_;
+std::vector<std::vector<double> > sigmaNoise_;
 
 // The verbosity level
 VerbosityLevel verbosity_;
@@ -285,6 +318,9 @@ double calculateDistanceToHigher(std::vector<KDNode> &) const;
 int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &, const unsigned int, std::vector<std::vector<KDNode> >&) const;
 math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
 
+//For keeping the density information
+ void setDensity(const std::vector<KDNode> &nd);
+ 
 // attempt to find subclusters within a given set of hexels
 std::vector<unsigned> findLocalMaximaInCluster(const std::vector<KDNode>&);
 math::XYZPoint calculatePositionWithFraction(const std::vector<KDNode>&, const std::vector<double>&);

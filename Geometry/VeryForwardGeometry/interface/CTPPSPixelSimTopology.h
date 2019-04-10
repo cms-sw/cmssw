@@ -60,66 +60,66 @@ class CTPPSPixelSimTopology : public CTPPSPixelTopology
 
       // rows (x segmentation)
       if ( arow == 0 ) {
-        lower_x = 0;
-        higher_x = 0.3;
+        lower_x = dead_edge_width_ - phys_active_edge_dist_; // 50 um
+        higher_x = dead_edge_width_ + pitch_simX_; // 300 um
       }
       else if ( arow <= 78 ) {
-        lower_x =  0.3 + ( arow-1 )*pitch_simX_;
-        higher_x = 0.3 +   arow    *pitch_simX_;
+        lower_x =  dead_edge_width_ + arow*pitch_simX_;
+        higher_x = dead_edge_width_ +   ( arow+1 )*pitch_simX_;
       }
       else if ( arow == 79 ) {
-        lower_x =  0.3 + ( arow-1 )*pitch_simX_;
-        higher_x = 0.3 + ( arow+1 )*pitch_simX_;
+        lower_x =  dead_edge_width_ + arow*pitch_simX_;
+        higher_x = dead_edge_width_ + ( arow+2 )*pitch_simX_;
       }
       else if ( arow == 80 ) {
-        lower_x =  0.3 +   arow    *pitch_simX_;
-        higher_x = 0.3 + ( arow+2 )*pitch_simX_;
+        lower_x =  dead_edge_width_ + ( arow+1 )*pitch_simX_;
+        higher_x = dead_edge_width_ + ( arow+3 )*pitch_simX_;
       }
       else if ( arow <= 158 ) {
-        lower_x =  0.3 + ( arow+1 )*pitch_simX_;
-        higher_x = 0.3 + ( arow+2 )*pitch_simX_;
+        lower_x =  dead_edge_width_ + ( arow+2 )*pitch_simX_;
+        higher_x = dead_edge_width_ + ( arow+3 )*pitch_simX_;
       }
       else if ( arow == 159) {
-        lower_x =  0.3 + ( arow+1 )*pitch_simX_;
-        higher_x = 0.3 + ( arow+4 )*pitch_simX_;
+        lower_x =  dead_edge_width_ + ( arow+2 )*pitch_simX_;
+        higher_x = dead_edge_width_ + ( arow+3 )*pitch_simX_ + phys_active_edge_dist_ ;
       }
 
       // columns (y segmentation)
       if( acol == 0 ) {
-        lower_y = 0;
-        higher_y = 0.35;
+        lower_y = dead_edge_width_ - phys_active_edge_dist_; // 50 um
+        higher_y = dead_edge_width_ + pitch_simY_; // 350 um
       }
       else if ( acol <= 50 ) {
-        lower_y =  0.35 + ( acol-1 )*pitch_simY_;
-        higher_y = 0.35 +   acol    *pitch_simY_;
+        lower_y =  dead_edge_width_ + acol*pitch_simY_;
+        higher_y = dead_edge_width_ +  ( acol+1 )*pitch_simY_;
       }
       else if ( acol == 51 ) {
-        lower_y =  0.35 + ( acol-1 )*pitch_simY_;
-        higher_y = 0.35 + ( acol+1 )*pitch_simY_;
+        lower_y =  dead_edge_width_ + acol*pitch_simY_;
+        higher_y = dead_edge_width_ + ( acol+2 )*pitch_simY_;
       }
       else if ( acol == 52 ) {
-        lower_y =  0.35 +   acol    *pitch_simY_;
-        higher_y = 0.35 + ( acol+2 )*pitch_simY_;
+        lower_y =  dead_edge_width_ + ( acol+1 )*pitch_simY_;
+        higher_y = dead_edge_width_ + ( acol+3 )*pitch_simY_;
       }
       else if ( acol <= 102 ) {
-        lower_y =  0.35 + ( acol+1 )*pitch_simY_;
-        higher_y = 0.35 + ( acol+2 )*pitch_simY_;
+        lower_y =  dead_edge_width_ + ( acol+2 )*pitch_simY_;
+        higher_y = dead_edge_width_ + ( acol+3 )*pitch_simY_;
       }
       else if ( acol == 103 ) {
-        lower_y =  0.35 + ( acol+1 )*pitch_simY_;
-        higher_y = 0.35 + ( acol+3 )*pitch_simY_;
+        lower_y =  dead_edge_width_ + ( acol+2 )*pitch_simY_;
+        higher_y = dead_edge_width_ + ( acol+4 )*pitch_simY_;
       }
       else if ( acol == 104) {
-        lower_y =  0.35 + ( acol+2 )*pitch_simY_;
-        higher_y = 0.35 + ( acol+4 )*pitch_simY_;
+        lower_y =  dead_edge_width_ + ( acol+3 )*pitch_simY_;
+        higher_y = dead_edge_width_ + ( acol+5 )*pitch_simY_;
       }
       else if ( acol <= 154 ) {
-        lower_y =  0.35 + ( acol+3 )*pitch_simY_;
-        higher_y = 0.35 + ( acol+4 )*pitch_simY_;
+        lower_y =  dead_edge_width_ + ( acol+4 )*pitch_simY_;
+        higher_y = dead_edge_width_ + ( acol+5 )*pitch_simY_;
       }
       else if ( acol == 155 ) {
-        lower_y =  0.35 + ( acol+3 )*pitch_simY_;
-        higher_y = 0.35 + ( acol+4 )*pitch_simY_ + 0.2;
+        lower_y =  dead_edge_width_ + ( acol+4 )*pitch_simY_;
+        higher_y = dead_edge_width_ + ( acol+5 )*pitch_simY_ + phys_active_edge_dist_ ;
       }
 
       lower_x = lower_x - simX_width_/2.;

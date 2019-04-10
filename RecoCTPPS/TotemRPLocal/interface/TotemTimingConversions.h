@@ -3,42 +3,45 @@
  * This is a part of CTPPS offline software.
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
- *   Nicola Minafra
+ *   Nicola Minafra (nicola.minafra@cern.ch)
+ *   Filip Dej
  *
  ****************************************************************************/
 
 #ifndef RecoCTPPS_TotemRPLocal_TotemTimingConversions
 #define RecoCTPPS_TotemRPLocal_TotemTimingConversions
 
+#include "CommonTools/Utils/interface/FormulaEvaluator.h"
+
+#include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
+
 #include <string>
 #include <vector>
 
-#include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
+class TotemTimingConversions
+{
+  public:
+    TotemTimingConversions(bool mergeTimePeaks, const PPSTimingCalibration& calibration);
 
-class TotemTimingConversions {
-public:
-  TotemTimingConversions();
-  TotemTimingConversions(const std::string& calibrationFile);
+    float timeOfFirstSample(const TotemTimingDigi& digi) const;
+    float triggerTime(const TotemTimingDigi& digi) const;
+    float timePrecision(const TotemTimingDigi& digi) const;
+    std::vector<float> timeSamples(const TotemTimingDigi& digi) const;
+    std::vector<float> voltSamples(const TotemTimingDigi& digi) const;
 
-  void openCalibrationFile(const std::string& calibrationFile="/dev/null");
+  private:
+    static constexpr float SAMPIC_SAMPLING_PERIOD_NS = 1. / 7.695;
+    static constexpr float SAMPIC_ADC_V = 1. / 256;
+    static constexpr int SAMPIC_MAX_NUMBER_OF_SAMPLES = 64;
+    static constexpr int SAMPIC_DEFAULT_OFFSET = 30;
+    static constexpr int ACCEPTED_TIME_RADIUS = 4;
+    static constexpr unsigned long CELL0_MASK = 0xfffffff000;
 
-  const float getTimeOfFirstSample(const TotemTimingDigi& digi) const;
-
-  const float getTriggerTime(const TotemTimingDigi& digi) const;
-
-  std::vector<float> getTimeSamples(const TotemTimingDigi& digi) const;
-
-  std::vector<float> getVoltSamples(const TotemTimingDigi& digi) const;
-
-private:
-  static const float SAMPIC_SAMPLING_PERIOD_NS;
-  static const float SAMPIC_ADC_V;
-  static const int SAMPIC_MAX_NUMBER_OF_SAMPLES;
-  static const int SAMPIC_DEFAULT_OFFSET;
-
-  bool calibrationFileOk_;
-  std::string calibrationFile_;
-
+    PPSTimingCalibration calibration_;
+    bool mergeTimePeaks_;
+    reco::FormulaEvaluator calibrationFunction_;
 };
 
 #endif
+

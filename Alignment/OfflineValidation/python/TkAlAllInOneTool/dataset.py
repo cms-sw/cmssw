@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 # idea stolen from:
 # http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/
 #        PhysicsTools/PatAlgos/python/tools/cmsswVersionTools.py
@@ -12,8 +13,8 @@ import sys
 import Utilities.General.cmssw_das_client as das_client
 from FWCore.PythonUtilities.LumiList import LumiList
 
-from helperFunctions import cache
-from TkAlExceptions import AllInOneError
+from .helperFunctions import cache
+from .TkAlExceptions import AllInOneError
 
 class Dataset(object):
     def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True,

@@ -1,5 +1,8 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 /* class CaloRecoTauDiscriminationByCharge
  *
  *  Discriminates taus by a |charge| == 1 requirement,
@@ -20,6 +23,7 @@ class CaloRecoTauDiscriminationByCharge final : public CaloTauDiscriminationProd
         }
     ~CaloRecoTauDiscriminationByCharge() override{}
     double discriminate(const reco::CaloTauRef& pfTau) const override;
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
     uint32_t chargeReq_;
     bool oneOrThreeProng_;
@@ -34,5 +38,20 @@ double CaloRecoTauDiscriminationByCharge::discriminate(
   return ( (chargeok && oneOrThreeProngOK) ? 1. : 0. );
 }
 
+}
+
+void
+CaloRecoTauDiscriminationByCharge::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // caloRecoTauDiscriminationByCharge
+  edm::ParameterSetDescription desc;
+  desc.add<unsigned int>("AbsChargeReq", 1);
+  desc.add<bool>("ApplyOneOrThreeProngCut", false);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<edm::InputTag>("CaloTauProducer", edm::InputTag("caloRecoTauProducerHighEfficiency"));
+  descriptions.add("caloRecoTauDiscriminationByCharge", desc);
 }
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByCharge);

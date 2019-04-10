@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/src/Torus.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <cmath>
 #include <vector>
@@ -8,8 +8,8 @@
 #include "DetectorDescription/Core/src/Solid.h"
 
 using std::sqrt;
-using namespace dd;
-using namespace dd::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 DDI::Torus::Torus( double pRMin,
 		   double pRMax,
@@ -29,11 +29,11 @@ DDI::Torus::Torus( double pRMin,
 
 void DDI::Torus::stream(std::ostream & os) const
 {
-  os << " rMin=" << CONVERT_TO( p_[0], cm )
-     << " rMax=" << CONVERT_TO( p_[1], deg )
-     << " rTor=" << CONVERT_TO( p_[2], deg )
-     << " sPhi=" << CONVERT_TO( p_[3], cm )
-     << " dPhi=" << CONVERT_TO( p_[4], cm );
+  os << " rMin=" << convertMmToCm( p_[0] )
+     << " rMax=" << convertRadToDeg( p_[1] )
+     << " rTor=" << convertRadToDeg( p_[2] )
+     << " sPhi=" << convertMmToCm( p_[3] )
+     << " dPhi=" << convertMmToCm( p_[4] );
 }
 
 double DDI::Torus::volume() const
@@ -44,7 +44,7 @@ double DDI::Torus::volume() const
   
   // From Geant4: { fCubicVolume = fDPhi*pi*fRtor*(fRmax*fRmax-fRmin*fRmin);
   
-  volume = p_[4]*_pi*p_[2]*(p_[1]*p_[1]-p_[0]*p_[0]);
+  volume = p_[4] * piRadians * p_[2] * (p_[1] * p_[1] - p_[0] * p_[0]);
   
   return volume;
 }

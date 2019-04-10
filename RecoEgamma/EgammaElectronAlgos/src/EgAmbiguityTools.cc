@@ -1,13 +1,10 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
-//#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 
-#include <sstream>
 #include <algorithm>
 
 using namespace edm ;
@@ -17,36 +14,28 @@ using namespace reco ;
 namespace EgAmbiguityTools
 {
 
-bool isBetter( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
- { return (std::abs(e1->eSuperClusterOverP()-1) < std::abs(e2->eSuperClusterOverP() - 1)) ; }
+bool isBetter( reco::GsfElectron const& e1, reco::GsfElectron const& e2 )
+ { return (std::abs(e1.eSuperClusterOverP()-1) < std::abs(e2.eSuperClusterOverP() - 1)) ; }
 
-bool isInnerMost::operator()(const reco::GsfElectron *e1, const reco::GsfElectron *e2)
+bool isInnerMost( reco::GsfElectron const& e1, reco::GsfElectron const& e2)
 {
     // retreive first valid hit
     int gsfHitCounter1 = 0 ;
-    trackingRecHit_iterator elHitsIt1 ;
-    for(elHitsIt1 = e1->gsfTrack()->recHitsBegin();
-            elHitsIt1 != e1->gsfTrack()->recHitsEnd();
-            elHitsIt1++, gsfHitCounter1++)
-    { 
-        if ((**elHitsIt1).isValid()){
-            break;
-        }
+    for(auto const& elHit : e1.gsfTrack()->recHits())
+    {
+        if (elHit->isValid()) break;
+        gsfHitCounter1++;
     }
 
     int gsfHitCounter2 = 0 ;
-    trackingRecHit_iterator elHitsIt2 ;
-    for(elHitsIt2 = e2->gsfTrack()->recHitsBegin();
-            elHitsIt2 != e2->gsfTrack()->recHitsEnd();
-            elHitsIt2++, gsfHitCounter2++ )
+    for(auto const& elHit : e2.gsfTrack()->recHits())
     {
-        if ((**elHitsIt2).isValid()){
-            break;
-        }
+        if (elHit->isValid()) break;
+        gsfHitCounter2++;
     }
 
-    uint32_t gsfHit1 = e1->gsfTrack()->hitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter1);
-    uint32_t gsfHit2 = e2->gsfTrack()->hitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter2);
+    uint32_t gsfHit1 = e1.gsfTrack()->hitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter1);
+    uint32_t gsfHit2 = e2.gsfTrack()->hitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter2);
 
     if (HitPattern::getSubStructure(gsfHit1) != HitPattern::getSubStructure(gsfHit2)){
         return (HitPattern::getSubStructure(gsfHit1) < HitPattern::getSubStructure(gsfHit2));
@@ -60,15 +49,15 @@ bool isInnerMost::operator()(const reco::GsfElectron *e1, const reco::GsfElectro
 int sharedHits(const GsfTrackRef & gsfTrackRef1, const GsfTrackRef & gsfTrackRef2 )
 {
   //get the Hit Pattern for the gsfTracks
-  const HitPattern &gsfHitPattern1 = gsfTrackRef1->hitPattern();
-  const HitPattern &gsfHitPattern2 = gsfTrackRef2->hitPattern();
+  HitPattern const& gsfHitPattern1 = gsfTrackRef1->hitPattern();
+  HitPattern const& gsfHitPattern2 = gsfTrackRef2->hitPattern();
 
   unsigned int shared = 0;
 
   int gsfHitCounter1 = 0;
   for(trackingRecHit_iterator elHitsIt1 = gsfTrackRef1->recHitsBegin();
           elHitsIt1 != gsfTrackRef1->recHitsEnd(); elHitsIt1++, gsfHitCounter1++) {
-      if(!(**elHitsIt1).isValid()){
+      if(!(*elHitsIt1)->isValid()){
           //count only valid Hits
           continue;
       }
@@ -97,7 +86,7 @@ int sharedHits(const GsfTrackRef & gsfTrackRef1, const GsfTrackRef & gsfTrackRef
                       || HitPattern::stripTIDHitFilter(gsfHit2))){
               continue;
           }
-          if((**elHitsIt1).sharesInput(&(**gsfHitsIt2), TrackingRecHit::some)) {
+          if((*elHitsIt1)->sharesInput(&(**gsfHitsIt2), TrackingRecHit::some)) {
               //if (comp.equals(&(**elHitsIt1),&(**gsfHitsIt2))) {
               ////std::cout << "found shared hit " << gsfHit2 << std::endl;
               shared++;
@@ -109,7 +98,7 @@ int sharedHits(const GsfTrackRef & gsfTrackRef1, const GsfTrackRef & gsfTrackRef
   return shared;
 }
 
-int sharedDets(const GsfTrackRef& gsfTrackRef1, const GsfTrackRef& gsfTrackRef2 ) 
+int sharedDets(const GsfTrackRef& gsfTrackRef1, const GsfTrackRef& gsfTrackRef2 )
 {
     //get the Hit Pattern for the gsfTracks
     const HitPattern &gsfHitPattern1 = gsfTrackRef1->hitPattern();
@@ -134,7 +123,7 @@ int sharedDets(const GsfTrackRef& gsfTrackRef1, const GsfTrackRef& gsfTrackRef2 
         {
             continue;
         }
-        
+
         int gsfHitsCounter2 = 0;
         for(trackingRecHit_iterator gsfHitsIt2 = gsfTrackRef2->recHitsBegin();
                 gsfHitsIt2 != gsfTrackRef2->recHitsEnd(); gsfHitsIt2++, gsfHitsCounter2++) {
@@ -160,31 +149,27 @@ int sharedDets(const GsfTrackRef& gsfTrackRef1, const GsfTrackRef& gsfTrackRef2 
 
 }
 
-float sharedEnergy(const CaloCluster *clu1, const CaloCluster *clu2,
-       edm::Handle<EcalRecHitCollection> & barrelRecHits,
-       edm::Handle<EcalRecHitCollection> & endcapRecHits ) {
+float sharedEnergy( CaloCluster const& clu1, CaloCluster const& clu2,
+                    EcalRecHitCollection const& barrelRecHits,
+                    EcalRecHitCollection const& endcapRecHits )
+{
 
   double fractionShared = 0;
 
-  std::vector< std::pair<DetId, float> > v_id1 = clu1->hitsAndFractions();
-  std::vector< std::pair<DetId, float> > v_id2 = clu2->hitsAndFractions();
-  std::vector< std::pair<DetId, float> >::iterator ih1;
-  std::vector< std::pair<DetId, float> >::iterator ih2;
+  for(auto const& h1 : clu1.hitsAndFractions()) {
 
-  for(ih1 = v_id1.begin();ih1 != v_id1.end(); ih1++) {
+    for(auto const& h2 : clu2.hitsAndFractions()) {
 
-    for(ih2 = v_id2.begin();ih2 != v_id2.end(); ih2++) {
-
-      if ( (*ih1).first != (*ih2).first ) continue;
+      if ( h1.first != h2.first ) continue;
 
       // here we have common Xtal id
       EcalRecHitCollection::const_iterator itt;
-      if ((*ih1).first.subdetId() == EcalBarrel) {
-	if ((itt=barrelRecHits->find((*ih1).first))!=barrelRecHits->end())
-	fractionShared += itt->energy();
-      } else if ((*ih1).first.subdetId() == EcalEndcap) {
-	if ((itt=endcapRecHits->find((*ih1).first))!=endcapRecHits->end())
-	fractionShared += itt->energy();
+      if (h1.first.subdetId() == EcalBarrel) {
+        if ((itt=barrelRecHits.find(h1.first))!=barrelRecHits.end())
+        fractionShared += itt->energy();
+      } else if (h1.first.subdetId() == EcalEndcap) {
+        if ((itt=endcapRecHits.find(h1.first))!=endcapRecHits.end())
+        fractionShared += itt->energy();
       }
 
     }
@@ -195,14 +180,14 @@ float sharedEnergy(const CaloCluster *clu1, const CaloCluster *clu2,
 
 }
 
-float sharedEnergy(const SuperClusterRef& sc1, const SuperClusterRef& sc2,
-       edm::Handle<EcalRecHitCollection> & barrelRecHits,
-       edm::Handle<EcalRecHitCollection> & endcapRecHits ) {
-
+float sharedEnergy( SuperClusterRef const& sc1, SuperClusterRef const& sc2,
+                    EcalRecHitCollection const& barrelRecHits,
+                    EcalRecHitCollection const& endcapRecHits )
+{
   double energyShared = 0;
   for(CaloCluster_iterator icl1=sc1->clustersBegin();icl1!=sc1->clustersEnd(); icl1++) {
     for(CaloCluster_iterator icl2=sc2->clustersBegin();icl2!=sc2->clustersEnd(); icl2++) {
-      energyShared += sharedEnergy(&(**icl1),&(**icl2),barrelRecHits,endcapRecHits );
+      energyShared += sharedEnergy(**icl1,**icl2,barrelRecHits,endcapRecHits );
     }
   }
   return energyShared;

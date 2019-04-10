@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistryRcd.h"
@@ -15,59 +16,48 @@
 
 using namespace std;
 using namespace cms;
+using namespace edm;
 using namespace dd4hep;
 
-class DDCMSDetector : public edm::one::EDAnalyzer<> {
+class DDCMSDetector : public one::EDAnalyzer<> {
 public:
-  explicit DDCMSDetector(const edm::ParameterSet& p);
+  explicit DDCMSDetector(const ParameterSet& p);
 
   void beginJob() override {}
-  void analyze( edm::Event const& iEvent, edm::EventSetup const& ) override;
+  void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override;
 
-private:
-  
-  std::string m_confGeomXMLFiles;
-  std::vector< std::string > m_relFiles;
-  std::vector< std::string > m_files;
+private:  
+  const ESInputTag m_tag;
 };
 
-DDCMSDetector::DDCMSDetector( const edm::ParameterSet& iConfig )
-{
-  m_confGeomXMLFiles = edm::FileInPath( iConfig.getParameter<std::string>( "confGeomXMLFiles" )).fullPath();
-  
-  m_relFiles = iConfig.getParameter<std::vector<std::string> >( "geomXMLFiles" );
-  for( const auto& it : m_relFiles ) {
-    edm::FileInPath fp( it );
-    m_files.emplace_back( fp.fullPath());
-  }
-}
+DDCMSDetector::DDCMSDetector(const ParameterSet& iConfig)
+  : m_tag(iConfig.getParameter<ESInputTag>("DDDetector"))
+{}
 
 void
-DDCMSDetector::analyze( const edm::Event&, const edm::EventSetup& iEventSetup)
+DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup)
 {
-  edm::ESTransientHandle<DDDetector> description;
-  iEventSetup.get<DetectorDescriptionRcd>().get(description);
+  ESTransientHandle<DDDetector> det;
+  iEventSetup.get<DetectorDescriptionRcd>().get(m_tag.module(), det);
 
-  edm::ESTransientHandle<DDVectorRegistry> registry;
-  iEventSetup.get<DDVectorRegistryRcd>().get(registry);
-
-  for( const auto& it : m_files )
-    std::cout << it << std::endl;
-
-  std::cout << "DD Vector Registry size: " << registry->vectors.size() << "\n";
-  for( const auto& p: registry->vectors ) {
-    std::cout << " " << p.first << " => ";
-    for( const auto& i : p.second )
-      std::cout << i << ", ";
-    std::cout << '\n';
-  }
-  std::cout << "Iterate over the detectors:\n";
-  for( auto const& it : description->description().detectors()) {
+  LogInfo("DDCMS") << "Iterate over the detectors:\n";
+  for( auto const& it : det->description()->detectors()) {
     dd4hep::DetElement det(it.second);
-    std::cout << it.first << ": " << det.path() << "\n";
+    LogInfo("DDCMS") << it.first << ": " << det.path() << "\n";
   }
-  std::cout << "..done!\n";
+  LogInfo("DDCMS") << "..done!\n";
+  
+  ESTransientHandle<DDVectorRegistry> registry;
+  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag.module(), registry);
+
+  LogInfo("DDCMS") << "DD Vector Registry size: " << registry->vectors.size() << "\n";
+  for( const auto& p: registry->vectors ) {
+    LogInfo("DDCMS") << " " << p.first << " => ";
+    for( const auto& i : p.second )
+      LogInfo("DDCMS") << i << ", ";
+    LogInfo("DDCMS") << '\n';
+  }
 }
 
 void

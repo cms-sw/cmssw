@@ -33,7 +33,7 @@ void ODJBH4Cycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_JBH4_Cycle (cycle_id, jbh4_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODJBH4Cycle::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODJBH4Cycle::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -52,7 +52,7 @@ void ODJBH4Cycle::writeDB()  noexcept(false)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODJBH4Cycle::writeDB:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODJBH4Cycle::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
@@ -93,7 +93,7 @@ int ODJBH4Cycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODJBH4Cycle::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODJBH4Cycle::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -122,7 +122,7 @@ void ODJBH4Cycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODJBH4Cycle::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODJBH4Cycle::fetchID:  "+e.getMessage()));
   }
 }
 
@@ -151,7 +151,7 @@ void ODJBH4Cycle::fetchData(ODJBH4Cycle * result)
     result->setJBH4ConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODJBH4Cycle::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODJBH4Cycle::fetchData():  "+e.getMessage()));
   }
 }
 

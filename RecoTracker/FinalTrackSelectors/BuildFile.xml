@@ -9,6 +9,7 @@
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="TrackingTools/Records"/>
 <use   name="roottmva"/>
+<use   name="lwtnn"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -175,7 +175,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
     TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface((*trackRef));
     GlobalVector i_innMom;
     if(i_inTSOS.isValid()){
-      mtsMode_->momentumFromModeCartesian(i_inTSOS,i_innMom);  
+      multiTrajectoryStateMode::momentumFromModeCartesian(i_inTSOS,i_innMom);  
       gsfInnerMomentumCache_.back() = i_innMom.mag();
     }
   }
@@ -421,26 +421,16 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
       float det=fabs(pft->trackRef()->eta()-gsftk.eta());
       float dr =sqrt(dph*dph+det*det);  
       
-      trackingRecHit_iterator  hhit=
-	pft->trackRef()->recHitsBegin();
-      trackingRecHit_iterator  hhit_end=
-	pft->trackRef()->recHitsEnd();
-      
-    
-      
-      for(;hhit!=hhit_end;++hhit){
-	if (!(*hhit)->isValid()) continue;
-	TrajectorySeed::const_iterator hit=
-	  gsftk.seedRef()->recHits().first;
-	TrajectorySeed::const_iterator hit_end=
-	  gsftk.seedRef()->recHits().second;
- 	for(;hit!=hit_end;++hit){
-	  if (!(hit->isValid())) continue;
-	  if((*hhit)->sharesInput(&*(hit),TrackingRecHit::all))  ish++; 
-	//   if((hit->geographicalId()==(*hhit)->geographicalId())&&
-        //     (((*hhit)->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
- 	}	
-	
+      for(auto const& hhit : pft->trackRef()->recHits()) {
+        if (!hhit->isValid()) continue;
+        TrajectorySeed::const_iterator hit = gsftk.seedRef()->recHits().first;
+        TrajectorySeed::const_iterator hit_end = gsftk.seedRef()->recHits().second;
+        for(;hit!=hit_end;++hit) {
+          if (!(hit->isValid())) continue;
+          if(hhit->sharesInput(&*(hit),TrackingRecHit::all)) ish++;
+          // if((hit->geographicalId()==hhit->geographicalId())&&
+          //     ((hhit->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
+        }
       }
       
 
@@ -523,7 +513,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
   GlobalVector ninnMom;
   float nPin =  nGsfTrack->pMode();
   if(inTSOS.isValid()){
-    mtsMode_->momentumFromModeCartesian(inTSOS,ninnMom);
+    multiTrajectoryStateMode::momentumFromModeCartesian(inTSOS,ninnMom);
     nPin = ninnMom.mag();
   }
   */
@@ -565,7 +555,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 	GlobalVector i_innMom;
 	float iPin = iGsfTrack->pMode();
 	if(i_inTSOS.isValid()){
-	  mtsMode_->momentumFromModeCartesian(i_inTSOS,i_innMom);  
+	  multiTrajectoryStateMode::momentumFromModeCartesian(i_inTSOS,i_innMom);  
 	  iPin = i_innMom.mag();
 	}
         */
@@ -1045,20 +1035,16 @@ bool PFElecTkProducer::isInnerMost(const reco::GsfTrackRef& nGsfTrack,
   
   // retrieve first valid hit
   int gsfHitCounter1 = 0 ;
-  trackingRecHit_iterator elHitsIt1 ;
-  for
-    ( elHitsIt1 = nGsfTrack->recHitsBegin() ;
-     elHitsIt1 != nGsfTrack->recHitsEnd() ;
-     elHitsIt1++, gsfHitCounter1++ )
-    { if (((**elHitsIt1).isValid())) break ; }
+  for(auto const& hit : nGsfTrack->recHits()) {
+    if (hit->isValid()) break ;
+    gsfHitCounter1++;
+  }
   
   int gsfHitCounter2 = 0 ;
-  trackingRecHit_iterator elHitsIt2 ;
-  for
-    ( elHitsIt2 = iGsfTrack->recHitsBegin() ;
-     elHitsIt2 != iGsfTrack->recHitsEnd() ;
-     elHitsIt2++, gsfHitCounter2++ )
-    { if (((**elHitsIt2).isValid())) break ; }
+  for(auto const& hit : iGsfTrack->recHits()) {
+    if (hit->isValid()) break ;
+    gsfHitCounter2++;
+  }
   
   uint32_t gsfHit1 = gsfHitPattern1.getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter1) ;
   uint32_t gsfHit2 = gsfHitPattern2.getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter2) ;

@@ -25,8 +25,9 @@ thresholdSelectImpl(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput, 
 { 
   for (const auto& trigCell: trigCellVecInput){
   
-    int threshold = (HGCalDetId(trigCell.detId()).subdetId()==ForwardSubdetector::HGCHEB ? TCThresholdBH_ADC_ : TCThreshold_ADC_);
-    double triggercell_threshold = (HGCalDetId(trigCell.detId()).subdetId()==HGCHEB ? triggercell_threshold_scintillator_ : triggercell_threshold_silicon_);
+    bool isScintillator = triggerTools_.isScintillator(trigCell.detId());
+    int threshold = (isScintillator ? TCThresholdBH_ADC_ : TCThreshold_ADC_);
+    double triggercell_threshold = (isScintillator ? triggercell_threshold_scintillator_ : triggercell_threshold_silicon_);
   
     if ((trigCell.hwPt() >= threshold) && (trigCell.mipPt() >= triggercell_threshold)){ 
       trigCellVecOutput.push_back(trigCell);      

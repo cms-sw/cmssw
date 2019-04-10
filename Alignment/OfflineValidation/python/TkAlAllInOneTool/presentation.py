@@ -1,13 +1,14 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import abc
 import math
 import os
 import re
 
-from genericValidation import ValidationForPresentation, ValidationWithPlotsSummary
-from helperFunctions import recursivesubclasses
-from presentationTemplates import *
-from TkAlExceptions import AllInOneError
+from .genericValidation import ValidationForPresentation, ValidationWithPlotsSummary
+from .helperFunctions import recursivesubclasses
+from .presentationTemplates import *
+from .TkAlExceptions import AllInOneError
 
 # Plots related to a single validation:
 class ValidationPlots(object):
@@ -185,8 +186,8 @@ def plotSortKey(plot):
         return 'chi2b'
     return plot
 
-import geometryComparison
-import offlineValidation
-import trackSplittingValidation
-import primaryVertexValidation
-import zMuMuValidation
+import Alignment.OfflineValidation.TkAlAllInOneTool.geometryComparison
+import Alignment.OfflineValidation.TkAlAllInOneTool.offlineValidation
+import Alignment.OfflineValidation.TkAlAllInOneTool.trackSplittingValidation
+import Alignment.OfflineValidation.TkAlAllInOneTool.primaryVertexValidation
+import Alignment.OfflineValidation.TkAlAllInOneTool.zMuMuValidation

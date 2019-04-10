@@ -1,5 +1,4 @@
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
@@ -64,7 +63,7 @@ HGCalTriggerNtupleHGCMulticlusters::
 initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& collector)
 {
   multiclusters_token_ = collector.consumes<l1t::HGCalMulticlusterBxCollection>(conf.getParameter<edm::InputTag>("Multiclusters"));
-  id_.reset( HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT") );
+  id_ = std::unique_ptr<HGCalTriggerClusterIdentificationBase>{ HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT") };
   id_->initialize(conf.getParameter<edm::ParameterSet>("EGIdentification")); 
 
   tree.Branch("cl3d_n", &cl3d_n_, "cl3d_n/I");

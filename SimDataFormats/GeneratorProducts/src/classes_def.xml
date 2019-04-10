@@ -5,14 +5,29 @@
   <version ClassVersion="11" checksum="2967452289"/>
   <version ClassVersion="10" checksum="2993730389"/>
  </class>
-	<class name="HepMC::GenVertex" ClassVersion="10">
+	<class name="HepMC::GenVertex" ClassVersion="11">
   <version ClassVersion="10" checksum="1541111972"/>
+  <version ClassVersion="11" checksum="360579277"/>
+  <field name=" m_particles_in" transient="true"/>
  </class>
-	<class name="HepMC::GenParticle" ClassVersion="10">
+ <ioread sourceClass = "HepMC::GenVertex" source="int m_id" version="[1-]" targetClass="HepMC::GenVertex" target="m_id">
+	  <![CDATA[m_id = onfile.m_id; 
+            hepmc_rootio::clear_particles_in(newObj);
+]]>
+ </ioread>
+	<class name="HepMC::GenParticle" ClassVersion="11">
   <version ClassVersion="10" checksum="3138667414"/>
+  <version ClassVersion="11" checksum="3138667414"/>
 		<!-- <field name="itsParticleData" transient="true"/> -->
 		<!-- <field name="itsDecayData" transient="true"/> -->
 	</class>
+        <!-- This should really be attached to m_end_vertex but we cannot since in ROOT the class.rules file already has a rule for that member -->
+        <ioread sourceClass = "HepMC::GenParticle" source="int m_barcode" version="[1-]" targetClass="HepMC::GenParticle" target="m_barcode">
+	  <![CDATA[m_barcode = onfile.m_barcode;
+                  if(newObj->end_vertex()) { hepmc_rootio::add_to_particles_in(newObj->end_vertex(), newObj); }
+]]> 
+	</ioread>
+
     <class name="HepMC::GenCrossSection" ClassVersion="10">
      <version ClassVersion="10" checksum="920043842"/>
     </class>

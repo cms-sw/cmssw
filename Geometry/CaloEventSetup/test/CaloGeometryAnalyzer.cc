@@ -9,6 +9,8 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "DataFormats/Math/interface/GeantUnits.h"
+
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -29,10 +31,13 @@
 #include <fstream>
 #include <iomanip>
 #include <iterator>
-#include "CLHEP/Units/GlobalSystemOfUnits.h"  
 #include "TH1.h"
 #include "TH1D.h"
 #include "TProfile.h"
+
+using namespace geant_units;
+using namespace geant_units::operators;
+
 
 class CaloGeometryAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   enum CenterOrCorner { kCenter , kCorner } ;
@@ -343,16 +348,18 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry* cg      ,
       auto cell ( geom->getGeometry(id) ) ;
       const CaloSubdetectorGeometry* bar(cg->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
       const EcalEndcapGeometry::OrderedListOfEBDetId* ol ( eeG->getClosestBarrelCells( id ) ) ;
-      assert ( nullptr != ol ) ;
-      for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
-      {
-	 fOvr << "           " << i << "  " << (*ol)[i] ;
-	 auto  other ( bar->getGeometry((*ol)[i]) ) ;
-	 const GlobalVector cv ( cell->getPosition()-origin ) ;
-	 const GlobalVector ov ( other->getPosition()-origin ) ;
-	 const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
-	 const double angle ( 180.*acos( fabs(cosang)<1?cosang: 1 )/M_PI ) ;
-	 fOvr << ", angle = "<<angle<< std::endl ;
+      // assert ( nullptr != ol ) ;
+      if (ol != nullptr) {
+        for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
+        {
+         fOvr << "           " << i << "  " << (*ol)[i] ;
+         auto  other ( bar->getGeometry((*ol)[i]) ) ;
+         const GlobalVector cv ( cell->getPosition()-origin ) ;
+         const GlobalVector ov ( other->getPosition()-origin ) ;
+         const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
+         const double angle ( convertRadToDeg( acos( std::abs(cosang) < 1. ? cosang : 1. ) ) ) ;
+         fOvr << ", angle = "<<angle<< std::endl ;
+        }
       }
    }
 }
@@ -372,17 +379,19 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry* cg      ,
       const CaloSubdetectorGeometry* ecap(cg->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
       fOvr << "Endcap Neighbors of Barrel id = " << id << std::endl ;
       const EcalBarrelGeometry::OrderedListOfEEDetId* ol ( ebG->getClosestEndcapCells( id ) ) ;
-      assert ( nullptr != ol ) ;
-      for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
-      {
-	 fOvr << "           " << i << "  " << (*ol)[i] ;
-	 auto  other ( ecap->getGeometry((*ol)[i]) ) ;
-	 const GlobalVector cv ( cell->getPosition()-origin ) ;
-	 const GlobalVector ov ( other->getPosition()-origin ) ;
-	 const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
-	 const double angle ( 180.*acos( fabs(cosang)<1?cosang: 1 )/M_PI ) ;
-	 fOvr << ", angle = "<<angle<< std::endl ;
-      }
+      // assert ( nullptr != ol ) ;
+      if (ol != nullptr) {
+        for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
+        {
+         fOvr << "           " << i << "  " << (*ol)[i] ;
+         auto  other ( ecap->getGeometry((*ol)[i]) ) ;
+         const GlobalVector cv ( cell->getPosition()-origin ) ;
+         const GlobalVector ov ( other->getPosition()-origin ) ;
+         const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
+         const double angle ( convertRadToDeg( acos( std::abs(cosang) < 1. ? cosang : 1. ) ) ) ;
+         fOvr << ", angle = "<<angle<< std::endl ;
+        }
+      } else { fOvr << "endcap ecal ptr is null " << std::endl; }
    }      
 }
 
@@ -697,11 +706,11 @@ CaloGeometryAnalyzer::buildHcal( const CaloGeometry*       cg      ,
 	// test getCells against base class version every so often
 	if( 0 == ht.detId2denseId(closestCell)%30)
 	{
-	    cmpset( geom, gp,  2*deg ) ;
-	    cmpset( geom, gp,  5*deg ) ;
-	    cmpset( geom, gp,  7*deg ) ;
-	    cmpset( geom, gp, 25*deg ) ;
-	    cmpset( geom, gp, 45*deg ) ;
+	    cmpset( geom, gp,  2._deg ) ;
+	    cmpset( geom, gp,  5._deg ) ;
+	    cmpset( geom, gp,  7._deg ) ;
+	    cmpset( geom, gp, 25._deg ) ;
+	    cmpset( geom, gp, 45._deg ) ;
 	}
     
 	if (det == DetId::Hcal && subdetn==HcalForward) 
@@ -866,10 +875,10 @@ CaloGeometryAnalyzer::build( const CaloGeometry* cg      ,
 	    // test getCells against base class version every so often
 	    if( 0 == closestCell.hashedIndex()%100 )
 	    {
-	       cmpset( geom, gp,  2*deg ) ;
-	       cmpset( geom, gp,  5*deg ) ;
-	       cmpset( geom, gp, 25*deg ) ;
-	       cmpset( geom, gp, 45*deg ) ;
+	       cmpset( geom, gp,  2._deg ) ;
+	       cmpset( geom, gp,  5._deg ) ;
+	       cmpset( geom, gp, 25._deg ) ;
+	       cmpset( geom, gp, 45._deg ) ;
 	    }
 
 	    ovrTst( cg, geom, EBDetId(i) , fOvr ) ;
@@ -908,10 +917,10 @@ CaloGeometryAnalyzer::build( const CaloGeometry* cg      ,
 	    // test getCells against base class version every so often
 	    if( 0 == closestCell.hashedIndex()%10 )
 	    {
-	       cmpset( geom, gp,  2*deg ) ;
-	       cmpset( geom, gp,  5*deg ) ;
-	       cmpset( geom, gp, 25*deg ) ;
-	       cmpset( geom, gp, 45*deg ) ;
+	       cmpset( geom, gp,  2._deg ) ;
+	       cmpset( geom, gp,  5._deg ) ;
+	       cmpset( geom, gp, 25._deg ) ;
+	       cmpset( geom, gp, 45._deg ) ;
 	    }
 
 	    const GlobalVector xx ( 2.5,   0, 0 ) ;
@@ -1042,11 +1051,11 @@ CaloGeometryAnalyzer::build( const CaloGeometry* cg      ,
 	 // test getCells against base class version every so often
 	 if( 0 == ht.detId2denseId(closestCell)%30)
 	 {
-	    cmpset( geom, gp,  2*deg ) ;
-	    cmpset( geom, gp,  5*deg ) ;
-	    cmpset( geom, gp,  7*deg ) ;
-	    cmpset( geom, gp, 25*deg ) ;
-	    cmpset( geom, gp, 45*deg ) ;
+	    cmpset( geom, gp,  2._deg ) ;
+	    cmpset( geom, gp,  5._deg ) ;
+	    cmpset( geom, gp,  7._deg ) ;
+	    cmpset( geom, gp, 25._deg ) ;
+	    cmpset( geom, gp, 45._deg ) ;
 	 }
       }
       else if (det == DetId::Calo &&
@@ -1079,11 +1088,11 @@ CaloGeometryAnalyzer::build( const CaloGeometry* cg      ,
 	 // test getCells against base class version every so often
 	 // if( 0 == closestCell.denseIndex()%30 )
 	 {
-	    cmpset( geom, gp,  2*deg ) ;
-	    cmpset( geom, gp,  5*deg ) ;
-	    cmpset( geom, gp,  7*deg ) ;
-	    cmpset( geom, gp, 25*deg ) ;
-	    cmpset( geom, gp, 45*deg ) ;
+	    cmpset( geom, gp,  2._deg ) ;
+	    cmpset( geom, gp,  5._deg ) ;
+	    cmpset( geom, gp,  7._deg ) ;
+	    cmpset( geom, gp, 25._deg ) ;
+	    cmpset( geom, gp, 45._deg ) ;
 	 }
       }
       else if (det == DetId::Calo &&
@@ -1116,11 +1125,11 @@ CaloGeometryAnalyzer::build( const CaloGeometry* cg      ,
 	 // test getCells against base class version every so often
 	 // if( 0 == closestCell.denseIndex()%30 )
 	 {
-	    cmpset( geom, gp,  2*deg ) ;
-	    cmpset( geom, gp,  5*deg ) ;
-	    cmpset( geom, gp,  7*deg ) ;
-	    cmpset( geom, gp, 25*deg ) ;
-	    cmpset( geom, gp, 45*deg ) ;
+	    cmpset( geom, gp,  2._deg ) ;
+	    cmpset( geom, gp,  5._deg ) ;
+	    cmpset( geom, gp,  7._deg ) ;
+	    cmpset( geom, gp, 25._deg ) ;
+	    cmpset( geom, gp, 45._deg ) ;
 	 }
       }
     

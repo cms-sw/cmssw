@@ -64,9 +64,7 @@ SiPixelFEDChannelContainerTestReader::analyze(const edm::Event& e, const edm::Ev
 
   const SiPixelFEDChannelContainer* quality_map=qualityCollectionHandle.product();
   edm::LogInfo("SiPixelFEDChannelContainerTestReader") <<"got SiPixelFEDChannelContainer* "<< std::endl;
-  edm::LogInfo("SiPixelFEDChannelContainerTestReader") << "print  pointer address : " ;
-  edm::LogInfo("SiPixelFEDChannelContainerTestReader") << quality_map << std::endl;
-  
+  edm::LogInfo("SiPixelFEDChannelContainerTestReader") << "print  pointer address : " << quality_map << std::endl;  
   edm::LogInfo("SiPixelFEDChannelContainerTestReader") << "Size "  <<  quality_map->size() << std::endl;     
   edm::LogInfo("SiPixelFEDChannelContainerTestReader") <<"Content of myQuality_Map "<<std::endl;
   // use built-in method in the CondFormat to print the content
@@ -91,7 +89,7 @@ SiPixelFEDChannelContainerTestReader::analyze(const edm::Event& e, const edm::Ev
 	fprintf(pFile,"DetId : %i \n",detId.rawId());
 	for(const auto& entry: thePixelFEDChannel.second) {
 	  //unsigned int fed, link, roc_first, roc_last;
-	  fprintf(pFile,"fed : %i | link : %i | roc_first : %i | roc_last: %i: \n",entry.fed, entry.link,  entry.roc_first, entry.roc_last);	  
+	  fprintf(pFile,"fed : %i | link : %2i | roc_first : %2i | roc_last: %2i \n",entry.fed, entry.link,  entry.roc_first, entry.roc_last);	  
 	}
       }
     }

@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 import os
-import configTemplates
-import globalDictionaries
-from genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationWithPlots, pythonboolstring
-from helperFunctions import replaceByMap
-from TkAlExceptions import AllInOneError
+from . import configTemplates
+from . import globalDictionaries
+from .genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationWithPlots, pythonboolstring
+from .helperFunctions import replaceByMap
+from .TkAlExceptions import AllInOneError
 
 class PrimaryVertexValidation(GenericValidationData_CTSR, ParallelValidation, ValidationWithPlots):
     configBaseName  = "TkAlPrimaryVertexValidation"

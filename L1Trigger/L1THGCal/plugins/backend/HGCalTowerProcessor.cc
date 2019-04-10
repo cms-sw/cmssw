@@ -1,6 +1,5 @@
 #include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTowerMap.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
@@ -16,9 +15,9 @@ class HGCalTowerProcessor : public HGCalTowerProcessorBase
   public:
 
     HGCalTowerProcessor(const edm::ParameterSet& conf) :
-    HGCalTowerProcessorBase(conf),
-    towermap3D_( )
+    HGCalTowerProcessorBase(conf)
     {
+      towermap3D_ = std::make_unique<HGCalTowerMap3DImpl>( );
     }          
             
     void run(const edm::Handle<l1t::HGCalTowerMapBxCollection>& collHandle,
@@ -35,7 +34,7 @@ class HGCalTowerProcessor : public HGCalTowerProcessorBase
       }
 
       /* call to towerMap3D clustering */
-      towermap3D_.buildTowerMap3D( towerMapsPtrs, collTowers);
+      towermap3D_->buildTowerMap3D( towerMapsPtrs, collTowers);
     }
 
    
@@ -44,7 +43,7 @@ class HGCalTowerProcessor : public HGCalTowerProcessorBase
       edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
 
       /* algorithms instances */
-      HGCalTowerMap3DImpl towermap3D_;
+      std::unique_ptr<HGCalTowerMap3DImpl> towermap3D_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTowerFactory, 

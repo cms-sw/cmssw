@@ -645,12 +645,12 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     if (recomputeBasicSelectors_){
       muon.setSelectors(0);
       bool isRun2016BCDEF = (272728 <= iEvent.run() && iEvent.run() <= 278808);
-      muon::setCutBasedSelectorFlags(muon, pv, isRun2016BCDEF);
+      muon.setSelectors(muon::makeSelectorBitset(muon, pv, isRun2016BCDEF));
     }
     double miniIsoValue = -1;
     if (computeMiniIso_){
       // MiniIsolation working points
-      double miniIsoValue = getRelMiniIsoPUCorrected(muon,*rho);
+      miniIsoValue = getRelMiniIsoPUCorrected(muon,*rho);
       muon.setSelector(reco::Muon::MiniIsoLoose,     miniIsoValue<0.40);
       muon.setSelector(reco::Muon::MiniIsoMedium,    miniIsoValue<0.20);
       muon.setSelector(reco::Muon::MiniIsoTight,     miniIsoValue<0.10);

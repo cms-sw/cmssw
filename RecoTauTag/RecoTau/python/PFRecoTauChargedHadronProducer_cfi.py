@@ -20,5 +20,6 @@ ak4PFJetsRecoTauChargedHadrons = cms.EDProducer("PFRecoTauChargedHadronProducer"
         ranking.isChargedPFCandidate,
         ranking.isTrack,
         ranking.isPFNeutralHadron
-    )
+    ),
+    verbosity = cms.int32(0)
 )

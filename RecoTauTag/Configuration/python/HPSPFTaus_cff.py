@@ -90,7 +90,8 @@ hpsPFTauDiscriminationByTightIsolation.qualityCuts.isolationQualityCuts.minGamma
 hpsPFTauDiscriminationByTightIsolation.Prediscriminants.preIso.Producer = cms.InputTag("hpsPFTauDiscriminationByTightChargedIsolation")
 ## ByLooseIsolationDBSumPtCorr
 hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseIsolation.clone(
-    deltaBetaPUTrackPtCutOverride = cms.double(0.5),
+    deltaBetaPUTrackPtCutOverride     = True, # Set the boolean = True to override.
+    deltaBetaPUTrackPtCutOverride_val = 0.5,  # Set the value for new value.
     applyDeltaBetaCorrection = True,
     isoConeSizeForDeltaBeta = 0.8,
     deltaBetaFactor = "%0.4f"%(0.0123/0.1687),
@@ -100,7 +101,8 @@ hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr = hpsPFTauDiscriminationByLoos
 hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.maximumSumPtCut = hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 ## ByMediumIsolationDBSumPtCorr
 hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr = hpsPFTauDiscriminationByMediumIsolation.clone(
-    deltaBetaPUTrackPtCutOverride = cms.double(0.5),
+    deltaBetaPUTrackPtCutOverride     = True, # Set the boolean = True to override.
+    deltaBetaPUTrackPtCutOverride_val = 0.5,  # Set the value for new value.
     applyDeltaBetaCorrection = True,
     isoConeSizeForDeltaBeta = 0.8,
     deltaBetaFactor = "%0.4f"%(0.0462/0.1687),
@@ -110,7 +112,8 @@ hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr = hpsPFTauDiscriminationByMed
 hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.maximumSumPtCut = hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 ## ByTightIsolationDBSumPtCorr
 hpsPFTauDiscriminationByTightIsolationDBSumPtCorr = hpsPFTauDiscriminationByTightIsolation.clone(
-    deltaBetaPUTrackPtCutOverride = cms.double(0.5),
+    deltaBetaPUTrackPtCutOverride     = True, # Set the boolean = True to override.
+    deltaBetaPUTrackPtCutOverride_val = 0.5,  # Set the value for new value.
     applyDeltaBetaCorrection = True,
     isoConeSizeForDeltaBeta = 0.8,
     deltaBetaFactor = "%0.4f"%(ak4dBetaCorrection),
@@ -304,6 +307,7 @@ hpsPFTauDiscriminationByMVA6rawElectronRejection = pfRecoTauDiscriminationAgains
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone(),
     loadMVAfromDB = cms.bool(True),
+    vetoEcalCracks = cms.bool(True),
     mvaName_NoEleMatch_woGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_NoEleMatch_woGwoGSF_BL"),
     mvaName_NoEleMatch_wGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_NoEleMatch_wGwoGSF_BL"),
     mvaName_woGwGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v1_gbr_woGwGSF_BL"),

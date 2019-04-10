@@ -34,15 +34,19 @@ namespace edm {
     };
 
     struct TypeLabelItem {
+      enum class AliasType { kBranchAlias, kSwitchAlias };
+
       TypeLabelItem (Transition const& transition, TypeID const& tid, std::string pin) :
 	      transition_(transition),
         typeID_(tid),
         productInstanceName_(std::move(pin)),
-        branchAlias_() {}
+        branchAlias_(),
+        aliasType_(AliasType::kBranchAlias) {}
       Transition transition_;
       TypeID typeID_;
       std::string productInstanceName_;
       std::string branchAlias_;
+      AliasType aliasType_;
     };
 
     struct BranchAliasSetter {
@@ -51,6 +55,11 @@ namespace edm {
       
       BranchAliasSetter& setBranchAlias(std::string alias) {
         value_.branchAlias_ = std::move(alias);
+        return *this;
+      }
+      BranchAliasSetter& setSwitchAlias(std::string moduleLabel) {
+        value_.branchAlias_ = std::move(moduleLabel);
+        value_.aliasType_ = TypeLabelItem::AliasType::kSwitchAlias;
         return *this;
       }
       TypeLabelItem& value_;

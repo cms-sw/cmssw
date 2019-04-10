@@ -154,8 +154,8 @@ TrainProcessor *ProcessRegistry<TrainProcessor, AtomicId,
 	if (!result) {
 		// try to load the shared library and retry
 		try {
-			delete TrainProcessor::PluginFactory::get()->create(
-				std::string("TrainProcessor/") + name);
+			std::unique_ptr<PhysicsTools::TrainProcessor::Dummy> tmp{TrainProcessor::PluginFactory::get()->create(
+				std::string("TrainProcessor/") + name)};
 			result = ProcessRegistry::create(name, id, trainer);
 		} catch(const cms::Exception &e) {
 			// caller will have to deal with the null pointer

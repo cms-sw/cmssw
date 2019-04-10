@@ -30,24 +30,17 @@
 #include <DataFormats/GEMRecHit/interface/GEMRecHitCollection.h>
 
 
-GEMCSCSegmentBuilder::GEMCSCSegmentBuilder(const edm::ParameterSet& ps) : gemgeom_(nullptr), cscgeom_(nullptr) 
-{
-
-    // Algo name
-    std::string algoName = ps.getParameter<std::string>("algo_name");
-    edm::LogVerbatim("GEMCSCSegmentBuilder")<< "[GEMCSCSegmentBuilder :: ctor] algorithm name: " << algoName;
-
-    // SegAlgo parameter set 	  
-    edm::ParameterSet segAlgoPSet = ps.getParameter<edm::ParameterSet>("algo_psets");
- 
+GEMCSCSegmentBuilder::GEMCSCSegmentBuilder(const edm::ParameterSet& ps) :
     // Ask factory to build this algorithm, giving it appropriate ParameterSet
-    algo = GEMCSCSegmentBuilderPluginFactory::get()->create(algoName, segAlgoPSet);
-
+  algo{GEMCSCSegmentBuilderPluginFactory::get()->create(ps.getParameter<std::string>("algo_name"),
+                                                        ps.getParameter<edm::ParameterSet>("algo_psets"))},
+  gemgeom_{nullptr}, cscgeom_{nullptr}
+{
+    edm::LogVerbatim("GEMCSCSegmentBuilder")<< "[GEMCSCSegmentBuilder :: ctor] algorithm name: " << ps.getParameter<std::string>("algo_name");
 }
 
 GEMCSCSegmentBuilder::~GEMCSCSegmentBuilder() 
 {
-    delete algo;
     edm::LogVerbatim("GEMCSCSegmentBuilder")<<"[GEMCSCSegmentBuilder :: dstor] deleted the algorithm";
 }
 

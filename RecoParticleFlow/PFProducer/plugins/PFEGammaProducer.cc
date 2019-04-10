@@ -91,9 +91,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   auto sClusters_    = std::make_unique<reco::SuperClusterCollection>();
     
   // Get the EE-PS associations
-  edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops;
-  iEvent.getByToken(eetopsSrc_,eetops);
-  pfeg_->setEEtoPSAssociation(eetops);
+  pfeg_->setEEtoPSAssociation(iEvent.get(eetopsSrc_));
 
   // preshower conditions
   edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
@@ -104,35 +102,13 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   iSetup.get<ESChannelStatusRcd>().get(esChannelStatusHandle_);
   pfeg_->setESChannelStatus(esChannelStatusHandle_.product());
 
-  // Get The vertices from the event
-  // and assign dynamic vertex parameters
-  edm::Handle<reco::VertexCollection> vertices;
-  bool gotVertices = iEvent.getByToken(vertices_,vertices);
-  if(!gotVertices) {
-    std::ostringstream err;
-    err<<"Cannot find vertices for this event.Continuing Without them ";
-    edm::LogError("PFEGammaProducer")<<err.str()<<std::endl;
-  }
-
   //Assign the PFAlgo Parameters
-  setPFVertexParameters(vertices.product());
+  setPFVertexParameters(iEvent.get(vertices_));
 
   // get the collection of blocks 
 
-  edm::Handle< reco::PFBlockCollection > blocks;
-
   LOGDRESSED("PFEGammaProducer")<<"getting blocks"<<std::endl;
-  bool found = iEvent.getByToken( inputTagBlocks_, blocks );  
-
-  if(!found ) {
-
-    std::ostringstream err;
-    err<<"cannot find blocks: (tag index)"
-       << std::hex<< inputTagBlocks_.index() << std::dec;
-    edm::LogError("PFEGammaProducer")<<err.str()<<std::endl;
-    
-    throw cms::Exception( "MissingProduct", err.str());
-  }
+  auto blocks = iEvent.getHandle( inputTagBlocks_);  
   
   LOGDRESSED("PFEGammaProducer")
     <<"EGPFlow is starting..."<<std::endl;
@@ -358,20 +334,17 @@ PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {
 }
 
 void
-PFEGammaProducer::setPFVertexParameters(const reco::VertexCollection*  primaryVertices) {
-
-  primaryVertex_ = primaryVertices->front();
-  for (unsigned short i=0 ;i<primaryVertices->size();++i)
-    {
-      if(primaryVertices->at(i).isValid()&&(!primaryVertices->at(i).isFake()))
-        {
-          primaryVertex_ = primaryVertices->at(i);
-          break;
+PFEGammaProducer::setPFVertexParameters(reco::VertexCollection const&  primaryVertices)
+{
+    primaryVertex_ = primaryVertices.front();
+    for(auto const& pv : primaryVertices) {
+        if(pv.isValid() && !pv.isFake()) {
+            primaryVertex_ = pv;
+            break;
         }
     }
-  
-  pfeg_->setPhotonPrimaryVtx(primaryVertex_ );
-  
+
+    pfeg_->setPhotonPrimaryVtx(primaryVertex_ );
 }
 
 void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras,

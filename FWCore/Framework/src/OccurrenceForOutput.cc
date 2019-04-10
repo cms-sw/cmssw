@@ -61,17 +61,16 @@ namespace edm {
     return provRecorder_.principal().size();
   }
 
-  bool
-  OccurrenceForOutput::getByToken(EDGetToken token, TypeID const& typeID, BasicHandle& result) const {
-    result.clear();
-    result = provRecorder_.getByToken_(typeID, PRODUCT_TYPE, token, moduleCallingContext_);
+  BasicHandle
+  OccurrenceForOutput::getByToken(EDGetToken token, TypeID const& typeID) const {
+    auto result = provRecorder_.getByToken_(typeID, PRODUCT_TYPE, token, moduleCallingContext_);
     if (result.failedToGet()) {
-      return false;
+      return result;
     }
     if(!provRecorder_.isComplete() && result.wrapper()->isMergeable()) {
       principal_get_adapter_detail::throwOnPrematureRead("RunOrLumi", typeID, token);
     }
-    return true;
+    return result;
   }
 }
 

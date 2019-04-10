@@ -1237,7 +1237,7 @@ c      INTEGER PYK,PYCHGE,PYCOMP
       GOTO2                                                            
  9    K2=K3                                                            
       GOTO2                                                             
- 8    P=F(K3)                                                          
+ 8    R=F(K3)                                                          
       RETURN                                                          
  3    B1=A(K1)                                                          
       B2=A(K1+1)                                                      

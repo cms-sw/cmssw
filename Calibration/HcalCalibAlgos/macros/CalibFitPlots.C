@@ -154,6 +154,8 @@
 #include <fstream>
 #include <cstdlib>
 
+#include "CalibCorr.C"
+
 struct cfactors {
   int    ieta, depth;
   double corrf, dcorr;
@@ -212,25 +214,6 @@ std::pair<double,double> GetWidth(TH1D* hist, double xmin, double xmax) {
     err   = rms/std::sqrt(2*wt);
   }
   return std::pair<double,double>(rms,err);
-}
-
-std::vector <std::string> splitString (const std::string& fLine) {
-  std::vector <std::string> result;
-  int start = 0;
-  bool empty = true;
-  for (unsigned i = 0; i <= fLine.size (); i++) {
-    if (fLine [i] == ' ' || i == fLine.size ()) {
-      if (!empty) {
-	std::string item (fLine, start, i-start);
-	result.push_back (item);
-	empty = true;
-      }
-      start = i+1;
-    } else {
-      if (empty) empty = false;
-    }
-  }
-  return result;
 }
 
 Double_t langaufun(Double_t *x, Double_t *par) {
@@ -371,7 +354,7 @@ results fitTwoGauss (TH1D* hist, bool debug) {
   startvalues[4] =     Fit->Value(1); lowValue[4] = 0.5*startvalues[4]; highValue[4] = 2.*startvalues[4];
   startvalues[5] = 2.0*Fit->Value(2); lowValue[5] = 0.5*startvalues[5]; highValue[5] = 100.*startvalues[5];
 //fitrange[0] = mean - 2.0*rms; fitrange[1] = mean + 2.0*rms;
-  fitrange[0] = Fit->Value(1) - 2.0*Fit->Value(2); fitrange[1] = Fit->Value(1) + 2.0*Fit->Value(2);
+  fitrange[0] = Fit->Value(1) - Fit->Value(2); fitrange[1] = Fit->Value(1) + Fit->Value(2);
   TFitResultPtr Fitfun = functionFit(hist, fitrange, startvalues, lowValue, highValue);
   double wt1    = (Fitfun->Value(0))*(Fitfun->Value(2));
   double value1 = Fitfun->Value(1);
@@ -660,7 +643,7 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
       }
       if (hist0->GetEntries() > 10) {
 	double rms;
-	results                  meaner0 = fitTwoGauss(hist0, debug);
+	results                  meaner0 = fitOneGauss(hist0,true,debug);
 	std::pair<double,double> meaner1 = GetMean(hist0,0.2,2.0,rms);
 	std::pair<double,double> meaner2 = GetWidth(hist0,0.2,2.0);
 	if (debug) {
@@ -704,7 +687,7 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 	      value = meaner.mean;    error = meaner.errmean;
 	      width = meaner.width;   werror= meaner.errwidth;
 	    } else {
-	      results meaner = fitOneGauss(hist,false,debug);
+	      results meaner = fitOneGauss(hist,true,debug);
 	      value = meaner.mean;    error = meaner.errmean;
 	      width = meaner.width;   werror= meaner.errwidth;
 	    }
@@ -1667,12 +1650,15 @@ void PlotHistCorrFactor(char* infile, std::string text,
   legend->Draw("same");
   pad->Update();
   if (fits < 1) {
-    pad->Range(0.0,0.0,1.0,1.0);
-    TLine* line = new TLine(0.0,0.5,1.0,0.5); //etamin,1.0,etamax,1.0);
+    double xmin = hists[0]->GetBinLowEdge(1);
+    int    nbin = hists[0]->GetNbinsX();
+    double xmax = hists[0]->GetBinLowEdge(nbin)+hists[0]->GetBinWidth(nbin);
+    TLine* line = new TLine(xmin,1.0,xmax,1.0);
     line->SetLineColor(9);
     line->SetLineWidth(2);
     line->SetLineStyle(2);
     line->Draw("same");
+    pad->Modified();
     pad->Update();
   }
   if (save) {

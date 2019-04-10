@@ -7,7 +7,7 @@ namespace trackerHitRTTI {
   // tracking hit can be : single (si1D, si2D, pix), projected, matched or multi
   enum RTTI { undef=0, single=1, projStereo=2, projMono=3, match=4, multi=5,
               fastSingle=6, fastProjStereo=7,fastProjMono=8,fastMatch=9,
-              notFromCluster=10};
+              notFromCluster=10, mipTiming=11};
   inline RTTI rtti(TrackingRecHit const & hit)  { return RTTI(hit.getRTTI());}
   inline bool isUndef(TrackingRecHit const & hit) { return rtti(hit)==undef;}
   inline bool isNotFromCluster(TrackingRecHit const & hit) { return rtti(hit)==notFromCluster;}
@@ -21,6 +21,7 @@ namespace trackerHitRTTI {
   inline bool isFromDet(TrackingRecHit const & hit)  { return (rtti(hit)>0) & (rtti(hit)<6) ;}
   inline bool isFast(TrackingRecHit const & hit)  { return (rtti(hit)>5) & (rtti(hit)<=9) ;}
   inline bool isFromDetOrFast(TrackingRecHit const & hit)  { return (rtti(hit)>0) & (rtti(hit)<10) ;}
+  inline bool isTiming(TrackingRecHit const & hit) { return rtti(hit)==mipTiming; }
   inline unsigned int  projId(TrackingRecHit const & hit) { return hit.rawId()+int(rtti(hit))-1;}
 }
 

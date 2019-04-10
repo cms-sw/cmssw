@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzerAdaptorBase.h"
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
@@ -120,45 +121,48 @@ namespace edm {
       }
 
       void doBeginRun(RunPrincipal const& rp,
-                      EventSetup const& c,
+                      EventSetupImpl const&  ci,
                       ModuleCallingContext const* mcc) final {
-        if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache) {
+        if constexpr(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache) {
           Run r(rp, moduleDescription(), mcc, false);
           r.setConsumer(consumer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
+          const EventSetup c{ci};
           MyGlobalRun::beginRun(cnstR,c,m_global.get(),m_runs[ri]);
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
           MyGlobalRunSummary::beginRun(cnstR,c,&rc,m_runSummaries[ri]);
         }
       }
       void doEndRun(RunPrincipal const& rp,
-                    EventSetup const& c,
+                    EventSetupImpl const&  ci,
                     ModuleCallingContext const* mcc) final
       {
-        if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache) {
+        if constexpr(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache) {
           
           Run r(rp, moduleDescription(), mcc, true);
           r.setConsumer(consumer());
 
           RunIndex ri = rp.index();
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
+          const EventSetup c{ci};
           MyGlobalRunSummary::globalEndRun(r,c,&rc,m_runSummaries[ri].get());
           MyGlobalRun::endRun(r,c,&rc);
         }
       }
 
       void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetup const& c,
+                                  EventSetupImpl const&  ci,
                                   ModuleCallingContext const* mcc) final
       {
-        if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache) {
+        if constexpr(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache) {
           LuminosityBlock lb(lbp, moduleDescription(), mcc, false);
           lb.setConsumer(consumer());
           LuminosityBlock const& cnstLb = lb;
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
+          const EventSetup c{ci};
           MyGlobalLuminosityBlock::beginLuminosityBlock(cnstLb,c,&rc,m_lumis[li]);
           typename T::LuminosityBlockContext lc(m_lumis[li].get(),m_runs[ri].get(),m_global.get());
           MyGlobalLuminosityBlockSummary::beginLuminosityBlock(cnstLb,c,&lc,m_lumiSummaries[li]);
@@ -166,9 +170,9 @@ namespace edm {
         
       }
       void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetup const& c,
+                                EventSetupImpl const&  ci,
                                 ModuleCallingContext const* mcc) final {
-        if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache) {
+        if constexpr(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache) {
           
           LuminosityBlock lb(lbp, moduleDescription(), mcc, true);
           lb.setConsumer(consumer());
@@ -176,6 +180,7 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::LuminosityBlockContext lc(m_lumis[li].get(),m_runs[ri].get(),m_global.get());
+          const EventSetup c{ci};
           MyGlobalLuminosityBlockSummary::globalEndLuminosityBlock(lb,c,&lc,m_lumiSummaries[li].get());
           MyGlobalLuminosityBlock::endLuminosityBlock(lb,c,&lc);
         }

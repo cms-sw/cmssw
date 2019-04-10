@@ -31,7 +31,7 @@ namespace edm {
     /**Accumulates the pileup events into this event*/
     virtual void produce(Event& e1, EventSetup const& c);
 
-    void processOneEvent(EventPrincipal const& eventPrincipal, Event& e);
+    bool processOneEvent(EventPrincipal const& eventPrincipal, Event& e);
 
   private:
     virtual void put(Event &) {}

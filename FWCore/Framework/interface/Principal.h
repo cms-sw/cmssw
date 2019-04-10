@@ -220,6 +220,8 @@ namespace edm {
     void addInputProduct(std::shared_ptr<BranchDescription const> bd);
     void addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addAliasedProduct(std::shared_ptr<BranchDescription const> bd);
+    void addSwitchProducerProduct(std::shared_ptr<BranchDescription const> bd);
+    void addSwitchAliasProduct(std::shared_ptr<BranchDescription const> bd);
     void addParentProcessProduct(std::shared_ptr<BranchDescription const> bd);
     
 

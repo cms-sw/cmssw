@@ -30,6 +30,8 @@
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
+
 #include <atomic>
 #include <memory>
 
@@ -63,10 +65,11 @@ public:
 
 private:
 
-  mutable std::atomic_flag lock_{ ATOMIC_FLAG_INIT };
+  mutable std::atomic_flag lock_ = ATOMIC_FLAG_INIT;
   CMS_THREAD_GUARD(lock_) mutable edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   CMS_THREAD_GUARD(lock_) mutable std::shared_ptr<pr::Cache> previousCache_;
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi; 
+  const edm::EDGetTokenT<PixelFEDChannelCollection> theBadPixelFEDChannelsToken;
   const edm::EDPutTokenT<FEDRawDataCollection> putToken_;
   const bool usePilotBlade = false;  // I am not yet sure we need it here?
   const bool usePhase1;
@@ -76,6 +79,7 @@ using namespace std;
 
 SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
   tPixelDigi{ consumes<edm::DetSetVector<PixelDigi> >(pset.getParameter<edm::InputTag>("InputLabel")) },
+  theBadPixelFEDChannelsToken{ consumes<PixelFEDChannelCollection>(pset.getParameter<edm::InputTag>("InputLabel")) },
   putToken_{produces<FEDRawDataCollection>()},
   usePhase1{ pset.getParameter<bool> ("UsePhase1") }
 {
@@ -130,6 +134,25 @@ void SiPixelDigiToRaw::produce( edm::StreamID, edm::Event& ev,
 
   LogDebug("SiPixelDigiToRaw") << cache->cablingTree_->version();
 
+  PixelDataFormatter::BadChannels badChannels;
+  edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
+  if (ev.getByToken(theBadPixelFEDChannelsToken, pixelFEDChannelCollectionHandle)){
+    for (auto const& fedChannels: *pixelFEDChannelCollectionHandle) {
+      PixelDataFormatter::DetBadChannels detBadChannels;
+      for(const auto& fedChannel: fedChannels) {
+	sipixelobjects::CablingPathToDetUnit path={fedChannel.fed, fedChannel.link, 1};
+	if (cache->cablingTree_->findItem(path)!=nullptr) {
+	  detBadChannels.push_back(fedChannel);
+	} else {
+	  edm::LogError("SiPixelDigiToRaw")
+            <<" FED "<<fedChannel.fed<<" Link "<<fedChannel.link<<" for module "<<fedChannels.detId()
+            <<" marked bad, but this channel does not exist in the cabling map" <<endl;
+	}
+      } // channels reading a module
+      if (!detBadChannels.empty()) badChannels.insert({fedChannels.detId(), std::move(detBadChannels)});
+    } // loop on detId-s
+  }
+
   //PixelDataFormatter formatter(cablingTree_.get());
   PixelDataFormatter formatter(cache->cablingTree_.get(), usePhase1);
 
@@ -139,7 +162,7 @@ void SiPixelDigiToRaw::produce( edm::StreamID, edm::Event& ev,
   FEDRawDataCollection buffers;
 
   // convert data to raw
-  formatter.formatRawData( ev.id().event(), rawdata, digis );
+  formatter.formatRawData( ev.id().event(), rawdata, digis, badChannels);
 
   // pack raw data into collection
   for (auto const* fed: cache->cablingTree_->fedList()) {

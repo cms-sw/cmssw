@@ -43,7 +43,9 @@ class testOneOutputModule: public CppUnit::TestFixture
   
   CPPUNIT_TEST(basicTest);
   CPPUNIT_TEST(runTest);
+  CPPUNIT_TEST(runCacheTest);
   CPPUNIT_TEST(lumiTest);
+  CPPUNIT_TEST(lumiCacheTest);
   CPPUNIT_TEST(fileTest);
   CPPUNIT_TEST(resourceTest);
   
@@ -56,7 +58,9 @@ public:
 
   void basicTest();
   void runTest();
+  void runCacheTest();
   void lumiTest();
+  void lumiCacheTest();
   void fileTest();
   void resourceTest();
 
@@ -89,7 +93,7 @@ private:
   std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
   std::shared_ptr<edm::RunPrincipal> m_rp;
   std::shared_ptr<edm::ActivityRegistry> m_actReg; // We do not use propagate_const because the registry itself is mutable.
-  edm::EventSetup* m_es = nullptr;
+  edm::EventSetupImpl* m_es = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   edm::WorkerParams m_params;
   
@@ -143,7 +147,6 @@ private:
     }
   };
 
-
   class LumiOutputModule : public edm::one::OutputModule<edm::one::WatchLuminosityBlocks> {
   public:
     using edm::one::OutputModuleBase::doPreallocate;
@@ -168,6 +171,60 @@ private:
       ++m_count;
     }
   };
+
+  struct DummyCache {};
+  
+  class RunCacheOutputModule : public edm::one::OutputModule<edm::RunCache<DummyCache>> {
+  public:
+    using edm::one::OutputModuleBase::doPreallocate;
+    RunCacheOutputModule(edm::ParameterSet const& iPSet) : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::RunCache<DummyCache>>(iPSet) {}
+    mutable unsigned int m_count = 0;
+    void write(edm::EventForOutput const&) override {
+      ++m_count;
+    }
+    void writeRun(edm::RunForOutput const&) override {
+      ++m_count;
+    }
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {
+      ++m_count;
+    }
+    
+    std::shared_ptr<DummyCache> globalBeginRun(edm::RunForOutput const&) const override {
+      ++m_count;
+      return std::shared_ptr<DummyCache>{};
+    }
+
+    void globalEndRun(edm::RunForOutput const&)  override {
+      ++m_count;
+    }
+  };
+
+  class LumiCacheOutputModule : public edm::one::OutputModule<edm::LuminosityBlockCache<DummyCache>> {
+  public:
+    using edm::one::OutputModuleBase::doPreallocate;
+    LumiCacheOutputModule(edm::ParameterSet const& iPSet) : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::LuminosityBlockCache<DummyCache>>(iPSet) {}
+    mutable unsigned int m_count = 0;
+    void write(edm::EventForOutput const&) override {
+      ++m_count;
+    }
+    void writeRun(edm::RunForOutput const&) override {
+      ++m_count;
+    }
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {
+      ++m_count;
+    }
+    
+    
+    std::shared_ptr<DummyCache> globalBeginLuminosityBlock(edm::LuminosityBlockForOutput const&) const override {
+      ++m_count;
+      return std::shared_ptr<DummyCache>{};
+    }
+    
+    void globalEndLuminosityBlock(edm::LuminosityBlockForOutput const&) override {
+      ++m_count;
+    }
+  };
+
   class FileOutputModule : public edm::one::OutputModule<edm::WatchInputFiles> {
   public:
     using edm::one::OutputModuleBase::doPreallocate;
@@ -412,6 +469,30 @@ void testOneOutputModule::lumiTest()
 
   edm::ParameterSet pset;
   auto testProd = std::make_shared<LumiOutputModule>(pset);
+  
+  CPPUNIT_ASSERT(0 == testProd->m_count);
+  testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
+}
+
+void testOneOutputModule::runCacheTest()
+{
+  //make the services available
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+
+  edm::ParameterSet pset;
+  auto testProd = std::make_shared<RunCacheOutputModule>(pset);
+  
+  CPPUNIT_ASSERT(0 == testProd->m_count);
+  testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalEndRun});
+}
+
+void testOneOutputModule::lumiCacheTest()
+{
+  //make the services available
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+
+  edm::ParameterSet pset;
+  auto testProd = std::make_shared<LumiCacheOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});

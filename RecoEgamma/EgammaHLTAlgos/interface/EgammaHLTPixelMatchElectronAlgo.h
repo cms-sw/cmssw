@@ -26,7 +26,6 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-class MultiTrajectoryStateMode;
 class MultiTrajectoryStateTransform;
 
 class EgammaHLTPixelMatchElectronAlgo {
@@ -58,7 +57,6 @@ public:
   bool useGsfTracks_;
   edm::EDGetTokenT<reco::BeamSpot> bsProducer_; 
 
-  MultiTrajectoryStateMode* mtsMode_; //its not clear to me why this is a pointer but its not the only one so changing things wouldnt make this class safer
   MultiTrajectoryStateTransform* mtsTransform_;
 
   edm::ESHandle<MagneticField> magField_;
