@@ -21,18 +21,19 @@ class HGCHEbackSignalScaler
     void setGeometry(const CaloSubdetectorGeometry*);
     void setDoseMap(const std::string&);
 
-    float scaleByArea(const HGCScintillatorDetId&);
-    std::pair<float, float> scaleByDose(const HGCScintillatorDetId&);
-    double getDoseValue(const int, const float);
-    double getFluenceValue(const int, const float);
-    float computeEdge(const HGCScintillatorDetId&);
-    float computeRadius(const HGCScintillatorDetId&);
+    float scaleByArea(const HGCScintillatorDetId&, const std::pair<double, double>&);
+    std::pair<float, float> scaleByDose(const HGCScintillatorDetId&, const std::pair<double, double>&);
+    double getDoseValue(const int, const std::pair<double, double>&);
+    double getFluenceValue(const int, const std::pair<double, double>&);
+    std::pair<double, double> computeRadius(const HGCScintillatorDetId&);
 
   private:
     std::map<int, DoseParameters> readDosePars(const std::string&);
 
     const HGCalGeometry* hgcalGeom_;
     std::map<int, DoseParameters> doseMap_;
+    static constexpr double radToKrad_ = 1/1000.;
+    const float refEdge_ = 0.03; //3 cm
 
     bool verbose_ = false;
 
