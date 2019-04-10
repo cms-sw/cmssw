@@ -149,14 +149,14 @@ HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 		HGCScintillatorDetId scId(myId->rawId());
 
 		int layer = scId.layer();
-		float radius = scal.computeRadius(scId) / 100.;
+		std::pair<double, double> radius = scal.computeRadius(scId);
 		double dose = scal.getDoseValue(layer, radius);
 		double fluence = scal.getFluenceValue(layer, radius);
 
-		auto dosePair = scal.scaleByDose(scId);
+		auto dosePair = scal.scaleByDose(scId, radius);
 		float scaleFactorByDose = dosePair.first;
 		float noiseByFluence = dosePair.second;
-		float scaleFactorByArea = scal.scaleByArea(scId);
+		float scaleFactorByArea = scal.scaleByArea(scId, radius);
 
 		int ilayer = scId.layer();
 		int iradius = scId.iradiusAbs();
