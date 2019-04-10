@@ -151,7 +151,8 @@ class bool(_SimpleParameterTypeBase):
         parameterSet.addBool(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()
-
+    def __bool__(self):
+        return self.__nonzero__()
 
 
 class string(_SimpleParameterTypeBase):
