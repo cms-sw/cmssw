@@ -145,11 +145,11 @@ const std::string names[nVars_] = {
 };
 
 // options and bitflags
-constexpr float coneSizeDR = 0.3;
+constexpr float coneSizeDR2 = 0.3*0.3;
 constexpr float dxyMax = 0.1;
 constexpr float dzMax = 0.2;
-constexpr float dRvetoBarrel = 0.02;
-constexpr float dRvetoEndcap = 0.02;
+constexpr float dRveto2Barrel = 0.02*0.02;
+constexpr float dRveto2Endcap = 0.02*0.02;
 constexpr float ptMin = 0.1;
 
 const unsigned char PV_CONSTRAINT  = 0x1;
@@ -267,7 +267,7 @@ void PhotonIDValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 
             // Check if this candidate is within the isolation cone
             float dR2 = deltaR2(phoWrtVtx.Eta(), phoWrtVtx.Phi(), iCand->eta(), iCand->phi());
-            if (dR2 > coneSizeDR * coneSizeDR)
+            if (dR2 > coneSizeDR2)
                 continue;
 
             // Check if this candidate is not in the footprint
@@ -367,7 +367,7 @@ float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photo
 {
     float worstIsolation = 0.0;
 
-    const float dRveto = photon.isEB() ? dRvetoBarrel : dRvetoEndcap;
+    const float dRveto2 = photon.isEB() ? dRveto2Barrel : dRveto2Endcap;
 
     std::vector<CachingPtrCandidate> chargedCands;
     chargedCands.reserve(pfCands.size());
@@ -392,11 +392,20 @@ float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photo
         math::XYZVector phoWrtVtx(photon.superCluster()->x() - vtx->x(),
             photon.superCluster()->y() - vtx->y(), photon.superCluster()->z() - vtx->z());
 
+	const float phoWrtVtxPhi = phoWrtVtx.phi();
+	const float phoWrtVtxEta = phoWrtVtx.eta();
+
         float sum = 0;
         // Loop over the PFCandidates
         for (auto const& aCCand : chargedCands) {
 
-            float dxy = -999;
+            auto iCand = aCCand.candidate;
+            float dR2 = deltaR2(phoWrtVtxEta, phoWrtVtxPhi, iCand->eta(), iCand->phi());
+            if (dR2 > coneSizeDR2  ||
+                    (options & DR_VETO && dR2 < dRveto2))
+                continue;
+
+	    float dxy = -999;
             float dz = -999;
             if (options & PV_CONSTRAINT)
                 getImpactParameters(aCCand, pv, dxy, dz);
@@ -406,11 +415,6 @@ float PhotonIDValueMapProducer::computeWorstPFChargedIsolation(const reco::Photo
             if (fabs(dxy) > dxyMax || fabs(dz) > dzMax)
                 continue;
 
-            auto iCand = aCCand.candidate;
-            float dR2 = deltaR2(phoWrtVtx.Eta(), phoWrtVtx.Phi(), iCand->eta(), iCand->phi());
-            if (dR2 > coneSizeDR * coneSizeDR ||
-                    (options & DR_VETO && dR2 < dRveto * dRveto))
-                continue;
 
             sum += iCand->pt();
         }
