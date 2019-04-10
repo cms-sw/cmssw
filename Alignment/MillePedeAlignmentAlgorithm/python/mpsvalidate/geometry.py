@@ -2,6 +2,7 @@
 # Classes which provide the geometry information.
 ##
 
+from builtins import range
 import itertools
 import os
 
@@ -71,7 +72,7 @@ class Alignables:
             # loop over discriminators -> create patterns
             # pattern {"half": 2, "side": 2, "layer": 6, ...}
             ranges = struct.ndiscriminator
-            pranges = [range(1, x+1) for x in ranges]
+            pranges = [list(range(1, x+1)) for x in ranges]
             # loop over all possible combinations of the values of the
             # discriminators
             for number in itertools.product(*pranges):

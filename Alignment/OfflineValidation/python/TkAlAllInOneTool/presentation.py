@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import range
 import abc
 import math
 import os
@@ -65,7 +66,7 @@ class PageLayout(object):
         if residual != 0:
             rowlengths.append(residual)
             nrows += 1
-        for _ in xrange(fullRows):
+        for _ in range(fullRows):
             rowlengths.append(length)
 
         # Now, fill the pattern.
@@ -73,12 +74,12 @@ class PageLayout(object):
         if residual == 0 and len(plots[0])%length != 0 and\
            len(plots[0])%nrows == 0:
             # It's better to arrange plots in columns, not rows.
-            self.pattern.extend(range(i, i+nrows*(length-1)+1, nrows)
+            self.pattern.extend(list(range(i, i+nrows*(length-1)+1, nrows))
                                 for i in range(1, nrows+1))
         else:
             if residual != 0:
-                self.pattern.append(range(1, 1+residual))
-            self.pattern.extend(range(i, i+length) for i in
+                self.pattern.append(list(range(1, 1+residual)))
+            self.pattern.extend(list(range(i, i+length)) for i in
                                 range(residual+1, nplots-length+2, length))
 
         self.width = 1.0/length
@@ -166,7 +167,7 @@ def writePage(plots, title, layout):
     plotrows = []
     for row in layout.pattern:
         plotrow = []
-        for i in xrange(len(row)):
+        for i in range(len(row)):
             plotrow.append(plotTemplate.replace('[width]', str(layout.width)).\
                            replace('[height]', str(layout.height)).\
                            replace('[path]', plots[row[i]-1]))
