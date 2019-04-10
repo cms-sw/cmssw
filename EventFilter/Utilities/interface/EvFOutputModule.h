@@ -51,7 +51,7 @@ namespace evf {
   private:
     std::string filePath_;
     unsigned long accepted_;
-    edm::propagate_const<std::shared_ptr<StreamerOutputFile>> stream_writer_events_;
+    edm::propagate_const<std::unique_ptr<StreamerOutputFile>> stream_writer_events_;
 
   };
 
@@ -108,7 +108,7 @@ namespace evf {
 
     evf::FastMonitoringService *fms_;
 
-    std::shared_ptr<evf::EvFOutputJSONWriter> jsonWriter_;
+    std::unique_ptr<evf::EvFOutputJSONWriter> jsonWriter_;
 
 
   }; //end-of-class-def

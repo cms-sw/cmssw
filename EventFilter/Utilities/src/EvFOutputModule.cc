@@ -145,14 +145,13 @@ namespace evf {
   EvFOutputModule::beginRun(edm::RunForOutput const& run)
   {
     //create run Cache holding JSON file writer and variables
-    jsonWriter_ = std::make_shared<EvFOutputJSONWriter>(ps_,&keptProducts()[edm::InEvent],streamLabel_);
+    jsonWriter_ = std::make_unique<EvFOutputJSONWriter>(ps_,&keptProducts()[edm::InEvent],streamLabel_);
 
     //output INI file (non-const). This doesn't require globalBeginRun to be finished
     const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(streamLabel_);
     edm::LogInfo("EvFOutputModule") << "beginRun init stream -: " << openIniFileName;
     
-    std::shared_ptr<StreamerOutputFile> stream_writer_preamble;
-    stream_writer_preamble.reset(new StreamerOutputFile(openIniFileName));
+    StreamerOutputFile stream_writer_preamble(openIniFileName);
     uint32 preamble_adler32 = 1;
     edm::BranchIDLists const* bidlPtr =  branchIDLists();
 
@@ -164,9 +163,9 @@ namespace evf {
     InitMsgView view(init_message->startAddress());
 
     //output header
-    stream_writer_preamble->write(view);
-    preamble_adler32 = stream_writer_preamble->adler32();
-    stream_writer_preamble.reset();
+    stream_writer_preamble.write(view);
+    preamble_adler32 = stream_writer_preamble.adler32();
+    stream_writer_preamble.close();
 
     struct stat istat;
     stat(openIniFileName.c_str(), &istat);
