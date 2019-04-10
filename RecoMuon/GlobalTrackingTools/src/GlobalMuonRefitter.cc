@@ -282,7 +282,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       dytRefit.setUseAPE(theDYTuseAPE);
       if(dytParThrsMode) {
         dytRefit.setParThrsMode(dytParThrsMode);
-				dytRefit.setThrsMap(theDYTthrsParameters);
+        dytRefit.setThrsMap(theDYTthrsParameters);
         dytRefit.setRecoP(globalTrack.p());
         dytRefit.setRecoEta(globalTrack.eta());
       }
@@ -826,22 +826,21 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
     }
   }
 
-/*
-  cout << " GlobalMuonRefitter : theFitter " << propDir << endl;
-  cout << "                      First TSOS: "
+
+  LogDebug(theCategory) << " GlobalMuonRefitter : theFitter " << propDir << endl;
+  LogDebug(theCategory) << "                      First TSOS: "
        << firstTSOS.globalPosition() << "  p="
        << firstTSOS.globalMomentum() << " = "
        << firstTSOS.globalMomentum().mag() << endl;
 
-  cout << "                      Starting seed: "
+  LogDebug(theCategory) << "                      Starting seed: "
        << " nHits= " << seed.nHits()
        << " tsos: "
        << seed.startingState().parameters().position() << "  p="
        << seed.startingState().parameters().momentum() << endl;
 
-  cout << "                      RecHits: "
+  LogDebug(theCategory) << "                      RecHits: "
        << recHitsForReFit.size() << endl;
-*/
 
   vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
 
