@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("MTDGeometryTest")
+process = cms.Process("TrackerGeometryTest")
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
@@ -9,13 +9,13 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service(
     "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'mtdGeometry'),
+    statistics = cms.untracked.vstring('cout', 'trackerGeometry'),
     categories = cms.untracked.vstring('Geometry'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
         ),
-    mtdGeometry = cms.untracked.PSet(
+    trackerGeometry = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
             ),
@@ -35,28 +35,24 @@ process.MessageLogger = cms.Service(
             )
         ),
     destinations = cms.untracked.vstring('cout',
-                                         'mtdGeometry')
+                                         'trackerGeometry')
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/MTDCommonData/data/dd4hep/cms-mtd-geometry.xml'),
-                                            appendToDataLabel = cms.string('MTD')
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/TrackerCommonData/data/dd4hep/cms-tracker-geometry.xml'),
+                                            appendToDataLabel = cms.string('Tracker')
                                             )
 
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('MTD')
+                                                     appendToDataLabel = cms.string('Tracker')
                                                      )
 
 process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
-                                                    appendToDataLabel = cms.string('MTD')
+                                                    appendToDataLabel = cms.string('Tracker')
                                                     )
 
 process.test = cms.EDAnalyzer("DDCMSDetector",
-                              DDDetector = cms.ESInputTag('MTD')
+                              DDDetector = cms.ESInputTag('Tracker')
                               )
 
-process.dump = cms.EDAnalyzer("DDTestDumpFile",
-                              DDDetector = cms.ESInputTag('MTD')
-)
-
-process.p = cms.Path(process.test+process.dump)
+process.p = cms.Path(process.test)
