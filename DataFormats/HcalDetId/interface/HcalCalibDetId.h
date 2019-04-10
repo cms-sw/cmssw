@@ -8,7 +8,7 @@
 /** \class HcalCalibDetId
   *  
   *  Contents of the HcalCalibDetId :
-  *     [19:17] Calibration Category (1 = CalibUnit, 2 = HX, 3=uMNio/qie, 4=CastorRad)
+  *     [19:17] Calibration Category (1 = CalibUnit, 2 = HOX, 3=uMNio/qie, 4=CastorRad, 5=LASMON, 6=HBX, 7=HEX)
   *
   *  For CalibUnit:
   *     [16:14] Subdetector
@@ -29,13 +29,24 @@
   *     [9:5] fiber-in-rm
   *     [4:0] channel-on-fiber
   *     
+  *  For Laser Monitoring channels: 
+  *     [16:10] ieta
+  *     [9:5]   iphi 
+  *     [3:0]   cbox  
   *
+  *  For HBX/HEX:
+  *     [19:17]  6 or 7 (CalibType) 
+  *     [15:15]  0/1 (Side) 
+  *     [14:10]  ieta  (1-29)
+  *     [9:3]    iphi  (1-72)
+  *     [2:0]    depth (1-7)  
+  *    
   * \author J. Mans - Minnesota
   */
 class HcalCalibDetId : public HcalOtherDetId {
 public:
   /** Type identifier within calibration det ids */
-  enum CalibDetType { CalibrationBox = 1, HOCrosstalk = 2, uMNqie = 3, CastorRadFacility = 4, LASERMON = 5 };
+  enum CalibDetType { CalibrationBox = 1, HOCrosstalk = 2, uMNqie = 3, CastorRadFacility = 4, LASERMON = 5, HBX = 6, HEX = 7 };
 
   /** Create a null det id */
   HcalCalibDetId();
@@ -50,7 +61,7 @@ public:
   HcalCalibDetId(int ieta, int iphi);
   /** Construct a uMNqie id or other id which uses a single value plus a DetType */
   HcalCalibDetId(CalibDetType dt, int value);
-    /** Construct a Castor radiation test facility id or other id which uses three values plus a DetType */
+  /** Construct a Castor radiation test facility id or other id which uses three values plus a DetType */
   HcalCalibDetId(CalibDetType dt, int value1, int value2, int value3);
 
   /// get the flavor of this calibration detid
@@ -79,6 +90,8 @@ public:
 
   /// get the sign of ieta (+/-1)
   int zside() const;
+  /// get the depth (where relevant)
+  int depth() const;
 
   /// constants
   static const int cbox_MixerHigh     = 0; // HB/HE/HO/HF

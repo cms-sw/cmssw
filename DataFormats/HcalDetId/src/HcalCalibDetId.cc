@@ -27,10 +27,10 @@ HcalCalibDetId::HcalCalibDetId(HcalSubdetector subdet, int ieta, int iphi, int c
 }
 
 HcalCalibDetId::HcalCalibDetId(int ieta, int iphi) : HcalOtherDetId(HcalCalibration) {
-  id_|=(HOCrosstalk<<17); // Calibration Category, bits [17:19] (= "2" for HOX)
-  id_|=(iphi&0x7F)               // phi index, bits [0:6]
-      |((abs(ieta)&0xF)<<7)     // eta index, bits [7:10]
-      |(((ieta > 0)?(1):(0))<<11); // z side, bit [11]
+  id_|=(HOCrosstalk<<17);         // Calibration Category, bits [17:19] (= "2" for HOX)
+  id_|=(iphi&0x7F)                // phi index, bits [0:6]
+     |((abs(ieta)&0xF)<<7)        // eta index, bits [7:10]
+     |(((ieta > 0)?(1):(0))<<11); // z side, bit [11]
 }
 
 HcalCalibDetId::HcalCalibDetId(CalibDetType dt, int value) : HcalOtherDetId(HcalCalibration) {
@@ -39,10 +39,19 @@ HcalCalibDetId::HcalCalibDetId(CalibDetType dt, int value) : HcalOtherDetId(Hcal
 }
 
 HcalCalibDetId::HcalCalibDetId(CalibDetType dt, int value1, int value2, int value3)  : HcalOtherDetId(HcalCalibration) {
-  id_|=(dt<<17);
-  id_|=(value1&0x3F)<<10;
-  id_|=(value2&0x1F)<<5;
-  id_|=(value3&0x1F);
+  id_|=(dt<<17);             // Calibration Category, bits [17:19]
+
+  if(dt == HBX || dt == HEX) {
+    id_|=(value3&0x7)                 // depth index, bits [0:2]
+       |((value2&0x7F)<<3)            // phi index,   bits [3:9]
+       |((value1&0x1F)<<10)           // eta index,   bits [10:14] 
+       |(((value1 > 0)?(1):(0))<<15); // z side,      bit  [15]
+  }
+  else {
+    id_|=(value1&0x3F)<<10;
+    id_|=(value2&0x1F)<<5;
+    id_|=(value3&0x1F);
+  }
 }
 
 HcalCalibDetId::HcalCalibDetId(const DetId& gen) {
@@ -75,16 +84,21 @@ HcalSubdetector HcalCalibDetId::hcalSubdet() const {
 }
     
 int HcalCalibDetId::ieta() const {
-  return (calibFlavor()==CalibrationBox)?(((id_>>11)&0x7)-2):((calibFlavor()==HOCrosstalk)?(((id_>>7)&0xF)*zside()):(calibFlavor()==LASERMON?((id_>>10)&0x3F):(0)));
+  return (calibFlavor()==CalibrationBox)?(((id_>>11)&0x7)-2):((calibFlavor()==HOCrosstalk)?(((id_>>7)&0xF)*zside()):(calibFlavor()==LASERMON?((id_>>10)&0x3F):(((calibFlavor()==HBX || calibFlavor()==HEX)?((id_>>10)&0x1F)*zside():(0)))));
 }
 
 int HcalCalibDetId::iphi() const {
-  return (calibFlavor()==CalibrationBox)?((id_>>4)&0x7F):((calibFlavor()==HOCrosstalk)?(id_&0x7F):(calibFlavor()==LASERMON?((id_>>5)&0x1F):(0)));
+  return (calibFlavor()==CalibrationBox)?((id_>>4)&0x7F):((calibFlavor()==HOCrosstalk)?(id_&0x7F):(calibFlavor()==LASERMON?((id_>>5)&0x1F):(((calibFlavor()==HBX || calibFlavor()==HEX)?((id_>>3)&0x7F):(0)))));
 }
 
 int HcalCalibDetId::zside() const {
-  return (calibFlavor()==HOCrosstalk)?(((id_>>11)&0x1)?(1):(-1)):(0);
+  return (calibFlavor()==HOCrosstalk)?(((id_>>11)&0x1)?(1):(-1)):((calibFlavor()==HBX || calibFlavor()==HEX)?((id_>>15)&0x1)?(1):(-1):(0));
 }
+
+int HcalCalibDetId::depth() const { 
+  return (calibFlavor()==HBX || calibFlavor()==HEX)?(id_&0x7):(0);
+}
+
 
 std::string HcalCalibDetId::cboxChannelString() const {
   switch (cboxChannel()) {
@@ -130,6 +144,10 @@ std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id) {
     return s << "(LASERMON" << id.channel() << ')';
   case (HcalCalibDetId::CastorRadFacility):
     return s << "(CastorRadFacility " << id.rm() << " / " << id.fiber() << " / " << id.channel() << ')';
+  case (HcalCalibDetId::HBX):
+    return s << "(HBX "  << id.ieta() << "," << id.iphi() << "," << id.depth() << ")"; 
+  case (HcalCalibDetId::HEX):
+    return s << "(HEX "  << id.ieta() << "," << id.iphi() << "," << id.depth() << ")"; 
   default: return s;
   };
 }
