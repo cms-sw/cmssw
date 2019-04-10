@@ -3,10 +3,10 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
-#include "DetectorDescription/DDCMS/interface/DDVectorRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
+#include "Geometry/Records/interface/DDVectorRegistryRcd.h"
+#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DDG4/Geant4Converter.h"
 #include "DD4hep/Detector.h"
 
@@ -46,7 +46,7 @@ DDTestG4Geometry::analyze(const Event&, const EventSetup& iEventSetup)
   ESTransientHandle<DDVectorRegistry> reg;
   regRecord.get(m_tag.module(), reg);
 
-  const DetectorDescriptionRcd& ddRecord = iEventSetup.get<DetectorDescriptionRcd>();
+  const GeometryFileRcd& ddRecord = iEventSetup.get<GeometryFileRcd>();
   ESTransientHandle<DDDetector> ddd;
   ddRecord.get(m_tag.module(), ddd);
     
