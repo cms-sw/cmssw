@@ -140,11 +140,11 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
     std::vector<TrajectoryMeasurement::ConstRecHitPointer> transHits;
     std::vector<TrajectoryStateOnSurface> TSOSes;
 
-    for (trackingRecHit_iterator hit = track->recHitsBegin();  hit != track->recHitsEnd();  ++hit) {
-      DetId id = (*hit)->geographicalId();
+    for(auto const& hit : track->recHits()) {
+      DetId id = hit->geographicalId();
       if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
 	const Surface &layerSurface = cscGeometry->idToDet(id)->surface();
-	TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&**hit, globalGeometry));
+	TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(hit, globalGeometry));
 
 	AlgebraicVector5 params;   // meaningless, CSCOverlapsAlignmentAlgorithm does the fit internally
 	params[0] = 1.;  // straight-forward direction
@@ -156,7 +156,7 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
 	LocalTrajectoryError localTrajectoryError(0.001, 0.001, 0.001, 0.001, 0.001);
 
 	// these must be in lock-step
-	clonedHits.push_back((*hit)->clone());
+	clonedHits.push_back(hit->clone());
 	transHits.push_back(hitPtr);
 	TSOSes.push_back(TrajectoryStateOnSurface(localTrajectoryParameters, localTrajectoryError, layerSurface, &*magneticField));
       } // end if CSC

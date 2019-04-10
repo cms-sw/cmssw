@@ -45,7 +45,7 @@ private:
   int m_counter{};
   int m_totalCounter{};
   int const m_totalNEvents;
-  edm::ESGetTokenT<edm::eventsetup::test::DummyData> const m_esToken;
+  edm::ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> const m_esToken;
 };
 
 TestESDummyDataAnalyzer::TestESDummyDataAnalyzer(const edm::ParameterSet& iConfig) :
@@ -70,8 +70,7 @@ TestESDummyDataAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetu
     }
   }
 
-  ESHandle<edm::eventsetup::test::DummyData> pData;
-  iSetup.getData(m_esToken, pData);
+  ESHandle<edm::eventsetup::test::DummyData> pData = iSetup.getHandle(m_esToken);
 
   if(m_expectedValue != pData->value_) {
     throw cms::Exception("WrongValue")<<"got value "<<pData->value_<<" but expected "<<m_expectedValue;

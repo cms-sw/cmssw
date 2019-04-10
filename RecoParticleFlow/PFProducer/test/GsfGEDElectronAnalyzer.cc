@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,8 +44,8 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" 
-#include "RecoParticleFlow/PFProducer/interface/Utils.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 
 #include <vector>
@@ -62,16 +62,16 @@
 using namespace edm;
 using namespace reco;
 using namespace std;
-class GsfGEDElectronAnalyzer : public edm::EDAnalyzer {
+class GsfGEDElectronAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
    public:
       explicit GsfGEDElectronAnalyzer(const edm::ParameterSet&);
-      ~GsfGEDElectronAnalyzer();
+      ~GsfGEDElectronAnalyzer() override;
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
   
   ParameterSet conf_;
 
@@ -130,7 +130,7 @@ GsfGEDElectronAnalyzer::GsfGEDElectronAnalyzer(const edm::ParameterSet& iConfig)
   conf_(iConfig)
 
 {
-
+  usesResource(TFileService::kSharedResource);
   
   edm::Service<TFileService> fs;
 
@@ -366,7 +366,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 
 	  float deta = etamc - eta;
-	  float dphi = Utils::mpi_pi(phimc - phi);
+	  float dphi = normalizedPhi(phimc - phi);
 	  float dR = sqrt(deta*deta + dphi*dphi);
 
 	  if(dR < 0.05){
@@ -421,7 +421,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 
 	float deta = etamc - etareco;
-	float dphi = Utils::mpi_pi(phimc - phireco);
+	float dphi = normalizedPhi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
 
 	float SCEnergy = (theGsfEle[j]).superCluster()->energy();
@@ -559,7 +559,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	
 	
 	float deta = etamc - etareco;
-	float dphi = Utils::mpi_pi(phimc - phireco);
+	float dphi = normalizedPhi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
 	
 	float SCEnergy = (theGedEle[j]).superCluster()->energy();
@@ -681,7 +681,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-GsfGEDElectronAnalyzer::beginJob(const edm::EventSetup&)
+GsfGEDElectronAnalyzer::beginJob()
 {
 
   ev = 0;

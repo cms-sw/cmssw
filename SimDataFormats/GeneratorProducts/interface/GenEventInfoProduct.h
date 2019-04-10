@@ -17,9 +17,11 @@ class GenEventInfoProduct {
 	GenEventInfoProduct();
 	GenEventInfoProduct(const HepMC::GenEvent *evt);
 	GenEventInfoProduct(const GenEventInfoProduct &other);
+	GenEventInfoProduct(GenEventInfoProduct&& other);
 	virtual ~GenEventInfoProduct();
 
 	GenEventInfoProduct &operator = (const GenEventInfoProduct &other);
+	GenEventInfoProduct &operator = (GenEventInfoProduct &&other);
 
 	typedef gen::PdfInfo PDF;
 

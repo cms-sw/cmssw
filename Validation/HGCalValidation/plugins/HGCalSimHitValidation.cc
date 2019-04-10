@@ -138,19 +138,23 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
 				    const edm::EventSetup& iSetup) {
 
   //Generator input
-  edm::Handle<edm::HepMCProduct> evtMC;
-  iEvent.getByToken(tok_hepMC_,evtMC); 
-  if (!evtMC.isValid()) {
-    edm::LogVerbatim("HGCalValidation") << "no HepMCProduct found";
-  } else { 
-    const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
-    unsigned int k(0);
-    for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
-	 p != myGenEvent->particles_end(); ++p, ++k) {
-      edm::LogVerbatim("HGCalValidation") << "Particle[" << k << "] with pt "
-					  << (*p)->momentum().perp() << " eta "
-					  << (*p)->momentum().eta() << " phi "
-					  << (*p)->momentum().phi();
+  if (verbosity_ > 0) {
+    edm::Handle<edm::HepMCProduct> evtMC;
+    iEvent.getByToken(tok_hepMC_,evtMC); 
+    if (!evtMC.isValid()) {
+      edm::LogVerbatim("HGCalValidation") << "no HepMCProduct found";
+    } else { 
+      const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
+      unsigned int k(0);
+      for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	   p != myGenEvent->particles_end(); ++p, ++k) {
+	edm::LogVerbatim("HGCalValidation") << "Particle[" << k << "] with pt "
+					    << (*p)->momentum().perp()
+					    << " eta "
+					    << (*p)->momentum().eta() 
+					    << " phi "
+					    << (*p)->momentum().phi();
+      }
     }
   }
 
@@ -340,9 +344,10 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
     if (eta > 0.0) fillOccupancyMap(OccupancyMap_plus, layer);
     else           fillOccupancyMap(OccupancyMap_minus,layer);
   }
-  edm::LogVerbatim("HGCalValidation") << "With map:used:total " << hits.size()
-				      << "|" << nused << "|" << map_hits.size()
-				      << " hits";
+  if (verbosity_ > 0)
+    edm::LogVerbatim("HGCalValidation") << "With map:used:total "
+					<< hits.size() << "|" << nused << "|"
+					<< map_hits.size() << " hits";
 
   for (auto const & itr : OccupancyMap_plus) {
     int layer     = itr.first;

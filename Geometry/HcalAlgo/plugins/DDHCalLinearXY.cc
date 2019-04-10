@@ -11,9 +11,12 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalLinearXY.h"
 
+//#define EDM_ML_DEBUG
 
 DDHCalLinearXY::DDHCalLinearXY() {
-  LogDebug("HCalGeom") <<"DDHCalLinearXY info: Creating an instance";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: Creating an instance";
+#endif
 }
 
 DDHCalLinearXY::~DDHCalLinearXY() {}
@@ -32,17 +35,18 @@ void DDHCalLinearXY::initialize(const DDNumericArguments & nArgs,
   
   idNameSpace = DDCurrentNamespace::ns();
   childName   = vsArgs["Child"]; 
-  DDName parentName = parent().name();
-  LogDebug("HCalGeom") << "DDHCalLinearXY debug: Parent " << parentName
-		       << "\twith " << childName.size() << " children";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: Parent " << parent().name()
+			       << "\twith " << childName.size() << " children";
   for (unsigned int i=0; i<childName.size(); ++i) 
-    LogDebug("HCalGeom") << "DDHCalLinearXY debug: Child[" << i << "] = "
-			 << childName[i];
-  LogDebug("HCalGeom") << "DDHCalLinearXY debug: NameSpace " 
-		       << idNameSpace << "\tNumber along X/Y " << numberX
-		       << "/" << numberY << "\tDelta along X/Y " << deltaX
-		       << "/" << deltaY << "\tCentre " << centre[0] << ", " 
-		       << centre[1] << ", "	<< centre[2];
+    edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: Child[" << i << "] = "
+				 << childName[i];
+  edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: NameSpace " << idNameSpace
+			       << "\tNumber along X/Y " << numberX << "/" 
+			       << numberY << "\tDelta along X/Y " << deltaX
+			       << "/" << deltaY << "\tCentre " << centre[0] 
+			       << ", " << centre[1] << ", " << centre[2];
+#endif
 }
 
 void DDHCalLinearXY::execute(DDCompactView& cpv) {
@@ -61,7 +65,8 @@ void DDHCalLinearXY::execute(DDCompactView& cpv) {
       bool     place = true;
       unsigned int k = copy;
       if (childName.size() == 1) k = 0;
-      if (k < childName.size() && (childName[k] != " " && childName[k] != "Null")) {
+      if (k < childName.size() && (childName[k] != " " && 
+				   childName[k] != "Null")) {
 	child = DDName(DDSplit(childName[k]).first, DDSplit(childName[k]).second);
       } else {
 	place = false;
@@ -69,12 +74,17 @@ void DDHCalLinearXY::execute(DDCompactView& cpv) {
       copy++;
       if (place) {
 	cpv.position(child, mother, copy, tran, rot);
-	LogDebug("HCalGeom") << "DDHCalLinearXY test: " << child 
-			     << " number " << copy << " positioned in "
-			     << mother << " at " << tran << " with " << rot;
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: " << child 
+				     << " number " << copy << " positioned in "
+				     << mother << " at " << tran << " with "
+				     << rot;
+#endif
       } else {
-	LogDebug("HCalGeom") << "DDHCalLinearXY test: No child placed for ["
-			     << copy << "]";
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: No child placed for ["
+				     << copy << "]";
+#endif
       }
     }
   }

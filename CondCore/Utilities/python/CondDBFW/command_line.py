@@ -6,8 +6,9 @@ Works by taking the main keyword (first command given to the script),
 passing that to the function that will deal with that action, along with the following arguments as parameters for that function.
 """
 from __future__ import print_function
+from __future__ import absolute_import
 
-import querying
+from . import querying
 import argparse
 import datetime
 

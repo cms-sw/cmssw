@@ -16,7 +16,11 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
     SkipFedUpdate = cms.bool(False),  # skip upload of FED frame finding threshold
     TargetDelay = cms.int32(-1)       # -1: latest tick (old default), otherwise target delay for all ticks' rising edge
   ),
-  CalibrationParameters    = cms.PSet(),
+  CalibrationParameters  = cms.PSet(
+        targetRiseTime     = cms.double(50),
+        targetDecayTime    = cms.double(125),
+        tuneSimultaneously = cms.bool(False)
+        ),
   DaqScopeModeParameters   = cms.PSet(
         HighThreshold       = cms.double(5),
         LowThreshold        = cms.double(2),

@@ -13,15 +13,15 @@ MultipleScatteringSimulator::MultipleScatteringSimulator(
 void MultipleScatteringSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDistribution const* random)
 {
 
-  double p2 = Particle.Vect().Mag2();
-  double m2 = Particle.mass()*Particle.mass();
+  double p2 = Particle.particle().Vect().Mag2();
+  double m2 = Particle.particle().mass()*Particle.particle().mass();
   double e = std::sqrt(p2+m2);
 
   double pbeta = p2/e;  // This is p*beta
 
   // Average multiple scattering angle from Moliere radius
   // The sqrt(2) factor is because of the *space* angle
-  double theta0 = 0.0136 / pbeta * Particle.charge() 
+  double theta0 = 0.0136 / pbeta * Particle.particle().charge() 
                                  * std::sqrt(2.*radLengths) 
                                  * (1. + 0.038*std::log(radLengths));
 
@@ -30,11 +30,11 @@ void MultipleScatteringSimulator::compute(ParticlePropagator &Particle, RandomEn
   // Plus a random rotation angle around the particle motion
   double phi = 2. * 3.14159265358979323 * random->flatShoot();
   // The two rotations
-  RawParticle::Rotation rotation1(orthogonal(Particle.Vect()),theta);
-  RawParticle::Rotation rotation2(Particle.Vect(),phi);
+  RawParticle::Rotation rotation1(orthogonal(Particle.particle().Vect()),theta);
+  RawParticle::Rotation rotation2(Particle.particle().Vect(),phi);
   // Rotate!
-  Particle.rotate(rotation1); 
-  Particle.rotate(rotation2);
+  Particle.particle().rotate(rotation1); 
+  Particle.particle().rotate(rotation2);
 
   // Generate mutiple scattering displacements in cm (assuming the detectors
   // are silicon only to determine the thickness) in the directions orthogonal
@@ -52,7 +52,7 @@ void MultipleScatteringSimulator::compute(ParticlePropagator &Particle, RandomEn
   // The total displacement 
   XYZVector delta = xp*tangent + yp*normal.Cross(tangent);
   // Translate!
-  Particle.translate(delta);
+  Particle.particle().translate(delta);
 
 }
 

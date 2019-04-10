@@ -6,6 +6,9 @@
  <class name="edm::ProductID" ClassVersion="10">
   <version ClassVersion="10" checksum="1501211476"/>
  </class>
+ <class name="edm::ElementID" ClassVersion="3">
+  <version ClassVersion="3" checksum="1958297906"/>
+ </class>
  <class name="edm::BranchID" ClassVersion="10">
   <version ClassVersion="10" checksum="21214741"/>
  </class>

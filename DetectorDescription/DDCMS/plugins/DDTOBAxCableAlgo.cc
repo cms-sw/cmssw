@@ -1,10 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 static long algorithm(Detector& /* description */,
                       cms::DDParsingContext& ctxt,
@@ -71,8 +73,8 @@ static long algorithm(Detector& /* description */,
     solid = ns.addSolid(name,Tube(rin, rout, dz, startphi, deltaphi));
     LogDebug("TOBGeom") << solid.name() << " Tubs made of " 
                         << sectorMaterial_A[i] << " from " 
-                        << ConvertTo( startphi, deg ) << " to "
-                        << ConvertTo(( startphi + deltaphi ), deg ) << " with Rin " 
+                        << convertRadToDeg( startphi ) << " to "
+                        << convertRadToDeg( ( startphi + deltaphi ) ) << " with Rin " 
                         << rin << " Rout " << rout << " ZHalf " << dz;
     Volume sectorLogic = ns.addVolume(Volume(name,solid, ns.material(sectorMaterial_A[i])));
     tubsVol.placeVolume(sectorLogic,i+1); // copyNr: i+1
@@ -86,8 +88,8 @@ static long algorithm(Detector& /* description */,
     deltaphi = sectorDeltaPhi_B;
     solid = ns.addSolid(name, Tube(rin, rout, dz, startphi, deltaphi));
     LogDebug("TOBGeom") << solid.name() << " Tubs made of " 
-                        << sectorMaterial_B[i] << " from " << ConvertTo( startphi, deg )
-                        << " to " << ConvertTo(( startphi + deltaphi ), deg )
+                        << sectorMaterial_B[i] << " from " << convertRadToDeg( startphi )
+                        << " to " << convertRadToDeg( ( startphi + deltaphi ) )
                         << " with Rin " << rin << " Rout " << rout 
                         << " ZHalf " << dz;
     
@@ -104,8 +106,8 @@ static long algorithm(Detector& /* description */,
     solid = ns.addSolid(name,Tube(rin, rout, dz, startphi, deltaphi));
     LogDebug("TOBGeom") << solid.name() << " Tubs made of " 
                         << sectorMaterial_C[i] << " from " 
-                        << ConvertTo( startphi, deg ) << " to " 
-                        << ConvertTo(( startphi + deltaphi ), deg ) << " with Rin " 
+                        << convertRadToDeg( startphi ) << " to " 
+                        << convertRadToDeg( ( startphi + deltaphi ) ) << " with Rin " 
                         << rin << " Rout " << rout << " ZHalf " << dz;
     sectorLogic = ns.addVolume(Volume(name, solid, ns.material(sectorMaterial_C[i])));
     tubsVol.placeVolume(sectorLogic,i+1); // copyNr: i+1

@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/GsfTools/interface/CloseComponentsMerger.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 /** Provides the "CloseComponents" algorithm ("Merger") for reducing 
  * the number of components in a multi-

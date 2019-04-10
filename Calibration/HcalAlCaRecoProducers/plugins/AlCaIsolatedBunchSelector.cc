@@ -68,9 +68,9 @@ private:
 AlCaIsolatedBunchSelector::AlCaIsolatedBunchSelector(const edm::ParameterSet& iConfig, const AlCaIsolatedBunch::Counters* count) :
   nRun_(0), nAll_(0), nGood_(0) {
   //now do what ever initialization is needed
-  trigName_               = iConfig.getParameter<std::string>("TriggerName");
-  processName_            = iConfig.getParameter<std::string>("ProcessName");
-  theTriggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
+  trigName_               = iConfig.getParameter<std::string>("triggerName");
+  processName_            = iConfig.getParameter<std::string>("processName");
+  theTriggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultLabel");
 
   // define tokens for access
   tok_trigRes_  = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
@@ -154,11 +154,11 @@ void AlCaIsolatedBunchSelector::endRun(edm::Run const& iRun, edm::EventSetup con
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void AlCaIsolatedBunchSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("triggerResultLabel",edm::InputTag("TriggerResults","","HLT"));
+  desc.add<std::string>("processName",    "HLT");
+  desc.add<std::string>("triggerName",    "HLT_HcalIsolatedBunch");
+  descriptions.add("alcaIsolatedBunchSelector",desc);
 }
 
 //define this as a plug-in

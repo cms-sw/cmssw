@@ -195,13 +195,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //build map of ConversionTracks ordered in eta
   std::multimap<float, edm::Ptr<reco::ConversionTrack> > convTrackMap;
-  edm::PtrVector<reco::ConversionTrack> trackPtrVector;
-  for (size_t i = 0; i < trackCollectionHandle->size(); ++i)
-    trackPtrVector.push_back(trackCollectionHandle->ptrAt(i));
-
-  for (edm::PtrVector<reco::ConversionTrack>::const_iterator tk_ref = trackPtrVector.begin(); tk_ref != trackPtrVector.end(); ++tk_ref ){
-    convTrackMap.insert(std::make_pair((*tk_ref)->track()->eta(),*tk_ref));
-  }
+  for(auto const& t : trackCollectionHandle->ptrs()) convTrackMap.emplace(t->track()->eta(),t);
 
   edm::Handle<reco::VertexCollection> vertexHandle;
   reco::VertexCollection vertexCollection;
@@ -282,30 +276,21 @@ void ConversionProducer::buildSuperAndBasicClusterGeoMap(const edm::Event& iEven
       << "Error! Can't get the endcap basic clusters!";
   }
 
-  edm::Handle<edm::View<reco::CaloCluster> > bcHandle = bcBarrelHandle;
-  edm::Handle<edm::View<reco::CaloCluster> > scHandle = scBarrelHandle;
-
-  if ( bcHandle.isValid()  ) {    
-    for (unsigned jj = 0; jj < 2; ++jj ){
-      for (unsigned ii = 0; ii < bcHandle->size(); ++ii ) {
-	if (bcHandle->ptrAt(ii)->energy()>energyBC_)
-	  basicClusterPtrs.insert(std::make_pair(bcHandle->ptrAt(ii)->position().eta(), bcHandle->ptrAt(ii)));
+  if( bcBarrelHandle.isValid()  ) {    
+    for(auto const& handle : {bcBarrelHandle, bcEndcapHandle} ) {
+      for(auto const& bc : handle->ptrs()) {
+        if(bc->energy() > energyBC_) basicClusterPtrs.emplace(bc->position().eta(), bc);
       }
-      bcHandle = bcEndcapHandle;
     }
   }
 
-
-  if ( scHandle.isValid()  ) {
-    for (unsigned jj = 0; jj < 2; ++jj ){
-      for (unsigned ii = 0; ii < scHandle->size(); ++ii ) {
-	if (scHandle->ptrAt(ii)->energy()>minSCEt_)
-	  superClusterPtrs.insert(std::make_pair(scHandle->ptrAt(ii)->position().eta(), scHandle->ptrAt(ii)));
+  if( scBarrelHandle.isValid()  ) {    
+    for(auto const& handle : {scBarrelHandle, scEndcapHandle} ) {
+      for(auto const& sc : handle->ptrs()) {
+        if(sc->energy() > minSCEt_) superClusterPtrs.emplace(sc->position().eta(), sc);
       }
-      scHandle = scEndcapHandle;
     } 
   }
-
 
 }
 
@@ -571,15 +556,16 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
       if ( matchingSC ( superClusterPtrs, newCandidate, scPtrVec) ) 
         newCandidate.setMatchingSuperCluster( scPtrVec);
           
-      //std::cout << " ConversionProducer  scPtrVec.size " <<  scPtrVec.size() << std::endl;
           
       newCandidate.setQuality(reco::Conversion::highPurity,  highPurityPair);
       bool generalTracksOnly = ll->second->isTrackerOnly() && rr->second->isTrackerOnly() && !dynamic_cast<const reco::GsfTrack*>(ll->second->trackRef().get()) && !dynamic_cast<const reco::GsfTrack*>(rr->second->trackRef().get());
+      bool gsfTracksOpenOnly = ll->second->isGsfTrackOpen() && rr->second->isGsfTrackOpen();
       bool arbitratedEcalSeeded = ll->second->isArbitratedEcalSeeded() && rr->second->isArbitratedEcalSeeded();
       bool arbitratedMerged = ll->second->isArbitratedMerged() && rr->second->isArbitratedMerged();
       bool arbitratedMergedEcalGeneral = ll->second->isArbitratedMergedEcalGeneral() && rr->second->isArbitratedMergedEcalGeneral();          
           
       newCandidate.setQuality(reco::Conversion::generalTracksOnly,  generalTracksOnly);
+      newCandidate.setQuality(reco::Conversion::gsfTracksOpenOnly,  gsfTracksOpenOnly);
       newCandidate.setQuality(reco::Conversion::arbitratedEcalSeeded,  arbitratedEcalSeeded);
       newCandidate.setQuality(reco::Conversion::arbitratedMerged,  arbitratedMerged);
       newCandidate.setQuality(reco::Conversion::arbitratedMergedEcalGeneral,  arbitratedMergedEcalGeneral);          

@@ -733,8 +733,7 @@ class AdHocNTupler : public NTupler {
 	//if(!el->closestCtfTrackRef().isNonnull())
 	//cout<< "Could not find an electron ctf track" << endl;	         
 
-        ConversionFinder convFinder;
-        ConversionInfo convInfo = convFinder.getConversionInfo(*el, tracks_h, evt_bField);
+        ConversionInfo convInfo = egammaTools::getConversionInfo(*el, tracks_h, evt_bField);
    
         (*els_conversion_dist).push_back(convInfo.dist());
         (*els_conversion_dcot).push_back(convInfo.dcot());

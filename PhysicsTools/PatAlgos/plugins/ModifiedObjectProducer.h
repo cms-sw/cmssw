@@ -23,11 +23,9 @@ namespace pat {
       //set our input source
       src_ = consumes<edm::View<T> >(conf.getParameter<edm::InputTag>("src"));
       //setup modifier
-      edm::ConsumesCollector sumes(consumesCollector());      
       const edm::ParameterSet& mod_config = 
         conf.getParameter<edm::ParameterSet>("modifierConfig");
-      modifier_.reset( new Modifier(mod_config) );
-      modifier_->setConsumes(sumes);
+      modifier_ = std::make_unique<Modifier>(mod_config, consumesCollector());
       //declare products
       produces<Collection>();
     }

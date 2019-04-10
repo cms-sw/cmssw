@@ -71,20 +71,16 @@ namespace edmtest {
                                   edm::Event const& event,
                                   edm::EventSetup const&) const {
 
-    edm::Handle<std::vector<int> > inputCollection1;
-    event.getByToken(inputToken1_, inputCollection1);
+    edm::Handle<std::vector<int> > inputCollection1 = event.getHandle(inputToken1_);
 
-    edm::Handle<std::vector<int> > inputCollection2;
-    event.getByToken(inputToken2_, inputCollection2);
+    edm::Handle<std::vector<int> > inputCollection2 = event.getHandle(inputToken2_);
 
     // Readout some entries from some AssociationMaps and check that
     // we readout the same content as was was put in. We know the values
     // by looking at the hard coded values in AssociationMapProducer.
     // The particular values used are arbitrary and have no meaning.
 
-    edm::Handle<AssocOneToOne> hAssociationMap1;
-    event.getByToken(associationMapToken1_, hAssociationMap1);
-    AssocOneToOne const& associationMap1 = *hAssociationMap1;
+    AssocOneToOne const& associationMap1 =event.get(associationMapToken1_);
 
     if(*associationMap1[edm::Ref<std::vector<int> >(inputCollection1, 0)] != 22 ||
        *associationMap1[edm::Ref<std::vector<int> >(inputCollection1, 2)] != 24 ||
@@ -106,10 +102,7 @@ namespace edmtest {
     }
 
     // Case where handle arguments were used creating the AssociationMap
-
-    edm::Handle<AssocOneToOne> hAssociationMap2;
-    event.getByToken(associationMapToken2_, hAssociationMap2);
-    AssocOneToOne const& associationMap2 = *hAssociationMap2;
+    AssocOneToOne const& associationMap2 = event.get(associationMapToken2_);
 
     if(*associationMap2[edm::Ref<std::vector<int> >(inputCollection1, 0)] != 22 ||
        *associationMap2[edm::Ref<std::vector<int> >(inputCollection1, 2)] != 25 ||
@@ -126,9 +119,7 @@ namespace edmtest {
 
     // One to Value case
 
-    edm::Handle<AssocOneToValue> hAssociationMap3;
-    event.getByToken(associationMapToken3_, hAssociationMap3);
-    AssocOneToValue const& associationMap3 = *hAssociationMap3;
+    AssocOneToValue const& associationMap3 = event.get(associationMapToken3_);
 
     if(associationMap3[edm::Ref<std::vector<int> >(inputCollection1, 0)] != 11.0 ||
        associationMap3[edm::Ref<std::vector<int> >(inputCollection1, 2)] != 12.0 ||
@@ -144,9 +135,7 @@ namespace edmtest {
 
     // One to Value case with handle argument
 
-    edm::Handle<AssocOneToValue> hAssociationMap4;
-    event.getByToken(associationMapToken4_, hAssociationMap4);
-    AssocOneToValue const& associationMap4 = *hAssociationMap4;
+    AssocOneToValue const& associationMap4 =event.get(associationMapToken4_);
 
     if(associationMap4[edm::Ref<std::vector<int> >(inputCollection1, 0)] != 21.0 ||
        associationMap4[edm::Ref<std::vector<int> >(inputCollection1, 2)] != 22.0 ||
@@ -162,9 +151,7 @@ namespace edmtest {
 
     // One to Many
 
-    edm::Handle<AssocOneToMany> hAssociationMap5;
-    event.getByToken(associationMapToken5_, hAssociationMap5);
-    AssocOneToMany const& associationMap5 = *hAssociationMap5;
+    AssocOneToMany const& associationMap5 = event.get(associationMapToken5_);
 
     if(*associationMap5[edm::Ref<std::vector<int> >(inputCollection1, 0)].at(0) != 22 ||
        *associationMap5[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(1) != 27 ||
@@ -180,9 +167,7 @@ namespace edmtest {
 
     // One to Many With Quality
 
-    edm::Handle<AssocOneToManyWithQuality> hAssociationMap6;
-    event.getByToken(associationMapToken6_, hAssociationMap6);
-    AssocOneToManyWithQuality const& associationMap6 = *hAssociationMap6;
+    AssocOneToManyWithQuality const& associationMap6 =event.get(associationMapToken6_);
     if(*associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 0)].at(0).first != 22 ||
        *associationMap6[edm::Ref<std::vector<int> >(inputCollection1, 2)].at(1).first != 25 ||
        *associationMap6[edm::Ptr<int>(inputCollection1, 0)].at(0).first != 22 ||
@@ -203,39 +188,33 @@ namespace edmtest {
 
     // One to One View
 
-    edm::Handle<edm::View<int> > inputView1;
-    event.getByToken(inputToken1V_, inputView1);
+    edm::View<int> const& inputView1 = event.get(inputToken1V_);
 
-    edm::Handle<edm::View<int> > inputView2;
-    event.getByToken(inputToken2V_, inputView2);
+    edm::Handle<edm::View<int>> inputView2 = event.getHandle(inputToken2V_);
 
-    edm::Handle<AssocOneToOneView> hAssociationMap7;
-    event.getByToken(associationMapToken7_, hAssociationMap7);
-    AssocOneToOneView const& associationMap7 = *hAssociationMap7;
-    if(*associationMap7[inputView1->refAt(0)] != 24 ||
-       *associationMap7[inputView1->refAt(2)] != 25) {
+    AssocOneToOneView const& associationMap7 =event.get(associationMapToken7_);
+    if(*associationMap7[inputView1.refAt(0)] != 24 ||
+       *associationMap7[inputView1.refAt(2)] != 25) {
       throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 15";
     }
     AssocOneToOneView::const_iterator iter7 = associationMap7.begin();
     ++iter7;
     if(*iter7->val != 25 ||
-       iter7->key != inputView1->refAt(2)) {
+       iter7->key != inputView1.refAt(2)) {
       throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 16";
     }
 
     // One to One View built with 2 arguments constructor
 
-    edm::Handle<AssocOneToOneView> hAssociationMap8;
-    event.getByToken(associationMapToken8_, hAssociationMap8);
-    AssocOneToOneView const& associationMap8 = *hAssociationMap8;
-    if(*associationMap8[inputView1->refAt(0)] != 26 ||
-       *associationMap8[inputView1->refAt(2)] != 27) {
+    AssocOneToOneView const& associationMap8 = event.get(associationMapToken8_);
+    if(*associationMap8[inputView1.refAt(0)] != 26 ||
+       *associationMap8[inputView1.refAt(2)] != 27) {
       throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 17";
     }
     AssocOneToOneView::const_iterator iter8 = associationMap8.begin();
     ++iter8;
     if(*iter8->val != 27 ||
-       iter8->key != inputView1->refAt(2)) {
+       iter8->key != inputView1.refAt(2)) {
       throw cms::Exception("TestFailure") << "unexpected result after using AssociationMap 18";
     }
   }

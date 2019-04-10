@@ -30,7 +30,7 @@
 
 namespace edm {
   class IOVSyncValue;
-  class EventSetup;
+  class EventSetupImpl;
   class LuminosityBlockPrincipal;
   class RunPrincipal;
   
@@ -56,7 +56,7 @@ namespace edm {
                                   Schedule& iSchedule,
                                   P& iPrincipal,
                                   IOVSyncValue const & iTS,
-                                  EventSetup const& iES,
+                                  EventSetupImpl const& iES,
                                   ServiceToken const& token,
                                   SC& iSubProcesses) {
 
@@ -89,7 +89,7 @@ namespace edm {
                                 Schedule& iSchedule,
                                 P& iPrincipal,
                                 IOVSyncValue const & iTS,
-                                EventSetup const& iES,
+                                EventSetupImpl const& iES,
                                 ServiceToken const& token,
                                 SC& iSubProcesses,
                                 bool cleaningUpAfterException)

@@ -10,15 +10,3 @@
 #include "DataFormats/Common/interface/Ref.h"
 
 
-namespace DataFormats_Scouting {
-  struct dictionary {
-    edm::Wrapper<ScoutingCaloJetCollection> sc1;
-    edm::Wrapper<ScoutingParticleCollection> sc2;
-    edm::Wrapper<ScoutingPFJetCollection> sc3;
-    edm::Wrapper<ScoutingVertexCollection> sc4;
-    edm::Wrapper<ScoutingElectronCollection> sc5;
-    edm::Wrapper<ScoutingMuonCollection> sc6;
-    edm::Wrapper<ScoutingPhotonCollection> sc7;
-    edm::Wrapper<ScoutingTrackCollection> sc8;
-  };
-}

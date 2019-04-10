@@ -7,16 +7,22 @@ RecoLocalFastTimeFEVT = cms.PSet(
         'keep *_ftlRecHits_*_*',        
         'keep *_mtdUncalibratedRecHits_*_*',
         'keep *_mtdRecHits_*_*',
+        'keep *_mtdClusters_*_*',
+        'keep *_mtdTrackingRecHits_*_*'
         )
 )
 #RECO content
 RecoLocalFastTimeRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *_ftlRecHits_*_*',        
+        'keep *_ftlRecHits_*_*',
+        'keep *_mtdRecHits_*_*', 
+        'keep *_mtdClusters_*_*',       
         )
 )
 #AOD content
 RecoLocalFastTimeAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring(    
+    outputCommands = cms.untracked.vstring(
+         'keep *_mtdClusters_*_*',
     )
 )
+

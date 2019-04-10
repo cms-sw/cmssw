@@ -10,11 +10,14 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <algorithm>
 #include <iostream>
-#include <cmath> // for M_PI_2 via math.h, as long as appropriate compiler flag switched on to allow acces
+
+using namespace geant_units;
+using namespace geant_units::operators;
+
 
 // Complicated initialization list since the chamber Bounds passed in must have its thickness reset to that of the layer
 // Note for half-widths, t + b = 2w and the TPB only has accessors for t and w so b = 2w - t
@@ -49,11 +52,11 @@ CSCLayerGeometry::CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
 
   if ( ! geom->realWireGeometry() ) {
     // Approximate ORCA_8_8_0 and earlier calculated geometry...
-    float wangler = wireAngleInDegrees*degree; // convert angle to radians
+    float wangler = convertDegToRad( wireAngleInDegrees );
     float wireCos = cos(wangler);
     float wireSin = sin(wangler);
     float y2 = apothem * wireCos + hBottomEdge * fabs(wireSin);
-    float wireSpacing = wg.wireSpacing/10.; // in cm
+    float wireSpacing = convertMmToCm( wg.wireSpacing );
     float wireOffset = -y2 + wireSpacing/2.;
     yOfFirstWire = wireOffset/wireCos;
   }
@@ -151,7 +154,7 @@ float CSCLayerGeometry::stripAngle(int strip) const
   // We want angle at centre of strip (strip N covers
   // *float* range N-1 to N-epsilon)
 
-  return M_PI_2 - theStripTopology->stripAngle(strip-0.5);
+  return 0.5_pi - theStripTopology->stripAngle(strip - 0.5);
 }
 
 LocalPoint CSCLayerGeometry::localCenterOfWireGroup( int wireGroup ) const {

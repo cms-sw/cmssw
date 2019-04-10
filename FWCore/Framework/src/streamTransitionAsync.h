@@ -30,7 +30,7 @@
 
 namespace edm {
   class IOVSyncValue;
-  class EventSetup;
+  class EventSetupImpl;
   class LuminosityBlockPrincipal;
   class RunPrincipal;
   
@@ -58,7 +58,7 @@ namespace edm {
                                   unsigned int iStreamIndex,
                                   P& iPrincipal,
                                   IOVSyncValue const & iTS,
-                                  EventSetup const& iES,
+                                  EventSetupImpl const& iES,
                                   ServiceToken const& token,
                                   SC& iSubProcesses) {
     //When we are done processing the stream for this process,
@@ -93,7 +93,7 @@ namespace edm {
                                   unsigned int iNStreams,
                                   P& iPrincipal,
                                   IOVSyncValue const & iTS,
-                                  EventSetup const& iES,
+                                  EventSetupImpl const& iES,
                                   ServiceToken const& token,
                                   SC& iSubProcesses)
   {
@@ -109,7 +109,7 @@ namespace edm {
                                 unsigned int iStreamIndex,
                                 P& iPrincipal,
                                 IOVSyncValue const & iTS,
-                                EventSetup const& iES,
+                                EventSetupImpl const& iES,
                                 ServiceToken const& token,
                                 SC& iSubProcesses,
                                 bool cleaningUpAfterException)
@@ -144,7 +144,7 @@ namespace edm {
                                  unsigned int iNStreams,
                                  P& iPrincipal,
                                  IOVSyncValue const & iTS,
-                                 EventSetup const& iES,
+                                 EventSetupImpl const& iES,
                                  ServiceToken const& iToken,
                                  SC& iSubProcesses,
                                  bool cleaningUpAfterException)

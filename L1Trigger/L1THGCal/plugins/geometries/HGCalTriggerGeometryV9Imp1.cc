@@ -160,8 +160,9 @@ initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
     heOffset_ = eeTopology().dddConstants().layers(true);
     totalLayers_ = heOffset_ + hsiTopology().dddConstants().layers(true);
     trigger_layers_.resize(totalLayers_+1);
-    unsigned trigger_layer = 0;
-    for(unsigned layer=0; layer<totalLayers_; layer++)
+    trigger_layers_[0] = 0; // layer number 0 doesn't exist
+    unsigned trigger_layer = 1;
+    for(unsigned layer=1; layer<trigger_layers_.size(); layer++)
     {
         if(disconnected_layers_.find(layer)==disconnected_layers_.end())
         {

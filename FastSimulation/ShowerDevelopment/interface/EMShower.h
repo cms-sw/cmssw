@@ -1,7 +1,7 @@
 #ifndef EMShower_H
 #define EMShower_H
 
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 
 //Famos Headers
 #include "FastSimulation/ShowerDevelopment/interface/EMECALShowerParametrization.h"

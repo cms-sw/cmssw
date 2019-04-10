@@ -5,10 +5,10 @@
 // 
 /**\class DDDetectorESProducer
 
- Description: [one line class summary]
+ Description: Produce Detector description
 
  Implementation:
-     [Notes on implementation]
+     Detector is described in XML
 */
 //
 // Original Author:  Ianna Osborne
@@ -22,34 +22,43 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
+#include "DD4hep/Detector.h"
 
-class DDDetectorESProducer : public edm::ESProducer,
-			     public edm::EventSetupRecordIntervalFinder {
+using namespace std;
+using namespace cms;
+using namespace edm;
+
+class DDDetectorESProducer : public ESProducer,
+			     public EventSetupRecordIntervalFinder {
 public:
-  DDDetectorESProducer(const edm::ParameterSet&);
+  DDDetectorESProducer(const ParameterSet&);
   ~DDDetectorESProducer() override;
   
-  using ReturnType = std::unique_ptr<cms::DDDetector>;
-  
+  using ReturnType = unique_ptr<DDDetector>;
+  using Detector = dd4hep::Detector;
+
   ReturnType produce(const DetectorDescriptionRcd&);
-  static void fillDescriptions(edm::ConfigurationDescriptions&);
+  static void fillDescriptions(ConfigurationDescriptions&);
 
 protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-		      const edm::IOVSyncValue&, edm::ValidityInterval&) override;
+  void setIntervalFor(const eventsetup::EventSetupRecordKey&,
+		      const IOVSyncValue&, ValidityInterval&) override;
   
 private:
-  std::string m_confGeomXMLFiles;
+  const string m_confGeomXMLFiles;
+  const string m_label;
 };
 
-DDDetectorESProducer::DDDetectorESProducer(const edm::ParameterSet& iConfig)
-  : m_confGeomXMLFiles(iConfig.getParameter<std::string>("confGeomXMLFiles"))
+DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
+  : m_confGeomXMLFiles(iConfig.getParameter<FileInPath>("confGeomXMLFiles").fullPath()),
+    m_label(iConfig.getParameter<string>("appendToDataLabel"))
 {
-   setWhatProduced(this);
-   findingRecord<DetectorDescriptionRcd>();
+  setWhatProduced(this);
+  findingRecord<DetectorDescriptionRcd>();
 }
 
 DDDetectorESProducer::~DDDetectorESProducer()
@@ -57,26 +66,25 @@ DDDetectorESProducer::~DDDetectorESProducer()
 }
 
 void
-DDDetectorESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+DDDetectorESProducer::fillDescriptions(ConfigurationDescriptions & descriptions)
 {
-  edm::ParameterSetDescription desc;
+  ParameterSetDescription desc;
 
-  desc.add<std::string>("confGeomXMLFiles");
+  desc.add<FileInPath>("confGeomXMLFiles");
   descriptions.addDefault(desc);
 }
 
 void
-DDDetectorESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
-				     const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval) {
-  oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); //infinite
+DDDetectorESProducer::setIntervalFor(const eventsetup::EventSetupRecordKey& iKey,
+				     const IOVSyncValue& iTime, ValidityInterval& oInterval) {
+  oInterval = ValidityInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime()); //infinite
 }
 
 DDDetectorESProducer::ReturnType
 DDDetectorESProducer::produce(const DetectorDescriptionRcd& iRecord)
 {
-  auto product = std::make_unique<cms::DDDetector>();
-  product->process(m_confGeomXMLFiles);
-  return product;
+  LogDebug("Geometry") << "DDDetectorESProducer::Produce " << m_label;
+  return make_unique<DDDetector>(m_label, m_confGeomXMLFiles);
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(DDDetectorESProducer);

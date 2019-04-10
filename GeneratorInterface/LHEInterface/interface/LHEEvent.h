@@ -7,8 +7,6 @@
 #include <vector>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/PdfInfo.h"
@@ -24,22 +22,22 @@ namespace lhef {
 
 class LHEEvent {
     public:
-	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
 	         std::istream &in);
-	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
 	         const HEPEUP &hepeup);
-	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
 	         const HEPEUP &hepeup,
 	         const LHEEventProduct::PDF *pdf,
 	         const std::vector<std::string> &comments);
-	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
+	LHEEvent(const std::shared_ptr<LHERunInfo> &runInfo,
 	         const LHEEventProduct &product);
 	~LHEEvent();
 
 	typedef LHEEventProduct::PDF PDF;
 	typedef LHEEventProduct::WGT WGT;
 
-	const boost::shared_ptr<LHERunInfo> &getRunInfo() const { return runInfo; }
+	const std::shared_ptr<LHERunInfo> &getRunInfo() const { return runInfo; }
 	const HEPEUP *getHEPEUP() const { return &hepeup; }
 	const HEPRUP *getHEPRUP() const { return runInfo->getHEPRUP(); }
 	const PDF *getPDF() const { return pdf.get(); }
@@ -85,7 +83,7 @@ class LHEEvent {
 	static bool checkHepMCTree(const HepMC::GenEvent *event);
 	HepMC::GenParticle *makeHepMCParticle(unsigned int i) const;
 
-	const boost::shared_ptr<LHERunInfo>	runInfo;
+	const std::shared_ptr<LHERunInfo>	runInfo;
 
 	HEPEUP					hepeup;
 	std::unique_ptr<PDF>			pdf;

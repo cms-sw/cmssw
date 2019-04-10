@@ -42,22 +42,22 @@
 @example_globalclass __class__ : public DQMGlobalEDAnalyzer<Histograms___class__> {
 public:
   explicit __class__(const edm::ParameterSet&);
-  ~__class__();
+  ~__class__() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
 private:
-@example_stream  virtual void bookHistograms(DQMStore::IBooker &,
+@example_stream  void bookHistograms(DQMStore::IBooker &,
 @example_stream                              edm::Run const&,
 @example_stream                              edm::EventSetup const&) override;
-@example_global  virtual void bookHistograms(DQMStore::ConcurrentBooker &,
+@example_global  void bookHistograms(DQMStore::ConcurrentBooker &,
 @example_global                              edm::Run const&,
 @example_global                              edm::EventSetup const&,
 @example_global                              Histograms___class__&) const override;
 
-@example_stream  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-@example_global  virtual void dqmAnalyze(edm::Event const&,
+@example_stream  void analyze(const edm::Event&, const edm::EventSetup&) override;
+@example_global  void dqmAnalyze(edm::Event const&,
 @example_global                          edm::EventSetup const&,
 @example_global                          Histograms___class__ const&) const override;
 
@@ -84,7 +84,7 @@ private:
 //
 __class__::__class__(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")) {
-   //now do what ever initialization is needed
+   // now do what ever initialization is needed
 }
 
 
@@ -147,5 +147,5 @@ void __class__::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   descriptions.add("__class_lowercase__", desc);
 }
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(__class__);

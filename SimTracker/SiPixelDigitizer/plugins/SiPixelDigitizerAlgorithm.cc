@@ -118,7 +118,7 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
     theSiPixelGainCalibrationService_->setESObjects( es );
   }
   if(use_deadmodule_DB_) {
-    es.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
+    es.get<SiPixelQualityRcd>().get(siPixelQualityLabel, SiPixelBadModule_);
   }
   if(use_LorentzAngle_DB_) {
     // Get Lorentz angle from DB record
@@ -132,6 +132,41 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
     es.get<SiPixelStatusScenarioProbabilityRcd>().get(scenarioProbabilityHandle);
     es.get<SiPixelFEDChannelContainerESProducerRcd>().get(PixelFEDChannelCollectionMapHandle);
     quality_map = PixelFEDChannelCollectionMapHandle.product();
+
+    SiPixelQualityProbabilities:: probabilityMap m_probabilities = scenarioProbabilityHandle->getProbability_Map();    
+    std::vector<std::string> allScenarios;
+
+    std::transform(quality_map->begin(),
+		   quality_map->end(),
+		   std::back_inserter(allScenarios),
+		   [](const PixelFEDChannelCollectionMap::value_type &pair){return pair.first;});
+
+    std::vector<std::string> allScenariosInProb;
+
+    for(auto it = m_probabilities.begin(); it != m_probabilities.end() ; ++it){
+      //int PUbin = it->first;
+      for (const auto &entry : it->second){
+	auto scenario = entry.first;
+	auto probability = entry.second;
+	if(probability!=0){
+	  if(std::find(allScenariosInProb.begin(), allScenariosInProb.end(), scenario) == allScenariosInProb.end()) {
+	    allScenariosInProb.push_back(scenario);
+	  }
+	} // if prob!=0
+      } // loop on the scenarios for that PU bin
+    } // loop on PU bins
+    
+    std::vector<std::string> notFound;
+    std::copy_if(allScenariosInProb.begin(), allScenariosInProb.end(), std::back_inserter(notFound),
+		 [&allScenarios](const std::string& arg)
+		 { return (std::find(allScenarios.begin(),allScenarios.end(), arg) == allScenarios.end());});
+    
+    if(!notFound.empty()){
+      for(const auto &entry : notFound){
+	edm::LogError("SiPixelFEDChannelContainer") <<"The requested scenario: " << entry <<" is not found in the map!!"<<std::endl; 
+      }
+      throw cms::Exception("SiPixelDigitizerAlgorithm")<< "Found: " << notFound.size()<< " missing scenario(s) in SiPixelStatusScenariosRcd while present in SiPixelStatusScenarioProbabilityRcd \n";
+    } 
   }
   
   // Read template files for charge reweighting
@@ -156,7 +191,8 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
 //=========================================================================
 
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
-
+  
+  siPixelQualityLabel(conf.getParameter<std::string>("SiPixelQualityLabel")), //string to specify SiPixelQuality label
   _signal(),
   makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", true)),
   use_ineff_from_db_(conf.getParameter<bool>("useDB")),

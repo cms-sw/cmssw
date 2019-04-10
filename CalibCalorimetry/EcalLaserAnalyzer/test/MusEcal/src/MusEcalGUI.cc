@@ -36,7 +36,7 @@
 #include "MERunManager.hh"
 #include "../../interface/MEChannel.h"
 
-ClassImp(MusEcalGUI)
+ClassImp(MusEcalGUI);
 
 MusEcalGUI::MusEcalGUI( const TGWindow *p, UInt_t w, UInt_t h,
 			int type, int color )

@@ -37,7 +37,7 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection &hits) {
       if (thickness_index == -1)
         thickness_index = 3;
       double storedThreshold = thresholds_[layer - 1][thickness_index];
-      sigmaNoise = v_sigmaNoise_[layer - 1][thickness_index];
+      sigmaNoise = sigmaNoise_[layer - 1][thickness_index];
 
       if (hgrh.energy() < storedThreshold)
         continue; // this sets the ZS threshold at ecut times the sigma noise
@@ -98,6 +98,8 @@ void HGCalImagingAlgo::makeClusters() {
       double maxdensity = calculateLocalDensity(
           points_[i], hit_kdtree, actualLayer); // also stores rho (energy
                                                // density) for each point (node)
+      //Now that we have the density per point we can store it
+      setDensity(points_[i]);
       // calculate distance to nearest point with higher density storing
       // distance (delta) and point's index
       calculateDistanceToHigher(points_[i]);
@@ -115,6 +117,9 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
     for (unsigned int i = 0; i < clsOnLayer.size(); ++i) {
       double energy = 0;
       Point position;
+      
+      //Will save the maximum density hit of the cluster
+      size_t rsmax = max_index(clsOnLayer[i]);
 
       if (doSharing) {
 
@@ -158,7 +163,8 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
           }
           clusters_v_.emplace_back(energy, position, caloID, thisCluster,
                                   algoId_);
-          thisCluster.clear();
+	  if (!clusters_v_.empty()){ clusters_v_.back().setSeed( clsOnLayer[i][rsmax].data.detid); }
+	  thisCluster.clear();
         }
       } else {
         position = calculatePosition(clsOnLayer[i]); // energy-weighted position
@@ -178,6 +184,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
           std::cout << "*****************************" << std::endl;
         }
         clusters_v_.emplace_back(energy, position, caloID, thisCluster, algoId_);
+	if (!clusters_v_.empty()){ clusters_v_.back().setSeed( clsOnLayer[i][rsmax].data.detid); }
         thisCluster.clear();
       }
     }
@@ -190,39 +197,65 @@ HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v) const {
   float total_weight = 0.f;
   float x = 0.f;
   float y = 0.f;
-  float z = 0.f;
+
   unsigned int v_size = v.size();
   unsigned int maxEnergyIndex = 0;
   float maxEnergyValue = 0;
-  bool haloOnlyCluster = true;
 
-  // loop over hits in cluster candidate building up weight for
-  // energy-weighted position calculation and determining the maximum
-  // energy hit in case this is a halo-only cluster
+  // loop over hits in cluster candidate
+  // determining the maximum energy hit
   for (unsigned int i = 0; i < v_size; i++) {
-    if (!v[i].data.isHalo) {
-      haloOnlyCluster = false;
-      total_weight += v[i].data.weight;
-      x += v[i].data.x * v[i].data.weight;
-      y += v[i].data.y * v[i].data.weight;
-      z += v[i].data.z * v[i].data.weight;
-    } else {
-      if (v[i].data.weight > maxEnergyValue) {
+    if (v[i].data.weight > maxEnergyValue) {
         maxEnergyValue = v[i].data.weight;
         maxEnergyIndex = i;
-      }
     }
   }
 
-  if (!haloOnlyCluster) {
-    if (total_weight != 0) {
-      auto inv_tot_weight = 1. / total_weight;
-      return math::XYZPoint(x * inv_tot_weight, y * inv_tot_weight,
-                            z * inv_tot_weight);
+  // Si cell or Scintillator. Used to set approach and parameters
+  int thick = rhtools_.getSiThickIndex(v[maxEnergyIndex].data.detid);
+
+  // for hits within positionDeltaRho_c_ from maximum energy hit
+  // build up weight for energy-weighted position
+  // and save corresponding hits indices
+  std::vector<unsigned int> innerIndices;
+  for (unsigned int i = 0; i < v_size; i++) {
+    if (thick == -1 ||
+        distance2(v[i].data, v[maxEnergyIndex].data) < positionDeltaRho_c_[thick]){
+      innerIndices.push_back(i);
+
+      float rhEnergy = v[i].data.weight;
+      total_weight += rhEnergy;
+      // just fill x, y for scintillator
+      // for Si it is overwritten later anyway
+      if(thick == -1){
+        x += v[i].data.x * rhEnergy;
+        y += v[i].data.y * rhEnergy;
+      }
     }
-  } else if (v_size > 0) {
-    // return position of hit with maximum energy
-    return math::XYZPoint(v[maxEnergyIndex].data.x, v[maxEnergyIndex].data.y,
+  }
+  // just loop on reduced vector of interesting indices
+  // to compute log weighting
+  if(thick != -1 && total_weight != 0.){ // Silicon case
+    float total_weight_log = 0.f;
+    float x_log = 0.f;
+    float y_log = 0.f;
+    for (auto idx : innerIndices) {
+      float rhEnergy = v[idx].data.weight;
+      if(rhEnergy == 0.) continue;
+      float Wi = std::max(thresholdW0_[thick] + log(rhEnergy/total_weight), 0.);
+      x_log += v[idx].data.x * Wi;
+      y_log += v[idx].data.y * Wi;
+      total_weight_log += Wi;
+    }
+    total_weight = total_weight_log;
+    x = x_log;
+    y = y_log;
+  }
+
+  if (total_weight != 0.) {
+    auto inv_tot_weight = 1. / total_weight;
+    return math::XYZPoint(x * inv_tot_weight,
+                          y * inv_tot_weight,
                           v[maxEnergyIndex].data.z);
   }
   return math::XYZPoint(0, 0, 0);
@@ -626,7 +659,7 @@ void HGCalImagingAlgo::computeThreshold() {
   const unsigned maxNumberOfThickIndices = 3;
   dummy.resize(maxNumberOfThickIndices + 1, 0); // +1 to accomodate for the Scintillators
   thresholds_.resize(maxlayer, dummy);
-  v_sigmaNoise_.resize(maxlayer, dummy);
+  sigmaNoise_.resize(maxlayer, dummy);
 
   for (unsigned ilayer = 1; ilayer <= maxlayer; ++ilayer) {
     for (unsigned ithick = 0; ithick < maxNumberOfThickIndices; ++ithick) {
@@ -634,11 +667,25 @@ void HGCalImagingAlgo::computeThreshold() {
           0.001f * fcPerEle_ * nonAgedNoises_[ithick] * dEdXweights_[ilayer] /
           (fcPerMip_[ithick] * thicknessCorrection_[ithick]);
       thresholds_[ilayer - 1][ithick] = sigmaNoise * ecut_;
-      v_sigmaNoise_[ilayer - 1][ithick] = sigmaNoise;
+      sigmaNoise_[ilayer - 1][ithick] = sigmaNoise;
     }
     float scintillators_sigmaNoise = 0.001f * noiseMip_ * dEdXweights_[ilayer];
     thresholds_[ilayer - 1][maxNumberOfThickIndices] = ecut_ * scintillators_sigmaNoise;
-    v_sigmaNoise_[ilayer -1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
+    sigmaNoise_[ilayer -1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
   }
 
 }
+
+void HGCalImagingAlgo::setDensity(const std::vector<KDNode> &nd){
+
+  // for each node calculate local density rho and store it
+  for (auto &i : nd){
+    density_[ i.data.detid ] =  i.data.rho ;
+  }   // end loop nodes
+}
+
+//Density 
+Density HGCalImagingAlgo::getDensity(){
+  return density_;
+}
+

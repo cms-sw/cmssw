@@ -2,7 +2,6 @@
 #define __BASELINEPFSCREGRESSION_H__
 
 #include "RecoEgamma/EgammaTools/interface/SCRegressionCalculator.h"
-#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h" 
@@ -38,7 +37,6 @@ class BaselinePFSCRegression {
  private:
   const CaloTopologyRecord* topo_record;
   const CaloGeometryRecord* geom_record;
-  EcalClusterLocal ecl_;
   edm::ESHandle<CaloTopology> calotopo;
   edm::ESHandle<CaloGeometry> calogeom;
   edm::EDGetTokenT<EcalRecHitCollection>          inputTagEBRecHits_;

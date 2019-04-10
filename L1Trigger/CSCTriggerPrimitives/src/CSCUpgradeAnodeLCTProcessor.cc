@@ -1,4 +1,4 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeAnodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeAnodeLCTProcessor.h"
 
 CSCUpgradeAnodeLCTProcessor::CSCUpgradeAnodeLCTProcessor(unsigned endcap, unsigned station,
                                                          unsigned sector, unsigned subsector,

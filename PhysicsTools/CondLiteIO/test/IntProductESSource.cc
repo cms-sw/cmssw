@@ -77,7 +77,7 @@ IntProductESSource::produce(const IntProductRecord&) {
    auto data = std::make_unique<edmtest::IntProduct>();
    data->value = nCalls_;
    ++nCalls_;
-   return std::move(data);
+   return data;
 }
 
 

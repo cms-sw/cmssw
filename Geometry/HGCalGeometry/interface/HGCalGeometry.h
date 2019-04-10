@@ -77,7 +77,10 @@ public:
 		   CaloSubdetectorGeometry::IVec& dinsVector ) const override;
   
   GlobalPoint getPosition( const DetId& id ) const;
-      
+
+  /// Returns area of a cell
+  double getArea(const DetId& detid) const;
+
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners( const DetId& id ) const; 
   CornersVec get8Corners( const DetId& id ) const; 
@@ -134,6 +137,8 @@ private:
   DetId getGeometryDetId(DetId detId) const;
 
   static constexpr double         k_half = 0.5;
+  static constexpr double         k_fac1 = 0.5;
+  static constexpr double         k_fac2 = 1.0/3.0;
 
   const HGCalTopology&            m_topology;
   CellVec                         m_cellVec; 

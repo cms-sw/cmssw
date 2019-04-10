@@ -107,20 +107,11 @@ __class__::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-    Handle<TrackCollection> tracks;
-    iEvent.getByToken(tracksToken_, tracks);
-    for(TrackCollection::const_iterator itTrack = tracks->begin();
-        itTrack != tracks->end();
-        ++itTrack) {
+   for(const auto& track : iEvent.get(tracksToken_) ) {
       // do something with track parameters, e.g, plot the charge.
-      // int charge = itTrack->charge();
-@example_histo       histo->Fill( itTrack->charge() );
-    }
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
+      // int charge = track.charge();
+@example_histo       histo->Fill( track.charge() );
+   }
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
    ESHandle<SetupData> pSetup;

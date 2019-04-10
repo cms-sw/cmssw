@@ -23,6 +23,9 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTGraphPayload.h"
 #include "CondFormats/DataRecord/interface/PhysicsTGraphPayloadRcd.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
@@ -41,7 +44,8 @@ class PATTauDiscriminantCutMultiplexer : public PATTauDiscriminationProducerBase
     ~PATTauDiscriminantCutMultiplexer() override;
     double discriminate(const pat::TauRef&) const override;
     void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
-	
+
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
     std::string moduleLabel_;
 	
@@ -147,16 +151,13 @@ PATTauDiscriminantCutMultiplexer::PATTauDiscriminantCutMultiplexer(const edm::Pa
   key_ = cfg.getParameter<edm::InputTag>("key");
   key_token = consumes<pat::PATTauDiscriminator>(key_);
 
-  loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
+  verbosity_ = cfg.getParameter<int>("verbosity");
+  loadMVAfromDB_ = cfg.getParameter<bool>("loadMVAfromDB");
   if ( !loadMVAfromDB_ ) {
-    if(cfg.exists("inputFileName")){
       inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
-    }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
   }
   if(verbosity_)  std::cout << moduleLabel_ << " loadMVA = " << loadMVAfromDB_ << std::endl;
-  if ( cfg.exists("mvaOutput_normalization") ) {
-    mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization"); 
-  }
+  mvaOutputNormalizationName_ = cfg.getParameter<std::string>("mvaOutput_normalization");  // default value is "" which should just overwrite existing value with same empty string
 
   // Setup our cut map
   typedef std::vector<edm::ParameterSet> VPSet;
@@ -179,7 +180,7 @@ PATTauDiscriminantCutMultiplexer::PATTauDiscriminantCutMultiplexer(const edm::Pa
     }
     cuts_[category] = std::move(cut);
   }
-  verbosity_ = ( cfg.exists("verbosity") ) ? cfg.getParameter<int>("verbosity") : 0;
+  verbosity_ = cfg.getParameter<int>("verbosity");
   if(verbosity_) std::cout << "constructed " << moduleLabel_ << std::endl;
 }
 
@@ -194,7 +195,7 @@ void PATTauDiscriminantCutMultiplexer::beginEvent(const edm::Event& evt, const e
     //Only open the file once and we can close it when this routine is done
     // since all objects gotten from the file will have been copied
     std::unique_ptr<TFile> inputFile;
-    if ( mvaOutputNormalizationName_ != "" ) {
+    if ( !mvaOutputNormalizationName_.empty() ) {
       if ( !loadMVAfromDB_ ) {
 	inputFile = openInputFile(inputFileName_);
 	mvaOutput_normalization_ = loadObjectFromFile<TFormula>(*inputFile, mvaOutputNormalizationName_);
@@ -276,6 +277,36 @@ PATTauDiscriminantCutMultiplexer::discriminate(const pat::TauRef& tau) const
   } else assert(0);
 
   return passesCuts;
+}
+
+void
+PATTauDiscriminantCutMultiplexer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // patTauDiscriminantCutMultiplexer
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("toMultiplex", edm::InputTag("fixme"));
+  desc.add<int>("verbosity", 0);
+  {
+    edm::ParameterSetDescription desc_mapping;
+    desc_mapping.add<unsigned int>("category");
+    desc_mapping.setAllowAnything(); //option cut can be double or (string plus additional option variable)
+
+    std::vector<edm::ParameterSet> vpsd_mapping;
+    edm::ParameterSet psd1;
+    psd1.addParameter<unsigned int>("category", 0);
+    psd1.addParameter<double>("cut", 0.5);
+    vpsd_mapping.push_back(psd1);
+    edm::ParameterSet psd2;
+    psd2.addParameter<unsigned int>("category", 1);
+    psd2.addParameter<double>("cut", 0.2);
+    vpsd_mapping.push_back(psd2);
+    desc.addVPSet("mapping", desc_mapping, vpsd_mapping);
+  }
+  desc.add<edm::FileInPath>("inputFileName", edm::FileInPath("RecoTauTag/RecoTau/data/emptyMVAinputFile"));
+  desc.add<bool>("loadMVAfromDB", true);
+  fillProducerDescriptions(desc); // inherited from the base
+  desc.add<std::string>("mvaOutput_normalization", "");
+  desc.add<edm::InputTag>("key", edm::InputTag("fixme"));
+  descriptions.add("patTauDiscriminantCutMultiplexer", desc);
 }
 
 DEFINE_FWK_MODULE(PATTauDiscriminantCutMultiplexer);

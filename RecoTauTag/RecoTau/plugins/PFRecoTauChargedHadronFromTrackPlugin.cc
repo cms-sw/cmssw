@@ -28,8 +28,8 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
@@ -95,8 +95,7 @@ class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuild
   numWarnings_ = 0;
   maxWarnings_ = 3;
 
-  verbosity_ = ( pset.exists("verbosity") ) ?
-    pset.getParameter<int>("verbosity") : 0;
+  verbosity_ = pset.getParameter<int>("verbosity");
 }
   
 PFRecoTauChargedHadronFromTrackPlugin::~PFRecoTauChargedHadronFromTrackPlugin()
@@ -196,11 +195,12 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
     //    (outerMomentum and outerPosition require access to reco::TrackExtra objects, which are available in RECO only)
     //
     XYZTLorentzVector chargedPionPos(track->referencePoint().x(), track->referencePoint().y(), track->referencePoint().z(), 0.);
-    BaseParticlePropagator trackPropagator(RawParticle(chargedPionP4, chargedPionPos), 0., 0., magneticFieldStrength_.z());
-    trackPropagator.setCharge(track->charge());
+    RawParticle p(chargedPionP4, chargedPionPos);
+    p.setCharge(track->charge());
+    BaseParticlePropagator trackPropagator(p, 0., 0., magneticFieldStrength_.z());
     trackPropagator.propagateToEcalEntrance(false);
     if ( trackPropagator.getSuccess() != 0 ) { 
-      chargedHadron->positionAtECALEntrance_ = trackPropagator.vertex();
+      chargedHadron->positionAtECALEntrance_ = trackPropagator.particle().vertex();
     } else {
       if ( chargedPionP4.pt() > 2. and std::abs(chargedPionP4.eta()) < 3. ) {
 	edm::LogWarning("PFRecoTauChargedHadronFromTrackPlugin::operator()") 

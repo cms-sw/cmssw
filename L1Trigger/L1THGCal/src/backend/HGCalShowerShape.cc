@@ -1,7 +1,6 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalShowerShape.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <unordered_map>
@@ -89,8 +88,9 @@ int HGCalShowerShape::coreShowerLength(const l1t::HGCalMulticluster& c3d, const 
   std::vector<bool> layers(nlayers);
   for(const auto& id_cluster : clustersPtrs)
   {
-    int layer = triggerGeometry.triggerLayer(id_cluster.second->detId());
-    layers[layer-1] = true;
+    unsigned layer = triggerGeometry.triggerLayer(id_cluster.second->detId());
+    if(layer==0 || layer>nlayers) continue;
+    layers[layer-1] = true; //layer 0 doesn't exist, so shift by -1
   }
   int length = 0;
   int maxlength = 0;

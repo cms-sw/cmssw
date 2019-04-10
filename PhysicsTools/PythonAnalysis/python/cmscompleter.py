@@ -11,7 +11,7 @@ from __future__ import print_function
 
 import readline
 import rlcompleter
-import __builtin__
+from six import builtins
 import __main__
 
 __all__ = ["CMSCompleter"]
@@ -49,7 +49,7 @@ class CMSCompleter(rlcompleter.Completer):
         matches = []
         n = len(text)
         for list in [keyword.kwlist,
-                     __builtin__.__dict__,
+                     builtins.__dict__,
 					 self.cmsnamespace]:
             for word in list:
                 if word[:n] == text and word != "__builtins__":

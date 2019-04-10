@@ -18,6 +18,7 @@ globalCosmicMuons = cms.EDProducer("TracksToTrajectories",
                                    Tracks = cms.InputTag("globalCosmicMuons"),
                                    TrackTransformer = cms.PSet(TrackerRecHitBuilder = cms.string('WithTrackAngle'),
                                                                MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+                                                               MTDRecHitBuilder = cms.string('MTDRecHitBuilder'),
                                                                RefitRPCHits = cms.bool(True),
     															# muon station to be skipped //also kills RPCs in that station
     															SkipStationDT	= cms.int32(-999),

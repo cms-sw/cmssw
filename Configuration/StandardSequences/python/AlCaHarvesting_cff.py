@@ -9,6 +9,7 @@ from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvester_cff import *
 from Calibration.EcalCalibAlgos.AlcaEcalPedestalsHarvester_cff import *
 from Calibration.LumiAlCaRecoProducers.AlcaLumiPCCHarvester_cff import *
 from CalibTracker.SiPixelQuality.SiPixelStatusHarvester_cfi import *
+from CalibTracker.SiPixelQuality.DQMEventInfoSiPixelQuality_cff import *
 
 from Calibration.TkAlCaRecoProducers.PCLMetadataWriter_cfi import *
 
@@ -225,7 +226,7 @@ SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)
 SiStripGainsAAG = cms.Path(ALCAHARVESTSiStripGainsAAG)
 LumiPCC = cms.Path(ALCAHARVESTLumiPCC)
-SiPixelQuality = cms.Path(ALCAHARVESTSiPixelQuality)#+siPixelPhase1DQMHarvester)
+SiPixelQuality = cms.Path(dqmEnvSiPixelQuality+ALCAHARVESTSiPixelQuality)#+siPixelPhase1DQMHarvester)
 
 ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(dqmSaver+pclMetadataWriter)
 

@@ -47,7 +47,7 @@ void MonPNRedDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8, :9, :10, :11)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNRedDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNRedDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -81,7 +81,7 @@ void MonPNRedDat::writeDB(const EcalLogicID* ecid, const MonPNRedDat* item, MonR
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNRedDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNRedDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -113,12 +113,12 @@ void MonPNRedDat::fetchData(std::map< EcalLogicID, MonPNRedDat >* fillMap, MonRu
     std::pair< EcalLogicID, MonPNRedDat > p;
     MonPNRedDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setADCMeanG1( rset->getFloat(7) );
       dat.setADCRMSG1( rset->getFloat(8) );
@@ -133,7 +133,7 @@ void MonPNRedDat::fetchData(std::map< EcalLogicID, MonPNRedDat >* fillMap, MonRu
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNRedDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNRedDat::fetchData():  "+e.getMessage()));
   }
 }
 void MonPNRedDat::writeArrayDB(const std::map< EcalLogicID, MonPNRedDat >* data, MonRunIOV* iov)
@@ -267,6 +267,6 @@ void MonPNRedDat::writeArrayDB(const std::map< EcalLogicID, MonPNRedDat >* data,
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNRedDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNRedDat::writeArrayDB():  "+e.getMessage()));
   }
 }

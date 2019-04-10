@@ -142,6 +142,7 @@ private:
   const bool                     unCorrect_, collapseDepth_;
   const double                   hitEthrEB_, hitEthrEE0_, hitEthrEE1_;
   const double                   hitEthrEE2_, hitEthrEE3_;
+  const double                   hitEthrEELo_, hitEthrEEHi_;
   const edm::InputTag            triggerEvent_, theTriggerResultsLabel_;
   const std::string              labelGenTrack_, labelRecVtx_, labelEB_; 
   const std::string              labelEE_, labelHBHE_, labelTower_,l1TrigName_;
@@ -222,6 +223,8 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   hitEthrEE1_(iConfig.getParameter<double>("EEHitEnergyThreshold1") ),
   hitEthrEE2_(iConfig.getParameter<double>("EEHitEnergyThreshold2") ),
   hitEthrEE3_(iConfig.getParameter<double>("EEHitEnergyThreshold3") ),
+  hitEthrEELo_(iConfig.getParameter<double>("EEHitEnergyThresholdLow") ),
+  hitEthrEEHi_(iConfig.getParameter<double>("EEHitEnergyThresholdHigh") ),
   triggerEvent_(iConfig.getParameter<edm::InputTag>("labelTriggerEvent")),
   theTriggerResultsLabel_(iConfig.getParameter<edm::InputTag>("labelTriggerResult")),
   labelGenTrack_(iConfig.getParameter<std::string>("labelTrack")),
@@ -341,7 +344,12 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
 				   <<"\t mode_          "  << mode_
 				   <<"\t unCorrect_     "  << unCorrect_
 				   <<"\t collapseDepth_ "  << collapseDepth_
-				   <<"\t L1TrigName_    "  << l1TrigName_;
+				   <<"\t L1TrigName_    "  << l1TrigName_
+				   <<"\nThreshold for EB " <<  hitEthrEB_ 
+				   << " EE " << hitEthrEE0_ << ":" 
+				   << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
+				   << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
+				   << hitEthrEEHi_;
   edm::LogVerbatim("HcalIsoTrack") << "Process " << processName_ 
 				   << " L1Filter:" << l1Filter_ << " L2Filter:"
 				   << l2Filter_  << " L3Filter:" << l3Filter_;
@@ -855,11 +863,13 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("isolationEnergyTight",2.0);
   desc.add<double>("isolationEnergyLoose",10.0);
   // energy thershold for ECAL (from Egamma group)
-  desc.add<double>("EBHitEnergyThreshold",0.10);
-  desc.add<double>("EEHitEnergyThreshold0",-41.0664);
-  desc.add<double>("EEHitEnergyThreshold1",68.7950);
-  desc.add<double>("EEHitEnergyThreshold2",-38.1483);
-  desc.add<double>("EEHitEnergyThreshold3",7.04303);
+  desc.add<double>("EBHitEnergyThreshold",0.08);
+  desc.add<double>("EEHitEnergyThreshold0",0.30);
+  desc.add<double>("EEHitEnergyThreshold1",0.00);
+  desc.add<double>("EEHitEnergyThreshold2",0.00);
+  desc.add<double>("EEHitEnergyThreshold3",0.00);
+  desc.add<double>("EEHitEnergyThresholdLow",0.30);
+  desc.add<double>("EEHitEnergyThresholdHigh",0.30);
   // prescale factors
   desc.add<double>("momentumLow", 40.0);
   desc.add<double>("momentumHigh",60.0);
@@ -986,8 +996,13 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
       for (unsigned int k=0; k<eIds.size(); ++k) {
         const GlobalPoint& pos = geo->getPosition(eIds[k]);
 	double eta  = std::abs(pos.eta());
-	double eThr = (eIds[k].subdetId() == EcalBarrel) ? hitEthrEB_ :
-	  (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+hitEthrEE0_);
+	double eThr(hitEthrEB_);
+	if (eIds[k].subdetId() != EcalBarrel) {
+	  eThr = (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+
+		  hitEthrEE0_);
+	  if      (eThr < hitEthrEELo_) eThr = hitEthrEELo_;
+	  else if (eThr > hitEthrEEHi_) eThr = hitEthrEEHi_;
+	}
 	if (eHit[k] > eThr) eEcal += eHit[k];
       }
 #ifdef EDM_ML_DEBUG
@@ -1007,8 +1022,13 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
       for (unsigned int k=0; k<eIds2.size(); ++k) {
         const GlobalPoint& pos = geo->getPosition(eIds2[k]);
 	double eta  = std::abs(pos.eta());
-	double eThr = (eIds2[k].subdetId() == EcalBarrel) ? hitEthrEB_ :
-	  (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+hitEthrEE0_);
+	double eThr(hitEthrEB_);
+	if (eIds2[k].subdetId() != EcalBarrel) {
+	  eThr = (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+
+		  hitEthrEE0_);
+	  if      (eThr < hitEthrEELo_) eThr = hitEthrEELo_;
+	  else if (eThr > hitEthrEEHi_) eThr = hitEthrEEHi_;
+	}
 	if (eHit2[k] > eThr) eEcal2 += eHit2[k];
       }
 #ifdef EDM_ML_DEBUG
@@ -1028,8 +1048,13 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
       for (unsigned int k=0; k<eIds3.size(); ++k) {
         const GlobalPoint& pos = geo->getPosition(eIds3[k]);
 	double eta  = std::abs(pos.eta());
-	double eThr = (eIds3[k].subdetId() == EcalBarrel) ? hitEthrEB_ :
-	  (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+hitEthrEE0_);
+	double eThr(hitEthrEB_);
+	if (eIds3[k].subdetId() != EcalBarrel) {
+	  eThr = (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+
+		  hitEthrEE0_);
+	  if      (eThr < hitEthrEELo_) eThr = hitEthrEELo_;
+	  else if (eThr > hitEthrEEHi_) eThr = hitEthrEEHi_;
+	}
 	if (eHit3[k] > eThr) eEcal3 += eHit3[k];
       }
 #ifdef EDM_ML_DEBUG
@@ -1049,8 +1074,13 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
       for (unsigned int k=0; k<eIds4.size(); ++k) {
         const GlobalPoint& pos = geo->getPosition(eIds4[k]);
 	double eta  = std::abs(pos.eta());
-	double eThr = (eIds4[k].subdetId() == EcalBarrel) ? hitEthrEB_ :
-	  (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+hitEthrEE0_);
+	double eThr(hitEthrEB_);
+	if (eIds4[k].subdetId() != EcalBarrel) {
+	  eThr = (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+
+		  hitEthrEE0_);
+	  if      (eThr < hitEthrEELo_) eThr = hitEthrEELo_;
+	  else if (eThr > hitEthrEEHi_) eThr = hitEthrEEHi_;
+	}
 	if (eHit4[k] > eThr) eEcal4 += eHit4[k];
       }
 #ifdef EDM_ML_DEBUG
@@ -1070,8 +1100,13 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
       for (unsigned int k=0; k<eIds5.size(); ++k) {
         const GlobalPoint& pos = geo->getPosition(eIds5[k]);
 	double eta  = std::abs(pos.eta());
-	double eThr = (eIds5[k].subdetId() == EcalBarrel) ? hitEthrEB_ :
-	  (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+hitEthrEE0_);
+	double eThr(hitEthrEB_);
+	if (eIds5[k].subdetId() != EcalBarrel) {
+	  eThr = (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+
+		  hitEthrEE0_);
+	  if      (eThr < hitEthrEELo_) eThr = hitEthrEELo_;
+	  else if (eThr > hitEthrEEHi_) eThr = hitEthrEEHi_;
+	}
 	if (eHit5[k] > eThr) eEcal5 += eHit5[k];
       }
 #ifdef EDM_ML_DEBUG

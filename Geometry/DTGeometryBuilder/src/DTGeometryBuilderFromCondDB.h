@@ -23,10 +23,17 @@ class DTSuperLayer;
 class DTLayer;
 class DetId;
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
 /* C++ Headers */
 #include <memory>
 #include <vector>
+
+
+namespace dtGeometryBuilder {
+    RectangularPlaneBounds* getRecPlaneBounds( const std::vector<double>::const_iterator &shapeStart );
+}
+
 
 /* ====================================================================== */
 
@@ -45,6 +52,7 @@ class DTGeometryBuilderFromCondDB{
 /* Operations */ 
     void build(const std::shared_ptr<DTGeometry>& theGeometry,
                const RecoIdealGeometry& rig);
+
 
   private:
     DTChamber* buildChamber(const DetId& id,

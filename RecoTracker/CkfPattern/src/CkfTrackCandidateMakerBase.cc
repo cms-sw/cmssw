@@ -51,8 +51,8 @@ using namespace edm;
 using namespace std;
 
 namespace {
-  BaseCkfTrajectoryBuilder *createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
-    return BaseCkfTrajectoryBuilderFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
+  std::unique_ptr<BaseCkfTrajectoryBuilder> createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
+    return std::unique_ptr<BaseCkfTrajectoryBuilder>{BaseCkfTrajectoryBuilderFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC)};
   }
 }
 
@@ -68,11 +68,10 @@ namespace cms{
     theTrajectoryBuilder(createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), iC)),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")),
     theTrajectoryCleaner(nullptr),
-    theInitialState(new TransientInitialStateEstimator(conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
+    theInitialState(std::make_unique<TransientInitialStateEstimator>(conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
     theMagFieldName(conf.exists("SimpleMagneticField") ? conf.getParameter<std::string>("SimpleMagneticField") : ""),
     theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
     theNavigationSchool(nullptr),
-    theSeedCleaner(nullptr),
     maxSeedsBeforeCleaning_(0),
     theMTELabel(iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
     skipClusters_(false),
@@ -101,10 +100,8 @@ namespace cms{
 	conf.getParameter<int>("numHitsForSeedCleaner") : 4;
       int onlyPixelHits = conf.existsAs<bool>("onlyPixelHitsForSeedCleaner") ?
 	conf.getParameter<bool>("onlyPixelHitsForSeedCleaner") : false;
-      theSeedCleaner = new CachingSeedCleanerBySharedInput(numHitsForSeedCleaner,onlyPixelHits);
-    } else if (cleaner == "none") {
-        theSeedCleaner = nullptr;
-    } else {
+      theSeedCleaner = std::make_unique<CachingSeedCleanerBySharedInput>(numHitsForSeedCleaner,onlyPixelHits);
+    } else if (cleaner != "none") {
         throw cms::Exception("RedundantSeedCleaner not found, please use CachingSeedCleanerBySharedInput ro none", cleaner);
     }
 #endif
@@ -119,9 +116,7 @@ namespace cms{
 
 
   // Virtual destructor needed.
-  CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() noexcept(false) {
-    if (theSeedCleaner) delete theSeedCleaner;
-  }
+  CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() noexcept(false) {}
 
   void CkfTrackCandidateMakerBase::beginRunBase (edm::Run const & r, EventSetup const & es)
   {
@@ -362,8 +357,8 @@ namespace cms{
 	if ( maxSeedsBeforeCleaning_ >0 && rawResult.size() > maxSeedsBeforeCleaning_+lastCleanResult) {
           theTrajectoryCleaner->clean(rawResult);
           rawResult.erase(std::remove_if(rawResult.begin()+lastCleanResult,rawResult.end(),
-					 std::not1(std::mem_fun_ref(&Trajectory::isValid))),
-			  rawResult.end());
+                                         std::not_fn(&Trajectory::isValid)),
+                          rawResult.end());
           lastCleanResult=rawResult.size();
         }
         }
@@ -416,8 +411,8 @@ namespace cms{
 
       vector<Trajectory> & unsmoothedResult(rawResult);
       unsmoothedResult.erase(std::remove_if(unsmoothedResult.begin(),unsmoothedResult.end(),
-					    std::not1(std::mem_fun_ref(&Trajectory::isValid))),
-			     unsmoothedResult.end());
+                                            std::not_fn(&Trajectory::isValid)),
+                             unsmoothedResult.end());
       unsmoothedResult.shrink_to_fit();
       // If requested, reverse the trajectories creating a new 1-hit seed on the last measurement of the track
       if (reverseTrajectories) {

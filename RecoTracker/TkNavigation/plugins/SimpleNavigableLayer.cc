@@ -222,7 +222,7 @@ std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const Fr
   typedef std::set<const DetLayer *> Lset;  
 
   //initiate the first iteration
-  Lvect && someLayers = nextLayers(fts,timeDirection);
+  const Lvect & someLayers = nextLayers(fts,timeDirection);
   if (someLayers.empty()) {
     LogDebug("SimpleNavigableLayer")  <<"Number of compatible layers: "<< 0;
     return someLayers;

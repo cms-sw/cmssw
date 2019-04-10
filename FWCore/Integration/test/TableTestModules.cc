@@ -53,16 +53,15 @@ namespace edmtest {
     }
     
     void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const final {
-      edm::Handle<edmtest::TableTest> h;
-      iEvent.getByToken(tableToken_, h);
+      auto const& t = iEvent.get(tableToken_);
       
-      auto size = h->size();
+      auto size = t.size();
       if(size != anInts_.size()) {
         throw cms::Exception("RuntimeError")<<"Table size ("<<size<<") does not equal expected size ("<<anInts_.size()<<")";
       }
 
       unsigned int index=0;
-      for(auto const& row : *h) {
+      for(auto const& row : t) {
         if( anInts_[index] != row.get<edmtest::AnInt>() ) {
           throw cms::Exception("RuntimeError")<<"index "<<index<<" anInt ="<<row.get<edmtest::AnInt>()<<" expected "<<anInts_[index];
         }
@@ -104,8 +103,7 @@ namespace edmtest {
         BranchDescription const* branchDescription = product.first;
         TypeID const& tid = branchDescription->unwrappedTypeID();
         EDGetToken const& token = product.second;
-        BasicHandle bh;
-        e.getByToken(token, tid, bh);
+        BasicHandle bh = e.getByToken(token, tid);
         assert(bh.isValid());
         auto examiner = bh.wrapper()->tableExaminer();
         assert(examiner);

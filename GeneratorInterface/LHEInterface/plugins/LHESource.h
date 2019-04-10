@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "GeneratorInterface/LHEInterface/plugins/LHEProvenanceHelper.h"
 #include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 
@@ -36,6 +37,8 @@ public:
                      const edm::InputSourceDescription &desc);
   ~LHESource() override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
 
   void endJob() override;
@@ -54,8 +57,8 @@ private:
 
   std::unique_ptr<lhef::LHEReader>      reader_;
 
-  boost::shared_ptr<lhef::LHERunInfo>	runInfoLast_;
-  boost::shared_ptr<lhef::LHEEvent>	partonLevel_;
+  std::shared_ptr<lhef::LHERunInfo>	runInfoLast_;
+  std::shared_ptr<lhef::LHEEvent>	partonLevel_;
 
   std::unique_ptr<LHERunInfoProduct>	runInfoProductLast_;
   edm::LHEProvenanceHelper		lheProvenanceHelper_;

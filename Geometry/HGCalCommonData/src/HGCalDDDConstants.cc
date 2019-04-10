@@ -228,12 +228,12 @@ double HGCalDDDConstants::cellThickness(int layer, int waferU,
     auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer,waferU,waferV));
     int type = ((itr == hgpar_->typesInLayers_.end() ? maxType : 
                 hgpar_->waferTypeL_[itr->second]));
-    thick    = 10000.0*hgpar_->cellThickness_[type];
+    thick    = 10000.0*hgpar_->cellThickness_[type]; // cm to micron
   } else if ((mode_ == HGCalGeometryMode::Hexagon) ||
              (mode_ == HGCalGeometryMode::HexagonFull)) {
     int type = (((waferU>=0)&&(waferU<(int)(hgpar_->waferTypeL_.size()))) ? 
     hgpar_->waferTypeL_[waferU] : minType);
-    thick    = 100.0*type;
+    thick    = 100.0*type; // type = 1,2,3 for 100,200,300 micron
   }
   return thick;
 }
@@ -409,6 +409,22 @@ std::vector<HGCalParameters::hgtrap> HGCalDDDConstants::getModules() const {
   for (unsigned int k=0; k<hgpar_->moduleLayR_.size(); ++k) 
     mytrs.emplace_back(hgpar_->getModule(k,true));
   return mytrs;
+}
+
+int HGCalDDDConstants::getPhiBins(int lay) const {
+  return ((mode_ == HGCalGeometryMode::Trapezoid) ? hgpar_->scintCells(lay) : 0);
+}
+
+std::pair<int,int> HGCalDDDConstants::getREtaRange(int lay) const {
+  int irmin(0), irmax(0);
+  if (mode_ == HGCalGeometryMode::Trapezoid) {
+    int indx = layerIndex(lay,false);
+    if ((indx >=0) && (indx < static_cast<int>(hgpar_->iradMinBH_.size()))) {
+      irmin = hgpar_->iradMinBH_[indx];
+      irmax = hgpar_->iradMaxBH_[indx];
+    }
+  }
+  return std::make_pair(irmin,irmax);
 }
 
 std::vector<HGCalParameters::hgtrform> HGCalDDDConstants::getTrForms() const {
