@@ -377,7 +377,7 @@ DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry& ar)
   }
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginLumi",false) && enableMultiThread_ == false) {
     forceResetOnBeginLumi_ = true;
-    ar.watchPostSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
+    ar.watchPreSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
   }
   ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
 }

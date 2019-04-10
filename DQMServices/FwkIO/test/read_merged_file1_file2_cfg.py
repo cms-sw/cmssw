@@ -41,6 +41,6 @@ process.reader = cms.EDAnalyzer("DummyReadDQMStore",
 
 process.e = cms.EndPath(process.check+process.reader)
 
-process.add_(cms.Service("DQMStore"))
+process.add_(cms.Service("DQMStore", forceResetOnBeginLumi = cms.untracked.bool(True)))
 #process.add_(cms.Service("Tracer"))
 
