@@ -363,6 +363,17 @@ void TrackingQualityChecker::fillTrackingStatus(DQMStore::IBooker & ibooker, DQM
     }
   }
 
+  // After harvesting, all per-lumi MEs are reset, to make sure we only get
+  // events of the new lumisection next time.
+  for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsMap.begin();
+       it != TrackingMEsMap.end(); it++) {
+    std::string localMEdirpath = it->second.HistoDir;
+    std::vector<MonitorElement*> tmpMEvec = igetter.getContents(ibooker.pwd()+"/"+localMEdirpath);
+    for ( auto ime : tmpMEvec ) {
+      ime->Reset();
+    }
+  }
+
   if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatus] gstatus: " << gstatus << std::endl;  
   size_t nQT = TrackingMEsMap.size();
   if (gstatus < 1.) gstatus = -1.;
