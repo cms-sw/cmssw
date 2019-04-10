@@ -18,6 +18,8 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Constants.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 // Math
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -239,8 +241,8 @@ namespace fastsim
     // Is this correct?
     // Thread safety
     static std::once_flag initializeOnce;
-    [[cms::thread_guard("initializeOnce")]] const G4ParticleDefinition* NuclearInteractionFTF::theG4Hadron[] = {nullptr};
-    [[cms::thread_guard("initializeOnce")]] int NuclearInteractionFTF::theId[] = {0};
+    CMS_THREAD_GUARD(initializeOnce) const G4ParticleDefinition* NuclearInteractionFTF::theG4Hadron[] = {nullptr};
+    CMS_THREAD_GUARD(initializeOnce) int NuclearInteractionFTF::theId[] = {0};
 }
 
 fastsim::NuclearInteractionFTF::NuclearInteractionFTF(const std::string & name,const edm::ParameterSet & cfg)
@@ -274,7 +276,7 @@ fastsim::NuclearInteractionFTF::NuclearInteractionFTF(const std::string & name,c
     theDiffuseElastic = new G4DiffuseElastic();
 
     // Geant4 particles and cross sections
-    std::call_once(initializeOnce, [this] () {
+    std::call_once(initializeOnce, [] () {
         theG4Hadron[0] = G4Proton::Proton();
         theG4Hadron[1] = G4Neutron::Neutron();
         theG4Hadron[2] = G4PionPlus::PionPlus();
