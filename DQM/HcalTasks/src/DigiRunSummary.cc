@@ -224,6 +224,8 @@ namespace hcaldqm
 
 		//	push all the flags for all FEDs for this LS
 		_vflagsLS.push_back(lssum);
+		cDigiSize_Crate.reset();
+		cOccupancy_depth.reset();
 	}
 
 	/*
