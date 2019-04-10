@@ -2,6 +2,7 @@ import time
 import os
 from json import loads, dumps
 from types import GeneratorType
+import subprocess
 
 #Copied from das_client.py
 
@@ -79,7 +80,7 @@ def get_data(query, limit=None, threshold=None, idx=None, host=None, cmd=None):
         cmd = "dasgoclient"
         break
 
-  p = subprocess.Popen("%s %s --query '%s'" % (cmd, cmd_opts, query),shell=True, stdout=PIPE, stderr=subprocess.STDOUT)
+  p = subprocess.Popen("%s %s --query '%s'" % (cmd, cmd_opts, query),shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   stdout, stderr = p.communicate()
-  if not p.returncode: return loads(out)
+  if not p.returncode: return loads(stdout)
   return {'status' : 'error', 'reason' : stdout}
