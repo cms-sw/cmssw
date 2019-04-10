@@ -22,7 +22,8 @@ void ME0SimHitMatcher::init(const edm::Event& iEvent,
     geometry_ = &*me0_geom_;
   } else {
     hasGeometry_ = false;
-    std::cout << "+++ Info: ME0 geometry is unavailable. +++\n";
+    edm::LogWarning("ME0SimHitMatcher")
+        << "+++ Info: ME0 geometry is unavailable. +++\n";
   }
   MuonSimHitMatcher::init(iEvent, iSetup);
 }
@@ -35,23 +36,25 @@ void ME0SimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
     matchSimHitsToSimTrack(track_ids_, simHits_);
 
     if (verbose_) {
-      cout << "nTrackIds " << track_ids_.size() << " nSelectedME0SimHits "
-           << hits_.size() << endl;
-      cout << "detids ME0 " << detIds().size() << endl;
+      edm::LogInfo("ME0SimHitMatcher")
+          << "nTrackIds " << track_ids_.size() << " nSelectedME0SimHits "
+          << hits_.size() << endl;
+      edm::LogInfo("ME0SimHitMatcher")
+          << "detids ME0 " << detIds().size() << endl;
 
       const auto& me0_ch_ids = detIds();
       for (const auto& id : me0_ch_ids) {
         const auto& me0_simhits = MuonSimHitMatcher::hitsInChamber(id);
         const auto& me0_simhits_gp = simHitsMeanPosition(me0_simhits);
-        cout << "me0chid " << ME0DetId(id) << ": nHits " << me0_simhits.size()
-             << " phi " << me0_simhits_gp.phi() << " nCh "
-             << chamber_to_hits_[id].size() << endl;
+        edm::LogInfo("ME0SimHitMatcher")
+            << "me0chid " << ME0DetId(id) << ": nHits " << me0_simhits.size()
+            << " phi " << me0_simhits_gp.phi() << " nCh "
+            << chamber_to_hits_[id].size() << endl;
         const auto& strips = hitStripsInDetId(id);
-        cout << "nStrip " << strips.size() << endl;
-        cout << "strips : ";
+        edm::LogInfo("ME0SimHitMatcher") << "nStrip " << strips.size() << endl;
+        edm::LogInfo("ME0SimHitMatcher") << "strips : ";
         std::copy(strips.begin(), strips.end(),
                   ostream_iterator<int>(cout, " "));
-        cout << endl;
       }
     }
   }

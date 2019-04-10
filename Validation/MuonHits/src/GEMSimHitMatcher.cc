@@ -22,7 +22,8 @@ void GEMSimHitMatcher::init(const edm::Event& iEvent,
     geometry_ = dynamic_cast<const GEMGeometry*>(&*gem_geom_);
   } else {
     hasGeometry_ = false;
-    std::cout << "+++ Info: GEM geometry is unavailable. +++\n";
+    edm::LogWarning("GEMSimHitMatcher")
+        << "+++ Info: GEM geometry is unavailable. +++\n";
   }
   MuonSimHitMatcher::init(iEvent, iSetup);
 }
@@ -35,32 +36,34 @@ void GEMSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
     matchSimHitsToSimTrack(track_ids_, simHits_);
 
     if (verbose_) {
-      cout << "nTrackIds " << track_ids_.size() << " nSelectedGEMSimHits "
-           << hits_.size() << endl;
-      cout << "detids GEM " << detIds(0).size() << endl;
+      edm::LogInfo("GEMSimHitMatcher")
+          << "nTrackIds " << track_ids_.size() << " nSelectedGEMSimHits "
+          << hits_.size() << endl;
+      edm::LogInfo("GEMSimHitMatcher")
+          << "detids GEM " << detIds(0).size() << endl;
 
       const auto& gem_ch_ids = detIds();
       for (const auto& id : gem_ch_ids) {
         const auto& gem_simhits = MuonSimHitMatcher::hitsInDetId(id);
         const auto& gem_simhits_gp = simHitsMeanPosition(gem_simhits);
-        cout << "gemchid " << GEMDetId(id) << ": nHits " << gem_simhits.size()
-             << " phi " << gem_simhits_gp.phi() << " nCh "
-             << chamber_to_hits_[id].size() << endl;
+        edm::LogInfo("GEMSimHitMatcher")
+            << "gemchid " << GEMDetId(id) << ": nHits " << gem_simhits.size()
+            << " phi " << gem_simhits_gp.phi() << " nCh "
+            << chamber_to_hits_[id].size() << endl;
         const auto& strips = hitStripsInDetId(id);
-        cout << "nStrip " << strips.size() << endl;
-        cout << "strips : ";
+        edm::LogInfo("GEMSimHitMatcher") << "nStrip " << strips.size() << endl;
+        edm::LogInfo("GEMSimHitMatcher") << "strips : ";
         std::copy(strips.begin(), strips.end(),
                   ostream_iterator<int>(cout, " "));
-        cout << endl;
       }
       const auto& gem_sch_ids = superChamberIds();
       for (const auto& id : gem_sch_ids) {
         const auto& gem_simhits = hitsInSuperChamber(id);
         const auto& gem_simhits_gp = simHitsMeanPosition(gem_simhits);
-        cout << "gemschid " << GEMDetId(id) << ": "
-             << nCoincidencePadsWithHits() << " | " << gem_simhits.size() << " "
-             << gem_simhits_gp.phi() << " " << superchamber_to_hits_[id].size()
-             << endl;
+        edm::LogInfo("GEMSimHitMatcher")
+            << "gemschid " << GEMDetId(id) << ": " << nCoincidencePadsWithHits()
+            << " | " << gem_simhits.size() << " " << gem_simhits_gp.phi() << " "
+            << superchamber_to_hits_[id].size() << endl;
       }
     }
   }
@@ -119,9 +122,10 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack(
       const LocalPoint& lp = h.entryPoint();
       pads1.insert(1 + static_cast<int>(roll1->padTopology().channel(lp)));
       if (verbose_)
-        std::cout << "GEMHits detid1 " << id1 << " pad1 "
-                  << 1 + static_cast<int>(roll1->padTopology().channel(lp))
-                  << std::endl;
+        edm::LogInfo("GEMSimHitMatcher")
+            << "GEMHits detid1 " << id1 << " pad1 "
+            << 1 + static_cast<int>(roll1->padTopology().channel(lp))
+            << std::endl;
     }
 
     // find pads with hits in layer2
@@ -140,9 +144,10 @@ void GEMSimHitMatcher::matchSimHitsToSimTrack(
         const LocalPoint& lp = h.entryPoint();
         pads2.insert(1 + static_cast<int>(roll2->padTopology().channel(lp)));
         if (verbose_)
-          std::cout << "GEMHits detid2 " << id2 << " pad2 "
-                    << 1 + static_cast<int>(roll2->padTopology().channel(lp))
-                    << std::endl;
+          edm::LogInfo("GEMSimHitMatcher")
+              << "GEMHits detid2 " << id2 << " pad2 "
+              << 1 + static_cast<int>(roll2->padTopology().channel(lp))
+              << std::endl;
       }
     }
 
@@ -265,8 +270,8 @@ float GEMSimHitMatcher::simHitsGEMCentralPosition(
     }
     central = gp.perp();
     if (n >= 1)
-      std::cout << "warning! find more than one simhits in GEM chamber "
-                << std::endl;
+      edm::LogWarning("GEMSimHitMatcher")
+          << "warning! find more than one simhits in GEM chamber " << std::endl;
     ++n;
   }
 

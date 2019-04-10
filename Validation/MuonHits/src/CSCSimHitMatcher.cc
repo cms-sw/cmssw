@@ -22,7 +22,8 @@ void CSCSimHitMatcher::init(const edm::Event& iEvent,
     geometry_ = &*csc_geom_;
   } else {
     hasGeometry_ = false;
-    std::cout << "+++ Info: CSC geometry is unavailable. +++\n";
+    edm::LogWarning("CSCSimHitMatcher")
+        << "+++ Info: CSC geometry is unavailable. +++\n";
   }
   MuonSimHitMatcher::init(iEvent, iSetup);
 }
@@ -35,9 +36,11 @@ void CSCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
     matchSimHitsToSimTrack(track_ids_, simHits_);
 
     if (verbose_) {
-      cout << "nTrackIds " << track_ids_.size() << " nSelectedCSCSimHits "
-           << hits_.size() << endl;
-      cout << "detids CSC " << detIds(0).size() << endl;
+      edm::LogInfo("CSCSimHitMatcher")
+          << "nTrackIds " << track_ids_.size() << " nSelectedCSCSimHits "
+          << hits_.size() << endl;
+      edm::LogInfo("CSCSimHitMatcher")
+          << "detids CSC " << detIds(0).size() << endl;
 
       for (const auto& id : detIds(0)) {
         const auto& simhits = hitsInDetId(id);
@@ -45,13 +48,14 @@ void CSCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
         const auto& strips = hitStripsInDetId(id);
         CSCDetId cscid(id);
         if (cscid.station() == 1 and (cscid.ring() == 1 or cscid.ring() == 4)) {
-          cout << "cscdetid " << CSCDetId(id) << ": " << simhits.size() << " "
-               << simhits_gp.phi() << " " << detid_to_hits_[id].size() << endl;
-          cout << "nStrip " << strips.size() << endl;
-          cout << "strips : ";
+          edm::LogInfo("CSCSimHitMatcher")
+              << "cscdetid " << CSCDetId(id) << ": " << simhits.size() << " "
+              << simhits_gp.phi() << " " << detid_to_hits_[id].size() << endl;
+          edm::LogInfo("CSCSimHitMatcher")
+              << "nStrip " << strips.size() << endl;
+          edm::LogInfo("CSCSimHitMatcher") << "strips : ";
           std::copy(strips.begin(), strips.end(),
                     ostream_iterator<int>(cout, " "));
-          cout << endl;
         }
       }
     }
@@ -338,7 +342,7 @@ void CSCSimHitMatcher::chamberIdsToString(
     const std::set<unsigned int>& set) const {
   for (const auto& p : set) {
     CSCDetId detId(p);
-    std::cout << " " << detId << "\n";
+    edm::LogInfo("CSCSimHitMatcher") << " " << detId << "\n";
   }
 }
 

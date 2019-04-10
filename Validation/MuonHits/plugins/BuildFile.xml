@@ -8,6 +8,5 @@
 <use   name="SimDataFormats/Vertex"/>
 <use   name="Validation/MuonHits"/>
 <use   name="root"/>
-<use   name="clhep"/>
 <flags   EDM_PLUGIN="1"/>
 </library>
