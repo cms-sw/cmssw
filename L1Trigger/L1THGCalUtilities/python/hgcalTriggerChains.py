@@ -45,6 +45,8 @@ class HGCalTriggerChains:
     
 
     def create_sequences(self, process):
+        if not hasattr(process, 'hgcalTriggerSelector'):
+            process.load('L1Trigger.L1THGCalUtilities.HGC3DClusterGenMatchSelector_cff')
         tmp = cms.TaskPlaceholder("tmp")
         tmpseq = cms.SequencePlaceholder("tmp")
         vfe_task = cms.Task(tmp)
