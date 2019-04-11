@@ -7,7 +7,7 @@ import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-verbose = False
+verbose = True
 
 if verbose: 
     process.MessageLogger = cms.Service("MessageLogger",
@@ -26,7 +26,7 @@ if verbose:
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
                          #INFO   =  cms.untracked.int32(0),
                          #DEBUG   = cms.untracked.int32(0),
-                         omtfEventPrintout = cms.untracked.PSet( limit = cms.untracked.int32(1000) )
+                         omtfEventPrintout = cms.untracked.PSet( limit = cms.untracked.int32(100000000) )
                        ),
        debugModules = cms.untracked.vstring('L1TMuonOverlapTTMergerTrackProducer', 'OmtfTTAnalyzer', 'simOmtfDigis', 'omtfTTAnalyzer', 'simBayesMuCorrelatorTrackProducer') 
        #debugModules = cms.untracked.vstring('*')
@@ -72,7 +72,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 fileNames = []
-filesCnt = 100
+filesCnt = 10
 path = 'file:///eos/user/a/akalinow/Data/9_3_14_HSCP_v5/'
 for i in range(1, filesCnt+1, 1):
     fileNames.append(path + 'HSCPppstau_M_494_TuneZ2star_13TeV_pythia6_cff_py_GEN_SIM_DIGI_L1_L1TrackTrigger_DIGI2RAW_HLT_' + str(i) + '.root')
@@ -112,7 +112,7 @@ process.source = cms.Source("PoolSource", fileNames = Source_Files,
         'drop l1tEMTFTrack2016s_simEmtfDigis__HLT')
 )
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('muCorrelatorTTAnalysis1.root'), closeFileFast = cms.untracked.bool(True))
+process.TFileService = cms.Service("TFileService", fileName = cms.string('muCorrelatorTTAnalysis1HSCP.root'), closeFileFast = cms.untracked.bool(True))
 
 
 ############################################################
@@ -177,7 +177,8 @@ process.load('L1Trigger.L1TMuonBayes.simBayesMuCorrelatorTrackProducer_cfi')
 #process.TFileService = cms.Service("TFileService", fileName = cms.string('muCorrelatorHists.root'), closeFileFast = cms.untracked.bool(True))
 
 #process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("L1_TRACKER")
-process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("SIM_TRACKS") #TODO !!!!!!!
+#process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("SIM_TRACKS") #TODO !!!!!!!
+process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("TRACKING_PARTICLES") #TODO !!!!!!!
 process.simBayesMuCorrelatorTrackProducer.pdfModuleType = cms.string("PdfModuleWithStats") #TODO
 #process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml") #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!11
 #process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModule.xml")
@@ -231,7 +232,8 @@ process.omtfTTAnalyzer= cms.EDAnalyzer("MuCorrelatorAnalyzer",
                                        TrackingParticleInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        TrackingVertexInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        
-                                       muCandQualityCut = cms.int32(12)
+                                       muCandQualityCut = cms.int32(12),
+                                       applyTriggerRules = cms.bool(True)
                                         )
 process.omtfTTAnalyzerPath = cms.Path(process.omtfTTAnalyzer)
 

@@ -24,6 +24,8 @@ TTTracksInputMaker::TTTracksInputMaker(const edm::ParameterSet& edmCfg) {
         l1Tk_minNStub = edmCfg.getParameter<int>("l1Tk_minNStub");
       }
     }
+    if(trackSrc == "TRACKING_PARTICLES")
+      ttTracksSource = TRACKING_PARTICLES;
   }
 }
 
@@ -31,28 +33,53 @@ TTTracksInputMaker::~TTTracksInputMaker() {
   // TODO Auto-generated destructor stub
 }
 
-TrackingTriggerTracks TTTracksInputMaker::loadTTTracks(const edm::Event &event, const edm::ParameterSet& edmCfg, const ProcConfigurationBase* procConf) {
+TrackingTriggerTracks TTTracksInputMaker::loadTTTracks(const edm::Event &event, int bx, const edm::ParameterSet& edmCfg, const ProcConfigurationBase* procConf) {
   TrackingTriggerTracks ttTracks;
   //cout<<__FUNCTION__<<":"<<__LINE__<<endl;
 
   if(ttTracksSource == SIM_TRACKS) {
-    edm::Handle<edm::SimTrackContainer> simTraksHandle;
-    event.getByLabel(edmCfg.getParameter<edm::InputTag>("g4SimTrackSrc"), simTraksHandle);
+    edm::Handle<edm::SimTrackContainer> simTracksHandle;
+    event.getByLabel(edmCfg.getParameter<edm::InputTag>("g4SimTrackSrc"), simTracksHandle);
     //std::cout<<__FUNCTION__<<":"<<__LINE__<<" simTks.size() "<<simTks->size()<<std::endl;
-    for (unsigned int iSimTrack = 0; iSimTrack != simTraksHandle->size(); iSimTrack++ ) {
-      edm::Ptr< SimTrack > simTrackPtr(simTraksHandle, iSimTrack);
-      if ( (abs(simTrackPtr->type()) == 13  ||  abs(simTrackPtr->type()) == 1000015) && simTrackPtr->momentum().pt() > 2.5) { //TODO 1000015 is stau
-        auto ttTrack = std::make_shared<TrackingTriggerTrack>(simTrackPtr);
-        ttTrack->setSimBeta(simTrackPtr->momentum().Beta());
+    for (unsigned int iSimTrack = 0; iSimTrack != simTracksHandle->size(); iSimTrack++ ) {
+      edm::Ptr< SimTrack > simTrackPtr(simTracksHandle, iSimTrack);
 
-        addTTTrack(ttTracks, ttTrack, procConf);
-        //if(ttTrack->getPt() > 20)
+      if(simTrackPtr->eventId().bunchCrossing() == bx) {
+        if ( (abs(simTrackPtr->type()) == 13  ||  abs(simTrackPtr->type()) == 1000015) && simTrackPtr->momentum().pt() > 2.5) { //TODO 1000015 is stau
+          auto ttTrack = std::make_shared<TrackingTriggerTrack>(simTrackPtr);
+          ttTrack->setSimBeta(simTrackPtr->momentum().Beta());
 
-        LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" sim.type() "<<simTrackPtr->type()<<" genpartIndex "<<simTrackPtr->genpartIndex()
-                <<" Beta() "<<simTrackPtr->momentum().Beta()<<" added track "<<*ttTrack<<std::endl;
+          addTTTrack(ttTracks, ttTrack, procConf);
+          //if(ttTrack->getPt() > 20)
+
+          LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" bx "<<bx<<" adding ttTrack from simTrack: sim.type() "<<simTrackPtr->type()<<" genpartIndex "<<simTrackPtr->genpartIndex()
+                    <<" Beta() "<<simTrackPtr->momentum().Beta()<<" added track "<<*ttTrack<<std::endl;
+        }
       }
     }
+  }
+  else if(bx != 0 || ttTracksSource == TRACKING_PARTICLES) {
+    edm::Handle< std::vector< TrackingParticle > > trackingParticlesHandle;
+    event.getByLabel(edmCfg.getParameter<edm::InputTag>("TrackingParticleInputTag"), trackingParticlesHandle);
+    //std::cout<<__FUNCTION__<<":"<<__LINE__<<" simTks.size() "<<simTks->size()<<std::endl;
+    for (unsigned int iTP = 0; iTP != trackingParticlesHandle->size(); iTP++ ) {
+      edm::Ptr< TrackingParticle > trackingParticlePtr(trackingParticlesHandle, iTP);
 
+      if(trackingParticlePtr->eventId().bunchCrossing() == bx) {//to emulate the trigger rules we should process every track not only the muons!!!!
+        //if ( (abs(trackingParticlePtr->pdgId()) == 13  ||  abs(trackingParticlePtr->pdgId()) == 1000015) && trackingParticlePtr->pt() > 2.5) //TODO 1000015 is stau
+        if(trackingParticlePtr->pt() > 2.5 && abs(trackingParticlePtr->eta() ) < 2.4) //todo move values to config
+        {
+          auto ttTrack = std::make_shared<TrackingTriggerTrack>(trackingParticlePtr);
+          ttTrack->setSimBeta(trackingParticlePtr->p4().Beta());
+
+          addTTTrack(ttTracks, ttTrack, procConf);
+          //if(ttTrack->getPt() > 20)
+
+          //LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" bx "<<bx<<" adding ttTrack from TrackingParticle: pdgId "<<trackingParticlePtr->pdgId()<<" genParticles().size() "<<trackingParticlePtr->genParticles().size()
+          //          <<" Beta() "<<trackingParticlePtr->p4().Beta()<<" added track "<<*ttTrack<<std::endl;
+        }
+      }
+    }
   }
   else if(ttTracksSource == L1_TRACKER) {
     edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > tTTrackHandle;
@@ -61,12 +88,14 @@ TrackingTriggerTracks TTTracksInputMaker::loadTTTracks(const edm::Event &event, 
 
     for (unsigned int iTTTrack = 0; iTTTrack != tTTrackHandle->size(); iTTTrack++ ) {
       edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > ttTrackPtr(tTTrackHandle, iTTTrack);
+      //TODO is there bx in the ttTrackPtr? Or the emulator works only in the BX 0, thus no tracks in other BXes?
       auto ttTrack = std::make_shared<TrackingTriggerTrack>(ttTrackPtr, l1Tk_nPar);
 
       if(ttTrackPtr->getStubRefs().size() >= l1Tk_minNStub) //TODO is this cut possible to apply in the firmware? there should be "Hit mask" so should be used whenever available
         addTTTrack(ttTracks, ttTrack, procConf);
 
       //cout<<__FUNCTION__<<":"<<__LINE__<<" "<<*iterL1Track<<" Momentum "<<iterL1Track->getMomentum(l1Tk_nPar)<<" RInv "<<iterL1Track->getRInv(l1Tk_nPar)<<endl;
+      //LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" bx "<<bx<<" adding ttTrack from TTTrack: "<<" added track "<<*ttTrack<<std::endl;
     }
   }
   //cout<<__FUNCTION__<<":"<<__LINE__<<" ttTracks.size() "<<ttTracks.size()<<endl;

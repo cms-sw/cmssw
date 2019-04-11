@@ -20,13 +20,14 @@ public:
   enum TTTracksSource {
     NONE,
     SIM_TRACKS,
+    TRACKING_PARTICLES,
     L1_TRACKER
   };
 
   TTTracksInputMaker(const edm::ParameterSet& edmCfg);
   virtual ~TTTracksInputMaker();
 
-  TrackingTriggerTracks loadTTTracks(const edm::Event &event, const edm::ParameterSet& edmCfg, const ProcConfigurationBase* procConf);
+  TrackingTriggerTracks loadTTTracks(const edm::Event &event, int bx, const edm::ParameterSet& edmCfg, const ProcConfigurationBase* procConf);
 
   //, int bxFrom = 0, int bxTo = 0 at lest in the emualtor, the ttTracks are produced only in the BX = 0
 /*  virtual const TrackingTriggerTracks buildInputForProcessor(unsigned int iProcessor, l1t::tftype procTyp) {

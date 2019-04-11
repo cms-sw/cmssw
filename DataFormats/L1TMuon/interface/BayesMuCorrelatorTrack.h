@@ -8,6 +8,7 @@
 #ifndef DataFormats__BAYESMUCORRELATORTRACK_H_
 #define DataFormats__BAYESMUCORRELATORTRACK_H_
 
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 
 #include "DataFormats/Common/interface/Ref.h"
@@ -36,6 +37,11 @@ class BayesMuCorrelatorTrack {
 public:
   BayesMuCorrelatorTrack();
   virtual ~BayesMuCorrelatorTrack();
+
+  enum CandidateType {
+    fastTrack, //at least 2 stubs in BX = 0, most probably muon
+    slowTrack  //less then 2 stubs in BX = 0, looks like HSCP
+  };
 
   inline void setHwPt(int hwPt) { this->hwPt_ = hwPt; };
   //inline void setHwCharge(int charge) { hwCharge_ = charge; };
@@ -105,6 +111,54 @@ public:
     this->simTrackPtr = simTrackPtr;
   }
 
+  const edm::Ptr<TrackingParticle>& getTrackPartPtr() const {
+    return trackPartPtr;
+  }
+
+  void setTrackPartPtr(const edm::Ptr<TrackingParticle>& trackPartPtr) {
+    this->trackPartPtr = trackPartPtr;
+  }
+
+  double getEta() const {
+    return eta;
+  }
+
+  void setEta(double eta = 0) {
+    this->eta = eta;
+  }
+
+  double getPhi() const {
+    return phi;
+  }
+
+  void setPhi(double phi = 0) {
+    this->phi = phi;
+  }
+
+  double getPt() const {
+    return pt;
+  }
+
+  void setPt(double pt = 0) {
+    this->pt = pt;
+  }
+
+  CandidateType getCandidateType() const {
+    return candidateType;
+  }
+
+  void setCandidateType(CandidateType candidateType) {
+    this->candidateType = candidateType;
+  }
+
+  float getBetaLikelihood() const {
+    return betaLikelihood;
+  }
+
+  void setBetaLikelihood(float betaLikelihood = 0) {
+    this->betaLikelihood = betaLikelihood;
+  }
+
 //  inline int hwIsoSum() const { return hwIsoSum_; };
 //  inline int hwDPhiExtra() const { return hwDPhiExtra_; };
 //  inline int hwDEtaExtra() const { return hwDEtaExtra_; };
@@ -139,15 +193,25 @@ private:
   //double etaAtVtx_ = 0;
   //double phiAtVtx_ = 0;
 
+  //original floating point coordinates and pt,
+  double phi = 0;
+  double eta = 0;
+  double pt = 0;
+  //int charge = 0;
+
   int hwBeta_ = 0;
   float beta = 0;
+  float betaLikelihood = 0;
 
   boost::dynamic_bitset<> firedLayerBits;
   int pdfSum_ = 0;
 
+  CandidateType candidateType = fastTrack;
+
   //the "pointers" the either sim Track ot ttTrack that was use to create this TrackingTriggerTrack, needed only for analysis
   edm::Ptr< SimTrack > simTrackPtr;
   edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > ttTrackPtr;
+  edm::Ptr< TrackingParticle > trackPartPtr;
 
 };
 

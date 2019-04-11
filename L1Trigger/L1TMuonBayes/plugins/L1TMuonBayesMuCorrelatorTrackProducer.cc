@@ -43,6 +43,8 @@ L1TMuonBayesMuCorrelatorTrackProducer::L1TMuonBayesMuCorrelatorTrackProducer(con
 
   inputTokenSimTracks = consumes<edm::SimTrackContainer>(edmParameterSet.getParameter<edm::InputTag>("g4SimTrackSrc")); //TODO remove
 
+  trackingParticleToken = mayConsume< std::vector< TrackingParticle > >(edmParameterSet.getParameter<edm::InputTag>("TrackingParticleInputTag") );
+
 
   //Range of the BXes for which the emulation is performed,
   if(edmParameterSet.exists("bxRangeMin") ){
@@ -181,6 +183,7 @@ void L1TMuonBayesMuCorrelatorTrackProducer::produce(edm::Event& iEvent, const ed
   candidates->setBXRange(bxRangeMin, bxRangeMax);
 
   std::unique_ptr<l1t::BayesMuCorrTrackBxCollection> bayesMuCorrTracks(new l1t::BayesMuCorrTrackBxCollection);
+  bayesMuCorrTracks->setBXRange(bxRangeMin, bxRangeMax);
 
   //std::cout<<"\n"<<__FUNCTION__<<":"<<__LINE__<<" iEvent "<<iEvent.id().event()<<" #####################################################################"<<endl;
   for(int bx = bxRangeMin; bx <= bxRangeMax; bx++) {
@@ -188,7 +191,7 @@ void L1TMuonBayesMuCorrelatorTrackProducer::produce(edm::Event& iEvent, const ed
     auto muonStubsInput = inputMaker->MuCorrelatorInputMaker::buildInputForProcessor(0, l1t::tftype::bmtf, bx, bx + useStubsFromAdditionalBxs);
     //std::cout<<muonStubsInput<<std::endl;
 
-    auto ttTRacks = ttTracksInputMaker->loadTTTracks(iEvent, edmParameterSet, muCorrelatorConfig.get());
+    auto ttTRacks = ttTracksInputMaker->loadTTTracks(iEvent, bx, edmParameterSet, muCorrelatorConfig.get());
 
     LogTrace("omtfEventPrintout")<<"\n\nEvent "<<iEvent.id().event()<<" muonStubsInput bx "<<bx<<": \n "<<muonStubsInput<<endl;
     for(auto& ttTRack : ttTRacks) {
@@ -216,9 +219,52 @@ void L1TMuonBayesMuCorrelatorTrackProducer::produce(edm::Event& iEvent, const ed
     //edm::LogInfo("L1TMuonBayesMuCorrelatorTrackProducer") <<"MuCorr:  Number of candidates in BX="<<bx<<": "<<candidates->size(bx) << std::endl;;
   }
 
+  /*
+  applyTriggerRules(bayesMuCorrTracks);
+  for(int bx = bayesMuCorrTracks->getFirstBX(); bx <= bayesMuCorrTracks->getLastBX(); bx++) {
+    for(auto itL1MuCand = bayesMuCorrTracks->begin(bx); itL1MuCand != bayesMuCorrTracks->end(bx); ++itL1MuCand) {
+      LogTrace("omtfEventPrintout")<<" bx "<<bx<<" pt "<<itL1MuCand->getPt()<<" CanceledByTriggerRules: "<<itL1MuCand->getCanceledByTriggerRules()<<endl;
+    }
+  } */
+
   iEvent.put(std::move(candidates), "MuCorr");
   iEvent.put(std::move(bayesMuCorrTracks), "BayesMuCorrTracks");
 }
+
+/* has no sens here, should be done in the analyzer
+void L1TMuonBayesMuCorrelatorTrackProducer::applyTriggerRules(std::unique_ptr<l1t::BayesMuCorrTrackBxCollection>& bayesMuCorrTracks) {
+  std::set<int> cancelledBxes; //bxes in which the candidates should be marked as cancelled by the trigger rules, i.e. by the candidates in the previous BXEs
+
+  double singleMuThresh = 20; //GeV TODO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  double doubleMuThresh = 10; //GeV
+
+  for(int bx = bayesMuCorrTracks->getFirstBX(); bx <= bayesMuCorrTracks->getLastBX(); bx++) {
+    int singleMuCands = 0;
+    int doubleMuCands = 0;
+
+    for(auto itL1MuCand = bayesMuCorrTracks->begin(bx); itL1MuCand != bayesMuCorrTracks->end(bx); ++itL1MuCand) {
+      if(itL1MuCand->getPt() >= singleMuThresh) {
+        singleMuCands++;
+      }
+      if(itL1MuCand->getPt() >= doubleMuThresh) {
+        doubleMuCands++;
+      }
+    }
+
+    if(singleMuCands >= 1 || doubleMuCands >= 2) {
+      cancelledBxes.insert(bx +1);
+      cancelledBxes.insert(bx +2); //as much as BXes cancelled by the first trigger rule, here assumed that two
+    }
+  }
+
+  for(int bx = bayesMuCorrTracks->getFirstBX(); bx <= bayesMuCorrTracks->getLastBX(); bx++) {
+    if(cancelledBxes.count(bx)) {
+      for(auto itL1MuCand = bayesMuCorrTracks->begin(bx); itL1MuCand != bayesMuCorrTracks->end(bx); ++itL1MuCand) {
+        itL1MuCand->setCanceledByTriggerRules(1);
+      }
+    }
+  }
+}*/
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 

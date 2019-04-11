@@ -7,7 +7,9 @@
 
 #ifndef L1TMUONBAYES_TRACKINGTRIGGERTRACK_H_
 #define L1TMUONBAYES_TRACKINGTRIGGERTRACK_H_
+
 #include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -26,7 +28,9 @@ public:
 
   TrackingTriggerTrack(const edm::Ptr< SimTrack >& simTrackPtr);
 
-  TrackingTriggerTrack(const TTTrack< Ref_Phase2TrackerDigi_>& ttTRack, unsigned int index, int l1Tk_nPar);
+  TrackingTriggerTrack(const edm::Ptr< TrackingParticle >& trackingParticlePtr);
+
+  TrackingTriggerTrack(const TTTrack< Ref_Phase2TrackerDigi_>& ttTrack, unsigned int index, int l1Tk_nPar);
 
   TrackingTriggerTrack(const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& ttTrackPtr, int l1Tk_nPar);
 
@@ -110,6 +114,10 @@ public:
     return simTrackPtr;
   }
 
+  const edm::Ptr<TrackingParticle>& getTrackingParticlePtr() const {
+    return trackingParticlePtr;
+  }
+
 private:
   double phi = 0;
   double eta = 0;
@@ -131,8 +139,9 @@ private:
   unsigned int index = 0;
 
 
-  //the "pointers" the either sim Track ot ttTrack that was use to create this TrackingTriggerTrack, needed only for analysis
+  //the "pointers" the either simTrack or trackingParticlePtr or ttTrack that was use to create this TrackingTriggerTrack, needed only for analysis
   edm::Ptr< SimTrack > simTrackPtr;
+  edm::Ptr< TrackingParticle > trackingParticlePtr;
   edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > ttTrackPtr;
 };
 

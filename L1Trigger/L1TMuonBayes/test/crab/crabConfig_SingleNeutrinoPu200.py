@@ -21,12 +21,13 @@ config.Data.unitsPerJob = 10
 config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
 config.Data.publication = False
 config.Data.outputDatasetTag = 'CRAB3_muCorr_MC_analysis'
-config.Data.totalUnits = 600 #75
+config.Data.totalUnits = 300 #75 600
 config.Data.ignoreLocality = False
 
 config.section_("Debug")
 config.Debug.extraJDL = ['+CMS_ALLOW_OVERFLOW=False']
 
 config.Site.storageSite = 'T2_PL_Swierk'
-config.Site.whitelist = ['T2_US_Caltech', 'T3_US_Colorado']
-config.Site.blacklist = ['T2_US_Purdue', 'T2_US_Florida', 'T2_US_MIT', 'T2_US_Nebraska', 'T2_US_Purdue', 'T2_US_UCSD', 'T2_US_Vanderbilt', 'T2_US_Wisconsin']
+#config.Site.whitelist = ['T2_US_Caltech', 'T3_US_Colorado']
+#config.Site.blacklist = ['T2_US_Purdue', 'T2_US_Florida', 'T2_US_MIT', 'T2_US_Nebraska', 'T2_US_Purdue', 'T2_US_UCSD', 'T2_US_Vanderbilt', 'T2_US_Wisconsin']
+#does not work, so no matter

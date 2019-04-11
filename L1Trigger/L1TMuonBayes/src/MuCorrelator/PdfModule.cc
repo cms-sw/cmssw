@@ -88,7 +88,12 @@ void PdfModule::processStubs(const MuonStubsInput& muonStubs, unsigned int layer
       pdfBin = stub->etaHw - ttTrack->getEtaHw() - extrapolation; //do we need for eta to extrapolate, i.e. to subtract coeff.at(1)?
 
     //std::cout<<__FUNCTION__<<":"<<__LINE__<<" processed stub\n"<<(*stub)<<" pdfBin "<<pdfBin<<std::endl;
-    if( abs(pdfBin) <= abs(minPdfBin) ) {
+    /*
+     * TODO IMPORTANT NOTE: in the CSC when there are two segemtns in one chamber, the segments are duplicated in the next BX.
+     * So if below is <= the segemtn from the BX+1 is selctected and this may lead to clasifying the muon as HSCP and not normal muon
+     * which results in the efficiency lost
+     */
+    if( abs(pdfBin) < abs(minPdfBin) ) {
       minPdfBin = pdfBin;
       selectedStub = stub;
     }

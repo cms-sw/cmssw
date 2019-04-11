@@ -118,6 +118,7 @@ void MuCorrelatorInputMaker::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers, unsi
    unsigned int iProcessor, l1t::tftype procTyp)
 {
 
+  int bxOffset = 6; //TODO move to config
   CSCDetId detId(rawid);
   {
     unsigned int iLayer = getLayerNumber(detId);
@@ -133,9 +134,9 @@ void MuCorrelatorInputMaker::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers, unsi
     stub.phiBHw = digi.getPattern(); //TODO change to phiB when implemented
     stub.qualityHw = digi.getQuality();
 
-    stub.bx = digi.getBX(); //TODO sholdn't  it be getBX0()?
+    stub.bx = digi.getBX() - bxOffset; //TODO sholdn't  it be getBX0()?
     //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
-    stub.timing = digi.getBX() - 6; //TODO move 6 to config
+    stub.timing = (digi.getBX() - bxOffset) * 2;
 
     //stub.etaType = ?? TODO
 
@@ -168,8 +169,9 @@ void MuCorrelatorInputMaker::addCSCstubs(MuonStubPtrs2D& muonStubsInLayers, unsi
 
     stub.qualityHw = digi.getQuality();
 
-    stub.bx = digi.getBX() * 2; //TODO sholdn't  it be getBX0()?
+    stub.bx = digi.getBX() - bxOffset; //TODO sholdn't  it be getBX0()?
     //stub.timing = digi.getTiming(); //TODO what about sub-bx timing, is is available?
+    stub.timing = (digi.getBX() - bxOffset) * 2; //TODO move 6 to config
 
     //stub.etaType = ?? TODO
 

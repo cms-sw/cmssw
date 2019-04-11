@@ -54,8 +54,17 @@ public:
     return 0;
   }
 
+  float getBetaLikelihood() const {
+    return betaLikelihood;
+  }
+
+  void setBetaLikelihood(float betaLikelihood = 0) {
+    this->betaLikelihood = betaLikelihood;
+  }
+
 private:
   float beta = 0; //zero means it is not measured
+  float betaLikelihood = 0; //beta measurement goodness, likelihood of return beta hypothesis
 };
 
 #endif /* INTERFACE_ALGOMUONBASE_H_ */

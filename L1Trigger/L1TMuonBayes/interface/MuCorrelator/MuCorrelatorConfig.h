@@ -132,6 +132,10 @@ public:
   //mode 0 - ptHw, 1 - GeV
   std::string ptBinString(unsigned int ptBin, int mode) const;
 
+  unsigned int getBxToProcess() const {
+    return bxToProcess;
+  }
+
 private:
   unsigned int layers = 30;
 
@@ -146,6 +150,7 @@ private:
 
   unsigned int etaBins = 16;
 
+  unsigned int bxToProcess = 4; //max number of BXes are of the muon stubs that are included in the matching, min should be 1 (the bx=0)
 
   //minimum number of filers layer to consider the ttRack matching to  stubs
   unsigned int minFiredLayers = 2;

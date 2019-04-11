@@ -37,6 +37,8 @@ class L1TMuonBayesMuCorrelatorTrackProducer : public edm::EDProducer {
   
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  //simulates the trigger rules between the BXes and sets BayesMuCorrelatorTrack::setCanceledByTriggerRules
+  //void applyTriggerRules(std::unique_ptr<l1t::BayesMuCorrTrackBxCollection>& bayesMuCorrTracks);
  private:
 
 
@@ -58,6 +60,8 @@ class L1TMuonBayesMuCorrelatorTrackProducer : public edm::EDProducer {
   edm::EDGetTokenT< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > ttTrackToken;
 
   edm::EDGetTokenT<edm::SimTrackContainer> inputTokenSimTracks; //TODO remove
+
+  edm::EDGetTokenT< std::vector< TrackingParticle > > trackingParticleToken;
 
   bool dumpResultToXML = false;
 

@@ -17,10 +17,10 @@ if verbose:
                                                #'critical',
                                                #'cout',
                                                #'cerr',
-                                               'omtfEventDump'
+                                               'omtfEventDumpTimingGen'
                     ),
        categories        = cms.untracked.vstring('MuTimingModule', 'omtfEventPrintout'), #, 
-       omtfEventDump = cms.untracked.PSet(    
+       omtfEventDumpTimingGen = cms.untracked.PSet(    
                          extension = cms.untracked.string('.txt'),                
                          threshold = cms.untracked.string('INFO'),
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 

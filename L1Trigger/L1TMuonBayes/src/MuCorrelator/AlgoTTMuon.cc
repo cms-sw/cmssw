@@ -14,17 +14,18 @@ void AlgoTTMuon::addStubResult(float pdfVal, bool valid, int pdfBin, int layer, 
   if(valid) {
     //stubResults.emplace_back(pdfVal, valid, pdfBin, layer, stub);
     pdfSum += pdfVal;
-    firedLayerBits.set(layer);
+    firedLayerBitsInBx.at(stub->bx).set(layer);
   }
   stubResults[layer] = StubResult(pdfVal, valid, pdfBin, layer, stub);
 
-  //stub result is added evevn thought it is not valid since this might be needed for debugging or optimization
+  //stub result is added even thought it is not valid since this might be needed for debugging or optimization
 }
 
 std::ostream & operator << (std::ostream &out, const AlgoTTMuon& algoTTMuon) {
   out <<"algoTTMuon: "<<std::endl;
   out<<(*algoTTMuon.ttTrack)<<std::endl;
-  out <<"firedLayerBits: "<<algoTTMuon.firedLayerBits<<" pdfSum "<<algoTTMuon.pdfSum<<" quality "<<algoTTMuon.quality<<std::endl;
+  out <<"firedLayerBits: "<<algoTTMuon.getFiredLayerBits()<<" pdfSum "<<algoTTMuon.pdfSum<<" quality "<<algoTTMuon.quality<<std::endl;
+  out <<"beta "<<algoTTMuon.getBeta()<<" betaLikelihood "<<algoTTMuon.getBetaLikelihood()<<std::endl;
   out <<"stubResults: "<<std::endl;
   for(auto& stubResult : algoTTMuon.stubResults) {
     if(stubResult.getMuonStub() ) {

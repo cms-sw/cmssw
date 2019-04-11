@@ -51,8 +51,8 @@ AlgoTTMuons MuCorrelatorProcessor::processTracks(const MuonStubsInput& muonStubs
       algoTTMuons.emplace_back(algoTTMuon);
 
       LogTrace("omtfEventPrintout")<<">>>>>>>>>>>>>>>>>>>>> algoTTMuon found for the ttTrack: \n "
-          <<" ttTrack Pt "<<ttTrack->getPt()<<" charge "<<ttTrack->getCharge()
-          <<" eta "<<ttTrack->getEta()<<" phi "<<ttTrack->getPhi()<<" index  "<<ttTrack->getIndex()
+          //<<" ttTrack Pt "<<ttTrack->getPt()<<" charge "<<ttTrack->getCharge()
+          //<<" eta "<<ttTrack->getEta()<<" phi "<<ttTrack->getPhi()<<" index  "<<ttTrack->getIndex()<<"\n"
           <<*algoTTMuon<<endl;
     }
   }
@@ -198,8 +198,11 @@ int MuCorrelatorProcessor::ghostBust3(std::shared_ptr<AlgoTTMuon> first, std::sh
   //good ghost bust function looks on the hits indexes in each candidate and check how many hits are common, kill one of them if more then e.g. 1
   int commonHits = 0;
   for(unsigned int iLayer=0; iLayer < first->getStubResults().size(); ++iLayer) {
-    if( first->isLayerFired(iLayer) &&
-       second->isLayerFired(iLayer) &&
+    if(
+       //first->isLayerFired(iLayer) &&
+       //second->isLayerFired(iLayer) &&
+       first->getStubResult(iLayer).getValid() &&
+       second->getStubResult(iLayer).getValid() &&
        first->getStubResult(iLayer).getMuonStub() == second->getStubResult(iLayer).getMuonStub() ) { //TODO comparing here just the pointer to the muon stub, in hardware probably it should be an index of the stub
       commonHits++;
     }
@@ -315,6 +318,10 @@ l1t::BayesMuCorrTrackCollection MuCorrelatorProcessor::getMuCorrTrackCollection(
     candidate.setHwEtaAtVtx(algoTTMuon->getTTTrack()->getEtaHw());
     candidate.setHwPhiAtVtx(config->phiToGlobalHwPhi(algoTTMuon->getTTTrack()->getPhi())); //TODO use hw phi
 
+    candidate.setPt(algoTTMuon->getTTTrack()->getPt());
+    candidate.setEta(algoTTMuon->getTTTrack()->getEta());
+    candidate.setPhi(algoTTMuon->getTTTrack()->getPhi());
+
     candidate.setHwQual(algoTTMuon->getQuality());
 
     candidate.setHwSign(algoTTMuon->getTTTrack()->getCharge() < 0 ? 1 : 0  );
@@ -323,10 +330,17 @@ l1t::BayesMuCorrTrackCollection MuCorrelatorProcessor::getMuCorrTrackCollection(
     candidate.setFiredLayerBits(algoTTMuon->getFiredLayerBits() );
     candidate.setPdfSum(algoTTMuon->getPdfSum());
 
+    if(algoTTMuon->getFiredLayerCnt(0) >= config->nMinFiredLayers())
+      candidate.setCandidateType(l1t::BayesMuCorrelatorTrack::fastTrack);
+    else
+      candidate.setCandidateType(l1t::BayesMuCorrelatorTrack::slowTrack);
+
     candidate.setBeta(algoTTMuon->getBeta());
+    candidate.setBetaLikelihood(algoTTMuon->getBetaLikelihood());
 
     candidate.setTtTrackPtr(algoTTMuon->getTTTrack()->getTTTrackPtr() );
     candidate.setSimTrackPtr(algoTTMuon->getTTTrack()->getSimTrackPtr());
+    candidate.setTrackPartPtr(algoTTMuon->getTTTrack()->getTrackingParticlePtr());
     if (candidate.hwPt() > 0)
       candidates.push_back(candidate);
   }

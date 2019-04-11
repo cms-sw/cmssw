@@ -22,10 +22,10 @@
 class AlgoTTMuon: public AlgoMuonBase {
 public:
   AlgoTTMuon(const TrackingTriggerTrackPtr& ttTrack, MuCorrelatorConfigPtr& config):
-    firedLayerBits(config->nLayers()), ttTrack(ttTrack), stubResults(config->nLayers()) {};
+    firedLayerBitsInBx(config->getBxToProcess(),  boost::dynamic_bitset<>(config->nLayers()) ), ttTrack(ttTrack), stubResults(config->nLayers()) {};
 
   AlgoTTMuon(const TrackingTriggerTrackPtr& ttTrack, MuCorrelatorConfigPtr& config, const MuonStubPtr& refStub):
-    firedLayerBits(config->nLayers()), ttTrack(ttTrack), stubResults(config->nLayers()), refStub(refStub) {};
+    firedLayerBitsInBx(config->getBxToProcess(),  boost::dynamic_bitset<>(config->nLayers()) ), ttTrack(ttTrack), stubResults(config->nLayers()), refStub(refStub) {};
 
   virtual ~AlgoTTMuon() {};
 
@@ -43,7 +43,15 @@ public:
   }
 
   unsigned int getFiredLayerCnt() const override {
-    return firedLayerBits.count();
+    unsigned int count = 0;
+    for(auto& firedLayerBits: firedLayerBitsInBx) {
+      count += firedLayerBits.count();
+    }
+    return count;
+  }
+
+  unsigned int getFiredLayerCnt(int bx) const {
+    return firedLayerBitsInBx.at(bx).count();
   }
 
   double getPdfSum() const override {
@@ -59,8 +67,8 @@ public:
     //FIXME maybe also valid = false???
   }
 
-  bool isLayerFired(unsigned int iLayer) const {
-    return firedLayerBits[iLayer];
+  bool isLayerFired(unsigned int iLayer, unsigned int bx) const {
+    return firedLayerBitsInBx.at(bx)[iLayer];
   }
 
 
@@ -78,8 +86,12 @@ public:
 
   friend std::ostream & operator << (std::ostream &out, const AlgoTTMuon& algoTTMuon);
 
-  const boost::dynamic_bitset<>& getFiredLayerBits() const {
-    return firedLayerBits;
+  const boost::dynamic_bitset<> getFiredLayerBits() const {
+    boost::dynamic_bitset<> firedLayerBitsSum(firedLayerBitsInBx[0].size());
+    for(auto& firedLayerBits: firedLayerBitsInBx) {
+      firedLayerBitsSum |= firedLayerBits;
+    }
+    return firedLayerBitsSum;
   }
 
   int getQuality() const {
@@ -111,7 +123,7 @@ private:
   //unsigned int firedLayerCnt = 0;
 
   ///bits representing fired logicLayers (including bending layers),
-  boost::dynamic_bitset<> firedLayerBits;
+  std::vector<boost::dynamic_bitset<> > firedLayerBitsInBx;
 
   //ttTrack, stubResults and refStub should be needed in the emulation (debugging etc), but not in the firmware
 

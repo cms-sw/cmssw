@@ -43,27 +43,23 @@ if not verbose:
 #######################################TTTracks################################################
 GEOMETRY = "D17"
 
+# import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 #process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-
-if GEOMETRY == "D17":
-    print "using geometry " + GEOMETRY + " (tilted)"
-    process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
-elif GEOMETRY == "TkOnly":
-    print "using geometry " + GEOMETRY + " (tilted)"
-    process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff')
-else:
-    print "this is not a valid geometry!!!"
-
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
+from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '') 
 
 ############################################################
 # input and output
@@ -161,8 +157,10 @@ process.load('L1Trigger.L1TMuonBayes.simBayesMuCorrelatorTrackProducer_cfi')
 
 process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("L1_TRACKER")
 #process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml") #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!11
-process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModuleSimTracks100FilesSigma1p3.xml") #pdfModule
-process.simBayesMuCorrelatorTrackProducer.useStubsFromAdditionalBxs = cms.int32(0)
+process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModuleSimTracks100FilesSigma1p3.xml")
+process.simBayesMuCorrelatorTrackProducer.timingModuleFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muTimingModuleTest.xml")
+process.simBayesMuCorrelatorTrackProducer.generateTiming = cms.bool(False)
+process.simBayesMuCorrelatorTrackProducer.useStubsFromAdditionalBxs = cms.int32(3)
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")

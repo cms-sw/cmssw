@@ -7,7 +7,7 @@ import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-verbose = True
+verbose = False
 
 if verbose: 
     process.MessageLogger = cms.Service("MessageLogger",
@@ -43,27 +43,23 @@ if not verbose:
 #######################################TTTracks################################################
 GEOMETRY = "D17"
 
+# import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 #process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-
-if GEOMETRY == "D17":
-    print "using geometry " + GEOMETRY + " (tilted)"
-    process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
-elif GEOMETRY == "TkOnly":
-    print "using geometry " + GEOMETRY + " (tilted)"
-    process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff')
-else:
-    print "this is not a valid geometry!!!"
-
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
+from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '') 
 
 ############################################################
 # input and output
@@ -76,7 +72,7 @@ if GEOMETRY == "D17":
 #        "/store/relval/CMSSW_10_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/94X_upgrade2023_realistic_v2_2023D17noPU-v2/10000/06C888F3-CFCE-E711-8928-0CC47A4D764C.root"
          #"/store/relval/CMSSW_9_3_2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/93X_upgrade2023_realistic_v2_2023D17noPU-v1/10000/0681719F-AFA6-E711-87C9-0CC47A4C8E14.root"
          #"file:///eos/user/k/kbunkow/cms_data/0681719F-AFA6-E711-87C9-0CC47A4C8E14.root"
-         'file:///afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_1_7/src/L1Trigger/L1TMuonBayes/test/SingleMuNPU_F4EEAE55-C937-E811-8C29-48FD8EE739D1_dump1000Events.root'
+         #'file:///eos/user/k/kbunkow/cms_data/mc/PhaseIIFall17D/SingleMu_FlatPt-2to100_L1TnoPU_F4EEAE55-C937-E811-8C29-48FD8EE739D1_dump1000Events.root'
          #'file:///eos/user/k/kbunkow/cms_data/mc/PhaseIIFall17D/SingleMu_FlatPt-2to100_L1TnoPU_F4EEAE55-C937-E811-8C29-48FD8EE739D1_dump1000Events.root'
          #"file:///eos/cms/store/group/upgrade/sandhya/SMP-PhaseIIFall17D-00001.root"
          #'file:///afs/cern.ch/work/k/kbunkow/private/omtf_data/SingleMu_15_p_1_1_qtl.root' 
@@ -86,7 +82,10 @@ if GEOMETRY == "D17":
          #'/store/mc/PhaseIIFall17D/SingleNeutrino/GEN-SIM-DIGI-RAW/L1TPU300_93X_upgrade2023_realistic_v5-v1/110000/FEFE2FE6-32E8-E811-9995-0242AC130002.root'
          #'/store/mc/PhaseIIFall17D/SingleNeutrino/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/80000/FEAC79F7-5B5C-E811-B830-0025905C2D9A.root'
          #'file:///eos/user/a/akalinow/Data/SingleMu/9_3_14_FullEta_v2/SingleMu_26_m_1.root'
-         #'/eos/user/a/akalinow/Data/9_3_14_HSCP_v5/HSCPppstau_M_494_TuneZ2star_13TeV_pythia6_cff_py_GEN_SIM_DIGI_L1_L1TrackTrigger_DIGI2RAW_HLT_1.root'
+         #'file:///eos/user/a/akalinow/Data/9_3_14_HSCP_v5/HSCPppstau_M_494_TuneZ2star_13TeV_pythia6_cff_py_GEN_SIM_DIGI_L1_L1TrackTrigger_DIGI2RAW_HLT_1.root'
+         'file:///afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_5_0_pre1/src/L1Trigger/L1TMuonBayes/test/SingleMu_PU200_32DF01CC-A342-E811-9FE7-48D539F3863E_dump500Events.root'
+         #'file:///afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_1_7/src/L1Trigger/L1TMuonBayes/test/ZMM_EE29AF8E-51AF-E811-A2BD-484D7E8DF0D3_dump1000Events.root'
+         #'file:///eos/user/a/akalinow/Data/SingleMu/SingleMuFlatPt_50GeVto10GeV_cfi_py_GEN_SIM_DIGI_L1_L1TrackTrigger_DIGI2RAW_HLT.root'
 )
 elif GEOMETRY == "TkOnly":
     Source_Files = cms.untracked.vstring(
@@ -174,7 +173,11 @@ process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("L1_TRACKE
 process.simBayesMuCorrelatorTrackProducer.pdfModuleType = cms.string("PdfModuleWithStats") #TODO
 #process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml") #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!11
 process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModuleSimTracks100FilesSigma1p3.xml")
-#process.simBayesMuCorrelatorTrackProducer.useStubsFromAdditionalBxs = cms.int32(3)
+process.simBayesMuCorrelatorTrackProducer.timingModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/muTimingModuleTest.xml")
+process.simBayesMuCorrelatorTrackProducer.generateTiming = cms.bool(False)
+process.simBayesMuCorrelatorTrackProducer.useStubsFromAdditionalBxs = cms.int32(3)
+#process.simBayesMuCorrelatorTrackProducer.bxRangeMin = cms.int32(-3)
+#process.simBayesMuCorrelatorTrackProducer.bxRangeMax = cms.int32(3)
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
@@ -220,7 +223,8 @@ process.omtfTTAnalyzer= cms.EDAnalyzer("MuCorrelatorAnalyzer",
                                        TrackingParticleInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        TrackingVertexInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        
-                                       muCandQualityCut = cms.int32(12)
+                                       muCandQualityCut = cms.int32(12),
+                                       applyTriggerRules = cms.bool(True)
                                         )
 process.omtfTTAnalyzerPath = cms.Path(process.omtfTTAnalyzer)
 
@@ -229,11 +233,13 @@ process.omtfTTAnalyzerPath = cms.Path(process.omtfTTAnalyzer)
 ############################################################
 
 # use this if you want to re-run the stub making
-#process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.TTTracksWithTruth,process.ana)
+#process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.TTTracksWithTruth, process.L1TMuonPath, process.omtfTTAnalyzerPath)
 
 # use this if cluster/stub associators not available
 # process.TTClusterStub, process.TTTracks, 
-process.schedule = cms.Schedule(process.TTTracksWithTruth, process.L1TMuonPath, process.omtfTTAnalyzerPath) #
+process.schedule = cms.Schedule(process.TTTracksWithTruth, process.L1TMuonPath, process.omtfTTAnalyzerPath) #TODO default
+#process.schedule = cms.Schedule(process.TTTracks, process.TTTracksWithTruth, process.L1TMuonPath, process.omtfTTAnalyzerPath)
+#process.schedule = cms.Schedule(process.TTClusterStub, process.TTClusterStubTruth, process.TTTracksWithTruth, process.TTTracks, process.L1TMuonPath, process.omtfTTAnalyzerPath)
 
 # use this to only run tracking + track associator
 #process.schedule = cms.Schedule(process.TTTracksWithTruth,process.ana)
