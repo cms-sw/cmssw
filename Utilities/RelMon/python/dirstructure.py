@@ -10,6 +10,7 @@ from __future__ import absolute_import
 #                                                                              
 ################################################################################
 
+from builtins import range
 from array import array
 from copy import deepcopy
 from os import chdir,getcwd,listdir,makedirs,rmdir
@@ -384,7 +385,7 @@ class Comparison(Weighted):
     n_proc=len(tcanvas_print_processes)
     if n_proc>3:
       p_to_remove=[]
-      for iprocess in xrange(0,n_proc):
+      for iprocess in range(0,n_proc):
         p=tcanvas_print_processes[iprocess]
         p.join()
         p_to_remove.append(iprocess)

@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from builtins import range
 from .Mixins import _ConfigureComponent, PrintOptions
 from .Mixins import _Labelable, _Unlabelable
 from .Mixins import _ValidatingParameterListBase
@@ -195,7 +196,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             typename = format_typename(self)
             msg = format_outerframe(2) 
             msg += "The %s constructor takes zero or one sequenceable argument followed by zero or more arguments of type Task. But the following types are given:\n" %typename
-            for item,i in zip(arg, xrange(1,20)):
+            for item,i in zip(arg, range(1,20)):
                 try:
                     msg += "    %i) %s \n"  %(i, item._errorstr())
                 except:

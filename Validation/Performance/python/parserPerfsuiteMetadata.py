@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import range
 import re
 import os, sys
 import time
@@ -120,7 +121,7 @@ class parserPerfsuiteMetadata:
     def findLineBefore(self, line_index, lines, test_condition):
         """ finds a line satisfying the `test_condition` comming before the `line_index` """
         # we're going backwards the lines list
-        for line_index in  xrange(line_index -1, -1, -1):
+        for line_index in  range(line_index -1, -1, -1):
             line = lines[line_index]
 
             if test_condition(line):
@@ -131,7 +132,7 @@ class parserPerfsuiteMetadata:
     def findLineAfter(self, line_index, lines, test_condition, return_index = False):
         """ finds a line satisfying the `test_condition` comming after the `line_index` """
         # we're going forward the lines list
-        for line_index in xrange(line_index + 1, len(lines)):
+        for line_index in range(line_index + 1, len(lines)):
             line = lines[line_index]
 
             if test_condition(line):	
@@ -322,11 +323,11 @@ class parserPerfsuiteMetadata:
 		"""
         tags_start_index = -1 # set some default
         try:
-            tags_start_index = [i for i in xrange(0, len(lines)) if lines[i].startswith("--- Tag ---")][0]
+            tags_start_index = [i for i in range(0, len(lines)) if lines[i].startswith("--- Tag ---")][0]
         except:
             pass
         if tags_start_index > -1:
-            tags_end_index = [i for i in xrange(tags_start_index + 1, len(lines)) if lines[i].startswith("---------------------------------------")][0]
+            tags_end_index = [i for i in range(tags_start_index + 1, len(lines)) if lines[i].startswith("---------------------------------------")][0]
             # print "tags start index: %s, end index: %s" % (tags_start_index, tags_end_index)
             tags = lines[tags_start_index:tags_end_index+2]
             # print [tag.split("  ") for tag in tags]
@@ -415,7 +416,7 @@ class parserPerfsuiteMetadata:
         jobs = []
 
         #can split it into jobs ! just have to reparse it for the exit codes later....
-        for line_index in xrange(0, len(lines)):
+        for line_index in range(0, len(lines)):
             line = lines[line_index]
             if reSubmit.match(line):
                 end_index = self.findLineAfter(line_index, lines, test_condition=lambda l: reWaiting.match(l), return_index = True)
@@ -469,7 +470,7 @@ class parserPerfsuiteMetadata:
                 test[testName] = []
             test[testName].append(info)
 
-        for line_index in xrange(0, len(lines)):
+        for line_index in range(0, len(lines)):
             line = lines[line_index]
 
             if reEnd.match(line):
@@ -523,7 +524,7 @@ class parserPerfsuiteMetadata:
         jobs = []
         start = False
         timesize_start_indicator = re.compile(r"""^taskset -c (\d+) cmsRelvalreportInput.py""")
-        for line_index in xrange(0, len(lines)):
+        for line_index in range(0, len(lines)):
             line = lines[line_index]
             # search for start of each TimeSize job (with a certain candle and step)
             if timesize_start_indicator.match(line):

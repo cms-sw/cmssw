@@ -12,6 +12,7 @@
 #            before python v2.6, when we upgrade to python 2.6 we should use this
 #            functionality.
 from __future__ import print_function
+from builtins import range
 import tempfile as tmp
 import optparse as opt
 import cmsPerfRegress as cpr

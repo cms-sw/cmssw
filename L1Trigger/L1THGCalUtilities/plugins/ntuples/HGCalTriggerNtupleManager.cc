@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
+#include "L1Trigger/L1THGCalUtilities/interface/HGCalTriggerNtupleBase.h"
 
 class HGCalTriggerNtupleManager : public edm::EDAnalyzer 
 {

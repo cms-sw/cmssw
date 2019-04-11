@@ -1,5 +1,6 @@
 # Configuration file for EmptySource
 
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
@@ -22,7 +23,7 @@ numberOfEventsInRun = 0
 numberOfEventsPerRun = process.source.numberEventsInRun.value()
 run = process.source.firstRun.value()
 event=0
-for i in xrange(process.maxEvents.input.value()):
+for i in range(process.maxEvents.input.value()):
    numberOfEventsInRun +=1
    event += 1
    if numberOfEventsInRun > numberOfEventsPerRun:
