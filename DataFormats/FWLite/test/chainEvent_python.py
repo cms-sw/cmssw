@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 from __future__ import print_function
+from builtins import range
 from DataFormats.FWLite import Events, Handle
 import optparse
 
@@ -34,7 +35,7 @@ for event in events:
     for loop in range (thing.size()):
         print(thing.at (loop).a)
 
-for i in xrange(events.size()):
+for i in range(events.size()):
     if not events.to(i):
         print("failed to go to index ",i)
         exit(1)

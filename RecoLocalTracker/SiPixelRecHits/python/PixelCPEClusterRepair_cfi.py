@@ -12,6 +12,11 @@ templates2 = cms.ESProducer("PixelCPEClusterRepairESProducer",
     MaxSizeMismatchInY = cms.double(0.3),
     MinChargeRatio = cms.double(0.8),
     
+    # layers to run on: (only PXB 2,PXB 3,PXB 4 for now)
+    Recommend2D = cms.vstring("PXB 2","PXB 3","PXB 4"),
+
+    # to run on damaged clusterss or not (default=no)
+    RunDamagedClusters = cms.bool(False),
 
     # petar, for clusterProbability() from TTRHs
     ClusterProbComputationFlag = cms.int32(0),

@@ -9,6 +9,7 @@ formatted input.
 """
 from __future__ import print_function
 
+from builtins import range
 import ROOT as R
 import sys
 import re
@@ -51,13 +52,13 @@ class DQMIO:
         if args.debug:
             print("## DEBUG ##:")
             print("Run,\tLumi,\tType,\t\tFirstIndex,\tLastIndex")
-            for i in xrange(indices.GetEntries()):
+            for i in range(indices.GetEntries()):
                 indices.GetEntry(i)
                 print('{0:4d}\t{1:4d}\t{2:4d}({3:s})\t\t{4:4d}\t{5:4d}'.format(
                     indices.Run, indices.Lumi, indices.Type, 
                     DQMIO.types[indices.Type], indices.FirstIndex, indices.LastIndex))
 
-        for i in xrange(indices.GetEntries()):
+        for i in range(indices.GetEntries()):
             indices.GetEntry(i)
             if indices.Type < len(DQMIO.types):
                 self.write_to_file(self.types[indices.Type],
