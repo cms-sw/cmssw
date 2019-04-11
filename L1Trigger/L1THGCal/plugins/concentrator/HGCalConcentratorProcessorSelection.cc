@@ -41,6 +41,7 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
     uint32_t module = geometry_->getModuleFromTriggerCell(trigCell.detId());
     tc_modules[module].push_back(trigCell);
   }
+  if ( concentratorSTCImpl_) concentratorSTCImpl_->eventSetup(es);
 
   for( const auto& module_trigcell : tc_modules ) {
     std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
