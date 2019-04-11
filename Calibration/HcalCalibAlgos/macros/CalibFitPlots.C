@@ -759,7 +759,7 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 	  if (total > 4) {
 	    sprintf (name, "%sOne", hist1->GetName());
 	    TH1D* hist2  = (TH1D*)hist1->Clone(name);
-	    results meanerr = fitOneGauss(hist2,false,debug);
+	    results meanerr = fitOneGauss(hist2,true,debug);
 	    value = meanerr.mean;  error = meanerr.errmean;
 	    width = meanerr.width; werror= meanerr.errwidth;
 	    double wbyv  = width/value;
@@ -1002,8 +1002,23 @@ void PlotHist(const char* infile, std::string prefix, std::string text,
 	double xmin = hist->GetBinLowEdge(1);
 	int    nbin = hist->GetNbinsX();
 	double xmax = hist->GetBinLowEdge(nbin)+hist->GetBinWidth(nbin);
+	double mean(0), rms(0), total(0);
+	int    kount(0);
+	for (int k=2; k<nbin; ++k) {
+	  double x = hist->GetBinContent(k);
+	  double w = hist->GetBinError(k);
+	  mean    += (x*w);
+	  rms     += (x*x*w);
+	  total   += w;
+	  ++kount;
+	}
+	mean /= total;
+	rms  /= total;
+	double error = sqrt(rms-mean*mean)/total;
 	line = new TLine(xmin,p0,xmax,p0); //etamin,1.0,etamax,1.0);
-	std::cout << xmin << ":" << xmax << ":" << p0 << std::endl;
+	std::cout << xmin << ":" << xmax << ":" << p0 << " Mean " << nbin 
+		  << ":" << kount << ":" << total <<":" << mean << ":" << rms
+		  << ":" << error << std::endl;
 	line->SetLineWidth(2);
 	line->SetLineStyle(2);
 	line->Draw("same");
