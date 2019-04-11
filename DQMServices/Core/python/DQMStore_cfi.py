@@ -13,5 +13,5 @@ DQMStore = cms.Service("DQMStore",
     forceResetOnBeginLumi = cms.untracked.bool(False),
     # similar to LSBasedMode but for offline. Explicitly sets LumiFLag on all
     # MEs/modules that allow it (canSaveByLumi)
-    saveByLumi = cms.untracked.bool(True),
+    saveByLumi = cms.untracked.bool(False),
 )
