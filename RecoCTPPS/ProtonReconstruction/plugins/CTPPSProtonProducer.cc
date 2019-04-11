@@ -67,6 +67,34 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
       double xi_cut_value;
       bool th_y_cut_apply;
       double th_y_cut_value;
+
+      void load(const edm::ParameterSet &ps)
+      {
+        x_cut_apply    = ps.getParameter<bool>  ("x_cut_apply");
+        x_cut_value    = ps.getParameter<double>("x_cut_value");
+        y_cut_apply    = ps.getParameter<bool>  ("y_cut_apply");
+        y_cut_value    = ps.getParameter<double>("y_cut_value");
+        xi_cut_apply   = ps.getParameter<bool>  ("xi_cut_apply");
+        xi_cut_value   = ps.getParameter<double>("xi_cut_value");
+        th_y_cut_apply = ps.getParameter<bool>  ("th_y_cut_apply");
+        th_y_cut_value = ps.getParameter<double>("th_y_cut_value");
+      }
+
+      static edm::ParameterSetDescription getDefaultParameters()
+      {
+        edm::ParameterSetDescription desc;
+
+        desc.add<bool>("x_cut_apply", false)->setComment("whether to apply track-association cut in x");
+        desc.add<double>("x_cut_value", 800E-6)->setComment("threshold of track-association cut in x, mm");
+        desc.add<bool>("y_cut_apply", false)->setComment("whether to apply track-association cut in y");
+        desc.add<double>("y_cut_value", 600E-6)->setComment("threshold of track-association cut in y, mm");
+        desc.add<bool>("xi_cut_apply", true)->setComment("whether to apply track-association cut in xi");
+        desc.add<double>("xi_cut_value", 0.013)->setComment("threshold of track-association cut in xi");
+        desc.add<bool>("th_y_cut_apply", true)->setComment("whether to apply track-association cut in th_y");
+        desc.add<double>("th_y_cut_value", 20E-6)->setComment("threshold of track-association cut in th_y, rad");
+
+        return desc;
+      }
     };
 
     std::map<unsigned int, AssociationCuts> association_cuts_;  // map: arm -> AssociationCuts
@@ -104,15 +132,7 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
   for (const std::string &sector : { "45", "56" })
   {
     const unsigned int arm = (sector == "45") ? 0 : 1;
-
-    association_cuts_[arm].x_cut_apply    = iConfig.getParameter<bool>  ("association_" + sector + "_x_cut_apply");
-    association_cuts_[arm].x_cut_value    = iConfig.getParameter<double>("association_" + sector + "_x_cut_value");
-    association_cuts_[arm].y_cut_apply    = iConfig.getParameter<bool>  ("association_" + sector + "_y_cut_apply");
-    association_cuts_[arm].y_cut_value    = iConfig.getParameter<double>("association_" + sector + "_y_cut_value");
-    association_cuts_[arm].xi_cut_apply   = iConfig.getParameter<bool>  ("association_" + sector + "_xi_cut_apply");
-    association_cuts_[arm].xi_cut_value   = iConfig.getParameter<double>("association_" + sector + "_xi_cut_value");
-    association_cuts_[arm].th_y_cut_apply = iConfig.getParameter<bool>  ("association_" + sector + "_th_y_cut_apply");
-    association_cuts_[arm].th_y_cut_value = iConfig.getParameter<double>("association_" + sector + "_th_y_cut_value");
+    association_cuts_[arm].load(iConfig.getParameterSet("association_cuts_" + sector));
   }
 
   if (doSingleRPReconstruction_)
@@ -153,23 +173,13 @@ void CTPPSProtonProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("localAngleYMin", -0.04)->setComment("minimal accepted value of local vertical angle (rad)");
   desc.add<double>("localAngleYMax", +0.04)->setComment("maximal accepted value of local vertical angle (rad)");
 
-  desc.add<bool>("association_45_x_cut_apply", false)->setComment("whether to apply track-association cut in x, sector 45");
-  desc.add<double>("association_45_x_cut_value", 800E-6)->setComment("threshold of track-association cut in x, mm, sector 45");
-  desc.add<bool>("association_45_y_cut_apply", false)->setComment("whether to apply track-association cut in y, sector 45");
-  desc.add<double>("association_45_y_cut_value", 600E-6)->setComment("threshold of track-association cut in y, mm, sector 45");
-  desc.add<bool>("association_45_xi_cut_apply", true)->setComment("whether to apply track-association cut in xi, sector 45");
-  desc.add<double>("association_45_xi_cut_value", 0.013)->setComment("threshold of track-association cut in xi, sector 45");
-  desc.add<bool>("association_45_th_y_cut_apply", true)->setComment("whether to apply track-association cut in th_y, sector 45");
-  desc.add<double>("association_45_th_y_cut_value", 20E-6)->setComment("threshold of track-association cut in th_y, rad, sector 45");
+  for (const std::string &sector : { "45", "56" })
+  {
+    desc.add<edm::ParameterSetDescription>("association_cuts_" + sector, AssociationCuts::getDefaultParameters())
+      ->setComment("track-association cuts for sector " + sector);
+  }
 
-  desc.add<bool>("association_56_x_cut_apply", false)->setComment("whether to apply track-association cut in x, sector 56");
-  desc.add<double>("association_56_x_cut_value", 800E-6)->setComment("threshold of track-association cut in x, mm, sector 56");
-  desc.add<bool>("association_56_y_cut_apply", false)->setComment("whether to apply track-association cut in y, sector 56");
-  desc.add<double>("association_56_y_cut_value", 600E-6)->setComment("threshold of track-association cut in y, mm, sector 56");
-  desc.add<bool>("association_56_xi_cut_apply", true)->setComment("whether to apply track-association cut in xi, sector 56");
-  desc.add<double>("association_56_xi_cut_value", 0.013)->setComment("threshold of track-association cut in xi, sector 56");
-  desc.add<bool>("association_56_th_y_cut_apply", true)->setComment("whether to apply track-association cut in th_y, sector 56");
-  desc.add<double>("association_56_th_y_cut_value", 20E-6)->setComment("threshold of track-association cut in th_y, rad, sector 56");
+  std::vector<edm::ParameterSet> config;
 
   desc.add<unsigned int>("max_n_timing_tracks", 5)->setComment("maximum number of timing tracks per RP");
 
@@ -258,7 +268,7 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     // process each arm
     for (const auto &arm_it : trackingSelection)
     {
-      const auto &indeces = arm_it.second;
+      const auto &indices = arm_it.second;
 
       const auto &ac = association_cuts_[arm_it.first];
 
@@ -266,7 +276,7 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       std::map<unsigned int, reco::ForwardProton> singleRPResultsIndexed;
       if (doSingleRPReconstruction_ || ac.xi_cut_apply || ac.th_y_cut_apply)
       {
-        for (const auto &idx : indeces)
+        for (const auto &idx : indices)
         {
           if (verbosity_)
             ssLog << std::endl << "* reconstruction from track " << idx << std::endl;
@@ -282,7 +292,7 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         //    - 1 is insufficient for multi-RP reconstruction
         //    - PPS did not use more than 2 tracking RPs per arm -> algorithms are tuned to this
         std::set<unsigned int> rpIds;
-        for (const auto &idx : indeces)
+        for (const auto &idx : indices)
           rpIds.insert(hTracks->at(idx).getRPId());
         if (rpIds.size() != 2)
           continue;
@@ -290,9 +300,9 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         // find matching track pairs from different tracking RPs
         std::vector<std::pair<unsigned int, unsigned int>> idx_pairs;
         std::map<unsigned int, unsigned int> idx_pair_multiplicity;
-        for (const auto &i : indeces)
+        for (const auto &i : indices)
         {
-          for (const auto &j : indeces)
+          for (const auto &j : indices)
           {
             if (j <= i)
               continue;
@@ -308,13 +318,13 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
             bool matching = true;
 
-            if (ac.x_cut_apply && fabs(tr_i.getX() - tr_j.getX()) > ac.x_cut_value)
+            if (ac.x_cut_apply && std::abs(tr_i.getX() - tr_j.getX()) > ac.x_cut_value)
               matching = false;
-            if (ac.y_cut_apply && fabs(tr_i.getY() - tr_j.getY()) > ac.y_cut_value)
+            if (ac.y_cut_apply && std::abs(tr_i.getY() - tr_j.getY()) > ac.y_cut_value)
               matching = false;
-            if (ac.xi_cut_apply && fabs(pr_i.xi() - pr_j.xi()) > ac.xi_cut_value)
+            if (ac.xi_cut_apply && std::abs(pr_i.xi() - pr_j.xi()) > ac.xi_cut_value)
               matching = false;
-            if (ac.th_y_cut_apply && fabs(pr_i.thetaY() - pr_j.thetaY()) > ac.th_y_cut_value)
+            if (ac.th_y_cut_apply && std::abs(pr_i.thetaY() - pr_j.thetaY()) > ac.th_y_cut_value)
               matching = false;
 
             if (!matching)
@@ -335,7 +345,7 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         }
 
         // associate tracking-RP pairs with timing-RP tracks
-        std::map<unsigned int, std::vector<unsigned int>> mached_timing_track_indeces;
+        std::map<unsigned int, std::vector<unsigned int>> matched_timing_track_indices;
         std::map<unsigned int, unsigned int> matched_timing_track_multiplicity;
         for (unsigned int pr_idx = 0; pr_idx < idx_pairs.size(); ++pr_idx)
         {
@@ -369,17 +379,18 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             const double de_x = tr_ti.getX() - x_inter;
             const double de_x_unc = sqrt(tr_ti.getXUnc()*tr_ti.getXUnc() + x_inter_unc_sq);
 
-            const bool matching = (fabs(de_x) <= de_x_unc);
+            const bool matching = (std::abs(de_x) <= de_x_unc);
 
-            ssLog << "ti=" << ti << ", i=" << i << ", j=" << j
-              << " | z_ti=" << z_ti << ", z_i=" << z_i << ", z_j=" << z_j
-              << " | x_ti=" << tr_ti.getX() << ", x_inter=" << x_inter << ", de_x=" << de_x << ", de_x_unc=" << de_x_unc
-              << ", matching=" << matching << std::endl;
+            if (verbosity_)
+              ssLog << "ti=" << ti << ", i=" << i << ", j=" << j
+                << " | z_ti=" << z_ti << ", z_i=" << z_i << ", z_j=" << z_j
+                << " | x_ti=" << tr_ti.getX() << ", x_inter=" << x_inter << ", de_x=" << de_x << ", de_x_unc=" << de_x_unc
+                << ", matching=" << matching << std::endl;
 
             if (!matching)
               continue;
 
-            mached_timing_track_indeces[pr_idx].push_back(ti);
+            matched_timing_track_indices[pr_idx].push_back(ti);
             matched_timing_track_multiplicity[ti]++;
           }
         }
@@ -404,8 +415,8 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
           reco::ForwardProton proton = algorithm_.reconstructFromMultiRP(sel_tracks, *hLHCInfo, ssLog);
 
           // process timing-RP data
-          double Sw=0., Swt=0.;
-          for (const auto &ti : mached_timing_track_indeces[pr_idx])
+          double sw=0., swt=0.;
+          for (const auto &ti : matched_timing_track_indices[pr_idx])
           {
             // skip non-unique associations of timing-RP tracks
             if (matched_timing_track_multiplicity[ti] > 1)
@@ -419,15 +430,15 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             const auto &tr = hTracks->at(ti);
             const double t_unc = tr.getTimeUnc();
             const double w = (t_unc > 0.) ? 1./t_unc/t_unc : 1.;
-            Sw += w;
-            Swt += w * tr.getTime();
+            sw += w;
+            swt += w * tr.getTime();
           }
 
           float time = 0., time_unc = 0.;
-          if (Sw > 0.)
+          if (sw > 0.)
           {
-            time = Swt / Sw;
-            time_unc = 1. / sqrt(Sw);
+            time = swt / sw;
+            time_unc = 1. / sqrt(sw);
           }
 
           if (verbosity_)
