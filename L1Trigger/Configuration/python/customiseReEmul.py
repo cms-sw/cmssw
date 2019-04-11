@@ -134,12 +134,13 @@ def L1TReEmulFromRAW2016(process):
     process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
     process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1Emulator)
 
+
     #cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis']
     #for b in cutlist:
     #    process.SimL1Emulator.remove(getattr(process,b))
     # TwinMux
     stage2L1Trigger.toModify(process.simTwinMuxDigis,
-        RPC_Source         = 'RPCTwinMuxRawToDigi',
+        RPC_Source         = 'rpcTwinMuxRawToDigi',
         DTDigi_Source      = 'twinMuxStage2Digis:PhIn',
         DTThetaDigi_Source = 'twinMuxStage2Digis:ThIn'
     )
@@ -179,7 +180,7 @@ def L1TReEmulFromRAW2016(process):
 
     process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
     process.schedule.append(process.L1TReEmulPath)
-    return process
+    return process 
 
 def L1TReEmulFromRAW(process):
     L1TReEmulFromRAW2016(process)
