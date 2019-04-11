@@ -37,10 +37,10 @@ void DTSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
 
     if (verbose_) {
       edm::LogInfo("DTSimHitMatcher")
-          << "nTrackIds " << track_ids_.size() << " nSelectedGEMSimHits "
+          << "nTrackIds " << track_ids_.size() << " nSelectedDTSimHits "
           << hits_.size() << endl;
       edm::LogInfo("DTSimHitMatcher")
-          << "detids GEM " << detIds(0).size() << endl;
+          << "detids DT " << detIds(0).size() << endl;
 
       const auto& dt_det_ids = detIds(0);
       for (const auto& id : dt_det_ids) {
