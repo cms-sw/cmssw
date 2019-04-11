@@ -4,7 +4,7 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, 
 
 fCPerMIP_v9 = cms.vdouble(2.06,3.43,5.15) #120um, 200um, 300um
 
-fCPerMIP_v10 = cms.vdouble(2.06,3.43,5.15) #120um, 200um, 300um
+fCPerMIP_v10 = fCPerMIP_v9
 
 # HGCAL producer of rechits starting from digis
 HGCalUncalibRecHit = cms.EDProducer(
