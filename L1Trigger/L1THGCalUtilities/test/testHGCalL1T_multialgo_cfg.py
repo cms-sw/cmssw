@@ -54,15 +54,11 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('Applications')
 )
 
-process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = cms.untracked.vstring(
-        'keep *_hgcalBackEndLayer2Producer_*_*',
-        'keep *_hgcalTowerProducer_*_*',
-    ),
-    fileName = cms.untracked.string('file:test.root')
-)
+# Output definition
+process.TFileService = cms.Service(
+    "TFileService",
+    fileName = cms.string("ntuple.root")
+    )
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -70,16 +66,59 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 # load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
+process.load('L1Trigger.L1THGCalUtilities.hgcalTriggerNtuples_cff')
+from L1Trigger.L1THGCalUtilities.hgcalTriggerChains import HGCalTriggerChains
+import L1Trigger.L1THGCalUtilities.vfe as vfe
+import L1Trigger.L1THGCalUtilities.concentrator as concentrator
+import L1Trigger.L1THGCalUtilities.clustering2d as clustering2d
+import L1Trigger.L1THGCalUtilities.clustering3d as clustering3d
+import L1Trigger.L1THGCalUtilities.customNtuples as ntuple
+
+
+chains = HGCalTriggerChains()
+# Register algorithms
+## VFE
+chains.register_vfe("Floatingpoint8", lambda p : vfe.create_compression(p, 4, 4, True))
+## ECON
+chains.register_concentrator("Supertriggercell", concentrator.create_supertriggercell)
+chains.register_concentrator("Threshold", concentrator.create_threshold)
+## BE1
+chains.register_backend1("Ref2d", clustering2d.create_constrainedtopological)
+chains.register_backend1("Dummy", clustering2d.create_dummy)
+## BE2
+chains.register_backend2("Ref3d", clustering3d.create_distance)
+chains.register_backend2("Histomax", clustering3d.create_histoMax)
+chains.register_backend2("Histomaxvardrth0", lambda p,i : clustering3d.create_histoMax_variableDr(p,i,seed_threshold=0.))
+chains.register_backend2("Histomaxvardrth10", lambda p,i : clustering3d.create_histoMax_variableDr(p,i,seed_threshold=10.))
+chains.register_backend2("Histomaxvardrth20", lambda p,i : clustering3d.create_histoMax_variableDr(p,i,seed_threshold=20.))
+# Register ntuples
+# Store gen info only in the reference ntuple
+ntuple_list_ref = ['event', 'gen', 'multiclusters']
+ntuple_list = ['event', 'multiclusters']
+chains.register_ntuple("Genclustersntuple", lambda p,i : ntuple.create_ntuple(p,i, ntuple_list_ref))
+chains.register_ntuple("Clustersntuple", lambda p,i : ntuple.create_ntuple(p,i, ntuple_list))
+
+# Register trigger chains
+## Reference chain
+chains.register_chain('Floatingpoint8', "Threshold", 'Ref2d', 'Ref3d', 'Genclustersntuple')
+concentrator_algos = ['Supertriggercell', 'Threshold']
+backend_algos = ['Histomax', 'Histomaxvardrth0', 'Histomaxvardrth10', 'Histomaxvardrth20']
+## Make cross product fo ECON and BE algos
+import itertools
+for cc,be in itertools.product(concentrator_algos,backend_algos):
+    chains.register_chain('Floatingpoint8', cc, 'Dummy', be, 'Clustersntuple')
+
+process = chains.create_sequences(process)
+
+# Remove towers from sequence
+process.hgcalTriggerPrimitives.remove(process.hgcalTowerMap)
+process.hgcalTriggerPrimitives.remove(process.hgcalTower)
+
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-# Change to V7 trigger geometry for older samples
-#  from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_ZoltanSplit_V7
-#  process = custom_geometry_ZoltanSplit_V7(process)
-
-
-process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
+process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.hgcl1tpg_step, process.FEVTDEBUGoutput_step)
+process.schedule = cms.Schedule(process.hgcl1tpg_step, process.ntuple_step)
 
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
