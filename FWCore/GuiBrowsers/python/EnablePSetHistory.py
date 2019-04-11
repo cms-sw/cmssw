@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 from copy import deepcopy
 import inspect
 import six
@@ -575,7 +576,7 @@ if __name__=='__main__':
                     )
                 ),
                 seven = cms.vstring('alpha','bravo','charlie'),
-                eight = cms.vuint32(range(10)),
+                eight = cms.vuint32(list(range(10))),
                 nine = cms.int32(0)
             )
             ex.zero = cms.string('hello')

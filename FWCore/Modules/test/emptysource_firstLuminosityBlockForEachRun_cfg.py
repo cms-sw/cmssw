@@ -1,5 +1,6 @@
 # Configuration file for EmptySource
 
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
@@ -34,7 +35,7 @@ numberOfEventsPerLumi = process.source.numberEventsInLuminosityBlock.value()
 lumi = process.source.firstLuminosityBlock.value()
 event=0
 oldRun = 2
-for i in xrange(process.maxEvents.input.value()):
+for i in range(process.maxEvents.input.value()):
    numberOfEventsInLumi +=1
    event += 1
    run = findRunForLumi(lumi)
