@@ -210,5 +210,5 @@ HGCalRecHit = cms.EDProducer(
 
     )
 
-phase2_hgcalV9.toModify( HGCalRecHit , thicknessCorrection = cms.vdouble(0.759,0.760,0.773) ) #120um, 200um, 300um
-phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = cms.vdouble(0.781,0.775,0.769) ) #120um, 200um, 300um
+phase2_hgcalV9.toModify( HGCalRecHit , thicknessCorrection = [0.759,0.760,0.773] ) #120um, 200um, 300um
+phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = [0.781,0.775,0.769] ) #120um, 200um, 300um
