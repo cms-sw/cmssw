@@ -24,7 +24,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
+#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 
@@ -41,7 +41,7 @@ public:
   using ReturnType = unique_ptr<DDDetector>;
   using Detector = dd4hep::Detector;
 
-  ReturnType produce(const DetectorDescriptionRcd&);
+  ReturnType produce(const GeometryFileRcd&);
   static void fillDescriptions(ConfigurationDescriptions&);
 
 protected:
@@ -58,7 +58,7 @@ DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
     m_label(iConfig.getParameter<string>("appendToDataLabel"))
 {
   setWhatProduced(this);
-  findingRecord<DetectorDescriptionRcd>();
+  findingRecord<GeometryFileRcd>();
 }
 
 DDDetectorESProducer::~DDDetectorESProducer()
@@ -81,7 +81,7 @@ DDDetectorESProducer::setIntervalFor(const eventsetup::EventSetupRecordKey& iKey
 }
 
 DDDetectorESProducer::ReturnType
-DDDetectorESProducer::produce(const DetectorDescriptionRcd& iRecord)
+DDDetectorESProducer::produce(const GeometryFileRcd& iRecord)
 {
   LogDebug("Geometry") << "DDDetectorESProducer::Produce " << m_label;
   return make_unique<DDDetector>(m_label, m_confGeomXMLFiles);

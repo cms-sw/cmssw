@@ -2,15 +2,28 @@
  <use name="CondFormats/Alignment"/>
  <use name="CondFormats/DataRecord"/>
  <use name="CondFormats/GeometryObjects"/>
- <use name="DetectorDescription/Core"/>
  <use name="FWCore/Framework"/>
  <use name="FWCore/ParameterSet"/>
  <use name="Geometry/MuonNumbering"/>
  <use name="Geometry/Records"/>
- <use name="Geometry/DTGeometryBuilder"/>
 
-<library file="DTGeometryESModule.cc">
+<library name="DTGeometryPlugins" file="DTGeometryESModule.cc">
+ <use name="DetectorDescription/Core"/>
+ <use name="Geometry/DTGeometryBuilder"/>
  <flags EDM_PLUGIN="1"/>
 </library>
 
+<library name="DTGeometryValidationPlugins" file="DTGeometryValidate.cc">
+  <use name="Fireworks/Core"/>
+  <use name="Geometry/DTGeometry"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library name="DD4hep_DTGeometryPlugins" file="dd4hep/*.cc">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="Geometry/DTGeometry"/>
+  <use name="dd4hep"/>
+  <lib name="Geom"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
 

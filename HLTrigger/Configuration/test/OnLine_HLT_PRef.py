@@ -1,13 +1,13 @@
-# hltGetConfiguration --full --data /dev/CMSSW_10_5_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run2_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
+# hltGetConfiguration --full --data /dev/CMSSW_10_6_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run2_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_10_5_0/PRef/V2 (CMSSW_10_5_0_pre2)
+# /dev/CMSSW_10_6_0/PRef/V1 (CMSSW_10_6_0_pre3_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_5_0/PRef/V2')
+  tableName = cms.string('/dev/CMSSW_10_6_0/PRef/V1')
 )
 
 process.transferSystem = cms.PSet( 
@@ -8882,6 +8882,7 @@ process.hltIterL3MuonsNoID = cms.EDProducer( "MuonIdProducer",
       dRHcalPreselection = cms.double( 0.2 ),
       HORecHitCollectionLabel = cms.InputTag( "Notused" )
     ),
+    storeCrossedHcalRecHits = cms.bool( False ),
     JetExtractorPSet = cms.PSet( 
       JetCollectionLabel = cms.InputTag( "Notused" ),
       DR_Veto = cms.double( 0.1 ),

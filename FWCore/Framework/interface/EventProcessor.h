@@ -52,6 +52,7 @@ namespace edm {
   class ProcessDesc;
   class SubProcess;
   class WaitingTaskHolder;
+  class LuminosityBlockPrincipal;
   class LuminosityBlockProcessingStatus;
   class IOVSyncValue;
   
@@ -221,6 +222,7 @@ namespace edm {
                         edm::WaitingTaskHolder iHolder);
     void continueLumiAsync(edm::WaitingTaskHolder iHolder);
     
+    void handleEndLumiExceptions(std::exception_ptr const* iPtr, WaitingTaskHolder& holder);
     void globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
     void streamEndLumiAsync(edm::WaitingTaskHolder iTask,
                             unsigned int iStreamIndex,
@@ -231,14 +233,14 @@ namespace edm {
     int readAndMergeLumi(LuminosityBlockProcessingStatus&);
     void writeRunAsync(WaitingTaskHolder, ProcessHistoryID const& phid, RunNumber_t run, MergeableRunProductMetadata const*);
     void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
-    void writeLumiAsync(WaitingTaskHolder, std::shared_ptr<LuminosityBlockProcessingStatus> );
+    void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal& lumiPrincipal);
     void deleteLumiFromCache(LuminosityBlockProcessingStatus&);
 
     bool shouldWeStop() const;
 
     void setExceptionMessageFiles(std::string& message);
     void setExceptionMessageRuns(std::string& message);
-    void setExceptionMessageLumis(std::string& message);
+    void setExceptionMessageLumis();
 
     bool setDeferredException(std::exception_ptr);
 
@@ -329,7 +331,7 @@ namespace edm {
     bool                                          fileModeNoMerge_;
     std::string                                   exceptionMessageFiles_;
     std::string                                   exceptionMessageRuns_;
-    std::string                                   exceptionMessageLumis_;
+    std::atomic<bool>                             exceptionMessageLumis_;
     bool                                          forceLooperToEnd_;
     bool                                          looperBeginJobRun_;
     bool                                          forceESCacheClearOnNewRun_;

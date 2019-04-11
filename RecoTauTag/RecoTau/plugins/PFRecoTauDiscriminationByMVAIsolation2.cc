@@ -178,7 +178,7 @@ double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
   category_output_->setValue(tauIndex_, category);
 
   // CV: computation of MVA value requires presence of leading charged hadron
-  if ( tau->leadPFChargedHadrCand().isNull() ) return 0.;
+  if ( tau->leadChargedHadrCand().isNull() ) return 0.;
 
   int tauDecayMode = tau->decayMode();
 

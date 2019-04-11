@@ -77,7 +77,7 @@ public:
 
   // input jet collection
   edm::InputTag srcJets_;
-  edm::EDGetTokenT<reco::CandidateView> Jets_token;
+  edm::EDGetTokenT<reco::JetView> Jets_token;
   double minJetPt_;
   double maxJetAbsEta_;
 
@@ -98,7 +98,7 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
   srcJets_ = cfg.getParameter<edm::InputTag>("jetSrc");
-  Jets_token = consumes<reco::CandidateView>(srcJets_);
+  Jets_token = consumes<reco::JetView>(srcJets_);
   minJetPt_ = cfg.getParameter<double>("minJetPt");
   maxJetAbsEta_ = cfg.getParameter<double>("maxJetAbsEta");
   verbosity_ = cfg.getParameter<int>("verbosity");
@@ -148,26 +148,28 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   }
   
   // get a view of our jets via the base candidates
-  edm::Handle<reco::CandidateView> jets;
+  edm::Handle<reco::JetView> jets;
   evt.getByToken(Jets_token, jets);
   
   // convert the view to a RefVector of actual PFJets
-  reco::PFJetRefVector pfJets = reco::tau::castView<reco::PFJetRefVector>(jets);
+  edm::RefToBaseVector<reco::Jet> pfJets;
+  size_t nElements = jets->size();
+  for (size_t i = 0; i < nElements; ++i) {
+    pfJets.push_back(jets->refAt(i));
+  }
 
   // make our association
   std::unique_ptr<reco::PFJetChargedHadronAssociation> pfJetChargedHadronAssociations;
 
 
   if ( !pfJets.empty() ) {
-    edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
-    evt.get(pfJets.id(), pfJetCollectionHandle);
-    pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>(reco::PFJetRefProd(pfJetCollectionHandle));
+    pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>(reco::JetRefBaseProd(jets));
   } else {
     pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>();
   }
 
   // loop over our jets
-  for(auto const& pfJet : pfJets ) {
+  for(const auto& pfJet : pfJets ) {
     
     if(pfJet->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(pfJet->eta()) - maxJetAbsEta_ > -1e-5) continue;
@@ -201,7 +203,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
     // keep track of neutral PFCandidates, charged PFCandidates and tracks "used" by ChargedHadron candidates in the clean collection
     typedef std::pair<double, double> etaPhiPair;
     std::list<etaPhiPair> tracksInCleanCollection;
-    std::set<reco::PFCandidatePtr> neutralPFCandsInCleanCollection;
+    std::set<reco::CandidatePtr> neutralPFCandsInCleanCollection;
 
     while ( !uncleanedChargedHadrons.empty() ) {
       
@@ -217,12 +219,14 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 
       const reco::Track* track = nullptr;
       if ( nextChargedHadron->getChargedPFCandidate().isNonnull() ) {
-	const reco::PFCandidatePtr& chargedPFCand = nextChargedHadron->getChargedPFCandidate();
-	if ( chargedPFCand->trackRef().isNonnull() ) track = chargedPFCand->trackRef().get();
-	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->innerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->innerTrack().get();
-	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->globalTrack().isNonnull() ) track = chargedPFCand->muonRef()->globalTrack().get();
-	else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->outerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->outerTrack().get();
-	else if ( chargedPFCand->gsfTrackRef().isNonnull() ) track = chargedPFCand->gsfTrackRef().get();
+	const reco::PFCandidate* chargedPFCand = dynamic_cast<const reco::PFCandidate*> (&*nextChargedHadron->getChargedPFCandidate());
+        if (chargedPFCand) {
+          if ( chargedPFCand->trackRef().isNonnull() ) track = chargedPFCand->trackRef().get();
+          else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->innerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->innerTrack().get();
+          else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->globalTrack().isNonnull() ) track = chargedPFCand->muonRef()->globalTrack().get();
+          else if ( chargedPFCand->muonRef().isNonnull() && chargedPFCand->muonRef()->outerTrack().isNonnull()  ) track = chargedPFCand->muonRef()->outerTrack().get();
+          else if ( chargedPFCand->gsfTrackRef().isNonnull() ) track = chargedPFCand->gsfTrackRef().get();
+        }
       } 
       if ( nextChargedHadron->getTrack().isNonnull() && !track ) {
 	track = nextChargedHadron->getTrack().get();
@@ -247,9 +251,10 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       // discard ChargedHadron candidates without track in case they are close to neutral PFCandidates "used" by ChargedHadron candidates in the clean collection
       bool isNeutralPFCand_overlap = false;
       if ( nextChargedHadron->algoIs(reco::PFRecoTauChargedHadron::kPFNeutralHadron) ) {
-	for ( std::set<reco::PFCandidatePtr>::const_iterator neutralPFCandInCleanCollection = neutralPFCandsInCleanCollection.begin();
+	for ( std::set<reco::CandidatePtr>::const_iterator neutralPFCandInCleanCollection = neutralPFCandsInCleanCollection.begin();
 	      neutralPFCandInCleanCollection != neutralPFCandsInCleanCollection.end(); ++neutralPFCandInCleanCollection ) {
-	  if ( (*neutralPFCandInCleanCollection) == nextChargedHadron->getChargedPFCandidate() ) isNeutralPFCand_overlap = true;
+          if ( (*neutralPFCandInCleanCollection) == nextChargedHadron->getChargedPFCandidate() )  isNeutralPFCand_overlap = true;
+
 	}
       }
       if ( verbosity_ ) {
@@ -258,7 +263,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       if ( isNeutralPFCand_overlap ) continue;
       
       // find neutral PFCandidates that are not "used" by any ChargedHadron in the clean collection
-      std::vector<reco::PFCandidatePtr> uniqueNeutralPFCands;
+      std::vector<reco::CandidatePtr> uniqueNeutralPFCands;
       std::set_difference(nextChargedHadron->getNeutralPFCandidates().begin(),
 			  nextChargedHadron->getNeutralPFCandidates().end(),
 			  neutralPFCandsInCleanCollection.begin(),
@@ -321,13 +326,23 @@ PFRecoTauChargedHadronProducer::fillDescriptions(edm::ConfigurationDescriptions&
   // ak4PFJetsRecoTauChargedHadrons
   edm::ParameterSetDescription desc;
   {
-    edm::ParameterSetDescription vpsd_ranking;
-    vpsd_ranking.add<std::string>("selectionPassFunction", "-pt");
-    vpsd_ranking.add<double>("selectionFailValue", 1000.0);
-    vpsd_ranking.add<std::string>("selection", "algoIs(\"kChargedPFCandidate\")");
-    vpsd_ranking.add<std::string>("name", "ChargedPFCandidate");
-    vpsd_ranking.add<std::string>("plugin", "PFRecoTauChargedHadronStringQuality");
-    desc.addVPSet("ranking", vpsd_ranking);
+    edm::ParameterSetDescription desc_ranking;
+    desc_ranking.add<std::string>("selectionPassFunction", "-pt");
+    desc_ranking.add<double>("selectionFailValue", 1000.0);
+    desc_ranking.add<std::string>("selection", "algoIs(\"kChargedPFCandidate\")");
+    desc_ranking.add<std::string>("name", "ChargedPFCandidate");
+    desc_ranking.add<std::string>("plugin", "PFRecoTauChargedHadronStringQuality");
+
+    edm::ParameterSet pset_ranking;
+    pset_ranking.addParameter<std::string>("selectionPassFunction", "-pt");
+    pset_ranking.addParameter<double>("selectionFailValue", 1000.0);
+    pset_ranking.addParameter<std::string>("selection", "algoIs(\"kChargedPFCandidate\")");
+    pset_ranking.addParameter<std::string>("name", "ChargedPFCandidate");
+    pset_ranking.addParameter<std::string>("plugin", "PFRecoTauChargedHadronStringQuality");
+    std::vector<edm::ParameterSet> vpsd_ranking;
+    vpsd_ranking.push_back(pset_ranking);
+
+    desc.addVPSet("ranking", desc_ranking, vpsd_ranking);
   }
 
   desc.add<int>("verbosity", 0);
@@ -337,15 +352,15 @@ PFRecoTauChargedHadronProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJets"));
 
   {
-    edm::ParameterSetDescription vpsd_builders;
-    vpsd_builders.add<double>("minMergeChargedHadronPt");
-    vpsd_builders.add<std::string>("name");
-    vpsd_builders.add<std::string>("plugin");
-    vpsd_builders.addOptional<double>("dRcone");
-    vpsd_builders.addOptional<bool>("dRconeLimitedToJetArea");
-    vpsd_builders.addOptional<double>("dRmergeNeutralHadron");
-    vpsd_builders.addOptional<double>("dRmergePhoton");
-    vpsd_builders.addOptional<edm::InputTag>("srcTracks");
+    edm::ParameterSetDescription desc_builders;
+    desc_builders.add<double>("minMergeChargedHadronPt");
+    desc_builders.add<std::string>("name");
+    desc_builders.add<std::string>("plugin");
+    desc_builders.addOptional<double>("dRcone");
+    desc_builders.addOptional<bool>("dRconeLimitedToJetArea");
+    desc_builders.addOptional<double>("dRmergeNeutralHadron");
+    desc_builders.addOptional<double>("dRmergePhoton");
+    desc_builders.addOptional<edm::InputTag>("srcTracks");
 
     {
       edm::ParameterSetDescription pset_signalQualityCuts;
@@ -391,31 +406,40 @@ PFRecoTauChargedHadronProducer::fillDescriptions(edm::ConfigurationDescriptions&
       pset_qualityCuts.add<bool>("vertexTrackFiltering", false);
       pset_qualityCuts.add<bool>("recoverLeadingTrk", false);
 
-      vpsd_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
+      desc_builders.add<edm::ParameterSetDescription>("qualityCuts", pset_qualityCuts);
     }
 
-    vpsd_builders.add<double>("minMergeGammaEt");
-    vpsd_builders.add<int>("verbosity", 0);
-    vpsd_builders.add<double>("minMergeNeutralHadronEt");
+    desc_builders.add<double>("minMergeGammaEt");
+    desc_builders.add<int>("verbosity", 0);
+    desc_builders.add<double>("minMergeNeutralHadronEt");
 
-    vpsd_builders.addOptional<double>("dRmergePhotonWrtChargedHadron");
-    vpsd_builders.addOptional<double>("dRmergePhotonWrtNeutralHadron");
-    vpsd_builders.addOptional<int>("maxUnmatchedBlockElementsNeutralHadron");
-    vpsd_builders.addOptional<double>("dRmergePhotonWrtElectron");
-    vpsd_builders.addOptional<std::vector<int>>("chargedHadronCandidatesParticleIds");
-    vpsd_builders.addOptional<int>("minBlockElementMatchesPhoton");
-    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtNeutralHadron");
-    vpsd_builders.addOptional<int>("maxUnmatchedBlockElementsPhoton");
-    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtOther");
-    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtElectron");
-    vpsd_builders.addOptional<int>("minBlockElementMatchesNeutralHadron");
-    vpsd_builders.addOptional<double>("dRmergePhotonWrtOther");
-    vpsd_builders.addOptional<double>("dRmergeNeutralHadronWrtChargedHadron");
+    desc_builders.addOptional<double>("dRmergePhotonWrtChargedHadron");
+    desc_builders.addOptional<double>("dRmergePhotonWrtNeutralHadron");
+    desc_builders.addOptional<int>("maxUnmatchedBlockElementsNeutralHadron");
+    desc_builders.addOptional<double>("dRmergePhotonWrtElectron");
+    desc_builders.addOptional<std::vector<int>>("chargedHadronCandidatesParticleIds");
+    desc_builders.addOptional<int>("minBlockElementMatchesPhoton");
+    desc_builders.addOptional<double>("dRmergeNeutralHadronWrtNeutralHadron");
+    desc_builders.addOptional<int>("maxUnmatchedBlockElementsPhoton");
+    desc_builders.addOptional<double>("dRmergeNeutralHadronWrtOther");
+    desc_builders.addOptional<double>("dRmergeNeutralHadronWrtElectron");
+    desc_builders.addOptional<int>("minBlockElementMatchesNeutralHadron");
+    desc_builders.addOptional<double>("dRmergePhotonWrtOther");
+    desc_builders.addOptional<double>("dRmergeNeutralHadronWrtChargedHadron");
 
-    desc.addVPSet("builders", vpsd_builders);
+    edm::ParameterSet pset_builders;
+    pset_builders.addParameter<std::string>("name","");
+    pset_builders.addParameter<std::string>("plugin","");
+    edm::ParameterSet qualityCuts;
+    pset_builders.addParameter<edm::ParameterSet>("qualityCuts",qualityCuts);
+    pset_builders.addParameter<int>("verbosity",0);
+    std::vector<edm::ParameterSet> vpsd_builders;
+    vpsd_builders.push_back(pset_builders);
+
+    desc.addVPSet("builders", desc_builders, vpsd_builders);
   }
 
-  descriptions.add("ak4PFJetsRecoTauChargedHadrons", desc);
+  descriptions.add("pfRecoTauChargedHadronProducer", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -94,29 +94,32 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const edm::ParameterSet& iConfig):PFRecoT
 
 PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, const Vertex& myPV)
 {
-   PFJetRef myPFJet=(*myPFTauTagInfoRef).pfjetRef();  // catch a ref to the initial PFJet
+   JetBaseRef myPFJet=(*myPFTauTagInfoRef).pfjetRef();  // catch a ref to the initial PFJet
    PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(),myPFJet->p4());   // create the PFTau
 
    myPFTau.setpfTauTagInfoRef(myPFTauTagInfoRef);
 
-   std::vector<PFCandidatePtr> myPFCands=(*myPFTauTagInfoRef).PFCands();
+   std::vector<CandidatePtr> myPFCands=(*myPFTauTagInfoRef).PFCands();
 
    PFTauElementsOperators myPFTauElementsOperators(myPFTau);
    double myMatchingConeSize=myPFTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeSize_min_,MatchingConeSize_max_);
 
-   PFCandidatePtr myleadPFChargedCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,PFTauAlgo_PFCand_minPt_);
+   CandidatePtr myleadPFChargedCand=myPFTauElementsOperators.leadChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,PFTauAlgo_PFCand_minPt_);
 
    // These two quantities always taken from the signal cone
-   PFCandidatePtr myleadPFNeutralCand;
-   PFCandidatePtr myleadPFCand;
+   CandidatePtr myleadPFNeutralCand;
+   CandidatePtr myleadPFCand;
 
    bool myleadPFCand_rectkavailable = false;
    double myleadPFCand_rectkDZ      = 0.;
 
    // Determine the SIPT of the lead track
    if(myleadPFChargedCand.isNonnull()) {
-      myPFTau.setleadPFChargedHadrCand(myleadPFChargedCand);
-      TrackRef myleadPFCand_rectk=(*myleadPFChargedCand).trackRef();
+      myPFTau.setleadChargedHadrCand(myleadPFChargedCand);
+      const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(myleadPFChargedCand.get());
+      if (pflch == nullptr)
+        throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+      TrackRef myleadPFCand_rectk=pflch->trackRef();
       if(myleadPFCand_rectk.isNonnull()) {
          myleadPFCand_rectkavailable=true;
          myleadPFCand_rectkDZ=(*myleadPFCand_rectk).dz(myPV.position());
@@ -137,12 +140,12 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
       // Compute energy of the PFTau considering only inner constituents
       // (inner == pfcandidates inside a cone which is equal to the maximum value of the signal cone)
       // The axis is built about the lead charged hadron
-      std::vector<PFCandidatePtr> myTmpPFCandsInSignalCone =
+      std::vector<CandidatePtr> myTmpPFCandsInSignalCone =
          myPFTauElementsOperators.PFCandsInCone(tauAxis,TrackerSignalConeMetric_,TrackerSignalConeSize_max_,0.5);
       math::XYZTLorentzVector tmpLorentzVect(0.,0.,0.,0.);
 
       double jetOpeningAngle = 0.0;
-      for (std::vector<PFCandidatePtr>::const_iterator iCand = myTmpPFCandsInSignalCone.begin();
+      for (std::vector<CandidatePtr>::const_iterator iCand = myTmpPFCandsInSignalCone.begin();
             iCand != myTmpPFCandsInSignalCone.end(); iCand++)
       {
          //find the maximum opening angle of the jet (now a parameter in available TFormulas)
@@ -173,7 +176,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
             myHCALIsolConeSizeTFormula, HCALIsolConeSize_min_, HCALIsolConeSize_max_, transverseEnergy, energy, jetOpeningAngle);
 
       // Signal cone collections
-      std::vector<PFCandidatePtr> mySignalPFChargedHadrCands, mySignalPFNeutrHadrCands, mySignalPFGammaCands, mySignalPFCands;
+      std::vector<CandidatePtr> mySignalPFChargedHadrCands, mySignalPFNeutrHadrCands, mySignalPFGammaCands, mySignalPFCands;
 
       if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) {
          mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone(tauAxis,
@@ -186,19 +189,19 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
       }
 
       // Set the Charged hadronics that live in the signal cones
-      myPFTau.setsignalPFChargedHadrCands(mySignalPFChargedHadrCands);
+      myPFTau.setsignalChargedHadrCands(mySignalPFChargedHadrCands);
 
       // Set the neurtral hadrons that live in the signal cone
       mySignalPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInCone(tauAxis,
             HCALSignalConeMetric_, myHCALSignalConeSize, PFTauAlgo_NeutrHadrCand_minPt_);
 
-      myPFTau.setsignalPFNeutrHadrCands(mySignalPFNeutrHadrCands);
+      myPFTau.setsignalNeutrHadrCands(mySignalPFNeutrHadrCands);
 
       // Compute the gammas that live in the signal cone
       mySignalPFGammaCands=myPFTauElementsOperators.PFGammaCandsInCone(tauAxis,
             ECALSignalConeMetric_,myECALSignalConeSize,PFTauAlgo_GammaCand_minPt_);
 
-      myPFTau.setsignalPFGammaCands(mySignalPFGammaCands);
+      myPFTau.setsignalGammaCands(mySignalPFGammaCands);
 
       // Add charged objects to signal cone, and calculate charge
       if(!mySignalPFChargedHadrCands.empty()) {
@@ -224,9 +227,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
          }
          mySignalPFCands.push_back(mySignalPFGammaCands[i]);
       }
-      myPFTau.setsignalPFCands(mySignalPFCands);
+      myPFTau.setsignalCands(mySignalPFCands);
       // Set leading gamma
-      myPFTau.setleadPFNeutralCand(myleadPFNeutralCand);
+      myPFTau.setleadNeutralCand(myleadPFNeutralCand);
 
       // Logic to determine lead PFCand.  If the lead charged object
       // is above the threshold, take that.  If the lead charged object is less
@@ -234,13 +237,13 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
       // take the gamma as the leadPFCand.  Otherwise it is null.
 
       if(myleadPFChargedCand->pt() > LeadPFCand_minPt_) {
-         myPFTau.setleadPFCand(myleadPFChargedCand);
+         myPFTau.setleadCand(myleadPFChargedCand);
       } else if (maxSignalGammaPt > LeadPFCand_minPt_) {
-         myPFTau.setleadPFCand(myleadPFNeutralCand);
+         myPFTau.setleadCand(myleadPFNeutralCand);
       }
 
       // Declare isolation collections
-      std::vector<PFCandidatePtr> myUnfilteredIsolPFChargedHadrCands, myIsolPFNeutrHadrCands, myIsolPFGammaCands, myIsolPFCands;
+      std::vector<CandidatePtr> myUnfilteredIsolPFChargedHadrCands, myIsolPFNeutrHadrCands, myIsolPFGammaCands, myIsolPFCands;
 
       // Build unfiltered isolation collection
       if(UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) {
@@ -255,23 +258,23 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
 
       // Filter isolation annulus charge dhadrons with additional nHits quality cut
       // (note that other cuts [pt, chi2, are already cut on])
-      std::vector<PFCandidatePtr> myIsolPFChargedHadrCands;
+      std::vector<CandidatePtr> myIsolPFChargedHadrCands;
       myIsolPFChargedHadrCands = TauTagTools::filteredPFChargedHadrCandsByNumTrkHits(
             myUnfilteredIsolPFChargedHadrCands, ChargedHadrCand_IsolAnnulus_minNhits_);
 
-      myPFTau.setisolationPFChargedHadrCands(myIsolPFChargedHadrCands);
+      myPFTau.setisolationChargedHadrCands(myIsolPFChargedHadrCands);
 
       // Fill neutral hadrons
       myIsolPFNeutrHadrCands = myPFTauElementsOperators.PFNeutrHadrCandsInAnnulus(
             tauAxis, HCALSignalConeMetric_, myHCALSignalConeSize, HCALIsolConeMetric_,
             myHCALIsolConeSize, PFTauAlgo_NeutrHadrCand_minPt_);
-      myPFTau.setisolationPFNeutrHadrCands(myIsolPFNeutrHadrCands);
+      myPFTau.setisolationNeutrHadrCands(myIsolPFNeutrHadrCands);
 
       // Fill gamma candidates
       myIsolPFGammaCands = myPFTauElementsOperators.PFGammaCandsInAnnulus(
             tauAxis, ECALSignalConeMetric_, myECALSignalConeSize, ECALIsolConeMetric_,
             myECALIsolConeSize, PFTauAlgo_GammaCand_minPt_);
-      myPFTau.setisolationPFGammaCands(myIsolPFGammaCands);
+      myPFTau.setisolationGammaCands(myIsolPFGammaCands);
 
       //Incorporate converted gammas from isolation ellipse into signal  ... ELLL
       //Get pair with in/out elements using the isoPFGammaCandidates set by default
@@ -282,20 +285,20 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
          else
             rPhi = Rphi_;
 
-         std::pair<std::vector<PFCandidatePtr>,std::vector<PFCandidatePtr>> elementsInOutEllipse =
+         std::pair<std::vector<CandidatePtr>,std::vector<CandidatePtr>> elementsInOutEllipse =
             myPFTauElementsOperators.PFGammaCandsInOutEllipse(myIsolPFGammaCands, *myleadPFCand, rPhi, myECALSignalConeSize, MaxEtInEllipse_);
 
-         std::vector<PFCandidatePtr> elementsInEllipse = elementsInOutEllipse.first;
-         std::vector<PFCandidatePtr> elementsOutEllipse = elementsInOutEllipse.second;
+         std::vector<CandidatePtr> elementsInEllipse = elementsInOutEllipse.first;
+         std::vector<CandidatePtr> elementsOutEllipse = elementsInOutEllipse.second;
          //add the inside elements to signal PFCandidates and reset signal PFCands
-         for(std::vector<PFCandidatePtr>::const_iterator inEllipseIt = elementsInEllipse.begin(); inEllipseIt != elementsInEllipse.end(); inEllipseIt++){
+         for(std::vector<CandidatePtr>::const_iterator inEllipseIt = elementsInEllipse.begin(); inEllipseIt != elementsInEllipse.end(); inEllipseIt++){
             mySignalPFCands.push_back(*inEllipseIt);
             mySignalPFGammaCands.push_back(*inEllipseIt);
          }
-         myPFTau.setsignalPFCands(mySignalPFCands);
+         myPFTau.setsignalCands(mySignalPFCands);
          //redefine isoPFGammaCandidates to be the outside elements
          myIsolPFGammaCands=elementsOutEllipse;
-         myPFTau.setisolationPFGammaCands(myIsolPFGammaCands);
+         myPFTau.setisolationGammaCands(myIsolPFGammaCands);
       }
 
 
@@ -318,16 +321,16 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
          myIsolPFCands.push_back(myIsolPFGammaCands[i]);
       }
       myPFTau.setisolationPFGammaCandsEtSum(myIsolPFGammaCands_Etsum);
-      myPFTau.setisolationPFCands(myIsolPFCands);
+      myPFTau.setisolationCands(myIsolPFCands);
 
       //Making the alternateLorentzVector, i.e. direction with only signal components
       math::XYZTLorentzVector alternatLorentzVect(0.,0.,0.,0.);
-      for (std::vector<PFCandidatePtr>::const_iterator iGammaCand = mySignalPFGammaCands.begin();
+      for (std::vector<CandidatePtr>::const_iterator iGammaCand = mySignalPFGammaCands.begin();
             iGammaCand != mySignalPFGammaCands.end(); iGammaCand++) {
          alternatLorentzVect+=(**iGammaCand).p4();
       }
 
-      for (std::vector<PFCandidatePtr>::const_iterator iChargedHadrCand = mySignalPFChargedHadrCands.begin();
+      for (std::vector<CandidatePtr>::const_iterator iChargedHadrCand = mySignalPFChargedHadrCands.begin();
             iChargedHadrCand != mySignalPFChargedHadrCands.end(); iChargedHadrCand++) {
          alternatLorentzVect+=(**iChargedHadrCand).p4();
       }
@@ -336,7 +339,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
 
       // Optionally add the neutral hadrons to the p4
       if (putNeutralHadronsInP4_) {
-        for (std::vector<PFCandidatePtr>::const_iterator iNeutralHadrCand = mySignalPFNeutrHadrCands.begin();
+        for (std::vector<CandidatePtr>::const_iterator iNeutralHadrCand = mySignalPFNeutrHadrCands.begin();
             iNeutralHadrCand != mySignalPFNeutrHadrCands.end(); iNeutralHadrCand++) {
           alternatLorentzVect+=(**iNeutralHadrCand).p4();
         }
@@ -391,42 +394,48 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
 
    //Use the electron rejection only in case there is a charged leading pion
    if(myleadPFChargedCand.isNonnull()){
-      myElectronPreIDOutput = myleadPFChargedCand->mva_e_pi();
+      const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(myleadPFChargedCand.get());
+      if (pflch == nullptr)
+        throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+      myElectronPreIDOutput = pflch->mva_e_pi();
 
-      math::XYZPointF myElecTrkEcalPos = myleadPFChargedCand->positionAtECALEntrance();
-      myElecTrk = myleadPFChargedCand->trackRef();//Electron candidate
+      math::XYZPointF myElecTrkEcalPos = pflch->positionAtECALEntrance();
+      myElecTrk = pflch->trackRef();//Electron candidate
 
       if(myElecTrk.isNonnull()) {
          //FROM AOD
          if(DataType_ == "AOD"){
             // Corrected Cluster energies
             for(int i=0;i<(int)myPFCands.size();i++){
-               myHCALenergy += myPFCands[i]->hcalEnergy();
-               myECALenergy += myPFCands[i]->ecalEnergy();
+               const reco::PFCandidate* myPFCand = dynamic_cast<const reco::PFCandidate*>(myPFCands[i].get());
+               if (myPFCand == nullptr)
+                 throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+               myHCALenergy += myPFCand->hcalEnergy();
+               myECALenergy += myPFCand->ecalEnergy();
 
                math::XYZPointF candPos;
-               if (myPFCands[i]->particleId()==1 || myPFCands[i]->particleId()==2)//if charged hadron or electron
-                  candPos = myPFCands[i]->positionAtECALEntrance();
+               if (myPFCand->particleId()==1 || myPFCand->particleId()==2)//if charged hadron or electron
+                  candPos = myPFCand->positionAtECALEntrance();
                else
-                  candPos = math::XYZPointF(myPFCands[i]->px(),myPFCands[i]->py(),myPFCands[i]->pz());
+                  candPos = math::XYZPointF(myPFCand->px(),myPFCand->py(),myPFCand->pz());
 
                double deltaR   = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,candPos);
                double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,candPos);
                double deltaEta = std::abs(myElecTrkEcalPos.eta()-candPos.eta());
                double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
 
-               if (myPFCands[i]->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
+               if (myPFCand->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
                      deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_  && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) {
-                  myStripClusterE += myPFCands[i]->ecalEnergy();
+                  myStripClusterE += myPFCand->ecalEnergy();
                }
                if (deltaR<0.184) {
-                  myHCALenergy3x3 += myPFCands[i]->hcalEnergy();
+                  myHCALenergy3x3 += myPFCand->hcalEnergy();
                }
-               if (myPFCands[i]->hcalEnergy()>myMaximumHCALPFClusterE) {
-                  myMaximumHCALPFClusterE = myPFCands[i]->hcalEnergy();
+               if (myPFCand->hcalEnergy()>myMaximumHCALPFClusterE) {
+                  myMaximumHCALPFClusterE = myPFCand->hcalEnergy();
                }
-               if ((myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())))>myMaximumHCALPFClusterEt) {
-                  myMaximumHCALPFClusterEt = (myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())));
+               if ((myPFCand->hcalEnergy()*fabs(sin(candPos.Theta())))>myMaximumHCALPFClusterEt) {
+                  myMaximumHCALPFClusterEt = (myPFCand->hcalEnergy()*fabs(sin(candPos.Theta())));
                }
             }
 
@@ -435,7 +444,10 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
             std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();
             std::vector<math::XYZPoint> ecalPosV; ecalPosV.clear();
             for(int i=0;i<(int)myPFCands.size();i++){
-               const ElementsInBlocks& elts = myPFCands[i]->elementsInBlocks();
+               const reco::PFCandidate* myPFCand = dynamic_cast<const reco::PFCandidate*>(myPFCands[i].get());
+               if (myPFCand == nullptr)
+                 throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+               const ElementsInBlocks& elts = myPFCand->elementsInBlocks();
                for(ElementsInBlocks::const_iterator it=elts.begin(); it!=elts.end(); ++it) {
                   const reco::PFBlock& block = *(it->first);
                   unsigned indexOfElementInBlock = it->second;

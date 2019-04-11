@@ -9,7 +9,7 @@ class RecoTauDiscriminationBinnedIsolationImpl
   public:
     RecoTauDiscriminationBinnedIsolationImpl(const edm::ParameterSet& pset)
       :RecoTauDiscriminationBinnedIsolation(pset),extractor_(pset) {}
-  std::vector<reco::PFCandidatePtr> extractIsoObjects(
+  std::vector<reco::CandidatePtr> extractIsoObjects(
         const reco::PFTauRef& tau) const override {
       return extractor_(tau);
     }
@@ -26,16 +26,16 @@ namespace {
 class TrackExtractor {
   public:
     TrackExtractor(const edm::ParameterSet& pset){};
-    std::vector<reco::PFCandidatePtr> operator()(const reco::PFTauRef& tau) const {
-      return tau->isolationPFChargedHadrCands();
+    std::vector<reco::CandidatePtr> operator()(const reco::PFTauRef& tau) const {
+      return tau->isolationChargedHadrCands();
     }
 };
 
 class ECALExtractor {
   public:
     ECALExtractor(const edm::ParameterSet& pset){};
-    std::vector<reco::PFCandidatePtr> operator()(const reco::PFTauRef& tau) const {
-      return tau->isolationPFGammaCands();
+    std::vector<reco::CandidatePtr> operator()(const reco::PFTauRef& tau) const {
+      return tau->isolationGammaCands();
     }
 };
 
@@ -43,8 +43,8 @@ class MaskedECALExtractor {
   public:
     MaskedECALExtractor(const edm::ParameterSet& pset)
       :mask_(pset.getParameter<edm::ParameterSet>("mask")){};
-    std::vector<reco::PFCandidatePtr> operator()(const reco::PFTauRef& tau) const {
-      std::vector<reco::PFCandidatePtr> output;
+    std::vector<reco::CandidatePtr> operator()(const reco::PFTauRef& tau) const {
+      std::vector<reco::CandidatePtr> output;
       reco::tau::RecoTauIsolationMasking::IsoMaskResult
         result = mask_.mask(*tau);
       output.reserve(result.gammas.size());
@@ -60,8 +60,8 @@ class MaskedECALExtractor {
 class HCALExtractor {
   public:
     HCALExtractor(const edm::ParameterSet& pset){};
-    std::vector<reco::PFCandidatePtr> operator()(const reco::PFTauRef& tau) const {
-      return tau->isolationPFNeutrHadrCands();
+    std::vector<reco::CandidatePtr> operator()(const reco::PFTauRef& tau) const {
+      return tau->isolationNeutrHadrCands();
     }
 };
 
@@ -69,8 +69,8 @@ class MaskedHCALExtractor {
   public:
     MaskedHCALExtractor(const edm::ParameterSet& pset)
       :mask_(pset.getParameter<edm::ParameterSet>("mask")){};
-    std::vector<reco::PFCandidatePtr> operator()(const reco::PFTauRef& tau) const {
-      std::vector<reco::PFCandidatePtr> output;
+    std::vector<reco::CandidatePtr> operator()(const reco::PFTauRef& tau) const {
+      std::vector<reco::CandidatePtr> output;
       reco::tau::RecoTauIsolationMasking::IsoMaskResult
         result = mask_.mask(*tau);
       output.reserve(result.h0s.size());

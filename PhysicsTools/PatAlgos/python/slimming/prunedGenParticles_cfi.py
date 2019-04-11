@@ -36,6 +36,10 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
 	"keep abs(pdgId) = 10511 || abs(pdgId) = 10521 || abs(pdgId) = 10513 || abs(pdgId) = 10523 || abs(pdgId) = 20513 || abs(pdgId) = 20523 || abs(pdgId) = 10531 || abs(pdgId) = 10533 || abs(pdgId) = 20533 || abs(pdgId) = 10541 || abs(pdgId) = 10543 || abs(pdgId) = 20543", 
 #keep SUSY particles
 	"keep (1000001 <= abs(pdgId) <= 1000039 ) || ( 2000001 <= abs(pdgId) <= 2000015)",
+# keep hidden valley particles
+    "keep (4900001 <= abs(pdgId) <= 4900991)",
+# keep dark matter particles
+    "keep (51 <= abs(pdgId) <= 53)",
 # keep protons 
         "keep pdgId = 2212",
         "keep status == 3 || ( 21 <= status <= 29) || ( 11 <= status <= 19)",  #keep event summary (status=3 for pythia6, 21 <= status <= 29 for pythia8)

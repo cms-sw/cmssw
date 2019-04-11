@@ -56,14 +56,12 @@ PFAlgo::PFAlgo()
     debug_(false),
     pfele_(nullptr),
     pfpho_(nullptr),
-    pfegamma_(nullptr),
     useVertices_(false)
 {}
 
 PFAlgo::~PFAlgo() {
   if (usePFElectrons_) delete pfele_;
   if (usePFPhotons_)     delete pfpho_;
-  if (useEGammaFilters_)  delete pfegamma_;
 }
 
 
@@ -201,68 +199,14 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
   return;
 }
 
-void PFAlgo::setEGammaParameters(bool use_EGammaFilters,
-				 std::string ele_iso_path_mvaWeightFile,
-				 double ele_iso_pt,
-				 double ele_iso_mva_barrel,
-				 double ele_iso_mva_endcap,
-				 double ele_iso_combIso_barrel,
-				 double ele_iso_combIso_endcap,
-				 double ele_noniso_mva,
-				 unsigned int ele_missinghits,
-				 double ele_ecalDrivenHademPreselCut,
-				 double ele_maxElePtForOnlyMVAPresel,
-				 bool useProtectionsForJetMET,
-				 const edm::ParameterSet& ele_protectionsForJetMET,
-				 const edm::ParameterSet& ele_protectionsForBadHcal,
-				 double ph_MinEt,
-				 double ph_combIso,
-				 double ph_HoE,
-				 double ph_sietaieta_eb,
-				 double ph_sietaieta_ee,
-				 const edm::ParameterSet& ph_protectionsForJetMET,
-				 const edm::ParameterSet& ph_protectionsForBadHcal
-				 )
+void PFAlgo::setEGammaParameters(bool use_EGammaFilters, bool useProtectionsForJetMET)
 {
 
   useEGammaFilters_ = use_EGammaFilters;
 
   if(!useEGammaFilters_ ) return;
-  FILE * fileEGamma_ele_iso_ID = fopen(ele_iso_path_mvaWeightFile.c_str(), "r");
-  if (fileEGamma_ele_iso_ID) {
-    fclose(fileEGamma_ele_iso_ID);
-  }
-  else {
-    string err = "PFAlgo: cannot open weight file '";
-    err += ele_iso_path_mvaWeightFile;
-    err += "'";
-    throw invalid_argument( err );
-  }
 
-  //  ele_iso_mvaID_ = new ElectronMVAEstimator(ele_iso_path_mvaWeightFile_);
   useProtectionsForJetMET_ = useProtectionsForJetMET;
-
-  pfegamma_ =  new PFEGammaFilters(ph_MinEt,
-				   ph_combIso,
-				   ph_HoE,
-				   ph_sietaieta_eb,
-				   ph_sietaieta_ee,
-				   ph_protectionsForJetMET,
-				   ph_protectionsForBadHcal,
-				   ele_iso_pt,
-				   ele_iso_mva_barrel,
-				   ele_iso_mva_endcap,
-				   ele_iso_combIso_barrel,
-				   ele_iso_combIso_endcap,
-				   ele_noniso_mva,
-				   ele_missinghits,
-				   ele_ecalDrivenHademPreselCut,
-				   ele_maxElePtForOnlyMVAPresel,
-				   ele_iso_path_mvaWeightFile,
-				   ele_protectionsForJetMET,
-				   ele_protectionsForBadHcal);
-
-  return;
 }
 void  PFAlgo::setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgammaCandidates,
 				   const edm::ValueMap<reco::GsfElectronRef> & valueMapGedElectrons,
@@ -290,8 +234,7 @@ void PFAlgo::setPFPhotonRegWeights(
 void
 PFAlgo::setPFMuonAndFakeParameters(const edm::ParameterSet& pset)
 {
-  pfmu_ = new PFMuonAlgo();
-  pfmu_->setParameters(pset);
+  pfmu_ = new PFMuonAlgo(pset);
 
   // Muon parameters
   muonHCAL_= pset.getParameter<std::vector<double> >("muon_HCAL");
@@ -405,13 +348,13 @@ PFAlgo::setPFVertexParameters(bool useVertex, reco::VertexCollection const&  pri
   }
 }
 
-void PFAlgo::reconstructParticles( const reco::PFBlockHandle& blockHandle ) {
+void PFAlgo::reconstructParticles( const reco::PFBlockHandle& blockHandle, PFEGammaFilters const* pfegamma ) {
 
   blockHandle_ = blockHandle;
-  reconstructParticles( *blockHandle_ );
+  reconstructParticles( *blockHandle_, pfegamma );
 }
 
-void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
+void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks, PFEGammaFilters const* pfegamma ) {
 
   // reset output collection
   if(pfCandidates_.get() )
@@ -495,7 +438,7 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
   unsigned nblcks = 0;
   for(auto const& other : otherBlockRefs) {
     if ( debug_ ) std::cout << "Block number " << nblcks++ << std::endl;
-    processBlock( other, hcalBlockRefs, ecalBlockRefs );
+    processBlock( other, hcalBlockRefs, ecalBlockRefs, pfegamma );
   }
 
   std::list< reco::PFBlockRef > empty;
@@ -504,14 +447,14 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
   // process remaining single hcal blocks
   for(auto const& hcal : hcalBlockRefs) {
     if ( debug_ ) std::cout << "HCAL block number " << hblcks++ << std::endl;
-    processBlock( hcal, empty, empty );
+    processBlock( hcal, empty, empty, pfegamma );
   }
 
   unsigned eblcks = 0;
   // process remaining single ecal blocks
   for(auto const& ecal : ecalBlockRefs) {
     if ( debug_ ) std::cout << "ECAL block number " << eblcks++ << std::endl;
-    processBlock( ecal, empty, empty );
+    processBlock( ecal, empty, empty, pfegamma );
   }
 
   // Post HF Cleaning
@@ -528,7 +471,7 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
 
 void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
                            std::list<reco::PFBlockRef>& hcalBlockRefs,
-                           std::list<reco::PFBlockRef>& ecalBlockRefs ) {
+                           std::list<reco::PFBlockRef>& ecalBlockRefs, PFEGammaFilters const* pfegamma  ) {
 
   // debug_ = false;
   assert(!blockref.isNull() );
@@ -645,8 +588,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	  reco::GsfElectronRef gedEleRef = (*valueMapGedElectrons_)[pfEgmRef];
 	  if(gedEleRef.isNonnull()) {
-	    isGoodElectron = pfegamma_->passElectronSelection(*gedEleRef,*pfEgmRef,nVtx_);
-	    isPrimaryElectron = pfegamma_->isElectron(*gedEleRef);
+	    isGoodElectron = pfegamma->passElectronSelection(*gedEleRef,*pfEgmRef,nVtx_);
+	    isPrimaryElectron = pfegamma->isElectron(*gedEleRef);
 	    if(egmLocalDebug){
 	      if(isGoodElectron)
 		cout << "** Good Electron, pt " << gedEleRef->pt()
@@ -666,7 +609,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	  reco::PhotonRef gedPhoRef = (*valueMapGedPhotons_)[pfEgmRef];
 	  if(gedPhoRef.isNonnull()) {
-	    isGoodPhoton =  pfegamma_->passPhotonSelection(*gedPhoRef);
+	    isGoodPhoton =  pfegamma->passPhotonSelection(*gedPhoRef);
 	    if(egmLocalDebug) {
 	      if(isGoodPhoton)
 		cout << "** Good Photon, pt " << gedPhoRef->pt()
@@ -692,7 +635,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	bool isSafe = true;
 	if( useProtectionsForJetMET_) {
 	  lockTracks = true;
-	  isSafe = pfegamma_->isElectronSafeForJetMET(*gedEleRef,myPFElectron,primaryVertex_,lockTracks);
+	  isSafe = pfegamma->isElectronSafeForJetMET(*gedEleRef,myPFElectron,primaryVertex_,lockTracks);
 	}
 
 	if(isSafe) {
@@ -745,7 +688,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	reco::PFCandidate myPFPhoton = *pfEgmRef;
 	bool isSafe = true;
 	if( useProtectionsForJetMET_) {
-	  isSafe = pfegamma_->isPhotonSafeForJetMET(*gedPhoRef,myPFPhoton);
+	  isSafe = pfegamma->isPhotonSafeForJetMET(*gedPhoRef,myPFPhoton);
 	}
 
 

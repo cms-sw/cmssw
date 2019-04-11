@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <DDDefinition>
-  <debug>
-<!-- 
+  <debug> 
     <debug_rotations/>
     <debug_materials/>
 
@@ -13,7 +12,6 @@
     <debug_placements/>
     <debug_algorithms/>
     <debug_visattr/>
--->
   </debug>
   <open_geometry/>
   <close_geometry/>
@@ -261,7 +259,7 @@
 
   <PosPartSection label="">
     <PosPart copyNumber="2">
-	<rParent name="world_volume"/>
+	<rParent name=":world_volume"/>
 	<rChild name="tracker:Tracker"/>
    </PosPart>
   </PosPartSection>

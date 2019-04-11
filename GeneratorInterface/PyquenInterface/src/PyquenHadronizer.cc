@@ -78,6 +78,9 @@ filterType_(pset.getUntrackedParameter<string>("filterType","None"))
   }
   selector_ = HiGenEvtSelectorFactory::get(filterType_,pset);
 
+  int cm=1, va, vb, vc;
+  PYQVER(cm,va,vb,vc);
+
 }
 
 
@@ -183,7 +186,10 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
    
    if(embedding_) rotateEvtPlane(evt,evtPlane_);
    add_heavy_ion_rec(evt);
-   
+
+   HepMC::HEPEVT_Wrapper::check_hepevt_consistency();
+   //std::cout<<"Entries number: "<<HepMC::HEPEVT_Wrapper::number_entries() <<" Max. entries "<<HepMC::HEPEVT_Wrapper::max_number_entries()<<std::endl;
+
    event().reset(evt);
 
   return true;

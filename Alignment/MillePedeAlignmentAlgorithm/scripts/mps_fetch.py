@@ -8,6 +8,7 @@
 #  hence this function does hardly anything except for calling
 #  mps_check.py.
 
+from builtins import range
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import os
 
@@ -18,7 +19,7 @@ lib = mpslib.jobdatabase()
 lib.read_db()
 
 # loop over DONE jobs
-for i in xrange(len(lib.JOBID)):
+for i in range(len(lib.JOBID)):
     # check also "FETCH" to recover from possibly failed runs of 'mps_fetch.py'
     if lib.JOBSTATUS[i] in ("DONE", "EXIT", "FETCH", "DISABLEDFETCH"):
         # move the LSF output to /jobData/
