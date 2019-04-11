@@ -76,6 +76,7 @@ public:
       float lorentzShiftInCmX;   // a FULL shift, in cm
       float lorentzShiftInCmY;   // a FULL shift, in cm
       int   detTemplateId;       // det if for templates & generic errors
+      int   detTemplateId2D;       // det if for 2D templates
    };
    
    struct ClusterParam

@@ -44,6 +44,8 @@ class HGCalShowerShape{
     float sigmaRRMax(const l1t::HGCalMulticluster& c3d) const;  
     float sigmaRRMean(const l1t::HGCalMulticluster& c3d, float radius=5.) const;
 
+    void fillShapes(l1t::HGCalMulticluster&, const HGCalTriggerGeometryBase&) const;
+
     private: 
     
     float meanX(const std::vector<pair<float,float> >& energy_X_tc) const;

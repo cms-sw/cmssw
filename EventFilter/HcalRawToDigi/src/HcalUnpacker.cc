@@ -628,7 +628,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	    continue;
       }
       ///////////////////////////////////////////////HE UNPACKER//////////////////////////////////////////////////////////////////////////////////////
-      if (i.flavor() == 1 || i.flavor() == 0) {
+      if (i.flavor() == 1 || i.flavor() == 0 || i.flavor() == 3) {
           int ifiber=((i.channelid()>>3)&0x1F);
           int ichan=(i.channelid()&0x7);
           HcalElectronicsId eid(crate,slot,ifiber,ichan, false);

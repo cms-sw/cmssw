@@ -19,7 +19,7 @@ namespace l1t {
           int phi=0
           );
 
-      HGCalMulticluster( const edm::Ptr<l1t::HGCalCluster> &tc );
+      HGCalMulticluster( const edm::Ptr<l1t::HGCalCluster> &tc, float fraction=1);
       
       ~HGCalMulticluster() override;
 
