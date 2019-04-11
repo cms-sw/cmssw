@@ -56,6 +56,7 @@ OR
 
 """
 from __future__ import print_function
+from builtins import range
 import os
 #Get some environment variables to use
 cmssw_base=os.environ["CMSSW_BASE"]

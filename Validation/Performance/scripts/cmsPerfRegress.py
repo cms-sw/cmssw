@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from builtins import range
 import time, os, sys, math, re, gzip
 import tempfile as tmp
 import optparse as opt
