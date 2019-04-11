@@ -48,7 +48,7 @@ for i,event in enumerate(events):
 
     nEvent = event._event.id().event()
 
-    print(("processing event {0}: {1}...".format(i, nEvent)))
+    print("processing event {0}: {1}...".format(i, nEvent))
 
     # Save information on the first electron in an event,
     # if there is any the first electron of the
