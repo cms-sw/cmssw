@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+import six
 process = cms.Process("CALIB")
 
 ####################################################
@@ -53,7 +53,7 @@ with open(detIDsFileName,"r") as detIDs:  # create dictionary online -> rawid
 #print(detDict)
 
 APVsToKill = []
-for det,napv in detDict.iteritems():
+for det,napv in six.iteritems(detDict):
     APVsToKill.append(
         cms.PSet(
             DetId = cms.uint32(int(det)),        	 
