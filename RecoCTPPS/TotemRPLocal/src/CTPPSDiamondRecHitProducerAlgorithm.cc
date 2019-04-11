@@ -7,6 +7,7 @@
 ****************************************************************************/
 
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
+#include "FWCore/Utilities/interface/isNotFinite.h"
 #include <cmath> // isnan
 
 //----------------------------------------------------------------------------------------------------
@@ -66,7 +67,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry& geom,
         if ( calib_fct_ ) {
           // compute the time-walk correction
           ch_t_twc = calib_fct_->evaluate( std::vector<double>{ tot }, ch_params );
-          if ( std::isnan( ch_t_twc ) )
+          if ( edm::isNotFinite( ch_t_twc ) )
             ch_t_twc = 0.;
         }
       }
