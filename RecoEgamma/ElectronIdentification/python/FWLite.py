@@ -43,7 +43,7 @@ class ElectronMVAID:
             mva, category = electron_mva_id(electron[0], convs, beam_spot, rho)
         '''
         if not self._init:
-            print('Initializing ' + self.name + self.tag)
+            print(('Initializing ' + self.name + self.tag))
             ROOT.gSystem.Load("libRecoEgammaElectronIdentification")
             categoryCutStrings =  ROOT.vector(ROOT.string)()
             for x in self.categoryCuts : 

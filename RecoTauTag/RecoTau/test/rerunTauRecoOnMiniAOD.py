@@ -26,11 +26,11 @@ phase2 = False
 outMode = 0  # store original MiniAOD and new selectedPatTaus
 # outMode = 1 #store original MiniAOD, new selectedPatTaus, and all PFtau products as in AOD (except of unsuported ones)
 
-print 'Running Tau reco&id with MiniAOD inputs:'
-print '\t Run on signal:', runSignal
-print '\t Recluster jets:', reclusterJets
-print '\t Use Phase2 settings:', phase2
-print '\t Output mode:', outMode
+print('Running Tau reco&id with MiniAOD inputs:')
+print('\t Run on signal:', runSignal)
+print('\t Recluster jets:', reclusterJets)
+print('\t Use Phase2 settings:', phase2)
+print('\t Output mode:', outMode)
 
 #####
 from Configuration.StandardSequences.Eras import eras
@@ -54,7 +54,7 @@ process.source = cms.Source(
 process.maxEvents = cms.untracked.PSet(
     input=cms.untracked.int32(maxEvents)
 )
-print '\t Max events:', process.maxEvents.input.value()
+print('\t Max events:', process.maxEvents.input.value())
 
 if runSignal:
     readFiles.extend([
@@ -112,7 +112,7 @@ process.options = cms.untracked.PSet(
 process.options.numberOfThreads = cms.untracked.uint32(4)
 # process.options.numberOfThreads=cms.untracked.uint32(1)
 process.options.numberOfStreams = cms.untracked.uint32(0)
-print '\t No. of threads:', process.options.numberOfThreads.value(), ', no. of streams:', process.options.numberOfStreams.value()
+print('\t No. of threads:', process.options.numberOfThreads.value(), ', no. of streams:', process.options.numberOfStreams.value())
 
 process.options = cms.untracked.PSet(
     process.options,
