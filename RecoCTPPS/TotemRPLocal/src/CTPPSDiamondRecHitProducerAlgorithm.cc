@@ -7,8 +7,7 @@
 ****************************************************************************/
 
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
-#include "FWCore/Utilities/interface/isNotFinite.h"
-#include <cmath> // isnan
+#include "FWCore/Utilities/interface/isFinite.h"
 
 //----------------------------------------------------------------------------------------------------
 
