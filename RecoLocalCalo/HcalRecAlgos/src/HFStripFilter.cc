@@ -1,7 +1,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFStripFilter.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
