@@ -1933,7 +1933,12 @@ DQMStore::cloneLumiHistograms(uint32_t const run, uint32_t const lumi, uint32_t 
   std::string null_str("");
   auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
   auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  // we will later modify data_, so better do two passes.
+  auto tobehandled = std::vector<MonitorElement const*>();
   for (; i != e; ++i) {
+    tobehandled.push_back(&*i);
+  }
+  for (auto i : tobehandled) {
     // handle only lumisection-based histograms
     if (not LSbasedMode_ and not i->getLumiFlag())
       continue;
@@ -1970,7 +1975,12 @@ DQMStore::cloneRunHistograms(uint32_t const run, uint32_t const moduleId)
   std::string null_str("");
   auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
   auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  // we will later modify data_, so better do two passes.
+  auto tobehandled = std::vector<MonitorElement const*>();
   for (; i != e; ++i) {
+    tobehandled.push_back(&*i);
+  }
+  for (auto i : tobehandled) {
     // handle only non lumisection-based histograms
     if (LSbasedMode_ or i->getLumiFlag())
       continue;
