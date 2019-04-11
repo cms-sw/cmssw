@@ -94,7 +94,6 @@
     <ZSection z="-[thCuPCB]/2" rMin="0*fm" rMax="[WaferW]/2"/>
     <ZSection z= "[thCuPCB]/2" rMin="0*fm" rMax="[WaferW]/2"/>
   </Polyhedra>
-
   <Polyhedra name="HGCalEEAbs" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
     <ZSection z="-[thAbsEE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
     <ZSection z= "[thAbsEE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
@@ -225,6 +224,10 @@
   <LogicalPart name="HGCalHEPCBAbsorber" category="unspecified">
     <rSolid name="HGCalHEPCBAbs"/>
     <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHEAirAbsorber" category="unspecified">
+    <rSolid name="HGCalHEPCBAbs"/>
+    <rMaterial name="materials:Air"/>
   </LogicalPart>
 </LogicalPartSection>
 

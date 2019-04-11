@@ -3,15 +3,15 @@
 
 #include <iosfwd>
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 /** \class AHCalDetId
- *  Cell identifier class for the HCAL subdetectors, precision readout cells only
+ *  Cell identifier class for the HCAL subdetectors, precision readout cells
+ * only
  */
 class AHCalDetId : public DetId {
-public:
+ public:
   /** Create a null cellid*/
   AHCalDetId();
   /** Create cellid from raw id (0=invalid tower id) */
@@ -22,8 +22,8 @@ public:
   AHCalDetId(const DetId& id);
   /** Assignment from a generic cell id */
   AHCalDetId& operator=(const DetId& id) {
-    id_=id.rawId();
-  return *this;
+    id_ = id.rawId();
+    return *this;
   }
 
   /// get the subdetector
@@ -32,25 +32,26 @@ public:
   int zside() const { return 1; }
   /// get the row number
   int irow() const;
-  int irowAbs() const { 
-    return ((id_>>HcalDetId::kHcalEtaOffset2)&HcalDetId::kHcalEtaMask2); }
+  int irowAbs() const {
+    return ((id_ >> HcalDetId::kHcalEtaOffset2) & HcalDetId::kHcalEtaMask2);
+  }
   /// get the column number
   int icol() const;
-  int icolAbs() const { return (id_&HcalDetId::kHcalPhiMask2); }
+  int icolAbs() const { return (id_ & HcalDetId::kHcalPhiMask2); }
   /// get the layer number
-  static const int MaxDepth=12;
+  static const int MaxDepth = 12;
   int depth() const;
   /// get the local coordinate in the plane and along depth
-  std::pair<double,double> getXY() const;
+  std::pair<double, double> getXY() const;
   double getZ() const;
 
   static const AHCalDetId Undefined;
-  const double deltaX_ = 3.0;  // Size of tile along X
-  const double deltaY_ = 3.0;  // Size of tile along Y
-  const double deltaZ_ = 8.1;  // Thickness of a single layer
-  const double zFirst_ = 1.76; // Position of the center 
+  const double deltaX_ = 3.0;   // Size of tile along X
+  const double deltaY_ = 3.0;   // Size of tile along Y
+  const double deltaZ_ = 8.1;   // Thickness of a single layer
+  const double zFirst_ = 1.76;  // Position of the center
 };
 
-std::ostream& operator<<(std::ostream&,const AHCalDetId& id);
+std::ostream& operator<<(std::ostream&, const AHCalDetId& id);
 
 #endif
