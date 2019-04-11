@@ -54,8 +54,9 @@ void RPCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
         const auto& strips = hitStripsInDetId(id);
         edm::LogInfo("RPCSimHitMatcher") << "nStrips " << strips.size() << endl;
         edm::LogInfo("RPCSimHitMatcher") << "strips : ";
-        std::copy(strips.begin(), strips.end(),
-                  ostream_iterator<int>(std::cout, " "));
+        for (const auto& p : strips){
+          edm::LogInfo("RPCSimHitMatcher") << p;
+        }
       }
     }
   }

@@ -54,8 +54,9 @@ void CSCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
           edm::LogInfo("CSCSimHitMatcher")
               << "nStrip " << strips.size() << endl;
           edm::LogInfo("CSCSimHitMatcher") << "strips : ";
-          std::copy(strips.begin(), strips.end(),
-                    ostream_iterator<int>(cout, " "));
+          for (const auto& p : strips) {
+            edm::LogInfo("CSCSimHitMatcher") << p;
+          }
         }
       }
     }

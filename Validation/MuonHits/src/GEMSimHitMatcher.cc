@@ -53,8 +53,9 @@ void GEMSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
         const auto& strips = hitStripsInDetId(id);
         edm::LogInfo("GEMSimHitMatcher") << "nStrip " << strips.size() << endl;
         edm::LogInfo("GEMSimHitMatcher") << "strips : ";
-        std::copy(strips.begin(), strips.end(),
-                  ostream_iterator<int>(cout, " "));
+        for (const auto& p : strips) {
+          edm::LogInfo("GEMSimHitMatcher") << p;
+        }
       }
       const auto& gem_sch_ids = superChamberIds();
       for (const auto& id : gem_sch_ids) {

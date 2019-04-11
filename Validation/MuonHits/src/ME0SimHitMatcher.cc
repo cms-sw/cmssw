@@ -53,8 +53,9 @@ void ME0SimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
         const auto& strips = hitStripsInDetId(id);
         edm::LogInfo("ME0SimHitMatcher") << "nStrip " << strips.size() << endl;
         edm::LogInfo("ME0SimHitMatcher") << "strips : ";
-        std::copy(strips.begin(), strips.end(),
-                  ostream_iterator<int>(cout, " "));
+        for (const auto& p : strips) {
+          edm::LogInfo("ME0SimHitMatcher") << p;
+        }
       }
     }
   }
@@ -82,7 +83,7 @@ void ME0SimHitMatcher::matchSimHitsToSimTrack(
   // find pads with hits
   const auto& detids = detIds();
   for (const auto& d : detids) {
-    GEMDetId id(d);
+    ME0DetId id(d);
     const auto& hits = hitsInDetId(d);
     const auto& roll =
         dynamic_cast<const ME0Geometry*>(geometry_)->etaPartition(id);
