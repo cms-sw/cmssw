@@ -77,9 +77,9 @@ TEST_CASE("test ESRecordsToProxyIndices", "[ESRecordsToProxyIndices]") {
         ++it;
       }
     }
-    REQUIRE(kMissingKey == r2pi.indexInRecord(missingRcdKey,data1Key));
-    REQUIRE(kMissingKey == r2pi.indexInRecord(rcd2Key,data1Key));
-    REQUIRE(kMissingKey == r2pi.indexInRecord(rcd3Key,data1Key));
+    REQUIRE(kMissingKey == r2pi.indexInRecord(missingRcdKey,dataKeys[0]));
+    REQUIRE(kMissingKey == r2pi.indexInRecord(records[1],dataKeys[0]));
+    REQUIRE(kMissingKey == r2pi.indexInRecord(records[2],dataKeys[0]));
     
   }
 }
