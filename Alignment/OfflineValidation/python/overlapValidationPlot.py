@@ -109,6 +109,10 @@ def hist(tree_file_name, hist_name,subdet_id,module_direction,overlap_direction,
             h.Fill(A)
         elif profile_direction == "z":
             h.Fill((t.moduleZ[0]+t.moduleZ[1])/2, A)
+        elif profile_direction == "r":
+            h.Fill((t.moduleR[0]+t.moduleR[1])/2, A)
+        elif profile_direction == "phi":
+            h.Fill((t.modulePhi[0]+t.modulePhi[1])/2, A)
 
     return h
 
