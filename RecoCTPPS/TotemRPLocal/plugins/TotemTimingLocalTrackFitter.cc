@@ -51,7 +51,7 @@ TotemTimingLocalTrackFitter::TotemTimingLocalTrackFitter( const edm::ParameterSe
   for ( unsigned short armNo = 0; armNo < 2; armNo++ )
     for ( unsigned short rpNo = 0; rpNo < 2; rpNo++ ) {
       TotemTimingDetId id( armNo, 1, rpNo, 0, 0 );
-      TotemTimingTrackRecognition trk_algo( iConfig );
+      TotemTimingTrackRecognition trk_algo( iConfig.getParameter<edm::ParameterSet>( "trackingAlgorithmParams" ) );
       trk_algo_map_.insert( std::make_pair( id, trk_algo ) );
     }
 }
@@ -59,7 +59,7 @@ TotemTimingLocalTrackFitter::TotemTimingLocalTrackFitter( const edm::ParameterSe
 void
 TotemTimingLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::unique_ptr<edm::DetSetVector<TotemTimingLocalTrack> > pOut( new edm::DetSetVector<TotemTimingLocalTrack> );
+  auto pOut = std::make_unique<edm::DetSetVector<TotemTimingLocalTrack> >();
 
   edm::Handle<edm::DetSetVector<TotemTimingRecHit> > recHits;
   iEvent.getByToken( recHitsToken_, recHits );
@@ -111,23 +111,22 @@ TotemTimingLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& d
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>( "recHitsTag", edm::InputTag( "totemTimingRecHits" ) )
     ->setComment( "input rechits collection to retrieve" );
-  desc.add<int>( "verbosity", 0 )
-    ->setComment( "general verbosity of this module" );
-
-  desc.add<double>( "threshold", 1.5 )
-    ->setComment( "minimal number of rechits to be observed before launching the track recognition algorithm" );
-  desc.add<double>( "thresholdFromMaximum", 0.5 )
-    ->setComment( "threshold relative to hit profile function local maximum for determining the width of the track" );
-  desc.add<double>( "resolution", 0.01 /* mm */ )
-    ->setComment( "spatial resolution on the horizontal coordinate (in mm)" );
-  desc.add<double>( "sigma", 0. )
-    ->setComment( "pixel efficiency function parameter determining the smoothness of the step" );
-  desc.add<double>( "tolerance", 0.1 /* mm */)
-    ->setComment( "tolerance used for checking if the track contains certain hit" );
   desc.add<int>( "maxPlaneActiveChannels", 2 )
     ->setComment( "threshold for discriminating noisy planes" );
 
-  desc.add<std::string>( "pixelEfficiencyFunction", "(x>[0]-0.5*[1]-0.05)*(x<[0]+0.5*[1]-0.05)+0*[2]" )
+  edm::ParameterSetDescription trackingAlgoParams;
+  trackingAlgoParams.add<double>( "threshold", 1.5 )
+    ->setComment( "minimal number of rechits to be observed before launching the track recognition algorithm" );
+  trackingAlgoParams.add<double>( "thresholdFromMaximum", 0.5 )
+    ->setComment( "threshold relative to hit profile function local maximum for determining the width of the track" );
+  trackingAlgoParams.add<double>( "resolution", 0.01 /* mm */ )
+    ->setComment( "spatial resolution on the horizontal coordinate (in mm)" );
+  trackingAlgoParams.add<double>( "sigma", 0. )
+    ->setComment( "pixel efficiency function parameter determining the smoothness of the step" );
+  trackingAlgoParams.add<double>( "tolerance", 0.1 /* mm */)
+    ->setComment( "tolerance used for checking if the track contains certain hit" );
+
+  trackingAlgoParams.add<std::string>( "pixelEfficiencyFunction", "(x>[0]-0.5*[1]-0.05)*(x<[0]+0.5*[1]-0.05)+0*[2]" )
     ->setComment( "efficiency function for single pixel\n"
                   "can be defined as:\n"
                   " * Precise: (TMath::Erf((x-[0]+0.5*([1]-0.05))/([2]/4)+2)+1)*TMath::Erfc((x-[0]-0.5*([1]-0.05))/([2]/4)-2)/4\n"
@@ -139,10 +138,12 @@ TotemTimingLocalTrackFitter::fillDescriptions( edm::ConfigurationDescriptions& d
                   "  [1]: width of pad\n"
                   "  [2]: sigma: distance between efficiency ~100 -> 0 outside width" );
 
-  desc.add<double>( "yPosition", 0.0 )
+  trackingAlgoParams.add<double>( "yPosition", 0.0 )
     ->setComment( "vertical offset of the outcoming track centre" );
-  desc.add<double>( "yWidth", 0.0 )
+  trackingAlgoParams.add<double>( "yWidth", 0.0 )
     ->setComment( "vertical track width" );
+  desc.add<edm::ParameterSetDescription>( "trackingAlgorithmParams", trackingAlgoParams )
+      ->setComment( "list of parameters associated to the track recognition algorithm" );
 
   descr.add( "totemTimingLocalTracks", desc );
 }

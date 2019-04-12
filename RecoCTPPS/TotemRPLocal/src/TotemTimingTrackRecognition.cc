@@ -13,8 +13,7 @@
 //----------------------------------------------------------------------------------------------------
 
 TotemTimingTrackRecognition::TotemTimingTrackRecognition( const edm::ParameterSet& iConfig ) :
-  CTPPSTimingTrackRecognition<TotemTimingLocalTrack, TotemTimingRecHit>( iConfig ),
-  tolerance_( iConfig.getParameter<double>( "tolerance" ) )
+  CTPPSTimingTrackRecognition<TotemTimingLocalTrack, TotemTimingRecHit>( iConfig )
 {}
 
 //----------------------------------------------------------------------------------------------------
@@ -47,7 +46,7 @@ TotemTimingTrackRecognition::produceTracks( edm::DetSet<TotemTimingLocalTrack>& 
     const auto& hits = hitBatch.second;
     const auto& hitRange = getHitSpatialRange( hits );
 
-    std::vector<TotemTimingLocalTrack> xPartTracks, yPartTracks;
+    TrackVector xPartTracks, yPartTracks;
 
     param.rangeBegin = hitRange.xBegin;
     param.rangeEnd = hitRange.xEnd;
@@ -69,36 +68,18 @@ TotemTimingTrackRecognition::produceTracks( edm::DetSet<TotemTimingLocalTrack>& 
 
         TotemTimingLocalTrack newTrack( position, positionSigma, 0., 0. );
 
-        std::vector<TotemTimingRecHit> componentHits;
+        HitVector componentHits;
         for ( const auto& hit : hits )
           if ( newTrack.containsHit( hit, tolerance_ ) )
             componentHits.emplace_back( hit );
-
         if ( componentHits.size() < validHitsNumber )
           continue;
 
-        // Calculating time
-        //    track's time = weighted mean of all hit times with time precision as weight
-        //    track's time sigma = uncertainty of the weighted mean
-        // hit is ignored if the time precision is equal to 0
-
-        float meanNumerator = 0.f, meanDenominator = 0.f;
-        bool validHits = false;
-        for ( const auto& hit : componentHits ) {
-          if ( hit.getTPrecision() == 0. )
-            continue;
-
-          validHits = true; // at least one valid hit to account for
-          const float weight = 1.f / ( hit.getTPrecision() * hit.getTPrecision() );
-          meanNumerator += weight * hit.getT();
-          meanDenominator += weight;
-        }
-
-        const float meanTime = validHits ? ( meanNumerator / meanDenominator ) : 0.f;
-        const float timeSigma = validHits ? ( std::sqrt( 1.f / meanDenominator ) ) : 0.f;
-        newTrack.setValid( validHits );
-        newTrack.setT( meanTime );
-        newTrack.setTSigma( timeSigma );
+        float mean_time = 0.f, time_sigma = 0.f;
+        bool valid_hits = timeEval( componentHits, mean_time, time_sigma );
+        newTrack.setValid( valid_hits );
+        newTrack.setT( mean_time );
+        newTrack.setTSigma( time_sigma );
         // in a next iteration, we will be setting validity / numHits / numPlanes
         tracks.push_back( newTrack );
       }
