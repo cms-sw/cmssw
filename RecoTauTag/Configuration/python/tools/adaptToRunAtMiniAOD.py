@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import six
 
 ######
 # Tools to adapt Tau sequences to run tau ReReco+PAT at MiniAOD samples
@@ -115,7 +116,7 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	process.combinatoricRecoTaus.jetSrc = jetCollection
 	# Adapt builders
 	for builder in process.combinatoricRecoTaus.builders:
-		for name,value in builder.parameters_().iteritems():
+		for name,value in six.iteritems(builder.parameters_()):
 			if name == 'qualityCuts':
 				builder.qualityCuts.primaryVertexSrc = 'offlineSlimmedPrimaryVertices'
 			elif name == 'pfCandSrc':
@@ -129,7 +130,7 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 		elif mod.name.value() == 'TTIworkaround':
 			modifiersToRemove_.append(mod)
 			continue
-		for name,value in mod.parameters_().iteritems():
+		for name,value in six.iteritems(mod.parameters_()):
 			if name == 'qualityCuts':
 				mod.qualityCuts.primaryVertexSrc = 'offlineSlimmedPrimaryVertices'
 	for mod in modifiersToRemove_:
@@ -167,7 +168,7 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	process.tauMatch.matched = cms.InputTag("prunedGenParticles")
 
 	# Remove unsupported tauIDs
-	for name, src in process.patTaus.tauIDSources.parameters_().iteritems():
+	for name, src in six.iteritems(process.patTaus.tauIDSources.parameters_()):
 		if name.find('againstElectron') > -1 or name.find('againstMuon') > -1:
 			delattr(process.patTaus.tauIDSources,name)
 	# Add MiniAOD specific ones
