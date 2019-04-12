@@ -174,13 +174,13 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
  
   if(hitcollection_.instance() == "EcalRecHitsEB") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-    topology.reset(new EcalBarrelTopology(geoHandle));
+    topology = std::make_unique<EcalBarrelTopology>(*geoHandle);
   } else if(hitcollection_.instance() == "EcalRecHitsEE") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-    topology.reset(new EcalEndcapTopology(geoHandle));
+    topology = std::make_unique<EcalEndcapTopology>(*geoHandle);
   } else if(hitcollection_.instance() == "EcalRecHitsPS") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-    topology.reset(new EcalPreshowerTopology (geoHandle));
+    topology = std::make_unique<EcalPreshowerTopology>();
   } else throw(std::runtime_error("\n\nHybrid Cluster Producer encountered invalied ecalhitcollection type.\n\n"));
     
   //Get the L1 EM Particle Collection
