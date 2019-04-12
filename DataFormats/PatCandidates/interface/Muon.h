@@ -281,8 +281,10 @@ namespace pat {
       void  setSoftMvaValue(float softmva){ softMvaValue_ = softmva; }
 
       /// MC matching information
-      reco::MuonSimType simType() const { return simType_; }
-      reco::ExtendedMuonSimType simExtType() const { return simExtType_; }
+      /// returns reco::MuonSimType - we cast it to int to avoid issues in pyROOT
+      int simType() const { return simType_; }
+      /// reco::ExtendedMuonSimType - we cast it to int to avoid issues in pyROOT
+      int simExtType() const { return simExtType_; }
       //  FLAVOUR:
       //  - for non-muons: 0
       //  - for primary muons: 13
