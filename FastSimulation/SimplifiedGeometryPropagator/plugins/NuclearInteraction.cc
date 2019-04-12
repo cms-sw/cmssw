@@ -21,6 +21,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 // Fast Sim headers
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Particle.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/SimplifiedGeometry.h"
@@ -200,8 +202,8 @@ namespace fastsim
     // TODO: Is this correct?
     // Thread safety
     static std::once_flag initializeOnce;
-    [[cms::thread_guard("initializeOnce")]] std::vector< std::vector<double> > NuclearInteraction::theRatiosMap;
-    [[cms::thread_guard("initializeOnce")]] std::map<int, int> NuclearInteraction::theIDMap;
+    CMS_THREAD_GUARD(initializeOnce) std::vector< std::vector<double> > NuclearInteraction::theRatiosMap;
+    CMS_THREAD_GUARD(initializeOnce) std::map<int, int> NuclearInteraction::theIDMap;
 }
 
 
@@ -218,32 +220,35 @@ fastsim::NuclearInteraction::NuclearInteraction(const std::string & name,const e
     inputFile = cfg.getUntrackedParameter<std::string>("inputFile","");
 
     // The evolution of the interaction lengths with energy
-    theRatiosMap.resize(theHadronID.size());
-    for(unsigned i=0; i<theHadronID.size(); ++i){ 
-        for(unsigned j=0; j<theHadronEN.size(); ++j){ 
+    // initialize once for all possible instances
+    std::call_once(initializeOnce, [this] () {
+        theRatiosMap.resize(theHadronID.size());
+        for(unsigned i=0; i<theHadronID.size(); ++i){ 
+          for(unsigned j=0; j<theHadronEN.size(); ++j){ 
             theRatiosMap[i].push_back(theRatios[i*theHadronEN.size() + j]);
+          }
         }
-    }
 
-    // Build the ID map (i.e., what is to be considered as a proton, etc...)
-    // Protons
-    for(const auto & id : protonsID)  theIDMap[id] = 2212;
-    // Anti-Protons
-    for(const auto & id : antiprotonsID)  theIDMap[id] = -2212;
-    // Neutrons
-    for(const auto & id : neutronsID)  theIDMap[id] = 2112;
-    // Anti-Neutrons
-    for(const auto & id : antineutronsID)  theIDMap[id] = -2112;
-    // K0L's
-    for(const auto & id : K0LsID)  theIDMap[id] = 130;
-    // K+'s
-    for(const auto & id : KplussesID)  theIDMap[id] = 321;
-    // K-'s
-    for(const auto & id : KminussesID)  theIDMap[id] = -321;
-    // pi+'s
-    for(const auto & id : PiplussesID)  theIDMap[id] = 211;
-    // pi-'s
-    for(const auto & id : PiminussesID)  theIDMap[id] = -211;
+        // Build the ID map (i.e., what is to be considered as a proton, etc...)
+        // Protons
+        for(const auto & id : protonsID)  theIDMap[id] = 2212;
+        // Anti-Protons
+        for(const auto & id : antiprotonsID)  theIDMap[id] = -2212;
+        // Neutrons
+        for(const auto & id : neutronsID)  theIDMap[id] = 2112;
+        // Anti-Neutrons
+        for(const auto & id : antineutronsID)  theIDMap[id] = -2112;
+        // K0L's
+        for(const auto & id : K0LsID)  theIDMap[id] = 130;
+        // K+'s
+        for(const auto & id : KplussesID)  theIDMap[id] = 321;
+        // K-'s
+        for(const auto & id : KminussesID)  theIDMap[id] = -321;
+        // pi+'s
+        for(const auto & id : PiplussesID)  theIDMap[id] = 211;
+        // pi-'s
+        for(const auto & id : PiminussesID)  theIDMap[id] = -211;
+      }); 
 
     // Prepare the map of files
     // Loop over the particle names
