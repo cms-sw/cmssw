@@ -19,41 +19,39 @@ class G4LogicalVolume;
 class G4Step;
 
 class HFNoseSD : public CaloSD, public Observer<const BeginOfJob *> {
+public:
+  HFNoseSD(const std::string &,
+           const DDCompactView &,
+           const SensitiveDetectorCatalog &,
+           edm::ParameterSet const &,
+           const SimTrackManager *);
+  ~HFNoseSD() override = default;
 
-public:    
-
-  HFNoseSD(const std::string& , const DDCompactView &,
-	   const SensitiveDetectorCatalog &,
-	   edm::ParameterSet const &, const SimTrackManager*);
-  ~HFNoseSD() override  = default;
-
-  uint32_t                setDetUnitId(const G4Step* step) override;
+  uint32_t setDetUnitId(const G4Step *step) override;
 
 protected:
-
-  double                  getEnergyDeposit(const G4Step*) override;
+  double getEnergyDeposit(const G4Step *) override;
   using CaloSD::update;
-  void                    update(const BeginOfJob *) override;
-  void                    initRun() override;
-  bool                    filterHit(CaloG4Hit*, double) override;
+  void update(const BeginOfJob *) override;
+  void initRun() override;
+  bool filterHit(CaloG4Hit *, double) override;
 
-private:    
+private:
+  uint32_t setDetUnitId(int, int, int, int, G4ThreeVector &);
+  bool isItinFidVolume(const G4ThreeVector &);
 
-  uint32_t                setDetUnitId(int, int, int, int, G4ThreeVector &);
-  bool                    isItinFidVolume (const G4ThreeVector&);
-
-  const HGCalDDDConstants*               hgcons_;
+  const HGCalDDDConstants *hgcons_;
   std::unique_ptr<HFNoseNumberingScheme> numberingScheme_;
-  std::unique_ptr<HGCMouseBite>          mouseBite_;
-  std::string                            nameX_;
-  HGCalGeometryMode::GeometryMode        geom_mode_;
-  double                                 eminHit_, slopeMin_, weight_;
-  double                                 mouseBiteCut_, distanceFromEdge_;
-  int                                    levelT1_, levelT2_, cornerMinMask_;
-  bool                                   storeAllG4Hits_;
-  bool                                   fiducialCut_, rejectMB_, waferRot_;
-  const double                           tan30deg_;
-  std::vector<double>                    angles_;
+  std::unique_ptr<HGCMouseBite> mouseBite_;
+  std::string nameX_;
+  HGCalGeometryMode::GeometryMode geom_mode_;
+  double eminHit_, slopeMin_, weight_;
+  double mouseBiteCut_, distanceFromEdge_;
+  int levelT1_, levelT2_, cornerMinMask_;
+  bool storeAllG4Hits_;
+  bool fiducialCut_, rejectMB_, waferRot_;
+  const double tan30deg_;
+  std::vector<double> angles_;
 };
 
-#endif // HFNoseSD_h
+#endif  // HFNoseSD_h
