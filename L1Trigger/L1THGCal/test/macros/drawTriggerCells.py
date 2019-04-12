@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import ROOT
 import random
 
@@ -94,7 +95,7 @@ entryList1 = ROOT.gDirectory.Get("elist1")
 entryList1.__class__ = ROOT.TEntryList
 nentry = entryList1.GetN()
 treeCells.SetEntryList(entryList1)
-for ie in xrange(nentry):
+for ie in range(nentry):
     if ie%10000==0: print("Entry {0}/{1}".format(ie, nentry))
     entry = entryList1.GetEntry(ie)
     treeCells.GetEntry(entry)
@@ -123,7 +124,7 @@ entryList2 = ROOT.gDirectory.Get("elist2")
 entryList2.__class__ = ROOT.TEntryList
 nentry = entryList2.GetN()
 treeTriggerCells.SetEntryList(entryList2)
-for ie in xrange(nentry):
+for ie in range(nentry):
     if ie%10000==0: print("Entry {0}/{1}".format(ie, nentry))
     entry = entryList2.GetEntry(ie)
     treeTriggerCells.GetEntry(entry)
