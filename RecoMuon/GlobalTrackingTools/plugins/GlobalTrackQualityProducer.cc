@@ -313,10 +313,19 @@ GlobalTrackQualityProducer::trackProbability(Trajectory& track) const {
 
 void GlobalTrackQualityProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   edm::ParameterSetDescription desc;
+  {
+    edm::ParameterSetDescription psd1;
+    psd1.setAllowAnything();
+    desc.add<edm::ParameterSetDescription>("ServiceParameters", psd1);
+  }
+  {
+    edm::ParameterSetDescription psd1;
+    psd1.setAllowAnything();
+    desc.add<edm::ParameterSetDescription>("GlobalMuonTrackMatcher", psd1);
+  }
   desc.add<edm::InputTag>("InputCollection",edm::InputTag("globalMuons"));
   desc.add<edm::InputTag>("InputLinksCollection",edm::InputTag("globalMuons"));
   desc.add<std::string>("BaseLabel","GLB");
-//  edm::ParameterSetDescription descRefitter;
   {
     edm::ParameterSetDescription descGlbMuonRefitter;
     descGlbMuonRefitter.add<edm::InputTag>("DTRecSegmentLabel" , edm::InputTag("dt1DRecHits"));
