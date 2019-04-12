@@ -7,7 +7,7 @@ from SimPPS.RPDigiProducer.RPSiDetDigitizer_cfi import *
 ppsDigi = cms.Sequence()
 
 # add PPS 2016 digi modules
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016 as pps_2016
+from Configuration.Eras.Modifier_pps_2016_cff import pps_2016 
 pps_2016.toReplaceWith(ppsDigi, cms.Sequence(RPSiDetDigitizer))
 
 # add PPS 2017 digi modules

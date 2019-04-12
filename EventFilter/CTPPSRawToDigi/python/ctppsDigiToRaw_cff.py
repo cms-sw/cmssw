@@ -6,7 +6,7 @@ from EventFilter.CTPPSRawToDigi.ctppsTotemRawData_cfi import ctppsTotemRawData
 
 ppsRawData = cms.Sequence()
 
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016 as pps_2016
+from Configuration.Eras.Modifier_pps_2016_cff import pps_2016 
 pps_2016.toReplaceWith(ppsRawData, cms.Sequence(ctppsTotemRawData))
 
 from Configuration.Eras.Modifier_pps_2017_cff import pps_2017
