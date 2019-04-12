@@ -111,7 +111,7 @@ namespace edm {
     void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
     ESProxyIndex const* getTokenIndices(unsigned int iIndex) const {
       if(itemsToGetFromRecords_.empty()) {return nullptr;}
-      return (itemsToGetFromRecords_[iIndex].size() == 0) ? static_cast<ESProxyIndex const*>(nullptr) : &(itemsToGetFromRecords_[iIndex].front());}
+      return (itemsToGetFromRecords_[iIndex].empty()) ? static_cast<ESProxyIndex const*>(nullptr) : &(itemsToGetFromRecords_[iIndex].front());}
   protected:
     /** \param iThis the 'this' pointer to an inheriting class instance
         The method determines the Record argument and return value of the 'produce'
