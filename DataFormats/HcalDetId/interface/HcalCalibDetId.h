@@ -36,10 +36,9 @@
   *
   *  For HBX/HEX:
   *     [19:17]  6 or 7 (CalibType) 
-  *     [15:15]  0/1 (Side) 
-  *     [14:10]  ieta  (1-29)
-  *     [9:3]    iphi  (1-72)
-  *     [2:0]    depth (1-7)  
+  *     [12:12]  side (true = positive)
+  *     [11:7]   ieta (1-29)
+  *     [6:0]    iphi (1-72)
   *    
   * \author J. Mans - Minnesota
   */
@@ -57,7 +56,9 @@ public:
   HcalCalibDetId& operator=(const DetId& id);
   /** Construct a calibration box - channel detid */
   HcalCalibDetId(HcalSubdetector subdet, int ieta, int iphi, int ctype);
-  /** Construct an HO Crosstalk id  */
+  /** Construct an HOX/HBX/HEX Crosstalk id  */
+  HcalCalibDetId(CalibDetType dt, int ieta, int iphi);
+  /** Keep old HOX constructor for back-compatibility */
   HcalCalibDetId(int ieta, int iphi);
   /** Construct a uMNqie id or other id which uses a single value plus a DetType */
   HcalCalibDetId(CalibDetType dt, int value);
@@ -66,12 +67,10 @@ public:
 
   /// get the flavor of this calibration detid
   CalibDetType calibFlavor() const { return (CalibDetType)((id_>>17)&0x7); }
-
-
   /// get the HcalSubdetector (if relevant)
   HcalSubdetector hcalSubdet() const;
   /// get the rbx name (if relevant)
-//  std::string rbx() const;
+  /// std::string rbx() const;
   /// get the "ieta" identifier (if relevant)
   int ieta() const;
   /// get the low-edge iphi (if relevant)
@@ -90,8 +89,6 @@ public:
 
   /// get the sign of ieta (+/-1)
   int zside() const;
-  /// get the depth (where relevant)
-  int depth() const;
 
   /// constants
   static const int cbox_MixerHigh     = 0; // HB/HE/HO/HF
