@@ -21,10 +21,10 @@ namespace edm
 
     // data members
     double fEnMin,fEnMax,fRMin,fRMax,fZMin,fZMax,fDelta,fPhiMin,fPhiMax;
-
+    int fNParticles;
     bool fPointing = false;
     bool fOverlapping = false;
-    bool fRandomParticles = false;
+    bool fRandomShoot = false;
     std::vector<int> fPartIDs;
   };
 }
