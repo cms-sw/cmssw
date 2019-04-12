@@ -13,7 +13,8 @@
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::ParameterSet& iConfig ) :
-  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( iConfig )
+  CTPPSTimingTrackRecognition<CTPPSDiamondLocalTrack, CTPPSDiamondRecHit>( iConfig ),
+  excludeSingleEdgeHits_( iConfig.getParameter<bool>( "excludeSingleEdgeHits" ) )
 {}
 
 //----------------------------------------------------------------------------------------------------
@@ -30,6 +31,8 @@ CTPPSDiamondTrackRecognition::clear()
 void
 CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit& recHit )
 {
+  if ( excludeSingleEdgeHits_ && recHit.getToT() <= 0. )
+    return;
   // store hit parameters
   hitVectorMap_[recHit.getOOTIndex()].emplace_back( recHit );
 }
@@ -48,14 +51,15 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
   auto setXSigma = []( CTPPSDiamondLocalTrack& track, float sigma ){ track.setPositionSigma( math::XYZPoint( sigma, 0., 0. ) ); };
 
   for ( const auto& hitBatch: hitVectorMap_ ) {
+    // separate the tracking for each bunch crossing
     const auto& oot = hitBatch.first;
     const auto& hits = hitBatch.second;
 
     auto hitRange = getHitSpatialRange( hits );
 
-    std::vector<CTPPSDiamondLocalTrack> xPartTracks;
+    TrackVector xPartTracks;
 
-    // Produces tracks in x dimension
+    // produce tracks in x dimension
     param.rangeBegin = hitRange.xBegin;
     param.rangeEnd = hitRange.xEnd;
     producePartialTracks( hits, param, getX, getXWidth, setX, setXSigma, xPartTracks );
@@ -76,7 +80,18 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
         ? mhMap_[oot]
         : 0;
       CTPPSDiamondLocalTrack newTrack( position, positionSigma, 0.f, 0.f, oot, multipleHits );
-      newTrack.setValid( true );
+
+      // find contributing hits
+      HitVector componentHits;
+      for ( const auto& hit : hits )
+        if ( newTrack.containsHit( hit, tolerance_ ) && ( !excludeSingleEdgeHits_ || hit.getToT() > 0. ) )
+          componentHits.emplace_back( hit );
+      // compute timing information
+      float mean_time = 0.f, time_sigma = 0.f;
+      bool valid_hits = timeEval( componentHits, mean_time, time_sigma );
+      newTrack.setValid( valid_hits );
+      newTrack.setT( mean_time );
+      newTrack.setTSigma( time_sigma );
 
       tracks.push_back( newTrack );
     }

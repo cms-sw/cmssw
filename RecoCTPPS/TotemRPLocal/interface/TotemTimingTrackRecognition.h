@@ -31,9 +31,6 @@ class TotemTimingTrackRecognition : public CTPPSTimingTrackRecognition<TotemTimi
 
     /// Produces a collection of tracks for the current station, given its hits collection
     int produceTracks( edm::DetSet<TotemTimingLocalTrack>& tracks ) override;
-
-  private:
-    float tolerance_;
 };
 
 #endif
