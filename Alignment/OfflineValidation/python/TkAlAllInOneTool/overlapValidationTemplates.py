@@ -42,7 +42,13 @@ except OSError:
 
 from Alignment.OfflineValidation.overlapValidationPlot import plot
 
-plot(".oO[datadir]Oo./.oO[PlotsDirName]Oo./", True,.oO[PlottingInstantiation]Oo.)
+subdet_ids=[True,True,True,True,True,True]#(BPIX,FPIX,TIB,TID,TOB,TEC)
+module_directions=[True,True,True]#(z,r,phi)
+overlap_directions=[True,True,True]#(z,r,phi)
+profile_directions=[True,True,True,True]#(histogtam,z-profiles,r-profiles,phi-profiles)
+
+
+plot(".oO[datadir]Oo./.oO[PlotsDirName]Oo./",subdet_ids,module_directions,overlap_directions,profile_directions,.oO[PlottingInstantiation]Oo.)
 
 
 """
