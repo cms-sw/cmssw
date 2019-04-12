@@ -1265,22 +1265,6 @@ step1LHEDefaults=merge([{'-s':'LHE',
                          },
                         step1Defaults])
 
-# transfer extendedgen step1 LHE to be used in a normal workflow
-step1LHENormal = {'--relval'     : '9000,50',
-                 '--conditions'  : 'auto:run2_mc',
-                 '--beamspot'    : 'Realistic50ns13TeVCollision',
-                 }
-
-# transfer extendedgen step1 GEN to GEN-SIM to be used in a normal workflow
-step1GENNormal = {'--relval'     : '9000,50',
-                 '-s'            : 'GEN,SIM',
-                 '--conditions'  : 'auto:run2_mc',
-                 '--beamspot'    : 'Realistic50ns13TeVCollision',
-                 '--eventcontent': 'FEVTDEBUG',
-                 '--datatier'    : 'GEN-SIM',
-                 '--era'         : 'Run2_2016',
-                 }
-
 steps['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['TTbar_Pow_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar_Pow_LHE_13TeV_cff.py',step1LHEDefaults)
@@ -1435,6 +1419,51 @@ steps['VBFHToBB_M125_Pow_py8_Evt_13UP18']=lhegensim2018('Configuration/Generator
 #steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP18/%s/GEN-SIM'%(baseDataSetRelease[22],),location='STD')}
 #steps['VBFHToBB_M125_Pow_py8_Evt_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToBB_M125_Pow_py8_Evt_13UP18/%s/GEN-SIM'%(baseDataSetRelease[22],),location='STD')}
 
+# normal fullSim workflows using pLHE-GEN-SIM 2016 by default
+# pLHE step
+step1LHENormal = {'--relval'     : '10000,1',
+                 '--mc'          : '',
+                 '-s'            : 'NONE',
+                 '--conditions'  : 'auto:run2_mc',
+                 '--datatier'    : 'LHE',
+                 '--eventcontent': 'LHE',
+                 '--era'         : 'Run2_2016',
+                 '-n'            : 100,
+                 }
+# followed by GEN-SIM step
+step1GENNormal = {'--relval'     : '10000,50',
+                 '-s'           : 'GEN,SIM',
+                 '--conditions'  : 'auto:run2_mc',
+                 '--beamspot'    : 'Realistic50ns13TeVCollision',
+                 '--eventcontent': 'FEVTDEBUG',
+                 '--datatier'    : 'GEN-SIM',
+                 '--era'         : 'Run2_2016',
+                 }
+
+# pLHE-GEN-SIM step for 2017 conditions
+step1LHENormal2017Default = merge ([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--beamspot':'Realistic25ns13TeVEarly2017Collision','--geometry':'DB:Extended'},step1LHENormal])
+step1GENNormal2017Default = merge ([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--beamspot':'Realistic25ns13TeVEarly2017Collision','--geometry':'DB:Extended'},step1GENNormal])
+
+# pLHE-GEN-SIM step for 2018 conditions
+step1LHENormal2018Default = merge ([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--beamspot':'Realistic25ns13TeVEarly2018Collision','--geometry':'DB:Extended'},step1LHENormal])
+step1GENNormal2018Default = merge ([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--beamspot':'Realistic25ns13TeVEarly2018Collision','--geometry':'DB:Extended'},step1GENNormal])
+
+# pLHE and GEN-SIM steps 2016 workflows
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13']=merge ([{'--filein':'lhe:18334'},step1LHENormal])
+steps['Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_LHE_py8_cff',step1GENNormal)
+
+# pLHE and GEN-SIM steps 2017 workflows
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17']=merge ([{'--filein':'lhe:18334'},step1LHENormal2017Default])
+steps['Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13UP17']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_LHE_py8_cff',step1GENNormal2017Default)
+
+# pLHE and GEN-SIM steps 2018 workflows
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18']=merge ([{'--filein':'lhe:18334'},step1LHENormal2018Default])
+steps['Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13UP18']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_LHE_py8_cff',step1GENNormal2018Default)
+
+#GEN-SIM inputs for pLHE-GEN-SIM workflows 2016,2017,2018
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17/%s/GEN-SIM'%(baseDataSetRelease[21],),location='STD')}
+steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18/%s/GEN-SIM'%(baseDataSetRelease[22],),location='STD')}
 
 #Sherpa
 steps['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER_cff',step1GenDefaults)

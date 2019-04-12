@@ -59,6 +59,11 @@ workflows[25211.18]=['',['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP18','DIGIUP18_PU2
 workflows[25212.18]=['',['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP18','DIGIUP18_PU25','RECOUP18_PU25','HARVESTUP18_PU25']]
 workflows[25213.18]=['',['VBFHToBB_M125_Pow_py8_Evt_13UP18','DIGIUP18_PU25','RECOUP18_PU25','HARVESTUP18_PU25']]
 
+# pLHE-based fullSim PU  workflows
+workflows[25215]   =['',['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13','Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13','DIGIUP15_PU25','RECOUP15_PU25','HARVESTUP15_PU25']]
+workflows[25215.17]=['',['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17','Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13UP17','DIGIUP17_PU25','RECOUP17_PU25','HARVESTUP17_PU25']]
+workflows[25215.18]=['',['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18','Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13UP18','DIGIUP18_PU25','RECOUP18_PU25','HARVESTUP18_PU25']]
+
 workflows[11024.2]=['',['TTbar_13UP18HEfailINPUT','DigiFullHEfail','RecoFullHEfail','HARVESTFullHEfail','NanoFullHEfail']]
 workflows[11024.3]=['',['TTbar_13UP18BadHcalMitigINPUT','DigiFullBadHcalMitig','RecoFullBadHcalMitig','HARVESTFullBadHcalMitig','NanoFullBadHcalMitig']]
 
