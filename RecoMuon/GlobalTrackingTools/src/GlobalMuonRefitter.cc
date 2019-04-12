@@ -118,10 +118,10 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
   theDYTthrs     = par.getParameter< std::vector<int> >("DYTthrs");
-  theDYTselector = par.existsAs<int>("DYTselector")?par.getParameter<int>("DYTselector"):1;
-  theDYTupdator  = par.existsAs<bool>("DYTupdator")?par.getParameter<bool>("DYTupdator"):false;
-  theDYTuseAPE   = par.existsAs<bool>("DYTuseAPE")?par.getParameter<bool>("DYTuseAPE"):false;
-  dytParThrsMode = par.existsAs<bool>("DYTuseThrsParametrization")?par.getParameter<bool>("DYTuseThrsParametrization"):false;
+  theDYTselector = par.getParameter<int>("DYTselector");
+  theDYTupdator  = par.getParameter<bool>("DYTupdator");
+  theDYTuseAPE   = par.getParameter<bool>("DYTuseAPE");
+  dytParThrsMode = par.getParameter<bool>("DYTuseThrsParametrization");
   if (dytParThrsMode) theDYTthrsParameters = par.getParameter< edm::ParameterSet >("DYTthrsParameters");
   dytInfo        = new reco::DYTInfo();
 
