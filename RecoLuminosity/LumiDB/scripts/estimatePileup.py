@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from builtins import range
 import os, sys
 import coral
 import array
@@ -58,7 +59,7 @@ def fillPileupHistogram (deadTable, parameters,
             # here we only want the instantaneous luminosities and don't
             # care which crosings they fall in.  So we only want the odd 
             instLumiArray = [(xingInstLumiArray[index], xingInstLumiArray[index + 1]) \
-                             for index in xrange( 0, len (xingInstLumiArray), 2 ) ]
+                             for index in range( 0, len (xingInstLumiArray), 2 ) ]
             livetime = 1
             if numerator < 0:
                 numerator = 0
