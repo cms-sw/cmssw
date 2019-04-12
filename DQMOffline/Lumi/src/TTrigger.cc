@@ -22,7 +22,7 @@ using namespace ZCountingTrigger;
 // the trigger can evolve and obtain a different trigger object name, but we still want this to 
 // be associated with the same leg (e.g. the trailing electron in a dielectron trigger)
 //
-TTrigger::TTrigger(std::vector<std::string> muonTriggerNames, std::vector<std::string> muonTriggerObjectNames) { 
+TTrigger::TTrigger(const std::vector<std::string> &muonTriggerNames, const std::vector<std::string> &muonTriggerObjectNames) { 
 
   for(unsigned int i = 0; i < muonTriggerNames.size(); ++i){
     fRecords.push_back(ZCountingTrigger::TriggerRecord(muonTriggerNames.at(i),0));
