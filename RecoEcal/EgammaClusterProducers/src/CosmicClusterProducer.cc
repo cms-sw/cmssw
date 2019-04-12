@@ -136,18 +136,18 @@ void CosmicClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   es.get<CaloGeometryRecord>().get(geoHandle);
 
   const CaloSubdetectorGeometry *geometry_p;
-  CaloSubdetectorTopology *topology_p;
+  std::unique_ptr<CaloSubdetectorTopology> topology_p;
 
   std::string clustershapetag;
   if (ecalPart == CosmicClusterAlgo::barrel) 
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-      topology_p = new EcalBarrelTopology(geoHandle);
+      topology_p = std::make_unique<EcalBarrelTopology>(*geoHandle);
     }
   else
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-      topology_p = new EcalEndcapTopology(geoHandle); 
+      topology_p = std::make_unique<EcalEndcapTopology>(*geoHandle);
    }
 
   const CaloSubdetectorGeometry *geometryES_p;
@@ -155,13 +155,13 @@ void CosmicClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   
   // Run the clusterization algorithm:
   reco::BasicClusterCollection clusters;
-  clusters = island_p->makeClusters(hitCollection_p, uhitCollection_p, geometry_p, topology_p, geometryES_p,  ecalPart);
+  clusters = island_p->makeClusters(hitCollection_p, uhitCollection_p, geometry_p, topology_p.get(), geometryES_p,  ecalPart);
   
   //Create associated ClusterShape objects.
   std::vector <reco::ClusterShape> ClusVec;
  
   for (int erg=0;erg<int(clusters.size());++erg){
-    reco::ClusterShape TestShape = shapeAlgo_.Calculate(clusters[erg],hitCollection_p,geometry_p,topology_p);
+    reco::ClusterShape TestShape = shapeAlgo_.Calculate(clusters[erg],hitCollection_p,geometry_p,topology_p.get());
     ClusVec.push_back(TestShape);
   }
   
@@ -192,6 +192,4 @@ void CosmicClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
     shapeAssocs_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
   }  
   evt.put(std::move(shapeAssocs_p),clusterShapeAssociation);
-  
-  delete topology_p;
 }
