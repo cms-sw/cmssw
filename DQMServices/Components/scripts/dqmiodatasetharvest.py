@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import re
 import json
 import ROOT
@@ -122,10 +123,10 @@ def dasquery(dataset):
     if not dataset.endswith("DQMIO"):
         raise Exception("This tool probably cannot read the dataset you specified. The name should end with DQMIO.")
     dasquery = ["dasgoclient",  "-query=file dataset=%s" % dataset]
-    print "Querying das ... %s" % dasquery
+    print("Querying das ... %s" % dasquery)
     files = subprocess.check_output(dasquery)
     files = files.splitlines()
-    print "Got %d files." % len(files)
+    print("Got %d files." % len(files))
     return files
 
 
@@ -232,8 +233,8 @@ for mes_to_store in pool.imap_unordered(harvestfile, files):
     db.executemany(insertinto, mes_to_store);
     db.commit()
     ctr += 1
-    print "Processed %d files of %d, got %d MEs...\r" % (ctr, len(files), len(mes_to_store)),
-print "\nDone."
+    print("Processed %d files of %d, got %d MEs...\r" % (ctr, len(files), len(mes_to_store)),  end='')
+print("\nDone.")
 
 sqlite2tree = """
 // Convert the sqlite format saved above back into a TTree.
