@@ -204,47 +204,50 @@ EDConsumerBase::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
   unsigned int index=0;
   for(auto it = m_esTokenInfo.begin<kESLookupInfo>();
       it !=m_esTokenInfo.end<kESLookupInfo>(); ++it,++index) {
-    eventsetup::DataKey dataKey{it->m_dataType,
-                            &(m_tokenLabels[it->m_startOfName]),
-      eventsetup::DataKey::kDoNotCopyMemory
-    };
     auto indexInRecord = iPI.indexInRecord(it->m_record,
-                                           dataKey );
-    if(indexInRecord != eventsetup::ESRecordsToProxyIndices::missingIndex()) {
+                                           it->m_key );
+    if(indexInRecord != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
       const char* componentName =&(m_tokenLabels[it->m_startOfComponentName]);
-      if(componentName) {
-        auto component = iPI.component(it->m_record, dataKey);
-        if(component->label_ != componentName) {
-          indexInRecord =eventsetup::ESRecordsToProxyIndices::missingIndex();
+      if(*componentName) {
+        auto component = iPI.component(it->m_record, it->m_key);
+        if( component->label_.empty() ) {
+          if(component->type_ != componentName) {
+            indexInRecord =eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+          }
+        }
+        else if( component->label_ != componentName) {
+          indexInRecord =eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
         }
       }
     }
     m_esTokenInfo.get<kESProxyIndex>(index) = indexInRecord;
+
+    int negIndex = -1*(index+1);
+    for(auto& items: esItemsToGetFromTransition_) {
+      for(auto& itemIndex: items) {
+        if(itemIndex.value() == negIndex) {
+          itemIndex = indexInRecord;
+          negIndex = 1;
+          break;
+        }
+      }
+      if(negIndex>0) {
+        break;
+      }
+    }
   }
 }
 
-unsigned int
+ESTokenIndex
 EDConsumerBase::recordESConsumes(Transition iTrans,
                                  eventsetup::EventSetupRecordKey const& iRecord,
                                  eventsetup::heterocontainer::HCTypeTag const& iDataType,
                                  edm::ESInputTag const& iTag) {
   //m_tokenLabels first entry is a null. Since most ES data requests have
   // empty labels we will assume we can reuse the first entry
-  unsigned int startOfName = 0;
   unsigned int startOfComponentName=0;
-  if( not iTag.data().empty()) {
-    startOfName = m_tokenLabels.size();
-
-    m_tokenLabels.reserve(m_tokenLabels.size()+iTag.data().size()+1);
-    {
-      const std::string& m =iTag.data();
-      m_tokenLabels.insert(m_tokenLabels.end(),m.begin(),m.end());
-      m_tokenLabels.push_back('\0');
-    }
-  }
-
   if( not iTag.module().empty()) {
-    startOfName = m_tokenLabels.size();
+    startOfComponentName = m_tokenLabels.size();
     
     m_tokenLabels.reserve(m_tokenLabels.size()+iTag.module().size()+1);
     {
@@ -254,10 +257,10 @@ EDConsumerBase::recordESConsumes(Transition iTrans,
     }
   }
 
-  auto index = m_esTokenInfo.size();
-  m_esTokenInfo.emplace_back(ESTokenLookupInfo{iRecord, iDataType,startOfName,startOfComponentName},-1 );
-  esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].push_back(-1*index);
-  return index;
+  auto index = static_cast<ESProxyIndex::Value_t>(m_esTokenInfo.size());
+  m_esTokenInfo.emplace_back(ESTokenLookupInfo{iRecord, eventsetup::DataKey{iDataType,iTag.data().c_str()},startOfComponentName}, ESProxyIndex{-1} );
+  esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].push_back(ESProxyIndex{-1*(index+1)});
+  return ESTokenIndex{static_cast<ESTokenIndex::Value_t>(index)};
 }
 
 //
@@ -628,4 +631,9 @@ EDConsumerBase::consumesInfo() const {
                         itInfo->m_index.skipCurrentProcess());
   }
   return result;
+}
+
+const char*
+EDConsumerBase::labelFor(ESTokenIndex iIndex) const {
+  return m_esTokenInfo.get<kESLookupInfo>(iIndex.value()).m_key.name().value();
 }

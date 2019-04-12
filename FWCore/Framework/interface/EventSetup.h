@@ -36,6 +36,7 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/Utilities/interface/Transition.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 
 // forward declarations
 
@@ -59,8 +60,10 @@ namespace edm {
     public:
 
       explicit EventSetup(EventSetupImpl const& iSetup,
-                          unsigned int iTransitionID):
+                          unsigned int iTransitionID,
+                          ESProxyIndex const* iGetTokenIndices):
       m_setup{iSetup},
+      m_getTokenIndices{iGetTokenIndices},
       m_id{iTransitionID} {}
       EventSetup(EventSetup const&) = delete;
       EventSetup& operator=(EventSetup const&) = delete;
@@ -81,7 +84,7 @@ namespace edm {
                throw eventsetup::NoRecordException<T>(recordDoesExist(m_setup, eventsetup::EventSetupRecordKey::makeKey<T>()));
             }
             T returnValue;
-            returnValue.setImpl(temp,m_id);
+            returnValue.setImpl(temp,m_id,m_getTokenIndices);
             return returnValue;
          }
 
@@ -97,7 +100,7 @@ namespace edm {
            auto const temp = impl().findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey,T>::Type,eventsetup::EventSetupRecordKey>());
            if(temp != nullptr) {
               T rec;
-              rec.setImpl(temp,m_id);
+              rec.setImpl(temp,m_id,m_getTokenIndices);
               return rec;
            }
            return std::nullopt;
@@ -144,7 +147,7 @@ namespace edm {
       }
 
       std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey& iKey) const {
-         return m_setup.find(iKey, m_id);
+         return m_setup.find(iKey, m_id, m_getTokenIndices);
       }
 
       ///clears the oToFill vector and then fills it with the keys for all available records
@@ -164,6 +167,7 @@ namespace edm {
 
       // ---------- member data --------------------------------
      edm::EventSetupImpl const& m_setup;
+     ESProxyIndex const* m_getTokenIndices;
      unsigned int m_id;
   };
 

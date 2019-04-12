@@ -60,7 +60,7 @@ EventSetupImpl::add(const eventsetup::EventSetupRecordImpl& iRecord)
 }
 
 std::optional<eventsetup::EventSetupRecordGeneric>
-EventSetupImpl::find(const eventsetup::EventSetupRecordKey& iKey, unsigned int iTransitionID) const
+EventSetupImpl::find(const eventsetup::EventSetupRecordKey& iKey, unsigned int iTransitionID, ESProxyIndex const* getTokenIndices) const
 {
    auto lb = std::lower_bound(keysBegin_, keysEnd_, iKey);
    if (lb == keysEnd_ || iKey != *lb) {
@@ -70,7 +70,7 @@ EventSetupImpl::find(const eventsetup::EventSetupRecordKey& iKey, unsigned int i
    if (recordImpls_[index] == nullptr) {
       return std::nullopt;
    }
-   return eventsetup::EventSetupRecordGeneric(recordImpls_[index], iTransitionID);
+   return eventsetup::EventSetupRecordGeneric(recordImpls_[index], iTransitionID, getTokenIndices);
 }
 
 eventsetup::EventSetupRecordImpl const*

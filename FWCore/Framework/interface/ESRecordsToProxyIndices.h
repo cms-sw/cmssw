@@ -24,6 +24,7 @@
 // user include files
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 
 #include <vector>
 // forward declarations
@@ -37,16 +38,19 @@ namespace edm::eventsetup {
     ESRecordsToProxyIndices(std::vector<EventSetupRecordKey> iRecords);
     
     // ---------- const member functions ---------------------
-    ///If the index is not found, returns missingIndex()
-    unsigned int indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
+    ///If the index is not found, returns missingProxyIndex()
+    ESProxyIndex indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
 
     ComponentDescription const* component(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
     
-    static constexpr unsigned int missingIndex() noexcept {
-      return std::numeric_limits<unsigned int>::max();
+    static constexpr ESProxyIndex missingProxyIndex() noexcept {
+      return ESProxyIndex{std::numeric_limits<int>::max()};
+    }
+    static constexpr ESRecordIndex missingRecordIndex() noexcept {
+      return ESRecordIndex{std::numeric_limits<int>::max()};
     }
 
-    unsigned int recordIndexFor(EventSetupRecordKey const& iRK) const noexcept;
+    ESRecordIndex recordIndexFor(EventSetupRecordKey const& iRK) const noexcept;
     // ---------- member functions ---------------------------
     ///This should be called for all records in the list passed to the constructor and
     /// in the same order as the list.

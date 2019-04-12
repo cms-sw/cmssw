@@ -36,7 +36,7 @@ TEST_CASE("test ESRecordsToProxyIndices", "[ESRecordsToProxyIndices]") {
   auto const rcd3Key = EventSetupRecordKey::makeKey<Rcd3>();
   auto const missingRcdKey = EventSetupRecordKey::makeKey<MissingRcd>();
 
-  auto constexpr kMissingKey = ESRecordsToProxyIndices::missingIndex();
+  auto constexpr kMissingKey = ESRecordsToProxyIndices::missingProxyIndex();
   
   SECTION("test empty") {
     ESRecordsToProxyIndices empty{ {} };
@@ -71,7 +71,7 @@ TEST_CASE("test ESRecordsToProxyIndices", "[ESRecordsToProxyIndices]") {
       index = 0;
       auto it = pr.second.second.begin();
       for(auto const& dk: pr.second.first) {
-        REQUIRE(index== r2pi.indexInRecord(pr.first,dk));
+        REQUIRE(index== r2pi.indexInRecord(pr.first,dk).value());
         REQUIRE(*it == r2pi.component(pr.first,dk));
         ++index;
         ++it;

@@ -26,6 +26,7 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 
 // forward declarations
 
@@ -52,7 +53,8 @@ namespace edm {
       eventsetup::EventSetupRecordImpl const* findImpl(const eventsetup::EventSetupRecordKey&) const;
 
       std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&,
-                                                              unsigned int iTransitionID) const;
+                                                              unsigned int iTransitionID,
+                                                               ESProxyIndex const* getTokenIndices) const;
 
       ///clears the oToFill vector and then fills it with the keys for all available records
       void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const;

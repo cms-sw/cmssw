@@ -54,10 +54,13 @@ namespace edm {
     template <typename Product, typename Record>
     auto consumesFrom(ESInputTag const& tag) {
       using namespace edm::eventsetup;
+      ESTokenIndex index{static_cast<ESTokenIndex::Value_t>(m_consumer->size())};
       m_consumer->emplace_back( EventSetupRecordKey::makeKey<Record>(),
                                DataKey( DataKey::makeTypeTag<Product>(), tag.data().c_str()),
                                tag.module());
-      return ESGetToken<Product,Record>{m_transitionID, tag};
+      //even though m_consumer may expand, the address for
+      // name().value() remains the same since it is 'moved'.
+      return ESGetToken<Product,Record>{m_transitionID, index, std::get<1>(m_consumer->back()).name().value()};
     }
 
   protected:

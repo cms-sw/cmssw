@@ -568,6 +568,7 @@ namespace edm {
       ex.addContext("Calling beginJob for the source");
       throw;
     }
+    espController_->finishConfiguration();
     schedule_->beginJob(*preg_, esp_->recordsToProxyIndices());
     // toerror.succeeded(); // should we add this?
     for_all(subProcesses_, [](auto& subProcess){ subProcess.doBeginJob(); });

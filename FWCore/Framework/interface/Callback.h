@@ -24,6 +24,7 @@
 // user include files
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 
 // forward declarations
 namespace edm {
@@ -103,6 +104,7 @@ namespace edm {
          }
         
          unsigned int transitionID() const { return id_;}
+         ESProxyIndex const* getTokenIndices() const { return producer_->getTokenIndices(id_);}
      private:
          Callback(const Callback&) = delete; // stop default
          
