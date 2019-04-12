@@ -23,9 +23,10 @@
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
@@ -51,20 +52,20 @@ public:
 
 private:
   // ----------member data ---------------------------
-  std::string        name_;
+  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hgcToken_;
   int                det_;
 };
 
 
 HGCalTopologyBuilder::HGCalTopologyBuilder(const edm::ParameterSet& iConfig) {
 
-  name_     = iConfig.getParameter<std::string>("Name");
+  auto name = iConfig.getParameter<std::string>("Name");
   det_      = iConfig.getParameter<int>("Type");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "constructing HGCalTopology for " << name_
+  edm::LogVerbatim("HGCalGeom") << "constructing HGCalTopology for " << name
 				<< " and det " << det_;
 #endif
-  setWhatProduced(this, name_);
+  hgcToken_ = setWhatProduced(this, name).consumes<HGCalDDDConstants>(edm::ESInputTag{"", name});
 }
 
 
@@ -78,9 +79,7 @@ HGCalTopologyBuilder::~HGCalTopologyBuilder() { }
 HGCalTopologyBuilder::ReturnType
 HGCalTopologyBuilder::produce(const IdealGeometryRecord& iRecord ) {
 
-  edm::ESHandle<HGCalDDDConstants>  pHGDC;
-  iRecord.get(name_, pHGDC);
-  const HGCalDDDConstants & hgdc = (*pHGDC);
+  const HGCalDDDConstants & hgdc = iRecord.get(hgcToken_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Create HGCalTopology(hgdc,det)";
