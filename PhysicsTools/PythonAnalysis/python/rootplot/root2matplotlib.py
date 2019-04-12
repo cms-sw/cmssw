@@ -2,6 +2,7 @@
 Utilities for plotting ROOT histograms in matplotlib.
 """
 
+from builtins import range
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
 
@@ -278,7 +279,7 @@ class HistStack(utilities.HistStack):
                          **all_kwargs)
             plots.append(bar)
         from matplotlib.ticker import FixedLocator
-        locator = FixedLocator(range(len(labels)))
+        locator = FixedLocator(list(range(len(labels))))
         ax.w_yaxis.set_major_locator(locator)
         ax.w_yaxis.set_ticklabels(labels)
         ax.set_ylim3d(-1, len(labels))

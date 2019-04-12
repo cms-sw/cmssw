@@ -3,6 +3,7 @@
 # batch mode for cmsRun, March 2009
 
 from __future__ import print_function
+from builtins import range
 import os, sys,  imp, re, pprint, string, time,shutil,copy,pickle,math
 from optparse import OptionParser
 

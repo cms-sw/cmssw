@@ -14,6 +14,7 @@ Authors: Evan K. Friis, Christian Veelken (UC Davis)
 '''
 from __future__ import print_function
 
+from builtins import range
 from RecoLuminosity.LumiDB import argparse
 
 parser = argparse.ArgumentParser(
