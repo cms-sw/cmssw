@@ -21,7 +21,7 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
 #    covariancePackingSchemas = cms.vint32(1,257,513,769,0),  # a cheaper schema in kb/ev 
     covariancePackingSchemas = cms.vint32(8,264,520,776,0),   # more accurate schema +0.6kb/ev   
     pfCandidateTypesForHcalDepth = cms.vint32(),
-    storeHcalDepthEndcapOnly = cms.bool(False),               # In case of 2018, need hcal depth info only for endcap. For run3 and beyond, we need information for barrel.
+    storeHcalDepthEndcapOnly = cms.bool(False),               # In case of 2018, need hcal depth info only for endcap. For run3 and beyond, consider information also for barrel.
     storeTiming = cms.bool(False)
 )
 
@@ -41,4 +41,7 @@ run2_HCAL_2018.toModify(packedPFCandidates,
 )
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify(packedPFCandidates, storeHcalDepthEndcapOnly = cms.bool(False))
+run3_common.toModify(packedPFCandidates,
+    pfCandidateTypesForHcalDepth = cms.vint32(), # For now, no PF cand type is considered for addition of Hcal depth energy frac 
+    storeHcalDepthEndcapOnly = cms.bool(False)
+)
