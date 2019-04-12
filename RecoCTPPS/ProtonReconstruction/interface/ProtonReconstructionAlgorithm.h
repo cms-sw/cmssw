@@ -33,13 +33,11 @@ class ProtonReconstructionAlgorithm
     void release();
 
     /// run proton reconstruction using single-RP strategy
-    void reconstructFromSingleRP(const CTPPSLocalTrackLiteRefVector& input,
-      reco::ForwardProtonCollection& output,
+    reco::ForwardProton reconstructFromSingleRP(const CTPPSLocalTrackLiteRef &track,
       const LHCInfo& lhcInfo, std::ostream& os) const;
 
     /// run proton reconstruction using multiple-RP strategy
-    void reconstructFromMultiRP(const CTPPSLocalTrackLiteRefVector& input,
-      reco::ForwardProtonCollection& output,
+    reco::ForwardProton reconstructFromMultiRP(const CTPPSLocalTrackLiteRefVector &tracks,
       const LHCInfo& lhcInfo, std::ostream& os) const;
 
   private:
