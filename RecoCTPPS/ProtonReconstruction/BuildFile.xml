@@ -8,6 +8,10 @@
 
 <use name="CondFormats/RunInfo"/>
 <use name="CondFormats/CTPPSReadoutObjects"/>
+<use name="CondFormats/DataRecord"/>
+
+<use name="Geometry/Records"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
 
 <export>
   <lib name="1"/>

@@ -54,11 +54,11 @@ void CTPPSLHCInfoESSource::setIntervalFor(const edm::eventsetup::EventSetupRecor
   const edm::IOVSyncValue& iosv, edm::ValidityInterval& oValidity)
 {
   // TODO: the IOV specified in config is temporarily replaced with a hardcoded one
-  m_insideValidityRange = true;
-
   edm::IOVSyncValue beg(edm::EventID(270293, 0, 0), edm::Timestamp(1461016800ULL << 32));
   edm::IOVSyncValue end(edm::EventID(290872, 0, 0), edm::Timestamp(1483138800ULL << 32));
   oValidity = edm::ValidityInterval(beg, end);
+
+  m_insideValidityRange = (beg < iosv && iosv < end);
 
   /*
   if (edm::contains(m_validityRange, iosv.eventID()))
