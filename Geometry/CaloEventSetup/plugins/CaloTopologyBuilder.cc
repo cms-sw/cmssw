@@ -38,12 +38,12 @@ CaloTopologyBuilder::produceCalo( const CaloTopologyRecord& iRecord )
    //ECAL parts      
    ct->setSubdetTopology( DetId::Ecal,
 			  EcalBarrel,
-			  new EcalBarrelTopology( *theGeometry ) ) ;
+			  std::make_unique<EcalBarrelTopology>( *theGeometry ) ) ;
    ct->setSubdetTopology( DetId::Ecal,
 			  EcalEndcap,
-			  new EcalEndcapTopology( *theGeometry ) ) ;
+			  std::make_unique<EcalEndcapTopology>( *theGeometry ) ) ;
    ct->setSubdetTopology( DetId::Ecal,
 			  EcalPreshower,
-			  new EcalPreshowerTopology());
+			  std::make_unique<EcalPreshowerTopology>());
    return ct ;
 }
