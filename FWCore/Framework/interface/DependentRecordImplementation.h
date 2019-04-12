@@ -56,7 +56,7 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
         typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT;
         static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
         try {
-          EventSetup const eventSetupT{this->eventSetup(), this->transitionID()};
+          EventSetup const eventSetupT{this->eventSetup(), this->transitionID(), this->getTokenIndices()};
           return eventSetupT.get<DepRecordT>();
         } catch(cms::Exception& e) {
           std::ostringstream sstrm;
@@ -72,7 +72,7 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
         typedef typename boost::mpl::end< ListT >::type EndItrT;
         typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT;
         static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
-        EventSetup const eventSetupT{this->eventSetup(), this->transitionID()};
+        EventSetup const eventSetupT{this->eventSetup(), this->transitionID(), this->getTokenIndices()};
         return eventSetupT.tryToGet<DepRecordT>();
       }
 

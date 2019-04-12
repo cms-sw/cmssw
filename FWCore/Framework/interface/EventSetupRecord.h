@@ -56,6 +56,8 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 // system include files
 #include <exception>
@@ -105,9 +107,12 @@ namespace edm {
             return impl_->validityInterval();
          }
 
-        void setImpl( EventSetupRecordImpl const* iImpl, unsigned int transitionID ) {
+        void setImpl(EventSetupRecordImpl const* iImpl,
+                     unsigned int transitionID,
+                     ESProxyIndex const* getTokenIndices) {
           impl_ = iImpl;
           transitionID_ = transitionID;
+          getTokenIndices_ =getTokenIndices;
         }
 
          template<typename HolderT>
@@ -192,9 +197,21 @@ namespace edm {
          ESHandle<T> getHandleImpl(ESGetToken<T,R> const& iToken) const {
            assert(iToken.transitionID() == transitionID());
            assert(iToken.isInitialized());
-           ESHandle<T> h;
-           (void) get(iToken.m_tag, h);
-           return h;
+           assert(getTokenIndices_);
+           //need to check token has valid index
+           if UNLIKELY(not iToken.hasValidIndex()) {
+             return invalidTokenHandle(iToken);
+           }
+           
+           T const* value = nullptr;
+           ComponentDescription const* desc = nullptr;
+           std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
+           impl_->getImplementation(value, getTokenIndices_[iToken.index().value()], false, desc, whyFailedFactory);
+           
+           if UNLIKELY(not value) {
+             return ESHandle<T>(std::move(whyFailedFactory));
+           }
+           return ESHandle<T>(value, desc);
          }
         
 
@@ -203,7 +220,9 @@ namespace edm {
          EventSetupImpl const& eventSetup() const {
             return impl_->eventSetup();
          }
-
+        
+         ESProxyIndex const* getTokenIndices() const { return getTokenIndices_; }
+        
          void validate(ComponentDescription const*, ESInputTag const&) const;
 
          void addTraceInfoToCmsException(cms::Exception& iException, char const* iName, ComponentDescription const*, DataKey const&) const;
@@ -214,6 +233,12 @@ namespace edm {
          unsigned int transitionID() const { return  transitionID_;}
       private:
 
+         template<typename T, typename R>
+        ESHandle<T> invalidTokenHandle(ESGetToken<T,R> const& iToken) const { return ESHandle<T>{makeESHandleExceptionFactory([=] {
+          NoProxyException<T> ex(this->key(), DataKey{DataKey::makeTypeTag<T>(), iToken.name()});
+          return std::make_exception_ptr(ex);
+        })}; }
+        
          void const* getFromProxy(DataKey const& iKey ,
                                   ComponentDescription const*& iDesc,
                                   bool iTransientAccessOnly) const;
@@ -221,13 +246,14 @@ namespace edm {
 
          // ---------- member data --------------------------------
          EventSetupRecordImpl const* impl_ = nullptr;
+         ESProxyIndex const* getTokenIndices_ = nullptr;
          unsigned int transitionID_ = std::numeric_limits<unsigned int>::max();
       };
 
      class EventSetupRecordGeneric : public EventSetupRecord {
      public:
-       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl, unsigned int iTransitionID) {
-         setImpl(iImpl, iTransitionID);
+       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl, unsigned int iTransitionID, ESProxyIndex const* getTokenIndices) {
+         setImpl(iImpl, iTransitionID, getTokenIndices);
        }
 
        EventSetupRecordKey key() const final {

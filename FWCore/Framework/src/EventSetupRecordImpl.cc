@@ -30,7 +30,7 @@ namespace edm {
 //
 // constants, enums and typedefs
 //
-      typedef std::map< DataKey , const DataProxy* > Proxies;
+     
 //
 // static data member definitions
 //
@@ -189,7 +189,40 @@ EventSetupRecordImpl::getFromProxy(DataKey const & iKey ,
    }
    return hold;   
 }
-      
+
+ const void*
+ EventSetupRecordImpl::getFromProxy(ESProxyIndex iProxyIndex,
+                                    bool iTransientAccessOnly,
+                                    const ComponentDescription*& iDesc,
+                                    DataKey const*& oGottenKey) const
+ {
+   if(iProxyIndex.value() >= static_cast<ESProxyIndex::Value_t>(proxies_.size())) {
+     return nullptr;
+   }
+   if(iTransientAccessOnly) { this->transientAccessRequested(); }
+   
+   const DataProxy* proxy = proxies_[iProxyIndex.value()];
+   assert(nullptr!=proxy);
+   iDesc = proxy->providerDescription();
+
+   const void* hold = nullptr;
+   
+   auto const& key = keysForProxies_[iProxyIndex.value()];
+   oGottenKey = &key;
+   try {
+     convertException::wrap([&]() {
+       hold = proxy->get(*this, key,iTransientAccessOnly, eventSetup_->activityRegistry());
+     });
+   }
+   catch(cms::Exception& e) {
+     addTraceInfoToCmsException(e,key.name().value(),proxy->providerDescription(), key);
+     //NOTE: the above function can't do the 'throw' since it causes the C++ class type
+     // of the throw to be changed, a 'rethrow' does not have that problem
+     throw;
+   }
+   return hold;
+ }
+
 const DataProxy* 
 EventSetupRecordImpl::find(const DataKey& iKey) const
 {

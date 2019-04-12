@@ -109,6 +109,9 @@ namespace edm {
 
     // ---------- member functions ---------------------------
     void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
+    ESProxyIndex const* getTokenIndices(unsigned int iIndex) const {
+      if(itemsToGetFromRecords_.empty()) {return nullptr;}
+      return (itemsToGetFromRecords_[iIndex].size() == 0) ? static_cast<ESProxyIndex const*>(nullptr) : &(itemsToGetFromRecords_[iIndex].front());}
   protected:
     /** \param iThis the 'this' pointer to an inheriting class instance
         The method determines the Record argument and return value of the 'produce'
@@ -212,10 +215,10 @@ namespace edm {
     }
 
     std::vector<std::unique_ptr<ESConsumesInfo>> consumesInfos_;
-    std::vector<std::vector<int>> itemsToGetFromRecords_;
-    //need another structure to say which reocrd to get the data from in
+    std::vector<std::vector<ESProxyIndex>> itemsToGetFromRecords_;
+    //need another structure to say which record to get the data from in
     // order to make prefetching work
-    std::vector<std::vector<int>> recordsUsedDuringGet_;
+    std::vector<std::vector<ESRecordIndex>> recordsUsedDuringGet_;
   };
 }
 #endif

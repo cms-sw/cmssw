@@ -49,11 +49,11 @@ namespace edm::eventsetup {
 //
 // const member functions
 //
-  unsigned int
+  ESProxyIndex
   ESRecordsToProxyIndices::indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept {
     auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);
     if( it == recordKeys_.end() or *it != iRK) {
-      return missingIndex();
+      return missingProxyIndex();
     }
     
     auto beginOffset = recordOffsets_[std::distance(recordKeys_.begin(),it)];
@@ -62,19 +62,19 @@ namespace edm::eventsetup {
     
     auto itDK = std::lower_bound(dataKeys_.begin()+beginOffset, dataKeys_.begin()+endOffset, iDK);
     if( itDK == dataKeys_.begin()+endOffset or *itDK != iDK) {
-      return missingIndex();
+      return missingProxyIndex();
     }
     
-    return std::distance(dataKeys_.begin()+beginOffset, itDK);
+    return ESProxyIndex{static_cast<int>(std::distance(dataKeys_.begin()+beginOffset, itDK))};
   }
   
-  unsigned int
+  ESRecordIndex
   ESRecordsToProxyIndices::recordIndexFor(EventSetupRecordKey const& iRK) const noexcept {
     auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);
     if( it == recordKeys_.end() or *it != iRK) {
-      return missingIndex();
+      return missingRecordIndex();
     }
-    return it-recordKeys_.begin();
+    return ESRecordIndex{static_cast<ESRecordIndex::Value_t>(it-recordKeys_.begin())};
   }
 
   

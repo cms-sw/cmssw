@@ -50,7 +50,7 @@ class DataProxyTemplate : public DataProxy
                                   const DataKey& iKey) override {
          assert(iRecord.key() == RecordT::keyForClass());
          RecordT rec;
-         rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max());
+         rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(),nullptr);
          return this->make(rec, iKey);
       }
       
