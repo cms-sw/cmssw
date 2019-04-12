@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * This is a part of CTPPS offline software.
+ * This is a part of PPS offline software.
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
  *   Nicola Minafra (nicola.minafra@cern.ch)
@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -28,13 +29,12 @@
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
 
 class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 {
   public:
     explicit CTPPSDiamondRecHitProducer( const edm::ParameterSet& );
-    ~CTPPSDiamondRecHitProducer() override;
 
     static void fillDescriptions( edm::ConfigurationDescriptions& );
 
@@ -43,8 +43,8 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 
     edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
 
-    /// A watcher to detect geometry changes.
-    //edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
+    /// A watcher to detect timing calibration changes.
+    edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 
     CTPPSDiamondRecHitProducerAlgorithm algo_;
 };
@@ -56,24 +56,28 @@ CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer( const edm::ParameterSet&
   produces<edm::DetSetVector<CTPPSDiamondRecHit> >();
 }
 
-CTPPSDiamondRecHitProducer::~CTPPSDiamondRecHitProducer()
-{}
-
 void
 CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit> > pOut( new edm::DetSetVector<CTPPSDiamondRecHit> );
+  auto pOut = std::make_unique<edm::DetSetVector<CTPPSDiamondRecHit> >();
 
   // get the digi collection
   edm::Handle<edm::DetSetVector<CTPPSDiamondDigi> > digis;
   iEvent.getByToken( digiToken_, digis );
 
-  // get the geometry
-  edm::ESHandle<CTPPSGeometry> geometry;
-  iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
+  if ( !digis->empty() ) {
+    if ( calibWatcher_.check( iSetup ) ) {
+      edm::ESHandle<PPSTimingCalibration> hTimingCalib;
+      iSetup.get<PPSTimingCalibrationRcd>().get( hTimingCalib );
+      algo_.setCalibration( *hTimingCalib );
+    }
+    // get the geometry
+    edm::ESHandle<CTPPSGeometry> geometry;
+    iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
 
-  // produce the rechits collection
-  algo_.build( geometry.product(), *( digis ), *( pOut ) );
+    // produce the rechits collection
+    algo_.build( *geometry, *digis, *pOut );
+  }
 
   iEvent.put( std::move( pOut ) );
 }

@@ -55,7 +55,7 @@ AllLayer_weights = cms.vdouble(0.0,
                                0.326339
                                )
 
-TrgLayer_weights = cms.vdouble(0.0,                               
+TrgLayer_weights = cms.vdouble(0.0,
                                0.0183664,
                                0.,
                                0.0305622,
@@ -110,56 +110,16 @@ TrgLayer_weights = cms.vdouble(0.0,
                                0.328053
                                )
 
-TrgLayer_dEdX_weights = cms.vdouble(0.0,   # there is no layer zero
-                           8.603+8.0675, # Mev
-                           0., 
-                           8.0675*2, 
-                           0., 
-                           8.0675*2, 
-                           0., 
-                           8.0675*2., 
-                           0., 
-                           8.0675+8.9515, 
-                           0., 
-                           10.135*2, 
-                           0., 
-                           10.135*2., 
-                           0., 
-                           10.135*2., 
-                           0., 
-                           10.135*2., 
-                           0., 
-                           10.135+11.682, 
-                           0., 
-                           13.654*2., 
-                           0., 
-                           13.654*2., 
-                           0., 
-                           13.654*2., 
-                           0., 
-                           13.654+38.2005, 
-                           0., 
-                           55.0265, 
-                           49.871, 
-                           49.871, 
-                           49.871, 
-                           49.871, 
-                           49.871, 
-                           49.871, 
-                           49.871, 
-                           49.871, 
-                           49.871, 
-                           49.871, 
-                           62.005, 
-                           83.1675, 
-                           92.196, 
-                           92.196, 
-                           92.196, 
-                           92.196, 
-                           92.196, 
-                           92.196, 
-                           92.196, 
-                           92.196, 
-                           92.196, 
-                           92.196, 
-                           46.098)
+from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import dEdX
+
+EE_LAYERS = 28
+TrgLayer_dEdX_weights = cms.vdouble()
+for lid, lw in enumerate(dEdX.weights):
+    if lid > (EE_LAYERS+1):
+        TrgLayer_dEdX_weights.append(lw)
+    else:
+        # Only half the layers are read in the EE at L1T
+        if (lid % 2) == 1:
+            TrgLayer_dEdX_weights.append(lw+dEdX.weights[lid-1])
+        else:
+            TrgLayer_dEdX_weights.append(0)

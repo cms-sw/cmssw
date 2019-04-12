@@ -1,3 +1,4 @@
+from builtins import range
 import copy
 
 from Validation.RecoTrack.plotting.plotting import Plot, PlotGroup, PlotFolder, Plotter
@@ -16,8 +17,8 @@ _minMaxRes = [0.1, 0.5, 1, 5, 10, 50, 100, 200, 500, 1000, 2000, 5000]
 _minMaxPt = [5e-1, 1, 5, 1e1, 5e1, 1e2, 5e2, 1e3, 5e3, 1e4]
 _minPull = [0, 0.5, 0.8, 0.9]
 _maxPull = [1.1, 1.2, 1.5, 2]
-_minVertexZ = range(-60,-10,10)
-_maxVertexZ = range(20,70,10)
+_minVertexZ = list(range(-60,-10,10))
+_maxVertexZ = list(range(20,70,10))
 
 _vertexNumberOfEventsHistogram = "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV/GenPV_Z"
 
@@ -205,7 +206,7 @@ _lambda_mass = PlotGroup("mass", [
 
 ## Extended set of plots
 _common = dict(drawStyle = "HIST", stat=True)
-_commonXY = dict(xmin=[x*0.1 for x in xrange(-6, 6, 1)], xmax=[x*0.1 for x in xrange(-5, 7, 1)])
+_commonXY = dict(xmin=[x*0.1 for x in range(-6, 6, 1)], xmax=[x*0.1 for x in range(-5, 7, 1)])
 _commonZ = dict(xmin=[-60,-30], xmax=[30,60])
 _commonXY.update(_common)
 _commonZ.update(_common)
@@ -394,7 +395,7 @@ class VertexSummaryTable:
         h = tdirectory.Get("globalEfficiencies")
         if h:
             d = {}
-            for i in xrange(1, h.GetNbinsX()+1):
+            for i in range(1, h.GetNbinsX()+1):
                 d[h.GetXaxis().GetBinLabel(i)] = h.GetBinContent(i)
             ret.extend([
                 _formatOrNone(d.get("effic_vs_Z", None), lambda n: "%.4f"%n),

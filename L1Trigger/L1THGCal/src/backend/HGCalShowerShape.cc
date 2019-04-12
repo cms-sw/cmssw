@@ -486,3 +486,25 @@ float HGCalShowerShape::sigmaRRTot(const l1t::HGCalCluster& c2d) const {
   return Srr;
   
 }       
+
+
+
+void
+HGCalShowerShape::
+fillShapes(l1t::HGCalMulticluster& c3d, const HGCalTriggerGeometryBase& triggerGeometry) const
+{
+  c3d.showerLength(showerLength(c3d));
+  c3d.coreShowerLength(coreShowerLength(c3d, triggerGeometry));
+  c3d.firstLayer(firstLayer(c3d));
+  c3d.maxLayer(maxLayer(c3d));
+  c3d.sigmaEtaEtaTot(sigmaEtaEtaTot(c3d));
+  c3d.sigmaEtaEtaMax(sigmaEtaEtaMax(c3d));
+  c3d.sigmaPhiPhiTot(sigmaPhiPhiTot(c3d));
+  c3d.sigmaPhiPhiMax(sigmaPhiPhiMax(c3d));
+  c3d.sigmaZZ(sigmaZZ(c3d));
+  c3d.sigmaRRTot(sigmaRRTot(c3d));
+  c3d.sigmaRRMax(sigmaRRMax(c3d));
+  c3d.sigmaRRMean(sigmaRRMean(c3d));
+  c3d.eMax(eMax(c3d));
+}
+

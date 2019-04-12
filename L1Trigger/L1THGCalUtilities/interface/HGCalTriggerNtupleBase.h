@@ -1,5 +1,5 @@
-#ifndef __L1Trigger_L1THGCal_HGCalTriggerNtupleBase_h__
-#define __L1Trigger_L1THGCal_HGCalTriggerNtupleBase_h__
+#ifndef __L1Trigger_L1THGCalUtilities_HGCalTriggerNtupleBase_h__
+#define __L1Trigger_L1THGCalUtilities_HGCalTriggerNtupleBase_h__
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

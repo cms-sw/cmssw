@@ -190,19 +190,7 @@ finalizeClusters(std::vector<l1t::HGCalMulticluster>& multiclusters_in,
 
         if( multicluster.pt() > ptC3dThreshold_ ){
             //compute shower shapes
-            multicluster.showerLength(shape_.showerLength(multicluster));
-            multicluster.coreShowerLength(shape_.coreShowerLength(multicluster, triggerGeometry));
-            multicluster.firstLayer(shape_.firstLayer(multicluster));
-            multicluster.maxLayer(shape_.maxLayer(multicluster));
-            multicluster.sigmaEtaEtaTot(shape_.sigmaEtaEtaTot(multicluster));
-            multicluster.sigmaEtaEtaMax(shape_.sigmaEtaEtaMax(multicluster));
-            multicluster.sigmaPhiPhiTot(shape_.sigmaPhiPhiTot(multicluster));
-            multicluster.sigmaPhiPhiMax(shape_.sigmaPhiPhiMax(multicluster));
-            multicluster.sigmaZZ(shape_.sigmaZZ(multicluster));
-            multicluster.sigmaRRTot(shape_.sigmaRRTot(multicluster));
-            multicluster.sigmaRRMax(shape_.sigmaRRMax(multicluster));
-            multicluster.sigmaRRMean(shape_.sigmaRRMean(multicluster));
-            multicluster.eMax(shape_.eMax(multicluster));
+            shape_.fillShapes(multicluster, triggerGeometry);
             // fill quality flag
             multicluster.setHwQual(id_->decision(multicluster));
             // fill H/E
