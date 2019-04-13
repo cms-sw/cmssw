@@ -38,12 +38,12 @@
 class SimAnalyzerMinbias : public edm::EDAnalyzer {
 public:
   explicit SimAnalyzerMinbias(const edm::ParameterSet&);
-  ~SimAnalyzerMinbias();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& iSetup);
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& iSetup);
+  ~SimAnalyzerMinbias() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& iSetup) override;
+  void endRun(const edm::Run& r, const edm::EventSetup& iSetup) override;
 
 private:
   // ----------member data ---------------------------

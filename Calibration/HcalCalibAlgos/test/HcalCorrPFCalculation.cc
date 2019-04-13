@@ -41,10 +41,10 @@ using namespace reco;
 class HcalCorrPFCalculation : public edm::EDAnalyzer {
 public:
   HcalCorrPFCalculation(edm::ParameterSet const& conf);
-  ~HcalCorrPFCalculation();
-  virtual void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  ~HcalCorrPFCalculation() override;
+  void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
+  void beginJob() override;
+  void endJob() override;
 
 private:
   double RecalibFactor(HcalDetId id);
