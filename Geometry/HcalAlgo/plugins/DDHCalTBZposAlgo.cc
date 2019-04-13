@@ -68,17 +68,14 @@ void DDHCalTBZposAlgo::execute(DDCompactView& cpv) {
   DDTranslation tran(x,y,z);
   DDRotation rot;
   if (tilt != 0) {
-    int  tiltdeg = std::lround(convertRadToDeg(tilt));
-    std::string rotstr = "R";
-    if (tiltdeg < 100) rotstr = "R0"; 
-    rotstr = rotstr + std::to_string(tiltdeg);
+    std::string rotstr = "R" + formatAsDegrees(tilt);
     rot    = DDRotation(DDName(rotstr, idNameSpace)); 
     if (!rot) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalZposAlgo: Creating a rotation "
 				   << DDName(rotstr,idNameSpace) << "\t90, "
-				   << tiltdeg  << ", 90, " << (tiltdeg+90)
-				   << ", 0, 0";
+				   << convertRadToDeg(tilt) << ",90,"
+				   << (90+convertRadToDeg(tilt)) << ", 0, 0";
 #endif
       rot = DDrot(DDName(rotstr, idNameSpace), 90._deg, tilt, 
 		  90._deg, (90._deg+tilt), 0.0,  0.0);
