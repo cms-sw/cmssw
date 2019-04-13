@@ -64,7 +64,7 @@ namespace edm {
 
   public:
     EDConsumerBase() :
-    m_tokenLabels{{'\0'}},
+    m_tokenLabels{'\0'},
     frozen_(false), containsCurrentProcessAlias_(false) {}
     virtual ~EDConsumerBase() noexcept(false);
 
