@@ -392,17 +392,14 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
     DDRotation rotation;
     std::string rotstr("NULL");
     if (phi != 0) {
-      double phideg = convertRadToDeg(phi);
-      rotstr = "R"; 
-      if (phideg < 100)	rotstr = "R0"; 
-      rotstr   = rotstr + std::to_string(std::lround(phideg));
+      rotstr = "R" + formatAsDegreesInInteger(phi);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
 #ifdef EDM_ML_DEBUG
 	edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Creating a new "
 				     << "rotation " << rotstr << "\t 90," 
-				     << phideg << ",90," << (phideg+90)
-				     << ", 0, 0";
+				     << convertRadToDeg(phi) << ",90," 
+				     << (90+convertRadToDeg(phi)) << ", 0, 0";
 #endif
 	rotation = DDrot(DDName(rotstr, rotns), theta, phi, theta, phiy, 0, 0);
       } //if !rotation
