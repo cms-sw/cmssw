@@ -144,15 +144,6 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   produces< edm::Association<reco::PFCandidateCollection> > ();
 
   produces< edm::ValueMap<std::vector<uint8_t>> > ("hcalDepthEnergyFractions");
-  //produces< edm::ValueMap<std::array<int,7>> > ("hcalDepthEnergyFractions");
-  //produces< edm::ValueMap<uint8_t> > ("hcalDepthEnergyFractions");
-  produces< edm::ValueMap<float> > ("hcalEnergyFractionDepth1");
-  produces< edm::ValueMap<float> > ("hcalEnergyFractionDepth2");
-  produces< edm::ValueMap<float> > ("hcalEnergyFractionDepth3");
-  produces< edm::ValueMap<float> > ("hcalEnergyFractionDepth4");
-  produces< edm::ValueMap<float> > ("hcalEnergyFractionDepth5");
-  produces< edm::ValueMap<float> > ("hcalEnergyFractionDepth6");
-  produces< edm::ValueMap<float> > ("hcalEnergyFractionDepth7");
 
 }
 
@@ -228,16 +219,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     math::XYZPoint  PVpos;
 
     std::vector<std::vector<uint8_t>> hcalDepthEnergyFractions;
-    // std::vector<std::array<int,7>> hcalDepthEnergyFractions;
     hcalDepthEnergyFractions.reserve(cands->size());
-    //std::vector<uint8_t> hcalDepthEnergyFractions; hcalDepthEnergyFractions.reserve(cands->size());
-    std::vector<float> hcalEnergyFraction_Depth1; hcalEnergyFraction_Depth1.reserve(cands->size());
-    std::vector<float> hcalEnergyFraction_Depth2; hcalEnergyFraction_Depth2.reserve(cands->size());
-    std::vector<float> hcalEnergyFraction_Depth3; hcalEnergyFraction_Depth3.reserve(cands->size());
-    std::vector<float> hcalEnergyFraction_Depth4; hcalEnergyFraction_Depth4.reserve(cands->size());
-    std::vector<float> hcalEnergyFraction_Depth5; hcalEnergyFraction_Depth5.reserve(cands->size());
-    std::vector<float> hcalEnergyFraction_Depth6; hcalEnergyFraction_Depth6.reserve(cands->size());
-    std::vector<float> hcalEnergyFraction_Depth7; hcalEnergyFraction_Depth7.reserve(cands->size());
     
     edm::Handle<reco::TrackCollection> TKOrigs;
     iEvent.getByToken( TKOrigs_, TKOrigs );
@@ -351,65 +333,25 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 	  outPtrP->back().setHcalFraction(0);
 	}
        
-	//std::array<uint8_t,7> dummyArray {{0,0,0,0,0,0,0}};
-	std::vector<uint8_t> dummyVector;
-	dummyVector.clear();
+	std::vector<uint8_t> dummyVector; dummyVector.clear();
 	
 	// storing HcalDepthEnergyFraction information
 	if ( std::find(pfCandidateTypesForHcalDepth_.begin(), pfCandidateTypesForHcalDepth_.end(), abs(cand.pdgId())) 
 	     != pfCandidateTypesForHcalDepth_.end() ){
 	  if (!storeHcalDepthEndcapOnly_ || fabs(outPtrP->back().eta())>1.3 ){  // storeHcalDepthEndcapOnly_==false -> store all eta of selected 
 	                                                                // PF types, if true, only |eta|>1.3 of selected PF types will be stored  
-	    std::vector<uint8_t> hcalDepthEnergyFractionA {
+	    std::vector<uint8_t> hcalDepthEnergyFractionTmp {
 	    	(uint8_t)(cand.hcalDepthEnergyFraction(1)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(2)*200.),
 	    	(uint8_t)(cand.hcalDepthEnergyFraction(3)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(4)*200.),
 	    	(uint8_t)(cand.hcalDepthEnergyFraction(5)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(6)*200.),
 	    	(uint8_t)(cand.hcalDepthEnergyFraction(7)*200.)
 	    	};
-	    // std::array<uint8_t,7> hcalDepthEnergyFractionA {{
-	    // 	(uint8_t)(cand.hcalDepthEnergyFraction(1)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(2)*200.),
-	    // 	(uint8_t)(cand.hcalDepthEnergyFraction(3)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(4)*200.),
-	    // 	(uint8_t)(cand.hcalDepthEnergyFraction(5)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(6)*200.),
-	    // 	(uint8_t)(cand.hcalDepthEnergyFraction(7)*200.)
-	    // 	}};
-	    // std::array<int,7> hcalDepthEnergyFractionA {{
-	    // 	(int)(cand.hcalDepthEnergyFraction(1)*200.), (int)(cand.hcalDepthEnergyFraction(2)*200.),
-	    // 	(int)(cand.hcalDepthEnergyFraction(3)*200.), (int)(cand.hcalDepthEnergyFraction(4)*200.),
-	    // 	(int)(cand.hcalDepthEnergyFraction(5)*200.), (int)(cand.hcalDepthEnergyFraction(6)*200.),
-	    // 	(int)(cand.hcalDepthEnergyFraction(7)*200.)
-	    // 	}};
-	    hcalDepthEnergyFractions.push_back(hcalDepthEnergyFractionA);
-	    //hcalDepthEnergyFractions.push_back((uint8_t)(cand.hcalDepthEnergyFraction(1)*200.));
-	    hcalEnergyFraction_Depth1.push_back(cand.hcalDepthEnergyFraction(1));
-	    hcalEnergyFraction_Depth2.push_back(cand.hcalDepthEnergyFraction(2));
-	    hcalEnergyFraction_Depth3.push_back(cand.hcalDepthEnergyFraction(3));
-	    hcalEnergyFraction_Depth4.push_back(cand.hcalDepthEnergyFraction(4));
-	    hcalEnergyFraction_Depth5.push_back(cand.hcalDepthEnergyFraction(5));
-	    hcalEnergyFraction_Depth6.push_back(cand.hcalDepthEnergyFraction(6));
-	    hcalEnergyFraction_Depth7.push_back(cand.hcalDepthEnergyFraction(7));
+	    hcalDepthEnergyFractions.push_back(hcalDepthEnergyFractionTmp);
 	  } else {
 	    hcalDepthEnergyFractions.push_back(dummyVector);
-	    //hcalDepthEnergyFractions.push_back(dummyArray);
-	    //hcalDepthEnergyFractions.push_back(0);
-	    hcalEnergyFraction_Depth1.push_back(0);
-	    hcalEnergyFraction_Depth2.push_back(0);
-	    hcalEnergyFraction_Depth3.push_back(0);
-	    hcalEnergyFraction_Depth4.push_back(0);
-	    hcalEnergyFraction_Depth5.push_back(0);
-	    hcalEnergyFraction_Depth6.push_back(0);
-	    hcalEnergyFraction_Depth7.push_back(0);
 	  }
 	} else {
 	  hcalDepthEnergyFractions.push_back(dummyVector);
-	  //hcalDepthEnergyFractions.push_back(dummyArray);
-	  //hcalDepthEnergyFractions.push_back(0);
-	  hcalEnergyFraction_Depth1.push_back(0);
-	  hcalEnergyFraction_Depth2.push_back(0);
-	  hcalEnergyFraction_Depth3.push_back(0);
-	  hcalEnergyFraction_Depth4.push_back(0);
-	  hcalEnergyFraction_Depth5.push_back(0);
-	  hcalEnergyFraction_Depth6.push_back(0);
-	  hcalEnergyFraction_Depth7.push_back(0);
 	}
 
 	//specifically this is the PFLinker requirements to apply the e/gamma regression
@@ -496,68 +438,12 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     iEvent.put(std::move(pc2pf));
 
     // HCAL depth energy fraction additions using ValueMap
-    //std::unique_ptr<edm::ValueMap<std::array<uint8_t,7>>> hcalDepthEnergyFractionsV(new edm::ValueMap<std::array<uint8_t,7>>());
-    //edm::ValueMap<std::array<uint8_t,7>>::Filler fillerHcalDepthEnergyFractions(*hcalDepthEnergyFractionsV);
-    // std::unique_ptr<edm::ValueMap<std::array<int,7>>> hcalDepthEnergyFractionsV(new edm::ValueMap<std::array<int,7>>());
-    // edm::ValueMap<std::array<int,7>>::Filler fillerHcalDepthEnergyFractions(*hcalDepthEnergyFractionsV);
-    //fillerHcalDepthEnergyFractions.insert(cands,hcalDepthEnergyFractions.begin(),hcalDepthEnergyFractions.end());
-    //fillerHcalDepthEnergyFractions.fill();
     std::unique_ptr<edm::ValueMap<std::vector<uint8_t>>> hcalDepthEnergyFractionsV(new edm::ValueMap<std::vector<uint8_t>>());
     edm::ValueMap<std::vector<uint8_t>>::Filler fillerHcalDepthEnergyFractions(*hcalDepthEnergyFractionsV);
     fillerHcalDepthEnergyFractions.insert(cands,hcalDepthEnergyFractions.begin(),hcalDepthEnergyFractions.end());
     fillerHcalDepthEnergyFractions.fill();
-    // std::unique_ptr<edm::ValueMap<uint8_t>> hcalDepthEnergyFractionsV(new edm::ValueMap<uint8_t>());
-    // edm::ValueMap<uint8_t>::Filler fillerHcalDepthEnergyFractions(*hcalDepthEnergyFractionsV);
-    // fillerHcalDepthEnergyFractions.insert(cands,hcalDepthEnergyFractions.begin(),hcalDepthEnergyFractions.end());
-    // fillerHcalDepthEnergyFractions.fill();
 
-    std::unique_ptr<edm::ValueMap<float>> hcalEnergyFractionV_Depth1(new edm::ValueMap<float>());
-    edm::ValueMap<float>::Filler fillerHcalEnergyFraction_Depth1(*hcalEnergyFractionV_Depth1);
-    fillerHcalEnergyFraction_Depth1.insert(cands,hcalEnergyFraction_Depth1.begin(),hcalEnergyFraction_Depth1.end());
-    fillerHcalEnergyFraction_Depth1.fill();
-
-    std::unique_ptr<edm::ValueMap<float>> hcalEnergyFractionV_Depth2(new edm::ValueMap<float>());
-    edm::ValueMap<float>::Filler fillerHcalEnergyFraction_Depth2(*hcalEnergyFractionV_Depth2);
-    fillerHcalEnergyFraction_Depth2.insert(cands,hcalEnergyFraction_Depth2.begin(),hcalEnergyFraction_Depth2.end());
-    fillerHcalEnergyFraction_Depth2.fill();
-
-    std::unique_ptr<edm::ValueMap<float>> hcalEnergyFractionV_Depth3(new edm::ValueMap<float>());
-    edm::ValueMap<float>::Filler fillerHcalEnergyFraction_Depth3(*hcalEnergyFractionV_Depth3);
-    fillerHcalEnergyFraction_Depth3.insert(cands,hcalEnergyFraction_Depth3.begin(),hcalEnergyFraction_Depth3.end());
-    fillerHcalEnergyFraction_Depth3.fill();
-
-    std::unique_ptr<edm::ValueMap<float>> hcalEnergyFractionV_Depth4(new edm::ValueMap<float>());
-    edm::ValueMap<float>::Filler fillerHcalEnergyFraction_Depth4(*hcalEnergyFractionV_Depth4);
-    fillerHcalEnergyFraction_Depth4.insert(cands,hcalEnergyFraction_Depth4.begin(),hcalEnergyFraction_Depth4.end());
-    fillerHcalEnergyFraction_Depth4.fill();
-
-    std::unique_ptr<edm::ValueMap<float>> hcalEnergyFractionV_Depth5(new edm::ValueMap<float>());
-    edm::ValueMap<float>::Filler fillerHcalEnergyFraction_Depth5(*hcalEnergyFractionV_Depth5);
-    fillerHcalEnergyFraction_Depth5.insert(cands,hcalEnergyFraction_Depth5.begin(),hcalEnergyFraction_Depth5.end());
-    fillerHcalEnergyFraction_Depth5.fill();
-
-    std::unique_ptr<edm::ValueMap<float>> hcalEnergyFractionV_Depth6(new edm::ValueMap<float>());
-    edm::ValueMap<float>::Filler fillerHcalEnergyFraction_Depth6(*hcalEnergyFractionV_Depth6);
-    fillerHcalEnergyFraction_Depth6.insert(cands,hcalEnergyFraction_Depth6.begin(),hcalEnergyFraction_Depth6.end());
-    fillerHcalEnergyFraction_Depth6.fill();
-
-    std::unique_ptr<edm::ValueMap<float>> hcalEnergyFractionV_Depth7(new edm::ValueMap<float>());
-    edm::ValueMap<float>::Filler fillerHcalEnergyFraction_Depth7(*hcalEnergyFractionV_Depth7);
-    fillerHcalEnergyFraction_Depth7.insert(cands,hcalEnergyFraction_Depth7.begin(),hcalEnergyFraction_Depth7.end());
-    fillerHcalEnergyFraction_Depth7.fill();
-
-    //std::cout << hcalDepthEnergyFraction_Depth1.size() << " " << cands->size() << std::endl;
-    // " " << order.size() << " "
-    // << outPtrP->size() << " " << outPtrPSorted->size() << " " << oh->size() << std::endl; 
-    
     iEvent.put(std::move(hcalDepthEnergyFractionsV),"hcalDepthEnergyFractions");
-    iEvent.put(std::move(hcalEnergyFractionV_Depth1),"hcalEnergyFractionDepth1");
-    iEvent.put(std::move(hcalEnergyFractionV_Depth2),"hcalEnergyFractionDepth2");
-    iEvent.put(std::move(hcalEnergyFractionV_Depth3),"hcalEnergyFractionDepth3");
-    iEvent.put(std::move(hcalEnergyFractionV_Depth4),"hcalEnergyFractionDepth4");
-    iEvent.put(std::move(hcalEnergyFractionV_Depth5),"hcalEnergyFractionDepth5");
-    iEvent.put(std::move(hcalEnergyFractionV_Depth6),"hcalEnergyFractionDepth6");
-    iEvent.put(std::move(hcalEnergyFractionV_Depth7),"hcalEnergyFractionDepth7");
     
 }
 

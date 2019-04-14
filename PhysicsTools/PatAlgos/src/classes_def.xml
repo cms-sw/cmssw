@@ -1,0 +1,6 @@
+<lcgdict>
+ <class name="edm::ValueMap<std::vector<uint8_t>>" />
+ <class name="edm::ValueMap<std::vector<unsigned char>>" />
+ <class name="edm::Wrapper<edm::ValueMap<std::vector<uint8_t>> >"/>
+ <class name="edm::Wrapper<edm::ValueMap<std::vector<unsigned char>> >"/>
+</lcgdict>
