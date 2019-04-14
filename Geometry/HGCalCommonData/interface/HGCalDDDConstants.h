@@ -106,7 +106,7 @@ class HGCalDDDConstants {
   int maxCells(bool reco) const;
   int maxCells(int lay, bool reco) const;
   int maxModules() const { return modHalf_; }
-  int maxMoudlesPerLayer() const { return maxWafersPerLayer_; }
+  int maxModulesPerLayer() const { return maxWafersPerLayer_; }
   int maxRows(int lay, bool reco) const;
   double minSlope() const { return hgpar_->slopeMin_[0]; }
   int modifyUV(int uv, int type1, int type2) const;

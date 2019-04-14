@@ -6,8 +6,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -20,10 +19,11 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalModuleAlgo.h"
 
 //#define EDM_ML_DEBUG
+using namespace geant_units::operators;
 
 DDHGCalModuleAlgo::DDHGCalModuleAlgo() {
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalModuleAlgo info: Creating an instance" << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: Creating an instance";
 #endif
 }
 
@@ -36,9 +36,10 @@ void DDHGCalModuleAlgo::initialize(const DDNumericArguments& nArgs,
                                    const DDStringVectorArguments& vsArgs) {
   wafer = vsArgs["WaferName"];
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalModuleAlgo: " << wafer.size() << " wafers" << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << wafer.size()
+				<< " wafers";
   for (unsigned int i = 0; i < wafer.size(); ++i)
-    std::cout << "Wafer[" << i << "] " << wafer[i] << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "Wafer[" << i << "] " << wafer[i];
 #endif
   materials = vsArgs["MaterialNames"];
   names = vsArgs["VolumeNames"];
@@ -47,29 +48,33 @@ void DDHGCalModuleAlgo::initialize(const DDNumericArguments& nArgs,
     copyNumber.emplace_back(1);
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalModuleAlgo: " << materials.size() << " types of volumes"
-            << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << materials.size() 
+				<< " types of volumes";
   for (unsigned int i = 0; i < names.size(); ++i)
-    std::cout << "Volume [" << i << "] " << names[i] << " of thickness "
-              << thick[i] << " filled with " << materials[i]
-              << " first copy number " << copyNumber[i] << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names[i] 
+				  << " of thickness " << thick[i] 
+				  << " filled with " << materials[i]
+				  << " first copy number " << copyNumber[i];
 #endif
   layers = dbl_to_int(vArgs["Layers"]);
   layerThick = vArgs["LayerThick"];
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalModuleAlgo: " << layers.size() << " blocks" << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << layers.size() 
+				<< " blocks";
   for (unsigned int i = 0; i < layers.size(); ++i)
-    std::cout << "Block [" << i << "] of thickness " << layerThick[i]
-              << " with " << layers[i] << " layers" << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " 
+				  << layerThick[i] << " with " << layers[i] 
+				  << " layers";
 #endif
   layerType = dbl_to_int(vArgs["LayerType"]);
   layerSense = dbl_to_int(vArgs["LayerSense"]);
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalModuleAlgo: " << layerType.size() << " layers"
-            << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << layerType.size() 
+				<< " layers";
   for (unsigned int i = 0; i < layerType.size(); ++i)
-    std::cout << "Layer [" << i << "] with material type " << layerType[i]
-              << " sensitive class " << layerSense[i] << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " 
+				  << layerType[i] << " sensitive class " 
+				  << layerSense[i];
 #endif
   zMinBlock = nArgs["zMinBlock"];
   rMaxFine = nArgs["rMaxFine"];
@@ -77,25 +82,27 @@ void DDHGCalModuleAlgo::initialize(const DDNumericArguments& nArgs,
   waferGap = nArgs["waferGap"];
   sectors = (int)(nArgs["Sectors"]);
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalModuleAlgo: zStart " << zMinBlock << " rFineCoarse "
-            << rMaxFine << " wafer width " << waferW << " gap among wafers "
-            << waferGap << " sectors " << sectors << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: zStart " << zMinBlock 
+				<< " rFineCoarse " << rMaxFine << " wafer width "
+				<< waferW << " gap among wafers " << waferGap 
+				<< " sectors " << sectors;
 #endif
   slopeB = vArgs["SlopeBottom"];
   slopeT = vArgs["SlopeTop"];
   zFront = vArgs["ZFront"];
   rMaxFront = vArgs["RMaxFront"];
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalModuleAlgo: Bottom slopes " << slopeB[0] << ":"
-            << slopeB[1] << " and " << slopeT.size() << " slopes for top"
-            << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: Bottom slopes " 
+				<< slopeB[0] << ":" << slopeB[1] << " and "
+				<< slopeT.size() << " slopes for top";
   for (unsigned int i = 0; i < slopeT.size(); ++i)
-    std::cout << "Block [" << i << "] Zmin " << zFront[i] << " Rmax "
-              << rMaxFront[i] << " Slope " << slopeT[i] << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << zFront[i] 
+				  << " Rmax " << rMaxFront[i] << " Slope "
+				  << slopeT[i];
 #endif
   idNameSpace = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalModuleAlgo: NameSpace " << idNameSpace << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: NameSpace " << idNameSpace;
 #endif
 }
 
@@ -105,23 +112,23 @@ void DDHGCalModuleAlgo::initialize(const DDNumericArguments& nArgs,
 
 void DDHGCalModuleAlgo::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
-  std::cout << "==>> Constructing DDHGCalModuleAlgo..." << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "==>> Constructing DDHGCalModuleAlgo...";
 #endif
   copies.clear();
   constructLayers(parent(), cpv);
 #ifdef EDM_ML_DEBUG
-  std::cout << copies.size() << " different wafer copy numbers" << std::endl;
+  edm::LogVerbatim("HGCalGeom") << copies.size()<<" different wafer copy numbers";
 #endif
   copies.clear();
 #ifdef EDM_ML_DEBUG
-  std::cout << "<<== End of DDHGCalModuleAlgo construction ..." << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "<<== End of DDHGCalModuleAlgo construction";
 #endif
 }
 
 void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module,
                                         DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalModuleAlgo test: \t\tInside Layers" << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo test: \t\tInside Layers";
 #endif
   double zi(zMinBlock);
   int laymin(0);
@@ -141,17 +148,17 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module,
 
       std::string name = "HGCal" + names[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-      std::cout << "DDHGCalModuleAlgo test: Layer " << ly << ":" << ii
-                << " Front " << zi << ", " << routF << " Back " << zo << ", "
-                << rinB << " superlayer thickness " << layerThick[i]
-                << std::endl;
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo test: Layer " << ly 
+				    << ":" << ii << " Front " << zi << ", " 
+				    << routF << " Back " << zo << ", " << rinB 
+				    << " superlayer thickness " << layerThick[i];
 #endif
       DDName matName(DDSplit(materials[ii]).first,
                      DDSplit(materials[ii]).second);
       DDMaterial matter(matName);
       DDLogicalPart glog;
       if (layerSense[ly] == 0) {
-        double alpha = CLHEP::pi / sectors;
+        double alpha = geant_units::piRadians / sectors;
         double rmax = routF * cos(alpha) - tol;
         std::vector<double> pgonZ, pgonRin, pgonRout;
         pgonZ.emplace_back(-0.5 * thick[ii]);
@@ -161,29 +168,32 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module,
         pgonRout.emplace_back(rmax);
         pgonRout.emplace_back(rmax);
         DDSolid solid = DDSolidFactory::polyhedra(DDName(name, idNameSpace),
-                                                  sectors, -alpha, CLHEP::twopi,
+                                                  sectors, -alpha, 
+						  2*geant_units::piRadians,
                                                   pgonZ, pgonRin, pgonRout);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-        std::cout << "DDHGCalModuleAlgo test: " << solid.name()
-                  << " polyhedra of " << sectors << " sectors covering "
-                  << -alpha / CLHEP::deg << ":"
-                  << (-alpha + CLHEP::twopi) / CLHEP::deg << " with "
-                  << pgonZ.size() << " sections" << std::endl;
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << solid.name()
+				      << " polyhedra of " << sectors 
+				      << " sectors covering "
+				      << convertRadToDeg(-alpha) << ":"
+				      << (360.0+convertRadToDeg(-alpha))
+				      << " with " << pgonZ.size() << " sections";
         for (unsigned int k = 0; k < pgonZ.size(); ++k)
-          std::cout << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k]
-                    << ":" << pgonRout[k] << std::endl;
+          edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] << " R "
+					<< pgonRin[k] << ":" << pgonRout[k];
 #endif
       } else {
         DDSolid solid =
             DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5 * thick[ii],
-                                 rinB, routF, 0.0, CLHEP::twopi);
+                                 rinB, routF, 0.0, 2*geant_units::piRadians);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-        std::cout << "DDHGCalModuleAlgo test: " << solid.name()
-                  << " Tubs made of " << matName << " of dimensions " << rinB
-                  << ", " << routF << ", " << 0.5 * thick[ii] << ", 0.0, "
-                  << CLHEP::twopi / CLHEP::deg << std::endl;
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << solid.name()
+				      << " Tubs made of " << matName 
+				      << " of dimensions " << rinB << ", " 
+				      << routF << ", " << 0.5 * thick[ii] 
+				      << ", 0.0, 360.0";
 #endif
         positionSensitive(glog, rinB, routF, cpv);
       }
@@ -192,7 +202,7 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module,
       cpv.position(glog, module, copy, r1, rot);
       ++copyNumber[ii];
 #ifdef EDM_ML_DEBUG
-      std::cout << "DDHGCalModuleAlgo test: " << glog.name() << " number "
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo test: " << glog.name() << " number "
                 << copy << " positioned in " << module.name() << " at " << r1
                 << " with " << rot << std::endl;
 #endif
@@ -227,7 +237,7 @@ double DDHGCalModuleAlgo::rMax(double z) {
 #endif
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "rMax : " << z << ":" << ik << ":" << r << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "rMax : " << z << ":" << ik << ":" << r << std::endl;
 #endif
   return r;
 }
@@ -236,14 +246,14 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
                                           double rout, DDCompactView& cpv) {
   double ww = (waferW + waferGap);
   double dx = 0.5 * ww;
-  double dy = 3.0 * dx * tan(30.0 * CLHEP::deg);
-  double rr = 2.0 * dx * tan(30.0 * CLHEP::deg);
+  double dy = 3.0 * dx * tan(30._deg);
+  double rr = 2.0 * dx * tan(30._deg);
   int ncol = (int)(2.0 * rout / ww) + 1;
-  int nrow = (int)(rout / (ww * tan(30.0 * CLHEP::deg))) + 1;
+  int nrow = (int)(rout / (ww * tan(30._deg))) + 1;
   int incm(0), inrm(0), kount(0);
 #ifdef EDM_ML_DEBUG
-  std::cout << glog.ddname() << " rout " << rout << " Row " << nrow
-            << " Column " << ncol << std::endl;
+  edm::LogVerbatim("HGCalGeom") << glog.ddname() << " rout " << rout << " Row "
+				<< nrow << " Column " << ncol;
 #endif
   for (int nr = -nrow; nr <= nrow; ++nr) {
     int inr = (nr >= 0) ? nr : -nr;
@@ -271,7 +281,7 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
           kount++;
           if (copies.count(copy) == 0) copies.insert(copy);
 #ifdef EDM_ML_DEBUG
-          std::cout << "DDHGCalModuleAlgo: " << name << " number " << copy
+          edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << name << " number " << copy
                     << " positioned in " << glog.ddname() << " at " << tran
                     << " with " << rotation << std::endl;
 #endif
@@ -280,8 +290,8 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
     }
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "DDHGCalModuleAlgo: # of columns " << incm << " # of rows "
-            << inrm << " and " << kount << " wafers for " << glog.ddname()
-            << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: # of columns " << incm 
+				<< " # of rows " << inrm << " and " << kount 
+				<< " wafers for " << glog.ddname();
 #endif
 }

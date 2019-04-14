@@ -1,45 +1,44 @@
 #include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
 
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 //#define EDM_ML_DEBUG
+using namespace geant_units::operators;
 
 FastTimeDDDConstants::FastTimeDDDConstants(const FastTimeParameters* ft)
     : ftpar_(ft) {
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimeDDDConstants::FastTimeDDDConstants ( const "
-               "FastTimeParameters* ft ) constructor\n";
+  edm::LogVerbatim("HGCalGeom") << "FastTimeDDDConstants::FastTimeDDDConstants "
+				<< "( const FastTimeParameters* ft ) constructor";
 #endif
   initialize();
 }
 
 FastTimeDDDConstants::~FastTimeDDDConstants() {
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimeDDDConstants:destructed!!!" << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "FastTimeDDDConstants:destructed!!!";
 #endif
 }
 
 std::pair<int, int> FastTimeDDDConstants::getZPhi(double z, double phi) const {
-  if (phi < 0) phi += CLHEP::twopi;
+  if (phi < 0) phi += (2*geant_units::piRadians);
   int iz = (int)(z / dZBarrel_) + 1;
   if (iz > ftpar_->nZBarrel_) iz = ftpar_->nZBarrel_;
   int iphi = (int)(phi / dPhiBarrel_) + 1;
   if (iphi > ftpar_->nPhiBarrel_) iphi = 1;
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimeDDDConstants:Barrel z|phi " << z << " "
-            << phi / CLHEP::deg << " iz|iphi " << iz << " " << iphi
-            << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "FastTimeDDDConstants:Barrel z|phi " << z 
+				<< " " << convertRadToDeg(phi) << " iz|iphi "
+				<< iz << " " << iphi;
 #endif
   return std::pair<int, int>(iz, iphi);
 }
 
 std::pair<int, int> FastTimeDDDConstants::getEtaPhi(double r,
                                                     double phi) const {
-  if (phi < 0) phi += CLHEP::twopi;
+  if (phi < 0) phi += (2*geant_units::piRadians);
   int ir(ftpar_->nEtaEndcap_);
   for (unsigned int k = 1; k < rLimits_.size(); ++k) {
     if (r > rLimits_[k]) {
@@ -50,9 +49,9 @@ std::pair<int, int> FastTimeDDDConstants::getEtaPhi(double r,
   int iphi = (int)(phi / dPhiEndcap_) + 1;
   if (iphi > ftpar_->nPhiEndcap_) iphi = 1;
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimeDDDConstants:Endcap r|phi " << r << " "
-            << phi / CLHEP::deg << " ir|iphi " << ir << " " << iphi
-            << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "FastTimeDDDConstants:Endcap r|phi " << r 
+				<< " " << convertRadToDeg(phi) << " ir|iphi " 
+				<< ir << " " << iphi;
 #endif
   return std::pair<int, int>(ir, iphi);
 }
@@ -206,9 +205,9 @@ void FastTimeDDDConstants::initialize() {
   etaMin_ = -log(0.5 * thmax);
   dEta_ = (etaMax_ - etaMin_) / ftpar_->nEtaEndcap_;
 #ifdef EDM_ML_DEBUG
-  std::cout << "Theta range " << thmin / CLHEP::deg << ":" << thmax / CLHEP::deg
-            << " Eta range " << etaMin_ << ":" << etaMax_ << ":" << dEta_
-            << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "Theta range " << convertRadToDeg(thmin) 
+				<< ":" << convertRadToDeg(thmax) << " Eta range "
+				<< etaMin_ << ":" << etaMax_ << ":" << dEta_;
 #endif
   for (int k = 0; k <= ftpar_->nEtaEndcap_; ++k) {
     double eta = etaMin_ + k * dEta_;
@@ -217,20 +216,20 @@ void FastTimeDDDConstants::initialize() {
     rLimits_.emplace_back(rval);
   }
   dZBarrel_ = ftpar_->geomParBarrel_[1] / ftpar_->nZBarrel_;
-  dPhiBarrel_ = CLHEP::twopi / ftpar_->nPhiBarrel_;
-  dPhiEndcap_ = CLHEP::twopi / ftpar_->nPhiEndcap_;
+  dPhiBarrel_ = (2*geant_units::piRadians) / ftpar_->nPhiBarrel_;
+  dPhiEndcap_ = (2*geant_units::piRadians) / ftpar_->nPhiEndcap_;
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimeDDDConstants initialized with " << ftpar_->nZBarrel_
-            << ":" << ftpar_->nPhiBarrel_ << ":" << getCells(1)
-            << " cells for barrel; dz|dphi " << dZBarrel_ << "|" << dPhiBarrel_
-            << " and " << ftpar_->nEtaEndcap_ << ":" << ftpar_->nPhiEndcap_
-            << ":" << getCells(2) << " cells for endcap; dphi " << dPhiEndcap_
-            << " The Limits in R are" << std::endl;
-  for (unsigned int k = 0; k < rLimits_.size(); ++k) {
-    std::cout << "[" << k << "] " << rLimits_[k] << " ";
-    if (k % 8 == 7) std::cout << std::endl;
-  }
-  if ((rLimits_.size() - 1) % 8 != 7) std::cout << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "FastTimeDDDConstants initialized with "
+				<< ftpar_->nZBarrel_ << ":" << ftpar_->nPhiBarrel_
+				<< ":" << getCells(1)
+				<< " cells for barrel; dz|dphi " << dZBarrel_ 
+				<< "|" << dPhiBarrel_ << " and " 
+				<< ftpar_->nEtaEndcap_ << ":" 
+				<< ftpar_->nPhiEndcap_ << ":" << getCells(2) 
+				<< " cells for endcap; dphi " << dPhiEndcap_
+				<< " The Limits in R are";
+  for (unsigned int k = 0; k < rLimits_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << rLimits_[k] << " ";
 #endif
 }
 
