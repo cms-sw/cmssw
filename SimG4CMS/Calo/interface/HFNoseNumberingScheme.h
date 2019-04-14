@@ -12,23 +12,19 @@
 #include "G4ThreeVector.hh"
 
 class HFNoseNumberingScheme {
-
 public:
-
   HFNoseNumberingScheme(const HGCalDDDConstants& hgc);
   ~HFNoseNumberingScheme() {}
 
   /**
      @short assigns the det id to a hit
    */
-  uint32_t getUnitID(int layer, int module, int cell, int iz,
-		     const G4ThreeVector &pos, double& wt);
+  uint32_t getUnitID(int layer, int module, int cell, int iz, const G4ThreeVector& pos, double& wt);
 
 private:
-  
   HFNoseNumberingScheme() = delete;
-  const HGCalDDDConstants&               hgcons_;
-  const HGCalGeometryMode::GeometryMode  mode_;
+  const HGCalDDDConstants& hgcons_;
+  const HGCalGeometryMode::GeometryMode mode_;
 };
 
 #endif
