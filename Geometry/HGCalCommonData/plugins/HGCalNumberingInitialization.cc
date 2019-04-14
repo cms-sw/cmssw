@@ -2,7 +2,7 @@
 //
 // Package:    HGCalNumberingInitialization
 // Class:      HGCalNumberingInitialization
-// 
+//
 /**\class HGCalNumberingInitialization HGCalNumberingInitialization.h Geometry/HGCalCommonData/interface/HGCalNumberingInitialization.h
 
  Description: <one line class summary>
@@ -14,7 +14,6 @@
 // Original Author:  Sunanda Banerjee
 //         Created:  Tue Mar 21 16:40:29 PDT 2013
 //
-
 
 // system include files
 #include <memory>
@@ -33,7 +32,6 @@
 //#define EDM_ML_DEBUG
 
 class HGCalNumberingInitialization : public edm::ESProducer {
-
 public:
   HGCalNumberingInitialization(const edm::ParameterSet&);
   ~HGCalNumberingInitialization() override;
@@ -44,11 +42,10 @@ public:
 
 private:
   HGCalDDDConstants* hgcalDDDConst_;
-  std::string        name_;
+  std::string name_;
 };
 
 HGCalNumberingInitialization::HGCalNumberingInitialization(const edm::ParameterSet& iConfig) : hgcalDDDConst_(nullptr) {
-
   name_ = iConfig.getUntrackedParameter<std::string>("Name");
   edm::LogInfo("HGCalGeom") << "HGCalNumberingInitialization for " << name_;
 #ifdef EDM_ML_DEBUG
@@ -59,20 +56,16 @@ HGCalNumberingInitialization::HGCalNumberingInitialization(const edm::ParameterS
 
 HGCalNumberingInitialization::~HGCalNumberingInitialization() {}
 
-
 // ------------ method called to produce the data  ------------
-HGCalNumberingInitialization::ReturnType
-HGCalNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
-
+HGCalNumberingInitialization::ReturnType HGCalNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
   edm::LogInfo("HGCalGeom") << "in HGCalNumberingInitialization::produce";
   if (hgcalDDDConst_ == nullptr) {
-    edm::ESHandle<HGCalParameters>  pHGpar;
+    edm::ESHandle<HGCalParameters> pHGpar;
     iRecord.get(name_, pHGpar);
     hgcalDDDConst_ = new HGCalDDDConstants(&(*pHGpar), name_);
   }
-  return ReturnType(hgcalDDDConst_) ;
+  return ReturnType(hgcalDDDConst_);
 }
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(HGCalNumberingInitialization);
-

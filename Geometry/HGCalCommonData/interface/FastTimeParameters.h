@@ -8,18 +8,16 @@
 #include <cstdint>
 
 class FastTimeParameters {
-
 public:
-  
   FastTimeParameters();
   ~FastTimeParameters();
 
-  int                      nZBarrel_;
-  int                      nPhiBarrel_;
-  int                      nEtaEndcap_;
-  int                      nPhiEndcap_;
-  std::vector<double>      geomParBarrel_;
-  std::vector<double>      geomParEndcap_;
+  int nZBarrel_;
+  int nPhiBarrel_;
+  int nEtaEndcap_;
+  int nPhiEndcap_;
+  std::vector<double> geomParBarrel_;
+  std::vector<double> geomParEndcap_;
 
   COND_SERIALIZABLE;
 };

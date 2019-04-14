@@ -2,7 +2,7 @@
 //
 // Package:    FastTimeNumberingInitialization
 // Class:      FastTimeNumberingInitialization
-// 
+//
 /**\class FastTimeNumberingInitialization FastTimeNumberingInitialization.h Geometry/HGCalCommonData/interface/FastTimeNumberingInitialization.h
 
  Description: <one line class summary>
@@ -37,7 +37,6 @@
 //#define EDM_ML_DEBUG
 
 class FastTimeNumberingInitialization : public edm::ESProducer {
-
 public:
   FastTimeNumberingInitialization(const edm::ParameterSet&);
   ~FastTimeNumberingInitialization() override;
@@ -49,25 +48,23 @@ public:
 
 FastTimeNumberingInitialization::FastTimeNumberingInitialization(const edm::ParameterSet&) {
 #ifdef EDM_ML_DEBUG
-  std::cout <<"constructing FastTimeNumberingInitialization" << std::endl;
+  std::cout << "constructing FastTimeNumberingInitialization" << std::endl;
 #endif
   setWhatProduced(this);
 }
 
 FastTimeNumberingInitialization::~FastTimeNumberingInitialization() {}
 
-
 // ------------ method called to produce the data  ------------
-FastTimeNumberingInitialization::ReturnType
-FastTimeNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
+FastTimeNumberingInitialization::ReturnType FastTimeNumberingInitialization::produce(
+    const IdealGeometryRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
   std::cout << "in FastTimeNumberingInitialization::produce" << std::endl;
 #endif
-  edm::ESHandle<FastTimeParameters>  pFTpar;
+  edm::ESHandle<FastTimeParameters> pFTpar;
   iRecord.get(pFTpar);
   return std::make_unique<FastTimeDDDConstants>(&(*pFTpar));
 }
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(FastTimeNumberingInitialization);
-

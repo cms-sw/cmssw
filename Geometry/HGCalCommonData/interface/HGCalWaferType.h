@@ -18,33 +18,32 @@
 #include <iostream>
 
 class HGCalWaferType {
-
 public:
-
-  HGCalWaferType(const std::vector<double>& rad100, 
-		 const std::vector<double>& rad200,
-		 double waferSize, double zMin, int choice,
-		 unsigned int cutValue, double cutFracArea);
+  HGCalWaferType(const std::vector<double>& rad100,
+                 const std::vector<double>& rad200,
+                 double waferSize,
+                 double zMin,
+                 int choice,
+                 unsigned int cutValue,
+                 double cutFracArea);
   ~HGCalWaferType();
   int getType(double xpos, double ypos, double zpos);
-  std::pair<double,double> rLimits(double zpos);
+  std::pair<double, double> rLimits(double zpos);
 
 private:
+  double areaPolygon(std::vector<double> const&, std::vector<double> const&);
+  std::pair<double, double> intersection(
+      int, int, std::vector<double> const&, std::vector<double> const&, double xp, double yp, double rr);
 
-  double  areaPolygon(std::vector<double> const&, std::vector<double> const&);
-  std::pair<double,double> intersection(int, int, std::vector<double> const&,
-					std::vector<double> const&, double xp,
-					double yp, double rr);
-
-  const double              sqrt3_ = 1.0/std::sqrt(3.0);
+  const double sqrt3_ = 1.0 / std::sqrt(3.0);
   const std::vector<double> rad100_;
   const std::vector<double> rad200_;
-  const double              waferSize_;
-  const double              zMin_;
-  const int                 choice_;
-  const unsigned int        cutValue_;
-  const double              cutFracArea_;
-  double                    r_, R_;
+  const double waferSize_;
+  const double zMin_;
+  const int choice_;
+  const unsigned int cutValue_;
+  const double cutFracArea_;
+  double r_, R_;
 };
 
 #endif

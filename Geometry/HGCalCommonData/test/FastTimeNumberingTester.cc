@@ -2,7 +2,7 @@
 //
 // Package:    FastTimeNumberingTester
 // Class:      FastTimeNumberingTester
-// 
+//
 /**\class FastTimeNumberingTester FastTimeNumberingTester.cc test/FastTimeNumberingTester.cc
 
  Description: <one line class summary>
@@ -44,7 +44,7 @@
 
 class FastTimeNumberingTester : public edm::one::EDAnalyzer<> {
 public:
-  explicit FastTimeNumberingTester( const edm::ParameterSet& );
+  explicit FastTimeNumberingTester(const edm::ParameterSet&);
   ~FastTimeNumberingTester() override;
 
   void beginJob() override {}
@@ -52,32 +52,31 @@ public:
   void endJob() override {}
 };
 
-FastTimeNumberingTester::FastTimeNumberingTester(const edm::ParameterSet& ) {}
+FastTimeNumberingTester::FastTimeNumberingTester(const edm::ParameterSet&) {}
 
 FastTimeNumberingTester::~FastTimeNumberingTester() {}
 
 // ------------ method called to produce the data  ------------
-void FastTimeNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
-  
+void FastTimeNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<FastTimeDDDConstants> pFTNDC;
 
   iSetup.get<IdealGeometryRecord>().get(pFTNDC);
   const FastTimeDDDConstants fTnDC(*pFTNDC);
-  std::cout << "Fast timing device with " << fTnDC.getCells(1) << ":"
-	    << fTnDC.getCells(2) << " cells" << " for barrel and endcap\n";
-  for (int type=1; type<=2; ++type) {
-    for (int ix=0; ix<400; ++ix) {
-      for (int iy=0; iy<400; ++iy) {
-	if (fTnDC.isValidXY(type,ix,iy)) {
-	  FastTimeDetId id1(type,ix,iy,1), id2(type,ix,iy,-1);
-	  std::cout << "Valid ID " << id1 << " and " << id2 << std::endl;
-	} else {
+  std::cout << "Fast timing device with " << fTnDC.getCells(1) << ":" << fTnDC.getCells(2) << " cells"
+            << " for barrel and endcap\n";
+  for (int type = 1; type <= 2; ++type) {
+    for (int ix = 0; ix < 400; ++ix) {
+      for (int iy = 0; iy < 400; ++iy) {
+        if (fTnDC.isValidXY(type, ix, iy)) {
+          FastTimeDetId id1(type, ix, iy, 1), id2(type, ix, iy, -1);
+          std::cout << "Valid ID " << id1 << " and " << id2 << std::endl;
+        } else {
 #ifdef EDM_ML_DEBUG
-	  std::cout << "ix = " << ix << ", iy = " << iy << " is not valid for "
-		    << "FastTime type " << type << std::endl;
+          std::cout << "ix = " << ix << ", iy = " << iy << " is not valid for "
+                    << "FastTime type " << type << std::endl;
 #endif
-	}
-	iy += 9;
+        }
+        iy += 9;
       }
       ix += 9;
     }
