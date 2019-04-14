@@ -2,7 +2,7 @@
 //
 // Package:    HcalTestNumberingTester
 // Class:      HcalTestNumberingTester
-// 
+//
 /**\class HcalTestNumberingTester HcalTestNumberingTester.cc test/HcalTestNumberingTester.cc
 
  Description: <one line class summary>
@@ -14,7 +14,6 @@
 // Original Author:  Sunanda Banerjee
 //         Created:  Mon 2013/12/26
 //
-
 
 // system include files
 #include <memory>
@@ -48,7 +47,7 @@
 
 class HcalTestNumberingTester : public edm::one::EDAnalyzer<> {
 public:
-  explicit HcalTestNumberingTester( const edm::ParameterSet& );
+  explicit HcalTestNumberingTester(const edm::ParameterSet&);
   ~HcalTestNumberingTester() override;
 
   void beginJob() override {}
@@ -56,13 +55,12 @@ public:
   void endJob() override {}
 };
 
-HcalTestNumberingTester::HcalTestNumberingTester(const edm::ParameterSet& ) {}
+HcalTestNumberingTester::HcalTestNumberingTester(const edm::ParameterSet&) {}
 
 HcalTestNumberingTester::~HcalTestNumberingTester() {}
 
 // ------------ method called to produce the data  ------------
-void HcalTestNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
-
+void HcalTestNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<HcalDDDSimConstants> pHSNDC;
   iSetup.get<HcalSimNumberingRecord>().get(pHSNDC);
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
@@ -70,37 +68,37 @@ void HcalTestNumberingTester::analyze( const edm::Event& iEvent, const edm::Even
 
   if (pHSNDC.isValid() && pHRNDC.isValid()) {
     std::cout << "about to de-reference the edm's" << std::endl;
-    HcalDDDSimConstants*  hcs   = (HcalDDDSimConstants*)(&(*pHSNDC));
-    HcalDDDRecConstants*  hcr   = (HcalDDDRecConstants*)(&(*pHRNDC));
-    HcalNumberingScheme*  schme1= new HcalNumberingScheme();
-    HcalNumberingScheme*  schme2= dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(false));
+    HcalDDDSimConstants* hcs = (HcalDDDSimConstants*)(&(*pHSNDC));
+    HcalDDDRecConstants* hcr = (HcalDDDRecConstants*)(&(*pHRNDC));
+    HcalNumberingScheme* schme1 = new HcalNumberingScheme();
+    HcalNumberingScheme* schme2 = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(false));
 
-    for (int type=0; type<2; ++type) {
+    for (int type = 0; type < 2; ++type) {
       HcalSubdetector sub = (type == 0) ? HcalBarrel : HcalEndcap;
-      for (int zs = 0; zs<2; ++zs) {
-	int zside = 2*zs - 1;
-	std::pair<int,int> etas = hcr->getEtaRange(type);
-	for (int eta=etas.first; eta<=etas.second; ++eta) {
-	  std::vector<std::pair<int,double> > phis = hcr->getPhis(sub,eta);
-	  for (unsigned int k=0; k<phis.size(); ++k) {
-	    int phi  = phis[k].first;
-	    int lmin = (type == 1 && eta == 16) ? 8 : 1;
-	    int lmax = (type == 1) ? 19 : ((eta == 16) ? 7 : 17);
-	    for (int lay=lmin; lay<=lmax; ++lay) {
-	      std::pair<int,int> etd = hcs->getEtaDepth(sub,eta,phi,zside,0,lay);
-	      HcalNumberingFromDDD::HcalID tmp(sub,zs,etd.second,etd.first,phi,phi,lay);
-	      uint32_t id1 = schme1->getUnitID(tmp);
-	      uint32_t id2 = schme2->getUnitID(tmp);
-	      DetId    id0 = HcalHitRelabeller::relabel(id2,hcr);
-	      std::cout << "I/P " << sub << ":" << zside*eta << ":" << phi 
-			<< ":" << lay << " Normal " << std::hex << id1 
-			<< std::dec << " " << HcalDetId(id1) << " Test " 
-			<< std::hex << id2 << std::dec << " " << HcalDetId(id0);
-	      if (id1 != id0.rawId()) std::cout << " *** ERROR ***";
-	      std::cout << std::endl;
-	    }
-	  }
-	}
+      for (int zs = 0; zs < 2; ++zs) {
+        int zside = 2 * zs - 1;
+        std::pair<int, int> etas = hcr->getEtaRange(type);
+        for (int eta = etas.first; eta <= etas.second; ++eta) {
+          std::vector<std::pair<int, double> > phis = hcr->getPhis(sub, eta);
+          for (unsigned int k = 0; k < phis.size(); ++k) {
+            int phi = phis[k].first;
+            int lmin = (type == 1 && eta == 16) ? 8 : 1;
+            int lmax = (type == 1) ? 19 : ((eta == 16) ? 7 : 17);
+            for (int lay = lmin; lay <= lmax; ++lay) {
+              std::pair<int, int> etd = hcs->getEtaDepth(sub, eta, phi, zside, 0, lay);
+              HcalNumberingFromDDD::HcalID tmp(sub, zs, etd.second, etd.first, phi, phi, lay);
+              uint32_t id1 = schme1->getUnitID(tmp);
+              uint32_t id2 = schme2->getUnitID(tmp);
+              DetId id0 = HcalHitRelabeller::relabel(id2, hcr);
+              std::cout << "I/P " << sub << ":" << zside * eta << ":" << phi << ":" << lay << " Normal " << std::hex
+                        << id1 << std::dec << " " << HcalDetId(id1) << " Test " << std::hex << id2 << std::dec << " "
+                        << HcalDetId(id0);
+              if (id1 != id0.rawId())
+                std::cout << " *** ERROR ***";
+              std::cout << std::endl;
+            }
+          }
+        }
       }
     }
   }

@@ -21,33 +21,24 @@
 #include <sstream>
 
 class EvolutionECAL {
-
 public:
-
   EvolutionECAL();
   virtual ~EvolutionECAL();
 
-
   double LightCollectionEfficiency(double z, double mu);
- double DamageProfileEta(double eta);
- double DamageProfileEtaAPD(double eta);
- double InducedAbsorptionHadronic(double lumi, double eta);
- double DoseLongitudinalProfile(double z);
- double InducedAbsorptionEM(double lumi, double eta);
- double DegradationMeanEM50GeV(double mu);
- double DegradationNonLinearityEM50GeV(double mu, double ene);
- double ResolutionConstantTermEM50GeV(double mu);
- double ChargeVPTCathode(double instLumi, double eta, double integralLumi);
- double AgingVPT(double instLumi, double integralLumi, double eta); 
- double NoiseFactorFE(double lumi, double eta);
- Double_t  EquilibriumFractionColorCentersEM(double *x, double *par);
- double LightCollectionEfficiencyWeighted(double z, double mu_ind); 
-
-
-
+  double DamageProfileEta(double eta);
+  double DamageProfileEtaAPD(double eta);
+  double InducedAbsorptionHadronic(double lumi, double eta);
+  double DoseLongitudinalProfile(double z);
+  double InducedAbsorptionEM(double lumi, double eta);
+  double DegradationMeanEM50GeV(double mu);
+  double DegradationNonLinearityEM50GeV(double mu, double ene);
+  double ResolutionConstantTermEM50GeV(double mu);
+  double ChargeVPTCathode(double instLumi, double eta, double integralLumi);
+  double AgingVPT(double instLumi, double integralLumi, double eta);
+  double NoiseFactorFE(double lumi, double eta);
+  Double_t EquilibriumFractionColorCentersEM(double *x, double *par);
+  double LightCollectionEfficiencyWeighted(double z, double mu_ind);
 };
 
-
-
 #endif
-
