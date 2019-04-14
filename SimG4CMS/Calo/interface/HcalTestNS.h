@@ -6,18 +6,14 @@
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
 class HcalTestNS {
-
-public:    
-
+public:
   HcalTestNS(const edm::EventSetup*);
   virtual ~HcalTestNS();
 
   bool compare(HcalNumberingFromDDD::HcalID const&, uint32_t const&);
 
 private:
-
-  const HcalDDDRecConstants*    hcons_;
-
+  const HcalDDDRecConstants* hcons_;
 };
 
-#endif // HcalTestNS_h
+#endif  // HcalTestNS_h
