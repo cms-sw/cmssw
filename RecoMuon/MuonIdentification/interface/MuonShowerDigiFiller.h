@@ -50,12 +50,12 @@ class MuonShowerDigiFiller
  public:
 
   MuonShowerDigiFiller(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
-  ~MuonShowerDigiFiller();
 
   void getES( const edm::EventSetup& iSetup );
   void getDigis( edm::Event& iEvent );   
 
   void fill( reco::MuonChamberMatch & muChMatch ) const;
+  void fillDefault( reco::MuonChamberMatch & muChMatch ) const;
 
  private:
   
