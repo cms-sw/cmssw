@@ -14,11 +14,11 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
             ),
             pfcand_abseta = cms.PSet(
                 median = cms.double(0.599505603313),
-                norm_factor = cms.double(1.62486364812)
+                norm_factor = cms.double(1.62486362457)
             ),
             pfcand_btagEtaRel = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(0.30955120799)
+                norm_factor = cms.double(0.309551209211)
             ),
             pfcand_btagJetDistVal = cms.PSet(
                 median = cms.double(0.0),
@@ -26,27 +26,27 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
             ),
             pfcand_btagPParRatio = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(1.00271135589)
+                norm_factor = cms.double(1.00271141529)
             ),
             pfcand_btagPtRatio = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(5.73484698484)
+                norm_factor = cms.double(5.73484706879)
             ),
             pfcand_btagSip2dSig = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(1.76905343449)
+                norm_factor = cms.double(1.76905345917)
             ),
             pfcand_btagSip2dVal = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(605.021135542)
+                norm_factor = cms.double(605.021118164)
             ),
             pfcand_btagSip3dSig = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(0.9666446673)
+                norm_factor = cms.double(0.966644644737)
             ),
             pfcand_btagSip3dVal = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(239.708840806)
+                norm_factor = cms.double(239.708831787)
             ),
             pfcand_charge = cms.PSet(
                 median = cms.double(0.0),
@@ -54,11 +54,11 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
             ),
             pfcand_deltaR = cms.PSet(
                 median = cms.double(0.22575956583),
-                norm_factor = cms.double(3.81050649022)
+                norm_factor = cms.double(3.81050634384)
             ),
             pfcand_detadeta = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(1967329.39697)
+                norm_factor = cms.double(1967329.375)
             ),
             pfcand_dlambdadz = cms.PSet(
                 median = cms.double(0.0),
@@ -66,7 +66,7 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
             ),
             pfcand_dphidphi = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(1310150.11117)
+                norm_factor = cms.double(1310150.125)
             ),
             pfcand_dphidxy = cms.PSet(
                 median = cms.double(0.0),
@@ -74,55 +74,55 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
             ),
             pfcand_dptdpt = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(163433.258365)
+                norm_factor = cms.double(163433.265625)
             ),
             pfcand_drminsv = cms.PSet(
                 median = cms.double(0.177426457405),
-                norm_factor = cms.double(2.64722103751)
+                norm_factor = cms.double(2.64722108841)
             ),
             pfcand_drsubjet1 = cms.PSet(
                 median = cms.double(0.231124095619),
-                norm_factor = cms.double(3.14072264308)
+                norm_factor = cms.double(3.14072275162)
             ),
             pfcand_drsubjet2 = cms.PSet(
                 median = cms.double(0.263272643089),
-                norm_factor = cms.double(2.922280097)
+                norm_factor = cms.double(2.92228007317)
             ),
             pfcand_dxy = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(392.713315451)
+                norm_factor = cms.double(392.713317871)
             ),
             pfcand_dxydxy = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(46519.023087)
+                norm_factor = cms.double(46519.0234375)
             ),
             pfcand_dxydz = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(7626007.10744)
+                norm_factor = cms.double(7626007.0)
             ),
             pfcand_dxysig = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(2.01382982135)
+                norm_factor = cms.double(2.0138297081)
             ),
             pfcand_dz = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(222.850935094)
+                norm_factor = cms.double(222.85093689)
             ),
             pfcand_dzdz = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(29383.0691756)
+                norm_factor = cms.double(29383.0683594)
             ),
             pfcand_dzsig = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(1.67618760674)
+                norm_factor = cms.double(1.67618751526)
             ),
             pfcand_erel_log = cms.PSet(
                 median = cms.double(-5.38983869553),
-                norm_factor = cms.double(0.539102612572)
+                norm_factor = cms.double(0.539102613926)
             ),
             pfcand_etarel = cms.PSet(
                 median = cms.double(-0.0054658302106),
-                norm_factor = cms.double(5.54556174395)
+                norm_factor = cms.double(5.54556131363)
             ),
             pfcand_hcalFrac = cms.PSet(
                 median = cms.double(0.0),
@@ -158,15 +158,15 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
             ),
             pfcand_phirel = cms.PSet(
                 median = cms.double(-5.10289683007e-05),
-                norm_factor = cms.double(4.63705896375)
+                norm_factor = cms.double(4.63705921173)
             ),
             pfcand_pt_log = cms.PSet(
                 median = cms.double(1.09469842911),
-                norm_factor = cms.double(0.518874132164)
+                norm_factor = cms.double(0.518874108791)
             ),
             pfcand_ptrel_log = cms.PSet(
                 median = cms.double(-5.38205528259),
-                norm_factor = cms.double(0.537919766379)
+                norm_factor = cms.double(0.53791975975)
             ),
             pfcand_puppiw = cms.PSet(
                 median = cms.double(1.0),
@@ -174,7 +174,7 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
             ),
             pfcand_quality = cms.PSet(
                 median = cms.double(0.0),
-                norm_factor = cms.double(0.2)
+                norm_factor = cms.double(0.20000000298)
             )
         ),
         var_length = cms.uint32(100),
@@ -228,47 +228,47 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
         var_infos = cms.PSet(
             sv_abseta = cms.PSet(
                 median = cms.double(0.579698801041),
-                norm_factor = cms.double(1.5478785279)
+                norm_factor = cms.double(1.54787838459)
             ),
             sv_costhetasvpv = cms.PSet(
                 median = cms.double(0.999744534492),
-                norm_factor = cms.double(4035.89511667)
+                norm_factor = cms.double(4035.89501953)
             ),
             sv_d3d = cms.PSet(
                 median = cms.double(0.496477723122),
-                norm_factor = cms.double(0.230671083153)
+                norm_factor = cms.double(0.230671063066)
             ),
             sv_d3dsig = cms.PSet(
                 median = cms.double(6.50515079498),
-                norm_factor = cms.double(0.0328928080185)
+                norm_factor = cms.double(0.0328928083181)
             ),
             sv_deltaR = cms.PSet(
                 median = cms.double(0.105607174337),
-                norm_factor = cms.double(4.58211966501)
+                norm_factor = cms.double(4.58211994171)
             ),
             sv_dxy = cms.PSet(
                 median = cms.double(0.369336694479),
-                norm_factor = cms.double(0.2771604275)
+                norm_factor = cms.double(0.277160406113)
             ),
             sv_dxysig = cms.PSet(
                 median = cms.double(6.49603271484),
-                norm_factor = cms.double(0.0328965270602)
+                norm_factor = cms.double(0.0328965261579)
             ),
             sv_erel_log = cms.PSet(
                 median = cms.double(-2.77275466919),
-                norm_factor = cms.double(0.976448084421)
+                norm_factor = cms.double(0.976448118687)
             ),
             sv_etarel = cms.PSet(
                 median = cms.double(-0.00318800867535),
-                norm_factor = cms.double(10.1732672714)
+                norm_factor = cms.double(10.1732673645)
             ),
             sv_mass = cms.PSet(
                 median = cms.double(1.36728298664),
-                norm_factor = cms.double(0.294783235965)
+                norm_factor = cms.double(0.294783204794)
             ),
             sv_normchi2 = cms.PSet(
                 median = cms.double(0.796081960201),
-                norm_factor = cms.double(0.737576078452)
+                norm_factor = cms.double(0.737576127052)
             ),
             sv_ntracks = cms.PSet(
                 median = cms.double(3.0),
@@ -276,15 +276,15 @@ pfDeepBoostedJetPreprocessParams = cms.PSet(
             ),
             sv_phirel = cms.PSet(
                 median = cms.double(0.000510219600983),
-                norm_factor = cms.double(9.11781369578)
+                norm_factor = cms.double(9.11781406403)
             ),
             sv_pt_log = cms.PSet(
                 median = cms.double(3.77797603607),
-                norm_factor = cms.double(0.889925735415)
+                norm_factor = cms.double(0.889925837517)
             ),
             sv_ptrel_log = cms.PSet(
                 median = cms.double(-2.7622461319),
-                norm_factor = cms.double(0.975634242485)
+                norm_factor = cms.double(0.975634276867)
             )
         ),
         var_length = cms.uint32(7),
