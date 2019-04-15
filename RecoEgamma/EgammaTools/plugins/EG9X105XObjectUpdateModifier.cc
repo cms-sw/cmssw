@@ -63,6 +63,7 @@ private:
   TokenHandlePair<EcalRecHitCollection> ecalRecHitsEE_;
   
   TokenHandlePair<edm::ValueMap<float> > eleTrkIso_;
+  TokenHandlePair<edm::ValueMap<float> > eleTrkIso04_;
   TokenHandlePair<edm::ValueMap<float> > phoPhotonIso_;
   TokenHandlePair<edm::ValueMap<float> > phoNeutralHadIso_;
   TokenHandlePair<edm::ValueMap<float> > phoChargedHadIso_;
@@ -81,6 +82,7 @@ EG9X105XObjectUpdateModifier::EG9X105XObjectUpdateModifier(const edm::ParameterS
   ecalRecHitsEB_(conf,"ecalRecHitsEB",cc),
   ecalRecHitsEE_(conf,"ecalRecHitsEE",cc),
   eleTrkIso_(conf,"eleTrkIso",cc),
+  eleTrkIso04_(conf,"eleTrkIso04",cc),
   phoPhotonIso_(conf,"phoPhotonIso",cc),
   phoNeutralHadIso_(conf,"phoNeutralHadIso",cc),
   phoChargedHadIso_(conf,"phoChargedHadIso",cc),
@@ -100,6 +102,7 @@ void EG9X105XObjectUpdateModifier::setEvent(const edm::Event& iEvent)
   ecalRecHitsEB_.setHandle(iEvent);
   ecalRecHitsEE_.setHandle(iEvent);
   eleTrkIso_.setHandle(iEvent);
+  eleTrkIso04_.setHandle(iEvent);
   phoPhotonIso_.setHandle(iEvent);
   phoNeutralHadIso_.setHandle(iEvent);
   phoChargedHadIso_.setHandle(iEvent);
@@ -126,6 +129,9 @@ void EG9X105XObjectUpdateModifier::modifyObject(reco::GsfElectron& ele)const
   reco::GsfElectron::IsolationVariables isolVars03 = ele.dr03IsolationVariables();
   isolVars03.tkSumPtHEEP = (*eleTrkIso_.handle())[ptrForVM];
   ele.setDr03Isolation(isolVars03);
+  reco::GsfElectron::IsolationVariables isolVars04 = ele.dr04IsolationVariables();
+  isolVars04.tkSumPtHEEP = (*eleTrkIso04_.handle())[ptrForVM];
+  ele.setDr04Isolation(isolVars04);
 }
 
 void EG9X105XObjectUpdateModifier::modifyObject(reco::Photon& pho)const
