@@ -71,8 +71,7 @@ class DTSimHitMatcher : public MuonSimHitMatcher {
   void dtChamberIdsToString(const std::set<unsigned int>&) const;
 
  private:
-  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
-                              const edm::PSimHitContainer& hits);
+  void matchSimHitsToSimTrack();
 
   std::map<unsigned int, edm::PSimHitContainer> layer_to_hits_;
   std::map<unsigned int, edm::PSimHitContainer> superlayer_to_hits_;

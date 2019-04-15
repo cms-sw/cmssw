@@ -30,10 +30,11 @@ void ME0SimHitMatcher::init(const edm::Event& iEvent,
 
 /// do the matching
 void ME0SimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
+  // instantiates the track ids and simhits
   MuonSimHitMatcher::match(track, vertex);
 
   if (hasGeometry_) {
-    matchSimHitsToSimTrack(track_ids_, simHits_);
+    matchSimHitsToSimTrack();
 
     if (verbose_) {
       edm::LogInfo("ME0SimHitMatcher")
@@ -61,11 +62,9 @@ void ME0SimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
   }
 }
 
-void ME0SimHitMatcher::matchSimHitsToSimTrack(
-    std::vector<unsigned int> track_ids,
-    const edm::PSimHitContainer& me0_hits) {
-  for (const auto& track_id : track_ids) {
-    for (const auto& h : me0_hits) {
+void ME0SimHitMatcher::matchSimHitsToSimTrack() {
+  for (const auto& track_id : track_ids_) {
+    for (const auto& h : simHits_) {
       if (h.trackId() != track_id) continue;
       int pdgid = h.particleType();
       if (simMuOnly_ && std::abs(pdgid) != 13) continue;

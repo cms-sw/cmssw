@@ -71,8 +71,7 @@ class CSCSimHitMatcher : public MuonSimHitMatcher {
   void camberIdsToString(const std::set<unsigned int>&) const;
 
  private:
-  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
-                              const edm::PSimHitContainer& csc_hits);
+  void matchSimHitsToSimTrack();
 
   edm::ESHandle<CSCGeometry> csc_geom_;
 };

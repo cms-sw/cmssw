@@ -42,8 +42,7 @@ class RPCSimHitMatcher : public MuonSimHitMatcher {
   std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;
 
  private:
-  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
-                              const edm::PSimHitContainer& rpc_hits);
+  void matchSimHitsToSimTrack();
 
   edm::ESHandle<RPCGeometry> rpc_geom_;
 };
