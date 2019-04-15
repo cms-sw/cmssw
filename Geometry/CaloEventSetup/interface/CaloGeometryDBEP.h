@@ -96,9 +96,7 @@ class CaloGeometryDBEP : public edm::ESProducer
       typedef CaloSubdetectorGeometry::IVec   IVec       ;
       
       CaloGeometryDBEP<T,U>( const edm::ParameterSet& ps ) :
-	  m_applyAlignment ( ps.getParameter<bool>("applyAlignment") ),
-	  m_pSet( ps )
-
+	  m_applyAlignment ( ps.getParameter<bool>("applyAlignment") )
       {
          auto cc = setWhatProduced( this,
                                     &CaloGeometryDBEP<T,U>::produceAligned,
@@ -268,7 +266,6 @@ private:
     typename calogeometryDBEPimpl::GeometryTraits<T, U::writeFlag()>::TokenType geometryToken_;
     typename calogeometryDBEPimpl::AdditionalTokens<T> additionalTokens_;
     bool        m_applyAlignment ;
-    const edm::ParameterSet m_pSet;
 };
 
 #endif
