@@ -11,13 +11,11 @@
 <test name="testRootpy" command="testRootpy.py"/>
 
 <test name="testBottleneck" command="testBottleneck.py"/>
-<test name="testDeepDish" command="testDeepDish.py"/>
 <test name="testNumExpr" command="testNumExpr.py"/>
 <test name="testTables" command="testTables.py"/>
 
 <test name="testDownhill" command="testDownhill.sh"/>
 <test name="testXGBoost_and_sklearn" command="testXGBoost_and_sklearn.py"/>
-#<test name="testTheanets" command="testTheanets.py"/>
 
 <test name="testhep_ml" command="testhep_ml.sh"/>
 <test name="testUncertainties" command="testUncertainties.py"/>
