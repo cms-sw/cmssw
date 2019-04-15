@@ -72,11 +72,16 @@ photonIDValueMapProducerRECO = cms.EDProducer(
 
 
 particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequenceTmp*gedPhotonSequenceTmp*ootPhotonSequence)
-particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*\
-pfNoPileUpIsoSequence*cms.ignore(pfNoPileUpCandidates)*cms.ignore(pfPileUpAllChargedParticles)*\
-egmPhotonIsolationCITK*egmElectronIsolationCITK*egmElectronIsolationPileUpCITK*\
-photonIDValueMapProducerRECO*\
-gedPhotonSequence*gedElectronPFIsoSequence)
+particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*
+                                       pfNoPileUpIsoSequence*
+                                       cms.ignore(pfNoPileUpCandidates)*
+                                       cms.ignore(pfPileUpAllChargedParticles)*
+                                       egmPhotonIsolationCITK*
+                                       egmElectronIsolationCITK*
+                                       egmElectronIsolationPileUpCITK*
+                                       photonIDValueMapProducerRECO*
+                                       gedPhotonSequence*
+                                       gedElectronPFIsoSequence)
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toReplaceWith(particleFlowEGammaFull, particleFlowEGammaFull.copyAndExclude([ootPhotonSequence]))

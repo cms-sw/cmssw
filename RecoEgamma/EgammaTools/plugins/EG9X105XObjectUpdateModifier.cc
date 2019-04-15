@@ -24,14 +24,17 @@
 class EG9X105XObjectUpdateModifier : public ModifyObjectValueBase {
 public:
   template<typename T>
-  struct TokenHandlePair{
-    edm::EDGetTokenT<T> token;
-    edm::Handle<T> handle;
+  class TokenHandlePair{
+  public:
     TokenHandlePair(const edm::ParameterSet& conf, const std::string& name,edm::ConsumesCollector& cc):
-      token(cc.consumes<T>(conf.getParameter<edm::InputTag>(name))){}
+      token_(cc.consumes<T>(conf.getParameter<edm::InputTag>(name))){}
     void setHandle(const edm::Event& iEvent){
-      iEvent.getByToken(token,handle);
+      iEvent.getByToken(token_,handle_);
     }
+    const edm::Handle<T>& handle()const{return handle_;}
+  private:
+    edm::EDGetTokenT<T> token_;
+    edm::Handle<T> handle_;
   };
 
   EG9X105XObjectUpdateModifier(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
@@ -111,33 +114,33 @@ void EG9X105XObjectUpdateModifier::setEventContent(const edm::EventSetup& iSetup
 
 void EG9X105XObjectUpdateModifier::modifyObject(reco::GsfElectron& ele)const
 {
-  edm::Ptr<reco::GsfElectron> ptrForVM = getPtrForValueMap(ele,eleCollVMsAreKeyedTo_.handle);
+  edm::Ptr<reco::GsfElectron> ptrForVM = getPtrForValueMap(ele,eleCollVMsAreKeyedTo_.handle());
   if(ptrForVM.isNull()){
     throw cms::Exception("LogicError") <<" in EG9X105ObjectUpdateModifier, line "<<__LINE__<<" electron "<<ele.et()<<" "<<ele.eta()<<" "<<ele.superCluster()->seed()->seed().rawId()<<" failed to match to the electrons the key map was keyed to, check the map collection is correct";
   }
   reco::GsfElectron::ConversionRejection convRejVars = ele.conversionRejectionVariables();
   //its rather important to use the core function here to get the org trk ref
-  convRejVars.vtxFitProb = ConversionTools::getVtxFitProb(ConversionTools::matchedConversion(ele.core()->ctfTrack(),*conversions_.handle,beamspot_.handle->position(),2.0,1e-6,0));
+  convRejVars.vtxFitProb = ConversionTools::getVtxFitProb(ConversionTools::matchedConversion(ele.core()->ctfTrack(),*conversions_.handle(),beamspot_.handle()->position(),2.0,1e-6,0));
   ele.setConversionRejectionVariables(convRejVars);
   
   reco::GsfElectron::IsolationVariables isolVars03 = ele.dr03IsolationVariables();
-  isolVars03.tkSumPtHEEP = (*eleTrkIso_.handle)[ptrForVM];
+  isolVars03.tkSumPtHEEP = (*eleTrkIso_.handle())[ptrForVM];
   ele.setDr03Isolation(isolVars03);
 }
 
 void EG9X105XObjectUpdateModifier::modifyObject(reco::Photon& pho)const
 {
-  edm::Ptr<reco::Photon> ptrForVM = getPtrForValueMap(pho,phoCollVMsAreKeyedTo_.handle);
+  edm::Ptr<reco::Photon> ptrForVM = getPtrForValueMap(pho,phoCollVMsAreKeyedTo_.handle());
   if(ptrForVM.isNull()){
     throw cms::Exception("LogicError") <<" in EG9X105ObjectUpdateModifier, line "<<__LINE__<<" photon "<<pho.et()<<" "<<pho.eta()<<" "<<pho.superCluster()->seed()->seed().rawId()<<" failed to match to the photons the key map was keyed to, check the map collection is correct";
   }
   
   reco::Photon::PflowIsolationVariables pfIso = pho.getPflowIsolationVariables();
-  pfIso.photonIso = (*phoPhotonIso_.handle)[ptrForVM];
-  pfIso.neutralHadronIso = (*phoNeutralHadIso_.handle)[ptrForVM];
-  pfIso.chargedHadronIso = (*phoChargedHadIso_.handle)[ptrForVM];
-  pfIso.chargedHadronWorstVtxIso = (*phoChargedHadWorstVtxIso_.handle)[ptrForVM];
-  pfIso.chargedHadronWorstVtxGeomVetoIso = (*phoChargedHadWorstVtxConeVetoIso_.handle)[ptrForVM];
+  pfIso.photonIso = (*phoPhotonIso_.handle())[ptrForVM];
+  pfIso.neutralHadronIso = (*phoNeutralHadIso_.handle())[ptrForVM];
+  pfIso.chargedHadronIso = (*phoChargedHadIso_.handle())[ptrForVM];
+  pfIso.chargedHadronWorstVtxIso = (*phoChargedHadWorstVtxIso_.handle())[ptrForVM];
+  pfIso.chargedHadronWorstVtxGeomVetoIso = (*phoChargedHadWorstVtxConeVetoIso_.handle())[ptrForVM];
   pho.setPflowIsolationVariables(pfIso);
 
   reco::Photon::ShowerShape fracSS = pho.showerShapeVariables();
@@ -145,15 +148,15 @@ void EG9X105XObjectUpdateModifier::modifyObject(reco::Photon& pho)const
 
   const reco::CaloClusterPtr seedClus = pho.superCluster()->seed();
   const bool isEB = seedClus->seed().subdetId()==EcalBarrel;
-  const auto& recHits = isEB ? *ecalRecHitsEB_.handle : *ecalRecHitsEE_.handle;
+  const auto& recHits = isEB ? *ecalRecHitsEB_.handle() : *ecalRecHitsEE_.handle();
   Cluster2ndMoments clus2ndMomFrac = EcalClusterTools::cluster2ndMoments(*seedClus,recHits);
   Cluster2ndMoments clus2ndMomFull = noZS::EcalClusterTools::cluster2ndMoments(*seedClus,recHits);
-  fracSS.smajor = clus2ndMomFrac.sMaj;
-  fracSS.sminor = clus2ndMomFrac.sMin;
-  fracSS.smajorAlpha = clus2ndMomFrac.alpha;
-  fullSS.smajor = clus2ndMomFull.sMaj;
-  fullSS.sminor = clus2ndMomFull.sMin;
-  fullSS.smajorAlpha = clus2ndMomFull.alpha;
+  fracSS.smMajor = clus2ndMomFrac.sMaj;
+  fracSS.smMinor = clus2ndMomFrac.sMin;
+  fracSS.smAlpha = clus2ndMomFrac.alpha;
+  fullSS.smMajor = clus2ndMomFull.sMaj;
+  fullSS.smMinor = clus2ndMomFull.sMin;
+  fullSS.smAlpha = clus2ndMomFull.alpha;
   pho.setShowerShapeVariables(fracSS);
   pho.full5x5_setShowerShapeVariables(fullSS);
 

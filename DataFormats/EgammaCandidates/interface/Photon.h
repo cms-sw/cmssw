@@ -166,9 +166,9 @@ namespace reco {
       float e2x5Right;
       float e2x5Top;
       float e2x5Bottom;
-      float smajor;
-      float sminor;
-      float smajorAlpha;
+      float smMajor;
+      float smMinor;
+      float smAlpha;
       ShowerShape()
 	: sigmaEtaEta(std::numeric_limits<float>::max()),
 	   sigmaIetaIeta(std::numeric_limits<float>::max()),
@@ -197,9 +197,9 @@ namespace reco {
           e2x5Right(0.f),
           e2x5Top(0.f),
           e2x5Bottom(0.f),
-	  smajor(0.f),
-	  sminor(0.f),
-	  smajorAlpha(0.f)
+	  smMajor(0.f),
+	  smMinor(0.f),
+	  smAlpha(0.f)
       {}
     } ;
     const ShowerShape& showerShapeVariables() const { return showerShapeBlock_; }

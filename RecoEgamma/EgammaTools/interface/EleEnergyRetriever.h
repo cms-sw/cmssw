@@ -22,15 +22,15 @@ public:
    }
 
   float operator()(const reco::GsfElectron& ele)const{
-    if(type_==EnergyType::EcalTrk) return ele.energy();
-    else if(type_==EnergyType::Ecal) return ele.ecalEnergy();
-    else if(type_==EnergyType::SuperCluster) return ele.superCluster()->energy();
-    else if(type_==EnergyType::SuperClusterRaw) return ele.superCluster()->rawEnergy();
-    else {
-      throw cms::Exception("LogicError") <<" function has not been updated for "<<static_cast<int>(type_)<<" please do so";
-      return 0.;
-     }
+    switch(type_){
+    case EnergyType::EcalTrk: return ele.energy();
+    case EnergyType::Ecal: return ele.ecalEnergy();
+    case EnergyType::SuperCluster: return ele.superCluster()->energy();
+    case EnergyType::SuperClusterRaw: return ele.superCluster()->rawEnergy();
+    }
+    return 0.;
   }
+
 private:
   EnergyType type_;
 
