@@ -12,27 +12,23 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
-class HGCalTriggerCellCalibration{
-
+class HGCalTriggerCellCalibration {
 public:
-  
-    HGCalTriggerCellCalibration(const edm::ParameterSet &conf);    
-    void eventSetup(const edm::EventSetup& es) {triggerTools_.eventSetup(es);}
-    void calibrateInMipT(l1t::HGCalTriggerCell&);
-    void calibrateMipTinGeV(l1t::HGCalTriggerCell&); 
-    void calibrateInGeV(l1t::HGCalTriggerCell&); 
-    void print();
+  HGCalTriggerCellCalibration(const edm::ParameterSet& conf);
+  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
+  void calibrateInMipT(l1t::HGCalTriggerCell&);
+  void calibrateMipTinGeV(l1t::HGCalTriggerCell&);
+  void calibrateInGeV(l1t::HGCalTriggerCell&);
+  void print();
 
 private:
-    
-    double LSB_silicon_fC_;
-    double LSB_scintillator_MIP_;
-    double fCperMIP_;
-    double thickCorr_;
-    std::vector<double> dEdX_weights_;
+  double LSB_silicon_fC_;
+  double LSB_scintillator_MIP_;
+  double fCperMIP_;
+  double thickCorr_;
+  std::vector<double> dEdX_weights_;
 
-    HGCalTriggerTools triggerTools_;
-
+  HGCalTriggerTools triggerTools_;
 };
 
 #endif
