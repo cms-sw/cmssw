@@ -16,7 +16,7 @@ gedPhotonsTmp.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
 gedPhotonsTmp.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
 gedPhotons.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
 gedPhotons.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
-photonIDValueMapProducerRECO.vertices = cms.InputTag("hiSelectedVertex")
+photonIDValueMaps.vertices = cms.InputTag("hiSelectedVertex")
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
 photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer=cms.InputTag("gedPhotonsTmp"))
 
