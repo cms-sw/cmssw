@@ -53,7 +53,7 @@ egmElectronIsolationCITK.srcForIsolationCone = cms.InputTag("pfNoPileUpCandidate
 egmElectronIsolationPileUpCITK.srcToIsolate = cms.InputTag("gedGsfElectronsTmp")
 egmElectronIsolationPileUpCITK.srcForIsolationCone = cms.InputTag("pfPileUpAllChargedParticles")
 
-photonIDValueMapProducerRECO = cms.EDProducer(
+photonIDValueMaps = cms.EDProducer(
   "PhotonIDValueMapProducer",
   ebReducedRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
   ebReducedRecHitCollectionMiniAOD = cms.InputTag(""),
@@ -79,7 +79,7 @@ particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*
                                        egmPhotonIsolationCITK*
                                        egmElectronIsolationCITK*
                                        egmElectronIsolationPileUpCITK*
-                                       photonIDValueMapProducerRECO*
+                                       photonIDValueMaps*
                                        gedPhotonSequence*
                                        gedElectronPFIsoSequence)
 
