@@ -144,6 +144,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   produces< edm::Association<reco::PFCandidateCollection> > ();
 
   produces< edm::ValueMap<std::vector<uint8_t>> > ("hcalDepthEnergyFractions");
+  produces< edm::ValueMap<float> > ("hcalEnergyFractionDepth1");
 
 }
 
@@ -218,8 +219,10 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     reco::VertexRefProd PVRefProd(PVs);
     math::XYZPoint  PVpos;
 
-    std::vector<std::vector<uint8_t>> hcalDepthEnergyFractions;
-    hcalDepthEnergyFractions.reserve(cands->size());
+    std::vector<std::vector<uint8_t>> hcalDepthEnergyFractions; hcalDepthEnergyFractions.reserve(cands->size());
+    std::vector<std::vector<uint8_t>> hcalDepthEnergyFractions_Ordered; hcalDepthEnergyFractions_Ordered.reserve(cands->size());
+    std::vector<float> hcalEnergyFraction_Depth1;
+    std::vector<float> hcalEnergyFraction_Depth1_Ordered;
     
     edm::Handle<reco::TrackCollection> TKOrigs;
     iEvent.getByToken( TKOrigs_, TKOrigs );
@@ -347,11 +350,14 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 	    	(uint8_t)(cand.hcalDepthEnergyFraction(7)*200.)
 	    	};
 	    hcalDepthEnergyFractions.push_back(hcalDepthEnergyFractionTmp);
+	    hcalEnergyFraction_Depth1.push_back(cand.pt());
 	  } else {
 	    hcalDepthEnergyFractions.push_back(dummyVector);
+	    hcalEnergyFraction_Depth1.push_back(cand.pt());
 	  }
 	} else {
 	  hcalDepthEnergyFractions.push_back(dummyVector);
+	  hcalEnergyFraction_Depth1.push_back(cand.pt());
 	}
 
 	//specifically this is the PFLinker requirements to apply the e/gamma regression
@@ -407,6 +413,8 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
         outPtrPSorted->push_back((*outPtrP)[order[i]]);
         reverseOrder[order[i]] = i;
         mappingReverse[order[i]]=i;
+        hcalDepthEnergyFractions_Ordered.push_back(hcalDepthEnergyFractions[order[i]]);
+        hcalEnergyFraction_Depth1_Ordered.push_back(hcalEnergyFraction_Depth1[order[i]]);
     }
 
     // Fix track association for sorted candidates
@@ -437,13 +445,22 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     iEvent.put(std::move(pf2pc));
     iEvent.put(std::move(pc2pf));
 
+    //
+    // Loop over pc
+    
     // HCAL depth energy fraction additions using ValueMap
     std::unique_ptr<edm::ValueMap<std::vector<uint8_t>>> hcalDepthEnergyFractionsV(new edm::ValueMap<std::vector<uint8_t>>());
     edm::ValueMap<std::vector<uint8_t>>::Filler fillerHcalDepthEnergyFractions(*hcalDepthEnergyFractionsV);
-    fillerHcalDepthEnergyFractions.insert(cands,hcalDepthEnergyFractions.begin(),hcalDepthEnergyFractions.end());
+    fillerHcalDepthEnergyFractions.insert(cands,hcalDepthEnergyFractions_Ordered.begin(),hcalDepthEnergyFractions_Ordered.end());
     fillerHcalDepthEnergyFractions.fill();
 
-    iEvent.put(std::move(hcalDepthEnergyFractionsV),"hcalDepthEnergyFractions");
+    std::unique_ptr<edm::ValueMap<float>> hcalEnergyFractionV_Depth1(new edm::ValueMap<float>());
+    edm::ValueMap<float>::Filler fillerHcalEnergyFraction_Depth1(*hcalEnergyFractionV_Depth1);
+    fillerHcalEnergyFraction_Depth1.insert(cands,hcalEnergyFraction_Depth1_Ordered.begin(),hcalEnergyFraction_Depth1_Ordered.end());
+    fillerHcalEnergyFraction_Depth1.fill();
+
+    iEvent.put(std::move(hcalDepthEnergyFractionsV),"hcalDepthEnergyFractions");    
+    iEvent.put(std::move(hcalEnergyFractionV_Depth1),"hcalEnergyFractionDepth1");
     
 }
 

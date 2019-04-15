@@ -3,4 +3,8 @@
  <class name="edm::ValueMap<std::vector<unsigned char>>" />
  <class name="edm::Wrapper<edm::ValueMap<std::vector<uint8_t>> >"/>
  <class name="edm::Wrapper<edm::ValueMap<std::vector<unsigned char>> >"/>
+
+ <class name="HcalDepthEnergyFractionProd"/>
+ <class name="std::vector<HcalDepthEnergyFractionProd>"/>
+ <class name="edm::Wrapper<std::vector<HcalDepthEnergyFractionProd> >"/>
 </lcgdict>
