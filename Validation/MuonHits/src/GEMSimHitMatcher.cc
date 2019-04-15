@@ -30,10 +30,11 @@ void GEMSimHitMatcher::init(const edm::Event& iEvent,
 
 /// do the matching
 void GEMSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
+  // instantiates the track ids and simhits
   MuonSimHitMatcher::match(track, vertex);
 
   if (hasGeometry_) {
-    matchSimHitsToSimTrack(track_ids_, simHits_);
+    matchSimHitsToSimTrack();
 
     if (verbose_) {
       edm::LogInfo("GEMSimHitMatcher")
@@ -70,11 +71,9 @@ void GEMSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
   }
 }
 
-void GEMSimHitMatcher::matchSimHitsToSimTrack(
-    std::vector<unsigned int> track_ids,
-    const edm::PSimHitContainer& gem_hits) {
-  for (const auto& track_id : track_ids) {
-    for (const auto& h : gem_hits) {
+void GEMSimHitMatcher::matchSimHitsToSimTrack() {
+  for (const auto& track_id : track_ids_) {
+    for (const auto& h : simHits_) {
       if (h.trackId() != track_id) continue;
       int pdgid = h.particleType();
       if (simMuOnly_ && std::abs(pdgid) != 13) continue;

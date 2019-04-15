@@ -74,8 +74,7 @@ class GEMSimHitMatcher : public MuonSimHitMatcher {
   std::set<int> hitPartitions() const;
 
  private:
-  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
-                              const edm::PSimHitContainer& hits);
+  void matchSimHitsToSimTrack();
 
   edm::ESHandle<GEMGeometry> gem_geom_;
 

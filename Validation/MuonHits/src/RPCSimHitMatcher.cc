@@ -31,10 +31,11 @@ void RPCSimHitMatcher::init(const edm::Event& iEvent,
 
 /// do the matching
 void RPCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
+  // instantiates the track ids and simhits
   MuonSimHitMatcher::match(track, vertex);
 
   if (hasGeometry_) {
-    matchSimHitsToSimTrack(track_ids_, simHits_);
+    matchSimHitsToSimTrack();
 
     if (verbose_) {
       edm::LogInfo("RPCSimHitMatcher")
@@ -54,7 +55,7 @@ void RPCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
         const auto& strips = hitStripsInDetId(id);
         edm::LogInfo("RPCSimHitMatcher") << "nStrips " << strips.size() << endl;
         edm::LogInfo("RPCSimHitMatcher") << "strips : ";
-        for (const auto& p : strips){
+        for (const auto& p : strips) {
           edm::LogInfo("RPCSimHitMatcher") << p;
         }
       }
@@ -62,10 +63,9 @@ void RPCSimHitMatcher::match(const SimTrack& track, const SimVertex& vertex) {
   }
 }
 
-void RPCSimHitMatcher::matchSimHitsToSimTrack(
-    std::vector<unsigned int> track_ids_, const edm::PSimHitContainer& hits) {
+void RPCSimHitMatcher::matchSimHitsToSimTrack() {
   for (const auto& track_id : track_ids_) {
-    for (const auto& h : hits) {
+    for (const auto& h : simHits_) {
       if (h.trackId() != track_id) continue;
       int pdgid = h.particleType();
       if (simMuOnly_ && std::abs(pdgid) != 13) continue;

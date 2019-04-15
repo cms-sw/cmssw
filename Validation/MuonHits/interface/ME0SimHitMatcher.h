@@ -61,8 +61,7 @@ class ME0SimHitMatcher : public MuonSimHitMatcher {
   int nPadsWithHits() const;
 
  private:
-  void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
-                              const edm::PSimHitContainer& me0_hits);
+  void matchSimHitsToSimTrack();
 
   edm::ESHandle<ME0Geometry> me0_geom_;
 
