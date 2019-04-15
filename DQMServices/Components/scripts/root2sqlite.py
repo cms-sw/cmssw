@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import re
 import json
 import ROOT
@@ -55,7 +56,7 @@ def treetotable(ttree, name):
     branches = [b.GetName() for b in ttree.GetListOfBranches()]
     colnames = ", ".join(columnescape(b) for b in branches)
     create =  "CREATE TABLE %s(%s);"  % (name, colnames)
-    print create
+    print(create)
     db.execute(create)
     data = []
     for i in range(ttree.GetEntries()):
@@ -63,7 +64,7 @@ def treetotable(ttree, name):
         vals = tuple([tosqlite(getattr(ttree, b)) for b in branches])
         data.append(vals)
     insert = "INSERT INTO %s(%s) VALUES (%s);" % (name, colnames, ",".join(["?"] * len(branches)))
-    print insert
+    print(insert)
     db.executemany(insert, data)
 
 def read_objects_root(rootfile):
@@ -99,19 +100,19 @@ def read_objects_root(rootfile):
 def save_keyvalue(dictionary, name):
     name = name.replace("/", "_")
     create =  "CREATE TABLE %s(key, value);"  % name
-    print create
+    print(create)
     db.execute(create)
     data = []
     for k, v in dictionary.iteritems():
         vals = (unicode(k), tosqlite(v))
         data.append(vals)
     insert = "INSERT INTO %s(key, value) VALUES (?,?);" % name
-    print insert
+    print(insert)
     db.executemany(insert, data)
 
 
 for name, obj, rtype in read_objects_root(f):
-  print name, obj, rtype
+  print(name, obj, rtype)
   if rtype == "TTree":
     treetotable(obj, name)
   else:
