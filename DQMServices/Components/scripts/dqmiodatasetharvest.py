@@ -8,6 +8,10 @@ import argparse
 import subprocess
 import multiprocessing
 
+
+ROOTPREFIX = "root://cms-xrd-global.cern.ch/"
+#ROOTPREFIX = "root://eoscms//eos/cms" # for more local files
+
 parser = argparse.ArgumentParser(description="Collect a MEs from DQMIO data, with maximum possible granularity")
 
 parser.add_argument('dataset', help='dataset name, like "/StreamHIExpress/HIRun2018A-Express-v1/DQMIO"')
@@ -173,7 +177,7 @@ db.execute(maketable)
 db.execute(makeindex)
 
 def harvestfile(fname):
-    f = ROOT.TFile.Open("root://eoscms//eos/cms" + fname)
+    f = ROOT.TFile.Open(ROOTPREFIX + fname)
     idxtree = getattr(f, "Indices")
     #idxtree.GetEntry._threaded = True # now the blocking call should release the GIL...
 
