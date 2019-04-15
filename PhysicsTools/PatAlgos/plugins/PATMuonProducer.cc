@@ -62,8 +62,10 @@ PATMuonHeavyObjectCache::PATMuonHeavyObjectCache(const edm::ParameterSet& iConfi
 
   if (iConfig.getParameter<bool>("computeMuonMVA")) {
     edm::FileInPath mvaTrainingFile = iConfig.getParameter<edm::FileInPath>("mvaTrainingFile");
+    edm::FileInPath mvaLowPtTrainingFile = iConfig.getParameter<edm::FileInPath>("lowPtmvaTrainingFile");
     float mvaDrMax = iConfig.getParameter<double>("mvaDrMax");
     muonMvaEstimator_ = std::make_unique<MuonMvaEstimator>(mvaTrainingFile, mvaDrMax);
+    muonLowPtMvaEstimator_ = std::make_unique<MuonMvaEstimator>(mvaLowPtTrainingFile, mvaDrMax);
   }
 
   if (iConfig.getParameter<bool>("computeSoftMuonMVA")) {
@@ -673,8 +675,9 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     float jetPtRatio = 0.0;
     float jetPtRel = 0.0;
     float mva = 0.0;
+    float mva_lowpt = 0.0;
     if (computeMuonMVA_ && primaryVertexIsValid){
-      if (mvaUseJec_)
+      if (mvaUseJec_){
         mva = globalCache()->muonMvaEstimator()->computeMva(muon,
                                                             primaryVertex,
                                                             *(mvaBTagCollectionTag.product()),
@@ -682,14 +685,30 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
                                                             jetPtRel,
                                                             &*mvaL1Corrector,
                                                             &*mvaL1L2L3ResCorrector);
-      else
+        mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(muon,
+								       primaryVertex,
+								       *(mvaBTagCollectionTag.product()),
+								       jetPtRatio,
+								       jetPtRel,
+								       &*mvaL1Corrector,
+								       &*mvaL1L2L3ResCorrector);
+	
+      }
+      else{
 	mva = globalCache()->muonMvaEstimator()->computeMva(muon,
                                                             primaryVertex,
                                                             *(mvaBTagCollectionTag.product()),
                                                             jetPtRatio,
                                                             jetPtRel);
+	mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(muon,
+								       primaryVertex,
+								       *(mvaBTagCollectionTag.product()),
+								       jetPtRatio,
+								       jetPtRel);
+      }
 
       muon.setMvaValue(mva);
+      muon.setLowPtMvaValue(mva_lowpt);
       muon.setJetPtRatio(jetPtRatio);
       muon.setJetPtRel(jetPtRel);
 
@@ -718,6 +737,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	muon.setSelector(reco::Muon::MvaTight,  muon.mvaValue()> 0.15);
 	muon.setSelector(reco::Muon::MvaVTight,  muon.mvaValue()> 0.45);
 	muon.setSelector(reco::Muon::MvaVVTight,  muon.mvaValue()> 0.9);
+	muon.setSelector(reco::Muon::LowPtMvaLoose,  muon.lowptMvaValue()>-0.60);
+	muon.setSelector(reco::Muon::LowPtMvaMedium, muon.lowptMvaValue()>-0.20);
       }
     }
 
