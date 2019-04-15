@@ -681,8 +681,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
       // multi-isolation
       if (computeMiniIso_){
-	muon.setSelector(reco::Muon::MultiIsoLoose,  miniIsoValue<0.40 && (muon.jetPtRatio() > 0.80 || muon.jetPtRel() > 7.2) );
-	muon.setSelector(reco::Muon::MultiIsoMedium, miniIsoValue<0.16 && (muon.jetPtRatio() > 0.76 || muon.jetPtRel() > 7.2) );
+	muon.setSelector(reco::Muon::MultiIsoMedium, miniIsoValue<0.11 && (muon.jetPtRatio() > 0.74 || muon.jetPtRel() > 6.8) );
       }
 
       // MVA working points
