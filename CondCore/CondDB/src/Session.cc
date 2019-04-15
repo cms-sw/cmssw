@@ -98,6 +98,14 @@ namespace cond {
       m_session->openIovDb();
       return m_session->iovSchema().tagTable().select( tag );
     }
+
+    bool Session::getTagInfo( const std::string& tag, 
+			      cond::Tag_t& info ){
+      m_session->openIovDb();
+      std::string description;
+      return m_session->iovSchema().tagTable().select( tag, info.timeType, info.payloadType, info.synchronizationType,
+							    info.endOfValidity, description, info.lastValidatedTime );      
+    }
     
     IOVProxy Session::iovProxy(){
       m_session->openIovDb();
