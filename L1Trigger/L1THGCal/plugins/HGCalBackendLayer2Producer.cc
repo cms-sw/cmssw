@@ -16,17 +16,15 @@
 
 #include <memory>
 
-
-class HGCalBackendLayer2Producer : public edm::stream::EDProducer<> {  
- public:    
+class HGCalBackendLayer2Producer : public edm::stream::EDProducer<> {
+public:
   HGCalBackendLayer2Producer(const edm::ParameterSet&);
-  ~HGCalBackendLayer2Producer() override { }
-  
-  void beginRun(const edm::Run&, 
-                        const edm::EventSetup&) override;
+  ~HGCalBackendLayer2Producer() override {}
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   // inputs
   edm::EDGetToken input_clusters_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
@@ -36,36 +34,32 @@ class HGCalBackendLayer2Producer : public edm::stream::EDProducer<> {
 
 DEFINE_FWK_MODULE(HGCalBackendLayer2Producer);
 
-HGCalBackendLayer2Producer::
-HGCalBackendLayer2Producer(const edm::ParameterSet& conf): 
-  input_clusters_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("InputCluster")))
-{
+HGCalBackendLayer2Producer::HGCalBackendLayer2Producer(const edm::ParameterSet& conf)
+    : input_clusters_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("InputCluster"))) {
   //setup Backend parameters
   const edm::ParameterSet& beParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& beProcessorName = beParamConfig.getParameter<std::string>("ProcessorName");
-  backendProcess_ = std::unique_ptr<HGCalBackendLayer2ProcessorBase>{HGCalBackendLayer2Factory::get()->create(beProcessorName, beParamConfig)};
+  backendProcess_ = std::unique_ptr<HGCalBackendLayer2ProcessorBase>{
+      HGCalBackendLayer2Factory::get()->create(beProcessorName, beParamConfig)};
 
   produces<l1t::HGCalMulticlusterBxCollection>(backendProcess_->name());
 }
 
-void HGCalBackendLayer2Producer::beginRun(const edm::Run& /*run*/,
-                                          const edm::EventSetup& es) 
-{                 
-  es.get<CaloGeometryRecord>().get("",triggerGeometry_);
+void HGCalBackendLayer2Producer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
+  es.get<CaloGeometryRecord>().get("", triggerGeometry_);
   backendProcess_->setGeometry(triggerGeometry_.product());
 }
 
-void HGCalBackendLayer2Producer::produce(edm::Event& e, const edm::EventSetup& es) 
-{
+void HGCalBackendLayer2Producer::produce(edm::Event& e, const edm::EventSetup& es) {
   // Output collections
   auto be_multicluster_output = std::make_unique<l1t::HGCalMulticlusterBxCollection>();
 
-  // Input collections   
+  // Input collections
   edm::Handle<l1t::HGCalClusterBxCollection> trigCluster2DBxColl;
 
   e.getByToken(input_clusters_, trigCluster2DBxColl);
 
   backendProcess_->run(trigCluster2DBxColl, *be_multicluster_output, es);
 
-  e.put(std::move(be_multicluster_output), backendProcess_->name());  
+  e.put(std::move(be_multicluster_output), backendProcess_->name());
 }
