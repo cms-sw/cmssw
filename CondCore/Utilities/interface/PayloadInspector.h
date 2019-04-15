@@ -29,6 +29,7 @@ namespace cond {
       std::string get( const std::string& key ) const;
       std::map<std::string,std::string> m;
       bool singleIov = false;
+      bool twoTags = false;
     };
 
     static const char* const JSON_FORMAT_VERSION = "1.0";
@@ -145,12 +146,18 @@ namespace cond {
       // required in the browser
       bool isSingleIov() const;
 
+      // required in the browser
+      bool isTwoTags() const;
+
       // returns the json file with the plot data
       std::string data() const;
 
       // triggers the processing producing the plot
       bool process( const std::string& connectionString, const std::string& tag, const std::string& timeType, cond::Time_t begin, cond::Time_t end );
+      //bool process( const std::string& connectionString, const std::string& tag, cond::Time_t begin, cond::Time_t end );
 
+      bool processTwoTags( const std::string& connectionString,  const std::string& tag0, const std::string& tag1, cond::Time_t time0, cond::Time_t time1 );
+  
       // not exposed in python:
       // called internally in process()
       virtual void init();
@@ -162,13 +169,17 @@ namespace cond {
       // to be set in order to limit the iov selection ( and processing ) to 1 iov
       void setSingleIov( bool flag );
 
+      void setTwoTags( bool flag );
+
       // access to the fetch function of the configured reader, to be used in the processData implementations
       template <typename PayloadType> std::shared_ptr<PayloadType> fetchPayload( const cond::Hash& payloadHash ){
 	return m_dbSession.fetchPayload<PayloadType>( payloadHash );
       }
 
+      cond::Tag_t getTagInfo( const std::string& tag );
+
       // access to the timeType of the tag in process
-      cond::TimeType tagTimeType() const;
+      //cond::TimeType tagTimeType() const;
 
       // access to the underlying db session
       cond::persistency::Session dbSession();
@@ -176,11 +187,13 @@ namespace cond {
     protected:
 
       PlotAnnotations m_plotAnnotations;
+      std::string m_tag0 = "";
+      std::string m_tag1 = "";
 
     private:
 
       cond::persistency::Session m_dbSession;
-      cond::TimeType m_tagTimeType;
+      //cond::TimeType m_tagTimeType;
 
       std::string m_data = "";
     };
@@ -277,9 +290,11 @@ namespace cond {
       }
       ~RunHistoryPlot() override = default;
       bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
+        
         // for the lumi iovs we need to count the number of lumisections in every runs
 	std::map<cond::Time_t,unsigned int> runs;
-	if( Base::tagTimeType()==cond::lumiid ){
+	cond::Tag_t tagInfo = Base::getTagInfo( Base::m_tag0 );
+	if( tagInfo.timeType==cond::lumiid ){
 	  for( auto iov : iovs ) {
             unsigned int run = std::get<0>(iov) >> 32;
 	    auto it = runs.find( run );
@@ -296,7 +311,7 @@ namespace cond {
         for( auto iov : iovs )  {
 	  unsigned long long since = std::get<0>(iov);
           // for the lumi iovs we squeeze the lumi section available in the constant run 'slot' of witdth=1
-          if( Base::tagTimeType()==cond::lumiid ){
+          if( tagInfo.timeType==cond::lumiid ){
 	    unsigned int run = since >> 32;
             unsigned int lumi = since & 0xFFFFFFFF;
             if( run != currentRun ) {
@@ -317,7 +332,7 @@ namespace cond {
 	  } else {
 	    ind++;
 	    // for the timestamp based iovs, it does not really make much sense to use this plot... 
-            if(  Base::tagTimeType()==cond::timestamp ){
+            if(  tagInfo.timeType==cond::timestamp ){
 	      boost::posix_time::ptime t = cond::time::to_boost( since );
 	      label = boost::posix_time::to_simple_string( t );
 	    } else {
@@ -347,10 +362,11 @@ namespace cond {
       ~TimeHistoryPlot() override = default;
       bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
 	cond::persistency::RunInfoProxy runInfo;
-	if(  Base::tagTimeType()==cond::lumiid ||  Base::tagTimeType()==cond::runnumber){
+	cond::Tag_t tagInfo = Base::getTagInfo( Base::m_tag0 );
+	if(  tagInfo.timeType==cond::lumiid || tagInfo.timeType==cond::runnumber){
 	  cond::Time_t min = std::get<0>(iovs.front());
 	  cond::Time_t max = std::get<0>( iovs.back() );
-          if(  Base::tagTimeType()==cond::lumiid ){
+          if(  tagInfo.timeType==cond::lumiid ){
 	    min = min >> 32;
             max = max >> 32;
 	  }
@@ -360,9 +376,9 @@ namespace cond {
 	  cond::Time_t since = std::get<0>(iov);
 	  boost::posix_time::ptime time;
 	  std::string label("");
-          if(  Base::tagTimeType()==cond::lumiid ||  Base::tagTimeType()==cond::runnumber){
+          if(  tagInfo.timeType==cond::lumiid ||  tagInfo.timeType==cond::runnumber){
             unsigned int nlumi = since & 0xFFFFFFFF;
-	    if( Base::tagTimeType()==cond::lumiid ) since = since >> 32;
+	    if( tagInfo.timeType==cond::lumiid ) since = since >> 32;
             label = std::to_string(since );
 	    auto it = runInfo.find( since );
 	    if ( it == runInfo.end() ){
@@ -371,11 +387,11 @@ namespace cond {
 	    }
 	    time = (*it).start;
 	    // add the lumi sections...
-	    if(  Base::tagTimeType()==cond::lumiid ){
+	    if(  tagInfo.timeType==cond::lumiid ){
 	      time += boost::posix_time::seconds( cond::time::SECONDS_PER_LUMI*nlumi );
               label += (" : "+std::to_string(nlumi ) );
 	    }
-	  } else if (  Base::tagTimeType()==cond::timestamp ){
+	  } else if (  tagInfo.timeType==cond::timestamp ){
 	    time = cond::time::to_boost( since );
             label = boost::posix_time::to_simple_string( time );
 	  }
