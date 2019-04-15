@@ -88,7 +88,8 @@ std::string formatAsDegreesInInteger(double radianVal) {
   const unsigned short numlen = 4;
   char degstr[numlen];
   int degVal = std::lround(convertRadToDeg( radianVal ));
-  if (degVal < 0) degVal += 360;
+  if      (degVal <    0) degVal += 360;
+  else if (degVal >= 360) degVal -= 360;
   int retval = snprintf(degstr, numlen, "%0*d", numlen-1, degVal);
 
   if (retval == numlen - 1) return degstr;
