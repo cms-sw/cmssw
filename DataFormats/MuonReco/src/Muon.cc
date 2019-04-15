@@ -334,29 +334,31 @@ unsigned int Muon::stationGapMaskPull( float sigmaCut ) const
    return totMask;
 }
 
-int Muon::nDigisInStation( int index ) const
+int Muon::nDigisInStation( int station, int muonSubdetId ) const
 {
   int nDigis(0);
   std::map<int, int> me11DigisPerCh;
 
+  if ( muonSubdetId != MuonSubdetId::CSC  &&
+       muonSubdetId != MuonSubdetId::DT )
+    return 0;
+	   
   for ( auto & match : muMatches_ )
     {
-      if ( match.detector() != MuonSubdetId::CSC  &&
-	   match.detector() != MuonSubdetId::DT  )
+      if ( match.detector() != muonSubdetId ||
+	   match.station()  != station )
 	continue;
 	  
       int nDigisInCh = match.nDigisInRange;
-      int iStation = match.detector() == MuonSubdetId::CSC ? index - 3 : index + 1;
-
-      if( match.detector() == MuonSubdetId::CSC && iStation == 1 )
+      
+      if( muonSubdetId == MuonSubdetId::CSC && station == 1 )
 	{
 	  CSCDetId id(match.id.rawId());
 	  
-	  int station = id.station();
 	  int chamber = id.chamber();
           int ring    = id.ring();
-	    
-	  if ( station == 1 && (ring == 1 || ring == 4) ) // merge ME1/1a and ME1/1b digis
+	  
+	  if ( ring == 1 || ring == 4 ) // merge ME1/1a and ME1/1b digis
 	    {
 	      if( me11DigisPerCh.find(chamber) == me11DigisPerCh.end() )
 		me11DigisPerCh[chamber] = 0;
@@ -366,35 +368,38 @@ int Muon::nDigisInStation( int index ) const
 	      continue;
 	    }
 	}
-
-      if( iStation == match.station() && nDigisInCh > nDigis )
+      
+      if( nDigisInCh > nDigis )
 	nDigis = nDigisInCh;
     }
 
   for ( const auto & me11DigisInCh : me11DigisPerCh )
     {  
       int nMe11DigisInCh = me11DigisInCh.second;
-      if (nMe11DigisInCh > nDigis)
+      if ( nMe11DigisInCh > nDigis )
 	nDigis = nMe11DigisInCh;
     }
   
   return nDigis;
 }
 
-bool Muon::hasShowerInStation( int index, int nDtDigisCut, int nCscDigisCut ) const
+bool Muon::hasShowerInStation( int station, int muonSubdetId, int nDtDigisCut, int nCscDigisCut ) const
 {
-  bool hasShower = index < 4 ? 
-			   nDigisInStation(index) >= nDtDigisCut :
-                           nDigisInStation(index) >= nCscDigisCut;
+  bool hasShower = muonSubdetId == MuonSubdetId::DT ? 
+    nDigisInStation(station,muonSubdetId) >= nDtDigisCut :
+    nDigisInStation(station,muonSubdetId) >= nCscDigisCut;
+
   return hasShower;   
 }
 
 int Muon::numberOfShowers( int nDtDigisCut, int nCscDigisCut ) const
 {
   int nShowers = 0;
-  for ( int iCh = 0; iCh < 8; ++iCh )
+  for ( int iCh = 1; iCh < 5; ++iCh )
     {
-      if ( hasShowerInStation(iCh,nDtDigisCut,nCscDigisCut) )
+      if ( hasShowerInStation(iCh,MuonSubdetId::DT,nDtDigisCut,nCscDigisCut) )
+	nShowers++;
+      if ( hasShowerInStation(iCh,MuonSubdetId::CSC,nDtDigisCut,nCscDigisCut) )
 	nShowers++;
     }
 

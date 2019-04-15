@@ -28,22 +28,11 @@
 //
 
 MuonShowerDigiFiller::MuonShowerDigiFiller(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) : 
-  m_digiMaxDistanceX(iConfig.getParameter<double>("digiMaxDistanceX"))
-
+  m_digiMaxDistanceX(iConfig.getParameter<double>("digiMaxDistanceX")),
+  m_dtDigisToken(iC.consumes<DTDigiCollection>(iConfig.getParameter<edm::InputTag>("dtDigiCollectionLabel"))),
+  m_cscDigisToken(iC.consumes<CSCStripDigiCollection>(iConfig.getParameter<edm::InputTag>("cscDigiCollectionLabel")))
 {
-
-  edm::InputTag label = iConfig.getParameter<edm::InputTag>("dtDigiCollectionLabel");
-  m_dtDigisToken=iC.consumes<DTDigiCollection>(label);
-
-  label = iConfig.getParameter<edm::InputTag>("cscDigiCollectionLabel");
-  m_cscDigisToken=iC.consumes<CSCStripDigiCollection>(label);
    
-}
-
-
-MuonShowerDigiFiller::~MuonShowerDigiFiller()
-{
-
 }
 
 
@@ -80,9 +69,9 @@ MuonShowerDigiFiller::fill( reco::MuonChamberMatch & muChMatch ) const
     {
       double xTrack = muChMatch.x;
       
-      for (int sl = 1; sl < 4; sl += 2) 
+      for (int sl = 1; sl <= DTChamberId::maxSuperLayerId; sl += 2) 
 	{
-	  for (int layer = 1; layer < 5; ++layer) 
+	  for (int layer = 1; layer <= DTChamberId::maxLayerId; ++layer) 
 	    {
 	      const DTLayerId layerId(DTChamberId(muChMatch.id.rawId()),sl,layer);
 	      
@@ -108,7 +97,7 @@ MuonShowerDigiFiller::fill( reco::MuonChamberMatch & muChMatch ) const
       double xTrack = muChMatch.x;
       double yTrack = muChMatch.y;
 
-      for (int iLayer = 1; iLayer < 7; ++iLayer) 
+      for (int iLayer = 1; iLayer <= CSCDetId::maxLayerId(); ++iLayer) 
 	{
 	  const CSCDetId chId(muChMatch.id.rawId());
 	  const CSCDetId layerId(chId.endcap(), chId.station(),
@@ -150,4 +139,12 @@ MuonShowerDigiFiller::fill( reco::MuonChamberMatch & muChMatch ) const
 
   muChMatch.nDigisInRange = nDigisInRange;
   
+}
+
+void 
+MuonShowerDigiFiller::fillDefault( reco::MuonChamberMatch & muChMatch ) const 
+{
+
+  muChMatch.nDigisInRange = 0;
+
 }

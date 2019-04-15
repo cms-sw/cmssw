@@ -893,7 +893,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
        theShowerDigiFiller_->fill(matchedChamber);
      }
      else {
-       matchedChamber.nDigisInRange = 0;
+       theShowerDigiFiller_->fillDefault(matchedChamber);
      }
 
      if ( ! chamber.segments.empty() ) ++nubmerOfMatchesAccordingToTrackAssociator;
@@ -978,7 +978,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
        matchedChamber.edgeX = chamber.localDistanceX;
        matchedChamber.edgeY = chamber.localDistanceY;
 
-       matchedChamber.nDigisInRange = 0;
+       theShowerDigiFiller_->fillDefault(matchedChamber);
 
        matchedChamber.id = chamber.id;
 
