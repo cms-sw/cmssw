@@ -96,6 +96,26 @@ egamma8XObjectUpdateModifier = cms.PSet(
 )
 
 #############################################################
+# 9X-106X to 106X modifiers (fills in variables new to 106X w.r.t 9X-105X)
+#############################################################
+egamma9X105XUpdateModifier = cms.PSet( 
+    modifierName    = cms.string('EG9X105XObjectUpdateModifier'),
+    eleCollVMsAreKeyedTo = cms.InputTag("slimmedElectrons",processName=cms.InputTag.skipCurrentProcess()),
+    phoCollVMsAreKeyedTo = cms.InputTag("slimmedPhotons",processName=cms.InputTag.skipCurrentProcess()),
+    conversions = cms.InputTag("reducedEgamma","reducedConversions"),
+    beamspot = cms.InputTag("offlineBeamSpot"),
+    ecalRecHitsEB = cms.InputTag("reducedEgamma","reducedEBRecHits"),
+    ecalRecHitsEE = cms.InputTag("reducedEgamma","reducedEERecHits"),
+    eleTrkIso = cms.InputTag("heepIDVarValueMaps","eleTrkPtIso"),
+    eleTrkIso04 = cms.InputTag("heepIDVarValueMaps","eleTrkPtIso04"),
+    phoPhotonIso = cms.InputTag("photonIDValueMapProducer","phoPhotonIsolation"),
+    phoNeutralHadIso = cms.InputTag("photonIDValueMapProducer","phoNeutralHadronIsolation"),
+    phoChargedHadIso = cms.InputTag("photonIDValueMapProducer","phoChargedIsolation"),
+    phoChargedHadWorstVtxIso = cms.InputTag("photonIDValueMapProducer","phoWorstChargedIsolation"),
+    phoChargedHadWorstVtxConeVetoIso = cms.InputTag("photonIDValueMapProducer","phoWorstChargedIsolationConeVeto")
+)
+
+#############################################################
 # 8X legacy needs an extra Et scale systematic
 # due to an inflection around 45 GeV which is handled as a
 # patch on top of the standard scale and smearing systematics

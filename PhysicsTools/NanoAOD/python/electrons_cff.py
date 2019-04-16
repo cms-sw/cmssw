@@ -4,13 +4,30 @@ from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
 from PhysicsTools.NanoAOD.common_cff import *
 import PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi
 from math import ceil,log
 
+from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma8XObjectUpdateModifier,egamma9X105XUpdateModifier,prependEgamma8XObjectUpdateModifier
+ele9X105XUpdateModifier=egamma9X105XUpdateModifier.clone(
+    phoPhotonIso = "",
+    phoNeutralHadIso = "",
+    phoChargedHadIso = "",
+    phoChargedHadWorstVtxIso = "",
+    phoChargedHadWorstVtxConeVetoIso = ""
+)
+#we have dataformat changes to 106X so to read older releases we use egamma updators
+slimmedElectronsTo106X = cms.EDProducer("ModifiedElectronProducer",
+    src = cms.InputTag("slimmedElectrons"),
+    modifierConfig = cms.PSet( modifications = cms.VPSet(ele9X105XUpdateModifier) )
+)
+#might as well fix 80X while we're at it although the differences are not so relavent for nano
+run2_miniAOD_80XLegacy.toModify( slimmedElectronsTo106X.modifierConfig.modifications, prependEgamma8XObjectUpdateModifier )
+
 # this below is used only in some eras
 slimmedElectronsUpdated = cms.EDProducer("PATElectronUpdater",
-    src = cms.InputTag("slimmedElectrons"),
+    src = cms.InputTag("slimmedElectronsTo106X"),
     vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
     computeMiniIso = cms.bool(False),
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
@@ -18,6 +35,7 @@ slimmedElectronsUpdated = cms.EDProducer("PATElectronUpdater",
     miniIsoParamsE = PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi.patElectrons.miniIsoParamsE, # so they're in sync
 )
 run2_miniAOD_80XLegacy.toModify( slimmedElectronsUpdated, computeMiniIso = True )
+
 
 electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
     modules = cms.vstring(
@@ -102,6 +120,11 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_92X:
     modifier.toModify(bitmapVIDForEle, src = "slimmedElectronsUpdated")
     modifier.toModify(bitmapVIDForEleSpring15, src = "slimmedElectronsUpdated")
     modifier.toModify(bitmapVIDForEleSum16, src = "slimmedElectronsUpdated")
+for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
+    modifier.toModify(bitmapVIDForEle, src = "slimmedElectronsTo106X")
+    modifier.toModify(bitmapVIDForEleSpring15, src = "slimmedElectronsTo106X")
+    modifier.toModify(bitmapVIDForEleSum16, src = "slimmedElectronsTo106X")
+    
 
 isoForEle = cms.EDProducer("EleIsoValueMapProducer",
     src = cms.InputTag("slimmedElectrons"),
@@ -118,6 +141,9 @@ run2_nanoAOD_94X2016.toModify(isoForEle,
                                 EAFile_MiniIso = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt",
                                 EAFile_PFIso = "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt")
 run2_nanoAOD_92X.toModify(isoForEle, src = "slimmedElectronsUpdated")
+for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
+    modifier.toModify(isoForEle, src = "slimmedElectronsTo106X")
+
 
 ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
     srcJet = cms.InputTag("updatedJets"),
@@ -126,8 +152,9 @@ ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
 )
 run2_miniAOD_80XLegacy.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
 run2_nanoAOD_92X.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
+for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
+    modifier.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsTo106X")
 
-import EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi
 
 import RecoEgamma.EgammaTools.calibratedEgammas_cff
 
@@ -141,6 +168,8 @@ calibratedPatElectrons94X = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibra
     produceCalibratedObjs = False,
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc"),
 )
+for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
+    modifier.toModify(calibratedPatElectrons94X, src = "slimmedElectronsTo106X")
 
 slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
     src = cms.InputTag("slimmedElectrons"),
@@ -207,6 +236,9 @@ run2_nanoAOD_94XMiniAODv1.toModify(slimmedElectronsWithUserData.userFloats,
     ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPreCorr"),
     ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPostCorr"),
 )
+for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
+    modifier.toModify(slimmedElectronsWithUserData, src = "slimmedElectronsTo106X")
+
 
 #the94X miniAOD V2 had a bug in the scale and smearing for electrons in the E/p comb
 #therefore we redo it but but we need use a new name for the userFloat as we cant override existing userfloats
@@ -437,8 +469,11 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
 electronSequence = cms.Sequence(bitmapVIDForEle + isoForEle + ptRatioRelForEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
 electronMC = cms.Sequence(electronsMCMatchForTable + electronMCTable)
+from RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi import heepIDVarValueMaps
+_updateTo106X_sequence =cms.Sequence(heepIDVarValueMaps + slimmedElectronsTo106X)
+heepIDVarValueMaps.dataFormat = 2
 
-_withUpdate_sequence = cms.Sequence(slimmedElectronsUpdated + electronSequence.copy())
+_withUpdate_sequence = cms.Sequence(_updateTo106X_sequence + slimmedElectronsUpdated + electronSequence.copy())
 run2_nanoAOD_92X.toReplaceWith(electronSequence, _withUpdate_sequence)
 
 _withUpdateAnd80XLegacyScale_sequence = _withUpdate_sequence.copy()
@@ -447,10 +482,14 @@ run2_miniAOD_80XLegacy.toReplaceWith(electronSequence, _withUpdateAnd80XLegacySc
 
 _with94XScale_sequence = electronSequence.copy()
 _with94XScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons94X + slimmedElectronsWithUserData)
+_with94XScale_sequence.replace(bitmapVIDForEle, _updateTo106X_sequence + bitmapVIDForEle)
 run2_nanoAOD_94XMiniAODv1.toReplaceWith(electronSequence, _with94XScale_sequence)
 run2_nanoAOD_94XMiniAODv2.toReplaceWith(electronSequence, _with94XScale_sequence)
 
 _with_bitmapVIDForEleSpring15AndSum16_sequence = electronSequence.copy()
-_with_bitmapVIDForEleSpring15AndSum16_sequence.replace(slimmedElectronsWithUserData, bitmapVIDForEleSpring15 + bitmapVIDForEleSum16 + slimmedElectronsWithUserData)
+_with_bitmapVIDForEleSpring15AndSum16_sequence.replace(slimmedElectronsWithUserData,  bitmapVIDForEleSpring15 + bitmapVIDForEleSum16 + slimmedElectronsWithUserData)
+_with_bitmapVIDForEleSpring15AndSum16_sequence.replace(bitmapVIDForEle, _updateTo106X_sequence + bitmapVIDForEle)
 run2_nanoAOD_94X2016.toReplaceWith(electronSequence, _with_bitmapVIDForEleSpring15AndSum16_sequence)
 
+_withUpdateTo106X_sequence = cms.Sequence(_updateTo106X_sequence + electronSequence.copy())
+run2_nanoAOD_102Xv1.toReplaceWith(electronSequence,_withUpdateTo106X_sequence)
