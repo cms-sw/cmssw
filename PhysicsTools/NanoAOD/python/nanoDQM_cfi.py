@@ -146,7 +146,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('METFilters', 'METFilters', 2, -0.5, 1.5, 'Trigger/flag bit'),
                 Plot1D('chargedHadronTrackResolutionFilter', 'chargedHadronTrackResolutionFilter', 2, -0.5, 1.5, 'Trigger/flag bit'),
                 Plot1D('ecalBadCalibFilter', 'ecalBadCalibFilter', 2, -0.5, 1.5, 'Trigger/flag bit'),
-                Plot1D('ecalBadCalibFilterV2', 'ecalBadCalibFilterV2', 2, -0.5, 1.5, 'Bad ECAL calib flag (updated xtal list)'),
+                Plot1D('ecalBadCalibFilterV2', 'ecalBadCalibFilterV2', 1, 0.5, 1.5, 'Bad ECAL calib flag (updated xtal list)'),
                 Plot1D('ecalLaserCorrFilter', 'ecalLaserCorrFilter', 2, -0.5, 1.5, 'Trigger/flag bit'),
                 Plot1D('eeBadScFilter', 'eeBadScFilter', 2, -0.5, 1.5, 'Trigger/flag bit'),
                 Plot1D('globalSuperTightHalo2016Filter', 'globalSuperTightHalo2016Filter', 2, -0.5, 1.5, 'Trigger/flag bit'),
@@ -229,18 +229,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('status', 'status', 16, -0.5, 15.5, 'Hadronic tau decay mode. 0=OneProng0PiZero, 1=OneProng1PiZero, 2=OneProng2PiZero, 10=ThreeProng0PiZero, 11=ThreeProng1PiZero, 15=Other'),
             )
         ),
-        HTXS = cms.PSet(
-            sels = cms.PSet(),
-            plots = cms.VPSet(
-                Plot1D('Higgs_pt', 'Higgs_pt', 20, 0, 400, 'pt of the Higgs boson as identified in HTXS'),
-                Plot1D('Higgs_y', 'Higgs_y', 20, -5, 5, 'rapidity of the Higgs boson as identified in HTXS'),
-                Plot1D('njets25', 'njets25', 20, 0, 20, 'number of jets with pt>25 GeV as identified in HTXS'),
-                Plot1D('njets30', 'njets30', 20, 0, 20, 'number of jets with pt>30 GeV as identified in HTXS'),
-                Plot1D('stage_0', 'stage_0', 100, 0, 100, 'HTXS stage-0 category'),
-                Plot1D('stage_1_pTjet25', 'stage_1_pTjet25', 1000, 0, 1000, 'HTXS stage-1 category (jet pt>25 GeV)'),
-                Plot1D('stage_1_pTjet30', 'stage_1_pTjet30', 1000, 0, 1000, 'HTXS stage-1 category (jet pt>30 GeV)'),
-            )
-        ),
         IsoTrack = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
@@ -300,14 +288,6 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('puId', 'puId', 8, -0.5, 7.5, 'Pilup ID flags'),
                 Plot1D('qgl', 'qgl', 20, 0, 1, 'Quark vs Gluon likelihood discriminator'),
                 Plot1D('rawFactor', 'rawFactor', 20, -0.5, 0.5, '1 - Factor to get back to raw pT'),
-            )
-        ),
-        L1PreFiringWeight = cms.PSet(
-            sels = cms.PSet(),
-            plots = cms.VPSet(
-                Plot1D('Nom', 'Nom', 40, 0, 1, 'L1 pre-firing event correction weight (1-probability)'),
-                Plot1D('Up', 'Up', 40, 0, 1, 'L1 pre-firing event correction weight (1-probability), up var.'),
-                Plot1D('Dn', 'Dn', 40, 0, 1, 'L1 pre-firing event correction weight (1-probability), down var.'),
             )
         ),
         MET = cms.PSet(
