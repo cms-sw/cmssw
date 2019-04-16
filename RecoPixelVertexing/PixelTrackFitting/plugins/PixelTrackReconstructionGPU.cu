@@ -25,7 +25,7 @@ KernelFastFitAllHits(float *hits_and_covariances,
   // Loop for hits_in_fit times:
   //   first 3 are the points
   //   the rest is the covariance matrix, 3x3
-  int start = (blockIdx.x * blockDim.x + threadIdx.x) * hits_in_fit * 12;
+  int start = (blockIdx.x * blockDim.x + threadIdx.x) * hits_in_fit * 9;
   int helix_start = (blockIdx.x * blockDim.x + threadIdx.x);
   if (start >= cumulative_size) {
     return;
@@ -67,7 +67,7 @@ KernelCircleFitAllHits(float *hits_and_covariances, int hits_in_fit,
   // Loop for hits_in_fit times:
   //   first 3 are the points
   //   the rest is the covariance matrix, 3x3
-  int start = (blockIdx.x * blockDim.x + threadIdx.x) * hits_in_fit * 12;
+  int start = (blockIdx.x * blockDim.x + threadIdx.x) * hits_in_fit * 9;
   int helix_start = (blockIdx.x * blockDim.x + threadIdx.x);
   if (start >= cumulative_size) {
     return;
@@ -115,7 +115,7 @@ KernelLineFitAllHits(float *hits_and_covariances, int hits_in_fit,
   // Loop for hits_in_fit times:
   //   first 3 are the points
   //   the rest is the covariance matrix, 3x3
-  int start = (blockIdx.x * blockDim.x + threadIdx.x) * hits_in_fit * 12;
+  int start = (blockIdx.x * blockDim.x + threadIdx.x) * hits_in_fit * 9;
   int helix_start = (blockIdx.x * blockDim.x + threadIdx.x);
   if (start >= cumulative_size) {
     return;
@@ -162,8 +162,8 @@ void PixelTrackReconstructionGPU::launchKernelFit(
     float B, Rfit::helix_fit *results)
 {
   const dim3 threads_per_block(32, 1);
-  int num_blocks = cumulative_size / (hits_in_fit * 12) / threads_per_block.x + 1;
-  auto numberOfSeeds = cumulative_size / (hits_in_fit * 12);
+  int num_blocks = cumulative_size / (hits_in_fit * 9) / threads_per_block.x + 1;
+  auto numberOfSeeds = cumulative_size / (hits_in_fit * 9);
 
   Rfit::Matrix3xNd<4> *hitsGPU;
   cudaCheck(cudaMalloc(&hitsGPU, 48 * numberOfSeeds * sizeof(Rfit::Matrix3xNd<4>)));

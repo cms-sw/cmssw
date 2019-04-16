@@ -78,7 +78,7 @@ void PixelTrackReconstructionGPU::run(TracksWithTTRHs& tracks,
   // We use 3 floats for GlobalPosition and 6 floats for GlobalError (that's what is used by the Riemann fit).
   // Assume a safe maximum of 3K seeds: it will dynamically grow, if needed.
   int total_seeds = 0;
-  hits_and_covariances.reserve(sizeof(float)*3000*(points_in_seed*12));
+  hits_and_covariances.reserve(sizeof(float)*3000*(points_in_seed*9));
   for (auto const & regionHitSets : hitSets) {
     const TrackingRegion& region = regionHitSets.region();
     for (auto const & tuplet : regionHitSets) {
@@ -112,7 +112,7 @@ void PixelTrackReconstructionGPU::run(TracksWithTTRHs& tracks,
       sizeof(float)*hits_and_covariances.size(), cudaMemcpyDefault));
 
   // LAUNCH THE KERNEL FIT
-  launchKernelFit(hits_and_covariancesGPU, 12*4*total_seeds, 4,
+  launchKernelFit(hits_and_covariancesGPU, 9*4*total_seeds, 4,
       bField, helix_fit_resultsGPU);
   // CUDA MEMCOPY DEVICE2HOST OF HELIX_FIT
   cudaCheck(cudaDeviceSynchronize());
