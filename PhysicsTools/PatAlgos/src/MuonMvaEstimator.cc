@@ -56,18 +56,20 @@ float MuonMvaEstimator::computeMva(const pat::Muon& muon,
 				  const reco::JetTagCollection& bTags,
                                   float& jetPtRatio,
                                   float& jetPtRel,
+				  float& miniIsoValue, 
 				  const reco::JetCorrector* correctorL1,
-				  const reco::JetCorrector* correctorL1L2L3Res) const
+				  const reco::JetCorrector* correctorL1L2L3Res
+				   ) const
 {
   float var[kLast]{};
 
   var[kPt] = muon.pt();
   var[kEta] = muon.eta();
   var[kSegmentCompatibility] = muon.segmentCompatibility();
-  var[kMiniRelIsoCharged] = muon.miniPFIsolation().chargedHadronIso();
-  var[kMiniRelIsoNeutral] = muon.miniPFIsolation().neutralHadronIso();
+  var[kMiniRelIsoCharged] = muon.miniPFIsolation().chargedHadronIso() / muon.pt();
+  var[kMiniRelIsoNeutral] = miniIsoValue - var[kMiniRelIsoCharged];
 
-  double dB2D  = fabs(muon.dB(pat::Muon::BS2D));
+  double dB2D  = fabs(muon.dB(pat::Muon::PV2D));
   double dB3D  = muon.dB(pat::Muon::PV3D);
   double edB3D = muon.edB(pat::Muon::PV3D);
   double dz    = fabs(muon.muonBestTrack()->dz(vertex.position()));

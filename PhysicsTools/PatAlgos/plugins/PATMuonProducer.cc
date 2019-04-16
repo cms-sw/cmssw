@@ -651,7 +651,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       bool isRun2016BCDEF = (272728 <= iEvent.run() && iEvent.run() <= 278808);
       muon.setSelectors(muon::makeSelectorBitset(muon, pv, isRun2016BCDEF));
     }
-    double miniIsoValue = -1;
+    float miniIsoValue = -1;
     if (computeMiniIso_){
       // MiniIsolation working points
 
@@ -675,22 +675,26 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     float jetPtRel = 0.0;
     float mva = 0.0;
     float mva_lowpt = 0.0;
-    if (computeMuonMVA_ && primaryVertexIsValid){
+    if (computeMuonMVA_ && primaryVertexIsValid && computeMiniIso_){
       if (mvaUseJec_){
         mva = globalCache()->muonMvaEstimator()->computeMva(muon,
                                                             primaryVertex,
                                                             *(mvaBTagCollectionTag.product()),
                                                             jetPtRatio,
                                                             jetPtRel,
+							    miniIsoValue,
                                                             &*mvaL1Corrector,
-                                                            &*mvaL1L2L3ResCorrector);
+                                                            &*mvaL1L2L3ResCorrector
+							    );
         mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(muon,
 								       primaryVertex,
 								       *(mvaBTagCollectionTag.product()),
 								       jetPtRatio,
 								       jetPtRel,
+								       miniIsoValue,
 								       &*mvaL1Corrector,
-								       &*mvaL1L2L3ResCorrector);
+								       &*mvaL1L2L3ResCorrector
+								       );
 	
       }
       else{
@@ -698,12 +702,14 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
                                                             primaryVertex,
                                                             *(mvaBTagCollectionTag.product()),
                                                             jetPtRatio,
-                                                            jetPtRel);
+                                                            jetPtRel,
+							    miniIsoValue);
 	mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(muon,
 								       primaryVertex,
 								       *(mvaBTagCollectionTag.product()),
 								       jetPtRatio,
-								       jetPtRel);
+								       jetPtRel,
+								       miniIsoValue);
       }
 
       muon.setMvaValue(mva);
