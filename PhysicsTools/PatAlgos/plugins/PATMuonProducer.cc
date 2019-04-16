@@ -657,7 +657,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
       miniIsoValue = getRelMiniIsoPUCorrected(muon,*rho);
 
-      muon.setSelector(reco::Muon::MiniIsoLoose,     miniIsoValue<0.40);
       muon.setSelector(reco::Muon::MiniIsoMedium,    miniIsoValue<0.20);
       muon.setSelector(reco::Muon::MiniIsoTight,     miniIsoValue<0.10);
       muon.setSelector(reco::Muon::MiniIsoVeryTight, miniIsoValue<0.05);
@@ -712,13 +711,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       muon.setJetPtRatio(jetPtRatio);
       muon.setJetPtRel(jetPtRel);
 
-      // multi-isolation
-      if (computeMiniIso_){
-
-
-	muon.setSelector(reco::Muon::MultiIsoLoose,  miniIsoValue<0.40 && (muon.jetPtRatio() > 0.80 || muon.jetPtRel() > 7.2) );
-	muon.setSelector(reco::Muon::MultiIsoMedium, miniIsoValue<0.16 && (muon.jetPtRatio() > 0.76 || muon.jetPtRel() > 7.2) );
-      }
 
       // MVA working points
       // https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
@@ -732,8 +724,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       if (muon.pt()>5 and muon.isLooseMuon() and
 	  muon.passed(reco::Muon::MiniIsoLoose) and 
 	  sip3D<8.0 and dB2D<0.05 and dz<0.1){
-	muon.setSelector(reco::Muon::MvaLoose,  muon.mvaValue()>-0.60);
-	muon.setSelector(reco::Muon::MvaMedium, muon.mvaValue()>-0.20);
 	muon.setSelector(reco::Muon::MvaTight,  muon.mvaValue()> 0.15);
 	muon.setSelector(reco::Muon::MvaVTight,  muon.mvaValue()> 0.45);
 	muon.setSelector(reco::Muon::MvaVVTight,  muon.mvaValue()> 0.9);
