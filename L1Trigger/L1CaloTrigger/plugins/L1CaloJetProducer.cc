@@ -70,7 +70,6 @@ class L1CaloJetProducer : public edm::EDProducer {
         float apply_barrel_HGCal_boundary_calibration( float &jet_pt, float &hcal_pt, float &ecal_pt,
                 float &ecal_L1EG_jet_pt, int &seed_iEta ) const;
 
-        //double EtminForStore;
         double HcalTpEtMin;
         double EcalTpEtMin;
         double HGCalHadTpEtMin;
@@ -78,6 +77,7 @@ class L1CaloJetProducer : public edm::EDProducer {
         double HFTpEtMin;
         double EtMinForSeedHit;
         double EtMinForCollection;
+        double EtMinForTauCollection;
 
         // For fetching calibrations
         std::vector< double > jetPtBins;
@@ -172,6 +172,7 @@ class L1CaloJetProducer : public edm::EDProducer {
                 float l1eg_2x2_3 = 0.;
                 float l1eg_2x2_4 = 0.;
                 float l1eg_nHits = 0.;
+                float n_l1eg_HoverE_LessThreshold = 0.;
 
                 float l1eg_nL1EGs = 0.;
                 float l1eg_nL1EGs_standaloneSS = 0.;
@@ -305,7 +306,6 @@ class L1CaloJetProducer : public edm::EDProducer {
 };
 
 L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
-    //EtminForStore(iConfig.getParameter<double>("EtminForStore")),
     HcalTpEtMin(iConfig.getParameter<double>("HcalTpEtMin")), // Should default to 0 MeV
     EcalTpEtMin(iConfig.getParameter<double>("EcalTpEtMin")), // Should default to 0 MeV
     HGCalHadTpEtMin(iConfig.getParameter<double>("HGCalHadTpEtMin")), // Should default to 0 MeV
@@ -313,6 +313,7 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     HFTpEtMin(iConfig.getParameter<double>("HFTpEtMin")), // Should default to 0 MeV
     EtMinForSeedHit(iConfig.getParameter<double>("EtMinForSeedHit")), // Should default to 2.5 GeV
     EtMinForCollection(iConfig.getParameter<double>("EtMinForCollection")), // Testing 10 GeV
+    EtMinForTauCollection(iConfig.getParameter<double>("EtMinForTauCollection")), // Testing 10 GeV
     jetPtBins(iConfig.getParameter<std::vector<double>>("jetPtBins")),
     emFractionBinsBarrel(iConfig.getParameter<std::vector<double>>("emFractionBinsBarrel")),
     absEtaBinsBarrel(iConfig.getParameter<std::vector<double>>("absEtaBinsBarrel")),
@@ -332,6 +333,7 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     //produces<l1slhc::L1CaloJetsCollection>("L1CaloJetsWithCuts");
     //produces<l1extra::L1JetParticleCollection>("L1CaloClusterCollectionWithCuts");
     produces< BXVector<l1t::Jet> >("L1CaloJetCollectionBXV");
+    produces< BXVector<l1t::Tau> >("L1CaloTauCollectionBXV");
 
 
     if(debug) printf("\nHcalTpEtMin = %f\nEcalTpEtMin = %f\n", HcalTpEtMin, EcalTpEtMin);
@@ -476,6 +478,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     //std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloJetsWithCuts( new l1slhc::L1CaloJetsCollection );
     //std::unique_ptr<l1extra::L1JetParticleCollection> L1CaloClusterCollectionWithCuts( new l1extra::L1JetParticleCollection );
     std::unique_ptr<BXVector<l1t::Jet>> L1CaloJetCollectionBXV(new l1t::JetBxCollection);
+    std::unique_ptr<BXVector<l1t::Tau>> L1CaloTauCollectionBXV(new l1t::TauBxCollection);
 
 
 
@@ -610,6 +613,10 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                         // l1eg pt, HCAL ET, ECAL ET, dEta, dPhi, trkSS, trkIso, standaloneSS, standaloneIso
                         std::vector< float > l1EG_info = {float(l1egP4.pt()), float(hcalP4.pt()), float(ecalP4.pt()), 0., 0., float(l1CaloTower.l1eg_trkSS),
                             float(l1CaloTower.l1eg_trkIso), float(l1CaloTower.l1eg_standaloneSS), float(l1CaloTower.l1eg_standaloneIso)};
+                        if (l1EG_info[1] / (l1EG_info[0] + l1EG_info[2]) < 0.25)
+                        {
+                            caloJetObj.n_l1eg_HoverE_LessThreshold++;
+                        }
                         caloJetObj.associated_l1EGs.push_back( l1EG_info );
                     }
 
@@ -801,6 +808,10 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                         std::vector< float > l1EG_info = {float(l1egP4.pt()), float(hcalP4.pt()), float(ecalP4.pt()),
                             float(d_iEta), float(d_iPhi), float(l1CaloTower.l1eg_trkSS), float(l1CaloTower.l1eg_trkIso),
                             float(l1CaloTower.l1eg_standaloneSS), float(l1CaloTower.l1eg_standaloneIso)};
+                        if (l1EG_info[1] / (l1EG_info[0] + l1EG_info[2]) < 0.25)
+                        {
+                            caloJetObj.n_l1eg_HoverE_LessThreshold++;
+                        }
                         caloJetObj.associated_l1EGs.push_back( l1EG_info );
                     }
 
@@ -1008,6 +1019,13 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         params["jet_pt_calibration"] = params["hcal_pt_calibration"] +
             params["ecal_pt"] + params["l1eg_pt"];
 
+        // Tau Vars
+        params["tau_pt"] = params["total_3x5"]; // FIXME get_tau_calibration(
+            //params["total_3x5"],
+            //caloJetObj.n_l1eg_HoverE_LessThreshold,
+            //params["total_3x5"] );
+        params["n_l1eg_HoverE_LessThreshold"] = caloJetObj.n_l1eg_HoverE_LessThreshold;
+
         float calibratedPt = -1;
         float ECalIsolation = -1; // Need to loop over 7x7 crystals of unclustered energy
         float totalPtPUcorr = -1;
@@ -1015,7 +1033,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         caloJet.SetExperimentalParams(params);
         caloJet.associated_l1EGs = caloJetObj.associated_l1EGs;
 
-        // Only store jets passing ET threshold and within Barrel
+        // Only store jets passing ET threshold
         if (params["jet_pt_calibration"] >= EtMinForCollection)
         {
             L1CaloJetsNoCuts->push_back( caloJet );
@@ -1025,6 +1043,37 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             L1CaloJetCollectionBXV->push_back( 0, l1t::Jet( jet_p4 ) );
 
             if (debug) printf("Made a Jet, eta %f phi %f pt %f calibrated pt %f\n", caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi(), caloJetObj.jetClusterET, params["jet_pt_calibration"] );
+
+        }
+
+        // Only store taus passing ET threshold
+        if (params["tau_pt"] >= EtMinForTauCollection)
+        {
+            short int tau_ieta = caloJetObj.seed_iEta;
+            short int tau_iphi = caloJetObj.seed_iPhi;
+            short int raw_et = params["tau_pt"];
+            short int iso_et = params["jet_pt"] - params["total_3x5"];
+            bool hasEM = false;
+            if (params["l1eg_3x5"] > 0. || params["ecal_3x5"] > 0.)
+            {
+                hasEM = true;
+            }
+            int tau_qual = 0;
+
+            reco::Candidate::PolarLorentzVector tau_p4 = reco::Candidate::PolarLorentzVector( 
+                    params["tau_pt"], caloJet.p4().eta(), caloJet.p4().phi(), caloJet.p4().M() );
+            l1t::Tau l1Tau = l1t::Tau( tau_p4, params["tau_pt"], caloJet.p4().eta(), caloJet.p4().phi(), tau_qual, iso_et );
+            l1Tau.setTowerIEta(tau_ieta);
+            l1Tau.setTowerIPhi(tau_iphi);
+            l1Tau.setRawEt(raw_et);
+            l1Tau.setIsoEt(iso_et);
+            l1Tau.setHasEM(hasEM);
+            l1Tau.setIsMerged(false);
+            L1CaloTauCollectionBXV->push_back( 0, l1Tau );
+
+            if (debug) printf("Made a Tau, eta %f phi %f pt %i calibrated pt %f\n", l1Tau.eta(), l1Tau.phi(), l1Tau.rawEt(), l1Tau.pt() );
+
+
         }
 
 
@@ -1035,6 +1084,7 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     //iEvent.put(std::move(L1CaloJetsWithCuts), "L1CaloJetsWithCuts" );
     //iEvent.put(std::move(L1CaloClusterCollectionWithCuts), "L1CaloClusterCollectionWithCuts" );
     iEvent.put(std::move(L1CaloJetCollectionBXV),"L1CaloJetCollectionBXV");
+    iEvent.put(std::move(L1CaloTauCollectionBXV),"L1CaloTauCollectionBXV");
 
     //printf("end L1CaloJetProducer\n");
 }
