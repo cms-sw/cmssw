@@ -134,7 +134,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
 
 
 
-Run2_2016.toModify(patMuons, mvaTrainingFile="RecoMuon/MuonIdentification/data/mu_2017_BDTG.weights.xml")
+Run2_2016.toModify(patMuons, mvaTrainingFile="RecoMuon/MuonIdentification/data/mu_2016_BDTG.weights.xml")
 
 
 
