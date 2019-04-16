@@ -52,13 +52,14 @@ def TICL_iterations_withReco(process):
   process.TrackstersToMultiCluster.Tracksters = cms.InputTag("Tracksters", "TrackstersByCA")
 
   process.hgcalMultiClusters = hgcalMultiClusters
-  process.TICL = cms.Path(
-      process.FilteredLayerClustersMIP
-      + process.TrackstersMIP
-      + process.TrackstersToMultiClusterMIP
-      + process.FilteredLayerClusters
-      + process.Tracksters
-      + process.TrackstersToMultiCluster)
+  process.TICL_Task = cms.Task(
+      process.FilteredLayerClustersMIP,
+      process.TrackstersMIP,
+      process.TrackstersToMultiClusterMIP,
+      process.FilteredLayerClusters,
+      process.Tracksters,
+      process.TrackstersToMultiCluster)
+  process.TICL = cms.Path(process.TICL_Task)
   return process
 
 def TICL_iterations(process):
@@ -99,15 +100,16 @@ def TICL_iterations(process):
   process.HGCalRecHit = HGCalRecHit
   process.hgcalLayerClusters = hgcalLayerClusters
   process.hgcalMultiClusters = hgcalMultiClusters
-  process.TICL = cms.Path(process.HGCalUncalibRecHit
-      + process.HGCalRecHit
-      + process.hgcalLayerClusters
-      + process.FilteredLayerClustersMIP
-      + process.TrackstersMIP
-      + process.TrackstersToMultiClusterMIP
-      + process.FilteredLayerClusters
-      + process.Tracksters
-      + process.TrackstersToMultiCluster
-      + process.hgcalMultiClusters)
+  process.TICL_Task = cms.Task(process.HGCalUncalibRecHit,
+      process.HGCalRecHit,
+      process.hgcalLayerClusters,
+      process.FilteredLayerClustersMIP,
+      process.TrackstersMIP,
+      process.TrackstersToMultiClusterMIP,
+      process.FilteredLayerClusters,
+      process.Tracksters,
+      process.TrackstersToMultiCluster,
+      process.hgcalMultiClusters)
+  process.TICL = cms.Path(process.TICL_Task)
   return process
 
