@@ -302,6 +302,14 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('rawFactor', 'rawFactor', 20, -0.5, 0.5, '1 - Factor to get back to raw pT'),
             )
         ),
+        L1PreFiringWeight = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('Nom', 'Nom', 40, 0, 1, 'L1 pre-firing event correction weight (1-probability)'),
+                Plot1D('Up', 'Up', 40, 0, 1, 'L1 pre-firing event correction weight (1-probability), up var.'),
+                Plot1D('Dn', 'Dn', 40, 0, 1, 'L1 pre-firing event correction weight (1-probability), down var.'),
+            )
+        ),
         MET = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
