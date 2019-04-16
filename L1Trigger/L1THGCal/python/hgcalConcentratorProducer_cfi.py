@@ -27,10 +27,6 @@ best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcesso
                           linLSB = cms.double(100./1024.),
                           adcsaturationBH = adcSaturationBH_MIP,
                           adcnBitsBH = adcNbitsBH,
-                          TCThreshold_fC = cms.double(0.),
-                          TCThresholdBH_MIP = cms.double(0.),
-                          triggercell_threshold_silicon = cms.double(0.),
-                          triggercell_threshold_scintillator = cms.double(0.),
                           )
 
 
@@ -46,8 +42,8 @@ from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 # (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
 # for more details)
 phase2_hgcalV9.toModify(threshold_conc_proc,
-                        triggercell_threshold_silicon=1.5,  # MipT
-                        triggercell_threshold_scintillator=1.5,  # MipT
+                        triggercell_threshold_silicon=cms.double(1.5),  # MipT
+                        triggercell_threshold_scintillator=cms.double(1.5),  # MipT
                         )
 
 

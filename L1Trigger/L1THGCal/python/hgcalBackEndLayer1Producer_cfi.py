@@ -22,16 +22,16 @@ c2d_thresholds_pset = cms.PSet(seeding_threshold_silicon=cms.double(5.),
 # (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
 # for more details)
 phase2_hgcalV9.toModify(c2d_thresholds_pset,
-                        seeding_threshold_silicon=3.75,
-                        seeding_threshold_scintillator=3.75,
-                        clustering_threshold_silicon=1.5,
-                        clustering_threshold_scintillator=1.5,
+                        seeding_threshold_silicon=cms.double(3.75),
+                        seeding_threshold_scintillator=cms.double(3.75),
+                        clustering_threshold_silicon=cms.double(1.5),
+                        clustering_threshold_scintillator=cms.double(1.5),
                         )
 
 # we still don't have layer calibrations for V9 geometry. Switching this off we
 # use the dEdx calibrated energy of the TCs
 phase2_hgcalV9.toModify(c2d_calib_pset,
-                        applyLayerCalibration=False
+                        applyLayerCalibration=cms.bool(False)
                         )
 
 
