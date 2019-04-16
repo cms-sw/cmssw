@@ -131,14 +131,14 @@ nanoSequenceCommon = cms.Sequence(
         linkedObjects  +
         jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + isoTrackTables
         )
-#nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTables + l1bits)
+nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTables + l1bits)
 
-nanoSequence = cms.Sequence(nanoSequenceCommon)# + nanoSequenceOnlyFullSim)
+nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyFullSim)
 
 nanoSequenceFS = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequenceCommon + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
-#nanoSequenceMC = nanoSequenceFS.copy()
-#nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnlyFullSim)
+nanoSequenceMC = nanoSequenceFS.copy()
+nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnlyFullSim)
 
 # modify extraFlagsTable to store ecalBadCalibFilter decision which is re-run with updated bad crystal list for 2017 and 2018 samples
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
