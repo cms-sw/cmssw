@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
 
 patMuons = cms.EDProducer("PATMuonProducer",
     # input
@@ -108,8 +108,8 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # Depends on MiniIsolation, so only works in miniaod
     # Don't forget to set flags properly in miniAOD_tools.py                      
     computeMuonMVA = cms.bool(False),
-    mvaTrainingFile = cms.FileInPath("RecoMuon/MuonIdentification/data/MVA_Legacy_deepFlav_together_mu_2017_v17_BDTG.weights.xml"),
-    lowPtmvaTrainingFile = cms.FileInPath("RecoMuon/MuonIdentification/data/MVA_lowpt_2017_BDTG.weights.xml"),
+    mvaTrainingFile      = cms.FileInPath("RecoMuon/MuonIdentification/data/mu_2017_BDTG.weights.xml"),
+    lowPtmvaTrainingFile = cms.FileInPath("RecoMuon/MuonIdentification/data/mu_lowpt_BDTG.weights.xml"),
     recomputeBasicSelectors = cms.bool(True),
     mvaUseJec = cms.bool(True),
     mvaDrMax = cms.double(0.4),
@@ -134,7 +134,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
 
 
 
-eras.run2_miniAOD_80XLegacy.toModify(patMuons, mvaTrainingFile=cms.FileInPath("RecoMuon/MuonIdentification/data/MVA_Legacy_deepFlav_together_mu_2016_BDTG.weights.xml"))
+Run2_2016.toModify(patMuons, mvaTrainingFile="RecoMuon/MuonIdentification/data/mu_2017_BDTG.weights.xml")
 
 
 
