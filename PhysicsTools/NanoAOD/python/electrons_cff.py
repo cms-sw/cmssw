@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
@@ -98,7 +97,7 @@ bitmapVIDForEleSum16.WorkingPoints = cms.vstring(
 _bitmapVIDForEleSum16_docstring = _get_bitmapVIDForEle_docstring(electron_id_modules_WorkingPoints_nanoAOD.modules,bitmapVIDForEleSum16.WorkingPoints)
 
 
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_92X:
+for modifier in run2_miniAOD_80XLegacy, :
     modifier.toModify(bitmapVIDForEle, src = "slimmedElectronsUpdated")
     modifier.toModify(bitmapVIDForEleSpring15, src = "slimmedElectronsUpdated")
     modifier.toModify(bitmapVIDForEleSum16, src = "slimmedElectronsUpdated")
@@ -117,7 +116,6 @@ run2_miniAOD_80XLegacy.toModify(isoForEle, src = "slimmedElectronsUpdated",
 run2_nanoAOD_94X2016.toModify(isoForEle,
                                 EAFile_MiniIso = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt",
                                 EAFile_PFIso = "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt")
-run2_nanoAOD_92X.toModify(isoForEle, src = "slimmedElectronsUpdated")
 
 ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
     srcJet = cms.InputTag("updatedJets"),
@@ -125,7 +123,6 @@ ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
 run2_miniAOD_80XLegacy.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
-run2_nanoAOD_92X.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
 
 import EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi
 
@@ -193,7 +190,6 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
     ),
 )
 run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData, src = "slimmedElectronsUpdated")
-run2_nanoAOD_92X.toModify(slimmedElectronsWithUserData, src = "slimmedElectronsUpdated")
 run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData.userFloats,
     mvaSpring16GP = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
     mvaSpring16HZZ = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
@@ -440,7 +436,6 @@ electronTables = cms.Sequence (electronMVATTH + electronTable)
 electronMC = cms.Sequence(electronsMCMatchForTable + electronMCTable)
 
 _withUpdate_sequence = cms.Sequence(slimmedElectronsUpdated + electronSequence.copy())
-run2_nanoAOD_92X.toReplaceWith(electronSequence, _withUpdate_sequence)
 
 _withUpdateAnd80XLegacyScale_sequence = _withUpdate_sequence.copy()
 _withUpdateAnd80XLegacyScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons80XLegacy + bitmapVIDForEleSpring15 +bitmapVIDForEleSum16 + slimmedElectronsWithUserData)
