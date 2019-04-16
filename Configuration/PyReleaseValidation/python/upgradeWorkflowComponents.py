@@ -14,9 +14,9 @@ upgradeKeys[2017] = [
     '2018Design',
     '2018DesignPU',
     '2019',
-#    '2019PU',
+    '2019PU',
     '2019Design',
-#    '2019DesignPU',
+    '2019DesignPU',
 ]
 
 upgradeKeys[2023] = [
@@ -281,14 +281,14 @@ upgradeProperties[2017] = {
     '2019' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2019_realistic',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval20178',
         'Era' : 'Run3',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
     },
     '2019Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2019_design',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval2018',
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
@@ -299,10 +299,16 @@ upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
 upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 upgradeProperties[2017]['2017DesignPU'] = deepcopy(upgradeProperties[2017]['2017Design'])
 upgradeProperties[2017]['2017DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+
 upgradeProperties[2017]['2018PU'] = deepcopy(upgradeProperties[2017]['2018'])
 upgradeProperties[2017]['2018PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
 upgradeProperties[2017]['2018DesignPU'] = deepcopy(upgradeProperties[2017]['2018Design'])
 upgradeProperties[2017]['2018DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+
+upgradeProperties[2017]['2019PU'] = deepcopy(upgradeProperties[2017]['2019'])
+upgradeProperties[2017]['2019PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
+upgradeProperties[2017]['2019DesignPU'] = deepcopy(upgradeProperties[2017]['2019Design'])
+upgradeProperties[2017]['2019DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 
 upgradeProperties[2023] = {
     '2023D17' : {

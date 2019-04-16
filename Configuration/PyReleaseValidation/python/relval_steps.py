@@ -2932,8 +2932,8 @@ defaultDataSets['2017']='CMSSW_10_5_0_pre1-103X_mc2017_realistic_v2-v'
 defaultDataSets['2017Design']='CMSSW_10_0_0_pre2-100X_mc2017_design_IdealBS_v1-v'
 defaultDataSets['2018']='CMSSW_10_5_0_pre1-103X_upgrade2018_realistic_v8-v'
 defaultDataSets['2018Design']='CMSSW_10_5_0_pre1-103X_upgrade2018_design_v4-v'
-#defaultDataSets['2019']=''
-#defaultDataSets['2019Design']=''
+defaultDataSets['2019']=''
+defaultDataSets['2019Design']=''
 defaultDataSets['2023D17']='CMSSW_10_2_0_pre2-101X_upgrade2023_realistic_v5_2023D17noPU-v'
 defaultDataSets['2023D19']=''
 defaultDataSets['2023D21']=''
@@ -2977,10 +2977,12 @@ for ds in defaultDataSets:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2018' in name:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    elif '2019' in name:
+    	PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2023' in name:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_200_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
     else:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
+        PUDataSets[ds]={'-n':10,'--pileup':'AVE_XX_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
 
     #PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     #PUDataSets[ds]={'-n':10,'--pileup':'AVE_70_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
