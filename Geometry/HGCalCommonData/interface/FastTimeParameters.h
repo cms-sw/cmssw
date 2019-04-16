@@ -2,7 +2,6 @@
 #define Geometry_HGCalCommonData_FastTimeParameters_h
 
 #include <cstdint>
-#include <iostream>
 #include <string>
 #include <vector>
 #include "CondFormats/Serialization/interface/Serializable.h"

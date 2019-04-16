@@ -1,9 +1,7 @@
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -13,9 +11,10 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalNoTaperEndcap.h"
 
 //#define EDM_ML_DEBUG
+using namespace geant_units::operators;
 
 DDHGCalNoTaperEndcap::DDHGCalNoTaperEndcap() {
-  edm::LogInfo("HGCalGeom")
+  edm::LogVerbatim("HGCalGeom")
       << "DDHGCalNoTaperEndcap test: Creating an instance";
 }
 
@@ -37,8 +36,9 @@ void DDHGCalNoTaperEndcap::initialize(const DDNumericArguments& nArgs,
   m_incrCopyNo = int(nArgs["incrCopyNo"]);
   m_childName = sArgs["ChildName"];
   m_idNameSpace = DDCurrentNamespace::ns();
-  edm::LogInfo("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace "
-                            << m_idNameSpace << "\tParent " << parent().name();
+  edm::LogVerbatim("HGCalGeom") 
+    << "DDHGCalNoTaperEndcap: NameSpace " << m_idNameSpace << "\tParent "
+    << parent().name();
 }
 
 void DDHGCalNoTaperEndcap::execute(DDCompactView& cpv) {
@@ -55,7 +55,7 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant,
   double tiltAngle = m_tiltAngle;
   double xphi = xQuadrant * tiltAngle;
   double yphi = yQuadrant * tiltAngle;
-  double theta = 90. * CLHEP::deg;
+  double theta = 90._deg;
   double phiX = 0.0;
   double phiY = theta;
   double phiZ = 3 * theta;
@@ -88,10 +88,11 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant,
       // Make sure we do not add supermodules in rMin area
       if (limit2 > m_rMin && limit1 < m_rMax) {
 #ifdef EDM_ML_DEBUG
-        std::cout << m_childName << " copyNo = " << copyNo << " (" << column
-                  << "," << row << "): offsetX,Y = " << offsetX << ","
-                  << offsetY << " limit=" << limit1 << ":" << limit2
-                  << " rMin, rMax = " << m_rMin << "," << m_rMax << std::endl;
+        edm::LogVerbatim("HGCalGeom")
+	  << m_childName << " copyNo = " << copyNo << " (" << column
+	  << "," << row << "): offsetX,Y = " << offsetX << ","
+	  << offsetY << " limit=" << limit1 << ":" << limit2
+	  << " rMin, rMax = " << m_rMin << "," << m_rMax;
 #endif
         DDRotation rotation;
         std::string rotstr("NULL");
@@ -106,12 +107,12 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant,
               std::make_unique<DDRotationMatrix>(
                   *DDcreateRotationMatrix(theta, phiX, theta + yphi, phiY,
                                           -yphi, phiZ) *
-                  (*DDcreateRotationMatrix(theta + xphi, phiX, 90. * CLHEP::deg,
-                                           90. * CLHEP::deg, xphi, 0.0))));
+                  (*DDcreateRotationMatrix(theta + xphi, phiX, 90._deg,
+                                           90._deg, xphi, 0.0))));
         }
 
         DDTranslation tran(offsetX, offsetY, offsetZ);
-        edm::LogInfo("HGCalGeom")
+        edm::LogVerbatim("HGCalGeom")
             << "Module " << copyNo << ": location = " << tran << " Rotation "
             << rotation;
 
@@ -121,10 +122,10 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant,
         copyNo += m_incrCopyNo;
       } else {
 #ifdef EDM_ML_DEBUG
-        std::cout << " (" << column << "," << row
-                  << "): offsetX,Y = " << offsetX << "," << offsetY
-                  << " is out of limit=" << limit1 << ":" << limit2
-                  << " rMin, rMax = " << m_rMin << "," << m_rMax << std::endl;
+        edm::LogVerbatim("HGCalGeom") 
+	  << " (" << column << "," << row << "): offsetX,Y = " << offsetX 
+	  << "," << offsetY << " is out of limit=" << limit1 << ":" << limit2
+	  << " rMin, rMax = " << m_rMin << "," << m_rMax;
 #endif
       }
 
@@ -140,8 +141,9 @@ int DDHGCalNoTaperEndcap::createQuarter(DDCompactView& cpv, int xQuadrant,
     offsetX += xQuadrant * offsetXY;
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << rowmax << " rows and " << column << " columns in quadrant "
-            << xQuadrant << ":" << yQuadrant << std::endl;
+  edm::LogVerbatim("HGCalGeom")
+    << rowmax << " rows and " << column << " columns in quadrant "
+    << xQuadrant << ":" << yQuadrant;
 #endif
   return copyNo;
 }

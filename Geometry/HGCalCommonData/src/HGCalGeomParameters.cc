@@ -4,8 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
@@ -23,6 +22,7 @@
 #include <unordered_set>
 
 //#define EDM_ML_DEBUG
+using namespace geant_units::operators;
 
 const double tolerance = 0.001;
 
@@ -173,7 +173,7 @@ void HGCalGeomParameters::loadGeometryHexagon(
               zv = polygon.zVec();
               rv = polygon.xVec();
             }
-            php.waferR_ = rv[0] / std::cos(30.0 * CLHEP::deg);
+            php.waferR_ = rv[0] / std::cos(30._deg);
             php.waferSize_ = HGCalParameters::k_ScaleFromDDD * rv[0];
             double dz = 0.5 * (zv[1] - zv[0]);
 #ifdef EDM_ML_DEBUG
@@ -843,10 +843,10 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
   php.waferPosX_.clear();
   php.waferPosY_.clear();
   double dx = 0.5 * waferW;
-  double dy = 3.0 * dx * tan(30.0 * CLHEP::deg);
-  double rr = 2.0 * dx * tan(30.0 * CLHEP::deg);
+  double dy = 3.0 * dx * tan(30._deg);
+  double rr = 2.0 * dx * tan(30._deg);
   int ncol = (int)(2.0 * rout / waferW) + 1;
-  int nrow = (int)(rout / (waferW * tan(30.0 * CLHEP::deg))) + 1;
+  int nrow = (int)(rout / (waferW * tan(30._deg))) + 1;
   int ns2 = (2 * ncol + 1) * (2 * nrow + 1) * php.layer_.size();
   int incm(0), inrm(0), kount(0), ntot(0);
   HGCalParameters::layer_map copiesInLayers(php.layer_.size() + 1);

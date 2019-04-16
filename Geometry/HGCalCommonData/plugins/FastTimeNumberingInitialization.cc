@@ -19,9 +19,6 @@
 //
 //
 
-// system include files
-#include <memory>
-
 // user include files
 #include <FWCore/Framework/interface/ESProducer.h>
 #include <FWCore/Framework/interface/ESTransientHandle.h>
@@ -51,7 +48,8 @@ class FastTimeNumberingInitialization : public edm::ESProducer {
 FastTimeNumberingInitialization::FastTimeNumberingInitialization(
     const edm::ParameterSet&) {
 #ifdef EDM_ML_DEBUG
-  std::cout << "constructing FastTimeNumberingInitialization" << std::endl;
+  edm::LogVerbatim("HGCalGeom") 
+    << "constructing FastTimeNumberingInitialization";
 #endif
   setWhatProduced(this);
 }
@@ -62,7 +60,8 @@ FastTimeNumberingInitialization::~FastTimeNumberingInitialization() {}
 FastTimeNumberingInitialization::ReturnType
 FastTimeNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
-  std::cout << "in FastTimeNumberingInitialization::produce" << std::endl;
+  edm::LogVerbatim("HGCalGeom")
+    << "in FastTimeNumberingInitialization::produce";
 #endif
   edm::ESHandle<FastTimeParameters> pFTpar;
   iRecord.get(pFTpar);

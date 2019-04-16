@@ -16,9 +16,6 @@
 //         Created:  Tue Mar 21 16:40:29 PDT 2013
 //
 
-// system include files
-#include <memory>
-
 // user include files
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -50,9 +47,9 @@ HGCalNumberingInitialization::HGCalNumberingInitialization(
     const edm::ParameterSet& iConfig)
     : hgcalDDDConst_(nullptr) {
   name_ = iConfig.getUntrackedParameter<std::string>("Name");
-  edm::LogInfo("HGCalGeom") << "HGCalNumberingInitialization for " << name_;
 #ifdef EDM_ML_DEBUG
-  std::cout << "HGCalNumberingInitialization for " << name_ << std::endl;
+  edm::LogVerbatim("HGCalGeom")
+    << "HGCalNumberingInitialization for " << name_;
 #endif
   setWhatProduced(this, name_);
 }
@@ -62,7 +59,7 @@ HGCalNumberingInitialization::~HGCalNumberingInitialization() {}
 // ------------ method called to produce the data  ------------
 HGCalNumberingInitialization::ReturnType HGCalNumberingInitialization::produce(
     const IdealGeometryRecord& iRecord) {
-  edm::LogInfo("HGCalGeom") << "in HGCalNumberingInitialization::produce";
+  edm::LogVerbatim("HGCalGeom") << "in HGCalNumberingInitialization::produce";
   if (hgcalDDDConst_ == nullptr) {
     edm::ESHandle<HGCalParameters> pHGpar;
     iRecord.get(name_, pHGpar);

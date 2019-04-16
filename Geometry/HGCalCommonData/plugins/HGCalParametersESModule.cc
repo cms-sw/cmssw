@@ -8,8 +8,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParametersFromDD.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include <memory>
-
 //#define EDM_ML_DEBUG
 
 class HGCalParametersESModule : public edm::ESProducer {
@@ -30,11 +28,10 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
   namew_ = iC.getUntrackedParameter<std::string>("NameW");
   namec_ = iC.getUntrackedParameter<std::string>("NameC");
   namet_ = iC.getUntrackedParameter<std::string>("NameT");
-  edm::LogInfo("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":"
-                            << namew_ << ":" << namec_ << ":" << namet_;
 #ifdef EDM_ML_DEBUG
-  std::cout << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":"
-            << namec_ << ":" << namet_ << std::endl;
+  edm::LogVerbatim("HGCalGeom") 
+    << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":"
+    << namec_ << ":" << namet_;
 #endif
   setWhatProduced(this, name_);
 }
@@ -43,7 +40,7 @@ HGCalParametersESModule::~HGCalParametersESModule() {}
 
 HGCalParametersESModule::ReturnType HGCalParametersESModule::produce(
     const IdealGeometryRecord& iRecord) {
-  edm::LogInfo("HGCalGeom")
+  edm::LogVerbatim("HGCalGeom")
       << "HGCalParametersESModule::produce(const IdealGeometryRecord& iRecord)";
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.get(cpv);
