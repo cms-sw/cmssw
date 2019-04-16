@@ -385,7 +385,7 @@ int Muon::nDigisInStation( int station, int muonSubdetId ) const
 
 bool Muon::hasShowerInStation( int station, int muonSubdetId, int nDtDigisCut, int nCscDigisCut ) const
 {
-  if (muonSubdetId != MuonSubdetId::DT || muonSubdetId != MuonSubdetId::CSC) return false;
+  if (muonSubdetId != MuonSubdetId::DT && muonSubdetId != MuonSubdetId::CSC) return false;
   auto nDigisCut = muonSubdetId == MuonSubdetId::DT ? nDtDigisCut : nCscDigisCut;
 
   return nDigisInStation(station,muonSubdetId) >= nDigisCut ;   
