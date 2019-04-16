@@ -138,5 +138,5 @@ HTXSCategoryTable = cms.EDProducer("SimpleHTXSFlatTableProducer",
 )
 
 
-particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel + genParticles2HepMCHiggsVtx + rivetProducerHTXS)
-particleLevelTables = cms.Sequence(rivetLeptonTable + rivetMetTable + HTXSCategoryTable)
+particleLevelSequence = cms.Sequence(mergedGenParticles + genParticles2HepMC + particleLevel)# + genParticles2HepMCHiggsVtx + rivetProducerHTXS)
+particleLevelTables = cms.Sequence(rivetLeptonTable + rivetMetTable)# + HTXSCategoryTable)
