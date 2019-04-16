@@ -1,4 +1,5 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParametersFromDD.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
@@ -6,12 +7,8 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
-#include <iomanip>
-#include <iostream>
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 //#define EDM_ML_DEBUG
+using namespace geant_units::operators;
 
 namespace {
 HGCalGeometryMode::GeometryMode getGeometryMode(const char* s,
@@ -140,7 +137,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
         php.mouseBite_ =
             HGCalParameters::k_ScaleFromDDD * getDDDValue("MouseBite", sv2);
         php.waferR_ = 0.5 * HGCalParameters::k_ScaleToDDD * php.waferSize_ /
-                      std::cos(30.0 * CLHEP::deg);
+                      std::cos(30._deg);
         php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD *
                                    php.waferSize_ / php.nCellsFine_);
         php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD *

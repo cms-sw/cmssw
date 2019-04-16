@@ -19,10 +19,10 @@ HGCalWaferType::HGCalWaferType(const std::vector<double>& rad100,
   R_ = sqrt3_ * waferSize_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom")
-      << "HGCalWaferType: initialized with waferR's " << waferSize_ << ":" << r_
-      << ":" << R_ << " Choice " << choice_ << " Cuts " << cutValue_ << ":"
-      << cutFracArea_ << " zMin " << zMin_ << " with " << rad100_.size() << ":"
-      << rad200_.size() << " parameters for R:";
+      << "HGCalWaferType: initialized with waferR's " << waferSize_ << ":" 
+      << r_ << ":" << R_ << " Choice " << choice_ << " Cuts " << cutValue_ 
+      << ":" << cutFracArea_ << " zMin " << zMin_ << " with " << rad100_.size()
+      << ":" << rad200_.size() << " parameters for R:";
   for (unsigned k = 0; k < rad100_.size(); ++k)
     edm::LogVerbatim("HGCalGeom")
         << "[" << k << "] 100:200 " << rad100_[k] << " 200:300 " << rad200_[k];

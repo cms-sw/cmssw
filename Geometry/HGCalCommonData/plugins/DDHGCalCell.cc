@@ -1,5 +1,4 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalCell.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"

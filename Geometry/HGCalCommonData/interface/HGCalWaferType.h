@@ -14,7 +14,6 @@
  */
 
 #include <cmath>
-#include <iostream>
 #include <vector>
 
 class HGCalWaferType {

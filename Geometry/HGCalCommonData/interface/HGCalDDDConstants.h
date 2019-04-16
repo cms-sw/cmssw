@@ -11,7 +11,6 @@
  *
  */
 
-#include <iostream>
 #include <string>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"

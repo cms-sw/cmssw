@@ -4,14 +4,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 FastTimeDDDConstants::FastTimeDDDConstants(const FastTimeParameters* ft)
     : ftpar_(ft) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "FastTimeDDDConstants::FastTimeDDDConstants "
-				<< "( const FastTimeParameters* ft ) constructor";
+  edm::LogVerbatim("HGCalGeom") 
+    << "FastTimeDDDConstants::FastTimeDDDConstants "
+    << "( const FastTimeParameters* ft ) constructor";
 #endif
   initialize();
 }

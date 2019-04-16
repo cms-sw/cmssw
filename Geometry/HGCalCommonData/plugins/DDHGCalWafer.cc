@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
@@ -10,10 +10,11 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalWafer.h"
 
 //#define EDM_ML_DEBUG
+using namespace geant_units::operators;
 
 DDHGCalWafer::DDHGCalWafer() {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HGCalGeom") << "DDHGCalWafer test: Creating an instance";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer: Creating an instance";
 #endif
 }
 
@@ -35,26 +36,27 @@ void DDHGCalWafer::initialize(const DDNumericArguments& nArgs,
   idNameSpace_ = DDCurrentNamespace::ns();
   parentName_ = parent().name();
 #ifdef EDM_ML_DEBUG
-  std::cout << childNames_.size() << " children: " << childNames_[0] << "; "
-            << childNames_[1] << " in namespace " << idNameSpace_
-            << " positioned in " << nCellsRow_.size() << " rows and "
-            << nColumns_ << " columns with lowest column at " << nBottomY_
-            << " in mother " << parentName_ << " of size " << waferSize_
-            << std::endl;
+  edm::LogVerbatim("HGCalGeom")
+    << childNames_.size() << " children: " << childNames_[0] << "; "
+    << childNames_[1] << " in namespace " << idNameSpace_
+    << " positioned in " << nCellsRow_.size() << " rows and "
+    << nColumns_ << " columns with lowest column at " << nBottomY_
+    << " in mother " << parentName_ << " of size " << waferSize_;
   for (unsigned int k = 0; k < nCellsRow_.size(); ++k)
-    std::cout << "[" << k << "] Ncells " << nCellsRow_[k] << " Edge rotations "
-              << angleEdges_[2 * k] << ":" << angleEdges_[2 * k + 1]
-              << " Type of edge cells " << detectorType_[2 * k] << ":"
-              << detectorType_[2 * k + 1] << std::endl;
+    edm::LogVerbatim("HGCalGeom")
+      << "[" << k << "] Ncells " << nCellsRow_[k] << " Edge rotations "
+      << angleEdges_[2 * k] << ":" << angleEdges_[2 * k + 1]
+      << " Type of edge cells " << detectorType_[2 * k] << ":"
+      << detectorType_[2 * k + 1];
 #endif
 }
 
 void DDHGCalWafer::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HGCalGeom") << "==>> Constructing DDHGCalWafer...";
+  edm::LogVerbatim("HGCalGeom") << "==>> Constructing DDHGCalWafer...";
 #endif
   double dx = 0.5 * waferSize_ / nColumns_;
-  double dy = 0.5 * dx * tan(30.0 * CLHEP::deg);
+  double dy = 0.5 * dx * tan(30._deg);
   int ny = nBottomY_;
   int kount(0);
 
@@ -73,21 +75,18 @@ void DDHGCalWafer::execute(DDCompactView& cpv) {
       }
       DDRotation rot;
       if (irot != 0) {
-        if (irot >= 0 && irot < 100)
-          rotstr = "R0";
-        else
-          rotstr = "R";
-        rotstr = rotstr + std::to_string(irot);
+	double phi = convertDegToRad(irot);
+        rotstr = "R" + formatAsDegrees(phi);
         rot = DDRotation(DDName(rotstr, idNameSpace_));
         if (!rot) {
 #ifdef EDM_ML_DEBUG
-          std::cout << "DDHGCalWaferAlgo: Creating new rotation "
-                    << DDName(rotstr, idNameSpace_) << "\t90, " << irot
-                    << ", 90, " << (irot + 90) << ", 0, 0" << std::endl;
+          edm::LogVerbatim("HGCalGeom")
+	    << "DDHGCalWaferAlgo: Creating new rotation "
+	    << DDName(rotstr, idNameSpace_) << "\t90, " << irot
+	    << ", 90, " << (irot + 90) << ", 0, 0";
 #endif
-          rot = DDrot(DDName(rotstr, idNameSpace_), 90 * CLHEP::deg,
-                      irot * CLHEP::deg, 90 * CLHEP::deg,
-                      (90 + irot) * CLHEP::deg, 0 * CLHEP::deg, 0 * CLHEP::deg);
+          rot = DDrot(DDName(rotstr, idNameSpace_), 90._deg, phi, 90._deg,
+                      (90._deg+phi), 0, 0);
         }
       }
       double xpos = dx * nx;
@@ -97,9 +96,10 @@ void DDHGCalWafer::execute(DDCompactView& cpv) {
       cpv.position(DDName(name, idNameSpace_), parentName_, copy, tran, rot);
       ++kount;
 #ifdef EDM_ML_DEBUG
-      std::cout << "DDHGCalWafer: " << DDName(name, idNameSpace_) << " number "
-                << copy << " positioned in " << parentName_ << " at " << tran
-                << " with " << rot << std::endl;
+      edm::LogVerbatim("HGCalGeom")
+	<< "DDHGCalWafer: " << DDName(name, idNameSpace_) << " number "
+	<< copy << " positioned in " << parentName_ << " at " << tran
+	<< " with " << rot;
 #endif
     }
     ny += 6;

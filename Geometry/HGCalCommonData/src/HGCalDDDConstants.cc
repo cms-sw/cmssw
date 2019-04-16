@@ -1,5 +1,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
@@ -10,14 +11,12 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 #include <algorithm>
 #include <functional>
 #include <numeric>
 
 //#define EDM_ML_DEBUG
+using namespace geant_units::operators;
 
 static const int maxType = 2;
 static const int minType = 0;
@@ -31,7 +30,7 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
       (mode_ == HGCalGeometryMode::Hexagon8) ||
       (mode_ == HGCalGeometryMode::Hexagon8Full)) {
     rmax_ = (HGCalParameters::k_ScaleFromDDD * (hgpar_->waferR_) *
-             std::cos(30.0 * CLHEP::deg));
+             std::cos(30._deg));
     hexside_ = 2.0 * rmax_ * tan30deg_;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom")

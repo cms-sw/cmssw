@@ -3,7 +3,6 @@
 
 #include <CLHEP/Geometry/Transform3D.h>
 #include <cstdint>
-#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>

@@ -4,9 +4,6 @@
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "Geometry/HGCalCommonData/interface/FastTimeParameters.h"
 
-#include <iomanip>
-#include <iostream>
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
@@ -15,8 +12,9 @@ bool FastTimeParametersFromDD::build(const DDCompactView* cpv,
                                      FastTimeParameters& php,
                                      const std::string& name, const int type) {
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimeParametersFromDD::build called with names " << name
-            << " and type " << type << std::endl;
+  edm::LogVerbatim("HGCalGeom") 
+    << "FastTimeParametersFromDD::build called with names " << name
+    << " and type " << type;
 #endif
 
   // Special parameters at simulation level
@@ -37,9 +35,9 @@ bool FastTimeParametersFromDD::build(const DDCompactView* cpv,
       temp = getDDDArray("numberPhiB", sv);
       php.nPhiBarrel_ = (int)(temp[0]);
 #ifdef EDM_ML_DEBUG
-      std::cout << "Barrel Parameters: " << php.nZBarrel_ << ":"
-                << php.nPhiBarrel_ << ":" << php.geomParBarrel_[0] << ":"
-                << php.geomParBarrel_[1] << std::endl;
+      edm::LogVerbatim("HGCalGeom") 
+	<< "Barrel Parameters: " << php.nZBarrel_ << ":" << php.nPhiBarrel_ 
+	<< ":" << php.geomParBarrel_[0] << ":" << php.geomParBarrel_[1];
 #endif
     } else if (type == 2) {
       php.geomParEndcap_ = getDDDArray("geomParsE", sv);
@@ -48,10 +46,10 @@ bool FastTimeParametersFromDD::build(const DDCompactView* cpv,
       temp = getDDDArray("numberPhiE", sv);
       php.nPhiEndcap_ = (int)(temp[0]);
 #ifdef EDM_ML_DEBUG
-      std::cout << "Endcap Parameters: " << php.nEtaEndcap_ << ":"
-                << php.nPhiEndcap_ << ":" << php.geomParEndcap_[0] << ":"
-                << php.geomParEndcap_[1] << ":" << php.geomParEndcap_[2]
-                << std::endl;
+      edm::LogVerbatim("HGCalGeom") 
+	<< "Endcap Parameters: " << php.nEtaEndcap_ << ":"
+	<< php.nPhiEndcap_ << ":" << php.geomParEndcap_[0] << ":"
+	<< php.geomParEndcap_[1] << ":" << php.geomParEndcap_[2];
 #endif
     } else {
       edm::LogWarning("HGCalGeom")
@@ -64,8 +62,9 @@ bool FastTimeParametersFromDD::build(const DDCompactView* cpv,
         << "Attribute " << val << " not found but needed.";
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimeParametersFromDD::Returns with flag " << ok << " for "
-            << name << " and type " << type << std::endl;
+  edm::LogVerbatim("HGCalGeom")
+    << "FastTimeParametersFromDD::Returns with flag " << ok << " for "
+    << name << " and type " << type;
 #endif
   return ok;
 }
