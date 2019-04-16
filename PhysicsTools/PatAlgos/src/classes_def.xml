@@ -4,7 +4,21 @@
  <class name="edm::Wrapper<edm::ValueMap<std::vector<uint8_t>> >"/>
  <class name="edm::Wrapper<edm::ValueMap<std::vector<unsigned char>> >"/>
 
- <class name="HcalDepthEnergyFractionProd"/>
- <class name="std::vector<HcalDepthEnergyFractionProd>"/>
- <class name="edm::Wrapper<std::vector<HcalDepthEnergyFractionProd> >"/>
+ <class name="pat::HcalDepthEnergyFractionProd" />
+ <class name="std::vector<pat::HcalDepthEnergyFractionProd>"/>
+ <class name="edm::Wrapper<std::vector<pat::HcalDepthEnergyFractionProd> >"/>
+ <class name="edm::ValueMap<pat::HcalDepthEnergyFractionProd>" />
+ <class name="edm::Wrapper<edm::ValueMap<pat::HcalDepthEnergyFractionProd> >"/>
+
+ <class name="pat::SampleProd" />
+ <class name="std::vector<pat::SampleProd>"/>
+ <class name="edm::Wrapper<std::vector<pat::SampleProd> >"/>
+ <class name="edm::ValueMap<pat::SampleProd>" />
+ <class name="edm::Wrapper<edm::ValueMap<pat::SampleProd> >"/>
+
+ <ioread sourceClass = "HcalDepthEnergyFractionProd" version="[1-]" targetClass="HcalDepthEnergyFractionProd" source="std::vector<uint8_t> hcalDepthEnergyFractionI_" target="hcalDepthEnergyFraction_">
+ <![CDATA[ newObj->initUint8();
+ ]]>
+ </ioread>
+ 
 </lcgdict>
