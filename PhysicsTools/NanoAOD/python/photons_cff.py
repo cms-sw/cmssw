@@ -145,16 +145,16 @@ run2_nanoAOD_94X2016.toModify(slimmedPhotonsWithUserData.userIntFromBools,
     mvaIDV1_WP80 = None,
 )
 
-run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
-    ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyErrPostCorr"),
-    ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyPreCorr"),
-    ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyPostCorr"),
-)
-run2_nanoAOD_94XMiniAODv1.toModify(slimmedPhotonsWithUserData.userFloats,
-    ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyErrPostCorr"),
-    ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPreCorr"),
-    ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPostCorr"),
-)
+# run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
+#     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyErrPostCorr"),
+#     ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyPreCorr"),
+#     ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyPostCorr"),
+# )
+# run2_nanoAOD_94XMiniAODv1.toModify(slimmedPhotonsWithUserData.userFloats,
+#     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyErrPostCorr"),
+#     ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPreCorr"),
+#     ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPostCorr"),
+# )
 
 finalPhotons = cms.EDFilter("PATPhotonRefSelector",
     src = cms.InputTag("slimmedPhotonsWithUserData"),
@@ -192,20 +192,20 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 
 #these eras have the energy correction in the mini
-for modifier in run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016:
-    modifier.toModify(photonTable.variables,
-        pt = Var("pt*userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
-        energyErr = Var("userFloat('ecalEnergyErrPostCorr')",float,doc="energy error of the cluster from regression",precision=6),
-        eCorr = Var("userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
-    )
+# for modifier in run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016:
+#     modifier.toModify(photonTable.variables,
+#         pt = Var("pt*userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
+#         energyErr = Var("userFloat('ecalEnergyErrPostCorr')",float,doc="energy error of the cluster from regression",precision=6),
+#         eCorr = Var("userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
+#     )
 
-#these eras need to make the energy correction, hence the "New"
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_miniAOD_80XLegacy:
-    modifier.toModify(photonTable.variables,
-        pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
-        energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
-        eCorr = Var("userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')",float,doc="ratio of the calibrated energy/miniaod energy"),
-    )
+# #these eras need to make the energy correction, hence the "New"
+# for modifier in run2_nanoAOD_94XMiniAODv1, run2_miniAOD_80XLegacy:
+#     modifier.toModify(photonTable.variables,
+#         pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
+#         energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
+#         eCorr = Var("userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')",float,doc="ratio of the calibrated energy/miniaod energy"),
+#     )
 
 
 run2_nanoAOD_94X2016.toModify(photonTable.variables,
