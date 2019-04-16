@@ -21,9 +21,10 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/Common/interface/ValidHandle.h"
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
 
-#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
@@ -89,8 +90,7 @@ BtlRecHitsValidation::BtlRecHitsValidation(const edm::ParameterSet& iConfig):
   const std::string infoLabel = iConfig.getParameter<std::string>("moduleLabel");
   const std::string btlRecHitsCollection = iConfig.getParameter<std::string>("btlRecHitsCollection");
 
-  btlRecHitsToken_ = consumes <FTLRecHitCollection> (edm::InputTag(std::string(infoLabel),
-								   std::string(btlRecHitsCollection)));
+  btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
 
 }
 
@@ -111,14 +111,7 @@ void BtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   iSetup.get<MTDTopologyRcd>().get(topologyHandle);
   const MTDTopology* topology = topologyHandle.product();
 
-  edm::Handle<FTLRecHitCollection> btlRecHitsHandle;
-  iEvent.getByToken(btlRecHitsToken_, btlRecHitsHandle);
-
-  if( ! btlRecHitsHandle.isValid() ) {
-    edm::LogWarning("DataNotFound") << "No BTL RecHits found";
-    return;
-  }
-
+  auto btlRecHitsHandle = makeValid(iEvent.getHandle(btlRecHitsToken_));
 
   // --- Loop over the BLT RECO hits
 
@@ -217,8 +210,7 @@ void BtlRecHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/BTL/RecHits");
-  desc.add<std::string>("moduleLabel","mtdRecHits");
-  desc.add<std::string>("btlRecHitsCollection","FTLBarrel");
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("mtdRecHits", "FTLBarrel"));
 
   descriptions.add("btlRecHits", desc);
 

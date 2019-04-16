@@ -21,9 +21,9 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
-
+#include "DataFormats/Common/interface/ValidHandle.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+#include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
@@ -80,11 +80,7 @@ private:
 EtlRecHitsValidation::EtlRecHitsValidation(const edm::ParameterSet& iConfig):
   folder_(iConfig.getParameter<std::string>("folder")) {
 
-  const std::string infoLabel = iConfig.getParameter<std::string>("moduleLabel");
-  const std::string etlRecHitsCollection = iConfig.getParameter<std::string>("etlRecHitsCollection");
-
-  etlRecHitsToken_ = consumes <FTLRecHitCollection> (edm::InputTag(std::string(infoLabel),
-								   std::string(etlRecHitsCollection)));
+  etlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
 
 }
 
@@ -101,13 +97,7 @@ void EtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
   const MTDGeometry* geom = geometryHandle.product();
 
-  edm::Handle<FTLRecHitCollection> etlRecHitsHandle;
-  iEvent.getByToken(etlRecHitsToken_, etlRecHitsHandle);
-
-  if( ! etlRecHitsHandle.isValid() ) {
-    edm::LogWarning("DataNotFound") << "No ETL RecHits found";
-    return;
-  }
+  auto etlRecHitsHandle = makeValid(iEvent.getHandle(etlRecHitsToken_));
 
   // --- Loop over the ELT RECO hits
 
@@ -224,8 +214,7 @@ void EtlRecHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/ETL/RecHits");
-  desc.add<std::string>("moduleLabel","mtdRecHits");
-  desc.add<std::string>("etlRecHitsCollection","FTLEndcap");
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("mtdRecHits", "FTLEndcap"));
 
   descriptions.add("etlRecHits", desc);
 

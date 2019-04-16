@@ -21,9 +21,9 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
-
+#include "DataFormats/Common/interface/ValidHandle.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+#include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
@@ -80,11 +80,7 @@ private:
 EtlDigiHitsValidation::EtlDigiHitsValidation(const edm::ParameterSet& iConfig):
   folder_(iConfig.getParameter<std::string>("folder")) {
 
-  const std::string infoLabel = iConfig.getParameter<std::string>("moduleLabel");
-  const std::string etlDigisCollection = iConfig.getParameter<std::string>("etlDigiHitsCollection");
-
-  etlDigiHitsToken_ = consumes <ETLDigiCollection> (edm::InputTag(std::string(infoLabel),
-								  std::string(etlDigisCollection)));
+  etlDigiHitsToken_ = consumes<ETLDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
 
 }
 
@@ -101,13 +97,7 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
   const MTDGeometry* geom = geometryHandle.product();
 
-  edm::Handle<ETLDigiCollection> etlDigiHitsHandle;
-  iEvent.getByToken(etlDigiHitsToken_, etlDigiHitsHandle);
-
-  if( ! etlDigiHitsHandle.isValid() ) {
-    edm::LogWarning("DataNotFound") << "No ETL DIGI hits found";
-    return;
-  }
+  auto etlDigiHitsHandle = makeValid(iEvent.getHandle(etlDigiHitsToken_));
 
   // --- Loop over the ELT DIGI hits
 
@@ -234,8 +224,7 @@ void EtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/ETL/DigiHits");
-  desc.add<std::string>("moduleLabel","mix");
-  desc.add<std::string>("etlDigiHitsCollection","FTLEndcap");
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "FTLEndcap"));
 
   descriptions.add("etlDigiHitsDefault", desc);
 

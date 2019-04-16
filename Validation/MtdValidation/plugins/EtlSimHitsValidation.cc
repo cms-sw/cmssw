@@ -21,9 +21,11 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
+#include "DataFormats/Common/interface/ValidHandle.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
@@ -96,11 +98,7 @@ EtlSimHitsValidation::EtlSimHitsValidation(const edm::ParameterSet& iConfig):
   folder_(iConfig.getParameter<std::string>("folder")),
   hitMinEnergy_( iConfig.getParameter<double>("hitMinimumEnergy") ) {
   
-  const std::string g4InfoLabel = iConfig.getParameter<std::string>("moduleLabelG4");
-  const std::string etlHitsCollection = iConfig.getParameter<std::string>("etlSimHitsCollection");
-
-  etlSimHitsToken_ = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(g4InfoLabel),
-								     std::string(etlHitsCollection)));
+  etlSimHitsToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("inputTag"));
 
 }
 
@@ -112,18 +110,13 @@ EtlSimHitsValidation::~EtlSimHitsValidation() {
 void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   using namespace edm;
+  using namespace geant_units::operators;
 
   edm::ESHandle<MTDGeometry> geometryHandle;
   iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
   const MTDGeometry* geom = geometryHandle.product();
 
-  edm::Handle<edm::PSimHitContainer> etlSimHitsHandle;
-  iEvent.getByToken(etlSimHitsToken_, etlSimHitsHandle);
-
-  if( ! etlSimHitsHandle.isValid() ) {
-    edm::LogWarning("DataNotFound") << "No ETL SIM hits found";
-    return;
-  }
+  auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
 
   std::unordered_map<uint32_t, MTDHit> m_etlHits[2];
   std::unordered_map<uint32_t, std::set<int> > m_etlTrkPerCell[2];
@@ -143,7 +136,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     auto simHitIt = m_etlHits[idet].emplace(id.rawId(),MTDHit()).first;
 
     // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
-    (simHitIt->second).energy += 1000.*simHit.energyLoss();
+    (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
 
     // --- Get the time of the first SIM hit in the cell
     if( (simHitIt->second).time==0 || simHit.tof()<(simHitIt->second).time ) {
@@ -186,7 +179,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 						     << " (" << detId.rawId()<< ") is invalid!" << std::dec
 						     << std::endl;
 
-      Local3DPoint local_point(0.1*(hit.second).x,0.1*(hit.second).y,0.1*(hit.second).z);
+      Local3DPoint local_point(convertMmToCm((hit.second).x),convertMmToCm((hit.second).y),convertMmToCm((hit.second).z));
       const auto& global_point = thedet->toGlobal(local_point);
 
       // --- Fill the histograms
@@ -293,8 +286,7 @@ void EtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/ETL/SimHits");
-  desc.add<std::string>("moduleLabelG4","g4SimHits");
-  desc.add<std::string>("etlSimHitsCollection","FastTimerHitsEndcap");
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("g4SimHits", "FastTimerHitsEndcap"));
   desc.add<double>("hitMinimumEnergy",0.1); // [MeV]
 
   descriptions.add("etlSimHits", desc);
