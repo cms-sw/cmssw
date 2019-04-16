@@ -385,21 +385,20 @@ int Muon::nDigisInStation( int station, int muonSubdetId ) const
 
 bool Muon::hasShowerInStation( int station, int muonSubdetId, int nDtDigisCut, int nCscDigisCut ) const
 {
-  bool hasShower = muonSubdetId == MuonSubdetId::DT ? 
-    nDigisInStation(station,muonSubdetId) >= nDtDigisCut :
-    nDigisInStation(station,muonSubdetId) >= nCscDigisCut;
+  if (muonSubdetId != MuonSubdetId::DT || muonSubdetId != MuonSubdetId::CSC) return false;
+  auto nDigisCut = muonSubdetId == MuonSubdetId::DT ? nDtDigisCut : nCscDigisCut;
 
-  return hasShower;   
+  return nDigisInStation(station,muonSubdetId) >= nDigisCut ;   
 }
 
 int Muon::numberOfShowers( int nDtDigisCut, int nCscDigisCut ) const
 {
   int nShowers = 0;
-  for ( int iCh = 1; iCh < 5; ++iCh )
+  for ( int station = 1; station < 5; ++station )
     {
-      if ( hasShowerInStation(iCh,MuonSubdetId::DT,nDtDigisCut,nCscDigisCut) )
+      if ( hasShowerInStation(station,MuonSubdetId::DT,nDtDigisCut,nCscDigisCut) )
 	nShowers++;
-      if ( hasShowerInStation(iCh,MuonSubdetId::CSC,nDtDigisCut,nCscDigisCut) )
+      if ( hasShowerInStation(station,MuonSubdetId::CSC,nDtDigisCut,nCscDigisCut) )
 	nShowers++;
     }
 
