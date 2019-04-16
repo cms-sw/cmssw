@@ -176,8 +176,8 @@ void EtlRecHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   meHitPhi_[1] = ibook.book1D("EtlHitPhiZpos", "ETL RECO hits #phi (+Z);#phi_{RECO} [rad]", 100, -3.15, 3.15);
   meHitPhi_[0] = ibook.book1D("EtlHitPhiZneg", "ETL RECO hits #phi (-Z);#phi_{RECO} [rad]", 100, -3.15, 3.15);
-  meHitEta_[1] = ibook.book1D("EtlHitEtaZpos", "ETL RECO hits #eta (+Z);#eta_{RECO}", 100, 1.56, 3.);
-  meHitEta_[0] = ibook.book1D("EtlHitEtaZneg", "ETL RECO hits #eta (-Z);#eta_{RECO}", 100, -3., -1.56);
+  meHitEta_[1] = ibook.book1D("EtlHitEtaZpos", "ETL RECO hits #eta (+Z);#eta_{RECO}", 100, 1.56, 3.2);
+  meHitEta_[0] = ibook.book1D("EtlHitEtaZneg", "ETL RECO hits #eta (-Z);#eta_{RECO}", 100, -3.2, -1.56);
 
   meHitTvsE_[1] = ibook.bookProfile(
       "EtlHitTvsEZpos", "ETL RECO time vs energy (+Z);E_{RECO} [MeV];ToA_{RECO} [ns]", 50, 0., 2., 0., 100.);
@@ -188,17 +188,17 @@ void EtlRecHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitEvsPhi_[0] = ibook.bookProfile(
       "EtlHitEvsPhiZneg", "ETL RECO energy vs #phi (-Z);#phi_{RECO} [rad];E_{RECO} [MeV]", 50, -3.15, 3.15, 0., 100.);
   meHitEvsEta_[1] = ibook.bookProfile(
-      "EtlHitEvsEtaZpos", "ETL RECO energy vs #eta (+Z);#eta_{RECO};E_{RECO} [MeV]", 50, 1.56, 3., 0., 100.);
+      "EtlHitEvsEtaZpos", "ETL RECO energy vs #eta (+Z);#eta_{RECO};E_{RECO} [MeV]", 50, 1.56, 3.2, 0., 100.);
   meHitEvsEta_[0] = ibook.bookProfile(
-      "EtlHitEvsEtaZneg", "ETL RECO energy vs #eta (-Z);#eta_{RECO};E_{RECO} [MeV]", 50, -3., -1.56, 0., 100.);
+      "EtlHitEvsEtaZneg", "ETL RECO energy vs #eta (-Z);#eta_{RECO};E_{RECO} [MeV]", 50, -3.2, -1.56, 0., 100.);
   meHitTvsPhi_[1] = ibook.bookProfile(
       "EtlHitTvsPhiZpos", "ETL RECO time vs #phi (+Z);#phi_{RECO} [rad];ToA_{RECO} [ns]", 50, -3.15, 3.15, 0., 100.);
   meHitTvsPhi_[0] = ibook.bookProfile(
       "EtlHitTvsPhiZneg", "ETL RECO time vs #phi (-Z);#phi_{RECO} [rad];ToA_{RECO} [ns]", 50, -3.15, 3.15, 0., 100.);
   meHitTvsEta_[1] = ibook.bookProfile(
-      "EtlHitTvsEtaZpos", "ETL RECO time vs #eta (+Z);#eta_{RECO};ToA_{RECO} [ns]", 50, 1.56, 3., 0., 100.);
+      "EtlHitTvsEtaZpos", "ETL RECO time vs #eta (+Z);#eta_{RECO};ToA_{RECO} [ns]", 50, 1.56, 3.2, 0., 100.);
   meHitTvsEta_[0] = ibook.bookProfile(
-      "EtlHitTvsEtaZpos", "ETL RECO time vs #eta (-Z);#eta_{RECO};ToA_{RECO} [ns]", 50, -3., -1.56, 0., 100.);
+      "EtlHitTvsEtaZneg", "ETL RECO time vs #eta (-Z);#eta_{RECO};ToA_{RECO} [ns]", 50, -3.2, -1.56, 0., 100.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

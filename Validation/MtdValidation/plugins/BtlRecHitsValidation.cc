@@ -78,9 +78,6 @@ private:
 // ------------ constructor and destructor --------------
 BtlRecHitsValidation::BtlRecHitsValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")) {
-  const std::string infoLabel = iConfig.getParameter<std::string>("moduleLabel");
-  const std::string btlRecHitsCollection = iConfig.getParameter<std::string>("btlRecHitsCollection");
-
   btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
 }
 

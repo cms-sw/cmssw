@@ -243,9 +243,9 @@ void BtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitTvsEta_[1] = ibook.bookProfile(
       "BtlHitTvsEtaR", "BTL DIGI ToA vs #eta (R);#eta_{DIGI};ToA_{DIGI} [TDC counts]", 50, -1.55, 1.55, 0., 1024.);
   meHitTvsZ_[0] = ibook.bookProfile(
-      "BtlHitTvsZL", "BTL SIM ToA vs Z (L);Z_{DIGI} [cm];ToA_{DIGI} [TDC counts]", 50, -260., 260., 0., 1024.);
+      "BtlHitTvsZL", "BTL DIGI ToA vs Z (L);Z_{DIGI} [cm];ToA_{DIGI} [TDC counts]", 50, -260., 260., 0., 1024.);
   meHitTvsZ_[1] = ibook.bookProfile(
-      "BtlHitTvsZR", "BTL SIM ToA vs Z (R);Z_{DIGI} [cm];ToA_{DIGI} [TDC counts]", 50, -260., 260., 0., 1024.);
+      "BtlHitTvsZR", "BTL DIGI ToA vs Z (R);Z_{DIGI} [cm];ToA_{DIGI} [TDC counts]", 50, -260., 260., 0., 1024.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
