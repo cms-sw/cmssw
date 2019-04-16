@@ -21,9 +21,11 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
+#include "DataFormats/Common/interface/ValidHandle.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
@@ -103,11 +105,7 @@ BtlSimHitsValidation::BtlSimHitsValidation(const edm::ParameterSet& iConfig):
   folder_(iConfig.getParameter<std::string>("folder")),
   hitMinEnergy_( iConfig.getParameter<double>("hitMinimumEnergy") ) {
 
-  const std::string g4InfoLabel = iConfig.getParameter<std::string>("moduleLabelG4");
-  const std::string btlHitsCollection = iConfig.getParameter<std::string>("btlSimHitsCollection");
-
-  btlSimHitsToken_ = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(g4InfoLabel),
-								     std::string(btlHitsCollection)));
+  btlSimHitsToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("inputTag"));
 
 }
 
@@ -119,6 +117,7 @@ BtlSimHitsValidation::~BtlSimHitsValidation() {
 void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   using namespace edm;
+  using namespace geant_units::operators;
 
   edm::ESHandle<MTDGeometry> geometryHandle;
   iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
@@ -128,13 +127,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   iSetup.get<MTDTopologyRcd>().get(topologyHandle);
   const MTDTopology* topology = topologyHandle.product();
 
-  edm::Handle<edm::PSimHitContainer> btlSimHitsHandle;
-  iEvent.getByToken(btlSimHitsToken_, btlSimHitsHandle);
-
-  if( ! btlSimHitsHandle.isValid() ) {
-    edm::LogWarning("DataNotFound") << "No BTL SIM hits found";
-    return;
-  }
+  auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));
 
   std::unordered_map<uint32_t, MTDHit> m_btlHits;
   std::unordered_map<uint32_t, std::set<int> > m_btlTrkPerCell;
@@ -152,7 +145,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     auto simHitIt = m_btlHits.emplace(id.rawId(),MTDHit()).first;
 
     // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
-    (simHitIt->second).energy += 1000.*simHit.energyLoss();
+    (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
 
     // --- Get the time of the first SIM hit in the cell
     if( (simHitIt->second).time==0 || simHit.tof()<(simHitIt->second).time ) {
@@ -194,7 +187,8 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
-    Local3DPoint local_point(0.1*(hit.second).x,0.1*(hit.second).y,0.1*(hit.second).z);
+    Local3DPoint local_point(convertMmToCm((hit.second).x),convertMmToCm((hit.second).y),convertMmToCm((hit.second).z));
+
     local_point = topo.pixelToModuleLocalPoint(local_point,detId.row(topo.nrows()),detId.column(topo.nrows()));
     const auto& global_point = thedet->toGlobal(local_point);
 
@@ -279,8 +273,7 @@ void BtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/BTL/SimHits");
-  desc.add<std::string>("moduleLabelG4","g4SimHits");
-  desc.add<std::string>("btlSimHitsCollection","FastTimerHitsBarrel");
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("g4SimHits", "FastTimerHitsBarrel"));
   desc.add<double>("hitMinimumEnergy",1.); // [MeV]
 
   descriptions.add("btlSimHits", desc);

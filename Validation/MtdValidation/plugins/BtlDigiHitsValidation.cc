@@ -21,9 +21,9 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
-
+#include "DataFormats/Common/interface/ValidHandle.h"
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
@@ -86,11 +86,7 @@ private:
 BtlDigiHitsValidation::BtlDigiHitsValidation(const edm::ParameterSet& iConfig):
   folder_(iConfig.getParameter<std::string>("folder")) {
 
-  const std::string infoLabel = iConfig.getParameter<std::string>("moduleLabel");
-  const std::string btlDigisCollection = iConfig.getParameter<std::string>("btlDigiHitsCollection");
-
-  btlDigiHitsToken_ = consumes <BTLDigiCollection> (edm::InputTag(std::string(infoLabel),
-								  std::string(btlDigisCollection)));
+  btlDigiHitsToken_ = consumes<BTLDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
 
 }
 
@@ -111,13 +107,7 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   iSetup.get<MTDTopologyRcd>().get(topologyHandle);
   const MTDTopology* topology = topologyHandle.product();
 
-  edm::Handle<BTLDigiCollection> btlDigiHitsHandle;
-  iEvent.getByToken(btlDigiHitsToken_, btlDigiHitsHandle);
-
-  if( ! btlDigiHitsHandle.isValid() ) {
-    edm::LogWarning("DataNotFound") << "No BTL DIGI hits found";
-    return;
-  }
+  auto btlDigiHitsHandle = makeValid(iEvent.getHandle(btlDigiHitsToken_));
 
   // --- Loop over the BLT DIGI hits
 
@@ -256,8 +246,7 @@ void BtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/BTL/DigiHits");
-  desc.add<std::string>("moduleLabel","mix");
-  desc.add<std::string>("btlDigiHitsCollection","FTLBarrel");
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "FTLBarrel"));
 
   descriptions.add("btlDigiHitsDefault", desc);
 
