@@ -97,6 +97,4 @@
   <flags CXXFLAGS="-ffp-contract=off"/>
 </bin>
 
-<bin   file="Angle0to2piTest.cc" name="Angle0to2piTest">
-</bin>
 </iftool>

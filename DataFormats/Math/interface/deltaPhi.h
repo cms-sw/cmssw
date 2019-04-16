@@ -1,11 +1,13 @@
 #ifndef DataFormats_Math_deltaPhi_h
 #define DataFormats_Math_deltaPhi_h
+
 /* function to compute deltaPhi
  *
  * Ported from original code in RecoJets 
  * by Fedor Ratnikov, FNAL
  * stabilize range reduction
  */
+
 #include <cmath>
 
 namespace reco {
@@ -100,32 +102,33 @@ namespace angle_units {
 }
 
 
-namespace angle0to2pi {
+namespace angle0To2pi {
 
   using namespace angle_units::operators;
 
-  // make0to2pi constrains an angle to be >= 0 and < 2pi.
+  // make0To2pi constrains an angle to be >= 0 and < 2pi.
   // This function is a faster version of reco::reduceRange.
-  // In some timing tests, it can take about half the time of reco::reduceRange.
+  // In timing tests, it is almost always faster than reco::reduceRange.
   // It also protects against floating-point value drift over repeated calculations.
+  // This implementation uses multiplication instead of division and avoids
+  // calling fmod to improve performance.
 
   template <class valType>
-  inline constexpr valType make0to2pi(valType angle) {
+  inline constexpr valType make0To2pi(valType angle) {
     constexpr valType twoPi = 2._pi;
+    constexpr valType oneOverTwoPi = 1. / twoPi;
     constexpr valType epsilon = 1.e-13;
 
     if ((std::abs(angle) <= epsilon) || (std::abs(twoPi - std::abs(angle)) <= epsilon))
       return (0.);
-      
-    // if statements arranged to promote faster performance
-    if (angle < 0.) {
-      if (angle >= -twoPi)
-        angle += twoPi;
-      else angle = fmod(angle, twoPi) + twoPi;
+    if (std::abs(angle) > twoPi) {
+      valType nFac = trunc(angle * oneOverTwoPi);
+      angle -= (nFac * twoPi);
+      if (std::abs(angle) <= epsilon)
+        return (0.);
     }
-    else if (angle >= twoPi) {
-      angle = fmod(angle, twoPi);
-    }
+    if (angle < 0.)
+      angle += twoPi;
     return (angle);
   }
 }
