@@ -231,8 +231,8 @@ void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   meHitPhi_[1] = ibook.book1D("EtlHitPhiZpos", "ETL SIM hits #phi (+Z);#phi_{SIM} [rad]", 100, -3.15, 3.15);
   meHitPhi_[0] = ibook.book1D("EtlHitPhiZneg", "ETL SIM hits #phi (-Z);#phi_{SIM} [rad]", 100, -3.15, 3.15);
-  meHitEta_[1] = ibook.book1D("EtlHitEtaZpos", "ETL SIM hits #eta (+Z);#eta_{SIM}", 100, 1.56, 3.);
-  meHitEta_[0] = ibook.book1D("EtlHitEtaZneg", "ETL SIM hits #eta (-Z);#eta_{SIM}", 100, 3., -1.56);
+  meHitEta_[1] = ibook.book1D("EtlHitEtaZpos", "ETL SIM hits #eta (+Z);#eta_{SIM}", 100, 1.56, 3.2);
+  meHitEta_[0] = ibook.book1D("EtlHitEtaZneg", "ETL SIM hits #eta (-Z);#eta_{SIM}", 100, -3.2, -1.56);
 
   meHitTvsE_[1] = ibook.bookProfile(
       "EtlHitTvsEZpos", "ETL SIM time vs energy (+Z);E_{SIM} [MeV];T_{SIM} [ns]", 50, 0., 2., 0., 100.);
@@ -243,17 +243,17 @@ void EtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitEvsPhi_[0] = ibook.bookProfile(
       "EtlHitEvsPhiZneg", "ETL SIM energy vs #phi (-Z);#phi_{SIM} [rad];E_{SIM} [MeV]", 50, -3.15, 3.15, 0., 100.);
   meHitEvsEta_[1] = ibook.bookProfile(
-      "EtlHitEvsEtaZpos", "ETL SIM energy vs #eta (+Z);#eta_{SIM};E_{SIM} [MeV]", 50, 1.56, 3., 0., 100.);
+      "EtlHitEvsEtaZpos", "ETL SIM energy vs #eta (+Z);#eta_{SIM};E_{SIM} [MeV]", 50, 1.56, 3.2, 0., 100.);
   meHitEvsEta_[0] = ibook.bookProfile(
-      "EtlHitEvsEtaZneg", "ETL SIM energy vs #eta (-Z);#eta_{SIM};E_{SIM} [MeV]", 50, 3., -1.56, 0., 100.);
+      "EtlHitEvsEtaZneg", "ETL SIM energy vs #eta (-Z);#eta_{SIM};E_{SIM} [MeV]", 50, -3.2, -1.56, 0., 100.);
   meHitTvsPhi_[1] = ibook.bookProfile(
       "EtlHitTvsPhiZpos", "ETL SIM time vs #phi (+Z);#phi_{SIM} [rad];T_{SIM} [ns]", 50, -3.15, 3.15, 0., 100.);
   meHitTvsPhi_[0] = ibook.bookProfile(
       "EtlHitTvsPhiZneg", "ETL SIM time vs #phi (-Z);#phi_{SIM} [rad];T_{SIM} [ns]", 50, -3.15, 3.15, 0., 100.);
   meHitTvsEta_[1] = ibook.bookProfile(
-      "EtlHitTvsEtaZpos", "ETL SIM time vs #eta (+Z);#eta_{SIM};T_{SIM} [ns]", 50, 1.56, 3., 0., 100.);
+      "EtlHitTvsEtaZpos", "ETL SIM time vs #eta (+Z);#eta_{SIM};T_{SIM} [ns]", 50, 1.56, 3.2, 0., 100.);
   meHitTvsEta_[0] = ibook.bookProfile(
-      "EtlHitTvsEtaZpos", "ETL SIM time vs #eta (-Z);#eta_{SIM};T_{SIM} [ns]", 50, 3., -1.56, 0., 100.);
+      "EtlHitTvsEtaZneg", "ETL SIM time vs #eta (-Z);#eta_{SIM};T_{SIM} [ns]", 50, -3.2, -1.56, 0., 100.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

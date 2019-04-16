@@ -180,8 +180,8 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   meHitPhi_[0] = ibook.book1D("EtlHitPhiZneg", "ETL DIGI hits #phi (-Z);#phi_{DIGI} [rad]", 100, -3.15, 3.15);
   meHitPhi_[1] = ibook.book1D("EtlHitPhiZpos", "ETL DIGI hits #phi (+Z);#phi_{DIGI} [rad]", 100, -3.15, 3.15);
-  meHitEta_[0] = ibook.book1D("EtlHitEtaZneg", "ETL DIGI hits #eta (-Z);#eta_{DIGI}", 100, -3., -1.56);
-  meHitEta_[1] = ibook.book1D("EtlHitEtaZpos", "ETL DIGI hits #eta (+Z);#eta_{DIGI}", 100, 1.56, 3.);
+  meHitEta_[0] = ibook.book1D("EtlHitEtaZneg", "ETL DIGI hits #eta (-Z);#eta_{DIGI}", 100, -3.2, -1.56);
+  meHitEta_[1] = ibook.book1D("EtlHitEtaZpos", "ETL DIGI hits #eta (+Z);#eta_{DIGI}", 100, 1.56, 3.2);
 
   meHitTvsQ_[0] = ibook.bookProfile("EtlHitTvsQZneg",
                                     "ETL DIGI ToA vs charge (-Z);Q_{DIGI} [ADC counts];ToA_{DIGI} [TDC counts]",
@@ -212,9 +212,9 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                       0.,
                                       1024.);
   meHitQvsEta_[0] = ibook.bookProfile(
-      "EtlHitQvsEtaZneg", "ETL DIGI charge vs #eta (-Z);#eta_{DIGI};Q_{DIGI} [ADC counts]", 50, -3., -1.56, 0., 1024.);
+      "EtlHitQvsEtaZneg", "ETL DIGI charge vs #eta (-Z);#eta_{DIGI};Q_{DIGI} [ADC counts]", 50, -3.2, -1.56, 0., 1024.);
   meHitQvsEta_[1] = ibook.bookProfile(
-      "EtlHitQvsEtaZpos", "ETL DIGI charge vs #eta (+Z);#eta_{DIGI};Q_{DIGI} [ADC counts]", 50, 1.56, 3., 0., 1024.);
+      "EtlHitQvsEtaZpos", "ETL DIGI charge vs #eta (+Z);#eta_{DIGI};Q_{DIGI} [ADC counts]", 50, 1.56, 3.2, 0., 1024.);
   meHitTvsPhi_[0] = ibook.bookProfile("EtlHitTvsPhiZneg",
                                       "ETL DIGI ToA vs #phi (-Z);#phi_{DIGI} [rad];ToA_{DIGI} [TDC counts]",
                                       50,
@@ -230,9 +230,9 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                       0.,
                                       1024.);
   meHitTvsEta_[0] = ibook.bookProfile(
-      "EtlHitTvsEtaZneg", "ETL DIGI ToA vs #eta (-Z);#eta_{DIGI};ToA_{DIGI} [TDC counts]", 50, -3., -1.56, 0., 1024.);
+      "EtlHitTvsEtaZneg", "ETL DIGI ToA vs #eta (-Z);#eta_{DIGI};ToA_{DIGI} [TDC counts]", 50, -3.2, -1.56, 0., 1024.);
   meHitTvsEta_[1] = ibook.bookProfile(
-      "EtlHitTvsEtaZpos", "ETL DIGI ToA vs #eta (+Z);#eta_{DIGI};ToA_{DIGI} [TDC counts]", 50, 1.56, 3., 0., 1024.);
+      "EtlHitTvsEtaZpos", "ETL DIGI ToA vs #eta (+Z);#eta_{DIGI};ToA_{DIGI} [TDC counts]", 50, 1.56, 3.2, 0., 1024.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

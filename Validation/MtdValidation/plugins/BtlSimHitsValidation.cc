@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    Validation/MtdValidation
@@ -216,8 +217,8 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL SIM hits energy;E_{SIM} [MeV]", 100, 0., 20.);
   meHitTime_ = ibook.book1D("BtlHitTime", "BTL SIM hits ToA;ToA_{SIM} [ns]", 100, 0., 25.);
 
-  meHitXlocal_ = ibook.book1D("BtlHitXlocal", "BTL SIM local X;X_{SIM}^{LOC} [mm]", 100, -1.65, 1.65);
-  meHitYlocal_ = ibook.book1D("BtlHitYlocal", "BTL SIM local Y;Y_{SIM}^{LOC} [mm]", 100, -30., 30.);
+  meHitXlocal_ = ibook.book1D("BtlHitXlocal", "BTL SIM local X;X_{SIM}^{LOC} [mm]", 100, -30., 30.);
+  meHitYlocal_ = ibook.book1D("BtlHitYlocal", "BTL SIM local Y;Y_{SIM}^{LOC} [mm]", 100, -1.65, 1.65);
   meHitZlocal_ = ibook.book1D("BtlHitZlocal", "BTL SIM local z;z_{SIM}^{LOC} [mm]", 100, -2., 2.);
 
   meOccupancy_ = ibook.book2D(
