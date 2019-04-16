@@ -95,8 +95,6 @@ void HGCalCLUEAlgo::makeClusters() {
       double maxdensity = calculateLocalDensity(points_[i], hit_kdtree,
                                                 actualLayer);  // also stores rho (energy
                                                                // density) for each point (node)
-      //Now that we have the density per point we can store it
-      setDensity(points_[i]);
       // calculate distance to nearest point with higher density storing
       // distance (delta) and point's index
       calculateDistanceToHigher(points_[i]);
@@ -104,6 +102,8 @@ void HGCalCLUEAlgo::makeClusters() {
                             layerClustersPerLayer_[i]);
     });
   });
+  //Now that we have the density per point we can store it
+  for(unsigned int i=0; i< 2 * maxlayer + 2; ++i) setDensity(points_[i]);
 }
 
 std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
