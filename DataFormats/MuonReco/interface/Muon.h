@@ -349,7 +349,7 @@ namespace reco {
     std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> pair( const std::vector<const MuonChamberMatch*> &,
 								     ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// selector bitmap
-    unsigned int selectors_;
+    uint64_t selectors_;
    public:
      /// get number of segments
     int numberOfSegments( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
