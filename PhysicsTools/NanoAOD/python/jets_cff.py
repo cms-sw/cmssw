@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 
 from  PhysicsTools.NanoAOD.common_cff import *
@@ -394,9 +393,6 @@ run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, n3b1 = None)
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify( fatJetTable.variables, jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"))
 
-run2_nanoAOD_92X.toModify( fatJetTable.variables, tau4 = None)
-run2_nanoAOD_92X.toModify( fatJetTable.variables, n2b1 = None)
-run2_nanoAOD_92X.toModify( fatJetTable.variables, n3b1 = None)
 
 
 
@@ -433,9 +429,6 @@ run2_miniAOD_80XLegacy.toModify( subJetTable.variables, n2b1 = None)
 run2_miniAOD_80XLegacy.toModify( subJetTable.variables, n3b1 = None)
 run2_miniAOD_80XLegacy.toModify( subJetTable.variables, btagCMVA = None, btagDeepB = None)
 
-run2_nanoAOD_92X.toModify( subJetTable.variables, tau4 = None)
-run2_nanoAOD_92X.toModify( subJetTable.variables, n2b1 = None)
-run2_nanoAOD_92X.toModify( subJetTable.variables, n3b1 = None)
 
 
 
@@ -532,7 +525,6 @@ genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 ### Era dependent customization
 run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
-run2_nanoAOD_92X.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 
 #before cross linking
 jetSequence = cms.Sequence(tightJetId+tightJetIdLepVeto+bJetVars+slimmedJetsWithUserData+jetCorrFactorsNano+updatedJets+tightJetIdAK8+tightJetIdLepVetoAK8+slimmedJetsAK8WithUserData+jetCorrFactorsAK8+updatedJetsAK8+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
@@ -560,6 +552,5 @@ _jetMC_pre94X = jetMC.copy()
 _jetMC_pre94X.insert(_jetMC_pre94X.index(genJetFlavourTable),genJetFlavourAssociation)
 _jetMC_pre94X.remove(genSubJetAK8Table)
 run2_miniAOD_80XLegacy.toReplaceWith(jetMC, _jetMC_pre94X)
-run2_nanoAOD_92X.toReplaceWith(jetMC, _jetMC_pre94X)
 
 
