@@ -24,10 +24,9 @@ class DTuROSROSData {
 public:
 
   /// Constructor
-  DTuROSROSData() {
-    slot_ = -1;
-    for (int i=0; i<SEISXOK; i++) okxword_[i] = 0;
-  }
+  DTuROSROSData() : slot_(-1), header1_(0), header2_(0), 
+                    trailer_(0), okword1_(0), okword2_(0)
+    { for (int i=0; i<SEISXOK; i++) okxword_[i] = 0; }
 
   /// Destructor
   ~DTuROSROSData(){};
@@ -92,7 +91,7 @@ private:
 
   long header1_, header2_, trailer_;
 
-  long okword1_=0, okword2_=0, okxword_[SEISXOK];
+  long okword1_, okword2_, okxword_[SEISXOK];
 
   std::vector<long> exword_;
 
@@ -106,7 +105,9 @@ class DTuROSFEDData {
 public:
 
   /// Constructor
-  DTuROSFEDData() {for (int i=0; i<DOCESLOTS; i++) rsize_[i] = 0;} 
+  DTuROSFEDData() : header1_(0), header2_(0), trailer_(0),
+                    fed_(-1), nslots_(0), evtLgth_(0) 
+  { for (int i=0; i<DOCESLOTS; i++) rsize_[i] = 0; } 
 
   /// Destructor
   ~DTuROSFEDData(){};
