@@ -32,7 +32,6 @@
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"  
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"

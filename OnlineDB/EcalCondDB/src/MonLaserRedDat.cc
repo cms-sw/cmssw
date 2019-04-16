@@ -42,7 +42,7 @@ void MonLaserRedDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":apd_mean, :apd_rms, :apd_over_pn_mean, :apd_over_pn_rms, :task_status)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonLaserRedDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonLaserRedDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -72,7 +72,7 @@ void MonLaserRedDat::writeDB(const EcalLogicID* ecid, const MonLaserRedDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonLaserRedDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonLaserRedDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -105,12 +105,12 @@ void MonLaserRedDat::fetchData(std::map< EcalLogicID, MonLaserRedDat >* fillMap,
     std::pair< EcalLogicID, MonLaserRedDat > p;
     MonLaserRedDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setAPDMean( rset->getFloat(7) );
       dat.setAPDRMS( rset->getFloat(8) );
@@ -123,7 +123,7 @@ void MonLaserRedDat::fetchData(std::map< EcalLogicID, MonLaserRedDat >* fillMap,
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonLaserRedDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonLaserRedDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -226,6 +226,6 @@ void MonLaserRedDat::writeArrayDB(const std::map< EcalLogicID, MonLaserRedDat >*
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonLaserRedDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonLaserRedDat::writeArrayDB():  "+e.getMessage()));
   }
 }

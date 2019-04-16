@@ -1,11 +1,11 @@
 #include "DetectorDescription/Core/interface/DDTypes.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <iostream>
 #include <utility>
 
-using namespace dd;
-using namespace dd::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 
 ////////// output operator for printing the arguments of an algorithm
@@ -76,8 +76,22 @@ std::string formatAsDegrees(double radianVal)
 {
 	const unsigned short numlen = 12;
 	char degstr[numlen];
-	int retval = snprintf(degstr, numlen, "%0*Lf", numlen - 1, CONVERT_TO( radianVal, deg ));
+	int retval = snprintf(degstr, numlen, "%0*f", numlen - 1, convertRadToDeg( radianVal ));
 	if (retval == numlen - 1)
 		return degstr;
 	else return "0000.000000";
+}
+
+// Formats an angle in radians as a 0-padded string in degrees expressed as integer between 0 and 360; e.g. "090" for -270.001 degrees.
+std::string formatAsDegreesInInteger(double radianVal) {
+
+  const unsigned short numlen = 4;
+  char degstr[numlen];
+  int degVal = std::lround(convertRadToDeg( radianVal ));
+  if      (degVal <    0) degVal += 360;
+  else if (degVal >= 360) degVal -= 360;
+  int retval = snprintf(degstr, numlen, "%0*d", numlen-1, degVal);
+
+  if (retval == numlen - 1) return degstr;
+  else                      return "000";
 }

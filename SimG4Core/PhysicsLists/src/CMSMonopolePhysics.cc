@@ -1,16 +1,16 @@
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "SimG4Core/PhysicsLists/interface/MonopoleTransportation.h"
+#include "SimG4Core/PhysicsLists/interface/CMSmplIonisation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
 
 #include "G4StepLimiter.hh"
-#include "G4mplIonisation.hh"
-#include "G4mplIonisationWithDeltaModel.hh"
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
 #include "G4hhIonisation.hh"
+#include "G4mplIonisationModel.hh"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -124,7 +124,12 @@ void CMSMonopolePhysics::ConstructProcess() {
 	ph->RegisterProcess(hioni, mpl);
       }
       if(magn != 0.0) {
-	G4mplIonisation* mplioni = new G4mplIonisation(magn);
+	CMSmplIonisation* mplioni = new CMSmplIonisation(magn);
+        if(!deltaRay) {
+          G4mplIonisationModel* ion = new G4mplIonisationModel(magn,"PAI");
+          ion->SetParticle(mpl);
+          mplioni->AddEmModel(0,ion,ion);
+	}
 	ph->RegisterProcess(mplioni, mpl);
       }
       pmanager->AddDiscreteProcess(new G4StepLimiter());

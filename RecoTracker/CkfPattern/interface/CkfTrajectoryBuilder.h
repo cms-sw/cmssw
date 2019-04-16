@@ -39,7 +39,7 @@ public:
   typedef std::vector<TempTrajectory>     TempTrajectoryContainer;
 
   CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
-  CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter);
+  CkfTrajectoryBuilder(const edm::ParameterSet& conf, std::unique_ptr<TrajectoryFilter> filter);
 
   ~CkfTrajectoryBuilder() override {}
 

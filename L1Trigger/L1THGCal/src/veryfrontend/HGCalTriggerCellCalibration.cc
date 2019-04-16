@@ -24,20 +24,20 @@ HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet
 void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell)
 {
     
-    HGCalDetId trgdetid( trgCell.detId() );
+    bool isSilicon =  triggerTools_.isSilicon( trgCell.detId() );
 
     /* get the hardware pT in ADC counts: */
     int hwPt = trgCell.hwPt();
 
     // Convert ADC to charge in fC (in EE+FH) or in MIPs (in BH)
-    double amplitude = hwPt * (trgdetid.subdetId()==HGCHEB ? LSB_scintillator_MIP_ :  LSB_silicon_fC_);  
+    double amplitude = hwPt * (!isSilicon ? LSB_scintillator_MIP_ :  LSB_silicon_fC_);  
 
     // The responses of the different cell thicknesses have been equalized
     // to the 200um response in the front-end. So there is only one global
     // fCperMIP and thickCorr here
     /* convert the charge amplitude in MIP: */
     double trgCellMipP = amplitude;
-    if( trgdetid.subdetId()!=HGCHEB && fCperMIP_ > 0 ){
+    if( isSilicon && fCperMIP_ > 0 ){
         trgCellMipP /= fCperMIP_; 
     }
 
@@ -53,9 +53,8 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
 {
     const double MevToGeV(0.001);
 
-    HGCalDetId trgdetid( trgCell.detId() );
+    DetId trgdetid( trgCell.detId() );
     unsigned trgCellLayer = triggerTools_.layerWithOffset(trgdetid);
-    int subdet = trgdetid.subdetId();
 
     if(dEdX_weights_.at(trgCellLayer)==0.){
         throw cms::Exception("BadConfiguration")
@@ -69,7 +68,7 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
 
 
     /* correct for the cell-thickness */
-    if( subdet!=HGCHEB && thickCorr_ > 0 ){
+    if( triggerTools_.isSilicon(trgdetid) && thickCorr_ > 0 ){
         trgCellEt /= thickCorr_; 
     }
     /* assign the new energy to the four-vector of the trigger cell */

@@ -47,7 +47,7 @@ void MonPNGreenDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8, :9, :10, :11)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNGreenDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNGreenDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -81,7 +81,7 @@ void MonPNGreenDat::writeDB(const EcalLogicID* ecid, const MonPNGreenDat* item, 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNGreenDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNGreenDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -113,12 +113,12 @@ void MonPNGreenDat::fetchData(std::map< EcalLogicID, MonPNGreenDat >* fillMap, M
     std::pair< EcalLogicID, MonPNGreenDat > p;
     MonPNGreenDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setADCMeanG1( rset->getFloat(7) );
       dat.setADCRMSG1( rset->getFloat(8) );
@@ -133,7 +133,7 @@ void MonPNGreenDat::fetchData(std::map< EcalLogicID, MonPNGreenDat >* fillMap, M
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNGreenDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNGreenDat::fetchData():  "+e.getMessage()));
   }
 }
 void MonPNGreenDat::writeArrayDB(const std::map< EcalLogicID, MonPNGreenDat >* data, MonRunIOV* iov)
@@ -267,6 +267,6 @@ void MonPNGreenDat::writeArrayDB(const std::map< EcalLogicID, MonPNGreenDat >* d
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonPNGreenDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonPNGreenDat::writeArrayDB():  "+e.getMessage()));
   }
 }

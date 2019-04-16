@@ -243,7 +243,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(const std::vector<std::string>
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
     throw(std::runtime_error(m_className + "::" + method + ": " + 
-			     getOraMessage(&e)));
+			     e.getMessage()));
   }
   return l;
 }

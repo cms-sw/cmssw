@@ -21,7 +21,6 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -51,7 +50,6 @@ TauHadronDecayFilter::~TauHadronDecayFilter() {
 bool
 TauHadronDecayFilter::filter(edm::Event& iEvent, 
 			     const edm::EventSetup& iSetup) {
-  ParticleTable::Sentry ptable(mySimEvent->theTable());
     
   Handle<vector<SimTrack> > simTracks;
   iEvent.getByLabel("g4SimHits",simTracks);

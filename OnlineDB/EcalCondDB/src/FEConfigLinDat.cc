@@ -45,7 +45,7 @@ void FEConfigLinDat::prepareWrite()
 		      "VALUES (:lin_conf_id, :logic_id, "
 		      ":multx12, :multx6, :multx1, :shift12, :shift6, :shift1 )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLinDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLinDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -75,7 +75,7 @@ void FEConfigLinDat::writeDB(const EcalLogicID* ecid, const FEConfigLinDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLinDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLinDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -107,12 +107,12 @@ void FEConfigLinDat::fetchData(map< EcalLogicID, FEConfigLinDat >* fillMap, FECo
     std::pair< EcalLogicID, FEConfigLinDat > p;
     FEConfigLinDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setMultX12( rset->getInt(7) );  
       dat.setMultX6( rset->getInt(8) );  
@@ -125,7 +125,7 @@ void FEConfigLinDat::fetchData(map< EcalLogicID, FEConfigLinDat >* fillMap, FECo
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLinDat::fetchData:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLinDat::fetchData:  "+e.getMessage()));
   }
 }
 
@@ -231,6 +231,6 @@ void FEConfigLinDat::writeArrayDB(const std::map< EcalLogicID, FEConfigLinDat >*
     delete [] s_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLinDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLinDat::writeArrayDB():  "+e.getMessage()));
   }
 }

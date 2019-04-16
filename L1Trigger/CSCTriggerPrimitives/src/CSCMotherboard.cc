@@ -1,4 +1,4 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboard.h"
 #include <iostream>
 
 // Default values of configuration parameters.

@@ -4,14 +4,15 @@
 //
 // Package:     SiStripMonitorClient
 // Class  :     SiStripOfflineDQM
-// 
-/**\class SiStripOfflineDQM SiStripOfflineDQM.h DQM/SiStripMonitorCluster/interface/SiStripOfflineDQM.h
+//
+/**\class SiStripOfflineDQM SiStripOfflineDQM.h
+   DQM/SiStripMonitorCluster/interface/SiStripOfflineDQM.h
 
- Description: 
+   Description:
    DQM class to perform Summary creation Quality Test on a merged Root file
    after CAF processing
- Usage:
-    <usage>
+   Usage:
+   <usage>
 
 */
 //
@@ -21,12 +22,13 @@
 
 #include <string>
 
+#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <iostream>
 #include <fstream>
@@ -36,60 +38,35 @@
 #include <TTree.h>
 
 class DQMStore;
-class SiStripActionExecutor;
 class SiStripDetCabling;
 
 class SiStripOfflineDQM: public edm::EDAnalyzer {
-
- public:
-
-  /// Constructor
-  SiStripOfflineDQM(const edm::ParameterSet& ps);
-  
-  /// Destructor
-  ~SiStripOfflineDQM() override;
-
- private:
-
-  /// BeginJob
-  void beginJob() override;
-
-  /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-
-  /// Analyze
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-
-  /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
-
-  /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-
-  /// Endjob
-  void endJob() override;
+public:
+  SiStripOfflineDQM(edm::ParameterSet const& ps);
 
 private:
+  void beginJob() override;
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void endJob() override;
 
   void checkTrackerFEDs(edm::Event const& e);
-  bool openInputFile();
+  bool openInputFile(DQMStore& dqm_store);
 
-  DQMStore* dqmStore_;
+  edm::ParameterSet const configPar_;
 
-  SiStripActionExecutor* actionExecutor_;
+  SiStripActionExecutor actionExecutor_;
 
-  bool createSummary_;
-  bool createTkInfoFile_;
-  std::string inputFileName_;
-  std::string outputFileName_;
-  int globalStatusFilling_; 
   bool usedWithEDMtoMEConverter_;
-  int nEvents_;
+  bool createSummary_;
+  bool const createTkInfoFile_;
+  std::string const inputFileName_;
+  std::string const outputFileName_;
+  int globalStatusFilling_;
   bool trackerFEDsFound_;
   bool printFaultyModuleList_;
-  TTree* tkinfoTree_;
-
-  edm::ParameterSet configPar_;
-
+  TTree* tkinfoTree_{nullptr};
 };
 #endif

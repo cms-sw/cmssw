@@ -5,7 +5,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 namespace l1t 
 {
@@ -29,7 +29,7 @@ namespace l1t
 
             ~HGCalTriggerCell() override;
 
-            void setDetId(uint32_t detid) {detid_ = HGCalDetId(detid);}
+            void setDetId(uint32_t detid) {detid_ = DetId(detid);}
             void setPosition(const GlobalPoint& position) {position_ = position;}
 
             uint32_t detId() const {return detid_.rawId();}
@@ -37,12 +37,6 @@ namespace l1t
             
             int subdetId() const {                
                 return detid_.subdetId();               
-            }
-            int zside() const {                
-                return detid_.zside();               
-            }
-            int layer() const {                
-                return detid_.layer();               
             }
             
             void   setMipPt( double value ) { mipPt_ = value; }
@@ -58,7 +52,7 @@ namespace l1t
             
         private:
             
-            HGCalDetId detid_;
+            DetId detid_;
             GlobalPoint position_;
             
             double mipPt_{0.};

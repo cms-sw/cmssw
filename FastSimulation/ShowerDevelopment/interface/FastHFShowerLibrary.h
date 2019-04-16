@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "FastSimulation/Particle/interface/RawParticle.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"

@@ -194,6 +194,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    // what information to fill
    bool fillCaloCompatibility_;
    bool fillEnergy_;
+   bool storeCrossedHcalRecHits_;
    bool fillMatching_;
    bool fillIsolation_;
    bool writeIsoDeposits_;

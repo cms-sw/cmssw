@@ -11,7 +11,7 @@
 
 #include "GFHistArray.h"
 
-ClassImp(GFHistArray)
+ClassImp(GFHistArray);
 
 GFHistArray::GFHistArray(Int_t initCapacity, Int_t lowerBound) 
   : TObjArray(initCapacity, lowerBound)

@@ -205,6 +205,8 @@ namespace edm {
     void OutputModuleBase::doPreallocate(PreallocationConfiguration const& iPC) {
       auto nstreams = iPC.numberOfStreams();
       selectors_.resize(nstreams);
+
+      preallocLumis(iPC.numberOfLuminosityBlocks());
       
       bool seenFirst = false;
       for(auto& s : selectors_) {
@@ -219,6 +221,8 @@ namespace edm {
         }
       }
     }
+
+    void OutputModuleBase::preallocLumis(unsigned int ) {}
 
     void OutputModuleBase::doBeginJob() {
       resourcesAcquirer_ = createAcquirer();

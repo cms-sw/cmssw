@@ -86,7 +86,7 @@ ResultSet *RunDCSMagnetDat::getMagnetRset() {
   }
   catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error(std::string("RunDCSMagnetDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
+    throw(std::runtime_error(std::string("RunDCSMagnetDat::getBarrelRset():  ") + e.getMessage() + " " + query));
 #else
     throw(std::runtime_error(std::string("RunDCSMagnetDat::getBarrelRset():  error code ") + std::to_string(e.getErrorCode()) + " " + query));
 #endif
@@ -107,12 +107,12 @@ void RunDCSMagnetDat::fillTheMap(ResultSet *rset,
 
   try {
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
       
     std::cout<<"done the logic id"<<std::endl;
       dat.setMagnetCurrent( rset->getFloat(7) );
@@ -130,7 +130,7 @@ void RunDCSMagnetDat::fillTheMap(ResultSet *rset,
   }
   catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error(std::string("RunDCSMagnetDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("RunDCSMagnetDat::fetchData():  ")+e.getMessage()));
 #else
     throw(std::runtime_error(std::string("RunDCSMagnetDat::fetchData():  error code ") + std::to_string(e.getErrorCode())));
 #endif
@@ -178,7 +178,7 @@ void RunDCSMagnetDat::fetchLastData(map< EcalLogicID, RunDCSMagnetDat >* fillMap
   } 
   catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error(std::string("RunDCSMagnetDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("RunDCSMagnetDat::fetchData():  ")+e.getMessage()));
 #else
     throw(std::runtime_error(std::string("RunDCSMagnetDat::fetchData():  error code ") + std::to_string(e.getErrorCode())));
 #endif

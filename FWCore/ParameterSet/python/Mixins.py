@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import inspect
 import six
 
@@ -656,13 +657,10 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return (converter(x).value() for x in strings)
 
 def saveOrigin(obj, level):
-    #frame = inspect.stack()[level+1]
-    frame = inspect.getframeinfo(inspect.currentframe(level+1))
-    # not safe under old python versions
-    #obj._filename = frame.filename
-    #obj._lineNumber = frame.lineno
-    obj._filename = frame[0]
-    obj._lineNumber = frame[1]
+    import sys
+    fInfo = inspect.getframeinfo(sys._getframe(level+1))
+    obj._filename = fInfo.filename
+    obj._lineNumber =fInfo.lineno
 
 def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
     if len(newParams):
@@ -747,7 +745,7 @@ if __name__ == "__main__":
         def testLargeList(self):
             #lists larger than 255 entries can not be initialized
             #using the constructor
-            args = [i for i in xrange(0,300)]
+            args = [i for i in range(0,300)]
             
             t = TestList(*args)
             pdump= t.dumpPython()
@@ -829,7 +827,7 @@ if __name__ == "__main__":
                 def __init__(self):
                     self.tLPTest = tLPTest
                     self.tLPTestType = tLPTestType
-            p = tLPTest("MyType",** dict( [ ("a"+str(x), tLPTestType(x)) for x in xrange(0,300) ] ) )
+            p = tLPTest("MyType",** dict( [ ("a"+str(x), tLPTestType(x)) for x in range(0,300) ] ) )
             #check they are the same
             self.assertEqual(p.dumpPython(), eval(p.dumpPython(),{"cms": __DummyModule()}).dumpPython())
         def testSpecialImportRegistry(self):

@@ -51,7 +51,6 @@ EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo(const edm::Para
   gsfTrackProducer_(iC.consumes<reco::GsfTrackCollection>(conf.getParameter<edm::InputTag>("GsfTrackProducer"))),
   useGsfTracks_(conf.getParameter<bool>("UseGsfTracks")),
   bsProducer_(iC.consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BSProducer"))), 
-  mtsMode_(new MultiTrajectoryStateMode()),
   mtsTransform_(nullptr),
   cacheIDTDGeom_(0),
   cacheIDMagField_(0)
@@ -62,7 +61,6 @@ EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo(const edm::Para
   EgammaHLTPixelMatchElectronAlgo::~EgammaHLTPixelMatchElectronAlgo() 
 {
   delete mtsTransform_;
-  delete mtsMode_;
  }
 
 void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es) {
@@ -164,7 +162,7 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
       GlobalVector innMom;
       float pin1 = trackRef1->pMode();
       if (fts.isValid()) {
-	mtsMode_->momentumFromModeCartesian(fts, innMom);  
+	multiTrajectoryStateMode::momentumFromModeCartesian(fts, innMom);  
 	pin1 = innMom.mag();
       }
 
@@ -178,7 +176,7 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
 	GlobalVector innMom;
 	float pin2 = trackRef2->pMode();
 	if (fts.isValid()) {
-	  mtsMode_->momentumFromModeCartesian(fts, innMom);  
+	  multiTrajectoryStateMode::momentumFromModeCartesian(fts, innMom);  
 	  pin2 = innMom.mag();
 	}
 	
@@ -210,9 +208,9 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
       TrajectoryStateOnSurface inTSOS = mtsTransform_->innerStateOnSurface((*trackRef));
       TrajectoryStateOnSurface fts = mtsTransform_->extrapolatedState(inTSOS, bs);
       GlobalVector innMom;
-      mtsMode_->momentumFromModeCartesian(inTSOS, innMom);
+      multiTrajectoryStateMode::momentumFromModeCartesian(inTSOS, innMom);
       if (fts.isValid()) {
-	mtsMode_->momentumFromModeCartesian(fts, innMom);  
+	multiTrajectoryStateMode::momentumFromModeCartesian(fts, innMom);  
       }
       
       float scale = scRef->energy()/innMom.mag();

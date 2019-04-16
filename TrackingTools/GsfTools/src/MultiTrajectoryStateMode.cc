@@ -11,16 +11,17 @@
 
 #include <iostream>
 
+namespace multiTrajectoryStateMode {
+
 bool
-MultiTrajectoryStateMode::momentumFromModeCartesian (const TrajectoryStateOnSurface tsos,
-						     GlobalVector& momentum) const
+momentumFromModeCartesian (TrajectoryStateOnSurface const& tsos, GlobalVector& momentum)
 {
   //
   // clear result vector and check validity of the TSOS
   //
   momentum = GlobalVector(0.,0.,0.);
   if ( !tsos.isValid() ) {
-    edm::LogInfo("MultiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
+    edm::LogInfo("multiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
     return false;
   }
   //  
@@ -60,15 +61,14 @@ MultiTrajectoryStateMode::momentumFromModeCartesian (const TrajectoryStateOnSurf
 }
 
 bool
-MultiTrajectoryStateMode::positionFromModeCartesian (const TrajectoryStateOnSurface tsos,
-						     GlobalPoint& position) const
+positionFromModeCartesian (TrajectoryStateOnSurface const& tsos, GlobalPoint& position)
 {
   //
   // clear result vector and check validity of the TSOS
   //
   position = GlobalPoint(0.,0.,0.);
   if ( !tsos.isValid() ) {
-    edm::LogInfo("MultiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
+    edm::LogInfo("multiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
     return false;
   }
   //  
@@ -109,15 +109,14 @@ MultiTrajectoryStateMode::positionFromModeCartesian (const TrajectoryStateOnSurf
 }
 
 bool
-MultiTrajectoryStateMode::momentumFromModeLocal (const TrajectoryStateOnSurface tsos,
-						 GlobalVector& momentum) const
+momentumFromModeLocal (TrajectoryStateOnSurface const& tsos, GlobalVector& momentum)
 {
   //
   // clear result vector and check validity of the TSOS
   //
   momentum = GlobalVector(0.,0.,0.);
   if ( !tsos.isValid() ) {
-    edm::LogInfo("MultiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
+    edm::LogInfo("multiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
     return false;
   }
   //  
@@ -150,15 +149,14 @@ MultiTrajectoryStateMode::momentumFromModeLocal (const TrajectoryStateOnSurface 
 }
 
 bool
-MultiTrajectoryStateMode::momentumFromModeQP (const TrajectoryStateOnSurface tsos,
-					      double& momentum) const
+momentumFromModeQP (TrajectoryStateOnSurface const& tsos, double& momentum)
 {
   //
   // clear result vector and check validity of the TSOS
   //
   momentum = 0.;
   if ( !tsos.isValid() ) {
-    edm::LogInfo("MultiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
+    edm::LogInfo("multiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
     return false;
   }
   //  
@@ -180,15 +178,14 @@ MultiTrajectoryStateMode::momentumFromModeQP (const TrajectoryStateOnSurface tso
 }
 
 bool
-MultiTrajectoryStateMode::momentumFromModeP (const TrajectoryStateOnSurface tsos,
-					     double& momentum) const
+momentumFromModeP (TrajectoryStateOnSurface const& tsos, double& momentum)
 {
   //
   // clear result vector and check validity of the TSOS
   //
   momentum = 0.;
   if ( !tsos.isValid() ) {
-    edm::LogInfo("MultiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
+    edm::LogInfo("multiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
     return false;
   }
   //  
@@ -217,15 +214,14 @@ MultiTrajectoryStateMode::momentumFromModeP (const TrajectoryStateOnSurface tsos
 }
 
 bool
-MultiTrajectoryStateMode::positionFromModeLocal (const TrajectoryStateOnSurface tsos,
-						 GlobalPoint& position) const
+positionFromModeLocal (TrajectoryStateOnSurface const& tsos, GlobalPoint& position)
 {
   //
   // clear result vector and check validity of the TSOS
   //
   position = GlobalPoint(0.,0.,0.);
   if ( !tsos.isValid() ) {
-    edm::LogInfo("MultiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
+    edm::LogInfo("multiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
     return false;
   }
   //  
@@ -254,15 +250,14 @@ MultiTrajectoryStateMode::positionFromModeLocal (const TrajectoryStateOnSurface 
 }
 
 bool
-MultiTrajectoryStateMode::momentumFromModePPhiEta (const TrajectoryStateOnSurface tsos,
-						   GlobalVector& momentum) const
+momentumFromModePPhiEta (TrajectoryStateOnSurface const& tsos, GlobalVector& momentum)
 {
   //
   // clear result vector and check validity of the TSOS
   //
   momentum = GlobalVector(0.,0.,0.);
   if ( !tsos.isValid() ) {
-    edm::LogInfo("MultiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
+    edm::LogInfo("multiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
     return false;
   }
   //  
@@ -334,13 +329,13 @@ MultiTrajectoryStateMode::momentumFromModePPhiEta (const TrajectoryStateOnSurfac
 }
 
 int
-MultiTrajectoryStateMode::chargeFromMode (const TrajectoryStateOnSurface tsos) const
+chargeFromMode (TrajectoryStateOnSurface const& tsos)
 {
   //
   // clear result vector and check validity of the TSOS
   //
   if ( !tsos.isValid() ) {
-    edm::LogInfo("MultiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
+    edm::LogInfo("multiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
     return 0;
   }
   //  
@@ -355,3 +350,4 @@ MultiTrajectoryStateMode::chargeFromMode (const TrajectoryStateOnSurface tsos) c
   return result>0. ? 1 : -1;
 }
 
+} // namespace multiTrajectoryStateMode

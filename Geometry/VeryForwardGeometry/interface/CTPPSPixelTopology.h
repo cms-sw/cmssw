@@ -38,6 +38,26 @@ class CTPPSPixelTopology
     inline double activeEdgeSigma() const { return active_edge_sigma_; }
     inline double physActiveEdgeDist() const { return phys_active_edge_dist_; }
 
+
+    static bool isPixelHit(float xLocalCoordinate, float yLocalCoordinate, bool is3x2 = true)
+    {
+// check hit fiducial boundaries
+      double xModuleSize = 2*((no_of_pixels_simX_/2. + 1)*pitch_simX_ + dead_edge_width_);
+      if(xLocalCoordinate < -xModuleSize/2. || xLocalCoordinate > xModuleSize/2.)
+	return false;
+      
+      double yModuleSize = (no_of_pixels_simY_ + 4.)*pitch_simY_ + 2.*dead_edge_width_;
+      double y2x2top = no_of_pixels_simY_/6.*pitch_simY_ + dead_edge_width_;
+      if(is3x2 && (yLocalCoordinate < -yModuleSize/2. || yLocalCoordinate > yModuleSize/2.))
+	return false;
+      
+      if(!is3x2 && (yLocalCoordinate < -yModuleSize/2. || yLocalCoordinate > y2x2top))
+	return false;
+         
+      return true;
+      
+    }
+    
     CTPPSPixelIndices indices_;
 };
 

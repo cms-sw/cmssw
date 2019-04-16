@@ -100,15 +100,17 @@ class LeptonSkimming : public edm::stream::EDFilter<> {
       bool hltFired(const edm::Event& iEvent, const edm::EventSetup& iSetup,std::vector< string> HLTPath );
       std::array<float,5> hltObject(const edm::Event& iEvent, const edm::EventSetup& iSetup,std::vector< string> Seed);
      
-
-      edm::EDGetToken electronsToken_; edm::EDGetToken muonsToken_;
-      edm::EDGetToken Tracks_; edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+      edm::EDGetToken electronsToken_;
+      edm::EDGetTokenT<edm::ValueMap<float> > eleBWPToken_;
+      edm::EDGetTokenT<edm::ValueMap<float> > eleUnBWPToken_;  
+      edm::EDGetToken muonsToken_;
+      edm::EDGetToken Tracks_; 
+      edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
       edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
       edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
       edm::EDGetTokenT<edm::TriggerResults> trgresultsToken_; 
       edm::EDGetTokenT<trigger::TriggerEvent> trigobjectsToken_;
-      std::vector<string> HLTFilter_,HLTPath_;
-      
+      std::vector<string> HLTFilter_,HLTPath_;    
      
       bool Result=false;
       float beam_x,beam_y,beam_z; 
@@ -136,7 +138,7 @@ class LeptonSkimming : public edm::stream::EDFilter<> {
       double PtTrack_Cut=0; double EtaTrack_Cut=10; double MinChi2Track_Cut=-1000; 
       double MaxChi2Track_Cut=1000; double MuTrkMinDR_Cut=0; double MaxMee_Cut=1000;
       double PtKTrack_Cut=0; 
-      double MaxMB_Cut=1000; double MinMB_Cut=0; double TrkTrkMinDR_Cut=10000;
+      double MaxMB_Cut=1000; double MinMB_Cut=0;
       bool SaveOnlyTracks=false; bool SaveOnlyEPairTracks=false;
       double TrackSdxy_Cut=0; bool UseOnlyBKeeMCForTriplets=false;
       double MinMee_Cut=0; double  Probee_Cut=0; double Cosee_Cut=-1;
@@ -149,9 +151,8 @@ class LeptonSkimming : public edm::stream::EDFilter<> {
       double TrkObjExclusionCone=0; double MuTrgMuDz_Cut=1000; 
       double ElTrgMuDz_Cut=1000; bool SaveOutputRoot=true; 
       bool ObjPtLargerThanTrack=false;
-  
-int test_ev=0; 
- 
- 
+      double BiasedWP=-100; double UnbiasedWP=-100;
+      bool SkimOnlyMuons=false; bool SkimOnlyElectrons=false;
+      int test_ev=0;
       // ----------member data ---------------------------
 };

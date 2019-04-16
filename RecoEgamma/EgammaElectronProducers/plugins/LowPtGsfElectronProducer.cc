@@ -18,10 +18,9 @@ LowPtGsfElectronProducer::~LowPtGsfElectronProducer()
 
 void LowPtGsfElectronProducer::produce( edm::Event& event, const edm::EventSetup& setup )
 {
-  beginEvent(event,setup);
-  algo_->completeElectrons(globalCache());
-  fillEvent(event);
-  endEvent();
+  reco::GsfElectronCollection electrons;
+  algo_->completeElectrons(electrons, event, setup, globalCache());
+  fillEvent(electrons, event);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

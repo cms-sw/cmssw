@@ -153,7 +153,6 @@ AlgebraicMatrix FinalTreeBuilder::momentumPart(const CachingVertex<6>& vtx,
 
  double energy_total = sqrt(par(3)*par(3)+par(6)*par(6) + par(5)*par(5)+par(4)*par(4));
 
- std::vector<KinematicRefittedTrackState *>::const_iterator rs;
  std::vector<RefCountedVertexTrack>::const_iterator rt_i;
  int i_int = 0;
  for(rt_i = refTracks.begin(); rt_i != refTracks.end(); rt_i++)

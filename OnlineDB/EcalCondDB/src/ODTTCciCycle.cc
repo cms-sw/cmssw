@@ -33,7 +33,7 @@ void ODTTCciCycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_TTCci_Cycle (cycle_id, ttcci_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTTCciCycle::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODTTCciCycle::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -52,7 +52,7 @@ void ODTTCciCycle::writeDB()  noexcept(false)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTTCciCycle::writeDB:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODTTCciCycle::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
@@ -93,7 +93,7 @@ int ODTTCciCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTTCciCycle::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODTTCciCycle::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -122,7 +122,7 @@ void ODTTCciCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTTCciCycle::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODTTCciCycle::fetchID:  "+e.getMessage()));
   }
 }
 
@@ -151,7 +151,7 @@ void ODTTCciCycle::fetchData(ODTTCciCycle * result)
     result->setTTCciConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTTCciCycle::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODTTCciCycle::fetchData():  "+e.getMessage()));
   }
 }
 

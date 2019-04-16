@@ -1,10 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 static long  algorithm(Detector& /* description */,
                        cms::DDParsingContext& ctxt,
@@ -34,8 +36,8 @@ static long  algorithm(Detector& /* description */,
 
   LogDebug("TrackerGeom") << "debug: Parameters for positioning:: n "
 			  << n << " Start, Range, Delta " 
-			  << ConvertTo( startAngle, deg ) << " " 
-			  << ConvertTo( rangeAngle, deg ) << " " << ConvertTo( delta, deg )
+			  << convertRadToDeg( startAngle ) << " " 
+			  << convertRadToDeg( rangeAngle ) << " " << convertRadToDeg( delta )
 			  << " Radius " << radius << " Centre " << center[0] 
 			  << ", " << center[1] << ", "<<center[2];
   LogDebug("TrackerGeom") << "debug: Parent " << mother.name() 
@@ -48,7 +50,7 @@ static long  algorithm(Detector& /* description */,
   for (int i=0; i<n; i++) {
     double phix = phi;
     double phiy = phix + 90._deg;
-    double phideg = ConvertTo( phix, deg );
+    double phideg = convertRadToDeg( phix );
 
     Rotation3D rotation;
     if (phideg != 0) {
@@ -60,8 +62,8 @@ static long  algorithm(Detector& /* description */,
       else  {
         LogDebug("TrackerGeom") << "Creating a new "
 				<< "rotation: " << rotstr << "\t90., " 
-				<< ConvertTo( phix, deg ) << ", 90.," 
-				<< ConvertTo( phiy, deg ) <<", 0, 0";
+				<< convertRadToDeg( phix ) << ", 90.," 
+				<< convertRadToDeg( phiy ) <<", 0, 0";
         RotationZYX   rot;
         rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }

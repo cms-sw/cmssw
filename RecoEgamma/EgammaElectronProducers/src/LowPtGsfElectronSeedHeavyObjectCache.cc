@@ -7,8 +7,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/LowPtGsfElectronSeedHeavyObjectCache.h"
-//#include "TMVA/MethodBDT.h"
-//#include "TMVA/Reader.h"
+
 #include <string>
 
 namespace lowptgsfeleseed {

@@ -1,4 +1,4 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCMuonPortCard.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include <algorithm>
 

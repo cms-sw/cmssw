@@ -1,6 +1,6 @@
 #include "PhysicsTools/TagAndProbe/interface/ZGeneratorLineShape.h"
 
-ClassImp(ZGeneratorLineShape)
+ClassImp(ZGeneratorLineShape);
 
 ZGeneratorLineShape::ZGeneratorLineShape(const char *name, const char *title,
 					 RooAbsReal& _m, 

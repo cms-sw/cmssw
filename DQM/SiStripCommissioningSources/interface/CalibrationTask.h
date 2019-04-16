@@ -20,11 +20,10 @@ class CalibrationTask : public CommissioningTask {
 
   void book() override;
   void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& ) override;
+	     const edm::DetSet<SiStripRawDigi>& ) override;
   void update() override;
 
-  sistrip::RunType runType_;
-  
+  sistrip::RunType runType_;  
   std::map<std::string,std::vector<HistoSet>> calib1_; // first  APV --> one key for each calChan
   std::map<std::string,std::vector<HistoSet>> calib2_; // second APV --> one key for each calChan
 
@@ -32,8 +31,8 @@ class CalibrationTask : public CommissioningTask {
   uint16_t lastCalChan_, lastCalSel_, lastLatency_;
   std::string extrainfo_;
   std::string directory_;
-  uint32_t run_;
   std::vector<uint16_t> ped;
+  uint32_t run_;
 };
 
 #endif // DQM_SiStripCommissioningSources_CalibrationTask_h

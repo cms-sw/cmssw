@@ -13,7 +13,7 @@ CombinedMultiHitGenerator::CombinedMultiHitGenerator(const edm::ParameterSet& cf
 {
   edm::ParameterSet generatorPSet = cfg.getParameter<edm::ParameterSet>("GeneratorPSet");
   std::string       generatorName = generatorPSet.getParameter<std::string>("ComponentName");
-  theGenerator.reset(MultiHitGeneratorFromPairAndLayersFactory::get()->create(generatorName, generatorPSet));
+  theGenerator = std::unique_ptr<MultiHitGeneratorFromPairAndLayers>{MultiHitGeneratorFromPairAndLayersFactory::get()->create(generatorName, generatorPSet)};
   theGenerator->init(std::make_unique<HitPairGeneratorFromLayerPair>(0, 1, &theLayerCache), &theLayerCache);
 }
 

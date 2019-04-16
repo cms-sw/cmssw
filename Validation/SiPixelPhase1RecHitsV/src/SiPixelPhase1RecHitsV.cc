@@ -34,8 +34,6 @@ void SiPixelPhase1RecHitsV::analyze(const edm::Event& iEvent, const edm::EventSe
     auto id = DetId(it->detId());
 
     for(SiPixelRecHit const& rechit : *it) {
-      SiPixelRecHit::ClusterRef const& clust = rechit.cluster();
-
       std::vector<PSimHit> associateSimHit;
       associateSimHit = associate.associateHit(rechit);
       std::vector<PSimHit>::const_iterator closestIt = associateSimHit.begin();

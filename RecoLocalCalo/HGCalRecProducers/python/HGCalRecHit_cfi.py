@@ -113,6 +113,65 @@ dEdX_weights_v9 = cms.vdouble(0.0,      # there is no layer zero
                               89.786205)
 
 
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+phase2_hgcalV9.toModify( dEdX, weights = dEdX_weights_v9 )
+
+dEdX_weights_v10 = cms.vdouble(0.0,      # there is no layer zero
+                               8.894541,  # Mev
+                               10.937907,
+                               10.937907,
+                               10.937907,
+                               10.937907,
+                               10.937907,
+                               10.937907,
+                               10.937907,
+                               10.937907,
+                               10.932882,
+                               10.932882,
+                               10.937907,
+                               10.937907,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               10.938169,
+                               32.332097,
+                               51.574301,
+                               51.444192,
+                               51.444192,
+                               51.444192,
+                               51.444192,
+                               51.444192,
+                               51.444192,
+                               51.444192,
+                               51.444192,
+                               51.444192,
+                               51.444192,
+                               69.513118,
+                               87.582044,
+                               87.582044,
+                               87.582044,
+                               87.582044,
+                               87.582044,
+                               87.214571,
+                               86.888309,
+                               86.929520,
+                               86.929520,
+                               86.929520)
+
+
+from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
+phase2_hgcalV10.toModify( dEdX, weights = dEdX_weights_v10 )
+
 # HGCAL rechit producer
 HGCalRecHit = cms.EDProducer(
     "HGCalRecHitProducer",
@@ -151,6 +210,5 @@ HGCalRecHit = cms.EDProducer(
 
     )
 
-from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
-phase2_hgcalV9.toModify( dEdX, weights = dEdX_weights_v9 ) 
-phase2_hgcalV9.toModify( HGCalRecHit , thicknessCorrection = cms.vdouble(0.759,0.760,0.773) ) #120um, 200um, 300um
+phase2_hgcalV9.toModify( HGCalRecHit , thicknessCorrection = [0.759,0.760,0.773] ) #120um, 200um, 300um
+phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = [0.781,0.775,0.769] ) #120um, 200um, 300um

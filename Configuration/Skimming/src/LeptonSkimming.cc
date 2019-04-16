@@ -27,6 +27,8 @@ using namespace std;
 
 LeptonSkimming::LeptonSkimming(const edm::ParameterSet& iConfig):
   electronsToken_(consumes<std::vector<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>  ("electrons"))),
+   eleBWPToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("eleBiasedWP"))),
+  eleUnBWPToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("eleUnbiasedWP"))),
   muonsToken_(consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
   Tracks_(consumes<std::vector<reco::Track> >(iConfig.getParameter<edm::InputTag>("tracks"))),
   vtxToken_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vertices"))),
@@ -39,45 +41,49 @@ LeptonSkimming::LeptonSkimming(const edm::ParameterSet& iConfig):
   HLTPath_(iConfig.getParameter<vector<string> >("HLTPath"))
   {
   edm::ParameterSet runParameters=iConfig.getParameter<edm::ParameterSet>("RunParameters");     
+ //mu matching with trigger
+ MuTrgMatchCone=runParameters.getParameter<double>("MuTrgMatchCone");
+ SkipIfNoMuMatch=runParameters.getParameter<bool>("SkipIfNoMuMatch");
+ //track cuts
  PtTrack_Cut=runParameters.getParameter<double>("PtTrack_Cut");
  EtaTrack_Cut=runParameters.getParameter<double>("EtaTrack_Cut");
- //cout<<PtTrack_Cut<<endl;
  MinChi2Track_Cut=runParameters.getParameter<double>("MinChi2Track_Cut");
  MaxChi2Track_Cut=runParameters.getParameter<double>("MaxChi2Track_Cut");
  MuTrkMinDR_Cut=runParameters.getParameter<double>("MuTrkMinDR_Cut");
- MaxMee_Cut=runParameters.getParameter<double>("MaxMee_Cut");
- MinMee_Cut=runParameters.getParameter<double>("MinMee_Cut");
- Probee_Cut=runParameters.getParameter<double>("Probee_Cut");
- Cosee_Cut=runParameters.getParameter<double>("Cosee_Cut");
- 
- PtKTrack_Cut=runParameters.getParameter<double>("PtKTrack_Cut");
- MaxMB_Cut=runParameters.getParameter<double>("MaxMB_Cut");
- MinMB_Cut=runParameters.getParameter<double>("MinMB_Cut");
- TrkTrkMinDR_Cut=runParameters.getParameter<double>("TrkTrkMinDR_Cut");
-
- TrackSdxy_Cut=runParameters.getParameter<double>("TrackSdxy_Cut");
- 
- MuTrgMatchCone=runParameters.getParameter<double>("MuTrgMatchCone");
- SkipIfNoMuMatch=runParameters.getParameter<bool>("SkipIfNoMuMatch");
- EpairZvtx_Cut=runParameters.getParameter<double>("EpairZvtx_Cut");
- Ksdxy_Cut=runParameters.getParameter<double>("Ksdxy_Cut");
- ProbeeK_Cut=runParameters.getParameter<double>("ProbeeK_Cut");
- CoseeK_Cut=runParameters.getParameter<double>("CoseeK_Cut");
  TrackMuDz_Cut=runParameters.getParameter<double>("TrackMuDz_Cut");
  TrgExclusionCone=runParameters.getParameter<double>("TrgExclusionCone");
- SLxy_Cut=runParameters.getParameter<double>("SLxy_Cut");
- PtB_Cut=runParameters.getParameter<double>("PtB_Cut");
+ //lepton cuts
  PtMu_Cut=runParameters.getParameter<double>("PtMu_Cut");
-  PtEl_Cut=runParameters.getParameter<double>("PtEl_Cut");
+ PtEl_Cut=runParameters.getParameter<double>("PtEl_Cut");
  QualMu_Cut=runParameters.getParameter<double>("QualMu_Cut");
  MuTrgExclusionCone=runParameters.getParameter<double>("MuTrgExclusionCone");
  ElTrgExclusionCone=runParameters.getParameter<double>("ElTrgExclusionCone");
  TrkObjExclusionCone=runParameters.getParameter<double>("TrkObjExclusionCone");
  MuTrgMuDz_Cut=runParameters.getParameter<double>("MuTrgMuDz_Cut");
  ElTrgMuDz_Cut=runParameters.getParameter<double>("ElTrgMuDz_Cut");
+ BiasedWP=runParameters.getParameter<double>("BiasedWP");
+ UnbiasedWP=runParameters.getParameter<double>("UnbiasedWP");
+ SkimOnlyMuons=runParameters.getParameter<bool>("SkimOnlyMuons");
+ SkimOnlyElectrons=runParameters.getParameter<bool>("SkimOnlyElectrons");
+ //pair cuts
+ MaxMee_Cut=runParameters.getParameter<double>("MaxMee_Cut");
+ MinMee_Cut=runParameters.getParameter<double>("MinMee_Cut");
+ Probee_Cut=runParameters.getParameter<double>("Probee_Cut");
+ Cosee_Cut=runParameters.getParameter<double>("Cosee_Cut");
+ EpairZvtx_Cut=runParameters.getParameter<double>("EpairZvtx_Cut");
+ //kaon
+ PtKTrack_Cut=runParameters.getParameter<double>("PtKTrack_Cut");
+ TrackSdxy_Cut=runParameters.getParameter<double>("TrackSdxy_Cut");
+ Ksdxy_Cut=runParameters.getParameter<double>("Ksdxy_Cut");
+ //triplet
+ MaxMB_Cut=runParameters.getParameter<double>("MaxMB_Cut");
+ MinMB_Cut=runParameters.getParameter<double>("MinMB_Cut");  
+ ProbeeK_Cut=runParameters.getParameter<double>("ProbeeK_Cut");
+ CoseeK_Cut=runParameters.getParameter<double>("CoseeK_Cut"); 
+ SLxy_Cut=runParameters.getParameter<double>("SLxy_Cut");
+ PtB_Cut=runParameters.getParameter<double>("PtB_Cut");
+ 
  ObjPtLargerThanTrack=runParameters.getParameter<bool>("ObjPtLargerThanTrack");
-
-
 
 }
 
@@ -97,14 +103,11 @@ bool LeptonSkimming::hltFired(const edm::Event& iEvent, const edm::EventSetup& i
  
   edm::Handle<edm::TriggerResults> trigResults;
   iEvent.getByToken(trgresultsToken_, trigResults);
- 
-  
   bool fire= false;
   if( trigResults.failedToGet() ) return false;
   for (unsigned int ip=0; ip<HLTPath.size(); ip++){
   int N_Triggers = trigResults->size();
   const edm::TriggerNames & trigName = iEvent.triggerNames(*trigResults);    
-  //cout << "new" << endl;
   for( int i_Trig = 0; i_Trig < N_Triggers; ++i_Trig ) {
     if (!trigResults->accept(i_Trig))   continue;
     const std::string & TrigPath =trigName.triggerName(i_Trig); 
@@ -157,7 +160,6 @@ for (unsigned int ipath=0; ipath<Seed.size(); ipath++){
                return a[0] > b[0];
                 });
   return  max_per_trigger.at(0);
-
 }
 
 
@@ -179,11 +181,14 @@ LeptonSkimming::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Get electrons
   edm::Handle<std::vector<reco::GsfElectron> > electrons;
   iEvent.getByToken(electronsToken_, electrons);
-
- 
+  //get bdt values
+  edm::Handle<edm::ValueMap<float> > ele_mva_wp_biased;
+  iEvent.getByToken( eleBWPToken_ ,ele_mva_wp_biased);
+  edm::Handle<edm::ValueMap<float> > ele_mva_wp_unbiased;
+  iEvent.getByToken( eleUnBWPToken_ ,ele_mva_wp_unbiased);
+  //get muons
   edm::Handle<std::vector<reco::Muon>> muons;
    iEvent.getByToken(muonsToken_,muons);
-
   //Get conversions
   edm::Handle<reco::ConversionCollection> conversions;
   iEvent.getByToken(conversionsToken_, conversions);    
@@ -234,53 +239,64 @@ LeptonSkimming::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     return false;   
       
   SelectedTrgObj_PtEtaPhiCharge=hltObject(iEvent,iSetup,HLTFilter_);
-//  std::cout<<"pt "<<SelectedTrgObj_PtEtaPhiCharge[0]<<" eta "<<SelectedTrgObj_PtEtaPhiCharge[1]<<" phi "<<SelectedTrgObj_PtEtaPhiCharge[2]<<endl; 
   SelectedMu_DR=std::numeric_limits<float>::max(); 
   MuTracks.clear();  object_container.clear(); object_id.clear(); nmuons=0;
   for (const reco::Muon  &mu: *muons){
     if (fabs(mu.eta())>EtaTrack_Cut) continue;
-    bool tight=false,soft=false;
-    if(vertices.isValid()){
-      tight=isTightMuonCustom(*(&mu),(*vertices)[0]);
-      soft=muon::isSoftMuon(*(&mu),(*vertices)[0]);
-     }    
-    const Track * mutrack= mu.bestTrack();
-    muon_medium.push_back(isMediumMuonCustom(*(&mu)));    
-    muon_tight.push_back(tight); muon_soft.push_back(soft);
-    muon_pt.push_back(mu.pt()); muon_eta.push_back(mu.eta()); muon_phi.push_back(mu.phi()); 
-    auto muTrack=std::make_shared<reco::Track>(*mutrack);
-    MuTracks.push_back(muTrack);
-    object_container.push_back(nmuons);
-    object_id.push_back(13); 
-   
-    if ( deltaR(mu.eta(),mu.phi(), SelectedTrgObj_PtEtaPhiCharge[1], SelectedTrgObj_PtEtaPhiCharge[2])<MuTrgMatchCone &&  SelectedMu_DR>deltaR(mu.eta(),mu.phi(), SelectedTrgObj_PtEtaPhiCharge[1], SelectedTrgObj_PtEtaPhiCharge[2]) ){
+    //find triggering muon
+    float deltaRmu=deltaR(mu.eta(),mu.phi(), SelectedTrgObj_PtEtaPhiCharge[1], SelectedTrgObj_PtEtaPhiCharge[2]);
+    if ( deltaRmu<MuTrgMatchCone &&  SelectedMu_DR>deltaRmu ){
         SelectedMu_DR=deltaR(mu.eta(),mu.phi(), SelectedTrgObj_PtEtaPhiCharge[1], SelectedTrgObj_PtEtaPhiCharge[2]);
         ZvertexTrg=mu.vz();}
-    nmuons++;
-    //delete mutrack;
+    //save muons that we want to skim
+    if (!SkimOnlyElectrons){
+      bool tight=false,soft=false;
+      if(vertices.isValid()){
+        tight=isTightMuonCustom(*(&mu),(*vertices)[0]);
+        soft=muon::isSoftMuon(*(&mu),(*vertices)[0]);
+       }    
+       const Track * mutrack= mu.bestTrack();
+       muon_medium.push_back(isMediumMuonCustom(*(&mu)));    
+       muon_tight.push_back(tight); muon_soft.push_back(soft);
+       muon_pt.push_back(mu.pt()); muon_eta.push_back(mu.eta()); muon_phi.push_back(mu.phi()); 
+       auto muTrack=std::make_shared<reco::Track>(*mutrack);
+       MuTracks.push_back(muTrack);
+       object_container.push_back(nmuons);
+       object_id.push_back(13);    
+       nmuons++;}
+    
   }
   
   if (SelectedMu_DR==std::numeric_limits<float>::max() && SkipIfNoMuMatch){
       return false;
    }
+  
 
+  //Save electrons we want to skim
   ElTracks.clear();
-  for(const reco::GsfElectron &el : *electrons){  
-    bool passConvVeto = !ConversionTools::hasMatchedConversion(*(&el), *conversions, theBeamSpot->position());
-      if (!passConvVeto) continue;
-      if (fabs(el.eta())>EtaTrack_Cut) continue;
-      if (el.pt()<PtEl_Cut) continue;
+  if (!SkimOnlyMuons){
+    unsigned int count_el=-1;
+   for(const reco::GsfElectron &el : *electrons){  
+      count_el++;
+      bool passConvVeto = !ConversionTools::hasMatchedConversion(*(&el), *conversions, theBeamSpot->position());
+      if (!passConvVeto) continue;   
+      reco::GsfTrackRef seed = el.gsfTrack();
+      if ( seed.isNull() ) continue;
+      if ((*ele_mva_wp_biased)[seed] <BiasedWP) continue;
+      if ((*ele_mva_wp_unbiased)[seed] <UnbiasedWP) continue;
       const Track * eltrack= el.bestTrack();
+      if (fabs(eltrack->eta())>EtaTrack_Cut) continue;
+      if (eltrack->pt()<PtEl_Cut) continue;
       auto ElTrack=std::make_shared<reco::Track>(*eltrack);
       ElTracks.push_back(ElTrack); object_container.push_back(nel);
-      el_pt.push_back(el.pt()); el_eta.push_back(el.eta()); el_phi.push_back(el.phi());
-      //     cout<<"el "<<nel<<" pt  "<<el.pt()<<endl;
+      el_pt.push_back(eltrack->pt()); el_eta.push_back(eltrack->eta()); el_phi.push_back(eltrack->phi());
       nel++; object_id.push_back(11);
-    }
-//  cout<<nmuons<<" el "<<nel<<endl;
+   }
+  }
+
+  //Save tracks we want to skim: used both as mu or e candidate
   cleanedTracks.clear(); 
-  trk_index=0;
-  
+  trk_index=0;  
   for (const reco::Track& trk : *tracks){
    if (!trk.quality(Track::highPurity)) continue;
    if (trk.pt()<PtTrack_Cut) continue;
@@ -288,13 +304,6 @@ LeptonSkimming::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(trk.charge()==0) continue;
    if(trk.normalizedChi2()>MaxChi2Track_Cut || trk.normalizedChi2()<MinChi2Track_Cut) continue;
    if (fabs(trk.dxy())/trk.dxyError()<TrackSdxy_Cut) continue;
-   double minDR=1000;
-   for (const reco::Muon& mu: *muons){
-      double tempDR=deltaR(mu.eta(),mu.phi(),trk.eta(),trk.phi());
-      if (minDR<tempDR) continue;
-      minDR=tempDR;
-   }
-   if (minDR<MuTrkMinDR_Cut) continue;
    if (SelectedMu_DR<std::numeric_limits<float>::max() ){
      if (fabs(ZvertexTrg-trk.vz())>TrackMuDz_Cut ) continue;
      if ( deltaR(trk.eta(),trk.phi(),SelectedTrgObj_PtEtaPhiCharge[1],SelectedTrgObj_PtEtaPhiCharge[2])<TrgExclusionCone) continue;
@@ -306,116 +315,118 @@ LeptonSkimming::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    trk_index++;
  }
  
-    //create mother ee combination
+    //create ll combination
  
- // fit track pairs
+    // fit track pairs
     cleanedObjTracks.clear(); cleanedPairTracks.clear();     
     TLorentzVector vel1,vel2;
     std::vector<std::shared_ptr<reco::Track>> cleanedObjects; 
-    //objects    
-    for(auto & vec: MuTracks) cleanedObjects.push_back(vec);
-    for(auto & vec: ElTracks) cleanedObjects.push_back(vec);  
+    //add tracks of objects    
+    if (!SkimOnlyElectrons){
+       for(auto & vec: MuTracks) cleanedObjects.push_back(vec);}
+     
+    if (!SkimOnlyMuons){
+       for(auto & vec: ElTracks) cleanedObjects.push_back(vec);}
 
     if (cleanedObjects.empty())
-             return false;
+       return false;
 
     for(auto& obj: cleanedObjects){
-      //      auto obj=cleanedObjects.at(iobj);
       auto tranobj=std::make_shared<reco::TransientTrack>(reco::TransientTrack(*obj,&(*bFieldHandle)));
       unsigned int iobj=&obj-&cleanedObjects[0];
       unsigned int index=object_container.at(iobj);
+      float massLep=0.0005;
+      if ( object_id.at(iobj)==13 ) massLep=0.105;
+      //posible cut in mu quality
       if ( object_id.at(iobj)==13 && QualMu_Cut==1 && !muon_soft.at(index)) continue;
      if ( object_id.at(iobj)==13 && QualMu_Cut==2 && !muon_medium.at(index)) continue;
      if ( object_id.at(iobj)==13 && QualMu_Cut==3 && !muon_tight.at(index)) continue;
-     if (object_id.at(iobj)==13) vel1.SetPtEtaPhiM(muon_pt.at(index),muon_eta.at(index),muon_phi.at(index),0.0005);
-       
-     else vel1.SetPtEtaPhiM(el_pt.at(index),el_eta.at(index),el_phi.at(index),0.0005);
+     // take the corresponding lepton track for lorentz vector
+     vel1.SetPtEtaPhiM(obj->pt(),obj->eta(),obj->phi(),massLep);
      if (object_id.at(iobj)==13 && vel1.Pt()<PtMu_Cut) continue;
      for(auto& trk2: cleanedTracks){
  	unsigned int itrk2=&trk2-&cleanedTracks[0];
-	//auto trk2=cleanedTracks.at(itrk2);
-         if (obj->charge()*trk2->charge()==1) continue;
-         if (ObjPtLargerThanTrack && vel1.Pt()<trk2->pt()) continue;
-         vel2.SetPtEtaPhiM(trk2->pt(),trk2->eta(),trk2->phi(),0.0005);
-         if (object_id.at(iobj)==13 && deltaR(obj->eta(),obj->phi(),SelectedTrgObj_PtEtaPhiCharge[1],SelectedTrgObj_PtEtaPhiCharge[2])<MuTrgExclusionCone) continue;
-         if (object_id.at(iobj)==11 && deltaR(obj->eta(),obj->phi(),SelectedTrgObj_PtEtaPhiCharge[1],SelectedTrgObj_PtEtaPhiCharge[2])<ElTrgExclusionCone) continue;
-         if (SelectedMu_DR<std::numeric_limits<float>::max() ){
+        //opposite sign
+        if (obj->charge()*trk2->charge()==1) continue;
+        if (ObjPtLargerThanTrack && vel1.Pt()<trk2->pt()) continue;
+        vel2.SetPtEtaPhiM(trk2->pt(),trk2->eta(),trk2->phi(),massLep);
+        //probe side cuts
+        if (object_id.at(iobj)==13 && deltaR(obj->eta(),obj->phi(),SelectedTrgObj_PtEtaPhiCharge[1],SelectedTrgObj_PtEtaPhiCharge[2])<MuTrgExclusionCone) continue;
+        if (object_id.at(iobj)==11 && deltaR(obj->eta(),obj->phi(),SelectedTrgObj_PtEtaPhiCharge[1],SelectedTrgObj_PtEtaPhiCharge[2])<ElTrgExclusionCone) continue;
+        if (SelectedMu_DR<std::numeric_limits<float>::max() ){
 	   if (object_id.at(iobj)==13 && fabs(ZvertexTrg- obj->vz())>MuTrgMuDz_Cut ) continue;
            if (object_id.at(iobj)==11 && fabs(ZvertexTrg-obj->vz())>ElTrgMuDz_Cut ) continue;
          }
-         if ((vel1+vel2).M()>MaxMee_Cut || (vel1+vel2).M()<MinMee_Cut ) continue;        
-	 auto trantrk2=std::make_shared<reco::TransientTrack>(reco::TransientTrack(*trk2,&(*bFieldHandle)));
-         std::vector<reco::TransientTrack> tempTracks;
-         tempTracks.reserve(2);
-         tempTracks.push_back(*tranobj); tempTracks.push_back(*trantrk2);
-         LLvertex = theKalmanFitter.vertex(tempTracks);
-         if (!LLvertex.isValid()) continue;
-	 if (ChiSquaredProbability(LLvertex.totalChiSquared(),LLvertex.degreesOfFreedom())<Probee_Cut)  continue;
-         if (ZvertexTrg>-1*std::numeric_limits<float>::max() && fabs(ZvertexTrg-LLvertex.position().z())>EpairZvtx_Cut ) continue;
-	 GlobalError err =LLvertex.positionError();
-	 GlobalPoint Dispbeamspot(-1*((theBeamSpot->x0()-LLvertex.position().x())+(LLvertex.position().z()-theBeamSpot->z0()) * theBeamSpot->dxdz()),-1*((theBeamSpot->y0()-LLvertex.position().y())+ (LLvertex.position().z()-theBeamSpot->z0()) * theBeamSpot->dydz()), 0);
-          math::XYZVector pperp((vel1+vel2).Px(),(vel1+vel2).Py(),0);
-          math::XYZVector vperp(Dispbeamspot.x(),Dispbeamspot.y(),0.);
-          float tempCos=vperp.Dot(pperp)/(vperp.R()*pperp.R());
-          if (tempCos<Cosee_Cut) continue;
-	  cleanedObjTracks.push_back(obj);
-          cleanedPairTracks.push_back(trk2);
-	  Epair_ObjectIndex.push_back(object_container.at(iobj));
-          Epair_ObjectId.push_back(object_id.at(iobj));
-          Epair_TrkIndex.push_back(Trk_container.at(itrk2));
-            
+        //additional cuts
+        float InvMassLepLep=(vel1+vel2).M();
+        if (InvMassLepLep>MaxMee_Cut || InvMassLepLep<MinMee_Cut ) continue;   
+        auto trantrk2=std::make_shared<reco::TransientTrack>(reco::TransientTrack(*trk2,&(*bFieldHandle)));
+        std::vector<reco::TransientTrack> tempTracks;
+        tempTracks.reserve(2);
+        tempTracks.push_back(*tranobj); tempTracks.push_back(*trantrk2);
+        LLvertex = theKalmanFitter.vertex(tempTracks);
+        if (!LLvertex.isValid()) continue;
+        if (ChiSquaredProbability(LLvertex.totalChiSquared(),LLvertex.degreesOfFreedom())<Probee_Cut)  continue;
+        if (ZvertexTrg>-1*std::numeric_limits<float>::max() && fabs(ZvertexTrg-LLvertex.position().z())>EpairZvtx_Cut ) continue;
+        GlobalError err =LLvertex.positionError();
+        GlobalPoint Dispbeamspot(-1*((theBeamSpot->x0()-LLvertex.position().x())+(LLvertex.position().z()-theBeamSpot->z0()) * theBeamSpot->dxdz()),-1*((theBeamSpot->y0()-LLvertex.position().y())+ (LLvertex.position().z()-theBeamSpot->z0()) * theBeamSpot->dydz()), 0);
+        math::XYZVector pperp((vel1+vel2).Px(),(vel1+vel2).Py(),0);
+        math::XYZVector vperp(Dispbeamspot.x(),Dispbeamspot.y(),0.);
+        float tempCos=vperp.Dot(pperp)/(vperp.R()*pperp.R());
+        if (tempCos<Cosee_Cut) continue;
+        cleanedObjTracks.push_back(obj);
+        cleanedPairTracks.push_back(trk2);
+        Epair_ObjectIndex.push_back(object_container.at(iobj));
+        Epair_ObjectId.push_back(object_id.at(iobj));
+        Epair_TrkIndex.push_back(Trk_container.at(itrk2));           
 	}
     }
-//    cout<<trk_index<<" comb "<<Epair_ObjectId.size()<<endl;   
     
-    // B recontrsuvtion
-     TLorentzVector vK; 
+    // B recontrsuction
+    TLorentzVector vK; 
     for(unsigned int iobj=0; iobj<cleanedObjTracks.size(); iobj++){
       auto objtrk=cleanedObjTracks.at(iobj);
       auto pairtrk=cleanedPairTracks.at(iobj);
       auto tranobj=std::make_shared<reco::TransientTrack>(reco::TransientTrack(*objtrk,&(*bFieldHandle)));
       auto tranpair=std::make_shared<reco::TransientTrack>(reco::TransientTrack(*pairtrk,&(*bFieldHandle)));
-      unsigned int index=Epair_ObjectIndex.at(iobj);
-      if ( Epair_ObjectId.at(iobj)==13) vel1.SetPtEtaPhiM(muon_pt.at(index),muon_eta.at(index),muon_phi.at(index),0.0005);
-      
-      else vel1.SetPtEtaPhiM(el_pt.at(index),el_eta.at(index),el_phi.at(index),0.0005);
-       
+      //unsigned int index=Epair_ObjectIndex.at(iobj);
+      float massLep=0.0005;
+      if ( Epair_ObjectId.at(iobj)==13) massLep=0.105;        
+      vel1.SetPtEtaPhiM(objtrk->pt(),objtrk->eta(),objtrk->phi(),massLep);      
+      vel2.SetPtEtaPhiM(pairtrk->pt(),pairtrk->eta(),pairtrk->phi(),massLep);  
       for(auto & trk: cleanedTracks){
-	//        unsigned int itrk= &trk-&cleanedTracks[0];
-	//auto trk=cleanedTracks.at(itrk);
-         if(deltaR(objtrk->eta(),objtrk->phi(),trk->eta(),trk->phi())<TrkObjExclusionCone) continue;
+         //reject track corresponding to mu or e
+         if( trk->charge()==objtrk->charge() && deltaR(objtrk->eta(),objtrk->phi(),trk->eta(),trk->phi())<TrkObjExclusionCone) continue;
 	 if (trk->pt()<PtKTrack_Cut) continue;
          if (fabs(trk->dxy(vertex_point))/trk->dxyError()<Ksdxy_Cut) continue;
-         if (trk->charge()==pairtrk->charge() && deltaR(pairtrk->eta(),pairtrk->phi(),trk->eta(),trk->phi())<TrkTrkMinDR_Cut) continue;
-         
-         vel2.SetPtEtaPhiM(pairtrk->pt(),pairtrk->eta(),pairtrk->phi(),0.0005);
+         // skip the track that was used as mu or e                 
+         if (Epair_TrkIndex.at(iobj)==&trk-&cleanedTracks[0]) continue;
          vK.SetPtEtaPhiM(trk->pt(),trk->eta(),trk->phi(),0.493);
-         if ((vel1+vel2+vK).M()> MaxMB_Cut || (vel1+vel2+vK).M()< MinMB_Cut) continue;
+         //final cuts
+         float InvMass=(vel1+vel2+vK).M();
+         if (InvMass> MaxMB_Cut || InvMass<MinMB_Cut) continue;
          if ((vel1+vel2+vK).Pt()<PtB_Cut) continue;
          auto trantrk=std::make_shared<reco::TransientTrack>(reco::TransientTrack(*trk,&(*bFieldHandle)));
          std::vector<reco::TransientTrack> tempTracks;
          tempTracks.reserve(3);
          tempTracks.push_back(*tranobj); tempTracks.push_back(*tranpair);
-         tempTracks.push_back(*trantrk);
-	 
+         tempTracks.push_back(*trantrk);	 
          LLvertex = theKalmanFitter.vertex(tempTracks);
 	 if (!LLvertex.isValid()) continue;
-	  if (ChiSquaredProbability(LLvertex.totalChiSquared(),LLvertex.degreesOfFreedom())<ProbeeK_Cut) continue;
+	 if (ChiSquaredProbability(LLvertex.totalChiSquared(),LLvertex.degreesOfFreedom())<ProbeeK_Cut) continue;
 	 GlobalError err =LLvertex.positionError();
          GlobalPoint Dispbeamspot(-1*((theBeamSpot->x0()-LLvertex.position().x())+(LLvertex.position().z()-theBeamSpot->z0()) * theBeamSpot->dxdz()),-1*((theBeamSpot->y0()-LLvertex.position().y())+ (LLvertex.position().z()-theBeamSpot->z0()) * theBeamSpot->dydz()), 0);
-      
          math::XYZVector pperp((vel1+vel2+vK).Px(),(vel1+vel2+vK).Py(),0);
          math::XYZVector vperp(Dispbeamspot.x(),Dispbeamspot.y(),0.);
          float tempCos=vperp.Dot(pperp)/(vperp.R()*pperp.R());
          if (tempCos<CoseeK_Cut) continue;
          if (SLxy_Cut>Dispbeamspot.perp()/sqrt(err.rerr(Dispbeamspot))) continue;
-          Result=true;
-//          std::cout<<"fired "<<test_ev<<std::endl;
-	  break;
+         Result=true;
+	 break;
      }
       if (Result) break;
     }
-  
+    //decission
      return Result;
    
 }

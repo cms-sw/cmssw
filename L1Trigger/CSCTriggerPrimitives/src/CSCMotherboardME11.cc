@@ -10,7 +10,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboardME11.h"
 
 CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
 			       unsigned sector, unsigned subsector,

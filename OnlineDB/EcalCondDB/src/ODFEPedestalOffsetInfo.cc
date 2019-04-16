@@ -51,7 +51,7 @@ int ODFEPedestalOffsetInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -75,7 +75,7 @@ void ODFEPedestalOffsetInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::prepareWrite():  ")+e.getMessage()));
   }
 
 }
@@ -111,7 +111,7 @@ void ODFEPedestalOffsetInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::writeDB():  ")+e.getMessage()));
   }
 
 
@@ -162,11 +162,11 @@ void ODFEPedestalOffsetInfo::fetchData(ODFEPedestalOffsetInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -184,11 +184,11 @@ void ODFEPedestalOffsetInfo::fetchLastData(ODFEPedestalOffsetInfo * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -218,7 +218,7 @@ int ODFEPedestalOffsetInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchID:  ")+e.getMessage()));
   }
 
   return m_ID;

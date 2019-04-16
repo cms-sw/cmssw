@@ -1,3 +1,6 @@
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
 /* class PFRecoTauDiscriminationByCharge
@@ -19,6 +22,7 @@ class PFRecoTauDiscriminationByCharge : public PFTauDiscriminationProducerBase  
       }
       ~PFRecoTauDiscriminationByCharge() override{} 
       double discriminate(const PFTauRef& pfTau) const override;
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
    private:
       uint32_t chargeReq_;
       bool oneOrThreeProng_;
@@ -26,10 +30,26 @@ class PFRecoTauDiscriminationByCharge : public PFTauDiscriminationProducerBase  
 
 double PFRecoTauDiscriminationByCharge::discriminate(const PFTauRef& thePFTauRef) const
 {
-   uint16_t nSigTk        =  thePFTauRef->signalPFChargedHadrCands().size();
+   uint16_t nSigTk        =  thePFTauRef->signalChargedHadrCands().size();
    bool chargeok          =  (std::abs(thePFTauRef->charge()) == int(chargeReq_));
    bool oneOrThreeProngOK =  ( (nSigTk==1) || (nSigTk==3) || !oneOrThreeProng_ );
 
    return ( (chargeok && oneOrThreeProngOK) ? 1. : 0. );
 }
+
+void
+PFRecoTauDiscriminationByCharge::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationByCharge
+  edm::ParameterSetDescription desc;
+  desc.add<unsigned int>("AbsChargeReq", 1);
+  desc.add<bool>("ApplyOneOrThreeProngCut", false);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducerHighEfficiency"));
+  descriptions.add("pfRecoTauDiscriminationByCharge", desc);
+}
+
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByCharge);

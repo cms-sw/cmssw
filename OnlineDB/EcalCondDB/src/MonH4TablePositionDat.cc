@@ -38,7 +38,7 @@ void MonH4TablePositionDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonH4TablePositionDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonH4TablePositionDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -65,7 +65,7 @@ void MonH4TablePositionDat::writeDB(const EcalLogicID* ecid, const MonH4TablePos
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonH4TablePositionDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonH4TablePositionDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -97,12 +97,12 @@ void MonH4TablePositionDat::fetchData(std::map< EcalLogicID, MonH4TablePositionD
     std::pair< EcalLogicID, MonH4TablePositionDat > p;
     MonH4TablePositionDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setTableX( rset->getFloat(7) );
       dat.setTableY( rset->getFloat(8) );
@@ -111,7 +111,7 @@ void MonH4TablePositionDat::fetchData(std::map< EcalLogicID, MonH4TablePositionD
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonH4TablePositionDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonH4TablePositionDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -185,6 +185,6 @@ void MonH4TablePositionDat::writeArrayDB(const std::map< EcalLogicID, MonH4Table
     delete [] y_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonH4TablePositionDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonH4TablePositionDat::writeArrayDB():  "+e.getMessage()));
   }
 }

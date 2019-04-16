@@ -38,7 +38,12 @@ class CommissioningAnalysis {
 
   typedef std::vector<VInt> VVInt;
 
+  typedef std::vector<bool> VBool;
+
+  typedef std::vector<VBool> VVBool;
+
   typedef std::vector<std::string> VString;
+
 
   // ---------- public interface ----------
   

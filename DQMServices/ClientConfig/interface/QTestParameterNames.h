@@ -15,7 +15,7 @@
 #include<string>
 #include<vector>
 
-struct QTestParameterNames{
+class QTestParameterNames{
 
   public:
   	///Constructor

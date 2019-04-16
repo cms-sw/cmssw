@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from builtins import range
 import os
 # probably easier to fetch everything without subdirs, but that's up to user preferences
 #import PhysicsTools.HeppyCore.framework.config as cfg
@@ -14,7 +15,7 @@ crabFiles=PSet.process.source.fileNames
 print(crabFiles)
 firstInput = crabFiles[0]
 print("--------------- using edmFileUtil to convert PFN to LFN -------------------------")
-for i in xrange(0,len(crabFiles)) :
+for i in range(0,len(crabFiles)) :
      pfn=os.popen("edmFileUtil -d %s"%(crabFiles[i])).read() 
      pfn=re.sub("\n","",pfn)
      print(crabFiles[i],"->",pfn)

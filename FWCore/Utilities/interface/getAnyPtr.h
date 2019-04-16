@@ -18,8 +18,7 @@ namespace edm {
     assert(p != nullptr);
     pointerUnion.vp = p; 	 
     pointerUnion.ucp += offset; 	 
-    std::unique_ptr<T> tp(pointerUnion.tp);
-    return(std::move(tp));
+    return std::unique_ptr<T>(pointerUnion.tp);
   }
 }
 

@@ -6,9 +6,11 @@ BOOST_PYTHON_MODULE( pluginModule_PayloadInspector ) {
   .def_readonly("label", &cond::payloadInspector::ModuleVersion::label );
   boost::python::class_< cond::payloadInspector::PlotBase > ( "PlotBase" )
   .def("process",&cond::payloadInspector::PlotBase::process )
+  .def("processTwoTags",&cond::payloadInspector::PlotBase::processTwoTags )
   .def("payloadType",&cond::payloadInspector::PlotBase::payloadType )
   .def("type",&cond::payloadInspector::PlotBase::type )
   .def("title",&cond::payloadInspector::PlotBase::title )
   .def("isSingleIov",&cond::payloadInspector::PlotBase::isSingleIov )
+  .def("isTwoTags",&cond::payloadInspector::PlotBase::isTwoTags )
   .def("data",&cond::payloadInspector::PlotBase::data );
 } 

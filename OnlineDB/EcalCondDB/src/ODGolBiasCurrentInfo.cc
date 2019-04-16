@@ -50,7 +50,7 @@ int ODGolBiasCurrentInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODGolBiasCurrentInfo::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODGolBiasCurrentInfo::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -74,7 +74,7 @@ void ODGolBiasCurrentInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODGolBiasCurrentInfo::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODGolBiasCurrentInfo::prepareWrite():  ")+e.getMessage()));
   }
 
 }
@@ -110,7 +110,7 @@ void ODGolBiasCurrentInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODGolBiasCurrentInfo::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODGolBiasCurrentInfo::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -172,11 +172,11 @@ void ODGolBiasCurrentInfo::fetchData(ODGolBiasCurrentInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODGolBiasCurrentInfo::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODGolBiasCurrentInfo::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -206,7 +206,7 @@ int ODGolBiasCurrentInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODGolBiasCurrentInfo::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODGolBiasCurrentInfo::fetchID:  ")+e.getMessage()));
   }
 
   return m_ID;

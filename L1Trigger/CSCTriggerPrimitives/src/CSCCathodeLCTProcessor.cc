@@ -1,4 +1,4 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
 
 #include <iomanip>
 #include <iostream>

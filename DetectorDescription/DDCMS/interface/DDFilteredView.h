@@ -18,36 +18,44 @@
 //         Created:  Wed, 30 Jan 2019 09:24:30 GMT
 //
 //
-#include "DetectorDescription/DDCMS/interface/DDExpandedNode.h"
-
+#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+#include "DetectorDescription/DDCMS/interface/ExpandedNodes.h"
+#include "DetectorDescription/DDCMS/interface/Filter.h"
+#include <DD4hep/Volumes.h>
+#include <memory>
 #include <vector>
 
 namespace cms {
 
   class DDDetector;
 
-  //! Geometrical 'path' of the current node up to the root-node
-  using DDGeoHistory = std::vector<DDExpandedNode>;
   using Volume = dd4hep::Volume;
+  using PlacedVolume = dd4hep::PlacedVolume;
+  using ExpandedNodes = cms::ExpandedNodes;
+  using Filter = cms::Filter;
+  using Iterator = TGeoIterator;
+  using Node = TGeoNode;
+  
+  class DDFilteredView {
+
+  public:
     
-  struct DDFilteredView {
+    DDFilteredView(const DDDetector*, const Volume);
+    DDFilteredView() = delete;
     
-    struct ExpandedNodes {
-      std::vector<double> tags;
-      std::vector<double> offsets;
-      std::vector<int> copyNos;
-    } nodes;
+    //! The numbering history of the current node
+    const ExpandedNodes& history() const {
+      return nodes_;
+    }
     
-    DDFilteredView(const DDDetector*);
-    
-    //! The logical-part of the current node in the filtered-view
-    const DDVolume & volume() const;
+    //! The physical volume of the current node
+    const PlacedVolume volume() const;
     
     //! The absolute translation of the current node
-    const DDTranslation & translation() const;
+    const Double_t* trans() const;
     
     //! The absolute rotation of the current node
-    const DDRotationMatrix & rotation() const;
+    const Double_t* rot() const;
 
     //! User specific data
     void mergedSpecifics(DDSpecParRefs const&);
@@ -55,51 +63,49 @@ namespace cms {
     //! set the current node to the first child
     bool firstChild();
 
+    //! set the current node to the first sibling
+    bool firstSibling();
+
     //! set the current node to the next sibling
     bool nextSibling();
 
+    //! set the current node to the next sub sibling
+    bool sibling();
+    bool siblingNoCheck();
+    
+    //! count the number of children matching selection
+    bool checkChild();
+    
+    //! set the current node to the parent node ...
+    bool parent();
+
     //! set current node to the next node in the filtered tree
-    bool next();
-    
-    //! The list of ancestors up to the root-node of the current node
-    const DDGeoHistory & geoHistory() const;
+    bool next(int);
 
-    bool accepted(std::string_view, std::string_view) const;
-    bool accepted(std::vector<std::string_view> const&, std::string_view) const;
-    bool acceptedM(std::vector<std::string_view>&, std::string_view) const;
-    std::vector<std::string_view> const& topNodes() const { return topNodes_; }
-    std::vector<std::string_view> const& nextNodes() const { return nextNodes_; }
-    std::vector<std::string_view> const& afterNextNodes() const { return afterNextNodes_; }
-    
-    std::vector<double> extractParameters() const;
-    std::vector<std::string_view> paths(const char*) const;
-    bool checkPath(std::string_view, TGeoNode *);
-    bool checkNode(TGeoNode *);
+    //! set current node to the child node in the filtered tree
+    void down();
+
+    //! set current node to the parent node in the filtered tree
+    void up();
+   
+    //! pop current node
     void unCheckNode();
-    void filter(DDSpecParRefs&, std::string_view, std::string_view) const;
-    std::vector<std::string_view> vPathsTo(const DDSpecPar&, unsigned int) const;
-    std::vector<std::string_view> tails(const std::vector<std::string_view>& fullPath) const;
 
-    DDGeoHistory parents_;
-    
+    //! extract shape parameters
+    std::vector<double> extractParameters() const;
+
   private:
+    
+    bool accept(std::string_view);
+    bool addPath(Node* const);
+    bool addNode(Node* const);
+    
+    ExpandedNodes nodes_;
+    std::vector<Iterator> it_;
+    std::vector<std::unique_ptr<Filter>> filters_;
+    Filter* currentFilter_ = nullptr;
+    Node *node_ = nullptr;
     const DDSpecParRegistry* registry_;
-    
-    bool isRegex(std::string_view) const;
-    int contains(std::string_view, std::string_view) const;
-    std::string_view realTopName(std::string_view input) const;
-    int copyNo(std::string_view input) const;
-    std::string_view noCopyNo(std::string_view input) const;
-    std::string_view noNamespace(std::string_view input) const;
-    std::vector<std::string_view> split(std::string_view, const char*) const;
-    bool acceptRegex(std::string_view, std::string_view) const;
-    
-    std::vector<std::string_view> topNodes_;
-    std::vector<std::string_view> nextNodes_;
-    std::vector<std::string_view> afterNextNodes_;
-
-    TGeoVolume *topVolume_ = nullptr;
-    TGeoNode *node_ = nullptr;
   };
 }
 

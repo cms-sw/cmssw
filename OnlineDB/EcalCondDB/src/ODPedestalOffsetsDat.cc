@@ -41,7 +41,7 @@ void ODPedestalOffsetsDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, sm_id, fed_id, tt_id, cry_id, low, mid, high) "
 			"VALUES (:1, :2, :3, :4, :5, :6, :7, :8 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODPedestalOffsetsDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODPedestalOffsetsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -64,7 +64,7 @@ void ODPedestalOffsetsDat::writeDB(const ODPedestalOffsetsDat* item, ODFEPedesta
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODPedestalOffsetsDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODPedestalOffsetsDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -105,7 +105,7 @@ void ODPedestalOffsetsDat::fetchData(std::vector< ODPedestalOffsetsDat >* p, ODF
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODPedestalOffsetsDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODPedestalOffsetsDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -200,6 +200,6 @@ void ODPedestalOffsetsDat::writeArrayDB(const std::vector< ODPedestalOffsetsDat 
     delete [] z1_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODPedestalOffsetsDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODPedestalOffsetsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

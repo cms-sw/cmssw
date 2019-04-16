@@ -50,7 +50,7 @@ int ODTowersToByPassInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTowersToByPassInfo::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTowersToByPassInfo::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -74,7 +74,7 @@ void ODTowersToByPassInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTowersToByPassInfo::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTowersToByPassInfo::prepareWrite():  ")+e.getMessage()));
   }
 
 }
@@ -110,7 +110,7 @@ void ODTowersToByPassInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTowersToByPassInfo::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTowersToByPassInfo::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -172,11 +172,11 @@ void ODTowersToByPassInfo::fetchData(ODTowersToByPassInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTowersToByPassInfo::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTowersToByPassInfo::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -206,7 +206,7 @@ int ODTowersToByPassInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODTowersToByPassInfo::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODTowersToByPassInfo::fetchID:  ")+e.getMessage()));
   }
 
   return m_ID;

@@ -73,6 +73,7 @@ class CaloParticleDebugger : public edm::one::EDAnalyzer<>  {
       edm::EDGetTokenT<std::vector<CaloParticle> > caloParticlesToken_;
       edm::EDGetTokenT<std::vector<SimCluster>> simClustersToken_;
       std::vector<edm::EDGetTokenT<std::vector<PCaloHit> > > collectionTagsToken_;
+      int geometryType_ = 0;
       // ----------member data ---------------------------
 };
 
@@ -289,24 +290,33 @@ void CaloParticleDebugger::fillSimHits(
   // Taken needed quantities from the EventSetup
   edm::ESHandle<CaloGeometry> geom;
   iSetup.get<CaloGeometryRecord>().get(geom);
-  const HGCalGeometry *eegeom, *fhgeom;
-  const HcalGeometry *bhgeom;
-  const HGCalDDDConstants* hgddd[2];
-  const HGCalTopology*     hgtopo[2];
-  const HcalDDDRecConstants* hcddd;
-
-  eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
-  fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
-  bhgeom = static_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-
+  const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
+  const HcalGeometry *bhgeom = nullptr;
+  const HGCalDDDConstants* hgddd[3];
+  const HGCalTopology*     hgtopo[3];
+  const HcalDDDRecConstants* hcddd = nullptr;
+  eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
+  //check if it's the new geometry
+  if(eegeom){
+    geometryType_ = 1;
+    fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
+    bhgeomnew = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSc,ForwardSubdetector::ForwardEmpty));
+  }
+  else {
+    geometryType_ = 0;
+    eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
+    fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
+    bhgeom = static_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+  }
   hgtopo[0] = &(eegeom->topology());
   hgtopo[1] = &(fhgeom->topology());
+  if(bhgeomnew) hgtopo[2] = &(bhgeomnew->topology());
 
-  for (unsigned i = 0; i < 2; ++i) {
-    hgddd[i] = &(hgtopo[i]->dddConstants());
+  for (unsigned i = 0; i < 3; ++i) {
+    if(hgtopo[i]) hgddd[i] = &(hgtopo[i]->dddConstants());
   }
 
-  hcddd = bhgeom->topology().dddConstants();
+  if(bhgeom) hcddd = bhgeom->topology().dddConstants();
 
   // loop over the collections
   int token = 0;
@@ -317,7 +327,12 @@ void CaloParticleDebugger::fillSimHits(
     for (auto const& simHit : *hSimHits) {
       DetId id(0);
       const uint32_t simId = simHit.id();
-      if (isHcal) {
+      if (geometryType_==1) {
+                //no test numbering in new geometry
+        id = simId;
+      }
+      else if (isHcal) {
+        assert(hcddd);
         HcalDetId hid = HcalHitRelabeller::relabel(simId, hcddd);
         if (hid.subdet() == HcalEndcap) id = hid;
       } else {

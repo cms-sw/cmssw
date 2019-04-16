@@ -3,6 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include <boost/filesystem.hpp>
 #include <iostream>
 
@@ -18,7 +19,9 @@ int main() {
       "process.SiteLocalConfigService = cms.Service('SiteLocalConfigService')\n";
 
     //create the services
-    edm::ServiceToken tempToken = edm::ServiceRegistry::createServicesFromConfig(config);
+    std::unique_ptr<edm::ParameterSet> params;
+    edm::makeParameterSets(config, params);
+    edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
 
     //make the services available
     edm::ServiceRegistry::Operate operate(tempToken);

@@ -33,6 +33,7 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
                                               l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput,
                                               const edm::EventSetup& es)
 { 
+  if(concentratorProcImpl_) concentratorProcImpl_->eventSetup(es);
   const l1t::HGCalTriggerCellBxCollection& collInput = *triggerCellCollInput;
 
   std::unordered_map<uint32_t, std::vector<l1t::HGCalTriggerCell>> tc_modules;
@@ -40,6 +41,7 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
     uint32_t module = geometry_->getModuleFromTriggerCell(trigCell.detId());
     tc_modules[module].push_back(trigCell);
   }
+  if ( concentratorSTCImpl_) concentratorSTCImpl_->eventSetup(es);
 
   for( const auto& module_trigcell : tc_modules ) {
     std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;

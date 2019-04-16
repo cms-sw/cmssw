@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <cmath>
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilder.h"
@@ -48,11 +49,19 @@ public:
 protected:
    std::map<DetId, const HGCRecHit*> hitmap;
    
-   static const uint8_t gradient_steps = 9;
-   const float gradient[3][gradient_steps] = {
-      {0.2082*255, 0.0592*255, 0.0780*255, 0.0232*255, 0.1802*255, 0.5301*255, 0.8186*255, 0.9956*255, 0.9764*255},
-      {0.1664*255, 0.3599*255, 0.5041*255, 0.6419*255, 0.7178*255, 0.7492*255, 0.7328*255, 0.7862*255, 0.9832*255},
-      {0.5293*255, 0.8684*255, 0.8385*255, 0.7914*255, 0.6425*255, 0.4662*255, 0.3499*255, 0.1968*255, 0.0539*255}
+   static constexpr uint8_t gradient_steps = 9;
+   static constexpr uint8_t gradient[3][gradient_steps] = {
+     {static_cast<uint8_t>(0.2082*255), static_cast<uint8_t>(0.0592*255), static_cast<uint8_t>(0.0780*255), 
+      static_cast<uint8_t>(0.0232*255), static_cast<uint8_t>(0.1802*255), static_cast<uint8_t>(0.5301*255), 
+      static_cast<uint8_t>(0.8186*255), static_cast<uint8_t>(0.9956*255), static_cast<uint8_t>(0.9764*255)},
+
+     {static_cast<uint8_t>(0.1664*255), static_cast<uint8_t>(0.3599*255), static_cast<uint8_t>(0.5041*255), 
+      static_cast<uint8_t>(0.6419*255), static_cast<uint8_t>(0.7178*255), static_cast<uint8_t>(0.7492*255), 
+      static_cast<uint8_t>(0.7328*255), static_cast<uint8_t>(0.7862*255), static_cast<uint8_t>(0.9832*255)},
+
+     {static_cast<uint8_t>(0.5293*255), static_cast<uint8_t>(0.8684*255), static_cast<uint8_t>(0.8385*255), 
+      static_cast<uint8_t>(0.7914*255), static_cast<uint8_t>(0.6425*255), static_cast<uint8_t>(0.4662*255), 
+      static_cast<uint8_t>(0.3499*255), static_cast<uint8_t>(0.1968*255), static_cast<uint8_t>(0.0539*255)}
    };
 
    const T& modelData(int index) { return *reinterpret_cast<const T*>(m_helper.offsetObject(item()->modelData(index))); }

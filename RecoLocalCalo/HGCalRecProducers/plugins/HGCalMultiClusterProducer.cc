@@ -18,9 +18,9 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
 
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCal3DClustering.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -44,14 +44,14 @@ class HGCalMultiClusterProducer : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<std::vector<reco::BasicCluster> > clusters_sharing_token;
     std::unique_ptr<HGCal3DClustering> multicluster_algo;
     bool doSharing;
-    HGCalImagingAlgo::VerbosityLevel verbosity;
+    HGCalClusteringAlgoBase::VerbosityLevel verbosity;
 };
 
 DEFINE_FWK_MODULE(HGCalMultiClusterProducer);
 
 HGCalMultiClusterProducer::HGCalMultiClusterProducer(const edm::ParameterSet &ps) :
   doSharing(ps.getParameter<bool>("doSharing")),
-  verbosity((HGCalImagingAlgo::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity",3)){
+  verbosity((HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity",3)){
   std::vector<double> multicluster_radii = ps.getParameter<std::vector<double> >("multiclusterRadii");
   double minClusters = ps.getParameter<unsigned>("minClusters");
   clusters_token = consumes<std::vector<reco::BasicCluster> >(ps.getParameter<edm::InputTag>("HGCLayerClusters"));

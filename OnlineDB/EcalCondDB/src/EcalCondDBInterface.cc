@@ -81,7 +81,7 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID( int logicID )
     ResultSet* rset = stmt->executeQuery();
 
     if (rset->next()) {
-      name = getOraString(rset,1);
+      name = rset->getString(1);
       logicID = rset->getInt(2);
       id1 = rset->getInt(3);
       if (rset->isNull(3)) { id1 = EcalLogicID::NULLID; }
@@ -89,7 +89,7 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID( int logicID )
       if (rset->isNull(4)) { id2 = EcalLogicID::NULLID; }
       id3 = rset->getInt(5);
       if (rset->isNull(5)) { id3 = EcalLogicID::NULLID; }
-      mapsTo = getOraString(rset,6);
+      mapsTo = rset->getString(6);
     } else {
       stringstream msg;
       msg << "ERROR:  Cannot build EcalLogicID for logic_id " << logicID;
@@ -97,7 +97,7 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID( int logicID )
     }
 
   } catch (SQLException &e) {    
-    throw(std::runtime_error(std::string("ERROR:  Failed to retrive ids:  ") + getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ERROR:  Failed to retrive ids:  ") + e.getMessage()));
   }
   
   return EcalLogicID( name, logicID, id1, id2, id3, mapsTo );  
@@ -192,7 +192,7 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID( string name,
       throw(std::runtime_error(msg.str()));
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ERROR:  Failed to retrive logic_id:  ") + getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ERROR:  Failed to retrive logic_id:  ") + e.getMessage()));
   }
 
   // create and return the EcalLogicID object
@@ -269,7 +269,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSet( string name,
     int id1, id2, id3, logicId;
 
     while (rset->next()) {
-      name = getOraString(rset,1);
+      name = rset->getString(1);
       logicId = rset->getInt(2);
       id1 = rset->getInt(3);
       if (rset->isNull(3)) { id1 = EcalLogicID::NULLID; }
@@ -277,7 +277,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSet( string name,
       if (rset->isNull(4)) { id2 = EcalLogicID::NULLID; }
       id3 = rset->getInt(5);
       if (rset->isNull(5)) { id3 = EcalLogicID::NULLID; }
-      mapsTo = getOraString(rset,6);
+      mapsTo = rset->getString(6);
 
       EcalLogicID ecid = EcalLogicID( name, logicId, id1, id2, id3, mapsTo );
       result.push_back(ecid);
@@ -285,7 +285,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSet( string name,
     stmt->setPrefetchRowCount(0);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ERROR:  Failure while getting EcalLogicID set:  ") + getOraMessage(&e)));    
+    throw(std::runtime_error(std::string("ERROR:  Failure while getting EcalLogicID set:  ") + e.getMessage()));    
   }
 
   return result;
@@ -372,7 +372,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDMappedTo(int lmr_log
     stmt->setPrefetchRowCount(0);
   }
   catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ERROR:  Failure while getting EcalLogicID set:  ") + getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ERROR:  Failure while getting EcalLogicID set:  ") + e.getMessage()));
   }
   return ret;
 }
@@ -491,7 +491,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSetOrdered( string n
     int id1, id2, id3, logicId;
 
     while (rset->next()) {
-      name = getOraString(rset,1);
+      name = rset->getString(1);
       logicId = rset->getInt(2);
       id1 = rset->getInt(3);
       if (rset->isNull(3)) { id1 = EcalLogicID::NULLID; }
@@ -499,7 +499,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSetOrdered( string n
       if (rset->isNull(4)) { id2 = EcalLogicID::NULLID; }
       id3 = rset->getInt(5);
       if (rset->isNull(5)) { id3 = EcalLogicID::NULLID; }
-      mapsTo = getOraString(rset,6);
+      mapsTo = rset->getString(6);
 
       EcalLogicID ecid = EcalLogicID( name, logicId, id1, id2, id3, mapsTo );
       result.push_back(ecid);
@@ -507,7 +507,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSetOrdered( string n
     stmt->setPrefetchRowCount(0);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ERROR:  Failure while getting EcalLogicID set:  ") + getOraMessage(&e)));    
+    throw(std::runtime_error(std::string("ERROR:  Failure while getting EcalLogicID set:  ") + e.getMessage()));    
   }
 
   return result;

@@ -1,8 +1,11 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
+
+using namespace geant_units::operators;
 
 static long  algorithm(dd4hep::Detector& /* description */,
                        cms::DDParsingContext& ctxt,
@@ -27,9 +30,9 @@ static long  algorithm(dd4hep::Detector& /* description */,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Parameters for positioning::"
 			       << " n " << n << " Start, Range, Delta " 
-			       << ConvertTo( startAngle, deg ) << " " 
-			       << ConvertTo( rangeAngle, deg ) << " " 
-			       << ConvertTo( dphi, deg )
+			       << convertRadToDeg( startAngle ) << " " 
+			       << convertRadToDeg( rangeAngle ) << " " 
+			       << convertRadToDeg( dphi )
 			       << " Shift " << shiftX << ":" << shiftY
 			       << "\n Parent " << mother.name() 
 			       << "\tChild " << child.name() 

@@ -47,6 +47,7 @@ MicroEventContent = cms.PSet(
 
         'keep double_fixedGridRhoAll__*',
         'keep double_fixedGridRhoFastjetAll__*',
+        'keep double_fixedGridRhoFastjetAllTmp__*',
         'keep double_fixedGridRhoFastjetAllCalo__*',
         'keep double_fixedGridRhoFastjetCentral_*_*',
         'keep double_fixedGridRhoFastjetCentralCalo__*',
@@ -78,6 +79,7 @@ MicroEventContent = cms.PSet(
         'keep LumiScalerss_scalersRawToDigi_*_*',
         # CTPPS
         'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
+        'keep recoForwardProtons_ctppsProtons_*_*',
 	# displacedStandAlone muon collection for EXO
 	'keep recoTracks_displacedStandAloneMuons__*',
     )
@@ -115,6 +117,8 @@ _bParking_extraCommands = ['keep *_slimmedLowPtElectrons_*_*',
                            'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
                            'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
                            'keep floatedmValueMap_lowPtGsfElectronID_*_*',
+                           'keep *_lowPtGsfLinks_*_*',
+                           'keep *_gsfTracksOpenConversions_*_*',
                            ]
 bParking.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _bParking_extraCommands)
 

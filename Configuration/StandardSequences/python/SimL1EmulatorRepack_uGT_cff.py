@@ -5,11 +5,11 @@ import FWCore.ParameterSet.Config as cms
 
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-if not (stage2L1Trigger.isChosen()):
+def _print(ignored):
     print("L1T WARN:  L1REPACK:Full (intended for 2016 data) only supports Stage 2 eras for now.")
     print("L1T WARN:  Use a legacy version of L1REPACK for now.")
-else:
-    print("L1T INFO:  L1REPACK:uGT (intended for 2016 data) will unpack uGMT and CaloLaye2 outputs and re-emulate uGT")
+stage2L1Trigger.toModify(None, _print)
+(~stage2L1Trigger).toModify(None, lambda x: print("L1T INFO:  L1REPACK:uGT (intended for 2016 data) will unpack uGMT and CaloLaye2 outputs and re-emulate uGT"))
 
 # First, inputs to uGT:
 import EventFilter.L1TRawToDigi.gtStage2Digis_cfi
@@ -43,7 +43,7 @@ import EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi
 rawDataCollector = EventFilter.RawDataCollector.rawDataCollectorByLabel_cfi.rawDataCollector.clone(
     verbose = 0,
     RawCollectionList = [
-        'packGtStage2'.
+        'packGtStage2',
         cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess()),
         ]
     )

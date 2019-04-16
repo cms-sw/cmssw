@@ -10,7 +10,7 @@
 //  Documentation: see TEcnaHeader.h
 //--------------------------------------
 
-ClassImp(TEcnaHeader)
+ClassImp(TEcnaHeader);
 //____________________________________________________________________________
   
 TEcnaHeader::TEcnaHeader(){Init();} // constructor without arguments

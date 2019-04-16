@@ -15,7 +15,7 @@ def makeStepNameSim(key,frag,step,suffix):
 def makeStepName(key,frag,step,suffix):
    return step+suffix+'_'+key
 
-neutronKeys = ['2023D17','2023D19','2023D21','2023D22','2023D23','2023D24','2023D25','2023D28','2023D29','2023D30','2023D31','2023D33','2023D34','2023D35','2023D36','2023D37','2023D38','2023D39']
+neutronKeys = ['2023D17','2023D19','2023D21','2023D24','2023D25','2023D28','2023D29','2023D30','2023D31','2023D33','2023D34','2023D35','2023D36','2023D37','2023D38','2023D39','2023D40','2023D41']
 neutronFrags = ['ZMM_14','MinBias_14TeV']
 
 tbmFrags = ['TTbar_13','ZMM_13']
@@ -60,6 +60,9 @@ for year in upgradeKeys:
                         stepList[stepType].append(stepMaker(key,"SingleNuE10_cf",s,upgradeSteps[stepType]['suffix']))
                     elif (stepType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in upgradeSteps[stepType]['PU']) or (step in upgradeSteps[stepType]['steps']) ):
                         stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps[stepType]['suffix']))
+                        # hack to add an extra step
+                        if stepType == 'ProdLike' and 'RecoFullGlobal' in step:
+                            stepList[stepType].append(stepMaker(key,frag[:-4],step.replace('RecoFullGlobal','MiniAODFullGlobal'),upgradeSteps[stepType]['suffix']))
                     else:
                         stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps['baseline']['suffix']))
 
@@ -93,6 +96,14 @@ for year in upgradeKeys:
             # special workflows for stuck TBM
             if any(upgradeDatasetFromFragment[frag]==nfrag for nfrag in tbmFrags) and '2018' in key:
                 workflows[numWF+upgradeSteps['killStuckTBM']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['killStuckTBM']]
+
+            # workflow for profiling
+            if upgradeDatasetFromFragment[frag]=="TTbar_14TeV" and '2023' in key:
+                workflows[numWF+upgradeSteps['ProdLike']['offset']] = [ upgradeDatasetFromFragment[frag]+"_ProdLike", stepList['ProdLike']]
+
+            # special workflows for ParkingBPH
+            if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
+                workflows[numWF+upgradeSteps['ParkingBPH']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['ParkingBPH']]
 
             # premixing stage1, only for NuGun
             if upgradeDatasetFromFragment[frag]=="NuGun" and 'PU' in key and '2023' in key:

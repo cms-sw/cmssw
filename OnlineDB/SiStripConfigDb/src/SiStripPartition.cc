@@ -532,21 +532,28 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	    // Check run type
 	    uint16_t type = run->getModeId( run->getMode() );
 	    if      ( type ==  1 ) { runType_ = sistrip::PHYSICS; }
-	    else if ( type ==  2 ) { runType_ = sistrip::PEDESTALS; }
-	    else if ( type ==  3 ) { runType_ = sistrip::CALIBRATION; }
-	    else if ( type == 33 ) { runType_ = sistrip::CALIBRATION_DECO; }
-	    else if ( type ==  4 ) { runType_ = sistrip::OPTO_SCAN; }
-	    else if ( type ==  5 ) { runType_ = sistrip::APV_TIMING; }
-	    else if ( type ==  6 ) { runType_ = sistrip::APV_LATENCY; }
-	    else if ( type ==  7 ) { runType_ = sistrip::FINE_DELAY_PLL; }
-	    else if ( type ==  8 ) { runType_ = sistrip::FINE_DELAY_TTC; }
-	    else if ( type == 10 ) { runType_ = sistrip::MULTI_MODE; }
-	    else if ( type == 12 ) { runType_ = sistrip::FED_TIMING; }
-	    else if ( type == 13 ) { runType_ = sistrip::FED_CABLING; }
-	    else if ( type == 14 ) { runType_ = sistrip::VPSP_SCAN; }
-	    else if ( type == 15 ) { runType_ = sistrip::DAQ_SCOPE_MODE; }
-	    else if ( type == 16 ) { runType_ = sistrip::QUITE_FAST_CABLING; }
-	    else if ( type == 21 ) { runType_ = sistrip::FAST_CABLING; }
+            else if ( type ==  2 ) { runType_ = sistrip::PEDESTALS; }
+            else if ( type ==  3 ) { runType_ = sistrip::CALIBRATION; }
+            else if ( type ==  4 ) { runType_ = sistrip::OPTO_SCAN; }
+            else if ( type ==  5 ) { runType_ = sistrip::APV_TIMING; }
+            else if ( type ==  6 ) { runType_ = sistrip::APV_LATENCY; }
+            else if ( type ==  7 ) { runType_ = sistrip::FINE_DELAY_PLL; }
+            else if ( type ==  8 ) { runType_ = sistrip::FINE_DELAY_TTC; }
+            else if ( type == 10 ) { runType_ = sistrip::MULTI_MODE; }
+            else if ( type == 12 ) { runType_ = sistrip::FED_TIMING; }
+            else if ( type == 13 ) { runType_ = sistrip::FED_CABLING; }
+            else if ( type == 14 ) { runType_ = sistrip::VPSP_SCAN; }
+            else if ( type == 15 ) { runType_ = sistrip::DAQ_SCOPE_MODE; }
+            else if ( type == 16 ) { runType_ = sistrip::QUITE_FAST_CABLING; }
+            else if ( type == 17 ) { runType_ = sistrip::FINE_DELAY; }
+            else if ( type == 18 ) { runType_ = sistrip::PHYSICS_ZS; }
+            else if ( type == 19 ) { runType_ = sistrip::CALIBRATION_SCAN; }
+            else if ( type == 20 ) { runType_ = sistrip::CALIBRATION_SCAN_DECO; }
+            else if ( type == 21 ) { runType_ = sistrip::FAST_CABLING; }
+            else if ( type == 22 ) { runType_ = sistrip::PEDS_ONLY; }
+            else if ( type == 23 ) { runType_ = sistrip::NOISE; }
+            else if ( type == 24 ) { runType_ = sistrip::PEDS_FULL_NOISE; }
+            else if ( type == 33 ) { runType_ = sistrip::CALIBRATION_DECO; }
 	    else if ( type ==  0 ) { 
 	      runType_ = sistrip::UNDEFINED_RUN_TYPE;
 	      edm::LogWarning(mlConfigDb_)
@@ -621,6 +628,9 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	      else if ( runType_ == sistrip::OPTO_SCAN )      { type = CommissioningAnalysisDescription::T_ANALYSIS_OPTOSCAN; }
 	      else if ( runType_ == sistrip::VPSP_SCAN )      { type = CommissioningAnalysisDescription::T_ANALYSIS_VPSPSCAN; }
 	      else if ( runType_ == sistrip::CALIBRATION )    { type = CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION; }
+	      else if ( runType_ == sistrip::CALIBRATION_SCAN )  { type = CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION; }
+              else if ( runType_ == sistrip::CALIBRATION_DECO )    { type = CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION; }
+              else if ( runType_ == sistrip::CALIBRATION_SCAN_DECO )  { type = CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION; }
 	      else if ( runType_ == sistrip::PEDESTALS )      { type = CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS; }
 	      else if ( runType_ == sistrip::PEDS_FULL_NOISE) { type = CommissioningAnalysisDescription::T_ANALYSIS_PEDSFULLNOISE; }
 	      else if ( runType_ == sistrip::APV_LATENCY )    { type = CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY; }
@@ -817,7 +827,10 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
 	   << " for this VPSP scan run!" << std::endl;
       }
 
-      if ( runType_ != sistrip::CALIBRATION ) { 
+      if ( runType_ != sistrip::CALIBRATION and
+	   runType_ != sistrip::CALIBRATION_SCAN and
+           runType_ != sistrip::CALIBRATION_DECO and
+           runType_ != sistrip::CALIBRATION_SCAN_DECO) { 
 	ss << "  APV calib maj/min vers     : " << apvCalibV_.first << "." << apvCalibV_.second << std::endl;
       } else {
 	ss << "  APV calib maj/min vers     : " << runTableVersion_.first << "." << runTableVersion_.second

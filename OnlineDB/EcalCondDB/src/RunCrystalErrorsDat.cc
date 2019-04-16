@@ -38,7 +38,7 @@ void RunCrystalErrorsDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			"to_number(:error_bits))");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunCrystalErrorsDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunCrystalErrorsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -62,7 +62,7 @@ void RunCrystalErrorsDat::writeDB(const EcalLogicID* ecid, const RunCrystalError
     m_writeStmt->setString(3, std::to_string(item->getErrorBits()));
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunCrystalErrorsDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunCrystalErrorsDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -95,14 +95,14 @@ void RunCrystalErrorsDat::fetchData(map< EcalLogicID, RunCrystalErrorsDat >* fil
     std::pair< EcalLogicID, RunCrystalErrorsDat > p;
     RunCrystalErrorsDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
-      dat.setErrorBits( boost::lexical_cast<uint64_t>(getOraString(rset,7)) );
+      dat.setErrorBits( boost::lexical_cast<uint64_t>(rset->getString(7)) );
 
       p.second = dat;
       fillMap->insert(p);
@@ -110,6 +110,6 @@ void RunCrystalErrorsDat::fetchData(map< EcalLogicID, RunCrystalErrorsDat >* fil
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunCrystalErrorsDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunCrystalErrorsDat::fetchData():  "+e.getMessage()));
   }
 }

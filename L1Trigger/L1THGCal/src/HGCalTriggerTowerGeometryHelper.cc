@@ -2,7 +2,7 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTowerGeometryHelper.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
@@ -77,7 +77,7 @@ HGCalTriggerTowerGeometryHelper::HGCalTriggerTowerGeometryHelper(const edm::Para
           << " to TT iEta: " << iEta << " iPhi: " << iPhi
           << " when max #bins eta: "  << nBinsEta_ << " phi: " << nBinsPhi_ << std::endl;
       }
-      l1t::HGCalTowerID towerId(HGCalDetId(trigger_cell_id).zside(), iEta, iPhi);
+      l1t::HGCalTowerID towerId(triggerTools_.zside(DetId(trigger_cell_id)), iEta, iPhi);
       cells_to_trigger_towers_[trigger_cell_id] = towerId.rawId();
     }
     l1tTriggerTowerMappingStream.close();

@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 //#include "AnalysisExamples/SiStripDetectorPerformance/interface/CosmicGenFilter.h"
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
 #include <map>
 #include <vector>

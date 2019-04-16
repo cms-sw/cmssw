@@ -41,7 +41,7 @@ void FEConfigLUTParamDat::prepareWrite()
 		      "VALUES (:lut_conf_id, :logic_id, "
 		      ":etsat, :ttthreshlow, :ttthreshhigh )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTParamDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLUTParamDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -68,7 +68,7 @@ void FEConfigLUTParamDat::writeDB(const EcalLogicID* ecid, const FEConfigLUTPara
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTParamDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLUTParamDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -100,12 +100,12 @@ void FEConfigLUTParamDat::fetchData(map< EcalLogicID, FEConfigLUTParamDat >* fil
     std::pair< EcalLogicID, FEConfigLUTParamDat > p;
     FEConfigLUTParamDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
 
 
@@ -117,7 +117,7 @@ void FEConfigLUTParamDat::fetchData(map< EcalLogicID, FEConfigLUTParamDat >* fil
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTParamDat::fetchData:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLUTParamDat::fetchData:  "+e.getMessage()));
   }
 }
 
@@ -201,6 +201,6 @@ void FEConfigLUTParamDat::writeArrayDB(const std::map< EcalLogicID, FEConfigLUTP
     delete [] z_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTParamDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigLUTParamDat::writeArrayDB():  "+e.getMessage()));
   }
 }

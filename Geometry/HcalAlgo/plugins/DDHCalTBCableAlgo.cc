@@ -6,20 +6,22 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalTBCableAlgo.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+//#define EDM_ML_DEBUG
+using namespace geant_units::operators;
 
 DDHCalTBCableAlgo::DDHCalTBCableAlgo(): theta(0),rmax(0),zoff(0) {
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo info: Creating an instance";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Creating an instance";
+#endif
 }
 
 DDHCalTBCableAlgo::~DDHCalTBCableAlgo() {}
@@ -48,34 +50,40 @@ void DDHCalTBCableAlgo::initialize(const DDNumericArguments & nArgs,
   length2     = nArgs["Length2"];
   gap2        = nArgs["Gap2"];
 
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo debug: General material " 
-		       << genMat << "\tSectors "  << nsectors << ", " 
-		       << nsectortot << "\tHalves " << nhalf << "\tRin " <<rin;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: General material " 
+			       << genMat << "\tSectors "  << nsectors << ", " 
+			       << nsectortot << "\tHalves " << nhalf 
+			       << "\tRin " << rin;
   for (unsigned int i = 0; i < theta.size(); i++)
-    LogDebug("HCalGeom") << "\t" << i << " Theta " << theta[i] << " rmax " 
-			 << rmax[i] << " zoff " << zoff[i];
-  LogDebug("HCalGeom") << "\tCable mockup made of " << absMat << "\tThick " 
-		       << thick << "\tLength and width " << length1 << ", "
-		       << width1 <<" and "	<< length2 << ", " << width2 
-		       << " Gap " << gap2;
-
+    edm::LogVerbatim("HCalGeom") << "\t" << i << " Theta " << theta[i] 
+				 << " rmax " << rmax[i] << " zoff " << zoff[i];
+  edm::LogVerbatim("HCalGeom") << "\tCable mockup made of " << absMat
+			       << "\tThick " << thick << "\tLength and width "
+			       << length1 << ", " << width1 <<" and "
+			       << length2 << ", " << width2 << " Gap " << gap2;
+#endif
   idName      = sArgs["MotherName"];
   idNameSpace = DDCurrentNamespace::ns();
   rotns       = sArgs["RotNameSpace"];
-  DDName parentName = parent().name(); 
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo debug: Parent " << parentName
-		       << " idName " << idName << " NameSpace " << idNameSpace
-		       << " for solids etc. and " << rotns << " for rotations";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Parent " 
+			       << parent().name() << " idName " << idName 
+			       << " NameSpace " << idNameSpace
+			       << " for solids etc. and " << rotns 
+			       << " for rotations";
+#endif
 }
 
 void DDHCalTBCableAlgo::execute(DDCompactView& cpv) {
   
-  LogDebug("HCalGeom") << "==>> Constructing DDHCalTBCableAlgo...";
-  unsigned int i=0;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "==>> Constructing DDHCalTBCableAlgo...";
+#endif
 
-  double alpha = CLHEP::pi/nsectors;
-  double dphi  = nsectortot*CLHEP::twopi/nsectors;
-
+  double alpha = 1._pi/nsectors;
+  double dphi  = nsectortot*2._pi/nsectors;
+  
   double zstep0 = zoff[1]+rmax[1]*tan(theta[1])+(rin-rmax[1])*tan(theta[2]);
   double zstep1 = zstep0+thick/cos(theta[2]);
   double zstep2 = zoff[3];
@@ -83,39 +91,29 @@ void DDHCalTBCableAlgo::execute(DDCompactView& cpv) {
   double rstep0 = rin + (zstep2-zstep1)/tan(theta[2]);
   double rstep1 = rin + (zstep1-zstep0)/tan(theta[2]);
 
-  vector<double> pgonZ;
-  pgonZ.emplace_back(zstep0); 
-  pgonZ.emplace_back(zstep1);
-  pgonZ.emplace_back(zstep2); 
-  pgonZ.emplace_back(zstep2+thick/cos(theta[2])); 
+  std::vector<double> pgonZ = {zstep0, zstep1, zstep2, 
+			       zstep2+thick/cos(theta[2])}; 
+  
+  std::vector<double> pgonRmin = {rin, rin, rstep0, rmax[2]};
+  std::vector<double> pgonRmax = {rin, rstep1, rmax[2], rmax[2]}; 
 
-  vector<double> pgonRmin;
-  pgonRmin.emplace_back(rin); 
-  pgonRmin.emplace_back(rin);
-  pgonRmin.emplace_back(rstep0); 
-  pgonRmin.emplace_back(rmax[2]); 
-
-  vector<double> pgonRmax;
-  pgonRmax.emplace_back(rin); 
-  pgonRmax.emplace_back(rstep1); 
-  pgonRmax.emplace_back(rmax[2]); 
-  pgonRmax.emplace_back(rmax[2]); 
-
-  string name("Null");
+  std::string name("Null");
   DDSolid solid;
   solid = DDSolidFactory::polyhedra(DDName(idName, idNameSpace),
 				    nsectortot, -alpha, dphi, pgonZ, 
 				    pgonRmin, pgonRmax);
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " 
-		       << DDName(idName,idNameSpace) << " Polyhedra made of " 
-		       << genMat << " with " << nsectortot << " sectors from "
-		       << -alpha/CLHEP::deg << " to " 
-		       << (-alpha+dphi)/CLHEP::deg << " and with " 
-		       << pgonZ.size() << " sections";
-  for (i = 0; i <pgonZ.size(); i++) 
-    LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[i] << "\tRmin = " 
-			 << pgonRmin[i] << "\tRmax = " << pgonRmax[i];
-  
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " 
+			       << DDName(idName,idNameSpace) 
+			       << " Polyhedra made of " << genMat << " with " 
+			       << nsectortot << " sectors from "
+			       << convertRadToDeg(-alpha) << " to " 
+			       << convertRadToDeg(-alpha+dphi) << " and with " 
+			       << pgonZ.size() << " sections";
+  for (unsigned int i = 0; i <pgonZ.size(); i++) 
+    edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[i] << "\tRmin = " 
+				 << pgonRmin[i] << "\tRmax = " << pgonRmax[i];
+#endif
   DDName matname(DDSplit(genMat).first, DDSplit(genMat).second); 
   DDMaterial matter(matname);
   DDLogicalPart genlogic(solid.ddname(), matter, solid);
@@ -124,29 +122,37 @@ void DDHCalTBCableAlgo::execute(DDCompactView& cpv) {
   DDTranslation r0(0.0, 0.0, 0.0);
   DDRotation rot;
   cpv.position(DDName(idName, idNameSpace), parentName, 1, r0, rot);
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " 
-		       << DDName(idName,idNameSpace) << " number 1 positioned "
-		       << "in " << parentName << " at " << r0 << " with "<<rot;
-  
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " 
+			       << DDName(idName,idNameSpace) 
+			       << " number 1 positioned in " << parentName 
+			       << " at " << r0 << " with "<<rot;
+#endif  
   if (nhalf != 1) {
     rot = DDRotation(DDName("180D", rotns));
-   cpv.position(DDName(idName, idNameSpace), parentName, 2, r0, rot);
-    LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " 
-			 << DDName(idName,idNameSpace) <<" number 2 positioned"
-			 << "in " << parentName  << " at " << r0 << " with "
-			 << rot;
+    cpv.position(DDName(idName, idNameSpace), parentName, 2, r0, rot);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " 
+				 << DDName(idName,idNameSpace) 
+				 <<" number 2 positioned in " << parentName
+				 << " at " << r0 << " with " << rot;
+#endif
   } 
   
   //Construct sector (from -alpha to +alpha)
   name = idName + "Module";
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " 
-		       << DDName(name,idNameSpace) << " Polyhedra made of " 
-		       << genMat << " with 1 sector from " <<-alpha/CLHEP::deg 
-		       << " to " << alpha/CLHEP::deg << " and with " 
-		       << pgonZ.size() << " sections";
-  for (i = 0; i < pgonZ.size(); i++) 
-    LogDebug("HCalGeom") << "\t\tZ = " << pgonZ[i] << "\tRmin = " 
-			 << pgonRmin[i] << "\tRmax = " << pgonRmax[i];
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " 
+			       << DDName(name,idNameSpace) 
+			       << " Polyhedra made of " << genMat 
+			       << " with 1 sector from " 
+			       << convertRadToDeg(-alpha) << " to " 
+			       << convertRadToDeg(alpha) << " and with " 
+			       << pgonZ.size() << " sections";
+  for (unsigned int i = 0; i < pgonZ.size(); i++) 
+    edm::LogVerbatim("HCalGeom") << "\t\tZ = " << pgonZ[i] << "\tRmin = " 
+				 << pgonRmin[i] << "\tRmax = " << pgonRmax[i];
+#endif
   solid =   DDSolidFactory::polyhedra(DDName(name, idNameSpace),
 				      1, -alpha, 2*alpha, pgonZ,
 				      pgonRmin, pgonRmax);
@@ -154,29 +160,35 @@ void DDHCalTBCableAlgo::execute(DDCompactView& cpv) {
   
   for (int ii=0; ii<nsectortot; ii++) {
     double phi    = ii*2*alpha;
-    double phideg = phi/CLHEP::deg;
+    double phideg = convertRadToDeg(phi);
     
     DDRotation rotation;
-    string rotstr("NULL");
+    std::string rotstr("NULL");
     if (phideg != 0) {
       rotstr = "R"; 
       if (phideg < 100)	rotstr = "R0"; 
       rotstr = rotstr + std::to_string(phideg);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
-	LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: Creating a new "
-			     << "rotation " << rotstr << "\t90," << phideg 
-			     << ", 90, " << (phideg+90) << ", 0, 0";
-	rotation = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg, 
-			 phideg*CLHEP::deg, 90*CLHEP::deg, 
-			 (90+phideg)*CLHEP::deg, 0*CLHEP::deg,  0*CLHEP::deg);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Creating a new "
+				     << "rotation " << rotstr << "\t90," 
+				     << phideg << ", 90, " << (phideg+90) 
+				     << ", 0, 0";
+#endif
+	rotation = DDrot(DDName(rotstr, idNameSpace), 90._deg, phi, 90._deg, 
+			 (90._deg+phi), 0,  0);
       }
     } 
   
-   cpv.position(seclogic, genlogic, ii+1, DDTranslation(0.0, 0.0, 0.0), rotation);
-    LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << seclogic.name() 
-			 << " number " << ii+1 << " positioned in " 
-			 << genlogic.name() << " at (0,0,0) with " << rotation;
+    cpv.position(seclogic, genlogic, ii+1, DDTranslation(0.0, 0.0, 0.0), 
+		 rotation);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << seclogic.name() 
+				 << " number " << ii+1 << " positioned in " 
+				 << genlogic.name() << " at (0,0,0) with " 
+				 << rotation;
+#endif
   }
   
   //Now a trapezoid of air
@@ -189,82 +201,108 @@ void DDHCalTBCableAlgo::execute(DDCompactView& cpv) {
   name  = idName + "Trap";
   solid = DDSolidFactory::trap(DDName(name, idNameSpace), dz, 0, 0, dy, dx1, 
 			       dx1, 0, dy, dx2, dx2, 0);
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << solid.name() 
-		       <<" Trap made of " << genMat << " of dimensions " << dz 
-		       << ", 0, 0, " << dy << ", " << dx1 << ", " << dx1 
-		       << ", 0, " << dy << ", " << dx2 << ", "  << dx2 <<", 0";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << solid.name() 
+			       << " Trap made of " << genMat 
+			       << " of dimensions " << dz << ", 0, 0, " 
+			       << dy << ", " << dx1 << ", " << dx1 
+			       << ", 0, " << dy << ", " << dx2 << ", " << dx2
+			       <<", 0";
+#endif
   DDLogicalPart glog(solid.ddname(), matter, solid);
 
-  string rotstr = name;
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: Creating a new rotation: " 
-		       << rotstr << "\t90, 270, " << (180-theta[2]/CLHEP::deg) 
-		       << ", 0, " << (90-theta[2]/CLHEP::deg) << ", 0";
-  rot = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg, 270*CLHEP::deg, 
-	      180*CLHEP::deg-theta[2], 0, 90*CLHEP::deg-theta[2], 0);
+  std::string rotstr = name;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Creating a rotation: " 
+			       << rotstr << "\t90, 270, " 
+			       << (180-convertRadToDeg(theta[2]))
+			       << ", 0, " << (90-convertRadToDeg(theta[2])) 
+			       << ", 0";
+#endif
+  rot = DDrot(DDName(rotstr, idNameSpace), 90._deg, 270._deg, 
+	      (180._deg-theta[2]), 0, (90._deg-theta[2]), 0);
   DDTranslation r1(0.5*(rinl+routl), 0, 0.5*(pgonZ[1]+pgonZ[2]));
   cpv.position(glog, seclogic, 1, r1, rot);
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << glog.name() 
-		       << " number 1 positioned in " << seclogic.name() 
-		       << " at " << r1 << " with " << rot;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << glog.name() 
+			       << " number 1 positioned in " << seclogic.name()
+			       << " at " << r1 << " with " << rot;
+#endif
   //Now the cable of type 1
   name = idName + "Cable1";
   double phi  = atan((dx2-dx1)/(2*dz));
   double xmid = 0.5*(dx1+dx2)-1.0;
   solid = DDSolidFactory::box(DDName(name, idNameSpace), 0.5*width1,
 			      0.5*thick, 0.5*length1);
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << solid.name() 
-		       << " Box made of " << absMat << " of dimension " 
-		       << 0.5*width1 << ", " << 0.5*thick << ", " 
-		       << 0.5*length1;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << solid.name() 
+			       << " Box made of " << absMat << " of dimension "
+			       << 0.5*width1 << ", " << 0.5*thick << ", " 
+			       << 0.5*length1;
+#endif
   DDName absname(DDSplit(absMat).first, DDSplit(absMat).second); 
   DDMaterial absmatter(absname);
   DDLogicalPart cablog1(solid.ddname(), absmatter, solid);
 
   rotstr = idName + "Left";
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: Creating a new rotation " 
-		       << rotstr << "\t"  << (90+phi/CLHEP::deg) << "," << 0  
-		       << "," << 90 << "," << 90 << "," << phi/CLHEP::deg 
-		       << "," << 0;
-  DDRotation rot2 = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg+phi, 0.0, 
-			  90*CLHEP::deg, 90*CLHEP::deg, phi, 0.0);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Creating a rotation " 
+			       << rotstr << "\t"  << (90+convertRadToDeg(phi))
+			       << ", 0, 90, 90, " << convertRadToDeg(phi) 
+			       << ", 0";
+#endif
+  DDRotation rot2 = DDrot(DDName(rotstr, idNameSpace), (90._deg+phi), 0.0, 
+			  90._deg, 90._deg, phi, 0.0);
   DDTranslation r2((xmid-0.5*width1*cos(phi)), 0, 0);
   cpv.position(cablog1, glog, 1, r2, rot2);
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << cablog1.name() 
-		       << " number 1 positioned in " << glog.name() << " at "
-		       << r2	<< " with " << rot2;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << cablog1.name() 
+			       << " number 1 positioned in " << glog.name() 
+			       << " at " << r2 << " with " << rot2;
+#endif
   rotstr = idName + "Right";
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: Creating a new rotation " 
-		       << rotstr << "\t"  << (90-phi/CLHEP::deg) 
-		       << ", 0, 90, 90, " << -phi/CLHEP::deg << ", 0";
-  DDRotation rot3 = DDrot(DDName(rotstr, idNameSpace), 90*CLHEP::deg-phi, 
-			  0*CLHEP::deg, 90*CLHEP::deg, 90*CLHEP::deg,
-			  -phi, 0*CLHEP::deg);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Creating a rotation " 
+			       << rotstr << "\t"  << (90-convertRadToDeg(phi))
+			       << ", 0, 90, 90, " << convertRadToDeg(-phi)
+			       << ", 0";
+#endif
+  DDRotation rot3 = DDrot(DDName(rotstr, idNameSpace), (90._deg-phi), 0,
+			  90._deg, 90._deg, -phi, 0);
   DDTranslation r3(-(xmid-0.5*width1*cos(phi)), 0, 0);
   cpv.position(cablog1, glog, 2, r3, rot3);
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << cablog1.name() 
-		       << " number 2 positioned in "  << glog.name() << " at " 
-		       << r3 << " with " << rot3;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << cablog1.name() 
+			       << " number 2 positioned in "  << glog.name()
+			       << " at " << r3 << " with " << rot3;
+#endif
   //Now the cable of type 2
   name = idName + "Cable2";
   solid = DDSolidFactory::box(DDName(name, idNameSpace), 0.5*width2,
 			      0.5*thick, 0.5*length2);
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << solid.name() 
-		       << " Box made of " << absMat << " of dimension " 
-		       << 0.5*width2 << ", " << 0.5*thick << ", "<<0.5*length2;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << solid.name() 
+			       << " Box made of " << absMat << " of dimension "
+			       << 0.5*width2 << ", " << 0.5*thick << ", "
+			       << 0.5*length2;
+#endif
   DDLogicalPart cablog2(solid.ddname(), absmatter, solid);
 
   double xpos = 0.5*(width2+gap2);
- cpv.position(cablog2, glog, 1, DDTranslation(xpos, 0.0, 0.0), DDRotation());
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << cablog2.name() 
-		       << " number 1 positioned in "  << glog.name() << " at ("
-		       << xpos << ",  0, 0) with no rotation";
- cpv.position(cablog2, glog, 2, DDTranslation(-xpos, 0.0, 0.0), DDRotation());
-  LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << cablog2.name() 
-		       << " number 2 positioned in "  << glog.name() << " at ("
-		       <<-xpos << ", 0, 0) with no rotation";
+  cpv.position(cablog2, glog, 1, DDTranslation(xpos, 0.0, 0.0), DDRotation());
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << cablog2.name() 
+			       << " number 1 positioned in "  << glog.name() 
+			       << " at (" << xpos << ",  0, 0) with no "
+			       << "rotation";
+#endif
+  cpv.position(cablog2, glog, 2, DDTranslation(-xpos, 0.0, 0.0), DDRotation());
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: " << cablog2.name() 
+			       << " number 2 positioned in "  << glog.name()
+			       << " at ("  <<-xpos << ", 0, 0) with no "
+			       << "rotation";
 
-  LogDebug("HCalGeom") << "<<== End of DDHCalTBCableAlgo construction ...";
+  edm::LogVerbatim("HCalGeom") << "<<== End of DDHCalTBCableAlgo construction";
+#endif
 }

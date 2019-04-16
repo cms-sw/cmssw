@@ -36,7 +36,7 @@ private:
   typedef std::map<DTChamberId, std::vector<TH2F*> > ChamberHistosMapTH2F;
   void bookHistos(DTChamberId);
 
-  DTSegmentSelector select_;
+  DTSegmentSelector *select_;
 
   edm::InputTag  theRecHits4DLabel_;
   //bool writeVDriftDB_;

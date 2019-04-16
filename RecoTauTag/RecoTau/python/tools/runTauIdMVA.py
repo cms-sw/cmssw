@@ -1,3 +1,4 @@
+from __future__ import print_function
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import patDiscriminationByIsolationMVArun2v1raw, patDiscriminationByIsolationMVArun2v1VLoose
 import os
@@ -50,14 +51,14 @@ class TauIDEmbedder(object):
     def get_cmssw_version(debug = False):
         """returns 'CMSSW_X_Y_Z'"""
         cmssw_version = os.environ["CMSSW_VERSION"]
-        if debug: print "get_cmssw_version:", cmssw_version
+        if debug: print ("get_cmssw_version:", cmssw_version)
         return cmssw_version
 
     @classmethod
     def get_cmssw_version_number(klass, debug = False):
         """returns '(release, subversion, patch)' (without 'CMSSW_')"""
         v = klass.get_cmssw_version().split("CMSSW_")[1].split("_")[0:3]
-        if debug: print "get_cmssw_version_number:", v
+        if debug: print ("get_cmssw_version_number:", v)
         if v[2] == "X":
             patch = -1
         else:
@@ -67,7 +68,7 @@ class TauIDEmbedder(object):
     @staticmethod
     def versionToInt(release=9, subversion=4, patch=0, debug = False):
         version = release * 10000 + subversion * 100 + patch + 1 # shifted by one to account for pre-releases.
-        if debug: print "versionToInt:", version
+        if debug: print ("versionToInt:", version)
         return version
 
 
@@ -75,14 +76,14 @@ class TauIDEmbedder(object):
     def is_above_cmssw_version(klass, release=9, subversion=4, patch=0, debug = False):
         split_cmssw_version = klass.get_cmssw_version_number()
         if klass.versionToInt(release, subversion, patch) > klass.versionToInt(split_cmssw_version[0], split_cmssw_version[1], split_cmssw_version[2]):
-            if debug: print "is_above_cmssw_version:", False
+            if debug: print ("is_above_cmssw_version:", False)
             return False
         else:
-            if debug: print "is_above_cmssw_version:", True
+            if debug: print ("is_above_cmssw_version:", True)
             return True
 
     def loadMVA_WPs_run2_2017(self):
-        if self.debug: print "loadMVA_WPs_run2_2017: performed"
+        if self.debug: print ("loadMVA_WPs_run2_2017: performed")
         global cms
         for training, gbrForestName in self.tauIdDiscrMVA_trainings_run2_2017.items():
 
@@ -135,7 +136,7 @@ class TauIDEmbedder(object):
             }
             # update the list of available in DB samples
             if not self.is_above_cmssw_version(9, 4, 4, self.debug):
-                if self.debug: print "runTauID: not is_above_cmssw_version(9, 4, 4). Will update the list of available in DB samples to access 2017v1"
+                if self.debug: print ("runTauID: not is_above_cmssw_version(9, 4, 4). Will update the list of available in DB samples to access 2017v1")
                 self.loadMVA_WPs_run2_2017()
 
             self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1raw = patDiscriminationByIsolationMVArun2v1raw.clone(
@@ -144,7 +145,6 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
                 mvaOpt = self.cms.string("DBoldDMwLTwGJ"),
-                requireDecayMode = self.cms.bool(True),
                 verbosity = self.cms.int32(0)
             )
 
@@ -218,7 +218,7 @@ class TauIDEmbedder(object):
             }
 
             if not self.is_above_cmssw_version(9, 4, 5, self.debug):
-                if self.debug: print "runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access 2017v2"
+                if self.debug: print ("runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access 2017v2")
                 self.loadMVA_WPs_run2_2017()
 
             self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
@@ -227,7 +227,6 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
                 mvaOpt = self.cms.string("DBoldDMwLTwGJ"),
-                requireDecayMode = self.cms.bool(True),
                 verbosity = self.cms.int32(0)
             )
 
@@ -301,7 +300,7 @@ class TauIDEmbedder(object):
             }
 
             if not self.is_above_cmssw_version(9, 4, 5, self.debug):
-                if self.debug: print "runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access newDM2017v2"
+                if self.debug: print ("runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access newDM2017v2")
                 self.loadMVA_WPs_run2_2017()
 
             self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
@@ -310,7 +309,6 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
                 mvaOpt = self.cms.string("DBnewDMwLTwGJ"),
-                requireDecayMode = self.cms.bool(True),
                 verbosity = self.cms.int32(0)
             )
 
@@ -384,7 +382,7 @@ class TauIDEmbedder(object):
             }
 
             if not self.is_above_cmssw_version(9, 4, 5, self.debug):
-                if self.debug: print "runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access dR0p32017v2"
+                if self.debug: print ("runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access dR0p32017v2")
                 self.loadMVA_WPs_run2_2017()
 
             self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
@@ -393,7 +391,6 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2"),
                 mvaOpt = self.cms.string("DBoldDMwLTwGJ"),
-                requireDecayMode = self.cms.bool(True),
                 srcChargedIsoPtSum = self.cms.string('chargedIsoPtSumdR03'),
                 srcFootprintCorrection = self.cms.string('footprintCorrectiondR03'),
                 srcNeutralIsoPtSum = self.cms.string('neutralIsoPtSumdR03'),
@@ -460,7 +457,6 @@ class TauIDEmbedder(object):
         #     loadMVAfromDB = self.cms.bool(True),
         #     mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
         #     mvaOpt = self.cms.string("DBoldDMwLTwGJ"),
-        #     requireDecayMode = self.cms.bool(True),
         #     verbosity = self.cms.int32(0)
         # )
         # #
@@ -488,7 +484,6 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1"),
                 mvaOpt = self.cms.string("DBoldDMwLT"),
-                requireDecayMode = self.cms.bool(True),
                 verbosity = self.cms.int32(0)
             )
 
@@ -547,7 +542,6 @@ class TauIDEmbedder(object):
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2016v1"),
                 mvaOpt = self.cms.string("DBnewDMwLT"),
-                requireDecayMode = self.cms.bool(True),
                 verbosity = self.cms.int32(0)
             )
 
@@ -599,7 +593,7 @@ class TauIDEmbedder(object):
             tauIDSources.byVVTightIsolationMVArun2v1DBnewDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1VVTight')
 
         if "deepTau2017v1" in self.toKeep:
-            print "Adding DeepTau IDs"
+            print ("Adding DeepTau IDs")
 
             workingPoints_ = {
                 "e": {
@@ -649,7 +643,7 @@ class TauIDEmbedder(object):
             self.process.rerunMvaIsolationSequence += self.process.deepTau2017v1
 
         if "DPFTau_2016_v0" in self.toKeep:
-            print "Adding DPFTau isolation (v0)"
+            print ("Adding DPFTau isolation (v0)")
 
             workingPoints_ = {
                 "all": {
@@ -682,9 +676,9 @@ class TauIDEmbedder(object):
 
 
         if "DPFTau_2016_v1" in self.toKeep:
-            print "Adding DPFTau isolation (v1)"
-            print "WARNING: WPs are not defined for DPFTau_2016_v1"
-            print "WARNING: The score of DPFTau_2016_v1 is inverted: i.e. for Sig->0, for Bkg->1 with -1 for undefined input (preselection not passed)."
+            print ("Adding DPFTau isolation (v1)")
+            print ("WARNING: WPs are not defined for DPFTau_2016_v1")
+            print ("WARNING: The score of DPFTau_2016_v1 is inverted: i.e. for Sig->0, for Bkg->1 with -1 for undefined input (preselection not passed).")
 
             workingPoints_ = {
                 "all": {"Tight" : 0.123} #FIXME: define WP

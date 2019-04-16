@@ -29,6 +29,7 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -79,6 +80,12 @@ void TrackerValidationVariables::fillHitQuantities(reco::Track const & track, st
       auto IntSubDetID = hit_detId.subdetId();
 
       if(IntSubDetID == 0) continue;
+
+      if (IntSubDetID == PixelSubdetector::PixelBarrel || IntSubDetID == PixelSubdetector::PixelEndcap){
+	const SiPixelRecHit* prechit = dynamic_cast<const SiPixelRecHit*>(hit);//to be used to get the associated cluster and the cluster probability      
+	if(prechit->isOnEdge())      hitStruct.isOnEdgePixel=true;
+	if(prechit->hasBadPixels())  hitStruct.isOtherBadPixel=true;
+      }
 
       auto lPTrk = trajParams[h].position();   // update state
       auto lVTrk = trajParams[h].direction();
@@ -214,6 +221,12 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
     unsigned int IntSubDetID = (hit_detId.subdetId());
     
     if(IntSubDetID == 0) continue;
+
+    if (IntSubDetID == PixelSubdetector::PixelBarrel || IntSubDetID == PixelSubdetector::PixelEndcap){
+      const SiPixelRecHit* prechit = dynamic_cast<const SiPixelRecHit*>(hit.get());//to be used to get the associated cluster and the cluster probability            
+      if(prechit->isOnEdge())      hitStruct.isOnEdgePixel=true;
+      if(prechit->hasBadPixels())  hitStruct.isOtherBadPixel=true;
+    }
     
     //first calculate residuals in cartesian coordinates in the local module coordinate system
     

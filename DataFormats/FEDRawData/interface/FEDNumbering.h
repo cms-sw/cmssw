@@ -12,24 +12,19 @@
  *  \author G. Bruno - CERN, EP Division
  */
 
-#include <vector>
-#include <string>
+#include <array>
 
 class FEDNumbering {
 
 
  public:
 
-  virtual ~FEDNumbering(){};
-
-  static int lastFEDId();
-
-  static void init();
+  static constexpr int lastFEDId() {
+    return MAXFEDID;
+  }
 
   static bool inRange(int);
   static bool inRangeNoGT(int);
-
-  static const std::string &fromDet(int);
 
    enum {
      NOT_A_FEDID = -1,
@@ -137,11 +132,6 @@ class FEDNumbering {
      MINDAQvFEDFEDID = 2815,
      MAXDAQvFEDFEDID = 4095
    };
- private:
-  static std::vector<std::string> from_;
-  static bool *in_;
-  static bool init_;
-
 };
 
 #endif // FEDNumbering_H

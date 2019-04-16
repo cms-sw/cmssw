@@ -33,7 +33,8 @@ hiTrackValidator = multiTrackValidator.clone(
     minpT = cms.double(1.0),
     maxpT = cms.double(100.0),
     nintpT = cms.int32(40),
-    useLogPt = cms.untracked.bool(True)
+    useLogPt = cms.untracked.bool(True),
+    cores = cms.InputTag("")
     )
 
 hiTrackValidator.label = cms.VInputTag(cms.InputTag('cutsRecoTracks'),

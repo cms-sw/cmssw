@@ -146,7 +146,7 @@ KDTreeLinkerPSEcal::searchLinks()
     // Same envelope for cap et barrel rechits.
     
     
-    double maxEcalRadius = getCristalXYMaxSize() / 2.;
+    double maxEcalRadius = cristalXYMaxSize_ / 2.;
 
     // The inflation factor includes the approximate projection from Preshower to ECAL
     double inflation = 2.4 - (etaPS-1.6);

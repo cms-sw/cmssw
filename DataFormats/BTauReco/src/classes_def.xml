@@ -94,18 +94,6 @@
   <class name="reco::CombinedTauTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::CombinedTauTagInfoCollection>"/>
 
-
-  <class name="reco::EMIsolatedTauTagInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="1524968186"/>
-   <version ClassVersion="10" checksum="1895814186"/>
-  </class>
-  <class name="reco::EMIsolatedTauTagInfoCollection"/>
-  <class name="reco::EMIsolatedTauTagInfoRef"/>
-  <class name="reco::EMIsolatedTauTagInfoFwdRef"/>
-  <class name="reco::EMIsolatedTauTagInfoRefProd"/>
-  <class name="reco::EMIsolatedTauTagInfoRefVector"/>
-  <class name="edm::Wrapper<reco::EMIsolatedTauTagInfoCollection>"/>
-
   <class name="reco::IsolatedTauTagInfo" ClassVersion="11">
    <version ClassVersion="11" checksum="1582752903"/>
    <version ClassVersion="10" checksum="3305352842"/>
@@ -276,17 +264,6 @@
   <class name="edm::Wrapper<reco::TrackProbabilityTagInfoCollection>"/>
 
 
-  <class name="reco::JetCrystalsAssociation" ClassVersion="11">
-   <version ClassVersion="11" checksum="1768853577"/>
-   <version ClassVersion="10" checksum="2601616757"/>
-  </class>
-  <class name="reco::JetCrystalsAssociation::base_class"/>
-  <class name="reco::JetCrystalsAssociationCollection"/>
-  <class name="reco::JetCrystalsAssociationRef"/>
-  <class name="reco::JetCrystalsAssociationFwdRef"/>
-  <class name="reco::JetCrystalsAssociationRefProd"/>
-  <class name="reco::JetCrystalsAssociationRefVector"/>
-  <class name="edm::Wrapper<reco::JetCrystalsAssociationCollection>"/>
 
   <!--commented out because the typedef resolves to a class with dictionary in DataFormats/JetReco-->
   <!--class name="reco::JetEisolAssociation"/-->

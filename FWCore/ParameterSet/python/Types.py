@@ -1,7 +1,10 @@
-from Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable, _modifyParametersFromDict, saveOrigin
-from Mixins import _ValidatingParameterListBase, specialImportRegistry
-from ExceptionHandling import format_typename, format_outerframe
-
+from __future__ import absolute_import
+from .Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable, _modifyParametersFromDict
+from .Mixins import _ValidatingParameterListBase, specialImportRegistry
+from .Mixins import saveOrigin
+from .ExceptionHandling import format_typename, format_outerframe
+from past.builtins import long
+import codecs
 import copy
 import math
 import six
@@ -148,7 +151,8 @@ class bool(_SimpleParameterTypeBase):
         parameterSet.addBool(self.isTracked(), myname, self.value())
     def __nonzero__(self):
         return self.value()
-
+    def __bool__(self):
+        return self.__nonzero__()
 
 
 class string(_SimpleParameterTypeBase):
@@ -164,7 +168,13 @@ class string(_SimpleParameterTypeBase):
     @staticmethod
     def formatValueForConfig(value):
         l = len(value)
-        value = value.encode("string-escape")
+        import sys
+        if sys.version_info >= (3, 0): #python2 and python3 are different due to byptes vs strings
+            import codecs
+            t=codecs.escape_encode(value.encode('utf-8'))
+            value = t[0].decode('utf-8')
+        else: #be conservative and don't change the python2 version
+            value = value.encode("string-escape")
         newL = len(value)
         if l != newL:
             #get rid of the hex encoding
@@ -478,13 +488,26 @@ class InputTag(_ParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return True
-    def __cmp__(self,other):
-        v = self.__moduleLabel != other.__moduleLabel
-        if not v:
-            v= self.__productInstance != other.__productInstance
-            if not v:
-                v=self.__processName != other.__processName
-        return v
+    def __eq__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) ==
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __ne__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) !=
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __lt__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) <
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __gt__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) >
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __le__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) <=
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+    def __ge__(self,other):
+        return ((self.__moduleLabel,self.__productInstance,self.__processName) >=
+                (other.__moduleLabel,other.__productInstance,other.__processName))
+
+
     def value(self):
         "Return the string rep"
         return self.configValue()
@@ -502,7 +525,6 @@ class InputTag(_ParameterTypeBase):
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
         self.__processName=processName
-
         if -1 != moduleLabel.find(":"):
             toks = moduleLabel.split(":")
             self.__moduleLabel = toks[0]
@@ -554,11 +576,18 @@ class ESInputTag(_ParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return True
-    def __cmp__(self,other):
-        v = self.__moduleLabel != other.__moduleLabel
-        if not v:
-            v= self.__data != other.__data
-        return v
+    def __eq__(self,other):
+        return ((self.__moduleLabel,self.__data) == (other.__moduleLabel,other.__data))
+    def __ne__(self,other):
+        return ((self.__moduleLabel,self.__data) != (other.__moduleLabel,other.__data))
+    def __lt__(self,other):
+        return ((self.__moduleLabel,self.__data) < (other.__moduleLabel,other.__data))
+    def __gt__(self,other):
+        return ((self.__moduleLabel,self.__data) > (other.__moduleLabel,other.__data))
+    def __le__(self,other):
+        return ((self.__moduleLabel,self.__data) <= (other.__moduleLabel,other.__data))
+    def __ge__(self,other):
+        return ((self.__moduleLabel,self.__data) >= (other.__moduleLabel,other.__data))
     def value(self):
         "Return the string rep"
         return self.configValue()

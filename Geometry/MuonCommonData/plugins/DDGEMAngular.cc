@@ -10,11 +10,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "Geometry/MuonCommonData/plugins/DDGEMAngular.h"
 
-using namespace dd;
-using namespace dd::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 //#define EDM_ML_DEBUG
 
@@ -42,8 +42,8 @@ void DDGEMAngular::initialize(const DDNumericArguments & nArgs,
   incrCopyNo  = int (nArgs["incrCopyNo"]);
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MuonGeom") << "DDGEMAngular debug: Parameters for positioning-- "
-			   << n << " copies in steps of " << CONVERT_TO( stepAngle, deg )
-			   << " from " << CONVERT_TO( startAngle, deg )
+			   << n << " copies in steps of " << convertRadToDeg( stepAngle )
+			   << " from " << convertRadToDeg( startAngle )
 			   << " (inversion flag " << invert << ") \trPos " << rPos
 			   << " Zoffest " << zoffset << "\tStart and inremental "
 			   << "copy nos " << startCopyNo << ", " << incrCopyNo;
@@ -83,8 +83,8 @@ void DDGEMAngular::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
       edm::LogInfo("MuonGeom") << "DDGEMAngular test: Creating a new rotation "
 			       << DDName(rotstr, idNameSpace) << "\t " 
-			       << CONVERT_TO( thetax, deg ) << ", " << CONVERT_TO( phix, deg ) << ", " << CONVERT_TO( thetay, deg )
-			       << ", 0, " << CONVERT_TO( thetax, deg )<< ", " << CONVERT_TO( phiz, deg );
+			       << convertRadToDeg( thetax ) << ", " << convertRadToDeg(  phix ) << ", " << convertRadToDeg(  thetay )
+			       << ", 0, " << convertRadToDeg( thetax )<< ", " << convertRadToDeg(  phiz );
 #endif
       rotation = DDrot(DDName(rotstr, rotns), thetax, phix, thetay, 0., thetax, phiz);
     } 

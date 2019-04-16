@@ -21,6 +21,22 @@ namespace {
 		   dydz,    
 		   END_OF_TYPES};
 
+  /************************************************/
+  std::string getStringFromParamEnum (const parameters &parameter){
+    switch(parameter){
+    case X      : return "X";
+    case Y      : return "Y";	    
+    case Z      : return "Z";	    
+    case sigmaX : return "sigmaX"; 
+    case sigmaY : return "sigmaY"; 
+    case sigmaZ : return "sigmaZ"; 
+    case dxdz   : return "dx/dz";   
+    case dydz   : return "dy/dz";  
+    default: return "should never be here";
+    }
+  }
+
+
   class BeamSpot_hx : public cond::payloadInspector::HistoryPlot<BeamSpotObjects,std::pair<double,double> > {
   public:
     BeamSpot_hx(): cond::payloadInspector::HistoryPlot<BeamSpotObjects,std::pair<double,double> >( "x vs run number", "x"){
@@ -60,6 +76,121 @@ namespace {
     }
   };
 
+  /************************************************
+    template classes (history)
+  *************************************************/
+
+  template<parameters my_param> class BeamSpot_history : public cond::payloadInspector::HistoryPlot<BeamSpotObjects,std::pair<double,double> > {
+  public:
+    BeamSpot_history (): cond::payloadInspector::HistoryPlot<BeamSpotObjects,std::pair<double,double> >(getStringFromParamEnum(my_param)+" vs run number",getStringFromParamEnum(my_param)){
+    }
+
+    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ) override{
+      
+      auto ret = std::make_pair<double,double>(-9999.,-9999.);
+
+      switch(my_param){
+      case X      : return std::make_pair<double,double>(payload.GetX(),	 payload.GetXError());
+      case Y      : return std::make_pair<double,double>(payload.GetY(),	 payload.GetYError());	    
+      case Z      : return std::make_pair<double,double>(payload.GetZ(),	 payload.GetZError());	    
+      case sigmaX : return std::make_pair<double,double>(payload.GetBeamWidthX(),payload.GetBeamWidthXError()); 
+      case sigmaY : return std::make_pair<double,double>(payload.GetBeamWidthY(),payload.GetBeamWidthYError()); 
+      case sigmaZ : return std::make_pair<double,double>(payload.GetSigmaZ(), 	 payload.GetSigmaZError()); 
+      case dxdz   : return std::make_pair<double,double>(payload.Getdxdz(),   	 payload.GetdxdzError());   
+      case dydz   : return std::make_pair<double,double>(payload.Getdydz(),      payload.GetdydzError());   
+      case END_OF_TYPES : return ret;
+      default : return ret;
+      }
+    }
+  };
+
+  typedef BeamSpot_history<X>      BeamSpot_HistoryX;     
+  typedef BeamSpot_history<Y>      BeamSpot_HistoryY;    
+  typedef BeamSpot_history<Z>      BeamSpot_HistoryZ;     
+  typedef BeamSpot_history<sigmaX> BeamSpot_HistorySigmaX;
+  typedef BeamSpot_history<sigmaY> BeamSpot_HistorySigmaY;
+  typedef BeamSpot_history<sigmaZ> BeamSpot_HistorySigmaZ;
+  typedef BeamSpot_history<dxdz>   BeamSpot_HistorydXdZ;
+  typedef BeamSpot_history<dydz>   BeamSpot_HistorydYdZ;     
+
+  /************************************************
+    template classes (run history)
+  *************************************************/
+
+  template<parameters my_param> class BeamSpot_runhistory : public cond::payloadInspector::RunHistoryPlot<BeamSpotObjects,std::pair<double,double> > {
+  public:
+    BeamSpot_runhistory (): cond::payloadInspector::RunHistoryPlot<BeamSpotObjects,std::pair<double,double> >(getStringFromParamEnum(my_param)+" vs run number",getStringFromParamEnum(my_param)){
+    }
+
+    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ) override{
+      
+      auto ret = std::make_pair<double,double>(-9999.,-9999.);
+
+      switch(my_param){
+      case X      : return std::make_pair<double,double>(payload.GetX(),	 payload.GetXError());
+      case Y      : return std::make_pair<double,double>(payload.GetY(),	 payload.GetYError());	    
+      case Z      : return std::make_pair<double,double>(payload.GetZ(),	 payload.GetZError());	    
+      case sigmaX : return std::make_pair<double,double>(payload.GetBeamWidthX(),payload.GetBeamWidthXError()); 
+      case sigmaY : return std::make_pair<double,double>(payload.GetBeamWidthY(),payload.GetBeamWidthYError()); 
+      case sigmaZ : return std::make_pair<double,double>(payload.GetSigmaZ(), 	 payload.GetSigmaZError()); 
+      case dxdz   : return std::make_pair<double,double>(payload.Getdxdz(),   	 payload.GetdxdzError());   
+      case dydz   : return std::make_pair<double,double>(payload.Getdydz(),      payload.GetdydzError());   
+      case END_OF_TYPES : return ret;
+      default : return ret;
+      }
+    }
+  };
+
+  typedef BeamSpot_runhistory<X>      BeamSpot_RunHistoryX;     
+  typedef BeamSpot_runhistory<Y>      BeamSpot_RunHistoryY;    
+  typedef BeamSpot_runhistory<Z>      BeamSpot_RunHistoryZ;     
+  typedef BeamSpot_runhistory<sigmaX> BeamSpot_RunHistorySigmaX;
+  typedef BeamSpot_runhistory<sigmaY> BeamSpot_RunHistorySigmaY;
+  typedef BeamSpot_runhistory<sigmaZ> BeamSpot_RunHistorySigmaZ;
+  typedef BeamSpot_runhistory<dxdz>   BeamSpot_RunHistorydXdZ;
+  typedef BeamSpot_runhistory<dydz>   BeamSpot_RunHistorydYdZ;
+
+  /************************************************
+    template classes (time history)
+  *************************************************/
+
+  template<parameters my_param> class BeamSpot_timehistory : public cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> > {
+  public:
+    BeamSpot_timehistory (): cond::payloadInspector::TimeHistoryPlot<BeamSpotObjects,std::pair<double,double> >(getStringFromParamEnum(my_param)+" vs time",getStringFromParamEnum(my_param)){
+    }
+
+    std::pair<double,double> getFromPayload( BeamSpotObjects& payload ) override{
+      
+      auto ret = std::make_pair<double,double>(-9999.,-9999.);
+
+      switch(my_param){
+      case X      : return std::make_pair<double,double>(payload.GetX(),	 payload.GetXError());
+      case Y      : return std::make_pair<double,double>(payload.GetY(),	 payload.GetYError());	    
+      case Z      : return std::make_pair<double,double>(payload.GetZ(),	 payload.GetZError());	    
+      case sigmaX : return std::make_pair<double,double>(payload.GetBeamWidthX(),payload.GetBeamWidthXError()); 
+      case sigmaY : return std::make_pair<double,double>(payload.GetBeamWidthY(),payload.GetBeamWidthYError()); 
+      case sigmaZ : return std::make_pair<double,double>(payload.GetSigmaZ(), 	 payload.GetSigmaZError()); 
+      case dxdz   : return std::make_pair<double,double>(payload.Getdxdz(),   	 payload.GetdxdzError());   
+      case dydz   : return std::make_pair<double,double>(payload.Getdydz(),      payload.GetdydzError());   
+      case END_OF_TYPES : return ret;
+      default : return ret;
+      }
+    }
+  };
+
+  typedef BeamSpot_timehistory<X>      BeamSpot_TimeHistoryX;     
+  typedef BeamSpot_timehistory<Y>      BeamSpot_TimeHistoryY;    
+  typedef BeamSpot_timehistory<Z>      BeamSpot_TimeHistoryZ;     
+  typedef BeamSpot_timehistory<sigmaX> BeamSpot_TimeHistorySigmaX;
+  typedef BeamSpot_timehistory<sigmaY> BeamSpot_TimeHistorySigmaY;
+  typedef BeamSpot_timehistory<sigmaZ> BeamSpot_TimeHistorySigmaZ;
+  typedef BeamSpot_timehistory<dxdz>   BeamSpot_TimeHistorydXdZ;
+  typedef BeamSpot_timehistory<dydz>   BeamSpot_TimeHistorydYdZ;
+
+
+  /************************************************
+    X-Y correlation plot
+  *************************************************/
   class BeamSpot_xy : public cond::payloadInspector::ScatterPlot<BeamSpotObjects,double,double>{
   public:
     BeamSpot_xy(): cond::payloadInspector::ScatterPlot<BeamSpotObjects,double,double>("BeamSpot x vs y","x","y" ){
@@ -107,7 +238,7 @@ namespace {
 	  case sigmaY : return payload->GetBeamWidthY(); 
 	  case sigmaZ : return payload->GetSigmaZ(); 
 	  case dxdz   : return payload->Getdxdz();   
-	  case dydz   : return payload->Getdydz();   
+	  case dydz   : return payload->Getdydz();
 	  case END_OF_TYPES : return ret;
 	  default : return ret;
 	  }
@@ -120,7 +251,7 @@ namespace {
 	  case sigmaY : return payload->GetBeamWidthYError(); 
 	  case sigmaZ : return payload->GetSigmaZError(); 
 	  case dxdz   : return payload->GetdxdzError();   
-	  case dydz   : return payload->GetdydzError();   
+	  case dydz   : return payload->GetdydzError();
 	  case END_OF_TYPES : return ret;
 	  default : return ret;
 	  }
@@ -179,4 +310,28 @@ PAYLOAD_INSPECTOR_MODULE( BeamSpot ){
   PAYLOAD_INSPECTOR_CLASS( BeamSpot_y );
   PAYLOAD_INSPECTOR_CLASS( BeamSpot_xy );
   PAYLOAD_INSPECTOR_CLASS( BeamSpotParameters );
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_HistoryX );        
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_HistoryY );        
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_HistoryZ );        
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_HistorySigmaX );   
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_HistorySigmaY );    
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_HistorySigmaZ );   
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_HistorydXdZ );     
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_HistorydYdZ );     
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_RunHistoryX );        
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_RunHistoryY );        
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_RunHistoryZ );        
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_RunHistorySigmaX );   
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_RunHistorySigmaY );    
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_RunHistorySigmaZ );   
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_RunHistorydXdZ );     
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_RunHistorydYdZ );     
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_TimeHistoryX );        
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_TimeHistoryY );        
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_TimeHistoryZ );        
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_TimeHistorySigmaX );   
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_TimeHistorySigmaY );    
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_TimeHistorySigmaZ );   
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_TimeHistorydXdZ );     
+  PAYLOAD_INSPECTOR_CLASS( BeamSpot_TimeHistorydYdZ );     
 }

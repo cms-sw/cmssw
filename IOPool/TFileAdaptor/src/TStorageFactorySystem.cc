@@ -1,7 +1,7 @@
 #include "IOPool/TFileAdaptor/interface/TStorageFactorySystem.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
-ClassImp(TStorageFactorySystem)
+ClassImp(TStorageFactorySystem);
 
 
 TStorageFactorySystem::TStorageFactorySystem(const char *, Bool_t)

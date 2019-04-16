@@ -4,7 +4,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include <string>
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 namespace HepMC {
   class GenEvent;

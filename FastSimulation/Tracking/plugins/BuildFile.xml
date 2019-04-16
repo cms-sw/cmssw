@@ -10,7 +10,7 @@
 <use   name="DataFormats/VertexReco"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FastSimulation/BaseParticlePropagator"/>
+<use   name="CommonTools/BaseParticlePropagator"/>
 <use   name="FastSimulation/ParticlePropagator"/>
 <use   name="FastSimulation/Tracking"/>
 <use   name="Geometry/CommonDetUnit"/>

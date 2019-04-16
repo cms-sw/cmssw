@@ -5,7 +5,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -17,7 +17,7 @@
 
 class DDCompactView;
 
-using namespace dd::operators;
+using namespace geant_units::operators;
 
 DDDividedTrdX::DDDividedTrdX( const DDDivision& div, DDCompactView* cpv )
   : DDDividedGeometryObject(div,cpv)

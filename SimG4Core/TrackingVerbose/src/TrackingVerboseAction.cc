@@ -71,9 +71,11 @@ TrackingVerboseAction::TrackingVerboseAction(edm::ParameterSet const & p) :
 TrackingVerboseAction::~TrackingVerboseAction() {}
 
 void TrackingVerboseAction::update(const BeginOfRun * run) {
+  /*
   TrackingAction * ta = 
     dynamic_cast<TrackingAction*>(G4EventManager::GetEventManager()->GetUserTrackingAction());
   theTrackingManager = ta->getTrackManager();
+  */
   fVerbose = G4VSteppingVerbose::GetInstance();
   if (fDEBUG)
     G4cout << " TV: Get the Tracking Manager: " << theTrackingManager

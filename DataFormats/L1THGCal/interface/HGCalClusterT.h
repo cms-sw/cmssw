@@ -7,6 +7,9 @@
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/ClusterShapes.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 
 /* ROOT */
 #include "Math/Vector3D.h"
@@ -34,17 +37,20 @@ namespace l1t
         centre_(0, 0, 0),
         centreProj_(0., 0., 0.),
         mipPt_(0),
-        seedMipPt_(0){}
+        seedMipPt_(0),
+        sumPt_(0){}
 
-      HGCalClusterT( const edm::Ptr<C>& c ):
+
+       HGCalClusterT( const edm::Ptr<C>& c, float fraction=1. ):
         valid_(true),
         detId_( c->detId() ),
         centre_(0., 0., 0.),
         centreProj_(0., 0., 0.),
         mipPt_(0.),
-        seedMipPt_(0.)
+        seedMipPt_(0.),
+        sumPt_(0.)
       {
-        addConstituent(c);
+        addConstituent(c, true, fraction);
       }
       
       ~HGCalClusterT() override {};
@@ -62,7 +68,7 @@ namespace l1t
 
         if( constituents_.empty() )
         {
-          detId_ = HGCalDetId( c->detId() );
+          detId_ = DetId( c->detId() );
           seedMipPt_ = cMipt;
           /* if the centre will not be dynamically calculated
              the seed centre is considere as cluster centre */
@@ -102,11 +108,10 @@ namespace l1t
       double mipPt() const { return mipPt_; }
       double seedMipPt() const { return seedMipPt_; }
       uint32_t detId() const { return detId_.rawId(); }
-
       void setPt(double pt) {
         setP4( math::PtEtaPhiMLorentzVector(pt, eta(), phi(), mass() ) );
       }
-
+      double sumPt() const { return sumPt_; }
       /* distance in 'cm' */
       double distance( const l1t::HGCalTriggerCell &tc ) const { return ( tc.position() - centre_ ).mag(); }
 
@@ -125,21 +130,21 @@ namespace l1t
 
         for(const auto& id_constituent : constituents())
         {
+          DetId id(id_constituent.first);
           auto id_fraction = constituentsFraction_.find(id_constituent.first);
           double fraction = (id_fraction!=constituentsFraction_.end() ? id_fraction->second : 1.);
-          switch( id_constituent.second->subdetId() )
-          {
-            case HGCEE:
-              pt_em += id_constituent.second->pt() * fraction;
-              break;
-            case HGCHEF:
-              pt_had += id_constituent.second->pt() * fraction;
-              break;
-            case HGCHEB:
-              pt_had += id_constituent.second->pt() * fraction;
-              break;
-            default:
-              break;
+          if ((id.det() == DetId::Forward && id.subdetId()==HGCEE) ||
+              (id.det() == DetId::HGCalEE) ||
+              (id.det() == DetId::HGCalTrigger && HGCalTriggerDetId(id).subdet()==HGCalTriggerSubdetector::HGCalEETrigger)
+              ) {
+            pt_em += id_constituent.second->pt() * fraction;
+          } else if((id.det() == DetId::Forward && id.subdetId()==HGCHEF) ||
+               (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) ||
+               (id.det() == DetId::HGCalHSi) ||
+               (id.det() == DetId::HGCalHSc) ||
+               (id.det() == DetId::HGCalTrigger && HGCalTriggerDetId(id).subdet()==HGCalTriggerSubdetector::HGCalHSiTrigger)
+              ) {
+            pt_had += id_constituent.second->pt() * fraction;
           }
         }
         if(pt_em>0) hOe = pt_had / pt_em ;
@@ -148,8 +153,6 @@ namespace l1t
       }
 
       uint32_t subdetId() const {return detId_.subdetId();} 
-      uint32_t layer() const {return detId_.layer();}
-      int32_t zside() const {return detId_.zside();}
 
 
       //shower shape
@@ -192,7 +195,7 @@ namespace l1t
     private:
 
       bool valid_;
-      HGCalDetId detId_;
+      DetId detId_;
 
       std::unordered_map<uint32_t, edm::Ptr<C>> constituents_;
       std::unordered_map<uint32_t, double> constituentsFraction_;
@@ -202,6 +205,7 @@ namespace l1t
 
       double mipPt_;
       double seedMipPt_;
+      double sumPt_;
 
       //shower shape
 
@@ -225,6 +229,7 @@ namespace l1t
       void updateP4AndPosition(const edm::Ptr<C>& c, bool updateCentre=true, float fraction=1.)
       {
         double cMipt = c->mipPt()*fraction;
+        double cPt = c->pt()*fraction;
         /* update cluster positions (IF requested) */
         if( updateCentre ){
           Basic3DVector<float> constituentCentre( c->position() );
@@ -245,7 +250,7 @@ namespace l1t
 
         /* update cluster energies */
         mipPt_ += cMipt;
-
+	sumPt_ += cPt;
         int updatedPt = hwPt() + (int)(c->hwPt()*fraction);
         setHwPt( updatedPt );
 

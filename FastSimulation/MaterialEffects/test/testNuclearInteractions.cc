@@ -14,7 +14,6 @@
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -738,8 +737,6 @@ void testNuclearInteractions::dqmBeginRun(edm::Run const&, const edm::EventSetup
 void
 testNuclearInteractions::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  ParticleTable::Sentry ptable(mySimEvent[0]->theTable());
-
   ++totalNEvt;
   if ( totalNEvt/1000*1000 == totalNEvt ) 
     std::cout << "Number of event analysed/NU "

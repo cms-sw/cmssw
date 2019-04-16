@@ -42,7 +42,7 @@
 //static void mdfHelper(int&, double*, double&, double*, int);
 
 //____________________________________________________________________
-ClassImp(TMultiDimFet)
+ClassImp(TMultiDimFet);
 
 //____________________________________________________________________
 // Static instance. Used with mdfHelper and TMinuit

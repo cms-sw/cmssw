@@ -5,7 +5,7 @@
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 
 // FastSimulation headers
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
@@ -23,7 +23,6 @@
 
 class FSimEvent;
 class FSimTrack;
-class RawParticle;
 class CaloGeometryHelper;
 class Histos;
 class HSParameters;

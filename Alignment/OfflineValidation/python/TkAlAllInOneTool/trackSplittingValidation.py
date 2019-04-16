@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 import os
-import configTemplates
-from genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationForPresentation, ValidationWithPlotsSummary
-from helperFunctions import replaceByMap
-from presentation import SubsectionFromList, SubsectionOnePage
-from TkAlExceptions import AllInOneError
+from . import configTemplates
+from .genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationForPresentation, ValidationWithPlotsSummary
+from .helperFunctions import replaceByMap
+from .presentation import SubsectionFromList, SubsectionOnePage
+from .TkAlExceptions import AllInOneError
 
 
 class TrackSplittingValidation(GenericValidationData_CTSR, ParallelValidation, ValidationWithPlotsSummary, ValidationForPresentation):

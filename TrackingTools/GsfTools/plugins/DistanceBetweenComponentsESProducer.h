@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/GsfTools/interface/DistanceBetweenComponents.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 /** Provides algorithms to measure the distance between  components
  * (currently either using a Kullback-Leibler or a Mahalanobis distance)

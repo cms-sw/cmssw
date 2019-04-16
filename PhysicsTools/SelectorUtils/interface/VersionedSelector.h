@@ -222,14 +222,7 @@ initialize( const edm::ParameterSet& conf ) {
     const bool needsContent = 
       icut->getParameter<bool>("needsAdditionalProducts");     
     const bool ignored = icut->getParameter<bool>("isIgnored");
-    candf::CandidateCut* plugin = nullptr;
-    CINT_GUARD(plugin = CutApplicatorFactory::get()->create(name,*icut));
-    if( plugin != nullptr ) {
-      cuts_.push_back(SHARED_PTR(candf::CandidateCut)(plugin));
-    } else {
-      throw cms::Exception("BadPluginName")
-	<< "The requested cut: " << name << " is not available!";
-    }
+    CINT_GUARD(cuts_.emplace_back(CutApplicatorFactory::get()->create(name,*icut)));
     needs_event_content_.push_back(needsContent);
     const std::string therealname = realname.str();
     this->push_back(therealname);

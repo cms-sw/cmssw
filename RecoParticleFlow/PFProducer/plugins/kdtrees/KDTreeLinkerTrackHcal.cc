@@ -13,8 +13,8 @@ DEFINE_EDM_PLUGIN(KDTreeLinkerFactory,
 KDTreeLinkerTrackHcal::KDTreeLinkerTrackHcal()
   : KDTreeLinkerBase()
 {
-  setCristalPhiEtaMaxSize(0.2);
-  setPhiOffset(0.32);
+  cristalPhiEtaMaxSize_ = 0.2;
+  phiOffset_ = 0.32;
 }
 
 KDTreeLinkerTrackHcal::~KDTreeLinkerTrackHcal()
@@ -79,13 +79,13 @@ KDTreeLinkerTrackHcal::buildTree()
     
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
-    if (rh1.dim2 > (M_PI - getPhiOffset())) {
+    if (rh1.dim2 > (M_PI - phiOffset_)) {
       double phi = rh1.dim2 - 2 * M_PI;
       KDTreeNodeInfo rh2(*it, posrep.eta(), phi); 
       eltList.push_back(rh2);
     }
 
-    if (rh1.dim2 < (M_PI * -1.0 + getPhiOffset())) {
+    if (rh1.dim2 < (M_PI * -1.0 + phiOffset_)) {
       double phi = rh1.dim2 + 2 * M_PI;
       KDTreeNodeInfo rh3(*it, posrep.eta(), phi); 
       eltList.push_back(rh3);
@@ -93,8 +93,8 @@ KDTreeLinkerTrackHcal::buildTree()
   }
 
   // Here we define the upper/lower bounds of the 2D space (eta/phi).
-  double phimin = -1.0 * M_PI - getPhiOffset();
-  double phimax = M_PI + getPhiOffset();
+  double phimin = -1.0 * M_PI - phiOffset_;
+  double phimax = M_PI + phiOffset_;
 
   // etamin-etamax, phimin-phimax
   KDTreeBox region(-3.0, 3.0, phimin, phimax);
@@ -136,8 +136,8 @@ KDTreeLinkerTrackHcal::searchLinks()
     // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
     // Same envelope for cap et barrel rechits.
     double inflation = 1.;
-    double rangeeta = (getCristalPhiEtaMaxSize() * (1.5 + 0.5) + 0.2 * fabs(dHeta)) * inflation; 
-    double rangephi = (getCristalPhiEtaMaxSize() * (1.5 + 0.5) + 0.2 * fabs(dHphi)) * inflation; 
+    double rangeeta = (cristalPhiEtaMaxSize_ * (1.5 + 0.5) + 0.2 * fabs(dHeta)) * inflation; 
+    double rangephi = (cristalPhiEtaMaxSize_ * (1.5 + 0.5) + 0.2 * fabs(dHphi)) * inflation; 
 
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
     std::vector<KDTreeNodeInfo> recHits;

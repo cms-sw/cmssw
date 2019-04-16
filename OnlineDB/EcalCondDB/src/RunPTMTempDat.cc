@@ -38,7 +38,7 @@ void RunPTMTempDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":temperature)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunPTMTempDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunPTMTempDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -63,7 +63,7 @@ void RunPTMTempDat::writeDB(const EcalLogicID* ecid, const RunPTMTempDat* item, 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunPTMTempDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunPTMTempDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -95,12 +95,12 @@ void RunPTMTempDat::fetchData(map< EcalLogicID, RunPTMTempDat >* fillMap, RunIOV
     std::pair< EcalLogicID, RunPTMTempDat > p;
     RunPTMTempDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setTemperature( rset->getFloat(7) );
 
@@ -109,6 +109,6 @@ void RunPTMTempDat::fetchData(map< EcalLogicID, RunPTMTempDat >* fillMap, RunIOV
     }
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunPTMTempDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunPTMTempDat::fetchData():  "+e.getMessage()));
   }
 }

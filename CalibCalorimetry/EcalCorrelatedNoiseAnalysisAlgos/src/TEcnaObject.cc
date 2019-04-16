@@ -9,7 +9,7 @@
 //  Documentation: see TEcnaObject.h
 //--------------------------------------
 
-ClassImp(TEcnaObject)
+ClassImp(TEcnaObject);
 //______________________________________________________________________________
 //
 

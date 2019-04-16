@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -148,13 +149,15 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   doPassive_   = iConfig.getUntrackedParameter<bool>("DoPassive",false);
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HGCalTBAnalyzer:: SimHits = " << doSimHits_ << " Digis = "
-	    << doDigis_ << ":" << sampleIndex_ << " RecHits = " << doRecHits_
-	    << " useDets " << ifEE_ << ":" << ifFH_ << ":" << ifBH_ << ":"
-	    << ifBeam_ << " zFront " << zFrontEE_ << ":" << zFrontFH_ << ":" 
-	    << zFrontBH_ << " IdBeam " << idBeams_.size() << ":";
-  for (auto id : idBeams_) std::cout << " " << id;
-  std::cout << std::endl;
+  edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: SimHits = " << doSimHits_ 
+			     << " Digis = " << doDigis_ << ":" << sampleIndex_
+			     << " RecHits = " << doRecHits_ << " useDets " 
+			     << ifEE_ << ":" << ifFH_ << ":" << ifBH_ << ":"
+			     << ifBeam_ << " zFront " << zFrontEE_ << ":" 
+			     << zFrontFH_ << ":" << zFrontBH_ << " IdBeam " 
+			     << idBeams_.size() << ":";
+  for (unsigned int k=0; k<idBeams_.size(); ++k) 
+    edm::LogVerbatim("HGCSim") << " [" << k << "] " << idBeams_[k];
 #endif
   if (idBeams_.empty()) idBeams_.push_back(1001);
 
@@ -162,7 +165,7 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   tok_hepMC_   = consumes<edm::HepMCProduct>(tmp0);
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HGCalTBAnalyzer:: GeneratorSource = " << tmp0 << std::endl;
+  edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: GeneratorSource = " << tmp0;
 #endif
   std::string   tmp1 = iConfig.getParameter<std::string>("CaloHitSrcEE");
   tok_hitsEE_  = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits",tmp1));
@@ -174,8 +177,9 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   tok_hitrEE_  = consumes<HGCRecHitCollection>(tmp3);
 #ifdef EDM_ML_DEBUG
   if (ifEE_) {
-    std::cout << "HGCalTBAnalyzer:: Detector " << detectorEE_ << " with tags "
-	      << tmp1 << ", " << tmp2 << ", " << tmp3 << std::endl;
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorEE_ 
+			       << " with tags " << tmp1 << ", " << tmp2 << ", "
+			       << tmp3;
   }
 #endif
   tmp1         = iConfig.getParameter<std::string>("CaloHitSrcFH");
@@ -186,8 +190,9 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   tok_hitrFH_  = consumes<HGCRecHitCollection>(tmp3);
 #ifdef EDM_ML_DEBUG
   if (ifFH_) {
-    std::cout << "HGCalTBAnalyzer:: Detector " << detectorFH_ << " with tags "
-	      << tmp1 << ", " << tmp2 << ", " << tmp3 << std::endl;
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorFH_
+			       << " with tags " << tmp1 << ", " << tmp2 << ", "
+			       << tmp3;
   }
 #endif
   tmp1         = iConfig.getParameter<std::string>("CaloHitSrcBH");
@@ -212,16 +217,17 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
 
 #ifdef EDM_ML_DEBUG
   if (ifBH_) {
-    std::cout << "HGCalTBAnalyzer:: Detector " << detectorBH_ << " with tags "
-	      << tmp1 << ", " << tmp2 << ", " << tmp3 << std::endl;
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorBH_
+			       << " with tags " << tmp1 << ", " << tmp2 << ", "
+			       << tmp3;
   }
 #endif
   tmp1         = iConfig.getParameter<std::string>("CaloHitSrcBeam");
   tok_hitsBeam_= consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits",tmp1));
 #ifdef EDM_ML_DEBUG
   if (ifBeam_) {
-    std::cout << "HGCalTBAnalyzer:: Detector " << detectorBeam_ 
-	      << " with tags " << tmp1 << std::endl;
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " 
+			       << detectorBeam_ << " with tags " << tmp1;
   }
 #endif
 }
@@ -418,8 +424,9 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       }
     }
 #ifdef EDM_ML_DEBUG
-    std::cout << "HGCalTBAnalyzer::" << detectorEE_ << " defined with "
-	      << hgcons_[0]->layers(false) << " layers" << std::endl;
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer::" << detectorEE_ 
+			       << " defined with " << hgcons_[0]->layers(false)
+			       << " layers";
 #endif
   } else {
     hgcons_[0] = nullptr;
@@ -450,8 +457,9 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       }
     }
 #ifdef EDM_ML_DEBUG
-    std::cout << "HGCalTBAnalyzer::" << detectorFH_ << " defined with "
-	      << hgcons_[1]->layers(false) << " layers" << std::endl;
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer::" << detectorFH_ 
+			       << " defined with " << hgcons_[1]->layers(false)
+			       << " layers";
 #endif
   } else {
     hgcons_[1] = nullptr;
@@ -496,9 +504,10 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
          p != myGenEvent->particles_end(); ++p, ++k) {
       if (k == 0) hBeam_->Fill((*p)->momentum().rho());
 #ifdef EDM_ML_DEBUG
-      std::cout << "Particle[" << k << "] with p " << (*p)->momentum().rho() 
-		<< " theta " << (*p)->momentum().theta() << " phi "
-		<< (*p)->momentum().phi() << std::endl;
+      edm::LogVerbatim("HGCSim") << "Particle[" << k << "] with p " 
+				 << (*p)->momentum().rho() << " theta " 
+				 << (*p)->momentum().theta() << " phi "
+				 << (*p)->momentum().phi();
 #endif
     }
   }
@@ -527,8 +536,9 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
       iEvent.getByToken(tok_hitsEE_, theCaloHitContainers);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
-	std::cout << "PcalohitContainer for " << detectorEE_ << " has "
-		  << theCaloHitContainers->size() << " hits" << std::endl;
+	edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorEE_ 
+				   << " has " << theCaloHitContainers->size() 
+				   << " hits";
 #endif
 	caloHits.clear();
 	caloHits.insert(caloHits.end(), theCaloHitContainers->begin(), 
@@ -536,8 +546,8 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 	analyzeSimHits(0, caloHits, zFrontEE_);
       } else {
 #ifdef EDM_ML_DEBUG
-	std::cout << "PCaloHitContainer does not exist for " << detectorEE_ 
-		  << " !!!" << std::endl;
+	edm::LogVerbatim("HGCSim") << "PCaloHitContainer does not exist for " 
+				   << detectorEE_ << " !!!";
 #endif
       }
     }
@@ -547,8 +557,9 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
       iEvent.getByToken(tok_hitsFH_, theCaloHitContainers);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
-	std::cout << "PcalohitContainer for " << detectorFH_ << " has "
-		  << theCaloHitContainers->size() << " hits" << std::endl;
+	edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorFH_ 
+				   << " has " << theCaloHitContainers->size()
+				   << " hits";
 #endif
 	caloHits.clear();
 	caloHits.insert(caloHits.end(), theCaloHitContainers->begin(), 
@@ -556,8 +567,8 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 	analyzeSimHits(1, caloHits, zFrontFH_);
       } else {
 #ifdef EDM_ML_DEBUG
-	std::cout << "PCaloHitContainer does not exist for " << detectorFH_ 
-		  << " !!!" << std::endl;
+	edm::LogVerbatim("HGCSim") << "PCaloHitContainer does not exist for " 
+				   << detectorFH_ << " !!!";
 #endif
       }
     }
@@ -567,8 +578,9 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
       iEvent.getByToken(tok_hitsBH_, theCaloHitContainers);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
-	std::cout << "PcalohitContainer for " << detectorBH_ << " has "
-		  << theCaloHitContainers->size() << " hits" << std::endl;
+	edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorBH_ 
+				   << " has " << theCaloHitContainers->size()
+				   << " hits";
 #endif
 	caloHits.clear();
 	caloHits.insert(caloHits.end(), theCaloHitContainers->begin(), 
@@ -576,8 +588,8 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 	analyzeSimHits(2, caloHits, zFrontBH_);
       } else {
 #ifdef EDM_ML_DEBUG
-	std::cout << "PCaloHitContainer does not exist for " << detectorBH_ 
-		  << " !!!" << std::endl;
+	edm::LogVerbatim("HGCSim") << "PCaloHitContainer does not exist for "
+				   << detectorBH_ << " !!!";
 #endif
       }
     }
@@ -586,8 +598,9 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
       iEvent.getByToken(tok_hitsBeam_, theCaloHitContainers);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
-	std::cout << "PcalohitContainer for " << detectorBeam_ << " has "
-		  << theCaloHitContainers->size() << " hits" << std::endl;
+	edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorBeam_
+				   << " has " << theCaloHitContainers->size()
+				   << " hits";
 #endif
 	caloHits.clear();
 	caloHits.insert(caloHits.end(), theCaloHitContainers->begin(), 
@@ -595,8 +608,8 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 	analyzeSimHits(3, caloHits, 0.0);
       } else {
 #ifdef EDM_ML_DEBUG
-	std::cout << "PCaloHitContainer does not exist for " << detectorBeam_ 
-		  << " !!!" << std::endl;
+	edm::LogVerbatim("HGCSim") << "PCaloHitContainer does not exist for " 
+				   << detectorBeam_ << " !!!";
 #endif
       }
     }
@@ -642,8 +655,9 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
       iEvent.getByToken(tok_digiEE_, theDigiContainers);
       if (theDigiContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
-	std::cout << "HGCDigiCintainer for " << detectorEE_ << " with " 
-		  << theDigiContainers->size() << " element(s)" << std::endl;
+	edm::LogVerbatim("HGCSim") << "HGCDigiCintainer for " << detectorEE_ 
+				   << " with " << theDigiContainers->size() 
+				   << " element(s)";
 #endif
 	for (auto it : *theDigiContainers) {
 	  HGCalDetId detId     = (it.id());
@@ -658,8 +672,9 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
       iEvent.getByToken(tok_digiFH_, theDigiContainers);
       if (theDigiContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
-	std::cout << "HGCDigiContainer for " << detectorFH_ << " with " 
-		  << theDigiContainers->size() << " element(s)" << std::endl;
+	edm::LogVerbatim("HGCSim") << "HGCDigiContainer for " << detectorFH_ 
+				   << " with " << theDigiContainers->size() 
+				   << " element(s)";
 #endif
 	for (auto it : *theDigiContainers) {
 	  HGCalDetId detId     = (it.id());
@@ -678,14 +693,15 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
       iEvent.getByToken(tok_hitrEE_, theCaloHitContainers);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
-	std::cout << "HGCRecHitCollection for " << detectorEE_ << " has "
-		  << theCaloHitContainers->size() << " hits" << std::endl;
+	edm::LogVerbatim("HGCSim") << "HGCRecHitCollection for " << detectorEE_
+				   << " has " << theCaloHitContainers->size()
+				   << " hits";
 #endif
 	analyzeRecHits(0, theCaloHitContainers);
       } else {
 #ifdef EDM_ML_DEBUG
-	std::cout << "HGCRecHitCollection does not exist for " << detectorEE_ 
-		  << " !!!" << std::endl;
+	edm::LogVerbatim("HGCSim") << "HGCRecHitCollection does not exist for "
+				   << detectorEE_ << " !!!";
 #endif
       }
     }
@@ -693,14 +709,15 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
       iEvent.getByToken(tok_hitrFH_, theCaloHitContainers);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
-	std::cout << "HGCRecHitCollection for " << detectorFH_ << " has "
-		  << theCaloHitContainers->size() << " hits" << std::endl;
+	edm::LogVerbatim("HGCSim") << "HGCRecHitCollection for " << detectorFH_
+				   << " has " << theCaloHitContainers->size() 
+				   << " hits";
 #endif
 	analyzeRecHits(1, theCaloHitContainers);
       } else {
 #ifdef EDM_ML_DEBUG
-	std::cout << "HGCRecHitCollection does not exist for " << detectorFH_ 
-		  << " !!!" << std::endl;
+	edm::LogVerbatim("HGCSim") << "HGCRecHitCollection does not exist for "
+				   << detectorFH_ << " !!!";
 #endif
       }//else
     }//if (ifFH_)
@@ -742,10 +759,11 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits,
       idx             = sector*1000+cell;
     }
 #ifdef EDM_ML_DEBUG
-    std::cout << "SimHit:Hit[" << i << "] Id " << subdet << ":" << zside << ":"
-	      << layer << ":" << sector << ":" << subsector << ":" << cell 
-	      << ":" << depth << " Energy " << energy << " Time " << time
-	      << std::endl;
+    edm::LogVerbatim("HGCSim") << "SimHit:Hit[" << i << "] Id " << subdet 
+			       << ":" << zside << ":" << layer << ":" 
+			       << sector << ":" << subsector << ":" << cell 
+			       << ":" << depth << " Energy " << energy 
+			       << " Time " << time;
 #endif
     if (map_hits.count(id) != 0) {
       map_hits[id] += energy;
@@ -794,8 +812,8 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits,
     if (type < 2)       zp = hgcons_[type]->waferZ(layer+1,false);
     else if (type == 2) zp = AHCalDetId((itr.second).first).getZ();
 #ifdef EDM_ML_DEBUG
-    std::cout << "SimHit:Layer " << layer+1 << " Z " << zp << ":" << zp-zFront
-	      << " E " << energy << std::endl;
+    edm::LogVerbatim("HGCSim") << "SimHit:Layer " << layer+1 << " Z " << zp 
+			       << ":" << zp-zFront << " E " << energy;
 #endif
     if (type < 3) {
       hSimHitLng_[type]->Fill(zp-zFront,energy);
@@ -830,7 +848,7 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits,
     int    layer      = itr.first - 1;
     double energy     = itr.second;
 #ifdef EDM_ML_DEBUG
-    std::cout << "SimHit:Layer " << layer+1 << " " << energy << std::endl;
+    edm::LogVerbatim("HGCSim") << "SimHit:Layer " << layer+1 << " " << energy;
 #endif
     hSimHitLng1_[type]->Fill(layer+1,energy);
     if (type == 0) {
@@ -894,11 +912,12 @@ void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const
   int vertIndex(-1);
   for (auto simTrkItr : *SimTk) {
 #ifdef EDM_ML_DEBUG
-    std::cout << "Track " << simTrkItr.trackId() << " Vertex "
-	      << simTrkItr.vertIndex() << " Type " << simTrkItr.type()
-	      << " Charge " << simTrkItr.charge() << " momentum "
-	      << simTrkItr.momentum() << " " << simTrkItr.momentum().P()
-	      << std::endl;
+    edm::LogVerbatim("HGCSim") << "Track " << simTrkItr.trackId() << " Vertex "
+			       << simTrkItr.vertIndex() << " Type " 
+			       << simTrkItr.type() << " Charge " 
+			       << simTrkItr.charge() << " momentum "
+			       << simTrkItr.momentum() << " " 
+			       << simTrkItr.momentum().P();
 #endif
     if (vertIndex == -1) {
       vertIndex = simTrkItr.vertIndex();
@@ -909,8 +928,8 @@ void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const
     edm::SimVertexContainer::const_iterator simVtxItr= SimVtx->begin();
     for (int iv=0; iv<vertIndex; iv++) simVtxItr++;
 #ifdef EDM_ML_DEBUG
-    std::cout << "Vertex " << vertIndex << " position "
-	      << simVtxItr->position() << std::endl;
+    edm::LogVerbatim("HGCSim") << "Vertex " << vertIndex << " position "
+			       << simVtxItr->position();
 #endif
     xBeam_ = simVtxItr->position().X();
     yBeam_ = simVtxItr->position().Y();
@@ -954,8 +973,9 @@ void HGCalTBAnalyzer::analyzeRecHits (int type,
       map_hitCell[cell] = std::pair<uint32_t,double>(detId,energy);
     }
 #ifdef EDM_ML_DEBUG
-    std::cout << "RecHit: " << layer  << " " << global.x() << " " << global.y()
-	      << " " << global.z() << " " << energy << std::endl;
+    edm::LogVerbatim("HGCSim") << "RecHit: " << layer  << " " << global.x()
+			       << " " << global.y() << " " << global.z() 
+			       << " " << energy;
 #endif
   }
 
@@ -964,8 +984,8 @@ void HGCalTBAnalyzer::analyzeRecHits (int type,
     double energy     = itr.second;
     double zp         = hgcons_[type]->waferZ(layer,true);
 #ifdef EDM_ML_DEBUG
-    std::cout << "SimHit:Layer " << layer << " " << zp << " " << energy 
-	      << std::endl;
+    edm::LogVerbatim("HGCSim") << "SimHit:Layer " << layer << " " << zp 
+			       << " " << energy;
 #endif
     hRecHitLng_[type]->Fill(zp,energy);
     hRecHitLng1_[type]->Fill(layer,energy);
@@ -987,9 +1007,9 @@ void HGCalTBAnalyzer::analyzePassiveHits (edm::Handle<edm::PassiveHitContainer>c
     unsigned int id     = v.id();
 #ifdef EDM_ML_DEBUG
     double       time   = v.time();
-    std::cout << "HGCalTBAnalyzer::analyzePassiveHits:Energy:Time:Name:Id : "
-	      << energy << ":" << time << ":" << name << ":" << id 
-	      << std::endl;
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer::analyzePassiveHits:Energy:"
+			       << "Time:Name:Id : " << energy << ":" << time 
+			       << ":" << name << ":" << id;
 #endif    
 
     if (subdet==1) {

@@ -39,7 +39,7 @@ void FEConfigSpikeDat::prepareWrite()
 		      "VALUES (:spi_conf_id, :logic_id, "
 		      ":spike_threshold )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigSpikeDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigSpikeDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -63,7 +63,7 @@ void FEConfigSpikeDat::writeDB(const EcalLogicID* ecid, const FEConfigSpikeDat* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigSpikeDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigSpikeDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -93,12 +93,12 @@ void FEConfigSpikeDat::fetchData(map< EcalLogicID, FEConfigSpikeDat >* fillMap, 
     std::pair< EcalLogicID, FEConfigSpikeDat > p;
     FEConfigSpikeDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setSpikeThreshold( rset->getInt(7) );  
        
@@ -106,7 +106,7 @@ void FEConfigSpikeDat::fetchData(map< EcalLogicID, FEConfigSpikeDat >* fillMap, 
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigSpikeDat::fetchData:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigSpikeDat::fetchData:  "+e.getMessage()));
   }
 }
 
@@ -172,6 +172,6 @@ void FEConfigSpikeDat::writeArrayDB(const std::map< EcalLogicID, FEConfigSpikeDa
     delete [] x_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigSpikeDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("FEConfigSpikeDat::writeArrayDB():  "+e.getMessage()));
   }
 }

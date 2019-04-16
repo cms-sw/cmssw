@@ -45,7 +45,7 @@ void MonTestPulseDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":adc_mean_g1, :adc_rms_g1, :adc_rms_g6, :adc_rms_g6, :adc_mean_g12, :adc_rms_g12, :task_status)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonTestPulseDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonTestPulseDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -76,7 +76,7 @@ void MonTestPulseDat::writeDB(const EcalLogicID* ecid, const MonTestPulseDat* it
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonTestPulseDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonTestPulseDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -108,12 +108,12 @@ void MonTestPulseDat::fetchData(std::map< EcalLogicID, MonTestPulseDat >* fillMa
     std::pair< EcalLogicID, MonTestPulseDat > p;
     MonTestPulseDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setADCMeanG1( rset->getFloat(7) );
       dat.setADCRMSG1( rset->getFloat(8) );
@@ -127,7 +127,7 @@ void MonTestPulseDat::fetchData(std::map< EcalLogicID, MonTestPulseDat >* fillMa
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonTestPulseDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonTestPulseDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -246,6 +246,6 @@ void MonTestPulseDat::writeArrayDB(const std::map< EcalLogicID, MonTestPulseDat 
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonTestPulseDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonTestPulseDat::writeArrayDB():  "+e.getMessage()));
   }
 }

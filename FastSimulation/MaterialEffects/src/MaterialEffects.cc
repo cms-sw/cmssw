@@ -248,14 +248,14 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 //  Photon Conversion
 //-------------------
 
-  if ( PairProduction && myTrack.pid()==22 ) {
+  if ( PairProduction && myTrack.particle().pid()==22 ) {
     
     //
     PairProduction->updateState(myTrack, radlen, random);
 
     if ( PairProduction->nDaughters() ) {	
       //add a vertex to the mother particle
-      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+      int ivertex = mySimEvent.addSimVertex(myTrack.particle().vertex(),itrack,
 					    FSimVertexType::PAIR_VERTEX);
       
       // Check if it is a valid vertex first:
@@ -279,14 +279,14 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
   }
 
-  if ( myTrack.pid() == 22 ) return;
+  if ( myTrack.particle().pid() == 22 ) return;
 
 //------------------------
 //   Nuclear interactions
 //------------------------ 
 
-  if ( NuclearInteraction && abs(myTrack.pid()) > 100 
-                          && abs(myTrack.pid()) < 1000000) { 
+  if ( NuclearInteraction && abs(myTrack.particle().pid()) > 100 
+                          && abs(myTrack.particle().pid()) < 1000000) { 
 
     // Simulate a nuclear interaction
     double factor = 1.0;
@@ -301,7 +301,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
     if ( NuclearInteraction->nDaughters() ) { 
 
       //add a end vertex to the mother particle
-      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+      int ivertex = mySimEvent.addSimVertex(myTrack.particle().vertex(),itrack,
 					    FSimVertexType::NUCL_VERTEX);
       //std::cout << "ivertex= " << ivertex << " nDaughters= " 
       //	<< NuclearInteraction->nDaughters() << std::endl;
@@ -334,7 +334,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
     
   }
 
-  if ( myTrack.charge() == 0 ) return;
+  if ( myTrack.particle().charge() == 0 ) return;
 
   if ( !MuonBremsstrahlung && !Bremsstrahlung && !EnergyLoss && !MultipleScattering ) return;
 
@@ -342,7 +342,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 //  Bremsstrahlung
 //----------------
 
-  if ( Bremsstrahlung && abs(myTrack.pid())==11 ) {
+  if ( Bremsstrahlung && abs(myTrack.particle().pid())==11 ) {
         
     Bremsstrahlung->updateState(myTrack,radlen, random);
 
@@ -350,7 +350,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       
       // Add a vertex, but do not attach it to the electron, because it 
       // continues its way...
-      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+      int ivertex = mySimEvent.addSimVertex(myTrack.particle().vertex(),itrack,
 					    FSimVertexType::BREM_VERTEX);
 
       // Check if it is a valid vertex first:
@@ -373,7 +373,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 //  Muon_Bremsstrahlung
 //--------------------------
 
-  if (  MuonBremsstrahlung && abs(myTrack.pid())==13 ) {
+  if (  MuonBremsstrahlung && abs(myTrack.particle().pid())==13 ) {
        
     MuonBremsstrahlung->updateState(myTrack, radlen, random);
 
@@ -381,7 +381,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
       // Add a vertex, but do not attach it to the muon, because it 
       // continues its way...
-      int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
+      int ivertex = mySimEvent.addSimVertex(myTrack.particle().vertex(),itrack,
                                             FSimVertexType::BREM_VERTEX);
  
      // Check if it is a valid vertex first:
@@ -406,9 +406,9 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
   if ( EnergyLoss )
   {
-    theEnergyLoss = myTrack.E();
+    theEnergyLoss = myTrack.particle().E();
     EnergyLoss->updateState(myTrack, radlen, random);
-    theEnergyLoss -= myTrack.E();
+    theEnergyLoss -= myTrack.particle().E();
   }
   
 
@@ -416,7 +416,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 ////  Multiple scattering
 ///-----------------------
 
-  if ( MultipleScattering && myTrack.Pt() > pTmin ) {
+  if ( MultipleScattering && myTrack.particle().Pt() > pTmin ) {
     //    MultipleScattering->setNormalVector(normalVector(layer,myTrack));
     MultipleScattering->setNormalVector(theNormalVector);
     MultipleScattering->updateState(myTrack,radlen, random);
@@ -431,7 +431,7 @@ MaterialEffects::radLengths(const TrackerLayer& layer,
   // Thickness of layer
   theThickness = layer.surface().mediumProperties().radLen();
 
-  GlobalVector P(myTrack.Px(),myTrack.Py(),myTrack.Pz());
+  GlobalVector P(myTrack.particle().Px(),myTrack.particle().Py(),myTrack.particle().Pz());
   
   // Effective length of track inside layer (considering crossing angle)
   //  double radlen = theThickness / fabs(P.dot(theNormalVector)/(P.mag()*theNormalVector.mag()));
@@ -439,8 +439,8 @@ MaterialEffects::radLengths(const TrackerLayer& layer,
 
   // This is a series of fudge factors (from the geometry description), 
   // to describe the layer inhomogeneities (services, cables, supports...)
-  double rad = myTrack.R();
-  double zed = fabs(myTrack.Z());
+  double rad = myTrack.particle().R();
+  double zed = fabs(myTrack.particle().Z());
 
   double factor = 1;
 
@@ -470,7 +470,7 @@ MaterialEffects::normalVector(const TrackerLayer& layer,
 			      ParticlePropagator& myTrack ) const {
   return layer.forward() ?  
     layer.disk()->normalVector() :
-    GlobalVector(myTrack.X(),myTrack.Y(),0.)/myTrack.R();
+    GlobalVector(myTrack.particle().X(),myTrack.particle().Y(),0.)/myTrack.particle().R();
 }
 
 void 

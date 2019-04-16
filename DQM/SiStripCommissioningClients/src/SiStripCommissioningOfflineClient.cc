@@ -336,11 +336,17 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
   // Save client root file
   if ( histos_ ) {
     bool save = parameters_.getUntrackedParameter<bool>( "SaveClientFile", true );
-    if ( save ) { 
-      if(runType_ != sistrip::DAQ_SCOPE_MODE)
-	histos_->save( outputFileName_, runNumber_ ); 
-      else
-	histos_->save( outputFileName_, runNumber_, partitionName_); 
+    if(save){
+      if(runType_ != sistrip::CALIBRATION_SCAN and runType_ != sistrip::CALIBRATION_SCAN_DECO){
+	if(runType_ != sistrip::DAQ_SCOPE_MODE)
+	  histos_->save( outputFileName_, runNumber_ );
+	else
+	  histos_->save( outputFileName_, runNumber_, partitionName_);
+      }
+      else{
+	CalibrationHistograms* histo = dynamic_cast<CalibrationHistograms*>(histos_);
+	histo->save( outputFileName_, runNumber_ );
+      }
     }
     else {
       edm::LogVerbatim(mlDqmClient_)

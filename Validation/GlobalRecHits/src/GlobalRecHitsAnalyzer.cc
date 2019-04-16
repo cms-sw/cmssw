@@ -600,9 +600,6 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
     return;
   }
   
-  // iterator to access containers
-  edm::PCaloHitContainer::const_iterator itHit;
-  
   ///////////////////////
   // extract simhit info
   //////////////////////

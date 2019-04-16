@@ -179,11 +179,6 @@ void L1TDiffHarvesting::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter 
   }
 }
 
-void L1TDiffHarvesting::dqmEndLuminosityBlock(DQMStore::IGetter &igetter, edm::LuminosityBlock const& lumiBlock,
-    edm::EventSetup const& c)
-{
-}
-
 DEFINE_FWK_MODULE (L1TDiffHarvesting);
 
 } // l1t

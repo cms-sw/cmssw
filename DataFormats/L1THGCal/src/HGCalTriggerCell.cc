@@ -10,7 +10,7 @@ HGCalTriggerCell( const LorentzVector& p4,
         int qual,
         uint32_t detid):
     L1Candidate(p4, pt, eta, phi, qual),
-    detid_(detid)
+    detid_(detid), position_(), mipPt_(0)
 {
 }
 

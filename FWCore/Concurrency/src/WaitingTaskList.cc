@@ -163,13 +163,16 @@ WaitingTaskList::announce()
     if(UNLIKELY(bool(m_exceptionPtr))) {
       t->dependentTaskFailed(m_exceptionPtr);
     }
-    if(0==t->decrement_ref_count()){
-      tbb::task::spawn(*t);
-    }
     if(!n->m_fromCache ) {
       delete n;
     }
     n=next;
+
+    //the task may indirectly call WaitingTaskList::reset
+    // so we need to call spawn after we are done using the node.
+    if(0==t->decrement_ref_count()){
+      tbb::task::spawn(*t);
+    }
   }
 }
 

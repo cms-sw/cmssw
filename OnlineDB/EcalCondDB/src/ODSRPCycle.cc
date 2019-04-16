@@ -33,7 +33,7 @@ void ODSRPCycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_SRP_Cycle (cycle_id, srp_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODSRPCycle::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODSRPCycle::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -52,7 +52,7 @@ void ODSRPCycle::writeDB()  noexcept(false)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODSRPCycle::writeDB:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODSRPCycle::writeDB:  "+e.getMessage()));
   }
 
   // Now get the ID
@@ -93,7 +93,7 @@ int ODSRPCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODSRPCycle::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODSRPCycle::fetchID:  "+e.getMessage()));
   }
 
   return m_ID;
@@ -122,7 +122,7 @@ void ODSRPCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODSRPCycle::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODSRPCycle::fetchID:  "+e.getMessage()));
   }
 }
 
@@ -151,7 +151,7 @@ void ODSRPCycle::fetchData(ODSRPCycle * result)
     result->setSRPConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODSRPCycle::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("ODSRPCycle::fetchData():  "+e.getMessage()));
   }
 }
 

@@ -116,15 +116,17 @@ SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet &p):
 
   produces<PHGCalValidInfo>(labelLayer_);
 
-  edm::LogVerbatim("ValidHGCal") << "HGCalTestAnalysis:: Initialised as "
-				 << "observer of begin events and of G4step "
-				 << "with Parameter values: \n\tLabel : " 
-				 << labelLayer_ << " and with " 
-				 << names_.size() << " detectors";
-  for (unsigned int k=0; k<names_.size(); ++k)
-    edm::LogVerbatim("ValidHGCal") << " [" << k << "] " << names_[k] 
-				   << " Type " << types_[k] << " DetType "
-				   << detTypes_[k];
+  if (verbosity_ > 0) {
+    edm::LogVerbatim("ValidHGCal") << "HGCalTestAnalysis:: Initialised as "
+				   << "observer of begin events and of G4step "
+				   << "with Parameter values: \n\tLabel : " 
+				   << labelLayer_ << " and with " 
+				   << names_.size() << " detectors";
+    for (unsigned int k=0; k<names_.size(); ++k)
+      edm::LogVerbatim("ValidHGCal") << " [" << k << "] " << names_[k] 
+				     << " Type " << types_[k] << " DetType "
+				     << detTypes_[k];
+  }
 } 
    
 SimG4HGCalValidation::~SimG4HGCalValidation() {
@@ -208,10 +210,11 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
     } else                   {
       for (int i=0; i<layers; ++i) hgcHEBedep_.push_back(0);
     }
-    edm::LogVerbatim("ValidHGCal") << "[" << type << "]: " << nameX << " det "
-				   << dets_[type] << " subdet " 
-				   << subdet_[type] << " with " << layers 
-				   << " layers";
+    if (verbosity_ > 0)
+      edm::LogVerbatim("ValidHGCal") << "[" << type << "]: " << nameX 
+				     << " det " << dets_[type] << " subdet " 
+				     << subdet_[type] << " with " << layers 
+				     << " layers";
   }
 }
 

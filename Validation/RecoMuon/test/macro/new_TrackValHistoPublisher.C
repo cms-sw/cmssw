@@ -177,9 +177,9 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     miny[3]=-0.0001;
     
     maxy[0]=1.09;
-    maxy[1]=0.;
+    maxy[1]=1.09;
     maxy[2]=1.09;
-    maxy[3]=0.;
+    maxy[3]=1.09;
     
     Plot4Histograms(newDir + "/eff_eta_phi",
 		    rdir, sdir, 
@@ -218,7 +218,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     miny[3]= 0.;
 
     maxy[0]= 1.09;
-    maxy[1]= 0.;
+    maxy[1]= 1.09;
     maxy[2]= 0.;
     maxy[3]= 0.;
 

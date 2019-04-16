@@ -189,7 +189,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( std::string tag, uint32_t 
 	  _condition_data_set_id = _cdsi;
 	  _crate    = rs -> getInt(2);
 	  _slot     = rs -> getInt(3);
-	  std::string fpga_ = getOraString(rs,4);
+	  std::string fpga_ = rs -> getString(4);
 	  if ( fpga_ == "top" ) _fpga = hcal::ConfigurationDatabase::Top;
 	  else _fpga  = hcal::ConfigurationDatabase::Bottom;
 	  _fiber    = rs -> getInt(5);
@@ -207,7 +207,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( std::string tag, uint32_t 
     //Always terminate statement
     _connection -> terminateStatement(stmt);
   } catch (SQLException& e) {
-    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
   }
   return result;
 }
@@ -255,7 +255,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUTFromXML( std::string tag, ui
 	    _condition_data_set_id = _cdsi;
 	    _crate    = rs -> getInt(2);
 	    _slot     = rs -> getInt(3);
-	    std::string fpga_ = getOraString(rs, 4);
+	    std::string fpga_ = rs -> getString(4);
 	    if ( fpga_ == "top" ) _fpga = hcal::ConfigurationDatabase::Top;
 	    else _fpga  = hcal::ConfigurationDatabase::Bottom;
 	    _fiber    = rs -> getInt(5);
@@ -274,7 +274,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUTFromXML( std::string tag, ui
       _connection -> terminateStatement(stmt);
 
     } catch (SQLException& e) {
-      XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
+      XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
     }
   }
   else{

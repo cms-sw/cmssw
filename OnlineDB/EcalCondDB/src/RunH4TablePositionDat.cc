@@ -41,7 +41,7 @@ void RunH4TablePositionDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":table_x, :table_y, :number_of_spills, :number_of_events)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunH4TablePositionDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunH4TablePositionDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -69,7 +69,7 @@ void RunH4TablePositionDat::writeDB(const EcalLogicID* ecid, const RunH4TablePos
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunH4TablePositionDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunH4TablePositionDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -101,12 +101,12 @@ void RunH4TablePositionDat::fetchData(map< EcalLogicID, RunH4TablePositionDat >*
     std::pair< EcalLogicID, RunH4TablePositionDat > p;
     RunH4TablePositionDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setTableX( rset->getInt(7) );
       dat.setTableY( rset->getInt(8) );
@@ -118,6 +118,6 @@ void RunH4TablePositionDat::fetchData(map< EcalLogicID, RunH4TablePositionDat >*
     }
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("RunH4TablePositionDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("RunH4TablePositionDat::fetchData():  "+e.getMessage()));
   }
 }

@@ -24,7 +24,7 @@ namespace reco {
       bool operator()(const CandidateBaseRef &) const;
     private:
       EDGetTokenT<GenParticleMatch> srcToken_;
-      const GenParticleMatch * match_;
+      const GenParticleMatch * match_ = nullptr;
     };
 
     void MCMatchCandRefSelector::newEvent(const Event& evt, const EventSetup&) {

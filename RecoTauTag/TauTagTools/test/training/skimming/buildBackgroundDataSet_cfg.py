@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 import RecoTauTag.TauTagTools.RecoTauCommonJetSelections_cfi as common
 import sys
@@ -309,7 +310,7 @@ process.preselectedBackgroundJets = cms.EDProducer(
 )
 
 # Build pizeros for our final jet collection
-import RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi as PiZeroProd
+import RecoTauTag.RecoTau.RecoTauPiZeroProducer_cff as PiZeroProd
 process.backgroundJetsRecoTauPiZeros = PiZeroProd.ak5PFJetsRecoTauPiZeros.clone(
     jetSrc = cms.InputTag("preselectedBackgroundJets")
 )

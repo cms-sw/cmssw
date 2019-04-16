@@ -19,6 +19,9 @@ namespace mtd_digitizer {
     std::array<MTDSimHitData,2> hit_info;
   };
 
+  // Maximum value of time-of-flight for premixing packing
+  constexpr float PREMIX_MAX_TOF = 26.0f;
+
   struct MTDCellId {
     MTDCellId() : detid_(0), row_(0), column_(0) {}
     const uint32_t detid_;

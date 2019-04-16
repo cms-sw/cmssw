@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.L1THGCal.hgcalTriggerGeometryESProducer_cfi import *
@@ -5,7 +6,7 @@ from L1Trigger.L1THGCal.hgcalTriggerGeometryESProducer_cfi import *
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
-import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
+from . import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
 
 # Digitization parameters
 adcSaturation_fC = digiparam.hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC

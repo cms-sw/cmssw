@@ -31,11 +31,11 @@ bool HGCalClusteringImpl::isPertinent( const l1t::HGCalTriggerCell & tc,
                                        double distXY ) const 
 {
 
-    HGCalDetId tcDetId( tc.detId() );
-    HGCalDetId cluDetId( clu.detId() );
-    if( (tcDetId.layer() != cluDetId.layer()) ||
+    DetId tcDetId( tc.detId() );
+    DetId cluDetId( clu.detId() );
+    if( (triggerTools_.layer(tcDetId) != triggerTools_.layer(cluDetId)) ||
         (tcDetId.subdetId() != cluDetId.subdetId()) ||
-        (tcDetId.zside() != cluDetId.zside()) ){
+        (triggerTools_.zside(tcDetId) != triggerTools_.zside(cluDetId) )){
         return false;
     }   
     if ( clu.distance((tc)) < distXY ){
@@ -115,8 +115,8 @@ void HGCalClusteringImpl::triggerCellReshuffling( const std::vector<edm::Ptr<l1t
     ){
 
     for( const auto& tc : triggerCellsPtrs ){
-        int endcap = tc->zside() == -1 ? 0 : 1 ;
-        HGCalDetId tcDetId( tc->detId() );
+        DetId tcDetId( tc->detId() );
+        int endcap = triggerTools_.zside(tcDetId) == -1 ? 0 : 1 ;
         unsigned layer = triggerTools_.layerWithOffset(tc->detId());
         
         reshuffledTriggerCells[endcap][layer-1].emplace_back(tc);

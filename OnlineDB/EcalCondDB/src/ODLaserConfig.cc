@@ -208,7 +208,7 @@ int ODLaserConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODLaserConfig::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODLaserConfig::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -288,7 +288,7 @@ void ODLaserConfig::prepareWrite()
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODLaserConfig::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODLaserConfig::prepareWrite():  ")+e.getMessage()));
   }
 }
 
@@ -394,7 +394,7 @@ void ODLaserConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODLaserConfig::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODLaserConfig::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -429,7 +429,7 @@ void ODLaserConfig::fetchData(ODLaserConfig * result)
     // start from 3 because of select * 
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
 
     result->setDebug(rset->getInt(  3  ));
     result->setDummy(rset->getInt(  4  ));
@@ -507,7 +507,7 @@ void ODLaserConfig::fetchData(ODLaserConfig * result)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODLaserConfig::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODLaserConfig::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -535,7 +535,7 @@ int ODLaserConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODLaserConfig::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODLaserConfig::fetchID:  ")+e.getMessage()));
   }
 
   fetchData(this);

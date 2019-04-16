@@ -10,6 +10,7 @@
 #include "FastSimulation/MaterialEffects/interface/CMSDummyDeexcitation.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
+#include "FastSimulation/Particle/interface/makeParticle.h"
 
 // Geant4 headers
 #include "G4ParticleDefinition.hh"
@@ -181,7 +182,7 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(
   theDiffuseElastic = new G4DiffuseElastic();
 
   // Geant4 particles and cross sections
-  std::call_once(initializeOnce, [this] () {
+  std::call_once(initializeOnce, [] () {
     theG4Hadron[0] = G4Proton::Proton();
     theG4Hadron[1] = G4Neutron::Neutron();
     theG4Hadron[2] = G4PionPlus::PionPlus();
@@ -254,10 +255,10 @@ NuclearInteractionFTFSimulator::~NuclearInteractionFTFSimulator() {
 void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle, 
 					     RandomEngineAndDistribution const* random)
 {
-  //std::cout << "#### Primary " << Particle.pid() << " E(GeV)= " 
-  //	    << Particle.momentum().e() << std::endl;
+  //std::cout << "#### Primary " << Particle.particle().pid() << " E(GeV)= " 
+  //	    << Particle.particle().momentum().e() << std::endl;
 
-  int thePid = Particle.pid(); 
+  int thePid = Particle.particle().pid(); 
   if(thePid != theId[currIdx]) {
     currParticle = nullptr;
     currIdx = 0;
@@ -277,7 +278,7 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
 
   // fill projectile for Geant4
   double mass = currParticle->GetPDGMass();
-  double ekin = CLHEP::GeV*Particle.momentum().e() - mass;
+  double ekin = CLHEP::GeV*Particle.particle().momentum().e() - mass;
 
   // check interaction length
   intLengthElastic   = nuclElLength[currIdx];
@@ -313,9 +314,9 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
   if (currInteractionLength > radLengths) { return; }
 
   // fill projectile for Geant4
-  double px = Particle.momentum().px();
-  double py = Particle.momentum().py();
-  double pz = Particle.momentum().pz();
+  double px = Particle.particle().momentum().px();
+  double py = Particle.particle().momentum().py();
+  double pz = Particle.particle().momentum().pz();
   double ptot = sqrt(px*px + py*py + pz*pz);
   double norm = 1./ptot;
   G4ThreeVector dir(px*norm, py*norm, pz*norm);
@@ -342,13 +343,13 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
     double cost = (dir*dirnew);
     double sint = std::sqrt((1. - cost)*(1. + cost));
 
-    curr4Mom.set(ptot*dirnew.x(),ptot*dirnew.y(),ptot*dirnew.z(),Particle.momentum().e());
+    curr4Mom.set(ptot*dirnew.x(),ptot*dirnew.y(),ptot*dirnew.z(),Particle.particle().momentum().e());
 
     // Always create a daughter if the kink is large engough 
     if (sint > theDistCut) { 
       saveDaughter(Particle, curr4Mom, thePid); 
     } else {
-      Particle.SetXYZT(curr4Mom.px(), curr4Mom.py(), curr4Mom.pz(), curr4Mom.e());
+      Particle.particle().setMomentum(curr4Mom.px(), curr4Mom.py(), curr4Mom.pz(), curr4Mom.e());
     }
 
     // inelastic interaction
@@ -420,12 +421,13 @@ void NuclearInteractionFTFSimulator::saveDaughter(ParticlePropagator& Particle,
 						  const G4LorentzVector& lv, int pdgid)
 {
   unsigned int idx = _theUpdatedState.size();   
-  _theUpdatedState.push_back(Particle);
-  _theUpdatedState[idx].SetXYZT(lv.px()*fact,lv.py()*fact,lv.pz()*fact,lv.e()*fact);
-  _theUpdatedState[idx].setID(pdgid);
+  _theUpdatedState.emplace_back(makeParticle(Particle.particleDataTable(),
+                                             pdgid, 
+                                             XYZTLorentzVector{lv.px()*fact,lv.py()*fact,lv.pz()*fact,lv.e()*fact}, 
+                                             Particle.particle().vertex()));
 
   // Store the closest daughter index (for later tracking purposes, so charged particles only) 
-  double distance = distanceToPrimary(Particle,_theUpdatedState[idx]);
+  double distance = distanceToPrimary(Particle.particle(),_theUpdatedState[idx]);
   // Find the closest daughter, if closer than a given upper limit.
   if ( distance < distMin && distance < theDistCut ) {
     distMin = distance;

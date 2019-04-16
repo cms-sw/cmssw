@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 ############################################################
 # LumiDB Revision and Versioning API
 #
@@ -898,8 +899,8 @@ def dataIdsByCurrentTag(schema,runlist=None,lumitype='HF'):
     return (currenttagname,result)
 
 if __name__ == "__main__":
-    import sessionManager
-    import lumidbDDL
+    from . import sessionManager
+    from . import lumidbDDL
     #myconstr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
     #authpath='/afs/cern.ch/user/x/xiezhen'
     myconstr='sqlite_file:test.db'

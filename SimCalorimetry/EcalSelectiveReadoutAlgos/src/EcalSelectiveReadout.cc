@@ -206,7 +206,7 @@ EcalSelectiveReadout::getTowerInterest(const EcalTrigTowerDetId & tower) const
     : tower.ieta() + nTriggerTowersInEta/2 -1;
   int iPhi = tower.iphi() - 1;
 
-  assert(-1 <= towerInterest[iEta][iPhi] && towerInterest[iEta][iPhi] < 8);
+  assert(-1 <= towerInterest[iEta][iPhi] && int(towerInterest[iEta][iPhi]) < 8);
   
   return towerInterest[iEta][iPhi];
 }

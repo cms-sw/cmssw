@@ -41,7 +41,7 @@ void DCULVRTempsDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCULVRTempsDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCULVRTempsDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -69,7 +69,7 @@ void DCULVRTempsDat::writeDB(const EcalLogicID* ecid, const DCULVRTempsDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCULVRTempsDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCULVRTempsDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -101,12 +101,12 @@ void DCULVRTempsDat::fetchData(std::map< EcalLogicID, DCULVRTempsDat >* fillMap,
     std::pair< EcalLogicID, DCULVRTempsDat > p;
     DCULVRTempsDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setT1( rset->getFloat(7) );
       dat.setT2( rset->getFloat(8) );
@@ -116,6 +116,6 @@ void DCULVRTempsDat::fetchData(std::map< EcalLogicID, DCULVRTempsDat >* fillMap,
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("DCULVRTempsDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("DCULVRTempsDat::fetchData():  "+e.getMessage()));
   }
 }

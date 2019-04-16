@@ -51,7 +51,7 @@ int ODScanConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODScanConfig::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODScanConfig::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -91,7 +91,7 @@ void ODScanConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODScanConfig::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODScanConfig::prepareWrite():  ")+e.getMessage()));
   }
 }
 
@@ -116,7 +116,7 @@ void ODScanConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODScanConfig::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODScanConfig::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -151,15 +151,15 @@ void ODScanConfig::fetchData(ODScanConfig * result)
 
     // id 1 is the scan_id 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setTypeId(           rset->getInt(3) );
-    result->setScanType(        getOraString(rset,4) );
+    result->setScanType(        rset->getString(4) );
     result->setFromVal(            rset->getInt(5) );
     result->setToVal(              rset->getInt(6) );
     result->setStep(              rset->getInt(7) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODScanConfig::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODScanConfig::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -188,7 +188,7 @@ int ODScanConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODScanConfig::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODScanConfig::fetchID:  ")+e.getMessage()));
   }
 
   return m_ID;

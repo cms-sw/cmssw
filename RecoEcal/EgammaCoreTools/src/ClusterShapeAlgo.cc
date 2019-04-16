@@ -384,8 +384,8 @@ void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicClu
                                                             const int EtaPhi,
                                                             const CaloSubdetectorGeometry* geometry) 
 {
-  if(  (hits!=nullptr) && ( ((*hits)[0]).id().subdetId() != EcalBarrel )  ) {
-     //std::cout << "No basket correction for endacap!" << std::endl;
+  if(  (hits==nullptr) || ( ((*hits)[0]).id().subdetId() != EcalBarrel )  ) {
+     //std::cout << "No basket correction if no hits or for endacap!" << std::endl;
      return;
   }
 

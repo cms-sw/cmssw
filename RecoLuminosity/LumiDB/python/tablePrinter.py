@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 #
 # pretty table printer
 # written by George Sakkis
@@ -48,7 +49,7 @@ def indent(rows,hasHeader=False,headerChar='-',delim=' | ',justify='center',
     return output.getvalue()
    
 if __name__ == '__main__':
-    from wordWrappers import wrap_always,wrap_onspace,wrap_onspace_strict
+    from .wordWrappers import wrap_always,wrap_onspace,wrap_onspace_strict
     labels=('First Name','Last Name','Age','Position')
     data="""John,Smith,24,Software Engineer
     Mary,Brohowski,23,Sales Manager

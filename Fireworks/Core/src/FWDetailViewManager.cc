@@ -65,6 +65,10 @@ FWDetailViewManager::~FWDetailViewManager()
    gEve->GetWindowManager()->Disconnect("WindowDeleted(TEveWindow*)", this, "eveWindowDestroyed(TEveWindow*)" );
 }
 
+FWDetailViewManager::ViewFrame::ViewFrame(TEveCompositeFrameInMainFrame *f, std::unique_ptr<FWDetailViewBase> v, TEveWindow* w):
+  m_eveFrame(f), m_detailView(std::move(v)), m_eveWindow(w) {}
+FWDetailViewManager::ViewFrame::~ViewFrame() = default;
+
 void
 FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& iViewName)
 {
@@ -92,7 +96,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
       }
    }
    assert(!match.empty());
-   FWDetailViewBase* detailView = FWDetailViewFactory::get()->create(match);
+   std::unique_ptr<FWDetailViewBase> detailView{FWDetailViewFactory::get()->create(match)};
    assert(nullptr!=detailView);
 
    TEveWindowSlot* ws  = (TEveWindowSlot*)(eveFrame->GetEveWindow());
@@ -103,7 +107,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    TGMainFrame* mf = (TGMainFrame*)(eveFrame->GetParent());
    mf->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index())); 
   
-   m_views.push_back(ViewFrame(eveFrame, detailView, eveFrame->GetEveWindow()));
+   m_views.emplace_back(eveFrame, std::move(detailView), eveFrame->GetEveWindow());
 
    mf->MapRaised();
 }
@@ -224,7 +228,6 @@ FWDetailViewManager::eveWindowDestroyed(TEveWindow* ew)
       if (ew == i->m_eveWindow)
       {
          // printf("========================== delete %s \n", ew->GetElementName());
-         delete i->m_detailView;
          m_views.erase(i);
          break;
       }

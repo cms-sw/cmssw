@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistryRcd.h"
+#include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 
 #include <iostream>

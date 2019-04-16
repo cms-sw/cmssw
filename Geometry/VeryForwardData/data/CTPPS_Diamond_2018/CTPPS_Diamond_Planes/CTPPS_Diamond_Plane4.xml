@@ -108,76 +108,76 @@
 
 
     <!-- ******** Pattern 3 ********* -->
-    <PosPart copyNumber="309">
+    <PosPart copyNumber="302">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment4:CTPPS_Diamond_Segment"/>
       <Translation x="[Str5_dx]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3091">
+    <PosPart copyNumber="3021">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment4:Metalized_Layer"/>
       <Translation x="[Str5_dx]" y="0*mm" z="-([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3092">
+    <PosPart copyNumber="3022">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment4:Metalized_Layer"/>
       <Translation x="[Str5_dx]" y="0*mm" z="([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
-    <PosPart copyNumber="303">
+    <PosPart copyNumber="309">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment3:CTPPS_Diamond_Segment"/>
       <Translation x="[Str6_dx]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3031">
+    <PosPart copyNumber="3091">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment3:Metalized_Layer"/>
       <Translation x="[Str6_dx]" y="0*mm" z="-([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3032">
+    <PosPart copyNumber="3092">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment3:Metalized_Layer"/>
       <Translation x="[Str6_dx]" y="0*mm" z="([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
-    <PosPart copyNumber="308">
+    <PosPart copyNumber="303">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment2:CTPPS_Diamond_Segment"/>
       <Translation x="[Str7_dx]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3081">
+    <PosPart copyNumber="3031">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment2:Metalized_Layer"/>
       <Translation x="[Str7_dx]" y="0*mm" z="-([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3082">
+    <PosPart copyNumber="3032">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment2:Metalized_Layer"/>
       <Translation x="[Str7_dx]" y="0*mm" z="([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
-    <PosPart copyNumber="304">
+    <PosPart copyNumber="308">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment1:CTPPS_Diamond_Segment"/>
       <Translation x="[Str8_dx]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3041">
+    <PosPart copyNumber="3081">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment1:Metalized_Layer"/>
       <Translation x="[Str8_dx]" y="0*mm" z="-([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3042">
+    <PosPart copyNumber="3082">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern3_Segment1:Metalized_Layer"/>
       <Translation x="[Str8_dx]" y="0*mm" z="([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
@@ -185,38 +185,38 @@
     </PosPart>
 
     <!-- ******** Pattern 2 ********* -->
-    <PosPart copyNumber="307">
+    <PosPart copyNumber="304">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern2_Segment2:CTPPS_Diamond_Segment"/>
       <Translation x="[Str9_dx]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3071">
+    <PosPart copyNumber="3041">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern2_Segment2:Metalized_Layer"/>
       <Translation x="[Str9_dx]" y="0*mm" z="-([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3072">
+    <PosPart copyNumber="3042">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern2_Segment2:Metalized_Layer"/>
       <Translation x="[Str9_dx]" y="0*mm" z="([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
 
-    <PosPart copyNumber="305">
+    <PosPart copyNumber="307">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern2_Segment1:CTPPS_Diamond_Segment"/>
       <Translation x="[Str10_dx]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3051">
+    <PosPart copyNumber="3071">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern2_Segment1:Metalized_Layer"/>
       <Translation x="[Str10_dx]" y="0*mm" z="-([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3052">
+    <PosPart copyNumber="3072">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern2_Segment1:Metalized_Layer"/>
       <Translation x="[Str10_dx]" y="0*mm" z="([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
@@ -225,19 +225,19 @@
 
     <!-- ******** Pattern 2 ********* -->
     
-    <PosPart copyNumber="302">
+    <PosPart copyNumber="305">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern2_Segment2:CTPPS_Diamond_Segment"/>
       <Translation x="[Str11_dx]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3021">
+    <PosPart copyNumber="3051">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern2_Segment2:Metalized_Layer"/>
       <Translation x="[Str11_dx]" y="0*mm" z="-([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
-    <PosPart copyNumber="3022">
+    <PosPart copyNumber="3052">
       <rParent name="CTPPS_Diamond_Plane"/>
       <rChild name="CTPPS_Diamond_Pattern2_Segment2:Metalized_Layer"/>
       <Translation x="[Str11_dx]" y="0*mm" z="([CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:Metalized_thick])/2"/>

@@ -134,6 +134,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 
   if ( foundPixelClusters ) {
     // Pixel Clusters 
+    clusterTPList->addKeyID(pixelClusters.id());
     for (edmNew::DetSetVector<SiPixelCluster>::const_iterator iter  = pixelClusters->begin(); 
                                                             iter != pixelClusters->end(); ++iter) {
       uint32_t detid = iter->id(); 
@@ -168,6 +169,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 
   if ( foundStripClusters ) {
     // Strip Clusters
+    clusterTPList->addKeyID(stripClusters.id());
     for (edmNew::DetSetVector<SiStripCluster>::const_iterator iter  = stripClusters->begin(false), eter = stripClusters->end(false); 
 	 iter != eter; ++iter) {
       if (!(*iter).isValid()) continue;
@@ -202,8 +204,8 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   }
 
   if ( foundPhase2OTClusters ) {
-
     // Phase2 Clusters
+    clusterTPList->addKeyID(phase2OTClusters.id());
     if(phase2OTClusters.isValid()){
       for (edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator iter  = phase2OTClusters->begin(false), eter = phase2OTClusters->end(false);
                                                                 iter != eter; ++iter) {

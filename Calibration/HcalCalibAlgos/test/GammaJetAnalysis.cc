@@ -5,7 +5,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"

@@ -39,9 +39,9 @@ class testeventprocessor: public CppUnit::TestFixture {
   CPPUNIT_TEST(beginEndTest);
   CPPUNIT_TEST(cleanupJobTest);
   CPPUNIT_TEST(activityRegistryTest);
-  CPPUNIT_TEST(moduleFailureTest);
   CPPUNIT_TEST(endpathTest);
   CPPUNIT_TEST(serviceConfigSaveTest);
+  CPPUNIT_TEST(moduleFailureTest);
   CPPUNIT_TEST_SUITE_END();
 
  public:

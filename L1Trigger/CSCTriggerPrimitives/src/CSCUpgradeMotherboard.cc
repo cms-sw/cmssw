@@ -1,4 +1,4 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboard.h"
 
 CSCUpgradeMotherboard::LCTContainer::LCTContainer(unsigned int trig_window_size)
   : match_trig_window_size_(trig_window_size)

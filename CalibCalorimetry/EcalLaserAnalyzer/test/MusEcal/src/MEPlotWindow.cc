@@ -8,7 +8,7 @@ using namespace std;
 #include <TMath.h>
 #include <TRootEmbeddedCanvas.h>
 
-ClassImp(MEPlotWindow)
+ClassImp(MEPlotWindow);
 
 MEPlotWindow::MEPlotWindow( const TGWindow *p, MusEcalGUI* main, const char* name, UInt_t w, UInt_t h, 		const char* str1,
 			    const char* str2,

@@ -19,15 +19,15 @@
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 /* C++ Headers */
 #include <iostream>
 using namespace std;
 
-using namespace dd;
-using namespace dd::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 /* ====================================================================== */
 
@@ -82,9 +82,9 @@ DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGeometr
 
 // Calling function has the responsibility to delete the allocated RectangularPlaneBounds object
 RectangularPlaneBounds* dtGeometryBuilder::getRecPlaneBounds( const std::vector<double>::const_iterator &shapeStart ) {
-  float width =     CONVERT_TO( *(shapeStart), cm );     // r-phi  dimension - different in different chambers
-  float length =    CONVERT_TO( *(shapeStart + 1), cm );    // z      dimension - constant
-  float thickness = CONVERT_TO( *(shapeStart + 2), cm );   // radial thickness - almost constant
+  float width =     convertMmToCm( *(shapeStart) );     // r-phi  dimension - different in different chambers
+  float length =    convertMmToCm( *(shapeStart + 1) );    // z      dimension - constant
+  float thickness = convertMmToCm( *(shapeStart + 2) );   // radial thickness - almost constant
   return new RectangularPlaneBounds(width, length, thickness);
 }
 
@@ -150,7 +150,7 @@ DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
   // Loop on wires
   int firstWire = static_cast<int>(*(shapeStartPtr + 4 )); //par[4]);
   int WCounter = static_cast<int>(*(shapeStartPtr  + 5 )); //par[5]);
-  double sensibleLength = CONVERT_TO( *(shapeStartPtr  + 6 ), cm ); //par[6] in cm;
+  double sensibleLength = convertMmToCm( *(shapeStartPtr  + 6 ) ); //par[6] in cm;
   DTTopology topology(firstWire, WCounter, sensibleLength);
 
   DTLayerType layerType;

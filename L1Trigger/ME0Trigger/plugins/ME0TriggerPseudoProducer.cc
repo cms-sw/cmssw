@@ -1,5 +1,5 @@
 #include "L1Trigger/ME0Trigger/plugins/ME0TriggerPseudoProducer.h"
-#include "L1Trigger/ME0Trigger/src/ME0TriggerPseudoBuilder.h"
+#include "L1Trigger/ME0Trigger/interface/ME0TriggerPseudoBuilder.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -1,8 +1,9 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import sys
 import os
 import subprocess
-from TkAlExceptions import AllInOneError
+from .TkAlExceptions import AllInOneError
 
 # script which needs to be sourced for use of crab
 crabSourceScript = '/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh'

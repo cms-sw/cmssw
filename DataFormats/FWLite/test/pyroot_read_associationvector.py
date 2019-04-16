@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from builtins import range
 import ROOT
 import sys
 from DataFormats.FWLite import Events, Handle
@@ -16,7 +17,7 @@ for event in events:
     #print "###################### ", count
     event.getByLabel (label, handle)
     cont = handle.product()
-    values = [ cont.value(i).value for i in xrange(len(cont))]
+    values = [ cont.value(i).value for i in range(len(cont))]
     for i,v in enumerate(handle.product()):
       #print v.second.value, values[i]
       if v.second.value != values[i]:

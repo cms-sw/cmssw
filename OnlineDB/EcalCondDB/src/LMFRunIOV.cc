@@ -269,7 +269,7 @@ void LMFRunIOV::getParameters(ResultSet *rset) noexcept(false) {
   setString("subrun_start", dh.dateToTm(start).str());
   Date stop = rset->getDate(7);
   setString("subrun_end", dh.dateToTm(stop).str());
-  setString("subrun_type", getOraString(rset,8));
+  setString("subrun_type", rset->getString(8));
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
   setString("db_timestamp", rset->getTimestamp(9).toText("YYYY-MM-DD HH24:MI:SS", 0));
 #else
@@ -369,7 +369,7 @@ std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const vector<int>& par,
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
     throw(std::runtime_error(m_className + "::" + method + ": " +
-                             getOraMessage(&e)));
+                             e.getMessage()));
   }
   return l;
 }

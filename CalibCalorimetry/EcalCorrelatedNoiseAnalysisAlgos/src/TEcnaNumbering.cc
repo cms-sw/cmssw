@@ -10,7 +10,7 @@
 //  Documentation: see TEcnaNumbering.h
 //--------------------------------------
 
-ClassImp(TEcnaNumbering)
+ClassImp(TEcnaNumbering);
 //-------------------------------------------------------------------------------------------------------
 //
 //  Building of the numbering for the Ecal channels (EB and EE)

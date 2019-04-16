@@ -279,7 +279,7 @@ PixelHitMatcher::compatibleHits
     LogDebug("") <<"[PixelHitMatcher::compatibleHits] nbr of hits compatible with extrapolation to first layer: " << pixelMeasurements.size();
     for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
      if (m->recHit()->isValid()) {
-       float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
+       float localDphi = normalizedPhi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
        if(std::abs(localDphi)>2.5)continue;
 	CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
@@ -309,7 +309,7 @@ PixelHitMatcher::compatibleHits
 
     for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
       if (m->recHit()->isValid()) {
-	float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
+	float localDphi = normalizedPhi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
 	if(std::abs(localDphi)>2.5)continue;
         CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
@@ -350,7 +350,7 @@ PixelHitMatcher::compatibleHits
 
       for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
 	if (m->recHit()->isValid()) {
-	  float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi());
+	  float localDphi = normalizedPhi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi());
 	  if(std::abs(localDphi)>2.5)continue;
 	  CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				m->forwardPredictedState().globalPosition().y(),
@@ -371,7 +371,7 @@ PixelHitMatcher::compatibleHits
 
 	for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
 	  if (m->recHit()->isValid()) {
-	    float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
+	    float localDphi = normalizedPhi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
 	    if(std::abs(localDphi)>2.5)continue;
 	    CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				  m->forwardPredictedState().globalPosition().y(),
@@ -436,7 +436,7 @@ PixelHitMatcher::compatibleHits
     if(!secondHit.measurementsInNextLayers().empty()){
       for(unsigned int shit=0; shit<secondHit.measurementsInNextLayers().size(); shit++)
       	{
-	  float dphi = normalized_phi(pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().barePhi()) ;
+	  float dphi = normalizedPhi(pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().barePhi()) ;
 	  if (std::abs(dphi)<2.5)
 	    {
 	      ConstRecHitPointer pxrh = validMeasurements[i].recHit();

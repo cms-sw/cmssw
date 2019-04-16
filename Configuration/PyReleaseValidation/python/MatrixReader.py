@@ -234,6 +234,8 @@ class MatrixReader(object):
                                                     
             for (stepI,step) in enumerate(stepList):
                 stepName=step
+                if self.relvalModule.steps[stepName] is None:
+                    continue
                 if self.wm:
                     #cannot put a certain number of things in wm
                     if stepName in [

@@ -33,10 +33,7 @@
    radius of conversion for this pair and fill the ConversionInfo
 */
 
-class ConversionFinder {
- public:
-  ConversionFinder();
-  ~ConversionFinder();
+namespace egammaTools {
   //bField has to be supplied in Tesla
 
   //returns a vector of Conversion Infos.
@@ -61,16 +58,6 @@ class ConversionFinder {
 				   const double bFieldAtOrigin,
 				   const double minFracSharedHits = 0.45);
 
-  //used internally, so call this only if you know what you're doing.
-  ConversionInfo getConversionInfo(const reco::Track *el_track,
-				   const reco::Track *candPartnerTk,
-				   const double bFieldAtOrigin);
-
-  const reco::Track* getElectronTrack(const reco::GsfElectron &, const float minFracSharedHits = 0.45);
-
-  const reco::Track* getElectronTrack(const reco::GsfElectronCore &, const float minFracSharedHits = 0.45);
-
-
   //takes in a vector of candidate conversion partners
   //and arbitrates between them returning the one with the
   //smallest R=sqrt(dist*dist + dcot*dcot)
@@ -79,13 +66,6 @@ class ConversionFinder {
 
   //places different cuts on dist, dcot, delmissing hits and arbitration based on R = sqrt(dist*dist + dcot*dcot)
   ConversionInfo findBestConversionMatch(const std::vector<ConversionInfo>& v_convCandidates);
-
-  //function below is only for backwards compatibility
-  static std::pair<double, double> getConversionInfo(math::XYZTLorentzVector trk1_p4,
-						     int trk1_q, float trk1_d0,
-						     math::XYZTLorentzVector trk2_p4,
-						     int trk2_q, float trk2_d0,
-						     float bFieldAtOrigin);
 
   //for backwards compatibility. Does not use the GSF track collection. This function will be
   //deprecated soon
@@ -98,7 +78,5 @@ class ConversionFinder {
   // DEPRECATED
   bool isFromConversion( const ConversionInfo &, double maxAbsDist = 0.02, double maxAbsDcot = 0.02);
 
- private:
-
-};
+}
 #endif

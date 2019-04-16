@@ -31,8 +31,6 @@ GeometryConf={
     'Extended2023D17' : 'Extended2023D17,Extended2023D17Reco',
     'Extended2023D19' : 'Extended2023D19,Extended2023D19Reco',
     'Extended2023D21' : 'Extended2023D21,Extended2023D21Reco',
-    'Extended2023D22' : 'Extended2023D22,Extended2023D22Reco',
-    'Extended2023D23' : 'Extended2023D23,Extended2023D23Reco',
     'Extended2023D24' : 'Extended2023D24,Extended2023D24Reco',
     'Extended2023D25' : 'Extended2023D25,Extended2023D25Reco',
     'Extended2023D28' : 'Extended2023D28,Extended2023D28Reco',
@@ -47,4 +45,6 @@ GeometryConf={
     'Extended2023D37' : 'Extended2023D37,Extended2023D37Reco',
     'Extended2023D38' : 'Extended2023D38,Extended2023D38Reco',
     'Extended2023D39' : 'Extended2023D39,Extended2023D39Reco',
+    'Extended2023D40' : 'Extended2023D40,Extended2023D40Reco',
+    'Extended2023D41' : 'Extended2023D41,Extended2023D41Reco',
     }

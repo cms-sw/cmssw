@@ -11,7 +11,7 @@
 //  Documentation: see TEcnaNArrayD.h
 //--------------------------------------
 
-ClassImp(TEcnaNArrayD)
+ClassImp(TEcnaNArrayD);
 //______________________________________________________________________________
 //
 

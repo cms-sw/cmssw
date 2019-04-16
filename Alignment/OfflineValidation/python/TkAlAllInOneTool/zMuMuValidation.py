@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 import os
-import configTemplates
-import globalDictionaries
-from genericValidation import GenericValidationData, ValidationWithPlots
-from helperFunctions import replaceByMap
-from TkAlExceptions import AllInOneError
+from . import configTemplates
+from . import globalDictionaries
+from .genericValidation import GenericValidationData, ValidationWithPlots
+from .helperFunctions import replaceByMap
+from .TkAlExceptions import AllInOneError
 
 
 class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
@@ -96,7 +97,7 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
 
     @property
     def trackcollection(self):
-        from plottingOptions import PlottingOptions
+        from .plottingOptions import PlottingOptions
         resonance = PlottingOptions(self.config, self.valType)["resonance"]
         if resonance == "Z":
             return 'ALCARECOTkAlZMuMu'

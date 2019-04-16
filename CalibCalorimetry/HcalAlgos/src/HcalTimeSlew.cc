@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-void HcalTimeSlew::addM2ParameterSet(double tzero, double slope, double tmax){
+void HcalTimeSlew::addM2ParameterSet(float tzero, float slope, float tmax){
   parametersM2_.emplace_back(tzero,slope,tmax);
 }
 
@@ -11,8 +11,8 @@ void HcalTimeSlew::addM3ParameterSet(double cap, double tspar0, double tspar1, d
 }
 
 // Used by M2/Simulation
-double HcalTimeSlew::delay(double fC, BiasSetting bias) const {  
-  double rawDelay = parametersM2_[bias].tzero + parametersM2_[bias].slope*log(fC);
+float HcalTimeSlew::delay(float fC, BiasSetting bias) const {
+  float rawDelay = parametersM2_[bias].tzero + parametersM2_[bias].slope*std::log(fC);
   return (rawDelay < 0)?(0):((rawDelay > parametersM2_[bias].tmax)?(parametersM2_[bias].tmax):(rawDelay));
 }
 
@@ -24,7 +24,7 @@ double HcalTimeSlew::delay(double fC, ParaSource source, BiasSetting bias, bool 
   }
   else if(isHPD){
     rawDelay = std::fmin( parametersM3_[source].cap, 
-			  parametersM3_[source].tspar0+parametersM3_[source].tspar1*log(fC+parametersM3_[source].tspar2 ));
+			  parametersM3_[source].tspar0+parametersM3_[source].tspar1*std::log(fC+parametersM3_[source].tspar2 ));
   }
   else{
     rawDelay = parametersM3_[source].cap+parametersM3_[source].tspar0_siPM;  

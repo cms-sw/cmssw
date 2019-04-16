@@ -19,6 +19,8 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
     TrackerKinkFinderParametersBlock,
 
     fillEnergy = cms.bool(True),
+    storeCrossedHcalRecHits = cms.bool(True),
+
     # OR
     maxAbsPullX = cms.double(3.0),
     maxAbsEta = cms.double(3.0),

@@ -1,16 +1,18 @@
+from __future__ import absolute_import
+from builtins import range
 import os
 import random
 
-import globalDictionaries
-import configTemplates
+from . import globalDictionaries
+from . import configTemplates
 
-from genericValidation import ValidationMetaClass, ValidationWithComparison, ValidationWithPlots
-from helperFunctions import getCommandOutput2, replaceByMap, cppboolstring
-from offlineValidation import OfflineValidation
-from primaryVertexValidation import PrimaryVertexValidation
-from TkAlExceptions import AllInOneError
-from trackSplittingValidation import TrackSplittingValidation
-from zMuMuValidation import ZMuMuValidation
+from .genericValidation import ValidationMetaClass, ValidationWithComparison, ValidationWithPlots
+from .helperFunctions import getCommandOutput2, replaceByMap, cppboolstring
+from .offlineValidation import OfflineValidation
+from .primaryVertexValidation import PrimaryVertexValidation
+from .TkAlExceptions import AllInOneError
+from .trackSplittingValidation import TrackSplittingValidation
+from .zMuMuValidation import ZMuMuValidation
 
 class BasePlottingOptions(object):
     __metaclass__ = ValidationMetaClass
@@ -169,8 +171,6 @@ class PlottingOptionsZMuMu(BasePlottingOptions):
                 "rebineta": "2",
                 "rebinpt": "8",
                 "AutoSetRange": "false",                
-                "CustomMinY": "90.85",
-                "CustomMaxY": "91.5",
                }
     needpackages = {"MuonAnalysis/MomentumScaleCalibration"}
     validationclass = ZMuMuValidation

@@ -11,20 +11,17 @@
 #include "G4ThreeVector.hh"
 
 class HGCNumberingScheme {
-
 public:
-
   enum HGCNumberingParameters { HGCCellSize };
 
-  HGCNumberingScheme(const HGCalDDDConstants& hgc, std::string& name );
+  HGCNumberingScheme(const HGCalDDDConstants& hgc, std::string& name);
 
   ~HGCNumberingScheme();
 
   /**
      @short assigns the det id to a hit
    */
-  uint32_t getUnitID(ForwardSubdetector subdet, int layer, int module,
-		     int cell, int iz, const G4ThreeVector &pos);
+  uint32_t getUnitID(ForwardSubdetector subdet, int layer, int module, int cell, int iz, const G4ThreeVector& pos);
 
   /**
      @short maps a hit position to a sequential cell in a trapezoid surface defined by h,b,t
@@ -34,10 +31,9 @@ public:
   /**
      @short inverts the cell number in a trapezoid surface to local coordinates
    */
-  std::pair<float,float> getLocalCoords(int cell, int layer);
+  std::pair<float, float> getLocalCoords(int cell, int layer);
 
 private:
-  
   HGCNumberingScheme() = delete;
   const HGCalDDDConstants& hgcons_;
 };

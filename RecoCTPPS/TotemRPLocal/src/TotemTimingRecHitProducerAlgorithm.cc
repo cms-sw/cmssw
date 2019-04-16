@@ -7,20 +7,16 @@
  *
  ****************************************************************************/
 
-#include "RecoCTPPS/TotemRPLocal/interface/TotemTimingRecHitProducerAlgorithm.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "RecoCTPPS/TotemRPLocal/interface/TotemTimingRecHitProducerAlgorithm.h"
 
 #include <numeric>
 
 //----------------------------------------------------------------------------------------------------
 
-const float TotemTimingRecHitProducerAlgorithm::SINC_COEFFICIENT = M_PI*2 / 7.8;
-
-//----------------------------------------------------------------------------------------------------
-
 TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet& iConfig) :
-  sampicConversions_(iConfig.getParameter<bool>("mergeTimePeaks"),
-                     iConfig.getParameter<edm::FileInPath>("calibrationFile").fullPath()),
+  mergeTimePeaks_  (iConfig.getParameter<bool>  ("mergeTimePeaks")),
   baselinePoints_  (iConfig.getParameter<int>   ("baselinePoints")),
   saturationLimit_ (iConfig.getParameter<double>("saturationLimit")),
   cfdFraction_     (iConfig.getParameter<double>("cfdFraction")),
@@ -29,8 +25,19 @@ TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm
   hysteresis_      (iConfig.getParameter<double>("hysteresis"))
 {}
 
+//----------------------------------------------------------------------------------------------------
+
 void
-TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry* geom, const edm::DetSetVector<TotemTimingDigi>& input,
+TotemTimingRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib)
+{
+  sampicConversions_.reset(new TotemTimingConversions(mergeTimePeaks_, calib));
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void
+TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
+                                          const edm::DetSetVector<TotemTimingDigi>& input,
                                           edm::DetSetVector<TotemTimingRecHit>& output)
 {
   for (const auto& vec : input) {
@@ -40,7 +47,7 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry* geom, const edm::
     float x_width = 0.f, y_width = 0.f, z_width = 0.f;
 
     // retrieve the geometry element associated to this DetID ( if present )
-    const DetGeomDesc* det = geom->getSensorNoThrow(detid);
+    const DetGeomDesc* det = geom.getSensorNoThrow(detid);
 
     if (det) {
       x_pos = det->translation().x();
@@ -54,13 +61,16 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry* geom, const edm::
     else
       throw cms::Exception("TotemTimingRecHitProducerAlgorithm") << "Failed to retrieve a sensor for " << detid;
 
+    if (!sampicConversions_)
+      throw cms::Exception("TotemTimingRecHitProducerAlgorithm") << "No timing conversion retrieved.";
+
     edm::DetSet<TotemTimingRecHit>& rec_hits = output.find_or_insert(detid);
 
     for (const auto& digi : vec) {
-      const float triggerCellTimeInstant(sampicConversions_.getTriggerTime(digi));
-      const float timePrecision(sampicConversions_.getTimePrecision(digi));
-      const std::vector<float> time(sampicConversions_.getTimeSamples(digi));
-      std::vector<float> data(sampicConversions_.getVoltSamples(digi));
+      const float triggerCellTimeInstant(sampicConversions_->triggerTime(digi));
+      const float timePrecision(sampicConversions_->timePrecision(digi));
+      const std::vector<float> time(sampicConversions_->timeSamples(digi));
+      std::vector<float> data(sampicConversions_->voltSamples(digi));
 
       auto max_it = std::max_element(data.begin(), data.end());
 
@@ -87,6 +97,8 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry* geom, const edm::
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------
 
 TotemTimingRecHitProducerAlgorithm::RegressionResults
 TotemTimingRecHitProducerAlgorithm::simplifiedLinearRegression(const std::vector<float>& time, const std::vector<float>& data,
@@ -124,8 +136,10 @@ TotemTimingRecHitProducerAlgorithm::simplifiedLinearRegression(const std::vector
   return results;
 }
 
+//----------------------------------------------------------------------------------------------------
+
 int
-TotemTimingRecHitProducerAlgorithm::fastDiscriminator(const std::vector<float>& data, const float& threshold) const
+TotemTimingRecHitProducerAlgorithm::fastDiscriminator(const std::vector<float>& data, float threshold) const
 {
   int threholdCrossingIndex = -1;
   bool above = false;

@@ -52,7 +52,7 @@ int FEConfigWeightInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigWeightInfo::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigWeightInfo::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -76,7 +76,7 @@ void FEConfigWeightInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigWeightInfo::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigWeightInfo::prepareWrite():  ")+e.getMessage()));
   }
 
 }
@@ -114,7 +114,7 @@ void FEConfigWeightInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigWeightInfo::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigWeightInfo::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -149,14 +149,14 @@ void FEConfigWeightInfo::fetchData(FEConfigWeightInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
     result->setNumberOfGroups(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigWeightInfo::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigWeightInfo::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -175,14 +175,14 @@ void FEConfigWeightInfo::fetchLastData(FEConfigWeightInfo * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
     result->setNumberOfGroups(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigWeightInfo::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigWeightInfo::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -212,7 +212,7 @@ int FEConfigWeightInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigWeightInfo::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigWeightInfo::fetchID:  ")+e.getMessage()));
   }
 
   return m_ID;
@@ -236,7 +236,7 @@ void FEConfigWeightInfo::setByID(int id)
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
        this->setId(rset->getInt(1));
-       this->setConfigTag(getOraString(rset,2));
+       this->setConfigTag(rset->getString(2));
        this->setVersion(rset->getInt(3));
        this->setNumberOfGroups(rset->getInt(4));
        Date dbdate = rset->getDate(5);
@@ -247,7 +247,7 @@ void FEConfigWeightInfo::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error(std::string("FEConfigWeightInfo::setByID:  ")+getOraMessage(&e)));
+     throw(std::runtime_error(std::string("FEConfigWeightInfo::setByID:  ")+e.getMessage()));
    }
 }
 

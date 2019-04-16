@@ -11,7 +11,7 @@
 #include "XML/Utilities.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "DetectorDescription/DDCMS/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 #include "DetectorDescription/DDCMS/interface/DDNamespace.h"
 #include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
@@ -31,6 +31,7 @@
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
+using namespace geant_units::operators;
 
 namespace dd4hep {
 
@@ -654,6 +655,9 @@ template <> void Converter<DDLPosPart>::operator()( xml_h element ) const {
   int         copy        = e.attr<int>( DD_CMU( copyNumber ));
   string      parentName  = ns.attr<string>( e.child( DD_CMU( rParent )), _U( name ));
   string      childName   = ns.attr<string>( e.child( DD_CMU( rChild )), _U( name ));
+
+  if( strchr( parentName.c_str(), NAMESPACE_SEP ) == nullptr )
+    parentName = ns.name() + parentName;
   Volume      parent      = ns.volume( parentName );
   
   if( strchr( childName.c_str(), NAMESPACE_SEP ) == nullptr )
@@ -1168,8 +1172,8 @@ template <> void Converter<DDLDivision>::operator()( xml_h element ) const {
   TClass* cl = shape->IsA();
   if(  cl == TGeoTubeSeg::Class()) {
     const TGeoTubeSeg* sh = ( const TGeoTubeSeg* )shape;
-    double widthInDeg = ConvertTo( width, deg );
-    double startInDeg = ConvertTo( offset, deg );
+    double widthInDeg = convertRadToDeg( width );
+    double startInDeg = convertRadToDeg( offset );
     int numCopies = ( int )(( sh->GetPhi2() - sh->GetPhi1())/ widthInDeg );
     printout( ns.context()->debug_placements ? ALWAYS : DEBUG,
 	      "DD4CMS","+++    ...divide %s along %s (%d) with offset %6.3f deg and %6.3f deg to produce %d copies",
@@ -1232,7 +1236,7 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const {
 	   "DD4CMS","+++ Start executing algorithm %s....", type.c_str());
 
   long ret = PluginService::Create<long>(type, &description, ns.context(), &element, &sd);
-  if(ret == 1) {
+  if(ret == s_executed) {
     printout(ns.context()->debug_algorithms ? ALWAYS : DEBUG,
 	     "DD4CMS", "+++ Executed algorithm: %08lX = %s", ret, name.c_str());
     return;
@@ -1311,12 +1315,11 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
   cms::DDParsingContext* context = _param<cms::DDParsingContext>();
   DDRegistry* res = _option<DDRegistry>();
   cms::DDNamespace ns( context );
-
+  int count = 0;
+  
   printout( context->debug_constants ? ALWAYS : DEBUG,
 	    "DD4CMS","+++ RESOLVING %ld unknown constants.....", res->unresolvedConst.size());
 
-  // FIXME: Avoid an infinite loop in a case
-  // when a referred constant is not defined
   while( !res->unresolvedConst.empty()) {
     for( auto i : res->unresolvedConst ) {
       const string& n = i.first;
@@ -1347,6 +1350,7 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
         break;
       }
     }
+    if( ++count > 10000) break;
   }
   if( !res->unresolvedConst.empty()) {
     for(const auto& e : res->unresolvedConst)

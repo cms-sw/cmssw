@@ -61,7 +61,6 @@ void TTClusterAlgorithm_neighbor< Ref_Phase2TrackerDigi_ >::addNeighbors( std::v
   /// iterators afterward remain valid.
   cluster.reserve( input.size() );
   typename std::vector< Ref_Phase2TrackerDigi_ >::iterator clusIter;
-  typename std::vector< Ref_Phase2TrackerDigi_ >::iterator inIter;
 
   /// Loop over hits
   for ( clusIter = cluster.begin();

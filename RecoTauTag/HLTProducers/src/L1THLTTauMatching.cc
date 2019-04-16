@@ -47,8 +47,8 @@ void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const ed
       const PFTau &  myJet = (*tauJets)[iJet];
       deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
       if(deltaR < matchingR ) {
-        if(myJet.leadPFChargedHadrCand().isNonnull()){
-          a =  myJet.leadPFChargedHadrCand()->vertex();  
+        if(myJet.leadChargedHadrCand().isNonnull()){
+          a =  myJet.leadChargedHadrCand()->vertex();  
         }
         PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4(), a);
         if(myJet.pt() > mEt_Min) {

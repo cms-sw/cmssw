@@ -222,7 +222,7 @@ int main() {
     go<USELOG>();
 
     go<USELOG, true>();
-  } catch(cuda::runtime_error ex) {
+  } catch(cuda::runtime_error &ex) {
     std::cerr << "CUDA error: " << ex.what() << std::endl;
     exit(EXIT_FAILURE);
   } catch(...) {

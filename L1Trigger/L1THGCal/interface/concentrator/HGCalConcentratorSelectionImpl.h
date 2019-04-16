@@ -32,6 +32,10 @@ class HGCalConcentratorSelectionImpl
     int      TCThresholdBH_ADC() const {return TCThresholdBH_ADC_;}
     double   TCThresholdBH_MIP() const {return TCThresholdBH_MIP_;} 
 
+    void eventSetup(const edm::EventSetup& es) {
+      triggerTools_.eventSetup(es);
+    }
+
   private:
 
     size_t   nData_;

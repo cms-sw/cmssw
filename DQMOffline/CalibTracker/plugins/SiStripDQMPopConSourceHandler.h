@@ -35,7 +35,7 @@ public:
   virtual T* getObj() const = 0;
 
   virtual std::string getMetaDataString() const;
-  virtual bool checkForCompatibility( const std::string otherMetaData ) const { return otherMetaData != getMetaDataString(); }
+  virtual bool checkForCompatibility( const std::string& otherMetaData ) const { return otherMetaData != getMetaDataString(); }
 
   // additional methods needed for SiStripPopConDQMEDHarvester
   virtual void initES(const edm::EventSetup&) {}
@@ -89,7 +89,7 @@ void SiStripDQMPopConSourceHandler<T>::getNewObjects()
          << this->logDBEntry().payloadToken  << "\n"
          << this->logDBEntry().exectime      << "\n"
          << this->logDBEntry().execmessage   << "\n";
-      if ( this->logDBEntry().usertext != "" )
+      if ( !this->logDBEntry().usertext.empty() )
         ss<< "\n-- user text " << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@")) ;
     } else {
       ss << " First object for this tag ";
@@ -121,7 +121,7 @@ bool SiStripDQMPopConSourceHandler<T>::isTransferNeeded()
   std::string ss_logdb{};
 
   //get log information from previous upload
-  if ( this->logDBEntry().usertext != "" )
+  if ( !this->logDBEntry().usertext.empty() )
     ss_logdb = this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@")+2);
 
   std::string ss = getMetaDataString();

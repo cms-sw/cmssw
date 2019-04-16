@@ -1,13 +1,13 @@
 #include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalMulticlusteringImpl.h"    
-#include "L1Trigger/L1THGCal/interface/backend/HGCalMulticlusteringHistoImpl.h"
+#include "L1Trigger/L1THGCal/interface/backend/HGCalHistoSeedingImpl.h"
+#include "L1Trigger/L1THGCal/interface/backend/HGCalHistoClusteringImpl.h"
 
 class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2ProcessorBase 
 {
@@ -24,7 +24,8 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
         multiclustering_ = std::make_unique<HGCalMulticlusteringImpl>( conf.getParameterSet("C3d_parameters") );
       }else if(typeMulticluster.find("Histo")!=std::string::npos){
         multiclusteringAlgoType_ = HistoC3d;
-        multiclusteringHisto_ = std::make_unique<HGCalMulticlusteringHistoImpl>( conf.getParameterSet("C3d_parameters") );
+        multiclusteringHistoSeeding_ = std::make_unique<HGCalHistoSeedingImpl>( conf.getParameterSet("C3d_parameters") );
+        multiclusteringHistoClustering_ = std::make_unique<HGCalHistoClusteringImpl>( conf.getParameterSet("C3d_parameters") );
       }else {
         throw cms::Exception("HGCTriggerParameterError")
           << "Unknown Multiclustering type '" << typeMulticluster << "'";
@@ -37,7 +38,8 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
     {
       es.get<CaloGeometryRecord>().get("", triggerGeometry_);
       if(multiclustering_) multiclustering_->eventSetup(es);
-      if(multiclusteringHisto_) multiclusteringHisto_->eventSetup(es);
+      if(multiclusteringHistoSeeding_) multiclusteringHistoSeeding_->eventSetup(es);
+      if(multiclusteringHistoClustering_) multiclusteringHistoClustering_->eventSetup(es);
 
       /* create a persistent vector of pointers to the trigger-cells */
       std::vector<edm::Ptr<l1t::HGCalCluster>> clustersPtrs;
@@ -45,6 +47,9 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
       edm::Ptr<l1t::HGCalCluster> ptr(collHandle,i);
         clustersPtrs.push_back(ptr);
       }
+
+      /* create a vector of seed positions and their energy*/
+      std::vector<std::pair<GlobalPoint, double> > seedPositionsEnergy;
 
       /* call to multiclustering and compute shower shape*/
       switch(multiclusteringAlgoType_){
@@ -55,7 +60,8 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
           multiclustering_->clusterizeDBSCAN( clustersPtrs, collCluster3D, *triggerGeometry_);
           break;
         case HistoC3d :
-          multiclusteringHisto_->clusterizeHisto( clustersPtrs, collCluster3D, *triggerGeometry_);
+          multiclusteringHistoSeeding_->findHistoSeeds( clustersPtrs, seedPositionsEnergy);
+          multiclusteringHistoClustering_->clusterizeHisto( clustersPtrs, seedPositionsEnergy, *triggerGeometry_, collCluster3D );
           break;
         default:
           // Should not happen, clustering type checked in constructor
@@ -74,7 +80,8 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
 
     /* algorithms instances */
     std::unique_ptr<HGCalMulticlusteringImpl> multiclustering_;
-    std::unique_ptr<HGCalMulticlusteringHistoImpl> multiclusteringHisto_;
+    std::unique_ptr<HGCalHistoSeedingImpl> multiclusteringHistoSeeding_;
+    std::unique_ptr<HGCalHistoClusteringImpl> multiclusteringHistoClustering_;
 
     /* algorithm type */
     MulticlusterType multiclusteringAlgoType_;

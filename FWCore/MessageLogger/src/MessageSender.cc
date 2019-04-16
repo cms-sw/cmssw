@@ -119,7 +119,7 @@ void MessageSender::ErrorObjDeleter::operator()(ErrorObj * errorObjPtr) {
 #endif
 								// change log 1
       if ( errorSummaryIsBeingKept.load(std::memory_order_acquire) &&
-           errorObjPtr->xid().severity >= ELwarning &&
+           errorObjPtr->xid().severity >= ELwarning && drop &&
           drop->streamID < std::numeric_limits<unsigned int>::max())
       {
         auto& errorSummaryMap =errorSummaryMaps[drop->streamID];

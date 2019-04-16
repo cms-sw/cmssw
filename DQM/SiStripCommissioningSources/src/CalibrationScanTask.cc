@@ -9,11 +9,11 @@
 #include <DQMServices/Core/interface/MonitorElement.h>
 
 #include <arpa/inet.h>
-#include <sys/unistd.h>
-#include <sys/socket.h>
-#include <netdb.h>
 #include <cstdio>
 #include <fstream>
+#include <netdb.h>
+#include <sys/socket.h>
+#include <sys/unistd.h>
 
 // -----------------------------------------------------------------------------
 //
@@ -25,7 +25,7 @@ CalibrationScanTask::CalibrationScanTask( DQMStore* dqm,
 					  const edm::EventSetup& setup ) :
   CommissioningTask( dqm, conn, "CalibrationScanTask" ),
   runType_(rtype),
-  nBins_(64),
+  nBins_(0),
   lastISHA_(1000),
   lastVFS_(1000),
   lastCalChan_(1000),
@@ -35,8 +35,10 @@ CalibrationScanTask::CalibrationScanTask( DQMStore* dqm,
   run_(run)
 {
 
-  if(runType_ == sistrip::CALIBRATION) nBins_ = 64;
-  else if(runType_ == sistrip::CALIBRATION_DECO) nBins_ = 80;
+  // each latency point is 25ns, each calSel is 25/8 --> 64 points = 8 calsel + 8 latency --> as set in the DAQ configuration                                                                   
+  if(runType_ == sistrip::CALIBRATION_SCAN) nBins_ = 64;
+  // each latency point is 25ns, each calSel is 25/8 --> 80 points = 8 calsel + 10 latency --> as set in the DAQ configuration                                                                   
+  else if(runType_ == sistrip::CALIBRATION_SCAN_DECO) nBins_ = 80;
 
   LogDebug("Commissioning") << "[CalibrationScanTask::CalibrationScanTask] Constructing object...";
   // load the pedestals
@@ -67,8 +69,8 @@ CalibrationScanTask::~CalibrationScanTask() {
 void CalibrationScanTask::book() {
 
   if(calib1_.find(extrainfo_) == calib1_.end()){
-
-    // construct the histo titles and book two histograms: one per APV
+    
+    // construct the histo titles and book two histograms: one per APV --> all strip in one APV are considered to fill histogram
     std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					   runType_, 
 					   sistrip::FED_KEY, 
@@ -79,9 +81,9 @@ void CalibrationScanTask::book() {
     
     dqm()->setCurrentFolder(directory_);    
     calib1_[extrainfo_] = HistoSet();
-    if(runType_ == sistrip::CALIBRATION_SCAN) // each latency point is 25ns, each calSel is 25/8 --> 64 points = 8 calsel + 8 latency                                                                 
+    if(runType_ == sistrip::CALIBRATION_SCAN) 
       calib1_[extrainfo_].histo( dqm()->book1D( title, title, nBins_, 0, 200));
-    else if(runType_ == sistrip::CALIBRATION_SCAN_DECO) // each latency point is 25ns, each calSel is 25/8 --> 80 points = 8 calsel + 10 latency                                                      
+    else if(runType_ == sistrip::CALIBRATION_SCAN_DECO) 
       calib1_[extrainfo_].histo( dqm()->book1D( title, title, nBins_, 0, 250));
     calib1_[extrainfo_].isProfile_ = false;
     calib1_[extrainfo_].vNumOfEntries_.resize(nBins_,0);
@@ -99,9 +101,9 @@ void CalibrationScanTask::book() {
             
     dqm()->setCurrentFolder(directory_);    
     calib2_[extrainfo_] = HistoSet();
-    if(runType_ == sistrip::CALIBRATION_SCAN) // each latency point is 25ns, each calSel is 25/8 --> 64 points = 8 calsel + 8 latency                                                                  
+    if(runType_ == sistrip::CALIBRATION_SCAN) 
        calib2_[extrainfo_].histo( dqm()->book1D( title, title, nBins_, 0, 200));
-    else if(runType_ == sistrip::CALIBRATION_SCAN_DECO) // each latency point is 25ns, each calSel is 25/8 --> 80 points = 8 calsel + 10 latency                                                       
+    else if(runType_ == sistrip::CALIBRATION_SCAN_DECO) 
       calib2_[extrainfo_].histo( dqm()->book1D( title, title, nBins_, 0, 250));
     calib2_[extrainfo_].isProfile_=false;
     calib2_[extrainfo_].vNumOfEntries_.resize(nBins_,0);
@@ -136,9 +138,9 @@ void CalibrationScanTask::fill( const SiStripEventSummary& summary,
   int bin = 0;
   if(runType_ == sistrip::CALIBRATION_SCAN) bin = (100-summary.latency())*8+(7-summary.calSel());
   else if(runType_ == sistrip::CALIBRATION_SCAN_DECO) bin = (102-summary.latency())*8+(7-summary.calSel());
-  // digis are obtained for an APV pair.strips 0->127  : calib1_ strips 128->255: calib2_
-  // then, only some strips are fired at a time.
-  // We use calChan to know that
+
+  // Digis are obtained for an APV pair.strips 0->127  : calib1_ strips 128->255: calib2_
+  // then, only some strips are fired at a time, we use calChan to know that
   int isub = lastCalChan_<4 ? lastCalChan_+4 : lastCalChan_-4;
   for (int k=0;k<16;++k)  {
     // all strips of the APV are merged in 

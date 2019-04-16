@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from builtins import range
 __author__="Aurelija"
 __date__ ="$2010-08-12 10.50.40$"
 
@@ -152,7 +153,7 @@ def createLogFiles(rulesResult, logsDir, ib):
                 for path, lineNumbers in packageResult:
                     for line in lineNumbers:
                         directory = join(package, path)
-                        file.write('<a href="http://cmslxr.fnal.gov/lxr/source/%s?v=%s#%s">%s:%s</a>\n'%(directory, ib, numberConverter(line), directory, line))
+                        file.write('<a href="https://cmssdt.cern.ch/lxr/source/%s?v=%s#%s">%s:%s</a>\n'%(directory, ib, numberConverter(line), directory, line))
                         file.write("<br/>")
                 file.write('\n')
                 file.close()

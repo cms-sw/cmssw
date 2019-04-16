@@ -1,6 +1,9 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 /* class CaloRecoTauDiscriminationByTauPolarization
  * created : September 22 2010,
  * contributors : Sami Lehti (sami.lehti@cern.ch ; HIP, Helsinki)
@@ -23,6 +26,7 @@ class CaloRecoTauDiscriminationByTauPolarization : public CaloTauDiscriminationP
     ~CaloRecoTauDiscriminationByTauPolarization() override{}
     double discriminate(const CaloTauRef&) const override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
     bool booleanOutput;
     double rTauMin;
@@ -37,4 +41,27 @@ CaloRecoTauDiscriminationByTauPolarization::discriminate(const CaloTauRef& tau) 
   return rTau;
 }
 }
+
+void
+CaloRecoTauDiscriminationByTauPolarization::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // caloRecoTauDiscriminationByTauPolarization
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("CaloTauProducer", edm::InputTag("caloRecoTauProducer"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<double>("rtau", 0.8);
+  desc.add<edm::InputTag>("PVProducer", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("BooleanOutput", true);
+  descriptions.add("caloRecoTauDiscriminationByTauPolarization", desc);
+}
+
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByTauPolarization);

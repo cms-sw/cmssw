@@ -9,8 +9,8 @@
 #include "TMatrixD.h"
 #include "TMath.h"
 
-ClassImp(LHCOpticsApproximator)
-ClassImp(LHCApertureApproximator)
+ClassImp(LHCOpticsApproximator);
+ClassImp(LHCApertureApproximator);
 
 
 void LHCOpticsApproximator::Init()

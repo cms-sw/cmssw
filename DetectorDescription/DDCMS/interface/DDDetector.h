@@ -6,13 +6,15 @@
 
 namespace dd4hep {
   class Detector;
+  class Volume;
 }
 
 namespace cms  {
   class DDDetector {
   public:
     using Detector = dd4hep::Detector;
-
+    using Volume = dd4hep::Volume;
+    
     explicit DDDetector(const std::string&, const std::string&);
     DDDetector() = delete;
     
@@ -34,6 +36,8 @@ namespace cms  {
     DDSpecParRegistry const& specpars() const {
       return m_specpars;
     }
+    
+    Volume worldVolume() const;
 
   private:
 

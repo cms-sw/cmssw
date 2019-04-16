@@ -57,7 +57,8 @@ protected:
 
 private:
   edm::EDGetTokenT<PHGCalValidInfo> g4Token_;
-  std::vector<std::string> geometrySource_;
+  std::vector<std::string>          geometrySource_;
+  int                               verbosity_;
 
   //HGCal geometry scheme
   std::vector<const HGCalDDDConstants*> hgcGeometry_;
@@ -85,6 +86,7 @@ HGCGeometryValidation::HGCGeometryValidation(const edm::ParameterSet &cfg) : hco
 
   g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
   geometrySource_ = cfg.getUntrackedParameter< std::vector<std::string> >("geometrySource");
+  verbosity_      = cfg.getUntrackedParameter<int>("verbosity",0);
 }
 
 HGCGeometryValidation::~HGCGeometryValidation() { }
@@ -356,7 +358,8 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent,
     }//end G4 hits
     
   } else {
-    edm::LogVerbatim("HGCalValid") << "HGCGeometryValidation::No PHGCalInfo ";
+    if (verbosity_ > 0)
+      edm::LogVerbatim("HGCalValid") << "HGCGeometryValidation::No PHGCalInfo";
   }
 
 }

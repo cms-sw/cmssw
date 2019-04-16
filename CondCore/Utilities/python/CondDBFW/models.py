@@ -9,6 +9,7 @@ Note: some things done in methods written in classes rely on the querying module
 
 """
 from __future__ import print_function
+from __future__ import absolute_import
 import json
 import datetime
 
@@ -22,12 +23,12 @@ except ImportError:
     print("You must be working inside a CMSSW environment.  Try running 'cmsenv'.")
     exit()
     
-import data_sources, data_formats
+from . import data_sources, data_formats
 import urllib, urllib2, base64
 from copy import deepcopy
 
 # get utility functions
-from utils import to_timestamp, to_datetime, friendly_since
+from .utils import to_timestamp, to_datetime, friendly_since
 
 def session_independent_object(object, schema=None):
     # code original taken from write method in querying

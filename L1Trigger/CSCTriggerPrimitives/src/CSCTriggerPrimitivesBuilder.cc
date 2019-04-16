@@ -1,9 +1,9 @@
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboardME11.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboardME21.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCTriggerPrimitivesBuilder.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboardME11.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboardME11.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboardME21.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCMuonPortCard.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 const int CSCTriggerPrimitivesBuilder::min_endcap  = CSCDetId::minEndcapId();

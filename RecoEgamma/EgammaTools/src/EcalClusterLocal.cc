@@ -1,8 +1,4 @@
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -13,22 +9,10 @@
 #include "TMath.h"
 #include "TVector2.h"
 
-EcalClusterLocal::EcalClusterLocal()
-{}
+namespace egammaTools {
 
-EcalClusterLocal::~EcalClusterLocal()
-{}
-
-void EcalClusterLocal::localCoordsEB( const reco::CaloCluster &bclus, const edm::EventSetup &es, float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const {
-  edm::ESHandle<CaloGeometry> pG;
-  es.get<CaloGeometryRecord>().get(pG); 
-  localCoordsEB( bclus, *pG, etacry, phicry, ieta, iphi, thetatilt, phitilt);
-}
-
-
-
- 
-void EcalClusterLocal::localCoordsEB( const reco::CaloCluster &bclus, const CaloGeometry & caloGeometry,  float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const
+void localEcalClusterCoordsEB( const reco::CaloCluster &bclus, const CaloGeometry & caloGeometry,
+                               float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt )
 {
   
   assert(bclus.hitsAndFractions().at(0).first.subdetId()==EcalBarrel);
@@ -96,14 +80,8 @@ void EcalClusterLocal::localCoordsEB( const reco::CaloCluster &bclus, const Calo
 
 }
 
-void EcalClusterLocal::localCoordsEE( const reco::CaloCluster &bclus, const edm::EventSetup &es, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const
-{
-  edm::ESHandle<CaloGeometry> pG;
-  es.get<CaloGeometryRecord>().get(pG); 
-  localCoordsEE( bclus, *pG, xcry, ycry, ix, iy, thetatilt, phitilt);
-}
-
-void EcalClusterLocal::localCoordsEE( const reco::CaloCluster &bclus, const CaloGeometry & caloGeometry, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const
+void localEcalClusterCoordsEE( const reco::CaloCluster &bclus, const CaloGeometry & caloGeometry,
+                               float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt )
 {
     
   assert(bclus.hitsAndFractions().at(0).first.subdetId()==EcalEndcap);
@@ -170,5 +148,7 @@ void EcalClusterLocal::localCoordsEE( const reco::CaloCluster &bclus, const Calo
   ycry = (Y-YCentr)/YWidth;
   
   return;
+
+}
 
 }

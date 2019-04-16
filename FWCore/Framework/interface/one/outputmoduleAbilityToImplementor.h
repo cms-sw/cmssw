@@ -25,6 +25,8 @@
 #include "FWCore/Framework/interface/one/moduleAbilities.h"
 #include "FWCore/Framework/interface/one/implementors.h"
 #include "FWCore/Framework/interface/one/OutputModuleBase.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 
 // forward declarations
 
@@ -78,6 +80,61 @@ namespace edm {
         virtual void respondToOpenInputFile(FileBlock const&) = 0;
         virtual void respondToCloseInputFile(FileBlock const&) = 0;
       };
+
+
+      template <typename C>
+        class RunCacheHolder : public virtual OutputModuleBase {
+      public:
+        RunCacheHolder(edm::ParameterSet const& iPSet): OutputModuleBase(iPSet) {}
+        RunCacheHolder( RunCacheHolder<C> const&) = delete;
+        RunCacheHolder<C>& operator=(RunCacheHolder<C> const&) = delete;
+        ~RunCacheHolder() noexcept(false) override {};
+      protected:
+        C* runCache(edm::RunIndex iID) { return cache_.get(); }
+        C const* runCache(edm::RunIndex iID) const { return cache_.get(); }
+      private:
+        void doBeginRun_(edm::RunForOutput const&rp) final {
+          cache_ = globalBeginRun(rp);
+        }
+        void doEndRun_(edm::RunForOutput const&rp) final {
+          globalEndRun(rp);
+          cache_ = nullptr; // propagate_const<T> has no reset() function
+        }
+        
+        virtual std::shared_ptr<C> globalBeginRun(edm::RunForOutput const&) const = 0;
+        virtual void globalEndRun(edm::RunForOutput const&) = 0;
+        //When threaded we will have a container for N items whre N is # of simultaneous runs
+        edm::propagate_const<std::shared_ptr<C>> cache_;
+      };
+      
+      template <typename C>
+        class LuminosityBlockCacheHolder : public virtual OutputModuleBase {
+      public:
+        template<typename... A>
+          LuminosityBlockCacheHolder(edm::ParameterSet const& iPSet): OutputModuleBase(iPSet) {}
+        LuminosityBlockCacheHolder( LuminosityBlockCacheHolder<C> const&) = delete;
+        LuminosityBlockCacheHolder<C>& operator=(LuminosityBlockCacheHolder<C> const&) = delete;
+        ~LuminosityBlockCacheHolder() noexcept(false) override {};
+      protected:
+        void preallocLumis(unsigned int iNLumis) final {
+          caches_.reset( new std::shared_ptr<C>[iNLumis]);
+        }
+        
+        C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return caches_[iID].get(); }
+        C* luminosityBlockCache(edm::LuminosityBlockIndex iID) { return caches_[iID].get(); }
+      private:
+        void doBeginLuminosityBlock_(edm::LuminosityBlockForOutput const& lp) final {
+          caches_[lp.index()] = globalBeginLuminosityBlock(lp);
+        }
+        void doEndLuminosityBlock_(edm::LuminosityBlockForOutput const& lp) final {
+          globalEndLuminosityBlock(lp);
+          caches_[lp.index()].reset();
+        }
+        
+        virtual std::shared_ptr<C> globalBeginLuminosityBlock(edm::LuminosityBlockForOutput const&) const = 0;
+        virtual void globalEndLuminosityBlock(edm::LuminosityBlockForOutput const&) = 0;
+        std::unique_ptr<std::shared_ptr<C>[]> caches_;
+      };
       
       template<typename T> struct AbilityToImplementor;
       
@@ -99,6 +156,16 @@ namespace edm {
       template<>
       struct AbilityToImplementor<edm::WatchInputFiles> {
         typedef edm::one::outputmodule::InputFileWatcher Type;
+      };
+
+      template<typename C>
+      struct AbilityToImplementor<edm::RunCache<C>> {
+        typedef edm::one::outputmodule::RunCacheHolder<C> Type;
+      };
+
+      template<typename C>
+      struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
+        typedef edm::one::outputmodule::LuminosityBlockCacheHolder<C> Type;
       };
 }
   }

@@ -76,12 +76,6 @@ std::string dddGetString(const std::string & s, DDFilteredView const & view) {
     return std::string();
 }
 
-static inline
-std::ostream & operator<<(std::ostream & out, const math::XYZVector & v) {
-  out << std::fixed << std::setprecision(3);
-  return out << "(" << v.rho() << ", " << v.z() << ", " << v.phi() << ")";
-}
-
 class ListGroups : public edm::one::EDAnalyzer<>
 {
 public:

@@ -52,7 +52,7 @@ int FEConfigSlidingInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -76,7 +76,7 @@ void FEConfigSlidingInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigSlidingInfo::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::prepareWrite():  ")+e.getMessage()));
   }
 
 }
@@ -114,7 +114,7 @@ void FEConfigSlidingInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigSlidingInfo::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -149,14 +149,14 @@ void FEConfigSlidingInfo::fetchData(FEConfigSlidingInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
     result->setIOVId(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -175,14 +175,14 @@ void FEConfigSlidingInfo::fetchLastData(FEConfigSlidingInfo * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
     result->setIOVId(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -212,7 +212,7 @@ int FEConfigSlidingInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchID:  ")+e.getMessage()));
   }
 
   return m_ID;
@@ -236,7 +236,7 @@ void FEConfigSlidingInfo::setByID(int id)
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
        this->setId(rset->getInt(1));
-       this->setConfigTag(getOraString(rset,2));
+       this->setConfigTag(rset->getString(2));
        this->setVersion(rset->getInt(3));
        this->setIOVId(rset->getInt(4));
        Date dbdate = rset->getDate(5);
@@ -247,7 +247,7 @@ void FEConfigSlidingInfo::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error(std::string("FEConfigSlidingInfo::setByID:  ")+getOraMessage(&e)));
+     throw(std::runtime_error(std::string("FEConfigSlidingInfo::setByID:  ")+e.getMessage()));
    }
 }
 

@@ -8,7 +8,11 @@ ERR=0
 pushd test-data-file-deletion
   CMSSW_SEARCH_PATH=$(pwd)/src:${CMSSW_SEARCH_PATH} cmsRun $CMSSW_BASE/src/CondTools/Geometry/test/writehelpers/geometryxmlwriter.py || ERR=$?
 popd
-let FILE_IN_PATH_ERROR=$(grep ' FileInPathError *= *' $CMSSW_RELEASE_BASE/src/FWCore/Utilities/interface/EDMException.h | sed 's|.*= *||;s|,.*$||')%256
+edm_exception_header="${CMSSW_BASE}/src/FWCore/Utilities/interface/EDMException.h"
+if [ ! -f ${edm_exception_header} ] ; then
+  edm_exception_header=$CMSSW_RELEASE_BASE/src/FWCore/Utilities/interface/EDMException.h
+fi
+let FILE_IN_PATH_ERROR=$(grep ' FileInPathError *= *' ${edm_exception_header} | sed 's|.*= *||;s|,.*$||')%256
 rm -rf test-data-file-deletion
 if [ "$ERR" = "$FILE_IN_PATH_ERROR" ] ; then
   exit 0

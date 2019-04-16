@@ -18,6 +18,7 @@ class GEMDeadStrips {
   ~GEMDeadStrips(){}
 
   std::vector<DeadItem> const & getDeadVec() const {return deadVec_;}
+  void fillDeadVec(DeadItem m) {deadVec_.push_back(m);}
 
  private:
   std::vector<DeadItem> deadVec_;

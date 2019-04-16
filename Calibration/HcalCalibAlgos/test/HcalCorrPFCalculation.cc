@@ -371,8 +371,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       /*  Finding the closest cell at Hcal  */
       Int_t iphitrue = -10;
       Int_t ietatrue = 100;
-      HcalDetId tempId, tempId1, tempId2;
-      
+      HcalDetId tempId;
       
       if (abs(etaParticle)<1.392)
 	{
@@ -386,14 +385,6 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	}
       if (abs(etaParticle)>=3.0 && abs(etaParticle)<5.191) 
 	{
-	  /*
-	    tempId1 = gHcal->getClosestCell(forwardMC1);	 
-	    tempId2 = gHcal->getClosestCell(forwardMC2);
-	    if (deltaR(tempId1.eta(), tempId1.phi(), etaParticle, phiParticle) < deltaR(tempId2.eta(), tempId2.phi(), etaParticle, phiParticle))
-	    gPointHcal = forwardMC1;
-	    
-	    else gPointHcal = forwardMC2;
-	  */
 	  gPointHcal = forwardMC1;
 	  tempId = gHcal->getClosestCell(gPointHcal);
 	  //tempId = gHcal->CaloSubdetectorGeometry::getClosestCell(gPointHcal);

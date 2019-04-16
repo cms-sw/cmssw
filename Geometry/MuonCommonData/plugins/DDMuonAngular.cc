@@ -9,11 +9,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Core/interface/DDUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "Geometry/MuonCommonData/plugins/DDMuonAngular.h"
 
-using namespace dd;
-using namespace dd::operators;
+using namespace geant_units;
+using namespace geant_units::operators;
 
 //#define EDM_ML_DEBUG
 
@@ -39,8 +39,8 @@ void DDMuonAngular::initialize(const DDNumericArguments & nArgs,
   incrCopyNo  = int (nArgs["incrCopyNo"]);
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MuonGeom") << "DDMuonAngular debug: Parameters for positioning-- "
-			   << n << " copies in steps of " << CONVERT_TO( stepAngle, deg )
-			   << " from " << CONVERT_TO( startAngle, deg ) << " \tZoffest " 
+			   << n << " copies in steps of " << convertRadToDeg( stepAngle )
+			   << " from " << convertRadToDeg( startAngle ) << " \tZoffest "
 			   << zoffset << "\tStart and inremental copy nos " 
 			   << startCopyNo << ", " << incrCopyNo;
 #endif
@@ -75,7 +75,7 @@ void DDMuonAngular::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
         edm::LogInfo("MuonGeom") << "DDMuonAngular test: Creating a new rotation "
 				 << DDName(rotstr, idNameSpace) << "\t90, " 
-				 << CONVERT_TO( phitmp, deg ) << ", 90, " << CONVERT_TO(phitmp + 90._deg, deg) << ", 0, 0";
+				 << convertRadToDeg( phitmp ) << ", 90, " << convertRadToDeg( phitmp + 90._deg ) << ", 0, 0";
 #endif
         rotation = DDrot(DDName(rotstr, rotns), 90._deg, phitmp, 90._deg, 90._deg + phitmp, 0., 0.);
       } 

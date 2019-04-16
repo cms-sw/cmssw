@@ -5,13 +5,14 @@
  * Authors : Sho Maruyama,M.Bachtis
  */
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 #include <string>
 
@@ -28,13 +29,15 @@ class PFRecoTauDiscriminationAgainstMuon : public PFTauDiscriminationProducerBas
     a  = iConfig.getParameter<double>("a");  
     b  = iConfig.getParameter<double>("b");  
     c  = iConfig.getParameter<double>("c");  	 
-    maxNumberOfMatches_ = iConfig.exists("maxNumberOfMatches") ? iConfig.getParameter<int>("maxNumberOfMatches") : 0;
-    checkNumMatches_ = iConfig.exists("checkNumMatches") ? iConfig.getParameter<bool>("checkNumMatches") : false;
+    maxNumberOfMatches_ = iConfig.getParameter<int>("maxNumberOfMatches");
+    checkNumMatches_ = iConfig.getParameter<bool>("checkNumMatches");
   }
 
   ~PFRecoTauDiscriminationAgainstMuon() override {} 
 
   double discriminate(const PFTauRef& pfTau) const override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:  
   std::string discriminatorOption_;
@@ -67,7 +70,11 @@ double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTau
       if      ( muonref->isGlobalMuon()  ) muType = 1;
       else if ( muonref->isCaloMuon()    ) muType = 2;
       else if ( muonref->isTrackerMuon() ) muType = 3;
-      double muonEnergyFraction = thePFTauRef->pfTauTagInfoRef()->pfjetRef()->chargedMuEnergyFraction();
+      float muonEnergyFraction = 0.;
+      const reco::PFJet* pfJetPtr = dynamic_cast<const reco::PFJet*>(thePFTauRef->pfTauTagInfoRef()->pfjetRef().get());
+      if (pfJetPtr) {
+          muonEnergyFraction = pfJetPtr->chargedMuEnergyFraction();
+      } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFJets, and this outdated algorithm was not updated to cope with PFTaus made from other Jets.\n";
       bool eta_veto = false;
       bool phi_veto = false;
       if ( fabs(muonref->eta()) > 2.3 || (fabs(muonref->eta()) > 1.4 && fabs(muonref->eta()) < 1.6)) eta_veto = true;
@@ -94,5 +101,31 @@ double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTau
 
   return (decision ? 1. : 0.);
 } 
+
+void
+PFRecoTauDiscriminationAgainstMuon::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationAgainstMuon
+  edm::ParameterSetDescription desc;
+  desc.add<double>("a", 0.5);
+  desc.add<double>("c", 0.0);
+  desc.add<double>("b", 0.5);
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<std::string>("discriminatorOption", "noSegMatch");
+  desc.add<double>("HoPMin", 0.2);
+  desc.add<int>("maxNumberOfMatches", 0);
+  desc.add<bool>("checkNumMatches", false);
+  descriptions.add("pfRecoTauDiscriminationAgainstMuon", desc);
+}
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstMuon);

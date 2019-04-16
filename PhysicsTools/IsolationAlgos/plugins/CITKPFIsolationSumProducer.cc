@@ -87,7 +87,7 @@ namespace citk {
       if( decimal != std::string::npos ) coneName.erase(decimal,1);
       const std::string& isotype = 
 	isodef.getParameter<std::string>("isolateAgainst");
-      IsolationConeDefinitionBase* theisolator =
+      auto theisolator =
 	CITKIsolationConeDefinitionFactory::get()->create(name,isodef);
       theisolator->setConsumes(consumesCollector());
       const auto thetype = _typeMap.find(isotype);
@@ -96,7 +96,7 @@ namespace citk {
 	  << "Isolation type: " << isotype << " is not available in the "
 	  << "list of allowed isolations!.";
       }
-      _isolation_types[thetype->second].emplace_back(theisolator);
+      _isolation_types[thetype->second].emplace_back(std::move(theisolator));
       const std::string dash("-");
       std::string pname = isotype+dash+coneName+dash+theisolator->additionalCode();
       _product_names[thetype->second].emplace_back(pname);

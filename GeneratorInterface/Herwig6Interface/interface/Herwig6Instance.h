@@ -2,6 +2,7 @@
 #define gen_Herwig6Instance_h
 
 #include "GeneratorInterface/Core/interface/FortranInstance.h"
+#include <memory>
 
 namespace CLHEP {
     class HepRandomEngine;
@@ -14,6 +15,9 @@ extern "C" {
 	double hwrgen_(int*);
 	void cms_hwwarn_(char fn[6], int*, int*);
 }
+
+//Forward declare here to avoid system dependency
+struct TimeoutHolder;
 
 class Herwig6Instance : public FortranInstance {
     public:
@@ -56,7 +60,7 @@ class Herwig6Instance : public FortranInstance {
 	CLHEP::HepRandomEngine	*randomEngine;
 
 	// for timeout facility
-	void			*timeoutPrivate;
+        std::unique_ptr<TimeoutHolder> timeoutPrivate;
 };
 
 } // namespace gen

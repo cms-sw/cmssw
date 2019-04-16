@@ -71,7 +71,7 @@ int ODCCSConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODCCSConfig::fetchNextId():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODCCSConfig::fetchNextId():  ")+e.getMessage()));
   }
 
 }
@@ -96,7 +96,7 @@ void ODCCSConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODCCSConfig::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODCCSConfig::prepareWrite():  ")+e.getMessage()));
   }
 
 }
@@ -181,7 +181,7 @@ void ODCCSConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODCCSConfig::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODCCSConfig::writeDB():  ")+e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -215,19 +215,19 @@ void ODCCSConfig::fetchData(ODCCSConfig * result)
     // 1 is the id and 2 is the config tag
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(getOraString(rset,2));
+    result->setConfigTag(rset->getString(2));
 
     result->setDaccal(       rset->getInt(3) );
     result->setDelay(        rset->getInt(4) );
-    result->setGain(         getOraString(rset,5) );
-    result->setMemGain(      getOraString(rset,6) );
+    result->setGain(         rset->getString(5) );
+    result->setMemGain(      rset->getString(6) );
     result->setOffsetHigh(   rset->getInt(7) );
     result->setOffsetLow(    rset->getInt(8) );
     result->setOffsetMid(    rset->getInt(9) );
-    result->setTrgMode(      getOraString(rset,10) );
-    result->setTrgFilter(    getOraString(rset,11) );
+    result->setTrgMode(      rset->getString(10) );
+    result->setTrgFilter(    rset->getString(11) );
     result->setClock(        rset->getInt(12) );
-    result->setBGOSource(      getOraString(rset,13) );
+    result->setBGOSource(      rset->getString(13) );
     result->setTTSMask(        rset->getInt(14) );
     result->setDAQBCIDPreset(        rset->getInt(15) );
     result->setTrgBCIDPreset(        rset->getInt(16) );
@@ -235,7 +235,7 @@ void ODCCSConfig::fetchData(ODCCSConfig * result)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODCCSConfig::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODCCSConfig::fetchData():  ")+e.getMessage()));
   }
 }
 
@@ -265,7 +265,7 @@ int ODCCSConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODCCSConfig::fetchID:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("ODCCSConfig::fetchID:  ")+e.getMessage()));
   }
 
   return m_ID;

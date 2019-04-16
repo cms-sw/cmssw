@@ -85,9 +85,9 @@ class CtfSpecialSeedGenerator : public edm::stream::EDProducer<>
   std::vector<std::unique_ptr<OrderedHitsGenerator> > theGenerators;
   std::vector<PropagationDirection> thePropDirs;
   std::vector<NavigationDirection>  theNavDirs; 
-  TrackingRegionProducer* theRegionProducer;	
+  std::unique_ptr<TrackingRegionProducer> theRegionProducer;
   //TrajectoryStateTransform theTransformer;
-  SeedFromGenericPairOrTriplet* theSeedBuilder; 
+  std::unique_ptr<SeedFromGenericPairOrTriplet> theSeedBuilder;
   bool useScintillatorsConstraint;
   BoundPlane::BoundPlanePointer upperScintillator;
   BoundPlane::BoundPlanePointer lowerScintillator;

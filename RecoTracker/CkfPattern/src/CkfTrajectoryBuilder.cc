@@ -23,6 +23,7 @@
 #include "RecoTracker/CkfPattern/interface/IntermediateTrajectoryCleaner.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
 using namespace std;
 
@@ -31,8 +32,8 @@ CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::C
                        BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC))
 {}
 
-CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter):
-  BaseCkfTrajectoryBuilder(conf, filter)
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, std::unique_ptr<TrajectoryFilter> filter):
+  BaseCkfTrajectoryBuilder(conf, std::move(filter))
 {
   theMaxCand              = conf.getParameter<int>("maxCand");
   theLostHitPenalty       = conf.getParameter<double>("lostHitPenalty");

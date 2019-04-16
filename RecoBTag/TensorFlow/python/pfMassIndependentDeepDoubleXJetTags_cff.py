@@ -1,7 +1,8 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
-from pfDeepDoubleBvLJetTags_cfi import pfDeepDoubleBvLJetTags
-from pfDeepDoubleCvLJetTags_cfi import pfDeepDoubleCvLJetTags
-from pfDeepDoubleCvBJetTags_cfi import pfDeepDoubleCvBJetTags
+from .pfDeepDoubleBvLJetTags_cfi import pfDeepDoubleBvLJetTags
+from .pfDeepDoubleCvLJetTags_cfi import pfDeepDoubleCvLJetTags
+from .pfDeepDoubleCvBJetTags_cfi import pfDeepDoubleCvBJetTags
 
 pfMassIndependentDeepDoubleBvLJetTags = pfDeepDoubleBvLJetTags.clone(
     graph_path = 'RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDB_mass_independent.pb')

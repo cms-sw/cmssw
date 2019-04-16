@@ -25,6 +25,7 @@
 // user include files
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 // FastSimulation headers
 class MagneticField;
@@ -91,7 +92,8 @@ class MuonSimHitProducer : public edm::stream::EDProducer <> {
       void applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
 				TrajectoryStateOnSurface& tsos,
 				double radPath,
-                                RandomEngineAndDistribution const*);
+                                RandomEngineAndDistribution const*,
+                                HepPDT::ParticleDataTable const&);
 
           
       // ----------- parameters ---------------------------- 

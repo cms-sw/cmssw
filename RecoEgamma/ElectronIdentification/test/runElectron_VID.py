@@ -46,7 +46,7 @@ inputFilesMiniAOD = cms.untracked.vstring(
 # You can list here either AOD or miniAOD files, but not both types mixed
 #
 
-print sys.argv[2]
+print(sys.argv[2])
 useAOD = bool(int(sys.argv[2]))
 
 if useAOD == True :

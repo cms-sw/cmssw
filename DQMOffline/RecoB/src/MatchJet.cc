@@ -62,11 +62,9 @@ void MatchJet::matchCollections(
 		recJets.push_back(jetRec);
 	}
 
-	this->refJets = refJets;
 	refToRec.clear();
 	refToRec.resize(refJets.size(), -1);
 
-	this->recJets = recJets;
 	recToRef.clear();
 	recToRef.resize(recJets.size(), -1);
 

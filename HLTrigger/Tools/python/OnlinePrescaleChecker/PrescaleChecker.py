@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from Page1Parser import Page1Parser
+from __future__ import absolute_import
+from .Page1Parser import Page1Parser
 import sys
 import os
 import cPickle as pickle
 import getopt
-from TablePrint import *
+from .TablePrint import *
 
 WBMPageTemplate = "http://cmswbm/cmsdb/servlet/TriggerMode?KEY=l1_hlt_collisions/v%s"
 

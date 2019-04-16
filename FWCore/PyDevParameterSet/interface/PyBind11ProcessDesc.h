@@ -1,5 +1,5 @@
-#ifndef FWCore_PyBind11ParameterSet_PyBind11ProcessDesc_h
-#define FWCore_PyBind11ParameterSet_PyBind11ProcessDesc_h
+#ifndef FWCore_PyDevParameterSet_PyBind11ProcessDesc_h
+#define FWCore_PyDevParameterSet_PyBind11ProcessDesc_h
 
 #include "FWCore/PyDevParameterSet/interface/Python11ParameterSet.h"
 
@@ -13,6 +13,8 @@ namespace edm {
   class ProcessDesc;
 }
 
+namespace cmspython3 {
+
 class PyBind11ProcessDesc {
 public:
   PyBind11ProcessDesc();
@@ -25,7 +27,7 @@ public:
   */
   PyBind11ProcessDesc(std::string const& config);
 
-  //  PyBind11ProcessDesc(std::string const& config, int argc, char * argv[]);
+  PyBind11ProcessDesc(std::string const& config, int argc, char * argv[]);
 
   ~PyBind11ProcessDesc();
 
@@ -50,7 +52,8 @@ private:
 
   Python11ParameterSet theProcessPSet;
   pybind11::object theMainModule;
-  //  pybind11::object theMainNamespace;
+  bool theOwnsInterpreter;
 };
 
+}
 #endif

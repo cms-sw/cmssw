@@ -11,7 +11,7 @@
 //  Documentation: see TEcnaParHistos.h
 //--------------------------------------
 
-ClassImp(TEcnaParHistos)
+ClassImp(TEcnaParHistos);
 //______________________________________________________________________________
 //
 

@@ -43,7 +43,7 @@ void MonTTConsistencyDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8, :9)");
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonTTConsistencyDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonTTConsistencyDat::prepareWrite():  "+e.getMessage()));
   }
 }
 
@@ -74,7 +74,7 @@ void MonTTConsistencyDat::writeDB(const EcalLogicID* ecid, const MonTTConsistenc
     m_writeStmt->setInt(9, item->getTaskStatus() );
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonTTConsistencyDat::writeDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonTTConsistencyDat::writeDB():  "+e.getMessage()));
   }
 }
 
@@ -106,12 +106,12 @@ void MonTTConsistencyDat::fetchData(std::map< EcalLogicID, MonTTConsistencyDat >
     std::pair< EcalLogicID, MonTTConsistencyDat > p;
     MonTTConsistencyDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( getOraString(rset,1),     // name
+      p.first = EcalLogicID( rset->getString(1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     getOraString(rset,6));    // maps_to
+			     rset->getString(6));    // maps_to
 
       dat.setProcessedEvents( rset->getInt(7) );
       dat.setProblematicEvents( rset->getInt(8) );
@@ -125,7 +125,7 @@ void MonTTConsistencyDat::fetchData(std::map< EcalLogicID, MonTTConsistencyDat >
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonTTConsistencyDat::fetchData():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonTTConsistencyDat::fetchData():  "+e.getMessage()));
   }
 }
 
@@ -244,6 +244,6 @@ void MonTTConsistencyDat::writeArrayDB(const std::map< EcalLogicID, MonTTConsist
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("MonTTConsistencyDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error("MonTTConsistencyDat::writeArrayDB():  "+e.getMessage()));
   }
 }

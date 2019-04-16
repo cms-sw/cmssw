@@ -42,7 +42,7 @@ void FEConfigLUTGroupDat::prepareWrite()
 		      "VALUES (:lut_conf_id, :group_id, "
 		      ":lut_id, :lut_value )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::prepareWrite():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::prepareWrite():  ")+e.getMessage()));
   }
 }
 
@@ -116,7 +116,7 @@ void FEConfigLUTGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigLUTGrou
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::writeArrayDB():  ")+e.getMessage()));
   }
 }
 
@@ -172,7 +172,7 @@ void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fil
       }
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::fetchData:  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::fetchData:  ")+e.getMessage()));
   }
 }
 
@@ -264,6 +264,6 @@ void FEConfigLUTGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigLUTG
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::writeArrayDB():  ")+getOraMessage(&e)));
+    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::writeArrayDB():  ")+e.getMessage()));
   }
 }

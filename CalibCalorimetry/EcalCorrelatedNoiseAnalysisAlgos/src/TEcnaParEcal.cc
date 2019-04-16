@@ -11,7 +11,7 @@
 //  Documentation: see TEcnaParEcal.h
 //--------------------------------------
 
-ClassImp(TEcnaParEcal)
+ClassImp(TEcnaParEcal);
 //____________________________________________________________________________
 
 TEcnaParEcal::TEcnaParEcal(){

@@ -600,7 +600,6 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
     typename edm::SortedCollection<Digi>::const_iterator digiItr;
 
     // ADC2fC
-    HcalCalibrations calibrations;
     CaloSamples tool;
     iEvent.getByToken(tok, digiCollection);
     if (!digiCollection.isValid()) return;
@@ -896,7 +895,6 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
     
 
     // ADC2fC
-    HcalCalibrations calibrations;
     CaloSamples tool;
     iEvent.getByToken(tok, digiHandle);
     if (!digiHandle.isValid()) return;

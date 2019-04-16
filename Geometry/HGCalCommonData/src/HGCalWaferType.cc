@@ -1,7 +1,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include<cmath>
 
 //#define EDM_ML_DEBUG
 
