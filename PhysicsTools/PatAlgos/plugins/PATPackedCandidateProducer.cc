@@ -21,6 +21,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "PhysicsTools/PatAlgos/interface/PATAuxiliaryProd.h"
 
 /*#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
@@ -105,6 +106,7 @@ namespace pat {
             float calcDz(reco::Candidate::Point p, reco::Candidate::Point v, const reco::Candidate &c) const {
                 return p.Z()-v.Z() - ((p.X()-v.X()) * c.px() + (p.Y()-v.Y())*c.py()) * c.pz()/(c.pt()*c.pt());
             }
+      
     };
 }
 
@@ -143,8 +145,10 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   produces< edm::Association<pat::PackedCandidateCollection> > ();
   produces< edm::Association<reco::PFCandidateCollection> > ();
 
-  produces< edm::ValueMap<std::vector<uint8_t>> > ("hcalDepthEnergyFractions");
+  // produces< edm::ValueMap<std::vector<uint8_t>> > ("hcalDepthEnergyFractions");
+  produces< edm::ValueMap<pat::HcalDepthEnergyFractionProd> > ("hcalDepthEnergyFractions");
   produces< edm::ValueMap<float> > ("hcalEnergyFractionDepth1");
+  produces< edm::ValueMap<pat::SampleProd> > ("hcalEnergyFractionDepth2");
 
 }
 
@@ -219,8 +223,10 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     reco::VertexRefProd PVRefProd(PVs);
     math::XYZPoint  PVpos;
 
-    std::vector<std::vector<uint8_t>> hcalDepthEnergyFractions; hcalDepthEnergyFractions.reserve(cands->size());
-    std::vector<std::vector<uint8_t>> hcalDepthEnergyFractions_Ordered; hcalDepthEnergyFractions_Ordered.reserve(cands->size());
+    // std::vector<std::vector<uint8_t>> hcalDepthEnergyFractions; hcalDepthEnergyFractions.reserve(cands->size());
+    // std::vector<std::vector<uint8_t>> hcalDepthEnergyFractions_Ordered; hcalDepthEnergyFractions_Ordered.reserve(cands->size());
+    std::vector<pat::HcalDepthEnergyFractionProd> hcalDepthEnergyFractions; hcalDepthEnergyFractions.reserve(cands->size());
+    std::vector<pat::HcalDepthEnergyFractionProd> hcalDepthEnergyFractions_Ordered; hcalDepthEnergyFractions_Ordered.reserve(cands->size());
     std::vector<float> hcalEnergyFraction_Depth1;
     std::vector<float> hcalEnergyFraction_Depth1_Ordered;
     
@@ -336,27 +342,37 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 	  outPtrP->back().setHcalFraction(0);
 	}
        
-	std::vector<uint8_t> dummyVector; dummyVector.clear();
+	//std::vector<uint8_t> dummyVector; dummyVector.clear();
+	std::vector<float> dummyVector; dummyVector.clear();
+	pat::HcalDepthEnergyFractionProd hcalDepthEFracDummy(dummyVector);
 	
 	// storing HcalDepthEnergyFraction information
 	if ( std::find(pfCandidateTypesForHcalDepth_.begin(), pfCandidateTypesForHcalDepth_.end(), abs(cand.pdgId())) 
 	     != pfCandidateTypesForHcalDepth_.end() ){
 	  if (!storeHcalDepthEndcapOnly_ || fabs(outPtrP->back().eta())>1.3 ){  // storeHcalDepthEndcapOnly_==false -> store all eta of selected 
 	                                                                // PF types, if true, only |eta|>1.3 of selected PF types will be stored  
-	    std::vector<uint8_t> hcalDepthEnergyFractionTmp {
-	    	(uint8_t)(cand.hcalDepthEnergyFraction(1)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(2)*200.),
-	    	(uint8_t)(cand.hcalDepthEnergyFraction(3)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(4)*200.),
-	    	(uint8_t)(cand.hcalDepthEnergyFraction(5)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(6)*200.),
-	    	(uint8_t)(cand.hcalDepthEnergyFraction(7)*200.)
-	    	};
-	    hcalDepthEnergyFractions.push_back(hcalDepthEnergyFractionTmp);
+	    // std::vector<uint8_t> hcalDepthEnergyFractionTmp {
+	    // 	(uint8_t)(cand.hcalDepthEnergyFraction(1)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(2)*200.),
+	    // 	(uint8_t)(cand.hcalDepthEnergyFraction(3)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(4)*200.),
+	    // 	(uint8_t)(cand.hcalDepthEnergyFraction(5)*200.), (uint8_t)(cand.hcalDepthEnergyFraction(6)*200.),
+	    // 	(uint8_t)(cand.hcalDepthEnergyFraction(7)*200.)
+	    // 	};
+	    // hcalDepthEnergyFractions.push_back(hcalDepthEnergyFractionTmp);
+	    std::vector<float> hcalDepthEnergyFractionTmp {
+	        cand.hcalDepthEnergyFraction(1), cand.hcalDepthEnergyFraction(2),
+	        cand.hcalDepthEnergyFraction(3), cand.hcalDepthEnergyFraction(4),
+	    	cand.hcalDepthEnergyFraction(5), cand.hcalDepthEnergyFraction(6),
+	    	cand.hcalDepthEnergyFraction(7)
+		  };
+	    pat::HcalDepthEnergyFractionProd hcalDepthEFrac(hcalDepthEnergyFractionTmp);
+	    hcalDepthEnergyFractions.push_back(hcalDepthEFrac);
 	    hcalEnergyFraction_Depth1.push_back(cand.pt());
 	  } else {
-	    hcalDepthEnergyFractions.push_back(dummyVector);
+	    hcalDepthEnergyFractions.push_back(hcalDepthEFracDummy);
 	    hcalEnergyFraction_Depth1.push_back(cand.pt());
 	  }
 	} else {
-	  hcalDepthEnergyFractions.push_back(dummyVector);
+	  hcalDepthEnergyFractions.push_back(hcalDepthEFracDummy);
 	  hcalEnergyFraction_Depth1.push_back(cand.pt());
 	}
 
@@ -449,8 +465,12 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     // Loop over pc
     
     // HCAL depth energy fraction additions using ValueMap
-    std::unique_ptr<edm::ValueMap<std::vector<uint8_t>>> hcalDepthEnergyFractionsV(new edm::ValueMap<std::vector<uint8_t>>());
-    edm::ValueMap<std::vector<uint8_t>>::Filler fillerHcalDepthEnergyFractions(*hcalDepthEnergyFractionsV);
+    // std::unique_ptr<edm::ValueMap<std::vector<uint8_t>>> hcalDepthEnergyFractionsV(new edm::ValueMap<std::vector<uint8_t>>());
+    // edm::ValueMap<std::vector<uint8_t>>::Filler fillerHcalDepthEnergyFractions(*hcalDepthEnergyFractionsV);
+    // fillerHcalDepthEnergyFractions.insert(cands,hcalDepthEnergyFractions_Ordered.begin(),hcalDepthEnergyFractions_Ordered.end());
+    // fillerHcalDepthEnergyFractions.fill();
+    std::unique_ptr<edm::ValueMap<HcalDepthEnergyFractionProd>> hcalDepthEnergyFractionsV(new edm::ValueMap<HcalDepthEnergyFractionProd>());
+    edm::ValueMap<HcalDepthEnergyFractionProd>::Filler fillerHcalDepthEnergyFractions(*hcalDepthEnergyFractionsV);
     fillerHcalDepthEnergyFractions.insert(cands,hcalDepthEnergyFractions_Ordered.begin(),hcalDepthEnergyFractions_Ordered.end());
     fillerHcalDepthEnergyFractions.fill();
 
