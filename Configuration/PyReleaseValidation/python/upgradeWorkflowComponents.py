@@ -281,14 +281,14 @@ upgradeProperties[2017] = {
     '2019' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2019_realistic',
-        'HLTmenu': '@relval2018',
+        'HLTmenu': '@relval2017',
         'Era' : 'Run3',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
     },
     '2019Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2019_design',
-        'HLTmenu': '@relval2018',
+        'HLTmenu': '@relval2017',
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
