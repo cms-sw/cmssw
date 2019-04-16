@@ -281,7 +281,7 @@ upgradeProperties[2017] = {
     '2019' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2019_realistic',
-        'HLTmenu': '@relval20178',
+        'HLTmenu': '@relval2018',
         'Era' : 'Run3',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
     },
