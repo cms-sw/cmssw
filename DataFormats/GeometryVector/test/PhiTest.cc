@@ -1,4 +1,4 @@
-#include "DataFormats/Math/interface/Angle0to2pi.h"
+#include "DataFormats/GeometryVector/interface/Phi.h"
 
 #include <iostream>
 #include <iomanip>
@@ -7,7 +7,8 @@
 #include <chrono>
 
 
-using namespace angle0to2pi;
+using namespace angle0To2pi;
+using namespace Geom;
 using namespace std;
 using namespace reco;
 using namespace std::chrono;
@@ -34,11 +35,11 @@ inline constexpr valType simpleMake0to2pi(valType angle)
 template <class valType>
 static int testSmall()
 { // Test with long double
-  Angle0to2pi<valType> ang1(15.3_pi);
-  cout << "Angle0to2pi that started as 15.3 pi is " << ang1 << endl;
+  Phi<valType, PhiRange::ZeroTo2pi> ang1(15.3_pi);
+  cout << "Phi that started as 15.3 pi is " << ang1 << endl;
   cout << "In degrees " << ang1.degrees() << endl;
   constexpr valType testval = 15.2999_pi;
-  Angle0to2pi<valType> ang2 = ang1 - testval;
+  Phi<valType, PhiRange::ZeroTo2pi> ang2 = ang1 - testval;
   ang1 -= testval;
   if  (ang1 != ang2) {
     cout << "angle1 = " << ang1 << " and angle2 = " << ang2;
@@ -58,20 +59,20 @@ static int testSmall()
 
 template <class valType>
 static int iterationTest(valType increm) {
-  Angle0to2pi<valType> ang1 = 0.;
+  Phi<valType, PhiRange::ZeroTo2pi> ang1 = 0.;
   const int iters = 123456789;
   steady_clock::time_point startTime = steady_clock::now();
   for (int cnt = 0; cnt < iters; ++cnt) {
     ang1 += increm;
   }
   steady_clock::time_point endTime = steady_clock::now();
-  cout << "Angle0to2pi after "<< iters << " iterations is " << ang1 << endl;
+  cout << "Phi after "<< iters << " iterations is " << ang1 << endl;
   duration<double> time_span = duration_cast<duration<double>>(endTime - startTime);
   cout << "Time diff is  " << time_span.count() << endl;
   valType plainAng = 0.;
   startTime = steady_clock::now();
   for (int cnt = 0; cnt < iters; ++cnt) {
-    plainAng = make0to2pi(increm + plainAng);
+    plainAng = make0To2pi(increm + plainAng);
   }
   endTime = steady_clock::now();
   cout << "plainAng  is  now " << plainAng << endl;
@@ -95,7 +96,7 @@ static int iter3Test(valType increm) {
   valType ang1 = 0.;
   steady_clock::time_point startTime = steady_clock::now();
   for (int cnt = 0; cnt < iters; ++cnt) {
-    ang1 = make0to2pi(increm + ang1);
+    ang1 = make0To2pi(increm + ang1);
   }
   steady_clock::time_point endTime = steady_clock::now();
   cout << "Fast version after "<< iters << " iterations is " << ang1 << endl;
@@ -127,22 +128,51 @@ int main() {
   cout << "long pi   = " << std::setprecision(32) << M_PIl << endl;
   cout << "double pi = " << std::setprecision(32) << M_PI << endl;
   cout << "pi difference = " << M_PIl - M_PI << endl;
-  Angle0to2pi<double> testval = 39.3_pi;
-  cout << "Sizes of Angle0to2pi<double> and double = " << setprecision(16) << sizeof(testval) << ", " << sizeof(double) << endl;
+  Phi<double, PhiRange::ZeroTo2pi> testval2{39.3_pi};
+  cout << "testval2 initialized from 39.3pi, should be 0to2pi = " << testval2 << endl;
+  Phi<double, PhiRange::ZeroTo2pi> testval = 39.3_pi;
+  cout << "Sizes of Phi<double> and double = " << setprecision(16) << sizeof(testval) << ", " << sizeof(double) << endl;
   {
-    Angle0to2pi<double> angle = 3.3_pi;
+    Phi<double, PhiRange::ZeroTo2pi> angle = 3.3_pi;
     if (! angle.nearEqual(1.3_pi)) {
       cout << "Angle should be from 0-2pi but it is out of range = " << angle << endl;
       return (1);
     }
   }
+  double getval = testval > 0. ? static_cast<float>(testval) : 3.f;
+  cout << "getval should be 39.3pi = " << getval << endl;
   {
-    Angle0to2pi<long double> angle = -3.3_pi;
+    Phi<long double, PhiRange::ZeroTo2pi> angle = -3.3_pi;
     if (! angle.nearEqual(0.7_pi)) {
       cout << "Angle should be from 0-2pi but it is out of range = " << angle << endl;
       return (1);
     }
   }
+   // Test operations
+   Phi<double, PhiRange::ZeroTo2pi> phi1, phi2;
+   phi1 = 0.25_pi;
+   phi2 = 1._pi / 6.;
+   cout << "pi/4 + pi/6 = " << phi1 + phi2 << endl;
+   cout << "pi/4 - pi/6 = " << phi1 - phi2 << endl;
+   cout << "pi/4 * pi/6 = " << phi1 * phi2 << endl;
+   cout << "pi/4 / pi/6 = " << phi1 / phi2 << endl;
+
+  Phi<double, PhiRange::ZeroTo2pi> phi3{3.2_pi};
+  cout << "Phi0To2pi started at 3.2pi but reduced to = " << phi3 << endl;
+  phi3 += 1.9_pi;
+  cout << "Phi0To2pi add 1.9pi = " << phi3 << endl;
+  phi3 -= 8.9_pi;
+  cout << "Phi0To2pi subtract 8.9pi = " << phi3 << endl;
+  Phi<double, PhiRange::ZeroTo2pi> phi4{2.2_pi};
+  phi3 = -phi4;
+  phi4 = -30._pi;
+  cout << "Phi0To2pi set to -2.2pi = " << phi3 << endl;
+  cout << "Phi0To2pi set to -30.pi = " << phi4 << endl;
+  phi4 = 2._pi;
+  cout << "Phi0To2pi set to 2.pi = " << phi4 << endl;
+  Phi0To2pi<float> phi5{-3._pi};
+  cout << "Phi0To2pi set to -3.pi = " << phi5 << endl;
+
   cout << "Test with float\n";
   if (testSmall<float>() == 1)
     return (1);
@@ -194,15 +224,6 @@ int main() {
   cout << "Test 3 versions big incr\n";
   if (iter3Test<long double>(bigincr) == 1)
     return (1);
-
-   // Tetst operations
-   Angle0to2pi<double> phi1, phi2;
-   phi1 = 0.25_pi;
-   phi2 = 1._pi / 6.;
-   cout << "pi/4 + pi/6 = " << phi1 + phi2 << endl;
-   cout << "pi/4 - pi/6 = " << phi1 - phi2 << endl;
-   cout << "pi/4 * pi/6 = " << phi1 * phi2 << endl;
-   cout << "pi/4 / pi/6 = " << phi1 / phi2 << endl;
 
    return (0);
 }

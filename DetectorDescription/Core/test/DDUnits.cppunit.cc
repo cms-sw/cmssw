@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "DataFormats/Math/interface/GeantUnits.h"
@@ -28,23 +30,23 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testDDUnits);
 
 void testDDUnits::checkUnits()
 {
-  std::cout << "\nMy pi: " << piRadians
+  std::cout << "\nMy pi: " << std::setprecision(16) << piRadians
 	    << " == " << 1_pi
 	    << " == " << 1._pi << "\n";
   
-  CPPUNIT_ASSERT( M_PI == piRadians );
-  CPPUNIT_ASSERT( M_PI == 1_pi );
-  CPPUNIT_ASSERT( M_PI == 1._pi );
+  CPPUNIT_ASSERT( M_PIl == piRadians );
+  CPPUNIT_ASSERT( M_PIl == 1_pi );
+  CPPUNIT_ASSERT( M_PIl == 1._pi );
 
   double twoPiAngle = 2_pi;
   std::cout << "My 2pi angle: " << twoPiAngle
 	    << " [rad] == " << convertRadToDeg( twoPiAngle )
 	    << " [deg]\n";
 
-  CPPUNIT_ASSERT( 2*M_PI == 2 * piRadians );
+  CPPUNIT_ASSERT( 2*M_PIl == 2 * piRadians );
   CPPUNIT_ASSERT( 2*M_PI == twoPiAngle );
-  CPPUNIT_ASSERT( 2*M_PI == 2_pi );
-  CPPUNIT_ASSERT( 2*M_PI == 2._pi );
+  CPPUNIT_ASSERT( 2*M_PIl == 2_pi );
+  CPPUNIT_ASSERT( 2*M_PIl == 2._pi );
   
   CPPUNIT_ASSERT( 90_deg == 1_pi/2 );
   CPPUNIT_ASSERT( 120_deg == 2_pi/3 );
@@ -67,4 +69,8 @@ void testDDUnits::checkUnits()
        << " or " << 1*CLHEP::kg << "\n";
   cout << "Mass of 1  g is " << 1._g
        << " or " << 1*CLHEP::g << "\n";
+  cout << "Ratio of 1._kg / CLHEP::kg is " << 1._kg / (1*CLHEP::kg) << endl;
+  cout << "Difference of 1._kg - CLHEP::kg is " << std::abs(1._kg - (1*CLHEP::kg)) << endl;
+  cout << "Ratio of 1._g / CLHEP::g is " << 1._g / (1*CLHEP::g) << endl;
+  cout << "Difference of 1._g - CLHEP::g is " << std::abs(1._g - (1*CLHEP::g)) << endl;
 }
