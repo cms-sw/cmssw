@@ -63,7 +63,7 @@
     <Vector name="LayerFrontIn" type="numeric" nEntries="15"> 
        0, 24, 46, 68, 90,112,134,156,178,200,222,246,270,294,318</Vector>
     <Vector name="LayerBackIn" type="numeric" nEntries="15"> 
-      23, 45, 67, 89,111,133,155,177,199,221,245,269,293,317,320</Vector>
+      23, 45, 67, 89,111,133,155,177,199,221,245,269,293,317,319</Vector>
     <Vector name="BlockThick" type="numeric" nEntries="15"> 
       149.15*mm, 29.05*mm,  29.05*mm, 
       30.05*mm,  30.05*mm,  30.05*mm, 
