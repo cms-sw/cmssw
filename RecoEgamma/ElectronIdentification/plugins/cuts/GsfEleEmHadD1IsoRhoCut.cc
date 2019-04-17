@@ -63,7 +63,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
   
   const float isolEmHadDepth1 = cand->dr03EcalRecHitSumEt() + cand->dr03HcalDepth1TowerSumEt();
 
-  const float sinTheta = cand->energy()!=0. ? cand->et()/cand->energy() : 0.;
+  const float sinTheta = cand->p()!=0. ? cand->pt()/cand->p() : 0.;
   const float et = energyRetriever_(*cand)*sinTheta;
 
   const float cutValue = et > slopeStart_(cand)  ? slopeTerm_(cand)*(et-slopeStart_(cand)) + constTerm_(cand) : constTerm_(cand);
