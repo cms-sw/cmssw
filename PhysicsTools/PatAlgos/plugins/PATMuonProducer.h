@@ -103,7 +103,7 @@ namespace pat {
     template<typename T> void readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens);
 
     void setMuonMiniIso(pat::Muon& aMuon, const pat::PackedCandidateCollection *pc);
-    double getRelMiniIsoPUCorrected(const pat::Muon& muon,  double rho, std::vector<double> &EA);
+    double getRelMiniIsoPUCorrected(const pat::Muon& muon,  double rho, const std::vector<double> &area);
 
     double puppiCombinedIsolation(const pat::Muon& muon, const pat::PackedCandidateCollection *pc);
     bool isNeutralHadron( long pdgid );
