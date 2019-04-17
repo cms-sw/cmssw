@@ -55,18 +55,18 @@ process.maxEvents = cms.untracked.PSet(
 
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(options.numThreads),
-    numberOfStreams = cms.untracked.uint32(options.numFwkStreams)
+    numberOfStreams = cms.untracked.uint32(options.numFwkStreams),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(2)
 )
+
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(threshold = cms.untracked.string( "INFO" )),
-    destinations = cms.untracked.vstring( 'cout' ))
+    destinations = cms.untracked.vstring( 'cout' )
+)
 
 process.FastMonitoringService = cms.Service("FastMonitoringService",
-    sleepTime = cms.untracked.int32(1),
-    microstateDefPath = cms.untracked.string( cmsswbase+'/src/EventFilter/Utilities/plugins/microstatedef.jsd'),
-    fastMicrostateDefPath = cms.untracked.string( cmsswbase+'/src/EventFilter/Utilities/plugins/microstatedeffast.jsd'),
-    fastName = cms.untracked.string( 'fastmoni' ),
-    slowName = cms.untracked.string( 'slowmoni' ))
+    sleepTime = cms.untracked.int32(1)
+)
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
     useFileService = cms.untracked.bool(False),
@@ -75,7 +75,8 @@ process.EvFDaqDirector = cms.Service("EvFDaqDirector",
     baseDir = cms.untracked.string(options.fffBaseDir +"/"+options.fuBaseDir),
     buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
     directorIsBu = cms.untracked.bool(False),
-    testModeNoBuilderUnit = cms.untracked.bool(False))
+    testModeNoBuilderUnit = cms.untracked.bool(False)
+)
 
 try:
   os.makedirs(options.fuBaseDir+"/run"+str(options.runNumber).zfill(6))
@@ -90,9 +91,9 @@ process.source = cms.Source("FedRawDataInputSource",
     verifyAdler32 = cms.untracked.bool(True),
     verifyChecksum = cms.untracked.bool(True),
     useL1EventID = cms.untracked.bool(True),
-    eventChunkSize = cms.untracked.uint32(16),
+    eventChunkSize = cms.untracked.uint32(32),
     numBuffers = cms.untracked.uint32(2),
-    eventChunkBlock = cms.untracked.uint32(1)
+    eventChunkBlock = cms.untracked.uint32(32)
     )
 
 process.PrescaleService = cms.Service( "PrescaleService",
@@ -118,7 +119,7 @@ process.filter2 = cms.EDFilter("HLTPrescaler",
 
 process.a = cms.EDAnalyzer("ExceptionGenerator",
     defaultAction = cms.untracked.int32(0),
-    defaultQualifier = cms.untracked.int32(58))
+    defaultQualifier = cms.untracked.int32(1000))
 
 process.b = cms.EDAnalyzer("ExceptionGenerator",
     defaultAction = cms.untracked.int32(0),
@@ -135,14 +136,4 @@ process.streamB = cms.OutputModule("EvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
 )
 
-process.streamC = cms.OutputModule("ShmStreamConsumer",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
-)
-
-#process.streamD = cms.OutputModule("EventStreamFileWriter",
-#    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
-#)
-
-process.ep = cms.EndPath(process.streamA+process.streamB+process.streamC
-  #+process.streamD
-)
+process.ep = cms.EndPath(process.streamA+process.streamB)
