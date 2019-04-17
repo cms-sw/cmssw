@@ -78,6 +78,7 @@ if __name__ == '__main__':
                      20034.0, #2023D17 ttbar (TDR baseline Muon/Barrel)
                      21234.0, #2023D21 ttbar (Inner Tracker with lower radii than in TDR)
                      27434.0, #2023D35 to exercise new HGCal + new MTD
+                     29034.0, #2023D41 (baseline for L1T TDR)
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],
