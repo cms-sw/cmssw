@@ -29,7 +29,7 @@ namespace pat{
 				   const math::XYZTLorentzVector& p4,
 				   double dr,
 				   double rho,
-                                   std::vector<double> &EA);
+                                   const std::vector<double> &area);
 }
 
 #endif

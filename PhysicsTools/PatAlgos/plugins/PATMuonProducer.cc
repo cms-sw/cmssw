@@ -821,13 +821,13 @@ void PATMuonProducer::setMuonMiniIso(Muon& aMuon, const PackedCandidateCollectio
   aMuon.setMiniPFIsolation(miniiso);
 }
 
-double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, double rho, std::vector<double> &EA)
+double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, double rho, const std::vector<double> &area)
 {
   double mindr(miniIsoParams_[0]);
   double maxdr(miniIsoParams_[1]);
   double kt_scale(miniIsoParams_[2]);
   double drcut = pat::miniIsoDr(muon.p4(),mindr,maxdr,kt_scale);
-  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.p4(), drcut, rho, EA);
+  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.p4(), drcut, rho, area);
 }
 
 
