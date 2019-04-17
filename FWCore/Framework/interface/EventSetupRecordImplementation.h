@@ -25,6 +25,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
@@ -48,30 +49,41 @@ namespace edm {
 
          template<typename PRODUCT>
          ESHandle<PRODUCT> getHandle(ESGetToken<PRODUCT,T> const& iToken) const {
-           return getHandleImpl(iToken);
+           return getHandleImpl<ESHandle>(iToken);
          }
 
          template<typename PRODUCT>
          ESHandle<PRODUCT> getHandle(ESGetToken<PRODUCT,edm::DefaultRecord> const& iToken) const {
            static_assert(std::is_same_v<T, eventsetup::default_record_t<ESHandle<PRODUCT>>>, "The Record being used to retrieve the product is not the default record for the product type");
-           return getHandleImpl(iToken);
+           return getHandleImpl<ESHandle>(iToken);
          }
+
+        template<typename PRODUCT>
+        ESTransientHandle<PRODUCT> getTransientHandle(ESGetToken<PRODUCT,T> const& iToken) const {
+          return getHandleImpl<ESTransientHandle>(iToken);
+        }
+
+        template<typename PRODUCT>
+        ESTransientHandle<PRODUCT> getTransientHandle(ESGetToken<PRODUCT,edm::DefaultRecord> const& iToken) const {
+          static_assert(std::is_same_v<T, eventsetup::default_record_t<ESTransientHandle<PRODUCT>>>, "The Record being used to retrieve the product is not the default record for the product type");
+          return getHandleImpl<ESTransientHandle>(iToken);
+        }
 
          using EventSetupRecord::get;
         
          template<typename PRODUCT>
          PRODUCT const& get(ESGetToken<PRODUCT,T> const& iToken) const {
-           return *getHandleImpl(iToken);
+           return *getHandleImpl<ESHandle>(iToken);
          }
         template<typename PRODUCT>
         PRODUCT const& get(ESGetToken<PRODUCT,T>& iToken) const {
-          return *getHandleImpl(const_cast<const ESGetToken<PRODUCT,T>&>(iToken));
+          return *getHandleImpl<ESHandle>(const_cast<const ESGetToken<PRODUCT,T>&>(iToken));
         }
 
          template<typename PRODUCT>
          PRODUCT const& get(ESGetToken<PRODUCT,edm::DefaultRecord> const& iToken) const {
            static_assert(std::is_same_v<T, eventsetup::default_record_t<ESHandle<PRODUCT>>>, "The Record being used to retrieve the product is not the default record for the product type");
-           return *getHandleImpl(iToken);
+           return *getHandleImpl<ESHandle>(iToken);
          }
         template<typename PRODUCT>
         PRODUCT const& get(ESGetToken<PRODUCT,edm::DefaultRecord>& iToken) const {

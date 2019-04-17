@@ -15,6 +15,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
@@ -55,6 +56,7 @@ class testEventsetup: public CppUnit::TestFixture
   CPPUNIT_TEST(getDataWithESInputTagTest);
   CPPUNIT_TEST(getDataWithESGetTokenTest);
   CPPUNIT_TEST(getHandleWithESGetTokenTest);
+  CPPUNIT_TEST(getTransientHandleWithESGetTokenTest);
   CPPUNIT_TEST_EXCEPTION(recordValidityTest,edm::eventsetup::NoRecordException<DummyRecord>);
   CPPUNIT_TEST_EXCEPTION(recordValidityExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
   CPPUNIT_TEST(proxyProviderTest);
@@ -87,6 +89,7 @@ public:
   void getDataWithESInputTagTest();
   void getDataWithESGetTokenTest();
   void getHandleWithESGetTokenTest();
+  void getTransientHandleWithESGetTokenTest();
 
   void producerConflictTest();
   void sourceConflictTest();
@@ -657,6 +660,87 @@ void testEventsetup::getHandleWithESGetTokenTest()
     }
     
     
+  } catch (const cms::Exception& iException) {
+    std::cout <<"caught "<<iException.explainSelf()<<std::endl;
+    throw;
+  }
+}
+
+void testEventsetup::getTransientHandleWithESGetTokenTest()
+{
+  using edm::eventsetup::test::DummyProxyProvider;
+  using edm::eventsetup::test::DummyData;
+  DummyData kGood{1};
+  DummyData kBad{0};
+
+  eventsetup::EventSetupProvider provider(&activityRegistry);
+  try {
+    {
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider","testOne",true);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test11");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyProxyProvider>(kBad);
+      dummyProv->setDescription(description);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider","testTwo",false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test22");
+      ps.addParameter<std::string>("appendToDataLabel","blah");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyProxyProvider>(kGood);
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    provider.finishConfiguration();
+
+    auto const& eventSetupImpl = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("","blah")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
+      edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_==data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      CPPUNIT_ASSERT( desc->label_ == "testTwo");
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("","")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
+      edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
+      CPPUNIT_ASSERT(kBad.value_==data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      CPPUNIT_ASSERT( desc->label_ == "testOne");
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("testTwo","blah")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
+      edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_==data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      CPPUNIT_ASSERT( desc->label_ == "testTwo");
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("DoesNotExist","blah")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
+      edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
+      CPPUNIT_ASSERT(not data);
+      CPPUNIT_ASSERT_THROW(*data, cms::Exception);
+    }
+
+
   } catch (const cms::Exception& iException) {
     std::cout <<"caught "<<iException.explainSelf()<<std::endl;
     throw;

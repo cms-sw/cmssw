@@ -87,6 +87,17 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
         return getRecord<DepRecordT>().getHandle(iToken);
       }
 
+      using EventSetupRecordImplementation<RecordT>::getTransientHandle;
+
+      template<typename ProductT, typename DepRecordT>
+      ESTransientHandle<ProductT> getTransientHandle(ESGetToken<ProductT, DepRecordT> const& iToken) const {
+        //Make sure that DepRecordT is a type in ListT
+        using EndItrT = typename boost::mpl::end< ListT >::type;
+        using FoundItrT = typename boost::mpl::find< ListT, DepRecordT >::type;
+        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a a product with an ESGetToken specifying a Record from another Record where the second Record is not dependent on the first Record.");
+        return getRecord<DepRecordT>().getTransientHandle(iToken);
+      }
+
       using EventSetupRecordImplementation<RecordT>::get;
 
       template<typename ProductT, typename DepRecordT>
