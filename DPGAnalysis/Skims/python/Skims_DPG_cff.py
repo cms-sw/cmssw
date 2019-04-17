@@ -58,6 +58,20 @@ SKIMStreamLogErrorMonitor = cms.FilteredStream(
     dataTier = cms.untracked.string('USER')
     )
 
+#############
+from DPGAnalysis.Skims.BunchCrossingSkim_cff import *
+BXfilter1 = cms.Path(BXSeq1)
+BXfilter2 = cms.Path(BXSeq2)
+BXfilter3 = cms.Path(BXSeq3)
+SKIMStreamBunchCrossingSkim = cms.FilteredStream(
+    responsible = 'TSG',
+    name = 'BunchCrossingSkim',
+    paths = (BXfilter1,BXfilter2,BXfilter3),
+    content = cms.untracked.vstring( 'keep *' ),
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW')
+)
+
 ##############
 #from  DPGAnalysis.Skims.BeamBkgSkim_cff import *
 #pathpfgskim3noncross = cms.Path(pfgskim3noncrossseq)

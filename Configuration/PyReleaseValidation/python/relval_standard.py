@@ -399,6 +399,10 @@ workflows[136.894] = ['',['RunNoBPTX2018D','HLTDR2_2018','RECODR2_2018reHLTAlCaT
 workflows[136.895] = ['',['RunDisplacedJet2018D','HLTDR2_2018','RECODR2_2018reHLT_skimDisplacedJet_Prompt','HARVEST2018_Prompt']]
 workflows[136.896] = ['',['RunCharmonium2018D','HLTDR2_2018','RECODR2_2018reHLT_skimCharmonium_Prompt','HARVEST2018_Prompt']]
 
+### run 2018E ###
+workflows[136.899] = ['',['RunHLTPhy2018E','HLTDR2_2018','RECODR2_2018reHLT_skimHLTPhy_Prompt','HARVEST2018_Prompt']]
+workflows[136.900] = ['',['RunZeroBias2018E','HLTDR2_2018','RECODR2_2018reHLT_skimZeroBias_Prompt','HARVEST2018_Prompt']]
+
 # multi-run harvesting
 workflows[137.8] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Offline_L1TEgDQM',
                         'RunEGamma2018D','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_MULTIRUN']]

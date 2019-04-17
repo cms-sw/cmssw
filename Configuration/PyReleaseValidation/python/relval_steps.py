@@ -457,6 +457,11 @@ steps['RunNoBPTX2018D']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2018D-v1/RAW',lab
 steps['RunDisplacedJet2018D']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018D-v1/RAW',label='displacedJet2018D',events=100000,location='STD', ls=Run2018D)}
 steps['RunCharmonium2018D']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018D-v1/RAW',label='charm2018D',events=100000,location='STD', ls=Run2018D)}
 
+#### run2 2018E ####
+Run2018E={325594: [[1, 100]]}
+steps['RunHLTPhy2018E']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2018E-v1/RAW',label='hltPhy2018E',events=100000,location='STD', ls=Run2018E)}
+steps['RunZeroBias2018E']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2018E-v1/RAW',label='zb2018E',events=100000,location='STD', ls=Run2018E)}
+
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
 steps['RunHLTPhy2015DHS']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015D-v1/RAW',label='hltPhy2015DHS',events=100000,location='STD', ls=Run2015DHS)}
@@ -2131,6 +2136,8 @@ steps['RECODR2_2018reHLT_skimMET']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:HighM
 steps['RECODR2_2018reHLT_skimMuOnia']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:BPHSkim,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimCharmonium']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGJPsiSkim+BPHSkim,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimParkingBPH']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:SkimBPark,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM','--era':'Run2_2018,bParking'},steps['RECODR2_2018reHLT']])
+steps['RECODR2_2018reHLT_skimHLTPhy']=merge([{'-s':'SKIM:BunchCrossingSkim'},steps['RECODR2_2018reHLT']])
+steps['RECODR2_2018reHLT_skimZeroBias']=merge([{'-s':'SKIM:BunchCrossingSkim'},steps['RECODR2_2018reHLT']])
 
 
 
@@ -2199,6 +2206,11 @@ steps['RECODR2_2018reHLT_Prompt_hBStar']=merge([{'--era':'Run2_2018_highBetaStar
 steps['RECODR2_2018reHLT_Offline_hBStar']=merge([{'--era':'Run2_2018_highBetaStar'},steps['RECODR2_2018reHLT_Offline']])
 steps['RECODR2_2018reHLT_skimJetHT_Prompt_HEfail']=merge([{'--conditions':'auto:run2_data_promptlike_HEfail'},steps['RECODR2_2018reHLT_skimJetHT']])
 steps['RECODR2_2018reHLT_skimJetHT_Prompt_BadHcalMitig']=merge([{'--conditions':'auto:run2_data_promptlike_HEfail','--era':'Run2_2018,pf_badHcalMitigation'},steps['RECODR2_2018reHLT_skimJetHT']])
+steps['RECODR2_2018reHLT_skimHLTPhy_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimHLTPhy']])
+steps['RECODR2_2018reHLT_skimHLTPhy_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimHLTPhy']])
+steps['RECODR2_2018reHLT_skimZeroBias_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimZeroBias']])
+steps['RECODR2_2018reHLT_skimZeroBias_Offline']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT_skimZeroBias']])
+
 
 steps['RECO']=merge([step3Defaults])
 
