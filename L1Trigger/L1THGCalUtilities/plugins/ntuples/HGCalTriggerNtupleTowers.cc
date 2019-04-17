@@ -3,48 +3,37 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCalUtilities/interface/HGCalTriggerNtupleBase.h"
 
+class HGCalTriggerNtupleHGCTowers : public HGCalTriggerNtupleBase {
+public:
+  HGCalTriggerNtupleHGCTowers(const edm::ParameterSet& conf);
+  ~HGCalTriggerNtupleHGCTowers() override{};
+  void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
+  void fill(const edm::Event& e, const edm::EventSetup& es) final;
 
+private:
+  void clear() final;
 
-class HGCalTriggerNtupleHGCTowers : public HGCalTriggerNtupleBase
-{
+  edm::EDGetToken towers_token_;
 
-  public:
-    HGCalTriggerNtupleHGCTowers(const edm::ParameterSet& conf);
-    ~HGCalTriggerNtupleHGCTowers() override{};
-    void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
-    void fill(const edm::Event& e, const edm::EventSetup& es) final;
-
-  private:
-    void clear() final;
-
-    edm::EDGetToken towers_token_;
-
-    int tower_n_ ;
-    std::vector<float> tower_pt_;
-    std::vector<float> tower_energy_;
-    std::vector<float> tower_eta_;
-    std::vector<float> tower_phi_;
-    std::vector<float> tower_etEm_;
-    std::vector<float> tower_etHad_;
-    std::vector<int> tower_iEta_;
-    std::vector<int> tower_iPhi_;
-
+  int tower_n_;
+  std::vector<float> tower_pt_;
+  std::vector<float> tower_energy_;
+  std::vector<float> tower_eta_;
+  std::vector<float> tower_phi_;
+  std::vector<float> tower_etEm_;
+  std::vector<float> tower_etHad_;
+  std::vector<int> tower_iEta_;
+  std::vector<int> tower_iPhi_;
 };
 
-DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
-    HGCalTriggerNtupleHGCTowers,
-    "HGCalTriggerNtupleHGCTowers" );
+DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCTowers, "HGCalTriggerNtupleHGCTowers");
 
+HGCalTriggerNtupleHGCTowers::HGCalTriggerNtupleHGCTowers(const edm::ParameterSet& conf)
+    : HGCalTriggerNtupleBase(conf) {}
 
-HGCalTriggerNtupleHGCTowers::
-HGCalTriggerNtupleHGCTowers(const edm::ParameterSet& conf):HGCalTriggerNtupleBase(conf)
-{
-}
-
-void
-HGCalTriggerNtupleHGCTowers::
-initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& collector)
-{
+void HGCalTriggerNtupleHGCTowers::initialize(TTree& tree,
+                                             const edm::ParameterSet& conf,
+                                             edm::ConsumesCollector&& collector) {
   towers_token_ = collector.consumes<l1t::HGCalTowerBxCollection>(conf.getParameter<edm::InputTag>("Towers"));
 
   tree.Branch("tower_n", &tower_n_, "tower_n/I");
@@ -56,16 +45,9 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("tower_etHad", &tower_etHad_);
   tree.Branch("tower_iEta", &tower_iEta_);
   tree.Branch("tower_iPhi", &tower_iPhi_);
-
 }
 
-
-
-void
-HGCalTriggerNtupleHGCTowers::
-fill(const edm::Event& e, const edm::EventSetup& es)
-{
-
+void HGCalTriggerNtupleHGCTowers::fill(const edm::Event& e, const edm::EventSetup& es) {
   // retrieve towers
   edm::Handle<l1t::HGCalTowerBxCollection> towers_h;
   e.getByToken(towers_token_, towers_h);
@@ -76,8 +58,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   es.get<CaloGeometryRecord>().get(geometry);
 
   clear();
-  for(auto tower_itr=towers.begin(0); tower_itr!=towers.end(0); tower_itr++)
-  {
+  for (auto tower_itr = towers.begin(0); tower_itr != towers.end(0); tower_itr++) {
     tower_n_++;
     // physical values
     tower_pt_.emplace_back(tower_itr->pt());
@@ -92,11 +73,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   }
 }
 
-
-void
-HGCalTriggerNtupleHGCTowers::
-clear()
-{
+void HGCalTriggerNtupleHGCTowers::clear() {
   tower_n_ = 0;
   tower_pt_.clear();
   tower_energy_.clear();
