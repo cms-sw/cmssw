@@ -17,12 +17,10 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, 0, MaxFSVSize, Max
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, 0, MaxSVSize, MaxSVSize> SampleMatrix;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, 0, MaxPVSize, MaxPVSize> PulseMatrix;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, 0, MaxSVSize, MaxPVSize> SamplePulseMatrix;
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, 0, MaxPVSize, MaxSVSize> PulseSampleMatrix;
 
 typedef Eigen::LLT<SampleMatrix> SampleDecompLLT;
 typedef Eigen::LLT<PulseMatrix> PulseDecompLLT;
 typedef Eigen::LDLT<PulseMatrix> PulseDecompLDLT;
-
-typedef Eigen::Matrix<double, 1, 1> SingleMatrix;
-typedef Eigen::Matrix<double, 1, 1> SingleVector;
 
 #endif

@@ -1,7 +1,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/MahiFit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-MahiFit::MahiFit() : fullTSSize_(19), fullTSofInterest_(8) {}
+MahiFit::MahiFit() {}
 
 void MahiFit::setParameters(bool iDynamicPed,
                             double iTS4Thresh,
@@ -51,58 +51,46 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   resetWorkspace();
 
-  nnlsWork_.tsSize = channelData.nSamples();
   nnlsWork_.tsOffset = channelData.soi();
-  nnlsWork_.fullTSOffset = fullTSofInterest_ - nnlsWork_.tsOffset;
 
-  // 1 sigma time constraint
-  if (channelData.hasTimeInfo())
-    nnlsWork_.dt = timeSigmaSiPM_;
-  else
-    nnlsWork_.dt = timeSigmaHPD_;
+  std::array<float, 3> reconstructedVals{{0.0f, -9999.f, -9999.f}};
 
-  //Average pedestal width (for covariance matrix constraint)
-  float pedVal = 0.25 * (channelData.tsPedestalWidth(0) * channelData.tsPedestalWidth(0) +
-                         channelData.tsPedestalWidth(1) * channelData.tsPedestalWidth(1) +
-                         channelData.tsPedestalWidth(2) * channelData.tsPedestalWidth(2) +
-                         channelData.tsPedestalWidth(3) * channelData.tsPedestalWidth(3));
-
-  nnlsWork_.pedConstraint.setConstant(nnlsWork_.tsSize, nnlsWork_.tsSize, pedVal);
-  nnlsWork_.amplitudes.resize(nnlsWork_.tsSize);
-  nnlsWork_.noiseTerms.resize(nnlsWork_.tsSize);
-
-  std::array<float, 3> reconstructedVals{{0.0, -9999, -9999}};
+  auto norm = (1. / std::sqrt(12));
 
   double tsTOT = 0, tstrig = 0;  // in GeV
   for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
-    double charge = channelData.tsRawCharge(iTS);
-    double ped = channelData.tsPedestal(iTS);
+    auto const amplitude = channelData.tsRawCharge(iTS) - channelData.tsPedestal(iTS);
 
-    nnlsWork_.amplitudes.coeffRef(iTS) = charge - ped;
+    nnlsWork_.amplitudes.coeffRef(iTS) = amplitude;
 
     //ADC granularity
-    double noiseADC = (1. / sqrt(12)) * channelData.tsDFcPerADC(iTS);
-
-    //Photostatistics
-    double noisePhoto = 0;
-    if ((charge - ped) > channelData.tsPedestalWidth(iTS)) {
-      noisePhoto = sqrt((charge - ped) * channelData.fcByPE());
-    }
+    auto const noiseADC = norm * channelData.tsDFcPerADC(iTS);
 
     //Electronic pedestal
-    double pedWidth = channelData.tsPedestalWidth(iTS);
+    auto const pedWidth = channelData.tsPedestalWidth(iTS);
+
+    //Photostatistics
+    auto const noisePhoto = (amplitude > pedWidth) ? std::sqrt(amplitude * channelData.fcByPE()) : 0;
 
     //Total uncertainty from all sources
     nnlsWork_.noiseTerms.coeffRef(iTS) = noiseADC * noiseADC + noisePhoto * noisePhoto + pedWidth * pedWidth;
 
-    tsTOT += (charge - ped) * channelData.tsGain(0);
-    if (iTS == nnlsWork_.tsOffset) {
-      tstrig += (charge - ped) * channelData.tsGain(0);
-    }
+    tsTOT += amplitude;
+    if (iTS == nnlsWork_.tsOffset)
+      tstrig += amplitude;
   }
+
+  tsTOT *= channelData.tsGain(0);
+  tstrig *= channelData.tsGain(0);
 
   useTriple = false;
   if (tstrig >= ts4Thresh_ && tsTOT > 0) {
+    //Average pedestal width (for covariance matrix constraint)
+    nnlsWork_.pedVal = 0.25f * (channelData.tsPedestalWidth(0) * channelData.tsPedestalWidth(0) +
+                                channelData.tsPedestalWidth(1) * channelData.tsPedestalWidth(1) +
+                                channelData.tsPedestalWidth(2) * channelData.tsPedestalWidth(2) +
+                                channelData.tsPedestalWidth(3) * channelData.tsPedestalWidth(3));
+
     // only do pre-fit with 1 pulse if chiSq threshold is positive
     if (chiSqSwitch_ > 0) {
       doFit(reconstructedVals, 1);
@@ -115,9 +103,9 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
       useTriple = true;
     }
   } else {
-    reconstructedVals.at(0) = 0.;      //energy
-    reconstructedVals.at(1) = -9999.;  //time
-    reconstructedVals.at(2) = -9999.;  //chi2
+    reconstructedVals.at(0) = 0.f;      //energy
+    reconstructedVals.at(1) = -9999.f;  //time
+    reconstructedVals.at(2) = -9999.f;  //chi2
   }
 
   reconstructedEnergy = reconstructedVals[0] * channelData.tsGain(0);
@@ -160,27 +148,29 @@ void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx) const {
 
   FullSampleVector pulseShapeArray;
   FullSampleVector pulseDerivArray;
+  FullSampleMatrix pulseCov;
 
   int offset = 0;
   for (unsigned int iBX = 0; iBX < nnlsWork_.nPulseTot; ++iBX) {
     offset = nnlsWork_.bxs.coeff(iBX);
 
-    pulseShapeArray.setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
-    pulseDerivArray.setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
-    nnlsWork_.pulseCovArray[iBX].setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset,
-                                         nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
-
     if (offset == pedestalBX_) {
       nnlsWork_.pulseMat.col(iBX) = SampleVector::Ones(nnlsWork_.tsSize);
       nnlsWork_.pulseDerivMat.col(iBX) = SampleVector::Zero(nnlsWork_.tsSize);
     } else {
-      updatePulseShape(nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset + offset),
-                       pulseShapeArray,
-                       pulseDerivArray,
-                       nnlsWork_.pulseCovArray[iBX]);
+      pulseShapeArray.setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
+      pulseDerivArray.setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
+      pulseCov.setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset,
+                       nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
+      nnlsWork_.pulseCovArray[iBX].setZero(nnlsWork_.tsSize, nnlsWork_.tsSize);
+
+      updatePulseShape(
+          nnlsWork_.amplitudes.coeff(nnlsWork_.tsOffset + offset), pulseShapeArray, pulseDerivArray, pulseCov);
 
       nnlsWork_.pulseMat.col(iBX) = pulseShapeArray.segment(nnlsWork_.maxoffset - offset, nnlsWork_.tsSize);
       nnlsWork_.pulseDerivMat.col(iBX) = pulseDerivArray.segment(nnlsWork_.maxoffset - offset, nnlsWork_.tsSize);
+      nnlsWork_.pulseCovArray[iBX] = pulseCov.block(
+          nnlsWork_.maxoffset - offset, nnlsWork_.maxoffset - offset, nnlsWork_.tsSize, nnlsWork_.tsSize);
     }
   }
 
@@ -200,12 +190,12 @@ void MahiFit::doFit(std::array<float, 3>& correctedOutput, int nbx) const {
     correctedOutput.at(0) = nnlsWork_.ampVec.coeff(ipulseintime);  //charge
     if (correctedOutput.at(0) != 0) {
       // fixME store the timeslew
-      float arrivalTime = 0.;
+      float arrivalTime = 0.f;
       if (calculateArrivalTime_)
         arrivalTime = calculateArrivalTime();
       correctedOutput.at(1) = arrivalTime;  //time
     } else
-      correctedOutput.at(1) = -9999;  //time
+      correctedOutput.at(1) = -9999.f;  //time
 
     correctedOutput.at(2) = chiSq;  //chi2
   }
@@ -262,21 +252,17 @@ void MahiFit::updatePulseShape(double itQ,
   std::array<double, MaxSVSize> pulseM;
   std::array<double, MaxSVSize> pulseP;
 
-  pulseN.fill(0);
-  pulseM.fill(0);
-  pulseP.fill(0);
+  const float xx = t0;
+  const float xxm = -nnlsWork_.dt + t0;
+  const float xxp = nnlsWork_.dt + t0;
 
-  const double xx[4] = {t0, 1.0, 0.0, 3};
-  const double xxm[4] = {-nnlsWork_.dt + t0, 1.0, 0.0, 3};
-  const double xxp[4] = {nnlsWork_.dt + t0, 1.0, 0.0, 3};
-
-  psfPtr_->singlePulseShapeFuncMahi(&xx[0]);
+  psfPtr_->singlePulseShapeFuncMahi(&xx);
   psfPtr_->getPulseShape(pulseN);
 
-  psfPtr_->singlePulseShapeFuncMahi(&xxm[0]);
+  psfPtr_->singlePulseShapeFuncMahi(&xxm);
   psfPtr_->getPulseShape(pulseM);
 
-  psfPtr_->singlePulseShapeFuncMahi(&xxp[0]);
+  psfPtr_->singlePulseShapeFuncMahi(&xxp);
   psfPtr_->getPulseShape(pulseP);
 
   //in the 2018+ case where the sample of interest (SOI) is in TS3, add an extra offset to align
@@ -306,23 +292,22 @@ void MahiFit::updatePulseShape(double itQ,
 
 void MahiFit::updateCov() const {
   SampleMatrix invCovMat;
-  invCovMat.setZero(nnlsWork_.tsSize, nnlsWork_.tsSize);
-  invCovMat = nnlsWork_.noiseTerms.asDiagonal();
-  invCovMat += nnlsWork_.pedConstraint;
+  invCovMat.setConstant(nnlsWork_.tsSize, nnlsWork_.tsSize, nnlsWork_.pedVal);
+  invCovMat += nnlsWork_.noiseTerms.asDiagonal();
 
   for (unsigned int iBX = 0; iBX < nnlsWork_.nPulseTot; ++iBX) {
-    if (nnlsWork_.ampVec.coeff(iBX) == 0)
+    auto const amp = nnlsWork_.ampVec.coeff(iBX);
+    if (amp == 0)
       continue;
+
+    auto const ampsq = amp * amp;
 
     int offset = nnlsWork_.bxs.coeff(iBX);
 
     if (offset == pedestalBX_)
       continue;
     else {
-      invCovMat +=
-          nnlsWork_.ampVec.coeff(iBX) * nnlsWork_.ampVec.coeff(iBX) *
-          nnlsWork_.pulseCovArray.at(offset + nnlsWork_.bxOffset)
-              .block(nnlsWork_.maxoffset - offset, nnlsWork_.maxoffset - offset, nnlsWork_.tsSize, nnlsWork_.tsSize);
+      invCovMat += ampsq * nnlsWork_.pulseCovArray.at(offset + nnlsWork_.bxOffset);
     }
   }
 
@@ -333,8 +318,7 @@ float MahiFit::calculateArrivalTime() const {
   int itIndex = 0;
 
   for (unsigned int iBX = 0; iBX < nnlsWork_.nPulseTot; ++iBX) {
-    int offset = nnlsWork_.bxs.coeff(iBX);
-    if (offset == 0)
+    if (nnlsWork_.bxs.coeff(iBX) == 0)
       itIndex = iBX;
     nnlsWork_.pulseDerivMat.col(iBX) *= nnlsWork_.ampVec.coeff(iBX);
   }
@@ -390,8 +374,8 @@ void MahiFit::nnls() const {
       }
 
       //unconstrain parameter
-      Index idxp = nnlsWork_.nP + idxwmax;
-      nnlsUnconstrainParameter(idxp);
+      idxwmax += nnlsWork_.nP;
+      nnlsUnconstrainParameter(idxwmax);
     }
 
     while (true) {
@@ -448,10 +432,12 @@ void MahiFit::nnls() const {
 void MahiFit::onePulseMinimize() const {
   nnlsWork_.invcovp = nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.pulseMat);
 
-  SingleMatrix aTamatval = nnlsWork_.invcovp.transpose() * nnlsWork_.invcovp;
-  SingleVector aTbvecval = nnlsWork_.invcovp.transpose() * nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.amplitudes);
+  PulseSampleMatrix invcovpT = nnlsWork_.invcovp.transpose();
 
-  nnlsWork_.ampVec.coeffRef(0) = std::max(0., aTbvecval.coeff(0) / aTamatval.coeff(0));
+  double aTaCoeff = (invcovpT.lazyProduct(nnlsWork_.invcovp)).coeff(0);
+  double aTbCoeff = invcovpT.lazyProduct(nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.amplitudes)).coeff(0);
+
+  nnlsWork_.ampVec.coeffRef(0) = std::max(0., aTbCoeff / aTaCoeff);
 }
 
 double MahiFit::calculateChiSq() const {
@@ -459,22 +445,32 @@ double MahiFit::calculateChiSq() const {
       .squaredNorm();
 }
 
-void MahiFit::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, const HcalTimeSlew* hcalTimeSlewDelay) {
+void MahiFit::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps,
+                                    bool hasTimeInfo,
+                                    const HcalTimeSlew* hcalTimeSlewDelay,
+                                    unsigned int nSamples) {
   if (!(&ps == currentPulseShape_)) {
     hcalTimeSlewDelay_ = hcalTimeSlewDelay;
     tsDelay1GeV_ = hcalTimeSlewDelay->delay(1.0, slewFlavor_);
 
-    resetPulseShapeTemplate(ps);
+    resetPulseShapeTemplate(ps, hasTimeInfo, nSamples);
     currentPulseShape_ = &ps;
   }
 }
 
-void MahiFit::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
+void MahiFit::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool hasTimeInfo, unsigned int nSamples) {
   ++cntsetPulseShape_;
 
   // only the pulse shape itself from PulseShapeFunctor is used for Mahi
   // the uncertainty terms calculated inside PulseShapeFunctor are used for Method 2 only
   psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps, false, false, false, 1, 0, 0, 10));
+
+  // 1 sigma time constraint
+  nnlsWork_.dt = hasTimeInfo ? timeSigmaSiPM_ : timeSigmaHPD_;
+
+  nnlsWork_.tsSize = nSamples;
+  nnlsWork_.amplitudes.resize(nnlsWork_.tsSize);
+  nnlsWork_.noiseTerms.resize(nnlsWork_.tsSize);
 }
 
 void MahiFit::nnlsUnconstrainParameter(Index idxp) const {
@@ -482,9 +478,9 @@ void MahiFit::nnlsUnconstrainParameter(Index idxp) const {
   nnlsWork_.aTaMat.row(nnlsWork_.nP).swap(nnlsWork_.aTaMat.row(idxp));
   nnlsWork_.pulseMat.col(nnlsWork_.nP).swap(nnlsWork_.pulseMat.col(idxp));
   nnlsWork_.pulseDerivMat.col(nnlsWork_.nP).swap(nnlsWork_.pulseDerivMat.col(idxp));
-  std::swap(nnlsWork_.aTbVec.coeffRef(nnlsWork_.nP), nnlsWork_.aTbVec.coeffRef(idxp));
-  std::swap(nnlsWork_.ampVec.coeffRef(nnlsWork_.nP), nnlsWork_.ampVec.coeffRef(idxp));
-  std::swap(nnlsWork_.bxs.coeffRef(nnlsWork_.nP), nnlsWork_.bxs.coeffRef(idxp));
+  Eigen::numext::swap(nnlsWork_.aTbVec.coeffRef(nnlsWork_.nP), nnlsWork_.aTbVec.coeffRef(idxp));
+  Eigen::numext::swap(nnlsWork_.ampVec.coeffRef(nnlsWork_.nP), nnlsWork_.ampVec.coeffRef(idxp));
+  Eigen::numext::swap(nnlsWork_.bxs.coeffRef(nnlsWork_.nP), nnlsWork_.bxs.coeffRef(idxp));
   ++nnlsWork_.nP;
 }
 
@@ -493,9 +489,9 @@ void MahiFit::nnlsConstrainParameter(Index minratioidx) const {
   nnlsWork_.aTaMat.row(nnlsWork_.nP - 1).swap(nnlsWork_.aTaMat.row(minratioidx));
   nnlsWork_.pulseMat.col(nnlsWork_.nP - 1).swap(nnlsWork_.pulseMat.col(minratioidx));
   nnlsWork_.pulseDerivMat.col(nnlsWork_.nP - 1).swap(nnlsWork_.pulseDerivMat.col(minratioidx));
-  std::swap(nnlsWork_.aTbVec.coeffRef(nnlsWork_.nP - 1), nnlsWork_.aTbVec.coeffRef(minratioidx));
-  std::swap(nnlsWork_.ampVec.coeffRef(nnlsWork_.nP - 1), nnlsWork_.ampVec.coeffRef(minratioidx));
-  std::swap(nnlsWork_.bxs.coeffRef(nnlsWork_.nP - 1), nnlsWork_.bxs.coeffRef(minratioidx));
+  Eigen::numext::swap(nnlsWork_.aTbVec.coeffRef(nnlsWork_.nP - 1), nnlsWork_.aTbVec.coeffRef(minratioidx));
+  Eigen::numext::swap(nnlsWork_.ampVec.coeffRef(nnlsWork_.nP - 1), nnlsWork_.ampVec.coeffRef(minratioidx));
+  Eigen::numext::swap(nnlsWork_.bxs.coeffRef(nnlsWork_.nP - 1), nnlsWork_.bxs.coeffRef(minratioidx));
   --nnlsWork_.nP;
 }
 
@@ -616,14 +612,11 @@ void MahiFit::solveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& 
 
 void MahiFit::resetWorkspace() const {
   nnlsWork_.nPulseTot = 0;
-  nnlsWork_.tsSize = 0;
   nnlsWork_.tsOffset = 0;
-  nnlsWork_.fullTSOffset = 0;
   nnlsWork_.bxOffset = 0;
   nnlsWork_.maxoffset = 0;
-  nnlsWork_.dt = 0;
 
+  // NOT SURE THIS IS NEEDED
   nnlsWork_.amplitudes.setZero();
   nnlsWork_.noiseTerms.setZero();
-  nnlsWork_.pedConstraint.setZero();
 }
