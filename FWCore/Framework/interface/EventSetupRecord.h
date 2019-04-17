@@ -203,10 +203,15 @@ namespace edm {
              return invalidTokenHandle(iToken);
            }
            
+           auto proxyIndex = getTokenIndices_[iToken.index().value()];
+           if UNLIKELY( proxyIndex.value() == std::numeric_limits<int>::max()) {
+             return noProxyHandle(iToken);
+           }
+           
            T const* value = nullptr;
            ComponentDescription const* desc = nullptr;
            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-           impl_->getImplementation(value, getTokenIndices_[iToken.index().value()], false, desc, whyFailedFactory);
+           impl_->getImplementation(value, proxyIndex, false, desc, whyFailedFactory);
            
            if UNLIKELY(not value) {
              return ESHandle<T>(std::move(whyFailedFactory));
@@ -234,16 +239,26 @@ namespace edm {
       private:
 
          template<typename T, typename R>
-        ESHandle<T> invalidTokenHandle(ESGetToken<T,R> const& iToken) const { return ESHandle<T>{makeESHandleExceptionFactory([=] {
-          NoProxyException<T> ex(this->key(), DataKey{DataKey::makeTypeTag<T>(), iToken.name()});
+        ESHandle<T> invalidTokenHandle(ESGetToken<T,R> const& iToken) const {
+          auto const key = this->key();
+          return ESHandle<T>{makeESHandleExceptionFactory([key]{ return makeInvalidTokenException(key,DataKey::makeTypeTag<T>()); }) };
+        }
+
+        template<typename T, typename R>
+        ESHandle<T> noProxyHandle(ESGetToken<T,R> const& iToken) const {
+          auto const key = this->key();
+          auto name = iToken.name();
+          return ESHandle<T>{makeESHandleExceptionFactory([key,name] {
+          NoProxyException<T> ex(key, DataKey{DataKey::makeTypeTag<T>(), name});
           return std::make_exception_ptr(ex);
         })}; }
-        
+
          void const* getFromProxy(DataKey const& iKey ,
                                   ComponentDescription const*& iDesc,
                                   bool iTransientAccessOnly) const;
 
-
+        static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&,
+                                                            TypeTag const&);
          // ---------- member data --------------------------------
          EventSetupRecordImpl const* impl_ = nullptr;
          ESProxyIndex const* getTokenIndices_ = nullptr;
