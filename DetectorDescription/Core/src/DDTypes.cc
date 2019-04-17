@@ -81,3 +81,17 @@ std::string formatAsDegrees(double radianVal)
 		return degstr;
 	else return "0000.000000";
 }
+
+// Formats an angle in radians as a 0-padded string in degrees expressed as integer between 0 and 360; e.g. "090" for -270.001 degrees.
+std::string formatAsDegreesInInteger(double radianVal) {
+
+  const unsigned short numlen = 4;
+  char degstr[numlen];
+  int degVal = std::lround(convertRadToDeg( radianVal ));
+  if      (degVal <    0) degVal += 360;
+  else if (degVal >= 360) degVal -= 360;
+  int retval = snprintf(degstr, numlen, "%0*d", numlen-1, degVal);
+
+  if (retval == numlen - 1) return degstr;
+  else                      return "000";
+}

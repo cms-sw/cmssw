@@ -159,16 +159,22 @@ std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> CTPPSInterpolatedO
       const auto rpId = rp_p.first;
       const auto &rp_it2 = ofs2.find(rpId);
       if (rp_it2 == ofs2.end())
-        throw cms::Exception("CTPPSInterpolatedOpticalFunctionsESSource") << "Mismatch between ofs1 and ofs2.";
+        throw cms::Exception("CTPPSInterpolatedOpticalFunctionsESSource") << "RP mismatch between ofs1 and ofs2.";
 
       const auto &of1 = rp_p.second;
       const auto &of2 = rp_it2->second;
 
+      const size_t num_xi_vals1 = of1.getXiValues().size();
+      const size_t num_xi_vals2 = of2.getXiValues().size();
+
+      if (num_xi_vals1 != num_xi_vals2)
+        throw cms::Exception("CTPPSInterpolatedOpticalFunctionsESSource") << "Size mismatch between ofs1 and ofs2.";
+
+      const size_t num_xi_vals = num_xi_vals1;
+
       LHCInterpolatedOpticalFunctionsSet iof;
       iof.m_z = of1.getScoringPlaneZ();
-
-      const size_t num_xi_vals = of1.getXiValues().size();
-
+      iof.m_fcn_values.resize(LHCInterpolatedOpticalFunctionsSet::nFunctions);
       iof.m_xi_values.resize(num_xi_vals);
 
       for (size_t fi = 0; fi < of1.getFcnValues().size(); ++fi)

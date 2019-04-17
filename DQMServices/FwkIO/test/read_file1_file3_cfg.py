@@ -32,7 +32,7 @@ readLumiElements=list()
 for i in range(0,10):
  readLumiElements.append(cms.untracked.PSet(name=cms.untracked.string("Foo"+str(i)),
                                            #file3 has means shifted by 1
-                                           means = cms.untracked.vdouble([i+x/10 for x in range(0,20)]),
+                                           means = cms.untracked.vdouble([i+x//10 for x in range(0,20)]),
                                            entries=cms.untracked.vdouble([1 for x in range(0,20)])
  ))
 

@@ -47,6 +47,7 @@ MicroEventContent = cms.PSet(
 
         'keep double_fixedGridRhoAll__*',
         'keep double_fixedGridRhoFastjetAll__*',
+        'keep double_fixedGridRhoFastjetAllTmp__*',
         'keep double_fixedGridRhoFastjetAllCalo__*',
         'keep double_fixedGridRhoFastjetCentral_*_*',
         'keep double_fixedGridRhoFastjetCentralCalo__*',

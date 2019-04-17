@@ -133,25 +133,25 @@ SiPixelPhase1RecHitsOnEdge = DefaultHistoTrack.clone(
    Specification().groupBy("PXBarrel/PXLayer/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/PXLayer/")
-                   .save(nbins=100, xmin=0, xmax=1000),
+                   .save(nbins=100, xmin=0, xmax=500),
    Specification().groupBy("PXBarrel/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel")
-                   .save(nbins=100, xmin=0, xmax=1000),
+                   .save(nbins=100, xmin=0, xmax=500),
 
     Specification().groupBy("PXForward/PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/PXDisk/")
-                   .save(nbins=100, xmin=0, xmax=1000),
+                   .save(nbins=100, xmin=0, xmax=500),
     Specification().groupBy("PXForward/PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward")
-                   .save(nbins=100, xmin=0, xmax=1000),
+                   .save(nbins=100, xmin=0, xmax=500),
 
     Specification().groupBy("PXAll/Event")
                    .reduce("COUNT")
                    .groupBy("PXAll")
-                   .save(nbins=100, xmin=0, xmax=1000)
+                   .save(nbins=100, xmin=0, xmax=500)
 
   )
 )
@@ -181,25 +181,25 @@ SiPixelPhase1RecHitsOtherBad = DefaultHistoTrack.clone(
    Specification().groupBy("PXBarrel/PXLayer/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/PXLayer/")
-                   .save(nbins=100, xmin=0, xmax=1000),
+                   .save(nbins=100, xmin=0, xmax=500),
    Specification().groupBy("PXBarrel/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel")
-                   .save(nbins=100, xmin=0, xmax=1000),
+                   .save(nbins=100, xmin=0, xmax=500),
 
     Specification().groupBy("PXForward/PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/PXDisk/")
-                   .save(nbins=100, xmin=0, xmax=1000),
+                   .save(nbins=100, xmin=0, xmax=500),
     Specification().groupBy("PXForward/PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward")
-                   .save(nbins=100, xmin=0, xmax=1000),
+                   .save(nbins=100, xmin=0, xmax=500),
 
     Specification().groupBy("PXAll/Event")
                    .reduce("COUNT")
                    .groupBy("PXAll")
-                   .save(nbins=100, xmin=0, xmax=1000)
+                   .save(nbins=100, xmin=0, xmax=500)
   )
 )
 

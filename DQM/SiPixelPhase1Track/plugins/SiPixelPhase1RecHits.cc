@@ -166,6 +166,8 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   histo[NRECHITS].executePerEventHarvesting(&iEvent);
+  histo[NONEDGE].executePerEventHarvesting(&iEvent);
+  histo[NOTHERBAD].executePerEventHarvesting(&iEvent);
 }
 
 } //namespace
