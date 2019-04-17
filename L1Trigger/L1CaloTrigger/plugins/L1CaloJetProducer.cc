@@ -67,8 +67,6 @@ class L1CaloJetProducer : public edm::EDProducer {
                 reco::Candidate::PolarLorentzVector &p4_2) const;
         float get_hcal_calibration( float &jet_pt, float &ecal_pt,
                 float &ecal_L1EG_jet_pt, float &jet_eta ) const;
-        float apply_barrel_HGCal_boundary_calibration( float &jet_pt, float &hcal_pt, float &ecal_pt,
-                float &ecal_L1EG_jet_pt, int &seed_iEta ) const;
         int loose_iso_tau_wp( float &tau_pt, float &tau_iso_et, float &tau_eta ) const;
 
         double HcalTpEtMin;
@@ -1271,38 +1269,6 @@ L1CaloJetProducer::get_hcal_calibration( float &jet_pt, float &ecal_pt,
 }
 
 
-// Apply calibrations to all energies except seed tower if jet is close to the 
-// barrel / HGCal transition boundary
-float
-L1CaloJetProducer::apply_barrel_HGCal_boundary_calibration( float &jet_pt, float &hcal_pt, float &ecal_pt,
-        float &ecal_L1EG_jet_pt, int &seed_iEta ) const
-{
-
-    int abs_iEta = abs( seed_iEta );
-    // If full 7x7 is in barrel, return 1.0
-    if(abs_iEta < 15) return 1.0;
-
-    // Return values are based on 7x7 jet = 49 TTs normally
-    // and are w.r.t. the jet area in the barrel including TT 17 
-    float calib = 1.0;
-    if(abs_iEta == 15) 
-    {
-        calib = 49./42.;
-    }
-    else if(abs_iEta == 16) 
-    {
-        calib = 49./35.;
-    }
-    else if(abs_iEta == 17) 
-    {
-        calib = 49./28.;
-    }
-    jet_pt = jet_pt * calib;
-    hcal_pt = hcal_pt * calib;
-    ecal_pt = ecal_pt * calib;
-    ecal_L1EG_jet_pt = ecal_L1EG_jet_pt * calib;
-    return calib;
-}
 
 
 // Loose IsoTau WP
