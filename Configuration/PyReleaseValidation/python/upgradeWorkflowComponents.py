@@ -14,8 +14,8 @@ upgradeKeys[2017] = [
     '2018Design',
     '2018DesignPU',
     '2019',
-    '2019Design',
     '2019PU',
+    '2019Design',
     '2019DesignPU',
 ]
 
@@ -65,7 +65,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[11800,12000],[12200,12400],[20800,21200],[21600,22400],[25000,26000],[50000,51000]]
+numWFConflict = [[20800,21200],[21600,22400],[25000,26000],[50000,51000]]
 numWFAll={
     2017: [],
     2023: []
