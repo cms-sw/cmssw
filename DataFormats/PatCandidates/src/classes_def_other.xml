@@ -80,11 +80,11 @@
   <class name="edm::ValueMap<pat::HcalDepthEnergyFractions>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::HcalDepthEnergyFractions> >"/>
 
-  <ioread sourceClass = "HcalDepthEnergyFractions" version="[1-]"
-                targetClass="HcalDepthEnergyFractions"
+  <ioread sourceClass = "pat::HcalDepthEnergyFractions" version="[1-]"
+                targetClass="pat::HcalDepthEnergyFractions"
 		source="std::vector<uint8_t> fractionsI_"
 		target="fractions_">
-  <![CDATA[ newObj->init();
+  <![CDATA[ newObj->initFloatVector();
   ]]>
   </ioread>
   
