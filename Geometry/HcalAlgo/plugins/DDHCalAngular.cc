@@ -80,8 +80,8 @@ void DDHCalAngular::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Creating a rotation "
 				     << DDName(rotstr, idNameSpace) << "\t90, "
-				     << convertRadToDeg(phi) << ", 90, " 
-				     << (90+convertRadToDeg(phi)) << ", 0, 0";
+				     << convertRadToDeg(phix) << ", 90, " 
+				     << (90+convertRadToDeg(phix)) << ", 0, 0";
 #endif
         rotation = DDrot(DDName(rotstr, rotns), theta, phix, theta, phiy, 0,0);
       } 

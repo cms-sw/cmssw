@@ -100,7 +100,10 @@ namespace cond {
       
       // 
       bool existsIov( const std::string& tag );
-      
+
+      //
+      bool getTagInfo( const std::string& tag, cond::Tag_t& info );
+            
       // retrieves an IOV range. Peforms a query at every call.
       bool getIovRange( const std::string& tag, 
 			cond::Time_t begin, cond::Time_t end, 

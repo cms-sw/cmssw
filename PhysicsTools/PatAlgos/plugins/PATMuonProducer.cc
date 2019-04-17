@@ -717,6 +717,10 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       muon.setJetPtRatio(jetPtRatio);
       muon.setJetPtRel(jetPtRel);
 
+      // multi-isolation
+      if (computeMiniIso_){
+	muon.setSelector(reco::Muon::MultiIsoMedium, miniIsoValue<0.11 && (muon.jetPtRatio() > 0.74 || muon.jetPtRel() > 6.8) );
+      }
 
       // MVA working points
       // https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
