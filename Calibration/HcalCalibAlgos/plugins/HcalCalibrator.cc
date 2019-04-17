@@ -2,7 +2,7 @@
 //---------------------------------------------------------------------------------
 // Package:    HcalCalibrator
 // Class:      HcalCalibrator
-// 
+//
 /**\class HcalCalibrator HcalCalibrator.cc MyPackages/HcalCalibrator/src/HcalCalibrator.cc
 
 Description: <one line class summary>
@@ -23,8 +23,6 @@ to the actual calibration code in "endJob()".
 //
 //_________________________________________________________________________________
 
-
-
 // system include files
 #include <memory>
 #include <fstream>
@@ -37,7 +35,6 @@ to the actual calibration code in "endJob()".
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -56,100 +53,84 @@ to the actual calibration code in "endJob()".
 
 #include "TFile.h"
 
-
-
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-
-
 
 using namespace edm;
 //using namespace reco;
 using namespace std;
 
-
 // constructor
 
-HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf) :
+HcalCalibrator::HcalCalibrator(const edm::ParameterSet& conf)
+    :
 
-  mInputFileList(conf.getUntrackedParameter<string>("inputFileList")),
-  //  mOutputFile(conf.getUntrackedParameter<string>("outputFile")),
+      mInputFileList(conf.getUntrackedParameter<string>("inputFileList")),
+      //  mOutputFile(conf.getUntrackedParameter<string>("outputFile")),
 
-  mCalibType(conf.getUntrackedParameter<string>("calibType")),
-  mCalibMethod(conf.getUntrackedParameter<string>("calibMethod")),
-  mMinTargetE(conf.getUntrackedParameter<double>("minTargetE")),
-  mMaxTargetE(conf.getUntrackedParameter<double>("maxTargetE")),
-  mMinCellE(conf.getUntrackedParameter<double>("minCellE")),
-  mMinEOverP(conf.getUntrackedParameter<double>("minEOverP")),
-  mMaxEOverP(conf.getUntrackedParameter<double>("maxEOverP")),
-  mMaxTrkEmE(conf.getUntrackedParameter<double>("maxTrkEmE")),
-  mMaxEtThirdJet(conf.getUntrackedParameter<double>("maxEtThirdJet")),
-  mMinDPhiDiJets(conf.getUntrackedParameter<double>("minDPhiDiJets")),
-  mSumDepths(conf.getUntrackedParameter<bool>("sumDepths")),
-  mSumSmallDepths(conf.getUntrackedParameter<bool>("sumSmallDepths")),
-  mCombinePhi (conf.getUntrackedParameter<bool>("combinePhi")),   
-  mHbClusterSize(conf.getUntrackedParameter<int>("hbClusterSize")),
-  mHeClusterSize(conf.getUntrackedParameter<int>("heClusterSize")), 
+      mCalibType(conf.getUntrackedParameter<string>("calibType")),
+      mCalibMethod(conf.getUntrackedParameter<string>("calibMethod")),
+      mMinTargetE(conf.getUntrackedParameter<double>("minTargetE")),
+      mMaxTargetE(conf.getUntrackedParameter<double>("maxTargetE")),
+      mMinCellE(conf.getUntrackedParameter<double>("minCellE")),
+      mMinEOverP(conf.getUntrackedParameter<double>("minEOverP")),
+      mMaxEOverP(conf.getUntrackedParameter<double>("maxEOverP")),
+      mMaxTrkEmE(conf.getUntrackedParameter<double>("maxTrkEmE")),
+      mMaxEtThirdJet(conf.getUntrackedParameter<double>("maxEtThirdJet")),
+      mMinDPhiDiJets(conf.getUntrackedParameter<double>("minDPhiDiJets")),
+      mSumDepths(conf.getUntrackedParameter<bool>("sumDepths")),
+      mSumSmallDepths(conf.getUntrackedParameter<bool>("sumSmallDepths")),
+      mCombinePhi(conf.getUntrackedParameter<bool>("combinePhi")),
+      mHbClusterSize(conf.getUntrackedParameter<int>("hbClusterSize")),
+      mHeClusterSize(conf.getUntrackedParameter<int>("heClusterSize")),
 
-  mUseConeClustering(conf.getUntrackedParameter<bool>("useConeClustering")),
-  mMaxConeDist(conf.getUntrackedParameter<double>("maxConeDist")),
+      mUseConeClustering(conf.getUntrackedParameter<bool>("useConeClustering")),
+      mMaxConeDist(conf.getUntrackedParameter<double>("maxConeDist")),
 
-  mCalibAbsIEtaMax(conf.getUntrackedParameter<int>("calibAbsIEtaMax")),
-  mCalibAbsIEtaMin(conf.getUntrackedParameter<int>("calibAbsIEtaMin")),
-  mMaxProbeJetEmFrac(conf.getUntrackedParameter<double>("maxProbeJetEmFrac")),
-  mMaxTagJetEmFrac(conf.getUntrackedParameter<double>("maxTagJetEmFrac")),
-  mMaxTagJetAbsEta(conf.getUntrackedParameter<double>("maxTagJetAbsEta")),
-  mMinTagJetEt(conf.getUntrackedParameter<double>("minTagJetEt")),
-  mMinProbeJetAbsEta(conf.getUntrackedParameter<double>("minProbeJetAbsEta")),
-  mPhiSymCorFileName(conf.getUntrackedParameter<string>("phiSymCorFileName")),
-  mApplyPhiSymCorFlag(conf.getUntrackedParameter<bool>("applyPhiSymCorFlag")),
-  mOutputCorCoefFileName(conf.getUntrackedParameter<string>("outputCorCoefFileName")),
-  mHistoFileName(conf.getUntrackedParameter<string>("histoFileName"))
+      mCalibAbsIEtaMax(conf.getUntrackedParameter<int>("calibAbsIEtaMax")),
+      mCalibAbsIEtaMin(conf.getUntrackedParameter<int>("calibAbsIEtaMin")),
+      mMaxProbeJetEmFrac(conf.getUntrackedParameter<double>("maxProbeJetEmFrac")),
+      mMaxTagJetEmFrac(conf.getUntrackedParameter<double>("maxTagJetEmFrac")),
+      mMaxTagJetAbsEta(conf.getUntrackedParameter<double>("maxTagJetAbsEta")),
+      mMinTagJetEt(conf.getUntrackedParameter<double>("minTagJetEt")),
+      mMinProbeJetAbsEta(conf.getUntrackedParameter<double>("minProbeJetAbsEta")),
+      mPhiSymCorFileName(conf.getUntrackedParameter<string>("phiSymCorFileName")),
+      mApplyPhiSymCorFlag(conf.getUntrackedParameter<bool>("applyPhiSymCorFlag")),
+      mOutputCorCoefFileName(conf.getUntrackedParameter<string>("outputCorCoefFileName")),
+      mHistoFileName(conf.getUntrackedParameter<string>("histoFileName"))
 
-{
-}
-
+{}
 
 // destructor
 
-HcalCalibrator::~HcalCalibrator() {
-}
+HcalCalibrator::~HcalCalibrator() {}
 
 // ------------ method called to for each event  ------------
 
-void
-HcalCalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);
-   mTheCaloGeometry = pG.product();
-   edm::ESHandle<HcalTopology> pT;
-   iSetup.get<HcalRecNumberingRecord>().get(pT);
-   mTheHcalTopology = pT.product();
+void HcalCalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::ESHandle<CaloGeometry> pG;
+  iSetup.get<CaloGeometryRecord>().get(pG);
+  mTheCaloGeometry = pG.product();
+  edm::ESHandle<HcalTopology> pT;
+  iSetup.get<HcalRecNumberingRecord>().get(pT);
+  mTheHcalTopology = pT.product();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 
-void
-HcalCalibrator::beginJob() {
-
+void HcalCalibrator::beginJob() {
   //  ESHandle<CaloGeometry> theGeometry;
   //  ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
   //  evtSetup.get<CaloGeometryRecord>().get( theGeometry );
 
-
   // edm::ESHandle<CaloGeometry> pG;
-  // evtSetup.get<CaloGeometryRecord>().get(pG);     
+  // evtSetup.get<CaloGeometryRecord>().get(pG);
   // mTheCaloGeometry = pG.product();
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 
-void
-HcalCalibrator::endJob() {
- 
-
-  if (mCalibType!="DI_JET" && mCalibType!="ISO_TRACK") {
+void HcalCalibrator::endJob() {
+  if (mCalibType != "DI_JET" && mCalibType != "ISO_TRACK") {
     std::cout << "\n\nUnknown calibration type " << mCalibType << std::endl;
     std::cout << "Please select ISO_TRACK or DI_JET in the python file." << std::endl;
     return;
@@ -157,28 +138,29 @@ HcalCalibrator::endJob() {
 
   if (mCalibMethod != "L3" && mCalibMethod != "MATRIX_INV_OF_ETA_AVE" && mCalibMethod != "L3_AND_MTRX_INV") {
     std::cout << "\n\nUnknown calibration method " << mCalibMethod << std::endl;
-    std::cout << "Supported methods for IsoTrack calibration are: L3, MATRIX_INV_OF_ETA_AVE, L3_AND_MTRX_INV" << std::endl;
+    std::cout << "Supported methods for IsoTrack calibration are: L3, MATRIX_INV_OF_ETA_AVE, L3_AND_MTRX_INV"
+              << std::endl;
     std::cout << "For DiJets the supported method is L3" << std::endl;
     return;
   }
 
-  if (mCalibType=="DI_JET" && mCalibMethod!="L3") {
+  if (mCalibType == "DI_JET" && mCalibMethod != "L3") {
     std::cout << "\n\nDiJet calibration can use only the L3 method. Please change the python file." << std::endl;
     return;
   }
 
-  if (mCalibAbsIEtaMin<1 || mCalibAbsIEtaMax>41 || mCalibAbsIEtaMin>mCalibAbsIEtaMax) {
-    std::cout << "\n\nInvalid ABS(iEta) calibration range. Check calibAbsIEtaMin and calibAbsIEtaMax in the python file." << std::endl;
+  if (mCalibAbsIEtaMin < 1 || mCalibAbsIEtaMax > 41 || mCalibAbsIEtaMin > mCalibAbsIEtaMax) {
+    std::cout
+        << "\n\nInvalid ABS(iEta) calibration range. Check calibAbsIEtaMin and calibAbsIEtaMax in the python file."
+        << std::endl;
     return;
   }
-
-
 
   hcalCalib* calibrator = new hcalCalib();
 
   // set the parameters controlling the calibratoration
 
-  calibrator->SetCalibType(mCalibType);	
+  calibrator->SetCalibType(mCalibType);
   calibrator->SetCalibMethod(mCalibMethod);
   calibrator->SetMinTargetE(mMinTargetE);
   calibrator->SetMaxTargetE(mMaxTargetE);
@@ -195,7 +177,7 @@ HcalCalibrator::endJob() {
   calibrator->SetHeClusterSize(mHeClusterSize);
 
   calibrator->SetUseConeClustering(mUseConeClustering);
-  calibrator->SetConeMaxDist(mMaxConeDist); 
+  calibrator->SetConeMaxDist(mMaxConeDist);
 
   calibrator->SetCalibAbsIEtaMax(mCalibAbsIEtaMax);
   calibrator->SetCalibAbsIEtaMin(mCalibAbsIEtaMin);
@@ -210,11 +192,10 @@ HcalCalibrator::endJob() {
   calibrator->SetPhiSymCorFileName(mPhiSymCorFileName);
   calibrator->SetOutputCorCoefFileName(mOutputCorCoefFileName);
 
-  calibrator->SetHistoFileName(mHistoFileName); 
+  calibrator->SetHistoFileName(mHistoFileName);
 
-  calibrator->SetCaloGeometry(mTheCaloGeometry,mTheHcalTopology);
+  calibrator->SetCaloGeometry(mTheCaloGeometry, mTheHcalTopology);
 
- 
   std::ifstream inputFileList;  // contains list of input root files
 
   TString files = mInputFileList;
@@ -224,36 +205,31 @@ HcalCalibrator::endJob() {
   while (!inputFileList.eof()) {
     TString fileName;
     inputFileList >> fileName;
-    if (!fileName.BeginsWith("#") && !fileName.Contains(" ") && fileName!="") 
+    if (!fileName.BeginsWith("#") && !fileName.Contains(" ") && fileName != "")
       inputFiles.push_back(fileName);
   }
   inputFileList.close();
 
   std::cout << "\nInput files for processing:" << std::endl;
-  for (std::vector<TString>::iterator it=inputFiles.begin(); it!=inputFiles.end(); ++it) {
-    std::cout << "file: " <<  it->Data() << std::endl;
+  for (std::vector<TString>::iterator it = inputFiles.begin(); it != inputFiles.end(); ++it) {
+    std::cout << "file: " << it->Data() << std::endl;
   }
   std::cout << std::endl;
 
-
   TChain* fChain = new TChain("hcalCalibTree");
 
-  for (std::vector<TString>::iterator f_it=inputFiles.begin();f_it!=inputFiles.end(); ++f_it) {
+  for (std::vector<TString>::iterator f_it = inputFiles.begin(); f_it != inputFiles.end(); ++f_it) {
     fChain->Add(f_it->Data());
   }
 
-
   fChain->Process(calibrator);
 
-  if (fChain) delete fChain;
+  if (fChain)
+    delete fChain;
   delete calibrator;
 
   return;
 }
 
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(HcalCalibrator);
-
-
-

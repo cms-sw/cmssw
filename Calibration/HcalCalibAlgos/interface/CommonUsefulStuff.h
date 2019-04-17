@@ -1,7 +1,6 @@
 #ifndef CommonUsefulStuff_h
 #define CommonUsefulStuff_h
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -41,106 +40,73 @@
 /uscms/home/jhirsch/IsoTracks_314/CMSSW_3_1_4/src/JetMETCorrections/IsolatedParticles/interface/FindCaloHit.icc
 */
 
-
-struct MaxHit_struct
-{
+struct MaxHit_struct {
   int iphihitm;
   int ietahitm;
   int depthhit;
   float hitenergy;
   float dr;
   GlobalPoint posMax;
-  MaxHit_struct():iphihitm(0),ietahitm(0),
-                  depthhit(0),hitenergy(-100),dr(0){}
+  MaxHit_struct() : iphihitm(0), ietahitm(0), depthhit(0), hitenergy(-100), dr(0) {}
 };
 
-
-inline double getDistInPlaneSimple(const GlobalPoint caloPoint,
-                            const GlobalPoint rechitPoint)
-{
-
+inline double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint) {
   // Simplified version of getDistInPlane
   // Assume track direction is origin -> point of hcal intersection
 
-  const GlobalVector caloIntersectVector(caloPoint.x(),
-                                         caloPoint.y(),
-                                         caloPoint.z());
+  const GlobalVector caloIntersectVector(caloPoint.x(), caloPoint.y(), caloPoint.z());
 
   const GlobalVector caloIntersectUnitVector = caloIntersectVector.unit();
 
-  const GlobalVector rechitVector(rechitPoint.x(),
-                                  rechitPoint.y(),
-                                  rechitPoint.z());
+  const GlobalVector rechitVector(rechitPoint.x(), rechitPoint.y(), rechitPoint.z());
 
   const GlobalVector rechitUnitVector = rechitVector.unit();
   double dotprod = caloIntersectUnitVector.dot(rechitUnitVector);
-  double rechitdist = caloIntersectVector.mag()/dotprod;
+  double rechitdist = caloIntersectVector.mag() / dotprod;
 
+  const GlobalVector effectiveRechitVector = rechitdist * rechitUnitVector;
+  const GlobalPoint effectiveRechitPoint(
+      effectiveRechitVector.x(), effectiveRechitVector.y(), effectiveRechitVector.z());
 
-  const GlobalVector effectiveRechitVector = rechitdist*rechitUnitVector;
-  const GlobalPoint effectiveRechitPoint(effectiveRechitVector.x(),
-                                         effectiveRechitVector.y(),
-                                         effectiveRechitVector.z());
+  GlobalVector distance_vector = effectiveRechitPoint - caloPoint;
 
-
-  GlobalVector distance_vector = effectiveRechitPoint-caloPoint;
-
-  if (dotprod > 0.)
-  {
+  if (dotprod > 0.) {
     return distance_vector.mag();
-  }
-  else
-  {
+  } else {
     return 999999.;
-
   }
-
 }
 
-inline double getDistInPlaneTrackDir(const GlobalPoint  caloPoint,
-                              const GlobalVector caloVector,
-                              const GlobalPoint  rechitPoint)
-{
-
+inline double getDistInPlaneTrackDir(const GlobalPoint caloPoint,
+                                     const GlobalVector caloVector,
+                                     const GlobalPoint rechitPoint) {
   // Simplified version of getDistInPlane : no cone "within" Hcal, but
   // don't assume track direction is origin -> point of hcal
   // intersection.
-  const GlobalVector caloIntersectVector(caloPoint.x(),
-                                         caloPoint.y(),
-                                         caloPoint.z()); //p
+  const GlobalVector caloIntersectVector(caloPoint.x(), caloPoint.y(),
+                                         caloPoint.z());  //p
 
   const GlobalVector caloUnitVector = caloVector.unit();
-  const GlobalVector rechitVector(rechitPoint.x(),
-                                  rechitPoint.y(),
-                                  rechitPoint.z());
+  const GlobalVector rechitVector(rechitPoint.x(), rechitPoint.y(), rechitPoint.z());
   const GlobalVector rechitUnitVector = rechitVector.unit();
   double dotprod_denominator = caloUnitVector.dot(rechitUnitVector);
-  double dotprod_numerator   = caloUnitVector.dot(caloIntersectVector);
-  double rechitdist = dotprod_numerator/dotprod_denominator;
-  const GlobalVector effectiveRechitVector = rechitdist*rechitUnitVector;
-  const GlobalPoint effectiveRechitPoint(effectiveRechitVector.x(),
-                                         effectiveRechitVector.y(),
-                                         effectiveRechitVector.z());
-  GlobalVector distance_vector = effectiveRechitPoint-caloPoint;
-  if (dotprod_denominator > 0. && dotprod_numerator > 0.)
-  {
-
+  double dotprod_numerator = caloUnitVector.dot(caloIntersectVector);
+  double rechitdist = dotprod_numerator / dotprod_denominator;
+  const GlobalVector effectiveRechitVector = rechitdist * rechitUnitVector;
+  const GlobalPoint effectiveRechitPoint(
+      effectiveRechitVector.x(), effectiveRechitVector.y(), effectiveRechitVector.z());
+  GlobalVector distance_vector = effectiveRechitPoint - caloPoint;
+  if (dotprod_denominator > 0. && dotprod_numerator > 0.) {
     return distance_vector.mag();
-  }
-  else
-  {
+  } else {
     return 999999.;
   }
 }
 
-
-
 inline double getDistInPlane(const GlobalVector trackDirection,
-                      const GlobalPoint caloPoint,
-                      const GlobalPoint rechitPoint,
-                      double coneHeight)
-{
-
+                             const GlobalPoint caloPoint,
+                             const GlobalPoint rechitPoint,
+                             double coneHeight) {
   // The iso track candidate hits the Calo (Ecal or Hcal) at "caloPoint"
   // with direction "trackDirection".
 
@@ -154,34 +120,27 @@ inline double getDistInPlane(const GlobalVector trackDirection,
   // the Hcal.  Our approach is to see whether/where this line
   // intersects a cone of height "coneHeight" with vertex at caloPoint
   // aligned with trackDirection.
- // To that end, this function returns the distance between the
+  // To that end, this function returns the distance between the
   // center of the base of the cone and the intersection of the rechit
   // line and the plane that contains the base of the cone.  This
   // distance is compared with the radius of the cone outside this
   // function.
 
-
   // Make vector of length cone height along track direction
-  const GlobalVector heightVector = trackDirection*coneHeight;
+  const GlobalVector heightVector = trackDirection * coneHeight;
 
   // Make vector from origin to point where iso track intersects the
   // calorimeter.
-  const GlobalVector caloIntersectVector(caloPoint.x(),
-                                         caloPoint.y(),
-                                         caloPoint.z());
+  const GlobalVector caloIntersectVector(caloPoint.x(), caloPoint.y(), caloPoint.z());
 
   // Make vector from origin to point in center of base of cone
-  const GlobalVector coneBaseVector = heightVector+caloIntersectVector;
+  const GlobalVector coneBaseVector = heightVector + caloIntersectVector;
 
-// Make point in center of base of cone
-  const GlobalPoint coneBasePoint(coneBaseVector.x(),
-                                  coneBaseVector.y(),
-                                  coneBaseVector.z());
+  // Make point in center of base of cone
+  const GlobalPoint coneBasePoint(coneBaseVector.x(), coneBaseVector.y(), coneBaseVector.z());
 
   // Make unit vector pointing at rechit.
-  const GlobalVector rechitVector(rechitPoint.x(),
-                                  rechitPoint.y(),
-                                  rechitPoint.z());
+  const GlobalVector rechitVector(rechitPoint.x(), rechitPoint.y(), rechitPoint.z());
   const GlobalVector rechitDirection = rechitVector.unit();
 
   // Find distance "r" along "rechit line" (with angles theta2 and
@@ -200,103 +159,95 @@ inline double getDistInPlane(const GlobalVector trackDirection,
   // Substitute P_{rh} into equation for plane and solve for rechitdist.
   // rechitDist turns out to be the ratio of dot products:
 
-  double rechitdist = trackDirection.dot(coneBaseVector)/trackDirection.dot(rechitDirection);
+  double rechitdist = trackDirection.dot(coneBaseVector) / trackDirection.dot(rechitDirection);
 
   // Now find distance between point at center of cone base and point
   // where the "rechit line" intersects the plane defined by the base
   // of the cone; i.e. the effectiveRecHitPoint.
-  const GlobalVector effectiveRechitVector = rechitdist*rechitDirection;
-  const GlobalPoint effectiveRechitPoint(effectiveRechitVector.x(),
-                                         effectiveRechitVector.y(),
-                                         effectiveRechitVector.z());
+  const GlobalVector effectiveRechitVector = rechitdist * rechitDirection;
+  const GlobalPoint effectiveRechitPoint(
+      effectiveRechitVector.x(), effectiveRechitVector.y(), effectiveRechitVector.z());
 
-
-  GlobalVector distance_vector = effectiveRechitPoint-coneBasePoint;
+  GlobalVector distance_vector = effectiveRechitPoint - coneBasePoint;
   return distance_vector.mag();
 }
 
-
 /*  Function to calculate Ecal Energy in Cone (given in cm) */
-inline double ecalEnergyInCone(const GlobalPoint center, double radius, const EcalRecHitCollection ecalCol, const CaloGeometry *geo)
-{
+inline double ecalEnergyInCone(const GlobalPoint center,
+                               double radius,
+                               const EcalRecHitCollection ecalCol,
+                               const CaloGeometry* geo) {
   double eECALcone = 0;
-  std::vector<int> usedHitsEcal; 
+  std::vector<int> usedHitsEcal;
   usedHitsEcal.clear();
-  
-  for (std::vector<EcalRecHit>::const_iterator ehit=ecalCol.begin(); ehit!=ecalCol.end(); ehit++)
-    {
-      //This is a precaution for the case when hitCollection contains duplicats.
-      bool hitIsUsed=false;
-      int hitHashedIndex=-10000;
-      if (ehit->id().subdetId()==EcalBarrel)
-	{
-	  EBDetId did(ehit->id());
-	  hitHashedIndex=did.hashedIndex();
-	}
-      if (ehit->id().subdetId()==EcalEndcap)
-	{
-	  EEDetId did(ehit->id());
-	  hitHashedIndex=did.hashedIndex();
-	}
-      for (uint32_t i=0; i<usedHitsEcal.size(); i++)
-	{
-	  if (usedHitsEcal[i]==hitHashedIndex) hitIsUsed=true;
-	}
-      if (hitIsUsed) continue;
-      usedHitsEcal.push_back(hitHashedIndex);
-      // -----------------------------------------------
-      
-      const GlobalPoint& pos = geo->getPosition((*ehit).detid());
-  
-      if (getDistInPlaneSimple(center,pos) < radius)
-        {
-          eECALcone += ehit->energy();
-        }
+
+  for (std::vector<EcalRecHit>::const_iterator ehit = ecalCol.begin(); ehit != ecalCol.end(); ehit++) {
+    //This is a precaution for the case when hitCollection contains duplicats.
+    bool hitIsUsed = false;
+    int hitHashedIndex = -10000;
+    if (ehit->id().subdetId() == EcalBarrel) {
+      EBDetId did(ehit->id());
+      hitHashedIndex = did.hashedIndex();
     }
+    if (ehit->id().subdetId() == EcalEndcap) {
+      EEDetId did(ehit->id());
+      hitHashedIndex = did.hashedIndex();
+    }
+    for (uint32_t i = 0; i < usedHitsEcal.size(); i++) {
+      if (usedHitsEcal[i] == hitHashedIndex)
+        hitIsUsed = true;
+    }
+    if (hitIsUsed)
+      continue;
+    usedHitsEcal.push_back(hitHashedIndex);
+    // -----------------------------------------------
+
+    const GlobalPoint& pos = geo->getPosition((*ehit).detid());
+
+    if (getDistInPlaneSimple(center, pos) < radius) {
+      eECALcone += ehit->energy();
+    }
+  }
   return eECALcone;
 }
 
 /*  This is another version of ecalEnergy calculation using the getDistInPlaneTrackDir()  */
-inline double ecalEnergyInCone(const GlobalVector trackMom, const GlobalPoint center, double radius, const EcalRecHitCollection ecalCol, const CaloGeometry *geo)
-{
-  
+inline double ecalEnergyInCone(const GlobalVector trackMom,
+                               const GlobalPoint center,
+                               double radius,
+                               const EcalRecHitCollection ecalCol,
+                               const CaloGeometry* geo) {
   double eECALcone = 0;
-  std::vector<int> usedHitsEcal; 
+  std::vector<int> usedHitsEcal;
   usedHitsEcal.clear();
-  for (std::vector<EcalRecHit>::const_iterator ehit=ecalCol.begin(); ehit!=ecalCol.end(); ehit++)
-    {
-      //This is a precaution for the case when hitCollection contains duplicats.
-      bool hitIsUsed=false;
-      int hitHashedIndex=-10000;
-      if (ehit->id().subdetId()==EcalBarrel)
-	{
-	  EBDetId did(ehit->id());
-	  hitHashedIndex=did.hashedIndex();
-	}
-      if (ehit->id().subdetId()==EcalEndcap)
-	{
-	  EEDetId did(ehit->id());
-	  hitHashedIndex=did.hashedIndex();
-	}
-      for (uint32_t i=0; i<usedHitsEcal.size(); i++)
-	{
-	  if (usedHitsEcal[i]==hitHashedIndex) hitIsUsed=true;
-	}
-      if (hitIsUsed) continue;
-      usedHitsEcal.push_back(hitHashedIndex);
-      // -----------------------------------------------
+  for (std::vector<EcalRecHit>::const_iterator ehit = ecalCol.begin(); ehit != ecalCol.end(); ehit++) {
+    //This is a precaution for the case when hitCollection contains duplicats.
+    bool hitIsUsed = false;
+    int hitHashedIndex = -10000;
+    if (ehit->id().subdetId() == EcalBarrel) {
+      EBDetId did(ehit->id());
+      hitHashedIndex = did.hashedIndex();
+    }
+    if (ehit->id().subdetId() == EcalEndcap) {
+      EEDetId did(ehit->id());
+      hitHashedIndex = did.hashedIndex();
+    }
+    for (uint32_t i = 0; i < usedHitsEcal.size(); i++) {
+      if (usedHitsEcal[i] == hitHashedIndex)
+        hitIsUsed = true;
+    }
+    if (hitIsUsed)
+      continue;
+    usedHitsEcal.push_back(hitHashedIndex);
+    // -----------------------------------------------
 
-      const GlobalPoint& pos = geo->getPosition((*ehit).detid());
-  
-      if (getDistInPlaneTrackDir(center, trackMom ,pos) < radius)
-        {
-          eECALcone += ehit->energy();
-        }
-      }
+    const GlobalPoint& pos = geo->getPosition((*ehit).detid());
+
+    if (getDistInPlaneTrackDir(center, trackMom, pos) < radius) {
+      eECALcone += ehit->energy();
+    }
+  }
   return eECALcone;
 }
 
-
-
 #endif
-
