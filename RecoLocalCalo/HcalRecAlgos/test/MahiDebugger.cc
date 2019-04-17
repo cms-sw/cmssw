@@ -241,7 +241,8 @@ void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     const bool isRealData = true;
 
     const MahiFit* mahi = mahi_.get();
-    mahi_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(hci.recoShape()), hcalTimeSlewDelay);
+    mahi_->setPulseShapeTemplate(
+        theHcalPulseShapes_.getShape(hci.recoShape()), hci.hasTimeInfo(), hcalTimeSlewDelay, hci.nSamples());
     MahiDebugInfo mdi;
     mahi->phase1Debug(hci, mdi);
 

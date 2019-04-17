@@ -85,10 +85,7 @@ protected:
                  int nSamplesToAdd);
 
   // "Method 0" rechit timing (original low-pileup QIE8 algorithm)
-  float m0Time(const HBHEChannelInfo& info,
-               double reconstructedCharge,
-               const HcalCalibrations& calibs,
-               int nSamplesToExamine) const;
+  float m0Time(const HBHEChannelInfo& info, double reconstructedCharge, int nSamplesToExamine) const;
 
 private:
   HcalPulseContainmentManager pulseCorr_;
