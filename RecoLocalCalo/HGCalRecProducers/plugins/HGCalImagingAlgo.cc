@@ -108,7 +108,7 @@ void HGCalImagingAlgo::makeClusters() {
     });
   });
   //Now that we have the density per point we can store it
-  for(unsigned int i=0; i< 2 * maxlayer + 2; ++i) setDensity(points_[i]);
+for(auto const& p: points_) { setDensity(p); }
 }
 
 std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
