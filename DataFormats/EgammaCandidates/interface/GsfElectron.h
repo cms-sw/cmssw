@@ -183,12 +183,15 @@ class GsfElectron : public RecoCandidate
     // forward core methods
     SuperClusterRef superCluster() const override { return core()->superCluster() ; }
     GsfTrackRef gsfTrack() const override { return core()->gsfTrack() ; }
-    virtual TrackRef closestTrack() const { return core()->ctfTrack() ; }
+    //so it turns out closestCtfTrackRef is overriden by pat::Electron but not closestTrack()
+    //this results in surprising behaviour, ie two functions which looked identical 
+    //would give different results so now closestTrack just calls closestCtfTrackRef
+    virtual TrackRef closestTrack() const { return closestCtfTrackRef() ;}
     float ctfGsfOverlap() const { return core()->ctfGsfOverlap() ; }
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
     virtual SuperClusterRef parentSuperCluster() const { return core()->parentSuperCluster() ; }
-    bool closestTrackValid() const { return closestTrack().isAvailable() && closestTrack().isNonnull() ; }
+    bool closestTrackValid() const { return closestCtfTrackRef().isAvailable() && closestCtfTrackRef().isNonnull() ; }
     //methods used for MVA variables
     float closestTrackChi2() const; 
     int closestTrackNHits() const; 
