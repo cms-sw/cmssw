@@ -720,7 +720,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
       // MVA working points
       // https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
-      double dB2D  = fabs(muon.dB(pat::Muon::BS2D));
+      double dB2D  = fabs(muon.dB(pat::Muon::PV2D));
       double dB3D  = fabs(muon.dB(pat::Muon::PV3D));
       double edB3D = fabs(muon.edB(pat::Muon::PV3D));
       double sip3D = edB3D>0?dB3D/edB3D:0.0; 
@@ -730,6 +730,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       if (muon.pt()>5 and muon.isLooseMuon() and
 	  muon.passed(reco::Muon::MiniIsoLoose) and 
 	  sip3D<8.0 and dB2D<0.05 and dz<0.1){
+	muon.setSelector(reco::Muon::MvaLoose,  muon.mvaValue()>-0.60);
+	muon.setSelector(reco::Muon::MvaMedium, muon.mvaValue()>-0.20);
 	muon.setSelector(reco::Muon::MvaTight,  muon.mvaValue()> 0.15);
 	muon.setSelector(reco::Muon::MvaVTight,  muon.mvaValue()> 0.45);
 	muon.setSelector(reco::Muon::MvaVVTight,  muon.mvaValue()> 0.9);
