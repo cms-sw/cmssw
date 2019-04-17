@@ -99,6 +99,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # PhysicsTools/PatUtils/src/PFIsolation.cc
     # only works in miniaod, so set to True in miniAOD_tools.py
     computeMiniIso = cms.bool(False),
+    effectiveAreaVec = cms.vdouble(0.0566, 0.0562, 0.0363, 0.0119, 0.0064),
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
     miniIsoParams = cms.vdouble(0.05, 0.2, 10.0, 0.5, 0.0001, 0.01, 0.01, 0.01, 0.0),
 
