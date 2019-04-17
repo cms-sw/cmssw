@@ -24,7 +24,6 @@ PixelHitMatcher::PixelHitMatcher
  : //zmin1 and zmax1 are dummy at this moment, set from beamspot later
    meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2minB,phi2maxB,z2minB,z2maxB),
    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2minF,phi2maxF,r2minF,r2maxF),
-   startLayers(),
    prop1stLayer(nullptr), prop2ndLayer(nullptr),theGeometricSearchTracker(nullptr),theTrackerEvent(nullptr),theTracker(nullptr),vertex_(0.),
    searchInTIDTEC_(searchInTIDTEC), useRecoVertex_(false)
  {
@@ -73,7 +72,6 @@ void PixelHitMatcher::setES
    {
     theTracker = theMeasurementTracker;
     theGeometricSearchTracker=theMeasurementTracker->geometricSearchTracker() ;
-    startLayers.setup(theGeometricSearchTracker) ;
    }
 
   theMagField = magField ;
@@ -263,8 +261,7 @@ PixelHitMatcher::compatibleHits
   pred1Meas.clear();
   pred2Meas.clear();
 
-  typedef vector<const BarrelDetLayer*>::const_iterator BarrelLayerIterator;
-  BarrelLayerIterator firstLayer = startLayers.firstBLayer();
+  auto firstLayer = theGeometricSearchTracker->pixelBarrelLayers().begin(); 
 
   FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField,xmeas, vprim, energy, charge);
 
@@ -332,14 +329,13 @@ PixelHitMatcher::compatibleHits
 
 
   // check if there are compatible 1st hits the forward disks
-  typedef vector<const ForwardDetLayer*>::const_iterator ForwardLayerIterator;
-  ForwardLayerIterator flayer;
 
   TrajectoryStateOnSurface tsosfwd(fts, *bpb(fts.position(), fts.momentum()));
   if (tsosfwd.isValid()) {
 
     for (int i=0; i<2; i++) {
-      i == 0 ? flayer = startLayers.pos1stFLayer() : flayer = startLayers.neg1stFLayer();
+      auto flayer = i == 0 ? theGeometricSearchTracker->posPixelForwardLayers().begin()
+                           : theGeometricSearchTracker->negPixelForwardLayers().begin();
 
       if (i==0 && xmeas.z() < -100. ) continue;
       if (i==1 && xmeas.z() > 100. ) continue;
