@@ -59,16 +59,16 @@ PFIsolation getMiniPFIsolation(const pat::PackedCandidateCollection *pfcands,
 				   const math::XYZTLorentzVector& p4,
 				   double dr,
 				   double rho,
-                                   std::vector<double> &EA)
+                                   const std::vector<double> &area)
   {
-    double absEta = fabs(p4.eta());
+    double absEta = std::abs(p4.eta());
     double ea = 0;
     //Eta dependent effective area
-    if      (absEta<0.800) ea = EA.at(0);
-    else if (absEta<1.300) ea = EA.at(1);
-    else if (absEta<2.000) ea = EA.at(2);
-    else if (absEta<2.200) ea = EA.at(3);
-    else if (absEta<2.500) ea = EA.at(4);
+    if      (absEta<0.800) ea = area.at(0);
+    else if (absEta<1.300) ea = area.at(1);
+    else if (absEta<2.000) ea = area.at(2);
+    else if (absEta<2.200) ea = area.at(3);
+    else if (absEta<2.500) ea = area.at(4);
 
     double correction = rho * ea * (dr/0.3) * (dr/0.3);
     double correctedIso = iso.chargedHadronIso() + std::max(0.0, iso.neutralHadronIso()+iso.photonIso() - correction);
