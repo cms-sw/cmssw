@@ -53,7 +53,6 @@ namespace {
                             << "\tChild " << childName << " NameSpace "
                             << ns.name();
 
-    Rotation3D flipRot, tiltRot, phiRot, globalRot; // Identity
     Rotation3D flipMatrix, tiltMatrix, phiRotMatrix, globalRotMatrix; // Identity matrix
 
     // flipMatrix calculus
@@ -62,8 +61,7 @@ namespace {
                               << "\t90., 180., "
                               << "90., 90., "
                               << "180., 0.";
-      flipRot = makeRotation3D(90._deg, 180._deg, 90._deg, 90._deg, 180._deg, 0._deg);
-      flipMatrix = flipRot;
+      flipMatrix = makeRotation3D(90._deg, 180._deg, 90._deg, 90._deg, 180._deg, 0._deg);
     }
     // tiltMatrix calculus
     if(isZPlus) {
@@ -71,8 +69,7 @@ namespace {
                               << "\t90., 90., "
                               << convertRadToDeg(tiltAngle) << ", 180., "
                               << convertRadToDeg(90._deg - tiltAngle) << ", 0.";
-      tiltRot = makeRotation3D(90._deg, 90._deg, tiltAngle, 180._deg, 90._deg - tiltAngle, 0._deg);
-      tiltMatrix = tiltRot;
+      tiltMatrix = makeRotation3D(90._deg, 90._deg, tiltAngle, 180._deg, 90._deg - tiltAngle, 0._deg);
       if(isFlipped) { tiltMatrix *= flipMatrix; }
     }
     else {
@@ -80,8 +77,7 @@ namespace {
                               << "\t90., 90., "
                               << convertRadToDeg(tiltAngle) << ", 0., "
                               << convertRadToDeg(90._deg + tiltAngle) << ", 0.";
-      tiltRot = makeRotation3D(90._deg, 90._deg, tiltAngle, 0._deg, 90._deg + tiltAngle, 0._deg);
-      tiltMatrix = tiltRot;
+      tiltMatrix = makeRotation3D(90._deg, 90._deg, tiltAngle, 0._deg, 90._deg + tiltAngle, 0._deg);
       if(isFlipped) { tiltMatrix *= flipMatrix; }
     }
 
@@ -99,13 +95,10 @@ namespace {
                                 << "\t90., " << convertRadToDeg(phix)
                                 << ", 90.," << convertRadToDeg(phiy)
                                 <<", 0., 0.";
-        phiRot = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
-        phiRotMatrix = phiRot;
+        phiRotMatrix = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }
 
-      // globalRot def
       globalRotMatrix = phiRotMatrix * tiltMatrix;
-      globalRot = Rotation3D(globalRotMatrix);
 
      // translation def
       double xpos = radius*cos(phi) + center[0];
@@ -114,10 +107,10 @@ namespace {
       Position tran(xpos, ypos, zpos);
 
       // Positions child with respect to parent
-      mother.placeVolume(child, copy, Transform3D(globalRot, tran));
+      mother.placeVolume(child, copy, Transform3D(globalRotMatrix, tran));
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test " << child << " number "
                               << copy << " positioned in " << mother << " at "
-                              << tran  << " with " << globalRot;
+                              << tran  << " with " << globalRotMatrix;
 
       copy += incrCopyNo;
       phi  += delta;
