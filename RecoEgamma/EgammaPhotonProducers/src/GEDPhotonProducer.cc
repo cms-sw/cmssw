@@ -91,8 +91,6 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     phoChargedWorstVtxGeomVetoIsoToken_ = getVMToken("chargedHadronWorstVtxGeomVetoIso");
     phoChargedPFPVIsoToken_ = getVMToken("chargedHadronPFPVIso");
 
-
-
     //OOT photons in legacy 80X re-miniAOD do not have PF cluster embeded into the reco object
     //to preserve 80X behaviour
     if(conf_.exists("pfECALClusIsolation")){ 
@@ -676,13 +674,13 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.e2x5Bottom    = ( hits != nullptr ? EcalClusterTools::e2x5Bottom(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
     if(hits){
       Cluster2ndMoments clus2ndMoments = EcalClusterTools::cluster2ndMoments(*(scRef->seed()),*hits);
-      showerShape.smajor = clus2ndMoments.sMaj;
-      showerShape.sminor = clus2ndMoments.sMin;
-      showerShape.smajorAlpha = clus2ndMoments.alpha;
+      showerShape.smMajor = clus2ndMoments.sMaj;
+      showerShape.smMinor = clus2ndMoments.sMin;
+      showerShape.smAlpha = clus2ndMoments.alpha;
     }else{
-      showerShape.smajor = 0.f;
-      showerShape.sminor = 0.f;
-      showerShape.smajorAlpha = 0.f;
+      showerShape.smMajor = 0.f;
+      showerShape.smMinor = 0.f;
+      showerShape.smAlpha = 0.f;
     }
 
 
@@ -741,13 +739,13 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.e2x5Bottom    = ( hits != nullptr ? noZS::EcalClusterTools::e2x5Bottom(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
     if(hits){
       Cluster2ndMoments clus2ndMoments = noZS::EcalClusterTools::cluster2ndMoments(*(scRef->seed()),*hits);
-      full5x5_showerShape.smajor = clus2ndMoments.sMaj;
-      full5x5_showerShape.sminor = clus2ndMoments.sMin;
-      full5x5_showerShape.smajorAlpha = clus2ndMoments.alpha;
+      full5x5_showerShape.smMajor = clus2ndMoments.sMaj;
+      full5x5_showerShape.smMinor = clus2ndMoments.sMin;
+      full5x5_showerShape.smAlpha = clus2ndMoments.alpha;
     }else{
-      full5x5_showerShape.smajor = 0.f;
-      full5x5_showerShape.sminor = 0.f;
-      full5x5_showerShape.smajorAlpha = 0.f;
+      full5x5_showerShape.smMajor = 0.f;
+      full5x5_showerShape.smMinor = 0.f;
+      full5x5_showerShape.smAlpha = 0.f;
     }
      // fill preshower shapes
     full5x5_showerShape.effSigmaRR = sigmaRR;
