@@ -55,19 +55,21 @@ PFIsolation getMiniPFIsolation(const pat::PackedCandidateCollection *pfcands,
 
 }
 
-  float muonRelMiniIsoPUCorrected(const PFIsolation& iso,
-				  const math::XYZTLorentzVector& p4,
-				  float dr,
-				  float rho)
+  double muonRelMiniIsoPUCorrected(const PFIsolation& iso,
+				   const math::XYZTLorentzVector& p4,
+				   double dr,
+				   double rho,
+                                   std::vector<double> &EA)
   {
     double absEta = fabs(p4.eta());
     double ea = 0;
-    //Spring15 version
-    if      (absEta<0.800) ea = 0.0735;
-    else if (absEta<1.300) ea = 0.0619;
-    else if (absEta<2.000) ea = 0.0465;
-    else if (absEta<2.200) ea = 0.0433;
-    else if (absEta<2.500) ea = 0.0577;
+    //Eta dependent effective area
+    if      (absEta<0.800) ea = EA.at(0);
+    else if (absEta<1.300) ea = EA.at(1);
+    else if (absEta<2.000) ea = EA.at(2);
+    else if (absEta<2.200) ea = EA.at(3);
+    else if (absEta<2.500) ea = EA.at(4);
+
     double correction = rho * ea * (dr/0.3) * (dr/0.3);
     double correctedIso = iso.chargedHadronIso() + std::max(0.0, iso.neutralHadronIso()+iso.photonIso() - correction);
     return correctedIso/p4.pt();
