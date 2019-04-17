@@ -193,30 +193,30 @@ namespace edm {
          }
       protected:
 
-         template<typename T, typename R>
-         ESHandle<T> getHandleImpl(ESGetToken<T,R> const& iToken) const {
+         template<template<typename> typename H, typename T, typename R>
+         H<T> getHandleImpl(ESGetToken<T,R> const& iToken) const {
            assert(iToken.transitionID() == transitionID());
            assert(iToken.isInitialized());
            assert(getTokenIndices_);
            //need to check token has valid index
            if UNLIKELY(not iToken.hasValidIndex()) {
-             return invalidTokenHandle(iToken);
+             return invalidTokenHandle<H>(iToken);
            }
            
            auto proxyIndex = getTokenIndices_[iToken.index().value()];
            if UNLIKELY( proxyIndex.value() == std::numeric_limits<int>::max()) {
-             return noProxyHandle(iToken);
+             return noProxyHandle<H>(iToken);
            }
            
            T const* value = nullptr;
            ComponentDescription const* desc = nullptr;
            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-           impl_->getImplementation(value, proxyIndex, false, desc, whyFailedFactory);
+           impl_->getImplementation(value, proxyIndex, H<T>::transientAccessOnly, desc, whyFailedFactory);
            
            if UNLIKELY(not value) {
-             return ESHandle<T>(std::move(whyFailedFactory));
+             return H<T>(std::move(whyFailedFactory));
            }
-           return ESHandle<T>(value, desc);
+           return H<T>(value, desc);
          }
         
 
@@ -238,17 +238,17 @@ namespace edm {
          unsigned int transitionID() const { return  transitionID_;}
       private:
 
-         template<typename T, typename R>
-        ESHandle<T> invalidTokenHandle(ESGetToken<T,R> const& iToken) const {
+         template<template <typename> typename H, typename T, typename R>
+        H<T> invalidTokenHandle(ESGetToken<T,R> const& iToken) const {
           auto const key = this->key();
-          return ESHandle<T>{makeESHandleExceptionFactory([key]{ return makeInvalidTokenException(key,DataKey::makeTypeTag<T>()); }) };
+          return H<T>{makeESHandleExceptionFactory([key]{ return makeInvalidTokenException(key,DataKey::makeTypeTag<T>()); }) };
         }
 
-        template<typename T, typename R>
-        ESHandle<T> noProxyHandle(ESGetToken<T,R> const& iToken) const {
+        template<template <typename> typename H, typename T, typename R>
+        H<T> noProxyHandle(ESGetToken<T,R> const& iToken) const {
           auto const key = this->key();
           auto name = iToken.name();
-          return ESHandle<T>{makeESHandleExceptionFactory([key,name] {
+          return H<T>{makeESHandleExceptionFactory([key,name] {
           NoProxyException<T> ex(key, DataKey{DataKey::makeTypeTag<T>(), name});
           return std::make_exception_ptr(ex);
         })}; }
