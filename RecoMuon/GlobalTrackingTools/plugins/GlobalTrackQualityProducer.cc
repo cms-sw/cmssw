@@ -358,7 +358,7 @@ void GlobalTrackQualityProducer::fillDescriptions(edm::ConfigurationDescriptions
     descGlbMuonRefitter.add<int>("DYTselector",1);
     descGlbMuonRefitter.add<bool>("DYTupdator", false);
     descGlbMuonRefitter.add<bool>("DYTuseAPE", false );
-    descGlbMuonRefitter.add<bool>("DYTuseThrsParametrization", true);
+    descGlbMuonRefitter.add<bool>("DYTuseThrsParametrization", false);
     {
       edm::ParameterSetDescription descDYTthrs;
       descDYTthrs.add<std::vector<double>>("eta0p8", {1,-0.919853, 0.990742});
