@@ -745,8 +745,11 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection & electrons, El
   //relinked to a new collection which means it can no longer match the conversion
   //as it matches based on product/id
   //we keep this defination for the MVAs
-  conversionVars.vtxFitProb = ConversionTools::getVtxFitProb(ConversionTools::matchedConversion(electronData.coreRef->ctfTrack(), *eventData.conversions, eventData.beamspot->position(),2.0,1e-6,0));
-
+  const auto matchedConv =  ConversionTools::matchedConversion(electronData.coreRef->ctfTrack(),
+							       *eventData.conversions,
+							       eventData.beamspot->position(),
+							       2.0,1e-6,0);
+  conversionVars.vtxFitProb = ConversionTools::getVtxFitProb(matchedConv);
   if ((conversionVars.flags==0)or(conversionVars.flags==1))
     conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerCtfTk)  ;
   else if ((conversionVars.flags==2)or(conversionVars.flags==3))

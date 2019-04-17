@@ -53,7 +53,7 @@ egmElectronIsolationCITK.srcForIsolationCone = cms.InputTag("pfNoPileUpCandidate
 egmElectronIsolationPileUpCITK.srcToIsolate = cms.InputTag("gedGsfElectronsTmp")
 egmElectronIsolationPileUpCITK.srcForIsolationCone = cms.InputTag("pfPileUpAllChargedParticles")
 
-photonIDValueMapProducerRECO = cms.EDProducer(
+photonIDValueMaps = cms.EDProducer(
   "PhotonIDValueMapProducer",
   ebReducedRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
   ebReducedRecHitCollectionMiniAOD = cms.InputTag(""),
@@ -72,11 +72,16 @@ photonIDValueMapProducerRECO = cms.EDProducer(
 
 
 particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequenceTmp*gedPhotonSequenceTmp*ootPhotonSequence)
-particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*\
-pfNoPileUpIsoSequence*cms.ignore(pfNoPileUpCandidates)*cms.ignore(pfPileUpAllChargedParticles)*\
-egmPhotonIsolationCITK*egmElectronIsolationCITK*egmElectronIsolationPileUpCITK*\
-photonIDValueMapProducerRECO*\
-gedPhotonSequence*gedElectronPFIsoSequence)
+particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*
+                                       pfNoPileUpIsoSequence*
+                                       cms.ignore(pfNoPileUpCandidates)*
+                                       cms.ignore(pfPileUpAllChargedParticles)*
+                                       egmPhotonIsolationCITK*
+                                       egmElectronIsolationCITK*
+                                       egmElectronIsolationPileUpCITK*
+                                       photonIDValueMaps*
+                                       gedPhotonSequence*
+                                       gedElectronPFIsoSequence)
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toReplaceWith(particleFlowEGammaFull, particleFlowEGammaFull.copyAndExclude([ootPhotonSequence]))

@@ -75,10 +75,12 @@ bool ConversionTools::matchesConversion(const reco::GsfElectronCore &eleCore, co
   //matching is always attempted through the gsf track ref, and optionally attempted through the
   //closest ctf track ref
 
-  const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
-  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it=convTracks.begin(); it!=convTracks.end(); ++it) {
-    if ( eleCore.gsfTrack().isNonnull() && eleCore.gsfTrack().id()==it->id() && eleCore.gsfTrack().key()==it->key()) return true;
-    else if ( allowCkfMatch && eleCore.ctfTrack().isNonnull() && eleCore.ctfTrack().id()==it->id() && eleCore.ctfTrack().key()==it->key() ) return true;
+  for (const auto& trkRef : conv.tracks() ){
+    if ( eleCore.gsfTrack().isNonnull() && eleCore.gsfTrack().id()==trkRef.id() &&
+	 eleCore.gsfTrack().key()==trkRef.key()) return true;
+    else if ( allowCkfMatch && eleCore.ctfTrack().isNonnull() &&
+	      eleCore.ctfTrack().id()==trkRef.id() &&
+	      eleCore.ctfTrack().key()==trkRef.key() ) return true;
   }
 
   return false;
