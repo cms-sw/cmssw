@@ -12,7 +12,6 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalAngular.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define EDM_ML_DEBUG                                                         
 using namespace geant_units::operators;
