@@ -5,6 +5,7 @@
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
 class HFStripFilter
 {

@@ -20,42 +20,35 @@
 namespace l1t {
   class HGCalTowerID;
   struct HGCalTowerCoord;
-}
-
+}  // namespace l1t
 
 class HGCalTriggerTowerGeometryHelper {
-  public:
-    HGCalTriggerTowerGeometryHelper(const edm::ParameterSet& conf);
+public:
+  HGCalTriggerTowerGeometryHelper(const edm::ParameterSet& conf);
 
-    ~HGCalTriggerTowerGeometryHelper() {}
+  ~HGCalTriggerTowerGeometryHelper() {}
 
-    void eventSetup(const edm::EventSetup& es) 
-    {
-        triggerTools_.eventSetup(es);
-    }
+  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
 
-    const std::vector<l1t::HGCalTowerCoord>& getTowerCoordinates() const;
+  const std::vector<l1t::HGCalTowerCoord>& getTowerCoordinates() const;
 
-    unsigned short getTriggerTowerFromTriggerCell(const unsigned tcId, const float& eta, const float& phi) const;
+  unsigned short getTriggerTowerFromTriggerCell(const unsigned tcId, const float& eta, const float& phi) const;
 
-  private:
+private:
+  std::vector<l1t::HGCalTowerCoord> tower_coords_;
+  std::unordered_map<unsigned, short> cells_to_trigger_towers_;
 
-    std::vector<l1t::HGCalTowerCoord> tower_coords_;
-    std::unordered_map<unsigned, short> cells_to_trigger_towers_;
+  double minEta_;
+  double maxEta_;
+  double minPhi_;
+  double maxPhi_;
+  unsigned int nBinsEta_;
+  unsigned int nBinsPhi_;
 
-    double minEta_;
-    double maxEta_;
-    double minPhi_;
-    double maxPhi_;
-    unsigned int nBinsEta_;
-    unsigned int nBinsPhi_;
+  std::vector<double> binsEta_;
+  std::vector<double> binsPhi_;
 
-    std::vector<double> binsEta_;
-    std::vector<double> binsPhi_;
-
-    HGCalTriggerTools triggerTools_;
-
-  };
-
+  HGCalTriggerTools triggerTools_;
+};
 
 #endif
