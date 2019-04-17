@@ -40,7 +40,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
 double GsfEleMinEcalEtCut::value(const reco::CandidatePtr& cand) const {
   const reco::GsfElectronPtr elePtr(cand);
   const reco::GsfElectron& ele = *elePtr;
-  const float sinTheta = ele.energy()!=0 ? ele.et()/ele.energy() : 0.;
+  const float sinTheta = ele.p()!=0 ? ele.pt()/ele.p() : 0.;
   const float et = ele.ecalEnergy()*sinTheta;
   return et;
 }

@@ -43,7 +43,7 @@ WP_HEEP71_EB = HEEP_WorkingPoint_V1(
     )
 
 WP_HEEP71_EE = HEEP_WorkingPoint_V1(
-     idName=idName,     
+    idName=idName,
     dEtaInSeedCut=0.006,     
     dPhiInCut=0.06,      
     full5x5SigmaIEtaIEtaCut=0.03,     

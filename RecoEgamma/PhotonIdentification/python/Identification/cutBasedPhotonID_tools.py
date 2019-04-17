@@ -168,6 +168,8 @@ def psetChHadIsoWithEALinScalingCut(wpEB, wpEE, isoInputs):
     """
     Arguments: two containers of working point cut values of the type WorkingPoint_*
     The third argument contains data for isolation calculation.
+    The cut is (for lessThan==True), otherwise replace "<" with ">="
+          X < constTerm + linearPtTerm*pt + quadPtTerm* pt*pt + rho*EA
     """
     return cms.PSet( 
         cutName = cms.string('PhoGenericRhoPtScaledCut'), 
