@@ -56,6 +56,8 @@ class StreamerOutputFile
 
      uint32 adler32() const { return streamerfile_->adler32(); }
 
+     void close() { streamerfile_->close(); }
+
   private:
      void writeEventHeader(const EventMsgView& ineview);
      void writeStart(const InitMsgView& inview);
