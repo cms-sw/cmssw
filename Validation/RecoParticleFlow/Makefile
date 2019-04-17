@@ -20,7 +20,7 @@ ZMM_reco:
 MinBias_reco:
 	cd ${TMPDIR} && ${RELVALCMD} MinBias reco 0
 
-dqm: QCD_dqm QCDPU_dqm ZMM_dqm MinBias_dqm
+dqm: QCD_dqm QCDPU_dqm ZMM_dqm MinBias_dqm SN_dqm
 
 QCD_dqm:
 	rm -f ${TMPDIR}/QCD/DQM*.root
@@ -38,7 +38,10 @@ MinBias_dqm:
 	rm -f ${TMPDIR}/MinBias/DQM*.root
 	cd ${TMPDIR} && ${RELVALCMD} MinBias dqm 0
 
-post: QCD_post QCDPU_post ZMM_post MinBias_post
+SN_dqm:
+	cd ${TMPDIR} && ${RELVALCMD} SingleNeutrino dqm 0
+
+post: QCD_post QCDPU_post ZMM_post MinBias_post SN_post
 
 QCD_post:
 	rm -f ${TMPDIR}/QCD/*withResponse*.root ${TMPDIR}/QCD/DQMTotal.root
@@ -60,15 +63,20 @@ MinBias_post:
 	cd ${TMPDIR}/MinBias && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
 	hadd -f ${TMPDIR}/MinBias/DQMTotal.root ${TMPDIR}/MinBias/DQM_*.root
 
+SN_post:
+	rm -f ${TMPDIR}/SingleNeutrino/*withResponse*.root ${TMPDIR}/SingleNeutrino/DQMTotal.root
+	cd ${TMPDIR}/SingleNeutrino && python ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/addResponseAndResolution.py DQM*.root
+	hadd -f ${TMPDIR}/SingleNeutrino/DQMTotal.root ${TMPDIR}/SingleNeutrino/DQM_*.root
+
 .PHONY: plots # Enable re-running plots
 
 plots:
 	rm -Rf plots	
 	python test/compare.py \
-		--sample HS:${TMPDIR}/HS_old/DQMTotal.root:${TMPDIR}/HS/DQMTotal.root \
-		--sample FlatQCD:${TMPDIR}/QCD/DQMTotal.root:${TMPDIR}/QCDPU/DQMTotal.root \
+		--sample SingleNeutrino:${TMPDIR}/SingleNeutrino/DQMTotal.root:${TMPDIR}/SingleNeutrino/DQMTotal.root \
 		--doResponsePlots --doOffsetPlots
 
+#		--sample HS:${TMPDIR}/HS_old/DQMTotal.root:${TMPDIR}/HS/DQMTotal.root \
 #		--sample FlatQCD_noPU:${TMPDIR}/QCD/DQMTotal.root:${TMPDIR}/QCD/DQMTotal.root \
 #		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/DQMTotal.root:${TMPDIR}/QCDPU/DQMTotal.root \
 #		--sample MinBias:${TMPDIR}/MinBias/DQMTotal.root:${TMPDIR}/MinBias/DQMTotal.root \

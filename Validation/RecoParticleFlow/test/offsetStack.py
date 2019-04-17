@@ -47,6 +47,8 @@ def offsetStack( files, var, r, outdir ) :
   stack1 = ROOT.THStack( "stack1", ";#eta;<Offset Energy_{{T}}(#pi{:.1f}^{{2}})>/<{}> [GeV]".format(r, "N_{PV}" if var=="npv" else "#mu") )
   setStack( stack1, d_hist1 )
   stack1.Draw("hist")
+  stack1.SetMaximum( stack1.GetMaximum()*1.4 )
+  stack1.Draw("hist")
 
   legPF = "F"
   leg = ROOT.TLegend(.4,.67,.65,.92)
