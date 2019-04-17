@@ -207,8 +207,6 @@ float CSCSimHitMatcher::LocalBendingInChamber(unsigned int detid) const {
     // phi in layer 1
     const CSCDetId cscid1(cscid.endcap(), cscid.station(), cscid.ring(),
                           cscid.chamber(), 1);
-    const edm::PSimHitContainer& hits1 =
-        MuonSimHitMatcher::hitsInDetId(cscid1.rawId());
     const GlobalPoint& gp1 =
         simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid1.rawId()));
     phi_layer1 = gp1.phi();
@@ -216,8 +214,6 @@ float CSCSimHitMatcher::LocalBendingInChamber(unsigned int detid) const {
     // phi in layer 6
     const CSCDetId cscid6(cscid.endcap(), cscid.station(), cscid.ring(),
                           cscid.chamber(), 6);
-    const edm::PSimHitContainer& hits6 =
-        MuonSimHitMatcher::hitsInDetId(cscid6.rawId());
     const GlobalPoint& gp6 =
         simHitsMeanPosition(MuonSimHitMatcher::hitsInDetId(cscid6.rawId()));
     phi_layer6 = gp6.phi();
