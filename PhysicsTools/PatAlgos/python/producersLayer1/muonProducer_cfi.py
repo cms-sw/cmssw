@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
 
 patMuons = cms.EDProducer("PATMuonProducer",
     # input
@@ -130,15 +129,6 @@ patMuons = cms.EDProducer("PATMuonProducer",
     triggerResults = cms.InputTag("TriggerResults","","HLT"),
     hltCollectionFilters = cms.vstring('*')
 )
-
-
-
-
-Run2_2016.toModify(patMuons, mvaTrainingFile="RecoMuon/MuonIdentification/data/mu_2016_BDTG.weights.xml")
-
-
-
-
 
 
 
