@@ -34,6 +34,7 @@ class OutputFile
 
      void set_do_adler(bool v)             { do_adler_ = v; }
      void set_current_offset(uint64 v)     { current_offset_ = v; }
+     void close();
 
   private:
      uint64 current_offset_;  /** Location of current ioptr */
