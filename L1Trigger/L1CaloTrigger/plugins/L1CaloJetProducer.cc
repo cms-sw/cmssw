@@ -69,6 +69,7 @@ class L1CaloJetProducer : public edm::EDProducer {
                 float &ecal_L1EG_jet_pt, float &jet_eta ) const;
         float apply_barrel_HGCal_boundary_calibration( float &jet_pt, float &hcal_pt, float &ecal_pt,
                 float &ecal_L1EG_jet_pt, int &seed_iEta ) const;
+        int loose_iso_tau_wp( float &tau_pt, float &tau_iso_et, float &tau_eta ) const;
 
         double HcalTpEtMin;
         double EcalTpEtMin;
@@ -100,6 +101,11 @@ class L1CaloJetProducer : public edm::EDProducer {
         edm::EDGetTokenT< L1CaloTowerCollection > l1TowerToken_;
         edm::Handle< L1CaloTowerCollection > l1CaloTowerHandle;
 
+
+
+        // TF1s defining tau isolation thresholds
+        TF1 isoTauBarrel = TF1( "isoTauBarrelFunction", "([0] + [1]*TMath::Exp(-[2]*x))");
+        TF1 isoTauHGCal = TF1( "isoTauHGCalFunction", "([0] + [1]*TMath::Exp(-[2]*x))");
 
 
         class l1CaloJetObj
@@ -464,6 +470,13 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     //        }
     //    }
     //}
+
+    isoTauBarrel.SetParameter( 0, 0.25 );
+    isoTauBarrel.SetParameter( 1, 0.85 );
+    isoTauBarrel.SetParameter( 2, 0.094 );
+    isoTauHGCal.SetParameter( 0, 0.34 );
+    isoTauHGCal.SetParameter( 1, 0.35 );
+    isoTauHGCal.SetParameter( 2, 0.051 );
 
     if (debug) printf("\nL1CaloJetProducer end\n");
 }
@@ -1020,11 +1033,16 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             params["ecal_pt"] + params["l1eg_pt"];
 
         // Tau Vars
-        params["tau_pt"] = params["total_3x5"]; // FIXME get_tau_calibration(
+        params["tau_pt_calibration_value"] = 1.; // FIXME get_tau_calibration(
             //params["total_3x5"],
             //caloJetObj.n_l1eg_HoverE_LessThreshold,
             //params["total_3x5"] );
+        params["tau_pt"] = params["total_3x5"] * params["tau_pt_calibration_value"];
         params["n_l1eg_HoverE_LessThreshold"] = caloJetObj.n_l1eg_HoverE_LessThreshold;
+        // Apply the tau_pt calibration to the isolation region as well for consistency.
+        // This could be revisited - FIXME?
+        params["tau_iso_et"] = (params["jet_pt"] * params["tau_pt_calibration_value"]) - params["tau_pt"];
+        params["loose_iso_tau_wp"] = float(loose_iso_tau_wp( params["tau_pt"], params["tau_iso_et"], params["jet_eta"] ));
 
         float calibratedPt = -1;
         float ECalIsolation = -1; // Need to loop over 7x7 crystals of unclustered energy
@@ -1051,14 +1069,14 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         {
             short int tau_ieta = caloJetObj.seed_iEta;
             short int tau_iphi = caloJetObj.seed_iPhi;
-            short int raw_et = params["tau_pt"];
-            short int iso_et = params["jet_pt"] - params["total_3x5"];
+            short int raw_et = params["total_3x5"];
+            short int iso_et = params["tau_iso_et"];
             bool hasEM = false;
             if (params["l1eg_3x5"] > 0. || params["ecal_3x5"] > 0.)
             {
                 hasEM = true;
             }
-            int tau_qual = 0;
+            int tau_qual = int(params["loose_iso_tau_wp"]);
 
             reco::Candidate::PolarLorentzVector tau_p4 = reco::Candidate::PolarLorentzVector( 
                     params["tau_pt"], caloJet.p4().eta(), caloJet.p4().phi(), caloJet.p4().M() );
@@ -1284,6 +1302,40 @@ L1CaloJetProducer::apply_barrel_HGCal_boundary_calibration( float &jet_pt, float
     ecal_pt = ecal_pt * calib;
     ecal_L1EG_jet_pt = ecal_L1EG_jet_pt * calib;
     return calib;
+}
+
+
+// Loose IsoTau WP
+int
+L1CaloJetProducer::loose_iso_tau_wp( float &tau_pt, float &tau_iso_et, float &tau_eta ) const
+{
+    // Fully relaxed above 100 GeV pT
+    if (tau_pt > 100)
+    {
+        return 1;
+    }
+    // Split by barrel and HGCal
+    // with Barrel first
+    if (fabs(tau_eta) < 1.5)
+    {
+        if (isoTauBarrel.Eval(tau_pt) >= (tau_pt / tau_iso_et))
+        {
+            return 1;
+        }
+        else 
+        {
+            return 0;
+        }
+    }
+    // Otherwise, HGCal
+    if (isoTauHGCal.Eval(tau_pt) >= (tau_pt / tau_iso_et)) 
+    {
+        return 1;
+    }
+    else 
+    {
+        return 0;
+    }
 }
 
 
