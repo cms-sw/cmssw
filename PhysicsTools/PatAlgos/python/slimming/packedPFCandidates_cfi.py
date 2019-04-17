@@ -33,15 +33,15 @@ run2_miniAOD_80XLegacy.toModify(packedPFCandidates, chargedHadronIsolation = "" 
 
 from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
 run2_HCAL_2018.toModify(packedPFCandidates,
-    pfCandidateTypesForHcalDepth = cms.vint32(130,11,22,211,13),  # PF cand types for adding Hcal depth energy frac information
+    pfCandidateTypesForHcalDepth = [130,11,22,211,13],  # PF cand types for adding Hcal depth energy frac information
                         # (130: neutral h, 11: ele, 22: photon, 211: charged h, 13: mu) # excluding e.g. 1:h_HF, 2:egamma_HF
-    storeHcalDepthEndcapOnly = cms.bool(True)
+    storeHcalDepthEndcapOnly = True
 )
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(packedPFCandidates,
-    pfCandidateTypesForHcalDepth = cms.vint32(), # For now, no PF cand type is considered for addition of Hcal depth energy frac 
-    storeHcalDepthEndcapOnly = cms.bool(False)
+    pfCandidateTypesForHcalDepth = [], # For now, no PF cand type is considered for addition of Hcal depth energy frac 
+    storeHcalDepthEndcapOnly = False
 )
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
