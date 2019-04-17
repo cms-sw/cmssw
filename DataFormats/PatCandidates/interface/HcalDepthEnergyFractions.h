@@ -15,31 +15,47 @@ namespace pat{
     std::vector<uint8_t> fractionsI_;
   public:
     explicit HcalDepthEnergyFractions(std::vector<float> v):
-                              fractions_(v),fractionsI_() { init(); }
+                              fractions_(v),fractionsI_() { initUint8Vector(); }
     HcalDepthEnergyFractions():fractions_(),fractionsI_() { }
     
-    // produce vector of uint8 vector from vector of float
-    void init() {
+    // produce vector of uint8 from vector of float
+    void initUint8Vector() {
+      fractionsI_.clear();
       for (auto frac : fractions_) fractionsI_.push_back((uint8_t)(frac*200.));
     }
+    
+    // produce vector of float from vector of uint8_t
+    void initFloatVector() {
+      fractions_.clear();
+      for (auto fracI : fractionsI_) fractions_.push_back(float(fracI)/200.);
+    }
 
-    // reset vector
+    // reset vectors
     void reset(std::vector<float> v) {
       fractions_ = v;
-      init();
+      initUint8Vector();
     }
 
     // provide a full vector for each depth
-    std::vector<float> fractions() {
-      fractions_.clear();
-      for (auto frac : fractionsI_) fractions_.push_back(float(frac)/200.);
+    std::vector<float> fractions() const {
       return fractions_;
     }
 
     // provide info for individual depth
     float fraction(unsigned int i) const {
-      if (i<fractionsI_.size()) return float(fractionsI_[i])/200.;
+      if (i<fractions_.size()) return fractions_[i];
       else return -1.;
+    }
+    
+    // provide a full vector (in uint8_t) for each depth
+    std::vector<uint8_t> fractionsI() const {
+      return fractionsI_;
+    }
+
+    // provide info for individual depth (uint8_t)
+    int fractionI(unsigned int i) const {
+      if (i<fractionsI_.size()) return int(fractionsI_[i]);
+      else return -1; // physical range 0-200
     }
     
   };

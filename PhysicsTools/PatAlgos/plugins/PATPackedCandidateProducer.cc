@@ -433,7 +433,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     iEvent.put(std::move(pc2pf));
 
     // HCAL depth energy fraction additions using ValueMap
-    std::unique_ptr<edm::ValueMap<HcalDepthEnergyFractions>> hcalDepthEnergyFractionsV(new edm::ValueMap<HcalDepthEnergyFractions>());
+    auto hcalDepthEnergyFractionsV = std::make_unique<edm::ValueMap<HcalDepthEnergyFractions> >();
     edm::ValueMap<HcalDepthEnergyFractions>::Filler fillerHcalDepthEnergyFractions(*hcalDepthEnergyFractionsV);
     fillerHcalDepthEnergyFractions.insert(cands,hcalDepthEnergyFractions_Ordered.begin(),hcalDepthEnergyFractions_Ordered.end());
     fillerHcalDepthEnergyFractions.fill();
