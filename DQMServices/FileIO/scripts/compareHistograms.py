@@ -12,7 +12,10 @@ from blacklist import get_blacklist
 
 def create_dif(base_file_path, pr_file_path, pr_number, test_number, cmssw_version, output_dir_path):
    base_file = ROOT.TFile(base_file_path, 'read')
+   ROOT.gROOT.GetListOfFiles().Remove(base_file)
+   
    pr_file = ROOT.TFile(pr_file_path, 'read')
+   ROOT.gROOT.GetListOfFiles().Remove(pr_file)
 
    if base_file.IsOpen():
       print('Baseline file successfully opened', file=sys.stderr)
@@ -76,9 +79,6 @@ def create_dif(base_file_path, pr_file_path, pr_number, test_number, cmssw_versi
    
    # Write PR output
    save_paths(pr_flat_dict, paths_to_save_in_pr, os.path.join(output_dir_path, 'pr', pr_output_filename))
-
-   ROOT.gROOT.GetListOfFiles().Remove(base_file)
-   ROOT.gROOT.GetListOfFiles().Remove(pr_file)
 
    pr_file.Close()
    base_file.Close()
@@ -192,6 +192,7 @@ def save_paths(flat_dict, paths, result_file_path):
       os.makedirs(result_dir)
    
    result_file = ROOT.TFile(result_file_path, 'recreate')
+   ROOT.gROOT.GetListOfFiles().Remove(result_file)
 
    if not result_file.IsOpen():
       print('Unable to open %s output file' % result_file_path, file=sys.stderr)
@@ -199,8 +200,6 @@ def save_paths(flat_dict, paths, result_file_path):
 
    for path in paths:
       save_to_file(flat_dict, path, result_file)
-   
-   ROOT.gROOT.GetListOfFiles().Remove(result_file)
 
    result_file.Close()
    print('Output written to %s file' % result_file_path, file=sys.stderr)
