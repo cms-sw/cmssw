@@ -121,6 +121,8 @@ private:
 
   TTree* rootTree_;
   edm::FileInPath FileInPath_;
+  bool addExtraBranches_;
+
   float overlapPath_;
   uint layer_;
   unsigned short hitCounts_[2];
@@ -186,7 +188,8 @@ using std::vector;
 //
 OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig) :
   config_(iConfig), rootTree_(0),
-  FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")
+  FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"),
+  addExtraBranches_(false)
 {
   
   edm::ConsumesCollector&& iC = consumesCollector();
@@ -215,9 +218,11 @@ OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig) :
   // root output
   //
   rootTree_ = fs->make<TTree>("Overlaps","Overlaps");
-  rootTree_->Branch("hitCounts",hitCounts_,"found/s:lost/s");
-  rootTree_->Branch("chi2",chi2_,"chi2/F:ndf/F");
-  rootTree_->Branch("path",&overlapPath_,"path/F");
+  if (addExtraBranches_) {
+    rootTree_->Branch("hitCounts",hitCounts_,"found/s:lost/s");
+    rootTree_->Branch("chi2",chi2_,"chi2/F:ndf/F");
+    rootTree_->Branch("path",&overlapPath_,"path/F");
+  }
   rootTree_->Branch("layer",&layer_,"layer/i");
   rootTree_->Branch("detids",overlapIds_,"id[2]/i");
   rootTree_->Branch("predPos",predictedPositions_,"gX[2]/F:gY[2]/F:gZ[2]/F");
@@ -233,13 +238,15 @@ OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig) :
   rootTree_->Branch("hitEX",hitErrors_,"hitEX[2]/F");
   rootTree_->Branch("hitY",hitPositionsY_,"hitY[2]/F");
   rootTree_->Branch("hitEY",hitErrorsY_,"hitEY[2]/F");
-  rootTree_->Branch("simX",simHitPositions_,"simX[2]/F");
-  rootTree_->Branch("simY",simHitPositionsY_,"simY[2]/F");
-  rootTree_->Branch("clusterSize",clusterSize_,"clusterSize[2]/F");
-  rootTree_->Branch("clusterWidthX",clusterWidthX_,"clusterWidthX[2]/F");
-  rootTree_->Branch("clusterWidthY",clusterWidthY_,"clusterWidthY[2]/F");
-  rootTree_->Branch("clusterCharge",clusterCharge_,"clusterCharge[2]/i");
-  rootTree_->Branch("edge",edge_,"edge[2]/I");
+  if (addExtraBranches_) {
+    rootTree_->Branch("simX",simHitPositions_,"simX[2]/F");
+    rootTree_->Branch("simY",simHitPositionsY_,"simY[2]/F");
+    rootTree_->Branch("clusterSize",clusterSize_,"clusterSize[2]/F");
+    rootTree_->Branch("clusterWidthX",clusterWidthX_,"clusterWidthX[2]/F");
+    rootTree_->Branch("clusterWidthY",clusterWidthY_,"clusterWidthY[2]/F");
+    rootTree_->Branch("clusterCharge",clusterCharge_,"clusterCharge[2]/i");
+    rootTree_->Branch("edge",edge_,"edge[2]/I");
+  }
   rootTree_->Branch("momentum",&momentum_,"momentum/F");
   rootTree_->Branch("run",&run_,"run/i");
   rootTree_->Branch("event",&event_,"event/i");
@@ -411,8 +418,8 @@ OverlapValidation::analyze (const Trajectory& trajectory,
 	  //cout << "adding pair "<< ((subDet > 2)?(SiStripDetId(id).stereo()) : 2) << " from subDet = " << subDet << " and layer = " << layer;
 	  //cout << " \t"<<run_<< "\t"<<event_<<"\t";
 	  //cout << min(id.rawId(),compareId.rawId())<<"\t"<<max(id.rawId(),compareId.rawId())<<endl;
-	  if (  SiStripDetId(id).glued() == id.rawId() ) edm::LogWarning("Overlaps") << "BAD GLUED: Have glued layer with id = " << id.rawId() << " and glued id = " << SiStripDetId(id).glued() << "  and stereo = " << SiStripDetId(id).stereo() << endl;
-	  if (  SiStripDetId(compareId).glued() == compareId.rawId() ) edm::LogWarning("Overlaps") << "BAD GLUED: Have glued layer with id = " << compareId.rawId() << " and glued id = " << SiStripDetId(compareId).glued() << "  and stereo = " << SiStripDetId(compareId).stereo() << endl;
+	  if (  SiStripDetId(id).glued() == id.rawId() ) edm::LogInfo("Overlaps") << "BAD GLUED: Have glued layer with id = " << id.rawId() << " and glued id = " << SiStripDetId(id).glued() << "  and stereo = " << SiStripDetId(id).stereo() << endl;
+	  if (  SiStripDetId(compareId).glued() == compareId.rawId() ) edm::LogInfo("Overlaps") << "BAD GLUED: Have glued layer with id = " << compareId.rawId() << " and glued id = " << SiStripDetId(compareId).glued() << "  and stereo = " << SiStripDetId(compareId).stereo() << endl;
 	  break;
 	}
       }
