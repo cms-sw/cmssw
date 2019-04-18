@@ -59,6 +59,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
    storeCrossedHcalRecHits_ = iConfig.getParameter<bool>("storeCrossedHcalRecHits");
    fillMatching_            = iConfig.getParameter<bool>("fillMatching");
    fillIsolation_           = iConfig.getParameter<bool>("fillIsolation");
+   fillShowerDigis_         = iConfig.getParameter<bool>("fillShowerDigis");
    writeIsoDeposits_        = iConfig.getParameter<bool>("writeIsoDeposits");
    fillGlobalTrackQuality_  = iConfig.getParameter<bool>("fillGlobalTrackQuality");
    fillGlobalTrackRefits_   = iConfig.getParameter<bool>("fillGlobalTrackRefits");
@@ -80,7 +81,13 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
    // Load parameters for the TimingFiller
    edm::ParameterSet timingParameters = iConfig.getParameter<edm::ParameterSet>("TimingFillerParameters");
    theTimingFiller_ = std::make_unique<MuonTimingFiller>(timingParameters,consumesCollector());
-   
+
+   // Load parameters for the ShowerDigiFiller
+   if (fillShowerDigis_ && fillMatching_)
+     {
+       edm::ParameterSet showerDigiParameters = iConfig.getParameter<edm::ParameterSet>("ShowerDigiFillerParameters");
+       theShowerDigiFiller_ = std::make_unique<MuonShowerDigiFiller>(showerDigiParameters,consumesCollector());
+     }
 
    if (fillCaloCompatibility_){
       // Load MuonCaloCompatibility parameters
@@ -426,6 +433,8 @@ void MuonIdProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 
   meshAlgo_->setCSCGeometry(geomHandle.product());
 
+  if (fillShowerDigis_ && fillMatching_)
+    theShowerDigiFiller_->getES(iSetup);
 }
 
 bool validateGlobalMuonPair( const reco::MuonTrackLinks& goodMuon,
@@ -449,6 +458,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto caloMuons = std::make_unique<reco::CaloMuonCollection>();
 
    init(iEvent, iSetup);
+
+  if (fillShowerDigis_ && fillMatching_)
+      theShowerDigiFiller_->getDigis(iEvent);
 
    // loop over input collections
 
@@ -876,6 +888,14 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
      matchedChamber.edgeY = chamber.localDistanceY;
 
      matchedChamber.id = chamber.id;
+
+     if (fillShowerDigis_) {
+       theShowerDigiFiller_->fill(matchedChamber);
+     }
+     else {
+       theShowerDigiFiller_->fillDefault(matchedChamber);
+     }
+
      if ( ! chamber.segments.empty() ) ++nubmerOfMatchesAccordingToTrackAssociator;
 
      // fill segments
@@ -957,6 +977,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 
        matchedChamber.edgeX = chamber.localDistanceX;
        matchedChamber.edgeY = chamber.localDistanceY;
+
+       theShowerDigiFiller_->fillDefault(matchedChamber);
 
        matchedChamber.id = chamber.id;
 
@@ -1324,6 +1346,7 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   
   desc.add<bool>("arbitrateTrackerMuons",false);
   desc.add<bool>("storeCrossedHcalRecHits",false);
+  desc.add<bool>("fillShowerDigis",false);
 
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel",edm::InputTag("gemSegments"));
