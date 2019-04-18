@@ -172,7 +172,7 @@ class GlobalMuonRefitter {
     int theDYTselector;
     bool theDYTupdator;
     bool theDYTuseAPE;
-    bool dytParThrsMode;
+    bool theDYTParThrsMode;
     edm::ParameterSet theDYTthrsParameters;
     reco::DYTInfo *dytInfo;
 
