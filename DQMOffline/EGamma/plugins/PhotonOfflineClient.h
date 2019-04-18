@@ -125,7 +125,6 @@ class PhotonOfflineClient : public  DQMEDHarvester
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator);
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
   
-  DQMStore *dbe_;
   int verbosity_;
 
   edm::ParameterSet parameters_;

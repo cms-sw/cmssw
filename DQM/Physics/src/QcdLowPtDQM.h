@@ -240,7 +240,6 @@ class QcdLowPtDQM : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<qlpd::Ca
   TH3F *AlphaTracklets23_;                  // alpha correction for tracklets 23
   HLTConfigProvider hltConfig_;
   const TrackerGeometry *tgeo_;                  // tracker geometry
-  DQMStore *theDbe_;                             // dqm store
   MonitorElement *repSumMap_;                    // report summary map
   MonitorElement *repSummary_;                   // report summary
   MonitorElement *h2TrigCorr_;                   // trigger correlation plot
