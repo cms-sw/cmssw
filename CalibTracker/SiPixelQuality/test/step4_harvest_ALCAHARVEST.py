@@ -58,7 +58,10 @@ process.ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(process.dqmSaver+process.
 process.EcalPedestals = cms.Path(process.ALCAHARVESTEcalPedestals)
 process.LumiPCC = cms.Path(process.ALCAHARVESTLumiPCC)
 process.BeamSpotByRun = cms.Path(process.ALCAHARVESTBeamSpotByRun)
-process.SiPixelQuality = cms.Path(process.ALCAHARVESTSiPixelQuality)
+
+process.ALCAHARVESTSiPixelQuality.SiPixelStatusManagerParameters.threshold = cms.untracked.double(0.01)
+process.SiPixelQuality = cms.Path(process.ALCAHARVESTSiPixelQuality)#+process.siPixelPhase1DQMHarvester)
+
 process.BeamSpotHPLowPUByLumi = cms.Path(process.ALCAHARVESTBeamSpotHPLowPUByLumi)
 process.SiStripGains = cms.Path(process.ALCAHARVESTSiStripGains)
 process.BeamSpotHPByRun = cms.Path(process.ALCAHARVESTBeamSpotHPByRun)

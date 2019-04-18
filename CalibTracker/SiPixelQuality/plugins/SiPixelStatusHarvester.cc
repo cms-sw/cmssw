@@ -48,6 +48,7 @@ using namespace edm;
 //--------------------------------------------------------------------------------------------------
 SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig) :
   HistogramManagerHolder(iConfig),
+  threshold_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("threshold")),
   outputBase_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<std::string>("outputBase")),
   aveDigiOcc_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<int>("aveDigiOcc")),
   nLumi_(iConfig.getParameter<edm::ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<int>("resetEveryNLumi")),
@@ -66,6 +67,50 @@ SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
   endLumiBlock_ = 0;
   countLumi_ = 0;
 
+  histoFile = new TFile("PixelDigiHisto.root","RECREATE");
+
+  digi_Good_BPix_L1 = new TH1F("digi_Good_BPix_L1","digi_Good_BPix_L1",1000,-7,3);
+  digi_Bad_BPix_L1  = new TH1F("digi_Bad_BPix_L1","digi_Bad_BPix_L1",1000,-7,3);
+  digi_Good_BPix_L1->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Good_BPix_L1->GetYaxis()->SetTitle("N_lumisection");
+  digi_Bad_BPix_L1->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Bad_BPix_L1->GetYaxis()->SetTitle("N_lumisection");
+
+  digi_Good_BPix_L2 = new TH1F("digi_Good_BPix_L2","digi_Good_BPix_L2",1000,-7,3);
+  digi_Bad_BPix_L2  = new TH1F("digi_Bad_BPix_L2","digi_Bad_BPix_L2",1000,-7,3);
+  digi_Good_BPix_L2->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Good_BPix_L2->GetYaxis()->SetTitle("N_lumisection");
+  digi_Bad_BPix_L2->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Bad_BPix_L2->GetYaxis()->SetTitle("N_lumisection");
+
+  digi_Good_BPix_L3 = new TH1F("digi_Good_BPix_L3","digi_Good_BPix_L3",1000,-7,3);
+  digi_Bad_BPix_L3  = new TH1F("digi_Bad_BPix_L3","digi_Bad_BPix_L3",1000,-7,3);
+  digi_Good_BPix_L3->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Good_BPix_L3->GetYaxis()->SetTitle("N_lumisection");
+  digi_Bad_BPix_L3->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Bad_BPix_L3->GetYaxis()->SetTitle("N_lumisection");
+
+  digi_Good_BPix_L4 = new TH1F("digi_Good_BPix_L4","digi_Good_BPix_L4",1000,-7,3);
+  digi_Bad_BPix_L4  = new TH1F("digi_Bad_BPix_L4","digi_Bad_BPix_L4",1000,-7,3);
+  digi_Good_BPix_L4->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Good_BPix_L4->GetYaxis()->SetTitle("N_lumisection");
+  digi_Bad_BPix_L4->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Bad_BPix_L4->GetYaxis()->SetTitle("N_lumisection");
+
+  digi_Good_FPix_RNG1 = new TH1F("digi_Good_FPix_RNG1","digi_Good_FPix_RNG1",1000,-7,3);
+  digi_Bad_FPix_RNG1  = new TH1F("digi_Bad_FPix_RNG1","digi_Bad_FPix_RNG1",1000,-7,3);
+  digi_Good_FPix_RNG1->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Good_FPix_RNG1->GetYaxis()->SetTitle("N_lumisection");
+  digi_Bad_FPix_RNG1->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Bad_FPix_RNG1->GetYaxis()->SetTitle("N_lumisection");
+
+  digi_Good_FPix_RNG2 = new TH1F("digi_Good_FPix_RNG2","digi_Good_FPix_RNG2",1000,-7,3);
+  digi_Bad_FPix_RNG2  = new TH1F("digi_Bad_FPix_RNG2","digi_Bad_FPix_RNG2",1000,-7,3);
+  digi_Good_FPix_RNG2->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Good_FPix_RNG2->GetYaxis()->SetTitle("N_lumisection");
+  digi_Bad_FPix_RNG2->GetXaxis()->SetTitle("log_10(digi/N_event)");
+  digi_Bad_FPix_RNG2->GetYaxis()->SetTitle("N_lumisection");
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,15 +120,44 @@ SiPixelStatusHarvester::~SiPixelStatusHarvester(){}
 void SiPixelStatusHarvester::beginJob() { }
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::endJob() { }  
+void SiPixelStatusHarvester::endJob() {
+
+     histoFile->cd();
+     digi_Good_BPix_L1->Write();
+     digi_Bad_BPix_L1->Write();
+     digi_Good_BPix_L2->Write();
+     digi_Bad_BPix_L2->Write();
+     digi_Good_BPix_L3->Write();
+     digi_Bad_BPix_L3->Write();
+     digi_Good_BPix_L4->Write();
+     digi_Bad_BPix_L4->Write();
+     digi_Good_FPix_RNG1->Write();
+     digi_Bad_FPix_RNG1->Write();
+     digi_Good_FPix_RNG2->Write();
+     digi_Bad_FPix_RNG2->Write();
+     histoFile->Close();
+
+     delete digi_Good_BPix_L1;
+     delete digi_Bad_BPix_L1;
+     delete digi_Good_BPix_L2;
+     delete digi_Bad_BPix_L2;
+     delete digi_Good_BPix_L3;
+     delete digi_Bad_BPix_L3;
+     delete digi_Good_BPix_L4;
+     delete digi_Bad_BPix_L4;
+     delete digi_Good_FPix_RNG1;
+     delete digi_Bad_FPix_RNG1;
+     delete digi_Good_FPix_RNG2;
+     delete digi_Bad_FPix_RNG2;
+
+}  
 
 //--------------------------------------------------------------------------------------------------
-void
-SiPixelStatusHarvester::bookHistograms( DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const& iSetup )
-{
-  for( auto& histoman : histo ){
-    histoman.book( iBooker, iSetup );
-  }
+void SiPixelStatusHarvester::bookHistograms( DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const& iSetup ){
+
+     for( auto& histoman : histo ){
+       histoman.book( iBooker, iSetup );
+     }
 }
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
@@ -340,7 +414,8 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                        if(badPixelInfo_->IsRocBad(detId, short(iroc))){
                          std::map<int, std::pair<int,int> > rocToOfflinePixel = pixelO2O_[detid];
                          int row = rocToOfflinePixel[iroc].first;
-                         int column = rocToOfflinePixel[iroc].second;                                                                                                 for (int iLumi = 0; iLumi<interval;iLumi++){
+                         int column = rocToOfflinePixel[iroc].second;
+                         for (int iLumi = 0; iLumi<interval;iLumi++){
                            histo[PROMPTBADROC].fill(detId, nullptr, column, row);//, 1.0/nLumiBlock_);
                          }
 
@@ -360,7 +435,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
           } 
 
           ///////////////////////////////////////////////////////////////////////////////////////////////////
-
+          unsigned long int Nevents = tmpSiPixelStatus.getNevents();
           // create the DB object
           // payload including all : PCL = permanent bad (low DIGI ROC) + other + stuckTBM
           SiPixelQuality *siPixelQualityPCL = new SiPixelQuality();
@@ -378,6 +453,8 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 
                int detid = itMod->first; 
                uint32_t detId = uint32_t(detid);
+               int layer = coord_.layer(DetId(detid));
+               int ring = coord_.ring(DetId(detid));
 
                double DetAverage_local = SiPixelStatusHarvester::perLayerRingAverage(detid,tmpSiPixelStatus);
 
@@ -395,8 +472,20 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 
                    unsigned int rocOccupancy = modStatus.digiOccROC(iroc);
 
+                   if(rocOccupancy>=threshold_*DetAverage_local){ // if GOOD
+
+                     if(layer==1) digi_Good_BPix_L1->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+                     if(layer==2) digi_Good_BPix_L2->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+                     if(layer==3) digi_Good_BPix_L3->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+                     if(layer==4) digi_Good_BPix_L4->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+
+                     if(ring==1) digi_Good_FPix_RNG1->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+                     if(ring==2) digi_Good_FPix_RNG2->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+   
+                   }
+
                    // Bad ROC are from low DIGI Occ ROCs
-                   if(rocOccupancy<1.e-2*DetAverage_local){ // if BAD
+                   if(rocOccupancy<threshold_*DetAverage_local){ // if BAD
 
                      std::map<int, std::pair<int,int> > rocToOfflinePixel = pixelO2O_[detid];
                      int row = rocToOfflinePixel[iroc].first;
@@ -407,6 +496,14 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                      for (int iLumi = 0; iLumi<interval;iLumi++){
                          histo[BADROC].fill(detId, nullptr, column, row);//, 1.0/nLumiBlock_);
                      }
+                     if(rocOccupancy==0) rocOccupancy = 1e-7*Nevents;
+                     if(layer==1) digi_Bad_BPix_L1->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+                     if(layer==2) digi_Bad_BPix_L2->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+                     if(layer==3) digi_Bad_BPix_L3->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+                     if(layer==4) digi_Bad_BPix_L4->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+
+                     if(ring==1) digi_Bad_FPix_RNG1->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+                     if(ring==2) digi_Bad_FPix_RNG2->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
 
                      //FEDerror25 list
                      std::vector<int>::iterator it = std::find(listFEDerror25.begin(), listFEDerror25.end(),iroc);
