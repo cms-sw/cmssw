@@ -367,6 +367,8 @@ def customiseMerging(process, changeProcessname=True,reselect=False):
     process.muons.FillShoweringInfo = cms.bool(False)
     process.muons.FillCosmicsIdMap = cms.bool(False)
 
+    process.muonsFromCosmics.fillShowerDigis = cms.bool(False)
+    process.muonsFromCosmics1Leg.fillShowerDigis = cms.bool(False)
 
     process.merge_step += process.highlevelreco
 

@@ -334,6 +334,77 @@ unsigned int Muon::stationGapMaskPull( float sigmaCut ) const
    return totMask;
 }
 
+int Muon::nDigisInStation( int station, int muonSubdetId ) const
+{
+  int nDigis(0);
+  std::map<int, int> me11DigisPerCh;
+
+  if ( muonSubdetId != MuonSubdetId::CSC  &&
+       muonSubdetId != MuonSubdetId::DT )
+    return 0;
+	   
+  for ( auto & match : muMatches_ )
+    {
+      if ( match.detector() != muonSubdetId ||
+	   match.station()  != station )
+	continue;
+	  
+      int nDigisInCh = match.nDigisInRange;
+      
+      if( muonSubdetId == MuonSubdetId::CSC && station == 1 )
+	{
+	  CSCDetId id(match.id.rawId());
+	  
+	  int chamber = id.chamber();
+          int ring    = id.ring();
+	  
+	  if ( ring == 1 || ring == 4 ) // merge ME1/1a and ME1/1b digis
+	    {
+	      if( me11DigisPerCh.find(chamber) == me11DigisPerCh.end() )
+		me11DigisPerCh[chamber] = 0;
+	      
+	      me11DigisPerCh[chamber] += nDigisInCh;
+	      
+	      continue;
+	    }
+	}
+      
+      if( nDigisInCh > nDigis )
+	nDigis = nDigisInCh;
+    }
+
+  for ( const auto & me11DigisInCh : me11DigisPerCh )
+    {  
+      int nMe11DigisInCh = me11DigisInCh.second;
+      if ( nMe11DigisInCh > nDigis )
+	nDigis = nMe11DigisInCh;
+    }
+  
+  return nDigis;
+}
+
+bool Muon::hasShowerInStation( int station, int muonSubdetId, int nDtDigisCut, int nCscDigisCut ) const
+{
+  if (muonSubdetId != MuonSubdetId::DT && muonSubdetId != MuonSubdetId::CSC) return false;
+  auto nDigisCut = muonSubdetId == MuonSubdetId::DT ? nDtDigisCut : nCscDigisCut;
+
+  return nDigisInStation(station,muonSubdetId) >= nDigisCut ;   
+}
+
+int Muon::numberOfShowers( int nDtDigisCut, int nCscDigisCut ) const
+{
+  int nShowers = 0;
+  for ( int station = 1; station < 5; ++station )
+    {
+      if ( hasShowerInStation(station,MuonSubdetId::DT,nDtDigisCut,nCscDigisCut) )
+	nShowers++;
+      if ( hasShowerInStation(station,MuonSubdetId::CSC,nDtDigisCut,nCscDigisCut) )
+	nShowers++;
+    }
+
+  return nShowers;
+}
+
 int Muon::numberOfSegments( int station, int muonSubdetId, ArbitrationType type ) const
 {
    int segments(0);
