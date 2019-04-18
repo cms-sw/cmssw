@@ -314,13 +314,23 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 
 	if(abs(cand.pdgId()) == 1 || abs(cand.pdgId()) == 130) {
 	  outPtrP->back().setHcalFraction(cand.hcalEnergy()/(cand.ecalEnergy()+cand.hcalEnergy()));
-        } else if(isIsolatedChargedHadron) {
-          outPtrP->back().setRawCaloFraction((cand.rawEcalEnergy()+cand.rawHcalEnergy())/cand.energy());
-          outPtrP->back().setHcalFraction(cand.rawHcalEnergy()/(cand.rawEcalEnergy()+cand.rawHcalEnergy()));
-	} else {
+        } else if (cand.charge()) {
+          outPtrP->back().setHcalFraction(cand.hcalEnergy()/(cand.ecalEnergy()+cand.hcalEnergy()));
+          outPtrP->back().setCaloFraction((cand.hcalEnergy() + cand.ecalEnergy())/cand.energy());
+        }
+        else {
 	  outPtrP->back().setHcalFraction(0);
+	  outPtrP->back().setCaloFraction(0);
 	}
 	
+	if(isIsolatedChargedHadron) {
+          outPtrP->back().setRawCaloFraction((cand.rawEcalEnergy()+cand.rawHcalEnergy())/cand.energy());
+          outPtrP->back().setRawHcalFraction(cand.rawHcalEnergy()/(cand.rawEcalEnergy()+cand.rawHcalEnergy()));
+	} else {
+	  outPtrP->back().setRawCaloFraction(0);
+	  outPtrP->back().setRawHcalFraction(0);
+	}
+
 	//specifically this is the PFLinker requirements to apply the e/gamma regression
 	if(cand.particleId() == reco::PFCandidate::e || (cand.particleId() == reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.)) { 
 	  outPtrP->back().setGoodEgamma();
