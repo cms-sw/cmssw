@@ -633,8 +633,12 @@ class TauIDEmbedder(object):
                 electrons              = self.cms.InputTag('slimmedElectrons'),
                 muons                  = self.cms.InputTag('slimmedMuons'),
                 taus                   = self.cms.InputTag('slimmedTaus'),
+                pfcands                = self.cms.InputTag('packedPFCandidates'),
+                vertices               = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
+                rho                    = self.cms.InputTag('fixedGridRhoAll'),
                 graph_file             = self.cms.string(file_name),
-                mem_mapped             = self.cms.bool(False)
+                mem_mapped             = self.cms.bool(False),
+                version                = self.cms.uint32(1)
             )
 
             self.processDeepProducer('deepTau2017v1', tauIDSources, workingPoints_)

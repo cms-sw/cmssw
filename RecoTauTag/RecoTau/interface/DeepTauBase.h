@@ -96,6 +96,8 @@ private:
 
 protected:
     edm::EDGetTokenT<TauCollection> tausToken_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection> pfcand_token_;
+    edm::EDGetTokenT<reco::VertexCollection> vtx_token_;
     std::map<std::string, WPMap> workingPoints_;
     OutputCollection outputs_;
     const DeepTauCache* cache_;
