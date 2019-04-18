@@ -102,19 +102,57 @@ def compare(shared_paths, pr_flat_dict, base_flat_dict, paths_to_save_in_pr, pat
       if pr_item == None or base_item == None:
          continue
 
-      if pr_item.InheritsFrom('TH1') and base_item.InheritsFrom('TH1'):
+      are_different=False
+
+      if pr_item.InheritsFrom('TProfile2D') and base_item.InheritsFrom('TProfile2D'):
+         # Compare TProfile (content, entries and errors)
+         are_different = not compare_TProfile(pr_item, base_item)
+      
+      elif pr_item.InheritsFrom('TProfile') and base_item.InheritsFrom('TProfile'):
+         # Compare TProfile (content, entries and errors)
+         are_different = not compare_TProfile(pr_item, base_item)
+
+      elif pr_item.InheritsFrom('TH1') and base_item.InheritsFrom('TH1'):
          # Compare bin by bin
-         pr_array = root_numpy.hist2array(pr_item)
-         base_array = root_numpy.hist2array(base_item)
+         pr_array = root_numpy.hist2array(hist=pr_item, include_overflow=True, copy=False)
+         base_array = root_numpy.hist2array(hist=base_item, include_overflow=True, copy=False)
+
          if pr_array.shape != base_array.shape or not np.allclose(pr_array, base_array, equal_nan=True):
-            paths_to_save_in_pr.append(path)
-            paths_to_save_in_base.append(path)
-            continue
+            are_different = True
       else:
          # Compare non histograms
          if pr_item != base_item:
-            paths_to_save_in_pr.append(path)
-            paths_to_save_in_base.append(path)
+            are_different = True
+
+      if are_different:
+         paths_to_save_in_pr.append(path)
+         paths_to_save_in_base.append(path)
+
+# Returns False if different, True otherwise
+def compare_TProfile(pr_item, base_item):
+   if pr_item.GetSize() != base_item.GetSize():
+      return False
+   
+   for i in range(pr_item.GetSize()):
+      pr_bin_content = pr_item.GetBinContent(i)
+      base_bin_content = base_item.GetBinContent(i)
+
+      pr_bin_entries = pr_item.GetBinEntries(i)
+      base_bin_entries = base_item.GetBinEntries(i)
+
+      pr_bin_error = pr_item.GetBinError(i)
+      base_bin_error = base_item.GetBinError(i)
+
+      if not np.isclose(pr_bin_content, base_bin_content, equal_nan=True):
+         return False
+
+      if not np.isclose(pr_bin_entries, base_bin_entries, equal_nan=True):
+         return False
+
+      if not np.isclose(pr_bin_error, base_bin_error, equal_nan=True):
+         return False
+   
+   return True
 
 def flatten_file(file, run_nr):
    result = {} 
