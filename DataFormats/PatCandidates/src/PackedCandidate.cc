@@ -369,6 +369,14 @@ void pat::PackedCandidate::setRawCaloFraction(float p) {
     rawCaloFraction_ = 100*p;
 }
 
+void pat::PackedCandidate::setRawHcalFraction(float p) {
+  rawHcalFraction_ = 100*p;
+}
+
+void pat::PackedCandidate::setCaloFraction(float p) {
+  caloFraction_ = 100*p;
+}
+
 void pat::PackedCandidate::setHcalFraction(float p) {
   hcalFraction_ = 100*p;
 }
