@@ -35,7 +35,7 @@ using namespace std;
 using namespace reco;
 
 namespace dyt_utils{
-  std::map<etaRegion, std::string> etaRegionStr { {etaRegion::eta0p8, "eta0p8"},
+  static const std::map<etaRegion, std::string> etaRegionStr { {etaRegion::eta0p8, "eta0p8"},
                                                   {etaRegion::eta1p2, "eta1p2"},
                                                   {etaRegion::eta2p0, "eta2p0"},
                                                   {etaRegion::eta2p2, "eta2p2"},

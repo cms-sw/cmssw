@@ -328,21 +328,12 @@ void GlobalTrackQualityProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<std::string>("BaseLabel","GLB");
   {
     edm::ParameterSetDescription descGlbMuonRefitter;
+    descGlbMuonRefitter.setAllowAnything();
     descGlbMuonRefitter.add<edm::InputTag>("DTRecSegmentLabel" , edm::InputTag("dt1DRecHits"));
     descGlbMuonRefitter.add<edm::InputTag>("CSCRecSegmentLabel" , edm::InputTag("csc2DRecHits"));
     descGlbMuonRefitter.add<edm::InputTag>("GEMRecHitLabel" , edm::InputTag("gemRecHits"));
     descGlbMuonRefitter.add<edm::InputTag>("ME0RecHitLabel" , edm::InputTag("me0Segments"));
     descGlbMuonRefitter.add<edm::InputTag>("RPCRecSegmentLabel" , edm::InputTag("rpcRecHits"));
-
-    descGlbMuonRefitter.add<int>("MuonHitsOption", 1);
-    descGlbMuonRefitter.add<double>("PtCut", 1.0);
-    descGlbMuonRefitter.add<double>("Chi2ProbabilityCut", 30.0);
-    descGlbMuonRefitter.add<double>("Chi2CutCSC", 1.0);
-    descGlbMuonRefitter.add<double>("Chi2CutDT", 30.0);
-    descGlbMuonRefitter.add<double>("Chi2CutGEM", 1.0);
-    descGlbMuonRefitter.add<double>("Chi2CutME0", 1.0);
-    descGlbMuonRefitter.add<double>("Chi2CutRPC", 1.0);
-    descGlbMuonRefitter.add<int>("HitThreshold", 1);
 
     descGlbMuonRefitter.add<std::string>("Fitter", "KFFitterForRefitInsideOut");
     descGlbMuonRefitter.add<std::string>("Smoother", "KFSmootherForRefitInsideOut");
@@ -363,7 +354,7 @@ void GlobalTrackQualityProducer::fillDescriptions(edm::ConfigurationDescriptions
       edm::ParameterSetDescription descDYTthrs;
       descDYTthrs.add<std::vector<double>>("eta0p8", {1,-0.919853, 0.990742});
       descDYTthrs.add<std::vector<double>>("eta1p2", {1,-0.897354, 0.987738});
-      descDYTthrs.add<std::vector<double>>("eta2p0", {1,-0.986855, 0.998516});
+      descDYTthrs.add<std::vector<double>>("eta2p0", {4,-0.986855, 0.998516});
       descDYTthrs.add<std::vector<double>>("eta2p2", {1,-0.940342, 0.992955});
       descDYTthrs.add<std::vector<double>>("eta2p4", {1,-0.947633, 0.993762});
       descGlbMuonRefitter.add<edm::ParameterSetDescription>("DYTthrsParameters", descDYTthrs);
@@ -374,14 +365,12 @@ void GlobalTrackQualityProducer::fillDescriptions(edm::ConfigurationDescriptions
     descGlbMuonRefitter.add<int>("TrackerSkipSection", -1);
     descGlbMuonRefitter.add<bool>("RefitFlag", true );
 
-    //descRefitter.add<edm::ParameterSetDescription>("GlobalMuonRefitter", descGlbMuonRefitter);
     desc.add<edm::ParameterSetDescription>("RefitterParameters", descGlbMuonRefitter);
   }
-  //desc.add<edm::ParameterSetDescription>("RefitterParameters", descRefitter);
   desc.add<double>("nSigma", 3.0);
   desc.add<double>("MaxChi2", 100000.0);
 
-  descriptions.add("GlobalTrackQualityProducer", desc);
+  descriptions.add("globalTrackQualityProducer", desc);
 }
 //#include "FWCore/Framework/interface/MakerMacros.h"
 //DEFINE_FWK_MODULE(GlobalTrackQualityProducer);
