@@ -1,5 +1,5 @@
-#ifndef MuonSimHitsValidAnalyzer_h
-#define MuonSimHitsValidAnalyzer_h
+#ifndef Validation_MuonHits_MuonSimHitsValidAnalyzer_h
+#define Validation_MuonHits_MuonSimHitsValidAnalyzer_h
 
 /// framework & common header files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -12,13 +12,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
-#include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 /// muon CSC, DT and RPC geometry info
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -27,22 +25,13 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
-/// muon CSC detector id
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-
 /// data in edm::event
-//#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-/// helper files
-#include <CLHEP/Vector/LorentzVector.h>
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 #include <iostream>
-
 #include <cstdlib>
 #include <string>
 #include <memory>
