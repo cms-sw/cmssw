@@ -107,7 +107,6 @@ class DynamicTruncation {
   void                 useSegment(CSCSegment const &, TrajectoryStateOnSurface const &);
   void                 sort(ConstRecHitContainer&);
   void                 setEtaRegion();
-  static edm::ParameterSetDescription fillDefaultThrsParameters();
 
   ConstRecHitContainer result, prelFitMeas;
   bool useAPE;
