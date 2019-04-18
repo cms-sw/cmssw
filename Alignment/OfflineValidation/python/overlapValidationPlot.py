@@ -207,7 +207,8 @@ def plot(file_name,subdet_ids,module_directions,overlap_directions,profile_direc
 						hMean = g.GetMean(1)
 						hMeanError = g.GetMeanError(1)
 						if (profile==0):
-							legend[subdet][module][overlap][profile].AddEntry(g, title + ", mean = {0}\pm {1}\mu m ".format(round(hMean,3),round(hMeanError,3)), "l")
+							legend[subdet][module][overlap][profile].AddEntry(g, title + ", mean = {0}#pm{1}#mum ".format(round(hMean,3),round(hMeanError,3)), "l")
+                                                        g.Scale(1 / g.Integral())
 					        else:
 							legend[subdet][module][overlap][profile].AddEntry(g, title, "l")
 						hstack[subdet][module][overlap][profile].Add(g)
@@ -226,7 +227,7 @@ def plot(file_name,subdet_ids,module_directions,overlap_directions,profile_direc
 					currhstack.Draw("nostack")
 					currLegend.Draw()
 					xTitle = "hit_{A} - pred_{A} - (hit_{B} - pred_{B}) (#mum)"
-					yTitle="number of events"
+					yTitle="fraction of events"
 					save_as_file_name = file_name +  "{0}_{1}_{2}".format(dirNameList[module],dirNameList[overlap],detNameList[subdet])
 					if profile>0:
 						save_as_file_name = file_name +"Profiles/profile_{0}_{1}_{2}_{3}".format(dirNameList[module],dirNameList[overlap],detNameList[subdet],dirNameList[profile-1])
@@ -236,6 +237,7 @@ def plot(file_name,subdet_ids,module_directions,overlap_directions,profile_direc
 					currhstack.GetYaxis().SetTitle(yTitle)
 					if profile==0:
 						currhstack.GetXaxis().SetNdivisions(404)
+                                                
 					TkAlStyle.drawStandardTitle()        
 							
 					for ext in "png", "eps", "root", "pdf":
