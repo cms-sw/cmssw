@@ -16,11 +16,22 @@
 // PixelPhase1 HelperClass
 #include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 
-class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>,
-                               private HistogramManagerHolder {
-  enum { BADROC, PERMANENTBADROC, FEDERRORROC, STUCKTBMROC, OTHERBADROC, PROMPTBADROC };
+// Threshold testing
+#include "TH1.h"
+#include "TFile.h"
 
-public:
+class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>, private HistogramManagerHolder {
+    enum {
+      BADROC,
+      PERMANENTBADROC,
+      FEDERRORROC,
+      STUCKTBMROC,
+      OTHERBADROC,
+      PROMPTBADROC
+    };
+
+ public:
+
   // Constructor
   SiPixelStatusHarvester(const edm::ParameterSet&);
 
@@ -39,6 +50,7 @@ public:
 
 private:
   // Parameters
+  double threshold_;
   std::string outputBase_;
   int aveDigiOcc_;
   int nLumi_;
@@ -84,6 +96,18 @@ private:
                     edm::Service<cond::service::PoolDBOutputService>& poolDbService,
                     std::string tagName,
                     edm::Run& iRun);
+
+  // for testing threshold
+  TFile * histoFile;
+
+  TH1F *digi_Good_BPix_L1, *digi_Bad_BPix_L1;
+  TH1F *digi_Good_BPix_L2, *digi_Bad_BPix_L2;
+  TH1F *digi_Good_BPix_L3, *digi_Bad_BPix_L3;
+  TH1F *digi_Good_BPix_L4, *digi_Bad_BPix_L4;
+
+  TH1F *digi_Good_FPix_RNG1, *digi_Bad_FPix_RNG1;
+  TH1F *digi_Good_FPix_RNG2, *digi_Bad_FPix_RNG2;
+
 };
 
 #endif
