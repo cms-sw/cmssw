@@ -55,7 +55,7 @@ class TotemTimingRecHitProducer : public edm::stream::EDProducer<>
 
 TotemTimingRecHitProducer::TotemTimingRecHitProducer( const edm::ParameterSet& iConfig ) :
   digiToken_( consumes<edm::DetSetVector<TotemTimingDigi> >( iConfig.getParameter<edm::InputTag>( "digiTag" ) ) ),
-  timingCalibrationTag_( iConfig.getParameter<edm::ESInputTag>( "timingCalibrationTag" ) ),
+  timingCalibrationTag_( iConfig.getParameter<std::string>( "timingCalibrationTag" ) ),
   algo_( iConfig )
 {
   produces<edm::DetSetVector<TotemTimingRecHit> >();
@@ -97,7 +97,7 @@ TotemTimingRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& des
 
   desc.add<edm::InputTag>( "digiTag", edm::InputTag( "totemTimingRawToDigi", "TotemTiming" ) )
     ->setComment( "input digis collection to retrieve" );
-  desc.add<edm::InputTag>( "timingCalibrationTag", edm::InputTag( "TotemTimingCalibration" ) )
+  desc.add<std::string>( "timingCalibrationTag", "GlobalTag:TotemTimingCalibration" )
     ->setComment( "input tag for timing calibrations retrieval" );
   desc.add<int>( "baselinePoints", 8 )
     ->setComment( "number of points to be used for the baseline" );
