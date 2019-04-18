@@ -1,6 +1,8 @@
 #include "L1Trigger/L1THGCalUtilities/interface/HGCalTriggerNtupleBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
+#include "L1Trigger/L1TTrackMatch/interface/pTFrom2Stubs.h"
+
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -12,6 +14,9 @@
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 
 
@@ -36,6 +41,8 @@ class L1TriggerNtupleTrackTrigger : public HGCalTriggerNtupleBase {
 
     int l1track_n_ ;
     std::vector<float> l1track_pt_;
+    std::vector<float> l1track_pt2stubs_;
+
     // std::vector<float> l1track_energy_;
     std::vector<float> l1track_eta_;
     std::vector<float> l1track_phi_;
@@ -71,6 +78,8 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
 
   tree.Branch("l1track_n",       &l1track_n_, "l1track_n/I");
   tree.Branch("l1track_pt",      &l1track_pt_);
+  tree.Branch("l1track_pt2stubs",      &l1track_pt2stubs_);
+
   // tree.Branch("l1track_energy", &l1track_energy_);
   tree.Branch("l1track_eta",     &l1track_eta_);
   tree.Branch("l1track_phi",     &l1track_phi_);
@@ -102,6 +111,12 @@ L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSetup& e
     fBz = magfield->inTesla(GlobalPoint(0,0,0)).z();
   }
 
+  // geometry needed to call pTFrom2Stubs
+  edm::ESHandle<TrackerGeometry> geomHandle;
+  es.get<TrackerDigiGeometryRecord>().get("idealForDigi", geomHandle);
+  const TrackerGeometry* tGeom = geomHandle.product();
+
+
   triggerTools_.eventSetup(es);
 
   clear();
@@ -112,6 +127,8 @@ L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSetup& e
     // physical values
 
     l1track_pt_.emplace_back(trackIter->getMomentum().perp());
+    l1track_pt2stubs_.emplace_back(pTFrom2Stubs::pTFrom2(trackIter, tGeom));
+
     // l1track_energy_.emplace_back(trackIter->energy());
     l1track_eta_.emplace_back(trackIter->getMomentum().eta());
     l1track_phi_.emplace_back(trackIter->getMomentum().phi());
@@ -144,6 +161,7 @@ void
 L1TriggerNtupleTrackTrigger::clear() {
   l1track_n_ = 0;
   l1track_pt_.clear();
+  l1track_pt2stubs_.clear();
   // l1track_energy_.clear();
   l1track_eta_.clear();
   l1track_phi_.clear();
