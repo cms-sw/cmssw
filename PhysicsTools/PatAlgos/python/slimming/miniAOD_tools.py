@@ -30,10 +30,6 @@ def miniAOD_customizeCommon(process):
     process.patMuons.computeSoftMuonMVA = True
 
     process.patMuons.addTriggerMatching = True
-    from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
-
-
-    run2_muon_2016.toModify( process.patMuons, mvaTrainingFile = cms.FileInPath("RecoMuon/MuonIdentification/data/mu_2016_BDTG.weights.xml"))
 
     process.patMuons.computePuppiCombinedIso = True
     #

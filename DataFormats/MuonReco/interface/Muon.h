@@ -220,10 +220,10 @@ namespace reco {
       PuppiIsoLoose          = 1UL<<27,
       PuppiIsoMedium         = 1UL<<28,
       PuppiIsoTight          = 1UL<<29, 
-      MvaVTight              = 1UL<<30,   
-      MvaVVTight             = 1UL<<31,   
-      LowPtMvaLoose          = 1UL<<32,   
-      LowPtMvaMedium         = 1UL<<33,   
+      MvaVTight              = 1UL<<30,   // > 0.45
+      MvaVVTight             = 1UL<<31,   // > 0.9
+      LowPtMvaLoose          = 1UL<<32,   // > -0.6
+      LowPtMvaMedium         = 1UL<<33,   // > -0.2
     };
     
     bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }
