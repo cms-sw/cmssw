@@ -51,7 +51,8 @@ public:
       this->bookHistograms(booker, run, setup);
     },
     run.run(),
-    this->moduleDescription().id());
+    this->moduleDescription().id(),
+    this->getCanSaveByLumi());
   }
 
   void endRun(edm::Run const& run, edm::EventSetup const& setup) override {}
@@ -70,6 +71,8 @@ public:
   void accumulate(edm::Event const& ev, edm::EventSetup const& es) final {
     analyze(ev,es);
   }
+
+  virtual bool getCanSaveByLumi() { return false; }
 private:
   edm::EDPutTokenT<DQMToken> runToken_;
 
@@ -101,7 +104,9 @@ public:
 
 template <typename... T> class DQMBaseClass;
 
-template<> class DQMBaseClass<> : public DQMRunEDProducer<> {};
+template<> class DQMBaseClass<> : public DQMLumisEDProducer {
+  bool getCanSaveByLumi() override { return true; }
+};
 template<> class DQMBaseClass<DQMLuminosityBlockElements> : public DQMLumisEDProducer {};
 template<> class DQMBaseClass<edm::one::WatchLuminosityBlocks> : public DQMRunEDProducer<edm::one::WatchLuminosityBlocks> {};
 template<typename T> class DQMBaseClass<edm::LuminosityBlockCache<T>> : public DQMRunEDProducer<edm::LuminosityBlockCache<T>>{};
