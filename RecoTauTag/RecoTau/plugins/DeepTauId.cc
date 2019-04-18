@@ -82,7 +82,7 @@ namespace MuonSubdetId {
   enum { DT = 1, CSC = 2, RPC = 3, GEM = 4, ME0 = 5 };
 }
 
-struct MuonHitMatch {
+struct MuonHitMatchV1 {
     static constexpr int n_muon_stations = 4;
 
     std::map<int, std::vector<UInt_t>> n_matches, n_hits;
@@ -90,7 +90,7 @@ struct MuonHitMatch {
     const pat::Muon* best_matched_muon{nullptr};
     double deltaR2_best_match{-1};
 
-    MuonHitMatch()
+    MuonHitMatchV1()
     {
         n_matches[MuonSubdetId::DT].assign(n_muon_stations, 0);
         n_matches[MuonSubdetId::CSC].assign(n_muon_stations, 0);
@@ -107,8 +107,8 @@ struct MuonHitMatch {
         ++n_muons;
         const double dR2 = reco::deltaR2(tau.p4(), muon.p4());
         if(!best_matched_muon || dR2 < deltaR2_best_match) {
-	  best_matched_muon = &muon;
-	  deltaR2_best_match = dR2;
+            best_matched_muon = &muon;
+            deltaR2_best_match = dR2;
         }
 
         for(const auto& segment : muon.matches()) {
@@ -225,6 +225,99 @@ private:
     }
 };
 
+
+enum class CellObjectType { PfCand_electron, PfCand_muon, PfCand_chargedHadron, PfCand_neutralHadron,
+                            PfCand_gamma, Electron, Muon };
+
+template<typename Object>
+CellObjectType GetCellObjectType(const Object&);
+template<>
+CellObjectType GetCellObjectType(const pat::Electron&) { return CellObjectType::Electron; }
+template<>
+CellObjectType GetCellObjectType(const pat::Muon&) { return CellObjectType::Muon; }
+
+template<>
+CellObjectType GetCellObjectType(const pat::PackedCandidate& cand)
+{
+    static const std::map<int, CellObjectType> obj_types = {
+        { 11, CellObjectType::PfCand_electron },
+        { 13, CellObjectType::PfCand_muon },
+        { 22, CellObjectType::PfCand_gamma },
+        { 130, CellObjectType::PfCand_neutralHadron },
+        { 211, CellObjectType::PfCand_chargedHadron }
+    };
+
+    auto iter = obj_types.find(std::abs(cand.pdgId()));
+    if(iter == obj_types.end())
+        throw cms::Exception("DeepTauId") << "Unknown object pdg id = " << cand.pdgId();
+    return iter->second;
+}
+
+
+using Cell = std::map<CellObjectType, size_t>;
+struct CellIndex {
+    int eta, phi;
+
+    bool operator<(const CellIndex& other) const
+    {
+        if(eta != other.eta) return eta < other.eta;
+        return phi < other.phi;
+    }
+};
+
+class CellGrid {
+public:
+    CellGrid(unsigned _nCellsEta, unsigned _nCellsPhi, double _cellSizeEta, double _cellSizePhi) :
+        nCellsEta(_nCellsEta), nCellsPhi(_nCellsPhi), nTotal(nCellsEta * nCellsPhi),
+        cellSizeEta(_cellSizeEta), cellSizePhi(_cellSizePhi), cells(nTotal)
+    {
+        if(nCellsEta % 2 != 1 || nCellsEta < 1)
+            throw cms::Exception("DeepTauId") << "Invalid number of eta cells.";
+        if(nCellsPhi % 2 != 1 || nCellsPhi < 1)
+            throw cms::Exception("DeepTauId") << "Invalid number of phi cells.";
+        if(cellSizeEta <= 0 || cellSizePhi <= 0)
+            throw cms::Exception("DeepTauId") << "Invalid cell size.";
+    }
+
+    int MaxEtaIndex() const { return static_cast<int>((nCellsEta - 1) / 2); }
+    int MaxPhiIndex() const { return static_cast<int>((nCellsPhi - 1) / 2); }
+    double MaxDeltaEta() const { return cellSizeEta * (0.5 + MaxEtaIndex()); }
+    double MaxDeltaPhi() const { return cellSizePhi * (0.5 + MaxPhiIndex()); }
+
+    bool TryGetCellIndex(double deltaEta, double deltaPhi, CellIndex& cellIndex) const
+    {
+        static auto getCellIndex = [](double x, double maxX, double size, int& index) {
+            const double absX = std::abs(x);
+            if(absX > maxX) return false;
+            const double absIndex = std::floor(std::abs(absX / size - 0.5));
+            index = static_cast<int>(std::copysign(absIndex, x));
+            return true;
+        };
+
+        return getCellIndex(deltaEta, MaxDeltaEta(), cellSizeEta, cellIndex.eta)
+               && getCellIndex(deltaPhi, MaxDeltaPhi(), cellSizePhi, cellIndex.phi);
+    }
+
+    Cell& at(const CellIndex& cellIndex) { return cells.at(GetFlatIndex(cellIndex)); }
+    const Cell& at(const CellIndex& cellIndex) const { return cells.at(GetFlatIndex(cellIndex)); }
+    bool IsEmpty(const CellIndex& cellIndex) const { return at(cellIndex).empty(); }
+
+private:
+    size_t GetFlatIndex(const CellIndex& cellIndex) const
+    {
+        if(std::abs(cellIndex.eta) > MaxEtaIndex() || std::abs(cellIndex.phi) > MaxPhiIndex())
+            throw cms::Exception("DeepTauId") << "Cell index is out of range";
+        const unsigned shiftedEta = static_cast<unsigned>(cellIndex.eta + MaxEtaIndex());
+        const unsigned shiftedPhi = static_cast<unsigned>(cellIndex.phi + MaxPhiIndex());
+        return shiftedEta * nCellsPhi + shiftedPhi;
+    }
+
+private:
+    const unsigned nCellsEta, nCellsPhi, nTotal;
+    const double cellSizeEta, cellSizePhi;
+    std::vector<Cell> cells;
+};
+
 } // anonymous namespace
 
 class DeepTauId : public deep_tau::DeepTauBase {
@@ -249,8 +342,12 @@ public:
         desc.add<edm::InputTag>("electrons", edm::InputTag("slimmedElectrons"));
         desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb");
+        desc.add<edm::InputTag>("pfcands", edm::InputTag("packedPFCandidates"));
+        desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
+        desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoAll"));
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2.pb");
         desc.add<bool>("mem_mapped", false);
+        desc.add<unsigned>("version", 2);
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
@@ -265,21 +362,28 @@ public:
         desc.add<edm::ParameterSetDescription>("VSeWP", descWP);
         desc.add<edm::ParameterSetDescription>("VSmuWP", descWP);
         desc.add<edm::ParameterSetDescription>("VSjetWP", descWP);
-        descriptions.add("DeepTau2017v1", desc);
+        descriptions.add("DeepTau", desc);
     }
 
 public:
     explicit DeepTauId(const edm::ParameterSet& cfg, const deep_tau::DeepTauCache* cache) :
         DeepTauBase(cfg, GetOutputs(), cache),
-        electrons_token(consumes<ElectronCollection>(cfg.getParameter<edm::InputTag>("electrons"))),
-        muons_token(consumes<MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
-        input_layer(cache_->getGraph().node(0).name()),
-        output_layer(cache_->getGraph().node(cache_->getGraph().node_size() - 1).name())
+        electrons_token_(consumes<ElectronCollection>(cfg.getParameter<edm::InputTag>("electrons"))),
+        muons_token_(consumes<MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
+        rho_token_(consumes<double>(cfg.getParameter<edm::InputTag>("rho"))),
+        version(cfg.getParameter<unsigned>("version"))
     {
-        const auto& shape = cache_->getGraph().node(0).attr().at("shape").shape();
-        if(shape.dim(1).size() != dnn_inputs_2017v1::NumberOfInputs)
-            throw cms::Exception("DeepTauId") << "number of inputs does not match the expected inputs for the given version";
+        if(version == 1) {
+            input_layer_ = cache_->getGraph().node(0).name();
+            output_layer_ = cache_->getGraph().node(cache_->getGraph().node_size() - 1).name();
+            const auto& shape = cache_->getGraph().node(0).attr().at("shape").shape();
+            if(shape.dim(1).size() != dnn_inputs_2017v1::NumberOfInputs)
+                throw cms::Exception("DeepTauId") << "number of inputs does not match the expected inputs for the given version";
+        } else if(version == 2) {
 
+        } else {
+            throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
+        }
     }
 
     static std::unique_ptr<deep_tau::DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg)
@@ -294,29 +398,140 @@ public:
 
 private:
     tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
-                                              edm::Handle<TauCollection> taus) override
+                                      edm::Handle<TauCollection> taus) override
     {
         edm::Handle<pat::ElectronCollection> electrons;
-        event.getByToken(electrons_token, electrons);
+        event.getByToken(electrons_token_, electrons);
 
         edm::Handle<pat::MuonCollection> muons;
-        event.getByToken(muons_token, muons);
+        event.getByToken(muons_token_, muons);
+
+        edm::Handle<pat::PackedCandidateCollection> pfCands;
+        event.getByToken(pfcand_token_, pfCands);
+
+        edm::Handle<reco::VertexCollection> vertices;
+        event.getByToken(vtx_token_, vertices);
+
+        edm::Handle<double> rho;
+        event.getByToken(rho_token_, rho);
 
         tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()),
                                        dnn_inputs_2017v1::NumberOfOutputs});
         for(size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
-            const tensorflow::Tensor& inputs = createInputs<dnn_inputs_2017v1>(taus->at(tau_index), *electrons, *muons);
             std::vector<tensorflow::Tensor> pred_vector;
-            tensorflow::run(&(cache_->getSession()), { { input_layer, inputs } }, { output_layer }, &pred_vector);
+            if(version == 1)
+                getPredictionsV1(taus->at(tau_index), *electrons, *muons, pred_vector);
+            else if(version == 2)
+                getPredictionsV2(taus->at(tau_index), *electrons, *muons, *pfCands, vertices->at(0), *rho, pred_vector);
+            else
+                throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
             for(int k = 0; k < dnn_inputs_2017v1::NumberOfOutputs; ++k)
                 predictions.matrix<float>()(tau_index, k) = pred_vector[0].flat<float>()(k);
         }
         return predictions;
     }
 
+    void getPredictionsV1(const TauType& tau, const pat::ElectronCollection& electrons,
+                          const pat::MuonCollection& muons, std::vector<tensorflow::Tensor>& pred_vector)
+    {
+        const tensorflow::Tensor& inputs = createInputsV1<dnn_inputs_2017v1>(tau, electrons, muons);
+        tensorflow::run(&(cache_->getSession()), { { input_layer_, inputs } }, { output_layer_ }, &pred_vector);
+    }
+
+    void getPredictionsV2(const TauType& tau, const pat::ElectronCollection& electrons,
+                          const pat::MuonCollection& muons, const pat::PackedCandidateCollection& pfCands,
+                          const reco::Vertex& pv, double rho, std::vector<tensorflow::Tensor>& pred_vector)
+    {
+        CellGrid inner_grid(11, 11, 0.02, 0.02);
+        CellGrid outer_grid(21, 21, 0.05, 0.05);
+        fillGrids(tau, electrons, inner_grid, outer_grid);
+        fillGrids(tau, muons, inner_grid, outer_grid);
+        fillGrids(tau, pfCands, inner_grid, outer_grid);
+
+        const auto input_tau = createTauBlockInputs(tau, pv, rho);
+        const auto input_inner_egamma = createEgammaBlockInputs(tau, pv, rho, electrons, pfCands, inner_grid, true);
+        const auto input_inner_muon = createMuonBlockInputs(tau, pv, rho, muons, pfCands, inner_grid, true);
+        const auto input_inner_hadrons = createHadronsBlockInputs(tau, pv, rho, pfCands, inner_grid, true);
+        const auto input_outer_egamma = createEgammaBlockInputs(tau, pv, rho, electrons, pfCands, outer_grid, false);
+        const auto input_outer_muon = createMuonBlockInputs(tau, pv, rho, muons, pfCands, outer_grid, false);
+        const auto input_outer_hadrons = createHadronsBlockInputs(tau, pv, rho, pfCands, outer_grid, false);
+
+        tensorflow::run(&(cache_->getSession()),
+            { { "input_tau", input_tau },
+              { "input_inner_egamma", input_inner_egamma}, { "input_outer_egamma", input_outer_egamma },
+              { "input_inner_muon", input_inner_muon }, { "input_outer_muon", input_outer_muon },
+              { "input_inner_hadrons", input_inner_hadrons }, { "input_outer_hadrons", input_outer_hadrons } },
+            { "main_output" }, &pred_vector);
+    }
+
+    template<typename Collection>
+    void fillGrids(const TauType& tau, const Collection& objects, CellGrid& inner_grid, CellGrid& outer_grid)
+    {
+        static constexpr double outer_dR2 = std::pow(0.5, 2);
+        const double inner_radius = getInnerSignalConeRadius(tau.polarP4().pt());
+        const double inner_dR2 = std::pow(inner_radius, 2);
+
+        const auto addObject = [&](size_t n, double deta, double dphi, CellGrid& grid) {
+            const auto& obj = objects.at(n);
+            const CellObjectType obj_type = GetCellObjectType(obj);
+            CellIndex cell_index;
+            if(grid.TryGetCellIndex(deta, dphi, cell_index)) {
+                Cell& cell = grid.at(cell_index);
+                auto iter = cell.find(obj_type);
+                if(iter != cell.end()) {
+                     const auto& prev_obj = objects.at(iter->second);
+                     if(obj.polarP4().pt() > prev_obj.polarP4().pt())
+                        iter->second = n;
+                } else {
+                    cell[obj_type] = n;
+                }
+            }
+        };
+
+        for(size_t n = 0; n < objects.size(); ++n) {
+            const auto& obj = objects.at(n);
+            const double deta = obj.polarP4().eta() - tau.polarP4().eta();
+            const double dphi = ROOT::Math::VectorUtil::DeltaPhi(obj.polarP4(), tau.polarP4());
+            const double dR2 = std::pow(deta, 2) + std::pow(dphi, 2);
+            if(dR2 < inner_dR2)
+                addObject(n, deta, dphi, inner_grid);
+            if(dR2 < outer_dR2)
+                addObject(n, deta, dphi, outer_grid);
+        }
+    }
+
+    tensorflow::Tensor createTauBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho)
+    {
+        return tensorflow::Tensor();
+    }
+
+    tensorflow::Tensor createEgammaBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
+                                                 const pat::ElectronCollection& electrons,
+                                                 const pat::PackedCandidateCollection& pfCands,
+                                                 const CellGrid& grid, bool is_inner)
+    {
+        return tensorflow::Tensor();
+    }
+
+    tensorflow::Tensor createMuonBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
+                                             const pat::MuonCollection& electrons,
+                                             const pat::PackedCandidateCollection& pfCands,
+                                             const CellGrid& grid, bool is_inner)
+    {
+        return tensorflow::Tensor();
+    }
+
+    tensorflow::Tensor createHadronsBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
+                                                const pat::PackedCandidateCollection& pfCands,
+                                                const CellGrid& grid, bool is_inner)
+    {
+        return tensorflow::Tensor();
+    }
+
+
     template<typename dnn>
-    tensorflow::Tensor createInputs(const TauType& tau, const ElectronCollection& electrons,
-                                    const MuonCollection& muons) const
+    tensorflow::Tensor createInputsV1(const TauType& tau, const ElectronCollection& electrons,
+                                      const MuonCollection& muons) const
     {
         static constexpr bool check_all_set = false;
         static constexpr float default_value_for_set_check = -42;
@@ -422,7 +637,7 @@ private:
                                                     / tau.leadChargedHadrCand()->pt();
         }
 
-        MuonHitMatch muon_hit_match;
+        MuonHitMatchV1 muon_hit_match;
         if(tau.leadPFChargedHadrCand().isNonnull() && tau.leadPFChargedHadrCand()->muonRef().isNonnull())
             muon_hit_match.addMatchedMuon(*tau.leadPFChargedHadrCand()->muonRef(), tau);
 
@@ -629,9 +844,11 @@ private:
     }
 
 private:
-    edm::EDGetTokenT<ElectronCollection> electrons_token;
-    edm::EDGetTokenT<MuonCollection> muons_token;
-    std::string input_layer, output_layer;
+    edm::EDGetTokenT<ElectronCollection> electrons_token_;
+    edm::EDGetTokenT<MuonCollection> muons_token_;
+    edm::EDGetTokenT<double> rho_token_;
+    std::string input_layer_, output_layer_;
+    const unsigned version;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
