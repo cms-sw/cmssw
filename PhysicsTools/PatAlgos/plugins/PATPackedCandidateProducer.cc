@@ -144,7 +144,8 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   produces< edm::Association<pat::PackedCandidateCollection> > ();
   produces< edm::Association<reco::PFCandidateCollection> > ();
 
-  produces< edm::ValueMap<pat::HcalDepthEnergyFractions> > ("hcalDepthEnergyFractions");
+  if (not pfCandidateTypesForHcalDepth_.empty() )
+    produces< edm::ValueMap<pat::HcalDepthEnergyFractions> > ("hcalDepthEnergyFractions");
 
 }
 
@@ -438,7 +439,8 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     fillerHcalDepthEnergyFractions.insert(cands,hcalDepthEnergyFractions_Ordered.begin(),hcalDepthEnergyFractions_Ordered.end());
     fillerHcalDepthEnergyFractions.fill();
     
-    if (not pfCandidateTypesForHcalDepth_.empty() ) iEvent.put(std::move(hcalDepthEnergyFractionsV),"hcalDepthEnergyFractions");    
+    if (not pfCandidateTypesForHcalDepth_.empty() )
+      iEvent.put(std::move(hcalDepthEnergyFractionsV),"hcalDepthEnergyFractions");    
     
 }
 
