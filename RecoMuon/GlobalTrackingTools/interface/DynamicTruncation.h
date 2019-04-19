@@ -13,6 +13,7 @@
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
  *
+ *  \modified by C. Caputo, UCLouvain
  **/
 
 #include <memory>
@@ -40,6 +41,9 @@
 #include "RecoMuon/GlobalTrackingTools/interface/ThrParameters.h"
 #include "RecoMuon/GlobalTrackingTools/interface/ChamberSegmentUtility.h"
 
+namespace dyt_utils{
+  enum class etaRegion {eta0p8, eta1p2, eta2p0, eta2p2, eta2p4};
+};
 
 class DynamicTruncation {
   
@@ -61,7 +65,15 @@ class DynamicTruncation {
   void setThr(const std::vector<int>&);
   void setUpdateState(bool);
   void setUseAPE(bool);
-  
+  /*---- DyT v2-----*/
+  void setThrsMap(const edm::ParameterSet&);
+  void setParThrsMode(bool dytParThrsMode) { useParametrizedThr = dytParThrsMode;}
+  void setRecoP(double p) { p_reco = p; }
+  void setRecoEta(double eta) {
+    eta_reco = eta;
+    setEtaRegion();
+  }
+
   // Return the vector with the tracker plus the selected muon hits
   TransientTrackingRecHit::ConstRecHitContainer filter(const Trajectory&);
 
@@ -87,14 +99,15 @@ class DynamicTruncation {
   void                 updateWithDThits(TrajectoryStateOnSurface&, DTRecSegment4D const &);
   void                 updateWithCSChits(TrajectoryStateOnSurface&, CSCSegment const &);
   void                 getThresholdFromDB(double&, DetId const&);
-  void                 correctThrByPtAndEta(double&);
+  void                 correctThrByPAndEta(double&);
   void                 getThresholdFromCFG(double&, DetId const&);
   void                 testDTstation(TrajectoryStateOnSurface&, std::vector<DTRecSegment4D> const &, double&, DTRecSegment4D&, TrajectoryStateOnSurface&);
   void                 testCSCstation(TrajectoryStateOnSurface&, std::vector<CSCSegment> const &, double&, CSCSegment&, TrajectoryStateOnSurface&);
   void                 useSegment(DTRecSegment4D const &, TrajectoryStateOnSurface const &);
   void                 useSegment(CSCSegment const &, TrajectoryStateOnSurface const &);
   void                 sort(ConstRecHitContainer&);
-  
+  void                 setEtaRegion();
+
   ConstRecHitContainer result, prelFitMeas;
   bool useAPE;
   std::vector<int> Thrs;
@@ -117,15 +130,19 @@ class DynamicTruncation {
   TrajectoryStateOnSurface prelFitState;
   reco::DYTInfo dytInfo;
   std::map<DTChamberId, GlobalError> dtApeMap;
-  std::map<CSCDetId, GlobalError> cscApeMap; 
+  std::map<CSCDetId, GlobalError> cscApeMap;
   double muonPTest, muonETAest;
   const DYTThrObject* dytThresholds;
   ChamberSegmentUtility* getSegs;
   ThrParameters* thrManager;
   bool useDBforThr;
   bool doUpdateOfKFStates;
+  /* Variables for v2 */
+  double p_reco;
+  double eta_reco;
+  bool useParametrizedThr;
+  dyt_utils::etaRegion region;
+  std::map<dyt_utils::etaRegion, std::vector<double>> parameters;
 };
 
 #endif
-
-
