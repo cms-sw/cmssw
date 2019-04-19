@@ -69,7 +69,7 @@ struct dnn_inputs_2017v1 {
 namespace dnn_inputs_2017_v2 {
 namespace TauBlockInputs {
     enum vars {
-        tau_pt, tau_eta, tau_phi, tau_mass, tau_E_over_pt, tau_charge, tau_n_charged_prongs,
+        rho = 0, tau_pt, tau_eta, tau_phi, tau_mass, tau_E_over_pt, tau_charge, tau_n_charged_prongs,
         tau_n_neutral_prongs, chargedIsoPtSum, chargedIsoPtSumdR03_over_dR05, footprintCorrection,
         neutralIsoPtSum, neutralIsoPtSumWeight_over_neutralIsoPtSum, neutralIsoPtSumWeightdR03_over_neutralIsoPtSum,
         neutralIsoPtSumdR03_over_dR05, photonPtSumOutsideSignalCone, puCorrPtSum,
@@ -562,7 +562,6 @@ private:
 
     tensorflow::Tensor createTauBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho)
     {
-        static constexpr bool check_all_set = false;
         static constexpr float default_value_for_set_check = -42;
 
         using namespace dnn_inputs_2017_v2;
@@ -572,15 +571,15 @@ private:
         const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
 
-        if(check_all_set) {
-           for(int var_index = 0; var_index < NumberOfInputs; ++var_index) {
-               get(var_index) = default_value_for_set_check;
-           }
-        }
-        get(tau_pt) =  GetValueLinear(tau.p4().pt(), 20.f, 1000.f, true);
-        get(tau_eta) = GetValueLinear(tau.p4().eta(), -2.3f, 2.3f, false);
-        get(tau_phi) = GetValueLinear(tau.p4().phi(), -pi, pi, false);
-        get(tau_mass) = GetValueNorm(tau.p4().mass(), 0.6669f, 0.6553f);
+       for(int var_index = 0; var_index < NumberOfInputs; ++var_index) {
+           get(var_index) = default_value_for_set_check;
+       }
+
+        get(rho) = GetValueNorm(rho, 21.49f, 9.713f);
+        get(tau_pt) =  GetValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
+        get(tau_eta) = GetValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
+        get(tau_phi) = GetValueLinear(tau.polarP4().phi(), -pi, pi, false);
+        get(tau_mass) = GetValueNorm(tau.polarP4().mass(), 0.6669f, 0.6553f);
         get(tau_E_over_pt) = GetValueLinear(tau.p4().energy() / tau.p4().pt(), 1.f, 5.2f, true);
         get(tau_charge) = GetValue(tau.charge());
         get(tau_n_charged_prongs) = GetValueLinear(tau.decayMode() / 5 + 1, 1, 3, true);
@@ -637,9 +636,8 @@ private:
         get(tau_e_ratio_valid) = tau_e_ratio_valid;
         get(tau_e_ratio) = tau_e_ratio_valid ? GetValueLinear(reco::tau::eratio(tau), 0, 1, true)
                                                                  : 0.f;
-        const bool tau_gj_angle_diff_valid = (std::isnormal(calculateGottfriedJacksonAngleDifference(tau)) ||
-                                              calculateGottfriedJacksonAngleDifference(tau) == 0)
-                                              && calculateGottfriedJacksonAngleDifference(tau) >= 0;
+        const double gj_angle_diff = calculateGottfriedJacksonAngleDifference(tau);
+        const bool tau_gj_angle_diff_valid = (std::isnormal(gj_angle_diff) || gj_angle_diff == 0) && gj_angle_diff >= 0;
         get(tau_gj_angle_diff_valid) = tau_gj_angle_diff_valid;
         get(tau_gj_angle_diff) = tau_gj_angle_diff_valid ?
                                                      GetValueLinear(calculateGottfriedJacksonAngleDifference(tau),
