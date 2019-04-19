@@ -66,6 +66,38 @@ struct dnn_inputs_2017v1 {
     static constexpr int NumberOfOutputs = 4;
 };
 
+namespace dnn_inputs_2017_v2 {
+namespace TauBlockInputs {
+    enum vars {
+        tau_pt, tau_eta, tau_phi, tau_mass, tau_E_over_pt, tau_charge, tau_n_charged_prongs,
+        tau_n_neutral_prongs, chargedIsoPtSum, chargedIsoPtSumdR03_over_dR05, footprintCorrection,
+        neutralIsoPtSum, neutralIsoPtSumWeight_over_neutralIsoPtSum, neutralIsoPtSumWeightdR03_over_neutralIsoPtSum,
+        neutralIsoPtSumdR03_over_dR05, photonPtSumOutsideSignalCone, puCorrPtSum,
+        tau_dxy_pca_x, tau_dxy_pca_y, tau_dxy_pca_z, tau_dxy_valid, tau_dxy, tau_dxy_sig,
+        tau_ip3d_valid, tau_ip3d, tau_ip3d_sig, tau_dz, tau_dz_sig_valid, tau_dz_sig,
+        tau_flightLength_x, tau_flightLength_y, tau_flightLength_z, tau_flightLength_sig,
+        tau_pt_weighted_deta_strip, tau_pt_weighted_dphi_strip, tau_pt_weighted_dr_signal,
+        tau_pt_weighted_dr_iso, tau_leadingTrackNormChi2, tau_e_ratio_valid, tau_e_ratio,
+        tau_gj_angle_diff_valid, tau_gj_angle_diff, tau_n_photons, tau_emFraction,
+        tau_inside_ecal_crack, leadChargedCand_etaAtEcalEntrance_minus_tau_eta, NumberOfInputs
+    };
+}
+
+namespace EgammaBlockInputs {
+    enum vars {rho, tau_pt, tau_eta, tau_inside_ecal_crack};
+}
+
+namespace MuonBlockInputs {
+    enum vars {rho, tau_pt, tau_eta, tau_inside_ecal_crack};
+}
+
+namespace HadronBlockInputs {
+    enum vars {rho, tau_pt, tau_eta, tau_inside_ecal_crack};
+}
+
+    static constexpr int NumberOfOutputs = 4;
+}
+
 template<typename LVector1, typename LVector2>
 float dEta(const LVector1& p4, const LVector2& tau_p4)
 {
@@ -395,6 +427,33 @@ public:
     {
         return DeepTauBase::globalEndJob(cache_);
     }
+private:
+    static constexpr float pi = boost::math::constants::pi<float>();
+
+    template<typename T>
+    static float GetValue(T value)
+    {
+        return std::isnormal(value) ? static_cast<float>(value) : 0.f;
+    }
+
+    template<typename T>
+    static float GetValueLinear(T value, float min_value, float max_value, bool positive)
+    {
+        const float fixed_value = GetValue(value);
+        const float clamped_value = std::clamp(fixed_value, min_value, max_value);
+        float transformed_value = (clamped_value - min_value) / (max_value - min_value);
+        if(!positive)
+            transformed_value = transformed_value * 2 - 1;
+        return transformed_value;
+    }
+
+    template<typename T>
+    static float GetValueNorm(T value, float mean, float sigma, float n_sigmas_max = 5)
+    {
+        const float fixed_value = GetValue(value);
+        const float norm_value = (fixed_value - mean) / sigma;
+        return std::clamp(norm_value, -n_sigmas_max, n_sigmas_max);
+    }
 
 private:
     tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
@@ -500,9 +559,98 @@ private:
         }
     }
 
+
     tensorflow::Tensor createTauBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho)
     {
-        return tensorflow::Tensor();
+        static constexpr bool check_all_set = false;
+        static constexpr float default_value_for_set_check = -42;
+
+        using namespace dnn_inputs_2017_v2;
+        using namespace TauBlockInputs;
+
+        tensorflow::Tensor inputs(tensorflow::DT_FLOAT, { 1,NumberOfInputs});
+        const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
+        auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
+
+        if(check_all_set) {
+           for(int var_index = 0; var_index < NumberOfInputs; ++var_index) {
+               get(var_index) = default_value_for_set_check;
+           }
+        }
+        get(tau_pt) =  GetValueLinear(tau.p4().pt(), 20.f, 1000.f, true);
+        get(tau_eta) = GetValueLinear(tau.p4().eta(), -2.3f, 2.3f, false);
+        get(tau_phi) = GetValueLinear(tau.p4().phi(), -pi, pi, false);
+        get(tau_mass) = GetValueNorm(tau.p4().mass(), 0.6669f, 0.6553f);
+        get(tau_E_over_pt) = GetValueLinear(tau.p4().energy() / tau.p4().pt(), 1.f, 5.2f, true);
+        get(tau_charge) = GetValue(tau.charge());
+        get(tau_n_charged_prongs) = GetValueLinear(tau.decayMode() / 5 + 1, 1, 3, true);
+        get(tau_n_neutral_prongs) = GetValueLinear(tau.decayMode() % 5, 0, 2, true);
+        get(chargedIsoPtSum) = GetValueNorm(tau.tauID("chargedIsoPtSum"), 47.78f, 123.5f);
+        get(chargedIsoPtSumdR03_over_dR05) = GetValue(tau.tauID("chargedIsoPtSumdR03") /
+                                                                          tau.tauID("chargedIsoPtSum"));
+        get(footprintCorrection) = GetValueNorm(tau.tauID("footprintCorrectiondR03"),9.029f, 26.42f);
+        get(neutralIsoPtSum) = GetValueNorm(tau.tauID("neutralIsoPtSum"), 57.59f, 155.3f);
+        get(neutralIsoPtSumWeight_over_neutralIsoPtSum) =
+            GetValue(tau.tauID("neutralIsoPtSumWeight") / tau.tauID("neutralIsoPtSum"));
+        get(neutralIsoPtSumWeightdR03_over_neutralIsoPtSum) =
+            GetValue(tau.tauID("neutralIsoPtSumWeightdR03") / tau.tauID("neutralIsoPtSum"));
+        get(neutralIsoPtSumdR03_over_dR05) = GetValue(tau.tauID("neutralIsoPtSumdR03") /
+                                                                          tau.tauID("neutralIsoPtSum"));
+        get(photonPtSumOutsideSignalCone) = GetValueNorm(tau.tauID("photonPtSumOutsideSignalConedR03"),
+                                                                             1.731f, 6.846f);
+        get(puCorrPtSum) = GetValueNorm(tau.tauID("puCorrPtSum"), 22.38f, 16.34f);
+        get(tau_dxy_pca_x) = GetValueNorm(tau.dxy_PCA().x(), -0.0241f, 0.0074f);
+        get(tau_dxy_pca_y) = GetValueNorm(tau.dxy_PCA().y(),0.0675f, 0.0128f);
+        get(tau_dxy_pca_z) = GetValueNorm(tau.dxy_PCA().z(), 0.7973f, 3.456f);
+        const bool tau_dxy_valid = std::isnormal(tau.dxy()) && tau.dxy() > - 10 && std::isnormal(tau.dxy_error())
+                                   && tau.dxy_error() > 0;
+        get(tau_dxy_valid) = tau_dxy_valid;
+        get(tau_dxy) = tau_dxy_valid ? GetValueNorm(tau.dxy(), 0.0018f, 0.0085f) : 0.f;
+        get(tau_dxy_sig) = tau_dxy_valid
+                                             ? GetValueNorm(std::abs(tau.dxy())/tau.dxy_error(), 2.26f, 4.191f) : 0.f;
+       const bool tau_ip3d_valid = std::isnormal(tau.ip3d()) && tau.ip3d() > - 10 && std::isnormal(tau.ip3d_error())
+                                   && tau.ip3d_error() > 0;
+        get(tau_ip3d_valid) = tau_ip3d_valid;
+        get(tau_ip3d) = tau_ip3d_valid ? GetValueNorm(tau.ip3d(), 0.0026f, 0.0114f) : 0.f;
+        get(tau_ip3d_sig) = tau_ip3d_valid ? GetValueNorm(std::abs(tau.ip3d()) / tau.ip3d_error(),
+                                                2.928f, 4.466f) : 0.f ;
+        get(tau_dz) = GetValueNorm(leadChargedHadrCand->dz(), 0.f, 0.0190f);
+        const bool tau_dz_sig_valid = std::isnormal(leadChargedHadrCand->dz()) && std::isnormal(leadChargedHadrCand->dzError())
+                                      && leadChargedHadrCand->dzError() > 0;
+        get(tau_dz_sig_valid) = tau_dz_sig_valid;
+        get(tau_dz_sig) = GetValueNorm(std::abs(leadChargedHadrCand->dz()) /
+                                                           leadChargedHadrCand->dzError(), 4.717f, 11.78f);
+        get(tau_flightLength_x) = GetValueNorm(tau.flightLength().x(), -0.0003f, 0.7362f);
+        get(tau_flightLength_y) = GetValueNorm(tau.flightLength().y(), -0.0009f, 0.7354f);
+        get(tau_flightLength_z) = GetValueNorm(tau.flightLength().z(), -0.0022f, 1.993f);
+        get(tau_flightLength_sig) = GetValueNorm(tau.flightLengthSig(), -4.78f, 9.573f);
+        get(tau_pt_weighted_deta_strip) = GetValueLinear(reco::tau::pt_weighted_deta_strip(tau,
+                                                                             tau.decayMode()), 0, 1, true);
+        get(tau_pt_weighted_dphi_strip) = GetValueLinear(reco::tau::pt_weighted_dphi_strip(tau,
+                                                                             tau.decayMode()), 0, 1, true);
+        get(tau_pt_weighted_dr_signal) = GetValueNorm(reco::tau::pt_weighted_dr_signal(tau,
+                                                                          tau.decayMode()), 0.0052f, 0.01433f);
+        get(tau_pt_weighted_dr_iso) = GetValueLinear(reco::tau::pt_weighted_dr_iso(tau,
+                                                                         tau.decayMode()), 0, 1, true);
+        get(tau_leadingTrackNormChi2) = GetValueNorm(tau.leadingTrackNormChi2(), 1.538f, 4.401f);
+        const bool tau_e_ratio_valid = std::isnormal(reco::tau::eratio(tau)) && reco::tau::eratio(tau) > 0.f;
+        get(tau_e_ratio_valid) = tau_e_ratio_valid;
+        get(tau_e_ratio) = tau_e_ratio_valid ? GetValueLinear(reco::tau::eratio(tau), 0, 1, true)
+                                                                 : 0.f;
+        const bool tau_gj_angle_diff_valid = (std::isnormal(calculateGottfriedJacksonAngleDifference(tau)) ||
+                                              calculateGottfriedJacksonAngleDifference(tau) == 0)
+                                              && calculateGottfriedJacksonAngleDifference(tau) >= 0;
+        get(tau_gj_angle_diff_valid) = tau_gj_angle_diff_valid;
+        get(tau_gj_angle_diff) = tau_gj_angle_diff_valid ?
+                                                     GetValueLinear(calculateGottfriedJacksonAngleDifference(tau),
+                                                                    0, pi, true) : 0;;
+        get(tau_n_photons) = GetValueNorm(reco::tau::n_photons_total(tau), 2.95f, 3.927f);
+        get(tau_emFraction) = GetValueLinear(tau.emFraction_MVA(), -1, 1, false);
+        get(tau_inside_ecal_crack) = GetValue(isInEcalCrack(tau.p4().eta()));
+        get(leadChargedCand_etaAtEcalEntrance_minus_tau_eta) =
+            GetValueNorm(tau.etaAtEcalEntranceLeadChargedCand() - tau.p4().eta(), 0.0042f, 0.0323f);
+
+        return inputs;
     }
 
     tensorflow::Tensor createEgammaBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
