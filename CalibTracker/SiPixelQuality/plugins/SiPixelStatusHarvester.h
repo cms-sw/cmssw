@@ -22,6 +22,18 @@
 
 class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>, private HistogramManagerHolder {
     enum {
+      BADROCp001,
+      GOODROCp001,
+      BADROCp005,
+      GOODROCp005,
+      BADROCp01,
+      GOODROCp01,
+      BADROCp1,
+      GOODROCp1,
+      BADROCp2,
+      GOODROCp2,
+      BADROCp5,
+      GOODROCp5,
       BADROC,
       PERMANENTBADROC,
       FEDERRORROC,
@@ -98,6 +110,7 @@ private:
                     edm::Run& iRun);
 
   // for testing threshold
+  /*
   TFile * histoFile;
 
   TH1F *digi_Good_BPix_L1, *digi_Bad_BPix_L1;
@@ -107,6 +120,7 @@ private:
 
   TH1F *digi_Good_FPix_RNG1, *digi_Bad_FPix_RNG1;
   TH1F *digi_Good_FPix_RNG2, *digi_Bad_FPix_RNG2;
+  */
 
 };
 

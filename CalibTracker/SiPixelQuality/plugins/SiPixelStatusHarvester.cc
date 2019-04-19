@@ -67,6 +67,7 @@ SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
   endLumiBlock_ = 0;
   countLumi_ = 0;
 
+  /*
   histoFile = new TFile("PixelDigiHisto.root","RECREATE");
 
   digi_Good_BPix_L1 = new TH1F("digi_Good_BPix_L1","digi_Good_BPix_L1",1000,-7,3);
@@ -110,7 +111,7 @@ SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
   digi_Good_FPix_RNG2->GetYaxis()->SetTitle("N_lumisection");
   digi_Bad_FPix_RNG2->GetXaxis()->SetTitle("log_10(digi/N_event)");
   digi_Bad_FPix_RNG2->GetYaxis()->SetTitle("N_lumisection");
-
+  */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,6 +123,7 @@ void SiPixelStatusHarvester::beginJob() { }
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::endJob() {
 
+     /*
      histoFile->cd();
      digi_Good_BPix_L1->Write();
      digi_Bad_BPix_L1->Write();
@@ -149,6 +151,7 @@ void SiPixelStatusHarvester::endJob() {
      delete digi_Bad_FPix_RNG1;
      delete digi_Good_FPix_RNG2;
      delete digi_Bad_FPix_RNG2;
+     */
 
 }  
 
@@ -453,8 +456,8 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 
                int detid = itMod->first; 
                uint32_t detId = uint32_t(detid);
-               int layer = coord_.layer(DetId(detid));
-               int ring = coord_.ring(DetId(detid));
+               //int layer = coord_.layer(DetId(detid));
+               //int ring = coord_.ring(DetId(detid));
 
                double DetAverage_local = SiPixelStatusHarvester::perLayerRingAverage(detid,tmpSiPixelStatus);
 
@@ -468,10 +471,100 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                SiPixelModuleStatus modStatus = itMod->second;
                std::vector<int> listFEDerror25 = tmpFEDerror25[detid];
 
+               std::map<int, std::pair<int,int> > rocToOfflinePixel = pixelO2O_[detid];
                for (int iroc = 0; iroc < modStatus.nrocs(); ++iroc) {
 
                    unsigned int rocOccupancy = modStatus.digiOccROC(iroc);
 
+                   int row = rocToOfflinePixel[iroc].first;
+                   int column = rocToOfflinePixel[iroc].second;
+
+                   double permDead = -9.0;
+                   if(rocOccupancy<0.001*DetAverage_local){
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          if(rocOccupancy>0)
+                            histo[BADROCp001].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                          else
+                            histo[BADROCp001].fill(permDead,detId, nullptr, column, row);
+                      }
+                   }
+                   else{
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          histo[GOODROCp001].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                      }
+                   }
+
+                   if(rocOccupancy<0.005*DetAverage_local){
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          if(rocOccupancy>0)
+                            histo[BADROCp005].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                          else
+                            histo[BADROCp005].fill(permDead,detId, nullptr, column, row);
+                      }
+                   }
+                   else{
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          histo[GOODROCp005].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                      }
+                   }
+
+                   if(rocOccupancy<0.01*DetAverage_local){
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          if(rocOccupancy>0)
+                            histo[BADROCp01].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                          else
+                            histo[BADROCp01].fill(permDead,detId, nullptr, column, row);
+                      }
+                   }
+                   else{
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          histo[GOODROCp01].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                      }
+                   }
+
+                   if(rocOccupancy<0.1*DetAverage_local){
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          if(rocOccupancy>0)
+                            histo[BADROCp1].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                          else
+                            histo[BADROCp1].fill(permDead,detId, nullptr, column, row);
+                      }
+                   }
+                   else{
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          histo[GOODROCp1].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                      }
+                   }
+
+                   if(rocOccupancy<0.2*DetAverage_local){
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          if(rocOccupancy>0)
+                            histo[BADROCp2].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                          else
+                            histo[BADROCp2].fill(permDead,detId, nullptr, column, row);
+                      }
+                   }
+                   else{
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          histo[GOODROCp2].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                      }
+                   }
+
+                   if(rocOccupancy<0.5*DetAverage_local){
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          if(rocOccupancy>0)
+                            histo[BADROCp5].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                          else
+                            histo[BADROCp5].fill(permDead,detId, nullptr, column, row);
+                      }
+                   }
+                   else{
+                      for (int iLumi = 0; iLumi<interval;iLumi++){
+                          histo[GOODROCp5].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
+                      }
+                   }
+
+                   /*
                    if(rocOccupancy>=threshold_*DetAverage_local){ // if GOOD
 
                      if(layer==1) digi_Good_BPix_L1->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
@@ -483,27 +576,26 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                      if(ring==2) digi_Good_FPix_RNG2->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
    
                    }
+                   */
 
                    // Bad ROC are from low DIGI Occ ROCs
                    if(rocOccupancy<threshold_*DetAverage_local){ // if BAD
-
-                     std::map<int, std::pair<int,int> > rocToOfflinePixel = pixelO2O_[detid];
-                     int row = rocToOfflinePixel[iroc].first;
-                     int column = rocToOfflinePixel[iroc].second;
 
                      //PCL bad roc list
                      BadRocListPCL.push_back(uint32_t(iroc));
                      for (int iLumi = 0; iLumi<interval;iLumi++){
                          histo[BADROC].fill(detId, nullptr, column, row);//, 1.0/nLumiBlock_);
                      }
-                     if(rocOccupancy==0) rocOccupancy = 1e-7*Nevents;
+
+                     /*
+                     if(rocOccupancy==0) rocOccupancy = 1e-6*Nevents;
                      if(layer==1) digi_Bad_BPix_L1->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
                      if(layer==2) digi_Bad_BPix_L2->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
                      if(layer==3) digi_Bad_BPix_L3->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
                      if(layer==4) digi_Bad_BPix_L4->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-
                      if(ring==1) digi_Bad_FPix_RNG1->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
                      if(ring==2) digi_Bad_FPix_RNG2->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
+                     */
 
                      //FEDerror25 list
                      std::vector<int>::iterator it = std::find(listFEDerror25.begin(), listFEDerror25.end(),iroc);
