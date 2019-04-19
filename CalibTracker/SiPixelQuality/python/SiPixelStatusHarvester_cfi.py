@@ -16,6 +16,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
@@ -32,6 +34,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
@@ -48,6 +52,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
@@ -64,6 +70,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
@@ -80,6 +88,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
@@ -96,6 +106,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
@@ -114,6 +126,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
@@ -130,6 +144,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
@@ -148,6 +164,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
@@ -164,6 +182,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
@@ -182,6 +202,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
@@ -190,7 +212,7 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
 
 SiPixelPhase1GoodROCp5 = DefaultHisto.clone(
 topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/GoodROCp5",
-  name = "digi_GoodROCp1",
+  name = "digi_GoodROCp5",
   title = "log_{10}(digi/Nevent)",
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
@@ -198,6 +220,8 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   range_nbins = 5000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
