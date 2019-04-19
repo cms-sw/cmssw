@@ -18,8 +18,15 @@ namespace geant_units {
   
   namespace operators {
 
-		using namespace angle_units;
-		using namespace angle_units::operators;
+    // The following are needed by files that include this header
+    // Since "using namespace" is prohibited in header files, each
+    // name is individually imported with a "using" statement.
+    using angle_units::piRadians;
+    using angle_units::operators::operator""_deg;
+    using angle_units::operators::operator""_pi;
+    using angle_units::operators::operator""_rad;
+    using angle_units::operators::convertRadToDeg;
+    using angle_units::operators::convertDegToRad;
 
     // Length 
     constexpr long double operator"" _mm( long double length )

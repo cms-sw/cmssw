@@ -102,9 +102,9 @@ namespace angle_units {
 }
 
 
-namespace angle0To2pi {
+namespace angle0to2pi {
 
-  using namespace angle_units::operators;
+  using angle_units::operators::operator""_pi;
 
   // make0To2pi constrains an angle to be >= 0 and < 2pi.
   // This function is a faster version of reco::reduceRange.
