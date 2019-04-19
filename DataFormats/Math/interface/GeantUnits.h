@@ -12,6 +12,7 @@
 
 namespace geant_units {
   
+  using angle_units::piRadians;                  // Needed by files the include this file
   constexpr long double joule(6.24150e+12);
   constexpr long double seconds(1.e+9);
   constexpr long double nanoseconds(1.);
@@ -21,7 +22,6 @@ namespace geant_units {
     // The following are needed by files that include this header
     // Since "using namespace" is prohibited in header files, each
     // name is individually imported with a "using" statement.
-    using angle_units::piRadians;
     using angle_units::operators::operator""_deg;
     using angle_units::operators::operator""_pi;
     using angle_units::operators::operator""_rad;
