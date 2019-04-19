@@ -14,7 +14,7 @@ namespace pat{
     //store
     std::vector<uint8_t> fractionsI_;
   public:
-    explicit HcalDepthEnergyFractions(std::vector<float> v):
+    explicit HcalDepthEnergyFractions(const std::vector<float>& v):
                               fractions_(v),fractionsI_() { initUint8Vector(); }
     HcalDepthEnergyFractions():fractions_(),fractionsI_() { }
     
@@ -37,7 +37,7 @@ namespace pat{
     }
 
     // provide a full vector for each depth
-    std::vector<float> fractions() const {
+    const std::vector<float>& fractions() const {
       return fractions_;
     }
 
@@ -48,7 +48,7 @@ namespace pat{
     }
     
     // provide a full vector (in uint8_t) for each depth
-    std::vector<uint8_t> fractionsI() const {
+    const std::vector<uint8_t>& fractionsI() const {
       return fractionsI_;
     }
 
