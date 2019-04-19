@@ -18,7 +18,8 @@ namespace Geom {
  *  Phi can be instantiated to implement the range 0 to 2pi.
  */
 
-  using namespace angle0To2pi;
+  using angle_units::operators::operator""_deg;
+  using angle_units::operators::convertRadToDeg;
 
   enum class PhiRange {MinusPiToPi, ZeroTo2pi};
 
@@ -29,14 +30,11 @@ namespace Geom {
   class NormalizeWrapper<T1, PhiRange::MinusPiToPi> {
     public:
     static void normalize(T1 &value) { // Reduce range to -pi to pi
-      constexpr T1 pi = 1._pi;
-      constexpr T1 twoPi = 2._pi;
-
-      if( value > twoPi || value < -twoPi) {
-        value = std::fmod( value, twoPi);
+      if( value > twoPi() || value < -twoPi()) {
+        value = std::fmod(value, static_cast<T1>(twoPi()));
       }
-      if (value <= -pi) value += twoPi;
-      if (value >  pi) value -= twoPi;
+      if (value <= -pi()) value += twoPi();
+      if (value >  pi()) value -= twoPi();
     }
   };
 
@@ -44,7 +42,7 @@ namespace Geom {
   class NormalizeWrapper<T1, PhiRange::ZeroTo2pi> { // Reduce range to 0 to 2pi
   public:
     static void normalize(T1 &value) {
-      value = make0To2pi(value);
+      value = angle0to2pi::make0To2pi(value);
     }
   };
 
@@ -67,7 +65,7 @@ namespace Geom {
     operator T1() const { return theValue;}
 
     /// Template argument conversion
-    template <class T3, PhiRange range1> operator Phi<T3, range1>() { return Phi<T3, range1>(theValue);}
+    template <class T2, PhiRange range1> operator Phi<T2, range1>() { return Phi<T2, range1>(theValue);}
 
     /// Explicit access to value in case implicit conversion not OK
     T1 value() const { return theValue;}
