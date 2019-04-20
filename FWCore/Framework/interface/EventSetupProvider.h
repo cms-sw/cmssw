@@ -46,6 +46,7 @@ namespace edm {
       class EventSetupRecordProvider;
       class EventSetupsController;
       class ParameterSetIDHolder;
+      class ESRecordsToProxyIndices;
 
 class EventSetupProvider {
 
@@ -64,6 +65,7 @@ class EventSetupProvider {
       std::set<ComponentDescription> proxyProviderDescriptions() const;
       bool isWithinValidityInterval(IOVSyncValue const& ) const;
   
+      ESRecordsToProxyIndices recordsToProxyIndices() const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

@@ -30,7 +30,7 @@ namespace edm {
 //
 // constants, enums and typedefs
 //
-      typedef std::map< DataKey , const DataProxy* > Proxies;
+     
 //
 // static data member definitions
 //
@@ -69,15 +69,17 @@ EventSetupRecordImpl::getESProducers(std::vector<ComponentDescription const*>& e
    }
 }
 
-void
-EventSetupRecordImpl::fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) {
-   referencedDataKeys.clear();
-   auto itProxies = proxies_.begin();
-   for (auto const& iData : keysForProxies_) {
-      referencedDataKeys.emplace(iData, (*itProxies)->providerDescription());
-      ++itProxies;
-   }
+std::vector<ComponentDescription const*>
+EventSetupRecordImpl::componentsForRegisteredDataKeys() const
+{
+  std::vector<ComponentDescription const*> ret;
+  ret.reserve(proxies_.size());
+  for (auto const& proxy : proxies_) {
+    ret.push_back(proxy->providerDescription());
+  }
+  return ret;
 }
+
 
 bool 
 EventSetupRecordImpl::add(const DataKey& iKey ,
@@ -187,7 +189,40 @@ EventSetupRecordImpl::getFromProxy(DataKey const & iKey ,
    }
    return hold;   
 }
-      
+
+ const void*
+ EventSetupRecordImpl::getFromProxy(ESProxyIndex iProxyIndex,
+                                    bool iTransientAccessOnly,
+                                    const ComponentDescription*& iDesc,
+                                    DataKey const*& oGottenKey) const
+ {
+   if(iProxyIndex.value() >= static_cast<ESProxyIndex::Value_t>(proxies_.size())) {
+     return nullptr;
+   }
+   if(iTransientAccessOnly) { this->transientAccessRequested(); }
+   
+   const DataProxy* proxy = proxies_[iProxyIndex.value()];
+   assert(nullptr!=proxy);
+   iDesc = proxy->providerDescription();
+
+   const void* hold = nullptr;
+   
+   auto const& key = keysForProxies_[iProxyIndex.value()];
+   oGottenKey = &key;
+   try {
+     convertException::wrap([&]() {
+       hold = proxy->get(*this, key,iTransientAccessOnly, eventSetup_->activityRegistry());
+     });
+   }
+   catch(cms::Exception& e) {
+     addTraceInfoToCmsException(e,key.name().value(),proxy->providerDescription(), key);
+     //NOTE: the above function can't do the 'throw' since it causes the C++ class type
+     // of the throw to be changed, a 'rethrow' does not have that problem
+     throw;
+   }
+   return hold;
+ }
+
 const DataProxy* 
 EventSetupRecordImpl::find(const DataKey& iKey) const
 {

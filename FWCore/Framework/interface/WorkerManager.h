@@ -27,7 +27,9 @@ namespace edm {
   class StreamContext;
   class ModuleRegistry;
   class PreallocationConfiguration;
-  
+  namespace eventsetup {
+    class ESRecordsToProxyIndices;
+  }
   class WorkerManager {
   public:
     typedef std::vector<Worker*> AllWorkers;
@@ -74,7 +76,7 @@ namespace edm {
 
     void setupOnDemandSystem(Principal& principal, EventSetupImpl const& es);
 
-    void beginJob(ProductRegistry const& iRegistry);
+    void beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProxyIndices const&);
     void endJob();
     void endJob(ExceptionCollector& collector);
 

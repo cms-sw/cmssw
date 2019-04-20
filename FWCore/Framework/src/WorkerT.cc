@@ -647,6 +647,11 @@ namespace edm{
     module_->updateLookup(iBranchType,iHelper,mustPrefetchMayGet<T>());
   }
 
+  template<typename T>
+  void WorkerT<T>::updateLookup(eventsetup::ESRecordsToProxyIndices const& iPI) {
+    module_->updateLookup(iPI);
+  }
+
   namespace {
     using ModuleToResolverIndicies = std::unordered_multimap<std::string,
     std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
