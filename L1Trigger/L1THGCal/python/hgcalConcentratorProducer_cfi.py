@@ -27,6 +27,10 @@ best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcesso
                           linLSB = cms.double(100./1024.),
                           adcsaturationBH = adcSaturationBH_MIP,
                           adcnBitsBH = adcNbitsBH,
+                          TCThreshold_fC = cms.double(0.),
+                          TCThresholdBH_MIP = cms.double(0.),
+                          triggercell_threshold_silicon = cms.double(0.),
+                          triggercell_threshold_scintillator = cms.double(0.),
                           )
 
 
