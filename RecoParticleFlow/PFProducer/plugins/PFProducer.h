@@ -27,8 +27,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
+#include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 
-class PFAlgo;
 class PFEnergyCalibrationHF;
 class GBRForest;
 
@@ -113,7 +113,7 @@ class PFProducer : public edm::stream::EDProducer<> {
   // std::vector<std::string> fToRead;
   
   /// particle flow algorithm
-  std::shared_ptr<PFAlgo>      pfAlgo_;
+  PFAlgo pfAlgo_;
 
 };
 

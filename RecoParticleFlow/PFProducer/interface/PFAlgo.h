@@ -27,10 +27,13 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
-#include "DataFormats/Common/interface/ValueMap.h"
+#include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"
+#include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"
 
 /// \brief Particle Flow Algorithm
 /*!
@@ -42,8 +45,6 @@
 class PFEnergyCalibration;
 class PFSCEnergyCalibration;
 class PFEnergyCalibrationHF;
-class PFElectronAlgo;
-class PFPhotonAlgo;
 class PFMuonAlgo;
 
 class PFAlgo {
@@ -52,9 +53,6 @@ class PFAlgo {
 
   /// constructor
   PFAlgo(bool debug);
-
-  /// destructor
-  ~PFAlgo();
 
   void setHOTag(bool ho) { useHO_ = ho;}
   void setAlgo( int algo ) {algo_ = algo;}
@@ -330,8 +328,8 @@ class PFAlgo {
   double sumPtTrackIsoForEgammaSC_endcap_;
   double coneTrackIsoForEgammaSC_;
   unsigned int nTrackIsoForEgammaSC_;
-  PFElectronAlgo *pfele_;
-  PFPhotonAlgo *pfpho_;
+  std::unique_ptr<PFElectronAlgo> pfele_;
+  std::unique_ptr<PFPhotonAlgo> pfpho_;
   PFMuonAlgo *pfmu_;
 
 

@@ -73,13 +73,6 @@ namespace std {
       return arg.first ^ (arg.second << 1);
     }
   };
-  template<>
-    struct equal_to<std::pair<unsigned int,unsigned int> > {
-    typedef std::pair<unsigned int,unsigned int> arg_type;    
-    bool operator()(const arg_type& arg1, const arg_type& arg2) const {
-      return ( (arg1.first == arg2.first) & (arg1.second == arg2.second) );
-    }
-  };
 }
 
 /// \brief Particle Flow Algorithm
