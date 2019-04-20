@@ -480,13 +480,13 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                    int row = rocToOfflinePixel[iroc].first;
                    int column = rocToOfflinePixel[iroc].second;
 
-                   double permDead = -9.0;
+                   double permDead = -6.9;
                    if(rocOccupancy<0.001*DetAverage_local){
                       for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0)
-                            histo[BADROCp001].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                          else
-                            histo[BADROCp001].fill(permDead,detId, nullptr, column, row);
+                          if(rocOccupancy>0){
+                            histo[BADROCp001].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
+                          else{
+                            histo[BADROCp001].fill(permDead,detId, nullptr, column, row);}
                       }
                    }
                    else{
@@ -497,10 +497,10 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 
                    if(rocOccupancy<0.005*DetAverage_local){
                       for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0)
-                            histo[BADROCp005].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                          else
-                            histo[BADROCp005].fill(permDead,detId, nullptr, column, row);
+                          if(rocOccupancy>0){
+                            histo[BADROCp005].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
+                          else{
+                            histo[BADROCp005].fill(permDead,detId, nullptr, column, row);}
                       }
                    }
                    else{
@@ -511,10 +511,10 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 
                    if(rocOccupancy<0.01*DetAverage_local){
                       for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0)
-                            histo[BADROCp01].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                          else
-                            histo[BADROCp01].fill(permDead,detId, nullptr, column, row);
+                          if(rocOccupancy>0){
+                            histo[BADROCp01].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
+                          else{
+                            histo[BADROCp01].fill(permDead,detId, nullptr, column, row);}
                       }
                    }
                    else{
@@ -525,10 +525,10 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 
                    if(rocOccupancy<0.1*DetAverage_local){
                       for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0)
-                            histo[BADROCp1].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                          else
-                            histo[BADROCp1].fill(permDead,detId, nullptr, column, row);
+                          if(rocOccupancy>0){
+                            histo[BADROCp1].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
+                          else{
+                            histo[BADROCp1].fill(permDead,detId, nullptr, column, row);}
                       }
                    }
                    else{
@@ -539,10 +539,10 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 
                    if(rocOccupancy<0.2*DetAverage_local){
                       for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0)
-                            histo[BADROCp2].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                          else
-                            histo[BADROCp2].fill(permDead,detId, nullptr, column, row);
+                          if(rocOccupancy>0){
+                            histo[BADROCp2].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
+                          else{
+                            histo[BADROCp2].fill(permDead,detId, nullptr, column, row);}
                       }
                    }
                    else{
@@ -553,10 +553,10 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 
                    if(rocOccupancy<0.5*DetAverage_local){
                       for (int iLumi = 0; iLumi<interval;iLumi++){
-                          if(rocOccupancy>0)
-                            histo[BADROCp5].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);
-                          else
-                            histo[BADROCp5].fill(permDead,detId, nullptr, column, row);
+                          if(rocOccupancy>0){
+                            histo[BADROCp5].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
+                          else{
+                            histo[BADROCp5].fill(permDead,detId, nullptr, column, row);}
                       }
                    }
                    else{
