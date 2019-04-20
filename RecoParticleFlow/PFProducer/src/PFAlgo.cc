@@ -2,8 +2,6 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
-#include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"
-#include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
@@ -59,12 +57,6 @@ PFAlgo::PFAlgo(bool debug)
     connector_(debug),
     useVertices_(false)
 {}
-
-PFAlgo::~PFAlgo() {
-  if (usePFElectrons_) delete pfele_;
-  if (usePFPhotons_)     delete pfpho_;
-}
-
 
 void
 PFAlgo::setParameters(double nSigmaECAL,
@@ -132,7 +124,7 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
     err += "'";
     throw invalid_argument( err );
   }
-  pfele_= new PFElectronAlgo(mvaEleCut_,mvaWeightFileEleID_,
+  pfele_= std::make_unique<PFElectronAlgo>(mvaEleCut_,mvaWeightFileEleID_,
 			     thePFSCEnergyCalibration_,
 			     thePFEnergyCalibration,
 			     applyCrackCorrectionsElectrons_,
@@ -188,7 +180,7 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
     throw invalid_argument( err );
   }
   const reco::Vertex* pv=&dummy;
-  pfpho_ = new PFPhotonAlgo(mvaWeightFileConvID,
+  pfpho_ = std::make_unique<PFPhotonAlgo>(mvaWeightFileConvID,
 			    mvaConvCut,
 			    useReg,
 			    X0_Map,
@@ -3744,8 +3736,10 @@ void PFAlgo::setElectronExtraRef(const edm::OrphanHandle<reco::PFCandidateElectr
     else  // else save the mva and the extra as well !
       {
 	if(cand.trackRef().isNonnull()) {
-	  PFElectronExtraKfEqual myExtraEqual(cand.trackRef());
-	  std::vector<PFCandidateElectronExtra>::const_iterator it=find_if(pfElectronExtra_.begin(),pfElectronExtra_.end(),myExtraEqual);
+	  auto it = find_if(pfElectronExtra_.begin(),pfElectronExtra_.end(),
+              [&cand](const reco::PFCandidateElectronExtra & extra) {
+                  return cand.trackRef() == extra.kfTrackRef();
+              });
 	  if(it!=pfElectronExtra_.end()) {
 	    cand.set_mva_e_pi(it->mvaVariable(PFCandidateElectronExtra::MVA_MVA));
 	    reco::PFCandidateElectronExtraRef theRef(extrah,it-pfElectronExtra_.begin());
