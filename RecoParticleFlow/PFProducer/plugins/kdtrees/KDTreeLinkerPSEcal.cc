@@ -87,12 +87,12 @@ KDTreeLinkerPSEcal::buildTree(const RecHitSet	&rechitsSet,
     const reco::PFRecHit* rh = *it;
     const auto & posxyz = rh->position();
         
-    KDTreeNodeInfo rhinfo (rh, posxyz.x(), posxyz.y());
+    KDTreeNodeInfo rhinfo {rh, posxyz.x(), posxyz.y()};
     eltList.push_back(rhinfo);
   }
 
   // xmin-xmax, ymain-ymax
-  KDTreeBox region(-150., 150., -150., 150.);
+  KDTreeBox region{-150., 150., -150., 150.};
 
   // We may now build the KDTree
   tree.build(eltList, region);
@@ -155,8 +155,8 @@ KDTreeLinkerPSEcal::searchLinks()
     
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
     std::vector<KDTreeNodeInfo> recHits;
-    KDTreeBox trackBox(xPSonEcal - rangeX, xPSonEcal + rangeX, 
-		  yPSonEcal - rangeY, yPSonEcal + rangeY);
+    KDTreeBox trackBox{xPSonEcal - rangeX, xPSonEcal + rangeX, 
+		  yPSonEcal - rangeY, yPSonEcal + rangeY};
 
     if (zPS < 0)
       treeNeg_.search(trackBox, recHits);
