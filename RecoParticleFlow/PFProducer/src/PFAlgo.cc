@@ -48,14 +48,15 @@ using namespace std;
 using namespace reco;
 
 
-PFAlgo::PFAlgo()
+PFAlgo::PFAlgo(bool debug)
   : pfCandidates_( new PFCandidateCollection),
     nSigmaECAL_(0),
     nSigmaHCAL_(1),
     algo_(1),
-    debug_(false),
+    debug_(debug),
     pfele_(nullptr),
     pfpho_(nullptr),
+    connector_(debug),
     useVertices_(false)
 {}
 

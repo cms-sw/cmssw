@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 
 // useful?
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -48,6 +49,8 @@ class PFProducer : public edm::stream::EDProducer<> {
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
  private:
+  const edm::EDPutTokenT<reco::PFCandidateCollection> putToken_;
+
   edm::EDGetTokenT<reco::PFBlockCollection>  inputTagBlocks_;
   edm::EDGetTokenT<reco::MuonCollection>     inputTagMuons_;
   edm::EDGetTokenT<reco::VertexCollection>   vertices_;
