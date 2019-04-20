@@ -84,15 +84,51 @@ namespace TauBlockInputs {
 }
 
 namespace EgammaBlockInputs {
-    enum vars {rho, tau_pt, tau_eta, tau_inside_ecal_crack};
+    enum vars {rho = 0, tau_pt, tau_eta, tau_inside_ecal_crack, pfCand_ele_valid, pfCand_ele_rel_pt,
+        pfCand_ele_deta, pfCand_ele_dphi, pfCand_ele_pvAssociationQuality, pfCand_ele_puppiWeight,
+        pfCand_ele_charge, pfCand_ele_lostInnerHits, pfCand_ele_numberOfPixelHits, pfCand_ele_vertex_dx,
+        pfCand_ele_vertex_dy, pfCand_ele_vertex_dz, pfCand_ele_vertex_dx_tauFL, pfCand_ele_vertex_dy_tauFL,
+        pfCand_ele_vertex_dz_tauFL, pfCand_ele_hasTrackDetails, pfCand_ele_dxy, pfCand_ele_dxy_sig,
+        pfCand_ele_dz, pfCand_ele_dz_sig, pfCand_ele_track_chi2_ndof, pfCand_ele_track_ndof,
+        pfCand_gamma_valid, pfCand_gamma_rel_pt, pfCand_gamma_deta, pfCand_gamma_dphi,
+        pfCand_gamma_pvAssociationQuality, pfCand_gamma_fromPV, pfCand_gamma_puppiWeight,
+        pfCand_gamma_puppiWeightNoLep, pfCand_gamma_lostInnerHits, pfCand_gamma_numberOfPixelHits,
+        pfCand_gamma_vertex_dx, pfCand_gamma_vertex_dy, pfCand_gamma_vertex_dz, pfCand_gamma_vertex_dx_tauFL,
+        pfCand_gamma_vertex_dy_tauFL, pfCand_gamma_vertex_dz_tauFL, pfCand_gamma_hasTrackDetails,
+        pfCand_gamma_dxy, pfCand_gamma_dxy_sig, pfCand_gamma_dz, pfCand_gamma_dz_sig,
+        pfCand_gamma_track_chi2_ndof, pfCand_gamma_track_ndof, ele_valid, ele_rel_pt, ele_deta, ele_dphi,
+        ele_cc_valid, ele_cc_ele_rel_energy, ele_cc_gamma_rel_energy, ele_cc_n_gamma,
+        ele_rel_trackMomentumAtVtx, ele_rel_trackMomentumAtCalo, ele_rel_trackMomentumOut,
+        ele_rel_trackMomentumAtEleClus, ele_rel_trackMomentumAtVtxWithConstraint,
+        ele_rel_ecalEnergy, ele_ecalEnergy_sig, ele_eSuperClusterOverP,
+        ele_eSeedClusterOverP, ele_eSeedClusterOverPout, ele_eEleClusterOverPout,
+        ele_deltaEtaSuperClusterTrackAtVtx, ele_deltaEtaSeedClusterTrackAtCalo,
+        ele_deltaEtaEleClusterTrackAtCalo, ele_deltaPhiEleClusterTrackAtCalo,
+        ele_deltaPhiSuperClusterTrackAtVtx, ele_deltaPhiSeedClusterTrackAtCalo,
+        ele_mvaInput_earlyBrem, ele_mvaInput_lateBrem, ele_mvaInput_sigmaEtaEta,
+        ele_mvaInput_hadEnergy, ele_mvaInput_deltaEta, ele_gsfTrack_normalizedChi2,
+        ele_gsfTrack_numberOfValidHits, ele_rel_gsfTrack_pt, ele_gsfTrack_pt_sig,
+        ele_has_closestCtfTrack, ele_closestCtfTrack_normalizedChi2, ele_closestCtfTrack_numberOfValidHits,
+        NumberOfInputs
+    };
 }
 
 namespace MuonBlockInputs {
-    enum vars {rho, tau_pt, tau_eta, tau_inside_ecal_crack};
+    enum vars {rho = 0, tau_pt, tau_eta, tau_inside_ecal_crack};
 }
 
 namespace HadronBlockInputs {
-    enum vars {rho, tau_pt, tau_eta, tau_inside_ecal_crack};
+    enum vars {rho = 0, tau_pt, tau_eta, tau_inside_ecal_crack, NumberOfInputs, pfCand_chHad_valid,
+        pfCand_chHad_rel_pt, pfCand_chHad_deta, pfCand_chHad_dphi, pfCand_chHad_leadChargedHadrCand,
+        pfCand_chHad_pvAssociationQuality, pfCand_chHad_fromPV, pfCand_chHad_puppiWeight,
+        pfCand_chHad_puppiWeightNoLep, pfCand_chHad_charge, pfCand_chHad_lostInnerHits,
+        pfCand_chHad_numberOfPixelHits, pfCand_chHad_vertex_dx, pfCand_chHad_vertex_dy,
+        pfCand_chHad_vertex_dz, pfCand_chHad_vertex_dx_tauFL, pfCand_chHad_vertex_dy_tauFL,
+        pfCand_chHad_vertex_dz_tauFL, pfCand_chHad_hasTrackDetails, pfCand_chHad_dxy,
+        pfCand_chHad_dxy_sig, pfCand_chHad_dz, pfCand_chHad_dz_sig, pfCand_chHad_track_chi2_ndof,
+        pfCand_chHad_track_ndof, pfCand_chHad_hcalFraction, pfCand_chHad_rawCaloFraction,
+        pfCand_nHad_valid, pfCand_nHad_rel_pt, pfCand_nHad_deta, pfCand_nHad_dphi,
+        pfCand_nHad_puppiWeight, pfCand_nHad_puppiWeightNoLep, pfCand_nHad_hcalFraction};
 }
 
     static constexpr int NumberOfOutputs = 4;
@@ -453,6 +489,19 @@ private:
         return std::clamp(norm_value, -n_sigmas_max, n_sigmas_max);
     }
 
+    // static const auto getBestObj = [&](CellObjectType type, size_t& n_total, size_t& best_idx) {
+            // const auto& index_set = cell[type];
+            // n_total = index_set.size();
+            // double max_pt = std::numeric_limits<double>::lowest();
+            // for(size_t index : index_set) {
+            //     const double pt = getPt(type, index);
+            //     if(pt > max_pt) {
+            //         max_pt = pt;
+            //         best_idx = index;
+            //     }
+            // }
+    // };
+
 private:
     tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                       edm::Handle<TauCollection> taus) override
@@ -560,18 +609,12 @@ private:
 
     tensorflow::Tensor createTauBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho)
     {
-        static constexpr float default_value_for_set_check = -42;
-
         using namespace dnn_inputs_2017_v2;
         using namespace TauBlockInputs;
 
         tensorflow::Tensor inputs(tensorflow::DT_FLOAT, { 1,NumberOfInputs});
         const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
-
-       for(int var_index = 0; var_index < NumberOfInputs; ++var_index) {
-           get(var_index) = default_value_for_set_check;
-       }
 
         get(rho) = GetValueNorm(rho, 21.49f, 9.713f);
         get(tau_pt) =  GetValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
@@ -669,7 +712,75 @@ private:
                                                 const pat::PackedCandidateCollection& pfCands,
                                                 const CellGrid& grid, bool is_inner)
     {
-        return tensorflow::Tensor();
+        using namespace dnn_inputs_2017_v2;
+        using namespace HadronBlockInputs;
+
+        int eta_index, phi_index;
+        const int max_eta_index = grid.MaxEtaIndex(), max_phi_index = grid.MaxPhiIndex();
+        for(eta_index = -max_eta_index; eta_index <= max_eta_index; ++eta_index) {
+            for(phi_index = -max_phi_index; phi_index <= max_phi_index; ++phi_index) {
+                const CellIndex cellIndex{eta_index, phi_index};
+                if(!grid.IsEmpty(cellIndex)){
+                    eta_index =+  max_eta_index;
+                    phi_index =+ max_phi_index;
+                }
+            }
+        }
+
+        tensorflow::Tensor inputs(tensorflow::DT_FLOAT, {1, eta_index, phi_index, NumberOfInputs});
+        inputs.flat<float>().setZero();
+        for(const auto& cell : grid) {
+            const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0,eta_index,phi_index,var_index); };
+        }
+
+        get(rho) = GetValueNorm(rho, 21.49f, 9.713f);
+        get(tau_pt) =  GetValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
+        get(tau_eta) = GetValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
+        get(tau_inside_ecal_crack) = GetValue(isInEcalCrack(tau.p4().eta()));
+        size_t n_pfCand, pfCand_idx;
+        // getBestObj(CellObjectType::PfCand_chargedHadron, n_pfCand, pfCand_idx);
+        const bool valid = n_pfCand != 0;
+        get(pfCand_chHad_valid) = valid;
+        get(pfCand_chHad_rel_pt) = valid ? GetValueNorm(tau.polarP4().pt() / tau.p4().pt(),
+            is_inner ? 0.2564f : 0.0194f, is_inner ? 0.8607f : 0.1865f) : 0; //cross-check
+        get(pfCand_chHad_deta) = valid ? GetValueLinear(tau.polarP4().eta() - tau.p4().eta(),
+            is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false) : 0;
+        // get(pfCand_chHad_dphi) = valid ? GetValueLinear(ROOT::Math::VectorUtil::DeltaPhi(tau.polarP4().phi(), tau.p4().phi()),
+        //     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false) : 0;
+        // get(pfCand_chHad_leadChargedHadrCand) = valid ? GetValue(tau.leadChargedHadrCand().at(pfCand_idx)) : 0;
+        // get(pfCand_chHad_pvAssociationQuality) = valid ?
+        //     GetValueLinear(pfCands.pvAssociationQuality(), 0, 7, true) : 0;
+        // get(pfCand_chHad_fromPV) = valid ? GetValueLinear(tau.pfCand_fromPV().at(pfCand_idx), 0, 3, true) : 0;
+        // get(pfCand_chHad_puppiWeight) =
+        // get(pfCand_chHad_puppiWeightNoLep) =
+        // get(pfCand_chHad_charge) =
+        // get(pfCand_chHad_lostInnerHits) =
+        // get(pfCand_chHad_numberOfPixelHits) =
+        // get(pfCand_chHad_vertex_dx) =
+        // get(pfCand_chHad_vertex_dy) =
+        // get(pfCand_chHad_vertex_dz) =
+        // get(pfCand_chHad_vertex_dx_tauFL) =
+        // get(pfCand_chHad_vertex_dy_tauFL) =
+        // get(pfCand_chHad_vertex_dz_tauFL) =
+        // get(pfCand_chHad_hasTrackDetails) =
+        // get(pfCand_chHad_dxy) =
+        // get(pfCand_chHad_dxy_sig) =
+        // get(pfCand_chHad_dz) =
+        // get(pfCand_chHad_dz_sig) =
+        // get(pfCand_chHad_track_chi2_ndof) =
+        // get(pfCand_chHad_track_ndof) =
+        // get(pfCand_chHad_hcalFraction) =
+        // get(pfCand_chHad_rawCaloFraction) =
+        // get(pfCand_nHad_valid) =
+        // get(pfCand_nHad_rel_pt) =
+        // get(pfCand_nHad_deta) =
+        // get(pfCand_nHad_dphi) =
+        // get(pfCand_nHad_puppiWeight) =
+        // get(pfCand_nHad_puppiWeightNoLep) =
+        // get(pfCand_nHad_hcalFraction) =
+        //
+
+        return inputs;
     }
 
 
