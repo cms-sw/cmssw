@@ -121,6 +121,16 @@ EventSetupRecord::addTraceInfoToCmsException(cms::Exception& iException, const c
    iException.addContext(ost.str());
 }         
 
+std::exception_ptr
+EventSetupRecord::makeInvalidTokenException(EventSetupRecordKey const& iRecordKey,
+                                            TypeTag const& iDataKey) {
+  cms::Exception ex("InvalidESGetToken");
+  ex <<"Attempted to get data using an invalid token of type ESGetToken<"<<iDataKey.name()<<","<<iRecordKey.name()<<">.\n"
+  "Please call consumes to properly initialize the token."
+  ;
+  return std::make_exception_ptr(ex);
+}
+
 //
 // static member functions
 //

@@ -95,6 +95,10 @@ namespace edm {
   namespace service {
     class TriggerNamesService;
   }
+  namespace evetnsetup {
+    class ESRecordsToProxyIndices;
+  }
+  
   class ActivityRegistry;
   class BranchIDListHelper;
   class EventSetupImpl;
@@ -158,7 +162,7 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProductRegistry const&);
+    void beginJob(ProductRegistry const&, eventsetup::ESRecordsToProxyIndices const&);
     void endJob(ExceptionCollector & collector);
     
     void beginStream(unsigned int);
@@ -269,7 +273,7 @@ namespace edm {
 
     /// clone the type of module with label iLabel but configure with iPSet.
     /// Returns true if successful.
-    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet, const ProductRegistry& iRegistry);
+    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet, const ProductRegistry& iRegistry, eventsetup::ESRecordsToProxyIndices const&);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;

@@ -56,6 +56,8 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 // system include files
 #include <exception>
@@ -64,6 +66,8 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 #include <utility>
 #include <vector>
 #include <atomic>
+#include <cassert>
+#include <limits>
 
 // forward declarations
 namespace cms {
@@ -103,7 +107,13 @@ namespace edm {
             return impl_->validityInterval();
          }
 
-        void setImpl( EventSetupRecordImpl const* iImpl ) { impl_ = iImpl; }
+        void setImpl(EventSetupRecordImpl const* iImpl,
+                     unsigned int transitionID,
+                     ESProxyIndex const* getTokenIndices) {
+          impl_ = iImpl;
+          transitionID_ = transitionID;
+          getTokenIndices_ =getTokenIndices;
+        }
 
          template<typename HolderT>
          bool get(HolderT& iHolder) const {
@@ -185,9 +195,28 @@ namespace edm {
 
          template<typename T, typename R>
          ESHandle<T> getHandleImpl(ESGetToken<T,R> const& iToken) const {
-           ESHandle<T> h;
-           (void) get(iToken.m_tag, h);
-           return h;
+           assert(iToken.transitionID() == transitionID());
+           assert(iToken.isInitialized());
+           assert(getTokenIndices_);
+           //need to check token has valid index
+           if UNLIKELY(not iToken.hasValidIndex()) {
+             return invalidTokenHandle(iToken);
+           }
+           
+           auto proxyIndex = getTokenIndices_[iToken.index().value()];
+           if UNLIKELY( proxyIndex.value() == std::numeric_limits<int>::max()) {
+             return noProxyHandle(iToken);
+           }
+           
+           T const* value = nullptr;
+           ComponentDescription const* desc = nullptr;
+           std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
+           impl_->getImplementation(value, proxyIndex, false, desc, whyFailedFactory);
+           
+           if UNLIKELY(not value) {
+             return ESHandle<T>(std::move(whyFailedFactory));
+           }
+           return ESHandle<T>(value, desc);
          }
         
 
@@ -196,28 +225,50 @@ namespace edm {
          EventSetupImpl const& eventSetup() const {
             return impl_->eventSetup();
          }
-
+        
+         ESProxyIndex const* getTokenIndices() const { return getTokenIndices_; }
+        
          void validate(ComponentDescription const*, ESInputTag const&) const;
 
          void addTraceInfoToCmsException(cms::Exception& iException, char const* iName, ComponentDescription const*, DataKey const&) const;
          void changeStdExceptionToCmsException(char const* iExceptionWhatMessage, char const* iName, ComponentDescription const*, DataKey const&) const;
 
-        EventSetupRecordImpl const* impl() const { return impl_;}
+         EventSetupRecordImpl const* impl() const { return impl_;}
+        
+         unsigned int transitionID() const { return  transitionID_;}
       private:
+
+         template<typename T, typename R>
+        ESHandle<T> invalidTokenHandle(ESGetToken<T,R> const& iToken) const {
+          auto const key = this->key();
+          return ESHandle<T>{makeESHandleExceptionFactory([key]{ return makeInvalidTokenException(key,DataKey::makeTypeTag<T>()); }) };
+        }
+
+        template<typename T, typename R>
+        ESHandle<T> noProxyHandle(ESGetToken<T,R> const& iToken) const {
+          auto const key = this->key();
+          auto name = iToken.name();
+          return ESHandle<T>{makeESHandleExceptionFactory([key,name] {
+          NoProxyException<T> ex(key, DataKey{DataKey::makeTypeTag<T>(), name});
+          return std::make_exception_ptr(ex);
+        })}; }
 
          void const* getFromProxy(DataKey const& iKey ,
                                   ComponentDescription const*& iDesc,
                                   bool iTransientAccessOnly) const;
 
-
+        static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&,
+                                                            TypeTag const&);
          // ---------- member data --------------------------------
          EventSetupRecordImpl const* impl_ = nullptr;
+         ESProxyIndex const* getTokenIndices_ = nullptr;
+         unsigned int transitionID_ = std::numeric_limits<unsigned int>::max();
       };
 
      class EventSetupRecordGeneric : public EventSetupRecord {
      public:
-       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl) {
-         setImpl(iImpl);
+       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl, unsigned int iTransitionID, ESProxyIndex const* getTokenIndices) {
+         setImpl(iImpl, iTransitionID, getTokenIndices);
        }
 
        EventSetupRecordKey key() const final {

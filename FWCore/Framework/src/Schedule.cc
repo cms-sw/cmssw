@@ -1154,8 +1154,9 @@ namespace edm {
     for_all(allWorkers(), std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
   }
 
-  void Schedule::beginJob(ProductRegistry const& iRegistry) {
-    globalSchedule_->beginJob(iRegistry);
+  void Schedule::beginJob(ProductRegistry const& iRegistry,
+                          eventsetup::ESRecordsToProxyIndices const& iESIndices) {
+    globalSchedule_->beginJob(iRegistry, iESIndices);
   }
 
   void Schedule::beginStream(unsigned int iStreamID) {
@@ -1179,7 +1180,8 @@ namespace edm {
   
   bool Schedule::changeModule(std::string const& iLabel,
                               ParameterSet const& iPSet,
-                              const ProductRegistry& iRegistry) {
+                              const ProductRegistry& iRegistry,
+                              eventsetup::ESRecordsToProxyIndices const& iIndices) {
     Worker* found = nullptr;
     for (auto const& worker : allWorkers()) {
       if (worker->description().moduleLabel() == iLabel) {
@@ -1207,6 +1209,7 @@ namespace edm {
       found->updateLookup(InRun,*runLookup);
       found->updateLookup(InLumi,*lumiLookup);
       found->updateLookup(InEvent,*eventLookup);
+      found->updateLookup(iIndices);
       
       auto const& processName = newMod->moduleDescription().processName();
       auto const& runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);

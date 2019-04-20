@@ -24,6 +24,7 @@
 // user include files
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 
 // forward declarations
 namespace edm {
@@ -52,10 +53,12 @@ namespace edm {
          
          Callback(T* iProd, 
                    method_type iMethod,
+                   unsigned int iID,
                    const TDecorator& iDec = TDecorator()) :
             proxyData_{},
             producer_(iProd), 
             method_(iMethod),
+            id_(iID),
             wasCalledForThisRecord_(false),
             decorator_(iDec) {}
          
@@ -99,15 +102,18 @@ namespace edm {
          void newRecordComing() {
             wasCalledForThisRecord_ = false;
          }
-         
+        
+         unsigned int transitionID() const { return id_;}
+         ESProxyIndex const* getTokenIndices() const { return producer_->getTokenIndices(id_);}
      private:
          Callback(const Callback&) = delete; // stop default
          
          const Callback& operator=(const Callback&) = delete; // stop default
 
-        std::array<void*, produce::size< TReturn >::value> proxyData_;
+         std::array<void*, produce::size< TReturn >::value> proxyData_;
          edm::propagate_const<T*> producer_;
          method_type method_;
+         unsigned int id_;
          bool wasCalledForThisRecord_;
          TDecorator decorator_;
       };
