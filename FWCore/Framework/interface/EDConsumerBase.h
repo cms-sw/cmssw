@@ -28,6 +28,10 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
+#include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/data_default_record_trait.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeToGet.h"
@@ -50,12 +54,18 @@ namespace edm {
   class ProductRegistry;
   class ConsumesCollector;
   template<typename T> class WillGetIfMatch;
+  
+  namespace eventsetup {
+    class ESRecordsToProxyIndices;
+  }
 
   class EDConsumerBase
   {
 
   public:
-    EDConsumerBase() : frozen_(false), containsCurrentProcessAlias_(false) {}
+    EDConsumerBase() :
+    m_tokenLabels{'\0'},
+    frozen_(false), containsCurrentProcessAlias_(false) {}
     virtual ~EDConsumerBase() noexcept(false);
 
     // disallow copying
@@ -86,6 +96,7 @@ namespace edm {
     void updateLookup(BranchType iBranchType,
                       ProductResolverIndexHelper const&,
                       bool iPrefetchMayGet);
+    void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
 
     typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
@@ -99,6 +110,12 @@ namespace edm {
     void convertCurrentProcessAlias(std::string const& processName);
 
     std::vector<ConsumesInfo> consumesInfo() const;
+
+    ESProxyIndex const* esGetTokenIndices( edm::Transition iTrans) const {
+      auto const& v = esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)];
+      if(v.empty()) {return nullptr;}
+      return &(esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].front());
+    }
 
   protected:
     friend class ConsumesCollector;
@@ -161,12 +178,23 @@ namespace edm {
     template <typename ESProduct, typename ESRecord, Transition Tr = Transition::Event>
     auto esConsumes(ESInputTag const& tag)
     {
-      return ESGetToken<ESProduct, ESRecord>{tag};
+      auto index= recordESConsumes(Tr,
+                              eventsetup::EventSetupRecordKey::makeKey<std::conditional_t<
+                                    std::is_same_v<ESRecord, edm::DefaultRecord>,
+                                    eventsetup::default_record_t<ESHandleAdapter<ESProduct>>,
+                                    ESRecord>>(),
+                              eventsetup::heterocontainer::HCTypeTag::make<ESProduct>(), tag);
+      return ESGetToken<ESProduct, ESRecord>{static_cast<unsigned int>(Tr),index, labelFor(index)};
     }
 
   private:
     unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
+    ESTokenIndex recordESConsumes(Transition,
+                                  eventsetup::EventSetupRecordKey const&,
+                                  eventsetup::heterocontainer::HCTypeTag const&, edm::ESInputTag const& iTag);
 
+    const char* labelFor(ESTokenIndex) const;
+    
     void throwTypeMismatch(edm::TypeID const&, EDGetToken) const;
     void throwBranchMismatch(BranchType, EDGetToken) const;
     void throwBadToken(edm::TypeID const& iType, EDGetToken iToken) const;
@@ -208,6 +236,15 @@ namespace edm {
 
     std::array<std::vector<ProductResolverIndexAndSkipBit>, edm::NumBranchTypes> itemsToGetFromBranch_;
 
+    struct ESTokenLookupInfo {
+      eventsetup::EventSetupRecordKey m_record;
+      eventsetup::DataKey m_key;
+      unsigned int m_startOfComponentName;
+    };
+    
+    enum {kESLookupInfo, kESProxyIndex};
+    edm::SoATuple<ESTokenLookupInfo, ESProxyIndex> m_esTokenInfo;
+    std::array<std::vector<ESProxyIndex>, static_cast<unsigned int>(edm::Transition::NumberOfTransitions)> esItemsToGetFromTransition_;
     bool frozen_;
     bool containsCurrentProcessAlias_;
   };

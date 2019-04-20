@@ -14,6 +14,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 
 
 //
@@ -27,7 +28,8 @@ namespace edm {
 //
 // constructors and destructor
 //
-ESProducer::ESProducer()
+  ESProducer::ESProducer():
+  consumesInfos_{}
 {
 }
 
@@ -55,6 +57,43 @@ ESProducer::~ESProducer() noexcept(false)
 //
 // member functions
 //
+  void
+  ESProducer::updateLookup(eventsetup::ESRecordsToProxyIndices const& iProxyToIndices) {
+    itemsToGetFromRecords_.reserve(consumesInfos_.size());
+    recordsUsedDuringGet_.reserve(consumesInfos_.size());
+    
+    for(auto& info: consumesInfos_) {
+      auto & items = itemsToGetFromRecords_.emplace_back();
+      items.reserve(info->size());
+      auto & records =recordsUsedDuringGet_.emplace_back();
+      records.reserve(info->size());
+      for(auto& proxyInfo: *info) {
+        auto index = iProxyToIndices.indexInRecord(std::get<0>(proxyInfo),std::get<1>(proxyInfo) );
+        if(index != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
+          if(not std::get<2>(proxyInfo).empty()) {
+            auto component = iProxyToIndices.component(std::get<0>(proxyInfo),std::get<1>(proxyInfo));
+            if( nullptr == component)  {
+              index = eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+            } else {
+              if( component->label_.empty() ) {
+                if(component->type_ != std::get<2>(proxyInfo)) {
+                  index =eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+                }
+              }
+              else if( component->label_ != std::get<2>(proxyInfo)) {
+                index =eventsetup::ESRecordsToProxyIndices::missingProxyIndex();
+              }
+
+            }
+          }
+        }
+        items.push_back(index);
+        if(index != eventsetup::ESRecordsToProxyIndices::missingProxyIndex()) {
+          records.push_back(iProxyToIndices.recordIndexFor(std::get<0>(proxyInfo)));
+        }
+      }
+    }
+  }
 
 //
 // const member functions

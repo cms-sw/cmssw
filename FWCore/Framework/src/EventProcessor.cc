@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
@@ -567,7 +568,8 @@ namespace edm {
       ex.addContext("Calling beginJob for the source");
       throw;
     }
-    schedule_->beginJob(*preg_);
+    espController_->finishConfiguration();
+    schedule_->beginJob(*preg_, esp_->recordsToProxyIndices());
     // toerror.succeeded(); // should we add this?
     for_all(subProcesses_, [](auto& subProcess){ subProcess.doBeginJob(); });
     actReg_->postBeginJobSignal_();
@@ -853,7 +855,7 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if(looper_) {
-      ModuleChanger changer(schedule_.get(),preg_.get());
+      ModuleChanger changer(schedule_.get(),preg_.get(),esp_->recordsToProxyIndices());
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetup());
       looper_->setModuleChanger(nullptr);

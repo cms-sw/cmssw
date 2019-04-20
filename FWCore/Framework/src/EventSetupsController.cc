@@ -46,8 +46,7 @@ namespace edm {
     }
 
     void
-    EventSetupsController::eventSetupForInstance(IOVSyncValue const& syncValue) {
-
+    EventSetupsController::finishConfiguration() {
       if (mustFinishConfiguration_) {
         std::for_each(providers_.begin(), providers_.end(), [](std::shared_ptr<EventSetupProvider> const& esp) {
           esp->finishConfiguration();
@@ -56,14 +55,17 @@ namespace edm {
         // done which attempts to get component sharing between SubProcesses
         // correct, but in this pass only the configuration of the components
         // being shared are compared. This is not good enough for ESProducers.
-        // In the following function, all the other components that contribute 
+        // In the following function, all the other components that contribute
         // to the same record and also the records that record depends on are
         // also checked. The component sharing is appropriately fixed as necessary.
         checkESProducerSharing();
         clearComponents();
         mustFinishConfiguration_ = false;
       }
-
+    }
+    void
+    EventSetupsController::eventSetupForInstance(IOVSyncValue const& syncValue) {
+      finishConfiguration();
       std::for_each(providers_.begin(), providers_.end(), [&syncValue](std::shared_ptr<EventSetupProvider> const& esp) {
         esp->eventSetupForInstance(syncValue);
       });
@@ -321,7 +323,7 @@ namespace edm {
 
       // Loop over SubProcesses, skip the top level process.
       auto esProvider = providers_.begin();
-      auto esProviderEnd = providers_.end();
+      auto const esProviderEnd = providers_.end();
       if (esProvider != esProviderEnd) ++esProvider;
       for ( ; esProvider != esProviderEnd; ++esProvider) {
 

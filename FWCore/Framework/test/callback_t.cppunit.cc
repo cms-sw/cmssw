@@ -102,7 +102,7 @@ void testCallback::uniquePtrTest()
 {
    UniquePtrProd prod;
    
-   UniquePtrCallback callback(&prod, &UniquePtrProd::method);
+   UniquePtrCallback callback(&prod, &UniquePtrProd::method, 0);
    std::unique_ptr<Data> handle;
    
    
@@ -139,7 +139,7 @@ void testCallback::sharedPtrTest()
 {
    SharedPtrProd prod;
    
-   SharedPtrCallback callback(&prod, &SharedPtrProd::method);
+   SharedPtrCallback callback(&prod, &SharedPtrProd::method, 0);
    std::shared_ptr<Data> handle;
    
    
@@ -171,7 +171,7 @@ void testCallback::ptrProductsTest()
 {
    PtrProductsProd prod;
    
-   PtrProductsCallback callback(&prod, &PtrProductsProd::method);
+   PtrProductsCallback callback(&prod, &PtrProductsProd::method, 0);
    std::shared_ptr<Data> handle;
    std::shared_ptr<Double> doubleHandle;
    

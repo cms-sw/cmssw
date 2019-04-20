@@ -55,9 +55,10 @@ namespace edm {
 
 
     void updateLookup(BranchType iBranchType,
-                              ProductResolverIndexHelper const&) override;
+                              ProductResolverIndexHelper const&) final;
+    void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
     void resolvePutIndicies(BranchType iBranchType,
-                                    std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const& iIndicies) override;
+                                    std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const& iIndicies) final;
 
     template<typename D>
     void callWorkerBeginStream(D, StreamID);
