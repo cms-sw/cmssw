@@ -420,6 +420,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                          int column = rocToOfflinePixel[iroc].second;
                          for (int iLumi = 0; iLumi<interval;iLumi++){
                            histo[PROMPTBADROC].fill(detId, nullptr, column, row);//, 1.0/nLumiBlock_);
+                           histo[PERMANENTBADROC].fill(detId, nullptr, column, row);//, 1.0/nLumiBlock_);
                          }
 
                        } // if permanent BAD
