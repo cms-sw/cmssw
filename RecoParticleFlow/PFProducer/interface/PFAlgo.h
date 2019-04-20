@@ -51,7 +51,7 @@ class PFAlgo {
  public:
 
   /// constructor
-  PFAlgo();
+  PFAlgo(bool debug);
 
   /// destructor
   ~PFAlgo();
@@ -60,7 +60,6 @@ class PFAlgo {
   void setAlgo( int algo ) {algo_ = algo;}
   void setPFMuonAlgo(PFMuonAlgo* algo) {pfmu_ =algo;}
   void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
-  void setDebug( bool debug ) {debug_ = debug; connector_.setDebug(debug_); }
 
   void setParameters(double nSigmaECAL,
                      double nSigmaHCAL, 
@@ -207,9 +206,9 @@ class PFAlgo {
     return std::move(pfCleanedCandidates_);
   }
   
-    /// \return unique_ptr to the collection of candidates (transfers ownership)
-  std::unique_ptr< reco::PFCandidateCollection> transferCandidates() {
-    return connector_.connect(pfCandidates_);
+  /// \return the collection of candidates
+  reco::PFCandidateCollection transferCandidates() {
+    return connector_.connect(*pfCandidates_);
   }
   
   /// return the pointer to the calibration function
@@ -312,7 +311,7 @@ class PFAlgo {
 
   bool               useHO_;
   int                algo_;
-  bool               debug_;
+  const bool         debug_;
 
   /// Variables for PFElectrons
   std::string mvaWeightFileEleID_;

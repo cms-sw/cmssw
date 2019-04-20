@@ -20,6 +20,7 @@ using namespace edm;
 
 
 PFProducer::PFProducer(const edm::ParameterSet& iConfig)
+  : putToken_{produces<reco::PFCandidateCollection>()}
 {
   //--ab: get calibration factors for HF:
   auto thepfEnergyCalibrationHF = std::make_shared<PFEnergyCalibrationHF>(
@@ -232,16 +233,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
   auto calibration = std::make_shared<PFEnergyCalibration>();
 
-  int algoType 
-    = iConfig.getParameter<unsigned>("algoType");
+  bool debug = iConfig.getUntrackedParameter<bool>("debug",false);
   
-  switch(algoType) {
-  case 0:
-    pfAlgo_.reset( new PFAlgo);
-    break;
-   default:
-    assert(0);
-  }
+  pfAlgo_ = std::make_unique<PFAlgo>(debug);
   
   pfAlgo_->setParameters( nSigmaECAL, 
 			  nSigmaHCAL,
@@ -342,12 +336,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
-
-  bool debug_ = 
-    iConfig.getUntrackedParameter<bool>("debug",false);
-
-  pfAlgo_->setDebug( debug_ );
-
 }
 
 
@@ -527,23 +515,23 @@ PFProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   
   // Save the final PFCandidate collection
-  std::unique_ptr<reco::PFCandidateCollection> pOutputCandidateCollection( pfAlgo_->transferCandidates() ); 
+  reco::PFCandidateCollection pOutputCandidateCollection = pfAlgo_->transferCandidates();
   
 
   
   LogDebug("PFProducer")<<"particle flow: putting products in the event"<<endl;
   if ( verbose_ ) std::cout <<"particle flow: putting products in the event. Here the full list"<<endl;
   int nC=0;
-  for( reco::PFCandidateCollection::const_iterator  itCand =  (*pOutputCandidateCollection).begin(); itCand !=  (*pOutputCandidateCollection).end(); itCand++) {
+  for(auto const& cand : pOutputCandidateCollection) {
     nC++;
-      if (verbose_ ) std::cout << nC << ")" << (*itCand).particleId() << std::endl;
+      if (verbose_ ) std::cout << nC << ")" << cand.particleId() << std::endl;
 
   }
 
 
 
   // Write in the event
-  iEvent.put(std::move(pOutputCandidateCollection));
+  iEvent.emplace(putToken_,pOutputCandidateCollection);
   iEvent.put(std::move(pCleanedCandidateCollection),"CleanedHF");
 
     if ( postMuonCleaning_ ) { 
