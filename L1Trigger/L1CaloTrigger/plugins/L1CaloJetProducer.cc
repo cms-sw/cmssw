@@ -67,6 +67,8 @@ class L1CaloJetProducer : public edm::EDProducer {
                 reco::Candidate::PolarLorentzVector &p4_2) const;
         float get_hcal_calibration( float &jet_pt, float &ecal_pt,
                 float &ecal_L1EG_jet_pt, float &jet_eta ) const;
+        float get_tau_pt_calibration( float &tau_pt, float &ecal_pt,
+                float &l1EG_pt, float &n_L1EGs, float &tau_eta ) const;
         int loose_iso_tau_wp( float &tau_pt, float &tau_iso_et, float &tau_eta ) const;
 
         double HcalTpEtMin;
@@ -104,9 +106,11 @@ class L1CaloJetProducer : public edm::EDProducer {
         std::vector< std::vector< std::vector< double >>> calibrationsHGCal;
         std::vector< std::vector< std::vector< double >>> calibrationsHF;
 
-        // For storing tau calibrations
+        // For storing tau calibration info
         std::map< double, std::vector< double >> tauL1egInfoMapBarrel; 
         std::map< double, std::vector< double >> tauL1egInfoMapHGCal; 
+        std::vector< double > tauL1egValuesBarrel; // To preserve ordering
+        std::vector< double > tauL1egValuesHGCal; // To preserve ordering
         std::vector< std::vector< std::vector< std::vector< double >>>> tauPtCalibrationsBarrel;
         std::vector< std::vector< std::vector< std::vector< double >>>> tauPtCalibrationsHGCal;
 
@@ -460,7 +464,9 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
         double l1egCount = first.getParameter<double>("l1egCount");
         std::vector<double> l1egEmFractions = first.getParameter<std::vector<double>>("l1egEmFractions");
         tauL1egInfoMapBarrel[ l1egCount ] = l1egEmFractions;
+        tauL1egValuesBarrel.push_back( l1egCount );
     }
+    std::sort(tauL1egValuesBarrel.begin(), tauL1egValuesBarrel.end());
     for( auto& first : tauL1egInfoHGCal )
     {
         if(debug)
@@ -474,7 +480,9 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
         double l1egCount = first.getParameter<double>("l1egCount");
         std::vector<double> l1egEmFractions = first.getParameter<std::vector<double>>("l1egEmFractions");
         tauL1egInfoMapHGCal[ l1egCount ] = l1egEmFractions;
+        tauL1egValuesHGCal.push_back( l1egCount );
     }
+    std::sort(tauL1egValuesHGCal.begin(), tauL1egValuesHGCal.end());
     // Fill the calibration 4D vector
     // Dimension 1 is AbsEta bin
     // Dimension 2 is L1EG count
@@ -490,7 +498,7 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     for( unsigned int abs_eta = 0; abs_eta < tauAbsEtaBinsBarrel.size()-1; abs_eta++)
     {
         std::vector< std::vector< std::vector< double >>> l1eg_bins;
-        for( const auto &l1eg_info : tauL1egInfoMapBarrel )
+        for( auto &l1eg_info : tauL1egInfoMapBarrel )
         {
             std::vector< std::vector< double >> em_bins;
             for( unsigned int em_frac = 0; em_frac < l1eg_info.second.size()-1; em_frac++)
@@ -1102,10 +1110,12 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             params["ecal_pt"] + params["l1eg_pt"];
 
         // Tau Vars
-        params["tau_pt_calibration_value"] = 1.; // FIXME get_tau_calibration(
-            //params["total_3x5"],
-            //caloJetObj.n_l1eg_HoverE_LessThreshold,
-            //params["total_3x5"] );
+        params["tau_pt_calibration_value"] = get_tau_pt_calibration(
+            params["total_3x5"],
+            params["ecal_3x5"],
+            params["l1eg_3x5"],
+            caloJetObj.n_l1eg_HoverE_LessThreshold,
+            params["jet_eta"] );
         params["tau_pt"] = params["total_3x5"] * params["tau_pt_calibration_value"];
         params["n_l1eg_HoverE_LessThreshold"] = caloJetObj.n_l1eg_HoverE_LessThreshold;
         // Apply the tau_pt calibration to the isolation region as well for consistency.
@@ -1334,6 +1344,105 @@ L1CaloJetProducer::get_hcal_calibration( float &jet_pt, float &ecal_pt,
         printf(" - l1eg %f, ecal %f, jet %f, em frac %f index %i\n", ecal_L1EG_jet_pt, ecal_pt, jet_pt, em_frac, int(em_index));
         printf(" - eta %f, abs eta %f index %i\n", jet_eta, abs_eta, int(eta_index));
         printf(" - jet pt %f tmp_jet_pt %f index %i\n", jet_pt, tmp_jet_pt, int(pt_index));
+        printf(" --- calibration: %f\n\n", calib );
+    }
+    return calib;
+}
+
+
+
+// Apply calibrations to tau pT based on L1EG info, EM Fraction, Tau Eta, Tau pT
+float
+L1CaloJetProducer::get_tau_pt_calibration( float &tau_pt, float &ecal_pt,
+        float &l1EG_pt, float &n_L1EGs, float &tau_eta ) const
+{
+
+    float em_frac = (l1EG_pt + ecal_pt) / tau_pt;
+    float abs_eta = fabs( tau_eta );
+    float tmp_tau_pt = tau_pt;
+    if (tmp_tau_pt > 199) tmp_tau_pt = 199;
+
+    // Different indices sizes in different calo regions.
+    // Barrel...
+    size_t em_index = 0;
+    size_t eta_index = 0;
+    size_t n_L1EG_index = 0;
+    size_t pt_index = 0;
+    float calib = 1.0;
+        // HERE
+    if (abs_eta <= 1.5)
+    {
+        // Start loop checking 1st value
+        for( unsigned int i = 0; i < tauL1egValuesBarrel.size(); i++)
+        {
+            if(n_L1EGs == tauL1egValuesBarrel.at(i)) break;
+            if(tauL1egValuesBarrel.at(i) == tauL1egValuesBarrel.back()) break; // to preven incrementing on last one
+            n_L1EG_index++;
+        }
+
+        // Find key value pair matching n L1EGs
+        for( auto &l1eg_info : tauL1egInfoMapBarrel )
+        {
+            if(l1eg_info.first != double(n_L1EG_index)) continue;
+            // Start loop checking 2nd value
+            for( unsigned int i = 1; i < l1eg_info.second.size(); i++)
+            {
+                if(em_frac <= l1eg_info.second.at(i)) break;
+                em_index++;
+            }
+        }
+
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < tauAbsEtaBinsBarrel.size(); i++)
+        {
+            if(abs_eta <= tauAbsEtaBinsBarrel.at(i)) break;
+            eta_index++;
+        }
+
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < tauPtBins.size(); i++)
+        {
+            if(tmp_tau_pt <= tauPtBins.at(i)) break;
+            pt_index++;
+        }
+        printf("Barrel tau calib etaId %i nL1EG Id %i emId %i tauPtId %i\n",int(eta_index),int(n_L1EG_index),int(em_index),int(pt_index));
+        calib = tauPtCalibrationsBarrel[ eta_index ][ n_L1EG_index ][ em_index ][ pt_index ];
+    } // end Barrel
+    //else if (abs_eta <= 3.0) // HGCal
+    //{
+    //    // Start loop checking 2nd value
+    //    for( unsigned int i = 1; i < emFractionBinsHGCal.size(); i++)
+    //    {
+    //        if(em_frac <= emFractionBinsHGCal.at(i)) break;
+    //        em_index++;
+    //    }
+
+    //    // Start loop checking 2nd value
+    //    for( unsigned int i = 1; i < absEtaBinsHGCal.size(); i++)
+    //    {
+    //        if(abs_eta <= absEtaBinsHGCal.at(i)) break;
+    //        eta_index++;
+    //    }
+
+    //    // Start loop checking 2nd value
+    //    for( unsigned int i = 1; i < tauPtBins.size(); i++)
+    //    {
+    //        if(tmp_tau_pt <= tauPtBins.at(i)) break;
+    //        pt_index++;
+    //    }
+    //    //printf("HGCal calib emId %i etaId %i tauPtId %i\n",int(em_index),int(eta_index),int(pt_index));
+    //    calib = calibrationsHGCal[ eta_index ][ em_index ][ pt_index ];
+    //} // end HGCal
+    //else return calib;
+
+    //printf(" - tau pt %f index %i\n", tau_pt, int(pt_index));
+    printf(" --- calibration: %f\n", calib );
+
+    if(calib > 5 && debug)
+    {
+        printf(" - l1eg %f, ecal %f, tau %f, em frac %f index %i\n", l1EG_pt, ecal_pt, tau_pt, em_frac, int(em_index));
+        printf(" - eta %f, abs eta %f index %i\n", tau_eta, abs_eta, int(eta_index));
+        printf(" - tau pt %f tmp_tau_pt %f index %i\n", tau_pt, tmp_tau_pt, int(pt_index));
         printf(" --- calibration: %f\n\n", calib );
     }
     return calib;
