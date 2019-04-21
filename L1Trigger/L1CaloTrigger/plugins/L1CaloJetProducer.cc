@@ -78,7 +78,7 @@ class L1CaloJetProducer : public edm::EDProducer {
         double EtMinForCollection;
         double EtMinForTauCollection;
 
-        // For fetching calibrations
+        // For fetching jet calibrations
         std::vector< double > jetPtBins;
         std::vector< double > emFractionBinsBarrel;
         std::vector< double > absEtaBinsBarrel;
@@ -90,10 +90,25 @@ class L1CaloJetProducer : public edm::EDProducer {
         std::vector< double > absEtaBinsHF;
         std::vector< double > jetCalibrationsHF;
 
-        // For storing calibrations
+        // For fetching tau calibrations
+        std::vector< double > tauPtBins;
+        std::vector< double > tauAbsEtaBinsBarrel;
+        std::vector< double > tauCalibrationsBarrel;
+        std::vector< edm::ParameterSet > tauL1egInfoBarrel; 
+        std::vector< double > tauAbsEtaBinsHGCal;
+        std::vector< double > tauCalibrationsHGCal;
+        std::vector< edm::ParameterSet > tauL1egInfoHGCal;
+
+        // For storing jet calibrations
         std::vector< std::vector< std::vector< double >>> calibrationsBarrel;
         std::vector< std::vector< std::vector< double >>> calibrationsHGCal;
         std::vector< std::vector< std::vector< double >>> calibrationsHF;
+
+        // For storing tau calibrations
+        std::map< double, std::vector< double >> tauL1egInfoMapBarrel; 
+        std::map< double, std::vector< double >> tauL1egInfoMapHGCal; 
+        std::vector< std::vector< std::vector< std::vector< double >>>> tauPtCalibrationsBarrel;
+        std::vector< std::vector< std::vector< std::vector< double >>>> tauPtCalibrationsHGCal;
 
         bool debug;
         edm::EDGetTokenT< L1CaloTowerCollection > l1TowerToken_;
@@ -328,6 +343,13 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     emFractionBinsHF(iConfig.getParameter<std::vector<double>>("emFractionBinsHF")),
     absEtaBinsHF(iConfig.getParameter<std::vector<double>>("absEtaBinsHF")),
     jetCalibrationsHF(iConfig.getParameter<std::vector<double>>("jetCalibrationsHF")),
+    tauPtBins(iConfig.getParameter<std::vector<double>>("tauPtBins")),
+    tauAbsEtaBinsBarrel(iConfig.getParameter<std::vector<double>>("tauAbsEtaBinsBarrel")),
+    tauCalibrationsBarrel(iConfig.getParameter<std::vector<double>>("tauCalibrationsBarrel")),
+    tauL1egInfoBarrel(iConfig.getParameter<std::vector<edm::ParameterSet>>("tauL1egInfoBarrel")),
+    tauAbsEtaBinsHGCal(iConfig.getParameter<std::vector<double>>("tauAbsEtaBinsHGCal")),
+    tauCalibrationsHGCal(iConfig.getParameter<std::vector<double>>("tauCalibrationsHGCal")),
+    tauL1egInfoHGCal(iConfig.getParameter<std::vector<edm::ParameterSet>>("tauL1egInfoHGCal")),
     debug(iConfig.getParameter<bool>("debug")),
     l1TowerToken_(consumes< L1CaloTowerCollection >(iConfig.getParameter<edm::InputTag>("l1CaloTowers")))
 
@@ -355,8 +377,8 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     //}
 
     // Fill the calibration 3D vector
-    // Dimension 1 is EM Fraction bin
-    // Dimension 2 is AbsEta bin
+    // Dimension 1 is AbsEta bin
+    // Dimension 2 is EM Fraction bin
     // Dimension 3 is jet pT bin which is filled with the actual callibration value
     // size()-1 b/c the inputs have lower and upper bounds
     // Do Barrel, then HGCal, then HF
@@ -423,51 +445,100 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
     }
     if(debug) printf("\nLoading HF calibrations: Loaded %i values vs. size() of input calibration file: %i", index, int(jetCalibrationsHF.size()));
 
-    //index = 0;
-    //printf("Barrel Calibrations:\n");
-    //for( unsigned int i = 0; i < calibrationsBarrel.size(); i++)
-    //{
-    //    for( unsigned int j = 0; j < calibrationsBarrel[i].size(); j++)
-    //    {
-    //        for( unsigned int k = 0; k < calibrationsBarrel[i][j].size(); k++)
-    //        {
-    //            printf("i %i j %i k %i index %i: Input Value %f   Loaded Value %f   Input/Loaded %f\n", 
-    //                int(i), int(j), int(k), int(index), jetCalibrationsBarrel.at(index),
-    //                calibrationsBarrel[ i ][ j ][ k ], jetCalibrationsBarrel.at(index) / calibrationsBarrel[ i ][ j ][ k ] );
-    //            index++;
-    //        }
-    //    }
-    //}
-    //index = 0;
-    //printf("HGCal Calibrations:\n");
-    //for( unsigned int i = 0; i < calibrationsHGCal.size(); i++)
-    //{
-    //    for( unsigned int j = 0; j < calibrationsHGCal[i].size(); j++)
-    //    {
-    //        for( unsigned int k = 0; k < calibrationsHGCal[i][j].size(); k++)
-    //        {
-    //            printf("i %i j %i k %i index %i: Input Value %f   Loaded Value %f   Input/Loaded %f\n", 
-    //                int(i), int(j), int(k), int(index), jetCalibrationsHGCal.at(index),
-    //                calibrationsHGCal[ i ][ j ][ k ], jetCalibrationsHGCal.at(index) / calibrationsHGCal[ i ][ j ][ k ] );
-    //            index++;
-    //        }
-    //    }
-    //}
-    //index = 0;
-    //printf("HF Calibrations:\n");
-    //for( unsigned int i = 0; i < calibrationsHF.size(); i++)
-    //{
-    //    for( unsigned int j = 0; j < calibrationsHF[i].size(); j++)
-    //    {
-    //        for( unsigned int k = 0; k < calibrationsHF[i][j].size(); k++)
-    //        {
-    //            printf("i %i j %i k %i index %i: Input Value %f   Loaded Value %f   Input/Loaded %f\n", 
-    //                int(i), int(j), int(k), int(index), jetCalibrationsHF.at(index),
-    //                calibrationsHF[ i ][ j ][ k ], jetCalibrationsHF.at(index) / calibrationsHF[ i ][ j ][ k ] );
-    //            index++;
-    //        }
-    //    }
-    //}
+
+    // Load Tau L1EG-base calibration info into maps
+    for( auto& first : tauL1egInfoBarrel )
+    {
+        if(debug)
+        {
+            printf( "barrel l1egCount = %f\n", first.getParameter<double>("l1egCount") ); 
+            for ( auto& em_frac : first.getParameter<std::vector<double>>("l1egEmFractions") )
+            {
+                printf(" - EM = %.3f\n", em_frac );
+            }
+        }
+        double l1egCount = first.getParameter<double>("l1egCount");
+        std::vector<double> l1egEmFractions = first.getParameter<std::vector<double>>("l1egEmFractions");
+        tauL1egInfoMapBarrel[ l1egCount ] = l1egEmFractions;
+    }
+    for( auto& first : tauL1egInfoHGCal )
+    {
+        if(debug)
+        {
+            printf( "hgcal l1egCount = %f\n", first.getParameter<double>("l1egCount") ); 
+            for ( auto& em_frac : first.getParameter<std::vector<double>>("l1egEmFractions") )
+            {
+                printf(" - EM = %.3f\n", em_frac );
+            }
+        }
+        double l1egCount = first.getParameter<double>("l1egCount");
+        std::vector<double> l1egEmFractions = first.getParameter<std::vector<double>>("l1egEmFractions");
+        tauL1egInfoMapHGCal[ l1egCount ] = l1egEmFractions;
+    }
+    // Fill the calibration 4D vector
+    // Dimension 1 is AbsEta bin
+    // Dimension 2 is L1EG count
+    // Dimension 3 is EM Fraction bin
+    // Dimension 4 is tau pT bin which is filled with the actual callibration value
+    // size()-1 b/c the inputs have lower and upper bounds (except L1EG b/c that is a cound)
+    // Do Barrel, then HGCal
+    //
+    // Note to future developers: be very concious of the order in which the calibrations are printed
+    // out in tool which makse the cfg files.  You need to match that exactly when loading them and
+    // using the calibrations below.
+    index = 0;
+    for( unsigned int abs_eta = 0; abs_eta < tauAbsEtaBinsBarrel.size()-1; abs_eta++)
+    {
+        std::vector< std::vector< std::vector< double >>> l1eg_bins;
+        for( const auto &l1eg_info : tauL1egInfoMapBarrel )
+        {
+            std::vector< std::vector< double >> em_bins;
+            for( unsigned int em_frac = 0; em_frac < l1eg_info.second.size()-1; em_frac++)
+            {
+                printf("\nBarrel l1eg_bin %d em_frac %d (%.3f) abs_eta %d (%.2f)\n", int(l1eg_info.first), em_frac, l1eg_info.second[em_frac], abs_eta, tauAbsEtaBinsBarrel.at(abs_eta));
+                std::vector< double > pt_bin_calibs;
+                for( unsigned int pt = 0; pt < tauPtBins.size()-1; pt++)
+                {
+                    printf("pt(%d)=%.1f = %.3f, ", pt, tauPtBins.at(pt), tauCalibrationsBarrel.at(index));
+                    pt_bin_calibs.push_back( tauCalibrationsBarrel.at(index) );
+                    index++;
+                }
+                printf("\n\n");
+                em_bins.push_back( pt_bin_calibs );
+            }
+            l1eg_bins.push_back( em_bins );
+        }
+        tauPtCalibrationsBarrel.push_back( l1eg_bins );
+    }
+    if(debug) printf("\nLoading Barrel calibrations: Loaded %i values vs. size() of input calibration file: %i", index, int(tauCalibrationsBarrel.size()));
+
+    index = 0;
+    for( unsigned int abs_eta = 0; abs_eta < tauAbsEtaBinsHGCal.size()-1; abs_eta++)
+    {
+        std::vector< std::vector< std::vector< double >>> l1eg_bins;
+        for( const auto &l1eg_info : tauL1egInfoMapHGCal )
+        {
+            std::vector< std::vector< double >> em_bins;
+            for( unsigned int em_frac = 0; em_frac < l1eg_info.second.size()-1; em_frac++)
+            {
+                printf("\nHGCal l1eg_bin %d em_frac %d (%.3f) abs_eta %d (%.2f)\n", int(l1eg_info.first), em_frac, l1eg_info.second[em_frac], abs_eta, tauAbsEtaBinsHGCal.at(abs_eta));
+                std::vector< double > pt_bin_calibs;
+                for( unsigned int pt = 0; pt < tauPtBins.size()-1; pt++)
+                {
+                    printf("pt(%d)=%.1f = %.3f, ", pt, tauPtBins.at(pt), tauCalibrationsHGCal.at(index));
+                    pt_bin_calibs.push_back( tauCalibrationsHGCal.at(index) );
+                    index++;
+                }
+                printf("\n\n");
+                em_bins.push_back( pt_bin_calibs );
+            }
+            l1eg_bins.push_back( em_bins );
+        }
+        tauPtCalibrationsHGCal.push_back( l1eg_bins );
+    }
+    if(debug) printf("\nLoading HGCal calibrations: Loaded %i values vs. size() of input calibration file: %i", index, int(tauCalibrationsHGCal.size()));
+
+
 
     isoTauBarrel.SetParameter( 0, 0.25 );
     isoTauBarrel.SetParameter( 1, 0.85 );
