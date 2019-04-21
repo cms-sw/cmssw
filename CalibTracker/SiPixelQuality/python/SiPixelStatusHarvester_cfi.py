@@ -116,6 +116,44 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
 
 ###########
 
+SiPixelPhase1BadROCp05 = DefaultHisto.clone(
+topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/BadROCp05",
+  name = "digi_BadROCp05",
+  title = "log_{10}(digi/Nevent)",
+  xlabel = "log_{10}(digi/Nevent)",
+  range_min = -7,
+  range_max = 3,
+  range_nbins = 5000,
+  ylabel = "N_{lumisection}",
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXRing").save(),
+    Specification().groupBy("PXForward/PXRing/PXDisk").save()
+  )
+)
+
+SiPixelPhase1GoodROCp05 = DefaultHisto.clone(
+topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/GoodROCp05",
+  name = "digi_GoodROCp05",
+  title = "log_{10}(digi/Nevent)",
+  xlabel = "log_{10}(digi/Nevent)",
+  range_min = -7,
+  range_max = 3,
+  range_nbins = 5000,
+  ylabel = "N_{lumisection}",
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXRing").save(),
+    Specification().groupBy("PXForward/PXRing/PXDisk").save()
+  )
+)
+
+###########
+
 SiPixelPhase1BadROCp1 = DefaultHisto.clone(
 topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/BadROCp1",
   name = "digi_BadROCp1",
@@ -364,6 +402,8 @@ SiPixelPhase1BadROCp005,
 SiPixelPhase1GoodROCp005,
 SiPixelPhase1BadROCp01,
 SiPixelPhase1GoodROCp01,
+SiPixelPhase1BadROCp05,
+SiPixelPhase1GoodROCp05,
 SiPixelPhase1BadROCp1,
 SiPixelPhase1GoodROCp1,
 SiPixelPhase1BadROCp2,
