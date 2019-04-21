@@ -28,6 +28,8 @@ class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosi
       GOODROCp005,
       BADROCp01,
       GOODROCp01,
+      BADROCp05,
+      GOODROCp05,
       BADROCp1,
       GOODROCp1,
       BADROCp2,
