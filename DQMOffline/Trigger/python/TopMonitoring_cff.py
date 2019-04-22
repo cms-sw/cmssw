@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.TopMonitor_cfi import hltTOPmonitoring
 
 from Configuration.Eras.Modifier_run2_HLTconditions_2017_cff import run2_HLTconditions_2017
+from Configuration.Eras.Modifier_run2_HLTconditions_2018_cff import run2_HLTconditions_2018
 
 ###
 ### Ele+Jet
@@ -433,7 +434,12 @@ fullyhadronic_DoubleBTag_all.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,
 fullyhadronic_DoubleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v*')
 fullyhadronic_DoubleBTag_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
+run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_all, btagalgo = "pfCombinedSecondaryVertexV2BJetTags")
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_all, btagalgo = "pfDeepCSVJetTags:probb")
+run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_all, workingpoint = 0.8484)
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_all, workingpoint = 0.4941)
 run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_all.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_all.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v*'])
 
 ### ---
 
@@ -457,7 +463,12 @@ fullyhadronic_DoubleBTag_jet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,
 fullyhadronic_DoubleBTag_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT400_SixPFJet32_v*')
 fullyhadronic_DoubleBTag_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT370_v*')
 
+run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_jet, btagalgo = "pfCombinedSecondaryVertexV2BJetTags")
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_jet, btagalgo = "pfDeepCSVJetTags:probb")
+run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_jet, workingpoint = 0.8484)
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_jet, workingpoint = 0.4941)
 run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_jet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT380_SixPFJet32_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_jet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT400_SixPFJet32_v*'])
 
 ### ---
 
@@ -481,8 +492,14 @@ fullyhadronic_DoubleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460
 fullyhadronic_DoubleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v*')
 fullyhadronic_DoubleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT400_SixPFJet32_v*')
 
+run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_bjet, btagalgo = "pfCombinedSecondaryVertexV2BJetTags")
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_bjet, btagalgo = "pfDeepCSVJetTags:probb")
+run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_bjet, workingpoint = 0.5426)
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_bjet, workingpoint = 0.1522)
 run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_bjet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2_v*'])
 run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_bjet.denGenericTriggerEventPSet, hltPaths = ['HLT_PFHT380_SixPFJet32_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_bjet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_bjet.denGenericTriggerEventPSet, hltPaths = ['HLT_PFHT400_SixPFJet32_v*'])
 
 ### ---
 
@@ -506,7 +523,12 @@ fullyhadronic_DoubleBTag_ref.histoPSet.HTBinning    = cms.vdouble(0,360,380,400,
 fullyhadronic_DoubleBTag_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT400_SixPFJet32_v*')
 fullyhadronic_DoubleBTag_ref.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
+run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_ref, btagalgo = "pfCombinedSecondaryVertexV2BJetTags")
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_ref, btagalgo = "pfDeepCSVJetTags:probb")
+run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_ref, workingpoint = 0.8484)
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_ref, workingpoint = 0.4941)
 run2_HLTconditions_2017.toModify(fullyhadronic_DoubleBTag_ref.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT380_SixPFJet32_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_DoubleBTag_ref.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT400_SixPFJet32_v*'])
 
 ### ---
 
@@ -530,7 +552,12 @@ fullyhadronic_SingleBTag_all.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,
 fullyhadronic_SingleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT450_SixPFJet36_PFBTagDeepCSV_1p59_v*')
 fullyhadronic_SingleBTag_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
+run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_all, btagalgo = "pfCombinedSecondaryVertexV2BJetTags")
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_all, btagalgo = "pfDeepCSVJetTags:probb")
+run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_all, workingpoint = 0.8484)
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_all, workingpoint = 0.4941)
 run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_all.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_all.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT450_SixPFJet36_PFBTagDeepCSV_1p59_v*'])
 
 ### ---
 
@@ -554,7 +581,12 @@ fullyhadronic_SingleBTag_jet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,
 fullyhadronic_SingleBTag_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT450_SixPFJet36_v*')
 fullyhadronic_SingleBTag_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_v*')
 
+run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_jet, btagalgo = "pfCombinedSecondaryVertexV2BJetTags")
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_jet, btagalgo = "pfDeepCSVJetTags:probb")
+run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_jet, workingpoint = 0.8484)
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_jet, workingpoint = 0.4941)
 run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_jet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT430_SixPFJet40_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_jet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT450_SixPFJet36_v*'])
 
 ### ---
 
@@ -578,8 +610,14 @@ fullyhadronic_SingleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460
 fullyhadronic_SingleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT450_SixPFJet36_PFBTagDeepCSV_1p59_v*')
 fullyhadronic_SingleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT450_SixPFJet36_v*')
 
+run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_bjet, btagalgo = "pfCombinedSecondaryVertexV2BJetTags")
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_bjet, btagalgo = "pfDeepCSVJetTags:probb")
+run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_bjet, workingpoint = 0.5426)
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_bjet, workingpoint = 0.1522)
 run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_bjet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5_v*'])
 run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_bjet.denGenericTriggerEventPSet, hltPaths = ['HLT_PFHT430_SixPFJet40_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_bjet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT450_SixPFJet36_PFBTagDeepCSV_1p59_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_bjet.denGenericTriggerEventPSet, hltPaths = ['HLT_PFHT450_SixPFJet36_v*'])
 
 ### ---
 
@@ -603,7 +641,12 @@ fullyhadronic_SingleBTag_ref.histoPSet.HTBinning    = cms.vdouble(0,400,420,440,
 fullyhadronic_SingleBTag_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT450_SixPFJet36_v*')
 fullyhadronic_SingleBTag_ref.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
+run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_ref, btagalgo = "pfCombinedSecondaryVertexV2BJetTags")
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_ref, btagalgo = "pfDeepCSVJetTags:probb")
+run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_ref, workingpoint = 0.8484)
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_ref, workingpoint = 0.4941)
 run2_HLTconditions_2017.toModify(fullyhadronic_SingleBTag_ref.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT430_SixPFJet40_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_SingleBTag_ref.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT450_SixPFJet36_v*'])
 
 ### ---
 
@@ -627,7 +670,12 @@ fullyhadronic_TripleBTag_all.histoPSet.HTBinning    = cms.vdouble(0,460,480,500,
 fullyhadronic_TripleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_v*')
 fullyhadronic_TripleBTag_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
+run2_HLTconditions_2017.toModify(fullyhadronic_TripleBTag_all, btagalgo = "pfCombinedSecondaryVertexV2BJetTags")
+run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_all, btagalgo = "pfDeepCSVJetTags:probb")
+run2_HLTconditions_2017.toModify(fullyhadronic_TripleBTag_all, workingpoint = 0.8484)
+run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_all, workingpoint = 0.4941)
 run2_HLTconditions_2017.toModify(fullyhadronic_TripleBTag_all.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_all.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_v*'])
 
 ### ---
 
@@ -651,7 +699,12 @@ fullyhadronic_TripleBTag_jet.histoPSet.HTBinning    = cms.vdouble(0,460,480,500,
 fullyhadronic_TripleBTag_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v*')
 fullyhadronic_TripleBTag_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT350_v*')
 
+run2_HLTconditions_2017.toModify(fullyhadronic_TripleBTag_jet, btagalgo = "pfCombinedSecondaryVertexV2BJetTags")
+run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_jet, btagalgo = "pfDeepCSVJetTags:probb")
+run2_HLTconditions_2017.toModify(fullyhadronic_TripleBTag_jet, workingpoint = 0.8484)
+run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_jet, workingpoint = 0.4941)
 run2_HLTconditions_2017.toModify(fullyhadronic_TripleBTag_jet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT300PT30_QuadPFJet_75_60_45_40_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_jet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v*'])
 
 ### ---
 
@@ -675,8 +728,14 @@ fullyhadronic_TripleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,460,480,500
 fullyhadronic_TripleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_v*')
 fullyhadronic_TripleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v*')
 
+run2_HLTconditions_2017.toModify(fullyhadronic_TripleBTag_bjet, btagalgo = "pfCombinedSecondaryVertexV2BJetTags")
+run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_bjet, btagalgo = "pfDeepCSVJetTags:probb")
+run2_HLTconditions_2017.toModify(fullyhadronic_TripleBTag_bjet, workingpoint = 0.5426)
+run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_bjet, workingpoint = 0.1522)
 run2_HLTconditions_2017.toModify(fullyhadronic_TripleBTag_bjet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0_v*'])
 run2_HLTconditions_2017.toModify(fullyhadronic_TripleBTag_bjet.denGenericTriggerEventPSet, hltPaths = ['HLT_PFHT300PT30_QuadPFJet_75_60_45_40_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_bjet.numGenericTriggerEventPSet, hltPaths = ['HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_v*'])
+run2_HLTconditions_2018.toModify(fullyhadronic_TripleBTag_bjet.denGenericTriggerEventPSet, hltPaths = ['HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v*'])
 
 ###
 ### Top HLT-DQM Sequence
