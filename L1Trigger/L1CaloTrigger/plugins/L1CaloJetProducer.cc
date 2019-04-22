@@ -1405,38 +1405,51 @@ L1CaloJetProducer::get_tau_pt_calibration( float &tau_pt, float &ecal_pt,
             if(tmp_tau_pt <= tauPtBins.at(i)) break;
             pt_index++;
         }
-        printf("Barrel tau calib etaId %i nL1EG Id %i emId %i tauPtId %i\n",int(eta_index),int(n_L1EG_index),int(em_index),int(pt_index));
+        //printf("Barrel tau calib etaId %i nL1EG Id %i emId %i tauPtId %i\n",int(eta_index),int(n_L1EG_index),int(em_index),int(pt_index));
         calib = tauPtCalibrationsBarrel[ eta_index ][ n_L1EG_index ][ em_index ][ pt_index ];
     } // end Barrel
-    //else if (abs_eta <= 3.0) // HGCal
-    //{
-    //    // Start loop checking 2nd value
-    //    for( unsigned int i = 1; i < emFractionBinsHGCal.size(); i++)
-    //    {
-    //        if(em_frac <= emFractionBinsHGCal.at(i)) break;
-    //        em_index++;
-    //    }
+    else if (abs_eta <= 3.0) // HGCal
+    {
+        // Start loop checking 1st value
+        for( unsigned int i = 0; i < tauL1egValuesHGCal.size(); i++)
+        {
+            if(n_L1EGs == tauL1egValuesHGCal.at(i)) break;
+            if(tauL1egValuesHGCal.at(i) == tauL1egValuesHGCal.back()) break; // to preven incrementing on last one
+            n_L1EG_index++;
+        }
 
-    //    // Start loop checking 2nd value
-    //    for( unsigned int i = 1; i < absEtaBinsHGCal.size(); i++)
-    //    {
-    //        if(abs_eta <= absEtaBinsHGCal.at(i)) break;
-    //        eta_index++;
-    //    }
+        // Find key value pair matching n L1EGs
+        for( auto &l1eg_info : tauL1egInfoMapHGCal )
+        {
+            if(l1eg_info.first != double(n_L1EG_index)) continue;
+            // Start loop checking 2nd value
+            for( unsigned int i = 1; i < l1eg_info.second.size(); i++)
+            {
+                if(em_frac <= l1eg_info.second.at(i)) break;
+                em_index++;
+            }
+        }
 
-    //    // Start loop checking 2nd value
-    //    for( unsigned int i = 1; i < tauPtBins.size(); i++)
-    //    {
-    //        if(tmp_tau_pt <= tauPtBins.at(i)) break;
-    //        pt_index++;
-    //    }
-    //    //printf("HGCal calib emId %i etaId %i tauPtId %i\n",int(em_index),int(eta_index),int(pt_index));
-    //    calib = calibrationsHGCal[ eta_index ][ em_index ][ pt_index ];
-    //} // end HGCal
-    //else return calib;
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < tauAbsEtaBinsHGCal.size(); i++)
+        {
+            if(abs_eta <= tauAbsEtaBinsHGCal.at(i)) break;
+            eta_index++;
+        }
+
+        // Start loop checking 2nd value
+        for( unsigned int i = 1; i < tauPtBins.size(); i++)
+        {
+            if(tmp_tau_pt <= tauPtBins.at(i)) break;
+            pt_index++;
+        }
+        //printf("HGCal tau calib etaId %i nL1EG Id %i emId %i tauPtId %i\n",int(eta_index),int(n_L1EG_index),int(em_index),int(pt_index));
+        calib = tauPtCalibrationsHGCal[ eta_index ][ n_L1EG_index ][ em_index ][ pt_index ];
+    } // end HGCal
+    else return calib;
 
     //printf(" - tau pt %f index %i\n", tau_pt, int(pt_index));
-    printf(" --- calibration: %f\n", calib );
+    //printf(" --- calibration: %f\n", calib );
 
     if(calib > 5 && debug)
     {
