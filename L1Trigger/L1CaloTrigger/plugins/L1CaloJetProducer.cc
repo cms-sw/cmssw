@@ -503,11 +503,11 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
             std::vector< std::vector< double >> em_bins;
             for( unsigned int em_frac = 0; em_frac < l1eg_info.second.size()-1; em_frac++)
             {
-                printf("\nBarrel l1eg_bin %d em_frac %d (%.3f) abs_eta %d (%.2f)\n", int(l1eg_info.first), em_frac, l1eg_info.second[em_frac], abs_eta, tauAbsEtaBinsBarrel.at(abs_eta));
+                //printf("\nBarrel l1eg_bin %d em_frac %d (%.3f) abs_eta %d (%.2f)\n", int(l1eg_info.first), em_frac, l1eg_info.second[em_frac], abs_eta, tauAbsEtaBinsBarrel.at(abs_eta));
                 std::vector< double > pt_bin_calibs;
                 for( unsigned int pt = 0; pt < tauPtBins.size()-1; pt++)
                 {
-                    printf("pt(%d)=%.1f = %.3f, ", pt, tauPtBins.at(pt), tauCalibrationsBarrel.at(index));
+                    //printf("pt(%d)=%.1f = %.3f, ", pt, tauPtBins.at(pt), tauCalibrationsBarrel.at(index));
                     pt_bin_calibs.push_back( tauCalibrationsBarrel.at(index) );
                     index++;
                 }
@@ -529,11 +529,11 @@ L1CaloJetProducer::L1CaloJetProducer(const edm::ParameterSet& iConfig) :
             std::vector< std::vector< double >> em_bins;
             for( unsigned int em_frac = 0; em_frac < l1eg_info.second.size()-1; em_frac++)
             {
-                printf("\nHGCal l1eg_bin %d em_frac %d (%.3f) abs_eta %d (%.2f)\n", int(l1eg_info.first), em_frac, l1eg_info.second[em_frac], abs_eta, tauAbsEtaBinsHGCal.at(abs_eta));
+                //printf("\nHGCal l1eg_bin %d em_frac %d (%.3f) abs_eta %d (%.2f)\n", int(l1eg_info.first), em_frac, l1eg_info.second[em_frac], abs_eta, tauAbsEtaBinsHGCal.at(abs_eta));
                 std::vector< double > pt_bin_calibs;
                 for( unsigned int pt = 0; pt < tauPtBins.size()-1; pt++)
                 {
-                    printf("pt(%d)=%.1f = %.3f, ", pt, tauPtBins.at(pt), tauCalibrationsHGCal.at(index));
+                    //printf("pt(%d)=%.1f = %.3f, ", pt, tauPtBins.at(pt), tauCalibrationsHGCal.at(index));
                     pt_bin_calibs.push_back( tauCalibrationsHGCal.at(index) );
                     index++;
                 }
@@ -1118,8 +1118,10 @@ void L1CaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             params["jet_eta"] );
         params["tau_pt"] = params["total_3x5"] * params["tau_pt_calibration_value"];
         params["n_l1eg_HoverE_LessThreshold"] = caloJetObj.n_l1eg_HoverE_LessThreshold;
-        // Apply the tau_pt calibration to the isolation region as well for consistency.
-        // This could be revisited - FIXME?
+        // Currently, applying the tau_pt calibration to the isolation region as well...
+        // One could switch to using the calibrated jet_pt instead for the iso region...
+        // This should be revisited - FIXME?
+        params["tau_total_iso_et"] = params["jet_pt"] * params["tau_pt_calibration_value"];
         params["tau_iso_et"] = (params["jet_pt"] * params["tau_pt_calibration_value"]) - params["tau_pt"];
         params["loose_iso_tau_wp"] = float(loose_iso_tau_wp( params["tau_pt"], params["tau_iso_et"], params["jet_eta"] ));
 
@@ -1477,7 +1479,7 @@ L1CaloJetProducer::loose_iso_tau_wp( float &tau_pt, float &tau_iso_et, float &ta
     // with Barrel first
     if (fabs(tau_eta) < 1.5)
     {
-        if (isoTauBarrel.Eval(tau_pt) >= (tau_pt / tau_iso_et))
+        if (isoTauBarrel.Eval(tau_pt) >= (tau_iso_et / tau_pt))
         {
             return 1;
         }
@@ -1487,7 +1489,7 @@ L1CaloJetProducer::loose_iso_tau_wp( float &tau_pt, float &tau_iso_et, float &ta
         }
     }
     // Otherwise, HGCal
-    if (isoTauHGCal.Eval(tau_pt) >= (tau_pt / tau_iso_et)) 
+    if (isoTauHGCal.Eval(tau_pt) >= (tau_iso_et / tau_pt)) 
     {
         return 1;
     }
