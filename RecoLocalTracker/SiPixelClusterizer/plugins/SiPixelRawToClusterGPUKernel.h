@@ -11,6 +11,7 @@
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
 #include "DataFormats/SiPixelDigi/interface/PixelErrors.h"
 
 struct SiPixelFedCablingMapGPU;
@@ -159,7 +160,7 @@ namespace pixelgpudetails {
   public:
     class WordFedAppender {
     public:
-      WordFedAppender(cuda::stream_t<>& cudaStream);
+      WordFedAppender();
       ~WordFedAppender() = default;
 
       void initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t *src, unsigned int length);
@@ -168,8 +169,8 @@ namespace pixelgpudetails {
       const unsigned char *fedId() const { return fedId_.get(); }
 
     private:
-      cudautils::host::unique_ptr<unsigned int[]> word_;
-      cudautils::host::unique_ptr<unsigned char[]> fedId_;
+      cudautils::host::noncached::unique_ptr<unsigned int[]> word_;
+      cudautils::host::noncached::unique_ptr<unsigned char[]> fedId_;
     };
 
     SiPixelRawToClusterGPUKernel() = default;
