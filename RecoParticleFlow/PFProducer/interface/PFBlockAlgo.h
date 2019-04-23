@@ -1,66 +1,20 @@
 #ifndef RecoParticleFlow_PFProducer_PFBlockAlgo_h
 #define RecoParticleFlow_PFProducer_PFBlockAlgo_h 
 
-#include <set>
-#include <vector>
-#include <iostream>
-
-// #include "FWCore/Framework/interface/Handle.h"
-#include "DataFormats/Common/interface/Handle.h"
-// #include "FWCore/Framework/interface/OrphanHandle.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
-
-
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h" // gouzevitch
-#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
-#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFV0.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBrem.h"
-#include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
-
-// Glowinski & Gouzevitch
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"             
-#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h" 
-// !Glowinski & Gouzevitch
-
-// #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
-#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
-#include "RecoParticleFlow/PFProducer/interface/PhotonSelectorAlgo.h"
-#include "RecoParticleFlow/PFProducer/interface/PFBlockElementSCEqual.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
-
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
-
-#include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
-
-#include "RecoParticleFlow/PFProducer/interface/BlockElementLinkerBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
+#include "RecoParticleFlow/PFProducer/interface/BlockElementLinkerBase.h"
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 
-#include <map>
+#include <memory>
+#include <string>
 #include <unordered_map>
-#include <unordered_set>
+#include <vector>
 
 namespace std {
   template<>

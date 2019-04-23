@@ -1,14 +1,17 @@
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
-#include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h" // gouzevitch
+#include "FWCore/Framework/interface/ProductRegistryHelper.h"
+#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-
-#include <stdexcept>
 #include <algorithm>
-#include "TMath.h"
+#include <iostream>
+#include <array>
+#include <iterator>
+#include <sstream>
+#include <type_traits>
+#include <utility>
 
 using namespace std;
 using namespace reco;
