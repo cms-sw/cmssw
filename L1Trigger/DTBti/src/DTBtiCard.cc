@@ -501,11 +501,12 @@ DTBtiCard::storeTrigger(DTBtiTrigData td) {
   // get the appropriate BTI
   DTBtiChip* bti = activeGetBTI(btiid.superlayer(), btiid.bti());
   // create a new trigger in the BTI
-  DTBtiTrig* trig = new DTBtiTrig(bti,td);
+  auto trig = std::make_unique<DTBtiTrig>(bti,td);
+  auto pTrig = trig.get();
   // add the trigger to the BTI
-  bti->addTrig(td.step(),trig);
+  bti->addTrig(td.step(),std::move(trig));
   // return the trigger
-  return trig;
+  return pTrig;
 }
 
 /*
