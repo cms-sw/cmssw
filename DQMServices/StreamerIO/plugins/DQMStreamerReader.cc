@@ -46,7 +46,7 @@ DQMStreamerReader::~DQMStreamerReader() {
   // and closeFile_ throws away no ServiceRegistry found exception...
   //
   // Normally, this file should be closed before this destructor is called.
-  //closeFile_("destructor");
+  //closeFileImp_("destructor");
 }
 
 void DQMStreamerReader::reset_() {
@@ -93,7 +93,7 @@ void DQMStreamerReader::reset_() {
   fiterator_.logFileAction("DQMStreamerReader initialised.");
 }
 
-void DQMStreamerReader::openFile_(const DQMFileIterator::LumiEntry& entry) {
+void DQMStreamerReader::openFileImp_(const DQMFileIterator::LumiEntry& entry) {
   processedEventPerLs_ = 0;
   edm::ParameterSet pset;
 
@@ -131,7 +131,7 @@ void DQMStreamerReader::openFile_(const DQMFileIterator::LumiEntry& entry) {
   }
 }
 
-void DQMStreamerReader::closeFile_(const std::string& reason) {
+void DQMStreamerReader::closeFileImp_(const std::string& reason) {
   if (file_.open()) {
     file_.streamFile_->closeStreamerFile();
     file_.streamFile_ = nullptr;
@@ -140,21 +140,21 @@ void DQMStreamerReader::closeFile_(const std::string& reason) {
   }
 }
 
-bool DQMStreamerReader::openNextFile_() {
-  closeFile_("skipping to another file");
+bool DQMStreamerReader::openNextFileImp_() {
+  closeFileImp_("skipping to another file");
 
   DQMFileIterator::LumiEntry currentLumi = fiterator_.open();
   std::string p = currentLumi.get_data_path();
 
   if (boost::filesystem::exists(p)) {
     try {
-      openFile_(currentLumi);
+      openFileImp_(currentLumi);
       return true;
     } catch (const cms::Exception& e) {
       fiterator_.logFileAction(std::string("Can't deserialize registry data (in open file): ") + e.what(), p);
       fiterator_.logLumiState(currentLumi, "error: data file corrupted");
 
-      closeFile_("data file corrupted");
+      closeFileImp_("data file corrupted");
       return false;
     }
   } else {
@@ -209,13 +209,13 @@ bool DQMStreamerReader::prepareNextFile() {
     if (edm::shutdown_flag.load()) {
       fiterator_.logFileAction("Shutdown flag was set, shutting down.");
 
-      closeFile_("shutdown flag is set");
+      closeFileImp_("shutdown flag is set");
       return false;
     }
 
     // check for end of run file and force quit
     if (flagEndOfRunKills_ && (fiterator_.state() != State::OPEN)) {
-      closeFile_("forced end-of-run");
+      closeFileImp_("forced end-of-run");
       return false;
     }
 
@@ -230,14 +230,14 @@ bool DQMStreamerReader::prepareNextFile() {
     // close it
     if ((processedEventPerLs_ >= minEventsPerLs_) &&
         (!fiterator_.lumiReady()) && (fiterator_.state() == State::EOR)) {
-      closeFile_("graceful end-of-run");
+      closeFileImp_("graceful end-of-run");
       return false;
     }
 
     // skip to the next file if we have no files openned yet
     if (!file_.open()) {
       if (fiterator_.lumiReady()) {
-        openNextFile_();
+        openNextFileImp_();
         // we might need to open once more (if .dat is missing)
         continue;
       }
@@ -245,7 +245,7 @@ bool DQMStreamerReader::prepareNextFile() {
 
     // or if there is a next file and enough eventshas been processed.
     if (fiterator_.lumiReady() && (processedEventPerLs_ >= minEventsPerLs_)) {
-      openNextFile_();
+      openNextFileImp_();
       // we might need to open once more (if .dat is missing)
       continue;
     }
@@ -280,7 +280,7 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
       if (eview == nullptr) {
         // read unsuccessful
         // this means end of file, so close the file
-        closeFile_("eof");
+        closeFileImp_("eof");
       } else {
         if (!acceptEvent(eview)) {
           continue;
@@ -317,7 +317,7 @@ bool DQMStreamerReader::checkNextEvent() {
   } catch (const cms::Exception& e) {
     // try to recover from corrupted files/events
     fiterator_.logFileAction(std::string("Can't deserialize event or registry data: ") + e.what());
-    closeFile_("data file corrupted");
+    closeFileImp_("data file corrupted");
 
     // this is not optimal, but hopefully we won't catch this many times in a row
     return checkNextEvent();
@@ -401,7 +401,7 @@ void DQMStreamerReader::skip(int toSkip) {
   } catch (const cms::Exception& e) {
     // try to recover from corrupted files/events
     fiterator_.logFileAction(std::string("Can't deserialize event data: ") + e.what());
-    closeFile_("data file corrupted");
+    closeFileImp_("data file corrupted");
   }
 }
 
