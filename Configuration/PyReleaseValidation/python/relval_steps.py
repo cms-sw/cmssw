@@ -873,6 +873,7 @@ steps['CosmicsSPLoose_UP17']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','
 steps['CosmicsSPLoose_UP18']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--conditions':'auto:phase1_2018_cosmics','--scenario':'cosmics','--era':'Run2_2018'},Kby(5000,500000),step1Up2015Defaults])
 steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Defaults])
 steps['BeamHalo_13']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Up2015Defaults])
+steps['BeamHalo_UP18']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','-n':'500','--conditions':'auto:phase1_2018_cosmics','--scenario':'cosmics','--era':'Run2_2018'},Kby(666,100000),step1Defaults])
 
 # GF re-introduce INPUT command once GEN-SIM will be available
 # steps['CosmicsINPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -2387,6 +2388,8 @@ steps['ALCAMIN']=merge([{'-s':'ALCA:TkAlMinBias','--filein':'file:step3.root'},s
 steps['ALCAMINUP15']=merge([{'-s':'ALCA:TkAlMinBias','--filein':'file:step3.root'},step4Up2015Defaults])
 steps['ALCACOS']=merge([{'-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics'},stCond,step4Defaults])
 steps['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},stCond,step4Defaults])
+steps['ALCABH_UP18']=merge([{'--conditions':'auto:phase1_2018_cosmics','-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo','--era':'Run2_2018'},step4Up2015Defaults])
+
 steps['ALCAHAL']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},step4Up2015Defaults])
 steps['ALCACOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},step4Up2015Defaults])
 steps['ALCACOS_UP16']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'ALCA:TkAlCosmics0T+SiStripCalCosmics+TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo','--era':'Run2_2016'},step4Up2015Defaults])

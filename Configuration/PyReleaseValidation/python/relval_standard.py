@@ -515,6 +515,8 @@ workflows[7.3] = ['', ['CosmicsSPLoose_UP18','DIGICOS_UP18','RECOCOS_UP18','ALCA
 workflows[7.4] = ['', ['Cosmics_UP18','DIGICOSPEAK_UP18','RECOCOSPEAK_UP18','ALCACOS_UP18','HARVESTCOS_UP18']]
 
 workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH','HARVESTCOS']]
+workflows[8.20] = ['', ['BeamHalo_UP18','DIGICOS_UP18','RECOCOS_UP18','ALCABH_UP18','HARVESTCOS_UP18']]
+
 workflows[11] = ['', ['MinBias','DIGI','RECOMIN','HARVEST','ALCAMIN']]
 workflows[28] = ['', ['QCD_Pt_80_120','DIGI','RECO','HARVEST']]
 workflows[27] = ['', ['WM','DIGI','RECO','HARVEST']]
