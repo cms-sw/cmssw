@@ -180,9 +180,9 @@ hgchebackDigitizer = cms.PSet(
         calibDigis    = cms.bool(True),
         keV2MIP       = cms.double(1./500.0),
         doTimeSamples = cms.bool(False),
-        nPEperMIP = cms.double(18.0), #conservative
+        nPEperMIP = cms.double(21.0),
         nTotalPE  = cms.double(7500),
-        xTalk     = cms.double(0.2),
+        xTalk     = cms.double(0.01),
         sdPixels  = cms.double(1e-6), # this is additional photostatistics noise (as implemented), not sure why it's here...
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
@@ -281,7 +281,7 @@ def HGCal_setEndOfLifeNoise(process):
         )
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(True),
-        doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb.txt"),
+        doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"),
         noise_MIP = cms.double(1./5.) #uses noise map
         )
     process.HGCAL_noises = cms.PSet(
