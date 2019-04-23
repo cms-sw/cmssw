@@ -724,19 +724,19 @@ private:
             if(cell_map.count(CellObjectType::PfCand_neutralHadron))
                 index_nH = cell_map.at(CellObjectType::PfCand_neutralHadron);
 
-            if(valid_chH && valid_nH){
+            if(valid_chH || valid_nH){
                 get(rho) = GetValueNorm(rho, 21.49f, 9.713f);
                 get(tau_pt) =  GetValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
                 get(tau_eta) = GetValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
-                get(tau_inside_ecal_crack) = GetValue(isInEcalCrack(tau.p4().eta()));
+                get(tau_inside_ecal_crack) = GetValue(isInEcalCrack(tau.polarP4().eta()));
             }
             if(valid_chH){
                 get(pfCand_chHad_valid) = valid_chH;
-                get(pfCand_chHad_rel_pt) = GetValueNorm(pfCands.at(index_chH).polarP4().pt() / tau.p4().pt(),
+                get(pfCand_chHad_rel_pt) = GetValueNorm(pfCands.at(index_chH).polarP4().pt() / tau.polarP4().pt(),
                     is_inner ? 0.2564f : 0.0194f, is_inner ? 0.8607f : 0.1865f);
-                get(pfCand_chHad_deta) = GetValueLinear(pfCands.at(index_chH).polarP4().eta() - tau.p4().eta(),
+                get(pfCand_chHad_deta) = GetValueLinear(pfCands.at(index_chH).polarP4().eta() - tau.polarP4().eta(),
                     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
-                get(pfCand_chHad_dphi) = GetValueLinear(dPhi(tau.p4(),pfCands.at(index_chH).polarP4()),
+                get(pfCand_chHad_dphi) = GetValueLinear(dPhi(tau.polarP4(),pfCands.at(index_chH).polarP4()),
                     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
                 get(pfCand_chHad_leadChargedHadrCand) = GetValue(&pfCands.at(index_chH) ==
                     dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get()));
