@@ -1,21 +1,5 @@
 #include "RecoParticleFlow/PFProducer/plugins/PFBlockProducer.h"
 
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
-
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-
-#include <set>
-
 using namespace std;
 using namespace edm;
 
