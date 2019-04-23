@@ -39,9 +39,9 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
   thePropagatorName(pset.getParameter<std::string>("PropagatorName") ),
   theRadius(        pset.getParameter<double>("radius") ),              // cyl's radius (cm)
   theMaxZ(          pset.getParameter<double>("maxZ") ),                // cyl's half lenght (cm)
-  thenPixHits(      pset.getParameter<int>("nPixHits") ),               // pixel hits
-  theTkLayers(      pset.getParameter<int>("TkLayers") ),               // tracker layers with measurements
-  thenMuonHits(     pset.getParameter<int>("nMuonHits") ),              // tracker layers with measurements
+  thenPixHits(      pset.getParameter<unsigned int>("nPixHits") ),      // pixel hits
+  theTkLayers(      pset.getParameter<unsigned int>("TkLayers") ),      // tracker layers with measurements
+  thenMuonHits(     pset.getParameter<unsigned int>("nMuonHits") ),     // muon hits
   thePropagator(nullptr),
   m_cacheRecordId(0)
 {
@@ -102,9 +102,9 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
 
     const reco::HitPattern& p = track.hitPattern();
 
-    const auto pixelHits = p.numberOfValidPixelHits();
-    const auto trkLayers = p.trackerLayersWithMeasurement();
-    const auto nMuonHits = p.numberOfValidMuonHits();    
+    const unsigned int pixelHits = p.numberOfValidPixelHits();
+    const unsigned int trkLayers = p.trackerLayersWithMeasurement();
+    const unsigned int nMuonHits = p.numberOfValidMuonHits();    
 
     TrajectoryStateOnSurface innerTSOS = track.innermostMeasurementState();
 
@@ -114,14 +114,14 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
       thePropagator->propagate(*innerTSOS.freeState(), *theCyl);
 
     if ( tsosAtCyl.isValid() ) {
-      LogDebug("HLTMuonPointing") << " extrap TSOS " << tsosAtCyl;
+      LogDebug("HLTMuonPointing") << " extrap TSOS " << tsosAtCyl
+        << " number of pixel hits " << pixelHits
+        << " number of tracker layers with interactions " << trkLayers
+	<< " number of muon hits " << nMuonHits;
       if (fabs(tsosAtCyl.globalPosition().z())<theMaxZ ) {
 	if(pixelHits >= thenPixHits){
-	  LogDebug("HLTMuonPointing") << " number of pixel hits " << pixelHits;
 	  if(trkLayers >= theTkLayers){
-	    LogDebug("HLTMuonPointing") << " number of tracker layers with interactions " << trkLayers;
 	    if(nMuonHits >= thenMuonHits){
-	      LogDebug("HLTMuonPointing") << " number of muon hits " << nMuonHits;
 	      accept=true;
 	      return accept;
 	    }
@@ -129,7 +129,10 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
 	}
       }
       else {
-        LogDebug("HLTMuonPointing") << " extrap TSOS z too big " << tsosAtCyl.globalPosition().z();
+        LogDebug("HLTMuonPointing") << " extrap TSOS z too big " << tsosAtCyl.globalPosition().z()
+ 	  << " number of pixel hits " << pixelHits
+ 	  << " number of tracker layers with interactions " << trkLayers
+	  << " number of muon hits " << nMuonHits;
 	TrajectoryStateOnSurface tsosAtPlane;
 	if (tsosAtCyl.globalPosition().z()>0)
 	  tsosAtPlane=thePropagator->propagate(*innerTSOS.freeState(), *thePosPlane);
@@ -139,11 +142,8 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
 	if (tsosAtPlane.isValid()){
 	  if (tsosAtPlane.globalPosition().perp()< theRadius){
 	    if (pixelHits >= thenPixHits){
-	      LogDebug("HLTMuonPointing") << " number of pixel hits " << pixelHits;
 	      if(trkLayers >= theTkLayers){
-		LogDebug("HLTMuonPointing") << " number of tracker layers with interactions " << trkLayers;
 		if(nMuonHits >= thenMuonHits){
-		  LogDebug("HLTMuonPointing") << " number of muon hits " << nMuonHits;
 		  accept=true;
 		  return accept;
 		}
@@ -170,9 +170,9 @@ void HLTMuonPointingFilter::fillDescriptions(edm::ConfigurationDescriptions & de
   desc.add<std::string>("PropagatorName", "SteppingHelixPropagatorAny");
   desc.add<double>("radius", 90.0);
   desc.add<double>("maxZ", 280.0);
-  desc.add<int>("nPixHits",  0);
-  desc.add<int>("TkLayers",  0);
-  desc.add<int>("nMuonHits", 0);
+  desc.add<unsigned int>("nPixHits",  0);
+  desc.add<unsigned int>("TkLayers",  0);
+  desc.add<unsigned int>("nMuonHits", 0);
 
   descriptions.add("hltMuonPointingFilter", desc);
 }
