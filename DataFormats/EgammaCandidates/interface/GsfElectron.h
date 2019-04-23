@@ -7,6 +7,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 //#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -187,10 +188,10 @@ class GsfElectron : public RecoCandidate
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
     virtual SuperClusterRef parentSuperCluster() const { return core()->parentSuperCluster() ; }
-    bool closestTrackValid() const { return closestCtfTrackRef().isAvailable() && closestCtfTrackRef().isNonnull() ; }
+    bool closestCtfTrackRefValid() const { return closestCtfTrackRef().isAvailable() && closestCtfTrackRef().isNonnull() ; }
     //methods used for MVA variables
-    float closestTrackChi2() const; 
-    int closestTrackNHits() const; 
+    float closestCtfTrackNormChi2() const { return closestCtfTrackRefValid() ? closestCtfTrackRef()->normalizedChi2() : 0; }
+    int closestCtfTrackNLayers() const { return closestCtfTrackRefValid() ? closestCtfTrackRef()->hitPattern().trackerLayersWithMeasurement() : -1; }
 
     // backward compatibility
     struct ClosestCtfTrack
