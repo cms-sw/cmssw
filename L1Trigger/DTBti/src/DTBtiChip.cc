@@ -514,7 +514,7 @@ DTBtiChip::eraseTrigger(int step, unsigned n) {
     cout << " trigger not deleted!" << endl;
   }
   vector<DTBtiTrig*>::iterator p = _trigs[step-DTConfig::NSTEPF].begin()+n-1;
-  if(&(*p))delete (*p);
+  delete (*p);
   _trigs[step-DTConfig::NSTEPF].erase(p);
 }
 
