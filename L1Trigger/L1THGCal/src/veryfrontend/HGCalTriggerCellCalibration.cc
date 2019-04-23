@@ -1,13 +1,12 @@
 #include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalTriggerCellCalibration.h"
 
 //class constructor
-HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet& conf):
-    LSB_silicon_fC_(conf.getParameter<double>("siliconCellLSB_fC")),
-    LSB_scintillator_MIP_(conf.getParameter<double>("scintillatorCellLSB_MIP")),
-    fCperMIP_(conf.getParameter<double>("fCperMIP")),
-    thickCorr_(conf.getParameter<double>("thickCorr")),
-    dEdX_weights_(conf.getParameter<std::vector<double>>("dEdXweights"))
-{
+HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet& conf)
+    : LSB_silicon_fC_(conf.getParameter<double>("siliconCellLSB_fC")),
+      LSB_scintillator_MIP_(conf.getParameter<double>("scintillatorCellLSB_MIP")),
+      fCperMIP_(conf.getParameter<double>("fCperMIP")),
+      thickCorr_(conf.getParameter<double>("thickCorr")),
+      dEdX_weights_(conf.getParameter<std::vector<double>>("dEdXweights")) {
   if (fCperMIP_ <= 0) {
     edm::LogWarning("DivisionByZero") << "WARNING: the MIP->fC correction factor is zero or negative. It won't be "
                                          "applied to correct trigger cell energies.";
