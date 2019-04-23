@@ -25,8 +25,8 @@ ele_scletawidth                    superCluster.etaWidth                        
 ele_sclphiwidth                    superCluster.phiWidth                                      None None
 ele_hadronicOverEm             hadronicOverEm                                             None None
 ele_oldhe                          full5x5_hcalOverEcal                                       None None
-ele_kfhits                         closestTrackNHits                                          None None
-ele_kfchi2                         closestTrackChi2                                           None  10.
+ele_kfhits                         closestCtfTrackNLayers                                          None None
+ele_kfchi2                         closestCtfTrackNormChi2                                           None  10.
 ele_gsfchi2                        gsfTrack.normalizedChi2                                    None 200.
 ele_fbrem                          fbrem                                                       -1. None
 ele_gsfhits                        gsfTrack.hitPattern.trackerLayersWithMeasurement           None None
