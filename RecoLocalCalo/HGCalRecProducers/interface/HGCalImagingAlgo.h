@@ -114,7 +114,11 @@ static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descNestedNoises.add<std::vector<double> >("values", {});
   iDesc.add<edm::ParameterSetDescription>("noises", descNestedNoises);
   edm::ParameterSetDescription descNestedNoiseMIP;
-  descNestedNoiseMIP.add<double>("value", 0 );
+  descNestedNoiseMIP.add<bool>("scaleByDose", false );
+  iDesc.add<edm::ParameterSetDescription>("scaleByDose", descNestedNoiseMIP);
+  descNestedNoiseMIP.add<std::string>("doseMap", "" );
+  iDesc.add<edm::ParameterSetDescription>("doseMap", descNestedNoiseMIP);
+  descNestedNoiseMIP.add<double>("noise_MIP", 1./100. );
   iDesc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
 }
 

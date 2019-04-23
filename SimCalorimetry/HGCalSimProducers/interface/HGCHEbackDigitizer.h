@@ -11,8 +11,9 @@ class HGCHEbackSignalScaler
   public:
 
     struct DoseParameters {
-      DoseParameters(): a_(0.), b_(0.), c_(0.), d_(0.), e_(0.), f_(0.) {}
-      float a_, b_, c_, d_, e_, f_;
+      DoseParameters(): a_(0.), b_(0.), c_(0.), d_(0.), e_(0.),
+                        f_(0.), g_(0.), h_(0.), i_(0.), j_(0.) {}
+      float a_, b_, c_, d_, e_, f_, g_, h_, i_, j_;
     };
 
     HGCHEbackSignalScaler() {};
@@ -21,19 +22,19 @@ class HGCHEbackSignalScaler
     void setGeometry(const CaloSubdetectorGeometry*);
     void setDoseMap(const std::string&);
 
-    float scaleByArea(const HGCScintillatorDetId&, const std::pair<double, double>&);
-    std::pair<float, float> scaleByDose(const HGCScintillatorDetId&, const std::pair<double, double>&);
-    double getDoseValue(const int, const std::pair<double, double>&);
-    double getFluenceValue(const int, const std::pair<double, double>&);
-    std::pair<double, double> computeRadius(const HGCScintillatorDetId&);
+    float scaleByArea(const HGCScintillatorDetId&, const std::array<double, 8>&);
+    std::pair<float, float> scaleByDose(const HGCScintillatorDetId&, const std::array<double, 8>&);
+    double getDoseValue(const int, const std::array<double, 8>&);
+    double getFluenceValue(const int, const std::array<double, 8>&);
+    std::array<double, 8> computeRadius(const HGCScintillatorDetId&);
 
   private:
     std::map<int, DoseParameters> readDosePars(const std::string&);
 
     const HGCalGeometry* hgcalGeom_;
     std::map<int, DoseParameters> doseMap_;
-    static constexpr double radToKrad_ = 1/1000.;
-    const float refEdge_ = 0.03; //3 cm
+    static constexpr double greyToKrad_ = 0.1;
+    const float refEdge_ = 3; //3 cm
 
     bool verbose_ = false;
 
