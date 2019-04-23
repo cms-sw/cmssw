@@ -191,13 +191,13 @@ void SiPixelRecHitHeterogeneous::acquireGPUCuda(const edm::HeterogeneousEvent& i
   // synchronize explicitly (implementation is from
   // CUDAScopedContext). In practice these should not be needed
   // (because of synchronizations upstream), but let's play generic.
-  if(not hclusters->isAvailable() and not hclusters->event()->has_occurred()) {
+  if (not hclusters->isAvailable()) {
     cudaCheck(cudaStreamWaitEvent(cudaStream.id(), hclusters->event()->id(), 0));
   }
-  if(not hdigis->isAvailable() and not hdigis->event()->has_occurred()) {
+  if (not hdigis->isAvailable()) {
     cudaCheck(cudaStreamWaitEvent(cudaStream.id(), hdigis->event()->id(), 0));
   }
-  if(not hbs->isAvailable() and not hbs->event()->has_occurred()) {
+  if (not hbs->isAvailable()) {
     cudaCheck(cudaStreamWaitEvent(cudaStream.id(), hbs->event()->id(), 0));
   }
 

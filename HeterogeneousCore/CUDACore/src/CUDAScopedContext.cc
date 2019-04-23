@@ -80,7 +80,7 @@ void CUDAScopedContext::synchronizeStreams(int dataDevice, const cuda::stream_t<
 
   if(dataStream.id() != stream_->id()) {
     // Different streams, need to synchronize
-    if(not available and not dataEvent->has_occurred()) {
+    if(not available) {
       // Event not yet occurred, so need to add synchronization
       // here. Sychronization is done by making the CUDA stream to
       // wait for an event, so all subsequent work in the stream
