@@ -40,12 +40,18 @@ public:
   cuda::event_t *event() { return event_.get(); }
 
 protected:
-  explicit CUDAProductBase(int device, std::shared_ptr<cuda::stream_t<>> stream, std::shared_ptr<cuda::event_t> event);
+  explicit CUDAProductBase(int device, std::shared_ptr<cuda::stream_t<>> stream):
+    stream_{std::move(stream)},
+    device_{device}
+  {}
 
 private:
   friend class CUDAScopedContext;
 
-  // Intended to be used only from CUDAScopedContext
+  // The following functions are intended to be used only from CUDAScopedContext
+  void setEvent(std::shared_ptr<cuda::event_t> event) {
+    event_ = std::move(event);
+  }
   const std::shared_ptr<cuda::stream_t<>>& streamPtr() const { return stream_; }
 
   bool mayReuseStream() const {
