@@ -44,6 +44,7 @@
 #include <cstring>
 
 using namespace edm;
+class MonitorElement;
 
 //--------------------------------------------------------------------------------------------------
 SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig) :
@@ -67,51 +68,36 @@ SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
   endLumiBlock_ = 0;
   countLumi_ = 0;
 
-  /*
+  substructures.push_back("BpixLYR1MOD1");
+  substructures.push_back("BpixLYR1MOD2");
+  substructures.push_back("BpixLYR1MOD3");
+  substructures.push_back("BpixLYR1MOD4");
+
+  substructures.push_back("BpixLYR2");
+  substructures.push_back("BpixLYR3");
+  substructures.push_back("BpixLYR4");
+
+  substructures.push_back("FpixRNG1");
+  substructures.push_back("FpixRNG2");
+
   histoFile = new TFile("PixelDigiHisto.root","RECREATE");
+  p001.clear(); p005.clear();
+  p01.clear();  p05.clear();
+  p1.clear();   p2.clear();  p5.clear();
 
-  digi_Good_BPix_L1 = new TH1F("digi_Good_BPix_L1","digi_Good_BPix_L1",1000,-7,3);
-  digi_Bad_BPix_L1  = new TH1F("digi_Bad_BPix_L1","digi_Bad_BPix_L1",1000,-7,3);
-  digi_Good_BPix_L1->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Good_BPix_L1->GetYaxis()->SetTitle("N_lumisection");
-  digi_Bad_BPix_L1->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Bad_BPix_L1->GetYaxis()->SetTitle("N_lumisection");
+  for(unsigned int s = 0; s<substructures.size(); s++){
 
-  digi_Good_BPix_L2 = new TH1F("digi_Good_BPix_L2","digi_Good_BPix_L2",1000,-7,3);
-  digi_Bad_BPix_L2  = new TH1F("digi_Bad_BPix_L2","digi_Bad_BPix_L2",1000,-7,3);
-  digi_Good_BPix_L2->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Good_BPix_L2->GetYaxis()->SetTitle("N_lumisection");
-  digi_Bad_BPix_L2->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Bad_BPix_L2->GetYaxis()->SetTitle("N_lumisection");
+         TString subTs = TString(substructures[s]);
+         p001[substructures[s]] = new TH1F(subTs+"p001","Digi Loss Fraction;Digi Loss Fraction;N_{lumi-sections}",100,0,1);
+         p005[substructures[s]] = new TH1F(subTs+"p005","Digi Loss Fraction;Digi Loss Fraction;N_{lumi-sections}",100,0,1);
+         p01[substructures[s]]  = new TH1F(subTs+"p01","Digi Loss Fraction;Digi Loss Fraction;N_{lumi-sections}",100,0,1);
+         p05[substructures[s]]  = new TH1F(subTs+"p05","Digi Loss Fraction;Digi Loss Fraction;N_{lumi-sections}",100,0,1);
+         p1[substructures[s]]   = new TH1F(subTs+"p1","Digi Loss Fraction;Digi Loss Fraction;N_{lumi-sections}",100,0,1);
+         p2[substructures[s]]   = new TH1F(subTs+"p2","Digi Loss Fraction;Digi Loss Fraction;N_{lumi-sections}",100,0,1);
+         p5[substructures[s]]   = new TH1F(subTs+"p5","Digi Loss Fraction;Digi Loss Fraction;N_{lumi-sections}",100,0,1);
 
-  digi_Good_BPix_L3 = new TH1F("digi_Good_BPix_L3","digi_Good_BPix_L3",1000,-7,3);
-  digi_Bad_BPix_L3  = new TH1F("digi_Bad_BPix_L3","digi_Bad_BPix_L3",1000,-7,3);
-  digi_Good_BPix_L3->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Good_BPix_L3->GetYaxis()->SetTitle("N_lumisection");
-  digi_Bad_BPix_L3->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Bad_BPix_L3->GetYaxis()->SetTitle("N_lumisection");
+  }
 
-  digi_Good_BPix_L4 = new TH1F("digi_Good_BPix_L4","digi_Good_BPix_L4",1000,-7,3);
-  digi_Bad_BPix_L4  = new TH1F("digi_Bad_BPix_L4","digi_Bad_BPix_L4",1000,-7,3);
-  digi_Good_BPix_L4->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Good_BPix_L4->GetYaxis()->SetTitle("N_lumisection");
-  digi_Bad_BPix_L4->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Bad_BPix_L4->GetYaxis()->SetTitle("N_lumisection");
-
-  digi_Good_FPix_RNG1 = new TH1F("digi_Good_FPix_RNG1","digi_Good_FPix_RNG1",1000,-7,3);
-  digi_Bad_FPix_RNG1  = new TH1F("digi_Bad_FPix_RNG1","digi_Bad_FPix_RNG1",1000,-7,3);
-  digi_Good_FPix_RNG1->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Good_FPix_RNG1->GetYaxis()->SetTitle("N_lumisection");
-  digi_Bad_FPix_RNG1->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Bad_FPix_RNG1->GetYaxis()->SetTitle("N_lumisection");
-
-  digi_Good_FPix_RNG2 = new TH1F("digi_Good_FPix_RNG2","digi_Good_FPix_RNG2",1000,-7,3);
-  digi_Bad_FPix_RNG2  = new TH1F("digi_Bad_FPix_RNG2","digi_Bad_FPix_RNG2",1000,-7,3);
-  digi_Good_FPix_RNG2->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Good_FPix_RNG2->GetYaxis()->SetTitle("N_lumisection");
-  digi_Bad_FPix_RNG2->GetXaxis()->SetTitle("log_10(digi/N_event)");
-  digi_Bad_FPix_RNG2->GetYaxis()->SetTitle("N_lumisection");
-  */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,36 +109,25 @@ void SiPixelStatusHarvester::beginJob() { }
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::endJob() {
 
-     /*
      histoFile->cd();
-     digi_Good_BPix_L1->Write();
-     digi_Bad_BPix_L1->Write();
-     digi_Good_BPix_L2->Write();
-     digi_Bad_BPix_L2->Write();
-     digi_Good_BPix_L3->Write();
-     digi_Bad_BPix_L3->Write();
-     digi_Good_BPix_L4->Write();
-     digi_Bad_BPix_L4->Write();
-     digi_Good_FPix_RNG1->Write();
-     digi_Bad_FPix_RNG1->Write();
-     digi_Good_FPix_RNG2->Write();
-     digi_Bad_FPix_RNG2->Write();
+
+     for(unsigned int s = 0; s<substructures.size(); s++){
+
+         p001[substructures[s]]->Write();
+         p005[substructures[s]]->Write();
+         p01[substructures[s]]->Write();
+         p05[substructures[s]]->Write();
+         p1[substructures[s]]->Write();
+         p2[substructures[s]]->Write();
+         p5[substructures[s]]->Write();
+
+      }
+
      histoFile->Close();
 
-     delete digi_Good_BPix_L1;
-     delete digi_Bad_BPix_L1;
-     delete digi_Good_BPix_L2;
-     delete digi_Bad_BPix_L2;
-     delete digi_Good_BPix_L3;
-     delete digi_Bad_BPix_L3;
-     delete digi_Good_BPix_L4;
-     delete digi_Bad_BPix_L4;
-     delete digi_Good_FPix_RNG1;
-     delete digi_Bad_FPix_RNG1;
-     delete digi_Good_FPix_RNG2;
-     delete digi_Bad_FPix_RNG2;
-     */
-
+     p001.clear(); p005.clear(); 
+     p01.clear();  p05.clear(); 
+     p1.clear();   p2.clear();  p5.clear(); 
 }  
 
 //--------------------------------------------------------------------------------------------------
@@ -161,7 +136,11 @@ void SiPixelStatusHarvester::bookHistograms( DQMStore::IBooker& iBooker, edm::Ru
      for( auto& histoman : histo ){
        histoman.book( iBooker, iSetup );
      }
+
+    //std::map<std::string, MonitorElement*> p001, p005, p01, p05, p1, p2, p5;
+    //ibooker.setCurrentFolder("PixelPhase1/DigiLossFraction/");
 }
+
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
@@ -447,6 +426,10 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
           // Prompt = permanent bad(low DIGI + low eff/damaged ROCs + other)     
           SiPixelQuality *siPixelQualityPrompt = new SiPixelQuality();
 
+          std::map<string, unsigned int> digiTotal;
+          std::map<string, unsigned int> digiLossp001, digiLossp005;
+          std::map<string, unsigned int> digiLossp01, digiLossp05, digiLossp1, digiLossp2, digiLossp5;
+
           // loop over modules
           std::map<int, SiPixelModuleStatus> detectorStatus = tmpSiPixelStatus.getDetectorStatus();
           std::map<int, SiPixelModuleStatus>::iterator itModEnd = detectorStatus.end();
@@ -472,6 +455,9 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                SiPixelModuleStatus modStatus = itMod->second;
                std::vector<int> listFEDerror25 = tmpFEDerror25[detid];
 
+               // name of the pixel detector substructure
+               string substructure = SiPixelStatusHarvester::substructure(detid);
+
                std::map<int, std::pair<int,int> > rocToOfflinePixel = pixelO2O_[detid];
                for (int iroc = 0; iroc < modStatus.nrocs(); ++iroc) {
 
@@ -480,8 +466,11 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                    int row = rocToOfflinePixel[iroc].first;
                    int column = rocToOfflinePixel[iroc].second;
 
+                   digiTotal[substructure] = digiTotal[substructure]+rocOccupancy;
+
                    double permDead = -10;
                    if(rocOccupancy<0.001*DetAverage_local){
+                      digiLossp001[substructure] = digiLossp001[substructure] + rocOccupancy;
                       for (int iLumi = 0; iLumi<interval;iLumi++){
                           if(rocOccupancy>0){
                             histo[BADROCp001].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
@@ -496,6 +485,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                    }
 
                    if(rocOccupancy<0.005*DetAverage_local){
+                      digiLossp005[substructure] = digiLossp005[substructure] + rocOccupancy;
                       for (int iLumi = 0; iLumi<interval;iLumi++){
                           if(rocOccupancy>0){
                             histo[BADROCp005].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
@@ -510,6 +500,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                    }
 
                    if(rocOccupancy<0.01*DetAverage_local){
+                      digiLossp01[substructure] = digiLossp01[substructure] + rocOccupancy;
                       for (int iLumi = 0; iLumi<interval;iLumi++){
                           if(rocOccupancy>0){
                             histo[BADROCp01].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
@@ -524,6 +515,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                    }
 
                    if(rocOccupancy<0.05*DetAverage_local){
+                      digiLossp05[substructure] = digiLossp05[substructure] + rocOccupancy;
                       for (int iLumi = 0; iLumi<interval;iLumi++){
                           if(rocOccupancy>0){
                             histo[BADROCp05].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
@@ -538,6 +530,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                    }
 
                    if(rocOccupancy<0.1*DetAverage_local){
+                      digiLossp1[substructure] = digiLossp1[substructure] + rocOccupancy;
                       for (int iLumi = 0; iLumi<interval;iLumi++){
                           if(rocOccupancy>0){
                             histo[BADROCp1].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
@@ -552,6 +545,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                    }
 
                    if(rocOccupancy<0.2*DetAverage_local){
+                      digiLossp2[substructure] = digiLossp2[substructure] + rocOccupancy;
                       for (int iLumi = 0; iLumi<interval;iLumi++){
                           if(rocOccupancy>0){
                             histo[BADROCp2].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
@@ -566,6 +560,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                    }
 
                    if(rocOccupancy<0.5*DetAverage_local){
+                      digiLossp5[substructure] = digiLossp5[substructure] + rocOccupancy;
                       for (int iLumi = 0; iLumi<interval;iLumi++){
                           if(rocOccupancy>0){
                             histo[BADROCp5].fill(log(rocOccupancy*1.0/Nevents)/log(10),detId, nullptr, column, row);}
@@ -579,20 +574,6 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                       }
                    }
 
-                   /*
-                   if(rocOccupancy>=threshold_*DetAverage_local){ // if GOOD
-
-                     if(layer==1) digi_Good_BPix_L1->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-                     if(layer==2) digi_Good_BPix_L2->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-                     if(layer==3) digi_Good_BPix_L3->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-                     if(layer==4) digi_Good_BPix_L4->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-
-                     if(ring==1) digi_Good_FPix_RNG1->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-                     if(ring==2) digi_Good_FPix_RNG2->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-   
-                   }
-                   */
-
                    // Bad ROC are from low DIGI Occ ROCs
                    if(rocOccupancy<threshold_*DetAverage_local){ // if BAD
 
@@ -601,16 +582,6 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                      for (int iLumi = 0; iLumi<interval;iLumi++){
                          histo[BADROC].fill(detId, nullptr, column, row);//, 1.0/nLumiBlock_);
                      }
-
-                     /*
-                     if(rocOccupancy==0) rocOccupancy = 1e-6*Nevents;
-                     if(layer==1) digi_Bad_BPix_L1->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-                     if(layer==2) digi_Bad_BPix_L2->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-                     if(layer==3) digi_Bad_BPix_L3->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-                     if(layer==4) digi_Bad_BPix_L4->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-                     if(ring==1) digi_Bad_FPix_RNG1->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-                     if(ring==2) digi_Bad_FPix_RNG2->Fill(log(rocOccupancy*1.0/Nevents)/log(10), interval);
-                     */
 
                      //FEDerror25 list
                      std::vector<int>::iterator it = std::find(listFEDerror25.begin(), listFEDerror25.end(),iroc);
@@ -677,7 +648,8 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                if(BadRocListPrompt.size()==sensorSize_[detid]) BadModulePrompt.errorType = 0;
 
                short badrocsPrompt = 0;
-               for(std::vector<uint32_t>::iterator iterPrompt = BadRocListPrompt.begin(); iterPrompt != BadRocListPrompt.end(); ++iterPrompt){
+               for(std::vector<uint32_t>::iterator iterPrompt = BadRocListPrompt.begin(); iterPrompt != BadRocListPrompt.end(); ++iterPrompt)
+               {
                    badrocsPrompt +=  1 << *iterPrompt; // 1 << *iter = 2^{*iter} using bitwise shift
                }
                if(badrocsPrompt!=0){
@@ -687,6 +659,31 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
 
          } // end module loop
  
+         // fill digi loss plots
+         for(unsigned int s = 0; s<substructures.size(); s++){
+
+             /*
+             std::cout<<"substructure "<<substructures[s]<<endl;
+             std::cout<<"digiTotal "<<digiTotal[substructures[s]]<<endl;
+             std::cout<<"digiLossp001 "<<digiLossp001[substructures[s]]<<endl;
+             std::cout<<"digiLossp005 "<<digiLossp005[substructures[s]]<<endl;
+             std::cout<<"digiLossp01 "<<digiLossp01[substructures[s]]<<endl;
+             std::cout<<"digiLossp05 "<<digiLossp05[substructures[s]]<<endl;
+             std::cout<<"digiLossp1 "<<digiLossp1[substructures[s]]<<endl;
+             std::cout<<"digiLossp2 "<<digiLossp2[substructures[s]]<<endl;
+             std::cout<<"digiLossp5 "<<digiLossp5[substructures[s]]<<endl;
+             */
+
+             p001[substructures[s]]->Fill(digiLossp001[substructures[s]]*1.0/digiTotal[substructures[s]],interval);
+             p005[substructures[s]]->Fill(digiLossp005[substructures[s]]*1.0/digiTotal[substructures[s]],interval);
+             p01[substructures[s]]->Fill(digiLossp01[substructures[s]]*1.0/digiTotal[substructures[s]],interval);
+             p05[substructures[s]]->Fill(digiLossp05[substructures[s]]*1.0/digiTotal[substructures[s]],interval);
+             p1[substructures[s]]->Fill(digiLossp1[substructures[s]]*1.0/digiTotal[substructures[s]],interval);
+             p2[substructures[s]]->Fill(digiLossp2[substructures[s]]*1.0/digiTotal[substructures[s]],interval);
+             p5[substructures[s]]->Fill(digiLossp5[substructures[s]]*1.0/digiTotal[substructures[s]],interval);
+
+         }
+
          // PCL
          siPixelQualityPCL_Tag[itIOV->first] = siPixelQualityPCL;
          // Prompt
@@ -835,8 +832,9 @@ double SiPixelStatusHarvester::perLayerRingAverage(int detid, SiPixelDetectorSta
           unsigned long int ave(0);
           int nrocs(0);
 
-          int layer = coord_.layer(DetId(detid));
-          int ring = coord_.ring(DetId(detid));
+          int layer  = coord_.layer(DetId(detid));
+          int ring   = coord_.ring(DetId(detid));
+          int module = coord_.module(DetId(detid)); 
 
           std::map<int, SiPixelModuleStatus> detectorStatus = tmpSiPixelStatus.getDetectorStatus();
           std::map<int, SiPixelModuleStatus>::iterator itModEnd = detectorStatus.end();
@@ -844,7 +842,9 @@ double SiPixelStatusHarvester::perLayerRingAverage(int detid, SiPixelDetectorSta
 
                if( layer != coord_.layer(DetId(itMod->first)) ) continue;
                if( ring != coord_.ring(DetId(itMod->first)) ) continue;
-                
+               if( layer==1 ){
+                 if( module != coord_.ring(DetId(itMod->first))) continue;                  
+               }
                unsigned long int inc = itMod->second.digiOccMOD();
                ave += inc;
                nrocs += itMod->second.nrocs();
@@ -855,5 +855,32 @@ double SiPixelStatusHarvester::perLayerRingAverage(int detid, SiPixelDetectorSta
           else return 0.0;
 
 }     
+
+std::string SiPixelStatusHarvester::substructure(int detid){     
+     
+       std::string substructure = "";
+       int layer = coord_.layer(DetId(detid));
+
+       if(layer>0){
+         std::string L = std::to_string(layer);
+         substructure = "BpixLYR";
+         substructure += L;
+         if(layer==1){
+           int mod   = abs(coord_.signed_module(DetId(detid)));
+           std::string M = std::to_string(mod);
+           substructure += "MOD";
+           substructure += M;
+         }
+       }  
+       else{
+         substructure = "FpixRNG";
+         int ring  = coord_.ring(DetId(detid));
+         std::string R = std::to_string(ring);
+         substructure += R; 
+       }
+
+       return substructure;
+}
+
 
 DEFINE_FWK_MODULE(SiPixelStatusHarvester);

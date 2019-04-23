@@ -95,8 +95,9 @@ private:
   std::map<int, std::map<int, std::pair<int, int> > > pixelO2O_;
 
   //Helper functions
-
+  std::vector<std::string> substructures;
   double perLayerRingAverage(int detid, SiPixelDetectorStatus tmpSiPixelStatus);
+  std::string substructure(int detid);
 
   // "step function" for IOV
   edm::LuminosityBlockNumber_t stepIOV(edm::LuminosityBlockNumber_t pin,
@@ -112,17 +113,8 @@ private:
                     edm::Run& iRun);
 
   // for testing threshold
-  /*
   TFile * histoFile;
-
-  TH1F *digi_Good_BPix_L1, *digi_Bad_BPix_L1;
-  TH1F *digi_Good_BPix_L2, *digi_Bad_BPix_L2;
-  TH1F *digi_Good_BPix_L3, *digi_Bad_BPix_L3;
-  TH1F *digi_Good_BPix_L4, *digi_Bad_BPix_L4;
-
-  TH1F *digi_Good_FPix_RNG1, *digi_Bad_FPix_RNG1;
-  TH1F *digi_Good_FPix_RNG2, *digi_Bad_FPix_RNG2;
-  */
+  std::map<std::string, TH1F*> p001, p005, p01, p05, p1, p2, p5;
 
 };
 

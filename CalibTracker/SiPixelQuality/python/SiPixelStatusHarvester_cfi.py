@@ -13,12 +13,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -31,12 +32,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -49,12 +51,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -67,12 +70,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -85,12 +89,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -103,12 +108,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -123,12 +129,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -141,12 +148,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -161,12 +169,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -179,12 +188,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -199,12 +209,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -217,12 +228,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -237,12 +249,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Ba
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
@@ -255,12 +268,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityThreshold/Go
   xlabel = "log_{10}(digi/Nevent)",
   range_min = -7,
   range_max = 3,
-  range_nbins = 5000,
+  range_nbins = 1000,
   ylabel = "N_{lumisection}",
   specs = VPSet(
     Specification().groupBy("PXBarrel").save(),
     Specification().groupBy("PXForward").save(),
     Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXBarrel/PXLayer/PXModuleName").save(),
     Specification().groupBy("PXForward/PXRing").save(),
     Specification().groupBy("PXForward/PXRing/PXDisk").save()
   )
