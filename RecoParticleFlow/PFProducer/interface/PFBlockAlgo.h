@@ -55,8 +55,6 @@
 
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
 
-#include "RecoParticleFlow/PFProducer/interface/PFBlockLink.h"
-
 #include "RecoParticleFlow/PFProducer/interface/BlockElementLinkerBase.h"
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
 
@@ -122,17 +120,15 @@ class PFBlockAlgo {
   /// compute missing links in the blocks 
   /// (the recursive procedure does not build all links)  
   void packLinks(reco::PFBlock& block, 
-		 const std::unordered_map<std::pair<unsigned int,unsigned int>,PFBlockLink>& links) const; 
+		 const std::unordered_map<std::pair<unsigned int,unsigned int>,double>& links) const; 
   
   /// Avoid to check links when not useful
   inline bool linkPrefilter(const reco::PFBlockElement* last, 
 			    const reco::PFBlockElement* next) const;
 
-  /// check whether 2 elements are linked. Returns distance and linktype
+  /// check whether 2 elements are linked. Returns distance
   inline void link( const reco::PFBlockElement* el1, 
 		    const reco::PFBlockElement* el2, 
-		    PFBlockLink::Type& linktype, 
-		    reco::PFBlock::LinkTest& linktest,
 		    double& dist) const;
   
   // the test elements will be transferred to the blocks
