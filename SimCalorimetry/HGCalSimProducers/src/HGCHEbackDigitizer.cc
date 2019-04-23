@@ -44,26 +44,26 @@ std::map<int, HGCHEbackSignalScaler::DoseParameters> HGCHEbackSignalScaler::read
 
     //space-separated
     std::stringstream linestream(line);
-    linestream >> layer >> dosePars.a_ >>  dosePars.b_ >> dosePars.c_ >> dosePars.d_ >> dosePars.e_ >> dosePars.f_;
+    linestream >> layer >> dosePars.a_ >>  dosePars.b_ >> dosePars.c_ >> dosePars.d_ >> dosePars.e_ >> dosePars.f_ >> dosePars.g_ >> dosePars.h_ >> dosePars.i_ >> dosePars.j_;
 
     result[layer] = dosePars;
   }
   return result;
 }
 
-double HGCHEbackSignalScaler::getDoseValue(const int layer, const std::pair<double, double>& radius)
+double HGCHEbackSignalScaler::getDoseValue(const int layer, const std::array<double, 8>& radius)
 {
-  double cellDose = std::pow(10, doseMap_[layer].a_ + doseMap_[layer].b_*radius.first + doseMap_[layer].c_*radius.second); //dose in rad
-  return cellDose * radToKrad_; //convert to kRad
+  double cellDose = std::pow(10, doseMap_[layer].a_ + doseMap_[layer].b_*radius[4] + doseMap_[layer].c_*radius[5] + doseMap_[layer].d_*radius[6] + doseMap_[layer].e_*radius[7]); //dose in grey
+  return cellDose * greyToKrad_; //convert to kRad
 }
 
-double HGCHEbackSignalScaler::getFluenceValue(const int layer, const std::pair<double, double>& radius)
+double HGCHEbackSignalScaler::getFluenceValue(const int layer, const std::array<double, 8>& radius)
 {
-  double cellFluence = std::pow(10, doseMap_[layer].d_ + doseMap_[layer].e_*radius.first + doseMap_[layer].f_*radius.second); //dose in rad
+  double cellFluence = std::pow(10, doseMap_[layer].f_ + doseMap_[layer].g_*radius[0] + doseMap_[layer].h_*radius[1] + doseMap_[layer].i_*radius[2] + doseMap_[layer].j_*radius[3]); //dose in grey
   return cellFluence;
 }
 
-std::pair<float, float> HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId,  const std::pair<double, double>& radius)
+std::pair<float, float> HGCHEbackSignalScaler::scaleByDose(const HGCScintillatorDetId& cellId,  const std::array<double, 8>& radius)
 {
   if(doseMap_.empty())
     return std::make_pair(1., 0.);
@@ -75,7 +75,7 @@ std::pair<float, float> HGCHEbackSignalScaler::scaleByDose(const HGCScintillator
 
   double cellFluence = getFluenceValue(layer, radius); //in 1-Mev-equivalent neutrons per cm2
 
-  constexpr double factor = 1. / (2*1e13);
+  constexpr double factor = 2. / (2*1e13); //SiPM area = 2mm^2
   double noise = 2.18 * sqrt(cellFluence * factor);
 
   if(verbose_)
@@ -97,9 +97,9 @@ std::pair<float, float> HGCHEbackSignalScaler::scaleByDose(const HGCScintillator
   return std::make_pair(scaleFactor, noise);
 }
 
-float HGCHEbackSignalScaler::scaleByArea(const HGCScintillatorDetId& cellId, const std::pair<double, double>& radius)
+float HGCHEbackSignalScaler::scaleByArea(const HGCScintillatorDetId& cellId, const std::array<double, 8>& radius)
 {
-  float circ = 2 * M_PI * radius.first;
+  float circ = 2 * M_PI * radius[0];
 
   float edge(refEdge_);
   if(cellId.type() == 0)
@@ -117,22 +117,33 @@ float HGCHEbackSignalScaler::scaleByArea(const HGCScintillatorDetId& cellId, con
 
   if(verbose_)
   {
-    LogDebug("HGCHEbackSignalScaler") << "HGCHEbackSignalScaler::scaleByArea - Type, layer, edge, radius: "
+    LogDebug("HGCHEbackSignalScaler") << "HGCHEbackSignalScaler::scaleByArea - Type, layer, edge, radius, SF: "
                                       << cellId.type() << " "
                                       << cellId.layer() << " "
                                       << edge << " "
-                                      << radius;
+                                      << radius[0] << " "
+                                      << scaleFactor << std::endl;
   }
 
   return scaleFactor;
 }
 
-std::pair<double, double> HGCHEbackSignalScaler::computeRadius(const HGCScintillatorDetId& cellId)
+std::array<double, 8> HGCHEbackSignalScaler::computeRadius(const HGCScintillatorDetId& cellId)
 {
   GlobalPoint global = hgcalGeom_->getPosition(cellId);
-  double radius2 = (std::pow(global.x(), 2) + std::pow(global.y(), 2)) * 0.0001; //in m
+
+  double radius2 = std::pow(global.x(), 2) + std::pow(global.y(), 2); //in cm
+  double radius4 = std::pow(radius2, 2);
   double radius = sqrt(radius2);
-  return std::make_pair(radius, radius2);
+  double radius3 = std::pow(radius, 3);
+
+  double radius_m100 = radius-100;
+  double radius_m100_2 = std::pow(radius_m100, 2);
+  double radius_m100_3 = std::pow(radius_m100, 3);
+  double radius_m100_4 = std::pow(radius_m100_2, 2);
+
+  std::array<double, 8> radii { {radius, radius2, radius3, radius4, radius_m100, radius_m100_2, radius_m100_3, radius_m100_4} };
+  return radii;
 }
 
 
@@ -236,7 +247,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
       if(id.det() == DetId::HGCalHSc) //skip those geometries that have HE used as BH
       {
-        std::pair<double, double> radius;
+        std::array<double, 8> radius;
         if(scaleByArea_ or scaleByDose_)
           radius = scal_.computeRadius(id);
 
