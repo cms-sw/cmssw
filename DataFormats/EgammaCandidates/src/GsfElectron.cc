@@ -244,13 +244,3 @@ float GsfElectron::p4Error( P4Kind kind ) const
     default: throw cms::Exception("GsfElectron")<<"unexpected p4 kind: "<<kind ;
    }
  }
-
-float GsfElectron::closestTrackChi2() const
- { 
-   return  closestTrackValid() ? closestCtfTrackRef()->normalizedChi2() : 0. ; 
- }
- 
-int GsfElectron::closestTrackNHits() const
- { 
-   return closestTrackValid() ? closestCtfTrackRef()->hitPattern().trackerLayersWithMeasurement() : -1 ;  
- }
