@@ -195,7 +195,7 @@ void SiPixelRecHitHeterogeneous::acquireGPUCuda(const edm::HeterogeneousEvent& i
     cudaCheck(cudaStreamWaitEvent(cudaStream.id(), hclusters->event()->id(), 0));
   }
   if(not hdigis->isAvailable() and not hdigis->event()->has_occurred()) {
-    cudaCheck(cudaStreamWaitEvent(cudaStream.id(), hclusters->event()->id(), 0));
+    cudaCheck(cudaStreamWaitEvent(cudaStream.id(), hdigis->event()->id(), 0));
   }
   if(not hbs->isAvailable() and not hbs->event()->has_occurred()) {
     cudaCheck(cudaStreamWaitEvent(cudaStream.id(), hbs->event()->id(), 0));
