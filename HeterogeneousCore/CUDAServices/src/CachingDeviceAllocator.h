@@ -418,8 +418,8 @@ struct CachingDeviceAllocator
                     cached_bytes[device].free -= search_key.bytes;
                     cached_bytes[device].live += search_key.bytes;
 
-                    if (debug) _CubLog("\tDevice %d reused cached block at %p (%lld bytes) for stream %lld (previously associated with stream %lld).\n",
-                        device, search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long)  block_itr->associated_stream);
+                    if (debug) _CubLog("\tDevice %d reused cached block at %p (%lld bytes) for stream %lld, event %lld (previously associated with stream %lld, event %lld).\n",
+                        device, search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.ready_event, (long long) block_itr->associated_stream, (long long) block_itr->ready_event);
 
                     cached_blocks.erase(block_itr);
 
@@ -500,8 +500,8 @@ struct CachingDeviceAllocator
             cached_bytes[device].live += search_key.bytes;
             mutex.Unlock();
 
-            if (debug) _CubLog("\tDevice %d allocated new device block at %p (%lld bytes associated with stream %lld).\n",
-                      device, search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream);
+            if (debug) _CubLog("\tDevice %d allocated new device block at %p (%lld bytes associated with stream %lld, event %lld).\n",
+                      device, search_key.d_ptr, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) search_key.ready_event);
 
             // Attempt to revert back to previous device if necessary
             if ((entrypoint_device != INVALID_DEVICE_ORDINAL) && (entrypoint_device != device))
@@ -579,8 +579,8 @@ struct CachingDeviceAllocator
                 cached_blocks.insert(search_key);
                 cached_bytes[device].free += search_key.bytes;
 
-                if (debug) _CubLog("\tDevice %d returned %lld bytes from associated stream %lld.\n\t\t %lld available blocks cached (%lld bytes), %lld live blocks outstanding. (%lld bytes)\n",
-                    device, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) cached_blocks.size(),
+                if (debug) _CubLog("\tDevice %d returned %lld bytes at %p from associated stream %lld, event %lld.\n\t\t %lld available blocks cached (%lld bytes), %lld live blocks outstanding. (%lld bytes)\n",
+                    device, (long long) search_key.bytes, d_ptr, (long long) search_key.associated_stream, (long long) search_key.ready_event, (long long) cached_blocks.size(),
                     (long long) cached_bytes[device].free, (long long) live_blocks.size(), (long long) cached_bytes[device].live);
             }
         }
@@ -607,8 +607,8 @@ struct CachingDeviceAllocator
             if (CubDebug(error = cudaFree(d_ptr))) return error;
             if (CubDebug(error = cudaEventDestroy(search_key.ready_event))) return error;
 
-            if (debug) _CubLog("\tDevice %d freed %lld bytes from associated stream %lld.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",
-                device, (long long) search_key.bytes, (long long) search_key.associated_stream, (long long) cached_blocks.size(), (long long) cached_bytes[device].free, (long long) live_blocks.size(), (long long) cached_bytes[device].live);
+            if (debug) _CubLog("\tDevice %d freed %lld bytes at %p from associated stream %lld, event %lld.\n\t\t  %lld available blocks cached (%lld bytes), %lld live blocks (%lld bytes) outstanding.\n",
+                device, (long long) search_key.bytes, d_ptr, (long long) search_key.associated_stream, (long long) search_key.ready_event, (long long) cached_blocks.size(), (long long) cached_bytes[device].free, (long long) live_blocks.size(), (long long) cached_bytes[device].live);
         }
 
         // Reset device

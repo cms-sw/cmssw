@@ -2,21 +2,35 @@
 #define HeterogeneousCore_CUDAUtilities_cudaCheck_h
 
 #include <iostream>
+#include <sstream>
 #include <cuda.h>
 #include <cuda_runtime.h>
+
+namespace {
+
+  inline
+  void printCudaErrorMessage(const char* file, int line, const char* cmd, const char* error, const char* message) {
+    std::ostringstream out;
+    out << "\n";
+    out << file << ", line " << line << ":\n";
+    out << "cudaCheck(" << cmd << ");\n";
+    out << error << ": " << message << "\n";
+    std::cerr << out.rdbuf() << std::endl;
+  }
+
+}
 
 inline
 bool cudaCheck_(const char* file, int line, const char* cmd, CUresult result)
 {
-    //std::cerr << file << ", line " << line << ": " << cmd << std::endl;
-    if (result == CUDA_SUCCESS)
+    if (__builtin_expect(result == CUDA_SUCCESS, true))
         return true;
 
     const char* error;
     const char* message;
     cuGetErrorName(result, &error);
     cuGetErrorString(result, &message);
-    std::cerr << file << ", line " << line << ": " << error << ": " << message << std::endl;
+    printCudaErrorMessage(file, line, cmd, error, message);
     abort();
     return false;
 }
@@ -24,13 +38,12 @@ bool cudaCheck_(const char* file, int line, const char* cmd, CUresult result)
 inline
 bool cudaCheck_(const char* file, int line, const char* cmd, cudaError_t result)
 {
-    //std::cerr << file << ", line " << line << ": " << cmd << std::endl;
-    if (result == cudaSuccess)
+    if (__builtin_expect(result == cudaSuccess, true))
         return true;
 
     const char* error = cudaGetErrorName(result);
     const char* message = cudaGetErrorString(result);
-    std::cerr << file << ", line " << line << ": " << error << ": " << message << std::endl;
+    printCudaErrorMessage(file, line, cmd, error, message);
     abort();
     return false;
 }

@@ -286,7 +286,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
     auto maxBin            = allocator.getUntrackedParameter<unsigned int>("maxBin");
     size_t maxCachedBytes  = allocator.getUntrackedParameter<unsigned int>("maxCachedBytes");
     auto maxCachedFraction = allocator.getUntrackedParameter<double>("maxCachedFraction");
-    auto debug = allocator.getUntrackedParameter<bool>("debug");
+    auto debug             = allocator.getUntrackedParameter<bool>("debug");
 
     size_t minCachedBytes = std::numeric_limits<size_t>::max();
     int currentDevice;
