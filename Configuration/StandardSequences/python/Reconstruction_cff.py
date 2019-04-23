@@ -198,9 +198,9 @@ logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstru
 reconstruction_trackingOnly = cms.Sequence(localreco*globalreco_tracking)
 reconstruction_pixelTrackingOnly = cms.Sequence(
     pixeltrackerlocalreco*
-    offlineBeamSpot*
     siPixelClusterShapeCachePreSplitting*
-    recopixelvertexing
+    recopixelvertexing,
+    offlineBeamSpotTask
 )
 
 #need a fully expanded sequence copy

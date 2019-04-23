@@ -22,7 +22,6 @@ namespace siPixelRecHitsHeterogeneousProduct {
 
   struct HitsOnGPU{
      pixelCPEforGPU::ParamsOnGPU const * cpeParams = nullptr;    // forwarded from setup, NOT owned
-     float * bs_d;
      const uint32_t * hitsModuleStart_d; // forwarded from clusters
      uint32_t * hitsLayerStart_d;
      int32_t  * charge_d;

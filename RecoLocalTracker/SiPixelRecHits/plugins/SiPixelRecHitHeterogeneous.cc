@@ -1,9 +1,9 @@
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -64,8 +64,8 @@ private:
   void run(const edm::Handle<SiPixelClusterCollectionNew>& inputhandle, SiPixelRecHitCollectionNew &output, const pixelgpudetails::HitsOnCPU& hoc) const;
 
 
-  edm::EDGetTokenT<reco::BeamSpot> 	 tBeamSpot;
   // The mess with inputs will be cleaned up when migrating to the new framework
+  edm::EDGetTokenT<CUDAProduct<BeamSpotCUDA>> tBeamSpot;
   edm::EDGetTokenT<CUDAProduct<SiPixelClustersCUDA>> token_;
   edm::EDGetTokenT<CUDAProduct<SiPixelDigisCUDA>> tokenDigi_;
   edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;
@@ -82,7 +82,7 @@ private:
 
 SiPixelRecHitHeterogeneous::SiPixelRecHitHeterogeneous(const edm::ParameterSet& iConfig):
   HeterogeneousEDProducer(iConfig),
-  tBeamSpot(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+  tBeamSpot(consumes<CUDAProduct<BeamSpotCUDA>>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
   token_(consumes<CUDAProduct<SiPixelClustersCUDA>>(iConfig.getParameter<edm::InputTag>("heterogeneousSrc"))),
   tokenDigi_(consumes<CUDAProduct<SiPixelDigisCUDA>>(iConfig.getParameter<edm::InputTag>("heterogeneousSrc"))),
   cpeName_(iConfig.getParameter<std::string>("CPE"))
@@ -100,7 +100,7 @@ SiPixelRecHitHeterogeneous::SiPixelRecHitHeterogeneous(const edm::ParameterSet& 
 void SiPixelRecHitHeterogeneous::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpotCUDA"));
   desc.add<edm::InputTag>("heterogeneousSrc", edm::InputTag("siPixelClustersCUDAPreSplitting"));
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersPreSplitting"));
   desc.add<std::string>("CPE", "PixelCPEFast");
@@ -183,6 +183,10 @@ void SiPixelRecHitHeterogeneous::acquireGPUCuda(const edm::HeterogeneousEvent& i
   iEvent.getByToken(tokenDigi_, hdigis);
   auto const& digis = ctx.get(*hdigis);
 
+  edm::Handle<CUDAProduct<BeamSpotCUDA>> hbs;
+  iEvent.getByToken(tBeamSpot, hbs);
+  auto const& bs = ctx.get(*hbs);
+
   // We're processing in a stream given by base class, so need to
   // synchronize explicitly (implementation is from
   // CUDAScopedContext). In practice these should not be needed
@@ -193,13 +197,8 @@ void SiPixelRecHitHeterogeneous::acquireGPUCuda(const edm::HeterogeneousEvent& i
   if(not hdigis->isAvailable() and not hdigis->event()->has_occurred()) {
     cudaCheck(cudaStreamWaitEvent(cudaStream.id(), hclusters->event()->id(), 0));
   }
-
-  edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByToken( tBeamSpot, bsHandle);
-  float bs[3] = {0.f};
-  if(bsHandle.isValid()) {
-    const auto  & bsh = *bsHandle;
-    bs[0]=bsh.x0(); bs[1]=bsh.y0(); bs[2]=bsh.z0();
+  if(not hbs->isAvailable() and not hbs->event()->has_occurred()) {
+    cudaCheck(cudaStreamWaitEvent(cudaStream.id(), hbs->event()->id(), 0));
   }
 
   gpuAlgo_->makeHitsAsync(digis, clusters, bs, fcpe->getGPUProductAsync(cudaStream), enableTransfer_, cudaStream);

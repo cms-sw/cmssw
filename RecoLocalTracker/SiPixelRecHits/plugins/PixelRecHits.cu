@@ -36,7 +36,6 @@ namespace pixelgpudetails {
 
     constexpr auto MAX_HITS = siPixelRecHitsHeterogeneousProduct::maxHits();
 
-    cudaCheck(cudaMalloc((void **) & gpu_.bs_d, 3 * sizeof(float)));
     cudaCheck(cudaMalloc((void **) & gpu_.hitsLayerStart_d, 11 * sizeof(uint32_t)));
 
     // Coalesce all 32bit and 16bit arrays to two big blobs
@@ -111,7 +110,6 @@ namespace pixelgpudetails {
 #endif
   }
   PixelRecHitGPUKernel::~PixelRecHitGPUKernel() {
-    cudaCheck(cudaFree(gpu_.bs_d));
     cudaCheck(cudaFree(gpu_.hitsLayerStart_d));
     cudaCheck(cudaFree(gpu_.owner_32bit_));
     cudaCheck(cudaFree(gpu_.owner_16bit_));
@@ -131,11 +129,10 @@ namespace pixelgpudetails {
 
   void PixelRecHitGPUKernel::makeHitsAsync(SiPixelDigisCUDA const& digis_d,
                                            SiPixelClustersCUDA const& clusters_d,
-                                           float const * bs,
+                                           BeamSpotCUDA const& bs_d,
                                            pixelCPEforGPU::ParamsOnGPU const * cpeParams,
                                            bool transferToCPU,
                                            cuda::stream_t<>& stream) {
-    cudaCheck(cudaMemcpyAsync(gpu_.bs_d, bs, 3 * sizeof(float), cudaMemcpyDefault, stream.id()));
     gpu_.hitsModuleStart_d = clusters_d.clusModuleStart();
     gpu_.cpeParams = cpeParams; // copy it for use in clients
     cudaCheck(cudaMemcpyAsync(gpu_d, &gpu_, sizeof(HitsOnGPU), cudaMemcpyDefault, stream.id()));
@@ -148,7 +145,7 @@ namespace pixelgpudetails {
 #endif
     gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream.id()>>>(
       cpeParams,
-      gpu_.bs_d,
+      bs_d.data(),
       digis_d.moduleInd(),
       digis_d.xx(), digis_d.yy(), digis_d.adc(),
       clusters_d.moduleStart(),

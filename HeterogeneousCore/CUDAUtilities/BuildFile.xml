@@ -1,5 +1,6 @@
 <use name="cub"/>
 <use name="cuda"/>
+<use name="cuda-api-wrappers"/>
 
 <export>
     <lib name="1"/>

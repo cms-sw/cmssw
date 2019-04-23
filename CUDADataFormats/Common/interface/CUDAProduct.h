@@ -45,6 +45,12 @@ private:
     data_(std::move(data))
   {}
 
+  template <typename... Args>
+  explicit CUDAProduct(int device, std::shared_ptr<cuda::stream_t<>> stream, std::shared_ptr<cuda::event_t> event, Args&&... args):
+    CUDAProductBase(device, std::move(stream), std::move(event)),
+    data_(std::forward<Args>(args)...)
+  {}
+
   T data_; //!
 };
 

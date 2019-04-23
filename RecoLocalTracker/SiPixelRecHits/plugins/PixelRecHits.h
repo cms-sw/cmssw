@@ -1,6 +1,7 @@
 #ifndef RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHits_h
 #define RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHits_h
 
+#include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusteringConstants.h"
@@ -34,7 +35,7 @@ namespace pixelgpudetails {
 
     void makeHitsAsync(SiPixelDigisCUDA const& digis_d,
                        SiPixelClustersCUDA const& clusters_d,
-                       float const * bs,
+                       BeamSpotCUDA const& bs_d,
                        pixelCPEforGPU::ParamsOnGPU const * cpeParams,
                        bool transferToCPU,
                        cuda::stream_t<>& stream);

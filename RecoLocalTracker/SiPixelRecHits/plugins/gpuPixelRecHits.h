@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <limits>
 
+#include "CUDADataFormats/BeamSpot/interface/BeamSpotCUDA.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
@@ -15,7 +16,7 @@ namespace gpuPixelRecHits {
 
 
   __global__ void getHits(pixelCPEforGPU::ParamsOnGPU const * __restrict__  cpeParams,
-                          float const * __restrict__  bs,
+                          BeamSpotCUDA::Data const * __restrict__  bs,
                           uint16_t const * __restrict__  id,
 			  uint16_t const * __restrict__  x,
 			  uint16_t const * __restrict__  y,
@@ -143,9 +144,9 @@ namespace gpuPixelRecHits {
     // to global and compute phi... 
     cpeParams->detParams(me).frame.toGlobal(xl[h],yl[h], xg[h],yg[h],zg[h]);
     // here correct for the beamspot...
-    xg[h]-=bs[0];
-    yg[h]-=bs[1];
-    zg[h]-=bs[2];
+    xg[h]-=bs->x;
+    yg[h]-=bs->y;
+    zg[h]-=bs->z;
 
     rg[h] = std::sqrt(xg[h]*xg[h]+yg[h]*yg[h]);
     iph[h] = unsafe_atan2s<7>(yg[h],xg[h]);
