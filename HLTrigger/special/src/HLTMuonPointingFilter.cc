@@ -39,6 +39,9 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
   thePropagatorName(pset.getParameter<std::string>("PropagatorName") ),
   theRadius(        pset.getParameter<double>("radius") ),              // cyl's radius (cm)
   theMaxZ(          pset.getParameter<double>("maxZ") ),                // cyl's half lenght (cm)
+  thenPixHits(      pset.getParameter<int>("nPixHits") ),               // pixel hits
+  theTkLayers(      pset.getParameter<int>("TkLayers") ),               // tracker layers with measurements
+  thenMuonHits(     pset.getParameter<int>("nMuonHits") ),              // tracker layers with measurements
   thePropagator(nullptr),
   m_cacheRecordId(0)
 {
@@ -55,7 +58,10 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
 
   LogDebug("HLTMuonPointing") << " SALabel : " << pset.getParameter<edm::InputTag>("SALabel")
     << " Radius : " << theRadius
-    << " Half lenght : " << theMaxZ;
+    << " Half lenght : " << theMaxZ
+    << " Min pixel hits : " << thenPixHits
+    << " Min tk layers measurements : " << theTkLayers;
+
 }
 
 /// Destructor
@@ -94,6 +100,12 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
     reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry);
 
+    const reco::HitPattern& p = track.hitPattern();
+
+    const auto pixelHits = p.numberOfValidPixelHits();
+    const auto trkLayers = p.trackerLayersWithMeasurement();
+    const auto nMuonHits = p.numberOfValidMuonHits();    
+
     TrajectoryStateOnSurface innerTSOS = track.innermostMeasurementState();
 
     LogDebug("HLTMuonPointing") << " InnerTSOS " << innerTSOS;
@@ -104,8 +116,17 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
     if ( tsosAtCyl.isValid() ) {
       LogDebug("HLTMuonPointing") << " extrap TSOS " << tsosAtCyl;
       if (fabs(tsosAtCyl.globalPosition().z())<theMaxZ ) {
-        accept=true;
-        return accept;
+	if(pixelHits >= thenPixHits){
+	  LogDebug("HLTMuonPointing") << " number of pixel hits " << pixelHits;
+	  if(trkLayers >= theTkLayers){
+	    LogDebug("HLTMuonPointing") << " number of tracker layers with interactions " << trkLayers;
+	    if(nMuonHits >= thenMuonHits){
+	      LogDebug("HLTMuonPointing") << " number of muon hits " << nMuonHits;
+	      accept=true;
+	      return accept;
+	    }
+	  }
+	}
       }
       else {
         LogDebug("HLTMuonPointing") << " extrap TSOS z too big " << tsosAtCyl.globalPosition().z();
@@ -117,8 +138,17 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
 
 	if (tsosAtPlane.isValid()){
 	  if (tsosAtPlane.globalPosition().perp()< theRadius){
-	    accept=true;
-	    return accept;
+	    if (pixelHits >= thenPixHits){
+	      LogDebug("HLTMuonPointing") << " number of pixel hits " << pixelHits;
+	      if(trkLayers >= theTkLayers){
+		LogDebug("HLTMuonPointing") << " number of tracker layers with interactions " << trkLayers;
+		if(nMuonHits >= thenMuonHits){
+		  LogDebug("HLTMuonPointing") << " number of muon hits " << nMuonHits;
+		  accept=true;
+		  return accept;
+		}
+	      }
+	    }
 	  }
 	}
 	else
@@ -140,6 +170,9 @@ void HLTMuonPointingFilter::fillDescriptions(edm::ConfigurationDescriptions & de
   desc.add<std::string>("PropagatorName", "SteppingHelixPropagatorAny");
   desc.add<double>("radius", 90.0);
   desc.add<double>("maxZ", 280.0);
+  desc.add<int>("nPixHits",  0);
+  desc.add<int>("TkLayers",  0);
+  desc.add<int>("nMuonHits", 0);
 
   descriptions.add("hltMuonPointingFilter", desc);
 }

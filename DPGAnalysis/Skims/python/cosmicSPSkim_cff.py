@@ -7,6 +7,9 @@ cosmicMuonsBarrelOnlyFilter = cms.EDFilter("HLTMuonPointingFilter",
     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
     radius = cms.double(10.0),
     maxZ = cms.double(50.0),
+    nPixHits = cms.int32(0),
+    TkLayers = cms.int32(0),
+    nMuonHits = cms.int32(0),                              
 )
 
 cosmicMuonsFilter = cms.EDFilter("HLTMuonPointingFilter",
@@ -14,6 +17,9 @@ cosmicMuonsFilter = cms.EDFilter("HLTMuonPointingFilter",
     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
     radius = cms.double(10.0),
     maxZ = cms.double(50.0),
+    nPixHits = cms.int32(0),
+    TkLayers = cms.int32(0),
+    nMuonHits = cms.int32(0),                              
 )
 
 cosmicMuons1LegFilter = cms.EDFilter("HLTMuonPointingFilter",
@@ -21,6 +27,9 @@ cosmicMuons1LegFilter = cms.EDFilter("HLTMuonPointingFilter",
     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
     radius = cms.double(10.0),
     maxZ = cms.double(50.0),
+    nPixHits = cms.int32(0),
+    TkLayers = cms.int32(0),
+    nMuonHits = cms.int32(0),                              
 )
 
 globalCosmicMuonsBarrelOnlyFilter = cms.EDFilter("HLTMuonPointingFilter",
@@ -28,6 +37,9 @@ globalCosmicMuonsBarrelOnlyFilter = cms.EDFilter("HLTMuonPointingFilter",
     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
     radius = cms.double(10.0),
     maxZ = cms.double(50.0),
+    nPixHits = cms.int32(0),
+    TkLayers = cms.int32(0),
+    nMuonHits = cms.int32(0),                              
 )
 
 cosmictrackfinderP5Filter = cms.EDFilter("HLTMuonPointingFilter",
@@ -35,13 +47,19 @@ cosmictrackfinderP5Filter = cms.EDFilter("HLTMuonPointingFilter",
     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
     radius = cms.double(10.0),
     maxZ = cms.double(50.0),
+    nPixHits = cms.int32(0),
+    TkLayers = cms.int32(0),
+    nMuonHits = cms.int32(0),                              
 )
 
 globalCosmicMuonsFilter = cms.EDFilter("HLTMuonPointingFilter",
     SALabel = cms.InputTag("globalCosmicMuons"),
     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
-    radius = cms.double(10.0),
-    maxZ = cms.double(50.0),
+    radius = cms.double(1.0),
+    maxZ = cms.double(5.0),
+    nPixHits = cms.int32(0),
+    TkLayers = cms.int32(0),
+    nMuonHits = cms.int32(0),                              
 )
 
 rsWithMaterialTracksP5Filter = cms.EDFilter("HLTMuonPointingFilter",
@@ -49,6 +67,9 @@ rsWithMaterialTracksP5Filter = cms.EDFilter("HLTMuonPointingFilter",
     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
     radius = cms.double(10.0),
     maxZ = cms.double(50.0),
+    nPixHits = cms.int32(0),
+    TkLayers = cms.int32(0),
+    nMuonHits = cms.int32(0),                              
 )
 
 globalCosmicMuons1LegFilter = cms.EDFilter("HLTMuonPointingFilter",
@@ -56,6 +77,9 @@ globalCosmicMuons1LegFilter = cms.EDFilter("HLTMuonPointingFilter",
     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
     radius = cms.double(10.0),
     maxZ = cms.double(50.0),
+    nPixHits = cms.int32(0),
+    TkLayers = cms.int32(0),
+    nMuonHits = cms.int32(0),                              
 )
 
 ctfWithMaterialTracksP5Filter = cms.EDFilter("HLTMuonPointingFilter",
@@ -63,6 +87,9 @@ ctfWithMaterialTracksP5Filter = cms.EDFilter("HLTMuonPointingFilter",
     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
     radius = cms.double(10.0),
     maxZ = cms.double(50.0),
+    nPixHits = cms.int32(0),
+    TkLayers = cms.int32(0),
+    nMuonHits = cms.int32(0),                              
 )
 
 
