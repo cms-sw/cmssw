@@ -40,6 +40,7 @@ class BPHFitSelect {
    */
   virtual ~BPHFitSelect();
 
+  using AcceptArg = BPHKinematicFit;
   /** Operations
    */
   /// accept function
