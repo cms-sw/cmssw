@@ -39,9 +39,9 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
   thePropagatorName(pset.getParameter<std::string>("PropagatorName") ),
   theRadius(        pset.getParameter<double>("radius") ),              // cyl's radius (cm)
   theMaxZ(          pset.getParameter<double>("maxZ") ),                // cyl's half lenght (cm)
-  thenPixHits(      pset.getParameter<unsigned int>("nPixHits") ),      // pixel hits
+  thePixHits(       pset.getParameter<unsigned int>("PixHits") ),       // pixel hits
   theTkLayers(      pset.getParameter<unsigned int>("TkLayers") ),      // tracker layers with measurements
-  thenMuonHits(     pset.getParameter<unsigned int>("nMuonHits") ),     // muon hits
+  theMuonHits(      pset.getParameter<unsigned int>("MuonHits") ),      // muon hits
   thePropagator(nullptr),
   m_cacheRecordId(0)
 {
@@ -59,8 +59,9 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
   LogDebug("HLTMuonPointing") << " SALabel : " << pset.getParameter<edm::InputTag>("SALabel")
     << " Radius : " << theRadius
     << " Half lenght : " << theMaxZ
-    << " Min pixel hits : " << thenPixHits
-    << " Min tk layers measurements : " << theTkLayers;
+    << " Min pixel hits : " << thePixHits
+    << " Min tk layers measurements : " << theTkLayers
+    << " Min muon hits : " << theMuonHits;
 
 }
 
@@ -119,9 +120,9 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
         << " number of tracker layers with interactions " << trkLayers
 	<< " number of muon hits " << nMuonHits;
       if (fabs(tsosAtCyl.globalPosition().z())<theMaxZ ) {
-	if(pixelHits >= thenPixHits){
+	if(pixelHits >= thePixHits){
 	  if(trkLayers >= theTkLayers){
-	    if(nMuonHits >= thenMuonHits){
+	    if(nMuonHits >= theMuonHits){
 	      accept=true;
 	      return accept;
 	    }
@@ -141,9 +142,9 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
 
 	if (tsosAtPlane.isValid()){
 	  if (tsosAtPlane.globalPosition().perp()< theRadius){
-	    if (pixelHits >= thenPixHits){
+	    if (pixelHits >= thePixHits){
 	      if(trkLayers >= theTkLayers){
-		if(nMuonHits >= thenMuonHits){
+	  	if(nMuonHits >= theMuonHits){
 		  accept=true;
 		  return accept;
 		}
@@ -170,9 +171,9 @@ void HLTMuonPointingFilter::fillDescriptions(edm::ConfigurationDescriptions & de
   desc.add<std::string>("PropagatorName", "SteppingHelixPropagatorAny");
   desc.add<double>("radius", 90.0);
   desc.add<double>("maxZ", 280.0);
-  desc.add<unsigned int>("nPixHits",  0);
+  desc.add<unsigned int>("PixHits",  0);
   desc.add<unsigned int>("TkLayers",  0);
-  desc.add<unsigned int>("nMuonHits", 0);
+  desc.add<unsigned int>("MuonHits", 0);
 
   descriptions.add("hltMuonPointingFilter", desc);
 }
