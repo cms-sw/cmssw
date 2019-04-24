@@ -390,9 +390,9 @@ int HGCalDDDConstants::getLayer(double z, bool reco) const {
   auto itr = std::find_if(zLayerHex.begin() + 1, zLayerHex.end(),
 			  [&k, &zz, &zLayerHex](double zLayer) {
 			    ++k;
-			    return zz < 0.5 * (zLayerHex[k - 1] + zLayerHex[k]);
+			    return zz < 0.5 * (zLayerHex[k-1] + zLayerHex[k]);
 			  });
-  int lay =(itr == zLayerHex.end()) ? (int)(zLayerHex.size()) :  k;
+  int lay = (itr == zLayerHex.end()) ? static_cast<int>(zLayerHex.size()) :  k;
   if (((mode_ == HGCalGeometryMode::Hexagon) ||
        (mode_ == HGCalGeometryMode::HexagonFull)) &&
       reco) {
