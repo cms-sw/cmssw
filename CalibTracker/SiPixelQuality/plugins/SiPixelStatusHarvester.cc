@@ -444,6 +444,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                //int ring = coord_.ring(DetId(detid));
 
                double DetAverage_local = SiPixelStatusHarvester::perLayerRingAverage(detid,tmpSiPixelStatus);
+               
 
                BadModulePCL.DetID = uint32_t(detid); BadModuleOther.DetID = uint32_t(detid);
                BadModulePCL.errorType = 3; BadModuleOther.errorType = 3;
@@ -672,7 +673,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
              std::cout<<"digiLossp1 "<<digiLossp1[substructures[s]]<<endl;
              std::cout<<"digiLossp2 "<<digiLossp2[substructures[s]]<<endl;
              std::cout<<"digiLossp5 "<<digiLossp5[substructures[s]]<<endl;
-             */
+             */ 
 
              p001[substructures[s]]->Fill(digiLossp001[substructures[s]]*1.0/digiTotal[substructures[s]],interval);
              p005[substructures[s]]->Fill(digiLossp005[substructures[s]]*1.0/digiTotal[substructures[s]],interval);
@@ -834,7 +835,7 @@ double SiPixelStatusHarvester::perLayerRingAverage(int detid, SiPixelDetectorSta
 
           int layer  = coord_.layer(DetId(detid));
           int ring   = coord_.ring(DetId(detid));
-          int module = coord_.module(DetId(detid)); 
+          int module = abs(coord_.signed_module(DetId(detid)));
 
           std::map<int, SiPixelModuleStatus> detectorStatus = tmpSiPixelStatus.getDetectorStatus();
           std::map<int, SiPixelModuleStatus>::iterator itModEnd = detectorStatus.end();
@@ -843,7 +844,7 @@ double SiPixelStatusHarvester::perLayerRingAverage(int detid, SiPixelDetectorSta
                if( layer != coord_.layer(DetId(itMod->first)) ) continue;
                if( ring != coord_.ring(DetId(itMod->first)) ) continue;
                if( layer==1 ){
-                 if( module != coord_.ring(DetId(itMod->first))) continue;                  
+                 if( module != abs(coord_.signed_module(DetId(itMod->first)))) continue;                  
                }
                unsigned long int inc = itMod->second.digiOccMOD();
                ave += inc;
