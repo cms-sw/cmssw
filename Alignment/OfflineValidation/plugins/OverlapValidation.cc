@@ -93,7 +93,7 @@ using namespace std;
 class OverlapValidation : public edm::EDAnalyzer {
 public:
   explicit OverlapValidation(const edm::ParameterSet&);
-  ~OverlapValidation();
+  ~OverlapValidation() override;
 
 private:
   typedef vector<Trajectory> TrajectoryCollection;
@@ -102,8 +102,8 @@ private:
 
   edm::EDGetTokenT<TrajectoryCollection> trajectoryToken_;
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   virtual void analyze(const Trajectory&, const Propagator&, TrackerHitAssociator&, const TrackerTopology* const tTopo);
   int layerFromId (const DetId&,  const TrackerTopology* const tTopo) const;
@@ -187,7 +187,7 @@ using std::vector;
 // constructors and destructor
 //
 OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig) :
-  config_(iConfig), rootTree_(0),
+  config_(iConfig), rootTree_(nullptr),
   FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"),
   addExtraBranches_(false)
 {
@@ -317,7 +317,7 @@ OverlapValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     TrackerHitAssociator::Config hitassociatorconfig(config_, consumesCollector());
     associator = new TrackerHitAssociator(iEvent, hitassociatorconfig);
   } else {
-    associator = 0;
+    associator = nullptr;
   
 
   }  
