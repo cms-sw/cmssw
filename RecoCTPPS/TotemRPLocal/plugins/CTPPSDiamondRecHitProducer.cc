@@ -92,12 +92,12 @@ CTPPSDiamondRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& de
 
   desc.add<edm::InputTag>( "digiTag", edm::InputTag( "ctppsDiamondRawToDigi", "TimingDiamond" ) )
     ->setComment( "input digis collection to retrieve" );
+  desc.add<std::string>( "timingCalibrationTag", "GlobalTag:PPSDiamondTimingCalibration" )
+    ->setComment( "input tag for timing calibrations retrieval" );
   desc.add<double>( "timeSliceNs", 25.0/1024.0 )
     ->setComment( "conversion constant between HPTDC timing bin size and nanoseconds" );
   desc.add<int>( "timeShift", 0 ) // to be determined at calibration level, will be replaced by a map channel id -> time shift
     ->setComment( "overall time offset to apply on all hits in all channels" );
-  desc.add<std::string>( "timingCalibrationTag", "GlobalTag:PPSDiamondTimingCalibration" )
-    ->setComment( "input tag for timing calibrations retrieval" );
 
   descr.add( "ctppsDiamondRecHits", desc );
 }
