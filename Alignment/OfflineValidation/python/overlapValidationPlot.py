@@ -224,7 +224,7 @@ def plot(file_name,subdet_ids,module_directions,overlap_directions,profile_direc
 					currhstack = hstack[subdet][module][overlap][profile]
 					currhstack.SetMaximum(currhstack.GetMaximum("nostack") * 1.2)    
 					c = ROOT.TCanvas()
-					currhstack.Draw("nostack")
+					currhstack.Draw("hist nostack" if profile == 0 else "nostack")
 					currLegend.Draw()
 					xTitle = "hit_{A} - pred_{A} - (hit_{B} - pred_{B}) (#mum)"
 					yTitle="fraction of events"
