@@ -44,6 +44,7 @@ class BPHRecoSelect {
    */
   virtual ~BPHRecoSelect();
 
+  using AcceptArg = reco::Candidate;
   /** Operations
    */
   /// accept function
