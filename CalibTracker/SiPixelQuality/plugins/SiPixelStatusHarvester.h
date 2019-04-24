@@ -115,6 +115,11 @@ private:
   // for testing threshold
   TFile * histoFile;
   std::map<std::string, TH1F*> p001, p005, p01, p05, p1, p2, p5;
+  std::map<std::string, TTree*> digiTrees;
+  double _digiTotal, _digiLossp001, _digiLossp005, _digiLossp01, _digiLossp05, _digiLossp1, _digiLossp2, _digiLossp5;
+  int _interval;
+
+  std::map<unsigned int,float> instLumi;
 
 };
 
