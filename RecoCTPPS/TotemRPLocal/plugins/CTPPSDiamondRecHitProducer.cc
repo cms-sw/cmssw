@@ -43,6 +43,8 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 
     edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
 
+    /// Label to timing calibration tag
+    edm::ESInputTag timingCalibrationTag_;
     /// A watcher to detect timing calibration changes.
     edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 
@@ -51,6 +53,7 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 
 CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer( const edm::ParameterSet& iConfig ) :
   digiToken_( consumes<edm::DetSetVector<CTPPSDiamondDigi> >( iConfig.getParameter<edm::InputTag>( "digiTag" ) ) ),
+  timingCalibrationTag_( iConfig.getParameter<std::string>( "timingCalibrationTag" ) ),
   algo_( iConfig )
 {
   produces<edm::DetSetVector<CTPPSDiamondRecHit> >();
@@ -68,7 +71,7 @@ CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
   if ( !digis->empty() ) {
     if ( calibWatcher_.check( iSetup ) ) {
       edm::ESHandle<PPSTimingCalibration> hTimingCalib;
-      iSetup.get<PPSTimingCalibrationRcd>().get( hTimingCalib );
+      iSetup.get<PPSTimingCalibrationRcd>().get( timingCalibrationTag_, hTimingCalib );
       algo_.setCalibration( *hTimingCalib );
     }
     // get the geometry
