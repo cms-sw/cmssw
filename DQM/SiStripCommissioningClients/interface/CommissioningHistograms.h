@@ -80,10 +80,6 @@ class CommissioningHistograms {
   static void copyCustomInformation( DQMStore* const,
 				     const std::vector<std::string>& );
   
-  /** Retrieves list of histograms in form of strings. */
-  static void getContents( DQMStore* const,
-			   std::vector<std::string>& );
-  
   void extractHistograms( const std::vector<std::string>& );
 
   // DEPRECATE

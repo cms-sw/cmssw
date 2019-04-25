@@ -49,7 +49,6 @@ private:
 
 //  double getUTCtime(timeval* a, timeval* b = NULL);
 
-  DQMStore *dbe_;
 
   std::string eventInfoFolder_;
   std::string subsystemname_;

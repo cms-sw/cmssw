@@ -20,7 +20,6 @@ MonitorLTC::MonitorLTC(
                   //  ltcDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("ltcDigiCollectionTag"))
 {
   HLTDirectory = "HLTResults";
-  dqmStore_ = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
 
   ltcDigiCollectionTagToken_ = consumes<LTCDigiCollection>(
