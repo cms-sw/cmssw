@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/streamTransitionAsync.h"
 #include "FWCore/Framework/src/globalTransitionAsync.h"
@@ -276,7 +277,7 @@ TestProcessor::beginJob() {
   //checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, false);
   actReg_->preBeginJobSignal_(pathsAndConsumesOfModules, processContext_);
 
-  schedule_->beginJob(*preg_);
+  schedule_->beginJob(*preg_, esp_->recordsToProxyIndices());
   actReg_->postBeginJobSignal_();
   
   for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {

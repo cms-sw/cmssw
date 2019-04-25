@@ -137,7 +137,7 @@ namespace edm {
           r.setProducer(this->producer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
-          const EventSetup c{ci};
+          const EventSetup c{ci,static_cast<unsigned int>(Transition::BeginRun),this->consumer()->esGetTokenIndices(Transition::BeginRun)};
           MyGlobalRun::beginRun(cnstR,c,m_global.get(),m_runs[ri]);
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
           MyGlobalRunSummary::beginRun(cnstR,c,&rc,m_runSummaries[ri]);
@@ -159,7 +159,7 @@ namespace edm {
 
           RunIndex ri = rp.index();
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
-          const EventSetup c{ci};
+          const EventSetup c{ci,static_cast<unsigned int>(Transition::EndRun),this->consumer()->esGetTokenIndices(Transition::EndRun)};
           if constexpr (T::HasAbility::kEndRunProducer) {
             MyEndRunProduce::produce(r,c,&rc,m_runSummaries[ri].get());
             this->commit(r);
@@ -180,7 +180,7 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::RunContext rc(m_runs[ri].get(),m_global.get());
-          const EventSetup c{ci};
+          const EventSetup c{ci,static_cast<unsigned int>(Transition::BeginLuminosityBlock),this->consumer()->esGetTokenIndices(Transition::BeginLuminosityBlock)};
 
           MyGlobalLuminosityBlock::beginLuminosityBlock(cnstLb,c,&rc,m_lumis[li]);
           typename T::LuminosityBlockContext lc(m_lumis[li].get(),m_runs[ri].get(),m_global.get());
@@ -204,7 +204,7 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::LuminosityBlockContext lc(m_lumis[li].get(),m_runs[ri].get(),m_global.get());
-          const EventSetup c{ci};
+          const EventSetup c{ci,static_cast<unsigned int>(Transition::EndLuminosityBlock),this->consumer()->esGetTokenIndices(Transition::EndLuminosityBlock)};
           if constexpr (T::HasAbility::kEndLuminosityBlockProducer) {
             MyEndLuminosityBlockProduce::produce(lb,c,&lc,m_lumiSummaries[li].get());
             this->commit(lb);

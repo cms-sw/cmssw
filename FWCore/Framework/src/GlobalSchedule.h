@@ -100,7 +100,7 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProductRegistry const&);
+    void beginJob(ProductRegistry const&,eventsetup::ESRecordsToProxyIndices const&);
     void endJob(ExceptionCollector & collector);
     
     /// Return a vector allowing const access to all the

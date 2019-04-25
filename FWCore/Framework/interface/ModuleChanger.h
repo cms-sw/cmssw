@@ -24,6 +24,7 @@
 
 // user include files
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 
 // forward declarations
 
@@ -35,7 +36,7 @@ namespace edm {
    class ModuleChanger {
 
    public:
-      ModuleChanger(Schedule*, ProductRegistry const* iReg);
+      ModuleChanger(Schedule*, ProductRegistry const* iReg, eventsetup::ESRecordsToProxyIndices);
       virtual ~ModuleChanger();
 
       // ---------- const member functions ---------------------
@@ -54,6 +55,7 @@ namespace edm {
       // ---------- member data --------------------------------
       edm::propagate_const<Schedule*> schedule_;
       ProductRegistry const* registry_;
+      eventsetup::ESRecordsToProxyIndices indices_;
    };
 }
 #endif

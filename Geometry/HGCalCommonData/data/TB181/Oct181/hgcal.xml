@@ -3,7 +3,7 @@
 
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="rmin"          value="0.0*fm"/>
-  <Constant name="rmax"          value="50.0*cm"/>
+  <Constant name="rmax"          value="52.0*cm"/>
   <Constant name="zCaloFront"    value="2500*cm"/>
   <Constant name="rminEE"        value="0.0*fm"/>
   <Constant name="rmaxEE"        value="8.0*cm"/>
@@ -16,7 +16,7 @@
   <Constant name="zminHE"        value="0.0*fm"/>
   <Constant name="zmaxHE"        value="94.5*cm"/>
   <Constant name="rminAH"        value="0.0*fm"/>
-  <Constant name="rmaxAH"        value="30.0*cm"/>
+  <Constant name="rmaxAH"        value="[rmax]"/>
   <Constant name="zminAH"        value="0.0*fm"/>
   <Constant name="zmaxAH"        value="114*cm"/>
   <Constant name="zgapEEFH"      value="3.5*cm"/>
@@ -94,7 +94,6 @@
     <ZSection z="-[thCuPCB]/2" rMin="0*fm" rMax="[WaferW]/2"/>
     <ZSection z= "[thCuPCB]/2" rMin="0*fm" rMax="[WaferW]/2"/>
   </Polyhedra>
-
   <Polyhedra name="HGCalEEAbs" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
     <ZSection z="-[thAbsEE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
     <ZSection z= "[thAbsEE]/2" rMin="0*fm" rMax="[WaferW]/2"/>
@@ -225,6 +224,10 @@
   <LogicalPart name="HGCalHEPCBAbsorber" category="unspecified">
     <rSolid name="HGCalHEPCBAbs"/>
     <rMaterial name="materials:G10"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHEAirAbsorber" category="unspecified">
+    <rSolid name="HGCalHEPCBAbs"/>
+    <rMaterial name="materials:Air"/>
   </LogicalPart>
 </LogicalPartSection>
 

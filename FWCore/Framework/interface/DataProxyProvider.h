@@ -38,7 +38,7 @@ namespace edm {
    class ConfigurationDescriptions;
    namespace eventsetup {
       class DataProxy;
-      
+      class ESRecordsToProxyIndices;
       
 class DataProxyProvider
 {
@@ -65,7 +65,9 @@ class DataProxyProvider
       static void prevalidate(ConfigurationDescriptions&);
 
       // ---------- member functions ---------------------------
-      
+
+      virtual void updateLookup(ESRecordsToProxyIndices const&);
+
       ///called when a new interval of validity occurs for iRecordType
       virtual void newInterval(const EventSetupRecordKey& iRecordType,
                                 const ValidityInterval& iInterval) = 0;

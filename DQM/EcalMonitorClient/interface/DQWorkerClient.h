@@ -20,11 +20,12 @@ namespace ecaldqm
     };
 
     DQWorkerClient();
-    virtual ~DQWorkerClient() {}
+    ~DQWorkerClient() override {}
 
     static void fillDescriptions(edm::ParameterSetDescription&);
 
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void resetPerLumi();
 
     void bookMEs(DQMStore::IBooker&) override;
     void releaseMEs() override;

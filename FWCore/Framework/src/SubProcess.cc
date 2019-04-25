@@ -26,6 +26,7 @@
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/streamTransitionAsync.h"
 #include "FWCore/Framework/src/globalTransitionAsync.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
@@ -241,7 +242,7 @@ namespace edm {
     //NOTE: this may throw
     checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, false);
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
-    schedule_->beginJob(*preg_);
+    schedule_->beginJob(*preg_, esp_->recordsToProxyIndices());
     for_all(subProcesses_, [](auto& subProcess){ subProcess.doBeginJob(); });
   }
 

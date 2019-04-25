@@ -38,7 +38,7 @@ namespace edm {
     e.setConsumer(this);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act,mcc);
-    const EventSetup c{ci};
+    const EventSetup c{ci,static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event)};
     this->analyze(e, c);
     return true;
   }
@@ -61,7 +61,7 @@ namespace edm {
                          ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc,false);
     r.setConsumer(this);
-    const EventSetup c{ci};
+    const EventSetup c{ci,static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun)};
     this->beginRun(r, c);
     return true;
   }
@@ -71,7 +71,7 @@ namespace edm {
                        ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc,true);
     r.setConsumer(this);
-    const EventSetup c{ci};
+    const EventSetup c{ci,static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun)};
     this->endRun(r, c);
     return true;
   }
@@ -81,7 +81,7 @@ namespace edm {
                                      ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc,false);
     lb.setConsumer(this);
-    const EventSetup c{ci};
+    const EventSetup c{ci,static_cast<unsigned int>(Transition::BeginLuminosityBlock), esGetTokenIndices(Transition::BeginLuminosityBlock)};
     this->beginLuminosityBlock(lb, c);
     return true;
   }
@@ -91,7 +91,7 @@ namespace edm {
                                    ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc,true);
     lb.setConsumer(this);
-    const EventSetup c{ci};
+    const EventSetup c{ci,static_cast<unsigned int>(Transition::EndLuminosityBlock), esGetTokenIndices(Transition::EndLuminosityBlock)};
     this->endLuminosityBlock(lb, c);
     return true;
   }
