@@ -115,7 +115,7 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
     const PFBlockElement::Type type1 = elementTypes_.at(link1);
     const PFBlockElement::Type type2 = elementTypes_.at(link2);    
     const unsigned index  = rowsize*std::max(type1,type2)+std::min(type1,type2);
-    linkTests_[index] = LinkTestPtr{BlockElementLinkerFactory::get()->create(linkerName,conf)};
+    linkTests_[index].reset(BlockElementLinkerFactory::get()->create(linkerName,conf));
     linkTestSquare_[type1][type2] = index;
     linkTestSquare_[type2][type1] = index;
     // setup KDtree if requested
@@ -269,19 +269,6 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
 
 }
 
-// see plugins/linkers for the functions that calculate distances
-// for each available link type
-inline bool
-PFBlockAlgo::linkPrefilter(const reco::PFBlockElement* last, 
-			      const reco::PFBlockElement* next) const {
-  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
-  const PFBlockElement::Type type1 = (last)->type();
-  const PFBlockElement::Type type2 = (next)->type();
-  const unsigned index = rowsize*std::max(type1,type2) + std::min(type1,type2);
-  bool result =  linkTests_[index]->linkPrefilter(last,next);
-  return result;  
-}
-
 inline void 
 PFBlockAlgo::link( const reco::PFBlockElement* el1, 
 		      const reco::PFBlockElement* el2, 
@@ -360,9 +347,8 @@ std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {
   out<<"number of unassociated elements : "<<a.elements_.size()<<endl;
   out<<endl;
   
-  for(PFBlockAlgo::IEC ie = a.elements_.begin(); 
-      ie != a.elements_.end(); ++ie) {
-    out<<"\t"<<**ie <<endl;
+  for(auto const& element : a.elements_) {
+    out<<"\t"<< *element <<endl;
   }
   
   return out;
