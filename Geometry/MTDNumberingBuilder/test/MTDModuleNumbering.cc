@@ -891,7 +891,7 @@ MTDModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 			// TEC+
 		      case 2:
 			{
-			  phiRad = phiRad;
+			  //phiRad unchanged
 			  break;
 			}
 			// TEC-
