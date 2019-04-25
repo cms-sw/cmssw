@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -54,10 +54,6 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h" 
-//#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-//#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-//#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-//#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -90,7 +86,7 @@ using namespace std;
 //
 
 
-class OverlapValidation : public edm::EDAnalyzer {
+class OverlapValidation : public edm::one::EDAnalyzer<> {
 public:
   explicit OverlapValidation(const edm::ParameterSet&);
   ~OverlapValidation() override;
@@ -121,7 +117,9 @@ private:
 
   TTree* rootTree_;
   edm::FileInPath FileInPath_;
-  bool addExtraBranches_;
+  const bool addExtraBranches_;
+  const int minHitsCut_;
+  const float chi2ProbCut_;
 
   float overlapPath_;
   uint layer_;
@@ -189,7 +187,9 @@ using std::vector;
 OverlapValidation::OverlapValidation(const edm::ParameterSet& iConfig) :
   config_(iConfig), rootTree_(nullptr),
   FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"),
-  addExtraBranches_(false)
+  addExtraBranches_(false),
+  minHitsCut_(6),
+  chi2ProbCut_(0.001)
 {
   
   edm::ConsumesCollector&& iC = consumesCollector();
@@ -337,15 +337,14 @@ OverlapValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   //typedef vector<Trajectory> TrajectoryCollection;
   edm::Handle<TrajectoryCollection> trajectoryCollectionHandle;
   iEvent.getByToken(trajectoryToken_,trajectoryCollectionHandle);
-  const TrajectoryCollection* trajectoryCollection = trajectoryCollectionHandle.product();
+  const TrajectoryCollection* const trajectoryCollection = trajectoryCollectionHandle.product();
 
   //
   // loop over trajectories from refit
  edm::ESHandle<TrackerTopology> tTopoHandle;
  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
  const TrackerTopology* const tTopo = tTopoHandle.product(); 
- for ( TrajectoryCollection::const_iterator it=trajectoryCollection->begin();
-	it!=trajectoryCollection->end(); ++it )  analyze(*it,propagator,*associator, tTopo);
+ for (const auto& trajectory : *trajectoryCollection)  analyze(trajectory,propagator,*associator, tTopo);
   
   run_ = iEvent.id().run();
   event_ = iEvent.id().event();
@@ -369,8 +368,8 @@ OverlapValidation::analyze (const Trajectory& trajectory,
   // quality cuts on trajectory
   // min. # hits / matched hits
 
-  if ( trajectory.foundHits()<6 )  return;
-  if ( ChiSquaredProbability((double)( trajectory.chiSquared() ),(double)( trajectory.ndof(false) )) < 0.001 ) return;
+  if ( trajectory.foundHits()<minHitsCut_ )  return;
+  if ( ChiSquaredProbability((double)( trajectory.chiSquared() ),(double)( trajectory.ndof(false) )) < chi2ProbCut_ ) return;
   //
   // loop over measurements in the trajectory and calculate residuals
   //
@@ -391,7 +390,7 @@ OverlapValidation::analyze (const Trajectory& trajectory,
       edm::LogVerbatim("OverlapValidation")  << "Invalid";
       continue;
     }
-    if (barrelOnly_ && (subDet==4 || subDet==6) ) return;
+    if (barrelOnly_ && (subDet==StripSubdetector::TID || subDet==StripSubdetector::TEC) ) return;
 
     //edm::LogVerbatim("OverlapValidation")  << "Check " <<subDet << ", layer = " << layer<<" stereo: "<< ((subDet > 2)?(SiStripDetId(id).stereo()):2);
     //cout << "Check SubID " <<subDet << ", layer = " << layer<<" stereo: "<< ((subDet > 2)?(SiStripDetId(id).stereo()):2) << endl;
@@ -410,8 +409,8 @@ OverlapValidation::analyze (const Trajectory& trajectory,
 	
 	if ( subDet != compareId.subdetId() || layer != layerFromId(compareId, tTopo)) break;
         if (!itmCompare->recHit()->isValid()) continue;
-	if ( (subDet<=2) || 
-	     (subDet > 2 && SiStripDetId(id).stereo()==SiStripDetId(compareId).stereo() )) {
+	if ( (subDet == PixelSubdetector::PixelBarrel || subDet == PixelSubdetector::PixelEndcap) || 
+	     (SiStripDetId(id).stereo()==SiStripDetId(compareId).stereo() )) {
 	  overlapHits.push_back(std::make_pair(&(*itmCompare),&(*itm)));
 	  //edm::LogVerbatim("OverlapValidation") << "adding pair "<< ((subDet > 2)?(SiStripDetId(id).stereo()) : 2)
 	  //			     << " from layer = " << layer;
@@ -435,18 +434,17 @@ OverlapValidation::analyze (const Trajectory& trajectory,
   chi2_[0] = trajectory.chiSquared();
   chi2_[1] = trajectory.ndof(false);
 
-  for ( OverlapContainer::const_iterator iol=overlapHits.begin();
- 	iol!=overlapHits.end(); ++iol ) {
+  for (const auto& overlapHit : overlapHits) {
     //              
     // create reference state @ module 1 (no info from overlap hits)
     //
     ++overlapCounts_[2];
     // backward predicted state at module 1
-     TrajectoryStateOnSurface bwdPred1 = (*iol).first->backwardPredictedState();
+     TrajectoryStateOnSurface bwdPred1 = overlapHit.first->backwardPredictedState();
     if ( !bwdPred1.isValid() )  continue;
     //cout << "momentum from backward predicted state = " << bwdPred1.globalMomentum().mag() << endl;
     // forward predicted state at module 2
-    TrajectoryStateOnSurface fwdPred2 = (*iol).second->forwardPredictedState();
+    TrajectoryStateOnSurface fwdPred2 = overlapHit.second->forwardPredictedState();
     //cout << "momentum from forward predicted state = " << fwdPred2.globalMomentum().mag() << endl;
     if ( !fwdPred2.isValid() )  continue;
     // extrapolate fwdPred2 to module 1
@@ -544,58 +542,58 @@ OverlapValidation::analyze (const Trajectory& trajectory,
     relativeYSign_ = c10Y>0 ? -1 : 1;
 
     // information on modules and hits
-    overlapIds_[0] = (*iol).first->recHit()->geographicalId().rawId();
-    overlapIds_[1] = (*iol).second->recHit()->geographicalId().rawId();
+    overlapIds_[0] = overlapHit.first->recHit()->geographicalId().rawId();
+    overlapIds_[1] = overlapHit.second->recHit()->geographicalId().rawId();
 
     //added by Heshy and Jared
-    moduleX_[0] = (*iol).first->recHit()->det()->surface().position().x();
-    moduleX_[1] = (*iol).second->recHit()->det()->surface().position().x();
-    moduleY_[0] = (*iol).first->recHit()->det()->surface().position().y();
-    moduleY_[1] = (*iol).second->recHit()->det()->surface().position().y();
-    moduleZ_[0] = (*iol).first->recHit()->det()->surface().position().z();
-    moduleZ_[1] = (*iol).second->recHit()->det()->surface().position().z();
-    subdetID = (*iol).first->recHit()->geographicalId().subdetId();
-    localxdotglobalphi_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).phi() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).phi();
-    localxdotglobalphi_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).phi() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).phi();
+    moduleX_[0] = overlapHit.first->recHit()->det()->surface().position().x();
+    moduleX_[1] = overlapHit.second->recHit()->det()->surface().position().x();
+    moduleY_[0] = overlapHit.first->recHit()->det()->surface().position().y();
+    moduleY_[1] = overlapHit.second->recHit()->det()->surface().position().y();
+    moduleZ_[0] = overlapHit.first->recHit()->det()->surface().position().z();
+    moduleZ_[1] = overlapHit.second->recHit()->det()->surface().position().z();
+    subdetID = overlapHit.first->recHit()->geographicalId().subdetId();
+    localxdotglobalphi_[0] = overlapHit.first->recHit()->det()->surface().toGlobal(onezero).phi() - overlapHit.first->recHit()->det()->surface().toGlobal(zerozero).phi();
+    localxdotglobalphi_[1] = overlapHit.second->recHit()->det()->surface().toGlobal(onezero).phi() - overlapHit.second->recHit()->det()->surface().toGlobal(zerozero).phi();
     //added by Jason
-    localxdotglobalr_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).perp() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).perp();
-    localxdotglobalr_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).perp() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).perp();
-    localxdotglobalz_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).z() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).z();
-    localxdotglobalz_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).z() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).z();
-    localxdotglobalx_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).x() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).x();
-    localxdotglobalx_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).x() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).x();
-    localxdotglobaly_[0] = (*iol).first->recHit()->det()->surface().toGlobal(onezero).y() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).y();
-    localxdotglobaly_[1] = (*iol).second->recHit()->det()->surface().toGlobal(onezero).y() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).y();
-    localydotglobalr_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).perp() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).perp();
-    localydotglobalr_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).perp() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).perp();
-    localydotglobalz_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).z() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).z();
-    localydotglobalz_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).z() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).z();
-    localydotglobalx_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).x() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).x();
-    localydotglobalx_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).x() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).x();
-    localydotglobaly_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).y() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).y();
-    localydotglobaly_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).y() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).y();
-    localydotglobalphi_[0] = (*iol).first->recHit()->det()->surface().toGlobal(zeroone).phi() - (*iol).first->recHit()->det()->surface().toGlobal(zerozero).phi();
-    localydotglobalphi_[1] = (*iol).second->recHit()->det()->surface().toGlobal(zeroone).phi() - (*iol).second->recHit()->det()->surface().toGlobal(zerozero).phi();
+    localxdotglobalr_[0] = overlapHit.first->recHit()->det()->surface().toGlobal(onezero).perp() - overlapHit.first->recHit()->det()->surface().toGlobal(zerozero).perp();
+    localxdotglobalr_[1] = overlapHit.second->recHit()->det()->surface().toGlobal(onezero).perp() - overlapHit.second->recHit()->det()->surface().toGlobal(zerozero).perp();
+    localxdotglobalz_[0] = overlapHit.first->recHit()->det()->surface().toGlobal(onezero).z() - overlapHit.first->recHit()->det()->surface().toGlobal(zerozero).z();
+    localxdotglobalz_[1] = overlapHit.second->recHit()->det()->surface().toGlobal(onezero).z() - overlapHit.second->recHit()->det()->surface().toGlobal(zerozero).z();
+    localxdotglobalx_[0] = overlapHit.first->recHit()->det()->surface().toGlobal(onezero).x() - overlapHit.first->recHit()->det()->surface().toGlobal(zerozero).x();
+    localxdotglobalx_[1] = overlapHit.second->recHit()->det()->surface().toGlobal(onezero).x() - overlapHit.second->recHit()->det()->surface().toGlobal(zerozero).x();
+    localxdotglobaly_[0] = overlapHit.first->recHit()->det()->surface().toGlobal(onezero).y() - overlapHit.first->recHit()->det()->surface().toGlobal(zerozero).y();
+    localxdotglobaly_[1] = overlapHit.second->recHit()->det()->surface().toGlobal(onezero).y() - overlapHit.second->recHit()->det()->surface().toGlobal(zerozero).y();
+    localydotglobalr_[0] = overlapHit.first->recHit()->det()->surface().toGlobal(zeroone).perp() - overlapHit.first->recHit()->det()->surface().toGlobal(zerozero).perp();
+    localydotglobalr_[1] = overlapHit.second->recHit()->det()->surface().toGlobal(zeroone).perp() - overlapHit.second->recHit()->det()->surface().toGlobal(zerozero).perp();
+    localydotglobalz_[0] = overlapHit.first->recHit()->det()->surface().toGlobal(zeroone).z() - overlapHit.first->recHit()->det()->surface().toGlobal(zerozero).z();
+    localydotglobalz_[1] = overlapHit.second->recHit()->det()->surface().toGlobal(zeroone).z() - overlapHit.second->recHit()->det()->surface().toGlobal(zerozero).z();
+    localydotglobalx_[0] = overlapHit.first->recHit()->det()->surface().toGlobal(zeroone).x() - overlapHit.first->recHit()->det()->surface().toGlobal(zerozero).x();
+    localydotglobalx_[1] = overlapHit.second->recHit()->det()->surface().toGlobal(zeroone).x() - overlapHit.second->recHit()->det()->surface().toGlobal(zerozero).x();
+    localydotglobaly_[0] = overlapHit.first->recHit()->det()->surface().toGlobal(zeroone).y() - overlapHit.first->recHit()->det()->surface().toGlobal(zerozero).y();
+    localydotglobaly_[1] = overlapHit.second->recHit()->det()->surface().toGlobal(zeroone).y() - overlapHit.second->recHit()->det()->surface().toGlobal(zerozero).y();
+    localydotglobalphi_[0] = overlapHit.first->recHit()->det()->surface().toGlobal(zeroone).phi() - overlapHit.first->recHit()->det()->surface().toGlobal(zerozero).phi();
+    localydotglobalphi_[1] = overlapHit.second->recHit()->det()->surface().toGlobal(zeroone).phi() - overlapHit.second->recHit()->det()->surface().toGlobal(zerozero).phi();
 
 
 
 
-    if ( (*iol).first->recHit()->geographicalId().subdetId()==3 ) layer_ =  layerFromId((*iol).first->recHit()->geographicalId().rawId(), tTopo);
-    else if (  (*iol).first->recHit()->geographicalId().subdetId()==5 ) layer_ =  layerFromId((*iol).first->recHit()->geographicalId().rawId(), tTopo)+4;
-    else if ( (*iol).first->recHit()->geographicalId().subdetId()==4 ) layer_ =  layerFromId((*iol).first->recHit()->geographicalId().rawId(), tTopo)+10;
-    else if (  (*iol).first->recHit()->geographicalId().subdetId()==6 ) layer_ =  layerFromId((*iol).first->recHit()->geographicalId().rawId(), tTopo)+13;
-    else if ( (*iol).first->recHit()->geographicalId().subdetId()==1 ) layer_ =  layerFromId((*iol).first->recHit()->geographicalId().rawId(), tTopo)+20;
-    else if (  (*iol).first->recHit()->geographicalId().subdetId()==2 ) layer_ =  layerFromId((*iol).first->recHit()->geographicalId().rawId(), tTopo)+30; 
+    if ( overlapHit.first->recHit()->geographicalId().subdetId()==StripSubdetector::TIB ) layer_ =  layerFromId(overlapHit.first->recHit()->geographicalId().rawId(), tTopo);
+    else if (  overlapHit.first->recHit()->geographicalId().subdetId()==StripSubdetector::TOB ) layer_ =  layerFromId(overlapHit.first->recHit()->geographicalId().rawId(), tTopo)+4;
+    else if ( overlapHit.first->recHit()->geographicalId().subdetId()==StripSubdetector::TID ) layer_ =  layerFromId(overlapHit.first->recHit()->geographicalId().rawId(), tTopo)+10;
+    else if (  overlapHit.first->recHit()->geographicalId().subdetId()==StripSubdetector::TEC ) layer_ =  layerFromId(overlapHit.first->recHit()->geographicalId().rawId(), tTopo)+13;
+    else if ( overlapHit.first->recHit()->geographicalId().subdetId()==PixelSubdetector::PixelBarrel ) layer_ =  layerFromId(overlapHit.first->recHit()->geographicalId().rawId(), tTopo)+20;
+    else if (  overlapHit.first->recHit()->geographicalId().subdetId()==PixelSubdetector::PixelEndcap ) layer_ =  layerFromId(overlapHit.first->recHit()->geographicalId().rawId(), tTopo)+30; 
     else layer_ = 99;
     
 
-    if ( overlapIds_[0] ==  SiStripDetId((*iol).first->recHit()->geographicalId()).glued() )
-    edm::LogWarning("Overlaps") << "BAD GLUED: First Id = " << overlapIds_[0] << " has glued = " << SiStripDetId((*iol).first->recHit()->geographicalId()).glued() << "  and stereo = " << SiStripDetId((*iol).first->recHit()->geographicalId()).stereo() << endl;
-    if ( overlapIds_[1] ==  SiStripDetId((*iol).second->recHit()->geographicalId()).glued() )
-    edm::LogWarning("Overlaps") << "BAD GLUED: Second Id = " <<overlapIds_[1] << " has glued = " << SiStripDetId((*iol).second->recHit()->geographicalId()).glued() << "  and stereo = " << SiStripDetId((*iol).second->recHit()->geographicalId()).stereo() << endl;
+    if ( overlapIds_[0] ==  SiStripDetId(overlapHit.first->recHit()->geographicalId()).glued() )
+    edm::LogWarning("Overlaps") << "BAD GLUED: First Id = " << overlapIds_[0] << " has glued = " << SiStripDetId(overlapHit.first->recHit()->geographicalId()).glued() << "  and stereo = " << SiStripDetId(overlapHit.first->recHit()->geographicalId()).stereo() << endl;
+    if ( overlapIds_[1] ==  SiStripDetId(overlapHit.second->recHit()->geographicalId()).glued() )
+    edm::LogWarning("Overlaps") << "BAD GLUED: Second Id = " <<overlapIds_[1] << " has glued = " << SiStripDetId(overlapHit.second->recHit()->geographicalId()).glued() << "  and stereo = " << SiStripDetId(overlapHit.second->recHit()->geographicalId()).stereo() << endl;
 
-    const TransientTrackingRecHit::ConstRecHitPointer firstRecHit = (*iol).first->recHit();
-    const TransientTrackingRecHit::ConstRecHitPointer secondRecHit = (*iol).second->recHit();
+    const TransientTrackingRecHit::ConstRecHitPointer firstRecHit = overlapHit.first->recHit();
+    const TransientTrackingRecHit::ConstRecHitPointer secondRecHit = overlapHit.second->recHit();
     hitPositions_[0] = firstRecHit->localPosition().x();
     hitErrors_[0] = sqrt(firstRecHit->localPositionError().xx());
     hitPositions_[1] = secondRecHit->localPosition().x();
@@ -608,22 +606,22 @@ OverlapValidation::analyze (const Trajectory& trajectory,
 
     //cout << "printing local X hit position and error for the overlap hits. Hit 1 = " << hitPositions_[0] << "+-" << hitErrors_[0] << "  and hit 2 is "  << hitPositions_[1] << "+-" << hitErrors_[1] << endl;
 
-    DetId id1 = (*iol).first->recHit()->geographicalId();
-    DetId id2 = (*iol).second->recHit()->geographicalId();
+    DetId id1 = overlapHit.first->recHit()->geographicalId();
+    DetId id2 = overlapHit.second->recHit()->geographicalId();
     int layer1 = layerFromId(id1, tTopo);
     int subDet1 = id1.subdetId();
     int layer2 = layerFromId(id2, tTopo);
     int subDet2 = id2.subdetId();
-    if (abs(hitPositions_[0])>5) edm::LogWarning("Overlaps") << "BAD: Bad hit position: Id = " << id1.rawId()  << " stereo = " << SiStripDetId(id1).stereo() << "  glued = " << SiStripDetId(id1).glued() << " from subdet = " << subDet1 << " and layer = " << layer1 << endl;
-    if (abs(hitPositions_[1])>5) edm::LogWarning("Overlaps") << "BAD: Bad hit position: Id = " << id2.rawId()  << " stereo = " << SiStripDetId(id2).stereo() << "  glued = " << SiStripDetId(id2).glued() << " from subdet = " << subDet2 << " and layer = " << layer2 << endl;
+    if (abs(hitPositions_[0])>5) edm::LogInfo("Overlaps") << "BAD: Bad hit position: Id = " << id1.rawId()  << " stereo = " << SiStripDetId(id1).stereo() << "  glued = " << SiStripDetId(id1).glued() << " from subdet = " << subDet1 << " and layer = " << layer1 << endl;
+    if (abs(hitPositions_[1])>5) edm::LogInfo("Overlaps") << "BAD: Bad hit position: Id = " << id2.rawId()  << " stereo = " << SiStripDetId(id2).stereo() << "  glued = " << SiStripDetId(id2).glued() << " from subdet = " << subDet2 << " and layer = " << layer2 << endl;
     
 
     // get track momentum
     momentum_ = comb1.globalMomentum().mag();
     
     // get cluster size
-    if (subDet1>2) { //strip
-      const TransientTrackingRecHit::ConstRecHitPointer thit1=(*iol).first->recHit();
+    if (!(subDet1 == PixelSubdetector::PixelBarrel || subDet1 == PixelSubdetector::PixelEndcap)) { //strip
+      const TransientTrackingRecHit::ConstRecHitPointer thit1=overlapHit.first->recHit();
       const SiStripRecHit1D* hit1=dynamic_cast<const SiStripRecHit1D*>((*thit1).hit());
       if (hit1) {
 	//check cluster width
@@ -650,7 +648,7 @@ OverlapValidation::analyze (const Trajectory& trajectory,
 	clusterCharge_[0] = charge;
       } 
 	
-      const TransientTrackingRecHit::ConstRecHitPointer thit2=(*iol).second->recHit();
+      const TransientTrackingRecHit::ConstRecHitPointer thit2=overlapHit.second->recHit();
       const SiStripRecHit1D* hit2=dynamic_cast<const SiStripRecHit1D*>((*thit2).hit());
       if (hit2) {
 	const SiStripRecHit1D::ClusterRef & cluster2=hit2->cluster();
@@ -679,9 +677,9 @@ OverlapValidation::analyze (const Trajectory& trajectory,
     }
     
 
-    if (subDet2<3) { //pixel
+    if (subDet2 == PixelSubdetector::PixelBarrel || subDet2 == PixelSubdetector::PixelEndcap) { //pixel
       
-      const TransientTrackingRecHit::ConstRecHitPointer thit1=(*iol).first->recHit();
+      const TransientTrackingRecHit::ConstRecHitPointer thit1=overlapHit.first->recHit();
       const SiPixelRecHit * recHitPix1 = dynamic_cast<const SiPixelRecHit *>((*thit1).hit());
       if(recHitPix1) {
 	// check for cluster size and width
@@ -716,7 +714,7 @@ OverlapValidation::analyze (const Trajectory& trajectory,
 	continue;
       }
 
-      const TransientTrackingRecHit::ConstRecHitPointer thit2=(*iol).second->recHit();
+      const TransientTrackingRecHit::ConstRecHitPointer thit2=overlapHit.second->recHit();
       const SiPixelRecHit * recHitPix2 = dynamic_cast<const SiPixelRecHit *>((*thit2).hit());
       if(recHitPix2) {
 	SiPixelRecHit::ClusterRef const& cluster2 = recHitPix2->cluster();
@@ -760,7 +758,7 @@ OverlapValidation::analyze (const Trajectory& trajectory,
       std::vector<PSimHit> psimHits1;
       std::vector<PSimHit> psimHits2;
       //calculate layer
-      DetId id = (*iol).first->recHit()->geographicalId();
+      DetId id = overlapHit.first->recHit()->geographicalId();
       int layer(-1);
       layer = layerFromId(id, tTopo);
      int subDet = id.subdetId();
@@ -775,8 +773,8 @@ OverlapValidation::analyze (const Trajectory& trajectory,
 	for (std::vector<PSimHit>::const_iterator m = psimHits1.begin(); m < psimHits1.end(); m++) {
 	  //find closest simHit to the recHit
 	  float simX = (*m).localPosition().x();
-	  float dist = fabs( simX - ((*iol).first->recHit()->localPosition().x()) );
-	  edm::LogVerbatim("OverlapValidation") << "simHit1 simX = " << simX << "   hitX = " << (*iol).first->recHit()->localPosition().x() << "   distX = " << dist << "   layer = " << layer;
+	  float dist = fabs( simX - (overlapHit.first->recHit()->localPosition().x()) );
+	  edm::LogVerbatim("OverlapValidation") << "simHit1 simX = " << simX << "   hitX = " << overlapHit.first->recHit()->localPosition().x() << "   distX = " << dist << "   layer = " << layer;
 	  if (dist<closest_dist) {
 	    //cout << "found newest closest dist for simhit1" << endl;
 	    closest_dist = dist;
@@ -818,7 +816,7 @@ OverlapValidation::analyze (const Trajectory& trajectory,
 	std::vector<PSimHit>::const_iterator closest_simhit = psimHits2.begin();
 	for (std::vector<PSimHit>::const_iterator m = psimHits2.begin(); m < psimHits2.end(); m++) {
 	  float simX = (*m).localPosition().x();
-	  float dist = fabs( simX - ((*iol).second->recHit()->localPosition().x()) );
+	  float dist = fabs( simX - (overlapHit.second->recHit()->localPosition().x()) );
 	  if (dist<closest_dist) {
 	    closest_dist = dist;
 	    closest_simhit = m;
