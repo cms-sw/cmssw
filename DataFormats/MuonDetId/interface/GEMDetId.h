@@ -21,13 +21,14 @@ public:
   static constexpr int32_t maxRegionId  = 1;
   static constexpr int32_t minRingId    = 1;
   static constexpr int32_t maxRingId    = 3;
-  static constexpr int32_t minStationId = 0;
+  static constexpr int32_t minStationId0= 0;
+  static constexpr int32_t minStationId = 1;
   static constexpr int32_t maxStationId = 2;  // in the detId there is space to go up to 5 stations. Only 3 implemented now (0,1,2)
   static constexpr int32_t minChamberId = 0;
   static constexpr int32_t maxChamberId = 36;
   static constexpr int32_t minLayerId   = 0;  // LayerId = 0 is superChamber
-  static constexpr int32_t maxLayerId   = 6;
-  static constexpr int32_t maxLayerId12 = 2;  // GE1/GE2 has 2 layers
+  static constexpr int32_t maxLayerId0  = 6;
+  static constexpr int32_t maxLayerId   = 2;  // GE1/GE2 has 2 layers
   static constexpr int32_t minRollId    = 0;
   static constexpr int32_t maxRollId    = 15;
 
@@ -92,8 +93,8 @@ public:
 		     int roll)  : DetId(DetId::Muon, MuonSubdetId::GEM) {
     if ( region     < minRegionId    || region    > maxRegionId ||
 	 ring       < minRingId      || ring      > maxRingId ||
-	 station    < minStationId   || station   > maxStationId ||
-	 layer      < minLayerId     || layer     > maxLayerId ||
+	 station    < minStationId0  || station   > maxStationId ||
+	 layer      < minLayerId     || layer     > maxLayerId0 ||
 	 chamber    < minChamberId   || chamber   > maxChamberId ||
 	 roll       < minRollId      || roll      > maxRollId)
       throw cms::Exception("InvalidDetId") 
@@ -103,7 +104,7 @@ public:
       
     int regionInBits  = region-minRegionId;
     int ringInBits    = ring-minRingId;
-    int stationInBits = station-minStationId;
+    int stationInBits = station-minStationId0;
     int layerInBits   = layer-minLayerId;
     int chamberInBits = chamber-(minChamberId+1);
     int rollInBits    = roll;
@@ -188,7 +189,7 @@ public:
 
   /** Station id : the station is the set of chambers at same disk */
   constexpr int station() const {
-    return (static_cast<int>((id_>>StationStartBit) & StationMask)+minStationId);
+    return (static_cast<int>((id_>>StationStartBit) & StationMask)+minStationId0);
   }
 
   /** Chamber id: it identifies a chamber in a ring it goes from 1 to 36 
@@ -227,8 +228,8 @@ public:
 
   /** Return total # of layers for this type of detector */
   constexpr int nlayers() const {
-    return ((station() == 0) ? maxLayerId : ((station() > maxStationId) ?
-					     0 : maxLayerId12));
+    return ((station() == 0) ? maxLayerId0 : ((station() > maxStationId) ?
+					     0 : maxLayerId));
   }
 
   constexpr uint32_t newForm() const {
@@ -242,7 +243,7 @@ public:
       unpackId(rawid, region, ring, station, layer, chamber, roll);
       int regionInBits  = region-minRegionId;
       int ringInBits    = ring-minRingId;
-      int stationInBits = station-minStationId;
+      int stationInBits = station-minStationId0;
       int layerInBits   = layer-minLayerId;
       int chamberInBits = chamber-(minChamberId+1);
       int rollInBits    = roll;
@@ -273,7 +274,7 @@ private:
       if (subdet == MuonSubdetId::GEM) {
 	region = static_cast<int>(((rawid>>RegionStartBit) & RegionMask)+minRegionId);
 	ring   = (static_cast<int>((rawid>>RingStartBit) & RingMask) + minRingId);
-	station= (static_cast<int>((rawid>>StationStartBit) & StationMask)+minStationId);
+	station= (static_cast<int>((rawid>>StationStartBit) & StationMask)+minStationId0);
 	chamber= (static_cast<int>((rawid>>ChamberStartBit) & ChamberMask) + (minChamberId+1));
 	if ((rawid&kGEMIdFormat) == 0) {
 	  layer = (static_cast<int>((rawid>>LayerStartBit) & LayerMaskP) + minLayerId);
