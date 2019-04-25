@@ -67,6 +67,10 @@ namespace edm {
     template <typename T>
     using default_record_t = typename default_record<T>::RecordT;
    }
+  
+   template<typename T> struct ESHandleAdapter {
+     using value_type = T;
+   };
 }
 
 #define EVENTSETUP_DATA_DEFAULT_RECORD(_data_, _record_) \

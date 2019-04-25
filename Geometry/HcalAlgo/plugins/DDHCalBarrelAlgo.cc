@@ -18,7 +18,6 @@
 #include "Geometry/HcalAlgo/plugins/DDHCalBarrelAlgo.h"
 
 //#define EDM_ML_DEBUG                                                         
-using namespace geant_units;
 using namespace geant_units::operators;
 
 DDHCalBarrelAlgo::DDHCalBarrelAlgo():
@@ -224,7 +223,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume(DDCompactView& cpv) {
 
   DDRotation rot = DDRotation();
 
-  double alpha = piRadians/getNsectors();
+  double alpha = (1._pi)/getNsectors();
   double dphi  = getNsectortot()*(2._pi)/getNsectors();
   int nsec, ntot=15;
   if (getNhalf() == 1)
@@ -425,7 +424,7 @@ void DDHCalBarrelAlgo::constructInsideSector(const DDLogicalPart& sector, DDComp
   edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Layers (" << getNLayers()
 			       << ") ...";
 #endif
-  double alpha = piRadians/getNsectors();
+  double alpha = (1._pi)/getNsectors();
   double rin   = getRin();
   for (int i = 0; i < getNLayers(); i++) {
     std::string  name   = idName + getLayerLabel(i);

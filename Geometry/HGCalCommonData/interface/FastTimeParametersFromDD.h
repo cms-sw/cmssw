@@ -8,13 +8,14 @@ class DDCompactView;
 class FastTimeParameters;
 
 class FastTimeParametersFromDD {
-public:
+ public:
   FastTimeParametersFromDD() {}
   virtual ~FastTimeParametersFromDD() {}
 
-  bool build(const DDCompactView*,  FastTimeParameters&, const std::string&,
-	     const int);
-private:
+  bool build(const DDCompactView *, FastTimeParameters &, const std::string &,
+             const int);
+
+ private:
   std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &);
 };
 

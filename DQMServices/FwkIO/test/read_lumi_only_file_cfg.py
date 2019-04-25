@@ -23,6 +23,6 @@ process.check = cms.EDAnalyzer("RunLumiEventChecker",
 
 process.e = cms.EndPath(process.check)
 
-process.add_(cms.Service("DQMStore"))
+process.add_(cms.Service("DQMStore", forceResetOnBeginLumi = cms.untracked.bool(True)))
 #process.add_(cms.Service("Tracer"))
 

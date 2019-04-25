@@ -87,6 +87,7 @@ Example: two algorithms each creating only one objects
 namespace edm {
   namespace eventsetup {
 
+    class ESRecordsToProxyIndices;
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
     //  the argument as the decorator itself
@@ -107,6 +108,10 @@ namespace edm {
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
+    void updateLookup(eventsetup::ESRecordsToProxyIndices const&) final;
+    ESProxyIndex const* getTokenIndices(unsigned int iIndex) const {
+      if(itemsToGetFromRecords_.empty()) {return nullptr;}
+      return (itemsToGetFromRecords_[iIndex].empty()) ? static_cast<ESProxyIndex const*>(nullptr) : &(itemsToGetFromRecords_[iIndex].front());}
   protected:
     /** \param iThis the 'this' pointer to an inheriting class instance
         The method determines the Record argument and return value of the 'produce'
@@ -152,11 +157,13 @@ namespace edm {
                          TReturn (T ::* iMethod)(const TRecord&),
                          const TArg& iDec,
                          const es::Label& iLabel = {}) {
+      const auto id = static_cast<unsigned int>(numberOfFactories());
       auto callback = std::make_shared<eventsetup::Callback<T,
                                                             TReturn,
                                                             TRecord,
                                                             typename eventsetup::DecoratorFromArg<T,TRecord,TArg>::Decorator_t>>(iThis,
                                                                                                                                  iMethod,
+                                                                                                                                 id,
                                                                                                                                  createDecoratorFrom(iThis,
                                                                                                                                                      static_cast<const TRecord*>(nullptr),
                                                                                                                                                      iDec));
@@ -164,7 +171,9 @@ namespace edm {
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
-      return ESConsumesCollectorT<TRecord>{iThis};
+      assert(id == consumesInfos_.size());
+      consumesInfos_.push_back(std::make_unique<ESConsumesInfo>());
+      return ESConsumesCollectorT<TRecord>(consumesInfos_.back().get(),id);
     }
 
     ESProducer(const ESProducer&) = delete; // stop default
@@ -205,6 +214,11 @@ namespace edm {
       registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.labels_[IIndex]);
     }
 
+    std::vector<std::unique_ptr<ESConsumesInfo>> consumesInfos_;
+    std::vector<std::vector<ESProxyIndex>> itemsToGetFromRecords_;
+    //need another structure to say which record to get the data from in
+    // order to make prefetching work
+    std::vector<std::vector<ESRecordIndex>> recordsUsedDuringGet_;
   };
 }
 #endif

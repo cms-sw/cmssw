@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include <cassert>
+#include <limits>
 
 // forward declarations
 
@@ -49,7 +50,7 @@ class DataProxyTemplate : public DataProxy
                                   const DataKey& iKey) override {
          assert(iRecord.key() == RecordT::keyForClass());
          RecordT rec;
-         rec.setImpl(&iRecord);
+         rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(),nullptr);
          return this->make(rec, iKey);
       }
       

@@ -61,6 +61,9 @@ DataProxyProvider::~DataProxyProvider() noexcept(false)
 //
 // member functions
 //
+     
+void DataProxyProvider::updateLookup(eventsetup::ESRecordsToProxyIndices const&) {}
+
 void 
 DataProxyProvider::usingRecordWithKey(const EventSetupRecordKey& iKey)
 {

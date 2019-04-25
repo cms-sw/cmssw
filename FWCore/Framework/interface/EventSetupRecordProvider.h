@@ -66,8 +66,10 @@ class EventSetupRecordProvider {
       ///return information on which DataProxyProviders are supplying information
       std::set<ComponentDescription> proxyProviderDescriptions() const;
   
-      // ---------- static member functions --------------------
-
+      /// The available DataKeys in the Record. The order can be used to request the data by index
+      std::vector<DataKey> registeredDataKeys() const;
+  
+      std::vector<ComponentDescription const*> componentsForRegisteredDataKeys() const;
       // ---------- member functions ---------------------------
 
       ///returns the first matching DataProxyProvider or a 'null' if not found
@@ -105,7 +107,7 @@ class EventSetupRecordProvider {
 
       void getReferencedESProducers(std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> >& referencedESProducers);
 
-      void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys);
+      void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) const;
 
       void resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap);
 
