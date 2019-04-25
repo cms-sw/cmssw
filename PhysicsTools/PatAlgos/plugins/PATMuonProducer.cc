@@ -156,6 +156,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavy
 
   computePuppiCombinedIso_ = iConfig.getParameter<bool>("computePuppiCombinedIso");
 
+  effectiveAreaVec_ = iConfig.getParameter<std::vector<double> >("effectiveAreaVec");
+
   miniIsoParams_ = iConfig.getParameter<std::vector<double> >("miniIsoParams");
   if(computeMiniIso_ && miniIsoParams_.size() != 9){
       throw cms::Exception("ParameterError") << "miniIsoParams must have exactly 9 elements.\n";
@@ -653,7 +655,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     if (computeMiniIso_){
       // MiniIsolation working points
 
-      miniIsoValue = getRelMiniIsoPUCorrected(muon,*rho);
+      miniIsoValue = getRelMiniIsoPUCorrected(muon,*rho, effectiveAreaVec_);
 
       muon.setSelector(reco::Muon::MiniIsoLoose,     miniIsoValue<0.40);
       muon.setSelector(reco::Muon::MiniIsoMedium,    miniIsoValue<0.20);
@@ -819,13 +821,13 @@ void PATMuonProducer::setMuonMiniIso(Muon& aMuon, const PackedCandidateCollectio
   aMuon.setMiniPFIsolation(miniiso);
 }
 
-double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, float rho)
+double PATMuonProducer::getRelMiniIsoPUCorrected(const pat::Muon& muon, double rho, const std::vector<double> &area)
 {
-  float mindr(miniIsoParams_[0]);
-  float maxdr(miniIsoParams_[1]);
-  float kt_scale(miniIsoParams_[2]);
-  float drcut = pat::miniIsoDr(muon.p4(),mindr,maxdr,kt_scale);
-  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.p4(), drcut, rho);
+  double mindr(miniIsoParams_[0]);
+  double maxdr(miniIsoParams_[1]);
+  double kt_scale(miniIsoParams_[2]);
+  double drcut = pat::miniIsoDr(muon.p4(),mindr,maxdr,kt_scale);
+  return pat::muonRelMiniIsoPUCorrected(muon.miniPFIsolation(), muon.p4(), drcut, rho, area);
 }
 
 
