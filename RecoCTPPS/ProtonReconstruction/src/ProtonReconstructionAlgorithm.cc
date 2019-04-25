@@ -166,8 +166,9 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
     const double b = i_F.ch0*i_N.la1 - i_N.ch0*i_F.la1 + i_F.ch1*i_N.la0 - i_N.ch1*i_F.la0 + x_N*i_F.la1 - x_F*i_N.la1;
     const double c = x_N*i_F.la0 - x_F*i_N.la0 + i_F.ch0*i_N.la0 - i_N.ch0*i_F.la0;
     const double D = b*b - 4.*a*c;
+    const double sqrt_D = (D >= 0.) ? sqrt(D) : 0.;
 
-    xi_init = (-b + sqrt(D)) / 2. / a;
+    xi_init = (-b + sqrt_D) / 2. / a;
     th_x_init = (x_N - i_N.ch0 - i_N.ch1 * xi_init) / (i_N.la0 + i_N.la1 * xi_init);
   }
   else {
@@ -182,6 +183,11 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
 
     xi_init = s_xi0 / s_1;
   }
+
+  if (!std::isfinite(xi_init))
+    xi_init = 0.;
+  if (!std::isfinite(th_x_init))
+    th_x_init = 0.;
 
   // initial estimate of th_y and vtx_y
   double y[2], v_y[2], L_y[2];
@@ -204,13 +210,18 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
 
   if (fitVtxY_) {
     const double det_y = v_y[0] * L_y[1] - L_y[0] * v_y[1];
-    vtx_y_init = (L_y[1] * y[0] - L_y[0] * y[1]) / det_y;
-    th_y_init = (v_y[0] * y[1] - v_y[1] * y[0]) / det_y;
+    vtx_y_init = (det_y != 0.) ? (L_y[1] * y[0] - L_y[0] * y[1]) / det_y : 0.;
+    th_y_init = (det_y != 0.) ? (v_y[0] * y[1] - v_y[1] * y[0]) / det_y : 0.;
   }
   else {
     vtx_y_init = 0.;
     th_y_init = (y[1]/L_y[1] + y[0]/L_y[0]) / 2.;
   }
+
+  if (!std::isfinite(vtx_y_init))
+    vtx_y_init = 0.;
+  if (!std::isfinite(th_y_init))
+    th_y_init = 0.;
 
   unsigned int armId = CTPPSDetId((*tracks.begin())->getRPId()).arm();
 
