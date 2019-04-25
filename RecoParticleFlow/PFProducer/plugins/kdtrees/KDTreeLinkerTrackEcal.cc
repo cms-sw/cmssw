@@ -71,20 +71,20 @@ KDTreeLinkerTrackEcal::buildTree()
     
     const reco::PFRecHit::REPPoint &posrep = (*it)->positionREP();
     
-    KDTreeNodeInfo rh1 (*it, posrep.eta(), posrep.phi());
+    KDTreeNodeInfo rh1 {*it, posrep.eta(), posrep.phi()};
     eltList.push_back(rh1);
     
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
     if (rh1.dim2 > (M_PI - phiOffset_)) {
       double phi = rh1.dim2 - 2 * M_PI;
-      KDTreeNodeInfo rh2(*it, posrep.eta(), phi); 
+      KDTreeNodeInfo rh2{*it, posrep.eta(), phi};
       eltList.push_back(rh2);
     }
 
     if (rh1.dim2 < (M_PI * -1.0 + phiOffset_)) {
       double phi = rh1.dim2 + 2 * M_PI;
-      KDTreeNodeInfo rh3(*it, posrep.eta(), phi); 
+      KDTreeNodeInfo rh3{*it, posrep.eta(), phi};
       eltList.push_back(rh3);
     }
   }
@@ -94,7 +94,7 @@ KDTreeLinkerTrackEcal::buildTree()
   double phimax = M_PI + phiOffset_;
 
   // etamin-etamax, phimin-phimax
-  KDTreeBox region(-3.0, 3.0, phimin, phimax);
+  KDTreeBox region{-3.0, 3.0, phimin, phimax};
 
   // We may now build the KDTree
   tree_.build(eltList, region);
@@ -137,7 +137,7 @@ KDTreeLinkerTrackEcal::searchLinks()
 
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
     std::vector<KDTreeNodeInfo> recHits;
-    KDTreeBox trackBox(tracketa-range, tracketa+range, trackphi-range, trackphi+range);
+    KDTreeBox trackBox{tracketa-range, tracketa+range, trackphi-range, trackphi+range};
     tree_.search(trackBox, recHits);
     
     // Here we check all rechit candidates using the non-approximated method.
