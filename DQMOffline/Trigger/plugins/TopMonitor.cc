@@ -25,6 +25,7 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig )
   , phoToken_             ( mayConsume<reco::PhotonCollection>     (iConfig.getParameter<edm::InputTag>("photons")     ) ) 
   // Marina
   , jetTagToken_          ( mayConsume<reco::JetTagCollection>     (iConfig.getParameter<edm::InputTag>("btagalgo") ))
+  , jetbbTagToken_       ( mayConsume<reco::JetTagCollection>     (iConfig.getParameter<edm::InputTag>("bbtagalgo") ))  
   //Suvankar
   , vtxToken_             ( mayConsume<reco::VertexCollection> (iConfig.getParameter<edm::InputTag>("vertices") ) )
   , met_binning_          ( getHistoPSet   (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("metPSet")    ) )
@@ -102,6 +103,8 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig )
     metcut_str.erase(std::remove(metcut_str.begin(), metcut_str.end(), ' '), metcut_str.end());
     if(metcut_str != "pt>0") applyMETcut_ = true;
 
+    btagalgoName_ = (iConfig.getParameter<edm::InputTag>("btagalgo")).label();
+
     ObjME empty;
 
     muPhi_= std::vector<ObjME> (nmuons_,empty);
@@ -145,7 +148,6 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig )
     bjetPtEta_= std::vector<ObjME> (nbjets_,empty);
     bjetEtaPhi_= std::vector<ObjME> (nbjets_,empty);
     bjetCSVHT_= std::vector<ObjME> (nbjets_,empty);
-
   //Suvankar
   lepPVcuts_.dxy = (iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dxy");
   lepPVcuts_.dz  = (iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dz");
@@ -719,22 +721,30 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     edm::LogWarning("TopMonitor") << "B-Jet handle not valid \n";
     return;
   }
+  edm::Handle<reco::JetTagCollection> bbjetHandle;
+  iEvent.getByToken( jetbbTagToken_, bbjetHandle );
+  if (!bbjetHandle.isValid() && nbjets_>0){
+    edm::LogWarning("TopMonitor") << "BB-Jet handle not valid \n";
+    return;
+  }
 
   JetTagMap bjets;
-
   if (nbjets_>0){
-      const reco::JetTagCollection& bTags = *(bjetHandle.product());
-      if (bTags.size() < nbjets_ ) return;
-      for (unsigned int i=0; i!=bTags.size(); ++i){
-          // Apply Selections
-          if (!bjetSelection_(*dynamic_cast<const reco::Jet*>(bTags[i].first.get())) ) continue;
-          if (bTags[i].second < workingpoint_                  ) continue;
-
-          // Fill JetTag Map
-          bjets.insert(JetTagMap::value_type(bTags[i].first, bTags[i].second));
-      }
-      if (bjets.size() < nbjets_ ) return;
+    const reco::JetTagCollection& bTags  = *(bjetHandle.product());
+    const reco::JetTagCollection& bbTags = *(bbjetHandle.product());
+    if (bTags.size() < nbjets_ ) return;
+    for (unsigned int i=0; i!=bTags.size(); ++i){
+      // Apply Selections
+      if (!bjetSelection_(*dynamic_cast<const reco::Jet*>(bTags[i].first.get())) ) continue;
+      double bdisc = (btagalgoName_ == "pfDeepCSVJetTags") ? (bTags[i].second + bbTags[i].second) : bTags[i].second; //probb + probbb
+      //std::cout<<folderName_<<" "<<btagalgoName_<<" "<<bTags[i].second<<" "<<bbTags[i].second<<" "<<bdisc<<std::endl;
+      if (bdisc < workingpoint_) continue; 
+      // Fill JetTag Map
+      bjets.insert(JetTagMap::value_type(bTags[i].first, bdisc));
+    }
+    if (bjets.size() < nbjets_ ) return;
   }
+      
 
   if (nbjets_ > 1){
       double deltaEta = std::abs(bjets.begin()->first->eta()-(++bjets.begin())->first->eta());
@@ -1055,6 +1065,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "vertices", edm::InputTag("offlinePrimaryVertices") );
 
   desc.add<edm::InputTag>( "btagalgo", edm::InputTag("pfCombinedSecondaryVertexV2BJetTags") );
+  desc.add<edm::InputTag>( "bbtagalgo",edm::InputTag("pfDeepCSVJetTags:probbb") );
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
