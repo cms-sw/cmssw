@@ -33,8 +33,7 @@ class TrackPUIDMVAProducer : public edm::stream::EDProducer<> {
   void produce(edm::Event& ev, const edm::EventSetup& es) final;
 
  private:
-  static constexpr char puId3DmvaName[] = "puId3DMVA";
-  static constexpr char puId4DmvaName[] = "puId4DMVA";
+  static constexpr char mvaName[] = "mtdQualMVA";
   
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   edm::EDGetTokenT<reco::TrackCollection> tracksMTDToken_;
@@ -45,16 +44,8 @@ class TrackPUIDMVAProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<edm::ValueMap<float> > etlMatchTimeChi2Token_;
   edm::EDGetTokenT<edm::ValueMap<float> > mtdTimeToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > pathLengthToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > t0PIDToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > sigmat0PIDToken_;
-  edm::EDGetTokenT<edm::ValueMap<int> > assocMtdTrackToken_;
 
-  edm::EDGetTokenT<reco::VertexCollection> vtxsToken_;
-  edm::EDGetTokenT<reco::VertexCollection> vtxs4DToken_;
-  double maxDz_;
-
-  TrackPUIDMVA mva3D_;
-  TrackPUIDMVA mva4D_;    
+  TrackPUIDMVA mva_;    
 
 };
 
@@ -68,17 +59,9 @@ TrackPUIDMVAProducer::TrackPUIDMVAProducer(const ParameterSet& iConfig) :
   etlMatchTimeChi2Token_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("etlMatchTimeChi2Src"))) ,
   mtdTimeToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mtdTimeSrc"))),
   pathLengthToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("pathLengthSrc"))),
-  t0PIDToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("t0TOFPIDSrc"))),
-  sigmat0PIDToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("sigmat0TOFPIDSrc"))),
-  assocMtdTrackToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("assocMtdTrackSrc"))),
-  vtxsToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxsSrc"))),
-  vtxs4DToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxs4DSrc"))),
-  maxDz_(iConfig.getParameter<double>("maxDz")),
-  mva3D_(iConfig.getParameter<edm::FileInPath>("trackPUID_3DBDT_weights_file").fullPath(), false),
-  mva4D_(iConfig.getParameter<edm::FileInPath>("trackPUID_4DBDT_weights_file").fullPath(), true)
+  mva_(iConfig.getParameter<edm::FileInPath>("trackPUID_4DBDT_weights_file").fullPath())
 {  
-  produces<edm::ValueMap<float> >(puId3DmvaName);
-  produces<edm::ValueMap<float> >(puId4DmvaName);
+  produces<edm::ValueMap<float> >(mvaName);
 }
 
 // Configuration descriptions
@@ -88,10 +71,6 @@ void TrackPUIDMVAProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
     setComment("Input tracks collection");
   desc.add<edm::InputTag>("tracksMTDSrc", edm::InputTag("trackExtenderWithMTD"))->
     setComment("Input tracks collection for MTD extended tracks");
-  desc.add<edm::InputTag>("vtxsSrc", edm::InputTag("offlinePrimaryVertices"))->
-    setComment("Input primary vertex collection");
-  desc.add<edm::InputTag>("vtxs4DSrc", edm::InputTag("offlinePrimaryVertices4D"))->
-    setComment("Input primary vertex 4D collection");
   desc.add<edm::InputTag>("btlMatchChi2Src", edm::InputTag("trackExtenderWithMTD", "btlMatchChi2"))->
     setComment("BTL Chi2 Matching value Map");
   desc.add<edm::InputTag>("btlMatchTimeChi2Src", edm::InputTag("trackExtenderWithMTD", "btlMatchTimeChi2"))->
@@ -104,16 +83,6 @@ void TrackPUIDMVAProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
     setComment("MTD TIme value Map");
   desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD", "pathLength"))->
     setComment("MTD PathLength value Map");
-  desc.add<edm::InputTag>("t0TOFPIDSrc", edm::InputTag("tofPID", "t0"))->
-    setComment("TOFPID T0 value Map");
-  desc.add<edm::InputTag>("sigmat0TOFPIDSrc", edm::InputTag("tofPID", "sigmat0"))->
-    setComment("TOFPID sigmaT0 value Map");
-  desc.add<edm::InputTag>("assocMtdTrackSrc", edm::InputTag("trackExtenderWithMTD", "generalTrackassoc"))->
-    setComment("General Track to MTD Track Assoc");
-  desc.add<double>("maxDz", 1.)->
-    setComment("Maximum distance in z for track-primary vertex association for particle id [cm]");
-  desc.add<edm::FileInPath>("trackPUID_3DBDT_weights_file",edm::FileInPath("CommonTools/RecoAlgos/data/clf3D_dz1cm_bo.xml"))->
-    setComment("Track PUID 3D BDT weights");
   desc.add<edm::FileInPath>("trackPUID_4DBDT_weights_file",edm::FileInPath("CommonTools/RecoAlgos/data/clf4D_dz1cm_bo.xml"))->
     setComment("Track PUID 4D BDT weights");
   descriptions.add("trackPUIDMVAProducer", desc);
@@ -137,13 +106,6 @@ void TrackPUIDMVAProducer::produce( edm::Event& ev, const edm::EventSetup& es ) 
   edm::Handle<reco::TrackCollection> tracksMTDH;  
   ev.getByToken(tracksMTDToken_,tracksMTDH);
   
-  edm::Handle<reco::VertexCollection> vtxsH;  
-  ev.getByToken(vtxsToken_,vtxsH);
-  const auto& vtxs = *vtxsH;
-
-  edm::Handle<reco::VertexCollection> vtxs4DH;  
-  ev.getByToken(vtxs4DToken_,vtxs4DH);
-  const auto& vtxs4D = *vtxs4DH;
 
   edm::Handle<edm::ValueMap<float> > btlMatchChi2H;
   edm::Handle<edm::ValueMap<float> > btlMatchTimeChi2H;
@@ -151,9 +113,6 @@ void TrackPUIDMVAProducer::produce( edm::Event& ev, const edm::EventSetup& es ) 
   edm::Handle<edm::ValueMap<float> > etlMatchTimeChi2H;
   edm::Handle<edm::ValueMap<float> > mtdTimeH;
   edm::Handle<edm::ValueMap<float> > pathLengthH;
-  edm::Handle<edm::ValueMap<float> > t0PIDH;
-  edm::Handle<edm::ValueMap<float> > sigmat0PIDH;
-  edm::Handle<edm::ValueMap<int> > assocMTDH;
   
   ev.getByToken(btlMatchChi2Token_, btlMatchChi2H);
   auto btlMatchChi2 = *btlMatchChi2H.product();
@@ -167,41 +126,25 @@ void TrackPUIDMVAProducer::produce( edm::Event& ev, const edm::EventSetup& es ) 
   auto pathLength = *pathLengthH.product();
   ev.getByToken(mtdTimeToken_, mtdTimeH);
   auto mtdTime = *mtdTimeH.product();
-  ev.getByToken(t0PIDToken_, t0PIDH);
-  auto t0PID = *t0PIDH.product();    
-  ev.getByToken(sigmat0PIDToken_, sigmat0PIDH);
-  auto sigmat0PID = *sigmat0PIDH.product();    
-  ev.getByToken(assocMtdTrackToken_, assocMTDH);
-  auto assocMTD = *assocMTDH.product();    
   
-  std::vector<float> puID3DmvaOutRaw;
-  std::vector<float> puID4DmvaOutRaw;
+  std::vector<float> mvaOutRaw;
 
   //Loop over tracks collection
-  for (unsigned int itrack = 0; itrack<tracks.size(); ++itrack) 
-    {
-      const reco::Track &track = tracks[itrack];
-      const reco::TrackRef trackref(tracksH,itrack);
-      
-      //---training performed only above 0.5 GeV
-      if(track.pt() < 0.5)
-	{
-	  puID3DmvaOutRaw.push_back(-1.);
-	  puID4DmvaOutRaw.push_back(-1.);
-	}
-      else
-      {
-	puID3DmvaOutRaw.push_back(vtxs.size()>0  && std::abs(track.dz(vtxs[0].position()))<maxDz_ ? mva3D_(trackref, vtxs[0]) : -1.); 
-	const reco::TrackRef mtdTrackref(tracksMTDH,assocMTD[trackref]);
-	puID4DmvaOutRaw.push_back(vtxs4D.size()>0 && std::abs(track.dz(vtxs4D[0].position()))<maxDz_ ? 
-				  mva4D_(trackref, mtdTrackref, vtxs4D[0],
-					 t0PID, sigmat0PID, btlMatchChi2, btlMatchTimeChi2, etlMatchChi2, etlMatchTimeChi2,
-					 mtdTime, pathLength) : -1.);
-      }
-    }
-  
-  fillValueMap(ev, tracksH, puID3DmvaOutRaw, puId3DmvaName);
-  fillValueMap(ev, tracksH, puID4DmvaOutRaw, puId4DmvaName);  
+  for (unsigned int itrack = 0; itrack<tracks.size(); ++itrack) {
+    const reco::Track &track = tracks[itrack];
+    const reco::TrackRef trackref(tracksH,itrack);
+    const reco::TrackRef mtdTrackref(tracksMTDH,itrack);
+
+    //---training performed only above 0.5 GeV
+    if(track.pt() < 0.5)
+	mvaOutRaw.push_back(-1.);
+    else
+	mvaOutRaw.push_back(
+			    mva_(trackref, mtdTrackref, btlMatchChi2, btlMatchTimeChi2, etlMatchChi2, etlMatchTimeChi2,
+				 mtdTime, pathLength)
+			    );
+  }
+  fillValueMap(ev, tracksH, mvaOutRaw, mvaName);  
 }
 
 //define this as a plug-in
