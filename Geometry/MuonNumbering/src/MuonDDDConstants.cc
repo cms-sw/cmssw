@@ -6,12 +6,12 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-
 //#define LOCAL_DEBUG
 
 MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
 #ifdef LOCAL_DEBUG
-  std::cout << "MuonDDDConstants;:MuonDDDConstants ( const DDCompactView& cpv ) constructor " << std::endl;
+  edm::LogVerbatim("Geometry") 
+    << "MuonDDDConstants;:MuonDDDConstants ( const DDCompactView& cpv ) constructor ";
 #endif
   std::string attribute = "OnlyForMuonNumbering"; 
   
@@ -25,12 +25,13 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
   
   const DDsvalues_type mySpecs (fview.mergedSpecifics());
 #ifdef LOCAL_DEBUG
-  std::cout << "mySpecs.size() = " << mySpecs.size() << std::endl;
+  edm::LogVerbatim("Geometry") 
+    << "MuonDDDConstants::mySpecs.size() = " << mySpecs.size();
 #endif
   if ( mySpecs.size() < 25 ) {
-    edm::LogError("MuonDDDConstants") << " MuonDDDConstants: Missing SpecPars from DetectorDescription." << std::endl;
-    std::string msg = "MuonDDDConstants does not have the appropriate number of SpecPars associated";
-    msg+= " with the part //MUON.";
+    edm::LogError("MuonDDDConstants") 
+      << " MuonDDDConstants: Missing SpecPars from DetectorDescription.";
+    std::string msg = "MuonDDDConstants does not have the appropriate number of SpecPars associated with the part //MUON.";
     throw cms::Exception("GeometryBuildFailure", msg);
   }
 
@@ -40,7 +41,9 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
     if ( bit->second.isEvaluated() ) {
       this->addValue( bit->second.name(), int(bit->second.doubles()[0]) );
 #ifdef LOCAL_DEBUG
-      std::cout << "adding DDConstant of " << bit->second.name() << " = " << int(bit->second.doubles()[0]) << std::endl;
+      edm::LogVerbatim("Geometry") 
+	<< "MuonDDDConstants::adding DDConstant of " << bit->second.name() 
+	<< " = " << int(bit->second.doubles()[0]);
 #endif
     }
   }  
@@ -48,21 +51,22 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
 
 int MuonDDDConstants::getValue( const std::string& name ) const {
 #ifdef LOCAL_DEBUG
-  std::cout << "about to look for ... " << name << std::endl;
+  edm::LogVerbatim("Geometry") << "about to look for ... " << name << std::endl;
 #endif
   if ( namesAndValues_.empty() ) {
-    std::cout << "MuonDDDConstants::getValue HAS NO VALUES!" << std::endl;
+    edm::LogWarning("Geometry") << "MuonDDDConstants::getValue HAS NO VALUES!";
     throw cms::Exception("GeometryBuildFailure", "MuonDDDConstants does not have requested value for " + name);
   }
 
   std::map<std::string, int>::const_iterator findIt = namesAndValues_.find(name);
 
   if ( findIt == namesAndValues_.end() ) {
-    std::cout << "MuonDDDConstants::getValue was asked for " << name << " and had NO clue!" << std::endl;
+    edm::LogWarning("Geometry") << "MuonDDDConstants::getValue was asked for " << name << " and had NO clue!";
     throw cms::Exception("GeometryBuildFailure", "MuonDDDConstants does not have requested value for " + name);
   }
 #ifdef LOCAL_DEBUG
-  std::cout << "Value for " << name << " is " << findIt->second << std::endl;
+  edm::LogVerbatim("Geometry") 
+    << "MuonDDDConstants::Value for " << name << " is " << findIt->second;
 #endif
   return findIt->second;
 }
