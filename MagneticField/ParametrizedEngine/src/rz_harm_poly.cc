@@ -74,10 +74,9 @@ int rz_harm_poly::GetMaxM()
 //Return max abs(M) for all rz_harm_poly objects created
 //
    int M_cur, M_max = 0;
-   std::set<poly2d_base*>::iterator it;
-   for (it = poly2d_base_set.begin(); it != poly2d_base_set.end(); ++it) {
-      if (typeid(**it) == typeid(rz_harm_poly)) {
-         M_cur = std::abs(((rz_harm_poly*)(*it))->M);
+   for (auto const& poly:  poly2d_base_set) {
+      if (typeid(*poly) == typeid(rz_harm_poly)) {
+         M_cur = std::abs(static_cast<rz_harm_poly const*>(poly)->M);
          if (M_cur > M_max) M_max = M_cur;
       }
    }
