@@ -86,7 +86,7 @@ HcalSubdetector HcalCalibDetId::hcalSubdet() const {
     
 int HcalCalibDetId::ieta() const {
   CalibDetType cf = calibFlavor();
-  return (cf==CalibrationBox)?(((id_>>11)&0x7)-2):((cf==HOCrosstalk)?(((id_>>7)&0xF)*zside()):(cf==LASERMON?((id_>>10)&0x3F):(((cf==HBX || cf==HEX)?((id_>>10)&0x1F)*zside():(0)))));
+  return (cf==CalibrationBox)?(((id_>>11)&0x7)-2):((cf==HOCrosstalk)?(((id_>>7)&0xF)*zside()):(cf==LASERMON?((id_>>10)&0x3F):(((cf==HBX || cf==HEX)?((id_>>7)&0x1F)*zside():(0)))));
 }
 
 int HcalCalibDetId::iphi() const {
@@ -96,7 +96,7 @@ int HcalCalibDetId::iphi() const {
 
 int HcalCalibDetId::zside() const {
   CalibDetType cf = calibFlavor(); 
-  return (cf==HOCrosstalk)?(((id_>>11)&0x1)?(1):(-1)):((cf==HBX || cf==HEX)?((id_>>12)&0x1)?(1):(-1):(0));
+  return (cf==HOCrosstalk)?(((id_>>11)&0x1)?(1):(-1)):((cf==HBX || cf==HEX)?(((id_>>12)&0x1)?(1):(-1)):(0));
 }
 
 std::string HcalCalibDetId::cboxChannelString() const {
