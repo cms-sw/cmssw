@@ -83,7 +83,7 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
         //Make sure that DepRecordT is a type in ListT
         using EndItrT = typename boost::mpl::end< ListT >::type;
         using FoundItrT = typename boost::mpl::find< ListT, DepRecordT >::type;
-        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a a product with an ESGetToken specifying a Record from another Record where the second Record is not dependent on the first Record.");
+        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a product with an ESGetToken specifying a Record from another Record where the second Record is not dependent on the first Record.");
         return getRecord<DepRecordT>().getHandle(iToken);
       }
 
@@ -94,7 +94,7 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
         //Make sure that DepRecordT is a type in ListT
         using EndItrT = typename boost::mpl::end< ListT >::type;
         using FoundItrT = typename boost::mpl::find< ListT, DepRecordT >::type;
-        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a a product with an ESGetToken specifying a Record from another Record where the second Record is not dependent on the first Record.");
+        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a product with an ESGetToken specifying a Record from another Record where the second Record is not dependent on the first Record.");
         return getRecord<DepRecordT>().getTransientHandle(iToken);
       }
 
@@ -105,7 +105,7 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
         //Make sure that DepRecordT is a type in ListT
         using EndItrT = typename boost::mpl::end< ListT >::type;
         using FoundItrT = typename boost::mpl::find< ListT, DepRecordT >::type;
-        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a a product with an ESGetToken specifying a Record from another Record where the second Record is not dependent on the first Record.");
+        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a product with an ESGetToken specifying a Record from another Record where the second Record is not dependent on the first Record.");
         return getRecord<DepRecordT>().get(iToken);
       }
 
