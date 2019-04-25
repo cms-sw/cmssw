@@ -18,7 +18,6 @@
 
 SiStripMonitorFilter::SiStripMonitorFilter(const edm::ParameterSet& iConfig) {
   FilterDirectory = "FilterResults";
-  dqmStore_ = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
 
   filerDecisionToken_ =

@@ -58,7 +58,6 @@ protected:
 
 private:
 
-  DQMStore* dbe;
   // Switch for verbosity
   std::string metname;
 
