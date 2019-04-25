@@ -2,7 +2,6 @@
 
 <use name="tensorflow" />
 <use name="tensorflow-cc" />
-<use name="boost_filesystem" />
 
 <use name="FWCore/Framework" />
 <use name="FWCore/Utilities" />

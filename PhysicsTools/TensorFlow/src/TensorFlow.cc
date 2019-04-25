@@ -124,29 +124,23 @@ Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir,
             << "error while attaching meta graph to session: " << status.ToString();
     }
 
-    // get the name of the index file
-    // based on https://github.com/tensorflow/tensorflow/blob/v1.13.1/tensorflow/core/util/tensor_bundle/naming.cc#L23
-    StringPiece varFileName = kSavedModelVariablesFilename;
-    std::string indexName = strings::Printf("%.*s.index", static_cast<int>(varFileName.size()),
-        varFileName.data());
-
     // restore variables using the variable and index files in the export directory
     // first, find names and paths
     std::string varFileTensorName = metaGraph->saver_def().filename_tensor_name();
     std::string restoreOpName = metaGraph->saver_def().restore_op_name();
-    fspath varDir = fspath(exportDir) / kSavedModelVariablesDirectory;
-    fspath indexFile = varDir / indexName;
-    fspath varFile = varDir / kSavedModelVariablesFilename;
+    std::string varDir = io::JoinPath(exportDir, kSavedModelVariablesDirectory);
+    std::string indexFile = io::JoinPath(varDir, MetaFilename(kSavedModelVariablesFilename));
+    std::string varFile = io::JoinPath(varDir, kSavedModelVariablesFilename);
 
     // when the index file is missing, there's nothing to do
-    if (!boost::filesystem::exists(indexFile))
+    if (!Env::Default()->FileExists(indexFile).ok())
     {
         return session;
     }
 
     // create a tensor to store the variable file
     Tensor varFileTensor(DT_STRING, TensorShape({}));
-    varFileTensor.scalar<std::string>()() = varFile.native();
+    varFileTensor.scalar<std::string>()() = varFile;
 
     // run the restore op
     status = session->Run({ { varFileTensorName, varFileTensor } }, {}, { restoreOpName }, nullptr);
