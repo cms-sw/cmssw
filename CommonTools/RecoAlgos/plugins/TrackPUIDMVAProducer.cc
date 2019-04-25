@@ -59,7 +59,7 @@ TrackPUIDMVAProducer::TrackPUIDMVAProducer(const ParameterSet& iConfig) :
   etlMatchTimeChi2Token_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("etlMatchTimeChi2Src"))) ,
   mtdTimeToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mtdTimeSrc"))),
   pathLengthToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("pathLengthSrc"))),
-  mva_(iConfig.getParameter<edm::FileInPath>("trackPUID_4DBDT_weights_file").fullPath())
+  mva_(iConfig.getParameter<edm::FileInPath>("trackPUID_mtdQualBDT_weights_file").fullPath())
 {  
   produces<edm::ValueMap<float> >(mvaName);
 }
@@ -83,7 +83,7 @@ void TrackPUIDMVAProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
     setComment("MTD TIme value Map");
   desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD", "pathLength"))->
     setComment("MTD PathLength value Map");
-  desc.add<edm::FileInPath>("trackPUID_4DBDT_weights_file",edm::FileInPath("CommonTools/RecoAlgos/data/clf4D_dz1cm_bo.xml"))->
+  desc.add<edm::FileInPath>("trackPUID_mtdQualBDT_weights_file",edm::FileInPath("CommonTools/RecoAlgos/data/clf4D_MTDquality_bo.xml"))->
     setComment("Track PUID 4D BDT weights");
   descriptions.add("trackPUIDMVAProducer", desc);
 }
