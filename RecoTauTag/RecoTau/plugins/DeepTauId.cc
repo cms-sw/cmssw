@@ -634,18 +634,15 @@ private:
         get(tau_n_charged_prongs) = GetValueLinear(tau.decayMode() / 5 + 1, 1, 3, true);
         get(tau_n_neutral_prongs) = GetValueLinear(tau.decayMode() % 5, 0, 2, true);
         get(chargedIsoPtSum) = GetValueNorm(tau.tauID("chargedIsoPtSum"), 47.78f, 123.5f);
-        get(chargedIsoPtSumdR03_over_dR05) = GetValue(tau.tauID("chargedIsoPtSumdR03") /
-                                                                          tau.tauID("chargedIsoPtSum"));
-        get(footprintCorrection) = GetValueNorm(tau.tauID("footprintCorrectiondR03"),9.029f, 26.42f);
+        get(chargedIsoPtSumdR03_over_dR05) = GetValue(tau.tauID("chargedIsoPtSumdR03") / tau.tauID("chargedIsoPtSum"));
+        get(footprintCorrection) = GetValueNorm(tau.tauID("footprintCorrectiondR03"), 9.029f, 26.42f);
         get(neutralIsoPtSum) = GetValueNorm(tau.tauID("neutralIsoPtSum"), 57.59f, 155.3f);
         get(neutralIsoPtSumWeight_over_neutralIsoPtSum) =
             GetValue(tau.tauID("neutralIsoPtSumWeight") / tau.tauID("neutralIsoPtSum"));
         get(neutralIsoPtSumWeightdR03_over_neutralIsoPtSum) =
             GetValue(tau.tauID("neutralIsoPtSumWeightdR03") / tau.tauID("neutralIsoPtSum"));
-        get(neutralIsoPtSumdR03_over_dR05) = GetValue(tau.tauID("neutralIsoPtSumdR03") /
-                                                                          tau.tauID("neutralIsoPtSum"));
-        get(photonPtSumOutsideSignalCone) = GetValueNorm(tau.tauID("photonPtSumOutsideSignalConedR03"),
-                                                                             1.731f, 6.846f);
+        get(neutralIsoPtSumdR03_over_dR05) = GetValue(tau.tauID("neutralIsoPtSumdR03") / tau.tauID("neutralIsoPtSum"));
+        get(photonPtSumOutsideSignalCone) = GetValueNorm(tau.tauID("photonPtSumOutsideSignalConedR03"), 1.731f, 6.846f);
         get(puCorrPtSum) = GetValueNorm(tau.tauID("puCorrPtSum"), 22.38f, 16.34f);
         get(tau_dxy_pca_x) = GetValueNorm(tau.dxy_PCA().x(), -0.0241f, 0.0074f);
         get(tau_dxy_pca_y) = GetValueNorm(tau.dxy_PCA().y(),0.0675f, 0.0128f);
@@ -660,37 +657,29 @@ private:
                                    && tau.ip3d_error() > 0;
         get(tau_ip3d_valid) = tau_ip3d_valid;
         get(tau_ip3d) = tau_ip3d_valid ? GetValueNorm(tau.ip3d(), 0.0026f, 0.0114f) : 0.f;
-        get(tau_ip3d_sig) = tau_ip3d_valid ? GetValueNorm(std::abs(tau.ip3d()) / tau.ip3d_error(),
-                                                2.928f, 4.466f) : 0.f ;
+        get(tau_ip3d_sig) = tau_ip3d_valid ? GetValueNorm(std::abs(tau.ip3d()) / tau.ip3d_error(), 2.928f, 4.466f) : 0.f;
         get(tau_dz) = GetValueNorm(leadChargedHadrCand->dz(), 0.f, 0.0190f);
         const bool tau_dz_sig_valid = std::isnormal(leadChargedHadrCand->dz()) && std::isnormal(leadChargedHadrCand->dzError())
                                       && leadChargedHadrCand->dzError() > 0;
         get(tau_dz_sig_valid) = tau_dz_sig_valid;
-        get(tau_dz_sig) = GetValueNorm(std::abs(leadChargedHadrCand->dz()) /
-                                                           leadChargedHadrCand->dzError(), 4.717f, 11.78f);
+        get(tau_dz_sig) = GetValueNorm(std::abs(leadChargedHadrCand->dz()) / leadChargedHadrCand->dzError(), 4.717f, 11.78f);
         get(tau_flightLength_x) = GetValueNorm(tau.flightLength().x(), -0.0003f, 0.7362f);
         get(tau_flightLength_y) = GetValueNorm(tau.flightLength().y(), -0.0009f, 0.7354f);
         get(tau_flightLength_z) = GetValueNorm(tau.flightLength().z(), -0.0022f, 1.993f);
         get(tau_flightLength_sig) = GetValueNorm(tau.flightLengthSig(), -4.78f, 9.573f);
-        get(tau_pt_weighted_deta_strip) = GetValueLinear(reco::tau::pt_weighted_deta_strip(tau,
-                                                                             tau.decayMode()), 0, 1, true);
-        get(tau_pt_weighted_dphi_strip) = GetValueLinear(reco::tau::pt_weighted_dphi_strip(tau,
-                                                                             tau.decayMode()), 0, 1, true);
-        get(tau_pt_weighted_dr_signal) = GetValueNorm(reco::tau::pt_weighted_dr_signal(tau,
-                                                                          tau.decayMode()), 0.0052f, 0.01433f);
-        get(tau_pt_weighted_dr_iso) = GetValueLinear(reco::tau::pt_weighted_dr_iso(tau,
-                                                                         tau.decayMode()), 0, 1, true);
+        get(tau_pt_weighted_deta_strip) = GetValueLinear(reco::tau::pt_weighted_deta_strip(tau, tau.decayMode()), 0, 1, true);
+        get(tau_pt_weighted_dphi_strip) = GetValueLinear(reco::tau::pt_weighted_dphi_strip(tau, tau.decayMode()), 0, 1, true);
+        get(tau_pt_weighted_dr_signal) = GetValueNorm(reco::tau::pt_weighted_dr_signal(tau, tau.decayMode()), 0.0052f, 0.01433f);
+        get(tau_pt_weighted_dr_iso) = GetValueLinear(reco::tau::pt_weighted_dr_iso(tau,tau.decayMode()), 0, 1, true);
         get(tau_leadingTrackNormChi2) = GetValueNorm(tau.leadingTrackNormChi2(), 1.538f, 4.401f);
         const bool tau_e_ratio_valid = std::isnormal(reco::tau::eratio(tau)) && reco::tau::eratio(tau) > 0.f;
         get(tau_e_ratio_valid) = tau_e_ratio_valid;
-        get(tau_e_ratio) = tau_e_ratio_valid ? GetValueLinear(reco::tau::eratio(tau), 0, 1, true)
-                                                                 : 0.f;
+        get(tau_e_ratio) = tau_e_ratio_valid ? GetValueLinear(reco::tau::eratio(tau), 0, 1, true) : 0.f;
         const double gj_angle_diff = calculateGottfriedJacksonAngleDifference(tau);
         const bool tau_gj_angle_diff_valid = (std::isnormal(gj_angle_diff) || gj_angle_diff == 0) && gj_angle_diff >= 0;
         get(tau_gj_angle_diff_valid) = tau_gj_angle_diff_valid;
-        get(tau_gj_angle_diff) = tau_gj_angle_diff_valid ?
-                                                     GetValueLinear(calculateGottfriedJacksonAngleDifference(tau),
-                                                                    0, pi, true) : 0;;
+        get(tau_gj_angle_diff) = tau_gj_angle_diff_valid ? GetValueLinear(calculateGottfriedJacksonAngleDifference(tau),
+            0, pi, true) : 0;
         get(tau_n_photons) = GetValueNorm(reco::tau::n_photons_total(tau), 2.95f, 3.927f);
         get(tau_emFraction) = GetValueLinear(tau.emFraction_MVA(), -1, 1, false);
         get(tau_inside_ecal_crack) = GetValue(isInEcalCrack(tau.p4().eta()));
@@ -742,18 +731,14 @@ private:
                     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
                 get(pfCand_ele_dphi) = GetValueLinear(dPhi(tau.polarP4(), pfCands.at(index_pf_ele).polarP4()),
                     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
-                get(pfCand_ele_pvAssociationQuality) = GetValueLinear(pfCands.at(index_pf_ele).pvAssociationQuality(),
-                    0, 7, true);
+                get(pfCand_ele_pvAssociationQuality) = GetValueLinear(pfCands.at(index_pf_ele).pvAssociationQuality(), 0, 7, true);
                 get(pfCand_ele_puppiWeight) = GetValue(pfCands.at(index_pf_ele).puppiWeight());
                 get(pfCand_ele_charge) = GetValue(pfCands.at(index_pf_ele).charge());
                 get(pfCand_ele_lostInnerHits) = GetValue(pfCands.at(index_pf_ele).lostInnerHits());
                 get(pfCand_ele_numberOfPixelHits) = GetValueLinear(pfCands.at(index_pf_ele).numberOfPixelHits(), 0, 10, true);
-                get(pfCand_ele_vertex_dx) = GetValueNorm(pfCands.at(index_pf_ele).vertex().x() - pv.position().x(), 0.f,
-                    0.1221f);
-                get(pfCand_ele_vertex_dy) = GetValueNorm(pfCands.at(index_pf_ele).vertex().y() - pv.position().y(), 0.f,
-                    0.1226f);
-                get(pfCand_ele_vertex_dz) = GetValueNorm(pfCands.at(index_pf_ele).vertex().z() - pv.position().z(),
-                    0.001f, 1.024f);
+                get(pfCand_ele_vertex_dx) = GetValueNorm(pfCands.at(index_pf_ele).vertex().x() - pv.position().x(), 0.f, 0.1221f);
+                get(pfCand_ele_vertex_dy) = GetValueNorm(pfCands.at(index_pf_ele).vertex().y() - pv.position().y(), 0.f, 0.1226f);
+                get(pfCand_ele_vertex_dz) = GetValueNorm(pfCands.at(index_pf_ele).vertex().z() - pv.position().z(), 0.001f, 1.024f);
                 get(pfCand_ele_vertex_dx_tauFL) = GetValueNorm(pfCands.at(index_pf_ele).vertex().x() -
                     pv.position().x() - tau.flightLength().x(), 0.f, 0.3411f);
                 get(pfCand_ele_vertex_dy_tauFL) = GetValueNorm(pfCands.at(index_pf_ele).vertex().y() -
@@ -774,8 +759,7 @@ private:
                         GetValueNorm(pfCands.at(index_pf_ele).pseudoTrack().chi2() /
                         pfCands.at(index_pf_ele).pseudoTrack().ndof(), 2.272f, 8.439f) : 0;
                     get(pfCand_ele_track_ndof) = pfCands.at(index_pf_ele).pseudoTrack().ndof() > 0 ?
-                        GetValueNorm(pfCands.at(index_pf_ele).pseudoTrack().ndof(), 15.18f,
-                        3.203f) : 0;
+                        GetValueNorm(pfCands.at(index_pf_ele).pseudoTrack().ndof(), 15.18f, 3.203f) : 0;
                 }
             }
             if(valid_index_pf_gamma){
@@ -790,24 +774,14 @@ private:
                     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
                 get(pfCand_gamma_pvAssociationQuality) =
                     GetValueLinear(pfCands.at(index_pf_gamma).pvAssociationQuality(), 0, 7, true);
-                get(pfCand_gamma_fromPV) = GetValueLinear(pfCands.at(index_pf_gamma).fromPV(), 0, 3,
-                    true);
+                get(pfCand_gamma_fromPV) = GetValueLinear(pfCands.at(index_pf_gamma).fromPV(), 0, 3, true);
                 get(pfCand_gamma_puppiWeight) = GetValue(pfCands.at(index_pf_gamma).puppiWeight());
-                get(pfCand_gamma_puppiWeightNoLep) =
-                    GetValue(pfCands.at(index_pf_gamma).puppiWeightNoLep());
-                get(pfCand_gamma_lostInnerHits) =
-                    GetValue(pfCands.at(index_pf_gamma).lostInnerHits());
-                get(pfCand_gamma_numberOfPixelHits) =
-                    GetValueLinear(pfCands.at(index_pf_gamma).numberOfPixelHits(), 0, 7, true);
-                get(pfCand_gamma_vertex_dx) =
-                    GetValueNorm(pfCands.at(index_pf_gamma).vertex().x() - pv.position().x(),
-                    0.0005f, 1.735f);
-                get(pfCand_gamma_vertex_dy) =
-                    GetValueNorm(pfCands.at(index_pf_gamma).vertex().x() - pv.position().y(),
-                    -0.0008f, 1.752f);
-                get(pfCand_gamma_vertex_dz) =
-                    GetValueNorm(pfCands.at(index_pf_gamma).vertex().z() - pv.position().z(),
-                     -0.0201f, 8.333f);
+                get(pfCand_gamma_puppiWeightNoLep) = GetValue(pfCands.at(index_pf_gamma).puppiWeightNoLep());
+                get(pfCand_gamma_lostInnerHits) = GetValue(pfCands.at(index_pf_gamma).lostInnerHits());
+                get(pfCand_gamma_numberOfPixelHits) = GetValueLinear(pfCands.at(index_pf_gamma).numberOfPixelHits(), 0, 7, true);
+                get(pfCand_gamma_vertex_dx) = GetValueNorm(pfCands.at(index_pf_gamma).vertex().x() - pv.position().x(), 0.0005f, 1.735f);
+                get(pfCand_gamma_vertex_dy) = GetValueNorm(pfCands.at(index_pf_gamma).vertex().x() - pv.position().y(), -0.0008f, 1.752f);
+                get(pfCand_gamma_vertex_dz) = GetValueNorm(pfCands.at(index_pf_gamma).vertex().z() - pv.position().z(), -0.0201f, 8.333f);
                 get(pfCand_gamma_vertex_dx_tauFL) = GetValueNorm(pfCands.at(index_pf_gamma).vertex().x() -
                     pv.position().x() - tau.flightLength().x(), -0.0014f, 1.93f);
                 get(pfCand_gamma_vertex_dy_tauFL) = GetValueNorm(pfCands.at(index_pf_gamma).vertex().y() -
@@ -838,7 +812,7 @@ private:
 
                 get(ele_valid) = valid_index_ele;
                 get(ele_rel_pt) = GetValueNorm(electrons.at(index_ele).polarP4().pt() / tau.polarP4().pt(),
-                is_inner ? 1.067f : 0.5111f, is_inner ? 1.521f : 2.765f);
+                    is_inner ? 1.067f : 0.5111f, is_inner ? 1.521f : 2.765f);
                 get(ele_deta) = GetValueLinear(electrons.at(index_ele).polarP4().eta() - tau.polarP4().eta(),
                     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
                 get(ele_dphi) = GetValueLinear(dPhi(tau.polarP4(), electrons.at(index_ele).polarP4()),
@@ -847,11 +821,11 @@ private:
                 float cc_ele_energy, cc_gamma_energy;
                 int cc_n_gamma;
                 CalculateElectronClusterVars(electrons.at(index_ele), cc_ele_energy, cc_gamma_energy, cc_n_gamma);
-                const bool cc_valid = cc_ele_energy && CalculateElectronClusterVars ;
+                const bool cc_valid = CalculateElectronClusterVars(electrons.at(index_ele), cc_ele_energy,
+                    cc_gamma_energy, cc_n_gamma);;
                 if(cc_valid){
                     get(ele_cc_valid) = cc_valid;
-                    get(ele_cc_ele_rel_energy) = GetValueNorm(cc_ele_energy / electrons.at(index_ele).polarP4().pt(),
-                        1.729f, 1.644f);
+                    get(ele_cc_ele_rel_energy) = GetValueNorm(cc_ele_energy / electrons.at(index_ele).polarP4().pt(), 1.729f, 1.644f);
                     get(ele_cc_gamma_rel_energy) = GetValueNorm(cc_gamma_energy / cc_ele_energy, 0.1439f, 0.3284f);
                     get(ele_cc_n_gamma) = GetValueNorm(cc_n_gamma, 1.794f, 2.079f);
                 }
@@ -870,8 +844,7 @@ private:
                     electrons.at(index_ele).polarP4().pt(), 1.993f, 1.308f);
                 get(ele_ecalEnergy_sig) =  GetValueNorm(electrons.at(index_ele).ecalEnergy() /
                     electrons.at(index_ele).ecalEnergyError(), 70.25f, 58.16f);
-                get(ele_eSuperClusterOverP) =  GetValueNorm(electrons.at(index_ele).eSuperClusterOverP(), 2.432f,
-                    15.13f);
+                get(ele_eSuperClusterOverP) =  GetValueNorm(electrons.at(index_ele).eSuperClusterOverP(), 2.432f, 15.13f);
                 get(ele_eSeedClusterOverP) = GetValueNorm(electrons.at(index_ele).eSeedClusterOverP(), 2.034f, 13.96f);
                 get(ele_eSeedClusterOverPout) = GetValueNorm(electrons.at(index_ele).eSeedClusterOverPout(), 6.64f, 36.8f);
                 get(ele_eEleClusterOverPout) = GetValueNorm(electrons.at(index_ele).eSeedClusterOverPout(), 6.64f, 36.8f);
@@ -889,29 +862,23 @@ private:
                     GetValueNorm(electrons.at(index_ele).deltaPhiSeedClusterTrackAtCalo(), 0.0004f, 0.0777f);
                 get(ele_mvaInput_earlyBrem) = GetValue(electrons.at(index_ele).mvaInput().earlyBrem);
                 get(ele_mvaInput_lateBrem) = GetValue(electrons.at(index_ele).mvaInput().lateBrem);
-                get(ele_mvaInput_sigmaEtaEta) = GetValueNorm(electrons.at(index_ele).mvaInput().sigmaEtaEta,0.0008f,
-                    0.0052f);
+                get(ele_mvaInput_sigmaEtaEta) = GetValueNorm(electrons.at(index_ele).mvaInput().sigmaEtaEta,0.0008f, 0.0052f);
                 get(ele_mvaInput_hadEnergy) = GetValueNorm(electrons.at(index_ele).mvaInput().hadEnergy, 14.04f, 69.48f);
                 get(ele_mvaInput_deltaEta) = GetValueNorm(electrons.at(index_ele).mvaInput().deltaEta, 0.0099f, 0.0851f);
 
                 const auto& gsfTrack = electrons.at(index_ele).gsfTrack();
                 if(gsfTrack.isNonnull()){
-                    get(ele_gsfTrack_normalizedChi2) = GetValueNorm(gsfTrack->normalizedChi2(),
-                    3.049f, 10.39f);
+                    get(ele_gsfTrack_normalizedChi2) = GetValueNorm(gsfTrack->normalizedChi2(), 3.049f, 10.39f);
                     get(ele_gsfTrack_numberOfValidHits) = GetValueNorm(gsfTrack->numberOfValidHits(), 16.52f, 2.806f);
-                    get(ele_rel_gsfTrack_pt) = GetValueNorm(gsfTrack->pt() /
-                        electrons.at(index_ele).polarP4().pt(), 1.355f, 16.81f);
-                    get(ele_gsfTrack_pt_sig) = GetValueNorm(gsfTrack->pt() /
-                        gsfTrack->ptError(), 5.046f, 3.119f);
+                    get(ele_rel_gsfTrack_pt) = GetValueNorm(gsfTrack->pt() / electrons.at(index_ele).polarP4().pt(), 1.355f, 16.81f);
+                    get(ele_gsfTrack_pt_sig) = GetValueNorm(gsfTrack->pt() / gsfTrack->ptError(), 5.046f, 3.119f);
                 }
                 const auto& closestCtfTrack = electrons.at(index_ele).closestCtfTrackRef();
                 const bool has_closestCtfTrack = closestCtfTrack.isNonnull();
                 if(has_closestCtfTrack){
                     get(ele_has_closestCtfTrack) = has_closestCtfTrack;
-                    get(ele_closestCtfTrack_normalizedChi2) =
-                        GetValueNorm(closestCtfTrack->normalizedChi2(), 2.411f, 6.98f);
-                    get(ele_closestCtfTrack_numberOfValidHits) = GetValueNorm(closestCtfTrack->numberOfValidHits(),
-                        15.16f, 5.26f);
+                    get(ele_closestCtfTrack_normalizedChi2) = GetValueNorm(closestCtfTrack->normalizedChi2(), 2.411f, 6.98f);
+                    get(ele_closestCtfTrack_numberOfValidHits) = GetValueNorm(closestCtfTrack->numberOfValidHits(), 15.16f, 5.26f);
                 }
             }
         }
@@ -970,24 +937,15 @@ private:
                     dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get()));
                 get(pfCand_chHad_pvAssociationQuality) =
                     GetValueLinear(pfCands.at(index_chH).pvAssociationQuality(), 0, 7, true);
-                get(pfCand_chHad_fromPV) = GetValueLinear(pfCands.at(index_chH).fromPV(), 0, 3,
-                    true);
+                get(pfCand_chHad_fromPV) = GetValueLinear(pfCands.at(index_chH).fromPV(), 0, 3, true);
                 get(pfCand_chHad_puppiWeight) = GetValue(pfCands.at(index_chH).puppiWeight());
-                get(pfCand_chHad_puppiWeightNoLep) =
-                    GetValue(pfCands.at(index_chH).puppiWeightNoLep());
+                get(pfCand_chHad_puppiWeightNoLep) = GetValue(pfCands.at(index_chH).puppiWeightNoLep());
                 get(pfCand_chHad_charge) =  GetValue(pfCands.at(index_chH).charge());
                 get(pfCand_chHad_lostInnerHits) = GetValue(pfCands.at(index_chH).lostInnerHits());
-                get(pfCand_chHad_numberOfPixelHits) =
-                    GetValueLinear(pfCands.at(index_chH).numberOfPixelHits(), 0, 12, true);
-                get(pfCand_chHad_vertex_dx) =
-                    GetValueNorm(pfCands.at(index_chH).vertex().x() - pv.position().x(), 0.0005f,
-                    1.735f);
-                get(pfCand_chHad_vertex_dy) =
-                    GetValueNorm(pfCands.at(index_chH).vertex().x() - pv.position().y(), -0.0008f,
-                    1.752f);
-                get(pfCand_chHad_vertex_dz) =
-                    GetValueNorm(pfCands.at(index_chH).vertex().z() - pv.position().z(), -0.0201f,
-                    8.333f);
+                get(pfCand_chHad_numberOfPixelHits) = GetValueLinear(pfCands.at(index_chH).numberOfPixelHits(), 0, 12, true);
+                get(pfCand_chHad_vertex_dx) = GetValueNorm(pfCands.at(index_chH).vertex().x() - pv.position().x(), 0.0005f, 1.735f);
+                get(pfCand_chHad_vertex_dy) = GetValueNorm(pfCands.at(index_chH).vertex().x() - pv.position().y(), -0.0008f, 1.752f);
+                get(pfCand_chHad_vertex_dz) = GetValueNorm(pfCands.at(index_chH).vertex().z() - pv.position().z(), -0.0201f, 8.333f);
                 get(pfCand_chHad_vertex_dx_tauFL) = GetValueNorm(pfCands.at(index_chH).vertex().x() - pv.position().x()
                     - tau.flightLength().x(), -0.0014f, 1.93f);
                 get(pfCand_chHad_vertex_dy_tauFL) = GetValueNorm(pfCands.at(index_chH).vertex().y() - pv.position().y()
@@ -995,7 +953,7 @@ private:
                 get(pfCand_chHad_vertex_dz_tauFL) = GetValueNorm(pfCands.at(index_chH).vertex().z() - pv.position().z()
                     - tau.flightLength().z(), -0.0138f, 8.622f);
 
-                const bool hasTrackDetails = pfCands.at(index_chH).hasTrackDetails() == 1;
+                const bool hasTrackDetails = pfCands.at(index_chH).hasTrackDetails();
                 if(hasTrackDetails){
                     get(pfCand_chHad_hasTrackDetails) = hasTrackDetails;
                     get(pfCand_chHad_dxy) = GetValueNorm(std::abs(pfCands.at(index_chH).dxy()), -0.012f, 2.386f);
@@ -1011,8 +969,7 @@ private:
                         GetValueNorm(pfCands.at(index_chH).pseudoTrack().ndof(), 13.92f, 6.581f) : 0;
                 }
                 get(pfCand_chHad_hcalFraction) = GetValue(pfCands.at(index_chH).hcalFraction());
-                get(pfCand_chHad_rawCaloFraction) = GetValueLinear(pfCands.at(index_chH).rawCaloFraction(), 0.f, 2.6f,
-                    true);
+                get(pfCand_chHad_rawCaloFraction) = GetValueLinear(pfCands.at(index_chH).rawCaloFraction(), 0.f, 2.6f, true);
             }
             if(valid_nH){
                 index_nH = cell_map.at(CellObjectType::PfCand_neutralHadron);
