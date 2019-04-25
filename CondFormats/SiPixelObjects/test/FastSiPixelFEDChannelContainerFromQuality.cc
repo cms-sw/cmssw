@@ -1,5 +1,14 @@
+// -*- C++ -*-
 //
+// Package:    CondFormats/SiPixelObjects
+// Class:      FastSiPixelFEDChannelContainerFromQuality
+// 
+/**\class FastSiPixelFEDChannelContainerFromQuality FastSiPixelFEDChannelContainerFromQuality.cc CondFormats/SiPixelObjects/plugins/FastSiPixelFEDChannelContainerFromQuality.cc
+ Description: class to build the SiPixelFEDChannelContainer payloads
+*/
 //
+// Original Author:  Marco Musich
+//         Created:  Tue, 25 Apr 2019 12:04:36 GMT
 //
 //
 
@@ -59,7 +68,8 @@ public:
 private:
 
   cond::persistency::ConnectionPool m_connectionPool;
-  const std::string m_condDb;
+  const std::string m_condDbQuality;
+  const std::string m_condDbCabling;
   const std::string m_QualityTagName;
   const std::string m_CablingTagName; 
   const std::string m_record;
@@ -79,14 +89,12 @@ private:
 
   inline unsigned int closest_from_above(std::vector<unsigned int> const& vec, unsigned int value) {
     auto const it = std::lower_bound(vec.begin(), vec.end(), value);
-    if (it == vec.end() && vec.size()>1) { return -1; }
-    return *it;
+    return vec.at(it-vec.begin()-1);
   }
 
   inline unsigned int closest_from_below(std::vector<unsigned int> const& vec, unsigned int value) {
     auto const it = std::upper_bound(vec.begin(), vec.end(), value);
-    if (it == vec.end() && vec.size()>1) { return -1; }
-    return *it;
+    return vec.at(it-vec.begin()-1);
   }
 
 
@@ -94,9 +102,10 @@ private:
 
 FastSiPixelFEDChannelContainerFromQuality::FastSiPixelFEDChannelContainerFromQuality(const edm::ParameterSet& iConfig):
   m_connectionPool(),
-  m_condDb   ( iConfig.getParameter< std::string >("conditionDatabase") ),
+  m_condDbQuality   ( iConfig.getParameter< std::string >("condDBQuality") ),
+  m_condDbCabling   ( iConfig.getParameter< std::string >("condDBCabling") ),
   m_QualityTagName  ( iConfig.getParameter< std::string >("qualityTagName") ),
-  m_CablingTagName ( iConfig.getParameter< std::string >("cablingMapTagName") ),
+  m_CablingTagName  ( iConfig.getParameter< std::string >("cablingMapTagName") ),
   m_record   ( iConfig.getParameter<std::string>("record")),
   m_output   ( iConfig.getParameter< std::string >("output") ),
   m_startTime( iConfig.getParameter< unsigned long long >("startIOV") ),
@@ -118,89 +127,60 @@ FastSiPixelFEDChannelContainerFromQuality::~FastSiPixelFEDChannelContainerFromQu
 }
 
 void FastSiPixelFEDChannelContainerFromQuality::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
-  
 
+  std::stringstream ss;
+  
   cond::Time_t startIov = m_startTime; 
   cond::Time_t endIov   = m_endTime;   
   if (startIov > endIov)
     throw cms::Exception("endTime must be greater than startTime!");
   edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality") << "[FastSiPixelFEDChannelContainerFromQuality::" << __func__ << "] "
-  				     << "Set start time " << startIov 
-  				     << "\n ... Set end time " << endIov;
+							    << "Set start time " << startIov 
+							    << "\n ... Set end time " << endIov;
 
-  // open db session
+  // open db session for the quality
   edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality") << "[FastSiPixelFEDChannelContainerFromQuality::" << __func__ << "] "
-				     << "Query the condition database " << m_condDb;
-  cond::persistency::Session condDbSession = m_connectionPool.createSession( m_condDb );
+							    << "Query the condition database " << m_condDbQuality;
+
+  cond::persistency::Session condDbSession = m_connectionPool.createSession( m_condDbQuality );
   condDbSession.transaction().start( true );
 
-  std::stringstream ss;
-  // list of times with new IOVs within the time range
-  //std::vector< cond::Time_t > vTime;
-  
   // query the database
   edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality") << "[FastSiPixelFEDChannelContainerFromQuality::" << __func__ << "] "
-				     << "Reading IOVs from tag " << m_QualityTagName;
+							    << "Reading IOVs from tag " << m_QualityTagName;
 
-  // cond::persistency::IOVProxy iovProxy = condDbSession.readIov(m_QualityTagName, true); // load all?
-  // auto iiov = iovProxy.find(startIov);
-  // auto eiov = iovProxy.find(endIov);
-  // int niov = 0;
-  // while (iiov != iovProxy.end() && (*iiov).since <= (*eiov).since){
-  //   // convert cond::Time_t to seconds since epoch
-  //   if ((*iiov).since<startIov){
-  //     vTime.push_back(startIov);
-  //   } else {
-  //     vTime.push_back((*iiov).since);
-  //   }
-  //   auto payload = condDbSession.fetchPayload<SiPixelQuality>( (*iiov).payloadId );
-  //   auto runLS = SiPixelFEDChannelUtils::unpack((*iiov).since);
-  //   // print IOVs summary
-  //   ss  << runLS.first << ","<< runLS.second << " ("<< (*iiov).since <<")" << " [hash: " << (*iiov).payloadId << "] \n";
-    
-  //   cond::persistency::IOVProxy iovProxyMap = condDbSession.readIov(m_CablingTagName, true); // load all?  
-  //   auto iiovMap = iovProxyMap.find(runLS.first);
-  //   if( iiovMap == iovProxyMap.end() ){
-  //     std::cout <<"Could not find iov with since="<< runLS.first <<" in tag "<< m_CablingTagName <<std::endl;
-  //   }
+  // open db session for the cabling map
+  edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality") << "[FastSiPixelFEDChannelContainerFromQuality::" << __func__ << "] "
+							    << "Query the condition database " << m_condDbCabling;
 
-  //   auto map_payload = condDbSession.fetchPayload<SiPixelFedCablingMap>( (*iiovMap).payloadId );
-  //   ss  << "cabling IOV: " << runLS.first << " ("<< (*iiovMap).since <<")" << " [hash: " << (*iiovMap).payloadId << "] \n" << std::endl;
-    
-  //   std::string scenario = std::to_string(runLS.first)+"_"+std::to_string(runLS.second);
-  
-  //   edm::LogInfo("SiPixelFEDChannelContainerFromQualityConverter")<<"Found IOV:" << runLS.first  <<"("<<  runLS.second <<")"<<std::endl;
-    
-  //   auto theSiPixelFEDChannelCollection = this->createFromSiPixelQuality(*payload,*map_payload);
+  cond::persistency::Session condDbSession2 = m_connectionPool.createSession( m_condDbCabling );
+  condDbSession2.transaction().start( true );
 
-  //   if(removeEmptyPayloads_ && theSiPixelFEDChannelCollection.empty()) return;
+  // query the database
+  edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality") << "[FastSiPixelFEDChannelContainerFromQuality::" << __func__ << "] "
+							    << "Reading IOVs from tag " << m_CablingTagName;
 
-  //   myQualities->setScenario(scenario,theSiPixelFEDChannelCollection);
-    
-  //   ++iiov;
-  //   ++niov;
-  // }
- 
-  // load all the IOVs of the cabling map once and for all outside the loop
-  cond::persistency::IOVProxy iovProxyMap = condDbSession.readIov(m_CablingTagName, true);   
-
-  int niov = 0;
+  // get the list of payloads for the SiPixelQuality tag
   std::vector<std::tuple<cond::Time_t,cond::Hash> > m_iovs;
   condDbSession.getIovRange(m_QualityTagName,startIov,endIov, m_iovs);
+  
+  const auto MIN_VAL = cond::timeTypeSpecs[cond::runnumber].beginValue;
+  const auto MAX_VAL = cond::timeTypeSpecs[cond::runnumber].endValue;
 
+  // get the list of payloads for the Cabling Map 
   std::vector<std::tuple<cond::Time_t,cond::Hash> > m_cabling_iovs;
-  condDbSession.getIovRange(m_CablingTagName,startIov,endIov, m_cabling_iovs);
+  condDbSession2.getIovRange(m_CablingTagName,MIN_VAL,MAX_VAL,m_cabling_iovs);
 
   // create here the unpacked list of IOVs (run numbers)
   std::vector<unsigned int> listOfIOVs;
-  std::vector<unsigned int> listOfCablingIOVs;
   std::transform(m_iovs.begin(), m_iovs.end(), std::back_inserter(listOfIOVs),
 		 [](std::tuple<cond::Time_t,cond::Hash> myIOV) -> unsigned int { return SiPixelFEDChannelUtils::unpack(std::get<0>(myIOV)).first; });
 
+  std::vector<unsigned int> listOfCablingIOVs;
   std::transform(m_cabling_iovs.begin(), m_cabling_iovs.end(), std::back_inserter(listOfCablingIOVs),
-		 [](std::tuple<cond::Time_t,cond::Hash> myIOV) -> unsigned int { return std::get<0>(myIOV); });
+		 [](std::tuple<cond::Time_t,cond::Hash> myIOV2) -> unsigned int { return std::get<0>(myIOV2); });
 
-  std::cout<<" listOfIOVs.size(): " << listOfIOVs.size() << " listOfCablingIOVs.size(): " << listOfCablingIOVs.size() << std::endl; 
+  edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<<" Number of SiPixelQuality paloyads to analyze: " << listOfIOVs.size() << " Number of CablngMap payloads: " << listOfCablingIOVs.size() << std::endl; 
   
   if(listOfCablingIOVs.size()>1){
     if( closest_from_below(listOfCablingIOVs,listOfIOVs.front()) != closest_from_above(listOfCablingIOVs,listOfIOVs.back()) ){
@@ -212,61 +192,58 @@ void FastSiPixelFEDChannelContainerFromQuality::analyze(const edm::Event& evt, c
     }
   }
 
-  std::cout<< " listOfIOVs.front() " << listOfIOVs.front() << " listOfIOVs.back() " << listOfIOVs.back() << std::endl;
+  edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<< " First run covered by SiPixelQuality tag: " << listOfIOVs.front() << " / last run covered by SiPixelQuality tag: " << listOfIOVs.back() << std::endl;
 
+  edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<< " Cabling IOVs in the interval: " ;
   for(const auto& cb : listOfCablingIOVs ){
-    std::cout<< " " << cb;
+    edm::LogVerbatim("FastSiPixelFEDChannelContainerFromQuality")<< " " << cb;
   }
-  std::cout << std::endl;
+  edm::LogVerbatim("FastSiPixelFEDChannelContainerFromQuality")<< std::endl;
 
-  std::cout<< " closest_from_above(listOfCablingIOVs,listOfIOVs.front()): " << closest_from_above(listOfCablingIOVs,listOfIOVs.front()) << std::endl;
-  std::cout<< " closest_from_below(listOfCablingIOVs,listOfIOVs.back()): " << closest_from_below(listOfCablingIOVs,listOfIOVs.back()) << std::endl;
+  if(printdebug_){
+    edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<< " closest_from_above(listOfCablingIOVs,listOfIOVs.back()): "  << closest_from_above(listOfCablingIOVs,listOfIOVs.back()) << std::endl;
+    edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<< " closest_from_below(listOfCablingIOVs,listOfIOVs.front()): " << closest_from_below(listOfCablingIOVs,listOfIOVs.front()) << std::endl;
+  }  
 
   auto it = std::find(listOfCablingIOVs.begin(),listOfCablingIOVs.end(),closest_from_below(listOfCablingIOVs,listOfIOVs.front()));
   int index = std::distance(listOfCablingIOVs.begin(),it);  
 
-  auto theCablingMapPayload = condDbSession.fetchPayload<SiPixelFedCablingMap>(std::get<1>(m_cabling_iovs.at(index)));
+  edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<< " using the cabling map with hash: " << std::get<1>(m_cabling_iovs.at(index)) << std::endl;
+
+  auto theCablingMapPayload = condDbSession2.fetchPayload<SiPixelFedCablingMap>(std::get<1>(m_cabling_iovs.at(index)));
   auto theCablingTree = (*theCablingMapPayload).cablingTree();
 
   printf("Progressing Bar                               :0%%       20%%       40%%       60%%       80%%       100%%\n");
   printf("Translating into SiPixelFEDChannelCollection  :");
   int step = m_iovs.size()/50;
 
+  int niov = 0;
   for (const auto & myIOV : m_iovs){
     
     if(niov%step==0){printf(".");fflush(stdout);}
     auto payload = condDbSession.fetchPayload<SiPixelQuality>(std::get<1>(myIOV));
     auto runLS = SiPixelFEDChannelUtils::unpack(std::get<0>(myIOV));
+    
     // print IOVs summary
     ss  << runLS.first << ","<< runLS.second << " ("<< std::get<0>(myIOV)  <<")" << " [hash: " << std::get<1>(myIOV)  << "] \n";
     
-    auto iiovMap = iovProxyMap.find(runLS.first);
-    if( iiovMap == iovProxyMap.end() ){
-      std::cout <<"Could not find iov with since="<< runLS.first <<" in tag "<< m_CablingTagName <<std::endl;
-    }
-
-    //auto map_payload = condDbSession.fetchPayload<SiPixelFedCablingMap>( (*iiovMap).payloadId );
-    //ss  << "cabling IOV: " << runLS.first << " ("<< (*iiovMap).since <<")" << " [hash: " << (*iiovMap).payloadId << "] \n" << std::endl;
-    
     std::string scenario = std::to_string(runLS.first)+"_"+std::to_string(runLS.second);
-  
-    edm::LogInfo("SiPixelFEDChannelContainerFromQualityConverter")<<"Found IOV:" << runLS.first  <<"("<<  runLS.second <<")"<<std::endl;
-    
-    //auto theSiPixelFEDChannelCollection = this->createFromSiPixelQuality(*payload,*map_payload);
+ 
+    if(printdebug_){
+      edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<<"Found IOV:" << runLS.first  <<"("<<  runLS.second <<")"<<std::endl;
+    }    
+
     auto theSiPixelFEDChannelCollection = this->createFromSiPixelQuality(*payload,*theCablingMapPayload,*theCablingTree);
 
     if(removeEmptyPayloads_ && theSiPixelFEDChannelCollection.empty()) return;
 
     myQualities->setScenario(scenario,theSiPixelFEDChannelCollection);
     
-    //SiPixelFEDChannelContainer::SiPixelFEDChannelCollection theBadFEDChannels;
-    //myQualities->setScenario(scenario,theBadFEDChannels);
-
     ++niov;
   }
 
   edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality") << "[FastSiPixelFEDChannelContainerFromQuality::" << __func__ << "] "
-				     << "Read " << niov << " IOVs from tag " << m_QualityTagName << " corresponding to the specified time interval.\n\n" << ss.str();
+							    << "Read " << niov << " IOVs from tag " << m_QualityTagName << " corresponding to the specified time interval.\n\n" << ss.str();
 
   if(printdebug_){
     edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality") << "[FastSiPixelFEDChannelContainerFromQuality::" << __func__ << "] "
@@ -274,6 +251,7 @@ void FastSiPixelFEDChannelContainerFromQuality::analyze(const edm::Event& evt, c
   }
 
   condDbSession.transaction().commit();
+  condDbSession2.transaction().commit();
   
   if (!m_output.empty()) {
     std::ofstream fout;
@@ -375,9 +353,10 @@ FastSiPixelFEDChannelContainerFromQuality::fillDescriptions(edm::ConfigurationDe
   desc.addUntracked<bool>("printDebug",false);
   desc.addUntracked<bool>("removeEmptyPayloads",false);
   desc.add<std::string>("record","SiPixelStatusScenariosRcd");
-  desc.add<std::string>("conditionDatabase","frontier://FrontierPrep/CMS_CONDITIONS");
+  desc.add<std::string>("condDBQuality","frontier://FrontierPrep/CMS_CONDITIONS");
   desc.add<std::string>("qualityTagName","SiPixelQualityOffline_2017_threshold1percent_stuckTBM");
-  desc.add<std::string>("cablingMapTagName","SiPixelFedCablingMap_phase1_v7");
+  desc.add<std::string>("condDBCabling","frontier://FrontierProd/CMS_CONDITIONS");
+  desc.add<std::string>("cablingMapTagName","SiPixelFedCablingMap_v1");
   desc.add<unsigned long long>("startIOV",1310841198608821);
   desc.add<unsigned long long>("endIOV",1312696624480350);
   desc.add<std::string>("output","summary.txt");
