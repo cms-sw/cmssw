@@ -14,9 +14,9 @@ upgradeKeys[2017] = [
     '2018Design',
     '2018DesignPU',
     '2019',
-#    '2019PU',
+    '2019PU',
     '2019Design',
-#    '2019DesignPU',
+    '2019DesignPU',
 ]
 
 upgradeKeys[2023] = [
@@ -65,7 +65,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[11800,12000],[12200,12400],[20800,21200],[21600,22400],[25000,26000],[50000,51000]]
+numWFConflict = [[20800,21200],[21600,22400],[25000,26000],[50000,51000]]
 numWFAll={
     2017: [],
     2023: []
@@ -299,10 +299,16 @@ upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
 upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 upgradeProperties[2017]['2017DesignPU'] = deepcopy(upgradeProperties[2017]['2017Design'])
 upgradeProperties[2017]['2017DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+
 upgradeProperties[2017]['2018PU'] = deepcopy(upgradeProperties[2017]['2018'])
 upgradeProperties[2017]['2018PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
 upgradeProperties[2017]['2018DesignPU'] = deepcopy(upgradeProperties[2017]['2018Design'])
 upgradeProperties[2017]['2018DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+
+upgradeProperties[2017]['2019PU'] = deepcopy(upgradeProperties[2017]['2019'])
+upgradeProperties[2017]['2019PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
+upgradeProperties[2017]['2019DesignPU'] = deepcopy(upgradeProperties[2017]['2019Design'])
+upgradeProperties[2017]['2019DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 
 upgradeProperties[2023] = {
     '2023D17' : {
