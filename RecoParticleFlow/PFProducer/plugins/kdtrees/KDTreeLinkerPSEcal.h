@@ -2,8 +2,8 @@
 #define KDTreeLinkerPSEcal_h
 
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
+#include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
+#include "CommonTools/RecoAlgos/interface/KDTreeLinkerTools.h"
 
 
 // This class is used to find all links between PreShower clusters and ECAL clusters
