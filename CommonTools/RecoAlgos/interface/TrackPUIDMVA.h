@@ -13,7 +13,7 @@ class TrackPUIDMVA
 {
 public:
     //---ctors---
-    TrackPUIDMVA(std::string weights_file, bool is4D=false);
+    TrackPUIDMVA(std::string weights_file);
 
     //---dtor---
     ~TrackPUIDMVA() {};
@@ -22,9 +22,6 @@ public:
     // 4D
     float operator() (
 		      const reco::TrackRef& trk, const reco::TrackRef& ext_trk, 
-		      const reco::Vertex& vtx,
-		      edm::ValueMap<float>& t0s,
-		      edm::ValueMap<float>& sigma_t0s,
 		      edm::ValueMap<float>& btl_chi2s,
 		      edm::ValueMap<float>& btl_time_chi2s,                      
 		      edm::ValueMap<float>& etl_chi2s,
@@ -33,13 +30,7 @@ public:
 		      edm::ValueMap<float>& trk_lengths
 		      );
 
-    // 3D
-    float operator() (
-		      const reco::TrackRef& trk, 
-		      const reco::Vertex& vtx);
-
 private:
-    bool                       is4D_;
     MVAComputer::mva_variables vars_;
     MVAComputer                mva_;
 };
