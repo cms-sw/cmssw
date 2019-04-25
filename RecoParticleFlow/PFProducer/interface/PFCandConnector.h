@@ -17,9 +17,9 @@ class PFCandConnector {
     
     public :
        
-       PFCandConnector( ) { 
-	 pfC_ = std::make_unique<reco::PFCandidateCollection>(); 
-	 debug_ = false;
+       PFCandConnector(bool debug=false)
+       : debug_(debug)
+       { 
 	 bCorrect_ = false;
 	 bCalibPrimary_ =  false;
 
@@ -61,21 +61,20 @@ class PFCandConnector {
 
 
        void setParameters(bool bCorrect, bool bCalibPrimary, double dptRel_PrimaryTrack, double dptRel_MergedTrack, double ptErrorSecondary, const std::vector<double>& nuclCalibFactors);
-       void setDebug( bool debug ) {debug_ = debug;}
 
        
 
-       std::unique_ptr<reco::PFCandidateCollection> connect(std::unique_ptr<reco::PFCandidateCollection>& pfCand);
+       reco::PFCandidateCollection connect(reco::PFCandidateCollection& pfCand) const;
 
        
  
     private :
 
        /// Analyse nuclear interactions where a primary or merged track is present
-       void analyseNuclearWPrim(std::unique_ptr<reco::PFCandidateCollection>&, unsigned int);
+       void analyseNuclearWPrim(reco::PFCandidateCollection&, std::vector<bool> &, unsigned int) const;
 
        /// Analyse nuclear interactions where a secondary track is present
-       void analyseNuclearWSec(std::unique_ptr<reco::PFCandidateCollection>&, unsigned int);
+       void analyseNuclearWSec(reco::PFCandidateCollection&, std::vector<bool> &, unsigned int) const;
 
        bool isPrimaryNucl( const reco::PFCandidate& pf ) const;
 
@@ -84,13 +83,8 @@ class PFCandConnector {
        /// Return a calibration factor for a reconstructed nuclear interaction
        double rescaleFactor( const double pt, const double cFrac ) const;
 
-       /// Collection of primary PFCandidates to be transmitted to the Event
-       std::unique_ptr<reco::PFCandidateCollection> pfC_;
-       /// A mask to define the candidates which shall not be transmitted
-       std::vector<bool> bMask_;
-
        /// Parameters
-       bool debug_;
+       const bool debug_;
        bool bCorrect_;
 
        /// Calibration parameters for the reconstructed nuclear interactions
