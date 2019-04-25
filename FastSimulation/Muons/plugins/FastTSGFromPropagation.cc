@@ -371,7 +371,7 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
     trackerGeomChanged = true;
   }
 
-  if ( trackerGeomChanged && (&*theTracker) ) {
+  if ( trackerGeomChanged && theTracker.product() ) {
     theNavigation.reset(new DirectTrackerNavigation(theTracker));
   }
 }
