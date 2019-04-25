@@ -4,5 +4,5 @@ from L1Trigger.L1THGCal.hgcalTriggerGeometryESProducer_cfi import *
 from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import *
 
 
-hgcalConcentrator = cms.Sequence(hgcalConcentratorProducer)
+hgcalConcentrator = cms.Task(hgcalConcentratorProducer)
 
