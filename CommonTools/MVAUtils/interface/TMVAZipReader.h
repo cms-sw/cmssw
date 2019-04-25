@@ -29,12 +29,14 @@
 
 namespace reco::details {
 
-    bool hasEnding(std::string const& fullString, std::string const& ending);
-    char* readGzipFile(const std::string& weightFile);
+  bool hasEnding(std::string const& fullString, std::string const& ending);
+  char* readGzipFile(const std::string& weightFile);
 
-    TMVA::IMethod* loadTMVAWeights(
-        TMVA::Reader* reader, const std::string& method, const std::string& weightFile, bool verbose = false);
+  TMVA::IMethod* loadTMVAWeights(TMVA::Reader* reader,
+                                 const std::string& method,
+                                 const std::string& weightFile,
+                                 bool verbose = false);
 
-}
+}  // namespace reco::details
 
 #endif
