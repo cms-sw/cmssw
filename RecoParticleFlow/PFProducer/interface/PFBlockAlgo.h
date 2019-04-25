@@ -38,13 +38,6 @@ class PFBlockAlgo {
  public:
   // the element list should **always** be a list of (smart) pointers
   typedef std::vector<std::unique_ptr<reco::PFBlockElement> > ElementList;
-  typedef std::unique_ptr<BlockElementImporterBase> ImporterPtr;
-  typedef std::unique_ptr<BlockElementLinkerBase> LinkTestPtr;  
-  typedef std::unique_ptr<KDTreeLinkerBase> KDTreePtr;
-  /// define these in *Fwd files in DataFormats/ParticleFlowReco?
-  typedef ElementList::iterator IE;
-  typedef ElementList::const_iterator IEC;  
-  typedef reco::PFBlockCollection::const_iterator IBC;
   //for skipping ranges
   typedef std::array<std::pair<unsigned int,unsigned int>,reco::PFBlockElement::kNBETypes> ElementRanges;
   
@@ -76,10 +69,6 @@ class PFBlockAlgo {
   void packLinks(reco::PFBlock& block, 
 		 const std::unordered_map<std::pair<unsigned int,unsigned int>,double>& links) const; 
   
-  /// Avoid to check links when not useful
-  inline bool linkPrefilter(const reco::PFBlockElement* last, 
-			    const reco::PFBlockElement* next) const;
-
   /// check whether 2 elements are linked. Returns distance
   inline void link( const reco::PFBlockElement* el1, 
 		    const reco::PFBlockElement* el2, 
@@ -95,22 +84,14 @@ class PFBlockAlgo {
   friend std::ostream& operator<<(std::ostream&, const PFBlockAlgo&);
   bool useHO_;
 
-  std::vector<ImporterPtr> importers_;
+  std::vector<std::unique_ptr<BlockElementImporterBase>> importers_;
 
   const std::unordered_map<std::string,reco::PFBlockElement::Type> 
     elementTypes_;
-  std::vector<LinkTestPtr> linkTests_;
+  std::vector<std::unique_ptr<BlockElementLinkerBase>> linkTests_;
   unsigned int linkTestSquare_[reco::PFBlockElement::kNBETypes][reco::PFBlockElement::kNBETypes];
   
-  std::vector<KDTreePtr> kdtrees_;
+  std::vector<std::unique_ptr<KDTreeLinkerBase>> kdtrees_;
 };
 
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-
 #endif
-
-
