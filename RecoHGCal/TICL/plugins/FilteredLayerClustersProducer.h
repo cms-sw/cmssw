@@ -16,7 +16,7 @@ class FilteredLayerClustersProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<std::vector<float>> clustersMask_token_;
   std::string clusterFilter_;
   std::string iteration_label_;
-  const ClusterFilterBase *theFilter_ = nullptr;
+  const ticl::ClusterFilterBase *theFilter_ = nullptr;
 };
 
 #endif

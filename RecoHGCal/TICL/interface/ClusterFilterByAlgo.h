@@ -12,6 +12,7 @@
 #include <utility>
 
 // Filter clusters that belong to a specific algorithm
+namespace ticl {
 class ClusterFilterByAlgo final : public ClusterFilterBase {
  public:
   ClusterFilterByAlgo(const edm::ParameterSet& ps)
@@ -31,5 +32,6 @@ class ClusterFilterByAlgo final : public ClusterFilterBase {
  private:
   int algo_number_;
 };
+}
 
 #endif

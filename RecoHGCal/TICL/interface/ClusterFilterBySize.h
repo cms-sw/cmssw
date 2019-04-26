@@ -12,6 +12,7 @@
 #include <utility>
 
 // Filter clusters that belong to a specific algorithm
+namespace ticl{
 class ClusterFilterBySize final : public ClusterFilterBase {
  public:
   ClusterFilterBySize(const edm::ParameterSet& ps)
@@ -32,5 +33,6 @@ class ClusterFilterBySize final : public ClusterFilterBase {
  private:
   unsigned int max_cluster_size_;
 };
+}
 
 #endif
