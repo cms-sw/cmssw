@@ -78,8 +78,8 @@ string GEMBaseValidation::getSuffixTitle(int region){
 }
 
 string GEMBaseValidation::getStationLabel(int i) {
-  string stationLabel[] = {"1","2"};
-  return stationLabel[i-1];
+  string stationLabel[] = {"0","1","2"};
+  return stationLabel[i];
 }
 
 
