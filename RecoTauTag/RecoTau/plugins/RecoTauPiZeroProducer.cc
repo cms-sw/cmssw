@@ -70,7 +70,7 @@ class RecoTauPiZeroProducer : public edm::stream::EDProducer<> {
       outputSelector_;
 
     //consumes interface
-    edm::EDGetTokenT<reco::CandidateView> cand_token;
+    edm::EDGetTokenT<reco::JetView> cand_token;
 
     double minJetPt_;
     double maxJetAbsEta_;
@@ -80,7 +80,7 @@ class RecoTauPiZeroProducer : public edm::stream::EDProducer<> {
 
 RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) 
 {
-  cand_token = consumes<reco::CandidateView>( pset.getParameter<edm::InputTag>("jetSrc"));
+  cand_token = consumes<reco::JetView>( pset.getParameter<edm::InputTag>("jetSrc"));
   minJetPt_ = pset.getParameter<double>("minJetPt");
   maxJetAbsEta_ = pset.getParameter<double>("maxJetAbsEta");
 
@@ -129,7 +129,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset)
 void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 {
   // Get a view of our jets via the base candidates
-  edm::Handle<reco::CandidateView> jetView;
+  edm::Handle<reco::JetView> jetView;
   evt.getByToken(cand_token, jetView);
 
   // Give each of our plugins a chance at doing something with the edm::Event
@@ -137,22 +137,15 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     builder.setup(evt, es);
   }
 
-  // Convert the view to a RefVector of actual PFJets
-  reco::PFJetRefVector jetRefs =
-      reco::tau::castView<reco::PFJetRefVector>(jetView);
   // Make our association
   std::unique_ptr<reco::JetPiZeroAssociation> association;
 
-  if (!jetRefs.empty()) {
-    edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
-    evt.get(jetRefs.id(), pfJetCollectionHandle);
-    association = std::make_unique<reco::JetPiZeroAssociation>(reco::PFJetRefProd(pfJetCollectionHandle));
-  } else {
-    association = std::make_unique<reco::JetPiZeroAssociation>();
-  }
+  association = std::make_unique<reco::JetPiZeroAssociation>(reco::JetRefBaseProd(jetView));
 
   // Loop over our jets
-  for(auto const& jet : jetRefs) {
+  size_t nJets = jetView->size();
+  for (size_t i = 0; i < nJets; ++i) {
+    const reco::JetBaseRef jet(jetView->refAt(i));
 
     if(jet->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(jet->eta()) - maxJetAbsEta_ > -1e-5) continue;
@@ -313,142 +306,14 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc_qualityCuts.add<bool>("recoverLeadingTrk", false);
 
   edm::ParameterSet pset_builders;
-  //pset_builders.addParameter<edm::ParameterSet>("qualityCuts");
   pset_builders.addParameter<std::string>("name","");
   pset_builders.addParameter<std::string>("plugin","");
+  edm::ParameterSet qualityCuts;
+  pset_builders.addParameter<edm::ParameterSet>("qualityCuts",qualityCuts);
   pset_builders.addParameter<int>("verbosity",0);
 
   {
-    // ak4PFJetsLegacyTaNCPiZeros
-    edm::ParameterSetDescription desc;
-    desc.add<double>("massHypothesis", 0.136);
-    desc.addVPSet("ranking", desc_ranking, vpsd_ranking);
-    desc.add<int>("verbosity", 0);
-    desc.add<double>("maxJetAbsEta", 2.5);
-    desc.add<std::string>("outputSelection", "pt > 1.5");
-    desc.add<double>("minJetPt", 14.0);
-    desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJets"));
-
-    {
-      edm::ParameterSetDescription desc_builders;
-      desc_builders.setAllowAnything();  
-      desc_builders.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
-      desc_builders.add<std::string>("name", "1");
-      desc_builders.add<std::string>("plugin", "RecoTauPiZeroTrivialPlugin");
-      desc_builders.add<int>("verbosity", 0);
-
-      desc_builders.addOptional<bool>("makeCombinatoricStrips");
-      desc_builders.addOptional<int>("maxStripBuildIterations");
-      desc_builders.addOptional<double>("minGammaEtStripAdd");
-      desc_builders.addOptional<double>("minGammaEtStripSeed");
-      desc_builders.addOptional<double>("minStripEt");
-      desc_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
-      desc_builders.addOptional<bool>("updateStripAfterEachDaughter");
-      desc_builders.addOptional<bool>("applyElecTrackQcuts");
-
-      std::vector<edm::ParameterSet> vpsd_builders;
-      vpsd_builders.push_back(pset_builders);
-      desc.addVPSet("builders", desc_builders, vpsd_builders);
-    }
-
-    descriptions.add("ak4PFJetsLegacyTaNCPiZerosDefault", desc);
-  }
-
-  {
-    // ak4PFJetsRecoTauGreedyPiZeros
-    edm::ParameterSetDescription desc;
-    desc.add<double>("massHypothesis", 0.136);
-    desc.addVPSet("ranking", desc_ranking, vpsd_ranking);
-    desc.add<int>("verbosity", 0);
-    desc.add<double>("maxJetAbsEta", 2.5);
-    desc.add<std::string>("outputSelection", "pt > 1.5");
-    desc.add<double>("minJetPt", 14.0);
-    desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJets"));
-    {
-      edm::ParameterSetDescription desc_builders;
-      desc_builders.setAllowAnything();
-      desc_builders.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
-      desc_builders.add<int>("maxInputStrips", 5);
-      desc_builders.add<std::string>("name", "cs");
-      desc_builders.add<std::string>("plugin", "RecoTauPiZeroStripPlugin");
-      desc_builders.add<double>("stripMassWhenCombining", 0.0);
-      desc_builders.add<double>("stripPhiAssociationDistance", 0.2);
-      desc_builders.add<double>("stripEtaAssociationDistance", 0.05);
-      desc_builders.add<int>("verbosity", 0);
-
-      desc_builders.addOptional<bool>("makeCombinatoricStrips");
-      desc_builders.addOptional<int>("maxStripBuildIterations");
-      desc_builders.addOptional<double>("minGammaEtStripAdd");
-      desc_builders.addOptional<double>("minGammaEtStripSeed");
-      desc_builders.addOptional<double>("minStripEt");
-      desc_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
-      desc_builders.addOptional<bool>("updateStripAfterEachDaughter");
-      desc_builders.addOptional<bool>("applyElecTrackQcuts");
-
-      std::vector<edm::ParameterSet> vpsd_builders;
-      vpsd_builders.push_back(pset_builders); 
-      desc.addVPSet("builders", desc_builders, vpsd_builders);
-    }
-    descriptions.add("ak4PFJetsRecoTauGreedyPiZerosDefault", desc);
-  }
-
-  {
-    // ak4PFJetsRecoTauPiZeros
-    edm::ParameterSetDescription desc;
-    desc.add<double>("massHypothesis", 0.136);
-    desc.addVPSet("ranking", desc_ranking, vpsd_ranking);
-    desc.add<int>("verbosity", 0);
-    desc.add<double>("maxJetAbsEta", 2.5);
-    desc.add<std::string>("outputSelection", "pt > 1.5");
-    desc.add<double>("minJetPt", 14.0);
-    desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJets"));
-    {
-      edm::ParameterSetDescription desc_builders;
-      desc_builders.setAllowAnything();
-      desc_builders.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
-      desc_builders.add<std::string>("name", "2");
-      desc_builders.add<std::string>("plugin", "RecoTauPiZeroCombinatoricPlugin");
-      desc_builders.add<double>("maxMass", -1.0);
-      desc_builders.add<double>("minMass", 0.0);
-      desc_builders.add<unsigned int>("choose", 2);
-      desc_builders.addOptional<unsigned int>("maxInputGammas");
-      desc_builders.add<int>("verbosity", 0);
-
-      desc_builders.addOptional<bool>("makeCombinatoricStrips");
-      desc_builders.addOptional<int>("maxStripBuildIterations");
-      desc_builders.addOptional<double>("minGammaEtStripAdd");
-      desc_builders.addOptional<double>("minGammaEtStripSeed");
-      desc_builders.addOptional<double>("minStripEt");
-      desc_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
-      desc_builders.addOptional<bool>("updateStripAfterEachDaughter");
-      desc_builders.addOptional<bool>("applyElecTrackQcuts");
-      {
-       	edm::ParameterSetDescription psd0;
-        psd0.addOptional<std::string>("function", "TMath::Min(0.3, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))");
-        psd0.addOptional<double>("par1", 0.707716);
-        psd0.addOptional<double>("par0", 0.352476);
-        desc_builders.addOptional<edm::ParameterSetDescription>("stripPhiAssociationDistanceFunc", psd0);
-      }
-      {
-       	edm::ParameterSetDescription psd0;
-        psd0.addOptional<std::string>("function", "TMath::Min(0.15, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))");
-        psd0.addOptional<double>("par1", 0.658701);
-        psd0.addOptional<double>("par0", 0.197077);
-        desc_builders.addOptional<edm::ParameterSetDescription>("stripEtaAssociationDistanceFunc", psd0);
-      }
-
-      //     vpsd_builders.addOptional<edm::ParameterSetDescription>("stripPhiAssociationDistanceFunc");
-      //     vpsd_builders.addOptional<edm::ParameterSetDescription>("stripEtaAssociationDistanceFunc");
-      std::vector<edm::ParameterSet> vpsd_builders;
-      vpsd_builders.push_back(pset_builders);
-      desc.addVPSet("builders", desc_builders, vpsd_builders);
-    }
-
-    descriptions.add("ak4PFJetsRecoTauPiZerosDefault", desc);
-  }
-
-  {
-    // ak4PFJetsLegacyHPSPiZeros
+    // Tailored on ak4PFJetsLegacyHPSPiZeros
     edm::ParameterSetDescription desc;
     desc.add<double>("massHypothesis", 0.136);
     desc.addVPSet("ranking", desc_ranking, vpsd_ranking);
@@ -457,52 +322,46 @@ RecoTauPiZeroProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
     desc.add<std::string>("outputSelection", "pt > 0");
     desc.add<double>("minJetPt", 14.0);
     desc.add<edm::InputTag>("jetSrc", edm::InputTag("ak4PFJets"));
+
     edm::ParameterSetDescription desc_builders;
-    desc_builders.setAllowAnything();
     {
-      // both of the following uncommented version need to be accepted.
-      {
-        edm::ParameterSetDescription psd0;
-        psd0.add<std::string>("function", "TMath::Min(0.3, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))");
-        psd0.add<double>("par1", 0.707716);
-        psd0.add<double>("par0", 0.352476);
-        desc_builders.addOptional<edm::ParameterSetDescription>("stripPhiAssociationDistanceFunc", psd0);
-      }
-      {
-        edm::ParameterSetDescription psd0;
-        psd0.add<std::string>("function", "TMath::Min(0.15, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))");
-        psd0.add<double>("par1", 0.658701);
-        psd0.add<double>("par0", 0.197077);
-        desc_builders.addOptional<edm::ParameterSetDescription>("stripEtaAssociationDistanceFunc", psd0);
-      }
-      desc_builders.addOptional<double>("stripEtaAssociationDistance", 0.05);
-      desc_builders.addOptional<double>("stripPhiAssociationDistance", 0.2);
-
-      desc_builders.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
-
-      desc_builders.add<std::string>("name");
-      desc_builders.add<std::string>("plugin");
-      desc_builders.add<int>("verbosity", 0);
-
-      desc_builders.addOptional<bool>("makeCombinatoricStrips");
-      desc_builders.addOptional<int>("maxStripBuildIterations");
-      desc_builders.addOptional<double>("minGammaEtStripAdd");
-      desc_builders.addOptional<double>("minGammaEtStripSeed");
-      desc_builders.addOptional<double>("minStripEt");
-      desc_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
-      desc_builders.addOptional<bool>("updateStripAfterEachDaughter");
-      desc_builders.addOptional<bool>("applyElecTrackQcuts");
-
-      std::vector<edm::ParameterSet> vpsd_builders;
-      vpsd_builders.push_back(pset_builders);
-      desc.addVPSet("builders", desc_builders, vpsd_builders);
+      edm::ParameterSetDescription psd0;
+      psd0.add<std::string>("function", "TMath::Min(0.3, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))");
+      psd0.add<double>("par1", 0.707716);
+      psd0.add<double>("par0", 0.352476);
+      desc_builders.addOptional<edm::ParameterSetDescription>("stripPhiAssociationDistanceFunc", psd0);
     }
+    {
+      edm::ParameterSetDescription psd0;
+      psd0.add<std::string>("function", "TMath::Min(0.15, TMath::Max(0.05, [0]*TMath::Power(pT, -[1])))");
+      psd0.add<double>("par1", 0.658701);
+      psd0.add<double>("par0", 0.197077);
+      desc_builders.addOptional<edm::ParameterSetDescription>("stripEtaAssociationDistanceFunc", psd0);
+    }
+    desc_builders.addOptional<double>("stripEtaAssociationDistance", 0.05);
+    desc_builders.addOptional<double>("stripPhiAssociationDistance", 0.2);
+    
+    desc_builders.add<edm::ParameterSetDescription>("qualityCuts", desc_qualityCuts);
+    
+    desc_builders.add<std::string>("name");
+    desc_builders.add<std::string>("plugin");
+    desc_builders.add<int>("verbosity", 0);
+    
+    desc_builders.addOptional<bool>("makeCombinatoricStrips");
+    desc_builders.addOptional<int>("maxStripBuildIterations");
+    desc_builders.addOptional<double>("minGammaEtStripAdd");
+    desc_builders.addOptional<double>("minGammaEtStripSeed");
+    desc_builders.addOptional<double>("minStripEt");
+    desc_builders.addOptional<std::vector<int>>("stripCandidatesParticleIds");
+    desc_builders.addOptional<bool>("updateStripAfterEachDaughter");
+    desc_builders.addOptional<bool>("applyElecTrackQcuts");
 
-    descriptions.add("ak4PFJetsLegacyHPSPiZerosDefault", desc);
-    descriptions.add("ak4PFJetsLegacyHPSPiZerosBoostedDefault", desc); // this one is generated in configs with a strange procedure
-    descriptions.add("pfJetsLegacyHPSPiZerosDefault", desc);
-    // RecoTauTag/Configuration/python/boostedHPSPFTaus_cfi.py
-    //    process.PATTauSequenceBoosted = cloneProcessingSnippet(process,process.PATTauSequence, "Boosted", addToTask = True)
+    std::vector<edm::ParameterSet> vpsd_builders;
+    vpsd_builders.push_back(pset_builders);
+    desc.addVPSet("builders", desc_builders, vpsd_builders);
+
+    descriptions.add("recoTauPiZeroProducer", desc);
+
   }
 
 }

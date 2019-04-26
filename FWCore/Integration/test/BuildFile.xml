@@ -139,7 +139,7 @@
   <bin   file="SwitchProducer_t.cpp">
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/ParameterSet"/>
-    <use   name="FWCore/PythonParameterSet"/>
+    <use   name="FWCore/ParameterSetReader"/>
     <use   name="FWCore/TestProcessor"/>
     <use   name="DataFormats/Provenance"/>
     <use   name="catch2"/>

@@ -77,7 +77,7 @@ if not options.inputFiles:
     )
 else:
     print("The list of input files is provided. Disabling discovery and running on everything.")
-    files = map(lambda x: "file://" + x, options.inputFiles)
+    files = ["file://" + x for x in options.inputFiles]
     source = cms.Source("PoolSource",
         fileNames = cms.untracked.vstring(files),
         secondaryFileNames = cms.untracked.vstring()

@@ -158,7 +158,17 @@ bool HcalText2DetIdConverter::init (DetId fId) {
       setField (1, calibId.rm());
       setField (2, calibId.fiber());
       setField (3, calibId.channel());
-    }
+    } else if ( calibId.calibFlavor()==HcalCalibDetId::HBX) {      
+      flavorName="HBX";
+      setField (1, calibId.ieta());
+      setField (2, calibId.iphi());
+      setField (3, -999);
+    } else if ( calibId.calibFlavor()==HcalCalibDetId::HEX) {      
+      flavorName="HEX";
+      setField (1, calibId.ieta());
+      setField (2, calibId.iphi());
+      setField (3, -999);
+    }    
   }
   else {
     flavorName = "UNKNOWN_FLAVOR";
@@ -229,10 +239,14 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
     int channel = calibChannel (field3);
     mId = HcalCalibDetId (sd, ieta,iphi,channel);
   }
-  else if (flavorName=="HOX") {
+  else if (flavorName=="HOX" || flavorName=="HBX" || flavorName=="HEX") {
     int ieta=getField(1);
     int iphi=getField(2);
-    mId = HcalCalibDetId (ieta,iphi);
+    mId = (flavorName=="HOX")?
+      (HcalCalibDetId(HcalCalibDetId::HOCrosstalk,ieta,iphi)):
+      ((flavorName=="HBX")?(HcalCalibDetId(HcalCalibDetId::HBX,ieta,iphi)):
+                           (HcalCalibDetId(HcalCalibDetId::HEX,ieta,iphi))
+      );
   }
   else if (flavorName=="UMNQIE") {
     int channel=getField(1);

@@ -152,9 +152,8 @@ class CTPPSLocalTrackLite
     /// number of points used for fit
     unsigned short numberOfPointsUsedForFit; 
 
-    /// time information and uncertainty
+    /// time information and uncertainty, ns
     float time, time_unc;
-
 };
 
 #endif

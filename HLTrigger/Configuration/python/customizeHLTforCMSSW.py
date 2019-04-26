@@ -48,20 +48,10 @@ def customiseFor2017DtUnpacking(process):
     return process
 
 
-# type of parameter changed
-def customiseFor24501(process):
-    for producer in producers_by_type(process, "PFRecoTauDiscriminationByIsolation"):
-        if hasattr(producer, "deltaBetaPUTrackPtCutOverride") and not isinstance(producer.deltaBetaPUTrackPtCutOverride, cms.bool):
-            producer.deltaBetaPUTrackPtCutOverride_val = producer.deltaBetaPUTrackPtCutOverride
-            producer.deltaBetaPUTrackPtCutOverride = cms.bool(True)
-    return process
-
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseFor24501(process)
 
     return process

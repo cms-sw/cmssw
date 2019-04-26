@@ -14,50 +14,42 @@
 #include "G4ThreeVector.hh"
 #include "G4String.hh"
 
-class DDCompactView;    
+class DDCompactView;
 class G4Step;
 
 #include <vector>
- 
+
 class HFShower {
-
-public:    
-
-  HFShower(const std::string & name, const DDCompactView & cpv, 
-	   edm::ParameterSet const & p, int chk=0);
+public:
+  HFShower(const std::string &name, const DDCompactView &cpv, edm::ParameterSet const &p, int chk = 0);
   virtual ~HFShower();
 
 public:
-
   struct Hit {
     Hit() {}
-    int               depth;
-    double            time;
-    double            wavelength;
-    double            momentum;
-    G4ThreeVector     position;
+    int depth;
+    double time;
+    double wavelength;
+    double momentum;
+    G4ThreeVector position;
   };
 
-  void                initRun(const HcalDDDSimConstants*);
-  std::vector<Hit>    getHits(const G4Step * aStep, double weight);
-  std::vector<Hit>    getHits(const G4Step * aStep, bool forLibrary);
-  std::vector<Hit>    getHits(const G4Step * aStep, bool forLibraryProducer, double zoffset);
+  void initRun(const HcalDDDSimConstants *);
+  std::vector<Hit> getHits(const G4Step *aStep, double weight);
+  std::vector<Hit> getHits(const G4Step *aStep, bool forLibrary);
+  std::vector<Hit> getHits(const G4Step *aStep, bool forLibraryProducer, double zoffset);
 
-
-private:    
-
+private:
   std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &, int &);
-  bool                applyFidCut;
+  bool applyFidCut;
 
-private:    
+private:
+  HFCherenkov *cherenkov;
+  HFFibre *fibre;
 
-  HFCherenkov*        cherenkov;
-  HFFibre*            fibre;
-
-  int                 chkFibre;
-  double              probMax;
+  int chkFibre;
+  double probMax;
   std::vector<double> gpar;
-
 };
 
-#endif // HFShower_h
+#endif  // HFShower_h

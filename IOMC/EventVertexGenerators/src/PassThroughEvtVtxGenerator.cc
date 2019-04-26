@@ -46,7 +46,7 @@ PassThroughEvtVtxGenerator::~PassThroughEvtVtxGenerator()
 }
 
 HepMC::FourVector PassThroughEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine*) const  {
-  return HepMC::FourVector(0.,0.,0.);
+  return HepMC::FourVector(0.,0.,0.,0);
 }
 
 void PassThroughEvtVtxGenerator::produce( Event& evt, const EventSetup& )

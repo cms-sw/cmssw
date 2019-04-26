@@ -23,6 +23,8 @@
 
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
+#include "DataFormats/Math/interface/liblogintpack.h"
+
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
@@ -47,6 +49,73 @@ namespace mtd_digitizer {
       if(time_a<time_b) return true;
       
       return false;
+    }
+  }
+
+  inline
+  void saveSimHitAccumulator(PMTDSimAccumulator& simResult, const MTDSimHitDataAccumulator&  simData, const float minCharge, const float maxCharge) {
+    constexpr auto nEnergies = std::tuple_size<decltype(MTDCellInfo().hit_info)>::value;
+    static_assert(nEnergies <= PMTDSimAccumulator::Data::energyMask+1, "PMTDSimAccumulator bit pattern needs to updated");
+    static_assert(nSamples <= PMTDSimAccumulator::Data::sampleMask+1, "PMTDSimAccumulator bit pattern needs to updated");
+
+    const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
+    const float maxPackChargeLog = std::log(maxCharge);
+    constexpr uint16_t base = 1<<PMTDSimAccumulator::Data::sampleOffset;
+
+    simResult.reserve(simData.size());
+    // mimicing the digitization
+    for(const auto& elem: simData) {
+      // store only non-zero
+      for(size_t iEn = 0; iEn < nEnergies; ++iEn) {
+        const auto& samples = elem.second.hit_info[iEn];
+        for(size_t iSample = 0; iSample < nSamples; ++iSample) {
+          if(samples[iSample] > minCharge) {
+            unsigned short packed;
+            if(iEn == 1) {
+              // assuming linear range for tof of 0..26
+              packed = samples[iSample]/PREMIX_MAX_TOF * base;
+            }
+            else {
+              packed = logintpack::pack16log(samples[iSample], minPackChargeLog, maxPackChargeLog, base);
+            }
+            simResult.emplace_back(elem.first.detid_, elem.first.row_, elem.first.column_,
+                                   iEn, iSample, packed);
+          }
+        }
+      }
+    }
+  }
+
+  inline
+  void loadSimHitAccumulator(MTDSimHitDataAccumulator& simData, const PMTDSimAccumulator& simAccumulator, const float minCharge, const float maxCharge) {
+    const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
+    const float maxPackChargeLog = std::log(maxCharge);
+    constexpr uint16_t base = 1<<PMTDSimAccumulator::Data::sampleOffset;
+
+    for(const auto& detIdIndexHitInfo: simAccumulator) {
+      auto foo = simData.emplace(MTDCellId(detIdIndexHitInfo.detId(), detIdIndexHitInfo.row(), detIdIndexHitInfo.column()),
+                                 MTDCellInfo());
+      auto simIt = foo.first;
+      auto& hit_info = simIt->second.hit_info;
+
+      size_t iEn = detIdIndexHitInfo.energyIndex();
+      size_t iSample = detIdIndexHitInfo.sampleIndex();
+
+      float value;
+      if(iEn == 1) {
+        value = static_cast<float>(detIdIndexHitInfo.data())/base*PREMIX_MAX_TOF;
+      }
+      else {
+        value = logintpack::unpack16log(detIdIndexHitInfo.data(), minPackChargeLog, maxPackChargeLog, base);
+      }
+
+      if(iEn == 0) {
+        hit_info[iEn][iSample] += value;
+      }
+      else if(hit_info[iEn][iSample] == 0) {
+        // For iEn==1 the digitizers just set the TOF of the first SimHit
+        hit_info[iEn][iSample] = value;
+      }
     }
   }
 
@@ -76,7 +145,9 @@ namespace mtd_digitizer {
     void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) override;
     void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) override;
     void accumulate(edm::Handle<edm::PSimHitContainer> const &hits, int bxCrossing, CLHEP::HepRandomEngine* hre) override;
-    
+    // for premixing
+    void accumulate(const PMTDSimAccumulator& simAccumulator) override;
+
     /**
        @short actions at the start/end of event
     */
@@ -156,20 +227,33 @@ namespace mtd_digitizer {
     hitRefs.clear();
 
   }
+
+  template<class Traits>
+  void MTDDigitizer<Traits>::accumulate(const PMTDSimAccumulator& simAccumulator) {
+    loadSimHitAccumulator(simHitAccumulator_, simAccumulator, premixStage1MinCharge_, premixStage1MaxCharge_);
+  }
   
   template<class Traits>
   void MTDDigitizer<Traits>::initializeEvent(edm::Event const& e, edm::EventSetup const& c) {
     deviceSim_.getEvent(e);
-    electronicsSim_.getEvent(e);
+    if(not premixStage1_) {
+      electronicsSim_.getEvent(e);
+    }
   }
   
   template<class Traits>
   void MTDDigitizer<Traits>::finalizeEvent(edm::Event& e, edm::EventSetup const& c, 
 					   CLHEP::HepRandomEngine* hre) {
-    
-    auto digiCollection = std::make_unique<DigiCollection>();
-    electronicsSim_.run(simHitAccumulator_,*digiCollection, hre);
-    e.put(std::move(digiCollection),digiCollection_);
+    if(premixStage1_) {
+      auto simResult = std::make_unique<PMTDSimAccumulator>();
+      saveSimHitAccumulator(*simResult, simHitAccumulator_, premixStage1MinCharge_, premixStage1MaxCharge_);
+      e.put(std::move(simResult), digiCollection_);
+    }
+    else {
+      auto digiCollection = std::make_unique<DigiCollection>();
+      electronicsSim_.run(simHitAccumulator_,*digiCollection, hre);
+      e.put(std::move(digiCollection),digiCollection_);
+    }
     
     //release memory for next event
     resetSimHitDataAccumulator();
@@ -184,7 +268,9 @@ namespace mtd_digitizer {
     geom_ = geom.product();
 
     deviceSim_.getEventSetup(es);
-    electronicsSim_.getEventSetup(es);
+    if(not premixStage1_) {
+      electronicsSim_.getEventSetup(es);
+    }
 
   }
 }

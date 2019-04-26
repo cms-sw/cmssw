@@ -21,6 +21,7 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
+#include <cmath>
 
 /**
  * Class intended to perform general CTPPS timing detectors track recognition,
@@ -35,6 +36,7 @@ class CTPPSTimingTrackRecognition
       thresholdFromMaximum_   (iConfig.getParameter<double>("thresholdFromMaximum")),
       resolution_             (iConfig.getParameter<double>("resolution")),
       sigma_                  (iConfig.getParameter<double>("sigma")),
+      tolerance_              (iConfig.getParameter<double>("tolerance")),
       pixelEfficiencyFunction_(iConfig.getParameter<std::string>("pixelEfficiencyFunction")) {
       if (pixelEfficiencyFunction_.numberOfParameters() != 3)
         throw cms::Exception("CTPPSTimingTrackRecognition")
@@ -58,8 +60,10 @@ class CTPPSTimingTrackRecognition
     const float thresholdFromMaximum_;
     const float resolution_;
     const float sigma_;
+    const float tolerance_;
     reco::FormulaEvaluator pixelEfficiencyFunction_;
 
+    typedef std::vector<TRACK_TYPE> TrackVector;
     typedef std::vector<HIT_TYPE> HitVector;
     typedef std::unordered_map<int, HitVector> HitVectorMap;
 
@@ -92,12 +96,19 @@ class CTPPSTimingTrackRecognition
         float (*getHitRangeWidth)(const HIT_TYPE&),
         void (*setTrackCenter)(TRACK_TYPE&, float),
         void (*setTrackSigma)(TRACK_TYPE&, float),
-        std::vector<TRACK_TYPE>& result);
+        TrackVector& result);
 
     /** Retrieve the bounds of a 3D range in which all hits from given collection are contained.
      * \param[in] hits hits collection to retrieve the range from
      */
     SpatialRange getHitSpatialRange(const HitVector& hits);
+    /** Evaluate the time + associated uncertainty for a given track
+     * \note General remarks:
+     * - track's time = weighted mean of all hit times with time precision as weight,
+     * - track's time sigma = uncertainty of the weighted mean
+     * - hit is ignored if the time precision is equal to 0
+     */
+    bool timeEval(const HitVector& hits, float& meanTime, float& timeSigma) const;
 };
 
 /****************************************************************************
@@ -112,7 +123,7 @@ void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
     float (*getHitRangeWidth)(const HIT_TYPE&),
     void (*setTrackCenter)(TRACK_TYPE&, float),
     void (*setTrackSigma)(TRACK_TYPE&, float),
-    std::vector<TRACK_TYPE>& result) {
+    TrackVector& result) {
   int numberOfTracks = 0;
   const float invResolution = 1./resolution_;
   const float profileRangeMargin = sigma_ * 3.;
@@ -134,8 +145,7 @@ void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTracks(
   bool underThreshold = true;
   float rangeMaximum = -1.0f;
   bool trackRangeFound = false;
-  int trackRangeBegin = 0;
-  int trackRangeEnd;
+  int trackRangeBegin = 0, trackRangeEnd = 0;
 
   // Searches for tracks in the hit profile
   for (unsigned int i = 0; i < hitProfile.size(); i++) {
@@ -191,33 +201,48 @@ CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::getHitSpatialRange(const HitV
   SpatialRange result;
 
   for (const auto& hit : hits) {
-    const float xBegin = hit.getX() - 0.5f*hit.getXWidth();
-    const float yBegin = hit.getY() - 0.5f*hit.getYWidth();
-    const float zBegin = hit.getZ() - 0.5f*hit.getZWidth();
-    const float xEnd = hit.getX() + 0.5f*hit.getXWidth();
-    const float yEnd = hit.getY() + 0.5f*hit.getYWidth();
-    const float zEnd = hit.getZ() + 0.5f*hit.getZWidth();
+    const float xBegin = hit.getX() - 0.5f*hit.getXWidth(), xEnd = hit.getX() + 0.5f*hit.getXWidth();
+    const float yBegin = hit.getY() - 0.5f*hit.getYWidth(), yEnd = hit.getY() + 0.5f*hit.getYWidth();
+    const float zBegin = hit.getZ() - 0.5f*hit.getZWidth(), zEnd = hit.getZ() + 0.5f*hit.getZWidth();
 
     if (!initialized) {
       result.xBegin = xBegin;
-      result.yBegin = yBegin;
-      result.zBegin = zBegin;
       result.xEnd = xEnd;
+      result.yBegin = yBegin;
       result.yEnd = yEnd;
+      result.zBegin = zBegin;
       result.zEnd = zEnd;
       initialized = true;
       continue;
     }
-    if (xBegin < result.xBegin) result.xBegin = xBegin;
-    if (yBegin < result.yBegin) result.yBegin = yBegin;
-    if (zBegin < result.zBegin) result.zBegin = zBegin;
-
-    if (xEnd > result.xEnd) result.xEnd = xEnd;
-    if (yEnd > result.yEnd) result.yEnd = yEnd;
-    if (zEnd > result.zEnd) result.zEnd = zEnd;
+    result.xBegin = std::min(result.xBegin, xBegin);
+    result.xEnd = std::max(result.xEnd, xEnd);
+    result.yBegin = std::min(result.yBegin, yBegin);
+    result.yEnd = std::max(result.yEnd, yEnd);
+    result.zBegin = std::min(result.zBegin, zBegin);
+    result.zEnd = std::max(result.zEnd, zEnd);
   }
 
   return result;
+}
+
+template<class TRACK_TYPE, class HIT_TYPE> inline
+bool
+CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::timeEval(const HitVector& hits, float& mean_time, float& time_sigma) const
+{
+  float mean_num = 0.f, mean_denom = 0.f;
+  bool valid_hits = false;
+  for (const auto& hit : hits) {
+    if (hit.getTPrecision() <= 0.)
+      continue;
+    const float weight = std::pow(hit.getTPrecision(), -2);
+    mean_num += weight*hit.getT();
+    mean_denom += weight;
+    valid_hits = true; // at least one valid hit to account for
+  }
+  mean_time = valid_hits ? (mean_num/mean_denom) : 0.f;
+  time_sigma = valid_hits ? std::sqrt(1.f/mean_denom) : 0.f;
+  return valid_hits;
 }
 
 #endif

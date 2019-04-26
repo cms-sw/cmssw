@@ -13,10 +13,8 @@ namespace l1t {
   typedef BXVector<HGCalTowerMap> HGCalTowerMapBxCollection;
 
   class HGCalTowerMap {
-
   public:
-
-    HGCalTowerMap(): layer_(0) {}
+    HGCalTowerMap() : layer_(0) {}
 
     HGCalTowerMap(const std::vector<l1t::HGCalTowerCoord>& tower_ids, const int layer);
 
@@ -29,14 +27,11 @@ namespace l1t {
     unsigned nTowers() const { return towerMap_.size(); }
     const std::unordered_map<unsigned short, l1t::HGCalTower>& towers() const { return towerMap_; }
 
-
   private:
-
-    std::unordered_map<unsigned short, l1t::HGCalTower>  towerMap_;
+    std::unordered_map<unsigned short, l1t::HGCalTower> towerMap_;
     unsigned layer_;
-
   };
 
-}
+}  // namespace l1t
 
 #endif

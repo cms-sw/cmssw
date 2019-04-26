@@ -63,7 +63,7 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
          // prepare phi-list and theta range
          try {
             const reco::PFTauTagInfo *tauTagInfo = dynamic_cast<const reco::PFTauTagInfo*>( (*it).pfTauTagInfoRef().get() );
-            const reco::PFJet *jet = dynamic_cast<const reco::PFJet*>( tauTagInfo->pfjetRef().get() );
+            const reco::Jet *jet = tauTagInfo->pfjetRef().get();
             m_minTheta =  100;
             m_maxTheta = -100;
             std::vector<double> phis;

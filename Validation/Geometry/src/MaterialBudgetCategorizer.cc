@@ -88,13 +88,13 @@ void MaterialBudgetCategorizer::buildHGCalCategoryMap(std::string theMaterialFil
     cms::Exception("LogicError") <<" File not found " << theMaterialFileName;
   
   // fill everything as "other"
-  float Air,Cables,Copper,H_Scintillator,Lead,M_NEMA_FR4_plate,Silicon,StainlessSteel,WCu, oth; 
-  Air=Cables=Copper=H_Scintillator=Lead=M_NEMA_FR4_plate=Silicon=StainlessSteel=WCu=0.;
+  float air,cables,copper,h_scintillator,lead,hgc_g10_fr4,silicon,stainlesssteel,wcu,oth,epoxy,kapton,aluminium; 
+  air=cables=copper=h_scintillator=lead=hgc_g10_fr4=silicon=stainlesssteel=wcu=epoxy=kapton=aluminium=0.;
 
   std::string materialName;
   while(theMaterialFile) {
     theMaterialFile >> materialName;
-    theMaterialFile >> Air >> Cables >> Copper >> H_Scintillator >> Lead >> M_NEMA_FR4_plate >> Silicon >> StainlessSteel >> WCu;
+    theMaterialFile >> air >> cables >> copper >> h_scintillator >> lead >> hgc_g10_fr4 >> silicon >> stainlesssteel >> wcu >> epoxy >> kapton >> aluminium;
     // Skip comments
     if (materialName[0] == '#')
       continue;
@@ -102,28 +102,34 @@ void MaterialBudgetCategorizer::buildHGCalCategoryMap(std::string theMaterialFil
     std::replace(materialName.begin(), materialName.end(), '*', ' ');
     oth = 0.000;
     theMap[materialName].clear();        // clear before re-filling
-    theMap[materialName].push_back(Air             ); // Air
-    theMap[materialName].push_back(Cables          ); // Cables          
-    theMap[materialName].push_back(Copper          ); // Copper          
-    theMap[materialName].push_back(H_Scintillator  ); // H_Scintillator  
-    theMap[materialName].push_back(Lead            ); // Lead            
-    theMap[materialName].push_back(M_NEMA_FR4_plate); // M_NEMA_FR4_plate
-    theMap[materialName].push_back(Silicon         ); // Silicon         
-    theMap[materialName].push_back(StainlessSteel  ); // StainlessSteel
-    theMap[materialName].push_back(WCu             ); // WCu
+    theMap[materialName].push_back(air             ); // air
+    theMap[materialName].push_back(cables          ); // cables          
+    theMap[materialName].push_back(copper          ); // copper          
+    theMap[materialName].push_back(h_scintillator  ); // h_scintillator  
+    theMap[materialName].push_back(lead            ); // lead            
+    theMap[materialName].push_back(hgc_g10_fr4); // hgc_g10_fr4
+    theMap[materialName].push_back(silicon         ); // silicon         
+    theMap[materialName].push_back(stainlesssteel  ); // stainlesssteel
+    theMap[materialName].push_back(wcu             ); // wcu
     theMap[materialName].push_back(oth             ); // oth
+    theMap[materialName].push_back(epoxy             ); // epoxy
+    theMap[materialName].push_back(kapton             ); // kapton
+    theMap[materialName].push_back(aluminium             ); // aluminium
     edm::LogInfo("MaterialBudget") 
       << "MaterialBudgetCategorizer: material " << materialName << " filled " 
       << std::endl
-      << "\tAir              " << Air << std::endl
-      << "\tCables           " << Cables << std::endl
-      << "\tCopper           " << Copper << std::endl
-      << "\tH_Scintillator   " << H_Scintillator << std::endl
-      << "\tLead             " << Lead << std::endl
-      << "\tM_NEMA_FR4_plate " << M_NEMA_FR4_plate << std::endl
-      << "\tSilicon          " << Silicon << std::endl
-      << "\tStainlessSteel   " << StainlessSteel << std::endl
-      << "\tWCu              " << WCu << std::endl
+      << "\tair              " << air << std::endl
+      << "\tcables           " << cables << std::endl
+      << "\tcopper           " << copper << std::endl
+      << "\th_scintillator   " << h_scintillator << std::endl
+      << "\tlead             " << lead << std::endl
+      << "\thgc_g10_fr4      " << hgc_g10_fr4 << std::endl
+      << "\tsilicon          " << silicon << std::endl
+      << "\tstainlesssteel   " << stainlesssteel << std::endl
+      << "\twcu              " << wcu << std::endl
+      << "\tepoxy              " << epoxy << std::endl
+      << "\tkapton            " << kapton<< std::endl
+      << "\taluminium            " << aluminium<< std::endl
       << "\tOTH              " << oth;
   }
 

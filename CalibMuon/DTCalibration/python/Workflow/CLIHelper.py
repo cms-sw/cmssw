@@ -85,6 +85,8 @@ class CLIHelper(object):
             help="dataset name to process")
         submission_opts_group.add_argument("--run-on-RAW", action = "store_true",
             help="Flag if run on RAW dataset")
+        submission_opts_group.add_argument("--fromMuons", action = "store_true",
+            help="Segment selection using muon-segment matching")
         submission_opts_group.add_argument("--globaltag",
             help="global tag identifier (with the '::All' string, if necessary)")
         submission_opts_group.add_argument("--histoRange", default = 0.4,

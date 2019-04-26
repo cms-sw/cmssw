@@ -7,6 +7,7 @@ e-mail:  albertasgim@gmail.com
 '''
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import range
 import sys
 import re
 import time
@@ -310,7 +311,7 @@ class StatisticalTest(object):
         return (x + 1) * (y + 1) * (z + 1)
 
     def is_empty(self, h):
-        for i in xrange(1, self.get_N_bins(h)):
+        for i in range(1, self.get_N_bins(h)):
             if h.GetBinContent(i) != 0:
                 return False
             return True
@@ -347,7 +348,7 @@ class Chi2Test(StatisticalTest):
     name = 'Chi2'
 
     def make_absolute(self, h, bin_count):
-        for i in xrange(1, bin_count): # Why here is no +1?
+        for i in range(1, bin_count): # Why here is no +1?
             content = h.GetBinContent(i)
             if content < 0:
                 h.SetBinContent(i, -1 * content)
@@ -356,7 +357,7 @@ class Chi2Test(StatisticalTest):
 
     def enough_filled_bins(self, h, bin_count, more_than=3):
         filled_bins = 0
-        for i in xrange(1, bin_count):
+        for i in range(1, bin_count):
             if h.GetBinContent(i) > 0:
                 filled_bins += 1
             if filled_bins > more_than:

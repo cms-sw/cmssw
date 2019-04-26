@@ -78,7 +78,7 @@ namespace edm
 
     int serializeEvent(EventForOutput const& event, ParameterSetID const& selectorConfig,
                        bool use_compression, int compression_level,
-                       SerializeDataBuffer &data_buffer);
+                       SerializeDataBuffer &data_buffer) const;
 
     /**
      * Compresses the data in the specified input buffer into the

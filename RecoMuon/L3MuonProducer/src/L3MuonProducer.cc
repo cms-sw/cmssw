@@ -217,6 +217,19 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
         30,
         15,
       });
+      psd1.add<int>("DYTselector",1);
+      psd1.add<bool>("DYTupdator", false);
+      psd1.add<bool>("DYTuseAPE", false );
+      psd1.add<bool>("DYTuseThrsParametrization", false);
+      {
+        edm::ParameterSetDescription psd2;
+        psd2.add<std::vector<double>>("eta0p8", {1,-0.919853, 0.990742});
+        psd2.add<std::vector<double>>("eta1p2", {1,-0.897354, 0.987738});
+        psd2.add<std::vector<double>>("eta2p0", {1,-0.986855, 0.998516});
+        psd2.add<std::vector<double>>("eta2p2", {1,-0.940342, 0.992955});
+        psd2.add<std::vector<double>>("eta2p4", {1,-0.947633, 0.993762});
+        psd1.add<edm::ParameterSetDescription>("DYTthrsParameters", psd2);
+      }
       psd1.add<double>("Chi2CutCSC", 150.0);
       psd1.add<double>("Chi2CutDT", 10.0);
       psd1.add<double>("Chi2CutGEM", 1.0);

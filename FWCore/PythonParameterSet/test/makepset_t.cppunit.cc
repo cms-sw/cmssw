@@ -7,7 +7,7 @@
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/resolveSymbolicLinks.h"
 
@@ -94,7 +94,7 @@ void testmakepset::secsourceAux() {
   std::string config(kTest);
 
   // Create the ParameterSet object from this configuration string.
-  PythonProcessDesc builder(config);
+  PyBind11ProcessDesc builder(config);
   std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
 
   CPPUNIT_ASSERT(nullptr != ps.get());
@@ -149,7 +149,7 @@ void testmakepset::usingBlockAux() {
 
   std::string config(kTest);
   // Create the ParameterSet object from this configuration string.
-  PythonProcessDesc builder(config);
+  PyBind11ProcessDesc builder(config);
   std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
   CPPUNIT_ASSERT(nullptr != ps.get());
 
@@ -195,9 +195,11 @@ void testmakepset::fileinpathAux() {
   "process.source = cms.Source('EmptySource')\n";
 
   std::string config(kTest);
-
+  std::string tmpout;
+  bool localArea=false;
   // Create the ParameterSet object from this configuration string.
-  PythonProcessDesc builder(config);
+  {
+  PyBind11ProcessDesc builder(config);
   std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
   CPPUNIT_ASSERT(nullptr != ps.get());
 
@@ -208,7 +210,7 @@ void testmakepset::fileinpathAux() {
   CPPUNIT_ASSERT(!innerps.existsAs<int>("absent"));
   char *releaseBase = getenv("CMSSW_RELEASE_BASE");
   char *localBase = getenv("CMSSW_BASE");
-  bool localArea = (releaseBase != nullptr && strlen(releaseBase) != 0 && strcmp(releaseBase, localBase));
+  localArea = (releaseBase != nullptr && strlen(releaseBase) != 0 && strcmp(releaseBase, localBase));
   if(localArea) {
     // Need to account for possible symbolic links
     std::string const src("/src");
@@ -230,7 +232,7 @@ void testmakepset::fileinpathAux() {
 
   CPPUNIT_ASSERT(!fullpath.empty());
 
-  std::string tmpout = fullpath.substr(0, fullpath.find("FWCore/PythonParameterSet/test/fip.txt")) + "tmp.py";
+  tmpout = fullpath.substr(0, fullpath.find("FWCore/PythonParameterSet/test/fip.txt")) + "tmp.py";
 
   edm::FileInPath topo = innerps.getParameter<edm::FileInPath>("topo");
   // if the file is local, then just disable this check as then it is expected to fail
@@ -258,7 +260,7 @@ void testmakepset::fileinpathAux() {
   v.clear();
   CPPUNIT_ASSERT(empty.getAllFileInPaths(v) == 0);
   CPPUNIT_ASSERT(v.empty());
-
+  }
   // This last test checks that a FileInPath parameter can be read
   // successfully even if the associated file no longer exists.
   std::ofstream out(tmpout.c_str());
@@ -274,7 +276,7 @@ void testmakepset::fileinpathAux() {
 
   std::string config2(kTest2);
   // Create the ParameterSet object from this configuration string.
-  PythonProcessDesc builder2(config2);
+  PyBind11ProcessDesc builder2(config2);
   unlink(tmpout.c_str());
   std::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
 
@@ -302,7 +304,7 @@ void testmakepset::typesTest() {
   "    sb3 = cms.string('    '),\n"
   "    input1 = cms.InputTag('Label1','Instance1'),\n"
   "    input6 = cms.InputTag('source'),\n"
-  "    #justasbig = cms.double(inf),\n"
+  "    ##justasbig = cms.double(inf),\n"
   "    input4 = cms.InputTag('Label4','Instance4','Process4'),\n"
   "    input3 = cms.untracked.InputTag('Label3','Instance3'),\n"
   "    h2 = cms.uint32(255),\n"
@@ -324,8 +326,8 @@ void testmakepset::typesTest() {
   "    vps = cms.VPSet(cms.PSet(\n"
   "        b3 = cms.bool(False)\n"
   "    )),\n"
-  "    #indebt = cms.double(-inf),\n"
-  "    #big = cms.double(inf),\n"
+  "    ##indebt = cms.double(-inf),\n"
+  "    ##big = cms.double(inf),\n"
   "    vinput = cms.VInputTag(cms.InputTag('l1','i1'), cms.InputTag('l2'), cms.InputTag('l3','i3','p3'), cms.InputTag('l4','','p4'), cms.InputTag('source'), \n"
   "        cms.InputTag('source','sink')),\n"
   "    ui = cms.uint32(1),\n"
@@ -353,7 +355,7 @@ void testmakepset::typesTest() {
 
    std::string config2(kTest);
    // Create the ParameterSet object from this configuration string.
-   PythonProcessDesc builder2(config2);
+   PyBind11ProcessDesc builder2(config2);
    std::shared_ptr<edm::ParameterSet> ps2 = builder2.parameterSet();
    edm::ParameterSet const& test = ps2->getParameterSet("p");
 
@@ -370,10 +372,7 @@ void testmakepset::typesTest() {
    CPPUNIT_ASSERT(255 == test.getParameter<unsigned int>("h2"));
    CPPUNIT_ASSERT(3487559679U == test.getUntrackedParameter<unsigned int>("h3"));
 
-   //std::cout << test.getParameter<std::string>("s") << std::endl;
    CPPUNIT_ASSERT("this string" == test.getParameter<std::string>("s"));
-   //std::cout <<"blank string using single quotes returns \""<<test.getParameter<std::string>("sb1")<<"\""<<std::endl;
-   //std::cout <<"blank string using double quotes returns \""<<test.getParameter<std::string>("sb2")<<"\""<<std::endl;
    CPPUNIT_ASSERT("" == test.getParameter<std::string>("sb1"));
    CPPUNIT_ASSERT("" == test.getUntrackedParameter<std::string>("emptyString", "default"));
    CPPUNIT_ASSERT("" == test.getParameter<std::string>("sb2"));
@@ -386,8 +385,6 @@ void testmakepset::typesTest() {
    CPPUNIT_ASSERT(vssize && "" == vs[0]);
    CPPUNIT_ASSERT(vssize >1 && "1" == vs[1]);
    CPPUNIT_ASSERT(vssize >1 && "a" == vs[3]);
-   //std::cout <<"\""<<test.getParameter<std::vector<std::string> >("vs")[0]<<"\" \""<<test.getParameter<std::vector<std::string> >("vs")[1]<<"\" \""
-   //<<test.getParameter<std::vector<std::string> >("vs")[2]<<"\""<<std::endl;
    vs = test.getParameter<std::vector<std::string> >("vs2");
    CPPUNIT_ASSERT(vs.size() == 0);
    vs = test.getParameter<std::vector<std::string> >("vs3");

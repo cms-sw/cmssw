@@ -34,6 +34,7 @@ PyquenAnalyzer::PyquenAnalyzer(const ParameterSet& pset)
   : phdNdEta(0), phdNdY(0), phdNdPt(0),phdNdPhi(0)
 {
   // constructor
+srcT_ = mayConsume<HepMCProduct>(edm::InputTag("generator","unsmeared"));
 }
 
 
@@ -62,7 +63,8 @@ void PyquenAnalyzer::analyze( const Event& e, const EventSetup& )
    
    // find initial (unsmeared, unfiltered,...) HepMCProduct
    // by its label - PyquenSource, that is
-   e.getByLabel( "source", EvtHandle ) ;
+   //e.getByLabel( "source", EvtHandle ) ;
+   e.getByToken(srcT_,EvtHandle);
 
    //  EvtHandle->GetEvent()->print();
    

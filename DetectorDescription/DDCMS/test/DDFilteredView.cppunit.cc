@@ -39,6 +39,6 @@ void testDDFilteredView::setUp() {
 
 void testDDFilteredView::checkFilteredView()
 {
-unique_ptr<DDDetector> det = make_unique<DDDetector>("DUMMY", fileName_);
+  unique_ptr<DDDetector> det = make_unique<DDDetector>("DUMMY", fileName_);
   DDFilteredView fview(det.get(), det->description()->worldVolume());
 }

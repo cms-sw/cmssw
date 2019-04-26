@@ -22,6 +22,7 @@
 #
 
 from __future__ import print_function
+from builtins import range
 import sys, os, re, operator
 import optparse as opt
 from cmsPerfCommons import Candles, CandDesc, FileName, KeywordToCfi, CustomiseFragment, CandFname, EventContents

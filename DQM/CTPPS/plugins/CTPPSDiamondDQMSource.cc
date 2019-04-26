@@ -491,16 +491,22 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   // check validity
   bool valid = true;
   valid &= diamondVFATStatus.isValid();
+  valid &= pixelTracks.isValid();
   valid &= diamondDigis.isValid();
   valid &= fedInfo.isValid();
+  valid &= diamondRecHits.isValid();
+  valid &= diamondLocalTracks.isValid();
 
   if ( !valid ) {
     if ( verbosity_ ) {
       edm::LogProblem("CTPPSDiamondDQMSource")
         << "ERROR in CTPPSDiamondDQMSource::analyze > some of the required inputs are not valid. Skipping this event.\n"
         << "    diamondVFATStatus.isValid = " << diamondVFATStatus.isValid() << "\n"
+        << "    pixelTracks.isValid = " << pixelTracks.isValid() << "\n"
         << "    diamondDigis.isValid = " << diamondDigis.isValid() << "\n"
-        << "    fedInfo.isValid = " << fedInfo.isValid();
+        << "    fedInfo.isValid = " << fedInfo.isValid() << "\n"
+        << "    diamondRecHits.isValid = " << diamondRecHits.isValid() << "\n"
+        << "    diamondLocalTracks.isValid = " << diamondLocalTracks.isValid();
     }
 
     return;
