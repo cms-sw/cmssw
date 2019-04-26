@@ -241,7 +241,16 @@ namespace edm {
       eventsetup::DataKey m_key;
       unsigned int m_startOfComponentName;
     };
-    
+
+    // TODO We would like to be able to access m_esTokenInfo from the
+    // index in the token, but this is currently not possible. One idea
+    // for this is to order the entries in m_esToken so that all the ones
+    // for transition 0 come first, then the ones for for transition 1
+    // and so on for all the transitions. Within a transition, the
+    // entries would be in the same order in m_esTokenInfo and
+    // esItemsToGetFromTransition_. This is something for future
+    // development and might require a change to SoATuple to support
+    // inserts in the middle of the data structure.
     enum {kESLookupInfo, kESProxyIndex};
     edm::SoATuple<ESTokenLookupInfo, ESProxyIndex> m_esTokenInfo;
     std::array<std::vector<ESProxyIndex>, static_cast<unsigned int>(edm::Transition::NumberOfTransitions)> esItemsToGetFromTransition_;

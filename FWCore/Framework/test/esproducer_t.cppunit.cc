@@ -131,8 +131,8 @@ private:
     enum {kFi, kFum};
     typedef edm::ESProducts< edm::es::L<DummyData,kFi>, edm::es::L<DummyData,kFum> > ReturnProducts;
     LabelledProducer() {
-      setWhatProduced(this,"foo");
       setWhatProduced(this, &LabelledProducer::produceMore, edm::es::label("fi",kFi)("fum",kFum));
+      setWhatProduced(this,"foo");
     }
 
     std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
