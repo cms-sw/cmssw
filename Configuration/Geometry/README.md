@@ -6,9 +6,8 @@ Tracker:
 * T5: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.0.2.5) 
 * T6: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.0.4) (TEDD slighly rotated + Inner Tracker barrel has lower radii than TDR T5 geometry)
 * T11: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.0.5) (same as T6 but 50x50 in all modules)
-* T12: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.6.1) (same as T6 but includes latest Tracker MB (notably, significant increase in IT modules Caps RL). OTST update not included yet. Slightly tuned LpGBTs Z positions over service cylinder.
-* T13: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.6.0) (same as T12 but TBPX Lp GBTs placed over TBPX)
 * T14: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Based from T12. OT: reduced envelope. IT: new chip size, different radii, 2x2 modules everywhere in TEPX, new ring paradigm in TEPX)
+* T15: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Active geometry: same as T14. Material Budget: major update in IT, gathering info from recent Mechanical designs.)
 
 Calorimeters:
 * C3: HGCal (v8) + Phase2 HCAL and EB
@@ -53,11 +52,10 @@ Several detector combinations have been generated:
 * D33 = T6+C3+M2+I5+O2+F2 
 * D34 = T6+C3+M2+I6+O2+F2 
 * D35 = T6+C4+M2+I5+O2+F2 
-* D36 = T12+C3+M2+I1+O2+F2
-* D37 = T13+C3+M2+I1+O2+F2
 * D38 = T6+C4+M2+I7+O2+F2
 * D39 = T6+C4+M2+I8+O2+F2
 * D40 = T14+C3+M2+I1+O2+F2
 * D41 = T14+C8+M3+I9+O3+F2
+* D42 = T15+C3+M2+I1+O2+F2
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
