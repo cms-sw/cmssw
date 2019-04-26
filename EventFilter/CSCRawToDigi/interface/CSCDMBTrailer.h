@@ -21,11 +21,6 @@ public:
   CSCDMBTrailer(uint16_t firmware_version = 2005);
 
   CSCDMBTrailer(const uint16_t * buf, uint16_t firmware_version = 2005);
-  
-  CSCDMBTrailer(const CSCDMBStatusDigi & digi) 
-    {
-      memcpy(this, digi.trailer(), sizeInWords()*2);
-    }
 
 
   ///@@ NEEDS TO BE DONE
