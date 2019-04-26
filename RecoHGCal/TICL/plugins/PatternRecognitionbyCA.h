@@ -1,4 +1,4 @@
-// Author: Felice Pantaleo - felice.pantaleo@cern.ch
+// Author: Felice Pantaleo,Marco Rovere - felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 09/2018
 // Copyright CERN
 
@@ -45,8 +45,7 @@ class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
     static_assert(etaRange >= 0.f);
     float r = nEtaBins_ / etaRange;
     int etaBin = (std::abs(eta) - ticl::constants::minEta) * r;
-    etaBin = std::min(etaBin, nEtaBins_);
-    etaBin = std::max(etaBin, 0);
+    etaBin = std::clamp(etaBin, 0, nEtaBins_);
     return etaBin;
   }
 
