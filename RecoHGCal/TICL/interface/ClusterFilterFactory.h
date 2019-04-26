@@ -5,6 +5,6 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "RecoHGCal/TICL/interface/ClusterFilterBase.h"
 
-typedef edmplugin::PluginFactory<ClusterFilterBase*(const edm::ParameterSet&)> ClusterFilterFactory;
+typedef edmplugin::PluginFactory<ticl::ClusterFilterBase*(const edm::ParameterSet&)> ClusterFilterFactory;
 
 #endif

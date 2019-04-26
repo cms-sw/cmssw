@@ -15,6 +15,7 @@ namespace reco {
 class CaloCluster;
 }
 
+namespace ticl{
 class ClusterFilterBase {
  public:
   explicit ClusterFilterBase(const edm::ParameterSet&){};
@@ -24,5 +25,6 @@ class ClusterFilterBase {
       const std::vector<reco::CaloCluster>& layerClusters,
       const std::vector<std::pair<unsigned int, float> >& mask) const = 0;
 };
+}
 
 #endif
