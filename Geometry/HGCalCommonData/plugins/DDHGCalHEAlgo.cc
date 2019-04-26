@@ -545,10 +545,10 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
           cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
           ++ntype[type];
-          edm::LogVerbatim("HGCalGeom")
-              << "DDHGCalHEAlgo: " << name << " number " << copy
-              << " positioned in " << glog.ddname() << " at " << tran
-              << " with " << rotation;
+	  edm::LogVerbatim("HGCalGeom")
+            << "DDHGCalHEAlgo: " << name << " number " << copy
+            << " positioned in " << glog.ddname() << " at " << tran
+            << " with " << rotation;
 #endif
         }
       }
