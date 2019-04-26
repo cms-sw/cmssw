@@ -19,11 +19,6 @@ public:
   
   CSCDMBHeader(const uint16_t * buf, uint16_t firmware_version = 2005);
 
-  CSCDMBHeader(const CSCDMBStatusDigi & digi)
-    {
-      memcpy(this, digi.header(), sizeInWords()*2);
-    }
-
 
 
   bool cfebAvailable(unsigned icfeb) { 
