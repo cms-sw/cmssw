@@ -11,9 +11,9 @@ from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClu
 from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import hgcalMultiClusters
 
 
-from RecoHGCal.TICL.Tracksters_cfi import tracksters
+from RecoHGCal.TICL.tracksters_cfi import tracksters
 from RecoHGCal.TICL.FilteredLayerClusters_cfi import FilteredLayerClusters
-from RecoHGCal.TICL.MultiClustersFromTracksters_cfi import multiClustersFromTracksters
+from RecoHGCal.TICL.multiClustersFromTracksters_cfi import multiClustersFromTracksters
 
 
 def TICL_iterations_withReco(process):
@@ -69,7 +69,7 @@ def TICL_iterations_withReco(process):
       process.FilteredLayerClusters,
       process.Tracksters,
       process.MultiClustersFromTracksters)
-  process.TICL = cms.Path(process.TICL_Task)
+  process.schedule.associate(process.TICL_Task)
   return process
 
 def TICL_iterations(process):
@@ -129,6 +129,7 @@ def TICL_iterations(process):
       process.Tracksters,
       process.MultiClustersFromTracksters,
       process.hgcalMultiClusters)
-  process.TICL = cms.Path(process.TICL_Task)
+  process.schedule = cms.Schedule(process.raw2digi_step,process.FEVTDEBUGHLToutput_step)
+  process.schedule.associate(process.TICL_Task)
   return process
 
