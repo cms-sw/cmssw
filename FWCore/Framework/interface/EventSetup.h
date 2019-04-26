@@ -28,6 +28,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
@@ -143,6 +144,17 @@ namespace edm {
           } else {
              auto const& rec = this->get<R>();
              return rec.getHandle(iToken);
+          }
+      }
+
+      template <typename T, typename R>
+       ESTransientHandle<T> getTransientHandle(const ESGetToken<T, R>& iToken) const {
+          if constexpr ( std::is_same_v<R, edm::DefaultRecord> ) {
+             auto const& rec = this->get<eventsetup::default_record_t<ESTransientHandle<T>>>();
+             return rec.getTransientHandle(iToken);
+          } else {
+             auto const& rec = this->get<R>();
+             return rec.getTransientHandle(iToken);
           }
       }
 
