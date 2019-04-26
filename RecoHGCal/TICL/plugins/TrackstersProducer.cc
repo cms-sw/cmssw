@@ -19,8 +19,6 @@
 
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoHGCal/TICL/interface/Trackster.h"
-#include "RecoHGCal/TICL/plugins/TrackstersProducer.h"
-
 #include "PatternRecognitionbyCA.h"
 #include "PatternRecognitionbyMultiClusters.h"
 
@@ -66,7 +64,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("min_cos_pointing", -1.);
   desc.add<int>("missing_layers", 0);
   desc.add<int>("min_clusters_per_ntuplet", 10);
-  descriptions.add("Tracksters", desc);
+  descriptions.add("tracksters", desc);
 }
 
 void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
