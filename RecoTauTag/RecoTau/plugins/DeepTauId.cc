@@ -801,7 +801,7 @@ private:
                         getValueNorm(pfCands.at(index_pf_gamma).pseudoTrack().chi2() /
                                      pfCands.at(index_pf_gamma).pseudoTrack().ndof(), 4.268f, 15.47f) : 0;
                     get(pfCand_gamma_track_ndof) = pfCands.at(index_pf_gamma).pseudoTrack().ndof() > 0 ?
-                    getValueNorm(pfCands.at(index_pf_gamma).pseudoTrack().ndof(), 12.25f, 4.774f) : 0;
+                        getValueNorm(pfCands.at(index_pf_gamma).pseudoTrack().ndof(), 12.25f, 4.774f) : 0;
                 }
             }
             if(valid_index_ele){
