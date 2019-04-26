@@ -1,3 +1,3 @@
-#include "RecoHGCal/TICL/interface/ClusterFilterFactory.h"
+#include "ClusterFilterFactory.h"
 
 EDM_REGISTER_PLUGINFACTORY(ClusterFilterFactory, "ClusterFilterFactory");

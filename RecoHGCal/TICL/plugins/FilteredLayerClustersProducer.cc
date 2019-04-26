@@ -14,8 +14,8 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
-#include "RecoHGCal/TICL/interface/ClusterFilterFactory.h"
-#include "RecoHGCal/TICL/interface/ClusterFilterBase.h"
+#include "ClusterFilterFactory.h"
+#include "ClusterFilterBase.h"
 
 #include <string>
 
