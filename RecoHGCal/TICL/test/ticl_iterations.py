@@ -13,11 +13,11 @@ from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import hgcalMultiClu
 
 from RecoHGCal.TICL.Tracksters_cfi import tracksters
 from RecoHGCal.TICL.FilteredLayerClusters_cfi import FilteredLayerClusters
-from RecoHGCal.TICL.TrackstersToMultiCluster_cfi import trackstersToMultiCluster
+from RecoHGCal.TICL.MultiClustersFromTracksters_cfi import multiClustersFromTracksters
 
 
 def TICL_iterations_withReco(process):
-  process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_TrackstersToMultiCluster*_*_*'])
+  process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_MultiClustersFromTracksters*_*_*'])
 
   process.FilteredLayerClustersMIP = FilteredLayerClusters.clone()
   process.FilteredLayerClustersMIP.ClusterFilter = "ClusterFilterBySize"
@@ -32,9 +32,9 @@ def TICL_iterations_withReco(process):
   process.TrackstersMIP.min_clusters_per_ntuplet = 15
   process.TrackstersMIP.min_cos_theta = 0.99 # ~10 degrees
   process.TrackstersMIP.min_cos_pointing = 0.9
-  process.TrackstersToMultiClusterMIP = trackstersToMultiCluster.clone()
-  process.TrackstersToMultiClusterMIP.label = "MIPMultiClustersFromTracksterByCA"
-  process.TrackstersToMultiClusterMIP.Tracksters = cms.InputTag("TrackstersMIP", "TrackstersByCA")
+  process.MultiClustersFromTrackstersMIP = multiClustersFromTracksters.clone()
+  process.MultiClustersFromTrackstersMIP.label = "MIPMultiClustersFromTracksterByCA"
+  process.MultiClustersFromTrackstersMIP.Tracksters = cms.InputTag("TrackstersMIP", "TrackstersByCA")
 
   process.FilteredLayerClusters = FilteredLayerClusters.clone()
   process.FilteredLayerClusters.algo_number = 8
@@ -48,22 +48,22 @@ def TICL_iterations_withReco(process):
   process.Tracksters.min_clusters_per_ntuplet = 15
   process.Tracksters.min_cos_theta = 0.94 # ~20 degrees
   process.Tracksters.min_cos_pointing = 0.7
-  process.TrackstersToMultiCluster = trackstersToMultiCluster.clone()
-  process.TrackstersToMultiCluster.Tracksters = cms.InputTag("Tracksters", "TrackstersByCA")
+  process.MultiClustersFromTracksters = multiClustersFromTracksters.clone()
+  process.MultiClustersFromTracksters.Tracksters = cms.InputTag("Tracksters", "TrackstersByCA")
 
   process.hgcalMultiClusters = hgcalMultiClusters
   process.TICL_Task = cms.Task(
       process.FilteredLayerClustersMIP,
       process.TrackstersMIP,
-      process.TrackstersToMultiClusterMIP,
+      process.MultiClustersFromTrackstersMIP,
       process.FilteredLayerClusters,
       process.Tracksters,
-      process.TrackstersToMultiCluster)
+      process.MultiClustersFromTracksters)
   process.TICL = cms.Path(process.TICL_Task)
   return process
 
 def TICL_iterations(process):
-  process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_TrackstersToMultiCluster*_*_*'])
+  process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_MultiClustersFromTracksters*_*_*'])
 
   process.FilteredLayerClustersMIP = FilteredLayerClusters.clone()
   process.FilteredLayerClustersMIP.ClusterFilter = "ClusterFilterBySize"
@@ -77,9 +77,9 @@ def TICL_iterations(process):
   process.TrackstersMIP.missing_layers = 3
   process.TrackstersMIP.min_clusters_per_ntuplet = 15
   process.TrackstersMIP.min_cos_theta = 0.985 # ~10 degrees
-  process.TrackstersToMultiClusterMIP = trackstersToMultiCluster.clone()
-  process.TrackstersToMultiClusterMIP.label = "MIPMultiClustersFromTracksterByCA"
-  process.TrackstersToMultiClusterMIP.Tracksters = cms.InputTag("TrackstersMIP", "TrackstersByCA")
+  process.MultiClustersFromTrackstersMIP = multiClustersFromTracksters.clone()
+  process.MultiClustersFromTrackstersMIP.label = "MIPMultiClustersFromTracksterByCA"
+  process.MultiClustersFromTrackstersMIP.Tracksters = cms.InputTag("TrackstersMIP", "TrackstersByCA")
 
   process.FilteredLayerClusters = FilteredLayerClusters.clone()
   process.FilteredLayerClusters.algo_number = 8
@@ -92,8 +92,8 @@ def TICL_iterations(process):
   process.Tracksters.min_clusters_per_ntuplet = 15
   process.Tracksters.min_cos_theta = 0.94 # ~20 degrees
   process.Tracksters.min_cos_pointing = 0.7
-  process.TrackstersToMultiCluster = trackstersToMultiCluster.clone()
-  process.TrackstersToMultiCluster.Tracksters = cms.InputTag("Tracksters", "TrackstersByCA")
+  process.MultiClustersFromTracksters = multiClustersFromTracksters.clone()
+  process.MultiClustersFromTracksters.Tracksters = cms.InputTag("Tracksters", "TrackstersByCA")
 
 
   process.HGCalUncalibRecHit = HGCalUncalibRecHit
@@ -105,10 +105,10 @@ def TICL_iterations(process):
       process.hgcalLayerClusters,
       process.FilteredLayerClustersMIP,
       process.TrackstersMIP,
-      process.TrackstersToMultiClusterMIP,
+      process.MultiClustersFromTrackstersMIP,
       process.FilteredLayerClusters,
       process.Tracksters,
-      process.TrackstersToMultiCluster,
+      process.MultiClustersFromTracksters,
       process.hgcalMultiClusters)
   process.TICL = cms.Path(process.TICL_Task)
   return process
