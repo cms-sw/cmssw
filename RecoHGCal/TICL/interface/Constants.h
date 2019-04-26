@@ -3,9 +3,9 @@
 
 #include <cstdint>
 
-namespace ticlConstants {
+namespace ticl::constants {
 constexpr float minEta = 1.5f;
 constexpr float maxEta = 3.0f;
-}  // namespace ticlConstants
+}  // namespace ticl::constants
 
 #endif  // RecoHGCal_TICL_interface_TICLConstants_h
