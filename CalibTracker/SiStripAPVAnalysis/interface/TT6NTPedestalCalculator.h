@@ -25,7 +25,7 @@ class TT6NTPedestalCalculator: public TkPedestalCalculator
      * @brief
      *   Celar all Pedestals
      */
-    inline void resetPedestals() override { pedestals_.empty(); }
+    inline void resetPedestals() override { pedestals_.clear(); }
 
     /*
      * @brief
