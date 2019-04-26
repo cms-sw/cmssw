@@ -259,8 +259,9 @@ EDConsumerBase::recordESConsumes(Transition iTrans,
 
   auto index = static_cast<ESProxyIndex::Value_t>(m_esTokenInfo.size());
   m_esTokenInfo.emplace_back(ESTokenLookupInfo{iRecord, eventsetup::DataKey{iDataType,iTag.data().c_str()},startOfComponentName}, ESProxyIndex{-1} );
+  auto indexForToken = esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].size();
   esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].push_back(ESProxyIndex{-1*(index+1)});
-  return ESTokenIndex{static_cast<ESTokenIndex::Value_t>(index)};
+  return ESTokenIndex{static_cast<ESTokenIndex::Value_t>(indexForToken)};
 }
 
 //
