@@ -72,7 +72,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 fileNames = []
-filesCnt = 10
+filesCnt = 100
 path = 'file:///eos/user/a/akalinow/Data/9_3_14_HSCP_v5/'
 for i in range(1, filesCnt+1, 1):
     fileNames.append(path + 'HSCPppstau_M_494_TuneZ2star_13TeV_pythia6_cff_py_GEN_SIM_DIGI_L1_L1TrackTrigger_DIGI2RAW_HLT_' + str(i) + '.root')
@@ -81,12 +81,12 @@ path = 'file:///eos/user/a/akalinow/Data/9_3_14_HSCP_v7/'
 for i in range(1, filesCnt+1, 1):
     fileNames.append(path + 'HSCPppstau_M_1599_TuneZ2star_13TeV_pythia6_cff_py_GEN_SIM_DIGI_L1_L1TrackTrigger_DIGI2RAW_HLT_' + str(i) + '.root')
 
-path = 'file:///eos/user/a/akalinow/Data/SingleMu/9_3_14_FullEta_v2/'
-for i in range(1, filesCnt+1, 1):
-    if i != 44: #missing file
-        fileNames.append(path + 'SingleMu_20_m_' + str(i) + '.root')
-for i in range(1, filesCnt+1, 1):
-    fileNames.append(path + 'SingleMu_20_p_' + str(i) + '.root')
+#path = 'file:///eos/user/a/akalinow/Data/SingleMu/9_3_14_FullEta_v2/'
+#for i in range(1, filesCnt+1, 1):
+#    if i != 44: #missing file
+#        fileNames.append(path + 'SingleMu_20_m_' + str(i) + '.root')
+#for i in range(1, filesCnt+1, 1):
+#    fileNames.append(path + 'SingleMu_20_p_' + str(i) + '.root')
     
 # Source_Files = cms.untracked.vstring(
 #          'file:///eos/user/a/akalinow/Data/9_3_14_HSCP_v5/HSCPppstau_M_494_TuneZ2star_13TeV_pythia6_cff_py_GEN_SIM_DIGI_L1_L1TrackTrigger_DIGI2RAW_HLT_1.root',
@@ -209,7 +209,7 @@ process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 process.omtfTTAnalyzer= cms.EDAnalyzer("MuCorrelatorAnalyzer", 
                                  outRootFile = cms.string("muCorrelatorTTAnalysis1.root"),
                                  etaCutFrom = cms.double(0.), #OMTF eta range
-                                 etaCutTo = cms.double(2.35),
+                                 etaCutTo = cms.double(2.4),
                                           
                                        MyProcess = cms.int32(1),
                                        DebugMode = cms.bool(verbose),      # printout lots of debug statements

@@ -27,6 +27,11 @@ MuCorrelatorProcessor::MuCorrelatorProcessor(MuCorrelatorConfigPtr& config, uniq
       std::pair<int, boost::dynamic_bitset<> >(4,  boost::dynamic_bitset<>(config->nLayers(), 0b000000000000000010000000000001) ), //MB1, RB1in
       std::pair<int, boost::dynamic_bitset<> >(4,  boost::dynamic_bitset<>(config->nLayers(), 0b000000000000000100000000000001) ), //MB1, RB1out
       std::pair<int, boost::dynamic_bitset<> >(4,  boost::dynamic_bitset<>(config->nLayers(), 0b000000000010000000001000000000) ), //ME1/2  or ME1/3, RE1
+
+      std::pair<int, boost::dynamic_bitset<> >(12, boost::dynamic_bitset<>(config->nLayers(), 0b000000000000000000000000000011) ),
+      std::pair<int, boost::dynamic_bitset<> >(12, boost::dynamic_bitset<>(config->nLayers(), 0b000000000000000000000000001100) ),
+      std::pair<int, boost::dynamic_bitset<> >(12, boost::dynamic_bitset<>(config->nLayers(), 0b000000000000000000000000110000) ),
+      std::pair<int, boost::dynamic_bitset<> >(12, boost::dynamic_bitset<>(config->nLayers(), 0b000000000000000000000011000000) ),
      // std::pair<int, boost::dynamic_bitset<> >(4,  boost::dynamic_bitset<>(config->nLayers(), 0b000000010000000001000000000000) )
   };
 
@@ -355,7 +360,7 @@ l1t::BayesMuCorrTrackCollection MuCorrelatorProcessor::getMuCorrTrackCollection(
 bool MuCorrelatorProcessor::assignQuality(AlgoTTMuons& algoTTMuons) {
   for(auto& algoTTMuon : algoTTMuons) {
     for(auto& firedLayers : lowQualityHitPatterns) {
-      algoTTMuon->setQuality(12); //Default quality
+      algoTTMuon->setQuality(13); //Default quality
       if(firedLayers.second == algoTTMuon->getFiredLayerBits()) {
         algoTTMuon->setQuality(firedLayers.first);
         //LogTrace("omtfEventPrintout")<<"demoting quality for "<<*algoTTMuon<<endl;
