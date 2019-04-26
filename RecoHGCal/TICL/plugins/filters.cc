@@ -2,11 +2,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-#include "RecoHGCal/TICL/interface/ClusterFilterFactory.h"
+#include "ClusterFilterFactory.h"
 
-#include "RecoHGCal/TICL/interface/ClusterFilterByAlgo.h"
-#include "RecoHGCal/TICL/interface/ClusterFilterByAlgoOrSize.h"
-#include "RecoHGCal/TICL/interface/ClusterFilterBySize.h"
+#include "ClusterFilterByAlgo.h"
+#include "ClusterFilterByAlgoOrSize.h"
+#include "ClusterFilterBySize.h"
 
 using namespace ticl;
 
