@@ -656,8 +656,8 @@ namespace pat {
     float rawCaloFraction() const { return (rawCaloFraction_/100.); }    /// Raw ECAL+HCAL energy over candidate energy for isolated charged hadrons
     void setRawHcalFraction(float p);                      /// Set the fraction of Hcal needed isolated charged hadrons
     float rawHcalFraction() const { return (rawHcalFraction_/100.); }    /// Fraction of Hcal for isolated charged hadrons
-    void setCaloFraction(float p);                      /// Set the fraction of ECAL+HCAL energy over candidate energy, for charged particles
-    float caloFraction() const { return (caloFraction_/100.); }    /// Fraction of ECAL+HCAL energy over candidate energy, for charged particles
+    void setCaloFraction(float p);                      /// Set the fraction of ECAL+HCAL energy over candidate energy
+    float caloFraction() const { return (caloFraction_/100.); }    /// Fraction of ECAL+HCAL energy over candidate energy
     void setHcalFraction(float p);                      /// Set the fraction of Hcal needed for HF, neutral hadrons, and charged particles
     float hcalFraction() const { return (hcalFraction_/100.); }    /// Fraction of Hcal for HF, neutral hadrons, and charged particles
     
@@ -732,7 +732,7 @@ namespace pat {
     int8_t packedPuppiweightNoLepDiff_; // storing the DIFFERENCE of (all - "no lep") for compression optimization
     uint8_t rawCaloFraction_;
     int8_t rawHcalFraction_;
-    int8_t caloFraction_;
+    uint8_t caloFraction_;
     int8_t hcalFraction_;
     int16_t packedTime_;
     uint8_t packedTimeError_;

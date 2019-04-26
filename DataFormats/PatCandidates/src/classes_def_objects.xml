@@ -335,7 +335,7 @@
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
   <class name="pat::PackedCandidate" ClassVersion="34">
-   <version ClassVersion="34" checksum="1793021019"/>
+   <version ClassVersion="34" checksum="3953181632"/>
    <version ClassVersion="33" checksum="1092680546"/>
    <version ClassVersion="32" checksum="926869123"/>
    <version ClassVersion="31" checksum="1248040002"/>
@@ -416,6 +416,17 @@
    target="packedPuppiweightNoLepDiff_" include="DataFormats/Math/interface/liblogintpack.h">
    <![CDATA[
             packedPuppiweightNoLepDiff_ = std::numeric_limits<int8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweightNoLepDiff_+onfile.packedPuppiweight_,-2,0,64)/2. - logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2.);
+   ]]>
+   </ioread>
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t hcalFraction_; int pdgId_" version="[-33]" targetClass="pat::PackedCandidate" target="hcalFraction_,rawHcalFraction_">
+   <![CDATA[
+      int absPdgId = abs(onfile.pdgId_);
+      if (absPdgId == 211 || absPdgId == 11 || absPdgId == 13) {
+        rawHcalFraction_ = onfile.hcalFraction_;
+        hcalFraction_ = 0;
+      } else {
+        hcalFraction_ = onfile.hcalFraction_;
+      }
    ]]>
    </ioread>
 
