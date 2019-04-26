@@ -1,4 +1,4 @@
-// Author: Felice Pantaleo - felice.pantaleo@cern.ch
+// Author: Felice Pantaleo,Marco Rovere - felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 11/2018
 // Copyright CERN
 
@@ -31,25 +31,25 @@ class HGCDoublet {
         outerZ_((*layerClusters)[outerClusterId].z()),
         alreadyVisited_(false) {}
 
-  double getInnerX() const { return innerX_; }
+  double innerX() const { return innerX_; }
 
-  double getOuterX() const { return outerX_; }
+  double outerX() const { return outerX_; }
 
-  double getInnerY() const { return innerY_; }
+  double innerY() const { return innerY_; }
 
-  double getOuterY() const { return outerY_; }
+  double outerY() const { return outerY_; }
 
-  double getInnerZ() const { return innerZ_; }
+  double innerZ() const { return innerZ_; }
 
-  double getOuterZ() const { return outerZ_; }
+  double outerZ() const { return outerZ_; }
 
-  double getInnerR() const { return innerR_; }
+  double innerR() const { return innerR_; }
 
-  double getOuterR() const { return outerZ_; }
+  double outerR() const { return outerZ_; }
 
-  int getInnerClusterId() const { return innerClusterId_; }
+  int innerClusterId() const { return innerClusterId_; }
 
-  int getOuterClusterId() const { return outerClusterId_; }
+  int outerClusterId() const { return outerClusterId_; }
 
   void tagAsOuterNeighbor(unsigned int otherDoublet) { outerNeighbors_.push_back(otherDoublet); }
 
@@ -64,18 +64,18 @@ class HGCDoublet {
     double xi[VSIZE];
     double yi[VSIZE];
     double zi[VSIZE];
-    auto xo = getOuterX();
-    auto yo = getOuterY();
-    auto zo = getOuterZ();
+    auto xo = outerX();
+    auto yo = outerY();
+    auto zo = outerZ();
     unsigned int doubletId = theDoubletId_;
 
     auto loop = [&](int i, int vs) {
       for (int j = 0; j < vs; ++j) {
         auto otherDoubletId = innerDoublets[i + j];
         auto &otherDoublet = allDoublets[otherDoubletId];
-        xi[j] = otherDoublet.getInnerX();
-        yi[j] = otherDoublet.getInnerY();
-        zi[j] = otherDoublet.getInnerZ();
+        xi[j] = otherDoublet.innerX();
+        yi[j] = otherDoublet.innerY();
+        zi[j] = otherDoublet.innerZ();
       }
       for (int j = 0; j < vs; ++j) {
         ok[j] = areAligned(xi[j], yi[j], zi[j], xo, yo, zo, minCosTheta, minCosPointing, debug);
@@ -109,9 +109,9 @@ class HGCDoublet {
     auto dy1 = yo - yi;
     auto dz1 = zo - zi;
 
-    auto dx2 = getInnerX() - xi;
-    auto dy2 = getInnerY() - yi;
-    auto dz2 = getInnerZ() - zi;
+    auto dx2 = innerX() - xi;
+    auto dy2 = innerY() - yi;
+    auto dz2 = innerZ() - zi;
 
     // inner product
     auto dot = dx1 * dx2 + dy1 * dy2 + dz1 * dz2;

@@ -1,4 +1,4 @@
-// Author: Felice Pantaleo - felice.pantaleo@cern.ch
+// Author: Felice Pantaleo, Marco Rovere - felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 09/2018
 // Copyright CERN
 
