@@ -1,6 +1,5 @@
 #include <string>
 
-
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -8,9 +7,11 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/HcalDepthEnergyFractions.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,6 +21,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+
 /*#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -90,7 +92,10 @@ namespace pat {
             const double minPtForTrackProperties_;
             const int covarianceVersion_;
             const std::vector<int> covariancePackingSchemas_;
-      
+
+            const std::vector<int> pfCandidateTypesForHcalDepth_;
+            const bool storeHcalDepthEndcapOnly_;
+
             const bool storeTiming_;
       
             // for debugging
@@ -100,6 +105,7 @@ namespace pat {
             float calcDz(reco::Candidate::Point p, reco::Candidate::Point v, const reco::Candidate &c) const {
                 return p.Z()-v.Z() - ((p.X()-v.X()) * c.px() + (p.Y()-v.Y())*c.py()) * c.pz()/(c.pt()*c.pt());
             }
+      
     };
 }
 
@@ -123,6 +129,8 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
   covarianceVersion_(iConfig.getParameter<int >("covarianceVersion")),
   covariancePackingSchemas_(iConfig.getParameter<std::vector<int> >("covariancePackingSchemas")),
+  pfCandidateTypesForHcalDepth_(iConfig.getParameter<std::vector<int> >("pfCandidateTypesForHcalDepth")),
+  storeHcalDepthEndcapOnly_(iConfig.getParameter<bool>("storeHcalDepthEndcapOnly")),
   storeTiming_(iConfig.getParameter<bool>("storeTiming"))  
 {
   std::vector<edm::InputTag> sv_tags = iConfig.getParameter<std::vector<edm::InputTag> >("secondaryVerticesForWhiteList");
@@ -135,6 +143,10 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   produces< std::vector<pat::PackedCandidate> > ();
   produces< edm::Association<pat::PackedCandidateCollection> > ();
   produces< edm::Association<reco::PFCandidateCollection> > ();
+
+  if (not pfCandidateTypesForHcalDepth_.empty() )
+    produces< edm::ValueMap<pat::HcalDepthEnergyFractions> > ("hcalDepthEnergyFractions");
+
 }
 
 pat::PATPackedCandidateProducer::~PATPackedCandidateProducer() {}
@@ -208,7 +220,9 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     reco::VertexRefProd PVRefProd(PVs);
     math::XYZPoint  PVpos;
 
-
+    std::vector<pat::HcalDepthEnergyFractions> hcalDepthEnergyFractions; hcalDepthEnergyFractions.reserve(cands->size());
+    std::vector<pat::HcalDepthEnergyFractions> hcalDepthEnergyFractions_Ordered; hcalDepthEnergyFractions_Ordered.reserve(cands->size());
+    
     edm::Handle<reco::TrackCollection> TKOrigs;
     iEvent.getByToken( TKOrigs_, TKOrigs );
     auto outPtrP = std::make_unique<std::vector<pat::PackedCandidate>>();
@@ -320,7 +334,21 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 	} else {
 	  outPtrP->back().setHcalFraction(0);
 	}
+       
+	std::vector<float> dummyVector; dummyVector.clear();
+	pat::HcalDepthEnergyFractions hcalDepthEFrac(dummyVector);
 	
+	// storing HcalDepthEnergyFraction information
+	if ( std::find(pfCandidateTypesForHcalDepth_.begin(), pfCandidateTypesForHcalDepth_.end(), abs(cand.pdgId())) 
+	     != pfCandidateTypesForHcalDepth_.end() ){
+	  if (!storeHcalDepthEndcapOnly_ || fabs(outPtrP->back().eta())>1.3 ){  // storeHcalDepthEndcapOnly_==false -> store all eta of selected 
+	                                                                // PF types, if true, only |eta|>1.3 of selected PF types will be stored  
+	    std::vector<float> hcalDepthEnergyFractionTmp(cand.hcalDepthEnergyFractions().begin(), cand.hcalDepthEnergyFractions().end());
+	    hcalDepthEFrac.reset(hcalDepthEnergyFractionTmp);
+	  }
+	}
+	hcalDepthEnergyFractions.push_back(hcalDepthEFrac);
+
 	//specifically this is the PFLinker requirements to apply the e/gamma regression
 	if(cand.particleId() == reco::PFCandidate::e || (cand.particleId() == reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.)) { 
 	  outPtrP->back().setGoodEgamma();
@@ -374,6 +402,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
         outPtrPSorted->push_back((*outPtrP)[order[i]]);
         reverseOrder[order[i]] = i;
         mappingReverse[order[i]]=i;
+        hcalDepthEnergyFractions_Ordered.push_back(hcalDepthEnergyFractions[order[i]]);
     }
 
     // Fix track association for sorted candidates
@@ -404,6 +433,15 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     iEvent.put(std::move(pf2pc));
     iEvent.put(std::move(pc2pf));
 
+    // HCAL depth energy fraction additions using ValueMap
+    auto hcalDepthEnergyFractionsV = std::make_unique<edm::ValueMap<HcalDepthEnergyFractions> >();
+    edm::ValueMap<HcalDepthEnergyFractions>::Filler fillerHcalDepthEnergyFractions(*hcalDepthEnergyFractionsV);
+    fillerHcalDepthEnergyFractions.insert(cands,hcalDepthEnergyFractions_Ordered.begin(),hcalDepthEnergyFractions_Ordered.end());
+    fillerHcalDepthEnergyFractions.fill();
+    
+    if (not pfCandidateTypesForHcalDepth_.empty() )
+      iEvent.put(std::move(hcalDepthEnergyFractionsV),"hcalDepthEnergyFractions");    
+    
 }
 
 
