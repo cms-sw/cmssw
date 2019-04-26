@@ -1,4 +1,4 @@
-// Author: Felice Pantaleo - felice.pantaleo@cern.ch
+// Author: Felice Pantaleo,Marco Rovere - felice.pantaleo@cern.ch,marco.rovere@cern.ch
 // Date: 09/2018
 // Copyright CERN
 
@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
@@ -23,6 +24,21 @@
 #include "PatternRecognitionbyCA.h"
 #include "PatternRecognitionbyMultiClusters.h"
 
+class TrackstersProducer : public edm::stream::EDProducer<> {
+ public:
+  TrackstersProducer(const edm::ParameterSet &);
+  ~TrackstersProducer() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+ private:
+  edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
+  edm::EDGetTokenT<std::vector<std::pair<unsigned int, float>>> filtered_layerclusters_mask_token_;
+  edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
+
+  std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
+};
 DEFINE_FWK_MODULE(TrackstersProducer);
 
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
