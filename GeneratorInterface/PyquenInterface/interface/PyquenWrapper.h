@@ -17,6 +17,11 @@ extern "C" {
 #define PYQUEN pyquen_ 
 
 extern "C" {
+  void pyqver_(int& ,int& ,int& ,int&);
+}
+#define PYQVER pyqver_
+
+extern "C" {
   extern struct{
     double bgen;
   }plfpar_;

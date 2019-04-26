@@ -17,4 +17,11 @@
    <class name="std::vector<ETLDataFrame>"/>
    <class name="ETLDigiCollection"/>
    <class name="edm::Wrapper<ETLDigiCollection>"/>   
+
+   <class name="PMTDSimAccumulator"/>
+   <class name="PMTDSimAccumulator::Data"/>
+   <class name="PMTDSimAccumulator::DetIdSize"/>
+   <class name="std::vector<PMTDSimAccumulator::Data>"/>
+   <class name="std::vector<PMTDSimAccumulator::DetIdSize>"/>
+   <class name="edm::Wrapper<PMTDSimAccumulator>"/>
 </lcgdict>

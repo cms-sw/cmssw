@@ -5,7 +5,6 @@
 <use   name="FWCore/ParameterSetReader"/>
 <use   name="root"/>
 <use   name="boost"/>
-<use   name="boost_python"/>
 <use   name="CommonTools/Utils"/>
 <use   name="PhysicsTools/Utilities"/>
 <use   name="PhysicsTools/FWLite"/>

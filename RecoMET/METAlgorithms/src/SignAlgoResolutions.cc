@@ -106,7 +106,7 @@ metsig::SigInputObj  metsig::SignAlgoResolutions::evalPF(const reco::PFCandidate
 
 
 metsig::SigInputObj
-metsig::SignAlgoResolutions::evalPFJet(const reco::PFJet *jet) const{
+metsig::SignAlgoResolutions::evalPFJet(const reco::Jet *jet) const{
 
     double jpt  = jet->pt();
     double jphi = jet->phi();

@@ -12,6 +12,8 @@ namespace cms {
       if(!isRegex(name)) {
     	return (name == node);
       } else {
+	if(name.front() != node.front())
+	  return false;
     	regex pattern({name.data(), name.size()});
     	return regex_match(begin(node), end(node), pattern);
       }
@@ -34,35 +36,13 @@ namespace cms {
 
     bool isRegex(string_view input) {
       return ((contains(input, "*") != -1) ||
-	      (contains(input, ".") != -1));
+      	      (contains(input, ".") != -1));
     }
 
     string_view realTopName(string_view input) {
       string_view v = input;
       auto first = v.find_first_of("//");
       v.remove_prefix(min(first+2, v.size()));
-      return v;
-    }
-    
-    string_view noCopyNo(string_view input) {
-      string_view v = input;
-      auto last = v.find_last_of("_");
-      v.remove_suffix(v.size() - min(last, v.size()));
-      return v;
-    }
-    
-    int copyNo(string_view input) {
-      string_view v = input;
-      auto last = v.find_last_of("_");
-      v.remove_prefix(min(last+1, v.size()));
-    
-      return stoi({v.data(), v.size()});
-    }
-    
-    string_view noNamespace(string_view input) {
-      string_view v = input;
-      auto first = v.find_first_of(":");
-      v.remove_prefix(min(first+1, v.size()));
       return v;
     }
     

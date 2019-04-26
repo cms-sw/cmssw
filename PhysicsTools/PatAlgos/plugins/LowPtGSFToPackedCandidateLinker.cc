@@ -34,7 +34,7 @@ private:
 	const edm::EDGetTokenT<reco::TrackCollection>          tracks_;
 	const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > pf2packed_;
 	const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > lost2trk_;
-	const edm::EDGetTokenT< std::vector<reco::PreId> > preid_;	
+	const edm::EDGetTokenT< edm::Association<reco::TrackCollection> > gsf2trk_;	
 	const edm::EDGetTokenT< std::vector<reco::GsfTrack> > gsftracks_;	
 };
 
@@ -45,7 +45,7 @@ LowPtGSFToPackedCandidateLinker::LowPtGSFToPackedCandidateLinker(const edm::Para
   tracks_{consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))},
   pf2packed_{consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedCandidates"))},
   lost2trk_{consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("lostTracks"))},
-  preid_{consumes<std::vector<reco::PreId> >(iConfig.getParameter<edm::InputTag>("gsfPreID"))},
+  gsf2trk_{consumes<edm::Association<reco::TrackCollection> >(iConfig.getParameter<edm::InputTag>("gsfToTrack"))},
   gsftracks_{consumes<std::vector<reco::GsfTrack> >(iConfig.getParameter<edm::InputTag>("gsfTracks"))} {     
 		produces< edm::Association<pat::PackedCandidateCollection> > ("packedCandidates");
 		produces< edm::Association<pat::PackedCandidateCollection> > ("lostTracks");
@@ -75,8 +75,8 @@ void LowPtGSFToPackedCandidateLinker::produce(edm::StreamID, edm::Event& iEvent,
 	edm::Handle<reco::TrackCollection> tracks;
 	iEvent.getByToken(tracks_, tracks);
 
-	edm::Handle<std::vector<reco::PreId> > preid;
-	iEvent.getByToken(preid_, preid);
+	edm::Handle<edm::Association<reco::TrackCollection> > gsf2trk;
+	iEvent.getByToken(gsf2trk_, gsf2trk);
 
 	// collection sizes, for reference
 	const size_t npf = pfcands->size();
@@ -120,9 +120,10 @@ void LowPtGSFToPackedCandidateLinker::produce(edm::StreamID, edm::Event& iEvent,
 	//map Track --> GSF and fill GSF --> PackedCandidates and GSF --> Lost associations
 	for(unsigned int igsf=0; igsf < ngsf; ++igsf) {
 		reco::GsfTrackRef gref(gsftracks, igsf);
-		reco::TrackRef trk = preid->at(
-			gref->seedRef().castTo<reco::ElectronSeedRef>().index()
-			).trackRef();
+		reco::TrackRef trk = (*gsf2trk)[gref];
+		if(trk.id() != tracks.id()) {
+			throw cms::Exception("WrongCollection", "The reco::Track collection used to match against the GSF Tracks was not used to produce such tracks");
+		}
 		size_t trkid = trk.index();
 
 		if(trk2packed[trkid] != npacked) {
@@ -153,7 +154,7 @@ void LowPtGSFToPackedCandidateLinker::fillDescriptions(edm::ConfigurationDescrip
 	desc.add<edm::InputTag>("packedCandidates", edm::InputTag("packedPFCandidates"));
 	desc.add<edm::InputTag>("lostTracks", edm::InputTag("lostTracks"));
 	desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
-	desc.add<edm::InputTag>("gsfPreID", edm::InputTag("lowPtGsfElectronSeeds"));
+	desc.add<edm::InputTag>("gsfToTrack", edm::InputTag("lowPtGsfToTrackLinks"));
 	desc.add<edm::InputTag>("gsfTracks", edm::InputTag("lowPtGsfEleGsfTracks"));
 	descriptions.add("lowPtGsfLinksDefault", desc);
 }

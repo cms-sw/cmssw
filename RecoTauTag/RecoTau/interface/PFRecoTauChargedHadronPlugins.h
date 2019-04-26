@@ -8,7 +8,7 @@
  *
  * Base classes for plugins that construct and rank PFRecoTauChargedHadron
  * objects from a jet.  The builder plugin has an abstract function
- * that takes a PFJet and returns a list of reconstructed photons in
+ * that takes a Jet and returns a list of reconstructed photons in
  * the jet.
  *
  * The quality plugin has an abstract function that takes a reference
@@ -27,7 +27,7 @@
 namespace reco {
 
 // Forward declarations
-class PFJet;
+class Jet;
 class PFRecoTauChargedHadron;
 
 namespace tau {
@@ -45,7 +45,7 @@ class PFRecoTauChargedHadronBuilderPlugin : public RecoTauEventHolderPlugin
   {}
   ~PFRecoTauChargedHadronBuilderPlugin() override {}
   /// Build a collection of chargedHadrons from objects in the input jet
-  virtual return_type operator()(const PFJet&) const = 0;
+  virtual return_type operator()(const Jet&) const = 0;
   /// Hook called at the beginning of the event.
   void beginEvent() override {}
 };

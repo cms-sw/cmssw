@@ -29,12 +29,18 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   ParameterSet pgun_params =
     pset.getParameter<ParameterSet>("PGunParameters") ;
 
-  fEn = pgun_params.getParameter<double>("En");
-  fR = pgun_params.getParameter<double>("R");
-  fZ = pgun_params.getParameter<double>("Z");
+  fEnMax = pgun_params.getParameter<double>("EnMax");
+  fEnMin = pgun_params.getParameter<double>("EnMin");
+  fRMax = pgun_params.getParameter<double>("RMax");
+  fRMin = pgun_params.getParameter<double>("RMin");
+  fZMax = pgun_params.getParameter<double>("ZMax");
+  fZMin = pgun_params.getParameter<double>("ZMin");
   fDelta = pgun_params.getParameter<double>("Delta");
+  fPhiMin = pgun_params.getParameter<double>("MinPhi");
+  fPhiMax = pgun_params.getParameter<double>("MaxPhi");
   fPartIDs = pgun_params.getParameter< vector<int> >("PartID");
   fPointing = pgun_params.getParameter<bool>("Pointing");
+  fOverlapping = pgun_params.getParameter<bool>("Overlapping");
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
@@ -59,10 +65,21 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
    // loop over particles
    //
    int barcode = 1 ;
-   double phi = CLHEP::RandFlat::shoot(engine, -3.14159265358979323846, 3.14159265358979323846);
-   for (unsigned int ip=0; ip<fPartIDs.size(); ++ip, phi += fDelta/fR)
-   {
+   double phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
+   double fR = CLHEP::RandFlat::shoot(engine,fRMin,fRMax);
+   double fZ = CLHEP::RandFlat::shoot(engine,fZMin,fZMax);
 
+   for (unsigned int ip=0; ip<fPartIDs.size(); ++ip)
+   {
+     if(fOverlapping)
+       {
+        phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
+        fR = CLHEP::RandFlat::shoot(engine,fRMin,fRMax);
+       }
+     else
+       phi += fDelta/fR;
+       
+     double fEn = CLHEP::RandFlat::shoot(engine,fEnMin,fEnMax);
      int PartID = fPartIDs[ip] ;
      const HepPDT::ParticleData *PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
      double mass   = PData->mass().value() ;

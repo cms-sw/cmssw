@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 def createElements():
     elements = list()
-    for i in xrange(0,10):
+    for i in range(0,10):
         elements.append(cms.untracked.PSet(lowX   = cms.untracked.double(0),
                                            highX  = cms.untracked.double(11),
                                            nchX   = cms.untracked.int32(11),
@@ -30,7 +31,7 @@ def createElements():
 
 def createReadRunElements():
     readRunElements = list()
-    for i in xrange(0,10):
+    for i in range(0,10):
         readRunElements.append(cms.untracked.PSet(name    = cms.untracked.string("Foo"+str(i)),
                                                   means   = cms.untracked.vdouble(i),
                                                   entries = cms.untracked.vdouble(1)
@@ -45,18 +46,18 @@ def createReadRunElements():
 
 def createReadLumiElements():
     readLumiElements = list()
-    for i in xrange(0,10):
+    for i in range(0,10):
         readLumiElements.append(cms.untracked.PSet(name=cms.untracked.string("Foo"+str(i)),
-                                                   means = cms.untracked.vdouble([i for x in xrange(0,10)]),
-                                                   entries=cms.untracked.vdouble([1 for x in xrange(0,10)])
+                                                   means = cms.untracked.vdouble([i for x in range(0,10)]),
+                                                   entries=cms.untracked.vdouble([1 for x in range(0,10)])
                                                    ))
     readLumiElements.append(cms.untracked.PSet(name=cms.untracked.string("Bar0"),
-                                               means = cms.untracked.vdouble([7 for x in xrange(0,10)]),
-                                               entries=cms.untracked.vdouble([55 for x in xrange(0,10)])
+                                               means = cms.untracked.vdouble([7 for x in range(0,10)]),
+                                               entries=cms.untracked.vdouble([55 for x in range(0,10)])
                                                ))
     readLumiElements.append(cms.untracked.PSet(name=cms.untracked.string("Bar1"),
-                                               means = cms.untracked.vdouble([3 for x in xrange(0,10)]),
-                                               entries=cms.untracked.vdouble([55 for x in xrange(0,10)])
+                                               means = cms.untracked.vdouble([3 for x in range(0,10)]),
+                                               entries=cms.untracked.vdouble([55 for x in range(0,10)])
                                                ))
     return readLumiElements
 
@@ -64,7 +65,7 @@ def createReadLumiElements():
 
 def createReadRunElements_merged_file1_file2():
     readRunElements = list()
-    for i in xrange(0,10):
+    for i in range(0,10):
         readRunElements.append(cms.untracked.PSet(name    = cms.untracked.string("Foo"+str(i)),
                                                   means   = cms.untracked.vdouble(i),
                                                   entries = cms.untracked.vdouble(2)
@@ -79,17 +80,17 @@ def createReadRunElements_merged_file1_file2():
 
 def createReadLumiElements_merged_file1_file2():
     readLumiElements = list()
-    for i in xrange(0,10):
+    for i in range(0,10):
         readLumiElements.append(cms.untracked.PSet(name=cms.untracked.string("Foo"+str(i)),
-                                                   means = cms.untracked.vdouble([i for x in xrange(0,20)]),
-                                                   entries=cms.untracked.vdouble([1 for x in xrange(0,20)])
+                                                   means = cms.untracked.vdouble([i for x in range(0,20)]),
+                                                   entries=cms.untracked.vdouble([1 for x in range(0,20)])
                                                    ))
     readLumiElements.append(cms.untracked.PSet(name=cms.untracked.string("Bar0"),
-                                               means = cms.untracked.vdouble([7 for x in xrange(0,20)]),
-                                               entries=cms.untracked.vdouble([55 for x in xrange(0,20)])
+                                               means = cms.untracked.vdouble([7 for x in range(0,20)]),
+                                               entries=cms.untracked.vdouble([55 for x in range(0,20)])
                                                ))
     readLumiElements.append(cms.untracked.PSet(name=cms.untracked.string("Bar1"),
-                                               means = cms.untracked.vdouble([3 for x in xrange(0,20)]),
-                                               entries=cms.untracked.vdouble([55 for x in xrange(0,20)])
+                                               means = cms.untracked.vdouble([3 for x in range(0,20)]),
+                                               entries=cms.untracked.vdouble([55 for x in range(0,20)])
                                                ))
     return readLumiElements

@@ -35,9 +35,6 @@ namespace cms {
     bool isRegex(std::string_view);
     bool compareEqual(std::string_view, std::string_view);
     std::string_view realTopName(std::string_view input);
-    std::string_view noCopyNo(std::string_view input);
-    int copyNo(std::string_view input);
-    std::string_view noNamespace(std::string_view input);
     std::vector<std::string_view> split(std::string_view, const char*);
   }
 }

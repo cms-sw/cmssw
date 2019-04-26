@@ -53,6 +53,7 @@ bool RecoTauPhotonFilter::filter( const RecoTauPiZero* piZero,
   return piZero->pt()/total.pt() < minPtFractionSinglePhotons_;
 }
 
+
 void RecoTauPhotonFilter::operator()(PFTau& tau) const {
   std::vector<const RecoTauPiZero*> signalPiZeros;
   for(auto const& piZero : tau.signalPiZeroCandidates()) {
@@ -102,7 +103,7 @@ void RecoTauPhotonFilter::operator()(PFTau& tau) const {
     tau.setisolationPiZeroCandidates(newIsolation);
 
     // Now we need to deal with the gamma candidates underlying moved pizeros.
-    std::vector<PFCandidatePtr> pfcandsToMove = flattenPiZeros(toMove);
+    std::vector<CandidatePtr> pfcandsToMove = flattenPiZeros(toMove);
 
     // Copy the keys to move
     std::set<size_t> keysToMove;
@@ -110,30 +111,30 @@ void RecoTauPhotonFilter::operator()(PFTau& tau) const {
       keysToMove.insert(ptr.key());
     }
 
-    std::vector<PFCandidatePtr> newSignalPFGammas;
-    std::vector<PFCandidatePtr> newSignalPFCands;
-    std::vector<PFCandidatePtr> newIsolationPFGammas = tau.isolationPFGammaCands();
-    std::vector<PFCandidatePtr> newIsolationPFCands = tau.isolationPFCands();
+    std::vector<CandidatePtr> newSignalGammas;
+    std::vector<CandidatePtr> newSignalCands;
+    std::vector<CandidatePtr> newIsolationGammas = tau.isolationGammaCands();
+    std::vector<CandidatePtr> newIsolationCands = tau.isolationCands();
 
     // Move the necessary signal pizeros - what a mess!
-    for(auto const& ptr : tau.signalPFCands()) {
+    for(auto const& ptr : tau.signalCands()) {
       if (keysToMove.count(ptr.key()))
-        newIsolationPFCands.push_back(ptr);
+        newIsolationCands.push_back(ptr);
       else
-        newSignalPFCands.push_back(ptr);
+        newSignalCands.push_back(ptr);
     }
 
-    for(auto const& ptr : tau.signalPFGammaCands()) {
+    for(auto const& ptr : tau.signalGammaCands()) {
       if (keysToMove.count(ptr.key()))
-        newIsolationPFGammas.push_back(ptr);
+        newIsolationGammas.push_back(ptr);
       else
-        newSignalPFGammas.push_back(ptr);
+        newSignalGammas.push_back(ptr);
     }
 
-    tau.setsignalPFCands(newSignalPFCands);
-    tau.setsignalPFCands(newSignalPFGammas);
-    tau.setisolationPFGammaCands(newIsolationPFGammas);
-    tau.setisolationPFCands(newIsolationPFCands);
+    tau.setsignalCands(newSignalCands);
+    tau.setsignalCands(newSignalGammas);
+    tau.setisolationGammaCands(newIsolationGammas);
+    tau.setisolationCands(newIsolationCands);
   }
 }
 }  // end namespace reco::tau

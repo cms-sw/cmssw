@@ -47,6 +47,7 @@ MicroEventContent = cms.PSet(
 
         'keep double_fixedGridRhoAll__*',
         'keep double_fixedGridRhoFastjetAll__*',
+        'keep double_fixedGridRhoFastjetAllTmp__*',
         'keep double_fixedGridRhoFastjetAllCalo__*',
         'keep double_fixedGridRhoFastjetCentral_*_*',
         'keep double_fixedGridRhoFastjetCentralCalo__*',
@@ -78,6 +79,7 @@ MicroEventContent = cms.PSet(
         'keep LumiScalerss_scalersRawToDigi_*_*',
         # CTPPS
         'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
+        'keep recoForwardProtons_ctppsProtons_*_*',
 	# displacedStandAlone muon collection for EXO
 	'keep recoTracks_displacedStandAloneMuons__*',
     )

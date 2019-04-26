@@ -205,6 +205,7 @@ LHESource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("A source which reads LHE files.");
   edm::ProducerSourceFromFiles::fillDescription(desc);
+  desc.addUntracked<unsigned int>("skipEvents", 0U)->setComment("Skip the first 'skipEvents' events.");
   descriptions.add("source", desc);
 }
 

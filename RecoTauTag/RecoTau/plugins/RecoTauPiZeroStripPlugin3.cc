@@ -59,13 +59,13 @@ class RecoTauPiZeroStripPlugin3 : public RecoTauPiZeroBuilderPlugin
   explicit RecoTauPiZeroStripPlugin3(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
   ~RecoTauPiZeroStripPlugin3() override;
   // Return type is auto_ptr<PiZeroVector>
-  return_type operator()(const reco::PFJet&) const override;
+  return_type operator()(const reco::Jet&) const override;
   // Hook to update PV information
   void beginEvent() override;
   
  private:
-  typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
-  void addCandsToStrip(RecoTauPiZero&, PFCandPtrs&, const std::vector<bool>&, std::set<size_t>&, bool&) const;
+  typedef std::vector<reco::CandidatePtr> CandPtrs;
+  void addCandsToStrip(RecoTauPiZero&, CandPtrs&, const std::vector<bool>&, std::set<size_t>&, bool&) const;
 
   RecoTauVertexAssociator vertexAssociator_;
 
@@ -76,7 +76,7 @@ class RecoTauPiZeroStripPlugin3 : public RecoTauPiZeroBuilderPlugin
 
   double minStripEt_;
 
-  std::vector<int> inputPdgIds_;  // type of candidates to clusterize
+  std::vector<int> inputParticleIds_;  // type of candidates to clusterize
   std::unique_ptr<const TFormula> etaAssociationDistance_; // size of strip clustering window in eta direction
   std::unique_ptr<const TFormula> phiAssociationDistance_; // size of strip clustering window in phi direction
 
@@ -140,7 +140,7 @@ RecoTauPiZeroStripPlugin3::RecoTauPiZeroStripPlugin3(const edm::ParameterSet& ps
 
   qcuts_.reset(new RecoTauQualityCuts(qcuts_pset));
 
-  inputPdgIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
+  inputParticleIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
   const edm::ParameterSet& stripSize_eta_pset = pset.getParameterSet("stripEtaAssociationDistanceFunc");
   etaAssociationDistance_ = makeFunction("etaAssociationDistance", stripSize_eta_pset);
   const edm::ParameterSet& stripSize_phi_pset = pset.getParameterSet("stripPhiAssociationDistanceFunc");
@@ -167,7 +167,7 @@ void RecoTauPiZeroStripPlugin3::beginEvent()
   vertexAssociator_.setEvent(*evt());
 }
 
-void RecoTauPiZeroStripPlugin3::addCandsToStrip(RecoTauPiZero& strip, PFCandPtrs& cands, const std::vector<bool>& candFlags, 
+void RecoTauPiZeroStripPlugin3::addCandsToStrip(RecoTauPiZero& strip, CandPtrs& cands, const std::vector<bool>& candFlags, 
 						std::set<size_t>& candIdsCurrentStrip, bool& isCandAdded) const
 {
   if ( verbosity_ >= 1 ) {
@@ -176,7 +176,7 @@ void RecoTauPiZeroStripPlugin3::addCandsToStrip(RecoTauPiZero& strip, PFCandPtrs
   size_t numCands = cands.size();
   for ( size_t candId = 0; candId < numCands; ++candId ) {
     if ( (!candFlags[candId]) && candIdsCurrentStrip.find(candId) == candIdsCurrentStrip.end() ) { // do not include same cand twice
-      reco::PFCandidatePtr cand = cands[candId];
+      reco::CandidatePtr cand = cands[candId];
       double etaAssociationDistance_value = etaAssociationDistance_->Eval(strip.pt()) + etaAssociationDistance_->Eval(cand->pt());
       double phiAssociationDistance_value = phiAssociationDistance_->Eval(strip.pt()) + phiAssociationDistance_->Eval(cand->pt());
       if ( fabs(strip.eta() - cand->eta()) < etaAssociationDistance_value && // check if cand is within eta-phi window centered on strip 
@@ -203,15 +203,23 @@ namespace
     }
   }
 
-  inline const reco::TrackBaseRef getTrack(const PFCandidate& cand)
+  // The following method has not been adapted to work with PackedCandidates,
+  // however, it is only used for printing/debugging and can be adapted when
+  // needed.
+  inline const reco::TrackBaseRef getTrack(const Candidate& cand)
   {
-    if      ( cand.trackRef().isNonnull()    ) return reco::TrackBaseRef(cand.trackRef());
-    else if ( cand.gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(cand.gsfTrackRef());
-    else return reco::TrackBaseRef();
+    const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
+    if (pfCandPtr) {
+      if      ( pfCandPtr->trackRef().isNonnull()    ) return reco::TrackBaseRef(pfCandPtr->trackRef());
+      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(pfCandPtr->gsfTrackRef());
+      else return reco::TrackBaseRef();
+    }
+    
+    return reco::TrackBaseRef();
   }
 }
 
-RecoTauPiZeroStripPlugin3::return_type RecoTauPiZeroStripPlugin3::operator()(const reco::PFJet& jet) const 
+RecoTauPiZeroStripPlugin3::return_type RecoTauPiZeroStripPlugin3::operator()(const reco::Jet& jet) const 
 {
   if ( verbosity_ >= 1 ) {
     edm::LogPrint("RecoTauPiZeroStripPlugin3") << "<RecoTauPiZeroStripPlugin3::operator()>:" ;
@@ -224,13 +232,13 @@ RecoTauPiZeroStripPlugin3::return_type RecoTauPiZeroStripPlugin3::operator()(con
 
   // Get the candidates passing our quality cuts
   qcuts_->setPV(vertexAssociator_.associatedVertex(jet));
-  PFCandPtrs candsVector = qcuts_->filterCandRefs(pfCandidates(jet, inputPdgIds_));
+  CandPtrs candsVector = qcuts_->filterCandRefs(pfCandidates(jet, inputParticleIds_));
 
   // Convert to stl::list to allow fast deletions
-  PFCandPtrs seedCands;
-  PFCandPtrs addCands;
+  CandPtrs seedCands;
+  CandPtrs addCands;
   int idx = 0;
-  for ( PFCandPtrs::iterator cand = candsVector.begin();
+  for ( CandPtrs::iterator cand = candsVector.begin();
 	cand != candsVector.end(); ++cand ) {
     if ( verbosity_ >= 1 ) {
       edm::LogPrint("RecoTauPiZeroStripPlugin3") << "PFGamma #" << idx << " (" << cand->id() << ":" << cand->key() << "): Et = " << (*cand)->et() << ", eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi() ;
@@ -238,17 +246,13 @@ RecoTauPiZeroStripPlugin3::return_type RecoTauPiZeroStripPlugin3::operator()(con
     if ( (*cand)->et() > minGammaEtStripSeed_ ) {
       if ( verbosity_ >= 2 ) {
 	edm::LogPrint("RecoTauPiZeroStripPlugin3") << "--> assigning seedCandId = " << seedCands.size() ;
-        const reco::TrackBaseRef candTrack = getTrack(*cand);
+        const reco::TrackBaseRef candTrack = getTrack(**cand);
         if ( candTrack.isNonnull() ) {
 	  edm::LogPrint("RecoTauPiZeroStripPlugin3") << "track: Pt = " << candTrack->pt() << " eta = " << candTrack->eta() << ", phi = " << candTrack->phi() << ", charge = " << candTrack->charge() ;
 	  edm::LogPrint("RecoTauPiZeroStripPlugin3") << " (dZ = " << candTrack->dz(vertexAssociator_.associatedVertex(jet)->position()) << ", dXY = " << candTrack->dxy(vertexAssociator_.associatedVertex(jet)->position()) << "," 
 		    << " numHits = " << candTrack->hitPattern().numberOfValidTrackerHits() << ", numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits() << "," 
 		    << " chi2 = " << candTrack->normalizedChi2() << ", dPt/Pt = " << (candTrack->ptError()/candTrack->pt()) << ")" ;
 	}
-	edm::LogPrint("RecoTauPiZeroStripPlugin3") << "ECAL Et: calibrated = " << (*cand)->ecalEnergy()*sin((*cand)->theta()) << "," 
-		  << " raw = " << (*cand)->rawEcalEnergy()*sin((*cand)->theta()) ;
-	edm::LogPrint("RecoTauPiZeroStripPlugin3") << "HCAL Et: calibrated = " << (*cand)->hcalEnergy()*sin((*cand)->theta()) << "," 
-		  << " raw = " << (*cand)->rawHcalEnergy()*sin((*cand)->theta()) ;
       }
       seedCands.push_back(*cand);
     } else if ( (*cand)->et() > minGammaEtStripAdd_  ) {

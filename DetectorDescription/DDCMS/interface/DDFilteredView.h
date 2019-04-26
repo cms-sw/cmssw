@@ -97,7 +97,7 @@ namespace cms {
   private:
     
     bool accept(std::string_view);
-    bool addPath(std::string_view, Node* const);
+    bool addPath(Node* const);
     bool addNode(Node* const);
     
     ExpandedNodes nodes_;

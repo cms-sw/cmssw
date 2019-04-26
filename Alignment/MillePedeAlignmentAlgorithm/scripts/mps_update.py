@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from builtins import range
 import os
 import re
 import subprocess
@@ -46,7 +47,7 @@ lib = mpslib.jobdatabase()
 lib.read_db()
 
 submitted_jobs = {}
-for i in xrange(len(lib.JOBID)):
+for i in range(len(lib.JOBID)):
     submitted = True
     for status in ("SETUP", "OK", "DONE", "FETCH", "ABEND", "WARN", "FAIL"):
         if status in lib.JOBSTATUS[i]:

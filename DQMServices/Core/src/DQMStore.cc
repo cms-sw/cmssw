@@ -376,8 +376,10 @@ DQMStore::DQMStore(edm::ParameterSet const& pset, edm::ActivityRegistry& ar)
     ar.watchPostSourceRun([this](edm::RunIndex){ forceReset(); });
   }
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginLumi",false) && enableMultiThread_ == false) {
+#if !WITHOUT_CMS_FRAMEWORK
     forceResetOnBeginLumi_ = true;
-    ar.watchPostSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
+    ar.watchPreSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
+#endif
   }
   ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
 }
@@ -422,6 +424,10 @@ DQMStore::initializeFrom(edm::ParameterSet const& pset)
   LSbasedMode_ = pset.getUntrackedParameter<bool>("LSbasedMode", false);
   if (LSbasedMode_)
     std::cout << "DQMStore: LSbasedMode option is enabled\n";
+
+  doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
+  if (doSaveByLumi_)
+    std::cout << "DQMStore: saveByLumi option is enabled\n";
 
   std::string ref = pset.getUntrackedParameter<std::string>("referenceFileName", "");
   if (! ref.empty()) {
@@ -934,6 +940,10 @@ DQMStore::book_(std::string const& dir,
     // Create and initialise core object.
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
+    if (doSaveByLumi_ && canSaveByLumi_) {
+      // for legacy (not DQMEDAnalyzer) this is not save.
+      proto.setLumiFlag(); // default to per-lumi mode for all non-legacy MEs.
+    }
     me = const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first)
       .initialise((MonitorElement::Kind)kind, h);
 
@@ -992,6 +1002,8 @@ DQMStore::book_(std::string const& dir,
     // Create it and return for initialisation.
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
+    // this is used only for Int/String/Float. We don't save these by lumi by
+    // default, since we can't merge them properly.
     return &const_cast<MonitorElement&>(*data_.insert(std::move(proto)).first);
   }
 }
@@ -1921,7 +1933,12 @@ DQMStore::cloneLumiHistograms(uint32_t const run, uint32_t const lumi, uint32_t 
   std::string null_str("");
   auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
   auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  // we will later modify data_, so better do two passes.
+  auto tobehandled = std::vector<MonitorElement const*>();
   for (; i != e; ++i) {
+    tobehandled.push_back(&*i);
+  }
+  for (auto i : tobehandled) {
     // handle only lumisection-based histograms
     if (not LSbasedMode_ and not i->getLumiFlag())
       continue;
@@ -1958,7 +1975,12 @@ DQMStore::cloneRunHistograms(uint32_t const run, uint32_t const moduleId)
   std::string null_str("");
   auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
   auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  // we will later modify data_, so better do two passes.
+  auto tobehandled = std::vector<MonitorElement const*>();
   for (; i != e; ++i) {
+    tobehandled.push_back(&*i);
+  }
+  for (auto i : tobehandled) {
     // handle only non lumisection-based histograms
     if (LSbasedMode_ or i->getLumiFlag())
       continue;

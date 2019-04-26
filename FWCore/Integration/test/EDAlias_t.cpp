@@ -3,7 +3,6 @@
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 
 #include <iostream>

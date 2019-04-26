@@ -35,13 +35,15 @@ using namespace std;
 using namespace edm;
 
 DTTTrigOffsetCalibration::DTTTrigOffsetCalibration(const ParameterSet& pset):
-  select_(pset),
   theRecHits4DLabel_(pset.getParameter<InputTag>("recHits4DLabel")),
   doTTrigCorrection_(pset.getUntrackedParameter<bool>("doT0SegCorrection", false)),
   theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")),
   dbLabel_(pset.getUntrackedParameter<string>("dbLabel", "")) {
 
   LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration] Constructor called!";
+
+  edm::ConsumesCollector collector(consumesCollector());
+  select_ = new DTSegmentSelector(pset,collector);
 
   // the root file which will contain the histos
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName","DTT0SegHistos.root");
@@ -110,7 +112,7 @@ void DTTTrigOffsetCalibration::analyze(const Event & event, const EventSetup& ev
       LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
                               << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
       
-      if( !select_(*segment, event, eventSetup) ) continue;
+      if( !(*select_)(*segment, event, eventSetup) ) continue;
 
       // Fill t0-seg values
       if( (*segment).hasPhi() ) {

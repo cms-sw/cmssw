@@ -640,7 +640,7 @@ def create2DPlots(detector, plot, plotnum, plotmat):
     if plot == "x_vs_z_vs_Rsum" or plot == "l_vs_z_vs_Rsum" or plot == "x_vs_z_vs_Rsumcos" or plot == "l_vs_z_vs_Rsumcos" or plot == "x_vs_z_vs_Rloc" or plot == "l_vs_z_vs_Rloc" or  plot == "x_vs_z_vs_Rloccos" or plot == "l_vs_z_vs_Rloccos":
         #Z+
         #hist2d_X0_total.GetXaxis().SetLimits( 3100., 5200.)
-        hist2d_X0_total.GetXaxis().SetRangeUser( 3100., 5200.)
+        hist2d_X0_total.GetXaxis().SetRangeUser( 3100., 5400.)
         #Do not draw eta values in the zoom case
         keep_alive = []
         #hist2d_X0_total.Draw("COLZ") 
@@ -650,7 +650,7 @@ def create2DPlots(detector, plot, plotnum, plotmat):
         can2.SaveAs( "%s/%s/%s_%s%s_ZplusZoom.png" % (theDirname, "ZPlusZoom", detector, plot, plotmat))
         #Z-
         #hist2d_X0_total.GetXaxis().SetLimits( 3100., 5200.)
-        hist2d_X0_total.GetXaxis().SetRangeUser( -5200., -3100.)
+        hist2d_X0_total.GetXaxis().SetRangeUser( -5400., -3100.)
         #Do not draw eta values in the zoom case
         keep_alive = []
         #hist2d_X0_total.Draw("COLZ") 

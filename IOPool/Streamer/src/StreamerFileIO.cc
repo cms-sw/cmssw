@@ -36,3 +36,7 @@
     return true;
   }
 
+  void OutputFile::close()
+  {
+    ost_->close();
+  }

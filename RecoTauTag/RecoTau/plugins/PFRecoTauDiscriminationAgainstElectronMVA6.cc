@@ -97,8 +97,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
   float tauEtaAtEcalEntrance = -99.;
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
-  const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTauRef->signalPFCands();
-  for ( const auto & pfCandidate : signalPFCands ) {
+  for ( const auto & pfCandidate : thePFTauRef->signalPFCands() ) {
     sumEtaTimesEnergy += (pfCandidate->positionAtECALEntrance().eta()*pfCandidate->energy());
     sumEnergy += pfCandidate->energy();
   }
@@ -108,7 +107,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 
   float leadChargedPFCandEtaAtEcalEntrance = -99.;
   float leadChargedPFCandPt = -99.;
-  for ( const auto & pfCandidate : signalPFCands ) {
+  for ( const auto & pfCandidate : thePFTauRef->signalPFCands() ) {
     const reco::Track* track = nullptr;
     if ( pfCandidate->trackRef().isNonnull() ) track = pfCandidate->trackRef().get();
     else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull()  ) track = pfCandidate->muonRef()->innerTrack().get();
@@ -123,19 +122,19 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     }
   }
 
-  if( (*thePFTauRef).leadPFChargedHadrCand().isNonnull()) {
+  if( (*thePFTauRef).leadChargedHadrCand().isNonnull()) {
 
-    int numSignalPFGammaCandsInSigCone = 0;
-    const std::vector<reco::PFCandidatePtr>& signalPFGammaCands = thePFTauRef->signalPFGammaCands();
+    int numSignalGammaCandsInSigCone = 0;
+    const std::vector<reco::CandidatePtr>& signalGammaCands = thePFTauRef->signalGammaCands();
     
-    for ( const auto & pfGamma : signalPFGammaCands ) {
+    for ( const auto & pfGamma : signalGammaCands ) {
             
-      double dR = deltaR(pfGamma->p4(), thePFTauRef->leadPFChargedHadrCand()->p4());
+      double dR = deltaR(pfGamma->p4(), thePFTauRef->leadChargedHadrCand()->p4());
       double signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTauRef->pt())));
             
       // pfGammas inside the tau signal cone
       if (dR < signalrad) {
-        numSignalPFGammaCandsInSigCone += 1;
+        numSignalGammaCandsInSigCone += 1;
       }
     }
     
@@ -146,7 +145,11 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	deltaRDummy = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
 	  double mva_match = mva_->MVAValue(*thePFTauRef, theGsfElectron);
-	  bool hasGsfTrack = thePFTauRef->leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
+	  const reco::PFCandidatePtr& lpfch = thePFTauRef->leadPFChargedHadrCand();
+	  bool hasGsfTrack = false;
+	  if (lpfch.isNonnull()) {
+	    hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
+	  }
 	  if ( !hasGsfTrack )
             hasGsfTrack = theGsfElectron.gsfTrack().isNonnull();
 
@@ -160,17 +163,17 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	  //// Veto taus that go to Ecal crack
 
 	  if ( std::abs(tauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ) { // Barrel
-	    if ( numSignalPFGammaCandsInSigCone == 0 && hasGsfTrack ) {
+	    if ( numSignalGammaCandsInSigCone == 0 && hasGsfTrack ) {
 	      category = 5.;
 	    }
-	    else if ( numSignalPFGammaCandsInSigCone >= 1 && hasGsfTrack ) {
+	    else if ( numSignalGammaCandsInSigCone >= 1 && hasGsfTrack ) {
 	      category = 7.;
 	    }
 	  } else { // Endcap
-	    if ( numSignalPFGammaCandsInSigCone == 0 && hasGsfTrack ) {
+	    if ( numSignalGammaCandsInSigCone == 0 && hasGsfTrack ) {
 	      category = 13.;
 	    }
-	    else if ( numSignalPFGammaCandsInSigCone >= 1 && hasGsfTrack ) {
+	    else if ( numSignalGammaCandsInSigCone >= 1 && hasGsfTrack ) {
 	      category = 15.;
 	    }
 	  }
@@ -183,7 +186,11 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 
     if ( !isGsfElectronMatched ) {
       mvaValue = mva_->MVAValue(*thePFTauRef);
-      bool hasGsfTrack = thePFTauRef->leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
+      const reco::PFCandidatePtr& lpfch = thePFTauRef->leadPFChargedHadrCand();
+      bool hasGsfTrack = false;
+      if (lpfch.isNonnull()) {
+	hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
+      }
       
       //// Veto taus that go to Ecal crack
       if ( vetoEcalCracks_ && (isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance)) ) {
@@ -195,17 +202,17 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
       //// Veto taus that go to Ecal crack
       
       if ( std::abs(tauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ) { // Barrel
-	if ( numSignalPFGammaCandsInSigCone == 0 && !hasGsfTrack ) {
+	if ( numSignalGammaCandsInSigCone == 0 && !hasGsfTrack ) {
 	  category = 0.;
 	}
-	else if ( numSignalPFGammaCandsInSigCone >= 1 && !hasGsfTrack ) {
+	else if ( numSignalGammaCandsInSigCone >= 1 && !hasGsfTrack ) {
 	  category = 2.;
 	}
       } else { // Endcap
-	if ( numSignalPFGammaCandsInSigCone == 0 && !hasGsfTrack ) {
+	if ( numSignalGammaCandsInSigCone == 0 && !hasGsfTrack ) {
 	  category = 8.;
 	}
-	else if ( numSignalPFGammaCandsInSigCone >= 1 && !hasGsfTrack ) {
+	else if ( numSignalGammaCandsInSigCone >= 1 && !hasGsfTrack ) {
 	  category = 10.;
 	}
       }
@@ -216,7 +223,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     edm::LogPrint("PFTauAgainstEleMVA6") << "<PFRecoTauDiscriminationAgainstElectronMVA6::discriminate>:" ;
     edm::LogPrint("PFTauAgainstEleMVA6") << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi();
     edm::LogPrint("PFTauAgainstEleMVA6") << " deltaREleTau = " << deltaRDummy << ", isGsfElectronMatched = " << isGsfElectronMatched;
-    edm::LogPrint("PFTauAgainstEleMVA6") << " #Prongs = " << thePFTauRef->signalPFChargedHadrCands().size();
+    edm::LogPrint("PFTauAgainstEleMVA6") << " #Prongs = " << thePFTauRef->signalChargedHadrCands().size();
     edm::LogPrint("PFTauAgainstEleMVA6") << " MVA = " << mvaValue << ", category = " << category;
   }
 
