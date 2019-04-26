@@ -10,7 +10,7 @@
 #include "HGCDoublet.h"
 #include "HGCGraph.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
-#include "RecoHGCal/TICL/interface/TICLConstants.h"
+#include "RecoHGCal/TICL/interface/Constants.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
@@ -41,10 +41,10 @@ class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
 
  private:
   int getEtaBin(float eta) const {
-    constexpr float etaRange = ticlConstants::maxEta - ticlConstants::minEta;
+    constexpr float etaRange = ticl::constants::maxEta - ticl::constants::minEta;
     static_assert(etaRange >= 0.f);
     float r = nEtaBins_ / etaRange;
-    int etaBin = (std::abs(eta) - ticlConstants::minEta) * r;
+    int etaBin = (std::abs(eta) - ticl::constants::minEta) * r;
     etaBin = std::min(etaBin, nEtaBins_);
     etaBin = std::max(etaBin, 0);
     return etaBin;

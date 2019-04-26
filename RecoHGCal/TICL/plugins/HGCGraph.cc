@@ -2,7 +2,7 @@
 // Date: 11/2018
 // Copyright CERN
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoHGCal/TICL/interface/TICLConstants.h"
+#include "RecoHGCal/TICL/interface/Constants.h"
 
 #include "HGCDoublet.h"
 #include "HGCGraph.h"
