@@ -37,11 +37,11 @@ double HGCalGeomTools::radius(double z, int layer0, int layerf,
   for (unsigned int k = 0; k < rFront.size(); ++k) {
     int k1 = layerf - layer0 + (int)(k);
     if (k1 < (int)(zFront.size())) {
-      if (z < zFront[k1] + tol) break;
       r = rFront[k];
 #ifdef EDM_ML_DEBUG
       ik = k;
 #endif
+      if (z < zFront[k1] + tol) break;
     }
   }
 #ifdef EDM_ML_DEBUG

@@ -34,7 +34,7 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     det_        = (DetId::Detector)(det);
     subdet_     = ForwardEmpty;
-    kHGeomHalf_ = sectors_*layers_*cells_;
+    kHGeomHalf_ = sectors_*layers_*cellMax_;
     types_      = 2;
   } else {
     det_        = (DetId::Detector)(det);

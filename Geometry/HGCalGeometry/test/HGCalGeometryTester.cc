@@ -106,14 +106,16 @@ void HGCalGeometryTester::doTest(const HGCalGeometry* geom,
 	    auto        icell1  = geom->getGeometry(id1);
 	    GlobalPoint global1 = geom->getPosition(id1);
 	    DetId       idc1    = geom->getClosestCell(global1);
+	    GlobalPoint global2 = geom->getPosition(idc1);
 	    std::cout << "DetId (" << subdet << ":" << zside << ":" << layer
 		      << ":" << sector << ":0:" << cell << ") Geom " << icell1
 		      << " position (" << global1.x() << ", " << global1.y()
 		      << ", " << global1.z() << ") ids " << std::hex 
 		      << id1.rawId() << ":" << idc1.rawId() << std::dec
 		      << ":" << HGCalDetId(id1) << ":" << HGCalDetId(idc1)
- 		      << " parameter[3] = " << icell1->param()[2] << ":"
-		      << icell1->param()[2];
+		      << " new position (" << global2.x() << ", " << global2.y()
+		      << ", " << global2.z() << ") parameter[3] = " 
+		      << icell1->param()[2] << ":" << icell1->param()[2];
 	    if (id1.rawId() != idc1.rawId()) 
 	      std::cout << "***** ERROR *****" << std::endl;
 	    else
@@ -156,6 +158,7 @@ void HGCalGeometryTester::doTestWafer(const HGCalGeometry* geom,
 		auto        icell1  = geom->getGeometry(id1);
 		GlobalPoint global1 = geom->getPosition(id1);
 		DetId       idc1    = geom->getClosestCell(global1);
+		GlobalPoint global2 = geom->getPosition(idc1);
 		std::cout << "DetId (" << det << ":" << zside << ":" 
 			  << type << ":" << layer << ":" << waferU << ":"
 			  << waferV << ":" << cellU << ":" << cellV 
@@ -164,7 +167,9 @@ void HGCalGeometryTester::doTestWafer(const HGCalGeometry* geom,
 			  << ", " << global1.z() << ") ids " << std::hex 
 			  << id1.rawId() << ":" << idc1.rawId() << std::dec
 			  << ":" << HGCSiliconDetId(id1) << ":" 
-			  << HGCSiliconDetId(idc1) << " parameter[3] = " 
+			  << HGCSiliconDetId(idc1) << " new position (" 
+			  << global2.x() << ", " << global2.y()
+			  << ", " << global2.z() << ") parameter[3] = " 
 			  << icell1->param()[2] << ":" << icell1->param()[2];
 		if (id1.rawId() != idc1.rawId()) 
 		  std::cout << "***** ERROR *****" << std::endl;
@@ -205,15 +210,18 @@ void HGCalGeometryTester::doTestScint(const HGCalGeometry* geom,
 	    auto        icell1  = geom->getGeometry(id1);
 	    GlobalPoint global1 = geom->getPosition(id1);
 	    DetId       idc1    = geom->getClosestCell(global1);
+	    GlobalPoint global2 = geom->getPosition(idc1);
 	    std::cout << "DetId (" << det << ":" << zside << ":" << type 
 		      << ":" << layer << ":" << ieta << ":" << iphi
 		      << ") Geom " << icell1 << " position (" << global1.x() 
 		      << ", " << global1.y() << ", " << global1.z() 
-		      << ") ids " << std::hex  << id1.rawId() << ":" 
-		      << idc1.rawId() << std::dec << ":" 
-		      << HGCScintillatorDetId(id1) << ":" 
-		      << HGCScintillatorDetId(idc1)
-		      << " parameter[11] = " << icell1->param()[10] << ":"
+		      << ":" << global1.perp() << ") ids " << std::hex  
+		      << id1.rawId() << ":"  << idc1.rawId() << std::dec 
+		      << ":"  << HGCScintillatorDetId(id1) << ":" 
+		      << HGCScintillatorDetId(idc1) << " new position (" 
+		      << global2.x() << ", " << global2.y() << ", " 
+		      << global2.z() << ":" << global2.perp() 
+		      << ") parameter[11] = "  << icell1->param()[10] << ":" 
 		      << icell1->param()[10];
 	    if (id1.rawId() != idc1.rawId()) 
 	      std::cout << "***** ERROR *****" << std::endl;
@@ -229,6 +237,15 @@ void HGCalGeometryTester::doTestScint(const HGCalGeometry* geom,
 	}
       }
     }
+  }
+  for (int layer = geom->topology().dddConstants().firstLayer();
+       layer <= geom->topology().dddConstants().lastLayer(true); ++layer) {
+    HGCScintillatorDetId id(geom->topology().dddConstants().getTypeTrap(layer),
+			    layer, 20, 1);
+    GlobalPoint global1 = geom->getPosition(id);
+    std::cout << "Layer " << layer << " DetId " << id << " position ("
+	      << global1.x() << ", " << global1.y() << ", " << global1.z() 
+	      << ", " << global1.perp() << ")" << std::endl;
   }
 }
 
