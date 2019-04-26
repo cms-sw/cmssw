@@ -4,11 +4,11 @@
 #include <cassert>
 #include <iosfwd>
 #include <cstring> // bzero
+#include <memory>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVDMBTrailerFormat.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
-#include <boost/shared_ptr.hpp>
 
 
 // class CSCDMBHeader;
@@ -73,7 +73,7 @@ public:
 
  private:
   
-  boost::shared_ptr<CSCVDMBTrailerFormat> theTrailerFormat;
+  std::shared_ptr<CSCVDMBTrailerFormat> theTrailerFormat;
   int theFirmwareVersion;
 
 };
