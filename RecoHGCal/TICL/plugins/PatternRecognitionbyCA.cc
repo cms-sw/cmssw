@@ -1,4 +1,4 @@
-// Author: Felice Pantaleo - felice.pantaleo@cern.ch
+// Author: Felice Pantaleo, Marco Rovere - felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 11/2018
 // Copyright CERN
 #include <algorithm>
@@ -57,8 +57,8 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev, const edm::Eve
   for (auto &ntuplet : foundNtuplets) {
     std::set<unsigned int> effective_cluster_idx;
     for (auto &doublet : ntuplet) {
-      auto innerCluster = doublets[doublet].getInnerClusterId();
-      auto outerCluster = doublets[doublet].getOuterClusterId();
+      auto innerCluster = doublets[doublet].innerClusterId();
+      auto outerCluster = doublets[doublet].outerClusterId();
       effective_cluster_idx.insert(innerCluster);
       effective_cluster_idx.insert(outerCluster);
       if (algo_verbosity_ > Advanced) {

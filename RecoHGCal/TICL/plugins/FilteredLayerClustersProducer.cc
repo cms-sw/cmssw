@@ -1,4 +1,4 @@
-// Author: Felice Pantaleo - felice.pantaleo@cern.ch
+// Author: Felice Pantaleo, Marco Rovere - felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 09/2018
 // Copyright CERN
 
@@ -14,8 +14,26 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
-#include "FilteredLayerClustersProducer.h"
 #include "RecoHGCal/TICL/interface/ClusterFilterFactory.h"
+#include "RecoHGCal/TICL/interface/ClusterFilterBase.h"
+
+#include <string>
+
+class FilteredLayerClustersProducer : public edm::stream::EDProducer<> {
+ public:
+  FilteredLayerClustersProducer(const edm::ParameterSet &);
+  ~FilteredLayerClustersProducer() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+ private:
+  edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
+  edm::EDGetTokenT<std::vector<float>> clustersMask_token_;
+  std::string clusterFilter_;
+  std::string iteration_label_;
+  const ticl::ClusterFilterBase *theFilter_ = nullptr;
+};
 
 DEFINE_FWK_MODULE(FilteredLayerClustersProducer);
 
