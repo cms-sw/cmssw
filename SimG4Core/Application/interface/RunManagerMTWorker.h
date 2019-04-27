@@ -8,6 +8,7 @@
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include <memory>
+#include <tbb/concurrent_vector.h>
 
 namespace edm {
   class ParameterSet;
@@ -91,7 +92,8 @@ private:
   edm::ParameterSet m_p;
 
   struct TLSData;
-  static thread_local TLSData *m_tls;
+  static thread_local std::unique_ptr<TLSData> m_tls;
+  static void resetTLS();
 
   std::unique_ptr<G4SimEvent> m_simEvent;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
