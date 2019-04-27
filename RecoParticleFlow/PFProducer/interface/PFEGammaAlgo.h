@@ -49,10 +49,12 @@
 #include <unordered_map>
 
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaHeavyObjectCache.h"
+#include "RecoParticleFlow/PFProducer/interface/FlaggedPtr.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 class PFSCEnergyCalibration;
 class PFEnergyCalibration;
+
 
 class PFEGammaAlgo {
  public:
@@ -62,21 +64,16 @@ class PFEGammaAlgo {
   typedef reco::PFBlockElementGsfTrack PFGSFElement;
   typedef reco::PFBlockElementTrack PFKFElement;
   typedef reco::PFBlockElementCluster PFClusterElement;
-  typedef std::pair<const reco::PFBlockElement*,bool> PFFlaggedElement;
-  typedef std::pair<const PFSCElement*,bool> PFSCFlaggedElement;
-  typedef std::pair<const PFBremElement*,bool> PFBremFlaggedElement;
-  typedef std::pair<const PFGSFElement*,bool> PFGSFFlaggedElement;
-  typedef std::pair<const PFKFElement*,bool> PFKFFlaggedElement;
-  typedef std::pair<const PFClusterElement*,bool> PFClusterFlaggedElement;
-  typedef std::unordered_map<unsigned int, std::vector<unsigned int> > AsscMap;
-  typedef std::vector<std::pair<const reco::PFBlockElement*,
-    const reco::PFBlockElement*> > ElementMap;
-  typedef std::unordered_map<const PFGSFElement*, 
-    std::vector<PFKFFlaggedElement> > GSFToTrackMap;
-  typedef std::unordered_map<const PFClusterElement*, 
-    std::vector<PFClusterFlaggedElement> > ClusterMap;  
-  typedef std::unordered_map<const PFKFElement*, 
-    float > KFValMap;  
+  typedef FlaggedPtr<const reco::PFBlockElement> PFFlaggedElement;
+  typedef FlaggedPtr<const PFSCElement> PFSCFlaggedElement;
+  typedef FlaggedPtr<const PFBremElement> PFBremFlaggedElement;
+  typedef FlaggedPtr<const PFGSFElement> PFGSFFlaggedElement;
+  typedef FlaggedPtr<const PFKFElement> PFKFFlaggedElement;
+  typedef FlaggedPtr<const PFClusterElement> PFClusterFlaggedElement;
+  typedef std::vector<std::pair<const reco::PFBlockElement*, const reco::PFBlockElement*> > ElementMap;
+  typedef std::unordered_map<const PFKFElement*, float > KFValMap;  
+
+  using ClusterMap = std::unordered_map<PFClusterElement const*,std::vector<PFClusterElement const*>>;
     
   struct ProtoEGObject {
     reco::PFBlockRef parentBlock;
@@ -89,7 +86,6 @@ class PFEGammaAlgo {
     ClusterMap ecal2ps;
     // associations to tracks of various sorts
     std::vector<PFGSFFlaggedElement> primaryGSFs; 
-    GSFToTrackMap boundKFTracks;
     std::vector<PFKFFlaggedElement> primaryKFs;
     std::vector<PFBremFlaggedElement> brems; // these are tangent based brems
     // for manual brem recovery 
