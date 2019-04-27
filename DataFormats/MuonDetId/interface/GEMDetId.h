@@ -274,12 +274,13 @@ private:
       if (subdet == MuonSubdetId::GEM) {
 	region = static_cast<int>(((rawid>>RegionStartBit) & RegionMask)+minRegionId);
 	ring   = (static_cast<int>((rawid>>RingStartBit) & RingMask) + minRingId);
-	station= (static_cast<int>((rawid>>StationStartBit) & StationMask)+minStationId0);
 	chamber= (static_cast<int>((rawid>>ChamberStartBit) & ChamberMask) + (minChamberId+1));
 	if ((rawid&kGEMIdFormat) == 0) {
+	  station= (static_cast<int>((rawid>>StationStartBit) & StationMask)+minStationId);
 	  layer = (static_cast<int>((rawid>>LayerStartBit) & LayerMaskP) + minLayerId);
 	  roll  = (static_cast<int>((rawid>>RollStartBitP) & RollMask));
 	} else {
+	  station= (static_cast<int>((rawid>>StationStartBit) & StationMask)+minStationId0);
 	  layer = (static_cast<int>((rawid>>LayerStartBit) & LayerMask) + minLayerId);
 	  roll  = (static_cast<int>((rawid>>RollStartBit) & RollMask));
 	}
