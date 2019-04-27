@@ -12,9 +12,10 @@ def custom_identification_drnn_cone(process,
         if not wp in cat:
             raise KeyError('HGC TPG ID: Cannot find a cut corresponding to the working point {}'.format(wp))
     parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
-    identification = egamma_identification_drnn_cone.clone()
-    identification.WorkingPoints = cms.vdouble(
-            [wps[eff] for wps,eff in zip(working_points_drnn_cone,working_points)]
+    identification = egamma_identification_drnn_cone.clone(
+            WorkingPoints = cms.vdouble(
+                [wps[eff] for wps,eff in zip(working_points_drnn_cone,working_points)]
+                )
             )
     parameters_c3d.EGIdentification = identification
     return process
@@ -30,9 +31,10 @@ def custom_identification_drnn_dbscan(process,
         if not wp in cat:
             raise KeyError('HGC TPG ID: Cannot find a cut corresponding to the working point {}'.format(wp))
     parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
-    identification = egamma_identification_drnn_dbscan.clone()
-    identification.WorkingPoints = cms.vdouble(
-            [wps[eff] for wps,eff in zip(working_points_drnn_dbscan,working_points)]
+    identification = egamma_identification_drnn_dbscan.clone(
+            WorkingPoints = cms.vdouble(
+                [wps[eff] for wps,eff in zip(working_points_drnn_dbscan,working_points)]
+                )
             )
     parameters_c3d.EGIdentification = identification
     return process
@@ -48,9 +50,10 @@ def custom_identification_histomax(process,
         if not wp in cat:
             raise KeyError('HGC TPG ID: Cannot find a cut corresponding to the working point {}'.format(wp))
     parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
-    identification = egamma_identification_histomax.clone()
-    identification.WorkingPoints = cms.vdouble(
-            [wps[eff] for wps,eff in zip(working_points_histomax,working_points)]
+    identification = egamma_identification_histomax.clone(
+            WorkingPoints = cms.vdouble(
+                [wps[eff] for wps,eff in zip(working_points_histomax,working_points)]
+                )
             )
     parameters_c3d.EGIdentification = identification
     return process
