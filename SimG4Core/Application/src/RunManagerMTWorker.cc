@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Concurrency/interface/FunctorTask.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
@@ -104,9 +105,12 @@ namespace {
       }
     }
   }
+
+  std::atomic<int> active_tlsdata{0};
 }
 
 struct RunManagerMTWorker::TLSData {
+  std::unique_ptr<G4RunManagerKernel> kernel; //must be deleted last
   std::unique_ptr<CustomUIsession> UIsession;
   std::unique_ptr<RunAction> userRunAction;
   std::unique_ptr<SimRunInterface> runInterface;
@@ -116,15 +120,25 @@ struct RunManagerMTWorker::TLSData {
   std::vector<SensitiveCaloDetector*> sensCaloDets;
   std::vector<std::shared_ptr<SimWatcher> > watchers;
   std::vector<std::shared_ptr<SimProducer> > producers;
-  std::unique_ptr<G4Run> currentRun;
+  //G4Run can only be deleted if there is a G4RunManager
+  // on the thread where the G4Run is being deleted,
+  // else it causes a segmentation fault
+  G4Run* currentRun = nullptr;
   std::unique_ptr<G4Event> currentEvent;
-  std::unique_ptr<G4RunManagerKernel> kernel;
   edm::RunNumber_t currentRunNumber = 0;
   bool threadInitialized = false;
   bool runTerminated = false;
+
+  TLSData() {
+    ++active_tlsdata;
+  }
+
+  ~TLSData() {
+    --active_tlsdata;
+  }
 };
 
-thread_local RunManagerMTWorker::TLSData *RunManagerMTWorker::m_tls = nullptr;
+thread_local std::unique_ptr<RunManagerMTWorker::TLSData> RunManagerMTWorker::m_tls{nullptr};
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -152,6 +166,27 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
 
 RunManagerMTWorker::~RunManagerMTWorker() {
   if(m_tls && !m_tls->runTerminated) { terminateRun(); }
+
+  resetTLS();
+}
+
+void RunManagerMTWorker::resetTLS() {
+  m_tls.reset();
+
+  if(active_tlsdata != 0) {
+    //need to run tasks on each thread which has set the tls
+    auto task = edm::make_functor_task(tbb::task::allocate_root(), [] () {
+        resetTLS();
+      });
+    tbb::task::enqueue(*task);
+    timespec s;
+    s.tv_sec=0;
+    s.tv_nsec=10000;
+    //we do not want this thread to be used for a new task since it
+    // has already cleared its structures. In order to fill all TBB
+    // threads we wait for all TLSes to clear
+    while(active_tlsdata.load() != 0) { nanosleep(&s,nullptr);}
+  }
 }
 
 void RunManagerMTWorker::endRun() {
@@ -160,7 +195,8 @@ void RunManagerMTWorker::endRun() {
 
 void RunManagerMTWorker::initializeTLS() {
   if(m_tls) { return; }
-  m_tls = new TLSData;
+  
+  m_tls.reset(new TLSData );;
   m_tls->registry.reset(new SimActivityRegistry());
 
   edm::Service<SimActivityRegistry> otherRegistry;
@@ -245,8 +281,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
 
   // attach sensitive detector
   AttachSD attach;
-  std::pair< std::vector<SensitiveTkDetector*>,
-    std::vector<SensitiveCaloDetector*> > sensDets =
+  auto  sensDets =
     attach.create(*pDD, runManagerMaster.catalog(), m_p,
                   m_tls->trackManager.get(),
                   *(m_tls->registry.get()));
@@ -377,15 +412,15 @@ std::vector<std::shared_ptr<SimProducer> > RunManagerMTWorker::producers() {
 }
 
 void RunManagerMTWorker::initializeRun() {
-  m_tls->currentRun.reset(new G4Run());
+  m_tls->currentRun = new G4Run();
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
-  if (m_tls->userRunAction) { m_tls->userRunAction->BeginOfRunAction(m_tls->currentRun.get()); }
+  if (m_tls->userRunAction) { m_tls->userRunAction->BeginOfRunAction(m_tls->currentRun); }
 }
 
 void RunManagerMTWorker::terminateRun() {
   if(!m_tls || m_tls->runTerminated) { return; }
   if(m_tls->userRunAction) {
-    m_tls->userRunAction->EndOfRunAction(m_tls->currentRun.get());
+    m_tls->userRunAction->EndOfRunAction(m_tls->currentRun);
     m_tls->userRunAction.reset();
   }
   m_tls->currentEvent.reset();
@@ -490,7 +525,7 @@ void RunManagerMTWorker::abortEvent() {
 
 void RunManagerMTWorker::abortRun(bool softAbort) {
   if (!softAbort) { abortEvent(); }
-  m_tls->currentRun.reset();
+  m_tls->currentRun = nullptr;
   terminateRun();
 }
 
