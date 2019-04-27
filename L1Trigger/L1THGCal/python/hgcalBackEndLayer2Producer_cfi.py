@@ -81,26 +81,30 @@ histoMax_C3d_params = cms.PSet(type_multicluster=cms.string('HistoMaxC3d'),
 # (see https://indico.cern.ch/event/806845/contributions/3359859/attachments/1815187/2966402/19-03-20_EGPerf_HGCBE.pdf
 # for more details)
 phase2_hgcalV9.toModify(histoMax_C3d_params,
-                        threshold_histo_multicluster=cms.double(7.5),  # MipT
+                        threshold_histo_multicluster=7.5,  # MipT
                         )
 
 
-histoMaxVariableDR_C3d_params = histoMax_C3d_params.clone()
-histoMaxVariableDR_C3d_params.dR_multicluster = cms.double(0.)
-histoMaxVariableDR_C3d_params.dR_multicluster_byLayer_coefficientA = cms.vdouble(dr_layerbylayer)
-histoMaxVariableDR_C3d_params.dR_multicluster_byLayer_coefficientB = cms.vdouble([0]*53)
+histoMaxVariableDR_C3d_params = histoMax_C3d_params.clone(
+        dR_multicluster = cms.double(0.),
+        dR_multicluster_byLayer_coefficientA = cms.vdouble(dr_layerbylayer),
+        dR_multicluster_byLayer_coefficientB = cms.vdouble([0]*(MAX_LAYERS+1))
+        )
 
 
-histoSecondaryMax_C3d_params = histoMax_C3d_params.clone()
-histoSecondaryMax_C3d_params.type_multicluster = cms.string('HistoSecondaryMaxC3d')
+histoSecondaryMax_C3d_params = histoMax_C3d_params.clone(
+        type_multicluster = cms.string('HistoSecondaryMaxC3d')
+        )
 
 
-histoInterpolatedMax_C3d_params = histoMax_C3d_params.clone()
-histoInterpolatedMax_C3d_params.type_multicluster = cms.string('HistoInterpolatedMaxC3d')
+histoInterpolatedMax_C3d_params = histoMax_C3d_params.clone(
+        type_multicluster = cms.string('HistoInterpolatedMaxC3d')
+        )
 
 
-histoThreshold_C3d_params = histoMax_C3d_params.clone()
-histoThreshold_C3d_params.type_multicluster = cms.string('HistoThresholdC3d')
+histoThreshold_C3d_params = histoMax_C3d_params.clone(
+        type_multicluster = cms.string('HistoThresholdC3d')
+        )
 
 
 be_proc = cms.PSet(ProcessorName  = cms.string('HGCalBackendLayer2Processor3DClustering'),

@@ -29,9 +29,8 @@ def custom_2dclustering_distance(process,
                                  seed_threshold=distance_C2d_params.seeding_threshold_silicon,  # MipT
                                  cluster_threshold=distance_C2d_params.clustering_threshold_silicon  # MipT
                                  ):
-    parameters_c2d = distance_C2d_params.clone()
+    parameters_c2d = distance_C2d_params.clone(dR_cluster = distance)
     set_threshold_params(parameters_c2d, seed_threshold, cluster_threshold)
-    parameters_c2d.dR_cluster = distance
     process.hgcalBackEndLayer1Producer.ProcessorParameters.C2d_parameters = parameters_c2d
     return process
 
@@ -51,8 +50,7 @@ def custom_2dclustering_constrainedtopological(process,
                                                seed_threshold=constrTopological_C2d_params.seeding_threshold_silicon,  # MipT
                                                cluster_threshold=constrTopological_C2d_params.clustering_threshold_silicon  # MipT
                                                ):
-    parameters_c2d = constrTopological_C2d_params.clone()
-    parameters_c2d.dR_cluster = distance
+    parameters_c2d = constrTopological_C2d_params.clone(dR_cluster = distance)
     set_threshold_params(parameters_c2d, seed_threshold, cluster_threshold)
     process.hgcalBackEndLayer1Producer.ProcessorParameters.C2d_parameters = parameters_c2d
     return process
@@ -66,8 +64,7 @@ def custom_2dclustering_dummy(process):
 def custom_3dclustering_distance(process,
                                  distance=distance_C3d_params.dR_multicluster
                                  ):
-    parameters_c3d = distance_C3d_params.clone()
-    parameters_c3d.dR_multicluster = distance
+    parameters_c3d = distance_C3d_params.clone(dR_multicluster = distance)
     process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
     return process
 
@@ -76,9 +73,10 @@ def custom_3dclustering_dbscan(process,
                                distance=dbscan_C3d_params.dist_dbscan_multicluster,
                                min_points=dbscan_C3d_params.minN_dbscan_multicluster
                                ):
-    parameters_c3d = dbscan_C3d_params.clone()
-    parameters_c3d.dist_dbscan_multicluster = distance
-    parameters_c3d.minN_dbscan_multicluster = min_points
+    parameters_c3d = dbscan_C3d_params.clone(
+            dist_dbscan_multicluster = distance,
+            minN_dbscan_multicluster = min_points
+            )
     process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
     return process
 
@@ -124,9 +122,10 @@ def custom_3dclustering_histoMax_variableDr(process,
                                             binSumsHisto=histoMaxVariableDR_C3d_params.binSumsHisto,
                                             seed_threshold=histoMaxVariableDR_C3d_params.threshold_histo_multicluster,
                                             ):
-    parameters_c3d = histoMaxVariableDR_C3d_params.clone()
+    parameters_c3d = histoMaxVariableDR_C3d_params.clone(
+            dR_multicluster_byLayer_coefficientA = cms.vdouble(distances)
+            )
     set_histomax_params(parameters_c3d, 0, nBins_R, nBins_Phi, binSumsHisto, seed_threshold)
-    parameters_c3d.dR_multicluster_byLayer_coefficientA = cms.vdouble(distances)
     process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
     return process
 
@@ -138,9 +137,10 @@ def custom_3dclustering_histoInterpolatedMax1stOrder(process,
                                                      binSumsHisto=histoInterpolatedMax_C3d_params.binSumsHisto,
                                                      seed_threshold=histoInterpolatedMax_C3d_params.threshold_histo_multicluster
                                                      ):
-    parameters_c3d = histoInterpolatedMax_C3d_params.clone()
+    parameters_c3d = histoInterpolatedMax_C3d_params.clone(
+            neighbour_weights = neighbour_weights_1stOrder
+            )
     set_histomax_params(parameters_c3d, distance, nBins_R, nBins_Phi, binSumsHisto, seed_threshold)
-    parameters_c3d.neighbour_weights = neighbour_weights_1stOrder
     process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
     return process
 
@@ -151,9 +151,10 @@ def custom_3dclustering_histoInterpolatedMax2ndOrder(process,
                                                      nBins_Phi=histoInterpolatedMax_C3d_params.nBins_Phi_histo_multicluster,
                                                      binSumsHisto=histoInterpolatedMax_C3d_params.binSumsHisto,
                                                      seed_threshold=histoInterpolatedMax_C3d_params.threshold_histo_multicluster):
-    parameters_c3d = histoInterpolatedMax_C3d_params.clone()
+    parameters_c3d = histoInterpolatedMax_C3d_params.clone(
+            neighbour_weights = neighbour_weights_2ndOrder
+            )
     set_histomax_params(parameters_c3d, distance, nBins_R, nBins_Phi, binSumsHisto, seed_threshold)
-    parameters_c3d.neighbour_weights = neighbour_weights_2ndOrder
     process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
     return process
 
