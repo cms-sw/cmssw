@@ -92,7 +92,7 @@ class HLTRegionalEcalResonanceFilter : public edm::stream::EDFilter<>
 		       ); 
       
       
-      void makeClusterES(float x, float y, float z,const CaloSubdetectorGeometry*&iSubGeom,CaloSubdetectorTopology*& topology_p);
+      void makeClusterES(float x, float y, float z,const CaloSubdetectorGeometry* iSubGeom,const CaloSubdetectorTopology* topology_p);
       
       void calcPaircluster(const reco::BasicCluster &bc1, const reco::BasicCluster &bc2, float &mpair, float &ptpair,float &etapair,float &phipair); 
       
