@@ -172,10 +172,8 @@ void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
     << "Produce event " << e.id() << " stream " << e.streamID() 
     << " rand= " << G4UniformRand();
 
-  std::vector<SensitiveTkDetector*>& sTk =
-    m_runManagerWorker->sensTkDetectors();
-  std::vector<SensitiveCaloDetector*>& sCalo =
-    m_runManagerWorker->sensCaloDetectors();
+  auto& sTk = m_runManagerWorker->sensTkDetectors();
+  auto& sCalo = m_runManagerWorker->sensCaloDetectors();
 
   try { m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster()); }
   catch ( const SimG4Exception& simg4ex ) {
