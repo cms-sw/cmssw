@@ -318,9 +318,9 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event& iEvent, const edm::Event
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle); 
   const CaloSubdetectorGeometry *geometry_es = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  CaloSubdetectorTopology *topology_es=nullptr;
+  std::unique_ptr<CaloSubdetectorTopology> topology_es;
   if (geometry_es) {
-    topology_es  = new EcalPreshowerTopology(geoHandle);
+    topology_es  = std::make_unique<EcalPreshowerTopology>();
   }else{
     storeRecHitES_ = false; ///if no preshower
   }
@@ -485,7 +485,7 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event& iEvent, const edm::Event
       ///save preshower rechits 
       if(storeRecHitES_){
 	std::set<DetId> used_strips_before = m_used_strips;  
-	makeClusterES(it_bc3->x(),it_bc3->y(),it_bc3->z(),geometry_es,topology_es);
+	makeClusterES(it_bc3->x(),it_bc3->y(),it_bc3->z(),geometry_es,topology_es.get());
 	auto ites = m_used_strips.begin();
 	for(; ites != m_used_strips.end(); ++ ites ){
 	  ESDetId d1 = ESDetId(*ites);
@@ -539,8 +539,6 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event& iEvent, const edm::Event
   }// end of selection for eta/pi0->gg in the endcap
     
  
-  
-  delete topology_es;
   
   ////==============End of endcap ===============///
   
@@ -1120,8 +1118,8 @@ bool HLTRegionalEcalResonanceFilter::checkStatusOfEcalRecHit(const EcalChannelSt
 }
 
 
-void HLTRegionalEcalResonanceFilter::makeClusterES(float x, float y, float z,const CaloSubdetectorGeometry*& geometry_es,
-					CaloSubdetectorTopology*& topology_es
+void HLTRegionalEcalResonanceFilter::makeClusterES(float x, float y, float z,const CaloSubdetectorGeometry* geometry_es,
+                                                   const CaloSubdetectorTopology* topology_es
 					){
   
   

@@ -8,7 +8,6 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 class EcalBarrelTopology final : public CaloSubdetectorTopology
 {
@@ -21,8 +20,8 @@ public:
   ~EcalBarrelTopology() override { }  
 
   /// create a new Topology from geometry
-  EcalBarrelTopology(edm::ESHandle<CaloGeometry> theGeom) {
-    theGeom_ = theGeom->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+  EcalBarrelTopology(CaloGeometry const& theGeom) {
+    theGeom_ = theGeom.getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
   }
   
  /// move the Topology north (increment iphi)
