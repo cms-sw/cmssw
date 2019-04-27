@@ -38,11 +38,15 @@ process.maxEvents = cms.untracked.PSet(
 ##
 process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect = 'sqlite_file:SiPixelStatusScenarios_2017StuckTBM.db'
+#process.CondDB.connect = 'sqlite_file:SiPixelStatusScenarios_2017Prompt.db'
+#process.CondDB.connect = 'sqlite_file:SiPixelStatusScenarios_2017Other.db'
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
                                           timetype = cms.untracked.string('runnumber'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenariosRcd'),
                                                                      tag = cms.string('SiPixelFEDChannelContainer_StuckTBM_2017_v1_mc')
+                                                                     #tag = cms.string('SiPixelFEDChannelContainer_Prompt_2017_v1_mc')
+                                                                     #tag = cms.string('SiPixelFEDChannelContainer_Other_2017_v1_mc')
                                                                      )
                                                             )
                                           )
@@ -67,8 +71,3 @@ process.FastSiPixelFEDChannelContainerFromQuality.output   = "summary2017_StuckT
 #process.FastSiPixelFEDChannelContainerFromQuality.output   = "summary2017_Other.txt"
 
 process.p = cms.Path(process.FastSiPixelFEDChannelContainerFromQuality)
-
-
-
-
-
