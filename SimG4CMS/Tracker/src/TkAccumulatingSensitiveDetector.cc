@@ -93,7 +93,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
   setNames(temp);  
 
   theG4ProcTypeEnumerator.reset(new G4ProcessTypeEnumerator);
-  theNumberingScheme.reset(nullptr);
+  theNumberingScheme = nullptr;
 }
 
 TkAccumulatingSensitiveDetector::~TkAccumulatingSensitiveDetector() 
@@ -126,7 +126,7 @@ bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHis
 
 uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(const G4Step * step)
 { 
-  return theNumberingScheme.get()->g4ToNumberingScheme(step->GetPreStepPoint()->GetTouchable());
+  return theNumberingScheme->g4ToNumberingScheme(step->GetPreStepPoint()->GetTouchable());
 }
 
 void TkAccumulatingSensitiveDetector::update(const BeginOfTrack *bot){
@@ -369,7 +369,7 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfJob * i)
     edm::ESTransientHandle<DDCompactView> pView;
     es->get<IdealGeometryRecord>().get(pView);
 
-    theNumberingScheme.reset(&(numberingScheme(*pView,*pDD)));
+    theNumberingScheme = &(numberingScheme(*pView,*pDD));
 }
 
 void TkAccumulatingSensitiveDetector::clearHits()
