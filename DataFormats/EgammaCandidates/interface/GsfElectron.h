@@ -7,6 +7,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 //#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -183,11 +184,14 @@ class GsfElectron : public RecoCandidate
     // forward core methods
     SuperClusterRef superCluster() const override { return core()->superCluster() ; }
     GsfTrackRef gsfTrack() const override { return core()->gsfTrack() ; }
-    virtual TrackRef closestTrack() const { return core()->ctfTrack() ; }
     float ctfGsfOverlap() const { return core()->ctfGsfOverlap() ; }
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
     virtual SuperClusterRef parentSuperCluster() const { return core()->parentSuperCluster() ; }
+    bool closestCtfTrackRefValid() const { return closestCtfTrackRef().isAvailable() && closestCtfTrackRef().isNonnull() ; }
+    //methods used for MVA variables
+    float closestCtfTrackNormChi2() const { return closestCtfTrackRefValid() ? closestCtfTrackRef()->normalizedChi2() : 0; }
+    int closestCtfTrackNLayers() const { return closestCtfTrackRefValid() ? closestCtfTrackRef()->hitPattern().trackerLayersWithMeasurement() : -1; }
 
     // backward compatibility
     struct ClosestCtfTrack
@@ -530,14 +534,15 @@ class GsfElectron : public RecoCandidate
 
     struct IsolationVariables
      {
-      float tkSumPt ;                // track iso deposit with electron footprint removed
+      float tkSumPt ;                // track iso with electron footprint removed
+      float tkSumPtHEEP ;            // track iso used for the HEEP ID
       float ecalRecHitSumEt ;        // ecal iso deposit with electron footprint removed
       float hcalDepth1TowerSumEt ;   // hcal depht 1 iso deposit with electron footprint removed
       float hcalDepth2TowerSumEt ;   // hcal depht 2 iso deposit with electron footprint removed
       float hcalDepth1TowerSumEtBc ; // hcal depht 1 iso deposit without towers behind clusters
       float hcalDepth2TowerSumEtBc ; // hcal depht 2 iso deposit without towers behind clusters
       IsolationVariables()
-       : tkSumPt(0.), ecalRecHitSumEt(0.),
+       : tkSumPt(0.), tkSumPtHEEP(0.), ecalRecHitSumEt(0.),
          hcalDepth1TowerSumEt(0.), hcalDepth2TowerSumEt(0.),
          hcalDepth1TowerSumEtBc(0.), hcalDepth2TowerSumEtBc(0.)
        {}
@@ -545,6 +550,7 @@ class GsfElectron : public RecoCandidate
 
     // 03 accessors
     float dr03TkSumPt() const { return dr03_.tkSumPt ; }
+    float dr03TkSumPtHEEP() const { return dr03_.tkSumPtHEEP ; }
     float dr03EcalRecHitSumEt() const { return dr03_.ecalRecHitSumEt ; }
     float dr03HcalDepth1TowerSumEt() const { return dr03_.hcalDepth1TowerSumEt ; }
     float dr03HcalDepth2TowerSumEt() const { return dr03_.hcalDepth2TowerSumEt ; }
@@ -556,6 +562,7 @@ class GsfElectron : public RecoCandidate
 
     // 04 accessors
     float dr04TkSumPt() const { return dr04_.tkSumPt ; }
+    float dr04TkSumPtHEEP() const { return dr04_.tkSumPtHEEP ; }
     float dr04EcalRecHitSumEt() const { return dr04_.ecalRecHitSumEt ; }
     float dr04HcalDepth1TowerSumEt() const { return dr04_.hcalDepth1TowerSumEt ; }
     float dr04HcalDepth2TowerSumEt() const { return dr04_.hcalDepth2TowerSumEt ; }
@@ -595,11 +602,13 @@ class GsfElectron : public RecoCandidate
       float dist ; // distance to the conversion partner
       float dcot ; // difference of cot(angle) with the conversion partner track
       float radius ; // signed conversion radius
+      float vtxFitProb ; //fit probablity (chi2/ndof) of the matched conversion vtx
       ConversionRejection()
        : flags(-1),
          dist(std::numeric_limits<float>::max()),
          dcot(std::numeric_limits<float>::max()),
-         radius(std::numeric_limits<float>::max())
+         radius(std::numeric_limits<float>::max()),
+	 vtxFitProb(std::numeric_limits<float>::max())
        {}
      } ;
 
@@ -609,8 +618,9 @@ class GsfElectron : public RecoCandidate
     float convDist() const { return conversionRejection_.dist ; }
     float convDcot() const { return conversionRejection_.dcot ; }
     float convRadius() const { return conversionRejection_.radius ; }
+    float convVtxFitProb() const { return conversionRejection_.vtxFitProb ; } 
     const ConversionRejection & conversionRejectionVariables() const { return conversionRejection_ ; }
-
+    void setConversionRejectionVariables(const ConversionRejection& convRej) { conversionRejection_ = convRej ; }
   private:
 
     // attributes
