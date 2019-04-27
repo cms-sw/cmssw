@@ -38,8 +38,9 @@
   <class name="reco::Photon::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2148735796"/>
   </class>
-  <class name="reco::Photon::ShowerShape" ClassVersion="13">
-   <version ClassVersion="13" checksum="641067911"/>
+  <class name="reco::Photon::ShowerShape" ClassVersion="14">
+    <version ClassVersion="14" checksum="228715893"/>
+    <version ClassVersion="13" checksum="641067911"/>
    <version ClassVersion="12" checksum="1586705784"/>
    <version ClassVersion="11" checksum="2494542444"/>
   </class>
@@ -53,10 +54,18 @@
    <version ClassVersion="10" checksum="3308689624"/>
    <version ClassVersion="11" checksum="3649971983"/>
   </class>
-  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="13">
+  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="14">
    <version ClassVersion="11" checksum="3200292660"/>
    <version ClassVersion="12" checksum="114160170"/>
    <version ClassVersion="13" checksum="3959509359"/>
+   <version ClassVersion="14" checksum="4260050122"/>
+   <ioread sourceClass="reco::Photon::PflowIsolationVariables"
+	   version="[1-13]"
+	   source="float chargedHadronIso"
+	   targetClass="reco::Photon::PflowIsolationVariables"
+	   target="chargedHadronPFPVIso">
+     <![CDATA[chargedHadronPFPVIso = onfile.chargedHadronIso;]]>
+   </ioread>
   </class>
   <class name="reco::Photon::PflowIDVariables"  ClassVersion="3">
    <version ClassVersion="3" checksum="2819734289"/>
@@ -169,10 +178,12 @@
    <version ClassVersion="11" checksum="3451347438"/>
    <version ClassVersion="10" checksum="3070677812"/>
   </class>
-  <class name="reco::GsfElectron::IsolationVariables" ClassVersion="10">
+  <class name="reco::GsfElectron::IsolationVariables" ClassVersion="11">
+   <version ClassVersion="11" checksum="1799511018"/>
    <version ClassVersion="10" checksum="4260674990"/>
   </class>
-  <class name="reco::GsfElectron::ConversionRejection" ClassVersion="10">
+  <class name="reco::GsfElectron::ConversionRejection" ClassVersion="11">
+   <version ClassVersion="11" checksum="2813508647"/>
    <version ClassVersion="10" checksum="190549577"/>
   </class>
   <class name="reco::GsfElectron::Corrections" ClassVersion="12">
