@@ -20,7 +20,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
-#include <iostream>
 #include <fstream>
 
 //#define EDM_ML_DEBUG
@@ -103,7 +102,7 @@ CaloSD::CaloSD(const std::string& name,
                               << "        Time Slice Unit " << timeSlice << " Ignore TrackID Flag " << ignoreTrackID;
 }
 
-CaloSD::~CaloSD() { delete theHC; }
+CaloSD::~CaloSD() { }
 
 G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   NaNTrap(aStep);
@@ -260,6 +259,7 @@ void CaloSD::Initialize(G4HCofThisEvent* HCE) {
   if (hcID < 0) {
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   }
+  //theHC ownership is transfered here to HCE
   HCE->AddHitsCollection(hcID, theHC);
 }
 
