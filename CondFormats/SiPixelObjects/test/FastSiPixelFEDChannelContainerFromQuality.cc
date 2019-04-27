@@ -34,6 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <iomanip>      // std::setw
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -180,7 +181,7 @@ void FastSiPixelFEDChannelContainerFromQuality::analyze(const edm::Event& evt, c
   std::transform(m_cabling_iovs.begin(), m_cabling_iovs.end(), std::back_inserter(listOfCablingIOVs),
 		 [](std::tuple<cond::Time_t,cond::Hash> myIOV2) -> unsigned int { return std::get<0>(myIOV2); });
 
-  edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<<" Number of SiPixelQuality paloyads to analyze: " << listOfIOVs.size() << " Number of CablngMap payloads: " << listOfCablingIOVs.size() << std::endl; 
+  edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<<" Number of SiPixelQuality paloyads to analyze: " << listOfIOVs.size() << " Number of SiPixelFedCablngMap payloads: " << listOfCablingIOVs.size() << std::endl; 
   
   if(listOfCablingIOVs.size()>1){
     if( closest_from_below(listOfCablingIOVs,listOfIOVs.front()) != closest_from_above(listOfCablingIOVs,listOfIOVs.back()) ){
@@ -194,9 +195,9 @@ void FastSiPixelFEDChannelContainerFromQuality::analyze(const edm::Event& evt, c
 
   edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<< " First run covered by SiPixelQuality tag: " << listOfIOVs.front() << " / last run covered by SiPixelQuality tag: " << listOfIOVs.back() << std::endl;
 
-  edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<< " Cabling IOVs in the interval: " ;
-  for(const auto& cb : listOfCablingIOVs ){
-    edm::LogVerbatim("FastSiPixelFEDChannelContainerFromQuality")<< " " << cb;
+  edm::LogVerbatim("FastSiPixelFEDChannelContainerFromQuality")<< " SiPixel Cabling Map IOVs in the interval: " ;
+  for(const auto& cb : m_cabling_iovs ){
+    edm::LogVerbatim("FastSiPixelFEDChannelContainerFromQuality")<< " " << std::setw(6) << std::get<0>(cb) << " : " << std::get<1>(cb);
   }
   edm::LogVerbatim("FastSiPixelFEDChannelContainerFromQuality")<< std::endl;
 
@@ -208,7 +209,7 @@ void FastSiPixelFEDChannelContainerFromQuality::analyze(const edm::Event& evt, c
   auto it = std::find(listOfCablingIOVs.begin(),listOfCablingIOVs.end(),closest_from_below(listOfCablingIOVs,listOfIOVs.front()));
   int index = std::distance(listOfCablingIOVs.begin(),it);  
 
-  edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<< " using the cabling map with hash: " << std::get<1>(m_cabling_iovs.at(index)) << std::endl;
+  edm::LogInfo("FastSiPixelFEDChannelContainerFromQuality")<< " using the SiPixelFedCablingMap with hash: " << std::get<1>(m_cabling_iovs.at(index)) << std::endl;
 
   auto theCablingMapPayload = condDbSession2.fetchPayload<SiPixelFedCablingMap>(std::get<1>(m_cabling_iovs.at(index)));
   auto theCablingTree = (*theCablingMapPayload).cablingTree();
