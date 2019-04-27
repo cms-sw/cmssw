@@ -157,7 +157,8 @@ namespace edm {
                          TReturn (T ::* iMethod)(const TRecord&),
                          const TArg& iDec,
                          const es::Label& iLabel = {}) {
-      const auto id = static_cast<unsigned int>(numberOfFactories());
+
+      const auto id = consumesInfos_.size();
       auto callback = std::make_shared<eventsetup::Callback<T,
                                                             TReturn,
                                                             TRecord,
@@ -171,7 +172,6 @@ namespace edm {
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
-      assert(id == consumesInfos_.size());
       consumesInfos_.push_back(std::make_unique<ESConsumesInfo>());
       return ESConsumesCollectorT<TRecord>(consumesInfos_.back().get(),id);
     }
