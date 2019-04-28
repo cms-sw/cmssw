@@ -50,6 +50,7 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaHeavyObjectCache.h"
 #include "RecoParticleFlow/PFProducer/interface/FlaggedPtr.h"
+#include "RecoParticleFlow/PFProducer/interface/CommutativePairs.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 class PFSCEnergyCalibration;
@@ -70,7 +71,6 @@ class PFEGammaAlgo {
   typedef FlaggedPtr<const PFGSFElement> PFGSFFlaggedElement;
   typedef FlaggedPtr<const PFKFElement> PFKFFlaggedElement;
   typedef FlaggedPtr<const PFClusterElement> PFClusterFlaggedElement;
-  typedef std::vector<std::pair<const reco::PFBlockElement*, const reco::PFBlockElement*> > ElementMap;
   typedef std::unordered_map<const PFKFElement*, float > KFValMap;  
 
   using ClusterMap = std::unordered_map<PFClusterElement const*,std::vector<PFClusterElement const*>>;
@@ -94,7 +94,7 @@ class PFEGammaAlgo {
     KFValMap singleLegConversionMvaMap;
     // for track-HCAL cluster linking
     std::vector<PFClusterFlaggedElement> hcalClusters;
-    ElementMap localMap;
+    CommutativePairs<const reco::PFBlockElement*> localMap;
     // cluster closest to the gsf track(s), primary kf if none for gsf
     // last brem tangent cluster if neither of those work
     std::vector<const PFClusterElement*> electronClusters; 
