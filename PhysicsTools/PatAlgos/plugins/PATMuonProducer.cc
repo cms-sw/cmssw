@@ -659,6 +659,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
       miniIsoValue = getRelMiniIsoPUCorrected(muon,*rho, effectiveAreaVec_);
 
+      muon.setSelector(reco::Muon::MiniIsoLoose,     miniIsoValue<0.40);
       muon.setSelector(reco::Muon::MiniIsoMedium,    miniIsoValue<0.20);
       muon.setSelector(reco::Muon::MiniIsoTight,     miniIsoValue<0.10);
       muon.setSelector(reco::Muon::MiniIsoVeryTight, miniIsoValue<0.05);
