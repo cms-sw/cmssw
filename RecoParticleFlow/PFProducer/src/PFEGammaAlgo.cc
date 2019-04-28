@@ -1894,7 +1894,7 @@ float PFEGammaAlgo::calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
   {
     kfElement = ro.primaryKFs.front().get();
   }
-  reco::GsfTrackRef refGsf = gsfElement->GsftrackRef();
+  auto const& refGsf = gsfElement->GsftrackRef();
   reco::TrackRef refKf;
   constexpr float mEl = 0.000511;
   const double eInGsf = std::hypot(refGsf->pMode(),mEl);
