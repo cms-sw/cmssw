@@ -1,3 +1,6 @@
+#ifndef RecoParticleFlow_PFProducer_FlaggedPtr_h
+#define RecoParticleFlow_PFProducer_FlaggedPtr_h
+
 template <typename T>
 class FlaggedPtr {
 public:
@@ -12,3 +15,5 @@ private:
   T* pointer_;
   bool flag_;
 };
+
+#endif
