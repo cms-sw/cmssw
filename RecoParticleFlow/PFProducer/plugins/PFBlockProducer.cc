@@ -47,9 +47,8 @@ PFBlockProducer::produce(Event& iEvent,
     str<<"number of blocks : "<<blocks.size()<<endl;
     str<<endl;
     
-    for(PFBlockAlgo::IBC ib=blocks.begin(); 
-	ib != blocks.end(); ++ib) {
-      str<<(*ib)<<endl;
+    for(auto const& block : blocks) {
+      str<< block <<endl;
     }
 
     LogInfo("PFBlockProducer") << str.str()<<endl;
