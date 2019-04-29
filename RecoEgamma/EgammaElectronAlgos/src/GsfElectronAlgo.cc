@@ -398,7 +398,7 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent( edm::Event const& event 
       .seeds             = event.getHandle(generalData_.inputCfg.seedsTag),
       .gsfPfRecTracks    = generalData_.strategyCfg.useGsfPfRecTracks ? event.getHandle(generalData_.inputCfg.gsfPfRecTracksTag) : edm::Handle<reco::GsfPFRecTrackCollection>{},
       .vertices          = event.getHandle(generalData_.inputCfg.vtxCollectionTag),
-      .conversions       = event.getHandle(generalData_.inputCfg.conversions),
+      .conversions       = generalData_.strategyCfg.fillConvVtxFitProb ? event.getHandle(generalData_.inputCfg.conversions) : edm::Handle<reco::ConversionCollection>(),
       .hadDepth1Isolation03 = EgammaTowerIsolation(egHcalIsoConeSizeOutSmall,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth1,&towers),
       .hadDepth1Isolation04 = EgammaTowerIsolation(egHcalIsoConeSizeOutLarge,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth1,&towers),
       .hadDepth2Isolation03 = EgammaTowerIsolation(egHcalIsoConeSizeOutSmall,egHcalIsoConeSizeIn,egHcalIsoPtMin,egHcalDepth2,&towers),
@@ -740,16 +740,18 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection & electrons, El
   conversionVars.dist = conversionInfo.dist  ;
   conversionVars.dcot = conversionInfo.dcot  ;
   conversionVars.radius = conversionInfo.radiusOfConversion  ;
-  //this is an intentionally bugged version which ignores the GsfTrack
-  //this is a bug which was introduced in reduced e/gamma where the GsfTrack gets 
-  //relinked to a new collection which means it can no longer match the conversion
-  //as it matches based on product/id
-  //we keep this defination for the MVAs
-  const auto matchedConv =  ConversionTools::matchedConversion(electronData.coreRef->ctfTrack(),
-							       *eventData.conversions,
-							       eventData.beamspot->position(),
-							       2.0,1e-6,0);
-  conversionVars.vtxFitProb = ConversionTools::getVtxFitProb(matchedConv);
+  if(generalData_.strategyCfg.fillConvVtxFitProb){
+    //this is an intentionally bugged version which ignores the GsfTrack
+    //this is a bug which was introduced in reduced e/gamma where the GsfTrack gets 
+    //relinked to a new collection which means it can no longer match the conversion
+    //as it matches based on product/id
+    //we keep this defination for the MVAs
+    const auto matchedConv =  ConversionTools::matchedConversion(electronData.coreRef->ctfTrack(),
+								 *eventData.conversions,
+								 eventData.beamspot->position(),
+								 2.0,1e-6,0);
+    conversionVars.vtxFitProb = ConversionTools::getVtxFitProb(matchedConv);
+  }
   if ((conversionVars.flags==0)or(conversionVars.flags==1))
     conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerCtfTk)  ;
   else if ((conversionVars.flags==2)or(conversionVars.flags==3))
