@@ -221,9 +221,9 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
     ->setComment( "input pixel detectors' local tracks collection to retrieve" );
   desc.add<bool>( "doNothing", false ) // enable the module by default
     ->setComment( "disable the module" );
-  desc.add<double>( "timingTrackTMin", -1000. )
+  desc.add<double>( "timingTrackTMin", -12.5 )
     ->setComment( "minimal track time selection for timing detectors, in ns" );
-  desc.add<double>( "timingTrackTMax", +1000. )
+  desc.add<double>( "timingTrackTMax", +12.5 )
     ->setComment( "maximal track time selection for timing detectors, in ns" );
 
   desc.add<double>("pixelTrackTxMin",-10.0);
