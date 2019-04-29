@@ -26,8 +26,6 @@ CmsTrackerPhase2TPDiskBuilder::PhiPosNegSplit_innerOuter( std::vector< Geometric
 
   // now put positive phi (in order) ahead of negative phi as in std geometry
   std::vector<const GeometricDet*> theCompsPosNeg;
-  theCompsPosNeg.empty();
-  theCompsPosNeg.clear();
   // also find the average radius (used to split inner and outer disk panels)
   double theRmin = (**begin).rho();
   double theRmax = theRmin;
@@ -47,8 +45,6 @@ CmsTrackerPhase2TPDiskBuilder::PhiPosNegSplit_innerOuter( std::vector< Geometric
   // force the split radius to be 100 mm to be able to deal with disks with only outer ring
   double radius_split = 100.;
   std::vector<const GeometricDet*> theCompsInnerOuter;
-  theCompsInnerOuter.empty();
-  theCompsInnerOuter.clear();
   unsigned int num_inner = 0;
   for(vector<const GeometricDet*>::const_iterator it=theCompsPosNeg.begin();
       it!=theCompsPosNeg.end();it++){
