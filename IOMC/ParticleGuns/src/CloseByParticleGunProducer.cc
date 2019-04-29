@@ -47,7 +47,7 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
   
-  srand(time(NULL));
+  srand(time(nullptr));
 }
 
 CloseByParticleGunProducer::~CloseByParticleGunProducer()
