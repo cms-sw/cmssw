@@ -28,13 +28,13 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
@@ -78,6 +78,12 @@ private:
 
   ReusableObjectHolder<HostType> m_holder;
 
+  edm::ESGetToken<Alignments, GlobalPositionRcd> m_globalPositionToken;
+  edm::ESGetToken<Alignments, DTAlignmentRcd> m_alignmentsToken;
+  edm::ESGetToken<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd> m_alignmentErrorsToken;
+  edm::ESGetToken<MuonNumbering, MuonNumberingRecord> m_mdcToken;
+  edm::ESGetToken<DDDetector, GeometryFileRcd> m_cpvToken;
+  edm::ESGetToken<DDSpecParRegistry, DDSpecParRegistryRcd> m_registryToken;
   const ESInputTag m_tag;
   const string m_alignmentsLabel;
   const string m_myLabel;
@@ -97,7 +103,19 @@ DTGeometryESProducer::DTGeometryESProducer(const ParameterSet & iConfig)
 {
   m_applyAlignment = iConfig.getParameter<bool>("applyAlignment");
 
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
+
+  if(m_applyAlignment) {
+    m_globalPositionToken = cc.consumesFrom<Alignments, GlobalPositionRcd>(edm::ESInputTag{"", m_alignmentsLabel});
+    m_alignmentsToken = cc.consumesFrom<Alignments, DTAlignmentRcd>(edm::ESInputTag{"", m_alignmentsLabel});
+    m_alignmentErrorsToken = cc.consumesFrom<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd>(edm::ESInputTag{"", m_alignmentsLabel});
+  }
+
+  if(m_fromDDD) {
+    m_mdcToken = cc.consumesFrom<MuonNumbering, MuonNumberingRecord>(edm::ESInputTag{});
+    m_cpvToken = cc.consumesFrom<DDDetector, GeometryFileRcd>(m_tag);
+    m_registryToken = cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(m_tag);
+  }
 
   edm::LogInfo("Geometry") << "@SUB=DTGeometryESProducer"
     << "Label '" << m_myLabel << "' "
@@ -163,14 +181,11 @@ DTGeometryESProducer::setupGeometry(const MuonNumberingRecord& record,
 				    shared_ptr<HostType>& host) {
   host->clear();
   
-  edm::ESHandle<MuonNumbering> mdc;
-  record.get(mdc);
+  const auto& mdc = record.get(m_mdcToken);
   
-  edm::ESTransientHandle<DDDetector> cpv;
-  record.getRecord<GeometryFileRcd>().get(m_tag.module(), cpv);
+  edm::ESTransientHandle<DDDetector> cpv = record.getTransientHandle(m_cpvToken);
   
-  ESTransientHandle<DDSpecParRegistry> registry;
-  record.getRecord<DDSpecParRegistryRcd>().get(m_tag.module(), registry);
+  ESTransientHandle<DDSpecParRegistry> registry = record.getTransientHandle(m_registryToken);
   
   DDSpecParRefs myReg;
   {
@@ -179,7 +194,7 @@ DTGeometryESProducer::setupGeometry(const MuonNumberingRecord& record,
   }
   
   DTGeometryBuilder builder;
-  builder.build(*host, &(*cpv), *mdc, myReg);
+  builder.build(*host, cpv.product(), mdc, myReg);
 }
 
 void
