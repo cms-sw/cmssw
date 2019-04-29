@@ -14,32 +14,29 @@
 
 class G4VEnergyLossProcess;
 
-class ElectronLimiter : public G4VDiscreteProcess
-{
+class ElectronLimiter : public G4VDiscreteProcess {
 public:
-
-  ElectronLimiter(const edm::ParameterSet & p);
+  ElectronLimiter(const edm::ParameterSet& p);
 
   ~ElectronLimiter() override;
 
   void BuildPhysicsTable(const G4ParticleDefinition&) override;
 
   G4double PostStepGetPhysicalInteractionLength(const G4Track& track,
-							G4double previousStepSize,
-							G4ForceCondition* condition) override;
+                                                G4double previousStepSize,
+                                                G4ForceCondition* condition) override;
 
   G4VParticleChange* PostStepDoIt(const G4Track&, const G4Step&) override;
 
-  G4double GetMeanFreePath(const G4Track&, G4double,G4ForceCondition*) override;
+  G4double GetMeanFreePath(const G4Track&, G4double, G4ForceCondition*) override;
 
   inline void SetRangeCheckFlag(G4bool);
 
   inline void SetFieldCheckFlag(G4bool);
 
 private:
-
-  G4ParticleChangeForGamma    fParticleChange;
-  G4VEnergyLossProcess*       fIonisation;
+  G4ParticleChangeForGamma fParticleChange;
+  G4VEnergyLossProcess* fIonisation;
 
   const G4ParticleDefinition* particle;
 
@@ -50,15 +47,8 @@ private:
   G4bool killTrack;
 };
 
-inline void ElectronLimiter::SetRangeCheckFlag(G4bool val)
-{
-  rangeCheckFlag = val;
-}
+inline void ElectronLimiter::SetRangeCheckFlag(G4bool val) { rangeCheckFlag = val; }
 
-inline void ElectronLimiter::SetFieldCheckFlag(G4bool val)
-{
-  fieldCheckFlag = val;
-}
+inline void ElectronLimiter::SetFieldCheckFlag(G4bool val) { fieldCheckFlag = val; }
 
 #endif
-

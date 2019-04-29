@@ -5,10 +5,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DummyPhysics : public PhysicsList {
-
 public:
   DummyPhysics(const edm::ParameterSet &);
   ~DummyPhysics() override = default;
 };
- 
+
 #endif

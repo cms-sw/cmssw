@@ -6,16 +6,14 @@
 
 #include <iostream>
 
-template<typename Event>
-class DDDWorldObserver : public Observer<const Event*>
-{
+template <typename Event>
+class DDDWorldObserver : public Observer<const Event*> {
 public:
-    virtual void update(const DDDWorld * w)
-    {
-	std::cout << " DDDWorldObserver: in update " << std::endl;
-	if (w!=0)
-        std::cout << " DDDWorldObserver: got DDDWorld! " << std::endl;	
-    }
+  virtual void update(const DDDWorld* w) {
+    std::cout << " DDDWorldObserver: in update " << std::endl;
+    if (w != 0)
+      std::cout << " DDDWorldObserver: got DDDWorld! " << std::endl;
+  }
 };
 
 #endif
