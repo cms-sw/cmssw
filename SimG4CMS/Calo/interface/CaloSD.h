@@ -65,6 +65,7 @@ public:
 
   void clearHits() override;
   void fillHits(edm::PCaloHitContainer&, const std::string&) override;
+  void reset() override;
 
 protected:
   virtual double getEnergyDeposit(const G4Step* step);

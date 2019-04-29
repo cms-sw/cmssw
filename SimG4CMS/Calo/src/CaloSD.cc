@@ -559,6 +559,12 @@ void CaloSD::clearHits() {
   slave.get()->Initialize();
 }
 
+void CaloSD::reset() {
+  if(fpCaloG4HitAllocator) {
+    fpCaloG4HitAllocator->ResetStorage();
+  }
+}
+
 void CaloSD::initRun() {}
 
 void CaloSD::initEvent(const BeginOfEvent*) {}
