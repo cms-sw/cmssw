@@ -123,6 +123,9 @@ public:
 
   geom_set getNeighborsFromTriggerCell(const unsigned trigger_cell_det_id) const final;
 
+  unsigned getLinksInModule(const unsigned module_id) const final;
+  unsigned getModuleSize(const unsigned module_id) const final;
+
   GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const final;
   GlobalPoint getModulePosition(const unsigned module_det_id) const final;
 

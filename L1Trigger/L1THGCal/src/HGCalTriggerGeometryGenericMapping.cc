@@ -91,6 +91,10 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryGenericMapping::getNeighb
   return geom_set();
 }
 
+unsigned HGCalTriggerGeometryGenericMapping::getLinksInModule(const unsigned module_id) const { return 1; }
+
+unsigned HGCalTriggerGeometryGenericMapping::getModuleSize(const unsigned module_id) const { return 1; }
+
 GlobalPoint HGCalTriggerGeometryGenericMapping::getTriggerCellPosition(const unsigned trigger_cell_det_id) const {
   return trigger_cells_.find(trigger_cell_det_id)->second->position();
 }

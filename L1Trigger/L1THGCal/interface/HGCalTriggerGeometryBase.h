@@ -80,6 +80,9 @@ public:
 
   virtual geom_set getNeighborsFromTriggerCell(const unsigned trigger_cell_det_id) const = 0;
 
+  virtual unsigned getLinksInModule(const unsigned module_id) const = 0;
+  virtual unsigned getModuleSize(const unsigned module_id) const = 0;
+
   virtual GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const = 0;
   virtual GlobalPoint getModulePosition(const unsigned module_det_id) const = 0;
 
