@@ -107,6 +107,8 @@ namespace {
   }
 
   std::atomic<int> active_tlsdata{0};
+  std::atomic<bool> tls_shutdown_timeout{0};
+  std::atomic<int> n_tls_shutdown_task{0};
 }
 
 struct RunManagerMTWorker::TLSData {
@@ -138,7 +140,12 @@ struct RunManagerMTWorker::TLSData {
   }
 };
 
-thread_local std::unique_ptr<RunManagerMTWorker::TLSData> RunManagerMTWorker::m_tls{nullptr};
+//This can not be a smart pointer since we must delete some of the members
+// before leaving main() else we get a segmentation fault caused by accessing
+// other 'singletons' after those singletons have been deleted. Instead we
+// atempt to delete all TLS at RunManagerMTWorker destructor. If that fails for
+// some reason, it is better to leak than cause a crash.
+thread_local RunManagerMTWorker::TLSData* RunManagerMTWorker::m_tls{nullptr};
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -154,10 +161,10 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   m_pTrackingAction(iConfig.getParameter<edm::ParameterSet>("TrackingAction")),
   m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction")),
   m_pCustomUIsession(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomUIsession")),
-  m_p(iConfig)
+  m_p(iConfig),
+  m_simEvent(nullptr),
+  m_sVerbose(nullptr)
 {
-  m_simEvent.reset(nullptr);
-  m_sVerbose.reset(nullptr);
   std::vector<edm::ParameterSet> watchers = 
     iConfig.getParameter<std::vector<edm::ParameterSet> >("Watchers");
   m_hasWatchers = (watchers.empty()) ? false : true;
@@ -167,13 +174,23 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
 RunManagerMTWorker::~RunManagerMTWorker() {
   if(m_tls && !m_tls->runTerminated) { terminateRun(); }
 
+  ++n_tls_shutdown_task;
   resetTLS();
+
+  {
+    //make sure all tasks are done before continuing
+    timespec s;
+    s.tv_sec=0;
+    s.tv_nsec=10000;
+    while(n_tls_shutdown_task != 0) { nanosleep(&s,nullptr); }
+  }
 }
 
 void RunManagerMTWorker::resetTLS() {
-  m_tls.reset();
+  delete m_tls;
 
-  if(active_tlsdata != 0) {
+  if(active_tlsdata != 0 and not tls_shutdown_timeout) {
+    ++n_tls_shutdown_task;
     //need to run tasks on each thread which has set the tls
     auto task = edm::make_functor_task(tbb::task::allocate_root(), [] () {
         resetTLS();
@@ -185,8 +202,13 @@ void RunManagerMTWorker::resetTLS() {
     //we do not want this thread to be used for a new task since it
     // has already cleared its structures. In order to fill all TBB
     // threads we wait for all TLSes to clear
-    while(active_tlsdata.load() != 0) { nanosleep(&s,nullptr);}
+    int count = 0;
+    while(active_tlsdata.load() != 0 and ++count < 1000) { nanosleep(&s,nullptr);}
+    if(count >= 1000) {
+      tls_shutdown_timeout=true;
+    }
   }
+  --n_tls_shutdown_task;
 }
 
 void RunManagerMTWorker::endRun() {
@@ -196,7 +218,7 @@ void RunManagerMTWorker::endRun() {
 void RunManagerMTWorker::initializeTLS() {
   if(m_tls) { return; }
   
-  m_tls.reset(new TLSData );;
+  m_tls = new TLSData() ;
   m_tls->registry.reset(new SimActivityRegistry());
 
   edm::Service<SimActivityRegistry> otherRegistry;
@@ -424,7 +446,7 @@ void RunManagerMTWorker::terminateRun() {
     m_tls->userRunAction.reset();
   }
   m_tls->currentEvent.reset();
-  m_simEvent.reset();
+  m_simEvent=nullptr;
 
   if(m_tls->kernel) {
     m_tls->kernel->RunTermination();
@@ -433,8 +455,9 @@ void RunManagerMTWorker::terminateRun() {
   m_tls->runTerminated = true;
 }
 
-void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, 
-                                 RunManagerMT& runManagerMaster) {
+std::unique_ptr<G4SimEvent>
+RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, 
+                            RunManagerMT& runManagerMaster) {
   // The initialization and begin/end run is a bit convoluted due to
   // - Geant4 deals per-thread
   // - OscarMTProducer deals per-stream
@@ -464,7 +487,8 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
 
   m_tls->currentEvent.reset(generateEvent(inpevt));
 
-  m_simEvent.reset(new G4SimEvent());
+  auto simEvent =std::make_unique<G4SimEvent>();
+  m_simEvent = simEvent.get();
   m_simEvent->hepEvent(m_generator.genEvent());
   m_simEvent->weight(m_generator.eventWeight());
   if (m_generator.genVertex() != nullptr ) {
@@ -505,6 +529,16 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
     edm::LogVerbatim("SimG4CoreApplication")
       << " RunManagerMTWorker::produce: ended Event " << inpevt.id().event(); 
   } 
+
+  //remove memory only needed during event processing
+  m_tls->currentEvent.reset();
+
+  for(auto& sd: m_tls->sensCaloDets ) {
+    sd->reset();
+  }
+
+  m_simEvent=nullptr;
+  return simEvent;
 }
 
 void RunManagerMTWorker::abortEvent() {
@@ -531,7 +565,7 @@ void RunManagerMTWorker::abortRun(bool softAbort) {
 
 G4Event * RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
   m_tls->currentEvent.reset();
-  m_simEvent.reset();
+  m_simEvent=nullptr;
 
   // 64 bits event ID in CMSSW converted into Geant4 event ID
   G4int evtid = (G4int)inpevt.id().event();

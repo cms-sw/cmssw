@@ -175,7 +175,8 @@ void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
   auto& sTk = m_runManagerWorker->sensTkDetectors();
   auto& sCalo = m_runManagerWorker->sensCaloDetectors();
 
-  try { m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster()); }
+  std::unique_ptr<G4SimEvent> evt;
+  try { evt=m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster()); }
   catch ( const SimG4Exception& simg4ex ) {
        
     edm::LogWarning("SimG4CoreApplication") << "SimG4Exception caght! " 
@@ -191,7 +192,6 @@ void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
     p1(new edm::SimTrackContainer);
   std::unique_ptr<edm::SimVertexContainer>
     p2(new edm::SimVertexContainer);
-  G4SimEvent * evt = m_runManagerWorker->simEvent();
   evt->load(*p1);
   evt->load(*p2);   
 
