@@ -30,14 +30,15 @@
 enum PublicationStatus { NO_STATUS, INTERNAL, INTERNAL_SIMULATION, PRELIMINARY, PUBLIC, SIMULATION, UNPUBLISHED, CUSTOM };
 TString toTString(const PublicationStatus status) {
   TString str = "";
-  if(      status == NO_STATUS )           str = "Status not set yet!";
-  else if( status == INTERNAL )            str = "internal";
-  else if( status == INTERNAL_SIMULATION ) str = "simulation (internal)";
-  else if( status == PRELIMINARY )         str = "preliminary";
-  else if( status == PUBLIC      )         str = "public";
-  else if( status == SIMULATION  )         str = "simulation (public)";
-  else if( status == UNPUBLISHED )         str = "unpublished";
-  else if( status == CUSTOM      )         str = "custom title set";
+  if(      status == NO_STATUS ) {           str = "Status not set yet!";
+  } else if( status == INTERNAL ) {            str = "internal";
+  } else if( status == INTERNAL_SIMULATION ) { str = "simulation (internal)";
+  } else if( status == PRELIMINARY ) {         str = "preliminary";
+  } else if( status == PUBLIC      ) {         str = "public";
+  } else if( status == SIMULATION  ) {         str = "simulation (public)";
+  } else if( status == UNPUBLISHED ) {         str = "unpublished";
+  } else if( status == CUSTOM      ) {         str = "custom title set";
+}
 
   return str;
 }
@@ -47,9 +48,10 @@ TString toTString(const PublicationStatus status) {
 enum Era { NONE, CRUZET15, CRAFT15, COLL0T15 };
 static TString toTString(const Era era) {
     TString str = "";
-    if(      era == CRUZET15 ) str = "0T cosmic ray data 2015";
-    else if( era == CRAFT15  ) str = "3.8T cosmic ray data 2015";
-    else if( era == COLL0T15 ) str = "0T collision data 2015";
+    if(      era == CRUZET15 ) { str = "0T cosmic ray data 2015";
+    } else if( era == CRAFT15  ) { str = "3.8T cosmic ray data 2015";
+    } else if( era == COLL0T15 ) { str = "0T collision data 2015";
+}
 
     return str;
 }
@@ -111,10 +113,12 @@ public:
   }
   static TLegend* legend(TString position, const int nEntries, const double relWidth=0.5) {
     position.ToLower();
-    if( !( position.Contains("top") || position.Contains("bottom") ) )
+    if( !( position.Contains("top") || position.Contains("bottom") ) ) {
       position += "top";
-    if( !( position.Contains("left") || position.Contains("right") ) )
+}
+    if( !( position.Contains("left") || position.Contains("right") ) ) {
       position += "right";
+}
     TLegend* leg = nullptr;
     if(        position.Contains("top")    && position.Contains("right") ) {
       leg = legendTR(nEntries,relWidth);
@@ -155,10 +159,12 @@ public:
 
   static TPaveText* label(TString position, const int nEntries, const double relWidth=0.5) {
     position.ToLower();
-    if( !( position.Contains("top") || position.Contains("bottom") ) )
+    if( !( position.Contains("top") || position.Contains("bottom") ) ) {
       position += "top";
-    if( !( position.Contains("left") || position.Contains("right") ) )
+}
+    if( !( position.Contains("left") || position.Contains("right") ) ) {
       position += "right";
+}
     TPaveText* label = nullptr;
     if(        position.Contains("top")    && position.Contains("right") ) {
       label = labelTR(nEntries,relWidth);
@@ -267,10 +273,12 @@ TLegend* TkAlStyle::legend(const int nEntries, const double relWidth, const bool
   double y0 = 0.;
   double y1 = 0.;
   bool hasheader = (TkAlStyle::legendheader != "");
-  if( left ) setXCoordinatesL(relWidth,          x0,x1);
-  else       setXCoordinatesR(relWidth,          x0,x1);
-  if( top  ) setYCoordinatesT(nEntries+hasheader,y0,y1);
-  else       setYCoordinatesB(nEntries+hasheader,y0,y1);
+  if( left ) { setXCoordinatesL(relWidth,          x0,x1);
+  } else {       setXCoordinatesR(relWidth,          x0,x1);
+}
+  if( top  ) { setYCoordinatesT(nEntries+hasheader,y0,y1);
+  } else {       setYCoordinatesB(nEntries+hasheader,y0,y1);
+}
 
   TLegend* leg = new TLegend(x0,y0,x1,y1);
   leg->SetBorderSize(0);
@@ -278,7 +286,8 @@ TLegend* TkAlStyle::legend(const int nEntries, const double relWidth, const bool
   leg->SetFillStyle(0);
   leg->SetTextFont(42);
   leg->SetTextSize(textSize);
-  if (hasheader) leg->SetHeader(TkAlStyle::legendheader);
+  if (hasheader) { leg->SetHeader(TkAlStyle::legendheader);
+}
 
   return leg;
 }
@@ -290,10 +299,12 @@ TPaveText* TkAlStyle::label(const int nEntries, const double relWidth, const boo
   double x1 = 0.;
   double y0 = 0.;
   double y1 = 0.;
-  if( left ) setXCoordinatesL(relWidth,x0,x1);
-  else       setXCoordinatesR(relWidth,x0,x1);
-  if( top  ) setYCoordinatesT(nEntries,y0,y1);
-  else       setYCoordinatesB(nEntries,y0,y1);
+  if( left ) { setXCoordinatesL(relWidth,x0,x1);
+  } else {       setXCoordinatesR(relWidth,x0,x1);
+}
+  if( top  ) { setYCoordinatesT(nEntries,y0,y1);
+  } else {       setYCoordinatesB(nEntries,y0,y1);
+}
 
   TPaveText* label = new TPaveText(x0,y0,x1,y1,"NDC");
   label->SetBorderSize(0);
@@ -327,7 +338,8 @@ TPaveText* TkAlStyle::title(const TString& txt) {
   double x1 = 1.-gStyle->GetPadRightMargin();
   double y0 = 1.-gStyle->GetPadTopMargin();
   double y1 = 1.;
-  if (txt.Contains("#CMS")) y0 += .02;
+  if (txt.Contains("#CMS")) { y0 += .02;
+}
   TPaveText* theTitle = new TPaveText(x0,y0,x1,y1,"NDC");
   theTitle->SetBorderSize(0);
   theTitle->SetFillColor(10);
@@ -404,10 +416,12 @@ void TkAlStyle::set(const PublicationStatus status, const Era era, const TString
   customTitle_ = customTitle;
   customRightTitle_ = customRightTitle;
   era_ = era;
-  if (publicationStatus_ == CUSTOM && customTitle_ == "")
+  if (publicationStatus_ == CUSTOM && customTitle_ == "") {
     std::cout << "Error: you are trying to use a custom title, but you don't provide it" << std::endl;
-  if (publicationStatus_ != CUSTOM && customTitle_ != "")
+}
+  if (publicationStatus_ != CUSTOM && customTitle_ != "") {
     std::cout << "Error: you provide a custom title, but you don't indicate CUSTOM status.  Your title will not be used." << std::endl;
+}
 
   // Suppress message when canvas has been saved
   gErrorIgnoreLevel = 1001;

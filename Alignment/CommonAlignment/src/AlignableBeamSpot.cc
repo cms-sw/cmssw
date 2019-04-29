@@ -49,10 +49,11 @@ void AlignableBeamSpot::rotateInGlobalFrame( const RotationType& rotation)
 //__________________________________________________________________________________________________
 void AlignableBeamSpot::setAlignmentPositionError(const AlignmentPositionError& ape, bool propagateDown)
 {
-  if ( !theAlignmentPositionError )
+  if ( !theAlignmentPositionError ) {
     theAlignmentPositionError = new AlignmentPositionError( ape );
-  else 
+  } else { 
     *theAlignmentPositionError = ape;
+}
 }
 
 //__________________________________________________________________________________________________
@@ -141,8 +142,9 @@ AlignmentErrorsExtended* AlignableBeamSpot::alignmentErrors( void ) const
   // Add associated alignment position error
   uint32_t detId = theId;
   CLHEP::HepSymMatrix clhepSymMatrix(6,0);
-  if ( theAlignmentPositionError ) // Might not be set
+  if ( theAlignmentPositionError ) { // Might not be set
     clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix());
+}
   AlignTransformErrorExtended transformError( clhepSymMatrix, detId );
   m_alignmentErrors->m_alignError.push_back( transformError );
   
@@ -153,7 +155,8 @@ AlignmentErrorsExtended* AlignableBeamSpot::alignmentErrors( void ) const
 void AlignableBeamSpot::initialize(double x, double y, double z,
 				   double dxdz, double dydz)
 {
-  if (theInitializedFlag) return;
+  if (theInitializedFlag) { return;
+}
 
   GlobalVector gv(x, y, z);
   theSurface.move(gv);

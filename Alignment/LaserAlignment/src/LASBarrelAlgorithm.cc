@@ -243,7 +243,8 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters( LASGloba
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   // DEBUG: FIX BEAM PARAMETERS /////////////////////////////////////////////////////////////////////
     double parlist[16];
-    for( int par = 37; par <= 52; ++par ) parlist[par-37] = par;
+    for( int par = 37; par <= 52; ++par ) { parlist[par-37] = par;
+}
     minuit->mnexcm( "FIX", parlist ,16, _ierflg );
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -421,12 +422,16 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
     // so we need to address the correct par[] for the 4 cases TIB+/TIB-/TOB+/TOB-
     int indexBase = 0;
     if( det == 2 ) { // TIB
-      if( theSide == 0 ) indexBase = 0; // TIB+
-      if( theSide == 1 ) indexBase = 6; // TIB-
+      if( theSide == 0 ) { indexBase = 0; // TIB+
+}
+      if( theSide == 1 ) { indexBase = 6; // TIB-
+}
     }
     if( det == 3 ) { // TOB
-      if( theSide == 0 ) indexBase = 12; // TOB+
-      if( theSide == 1 ) indexBase = 18; // TOB-
+      if( theSide == 0 ) { indexBase = 12; // TOB+
+}
+      if( theSide == 1 ) { indexBase = 18; // TOB-
+}
     }
 
     // par[0] ("subRot1"): rotation around z of first end face
@@ -718,7 +723,8 @@ void LASBarrelAlgorithm::ReadMisalignmentFromFile( const char* filename,
   while( !file.eof() ) {
 
     file >> det;
-    if( file.eof() ) break; // do not read the last line twice, do not fill trash if file empty
+    if( file.eof() ) { break; // do not read the last line twice, do not fill trash if file empty
+}
 
     file >> beam; file >> z; file >> ring;
     file >> phi; file >> phiError;

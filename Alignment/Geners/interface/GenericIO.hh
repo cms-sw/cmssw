@@ -23,7 +23,7 @@ namespace gs {
     inline bool write_item(Stream& os, const Item& item,
                            const bool writeClassId=true)
     {
-        char* ps = 0;
+        char* ps = nullptr;
         return process_const_item<GenericWriter>(item, os, ps, writeClassId);
     }
 
@@ -42,10 +42,12 @@ namespace gs {
         const bool status = GenericReader<Stream, State, Item*,
             Int2Type<IOTraits<int>::ISPOINTER> >::process(
                 item, is, &state, readClassId);
-        if (is.fail())
+        if (is.fail()) {
             throw IOReadFailure("In gs::restore_item: input stream failure");
-        if (!status)
+}
+        if (!status) {
             throw IOInvalidData("In gs::restore_item: invalid input stream data");
+}
     }
 
     /**
@@ -59,16 +61,18 @@ namespace gs {
     inline CPP11_auto_ptr<Item> read_item(Stream& is, const bool readClassId=true)
     {
         typedef std::vector<ClassId> State;
-        Item* item = 0;
+        Item* item = nullptr;
         State state;
         const bool status = GenericReader<Stream, State, Item*,
             Int2Type<IOTraits<int>::ISNULLPOINTER> >::process(
                 item, is, &state, readClassId);
         CPP11_auto_ptr<Item> ptr(item);
-        if (is.fail())
+        if (is.fail()) {
             throw IOReadFailure("In gs::read_item: input stream failure");
-        if (!status || item == 0)
+}
+        if (!status || item == nullptr) {
             throw IOInvalidData("In gs::read_item: invalid input stream data");
+}
         return ptr;
     }
 
@@ -82,7 +86,7 @@ namespace gs {
     template <class Stream, class Item>
     inline bool write_array(Stream& os, Item* items, const std::size_t length)
     {
-        char* ps = 0;
+        char* ps = nullptr;
         return process_const_item<GenericWriter>(
             ArrayAdaptor<Item>(items, length), os, ps, false);
     }
@@ -98,10 +102,12 @@ namespace gs {
         State state;
         ArrayAdaptor<Item> adap(items, length);
         const bool st = process_item<GenericReader>(adap, is, &state, false);
-        if (is.fail())
+        if (is.fail()) {
             throw IOReadFailure("In gs::read_array: input stream failure");
-        if (!st)
+}
+        if (!st) {
             throw IOInvalidData("In gs::read_array: invalid input stream data");
+}
     }
 }
 
@@ -155,8 +161,9 @@ namespace gs {
         {
             static const ClassId current(ClassId::makeId<T>());
             const bool status = processClassId ? current.write(os) : true;
-            if (status)
+            if (status) {
                 write_pod(os, s);
+}
             return status && !os.fail();
         }
     };
@@ -169,8 +176,9 @@ namespace gs {
                                        const bool processClassId)
         {
             CPP11_auto_ptr<T> myptr;
-            if (ptr == 0)
+            if (ptr == 0) {
                 myptr = CPP11_auto_ptr<T>(new T());
+}
             if (processClassId)
             {
                 static const ClassId current(ClassId::makeId<T>());
@@ -178,10 +186,12 @@ namespace gs {
                 current.ensureSameName(id);
             }
             read_pod(str, ptr ? ptr : myptr.get());
-            if (str.fail())
+            if (str.fail()) {
                 return false;
-            if (ptr == 0)
+}
+            if (ptr == 0) {
                 ptr = myptr.release();
+}
             return true;
         }
 
@@ -272,8 +282,9 @@ namespace gs {
         inline static bool process(Container&, Stream&, State* state, bool)
         {
             typedef typename Container::value_type T;
-            if (!(IOTraits<T>::IsPOD && IOTraits<Container>::IsContiguous))
+            if (!(IOTraits<T>::IsPOD && IOTraits<Container>::IsContiguous)) {
                 state->pop_back();
+}
             return true;
         }
     };
@@ -320,8 +331,9 @@ namespace gs {
         {
             const std::size_t len = a.size();
             write_pod(os, len);
-            if (len)
+            if (len) {
                 write_pod_array(os, &a[0], len);
+}
             return !os.fail();
         }
     };
@@ -333,11 +345,13 @@ namespace gs {
         {
             std::size_t len = 0;
             read_pod(s, &len);
-            if (s.fail())
+            if (s.fail()) {
                 return false;
+}
             a.resize(len);
-            if (!len)
+            if (!len) {
                 return true;
+}
             read_pod_array(s, &a[0], len);
             return !s.fail();
         }
@@ -584,10 +598,12 @@ namespace gs {
             if (!(process_item<GenericReader2>(
                      (ptr ? ptr : myptr.get())->first,str,&itemIds[0],false) &&
                   process_item<GenericReader2>(
-                     (ptr ? ptr : myptr.get())->second,str,&itemIds[1],false)))
+                     (ptr ? ptr : myptr.get())->second,str,&itemIds[1],false))) {
                 return false;
-            if (ptr == 0)
+}
+            if (ptr == 0) {
                 ptr = myptr.release();
+}
             return true;
         }
 
@@ -614,8 +630,9 @@ namespace gs {
         {
             static const ClassId current(ClassId::makeId<std::string>());
             const bool status = processClassId ? current.write(os) : true;
-            if (status)
+            if (status) {
                 write_string<char>(os, s);
+}
             return status && !os.fail();
         }
     };
@@ -628,8 +645,9 @@ namespace gs {
                                        State* , const bool processClassId)
         {
             CPP11_auto_ptr<std::string> myptr;
-            if (ptr == 0)
+            if (ptr == nullptr) {
                 myptr = CPP11_auto_ptr<std::string>(new std::string());
+}
             if (processClassId)
             {
                 static const ClassId current(ClassId::makeId<std::string>());
@@ -637,10 +655,12 @@ namespace gs {
                 current.ensureSameName(id);
             }
             read_string<char>(is, ptr ? ptr : myptr.get());
-            if (is.fail())
+            if (is.fail()) {
                 return false;
-            if (ptr == 0)
+}
+            if (ptr == nullptr) {
                 ptr = myptr.release();
+}
             return true;
         }
 
@@ -679,8 +699,9 @@ namespace gs {
                 assert(ptr);
                 InsertContainerItem<Container>::insert(obj, ptr, itemN);
             }
-            else
+            else {
                 delete ptr;
+}
             return status;
         }
 
@@ -700,8 +721,9 @@ namespace gs {
                 CPP11_shared_ptr<Pointee> sptr(ptr);
                 InsertContainerItem<Container>::insert(obj, sptr, itemN);
             }
-            else
+            else {
                 delete ptr;
+}
             return status;
         }
 
@@ -733,8 +755,9 @@ namespace gs {
             bool status = GenericReader<Stream, State, NCType*,
                 Int2Type<IOTraits<int>::ISPOINTER> >::process(
                     pitem, is, st, false);
-            if (status)
+            if (status) {
                 InsertContainerItem<Container>::insert(obj, item, itemN);
+}
             return status;
         }
 
@@ -770,15 +793,16 @@ namespace gs {
         inline static bool readIntoPtr(T*& ptr, Stream& str, State* s,
                                        const bool processClassId)
         {
-            if (ptr)
+            if (ptr) {
                 return process_item<GenericReader2>(
                     *ptr, str, s, processClassId);
-            else
+            } else
             {
                 CPP11_auto_ptr<T> myptr(new T());
                 if (!process_item<GenericReader2>(
-                        *myptr, str, s, processClassId))
+                        *myptr, str, s, processClassId)) {
                     return false;
+}
                 ptr = myptr.release();
                 return true;
             }
@@ -818,8 +842,9 @@ namespace gs {
                     }
                     delete readback;
                 }
-                else
+                else {
                     ptr = readback;
+}
             }
             return readback;
         }
@@ -832,7 +857,7 @@ namespace gs {
         inline static bool readIntoPtr(T*& ptr, Stream& str, State* s,
                                        const bool processClassId)
         {
-            T* readback = 0;
+            T* readback = nullptr;
             if (processClassId)
             {
                 ClassId id(str, 1);
@@ -860,8 +885,9 @@ namespace gs {
                                        const bool processClassId)
         {
             CPP11_auto_ptr<T> myptr;
-            if (ptr == 0)
+            if (ptr == 0) {
                 myptr = CPP11_auto_ptr<T>(new T());
+}
             if (processClassId)
             {
                 ClassId id(str, 1);
@@ -872,8 +898,9 @@ namespace gs {
                 assert(!s->empty());
                 T::restore(s->back(), str, ptr ? ptr : myptr.get());
             }
-            if (ptr == 0)
+            if (ptr == 0) {
                 ptr = myptr.release();
+}
             return ptr;
         }
     };

@@ -68,19 +68,23 @@ void HIPHitMonitorVariables::bookBranches(){
   }
 }
 void HIPTrackMonitorVariables::fill(){
-  if (tree==nullptr) return;
-  if (maxNEvents>=0 && nEvents>=maxNEvents) return;
+  if (tree==nullptr) { return;
+}
+  if (maxNEvents>=0 && nEvents>=maxNEvents) { return;
+}
 
   bool doFill=false;
   m_Ntracks=m_Pt.size();
-  if (m_Ntracks==0) return;
+  if (m_Ntracks==0) { return;
+}
 
-  if (maxTracksRcd<0) doFill=true;
-  else if (nTracks<maxTracksRcd){
-    if ((nTracks+m_Ntracks)<maxTracksRcd) doFill=true;
-    else{
+  if (maxTracksRcd<0) { doFill=true;
+  } else if (nTracks<maxTracksRcd){
+    if ((nTracks+m_Ntracks)<maxTracksRcd) { doFill=true;
+    } else{
       int NewSize = maxTracksRcd - nTracks;
-      if ((int)m_Pt.size()<NewSize) NewSize=m_Pt.size();
+      if ((int)m_Pt.size()<NewSize) { NewSize=m_Pt.size();
+}
 
       // Do not touch m_Ntracks, just resize these vectors
       resizeVectors(NewSize);
@@ -106,7 +110,8 @@ void HIPTrackMonitorVariables::fill(){
   resetPerEvent();
 }
 void HIPHitMonitorVariables::fill(){
-  if (tree==nullptr) return;
+  if (tree==nullptr) { return;
+}
 
   bool doFill=(maxHitsRcd<0 || nHits<maxHitsRcd);
 

@@ -28,8 +28,9 @@ LaserOpticalPhysicsList::LaserOpticalPhysicsList(const G4String& name)
      theBoundaryProcess(), 
      theWLSProcess()
 {
-  if (verboseLevel > 0)
+  if (verboseLevel > 0) {
     std::cout << "<LaserOpticalPhysicsList::LaserOpticalPhysicsList(...)> entering constructor ..." << std::endl;
+}
 }
 
 LaserOpticalPhysicsList::~LaserOpticalPhysicsList()
@@ -44,14 +45,16 @@ LaserOpticalPhysicsList::~LaserOpticalPhysicsList()
   if ( theRayleighScattering != nullptr ) { delete theRayleighScattering; }
   if ( theAbsorptionProcess != nullptr )  { delete theAbsorptionProcess; }
   if ( theScintProcess != nullptr )       { delete theScintProcess; }
-  if (verboseLevel > 0)
+  if (verboseLevel > 0) {
     std::cout << " done " << std::endl;
+}
 }
 
 void LaserOpticalPhysicsList::ConstructParticle()
 {
-  if (verboseLevel > 0)
+  if (verboseLevel > 0) {
     std::cout << "<LaserOpticalPhysicsList::ConstructParticle()>: constructing the optical photon ... " << std::endl;
+}
 
   // optical photon
   G4OpticalPhoton::OpticalPhotonDefinition();
@@ -59,8 +62,9 @@ void LaserOpticalPhysicsList::ConstructParticle()
 
 void LaserOpticalPhysicsList::ConstructProcess()
 {
-  if (verboseLevel > 0)
+  if (verboseLevel > 0) {
     std::cout << "<LaserOpticalPhysicsList::ConstructProcess()>: constructing the physics ... " << std::endl;
+}
 
   theScintProcess = new G4Scintillation();
 //  theCerenkovProcess=new G4Cerenkov();

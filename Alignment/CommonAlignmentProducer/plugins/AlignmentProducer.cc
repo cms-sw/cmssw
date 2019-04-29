@@ -109,8 +109,9 @@ AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
     << "Ending loop " << iLoop << ", terminating algorithm.";
   terminateProcessing(&iSetup);
 
-  if ( iLoop == maxLoops_-1 || iLoop >= maxLoops_ ) return kStop;
-  else return kContinue;
+  if ( iLoop == maxLoops_-1 || iLoop >= maxLoops_ ) { return kStop;
+  } else { return kContinue;
+}
 }
 
 
@@ -119,8 +120,9 @@ edm::EDLooper::Status
 AlignmentProducer::duringLoop(const edm::Event& event,
                               const edm::EventSetup& setup)
 {
-  if (processEvent(event, setup)) return kContinue;
-  else return kStop;
+  if (processEvent(event, setup)) { return kContinue;
+  } else { return kStop;
+}
 }
 
 

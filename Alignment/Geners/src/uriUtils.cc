@@ -8,11 +8,13 @@ namespace gs {
     std::string localFileURI(const char* filename)
     {
         assert(filename);
-        if (strlen(filename) == 0) throw gs::IOInvalidArgument(
+        if (strlen(filename) == 0) { throw gs::IOInvalidArgument(
             "In gs::localFileURI: empty file name");
+}
         std::string uri("file://");
-        if (filename[0] != '/')
+        if (filename[0] != '/') {
             uri += "./";
+}
         uri += filename;
         return uri;
     }
@@ -21,10 +23,11 @@ namespace gs {
     {
         assert(filename);
         const char *progname = std::strrchr(filename, '/');
-        if (progname)
+        if (progname) {
             ++progname;
-        else
+        } else {
             progname = filename;
+}
         return std::string(progname);
     }
 
@@ -32,10 +35,11 @@ namespace gs {
     {
         assert(filename);
         const char *progname = std::strrchr(filename, '/');
-        if (progname)
+        if (progname) {
             return std::string(filename, progname - filename);
-        else
+        } else {
             return std::string(".");
+}
     }
 
     std::string joinDir1WithName2(const char* fname1, const char* fname2)

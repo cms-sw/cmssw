@@ -497,7 +497,8 @@ void SiStripBackplaneCalibration::writeTree(const SiStripBackPlaneCorrection *ba
                                             const std::map<unsigned int, TreeStruct> &treeInfo,
 					    const char *treeName) const
 {
-  if (!backPlaneCorrection) return;
+  if (!backPlaneCorrection) { return;
+}
 
   TFile* file = TFile::Open(outFileName_.c_str(), "UPDATE");
   if (!file) {
@@ -549,7 +550,8 @@ SiStripBackplaneCalibration::createFromTree(const char *fileName, const char *tr
   } // else not existing, see error below
 
   TTree *tree = nullptr;
-  if (file) file->GetObject(treeName, tree);
+  if (file) { file->GetObject(treeName, tree);
+}
 
   SiStripBackPlaneCorrection *result = nullptr;
   if (tree) {

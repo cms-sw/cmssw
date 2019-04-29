@@ -42,7 +42,8 @@ void DTMuonSLToSL::calculationSLToSL() {
       C31[whI+2][stI-1] = new TMatrixD * [14];
       b31[whI+2][stI-1] = new TMatrixD * [14];
       for(int seI = 1; seI < 15; ++seI) {
-        if(seI > 12 && stI != 4) continue;
+        if(seI > 12 && stI != 4) { continue;
+}
         C13[whI+2][stI-1][seI-1] = new TMatrixD(3,3);
         b13[whI+2][stI-1][seI-1] = new TMatrixD(3,1);
         C31[whI+2][stI-1][seI-1] = new TMatrixD(3,3);
@@ -56,20 +57,23 @@ void DTMuonSLToSL::calculationSLToSL() {
   for (Int_t i=0;i<nentries;i++) {
     tali->GetEntry(i);
     //Basic cuts
-    if(pt > ptMax || pt < ptMin) continue;
+    if(pt > ptMax || pt < ptMin) { continue;
+}
    
     bool repeatedHits = false;  
     for(int counter = 0; counter < nseg; ++counter) {
       //Make sure there are no repeated hits
       for(int counterHi = 0; counterHi < nhits[counter]; counterHi++) {
         for(int counterHj = 0; counterHj < nhits[counter]; counterHj++) {
-          if(counterHi == counterHj) continue;
+          if(counterHi == counterHj) { continue;
+}
           if(zc[counter][counterHi] == zc[counter][counterHj]) {
             repeatedHits = true;
           }
         }
       }
-      if(repeatedHits == true) continue;
+      if(repeatedHits == true) { continue;
+}
           
       float x_13 = xSlSL3[counter]; float xp_13 = xSL1SL3[counter];
       float x_31 = xSlSL1[counter]; float xp_31 = xSL3SL1[counter];
@@ -94,7 +98,8 @@ void DTMuonSLToSL::calculationSLToSL() {
   for(int wheel = -2; wheel < 3; ++wheel) {
     for(int station = 1; station < 5; ++station) {
       for(int sector = 1; sector < 15; ++sector) {
-        if(sector > 12 && station != 4) continue;
+        if(sector > 12 && station != 4) { continue;
+}
         TMatrixD solution13(3,1);
         TMatrixD solution31(3,1);
         TMatrixD C31_copy = *(C31[wheel+2][station-1][sector-1]);

@@ -104,8 +104,9 @@ CompositeAlignmentParameters::derivatives( const std::vector<TrajectoryStateOnSu
 					   const std::vector<AlignableDetOrUnitPtr>& alidetvec ) const
 {
   align::Alignables alivec;
-  for (std::vector<AlignableDetOrUnitPtr>::const_iterator it=alidetvec.begin(); it!=alidetvec.end(); ++it)
+  for (std::vector<AlignableDetOrUnitPtr>::const_iterator it=alidetvec.begin(); it!=alidetvec.end(); ++it) {
     alivec.push_back(alignableFromAlignableDet(*it));
+}
   
   CompositeAlignmentDerivativesExtractor extractor(alivec,alidetvec,tsosvec);
   return extractor.derivatives();
@@ -128,8 +129,9 @@ CompositeAlignmentParameters::correctionTerm( const std::vector<TrajectoryStateO
 					      const std::vector<AlignableDetOrUnitPtr>& alidetvec) const
 {
   align::Alignables alivec;
-  for (std::vector<AlignableDetOrUnitPtr>::const_iterator it=alidetvec.begin(); it!=alidetvec.end(); ++it )
+  for (std::vector<AlignableDetOrUnitPtr>::const_iterator it=alidetvec.begin(); it!=alidetvec.end(); ++it ) {
     alivec.push_back(alignableFromAlignableDet(*it));
+}
   
   CompositeAlignmentDerivativesExtractor extractor(alivec,alidetvec,tsosvec);
   return extractor.correctionTerm();
@@ -263,8 +265,9 @@ CompositeAlignmentParameters::alignableFromAlignableDet(const AlignableDetOrUnit
 
   AlignableDetToAlignableMap::const_iterator iali =
     theAlignableDetToAlignableMap.find(adet);
-  if ( iali!=theAlignableDetToAlignableMap.end() ) return (*iali).second;
-  else return nullptr;
+  if ( iali!=theAlignableDetToAlignableMap.end() ) { return (*iali).second;
+  } else { return nullptr;
+}
 
 }
 
@@ -285,7 +288,8 @@ CompositeAlignmentParameters::parameterSubset( const align::Alignables& vec ) co
   lenvec.reserve( nali );
 
   // iterate over input vector of alignables to determine size of result vector
-  if ( !extractPositionAndLength( sel, posvec, lenvec, ndim ) ) return AlgebraicVector();
+  if ( !extractPositionAndLength( sel, posvec, lenvec, ndim ) ) { return AlgebraicVector();
+}
 
   // OK, let's do the real work now
   AlgebraicVector result( ndim );
@@ -296,8 +300,9 @@ CompositeAlignmentParameters::parameterSubset( const align::Alignables& vec ) co
     int posi = posvec[iali];
     int leni = lenvec[iali];
 
-    for ( int ir = 0; ir < leni; ++ir )
+    for ( int ir = 0; ir < leni; ++ir ) {
       result[resi+ir] = theData->parameters()[posi-1+ir];
+}
 
     resi += leni;
   }
@@ -324,7 +329,8 @@ CompositeAlignmentParameters::covarianceSubset( const align::Alignables& vec ) c
 
   // iterate over input vectors of alignables
   // to determine dimensions of result matrix
-  if ( !extractPositionAndLength( sel, posvec, lenvec, ndim ) ) return AlgebraicSymMatrix();
+  if ( !extractPositionAndLength( sel, posvec, lenvec, ndim ) ) { return AlgebraicSymMatrix();
+}
 
   // OK, let's do the real work now
   AlgebraicSymMatrix result( ndim );
@@ -341,9 +347,11 @@ CompositeAlignmentParameters::covarianceSubset( const align::Alignables& vec ) c
       int posj = posvec[jali];
       int lenj = lenvec[jali];
 
-      for ( int ir = 0; ir < leni; ++ir )
-	for ( int ic = 0; ic < lenj; ++ic )
+      for ( int ir = 0; ir < leni; ++ir ) {
+	for ( int ic = 0; ic < lenj; ++ic ) {
 	  result[resi+ir][resj+ic] = theData->covariance()[posi-1+ir][posj-1+ic];
+}
+}
 
       resj += lenj;
     }
@@ -378,9 +386,11 @@ CompositeAlignmentParameters::covarianceSubset( const align::Alignables& veci,
 
   // iterate over input vectors of alignables
   // to determine dimensions of result matrix
-  if ( !extractPositionAndLength( seli, posveci, lenveci, ndimi ) ) return AlgebraicSymMatrix();
+  if ( !extractPositionAndLength( seli, posveci, lenveci, ndimi ) ) { return AlgebraicSymMatrix();
+}
   // vector vecj
-  if ( !extractPositionAndLength( selj, posvecj, lenvecj, ndimj ) ) return AlgebraicSymMatrix();
+  if ( !extractPositionAndLength( selj, posvecj, lenvecj, ndimj ) ) { return AlgebraicSymMatrix();
+}
 
   // OK, let's do the real work now
   AlgebraicMatrix result( ndimi, ndimj );
@@ -397,9 +407,11 @@ CompositeAlignmentParameters::covarianceSubset( const align::Alignables& veci,
       int posj = posvecj[jali];
       int lenj = lenvecj[jali];
 
-      for ( int ir = 0; ir < leni; ++ir )
-	for ( int ic = 0; ic < lenj; ++ic )
+      for ( int ir = 0; ir < leni; ++ir ) {
+	for ( int ic = 0; ic < lenj; ++ic ) {
 	  result[resi+ir][resj+ic] = theData->covariance()[posi-1+ir][posj-1+ic];
+}
+}
 
       resj += lenj;
     }
@@ -454,7 +466,8 @@ CompositeAlignmentParameters::extractAlignables(const align::Alignables& alignab
   align::Alignables result;
 
   for (const auto& itA: alignables) {
-    if (std::find( result.begin(), result.end(), itA ) == result.end()) result.push_back(itA);
+    if (std::find( result.begin(), result.end(), itA ) == result.end()) { result.push_back(itA);
+}
   }
 
   return result;
@@ -469,6 +482,7 @@ void CompositeAlignmentParameters::convert(const std::vector<AlignableDet*> &inp
   output.reserve(input.size());
 
   std::vector<AlignableDet*>::const_iterator it, itEnd;
-  for (it = input.begin(), itEnd = input.end(); it != itEnd; ++it)
+  for (it = input.begin(), itEnd = input.end(); it != itEnd; ++it) {
     output.push_back(AlignableDetOrUnitPtr(*it));
+}
 }

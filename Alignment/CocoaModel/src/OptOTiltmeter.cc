@@ -54,7 +54,8 @@ void OptOTiltmeter::makeMeasurement( LightRay& lightray, Measurement& meas )
   //--------- Get measurement
   ALIdouble measvalue = acos(ZAxisl*ZAxis_proj / ZAxisl.mag() / ZAxis_proj.mag());
   //----- get sign of angle as sign of y component of ZAxis
-  if( ZAxisl.y() != 0 ) measvalue *= (ZAxisl.y() / fabs(ZAxisl.y()) );
+  if( ZAxisl.y() != 0 ) { measvalue *= (ZAxisl.y() / fabs(ZAxisl.y()) );
+}
   meas.setValueSimulated(0 , measvalue ); 
   
   if (ALIUtils::debug >= 3) {

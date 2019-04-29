@@ -244,8 +244,9 @@ void MuonAlignment::writeXML(const edm::ParameterSet &iConfig, const edm::EventS
 void MuonAlignment::saveDTSurveyToDB(void) {
    // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( !poolDbService.isAvailable() ) // Die if not available
+  if( !poolDbService.isAvailable() ) { // Die if not available
      throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+}
 
   // Get alignments and errors
   Alignments *dtAlignments = new Alignments();
@@ -277,8 +278,9 @@ void MuonAlignment::saveDTSurveyToDB(void) {
 void MuonAlignment::saveCSCSurveyToDB(void) {
    // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( !poolDbService.isAvailable() ) // Die if not available
+  if( !poolDbService.isAvailable() ) { // Die if not available
      throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+}
 
   // Get alignments and errors
   Alignments *cscAlignments = new Alignments();
@@ -315,8 +317,9 @@ void MuonAlignment::saveSurveyToDB(void) {
 void MuonAlignment::saveDTtoDB(void) {
    // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( !poolDbService.isAvailable() ) // Die if not available
+  if( !poolDbService.isAvailable() ) { // Die if not available
 	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+}
 
   // Get alignments and errors
   Alignments*      dt_Alignments       = theAlignableMuon->dtAlignments() ;
@@ -330,8 +333,9 @@ void MuonAlignment::saveDTtoDB(void) {
 void MuonAlignment::saveCSCtoDB(void) {
    // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( !poolDbService.isAvailable() ) // Die if not available
+  if( !poolDbService.isAvailable() ) { // Die if not available
 	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+}
 
   // Get alignments and errors
   Alignments*      csc_Alignments      = theAlignableMuon->cscAlignments();

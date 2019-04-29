@@ -15,7 +15,8 @@ void DTMuonLocalAlignment::initNTuples(int nMtxSection) {
   tali = new TChain("InfoTuple");
 
   int iFile = 0;
-  if (nMtxSection>0) iFile = (nMtxSection - 1)*numberOfRootFiles; 
+  if (nMtxSection>0) { iFile = (nMtxSection - 1)*numberOfRootFiles; 
+}
 
   for(int n_file = iFile; n_file < iFile+numberOfRootFiles; ++n_file) {
 

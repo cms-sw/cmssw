@@ -25,20 +25,23 @@ namespace gs {
 
             std::ostringstream os;
             os << id_.substr(0, lastOpen) << '(' << version_ << ')';
-            if (isPtr_)
+            if (isPtr_) {
                 os << '*';
+}
             id_ = os.str();
         }
     }
 
     void ClassId::ensureSameId(const ClassId& id) const
     {
-        if (name_.empty())
+        if (name_.empty()) {
             throw gs::IOInvalidArgument(
                 "In gs::ClassId::ensureSameId: reference id is not valid");
-        if (id.name_.empty())
+}
+        if (id.name_.empty()) {
             throw gs::IOInvalidArgument(
                 "In gs::ClassId::ensureSameId: argument id is not valid");
+}
         if (id_ != id.id_)
         {
             std::ostringstream os;
@@ -50,12 +53,14 @@ namespace gs {
 
     void ClassId::ensureSameName(const ClassId& id) const
     {
-        if (name_.empty())
+        if (name_.empty()) {
             throw gs::IOInvalidArgument(
                 "In gs::ClassId::ensureSameName: reference id is not valid");
-        if (id.name_.empty())
+}
+        if (id.name_.empty()) {
             throw gs::IOInvalidArgument(
                 "In gs::ClassId::ensureSameName: argument id is not valid");
+}
         if (name_ != id.name_)
         {
             std::ostringstream os;
@@ -67,12 +72,14 @@ namespace gs {
 
     void ClassId::ensureSameVersion(const ClassId& id) const
     {
-        if (name_.empty())
+        if (name_.empty()) {
             throw gs::IOInvalidArgument(
                 "In gs::ClassId::ensureSameVersion: reference id is not valid");
-        if (id.name_.empty())
+}
+        if (id.name_.empty()) {
             throw gs::IOInvalidArgument(
                 "In gs::ClassId::ensureSameVersion: argument id is not valid");
+}
         if (version_ != id.version_)
         {
             std::ostringstream os;
@@ -86,9 +93,10 @@ namespace gs {
     void ClassId::ensureVersionInRange(const unsigned vmin,
                                        const unsigned vmax) const
     {
-        if (name_.empty())
+        if (name_.empty()) {
             throw gs::IOInvalidArgument(
                 "In gs::ClassId::ensureVersionInRange: id is not valid");
+}
         if (version_ < vmin || version_ > vmax)
         {
             std::ostringstream os;
@@ -102,11 +110,13 @@ namespace gs {
     bool ClassId::validatePrefix(const char* prefix)
     {
         // Prefix can not be an empty string
-        if (prefix == nullptr)
+        if (prefix == nullptr) {
             return false;
+}
         const unsigned len = strlen(prefix);
-        if (len == 0)
+        if (len == 0) {
             return false;
+}
 
         // Characters '(' and ')' are special and can not be used
         // as parts of class names unless they enclose a version
@@ -119,30 +129,35 @@ namespace gs {
             {
                 // Can't have stacked parentheses.
                 // Can't have '(' as the very first character.
-                if (inVersion || i == 0)
+                if (inVersion || i == 0) {
                     return false;
+}
                 inVersion = true;
                 vstart = i + 1;
             }
             else if (prefix[i] == ')')
             {
                 // Can't have closing parentheses withoup opening ones
-                if (!inVersion)
+                if (!inVersion) {
                     return false;
+}
                 inVersion = false;
-                if (vstart >= i)
+                if (vstart >= i) {
                     return false;
+}
                 char *endptr;
                 // Compiler can complain about unused result of "strtoul"
                 unsigned long dummy = strtoul(prefix+vstart, &endptr, 10);
                 ++dummy;
-                if (endptr != prefix+i)
+                if (endptr != prefix+i) {
                     return false;
+}
             }
         }
         // Can't have missing closing parentheses
-        if (inVersion)
+        if (inVersion) {
             return false;
+}
 
         return true;
     }
@@ -153,16 +168,18 @@ namespace gs {
         std::ostringstream os;
         if (!validatePrefix(prefix))
         {
-            if (prefix)
+            if (prefix) {
                 os << "In gs::ClassId::initialize: bad class name prefix \""
                    << prefix << "\". Check for problematic parentheses.";
-            else
+            } else {
                 os << "In gs::ClassId::initialize: NULL class name prefix.";
+}
             throw gs::IOInvalidArgument(os.str());
         }
         os << prefix << '(' << version << ')';
-        if (isPtr)
+        if (isPtr) {
             os << '*';
+}
         id_ = os.str();
         version_ = version;
         isPtr_ = isPtr;
@@ -175,8 +192,9 @@ namespace gs {
         char localbuf[NLOCAL];
         char* buf = localbuf;
         const unsigned idLen = id_.size();
-        if (idLen+1U > NLOCAL)
+        if (idLen+1U > NLOCAL) {
             buf = new char[idLen+1U];
+}
         const char* from = id_.data();
         bool inVersion = false;
         unsigned ito=0;
@@ -186,7 +204,8 @@ namespace gs {
             {
                 if (inVersion) 
                 {
-                    if (buf != localbuf) delete [] buf;
+                    if (buf != localbuf) { delete [] buf;
+}
                     return false;
                 }
                 inVersion = true;
@@ -195,22 +214,26 @@ namespace gs {
             {
                 if (!inVersion)
                 {
-                    if (buf != localbuf) delete [] buf;
+                    if (buf != localbuf) { delete [] buf;
+}
                     return false;
                 }
                 inVersion = false;
             }
-            else if (!inVersion)
+            else if (!inVersion) {
                 buf[ito++] = from[ifrom];
+}
         }
         if (inVersion)
         {
-            if (buf != localbuf) delete [] buf;
+            if (buf != localbuf) { delete [] buf;
+}
             return false;
         }
         buf[ito] = '\0';
         name_ = buf;
-        if (buf != localbuf) delete [] buf;
+        if (buf != localbuf) { delete [] buf;
+}
         return true;
     }
 
@@ -226,20 +249,24 @@ namespace gs {
             isPtr_ = true;
             --sep;
         }
-        else
+        else {
             isPtr_ = false;
+}
         if (*sep == ')')
         {
             const char* closingBrace = sep;
-            for (; sep != buf; --sep)
-                if (*sep == '(')
+            for (; sep != buf; --sep) {
+                if (*sep == '(') {
                     break;
+}
+}
             if (sep != buf)
             {
                 char* endptr;
                 version_ = strtoul(sep + 1, &endptr, 10);
-                if (endptr > sep + 1 && endptr == closingBrace)
+                if (endptr > sep + 1 && endptr == closingBrace) {
                     correct = true;
+}
             }
         }
         return correct;
@@ -260,9 +287,10 @@ namespace gs {
     ClassId::ClassId(std::istream& in, int)
     {
         read_pod(in, &id_);
-        if (in.fail()) throw IOReadFailure(
+        if (in.fail()) { throw IOReadFailure(
             "In gs::ClassId::ClassId(std::istream&, int): "
             "input stream failure");
+}
 
         if (!(!id_.empty() && makeName() && makeVersion()))
         {
@@ -316,10 +344,11 @@ namespace gs {
             for (std::size_t pos = leftBrak+1; pos<rightBrak; ++pos)
             {
                 const char c = id_[pos];
-                if (c == '<') ++nbrackets;
-                else if (c == '>') --nbrackets;
-                else if (c == ',' && nbrackets == 0)
+                if (c == '<') { ++nbrackets;
+                } else if (c == '>') { --nbrackets;
+                } else if (c == ',' && nbrackets == 0) {
                     ++ncommas;
+}
             }
 
             // Must be a well-formed name
@@ -334,8 +363,9 @@ namespace gs {
 
             // Reserve a proper size vector
             params->resize(ncommas + 1);
-            for (unsigned i=0; i<=ncommas; ++i)
+            for (unsigned i=0; i<=ncommas; ++i) {
                 (*params)[i].reserve(1);
+}
 
             // Cycle over commas again and fill the ids
             ncommas = 0;
@@ -344,13 +374,15 @@ namespace gs {
             for (std::size_t pos = begin; pos<rightBrak; ++pos)
             {
                 const char c = id_[pos];
-                if (c == '<') ++nbrackets;
-                else if (c == '>') --nbrackets;
-                else if (c == ',' && nbrackets == 0)
+                if (c == '<') { ++nbrackets;
+                } else if (c == '>') { --nbrackets;
+                } else if (c == ',' && nbrackets == 0)
                 {
-                    while (isspace(id_[begin])) ++begin;
+                    while (isspace(id_[begin])) { ++begin;
+}
                     std::size_t end = pos - 1;
-                    while (isspace(id_[end])) --end;
+                    while (isspace(id_[end])) { --end;
+}
                     ++end;
                     (*params)[ncommas].push_back(
                         ClassId(id_.substr(begin, end - begin)));
@@ -358,9 +390,11 @@ namespace gs {
                     ++ncommas;
                 }
             }
-            while (isspace(id_[begin])) ++begin;
+            while (isspace(id_[begin])) { ++begin;
+}
             std::size_t end = rightBrak - 1;
-            while (isspace(id_[end])) --end;
+            while (isspace(id_[end])) { --end;
+}
             ++end;
             (*params)[ncommas].push_back(
                 ClassId(id_.substr(begin, end - begin)));

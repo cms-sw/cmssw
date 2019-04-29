@@ -34,8 +34,9 @@ AlignableDTStation::AlignableDTStation( const std::vector<AlignableDTChamber*>& 
 AlignableDTChamber &AlignableDTStation::chamber(int i) 
 {
   
-  if (i >= size() ) 
+  if (i >= size() ) { 
 	throw cms::Exception("LogicError") << "DT Chamber index (" << i << ") out of range";
+}
 
   return *theDTChambers[i];
   
@@ -60,8 +61,9 @@ AlignableDTStation::PositionType AlignableDTStation::computePosition()
   float zz = 0.;
 
   for ( std::vector<AlignableDTChamber*>::iterator ilayer = theDTChambers.begin();
-		ilayer != theDTChambers.end(); ilayer++ )
+		ilayer != theDTChambers.end(); ilayer++ ) {
     zz += (*ilayer)->globalPosition().z();
+}
 
   zz /= static_cast<float>(theDTChambers.size());
 
@@ -97,7 +99,8 @@ void AlignableDTStation::dump( void ) const
 
   edm::LogInfo("AlignableDump") << (*this);
   for ( std::vector<AlignableDTChamber*>::const_iterator iChamber = theDTChambers.begin();
-		iChamber != theDTChambers.end(); iChamber++ )
+		iChamber != theDTChambers.end(); iChamber++ ) {
 	edm::LogInfo("AlignableDump") << (**iChamber);
+}
 
 }

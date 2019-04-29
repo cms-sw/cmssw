@@ -78,28 +78,30 @@ namespace gs {
         read_pod(is, &endianness);
         read_pod(is, &sizelong);
 
-        if (is.fail()) throw IOReadFailure(
+        if (is.fail()) { throw IOReadFailure(
             "In gs::readBinaryCatalog: input stream failure");
+}
 
         if (endianness != 0x01020304 ||
               formatId != expectedformatId ||
-              sizelong != sizeof(long))
+              sizelong != sizeof(long)) {
             throw IOInvalidData("In gs::readBinaryCatalog: not \"geners\" "
                                 "binary metafile or incompatible system "
                                 "architecture");
+}
 
         read_pod(is, compressionCode);
         read_pod(is, mergeLevel);
         read_pod_vector(is, annotations);
         ClassId id(is, 1);
-        Catalog* readback = 0;
+        Catalog* readback = nullptr;
 
         ClassId catId(ClassId::makeId<Catalog>());
-        if (id.name() == catId.name())
+        if (id.name() == catId.name()) {
             // The reading is done by the same class as the writing.
             // Make sure the "read" function gets the correct class version.
             readback = Catalog::read(id, is);
-        else
+        } else
         {
             if (!allowReadingByDifferentClass)
             {
@@ -116,8 +118,9 @@ namespace gs {
             // this makes sense. However, to maintain compatibility with
             // version 1 archives, we need to pass this version to the
             // catalog read function.
-            if (id.version() == 1)
+            if (id.version() == 1) {
                 catId.setVersion(1);
+}
 
             readback = Catalog::read(catId, is);
         }

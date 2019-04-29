@@ -17,7 +17,7 @@ namespace gs {
         template<typename C> static Two test(...);
 
     public:
-        enum {value = sizeof(IOIsHeapReadableHelper<T>::template test<T>(0)) == 1};
+        enum {value = sizeof(IOIsHeapReadableHelper<T>::template test<T>(nullptr)) == 1};
     };
 
 

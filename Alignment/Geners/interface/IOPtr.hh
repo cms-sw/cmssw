@@ -28,14 +28,16 @@ namespace gs {
         inline T* get() const {return ptr_;}
         inline T* operator->() const
         {
-            if (!ptr_) throw gs::IOInvalidArgument(
+            if (!ptr_) { throw gs::IOInvalidArgument(
                "In gs::IOPtr::operator->: attempt to dereference null pointer");
+}
             return ptr_;
         }
         inline T& operator*() const
         {
-            if (!ptr_) throw gs::IOInvalidArgument(
+            if (!ptr_) { throw gs::IOInvalidArgument(
                "In gs::IOPtr::operator*: attempt to dereference null pointer");
+}
             return *ptr_;
         }
         inline IOPtr& operator++() {++ptr_; return *this;}
@@ -56,9 +58,10 @@ namespace gs {
         inline T*& getIOReference() {return ptr_;}
         inline T* const & getIOReference() const
         {
-            if (!ptr_) throw gs::IOInvalidArgument(
+            if (!ptr_) { throw gs::IOInvalidArgument(
                 "In gs::IOPtr::getIOReference: unusable "
                 "const reference to null pointer");
+}
             return ptr_;
         }
 
@@ -110,14 +113,16 @@ namespace gs {
         inline T* get() const {return ptr_;}
         inline T* operator->() const
         {
-            if (!ptr_) throw gs::IOInvalidArgument(
+            if (!ptr_) { throw gs::IOInvalidArgument(
                "In gs::IOProxy::operator->: attempt to dereference null pointer");
+}
             return ptr_;
         }
         inline T& operator*() const
         {
-            if (!ptr_) throw gs::IOInvalidArgument(
+            if (!ptr_) { throw gs::IOInvalidArgument(
                "In gs::IOProxy::operator*: attempt to dereference null pointer");
+}
             return *ptr_;
         }
         inline IOProxy& operator++() {++ptr_; return *this;}
@@ -138,9 +143,10 @@ namespace gs {
         inline T*& getIOReference() {return ptr_;}
         inline T* const & getIOReference() const 
         {
-            if (!ptr_) throw gs::IOInvalidArgument(
+            if (!ptr_) { throw gs::IOInvalidArgument(
                 "In gs::IOProxy::getIOReference: unusable "
                 "const reference to null pointer");
+}
             return ptr_;
         }
 

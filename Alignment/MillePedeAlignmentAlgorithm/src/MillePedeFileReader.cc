@@ -207,7 +207,8 @@ void MillePedeFileReader
 
 MillePedeFileReader::PclHLS MillePedeFileReader
 ::getHLS(const Alignable* alignable) {
-  if (!alignable) return PclHLS::NotInPCL;
+  if (!alignable) { return PclHLS::NotInPCL;
+}
 
   const auto& tns = pedeLabeler_->alignableTracker()->trackerNameSpace();
 

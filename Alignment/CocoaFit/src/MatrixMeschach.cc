@@ -72,7 +72,8 @@ MatrixMeschach& MatrixMeschach::operator=( const MatrixMeschach& mat )
       _Mat = m_get( mat.NoLines(), mat.NoColumns() );
       copy( mat );
   }
-   if(ALIUtils::debug >= 9) std::cout <<  "operator=" << mat._Mat << _Mat << NoLines() << NoColumns() << Mat()->m << Mat()->n <<std::endl;
+   if(ALIUtils::debug >= 9) { std::cout <<  "operator=" << mat._Mat << _Mat << NoLines() << NoColumns() << Mat()->m << Mat()->n <<std::endl;
+}
   return *this;
 }
 
@@ -171,12 +172,14 @@ MatrixMeschach operator+( const MatrixMeschach& mat1, const MatrixMeschach& mat2
 {
   MatrixMeschach matout( mat1 );
   matout += mat2;
-   if(ALIUtils::debug >= 9) std::cout << "add" << mat1.NoLines() << mat1.NoColumns()
+   if(ALIUtils::debug >= 9) { std::cout << "add" << mat1.NoLines() << mat1.NoColumns()
        << mat2.NoLines() << mat2.NoColumns()  
        << matout.NoLines() << matout.NoColumns() << std::endl;
-   if(ALIUtils::debug >= 9) std::cout << "addM" << mat1.Mat()->m << mat1.Mat()->n
+}
+   if(ALIUtils::debug >= 9) { std::cout << "addM" << mat1.Mat()->m << mat1.Mat()->n
        << mat2.Mat()->m << mat2.Mat()->n
        << matout.Mat()->m << matout.Mat()->n << std::endl;
+}
   return MatrixMeschach( matout );
 
 }
@@ -253,7 +256,8 @@ void MatrixMeschach::transpose()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void MatrixMeschach::inverse()
 {
-  if(ALIUtils::debug >= 9) std::cout << "inverse" << _NoLines << "C" << _NoColumns << std::endl;
+  if(ALIUtils::debug >= 9) { std::cout << "inverse" << _NoLines << "C" << _NoColumns << std::endl;
+}
    MAT* tempmat = m_get(_NoLines, _NoColumns);
    ALIdouble factor = 1000.;
    (*this) *= 1./factor;
@@ -309,7 +313,8 @@ void MatrixMeschach::EliminateLines( ALIint lin_first, ALIint lin_last )
       if( ii < lin_first  || ii > lin_last ) { 
           for ( ALIint jj=0; jj<NoColumns(); jj++) {
               newmat.AddData(iin, jj, (*this)(ii,jj) );
-	        if(ALIUtils::debug >= 9) std::cout << iin << jj << "nmat" << newmat.Mat()->me[iin][jj] << std::endl;
+	        if(ALIUtils::debug >= 9) { std::cout << iin << jj << "nmat" << newmat.Mat()->me[iin][jj] << std::endl;
+}
 	  }
           iin++;
       }
@@ -343,7 +348,8 @@ void MatrixMeschach::EliminateColumns( ALIint lin_first, ALIint lin_last )
       if( jj < lin_first  || jj > lin_last ) { 
           for ( ALIint ii=0; ii<NoLines(); ii++) {
               newmat.AddData( ii, jjn, (*this)(ii,jj) );
-               if(ALIUtils::debug >= 9) std::cout << ii << jjn << "nmat" << newmat.Mat()->me[ii][jjn] << std::endl;
+               if(ALIUtils::debug >= 9) { std::cout << ii << jjn << "nmat" << newmat.Mat()->me[ii][jjn] << std::endl;
+}
 	  }
           jjn++;
       }
@@ -385,10 +391,12 @@ void MatrixMeschach::SetCorrelation(ALIint i1, ALIint i2, ALIdouble corr)
 {  
   AddData(i1,i2,corr * sqrt( (*this)(i1,i1)*(*this)(i2,i2) ) );
   AddData(i2,i1,corr * sqrt( (*this)(i1,i1)*(*this)(i2,i2) ) );
-   if(ALIUtils::debug >= 9) std::cout << i1<< i2<< corr << "CORR" << (*this)(i1,i1) << " " << (*this)(i2,i2) << std::endl;
+   if(ALIUtils::debug >= 9) { std::cout << i1<< i2<< corr << "CORR" << (*this)(i1,i1) << " " << (*this)(i2,i2) << std::endl;
+}
   //-  std::cout << (*this)(i1,i1)*(*this)(i2,i2)  << std::endl;
   //- std::cout << sqrt( (*this)(i1,i1)*(*this)(i2,i2) ) << std::endl;
-   if(ALIUtils::debug >= 9) std::cout << corr * sqrt( (*this)(i1,i1)*(*this)(i2,i2) ) << std::endl;
+   if(ALIUtils::debug >= 9) { std::cout << corr * sqrt( (*this)(i1,i1)*(*this)(i2,i2) ) << std::endl;
+}
 
 }
 

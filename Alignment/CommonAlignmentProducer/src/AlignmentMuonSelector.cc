@@ -35,7 +35,7 @@ AlignmentMuonSelector::AlignmentMuonSelector(const edm::ParameterSet & cfg) :
   maxMassPair( cfg.getParameter<double>( "maxMassPair" ) )
 {
 
-  if (applyBasicCuts)
+  if (applyBasicCuts) {
 	edm::LogInfo("AlignmentMuonSelector") 
 	  << "applying basic muon cuts ..."
           << "\npmin,pmax:           " << pMin   << "," << pMax
@@ -48,18 +48,22 @@ AlignmentMuonSelector::AlignmentMuonSelector(const edm::ParameterSet & cfg) :
 	  << "\nchi2nmaxGB:          " << chi2nMaxGB<< ","
 	  << "\nnhitminTO,nhitmaxTO: " << nHitMinTO << "," << nHitMaxTO
 	  << "\nchi2nmaxTO:          " << chi2nMaxTO;
+}
 
-  if (applyNHighestPt)
+  if (applyNHighestPt) {
 	edm::LogInfo("AlignmentMuonSelector") 
 	  << "filter N muons with highest Pt N=" << nHighestPt;
+}
 
-  if (applyMultiplicityFilter)
+  if (applyMultiplicityFilter) {
 	edm::LogInfo("AlignmentMuonSelector") 
 	  << "apply multiplicity filter N>=" << minMultiplicity;
+}
 
-  if (applyMassPairFilter)
+  if (applyMassPairFilter) {
 	edm::LogInfo("AlignmentMuonSelector") 
 	  << "apply Mass Pair filter minMassPair=" << minMassPair << " maxMassPair=" << maxMassPair;
+}
 
 }
 
@@ -77,20 +81,24 @@ AlignmentMuonSelector::select(const Muons& muons, const edm::Event& evt) const
   Muons result=muons;
 
   // apply basic muon cuts (if selected)
-  if (applyBasicCuts)  result= this->basicCuts(result);
+  if (applyBasicCuts) {  result= this->basicCuts(result);
+}
 
   // filter N muons with highest Pt (if selected)
-  if (applyNHighestPt) result= this->theNHighestPtMuons(result);
+  if (applyNHighestPt) { result= this->theNHighestPtMuons(result);
+}
 
   // apply minimum multiplicity requirement (if selected)
   if (applyMultiplicityFilter) {
-    if (result.size()<(unsigned int)minMultiplicity) result.clear();
+    if (result.size()<(unsigned int)minMultiplicity) { result.clear();
+}
   }
 
   // apply mass pair requirement (if selected)
   if (applyMassPairFilter) {
-    if (result.size()<2) result.clear();  // at least 2 muons are require for a mass pair...
-    else result = this->theBestMassPairCombinationMuons(result);
+    if (result.size()<2) { result.clear();  // at least 2 muons are require for a mass pair...
+    } else { result = this->theBestMassPairCombinationMuons(result);
+}
   }
 
   edm::LogInfo("AlignmentMuonSelector") << "muons all,kept: " << muons.size() << "," << result.size();

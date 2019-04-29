@@ -36,9 +36,10 @@ void SurveyDBUploader::endJob()
     poolDbService->writeOne<SurveyErrors>
       (theErrors, poolDbService->currentTime(), theErrorExtendedRcd);
   }
-  else
+  else {
     throw cms::Exception("ConfigError")
       << "PoolDBOutputService is not available";
+}
 }
 
 void SurveyDBUploader::getSurveyInfo(const Alignable* ali)
@@ -47,7 +48,8 @@ void SurveyDBUploader::getSurveyInfo(const Alignable* ali)
 
   unsigned int nComp = comp.size();
 
-  for (unsigned int i = 0; i < nComp; ++i) getSurveyInfo(comp[i]);
+  for (unsigned int i = 0; i < nComp; ++i) { getSurveyInfo(comp[i]);
+}
 
   const SurveyDet* survey = ali->survey();
 

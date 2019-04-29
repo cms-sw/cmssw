@@ -32,8 +32,10 @@ void OptOMirror::defaultBehaviour( LightRay& lightray, Measurement& meas )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOMirror::detailedDeviatesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED REFLECTION IN MIRROR " << name() << std::endl;
-  if (ALIUtils::debug >= 3) ALIUtils::dump3v( centreGlob(), " centre Global ");
+  if (ALIUtils::debug >= 2) { std::cout << "LR: DETAILED REFLECTION IN MIRROR " << name() << std::endl;
+}
+  if (ALIUtils::debug >= 3) { ALIUtils::dump3v( centreGlob(), " centre Global ");
+}
 
   //---------- Get forward plate and intersect lightray with it
   ALIPlane plate = getPlate(true, false);
@@ -81,7 +83,8 @@ void OptOMirror::detailedDeviatesLightRay( LightRay& lightray )
 
   //----- Axis of rotation is perpendicular to Z Axis and to line plate_centre - intersection
   CLHEP::Hep3Vector ipcV = inters - plate_centre;
-  if( ipcV.mag() != 0) ipcV *= 1./ipcV.mag();
+  if( ipcV.mag() != 0) { ipcV *= 1./ipcV.mag();
+}
   CLHEP::HepRotation rtm = rmGlob();
   ipcV = rtm*ipcV;
   CLHEP::Hep3Vector rotationAxis = ipcV.cross(ZAxis);
@@ -113,7 +116,8 @@ void OptOMirror::detailedDeviatesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOMirror::fastDeviatesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: FAST REFLECTION IN MIRROR " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: FAST REFLECTION IN MIRROR " << name() << std::endl;
+}
 
   //---------- Get forward plate
   ALIPlane plate = getPlate(true, false);
@@ -137,14 +141,16 @@ void OptOMirror::fastDeviatesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOMirror::detailedTraversesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED TRAVERSE IN MIRROR " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: DETAILED TRAVERSE IN MIRROR " << name() << std::endl;
+}
 
   //---------- Get forward plate
   ALIPlane plate = getPlate(true, true);
   //---------- If width is 0, just keep the same point 
   ALIdouble width = findExtraEntryValue("width");
   if( width == 0 ) {
-    if(ALIUtils::debug >= 3) lightray.dumpData("Traversed with 0 width"); 
+    if(ALIUtils::debug >= 3) { lightray.dumpData("Traversed with 0 width"); 
+}
     return;
   }
 
@@ -170,7 +176,8 @@ void OptOMirror::detailedTraversesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOMirror::fastTraversesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: TRAVERSE MIRROR  " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: TRAVERSE MIRROR  " << name() << std::endl;
+}
   
   //---------- Get backward plate
   ALIPlane plate = getPlate(false, false);

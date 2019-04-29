@@ -47,12 +47,15 @@ struct TrackConfigSelector {
       theSelectedTracks.push_back(& * i );
     }
     // might add EvetSetup to the select(...) method of the Selectors
-    if(theBaseSwitch)
+    if(theBaseSwitch) {
       theSelectedTracks=theBaseSelector.select(theSelectedTracks,evt,eSetup);
-    if(theGlobalSwitch)
+}
+    if(theGlobalSwitch) {
       theSelectedTracks=theGlobalSelector.select(theSelectedTracks,evt,eSetup);
-    if(theTwoBodyDecaySwitch)
+}
+    if(theTwoBodyDecaySwitch) {
       theSelectedTracks=theTwoBodyDecaySelector.select(theSelectedTracks,evt,eSetup);
+}
   }
 
 private:

@@ -86,8 +86,10 @@ public:  // without description
     CocoaUnitsContainer& GetUnitsList()       {return UnitsList;}
     ALIint             GetNameMxLen() const {return NameMxLen;}
     ALIint             GetSymbMxLen() const {return SymbMxLen;}
-    void  UpdateNameMxLen(ALIint len) {if (NameMxLen<len) NameMxLen=len;}
-    void  UpdateSymbMxLen(ALIint len) {if (SymbMxLen<len) SymbMxLen=len;}
+    void  UpdateNameMxLen(ALIint len) {if (NameMxLen<len) { NameMxLen=len;
+}}
+    void  UpdateSymbMxLen(ALIint len) {if (SymbMxLen<len) { SymbMxLen=len;
+}}
     void  PrintCategory();
 
 private:

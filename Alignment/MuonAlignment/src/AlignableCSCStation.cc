@@ -34,8 +34,9 @@ AlignableCSCStation::AlignableCSCStation( const std::vector<AlignableCSCRing*>& 
 AlignableCSCRing &AlignableCSCStation::ring(int i) 
 {
   
-  if (i >= size() ) 
+  if (i >= size() ) { 
 	throw cms::Exception("LogicError") << "CSC Ring index (" << i << ") out of range";
+}
 
   return *theCSCRings[i];
   
@@ -60,8 +61,9 @@ AlignableCSCStation::PositionType AlignableCSCStation::computePosition()
   float zz = 0.;
 
   for ( std::vector<AlignableCSCRing*>::iterator ilayer = theCSCRings.begin();
-		ilayer != theCSCRings.end(); ilayer++ )
+		ilayer != theCSCRings.end(); ilayer++ ) {
     zz += (*ilayer)->globalPosition().z();
+}
 
   zz /= static_cast<float>(theCSCRings.size());
 
@@ -106,7 +108,8 @@ void AlignableCSCStation::dump( void ) const
 
   edm::LogInfo("AlignableDump") << (*this);
   for ( std::vector<AlignableCSCRing*>::const_iterator iRing = theCSCRings.begin();
-		iRing != theCSCRings.end(); iRing++ )
+		iRing != theCSCRings.end(); iRing++ ) {
 	 edm::LogInfo("AlignableDump")  << (**iRing);
+}
 
 }

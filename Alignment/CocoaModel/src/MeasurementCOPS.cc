@@ -25,7 +25,8 @@
 void MeasurementCOPS::calculateSimulatedValue( ALIbool firstTime ) 
 {
  
-  if( ALIUtils::debug >= 2) printStartCalculateSimulatedValue( this ); // important for Examples/FakeMeas
+  if( ALIUtils::debug >= 2) { printStartCalculateSimulatedValue( this ); // important for Examples/FakeMeas
+}
 
   //---------- Create light ray
   LightRay* lightray = new LightRay;
@@ -35,7 +36,8 @@ void MeasurementCOPS::calculateSimulatedValue( ALIbool firstTime )
 
   //---------- Loop list of OptO that take part in measurement
   std::vector<OpticalObject*>::const_iterator vocite =  OptOList().begin();
-  if( ALIUtils::debug >= 5) std::cout  << "OptOList size" <<OptOList().size() << std::endl;
+  if( ALIUtils::debug >= 5) { std::cout  << "OptOList size" <<OptOList().size() << std::endl;
+}
 
   //----- Check that first object is 'Xlaser' 
   if( (*vocite)->type() != "Xlaser" ) { 
@@ -62,7 +64,8 @@ void MeasurementCOPS::calculateSimulatedValue( ALIbool firstTime )
 #endif
   std::cout << (vocite == OptOList().end()) << " vocite " << (*vocite)->name() << std::endl;
   while( vocite != OptOList().end() ) {
-    if( ALIUtils::debug >= -2) std::cout << std::endl << "@@@@ LR:OBJECT " << (*vocite)->name() << std::endl;  
+    if( ALIUtils::debug >= -2) { std::cout << std::endl << "@@@@ LR:OBJECT " << (*vocite)->name() << std::endl;  
+}
     isec ++;
 
     //---------- Get the behaviour of the object w.r.t the measurement (if it reflects the light, let it traverse it, ...)
@@ -96,7 +99,8 @@ void MeasurementCOPS::calculateSimulatedValue( ALIbool firstTime )
   }
 
  
-  if(ALIUtils::debug >= 9) std::cout << "end calculateSimulatedValue" <<std::endl;
+  if(ALIUtils::debug >= 9) { std::cout << "end calculateSimulatedValue" <<std::endl;
+}
   
   delete lightray;
 }
@@ -117,7 +121,8 @@ void MeasurementCOPS::setConversionFactor( const std::vector<ALIstring>& wordlis
   }
 
   //--------- Check that the format is OK
-  if(wordlist.size() == 1) return; 
+  if(wordlist.size() == 1) { return; 
+}
   if( wordlist.size() != 3 
       || !ALIUtils::IsNumber(wordlist[1]) || !ALIUtils::IsNumber(wordlist[2])
       || !ALIUtils::IsNumber(wordlist[3]) || !ALIUtils::IsNumber(wordlist[4]) ) {
@@ -143,7 +148,8 @@ void MeasurementCOPS::correctValueAndSigma()
   for( ii = 0; ii < dim(); ii++) { 
     ALIdouble val = value()[ii];
     val += theDisplace[ii];
-    if(ALIUtils::debug >= 9) std::cout << "MeasurementCOPS::correctValueAndSigma: old value X " << value()[ii] << " new " << val << " +- " << std::endl;
+    if(ALIUtils::debug >= 9) { std::cout << "MeasurementCOPS::correctValueAndSigma: old value X " << value()[ii] << " new " << val << " +- " << std::endl;
+}
     setValue( ii, val );
   }
 

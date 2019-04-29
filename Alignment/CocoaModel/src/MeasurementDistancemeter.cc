@@ -26,11 +26,13 @@
 void MeasurementDistancemeter::calculateSimulatedValue( ALIbool firstTime ) 
 {
  
-  if( ALIUtils::debug >= 2) printStartCalculateSimulatedValue( this ); // important for Examples/FakeMeas
+  if( ALIUtils::debug >= 2) { printStartCalculateSimulatedValue( this ); // important for Examples/FakeMeas
+}
 
   //---------- Loop list of OptO that take part in measurement
   std::vector<OpticalObject*>::const_iterator vocite =  OptOList().begin();
-  if( ALIUtils::debug >= 5) std::cout  << "OptOList size= " <<OptOList().size() << std::endl;
+  if( ALIUtils::debug >= 5) { std::cout  << "OptOList size= " <<OptOList().size() << std::endl;
+}
 
   //----- Check that there are only two measurements that are 'distance_target' and 'distancemeter'
   ALIbool right_objects = false;
@@ -62,7 +64,8 @@ void MeasurementDistancemeter::calculateSimulatedValue( ALIbool firstTime )
 
   ALIuint isec = 0;  //security variable to check OptOList().size()
   for( vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite) {
-    if( ALIUtils::debug >= 2) std::cout << std::endl << "@@@@ LR:OBJECT " << (*vocite)->name() << std::endl;  
+    if( ALIUtils::debug >= 2) { std::cout << std::endl << "@@@@ LR:OBJECT " << (*vocite)->name() << std::endl;  
+}
     isec ++;
 
     //---------- Get the behaviour of the object w.r.t the measurement (if it reflects the light, let it traverse it, ...)
@@ -91,7 +94,8 @@ void MeasurementDistancemeter::calculateSimulatedValue( ALIbool firstTime )
     }
   }
   
-  if(ALIUtils::debug >= 5) std::cout << "end calculateSimulatedValue" <<std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << "end calculateSimulatedValue" <<std::endl;
+}
   
 }
 
@@ -104,7 +108,8 @@ void MeasurementDistancemeter::calculateSimulatedValue( ALIbool firstTime )
 void MeasurementDistancemeter::setConversionFactor( const std::vector<ALIstring>& wordlist ) 
 {
   //--------- Check that the format is OK
-  if(wordlist.size() == 1) return; 
+  if(wordlist.size() == 1) { return; 
+}
   if( wordlist.size() != 4
     || !ALIUtils::IsNumber(wordlist[1]) || !ALIUtils::IsNumber(wordlist[3]) 
     || wordlist[2] != ALIstring("+-") ){  
@@ -140,13 +145,15 @@ void MeasurementDistancemeter::correctValueAndSigma()
 {
   ALIdouble val = value()[0];
   ALIdouble sig = sigma()[0];
-  if(ALIUtils::debug >= 4) std::cout << "MeasurementDistancemeter::correctValueAndSigma: old value" << val << " +- " << sig << std::endl;
+  if(ALIUtils::debug >= 4) { std::cout << "MeasurementDistancemeter::correctValueAndSigma: old value" << val << " +- " << sig << std::endl;
+}
 
   //- std::cout << "FACTOR " << theFactor << "correct " << val << " "  << thePedestal << std::endl; 
   val *= theFactor; 
   //-------- Do not correct the sigma!!!!
   //-  sig *= theFactor; 
-  if(ALIUtils::debug >= 4) std::cout << "MeasuremenDistancemeter::correctValueAndSigma: new value " << val << " +- " << sig << std::endl;
+  if(ALIUtils::debug >= 4) { std::cout << "MeasuremenDistancemeter::correctValueAndSigma: new value " << val << " +- " << sig << std::endl;
+}
   setValue( 0, val );
   setSigma( 0, sig );
 

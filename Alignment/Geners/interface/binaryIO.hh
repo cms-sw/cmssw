@@ -73,8 +73,9 @@ namespace gs {
     {
         const unsigned long sz = v.size();
         write_pod(of, sz);
-        if (sz)
+        if (sz) {
             write_pod_array(of, v.data(), sz);
+}
     }
 
     template <typename T>
@@ -88,8 +89,9 @@ namespace gs {
             pv->resize(vlen);
             read_pod_array(in, const_cast<T*>(pv->data()), vlen);
         }
-        else
+        else {
             pv->clear();
+}
     }
 
     // Specialization of POD-based I/O functions so that they work
@@ -114,8 +116,9 @@ namespace gs {
         if (len)
         {
             assert(pod);
-            for (unsigned long i=0; i<len; ++i)
+            for (unsigned long i=0; i<len; ++i) {
                 write_string<char>(of, pod[i]);
+}
         }
     }
 
@@ -127,8 +130,9 @@ namespace gs {
         if (len)
         {
             assert(pod);
-            for (unsigned long i=0; i<len; ++i)
+            for (unsigned long i=0; i<len; ++i) {
                 read_string<char>(in, pod + i);
+}
         }
     }
 
@@ -137,8 +141,9 @@ namespace gs {
     {
         const unsigned long sz = v.size();
         write_pod(of, sz);
-        if (sz)
+        if (sz) {
             write_pod_array(of, &v[0], sz);
+}
     }
 
     template <typename T>
@@ -147,15 +152,17 @@ namespace gs {
         assert(pv);
         unsigned long vlen = 0UL;
         read_pod(in, &vlen);
-        if (in.fail()) throw IOReadFailure(
+        if (in.fail()) { throw IOReadFailure(
             "In gs::read_pod_vector: input stream failure");
+}
         if (vlen)
         {
             pv->resize(vlen);
             read_pod_array(in, &((*pv)[0]), vlen);
         }
-        else
+        else {
             pv->clear();
+}
     }
 
     // The following functions perform binary I/O on objects
@@ -205,8 +212,9 @@ namespace gs {
         {
             assert(arr);
             status = arr[0].classId().write(of);
-            for (unsigned long i=0; i<len && status; ++i)
+            for (unsigned long i=0; i<len && status; ++i) {
                 status = arr[i].write(of);
+}
         }
         return status;
     }
@@ -221,8 +229,9 @@ namespace gs {
         {
             assert(arr);
             const ClassId id(in, 1);
-            for (unsigned long i=0; i<len; ++i)
+            for (unsigned long i=0; i<len; ++i) {
                 T::restore(id, in, arr + i);
+}
         }
     }
 
@@ -272,8 +281,9 @@ namespace gs {
         const unsigned long sz = v.size();
         write_pod(of, sz);
         bool status = !of.fail();
-        if (sz && status)
+        if (sz && status) {
             status = write_obj_array(of, &v[0], sz);
+}
         return status;
     }
 
@@ -283,16 +293,18 @@ namespace gs {
     {
         unsigned long vlen = 0UL;
         read_pod(in, &vlen);
-        if (in.fail()) throw IOReadFailure(
+        if (in.fail()) { throw IOReadFailure(
             "In gs::read_placed_obj_vector: input stream failure");
+}
         assert(pv);
         if (vlen)
         {
             pv->resize(vlen);
             read_placed_obj_array(in, &(*pv)[0], vlen);
         }
-        else
+        else {
             pv->clear();
+}
     }
 
     // The following assumes that the vector contains a bunch of
@@ -303,16 +315,18 @@ namespace gs {
     {
         unsigned long vlen = 0UL;
         read_pod(in, &vlen);
-        if (in.fail()) throw IOReadFailure(
+        if (in.fail()) { throw IOReadFailure(
             "In gs::read_heap_obj_vector: input stream failure");
+}
         assert(pv);
         if (vlen)
         {
             pv->resize(vlen);
             return read_heap_obj_array(in, &(*pv)[0], vlen);
         }
-        else
+        else {
             pv->clear();
+}
     }
 
     // The following assumes that the vector contains actual objects.
@@ -326,8 +340,9 @@ namespace gs {
     {
         unsigned long vlen = 0UL;
         read_pod(in, &vlen);
-        if (in.fail()) throw IOReadFailure(
+        if (in.fail()) { throw IOReadFailure(
             "In gs::read_heap_obj_vector_as_placed: input stream failure");
+}
         assert(pv);
         pv->clear();
         if (vlen)
@@ -350,16 +365,18 @@ namespace gs {
     {
         unsigned long vlen = 0UL;
         read_pod(in, &vlen);
-        if (in.fail()) throw IOReadFailure(
+        if (in.fail()) { throw IOReadFailure(
             "In gs::read_base_obj_vector: input stream failure");
+}
         assert(pv);
         if (vlen)
         {
             pv->resize(vlen);
             read_base_obj_array(in, f, &(*pv)[0], vlen);
         }
-        else
+        else {
             pv->clear();
+}
     }
 }
 

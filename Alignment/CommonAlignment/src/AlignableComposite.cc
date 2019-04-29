@@ -33,7 +33,8 @@ AlignableComposite::AlignableComposite(align::ID id,
 //__________________________________________________________________________________________________
 AlignableComposite::~AlignableComposite()
 {
-  for (unsigned int i = 0; i < theComponents.size(); ++i) delete theComponents[i];
+  for (unsigned int i = 0; i < theComponents.size(); ++i) { delete theComponents[i];
+}
 }
 
 //__________________________________________________________________________________________________
@@ -97,7 +98,8 @@ void AlignableComposite::move( const GlobalVector& displacement )
 {
   
   // Move components
-  for (const auto& i: this->components()) i->move(displacement);
+  for (const auto& i: this->components()) { i->move(displacement);
+}
 
   // Move surface
   this->addDisplacement( displacement );
@@ -118,9 +120,10 @@ void AlignableComposite::moveComponentsLocal( const LocalVector& localDisplaceme
 void AlignableComposite::moveComponentLocal( const int i, const LocalVector& localDisplacement )
 {
 
-  if (i >= size() ) 
+  if (i >= size() ) { 
     throw cms::Exception("LogicError")
       << "AlignableComposite index (" << i << ") out of range";
+}
 
   const auto& comp = this->components();
   comp[i]->move( this->surface().toGlobal( localDisplacement ) );
@@ -187,7 +190,8 @@ void AlignableComposite::setAlignmentPositionError( const AlignmentPositionError
 
   // Since no geomDet is attached, alignable composites do not have an APE
   // The APE is, therefore, just propagated down
-  if (!propagateDown) return;
+  if (!propagateDown) { return;
+}
 
   for (const auto& i: this->components()) {
     i->setAlignmentPositionError(ape, propagateDown);
@@ -203,7 +207,8 @@ AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape
 
   // Since no geomDet is attached, alignable composites do not have an APE
   // The APE is, therefore, just propagated down
-  if (!propagateDown) return;
+  if (!propagateDown) { return;
+}
 
   for (const auto& i: this->components()) {
     i->addAlignmentPositionError(ape, propagateDown);
@@ -218,7 +223,8 @@ AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape
 void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationType& rotation,
 								bool propagateDown )
 {
-  if (!propagateDown) return;
+  if (!propagateDown) { return;
+}
 
   PositionType myPosition=this->globalPosition();
 
@@ -263,7 +269,8 @@ void AlignableComposite::setSurfaceDeformation(const SurfaceDeformation *deforma
 {
   // Only DetUnits have surface deformations.
   // The parameters are, therefore, just propagated down.
-  if (!propagateDown) return;
+  if (!propagateDown) { return;
+}
 
   for (const auto& i: this->components()) {
     i->setSurfaceDeformation(deformation, propagateDown);
@@ -276,7 +283,8 @@ void AlignableComposite::addSurfaceDeformation(const SurfaceDeformation *deforma
 {
   // Only DetUnits have surface deformations.
   // The parameters are, therefore, just propagated down.
-  if (!propagateDown) return;
+  if (!propagateDown) { return;
+}
 
   for (const auto& i: this->components()) {
     i->addSurfaceDeformation(deformation, propagateDown);
@@ -299,7 +307,8 @@ void AlignableComposite::dump( void ) const
     << this->globalRotation();
 
   // Dump components
-  for (const auto& i: comp) i->dump();
+  for (const auto& i: comp) { i->dump();
+}
 }
 
 

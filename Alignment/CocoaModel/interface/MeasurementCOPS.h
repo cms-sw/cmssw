@@ -20,7 +20,8 @@ class MeasurementCOPS : public Measurement
 public:
   MeasurementCOPS( const ALIint measdim, ALIstring& type, ALIstring& name )
 : Measurement( measdim, type, name ){
-    for(unsigned int ii=0; ii<4; ii++) theXlaserLine[ii] = -1; 
+    for(unsigned int ii=0; ii<4; ii++) { theXlaserLine[ii] = -1; 
+}
   };
   MeasurementCOPS(){ };   
   ~MeasurementCOPS() override{ };

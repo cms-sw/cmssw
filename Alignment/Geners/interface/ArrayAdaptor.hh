@@ -27,7 +27,8 @@ namespace gs {
         inline ArrayAdaptor(const T* indata, const std::size_t sz,
                             const bool writeItemClassId = true)
             : data_(indata), size_(sz), writetemCl_(writeItemClassId)
-              {if (sz) assert(data_);}
+              {if (sz) { assert(data_);
+}}
 
         inline std::size_t size() const {return size_;}
         inline const_iterator begin() const {return data_;}
@@ -39,13 +40,14 @@ namespace gs {
             {return (const_cast<T*>(data_))[index];}
         inline T& at(const std::size_t index)
         {
-            if (index >= size_) throw gs::IOOutOfRange(
+            if (index >= size_) { throw gs::IOOutOfRange(
                 "gs::ArrayAdaptor::at: index out of range");
+}
             return (const_cast<T*>(data_))[index];
         }
 
     private:
-        ArrayAdaptor();
+        ArrayAdaptor() = delete;
 
         const T* data_;
         std::size_t size_;
@@ -112,8 +114,9 @@ namespace gs {
                                    State*, bool)
         {
             const std::size_t len = a.size();
-            if (len)
+            if (len) {
                 write_pod_array(os, &a[0], len);
+}
             return !os.fail();
         }
     };
@@ -124,8 +127,9 @@ namespace gs {
         inline static bool process(ArrayAdaptor<T>& a, Stream& s, State*, bool)
         {
             const std::size_t len = a.size();
-            if (len)
+            if (len) {
                 read_pod_array(s, &a[0], len);
+}
             return !s.fail();
         }
     };
@@ -142,8 +146,9 @@ namespace gs {
                 ClassId::makeId<Container>().write(os) : true;
             if (status && !(IOTraits<T>::IsPOD && 
                             IOTraits<Container>::IsContiguous) && 
-                c.writeItemClassId())
+                c.writeItemClassId()) {
                 status = ClassId::makeId<T>().write(os);
+}
             return status;
         }
     };
@@ -165,12 +170,13 @@ namespace gs {
             }
             if (status)
             {
-                if (!(IOTraits<T>::IsPOD && IOTraits<Container>::IsContiguous))
+                if (!(IOTraits<T>::IsPOD && IOTraits<Container>::IsContiguous)) {
                     if (a.writeItemClassId())
                     {
                         ClassId id(is, 1);
                         state->push_back(id);
                     }
+}
             }
             return status;
         }
@@ -183,9 +189,11 @@ namespace gs {
 
         inline static bool process(Container& a, Stream&, State* state, bool)
         {
-            if (!(IOTraits<T>::IsPOD && IOTraits<Container>::IsContiguous))
-                if (a.writeItemClassId())
+            if (!(IOTraits<T>::IsPOD && IOTraits<Container>::IsContiguous)) {
+                if (a.writeItemClassId()) {
                     state->pop_back();
+}
+}
             return true;
         }
     };

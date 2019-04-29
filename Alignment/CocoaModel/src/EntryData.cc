@@ -19,7 +19,8 @@ EntryData::EntryData()
 
 void EntryData::fill(const std::vector<ALIstring>& wordlist )
 {
-  if (ALIUtils::debug >=4) std::cout << "Filling entry data:" << std::endl;
+  if (ALIUtils::debug >=4) { std::cout << "Filling entry data:" << std::endl;
+}
   //----------- Check there are > 10 words
   if ( wordlist.size() < 10 ) {
     //t    ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();

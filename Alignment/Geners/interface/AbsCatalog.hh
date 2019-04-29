@@ -32,7 +32,8 @@ namespace gs {
         // (for example, if items can be removed) MUST override this.
         virtual bool itemExists(const unsigned long long id) const
         {
-            if (id == 0ULL) return false;
+            if (id == 0ULL) { return false;
+}
             assert(isContiguous());
             return id >= smallestId() && id <= largestId();
         }

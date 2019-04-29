@@ -27,7 +27,8 @@ using namespace CLHEP;
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOModifiedRhomboidPrism::detailedDeviatesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "$$$$$ LR: DETAILED DEVIATION IN MODIFIED RHOMBOID PRISM " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "$$$$$ LR: DETAILED DEVIATION IN MODIFIED RHOMBOID PRISM " << name() << std::endl;
+}
 
   CLHEP::Hep3Vector XAxis(1.,0.,0.);
   CLHEP::HepRotation rmt = rmGlob();
@@ -44,7 +45,8 @@ void OptOModifiedRhomboidPrism::detailedDeviatesLightRay( LightRay& lightray )
     ALIUtils::dump3v( centreGlob(), " centre ");
   }
 
-  if (ALIUtils::debug >= 2) std::cout << "$$$ LR: REFRACTION IN FORWARD PLATE " << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "$$$ LR: REFRACTION IN FORWARD PLATE " << std::endl;
+}
   //---------- Get forward plate
   ALIPlane plate = getPlate( true, true );
   //---------- Refract in plate while entering
@@ -55,19 +57,22 @@ void OptOModifiedRhomboidPrism::detailedDeviatesLightRay( LightRay& lightray )
     lightray.dumpData("LightRay after Refraction at entering: "); 
   }
 
-  if (ALIUtils::debug >= 2) std::cout << std::endl << "$$$ LR: REFLECTION IN FIRST PLATE " << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << std::endl << "$$$ LR: REFLECTION IN FIRST PLATE " << std::endl;
+}
   //---------- Get up plate rotated
   plate = getRotatedPlate( true );
   //---------- Reflect in plate
   lightray.reflect( plate );
 
-  if (ALIUtils::debug >= 2) std::cout << std::endl << "$$$ LR: REFLECTION IN SECOND PLATE " << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << std::endl << "$$$ LR: REFLECTION IN SECOND PLATE " << std::endl;
+}
   //---------- Get up plate rotated
   plate = getRotatedPlate( false );
   //---------- Reflect in plate
   lightray.reflect( plate );
 
-  if (ALIUtils::debug >= 2) std::cout << std::endl << "$$$ LR: REFRACTION IN BACKWARD PLATE " << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << std::endl << "$$$ LR: REFRACTION IN BACKWARD PLATE " << std::endl;
+}
   //---------- Get backward plate
   plate = getPlate( false, true );
   //---------- Refract in plate while exiting
@@ -86,7 +91,8 @@ void OptOModifiedRhomboidPrism::detailedDeviatesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOModifiedRhomboidPrism::detailedTraversesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED TRAVERSE MODIFIED RHOMBOID PRISM " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: DETAILED TRAVERSE MODIFIED RHOMBOID PRISM " << name() << std::endl;
+}
 
   //---------- Get forward plate
   ALIPlane plate = getPlate(true, true);
@@ -118,7 +124,8 @@ void OptOModifiedRhomboidPrism::detailedTraversesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOModifiedRhomboidPrism::fastDeviatesLightRay( LightRay& lightray ) 
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: FAST REFLECTION IN MODIFIED RHOMBOID PRISM " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: FAST REFLECTION IN MODIFIED RHOMBOID PRISM " << name() << std::endl;
+}
 
   //---------- Get backward plate
   ALIPlane plate = getPlate(false, false);
@@ -156,7 +163,8 @@ void OptOModifiedRhomboidPrism::fastDeviatesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOModifiedRhomboidPrism::fastTraversesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: FAST TRAVERSE MODIFIED RHOMBOID PRISM " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: FAST TRAVERSE MODIFIED RHOMBOID PRISM " << name() << std::endl;
+}
   
   //---------- Get backward plate
   ALIPlane plate = getPlate(false, false);
@@ -191,7 +199,8 @@ void OptOModifiedRhomboidPrism::fastTraversesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIPlane OptOModifiedRhomboidPrism::getRotatedPlate(const ALIbool forwardPlate)
 {
-  if (ALIUtils::debug >= 4) std::cout << "% LR: GET ROTATED PLATE " << name() << std::endl;
+  if (ALIUtils::debug >= 4) { std::cout << "% LR: GET ROTATED PLATE " << name() << std::endl;
+}
   //---------- Get OptO variables
   const ALIdouble shift = (findExtraEntryValue("shiftRY"));
   ALIdouble wedgeR = findExtraEntryValue("wedgeR");
@@ -229,13 +238,15 @@ ALIPlane OptOModifiedRhomboidPrism::getRotatedPlate(const ALIbool forwardPlate)
   CLHEP::Hep3Vector XAxis(0.,0.,1.);
   XAxis = rmt*XAxis;
   plate_normal.rotate( normal_sign * wedgeR/2., XAxis );
-  if (ALIUtils::debug >= 3) ALIUtils::dump3v( plate_normal, "plate_normal after wedgeR around X ");
+  if (ALIUtils::debug >= 3) { ALIUtils::dump3v( plate_normal, "plate_normal after wedgeR around X ");
+}
   //--- Around the axis obtained rotating the prism Y axis by 'anglePlanes' around the prism X axis
   YAxis = CLHEP::Hep3Vector(0.,1.,0.);
   YAxis.rotateX( anglePlanes );
   YAxis = rmt*YAxis;
   plate_normal.rotate( normal_sign * wedgeR/2., YAxis );
-  if (ALIUtils::debug >= 3) ALIUtils::dump3v( plate_normal, "plate_normal after wedgeR around Y ");
+  if (ALIUtils::debug >= 3) { ALIUtils::dump3v( plate_normal, "plate_normal after wedgeR around Y ");
+}
 
   //---------- Return plate plane
   return ALIPlane(plate_point, plate_normal);

@@ -25,7 +25,8 @@ void SurveyAlignmentSensor::findAlignPars(bool bias)
     {
       SurveyResidual res(*ali, theLevels[l], bias);
 
-      if ( !res.valid() ) continue;
+      if ( !res.valid() ) { continue;
+}
 
       AlgebraicSymMatrix invCov = res.inverseCovariance();
 

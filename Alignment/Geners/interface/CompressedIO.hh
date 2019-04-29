@@ -39,12 +39,14 @@ namespace gs {
         const std::streampos base = os.tellp();
         write_pod(os, len);
         write_pod(os, compressionCode);
-        if (os.fail() || os.bad())
+        if (os.fail() || os.bad()) {
             return false;
+}
         const std::streampos start = os.tellp();
         cs.setSink(os);
-        if (!write_item(cs, item))
+        if (!write_item(cs, item)) {
             return false;
+}
         cs.flush();
         compressionCode = static_cast<unsigned>(cs.writeCompressed());
         const std::streampos now = os.tellp();
@@ -68,9 +70,10 @@ namespace gs {
             static_cast<CStringStream::CompressionMode>(compressionCode);
         CStringStream cs(m, -1, 1024U, 1048576U);
         cs.readCompressed(is, compressionCode, len);
-        if (!is.good())
+        if (!is.good()) {
             throw IOReadFailure("In restore_compressed_item: "
                                 "input stream failure");
+}
         restore_item(cs, item);
     }
 
@@ -85,9 +88,10 @@ namespace gs {
             static_cast<CStringStream::CompressionMode>(compressionCode);
         CStringStream cs(m, -1, 1024U, 1048576U);
         cs.readCompressed(is, compressionCode, len);
-        if (!is.good())
+        if (!is.good()) {
             throw IOReadFailure("In read_compressed_item: "
                                 "input stream failure");
+}
         return read_item<Item,std::istream>(cs);
     }
 }

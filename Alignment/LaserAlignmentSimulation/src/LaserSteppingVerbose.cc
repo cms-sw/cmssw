@@ -27,7 +27,8 @@ void LaserSteppingVerbose::StepInfo()
 
   if ( verboseLevel >= 1 )
     {
-      if ( verboseLevel >= 4 ) VerboseTrack();
+      if ( verboseLevel >= 4 ) { VerboseTrack();
+}
       if ( verboseLevel >= 3 )
 	{
 	  G4cout << G4endl;

@@ -106,7 +106,8 @@ LASEndcapAlignmentParameterSet LASEndcapAlgorithm::CalculateParameters( LASGloba
   // now calculate the sums
   det = 0; ring = 0; beam = 0; disk = 0;
   do {
-    if( ring == 1 ) continue; //################################################################################################### BOUND TO RING6
+    if( ring == 1 ) { continue; //################################################################################################### BOUND TO RING6
+}
     // current radius, depends on the ring
     const double radius = nominalCoordinates.GetTECEntry( det, ring, beam, disk ).GetR();
 

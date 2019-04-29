@@ -40,15 +40,17 @@ void SurveyPxbImage::fill(std::istringstream &iss)
       isRotated_ = rotflag;
       isValidFlag_ = true;
     }
-  else
+  else {
     isValidFlag_ = false;
+}
 }
 
 const SurveyPxbImage::coord_t SurveyPxbImage::getCoord(count_t m)
 {
-  if (m>0 && m<5)
+  if (m>0 && m<5) {
     return measurementVec_[m-1];
-  else
+  } else {
     throw std::out_of_range("Attempt to access an inexistent measurement");
+}
 }
 

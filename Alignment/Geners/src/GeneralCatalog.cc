@@ -24,16 +24,19 @@ namespace gs {
         if (namePattern.useRegex())
         {
             const Nameiter itend = m.end();
-            for (Nameiter it = m.begin(); it != itend; ++it)
-                if (namePattern.matches(it->first))
+            for (Nameiter it = m.begin(); it != itend; ++it) {
+                if (namePattern.matches(it->first)) {
                     found->push_back(it->second->id());
+}
+}
         }
         else
         {
             const std::pair<Nameiter, Nameiter> limits =
                 m.equal_range(namePattern.pattern());
-            for (Nameiter it = limits.first; it != limits.second; ++it)
+            for (Nameiter it = limits.first; it != limits.second; ++it) {
                 found->push_back(it->second->id());
+}
         }
     }
 
@@ -54,15 +57,18 @@ namespace gs {
             }
             else
             {
-                if (id < smallestId_)
+                if (id < smallestId_) {
                     smallestId_ = id;
-                if (id > largestId_)
+}
+                if (id > largestId_) {
                     largestId_ = id;
+}
             }
             return true;
         }
-        else
+        else {
             return false;
+}
     }
 
     bool GeneralCatalog::removeEntry(const unsigned long long id)
@@ -71,8 +77,9 @@ namespace gs {
         typedef NameMap::iterator Nameiter;
 
         IdMap::iterator rit = records_.find(id);
-        if (rit == records_.end())
+        if (rit == records_.end()) {
             return false;
+}
 
         const SPtr item = rit->second;
         records_.erase(rit);
@@ -82,16 +89,18 @@ namespace gs {
         assert(mit != recordMap_.end());
         const std::pair<Nameiter, Nameiter> limits =
             mit->second.equal_range(item->name());
-        for (Nameiter nit = limits.first; nit != limits.second; ++nit)
+        for (Nameiter nit = limits.first; nit != limits.second; ++nit) {
             if (nit->second->id() == id)
             {
                 mit->second.erase(nit);
                 found = true;
                 break;
             }
+}
         assert(found);
-        if (mit->second.empty())
+        if (mit->second.empty()) {
             recordMap_.erase(mit);
+}
 
         if (records_.empty())
         {
@@ -105,11 +114,13 @@ namespace gs {
             smallestId_ = it->first;
             largestId_ = it->first;
             const IdMap::const_iterator itend = records_.end();
-            for (++it; it != itend; ++it)
-                if (it->first < smallestId_)
+            for (++it; it != itend; ++it) {
+                if (it->first < smallestId_) {
                     smallestId_ = it->first;
-                else if (it->first > largestId_)
+                } else if (it->first > largestId_) {
                     largestId_ = it->first;
+}
+}
         }
         return true;
     }
@@ -141,40 +152,49 @@ namespace gs {
         const Mapiter endMap = recordMap_.end();
         if (categoryPattern.useRegex())
         {
-            for (Mapiter it = recordMap_.begin(); it != endMap; ++it)
-                if (categoryPattern.matches(it->first))
+            for (Mapiter it = recordMap_.begin(); it != endMap; ++it) {
+                if (categoryPattern.matches(it->first)) {
                     findByName(it->second, namePattern, found);
+}
+}
         }
         else
         {
             Mapiter it = recordMap_.find(categoryPattern.pattern());
-            if (it != endMap)
+            if (it != endMap) {
                 findByName(it->second, namePattern, found);
+}
         }
         std::sort(found->begin(), found->end());
     }
 
     bool GeneralCatalog::isEqual(const AbsCatalog& other) const
     {
-        if ((void*)this == (void*)(&other))
+        if ((void*)this == (void*)(&other)) {
             return true;
+}
         const GeneralCatalog& r = static_cast<const GeneralCatalog&>(other);
-        if (smallestId_ != r.smallestId_)
+        if (smallestId_ != r.smallestId_) {
             return false;
-        if (largestId_ != r.largestId_)
+}
+        if (largestId_ != r.largestId_) {
             return false;
-        if (records_.size() != r.records_.size())
+}
+        if (records_.size() != r.records_.size()) {
             return false;
+}
         IdMap::const_iterator itend = records_.end();
         IdMap::const_iterator itend2 = r.records_.end();
         for (IdMap::const_iterator it = records_.begin();
              it != itend; ++it)
         {
             IdMap::const_iterator it2 = r.records_.find(it->first);
-            if (it2 == itend2)
+            if (it2 == itend2) {
                 return false;
-            if (!(*it->second == *it2->second))
+}
+            if (!(*it->second == *it2->second)) {
                 return false;
+}
         }
         return true;
     }
@@ -212,27 +232,32 @@ namespace gs {
         const unsigned long sz = records_.size();
         long long ltmp = sz;
         write_pod(os, ltmp);
-        if (os.fail())
+        if (os.fail()) {
             return false;
-        if (!ClassId::makeId<CatalogEntry>().write(os))
+}
+        if (!ClassId::makeId<CatalogEntry>().write(os)) {
             return false;
-        if (!ClassId::makeId<ItemLocation>().write(os))
+}
+        if (!ClassId::makeId<ItemLocation>().write(os)) {
             return false;
+}
 
         // Sort item ids in the increasing order first
         std::vector<unsigned long long> idlist;
         idlist.reserve(sz);
         const IdMap::const_iterator itend = records_.end();
-        for (IdMap::const_iterator it = records_.begin(); it != itend; ++it)
+        for (IdMap::const_iterator it = records_.begin(); it != itend; ++it) {
             idlist.push_back(it->first);
+}
         std::sort(idlist.begin(), idlist.end());
 
         // Now, write the catalog records in the order of increasing ids
         for (unsigned long i=0; i<sz; ++i)
         {
             IdMap::const_iterator it = records_.find(idlist[i]);
-            if (!it->second->write(os))
+            if (!it->second->write(os)) {
                 return false;
+}
         }
 
         return true;
@@ -244,13 +269,15 @@ namespace gs {
         id.ensureSameName(current);
         id.ensureVersionInRange(1, version());
 
-        if (id.version() == 1)
+        if (id.version() == 1) {
             return read_v1(in);
+}
 
         long long nRecords;
         read_pod(in, &nRecords);
-        if (nRecords < 0)
+        if (nRecords < 0) {
             return read_v1(in);
+}
 
         ClassId rId(in, 1);
         ClassId locId(in, 1);
@@ -263,11 +290,13 @@ namespace gs {
             if (rec)
             {
                 if (!catalog->addEntry(
-                        CPP11_shared_ptr<const CatalogEntry>(rec)))
+                        CPP11_shared_ptr<const CatalogEntry>(rec))) {
                     ok = false;
+}
             }
-            else
+            else {
                 ok = false;
+}
         }
 
         if (!ok)
@@ -293,11 +322,13 @@ namespace gs {
             if (rec)
             {
                 if (!catalog->addEntry(
-                        CPP11_shared_ptr<const CatalogEntry>(rec)))
+                        CPP11_shared_ptr<const CatalogEntry>(rec))) {
                     ok = false;
+}
             }
-            else
+            else {
                 ok = false;
+}
         }
 
         if (!ok)
@@ -319,8 +350,9 @@ namespace gs {
             CatalogEntry* ptr = nullptr;
             return CPP11_shared_ptr<const CatalogEntry>(ptr);
         }
-        else
+        else {
             return it->second;
+}
     }
 
     bool GeneralCatalog::retrieveStreampos(
@@ -328,8 +360,9 @@ namespace gs {
         unsigned long long* length, std::streampos* pos) const
     {
         IdMap::const_iterator it = records_.find(id);
-        if (it == records_.end())
+        if (it == records_.end()) {
             return false;
+}
 
         assert(compressionCode);
         assert(length);

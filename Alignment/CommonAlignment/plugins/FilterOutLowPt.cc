@@ -100,7 +100,8 @@ bool FilterOutLowPt::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 	break;
       }
     }
-    if (!passesRunControl) return false;
+    if (!passesRunControl) { return false;
+}
   }
   
   trials++;
@@ -122,10 +123,12 @@ bool FilterOutLowPt::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(;itk!=itk_e;++itk){
       if( itk->quality(_trackQuality) &&
 	  (itk->pt() >= ptmin) 
-	  ) numhighpurity++;
+	  ) { numhighpurity++;
+}
     }
     fraction = numhighpurity; //(float)tkColl->size();
-    if(fraction>=thresh) accepted=true;
+    if(fraction>=thresh) { accepted=true;
+}
   }
     
   if (debugOn) {
@@ -142,18 +145,22 @@ bool FilterOutLowPt::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   unsigned int iRun = iEvent.id().run(); 
   if (eventsInRun_.count(iRun)>0){
     eventsInRun_[iRun].first+=1;
-    if(accepted) eventsInRun_[iRun].second+=1;
+    if(accepted) { eventsInRun_[iRun].second+=1;
+}
   } else {
     std::pair<int,int> mypass = std::make_pair(1,0);
-    if(accepted) mypass.second = 1;
+    if(accepted) { mypass.second = 1;
+}
     eventsInRun_[iRun]= mypass;
   }
 
   if (applyfilter){
-    if(accepted) passes++;
+    if(accepted) { passes++;
+}
     return accepted;
-  } else
+  } else {
     return true;
+}
   
 }
 
@@ -172,8 +179,9 @@ void FilterOutLowPt::endJob(){
                     
   edm::LogVerbatim("FilterOutLowPt")<<"###################################### \n"
 				    <<"# Filter Summary events accepted by run";
-  for (auto & it : eventsInRun_)			       
+  for (auto & it : eventsInRun_) {			       
     edm::LogVerbatim("FilterOutLowPt")<<"# run:" << it.first << " => events tested: " << (it.second).first << " | events passed: " << (it.second).second;  
+}
   edm::LogVerbatim("FilterOutLowPt")<<"###################################### \n";
 }
 

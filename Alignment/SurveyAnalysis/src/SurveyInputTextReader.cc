@@ -12,8 +12,9 @@ void SurveyInputTextReader::readFile( const std::string& textFileName )
 {
 
   std::ifstream myfile( textFileName.c_str() );
-  if ( !myfile.is_open() )
+  if ( !myfile.is_open() ) {
         throw cms::Exception("FileAccess") << "Unable to open input text file";
+}
 
   // FIXME: - currently defaulting to RunI as this was the previous behaviour
   //        - check this, when resurrecting this code in the future
@@ -53,7 +54,8 @@ void SurveyInputTextReader::readFile( const std::string& textFileName )
 	theMap.insert( PairType( m_uId, m_inputs));			
 			
 	// Check if read succeeded (otherwise, we are at eof)
-	if ( myfile.fail() ) break;
+	if ( myfile.fail() ) { break;
+}
 			
 
       }

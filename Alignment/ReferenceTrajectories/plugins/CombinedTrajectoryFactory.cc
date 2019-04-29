@@ -92,7 +92,8 @@ CombinedTrajectoryFactory::trajectories(const edm::EventSetup &setup,
     tmpTrajectories = ( *itFactory )->trajectories(setup, tracks, beamSpot);
     trajectories.insert(trajectories.end(), tmpTrajectories.begin(), tmpTrajectories.end());
 
-    if (!theUseAllFactories && !trajectories.empty()) break;
+    if (!theUseAllFactories && !trajectories.empty()) { break;
+}
   }
 
   return trajectories;
@@ -113,7 +114,8 @@ CombinedTrajectoryFactory::trajectories(const edm::EventSetup &setup,
     tmpTrajectories = ( *itFactory )->trajectories(setup, tracks, external, beamSpot);
     trajectories.insert(trajectories.end(), tmpTrajectories.begin(), tmpTrajectories.end());
 
-    if (!theUseAllFactories && !trajectories.empty()) break;
+    if (!theUseAllFactories && !trajectories.empty()) { break;
+}
   }
 
   return trajectories;

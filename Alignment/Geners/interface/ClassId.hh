@@ -798,7 +798,7 @@ namespace gs {
         template<class T, bool b=IOIsClassType<T>::value>
         struct TypeHasClassId
         {
-            static const bool value = 0;
+            static const bool value = false;
         };
 
         template <typename T>

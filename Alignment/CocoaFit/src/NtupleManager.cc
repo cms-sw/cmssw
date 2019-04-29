@@ -146,7 +146,8 @@ void NtupleManager::FillChi2()
   std::vector< Entry* >::iterator veite;
   for ( veite = Model::EntryList().begin();
 	veite != Model::EntryList().end(); ++veite ) {
-    if ( (*veite)->quality() == 2 ) nUnk++;
+    if ( (*veite)->quality() == 2 ) { nUnk++;
+}
     if ( (*veite)->quality() == 1 ) {
 //       std::cout << " " << (*veite)->valueDisplacementByFitting() << " " 
 // 		<< (*veite)->value << " " << (*veite)->sigma() << std::endl;
@@ -191,14 +192,17 @@ void NtupleManager::FillFitParameters(MatrixMeschach* AtWAMatrix)
      std::cout << "EEE " << (*vecite)->ValueDimensionFactor() << " " << (*vecite)->SigmaDimensionFactor() << " " << fe->getOptOName() << " " << fe->getEntryName() << " " << fe->getName() << " " << fe->getOrder() << " " << fe->getQuality() << " " << (*vecite)->type() << " " << std::endl;
       FitParamA = new( (*CloneFitParam)[ii] ) FitParam();
       FitParamA->Name = fe->getName();
-      if (fe->getQuality()==1) FitParamA->Quality = "Calibrated";
-      else if (fe->getQuality()==2) FitParamA->Quality = "Unknown";
+      if (fe->getQuality()==1) { FitParamA->Quality = "Calibrated";
+      } else if (fe->getQuality()==2) { FitParamA->Quality = "Unknown";
+}
       for (int no = 0; no<NOptObjects; no++) {
 	OptObject* optobj = (OptObject*) CloneOptObject->At(no);
-	if (optobj->Name==fe->getOptOName()) FitParamA->OptObjectIndex = no;
+	if (optobj->Name==fe->getOptOName()) { FitParamA->OptObjectIndex = no;
+}
       }
       float DF = 1.;
-      if ((*vecite)->type()=="centre" || (*vecite)->type()=="length") DF = 1000.;
+      if ((*vecite)->type()=="centre" || (*vecite)->type()=="length") { DF = 1000.;
+}
       FitParamA->InitialValue = DF*fe->getOrigValue()*(*vecite)->ValueDimensionFactor();
       FitParamA->InitialSigma = DF*fe->getOrigSigma()*(*vecite)->SigmaDimensionFactor();
       FitParamA->FittedValue  = DF*fe->getValue()*(*vecite)->ValueDimensionFactor();
@@ -291,7 +295,8 @@ void NtupleManager::FillOptObjects(MatrixMeschach* AtWAMatrix)
 
     double theta[3];
     GetGlobalAngles((*vecobj)->rmGlob(), theta);
-    for (int i = 0; i<3; i++) OptObjectA->AnglesGlobal[i] = theta[i];
+    for (int i = 0; i<3; i++) { OptObjectA->AnglesGlobal[i] = theta[i];
+}
 
     ii++;
 
@@ -315,7 +320,8 @@ void NtupleManager::FillMeasurements()
     int optoind = -999;
     for (int no = 0; no<NOptObjects; no++) {
       OptObject* optobj = (OptObject*) CloneOptObject->At(no);
-      if (optobj->Name==LastOptOName) optoind = no;
+      if (optobj->Name==LastOptOName) { optoind = no;
+}
     }
     //std::cout << "DimSens " << (*vmcite)->type() << " " << (*vmcite)->sigma(0) << " " << LastOptOName << " " << optoind << std::endl;
     if ((*vmcite)->type()=="SENSOR2D") {
@@ -382,15 +388,24 @@ void NtupleManager::FillMeasurements()
 void NtupleManager::GetGlobalAngles(const CLHEP::HepRotation& rmGlob, double *theta)
 {
 
-  double xx = rmGlob.xx(); if (fabs(xx)<1.e-08) xx = 0.;
-  double xy = rmGlob.xy(); if (fabs(xy)<1.e-08) xy = 0.;
-  double xz = rmGlob.xz(); if (fabs(xz)<1.e-08) xz = 0.;
-  double yx = rmGlob.yx(); if (fabs(yx)<1.e-08) yx = 0.;
-  double yy = rmGlob.yy(); if (fabs(yy)<1.e-08) yy = 0.;
-  double yz = rmGlob.yz(); if (fabs(yz)<1.e-08) yz = 0.;
-  double zx = rmGlob.zx(); if (fabs(zx)<1.e-08) zx = 0.;
-  double zy = rmGlob.zy(); if (fabs(zy)<1.e-08) zy = 0.;
-  double zz = rmGlob.zz(); if (fabs(zz)<1.e-08) zz = 0.;
+  double xx = rmGlob.xx(); if (fabs(xx)<1.e-08) { xx = 0.;
+}
+  double xy = rmGlob.xy(); if (fabs(xy)<1.e-08) { xy = 0.;
+}
+  double xz = rmGlob.xz(); if (fabs(xz)<1.e-08) { xz = 0.;
+}
+  double yx = rmGlob.yx(); if (fabs(yx)<1.e-08) { yx = 0.;
+}
+  double yy = rmGlob.yy(); if (fabs(yy)<1.e-08) { yy = 0.;
+}
+  double yz = rmGlob.yz(); if (fabs(yz)<1.e-08) { yz = 0.;
+}
+  double zx = rmGlob.zx(); if (fabs(zx)<1.e-08) { zx = 0.;
+}
+  double zy = rmGlob.zy(); if (fabs(zy)<1.e-08) { zy = 0.;
+}
+  double zz = rmGlob.zz(); if (fabs(zz)<1.e-08) { zz = 0.;
+}
 
   double beta = asin(-zx);
 
@@ -399,15 +414,19 @@ void NtupleManager::GetGlobalAngles(const CLHEP::HepRotation& rmGlob, double *th
   
     double sinalpha = zy/cos(beta);
     double cosalpha = zz/cos(beta);
-    if (cosalpha>=0) alpha = asin(sinalpha);
-  else alpha = M_PI - asin(sinalpha);
-  if (alpha>M_PI) alpha -= 2*M_PI;
+    if (cosalpha>=0) { alpha = asin(sinalpha);
+  } else { alpha = M_PI - asin(sinalpha);
+}
+  if (alpha>M_PI) { alpha -= 2*M_PI;
+}
   
     double singamma = yx/cos(beta);
     double cosgamma = xx/cos(beta);
-    if (cosgamma>=0) gamma = asin(singamma);
-    else gamma = M_PI - asin(singamma);
-    if (gamma>M_PI) gamma -= 2*M_PI;
+    if (cosgamma>=0) { gamma = asin(singamma);
+    } else { gamma = M_PI - asin(singamma);
+}
+    if (gamma>M_PI) { gamma -= 2*M_PI;
+}
     
   } else {
 
@@ -415,24 +434,31 @@ void NtupleManager::GetGlobalAngles(const CLHEP::HepRotation& rmGlob, double *th
     
     double singamma = yz/sin(beta);
     double cosgamma = yy;
-    if (cosgamma>=0) gamma = asin(singamma);
-    else gamma = M_PI - asin(singamma);
-    if (gamma>M_PI) gamma -= 2*M_PI;
+    if (cosgamma>=0) { gamma = asin(singamma);
+    } else { gamma = M_PI - asin(singamma);
+}
+    if (gamma>M_PI) { gamma -= 2*M_PI;
+}
 
   }
 
   int GotGlobalAngles = 0;
-  if (fabs(xy-(sin(alpha)*sin(beta)*cos(gamma)-sin(gamma)*cos(alpha)))>1.e-08)
+  if (fabs(xy-(sin(alpha)*sin(beta)*cos(gamma)-sin(gamma)*cos(alpha)))>1.e-08) {
     GotGlobalAngles += 1;
-  if (fabs(xz-(cos(alpha)*sin(beta)*cos(gamma)+sin(gamma)*sin(alpha)))>1.e-08) 
+}
+  if (fabs(xz-(cos(alpha)*sin(beta)*cos(gamma)+sin(gamma)*sin(alpha)))>1.e-08) { 
     GotGlobalAngles += 10;
-  if (fabs(yy-(sin(alpha)*sin(beta)*sin(gamma)+cos(gamma)*cos(alpha)))>1.e-08)
+}
+  if (fabs(yy-(sin(alpha)*sin(beta)*sin(gamma)+cos(gamma)*cos(alpha)))>1.e-08) {
     GotGlobalAngles += 100;
-  if (fabs(yz-(cos(alpha)*sin(beta)*sin(gamma)-cos(gamma)*sin(alpha)))>1.e-08) 
+}
+  if (fabs(yz-(cos(alpha)*sin(beta)*sin(gamma)-cos(gamma)*sin(alpha)))>1.e-08) { 
     GotGlobalAngles += 1000;
-  if (GotGlobalAngles>0) 
+}
+  if (GotGlobalAngles>0) { 
     std::cout << "NtupleManager Warning: cannot get global rotation: " 
 	      << GotGlobalAngles << std::endl;
+}
 
   theta[0] = alpha;
   theta[1] = beta;

@@ -98,12 +98,14 @@ ALIint ALIFileIn::getWordsInLine(std::vector<ALIstring>& wordlist)
   char ltemp[NMAXLIN]; //there won't be lines longer than NMAXLIN characters
   for (;;) {
     (theLineNo[theCurrentFile])++;
-    for( ii = 0; ii < NMAXLIN; ii++) ltemp[ii] = ' ';
+    for( ii = 0; ii < NMAXLIN; ii++) { ltemp[ii] = ' ';
+}
     theFiles[theCurrentFile]->getline( ltemp, NMAXLIN ); 
     //---------- Check for lines longer than NMAXLIN character
     ALIint ii;
     for ( ii=0; ii < NMAXLIN; ii++) {
-      if ( ltemp[ii] == '\0' ) break;
+      if ( ltemp[ii] == '\0' ) { break;
+}
     }
     if ( ii == NMAXLIN-1 ) {
       ErrorInLine();
@@ -139,14 +141,16 @@ ALIint ALIFileIn::getWordsInLine(std::vector<ALIstring>& wordlist)
       tt++;
     }while(*tt != '\0' && stemp.length()!=0);
     ALIstring stempt (ltemp);
-    if(stempt.length() == 0) NoWords = 0;
+    if(stempt.length() == 0) { NoWords = 0;
+}
     
     //--------- Read words from istr_line and write them into wordlist
     //    ALIint stre = 1;
     for( ii=0; ii < NoWords; ii++) {
       ALIstring stemp = "";
       istr_line >> stemp;   //?? gives warning in Insure++
-      if ( stemp.length() == 0 ) break;
+      if ( stemp.length() == 0 ) { break;
+}
       ALIint comment = stemp.find(ALIstring("//") );
       //    std::cout << "!!!COMMENT" << comment << stemp.c_str() << std::endl;
       if ( comment == 0 ) {
@@ -214,7 +218,8 @@ ALIbool ALIFileIn::eof()
   if( isok ) {
     //std::cout << " eof theCurrentFile " << theCurrentFile << std::endl;
     theCurrentFile--;
-    if( theCurrentFile != -1 ) close();  // last file will be closed by the user
+    if( theCurrentFile != -1 ) { close();  // last file will be closed by the user
+}
   }
   //only real closing if all files are closed
   //-  std::cout << " eof " << isok << " " << theCurrentFile << std::endl;

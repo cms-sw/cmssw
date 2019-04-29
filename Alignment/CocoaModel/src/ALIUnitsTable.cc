@@ -18,8 +18,10 @@ ALIUnitDefinition::ALIUnitDefinition(ALIstring name, ALIstring symbol,
   //does the Category objet already exist ?
   size_t nbCat = theUnitsTable.size();
   size_t i = 0;
-  while ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) i++;
-  if (i == nbCat) theUnitsTable.push_back( new ALIUnitsCategory(category));
+  while ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) { i++;
+}
+  if (i == nbCat) { theUnitsTable.push_back( new ALIUnitsCategory(category));
+}
   CategoryIndex = i;
   //
   //insert this Unit in the Unitstable
@@ -74,14 +76,16 @@ ALIint ALIUnitDefinition::operator!=(const ALIUnitDefinition &right) const
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 ALIdouble ALIUnitDefinition::GetValueOf(ALIstring stri)
 {
-  if(theUnitsTable.empty()) BuildUnitsTable();
+  if(theUnitsTable.empty()) { BuildUnitsTable();
+}
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { ALIUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
        for (size_t j=0;j<units.size();j++)
           { name=units[j]->GetName(); symbol=units[j]->GetSymbol();
-            if(stri==name||stri==symbol)
+            if(stri==name||stri==symbol) {
                return units[j]->GetValue();
+}
           }
      }
   std::cout << "Warning from ALIUnitDefinition::GetValueOf(" << stri << ")."
@@ -94,14 +98,16 @@ ALIdouble ALIUnitDefinition::GetValueOf(ALIstring stri)
 
 ALIstring ALIUnitDefinition::GetCategory(ALIstring stri)
 {
-  if(theUnitsTable.empty()) BuildUnitsTable();
+  if(theUnitsTable.empty()) { BuildUnitsTable();
+}
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { ALIUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
        for (size_t j=0;j<units.size();j++)
           { name=units[j]->GetName(); symbol=units[j]->GetSymbol();
-            if(stri==name||stri==symbol)
+            if(stri==name||stri==symbol) {
                return theUnitsTable[i]->GetName();
+}
           }
      }
   std::cout << "Warning from ALIUnitDefinition::GetCategory(" << stri << ")."
@@ -243,8 +249,9 @@ void ALIUnitDefinition::BuildUnitsTable()
 void ALIUnitDefinition::PrintUnitsTable()
 {
   std::cout << "\n          ----- The Table of Units ----- \n";
-  for(size_t i=0;i<theUnitsTable.size();i++)
+  for(size_t i=0;i<theUnitsTable.size();i++) {
       theUnitsTable[i]->PrintCategory();
+}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -300,8 +307,9 @@ ALIint ALIUnitsCategory::operator!=(const ALIUnitsCategory &right) const
 void ALIUnitsCategory::PrintCategory()
 {
   std::cout << "\n  category: " << Name << std::endl;
-  for(size_t i=0;i<UnitsList.size();i++)
+  for(size_t i=0;i<UnitsList.size();i++) {
       UnitsList[i]->PrintDefinition();
+}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -313,7 +321,8 @@ ALIBestUnit::ALIBestUnit(ALIdouble value,ALIstring category)
     size_t nbCat = theUnitsTable.size();
     size_t i = 0;
     while
-     ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) i++;
+     ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) { i++;
+}
     if (i == nbCat)
        { std::cout << " ALIBestUnit: the category " << category
                 << " does not exist !!" << std::endl;
@@ -335,7 +344,8 @@ ALIBestUnit::ALIBestUnit(const CLHEP::Hep3Vector& value,ALIstring category)
     size_t nbCat = theUnitsTable.size();
     size_t i = 0;
     while
-     ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) i++;
+     ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) { i++;
+}
     if (i == nbCat)
        { std::cerr << " ALIBestUnit: the category " << category
                 << " does not exist." << std::endl;
@@ -383,7 +393,9 @@ std::ostream& operator<<(std::ostream& flux, ALIBestUnit a)
 	    }
      }
 
-  ALIint index=ksup; if(index==-1) index=kinf; if(index==-1) index=0;
+  ALIint index=ksup; if(index==-1) { index=kinf; 
+}if(index==-1) { index=0;
+}
 
   for (ALIint j=0; j<a.nbOfVals; j++)
      {flux << a.Value[j]/(List[index]->GetValue()) << " ";}

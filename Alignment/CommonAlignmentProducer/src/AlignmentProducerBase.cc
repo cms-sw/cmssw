@@ -89,7 +89,8 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config) :
 //------------------------------------------------------------------------------
 AlignmentProducerBase::~AlignmentProducerBase() noexcept(false)
 {
-  for (auto& iCal: calibrations_) delete iCal;
+  for (auto& iCal: calibrations_) { delete iCal;
+}
 
   delete alignmentParameterStore_;
   delete alignableExtras_;
@@ -102,7 +103,8 @@ AlignmentProducerBase::~AlignmentProducerBase() noexcept(false)
 void
 AlignmentProducerBase::startProcessing()
 {
-  if (isDuringLoop_) return;
+  if (isDuringLoop_) { return;
+}
 
   edm::LogInfo("Alignment")
     << "@SUB=AlignmentProducerBase::startProcessing"
@@ -120,8 +122,10 @@ AlignmentProducerBase::startProcessing()
   alignmentAlgo_->startNewLoop();
 
   // FIXME: Should this be done in algorithm::startNewLoop()??
-  for (const auto& iCal: calibrations_) iCal->startNewLoop();
-  for (const auto& monitor: monitors_) monitor->startingNewLoop();
+  for (const auto& iCal: calibrations_) { iCal->startNewLoop();
+}
+  for (const auto& monitor: monitors_) { monitor->startingNewLoop();
+}
 
   applyAlignmentsToGeometry();
   isDuringLoop_ = true;
@@ -132,7 +136,8 @@ AlignmentProducerBase::startProcessing()
 void
 AlignmentProducerBase::terminateProcessing(const edm::EventSetup* setup)
 {
-  if (!isDuringLoop_) return;
+  if (!isDuringLoop_) { return;
+}
 
   edm::LogInfo("Alignment")
     << "@SUB=AlignmentProducerBase::terminateProcessing"
@@ -144,8 +149,10 @@ AlignmentProducerBase::terminateProcessing(const edm::EventSetup* setup)
   }
 
   // FIXME: Should this be done in algorithm::terminate()??
-  for (const auto& iCal:calibrations_) iCal->endOfLoop();
-  for (const auto& monitor: monitors_) monitor->endOfLoop();
+  for (const auto& iCal:calibrations_) { iCal->endOfLoop();
+}
+  for (const auto& monitor: monitors_) { monitor->endOfLoop();
+}
 
   isDuringLoop_ = false;
 }
@@ -260,7 +267,8 @@ AlignmentProducerBase::beginRunImpl(const edm::Run& run, const edm::EventSetup& 
   alignmentAlgo_->beginRun(run, setup,
                            changed && (runAtPCL_ || enableAlignableUpdates_));
 
-  for (const auto& iCal:calibrations_) iCal->beginRun(run, setup);
+  for (const auto& iCal:calibrations_) { iCal->beginRun(run, setup);
+}
 
   //store the first run analyzed to be used for setting the IOV (for PCL)
   if (firstRun_ > static_cast<cond::Time_t>(run.id().run())) {
@@ -736,12 +744,16 @@ AlignmentProducerBase::simpleMisalignment(const align::Alignables &alivec,
 
       if (std::abs(shift)>0.00001) {
         double s0 = 0., s1 = 0., s2 = 0.;
-        if (mysel[RigidBodyAlignmentParameters::dx]) s0 = shift * double(random()%1000-500)/500.;
-        if (mysel[RigidBodyAlignmentParameters::dy]) s1 = shift * double(random()%1000-500)/500.;
-        if (mysel[RigidBodyAlignmentParameters::dz]) s2 = shift * double(random()%1000-500)/500.;
+        if (mysel[RigidBodyAlignmentParameters::dx]) { s0 = shift * double(random()%1000-500)/500.;
+}
+        if (mysel[RigidBodyAlignmentParameters::dy]) { s1 = shift * double(random()%1000-500)/500.;
+}
+        if (mysel[RigidBodyAlignmentParameters::dz]) { s2 = shift * double(random()%1000-500)/500.;
+}
 
-        if (local) ali->move(ali->surface().toGlobal(align::LocalVector(s0,s1,s2)));
-        else       ali->move(align::GlobalVector(s0,s1,s2));
+        if (local) { ali->move(ali->surface().toGlobal(align::LocalVector(s0,s1,s2)));
+        } else {       ali->move(align::GlobalVector(s0,s1,s2));
+}
 
         //AlignmentPositionError ape(dx,dy,dz);
         //ali->addAlignmentPositionError(ape);
@@ -749,13 +761,17 @@ AlignmentProducerBase::simpleMisalignment(const align::Alignables &alivec,
 
       if (std::abs(rot)>0.00001) {
         align::EulerAngles r(3);
-        if (mysel[RigidBodyAlignmentParameters::dalpha]) r(1)=rot*double(random()%1000-500)/500.;
-        if (mysel[RigidBodyAlignmentParameters::dbeta])  r(2)=rot*double(random()%1000-500)/500.;
-        if (mysel[RigidBodyAlignmentParameters::dgamma]) r(3)=rot*double(random()%1000-500)/500.;
+        if (mysel[RigidBodyAlignmentParameters::dalpha]) { r(1)=rot*double(random()%1000-500)/500.;
+}
+        if (mysel[RigidBodyAlignmentParameters::dbeta]) {  r(2)=rot*double(random()%1000-500)/500.;
+}
+        if (mysel[RigidBodyAlignmentParameters::dgamma]) { r(3)=rot*double(random()%1000-500)/500.;
+}
 
         const align::RotationType mrot = align::toMatrix(r);
-        if (local) ali->rotateInLocalFrame(mrot);
-        else       ali->rotateInGlobalFrame(mrot);
+        if (local) { ali->rotateInLocalFrame(mrot);
+        } else {       ali->rotateInGlobalFrame(mrot);
+}
 
         //ali->addAlignmentPositionErrorFromRotation(mrot);
       }
@@ -868,13 +884,15 @@ AlignmentProducerBase::readInSurveyRcds(const edm::EventSetup& iSetup)
       surveyValues_ = &*dtSurveys;
       surveyErrors_ = &*dtSurveyErrors;
       const auto& barrels = alignableMuon_->DTBarrel();
-      for (const auto& barrel: barrels) addSurveyInfo(barrel);
+      for (const auto& barrel: barrels) { addSurveyInfo(barrel);
+}
 
       surveyIndex_  = 0;
       surveyValues_ = &*cscSurveys;
       surveyErrors_ = &*cscSurveyErrors;
       const auto& endcaps = alignableMuon_->CSCEndcaps();
-      for (const auto& endcap: endcaps) addSurveyInfo(endcap);
+      for (const auto& endcap: endcaps) { addSurveyInfo(endcap);
+}
 
     }
   }
@@ -888,7 +906,8 @@ AlignmentProducerBase::addSurveyInfo(Alignable* ali)
 {
   const auto& comps = ali->components();
 
-  for (const auto& comp: comps) addSurveyInfo(comp);
+  for (const auto& comp: comps) { addSurveyInfo(comp);
+}
 
   const SurveyError& error = surveyErrors_->m_surveyErrors[surveyIndex_];
 
@@ -921,14 +940,16 @@ bool
 AlignmentProducerBase::finish()
 {
 
-  for (const auto& monitor: monitors_) monitor->endOfJob();
+  for (const auto& monitor: monitors_) { monitor->endOfJob();
+}
 
   if (alignmentAlgo_->processesEvents() && nevent_ == 0) {
     return false;
   }
 
   if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_) {
-    if (alignmentAlgo_->storeAlignments()) storeAlignmentsToDB();
+    if (alignmentAlgo_->storeAlignments()) { storeAlignmentsToDB();
+}
   } else {
     edm::LogInfo("Alignment")
       << "@SUB=AlignmentProducerBase::finish"
@@ -937,7 +958,8 @@ AlignmentProducerBase::finish()
 
   // takes care of storing output of calibrations, but needs to be called only
   // after 'storeAlignmentsToDB()'
-  for (const auto& iCal:calibrations_) iCal->endOfJob();
+  for (const auto& iCal:calibrations_) { iCal->endOfJob();
+}
 
   return true;
 }

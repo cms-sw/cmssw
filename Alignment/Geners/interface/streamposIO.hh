@@ -46,8 +46,9 @@ namespace gs {
         if (len)
         {
             assert(pod);
-            for (unsigned long i=0; i<len; ++i)
+            for (unsigned long i=0; i<len; ++i) {
                 write_pod(of, pod[i]);
+}
         }
     }
 
@@ -59,8 +60,9 @@ namespace gs {
         if (len)
         {
             assert(pod);
-            for (unsigned long i=0; i<len; ++i)
+            for (unsigned long i=0; i<len; ++i) {
                 read_pod(in, pod + i);
+}
         }
     }
 }

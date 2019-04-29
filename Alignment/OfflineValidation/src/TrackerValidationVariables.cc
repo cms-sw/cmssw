@@ -72,19 +72,23 @@ void TrackerValidationVariables::fillHitQuantities(reco::Track const & track, st
     auto hb = track.recHitsBegin();
     for(unsigned int h=0;h<track.recHitsSize();h++){
       auto hit = *(hb+h);
-      if(!hit->isValid()) continue;
+      if(!hit->isValid()) { continue;
+}
 
       AVHitStruct hitStruct;
       const DetId & hit_detId = hit->geographicalId();
       auto IntRawDetID = hit_detId.rawId();
       auto IntSubDetID = hit_detId.subdetId();
 
-      if(IntSubDetID == 0) continue;
+      if(IntSubDetID == 0) { continue;
+}
 
       if (IntSubDetID == PixelSubdetector::PixelBarrel || IntSubDetID == PixelSubdetector::PixelEndcap){
 	const SiPixelRecHit* prechit = dynamic_cast<const SiPixelRecHit*>(hit);//to be used to get the associated cluster and the cluster probability      
-	if(prechit->isOnEdge())      hitStruct.isOnEdgePixel=true;
-	if(prechit->hasBadPixels())  hitStruct.isOtherBadPixel=true;
+	if(prechit->isOnEdge()) {      hitStruct.isOnEdgePixel=true;
+}
+	if(prechit->hasBadPixels()) {  hitStruct.isOtherBadPixel=true;
+}
       }
 
       auto lPTrk = trajParams[h].position();   // update state
@@ -207,25 +211,31 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
       itTraj != tmColl.end();
       ++itTraj) {
     
-    if (!itTraj->updatedState().isValid()) continue;
+    if (!itTraj->updatedState().isValid()) { continue;
+}
     
     TrajectoryStateOnSurface tsos = tsoscomb( itTraj->forwardPredictedState(), itTraj->backwardPredictedState() );
-    if(!tsos.isValid()) continue;
+    if(!tsos.isValid()) { continue;
+}
     TransientTrackingRecHit::ConstRecHitPointer hit = itTraj->recHit();
     
-    if(!hit->isValid() || hit->geographicalId().det() != DetId::Tracker) continue;
+    if(!hit->isValid() || hit->geographicalId().det() != DetId::Tracker) { continue;
+}
     
     AVHitStruct hitStruct;
     const DetId& hit_detId = hit->geographicalId();
     unsigned int IntRawDetID = (hit_detId.rawId());	
     unsigned int IntSubDetID = (hit_detId.subdetId());
     
-    if(IntSubDetID == 0) continue;
+    if(IntSubDetID == 0) { continue;
+}
 
     if (IntSubDetID == PixelSubdetector::PixelBarrel || IntSubDetID == PixelSubdetector::PixelEndcap){
       const SiPixelRecHit* prechit = dynamic_cast<const SiPixelRecHit*>(hit.get());//to be used to get the associated cluster and the cluster probability            
-      if(prechit->isOnEdge())      hitStruct.isOnEdgePixel=true;
-      if(prechit->hasBadPixels())  hitStruct.isOtherBadPixel=true;
+      if(prechit->isOnEdge()) {      hitStruct.isOnEdgePixel=true;
+}
+      if(prechit->hasBadPixels()) {  hitStruct.isOtherBadPixel=true;
+}
     }
     
     //first calculate residuals in cartesian coordinates in the local module coordinate system
@@ -347,7 +357,8 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	uOrientation = deltaPhi(gUDirection.barePhi(),gPModule.barePhi()) >= 0. ? +1.F : -1.F;
 	vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F;
 	
-	if (!dynamic_cast<const RadialStripTopology*>(&detUnit.type().topology()))continue;
+	if (!dynamic_cast<const RadialStripTopology*>(&detUnit.type().topology())) {continue;
+}
 	const RadialStripTopology& topol = dynamic_cast<const RadialStripTopology&>(detUnit.type().topology());
 	
 	MeasurementPoint measHitPos = topol.measurementPosition(lPHit);
@@ -468,7 +479,8 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
 
   edm::Handle<reco::TrackCollection> tracksH;
   event.getByToken(tracksToken_, tracksH);
-  if(!tracksH.isValid()) return;
+  if(!tracksH.isValid()) { return;
+}
   auto const & tracks = *tracksH;
   auto ntrk = tracks.size();
   LogDebug("TrackerValidationVariables") << "Track collection size " << ntrk;
@@ -478,15 +490,19 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
   event.getByToken(trajCollectionToken_, trajsH);
   bool yesTraj = trajsH.isValid();
   std::vector<Trajectory> const * trajs = nullptr;
-  if (yesTraj) trajs = &(*trajsH);
-  if (yesTraj) assert (trajs->size()==tracks.size());
+  if (yesTraj) { trajs = &(*trajsH);
+}
+  if (yesTraj) { assert (trajs->size()==tracks.size());
+}
 
   Trajectory const * trajectory =  nullptr;
   for (unsigned int i=0; i<ntrk; ++i) {
     auto const & track = tracks[i];  
-    if (yesTraj) trajectory = &(*trajs)[i];
+    if (yesTraj) { trajectory = &(*trajs)[i];
+}
     
-    if (!trackFilter(track)) continue;
+    if (!trackFilter(track)) { continue;
+}
     
     AVTrackStruct trackStruct;
     
@@ -509,9 +525,10 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
     trackStruct.dz = track.dz();
     trackStruct.numberOfValidHits = track.numberOfValidHits();
     trackStruct.numberOfLostHits = track.numberOfLostHits();
-    if (trajectory)
+    if (trajectory) {
       fillHitQuantities(trajectory, trackStruct.hits);
-    else fillHitQuantities(track, trackStruct.hits);
+    } else { fillHitQuantities(track, trackStruct.hits);
+}
     
     v_avtrackout.push_back(trackStruct);
   }

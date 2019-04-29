@@ -167,9 +167,10 @@ namespace gs {
                                 const std::size_t newSize)
             {
                 bool itemStatus = true;
-                for (std::size_t i=0; i<newSize && itemStatus; ++i)
+                for (std::size_t i=0; i<newSize && itemStatus; ++i) {
                     itemStatus = Visitor<Arg1,Arg2,T,InContainerCycle>::process(
                         obj, a1, p2, i);
+}
                 return itemStatus;
             }
 #endif
@@ -402,8 +403,9 @@ namespace gs {
                         obj, a1, p2, processClassId);
                     return bodyStatus && footerStatus;
                 }
-                else
+                else {
                     return false;
+}
             }
         };
     }
@@ -509,8 +511,9 @@ namespace gs {
                 bool itemStatus = true;
                 typename T::const_iterator end = v.end();
                 for (typename T::const_iterator it = v.begin();
-                     it != end && itemStatus; ++it)
+                     it != end && itemStatus; ++it) {
                     itemStatus = process_const_item<Visitor>(*it,a1,p2,false);
+}
                 return itemStatus;
             }
 #else
@@ -753,8 +756,9 @@ namespace gs {
                         obj, a1, p2, processClassId);
                     return bodyStatus && footerStatus;
                 }
-                else
+                else {
                     return false;
+}
             }
         };
     }

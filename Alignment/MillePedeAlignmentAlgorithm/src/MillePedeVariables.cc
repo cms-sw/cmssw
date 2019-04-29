@@ -24,7 +24,8 @@ MillePedeVariables::MillePedeVariables(unsigned int nParams, unsigned int label,
 //__________________________________________________________________________________________________
 bool MillePedeVariables::setAllDefault(unsigned int nParam)
 {
-  if (nParam >= this->size()) return false;
+  if (nParam >= this->size()) { return false;
+}
 
   myIsValid[nParam] = true;
   myDiffBefore[nParam] = -999999.;
@@ -39,7 +40,8 @@ bool MillePedeVariables::setAllDefault(unsigned int nParam)
 //__________________________________________________________________________________________________
 bool MillePedeVariables::isFixed(unsigned int nParam) const
 {
-  if (nParam >= this->size()) return false;
+  if (nParam >= this->size()) { return false;
+}
   
   return (this->preSigma()[nParam] < 0.);
 }

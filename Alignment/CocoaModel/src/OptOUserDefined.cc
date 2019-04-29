@@ -33,7 +33,8 @@ void OptOUserDefined::userDefinedBehaviour( LightRay& lightray, Measurement& mea
   }
 #endif
 
-  if(ALIUtils::debug >= 5)ALIUtils::dump3v( centreGlob(), " user Defined centre " );
+  if(ALIUtils::debug >= 5) {ALIUtils::dump3v( centreGlob(), " user Defined centre " );
+}
   //---- Object is not a basic one
   if(ExtraEntryList().empty()) {
     std::cerr << "OpticalObject: !!! EXITING at Measurement: " << meas.name() << " in OptO: "  << name() << " behaviour ':" << behav << "' is not adequate " << std::endl;

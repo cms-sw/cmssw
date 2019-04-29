@@ -17,8 +17,10 @@ CocoaUnitDefinition::CocoaUnitDefinition(const ALIstring& name, const ALIstring&
     //does the Category objet already exist ?
     size_t nbCat = theUnitsTable.size();
     size_t i = 0;
-    while ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) i++;
-    if (i == nbCat) theUnitsTable.push_back( new CocoaUnitsCategory(category));
+    while ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) { i++;
+}
+    if (i == nbCat) { theUnitsTable.push_back( new CocoaUnitsCategory(category));
+}
     CategoryIndex = i;
     //
     //insert this Unit in the Unitstable
@@ -85,14 +87,16 @@ CocoaUnitsTable& CocoaUnitDefinition::GetUnitsTable()
  
 ALIdouble CocoaUnitDefinition::GetValueOf(const ALIstring& str)
 {
-  if(theUnitsTable.empty()) BuildUnitsTable();
+  if(theUnitsTable.empty()) { BuildUnitsTable();
+}
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { CocoaUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
        for (size_t j=0;j<units.size();j++)
           { name=units[j]->GetName(); symbol=units[j]->GetSymbol();
-            if(str==name||str==symbol) 
+            if(str==name||str==symbol) { 
                return units[j]->GetValue();
+}
           }
      }
   std::cout << "Warning from CocoaUnitDefinition::GetValueOf(" << str << ")."
@@ -105,14 +109,16 @@ ALIdouble CocoaUnitDefinition::GetValueOf(const ALIstring& str)
   
 ALIstring CocoaUnitDefinition::GetCategory(const ALIstring& str)
 {
-  if(theUnitsTable.empty()) BuildUnitsTable();
+  if(theUnitsTable.empty()) { BuildUnitsTable();
+}
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { CocoaUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
        for (size_t j=0;j<units.size();j++)
           { name=units[j]->GetName(); symbol=units[j]->GetSymbol();
-            if(str==name||str==symbol) 
+            if(str==name||str==symbol) { 
                return theUnitsTable[i]->GetName();
+}
           }
      }
   std::cout << "Warning from CocoaUnitDefinition::GetCategory(" << str << ")."
@@ -312,8 +318,9 @@ ALIint CocoaUnitsCategory::operator!=(const CocoaUnitsCategory &right) const
 void CocoaUnitsCategory::PrintCategory()
 {
   std::cout << "\n  category: " << Name << std::endl;
-  for(size_t i=0;i<UnitsList.size();i++)
+  for(size_t i=0;i<UnitsList.size();i++) {
       UnitsList[i]->PrintDefinition();
+}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -322,11 +329,13 @@ CocoaBestUnit::CocoaBestUnit(ALIdouble value, const ALIstring& category)
 {
  // find the category
     CocoaUnitsTable& theUnitsTable = CocoaUnitDefinition::GetUnitsTable();
-    if( theUnitsTable.empty() ) CocoaUnitDefinition::BuildUnitsTable(); //t should be done somewhere else
+    if( theUnitsTable.empty() ) { CocoaUnitDefinition::BuildUnitsTable(); //t should be done somewhere else
+}
     size_t nbCat = theUnitsTable.size();
     size_t i = 0;
     while
-     ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) i++;
+     ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) { i++;
+}
     if (i == nbCat) 
        { std::cout << " CocoaBestUnit: the category " << category 
 		   << " does not exist !!" << nbCat << std::endl;
@@ -354,7 +363,8 @@ CocoaBestUnit::CocoaBestUnit(const CLHEP::Hep3Vector& value, const ALIstring& ca
     size_t nbCat = theUnitsTable.size();
     size_t i = 0;
     while
-     ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) i++;
+     ((i<nbCat)&&(theUnitsTable[i]->GetName()!=category)) { i++;
+}
     if (i == nbCat) 
        { std::cerr << " CocoaBestUnit: the category " << category 
                 << " does not exist." << std::endl;
@@ -401,7 +411,9 @@ std::ostream& operator<<(std::ostream& flux, CocoaBestUnit a)
 	    } 
      }
 	 
-  ALIint index=ksup; if(index==-1) index=kinf; if(index==-1) index=0;
+  ALIint index=ksup; if(index==-1) { index=kinf; 
+}if(index==-1) { index=0;
+}
   
   for (ALIint j=0; j<a.nbOfVals; j++) 
      {flux << a.Value[j]/(List[index]->GetValue()) << " ";}

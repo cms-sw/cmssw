@@ -21,7 +21,8 @@ FittedEntry::FittedEntry( Entry* entry, ALIint order, ALIdouble sigma)
   theEntry = entry;
   theOrder = order;
   theOptOName = entry->OptOCurrent()->longName();
-  if(ALIUtils::debug >= 5) std::cout << " creating FittedEntry " << theOptOName << std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << " creating FittedEntry " << theOptOName << std::endl;
+}
   theEntryName = entry->name();
   BuildName();
 
@@ -48,7 +49,8 @@ FittedEntry::FittedEntry( ALIstring name, float value, float sigma)
   ALIint pointold = 0;
   for( ;; ){
     point = name.find( ".", point+1 );
-    if( point == -1 ) break;
+    if( point == -1 ) { break;
+}
     theOptOName += "/" + name.substr( pointold, point-pointold);
     pointold = point+1;
   }
@@ -118,7 +120,8 @@ void FittedEntry::BuildName()
   ALIint slash = -1;
   for(;;){
     slash =  theName.find('/', slash+1);
-    if( slash == -1 ) break;
+    if( slash == -1 ) { break;
+}
     theName[slash] = '.';
   }
 
@@ -126,7 +129,8 @@ void FittedEntry::BuildName()
   ALIint space = theEntryName.rfind(' ');
   theName.append(".");
   ALIstring en = theEntryName;
-  if( space != -1) en[space] = '_';
+  if( space != -1) { en[space] = '_';
+}
 
   //----- Merge opto and entry names
   // now it is not used as theName   theName.append( en + ".out");

@@ -24,7 +24,8 @@ Entry::Entry( const ALIstring& type ) : type_(type), fitPos_(-1)
   //  std::cout << "entry" << std::endl;
   //---------- Set displacement by fitting to zero
   valueDisplacementByFitting_ = 0.; 
-  if( ALIUtils::debug >= 5 ) std::cout << this << " theValueDisplacementByFitting set " << valueDisplacementByFitting_ << std::endl;
+  if( ALIUtils::debug >= 5 ) { std::cout << this << " theValueDisplacementByFitting set " << valueDisplacementByFitting_ << std::endl;
+}
 }
 
 
@@ -37,7 +38,8 @@ void Entry::fill( const std::vector<ALIstring>& wordlist )
   gomgr->getGlobalOptionValue("reportOutEntriesByShortName", byshort ); 
 
   //----- Check format of input file
-  if (ALIUtils::debug >=4) std::cout << "@@@ Filling entry: " << name() << std::endl;
+  if (ALIUtils::debug >=4) { std::cout << "@@@ Filling entry: " << name() << std::endl;
+}
   //--- Check there are 4 attributes
   if ( wordlist.size() != 4 ) {
     ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
@@ -52,7 +54,8 @@ void Entry::fill( const std::vector<ALIstring>& wordlist )
   } else {
     entryData = EntryMgr::getInstance()->findEntryByShortName( OptOCurrent()->longName(), name() );
   }
-  if(ALIUtils::debug >= 5) std::cout << " entryData " << entryData << " " <<  OptOCurrent()->longName() << " " << name() << std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << " entryData " << entryData << " " <<  OptOCurrent()->longName() << " " << name() << std::endl;
+}
 
   /*t
   if( name_ == "centre_R" || name_ == "centre_PHI" || name_ == "centre_THE" ){
@@ -146,7 +149,8 @@ void Entry::fillFromInputFileSigma( const std::vector<ALIstring>& wordlist )
     ALIdouble rs;
     GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
     gomgr->getGlobalOptionValue("range_studies", rs );
-    if(rs == 1) sig *= 1.E-6;
+    if(rs == 1) { sig *= 1.E-6;
+}
 
     //-    std::cout << sig << " valuem " << wordlist[2] << std::endl;
   }
@@ -183,7 +187,8 @@ void Entry::fillFromInputFileQuality( const std::vector<ALIstring>& wordlist )
     //      std::cout << "SIG=0" << std::endl;
     quality_ = 0;
   }
-  if ( ALIUtils::debug >= 4 ) std::cout << OptOCurrent()->name() << " " << name() << " " << sigma_ << "QUALITY:" << quality_  << std::endl;
+  if ( ALIUtils::debug >= 4 ) { std::cout << OptOCurrent()->name() << " " << name() << " " << sigma_ << "QUALITY:" << quality_  << std::endl;
+}
     
   sigmaOriginalOriginal_ = sigma_;
 
@@ -203,11 +208,13 @@ void Entry::fillFromReportOutFileValue( EntryData* entryData )
    value_ *= entryMgr->getDimOutLengthVal();
    //set valueDisp as it will be used to displace entries
    entryData->setValueDisplacement( entryData->valueDisplacement() * entryMgr->getDimOutLengthVal());
-   if(ALIUtils::debug >= 5) std::cout << " fillFromReportOut " << OptOCurrent()->name() << " " << name() << "" <<  value_ << " disp " <<  entryData->valueDisplacement() * entryMgr->getDimOutLengthVal() << std::endl;
+   if(ALIUtils::debug >= 5) { std::cout << " fillFromReportOut " << OptOCurrent()->name() << " " << name() << "" <<  value_ << " disp " <<  entryData->valueDisplacement() * entryMgr->getDimOutLengthVal() << std::endl;
+}
   }else if( type_ == "angles" || type_ == "angle" ) {
     value_ *= entryMgr->getDimOutAngleVal();
     entryData->setValueDisplacement( entryData->valueDisplacement() * entryMgr->getDimOutAngleVal());
-    if(ALIUtils::debug >= 5) std::cout << " fillFromReportOut " << OptOCurrent()->name() << " " << name() << "" <<  value_ << " disp " <<  entryData->valueDisplacement() * entryMgr->getDimOutAngleVal() << std::endl;
+    if(ALIUtils::debug >= 5) { std::cout << " fillFromReportOut " << OptOCurrent()->name() << " " << name() << "" <<  value_ << " disp " <<  entryData->valueDisplacement() * entryMgr->getDimOutAngleVal() << std::endl;
+}
   }
 
   valueOriginalOriginal_ = value_;
@@ -265,7 +272,8 @@ void Entry::fillNull()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::displace( ALIdouble disp )
 {
-  if(ALIUtils::debug>=9) std::cout << "ExtraEntry::Displace" <<  disp <<std::endl;
+  if(ALIUtils::debug>=9) { std::cout << "ExtraEntry::Displace" <<  disp <<std::endl;
+}
   ALIuint entryNo = OptOCurrent()->extraEntryNo( name() );
 
   OptOCurrent()->displaceExtraEntry( entryNo, disp );
@@ -278,7 +286,8 @@ void Entry::displace( ALIdouble disp )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::displaceOriginal( ALIdouble disp )
 {
-  if(ALIUtils::debug>=9) std::cout << "ExtraEntry::DisplaceOriginal" <<  disp <<std::endl;
+  if(ALIUtils::debug>=9) { std::cout << "ExtraEntry::DisplaceOriginal" <<  disp <<std::endl;
+}
   ALIuint entryNo = OptOCurrent()->extraEntryNo( name() );
 
   OptOCurrent()->displaceExtraEntryOriginal( entryNo, disp );
@@ -291,7 +300,8 @@ void Entry::displaceOriginal( ALIdouble disp )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Entry::displaceOriginalOriginal( ALIdouble disp )
 {
-  if(ALIUtils::debug>=9) std::cout << "ExtraEntry::DisplaceOriginalOriginal" <<  disp <<std::endl;
+  if(ALIUtils::debug>=9) { std::cout << "ExtraEntry::DisplaceOriginalOriginal" <<  disp <<std::endl;
+}
   ALIuint entryNo = OptOCurrent()->extraEntryNo( name() );
 
   OptOCurrent()->displaceExtraEntryOriginalOriginal( entryNo, disp );
@@ -314,7 +324,8 @@ void Entry::addFittedDisplacementToValue( const ALIdouble val )
 {
   valueDisplacementByFitting_ += val;
   lastAdditionToValueDisplacementByFitting_ = val;
-  if( ALIUtils::debug >= 3 ) std::cout << OptOCurrent()->name() << " " << name() << " Entry::addFittedDisplacementToValue " << val << " total= " << valueDisplacementByFitting_ << std::endl;
+  if( ALIUtils::debug >= 3 ) { std::cout << OptOCurrent()->name() << " " << name() << " Entry::addFittedDisplacementToValue " << val << " total= " << valueDisplacementByFitting_ << std::endl;
+}
   
   //---------- Displace original centre, rotation matrix, ...
   displaceOriginal( val );
@@ -342,8 +353,9 @@ void Entry::substractToHalfFittedDisplacementToValue()
 ALIdouble Entry::valueDisplaced() const
 {
   ALIuint entryNo = OptOCurrent()->extraEntryNo( name() );
-  if(ALIUtils::debug >= 5) std::cout << entryNo << " Entry::valueDisplaced " << name() << " in " << OptOCurrent()->name() 
+  if(ALIUtils::debug >= 5) { std::cout << entryNo << " Entry::valueDisplaced " << name() << " in " << OptOCurrent()->name() 
        << " orig " <<  OptOCurrent()->ExtraEntryValueOriginalList()[entryNo] << " new " <<  OptOCurrent()->ExtraEntryValueList()[entryNo] << std::endl;
+}
   return OptOCurrent()->ExtraEntryValueList()[entryNo] - OptOCurrent()->ExtraEntryValueOriginalList()[entryNo];
 }
 

@@ -30,8 +30,9 @@ static void archive_stream_copy(std::istream &in, std::size_t count,
         if (!in_fail && !out_fail)
         {
             in.read(buffer, count);
-            if (!in.fail())
+            if (!in.fail()) {
                 out.write(buffer, count);
+}
         }
     }
 }
@@ -69,21 +70,25 @@ namespace gs {
                                             const char* newName,
                                             const char* newCategory)
     {
-        if (!isReadable())
+        if (!isReadable()) {
             throw gs::IOInvalidArgument("In gs::AbsArchive::copyItem: "
                                         "origin archive is not readable");
+}
         assert(destination);
-        if (this == destination)
+        if (this == destination) {
             throw gs::IOInvalidArgument("In gs::AbsArchive::copyItem: "
                          "origin and destination archives are the same");
+}
         AbsArchive& ar(*destination);
-        if (!ar.isWritable())
+        if (!ar.isWritable()) {
             throw gs::IOInvalidArgument("In gs::AbsArchive::copyItem: "
                                         "destination archive is not writable");
+}
         CPP11_shared_ptr<const CatalogEntry> entry(catalogEntry(id));
-        if (!entry)
+        if (!entry) {
             throw gs::IOInvalidArgument("In gs::AbsArchive::copyItem: no item "
                                         "in the archive with the given id");
+}
 
         // Position the input stream
         long long sz = 0;
@@ -97,21 +102,25 @@ namespace gs {
 
         // Transfer the data between the streams
         unsigned long long len;
-        if (sz >= 0)
+        if (sz >= 0) {
             len = sz;
-        else
+        } else {
             len = entry->itemLength();
+}
         archive_stream_copy(is, len, compressed);
-        if (is.fail())
+        if (is.fail()) {
             throw IOReadFailure("In gs::AbsArchive::copyItem: "
                                 "input stream failure");
-        if (compressed.fail())
+}
+        if (compressed.fail()) {
             throw IOWriteFailure("In gs::AbsArchive::copyItem: "
                                  "output stream failure");
+}
         const unsigned compressCode = ar.flushCompressedRecord(compressed);
-        if (os.fail())
+        if (os.fail()) {
             throw IOWriteFailure("In gs::AbsArchive::copyItem: "
                                  "failed to transfer compressed data");
+}
 
         // Figure out the record length. Naturally, can't have negative length.
         std::streamoff off = os.tellp() - base;
@@ -120,20 +129,23 @@ namespace gs {
 
         // We need to create a record out of the catalog entry we have found
         const char* name = newName;
-        if (!name)
+        if (!name) {
             name = entry->name().c_str();
+}
         const char* category = newCategory;
-        if (!category)
+        if (!category) {
             category = entry->category().c_str();
+}
         NotWritableRecord record(entry->type(), entry->ioPrototype().c_str(),
                                  name, category);
 
         // Add the record to the catalog
         const unsigned long long id2 = ar.addToCatalog(
             record, compressCode, delta);
-        if (id == 0ULL)
+        if (id == 0ULL) {
             throw IOWriteFailure("In gs::AbsArchive::copyItem: "
                                  "failed to add catalog entry");
+}
         ar.lastItemId_ = id2;
         ar.lastItemLength_ = delta;
         return id2;
@@ -157,9 +169,10 @@ static std::string local_error_message(gs::AbsArchive& ar,
 gs::AbsArchive& operator<<(gs::AbsArchive& ar, const gs::AbsRecord& record)
 {
     // Do not reuse records
-    if (record.id()) throw gs::IOInvalidArgument(
+    if (record.id()) { throw gs::IOInvalidArgument(
         "In operator<<(gs::AbsArchive& ar, const gs::AbsRecord& record): "
         "records can not be reused");
+}
 
     // Get the relevant streams. Do not change the order
     // of the next three lines, some code which does
@@ -171,13 +184,15 @@ gs::AbsArchive& operator<<(gs::AbsArchive& ar, const gs::AbsRecord& record)
     std::ostream& compressed = ar.compressedStream(os);
 
     // Write the data
-    if (!record.writeData(compressed))
+    if (!record.writeData(compressed)) {
         throw gs::IOWriteFailure(local_error_message(ar, record, "write data"));
+}
 
     const unsigned compressCode = ar.flushCompressedRecord(compressed);
-    if (os.fail())
+    if (os.fail()) {
         throw gs::IOWriteFailure(local_error_message(
                                      ar, record, "transfer compressed data"));
+}
 
     // Figure out the record length. Naturally, can't have negative length.
     std::streamoff off = os.tellp() - base;
@@ -186,9 +201,10 @@ gs::AbsArchive& operator<<(gs::AbsArchive& ar, const gs::AbsRecord& record)
 
     // Add the record to the catalog
     const unsigned long long id = ar.addToCatalog(record, compressCode, delta);
-    if (id == 0ULL)
+    if (id == 0ULL) {
         throw gs::IOWriteFailure(local_error_message(
                                      ar, record, "add catalog entry"));
+}
 
     // Mark record as written and give feedback about item length
     record.itemId_ = id;

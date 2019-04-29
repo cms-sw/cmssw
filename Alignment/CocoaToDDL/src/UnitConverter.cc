@@ -17,8 +17,9 @@ UnitConverter::UnitConverter(const G4BestUnit & bu)
 UnitConverter::UnitConverter(ALIdouble val, const ALIstring & category)
  : bu_(new CocoaBestUnit(val,category)), angl_(false)
 { 
-   if (category=="Angle")
+   if (category=="Angle") {
     angl_=true;
+}
 }
 
 UnitConverter::~UnitConverter()

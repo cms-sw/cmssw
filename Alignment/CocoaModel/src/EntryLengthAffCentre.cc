@@ -31,7 +31,8 @@ void EntryLengthAffCentre::FillName( const ALIstring& name )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void EntryLengthAffCentre::displace( ALIdouble disp )
 {
-  if(ALIUtils::debug>=9) std::cout << "EntryLengthAffCentre::Displace" <<  disp <<std::endl;
+  if(ALIUtils::debug>=9) { std::cout << "EntryLengthAffCentre::Displace" <<  disp <<std::endl;
+}
   ALIint namelength = name().length()-1;
   XYZcoor axisNo = XCoor;
   if ( name_[namelength] == 'X' ) {
@@ -49,7 +50,8 @@ void EntryLengthAffCentre::displace( ALIdouble disp )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void EntryLengthAffCentre::displaceOriginal( ALIdouble disp )
 {
-  if(ALIUtils::debug>=9) std::cout << "EntryLengthAffCentre::DisplaceOriginal" <<  disp <<std::endl;
+  if(ALIUtils::debug>=9) { std::cout << "EntryLengthAffCentre::DisplaceOriginal" <<  disp <<std::endl;
+}
   ALIint namelength = name().length()-1;
   if ( name_[namelength] == 'X' ) {
       OptOCurrent()->displaceCentreGlobOriginal( XCoor, disp );
@@ -64,7 +66,8 @@ void EntryLengthAffCentre::displaceOriginal( ALIdouble disp )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void EntryLengthAffCentre::displaceOriginalOriginal( ALIdouble disp )
 {
-  if(ALIUtils::debug>=9) std::cout << "EntryLengthAffCentre::DisplaceOriginalOriginal" <<  disp <<std::endl;
+  if(ALIUtils::debug>=9) { std::cout << "EntryLengthAffCentre::DisplaceOriginalOriginal" <<  disp <<std::endl;
+}
   ALIint namelength = name().length()-1;
   if ( name_[namelength] == 'X' ) {
       OptOCurrent()->displaceCentreGlobOriginalOriginal( XCoor, disp );
@@ -102,7 +105,8 @@ ALIdouble EntryLengthAffCentre::valueDisplaced() const
     return cdisp.z();
   }
 
-  if ( ALIUtils::debug >= 5 ) std::cout << name() << " in OptO " << OptOCurrent()->name() << " valueDisplaced: " << vdisp << std::endl;
+  if ( ALIUtils::debug >= 5 ) { std::cout << name() << " in OptO " << OptOCurrent()->name() << " valueDisplaced: " << vdisp << std::endl;
+}
 
   return 0.; // to avoid warning
 }

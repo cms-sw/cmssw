@@ -43,8 +43,9 @@ bool DualReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
                                         const MagneticField *magField,
                                         const reco::BeamSpot &beamSpot)
 {
-  if (materialEffects_ >= breakPoints)  throw cms::Exception("BadConfig")
+  if (materialEffects_ >= breakPoints) {  throw cms::Exception("BadConfig")
     << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects_;
+}
     
   ReferenceTrajectoryBase* fwdTraj = construct(refTsos, forwardRecHits, magField, beamSpot);
 
@@ -127,8 +128,9 @@ DualReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenceTsos
 				   const reco::BeamSpot &beamSpot,
 				   const bool revertDirection) const
 {
-  if (materialEffects_ >= breakPoints)  throw cms::Exception("BadConfig")
+  if (materialEffects_ >= breakPoints) {  throw cms::Exception("BadConfig")
     << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects_;
+}
   
   ReferenceTrajectoryBase::Config config(materialEffects_,
                                          (revertDirection ? oppositeDirection(propDir_): propDir_),

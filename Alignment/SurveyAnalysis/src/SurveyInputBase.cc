@@ -13,8 +13,9 @@ SurveyInputBase::~SurveyInputBase()
 
 void SurveyInputBase::addComponent(Alignable* comp)
 {
-  if (nullptr == theDetector)
+  if (nullptr == theDetector) {
     theDetector = comp;
-  else
+  } else {
     theDetector->addComponent(comp);
+}
 }

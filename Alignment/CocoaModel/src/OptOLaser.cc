@@ -22,7 +22,8 @@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOLaser::defaultBehaviour( LightRay& lightray, Measurement& meas )
 {
-  if(ALIUtils::debug >= 3) std::cout << "create laser lightray " << std::endl; 
+  if(ALIUtils::debug >= 3) { std::cout << "create laser lightray " << std::endl; 
+}
   lightray.startLightRay( this );
 
 }

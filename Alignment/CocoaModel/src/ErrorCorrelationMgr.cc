@@ -26,7 +26,8 @@ ErrorCorrelationMgr* ErrorCorrelationMgr::getInstance()
 //----------------------------------------------------------------------------
 void ErrorCorrelationMgr::readFromReportFile( const ALIstring& filename )
 {
-  if( ALIUtils::debug >= 4 ) std::cout << " ErrorCorrelationMgr::readFromReportFile " << std::endl;
+  if( ALIUtils::debug >= 4 ) { std::cout << " ErrorCorrelationMgr::readFromReportFile " << std::endl;
+}
   //------ Open the file
   ALIFileIn fin = ALIFileIn::getInstance( filename );
 
@@ -37,10 +38,12 @@ void ErrorCorrelationMgr::readFromReportFile( const ALIstring& filename )
   miss::iterator missite;
 
   for(;;) {
-    if( fin.getWordsInLine( wl ) == 0 ) break;
+    if( fin.getWordsInLine( wl ) == 0 ) { break;
+}
     // build the list of entries 
     if( wl[0] == "CAL:" || wl[0] == "UNK:" ) {
-      if( ALIUtils::debug >= 4 ) ALIUtils::dumpVS( wl, " ErrorCorrelationMgr: reading entry ");
+      if( ALIUtils::debug >= 4 ) { ALIUtils::dumpVS( wl, " ErrorCorrelationMgr: reading entry ");
+}
       theEntries[ALIUtils::getInt( wl[1] )] = std::pair<ALIstring,ALIstring>( wl[2], wl[3] );
     //    } else if( wl[0][0] == '(' ) {
     } else if( wl[0].substr(0,5) == "CORR:" ) {

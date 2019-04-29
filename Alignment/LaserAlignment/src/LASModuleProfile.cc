@@ -24,7 +24,8 @@ LASModuleProfile::LASModuleProfile( double theData[512] ) {
   ///
 
   Init();
-  for( unsigned int i = 0; i < 512; ++i ) data[i] = theData[i];
+  for( unsigned int i = 0; i < 512; ++i ) { data[i] = theData[i];
+}
 
 }
 
@@ -38,7 +39,8 @@ LASModuleProfile::LASModuleProfile( int theData[512] ) {
   ///
 
   Init();
-  for( unsigned int i = 0; i < 512; ++i ) data[i] = theData[i];
+  for( unsigned int i = 0; i < 512; ++i ) { data[i] = theData[i];
+}
 
 }
 
@@ -51,7 +53,8 @@ void LASModuleProfile::SetData( double theData[512] ) {
   /// fill the data storage
   ///
 
-  for( unsigned int i = 0; i < 512; ++i ) data[i] = theData[i];
+  for( unsigned int i = 0; i < 512; ++i ) { data[i] = theData[i];
+}
 
 }
 
@@ -67,7 +70,8 @@ void LASModuleProfile::SetData( int theData[512] ) {
   /// as long as data is provided in int arrays
   ///
 
-  for( unsigned int i = 0; i < 512; ++i ) data[i] = theData[i];
+  for( unsigned int i = 0; i < 512; ++i ) { data[i] = theData[i];
+}
 
 }
 
@@ -105,7 +109,8 @@ void LASModuleProfile::SetAllValuesTo( const double& theValue ) {
   ///
   ///
 
-  for( unsigned int i = 0; i < data.size(); ++i ) data.at( i ) = theValue;
+  for( unsigned int i = 0; i < data.size(); ++i ) { data.at( i ) = theValue;
+}
 
 }
 

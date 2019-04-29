@@ -26,7 +26,9 @@ ReferenceTrajectoryBase::numberOfUsedRecHits( const TransientTrackingRecHit::Con
 {
   unsigned int nUsedHits = 0;
   TransientTrackingRecHit::ConstRecHitContainer::const_iterator itHit;
-  for ( itHit = recHits.begin(); itHit != recHits.end(); ++itHit ) if ( useRecHit( *itHit ) ) ++nUsedHits;
+  for ( itHit = recHits.begin(); itHit != recHits.end(); ++itHit ) { if ( useRecHit( *itHit ) ) { ++nUsedHits;
+}
+}
   return nUsedHits;
 }
 

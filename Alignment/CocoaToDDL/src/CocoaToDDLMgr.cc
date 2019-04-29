@@ -71,11 +71,13 @@ void CocoaToDDLMgr::writeMaterials()
   newSectPre_ma("");
   auto &optolist = Model::OptOList();
   for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    if( (*ite)->type() == "system" ) continue;
+    if( (*ite)->type() == "system" ) { continue;
+}
     CocoaMaterialElementary* mat = (*ite)->getMaterial();
     //-    std::cout << " mat of opto " << (*ite)->name() << " = " << mat->getName() << std::endl;
     if( mat ) {
-      if( !materialIsRepeated( mat ) ) ma( mat );
+      if( !materialIsRepeated( mat ) ) { ma( mat );
+}
     }
   }
 
@@ -97,7 +99,8 @@ void CocoaToDDLMgr::writeSolids()
     }
 std::cout << " CocoaToDDLMgr::writeSolids() " << alreadyWritten << *ite;
 std::cout << (*ite)->name() << std::endl;
-    if( !alreadyWritten ) so( *ite );
+    if( !alreadyWritten ) { so( *ite );
+}
   }
   
   newSectPost_so("");
@@ -117,7 +120,8 @@ void CocoaToDDLMgr::writeLogicalVolumes()
 	alreadyWritten = true;
       }
     }
-    if( !alreadyWritten ) lv( *ite );
+    if( !alreadyWritten ) { lv( *ite );
+}
   }
   
   newSectPost_lv("");
@@ -131,7 +135,8 @@ void CocoaToDDLMgr::writePhysicalVolumes()
   
   auto &optolist = Model::OptOList();
   for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    if( (*ite)->type() == "system" ) continue;
+    if( (*ite)->type() == "system" ) { continue;
+}
     pv( *ite );
   }
   
@@ -162,7 +167,8 @@ void CocoaToDDLMgr::writeSpecPars()
   
   auto &optolist = Model::OptOList();
   for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    if( (*ite)->type() == "system" ) continue;
+    if( (*ite)->type() == "system" ) { continue;
+}
     specPar( *ite );
   }
   
@@ -534,7 +540,8 @@ void CocoaToDDLMgr::pv(OpticalObject * opto)
    int rotNumber = buildRotationNumber( opto );
    //CocoaDDLRotation* rot = buildRotationNotRepeated( opto );
    
-   if( rotNumber != -1 ) file_ << "  <rRotation name=\"R" << rotNumber << "\"/>" << std::endl;
+   if( rotNumber != -1 ) { file_ << "  <rRotation name=\"R" << rotNumber << "\"/>" << std::endl;
+}
 
    CLHEP::Hep3Vector t =  opto->centreLocal();
    if(t != CLHEP::Hep3Vector()) { //if (0,0,0) write nothing
@@ -694,7 +701,8 @@ void CocoaToDDLMgr::measurementsAsSpecPars()
 
   for( omite = optoMeasMap.begin(); omite != optoMeasMap.end(); ++omite ){
     omitep = optoMeasMap.equal_range( (*omite).first );
-    if( omite != optoMeasMap.begin() && (*omite).first == (*omite3).first ) continue; // check that it is not the same OptO than previous one
+    if( omite != optoMeasMap.begin() && (*omite).first == (*omite3).first ) { continue; // check that it is not the same OptO than previous one
+}
     omite3 = omite;
     for( omite2 = omitep.first; omite2 != omitep.second; ++omite2 ){
       OpticalObject* opto = (*(omite2)).first;
@@ -731,7 +739,8 @@ void CocoaToDDLMgr::writeSpecParsCocoa()
 
   auto &optolist = Model::OptOList();
   for(auto ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    if( (*ite)->type() == "system" ) continue;
+    if( (*ite)->type() == "system" ) { continue;
+}
     file_ << "    <PartSelector path=\"/" << (*ite)->name() << "\"/> " << std::endl;
   }
    
@@ -788,14 +797,15 @@ std::string CocoaToDDLMgr::scrubString(const std::string& s)
   std::string ret = "";
   for (ampat = s.begin(); ampat !=  s.end(); ++ampat)
     {
-     if (*ampat == '&')
+     if (*ampat == '&') {
        ret = ret + amp;
-     else if (*ampat == '/')
+     } else if (*ampat == '/') {
        ret = ret + ";";
-     else if (*ampat == ':')
+     } else if (*ampat == ':') {
        ret = ret + '_';
-     else
+     } else {
        ret = ret + *ampat;
+}
     }
   // this works when used alone.  when in this file it fails.  i don't know why.
   //for (ampat = s.begin(); ampat != s.end(); ampat++)
@@ -816,7 +826,8 @@ ALIint CocoaToDDLMgr::buildRotationNumber( OpticalObject* opto )
 {
   ALIint rotnum = -1;
 
-  if(opto->rmLocal().isIdentity() ) return rotnum;
+  if(opto->rmLocal().isIdentity() ) { return rotnum;
+}
 
   std::vector<CLHEP::HepRotation>::const_iterator ite;
 

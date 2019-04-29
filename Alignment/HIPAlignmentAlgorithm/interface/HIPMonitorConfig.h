@@ -36,8 +36,8 @@ public:
 
   HIPTrackMonitorVariables(int maxNEvents_=-1, int maxTracksRcd_=-1) : HIPMonitorVariables(), maxNEvents(maxNEvents_), maxTracksRcd(maxTracksRcd_), nEvents(0), nTracks(0), m_Ntracks(0){}
 
-  void bookBranches();
-  void fill();
+  void bookBranches() override;
+  void fill() override;
 
 protected:
 
@@ -81,8 +81,8 @@ public:
 
   HIPHitMonitorVariables(int maxHitsRcd_=-1) : HIPMonitorVariables(), maxHitsRcd(maxHitsRcd_), nHits(0){ resetPerHit(); }
 
-  void bookBranches();
-  void fill();
+  void bookBranches() override;
+  void fill() override;
 
 };
 

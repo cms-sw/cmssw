@@ -18,16 +18,19 @@ namespace gs {
         if (namePattern.useRegex())
         {
             const Nameiter itend = m.end();
-            for (Nameiter it = m.begin(); it != itend; ++it)
-                if (namePattern.matches(it->first))
+            for (Nameiter it = m.begin(); it != itend; ++it) {
+                if (namePattern.matches(it->first)) {
                     found->push_back(it->second);
+}
+}
         }
         else
         {
             const std::pair<Nameiter, Nameiter> limits =
                 m.equal_range(namePattern.pattern());
-            for (Nameiter it = limits.first; it != limits.second; ++it)
+            for (Nameiter it = limits.first; it != limits.second; ++it) {
                 found->push_back(it->second);
+}
         }
     }
 
@@ -60,34 +63,43 @@ namespace gs {
         const Mapiter endMap = recordMap_.end();
         if (categoryPattern.useRegex())
         {
-            for (Mapiter it = recordMap_.begin(); it != endMap; ++it)
-                if (categoryPattern.matches(it->first))
+            for (Mapiter it = recordMap_.begin(); it != endMap; ++it) {
+                if (categoryPattern.matches(it->first)) {
                     findByName(it->second, namePattern, found);
+}
+}
         }
         else
         {
             Mapiter it = recordMap_.find(categoryPattern.pattern());
-            if (it != endMap)
+            if (it != endMap) {
                 findByName(it->second, namePattern, found);
+}
         }
         std::sort(found->begin(), found->end());
     }
 
     bool ContiguousCatalog::isEqual(const AbsCatalog& other) const
     {
-        if ((void*)this == (void*)(&other))
+        if ((void*)this == (void*)(&other)) {
             return true;
+}
         const ContiguousCatalog& r = static_cast<const ContiguousCatalog&>(other);
-        if (firstId_ != r.firstId_)
+        if (firstId_ != r.firstId_) {
             return false;
-        if (recordMap_ != r.recordMap_)
+}
+        if (recordMap_ != r.recordMap_) {
             return false;
+}
         const unsigned long nRecords = records_.size();
-        if (nRecords != r.records_.size())
+        if (nRecords != r.records_.size()) {
             return false;
-        for (unsigned long i=0; i<nRecords; ++i)
-            if (*records_[i] != *r.records_[i])
+}
+        for (unsigned long i=0; i<nRecords; ++i) {
+            if (*records_[i] != *r.records_[i]) {
                 return false;
+}
+}
         return true;
     }
 
@@ -109,8 +121,9 @@ namespace gs {
         write_pod(os, nRecords);
         bool status = !os.fail() && ClassId::makeId<CatalogEntry>().write(os) &&
                                     ClassId::makeId<ItemLocation>().write(os);
-        for (unsigned long long i=0; i<sz && status; ++i)
+        for (unsigned long long i=0; i<sz && status; ++i) {
             status = records_[i]->write(os);
+}
         return status;
     }
 
@@ -121,13 +134,15 @@ namespace gs {
         cid.ensureSameName(current);
         cid.ensureVersionInRange(1, version());
 
-        if (cid.version() == 1)
+        if (cid.version() == 1) {
             return read_v1(in);
+}
 
         long long nRecords;
         read_pod(in, &nRecords);
-        if (nRecords < 0)
+        if (nRecords < 0) {
             return read_v1(in);
+}
 
         ClassId rId(in, 1);
         ClassId locId(in, 1);
@@ -161,9 +176,10 @@ namespace gs {
                 catalog->recordMap_[rec->category()].insert(
                     std::make_pair(rec->name(), id));
             }
-            else
+            else {
                 throw IOInvalidData("In gs::ContiguousCatalog::read:"
                                     " failed to read catalog entry");
+}
         }
         return catalog.release();
     }
@@ -202,9 +218,10 @@ namespace gs {
                 catalog->recordMap_[rec->category()].insert(
                     std::make_pair(rec->name(), id));
             }
-            else
+            else {
                 throw IOInvalidData("In gs::ContiguousCatalog::read_v1:"
                                     " failed to read catalog entry");
+}
         }
         return catalog.release();
     }
@@ -212,9 +229,9 @@ namespace gs {
     CPP11_shared_ptr<const CatalogEntry> ContiguousCatalog::retrieveEntry(
         const unsigned long long id) const
     {
-        if (id >= firstId_ && id < records_.size() + firstId_)
+        if (id >= firstId_ && id < records_.size() + firstId_) {
             return records_[id - firstId_];
-        else
+        } else
         {
             CatalogEntry* ptr = nullptr;
             return CPP11_shared_ptr<const CatalogEntry>(ptr);
@@ -238,7 +255,8 @@ namespace gs {
             *pos = rec->location().streamPosition();
             return true;
         }
-        else
+        else {
             return false;
+}
     }
 }
