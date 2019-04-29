@@ -116,8 +116,6 @@ class PFEGammaAlgo {
 
   //constructor
   PFEGammaAlgo(const PFEGConfigInfo&);
-  //destructor
-  ~PFEGammaAlgo(){ };
 
   void setEEtoPSAssociation(EEtoPSAssociation const& eetops) { eetops_ = &eetops; }
 
@@ -133,9 +131,6 @@ class PFEGammaAlgo {
     cfg_.primaryVtx = & primary;
   }
 
-  void RunPFEG(const pfEGHelpers::HeavyObjectCache* hoc,
-               const reco::PFBlockRef&  blockRef);
-  
   //get PFCandidate collection
   reco::PFCandidateCollection& getCandidates() {return outcands_;}
 
@@ -144,6 +139,10 @@ class PFEGammaAlgo {
   
   //get refined SCs
   reco::SuperClusterCollection& getRefinedSCs() {return refinedscs_;}
+
+  // this runs the functions below
+  void buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* hoc,
+                               const reco::PFBlockRef& block);
   
 private: 
   
@@ -177,9 +176,6 @@ private:
   std::list<ProtoEGObject> _refinableObjects;
 
   // functions:
-  // this runs the functions below
-  void buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* hoc,
-                               const reco::PFBlockRef& block);
 
   // build proto eg object using all available unflagged resources in block.
   // this will be kind of like the old 'SetLinks' but with simplified and 
@@ -258,14 +254,6 @@ private:
 
   bool isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 		      const reco::PFBlockElementGsfTrack& GsfEl);  
-  
- 
-  //std::vector<double> BDToutput_;
-  //std::vector<reco::PFCandidateElectronExtra > electronExtra_;
-  std::vector<bool> lockExtraKf_;
-  std::vector<bool> GsfTrackSingleEcal_;
-  std::vector< std::pair <unsigned int, unsigned int> > fifthStepKfTrack_;
-  std::vector< std::pair <unsigned int, unsigned int> > convGsfTrack_;
 
   PFEGConfigInfo cfg_;
 
