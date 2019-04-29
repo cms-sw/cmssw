@@ -4,7 +4,9 @@
 Run locally on lxplus
 ~~~
 #set up the work area
-export SCRAM_ARCH=slc6_amd64_gcc700
+# for lxplus with SLC7 (default since April 2019)
+export SCRAM_ARCH=slc7_amd64_gcc700
+# for SLC6 use 'slc6_amd64_gcc700' instead above
 cmsrel CMSSW_10_5_0_pre1
 cd CMSSW_10_5_0_pre1
 cmsenv
