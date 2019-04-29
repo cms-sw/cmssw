@@ -1,6 +1,9 @@
 #ifndef DataFormats_PatCandidates_HcalDepthEnergyFractions_h
 #define DataFormats_PatCandidates_HcalDepthEnergyFractions_h
 
+#include <vector>
+#include <cstdint>
+
 namespace pat{
 
   //
