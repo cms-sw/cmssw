@@ -10,13 +10,15 @@ from .TkAlStyle import TkAlStyle
 
 dirNameList=["z","r","phi"]# in general directions are labeled z=0 r =1 phi =2 throughout this, I should probably think of something more elegant
 detNameList = ("BPIX", "FPIX", "TIB", "TID", "TOB", "TEC")
-
+def subdetCondition(subdet,module,overlap):
+	if (subdet+1 == 1 and (module == 1 or overlap ==1))or (subdet+1== 2 and (module == 0 or overlap == 0))or ((subdet+1== 3 or subdet+1== 5) and (overlap != 2 or module == 1))or ((subdet+1== 4 or subdet+1== 6) and (overlap != 2 or module == 0)):
+		return True
+	else:
+		return False
 def hist(tree_file_name, hist_name,subdet_ids,module_directions,overlap_directions,profile_directions):
     f = ROOT.TFile(tree_file_name)
     t = f.Get("analysis/Overlaps")
-    
-    dimList=[[30,0,20],[60,0,20],[70,20,55],[110,20,55],[110,55,110],[280,20,110]] #Dimension of tracker in cm for each subdet [z,r1,r2]
-    h = []
+        h = []
     for subdet in range(6):#Creates a 4-D list of empty histograms for permutations of subdetector, overlap direction, module direction and profile direction.
 		h.append([])
 		for module in range(3):
@@ -24,7 +26,7 @@ def hist(tree_file_name, hist_name,subdet_ids,module_directions,overlap_directio
 			for overlap in range(3):
 				h[subdet][module].append([])
 				for profile in range(4):
-					if (subdet+1 == 1 and (module == 1 or overlap ==1))or (subdet+1== 2 and (module == 0 or overlap == 0))or ((subdet+1== 3 or subdet+1== 5) and (overlap != 2 or module == 1))or ((subdet+1== 4 or subdet+1== 6) and (overlap != 2 or module == 0)):
+					if subdetConditon(subdet,module,overlap):
                         			h[subdet][module][overlap].append(0)
 						continue
 					name = hist_name + "{0}_{1}_{2}".format(dirNameList[module],dirNameList[overlap],detNameList[subdet])
@@ -183,7 +185,7 @@ def plot(file_name,subdet_ids,module_directions,overlap_directions,profile_direc
 				hstack[subdet][module].append([])
 				legend[subdet][module].append([])
 				for profile in range(4):
-					if (subdet+1== 1 and (module == 1 or overlap ==1))or (subdet+1== 2 and (module == 0 or overlap == 0))or ((subdet+1== 3 or subdet+1== 5) and (overlap != 2 or module == 1))or ((subdet+1== 4 or subdet+1== 6) and (overlap != 2 or module == 0)):
+					if subdetCondition(subdet,module,overlap):
                         			hstack[subdet][module][overlap].append(0)
 						legend[subdet][module][overlap].append(0)
 						continue
@@ -201,7 +203,7 @@ def plot(file_name,subdet_ids,module_directions,overlap_directions,profile_direc
 		for subdet in range(6):
 			for module in range(3):
 				for overlap in range(3):
-					if (subdet+1== 1 and (module == 1 or overlap ==1))or (subdet+1== 2 and (module == 0 or overlap == 0))or ((subdet+1== 3 or subdet+1== 5) and (overlap != 2 or module == 1))or ((subdet+1== 4 or subdet+1== 6) and (overlap != 2 or module == 0)):
+					if subdetCondition(subdet,module,overlap):
 							continue
 					for profile in range(4):
 						if not((subdet_ids[subdet]) and  (module_directions[module]) and (profile_directions[profile]) and overlap_directions[overlap]):
