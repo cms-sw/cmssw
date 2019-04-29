@@ -222,9 +222,9 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
   desc.add<bool>( "doNothing", false ) // enable the module by default
     ->setComment( "disable the module" );
   desc.add<double>( "timingTrackTMin", -1000. )
-    ->setComment( "minimal track time selection for timing detectors" );
+    ->setComment( "minimal track time selection for timing detectors, in ns" );
   desc.add<double>( "timingTrackTMax", +1000. )
-    ->setComment( "maximal track time selection for timing detectors" );
+    ->setComment( "maximal track time selection for timing detectors, in ns" );
 
   desc.add<double>("pixelTrackTxMin",-10.0);
   desc.add<double>("pixelTrackTxMax", 10.0);
