@@ -22,11 +22,11 @@ SiPixelFedCablingMapGPUWrapper::SiPixelFedCablingMapGPUWrapper(SiPixelFedCabling
                                                                TrackerGeometry const& trackerGeom,
                                                                SiPixelQuality const *badPixelInfo):
   cablingMap_(&cablingMap),
-  fedMap(pixelgpudetails::MAX_SIZE), linkMap(pixelgpudetails::MAX_SIZE), rocMap(pixelgpudetails::MAX_SIZE),
-  RawId(pixelgpudetails::MAX_SIZE), rocInDet(pixelgpudetails::MAX_SIZE), moduleId(pixelgpudetails::MAX_SIZE),
-  badRocs(pixelgpudetails::MAX_SIZE), modToUnpDefault(pixelgpudetails::MAX_SIZE),
+  modToUnpDefault(pixelgpudetails::MAX_SIZE),
   hasQuality_(badPixelInfo != nullptr)
 {
+  cudaCheck(cudaMallocHost(&cablingMapHost, sizeof(SiPixelFedCablingMapGPU)));
+
   std::vector<unsigned int> const& fedIds = cablingMap.fedIds();
   std::unique_ptr<SiPixelFedCablingTree> const& cabling = cablingMap.cablingTree();
 
@@ -41,21 +41,21 @@ SiPixelFedCablingMapGPUWrapper::SiPixelFedCablingMapGPUWrapper(SiPixelFedCabling
       for (unsigned int roc = 1; roc <= pixelgpudetails::MAX_ROC; roc++) {
         path = {fed, link, roc};
         const sipixelobjects::PixelROC* pixelRoc = cabling->findItem(path);
-        fedMap[index] = fed;
-        linkMap[index] = link;
-        rocMap[index] = roc;
+        cablingMapHost->fed[index] = fed;
+        cablingMapHost->link[index] = link;
+        cablingMapHost->roc[index] = roc;
         if (pixelRoc != nullptr) {
-          RawId[index] = pixelRoc->rawId();
-          rocInDet[index] = pixelRoc->idInDetUnit();
+          cablingMapHost->RawId[index] = pixelRoc->rawId();
+          cablingMapHost->rocInDet[index] = pixelRoc->idInDetUnit();
           modToUnpDefault[index] = false;
           if (badPixelInfo != nullptr)
-            badRocs[index] = badPixelInfo->IsRocBad(pixelRoc->rawId(), pixelRoc->idInDetUnit());
+            cablingMapHost->badRocs[index] = badPixelInfo->IsRocBad(pixelRoc->rawId(), pixelRoc->idInDetUnit());
           else
-            badRocs[index] = false;
+            cablingMapHost->badRocs[index] = false;
         } else { // store some dummy number
-          RawId[index] = 9999;
-          rocInDet[index] = 9999;
-          badRocs[index] = true;
+          cablingMapHost->RawId[index] = 9999;
+          cablingMapHost->rocInDet[index] = 9999;
+          cablingMapHost->badRocs[index] = true;
           modToUnpDefault[index] = true;
         }
         index++;
@@ -72,58 +72,44 @@ SiPixelFedCablingMapGPUWrapper::SiPixelFedCablingMapGPUWrapper(SiPixelFedCabling
   // idinLnk varies between 1 to 8
 
   for (int i = 1; i < index; i++) {
-    if (RawId[i] == 9999) {
-      moduleId[i] = 9999;
+    if (cablingMapHost->RawId[i] == 9999) {
+      cablingMapHost->moduleId[i] = 9999;
     } else {
       /*
-      std::cout << RawId[i] << std::endl;
+      std::cout << cablingMapHost->RawId[i] << std::endl;
       */
-      auto gdet = trackerGeom.idToDetUnit(RawId[i]);
+      auto gdet = trackerGeom.idToDetUnit(cablingMapHost->RawId[i]);
       if (!gdet) {
-        LogDebug("SiPixelFedCablingMapGPU") << " Not found: " << RawId[i] << std::endl;
+        LogDebug("SiPixelFedCablingMapGPU") << " Not found: " << cablingMapHost->RawId[i] << std::endl;
         continue;
       }
-      moduleId[i] = gdet->index();
+      cablingMapHost->moduleId[i] = gdet->index();
     }
     LogDebug("SiPixelFedCablingMapGPU") << "----------------------------------------------------------------------------" << std::endl;
-    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << fedMap[i]  << std::setw(20) << linkMap[i]  << std::setw(20) << rocMap[i] << std::endl;
-    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << RawId[i]   << std::setw(20) << rocInDet[i] << std::setw(20) << moduleId[i] << std::endl;
-    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << (bool)badRocs[i] << std::setw(20) << std::endl;
+    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << cablingMapHost->fed[i]  << std::setw(20) << cablingMapHost->link[i]  << std::setw(20) << cablingMapHost->roc[i] << std::endl;
+    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << cablingMapHost->RawId[i]   << std::setw(20) << cablingMapHost->rocInDet[i] << std::setw(20) << cablingMapHost->moduleId[i] << std::endl;
+    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << (bool)cablingMapHost->badRocs[i] << std::setw(20) << std::endl;
     LogDebug("SiPixelFedCablingMapGPU") << "----------------------------------------------------------------------------" << std::endl;
 
   }
 
-  size = index-1;
+  cablingMapHost->size = index-1;
 }
 
 
-SiPixelFedCablingMapGPUWrapper::~SiPixelFedCablingMapGPUWrapper() {}
+SiPixelFedCablingMapGPUWrapper::~SiPixelFedCablingMapGPUWrapper() {
+  cudaCheck(cudaFreeHost(cablingMapHost));
+}
 
 
 const SiPixelFedCablingMapGPU *SiPixelFedCablingMapGPUWrapper::getGPUProductAsync(cuda::stream_t<>& cudaStream) const {
   const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cuda::stream_t<>& stream) {
       // allocate
-      cudaCheck(cudaMallocHost((void**) & data.cablingMapHost, sizeof(SiPixelFedCablingMapGPU)));
-      cudaCheck(cudaMalloc((void**) & data.cablingMapDevice, sizeof(SiPixelFedCablingMapGPU)));
-      cudaCheck(cudaMalloc((void**) & data.cablingMapHost->fed,      pixelgpudetails::MAX_SIZE_BYTE_INT));
-      cudaCheck(cudaMalloc((void**) & data.cablingMapHost->link,     pixelgpudetails::MAX_SIZE_BYTE_INT));
-      cudaCheck(cudaMalloc((void**) & data.cablingMapHost->roc,      pixelgpudetails::MAX_SIZE_BYTE_INT));
-      cudaCheck(cudaMalloc((void**) & data.cablingMapHost->RawId,    pixelgpudetails::MAX_SIZE_BYTE_INT));
-      cudaCheck(cudaMalloc((void**) & data.cablingMapHost->rocInDet, pixelgpudetails::MAX_SIZE_BYTE_INT));
-      cudaCheck(cudaMalloc((void**) & data.cablingMapHost->moduleId, pixelgpudetails::MAX_SIZE_BYTE_INT));
-      cudaCheck(cudaMalloc((void**) & data.cablingMapHost->badRocs,  pixelgpudetails::MAX_SIZE_BYTE_BOOL));
+      cudaCheck(cudaMalloc(&data.cablingMapDevice, sizeof(SiPixelFedCablingMapGPU)));
 
       // transfer
-      data.cablingMapHost->size = this->size;
-      cudaCheck(cudaMemcpyAsync(data.cablingMapHost->fed,      this->fedMap.data(),   this->fedMap.size()   * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
-      cudaCheck(cudaMemcpyAsync(data.cablingMapHost->link,     this->linkMap.data(),  this->linkMap.size()  * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
-      cudaCheck(cudaMemcpyAsync(data.cablingMapHost->roc,      this->rocMap.data(),   this->rocMap.size()   * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
-      cudaCheck(cudaMemcpyAsync(data.cablingMapHost->RawId,    this->RawId.data(),    this->RawId.size()    * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
-      cudaCheck(cudaMemcpyAsync(data.cablingMapHost->rocInDet, this->rocInDet.data(), this->rocInDet.size() * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
-      cudaCheck(cudaMemcpyAsync(data.cablingMapHost->moduleId, this->moduleId.data(), this->moduleId.size() * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
-      cudaCheck(cudaMemcpyAsync(data.cablingMapHost->badRocs,  this->badRocs.data(),  this->badRocs.size()  * sizeof(unsigned char), cudaMemcpyDefault, stream.id()));
-      cudaCheck(cudaMemcpyAsync(data.cablingMapDevice, data.cablingMapHost, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyDefault, stream.id()));
-    });
+      cudaCheck(cudaMemcpyAsync(data.cablingMapDevice, this->cablingMapHost, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyDefault, stream.id()));
+  });
   return data.cablingMapDevice;
 }
 
@@ -170,16 +156,6 @@ cudautils::device::unique_ptr<unsigned char[]> SiPixelFedCablingMapGPUWrapper::g
 
 
 SiPixelFedCablingMapGPUWrapper::GPUData::~GPUData() {
-  if(cablingMapHost != nullptr) {
-    cudaCheck(cudaFree(cablingMapHost->fed));
-    cudaCheck(cudaFree(cablingMapHost->link));
-    cudaCheck(cudaFree(cablingMapHost->roc));
-    cudaCheck(cudaFree(cablingMapHost->RawId));
-    cudaCheck(cudaFree(cablingMapHost->rocInDet));
-    cudaCheck(cudaFree(cablingMapHost->moduleId));
-    cudaCheck(cudaFree(cablingMapHost->badRocs));
-    cudaCheck(cudaFreeHost(cablingMapHost));
-  }
   cudaCheck(cudaFree(cablingMapDevice));
 }
 

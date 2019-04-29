@@ -33,21 +33,15 @@ public:
 
 private:
   const SiPixelFedCablingMap *cablingMap_;
-  std::vector<unsigned int,  CUDAHostAllocator<unsigned int>>  fedMap;
-  std::vector<unsigned int,  CUDAHostAllocator<unsigned int>>  linkMap;
-  std::vector<unsigned int,  CUDAHostAllocator<unsigned int>>  rocMap;
-  std::vector<unsigned int,  CUDAHostAllocator<unsigned int>>  RawId;
-  std::vector<unsigned int,  CUDAHostAllocator<unsigned int>>  rocInDet;
-  std::vector<unsigned int,  CUDAHostAllocator<unsigned int>>  moduleId;
-  std::vector<unsigned char, CUDAHostAllocator<unsigned char>> badRocs;
   std::vector<unsigned char, CUDAHostAllocator<unsigned char>> modToUnpDefault;
   unsigned int size;
   bool hasQuality_;
 
+  SiPixelFedCablingMapGPU *cablingMapHost = nullptr; // pointer to struct in CPU
+
   struct GPUData {
     ~GPUData();
-    SiPixelFedCablingMapGPU *cablingMapHost = nullptr;   // internal pointers are to GPU, struct itself is on CPU
-    SiPixelFedCablingMapGPU *cablingMapDevice = nullptr; // same internal pointers as above, struct itself is on GPU
+    SiPixelFedCablingMapGPU *cablingMapDevice = nullptr; // pointer to struct in GPU
   };
   CUDAESProduct<GPUData> gpuData_;
 
