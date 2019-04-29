@@ -32,7 +32,6 @@ class MonitorLTC : public DQMEDAnalyzer {
                       edm::EventSetup const &) override;
 
  private:
-  DQMStore *dqmStore_;
   edm::ParameterSet conf_;
   // trigger decision from LTC digis
   MonitorElement *LTCTriggerDecision_all;

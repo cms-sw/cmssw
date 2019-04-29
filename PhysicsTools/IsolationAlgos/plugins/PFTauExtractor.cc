@@ -4,8 +4,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -65,8 +65,8 @@ reco::IsoDeposit PFTauExtractor::depositFromObject(const edm::Event& evt, const 
 //--- check that the candidate is not associated to one of the tau decay products
 //    within the signal cone of the PFTau
 	bool isSignalCone = false;
-	for ( std::vector<reco::PFCandidatePtr>::const_iterator tauSignalConeConstituent = pfTau_matched->signalPFCands().begin();
-	      tauSignalConeConstituent != pfTau_matched->signalPFCands().end(); ++tauSignalConeConstituent ) {
+	for ( std::vector<reco::CandidatePtr>::const_iterator tauSignalConeConstituent = pfTau_matched->signalCands().begin();
+	      tauSignalConeConstituent != pfTau_matched->signalCands().end(); ++tauSignalConeConstituent ) {
 	  double dR = deltaR(candidate->momentum(), (*tauSignalConeConstituent)->momentum());
 	  if ( dR <= dRvetoPFTauSignalConeConstituents_ ) isSignalCone = true;
 	}

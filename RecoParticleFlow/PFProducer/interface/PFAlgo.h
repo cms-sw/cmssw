@@ -27,10 +27,13 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
-#include "DataFormats/Common/interface/ValueMap.h"
+#include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"
+#include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"
 
 /// \brief Particle Flow Algorithm
 /*!
@@ -42,8 +45,6 @@
 class PFEnergyCalibration;
 class PFSCEnergyCalibration;
 class PFEnergyCalibrationHF;
-class PFElectronAlgo;
-class PFPhotonAlgo;
 class PFMuonAlgo;
 
 class PFAlgo {
@@ -51,16 +52,12 @@ class PFAlgo {
  public:
 
   /// constructor
-  PFAlgo();
-
-  /// destructor
-  ~PFAlgo();
+  PFAlgo(bool debug);
 
   void setHOTag(bool ho) { useHO_ = ho;}
   void setAlgo( int algo ) {algo_ = algo;}
   void setPFMuonAlgo(PFMuonAlgo* algo) {pfmu_ =algo;}
   void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
-  void setDebug( bool debug ) {debug_ = debug; connector_.setDebug(debug_); if (pfegamma_) pfegamma_->setDebug(debug); }
 
   void setParameters(double nSigmaECAL,
                      double nSigmaHCAL, 
@@ -113,27 +110,7 @@ class PFAlgo {
 			     double sumPtTrackIsoForPhoton,
 			     double sumPtTrackIsoSlopeForPhoton);
 
-  void setEGammaParameters(bool use_EGammaFilters,
-			   std::string ele_iso_path_mvaWeightFile,
-			   double ele_iso_pt,
-			   double ele_iso_mva_barrel,
-			   double ele_iso_mva_endcap,
-			   double ele_iso_combIso_barrel,
-			   double ele_iso_combIso_endcap,
-			   double ele_noniso_mva,
-			   unsigned int ele_missinghits,
-			   double ele_ecalDrivenHademPreselCut,
-			   double ele_maxElePtForOnlyMVAPresel,
-			   bool useProtectionsForJetMET,
-			   const edm::ParameterSet& ele_protectionsForJetMET,
-			   const edm::ParameterSet& ele_protectionsForBadHcal,
-			   double ph_MinEt,
-			   double ph_combIso,
-			   double ph_HoE,
-			   double ph_sietaieta_eb,
-			   double ph_sietaieta_ee,
-			   const edm::ParameterSet& ph_protectionsForJetMET,
-			   const edm::ParameterSet& ph_protectionsForBadHcal);
+  void setEGammaParameters(bool use_EGammaFilters, bool useProtectionsForJetMET);
 
   
   void setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgammaCandidates,
@@ -179,11 +156,11 @@ class PFAlgo {
 
   /// reconstruct particles (full framework case)
   /// will keep track of the block handle to build persistent references,
-  /// and call reconstructParticles( const reco::PFBlockCollection& blocks )
-  void reconstructParticles( const reco::PFBlockHandle& blockHandle );
+  /// and call reconstructParticles( const reco::PFBlockCollection& blocks, PFEGammaFilters const* pfegamma )
+  void reconstructParticles( const reco::PFBlockHandle& blockHandle, PFEGammaFilters const* pfegamma );
 
   /// reconstruct particles 
-  void reconstructParticles( const reco::PFBlockCollection& blocks );
+  void reconstructParticles( const reco::PFBlockCollection& blocks, PFEGammaFilters const* pfegamma );
   
   /// Check HF Cleaning
   void checkCleaning( const reco::PFRecHitCollection& cleanedHF );
@@ -227,9 +204,9 @@ class PFAlgo {
     return std::move(pfCleanedCandidates_);
   }
   
-    /// \return unique_ptr to the collection of candidates (transfers ownership)
-  std::unique_ptr< reco::PFCandidateCollection> transferCandidates() {
-    return connector_.connect(pfCandidates_);
+  /// \return the collection of candidates
+  reco::PFCandidateCollection transferCandidates() {
+    return connector_.connect(*pfCandidates_);
   }
   
   /// return the pointer to the calibration function
@@ -245,7 +222,7 @@ class PFAlgo {
   /// algorithms
   void processBlock( const reco::PFBlockRef& blockref,
                              std::list<reco::PFBlockRef>& hcalBlockRefs, 
-                             std::list<reco::PFBlockRef>& ecalBlockRefs ); 
+                             std::list<reco::PFBlockRef>& ecalBlockRefs, PFEGammaFilters const* pfegamma );
   
   /// Reconstruct a charged particle from a track
   /// Returns the index of the newly created candidate in pfCandidates_
@@ -332,7 +309,7 @@ class PFAlgo {
 
   bool               useHO_;
   int                algo_;
-  bool               debug_;
+  const bool         debug_;
 
   /// Variables for PFElectrons
   std::string mvaWeightFileEleID_;
@@ -351,14 +328,13 @@ class PFAlgo {
   double sumPtTrackIsoForEgammaSC_endcap_;
   double coneTrackIsoForEgammaSC_;
   unsigned int nTrackIsoForEgammaSC_;
-  PFElectronAlgo *pfele_;
-  PFPhotonAlgo *pfpho_;
+  std::unique_ptr<PFElectronAlgo> pfele_;
+  std::unique_ptr<PFPhotonAlgo> pfpho_;
   PFMuonAlgo *pfmu_;
 
 
   /// Variables for NEW EGAMMA selection
   bool useEGammaFilters_;
-  PFEGammaFilters *pfegamma_;
   bool useProtectionsForJetMET_;
   const edm::View<reco::PFCandidate> * pfEgammaCandidates_;
   const edm::ValueMap<reco::GsfElectronRef> * valueMapGedElectrons_;

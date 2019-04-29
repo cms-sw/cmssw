@@ -14,28 +14,23 @@
 #include "G4ThreeVector.hh"
 
 class HGCalNumberingScheme {
-
 public:
-
-  HGCalNumberingScheme(const HGCalDDDConstants& hgc, 
-		       const DetId::Detector& det, const std::string& name);
+  HGCalNumberingScheme(const HGCalDDDConstants& hgc, const DetId::Detector& det, const std::string& name);
   ~HGCalNumberingScheme();
 
   /**
      @short assigns the det id to a hit
    */
-  uint32_t getUnitID(int layer, int module, int cell, int iz,
-		     const G4ThreeVector &pos, double& wt);
+  uint32_t getUnitID(int layer, int module, int cell, int iz, const G4ThreeVector& pos, double& wt);
 
 private:
-  
-  void     checkPosition(uint32_t index, const G4ThreeVector &pos) const;
+  void checkPosition(uint32_t index, const G4ThreeVector& pos) const;
 
   HGCalNumberingScheme() = delete;
-  const HGCalDDDConstants&               hgcons_;
-  const HGCalGeometryMode::GeometryMode  mode_;
-  DetId::Detector                        det_;
-  std::string                            name_;
+  const HGCalDDDConstants& hgcons_;
+  const HGCalGeometryMode::GeometryMode mode_;
+  DetId::Detector det_;
+  std::string name_;
 };
 
 #endif

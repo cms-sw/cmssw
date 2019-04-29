@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from builtins import range
 import ROOT
 import sys
 from DataFormats.FWLite import Events, Handle
@@ -39,9 +40,9 @@ for event in events:
     # use muons to make Z peak
     numMuons = len (muons)
     if muons < 2: continue
-    for outer in xrange (numMuons - 1):
+    for outer in range (numMuons - 1):
         outerMuon = muons[outer]
-        for inner in xrange (outer + 1, numMuons):
+        for inner in range (outer + 1, numMuons):
             innerMuon = muons[inner]
             if outerMuon.charge() * innerMuon.charge() >= 0:
                 continue

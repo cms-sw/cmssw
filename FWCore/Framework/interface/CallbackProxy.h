@@ -56,7 +56,7 @@ namespace edm::eventsetup {
     const void* getImpl(const EventSetupRecordImpl& iRecord, const DataKey&) override {
       assert(iRecord.key() == RecordT::keyForClass());
       record_type rec;
-      rec.setImpl(&iRecord);
+      rec.setImpl(&iRecord, callback_->transitionID(), callback_->getTokenIndices());
       (*callback_)(rec);
       return smart_pointer_traits::getPointer(data_);
     }

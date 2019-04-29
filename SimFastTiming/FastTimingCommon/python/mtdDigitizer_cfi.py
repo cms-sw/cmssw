@@ -5,6 +5,9 @@ _barrel_tile_MTDDigitizer = cms.PSet(
     inputSimHits      = cms.InputTag("g4SimHits:FastTimerHitsBarrel"),
     digiCollectionTag = cms.string("FTLBarrel"),
     maxSimHitsAccTime = cms.uint32(100),
+    premixStage1      = cms.bool(False),
+    premixStage1MinCharge = cms.double(1e-4), # These give relative precision of 1.1 %,
+    premixStage1MaxCharge = cms.double(1e6),  # can the range be squeezed?
     DeviceSimulation = cms.PSet(
         bxTime                   = cms.double(25),      # [ns] 
         LightYield               = cms.double(40000.),  # [photons/MeV]
@@ -51,6 +54,9 @@ _barrel_bar_MTDDigitizer = cms.PSet(
     inputSimHits      = cms.InputTag("g4SimHits:FastTimerHitsBarrel"),
     digiCollectionTag = cms.string("FTLBarrel"),
     maxSimHitsAccTime = cms.uint32(100),
+    premixStage1      = cms.bool(False),
+    premixStage1MinCharge = cms.double(1e-4),
+    premixStage1MaxCharge = cms.double(1e6),
     DeviceSimulation = cms.PSet(
         bxTime                   = cms.double(25),      # [ns]
         LightYield               = cms.double(40000.),  # [photons/MeV]
@@ -68,6 +74,9 @@ _endcap_MTDDigitizer = cms.PSet(
     inputSimHits      = cms.InputTag("g4SimHits:FastTimerHitsEndcap"),
     digiCollectionTag = cms.string("FTLEndcap"),
     maxSimHitsAccTime = cms.uint32(100),
+    premixStage1      = cms.bool(False),
+    premixStage1MinCharge = cms.double(1e-4),
+    premixStage1MaxCharge = cms.double(1e6),
     DeviceSimulation  = cms.PSet(
         bxTime            = cms.double(25),
         tofDelay          = cms.double(1),
@@ -88,6 +97,10 @@ _endcap_MTDDigitizer = cms.PSet(
         toaLSB_ns          = cms.double(0.013),
         )
 )
+
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+for _m in [_barrel_tile_MTDDigitizer, _barrel_bar_MTDDigitizer, _endcap_MTDDigitizer]:
+    premix_stage1.toModify(_m, premixStage1 = True)
 
 # Fast Timing
 mtdDigitizer = cms.PSet( 

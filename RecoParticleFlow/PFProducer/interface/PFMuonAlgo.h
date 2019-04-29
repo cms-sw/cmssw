@@ -17,53 +17,26 @@ class PFMuonAlgo {
  public:
 
   /// constructor
-  PFMuonAlgo();
-
-  void setParameters(const edm::ParameterSet&);
-  
-
-
-  /// destructor
-  virtual ~PFMuonAlgo() {;}
+  PFMuonAlgo(edm::ParameterSet const&);
   
   ////STATIC MUON ID METHODS
-
   static bool isMuon( const reco::PFBlockElement& elt );
-
   static bool isLooseMuon( const reco::PFBlockElement& elt );
-
   static bool isGlobalTightMuon( const reco::PFBlockElement& elt );
-
   static bool isGlobalLooseMuon( const reco::PFBlockElement& elt );
-
   static bool isTrackerTightMuon( const reco::PFBlockElement& elt );
-
   static bool isTrackerLooseMuon( const reco::PFBlockElement& elt );
-
   static bool isIsolatedMuon( const reco::PFBlockElement& elt );
-
   static bool isMuon( const reco::MuonRef& muonRef );  
-
   static bool isLooseMuon( const reco::MuonRef& muonRef );
-
   static bool isGlobalTightMuon( const reco::MuonRef& muonRef );
-
   static bool isGlobalLooseMuon( const reco::MuonRef& muonRef );
 
-
-
-
   static bool isTrackerTightMuon( const reco::MuonRef& muonRef );
-  
   static bool isTrackerLooseMuon( const reco::MuonRef& muonRef );
-  
   static bool isIsolatedMuon( const reco::MuonRef& muonRef );
-
   static bool isTightMuonPOG(const reco::MuonRef& muonRef);
-
   static void printMuonProperties( const reco::MuonRef& muonRef );
-
-
 
 
   ////POST CLEANING AND MOMEMNTUM ASSIGNMENT
@@ -156,32 +129,31 @@ class PFMuonAlgo {
 
 
   //Configurables
-  double maxDPtOPt_;
-  int minTrackerHits_;
-  int minPixelHits_;
-  reco::TrackBase::TrackQuality trackQuality_;
-  
-  double errorCompScale_;
-  double eventFractionCleaning_;
-  double sumetPU_;
-  double dzPV_;
-  bool postCleaning_;
-  double minPostCleaningPt_;
-  double eventFactorCosmics_;
-  double metSigForCleaning_;
-  double metSigForRejection_;
-  double metFactorCleaning_;
-  double eventFractionRejection_;
-  double metFactorRejection_;
-  double metFactorHighEta_;
-  double ptFactorHighEta_;
-  double metFactorFake_;
-  double minPunchThroughMomentum_;
-  double minPunchThroughEnergy_;
-  double punchThroughFactor_;
-  double punchThroughMETFactor_;
-  double cosmicRejDistance_;
+  const double maxDPtOPt_;
+  const int minTrackerHits_;
+  const int minPixelHits_;
+  const reco::TrackBase::TrackQuality trackQuality_;
+  const double errorCompScale_;
+  const double eventFractionCleaning_;
+  const double dzPV_;
+  const bool postCleaning_;
+  const double minPostCleaningPt_;
+  const double eventFactorCosmics_;
+  const double metSigForCleaning_;
+  const double metSigForRejection_;
+  const double metFactorCleaning_;
+  const double eventFractionRejection_;
+  const double metFactorRejection_;
+  const double metFactorHighEta_;
+  const double ptFactorHighEta_;
+  const double metFactorFake_;
+  const double minPunchThroughMomentum_;
+  const double minPunchThroughEnergy_;
+  const double punchThroughFactor_;
+  const double punchThroughMETFactor_;
+  const double cosmicRejDistance_;
 
+  double sumetPU_;
   double sumet_;
   double METX_;
   double METY_;

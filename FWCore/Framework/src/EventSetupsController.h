@@ -89,6 +89,7 @@ namespace edm {
          std::shared_ptr<EventSetupRecordIntervalFinder> getESSourceAndRegisterProcess(ParameterSet const& pset, unsigned subProcessIndex);
          void putESSource(ParameterSet const& pset, std::shared_ptr<EventSetupRecordIntervalFinder> const& component, unsigned subProcessIndex);
 
+         void finishConfiguration();
          void clearComponents();
 
          unsigned indexOfNextProcess() const { return providers_.size(); }

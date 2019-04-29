@@ -5,31 +5,26 @@
 CaloTopology::CaloTopology() {
 }
 
-CaloTopology::~CaloTopology() 
-{
-   for(auto & theTopologie : theTopologies_)
-   {
-      delete theTopologie.second ;
-   }
-}
+CaloTopology::~CaloTopology() = default;
+
 
 int CaloTopology::makeIndex(DetId::Detector det, int subdet) const {
   return (int(det)<<4) | (subdet&0xF);
 }
 
-void CaloTopology::setSubdetTopology(DetId::Detector det, int subdet, const CaloSubdetectorTopology* geom) {
+void CaloTopology::setSubdetTopology(DetId::Detector det, int subdet, std::unique_ptr<const CaloSubdetectorTopology> geom) {
   int index=makeIndex(det,subdet);
-  theTopologies_[index]=geom;
+  theTopologies_[index]=std::move(geom);
 }
 
 const CaloSubdetectorTopology* CaloTopology::getSubdetectorTopology(const DetId& id) const {
-  std::map<int, const CaloSubdetectorTopology*>::const_iterator i=theTopologies_.find(makeIndex(id.det(),id.subdetId()));
-  return (i==theTopologies_.end())?(nullptr):(i->second);
+  auto i=theTopologies_.find(makeIndex(id.det(),id.subdetId()));
+  return (i==theTopologies_.end())?(nullptr):(i->second.get());
 }
 
 const CaloSubdetectorTopology* CaloTopology::getSubdetectorTopology(DetId::Detector det, int subdet) const {
-    std::map<int, const CaloSubdetectorTopology*>::const_iterator i=theTopologies_.find(makeIndex(det,subdet));
-    return (i==theTopologies_.end())?(nullptr):(i->second);
+    auto i=theTopologies_.find(makeIndex(det,subdet));
+    return (i==theTopologies_.end())?(nullptr):(i->second.get());
 }
 
 static const std::vector<DetId> emptyDetIdVector;

@@ -25,7 +25,6 @@ TriggerMatchMonitor::TriggerMatchMonitor(const edm::ParameterSet& pSet) {
 
   // the services
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-  theDbe = edm::Service<DQMStore>().operator->();
   
   beamSpotToken_ = consumes<reco::BeamSpot >(parameters.getUntrackedParameter<edm::InputTag>("offlineBeamSpot")),
   primaryVerticesToken_ = consumes<std::vector<reco::Vertex> >(parameters.getUntrackedParameter<edm::InputTag>("offlinePrimaryVertices")),

@@ -192,7 +192,7 @@ namespace evf{
       throw cms::Exception("FastMonitoringService") << "EvFDaqDirector is not present";
     
     }
-    boost::filesystem::path runDirectory(edm::Service<evf::EvFDaqDirector>()->baseRunDir());
+    boost::filesystem::path runDirectory{edm::Service<evf::EvFDaqDirector>()->baseRunDir()};
     workingDirectory_ = runDirectory_ = runDirectory;
     workingDirectory_ /= "mon";
 

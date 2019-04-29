@@ -52,7 +52,7 @@ def mergeProcess(*inputFiles, **options):
     #//
     if newDQMIO:
         process.source = Source("DQMRootSource")
-        process.add_(Service("DQMStore"))
+        process.add_(Service("DQMStore", forceResetOnBeginLumi = CfgTypes.untracked.bool(True)))
     else:
         process.source = Source("PoolSource")
         if bypassVersionCheck:

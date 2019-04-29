@@ -20,11 +20,13 @@
 
 #include <boost/mpl/vector.hpp>
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 
-class MuonNumberingRecord : public edm::eventsetup::DependentRecordImplementation<MuonNumberingRecord, boost::mpl::vector<IdealGeometryRecord, CSCRecoDigiParametersRcd, CSCRecoGeometryRcd, DTRecoGeometryRcd> > {};
+class MuonNumberingRecord : public edm::eventsetup::DependentRecordImplementation<MuonNumberingRecord, boost::mpl::vector<IdealGeometryRecord, CSCRecoDigiParametersRcd, CSCRecoGeometryRcd, DTRecoGeometryRcd, DDSpecParRegistryRcd, GeometryFileRcd> > {};
 
 #endif

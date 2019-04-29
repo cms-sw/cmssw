@@ -160,21 +160,17 @@ void DDHCalTBCableAlgo::execute(DDCompactView& cpv) {
   
   for (int ii=0; ii<nsectortot; ii++) {
     double phi    = ii*2*alpha;
-    double phideg = convertRadToDeg(phi);
-    
     DDRotation rotation;
     std::string rotstr("NULL");
-    if (phideg != 0) {
-      rotstr = "R"; 
-      if (phideg < 100)	rotstr = "R0"; 
-      rotstr = rotstr + std::to_string(phideg);
+    if (phi != 0) {
+      rotstr = "R" + formatAsDegreesInInteger(phi);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
 #ifdef EDM_ML_DEBUG
 	edm::LogVerbatim("HCalGeom") << "DDHCalTBCableAlgo: Creating a new "
 				     << "rotation " << rotstr << "\t90," 
-				     << phideg << ", 90, " << (phideg+90) 
-				     << ", 0, 0";
+                                     << convertRadToDeg(phi) << ",90,"
+                                     << (90+convertRadToDeg(phi)) << ", 0, 0";
 #endif
 	rotation = DDrot(DDName(rotstr, idNameSpace), 90._deg, phi, 90._deg, 
 			 (90._deg+phi), 0,  0);

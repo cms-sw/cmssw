@@ -35,6 +35,7 @@ from __future__ import print_function
 
 ###########################################################################
 
+from builtins import range
 __version__ = "3.8.2p1" # (version jump to match release)
 __author__ = "Jeroen Hegeman (jeroen.hegeman@cern.ch)," \
              "Niklas Pietsch (niklas.pietsch@desy.de)"
@@ -1568,7 +1569,7 @@ class CMSHarvester(object):
         path = ""
         check_sizes = sorted(castor_paths_dont_touch.keys())
         len_castor_path_pieces = len(castor_path_pieces)
-        for piece_index in xrange (len_castor_path_pieces):
+        for piece_index in range (len_castor_path_pieces):
             skip_this_path_piece = False
             piece = castor_path_pieces[piece_index]
 ##            self.logger.debug("Checking CASTOR path piece `%s'" % \

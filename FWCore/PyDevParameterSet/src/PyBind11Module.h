@@ -1,5 +1,5 @@
-#ifndef FWCore_PythonParameterSet_PyBind11Module_h
-#define FWCore_PythonParameterSet_PyBind11Module_h
+#ifndef FWCore_PyDevParameterSet_PyBind11Module_h
+#define FWCore_PyDevParameterSet_PyBind11Module_h
 
 #include "FWCore/PyDevParameterSet/interface/Python11ParameterSet.h"
 #include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
@@ -32,10 +32,17 @@
 
 #include <pybind11/pybind11.h>
 
+using namespace cmspython3;
+
 PYBIND11_MODULE(libFWCorePyDevParameterSet,m) 
 {
-
-  //  pybind11::register_exception_translator<cms::Exception>(translatorlibFWCorePythonParameterSet);
+  pybind11::register_exception_translator([](std::exception_ptr p) {
+      try {
+        if (p) std::rethrow_exception(p);
+      } catch (const cms::Exception &e) {
+        PyErr_SetString(PyExc_RuntimeError, e.what());
+      }
+    });
 
   pybind11::class_<edm::InputTag>(m,"InputTag")
     .def(pybind11::init<>())

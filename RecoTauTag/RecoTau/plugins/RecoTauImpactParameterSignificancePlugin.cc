@@ -14,6 +14,7 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -52,11 +53,31 @@ void RecoTauImpactParameterSignificancePlugin::beginEvent() {
   builder_= myTransientTrackBuilder.product();
 }
 
+namespace 
+{
+  inline const reco::Track* getTrack(const Candidate& cand)
+  {
+    const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
+    if (pfCandPtr) {
+      if (pfCandPtr->trackRef().isNonnull())
+        return pfCandPtr->trackRef().get();
+      else
+        return nullptr;
+    }
+    
+    const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    if (packedCand && packedCand->hasTrackDetails())
+      return &packedCand->pseudoTrack();
+
+    return nullptr;
+  }
+}
+
 void RecoTauImpactParameterSignificancePlugin::operator()(PFTau& tau) const {
   // Get the transient lead track
-  if (tau.leadPFChargedHadrCand().isNonnull()) {
-    TrackRef leadTrack = tau.leadPFChargedHadrCand()->trackRef();
-    if (leadTrack.isNonnull()) {
+  if (tau.leadChargedHadrCand().isNonnull()) {
+    const reco::Track* leadTrack = getTrack(*tau.leadChargedHadrCand());
+    if (leadTrack != nullptr) {
       const TransientTrack track = builder_->build(leadTrack);
       GlobalVector direction(tau.jetRef()->px(), tau.jetRef()->py(),
                              tau.jetRef()->pz());

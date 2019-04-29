@@ -37,7 +37,7 @@ namespace edm {
     e.setProducer(this, &previousParentage_);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act,mcc);
-    const EventSetup c{ci};
+    const EventSetup c{ci,static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event)};
     this->produce(e, c);
     commit_(e, &previousParentageId_);
     return true;
@@ -61,7 +61,7 @@ namespace edm {
     Run r(rp, moduleDescription_, mcc, false);
     r.setConsumer(this);
     Run const& cnstR = r;
-    const EventSetup c{ci};
+    const EventSetup c{ci,static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun)};
     this->beginRun(cnstR, c);
     commit_(r);
   }
@@ -72,7 +72,7 @@ namespace edm {
     Run r(rp, moduleDescription_, mcc,true);
     r.setConsumer(this);
     Run const& cnstR = r;
-    const EventSetup c{ci};
+    const EventSetup c{ci,static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun)};
     this->endRun(cnstR, c);
     commit_(r);
   }
@@ -83,7 +83,7 @@ namespace edm {
     LuminosityBlock lb(lbp, moduleDescription_, mcc,false);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
-    const EventSetup c{ci};
+    const EventSetup c{ci,static_cast<unsigned int>(Transition::BeginLuminosityBlock), esGetTokenIndices(Transition::BeginLuminosityBlock)};
     this->beginLuminosityBlock(cnstLb, c);
     commit_(lb);
   }
@@ -93,7 +93,7 @@ namespace edm {
                                    ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc,true);
     lb.setConsumer(this);
-    const EventSetup c{ci};
+    const EventSetup c{ci,static_cast<unsigned int>(Transition::EndLuminosityBlock), esGetTokenIndices(Transition::EndLuminosityBlock)};
     LuminosityBlock const& cnstLb = lb;
     this->endLuminosityBlock(cnstLb, c);
     commit_(lb);

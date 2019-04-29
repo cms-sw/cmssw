@@ -29,12 +29,18 @@
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Transition.h"
 
+#include <vector>
 namespace edm {
+  using ESConsumesInfo = std::vector<std::tuple<edm::eventsetup::EventSetupRecordKey,
+                                     edm::eventsetup::DataKey,
+                                     std::string> >;
+  
   class ESConsumesCollector {
   public:
 
@@ -47,18 +53,27 @@ namespace edm {
     // ---------- member functions ---------------------------
     template <typename Product, typename Record>
     auto consumesFrom(ESInputTag const& tag) {
-      return ESGetToken<Product,Record>{tag};
+      using namespace edm::eventsetup;
+      ESTokenIndex index{static_cast<ESTokenIndex::Value_t>(m_consumer->size())};
+      m_consumer->emplace_back( EventSetupRecordKey::makeKey<Record>(),
+                               DataKey( DataKey::makeTypeTag<Product>(), tag.data().c_str()),
+                               tag.module());
+      //even though m_consumer may expand, the address for
+      // name().value() remains the same since it is 'moved'.
+      return ESGetToken<Product,Record>{m_transitionID, index, std::get<1>(m_consumer->back()).name().value()};
     }
 
   protected:
-    explicit ESConsumesCollector(ESProducer* const iConsumer) :
-    m_consumer{iConsumer}
+    explicit ESConsumesCollector(ESConsumesInfo* const iConsumer, unsigned int iTransitionID) :
+    m_consumer{iConsumer},
+    m_transitionID{iTransitionID}
     {}
 
   private:
 
     // ---------- member data --------------------------------
-    edm::propagate_const<ESProducer*> m_consumer{nullptr};
+    edm::propagate_const<ESConsumesInfo*> m_consumer{nullptr};
+    unsigned int m_transitionID{0};
   };
   
   template<typename RECORD>
@@ -82,8 +97,8 @@ namespace edm {
     //only ESProducer is allowed to make an instance of this class
     friend class ESProducer;
     
-    explicit ESConsumesCollectorT(ESProducer* const iConsumer) :
-    ESConsumesCollector(iConsumer)
+    explicit ESConsumesCollectorT(ESConsumesInfo* const iConsumer, unsigned int iTransitionID) :
+    ESConsumesCollector(iConsumer,iTransitionID)
     {}
     
   };

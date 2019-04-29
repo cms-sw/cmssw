@@ -5,6 +5,7 @@ from __future__ import print_function
 # this tool is based on Luca Lista's tree drawer module
 
 
+from builtins import range
 class ParticleDecayDrawer(object):
     """Draws particle decay tree """
     
@@ -21,7 +22,7 @@ class ParticleDecayDrawer(object):
          
     def _hasValidDaughters(self, candidate):
         nDaughters = candidate.numChildren()
-        for i in xrange(nDaughters):
+        for i in range(nDaughters):
             if self._select(candidate.listChildren()[i]): return True
         return False        
 
@@ -41,13 +42,13 @@ class ParticleDecayDrawer(object):
     
           validDau = 0
           nOfDaughters = candidate.numChildren()
-          for i in xrange(nOfDaughters):
+          for i in range(nOfDaughters):
               if self._accept(candidate.listChildren()[i], skipList): validDau+=1
           if validDau == 0: return out
     
           out += " ->"
     
-          for i in xrange(nOfDaughters):
+          for i in range(nOfDaughters):
               d = candidate.listChildren()[i]
               if self._accept(d, skipList):
                   decString = self._decay(d, skipList)
@@ -65,7 +66,7 @@ class ParticleDecayDrawer(object):
                 if self._select(particle):
                     skipList.append(particle)
                     nodesList.append(particle)
-                    for j in xrange(particle.numParents()):
+                    for j in range(particle.numParents()):
                         mom = particle.listParents()[j]
                         while (mom.mother()):# != None ):
                             mom = mom.mother()
@@ -75,7 +76,7 @@ class ParticleDecayDrawer(object):
         print("-- decay --")  
         if len(momsList) > 0:
             if len(momsList) > 1:
-                for m in xrange(len(momsList)):
+                for m in range(len(momsList)):
                     decString = self._decay( momsList[m], skipList)
                     if len(decString) > 0:
                        print("{ %s } " %decString)

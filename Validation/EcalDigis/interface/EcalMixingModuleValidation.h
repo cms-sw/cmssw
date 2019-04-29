@@ -107,7 +107,6 @@ private:
  
  bool verbose_;
 
- DQMStore* dbe_;
  
  std::string outputFile_;
  

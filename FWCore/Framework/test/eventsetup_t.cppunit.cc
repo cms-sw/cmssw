@@ -15,13 +15,14 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
@@ -55,6 +56,7 @@ class testEventsetup: public CppUnit::TestFixture
   CPPUNIT_TEST(getDataWithESInputTagTest);
   CPPUNIT_TEST(getDataWithESGetTokenTest);
   CPPUNIT_TEST(getHandleWithESGetTokenTest);
+  CPPUNIT_TEST(getTransientHandleWithESGetTokenTest);
   CPPUNIT_TEST_EXCEPTION(recordValidityTest,edm::eventsetup::NoRecordException<DummyRecord>);
   CPPUNIT_TEST_EXCEPTION(recordValidityExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
   CPPUNIT_TEST(proxyProviderTest);
@@ -87,6 +89,7 @@ public:
   void getDataWithESInputTagTest();
   void getDataWithESGetTokenTest();
   void getHandleWithESGetTokenTest();
+  void getTransientHandleWithESGetTokenTest();
 
   void producerConflictTest();
   void sourceConflictTest();
@@ -112,14 +115,14 @@ void testEventsetup::constructTest()
   eventsetup::EventSetupProvider provider(&activityRegistry);
   const Timestamp time(1);
   const IOVSyncValue timestamp(time);
-  auto const& eventSetup = provider.eventSetupForInstance(timestamp);
+  EventSetup const eventSetup{  provider.eventSetupForInstance(timestamp), 0, nullptr};
   CPPUNIT_ASSERT(non_null(&eventSetup));
 }
 
 void testEventsetup::getTest()
 {
   eventsetup::EventSetupProvider provider(&activityRegistry);
-  auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
   CPPUNIT_ASSERT(non_null(&eventSetup));
 
   eventsetup::EventSetupRecordImpl dummyRecord{ eventsetup::EventSetupRecordKey::makeKey<DummyRecord>() };
@@ -133,7 +136,7 @@ void testEventsetup::getTest()
 void testEventsetup::tryToGetTest()
 {
   eventsetup::EventSetupProvider provider(&activityRegistry);
-  auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
   CPPUNIT_ASSERT(non_null(&eventSetup));
 
   eventsetup::EventSetupRecordImpl dummyRecord{ eventsetup::EventSetupRecordKey::makeKey<DummyRecord>() };
@@ -147,7 +150,7 @@ void testEventsetup::tryToGetTest()
 void testEventsetup::getExcTest()
 {
   eventsetup::EventSetupProvider provider(&activityRegistry);
-  auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
   CPPUNIT_ASSERT(non_null(&eventSetup));
   eventSetup.get<DummyRecord>();
 }
@@ -175,7 +178,7 @@ void testEventsetup::recordProviderTest()
   //       Since the EventSetup::get<> will only retrieve a Record if its
   //       interval of validity is 'valid' for the present 'instance'
   //       this is a 'hack' to have the 'get' succeed
-  auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
   const DummyRecord& gottenRecord = eventSetup.get<DummyRecord>();
   CPPUNIT_ASSERT(non_null(&gottenRecord));
 }
@@ -223,15 +226,15 @@ void testEventsetup::recordValidityTest()
   const Timestamp time_2(2);
   finder->setInterval(ValidityInterval(IOVSyncValue(time_2), IOVSyncValue(Timestamp(3))));
   {
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(time_2));
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(time_2)),0, nullptr};
     eventSetup.get<DummyRecord>();
   }
   {
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(Timestamp(3)));
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(Timestamp(3))),0, nullptr};
     eventSetup.get<DummyRecord>();
   }
   {
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(Timestamp(4)));
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(Timestamp(4))),0, nullptr};
     eventSetup.get<DummyRecord>();
   }
 
@@ -248,7 +251,7 @@ void testEventsetup::recordValidityExcTest()
   provider.insert(std::move(dummyRecordProvider));
 
   {
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(Timestamp(1)));
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue(Timestamp(1))),0, nullptr};
     eventSetup.get<DummyRecord>();
   }
 
@@ -277,7 +280,7 @@ void testEventsetup::proxyProviderTest()
   eventsetup::EventSetupProvider provider(&activityRegistry);
   provider.add(std::make_shared<DummyProxyProvider>());
 
-  auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+  EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
   const DummyRecord& gottenRecord = eventSetup.get<DummyRecord>();
   CPPUNIT_ASSERT(non_null(&gottenRecord));
 }
@@ -298,7 +301,7 @@ void testEventsetup::producerConflictTest()
     provider.add(dummyProv);
   }
   //checking for conflicts is now delayed until first time EventSetup is requested
-  /*auto const& eventSetup = */ provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+  /*EventSetup const eventSetup = */ provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
 
 }
 void testEventsetup::sourceConflictTest()
@@ -317,7 +320,7 @@ void testEventsetup::sourceConflictTest()
     provider.add(dummyProv);
   }
   //checking for conflicts is now delayed until first time EventSetup is requested
-  /*auto const& eventSetup = */ provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+  /*EventSetup const eventSetup = */ provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
 
 }
 //#define TEST_EXCLUDE_DEF
@@ -342,7 +345,7 @@ void testEventsetup::twoSourceTest()
     provider.add(finderPtr);
   }
   //checking for conflicts is now delayed until first time EventSetup is requested
-  /*auto const& eventSetup = */ provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+  /*EventSetup const eventSetup = */ provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
 
 }
 void testEventsetup::provenanceTest()
@@ -374,7 +377,7 @@ void testEventsetup::provenanceTest()
       dummyProv->setDescription(description);
       provider.add(dummyProv);
     }
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
     edm::ESHandle<DummyData> data;
     eventSetup.getData(data);
     CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -417,7 +420,7 @@ void testEventsetup::getDataWithLabelTest()
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
     }
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
     edm::ESHandle<DummyData> data;
     eventSetup.getData("blah",data);
     CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -460,7 +463,7 @@ void testEventsetup::getDataWithESInputTagTest()
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
     }
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
     {
       edm::ESHandle<DummyData> data;
       edm::ESInputTag blahTag("","blah");
@@ -542,29 +545,37 @@ void testEventsetup::getDataWithESGetTokenTest()
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
     }
+    provider.finishConfiguration();
+    
     auto const& eventSetupImpl = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
-    EventSetup eventSetup{eventSetupImpl};
     {
       DummyDataConsumer consumer{edm::ESInputTag("","blah")};
-      
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
       auto const& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kGood.value_==data.value_);
     }
     
     {
       DummyDataConsumer consumer{edm::ESInputTag("","")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
       const DummyData& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kBad.value_==data.value_);
     }
     
     {
       DummyDataConsumer consumer{edm::ESInputTag("testTwo","blah")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
       auto const& data = eventSetup.getData(consumer.m_token);
       CPPUNIT_ASSERT(kGood.value_==data.value_);
     }
     
     {
       DummyDataConsumer consumer{edm::ESInputTag("DoesNotExist","blah")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
       CPPUNIT_ASSERT_THROW(eventSetup.getData(consumer.m_token), cms::Exception);
     }
     
@@ -606,11 +617,14 @@ void testEventsetup::getHandleWithESGetTokenTest()
       dummyProv->setAppendToDataLabel(ps);
       provider.add(dummyProv);
     }
+    provider.finishConfiguration();
+    
     auto const& eventSetupImpl = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
-    EventSetup eventSetup{eventSetupImpl};
     {
       DummyDataConsumer consumer{edm::ESInputTag("","blah")};
-      
+      consumer.updateLookup(provider.recordsToProxyIndices());
+
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
       edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
       CPPUNIT_ASSERT(kGood.value_==data->value_);
       const edm::eventsetup::ComponentDescription* desc = data.description();
@@ -619,6 +633,8 @@ void testEventsetup::getHandleWithESGetTokenTest()
     
     {
       DummyDataConsumer consumer{edm::ESInputTag("","")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
       edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
       CPPUNIT_ASSERT(kBad.value_==data->value_);
       const edm::eventsetup::ComponentDescription* desc = data.description();
@@ -627,6 +643,8 @@ void testEventsetup::getHandleWithESGetTokenTest()
     
     {
       DummyDataConsumer consumer{edm::ESInputTag("testTwo","blah")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
       edm::ESHandle<DummyData> data = eventSetup.getHandle(consumer.m_token);
       CPPUNIT_ASSERT(kGood.value_==data->value_);
       const edm::eventsetup::ComponentDescription* desc = data.description();
@@ -635,10 +653,94 @@ void testEventsetup::getHandleWithESGetTokenTest()
     
     {
       DummyDataConsumer consumer{edm::ESInputTag("DoesNotExist","blah")};
-      CPPUNIT_ASSERT_THROW(eventSetup.getHandle(consumer.m_token), cms::Exception);
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
+      CPPUNIT_ASSERT(not eventSetup.getHandle(consumer.m_token));
+      CPPUNIT_ASSERT_THROW(*eventSetup.getHandle(consumer.m_token), cms::Exception);
     }
     
     
+  } catch (const cms::Exception& iException) {
+    std::cout <<"caught "<<iException.explainSelf()<<std::endl;
+    throw;
+  }
+}
+
+void testEventsetup::getTransientHandleWithESGetTokenTest()
+{
+  using edm::eventsetup::test::DummyProxyProvider;
+  using edm::eventsetup::test::DummyData;
+  DummyData kGood{1};
+  DummyData kBad{0};
+
+  eventsetup::EventSetupProvider provider(&activityRegistry);
+  try {
+    {
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider","testOne",true);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test11");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyProxyProvider>(kBad);
+      dummyProv->setDescription(description);
+      provider.add(dummyProv);
+    }
+    {
+      edm::eventsetup::ComponentDescription description("DummyProxyProvider","testTwo",false);
+      edm::ParameterSet ps;
+      ps.addParameter<std::string>("name", "test22");
+      ps.addParameter<std::string>("appendToDataLabel","blah");
+      ps.registerIt();
+      description.pid_ = ps.id();
+      auto dummyProv = std::make_shared<DummyProxyProvider>(kGood);
+      dummyProv->setDescription(description);
+      dummyProv->setAppendToDataLabel(ps);
+      provider.add(dummyProv);
+    }
+    provider.finishConfiguration();
+
+    auto const& eventSetupImpl = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("","blah")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
+      edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_==data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      CPPUNIT_ASSERT( desc->label_ == "testTwo");
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("","")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
+      edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
+      CPPUNIT_ASSERT(kBad.value_==data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      CPPUNIT_ASSERT( desc->label_ == "testOne");
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("testTwo","blah")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
+      edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
+      CPPUNIT_ASSERT(kGood.value_==data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      CPPUNIT_ASSERT( desc->label_ == "testTwo");
+    }
+
+    {
+      DummyDataConsumer consumer{edm::ESInputTag("DoesNotExist","blah")};
+      consumer.updateLookup(provider.recordsToProxyIndices());
+      EventSetup eventSetup{eventSetupImpl,static_cast<unsigned int>(edm::Transition::Event), consumer.esGetTokenIndices(edm::Transition::Event)};
+      edm::ESTransientHandle<DummyData> data = eventSetup.getTransientHandle(consumer.m_token);
+      CPPUNIT_ASSERT(not data);
+      CPPUNIT_ASSERT_THROW(*data, cms::Exception);
+    }
+
+
   } catch (const cms::Exception& iException) {
     std::cout <<"caught "<<iException.explainSelf()<<std::endl;
     throw;
@@ -671,7 +773,7 @@ void testEventsetup::sourceProducerResolutionTest()
     //       Since the EventSetup::get<> will only retrieve a Record if its
     //       interval of validity is 'valid' for the present 'instance'
     //       this is a 'hack' to have the 'get' succeed
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
     edm::ESHandle<DummyData> data;
     eventSetup.getData(data);
     CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -697,7 +799,7 @@ void testEventsetup::sourceProducerResolutionTest()
     //       Since the EventSetup::get<> will only retrieve a Record if its
     //       interval of validity is 'valid' for the present 'instance'
     //       this is a 'hack' to have the 'get' succeed
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
     edm::ESHandle<DummyData> data;
     eventSetup.getData(data);
     CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -739,7 +841,7 @@ void testEventsetup::preferTest()
       //       Since the EventSetup::get<> will only retrieve a Record if its
       //       interval of validity is 'valid' for the present 'instance'
       //       this is a 'hack' to have the 'get' succeed
-      auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+      EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
       edm::ESHandle<DummyData> data;
       eventSetup.getData(data);
       CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -770,7 +872,7 @@ void testEventsetup::preferTest()
       //       Since the EventSetup::get<> will only retrieve a Record if its
       //       interval of validity is 'valid' for the present 'instance'
       //       this is a 'hack' to have the 'get' succeed
-      auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+      EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
       edm::ESHandle<DummyData> data;
       eventSetup.getData(data);
       CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -802,7 +904,7 @@ void testEventsetup::preferTest()
       //       Since the EventSetup::get<> will only retrieve a Record if its
       //       interval of validity is 'valid' for the present 'instance'
       //       this is a 'hack' to have the 'get' succeed
-      auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+      EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
       edm::ESHandle<DummyData> data;
       eventSetup.getData(data);
       CPPUNIT_ASSERT(kGood.value_==data->value_);
@@ -843,7 +945,7 @@ void testEventsetup::introspectionTest()
       dummyProv->setDescription(description);
       provider.add(dummyProv);
     }
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()),0, nullptr};
 
     std::vector<edm::eventsetup::EventSetupRecordKey> recordKeys;
     eventSetup.fillAvailableRecordKeys(recordKeys);
@@ -870,25 +972,25 @@ void testEventsetup::iovExtentionTest()
   const Timestamp time_2(2);
   finder->setInterval(ValidityInterval(IOVSyncValue{time_2}, IOVSyncValue{Timestamp{3}}));
   {
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue{time_2});
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{time_2}),0, nullptr};
     CPPUNIT_ASSERT(2==eventSetup.get<DummyRecord>().cacheIdentifier());
   }
   {
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue{Timestamp{3}});
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{Timestamp{3}}),0, nullptr};
     eventSetup.get<DummyRecord>();
     CPPUNIT_ASSERT(2==eventSetup.get<DummyRecord>().cacheIdentifier());
   }
   //extending the IOV should not cause the cache to be reset
   finder->setInterval(ValidityInterval(IOVSyncValue{time_2}, IOVSyncValue{Timestamp{4}}));
   {
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue{Timestamp{4}});
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{Timestamp{4}}),0, nullptr};
     CPPUNIT_ASSERT(2==eventSetup.get<DummyRecord>().cacheIdentifier());
   }
 
   //this is a new IOV so should get cache reset
   finder->setInterval(ValidityInterval(IOVSyncValue{Timestamp{5}}, IOVSyncValue{Timestamp{6}}));
   {
-    auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue{Timestamp{5}});
+    EventSetup const eventSetup{  provider.eventSetupForInstance(IOVSyncValue{Timestamp{5}}),0, nullptr};
     CPPUNIT_ASSERT(3==eventSetup.get<DummyRecord>().cacheIdentifier());
   }
 

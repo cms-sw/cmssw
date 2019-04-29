@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import range
 from abc import ABCMeta, abstractmethod, abstractproperty
 import os
 import re

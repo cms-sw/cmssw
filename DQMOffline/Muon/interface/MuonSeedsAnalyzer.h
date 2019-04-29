@@ -43,7 +43,6 @@ class MuonSeedsAnalyzer : public  DQMEDAnalyzer {
   
   private:
   // ----------member data ---------------------------
-  DQMStore *theDbe;
   MuonServiceProxy *theService;
   edm::ParameterSet parameters;
 

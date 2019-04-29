@@ -41,10 +41,10 @@ class DQMStreamerReader : public edm::StreamerInputSource {
   // which will break things if called
   void reset_() override;
 
-  void openFile_(const DQMFileIterator::LumiEntry& entry);
-  void closeFile_(const std::string& reason);
+  void openFileImp_(const DQMFileIterator::LumiEntry& entry);
+  void closeFileImp_(const std::string& reason);
 
-  bool openNextFile_();
+  bool openNextFileImp_();
 
   InitMsgView const* getHeaderMsg();
   EventMsgView const* getEventMsg();

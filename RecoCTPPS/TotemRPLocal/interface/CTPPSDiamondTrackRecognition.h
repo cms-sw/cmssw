@@ -36,6 +36,7 @@ class CTPPSDiamondTrackRecognition : public CTPPSTimingTrackRecognition<CTPPSDia
 
   private:
     std::unordered_map<int,int> mhMap_;
+    bool excludeSingleEdgeHits_;
 };
 
 #endif

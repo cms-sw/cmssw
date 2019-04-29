@@ -9,6 +9,7 @@
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
  *
+ *  \modified by C. Caputo, UCLouvain
  **/
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,6 +34,14 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
+namespace dyt_utils{
+  static const std::map<etaRegion, std::string> etaRegionStr { {etaRegion::eta0p8, "eta0p8"},
+                                                  {etaRegion::eta1p2, "eta1p2"},
+                                                  {etaRegion::eta2p0, "eta2p0"},
+                                                  {etaRegion::eta2p2, "eta2p2"},
+                                                  {etaRegion::eta2p4, "eta2p4"}};
+};
+
 
 
 DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceProxy& theService) {
@@ -50,7 +59,9 @@ DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceP
   thrManager = new ThrParameters(&theService.eventSetup());
   useDBforThr = thrManager->isValidThdDB();
   if (useDBforThr) dytThresholds = thrManager->getInitialThresholds();
+
   doUpdateOfKFStates = true;
+  useParametrizedThr = false;
 }
 
 DynamicTruncation::~DynamicTruncation() {
@@ -128,6 +139,12 @@ void DynamicTruncation::setThr(const vector<int>& thr) {
   }
   throw cms::Exception("NotAvailable") << "WARNING: wrong size for the threshold vector!\nExpected size: 2\n   Found size: " << thr.size();
 }
+
+void DynamicTruncation::setThrsMap(const edm::ParameterSet& par) {
+  for (auto const& region : dyt_utils::etaRegionStr ){
+      parameters[region.first] = par.getParameter< std::vector<double> >(region.second);
+  }
+}
 /////////////////////////////////
 /////////////////////////////////
 /////////////////////////////////
@@ -138,8 +155,8 @@ void DynamicTruncation::setThr(const vector<int>& thr) {
 TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Trajectory& traj) {
   result.clear();
   prelFitMeas.clear();
-  
-  // Get APE maps 
+
+  // Get APE maps
   dtApeMap = thrManager->GetDTApeMap();
   cscApeMap = thrManager->GetCSCApeMap();
 
@@ -165,7 +182,7 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
 
   // Run the DYT
   filteringAlgo();
-  
+
   return result;
 }
 
@@ -312,7 +329,7 @@ void DynamicTruncation::testDTstation(TrajectoryStateOnSurface &startingState, v
     LocalError apeLoc;
     if (useAPE) apeLoc = ErrorFrameTransformer().transform(dtApeMap.find(chamber)->second, theG->idToDet(chamber)->surface());
     StateSegmentMatcher estim(tsosdt, segments[iSeg], apeLoc);
-    double estimator = estim.value();      
+    double estimator = estim.value();
     //cout << "estimator DT = " << estimator << endl;
     if (estimator >= bestEstimator) continue; 
     bestEstimator = estimator;
@@ -337,7 +354,7 @@ void DynamicTruncation::testCSCstation(TrajectoryStateOnSurface &startingState, 
     //cout << "estimator CSC = " << estimator << endl;
     if (estimator >= bestEstimator) continue;
     bestEstimator = estimator;
-    bestSeg = segments[iSeg]; 
+    bestSeg = segments[iSeg];
   }
 }
 
@@ -453,17 +470,34 @@ void DynamicTruncation::getThresholdFromDB(double& thr, DetId const& id) {
       break;
     }
   }
-  correctThrByPtAndEta(thr);
+  if (useParametrizedThr) correctThrByPAndEta(thr);
 }
 
 
-//===> correctThrByPtAndEta
-void DynamicTruncation::correctThrByPtAndEta(double& thr) {
+//===> correctThrByPAndEta
+void DynamicTruncation::correctThrByPAndEta(double& thr) {
 
-  //////////////////////////////////////
-  // This section will be implemented //
-  //    after the release of APEs     //
-  //////////////////////////////////////
+    auto parametricThreshold = [this]{
+      double thr50 = this->parameters[this->region].at(0);
+      double p0    = this->parameters[this->region].at(1);
+      double p1    = this->parameters[this->region].at(2);
+      return thr50 * ( 1 + p0*p_reco + std::pow( this->p_reco, p1));
+    };
+
+    thr = parametricThreshold();
+}
+
+void DynamicTruncation::setEtaRegion(){
+
+  float absEta = std::abs(eta_reco);
+  // Defaul value for muons with abs(eta) > 2.4
+  region = dyt_utils::etaRegion::eta2p4;
+
+  if( absEta <= 0.8 ) region = dyt_utils::etaRegion::eta0p8;
+  else if( absEta <= 1.2 ) region = dyt_utils::etaRegion::eta1p2;
+  else if( absEta <= 2.0 ) region = dyt_utils::etaRegion::eta2p0;
+  else if( absEta <= 2.2 ) region = dyt_utils::etaRegion::eta2p2;
+  else if( absEta <= 2.4 ) region = dyt_utils::etaRegion::eta2p4;
 
 }
 
@@ -476,6 +510,8 @@ void DynamicTruncation::getThresholdFromCFG(double& thr, DetId const& id) {
   if (id.subdetId() == MuonSubdetId::CSC) {
     thr = Thrs[1];
   }
+
+  if (useParametrizedThr) correctThrByPAndEta(thr);
 }
 
 

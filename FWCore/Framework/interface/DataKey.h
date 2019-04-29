@@ -56,7 +56,16 @@ namespace edm::eventsetup {
       makeCopyOfMemory();
     }
 
+    DataKey(DataKey&& iRHS) :
+    type_(iRHS.type_),
+    name_(iRHS.name_),
+    ownMemory_(iRHS.ownMemory_) {
+      iRHS.ownMemory_ = false;
+    }
+
+    
     DataKey& operator=(const DataKey&);
+    DataKey& operator=(DataKey&&);
 
     ~DataKey() { releaseMemory(); }
 

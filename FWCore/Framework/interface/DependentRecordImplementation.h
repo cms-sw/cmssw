@@ -27,6 +27,7 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/DependentRecordTag.h"
 
@@ -55,7 +56,7 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
         typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT;
         static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
         try {
-          EventSetupImpl const& eventSetupT = this->eventSetup();
+          EventSetup const eventSetupT{this->eventSetup(), this->transitionID(), this->getTokenIndices()};
           return eventSetupT.get<DepRecordT>();
         } catch(cms::Exception& e) {
           std::ostringstream sstrm;
@@ -71,8 +72,46 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
         typedef typename boost::mpl::end< ListT >::type EndItrT;
         typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT;
         static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
-        EventSetupImpl const& eventSetupT = this->eventSetup();
+        EventSetup const eventSetupT{this->eventSetup(), this->transitionID(), this->getTokenIndices()};
         return eventSetupT.tryToGet<DepRecordT>();
+      }
+
+      using EventSetupRecordImplementation<RecordT>::getHandle;
+
+      template<typename ProductT, typename DepRecordT>
+      ESHandle<ProductT> getHandle(ESGetToken<ProductT, DepRecordT> const& iToken) const {
+        //Make sure that DepRecordT is a type in ListT
+        using EndItrT = typename boost::mpl::end< ListT >::type;
+        using FoundItrT = typename boost::mpl::find< ListT, DepRecordT >::type;
+        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a product with an ESGetToken specifying a Record from another Record where the second Record is not dependent on the first Record.");
+        return getRecord<DepRecordT>().getHandle(iToken);
+      }
+
+      using EventSetupRecordImplementation<RecordT>::getTransientHandle;
+
+      template<typename ProductT, typename DepRecordT>
+      ESTransientHandle<ProductT> getTransientHandle(ESGetToken<ProductT, DepRecordT> const& iToken) const {
+        //Make sure that DepRecordT is a type in ListT
+        using EndItrT = typename boost::mpl::end< ListT >::type;
+        using FoundItrT = typename boost::mpl::find< ListT, DepRecordT >::type;
+        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a product with an ESGetToken specifying a Record from another Record where the second Record is not dependent on the first Record.");
+        return getRecord<DepRecordT>().getTransientHandle(iToken);
+      }
+
+      using EventSetupRecordImplementation<RecordT>::get;
+
+      template<typename ProductT, typename DepRecordT>
+      ProductT const& get(ESGetToken<ProductT, DepRecordT> const& iToken) const {
+        //Make sure that DepRecordT is a type in ListT
+        using EndItrT = typename boost::mpl::end< ListT >::type;
+        using FoundItrT = typename boost::mpl::find< ListT, DepRecordT >::type;
+        static_assert(! std::is_same<FoundItrT, EndItrT>::value, "Trying to get a product with an ESGetToken specifying a Record from another Record where the second Record is not dependent on the first Record.");
+        return getRecord<DepRecordT>().get(iToken);
+      }
+
+      template<typename ProductT, typename DepRecordT>
+      ProductT const& get(ESGetToken<ProductT, DepRecordT>& iToken) const {
+        return get(const_cast<ESGetToken<ProductT, DepRecordT> const&>(iToken));
       }
 
       // ---------- static member functions --------------------

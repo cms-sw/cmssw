@@ -1,5 +1,5 @@
-#ifndef FWCore_PyBind11ParameterSet_MakePyBind11ParameterSets_h
-#define FWCore_PyBind11ParameterSet_MakePyBind11ParameterSets_h
+#ifndef FWCore_PyDevParameterSet_MakePyBind11ParameterSets_h
+#define FWCore_PyDevParameterSet_MakePyBind11ParameterSets_h
 
 //----------------------------------------------------------------------
 // Declare functions used to create ParameterSets.
@@ -12,7 +12,7 @@
 
 namespace edm {
   class ParameterSet;
-  namespace cmspybind11 {
+  namespace cmspybind11_p3 {
     // input can either be a python file name or a python config string
     std::unique_ptr<ParameterSet>
       readConfig(std::string const& config);

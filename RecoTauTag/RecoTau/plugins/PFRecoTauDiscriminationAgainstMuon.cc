@@ -12,9 +12,7 @@
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 #include <string>
 
@@ -72,7 +70,11 @@ double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTau
       if      ( muonref->isGlobalMuon()  ) muType = 1;
       else if ( muonref->isCaloMuon()    ) muType = 2;
       else if ( muonref->isTrackerMuon() ) muType = 3;
-      double muonEnergyFraction = thePFTauRef->pfTauTagInfoRef()->pfjetRef()->chargedMuEnergyFraction();
+      float muonEnergyFraction = 0.;
+      const reco::PFJet* pfJetPtr = dynamic_cast<const reco::PFJet*>(thePFTauRef->pfTauTagInfoRef()->pfjetRef().get());
+      if (pfJetPtr) {
+          muonEnergyFraction = pfJetPtr->chargedMuEnergyFraction();
+      } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFJets, and this outdated algorithm was not updated to cope with PFTaus made from other Jets.\n";
       bool eta_veto = false;
       bool phi_veto = false;
       if ( fabs(muonref->eta()) > 2.3 || (fabs(muonref->eta()) > 1.4 && fabs(muonref->eta()) < 1.6)) eta_veto = true;

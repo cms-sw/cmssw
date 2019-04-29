@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import ROOT, array, os, re, random
 from math import *
 import time
@@ -1407,7 +1408,7 @@ def createPeaksProfile(the2d, rebin=1):
   hpeaks.Reset()
   hpeaks.Rebin(rebin)
   bad_fit_bins = []
-  for i in xrange(0, int(the2d.GetNbinsX()), rebin):
+  for i in range(0, int(the2d.GetNbinsX()), rebin):
     tmp = the2d.ProjectionY("tmp", i+1, i + rebin)
     nn = tmp.GetEntries()
 
@@ -1515,7 +1516,7 @@ def mapplot(tfiles, name, param, mode="from2d", window=10., abscissa=None, title
             skip = 10
 
         #f = ROOT.TF1("g", "gaus", -40., 40)
-        for i in xrange(0, int(the2d.GetNbinsX()), skip):
+        for i in range(0, int(the2d.GetNbinsX()), skip):
             tmp = the2d.ProjectionY("tmp", i+1, i + skip)
             if tmp.GetEntries() > 1:
                 #tmp.Fit("g","LNq")
@@ -1840,7 +1841,7 @@ def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False
                         hist2d.Add(tfile.Get(hdir+"th2f"+hsuffix))
 
     hist = ROOT.TH1F("hist", "", prof.GetNbinsX(), prof.GetBinLowEdge(1), -prof.GetBinLowEdge(1))
-    for i in xrange(1, prof.GetNbinsX()+1):
+    for i in range(1, prof.GetNbinsX()+1):
         hist.SetBinContent(i, prof.GetBinContent(i))
         hist.SetBinError(i, prof.GetBinError(i))
 
@@ -1854,7 +1855,7 @@ def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False
         htmp = ROOT.gROOT.FindObject("tmp")
         if htmp != None: htmp.Delete()
 
-        for i in xrange(0, int(prof.GetNbinsX()), skip):
+        for i in range(0, int(prof.GetNbinsX()), skip):
             tmp = hist2d.ProjectionY("tmp", i+1, i + skip)
             if tmp.GetEntries() > 1:
                 hist.SetBinContent(i/skip+1, tmp.GetMean())
@@ -2484,7 +2485,7 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
     trackdxdz_minimum, trackdxdz_maximum = None, None
     for h in chamber_x_trackdxdz, chamber_y_trackdxdz, chamber_dxdz_trackdxdz, chamber_dydz_trackdxdz:
         if not not h:
-            for i in xrange(1, h.GetNbinsX()+1):
+            for i in range(1, h.GetNbinsX()+1):
                 if h.GetBinError(i) > 0.01 and h.GetBinContent(i) - h.GetBinError(i) < 10. and \
                    h.GetBinContent(i) + h.GetBinError(i) > -10.:
                     if not trackdxdz_minimum or trackdxdz_minimum > h.GetBinCenter(i): 
@@ -2499,7 +2500,7 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
     trackdydz_minimum, trackdydz_maximum = None, None
     for h in chamber_x_trackdydz, chamber_y_trackdydz, chamber_dxdz_trackdydz, chamber_dydz_trackdydz:
         if not not h:
-            for i in xrange(1, h.GetNbinsX()+1):
+            for i in range(1, h.GetNbinsX()+1):
                 if h.GetBinError(i) > 0.01 and h.GetBinContent(i) - h.GetBinError(i) < 10. and \
                    h.GetBinContent(i) + h.GetBinError(i) > -10.:
                     if not trackdydz_minimum or trackdydz_minimum > h.GetBinCenter(i): 
@@ -2967,7 +2968,7 @@ def segdiff(tfiles, component, pair, **args):
         tmppos.Add(tfile.Get(pdir + posname))
         tmpneg.Add(tfile.Get(pdir + negname))
 
-    for i in xrange(1, tmpprof.GetNbinsX()+1):
+    for i in range(1, tmpprof.GetNbinsX()+1):
         if tmpprof.GetBinError(i) < 1e-5:
             tmpprof.SetBinError(i, 100.)
     tmpprof.SetAxisRange(-window, window, "Y")
@@ -3193,7 +3194,7 @@ def segdiffvsphi_xalign(tfiles, wheel, window=10.):
     gtemp_11_phi, gtemp_11_val, gtemp_11_err = [], [], []
     gtemp_12_phi, gtemp_12_val, gtemp_12_err = [], [], []
     gtemp_21_phi, gtemp_21_val, gtemp_21_err = [], [], []
-    for sector in xrange(1, 12+1):
+    for sector in range(1, 12+1):
       #print "sect", sector
       r1 = segdiff_xalign(tfiles, "x_dt1_csc", wheel=wheel, sector=sector, cscstations = "12")
       r2 = segdiff_xalign(tfiles, "x_dt2_csc", wheel=wheel, sector=sector, cscstations = "1")
@@ -3308,7 +3309,7 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
     gtemp_12_phi, gtemp_12_val, gtemp_12_err, gtemp_12_val2, gtemp_12_err2 = [], [], [], [], []
     gtemp_23_phi, gtemp_23_val, gtemp_23_err, gtemp_23_val2, gtemp_23_err2 = [], [], [], [], []
     gtemp_34_phi, gtemp_34_val, gtemp_34_err, gtemp_34_val2, gtemp_34_err2 = [], [], [], [], []
-    for sector in xrange(1, 12+1):
+    for sector in range(1, 12+1):
         #print "sect", sector
         r1_found, r2_found, r3_found, r4_found = False, False, False, False
         for r1 in reports:
@@ -3466,8 +3467,8 @@ def segdiffvsphicsc(tfiles, component, pair, window=5., **args):
     gtemp_2_phi, gtemp_2_val, gtemp_2_err, gtemp_2_val2, gtemp_2_err2 = [], [], [], [], []
     
     for ring in rings:
-      chambers = xrange(1,37)
-      if ring == 1: chambers = xrange(1,19)
+      chambers = range(1,37)
+      if ring == 1: chambers = range(1,19)
       
       for chamber in chambers:
         phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, pair, endcap=endcap, ring=ring, chamber=chamber)

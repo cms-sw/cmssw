@@ -10,6 +10,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
+#include "DataFormats/FTLDigi/interface/PMTDSimAccumulator.h"
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTypes.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -36,13 +37,27 @@ class MTDDigitizerBase {
   digiCollection_( config.getParameter<std::string>("digiCollectionTag") ),
   verbosity_( config.getUntrackedParameter< uint32_t >("verbosity",0) ),   
   refSpeed_( 0.1*CLHEP::c_light ),   
+  premixStage1MinCharge_( config.getParameter<double>("premixStage1MinCharge") ),
+  premixStage1MaxCharge_( config.getParameter<double>("premixStage1MaxCharge") ),
+  premixStage1_( config.getParameter<bool>("premixStage1")),
   name_( config.getParameter<std::string>("digitizerName") ) {
     iC.consumes<std::vector<PSimHit> >(inputSimHits_);
 
-    if ( name_ == "BTLTileDigitizer" || name_ == "BTLBarDigitizer" )
-      parent.produces<BTLDigiCollection>(digiCollection_);  
+    if ( name_ == "BTLTileDigitizer" || name_ == "BTLBarDigitizer" ) {
+      if(premixStage1_) {
+        parent.produces<PMTDSimAccumulator>(digiCollection_);
+      }
+      else {
+        parent.produces<BTLDigiCollection>(digiCollection_);
+      }
+    }
     else if ( name_ == "ETLDigitizer" )
-      parent.produces<ETLDigiCollection>(digiCollection_);  
+      if(premixStage1_) {
+        parent.produces<PMTDSimAccumulator>(digiCollection_);
+      }
+      else {
+        parent.produces<ETLDigiCollection>(digiCollection_);
+      }
     else
       throw cms::Exception("[MTDDigitizerBase::MTDDigitizerBase]")
 	<< name_ << " is an invalid MTD digitizer name";
@@ -57,6 +72,8 @@ class MTDDigitizerBase {
   virtual void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) = 0;
   virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) = 0;
   virtual void accumulate(edm::Handle<edm::PSimHitContainer> const &hits, int bxCrossing, CLHEP::HepRandomEngine* hre) = 0;
+  // for premixing
+  virtual void accumulate(const PMTDSimAccumulator& simAccumulator) = 0;
   
   /**
      @short actions at the start/end of event
@@ -85,6 +102,14 @@ class MTDDigitizerBase {
 
   //reference speed to evaluate time of arrival at the sensititive detector, assuming the center of CMS
   const float refSpeed_;  
+
+  // Minimum charge threshold for premixing stage1
+  double premixStage1MinCharge_;
+  // Maximum charge for packing in premixing stage1
+  double premixStage1MaxCharge_;
+
+  // flag telling whether we are runing in premixing stage1
+  const bool premixStage1_;
 
  private:
   std::string name_;

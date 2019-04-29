@@ -32,7 +32,6 @@ class SiStripMonitorFilter : public DQMEDAnalyzer {
 
  private:
   edm::EDGetTokenT<int> filerDecisionToken_;
-  DQMStore *dqmStore_;
   edm::ParameterSet conf_;
   MonitorElement *FilterDecision;
   // all events

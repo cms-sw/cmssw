@@ -3,7 +3,7 @@
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 
 #include <iostream>
@@ -49,8 +49,8 @@ TEST_CASE("Configuration", s_tag) {
   const std::string baseConfigTest2Disabled = makeConfig(false, test1, test2);
 
   SECTION("Configuration hash is not changed") {
-    auto pset = edm::boost_python::readConfig(baseConfig);
-    auto psetTest2Disabled = edm::boost_python::readConfig(baseConfigTest2Disabled);
+    auto pset = edm::readConfig(baseConfig);
+    auto psetTest2Disabled = edm::readConfig(baseConfigTest2Disabled);
     pset->registerIt();
     psetTest2Disabled->registerIt();
     REQUIRE(pset->id() == psetTest2Disabled->id());
@@ -107,8 +107,8 @@ TEST_CASE("Configuration with EDAlias", s_tag) {
   const std::string baseConfigTest2Disabled = makeConfig(false, test1, test2, otherprod, othername);
 
   SECTION("Configuration hash is not changed") {
-    auto pset = edm::boost_python::readConfig(baseConfig);
-    auto psetTest2Disabled = edm::boost_python::readConfig(baseConfigTest2Disabled);
+    auto pset = edm::readConfig(baseConfig);
+    auto psetTest2Disabled = edm::readConfig(baseConfigTest2Disabled);
     pset->registerIt();
     psetTest2Disabled->registerIt();
     REQUIRE(pset->id() == psetTest2Disabled->id());

@@ -22,10 +22,12 @@ using namespace ZCountingTrigger;
 // the trigger can evolve and obtain a different trigger object name, but we still want this to 
 // be associated with the same leg (e.g. the trailing electron in a dielectron trigger)
 //
-TTrigger::TTrigger() { 
+TTrigger::TTrigger(const std::vector<std::string> &muonTriggerNames, const std::vector<std::string> &muonTriggerObjectNames) { 
 
-  fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_IsoMu27_v*",0));
-  fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07",0));    
+  for(unsigned int i = 0; i < muonTriggerNames.size(); ++i){
+    fRecords.push_back(ZCountingTrigger::TriggerRecord(muonTriggerNames.at(i),0));
+    fRecords.back().objectMap.push_back(std::pair<std::string, int>(muonTriggerObjectNames.at(i),0));    
+  }
   fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_Ele35_WPTight_Gsf_v*",1));
   fRecords.back().objectMap.push_back(std::pair<std::string, int>("hltEle35noerWPTightGsfTrackIsoFilter",0));
   fRecords.push_back(ZCountingTrigger::TriggerRecord("HLT_Ele27_WPTight_Gsf_v*",2));

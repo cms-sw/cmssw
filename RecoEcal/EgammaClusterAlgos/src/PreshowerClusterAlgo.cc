@@ -13,8 +13,8 @@
 reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
 							    HitsID *used_strips,
                                                             RecHitsMap *the_rechitsMap_p,
-                                                            const CaloSubdetectorGeometry*& geometry_p,
-                                                            CaloSubdetectorTopology*& topology_p)
+                                                            const CaloSubdetectorGeometry* geometry_p,
+                                                            const CaloSubdetectorTopology* topology_p)
 {
   road_2d.clear();
 

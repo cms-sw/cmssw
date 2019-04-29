@@ -802,7 +802,8 @@ def createCompoundPlots(detector, plot, geometry):
        keys of plots dictionary (imported from plot_utils.
 
     """
-
+    setTDRStyle()
+    
     theDirname = 'Images'
     if not checkFile_(theDirname):
         os.mkdir(theDirname)
@@ -818,7 +819,7 @@ def createCompoundPlots(detector, plot, geometry):
                                                plots[plot].abscissa,
                                                plots[plot].ordinate)
     stack_X0 = THStack("stack_X0", stackTitle);
-    theLegend = TLegend(0.70, 0.70, 0.89, 0.89);
+    theLegend = TLegend(0.50, 0.70, 0.70, 0.90);
 
     def setRanges(h):
         legendSpace = 1. + 0.3 # 30%
@@ -836,20 +837,19 @@ def createCompoundPlots(detector, plot, geometry):
         hist_X0_elements[label].SetFillColor(color)
         hist_X0_elements[label].SetLineColor(kBlack)
         stack_X0.Add(hist_X0_elements[label])
-        theLegend.AddEntry(hist_X0_elements[label], leg, "f")
+        if hist_X0_elements[label].Integral() > 0.: theLegend.AddEntry(hist_X0_elements[label], leg, "f")
 
     # canvas
     canname = "MBCan_1D_%s_%s"  % (detector, plot)
     can = TCanvas(canname, canname, 800, 800)
     can.Range(0,0,25,25)
-    can.SetFillColor(kWhite)
-    gStyle.SetOptStat(0)
-
-    setTDRStyle()
+    gStyle.SetOptTitle(0)
 
     # Draw
     setRanges(stack_X0.GetStack().Last())
     stack_X0.Draw("HIST");
+    stack_X0.GetXaxis().SetLabelSize(0.035)
+    stack_X0.GetYaxis().SetLabelSize(0.035)
     theLegend.Draw();
 
     cmsMark = TLatex()
@@ -857,9 +857,9 @@ def createCompoundPlots(detector, plot, geometry):
     cmsMark.SetTextAngle(0);
     cmsMark.SetTextColor(kBlack);    
     cmsMark.SetTextFont(61)
-    cmsMark.SetTextSize(7e-2)
+    cmsMark.SetTextSize(5e-2)
     cmsMark.SetTextAlign(11)
-    cmsMark.DrawLatex(0.1,0.91,"CMS")
+    cmsMark.DrawLatex(0.16,0.86,"CMS")
 
     simuMark = TLatex()
     simuMark.SetNDC();
@@ -867,7 +867,7 @@ def createCompoundPlots(detector, plot, geometry):
     simuMark.SetTextColor(kBlack);    
     simuMark.SetTextSize(3e-2)
     simuMark.SetTextAlign(11)
-    simuMark.DrawLatex(0.26,0.91,"#font[52]{Preliminary Simulation}")
+    simuMark.DrawLatex(0.16,0.82,"#font[52]{Simulation Internal}")
  
     # Store
     can.Update();

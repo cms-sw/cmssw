@@ -1,6 +1,4 @@
 #include "RecoParticleFlow/PFProducer/plugins/PFProducer.h"
-#include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,6 +18,8 @@ using namespace edm;
 
 
 PFProducer::PFProducer(const edm::ParameterSet& iConfig)
+  : putToken_{produces<reco::PFCandidateCollection>()}
+  , pfAlgo_(iConfig.getUntrackedParameter<bool>("debug",false))
 {
   //--ab: get calibration factors for HF:
   auto thepfEnergyCalibrationHF = std::make_shared<PFEnergyCalibrationHF>(
@@ -103,7 +103,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
 
   // register products
-  produces<reco::PFCandidateCollection>();
   produces<reco::PFCandidateCollection>("CleanedHF");
   produces<reco::PFCandidateCollection>("CleanedCosmicsMuons");
   produces<reco::PFCandidateCollection>("CleanedTrackerAndGlobalMuons");
@@ -190,47 +189,12 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
   // Reading new EGamma selection cuts
   bool useProtectionsForJetMET(false);
-  double ele_iso_pt(0.0), ele_iso_mva_barrel(0.0), ele_iso_mva_endcap(0.0), 
-    ele_iso_combIso_barrel(0.0), ele_iso_combIso_endcap(0.0), 
-    ele_noniso_mva(0.0);
-  unsigned int ele_missinghits(0);
-  double ele_ecalDrivenHademPreselCut(0.0);
-  double ele_maxElePtForOnlyMVAPresel(0.0);
-  double ph_MinEt(0.0), ph_combIso(0.0), ph_HoE(0.0), 
-    ph_sietaieta_eb(0.0),ph_sietaieta_ee(0.0);
-  string ele_iso_mvaWeightFile(""), ele_iso_path_mvaWeightFile("");
-  edm::ParameterSet ele_protectionsForJetMET,ele_protectionsForBadHcal,ph_protectionsForJetMET,ph_protectionsForBadHcal;
  // Reading new EGamma ubiased collections and value maps
  if(use_EGammaFilters_) {
-   ele_iso_mvaWeightFile = iConfig.getParameter<string>("isolatedElectronID_mvaWeightFile");
-   ele_iso_path_mvaWeightFile  = edm::FileInPath ( ele_iso_mvaWeightFile.c_str() ).fullPath();
    inputTagPFEGammaCandidates_ = consumes<edm::View<reco::PFCandidate> >((iConfig.getParameter<edm::InputTag>("PFEGammaCandidates")));
    inputTagValueMapGedElectrons_ = consumes<edm::ValueMap<reco::GsfElectronRef>>(iConfig.getParameter<edm::InputTag>("GedElectronValueMap")); 
    inputTagValueMapGedPhotons_ = consumes<edm::ValueMap<reco::PhotonRef> >(iConfig.getParameter<edm::InputTag>("GedPhotonValueMap")); 
-   ele_iso_pt = iConfig.getParameter<double>("electron_iso_pt");
-   ele_iso_mva_barrel  = iConfig.getParameter<double>("electron_iso_mva_barrel");
-   ele_iso_mva_endcap = iConfig.getParameter<double>("electron_iso_mva_endcap");
-   ele_iso_combIso_barrel = iConfig.getParameter<double>("electron_iso_combIso_barrel");
-   ele_iso_combIso_endcap = iConfig.getParameter<double>("electron_iso_combIso_endcap");
-   ele_noniso_mva = iConfig.getParameter<double>("electron_noniso_mvaCut");
-   ele_missinghits = iConfig.getParameter<unsigned int>("electron_missinghits"); 
-   ele_ecalDrivenHademPreselCut = iConfig.getParameter<double>("electron_ecalDrivenHademPreselCut");
-   ele_maxElePtForOnlyMVAPresel = iConfig.getParameter<double>("electron_maxElePtForOnlyMVAPresel");
-   ph_MinEt  = iConfig.getParameter<double>("photon_MinEt");
-   ph_combIso  = iConfig.getParameter<double>("photon_combIso");
-   ph_HoE = iConfig.getParameter<double>("photon_HoE");
-   ph_sietaieta_eb = iConfig.getParameter<double>("photon_SigmaiEtaiEta_barrel");
-   ph_sietaieta_ee = iConfig.getParameter<double>("photon_SigmaiEtaiEta_endcap");
-   useProtectionsForJetMET = 
-     iConfig.getParameter<bool>("useProtectionsForJetMET");
-   ele_protectionsForJetMET = 
-     iConfig.getParameter<edm::ParameterSet>("electron_protectionsForJetMET");
-   ele_protectionsForBadHcal = 
-     iConfig.getParameter<edm::ParameterSet>("electron_protectionsForBadHcal");
-   ph_protectionsForJetMET = 
-     iConfig.getParameter<edm::ParameterSet>("photon_protectionsForJetMET");
-   ph_protectionsForBadHcal = 
-     iConfig.getParameter<edm::ParameterSet>("photon_protectionsForBadHcal");
+   useProtectionsForJetMET = iConfig.getParameter<bool>("useProtectionsForJetMET");
  }
 
   //Secondary tracks and displaced vertices parameters
@@ -266,25 +230,14 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
     calibrationsLabel_ = iConfig.getParameter<std::string>("calibrationsLabel");
 
   auto calibration = std::make_shared<PFEnergyCalibration>();
-
-  int algoType 
-    = iConfig.getParameter<unsigned>("algoType");
   
-  switch(algoType) {
-  case 0:
-    pfAlgo_.reset( new PFAlgo);
-    break;
-   default:
-    assert(0);
-  }
-  
-  pfAlgo_->setParameters( nSigmaECAL, 
+  pfAlgo_.setParameters( nSigmaECAL, 
 			  nSigmaHCAL,
 			  calibration,
 			  thepfEnergyCalibrationHF);
 
   //PFElectrons: call the method setpfeleparameters
-  pfAlgo_->setPFEleParameters(mvaEleCut,
+  pfAlgo_.setPFEleParameters(mvaEleCut,
 			      path_mvaWeightFileEleID,
 			      usePFElectrons_,
 			      thePFSCEnergyCalibration,
@@ -301,10 +254,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 			      useEGammaElectrons_,
 			      useEGammaSupercluster);
   
-  //  pfAlgo_->setPFConversionParameters(usePFConversions);
+  //  pfAlgo_.setPFConversionParameters(usePFConversions);
 
   // PFPhotons: 
-  pfAlgo_->setPFPhotonParameters(usePFPhotons_,
+  pfAlgo_.setPFPhotonParameters(usePFPhotons_,
 				 path_mvaWeightFileConvID,
 				 mvaConvCut,
 				 usePhotonReg_,
@@ -315,31 +268,14 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
 
   // NEW EGamma Filters
-   pfAlgo_->setEGammaParameters(use_EGammaFilters_,
-				ele_iso_path_mvaWeightFile,
-				ele_iso_pt,
-				ele_iso_mva_barrel,
-				ele_iso_mva_endcap,
-				ele_iso_combIso_barrel,
-				ele_iso_combIso_endcap,
-				ele_noniso_mva,
-				ele_missinghits,
-				ele_ecalDrivenHademPreselCut,
-				ele_maxElePtForOnlyMVAPresel,
-				useProtectionsForJetMET,
-				ele_protectionsForJetMET,
-				ele_protectionsForBadHcal,
-				ph_MinEt,
-				ph_combIso,
-				ph_HoE,
-				ph_sietaieta_eb,
-				ph_sietaieta_ee,
-				ph_protectionsForJetMET,
-				ph_protectionsForBadHcal);
+   pfAlgo_.setEGammaParameters(use_EGammaFilters_, useProtectionsForJetMET);
+
+  if(use_EGammaFilters_) pfegamma_ = std::make_unique<PFEGammaFilters>(iConfig);
+
 
   //Secondary tracks and displaced vertices parameters
   
-  pfAlgo_->setDisplacedVerticesParameters(rejectTracks_Bad,
+  pfAlgo_.setDisplacedVerticesParameters(rejectTracks_Bad,
 					  rejectTracks_Step45,
 					  usePFNuclearInteractions,
  					  usePFConversions,
@@ -347,13 +283,13 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 					  dptRel_DispVtx);
   
   if (usePFNuclearInteractions)
-    pfAlgo_->setCandConnectorParameters( iCfgCandConnector );
+    pfAlgo_.setCandConnectorParameters( iCfgCandConnector );
 
   
 
   // Set muon and fake track parameters
-  pfAlgo_->setPFMuonAndFakeParameters(iConfig);
-  pfAlgo_->setBadHcalTrackParams(iConfig);
+  pfAlgo_.setPFMuonAndFakeParameters(iConfig);
+  pfAlgo_.setBadHcalTrackParams(iConfig);
   
   //Post cleaning of the HF
   postHFCleaning_
@@ -372,7 +308,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
     = iConfig.getParameter<double>("minDeltaMet");
 
   // Set post HF cleaning muon parameters
-  pfAlgo_->setPostHFCleaningParameters(postHFCleaning_,
+  pfAlgo_.setPostHFCleaningParameters(postHFCleaning_,
 				       minHFCleaningPt,
 				       minSignificance,
 				       maxSignificance,
@@ -390,21 +326,12 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
   // Use HO clusters and links in the PF reconstruction
   useHO_= iConfig.getParameter<bool>("useHO");
-  pfAlgo_->setHOTag(useHO_);
+  pfAlgo_.setHOTag(useHO_);
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
-
-  bool debug_ = 
-    iConfig.getUntrackedParameter<bool>("debug",false);
-
-  pfAlgo_->setDebug( debug_ );
-
 }
 
-
-
-PFProducer::~PFProducer() {}
 
 void 
 PFProducer::beginRun(const edm::Run & run, 
@@ -434,7 +361,7 @@ PFProducer::beginRun(const edm::Run & run,
 
     PerformancePayloadFromTFormula const * pfCalibrations = static_cast< const PerformancePayloadFromTFormula *>(perfH.product());
     
-    pfAlgo_->thePFEnergyCalibration()->setCalibrationFunctions(pfCalibrations);
+    pfAlgo_.thePFEnergyCalibration()->setCalibrationFunctions(pfCalibrations);
   }
   
   /*
@@ -484,8 +411,8 @@ PFProducer::beginRun(const edm::Run & run,
   } 
 
     if(usePFPhotons_){
-      //pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
-      pfAlgo_->setPFPhotonRegWeights(ReaderLCEB_,ReaderLCEE_,ReaderGCBarrel_,ReaderGCEndCapHighr9_, ReaderGCEndCapLowr9_, ReaderEcalRes_ );
+      //pfAlgo_.setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
+      pfAlgo_.setPFPhotonRegWeights(ReaderLCEB_,ReaderLCEE_,ReaderGCBarrel_,ReaderGCEndCapHighr9_, ReaderGCEndCapLowr9_, ReaderEcalRes_ );
     }
 }
 
@@ -496,30 +423,30 @@ PFProducer::produce(Event& iEvent, const EventSetup& iSetup)
   LogDebug("PFProducer")<<"START event: " <<iEvent.id().event() <<" in run "<<iEvent.id().run()<<endl;
 
   //Assign the PFAlgo Parameters
-  pfAlgo_->setPFVertexParameters(useVerticesForNeutral_, iEvent.get(vertices_));
+  pfAlgo_.setPFVertexParameters(useVerticesForNeutral_, iEvent.get(vertices_));
 
   // get the collection of blocks 
   auto blocks = iEvent.getHandle( inputTagBlocks_);
   assert( blocks.isValid() );
 
   // get the collection of muons 
-  if ( postMuonCleaning_ ) pfAlgo_->setMuonHandle( iEvent.getHandle(inputTagMuons_) );
+  if ( postMuonCleaning_ ) pfAlgo_.setMuonHandle( iEvent.getHandle(inputTagMuons_) );
 
-  if (useEGammaElectrons_) pfAlgo_->setEGElectronCollection( iEvent.get(inputTagEgammaElectrons_) );
+  if (useEGammaElectrons_) pfAlgo_.setEGElectronCollection( iEvent.get(inputTagEgammaElectrons_) );
 
-  if(use_EGammaFilters_) pfAlgo_->setEGammaCollections( iEvent.get(inputTagPFEGammaCandidates_),
+  if(use_EGammaFilters_) pfAlgo_.setEGammaCollections( iEvent.get(inputTagPFEGammaCandidates_),
                                                         iEvent.get(inputTagValueMapGedElectrons_),
                                                         iEvent.get(inputTagValueMapGedPhotons_));
 
 
   LogDebug("PFProducer")<<"particle flow is starting"<<endl;
 
-  pfAlgo_->reconstructParticles( blocks );
+  pfAlgo_.reconstructParticles( blocks, pfegamma_.get() );
   
   if(verbose_) {
     ostringstream  str;
-    str<<(*pfAlgo_)<<endl;
-    //    cout << (*pfAlgo_) << endl;
+    str<< pfAlgo_ <<endl;
+    //    cout << pfAlgo_ << endl;
     LogInfo("PFProducer") <<str.str()<<endl;
   }  
 
@@ -527,41 +454,41 @@ PFProducer::produce(Event& iEvent, const EventSetup& iSetup)
   // Florian 5/01/2011
   // Save the PFElectron Extra Collection First as to be able to create valid References  
   if(usePFElectrons_)   {  
-    std::unique_ptr<reco::PFCandidateElectronExtraCollection> pOutputElectronCandidateExtraCollection( pfAlgo_->transferElectronExtra() ); 
+    std::unique_ptr<reco::PFCandidateElectronExtraCollection> pOutputElectronCandidateExtraCollection( pfAlgo_.transferElectronExtra() ); 
 
     const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection > electronExtraProd=
       iEvent.put(std::move(pOutputElectronCandidateExtraCollection),electronExtraOutputCol_);      
-    pfAlgo_->setElectronExtraRef(electronExtraProd);
+    pfAlgo_.setElectronExtraRef(electronExtraProd);
   }
 
   // Daniele 18/05/2011
   // Save the PFPhoton Extra Collection First as to be able to create valid References  
   if(usePFPhotons_)   {  
-    std::unique_ptr<reco::PFCandidatePhotonExtraCollection> pOutputPhotonCandidateExtraCollection( pfAlgo_->transferPhotonExtra() ); 
+    std::unique_ptr<reco::PFCandidatePhotonExtraCollection> pOutputPhotonCandidateExtraCollection( pfAlgo_.transferPhotonExtra() ); 
 
     const edm::OrphanHandle<reco::PFCandidatePhotonExtraCollection > photonExtraProd=
       iEvent.put(std::move(pOutputPhotonCandidateExtraCollection),photonExtraOutputCol_);      
-    pfAlgo_->setPhotonExtraRef(photonExtraProd);
+    pfAlgo_.setPhotonExtraRef(photonExtraProd);
   }
 
    // Save cosmic cleaned muon candidates
     std::unique_ptr<reco::PFCandidateCollection> 
-      pCosmicsMuonCleanedCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferCleanedCosmicCandidates() ); 
+      pCosmicsMuonCleanedCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferCleanedCosmicCandidates() ); 
     // Save tracker/global cleaned muon candidates
     std::unique_ptr<reco::PFCandidateCollection> 
-      pTrackerAndGlobalCleanedMuonCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferCleanedTrackerAndGlobalCandidates() ); 
+      pTrackerAndGlobalCleanedMuonCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferCleanedTrackerAndGlobalCandidates() ); 
     // Save fake cleaned muon candidates
     std::unique_ptr<reco::PFCandidateCollection> 
-      pFakeCleanedMuonCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferCleanedFakeCandidates() ); 
+      pFakeCleanedMuonCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferCleanedFakeCandidates() ); 
     // Save punch-through cleaned muon candidates
     std::unique_ptr<reco::PFCandidateCollection> 
-      pPunchThroughMuonCleanedCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferPunchThroughCleanedMuonCandidates() ); 
+      pPunchThroughMuonCleanedCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferPunchThroughCleanedMuonCandidates() ); 
     // Save punch-through cleaned neutral hadron candidates
     std::unique_ptr<reco::PFCandidateCollection> 
-      pPunchThroughHadronCleanedCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferPunchThroughCleanedHadronCandidates() ); 
+      pPunchThroughHadronCleanedCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferPunchThroughCleanedHadronCandidates() ); 
     // Save added muon candidates
     std::unique_ptr<reco::PFCandidateCollection> 
-      pAddedMuonCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferAddedMuonCandidates() ); 
+      pAddedMuonCandidateCollection( pfAlgo_.getPFMuonAlgo()->transferAddedMuonCandidates() ); 
 
   // Check HF overcleaning
   reco::PFRecHitCollection hfCopy;
@@ -575,30 +502,30 @@ PFProducer::produce(Event& iEvent, const EventSetup& iSetup)
   }
 
   if (postHFCleaning_)
-    pfAlgo_->checkCleaning( hfCopy );
+    pfAlgo_.checkCleaning( hfCopy );
 
   // Save recovered HF candidates
-  std::unique_ptr<reco::PFCandidateCollection> pCleanedCandidateCollection( pfAlgo_->transferCleanedCandidates() ); 
+  std::unique_ptr<reco::PFCandidateCollection> pCleanedCandidateCollection( pfAlgo_.transferCleanedCandidates() ); 
 
   
   // Save the final PFCandidate collection
-  std::unique_ptr<reco::PFCandidateCollection> pOutputCandidateCollection( pfAlgo_->transferCandidates() ); 
+  reco::PFCandidateCollection pOutputCandidateCollection = pfAlgo_.transferCandidates();
   
 
   
   LogDebug("PFProducer")<<"particle flow: putting products in the event"<<endl;
   if ( verbose_ ) std::cout <<"particle flow: putting products in the event. Here the full list"<<endl;
   int nC=0;
-  for( reco::PFCandidateCollection::const_iterator  itCand =  (*pOutputCandidateCollection).begin(); itCand !=  (*pOutputCandidateCollection).end(); itCand++) {
+  for(auto const& cand : pOutputCandidateCollection) {
     nC++;
-      if (verbose_ ) std::cout << nC << ")" << (*itCand).particleId() << std::endl;
+      if (verbose_ ) std::cout << nC << ")" << cand.particleId() << std::endl;
 
   }
 
 
 
   // Write in the event
-  iEvent.put(std::move(pOutputCandidateCollection));
+  iEvent.emplace(putToken_,pOutputCandidateCollection);
   iEvent.put(std::move(pCleanedCandidateCollection),"CleanedHF");
 
     if ( postMuonCleaning_ ) { 
@@ -613,7 +540,7 @@ PFProducer::produce(Event& iEvent, const EventSetup& iSetup)
   if(usePFElectrons_)
     {
       std::unique_ptr<reco::PFCandidateCollection>  
-	pOutputElectronCandidateCollection( pfAlgo_->transferElectronCandidates() ); 
+	pOutputElectronCandidateCollection( pfAlgo_.transferElectronCandidates() ); 
       iEvent.put(std::move(pOutputElectronCandidateCollection),electronOutputCol_);
 
     }

@@ -95,8 +95,9 @@ namespace edm {
     workerManagers_[0].endJob(collector);
   }
 
-  void GlobalSchedule::beginJob(ProductRegistry const& iRegistry) {
-    workerManagers_[0].beginJob(iRegistry);
+  void GlobalSchedule::beginJob(ProductRegistry const& iRegistry,
+                                eventsetup::ESRecordsToProxyIndices const& iESIndices) {
+    workerManagers_[0].beginJob(iRegistry, iESIndices);
   }
   
   void GlobalSchedule::replaceModule(maker::ModuleHolder* iMod,

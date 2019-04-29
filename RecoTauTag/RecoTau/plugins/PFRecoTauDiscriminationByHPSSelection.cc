@@ -9,6 +9,7 @@
 
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadronFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 namespace {
   // Apply a hypothesis on the mass of the strips.
@@ -107,6 +108,23 @@ PFRecoTauDiscriminationByHPSSelection::~PFRecoTauDiscriminationByHPSSelection()
   for ( DecayModeCutMap::iterator it = decayModeCuts_.begin();
 	it != decayModeCuts_.end(); ++it ) {
     delete it->second.maxMass_;
+  }
+}
+
+namespace {
+  inline const reco::Track* getTrack(const reco::Candidate& cand)
+  {
+    const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(&cand);
+    if (pfCandPtr) {
+      if      ( pfCandPtr->trackRef().isNonnull()    ) return pfCandPtr->trackRef().get();
+      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return pfCandPtr->gsfTrackRef().get();
+      else return nullptr;
+    }
+    const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    if (packedCand && packedCand->hasTrackDetails())
+    	return &packedCand->pseudoTrack();
+
+    return nullptr;
   }
 }
 
@@ -300,13 +318,9 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
 
   if ( minPixelHits_ > 0 ) {
     int numPixelHits = 0;
-    const std::vector<reco::PFCandidatePtr>& chargedHadrCands = tau->signalPFChargedHadrCands();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator chargedHadrCand = chargedHadrCands.begin();
-	  chargedHadrCand != chargedHadrCands.end(); ++chargedHadrCand ) {
-      const reco::Track* track = nullptr;
-      if ( (*chargedHadrCand)->trackRef().isNonnull() ) track = (*chargedHadrCand)->trackRef().get();
-      else if ( (*chargedHadrCand)->gsfTrackRef().isNonnull() ) track = (*chargedHadrCand)->gsfTrackRef().get();
-      if ( track ) {
+    for (const auto& chargedHadrCand : tau->signalChargedHadrCands()) {
+      const reco::Track* track = getTrack(*chargedHadrCand);
+      if (track != nullptr) {
 	numPixelHits += track->hitPattern().numberOfValidPixelHits();
       }
     }

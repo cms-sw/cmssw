@@ -12,23 +12,37 @@ options.register ('runNumber',
                   "Run Number")
 
 options.register ('buBaseDir',
-                  '/fff/BU0/ramdisk', # default value
+                  'ramdisk', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "BU base directory")
 
 
 options.register ('fuBaseDir',
-                  '/fff/data', # default value
+                  'data', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "BU base directory")
 
+options.register ('fffBaseDir',
+                  '.', # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "FFF base directory")
+
+
 options.register ('numThreads',
-                  1, # default value
+                  2, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Number of CMSSW threads")
+
+options.register ('numFwkStreams',
+                  2, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "Number of CMSSW streams")
+
 
 options.parseArguments()
 
@@ -41,7 +55,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(options.numThreads),
-    numberOfStreams = cms.untracked.uint32(options.numThreads),
+    numberOfStreams = cms.untracked.uint32(options.numFwkStreams)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(threshold = cms.untracked.string( "INFO" )),
@@ -58,8 +72,8 @@ process.EvFDaqDirector = cms.Service("EvFDaqDirector",
     useFileService = cms.untracked.bool(False),
     fileServiceHost = cms.untracked.string("htcp40.cern.ch"),
     runNumber = cms.untracked.uint32(options.runNumber),
-    baseDir = cms.untracked.string(options.fuBaseDir),
-    buBaseDir = cms.untracked.string(options.buBaseDir),
+    baseDir = cms.untracked.string(options.fffBaseDir +"/"+options.fuBaseDir),
+    buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
     directorIsBu = cms.untracked.bool(False),
     testModeNoBuilderUnit = cms.untracked.bool(False))
 
@@ -68,20 +82,6 @@ try:
 except Exception as ex:
   print(str(ex))
   pass
-
-process.PrescaleService = cms.Service( "PrescaleService",
-    lvl1DefaultLabel = cms.string( "B" ),
-    lvl1Labels = cms.vstring( 'A',
-                              'B'
-                            ),
-    prescaleTable = cms.VPSet(
-               cms.PSet(  pathName = cms.string( "p1" ),                                                                                                                
-                          prescales = cms.vuint32( 0, 10)
-                       ),                                                                                                                                   
-               cms.PSet(  pathName = cms.string( "p2" ),                                                                                                           
-                          prescales = cms.vuint32( 0, 100)                                                                                                                   
-                       )
-    ))
 
 process.source = cms.Source("FedRawDataInputSource",
     runNumber = cms.untracked.uint32(options.runNumber),
@@ -135,4 +135,14 @@ process.streamB = cms.OutputModule("EvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
 )
 
-process.ep = cms.EndPath(process.streamA+process.streamB)
+process.streamC = cms.OutputModule("ShmStreamConsumer",
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+)
+
+#process.streamD = cms.OutputModule("EventStreamFileWriter",
+#    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+#)
+
+process.ep = cms.EndPath(process.streamA+process.streamB+process.streamC
+  #+process.streamD
+)
