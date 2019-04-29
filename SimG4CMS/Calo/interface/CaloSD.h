@@ -27,6 +27,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 
 class G4Step;
 class G4HCofThisEvent;
@@ -163,6 +164,7 @@ private:
 
   std::map<CaloHitID, CaloG4Hit*> hitMap;
   std::map<int, TrackWithHistory*> tkMap;
+  std::vector<std::unique_ptr<CaloG4Hit>> reusehit;
 
   std::vector<CaloG4Hit*> reusehit;
   std::vector<CaloG4Hit*> hitvec;
