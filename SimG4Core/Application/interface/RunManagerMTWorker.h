@@ -44,12 +44,13 @@ public:
 
   void endRun();
 
-  void produce(const edm::Event& inpevt, const edm::EventSetup& es, RunManagerMT& runManagerMaster);
+  std::unique_ptr<G4SimEvent> 
+    produce(const edm::Event& inpevt, const edm::EventSetup& es, RunManagerMT& runManagerMaster);
 
   void abortEvent();
   void abortRun(bool softAbort=false);
 
-  inline G4SimEvent * simEvent() { return m_simEvent.get(); }
+  inline G4SimEvent * simEvent() { return m_simEvent; }
 
   void Connect(RunAction*);
   void Connect(EventAction*);
@@ -92,10 +93,10 @@ private:
   edm::ParameterSet m_p;
 
   struct TLSData;
-  static thread_local std::unique_ptr<TLSData> m_tls;
+  static thread_local TLSData* m_tls;
   static void resetTLS();
 
-  std::unique_ptr<G4SimEvent> m_simEvent;
+  G4SimEvent* m_simEvent;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
 };
 
