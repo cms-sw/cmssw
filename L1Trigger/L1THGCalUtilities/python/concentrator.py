@@ -15,13 +15,13 @@ def create_supertriggercell(process, inputs,
 
 
 def create_threshold(process, inputs,
-                     threshold_silicon=threshold_conc_proc.triggercell_threshold_silicon,  # in mipT
-                     threshold_scintillator=threshold_conc_proc.triggercell_threshold_scintillator  # in mipT
+                     threshold_silicon=threshold_conc_proc.threshold_silicon,  # in mipT
+                     threshold_scintillator=threshold_conc_proc.threshold_scintillator  # in mipT
                      ):
     producer = process.hgcalConcentratorProducer.clone()
     producer.ProcessorParameters = threshold_conc_proc.clone()
-    producer.ProcessorParameters.triggercell_threshold_silicon = threshold_silicon  # MipT
-    producer.ProcessorParameters.triggercell_threshold_scintillator = threshold_scintillator  # MipT
+    producer.ProcessorParameters.threshold_silicon = threshold_silicon  # MipT
+    producer.ProcessorParameters.threshold_scintillator = threshold_scintillator  # MipT
     producer.InputTriggerCells = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs))
     producer.InputTriggerSums = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs))
     return producer

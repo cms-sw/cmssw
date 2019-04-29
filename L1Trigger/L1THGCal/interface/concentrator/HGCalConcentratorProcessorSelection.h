@@ -2,7 +2,8 @@
 #define __L1Trigger_L1THGCal_HGCalConcentratorProcessorSelection_h__
 
 #include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
-#include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorSelectionImpl.h"
+#include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorThresholdImpl.h"
+#include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorBestChoiceImpl.h"
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorSuperTriggerCellImpl.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
@@ -23,8 +24,9 @@ public:
 private:
   SelectionType selectionType_;
 
-  std::unique_ptr<HGCalConcentratorSelectionImpl> concentratorProcImpl_;
-  std::unique_ptr<HGCalConcentratorSuperTriggerCellImpl> concentratorSTCImpl_;
+  std::unique_ptr<HGCalConcentratorThresholdImpl> thresholdImpl_;
+  std::unique_ptr<HGCalConcentratorBestChoiceImpl> bestChoiceImpl_;
+  std::unique_ptr<HGCalConcentratorSuperTriggerCellImpl> superTriggerCellImpl_;
 
   HGCalTriggerTools triggerTools_;
 };

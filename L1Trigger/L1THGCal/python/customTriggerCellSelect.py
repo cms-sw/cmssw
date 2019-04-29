@@ -13,12 +13,12 @@ def custom_triggercellselect_supertriggercell(process,
 
 
 def custom_triggercellselect_threshold(process,
-                                       threshold_silicon=threshold_conc_proc.triggercell_threshold_silicon,  # in mipT
-                                       threshold_scintillator=threshold_conc_proc.triggercell_threshold_scintillator  # in mipT
+                                       threshold_silicon=threshold_conc_proc.threshold_silicon,  # in mipT
+                                       threshold_scintillator=threshold_conc_proc.threshold_scintillator  # in mipT
                                        ):
     parameters = threshold_conc_proc.clone()
-    parameters.triggercell_threshold_silicon = threshold_silicon
-    parameters.triggercell_threshold_scintillator = threshold_scintillator
+    parameters.threshold_silicon = threshold_silicon
+    parameters.threshold_scintillator = threshold_scintillator
     process.hgcalConcentratorProducer.ProcessorParameters = parameters
     return process
 

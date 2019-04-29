@@ -6,6 +6,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCalUtilities/interface/HGCalTriggerNtupleBase.h"
@@ -38,14 +39,25 @@ private:
   std::vector<double> thicknessCorrections_;
   edm::ESHandle<HGCalTriggerGeometryBase> geometry_;
 
+  static const unsigned kPanelOffset_ = 0;
+  static const unsigned kPanelMask_ = 0x1F;
+  static const unsigned kSectorOffset_ = 5;
+  static const unsigned kSectorMask_ = 0x7;
+
   int tc_n_;
   std::vector<uint32_t> tc_id_;
   std::vector<int> tc_subdet_;
   std::vector<int> tc_side_;
   std::vector<int> tc_layer_;
+  std::vector<int> tc_panel_number_;
+  std::vector<int> tc_panel_sector_;
   std::vector<int> tc_wafer_;
+  std::vector<int> tc_waferu_;
+  std::vector<int> tc_waferv_;
   std::vector<int> tc_wafertype_;
   std::vector<int> tc_cell_;
+  std::vector<int> tc_cellu_;
+  std::vector<int> tc_cellv_;
   std::vector<uint32_t> tc_data_;
   std::vector<uint32_t> tc_uncompressedCharge_;
   std::vector<uint32_t> tc_compressedCharge_;
@@ -97,8 +109,14 @@ void HGCalTriggerNtupleHGCTriggerCells::initialize(TTree& tree,
   tree.Branch("tc_zside", &tc_side_);
   tree.Branch("tc_layer", &tc_layer_);
   tree.Branch("tc_wafer", &tc_wafer_);
+  tree.Branch("tc_waferu", &tc_waferu_);
+  tree.Branch("tc_waferv", &tc_waferv_);
   tree.Branch("tc_wafertype", &tc_wafertype_);
+  tree.Branch("tc_panel_number", &tc_panel_number_);
+  tree.Branch("tc_panel_sector", &tc_panel_sector_);
   tree.Branch("tc_cell", &tc_cell_);
+  tree.Branch("tc_cellu", &tc_cellu_);
+  tree.Branch("tc_cellv", &tc_cellv_);
   tree.Branch("tc_data", &tc_data_);
   tree.Branch("tc_uncompressedCharge", &tc_uncompressedCharge_);
   tree.Branch("tc_compressedCharge", &tc_compressedCharge_);
@@ -167,14 +185,54 @@ void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const edm::Eve
         continue;
       tc_n_++;
       // hardware data
-      HGCalDetId id(tc_itr->detId());
+      DetId id(tc_itr->detId());
+      DetId panelId(geometry_->getModuleFromTriggerCell(id));
+      int panel_sector = -999;
+      int panel_number = -999;
+      if (panelId.det() == DetId::Forward) {
+        HGCalDetId panelIdHGCal(panelId);
+        if (panelId.subdetId() == ForwardSubdetector::HGCHEB) {
+          panel_number = panelIdHGCal.wafer();
+        } else {
+          panel_sector = (panelIdHGCal.wafer() >> kSectorOffset_) & kSectorMask_;
+          panel_number = (panelIdHGCal.wafer() >> kPanelOffset_) & kPanelMask_;
+        }
+      } else if (id.det() == DetId::HGCalHSc) {
+        HGCScintillatorDetId panelIdSci(panelId);
+        panel_sector = panelIdSci.iphi();
+        panel_number = panelIdSci.ietaAbs();
+      }
+      tc_panel_number_.emplace_back(panel_number);
+      tc_panel_sector_.emplace_back(panel_sector);
       tc_id_.emplace_back(tc_itr->detId());
-      tc_subdet_.emplace_back(id.subdetId());
-      tc_side_.emplace_back(id.zside());
+      tc_side_.emplace_back(triggerTools_.zside(id));
       tc_layer_.emplace_back(triggerTools_.layerWithOffset(id));
-      tc_wafer_.emplace_back(id.wafer());
-      tc_wafertype_.emplace_back(id.waferType());
-      tc_cell_.emplace_back(id.cell());
+      // V9 detids
+      if (id.det() == DetId::HGCalTrigger) {
+        HGCalTriggerDetId idv9(id);
+        tc_subdet_.emplace_back(idv9.subdet());
+        tc_waferu_.emplace_back(idv9.waferU());
+        tc_waferv_.emplace_back(idv9.waferV());
+        tc_wafertype_.emplace_back(idv9.type());
+        tc_cellu_.emplace_back(idv9.triggerCellU());
+        tc_cellv_.emplace_back(idv9.triggerCellV());
+      } else if (id.det() == DetId::HGCalHSc) {
+        HGCScintillatorDetId idv9(id);
+        tc_subdet_.emplace_back(idv9.subdet());
+        tc_waferu_.emplace_back(-999);
+        tc_waferv_.emplace_back(-999);
+        tc_wafertype_.emplace_back(idv9.type());
+        tc_cellu_.emplace_back(idv9.ietaAbs());
+        tc_cellv_.emplace_back(idv9.iphi());
+      }
+      // V8 detids
+      else {
+        HGCalDetId idv8(id);
+        tc_subdet_.emplace_back(id.subdetId());
+        tc_wafer_.emplace_back(idv8.wafer());
+        tc_wafertype_.emplace_back(idv8.waferType());
+        tc_cell_.emplace_back(idv8.cell());
+      }
       tc_data_.emplace_back(tc_itr->hwPt());
       tc_uncompressedCharge_.emplace_back(tc_itr->uncompressedCharge());
       tc_compressedCharge_.emplace_back(tc_itr->compressedCharge());
@@ -194,32 +252,22 @@ void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const edm::Eve
 
       if (fill_simenergy_) {
         double energy = 0;
-        int subdet = id.subdetId();
         unsigned layer = triggerTools_.layerWithOffset(id);
         // search for simhit for all the cells inside the trigger cell
         for (uint32_t c_id : geometry_->getCellsFromTriggerCell(id)) {
           int thickness = triggerTools_.thicknessIndex(c_id);
-          switch (subdet) {
-            case ForwardSubdetector::HGCEE: {
-              auto itr = simhits_ee.find(c_id);
-              if (itr != simhits_ee.end())
-                energy += calibrate(itr->second, thickness, layer);
-              break;
-            }
-            case ForwardSubdetector::HGCHEF: {
-              auto itr = simhits_fh.find(c_id);
-              if (itr != simhits_fh.end())
-                energy += calibrate(itr->second, thickness, layer);
-              break;
-            }
-            case ForwardSubdetector::HGCHEB: {
-              auto itr = simhits_bh.find(c_id);
-              if (itr != simhits_bh.end())
-                energy += itr->second;
-              break;
-            }
-            default:
-              break;
+          if (triggerTools_.isEm(id)) {
+            auto itr = simhits_ee.find(c_id);
+            if (itr != simhits_ee.end())
+              energy += calibrate(itr->second, thickness, layer);
+          } else if (triggerTools_.isSilicon(id)) {
+            auto itr = simhits_fh.find(c_id);
+            if (itr != simhits_fh.end())
+              energy += calibrate(itr->second, thickness, layer);
+          } else {
+            auto itr = simhits_bh.find(c_id);
+            if (itr != simhits_bh.end())
+              energy += itr->second;
           }
         }
         tc_simenergy_.emplace_back(energy);
@@ -284,8 +332,14 @@ void HGCalTriggerNtupleHGCTriggerCells::clear() {
   tc_side_.clear();
   tc_layer_.clear();
   tc_wafer_.clear();
+  tc_waferu_.clear();
+  tc_waferv_.clear();
   tc_wafertype_.clear();
+  tc_panel_number_.clear();
+  tc_panel_sector_.clear();
   tc_cell_.clear();
+  tc_cellu_.clear();
+  tc_cellv_.clear();
   tc_data_.clear();
   tc_uncompressedCharge_.clear();
   tc_compressedCharge_.clear();
