@@ -2,23 +2,24 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoBTag.FeatureTools.pfDeepBoostedJetTagInfos_cfi import pfDeepBoostedJetTagInfos
 from RecoBTag.MXNet.pfDeepBoostedJetTags_cfi import pfDeepBoostedJetTags as _pfDeepBoostedJetTags
-from RecoBTag.MXNet.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams
+from RecoBTag.MXNet.Parameters.V02.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams
+from RecoBTag.MXNet.Parameters.V02.pfMassDecorrelatedDeepBoostedJetPreprocessParams_cfi import pfMassDecorrelatedDeepBoostedJetPreprocessParams
 from RecoBTag.MXNet.pfDeepBoostedDiscriminatorsJetTags_cfi import pfDeepBoostedDiscriminatorsJetTags
 from RecoBTag.MXNet.pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags_cfi import pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags
 
 # nominal DeepAK8
 pfDeepBoostedJetTags = _pfDeepBoostedJetTags.clone(
     preprocessParams = pfDeepBoostedJetPreprocessParams,
-    model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V01/full/resnet-symbol.json',
-    param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V01/full/resnet-0000.params',
+    model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-symbol.json',
+    param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-0000.params',
     debugMode  = False, # debug
 )
 
 # mass-decorrelated DeepAK8
 pfMassDecorrelatedDeepBoostedJetTags = _pfDeepBoostedJetTags.clone(
-    preprocessParams = pfDeepBoostedJetPreprocessParams,
-    model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V01/decorrelated/resnet-symbol.json',
-    param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V01/decorrelated/resnet-0000.params',
+    preprocessParams = pfMassDecorrelatedDeepBoostedJetPreprocessParams,
+    model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-symbol.json',
+    param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-0000.params',
     debugMode = False, # debug
 )
 

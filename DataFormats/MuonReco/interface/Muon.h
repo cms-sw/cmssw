@@ -185,7 +185,7 @@ namespace reco {
 
     enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned,
 			   RPCHitAndTrackArbitration, GEMSegmentAndTrackArbitration, ME0SegmentAndTrackArbitration };
-    
+
     ///
     /// ====================== STANDARD SELECTORS ===========================
     ///
@@ -216,7 +216,10 @@ namespace reco {
       InTimeMuon             = 1UL<<23,   
       PFIsoVeryVeryTight     = 1UL<<24,  // reliso<0.05
       MultiIsoLoose          = 1UL<<25,  // miniIso with ptRatio and ptRel 
-      MultiIsoMedium         = 1UL<<26   // miniIso with ptRatio and ptRel 
+      MultiIsoMedium         = 1UL<<26,   // miniIso with ptRatio and ptRel 
+      PuppiIsoLoose          = 1UL<<27,
+      PuppiIsoMedium         = 1UL<<28,
+      PuppiIsoTight          = 1UL<<29
     };
     
     bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }
@@ -238,7 +241,7 @@ namespace reco {
     /// number of chambers CSC or DT matches only (MuonChamberMatches include RPC rolls)
     int numberOfChambersCSCorDT() const;
     /// get number of chambers with matched segments
-    int numberOfMatches( unsigned int type = SegmentAndTrackArbitration ) const;
+    int numberOfMatches( ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// get number of stations with matched segments
     /// just adds the bits returned by stationMask
     int numberOfMatchedStations( ArbitrationType type = SegmentAndTrackArbitration ) const;
@@ -248,7 +251,7 @@ namespace reco {
     /// get bit map of stations with matched segments
     /// bits 0-1-2-3 = DT stations 1-2-3-4
     /// bits 4-5-6-7 = CSC stations 1-2-3-4
-    unsigned int stationMask( unsigned int type = SegmentAndTrackArbitration ) const;
+    unsigned int stationMask( ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// get bit map of stations with tracks within
     /// given distance (in cm) of chamber edges 
     /// bit assignments are same as above
@@ -257,7 +260,13 @@ namespace reco {
     unsigned int stationGapMaskDistance( float distanceCut = 10. ) const;
     /// same as above for given number of sigmas
     unsigned int stationGapMaskPull( float sigmaCut = 3. ) const;
-     
+    /// # of digis in a given station layer
+    int nDigisInStation( int station, int muonSubdetId) const;
+    /// tag a shower in a given station layer
+    bool hasShowerInStation( int station, int muonSubdetId, int nDtDigisCut = 20, int nCscDigisCut = 36 ) const;
+    /// count the number of showers along a muon track
+    int numberOfShowers( int nDtDigisCut = 20, int nCscDigisCut = 36 ) const;
+
     /// muon type - type of the algorithm that reconstructed this muon
     /// multiple algorithms can reconstruct the same muon
     static const unsigned int GlobalMuon     =  1<<1;
@@ -269,8 +278,10 @@ namespace reco {
     static const unsigned int GEMMuon =  1<<7;
     static const unsigned int ME0Muon =  1<<8;
 
-    void setType( unsigned int type ) { type_ = type; }
-    unsigned int type() const { return type_; }
+    void setType( unsigned int type ) { type_ = type; } 
+    unsigned int type() const { return type_; } 
+
+   
     // override of method in base class reco::Candidate
     bool isMuon() const override { return true; }
     bool isGlobalMuon()     const override { return type_ & GlobalMuon; }
@@ -328,7 +339,7 @@ namespace reco {
 
     /// muon type mask
     unsigned int type_;
-
+    
     //PF muon p4
     reco::Candidate::LorentzVector pfP4_;
 
@@ -338,12 +349,12 @@ namespace reco {
     const std::vector<const MuonChamberMatch*> chambers( int station, int muonSubdetId ) const;
     /// get pointers to best segment and corresponding chamber in vector of chambers
     std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> pair( const std::vector<const MuonChamberMatch*> &,
-								     unsigned int type = SegmentAndTrackArbitration ) const;
+								     ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// selector bitmap
     unsigned int selectors_;
    public:
      /// get number of segments
-     int numberOfSegments( int station, int muonSubdetId, unsigned int type = SegmentAndTrackArbitration ) const;
+    int numberOfSegments( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
      /// get deltas between (best) segment and track
      /// If no chamber or no segment returns 999999
      float dX       ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;

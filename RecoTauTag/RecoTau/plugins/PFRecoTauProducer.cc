@@ -189,7 +189,7 @@ PFRecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<double>("smearedPVsigmaZ", 0.005);
   desc.add<double>("MatchingConeSize_max", 0.6);
   desc.add<double>("HCALIsolConeSize_min", 0.0);
-  descriptions.add("pfRecoTauProducer", desc);
+  descriptions.add("pfRecoTauProducerDef", desc);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauProducer);

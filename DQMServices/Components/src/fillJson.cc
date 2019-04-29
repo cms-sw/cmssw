@@ -94,7 +94,7 @@ dqmfilesaver::fillJson(int run, int lumi, const std::string& dataFilePathName, c
     pt.put("definition", "/fakeDefinition.jsn");
   } else {
     // The availability test of the EvFDaqDirector Service was done in the ctor.
-    bfs::path outJsonDefName(edm::Service<evf::EvFDaqDirector>()->baseRunDir()); //we assume this file is written bu the EvF Output module
+    bfs::path outJsonDefName{edm::Service<evf::EvFDaqDirector>()->baseRunDir()}; //we assume this file is written bu the EvF Output module
     outJsonDefName /= (std::string("output_") + oss_pid.str() + std::string(".jsd"));
     pt.put("definition", outJsonDefName.string());
   }

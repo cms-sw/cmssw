@@ -153,6 +153,8 @@ class DTttrigWorkflow( DTWorkflow ):
         self.process.GlobalTag.globaltag = cms.string(str(self.options.globaltag))
         self.process.dtResidualCalibration.rootFileName = self.output_file
         self.prepare_common_submit()
+        if self.options.fromMuons:
+            self.process.dtResidualCalibration.Muons = cms.InputTag("muons")
         if self.options.histoRange:
             self.process.dtResidualCalibration.histogramRange = cms.double(float(self.options.histoRange))
         if self.options.inputCalibDB:
@@ -223,10 +225,13 @@ class DTttrigWorkflow( DTWorkflow ):
         self.pset_template = 'CalibMuon.DTCalibration.dtCalibValidation_cfg'
         if self.options.datasettype == "Cosmics":
             self.pset_template = 'CalibMuon.DTCalibration.dtCalibValidation_cosmics_cfg'
+        if self.options.fromMuons:
+            self.pset_template = 'CalibMuon.DTCalibration.dtCalibValidationFromMuons_cfg'
         self.process = tools.loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = cms.string(str(self.options.globaltag))
         self.prepare_common_submit()
-        self.add_local_calib_db()
+        if self.options.inputCalibDB:
+            self.add_local_calib_db()
         self.write_pset_file()
 
     def prepare_validation_check(self):

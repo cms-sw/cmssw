@@ -1,6 +1,7 @@
 #!/bin/env python
 
 from __future__ import print_function
+from builtins import range
 import ROOT as R
 import os, re
 
@@ -33,7 +34,7 @@ class DQMReader(object):
     def read_objects_dqmio(self):
         indices = self._root_file.Get("Indices")
 
-        for y in xrange(indices.GetEntries()):
+        for y in range(indices.GetEntries()):
             indices.GetEntry(y)
             # print indices.Run, indices.Lumi, indices.Type
 
@@ -45,14 +46,14 @@ class DQMReader(object):
             object_type = self.DQMIO_TYPES[indices.Type]
             t_tree = self._root_file.Get(object_type)
 
-            for i in xrange(indices.FirstIndex, indices.LastIndex + 1):
+            for i in range(indices.FirstIndex, indices.LastIndex + 1):
                 t_tree.GetEntry(i)
 
                 fullname = str(t_tree.FullName)
                 yield (fullname, t_tree.Value, )
 
     def read_objects_root(self):
-        xml_re = re.compile(r"^<(.+)>(.+)=(.+)<\/\1>$")
+        xml_re = re.compile(r"^<(.+)>(.+)=(.*)<\/\1>$")
         def parse_directory(di):
             directory = self._root_file.GetDirectory(di)
             for key in directory.GetListOfKeys():

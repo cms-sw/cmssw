@@ -42,7 +42,8 @@ KDTreeLinkerAlgo::recBuild(std::vector<KDTreeNodeInfo>	&eltList,
   if (portionSize == 1) { // Leaf case
    
     KDTreeNode *leaf = getNextNode();
-    leaf->setAttributs(region, eltList[low]);
+    leaf->rh = eltList[low];
+    leaf->region = region;
     return leaf;
 
   } else { // Node case
@@ -53,7 +54,7 @@ KDTreeLinkerAlgo::recBuild(std::vector<KDTreeNodeInfo>	&eltList,
 
     // We create the node
     KDTreeNode *node = getNextNode();
-    node->setAttributs(region);
+    node->region = region;
 
 
     // Here we split into 2 halfplanes the current plane

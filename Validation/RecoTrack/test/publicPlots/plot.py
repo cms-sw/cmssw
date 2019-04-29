@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from builtins import range
 import copy
 import math
 import array
@@ -978,7 +979,7 @@ def plotResol(files, prefix, pileup, hasPU70=False):
         x = []
         y = []
         axis = h.GetXaxis()
-        for i in xrange(1, h.GetNbinsX()+1):
+        for i in range(1, h.GetNbinsX()+1):
             x.append(axis.GetBinCenter(i)**2)
             y.append(h.GetBinContent(i))
 

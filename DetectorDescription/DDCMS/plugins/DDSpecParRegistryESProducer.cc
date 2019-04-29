@@ -24,9 +24,9 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DetectorDescription/DDCMS/interface/DDSpecParRegistryRcd.h"
+#include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
-#include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
+#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 
@@ -70,7 +70,7 @@ DDSpecParRegistryESProducer::ReturnType
 DDSpecParRegistryESProducer::produce(const DDSpecParRegistryRcd& iRecord)
 {  
   edm::ESHandle<DDDetector> det;
-  iRecord.getRecord<DetectorDescriptionRcd>().get(m_label, det);
+  iRecord.getRecord<GeometryFileRcd>().get(m_label, det);
 
   const DDSpecParRegistry* registry = det->description()->extension<DDSpecParRegistry>();
   auto product = std::make_unique<DDSpecParRegistry>();

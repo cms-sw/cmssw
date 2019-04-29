@@ -60,7 +60,7 @@ namespace edm {
       bool returnValue =true;
       e.setSharedResourcesAcquirer(&resourcesAcquirer_);
       EventSignalsSentry sentry(act,mcc);
-      const EventSetup c{ci};
+      const EventSetup c{ci,static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event)};
       returnValue = this->filter(e, c);
       commit_(e, &previousParentageId_);
       return returnValue;
@@ -100,7 +100,7 @@ namespace edm {
       Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
-      const EventSetup c{ci};
+      const EventSetup c{ci,static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun)};
       this->doBeginRun_(cnstR, c);
       r.setProducer(this);
       this->doBeginRunProduce_(r,c);
@@ -113,7 +113,7 @@ namespace edm {
       Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       Run const& cnstR = r;
-      const EventSetup c{ci};
+      const EventSetup c{ci,static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun)};
       this->doEndRun_(cnstR, c);
       r.setProducer(this);
       this->doEndRunProduce_(r, c);
@@ -126,7 +126,7 @@ namespace edm {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
-      const EventSetup c{ci};
+      const EventSetup c{ci,static_cast<unsigned int>(Transition::BeginLuminosityBlock), esGetTokenIndices(Transition::BeginLuminosityBlock)};
       this->doBeginLuminosityBlock_(cnstLb, c);
       lb.setProducer(this);
       this->doBeginLuminosityBlockProduce_(lb, c);
@@ -139,7 +139,7 @@ namespace edm {
       LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
-      const EventSetup c{ci};
+      const EventSetup c{ci,static_cast<unsigned int>(Transition::EndLuminosityBlock), esGetTokenIndices(Transition::EndLuminosityBlock)};
       this->doEndLuminosityBlock_(cnstLb, c);
       lb.setProducer(this);
       this->doEndLuminosityBlockProduce_(lb, c);

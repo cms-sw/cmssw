@@ -17,7 +17,7 @@
 #include <sstream>
 
 ElectronDqmAnalyzerBase::ElectronDqmAnalyzerBase( const edm::ParameterSet& conf )
- : bookPrefix_("ele"), bookIndex_(0), histoNamesReady(false), finalDone_(false)
+ : bookPrefix_("ele"), bookIndex_(0), histoNamesReady(false)
  {
   verbosity_ = conf.getUntrackedParameter<int>("Verbosity") ;
   finalStep_ = conf.getParameter<std::string>("FinalStep") ;
@@ -55,39 +55,6 @@ std::string ElectronDqmAnalyzerBase::newName( const std::string & name )
   return oss.str() ;
  }
 
-void ElectronDqmAnalyzerBase::dqmBeginRun( edm::Run const & , edm::EventSetup const & ) 
- {
- }
-
-void ElectronDqmAnalyzerBase::endRun( edm::Run const &, edm::EventSetup const & )
- {
-  if (finalStep_=="AtRunEnd")
-   {
-    if (finalDone_)
-     { edm::LogWarning("ElectronDqmAnalyzerBase::endRun")<<"finalize() already called" ; }
-    finalDone_ = true ;
-
-    // --- transfert from endJob()
-    if (!outputFile_.empty())
-     { 
-//     edm::LogWarning("ElectronDqmAnalyzerBase::endRun")<<"finalize() already called" ;
-	 } /**/
-   }
- }
-
-std::shared_ptr<edab::Empty> 
-ElectronDqmAnalyzerBase::globalBeginLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) const {
-  return std::shared_ptr<edab::Empty>();
-}
-void ElectronDqmAnalyzerBase::globalEndLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & )
- {
-  if (finalStep_=="AtLumiEnd")
-   {
-    if (finalDone_)
-     { edm::LogWarning("ElectronDqmAnalyzerBase::endLuminosityBlock")<<"finalize() already called" ; }
-    finalDone_ = true ;
-   }
- } /**/
 
 void ElectronDqmAnalyzerBase::bookHistograms( DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &) 
 {

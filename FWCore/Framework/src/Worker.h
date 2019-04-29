@@ -75,6 +75,9 @@ namespace edm {
   namespace workerhelper {
     template< typename O> class CallImpl;
   }
+  namespace eventsetup {
+    class ESRecordsToProxyIndices;
+  }
 
   class Worker {
   public:
@@ -196,6 +199,7 @@ namespace edm {
     //Used to make EDGetToken work
     virtual void updateLookup(BranchType iBranchType,
                       ProductResolverIndexHelper const&) = 0;
+    virtual void updateLookup(eventsetup::ESRecordsToProxyIndices const&) = 0;
     virtual void resolvePutIndicies(BranchType iBranchType,
                                     std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const& iIndicies) = 0;
 

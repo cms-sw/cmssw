@@ -45,6 +45,10 @@ private:
   int m_counter{};
   int m_totalCounter{};
   int const m_totalNEvents;
+  // At the moment the begin run token is not used to get anything,
+  // but just its existence tests the indexing used in the esConsumes
+  // function call
+  edm::ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> const m_esTokenBeginRun;
   edm::ESGetToken<edm::eventsetup::test::DummyData, edm::DefaultRecord> const m_esToken;
 };
 
@@ -52,6 +56,8 @@ TestESDummyDataAnalyzer::TestESDummyDataAnalyzer(const edm::ParameterSet& iConfi
   m_expectedValue{iConfig.getParameter<int>("expected")},
   m_nEventsValue{iConfig.getUntrackedParameter<int>("nEvents",0)},
   m_totalNEvents{iConfig.getUntrackedParameter<int>("totalNEvents",-1)},
+  m_esTokenBeginRun{esConsumes<edm::eventsetup::test::DummyData, 
+                               edm::DefaultRecord, edm::Transition::BeginRun>()},
   m_esToken{esConsumes<edm::eventsetup::test::DummyData, edm::DefaultRecord>()}
 {}
 

@@ -2,7 +2,7 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-#include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define LOCAL_DEBUG
 
@@ -24,13 +24,14 @@ void DTNumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
   theLayerLevel=muonConstants.getValue("mb_layer")/theLevelPart;
   theWireLevel=muonConstants.getValue("mb_wire")/theLevelPart;
 #ifdef LOCAL_DEBUG
-  std::cout << "Initialize DTNumberingScheme" << std::endl;
-  std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
-  std::cout << "theWheelLevel " << theWheelLevel <<std::endl;
-  std::cout << "theStationLevel " << theStationLevel <<std::endl;
-  std::cout << "theSuperLayerLevel " << theSuperLayerLevel <<std::endl;
-  std::cout << "theLayerLevel " << theLayerLevel <<std::endl;
-  std::cout << "theWireLevel " << theWireLevel <<std::endl;
+  edm::LogVerbatim("DTNumberingScheme") 
+    << "Initialize DTNumberingScheme"
+    << "\ntheRegionLevel " << theRegionLevel
+    << "\ntheWheelLevel " << theWheelLevel
+    << "\ntheStationLevel " << theStationLevel
+    << "\ntheSuperLayerLevel " << theSuperLayerLevel
+    << "\ntheLayerLevel " << theLayerLevel
+    << "\ntheWireLevel " << theWireLevel;
 #endif
 
 }
@@ -38,16 +39,16 @@ void DTNumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
 int DTNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num){
   
 #ifdef LOCAL_DEBUG
-  std::cout << "DTNumbering "<<num.getLevels()<<std::endl;
+  edm::LogVerbatim("DTNumberingScheme") << "DTNumbering " << num.getLevels();
   for (int level=1;level<=num.getLevels();level++) {
-    std::cout << level << " " << num.getSuperNo(level)
-	      << " " << num.getBaseNo(level) << std::endl;
+    edm::LogVerbatim("DTNumberingScheme") 
+      << level << " " << num.getSuperNo(level) << " " << num.getBaseNo(level);
   }
 #endif
   if (num.getLevels()!=theWireLevel) {
-    std::cout << "DTNS::BNToUN "
-	      << "BaseNumber has " << num.getLevels() << " levels,"
-	      << "need "<<theWireLevel<<std::endl;
+    edm::LogWarning("DTNumberingScheme") 
+      << "DTNumberingScheme::BNToUN: BaseNumber has " << num.getLevels() 
+      << " levels, need "<< theWireLevel;
     return 0;
   }
   
@@ -117,7 +118,7 @@ int DTNumberingScheme::getDetId(const MuonBaseNumber& num) const {
   DTWireId id(wheel_id,station_id,sector_id,superlayer_id,layer_id,wire_id);
   
 #ifdef LOCAL_DEBUG
-  std::cout << "DTNumberingScheme: " << id << std::endl;
+  edm::LogVerbatim("DTNumberingScheme") << "DTNumberingScheme: " << id;
 #endif
   
   return id.rawId();

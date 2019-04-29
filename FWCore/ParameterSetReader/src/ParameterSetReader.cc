@@ -1,6 +1,6 @@
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
-#include "FWCore/PyDevParameterSet/interface/PyBind11ProcessDesc.h"
-#include "FWCore/PyDevParameterSet/interface/MakePyBind11ParameterSets.h"
+#include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/MakePyBind11ParameterSets.h"
 
 std::unique_ptr<edm::ParameterSet> edm::getPSetFromConfig(const std::string &config) {
   return PyBind11ProcessDesc(config).parameterSet();

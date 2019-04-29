@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Sources/interface/VectorInputSourceDescription.h"
@@ -180,7 +181,8 @@ namespace edm {
     streamContext_.reset(new StreamContext(iID, processContext_.get()));
     input_->doBeginJob();
     if (provider_.get() != nullptr) {
-      provider_->beginJob(*productRegistry_);
+      //TODO for now, we do not support consumes from EventSetup
+      provider_->beginJob(*productRegistry_, eventsetup::ESRecordsToProxyIndices{ {} });
       provider_->beginStream(iID, *streamContext_);
     }
   }

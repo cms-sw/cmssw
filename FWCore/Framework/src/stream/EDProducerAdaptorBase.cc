@@ -59,7 +59,7 @@ namespace edm {
                     &mod->previousParentage_,
                     &mod->gotBranchIDsFromAcquire_);
       EventSignalsSentry sentry(act,mcc);
-      const EventSetup c{ci};
+      const EventSetup c{ci,static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event)};
       mod->produce(e, c);
       commit(e, &mod->previousParentageId_);
       return true;
@@ -78,7 +78,7 @@ namespace edm {
                               nullptr,
                               mod->gotBranchIDsFromAcquire_);
       EventAcquireSignalsSentry sentry(act,mcc);
-      const EventSetup c{ci};
+      const EventSetup c{ci,static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event)};
       mod->doAcquire_(e, c, holder);
     }
 

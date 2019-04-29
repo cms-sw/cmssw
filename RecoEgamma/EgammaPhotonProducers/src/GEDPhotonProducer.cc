@@ -80,12 +80,17 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     pfCandidates_      = 
       consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfCandidates"));
 
-    phoChargedIsolationTokenCITK_      = 
-      consumes<edm::ValueMap<float>>(conf_.getParameter<edm::InputTag>("chargedHadronIsolation"));
-    phoNeutralHadronIsolationTokenCITK_      = 
-      consumes<edm::ValueMap<float>>(conf_.getParameter<edm::InputTag>("neutralHadronIsolation"));
-    phoPhotonIsolationTokenCITK_      = 
-      consumes<edm::ValueMap<float>>(conf_.getParameter<edm::InputTag>("photonIsolation"));   
+    const edm::ParameterSet& pfIsolCfg = conf_.getParameter<edm::ParameterSet>("pfIsolCfg");
+    auto getVMToken = [&pfIsolCfg,this](const std::string& name){
+      return consumes<edm::ValueMap<float> >(pfIsolCfg.getParameter<edm::InputTag>(name));
+    };
+    phoChargedIsolationToken_ = getVMToken("chargedHadronIso");
+    phoNeutralHadronIsolationToken_ = getVMToken("neutralHadronIso");
+    phoPhotonIsolationToken_ = getVMToken("photonIso");
+    phoChargedWorstVtxIsoToken_ = getVMToken("chargedHadronWorstVtxIso");
+    phoChargedWorstVtxGeomVetoIsoToken_ = getVMToken("chargedHadronWorstVtxGeomVetoIso");
+    phoChargedPFPVIsoToken_ = getVMToken("chargedHadronPFPVIso");
+
     //OOT photons in legacy 80X re-miniAOD do not have PF cluster embeded into the reco object
     //to preserve 80X behaviour
     if(conf_.exists("pfECALClusIsolation")){ 
@@ -269,18 +274,26 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   bool validPhotonHandle= false;
   Handle<reco::PhotonCollection> photonHandle;
   //value maps for isolation
-  edm::Handle<edm::ValueMap<float> > phoChargedIsolationMapCITK;
-  edm::Handle<edm::ValueMap<float> > phoNeutralHadronIsolationMapCITK;
-  edm::Handle<edm::ValueMap<float> > phoPhotonIsolationMapCITK;
+  edm::Handle<edm::ValueMap<float> > phoChargedIsolationMap;
+  edm::Handle<edm::ValueMap<float> > phoNeutralHadronIsolationMap;
+  edm::Handle<edm::ValueMap<float> > phoPhotonIsolationMap;
+  edm::Handle<edm::ValueMap<float> > phoChargedWorstVtxIsoMap;
+  edm::Handle<edm::ValueMap<float> > phoChargedWorstVtxGeomVetoIsoMap;
+  edm::Handle<edm::ValueMap<float> > phoChargedPFPVIsoMap;
+
   edm::Handle<edm::ValueMap<float> > phoPFECALClusIsolationMap;
   edm::Handle<edm::ValueMap<float> > phoPFHCALClusIsolationMap;
 
   if ( recoStep_.isFinal() ) { 
     theEvent.getByToken(photonProducerT_,photonHandle);
     //get isolation objects
-    theEvent.getByToken(phoChargedIsolationTokenCITK_,phoChargedIsolationMapCITK);
-    theEvent.getByToken(phoNeutralHadronIsolationTokenCITK_,phoNeutralHadronIsolationMapCITK);
-    theEvent.getByToken(phoPhotonIsolationTokenCITK_,phoPhotonIsolationMapCITK);
+    theEvent.getByToken(phoChargedIsolationToken_,phoChargedIsolationMap);
+    theEvent.getByToken(phoNeutralHadronIsolationToken_,phoNeutralHadronIsolationMap);
+    theEvent.getByToken(phoPhotonIsolationToken_,phoPhotonIsolationMap);
+    theEvent.getByToken(phoChargedWorstVtxIsoToken_,phoChargedWorstVtxIsoMap);
+    theEvent.getByToken(phoChargedWorstVtxGeomVetoIsoToken_,phoChargedWorstVtxGeomVetoIsoMap);
+    theEvent.getByToken(phoChargedPFPVIsoToken_,phoChargedPFPVIsoMap);
+
     //OOT photons in legacy 80X re-miniAOD workflow dont have cluster isolation embed in them
     if(!phoPFECALClusIsolationToken_.isUninitialized()) {
       theEvent.getByToken(phoPFECALClusIsolationToken_,phoPFECALClusIsolationMap);
@@ -434,9 +447,12 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 			 vertexHandle,
 			 outputPhotonCollection,
 			 iSC,
-			 phoChargedIsolationMapCITK,
-			 phoNeutralHadronIsolationMapCITK,
-			 phoPhotonIsolationMapCITK,
+			 phoChargedIsolationMap,
+			 phoNeutralHadronIsolationMap,
+			 phoPhotonIsolationMap,
+			 phoChargedWorstVtxIsoMap,
+			 phoChargedWorstVtxGeomVetoIsoMap,
+			 phoChargedPFPVIsoMap,
 			 phoPFECALClusIsolationMap,
 			 phoPFHCALClusIsolationMap);
 
@@ -656,6 +672,18 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.e2x5Right     = ( hits != nullptr ? EcalClusterTools::e2x5Right(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
     showerShape.e2x5Top       = ( hits != nullptr ? EcalClusterTools::e2x5Top(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
     showerShape.e2x5Bottom    = ( hits != nullptr ? EcalClusterTools::e2x5Bottom(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    if(hits){
+      Cluster2ndMoments clus2ndMoments = EcalClusterTools::cluster2ndMoments(*(scRef->seed()),*hits);
+      showerShape.smMajor = clus2ndMoments.sMaj;
+      showerShape.smMinor = clus2ndMoments.sMin;
+      showerShape.smAlpha = clus2ndMoments.alpha;
+    }else{
+      showerShape.smMajor = 0.f;
+      showerShape.smMinor = 0.f;
+      showerShape.smAlpha = 0.f;
+    }
+
+
     // fill preshower shapes
     EcalClusterLazyTools toolsforES(evt, es, barrelEcalHits_, endcapEcalHits_, preshowerHits_);
     const float sigmaRR =  toolsforES.eseffsirir( *scRef );
@@ -709,6 +737,16 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.e2x5Right     = ( hits != nullptr ? noZS::EcalClusterTools::e2x5Right(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
     full5x5_showerShape.e2x5Top       = ( hits != nullptr ? noZS::EcalClusterTools::e2x5Top(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
     full5x5_showerShape.e2x5Bottom    = ( hits != nullptr ? noZS::EcalClusterTools::e2x5Bottom(*(scRef->seed()), &(*hits), &(*topology)) : 0.f );
+    if(hits){
+      Cluster2ndMoments clus2ndMoments = noZS::EcalClusterTools::cluster2ndMoments(*(scRef->seed()),*hits);
+      full5x5_showerShape.smMajor = clus2ndMoments.sMaj;
+      full5x5_showerShape.smMinor = clus2ndMoments.sMin;
+      full5x5_showerShape.smAlpha = clus2ndMoments.alpha;
+    }else{
+      full5x5_showerShape.smMajor = 0.f;
+      full5x5_showerShape.smMinor = 0.f;
+      full5x5_showerShape.smAlpha = 0.f;
+    }
      // fill preshower shapes
     full5x5_showerShape.effSigmaRR = sigmaRR;
     newCandidate.full5x5_setShowerShapeVariables ( full5x5_showerShape );     
@@ -802,6 +840,9 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 					     const edm::Handle<edm::ValueMap<float>>& chargedHadrons, 
 					     const edm::Handle<edm::ValueMap<float>>& neutralHadrons, 
 					     const edm::Handle<edm::ValueMap<float>>& photons,
+					     const edm::Handle<edm::ValueMap<float>>& chargedHadronsWorstVtx,
+					     const edm::Handle<edm::ValueMap<float>>& chargedHadronsWorstVtxGeomVeto,
+					     const edm::Handle<edm::ValueMap<float>>& chargedHadronsPFPV,
 					     const edm::Handle<edm::ValueMap<float>>& pfEcalClusters,
 					     const edm::Handle<edm::ValueMap<float>>& pfHcalClusters){
 
@@ -846,6 +887,9 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       pfIso.chargedHadronIso = (*chargedHadrons)[photonPtr] ;
       pfIso.neutralHadronIso = (*neutralHadrons)[photonPtr];
       pfIso.photonIso        = (*photons)[photonPtr];
+      pfIso.chargedHadronWorstVtxIso = (*chargedHadronsWorstVtx)[photonPtr];
+      pfIso.chargedHadronWorstVtxGeomVetoIso = (*chargedHadronsWorstVtxGeomVeto)[photonPtr];
+      pfIso.chargedHadronPFPVIso = (*chargedHadronsPFPV)[photonPtr];
     }
     
     //OOT photons in legacy 80X reminiAOD workflow dont have pf cluster isolation embeded into them at this stage

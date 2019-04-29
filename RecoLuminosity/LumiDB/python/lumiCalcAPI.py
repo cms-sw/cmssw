@@ -1,3 +1,4 @@
+from builtins import range
 import os,coral,datetime,fnmatch,time
 from RecoLuminosity.LumiDB import nameDealer,revisionDML,dataDML,lumiTime,CommonUtil,selectionParser,hltTrgSeedMapper,normFunctors,lumiParameters
 
@@ -339,7 +340,7 @@ def instLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilter=No
                                 bxvaluelist.append(bxval)
                                 bxerrorlist.append(bxerrArray[idx])
                     else:
-                        bxidxlist=range(0,len(bxvalueArray))
+                        bxidxlist=list(range(0,len(bxvalueArray)))
                         bxvaluelist=bxvalueArray.tolist()
                         bxerrorlist=bxerrArray.tolist()
                     del bxvalueArray[:]

@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
+#include "DataFormats/Common/interface/Association.h"
 
 namespace reco
 {
@@ -18,6 +19,9 @@ typedef std::vector<Track> TrackCollection;
 
 /// persistent reference to a Track
 typedef edm::Ref<TrackCollection> TrackRef;
+
+/// association to a track collection
+typedef edm::Association<TrackCollection> TrackAssociation;
 
 /// persistent reference to a Track collection
 typedef edm::RefProd<TrackCollection> TrackRefProd;

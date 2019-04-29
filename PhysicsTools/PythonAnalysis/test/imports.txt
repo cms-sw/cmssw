@@ -20,7 +20,6 @@ climate
 cycler
 cython
 decorator
-deepdish
 docopt
 downhill
 dxr

@@ -1,4 +1,6 @@
 #include "CondCore/ESSources/interface/registration_macros.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
+#include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
@@ -11,7 +13,10 @@
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/PPSTimingCalibration.h"
 #include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSetCollection.h"
+#include "CondFormats/DataRecord/interface/CTPPSOpticsRcd.h"
 
+REGISTER_PLUGIN(CTPPSBeamParametersRcd,CTPPSBeamParameters);
 REGISTER_PLUGIN(CTPPSPixelDAQMappingRcd,CTPPSPixelDAQMapping);
 REGISTER_PLUGIN(CTPPSPixelAnalysisMaskRcd,CTPPSPixelAnalysisMask);
 REGISTER_PLUGIN(CTPPSPixelGainCalibrationsRcd,CTPPSPixelGainCalibrations);
@@ -19,4 +24,4 @@ REGISTER_PLUGIN(CTPPSRPAlignmentCorrectionsDataRcd,CTPPSRPAlignmentCorrectionsDa
 REGISTER_PLUGIN(RPRealAlignmentRecord,CTPPSRPAlignmentCorrectionsData);
 REGISTER_PLUGIN(RPMisalignedAlignmentRecord,CTPPSRPAlignmentCorrectionsData);
 REGISTER_PLUGIN(PPSTimingCalibrationRcd,PPSTimingCalibration);
-
+REGISTER_PLUGIN(CTPPSOpticsRcd,LHCOpticalFunctionsSetCollection);

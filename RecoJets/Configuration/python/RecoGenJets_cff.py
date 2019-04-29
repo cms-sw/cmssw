@@ -12,11 +12,12 @@ ak8GenJetsNoNu = ak8GenJets.clone( src = cms.InputTag("genParticlesForJetsNoNu")
 ak4GenJetsNoMuNoNu = ak4GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
 ak8GenJetsNoMuNoNu = ak8GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
 
-recoGenJets  = cms.Sequence(ak4GenJets+
-                            ak8GenJets+
-                            ak4GenJetsNoNu+
-                            ak8GenJetsNoNu
-			    )
+recoGenJetsTask = cms.Task(ak4GenJets,
+                           ak8GenJets,
+                           ak4GenJetsNoNu,
+                           ak8GenJetsNoNu
+                           )
+recoGenJets  = cms.Sequence(recoGenJetsTask)
 
 recoAllGenJets=cms.Sequence(ak4GenJets+
                             ak8GenJets)

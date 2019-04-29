@@ -11,12 +11,10 @@
 #include <cstdint>
 
 class HcalNumberingScheme : public CaloNumberingScheme {
-
 public:
   HcalNumberingScheme();
   ~HcalNumberingScheme() override;
   virtual uint32_t getUnitID(const HcalNumberingFromDDD::HcalID& id);
-
 };
 
 #endif

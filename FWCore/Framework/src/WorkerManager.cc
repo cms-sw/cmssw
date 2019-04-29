@@ -87,7 +87,8 @@ namespace edm {
   }
 
 
-  void WorkerManager::beginJob(ProductRegistry const& iRegistry) {
+  void WorkerManager::beginJob(ProductRegistry const& iRegistry,
+                               eventsetup::ESRecordsToProxyIndices const& iESIndices) {
     auto const runLookup = iRegistry.productLookup(InRun);
     auto const lumiLookup = iRegistry.productLookup(InLumi);
     auto const eventLookup = iRegistry.productLookup(InEvent);
@@ -100,6 +101,7 @@ namespace edm {
         worker->updateLookup(InRun,*runLookup);
         worker->updateLookup(InLumi,*lumiLookup);
         worker->updateLookup(InEvent,*eventLookup);
+        worker->updateLookup(iESIndices);
         worker->resolvePutIndicies(InRun,runModuleToIndicies);
         worker->resolvePutIndicies(InLumi,lumiModuleToIndicies);
         worker->resolvePutIndicies(InEvent,eventModuleToIndicies);

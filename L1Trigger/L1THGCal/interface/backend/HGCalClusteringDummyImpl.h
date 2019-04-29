@@ -1,7 +1,7 @@
 #ifndef __L1Trigger_L1THGCal_HGCalClusteringDummyImpl_h__
 #define __L1Trigger_L1THGCal_HGCalClusteringDummyImpl_h__
 
-#include <array> 
+#include <array>
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
@@ -10,32 +10,22 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
-
-
-class HGCalClusteringDummyImpl{
-
-
+class HGCalClusteringDummyImpl {
 public:
-  
-    HGCalClusteringDummyImpl( const edm::ParameterSet & conf);    
+  HGCalClusteringDummyImpl(const edm::ParameterSet& conf);
 
-    void eventSetup(const edm::EventSetup& es) {triggerTools_.eventSetup(es);}
+  void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
 
-    void clusterizeDummy( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
-                          l1t::HGCalClusterBxCollection & clusters
-        );
-
-    
+  void clusterizeDummy(const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& triggerCellsPtrs,
+                       l1t::HGCalClusterBxCollection& clusters);
 
 private:
-    
-    double calibSF_;
-    std::vector<double> layerWeights_;
-    bool applyLayerWeights_;
-    HGCalTriggerTools triggerTools_;
-    
-    void calibratePt( l1t::HGCalCluster & cluster );
+  double calibSF_;
+  std::vector<double> layerWeights_;
+  bool applyLayerWeights_;
+  HGCalTriggerTools triggerTools_;
 
+  void calibratePt(l1t::HGCalCluster& cluster);
 };
 
 #endif

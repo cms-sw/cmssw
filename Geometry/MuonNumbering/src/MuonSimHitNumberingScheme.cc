@@ -8,8 +8,6 @@
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
-//#define LOCAL_DEBUG
-
 MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d, const DDCompactView& cpv) :
   MuonSimHitNumberingScheme(d,MuonDDDConstants(cpv)){ }
 

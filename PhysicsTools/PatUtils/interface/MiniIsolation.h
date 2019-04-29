@@ -25,10 +25,11 @@ namespace pat{
                                    float deadcone_pu=0.01, float deadcone_ph=0.01, float deadcone_nh=0.01,
                                    float dZ_cut=0.0);
 
-  float muonRelMiniIsoPUCorrected(const PFIsolation& iso,
-				  const math::XYZTLorentzVector& p4,
-				  float dr,
-				  float rho);
+  double muonRelMiniIsoPUCorrected(const PFIsolation& iso,
+				   const math::XYZTLorentzVector& p4,
+				   double dr,
+				   double rho,
+                                   const std::vector<double> &area);
 }
 
 #endif

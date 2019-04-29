@@ -7,13 +7,19 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalAngular.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+//#define EDM_ML_DEBUG                                                         
+using namespace geant_units::operators;
 
 DDHCalAngular::DDHCalAngular() {
-  LogDebug("HCalGeom") << "DDHCalAngular test: Creating an instance";
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Creating an instance";
+#endif
 }
 
 DDHCalAngular::~DDHCalAngular() {}
@@ -32,66 +38,68 @@ void DDHCalAngular::initialize(const DDNumericArguments & nArgs,
   n           = int (nArgs["n"]);
   startCopyNo = int (nArgs["startCopyNo"]);
   incrCopyNo  = int (nArgs["incrCopyNo"]);
-  LogDebug("HCalGeom") << "DDHCalAngular debug: Parameters for positioning-- "
-		       << n << " copies in " << rangeAngle/CLHEP::deg 
-		       << " from " << startAngle/CLHEP::deg << "\tShifts " 
-		       << shiftX << ", " << shiftY 
-		       << " along x, y axes; \tZoffest " << zoffset
-		       << "\tStart and inremental copy nos " << startCopyNo 
-		       << ", " << incrCopyNo;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Parameters for positioning "
+			       << "-- " << n << " copies in " 
+			       << convertRadToDeg(rangeAngle) << " from " 
+			       << convertRadToDeg(startAngle) << "\tShifts " 
+			       << shiftX << ", " << shiftY 
+			       << " along x, y axes; \tZoffest " << zoffset
+			       << "\tStart and inremental copy nos " 
+			       << startCopyNo << ", " << incrCopyNo;
+#endif
   rotns       = sArgs["RotNameSpace"];
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
+#ifdef EDM_ML_DEBUG
   DDName parentName = parent().name(); 
-  LogDebug("HCalGeom") << "DDHCalAngular debug: Parent " << parentName 
-		       << "\tChild " << childName << "\tNameSpace "
-		       << idNameSpace << "\tRotation Namespace " << rotns;
+  edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Parent " << parentName 
+			       << "\tChild " << childName << "\tNameSpace "
+			       << idNameSpace << "\tRotation Namespace "
+			       << rotns;
+#endif
 }
 
 void DDHCalAngular::execute(DDCompactView& cpv) {
 
   double dphi   = rangeAngle/n;
-  double phi    = startAngle;
+  double phix   = startAngle;
   int    copyNo = startCopyNo;
-
+  double theta  = 90._deg;
   for (int ii=0; ii<n; ii++) {
-
-    double phideg = phi/CLHEP::deg;
-    int    iphi;
-    if (phideg > 0) iphi = int(phideg+0.1);
-    else            iphi = int(phideg-0.1);
-    if (iphi >= 360) iphi   -= 360;
-    phideg = iphi;
+    double phiy   = phix + 90._deg;
     DDRotation rotation;
     std::string rotstr("NULL");
-
-    if (iphi != 0) {
-      rotstr = "R"; 
-      if (phideg >=0 && phideg < 100) rotstr = "R0"; 
-      rotstr = rotstr + std::to_string(phideg);
+ 
+    static const double tol = 0.1;
+    if (std::abs(phix) > tol) {
+      rotstr = "R" + formatAsDegreesInInteger(phix);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
-        LogDebug("HCalGeom") << "DDHCalAngular test: Creating a new rotation "
-			     << DDName(rotstr, idNameSpace) << "\t90, " 
-			     << phideg << ", 90, " << (phideg+90) << ", 0, 0";
-        rotation = DDrot(DDName(rotstr, rotns), 90*CLHEP::deg, 
-			 phideg*CLHEP::deg, 90*CLHEP::deg, 
-			 (90+phideg)*CLHEP::deg, 0*CLHEP::deg,  0*CLHEP::deg);
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Creating a rotation "
+				     << DDName(rotstr, idNameSpace) << "\t90, "
+				     << convertRadToDeg(phix) << ", 90, " 
+				     << (90+convertRadToDeg(phix)) << ", 0, 0";
+#endif
+        rotation = DDrot(DDName(rotstr, rotns), theta, phix, theta, phiy, 0,0);
       } 
     }
     
-    double xpos = shiftX*cos(phi) - shiftY*sin(phi);
-    double ypos = shiftX*sin(phi) + shiftY*cos(phi);
+    double xpos = shiftX*cos(phix) - shiftY*sin(phix);
+    double ypos = shiftX*sin(phix) + shiftY*cos(phix);
     DDTranslation tran(xpos, ypos, zoffset);
   
     DDName parentName = parent().name(); 
-   cpv.position(DDName(childName,idNameSpace), parentName, copyNo, tran, rotation);
-    LogDebug("HCalGeom") << "DDHCalAngular test: " 
-			 << DDName(childName, idNameSpace) << " number " 
-			 << copyNo << " positioned in " << parentName << " at "
-			 << tran << " with " << rotation;
-    phi    += dphi;
+    cpv.position(DDName(childName,idNameSpace),parentName,copyNo,tran,rotation);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HCalGeom") << "DDHCalAngular: " 
+				 << DDName(childName, idNameSpace) 
+				 << " number " << copyNo << " positioned in "
+				 << parentName << " at " << tran << " with "
+				 << rotation;
+#endif
+    phix   += dphi;
     copyNo += incrCopyNo;
   }
 }

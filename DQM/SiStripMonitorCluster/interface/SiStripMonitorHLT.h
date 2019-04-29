@@ -36,7 +36,6 @@ class SiStripMonitorHLT : public DQMEDAnalyzer {
   edm::EDGetTokenT<std::map<uint, std::vector<SiStripCluster> > >
       clusterInSubComponentsToken_;
 
-  DQMStore *dqmStore_;
   edm::ParameterSet conf_;
   MonitorElement *HLTDecision;
   // all events

@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 
 // useful?
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,8 +26,9 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
+#include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 
-class PFAlgo;
 class PFEnergyCalibrationHF;
 class GBRForest;
 
@@ -42,12 +44,13 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 class PFProducer : public edm::stream::EDProducer<> {
  public:
   explicit PFProducer(const edm::ParameterSet&);
-  ~PFProducer() override;
   
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
  private:
+  const edm::EDPutTokenT<reco::PFCandidateCollection> putToken_;
+
   edm::EDGetTokenT<reco::PFBlockCollection>  inputTagBlocks_;
   edm::EDGetTokenT<reco::MuonCollection>     inputTagMuons_;
   edm::EDGetTokenT<reco::VertexCollection>   vertices_;
@@ -65,6 +68,7 @@ class PFProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<edm::View<reco::PFCandidate> > inputTagPFEGammaCandidates_;
 
   bool use_EGammaFilters_;
+  std::unique_ptr<PFEGammaFilters> pfegamma_ = nullptr;
 
 
   //Use of HO clusters and links in PF Reconstruction
@@ -109,7 +113,7 @@ class PFProducer : public edm::stream::EDProducer<> {
   // std::vector<std::string> fToRead;
   
   /// particle flow algorithm
-  std::shared_ptr<PFAlgo>      pfAlgo_;
+  PFAlgo pfAlgo_;
 
 };
 

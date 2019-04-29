@@ -15,6 +15,8 @@
 */
 
 #include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
+#include <limits>
 
 namespace edm {
   class EDConsumerBase;
@@ -38,12 +40,29 @@ namespace edm {
     friend class eventsetup::EventSetupRecord;
 
   public:
-    ESGetToken() = default;
+    constexpr ESGetToken() noexcept = default ;
+
+    constexpr ESGetToken(ESGetToken<ESProduct,ESRecord> const&) noexcept = default;
+    constexpr ESGetToken(ESGetToken<ESProduct,ESRecord>&&) noexcept = default;
+
+    constexpr ESGetToken<ESProduct,ESRecord>& operator=(ESGetToken<ESProduct,ESRecord>&&) noexcept = default;
+    constexpr ESGetToken<ESProduct,ESRecord>& operator=(ESGetToken<ESProduct,ESRecord> const&) noexcept = default;
+
+    constexpr unsigned int transitionID() const noexcept { return m_transitionID;}
+    constexpr bool isInitialized() const noexcept { return transitionID() != std::numeric_limits<unsigned int>::max();}
+    constexpr ESTokenIndex index() const noexcept {return m_index;}
+    constexpr bool hasValidIndex() const noexcept {return index() != invalidIndex();}
+    static constexpr ESTokenIndex invalidIndex() noexcept { return ESTokenIndex{std::numeric_limits<int>::max()};}
 
   private:
-    explicit ESGetToken(ESInputTag const& tag) : m_tag{tag} {}
+    explicit constexpr ESGetToken(unsigned int transitionID,
+                                  ESTokenIndex index,
+                                  char const* label) noexcept : m_label{label}, m_transitionID{transitionID}, m_index{index} {}
 
-    ESInputTag m_tag{};
+    constexpr char const* name() const noexcept { return m_label; }
+    char const* m_label{nullptr};
+    unsigned int m_transitionID{std::numeric_limits<unsigned int>::max()};
+    ESTokenIndex m_index{std::numeric_limits<int>::max()};
   };
 
 }

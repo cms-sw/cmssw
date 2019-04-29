@@ -249,12 +249,6 @@ sistrip::RunType CommissioningHistograms::runType( DQMStore* const bei,
 }
 
 // -----------------------------------------------------------------------------
-// Temporary fix: builds a list of histogram directories
-void CommissioningHistograms::getContents( DQMStore* const bei,
-					   std::vector<std::string>& contents ) {  
-}
-
-// -----------------------------------------------------------------------------
 //
 void CommissioningHistograms::copyCustomInformation( DQMStore* const bei,
 						     const std::vector<std::string>& contents ) {

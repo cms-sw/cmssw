@@ -32,12 +32,14 @@ using namespace std;
 using namespace edm;
 
 DTVDriftSegmentCalibration::DTVDriftSegmentCalibration(const ParameterSet& pset):
-  select_(pset),
   theRecHits4DLabel_(pset.getParameter<InputTag>("recHits4DLabel")),
   //writeVDriftDB_(pset.getUntrackedParameter<bool>("writeVDriftDB", false)),
   theCalibChamber_(pset.getUntrackedParameter<string>("calibChamber", "All")) {
 
   LogVerbatim("Calibration") << "[DTVDriftSegmentCalibration] Constructor called!";
+
+  edm::ConsumesCollector collector(consumesCollector());
+  select_ = new DTSegmentSelector(pset,collector);
   consumes< DTRecSegment4DCollection >(edm::InputTag(theRecHits4DLabel_));
   // the root file which will contain the histos
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName","DTVDriftHistos.root");
@@ -101,7 +103,7 @@ void DTVDriftSegmentCalibration::analyze(const Event & event, const EventSetup& 
       LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
                               << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
       
-      if( !select_(*segment, event, eventSetup) ) continue;
+      if( !(*select_)(*segment, event, eventSetup) ) continue;
 
       // Fill v-drift values
       if( (*segment).hasPhi() ) {

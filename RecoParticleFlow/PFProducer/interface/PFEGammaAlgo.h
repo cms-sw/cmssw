@@ -79,9 +79,8 @@ class PFEGammaAlgo {
     float > KFValMap;  
     
   struct ProtoEGObject {
-    ProtoEGObject() : parentSC(nullptr) {}
     reco::PFBlockRef parentBlock;
-    const PFSCElement* parentSC; // if ECAL driven
+    const PFSCElement* parentSC = nullptr; // if ECAL driven
     reco::ElectronSeedRef electronSeed; // if there is one
     // this is a mutable list of clusters
     // if ECAL driven we take the PF SC and refine it

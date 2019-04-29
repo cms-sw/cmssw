@@ -28,9 +28,10 @@ using namespace edm;
 //
 // constructors and destructor
 //
-ModuleChanger::ModuleChanger(Schedule* iSchedule, ProductRegistry const* iRegistry):
+ModuleChanger::ModuleChanger(Schedule* iSchedule, ProductRegistry const* iRegistry, eventsetup::ESRecordsToProxyIndices iIndices):
 schedule_(iSchedule),
-registry_(iRegistry)
+registry_(iRegistry),
+indices_(std::move(iIndices))
 {
 }
 
@@ -63,7 +64,7 @@ bool
 ModuleChanger::changeModule(const std::string& iLabel,
                             const ParameterSet& iPSet)
 {
-   return schedule_->changeModule(iLabel,iPSet, *registry_);
+   return schedule_->changeModule(iLabel,iPSet, *registry_, indices_);
 }
 
 //

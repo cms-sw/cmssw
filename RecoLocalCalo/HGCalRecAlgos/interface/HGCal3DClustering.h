@@ -11,7 +11,7 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
 #include "KDTreeLinkerAlgoT.h"
 
@@ -65,7 +65,7 @@ private:
   void layerIntersection(std::array<double,3> &to, const std::array<double,3> &from) const;
 
   //max number of layers
-  static const unsigned int maxlayer = HGCalImagingAlgo::maxlayer;
+  static const unsigned int maxlayer = HGCalClusteringAlgoBase::maxlayer;
 
   std::vector<double> radii;
   uint32_t minClusters;

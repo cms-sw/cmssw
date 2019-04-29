@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 from __future__ import print_function
+from builtins import range
 import os,time,sys,zipfile,re,shutil,stat
 from fcntl import lockf, LOCK_EX, LOCK_UN
 from hashlib import md5

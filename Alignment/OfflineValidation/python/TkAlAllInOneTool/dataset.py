@@ -3,6 +3,7 @@ from __future__ import absolute_import
 # idea stolen from:
 # http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/
 #        PhysicsTools/PatAlgos/python/tools/cmsswVersionTools.py
+from builtins import range
 import bisect
 import datetime
 import json
@@ -88,7 +89,7 @@ class Dataset(object):
     def __chunks( self, theList, n ):
         """ Yield successive n-sized chunks from theList.
         """
-        for i in xrange( 0, len( theList ), n ):
+        for i in range( 0, len( theList ), n ):
             yield theList[i:i+n]
 
     __source_template= ("%(header)s"

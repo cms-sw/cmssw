@@ -3,15 +3,16 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023D17XML_cfi")
+process.load("Configuration.Geometry.GeometryExtended2023D41Reco_cff")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023D41XML_cfi")
 #process.load("Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi")
 #process.load("Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi")
 #process.load("Geometry.CaloEventSetup.HGCalV6Topology_cfi")
-process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.CaloEventSetup.HGCalV9Topology_cfi")
-process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
+#process.load("Geometry.HGCalCommonData.testHGCV10XML_cfi")
+#process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
+#process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+#process.load("Geometry.CaloEventSetup.HGCalV9Topology_cfi")
+#process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
@@ -55,3 +56,4 @@ process.prodHEB = process.prodEE.clone(
 
 #process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
 process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHEB)
+#process.p1 = cms.Path(process.generator*process.prodHEB)

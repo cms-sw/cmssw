@@ -39,6 +39,15 @@ DataKey& DataKey::operator=(const DataKey& rhs)
    return *this;
 }
 
+DataKey& DataKey::operator=(DataKey&& rhs)
+{
+  //An exception safe implementation is
+  DataKey temp(std::move(rhs));
+  swap(temp);
+  
+  return *this;
+}
+
 //
 // member functions
 //

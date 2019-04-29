@@ -32,7 +32,9 @@ class SiPixelPhase1RecHits final : public SiPixelPhase1Base {
     ERROR_X,
     ERROR_Y,
     POS,
-    CLUSTER_PROB
+    CLUSTER_PROB,
+    NONEDGE,
+    NOTHERBAD
   };
 
   public:
@@ -142,6 +144,8 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
       float lerr_y = sqrt(lerr.yy());
 
       histo[NRECHITS].fill(id, &iEvent, col, row); //in general a inclusive counter of missing/valid/inactive hits
+      if(prechit->isOnEdge()) histo[NONEDGE].fill(id, &iEvent, col, row);
+      if(prechit->hasBadPixels()) histo[NOTHERBAD].fill(id, &iEvent, col, row);
 
       if (isHitValid){
 	histo[CLUST_X].fill(sizeX, id, &iEvent, col, row);
@@ -162,6 +166,8 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   histo[NRECHITS].executePerEventHarvesting(&iEvent);
+  histo[NONEDGE].executePerEventHarvesting(&iEvent);
+  histo[NOTHERBAD].executePerEventHarvesting(&iEvent);
 }
 
 } //namespace

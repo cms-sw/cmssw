@@ -14,6 +14,8 @@ namespace cms
 {
   using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
+  static constexpr long s_executed = 1l;
+  
   constexpr unsigned int hash( const char* str, int h = 0 )
   {
     return !str[h] ? 5381 : ( hash( str, h+1 )*33 ) ^ str[h];

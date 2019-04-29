@@ -13,24 +13,23 @@
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "Geometry/MuonCommonData/plugins/DDGEMAngular.h"
 
-using namespace geant_units;
 using namespace geant_units::operators;
 
 //#define EDM_ML_DEBUG
 
 DDGEMAngular::DDGEMAngular() {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("MuonGeom") << "DDGEMAngular test: Creating an instance";
+  edm::LogVerbatim("MuonGeom") << "DDGEMAngular: Creating an instance";
 #endif
 }
 
 DDGEMAngular::~DDGEMAngular() {}
 
 void DDGEMAngular::initialize(const DDNumericArguments & nArgs,
-			       const DDVectorArguments & ,
-			       const DDMapArguments & ,
-			       const DDStringArguments & sArgs,
-			       const DDStringVectorArguments & ) {
+			      const DDVectorArguments & ,
+			      const DDMapArguments & ,
+			      const DDStringArguments & sArgs,
+			      const DDStringVectorArguments & ) {
 
   startAngle  = nArgs["startAngle"];
   stepAngle   = nArgs["stepAngle"];
@@ -41,22 +40,22 @@ void DDGEMAngular::initialize(const DDNumericArguments & nArgs,
   startCopyNo = int (nArgs["startCopyNo"]);
   incrCopyNo  = int (nArgs["incrCopyNo"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("MuonGeom") << "DDGEMAngular debug: Parameters for positioning-- "
-			   << n << " copies in steps of " << convertRadToDeg( stepAngle )
-			   << " from " << convertRadToDeg( startAngle )
-			   << " (inversion flag " << invert << ") \trPos " << rPos
-			   << " Zoffest " << zoffset << "\tStart and inremental "
-			   << "copy nos " << startCopyNo << ", " << incrCopyNo;
+  edm::LogVerbatim("MuonGeom") 
+    << "DDGEMAngular: Parameters for positioning-- " << n 
+    << " copies in steps of " << convertRadToDeg( stepAngle )
+    << " from " << convertRadToDeg( startAngle )
+    << " (inversion flag " << invert << ") \trPos " << rPos
+    << " Zoffest " << zoffset << "\tStart and inremental "
+    << "copy nos " << startCopyNo << ", " << incrCopyNo;
 #endif
 
   rotns       = sArgs["RotNameSpace"];
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
 #ifdef EDM_ML_DEBUG
-  DDName parentName = parent().name(); 
-  edm::LogInfo("MuonGeom") << "DDGEMAngular debug: Parent " << parentName 
-			   << "\tChild " << childName << "\tNameSpace "
-			   << idNameSpace << "\tRotation Namespace " << rotns;
+  edm::LogVerbatim("MuonGeom") 
+    << "DDGEMAngular: Parent " << parent().name() << "\tChild " << childName 
+    << "\tNameSpace " << idNameSpace << "\tRotation Namespace " << rotns;
 #endif
 }
 
@@ -81,10 +80,12 @@ void DDGEMAngular::execute(DDCompactView& cpv) {
       double thetay = invert==0 ? 0.0 : 180.0_deg;
       double phiz   = phitmp;
 #ifdef EDM_ML_DEBUG
-      edm::LogInfo("MuonGeom") << "DDGEMAngular test: Creating a new rotation "
-			       << DDName(rotstr, idNameSpace) << "\t " 
-			       << convertRadToDeg( thetax ) << ", " << convertRadToDeg(  phix ) << ", " << convertRadToDeg(  thetay )
-			       << ", 0, " << convertRadToDeg( thetax )<< ", " << convertRadToDeg(  phiz );
+      edm::LogVerbatim("MuonGeom") 
+	<< "DDGEMAngular: Creating a new rotation "
+	<< DDName(rotstr, idNameSpace) << "\t " 
+	<< convertRadToDeg( thetax ) << ", " << convertRadToDeg(  phix ) <<", "
+	<< convertRadToDeg(  thetay ) << ", 0, " << convertRadToDeg( thetax )
+	<< ", " << convertRadToDeg(  phiz );
 #endif
       rotation = DDrot(DDName(rotstr, rotns), thetax, phix, thetay, 0., thetax, phiz);
     } 
@@ -94,11 +95,10 @@ void DDGEMAngular::execute(DDCompactView& cpv) {
     DDName parentName = parent().name(); 
     cpv.position(DDName(childName,idNameSpace), parentName, copyNo, tran, rotation);
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("MuonGeom") << "DDGEMAngular test: " 
-			     << DDName(childName, idNameSpace) << " number " 
-			     << copyNo << " positioned in " << parentName 
-			     << " at " << tran << " with " << rotstr << " "
-			     << rotation;
+    edm::LogVerbatim("MuonGeom") 
+      << "DDGEMAngular: " << DDName(childName, idNameSpace) << " number " 
+      << copyNo << " positioned in " << parentName 
+      << " at " << tran << " with " << rotstr << " " << rotation;
 #endif
     phi    += stepAngle;
     copyNo += incrCopyNo;

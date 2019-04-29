@@ -93,10 +93,9 @@ process.load('Configuration.StandardSequences.RecoSim_cff')
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-#process.load('Configuration.Geometry.GeometryDB_cff')
-process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -147,8 +146,16 @@ if (options.debug):
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+
+process.GlobalTag.toGet = cms.VPSet(
+    cms.PSet(
+        #connect = cms.string('sqlite_fip:EventFilter/GEMRawToDigi/test/GEMeMap.db'),
+        connect = cms.string('sqlite_file:./GEMeMap.db'),
+        record = cms.string('GEMeMapRcd'),
+        tag = cms.string('GEMeMap_v4')
+    ))
+
 
 # validation event filter
 process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
@@ -161,13 +168,13 @@ process.tmtFilter.mpList = cms.untracked.vint32(options.mps)
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
     token = cms.untracked.InputTag("rawDataCollector"),
-    feds = cms.untracked.vint32 ( 1467 ),
+    feds = cms.untracked.vint32 ( 1467,1468 ),
     dumpPayload = cms.untracked.bool ( options.dumpRaw )
 )
 
 # raw to digi
 process.load('EventFilter.GEMRawToDigi.muonGEMDigis_cfi')
-process.load('EventFilter.GEMRawToDigi.GEMSQLiteCabling_cfi')
+#process.load('EventFilter.GEMRawToDigi.GEMSQLiteCabling_cfi')
 process.muonGEMDigis.InputLabel = cms.InputTag('rawDataCollector')
 process.muonGEMDigis.useDBEMap = True
 
@@ -210,9 +217,6 @@ if (options.edm):
     process.output = cms.OutputModule(
         "PoolOutputModule",
         outputCommands = cms.untracked.vstring("keep *"),
-        SelectEvents = cms.untracked.PSet(
-            SelectEvents = cms.vstring('path')
-        ),
         fileName = cms.untracked.string('gem_EDM.root')
     )
 
