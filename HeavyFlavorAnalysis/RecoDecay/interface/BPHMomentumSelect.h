@@ -40,6 +40,7 @@ class BPHMomentumSelect {
    */
   virtual ~BPHMomentumSelect();
 
+  using AcceptArg = BPHDecayMomentum;
   /** Operations
    */
   /// accept function
