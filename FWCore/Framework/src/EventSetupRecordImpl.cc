@@ -12,13 +12,10 @@
 
 // system include files
 #include <cassert>
-#include <string>
-#include <exception>
+#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
-#include "FWCore/Framework/interface/EventSetupImpl.h"
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
@@ -27,30 +24,30 @@
 
 namespace edm {
    namespace eventsetup {
-//
-// constants, enums and typedefs
-//
-     
-//
-// static data member definitions
-//
 
-//
-// constructors and destructor
-//
-EventSetupRecordImpl::EventSetupRecordImpl(EventSetupRecordKey const& iKey) :
+EventSetupRecordImpl::EventSetupRecordImpl(EventSetupRecordKey const& iKey,
+                                           ActivityRegistry const* activityRegistry,
+                                           unsigned int iovIndex) :
+validityModificationUnderway_(false),
 validity_(),
 key_(iKey),
-proxies_(),
-eventSetup_(nullptr),
-cacheIdentifier_(1), //start with 1 since 0 means we haven't checked yet
-transientAccessRequested_(false)
+activityRegistry_(activityRegistry),
+cacheIdentifier_(1),
+iovIndex_(iovIndex),
+isAvailable_(true)
 {
 }
 
-//
-// member functions
-//
+ValidityInterval EventSetupRecordImpl::validityInterval() const {
+   bool expected = false;
+   while (not validityModificationUnderway_.compare_exchange_strong(expected,true)) {
+      expected = false;
+   }
+   ValidityInterval temp = validity_;
+   validityModificationUnderway_ = false;
+   return temp;
+}
+
 void
 EventSetupRecordImpl::set(const ValidityInterval& iInterval)
 {
@@ -58,7 +55,18 @@ EventSetupRecordImpl::set(const ValidityInterval& iInterval)
 }
 
 void
-EventSetupRecordImpl::getESProducers(std::vector<ComponentDescription const*>& esproducers) {
+EventSetupRecordImpl::setSafely(const ValidityInterval& iInterval) const
+{
+   bool expected = false;
+   while (not validityModificationUnderway_.compare_exchange_strong(expected,true)) {
+      expected = false;
+   }
+   validity_ = iInterval;
+   validityModificationUnderway_ = false;
+}
+
+void
+EventSetupRecordImpl::getESProducers(std::vector<ComponentDescription const*>& esproducers) const {
    esproducers.clear();
    esproducers.reserve(proxies_.size());
    for (auto const& iData : proxies_) {
@@ -82,10 +90,9 @@ EventSetupRecordImpl::componentsForRegisteredDataKeys() const
 
 
 bool 
-EventSetupRecordImpl::add(const DataKey& iKey ,
-                    const DataProxy* iProxy)
-{
-   //
+EventSetupRecordImpl::add(const DataKey& iKey,
+                          DataProxy* iProxy) {
+
    const DataProxy* proxy = find(iKey);
    if (nullptr != proxy) {
       //
@@ -143,32 +150,24 @@ EventSetupRecordImpl::clearProxies()
    proxies_.clear();
 }
 
-void 
-EventSetupRecordImpl::cacheReset()
-{
-   transientAccessRequested_ = false;
-   ++cacheIdentifier_;
+void EventSetupRecordImpl::invalidateProxies() {
+   for (auto& dataProxy : proxies_) {
+      dataProxy->invalidate();
+   }
 }
 
-bool
-EventSetupRecordImpl::transientReset()
-{
-   bool returnValue = transientAccessRequested_;
-   transientAccessRequested_=false;
-   return returnValue;
+void EventSetupRecordImpl::resetIfTransientInProxies() {
+   for (auto& dataProxy : proxies_) {
+      dataProxy->resetIfTransient();
+   }
 }
-      
-//
-// const member functions
-//
-      
+
 const void* 
 EventSetupRecordImpl::getFromProxy(DataKey const & iKey ,
-                               const ComponentDescription*& iDesc,
-                               bool iTransientAccessOnly) const
+                                   const ComponentDescription*& iDesc,
+                                   bool iTransientAccessOnly,
+                                   EventSetupImpl const* iEventSetupImpl) const
 {
-   if(iTransientAccessOnly) { this->transientAccessRequested(); }
-
    const DataProxy* proxy = this->find(iKey);
    
    const void* hold = nullptr;
@@ -176,7 +175,7 @@ EventSetupRecordImpl::getFromProxy(DataKey const & iKey ,
    if(nullptr!=proxy) {
       try {
         convertException::wrap([&]() {
-            hold = proxy->get(*this, iKey,iTransientAccessOnly, eventSetup_->activityRegistry());
+            hold = proxy->get(*this, iKey,iTransientAccessOnly, activityRegistry_, iEventSetupImpl);
             iDesc = proxy->providerDescription(); 
         });
       }
@@ -194,12 +193,12 @@ EventSetupRecordImpl::getFromProxy(DataKey const & iKey ,
  EventSetupRecordImpl::getFromProxy(ESProxyIndex iProxyIndex,
                                     bool iTransientAccessOnly,
                                     const ComponentDescription*& iDesc,
-                                    DataKey const*& oGottenKey) const
+                                    DataKey const*& oGottenKey,
+                                    EventSetupImpl const* iEventSetupImpl) const
  {
    if(iProxyIndex.value() >= static_cast<ESProxyIndex::Value_t>(proxies_.size())) {
      return nullptr;
    }
-   if(iTransientAccessOnly) { this->transientAccessRequested(); }
    
    const DataProxy* proxy = proxies_[iProxyIndex.value()];
    assert(nullptr!=proxy);
@@ -211,7 +210,7 @@ EventSetupRecordImpl::getFromProxy(DataKey const & iKey ,
    oGottenKey = &key;
    try {
      convertException::wrap([&]() {
-       hold = proxy->get(*this, key,iTransientAccessOnly, eventSetup_->activityRegistry());
+       hold = proxy->get(*this, key,iTransientAccessOnly, activityRegistry_, iEventSetupImpl);
      });
    }
    catch(cms::Exception& e) {
@@ -230,16 +229,16 @@ EventSetupRecordImpl::find(const DataKey& iKey) const
    if( (lb == keysForProxies_.end()) or (*lb != iKey)) {
      return nullptr;
    }
-   return proxies_[std::distance(keysForProxies_.begin(), lb)];
+   return proxies_[std::distance(keysForProxies_.begin(), lb)].get();
 }
       
 bool 
-EventSetupRecordImpl::doGet(const DataKey& aKey, bool aGetTransiently) const {
+EventSetupRecordImpl::doGet(const DataKey& aKey, EventSetupImpl const* iEventSetupImpl, bool aGetTransiently) const {
    const DataProxy* proxy = find(aKey);
    if(nullptr != proxy) {
       try {
          convertException::wrap([&]() {
-            proxy->doGet(*this, aKey, aGetTransiently, eventSetup_->activityRegistry());
+            proxy->doGet(*this, aKey, aGetTransiently, activityRegistry_, iEventSetupImpl);
          });
       }
       catch( cms::Exception& e) {
@@ -312,8 +311,5 @@ EventSetupRecordImpl::addTraceInfoToCmsException(cms::Exception& iException, con
    iException.addContext(ost.str());
 }         
 
-//
-// static member functions
-//
    }
 }

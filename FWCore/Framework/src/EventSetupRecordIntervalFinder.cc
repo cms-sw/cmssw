@@ -10,52 +10,16 @@
 // Created:     Wed Mar 30 14:27:26 EST 2005
 //
 
-// system include files
-
-// user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include <cassert>
 
-//
-// constants, enums and typedefs
-//
 using namespace edm::eventsetup;
 namespace edm {
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-//EventSetupRecordIntervalFinder::EventSetupRecordIntervalFinder()
-//{
-//}
-
-// EventSetupRecordIntervalFinder::EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder& rhs)
-// {
-//    // do actual copying here;
-// }
 
 EventSetupRecordIntervalFinder::~EventSetupRecordIntervalFinder() noexcept(false)
 {
 }
 
-//
-// assignment operators
-//
-// const EventSetupRecordIntervalFinder& EventSetupRecordIntervalFinder::operator=(const EventSetupRecordIntervalFinder& rhs)
-// {
-//   //An exception safe implementation is
-//   EventSetupRecordIntervalFinder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
 const ValidityInterval& 
 EventSetupRecordIntervalFinder::findIntervalFor(const EventSetupRecordKey& iKey,
                                               const IOVSyncValue& iInstance)
@@ -63,9 +27,21 @@ EventSetupRecordIntervalFinder::findIntervalFor(const EventSetupRecordKey& iKey,
    Intervals::iterator itFound = intervals_.find(iKey);
    assert(itFound != intervals_.end()) ;
    if(! itFound->second.validFor(iInstance)) {
-      setIntervalFor(iKey, iInstance, itFound->second);
+     if (iInstance != IOVSyncValue::invalidIOVSyncValue()) {
+       setIntervalFor(iKey, iInstance, itFound->second);
+     } else {
+       itFound->second = ValidityInterval::invalidInterval();
+     }
    }
    return itFound->second;
+}
+
+void
+EventSetupRecordIntervalFinder::resetInterval(const eventsetup::EventSetupRecordKey& iKey) {
+   Intervals::iterator itFound = intervals_.find(iKey);
+   assert(itFound != intervals_.end());
+   itFound->second =ValidityInterval{};
+   doResetInterval(iKey);
 }
 
 void 
@@ -73,14 +49,31 @@ EventSetupRecordIntervalFinder::findingRecordWithKey(const EventSetupRecordKey& 
    intervals_.insert(Intervals::value_type(iKey, ValidityInterval()));
 }
 
+void EventSetupRecordIntervalFinder::doResetInterval(const eventsetup::EventSetupRecordKey&) { }
+
+bool EventSetupRecordIntervalFinder::isLegacyESSource() const {
+   return true;
+}
+
+bool
+EventSetupRecordIntervalFinder::isLegacyOutOfValidityInterval(const eventsetup::EventSetupRecordKey& iKey,
+                                                              const IOVSyncValue& iTime) const {
+   if (isLegacyESSource()) {
+      if (iTime == IOVSyncValue::invalidIOVSyncValue()) {
+         return true;
+      }
+      Intervals::const_iterator itFound = intervals_.find(iKey);
+      assert(itFound != intervals_.end());
+      return !itFound->second.validFor(iTime);
+   }
+   return false;
+}
+
 void 
 EventSetupRecordIntervalFinder::delaySettingRecords()
 {
 }
 
-//
-// const member functions
-//
 std::set<EventSetupRecordKey> 
 EventSetupRecordIntervalFinder::findingForRecords() const
 {
@@ -98,8 +91,4 @@ EventSetupRecordIntervalFinder::findingForRecords() const
    }
    return returnValue;
 }
-
-//
-// static member functions
-//
 }

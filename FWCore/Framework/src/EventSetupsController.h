@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupsController
-// 
+//
 /** \class edm::eventsetup::EventSetupsController
 
  Description: Manages a group of EventSetups which can share components
@@ -19,6 +19,9 @@
 //
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/Framework/src/EventSetupRecordIOVQueue.h"
+#include "FWCore/Framework/src/NumberOfConcurrentIOVs.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -27,10 +30,13 @@
 namespace edm {
 
    class ActivityRegistry;
+   class EventSetupImpl;
    class EventSetupRecordIntervalFinder;
    class ParameterSet;
    class IOVSyncValue;
-   
+   class WaitingTaskHolder;
+   class WaitingTaskList;
+
    namespace eventsetup {
 
       class DataProxyProvider;
@@ -39,17 +45,18 @@ namespace edm {
       class ESProducerInfo {
       public:
          ESProducerInfo(ParameterSet const* ps,
-                        std::shared_ptr<DataProxyProvider> const& pr) : 
+                        std::shared_ptr<DataProxyProvider> const& pr) :
             pset_(ps), provider_(pr), subProcessIndexes_() { }
 
          ParameterSet const* pset() const { return pset_; }
-         std::shared_ptr<DataProxyProvider> const& provider() const { return provider_; }
+         std::shared_ptr<DataProxyProvider> const& provider() { return get_underlying(provider_); }
+         DataProxyProvider const* providerGet() const { return provider_.get(); }
          std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
          std::vector<unsigned> const& subProcessIndexes() const { return subProcessIndexes_; }
 
       private:
          ParameterSet const* pset_;
-         std::shared_ptr<DataProxyProvider> provider_;
+         propagate_const<std::shared_ptr<DataProxyProvider>> provider_;
          std::vector<unsigned> subProcessIndexes_;
       };
 
@@ -60,28 +67,38 @@ namespace edm {
             pset_(ps), finder_(fi), subProcessIndexes_() { }
 
          ParameterSet const* pset() const { return pset_; }
-         std::shared_ptr<EventSetupRecordIntervalFinder> const& finder() const { return finder_; }
+         std::shared_ptr<EventSetupRecordIntervalFinder> const& finder() { return get_underlying(finder_); }
+         EventSetupRecordIntervalFinder const* finderGet() const { return finder_.get(); }
          std::vector<unsigned>& subProcessIndexes() { return subProcessIndexes_; }
          std::vector<unsigned> const& subProcessIndexes() const { return subProcessIndexes_; }
 
       private:
          ParameterSet const* pset_;
-         std::shared_ptr<EventSetupRecordIntervalFinder> finder_;
+         propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
          std::vector<unsigned> subProcessIndexes_;
       };
 
       class EventSetupsController {
-         
+
       public:
          EventSetupsController();
 
-         std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&, ActivityRegistry*);
+         EventSetupsController(EventSetupsController const&) = delete;
+         EventSetupsController const& operator=(EventSetupsController const&) = delete;
 
-         void eventSetupForInstance(IOVSyncValue const& syncValue);
+         std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&, ActivityRegistry*, ParameterSet const* optionsPset = nullptr);
 
-         bool isWithinValidityInterval(IOVSyncValue const& syncValue) const;
-        
-         void forceCacheClear() const;
+         void eventSetupForInstance(IOVSyncValue const&,
+                                    WaitingTaskHolder const& taskToStartAfterIOVInit,
+                                    WaitingTaskList& endIOVWaitingTasks,
+                                    std::vector<std::shared_ptr<const EventSetupImpl>>&);
+
+         // Version to use when IOVs are not allowed to run concurrently
+         void eventSetupForInstance(IOVSyncValue const&);
+
+         bool legacyESSourceOutOfValidityInterval(IOVSyncValue const&) const;
+
+         void forceCacheClear();
 
          std::shared_ptr<DataProxyProvider> getESProducerAndRegisterProcess(ParameterSet const& pset, unsigned subProcessIndex);
          void putESProducer(ParameterSet const& pset, std::shared_ptr<DataProxyProvider> const& component, unsigned subProcessIndex);
@@ -119,23 +136,27 @@ namespace edm {
          ParameterSet const* getESProducerPSet(ParameterSetID const& psetID,
                                                unsigned subProcessIndex) const;
 
-         std::vector<std::shared_ptr<EventSetupProvider> > const& providers() const { return providers_; }
+         std::vector<propagate_const<std::shared_ptr<EventSetupProvider>>> const& providers() const { return providers_; }
 
          std::multimap<ParameterSetID, ESProducerInfo> const& esproducers() const { return esproducers_; }
 
          std::multimap<ParameterSetID, ESSourceInfo> const& essources() const { return essources_; }
 
+         bool hasLegacyESSource() const { return hasLegacyESSource_; }
          bool mustFinishConfiguration() const { return mustFinishConfiguration_; }
 
       private:
-         EventSetupsController(EventSetupsController const&) = delete; // stop default
-         
-         EventSetupsController const& operator=(EventSetupsController const&) = delete; // stop default
 
          void checkESProducerSharing();
-         
+         void initializeEventSetupRecordIOVQueues();
+
          // ---------- member data --------------------------------
-         std::vector<std::shared_ptr<EventSetupProvider> > providers_;
+         std::vector<propagate_const<std::shared_ptr<EventSetupProvider>>> providers_;
+         NumberOfConcurrentIOVs numberOfConcurrentIOVs_;
+
+         // This data member is intentionally declared after providers_
+         // It is important that this is destroyed first.
+         std::vector<propagate_const<std::unique_ptr<EventSetupRecordIOVQueue>>> eventSetupRecordIOVQueues_;
 
          // The following two multimaps have one entry for each unique
          // ParameterSet. The ESProducerInfo or ESSourceInfo object
@@ -150,7 +171,8 @@ namespace edm {
          std::multimap<ParameterSetID, ESProducerInfo> esproducers_;
          std::multimap<ParameterSetID, ESSourceInfo> essources_;
 
-         bool mustFinishConfiguration_;
+         bool hasLegacyESSource_ = false;
+         bool mustFinishConfiguration_ = true;
       };
    }
 }

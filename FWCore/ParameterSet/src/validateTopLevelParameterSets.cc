@@ -20,6 +20,15 @@ void fillOptionsDescription(ParameterSetDescription& description) {
   description.addUntracked<unsigned int>("numberOfConcurrentRuns", 1);
   description.addUntracked<unsigned int>("numberOfConcurrentLuminosityBlocks", 1)->
     setComment("If zero, then set the same as the number of runs");
+  description.addUntracked<unsigned int>("numberOfConcurrentIOVs", 1) ->
+    setComment("If zero, set to 1. Can be overridden by hard coded static in record C++ definition or by forceNumberOfConcurrentIOVs");
+
+  edm::ParameterSetDescription nestedDescription;
+  nestedDescription.addWildcardUntracked<unsigned int>("*")->
+    setComment("Parameter names should be record names and the values are the number of concurrent IOVS for each record."
+               " Overrides all other methods of setting number of concurrent IOVs.");
+  description.addUntracked<edm::ParameterSetDescription>("forceNumberOfConcurrentIOVs", nestedDescription);
+
   description.addUntracked<bool>("wantSummary", false)->
     setComment("Set true to print a report on the trigger decisions and timing of modules");
   description.addUntracked<std::string>("fileMode", "FULLMERGE")->
@@ -29,7 +38,6 @@ void fillOptionsDescription(ParameterSetDescription& description) {
     setComment("Set false to disable exception throws when configuration validation detects illegal parameters");
   description.addUntracked<bool>("printDependencies", false)->
     setComment("Print data dependencies between modules");
-
 
   // No default for this one because the parameter value is
   // actually used in the main function in cmsRun.cpp before

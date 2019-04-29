@@ -1,11 +1,11 @@
-#ifndef Framework_DependentRecordIntervalFinder_h
-#define Framework_DependentRecordIntervalFinder_h
+#ifndef FWCore_Framework_DependentRecordIntervalFinder_h
+#define FWCore_Framework_DependentRecordIntervalFinder_h
 // -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     DependentRecordIntervalFinder
 // 
-/**\class DependentRecordIntervalFinder DependentRecordIntervalFinder.h FWCore/Framework/interface/DependentRecordIntervalFinder.h
+/**\class edm::eventsetup::DependentRecordIntervalFinder
 
  Description: Finds the intersection of the ValidityInterval for several Providers
 
@@ -38,6 +38,8 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
 
    public:
       DependentRecordIntervalFinder(const EventSetupRecordKey&);
+      DependentRecordIntervalFinder(const DependentRecordIntervalFinder&) = delete;
+      const DependentRecordIntervalFinder& operator=(const DependentRecordIntervalFinder&) = delete;
       ~DependentRecordIntervalFinder() override;
 
       // ---------- const member functions ---------------------
@@ -57,10 +59,13 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
                                    ValidityInterval&) override;
       
    private:
-      DependentRecordIntervalFinder(const DependentRecordIntervalFinder&) = delete; // stop default
 
-      const DependentRecordIntervalFinder& operator=(const DependentRecordIntervalFinder&) = delete; // stop default
+      void doResetInterval(const eventsetup::EventSetupRecordKey&) override;
 
+      bool isLegacyESSource() const override;
+
+      bool isLegacyOutOfValidityInterval(const EventSetupRecordKey&,
+                                         const IOVSyncValue&) const override;
       // ---------- member data --------------------------------
       typedef std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordProvider>>> Providers;
       Providers providers_;

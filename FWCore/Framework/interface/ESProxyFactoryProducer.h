@@ -81,21 +81,17 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
 
    public:
       ESProxyFactoryProducer();
+
+      ESProxyFactoryProducer(const ESProxyFactoryProducer&) = delete;
+      const ESProxyFactoryProducer& operator=(const ESProxyFactoryProducer&) = delete;
+
       ~ESProxyFactoryProducer() noexcept(false) override;
 
-      // ---------- const member functions ---------------------
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-      ///overrides DataProxyProvider method
-      void newInterval(const eventsetup::EventSetupRecordKey& iRecordType,
-                                const ValidityInterval& iInterval) override ;
-
-   protected:
+  protected:
       ///override DataProxyProvider method
       void registerProxies(const eventsetup::EventSetupRecordKey& iRecord ,
-                                    KeyedProxies& aProxyList) override ;
+                           KeyedProxies& aProxyList,
+                           unsigned int iovIndex) override ;
 
       /** \param iFactory unique_ptr holding a new instance of a Factory
          \param iLabel extra string label used to get data (optional)
@@ -108,7 +104,7 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
                               const std::string& iLabel = std::string()) {
             std::unique_ptr<eventsetup::ProxyFactoryBase> temp(iFactory.release());
             registerFactoryWithKey(
-                                   eventsetup::EventSetupRecordKey::makeKey<typename TFactory::record_type>(),
+                                   eventsetup::EventSetupRecordKey::makeKey<typename TFactory::RecordType>(),
                                    std::move(temp),
                                    iLabel);
          }
@@ -118,10 +114,6 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
                                           const std::string& iLabel= std::string() );
 
    private:
-      ESProxyFactoryProducer(const ESProxyFactoryProducer&) = delete; // stop default
-
-      const ESProxyFactoryProducer& operator=(const ESProxyFactoryProducer&) = delete; // stop default
-
       
       // ---------- member data --------------------------------
       std::multimap< eventsetup::EventSetupRecordKey, eventsetup::FactoryInfo > record2Factories_;

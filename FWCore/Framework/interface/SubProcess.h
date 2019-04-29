@@ -23,11 +23,13 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <vector>
 
 namespace edm {
   class ActivityRegistry;
   class BranchDescription;
   class BranchIDListHelper;
+  class EventSetupImpl;
   class HistoryAppender;
   class IOVSyncValue;
   class MergeableRunProductMetadata;
@@ -74,15 +76,22 @@ namespace edm {
     void doEndJob();
 
     void doEventAsync(WaitingTaskHolder iHolder,
-                      EventPrincipal const& principal);
+                      EventPrincipal const& principal,
+                      std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
-    void doBeginRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts);
+    void doBeginRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts,
+                         std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
-    void doEndRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void doEndRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts,
+                       std::vector<std::shared_ptr<const EventSetupImpl>> const*,
+                       bool cleaningUpAfterException);
 
-    void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
+    void doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts,
+                                     std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
-    void doEndLuminosityBlockAsync(WaitingTaskHolder iHolder, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void doEndLuminosityBlockAsync(WaitingTaskHolder iHolder, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts,
+                                   std::vector<std::shared_ptr<const EventSetupImpl>> const*,
+                                   bool cleaningUpAfterException);
 
 
     void doBeginStream(unsigned int);
@@ -90,22 +99,26 @@ namespace edm {
     void doStreamBeginRunAsync(WaitingTaskHolder iHolder,
                                unsigned int iID,
                                RunPrincipal const& principal,
-                               IOVSyncValue const& ts);
+                               IOVSyncValue const& ts,
+                               std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
     void doStreamEndRunAsync(WaitingTaskHolder iHolder,
                              unsigned int iID, RunPrincipal const& principal,
                              IOVSyncValue const& ts,
+                             std::vector<std::shared_ptr<const EventSetupImpl>> const*,
                              bool cleaningUpAfterException);
 
     void doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
                                            unsigned int iID,
                                            LuminosityBlockPrincipal const& principal,
-                                           IOVSyncValue const& ts);
+                                           IOVSyncValue const& ts,
+                                           std::vector<std::shared_ptr<const EventSetupImpl>> const*);
 
     void doStreamEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
                                          unsigned int iID,
                                          LuminosityBlockPrincipal const& principal,
                                          IOVSyncValue const& ts,
+                                         std::vector<std::shared_ptr<const EventSetupImpl>> const*,
                                          bool cleaningUpAfterException);
 
 
@@ -232,7 +245,7 @@ namespace edm {
   private:
     void beginJob();
     void endJob();
-    void processAsync(WaitingTaskHolder iHolder, EventPrincipal const& e);
+    void processAsync(WaitingTaskHolder iHolder, EventPrincipal const& e, std::vector<std::shared_ptr<const EventSetupImpl>> const*);
     void beginRun(RunPrincipal const& r, IOVSyncValue const& ts);
     void endRun(RunPrincipal const& r, IOVSyncValue const& ts, bool cleaningUpAfterException);
     void beginLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts);

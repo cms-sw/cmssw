@@ -204,7 +204,7 @@ private:
             for(Keys::const_iterator itKey = keys.begin(), itKeyEnd = keys.end();
                  itKey != itKeyEnd;
                  ++itKey) {
-               if(! pRecord->doGet(*itKey)) {
+              if(! pRecord->doGet(*itKey)) {
                  edm::LogWarning("DataGetter") << "No data of type \""<<itKey->type().name() <<"\" with name \""<< itKey->name().value()<<"\" in record "<<itRecord->first.type().name() <<" found "<< std::endl;
                } else {
                   if(verbose_) {

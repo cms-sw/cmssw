@@ -33,40 +33,31 @@ namespace test {
   
   class EventSetupTestHelper : public eventsetup::DataProxyProvider, public EventSetupRecordIntervalFinder
 {
+public:
 
-   public:
   EventSetupTestHelper(std::vector<ESProduceEntry>);
-
-      // ---------- const member functions ---------------------
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-  void newInterval(const eventsetup::EventSetupRecordKey& iRecordType,
-                   const ValidityInterval& iInterval) final;
+  EventSetupTestHelper(const EventSetupTestHelper&) = delete;
+  const EventSetupTestHelper& operator=(const EventSetupTestHelper&) = delete;
 
   std::shared_ptr<eventsetup::DataProxy> getProxy(unsigned int index );
   
   void resetAllProxies();
+
 protected:
+
   void setIntervalFor(const eventsetup::EventSetupRecordKey&,
                       const IOVSyncValue& ,
                       ValidityInterval&) final;
 
   void registerProxies(const eventsetup::EventSetupRecordKey& iRecordKey ,
-                       KeyedProxies& aProxyList) final ;
+                       KeyedProxies& aProxyList,
+                       unsigned int) final ;
 
+private:
 
-   private:
-      EventSetupTestHelper(const EventSetupTestHelper&) = delete; // stop default
-
-      const EventSetupTestHelper& operator=(const EventSetupTestHelper&) = delete; // stop default
-
-      // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
   std::vector<ESProduceEntry> proxies_;
 };
 }
 }
-
-
 #endif

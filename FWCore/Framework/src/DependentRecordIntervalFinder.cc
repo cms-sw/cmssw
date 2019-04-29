@@ -10,55 +10,23 @@
 // Created:     Sat Apr 30 19:37:22 EDT 2005
 //
 
-// system include files
-
-// user include files
 #include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include <cassert>
 
-//
-// constants, enums and typedefs
-//
 namespace edm {
    namespace eventsetup {
-//
-// static data member definitions
-//
 
-//
-// constructors and destructor
-//
 DependentRecordIntervalFinder::DependentRecordIntervalFinder(const EventSetupRecordKey& iKey) :
   providers_()
 {
    findingRecordWithKey(iKey);
 }
 
-// DependentRecordIntervalFinder::DependentRecordIntervalFinder(const DependentRecordIntervalFinder& rhs)
-// {
-//    // do actual copying here;
-// }
-
 DependentRecordIntervalFinder::~DependentRecordIntervalFinder()
 {
 }
 
-//
-// assignment operators
-//
-// const DependentRecordIntervalFinder& DependentRecordIntervalFinder::operator=(const DependentRecordIntervalFinder& rhs)
-// {
-//   //An exception safe implementation is
-//   DependentRecordIntervalFinder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
 void 
 DependentRecordIntervalFinder::addProviderWeAreDependentOn(std::shared_ptr<EventSetupRecordProvider> iProvider)
 {
@@ -201,12 +169,27 @@ DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& iKey,
    }
 }
 
-//
-// const member functions
-//
+void DependentRecordIntervalFinder::doResetInterval(const eventsetup::EventSetupRecordKey& key) {
+   if (alternate_.get()) {
+      alternate_->resetInterval(key);
+   }
+   previousIOVs_.clear();
+}
 
-//
-// static member functions
-//
+bool DependentRecordIntervalFinder::isLegacyESSource() const {
+   return false;
+}
+
+bool DependentRecordIntervalFinder::isLegacyOutOfValidityInterval(const EventSetupRecordKey& iKey,
+                                                                  const IOVSyncValue& iTime) const {
+   // Note that we do not worry about dependent records here because this function
+   // will get called once for every record and we would just be checking the
+   // dependent records multiple times if we checked them inside this function.
+   if (alternate_.get()) {
+      return alternate_->legacyOutOfValidityInterval(iKey, iTime);
+   }
+   return false;
+}
+
    }
 }

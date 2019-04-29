@@ -5,42 +5,33 @@
 // Package:     Framework
 // Class  :     EventSetupRecord
 //
-/**\class EventSetupRecord EventSetupRecord.h FWCore/Framework/interface/EventSetupRecord.h
+/**\class edm::eventsetup::EventSetupRecord
 
- Description: Base class for all Records in an EventSetup.  Holds data with the same lifetime.
+ Description: Base class for all Records in an EventSetup.  A record is associated
+ with data with the same lifetime.
 
  Usage:
-This class contains the Proxies that make up a given Record.  It
-is designed to be reused time after time, rather than it being
-destroyed and a new one created every time a new Record is
-required.  Proxies can only be added by the EventSetupRecordProvider class which
-uses the 'add' function to do this.  The reason for this is
-that the EventSetupRecordProvider/DataProxyProvider pair are responsible for
-"invalidating" Proxies in a Record.  When a Record
-becomes "invalid" the EventSetupRecordProvider must invalidate
-all the  Proxies which it does using the DataProxyProvider.
 
-When the set of  Proxies for a Records changes, i.e. a
-DataProxyProvider is added of removed from the system, then the
-Proxies in a Record need to be changes as appropriate.
-In this design it was decided the easiest way to achieve this was
-to erase all  Proxies in a Record.
+ This class contains the interface that clients of the EventSetup
+ use to get data associated with a record.
 
-It is important for the management of the Records that each Record
-know the ValidityInterval that represents the time over which its data is valid.
-The ValidityInterval is set by its EventSetupRecordProvider using the
-'set' function.  This quantity can be recovered
-through the 'validityInterval' method.
+ This class holds a pointer to an EventSetupRecordImpl class, which
+ is the class used to get the DataProxies associated with a given Record.
+ It also has a pointer to the EventSetupImpl which is used to lookup
+ dependent records in DependentRecordImplementation.
 
-For a Proxy to be able to derive its contents from the EventSetup, it
-must be able to access any Proxy (and thus any Record) in the
-EventSetup.  The 'make' function of a Proxy provides its
-containing Record as one of its arguments.  To be able to
-access the rest of the EventSetup, it is necessary for a Record to be
-able to access its containing EventSetup.  This task is handled by the
-'eventSetup' function.  The EventSetup is responsible for managing this
-using the 'setEventSetup' and 'clearEventSetup' functions.
+ It is important for the management of the Records that each Record
+ know the ValidityInterval that represents the time over which its
+ data is valid. The ValidityInterval is set by its EventSetupRecordProvider
+ using the 'set' function.  This quantity can be recovered
+ through the 'validityInterval' method.
 
+ Most of the time one uses a record obtained from an EventSetup object
+ and in that case the pointers this contains will be properly initialized
+ automatically. If you construct a record object directly (usually using
+ a type derived from this), then only a very limited subset of functions
+ can be called because most of the member functions will dereference one
+ of the null pointers and seg fault.
 */
 //
 // Author:      Chris Jones
@@ -90,9 +81,6 @@ namespace edm {
       class EventSetupRecordKey;
 
       class EventSetupRecord {
-
-        friend class ::testEventsetup;
-        friend class ::testEventsetupRecord;
       public:
          EventSetupRecord();
          EventSetupRecord(EventSetupRecord&&) = default;
@@ -103,17 +91,18 @@ namespace edm {
          virtual ~EventSetupRecord();
 
          // ---------- const member functions ---------------------
-         ValidityInterval const& validityInterval() const {
+         ValidityInterval validityInterval() const {
             return impl_->validityInterval();
          }
 
-        void setImpl(EventSetupRecordImpl const* iImpl,
-                     unsigned int transitionID,
-                     ESProxyIndex const* getTokenIndices) {
-          impl_ = iImpl;
-          transitionID_ = transitionID;
-          getTokenIndices_ =getTokenIndices;
-        }
+         void setImpl(EventSetupRecordImpl const* iImpl,
+                      unsigned int transitionID,
+                      ESProxyIndex const* getTokenIndices) {
+           impl_ = iImpl;
+           transitionID_ = transitionID;
+           getTokenIndices_ = getTokenIndices;
+         }
+         void setEventSetupImpl( EventSetupImpl const* iEventSetupImpl ) { eventSetupImpl_ = iEventSetupImpl; }
 
          template<typename HolderT>
          bool get(HolderT& iHolder) const {
@@ -125,7 +114,7 @@ namespace edm {
             typename HolderT::value_type const* value = nullptr;
             ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            impl_->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory);
+            impl_->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory, eventSetupImpl_);
 
             if(value) {
               iHolder = HolderT(value, desc);
@@ -135,6 +124,7 @@ namespace edm {
               return false;
             }
          }
+
          template<typename HolderT>
          bool get(std::string const& iName, HolderT& iHolder) const {
            return get(iName.c_str(), iHolder);
@@ -145,7 +135,7 @@ namespace edm {
             typename HolderT::value_type const* value = nullptr;
             ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            impl_->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
+            impl_->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory, eventSetupImpl_);
 
             if(value) {
               validate(desc, iTag);
@@ -187,15 +177,27 @@ namespace edm {
             return impl_->cacheIdentifier();
          }
 
+         unsigned int iovIndex() const {
+            return impl_->iovIndex();
+         }
+
          ///clears the oToFill vector and then fills it with the keys for all registered data keys
          void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const {
            impl_->fillRegisteredDataKeys(oToFill);
          }
+
+         static constexpr bool allowConcurrentIOVs_ = true;
+
+         friend class::testEventsetup;
+         friend class::testEventsetupRecord;
+
       protected:
 
          template<template<typename> typename H, typename T, typename R>
          H<T> getHandleImpl(ESGetToken<T,R> const& iToken) const {
-           assert(iToken.transitionID() == transitionID());
+           if (iToken.transitionID() != transitionID()) {
+             throwWrongTransitionID();
+           }
            assert(iToken.isInitialized());
            assert(getTokenIndices_);
            //need to check token has valid index
@@ -211,7 +213,9 @@ namespace edm {
            T const* value = nullptr;
            ComponentDescription const* desc = nullptr;
            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-           impl_->getImplementation(value, proxyIndex, H<T>::transientAccessOnly, desc, whyFailedFactory);
+
+           impl_->getImplementation(value, proxyIndex, H<T>::transientAccessOnly,
+                                    desc, whyFailedFactory, eventSetupImpl_);
            
            if UNLIKELY(not value) {
              return H<T>(std::move(whyFailedFactory));
@@ -219,11 +223,8 @@ namespace edm {
            return H<T>(value, desc);
          }
         
-
-         DataProxy const* find(DataKey const& aKey) const ;
-
          EventSetupImpl const& eventSetup() const {
-            return impl_->eventSetup();
+           return *eventSetupImpl_;
          }
         
          ESProxyIndex const* getTokenIndices() const { return getTokenIndices_; }
@@ -231,9 +232,8 @@ namespace edm {
          void validate(ComponentDescription const*, ESInputTag const&) const;
 
          void addTraceInfoToCmsException(cms::Exception& iException, char const* iName, ComponentDescription const*, DataKey const&) const;
-         void changeStdExceptionToCmsException(char const* iExceptionWhatMessage, char const* iName, ComponentDescription const*, DataKey const&) const;
 
-         EventSetupRecordImpl const* impl() const { return impl_;}
+         EventSetupRecordImpl const* impl() const { return impl_; }
         
          unsigned int transitionID() const { return  transitionID_;}
       private:
@@ -259,16 +259,23 @@ namespace edm {
 
         static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&,
                                                             TypeTag const&);
+      void throwWrongTransitionID() const;
+
          // ---------- member data --------------------------------
          EventSetupRecordImpl const* impl_ = nullptr;
+         EventSetupImpl const* eventSetupImpl_ = nullptr;
          ESProxyIndex const* getTokenIndices_ = nullptr;
          unsigned int transitionID_ = std::numeric_limits<unsigned int>::max();
       };
 
      class EventSetupRecordGeneric : public EventSetupRecord {
      public:
-       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl, unsigned int iTransitionID, ESProxyIndex const* getTokenIndices) {
+       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl,
+                               unsigned int iTransitionID,
+                               ESProxyIndex const* getTokenIndices,
+                               EventSetupImpl const* eventSetupImpl) {
          setImpl(iImpl, iTransitionID, getTokenIndices);
+         setEventSetupImpl(eventSetupImpl);
        }
 
        EventSetupRecordKey key() const final {

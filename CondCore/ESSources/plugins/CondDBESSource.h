@@ -47,9 +47,9 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
 			      const edm::IOVSyncValue& , 
 			      edm::ValidityInterval&) override ;
 
-  void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) override ;
-
-  void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType, const edm::ValidityInterval& iInterval) override ;
+  void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey,
+                       KeyedProxies& aProxyList,
+                       unsigned int /*iovIndex*/ ) override ;
 
  private:
 

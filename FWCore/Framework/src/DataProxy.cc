@@ -20,15 +20,10 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
-//
-// constants, enums and typedefs
-//
 namespace edm {
    namespace eventsetup {
      static std::recursive_mutex s_esGlobalMutex;
-//
-// static data member definitions
-//
+
 static
 const ComponentDescription*
 dummyDescription()
@@ -36,41 +31,19 @@ dummyDescription()
    static ComponentDescription s_desc;
    return &s_desc;
 }     
-//
-// constructors and destructor
-//
+
 DataProxy::DataProxy() :
    cache_(nullptr),
    cacheIsValid_(false),
-   nonTransientAccessRequested_(false),
-   description_(dummyDescription())
+   description_(dummyDescription()),
+   nonTransientAccessRequested_(false)
 {
 }
-
-// DataProxy::DataProxy(const DataProxy& rhs)
-// {
-//    // do actual copying here;
-// }
 
 DataProxy::~DataProxy()
 {
 }
 
-//
-// assignment operators
-//
-// const DataProxy& DataProxy::operator=(const DataProxy& rhs)
-// {
-//   //An exception safe implementation is
-//   DataProxy temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
 void DataProxy::clearCacheIsValid() {
    cacheIsValid_.store(false, std::memory_order_release);
    nonTransientAccessRequested_.store(false, std::memory_order_release);
@@ -89,9 +62,7 @@ void
 DataProxy::invalidateTransientCache() {
    invalidateCache();
 }
-//
-// const member functions
-//
+
 namespace  {
    void throwMakeException(const EventSetupRecordImpl& iRecord,
                            const DataKey& iKey)  {
@@ -132,20 +103,26 @@ namespace  {
 }
 
 const void* 
-DataProxy::get(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently, ActivityRegistry const* activityRegistry) const
+DataProxy::get(const EventSetupRecordImpl& iRecord,
+               const DataKey& iKey,
+               bool iTransiently,
+               ActivityRegistry const* activityRegistry,
+               EventSetupImpl const* iEventSetupImpl) const
 {
    if(!cacheIsValid()) {
       ESSignalSentry signalSentry(iRecord, iKey, providerDescription(), activityRegistry);
       std::lock_guard<std::recursive_mutex> guard(s_esGlobalMutex);
       signalSentry.sendPostLockSignal();
       if(!cacheIsValid()) {
-         cache_ = const_cast<DataProxy*>(this)->getImpl(iRecord, iKey);
+         cache_ = const_cast<DataProxy*>(this)->getImpl(iRecord, iKey, iEventSetupImpl);
          cacheIsValid_.store(true,std::memory_order_release);
       }
    }
+
    //We need to set the AccessType for each request so this can't be called in the if block above.
    //This also must be before the cache_ check since we want to setCacheIsValid before a possible
    // exception throw. If we don't, 'getImpl' will be called again on a second request for the data.
+
    if(!iTransiently) {
       nonTransientAccessRequested_.store(true, std::memory_order_release);
    }
@@ -156,13 +133,13 @@ DataProxy::get(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iT
    return cache_;
 }
 
-void DataProxy::doGet(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently, ActivityRegistry const* activityRegistry) const {
-   get(iRecord, iKey, iTransiently, activityRegistry);
+void DataProxy::doGet(const EventSetupRecordImpl& iRecord,
+                      const DataKey& iKey,
+                      bool iTransiently,
+                      ActivityRegistry const* activityRegistry,
+                      EventSetupImpl const* iEventSetupImpl) const {
+   get(iRecord, iKey, iTransiently, activityRegistry, iEventSetupImpl);
 }
       
-      
-//
-// static member functions
-//
    }
 }

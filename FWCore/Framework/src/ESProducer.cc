@@ -61,7 +61,11 @@ ESProducer::~ESProducer() noexcept(false)
   ESProducer::updateLookup(eventsetup::ESRecordsToProxyIndices const& iProxyToIndices) {
     itemsToGetFromRecords_.reserve(consumesInfos_.size());
     recordsUsedDuringGet_.reserve(consumesInfos_.size());
-    
+
+    if (itemsToGetFromRecords_.size() == consumesInfos_.size()) {
+      return;
+    }
+
     for(auto& info: consumesInfos_) {
       auto & items = itemsToGetFromRecords_.emplace_back();
       items.reserve(info->size());

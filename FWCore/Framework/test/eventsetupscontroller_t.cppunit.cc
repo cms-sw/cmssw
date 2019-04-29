@@ -18,7 +18,7 @@
 #include <vector>
 
 namespace {
-edm::ActivityRegistry activityRegistry;
+  edm::ActivityRegistry activityRegistry;
 }
 
 class TestEventSetupsController: public CppUnit::TestFixture
@@ -68,6 +68,7 @@ void TestEventSetupsController::constructorTest() {
 }
 
 void TestEventSetupsController::esProducerGetAndPutTest() {
+
   edm::eventsetup::EventSetupsController esController;
 
   edm::ParameterSet pset1;
@@ -143,15 +144,12 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
   bool isPresent4 = false;
   
   CPPUNIT_ASSERT(esproducers.size() == 4);
-  for (auto esproducer : esproducers) {
-    auto const& esproducer1 = esproducer;
+  for (auto const& esproducer : esproducers) {
     if (esproducer.second.pset() == &pset1) {
       isPresent1 = true;
       CPPUNIT_ASSERT(esproducer.first == pset1.id());
-      CPPUNIT_ASSERT(esproducer.second.provider() == proxyProvider1);
-      edm::eventsetup::ESProducerInfo& info = esproducer.second;
-      edm::eventsetup::ESProducerInfo const& constInfo = esproducer1.second;
-      CPPUNIT_ASSERT(info.subProcessIndexes() == constInfo.subProcessIndexes());
+      CPPUNIT_ASSERT(esproducer.second.providerGet() == static_cast<edm::eventsetup::DataProxyProvider*>(proxyProvider1.get()));
+      edm::eventsetup::ESProducerInfo const& info = esproducer.second;
       CPPUNIT_ASSERT(info.subProcessIndexes().size() == 2);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);
       CPPUNIT_ASSERT(info.subProcessIndexes()[1] == 1);
@@ -159,10 +157,8 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
     if (esproducer.second.pset() == &pset2) {
       isPresent2 = true;
       CPPUNIT_ASSERT(esproducer.first == pset1.id());
-      CPPUNIT_ASSERT(esproducer.second.provider() == proxyProvider2);
-      edm::eventsetup::ESProducerInfo& info = esproducer.second;
-      edm::eventsetup::ESProducerInfo const& constInfo = esproducer1.second;
-      CPPUNIT_ASSERT(info.subProcessIndexes() == constInfo.subProcessIndexes());
+      CPPUNIT_ASSERT(esproducer.second.providerGet() == static_cast<edm::eventsetup::DataProxyProvider*>(proxyProvider2.get()));
+      edm::eventsetup::ESProducerInfo const& info = esproducer.second;
       CPPUNIT_ASSERT(info.subProcessIndexes().size() == 2);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);
       CPPUNIT_ASSERT(info.subProcessIndexes()[1] == 2);
@@ -170,10 +166,8 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
     if (esproducer.second.pset() == &pset3) {
       isPresent3 = true;
       CPPUNIT_ASSERT(esproducer.first == pset3.id());
-      CPPUNIT_ASSERT(esproducer.second.provider() == proxyProvider3);
-      edm::eventsetup::ESProducerInfo& info = esproducer.second;
-      edm::eventsetup::ESProducerInfo const& constInfo = esproducer1.second;
-      CPPUNIT_ASSERT(info.subProcessIndexes() == constInfo.subProcessIndexes());
+      CPPUNIT_ASSERT(esproducer.second.providerGet() == static_cast<edm::eventsetup::DataProxyProvider*>(proxyProvider3.get()));
+      edm::eventsetup::ESProducerInfo const& info = esproducer.second;
       CPPUNIT_ASSERT(info.subProcessIndexes().size() == 2);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);
       CPPUNIT_ASSERT(info.subProcessIndexes()[1] == 3);
@@ -181,10 +175,8 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
     if (esproducer.second.pset() == &pset4) {
       isPresent4 = true;
       CPPUNIT_ASSERT(esproducer.first == pset4.id());
-      CPPUNIT_ASSERT(esproducer.second.provider() == proxyProvider4);
-      edm::eventsetup::ESProducerInfo& info = esproducer.second;
-      edm::eventsetup::ESProducerInfo const& constInfo = esproducer1.second;
-      CPPUNIT_ASSERT(info.subProcessIndexes() == constInfo.subProcessIndexes());
+      CPPUNIT_ASSERT(esproducer.second.providerGet() == static_cast<edm::eventsetup::DataProxyProvider*>(proxyProvider4.get()));
+      edm::eventsetup::ESProducerInfo const& info = esproducer.second;
       CPPUNIT_ASSERT(info.subProcessIndexes().size() == 3);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);
       CPPUNIT_ASSERT(info.subProcessIndexes()[1] == 4);
@@ -324,15 +316,12 @@ void TestEventSetupsController::esSourceGetAndPutTest() {
   bool isPresent4 = false;
   
   CPPUNIT_ASSERT(essources.size() == 4);
-  for (auto essource : essources) {
-    auto const& essource1 = essource;
+  for (auto const& essource : essources) {
     if (essource.second.pset() == &pset1) {
       isPresent1 = true;
       CPPUNIT_ASSERT(essource.first == pset1.id());
-      CPPUNIT_ASSERT(essource.second.finder() == finder1);
-      edm::eventsetup::ESSourceInfo& info = essource.second;
-      edm::eventsetup::ESSourceInfo const& constInfo = essource1.second;
-      CPPUNIT_ASSERT(info.subProcessIndexes() == constInfo.subProcessIndexes());
+      CPPUNIT_ASSERT(essource.second.finderGet() == static_cast<edm::EventSetupRecordIntervalFinder const*>(finder1.get()));
+      edm::eventsetup::ESSourceInfo const& info = essource.second;
       CPPUNIT_ASSERT(info.subProcessIndexes().size() == 2);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);
       CPPUNIT_ASSERT(info.subProcessIndexes()[1] == 1);
@@ -340,10 +329,8 @@ void TestEventSetupsController::esSourceGetAndPutTest() {
     if (essource.second.pset() == &pset2) {
       isPresent2 = true;
       CPPUNIT_ASSERT(essource.first == pset1.id());
-      CPPUNIT_ASSERT(essource.second.finder() == finder2);
-      edm::eventsetup::ESSourceInfo& info = essource.second;
-      edm::eventsetup::ESSourceInfo const& constInfo = essource1.second;
-      CPPUNIT_ASSERT(info.subProcessIndexes() == constInfo.subProcessIndexes());
+      CPPUNIT_ASSERT(essource.second.finderGet() == static_cast<edm::EventSetupRecordIntervalFinder const*>(finder2.get()));
+      edm::eventsetup::ESSourceInfo const& info = essource.second;
       CPPUNIT_ASSERT(info.subProcessIndexes().size() == 2);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);
       CPPUNIT_ASSERT(info.subProcessIndexes()[1] == 2);
@@ -351,10 +338,8 @@ void TestEventSetupsController::esSourceGetAndPutTest() {
     if (essource.second.pset() == &pset3) {
       isPresent3 = true;
       CPPUNIT_ASSERT(essource.first == pset3.id());
-      CPPUNIT_ASSERT(essource.second.finder() == finder3);
-      edm::eventsetup::ESSourceInfo& info = essource.second;
-      edm::eventsetup::ESSourceInfo const& constInfo = essource1.second;
-      CPPUNIT_ASSERT(info.subProcessIndexes() == constInfo.subProcessIndexes());
+      CPPUNIT_ASSERT(essource.second.finderGet() == static_cast<edm::EventSetupRecordIntervalFinder const*>(finder3.get()));
+      edm::eventsetup::ESSourceInfo const& info = essource.second;
       CPPUNIT_ASSERT(info.subProcessIndexes().size() == 2);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);
       CPPUNIT_ASSERT(info.subProcessIndexes()[1] == 3);
@@ -362,11 +347,9 @@ void TestEventSetupsController::esSourceGetAndPutTest() {
     if (essource.second.pset() == &pset4) {
       isPresent4 = true;
       CPPUNIT_ASSERT(essource.first == pset4.id());
-      CPPUNIT_ASSERT(essource.second.finder() == finder4);
-      edm::eventsetup::ESSourceInfo& info = essource.second;
-      edm::eventsetup::ESSourceInfo const& constInfo = essource1.second;
-      CPPUNIT_ASSERT(info.subProcessIndexes() == constInfo.subProcessIndexes());
-      CPPUNIT_ASSERT(info.subProcessIndexes().size() == 3);
+      CPPUNIT_ASSERT(essource.second.finderGet() == static_cast<edm::EventSetupRecordIntervalFinder const*>(finder4.get()));
+      edm::eventsetup::ESSourceInfo const& info = essource.second;
+     CPPUNIT_ASSERT(info.subProcessIndexes().size() == 3);
       CPPUNIT_ASSERT(info.subProcessIndexes()[0] == 0);
       CPPUNIT_ASSERT(info.subProcessIndexes()[1] == 4);
       CPPUNIT_ASSERT(info.subProcessIndexes()[2] == 5);

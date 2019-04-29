@@ -30,15 +30,6 @@ namespace callbacktest {
 
    struct Record { };
    
-   struct ConstPtrProd {
-      ConstPtrProd() : data_() {}
-      const Data* method(const Record&) {
-         ++data_.value_;
-         return &data_;
-      }      
-      Data data_;
-   };
-
    struct UniquePtrProd {
       UniquePtrProd() : value_(0) {}
       std::unique_ptr<Data> method(const Record&) {
@@ -104,10 +95,15 @@ void testCallback::uniquePtrTest()
    
    UniquePtrCallback callback(&prod, &UniquePtrProd::method, 0);
    std::unique_ptr<Data> handle;
-   
-   
    callback.holdOntoPointer(&handle);
-   
+
+   UniquePtrCallback callback2(callback.get(),
+                               callback.method(),
+                               callback.transitionID(),
+                               callback.decorator());
+   std::unique_ptr<Data> handle2;
+   callback2.holdOntoPointer(&handle2);
+
    Record record;
    callback.newRecordComing();
    callback(record);
@@ -130,7 +126,21 @@ void testCallback::uniquePtrTest()
    CPPUNIT_ASSERT(prod.value_ == 2);
    assert(0 != handle.get());
    CPPUNIT_ASSERT(prod.value_ == handle->value_);
-   
+
+   callback2(record);
+   CPPUNIT_ASSERT(handle2->value_ == 3);
+   CPPUNIT_ASSERT(handle->value_ == 2);
+
+   callback(record);
+   callback2(record);
+   CPPUNIT_ASSERT(handle2->value_ == 3);
+   CPPUNIT_ASSERT(handle->value_ == 2);
+
+   callback2.newRecordComing();
+   callback(record);
+   callback2(record);
+   CPPUNIT_ASSERT(handle2->value_ == 4);
+   CPPUNIT_ASSERT(handle->value_ == 2);
 }
 
 typedef Callback<SharedPtrProd, std::shared_ptr<Data>, Record> SharedPtrCallback;

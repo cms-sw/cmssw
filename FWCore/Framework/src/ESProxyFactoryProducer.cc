@@ -66,13 +66,14 @@ ESProxyFactoryProducer::~ESProxyFactoryProducer() noexcept(false)
 //
 void
 ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
-                                       KeyedProxies& iProxies)
+                                       KeyedProxies& iProxies,
+                                       unsigned int iovIndex)
 {
    typedef Record2Factories::iterator Iterator;
    std::pair< Iterator, Iterator > range = record2Factories_.equal_range(iRecord);
    for(Iterator it = range.first; it != range.second; ++it) {
 
-      std::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy().release());
+      std::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy(iovIndex).release());
       if(nullptr != proxy.get()) {
          iProxies.push_back(KeyedProxies::value_type((*it).second.key_,
                                          proxy));
@@ -112,18 +113,4 @@ ESProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecor
                                                          std::move(info)));
 }
 
-void
-ESProxyFactoryProducer::newInterval(const EventSetupRecordKey& iRecordType,
-                                   const ValidityInterval& /*iInterval*/)
-{
-   invalidateProxies(iRecordType);
-}
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//
 }

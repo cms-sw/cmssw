@@ -6,7 +6,10 @@
 
 #include "boost/mpl/vector.hpp"
 
-class ESTestRecordA : public edm::eventsetup::EventSetupRecordImplementation<ESTestRecordA> {};
+class ESTestRecordA : public edm::eventsetup::EventSetupRecordImplementation<ESTestRecordA> {
+public:
+  static constexpr bool allowConcurrentIOVs_ = false;
+};
 
 class ESTestRecordC : public edm::eventsetup::EventSetupRecordImplementation<ESTestRecordC> {};
 

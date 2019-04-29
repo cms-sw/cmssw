@@ -89,27 +89,27 @@ ESTestAnalyzerA: process = TEST10: Data value = 3
 ESTestAnalyzerA: process = TEST11: Data value = 2
 ESTestAnalyzerA: process = TEST12: Data value = 8
 ESTestAnalyzerAZ: process = TEST: Data values = 1  1
-ESTestAnalyzerAZ: process = TEST: Data values = 2  1
-ESTestAnalyzerAZ: process = TEST: Data values = 3  2
+ESTestAnalyzerAZ: process = TEST: Data values = 2  2
+ESTestAnalyzerAZ: process = TEST: Data values = 3  3
 ESTestAnalyzerAZ: process = TEST4: Data values = 1  1
-ESTestAnalyzerAZ: process = TEST: Data values = 4  2
+ESTestAnalyzerAZ: process = TEST: Data values = 4  3
 ESTestAnalyzerAZ: process = TEST4: Data values = 2  1
-ESTestAnalyzerAZ: process = TEST: Data values = 5  3
+ESTestAnalyzerAZ: process = TEST: Data values = 5  4
 ESTestAnalyzerAZ: process = TEST4: Data values = 3  2
 ESTestAnalyzerAZ: process = TEST5: Data values = 3  2
-ESTestAnalyzerAZ: process = TEST: Data values = 6  3
+ESTestAnalyzerAZ: process = TEST: Data values = 6  4
 ESTestAnalyzerAZ: process = TEST4: Data values = 4  2
 ESTestAnalyzerAZ: process = TEST5: Data values = 4  2
-ESTestAnalyzerAZ: process = TEST: Data values = 7  4
+ESTestAnalyzerAZ: process = TEST: Data values = 7  5
 ESTestAnalyzerAZ: process = TEST4: Data values = 5  3
 ESTestAnalyzerAZ: process = TEST5: Data values = 5  3
-ESTestAnalyzerAZ: process = TEST: Data values = 8  4
+ESTestAnalyzerAZ: process = TEST: Data values = 8  5
 ESTestAnalyzerAZ: process = TEST4: Data values = 6  3
 ESTestAnalyzerAZ: process = TEST5: Data values = 6  3
-ESTestAnalyzerAZ: process = TEST: Data values = 9  5
+ESTestAnalyzerAZ: process = TEST: Data values = 9  6
 ESTestAnalyzerAZ: process = TEST4: Data values = 7  4
 ESTestAnalyzerAZ: process = TEST5: Data values = 7  4
-ESTestAnalyzerAZ: process = TEST: Data values = 9  5
+ESTestAnalyzerAZ: process = TEST: Data values = 9  6
 ESTestAnalyzerAZ: process = TEST4: Data values = 7  4
 ESTestAnalyzerAZ: process = TEST5: Data values = 7  4
 Sharing ESSource: class=EmptyESSource label='emptyESSourceA'

@@ -159,16 +159,16 @@ namespace edm {
                          const es::Label& iLabel = {}) {
 
       const auto id = consumesInfos_.size();
-      auto callback = std::make_shared<eventsetup::Callback<T,
-                                                            TReturn,
-                                                            TRecord,
-                                                            typename eventsetup::DecoratorFromArg<T,TRecord,TArg>::Decorator_t>>(iThis,
-                                                                                                                                 iMethod,
-                                                                                                                                 id,
-                                                                                                                                 createDecoratorFrom(iThis,
-                                                                                                                                                     static_cast<const TRecord*>(nullptr),
-                                                                                                                                                     iDec));
-      registerProducts(callback,
+      using DecoratorType = typename eventsetup::DecoratorFromArg<T,TRecord,TArg>::Decorator_t;
+      using CallbackType = eventsetup::Callback<T, TReturn, TRecord, DecoratorType>;
+      auto callbacks = std::make_shared<std::vector<std::shared_ptr<CallbackType>>>();
+      callbacks->push_back(std::make_shared<CallbackType>(iThis,
+                                                          iMethod,
+                                                          id,
+                                                          createDecoratorFrom(iThis,
+                                                                              static_cast<const TRecord*>(nullptr),
+                                                                              iDec)));
+      registerProducts(callbacks,
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
@@ -182,26 +182,26 @@ namespace edm {
   private:
 
     template<typename CallbackT, typename TList, typename TRecord>
-    void registerProducts(std::shared_ptr<CallbackT> iCallback, const TList*, const TRecord* iRecord,
+    void registerProducts(std::shared_ptr<std::vector<std::shared_ptr<CallbackT>>> iCallbacks, const TList*, const TRecord* iRecord,
                           const es::Label& iLabel) {
-      registerProduct(iCallback, static_cast<const typename TList::tail_type*>(nullptr), iRecord, iLabel);
-      registerProducts(iCallback, static_cast<const typename TList::head_type*>(nullptr), iRecord, iLabel);
+      registerProduct(iCallbacks, static_cast<const typename TList::tail_type*>(nullptr), iRecord, iLabel);
+      registerProducts(iCallbacks, static_cast<const typename TList::head_type*>(nullptr), iRecord, iLabel);
     }
 
     template<typename T, typename TRecord>
-    void registerProducts(std::shared_ptr<T>, const eventsetup::produce::Null*, const TRecord*,const es::Label&) {
+    void registerProducts(std::shared_ptr<std::vector<std::shared_ptr<T>>>, const eventsetup::produce::Null*, const TRecord*,const es::Label&) {
       //do nothing
     }
 
-    template<typename T, typename TProduct, typename TRecord>
-    void registerProduct(std::shared_ptr<T> iCallback, const TProduct*, const TRecord*,const es::Label& iLabel) {
-      typedef eventsetup::CallbackProxy<T, TRecord, TProduct> ProxyType;
-      typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T>> FactoryType;
-      registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.default_);
+    template<typename CallbackT, typename TProduct, typename TRecord>
+    void registerProduct(std::shared_ptr<std::vector<std::shared_ptr<CallbackT>>> iCallbacks, const TProduct*, const TRecord*,const es::Label& iLabel) {
+      using ProxyType = eventsetup::CallbackProxy<CallbackT, TRecord, TProduct>;
+      using FactoryType = eventsetup::ProxyArgumentFactoryTemplate<ProxyType, CallbackT>;
+      registerFactory(std::make_unique<FactoryType>(iCallbacks), iLabel.default_);
     }
 
-    template<typename T, typename TProduct, typename TRecord, int IIndex>
-    void registerProduct(std::shared_ptr<T> iCallback, const es::L<TProduct,IIndex>*, const TRecord*,const es::Label& iLabel) {
+    template<typename CallbackT, typename TProduct, typename TRecord, int IIndex>
+    void registerProduct(std::shared_ptr<std::vector<std::shared_ptr<CallbackT>>> iCallbacks, const es::L<TProduct,IIndex>*, const TRecord*,const es::Label& iLabel) {
       if(iLabel.labels_.size() <= IIndex ||
          iLabel.labels_[IIndex] == es::Label::def()) {
         Exception::throwThis(errors::Configuration,
@@ -209,9 +209,9 @@ namespace edm {
                              IIndex,
                              " was never assigned a name in the 'setWhatProduced' method");
       }
-      typedef eventsetup::CallbackProxy<T, TRecord, es::L<TProduct, IIndex>> ProxyType;
-      typedef eventsetup::ProxyArgumentFactoryTemplate<ProxyType, std::shared_ptr<T>> FactoryType;
-      registerFactory(std::make_unique<FactoryType>(iCallback), iLabel.labels_[IIndex]);
+      using ProxyType = eventsetup::CallbackProxy<CallbackT, TRecord, es::L<TProduct, IIndex>>;
+      using FactoryType = eventsetup::ProxyArgumentFactoryTemplate<ProxyType, CallbackT>;
+      registerFactory(std::make_unique<FactoryType>(iCallbacks), iLabel.labels_[IIndex]);
     }
 
     std::vector<std::unique_ptr<ESConsumesInfo>> consumesInfos_;

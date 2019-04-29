@@ -299,7 +299,7 @@ TestProcessor::beginRun() {
                   runPrincipal.beginTime());
   espController_->eventSetupForInstance(ts);
   
-  auto const& es = esp_->eventSetup();
+  auto const& es = esp_->eventSetupImpl();
 
   std::vector<edm::SubProcess> emptyList;
   {
@@ -311,6 +311,7 @@ TestProcessor::beginRun() {
                                        runPrincipal,
                                        ts,
                                        es,
+                                       nullptr,
                                        serviceToken_,
                                        emptyList);
     globalWaitTask->wait_for_all();
@@ -331,6 +332,7 @@ TestProcessor::beginRun() {
                                         runPrincipal,
                                         ts,
                                         es,
+                                        nullptr,
                                         serviceToken_,
                                         emptyList);
     
@@ -355,7 +357,7 @@ TestProcessor::beginLuminosityBlock() {
                   lumiPrincipal_->beginTime());
   espController_->eventSetupForInstance(ts);
   
-  auto const& es = esp_->eventSetup();
+  auto const& es = esp_->eventSetupImpl();
   
   std::vector<edm::SubProcess> emptyList;
   {
@@ -367,6 +369,7 @@ TestProcessor::beginLuminosityBlock() {
                                        *lumiPrincipal_,
                                        ts,
                                        es,
+                                       nullptr,
                                        serviceToken_,
                                        emptyList);
     globalWaitTask->wait_for_all();
@@ -387,6 +390,7 @@ TestProcessor::beginLuminosityBlock() {
                                         *lumiPrincipal_,
                                         ts,
                                         es,
+                                        nullptr,
                                         serviceToken_,
                                         emptyList);
     
@@ -429,7 +433,7 @@ TestProcessor::event() {
   waitTask->increment_ref_count();
 
   schedule_->processOneEventAsync(edm::WaitingTaskHolder(waitTask.get()),
-                                  0,*pep, esp_->eventSetup(), serviceToken_);
+                                  0,*pep, esp_->eventSetupImpl(), serviceToken_);
 
   waitTask->wait_for_all();
   if(waitTask->exceptionPtr() != nullptr) {
@@ -449,7 +453,7 @@ TestProcessor::endLuminosityBlock() {
                     lumiPrincipal->endTime());
     espController_->eventSetupForInstance(ts);
     
-    auto const& es = esp_->eventSetup();
+    auto const& es = esp_->eventSetupImpl();
 
     std::vector<edm::SubProcess> emptyList;
 
@@ -466,6 +470,7 @@ TestProcessor::endLuminosityBlock() {
                                         *lumiPrincipal,
                                         ts,
                                         es,
+                                        nullptr,
                                         serviceToken_,
                                         emptyList,
                                         false);
@@ -485,6 +490,7 @@ TestProcessor::endLuminosityBlock() {
                                        *lumiPrincipal,
                                        ts,
                                        es,
+                                       nullptr,
                                        serviceToken_,
                                        emptyList,
                                        false);
@@ -508,7 +514,7 @@ TestProcessor::endRun() {
                     runPrincipal.endTime());
     espController_->eventSetupForInstance(ts);
     
-    auto const& es = esp_->eventSetup();
+    auto const& es = esp_->eventSetupImpl();
     
     std::vector<edm::SubProcess> emptyList;
     
@@ -525,6 +531,7 @@ TestProcessor::endRun() {
                                         runPrincipal,
                                         ts,
                                         es,
+                                        nullptr,
                                         serviceToken_,
                                         emptyList,
                                         false);
@@ -544,6 +551,7 @@ TestProcessor::endRun() {
                                        runPrincipal,
                                        ts,
                                        es,
+                                       nullptr,
                                        serviceToken_,
                                        emptyList,
                                        false);

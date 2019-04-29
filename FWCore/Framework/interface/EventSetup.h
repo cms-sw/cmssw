@@ -5,7 +5,7 @@
 // Package:     Framework
 // Class:      EventSetup
 //
-/**\class EventSetup EventSetup.h FWCore/Framework/interface/EventSetup.h
+/**\class edm::EventSetup
 
  Description: Container for all Records dealing with non-RunState info
 
@@ -42,7 +42,7 @@
 // forward declarations
 
 namespace edm {
-   class ActivityRegistry;
+
    class ESInputTag;
    template <class T, class R>
    class ESGetToken;
@@ -58,6 +58,7 @@ namespace edm {
   {
     ///Needed until a better solution can be found
     friend class edm::PileUp;
+
     public:
 
       explicit EventSetup(EventSetupImpl const& iSetup,
@@ -69,7 +70,6 @@ namespace edm {
       EventSetup(EventSetup const&) = delete;
       EventSetup& operator=(EventSetup const&) = delete;
 
-      // ---------- const member functions ---------------------
       /** returns the Record of type T.  If no such record available
           a eventsetup::NoRecordException<T> is thrown */
       template< typename T>
@@ -86,11 +86,12 @@ namespace edm {
             }
             T returnValue;
             returnValue.setImpl(temp,m_id,m_getTokenIndices);
+            returnValue.setEventSetupImpl(&m_setup);
             return returnValue;
          }
 
       /** returns the Record of type T.  If no such record available
-       a null pointer is returned */
+       a null optional is returned */
       template< typename T>
         std::optional<T> tryToGet() const {
            using namespace eventsetup;
@@ -102,6 +103,7 @@ namespace edm {
            if(temp != nullptr) {
               T rec;
               rec.setImpl(temp,m_id,m_getTokenIndices);
+              rec.setEventSetupImpl(&m_setup);
               return rec;
            }
            return std::nullopt;

@@ -46,9 +46,11 @@ class DataProxyProvider
    public:   
       typedef std::vector< EventSetupRecordKey> Keys;
       typedef std::vector<std::pair<DataKey, edm::propagate_const<std::shared_ptr<DataProxy>>>> KeyedProxies;
-      typedef std::map<EventSetupRecordKey, KeyedProxies> RecordProxies;
+      typedef std::map<EventSetupRecordKey, std::vector<KeyedProxies>> RecordProxies;
       
       DataProxyProvider();
+      DataProxyProvider(const DataProxyProvider&) = delete;
+      const DataProxyProvider& operator=(const DataProxyProvider&) = delete;
       virtual ~DataProxyProvider() noexcept(false);
 
       // ---------- const member functions ---------------------
@@ -56,7 +58,7 @@ class DataProxyProvider
       
       std::set<EventSetupRecordKey> usingRecords() const;
       
-      const KeyedProxies& keyedProxies(const EventSetupRecordKey& iRecordKey) const ;
+      KeyedProxies& keyedProxies(const EventSetupRecordKey& iRecordKey, unsigned int iovIndex = 0);
       
       const ComponentDescription& description() const { return description_;}
       // ---------- static member functions --------------------
@@ -68,10 +70,6 @@ class DataProxyProvider
 
       virtual void updateLookup(ESRecordsToProxyIndices const&);
 
-      ///called when a new interval of validity occurs for iRecordType
-      virtual void newInterval(const EventSetupRecordKey& iRecordType,
-                                const ValidityInterval& iInterval) = 0;
-      
       void setDescription(const ComponentDescription& iDescription) {
          description_ = iDescription;
       }
@@ -80,9 +78,10 @@ class DataProxyProvider
         which will be appended to the labels of all data products being produced
       **/
       void setAppendToDataLabel(const edm::ParameterSet&);
-      
-      void resetProxies(const EventSetupRecordKey& iRecordType);
-      void resetProxiesIfTransient(const EventSetupRecordKey& iRecordType);
+
+      void fillRecordsNotAllowingConcurrentIOVs(std::set<EventSetupRecordKey>& recordsNotAllowingConcurrentIOVs) const;
+
+      void resizeKeyedProxiesVector(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs);
 
    protected:
       template< class T>
@@ -92,18 +91,14 @@ class DataProxyProvider
       
       void usingRecordWithKey(const EventSetupRecordKey&);
 
-      void invalidateProxies(const EventSetupRecordKey& iRecordKey) ;
+      virtual void registerProxies(const EventSetupRecordKey& iRecordKey,
+                                   KeyedProxies& aProxyList,
+                                   unsigned int iovIndex) = 0;
 
-      virtual void registerProxies(const EventSetupRecordKey& iRecordKey ,
-                                    KeyedProxies& aProxyList) = 0 ;
-      
       ///deletes all the Proxies in aStream
       void eraseAll(const EventSetupRecordKey& iRecordKey) ;
 
    private:
-      DataProxyProvider(const DataProxyProvider&); // stop default
-
-      const DataProxyProvider& operator=(const DataProxyProvider&); // stop default
 
       // ---------- member data --------------------------------
       RecordProxies recordProxies_;

@@ -516,10 +516,13 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     edm::IOVSyncValue start = cond::time::toIOVSyncValue(recordValidity.first, timetype, true);
     edm::IOVSyncValue stop = doRefresh  ? cond::time::limitedIOVSyncValue (iTime, timetype)
       : cond::time::toIOVSyncValue(recordValidity.second, timetype, false);
-       
+
+    if (start == edm::IOVSyncValue::invalidIOVSyncValue() && stop != edm::IOVSyncValue::invalidIOVSyncValue()) {
+      start = edm::IOVSyncValue::beginOfTime();
+    }
     oInterval = edm::ValidityInterval( start, stop );
-   }
-  
+  }
+
   edm::LogInfo( "CondDBESSource" ) << "Setting validity for record \"" << recordname 
 				   << "\" and corresponding label(s): starting at " << oInterval.first().eventID() << ", timestamp: " << oInterval.first().time().value()
 				   << ", ending at "<< oInterval.last().eventID() << ", timestamp: " << oInterval.last().time().value()
@@ -530,7 +533,9 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 
 //required by EventSetup System
 void 
-CondDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey , KeyedProxies& aProxyList) {
+CondDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey,
+                                KeyedProxies& aProxyList,
+                                unsigned int /*iovIndex*/ ) {
   std::string recordname=iRecordKey.name();
 
   ProxyMap::const_iterator b = m_proxies.lower_bound(recordname);
@@ -549,16 +554,6 @@ CondDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
     }
   }
 }
-
-// required by the EventSetup System
-void 
-CondDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
-			    const edm::ValidityInterval&) 
-{
-  //LogDebug ("CondDBESSource")<<"newInterval";
-  invalidateProxies(iRecordType);
-}
-
 
 // Fills tag collection from the given globaltag
 void CondDBESSource::fillTagCollectionFromGT( const std::string & connectionString,

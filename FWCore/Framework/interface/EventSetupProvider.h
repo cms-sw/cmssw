@@ -18,10 +18,7 @@
 // Created:     Thu Mar 24 14:10:07 EST 2005
 //
 
-// user include files
-#include "FWCore/Framework/interface/EventSetupImpl.h"
-
-// system include files
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -33,6 +30,7 @@
 // forward declarations
 namespace edm {
    class ActivityRegistry;
+   class EventSetupImpl;
    class EventSetupRecordIntervalFinder;
    class IOVSyncValue;
    class ParameterSet;
@@ -45,6 +43,7 @@ namespace edm {
       class EventSetupRecordKey;
       class EventSetupRecordProvider;
       class EventSetupsController;
+      class NumberOfConcurrentIOVs;
       class ParameterSetIDHolder;
       class ESRecordsToProxyIndices;
 
@@ -58,29 +57,30 @@ class EventSetupProvider {
       typedef std::multimap<RecordName, DataKeyInfo> RecordToDataMap;
       typedef std::map<ComponentDescription, RecordToDataMap> PreferredProviderInfo;
 
-      EventSetupProvider(ActivityRegistry*, unsigned subProcessIndex = 0U, PreferredProviderInfo const* iInfo = nullptr);
+      EventSetupProvider(ActivityRegistry const*, unsigned subProcessIndex = 0U, PreferredProviderInfo const* iInfo = nullptr);
+      EventSetupProvider(EventSetupProvider const&) = delete;
+      EventSetupProvider const& operator=(EventSetupProvider const&) = delete;
+
       virtual ~EventSetupProvider();
 
-      // ---------- const member functions ---------------------
       std::set<ComponentDescription> proxyProviderDescriptions() const;
-      bool isWithinValidityInterval(IOVSyncValue const& ) const;
   
       ESRecordsToProxyIndices recordsToProxyIndices() const;
-      // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      EventSetupImpl const& eventSetupForInstance(IOVSyncValue const&);
+      void setAllValidityIntervals(const IOVSyncValue& iValue);
 
-      EventSetupImpl const& eventSetup() const {return eventSetup_;}
+      std::shared_ptr<const EventSetupImpl> eventSetupForInstance(IOVSyncValue const&,
+                                                                  bool& newEventSetupImpl);
 
-      //called by specializations of EventSetupRecordProviders
-      void addRecordToEventSetup(EventSetupRecordImpl& iRecord);
+      bool legacyESSourceOutOfValidityInterval(IOVSyncValue const&) const;
+
+      EventSetupImpl const& eventSetupImpl() const {return *eventSetupImpl_;}
 
       void add(std::shared_ptr<DataProxyProvider>);
       void replaceExisting(std::shared_ptr<DataProxyProvider>);
       void add(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
-      void finishConfiguration();
+      void finishConfiguration(NumberOfConcurrentIOVs const&, bool& hasLegacyESSource);
 
       ///Used when we need to force a Record to reset all its proxies
       void resetRecordPlusDependentRecords(EventSetupRecordKey const&);
@@ -110,25 +110,22 @@ class EventSetupProvider {
 
       /// Intended for use only in tests
       void addRecord(const EventSetupRecordKey& iKey);
+      void setPreferredProviderInfo(PreferredProviderInfo const& iInfo);
 
-   protected:
+      void fillRecordsNotAllowingConcurrentIOVs(std::set<EventSetupRecordKey>& recordsNotAllowingConcurrentIOVs) const;
 
-      void insert(std::unique_ptr<EventSetupRecordProvider> iRecordProvider);
+      void fillKeys(std::set<EventSetupRecordKey>& keys) const;
+
+      EventSetupRecordProvider* tryToGetRecordProvider(const EventSetupRecordKey& iKey);
 
    private:
 
-      EventSetupProvider(EventSetupProvider const&) = delete; // stop default
-
-      EventSetupProvider const& operator=(EventSetupProvider const&) = delete; // stop default
-
       std::shared_ptr<EventSetupRecordProvider>& recordProvider(const EventSetupRecordKey& iKey);
-      EventSetupRecordProvider* tryToGetRecordProvider(const EventSetupRecordKey& iKey);
       void insert(EventSetupRecordKey const&, std::unique_ptr<EventSetupRecordProvider>);
 
       void determinePreferred();
 
       // ---------- member data --------------------------------
-      EventSetupImpl eventSetup_;
 
       using RecordKeys = std::vector<EventSetupRecordKey>;
       RecordKeys recordKeys_;
@@ -136,8 +133,11 @@ class EventSetupProvider {
       using RecordProviders = std::vector<std::shared_ptr<EventSetupRecordProvider>>;
       RecordProviders recordProviders_;
 
+      ActivityRegistry const* activityRegistry_;
+
       bool mustFinishConfiguration_;
       unsigned subProcessIndex_;
+      propagate_const<std::shared_ptr<EventSetupImpl>> eventSetupImpl_;
 
       // The following are all used only during initialization and then cleared.
 

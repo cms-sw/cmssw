@@ -51,12 +51,15 @@ namespace edm::eventsetup::test {
     DummyProxyProvider(const DummyData& iData=DummyData()): dummy_(iData) {
       usingRecord<DummyRecord>();
     }
-    void newInterval(const eventsetup::EventSetupRecordKey& /*iRecordType*/,
-                     const ValidityInterval& /*iInterval*/) {
-      //do nothing
+
+    void incrementData() {
+      ++dummy_.value_;
     }
+
   protected:
-    void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& iProxies) {
+    void registerProxies(const eventsetup::EventSetupRecordKey&,
+                         KeyedProxies& iProxies,
+                         unsigned int) {
       std::shared_ptr<WorkingDummyProxy> pProxy = std::make_shared<WorkingDummyProxy>(&dummy_);
       insertProxy(iProxies, pProxy);
     }

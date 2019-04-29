@@ -40,7 +40,7 @@ template< typename T>
     data_ = std::move(iData);
   }
   
-  void const* getImpl(eventsetup::EventSetupRecordImpl const&, eventsetup::DataKey const& iKey) final {
+  void const* getImpl(eventsetup::EventSetupRecordImpl const&, eventsetup::DataKey const&, EventSetupImpl const*) final {
     return data_.get();
   }
   

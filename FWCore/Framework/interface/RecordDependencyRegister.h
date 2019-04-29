@@ -33,15 +33,18 @@ namespace edm {
       using DepFunction = std::set<EventSetupRecordKey> (*)();
       
       std::set<EventSetupRecordKey> dependencies(EventSetupRecordKey const&);
-      
-      void addDependencyFunction(EventSetupRecordKey iKey, DepFunction iFunction);
-      
-    
+      bool allowConcurrentIOVs(EventSetupRecordKey const&);
+
+      void addDependencyFunction(EventSetupRecordKey iKey,
+                                 DepFunction iFunction,
+                                 bool allowConcurrentIOVs);
+
     template<typename T>
     struct RecordDependencyRegister {
       RecordDependencyRegister() {
         addDependencyFunction(EventSetupRecordKey::makeKey<T>(),
-                              &findDependentRecordsFor<T>);
+                              &findDependentRecordsFor<T>,
+                              T::allowConcurrentIOVs_);
       }
     };
   }

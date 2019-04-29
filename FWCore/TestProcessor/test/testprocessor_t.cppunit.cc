@@ -101,7 +101,6 @@ void testTestProcessor::addProductTest() {
 
   //Check that event gets reset so the data product is not available
   CPPUNIT_ASSERT_THROW( tester.test(), cms::Exception);
-  
 }
 
 void testTestProcessor::missingProductTest() {
@@ -114,7 +113,6 @@ void testTestProcessor::missingProductTest() {
   edm::test::TestProcessor tester(config);
   
   CPPUNIT_ASSERT_THROW(tester.test(), cms::Exception);
-  
 }
 
 void testTestProcessor::filterTest() {
@@ -131,7 +129,6 @@ void testTestProcessor::filterTest() {
   CPPUNIT_ASSERT(tester.test().modulePassed());
   CPPUNIT_ASSERT(not tester.test().modulePassed());
   CPPUNIT_ASSERT(tester.test().modulePassed());
-
 }
 
 void testTestProcessor::extraProcessTest() {
@@ -150,7 +147,6 @@ void testTestProcessor::extraProcessTest() {
     
     CPPUNIT_ASSERT(event.get<edmtest::IntProduct>()->value == 1);
   }
-  
 }
 
 void testTestProcessor::eventSetupTest() {
@@ -210,7 +206,6 @@ void testTestProcessor::taskTest() {
     
     CPPUNIT_ASSERT(event.get<edmtest::IntProduct>()->value == 2);
   }
-
 }
 
 void testTestProcessor::emptyRunTest() {
@@ -226,7 +221,6 @@ process.moduleToTest(process.toTest)
   edm::test::TestProcessor tester(config);
   
   tester.testRunWithNoLuminosityBlocks();
-  
 }
 void testTestProcessor::emptyLumiTest() {
   auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
@@ -242,7 +236,6 @@ process.moduleToTest(process.toTest)
   edm::test::TestProcessor tester(config);
   
   tester.testLuminosityBlockWithNoEvents();
-  
 }
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

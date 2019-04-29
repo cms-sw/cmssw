@@ -1,11 +1,11 @@
-#ifndef Framework_ProxyArgumentFactoryTemplate_h
-#define Framework_ProxyArgumentFactoryTemplate_h
+#ifndef FWCore_Framework_ProxyArgumentFactoryTemplate_h
+#define FWCore_Framework_ProxyArgumentFactoryTemplate_h
 // -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ProxyArgumentFactoryTemplate
-// 
-/**\class ProxyArgumentFactoryTemplate ProxyArgumentFactoryTemplate.h FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h
+//
+/**\class edm::eventsetup::ProxyArgumentFactoryTemplate
 
  Description: <one line class summary>
 
@@ -21,47 +21,47 @@
 // system include files
 #include <memory>
 #include <string>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/ProxyFactoryBase.h"
 #include "FWCore/Framework/interface/DataKey.h"
 
-// forward declarations
 namespace edm {
-   namespace eventsetup {
-      
-template <class T, class ArgT>
-class ProxyArgumentFactoryTemplate : public ProxyFactoryBase
-{
+  namespace eventsetup {
 
-   public:
-      typedef typename T::record_type record_type;
+    class DataProxy;
 
-      ProxyArgumentFactoryTemplate(ArgT iArg) : arg_(iArg) {}
-      //virtual ~ProxyArgumentFactoryTemplate()
+    template <class ProxyType, class CallbackType>
+    class ProxyArgumentFactoryTemplate : public ProxyFactoryBase {
 
-      // ---------- const member functions ---------------------
-      std::unique_ptr<DataProxy> makeProxy() const override {
-         return std::make_unique<T>(arg_);
+    public:
+
+      using RecordType = typename ProxyType::RecordType;
+
+      ProxyArgumentFactoryTemplate(std::shared_ptr<std::vector<std::shared_ptr<CallbackType>>> callbacks) : callbacks_(std::move(callbacks)) {}
+
+      ProxyArgumentFactoryTemplate(const ProxyArgumentFactoryTemplate&) = delete;
+      const ProxyArgumentFactoryTemplate& operator=(const ProxyArgumentFactoryTemplate&) = delete;
+
+      std::unique_ptr<DataProxy> makeProxy(unsigned int iovIndex) override {
+        while (iovIndex >= callbacks_->size()) {
+          callbacks_->push_back(std::make_shared<CallbackType>(callbacks_->at(0)->get(),
+                                                               callbacks_->at(0)->method(),
+                                                               callbacks_->at(0)->transitionID(),
+                                                               callbacks_->at(0)->decorator()));
+        }
+        return std::make_unique<ProxyType>(callbacks_->at(iovIndex));
       }
-            
+
       DataKey makeKey(const std::string& iName) const override {
-         return DataKey(DataKey::makeTypeTag< typename T::value_type>(),iName.c_str());
+        return DataKey(DataKey::makeTypeTag<typename ProxyType::ValueType>(), iName.c_str());
       }
-      
-      // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+    private:
 
-   private:
-      ProxyArgumentFactoryTemplate(const ProxyArgumentFactoryTemplate&) = delete; // stop default
-
-      const ProxyArgumentFactoryTemplate& operator=(const ProxyArgumentFactoryTemplate&) = delete; // stop default
-
-      // ---------- member data --------------------------------
-      mutable ArgT arg_;
-};
-
-   }
+      std::shared_ptr<std::vector<std::shared_ptr<CallbackType>>> callbacks_;
+    };
+  }
 }
 #endif

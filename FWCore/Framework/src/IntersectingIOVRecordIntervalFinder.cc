@@ -10,57 +10,33 @@
 //         Created:  Tue Aug 19 13:20:41 EDT 2008
 //
 
-// system include files
-
-// user include files
 #include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
+
 namespace edm {
    namespace eventsetup {
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 IntersectingIOVRecordIntervalFinder::IntersectingIOVRecordIntervalFinder(const EventSetupRecordKey& iKey)
 {
    findingRecordWithKey(iKey);
 }
 
-// IntersectingIOVRecordIntervalFinder::IntersectingIOVRecordIntervalFinder(const IntersectingIOVRecordIntervalFinder& rhs)
-// {
-//    // do actual copying here;
-// }
-
 IntersectingIOVRecordIntervalFinder::~IntersectingIOVRecordIntervalFinder()
 {
 }
 
-//
-// assignment operators
-//
-// const IntersectingIOVRecordIntervalFinder& IntersectingIOVRecordIntervalFinder::operator=(const IntersectingIOVRecordIntervalFinder& rhs)
-// {
-//   //An exception safe implementation is
-//   IntersectingIOVRecordIntervalFinder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
 void 
 IntersectingIOVRecordIntervalFinder::swapFinders(std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>& iFinders)
 {
    finders_.swap(iFinders);
+}
+
+bool IntersectingIOVRecordIntervalFinder::hasLegacyESSource() const {
+   for (auto const& finder : finders_) {
+      if (finder->legacyESSource()) {
+         return true;
+      }
+   }
+   return false;
 }
 
 void 
@@ -106,12 +82,25 @@ IntersectingIOVRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& i
    oInterval = newInterval;
 }
 
-//
-// const member functions
-//
+void IntersectingIOVRecordIntervalFinder::doResetInterval(const eventsetup::EventSetupRecordKey& key) {
+   for (auto& finder : finders_) {
+      finder->resetInterval(key);
+   }
+}
 
-//
-// static member functions
-//
+bool IntersectingIOVRecordIntervalFinder::isLegacyESSource() const {
+   return false;
+}
+
+bool IntersectingIOVRecordIntervalFinder::isLegacyOutOfValidityInterval(const EventSetupRecordKey& iKey,
+                                                                        const IOVSyncValue& iTime) const {
+   for (auto const& finder : finders_) {
+      if (finder->legacyOutOfValidityInterval(iKey, iTime)) {
+         return true;
+      }
+   }
+   return false;
+}
+
    }
 }
