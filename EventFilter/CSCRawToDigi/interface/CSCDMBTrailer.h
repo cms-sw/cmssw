@@ -11,7 +11,6 @@
 #include <boost/shared_ptr.hpp>
 
 
-// class CSCDMBHeader;
 struct CSCDMBTrailer2005;
 struct CSCDMBTrailer2013;
 
