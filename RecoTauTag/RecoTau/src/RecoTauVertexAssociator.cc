@@ -12,8 +12,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include <TMath.h>
-
 namespace reco { namespace tau {
 
 namespace {
@@ -81,17 +79,18 @@ const reco::CandidatePtr RecoTauVertexAssociator::getLeadCand(const Jet& jet) co
       for ( std::vector<CandidatePtr>::const_iterator pfCand = selectedPFCands.begin();
 	    pfCand != selectedPFCands.end(); ++pfCand ) {
         const reco::Track* track = getTrack(**pfCand);
-        double actualTrackPt = 0.;
-        if ( track != nullptr )
+        double actualTrackPt = 0. , actualTrackPtError = 0.;
+        if ( track != nullptr ) {
           actualTrackPt = track->pt();
+          actualTrackPtError = track->ptError();
+	}
         double trackPt = 0.;
         if ( leadingTrkOrPFCandOption_ == kLeadTrack ) {
-	  //double trackPt = track->pt();
-	  trackPt = actualTrackPt - 2.*track->ptError();
+	  trackPt = actualTrackPt - 2.*actualTrackPtError;
         } else if ( leadingTrkOrPFCandOption_ == kLeadPFCand ) {
 	  trackPt = (*pfCand)->pt();
         } else if ( leadingTrkOrPFCandOption_ == kMinLeadTrackOrPFCand ) {
-	  trackPt = TMath::Min(actualTrackPt, (double)(*pfCand)->pt());
+	  trackPt = std::min(actualTrackPt, (double)(*pfCand)->pt());
 	} else assert(0);
         if ( trackPt > leadTrackPt ) {
           leadCand = (*pfCand);
