@@ -190,11 +190,10 @@ reco::ForwardProton ProtonReconstructionAlgorithm::reconstructFromMultiRP(const 
     th_x_init = 0.;
 
   // initial estimate of th_y and vtx_y
-  double y[2], v_y[2], L_y[2];
+  double y[2]={0}, v_y[2]={0}, L_y[2]={0};
   unsigned int y_idx = 0;
   for (const auto &track : tracks) {
-    if (y_idx >= 2)
-      continue;
+    if (y_idx >= 2) break;
 
     auto oit = m_rp_optics_.find(track->getRPId());
 
