@@ -201,7 +201,7 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
 		{
 		
 		  GEMDetId gemIdfromCSC(*gemRollIt);
-		  if(gemIdfromHit == gemIdfromCSC.rawId()) 
+		  if(gemIdfromHit == GEMDetId(gemIdfromCSC.rawId())) 
 		    {
 		      // get GEM RecHit vector associated to this CSC DetId
 		      // if no vector is associated yet to this CSC DetId, create empty vector
