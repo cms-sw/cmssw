@@ -126,6 +126,9 @@ DetId FastTimeGeometry::getClosestCell(const GlobalPoint& r) const {
     etaZPhi = topology().dddConstants().getZPhi(zz,r.phi());
   } else {
     double phi = (zside > 0) ? static_cast<double>(r.phi()) : atan2(r.y(),-r.x());
+    // Cast needed to resolve compile-time ambiguity of ? operator between
+    // convertible Phi class and atan2 template function.
+
     etaZPhi = topology().dddConstants().getEtaPhi(r.perp(),phi);
   }
   FastTimeDetId id = FastTimeDetId(m_Type,etaZPhi.first,etaZPhi.second,zside);
