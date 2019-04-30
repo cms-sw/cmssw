@@ -15,26 +15,61 @@ softActivityJets10 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("softAct
 softActivityJets5 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("softActivityJets"), cut = cms.string('pt>5'))
 softActivityJets2 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("softActivityJets"), cut = cms.string('pt>2'))
 
+from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
+# Note: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
+#      (cf. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#CMSSW_7_6_4_and_above )
+jetCorrFactorsNano = patJetCorrFactors.clone(src='slimmedJets',
+    levels = cms.vstring('L1FastJet',
+        'L2Relative',
+        'L3Absolute',
+	'L2L3Residual'),
+    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+)
+jetCorrFactorsAK8 = patJetCorrFactors.clone(src='slimmedJetsAK8',
+    levels = cms.vstring('L1FastJet',
+        'L2Relative',
+        'L3Absolute',
+	'L2L3Residual'),
+    payload = cms.string('AK8PFPuppi'),
+    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+)
+run2_miniAOD_80XLegacy.toModify(jetCorrFactorsAK8, payload = cms.string('AK8PFchs')) # ak8PFJetsCHS in 2016 80X miniAOD
+
+from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
+
+updatedJets = updatedPatJets.clone(
+	addBTagInfo=False,
+	jetSource='slimmedJets',
+	jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactorsNano") ),
+)
+
+updatedJetsAK8 = updatedPatJets.clone(
+	addBTagInfo=False,
+	jetSource='slimmedJetsAK8',
+	jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactorsAK8") ),
+)
+
+
 looseJetId = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
 			    version = cms.string('WINTER16'),
 			    quality = cms.string('LOOSE'),
 			  ),
-                          src = cms.InputTag("slimmedJets")
+                          src = cms.InputTag("updatedJets")
 )
 tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
 			    version = cms.string('WINTER17'),
 			    quality = cms.string('TIGHT'),
 			  ),
-                          src = cms.InputTag("slimmedJets")
+                          src = cms.InputTag("updatedJets")
 )
 tightJetIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
 			    version = cms.string('WINTER17'),
 			    quality = cms.string('TIGHTLEPVETO'),
 			  ),
-                          src = cms.InputTag("slimmedJets")
+                          src = cms.InputTag("updatedJets")
 )
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify( tightJetId.filterParams, version = "WINTER16" )
@@ -46,21 +81,21 @@ looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			    version = cms.string('WINTER16'),
 			    quality = cms.string('LOOSE'),
 			  ),
-                          src = cms.InputTag("slimmedJetsAK8")
+                          src = cms.InputTag("updatedJetsAK8")
 )
 tightJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
 			    version = cms.string('WINTER17'),
 			    quality = cms.string('TIGHT'),
 			  ),
-                          src = cms.InputTag("slimmedJetsAK8")
+                          src = cms.InputTag("updatedJetsAK8")
 )
 tightJetIdLepVetoAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
 			    version = cms.string('WINTER17'),
 			    quality = cms.string('TIGHTLEPVETO'),
 			  ),
-                          src = cms.InputTag("slimmedJetsAK8")
+                          src = cms.InputTag("updatedJetsAK8")
 )
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify( tightJetIdAK8.filterParams, version = "WINTER16" )
@@ -69,7 +104,7 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
 
 bJetVars = cms.EDProducer("JetRegressionVarProducer",
     pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    src = cms.InputTag("slimmedJets"),    
+    src = cms.InputTag("updatedJets"),
     svsrc = cms.InputTag("slimmedSecondaryVertices"),
     gpsrc = cms.InputTag("prunedGenParticles"),
     #musrc = cms.InputTag("slimmedMuons"),
@@ -77,8 +112,8 @@ bJetVars = cms.EDProducer("JetRegressionVarProducer",
 )
 
 
-slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
-     src = cms.InputTag("slimmedJets"),
+updatedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
+     src = cms.InputTag("updatedJets"),
      userFloats = cms.PSet(
          leadTrackPt = cms.InputTag("bJetVars:leadTrackPt"),
          leptonPtRel = cms.InputTag("bJetVars:leptonPtRel"),
@@ -106,12 +141,12 @@ slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      ),
 )
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify( slimmedJetsWithUserData.userInts,
+    modifier.toModify( updatedJetsWithUserData.userInts,
             looseId = cms.InputTag("looseJetId"),
     )
 
-slimmedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
-     src = cms.InputTag("slimmedJetsAK8"),
+updatedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
+     src = cms.InputTag("updatedJetsAK8"),
      userFloats = cms.PSet(),
      userInts = cms.PSet(
         tightId = cms.InputTag("tightJetIdAK8"),
@@ -119,50 +154,18 @@ slimmedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      ),
 )
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify( slimmedJetsAK8WithUserData.userInts,
+    modifier.toModify( updatedJetsAK8WithUserData.userInts,
             looseId = cms.InputTag("looseJetIdAK8"),
     )
 
-from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
-# Note: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
-#      (cf. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#CMSSW_7_6_4_and_above )
-jetCorrFactorsNano = patJetCorrFactors.clone(src='slimmedJetsWithUserData',
-    levels = cms.vstring('L1FastJet',
-        'L2Relative',
-        'L3Absolute',
-	'L2L3Residual'),
-    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
-)
-jetCorrFactorsAK8 = patJetCorrFactors.clone(src='slimmedJetsAK8WithUserData',
-    levels = cms.vstring('L1FastJet',
-        'L2Relative',
-        'L3Absolute',
-	'L2L3Residual'),
-    payload = cms.string('AK8PFPuppi'),
-    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
-)
-run2_miniAOD_80XLegacy.toModify(jetCorrFactorsAK8, payload = cms.string('AK8PFchs')) # ak8PFJetsCHS in 2016 80X miniAOD
-
-from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
-updatedJets = updatedPatJets.clone(
-	addBTagInfo=False,
-	jetSource='slimmedJetsWithUserData',
-	jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactorsNano") ),
-)
 
 finalJets = cms.EDFilter("PATJetRefSelector",
-    src = cms.InputTag("updatedJets"),
+    src = cms.InputTag("updatedJetsWithUserData"),
     cut = cms.string("pt > 15")
 )
 
-updatedJetsAK8 = updatedPatJets.clone(
-	addBTagInfo=False,
-	jetSource='slimmedJetsAK8WithUserData',
-	jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactorsAK8") ),
-)
-
 finalJetsAK8 = cms.EDFilter("PATJetRefSelector",
-    src = cms.InputTag("updatedJetsAK8"),
+    src = cms.InputTag("updatedJetsAK8WithUserData"),
     cut = cms.string("pt > 170")
 )
 
@@ -525,10 +528,10 @@ genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
 run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 
 from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
-qgtagger=QGTagger.clone(srcJets="slimmedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
+qgtagger=QGTagger.clone(srcJets="updatedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
 
 #before cross linking
-jetSequence = cms.Sequence(qgtagger+tightJetId+tightJetIdLepVeto+bJetVars+slimmedJetsWithUserData+jetCorrFactorsNano+updatedJets+tightJetIdAK8+tightJetIdLepVetoAK8+slimmedJetsAK8WithUserData+jetCorrFactorsAK8+updatedJetsAK8+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
+jetSequence = cms.Sequence(jetCorrFactorsNano+updatedJets+tightJetId+tightJetIdLepVeto+bJetVars+updatedJetsWithUserData+qgtagger+jetCorrFactorsAK8+updatedJetsAK8+tightJetIdAK8+tightJetIdLepVetoAK8+updatedJetsAK8WithUserData+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
 
 _jetSequence_2016 = jetSequence.copy()
 _jetSequence_2016.insert(_jetSequence_2016.index(tightJetId), looseJetId)

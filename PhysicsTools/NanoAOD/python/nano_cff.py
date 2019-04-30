@@ -162,7 +162,7 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
     process.tightJetId.src="selectedUpdatedPatJetsWithDeepInfo"
     process.tightJetIdLepVeto.src="selectedUpdatedPatJetsWithDeepInfo"
     process.bJetVars.src="selectedUpdatedPatJetsWithDeepInfo"
-    process.slimmedJetsWithUserData.src="selectedUpdatedPatJetsWithDeepInfo"
+    process.updatedJetsWithUserData.src="selectedUpdatedPatJetsWithDeepInfo"
     process.qgtagger.srcJets="selectedUpdatedPatJetsWithDeepInfo"
     if addDeepFlavour:
         process.pfDeepFlavourJetTagsWithDeepInfo.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
@@ -223,7 +223,7 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet,jecPayload):
     process.looseJetIdAK8.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
     process.tightJetIdAK8.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
     process.tightJetIdLepVetoAK8.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
-    process.slimmedJetsAK8WithUserData.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
+    process.updatedJetsAK8WithUserData.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
     return process
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
