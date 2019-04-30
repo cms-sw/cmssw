@@ -290,18 +290,16 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
           }
         }
 
-        // do multi-RP reco if chosen
-        if (doMultiRPReconstruction_)
-        {
-          // check that exactly two tracking RPs are involved
-          //    - 1 is insufficient for multi-RP reconstruction
-          //    - PPS did not use more than 2 tracking RPs per arm -> algorithms are tuned to this
-          std::set<unsigned int> rpIds;
-          for (const auto &idx : indices)
-            rpIds.insert(hTracks->at(idx).getRPId());
-          if (rpIds.size() != 2)
-            continue;
+        // check that exactly two tracking RPs are involved
+        //    - 1 is insufficient for multi-RP reconstruction
+        //    - PPS did not use more than 2 tracking RPs per arm -> algorithms are tuned to this
+        std::set<unsigned int> rpIds;
+        for (const auto &idx : indices)
+          rpIds.insert(hTracks->at(idx).getRPId());
 
+        // do multi-RP reco if chosen
+        if (doMultiRPReconstruction_ && rpIds.size() == 2)
+        {
           // find matching track pairs from different tracking RPs
           std::vector<std::pair<unsigned int, unsigned int>> idx_pairs;
           std::map<unsigned int, unsigned int> idx_pair_multiplicity;
