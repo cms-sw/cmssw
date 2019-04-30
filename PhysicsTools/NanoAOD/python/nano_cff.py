@@ -158,12 +158,8 @@ def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
                postfix = 'WithDeepInfo',
            )
     process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.looseJetId.src="selectedUpdatedPatJetsWithDeepInfo"
-    process.tightJetId.src="selectedUpdatedPatJetsWithDeepInfo"
-    process.tightJetIdLepVeto.src="selectedUpdatedPatJetsWithDeepInfo"
-    process.bJetVars.src="selectedUpdatedPatJetsWithDeepInfo"
-    process.updatedJetsWithUserData.src="selectedUpdatedPatJetsWithDeepInfo"
-    process.qgtagger.srcJets="selectedUpdatedPatJetsWithDeepInfo"
+    process.jetCorrFactorsNano.src="selectedUpdatedPatJetsWithDeepInfo"
+    process.updatedJets.jetSource="selectedUpdatedPatJetsWithDeepInfo"
     if addDeepFlavour:
         process.pfDeepFlavourJetTagsWithDeepInfo.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
         process.pfDeepFlavourJetTagsWithDeepInfo.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
@@ -220,10 +216,8 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet,jecPayload):
        postfix='AK8WithDeepInfo',
        printWarning = False
        )
-    process.looseJetIdAK8.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
-    process.tightJetIdAK8.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
-    process.tightJetIdLepVetoAK8.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
-    process.updatedJetsAK8WithUserData.src = "selectedUpdatedPatJetsAK8WithDeepInfo"
+    process.jetCorrFactorsAK8.src="selectedUpdatedPatJetsAK8WithDeepInfo"
+    process.updatedJetsAK8.jetSource="selectedUpdatedPatJetsAK8WithDeepInfo"
     return process
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
