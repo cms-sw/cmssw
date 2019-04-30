@@ -574,7 +574,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection & electrons, El
  {
   // eventually check ctf track
   if (generalData_.strategyCfg.ctfTracksCheck && electronData.ctfTrackRef.isNull()) {
-    electronData.ctfTrackRef = GsfElectronTools::getClosestCtfToGsf( electronData.gsfTrackRef,
+    electronData.ctfTrackRef = gsfElectronTools::getClosestCtfToGsf( electronData.gsfTrackRef,
                                                                        eventData.currentCtfTracks ).first;
   }
 

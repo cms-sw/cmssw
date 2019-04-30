@@ -25,7 +25,6 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchStartLayers.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -210,7 +209,6 @@ class PixelHitMatcher
     BarrelMeasurementEstimator meas2ndBLayer ;
     ForwardMeasurementEstimator meas1stFLayer ;
     ForwardMeasurementEstimator meas2ndFLayer ;
-    PixelMatchStartLayers startLayers ;
     PropagatorWithMaterial * prop1stLayer ;
     PropagatorWithMaterial * prop2ndLayer ;
     const GeometricSearchTracker * theGeometricSearchTracker ;
