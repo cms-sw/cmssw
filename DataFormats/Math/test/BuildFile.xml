@@ -8,19 +8,23 @@
 <use name="DataFormats/Math"/>
 <bin file="Matrices_t.cpp" name="DataFormatsMatrices_t">
 </bin>
+
 <bin file="ProjectMatrix_t.cpp" name="DataFormatsProjectMatrix_t">
 </bin>
+
 <bin file="FastMath_t.cpp" name="DataFormatsFastMath_t">
   <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat -ansi"/>
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
 </bin>
+
 <bin file="testApproximations.cpp" name="testMathApproximations">
   <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat"/>
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
   <flags REM_CXXFLAGS="-ansi"/>
 </bin>
+
 <bin file="testApproxMath.cpp" name="testMathApproxMath">
   <flags CXXFLAGS="-Wno-error=format -Wno-format -Wno-format-contains-nul"/>
   <flags REM_CXXFLAGS="-Wformat"/>
@@ -32,21 +36,28 @@
   <bin file="ExtVec_t.cpp" name="DataFormatsExtVec_t">
   </bin>
 </release>
+
 <bin file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
 </bin>
+
 <bin file="crossV4_t.cpp" name="DataFormatscrossV4_t">
   <use name="ofast-flag"/>
 </bin>
+
 <bin file="sign_t.cpp" name="DataFormatsSign_t">
 </bin>
+
 <bin file="eta_t.cpp" name="DataFormatsEta_t">
 </bin>
+
 <bin file="arc.cpp" name="DataFormatsAsin_t">
 </bin>
+
 <bin file="testAtan2.cpp" />
 <bin file="testAtan2.cpp" name="testAtan2FastMath">
    <flags CXXFLAGS="-ffast-math"/>
 </bin>
+
 <bin file="testAtan2.cpp" name="testAtan2VDT">
   <use name="vdt"/>
 </bin>
@@ -57,13 +68,18 @@
   <flags REM_CXXFLAGS="-Wformat-contains-nul"/>
   <flags REM_CXXFLAGS="-ansi"/>
 </bin>
+
 <bin file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
 </bin>
+
 <bin file="Similarity_t.cpp" name="DataFormatsSimilarityFast_t">
   <use name="ofast-flag"/>
 </bin>
 
 <bin file="MulSymMatrix_t.cpp" name="DataFormatsMulSymMatrix_t">
+</bin>
+
+<bin file="CholeskyInvert_t.cpp" name="CholeskyInvert_t">
 </bin>
 
 <bin file="testGraph.cpp">
@@ -74,6 +90,7 @@
 </bin>
 
 <iftool name="cuda-gcc-support">
+
 <bin file="cudaAtan2Test.cu" name="DFM_Atan2">
   <use name="cuda"/>
   <use name="cuda-api-wrappers"/>
@@ -100,4 +117,11 @@
   <flags CUDA_FLAGS="--expt-relaxed-constexpr -fmad=false -ftz=false -prec-div=true -prec-sqrt=true"/>
   <flags CXXFLAGS="-ffp-contract=off"/>
 </bin>
+
+<bin file="CholeskyInvert_t.cu" name="CholeskyInvertOnGPU_t">
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+</bin>
+
 </iftool>
