@@ -165,7 +165,7 @@ namespace edm {
         Accumulator() = default;
         Accumulator(Accumulator const&) = delete;
         Accumulator& operator=(Accumulator const&) = delete;
-        virtual ~Accumulator() noexcept(false){};
+        ~Accumulator() noexcept(false) override{};
 
         virtual void accumulate(Event const& ev, EventSetup const& es) = 0;
 

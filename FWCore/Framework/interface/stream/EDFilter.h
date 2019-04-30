@@ -67,7 +67,7 @@ namespace edm {
 
       const EDFilter& operator=(const EDFilter&) = delete;  // stop default
 
-      void doAcquire_(Event const& ev, EventSetup const& es, WaitingTaskWithArenaHolder& holder) override final {
+      void doAcquire_(Event const& ev, EventSetup const& es, WaitingTaskWithArenaHolder& holder) final {
         doAcquireIfNeeded(this, ev, es, holder);
       }
 
