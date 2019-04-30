@@ -5,7 +5,6 @@ from DQMOffline.Trigger.TopMonitor_cfi import hltTOPmonitoring
 from Configuration.Eras.Modifier_run2_HLTconditions_2018_cff import run2_HLTconditions_2018
 from Configuration.Eras.Modifier_run2_HLTconditions_2017_cff import run2_HLTconditions_2017
 from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTconditions_2016
-from Configuration.StandardSequences.Eras import eras 
 
 ###
 ### Ele+Jet
