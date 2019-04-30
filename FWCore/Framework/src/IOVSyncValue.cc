@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     IOVSyncValue
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -22,86 +22,71 @@
 //
 namespace edm {
 
-//
-// static data member definitions
-//
+  //
+  // static data member definitions
+  //
 
+  //
+  // constructors and destructor
+  //
+  IOVSyncValue::IOVSyncValue() : eventID_(), time_(), haveID_(true), haveTime_(true) {}
 
-//
-// constructors and destructor
-//
-IOVSyncValue::IOVSyncValue(): eventID_(), time_(),
-haveID_(true), haveTime_(true)
-{
-}
+  IOVSyncValue::IOVSyncValue(const EventID& iID) : eventID_(iID), time_(), haveID_(true), haveTime_(false) {}
 
-IOVSyncValue::IOVSyncValue(const EventID& iID) : eventID_(iID), time_(),
-haveID_(true), haveTime_(false)
-{
-}
+  IOVSyncValue::IOVSyncValue(const Timestamp& iTime) : eventID_(), time_(iTime), haveID_(false), haveTime_(true) {}
 
-IOVSyncValue::IOVSyncValue(const Timestamp& iTime) : eventID_(), time_(iTime),
-haveID_(false), haveTime_(true)
-{
-}
+  IOVSyncValue::IOVSyncValue(const EventID& iID, const Timestamp& iTime)
+      : eventID_(iID), time_(iTime), haveID_(true), haveTime_(true) {}
 
-IOVSyncValue::IOVSyncValue(const EventID& iID, const Timestamp& iTime) :
-eventID_(iID), time_(iTime),
-haveID_(true), haveTime_(true)
-{
-}
+  // IOVSyncValue::IOVSyncValue(const IOVSyncValue& rhs)
+  // {
+  //    // do actual copying here;
+  // }
 
-// IOVSyncValue::IOVSyncValue(const IOVSyncValue& rhs)
-// {
-//    // do actual copying here;
-// }
+  //IOVSyncValue::~IOVSyncValue()
+  //{
+  //}
 
-//IOVSyncValue::~IOVSyncValue()
-//{
-//}
+  //
+  // assignment operators
+  //
+  // const IOVSyncValue& IOVSyncValue::operator=(const IOVSyncValue& rhs)
+  // {
+  //   //An exception safe implementation is
+  //   IOVSyncValue temp(rhs);
+  //   swap(rhs);
+  //
+  //   return *this;
+  // }
 
-//
-// assignment operators
-//
-// const IOVSyncValue& IOVSyncValue::operator=(const IOVSyncValue& rhs)
-// {
-//   //An exception safe implementation is
-//   IOVSyncValue temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+  //
+  // member functions
+  //
 
-//
-// member functions
-//
+  //
+  // const member functions
+  //
+  void IOVSyncValue::throwInvalidComparison() const {
+    throw cms::Exception("InvalidIOVSyncValueComparison")
+        << "Attempted to compare a time-only and a run/lumi/event-only IOVSyncValue. Please report this error to the "
+           "framework experts.";
+  }
 
-//
-// const member functions
-//
-void 
-IOVSyncValue::throwInvalidComparison() const {
-  throw cms::Exception("InvalidIOVSyncValueComparison")
-    <<"Attempted to compare a time-only and a run/lumi/event-only IOVSyncValue. Please report this error to the framework experts.";
-}
-
-//
-// static member functions
-//
-const IOVSyncValue&
-IOVSyncValue::invalidIOVSyncValue() {
-   static const IOVSyncValue s_invalid;
-   return s_invalid;
-}
-const IOVSyncValue&
-IOVSyncValue::endOfTime() {
-   static const IOVSyncValue s_endOfTime(EventID(0xFFFFFFFFUL, LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
-                                   Timestamp::endOfTime());
-   return s_endOfTime;
-}
-const IOVSyncValue&
-IOVSyncValue::beginOfTime() {
-   static const IOVSyncValue s_beginOfTime(EventID(1,0,0), Timestamp::beginOfTime());
-   return s_beginOfTime;
-}
-}
+  //
+  // static member functions
+  //
+  const IOVSyncValue& IOVSyncValue::invalidIOVSyncValue() {
+    static const IOVSyncValue s_invalid;
+    return s_invalid;
+  }
+  const IOVSyncValue& IOVSyncValue::endOfTime() {
+    static const IOVSyncValue s_endOfTime(
+        EventID(0xFFFFFFFFUL, LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
+        Timestamp::endOfTime());
+    return s_endOfTime;
+  }
+  const IOVSyncValue& IOVSyncValue::beginOfTime() {
+    static const IOVSyncValue s_beginOfTime(EventID(1, 0, 0), Timestamp::beginOfTime());
+    return s_beginOfTime;
+  }
+}  // namespace edm

@@ -47,7 +47,6 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 // Created:     Fri Mar 25 14:38:35 EST 2005
 //
 
-
 // user include files
 #include "FWCore/Framework/interface/FunctorESHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/DataKey.h"
@@ -71,109 +70,105 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 
 // forward declarations
 namespace cms {
-   class Exception;
+  class Exception;
 }
 
 class testEventsetup;
 class testEventsetupRecord;
 
 namespace edm {
-   template<typename T>
-   class ESHandle;
-   class ESHandleExceptionFactory;
-   class ESInputTag;
-   class EventSetupImpl;
+  template <typename T>
+  class ESHandle;
+  class ESHandleExceptionFactory;
+  class ESInputTag;
+  class EventSetupImpl;
 
-   namespace eventsetup {
-      struct ComponentDescription;
-      class DataProxy;
-      class EventSetupRecordKey;
+  namespace eventsetup {
+    struct ComponentDescription;
+    class DataProxy;
+    class EventSetupRecordKey;
 
-      class EventSetupRecord {
+    class EventSetupRecord {
+      friend class ::testEventsetup;
+      friend class ::testEventsetupRecord;
 
-        friend class ::testEventsetup;
-        friend class ::testEventsetupRecord;
-      public:
-         EventSetupRecord();
-         EventSetupRecord(EventSetupRecord&&) = default;
-         EventSetupRecord& operator=(EventSetupRecord&&) = default;
+    public:
+      EventSetupRecord();
+      EventSetupRecord(EventSetupRecord&&) = default;
+      EventSetupRecord& operator=(EventSetupRecord&&) = default;
 
-         EventSetupRecord(EventSetupRecord const&) = default;
-         EventSetupRecord& operator=(EventSetupRecord const&) = default;
-         virtual ~EventSetupRecord();
+      EventSetupRecord(EventSetupRecord const&) = default;
+      EventSetupRecord& operator=(EventSetupRecord const&) = default;
+      virtual ~EventSetupRecord();
 
-         // ---------- const member functions ---------------------
-         ValidityInterval const& validityInterval() const {
-            return impl_->validityInterval();
-         }
+      // ---------- const member functions ---------------------
+      ValidityInterval const& validityInterval() const { return impl_->validityInterval(); }
 
-        void setImpl(EventSetupRecordImpl const* iImpl,
-                     unsigned int transitionID,
-                     ESProxyIndex const* getTokenIndices) {
-          impl_ = iImpl;
-          transitionID_ = transitionID;
-          getTokenIndices_ =getTokenIndices;
+      void setImpl(EventSetupRecordImpl const* iImpl, unsigned int transitionID, ESProxyIndex const* getTokenIndices) {
+        impl_ = iImpl;
+        transitionID_ = transitionID;
+        getTokenIndices_ = getTokenIndices;
+      }
+
+      template <typename HolderT>
+      bool get(HolderT& iHolder) const {
+        return get("", iHolder);
+      }
+
+      template <typename HolderT>
+      bool get(char const* iName, HolderT& iHolder) const {
+        typename HolderT::value_type const* value = nullptr;
+        ComponentDescription const* desc = nullptr;
+        std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
+        impl_->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory);
+
+        if (value) {
+          iHolder = HolderT(value, desc);
+          return true;
+        } else {
+          iHolder = HolderT(std::move(whyFailedFactory));
+          return false;
         }
+      }
+      template <typename HolderT>
+      bool get(std::string const& iName, HolderT& iHolder) const {
+        return get(iName.c_str(), iHolder);
+      }
 
-         template<typename HolderT>
-         bool get(HolderT& iHolder) const {
-            return get("", iHolder);
-         }
+      template <typename HolderT>
+      bool get(ESInputTag const& iTag, HolderT& iHolder) const {
+        typename HolderT::value_type const* value = nullptr;
+        ComponentDescription const* desc = nullptr;
+        std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
+        impl_->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
 
-         template<typename HolderT>
-         bool get(char const* iName, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            impl_->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory);
+        if (value) {
+          validate(desc, iTag);
+          iHolder = HolderT(value, desc);
+          return true;
+        } else {
+          iHolder = HolderT(std::move(whyFailedFactory));
+          return false;
+        }
+      }
 
-            if(value) {
-              iHolder = HolderT(value, desc);
-              return true;
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-              return false;
-            }
-         }
-         template<typename HolderT>
-         bool get(std::string const& iName, HolderT& iHolder) const {
-           return get(iName.c_str(), iHolder);
-         }
+      ///returns false if no data available for key
+      bool doGet(DataKey const& aKey, bool aGetTransiently = false) const;
 
-         template<typename HolderT>
-         bool get(ESInputTag const& iTag, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            impl_->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
-
-            if(value) {
-              validate(desc, iTag);
-              iHolder = HolderT(value, desc);
-              return true;
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-              return false;
-            }
-         }
-
-         ///returns false if no data available for key
-         bool doGet(DataKey const& aKey, bool aGetTransiently = false) const;
-
-         /**returns true only if someone has already requested data for this key
+      /**returns true only if someone has already requested data for this key
           and the data was retrieved
           */
-         bool wasGotten(DataKey const& aKey) const;
+      bool wasGotten(DataKey const& aKey) const;
 
-         /**returns the ComponentDescription for the module which creates the data or 0
+      /**returns the ComponentDescription for the module which creates the data or 0
           if no module has been registered for the data. This does not cause the data to
           actually be constructed.
           */
-         ComponentDescription const* providerDescription(DataKey const& aKey) const;
+      ComponentDescription const* providerDescription(DataKey const& aKey) const;
 
-         virtual EventSetupRecordKey key() const = 0;
+      virtual EventSetupRecordKey key() const = 0;
 
-         /**If you are caching data from the Record, you should also keep
+      /**If you are caching data from the Record, you should also keep
           this number.  If this number changes then you know that
           the data you have cached is invalid. This is NOT true if
           if the validityInterval() hasn't changed since it is possible that
@@ -183,98 +178,95 @@ namespace edm {
           The value of '0' will never be returned so you can use that to
           denote that you have not yet checked the value.
           */
-         unsigned long long cacheIdentifier() const {
-            return impl_->cacheIdentifier();
-         }
+      unsigned long long cacheIdentifier() const { return impl_->cacheIdentifier(); }
 
-         ///clears the oToFill vector and then fills it with the keys for all registered data keys
-         void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const {
-           impl_->fillRegisteredDataKeys(oToFill);
-         }
-      protected:
+      ///clears the oToFill vector and then fills it with the keys for all registered data keys
+      void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const { impl_->fillRegisteredDataKeys(oToFill); }
 
-         template<template<typename> typename H, typename T, typename R>
-         H<T> getHandleImpl(ESGetToken<T,R> const& iToken) const {
-           assert(iToken.transitionID() == transitionID());
-           assert(iToken.isInitialized());
-           assert(getTokenIndices_);
-           //need to check token has valid index
-           if UNLIKELY(not iToken.hasValidIndex()) {
-             return invalidTokenHandle<H>(iToken);
-           }
-           
-           auto proxyIndex = getTokenIndices_[iToken.index().value()];
-           if UNLIKELY( proxyIndex.value() == std::numeric_limits<int>::max()) {
-             return noProxyHandle<H>(iToken);
-           }
-           
-           T const* value = nullptr;
-           ComponentDescription const* desc = nullptr;
-           std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-           impl_->getImplementation(value, proxyIndex, H<T>::transientAccessOnly, desc, whyFailedFactory);
-           
-           if UNLIKELY(not value) {
-             return H<T>(std::move(whyFailedFactory));
-           }
-           return H<T>(value, desc);
-         }
-        
+    protected:
+      template <template <typename> typename H, typename T, typename R>
+      H<T> getHandleImpl(ESGetToken<T, R> const& iToken) const {
+        assert(iToken.transitionID() == transitionID());
+        assert(iToken.isInitialized());
+        assert(getTokenIndices_);
+        //need to check token has valid index
+        if
+          UNLIKELY(not iToken.hasValidIndex()) { return invalidTokenHandle<H>(iToken); }
 
-         DataProxy const* find(DataKey const& aKey) const ;
+        auto proxyIndex = getTokenIndices_[iToken.index().value()];
+        if
+          UNLIKELY(proxyIndex.value() == std::numeric_limits<int>::max()) { return noProxyHandle<H>(iToken); }
 
-         EventSetupImpl const& eventSetup() const {
-            return impl_->eventSetup();
-         }
-        
-         ESProxyIndex const* getTokenIndices() const { return getTokenIndices_; }
-        
-         void validate(ComponentDescription const*, ESInputTag const&) const;
+        T const* value = nullptr;
+        ComponentDescription const* desc = nullptr;
+        std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
+        impl_->getImplementation(value, proxyIndex, H<T>::transientAccessOnly, desc, whyFailedFactory);
 
-         void addTraceInfoToCmsException(cms::Exception& iException, char const* iName, ComponentDescription const*, DataKey const&) const;
-         void changeStdExceptionToCmsException(char const* iExceptionWhatMessage, char const* iName, ComponentDescription const*, DataKey const&) const;
+        if
+          UNLIKELY(not value) { return H<T>(std::move(whyFailedFactory)); }
+        return H<T>(value, desc);
+      }
 
-         EventSetupRecordImpl const* impl() const { return impl_;}
-        
-         unsigned int transitionID() const { return  transitionID_;}
-      private:
+      DataProxy const* find(DataKey const& aKey) const;
 
-         template<template <typename> typename H, typename T, typename R>
-        H<T> invalidTokenHandle(ESGetToken<T,R> const& iToken) const {
-          auto const key = this->key();
-          return H<T>{makeESHandleExceptionFactory([key]{ return makeInvalidTokenException(key,DataKey::makeTypeTag<T>()); }) };
-        }
+      EventSetupImpl const& eventSetup() const { return impl_->eventSetup(); }
 
-        template<template <typename> typename H, typename T, typename R>
-        H<T> noProxyHandle(ESGetToken<T,R> const& iToken) const {
-          auto const key = this->key();
-          auto name = iToken.name();
-          return H<T>{makeESHandleExceptionFactory([key,name] {
+      ESProxyIndex const* getTokenIndices() const { return getTokenIndices_; }
+
+      void validate(ComponentDescription const*, ESInputTag const&) const;
+
+      void addTraceInfoToCmsException(cms::Exception& iException,
+                                      char const* iName,
+                                      ComponentDescription const*,
+                                      DataKey const&) const;
+      void changeStdExceptionToCmsException(char const* iExceptionWhatMessage,
+                                            char const* iName,
+                                            ComponentDescription const*,
+                                            DataKey const&) const;
+
+      EventSetupRecordImpl const* impl() const { return impl_; }
+
+      unsigned int transitionID() const { return transitionID_; }
+
+    private:
+      template <template <typename> typename H, typename T, typename R>
+      H<T> invalidTokenHandle(ESGetToken<T, R> const& iToken) const {
+        auto const key = this->key();
+        return H<T>{
+            makeESHandleExceptionFactory([key] { return makeInvalidTokenException(key, DataKey::makeTypeTag<T>()); })};
+      }
+
+      template <template <typename> typename H, typename T, typename R>
+      H<T> noProxyHandle(ESGetToken<T, R> const& iToken) const {
+        auto const key = this->key();
+        auto name = iToken.name();
+        return H<T>{makeESHandleExceptionFactory([key, name] {
           NoProxyException<T> ex(key, DataKey{DataKey::makeTypeTag<T>(), name});
           return std::make_exception_ptr(ex);
-        })}; }
+        })};
+      }
 
-         void const* getFromProxy(DataKey const& iKey ,
-                                  ComponentDescription const*& iDesc,
-                                  bool iTransientAccessOnly) const;
+      void const* getFromProxy(DataKey const& iKey,
+                               ComponentDescription const*& iDesc,
+                               bool iTransientAccessOnly) const;
 
-        static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&,
-                                                            TypeTag const&);
-         // ---------- member data --------------------------------
-         EventSetupRecordImpl const* impl_ = nullptr;
-         ESProxyIndex const* getTokenIndices_ = nullptr;
-         unsigned int transitionID_ = std::numeric_limits<unsigned int>::max();
-      };
+      static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&, TypeTag const&);
+      // ---------- member data --------------------------------
+      EventSetupRecordImpl const* impl_ = nullptr;
+      ESProxyIndex const* getTokenIndices_ = nullptr;
+      unsigned int transitionID_ = std::numeric_limits<unsigned int>::max();
+    };
 
-     class EventSetupRecordGeneric : public EventSetupRecord {
-     public:
-       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl, unsigned int iTransitionID, ESProxyIndex const* getTokenIndices) {
-         setImpl(iImpl, iTransitionID, getTokenIndices);
-       }
+    class EventSetupRecordGeneric : public EventSetupRecord {
+    public:
+      EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl,
+                              unsigned int iTransitionID,
+                              ESProxyIndex const* getTokenIndices) {
+        setImpl(iImpl, iTransitionID, getTokenIndices);
+      }
 
-       EventSetupRecordKey key() const final {
-         return impl()->key();
-       }
-     };
-   }
-}
+      EventSetupRecordKey key() const final { return impl()->key(); }
+    };
+  }  // namespace eventsetup
+}  // namespace edm
 #endif

@@ -10,40 +10,25 @@
 
 namespace edm {
 
-  ORGroupDescription::
-  ORGroupDescription(ParameterDescriptionNode const& node_left,
-                     ParameterDescriptionNode const& node_right) :
-    node_left_(node_left.clone()),
-    node_right_(node_right.clone()) {
-  }
+  ORGroupDescription::ORGroupDescription(ParameterDescriptionNode const& node_left,
+                                         ParameterDescriptionNode const& node_right)
+      : node_left_(node_left.clone()), node_right_(node_right.clone()) {}
 
-  ORGroupDescription::
-  ORGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
-                     ParameterDescriptionNode const& node_right) :
-    node_left_(std::move(node_left)),
-    node_right_(node_right.clone()) {
-  }
+  ORGroupDescription::ORGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                         ParameterDescriptionNode const& node_right)
+      : node_left_(std::move(node_left)), node_right_(node_right.clone()) {}
 
-  ORGroupDescription::
-  ORGroupDescription(ParameterDescriptionNode const& node_left,
-                     std::unique_ptr<ParameterDescriptionNode> node_right) :
-    node_left_(node_left.clone()),
-    node_right_(std::move(node_right)) {
-  }
+  ORGroupDescription::ORGroupDescription(ParameterDescriptionNode const& node_left,
+                                         std::unique_ptr<ParameterDescriptionNode> node_right)
+      : node_left_(node_left.clone()), node_right_(std::move(node_right)) {}
 
-  ORGroupDescription::
-  ORGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
-                     std::unique_ptr<ParameterDescriptionNode> node_right) :
-    node_left_(std::move(node_left)),
-    node_right_(std::move(node_right)) {
-  }
+  ORGroupDescription::ORGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                         std::unique_ptr<ParameterDescriptionNode> node_right)
+      : node_left_(std::move(node_left)), node_right_(std::move(node_right)) {}
 
-  void
-  ORGroupDescription::
-  checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                             std::set<ParameterTypes> & parameterTypes,
-                             std::set<ParameterTypes> & wildcardTypes) const {
-
+  void ORGroupDescription::checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+                                                      std::set<ParameterTypes>& parameterTypes,
+                                                      std::set<ParameterTypes>& wildcardTypes) const {
     std::set<std::string> labelsLeft;
     std::set<ParameterTypes> parameterTypesLeft;
     std::set<ParameterTypes> wildcardTypesLeft;
@@ -68,42 +53,32 @@ namespace edm {
     wildcardTypes.insert(wildcardTypesLeft.begin(), wildcardTypesLeft.end());
   }
 
-  void
-  ORGroupDescription::
-  validate_(ParameterSet & pset,
-            std::set<std::string> & validatedLabels,
-            bool optional) const {
-
+  void ORGroupDescription::validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const {
     bool leftExists = node_left_->exists(pset);
     bool rightExists = node_right_->exists(pset);
 
     if (leftExists || rightExists) {
-      if (leftExists) node_left_->validate(pset, validatedLabels, false);
-      if (rightExists) node_right_->validate(pset, validatedLabels, false);
+      if (leftExists)
+        node_left_->validate(pset, validatedLabels, false);
+      if (rightExists)
+        node_right_->validate(pset, validatedLabels, false);
       return;
     }
 
-    if (optional) return;
+    if (optional)
+      return;
 
     node_left_->validate(pset, validatedLabels, false);
   }
 
-  void
-  ORGroupDescription::
-  writeCfi_(std::ostream & os,
-            bool & startWithComma,
-            int indentation,
-            bool & wroteSomething) const {
+  void ORGroupDescription::writeCfi_(std::ostream& os,
+                                     bool& startWithComma,
+                                     int indentation,
+                                     bool& wroteSomething) const {
     node_left_->writeCfi(os, startWithComma, indentation, wroteSomething);
   }
 
-  void
-  ORGroupDescription::
-  print_(std::ostream & os,
-         bool optional,
-         bool writeToCfi,
-         DocFormatHelper & dfh) const {
-
+  void ORGroupDescription::print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const {
     if (dfh.parent() == DocFormatHelper::OR) {
       dfh.decrementCounter();
       node_left_->print(os, false, true, dfh);
@@ -112,26 +87,27 @@ namespace edm {
     }
 
     if (dfh.pass() == 1) {
-
       dfh.indent(os);
       os << "OR group:";
 
       if (dfh.brief()) {
+        if (optional)
+          os << " optional";
 
-        if (optional)  os << " optional";
-
-        if (!writeToCfi) os << " (do not write to cfi)";
+        if (!writeToCfi)
+          os << " (do not write to cfi)";
 
         os << " see Section " << dfh.section() << "." << dfh.counter() << "\n";
       }
       // not brief
       else {
-
         os << "\n";
         dfh.indent2(os);
 
-        if (optional)  os << "optional";
-        if (!writeToCfi) os << " (do not write to cfi)";
+        if (optional)
+          os << "optional";
+        if (!writeToCfi)
+          os << " (do not write to cfi)";
         if (optional || !writeToCfi) {
           os << "\n";
           dfh.indent2(os);
@@ -140,22 +116,14 @@ namespace edm {
         os << "see Section " << dfh.section() << "." << dfh.counter() << "\n";
 
         if (!comment().empty()) {
-          DocFormatHelper::wrapAndPrintText(os,
-                                            comment(),
-                                            dfh.startColumn2(),
-                                            dfh.commentWidth());
+          DocFormatHelper::wrapAndPrintText(os, comment(), dfh.startColumn2(), dfh.commentWidth());
         }
         os << "\n";
       }
     }
   }
 
-  void
-  ORGroupDescription::
-  printNestedContent_(std::ostream & os,
-                      bool optional,
-                      DocFormatHelper & dfh) const {
-
+  void ORGroupDescription::printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& dfh) const {
     if (dfh.parent() == DocFormatHelper::OR) {
       dfh.decrementCounter();
       node_left_->printNestedContent(os, false, dfh);
@@ -173,19 +141,18 @@ namespace edm {
     std::string newSection = ss.str();
 
     printSpaces(os, indentation);
-    os << "Section " << newSection
-       << " OR group description:\n";
+    os << "Section " << newSection << " OR group description:\n";
     printSpaces(os, indentation);
     if (optional) {
       // An optional OR group is kind of pointless, it would be
       // easier just make the parameters be independent optional parameters
       // I only allow it to make the behavior analogous to the other groups
       os << "This optional OR group requires at least one or none of the following to be in the PSet\n";
-    }
-    else {
+    } else {
       os << "This OR group requires at least one of the following to be in the PSet\n";
     }
-    if (!dfh.brief()) os << "\n";
+    if (!dfh.brief())
+      os << "\n";
 
     DocFormatHelper new_dfh(dfh);
     new_dfh.init();
@@ -209,79 +176,53 @@ namespace edm {
     node_right_->printNestedContent(os, false, new_dfh);
   }
 
-  bool
-  ORGroupDescription::
-  exists_(ParameterSet const& pset) const {
-    return node_left_->exists(pset) ||
-           node_right_->exists(pset);
+  bool ORGroupDescription::exists_(ParameterSet const& pset) const {
+    return node_left_->exists(pset) || node_right_->exists(pset);
   }
 
-  bool
-  ORGroupDescription::
-  partiallyExists_(ParameterSet const& pset) const {
-    return exists(pset);
-  }
+  bool ORGroupDescription::partiallyExists_(ParameterSet const& pset) const { return exists(pset); }
 
-  int
-  ORGroupDescription::
-  howManyXORSubNodesExist_(ParameterSet const& pset) const {
-    return exists(pset) ? 1 : 0;
-  }
+  int ORGroupDescription::howManyXORSubNodesExist_(ParameterSet const& pset) const { return exists(pset) ? 1 : 0; }
 
-  void
-  ORGroupDescription::
-  throwIfDuplicateLabels(std::set<std::string> const& labelsLeft,
-                         std::set<std::string> const& labelsRight) const {
-
+  void ORGroupDescription::throwIfDuplicateLabels(std::set<std::string> const& labelsLeft,
+                                                  std::set<std::string> const& labelsRight) const {
     std::set<std::string> duplicateLabels;
     std::insert_iterator<std::set<std::string> > insertIter(duplicateLabels, duplicateLabels.begin());
-    std::set_intersection(labelsLeft.begin(), labelsLeft.end(),
-                          labelsRight.begin(), labelsRight.end(),
-                          insertIter);
+    std::set_intersection(labelsLeft.begin(), labelsLeft.end(), labelsRight.begin(), labelsRight.end(), insertIter);
     if (!duplicateLabels.empty()) {
       std::stringstream ss;
-      for (std::set<std::string>::const_iterator iter = duplicateLabels.begin(),
-	                                         iEnd = duplicateLabels.end();
+      for (std::set<std::string>::const_iterator iter = duplicateLabels.begin(), iEnd = duplicateLabels.end();
            iter != iEnd;
            ++iter) {
-        ss << " \"" << *iter <<  "\"\n";
+        ss << " \"" << *iter << "\"\n";
       }
-      throw edm::Exception(errors::LogicError)
-        << "Labels used in a node of a ParameterSetDescription\n"
-        << "\"or\" expression must be not be the same as labels used\n"
-        << "in other nodes of the expression.  The following duplicate\n"
-        << "labels were detected:\n"
-        << ss.str()
-        << "\n";
+      throw edm::Exception(errors::LogicError) << "Labels used in a node of a ParameterSetDescription\n"
+                                               << "\"or\" expression must be not be the same as labels used\n"
+                                               << "in other nodes of the expression.  The following duplicate\n"
+                                               << "labels were detected:\n"
+                                               << ss.str() << "\n";
     }
   }
 
-  void
-  ORGroupDescription::
-  throwIfDuplicateTypes(std::set<ParameterTypes> const& types1,
-                        std::set<ParameterTypes> const& types2) const
-  {
+  void ORGroupDescription::throwIfDuplicateTypes(std::set<ParameterTypes> const& types1,
+                                                 std::set<ParameterTypes> const& types2) const {
     if (!types1.empty()) {
       std::set<ParameterTypes> duplicateTypes;
       std::insert_iterator<std::set<ParameterTypes> > insertIter(duplicateTypes, duplicateTypes.begin());
-      std::set_intersection(types1.begin(), types1.end(),
-                            types2.begin(), types2.end(),
-                            insertIter);
+      std::set_intersection(types1.begin(), types1.end(), types2.begin(), types2.end(), insertIter);
       if (!duplicateTypes.empty()) {
         std::stringstream ss;
-        for (std::set<ParameterTypes>::const_iterator iter = duplicateTypes.begin(),
-	                                              iEnd = duplicateTypes.end();
+        for (std::set<ParameterTypes>::const_iterator iter = duplicateTypes.begin(), iEnd = duplicateTypes.end();
              iter != iEnd;
              ++iter) {
-          ss << " \"" << parameterTypeEnumToString(*iter) <<  "\"\n";
+          ss << " \"" << parameterTypeEnumToString(*iter) << "\"\n";
         }
         throw edm::Exception(errors::LogicError)
-          << "Types used for wildcards in a node of a ParameterSetDescription\n"
-          << "\"or\" expression must be different from types used for other parameters\n"
-          << "in other nodes.  The following duplicate types were detected:\n"
-          << ss.str()
-          << "\n";
+            << "Types used for wildcards in a node of a ParameterSetDescription\n"
+            << "\"or\" expression must be different from types used for other parameters\n"
+            << "in other nodes.  The following duplicate types were detected:\n"
+            << ss.str() << "\n";
       }
     }
   }
-}
+}  // namespace edm
