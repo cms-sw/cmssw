@@ -124,7 +124,7 @@ void L1TriggerResultsConverter::beginRun(edm::Run const&, edm::EventSetup const&
            names_.push_back(keyval.first);
 	   indices_.push_back(keyval.second.getIndex()); 
         }
-	if (store_unprefireable_bit_) names_.push_back("L1Unprefireable");
+	if (store_unprefireable_bit_) names_.push_back("L1_UnprefireableEvent");
     }
 
 }
