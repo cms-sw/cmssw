@@ -12,5 +12,5 @@ namespace edm {
     static ParameterSetDescription* clone(ParameterSetDescription const* p);
     static void destroy(ParameterSetDescription* p);
   };
-}
+}  // namespace edm
 #endif

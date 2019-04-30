@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/ParameterSet
 // Class  :     PluginDescriptionAdaptor
-// 
+//
 /**\class PluginDescriptionAdaptor PluginDescriptionAdaptor.h "PluginDescriptionAdaptor.h"
 
  Description: [one line class summary]
@@ -28,16 +28,15 @@
 
 namespace edm {
 
-template<typename BASE, typename T>
-  class PluginDescriptionAdaptor : public PluginDescriptionAdaptorBase<BASE>
-{
-public:
-  // ---------- const member functions ---------------------
-  edm::ParameterSetDescription description() const final {
-    edm::ParameterSetDescription d;
-    T::fillPSetDescription(d);
-    return d;
-  }
-};
-}
+  template <typename BASE, typename T>
+  class PluginDescriptionAdaptor : public PluginDescriptionAdaptorBase<BASE> {
+  public:
+    // ---------- const member functions ---------------------
+    edm::ParameterSetDescription description() const final {
+      edm::ParameterSetDescription d;
+      T::fillPSetDescription(d);
+      return d;
+    }
+  };
+}  // namespace edm
 #endif

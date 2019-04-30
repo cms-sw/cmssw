@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordIntervalFinder
-// 
+//
 /**\class EventSetupRecordIntervalFinder EventSetupRecordIntervalFinder.h FWCore/Framework/interface/EventSetupRecordIntervalFinder.h
 
  Description: <one line class summary>
@@ -30,54 +30,48 @@
 // forward declarations
 namespace edm {
 
-class EventSetupRecordIntervalFinder
-{
+  class EventSetupRecordIntervalFinder {
+  public:
+    EventSetupRecordIntervalFinder() : intervals_() {}
+    virtual ~EventSetupRecordIntervalFinder() noexcept(false);
 
-   public:
-      EventSetupRecordIntervalFinder() : intervals_() {}
-      virtual ~EventSetupRecordIntervalFinder() noexcept(false);
+    // ---------- const member functions ---------------------
+    std::set<eventsetup::EventSetupRecordKey> findingForRecords() const;
 
-      // ---------- const member functions ---------------------
-      std::set<eventsetup::EventSetupRecordKey> findingForRecords() const ;
-   
-      const eventsetup::ComponentDescription& descriptionForFinder() const { return description_;}
-      // ---------- static member functions --------------------
+    const eventsetup::ComponentDescription& descriptionForFinder() const { return description_; }
+    // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      /**returns the 'default constructed' ValidityInterval if no valid interval.
+    // ---------- member functions ---------------------------
+    /**returns the 'default constructed' ValidityInterval if no valid interval.
        If upperbound is not known, it should be set to IOVSyncValue::invalidIOVSyncValue()
       */
-      const ValidityInterval& findIntervalFor(const eventsetup::EventSetupRecordKey&,
-                                            const IOVSyncValue&);
-   
-      void setDescriptionForFinder(const eventsetup::ComponentDescription& iDescription) {
-        description_ = iDescription;
-      }
-   protected:
-      virtual void setIntervalFor(const eventsetup::EventSetupRecordKey&,
-                                   const IOVSyncValue& , 
-                                   ValidityInterval&) = 0;
+    const ValidityInterval& findIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&);
 
-      template< class T>
-         void findingRecord() {
-            findingRecordWithKey(eventsetup::EventSetupRecordKey::makeKey<T>());
-         }
-      
-      void findingRecordWithKey(const eventsetup::EventSetupRecordKey&);
-      
-private:
-      EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder&) = delete; // stop default
+    void setDescriptionForFinder(const eventsetup::ComponentDescription& iDescription) { description_ = iDescription; }
 
-      const EventSetupRecordIntervalFinder& operator=(const EventSetupRecordIntervalFinder&) = delete; // stop default
+  protected:
+    virtual void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) = 0;
 
-      /** override this method if you need to delay setting what records you will be using until after all modules are loaded*/
-      virtual void delaySettingRecords();
-      // ---------- member data --------------------------------
-      typedef  std::map<eventsetup::EventSetupRecordKey,ValidityInterval> Intervals;
-      Intervals intervals_;
+    template <class T>
+    void findingRecord() {
+      findingRecordWithKey(eventsetup::EventSetupRecordKey::makeKey<T>());
+    }
 
-      eventsetup::ComponentDescription description_;
-};
+    void findingRecordWithKey(const eventsetup::EventSetupRecordKey&);
 
-}
+  private:
+    EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder&) = delete;  // stop default
+
+    const EventSetupRecordIntervalFinder& operator=(const EventSetupRecordIntervalFinder&) = delete;  // stop default
+
+    /** override this method if you need to delay setting what records you will be using until after all modules are loaded*/
+    virtual void delaySettingRecords();
+    // ---------- member data --------------------------------
+    typedef std::map<eventsetup::EventSetupRecordKey, ValidityInterval> Intervals;
+    Intervals intervals_;
+
+    eventsetup::ComponentDescription description_;
+  };
+
+}  // namespace edm
 #endif

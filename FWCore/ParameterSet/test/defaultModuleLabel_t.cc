@@ -2,14 +2,14 @@
 
 #include "FWCore/ParameterSet/interface/defaultModuleLabel.h"
 
-class testDefaultModuleLabel: public CppUnit::TestFixture {
+class testDefaultModuleLabel : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testDefaultModuleLabel);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() {}
+  void tearDown() {}
 
   void test();
 };

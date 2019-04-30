@@ -4,7 +4,7 @@
 //
 // Package:     Integration
 // Class  :     WhatsIt
-// 
+//
 /**\class WhatsIt WhatsIt.h FWCore/Integration/interface/WhatsIt.h
 
  Description: Dummy class used to test the EventSetup in the integration test
@@ -25,11 +25,10 @@
 // forward declarations
 
 namespace edmtest {
-struct WhatsIt
-{
-   WhatsIt() : a() {}
-   int a;
-};
-}
+  struct WhatsIt {
+    WhatsIt() : a() {}
+    int a;
+  };
+}  // namespace edmtest
 
 #endif

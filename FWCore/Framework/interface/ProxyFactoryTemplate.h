@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     ProxyFactoryTemplate
-// 
+//
 /**\class ProxyFactoryTemplate ProxyFactoryTemplate.h FWCore/Framework/interface/ProxyFactoryTemplate.h
 
  Description: <one line class summary>
@@ -28,42 +28,36 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
+  namespace eventsetup {
 
-template <class T>
-class ProxyFactoryTemplate : public ProxyFactoryBase
-{
-
-   public:
+    template <class T>
+    class ProxyFactoryTemplate : public ProxyFactoryBase {
+    public:
       typedef typename T::record_type record_type;
-   
+
       ProxyFactoryTemplate() {}
       //virtual ~ProxyFactoryTemplate();
 
       // ---------- const member functions ---------------------
-      virtual std::unique_ptr<DataProxy> makeProxy() const {
-         return std::make_unique<T>();
-      }
-      
-      
+      virtual std::unique_ptr<DataProxy> makeProxy() const { return std::make_unique<T>(); }
+
       virtual DataKey makeKey(const std::string& iName) const {
-         return DataKey(DataKey::makeTypeTag< typename T::value_type>(),iName.c_str());
+        return DataKey(DataKey::makeTypeTag<typename T::value_type>(), iName.c_str());
       }
-      
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
 
-   private:
-      ProxyFactoryTemplate(const ProxyFactoryTemplate&); // stop default
+    private:
+      ProxyFactoryTemplate(const ProxyFactoryTemplate&);  // stop default
 
-      const ProxyFactoryTemplate& operator=(const ProxyFactoryTemplate&); // stop default
+      const ProxyFactoryTemplate& operator=(const ProxyFactoryTemplate&);  // stop default
 
       // ---------- member data --------------------------------
+    };
 
-};
-
-   }
-}
+  }  // namespace eventsetup
+}  // namespace edm
 
 #endif

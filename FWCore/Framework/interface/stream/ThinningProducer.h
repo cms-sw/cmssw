@@ -32,12 +32,13 @@ namespace edm {
     explicit ThinningProducer(ParameterSet const& pset);
     virtual ~ThinningProducer();
 
-    static void fillDescriptions(ConfigurationDescriptions & descriptions);
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     virtual void produce(Event& event, EventSetup const& eventSetup) override;
 
     virtual void registerThinnedAssociations(ProductRegistry const& productRegistry,
                                              ThinnedAssociationsHelper& thinnedAssociationsHelper) override;
+
   private:
     edm::propagate_const<std::unique_ptr<Selector>> selector_;
     edm::EDGetTokenT<Collection> inputToken_;
@@ -47,10 +48,8 @@ namespace edm {
   };
 
   template <typename Collection, typename Selector>
-  ThinningProducer<Collection, Selector>::
-  ThinningProducer(ParameterSet const& pset) :
-    selector_(new Selector(pset, consumesCollector())) {
-
+  ThinningProducer<Collection, Selector>::ThinningProducer(ParameterSet const& pset)
+      : selector_(new Selector(pset, consumesCollector())) {
     inputTag_ = pset.getParameter<InputTag>("inputTag");
     inputToken_ = consumes<Collection>(inputTag_);
 
@@ -59,12 +58,10 @@ namespace edm {
   }
 
   template <typename Collection, typename Selector>
-  ThinningProducer<Collection, Selector>::
-  ~ThinningProducer() {}
+  ThinningProducer<Collection, Selector>::~ThinningProducer() {}
 
   template <typename Collection, typename Selector>
-  void ThinningProducer<Collection, Selector>::
-  fillDescriptions(ConfigurationDescriptions & descriptions) {
+  void ThinningProducer<Collection, Selector>::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setComment("Produces thinned collections and associations to them");
     desc.add<edm::InputTag>("inputTag");
@@ -73,9 +70,7 @@ namespace edm {
   }
 
   template <typename Collection, typename Selector>
-  void ThinningProducer<Collection, Selector>::
-  produce(Event& event, EventSetup const& eventSetup) {
-
+  void ThinningProducer<Collection, Selector>::produce(Event& event, EventSetup const& eventSetup) {
     auto inputCollection = event.getHandle(inputToken_);
 
     edm::Event const& constEvent = event;
@@ -85,25 +80,22 @@ namespace edm {
     ThinnedAssociation thinnedAssociation;
 
     unsigned int iIndex = 0;
-    for(auto iter = inputCollection->begin(), iterEnd = inputCollection->end();
-        iter != iterEnd; ++iter, ++iIndex) {
-      if(selector_->choose(iIndex, *iter)) {
+    for (auto iter = inputCollection->begin(), iterEnd = inputCollection->end(); iter != iterEnd; ++iter, ++iIndex) {
+      if (selector_->choose(iIndex, *iter)) {
         thinnedCollection.push_back(*iter);
         thinnedAssociation.push_back(iIndex);
       }
     }
-    OrphanHandle<Collection> orphanHandle = event.emplace(outputToken_,std::move(thinnedCollection));
+    OrphanHandle<Collection> orphanHandle = event.emplace(outputToken_, std::move(thinnedCollection));
 
     thinnedAssociation.setParentCollectionID(inputCollection.id());
     thinnedAssociation.setThinnedCollectionID(orphanHandle.id());
-    event.emplace(thinnedOutToken_,std::move(thinnedAssociation));
+    event.emplace(thinnedOutToken_, std::move(thinnedAssociation));
   }
 
   template <typename Collection, typename Selector>
-  void ThinningProducer<Collection, Selector>::
-  registerThinnedAssociations(ProductRegistry const& productRegistry,
-                              ThinnedAssociationsHelper& thinnedAssociationsHelper) {
-
+  void ThinningProducer<Collection, Selector>::registerThinnedAssociations(
+      ProductRegistry const& productRegistry, ThinnedAssociationsHelper& thinnedAssociationsHelper) {
     BranchID associationID;
     BranchID thinnedCollectionID;
 
@@ -121,23 +113,20 @@ namespace edm {
     std::vector<BranchID> parentCollectionIDs;
 
     ProductRegistry::ProductList const& productList = productRegistry.productList();
-    for(auto const& product : productList) {
+    for (auto const& product : productList) {
       BranchDescription const& desc = product.second;
-      if(desc.unwrappedType().typeInfo() == typeid(Collection) ) {
-        if(desc.produced() &&
-           desc.moduleLabel() == moduleDescription().moduleLabel() &&
-           desc.productInstanceName().empty()) {
-
+      if (desc.unwrappedType().typeInfo() == typeid(Collection)) {
+        if (desc.produced() && desc.moduleLabel() == moduleDescription().moduleLabel() &&
+            desc.productInstanceName().empty()) {
           thinnedCollectionID = desc.branchID();
         }
-        if(desc.moduleLabel() == inputTag_.label() &&
-           desc.productInstanceName() == inputTag_.instance()) {
-          if(inputTag_.willSkipCurrentProcess()) {
-            if(!desc.produced()) {
+        if (desc.moduleLabel() == inputTag_.label() && desc.productInstanceName() == inputTag_.instance()) {
+          if (inputTag_.willSkipCurrentProcess()) {
+            if (!desc.produced()) {
               parentCollectionIDs.push_back(desc.branchID());
             }
           } else if (inputTag_.process().empty() || inputTag_.process() == desc.processName()) {
-            if(desc.produced()) {
+            if (desc.produced()) {
               parentCollectionIDs.push_back(desc.originalBranchID());
             } else {
               parentCollectionIDs.push_back(desc.branchID());
@@ -145,24 +134,21 @@ namespace edm {
           }
         }
       }
-      if(desc.produced() &&
-         desc.unwrappedType().typeInfo() == typeid(ThinnedAssociation) &&
-         desc.moduleLabel() == moduleDescription().moduleLabel() &&
-         desc.productInstanceName().empty()) {
-
+      if (desc.produced() && desc.unwrappedType().typeInfo() == typeid(ThinnedAssociation) &&
+          desc.moduleLabel() == moduleDescription().moduleLabel() && desc.productInstanceName().empty()) {
         associationID = desc.branchID();
       }
     }
-    if(parentCollectionIDs.empty()) {
+    if (parentCollectionIDs.empty()) {
       // This could happen if the input collection was dropped. Go ahead and add
       // an entry and let the exception be thrown only if the module is run (when
       // it cannot find the product).
       thinnedAssociationsHelper.addAssociation(BranchID(), associationID, thinnedCollectionID);
     } else {
-      for(auto const& parentCollectionID : parentCollectionIDs) {
+      for (auto const& parentCollectionID : parentCollectionIDs) {
         thinnedAssociationsHelper.addAssociation(parentCollectionID, associationID, thinnedCollectionID);
       }
     }
   }
-}
+}  // namespace edm
 #endif
