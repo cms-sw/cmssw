@@ -114,7 +114,20 @@ namespace EgammaBlockInputs {
 }
 
 namespace MuonBlockInputs {
-    enum vars {rho = 0, tau_pt, tau_eta, tau_inside_ecal_crack};
+    enum vars {rho = 0, tau_pt, tau_eta, tau_inside_ecal_crack, pfCand_muon_valid, pfCand_muon_rel_pt,
+         pfCand_muon_deta, pfCand_muon_dphi, pfCand_muon_pvAssociationQuality, pfCand_muon_fromPV,
+         pfCand_muon_puppiWeight, pfCand_muon_charge, pfCand_muon_lostInnerHits, pfCand_muon_numberOfPixelHits,
+         pfCand_muon_vertex_dx, pfCand_muon_vertex_dy, pfCand_muon_vertex_dz, pfCand_muon_vertex_dx_tauFL,
+         pfCand_muon_vertex_dy_tauFL, pfCand_muon_vertex_dz_tauFL,pfCand_muon_hasTrackDetails, pfCand_muon_dxy,
+         pfCand_muon_dxy_sig, pfCand_muon_dz, pfCand_muon_dz_sig, pfCand_muon_track_chi2_ndof,
+         pfCand_muon_track_ndof, muon_valid, muon_rel_pt, muon_deta, muon_dphi, muon_dxy, muon_dxy_sig,
+         muon_normalizedChi2_valid, muon_normalizedChi2, muon_numberOfValidHits, muon_segmentCompatibility,
+         muon_caloCompatibility, muon_pfEcalEnergy_valid, muon_rel_pfEcalEnergy, muon_n_matches_DT_1,
+         muon_n_matches_DT_2,  muon_n_matches_DT_3, muon_n_matches_DT_4, muon_n_matches_CSC_1,
+         muon_n_matches_CSC_2, muon_n_matches_CSC_3, muon_n_matches_CSC_4, muon_n_matches_RPC_1,
+         muon_n_matches_RPC_2, muon_n_matches_RPC_3, muon_n_matches_RPC_4, muon_n_hits_DT_1, muon_n_hits_DT_2,
+         muon_n_hits_DT_3, muon_n_hits_DT_4, muon_n_hits_CSC_1, muon_n_hits_CSC_2, muon_n_hits_CSC_3,
+         muon_n_hits_CSC_4, muon_n_hits_RPC_1, muon_n_hits_RPC_2, muon_n_hits_RPC_3, muon_n_hits_RPC_4, NumberOfInputs};
 }
 
 namespace HadronBlockInputs {
@@ -293,6 +306,147 @@ private:
     }
 };
 
+
+
+struct MuonHitMatchV2 {
+
+    static constexpr size_t n_muon_stations = 4;
+    static constexpr int first_station_id = 1;
+    static constexpr int last_station_id = first_station_id + n_muon_stations - 1;
+    using CountArray = std::array<unsigned, n_muon_stations>;
+    using CountMap = std::map<int, CountArray>;
+
+    const std::vector<int>& consideredSubdets()
+    {
+        static const std::vector<int> subdets = { MuonSubdetId::DT, MuonSubdetId::CSC, MuonSubdetId::RPC };
+        return subdets;
+    }
+
+    const std::string& subdetName(int subdet)
+    {
+        static const std::map<int, std::string> subdet_names = {
+            { MuonSubdetId::DT, "DT" }, { MuonSubdetId::CSC, "CSC" }, { MuonSubdetId::RPC, "RPC" }
+        };
+        if(!subdet_names.count(subdet))
+            throw cms::Exception("MuonHitMatch") << "Subdet name for subdet id " << subdet << " not found.";
+        return subdet_names.at(subdet);
+    }
+
+    size_t getStationIndex(int station, bool throw_exception) const
+    {
+        if(station < first_station_id || station > last_station_id) {
+            if(throw_exception)
+                throw cms::Exception("MuonHitMatch") << "Station id is out of range";
+            return std::numeric_limits<size_t>::max();
+        }
+        return static_cast<size_t>(station - 1);
+    }
+
+    MuonHitMatchV2(const pat::Muon& muon)
+    {
+        for(int subdet : consideredSubdets()) {
+            n_matches[subdet].fill(0);
+            n_hits[subdet].fill(0);
+        }
+
+        countMatches(muon, n_matches);
+        countHits(muon, n_hits);
+    }
+
+    void countMatches(const pat::Muon& muon, CountMap& n_matches)
+    {
+        for(const auto& segment : muon.matches()) {
+            if(segment.segmentMatches.empty() && segment.rpcMatches.empty()) continue;
+            if(n_matches.count(segment.detector())) {
+                const size_t station_index = getStationIndex(segment.station(), true);
+                ++n_matches.at(segment.detector()).at(station_index);
+            }
+        }
+    }
+
+    void countHits(const pat::Muon& muon, CountMap& n_hits)
+    {
+        if(muon.outerTrack().isNonnull()) {
+            const auto& hit_pattern = muon.outerTrack()->hitPattern();
+            for(int hit_index = 0; hit_index < hit_pattern.numberOfAllHits(reco::HitPattern::TRACK_HITS); ++hit_index) {
+                auto hit_id = hit_pattern.getHitPattern(reco::HitPattern::TRACK_HITS, hit_index);
+                if(hit_id == 0) break;
+                if(hit_pattern.muonHitFilter(hit_id) && (hit_pattern.getHitType(hit_id) == TrackingRecHit::valid
+                                                         || hit_pattern.getHitType(hit_id) == TrackingRecHit::bad)) {
+                    const size_t station_index = getStationIndex(hit_pattern.getMuonStation(hit_id), false);
+                    if(station_index < n_muon_stations) {
+                        CountArray* muon_n_hits = nullptr;
+                        if(hit_pattern.muonDTHitFilter(hit_id))
+                            muon_n_hits = &n_hits.at(MuonSubdetId::DT);
+                        else if(hit_pattern.muonCSCHitFilter(hit_id))
+                            muon_n_hits = &n_hits.at(MuonSubdetId::CSC);
+                        else if(hit_pattern.muonRPCHitFilter(hit_id))
+                            muon_n_hits = &n_hits.at(MuonSubdetId::RPC);
+
+                        if(muon_n_hits)
+                            ++muon_n_hits->at(station_index);
+                    }
+                }
+            }
+        }
+    }
+
+    unsigned nMatches(int subdet, int station) const
+    {
+        if(!n_matches.count(subdet))
+            throw cms::Exception("MuonHitMatch") << "Subdet " << subdet << " not found.";
+        const size_t station_index = getStationIndex(station, true);
+        return n_matches.at(subdet).at(station_index);
+    }
+
+    unsigned nHits(int subdet, int station) const
+    {
+        if(!n_hits.count(subdet))
+            throw cms::Exception("MuonHitMatch") << "Subdet " << subdet << " not found.";
+        const size_t station_index = getStationIndex(station, true);
+        return n_hits.at(subdet).at(station_index);
+    }
+
+    unsigned countMuonStationsWithMatches(int first_station, int last_station) const
+    {
+        static const std::map<int, std::vector<bool>> masks = {
+            { MuonSubdetId::DT, { false, false, false, false } },
+            { MuonSubdetId::CSC, { true, false, false, false } },
+            { MuonSubdetId::RPC, { false, false, false, false } },
+        };
+        const size_t first_station_index = getStationIndex(first_station, true);
+        const size_t last_station_index = getStationIndex(last_station, true);
+        unsigned cnt = 0;
+        for(size_t n = first_station_index; n <= last_station_index; ++n) {
+            for(const auto& match : n_matches) {
+                if(!masks.at(match.first).at(n) && match.second.at(n) > 0) ++cnt;
+            }
+        }
+        return cnt;
+    }
+
+    unsigned countMuonStationsWithHits(int first_station, int last_station) const
+    {
+        static const std::map<int, std::vector<bool>> masks = {
+            { MuonSubdetId::DT, { false, false, false, false } },
+            { MuonSubdetId::CSC, { false, false, false, false } },
+            { MuonSubdetId::RPC, { false, false, false, false } },
+        };
+
+        const size_t first_station_index = getStationIndex(first_station, true);
+        const size_t last_station_index = getStationIndex(last_station, true);
+        unsigned cnt = 0;
+        for(size_t n = first_station_index; n <= last_station_index; ++n) {
+            for(const auto& hit : n_hits) {
+                if(!masks.at(hit.first).at(n) && hit.second.at(n) > 0) ++cnt;
+            }
+        }
+        return cnt;
+    }
+
+    private:
+    CountMap n_matches, n_hits;
+};
 
 enum class CellObjectType { PfCand_electron, PfCand_muon, PfCand_chargedHadron, PfCand_neutralHadron,
                             PfCand_gamma, Electron, Muon };
@@ -881,11 +1035,141 @@ private:
     }
 
     tensorflow::Tensor createMuonBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
-                                             const pat::MuonCollection& electrons,
+                                             const pat::MuonCollection& muons,
                                              const pat::PackedCandidateCollection& pfCands,
                                              const CellGrid& grid, bool is_inner)
     {
-        return tensorflow::Tensor();
+        using namespace dnn_inputs_2017_v2;
+        using namespace MuonBlockInputs;
+
+        tensorflow::Tensor inputs(tensorflow::DT_FLOAT, {1, grid.nCellsEta, grid.nCellsPhi, NumberOfInputs});
+        inputs.flat<float>().setZero();
+
+        for(const auto& cell : grid) {
+            int eta_index = grid.getEtaTensorIndex(cell.first);
+            int phi_index = grid.getPhiTensorIndex(cell.first);
+
+            const auto& get = [&](int var_index) -> float& {
+                return inputs.tensor<float,4>()(0,eta_index,phi_index,var_index);
+            };
+
+            const auto& cell_map = cell.second;
+
+            const bool valid_index_pf_muon = cell_map.count(CellObjectType::PfCand_muon);
+            const bool valid_index_muon = cell_map.count(CellObjectType::Muon);
+
+            if(valid_index_pf_muon || valid_index_muon){
+                get(rho) = getValueNorm(rho, 21.49f, 9.713f);
+                get(tau_pt) =  getValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
+                get(tau_eta) = getValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
+                get(tau_inside_ecal_crack) = getValue(isInEcalCrack(tau.polarP4().eta()));
+            }
+            if(valid_index_pf_muon){
+                size_t index_pf_muon = cell_map.at(CellObjectType::PfCand_muon);
+
+                get(pfCand_muon_valid) = valid_index_pf_muon;
+                get(pfCand_muon_rel_pt) = getValueNorm(pfCands.at(index_pf_muon).polarP4().pt() / tau.polarP4().pt(),
+                    is_inner ?  0.9509f : 0.0861f, is_inner ? 0.4294f : 0.4065f);
+                get(pfCand_muon_deta) = getValueLinear(pfCands.at(index_pf_muon).polarP4().eta() - tau.polarP4().eta(),
+                    is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
+                get(pfCand_muon_dphi) = getValueLinear(dPhi(tau.polarP4(), pfCands.at(index_pf_muon).polarP4()),
+                    is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
+                get(pfCand_muon_pvAssociationQuality) = getValueLinear(pfCands.at(index_pf_muon).pvAssociationQuality(), 0, 7, true);
+                get(pfCand_muon_fromPV) = getValueLinear(pfCands.at(index_pf_muon).fromPV(), 0, 3, true);
+                get(pfCand_muon_puppiWeight) = getValue(pfCands.at(index_pf_muon).puppiWeight());
+                get(pfCand_muon_charge) = getValue(pfCands.at(index_pf_muon).charge());
+                get(pfCand_muon_lostInnerHits) = getValue(pfCands.at(index_pf_muon).lostInnerHits());
+                get(pfCand_muon_numberOfPixelHits) = getValueLinear(pfCands.at(index_pf_muon).numberOfPixelHits(), 0, 11, true);
+                get(pfCand_muon_vertex_dx) = getValueNorm(pfCands.at(index_pf_muon).vertex().x() - pv.position().x(), -0.0007f, 0.6869f);
+                get(pfCand_muon_vertex_dy) = getValueNorm(pfCands.at(index_pf_muon).vertex().y() - pv.position().y(), 0.0001f, 0.6784f);
+                get(pfCand_muon_vertex_dz) = getValueNorm(pfCands.at(index_pf_muon).vertex().z() - pv.position().z(), -0.0117f, 4.097f);
+                get(pfCand_muon_vertex_dx_tauFL) = getValueNorm(pfCands.at(index_pf_muon).vertex().x() -
+                    pv.position().x() - tau.flightLength().x(), -0.0001f, 0.8642f);
+                get(pfCand_muon_vertex_dy_tauFL) = getValueNorm(pfCands.at(index_pf_muon).vertex().y() -
+                    pv.position().y() - tau.flightLength().y(), 0.0004f, 0.8561f);
+                get(pfCand_muon_vertex_dz_tauFL) = getValueNorm(pfCands.at(index_pf_muon).vertex().z() -
+                    pv.position().z() - tau.flightLength().z(), -0.0118f, 4.405f);
+
+                const bool hasTrackDetails = pfCands.at(index_pf_muon).hasTrackDetails();
+                if(hasTrackDetails){
+                    get(pfCand_muon_hasTrackDetails) = hasTrackDetails;
+                    get(pfCand_muon_dxy) = getValueNorm(std::abs(pfCands.at(index_pf_muon).dxy()), -0.0045f, 0.9655f);
+                    get(pfCand_muon_dxy_sig) = getValueNorm(std::abs(pfCands.at(index_pf_muon).dxy()) /
+                        pfCands.at(index_pf_muon).dxyError(), 4.575f, 42.36f);
+                    get(pfCand_muon_dz) =  getValueNorm(pfCands.at(index_pf_muon).dz(), -0.0117f, 4.097f);
+                    get(pfCand_muon_dz_sig) =  getValueNorm(std::abs(pfCands.at(index_pf_muon).dz()) /
+                        pfCands.at(index_pf_muon).dzError(), 80.37f, 343.3f);
+                    get(pfCand_muon_track_chi2_ndof) = pfCands.at(index_pf_muon).pseudoTrack().ndof() > 0 ?
+                        getValueNorm(pfCands.at(index_pf_muon).pseudoTrack().chi2() /
+                        pfCands.at(index_pf_muon).pseudoTrack().ndof(), 0.69f, 1.711f) : 0;
+                    get(pfCand_muon_track_ndof) = pfCands.at(index_pf_muon).pseudoTrack().ndof() > 0 ?
+                        getValueNorm(pfCands.at(index_pf_muon).pseudoTrack().ndof(), 17.5f, 5.11f) : 0;
+                }
+            }
+            if(valid_index_muon){
+                size_t index_muon = cell_map.at(CellObjectType::Muon);
+
+                get(muon_valid) = valid_index_muon;
+                get(muon_rel_pt) = getValueNorm(muons.at(index_muon).polarP4().pt() / tau.polarP4().pt(),
+                    is_inner ?  0.7966f : 0.2678f, is_inner ? 3.402f : 3.592f);
+                get(muon_deta) = getValueLinear(muons.at(index_muon).polarP4().eta() - tau.polarP4().eta(),
+                    is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
+                get(muon_dphi) = getValueLinear(dPhi(tau.polarP4(), muons.at(index_muon).polarP4()),
+                    is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
+                get(muon_dxy) = getValueNorm(muons.at(index_muon).dB(pat::Muon::PV2D), 0.0019f, 1.039f);
+                get(muon_dxy_sig) = getValueNorm(std::abs(muons.at(index_muon).dB(pat::Muon::PV2D)) /
+                    muons.at(index_muon).edB(pat::Muon::PV2D), 8.98f, 71.17f);
+
+                const bool normalizedChi2_valid = muons.at(index_muon).globalTrack().isNonnull() && muons.at(index_muon).normChi2() >= 0;
+                if(normalizedChi2_valid){
+                    get(muon_normalizedChi2_valid) = normalizedChi2_valid;
+                    get(muon_normalizedChi2) = getValueNorm(muons.at(index_muon).normChi2(), 21.52f, 265.8f);
+                    if(muons.at(index_muon).innerTrack().isNonnull())
+                        get(muon_numberOfValidHits) = getValueNorm(muons.at(index_muon).numberOfValidHits(), 21.84f, 10.59f);
+                }
+                get(muon_segmentCompatibility) = getValue(muons.at(index_muon).segmentCompatibility());
+                get(muon_caloCompatibility) = getValue(muons.at(index_muon).caloCompatibility());
+
+                const bool pfEcalEnergy_valid = muons.at(index_muon).pfEcalEnergy() >= 0;
+                if(pfEcalEnergy_valid){
+                    get(muon_pfEcalEnergy_valid) = pfEcalEnergy_valid;
+                    get(muon_rel_pfEcalEnergy) = getValueNorm(muons.at(index_muon).pfEcalEnergy() /
+                        muons.at(index_muon).polarP4().pt(), 0.2273f, 0.4865f);
+                }
+
+                MuonHitMatchV2 hit_match(muons.at(index_muon));
+                static const std::map<int, std::pair<int, int>> muonMatchHitVars = {
+                    { MuonSubdetId::DT, { muon_n_matches_DT_1, muon_n_hits_DT_1 } },
+                    { MuonSubdetId::CSC, { muon_n_matches_CSC_1, muon_n_hits_CSC_1 } },
+                    { MuonSubdetId::RPC, { muon_n_matches_RPC_1, muon_n_hits_RPC_1 } }
+                };
+
+                static const std::map<int, std::vector<float>> muonMatchVarLimits = {
+                    { MuonSubdetId::DT, { 2, 2, 2, 2 } },
+                    { MuonSubdetId::CSC, { 6, 2, 2, 2 } },
+                    { MuonSubdetId::RPC, { 7, 6, 4, 4 } }
+                };
+
+                static const std::map<int, std::vector<float>> muonHitVarLimits = {
+                    { MuonSubdetId::DT, { 12, 12, 12, 8 } },
+                    { MuonSubdetId::CSC, { 24, 12, 12, 12 } },
+                    { MuonSubdetId::RPC, { 4, 4, 2, 2 } }
+                };
+
+                for(int subdet : hit_match.MuonHitMatchV2::consideredSubdets()) {
+                    const auto& matchHitVar = muonMatchHitVars.at(subdet);
+                    const auto& matchLimits = muonMatchVarLimits.at(subdet);
+                    const auto& hitLimits = muonHitVarLimits.at(subdet);
+                    for(int station = MuonHitMatchV2::first_station_id; station <= MuonHitMatchV2::last_station_id; ++station) {
+                        const unsigned n_matches = hit_match.nMatches(subdet, station);
+                        const unsigned n_hits = hit_match.nHits(subdet, station);
+                        get(matchHitVar.first + station - 1) = getValueLinear(n_matches, 0, matchLimits.at(station - 1), true);
+                        get(matchHitVar.second + station - 1) = getValueLinear(n_hits, 0, hitLimits.at(station - 1), true);
+                    }
+                }
+            }
+        }
+        return inputs;
     }
 
     tensorflow::Tensor createHadronsBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
