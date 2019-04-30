@@ -16,9 +16,7 @@
 //
 
 #include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryEP.h"
-#include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryLoaderFromDDD.h"
 
-#include <iostream>
 //
 // constants, enums and typedefs
 //
@@ -32,15 +30,7 @@
 //
 EcalTBHodoscopeGeometryEP::EcalTBHodoscopeGeometryEP(const edm::ParameterSet& iConfig):
   cpvToken_{setWhatProduced(this,"EcalLaserPnDiode").consumes<DDCompactView>(edm::ESInputTag{})}
-{
-  loader_=new EcalTBHodoscopeGeometryLoaderFromDDD(); 
-}
-
-
-EcalTBHodoscopeGeometryEP::~EcalTBHodoscopeGeometryEP()
-{ 
-  delete loader_;
-}
+{}
 
 
 //
@@ -54,8 +44,8 @@ EcalTBHodoscopeGeometryEP::produce(const IdealGeometryRecord& iRecord)
 
    edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvToken_);
    
-   std::cout << "[EcalTBHodoscopeGeometryEP]::Constructing EcalTBHodoscopeGeometry" <<  std::endl;
-   return std::unique_ptr<CaloSubdetectorGeometry>(loader_->load(&(*cpv)));
+   LogDebug("EcalTBHodoscopeGeometryEP") << "[EcalTBHodoscopeGeometryEP]::Constructing EcalTBHodoscopeGeometry";
+   return std::unique_ptr<CaloSubdetectorGeometry>(loader_.load(&(*cpv)));
 }
 
 

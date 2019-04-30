@@ -15,9 +15,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-
-//Forward declaration
-class EcalTBHodoscopeGeometryLoaderFromDDD;
+#include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryLoaderFromDDD.h"
 
 //
 // class declaration
@@ -26,7 +24,7 @@ class EcalTBHodoscopeGeometryLoaderFromDDD;
 class EcalTBHodoscopeGeometryEP : public edm::ESProducer {
  public:
   EcalTBHodoscopeGeometryEP(const edm::ParameterSet&);
-  ~EcalTBHodoscopeGeometryEP() override;
+  ~EcalTBHodoscopeGeometryEP() override = default;
   
   typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
   
@@ -35,7 +33,7 @@ class EcalTBHodoscopeGeometryEP : public edm::ESProducer {
  private:
 
   // ----------member data ---------------------------
-  EcalTBHodoscopeGeometryLoaderFromDDD* loader_;
+  EcalTBHodoscopeGeometryLoaderFromDDD loader_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
 };
 
