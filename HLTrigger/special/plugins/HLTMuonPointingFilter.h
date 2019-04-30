@@ -49,6 +49,9 @@ private:
   const std::string thePropagatorName;      // name of propagator to be used
   const double theRadius;                   // radius of cylinder
   const double theMaxZ;                     // half length of cylinder
+  const unsigned int thePixHits;            // number of pixel hits
+  const unsigned int theTkLayers;           // number of tracker layers with measurements
+  const unsigned int theMuonHits;           // number of valid muon hits
 
   Cylinder::CylinderPointer theCyl;
   Plane::PlanePointer thePosPlane, theNegPlane;
