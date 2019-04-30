@@ -18,7 +18,7 @@ def subdetCondition(subdet,module,overlap):
 def hist(tree_file_name, hist_name,subdet_ids,module_directions,overlap_directions,profile_directions):
     f = ROOT.TFile(tree_file_name)
     t = f.Get("analysis/Overlaps")
-        h = []
+    h = []
     for subdet in range(6):#Creates a 4-D list of empty histograms for permutations of subdetector, overlap direction, module direction and profile direction.
 		h.append([])
 		for module in range(3):
