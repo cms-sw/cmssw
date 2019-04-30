@@ -107,7 +107,7 @@ namespace {
   }
 
   std::atomic<int> active_tlsdata{0};
-  std::atomic<bool> tls_shutdown_timeout{0};
+  std::atomic<bool> tls_shutdown_timeout{false};
   std::atomic<int> n_tls_shutdown_task{0};
 }
 
