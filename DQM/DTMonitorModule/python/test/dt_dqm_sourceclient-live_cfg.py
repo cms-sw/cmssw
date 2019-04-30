@@ -19,6 +19,8 @@ process.load("DQM.DTMonitorModule.test.inputsource_live_cfi")
 process.load("DQM.Integration.config.environment_cfi")
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference.root'
 #process.DQMStore.referenceFileName = "DT_reference.root"
+process.dqmRunConfig.collectorHost = 'fu-c2f11-23-01.cms'
+process.dqmSaver.path = "./"
 
 #----------------------------
 #### DQM Live Environment
