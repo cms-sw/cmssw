@@ -6,6 +6,7 @@
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
@@ -27,5 +28,7 @@ class EcalElectronicsMappingBuilder : public edm::ESProducer
  private:
   void FillFromDatabase(const std::vector<EcalMappingElement>& ee,
                         EcalElectronicsMapping& theMap);
+
+  edm::ESGetToken<EcalMappingElectronics, EcalMappingElectronicsRcd> eeToken_;
 };
 #endif
