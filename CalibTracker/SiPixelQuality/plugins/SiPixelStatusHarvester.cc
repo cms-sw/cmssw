@@ -77,10 +77,9 @@ SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
   endLumiBlock_ = 0;
   countLumi_ = 0;
 
-  //instLumi.clear();
-
   // For threshold check
-
+  emptyRun = true;
+  
   // pixel substructure
   substructures.push_back("BpixLYR1");
   substructures.push_back("BpixLYR2");
@@ -144,13 +143,13 @@ SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
          //instLumi
          //digiTrees[substructures[s]]->Branch("instLumi",&instLumis);
 
-         p001[substructures[s]] = new TH1F(subTs+"p001","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{lumi-sections}",350,-6,1);
-         p005[substructures[s]] = new TH1F(subTs+"p005","Digi Loss Fraction;log_{10}(frac_{Digioss});N_{lumi-sections}",350,-6,1);
-         p01[substructures[s]]  = new TH1F(subTs+"p01","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{lumi-sections}",350,-6,1);
-         p05[substructures[s]]  = new TH1F(subTs+"p05","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{lumi-sections}",350,-6,1);
-         p1[substructures[s]]   = new TH1F(subTs+"p1","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{lumi-sections}",350,-6,1);
-         p2[substructures[s]]   = new TH1F(subTs+"p2","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{lumi-sections}",350,-6,1);
-         p5[substructures[s]]   = new TH1F(subTs+"p5","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{lumi-sections}",350,-6,1);
+         p001[substructures[s]] = new TH1F(subTs+"p001","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",300,-6,0);
+         p005[substructures[s]] = new TH1F(subTs+"p005","Digi Loss Fraction;log_{10}(frac_{Digioss});N_{raw IOVs}",300,-6,0);
+         p01[substructures[s]]  = new TH1F(subTs+"p01","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",300,-6,0);
+         p05[substructures[s]]  = new TH1F(subTs+"p05","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",300,-6,0);
+         p1[substructures[s]]   = new TH1F(subTs+"p1","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",300,-6,0);
+         p2[substructures[s]]   = new TH1F(subTs+"p2","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",300,-6,0);
+         p5[substructures[s]]   = new TH1F(subTs+"p5","Digi Loss Fraction;log_{10}(frac_{DigiLoss});N_{raw IOVs}",350,-6,0);
 
   }
 
@@ -160,14 +159,17 @@ SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
 SiPixelStatusHarvester::~SiPixelStatusHarvester(){}
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::beginJob() { }
+void SiPixelStatusHarvester::beginJob() {
+}
 
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::endJob() {
 
-     histoFile->cd();
+     if(!emptyRun){
 
-     for(unsigned int s = 0; s<substructures.size(); s++){
+       histoFile->cd();
+
+       for(unsigned int s = 0; s<substructures.size(); s++){
 
            p001[substructures[s]]->Write();
            p005[substructures[s]]->Write();
@@ -179,15 +181,17 @@ void SiPixelStatusHarvester::endJob() {
 
            digiTrees[substructures[s]]->Write();
 
-     }
+       }
 
-     histoFile->Close();
+       histoFile->Close();
        
-     digiTrees.clear();
+       digiTrees.clear();
 
-     p001.clear(); p005.clear(); 
-     p01.clear();  p05.clear(); 
-     p1.clear();   p2.clear();  p5.clear(); 
+       p001.clear(); p005.clear(); 
+       p01.clear();  p05.clear(); 
+       p1.clear();   p2.clear();  p5.clear(); 
+
+    }
 
 }  
 
@@ -207,6 +211,9 @@ void SiPixelStatusHarvester::analyze(const edm::Event& iEvent, const edm::EventS
 
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup){
+
+  // The run is not empty (after lumi json filter) otherwise the job can't reach here
+  emptyRun = false;
 
   // tracker geometry and cabling map to convert offline row/column (module) to online row/column
   edm::ESHandle<TrackerGeometry> tmpTkGeometry;
@@ -302,8 +309,6 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
     std::map<edm::LuminosityBlockNumber_t, edm::LuminosityBlockNumber_t> finalIOV;
     std::map<edm::LuminosityBlockNumber_t, edm::LuminosityBlockNumber_t> fedError25IOV;
     std::map<edm::LuminosityBlockNumber_t, edm::LuminosityBlockNumber_t> pclIOV;
-
-    //int nLumiBlock_ = countLumi_-FEDerror25Map.begin()->first+1;
 
     // container for SiPixelQuality for the whole run
     std::map<int, SiPixelQuality*> siPixelQualityStuckTBM_Tag;
