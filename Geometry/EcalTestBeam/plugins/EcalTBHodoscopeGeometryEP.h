@@ -10,10 +10,11 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 //Forward declaration
 class EcalTBHodoscopeGeometryLoaderFromDDD;
@@ -35,6 +36,7 @@ class EcalTBHodoscopeGeometryEP : public edm::ESProducer {
 
   // ----------member data ---------------------------
   EcalTBHodoscopeGeometryLoaderFromDDD* loader_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
 };
 
 

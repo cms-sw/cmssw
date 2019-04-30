@@ -30,12 +30,9 @@
 //
 // constructors and destructor
 //
-EcalTBHodoscopeGeometryEP::EcalTBHodoscopeGeometryEP(const edm::ParameterSet& iConfig)
+EcalTBHodoscopeGeometryEP::EcalTBHodoscopeGeometryEP(const edm::ParameterSet& iConfig):
+  cpvToken_{setWhatProduced(this,"EcalLaserPnDiode").consumes<DDCompactView>(edm::ESInputTag{})}
 {
-   //the following line is needed to tell the framework what
-   // data is being produced
-  setWhatProduced(this,"EcalLaserPnDiode");
-  //now do what ever other initialization is needed
   loader_=new EcalTBHodoscopeGeometryLoaderFromDDD(); 
 }
 
@@ -55,8 +52,7 @@ EcalTBHodoscopeGeometryEP::ReturnType
 EcalTBHodoscopeGeometryEP::produce(const IdealGeometryRecord& iRecord)
 {
 
-   edm::ESTransientHandle<DDCompactView> cpv;
-   iRecord.get( cpv );
+   edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvToken_);
    
    std::cout << "[EcalTBHodoscopeGeometryEP]::Constructing EcalTBHodoscopeGeometry" <<  std::endl;
    return std::unique_ptr<CaloSubdetectorGeometry>(loader_->load(&(*cpv)));
