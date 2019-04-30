@@ -1037,7 +1037,7 @@ bool edm::encode(std::string& to, std::vector<std::string> const& from) {
   std::string converted;
   for (std::vector<std::string>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
     // treat blank string specially
-    if (*b.empty()) {
+    if (b->empty()) {
       converted = "XXX";
     } else if (!encode(converted, *b)) {
       return false;
