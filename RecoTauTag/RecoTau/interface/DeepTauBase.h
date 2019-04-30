@@ -21,7 +21,6 @@
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
-#include "RecoTauTag/RecoTau/interface/MuonHitMatch.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <TF1.h>
