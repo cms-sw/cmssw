@@ -166,10 +166,6 @@ private:
   std::map<CaloHitID, CaloG4Hit*> hitMap;
   std::map<int, TrackWithHistory*> tkMap;
   std::vector<std::unique_ptr<CaloG4Hit>> reusehit;
-
-  std::vector<CaloG4Hit*> reusehit;
-  std::vector<CaloG4Hit*> hitvec;
-  std::vector<unsigned int> selIndex;
 };
 
 #endif  // SimG4CMS_CaloSD_h
