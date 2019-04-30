@@ -306,51 +306,76 @@ private:
     }
 };
 
+
+
 struct MuonHitMatchV2 {
-    static constexpr int n_muon_stations = 4;
 
-    std::map<int, std::vector<UInt_t>> n_matches, n_hits;
-    unsigned n_muons{0};
-    const pat::Muon* best_matched_muon{nullptr};
-    double deltaR2_best_match{-1};
+    static constexpr size_t n_muon_stations = 4;
+    static constexpr int first_station_id = 1;
+    static constexpr int last_station_id = first_station_id + n_muon_stations - 1;
+    using CountArray = std::array<unsigned, n_muon_stations>;
+    using CountMap = std::map<int, CountArray>;
 
-    MuonHitMatchV2()
+    const std::vector<int>& ConsideredSubdets()
     {
-        n_matches[MuonSubdetId::DT].assign(n_muon_stations, 0);
-        n_matches[MuonSubdetId::CSC].assign(n_muon_stations, 0);
-        n_matches[MuonSubdetId::RPC].assign(n_muon_stations, 0);
-        n_hits[MuonSubdetId::DT].assign(n_muon_stations, 0);
-        n_hits[MuonSubdetId::CSC].assign(n_muon_stations, 0);
-        n_hits[MuonSubdetId::RPC].assign(n_muon_stations, 0);
+        static const std::vector<int> subdets = { MuonSubdetId::DT, MuonSubdetId::CSC, MuonSubdetId::RPC };
+        return subdets;
     }
 
-    void addMatchedMuon(const pat::Muon& muon, const pat::Tau& tau)
+    const std::string& SubdetName(int subdet)
     {
-        static constexpr int n_stations = 4;
+        static const std::map<int, std::string> subdet_names = {
+            { MuonSubdetId::DT, "DT" }, { MuonSubdetId::CSC, "CSC" }, { MuonSubdetId::RPC, "RPC" }
+        };
+        if(!subdet_names.count(subdet))
+            throw cms::Exception("MuonHitMatch") << "Subdet name for subdet id " << subdet << " not found.";
+        return subdet_names.at(subdet);
+    }
 
-        ++n_muons;
-        const double dR2 = reco::deltaR2(tau.p4(), muon.p4());
-        if(!best_matched_muon || dR2 < deltaR2_best_match) {
-            best_matched_muon = &muon;
-            deltaR2_best_match = dR2;
+    size_t GetStationIndex(int station, bool throw_exception) const
+    {
+        if(station < first_station_id || station > last_station_id) {
+            if(throw_exception)
+                throw cms::Exception("MuonHitMatch") << "Station id is out of range";
+            return std::numeric_limits<size_t>::max();
+        }
+        return static_cast<size_t>(station - 1);
+    }
+
+    MuonHitMatchV2(const pat::Muon& muon)
+    {
+        for(int subdet : ConsideredSubdets()) {
+            n_matches[subdet].fill(0);
+            n_hits[subdet].fill(0);
         }
 
+        CountMatches(muon, n_matches);
+        CountHits(muon, n_hits);
+    }
+
+    void CountMatches(const pat::Muon& muon, CountMap& n_matches)
+    {
         for(const auto& segment : muon.matches()) {
-            if(segment.segmentMatches.empty()) continue;
-            if(n_matches.count(segment.detector()))
-                ++n_matches.at(segment.detector()).at(segment.station() - 1);
+            if(segment.segmentMatches.empty() && segment.rpcMatches.empty()) continue;
+            if(n_matches.count(segment.detector())) {
+                const size_t station_index = GetStationIndex(segment.station(), true);
+                ++n_matches.at(segment.detector()).at(station_index);
+            }
         }
+    }
 
+    void CountHits(const pat::Muon& muon, CountMap& n_hits)
+    {
         if(muon.outerTrack().isNonnull()) {
             const auto& hit_pattern = muon.outerTrack()->hitPattern();
             for(int hit_index = 0; hit_index < hit_pattern.numberOfAllHits(reco::HitPattern::TRACK_HITS); ++hit_index) {
                 auto hit_id = hit_pattern.getHitPattern(reco::HitPattern::TRACK_HITS, hit_index);
                 if(hit_id == 0) break;
                 if(hit_pattern.muonHitFilter(hit_id) && (hit_pattern.getHitType(hit_id) == TrackingRecHit::valid
-                                                         || hit_pattern.getHitType(hit_id == TrackingRecHit::bad))) {
-                    const int station = hit_pattern.getMuonStation(hit_id) - 1;
-                    if(station > 0 && station < n_stations) {
-                        std::vector<UInt_t>* muon_n_hits = nullptr;
+                                                         || hit_pattern.getHitType(hit_id) == TrackingRecHit::bad)) {
+                    const size_t station_index = GetStationIndex(hit_pattern.getMuonStation(hit_id), false);
+                    if(station_index < n_muon_stations) {
+                        CountArray* muon_n_hits = nullptr;
                         if(hit_pattern.muonDTHitFilter(hit_id))
                             muon_n_hits = &n_hits.at(MuonSubdetId::DT);
                         else if(hit_pattern.muonCSCHitFilter(hit_id))
@@ -359,61 +384,40 @@ struct MuonHitMatchV2 {
                             muon_n_hits = &n_hits.at(MuonSubdetId::RPC);
 
                         if(muon_n_hits)
-                            ++muon_n_hits->at(station);
+                            ++muon_n_hits->at(station_index);
                     }
                 }
             }
         }
     }
 
-    static std::vector<const pat::Muon*> findMatchedMuons(const pat::Tau& tau, const pat::MuonCollection& muons,
-                                                           double deltaR, double minPt)
+    unsigned NMatches(int subdet, int station) const
     {
-        const reco::Muon* hadr_cand_muon = nullptr;
-        if(tau.leadPFChargedHadrCand().isNonnull() && tau.leadPFChargedHadrCand()->muonRef().isNonnull())
-            hadr_cand_muon = tau.leadPFChargedHadrCand()->muonRef().get();
-        std::vector<const pat::Muon*> matched_muons;
-        const double dR2 = deltaR*deltaR;
-        for(const pat::Muon& muon : muons) {
-            const reco::Muon* reco_muon = &muon;
-            if(muon.pt() <= minPt) continue;
-            if(reco_muon == hadr_cand_muon) continue;
-            if(reco::deltaR2(tau.p4(), muon.p4()) >= dR2) continue;
-            matched_muons.push_back(&muon);
-        }
-        return matched_muons;
+        if(!n_matches.count(subdet))
+            throw cms::Exception("MuonHitMatch") << "Subdet " << subdet << " not found.";
+        const size_t station_index = GetStationIndex(station, true);
+        return n_matches.at(subdet).at(station_index);
     }
 
-    template<typename TensorElemGet>
-    // // void fillTensor(const TensorElemGet& get, const pat::Tau& tau, float default_value) const
-    void fillTensor(const TensorElemGet& get, const pat::Muon& muons) const
+    unsigned NHits(int subdet, int station) const
     {
-        const tau_analysis::MuonHitMatch hit_match(muons);
-        for(int subdet : tau_analysis::MuonHitMatch::ConsideredSubdets()) {
-            const std::string& subdetName = tau_analysis::MuonHitMatch::SubdetName(subdet);
-            for(int station = tau_analysis::MuonHitMatch::first_station_id; station <= tau_analysis::MuonHitMatch::last_station_id; ++station) {
-                const std::string matches_branch_name = "muon_n_matches_" + subdetName + "_" + std::to_string(station);
-                const std::string hits_branch_name = "muon_n_hits_" + subdetName + "_" + std::to_string(station);
-                const unsigned n_matches = hit_match.NMatches(subdet, station);
-                const unsigned n_hits = hit_match.NHits(subdet, station);
-                get(matches_branch_name) = static_cast<int>(n_matches);
-                // get(matches_branch_name).push_back(static_cast<int>(n_matches));
-                // get(hits_branch_name).push_back(static_cast<int>(n_hits));
-            }
-        }
+        if(!n_hits.count(subdet))
+            throw cms::Exception("MuonHitMatch") << "Subdet " << subdet << " not found.";
+        const size_t station_index = GetStationIndex(station, true);
+        return n_hits.at(subdet).at(station_index);
     }
 
-
-private:
-    unsigned countMuonStationsWithMatches(size_t first_station, size_t last_station) const
+    unsigned CountMuonStationsWithMatches(int first_station, int last_station) const
     {
         static const std::map<int, std::vector<bool>> masks = {
             { MuonSubdetId::DT, { false, false, false, false } },
             { MuonSubdetId::CSC, { true, false, false, false } },
             { MuonSubdetId::RPC, { false, false, false, false } },
         };
+        const size_t first_station_index = GetStationIndex(first_station, true);
+        const size_t last_station_index = GetStationIndex(last_station, true);
         unsigned cnt = 0;
-        for(unsigned n = first_station; n <= last_station; ++n) {
+        for(size_t n = first_station_index; n <= last_station_index; ++n) {
             for(const auto& match : n_matches) {
                 if(!masks.at(match.first).at(n) && match.second.at(n) > 0) ++cnt;
             }
@@ -421,7 +425,7 @@ private:
         return cnt;
     }
 
-    unsigned countMuonStationsWithHits(size_t first_station, size_t last_station) const
+    unsigned CountMuonStationsWithHits(int first_station, int last_station) const
     {
         static const std::map<int, std::vector<bool>> masks = {
             { MuonSubdetId::DT, { false, false, false, false } },
@@ -429,14 +433,19 @@ private:
             { MuonSubdetId::RPC, { false, false, false, false } },
         };
 
+        const size_t first_station_index = GetStationIndex(first_station, true);
+        const size_t last_station_index = GetStationIndex(last_station, true);
         unsigned cnt = 0;
-        for(unsigned n = first_station; n <= last_station; ++n) {
+        for(size_t n = first_station_index; n <= last_station_index; ++n) {
             for(const auto& hit : n_hits) {
                 if(!masks.at(hit.first).at(n) && hit.second.at(n) > 0) ++cnt;
             }
         }
         return cnt;
     }
+
+    private:
+    CountMap n_matches, n_hits;
 };
 
 enum class CellObjectType { PfCand_electron, PfCand_muon, PfCand_chargedHadron, PfCand_neutralHadron,
@@ -1127,32 +1136,37 @@ private:
                     get(muon_rel_pfEcalEnergy) = getValueNorm(muons.at(index_muon).pfEcalEnergy() /
                         muons.at(index_muon).polarP4().pt(), 0.2273f, 0.4865f);
                 }
-                MuonHitMatchV2 muon_hit_match;
-                muon_hit_match.fillTensor(get, muons.at(index_muon));
-                // get(muon_n_matches_DT_1) = getValueLinear(n_matches.at(MuonSubdetId::DT).at(0), 0, 2, true)
-                // get(muon_n_matches_DT_2) = getValueLinear(tau.muon_n_matches_DT_2.at(idx), 0, 2, true)
-                // get(muon_n_matches_DT_3) = getValueLinear(tau.muon_n_matches_DT_3.at(idx), 0, 2, true)
-                // get(muon_n_matches_DT_4) = getValueLinear(tau.muon_n_matches_DT_4.at(idx), 0, 2, true)
-                // get(muon_n_matches_CSC_1) = getValueLinear(tau.muon_n_matches_CSC_1.at(idx), 0, 6, true)
-                // get(muon_n_matches_CSC_2) = getValueLinear(tau.muon_n_matches_CSC_2.at(idx), 0, 2, true)
-                // get(muon_n_matches_CSC_3) = getValueLinear(tau.muon_n_matches_CSC_3.at(idx), 0, 2, true)
-                // get(muon_n_matches_CSC_4) = getValueLinear(tau.muon_n_matches_CSC_4.at(idx), 0, 2, true)
-                // get(muon_n_matches_RPC_1) = getValueLinear(tau.muon_n_matches_RPC_1.at(idx), 0, 7, true)
-                // get(muon_n_matches_RPC_2) = getValueLinear(tau.muon_n_matches_RPC_2.at(idx), 0, 6, true)
-                // get(muon_n_matches_RPC_3) = getValueLinear(tau.muon_n_matches_RPC_3.at(idx), 0, 4, true)
-                // get(muon_n_matches_RPC_4) = getValueLinear(tau.muon_n_matches_RPC_4.at(idx), 0, 4, true)
-                // get(muon_n_hits_DT_1) = getValueLinear(tau.muon_n_hits_DT_1.at(idx), 0, 12, true)
-                // get(muon_n_hits_DT_2) = getValueLinear(tau.muon_n_hits_DT_2.at(idx), 0, 12, true)
-                // get(muon_n_hits_DT_3) = getValueLinear(tau.muon_n_hits_DT_3.at(idx), 0, 12, true)
-                // get(muon_n_hits_DT_4) = getValueLinear(tau.muon_n_hits_DT_4.at(idx), 0, 8, true)
-                // get(muon_n_hits_CSC_1) = getValueLinear(tau.muon_n_hits_CSC_1.at(idx), 0, 24, true)
-                // get(muon_n_hits_CSC_2) = getValueLinear(tau.muon_n_hits_CSC_2.at(idx), 0, 12, true)
-                // get(muon_n_hits_CSC_3) = getValueLinear(tau.muon_n_hits_CSC_3.at(idx), 0, 12, true)
-                // get(muon_n_hits_CSC_4) = getValueLinear(tau.muon_n_hits_CSC_4.at(idx), 0, 12, true)
-                // get(muon_n_hits_RPC_1) = getValueLinear(tau.muon_n_hits_RPC_1.at(idx), 0, 4, true)
-                // get(muon_n_hits_RPC_2) = getValueLinear(tau.muon_n_hits_RPC_2.at(idx), 0, 4, true)
-                // get(muon_n_hits_RPC_3) = getValueLinear(tau.muon_n_hits_RPC_3.at(idx), 0, 2, true)
-                // get(muon_n_hits_RPC_4) = getValueLinear(tau.muon_n_hits_RPC_4.at(idx), 0, 2, true)
+
+                MuonHitMatchV2 hit_match(muons.at(index_muon));
+                static const std::map<int, std::pair<int, int>> muonMatchHitVars = {
+                    { MuonSubdetId::DT, { muon_n_matches_DT_1, muon_n_hits_DT_1 } },
+                    { MuonSubdetId::CSC, { muon_n_matches_CSC_1, muon_n_hits_CSC_1 } },
+                    { MuonSubdetId::RPC, { muon_n_matches_RPC_1, muon_n_hits_RPC_1 } }
+                };
+
+                static const std::map<int, std::vector<float>> muonMatchVarLimits = {
+                    { MuonSubdetId::DT, { 2, 2, 2, 2 } },
+                    { MuonSubdetId::CSC, { 6, 2, 2, 2 } },
+                    { MuonSubdetId::RPC, { 7, 6, 4, 4 } }
+                };
+
+                static const std::map<int, std::vector<float>> muonHitVarLimits = {
+                    { MuonSubdetId::DT, { 12, 12, 12, 8 } },
+                    { MuonSubdetId::CSC, { 24, 12, 12, 12 } },
+                    { MuonSubdetId::RPC, { 4, 4, 2, 2 } }
+                };
+
+                for(int subdet : hit_match.MuonHitMatchV2::ConsideredSubdets()) {
+                    const auto& matchHitVar = muonMatchHitVars.at(subdet);
+                    const auto& matchLimits = muonMatchVarLimits.at(subdet);
+                    const auto& hitLimits = muonHitVarLimits.at(subdet);
+                    for(int station = MuonHitMatchV2::first_station_id; station <= MuonHitMatchV2::last_station_id; ++station) {
+                        const unsigned n_matches = hit_match.NMatches(subdet, station);
+                        const unsigned n_hits = hit_match.NHits(subdet, station);
+                        get(matchHitVar.first + station - 1) = getValueLinear(n_matches, 0, matchLimits.at(station - 1), true);
+                        get(matchHitVar.second + station - 1) = getValueLinear(n_hits, 0, hitLimits.at(station - 1), true);
+                    }
+                }
             }
         }
         return inputs;
