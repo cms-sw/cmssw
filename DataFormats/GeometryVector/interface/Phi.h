@@ -58,7 +58,7 @@ namespace Geom {
     // There may be cases of ambiguities because of multiple possible
     // conversions, in which case explicit casts must be used.
     // The constructor provides range checking and normalization,
-    // e.g. the value of Pi(2*pi()+1) is 1
+    // e.g. the value of Phi(2*pi()+1) is 1
     Phi( const T1& val) : theValue(val) { normalize(theValue);}
 
     /// conversion operator makes transparent use possible.
