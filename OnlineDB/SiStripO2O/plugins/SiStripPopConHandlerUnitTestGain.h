@@ -193,7 +193,7 @@ namespace popcon{
 	  count++;
 	  //Generate Gains for det detid
 	  SiStripApvGain::InputVector inputApvGain;
-	  for(int apv=0; apv<it->second.nApvs; ++apv){
+	  for(int apv=0; apv<it->second.nApvs; ++(++apv)){
 	    
 	    float MeanTick = 555.;
 	    float RmsTick  = 55.;
@@ -210,7 +210,6 @@ namespace popcon{
 						   << std::endl; 	    
 	    inputApvGain.push_back(tick); //APV0
 	    inputApvGain.push_back(tick); //APV1
-	    apv++;
 	  }    
 	  
 	  
