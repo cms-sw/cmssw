@@ -19,43 +19,43 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 
 namespace edm {
-//
-// constants, enums and typedefs
-//
+  //
+  // constants, enums and typedefs
+  //
 
-//
-// static data member definitions
-//
+  //
+  // static data member definitions
+  //
 
-//
-// constructors and destructor
-//
+  //
+  // constructors and destructor
+  //
 
-// EventSetup::EventSetup(EventSetup const& rhs)
-// {
-//    // do actual copying here;
-// }
+  // EventSetup::EventSetup(EventSetup const& rhs)
+  // {
+  //    // do actual copying here;
+  // }
 
-//
-// assignment operators
-//
-// EventSetup const& EventSetup::operator=(EventSetup const& rhs)
-// {
-//   //An exception safe implementation is
-//   EventSetup temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+  //
+  // assignment operators
+  //
+  // EventSetup const& EventSetup::operator=(EventSetup const& rhs)
+  // {
+  //   //An exception safe implementation is
+  //   EventSetup temp(rhs);
+  //   swap(rhs);
+  //
+  //   return *this;
+  // }
 
-//
-// member functions
-//
-//
-// const member functions
-//
+  //
+  // member functions
+  //
+  //
+  // const member functions
+  //
 
-//
-// static member functions
-//
-}
+  //
+  // static member functions
+  //
+}  // namespace edm
