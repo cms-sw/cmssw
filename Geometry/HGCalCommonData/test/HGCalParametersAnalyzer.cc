@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,20 +10,22 @@
 
 class HGCalParametersAnalyzer : public edm::one::EDAnalyzer<> {
  public:
-  explicit HGCalParametersAnalyzer(const edm::ParameterSet&) {}
+  explicit HGCalParametersAnalyzer(const edm::ParameterSet&):
+    token_{esConsumes<PHGCalParameters, PHGCalParametersRcd>(edm::ESInputTag{})}
+  {}
   ~HGCalParametersAnalyzer() override {}
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
+ private:
+  edm::ESGetToken<PHGCalParameters, PHGCalParametersRcd> token_;
 };
 
 void HGCalParametersAnalyzer::analyze(const edm::Event& iEvent,
                                       const edm::EventSetup& iSetup) {
   edm::LogInfo("HGCalParametersAnalyzer") << "Here I am";
 
-  edm::ESHandle<PHGCalParameters> phgp;
-  iSetup.get<PHGCalParametersRcd>().get(phgp);
+  const auto& hgp = iSetup.getData(token_);
+  const auto* phgp = &hgp;
 
   std::cout << phgp->name_ << "\n";
   for (auto it : phgp->cellSize_) std::cout << it << ", ";
