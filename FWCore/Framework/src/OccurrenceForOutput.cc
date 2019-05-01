@@ -12,65 +12,44 @@
 
 namespace edm {
 
-  OccurrenceForOutput::OccurrenceForOutput(Principal const& p, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
-      provRecorder_(p, md, isAtEnd),
-      moduleCallingContext_(moduleCallingContext)
-  {
-  }
+  OccurrenceForOutput::OccurrenceForOutput(Principal const& p,
+                                           ModuleDescription const& md,
+                                           ModuleCallingContext const* moduleCallingContext,
+                                           bool isAtEnd)
+      : provRecorder_(p, md, isAtEnd), moduleCallingContext_(moduleCallingContext) {}
 
-  OccurrenceForOutput::~OccurrenceForOutput() {
-  }
+  OccurrenceForOutput::~OccurrenceForOutput() {}
 
-  void
-  OccurrenceForOutput::setConsumer(EDConsumerBase const* iConsumer) {
-    provRecorder_.setConsumer(iConsumer);
-  }
+  void OccurrenceForOutput::setConsumer(EDConsumerBase const* iConsumer) { provRecorder_.setConsumer(iConsumer); }
 
-  Principal const&
-  OccurrenceForOutput::principal() const {
-    return provRecorder_.principal();
-  }
+  Principal const& OccurrenceForOutput::principal() const { return provRecorder_.principal(); }
 
-  ProcessHistoryID const&
-  OccurrenceForOutput::processHistoryID() const {
-    return principal().processHistoryID();
-  }
+  ProcessHistoryID const& OccurrenceForOutput::processHistoryID() const { return principal().processHistoryID(); }
 
-  Provenance
-  OccurrenceForOutput::getProvenance(BranchID const& bid) const {
+  Provenance OccurrenceForOutput::getProvenance(BranchID const& bid) const {
     return provRecorder_.principal().getProvenance(bid, moduleCallingContext_);
   }
 
-  void
-  OccurrenceForOutput::getAllProvenance(std::vector<Provenance const*>& provenances) const {
+  void OccurrenceForOutput::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provRecorder_.principal().getAllProvenance(provenances);
   }
 
-  void
-  OccurrenceForOutput::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+  void OccurrenceForOutput::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
     provRecorder_.principal().getAllStableProvenance(provenances);
   }
 
-  ProcessHistory const&
-  OccurrenceForOutput::processHistory() const {
-    return provRecorder_.processHistory();
-  }
+  ProcessHistory const& OccurrenceForOutput::processHistory() const { return provRecorder_.processHistory(); }
 
-  size_t
-  OccurrenceForOutput::size() const {
-    return provRecorder_.principal().size();
-  }
+  size_t OccurrenceForOutput::size() const { return provRecorder_.principal().size(); }
 
-  BasicHandle
-  OccurrenceForOutput::getByToken(EDGetToken token, TypeID const& typeID) const {
+  BasicHandle OccurrenceForOutput::getByToken(EDGetToken token, TypeID const& typeID) const {
     auto result = provRecorder_.getByToken_(typeID, PRODUCT_TYPE, token, moduleCallingContext_);
     if (result.failedToGet()) {
       return result;
     }
-    if(!provRecorder_.isComplete() && result.wrapper()->isMergeable()) {
+    if (!provRecorder_.isComplete() && result.wrapper()->isMergeable()) {
       principal_get_adapter_detail::throwOnPrematureRead("RunOrLumi", typeID, token);
     }
     return result;
   }
-}
-
+}  // namespace edm

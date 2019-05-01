@@ -18,15 +18,14 @@ namespace edm {
     //OutputModuleDescription() : maxEvents_(-1) {}
     explicit OutputModuleDescription(BranchIDLists const& branchIDLists,
                                      int maxEvents = -1,
-                                     SubProcessParentageHelper const* subProcessParentageHelper = nullptr) :
-      branchIDLists_(&branchIDLists),
-      maxEvents_(maxEvents),
-      subProcessParentageHelper_(subProcessParentageHelper)
-    {}
+                                     SubProcessParentageHelper const* subProcessParentageHelper = nullptr)
+        : branchIDLists_(&branchIDLists),
+          maxEvents_(maxEvents),
+          subProcessParentageHelper_(subProcessParentageHelper) {}
     BranchIDLists const* branchIDLists_;
     int maxEvents_;
     SubProcessParentageHelper const* subProcessParentageHelper_;
   };
-}
+}  // namespace edm
 
 #endif

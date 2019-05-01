@@ -15,13 +15,12 @@ namespace edmtest {
   public:
     ESTestProducerA(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataA> produce(ESTestRecordA const&);
+
   private:
     int value_;
   };
 
-  ESTestProducerA::ESTestProducerA(edm::ParameterSet const&) : value_(0) {
-    setWhatProduced(this);
-  }
+  ESTestProducerA::ESTestProducerA(edm::ParameterSet const&) : value_(0) { setWhatProduced(this); }
 
   std::unique_ptr<ESTestDataA> ESTestProducerA::produce(ESTestRecordA const& rec) {
     ++value_;
@@ -34,13 +33,12 @@ namespace edmtest {
   public:
     ESTestProducerB(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataB> produce(ESTestRecordB const&);
+
   private:
     int value_;
   };
 
-  ESTestProducerB::ESTestProducerB(edm::ParameterSet const&) : value_(0) {
-    setWhatProduced(this);
-  }
+  ESTestProducerB::ESTestProducerB(edm::ParameterSet const&) : value_(0) { setWhatProduced(this); }
 
   std::unique_ptr<ESTestDataB> ESTestProducerB::produce(ESTestRecordB const& rec) {
     ++value_;
@@ -55,8 +53,8 @@ namespace edmtest {
     ESTestProducerBUsingHost(edm::ParameterSet const&);
     // Must use shared_ptr if using ReusableObjectHolder
     std::shared_ptr<ESTestDataB> produce(ESTestRecordB const&);
-  private:
 
+  private:
     using HostType = edm::ESProductHost<ESTestDataB,
                                         ESTestRecordC,
                                         ESTestRecordD,
@@ -68,32 +66,19 @@ namespace edmtest {
     edm::ReusableObjectHolder<HostType> holder_;
   };
 
-  ESTestProducerBUsingHost::ESTestProducerBUsingHost(edm::ParameterSet const&) {
-    setWhatProduced(this);
-  }
+  ESTestProducerBUsingHost::ESTestProducerBUsingHost(edm::ParameterSet const&) { setWhatProduced(this); }
 
   std::shared_ptr<ESTestDataB> ESTestProducerBUsingHost::produce(ESTestRecordB const& record) {
-
-    auto host = holder_.makeOrGet([]() {
-      return new HostType(100, 1000);
-    });
+    auto host = holder_.makeOrGet([]() { return new HostType(100, 1000); });
 
     // Test that the numberOfRecordTypes and index functions are working properly
-    if (host->numberOfRecordTypes() != 6 ||
-        host->index<ESTestRecordC>() != 0 ||
-        host->index<ESTestRecordD>() != 1 ||
-        host->index<ESTestRecordE>() != 2 ||
-        host->index<ESTestRecordF>() != 3 ||
-        host->index<ESTestRecordG>() != 4 ||
+    if (host->numberOfRecordTypes() != 6 || host->index<ESTestRecordC>() != 0 || host->index<ESTestRecordD>() != 1 ||
+        host->index<ESTestRecordE>() != 2 || host->index<ESTestRecordF>() != 3 || host->index<ESTestRecordG>() != 4 ||
         host->index<ESTestRecordH>() != 5) {
-
       throw cms::Exception("TestError") << "Either function numberOfRecordTypes or index returns incorrect value";
     }
 
-    host->ifRecordChanges<ESTestRecordC>(record,
-                                         [h=host.get()](auto const& rec) {
-      ++h->value();
-    });
+    host->ifRecordChanges<ESTestRecordC>(record, [h = host.get()](auto const& rec) { ++h->value(); });
 
     ++host->value();
     return host;
@@ -105,13 +90,12 @@ namespace edmtest {
   public:
     ESTestProducerC(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataC> produce(ESTestRecordC const&);
+
   private:
     int value_;
   };
 
-  ESTestProducerC::ESTestProducerC(edm::ParameterSet const&) : value_(0) {
-    setWhatProduced(this);
-  }
+  ESTestProducerC::ESTestProducerC(edm::ParameterSet const&) : value_(0) { setWhatProduced(this); }
 
   std::unique_ptr<ESTestDataC> ESTestProducerC::produce(ESTestRecordC const& rec) {
     ++value_;
@@ -124,13 +108,12 @@ namespace edmtest {
   public:
     ESTestProducerD(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataD> produce(ESTestRecordD const&);
+
   private:
     int value_;
   };
 
-  ESTestProducerD::ESTestProducerD(edm::ParameterSet const&) : value_(0) {
-    setWhatProduced(this);
-  }
+  ESTestProducerD::ESTestProducerD(edm::ParameterSet const&) : value_(0) { setWhatProduced(this); }
 
   std::unique_ptr<ESTestDataD> ESTestProducerD::produce(ESTestRecordD const& rec) {
     ++value_;
@@ -143,13 +126,12 @@ namespace edmtest {
   public:
     ESTestProducerE(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataE> produce(ESTestRecordE const&);
+
   private:
     int value_;
   };
 
-  ESTestProducerE::ESTestProducerE(edm::ParameterSet const&) : value_(0) {
-    setWhatProduced(this);
-  }
+  ESTestProducerE::ESTestProducerE(edm::ParameterSet const&) : value_(0) { setWhatProduced(this); }
 
   std::unique_ptr<ESTestDataE> ESTestProducerE::produce(ESTestRecordE const& rec) {
     ++value_;
@@ -162,13 +144,12 @@ namespace edmtest {
   public:
     ESTestProducerF(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataF> produce(ESTestRecordF const&);
+
   private:
     int value_;
   };
 
-  ESTestProducerF::ESTestProducerF(edm::ParameterSet const&) : value_(0) {
-    setWhatProduced(this);
-  }
+  ESTestProducerF::ESTestProducerF(edm::ParameterSet const&) : value_(0) { setWhatProduced(this); }
 
   std::unique_ptr<ESTestDataF> ESTestProducerF::produce(ESTestRecordF const& rec) {
     ++value_;
@@ -181,13 +162,12 @@ namespace edmtest {
   public:
     ESTestProducerG(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataG> produce(ESTestRecordG const&);
+
   private:
     int value_;
   };
 
-  ESTestProducerG::ESTestProducerG(edm::ParameterSet const&) : value_(0) {
-    setWhatProduced(this);
-  }
+  ESTestProducerG::ESTestProducerG(edm::ParameterSet const&) : value_(0) { setWhatProduced(this); }
 
   std::unique_ptr<ESTestDataG> ESTestProducerG::produce(ESTestRecordG const& rec) {
     ++value_;
@@ -200,13 +180,12 @@ namespace edmtest {
   public:
     ESTestProducerH(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataH> produce(ESTestRecordH const&);
+
   private:
     int value_;
   };
 
-  ESTestProducerH::ESTestProducerH(edm::ParameterSet const&) : value_(0) {
-    setWhatProduced(this);
-  }
+  ESTestProducerH::ESTestProducerH(edm::ParameterSet const&) : value_(0) { setWhatProduced(this); }
 
   std::unique_ptr<ESTestDataH> ESTestProducerH::produce(ESTestRecordH const& rec) {
     ++value_;
@@ -219,13 +198,12 @@ namespace edmtest {
   public:
     ESTestProducerI(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataI> produce(ESTestRecordI const&);
+
   private:
     int value_;
   };
 
-  ESTestProducerI::ESTestProducerI(edm::ParameterSet const&) : value_(0) {
-    setWhatProduced(this);
-  }
+  ESTestProducerI::ESTestProducerI(edm::ParameterSet const&) : value_(0) { setWhatProduced(this); }
 
   std::unique_ptr<ESTestDataI> ESTestProducerI::produce(ESTestRecordI const& rec) {
     ++value_;
@@ -238,13 +216,12 @@ namespace edmtest {
   public:
     ESTestProducerJ(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataJ> produce(ESTestRecordJ const&);
+
   private:
     int value_;
   };
 
-  ESTestProducerJ::ESTestProducerJ(edm::ParameterSet const&) : value_(0) {
-    setWhatProduced(this);
-  }
+  ESTestProducerJ::ESTestProducerJ(edm::ParameterSet const&) : value_(0) { setWhatProduced(this); }
 
   std::unique_ptr<ESTestDataJ> ESTestProducerJ::produce(ESTestRecordJ const& rec) {
     ++value_;
@@ -257,13 +234,12 @@ namespace edmtest {
   public:
     ESTestProducerK(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataK> produce(ESTestRecordK const&);
+
   private:
     int value_;
   };
 
-  ESTestProducerK::ESTestProducerK(edm::ParameterSet const&) : value_(0) {
-    setWhatProduced(this);
-  }
+  ESTestProducerK::ESTestProducerK(edm::ParameterSet const&) : value_(0) { setWhatProduced(this); }
 
   std::unique_ptr<ESTestDataK> ESTestProducerK::produce(ESTestRecordK const& rec) {
     ++value_;
@@ -277,14 +253,13 @@ namespace edmtest {
     ESTestProducerAZ(edm::ParameterSet const&);
     std::unique_ptr<ESTestDataA> produceA(ESTestRecordA const&);
     std::unique_ptr<ESTestDataZ> produceZ(ESTestRecordZ const&);
+
   private:
     int valueA_;
     int valueZ_;
   };
 
-  ESTestProducerAZ::ESTestProducerAZ(edm::ParameterSet const&) :
-    valueA_(0),
-    valueZ_(0) {
+  ESTestProducerAZ::ESTestProducerAZ(edm::ParameterSet const&) : valueA_(0), valueZ_(0) {
     setWhatProduced(this, &edmtest::ESTestProducerAZ::produceA, edm::es::Label("foo"));
     setWhatProduced(this, &edmtest::ESTestProducerAZ::produceZ, edm::es::Label("foo"));
   }
@@ -299,7 +274,7 @@ namespace edmtest {
     return std::make_unique<ESTestDataZ>(valueZ_);
   }
 
-}
+}  // namespace edmtest
 
 using namespace edmtest;
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerA);

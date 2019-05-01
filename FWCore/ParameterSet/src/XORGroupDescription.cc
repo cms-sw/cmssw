@@ -8,40 +8,25 @@
 
 namespace edm {
 
-  XORGroupDescription::
-  XORGroupDescription(ParameterDescriptionNode const& node_left,
-                      ParameterDescriptionNode const& node_right) :
-    node_left_(node_left.clone()),
-    node_right_(node_right.clone()) {
-  }
+  XORGroupDescription::XORGroupDescription(ParameterDescriptionNode const& node_left,
+                                           ParameterDescriptionNode const& node_right)
+      : node_left_(node_left.clone()), node_right_(node_right.clone()) {}
 
-  XORGroupDescription::
-  XORGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
-                      ParameterDescriptionNode const& node_right) :
-    node_left_(std::move(node_left)),
-    node_right_(node_right.clone()) {
-  }
+  XORGroupDescription::XORGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                           ParameterDescriptionNode const& node_right)
+      : node_left_(std::move(node_left)), node_right_(node_right.clone()) {}
 
-  XORGroupDescription::
-  XORGroupDescription(ParameterDescriptionNode const& node_left,
-                      std::unique_ptr<ParameterDescriptionNode> node_right) :
-    node_left_(node_left.clone()),
-    node_right_(std::move(node_right)) {
-  }
+  XORGroupDescription::XORGroupDescription(ParameterDescriptionNode const& node_left,
+                                           std::unique_ptr<ParameterDescriptionNode> node_right)
+      : node_left_(node_left.clone()), node_right_(std::move(node_right)) {}
 
-  XORGroupDescription::
-  XORGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
-                      std::unique_ptr<ParameterDescriptionNode> node_right) :
-    node_left_(std::move(node_left)),
-    node_right_(std::move(node_right)) {
-  }
+  XORGroupDescription::XORGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                                           std::unique_ptr<ParameterDescriptionNode> node_right)
+      : node_left_(std::move(node_left)), node_right_(std::move(node_right)) {}
 
-  void
-  XORGroupDescription::
-  checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                             std::set<ParameterTypes> & parameterTypes,
-                             std::set<ParameterTypes> & wildcardTypes) const {
-
+  void XORGroupDescription::checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+                                                       std::set<ParameterTypes>& parameterTypes,
+                                                       std::set<ParameterTypes>& wildcardTypes) const {
     std::set<std::string> labelsLeft;
     std::set<ParameterTypes> parameterTypesLeft;
     std::set<ParameterTypes> wildcardTypesLeft;
@@ -62,30 +47,24 @@ namespace edm {
     wildcardTypes.insert(wildcardTypesLeft.begin(), wildcardTypesLeft.end());
   }
 
-  void
-  XORGroupDescription::
-  validate_(ParameterSet & pset,
-            std::set<std::string> & validatedLabels,
-            bool optional) const {
-
+  void XORGroupDescription::validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const {
     int nExistLeft = node_left_->howManyXORSubNodesExist(pset);
     int nExistRight = node_right_->howManyXORSubNodesExist(pset);
     int nTotal = nExistLeft + nExistRight;
 
-    if (nTotal == 0 && optional) return;
+    if (nTotal == 0 && optional)
+      return;
 
     if (nTotal > 1) {
       throwMoreThanOneParameter();
     }
 
     if (nExistLeft == 1) {
-      node_left_->validate(pset, validatedLabels, false);      
-    }
-    else if (nExistRight == 1) {
+      node_left_->validate(pset, validatedLabels, false);
+    } else if (nExistRight == 1) {
       node_right_->validate(pset, validatedLabels, false);
-    }
-    else if (nTotal == 0) {
-      node_left_->validate(pset, validatedLabels, false);      
+    } else if (nTotal == 0) {
+      node_left_->validate(pset, validatedLabels, false);
 
       // When missing parameters get inserted, both nodes could
       // be affected so we have to recheck both nodes.
@@ -99,22 +78,14 @@ namespace edm {
     }
   }
 
-  void
-  XORGroupDescription::
-  writeCfi_(std::ostream & os,
-            bool & startWithComma,
-            int indentation,
-            bool & wroteSomething) const {
+  void XORGroupDescription::writeCfi_(std::ostream& os,
+                                      bool& startWithComma,
+                                      int indentation,
+                                      bool& wroteSomething) const {
     node_left_->writeCfi(os, startWithComma, indentation, wroteSomething);
   }
 
-  void
-  XORGroupDescription::
-  print_(std::ostream & os,
-         bool optional,
-         bool writeToCfi,
-         DocFormatHelper & dfh) const {
-
+  void XORGroupDescription::print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const {
     if (dfh.parent() == DocFormatHelper::XOR) {
       dfh.decrementCounter();
       node_left_->print(os, false, true, dfh);
@@ -123,26 +94,27 @@ namespace edm {
     }
 
     if (dfh.pass() == 1) {
-
       dfh.indent(os);
       os << "XOR group:";
 
       if (dfh.brief()) {
+        if (optional)
+          os << " optional";
 
-        if (optional)  os << " optional";
-
-        if (!writeToCfi) os << " (do not write to cfi)";
+        if (!writeToCfi)
+          os << " (do not write to cfi)";
 
         os << " see Section " << dfh.section() << "." << dfh.counter() << "\n";
       }
       // not brief
       else {
-
         os << "\n";
         dfh.indent2(os);
 
-        if (optional)  os << "optional";
-        if (!writeToCfi) os << " (do not write to cfi)";
+        if (optional)
+          os << "optional";
+        if (!writeToCfi)
+          os << " (do not write to cfi)";
         if (optional || !writeToCfi) {
           os << "\n";
           dfh.indent2(os);
@@ -151,22 +123,14 @@ namespace edm {
         os << "see Section " << dfh.section() << "." << dfh.counter() << "\n";
 
         if (!comment().empty()) {
-          DocFormatHelper::wrapAndPrintText(os,
-                                            comment(),
-                                            dfh.startColumn2(),
-                                            dfh.commentWidth());
+          DocFormatHelper::wrapAndPrintText(os, comment(), dfh.startColumn2(), dfh.commentWidth());
         }
         os << "\n";
       }
     }
   }
 
-  void
-  XORGroupDescription::
-  printNestedContent_(std::ostream & os,
-                      bool optional,
-                      DocFormatHelper & dfh) const {
-
+  void XORGroupDescription::printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& dfh) const {
     if (dfh.parent() == DocFormatHelper::XOR) {
       dfh.decrementCounter();
       node_left_->printNestedContent(os, false, dfh);
@@ -184,16 +148,15 @@ namespace edm {
     std::string newSection = ss.str();
 
     printSpaces(os, indentation);
-    os << "Section " << newSection
-       << " XOR group description:\n";
+    os << "Section " << newSection << " XOR group description:\n";
     printSpaces(os, indentation);
     if (optional) {
       os << "This optional XOR group requires exactly one or none of the following to be in the PSet\n";
-    }
-    else {
+    } else {
       os << "This XOR group requires exactly one of the following to be in the PSet\n";
     }
-    if (!dfh.brief()) os << "\n";
+    if (!dfh.brief())
+      os << "\n";
 
     DocFormatHelper new_dfh(dfh);
     new_dfh.init();
@@ -217,53 +180,39 @@ namespace edm {
     node_right_->printNestedContent(os, false, new_dfh);
   }
 
-  bool
-  XORGroupDescription::
-  exists_(ParameterSet const& pset) const {
-    int nTotal = node_left_->howManyXORSubNodesExist(pset) +
-                 node_right_->howManyXORSubNodesExist(pset);
+  bool XORGroupDescription::exists_(ParameterSet const& pset) const {
+    int nTotal = node_left_->howManyXORSubNodesExist(pset) + node_right_->howManyXORSubNodesExist(pset);
     return nTotal == 1;
   }
 
-  bool
-  XORGroupDescription::
-  partiallyExists_(ParameterSet const& pset) const {
-    return exists(pset);
+  bool XORGroupDescription::partiallyExists_(ParameterSet const& pset) const { return exists(pset); }
+
+  int XORGroupDescription::howManyXORSubNodesExist_(ParameterSet const& pset) const {
+    return node_left_->howManyXORSubNodesExist(pset) + node_right_->howManyXORSubNodesExist(pset);
   }
 
-  int
-  XORGroupDescription::
-  howManyXORSubNodesExist_(ParameterSet const& pset) const {
-    return node_left_->howManyXORSubNodesExist(pset) +
-           node_right_->howManyXORSubNodesExist(pset);
-  }
-
-  void
-  XORGroupDescription::
-  throwMoreThanOneParameter() const {
+  void XORGroupDescription::throwMoreThanOneParameter() const {
     // Need to expand this error message to print more information
     // I guess I need to print out the entire node structure of
     // of the xor node and all the nodes it contains.
     throw edm::Exception(errors::LogicError)
-      << "Exactly one parameter can exist in a ParameterSet from a list of\n"
-      << "parameters described by an \"xor\" operator in a ParameterSetDescription.\n"
-      << "This rule also applies in a more general sense to the other types\n"
-      << "of nodes that can appear within a ParameterSetDescription.  Only one\n"
-      << "can pass validation as \"existing\".\n";
+        << "Exactly one parameter can exist in a ParameterSet from a list of\n"
+        << "parameters described by an \"xor\" operator in a ParameterSetDescription.\n"
+        << "This rule also applies in a more general sense to the other types\n"
+        << "of nodes that can appear within a ParameterSetDescription.  Only one\n"
+        << "can pass validation as \"existing\".\n";
   }
 
-  void
-  XORGroupDescription::
-  throwAfterValidation() const {
+  void XORGroupDescription::throwAfterValidation() const {
     // Need to expand this error message to print more information
     // I guess I need to print out the entire node structure of
     // of the xor node and all the nodes it contains.
     throw edm::Exception(errors::LogicError)
-      << "Exactly one parameter can exist in a ParameterSet from a list of\n"
-      << "parameters described by an \"xor\" operator in a ParameterSetDescription.\n"
-      << "This rule also applies in a more general sense to the other types\n"
-      << "of nodes that can appear within a ParameterSetDescription.  Only one\n"
-      << "can pass validation as \"existing\".  This error has occurred after an\n"
-      << "attempt to insert missing parameters to fix the problem.\n";
+        << "Exactly one parameter can exist in a ParameterSet from a list of\n"
+        << "parameters described by an \"xor\" operator in a ParameterSetDescription.\n"
+        << "This rule also applies in a more general sense to the other types\n"
+        << "of nodes that can appear within a ParameterSetDescription.  Only one\n"
+        << "can pass validation as \"existing\".  This error has occurred after an\n"
+        << "attempt to insert missing parameters to fix the problem.\n";
   }
-}
+}  // namespace edm

@@ -31,21 +31,17 @@
 namespace edm::eventsetup {
   struct ComponentDescription;
 
-  class ESRecordsToProxyIndices
-  {
-
+  class ESRecordsToProxyIndices {
   public:
     ESRecordsToProxyIndices(std::vector<EventSetupRecordKey> iRecords);
-    
+
     // ---------- const member functions ---------------------
     ///If the index is not found, returns missingProxyIndex()
     ESProxyIndex indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
 
     ComponentDescription const* component(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
-    
-    static constexpr ESProxyIndex missingProxyIndex() noexcept {
-      return ESProxyIndex{std::numeric_limits<int>::max()};
-    }
+
+    static constexpr ESProxyIndex missingProxyIndex() noexcept { return ESProxyIndex{std::numeric_limits<int>::max()}; }
     static constexpr ESRecordIndex missingRecordIndex() noexcept {
       return ESRecordIndex{std::numeric_limits<int>::max()};
     }
@@ -60,7 +56,6 @@ namespace edm::eventsetup {
                                   std::vector<ComponentDescription const*> const& iComponents);
 
   private:
-
     // ---------- member data --------------------------------
     std::vector<EventSetupRecordKey> recordKeys_;
     //for each item in recordKeys_ this holds the index to the first
@@ -70,8 +65,7 @@ namespace edm::eventsetup {
     std::vector<unsigned int> recordOffsets_;
     std::vector<DataKey> dataKeys_;
     std::vector<ComponentDescription const*> components_;
-
   };
 
-}
+}  // namespace edm::eventsetup
 #endif
