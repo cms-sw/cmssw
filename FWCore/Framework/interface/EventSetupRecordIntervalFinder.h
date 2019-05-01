@@ -33,6 +33,8 @@ namespace edm {
   class EventSetupRecordIntervalFinder {
   public:
     EventSetupRecordIntervalFinder() : intervals_() {}
+    EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder&) = delete;
+    const EventSetupRecordIntervalFinder& operator=(const EventSetupRecordIntervalFinder&) = delete;
     virtual ~EventSetupRecordIntervalFinder() noexcept(false);
 
     // ---------- const member functions ---------------------
@@ -47,6 +49,14 @@ namespace edm {
       */
     const ValidityInterval& findIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&);
 
+    void resetInterval(const eventsetup::EventSetupRecordKey&);
+
+    bool legacyESSource() const { return isLegacyESSource(); }
+
+    bool legacyOutOfValidityInterval(const eventsetup::EventSetupRecordKey& key, const IOVSyncValue& syncValue) const {
+      return isLegacyOutOfValidityInterval(key, syncValue);
+    }
+
     void setDescriptionForFinder(const eventsetup::ComponentDescription& iDescription) { description_ = iDescription; }
 
   protected:
@@ -60,14 +70,21 @@ namespace edm {
     void findingRecordWithKey(const eventsetup::EventSetupRecordKey&);
 
   private:
-    EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder&) = delete;  // stop default
+    virtual void doResetInterval(const eventsetup::EventSetupRecordKey&);
 
-    const EventSetupRecordIntervalFinder& operator=(const EventSetupRecordIntervalFinder&) = delete;  // stop default
+    // Should be overridden in all ESSources at the time the ESSource is
+    // upgraded to support concurrent IOVs.
+    virtual bool isLegacyESSource() const;
+
+    // Should only be overridden by DependentRecordIntervalFinder and
+    // IntersectingIOVRecordIntervalFinder. Other ESSources should not
+    // need to override this.
+    virtual bool isLegacyOutOfValidityInterval(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&) const;
 
     /** override this method if you need to delay setting what records you will be using until after all modules are loaded*/
     virtual void delaySettingRecords();
     // ---------- member data --------------------------------
-    typedef std::map<eventsetup::EventSetupRecordKey, ValidityInterval> Intervals;
+    using Intervals = std::map<eventsetup::EventSetupRecordKey, ValidityInterval>;
     Intervals intervals_;
 
     eventsetup::ComponentDescription description_;

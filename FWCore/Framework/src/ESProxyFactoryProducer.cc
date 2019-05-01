@@ -60,11 +60,13 @@ namespace edm {
   //
   // member functions
   //
-  void ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord, KeyedProxies& iProxies) {
+  void ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
+                                               KeyedProxies& iProxies,
+                                               unsigned int iovIndex) {
     typedef Record2Factories::iterator Iterator;
     std::pair<Iterator, Iterator> range = record2Factories_.equal_range(iRecord);
     for (Iterator it = range.first; it != range.second; ++it) {
-      std::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy().release());
+      std::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy(iovIndex).release());
       if (nullptr != proxy.get()) {
         iProxies.push_back(KeyedProxies::value_type((*it).second.key_, proxy));
       }
@@ -97,16 +99,4 @@ namespace edm {
     record2Factories_.insert(Record2Factories::value_type(iRecord, std::move(info)));
   }
 
-  void ESProxyFactoryProducer::newInterval(const EventSetupRecordKey& iRecordType,
-                                           const ValidityInterval& /*iInterval*/) {
-    invalidateProxies(iRecordType);
-  }
-
-  //
-  // const member functions
-  //
-
-  //
-  // static member functions
-  //
 }  // namespace edm

@@ -33,6 +33,8 @@
 
 // forward declarations
 namespace edm {
+  class ActivityRegistry;
+  class EventSetupImpl;
   class EventSetupRecordIntervalFinder;
 
   namespace eventsetup {
@@ -45,17 +47,28 @@ namespace edm {
 
     class EventSetupRecordProvider {
     public:
-      typedef std::map<DataKey, ComponentDescription> DataToPreferredProviderMap;
+      enum class IntervalStatus { NotInitializedForSyncValue, Invalid, NewInterval, UpdateIntervalEnd, SameInterval };
 
-      EventSetupRecordProvider(EventSetupRecordKey const& iKey);
+      using DataToPreferredProviderMap = std::map<DataKey, ComponentDescription>;
+
+      EventSetupRecordProvider(EventSetupRecordKey const& iKey,
+                               ActivityRegistry const*,
+                               unsigned int nConcurrentIOVs = 1);
+
+      EventSetupRecordProvider(EventSetupRecordProvider const&) = delete;
+      EventSetupRecordProvider const& operator=(EventSetupRecordProvider const&) = delete;
 
       // ---------- const member functions ---------------------
+
+      unsigned int nConcurrentIOVs() const { return nConcurrentIOVs_; }
 
       ValidityInterval const& validityInterval() const { return validityInterval_; }
       EventSetupRecordKey const& key() const { return key_; }
 
-      EventSetupRecordImpl const& record() const { return record_; }
-      EventSetupRecordImpl& record() { return record_; }
+      // Returns a reference for the first of the allowed concurrent IOVs.
+      // There is always at least one IOV allowed. Intended for cases where
+      // you only need one of them and don't care which one you get.
+      EventSetupRecordImpl const& firstRecordImpl() const;
 
       ///Returns the list of Records the provided Record depends on (usually none)
       std::set<EventSetupRecordKey> dependentRecords() const;
@@ -77,16 +90,25 @@ namespace edm {
 
       void resetProxyProvider(ParameterSetIDHolder const&, std::shared_ptr<DataProxyProvider> const&);
 
-      void addRecordTo(EventSetupProvider&);
-      void addRecordToIfValid(EventSetupProvider&, IOVSyncValue const&);
-
       void add(std::shared_ptr<DataProxyProvider>);
       ///For now, only use one finder
       void addFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
+
+      ///Intended for use only in unit tests
       void setValidityInterval(ValidityInterval const&);
 
-      ///sets interval to this time and returns true if have a valid interval for time
+      void initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier);
+      void continueIOV(bool newEventSetupImpl);
+      void endIOV(unsigned int iovIndex);
+      void initializeForNewSyncValue();
+
+      bool legacyESSourceOutOfValidityInterval(IOVSyncValue const&) const;
+
+      ///sets interval for this time and returns true if have a valid interval for time
       bool setValidityIntervalFor(IOVSyncValue const&);
+
+      bool newIntervalForAnySubProcess() const { return newIntervalForAnySubProcess_; }
+      void setNewIntervalForAnySubProcess(bool value) { newIntervalForAnySubProcess_ = value; }
 
       ///If the provided Record depends on other Records, here are the dependent Providers
       void setDependentProviders(std::vector<std::shared_ptr<EventSetupRecordProvider>> const&);
@@ -102,11 +124,15 @@ namespace edm {
       std::shared_ptr<EventSetupRecordIntervalFinder>& finder() { return get_underlying_safe(finder_); }
 
       void getReferencedESProducers(
-          std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers);
+          std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers) const;
 
       void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) const;
 
       void resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap);
+
+      void setEventSetupImpl(EventSetupImpl* value) { eventSetupImpl_ = value; }
+
+      IntervalStatus intervalStatus() const { return intervalStatus_; }
 
     protected:
       void addProxiesToRecordHelper(edm::propagate_const<std::shared_ptr<DataProxyProvider>>& dpp,
@@ -114,7 +140,6 @@ namespace edm {
         addProxiesToRecord(get_underlying_safe(dpp), mp);
       }
       void addProxiesToRecord(std::shared_ptr<DataProxyProvider>, DataToPreferredProviderMap const&);
-      void cacheReset();
 
       std::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
         std::swap(iNew, finder());
@@ -122,23 +147,28 @@ namespace edm {
       }
 
     private:
-      EventSetupRecordProvider(EventSetupRecordProvider const&) = delete;  // stop default
-
-      EventSetupRecordProvider const& operator=(EventSetupRecordProvider const&) = delete;  // stop default
-
-      void resetTransients();
-      bool checkResetTransients();
       // ---------- member data --------------------------------
-      EventSetupRecordImpl record_;
-      EventSetupRecordKey const key_;
+      const EventSetupRecordKey key_;
+      const unsigned int nConcurrentIOVs_;
+
+      // This holds the interval most recently initialized with a call to
+      // eventSetupForInstance. A particular EventSetupRecordImpl in flight
+      // might contain an older interval.
       ValidityInterval validityInterval_;
+      IntervalStatus intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
+      bool newIntervalForAnySubProcess_ = false;
+      bool hasLegacyESSource_ = false;
+
+      EventSetupImpl* eventSetupImpl_ = nullptr;
+
+      std::vector<edm::propagate_const<std::unique_ptr<EventSetupRecordImpl>>> recordImpls_;
+      EventSetupRecordImpl const* recordImpl_ = nullptr;
+
       edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
       std::vector<edm::propagate_const<std::shared_ptr<DataProxyProvider>>> providers_;
       std::unique_ptr<std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>>
           multipleFinders_;
-      bool lastSyncWasBeginOfRun_;
     };
   }  // namespace eventsetup
 }  // namespace edm
-
 #endif

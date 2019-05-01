@@ -61,11 +61,8 @@ namespace edm {
             wasCalledForThisRecord_(false),
             decorator_(iDec) {}
 
-      // ---------- const member functions ---------------------
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
+      Callback(const Callback&) = delete;
+      const Callback& operator=(const Callback&) = delete;
 
       void operator()(const TRecord& iRecord) {
         if (!wasCalledForThisRecord_) {
@@ -102,14 +99,15 @@ namespace edm {
       unsigned int transitionID() const { return id_; }
       ESProxyIndex const* getTokenIndices() const { return producer_->getTokenIndices(id_); }
 
+      T* get() { return producer_.get(); }
+      method_type method() const { return method_; }
+      TDecorator const& decorator() const { return decorator_; }
+
     private:
-      Callback(const Callback&) = delete;  // stop default
-
-      const Callback& operator=(const Callback&) = delete;  // stop default
-
       std::array<void*, produce::size<TReturn>::value> proxyData_;
       edm::propagate_const<T*> producer_;
       method_type method_;
+      // This transition id identifies which setWhatProduced call this Callback is associated with
       unsigned int id_;
       bool wasCalledForThisRecord_;
       TDecorator decorator_;

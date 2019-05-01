@@ -1,11 +1,11 @@
-#ifndef Framework_ProxyFactoryTemplate_h
-#define Framework_ProxyFactoryTemplate_h
+#ifndef FWCore_Framework_ProxyFactoryTemplate_h
+#define FWCore_Framework_ProxyFactoryTemplate_h
 // -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ProxyFactoryTemplate
 //
-/**\class ProxyFactoryTemplate ProxyFactoryTemplate.h FWCore/Framework/interface/ProxyFactoryTemplate.h
+/**\class edm::eventsetup::ProxyFactoryTemplate
 
  Description: <one line class summary>
 
@@ -26,38 +26,27 @@
 #include "FWCore/Framework/interface/ProxyFactoryBase.h"
 #include "FWCore/Framework/interface/DataKey.h"
 
-// forward declarations
 namespace edm {
   namespace eventsetup {
+
+    class DataProxy;
 
     template <class T>
     class ProxyFactoryTemplate : public ProxyFactoryBase {
     public:
-      typedef typename T::record_type record_type;
+      using RecordType = typename T::record_type;
 
-      ProxyFactoryTemplate() {}
-      //virtual ~ProxyFactoryTemplate();
+      ProxyFactoryTemplate() = default;
 
-      // ---------- const member functions ---------------------
-      virtual std::unique_ptr<DataProxy> makeProxy() const { return std::make_unique<T>(); }
+      ProxyFactoryTemplate(const ProxyFactoryTemplate&) = delete;
+      const ProxyFactoryTemplate& operator=(const ProxyFactoryTemplate&) = delete;
 
-      virtual DataKey makeKey(const std::string& iName) const {
+      std::unique_ptr<DataProxy> makeProxy(unsigned int) override { return std::make_unique<T>(); }
+
+      DataKey makeKey(const std::string& iName) const override {
         return DataKey(DataKey::makeTypeTag<typename T::value_type>(), iName.c_str());
       }
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-
-    private:
-      ProxyFactoryTemplate(const ProxyFactoryTemplate&);  // stop default
-
-      const ProxyFactoryTemplate& operator=(const ProxyFactoryTemplate&);  // stop default
-
-      // ---------- member data --------------------------------
     };
-
   }  // namespace eventsetup
 }  // namespace edm
-
 #endif
