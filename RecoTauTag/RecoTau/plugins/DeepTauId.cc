@@ -565,7 +565,7 @@ public:
         desc.add<edm::InputTag>("pfcands", edm::InputTag("packedPFCandidates"));
         desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
         desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoAll"));
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/DeepTau2017v2p6_e2.pb");
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e2.pb");
         desc.add<bool>("mem_mapped", false);
         desc.add<unsigned>("version", 2);
 
