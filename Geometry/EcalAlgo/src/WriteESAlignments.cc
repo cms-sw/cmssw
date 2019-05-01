@@ -1,6 +1,6 @@
 #include "Geometry/EcalAlgo/interface/WriteESAlignments.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -8,22 +8,23 @@
 #include "CondCore/CondDB/interface/Serialization.h"
 
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 typedef WriteESAlignments WEA ;
 
 const unsigned int WEA::k_nA = EcalPreshowerGeometry::numberOfAlignments() ;
 
-WEA::~WriteESAlignments(){}
+WEA::WriteESAlignments(edm::ConsumesCollector&& cc):
+  geometryToken_{cc.esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})},
+  alignmentToken_{cc.esConsumes<Alignments, ESAlignmentRcd>(edm::ESInputTag{})}
+{}
 
-WEA::WriteESAlignments( const edm::EventSetup& eventSetup ,
-			const WEA::DVec&       alphaVec   ,
-			const WEA::DVec&       betaVec    ,
-			const WEA::DVec&       gammaVec   ,
-			const WEA::DVec&       xtranslVec ,
-			const WEA::DVec&       ytranslVec ,
-			const WEA::DVec&       ztranslVec  ) 
+void WEA::writeAlignments( const edm::EventSetup& eventSetup ,
+                           const WEA::DVec&       alphaVec   ,
+                           const WEA::DVec&       betaVec    ,
+                           const WEA::DVec&       gammaVec   ,
+                           const WEA::DVec&       xtranslVec ,
+                           const WEA::DVec&       ytranslVec ,
+                           const WEA::DVec&       ztranslVec  )
 {
    assert( alphaVec.size()   == k_nA ) ;
    assert( betaVec.size()    == k_nA ) ;
@@ -72,14 +73,12 @@ WEA::convert( const edm::EventSetup& eS ,
 	      const WEA::DVec&       z  ,
 	      WEA::AliVec&           va   ) 
 {
-   edm::ESHandle<CaloGeometry>       pG   ;
-   eS.get<CaloGeometryRecord>().get( pG ) ;
+   const auto& pG = eS.getData(geometryToken_);
 
-   const CaloSubdetectorGeometry* geom(pG->getSubdetectorGeometry( DetId::Ecal, EcalPreshower) ) ;
+   const CaloSubdetectorGeometry* geom(pG.getSubdetectorGeometry( DetId::Ecal, EcalPreshower) ) ;
 
-   edm::ESHandle<Alignments>  pA ;
-   eS.get<ESAlignmentRcd>().get( pA ) ;
-   const AliVec& vaPrev ( pA->m_align ) ;
+   const auto& pA = eS.getData(alignmentToken_);
+   const AliVec& vaPrev ( pA.m_align ) ;
 
    va.reserve( k_nA ) ;
    for( unsigned int i ( 0 ) ; i != k_nA ; ++i )
