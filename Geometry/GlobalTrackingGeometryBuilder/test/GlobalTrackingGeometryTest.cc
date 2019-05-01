@@ -47,10 +47,13 @@ private:
   void analyzeTracker(const GlobalTrackingGeometry* geo, const TrackerGeometry* tkGeometry);
   const std::string& myName() { return my_name; }
   std::string my_name;    
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
 };
 
 GlobalTrackingGeometryTest::GlobalTrackingGeometryTest( const edm::ParameterSet& /*iConfig*/)
- : my_name( "GlobalTrackingGeometryTest" ) {}
+  : my_name( "GlobalTrackingGeometryTest" ),
+    geometryToken_{esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>(edm::ESInputTag{})}
+ {}
 
 GlobalTrackingGeometryTest::~GlobalTrackingGeometryTest() {}
 
@@ -196,14 +199,13 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
 {
   std::cout << myName() << ": Analyzer..." << std::endl;
 
-  edm::ESHandle<GlobalTrackingGeometry> geo;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geo);     
+  const auto& geo = iSetup.getData(geometryToken_);
     
   DetId detId1(DetId::Tracker, 0);
   const TrackerGeometry* trackerGeometry = nullptr;
   std::cout << "Pointer to Tracker Geometry: ";
   try {
-    trackerGeometry = (const TrackerGeometry*) geo->slaveGeometry(detId1);
+    trackerGeometry = (const TrackerGeometry*) geo.slaveGeometry(detId1);
     std::cout << trackerGeometry << std::endl;
   } catch (...) {
     std::cout << "N/A" << std::endl;
@@ -213,7 +215,7 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   const MTDGeometry* mtdGeometry = nullptr;
   std::cout << "Pointer to MTD Geometry: ";
   try {
-    mtdGeometry = (const MTDGeometry*) geo->slaveGeometry(detId6);
+    mtdGeometry = (const MTDGeometry*) geo.slaveGeometry(detId6);
     std::cout << mtdGeometry << std::endl;
   } catch (...) {
     std::cout << "N/A" << std::endl;
@@ -223,7 +225,7 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   const DTGeometry* dtGeometry = nullptr;
   std::cout << "Pointer to DT Geometry: ";
   try {
-    dtGeometry = (const DTGeometry*) geo->slaveGeometry(detId2);
+    dtGeometry = (const DTGeometry*) geo.slaveGeometry(detId2);
     std::cout << dtGeometry << std::endl;
   } catch (...) {
     std::cout << "N/A" << std::endl;
@@ -233,7 +235,7 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   const CSCGeometry* cscGeometry = nullptr;
   std::cout << "Pointer to CSC Geometry: "; 
   try {
-    cscGeometry = (const CSCGeometry*) geo->slaveGeometry(detId3);
+    cscGeometry = (const CSCGeometry*) geo.slaveGeometry(detId3);
     std::cout << cscGeometry << std::endl;
   } catch (...) {
     std::cout << "N/A" << std::endl;
@@ -243,7 +245,7 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   const RPCGeometry* rpcGeometry = nullptr;
   std::cout << "Pointer to RPC Geometry: ";
   try {
-    rpcGeometry = (const RPCGeometry*) geo->slaveGeometry(detId4);
+    rpcGeometry = (const RPCGeometry*) geo.slaveGeometry(detId4);
     std::cout <<  rpcGeometry << std::endl;
   } catch (...) {
     std::cout << "N/A" << std::endl;
@@ -253,18 +255,18 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   const GEMGeometry* gemGeometry = nullptr;
   std::cout << "Pointer to GEM Geometry: ";
   try {
-    gemGeometry = (const GEMGeometry*) geo->slaveGeometry(detId5);
+    gemGeometry = (const GEMGeometry*) geo.slaveGeometry(detId5);
     std::cout <<  gemGeometry << std::endl;
   } catch (...) {
     std::cout << "N/A" << std::endl;
   }
 
-  if (cscGeometry) analyzeCSC(geo.product(), cscGeometry);
-  if (dtGeometry) analyzeDT(geo.product(), dtGeometry);
-  if (rpcGeometry) analyzeRPC(geo.product(), rpcGeometry);
-  if (gemGeometry) analyzeGEM(geo.product(), gemGeometry);
-  if (mtdGeometry) analyzeMTD(geo.product(), mtdGeometry);
-  if (trackerGeometry) analyzeTracker(geo.product(), trackerGeometry);
+  if (cscGeometry) analyzeCSC(&geo, cscGeometry);
+  if (dtGeometry) analyzeDT(&geo, dtGeometry);
+  if (rpcGeometry) analyzeRPC(&geo, rpcGeometry);
+  if (gemGeometry) analyzeGEM(&geo, gemGeometry);
+  if (mtdGeometry) analyzeMTD(&geo, mtdGeometry);
+  if (trackerGeometry) analyzeTracker(&geo, trackerGeometry);
 }
 
 //define this as a plug-in
