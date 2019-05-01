@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 import six
 
-process = cms.Process("testHGCalRecoLocal",eras.Phase2C2)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process("testHGCalRecoLocal",Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
