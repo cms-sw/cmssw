@@ -48,12 +48,16 @@ namespace pat {
     std::unique_ptr<const pat::MuonMvaEstimator> const& muonMvaEstimator() const {
       return muonMvaEstimator_;
     }
+    std::unique_ptr<const pat::MuonMvaEstimator> const& muonLowPtMvaEstimator() const {
+      return muonLowPtMvaEstimator_;
+    }
 
     std::unique_ptr<const pat::SoftMuonMvaEstimator> const& softMuonMvaEstimator() const {
       return softMuonMvaEstimator_;
     }
 
   private:
+    std::unique_ptr<const pat::MuonMvaEstimator> muonLowPtMvaEstimator_;
     std::unique_ptr<const pat::MuonMvaEstimator> muonMvaEstimator_;
     std::unique_ptr<const pat::SoftMuonMvaEstimator> softMuonMvaEstimator_;
   };
