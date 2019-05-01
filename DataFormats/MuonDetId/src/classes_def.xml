@@ -44,7 +44,7 @@
    <version ClassVersion="10" checksum="3587583837"/>
    <ioread sourceClass = "GEMDetId" version="[-11]" targetClass="GEMDetId" source="" target="">
     <![CDATA[
-      GEMDetId tmp(GEMDetId::newForm(newObj->rawId()));
+      GEMDetId tmp(GEMDetId::v12Form(newObj->rawId()));
       *newObj=tmp;
     ]]>
    </ioread>
