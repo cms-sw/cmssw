@@ -166,26 +166,21 @@ int CSCTMBData::UnpackTMB(const uint16_t *buf) {
   ///determine 2007 or 2006 version
   unsigned short int firmwareVersion=0;
   int Ntbins = 0 ;
-  int NHeaderFrames = 0; //WARNING in 5_0_X
   int NRPCtbins = 0; // =VB= number of RPC tbins  
   
   int b0cLine=0;///assumes that buf starts at the tmb data
                 ///this is not true if something is wrong in the data 
                 ///before TMB - then we skip the whole event
 
-  NHeaderFrames++; NHeaderFrames--;
-
   if (buf[b0cLine]==0xdb0c) {
     firmwareVersion=2007;
     Ntbins = buf[b0cLine+19]&0xF8;
     NRPCtbins = (buf[b0cLine+36]>>5)&0x1F; // =VB= get RPC tbins  
-    NHeaderFrames = buf[b0cLine+5]&0x3F; //WARNING in 5_0_X
   } 
   else if (buf[b0cLine]==0x6b0c) {
     firmwareVersion=2006;
     Ntbins =  buf[b0cLine+1]&0x1f ;
     NRPCtbins = Ntbins;
-    NHeaderFrames = buf[b0cLine+4]&0x1f; //WARNING in 5_0_X
   } 
   else {
     LogTrace("CSCTMBData|CSCRawToDigi") << "+++ Can't find b0C flag";
