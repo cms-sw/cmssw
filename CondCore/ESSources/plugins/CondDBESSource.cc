@@ -512,6 +512,9 @@ void CondDBESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& 
     edm::IOVSyncValue stop = doRefresh ? cond::time::limitedIOVSyncValue(iTime, timetype)
                                        : cond::time::toIOVSyncValue(recordValidity.second, timetype, false);
 
+    if (start == edm::IOVSyncValue::invalidIOVSyncValue() && stop != edm::IOVSyncValue::invalidIOVSyncValue()) {
+      start = edm::IOVSyncValue::beginOfTime();
+    }
     oInterval = edm::ValidityInterval(start, stop);
   }
 
@@ -524,7 +527,9 @@ void CondDBESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& 
 }
 
 //required by EventSetup System
-void CondDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) {
+void CondDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey,
+                                     KeyedProxies& aProxyList,
+                                     unsigned int /*iovIndex*/) {
   std::string recordname = iRecordKey.name();
 
   ProxyMap::const_iterator b = m_proxies.lower_bound(recordname);
@@ -542,13 +547,6 @@ void CondDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey&
       aProxyList.push_back(KeyedProxies::value_type(key, (*p).second->edmProxy()));
     }
   }
-}
-
-// required by the EventSetup System
-void CondDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
-                                 const edm::ValidityInterval&) {
-  //LogDebug ("CondDBESSource")<<"newInterval";
-  invalidateProxies(iRecordType);
 }
 
 // Fills tag collection from the given globaltag

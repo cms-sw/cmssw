@@ -7,17 +7,21 @@
 
 */
 
-#include "cppunit/extensions/HelperMacros.h"
+#include "FWCore/Framework/interface/DataProxyTemplate.h"
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
 #include "FWCore/Framework/interface/ProxyFactoryTemplate.h"
-#include "FWCore/Framework/interface/DataProxyTemplate.h"
 #include "FWCore/Framework/test/DummyData.h"
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-using edm::eventsetup::test::DummyData;
+#include "cppunit/extensions/HelperMacros.h"
+
+#include <memory>
+#include <string>
+
 using namespace edm::eventsetup;
 using edm::ESProxyFactoryProducer;
+using edm::eventsetup::test::DummyData;
 
 class DummyProxy : public DataProxyTemplate<DummyRecord, DummyData> {
 public:
@@ -26,8 +30,6 @@ public:
 protected:
   const value_type* make(const record_type&, const DataKey&) { return static_cast<const value_type*>(nullptr); }
   void invalidateCache() {}
-
-private:
 };
 
 class Test1Producer : public ESProxyFactoryProducer {
@@ -66,6 +68,8 @@ void testProxyfactor::registerProxyfactorytemplateTest() {
   EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
   CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
 
+  testProd.resizeKeyedProxiesVector(dummyRecordKey, 1);
+
   const DataProxyProvider::KeyedProxies& keyedProxies = testProd.keyedProxies(dummyRecordKey);
 
   CPPUNIT_ASSERT(keyedProxies.size() == 1);
@@ -76,6 +80,8 @@ void testProxyfactor::labelTest() {
   TestLabelProducer testProd;
   EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
   CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
+
+  testProd.resizeKeyedProxiesVector(dummyRecordKey, 1);
 
   const DataProxyProvider::KeyedProxies& keyedProxies = testProd.keyedProxies(dummyRecordKey);
 
@@ -96,6 +102,8 @@ void testProxyfactor::appendLabelTest() {
     EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
     CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
 
+    testProd.resizeKeyedProxiesVector(dummyRecordKey, 1);
+
     const DataProxyProvider::KeyedProxies& keyedProxies = testProd.keyedProxies(dummyRecordKey);
 
     CPPUNIT_ASSERT(keyedProxies.size() == 1);
@@ -109,6 +117,7 @@ void testProxyfactor::appendLabelTest() {
   EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
   CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
 
+  testProd.resizeKeyedProxiesVector(dummyRecordKey, 1);
   const DataProxyProvider::KeyedProxies& keyedProxies = testProd.keyedProxies(dummyRecordKey);
 
   CPPUNIT_ASSERT(keyedProxies.size() == 1);
