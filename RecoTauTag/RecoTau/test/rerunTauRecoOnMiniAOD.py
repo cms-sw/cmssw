@@ -33,7 +33,6 @@ print('\t Use Phase2 settings:', phase2)
 print('\t Output mode:', outMode)
 
 #####
-from Configuration.StandardSequences.Eras import eras
 era = eras.Run2_2018
 if phase2:
     era = eras.Phase2_timing

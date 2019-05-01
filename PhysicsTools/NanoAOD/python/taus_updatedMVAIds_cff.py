@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 ##################### Updated tau collection with MVA-based tau-Ids rerun #######
 # Used only in some eras
-from Configuration.StandardSequences.Eras import eras
 from RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi import *
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
 
