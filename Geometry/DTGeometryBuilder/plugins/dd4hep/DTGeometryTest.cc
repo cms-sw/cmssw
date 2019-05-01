@@ -23,18 +23,19 @@ public:
 
 private:  
   const string m_label;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> m_token;
 };
 
 DTGeometryTest::DTGeometryTest(const ParameterSet& iConfig)
-  : m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", ""))
+  : m_label(iConfig.getUntrackedParameter<string>("fromDataLabel", "")),
+    m_token(esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag{"", m_label}))
 {}
 
 void
 DTGeometryTest::analyze(const Event&, const EventSetup& iEventSetup)
 {
   LogVerbatim("Geometry") << "DTGeometryTest::analyze: " << m_label;
-  ESTransientHandle<DTGeometry> pDD;
-  iEventSetup.get<MuonGeometryRecord>().get(m_label, pDD);
+  ESTransientHandle<DTGeometry> pDD = iEventSetup.getTransientHandle(m_token);
   
   LogVerbatim("Geometry") << " Geometry node for DTGeom is  " << &(*pDD);   
   LogVerbatim("Geometry") << " I have " << pDD->detTypes().size()    << " detTypes";

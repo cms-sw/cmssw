@@ -69,6 +69,7 @@ private:
     thicknesses_.clear();
   }
   
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeometryToken_;
   edm::ESHandle<DTGeometry> dtGeometry_;
   FWGeometry                fwGeometry_;
   TFile*                    outFile_;
@@ -84,7 +85,8 @@ private:
 
 
 DTGeometryValidate::DTGeometryValidate(const edm::ParameterSet& iConfig)
-  : infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
+  : dtGeometryToken_{esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
+    infileName_(iConfig.getUntrackedParameter<string>("infileName", "cmsGeom10.root")),
     outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateDTGeometry.root")),
     tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6))
 {
@@ -95,7 +97,7 @@ DTGeometryValidate::DTGeometryValidate(const edm::ParameterSet& iConfig)
 void 
 DTGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  eventSetup.get<MuonGeometryRecord>().get(dtGeometry_);
+  dtGeometry_ = eventSetup.getHandle(dtGeometryToken_);
 
   if(dtGeometry_.isValid()) {
     LogVerbatim("DTGeometry") << "Validating DT chamber geometry";
