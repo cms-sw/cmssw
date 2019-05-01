@@ -688,7 +688,7 @@ class TauIDEmbedder(object):
                     "VVTight": 0.9859
                 }
             }
-            file_name = 'RecoTauTag/TrainingFiles/data/DeepTauId/DeepTau2017v2p6_e2.pb'
+            file_name = 'RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e2.pb'
             self.process.deepTau2017v2 = self.cms.EDProducer("DeepTauId",
                 electrons              = self.cms.InputTag('slimmedElectrons'),
                 muons                  = self.cms.InputTag('slimmedMuons'),
@@ -698,7 +698,7 @@ class TauIDEmbedder(object):
                 rho                    = self.cms.InputTag('fixedGridRhoAll'),
                 graph_file             = self.cms.string(file_name),
                 mem_mapped             = self.cms.bool(False),
-                version                = self.cms.uint32(1)
+                version                = self.cms.uint32(2)
             )
 
             self.processDeepProducer('deepTau2017v2', tauIDSources, workingPoints_)
