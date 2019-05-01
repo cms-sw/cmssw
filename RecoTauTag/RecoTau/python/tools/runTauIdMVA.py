@@ -9,7 +9,7 @@ class TauIDEmbedder(object):
 
     def __init__(self, process, cms, debug = False,
         updatedTauName = "slimmedTausNewID",
-        toKeep = ["2016v1", "newDM2016v1","deepTau2017v1","DPFTau_2016_v0"],
+        toKeep = ["2016v1", "newDM2016v1","deepTau2017v1", "deepTau2017v2","DPFTau_2016_v0"],
         tauIdDiscrMVA_trainings_run2_2017 = {
             'tauIdMVAIsoDBoldDMwLT2017' : "tauIdMVAIsoDBoldDMwLT2017",
         },
@@ -645,6 +645,60 @@ class TauIDEmbedder(object):
 
             self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v1)
             self.process.rerunMvaIsolationSequence += self.process.deepTau2017v1
+
+        if "deepTau2017v2" in self.toKeep:
+            print ("Adding DeepTau IDs")
+
+            workingPoints_ = {
+                "e": {
+                    "VVVLoose" : 0.96424,
+                    "VVLoose" : 0.98992,
+                    "VLoose" : 0.99574,
+                    "Loose": 0.99831,
+                    "Medium": 0.99868,
+                    "Tight": 0.99898,
+                    "VTight": 0.99911,
+                    "VVTight": 0.99918
+                },
+                "mu": {
+                    "VVVLoose" : 0.959619,
+                    "VVLoose" : 0.997687,
+                    "VLoose" : 0.999392,
+                    "Loose": 0.999755,
+                    "Medium": 0.999854,
+                    "Tight": 0.999886,
+                    "VTight": 0.999944,
+                    "VVTight": 0.9999971
+                },
+
+                "jet": {
+                    "VVVLoose" : 0.5329,
+                    "VVLoose" : 0.7645,
+                    "VLoose" : 0.8623,
+                    "Loose": 0.9140,
+                    "Medium": 0.9464,
+                    "Tight": 0.9635,
+                    "VTight": 0.9760,
+                    "VVTight": 0.9859
+                }
+            }
+            file_name = 'RecoTauTag/TrainingFiles/data/DeepTauId/DeepTau2017v2p6_e2.pb'
+            self.process.deepTau2017v2 = self.cms.EDProducer("DeepTauId",
+                electrons              = self.cms.InputTag('slimmedElectrons'),
+                muons                  = self.cms.InputTag('slimmedMuons'),
+                taus                   = self.cms.InputTag('slimmedTaus'),
+                pfcands                = self.cms.InputTag('packedPFCandidates'),
+                vertices               = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
+                rho                    = self.cms.InputTag('fixedGridRhoAll'),
+                graph_file             = self.cms.string(file_name),
+                mem_mapped             = self.cms.bool(False),
+                version                = self.cms.uint32(1)
+            )
+
+            self.processDeepProducer('deepTau2017v2', tauIDSources, workingPoints_)
+
+            self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v2)
+            self.process.rerunMvaIsolationSequence += self.process.deepTau2017v2
 
         if "DPFTau_2016_v0" in self.toKeep:
             print ("Adding DPFTau isolation (v0)")
