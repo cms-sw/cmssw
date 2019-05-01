@@ -12,6 +12,9 @@ from Configuration.Applications.ConfigBuilder import ConfigBuilder, defaultOptio
 import traceback
 from functools import reduce
 
+def checkModifier(era):
+    from FWCore.ParameterSet.Config import Modifier, ModifierChain
+    return isinstance( era, Modifier ) or isinstance( era, ModifierChain )
 
 def checkOptions():
     return
@@ -242,15 +245,14 @@ def OptionsFromItems(items):
     # If an "era" argument was supplied make sure it is one of the valid possibilities
     if options.era :
         from Configuration.StandardSequences.Eras import eras
-        from FWCore.ParameterSet.Config import Modifier, ModifierChain
         # Split the string by commas to check individual eras
         requestedEras = options.era.split(",")
         # Check that the entry is a valid era
         for eraName in requestedEras :
-            if not hasattr( eras, eraName ) : # Not valid, so print a helpful message
+            if not hasattr( eras, eraName ) or not checkModifier(getattr(eras,eraName)): # Not valid, so print a helpful message
                 validOptions="" # Create a stringified list of valid options to print to the user
                 for key in eras.__dict__ :
-                    if isinstance( eras.__dict__[key], Modifier ) or isinstance( eras.__dict__[key], ModifierChain ) :
+                    if checkModifier(eras.__dict__[key]):
                         if validOptions!="" : validOptions+=", " 
                         validOptions+="'"+key+"'"
                 raise Exception( "'%s' is not a valid option for '--era'. Valid options are %s." % (eraName, validOptions) )

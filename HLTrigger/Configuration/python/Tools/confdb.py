@@ -503,7 +503,9 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
   def addEras(self):
     if self.config.eras is None:
       return
-    self.data = re.sub(r'process = cms.Process\( *"\w+"', 'from Configuration.StandardSequences.Eras import eras\n\g<0>, '+', '.join('eras.' + era for era in self.config.eras.split(',')), self.data)
+    from Configuration.StandardSequences.Eras import eras
+    erasSplit = self.config.eras.split(',')
+    self.data = re.sub(r'process = cms.Process\( *"\w+"', '\n'.join(eras.pythonCfgLines[era] for era in erasSplit)+'\n\g<0>, '+', '.join(era for era in erasSplit), self.data)
 
   # select specific Eras
   def loadSetupCff(self):
