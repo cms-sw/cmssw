@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 import six
 
 process = cms.Process("testHGCalRecoLocal",eras.Phase2C2)

@@ -1,7 +1,7 @@
 import os
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process('PCL',eras.Run2_2017)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process('PCL',Run2_2017)
 
 # ----------------------------------------------------------------------
 process.load("FWCore.MessageLogger.MessageLogger_cfi")

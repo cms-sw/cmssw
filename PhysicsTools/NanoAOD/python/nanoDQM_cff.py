@@ -5,7 +5,6 @@ from PhysicsTools.NanoAOD.nanoDQM_cfi import nanoDQM
 from PhysicsTools.NanoAOD.nanoDQM_tools_cff import *
 
 ## Modify plots accordingly to era
-from Configuration.StandardSequences.Eras import eras
 _vplots80X = nanoDQM.vplots.clone()
 # Tau plots
 _tauPlots80X = cms.VPSet()

@@ -57,7 +57,6 @@ zcounting = DQMEDAnalyzer('ZCounting',
                                  )
 
 
-from Configuration.StandardSequences.Eras import eras
 
 eras.run2_HLTconditions_2016.toModify( zcounting, MuonTriggerNames = cms.vstring("HLT_IsoMu24_v*","HLT_IsoTkMu24_v*"),
                                     MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07",

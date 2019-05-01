@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process("GEMDIGI", eras.Phase2C2)
 
