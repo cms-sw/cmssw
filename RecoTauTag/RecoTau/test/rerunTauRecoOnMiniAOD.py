@@ -33,9 +33,11 @@ print('\t Use Phase2 settings:', phase2)
 print('\t Output mode:', outMode)
 
 #####
-era = eras.Run2_2018
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+era = Run2_2018
 if phase2:
-    era = eras.Phase2_timing
+    from Configuration.Eras.Era_Phase2_timing_cff import Phase2_timing
+    era = Phase2_timing
 process = cms.Process("TAURECO", era)
 # for CH reco
 process.load("Configuration.StandardSequences.MagneticField_cff")
