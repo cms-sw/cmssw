@@ -26,8 +26,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -49,10 +47,13 @@ class HGCGeometryTester : public edm::one::EDAnalyzer<> {
   void endJob() override {}
 
  private:
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
   bool square;
 };
 
-HGCGeometryTester::HGCGeometryTester(const edm::ParameterSet& iC) {
+HGCGeometryTester::HGCGeometryTester(const edm::ParameterSet& iC):
+  ddToken_{esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{})}
+{
   square = iC.getUntrackedParameter<bool>("SquareType", true);
 }
 
@@ -61,11 +62,10 @@ HGCGeometryTester::~HGCGeometryTester() {}
 // ------------ method called to produce the data  ------------
 void HGCGeometryTester::analyze(const edm::Event& iEvent,
                                 const edm::EventSetup& iSetup) {
-  edm::ESTransientHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get(pDD);
+  const auto& pDD = iSetup.getData(ddToken_);
 
   // parse the DD for sensitive volumes
-  DDExpandedView eview(*pDD);
+  DDExpandedView eview(pDD);
   std::map<std::string, std::pair<double, double> > svPars;
   do {
     const DDLogicalPart& logPart = eview.logicalPart();
