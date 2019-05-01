@@ -49,11 +49,6 @@ options.register('valEvents',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Filter on validation events")
-options.register('process',
-                 '',
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "Rename process if used")
 options.register('mps',
                  '',
                  VarParsing.VarParsing.multiplicity.list,
@@ -73,13 +68,6 @@ options.register('evtDisp',
 options.parseArguments()
 
 
-pname="Raw2Digi"
-if (options.process!=""):
-    pname=options.process
-#process = cms.Process(pname)
-
-#from Configuration.StandardSequences.Eras import eras
-#process = cms.Process(pname, eras.Run2_2017, eras.run2_GEM_2017)
 from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process('RECO',eras.Run2_2017,eras.run2_GEM_2017)
