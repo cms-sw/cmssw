@@ -101,10 +101,6 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
     detToF_F =std::unique_ptr<CTPPSToFDetector>(new CTPPSToFDetector(fToFNCellX,fToFNCellY,vToFCellWidth,fToFCellHeight,fToFPitchX,fToFPitchY,pos_tof,fTimeSigma)); 
     detToF_B =std::unique_ptr<CTPPSToFDetector>(new CTPPSToFDetector(fToFNCellX,fToFNCellY,vToFCellWidth,fToFCellHeight,fToFPitchX,fToFPitchY,pos_tof,fTimeSigma)); 
 //
-    PPSTools::fBeamMomentum=fBeamMomentum;
-    PPSTools::fBeamEnergy=fBeamEnergy;
-    PPSTools::fCrossingAngleBeam1=fCrossingAngleBeam1;
-    PPSTools::fCrossingAngleBeam2=fCrossingAngleBeam2;
 }
 CTPPSFastTrackingProducer::~CTPPSFastTrackingProducer()
 {
@@ -340,9 +336,12 @@ void CTPPSFastTrackingProducer::FastReco(int Direction,H_RecRPObject* station)
                 double  e = sqrt(partP*partP+PPSTools::ProtonMassSQ);
                 TLorentzVector p(px,py,pz,e);
                 // Invert the Lorentz boost made to take into account the crossing angle during simulation
-                if (fCrossAngleCorr) PPSTools::LorentzBoost(p,"MC");
+                if (fCrossAngleCorr) {
+                  PPSTools::LorentzBoost(p,"MC", {fCrossingAngleBeam1,
+                        fCrossingAngleBeam2,fBeamMomentum,fBeamEnergy});
+                }
                 //Getting the Xi and t (squared four momentum transferred) of the reconstructed track
-                PPSTools::Get_t_and_xi(const_cast<TLorentzVector*>(&p),t,xi);
+                PPSTools::Get_t_and_xi(const_cast<TLorentzVector*>(&p),t,xi, {fBeamMomentum,fBeamEnergy});
                 double pxx = p.Px(); double pyy = p.Py(); double pzz = p.Pz();
                 math::XYZVector momentum (pxx,pyy,pzz);
                 math::XYZPoint vertex (x0,y0,0);

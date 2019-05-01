@@ -47,10 +47,6 @@ HectorTransport::HectorTransport(const edm::ParameterSet & param, bool verbosity
          <<"             Bulding LHC Proton transporter based on HECTOR model\n"
          <<"=============================================================================\n";
     setBeamLine();
-    PPSTools::fBeamMomentum=fBeamMomentum;
-    PPSTools::fBeamEnergy=fBeamEnergy;
-    PPSTools::fCrossingAngleBeam1=fCrossingAngle_56;
-    PPSTools::fCrossingAngleBeam2=fCrossingAngle_45;
     fPPSRegionStart_56=m_b_ctpps_b;
     fPPSRegionStart_45=m_f_ctpps_f;
 }
@@ -88,7 +84,9 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
 
      // Apply Beam and Crossing Angle Corrections
      TLorentzVector* p_out = new TLorentzVector(px,py,pz,e);
-     PPSTools::LorentzBoost(*p_out,"LAB");
+     PPSTools::LorentzBoost(*p_out,"LAB", {fCrossingAngle_56 ,//Beam1
+           fCrossingAngle_45, //Beam2
+           fBeamMomentum,fBeamEnergy});
 
      ApplyBeamCorrection(*p_out);
 
