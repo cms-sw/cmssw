@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 # options.parseArguments()
 updatedTauName = "slimmedTausNewID"
 minimalOutput = True
-eventsToProcess = 1000
+eventsToProcess = 10
 nThreads = 2
 
 process = cms.Process('TauID')
@@ -34,6 +34,7 @@ tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
                     updatedTauName = updatedTauName,
                     toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
                                "deepTau2017v1",
+                               "deepTau2017v2",
                                "DPFTau_2016_v0",
                                # "DPFTau_2016_v1",
                                "againstEle2018",
