@@ -274,6 +274,8 @@ private:
   const bool useOverflowForRMS_;
   const bool dqmMode_;
   const std::string moduleDirectory_;
+
+  const int chargeCut_;
   
   // a vector to keep track which pointers should be deleted at the very end
   std::vector<TH1*> vDeleteObjects_;
@@ -389,6 +391,7 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
     useOverflowForRMS_(parSet_.getParameter<bool>("useOverflowForRMS")),
     dqmMode_(parSet_.getParameter<bool>("useInDqmMode")),
     moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput")),
+    chargeCut_(parSet_.getParameter<int>("chargeCut")),
     nTracks_(0),
     maxTracks_(parSet_.getParameter<unsigned long long>("maxTracks")),
     avalidator_(iConfig, consumesCollector())
@@ -1022,6 +1025,8 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   for (std::vector<TrackerValidationVariables::AVTrackStruct>::const_iterator itT = vTrackstruct.begin();	 
        itT != vTrackstruct.end();
        ++itT) {
+
+    if (itT->charge * chargeCut_ < 0) continue;
     
     if (maxTracks_ > 0 && nTracks_++ >= maxTracks_) break; //exit the loop after hitting the max number of tracks
     // Fill 1D track histos
