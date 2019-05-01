@@ -67,7 +67,8 @@
   </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="25">
+  <class name="pat::Muon"  ClassVersion="26">
+   <version ClassVersion="26" checksum="1156855644"/>
    <version ClassVersion="25" checksum="574733987"/>
    <version ClassVersion="24" checksum="2298704767"/>
    <version ClassVersion="23" checksum="3471390119"/>

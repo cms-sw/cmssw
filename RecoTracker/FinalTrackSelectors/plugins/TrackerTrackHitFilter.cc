@@ -29,7 +29,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 //for angle cut
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"

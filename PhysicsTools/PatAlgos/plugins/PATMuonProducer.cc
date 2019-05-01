@@ -62,8 +62,10 @@ PATMuonHeavyObjectCache::PATMuonHeavyObjectCache(const edm::ParameterSet& iConfi
 
   if (iConfig.getParameter<bool>("computeMuonMVA")) {
     edm::FileInPath mvaTrainingFile = iConfig.getParameter<edm::FileInPath>("mvaTrainingFile");
+    edm::FileInPath mvaLowPtTrainingFile = iConfig.getParameter<edm::FileInPath>("lowPtmvaTrainingFile");
     float mvaDrMax = iConfig.getParameter<double>("mvaDrMax");
     muonMvaEstimator_ = std::make_unique<MuonMvaEstimator>(mvaTrainingFile, mvaDrMax);
+    muonLowPtMvaEstimator_ = std::make_unique<MuonMvaEstimator>(mvaLowPtTrainingFile, mvaDrMax);
   }
 
   if (iConfig.getParameter<bool>("computeSoftMuonMVA")) {
@@ -651,7 +653,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       bool isRun2016BCDEF = (272728 <= iEvent.run() && iEvent.run() <= 278808);
       muon.setSelectors(muon::makeSelectorBitset(muon, pv, isRun2016BCDEF));
     }
-    double miniIsoValue = -1;
+    float miniIsoValue = -1;
     if (computeMiniIso_){
       // MiniIsolation working points
 
@@ -675,23 +677,46 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     float jetPtRatio = 0.0;
     float jetPtRel = 0.0;
     float mva = 0.0;
-    if (computeMuonMVA_ && primaryVertexIsValid){
-      if (mvaUseJec_)
+    float mva_lowpt = 0.0;
+    if (computeMuonMVA_ && primaryVertexIsValid && computeMiniIso_){
+      if (mvaUseJec_){
         mva = globalCache()->muonMvaEstimator()->computeMva(muon,
                                                             primaryVertex,
                                                             *(mvaBTagCollectionTag.product()),
                                                             jetPtRatio,
                                                             jetPtRel,
+							    miniIsoValue,
                                                             &*mvaL1Corrector,
-                                                            &*mvaL1L2L3ResCorrector);
-      else
+                                                            &*mvaL1L2L3ResCorrector
+							    );
+        mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(muon,
+								       primaryVertex,
+								       *(mvaBTagCollectionTag.product()),
+								       jetPtRatio,
+								       jetPtRel,
+								       miniIsoValue,
+								       &*mvaL1Corrector,
+								       &*mvaL1L2L3ResCorrector
+								       );
+	
+      }
+      else{
 	mva = globalCache()->muonMvaEstimator()->computeMva(muon,
                                                             primaryVertex,
                                                             *(mvaBTagCollectionTag.product()),
                                                             jetPtRatio,
-                                                            jetPtRel);
+                                                            jetPtRel,
+							    miniIsoValue);
+	mva_lowpt = globalCache()->muonLowPtMvaEstimator()->computeMva(muon,
+								       primaryVertex,
+								       *(mvaBTagCollectionTag.product()),
+								       jetPtRatio,
+								       jetPtRel,
+								       miniIsoValue);
+      }
 
       muon.setMvaValue(mva);
+      muon.setLowPtMvaValue(mva_lowpt);
       muon.setJetPtRatio(jetPtRatio);
       muon.setJetPtRel(jetPtRel);
 
@@ -702,7 +727,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
       // MVA working points
       // https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
-      double dB2D  = fabs(muon.dB(pat::Muon::BS2D));
+      double dB2D  = fabs(muon.dB(pat::Muon::PV2D));
       double dB3D  = fabs(muon.dB(pat::Muon::PV3D));
       double edB3D = fabs(muon.edB(pat::Muon::PV3D));
       double sip3D = edB3D>0?dB3D/edB3D:0.0; 
@@ -715,6 +740,10 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	muon.setSelector(reco::Muon::MvaLoose,  muon.mvaValue()>-0.60);
 	muon.setSelector(reco::Muon::MvaMedium, muon.mvaValue()>-0.20);
 	muon.setSelector(reco::Muon::MvaTight,  muon.mvaValue()> 0.15);
+	muon.setSelector(reco::Muon::MvaVTight,  muon.mvaValue()> 0.45);
+	muon.setSelector(reco::Muon::MvaVVTight,  muon.mvaValue()> 0.9);
+	muon.setSelector(reco::Muon::LowPtMvaLoose,  muon.lowptMvaValue()>-0.60);
+	muon.setSelector(reco::Muon::LowPtMvaMedium, muon.lowptMvaValue()>-0.20);
       }
     }
 
