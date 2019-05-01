@@ -3,10 +3,14 @@
 
 namespace edm
 {
+   class ConsumesCollector;
    class EventSetup ;
 }
 
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 
 class WriteESAlignments
@@ -23,15 +27,15 @@ class WriteESAlignments
 
       static const unsigned int k_nA ;
 
-      WriteESAlignments( const edm::EventSetup& eventSetup ,
-			 const DVec&            alphaVec   ,
-			 const DVec&            betaVec    ,
-			 const DVec&            gammaVec   ,
-			 const DVec&            xtranslVec ,
-			 const DVec&            ytranslVec ,
-			 const DVec&            ztranslVec  ) ;
+      WriteESAlignments(edm::ConsumesCollector&& cc);
 
-      ~WriteESAlignments() ;
+      void writeAlignments( const edm::EventSetup& eventSetup ,
+                            const DVec&            alphaVec   ,
+                            const DVec&            betaVec    ,
+                            const DVec&            gammaVec   ,
+                            const DVec&            xtranslVec ,
+                            const DVec&            ytranslVec ,
+                            const DVec&            ztranslVec  ) ;
 
    private:
 
@@ -45,6 +49,9 @@ class WriteESAlignments
 		    AliVec&                va  ) ;
 
       void write( AliPtr aliPtr ) ;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  edm::ESGetToken<Alignments, ESAlignmentRcd> alignmentToken_;
 };
 
 #endif
