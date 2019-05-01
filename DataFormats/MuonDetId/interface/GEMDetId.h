@@ -77,7 +77,7 @@ public:
 	<< "GEMDetId ctor: det: " << det() << " subdet: " << subdetId()
 	<< " is not a valid GEM id\n";  
     
-    if (oldFormat()) id_ = newForm(id);
+    if (v11Format()) id_ = v12Form(id);
   }
   /** Construct from a generic cell ID */
   constexpr GEMDetId(DetId id) : DetId(id) {
@@ -86,7 +86,7 @@ public:
       throw cms::Exception("InvalidDetId") 
 	<< "GEMDetId ctor: det: " << det() << " subdet: " << subdetId()
 	<< " is not a valid GEM id\n";  
-    if (oldFormat()) id_ = newForm(id.rawId());
+    if (v11Format()) id_ = v12Form(id.rawId());
   }
   /// Construct from fully qualified identifier.
   constexpr GEMDetId(int region,int ring, int station, int layer,int chamber,
@@ -127,7 +127,7 @@ public:
 	throw cms::Exception("InvalidDetId") 
 	  << "GEMDetId ctor: Cannot assign GEMDetID from  " << std::hex
 	  << gen.rawId() << std::dec;
-      if (oldFormat()) id_ = newForm(gen.rawId());
+      if (v11Format()) id_ = v12Form(gen.rawId());
       else             id_ = gen.rawId();
     } else {
       id_ = gen.rawId();
@@ -171,7 +171,7 @@ public:
   }
 
   /** Check the format */
-  constexpr bool oldFormat() const {
+  constexpr bool v11Format() const {
     return (((id_&kGEMIdFormat) == 0) ? true : false);
   }
 
@@ -232,11 +232,11 @@ public:
 					     0 : maxLayerId));
   }
 
-  constexpr uint32_t newForm() const {
-    return newForm(id_);
+  constexpr uint32_t v12Form() const {
+    return v12Form(id_);
   }
 
-  constexpr static uint32_t newForm(const uint32_t& inpid) {
+  constexpr static uint32_t v12Form(const uint32_t& inpid) {
     uint32_t rawid(inpid);
     if ((rawid&kGEMIdFormat) == 0) {
       int region(0), ring(0), station(-1), layer(0), chamber(0), roll(0);
@@ -262,8 +262,8 @@ public:
 
 private:
 
-  constexpr void newFromOld(const uint32_t& rawid) {
-    id_ = newForm(rawid);
+  constexpr void v12FromV11(const uint32_t& rawid) {
+    id_ = v12Form(rawid);
   }
 
   constexpr static void unpackId(const uint32_t& rawid, int& region, int& ring,
