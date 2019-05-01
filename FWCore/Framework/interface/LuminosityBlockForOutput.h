@@ -36,38 +36,36 @@ namespace edmtest {
 
 namespace edm {
   class ModuleCallingContext;
-  
+
   class LuminosityBlockForOutput : public OccurrenceForOutput {
   public:
-    LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
-                    ModuleCallingContext const*, bool isAtEnd);
+    LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp,
+                             ModuleDescription const& md,
+                             ModuleCallingContext const*,
+                             bool isAtEnd);
     ~LuminosityBlockForOutput() override;
 
-    LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const {return aux_;}
-    LuminosityBlockID const& id() const {return aux_.id();}
-    LuminosityBlockNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
-    RunNumber_t run() const {return aux_.run();}
-    Timestamp const& beginTime() const {return aux_.beginTime();}
-    Timestamp const& endTime() const {return aux_.endTime();}
+    LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const { return aux_; }
+    LuminosityBlockID const& id() const { return aux_.id(); }
+    LuminosityBlockNumber_t luminosityBlock() const { return aux_.luminosityBlock(); }
+    RunNumber_t run() const { return aux_.run(); }
+    Timestamp const& beginTime() const { return aux_.beginTime(); }
+    Timestamp const& endTime() const { return aux_.endTime(); }
 
     /**\return Reusable index which can be used to separate data for different simultaneous LuminosityBlocks.
      */
     LuminosityBlockIndex index() const;
 
-    RunForOutput const&
-    getRun() const {
-      return *run_;
-    }
+    RunForOutput const& getRun() const { return *run_; }
 
   private:
-    friend class edmtest::TestOutputModule; // For testing
+    friend class edmtest::TestOutputModule;  // For testing
 
-    LuminosityBlockPrincipal const&
-    luminosityBlockPrincipal() const;
+    LuminosityBlockPrincipal const& luminosityBlockPrincipal() const;
 
     LuminosityBlockAuxiliary const& aux_;
     std::shared_ptr<RunForOutput const> const run_;
   };
 
-}
+}  // namespace edm
 #endif

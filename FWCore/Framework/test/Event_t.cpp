@@ -59,30 +59,29 @@ using namespace edm;
 // This is a gross hack, to allow us to test the event
 namespace {
   struct IntConsumer : public EDConsumerBase {
-    IntConsumer( std::vector<InputTag> const& iTags) {
+    IntConsumer(std::vector<InputTag> const& iTags) {
       m_tokens.reserve(iTags.size());
       for (auto const& tag : iTags) {
-        m_tokens.push_back( consumes<int>(tag));
+        m_tokens.push_back(consumes<int>(tag));
       }
     }
-    
+
     std::vector<EDGetTokenT<int>> m_tokens;
   };
 
   struct IntProductConsumer : public EDConsumerBase {
-    IntProductConsumer( std::vector<InputTag> const& iTags) {
+    IntProductConsumer(std::vector<InputTag> const& iTags) {
       m_tokens.reserve(iTags.size());
       for (auto const& tag : iTags) {
-        m_tokens.push_back( consumes<edmtest::IntProduct>(tag));
+        m_tokens.push_back(consumes<edmtest::IntProduct>(tag));
       }
     }
-    
+
     std::vector<EDGetTokenT<edmtest::IntProduct>> m_tokens;
   };
-}
+}  // namespace
 
-
-class testEvent: public CppUnit::TestFixture {
+class testEvent : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEvent);
   CPPUNIT_TEST(emptyEvent);
   CPPUNIT_TEST(getByLabelFromEmpty);
@@ -104,7 +103,7 @@ class testEvent: public CppUnit::TestFixture {
   CPPUNIT_TEST(deleteProduct);
   CPPUNIT_TEST_SUITE_END();
 
- public:
+public:
   testEvent();
   ~testEvent();
   void setUp();
@@ -128,8 +127,7 @@ class testEvent: public CppUnit::TestFixture {
   void printHistory();
   void deleteProduct();
 
- private:
-
+private:
   template <class T>
   void registerProduct(std::string const& tag,
                        std::string const& moduleLabel,
@@ -143,57 +141,55 @@ class testEvent: public CppUnit::TestFixture {
                        std::string const& moduleClassName,
                        std::string const& processName) {
     std::string productInstanceName;
-    registerProduct<T>(tag, moduleLabel, moduleClassName, processName,
-                       productInstanceName);
+    registerProduct<T>(tag, moduleLabel, moduleClassName, processName, productInstanceName);
   }
 
   template <class T>
   ProductID addProduct(std::unique_ptr<T> product,
                        std::string const& tag,
                        std::string const& productLabel = std::string());
-  
+
   template <class T>
   std::unique_ptr<ProducerBase> putProduct(std::unique_ptr<T> product,
-                  std::string const& productInstanceLabel,
-                                           bool doCommit=true);
+                                           std::string const& productInstanceLabel,
+                                           bool doCommit = true);
   template <class T>
   std::unique_ptr<ProducerBase> putProductUsingToken(std::unique_ptr<T> product,
                                                      std::string const& productInstanceLabel,
-                                                     bool doCommit=true);
+                                                     bool doCommit = true);
   template <class T>
   std::unique_ptr<ProducerBase> emplaceProduct(T product,
                                                std::string const& productInstanceLabel,
-                                               bool doCommit=true);
+                                               bool doCommit = true);
 
-  std::shared_ptr<ProductRegistry>   availableProducts_;
+  std::shared_ptr<ProductRegistry> availableProducts_;
   std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
   std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> lbp_;
-  std::shared_ptr<EventPrincipal>    principal_;
-  std::shared_ptr<Event>             currentEvent_;
+  std::shared_ptr<EventPrincipal> principal_;
+  std::shared_ptr<Event> currentEvent_;
   std::shared_ptr<ModuleDescription> currentModuleDescription_;
   typedef std::map<std::string, ModuleDescription> modCache_t;
   typedef modCache_t::iterator iterator_t;
 
   modCache_t moduleDescriptions_;
   ProcessHistoryRegistry processHistoryRegistry_;
-  std::vector<std::shared_ptr<ProcessConfiguration> > processConfigurations_;
+  std::vector<std::shared_ptr<ProcessConfiguration>> processConfigurations_;
   HistoryAppender historyAppender_;
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testEvent);
 
-EventID   make_id() { return EventID(2112, 1, 25); }
+EventID make_id() { return EventID(2112, 1, 25); }
 Timestamp make_timestamp() { return Timestamp(1); }
 
 template <class T>
-void
-testEvent::registerProduct(std::string const& tag,
-                           std::string const& moduleLabel,
-                            std::string const& moduleClassName,
-                            std::string const& processName,
-                           std::string const& productInstanceName) {
+void testEvent::registerProduct(std::string const& tag,
+                                std::string const& moduleLabel,
+                                std::string const& moduleClassName,
+                                std::string const& processName,
+                                std::string const& productInstanceName) {
   if (!availableProducts_)
     availableProducts_.reset(new ProductRegistry());
 
@@ -222,39 +218,33 @@ testEvent::registerProduct(std::string const& tag,
                            productInstanceName,
                            moduleClassName,
                            moduleParams.id(),
-                           product_type
-                        );
+                           product_type);
 
-  moduleDescriptions_[tag] = ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get(),ModuleDescription::getUniqueID());
+  moduleDescriptions_[tag] = ModuleDescription(
+      moduleParams.id(), moduleClassName, moduleLabel, processX.get(), ModuleDescription::getUniqueID());
   availableProducts_->addProduct(branch);
 }
 
 // Add the given product, of type T, to the current event,
 // as if it came from the module specified by the given tag.
 template <class T>
-ProductID
-testEvent::addProduct(std::unique_ptr<T> product,
-                      std::string const& tag,
-                      std::string const& productLabel) {
+ProductID testEvent::addProduct(std::unique_ptr<T> product, std::string const& tag, std::string const& productLabel) {
   iterator_t description = moduleDescriptions_.find(tag);
   if (description == moduleDescriptions_.end())
-    throw edm::Exception(errors::LogicError)
-      << "Failed to find a module description for tag: "
-      << tag << '\n';
+    throw edm::Exception(errors::LogicError) << "Failed to find a module description for tag: " << tag << '\n';
 
   ModuleCallingContext mcc(&description->second);
   Event temporaryEvent(*principal_, description->second, &mcc);
   ProducerBase prod;
   prod.produces<T>(productLabel);
-  const_cast<std::vector<edm::ProductResolverIndex>&>(prod.putTokenIndexToProductResolverIndex()).push_back(
-       principal_->productLookup().index(PRODUCT_TYPE,
-                                         edm::TypeID(typeid(T)),
-                                         description->second.moduleLabel().c_str(),
-                                         productLabel.c_str(),
-                                         description->second.processName().c_str())
-  );
+  const_cast<std::vector<edm::ProductResolverIndex>&>(prod.putTokenIndexToProductResolverIndex())
+      .push_back(principal_->productLookup().index(PRODUCT_TYPE,
+                                                   edm::TypeID(typeid(T)),
+                                                   description->second.moduleLabel().c_str(),
+                                                   productLabel.c_str(),
+                                                   description->second.processName().c_str()));
 
-  temporaryEvent.setProducer(&prod,nullptr);
+  temporaryEvent.setProducer(&prod, nullptr);
   OrphanHandle<T> h = temporaryEvent.put(std::move(product), productLabel);
   ProductID id = h.id();
   temporaryEvent.commit_(std::vector<ProductResolverIndex>());
@@ -262,93 +252,88 @@ testEvent::addProduct(std::unique_ptr<T> product,
 }
 
 template <class T>
-std::unique_ptr<ProducerBase>
-testEvent::putProduct(std::unique_ptr<T> product,
-                      std::string const& productInstanceLabel,
-                      bool doCommit) {
+std::unique_ptr<ProducerBase> testEvent::putProduct(std::unique_ptr<T> product,
+                                                    std::string const& productInstanceLabel,
+                                                    bool doCommit) {
   auto prod = std::make_unique<ProducerBase>();
   prod->produces<edmtest::IntProduct>(productInstanceLabel);
-  auto index =principal_->productLookup().index(PRODUCT_TYPE,
-                                                edm::TypeID(typeid(T)),
-                                                currentModuleDescription_->moduleLabel().c_str(),
-                                                productInstanceLabel.c_str(),
-                                                currentModuleDescription_->processName().c_str());
+  auto index = principal_->productLookup().index(PRODUCT_TYPE,
+                                                 edm::TypeID(typeid(T)),
+                                                 currentModuleDescription_->moduleLabel().c_str(),
+                                                 productInstanceLabel.c_str(),
+                                                 currentModuleDescription_->processName().c_str());
   CPPUNIT_ASSERT(index != std::numeric_limits<unsigned int>::max());
   const_cast<std::vector<edm::ProductResolverIndex>&>(prod->putTokenIndexToProductResolverIndex()).push_back(index);
-  currentEvent_->setProducer(prod.get(),nullptr);
+  currentEvent_->setProducer(prod.get(), nullptr);
   currentEvent_->put(std::move(product), productInstanceLabel);
-  if(doCommit) {
+  if (doCommit) {
     currentEvent_->commit_(std::vector<ProductResolverIndex>());
   }
   return prod;
 }
 
 template <class T>
-std::unique_ptr<ProducerBase>
-testEvent::putProductUsingToken(std::unique_ptr<T> product,
-                                std::string const& productInstanceLabel,
-                                bool doCommit) {
+std::unique_ptr<ProducerBase> testEvent::putProductUsingToken(std::unique_ptr<T> product,
+                                                              std::string const& productInstanceLabel,
+                                                              bool doCommit) {
   auto prod = std::make_unique<ProducerBase>();
   EDPutTokenT<edmtest::IntProduct> token = prod->produces<edmtest::IntProduct>(productInstanceLabel);
-  auto index =principal_->productLookup().index(PRODUCT_TYPE,
-                                                edm::TypeID(typeid(T)),
-                                                currentModuleDescription_->moduleLabel().c_str(),
-                                                productInstanceLabel.c_str(),
-                                                currentModuleDescription_->processName().c_str());
+  auto index = principal_->productLookup().index(PRODUCT_TYPE,
+                                                 edm::TypeID(typeid(T)),
+                                                 currentModuleDescription_->moduleLabel().c_str(),
+                                                 productInstanceLabel.c_str(),
+                                                 currentModuleDescription_->processName().c_str());
   CPPUNIT_ASSERT(index != std::numeric_limits<unsigned int>::max());
   const_cast<std::vector<edm::ProductResolverIndex>&>(prod->putTokenIndexToProductResolverIndex()).push_back(index);
-  currentEvent_->setProducer(prod.get(),nullptr);
-  currentEvent_->put(token,std::move(product));
-  if(doCommit) {
+  currentEvent_->setProducer(prod.get(), nullptr);
+  currentEvent_->put(token, std::move(product));
+  if (doCommit) {
     currentEvent_->commit_(std::vector<ProductResolverIndex>());
   }
   return prod;
 }
 
 template <class T>
-std::unique_ptr<ProducerBase>
-testEvent::emplaceProduct(T product,
-                          std::string const& productInstanceLabel,
-                          bool doCommit) {
+std::unique_ptr<ProducerBase> testEvent::emplaceProduct(T product,
+                                                        std::string const& productInstanceLabel,
+                                                        bool doCommit) {
   auto prod = std::make_unique<ProducerBase>();
   EDPutTokenT<edmtest::IntProduct> token = prod->produces<edmtest::IntProduct>(productInstanceLabel);
-  auto index =principal_->productLookup().index(PRODUCT_TYPE,
-                                                edm::TypeID(typeid(T)),
-                                                currentModuleDescription_->moduleLabel().c_str(),
-                                                productInstanceLabel.c_str(),
-                                                currentModuleDescription_->processName().c_str());
+  auto index = principal_->productLookup().index(PRODUCT_TYPE,
+                                                 edm::TypeID(typeid(T)),
+                                                 currentModuleDescription_->moduleLabel().c_str(),
+                                                 productInstanceLabel.c_str(),
+                                                 currentModuleDescription_->processName().c_str());
   CPPUNIT_ASSERT(index != std::numeric_limits<unsigned int>::max());
   const_cast<std::vector<edm::ProductResolverIndex>&>(prod->putTokenIndexToProductResolverIndex()).push_back(index);
-  currentEvent_->setProducer(prod.get(),nullptr);
-  currentEvent_->emplace(token,std::move(product));
-  if(doCommit) {
+  currentEvent_->setProducer(prod.get(), nullptr);
+  currentEvent_->emplace(token, std::move(product));
+  if (doCommit) {
     currentEvent_->commit_(std::vector<ProductResolverIndex>());
   }
   return prod;
 }
 
-
-testEvent::testEvent() :
-  availableProducts_(new ProductRegistry()),
-  branchIDListHelper_(new BranchIDListHelper()),
-  thinnedAssociationsHelper_(new ThinnedAssociationsHelper()),
-  principal_(),
-  currentEvent_(),
-  currentModuleDescription_(),
-  moduleDescriptions_(),
-  processHistoryRegistry_(),
-  processConfigurations_() {
-
+testEvent::testEvent()
+    : availableProducts_(new ProductRegistry()),
+      branchIDListHelper_(new BranchIDListHelper()),
+      thinnedAssociationsHelper_(new ThinnedAssociationsHelper()),
+      principal_(),
+      currentEvent_(),
+      currentModuleDescription_(),
+      moduleDescriptions_(),
+      processHistoryRegistry_(),
+      processConfigurations_() {
   typedef edmtest::IntProduct prod_t;
   typedef std::vector<edmtest::Thing> vec_t;
 
-  registerProduct<prod_t>("nolabel_tag",   "modOne",   "IntProducer",   "EARLY");
-  registerProduct<prod_t>("int1_tag",      "modMulti", "IntProducer",   "EARLY", "int1");
-  registerProduct<prod_t>("int1_tag_late", "modMulti", "IntProducer",   "LATE",  "int1");
-  registerProduct<prod_t>("int2_tag",      "modMulti", "IntProducer",   "EARLY", "int2");
-  registerProduct<prod_t>("int3_tag",      "modMulti", "IntProducer",   "EARLY");
-  registerProduct<vec_t>("thing",          "modthing", "ThingProducer", "LATE");
-  registerProduct<vec_t>("thing2",         "modthing", "ThingProducer", "LATE",  "inst2");
+  registerProduct<prod_t>("nolabel_tag", "modOne", "IntProducer", "EARLY");
+  registerProduct<prod_t>("int1_tag", "modMulti", "IntProducer", "EARLY", "int1");
+  registerProduct<prod_t>("int1_tag_late", "modMulti", "IntProducer", "LATE", "int1");
+  registerProduct<prod_t>("int2_tag", "modMulti", "IntProducer", "EARLY", "int2");
+  registerProduct<prod_t>("int3_tag", "modMulti", "IntProducer", "EARLY");
+  registerProduct<vec_t>("thing", "modthing", "ThingProducer", "LATE");
+  registerProduct<vec_t>("thing2", "modthing", "ThingProducer", "LATE", "inst2");
 
   // Fake up the production of a single IntProduct from an IntProducer
   // module, run in the 'CURRENT' process.
@@ -371,7 +356,8 @@ testEvent::testEvent() :
 
   auto processX = std::make_shared<ProcessConfiguration>(process);
   processConfigurations_.push_back(processX);
-  currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get(),ModuleDescription::getUniqueID()));
+  currentModuleDescription_.reset(new ModuleDescription(
+      moduleParams.id(), moduleClassName, moduleLabel, processX.get(), ModuleDescription::getUniqueID()));
 
   std::string productInstanceName("int1");
 
@@ -383,8 +369,7 @@ testEvent::testEvent() :
                            productInstanceName,
                            moduleClassName,
                            moduleParams.id(),
-                           product_type
-                        );
+                           product_type);
 
   availableProducts_->addProduct(branch);
 
@@ -393,11 +378,9 @@ testEvent::testEvent() :
   branchIDListHelper_->updateFromRegistry(*availableProducts_);
 }
 
-testEvent::~testEvent() {
-}
+testEvent::~testEvent() {}
 
 void testEvent::setUp() {
-
   // First build a fake process history, that says there
   // were previous processes named "EARLY" and "LATE".
   // This takes several lines of code but other than
@@ -462,21 +445,21 @@ void testEvent::setUp() {
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
   auto runAux = std::make_shared<RunAuxiliary>(id.run(), time, time);
-  auto rp = std::make_shared<RunPrincipal>(runAux, preg, pc, &historyAppender_,0);
-  lbp_ = std::make_shared<LuminosityBlockPrincipal>(preg, pc, &historyAppender_,0);
+  auto rp = std::make_shared<RunPrincipal>(runAux, preg, pc, &historyAppender_, 0);
+  lbp_ = std::make_shared<LuminosityBlockPrincipal>(preg, pc, &historyAppender_, 0);
   lbp_->setAux(LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   lbp_->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
-  const_cast<ProcessHistoryID &>(eventAux.processHistoryID()) = processHistoryID;
-  principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, thinnedAssociationsHelper_, pc, &historyAppender_,edm::StreamID::invalidStreamID()));
+  const_cast<ProcessHistoryID&>(eventAux.processHistoryID()) = processHistoryID;
+  principal_.reset(new edm::EventPrincipal(
+      preg, branchIDListHelper_, thinnedAssociationsHelper_, pc, &historyAppender_, edm::StreamID::invalidStreamID()));
   principal_->fillEventPrincipal(eventAux, processHistoryRegistry_);
   principal_->setLuminosityBlockPrincipal(lbp_.get());
   ModuleCallingContext mcc(currentModuleDescription_.get());
   currentEvent_.reset(new Event(*principal_, *currentModuleDescription_, &mcc));
 }
 
-void
-testEvent::tearDown() {
+void testEvent::tearDown() {
   currentEvent_.reset();
   principal_.reset();
 }
@@ -500,10 +483,10 @@ void testEvent::getByLabelFromEmpty() {
 
 void testEvent::getByTokenFromEmpty() {
   InputTag inputTag("moduleLabel", "instanceName");
-  
-  IntConsumer consumer( std::vector<InputTag>{1,inputTag});
-  consumer.updateLookup(InEvent, principal_->productLookup(),false);
-  assert(1==consumer.m_tokens.size());
+
+  IntConsumer consumer(std::vector<InputTag>{1, inputTag});
+  consumer.updateLookup(InEvent, principal_->productLookup(), false);
+  assert(1 == consumer.m_tokens.size());
   currentEvent_->setConsumer(&consumer);
   Handle<int> nonesuch;
   CPPUNIT_ASSERT(!nonesuch.isValid());
@@ -515,13 +498,13 @@ void testEvent::getByTokenFromEmpty() {
 
 void testEvent::getHandleFromEmpty() {
   InputTag inputTag("moduleLabel", "instanceName");
-  
-  IntConsumer consumer( std::vector<InputTag>{1,inputTag});
-  consumer.updateLookup(InEvent, principal_->productLookup(),false);
-  assert(1==consumer.m_tokens.size());
+
+  IntConsumer consumer(std::vector<InputTag>{1, inputTag});
+  consumer.updateLookup(InEvent, principal_->productLookup(), false);
+  assert(1 == consumer.m_tokens.size());
   currentEvent_->setConsumer(&consumer);
   Handle<int> nonesuch;
-  CPPUNIT_ASSERT(!(nonesuch=currentEvent_->getHandle(consumer.m_tokens[0])));
+  CPPUNIT_ASSERT(!(nonesuch = currentEvent_->getHandle(consumer.m_tokens[0])));
   CPPUNIT_ASSERT(!nonesuch.isValid());
   CPPUNIT_ASSERT(nonesuch.failedToGet());
   CPPUNIT_ASSERT_THROW(*nonesuch, cms::Exception);
@@ -529,25 +512,24 @@ void testEvent::getHandleFromEmpty() {
 
 void testEvent::getFromEmpty() {
   InputTag inputTag("moduleLabel", "instanceName");
-  
-  IntConsumer consumer( std::vector<InputTag>{1,inputTag});
-  consumer.updateLookup(InEvent, principal_->productLookup(),false);
-  assert(1==consumer.m_tokens.size());
+
+  IntConsumer consumer(std::vector<InputTag>{1, inputTag});
+  consumer.updateLookup(InEvent, principal_->productLookup(), false);
+  assert(1 == consumer.m_tokens.size());
   currentEvent_->setConsumer(&consumer);
-  CPPUNIT_ASSERT_THROW( (void) currentEvent_->get(consumer.m_tokens[0]), cms::Exception);
+  CPPUNIT_ASSERT_THROW((void)currentEvent_->get(consumer.m_tokens[0]), cms::Exception);
 }
 
 void testEvent::putAnIntProduct() {
-  
-  auto p = putProduct(std::make_unique<edmtest::IntProduct>(3),"int1",false);
+  auto p = putProduct(std::make_unique<edmtest::IntProduct>(3), "int1", false);
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
   currentEvent_->commit_(std::vector<ProductResolverIndex>());
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
 }
 
 void testEvent::putAndGetAnIntProduct() {
-  auto p = putProduct(std::make_unique<edmtest::IntProduct>(4),"int1");
-  
+  auto p = putProduct(std::make_unique<edmtest::IntProduct>(4), "int1");
+
   InputTag should_match("modMulti", "int1", "CURRENT");
   InputTag should_not_match("modMulti", "int1", "NONESUCH");
   Handle<edmtest::IntProduct> h;
@@ -559,8 +541,8 @@ void testEvent::putAndGetAnIntProduct() {
 }
 
 void testEvent::putAndGetAnIntProductByToken() {
-  auto p = putProductUsingToken(std::make_unique<edmtest::IntProduct>(4),"int1");
-  
+  auto p = putProductUsingToken(std::make_unique<edmtest::IntProduct>(4), "int1");
+
   InputTag should_match("modMulti", "int1", "CURRENT");
   InputTag should_not_match("modMulti", "int1", "NONESUCH");
   Handle<edmtest::IntProduct> h;
@@ -572,8 +554,8 @@ void testEvent::putAndGetAnIntProductByToken() {
 }
 
 void testEvent::emplaceAndGetAnIntProductByToken() {
-  auto p = emplaceProduct(edmtest::IntProduct{4},"int1");
-  
+  auto p = emplaceProduct(edmtest::IntProduct{4}, "int1");
+
   InputTag should_match("modMulti", "int1", "CURRENT");
   InputTag should_not_match("modMulti", "int1", "NONESUCH");
   Handle<edmtest::IntProduct> h;
@@ -585,10 +567,9 @@ void testEvent::emplaceAndGetAnIntProductByToken() {
 }
 
 void testEvent::getByProductID() {
-
   typedef edmtest::IntProduct product_t;
   typedef std::unique_ptr<product_t> ap_t;
-  typedef Handle<product_t>  handle_t;
+  typedef Handle<product_t> handle_t;
 
   ProductID wanted;
 
@@ -646,7 +627,7 @@ void testEvent::transaction() {
     typedef std::unique_ptr<product_t> ap_t;
 
     ap_t three(new product_t(3));
-    auto p = putProduct(std::move(three),"int1",false);
+    auto p = putProduct(std::move(three), "int1", false);
 
     CPPUNIT_ASSERT(principal_->size() == 0);
     CPPUNIT_ASSERT(currentEvent_->size() == 1);
@@ -667,10 +648,10 @@ void testEvent::getByLabel() {
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(std::move(one),   "int1_tag", "int1");
-  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(one), "int1_tag", "int1");
+  addProduct(std::move(two), "int2_tag", "int2");
   addProduct(std::move(three), "int3_tag");
-  addProduct(std::move(four),  "nolabel_tag");
+  addProduct(std::move(four), "nolabel_tag");
 
   auto ap_vthing = std::make_unique<std::vector<edmtest::Thing>>();
   addProduct(std::move(ap_vthing), "thing", "");
@@ -679,7 +660,7 @@ void testEvent::getByLabel() {
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
   auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
-  putProduct(std::move(twoHundred),"int1");
+  putProduct(std::move(twoHundred), "int1");
 
   CPPUNIT_ASSERT(currentEvent_->size() == 7);
 
@@ -729,16 +710,18 @@ void testEvent::getByLabel() {
     edm::EventBase* baseEvent = currentEvent_.get();
     CPPUNIT_ASSERT(baseEvent->getByLabel(inputTag, h));
     CPPUNIT_ASSERT(h->value == 200);
-
   }
 
-  BasicHandle bh = principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE",nullptr, nullptr, nullptr);
+  BasicHandle bh = principal_->getByLabel(
+      PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE", nullptr, nullptr, nullptr);
   h = convert_handle<product_t>(std::move(bh));
   CPPUNIT_ASSERT(h->value == 100);
-  BasicHandle bh2(principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch",nullptr, nullptr, nullptr));
+  BasicHandle bh2(principal_->getByLabel(
+      PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch", nullptr, nullptr, nullptr));
   CPPUNIT_ASSERT(!bh2.isValid());
 
-  std::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag, nullptr);
+  std::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr =
+      getProductByTag<edmtest::IntProduct>(*principal_, inputTag, nullptr);
   CPPUNIT_ASSERT(ptr->product()->value == 200);
 }
 
@@ -746,41 +729,39 @@ void testEvent::getByToken() {
   typedef edmtest::IntProduct product_t;
   typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
-  
+
   ap_t one(new product_t(1));
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(std::move(one),   "int1_tag", "int1");
-  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(one), "int1_tag", "int1");
+  addProduct(std::move(two), "int2_tag", "int2");
   addProduct(std::move(three), "int3_tag");
-  addProduct(std::move(four),  "nolabel_tag");
-  
+  addProduct(std::move(four), "nolabel_tag");
+
   auto ap_vthing = std::make_unique<std::vector<edmtest::Thing>>();
   addProduct(std::move(ap_vthing), "thing", "");
-  
+
   ap_t oneHundred(new product_t(100));
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
-  
+
   auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
   putProduct(std::move(twoHundred), "int1");
-  
+
   CPPUNIT_ASSERT(currentEvent_->size() == 7);
 
-  IntProductConsumer consumer(std::vector<InputTag> {
-    InputTag("modMulti"),
-    InputTag("modMulti","int1"),
-    InputTag("modMulti", "nomatch"),
-    InputTag("modMulti", "int1", "EARLY"),
-    InputTag("modMulti", "int1", "LATE"),
-    InputTag("modMulti", "int1", "CURRENT"),
-    InputTag("modMulti", "int2", "EARLY"),
-    InputTag("modOne")
-  });
-  consumer.updateLookup(InEvent, principal_->productLookup(),false);
+  IntProductConsumer consumer(std::vector<InputTag>{InputTag("modMulti"),
+                                                    InputTag("modMulti", "int1"),
+                                                    InputTag("modMulti", "nomatch"),
+                                                    InputTag("modMulti", "int1", "EARLY"),
+                                                    InputTag("modMulti", "int1", "LATE"),
+                                                    InputTag("modMulti", "int1", "CURRENT"),
+                                                    InputTag("modMulti", "int2", "EARLY"),
+                                                    InputTag("modOne")});
+  consumer.updateLookup(InEvent, principal_->productLookup(), false);
 
   currentEvent_->setConsumer(&consumer);
-  
+
   const auto modMultiToken = consumer.m_tokens[0];
   const auto modMultiInt1Token = consumer.m_tokens[1];
   const auto modMultinomatchToken = consumer.m_tokens[2];
@@ -789,77 +770,74 @@ void testEvent::getByToken() {
   const auto modMultiInt1CurrentToken = consumer.m_tokens[5];
   const auto modMultiInt2EarlyToken = consumer.m_tokens[6];
   const auto modOneToken = consumer.m_tokens[7];
-  
+
   handle_t h;
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiToken, h));
   CPPUNIT_ASSERT(h->value == 3);
-  
+
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1Token, h));
   CPPUNIT_ASSERT(h->value == 200);
-  
+
   CPPUNIT_ASSERT(!currentEvent_->getByToken(modMultinomatchToken, h));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
-  
+
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1Token, h));
   CPPUNIT_ASSERT(h->value == 200);
-  
+
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1EarlyToken, h));
   CPPUNIT_ASSERT(h->value == 1);
-  
+
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1LateToken, h));
   CPPUNIT_ASSERT(h->value == 100);
-  
+
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1CurrentToken, h));
   CPPUNIT_ASSERT(h->value == 200);
-  
+
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt2EarlyToken, h));
   CPPUNIT_ASSERT(h->value == 2);
-  
+
   CPPUNIT_ASSERT(currentEvent_->getByToken(modOneToken, h));
   CPPUNIT_ASSERT(h->value == 4);
-  
 }
 
 void testEvent::getHandle() {
   typedef edmtest::IntProduct product_t;
   typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
-  
+
   ap_t one(new product_t(1));
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(std::move(one),   "int1_tag", "int1");
-  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(one), "int1_tag", "int1");
+  addProduct(std::move(two), "int2_tag", "int2");
   addProduct(std::move(three), "int3_tag");
-  addProduct(std::move(four),  "nolabel_tag");
-  
+  addProduct(std::move(four), "nolabel_tag");
+
   auto ap_vthing = std::make_unique<std::vector<edmtest::Thing>>();
   addProduct(std::move(ap_vthing), "thing", "");
-  
+
   ap_t oneHundred(new product_t(100));
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
-  
+
   auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
   putProduct(std::move(twoHundred), "int1");
-  
+
   CPPUNIT_ASSERT(currentEvent_->size() == 7);
-  
-  IntProductConsumer consumer(std::vector<InputTag> {
-    InputTag("modMulti"),
-    InputTag("modMulti","int1"),
-    InputTag("modMulti", "nomatch"),
-    InputTag("modMulti", "int1", "EARLY"),
-    InputTag("modMulti", "int1", "LATE"),
-    InputTag("modMulti", "int1", "CURRENT"),
-    InputTag("modMulti", "int2", "EARLY"),
-    InputTag("modOne")
-  });
-  consumer.updateLookup(InEvent, principal_->productLookup(),false);
-  
+
+  IntProductConsumer consumer(std::vector<InputTag>{InputTag("modMulti"),
+                                                    InputTag("modMulti", "int1"),
+                                                    InputTag("modMulti", "nomatch"),
+                                                    InputTag("modMulti", "int1", "EARLY"),
+                                                    InputTag("modMulti", "int1", "LATE"),
+                                                    InputTag("modMulti", "int1", "CURRENT"),
+                                                    InputTag("modMulti", "int2", "EARLY"),
+                                                    InputTag("modOne")});
+  consumer.updateLookup(InEvent, principal_->productLookup(), false);
+
   currentEvent_->setConsumer(&consumer);
-  
+
   const auto modMultiToken = consumer.m_tokens[0];
   const auto modMultiInt1Token = consumer.m_tokens[1];
   const auto modMultinomatchToken = consumer.m_tokens[2];
@@ -868,77 +846,74 @@ void testEvent::getHandle() {
   const auto modMultiInt1CurrentToken = consumer.m_tokens[5];
   const auto modMultiInt2EarlyToken = consumer.m_tokens[6];
   const auto modOneToken = consumer.m_tokens[7];
-  
+
   handle_t h;
-  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiToken));
+  CPPUNIT_ASSERT(h = currentEvent_->getHandle(modMultiToken));
   CPPUNIT_ASSERT(h->value == 3);
-  
-  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt1Token));
+
+  CPPUNIT_ASSERT(h = currentEvent_->getHandle(modMultiInt1Token));
   CPPUNIT_ASSERT(h->value == 200);
-  
-  CPPUNIT_ASSERT(!(h=currentEvent_->getHandle(modMultinomatchToken)));
+
+  CPPUNIT_ASSERT(!(h = currentEvent_->getHandle(modMultinomatchToken)));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
-  
-  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt1Token));
+
+  CPPUNIT_ASSERT(h = currentEvent_->getHandle(modMultiInt1Token));
   CPPUNIT_ASSERT(h->value == 200);
-  
-  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt1EarlyToken));
+
+  CPPUNIT_ASSERT(h = currentEvent_->getHandle(modMultiInt1EarlyToken));
   CPPUNIT_ASSERT(h->value == 1);
-  
-  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt1LateToken));
+
+  CPPUNIT_ASSERT(h = currentEvent_->getHandle(modMultiInt1LateToken));
   CPPUNIT_ASSERT(h->value == 100);
-  
-  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt1CurrentToken));
+
+  CPPUNIT_ASSERT(h = currentEvent_->getHandle(modMultiInt1CurrentToken));
   CPPUNIT_ASSERT(h->value == 200);
-  
-  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modMultiInt2EarlyToken));
+
+  CPPUNIT_ASSERT(h = currentEvent_->getHandle(modMultiInt2EarlyToken));
   CPPUNIT_ASSERT(h->value == 2);
-  
-  CPPUNIT_ASSERT(h=currentEvent_->getHandle(modOneToken));
+
+  CPPUNIT_ASSERT(h = currentEvent_->getHandle(modOneToken));
   CPPUNIT_ASSERT(h->value == 4);
-  
 }
 
 void testEvent::get_product() {
   typedef edmtest::IntProduct product_t;
   typedef std::unique_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
-  
+
   ap_t one(new product_t(1));
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(std::move(one),   "int1_tag", "int1");
-  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(one), "int1_tag", "int1");
+  addProduct(std::move(two), "int2_tag", "int2");
   addProduct(std::move(three), "int3_tag");
-  addProduct(std::move(four),  "nolabel_tag");
-  
+  addProduct(std::move(four), "nolabel_tag");
+
   auto ap_vthing = std::make_unique<std::vector<edmtest::Thing>>();
   addProduct(std::move(ap_vthing), "thing", "");
-  
+
   ap_t oneHundred(new product_t(100));
   addProduct(std::move(oneHundred), "int1_tag_late", "int1");
-  
+
   auto twoHundred = std::make_unique<edmtest::IntProduct>(200);
   putProduct(std::move(twoHundred), "int1");
-  
+
   CPPUNIT_ASSERT(currentEvent_->size() == 7);
-  
-  IntProductConsumer consumer(std::vector<InputTag> {
-    InputTag("modMulti"),
-    InputTag("modMulti","int1"),
-    InputTag("modMulti", "nomatch"),
-    InputTag("modMulti", "int1", "EARLY"),
-    InputTag("modMulti", "int1", "LATE"),
-    InputTag("modMulti", "int1", "CURRENT"),
-    InputTag("modMulti", "int2", "EARLY"),
-    InputTag("modOne")
-  });
-  consumer.updateLookup(InEvent, principal_->productLookup(),false);
-  
+
+  IntProductConsumer consumer(std::vector<InputTag>{InputTag("modMulti"),
+                                                    InputTag("modMulti", "int1"),
+                                                    InputTag("modMulti", "nomatch"),
+                                                    InputTag("modMulti", "int1", "EARLY"),
+                                                    InputTag("modMulti", "int1", "LATE"),
+                                                    InputTag("modMulti", "int1", "CURRENT"),
+                                                    InputTag("modMulti", "int2", "EARLY"),
+                                                    InputTag("modOne")});
+  consumer.updateLookup(InEvent, principal_->productLookup(), false);
+
   currentEvent_->setConsumer(&consumer);
-  
+
   const auto modMultiToken = consumer.m_tokens[0];
   const auto modMultiInt1Token = consumer.m_tokens[1];
   const auto modMultinomatchToken = consumer.m_tokens[2];
@@ -947,25 +922,24 @@ void testEvent::get_product() {
   const auto modMultiInt1CurrentToken = consumer.m_tokens[5];
   const auto modMultiInt2EarlyToken = consumer.m_tokens[6];
   const auto modOneToken = consumer.m_tokens[7];
-  
-  CPPUNIT_ASSERT(currentEvent_->get(modMultiToken).value==3);
-  
+
+  CPPUNIT_ASSERT(currentEvent_->get(modMultiToken).value == 3);
+
   CPPUNIT_ASSERT(currentEvent_->get(modMultiInt1Token).value == 200);
-  
+
   CPPUNIT_ASSERT_THROW(currentEvent_->get(modMultinomatchToken), cms::Exception);
-  
+
   CPPUNIT_ASSERT(currentEvent_->get(modMultiInt1Token).value == 200);
-  
+
   CPPUNIT_ASSERT(currentEvent_->get(modMultiInt1EarlyToken).value == 1);
-  
+
   CPPUNIT_ASSERT(currentEvent_->get(modMultiInt1LateToken).value == 100);
-  
+
   CPPUNIT_ASSERT(currentEvent_->get(modMultiInt1CurrentToken).value == 200);
-  
+
   CPPUNIT_ASSERT(currentEvent_->get(modMultiInt2EarlyToken).value == 2);
-  
+
   CPPUNIT_ASSERT(currentEvent_->get(modOneToken).value == 4);
-  
 }
 
 void testEvent::getManyByType() {
@@ -978,10 +952,10 @@ void testEvent::getManyByType() {
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(std::move(one),   "int1_tag", "int1");
-  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(one), "int1_tag", "int1");
+  addProduct(std::move(two), "int2_tag", "int2");
   addProduct(std::move(three), "int3_tag");
-  addProduct(std::move(four),  "nolabel_tag");
+  addProduct(std::move(four), "nolabel_tag");
 
   auto ap_vthing = std::make_unique<std::vector<edmtest::Thing>>();
   addProduct(std::move(ap_vthing), "thing", "");
@@ -1001,7 +975,8 @@ void testEvent::getManyByType() {
   currentEvent_->getManyByType(handles);
   CPPUNIT_ASSERT(handles.size() == 6);
   int sum = 0;
-  for (int k = 0; k < 6; ++k) sum += handles[k]->value;
+  for (int k = 0; k < 6; ++k)
+    sum += handles[k]->value;
   CPPUNIT_ASSERT(sum == 310);
 }
 
@@ -1013,25 +988,24 @@ void testEvent::printHistory() {
 }
 
 void testEvent::deleteProduct() {
-  
   typedef edmtest::IntProduct product_t;
   typedef std::unique_ptr<product_t> ap_t;
-  
+
   ap_t one(new product_t(1));
-  addProduct(std::move(one),   "int1_tag", "int1");
-  
+  addProduct(std::move(one), "int1_tag", "int1");
+
   BranchID id;
-  
-  availableProducts_->callForEachBranch([&id](const BranchDescription& iDesc){ 
-    if(iDesc.moduleLabel()=="modMulti" && iDesc.productInstanceName()=="int1") {
+
+  availableProducts_->callForEachBranch([&id](const BranchDescription& iDesc) {
+    if (iDesc.moduleLabel() == "modMulti" && iDesc.productInstanceName() == "int1") {
       id = iDesc.branchID();
-    }});
+    }
+  });
 
   const ProductResolverBase* phb = principal_->getProductResolver(id);
   CPPUNIT_ASSERT(phb != nullptr);
-  
-  CPPUNIT_ASSERT(!phb->productWasDeleted());  
+
+  CPPUNIT_ASSERT(!phb->productWasDeleted());
   principal_->deleteProduct(id);
   CPPUNIT_ASSERT(phb->productWasDeleted());
-  
 }
