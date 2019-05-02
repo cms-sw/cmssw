@@ -44,12 +44,14 @@ public:
   explicit HcalSimNumberingTester( const edm::ParameterSet& );
   ~HcalSimNumberingTester() override;
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
+
+private:
+  edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> token_;
 };
 
-HcalSimNumberingTester::HcalSimNumberingTester(const edm::ParameterSet& ) {}
+HcalSimNumberingTester::HcalSimNumberingTester(const edm::ParameterSet& )
+  : token_{esConsumes<HcalDDDSimConstants, HcalSimNumberingRecord>(edm::ESInputTag{})} {}
 
 
 HcalSimNumberingTester::~HcalSimNumberingTester() {}
@@ -57,10 +59,7 @@ HcalSimNumberingTester::~HcalSimNumberingTester() {}
 // ------------ method called to produce the data  ------------
 void HcalSimNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
-  edm::ESHandle<HcalDDDSimConstants> pHSNDC;
-  iSetup.get<HcalSimNumberingRecord>().get( pHSNDC );
-
-  if (pHSNDC.isValid()) {
+  if (auto pHSNDC = iSetup.getHandle(token_)) {
     edm::LogVerbatim("HcalGeom") << "about to de-reference the edm::ESHandle<HcalDDDSimConstants> pHSNDC";
     const HcalDDDSimConstants hdc (*pHSNDC);
     edm::LogVerbatim("HcalGeom") << "about to getConst for 0..1";
