@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -40,6 +40,8 @@ private:
   TProfile* h_phi;
 
   TH1D* h_diffs[10][12];
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 };
 
 SurveyToTransforms::SurveyToTransforms( const edm::ParameterSet& iConfig )
@@ -67,15 +69,16 @@ SurveyToTransforms::SurveyToTransforms( const edm::ParameterSet& iConfig )
 					  200, -200., 200. ) ;
      }
   }
+
+  geometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{});
 }
 
 void
 SurveyToTransforms::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);     
+  const auto& pG = iSetup.getData(geometryToken_);
 
-   pG->getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) ;
+  pG.getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) ;
 }
 
 DEFINE_FWK_MODULE(SurveyToTransforms);

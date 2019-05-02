@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
@@ -35,9 +35,14 @@ class CaloGeometryEPtest : public edm::ESProducer
       CaloGeometryEPtest<T>( const edm::ParameterSet& ps ) :
 	 m_applyAlignment ( ps.getParameter<bool>("applyAlignment") )
       {
-	 setWhatProduced( this,
-			  &CaloGeometryEPtest<T>::produceAligned,
-			  edm::es::Label( T::producerTag() ) ) ;
+         auto cc = setWhatProduced( this,
+                                    &CaloGeometryEPtest<T>::produceAligned,
+                                    edm::es::Label( T::producerTag() ) ) ;
+         if(m_applyAlignment) {
+           m_alignmentsToken = cc.template consumesFrom<Alignments, typename T::AlignmentRecord>(edm::ESInputTag{});
+           m_globalsToken = cc.template consumesFrom<Alignments, GlobalPositionRcd>(edm::ESInputTag{});
+         }
+         m_geometryToken = cc.template consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
       }
 
       ~CaloGeometryEPtest<T>() override {}
@@ -47,28 +52,25 @@ class CaloGeometryEPtest : public edm::ESProducer
 	 const Alignments* globalPtr ( nullptr ) ;
 	 if( m_applyAlignment ) // get ptr if necessary
 	 {
-	    edm::ESHandle< Alignments >                                      alignments ;
-	    iRecord.template getRecord< typename T::AlignmentRecord >().get( alignments ) ;
+           const auto& alignments = iRecord.get(m_alignmentsToken);
 
-	    assert( alignments.isValid() && // require valid alignments and expected size
-		    ( alignments->m_align.size() == T::numberOfAlignments() ) ) ;
-	    alignPtr = alignments.product() ;
+           // require expected size
+           assert( alignments.m_align.size() == T::numberOfAlignments() ) ;
+           alignPtr = &alignments ;
 
-	    edm::ESHandle< Alignments >                          globals   ;
-	    iRecord.template getRecord<GlobalPositionRcd>().get( globals ) ;
-
-	    assert( globals.isValid() ) ;
-	    globalPtr = globals.product() ;
+           globalPtr = &(iRecord.get(m_globalsToken));
 	 }
-	 edm::ESTransientHandle<DDCompactView> cpv ;
-	 iRecord.template getRecord<IdealGeometryRecord>().get( cpv ) ;
+	 edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(m_geometryToken);
 
 	 LoaderType loader ;
-	 return loader.load( &(*cpv), alignPtr, globalPtr);
+	 return loader.load( cpv.product(), alignPtr, globalPtr);
       }
 
    private:
 
+      edm::ESGetToken<Alignments, typename T::AlignmentRecord> m_alignmentsToken;
+      edm::ESGetToken<Alignments, GlobalPositionRcd> m_globalsToken;
+      edm::ESGetToken<DDCompactView, IdealGeometryRecord> m_geometryToken;
 
       bool        m_applyAlignment ;
 };
