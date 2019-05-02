@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <SolidSection>
+  </SolidSection>
+  <LogicalPartSection>
+    <LogicalPart>
+      <rMaterial />
+      <rSolid />
+    </LogicalPart>
+  </LogicalPartSection>
+  <Algorithm name="global:DDTIDAxialCable">
+    <rParent name="testDDTIDAxialCableAlgorithm:MotherOfAllBoxes"/>
+    <String name="ChildName" />
+    <String name="MaterialIn" />
+    <String name="MaterialOut" />
+    <Numeric name="ZBend" value=""/>
+    <Numeric name="ZEnd" value=""/>
+    <Numeric name="RMin" value=""/>
+    <Numeric name="RMax" value=""/>
+    <Numeric name="RTop" value=""/>
+    <Numeric name="Width" value=""/>
+    <Numeric name="Thick" value=""/>
+    <Vector name="Angles" type="numeric" nEntries=""> </Vector>
+    <Vector name="ZPosWheel" type="numeric" nEntries=""> </Vector>
+    <Vector name="ZPosRing" type="numeric" nEntries=""> </Vector>
+  </Algorithm>
+  <PosPartSection label="">
+    <PosPart>
+    </PosPart>
+  </PosPartSection>
+</DDDefinition>
