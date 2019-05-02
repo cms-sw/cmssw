@@ -94,15 +94,16 @@ def parse_args():
         folder, name, histograms = parse_plot_string(ss)
         plots += [(folder, name, histograms)]
     
+    # This needs to be also changed whenever changing binning
     if args.doResponsePlots:
         plots += [("JetResponse", "reso_pt", ["preso_eta05", "preso_eta13",
-         "preso_eta21","preso_eta25","preso_eta30","preso_eta40","preso_eta50"])]
+         "preso_eta21","preso_eta25","preso_eta30","preso_eta50"])]
         plots += [("JetResponse", "reso_pt_rms", ["preso_eta05_rms",
          "preso_eta13_rms","preso_eta21_rms","preso_eta25_rms","preso_eta30_rms",
-         "preso_eta40_rms","preso_eta50_rms"])]
+         "preso_eta50_rms"])]
         plots += [("JetResponse", "response_pt", ["presponse_eta05",
          "presponse_eta13", "presponse_eta21", "presponse_eta25", "presponse_eta30",
-         "presponse_eta40","presponse_eta50"])]
+         "presponse_eta50"])]
         for iptbin in range(len(ptbins)-1):
             pthistograms = []
             for ietabin in range(len(etabins)-1):
@@ -125,19 +126,34 @@ def parse_args():
 def addPlots(plotter, folder, name, section, histograms, opts, offset=False):
     folders = [folder]
     plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
+    print plots
     if offset :
         plotter.append("Offset", folders, PlotFolder(*plots, loopSubFolders=False, page="offset", section=section))
     else :
         plotter.append("ParticleFlow", folders, PlotFolder(*plots, loopSubFolders=False, page="pf", section=section))
+        for plot in plots:
+            plot.setProperties(ncols=3)
+	    plot.setProperties(legendDw=-0.68)
+	    plot.setProperties(legendDh=0.005)
+	    plot.setProperties(legendDy=0.24)
+	    plot.setProperties(legendDx=0.05)
 
 
 def main():
 
-    #plot-dependent style options
+    # plot-dependent style options
+    # style options can be found from Validation/RecoTrack/python/plotting/plotting.py
+    styledict_resolution = {"xlog": True, "xgrid":False, "ygrid":False,
+        "xtitle":"GenJet pT (GeV)", "ytitle":"Jet pT resolution",
+        "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
+        
+    styledict_response = {"xlog": True, "xgrid":False, "ygrid":False,
+        "xtitle":"GenJet pT (GeV)", "ytitle":"Jet response",
+        "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
     plot_opts = {
-        "reso_pt": {"xlog": True},
-        "reso_pt_rms": {"xlog": True},
-        "response_pt": {"xlog": True},
+        "reso_pt": styledict_resolution,
+        "reso_pt_rms": styledict_resolution,
+        "response_pt": styledict_response
     }
     for iptbin in range(len(ptbins)-1):
         plot_opts["response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1])] = {"stat": True}
@@ -148,6 +164,7 @@ def main():
 
     for folder, name, histograms in plots:
         opts = plot_opts.get(name, {})
+
         fullfolder =  "DQMData/Run 1/Physics/Run summary/{0}".format(folder)
         print "Booking histogram group {0}={1} from folder {2}".format(name, histograms, folder)
         if "Offset/" in folder :
