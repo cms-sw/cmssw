@@ -20,7 +20,7 @@ ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset):
   srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))),
   rivetAnalysis_(new Rivet::RivetAnalysis(pset))
 {
-  usesResource();
+  usesResource("Rivet");
 
   genVertex_ = reco::Particle::Point(0,0,0);
 

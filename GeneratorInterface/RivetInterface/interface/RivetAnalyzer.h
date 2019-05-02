@@ -1,7 +1,7 @@
 #ifndef GeneratorInterface_RivetInterface_RivetAnalyzer
 #define GeneratorInterface_RivetInterface_RivetAnalyzer
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "Rivet/AnalysisHandler.hh"
 
 //DQM services
@@ -18,7 +18,7 @@
 #include <vector>
 #include <string>
 
-class RivetAnalyzer : public edm::EDAnalyzer
+class RivetAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources>
 {
   public:
   RivetAnalyzer(const edm::ParameterSet&);

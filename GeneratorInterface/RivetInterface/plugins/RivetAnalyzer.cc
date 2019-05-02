@@ -22,6 +22,8 @@ _doFinalize(pset.getParameter<bool>("DoFinalize")),
 _produceDQM(pset.getParameter<bool>("ProduceDQMOutput")),
 _xsection(-1.)
 {
+  usesResource("Rivet");
+  
   //retrive the analysis name from paarmeter set
   std::vector<std::string> analysisNames = pset.getParameter<std::vector<std::string> >("AnalysisNames");
   
