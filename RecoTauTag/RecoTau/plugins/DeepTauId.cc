@@ -449,7 +449,7 @@ struct MuonHitMatchV2 {
 };
 
 enum class CellObjectType { PfCand_electron, PfCand_muon, PfCand_chargedHadron, PfCand_neutralHadron,
-                            PfCand_gamma, Electron, Muon, other };
+                            PfCand_gamma, Electron, Muon, Other };
 
 template<typename Object>
 CellObjectType GetCellObjectType(const Object&);
@@ -471,7 +471,7 @@ CellObjectType GetCellObjectType(const pat::PackedCandidate& cand)
 
     auto iter = obj_types.find(std::abs(cand.pdgId()));
     if(iter == obj_types.end())
-        return CellObjectType::other;
+        return CellObjectType::Other;
     return iter->second;
 }
 
@@ -811,13 +811,12 @@ private:
         get(tau_ip3d) = tau_ip3d_valid ? getValueNorm(tau.ip3d(), 0.0026f, 0.0114f) : 0.f;
         get(tau_ip3d_sig) = tau_ip3d_valid ? getValueNorm(std::abs(tau.ip3d()) / tau.ip3d_error(), 2.928f, 4.466f) : 0.f;
 
-        get(tau_dz) = leadChargedHadrCand && leadChargedHadrCand->hasTrackDetails() ?
-            getValueNorm(leadChargedHadrCand->dz(), 0.f, 0.0190f) : 0.f;
+        get(tau_dz) = leadChargedHadrCand ? getValueNorm(leadChargedHadrCand->dz(), 0.f, 0.0190f) : 0.f;
         const bool tau_dz_sig_valid = leadChargedHadrCand && leadChargedHadrCand->hasTrackDetails() &&
             std::isnormal(leadChargedHadrCand->dz()) && std::isnormal(leadChargedHadrCand->dzError()) && leadChargedHadrCand->dzError() > 0;
         get(tau_dz_sig_valid) = tau_dz_sig_valid;
-        get(tau_dz_sig) = leadChargedHadrCand && leadChargedHadrCand->hasTrackDetails() ?
-        getValueNorm(std::abs(leadChargedHadrCand->dz()) / leadChargedHadrCand->dzError(), 4.717f, 11.78f) : 0.f;
+        get(tau_dz_sig) = tau_dz_sig_valid ?
+            getValueNorm(std::abs(leadChargedHadrCand->dz()) / leadChargedHadrCand->dzError(), 4.717f, 11.78f) : 0.f;
 
         get(tau_flightLength_x) = getValueNorm(tau.flightLength().x(), -0.0003f, 0.7362f);
         get(tau_flightLength_y) = getValueNorm(tau.flightLength().y(), -0.0009f, 0.7354f);
