@@ -38,9 +38,9 @@ public:
   };
 
   explicit AlignmentRcdScan( const edm::ParameterSet& iConfig );
-  ~AlignmentRcdScan();
+  ~AlignmentRcdScan() override;
 
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup); 
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override; 
 
 private:
 
@@ -60,7 +60,7 @@ private:
 
 AlignmentRcdScan::AlignmentRcdScan( const edm::ParameterSet& iConfig )
   :verbose_(iConfig.getUntrackedParameter<bool>("verbose")),
-   refAlignments_(0)
+   refAlignments_(nullptr)
 {
   std::string modestring = iConfig.getUntrackedParameter<std::string>("mode");
   if (modestring=="Tk") {

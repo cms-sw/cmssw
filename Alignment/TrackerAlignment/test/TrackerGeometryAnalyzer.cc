@@ -38,8 +38,8 @@ TrackerGeometryAnalyzer
   analyzeTOB_     (config.getParameter<bool>("analyzeTOB")),
   analyzeTEC_     (config.getParameter<bool>("analyzeTEC")),
 
-  trackerTopology(0),
-  trackerGeometry(0),
+  trackerTopology(nullptr),
+  trackerGeometry(nullptr),
   // will be reset once the geometry is known:
   alignableObjectId_{AlignableObjectId::Geometry::General}
 {
@@ -250,7 +250,7 @@ int TrackerGeometryAnalyzer
     AlignableSiStripDet* isSiStripDet
                            = dynamic_cast<AlignableSiStripDet*>(alignable);
     if (!isSiStripDet) {
-      if (alignable->components().size()) {
+      if (!alignable->components().empty()) {
         ++num;
         num += countCompositeAlignables(alignable);
       }
@@ -268,7 +268,7 @@ void TrackerGeometryAnalyzer
   if (indent == maxPrintDepth_) return;
 
   for (auto* alignable : compositeAlignable->components()) {
-    if (alignable->components().size()) {
+    if (!alignable->components().empty()) {
       for (int i = 0; i < (3*indent); ++i) ss << " ";
 
       auto type = alignableObjectId_.idToString(alignable->alignableObjectId());

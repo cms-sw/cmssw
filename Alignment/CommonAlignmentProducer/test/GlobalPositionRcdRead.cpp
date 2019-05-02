@@ -17,8 +17,8 @@ public:
   explicit GlobalPositionRcdRead( const edm::ParameterSet& iConfig )
     : nEventCalls_(0)
   {}
-  ~GlobalPositionRcdRead() {}
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup); 
+  ~GlobalPositionRcdRead() override {}
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override; 
   
 private:
 

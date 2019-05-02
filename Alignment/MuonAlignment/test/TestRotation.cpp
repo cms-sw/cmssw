@@ -43,10 +43,10 @@ class TestRotation : public edm::EDAnalyzer
 {
 public:
   explicit TestRotation( const edm::ParameterSet& );
-  ~TestRotation();
+  ~TestRotation() override;
   
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 private:
   // ----------member data ---------------------------
   TTree* theTree;
@@ -76,7 +76,7 @@ TestRotation::TestRotation( const edm::ParameterSet& iConfig )
   theTree->Branch("length", &length, "length/F" );
   theTree->Branch("width",  &width,  "width/F"  );
   theTree->Branch("thick",  &thick,  "thick/F"  );
-  dir = 0;
+  dir = nullptr;
   theTree->Branch("dir",    "TRotMatrix", &dir  );
 }
 
