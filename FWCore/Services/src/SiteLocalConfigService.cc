@@ -155,7 +155,7 @@ namespace edm {
         return "file:PoolFileCatalog.xml";
       }
 
-      if (m_dataCatalog == "") {
+      if (m_dataCatalog.empty()) {
         throw cms::Exception("Incomplete configuration") << "Did not find catalog in event-data section in " << m_url;
       }
 
@@ -179,12 +179,12 @@ namespace edm {
         throw cms::Exception("Incomplete configuration") << "Valid site-local-config not found at " << m_url;
       }
 
-      if (m_frontierConnect == "") {
+      if (m_frontierConnect.empty()) {
         throw cms::Exception("Incomplete configuration")
             << "Did not find frontier-connect in calib-data section in " << m_url;
       }
 
-      if (servlet == "") {
+      if (servlet.empty()) {
         return m_frontierConnect;
       }
 
@@ -230,7 +230,7 @@ namespace edm {
           endservlet = input.rfind('/', input.length());
         }
         std::string servlet = input.substr(startservlet, endservlet - startservlet);
-        if ((servlet != "") && (servlet.find_first_of(":/)[]") == std::string::npos)) {
+        if ((!servlet.empty()) && (servlet.find_first_of(":/)[]") == std::string::npos)) {
           if (servlet == "cms_conditions_data") {
             // use the default servlet from site-local-config.xml
             servlet = "";

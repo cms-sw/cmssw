@@ -100,7 +100,7 @@ namespace edm {
                   << "Path '" << pathName << "' with (>1) HLTPrescalers: " << path2module[pathName] << "+"
                   << moduleLabel << "!";
             }
-            if (module2path[moduleLabel] == "") {
+            if (module2path[moduleLabel].empty()) {
               module2path[moduleLabel] = pathName;
             } else {
               throw cms::Exception("PrescaleServiceConfigError")
@@ -112,7 +112,7 @@ namespace edm {
       }
       // Check all HLTPrescaler instances are on a path
       for (std::map<std::string, std::string>::const_iterator it = module2path.begin(); it != module2path.end(); ++it) {
-        if (it->second == "") {
+        if (it->second.empty()) {
           throw cms::Exception("PrescaleServiceConfigError")
               << " HLTPrescaler '" << it->first << "' not found on any path!";
         }
