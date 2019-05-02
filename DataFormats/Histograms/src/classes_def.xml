@@ -73,4 +73,14 @@
 
  <class name="DQMToken" ClassVersion="0"/>
  <class name="edm::Wrapper<DQMToken>" persistent="false"/>
+
+ <class name="MonitorElementData" ClassVersion="3" checksum="1692878436">
+  <version ClassVersion="3" checksum="1692878436"/>
+ </class>
+ <class name="edm::Wrapper<MonitorElementData>"/>
+ <class name="MonitorElementCollection" ClassVersion="3" checksum="506351949">
+  <version ClassVersion="3" checksum="506351949"/>
+ </class>
+ <class name="edm::Wrapper<MonitorElementCollection>"/>
+
 </lcgdict>
