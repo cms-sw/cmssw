@@ -516,8 +516,7 @@ GlobalPoint HGCalTriggerGeometryV9Imp1::getTriggerCellPosition(const unsigned tr
   // Scintillator
   if (subdet == ForwardSubdetector::HGCHEB) {
     for (const auto& cell : cell_ids) {
-      HcalDetId cellDetId(cell);
-      triggerCellVector += hscGeometry()->getPosition(cellDetId).basicVector();
+      triggerCellVector += hscGeometry()->getPosition(cell).basicVector();
     }
   }
   // Silicon
@@ -540,8 +539,7 @@ GlobalPoint HGCalTriggerGeometryV9Imp1::getModulePosition(const unsigned module_
   // Scintillator
   if (subdet == ForwardSubdetector::HGCHEB) {
     for (const auto& cell : cell_ids) {
-      HGCScintillatorDetId cellDetId(cell);
-      moduleVector += hscGeometry()->getPosition(cellDetId).basicVector();
+      moduleVector += hscGeometry()->getPosition(cell).basicVector();
     }
   }
   // Silicon

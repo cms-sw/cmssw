@@ -171,7 +171,9 @@ unsigned HGCalTriggerGeometryV9Imp2::getModuleFromTriggerCell(const unsigned tri
     tc_type = trigger_cell_sc_id.type();
     layer = trigger_cell_sc_id.layer();
     zside = trigger_cell_sc_id.zside();
-    int ieta = ((trigger_cell_sc_id.ietaAbs() - 1) / hSc_module_size_ + 1) * zside;
+    int ietamin = hscTopology().dddConstants().getREtaRange(layer).first;
+    int ietamin_tc = ((ietamin - 1) / hSc_triggercell_size_ + 1);
+    int ieta = ((trigger_cell_sc_id.ietaAbs() - ietamin_tc) / hSc_module_size_ + 1) * zside;
     int iphi = (trigger_cell_sc_id.iphi() - 1) / hSc_module_size_ + 1;
     module_id = HGCScintillatorDetId(tc_type, layer, ieta, iphi);
   }
@@ -271,7 +273,9 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp2::getTriggerCellsFr
   // Scintillator
   if (det == DetId::HGCalHSc) {
     HGCScintillatorDetId module_sc_id(module_id);
-    int ieta0 = (module_sc_id.ietaAbs() - 1) * hSc_module_size_ + 1;
+    int ietamin = hscTopology().dddConstants().getREtaRange(module_sc_id.layer()).first;
+    int ietamin_tc = ((ietamin - 1) / hSc_triggercell_size_ + 1);
+    int ieta0 = (module_sc_id.ietaAbs() - 1) * hSc_module_size_ + ietamin_tc;
     int iphi0 = (module_sc_id.iphi() - 1) * hSc_module_size_ + 1;
     for (int ietaAbs = ieta0; ietaAbs < ieta0 + (int)hSc_module_size_; ietaAbs++) {
       int ieta = ietaAbs * module_sc_id.zside();
@@ -420,8 +424,7 @@ GlobalPoint HGCalTriggerGeometryV9Imp2::getTriggerCellPosition(const unsigned tr
   // Scintillator
   if (det == DetId::HGCalHSc) {
     for (const auto& cell : cell_ids) {
-      HGCScintillatorDetId cellDetId(cell);
-      triggerCellVector += hscGeometry()->getPosition(cellDetId).basicVector();
+      triggerCellVector += hscGeometry()->getPosition(cell).basicVector();
     }
   }
   // Silicon
@@ -444,8 +447,7 @@ GlobalPoint HGCalTriggerGeometryV9Imp2::getModulePosition(const unsigned module_
   // Scintillator
   if (det == DetId::HGCalHSc) {
     for (const auto& cell : cell_ids) {
-      HGCScintillatorDetId cellDetId(cell);
-      moduleVector += hscGeometry()->getPosition(cellDetId).basicVector();
+      moduleVector += hscGeometry()->getPosition(cell).basicVector();
     }
   }
   // Silicon
