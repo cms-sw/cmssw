@@ -2,7 +2,7 @@
 //
 // Package:    HGCalGeometry
 // Class:      FastTimeGeometryESProducer
-// 
+//
 /**\class FastTimeGeometryESProducer FastTimeGeometryESProducer.h 
 
  Description: <one line class summary>
@@ -14,7 +14,6 @@
 // Original Author:  Sunanda Banerjee
 //
 //
-
 
 // system include files
 #include <memory>
@@ -36,10 +35,9 @@
 //
 
 class FastTimeGeometryESProducer : public edm::ESProducer {
-
 public:
-  FastTimeGeometryESProducer( const edm::ParameterSet& iP );
-  ~FastTimeGeometryESProducer() override ;
+  FastTimeGeometryESProducer(const edm::ParameterSet& iP);
+  ~FastTimeGeometryESProducer() override;
 
   using ReturnType = std::unique_ptr<FastTimeGeometry>;
 
@@ -47,36 +45,29 @@ public:
 
 private:
   // ----------member data ---------------------------
-  std::string        name_;
-  int                type_;
+  std::string name_;
+  int type_;
 };
 
-
 FastTimeGeometryESProducer::FastTimeGeometryESProducer(const edm::ParameterSet& iConfig) {
-
-  name_     = iConfig.getUntrackedParameter<std::string>("Name");
-  type_     = iConfig.getUntrackedParameter<int>("Type");
+  name_ = iConfig.getUntrackedParameter<std::string>("Name");
+  type_ = iConfig.getUntrackedParameter<int>("Type");
 #ifdef EDM_ML_DEBUG
-  std::cout <<"constructing FastTimeGeometry for " << name_ << " Type "
-	    << type_ << std::endl;
+  std::cout << "constructing FastTimeGeometry for " << name_ << " Type " << type_ << std::endl;
 #endif
   setWhatProduced(this, name_);
 }
 
-
-FastTimeGeometryESProducer::~FastTimeGeometryESProducer() { }
-
+FastTimeGeometryESProducer::~FastTimeGeometryESProducer() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-FastTimeGeometryESProducer::ReturnType
-FastTimeGeometryESProducer::produce(const IdealGeometryRecord& iRecord ) {
-
+FastTimeGeometryESProducer::ReturnType FastTimeGeometryESProducer::produce(const IdealGeometryRecord& iRecord) {
   edm::ESHandle<FastTimeTopology> topo;
-  iRecord.get(name_,topo);
+  iRecord.get(name_, topo);
 
   FastTimeGeometryLoader builder;
 #ifdef EDM_ML_DEBUG
