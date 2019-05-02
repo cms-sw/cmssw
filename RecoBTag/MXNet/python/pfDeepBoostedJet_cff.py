@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoBTag.FeatureTools.pfDeepBoostedJetTagInfos_cfi import pfDeepBoostedJetTagInfos
 from RecoBTag.MXNet.pfDeepBoostedJetTags_cfi import pfDeepBoostedJetTags as _pfDeepBoostedJetTags
-from RecoBTag.MXNet.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams
+from RecoBTag.MXNet.Parameters.V01.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams
 from RecoBTag.MXNet.pfDeepBoostedDiscriminatorsJetTags_cfi import pfDeepBoostedDiscriminatorsJetTags
 from RecoBTag.MXNet.pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags_cfi import pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags
 
@@ -20,6 +20,21 @@ pfMassDecorrelatedDeepBoostedJetTags = _pfDeepBoostedJetTags.clone(
     model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V01/decorrelated/resnet-symbol.json',
     param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V01/decorrelated/resnet-0000.params',
     debugMode = False, # debug
+)
+
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+from RecoBTag.MXNet.Parameters.V02.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams as pfDeepBoostedJetPreprocessParamsV02
+from RecoBTag.MXNet.Parameters.V02.pfMassDecorrelatedDeepBoostedJetPreprocessParams_cfi import pfMassDecorrelatedDeepBoostedJetPreprocessParams as pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
+
+run2_miniAOD_devel.toModify(pfDeepBoostedJetTags,
+    preprocessParams = pfDeepBoostedJetPreprocessParamsV02,
+    model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-symbol.json',
+    param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-0000.params',
+)
+run2_miniAOD_devel.toModify(pfMassDecorrelatedDeepBoostedJetTags,
+    preprocessParams = pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02,
+    model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-symbol.json',
+    param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-0000.params',
 )
 
 from CommonTools.PileupAlgos.Puppi_cff import puppi
