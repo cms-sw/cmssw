@@ -26,30 +26,25 @@
 #include <Geometry/Records/interface/HcalSimNumberingRecord.h>
 
 class HcalDDDSimConstantsESModule : public edm::ESProducer {
-
 public:
   HcalDDDSimConstantsESModule(const edm::ParameterSet&);
 
   using ReturnType = std::unique_ptr<HcalDDDSimConstants>;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & );
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   ReturnType produce(const HcalSimNumberingRecord&);
 };
 
-HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet&) {
-  setWhatProduced(this);
-}
+HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet&) { setWhatProduced(this); }
 
-void HcalDDDSimConstantsESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
+void HcalDDDSimConstantsESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add( "hcalDDDSimConstants", desc );
+  descriptions.add("hcalDDDSimConstants", desc);
 }
 
 // ------------ method called to produce the data  ------------
-HcalDDDSimConstantsESModule::ReturnType
-HcalDDDSimConstantsESModule::produce(const HcalSimNumberingRecord& iRecord) {
-
+HcalDDDSimConstantsESModule::ReturnType HcalDDDSimConstantsESModule::produce(const HcalSimNumberingRecord& iRecord) {
   const HcalParametersRcd& parRecord = iRecord.getRecord<HcalParametersRcd>();
   edm::ESHandle<HcalParameters> parHandle;
   parRecord.get(parHandle);

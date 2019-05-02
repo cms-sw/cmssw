@@ -11,21 +11,20 @@
 #include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
 
 #include <memory>
- 
 
-class  HcalParametersESModule : public edm::ESProducer {
+class HcalParametersESModule : public edm::ESProducer {
 public:
-  HcalParametersESModule( const edm::ParameterSet & );
-  ~HcalParametersESModule( void ) override;
-  
+  HcalParametersESModule(const edm::ParameterSet&);
+  ~HcalParametersESModule(void) override;
+
   using ReturnType = std::unique_ptr<HcalParameters>;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & );
-  
-  ReturnType produce( const HcalParametersRcd & );
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+  ReturnType produce(const HcalParametersRcd&);
 };
 
-HcalParametersESModule::HcalParametersESModule( const edm::ParameterSet& ) {
+HcalParametersESModule::HcalParametersESModule(const edm::ParameterSet&) {
   edm::LogInfo("HCAL") << "HcalParametersESModule::HcalParametersESModule";
 
   setWhatProduced(this);
@@ -33,23 +32,21 @@ HcalParametersESModule::HcalParametersESModule( const edm::ParameterSet& ) {
 
 HcalParametersESModule::~HcalParametersESModule() {}
 
-void HcalParametersESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
+void HcalParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add( "hcalParameters", desc );
+  descriptions.add("hcalParameters", desc);
 }
 
-HcalParametersESModule::ReturnType
-HcalParametersESModule::produce( const HcalParametersRcd& iRecord ) {
-  edm::LogInfo("HcalESModule")
-    <<  "HcalParametersESModule::produce(const HcalParametersRcd& iRecord)";
+HcalParametersESModule::ReturnType HcalParametersESModule::produce(const HcalParametersRcd& iRecord) {
+  edm::LogInfo("HcalESModule") << "HcalParametersESModule::produce(const HcalParametersRcd& iRecord)";
   edm::ESTransientHandle<DDCompactView> cpv;
-  iRecord.getRecord<IdealGeometryRecord>().get( cpv );
-  
+  iRecord.getRecord<IdealGeometryRecord>().get(cpv);
+
   auto ptp = std::make_unique<HcalParameters>();
   HcalParametersFromDD builder;
-  builder.build( &(*cpv), *ptp );
-  
+  builder.build(&(*cpv), *ptp);
+
   return ptp;
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE( HcalParametersESModule);
+DEFINE_FWK_EVENTSETUP_MODULE(HcalParametersESModule);

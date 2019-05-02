@@ -1,6 +1,6 @@
 #include "Geometry/HcalCommonData/interface/HcalTopologyMode.h"
 
-template<>
+template <>
 StringToEnumParser<HcalTopologyMode::Mode>::StringToEnumParser() {
   enumMap["HcalTopologyMode::LHC"] = HcalTopologyMode::LHC;
   enumMap["HcalTopologyMode::H2"] = HcalTopologyMode::H2;
@@ -8,7 +8,7 @@ StringToEnumParser<HcalTopologyMode::Mode>::StringToEnumParser() {
   enumMap["HcalTopologyMode::H2HE"] = HcalTopologyMode::H2HE;
 }
 
-template<>
+template <>
 StringToEnumParser<HcalTopologyMode::TriggerMode>::StringToEnumParser() {
   enumMap["HcalTopologyMode::TriggerMode_2009"] = HcalTopologyMode::TriggerMode_2009;
   enumMap["HcalTopologyMode::TriggerMode_2016"] = HcalTopologyMode::TriggerMode_2016;

@@ -2,7 +2,7 @@
 //
 // Package:    HcalDDDRecConstantsESModule
 // Class:      HcalDDDRecConstantsESModule
-// 
+//
 /**\class HcalDDDRecConstantsESModule HcalDDDRecConstantsESModule.h Geometry/HcalCommonData/interface/HcalDDDRecConstantsESModule.h
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 // $Id: HcalDDDRecConstantsESModule.cc,v 1.0 2013/12/24 12:47:41 sunanda Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -35,42 +34,39 @@
 //#define EDM_ML_DEBUG
 
 class HcalDDDRecConstantsESModule : public edm::ESProducer {
-
 public:
   HcalDDDRecConstantsESModule(const edm::ParameterSet&);
   ~HcalDDDRecConstantsESModule() override;
 
   using ReturnType = std::unique_ptr<HcalDDDRecConstants>;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & );
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   ReturnType produce(const HcalRecNumberingRecord&);
-
 };
 
 HcalDDDRecConstantsESModule::HcalDDDRecConstantsESModule(const edm::ParameterSet& iConfig) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") <<"constructing HcalDDDRecConstantsESModule";
+  edm::LogVerbatim("HcalGeom") << "constructing HcalDDDRecConstantsESModule";
 #endif
   setWhatProduced(this);
 }
 
 HcalDDDRecConstantsESModule::~HcalDDDRecConstantsESModule() {}
 
-void HcalDDDRecConstantsESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
+void HcalDDDRecConstantsESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add( "hcalDDDRecConstants", desc );
+  descriptions.add("hcalDDDRecConstants", desc);
 }
 
 // ------------ method called to produce the data  ------------
-HcalDDDRecConstantsESModule::ReturnType
-HcalDDDRecConstantsESModule::produce(const HcalRecNumberingRecord& iRecord) {
+HcalDDDRecConstantsESModule::ReturnType HcalDDDRecConstantsESModule::produce(const HcalRecNumberingRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalGeom") << "in HcalDDDRecConstantsESModule::produce";
 #endif
-  edm::ESHandle<HcalParameters>         parHandle;
+  edm::ESHandle<HcalParameters> parHandle;
   iRecord.getRecord<HcalParametersRcd>().get(parHandle);
-  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  edm::ESHandle<HcalDDDSimConstants> hdc;
   iRecord.getRecord<HcalSimNumberingRecord>().get(hdc);
 
   return std::make_unique<HcalDDDRecConstants>(&(*parHandle), *hdc);
