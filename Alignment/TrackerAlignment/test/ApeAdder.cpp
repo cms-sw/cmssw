@@ -8,7 +8,6 @@
 //         Created:  December 5, 2006
 //
 
-
 // system include files
 
 // user include files
@@ -33,41 +32,33 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-
 // Class declaration
 class ApeAdder : public edm::EDAnalyzer {
 public:
-  explicit ApeAdder( const edm::ParameterSet& );
-  ~ApeAdder() override {};
-  
-  
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  explicit ApeAdder(const edm::ParameterSet&);
+  ~ApeAdder() override{};
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-    // methods
+  // methods
   void addApe(const align::Alignables& alignables);
-    
+
 private:
-    // members
+  // members
   std::string theErrorRecordName;
-    std::vector<double> theApe; // Amount of APE to add (from config.)
-  
+  std::vector<double> theApe;  // Amount of APE to add (from config.)
 };
 
-ApeAdder::ApeAdder( const edm::ParameterSet& iConfig )  :
-  theErrorRecordName( "TrackerAlignmentErrorExtendedRcd" )
-{ 
-
+ApeAdder::ApeAdder(const edm::ParameterSet& iConfig) : theErrorRecordName("TrackerAlignmentErrorExtendedRcd") {
   // The APE to set to all GeomDets
-  theApe = iConfig.getUntrackedParameter< std::vector<double> >("apeVector");
-  
+  theApe = iConfig.getUntrackedParameter<std::vector<double> >("apeVector");
 }
 
 //__________________________________________________________________________________________________
-void ApeAdder::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+void ApeAdder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 {
-
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
@@ -75,46 +66,41 @@ void ApeAdder::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 
   // Get geometry from ES
   edm::ESHandle<TrackerGeometry> trackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
-    
+  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
+
   // Create the alignable hierarchy
-  AlignableTracker* theAlignableTracker = new AlignableTracker( &(*trackerGeometry), tTopo );
-  
+  AlignableTracker* theAlignableTracker = new AlignableTracker(&(*trackerGeometry), tTopo);
+
   // Now loop on alignable dets and add alignment error
-  if ( !theAlignableTracker->barrelGeomDets().empty() ) 
+  if (!theAlignableTracker->barrelGeomDets().empty())
     this->addApe(theAlignableTracker->barrelGeomDets());
-  if ( !theAlignableTracker->pixelHalfBarrelGeomDets().empty() ) 
+  if (!theAlignableTracker->pixelHalfBarrelGeomDets().empty())
     this->addApe(theAlignableTracker->pixelHalfBarrelGeomDets());
-  if ( !theAlignableTracker->endcapGeomDets().empty() ) 
+  if (!theAlignableTracker->endcapGeomDets().empty())
     this->addApe(theAlignableTracker->endcapGeomDets());
-  if ( !theAlignableTracker->TIDGeomDets().empty() ) 
+  if (!theAlignableTracker->TIDGeomDets().empty())
     this->addApe(theAlignableTracker->TIDGeomDets());
-  if ( !theAlignableTracker->pixelEndcapGeomDets().empty() ) 
+  if (!theAlignableTracker->pixelEndcapGeomDets().empty())
     this->addApe(theAlignableTracker->pixelEndcapGeomDets());
-  
+
   // Store to DB
   AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
 
   // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( !poolDbService.isAvailable() ) // Die if not available
+  if (!poolDbService.isAvailable())  // Die if not available
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
   // Save to DB
-  poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->beginOfTime(),
-                                           theErrorRecordName);
-
+  poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName);
 
   delete theAlignableTracker;
-
 }
 
-void ApeAdder::addApe(const align::Alignables& alignables)
-{
-  
-  AlignmentPositionError ape( theApe[0], theApe[1], theApe[2] );
-  for (const auto& iDet: alignables) {
-    iDet->setAlignmentPositionError(ape, true); // true: propagate to components
+void ApeAdder::addApe(const align::Alignables& alignables) {
+  AlignmentPositionError ape(theApe[0], theApe[1], theApe[2]);
+  for (const auto& iDet : alignables) {
+    iDet->setAlignmentPositionError(ape, true);  // true: propagate to components
   }
 }
 
