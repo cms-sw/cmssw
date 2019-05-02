@@ -100,6 +100,10 @@ public:
   unsigned int totalGeomModules() const {return (unsigned int)(2*kHGeomHalf_);}
   unsigned int allGeomModules() const;
 
+  bool maskCell(const DetId& id, int corners=3) const {
+    return dddConstants().maskCell(id, corners);
+  }
+
   const HGCalDDDConstants& dddConstants () const {return hdcons_;}
   
   /** returns a new DetId offset by nrStepsX and nrStepsY (can be negative),
