@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 # options.parseArguments()
 updatedTauName = "slimmedTausNewID"
 minimalOutput = True
-eventsToProcess = 10
+eventsToProcess = 1000
 nThreads = 2
 
 process = cms.Process('TauID')

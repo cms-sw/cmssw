@@ -449,7 +449,7 @@ struct MuonHitMatchV2 {
 };
 
 enum class CellObjectType { PfCand_electron, PfCand_muon, PfCand_chargedHadron, PfCand_neutralHadron,
-                            PfCand_gamma, Electron, Muon };
+                            PfCand_gamma, Electron, Muon, other };
 
 template<typename Object>
 CellObjectType GetCellObjectType(const Object&);
@@ -471,7 +471,7 @@ CellObjectType GetCellObjectType(const pat::PackedCandidate& cand)
 
     auto iter = obj_types.find(std::abs(cand.pdgId()));
     if(iter == obj_types.end())
-        throw cms::Exception("DeepTauId") << "Unknown object pdg id = " << cand.pdgId();
+        return CellObjectType::other;
     return iter->second;
 }
 
@@ -600,7 +600,6 @@ public:
             if(shape.dim(1).size() != dnn_inputs_2017v1::NumberOfInputs)
                 throw cms::Exception("DeepTauId") << "number of inputs does not match the expected inputs for the given version";
         } else if(version == 2) {
-
         } else {
             throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
         }
@@ -724,13 +723,12 @@ private:
         const auto input_outer_egamma = createEgammaBlockInputs(tau, pv, rho, electrons, pfCands, outer_grid, false);
         const auto input_outer_muon = createMuonBlockInputs(tau, pv, rho, muons, pfCands, outer_grid, false);
         const auto input_outer_hadrons = createHadronsBlockInputs(tau, pv, rho, pfCands, outer_grid, false);
-
         tensorflow::run(&(cache_->getSession()),
             { { "input_tau", input_tau },
               { "input_inner_egamma", input_inner_egamma}, { "input_outer_egamma", input_outer_egamma },
               { "input_inner_muon", input_inner_muon }, { "input_outer_muon", input_outer_muon },
               { "input_inner_hadrons", input_inner_hadrons }, { "input_outer_hadrons", input_outer_hadrons } },
-            { "main_output" }, &pred_vector);
+            { "main_output/Softmax" }, &pred_vector);
     }
 
     template<typename Collection>
@@ -812,11 +810,15 @@ private:
         get(tau_ip3d_valid) = tau_ip3d_valid;
         get(tau_ip3d) = tau_ip3d_valid ? getValueNorm(tau.ip3d(), 0.0026f, 0.0114f) : 0.f;
         get(tau_ip3d_sig) = tau_ip3d_valid ? getValueNorm(std::abs(tau.ip3d()) / tau.ip3d_error(), 2.928f, 4.466f) : 0.f;
-        get(tau_dz) = getValueNorm(leadChargedHadrCand->dz(), 0.f, 0.0190f);
-        const bool tau_dz_sig_valid = std::isnormal(leadChargedHadrCand->dz()) && std::isnormal(leadChargedHadrCand->dzError())
-            && leadChargedHadrCand->dzError() > 0;
+
+        get(tau_dz) = leadChargedHadrCand && leadChargedHadrCand->hasTrackDetails() ?
+            getValueNorm(leadChargedHadrCand->dz(), 0.f, 0.0190f) : 0.f;
+        const bool tau_dz_sig_valid = leadChargedHadrCand && leadChargedHadrCand->hasTrackDetails() &&
+            std::isnormal(leadChargedHadrCand->dz()) && std::isnormal(leadChargedHadrCand->dzError()) && leadChargedHadrCand->dzError() > 0;
         get(tau_dz_sig_valid) = tau_dz_sig_valid;
-        get(tau_dz_sig) = getValueNorm(std::abs(leadChargedHadrCand->dz()) / leadChargedHadrCand->dzError(), 4.717f, 11.78f);
+        get(tau_dz_sig) = leadChargedHadrCand && leadChargedHadrCand->hasTrackDetails() ?
+        getValueNorm(std::abs(leadChargedHadrCand->dz()) / leadChargedHadrCand->dzError(), 4.717f, 11.78f) : 0.f;
+
         get(tau_flightLength_x) = getValueNorm(tau.flightLength().x(), -0.0003f, 0.7362f);
         get(tau_flightLength_y) = getValueNorm(tau.flightLength().y(), -0.0009f, 0.7354f);
         get(tau_flightLength_z) = getValueNorm(tau.flightLength().z(), -0.0022f, 1.993f);
@@ -839,7 +841,6 @@ private:
         get(tau_inside_ecal_crack) = getValue(isInEcalCrack(tau.p4().eta()));
         get(leadChargedCand_etaAtEcalEntrance_minus_tau_eta) =
             getValueNorm(tau.etaAtEcalEntranceLeadChargedCand() - tau.p4().eta(), 0.0042f, 0.0323f);
-
         return inputs;
     }
 
@@ -853,7 +854,6 @@ private:
 
         tensorflow::Tensor inputs(tensorflow::DT_FLOAT, {1, grid.nCellsEta, grid.nCellsPhi, NumberOfInputs});
         inputs.flat<float>().setZero();
-
         for(const auto& cell : grid) {
             int eta_index = grid.getEtaTensorIndex(cell.first);
             int phi_index = grid.getPhiTensorIndex(cell.first);
@@ -874,7 +874,7 @@ private:
                 get(tau_eta) = getValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
                 get(tau_inside_ecal_crack) = getValue(isInEcalCrack(tau.polarP4().eta()));
             }
-            if(valid_index_ele){
+            if(valid_index_pf_ele){
                 size_t index_pf_ele = cell_map.at(CellObjectType::PfCand_electron);
 
                 get(pfCand_ele_valid) = valid_index_pf_ele;
@@ -916,7 +916,7 @@ private:
                 }
             }
             if(valid_index_pf_gamma){
-                size_t index_pf_gamma = cell_map.at(CellObjectType::PfCand_neutralHadron);
+                size_t index_pf_gamma = cell_map.at(CellObjectType::PfCand_gamma);
 
                 get(pfCand_gamma_valid) = valid_index_pf_gamma;
                 get(pfCand_gamma_rel_pt) = getValueNorm(pfCands.at(index_pf_gamma).polarP4().pt() / tau.polarP4().pt(),
