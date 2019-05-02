@@ -13,8 +13,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,9 +31,7 @@ public:
   ~HGCalTestNeighbor() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
   
 private:
   void doTest(const HGCalGeometry* geom, ForwardSubdetector subdet, 
@@ -47,6 +43,8 @@ private:
   
   std::string         name_;
   std::vector<double> px_, py_, pz_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> fieldToken_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
 };
 
 HGCalTestNeighbor::HGCalTestNeighbor(const edm::ParameterSet& iC) {
@@ -54,6 +52,8 @@ HGCalTestNeighbor::HGCalTestNeighbor(const edm::ParameterSet& iC) {
   px_        = iC.getParameter<std::vector<double> >("pX");
   py_        = iC.getParameter<std::vector<double> >("pY");
   pz_        = iC.getParameter<std::vector<double> >("pZ");
+  fieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>(edm::ESInputTag{});
+  geomToken_  = esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_});
 }
 
 HGCalTestNeighbor::~HGCalTestNeighbor() {}
@@ -74,39 +74,32 @@ void HGCalTestNeighbor::fillDescriptions(edm::ConfigurationDescriptions& descrip
 void HGCalTestNeighbor::analyze(const edm::Event& , 
 				const edm::EventSetup& iSetup ) {
 
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField *bField = bFieldH.product();
+  const auto& bFieldR = iSetup.getData(fieldToken_);
+  const MagneticField *bField = &bFieldR;
 
-  edm::ESHandle<HGCalGeometry> geomH;
-  iSetup.get<IdealGeometryRecord>().get(name_,geomH);
-  const HGCalGeometry* geom = (geomH.product());
-  if (!geomH.isValid()) {
-    std::cout << "Cannot get valid HGCalGeometry Object for " << name_
-	      << std::endl;
+  const auto& geomR = iSetup.getData(geomToken_);
+  const HGCalGeometry* geom = &geomR;
+  HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
+  if ((mode == HGCalGeometryMode::Hexagon) ||
+      (mode == HGCalGeometryMode::HexagonFull)) {
+    ForwardSubdetector subdet;
+    if      (name_ == "HGCalHESiliconSensitive")      subdet = HGCHEF;
+    else if (name_ == "HGCalHEScintillatorSensitive") subdet = HGCHEB;
+    else                                             subdet = HGCEE;
+    std::cout << "Perform test for " << name_ << " Detector:Subdetector "
+              << DetId::Forward << ":" << subdet << std::endl;
+    doTest(geom, subdet, bField);
   } else {
-    HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
-    if ((mode == HGCalGeometryMode::Hexagon) ||
-	(mode == HGCalGeometryMode::HexagonFull)) {
-      ForwardSubdetector subdet;
-      if      (name_ == "HGCalHESiliconSensitive")      subdet = HGCHEF;
-      else if (name_ == "HGCalHEScintillatorSensitive") subdet = HGCHEB;
-      else                                             subdet = HGCEE;
-      std::cout << "Perform test for " << name_ << " Detector:Subdetector "
-		<< DetId::Forward << ":" << subdet << std::endl;
-      doTest(geom, subdet, bField);
+    DetId::Detector det;
+    if      (name_ == "HGCalHESiliconSensitive")      det = DetId::HGCalHSi;
+    else if (name_ == "HGCalHEScintillatorSensitive") det = DetId::HGCalHSc;
+    else                                              det = DetId::HGCalEE;
+    std::cout << "Perform test for " << name_ << " Detector " << det
+              << std::endl;
+    if (name_ == "HGCalHEScintillatorSensitive") {
+      doTestScint(geom, det, bField);
     } else {
-      DetId::Detector det;
-      if      (name_ == "HGCalHESiliconSensitive")      det = DetId::HGCalHSi;
-      else if (name_ == "HGCalHEScintillatorSensitive") det = DetId::HGCalHSc;
-      else                                              det = DetId::HGCalEE;
-      std::cout << "Perform test for " << name_ << " Detector " << det
-		<< std::endl;
-      if (name_ == "HGCalHEScintillatorSensitive") {
-	doTestScint(geom, det, bField);
-      } else {
-	doTestWafer(geom, det, bField);
-      }
+      doTestWafer(geom, det, bField);
     }
   }
 }

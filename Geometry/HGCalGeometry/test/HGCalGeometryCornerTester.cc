@@ -8,8 +8,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -23,18 +21,16 @@ public:
   explicit HGCalGeometryCornerTester(const edm::ParameterSet& );
   ~HGCalGeometryCornerTester() override;
 
-  void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
-  void endJob() override {}
   
 private:
   void doTest(const HGCalGeometry* geom);
-  const std::string    name_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
   const int            cornerType_;
 };
 
 HGCalGeometryCornerTester::HGCalGeometryCornerTester(const edm::ParameterSet& iC) : 
-  name_(iC.getParameter<std::string>("detector")),
+  geomToken_{esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", iC.getParameter<std::string>("detector")})},
   cornerType_(iC.getParameter<int>("cornerType")) { }
 
 HGCalGeometryCornerTester::~HGCalGeometryCornerTester() {}
@@ -42,15 +38,8 @@ HGCalGeometryCornerTester::~HGCalGeometryCornerTester() {}
 void HGCalGeometryCornerTester::analyze(const edm::Event& , 
 					const edm::EventSetup& iSetup ) {
 
-  edm::ESHandle<HGCalGeometry> geomH;
-  iSetup.get<IdealGeometryRecord>().get(name_,geomH);
-  const HGCalGeometry* geom = (geomH.product());
-  if (!geomH.isValid()) {
-    std::cout << "Cannot get valid HGCalGeometry Object for " << name_
-	      << std::endl;
-  } else {
-    doTest(geom);
-  }
+  const HGCalGeometry& geom = iSetup.getData(geomToken_);
+  doTest(&geom);
 }
 
 void HGCalGeometryCornerTester::doTest(const HGCalGeometry* geom) {
