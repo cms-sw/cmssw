@@ -4,18 +4,16 @@
 
 Alignable* SurveyInputBase::theDetector(nullptr);
 
-SurveyInputBase::~SurveyInputBase()
-{
+SurveyInputBase::~SurveyInputBase() {
   delete theDetector;
 
   theDetector = nullptr;
 }
 
-void SurveyInputBase::addComponent(Alignable* comp)
-{
+void SurveyInputBase::addComponent(Alignable* comp) {
   if (nullptr == theDetector) {
     theDetector = comp;
   } else {
     theDetector->addComponent(comp);
-}
+  }
 }
