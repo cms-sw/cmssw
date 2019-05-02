@@ -2,7 +2,7 @@
 //
 // Package:    __subsys__/__pkgname__
 // Class:      __class__
-// 
+//
 /**\class __class__
 
  Description: [one line class summary]
@@ -30,21 +30,21 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #python_begin
-    if  len(__datatypes__) > 1:
-        print('#include "FWCore/Framework/interface/ESProducts.h"')
+if
+  len(__datatypes__) > 1 : print('#include "FWCore/Framework/interface/ESProducts.h"')
 #python_end
 
-// Need to add #include statements for definitions of
-// the data type and record type here
+                           // Need to add #include statements for definitions of
+                           // the data type and record type here
 
-//
-// class declaration
-//
+                           //
+                           // class declaration
+                           //
 
-class __class__ : public edm::ESProducer {
-   public:
-      __class__(const edm::ParameterSet&);
-      ~__class__();
+                           class __class__ : public edm::ESProducer {
+  public:
+    __class__(const edm::ParameterSet&);
+    ~__class__();
 
 #python_begin
     if  len(__datatypes__) > 1:
@@ -57,9 +57,9 @@ class __class__ : public edm::ESProducer {
 #python_end
 
       ReturnType produce(const __record__&);
-   private:
-      // ----------member data ---------------------------
-};
+  private:
+    // ----------member data ---------------------------
+  };
 
 //
 // constants, enums and typedefs
@@ -72,22 +72,17 @@ class __class__ : public edm::ESProducer {
 //
 // constructors and destructor
 //
-__class__::__class__(const edm::ParameterSet& iConfig)
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this);
+__class__::__class__(const edm::ParameterSet& iConfig) {
+  //the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced(this);
 
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
 }
 
-
-__class__::~__class__()
-{
- 
-   // do anything here that needs to be done at destruction time
-   // (e.g. close files, deallocate resources etc.)
-
+__class__::~__class__() {
+  // do anything here that needs to be done at destruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -95,17 +90,15 @@ __class__::~__class__()
 //
 
 // ------------ method called to produce the data  ------------
-__class__::ReturnType
-__class__::produce(const __record__& iRecord)
-{
-   // You can add arguments to the make_unique function call
-   // and they will be forwarded to the constructor of the
-   // data object. Also you can call functions that modify
-   // the data object after creating it. Often, before this
-   // you will retrieve data from the EventSetup through the
-   // record.
+__class__::ReturnType __class__::produce(const __record__& iRecord) {
+  // You can add arguments to the make_unique function call
+  // and they will be forwarded to the constructor of the
+  // data object. Also you can call functions that modify
+  // the data object after creating it. Often, before this
+  // you will retrieve data from the EventSetup through the
+  // record.
 #python_begin
-    if  len(__datatypes__) > 1:
+  if  len(__datatypes__) > 1:
         out1 = []
         out2 = []
         i = 1

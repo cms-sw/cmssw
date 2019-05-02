@@ -14,36 +14,24 @@ namespace edm {
   class ParameterSet;
 }
 
+namespace edmtest {
 
-namespace edmtest
-{
+  class MemoryTestClient_B : public edm::EDAnalyzer {
+  public:
+    explicit MemoryTestClient_B(edm::ParameterSet const&);
 
-class MemoryTestClient_B
-  : public edm::EDAnalyzer
-{
-public:
-  explicit
-    MemoryTestClient_B( edm::ParameterSet const & );
+    virtual ~MemoryTestClient_B() {}
 
-  virtual
-    ~MemoryTestClient_B()
-  { }
+    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
-  virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
-                );
-
-private:
-  static int nevent;
-  std::vector<double> memoryPattern;
-  void initializeMemoryPattern(int pattern);
-  double vsize;
-  edm::propagate_const<char*> last_Allocation;
-};
-
+  private:
+    static int nevent;
+    std::vector<double> memoryPattern;
+    void initializeMemoryPattern(int pattern);
+    double vsize;
+    edm::propagate_const<char*> last_Allocation;
+  };
 
 }  // namespace edmtest
-
 
 #endif  // FWCore_MessageService_test_MemoryTestClient_B_h

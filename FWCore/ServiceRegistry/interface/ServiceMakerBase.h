@@ -18,58 +18,52 @@
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
 //
 
-
 #include <typeinfo>
 
 // forward declarations
 namespace edm {
-   class ParameterSet;
-   class ActivityRegistry;
+  class ParameterSet;
+  class ActivityRegistry;
 
-   namespace service {
-      inline bool isProcessWideService(void const* /*service*/) {
-        return false;
-      }
-   }
+  namespace service {
+    inline bool isProcessWideService(void const* /*service*/) { return false; }
+  }  // namespace service
 
-   namespace serviceregistry {
-      class SaveConfiguration;
-      class ServiceWrapperBase;
-      class ServicesManager;
+  namespace serviceregistry {
+    class SaveConfiguration;
+    class ServiceWrapperBase;
+    class ServicesManager;
 
-      class ServiceMakerBase {
+    class ServiceMakerBase {
+    public:
+      ServiceMakerBase();
+      virtual ~ServiceMakerBase();
 
-public:
-         ServiceMakerBase();
-         virtual ~ServiceMakerBase();
+      // ---------- const member functions ---------------------
+      virtual std::type_info const& serviceType() const = 0;
 
-         // ---------- const member functions ---------------------
-         virtual std::type_info const& serviceType() const = 0;
+      virtual bool make(ParameterSet const&, ActivityRegistry&, ServicesManager&) const = 0;
 
-         virtual bool make(ParameterSet const&,
-                           ActivityRegistry&,
-                           ServicesManager&) const = 0;
+      virtual bool processWideService() const = 0;
 
-         virtual bool processWideService() const = 0;
+      virtual bool saveConfiguration() const = 0;
 
-         virtual bool saveConfiguration() const = 0;
+      // ---------- static member functions --------------------
 
-         // ---------- static member functions --------------------
+      // ---------- member functions ---------------------------
 
-         // ---------- member functions ---------------------------
+    protected:
+      bool testSaveConfiguration(SaveConfiguration const*) const { return true; }
+      bool testSaveConfiguration(void const*) const { return false; }
 
-protected:
-         bool testSaveConfiguration(SaveConfiguration const*) const {return true;}
-         bool testSaveConfiguration(void const*) const {return false;}
+    private:
+      ServiceMakerBase(ServiceMakerBase const&) = delete;  // stop default
 
-private:
-         ServiceMakerBase(ServiceMakerBase const&) = delete; // stop default
+      ServiceMakerBase const& operator=(ServiceMakerBase const&) = delete;  // stop default
 
-         ServiceMakerBase const& operator=(ServiceMakerBase const&) = delete; // stop default
-
-         // ---------- member data --------------------------------
-      };
-   }
-}
+      // ---------- member data --------------------------------
+    };
+  }  // namespace serviceregistry
+}  // namespace edm
 
 #endif

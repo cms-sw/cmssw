@@ -4,50 +4,40 @@
 
 using namespace pat;
 
-const char * __class__::candidateRoles[] = {
-PutMyListOfCandidateRolesHere
-};
+const char* __class__::candidateRoles[] = {PutMyListOfCandidateRolesHere};
 
-const bool __class__::isVector[] = {
-PutMyListOfVectorBoolsHere
-};
+const bool __class__::isVector[] = {PutMyListOfVectorBoolsHere};
 
-bool __class__::getIsVector( int i ) const
-{
-  if ( i >= 0 && i < N_ROLES ) {
+bool __class__::getIsVector(int i) const {
+  if (i >= 0 && i < N_ROLES) {
     return isVector[i];
   } else {
     std::cerr << "__class__: index out of bounds for roles: " << i << std::endl;
-    return false; 
+    return false;
   }
 }
 
-const char *  __class__::getCandidateRole( int i ) const
-{
-  if ( i >= 0 && i < N_ROLES ) {
+const char* __class__::getCandidateRole(int i) const {
+  if (i >= 0 && i < N_ROLES) {
     return candidateRoles[i];
   } else {
     std::cerr << "__class__: index out of bounds for roles: " << i << std::endl;
-    return 0; 
+    return 0;
   }
 }
 
-Candidate & __class__::getCandidate(std::string name, int index )
-{
+Candidate& __class__::getCandidate(std::string name, int index) {
+  PutMyRoleSwitchHere;
 
-PutMyRoleSwitchHere;
-
- std::cerr << "__class__: Unknown role " << name << ", returning first member" << std::endl;
- return PutMyDefaultReturnHere;
+  std::cerr << "__class__: Unknown role " << name << ", returning first member" << std::endl;
+  return PutMyDefaultReturnHere;
 }
 
-int __class__::getSize(int i) const
-{
+int __class__::getSize(int i) const {
+  std::string name(candidateRoles[i]);
 
-  std::string name( candidateRoles[i] );
+  PutMySizesHere;
 
-PutMySizesHere;
-
- std::cerr << "__class__: Unknown role " << name << ", returning first member" << std::endl;
- return -1;
+  std::cerr << "__class__: Unknown role " << name << ", returning first member" << std::endl;
+  return -1;
 }

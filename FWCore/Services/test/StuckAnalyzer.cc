@@ -2,7 +2,7 @@
 //
 // Package:     Subsystem/Package
 // Class  :     StuckAnalyzer
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -17,15 +17,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 class StuckAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   StuckAnalyzer(edm::ParameterSet const&) {}
-  
+
   void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override {
-    while(true) {};
+    while (true) {
+    };
   }
 };
-
 
 DEFINE_FWK_MODULE(StuckAnalyzer);

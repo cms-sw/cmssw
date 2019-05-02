@@ -5,21 +5,22 @@
 // test that compiles and does not interfere with the logic...
 namespace {
   bool test(int n) {
-    bool ret=true;
-    if (LIKELY(n>1)) ret&=true; 
+    bool ret = true;
+    if (LIKELY(n > 1))
+      ret &= true;
     else
-      ret=false;
-    
-    if (UNLIKELY(n>1)) ret&=true;
-    else
-      ret =false;
+      ret = false;
 
-    ret &=LIKELY(n>1);
-    ret &=UNLIKELY(n>1);
+    if (UNLIKELY(n > 1))
+      ret &= true;
+    else
+      ret = false;
+
+    ret &= LIKELY(n > 1);
+    ret &= UNLIKELY(n > 1);
     return ret;
   }
-}
-
+}  // namespace
 
 int main() {
 #ifdef NO_LIKELY
