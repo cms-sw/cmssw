@@ -39,12 +39,13 @@ class HGCalTriggerChains:
     
 
     def create_sequences(self, process):
-        tmp = cms.SequencePlaceholder("tmp")
-        vfe_sequence = cms.Sequence(tmp)
-        concentrator_sequence = cms.Sequence(tmp)
-        backend1_sequence = cms.Sequence(tmp)
-        backend2_sequence = cms.Sequence(tmp)
-        ntuple_sequence = cms.Sequence(tmp)
+        tmp = cms.TaskPlaceholder("tmp")
+        tmpseq = cms.SequencePlaceholder("tmp")
+        vfe_task = cms.Task(tmp)
+        concentrator_task = cms.Task(tmp)
+        backend1_task = cms.Task(tmp)
+        backend2_task = cms.Task(tmp)
+        ntuple_sequence = cms.Sequence(tmpseq)
         for vfe,concentrator,backend1,backend2,ntuple in self.chain:
             concentrator_name = '{0}{1}'.format(vfe, concentrator)
             backend1_name = '{0}{1}{2}'.format(vfe, concentrator, backend1)
@@ -53,27 +54,27 @@ class HGCalTriggerChains:
             ntuple_inputs = [concentrator_name, backend1_name, backend2_name]
             if not hasattr(process, vfe):
                 setattr(process, vfe, self.vfe[vfe](process))
-                vfe_sequence *= getattr(process, vfe)
+                vfe_task.add(getattr(process, vfe))
             if not hasattr(process, concentrator_name):
                 setattr(process, concentrator_name, self.concentrator[concentrator](process, vfe))
-                concentrator_sequence *= getattr(process, concentrator_name)
+                concentrator_task.add(getattr(process, concentrator_name))
             if not hasattr(process, backend1_name):
                 setattr(process, backend1_name, self.backend1[backend1](process, concentrator_name))
-                backend1_sequence *= getattr(process, backend1_name)
+                backend1_task.add(getattr(process, backend1_name))
             if not hasattr(process, backend2_name):
                 setattr(process, backend2_name, self.backend2[backend2](process, backend1_name))
-                backend2_sequence *= getattr(process, backend2_name)
+                backend2_task.add(getattr(process, backend2_name))
             if ntuple!='' and not hasattr(process, ntuple_name):
                 setattr(process, ntuple_name, self.ntuple[ntuple](process, ntuple_inputs))
                 ntuple_sequence *= getattr(process, ntuple_name)
-        vfe_sequence.remove(tmp)
-        concentrator_sequence.remove(tmp)
-        backend1_sequence.remove(tmp)
-        backend2_sequence.remove(tmp)
-        ntuple_sequence.remove(tmp)
-        process.globalReplace('hgcalVFE', vfe_sequence)
-        process.globalReplace('hgcalConcentrator', concentrator_sequence)
-        process.globalReplace('hgcalBackEndLayer1', backend1_sequence)
-        process.globalReplace('hgcalBackEndLayer2', backend2_sequence)
+        vfe_task.remove(tmp)
+        concentrator_task.remove(tmp)
+        backend1_task.remove(tmp)
+        backend2_task.remove(tmp)
+        ntuple_task.remove(tmpseq)
+        process.globalReplace('hgcalVFE', vfe_task)
+        process.globalReplace('hgcalConcentrator', concentrator_task)
+        process.globalReplace('hgcalBackEndLayer1', backend1_task)
+        process.globalReplace('hgcalBackEndLayer2', backend2_task)
         process.globalReplace('hgcalTriggerNtuples', ntuple_sequence)
         return process
