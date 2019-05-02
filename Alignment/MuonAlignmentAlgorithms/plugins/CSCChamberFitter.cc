@@ -9,7 +9,7 @@
 
 const double infinity =
     0.1;  // this is huge because all alignments are angles in radians; but we need a not-too-large value for numerical stability
-    // should become a parameter someday
+          // should become a parameter someday
 
 CSCChamberFitter::CSCChamberFitter(const edm::ParameterSet &iConfig,
                                    std::vector<CSCPairResidualsConstraint *> &residualsConstraints) {
