@@ -38,7 +38,7 @@ class ProtonTransport {
             double fCrossingAngle_56;
 
             std::vector<LHCTransportLink> m_CorrespondenceMap;
-            std::map<unsigned int, TLorentzVector*> m_beamPart;
+            std::map<unsigned int, TLorentzVector> m_beamPart;
             std::map<unsigned int, double> m_xAtTrPoint;
             std::map<unsigned int, double> m_yAtTrPoint;
 
