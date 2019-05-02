@@ -1,6 +1,6 @@
-#ifndef ErrorChecker_H
-#define ErrorChecker_H
-/** \class ErrorChecker
+#ifndef ErrorCheckerPhase0_H
+#define ErrorCheckerPhase0_H
+/** \class ErrorCheckerPhase0
  *
  *  
  */
@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/typedefs.h"
 
 
-class ErrorChecker : public ErrorCheckerBase {
+class ErrorCheckerPhase0 : public ErrorCheckerBase {
 
 public:
 //  typedef unsigned int Word32;
@@ -20,7 +20,7 @@ public:
   typedef std::vector<SiPixelRawDataError> DetErrors;
   typedef std::map<cms_uint32_t, DetErrors> Errors;
 
-  ErrorChecker();
+  ErrorCheckerPhase0();
 
   void setErrorStatus(bool ErrorStatus);
 
