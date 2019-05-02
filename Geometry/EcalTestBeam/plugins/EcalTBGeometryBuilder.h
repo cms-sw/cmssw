@@ -25,8 +25,10 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 //
 // class decleration
@@ -42,5 +44,7 @@ class EcalTBGeometryBuilder : public edm::ESProducer {
   ReturnType produce(const IdealGeometryRecord&);
 private:
       // ----------member data ---------------------------
+  edm::ESGetToken<CaloSubdetectorGeometry, IdealGeometryRecord> barrelToken_;
+  edm::ESGetToken<CaloSubdetectorGeometry, IdealGeometryRecord> hodoscopeToken_;
 };
 

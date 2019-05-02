@@ -22,9 +22,9 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -63,6 +63,7 @@ private:
   double phi_;
   CLHEP::HepRotation * fromCMStoTB_;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
 };
 
 //
@@ -85,6 +86,8 @@ EcalTBHodoscopeGeometryAnalyzer::EcalTBHodoscopeGeometryAnalyzer( const edm::Par
   phi_ = iConfig.getUntrackedParameter<double>("phi",0.115052);
 
   fromCMStoTB_ = fromCMStoTB( eta_ , phi_ );
+
+  geometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{});
 }
 
 
@@ -127,14 +130,13 @@ EcalTBHodoscopeGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::E
 {
    std::cout << "Here I am " << std::endl;
 
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<CaloGeometryRecord>().get(pG);     
+   auto const pG = iSetup.getData(geometryToken_);
    //
    // get the ecal & hcal geometry
    //
 
    if (pass_==0) {
-     build(*pG,DetId::Ecal,EcalLaserPnDiode);
+     build(pG,DetId::Ecal,EcalLaserPnDiode);
    }
 
    pass_++;
