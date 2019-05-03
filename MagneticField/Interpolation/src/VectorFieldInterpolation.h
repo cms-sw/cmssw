@@ -51,18 +51,18 @@
 //
 // ***************************************************************
 
-class VectorFieldInterpolation{
+class VectorFieldInterpolation {
 public:
   // constructor
-  VectorFieldInterpolation(){}
+  VectorFieldInterpolation() {}
   // destructor
-  ~VectorFieldInterpolation(){}
+  ~VectorFieldInterpolation() {}
 
 private:
   // spatial coordinates, where the field has to be calculated
   //                X1 ,  X2 , X3
   double SC[3]; // {0.0 ,0.0 ,0.0 };
-  
+
   // values describing the 8 corners of an interpolation cell
   // 6 dimensions: 3 space dimensions + 3 field dimensions
   //                          X1 ,  X2 ,  X3 ,  F1 ,  F2 ,  F3
@@ -79,20 +79,29 @@ private:
   //                F1  , F2  , F3
   double VF[3]; // {0.0 , 0.0 , 0.0 };
 
-
 public:
-   // Accessors
-   /// provide the interpolation algorithm with 8 points, where the field is known (in)
-   void defineCellPoint000(double X1, double X2, double X3, double  F1, double  F2, double  F3);
-   void defineCellPoint100(double X1, double X2, double X3, double  F1, double  F2, double  F3);
-   void defineCellPoint010(double X1, double X2, double X3, double  F1, double  F2, double  F3);
-   void defineCellPoint110(double X1, double X2, double X3, double  F1, double  F2, double  F3);
-   void defineCellPoint001(double X1, double X2, double X3, double  F1, double  F2, double  F3);
-   void defineCellPoint101(double X1, double X2, double X3, double  F1, double  F2, double  F3);
-   void defineCellPoint011(double X1, double X2, double X3, double  F1, double  F2, double  F3);
-   void defineCellPoint111(double X1, double X2, double X3, double  F1, double  F2, double  F3);
-   /// receive the interpolated field (out) at any point in space (in)
-   void putSCoordGetVField(double X1, double X2, double X3, double &F1, double &F2, double &F3);
+  // Accessors
+  /// provide the interpolation algorithm with 8 points, where the field is
+  /// known (in)
+  void defineCellPoint000(double X1, double X2, double X3, double F1, double F2,
+                          double F3);
+  void defineCellPoint100(double X1, double X2, double X3, double F1, double F2,
+                          double F3);
+  void defineCellPoint010(double X1, double X2, double X3, double F1, double F2,
+                          double F3);
+  void defineCellPoint110(double X1, double X2, double X3, double F1, double F2,
+                          double F3);
+  void defineCellPoint001(double X1, double X2, double X3, double F1, double F2,
+                          double F3);
+  void defineCellPoint101(double X1, double X2, double X3, double F1, double F2,
+                          double F3);
+  void defineCellPoint011(double X1, double X2, double X3, double F1, double F2,
+                          double F3);
+  void defineCellPoint111(double X1, double X2, double X3, double F1, double F2,
+                          double F3);
+  /// receive the interpolated field (out) at any point in space (in)
+  void putSCoordGetVField(double X1, double X2, double X3, double &F1,
+                          double &F2, double &F3);
 };
 
 #endif

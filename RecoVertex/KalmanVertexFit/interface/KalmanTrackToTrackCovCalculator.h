@@ -1,39 +1,36 @@
 #ifndef KalmanTrackToTrackCovCalculator_H
 #define KalmanTrackToTrackCovCalculator_H
 
-#include "RecoVertex/VertexPrimitives/interface/TrackToTrackCovCalculator.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
+#include "RecoVertex/VertexPrimitives/interface/TrackToTrackCovCalculator.h"
 
-  /**
-   * Calculates all the track-to-track covariance matrices using the Kalman 
-   * filter algorithms after the vertex has been fit and the tracks refit.
-   */
+/**
+ * Calculates all the track-to-track covariance matrices using the Kalman
+ * filter algorithms after the vertex has been fit and the tracks refit.
+ */
 
 template <unsigned int N>
-class KalmanTrackToTrackCovCalculator:public TrackToTrackCovCalculator<N>
-{
+class KalmanTrackToTrackCovCalculator : public TrackToTrackCovCalculator<N> {
 
-public: 
- 
-  typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
+public:
+  typedef
+      typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
 
   KalmanTrackToTrackCovCalculator() {}
 
   /**
    * Calculates all the track-to-track covariance matrices
-   * \param vertex The vertex whose track-to-track covariance matrices have 
+   * \param vertex The vertex whose track-to-track covariance matrices have
    * 	to be calculated.
    * \return The map containing the covariance matrices.
    */
 
- typename CachingVertex<N>::TrackToTrackMap operator() (const CachingVertex<N> & vertex) const override;
- 
- KalmanTrackToTrackCovCalculator * clone() const override
- {
-   return new KalmanTrackToTrackCovCalculator(* this);
- }
+  typename CachingVertex<N>::TrackToTrackMap
+  operator()(const CachingVertex<N> &vertex) const override;
 
+  KalmanTrackToTrackCovCalculator *clone() const override {
+    return new KalmanTrackToTrackCovCalculator(*this);
+  }
 };
-
 
 #endif

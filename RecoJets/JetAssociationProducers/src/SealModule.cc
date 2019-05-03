@@ -1,10 +1,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "JetTracksAssociatorAtVertex.h"
-#include "JetTracksAssociatorExplicit.h"
-#include "JetTracksAssociatorAtCaloFace.h"
 #include "JetExtender.h"
 #include "JetSignalVertexCompatibility.h"
+#include "JetTracksAssociatorAtCaloFace.h"
+#include "JetTracksAssociatorAtVertex.h"
+#include "JetTracksAssociatorExplicit.h"
 
 DEFINE_FWK_MODULE(JetTracksAssociatorAtVertex);
 DEFINE_FWK_MODULE(JetTracksAssociatorExplicit);

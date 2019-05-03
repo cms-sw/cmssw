@@ -1,4 +1,4 @@
-// \class JetTracksAssociatorExplicit JetTracksAssociatorExplicit.cc 
+// \class JetTracksAssociatorExplicit JetTracksAssociatorExplicit.cc
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
@@ -8,25 +8,24 @@
 #ifndef JetTracksAssociatorExplicit_h
 #define JetTracksAssociatorExplicit_h
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationExplicit.h"
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationExplicit.h"
 
 class JetTracksAssociatorExplicit : public edm::stream::EDProducer<> {
-   public:
-      JetTracksAssociatorExplicit(const edm::ParameterSet&);
-      ~JetTracksAssociatorExplicit() override;
+public:
+  JetTracksAssociatorExplicit(const edm::ParameterSet &);
+  ~JetTracksAssociatorExplicit() override;
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
-   private:
-     edm::EDGetTokenT<edm::View <reco::Jet>> mJets;
-     edm::EDGetTokenT<reco::TrackCollection> mTracks;
-     JetTracksAssociationExplicit mAssociatorExplicit;
+private:
+  edm::EDGetTokenT<edm::View<reco::Jet>> mJets;
+  edm::EDGetTokenT<reco::TrackCollection> mTracks;
+  JetTracksAssociationExplicit mAssociatorExplicit;
 };
 
 #endif

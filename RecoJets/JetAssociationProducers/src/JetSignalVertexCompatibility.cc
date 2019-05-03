@@ -7,14 +7,14 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/JetFloatAssociation.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
-#include "DataFormats/JetReco/interface/JetFloatAssociation.h"
 
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetSignalVertexCompatibilityAlgo.h"
 
@@ -23,51 +23,49 @@
 using namespace reco;
 
 JetSignalVertexCompatibility::JetSignalVertexCompatibility(
-					const edm::ParameterSet &params) :
-	algo(params.getParameter<double>("cut"),
-	     params.getParameter<double>("temperature"))
-{
-	jetTracksAssocToken = consumes<JetTracksAssociationCollection>(params.getParameter<edm::InputTag>("jetTracksAssoc"));
-	primaryVerticesToken = consumes<VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
-	produces<JetFloatAssociation::Container>();
+    const edm::ParameterSet &params)
+    : algo(params.getParameter<double>("cut"),
+           params.getParameter<double>("temperature")) {
+  jetTracksAssocToken = consumes<JetTracksAssociationCollection>(
+      params.getParameter<edm::InputTag>("jetTracksAssoc"));
+  primaryVerticesToken = consumes<VertexCollection>(
+      params.getParameter<edm::InputTag>("primaryVertices"));
+  produces<JetFloatAssociation::Container>();
 }
 
-JetSignalVertexCompatibility::~JetSignalVertexCompatibility()
-{
-}
+JetSignalVertexCompatibility::~JetSignalVertexCompatibility() {}
 
 void JetSignalVertexCompatibility::produce(edm::Event &event,
-                                           const edm::EventSetup &es)
-{
-	edm::ESHandle<TransientTrackBuilder> trackBuilder;
-	es.get<TransientTrackRecord>().get("TransientTrackBuilder",
-	                                   trackBuilder);
+                                           const edm::EventSetup &es) {
+  edm::ESHandle<TransientTrackBuilder> trackBuilder;
+  es.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
 
-	algo.resetEvent(trackBuilder.product());
+  algo.resetEvent(trackBuilder.product());
 
-	edm::Handle<JetTracksAssociationCollection> jetTracksAssoc;
-	event.getByToken(jetTracksAssocToken, jetTracksAssoc);
+  edm::Handle<JetTracksAssociationCollection> jetTracksAssoc;
+  event.getByToken(jetTracksAssocToken, jetTracksAssoc);
 
-	edm::Handle<VertexCollection> primaryVertices;
-	event.getByToken(primaryVerticesToken, primaryVertices);
+  edm::Handle<VertexCollection> primaryVertices;
+  event.getByToken(primaryVerticesToken, primaryVertices);
 
-	auto result = std::make_unique<JetFloatAssociation::Container>(jetTracksAssoc->keyProduct());
+  auto result = std::make_unique<JetFloatAssociation::Container>(
+      jetTracksAssoc->keyProduct());
 
-	for(JetTracksAssociationCollection::const_iterator iter =
-						jetTracksAssoc->begin();
-	    iter != jetTracksAssoc->end(); ++iter) {
-		if (primaryVertices->empty())
-			(*result)[iter->first] = -1.;
+  for (JetTracksAssociationCollection::const_iterator iter =
+           jetTracksAssoc->begin();
+       iter != jetTracksAssoc->end(); ++iter) {
+    if (primaryVertices->empty())
+      (*result)[iter->first] = -1.;
 
-		const TrackRefVector &tracks = iter->second;
-		std::vector<float> compatibility =
-			algo.compatibility(*primaryVertices, tracks);
+    const TrackRefVector &tracks = iter->second;
+    std::vector<float> compatibility =
+        algo.compatibility(*primaryVertices, tracks);
 
-		// the first vertex is the presumed signal vertex
-		(*result)[iter->first] = compatibility[0];
-	}
+    // the first vertex is the presumed signal vertex
+    (*result)[iter->first] = compatibility[0];
+  }
 
-	algo.resetEvent(nullptr);
+  algo.resetEvent(nullptr);
 
-	event.put(std::move(result));
+  event.put(std::move(result));
 }

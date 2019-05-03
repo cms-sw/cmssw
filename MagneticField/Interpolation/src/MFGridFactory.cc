@@ -1,25 +1,26 @@
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "MagneticField/Interpolation/interface/MFGridFactory.h"
 #include "binary_ifstream.h"
-#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
+#include "CylinderFromSectorMFGrid.h"
 #include "RectangularCartesianMFGrid.h"
 #include "RectangularCylindricalMFGrid.h"
+#include "SpecialCylindricalMFGrid.h"
 #include "TrapezoidalCartesianMFGrid.h"
 #include "TrapezoidalCylindricalMFGrid.h"
-#include "SpecialCylindricalMFGrid.h"
-#include "CylinderFromSectorMFGrid.h"
 
 #include <iostream>
 
 using namespace std;
 
-MFGrid* MFGridFactory::build(const string& name, const GloballyPositioned<float>& vol) {
+MFGrid *MFGridFactory::build(const string &name,
+                             const GloballyPositioned<float> &vol) {
   binary_ifstream inFile(name);
   int gridType;
   inFile >> gridType;
 
-  MFGrid* result;
-  switch (gridType){
+  MFGrid *result;
+  switch (gridType) {
   case 1:
     result = new RectangularCartesianMFGrid(inFile, vol);
     break;
@@ -48,10 +49,9 @@ MFGrid* MFGridFactory::build(const string& name, const GloballyPositioned<float>
   return result;
 }
 
-MFGrid* MFGridFactory::build(const string& name, 
-			     const GloballyPositioned<float>& vol,
-			     double phiMin, double phiMax)
-{
-  MFGrid* sectorGrid = build(name,vol);
-  return new CylinderFromSectorMFGrid( vol, phiMin, phiMax, sectorGrid);
+MFGrid *MFGridFactory::build(const string &name,
+                             const GloballyPositioned<float> &vol,
+                             double phiMin, double phiMax) {
+  MFGrid *sectorGrid = build(name, vol);
+  return new CylinderFromSectorMFGrid(vol, phiMin, phiMax, sectorGrid);
 }

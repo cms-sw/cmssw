@@ -5,12 +5,13 @@
 //
 // Package:    TrackExtrapolator
 // Class:      TrackExtrapolator
-// 
-/**\class TrackExtrapolator TrackExtrapolator.cc RecoTracker/TrackExtrapolator/src/TrackExtrapolator.cc
+//
+/**\class TrackExtrapolator TrackExtrapolator.cc
+ RecoTracker/TrackExtrapolator/src/TrackExtrapolator.cc
 
- Description: Extrapolates tracks to Calo Face. Migrating this functionality from 
-              RecoJets/JetAssociationAlgorithms/JetTracksAssociatorDRCalo.h,
-	      which will now essentially be defunct. 
+ Description: Extrapolates tracks to Calo Face. Migrating this functionality
+ from RecoJets/JetAssociationAlgorithms/JetTracksAssociatorDRCalo.h, which will
+ now essentially be defunct.
 
  Implementation:
 
@@ -20,10 +21,10 @@
 //         Created:  Mon Feb 22 11:54:41 CET 2010
 //
 // Revision by: John Paul Chou (chou@hep.brown.edu)
-//              Modified algorithm to extrapolate correctly to the endcap front face.
+//              Modified algorithm to extrapolate correctly to the endcap front
+//              face.
 //
 //
-
 
 // system include files
 #include <memory>
@@ -32,60 +33,54 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/JetReco/interface/TrackExtrapolation.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/JetReco/interface/TrackExtrapolation.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
 
 //
 // class declaration
 //
 
 class TrackExtrapolator : public edm::stream::EDProducer<> {
-   public:
-      explicit TrackExtrapolator(const edm::ParameterSet&);
-      ~TrackExtrapolator() override;
+public:
+  explicit TrackExtrapolator(const edm::ParameterSet &);
+  ~TrackExtrapolator() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
-      
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-      edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;    /// Input tracks
-      reco::TrackBase::TrackQuality trackQuality_; /// track quality of the tracks we care about
+  edm::EDGetTokenT<reco::TrackCollection> tracksSrc_; /// Input tracks
+  reco::TrackBase::TrackQuality
+      trackQuality_; /// track quality of the tracks we care about
 
+  // ----------internal functions ---------------------------
 
-      // ----------internal functions ---------------------------
-
-      /// Propagate a track to a given radius, given the magnetic
-      /// field and the propagator. Store the resulting
-      /// position, momentum, and direction. 
-      bool propagateTrackToVolume( const reco::Track& fTrack,
-				   const MagneticField& fField,
-				   const Propagator& fPropagator,
-				   const FiducialVolume& volume,
-				   reco::TrackBase::Point & resultPos,
-				   reco::TrackBase::Vector & resultMom
-				   );
-
-      
-
+  /// Propagate a track to a given radius, given the magnetic
+  /// field and the propagator. Store the resulting
+  /// position, momentum, and direction.
+  bool propagateTrackToVolume(const reco::Track &fTrack,
+                              const MagneticField &fField,
+                              const Propagator &fPropagator,
+                              const FiducialVolume &volume,
+                              reco::TrackBase::Point &resultPos,
+                              reco::TrackBase::Vector &resultMom);
 };
-
 
 #endif

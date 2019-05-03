@@ -1,20 +1,21 @@
 #ifndef OrderedMultiHits_H
 #define OrderedMultiHits_H
 
-#include <vector>
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+#include <vector>
 
-class OrderedMultiHits : public std::vector<SeedingHitSet>, public OrderedSeedingHits {
+class OrderedMultiHits : public std::vector<SeedingHitSet>,
+                         public OrderedSeedingHits {
 public:
+  ~OrderedMultiHits() override {}
 
-  ~OrderedMultiHits() override{}
-
-  unsigned int size() const override { return std::vector<SeedingHitSet>::size(); }
-
-  const SeedingHitSet & operator[](unsigned int i) const override {
-    return std::vector<SeedingHitSet>::operator[](i);
+  unsigned int size() const override {
+    return std::vector<SeedingHitSet>::size();
   }
 
+  const SeedingHitSet &operator[](unsigned int i) const override {
+    return std::vector<SeedingHitSet>::operator[](i);
+  }
 };
 #endif
