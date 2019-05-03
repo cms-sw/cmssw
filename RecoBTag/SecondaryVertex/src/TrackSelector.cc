@@ -29,7 +29,7 @@ TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 	std::string qualityClass =
 			params.getParameter<std::string>("qualityClass");
 	if (qualityClass == "any" || qualityClass == "Any" ||
-	    qualityClass == "ANY" || qualityClass == "") {
+	    qualityClass == "ANY" || qualityClass.empty()) {
 		selectQuality = false;
 		quality = reco::TrackBase::undefQuality;
 	} else {
