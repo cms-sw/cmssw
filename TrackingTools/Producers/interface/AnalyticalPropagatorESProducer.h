@@ -3,22 +3,18 @@
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include <memory>
 
-class  AnalyticalPropagatorESProducer: public edm::ESProducer{
- public:
-  AnalyticalPropagatorESProducer(const edm::ParameterSet & p);
-  ~AnalyticalPropagatorESProducer() override; 
+class AnalyticalPropagatorESProducer : public edm::ESProducer {
+public:
+  AnalyticalPropagatorESProducer(const edm::ParameterSet &p);
+  ~AnalyticalPropagatorESProducer() override;
   std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
- private:
+
+private:
   edm::ParameterSet pset_;
 };
 
-
 #endif
-
-
-
-

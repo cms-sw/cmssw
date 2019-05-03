@@ -1,35 +1,33 @@
 #ifndef _VertexReconstructor_H_
 #define _VertexReconstructor_H_
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include <vector>
 
-/** Abstract class for vertex reconstructors, 
+/** Abstract class for vertex reconstructors,
  *  i.e. objects reconstructing vertices using a set of TransientTracks
  */
 
 class VertexReconstructor {
 
 public:
-
   VertexReconstructor() {}
   virtual ~VertexReconstructor() {}
 
   /** Reconstruct vertices
    */
-  virtual std::vector<TransientVertex> 
-    vertices(const std::vector<reco::TransientTrack> &) const = 0; 
+  virtual std::vector<TransientVertex>
+  vertices(const std::vector<reco::TransientTrack> &) const = 0;
 
   /** Reconstruct vertices, exploiting the beamspot constraint
    *  for the primary vertex
    */
-  virtual std::vector<TransientVertex> 
-    vertices( const std::vector<reco::TransientTrack> & t, const 
-              reco::BeamSpot & ) const
-  {
-    return vertices ( t );
+  virtual std::vector<TransientVertex>
+  vertices(const std::vector<reco::TransientTrack> &t,
+           const reco::BeamSpot &) const {
+    return vertices(t);
   }
 
   /** Reconstruct vertices, but exploit the fact that you know
@@ -42,15 +40,13 @@ public:
    *  \paramname spot A beamspot constraint is mandatory in this method.
    */
   virtual std::vector<TransientVertex>
-    vertices( const std::vector<reco::TransientTrack> & primaries,
-        const std::vector<reco::TransientTrack> & tracks,
-        const reco::BeamSpot & spot ) const 
-  {
-    return vertices ( tracks, spot );
+  vertices(const std::vector<reco::TransientTrack> &primaries,
+           const std::vector<reco::TransientTrack> &tracks,
+           const reco::BeamSpot &spot) const {
+    return vertices(tracks, spot);
   }
 
-  virtual VertexReconstructor * clone() const = 0;
-
+  virtual VertexReconstructor *clone() const = 0;
 };
 
 #endif

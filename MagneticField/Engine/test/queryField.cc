@@ -4,8 +4,8 @@
  *  \author N. Amapane - CERN
  */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -19,51 +19,47 @@
 //#include "DataFormats/GeometryVector/interface/Pi.h"
 //#include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 
-
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 using namespace edm;
 using namespace Geom;
 using namespace std;
 
 class queryField : public edm::EDAnalyzer {
- public:
-  queryField(const edm::ParameterSet& pset) {    
+public:
+  queryField(const edm::ParameterSet &pset) {}
+
+  ~queryField() override {}
+
+  void analyze(const edm::Event &event, const edm::EventSetup &setup) override {
+    ESHandle<MagneticField> magfield;
+    setup.get<IdealMagneticFieldRecord>().get(magfield);
+
+    field = magfield.product();
+
+    cout << "Field Nominal Value: " << field->nominalValue() << endl;
+
+    double x, y, z;
+
+    while (true) {
+
+      cout << "Enter X Y Z (cm): ";
+
+      if (!(cin >> x >> y >> z))
+        exit(0);
+
+      GlobalPoint g(x, y, z);
+
+      cout << "At R=" << g.perp() << " phi=" << g.phi()
+           << " B=" << field->inTesla(g) << endl;
+    }
   }
 
-  ~queryField() override{}
-
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
-   ESHandle<MagneticField> magfield;
-   setup.get<IdealMagneticFieldRecord>().get(magfield);
-
-   field = magfield.product();
-
-   cout << "Field Nominal Value: " << field->nominalValue() << endl;
-
-   double x,y,z;
-
-   while (true) {
-     
-     cout << "Enter X Y Z (cm): ";
-
-     if (!(cin >> x >>  y >>  z)) exit(0);
-
-     GlobalPoint g(x,y,z);
-     
-     cout << "At R=" << g.perp() << " phi=" << g.phi()<< " B=" << field->inTesla(g) << endl;
-   }
-   
-  }
-   
- private:
-  const MagneticField* field;
+private:
+  const MagneticField *field;
 };
 
-
 DEFINE_FWK_MODULE(queryField);
-

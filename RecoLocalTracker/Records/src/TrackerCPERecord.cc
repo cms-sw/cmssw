@@ -1,4 +1,4 @@
-#include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
+#include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 
 EVENTSETUP_RECORD_REG(TrackerCPERecord);

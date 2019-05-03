@@ -2,7 +2,7 @@
 #define MeasurementDet_MuonDetLayerMeasurements_H
 
 /** \class MuonDetLayerMeasurements
- *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
+ *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
  *  \author C. Liu, R. Bellan, N. Amapane
  *  \modified by C. Calabria to include GEMs
@@ -13,22 +13,20 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 //#include "TrackingTools/ementDet/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
 
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-
-
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <vector>
 
@@ -36,101 +34,83 @@ class DetLayer;
 class GeomDet;
 class TrajectoryMeasurement;
 
-
-//FIXME: these typedefs MUST GO inside the scope of MuonDetLayerMeasurements
-typedef std::vector<TrajectoryMeasurement>          MeasurementContainer;
-typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
-
+// FIXME: these typedefs MUST GO inside the scope of MuonDetLayerMeasurements
+typedef std::vector<TrajectoryMeasurement> MeasurementContainer;
+typedef std::pair<const GeomDet *, TrajectoryStateOnSurface> DetWithState;
 
 class MuonDetLayerMeasurements {
- public:
+public:
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
-  MuonDetLayerMeasurements(edm::InputTag dtlabel,
-			   edm::InputTag csclabel,
-			   edm::InputTag rpclabel,
- 			   edm::InputTag gemlabel,
-			   edm::InputTag me0label,
-			   edm::ConsumesCollector& iC,
-			   bool enableDT = true,
-			   bool enableCSC = true,
-			   bool enableRPC = true,
-			   bool enableGEM = true,
-			   bool enableME0 = true);
-  
+  MuonDetLayerMeasurements(edm::InputTag dtlabel, edm::InputTag csclabel,
+                           edm::InputTag rpclabel, edm::InputTag gemlabel,
+                           edm::InputTag me0label, edm::ConsumesCollector &iC,
+                           bool enableDT = true, bool enableCSC = true,
+                           bool enableRPC = true, bool enableGEM = true,
+                           bool enableME0 = true);
+
   virtual ~MuonDetLayerMeasurements();
-  
+
   // for a given det and state.  Not clear when the fastMeasurements below
   //  should be used, since it isn't passed a GeomDet
-  MeasurementContainer
-    measurements( const DetLayer* layer,
-                  const GeomDet * det,
-                  const TrajectoryStateOnSurface& stateOnDet,
-                  const MeasurementEstimator& est,
-                  const edm::Event& iEvent);
+  MeasurementContainer measurements(const DetLayer *layer, const GeomDet *det,
+                                    const TrajectoryStateOnSurface &stateOnDet,
+                                    const MeasurementEstimator &est,
+                                    const edm::Event &iEvent);
 
   /// returns TMeasurements in a DetLayer compatible with the TSOS.
   MeasurementContainer
-    measurements( const DetLayer* layer,
-		  const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop,
-		  const MeasurementEstimator& est,
-		  const edm::Event& iEvent);
+  measurements(const DetLayer *layer,
+               const TrajectoryStateOnSurface &startingState,
+               const Propagator &prop, const MeasurementEstimator &est,
+               const edm::Event &iEvent);
 
-  /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
-  MeasurementContainer
-    fastMeasurements( const DetLayer* layer,
-		      const TrajectoryStateOnSurface& theStateOnDet,
-		      const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop,
-		      const MeasurementEstimator& est,
-		      const edm::Event& iEvent);
+  /// faster version in case the TrajectoryState on the surface of the GeomDet
+  /// is already available
+  MeasurementContainer fastMeasurements(
+      const DetLayer *layer, const TrajectoryStateOnSurface &theStateOnDet,
+      const TrajectoryStateOnSurface &startingState, const Propagator &prop,
+      const MeasurementEstimator &est, const edm::Event &iEvent);
 
   /// returns TMeasurements in a DetLayer compatible with the TSOS.
   MeasurementContainer
-    measurements( const DetLayer* layer,
-		  const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop,
-		  const MeasurementEstimator& est);
+  measurements(const DetLayer *layer,
+               const TrajectoryStateOnSurface &startingState,
+               const Propagator &prop, const MeasurementEstimator &est);
 
-  /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
+  /// faster version in case the TrajectoryState on the surface of the GeomDet
+  /// is already available
   MeasurementContainer
-    fastMeasurements( const DetLayer* layer,
-		      const TrajectoryStateOnSurface& theStateOnDet,
-		      const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop,
-		      const MeasurementEstimator& est);
+  fastMeasurements(const DetLayer *layer,
+                   const TrajectoryStateOnSurface &theStateOnDet,
+                   const TrajectoryStateOnSurface &startingState,
+                   const Propagator &prop, const MeasurementEstimator &est);
 
   std::vector<TrajectoryMeasurementGroup>
-    groupedMeasurements( const DetLayer* layer,
-                  const TrajectoryStateOnSurface& startingState,
-                  const Propagator& prop,
-                  const MeasurementEstimator& est,
-                  const edm::Event& iEvent);
+  groupedMeasurements(const DetLayer *layer,
+                      const TrajectoryStateOnSurface &startingState,
+                      const Propagator &prop, const MeasurementEstimator &est,
+                      const edm::Event &iEvent);
 
   std::vector<TrajectoryMeasurementGroup>
-    groupedMeasurements( const DetLayer* layer,
-                  const TrajectoryStateOnSurface& startingState,
-                  const Propagator& prop,
-                  const MeasurementEstimator& est);
- 
-  void setEvent(const edm::Event &);  
+  groupedMeasurements(const DetLayer *layer,
+                      const TrajectoryStateOnSurface &startingState,
+                      const Propagator &prop, const MeasurementEstimator &est);
+
+  void setEvent(const edm::Event &);
 
   /// returns the rechits which are on the layer
-  MuonRecHitContainer recHits(const DetLayer* layer, const edm::Event& iEvent);
+  MuonRecHitContainer recHits(const DetLayer *layer, const edm::Event &iEvent);
 
   /// returns the rechits which are on the layer
-  MuonRecHitContainer recHits(const DetLayer* layer);
+  MuonRecHitContainer recHits(const DetLayer *layer);
 
-
- private:
-
+private:
   /// obtain TrackingRecHits from a DetLayer
-  MuonRecHitContainer recHits(const GeomDet*, const edm::Event& iEvent);
+  MuonRecHitContainer recHits(const GeomDet *, const edm::Event &iEvent);
 
   /// check that the event is set, and throw otherwise
   void checkEvent() const;
-
 
   edm::EDGetTokenT<DTRecSegment4DCollection> dtToken_;
   edm::EDGetTokenT<CSCSegmentCollection> cscToken_;
@@ -138,19 +118,18 @@ class MuonDetLayerMeasurements {
   edm::EDGetTokenT<GEMRecHitCollection> gemToken_;
   edm::EDGetTokenT<ME0SegmentCollection> me0Token_;
 
-
   bool enableDTMeasurement;
   bool enableCSCMeasurement;
   bool enableRPCMeasurement;
   bool enableGEMMeasurement;
   bool enableME0Measurement;
-  
+
   // caches that should get filled once per event
   edm::Handle<DTRecSegment4DCollection> theDTRecHits;
-  edm::Handle<CSCSegmentCollection>     theCSCRecHits;
-  edm::Handle<RPCRecHitCollection>      theRPCRecHits;
-  edm::Handle<GEMRecHitCollection>      theGEMRecHits;
-  edm::Handle<ME0SegmentCollection>      theME0RecHits;
+  edm::Handle<CSCSegmentCollection> theCSCRecHits;
+  edm::Handle<RPCRecHitCollection> theRPCRecHits;
+  edm::Handle<GEMRecHitCollection> theGEMRecHits;
+  edm::Handle<ME0SegmentCollection> theME0RecHits;
 
   void checkDTRecHits();
   void checkCSCRecHits();
@@ -165,8 +144,6 @@ class MuonDetLayerMeasurements {
   edm::Event::CacheIdentifier_t theGEMEventCacheID;
   edm::Event::CacheIdentifier_t theME0EventCacheID;
 
-  const edm::Event* theEvent;   
-
+  const edm::Event *theEvent;
 };
 #endif
-

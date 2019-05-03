@@ -2,8 +2,9 @@
 //
 // Package:    LTCRawToDigi
 // Class:      LTCRawToDigi
-// 
-/**\class LTCRawToDigi LTCRawToDigi.cc EventFilter/LTCRawToDigi/src/LTCRawToDigi.cc
+//
+/**\class LTCRawToDigi LTCRawToDigi.cc
+ EventFilter/LTCRawToDigi/src/LTCRawToDigi.cc
 
  Description: Unpack FED data to LTC bank. LTCs are FED id 816-823.
 
@@ -16,22 +17,21 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//FEDRawData 
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+// FEDRawData
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 // LTC class
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
@@ -40,14 +40,14 @@
 //
 
 class LTCRawToDigi : public edm::EDProducer {
-   public:
-      explicit LTCRawToDigi(const edm::ParameterSet&);
-      ~LTCRawToDigi() override;
+public:
+  explicit LTCRawToDigi(const edm::ParameterSet &);
+  ~LTCRawToDigi() override;
 
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
-   private:
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 };
 
 //
@@ -61,47 +61,40 @@ class LTCRawToDigi : public edm::EDProducer {
 //
 // constructors and destructor
 //
-LTCRawToDigi::LTCRawToDigi(const edm::ParameterSet& iConfig)
-{
-   //register your products
-   produces<LTCDigiCollection>();
+LTCRawToDigi::LTCRawToDigi(const edm::ParameterSet &iConfig) {
+  // register your products
+  produces<LTCDigiCollection>();
 }
 
+LTCRawToDigi::~LTCRawToDigi() {
 
-LTCRawToDigi::~LTCRawToDigi()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-LTCRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void LTCRawToDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   const int LTCFedIDLo = 815;
   const int LTCFedIDHi = 823;
 
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
-  iEvent.getByLabel("source" , rawdata);
+  iEvent.getByLabel("source", rawdata);
 
   // create collection we'll save in the event record
   auto pOut = std::make_unique<LTCDigiCollection>();
 
   // Loop over all possible FED's with the appropriate FED ID
-  for ( int id = LTCFedIDLo; id <= LTCFedIDHi; ++id ) {
+  for (int id = LTCFedIDLo; id <= LTCFedIDHi; ++id) {
     /// Take a reference to this FED's data
-    const FEDRawData & fedData = rawdata->FEDData(id);
-    unsigned short int length =  fedData.size();
-    if ( ! length ) 
+    const FEDRawData &fedData = rawdata->FEDData(id);
+    unsigned short int length = fedData.size();
+    if (!length)
       continue; // bank does not exist
     LTCDigi ltcDigi(fedData.data());
     pOut->push_back(ltcDigi);
@@ -109,5 +102,5 @@ LTCRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(std::move(pOut));
 }
 
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(LTCRawToDigi);

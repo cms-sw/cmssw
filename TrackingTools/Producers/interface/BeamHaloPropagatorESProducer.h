@@ -9,30 +9,30 @@
 
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "TrackingTools/GeomPropagators/interface/BeamHaloPropagator.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "TrackingTools/GeomPropagators/interface/BeamHaloPropagator.h"
 
 #include <memory>
-  
 
-namespace edm {class ParameterSet;}
+namespace edm {
+class ParameterSet;
+}
 
 class TrackingComponentsRecord;
 
-class  BeamHaloPropagatorESProducer: public edm::ESProducer{
+class BeamHaloPropagatorESProducer : public edm::ESProducer {
 
- public:
-  
+public:
   /// Constructor
   BeamHaloPropagatorESProducer(const edm::ParameterSet &);
-  
+
   /// Destructor
-  ~BeamHaloPropagatorESProducer() override; 
-  
+  ~BeamHaloPropagatorESProducer() override;
+
   // Operations
   std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
-  
- private:
+
+private:
   PropagationDirection thePropagationDirection;
   std::string myname;
   std::string theEndCapTrackerPropagatorName;
@@ -40,4 +40,3 @@ class  BeamHaloPropagatorESProducer: public edm::ESProducer{
 };
 
 #endif
-

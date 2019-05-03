@@ -3,64 +3,69 @@
 /** \file DirectMuonNavigation
  *
  *  do a straight line extrapolation to
- *  find out compatible DetLayers with a given FTS 
+ *  find out compatible DetLayers with a given FTS
  *
  *  \author Chang Liu  -  Purdue University
  */
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
-class DirectMuonNavigation{
+class DirectMuonNavigation {
 
-  public:
+public:
+  /* Constructor */
+  DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry> &);
 
-    /* Constructor */ 
-    DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>&);
+  DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry> &,
+                       const edm::ParameterSet &);
 
-    DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>&, const edm::ParameterSet&);
+  DirectMuonNavigation *clone() const {
+    return new DirectMuonNavigation(*this);
+  }
 
-    DirectMuonNavigation* clone() const {
-      return new DirectMuonNavigation(*this);
-    }
+  /* Destructor */
+  ~DirectMuonNavigation() {}
 
-    /* Destructor */ 
-    ~DirectMuonNavigation() {}
+  std::vector<const DetLayer *>
+  compatibleLayers(const FreeTrajectoryState &fts,
+                   PropagationDirection timeDirection) const;
 
-    std::vector<const DetLayer*> 
-      compatibleLayers( const FreeTrajectoryState& fts, 
-                        PropagationDirection timeDirection) const;
+  std::vector<const DetLayer *>
+  compatibleEndcapLayers(const FreeTrajectoryState &fts,
+                         PropagationDirection timeDirection) const;
 
+private:
+  void inOutBarrel(const FreeTrajectoryState &,
+                   std::vector<const DetLayer *> &) const;
+  void outInBarrel(const FreeTrajectoryState &,
+                   std::vector<const DetLayer *> &) const;
 
-    std::vector<const DetLayer*>
-      compatibleEndcapLayers( const FreeTrajectoryState& fts,
-                              PropagationDirection timeDirection) const;
+  void inOutForward(const FreeTrajectoryState &,
+                    std::vector<const DetLayer *> &) const;
+  void outInForward(const FreeTrajectoryState &,
+                    std::vector<const DetLayer *> &) const;
 
-  private:
+  void inOutBackward(const FreeTrajectoryState &,
+                     std::vector<const DetLayer *> &) const;
+  void outInBackward(const FreeTrajectoryState &,
+                     std::vector<const DetLayer *> &) const;
 
-    void inOutBarrel(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
-    void outInBarrel(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  bool checkCompatible(const FreeTrajectoryState &fts,
+                       const BarrelDetLayer *) const;
+  bool checkCompatible(const FreeTrajectoryState &fts,
+                       const ForwardDetLayer *) const;
+  bool outward(const FreeTrajectoryState &fts) const;
 
-    void inOutForward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
-    void outInForward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const; 
-
-    void inOutBackward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
-    void outInBackward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
-
-    bool checkCompatible(const FreeTrajectoryState& fts,const BarrelDetLayer*) const;
-    bool checkCompatible(const FreeTrajectoryState& fts,const ForwardDetLayer*) const;
-    bool outward(const FreeTrajectoryState& fts) const;
-
-    edm::ESHandle<MuonDetLayerGeometry> theMuonDetLayerGeometry;
-    float epsilon_;
-    bool theEndcapFlag;
-    bool theBarrelFlag;
-
+  edm::ESHandle<MuonDetLayerGeometry> theMuonDetLayerGeometry;
+  float epsilon_;
+  bool theEndcapFlag;
+  bool theBarrelFlag;
 };
 #endif

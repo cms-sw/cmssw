@@ -2,8 +2,9 @@
 //
 // Package:    JetPlusTracks
 // Class:      JetPlusTrackProducerAA
-// 
-/**\class JetPlusTrackProducerAA JetPlusTrackProducerAA.cc JetPlusTrackProducerAA.cc
+//
+/**\class JetPlusTrackProducerAA JetPlusTrackProducerAA.cc
+ JetPlusTrackProducerAA.cc
 
  Description: [one line class summary]
 
@@ -16,35 +17,34 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/JetReco/interface/JPTJet.h"
+#include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "JetPlusTrackCorrector.h"
 #include "ZSPJPTJetCorrector.h"
-#include "DataFormats/JetReco/interface/JPTJetCollection.h"
-#include "DataFormats/JetReco/interface/JPTJet.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 //=>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include <vector>
-#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDR.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDR.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include <vector>
 //=>
 
 #include <string>
@@ -54,39 +54,40 @@
 //
 
 class JetPlusTrackProducerAA : public edm::EDProducer {
-   public:
-      explicit JetPlusTrackProducerAA(const edm::ParameterSet&);
-      ~JetPlusTrackProducerAA() override;
-      void beginJob() override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
-////     reco::TrackRefVector calculateBGtracksJet(reco::JPTJetCollection&, std::vector <reco::TrackRef>&);
+public:
+  explicit JetPlusTrackProducerAA(const edm::ParameterSet &);
+  ~JetPlusTrackProducerAA() override;
+  void beginJob() override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
+  ////     reco::TrackRefVector calculateBGtracksJet(reco::JPTJetCollection&,
+  /// std::vector <reco::TrackRef>&);
 
-      reco::TrackRefVector calculateBGtracksJet(reco::JPTJetCollection&, std::vector <reco::TrackRef>&,  
-                                                 edm::Handle <std::vector<reco::TrackExtrapolation> >&,
-                                                                                 reco::TrackRefVector&);
+  reco::TrackRefVector
+  calculateBGtracksJet(reco::JPTJetCollection &, std::vector<reco::TrackRef> &,
+                       edm::Handle<std::vector<reco::TrackExtrapolation>> &,
+                       reco::TrackRefVector &);
 
- private:
+private:
+  // ---------- private data members ---------------------------
+  JetPlusTrackCorrector *mJPTalgo;
+  ZSPJPTJetCorrector *mZSPalgo;
+  edm::InputTag src;
+  edm::InputTag srcPVs_;
+  std::string alias;
+  bool vectorial_;
+  bool useZSP;
+  edm::InputTag mTracks;
+  double mConeSize;
+  reco::TrackBase::TrackQuality trackQuality_;
 
-    // ---------- private data members ---------------------------      
-      JetPlusTrackCorrector*        mJPTalgo;
-      ZSPJPTJetCorrector*              mZSPalgo; 
-      edm::InputTag                 src;
-      edm::InputTag                 srcPVs_;
-      std::string                   alias;
-      bool                          vectorial_;  
-      bool                          useZSP;
-      edm::InputTag                 mTracks;
-      double                        mConeSize;
-      reco::TrackBase::TrackQuality trackQuality_;
+  //=>
+  edm::InputTag mExtrapolations;
+  //=>
 
-//=>
-      edm::InputTag mExtrapolations;
-//=>
-
-      edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
-      edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;  
-      edm::EDGetTokenT<reco::TrackCollection> input_tracks_token_;
-      edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > input_extrapolations_token_;
-
+  edm::EDGetTokenT<edm::View<reco::CaloJet>> input_jets_token_;
+  edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
+  edm::EDGetTokenT<reco::TrackCollection> input_tracks_token_;
+  edm::EDGetTokenT<std::vector<reco::TrackExtrapolation>>
+      input_extrapolations_token_;
 };

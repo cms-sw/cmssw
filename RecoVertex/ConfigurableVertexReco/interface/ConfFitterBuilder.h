@@ -7,11 +7,12 @@
  *  template class that registers an AbstractConfReconstructor
  */
 
-template < class O > class ConfFitterBuilder {
+template <class O> class ConfFitterBuilder {
 public:
-  ConfFitterBuilder < O > ( const std::string & name, const std::string & description  )
-  {
-    VertexFitterManager::Instance().registerFitter ( name, []()->AbstractConfFitter*{return new O();}, description );
+  ConfFitterBuilder<O>(const std::string &name,
+                       const std::string &description) {
+    VertexFitterManager::Instance().registerFitter(
+        name, []() -> AbstractConfFitter * { return new O(); }, description);
   }
 };
 

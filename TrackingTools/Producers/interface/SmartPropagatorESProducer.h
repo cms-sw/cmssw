@@ -9,30 +9,30 @@
 
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
 
 #include <memory>
-  
 
-namespace edm {class ParameterSet;}
+namespace edm {
+class ParameterSet;
+}
 
 class TrackingComponentsRecord;
 
-class  SmartPropagatorESProducer: public edm::ESProducer{
+class SmartPropagatorESProducer : public edm::ESProducer {
 
- public:
-  
+public:
   /// Constructor
   SmartPropagatorESProducer(const edm::ParameterSet &);
-  
+
   /// Destructor
-  ~SmartPropagatorESProducer() override; 
-  
+  ~SmartPropagatorESProducer() override;
+
   // Operations
   std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
-  
- private:
+
+private:
   PropagationDirection thePropagationDirection;
   std::string theTrackerPropagatorName;
   std::string theMuonPropagatorName;
@@ -40,4 +40,3 @@ class  SmartPropagatorESProducer: public edm::ESProducer{
 };
 
 #endif
-

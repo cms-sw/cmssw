@@ -4,8 +4,9 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianState.h"
 
 namespace GaussianStateConversions {
-  MultiGaussianState<3> multiGaussianStateFromVertex (const VertexState aState);
-  VertexState vertexFromMultiGaussianState (const MultiGaussianState<3>& multiState);
-}
+MultiGaussianState<3> multiGaussianStateFromVertex(const VertexState aState);
+VertexState
+vertexFromMultiGaussianState(const MultiGaussianState<3> &multiState);
+} // namespace GaussianStateConversions
 
 #endif

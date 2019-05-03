@@ -2,8 +2,9 @@
 //
 // Package:    TrajectoryCleanerESProducer
 // Class:      TrajectoryCleanerESProducer
-// 
-/**\class TrajectoryCleanerESProducer TrajectoryCleanerESProducer.h TrackingTools/Producers/src/TrajectoryCleanerESProducer.cc
+//
+/**\class TrajectoryCleanerESProducer TrajectoryCleanerESProducer.h
+ TrackingTools/Producers/src/TrajectoryCleanerESProducer.cc
 
  Description: <one line class summary>
 
@@ -16,13 +17,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -30,14 +30,15 @@
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 
 class TrajectoryCleanerESProducer : public edm::ESProducer {
-   public:
-      TrajectoryCleanerESProducer(const edm::ParameterSet&);
-      ~TrajectoryCleanerESProducer() override;
+public:
+  TrajectoryCleanerESProducer(const edm::ParameterSet &);
+  ~TrajectoryCleanerESProducer() override;
 
   typedef std::unique_ptr<TrajectoryCleaner> ReturnType;
 
-      ReturnType produce(const  TrackingComponentsRecord&);
-   private:
+  ReturnType produce(const TrackingComponentsRecord &);
+
+private:
   std::string theComponentName;
   std::string theComponentType;
   edm::ParameterSet theConfig;

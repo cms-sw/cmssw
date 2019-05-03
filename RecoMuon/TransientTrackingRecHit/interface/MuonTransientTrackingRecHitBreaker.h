@@ -12,15 +12,13 @@
 class MuonTransientTrackingRecHitBreaker {
 
 public:
-
-  /// takes a muon rechit and returns its sub-rechits given a certain granularity 
-  static TransientTrackingRecHit::ConstRecHitContainer 
-  breakInSubRecHits(TransientTrackingRecHit::ConstRecHitPointer, int granularity);
+  /// takes a muon rechit and returns its sub-rechits given a certain
+  /// granularity
+  static TransientTrackingRecHit::ConstRecHitContainer
+  breakInSubRecHits(TransientTrackingRecHit::ConstRecHitPointer,
+                    int granularity);
 
 protected:
-
 private:
-
 };
 #endif
-
