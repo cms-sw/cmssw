@@ -9,27 +9,27 @@
 #include "DQM/PhysicsObjectsMonitoring/interface/PhysicsObjectsMonitor.h"
 
 // Collaborating Class Header
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 using namespace std;
 using namespace edm;
 
 /// Constructor
-PhysicsObjectsMonitor::PhysicsObjectsMonitor(const ParameterSet& pset) {
+PhysicsObjectsMonitor::PhysicsObjectsMonitor(const ParameterSet &pset) {
   theSTAMuonLabel =
       pset.getUntrackedParameter<string>("StandAloneTrackCollectionLabel");
   theSeedCollectionLabel =
@@ -52,9 +52,9 @@ PhysicsObjectsMonitor::PhysicsObjectsMonitor(const ParameterSet& pset) {
 /// Destructor
 PhysicsObjectsMonitor::~PhysicsObjectsMonitor() {}
 
-void PhysicsObjectsMonitor::bookHistograms(DQMStore::IBooker& iBooker,
-                                           edm::Run const&,
-                                           edm::EventSetup const&) {
+void PhysicsObjectsMonitor::bookHistograms(DQMStore::IBooker &iBooker,
+                                           edm::Run const &,
+                                           edm::EventSetup const &) {
   iBooker.setCurrentFolder("PhysicsObjects/MuonReconstruction");
 
   hPres = iBooker.book1D("pTRes", "pT Resolution", 100, -2, 2);
@@ -78,15 +78,15 @@ void PhysicsObjectsMonitor::bookHistograms(DQMStore::IBooker& iBooker,
 
   DTvsCSC = iBooker.book2D("DTvsCSC", "Number of DT vs CSC hits on track", 29,
                            -.5, 28.5, 29, -.5, 28.5);
-  TH2F* root_ob = DTvsCSC->getTH2F();
+  TH2F *root_ob = DTvsCSC->getTH2F();
   root_ob->SetXTitle("Number of DT hits");
   root_ob->SetYTitle("Number of CSC hits");
 }
 
-void PhysicsObjectsMonitor::analyze(const Event& event,
-                                    const EventSetup& eventSetup) {
-  edm::LogInfo("PhysicsObjectsMonitor") << "Run: " << event.id().run()
-                                        << " Event: " << event.id().event();
+void PhysicsObjectsMonitor::analyze(const Event &event,
+                                    const EventSetup &eventSetup) {
+  edm::LogInfo("PhysicsObjectsMonitor")
+      << "Run: " << event.id().run() << " Event: " << event.id().event();
   MuonPatternRecoDumper debug;
 
   // Get the RecTrack collection from the event
@@ -125,8 +125,8 @@ void PhysicsObjectsMonitor::analyze(const Event& event,
         } else if ((*it)->geographicalId().subdetId() == MuonSubdetId::RPC) {
           nRPChits++;
         } else {
-          edm::LogInfo("PhysicsObjectsMonitor") << "This is an UNKNOWN hit !! "
-                                                << std::endl;
+          edm::LogInfo("PhysicsObjectsMonitor")
+              << "This is an UNKNOWN hit !! " << std::endl;
         }
         nrechits++;
       }
