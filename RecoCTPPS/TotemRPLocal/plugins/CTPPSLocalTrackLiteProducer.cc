@@ -55,9 +55,9 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(const edm::ParameterSet& iConfig)
-    : includeStrips_(iConfig.getParameter<bool>("includeStrips")),
+    : includeStrips_  (iConfig.getParameter<bool>("includeStrips")),
       includeDiamonds_(iConfig.getParameter<bool>("includeDiamonds")),
-      includePixels_(iConfig.getParameter<bool>("includePixels")),
+      includePixels_  (iConfig.getParameter<bool>("includePixels")),
       pixelTrackTxMin_(iConfig.getParameter<double>("pixelTrackTxMin")),
       pixelTrackTxMax_(iConfig.getParameter<double>("pixelTrackTxMax")),
       pixelTrackTyMin_(iConfig.getParameter<double>("pixelTrackTyMin")),
@@ -111,19 +111,23 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSe
             MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getChiSquaredOverNDF());
 
         pOut->emplace_back(rpId,  // detector info
+                           // spatial info
                            roundedX0,
                            roundedX0Sigma,
                            roundedY0,
-                           roundedY0Sigma,  // spatial info
+                           roundedY0Sigma,
+                           // angular info
                            roundedTx,
                            roundedTxSigma,
                            roundedTy,
-                           roundedTySigma,  // angular info
+                           roundedTySigma,
+                           // reconstruction info
                            roundedChiSquaredOverNDF,
                            CTPPSpixelLocalTrackReconstructionInfo::invalid,
-                           trk.getNumberOfPointsUsedForFit(),  // reconstruction info
+                           trk.getNumberOfPointsUsedForFit(),
+                           // timing info
                            0.,
-                           0.  // timing info
+                           0.
         );
       }
     }
@@ -155,19 +159,23 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSe
         float roundedTSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getTSigma());
 
         pOut->emplace_back(rpId,  // detector info
+                           // spatial info
                            roundedX0,
                            roundedX0Sigma,
                            roundedY0,
-                           roundedY0Sigma,  // spatial info
+                           roundedY0Sigma,
+                           // angular info
                            0.,
                            0.,
                            0.,
-                           0.,  // angular info
+                           0.,
+                           // reconstruction info
                            0.,
                            CTPPSpixelLocalTrackReconstructionInfo::invalid,
-                           trk.getNumOfPlanes(),  // reconstruction info
+                           trk.getNumOfPlanes(),
+                           // timing info
                            roundedT,
-                           roundedTSigma  // timing info
+                           roundedTSigma
         );
       }
     }
@@ -200,19 +208,23 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSe
                 MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getChiSquaredOverNDF());
 
             pOut->emplace_back(rpId,  // detector info
+                               // spatial info
                                roundedX0,
                                roundedX0Sigma,
                                roundedY0,
-                               roundedY0Sigma,  // spatial info
+                               roundedY0Sigma,
+                               // angular info
                                roundedTx,
                                roundedTxSigma,
                                roundedTy,
-                               roundedTySigma,  // angular info
+                               roundedTySigma,
+                               // reconstruction info
                                roundedChiSquaredOverNDF,
                                trk.getRecoInfo(),
-                               trk.getNumberOfPointsUsedForFit(),  // reconstruction info
+                               trk.getNumberOfPointsUsedForFit(),
+                               // timing info
                                0.,
-                               0.  // timing info
+                               0.
             );
           }
         }
@@ -258,3 +270,4 @@ void CTPPSLocalTrackLiteProducer::fillDescriptions(edm::ConfigurationDescription
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSLocalTrackLiteProducer);
+
