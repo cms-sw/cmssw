@@ -41,7 +41,7 @@
 <use   name="SimDataFormats/Track"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/Math"/>
-<use   name="FastSimulation/BaseParticlePropagator"/>
+<use   name="CommonTools/BaseParticlePropagator"/>
 <export>
   <flags   SEALPLUGIN="1"/>
   <lib   name="1"/>

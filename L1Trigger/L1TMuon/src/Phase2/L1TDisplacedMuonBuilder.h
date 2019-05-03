@@ -18,7 +18,7 @@
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
 #include "L1Trigger/L1TMuon/src/Phase2/L1TDisplacedMuonPtAssignment.h"
 #include "L1Trigger/L1TMuon/src/Phase2/L1TDisplacedMuonStubRecovery.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCComparatorDigiFitter.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCComparatorDigiFitter.h"
 
 // stubs
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"

@@ -14,8 +14,7 @@
     <use   name="Geometry/CaloGeometry"/>
     <use   name="DataFormats/L1TrackTrigger"/>
     <use   name="root"/>
-    <use   name="FastSimulation/Particle"/>
-    <use   name="FastSimulation/BaseParticlePropagator"/>
+    <use   name="CommonTools/BaseParticlePropagator"/>
     <use   name="heppdt"/>
     <use   name="SimTracker/TrackerHitAssociation"/>
     <use   name="SimTracker/TrackTriggerAssociation"/>

@@ -1,7 +1,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/L1TPFUtils.h"
 
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-#include "FastSimulation/Particle/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 std::pair<float,float> l1tpf::propagateToCalo(const math::XYZTLorentzVector& iMom, const math::XYZTLorentzVector& iVtx, double iCharge, double iBField) {

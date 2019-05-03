@@ -2,7 +2,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/Phase2L1ParticleFlow"/>
-<use name="FastSimulation/BaseParticlePropagator"/>
+<use name="CommonTools/BaseParticlePropagator"/>
 <use name="FastSimulation/Particle"/>
 <use name="DataFormats/ParticleFlowReco"/>
 <export>

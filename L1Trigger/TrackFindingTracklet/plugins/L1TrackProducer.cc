@@ -61,8 +61,8 @@
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 ////////////////////////
 // FAST SIMULATION STUFF
-#include "FastSimulation/Particle/interface/RawParticle.h"
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
 ////////////////////////////
 // DETECTOR GEOMETRY HEADERS

@@ -6,7 +6,7 @@
 <use   name="MagneticField/Records"/>
   <use   name="L1Trigger/L1TTrackMatch"/>
   <use   name="SimGeneral/HepPDTRecord"/>
-  <use   name="FastSimulation/BaseParticlePropagator"/>
+  <use   name="CommonTools/BaseParticlePropagator"/>
   <use   name="SimDataFormats/GeneratorProducts"/>
   <use   name="PhysicsTools/UtilAlgos"/>
   <use   name="CommonTools/UtilAlgos"/>
