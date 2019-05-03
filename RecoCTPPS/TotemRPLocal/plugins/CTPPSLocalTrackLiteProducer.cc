@@ -47,20 +47,13 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack> > pixelTrackToken_;
 
   double pixelTrackTxMin_, pixelTrackTxMax_, pixelTrackTyMin_, pixelTrackTyMax_;
-  /// if true, this module will do nothing
-  /// \note needed for consistency with CTPPS-less workflows
-  bool doNothing_;
   double timingTrackTMin_, timingTrackTMax_;
 };
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(const edm::ParameterSet& iConfig) :
-  doNothing_(iConfig.getParameter<bool>("doNothing"))
+CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(const edm::ParameterSet& iConfig)
 {
-  if (doNothing_)
-    return;
-
   includeStrips_ = iConfig.getParameter<bool>("includeStrips");
   siStripTrackToken_ = consumes<edm::DetSetVector<TotemRPLocalTrack> >(iConfig.getParameter<edm::InputTag>("tagSiStripTrack"));
 
@@ -87,9 +80,6 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(const edm::ParameterSet
 void
 CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
 {
-  if (doNothing_)
-    return;
-
   // prepare output
   auto pOut = std::make_unique<std::vector<CTPPSLocalTrackLite> >();
 
@@ -108,15 +98,15 @@ CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
         if (!trk.isValid())
           continue;
 
-          float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<14>(trk.getX0());
-          float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
-          float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
-          float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getY0Sigma());
-          float roundedTx = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.getTx());
-          float roundedTxSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTxSigma());
-          float roundedTy = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.getTy());
-          float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTySigma());
-          float roundedChiSquaredOverNDF = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getChiSquaredOverNDF());
+        float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<14>(trk.getX0());
+        float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
+        float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
+        float roundedY0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getY0Sigma());
+        float roundedTx = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.getTx());
+        float roundedTxSigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTxSigma());
+        float roundedTy = MiniFloatConverter::reduceMantissaToNbitsRounding<11>(trk.getTy());
+        float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTySigma());
+        float roundedChiSquaredOverNDF = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getChiSquaredOverNDF());
 
         pOut->emplace_back(rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, roundedTx, roundedTxSigma, roundedTy, roundedTySigma,
           roundedChiSquaredOverNDF, CTPPSpixelLocalTrackReconstructionInfo::invalid, trk.getNumberOfPointsUsedForFit(), 0, 0);
@@ -140,7 +130,8 @@ CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
           continue;
 
         const float abs_time = trk.getT()+trk.getOOTIndex()*HPTDC_TIME_SLICE_WIDTH;
-        if (abs_time < timingTrackTMin_ || abs_time > timingTrackTMax_) continue;
+        if (abs_time < timingTrackTMin_ || abs_time > timingTrackTMax_)
+          continue;
 
         float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getX0());
         float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
@@ -173,9 +164,11 @@ CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
       for (const auto& rpv : *inputPixelTracks) {
         const uint32_t rpId = rpv.detId();
         for (const auto& trk : rpv) {
-          if (!trk.isValid()) continue;
-          if(trk.getTx()>pixelTrackTxMin_ && trk.getTx()<pixelTrackTxMax_
-             && trk.getTy()>pixelTrackTyMin_ && trk.getTy()<pixelTrackTyMax_){
+          if (!trk.isValid())
+            continue;
+          if (trk.getTx() > pixelTrackTxMin_ && trk.getTx() < pixelTrackTxMax_
+           && trk.getTy() > pixelTrackTyMin_ && trk.getTy() < pixelTrackTyMax_) {
+
             float roundedX0 = MiniFloatConverter::reduceMantissaToNbitsRounding<16>(trk.getX0());
             float roundedX0Sigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getX0Sigma());
             float roundedY0 = MiniFloatConverter::reduceMantissaToNbitsRounding<13>(trk.getY0());
@@ -205,7 +198,7 @@ CTPPSLocalTrackLiteProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 {
   edm::ParameterSetDescription desc;
 
-  // By default: module enabled (doNothing=false), but all includeXYZ flags set to false.
+  // By default: all includeXYZ flags set to false.
   // The includeXYZ are switched on when the "ctpps_2016" era is declared in python config, see:
   // RecoCTPPS/TotemRPLocal/python/ctppsLocalTrackLiteProducer_cff.py
 
@@ -220,8 +213,6 @@ CTPPSLocalTrackLiteProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<bool>("includePixels", false)->setComment("whether tracks from pixels should be included");
   desc.add<edm::InputTag>("tagPixelTrack", edm::InputTag("ctppsPixelLocalTracks"))
     ->setComment("input pixel detectors' local tracks collection to retrieve");
-  desc.add<bool>("doNothing", false) // enable the module by default
-    ->setComment("disable the module");
   desc.add<double>("timingTrackTMin", -12.5)
     ->setComment("minimal track time selection for timing detectors, in ns");
   desc.add<double>("timingTrackTMax", +12.5)
