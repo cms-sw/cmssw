@@ -21,57 +21,57 @@ namespace edm {
     // fragment FWCore/Framework/python/test/cmsExceptionsFatalOption_cff.py.
 
     enum ErrorCodes {
-       CommandLineProcessing = 7000,
-       ConfigFileNotFound = 7001,
-       ConfigFileReadError = 7002,
+      CommandLineProcessing = 7000,
+      ConfigFileNotFound = 7001,
+      ConfigFileReadError = 7002,
 
-       OtherCMS = 8001,
-       StdException = 8002,
-       Unknown = 8003,
-       BadAlloc = 8004,
-       BadExceptionType = 8005,
+      OtherCMS = 8001,
+      StdException = 8002,
+      Unknown = 8003,
+      BadAlloc = 8004,
+      BadExceptionType = 8005,
 
-       ProductNotFound = 8006,
-       DictionaryNotFound = 8007,
-       InsertFailure = 8008,
-       Configuration = 8009,
-       LogicError = 8010,
-       UnimplementedFeature = 8011,
-       InvalidReference = 8012,
-       NullPointerError = 8013,
-       NoProductSpecified = 8014,
-       EventTimeout = 8015,
-       EventCorruption = 8016,
+      ProductNotFound = 8006,
+      DictionaryNotFound = 8007,
+      InsertFailure = 8008,
+      Configuration = 8009,
+      LogicError = 8010,
+      UnimplementedFeature = 8011,
+      InvalidReference = 8012,
+      NullPointerError = 8013,
+      NoProductSpecified = 8014,
+      EventTimeout = 8015,
+      EventCorruption = 8016,
 
-       ScheduleExecutionFailure = 8017,
-       EventProcessorFailure = 8018,
+      ScheduleExecutionFailure = 8017,
+      EventProcessorFailure = 8018,
 
-       FileInPathError = 8019,
-       FileOpenError = 8020,
-       FileReadError = 8021,
-       FatalRootError = 8022,
-       MismatchedInputFiles = 8023,
+      FileInPathError = 8019,
+      FileOpenError = 8020,
+      FileReadError = 8021,
+      FatalRootError = 8022,
+      MismatchedInputFiles = 8023,
 
-       ProductDoesNotSupportViews = 8024,
-       ProductDoesNotSupportPtr = 8025,
+      ProductDoesNotSupportViews = 8024,
+      ProductDoesNotSupportPtr = 8025,
 
-       NotFound = 8026,
-       FormatIncompatibility = 8027,
-       FallbackFileOpenError = 8028,
-       NoSecondaryFiles = 8029,
-      
-       ExceededResourceVSize = 8030,
-       ExceededResourceRSS = 8031,
-       ExceededResourceTime = 8032,
+      NotFound = 8026,
+      FormatIncompatibility = 8027,
+      FallbackFileOpenError = 8028,
+      NoSecondaryFiles = 8029,
 
-       FileWriteError = 8033,
-      
-       EventGenerationFailure = 8501,
+      ExceededResourceVSize = 8030,
+      ExceededResourceRSS = 8031,
+      ExceededResourceTime = 8032,
 
-       CaughtSignal = 9000
+      FileWriteError = 8033,
+
+      EventGenerationFailure = 8501,
+
+      CaughtSignal = 9000
     };
 
-  }
+  }  // namespace errors
 
   class dso_export Exception : public cms::Exception {
   public:
@@ -80,18 +80,16 @@ namespace edm {
     explicit Exception(Code category);
 
     Exception(Code category, std::string const& message);
-    Exception(Code category, char const*        message);
+    Exception(Code category, char const* message);
 
     Exception(Code category, std::string const& message, cms::Exception const& another);
-    Exception(Code category, char const*        message, cms::Exception const& another);
+    Exception(Code category, char const* message, cms::Exception const& another);
 
     Exception(Exception const& other);
 
     ~Exception() noexcept override;
 
-    void swap(Exception& other) {
-      std::swap(category_, other.category_);
-    }
+    void swap(Exception& other) { std::swap(category_, other.category_); }
 
     Exception& operator=(Exception const& other);
 
@@ -110,12 +108,11 @@ namespace edm {
     Exception* clone() const override;
 
   private:
-
     void rethrow() override;
     int returnCode_() const override;
 
     Code category_;
   };
-}
+}  // namespace edm
 
 #endif

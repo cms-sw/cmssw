@@ -32,7 +32,7 @@
 //
 // ----------------------------------------------------------------------
 
-#include <algorithm> // for std::swap()
+#include <algorithm>  // for std::swap()
 #include <memory>
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -47,7 +47,6 @@ namespace edm {
   //
   // --------------------------------------------------------------------
 
-
   template <typename T>
   struct value_ptr_traits {
     static T* clone(T const* p) { return new T(*p); }
@@ -60,27 +59,22 @@ namespace edm {
   //
   // --------------------------------------------------------------------
 
-
   template <typename T>
   class value_ptr {
-
   public:
-
     // --------------------------------------------------
     // Default constructor/destructor:
     // --------------------------------------------------
 
-    value_ptr() : myP(nullptr) { }
-    explicit value_ptr(T* p) : myP(p) { }
+    value_ptr() : myP(nullptr) {}
+    explicit value_ptr(T* p) : myP(p) {}
     ~value_ptr() { value_ptr_traits<T>::destroy(myP.get()); }
 
     // --------------------------------------------------
     // Copy constructor/copy assignment:
     // --------------------------------------------------
 
-    value_ptr(value_ptr const& orig) :
-      myP(createFrom(get_underlying_safe(orig.myP))) {
-    }
+    value_ptr(value_ptr const& orig) : myP(createFrom(get_underlying_safe(orig.myP))) {}
 
     value_ptr& operator=(value_ptr const& orig) {
       value_ptr<T> temp(orig);
@@ -92,15 +86,14 @@ namespace edm {
     // Move constructor/move assignment:
     // --------------------------------------------------
 
-    value_ptr(value_ptr&& orig) :
-      myP(orig.myP) { orig.myP=nullptr; }
+    value_ptr(value_ptr&& orig) : myP(orig.myP) { orig.myP = nullptr; }
 
     value_ptr& operator=(value_ptr&& orig) {
-      if (myP!=orig.myP) {
+      if (myP != orig.myP) {
         delete myP.get();
-        myP=orig.myP;
-        orig.myP=nullptr;
-      } 
+        myP = orig.myP;
+        orig.myP = nullptr;
+      }
       return *this;
     }
 
@@ -124,9 +117,7 @@ namespace edm {
     // --------------------------------------------------
 
     template <typename U>
-    value_ptr(value_ptr<U> const& orig) :
-      myP(createFrom(orig.operator->())) {
-    }
+    value_ptr(value_ptr<U> const& orig) : myP(createFrom(orig.operator->())) {}
 
     template <typename U>
     value_ptr& operator=(value_ptr<U> const& orig) {
@@ -139,8 +130,7 @@ namespace edm {
     // Move-like construct/assign from unique_ptr<>:
     // --------------------------------------------------
 
-    value_ptr(std::unique_ptr<T> orig) :
-      myP(orig.release()) { orig=nullptr; }
+    value_ptr(std::unique_ptr<T> orig) : myP(orig.release()) { orig = nullptr; }
 
     value_ptr& operator=(std::unique_ptr<T> orig) {
       value_ptr<T> temp(std::move(orig));
@@ -148,34 +138,29 @@ namespace edm {
       return *this;
     }
 
-  // The following typedef, function, and operator definition
-  // support the following syntax:
-  //   value_ptr<T> ptr(..);
-  //   if (ptr) { ...
-  // Where the conditional will evaluate as true if and only if the
-  // pointer value_ptr contains is not null.
+    // The following typedef, function, and operator definition
+    // support the following syntax:
+    //   value_ptr<T> ptr(..);
+    //   if (ptr) { ...
+    // Where the conditional will evaluate as true if and only if the
+    // pointer value_ptr contains is not null.
   private:
     typedef void (value_ptr::*bool_type)() const;
     void this_type_does_not_support_comparisons() const {}
 
   public:
     operator bool_type() const {
-      return myP != nullptr ?
-        &value_ptr<T>::this_type_does_not_support_comparisons : nullptr;
+      return myP != nullptr ? &value_ptr<T>::this_type_does_not_support_comparisons : nullptr;
     }
 
   private:
-
     // --------------------------------------------------
     // Implementation aid:
     // --------------------------------------------------
 
     template <typename U>
-    static T*
-    createFrom(U const* p) {
-      return p
-	? value_ptr_traits<U>::clone(p)
-	: nullptr;
+    static T* createFrom(U const* p) {
+      return p ? value_ptr_traits<U>::clone(p) : nullptr;
     }
 
     // --------------------------------------------------
@@ -184,8 +169,7 @@ namespace edm {
 
     edm::propagate_const<T*> myP;
 
-  }; // value_ptr
-
+  };  // value_ptr
 
   // --------------------------------------------------------------------
   //
@@ -194,9 +178,9 @@ namespace edm {
   // --------------------------------------------------------------------
 
   template <typename T>
-  inline
-  void
-  swap(value_ptr<T>& vp1, value_ptr<T>& vp2) { vp1.swap(vp2); }
+  inline void swap(value_ptr<T>& vp1, value_ptr<T>& vp2) {
+    vp1.swap(vp2);
+  }
 
   // Do not allow nonsensical comparisons that the bool_type
   // conversion operator definition above would otherwise allow.
@@ -205,28 +189,27 @@ namespace edm {
   // instantiate these 4 operators.
   template <typename T, typename U>
   inline bool operator==(value_ptr<T> const& lhs, U const& rhs) {
-    lhs.this_type_does_not_support_comparisons();	
-    return false;	
+    lhs.this_type_does_not_support_comparisons();
+    return false;
   }
 
   template <typename T, typename U>
   inline bool operator!=(value_ptr<T> const& lhs, U const& rhs) {
-    lhs.this_type_does_not_support_comparisons();	
-    return false;	
+    lhs.this_type_does_not_support_comparisons();
+    return false;
   }
 
   template <typename T, typename U>
   inline bool operator==(U const& lhs, value_ptr<T> const& rhs) {
-    rhs.this_type_does_not_support_comparisons();	
-    return false;	
+    rhs.this_type_does_not_support_comparisons();
+    return false;
   }
 
   template <typename T, typename U>
   inline bool operator!=(U const& lhs, value_ptr<T> const& rhs) {
-    rhs.this_type_does_not_support_comparisons();	
-    return false;	
+    rhs.this_type_does_not_support_comparisons();
+    return false;
   }
-}
+}  // namespace edm
 
-
-#endif // FWCoreUtilities_value_ptr_h
+#endif  // FWCoreUtilities_value_ptr_h
