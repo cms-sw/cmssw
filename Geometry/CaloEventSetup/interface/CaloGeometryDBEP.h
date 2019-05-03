@@ -96,14 +96,14 @@ class CaloGeometryDBEP : public edm::ESProducer
       typedef CaloSubdetectorGeometry::IVec   IVec       ;
       
       CaloGeometryDBEP<T,U>( const edm::ParameterSet& ps ) :
-	  m_applyAlignment ( ps.getParameter<bool>("applyAlignment") )
+	  applyAlignment_ ( ps.getParameter<bool>("applyAlignment") )
       {
          auto cc = setWhatProduced( this,
                                     &CaloGeometryDBEP<T,U>::produceAligned,
                                     edm::es::Label( T::producerTag() ) ) ;//+std::string("TEST") ) ) ;
 
          if constexpr (calogeometryDBEPimpl::HasAlignmentRecord<T>::value) {
-           if( m_applyAlignment ) {
+           if( applyAlignment_ ) {
              alignmentTokens_.alignments = cc.template consumesFrom<Alignments, typename T::AlignmentRecord>(edm::ESInputTag{});
              alignmentTokens_.globals = cc.template consumesFrom<Alignments, GlobalPositionRcd>(edm::ESInputTag{});
            }
@@ -248,7 +248,7 @@ private:
 	 const Alignments* alignPtr  ( nullptr ) ;
 	 const Alignments* globalPtr ( nullptr ) ;
          if constexpr (calogeometryDBEPimpl::HasAlignmentRecord<T>::value) {
-	    if( m_applyAlignment ) // get ptr if necessary
+	    if( applyAlignment_ ) // get ptr if necessary
 	    {
 	       const auto& alignments = iRecord.get( alignmentTokens_.alignments ) ;
 	       // require expected size
@@ -265,7 +265,7 @@ private:
     typename calogeometryDBEPimpl::AlignmentTokens<T> alignmentTokens_;
     typename calogeometryDBEPimpl::GeometryTraits<T, U::writeFlag()>::TokenType geometryToken_;
     typename calogeometryDBEPimpl::AdditionalTokens<T> additionalTokens_;
-    bool        m_applyAlignment ;
+    bool        applyAlignment_ ;
 };
 
 #endif

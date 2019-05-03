@@ -33,14 +33,14 @@ class CaloGeometryEP : public edm::ESProducer
       using PtrType = typename LoaderType::PtrType;
 
       CaloGeometryEP<T>( const edm::ParameterSet& ps ) :
-	 m_applyAlignment ( ps.getParameter<bool>("applyAlignment") )
+	 applyAlignment_ ( ps.getParameter<bool>("applyAlignment") )
       {
          auto cc = setWhatProduced( this,
                                     &CaloGeometryEP<T>::produceAligned,
 //                                  dependsOn( &CaloGeometryEP<T>::idealRecordCallBack ),
                                     edm::es::Label( T::producerTag() ) ) ;
 
-         if(m_applyAlignment) {
+         if(applyAlignment_) {
            alignmentsToken_ = cc.template consumesFrom<Alignments, typename T::AlignmentRecord>(edm::ESInputTag{});
            globalsToken_ = cc.template consumesFrom<Alignments, GlobalPositionRcd>(edm::ESInputTag{});
          }
@@ -52,7 +52,7 @@ class CaloGeometryEP : public edm::ESProducer
       {
 	 const Alignments* alignPtr  ( nullptr ) ;
 	 const Alignments* globalPtr ( nullptr ) ;
-	 if( m_applyAlignment ) // get ptr if necessary
+	 if( applyAlignment_ ) // get ptr if necessary
 	 {
 	    const auto& alignments = iRecord.get( alignmentsToken_ ) ;
 	    // require expected size
@@ -72,7 +72,7 @@ class CaloGeometryEP : public edm::ESProducer
       edm::ESGetToken<Alignments, typename T::AlignmentRecord> alignmentsToken_;
       edm::ESGetToken<Alignments, GlobalPositionRcd> globalsToken_;
       edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
-      bool        m_applyAlignment ;
+      bool        applyAlignment_ ;
 };
 
 #endif
