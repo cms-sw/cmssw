@@ -55,9 +55,9 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(const edm::ParameterSet& iConfig)
-    : includeStrips_  (iConfig.getParameter<bool>("includeStrips")),
+    : includeStrips_(iConfig.getParameter<bool>("includeStrips")),
       includeDiamonds_(iConfig.getParameter<bool>("includeDiamonds")),
-      includePixels_  (iConfig.getParameter<bool>("includePixels")),
+      includePixels_(iConfig.getParameter<bool>("includePixels")),
       pixelTrackTxMin_(iConfig.getParameter<double>("pixelTrackTxMin")),
       pixelTrackTxMax_(iConfig.getParameter<double>("pixelTrackTxMax")),
       pixelTrackTyMin_(iConfig.getParameter<double>("pixelTrackTyMin")),
@@ -127,8 +127,7 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSe
                            trk.getNumberOfPointsUsedForFit(),
                            // timing info
                            0.,
-                           0.
-        );
+                           0.);
       }
     }
   }
@@ -175,8 +174,7 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSe
                            trk.getNumOfPlanes(),
                            // timing info
                            roundedT,
-                           roundedTSigma
-        );
+                           roundedTSigma);
       }
     }
   }
@@ -224,8 +222,7 @@ void CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSe
                                trk.getNumberOfPointsUsedForFit(),
                                // timing info
                                0.,
-                               0.
-            );
+                               0.);
           }
         }
       }
@@ -270,4 +267,3 @@ void CTPPSLocalTrackLiteProducer::fillDescriptions(edm::ConfigurationDescription
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSLocalTrackLiteProducer);
-
