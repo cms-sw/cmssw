@@ -29,10 +29,10 @@ class TestCategory;
 class XMLCalibrationTest : public edm::EDAnalyzer {
    public:
       explicit XMLCalibrationTest( const edm::ParameterSet& );
-      ~XMLCalibrationTest();
+      ~XMLCalibrationTest() override;
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+      void analyze( const edm::Event&, const edm::EventSetup& ) override;
    private:
       // ----------member data ---------------------------
     AlgorithmCalibration<TestCategory,CalibratedHistogramXML> * m_calib;
@@ -47,20 +47,20 @@ class XMLCalibrationTest : public edm::EDAnalyzer {
 class TestCategory : public CalibrationCategory<float>
 {
 public:
-     bool match(const float & input) const // const reference  for float is stupid but input object 
+     bool match(const float & input) const override // const reference  for float is stupid but input object 
                                             // are not always  floats
      {
       return (input < m_max) && (input >= m_min);
      }
-     std::string name()  {return "TestCategory";}
+     std::string name() override  {return "TestCategory";}
 
-     void readFromDOM(DOMElement * dom)
+     void readFromDOM(DOMElement * dom) override
     {
       m_min = CalibrationXML::readAttribute<float>(dom,"min");
       m_max = CalibrationXML::readAttribute<float>(dom,"max");
     }
 
-     void saveToDOM(DOMElement * dom)
+     void saveToDOM(DOMElement * dom) override
     {
       CalibrationXML::writeAttribute(dom,"min",m_min);
       CalibrationXML::writeAttribute(dom,"max",m_max);
