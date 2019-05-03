@@ -37,10 +37,10 @@ using namespace std;
 class PixelVertexVal : public edm::EDAnalyzer {
 public:
   explicit PixelVertexVal(const edm::ParameterSet& conf);
-  ~PixelVertexVal();
-  virtual void beginJob();
-  virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
-  virtual void endJob();
+  ~PixelVertexVal() override;
+  void beginJob() override;
+  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  void endJob() override;
 private:
   edm::ParameterSet conf_; 
   int verbose_;
@@ -108,7 +108,7 @@ void PixelVertexVal::analyze(
     cout << "simulated vertices: "<< simVtcs->size() << std::endl;
   }
 
-  bool hasPV = (simVtcs->size() > 0 );
+  bool hasPV = (!simVtcs->empty() );
   if (!hasPV) cout << "Event without PV!, skip"<<endl;
   float z_PV = hasPV ? (*simVtcs)[0].position().z() : 0.;
 
