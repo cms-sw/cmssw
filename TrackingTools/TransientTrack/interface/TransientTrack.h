@@ -1,157 +1,178 @@
 #ifndef TrackReco_TransientTrack_h
 #define TrackReco_TransientTrack_h
 
+/**
+ * Definition of Transient Track class to be used for higher-level
+ * reconstruction (vertexing, b-tagging...). It allows access to several
+ * services that the DataFormat tracks can not access (magnetic field, geometry)
+ */
 
-  /**
-   * Definition of Transient Track class to be used for higher-level reconstruction
-   *  (vertexing, b-tagging...). It allows access to several services that the 
-   *  DataFormat tracks can not access (magnetic field, geometry)
-   */
-
-
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
-#include "DataFormats/Common/interface/RefToBase.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
 
-  class TransientTrack : private  BasicTransientTrack::Proxy {
+class TransientTrack : private BasicTransientTrack::Proxy {
 
-    typedef BasicTransientTrack::Proxy             Base;
+  typedef BasicTransientTrack::Proxy Base;
 
-  public:
+public:
+  TransientTrack() noexcept {}
 
-    TransientTrack() noexcept {}
+  explicit TransientTrack(BasicTransientTrack *btt) noexcept : Base(btt) {}
 
-    explicit TransientTrack( BasicTransientTrack * btt ) noexcept : Base(btt) {}
+  ~TransientTrack() noexcept {}
 
-    ~TransientTrack() noexcept {}
+  TransientTrack(TransientTrack const &rh) noexcept : Base(rh) {}
 
+  TransientTrack(TransientTrack &&rh) noexcept : Base(std::move(rh)) {}
 
-    TransientTrack(TransientTrack const & rh) noexcept :
-      Base(rh){}
-    
-    
-    TransientTrack(TransientTrack && rh) noexcept :
-      Base(std::move(rh)){}
-    
-    TransientTrack & operator=(TransientTrack && rh) noexcept {
-      Base::operator=(std::move(rh));
-      return *this;
-    }
-    
-    TransientTrack & operator=(TransientTrack const & rh) noexcept {
-      Base::operator=(rh);
-      return *this;
-    }
+  TransientTrack &operator=(TransientTrack &&rh) noexcept {
+    Base::operator=(std::move(rh));
+    return *this;
+  }
 
-    void swap(TransientTrack & rh) noexcept {
-      Base::swap(rh);
-    }
+  TransientTrack &operator=(TransientTrack const &rh) noexcept {
+    Base::operator=(rh);
+    return *this;
+  }
 
-    TransientTrack( const Track & tk , const MagneticField* field); 
-    TransientTrack( const TrackRef & tk , const MagneticField* field); 
-    TransientTrack( const CandidatePtr & ptr , const MagneticField* field);
-    TransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-  
-    TransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-    TransientTrack( const CandidatePtr & ptr , const MagneticField* field,  const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+  void swap(TransientTrack &rh) noexcept { Base::swap(rh); }
 
-    TransientTrack( const Track & tk , const double time, const double dtime, const MagneticField* field); 
-    TransientTrack( const TrackRef & tk , const double time, const double dtime,  const MagneticField* field); 
-    TransientTrack( const CandidatePtr & ptr, const double time, const double dtime, const MagneticField* field);
-    TransientTrack( const TrackRef & tk , const double time, const double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-    TransientTrack( const Track & tk , const double time, const double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-    TransientTrack( const CandidatePtr & ptr, const double time, const double dtime, const MagneticField* field,  const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+  TransientTrack(const Track &tk, const MagneticField *field);
+  TransientTrack(const TrackRef &tk, const MagneticField *field);
+  TransientTrack(const CandidatePtr &ptr, const MagneticField *field);
+  TransientTrack(const TrackRef &tk, const MagneticField *field,
+                 const edm::ESHandle<GlobalTrackingGeometry> &trackingGeometry);
 
+  TransientTrack(const Track &tk, const MagneticField *field,
+                 const edm::ESHandle<GlobalTrackingGeometry> &trackingGeometry);
+  TransientTrack(const CandidatePtr &ptr, const MagneticField *field,
+                 const edm::ESHandle<GlobalTrackingGeometry> &trackingGeometry);
 
-    void setES(const edm::EventSetup& es) {sharedData().setES(es);}
+  TransientTrack(const Track &tk, const double time, const double dtime,
+                 const MagneticField *field);
+  TransientTrack(const TrackRef &tk, const double time, const double dtime,
+                 const MagneticField *field);
+  TransientTrack(const CandidatePtr &ptr, const double time, const double dtime,
+                 const MagneticField *field);
+  TransientTrack(const TrackRef &tk, const double time, const double dtime,
+                 const MagneticField *field,
+                 const edm::ESHandle<GlobalTrackingGeometry> &trackingGeometry);
+  TransientTrack(const Track &tk, const double time, const double dtime,
+                 const MagneticField *field,
+                 const edm::ESHandle<GlobalTrackingGeometry> &trackingGeometry);
+  TransientTrack(const CandidatePtr &ptr, const double time, const double dtime,
+                 const MagneticField *field,
+                 const edm::ESHandle<GlobalTrackingGeometry> &trackingGeometry);
 
-    void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg)
-    	{sharedData().setTrackingGeometry(tg);}
+  void setES(const edm::EventSetup &es) { sharedData().setES(es); }
 
-    void setBeamSpot(const reco::BeamSpot& beamSpot) 
-    	{sharedData().setBeamSpot(beamSpot);}
+  void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry> &tg) {
+    sharedData().setTrackingGeometry(tg);
+  }
 
-    FreeTrajectoryState initialFreeState() const {return data().initialFreeState();}
+  void setBeamSpot(const reco::BeamSpot &beamSpot) {
+    sharedData().setBeamSpot(beamSpot);
+  }
 
-    TrajectoryStateOnSurface outermostMeasurementState() const
-	{return data().outermostMeasurementState();}
+  FreeTrajectoryState initialFreeState() const {
+    return data().initialFreeState();
+  }
 
-    TrajectoryStateOnSurface innermostMeasurementState() const
-	{return data().innermostMeasurementState();}
+  TrajectoryStateOnSurface outermostMeasurementState() const {
+    return data().outermostMeasurementState();
+  }
 
-    TrajectoryStateClosestToPoint 
-      trajectoryStateClosestToPoint( const GlobalPoint & point ) const
-	{return data().trajectoryStateClosestToPoint(point);}
+  TrajectoryStateOnSurface innermostMeasurementState() const {
+    return data().innermostMeasurementState();
+  }
 
-    TrajectoryStateOnSurface stateOnSurface(const GlobalPoint & point) const
-	{return data().stateOnSurface(point);}
+  TrajectoryStateClosestToPoint
+  trajectoryStateClosestToPoint(const GlobalPoint &point) const {
+    return data().trajectoryStateClosestToPoint(point);
+  }
 
-    TrajectoryStateClosestToPoint impactPointTSCP() const
-	{return data().impactPointTSCP();}
+  TrajectoryStateOnSurface stateOnSurface(const GlobalPoint &point) const {
+    return data().stateOnSurface(point);
+  }
 
-    TrajectoryStateOnSurface impactPointState() const
-	{return data().impactPointState();}
+  TrajectoryStateClosestToPoint impactPointTSCP() const {
+    return data().impactPointTSCP();
+  }
 
-    bool impactPointStateAvailable() const
-	{return data().impactPointStateAvailable();}
+  TrajectoryStateOnSurface impactPointState() const {
+    return data().impactPointState();
+  }
 
-    TrackCharge charge() const {return data().charge();}
+  bool impactPointStateAvailable() const {
+    return data().impactPointStateAvailable();
+  }
 
-    bool operator== (const TransientTrack & other) const
-	{return &(data()) == &(other.data());}
-    // {return (a.persistentTrackRef()==tkr_);}
+  TrackCharge charge() const { return data().charge(); }
 
-    bool operator< (const TransientTrack & other) const 
-	{return &(data()) < &(other.data());}
-    // {return (initialFTS.momentum().z()<a.initialFreeState().momentum().z());}
+  bool operator==(const TransientTrack &other) const {
+    return &(data()) == &(other.data());
+  }
+  // {return (a.persistentTrackRef()==tkr_);}
 
-    const MagneticField* field() const {return data().field();}
+  bool operator<(const TransientTrack &other) const {
+    return &(data()) < &(other.data());
+  }
+  // {return (initialFTS.momentum().z()<a.initialFreeState().momentum().z());}
 
-    const BasicTransientTrack* basicTransientTrack() const {return &(data());}
+  const MagneticField *field() const { return data().field(); }
 
-    double timeExt() const { return data().timeExt(); }
-    double dtErrorExt() const { return data().dtErrorExt(); }
+  const BasicTransientTrack *basicTransientTrack() const { return &(data()); }
 
-    const Track & track() const {return data().track();}
+  double timeExt() const { return data().timeExt(); }
+  double dtErrorExt() const { return data().dtErrorExt(); }
 
-    TrackBaseRef trackBaseRef() const {return data().trackBaseRef();}
+  const Track &track() const { return data().track(); }
 
-    TrajectoryStateClosestToBeamLine stateAtBeamLine() const
-	{return data().stateAtBeamLine();}
+  TrackBaseRef trackBaseRef() const { return data().trackBaseRef(); }
 
-// Methods forwarded to original track.
+  TrajectoryStateClosestToBeamLine stateAtBeamLine() const {
+    return data().stateAtBeamLine();
+  }
 
-    /// first iterator to RecHits
-    trackingRecHit_iterator recHitsBegin() const { return track().recHitsBegin(); }
-    /// last iterator to RecHits
-    trackingRecHit_iterator recHitsEnd() const { return track().recHitsEnd(); }
-    /// get n-th recHit
-    TrackingRecHitRef recHit( size_t i ) const { return track().recHit( i ); }
-    /// number of RecHits
-    size_t recHitsSize() const { return track().recHitsSize(); }
-    //  hit pattern
-    const HitPattern &hitPattern() const { return track().hitPattern(); }
-    /// number of hits found 
-    unsigned short numberOfValidHits() const { return track().hitPattern().numberOfValidHits(); }
-    /// number of hits lost
-    unsigned short numberOfLostHits() const { return track().hitPattern().numberOfLostHits(HitPattern::TRACK_HITS); }
-    /// chi-squared of the fit
-    double chi2() const { return track().chi2(); }
-    /// number of degrees of freedom of the fit
-    double ndof() const { return track().ndof(); }
-    /// chi-squared divided by n.d.o.f.
-    double normalizedChi2() const { return track().chi2() / track().ndof(); }
+  // Methods forwarded to original track.
 
-    /// Make the ReferenceCountingProxy method to check validity public
-    bool isValid() const {return Base::isValid() ;}
+  /// first iterator to RecHits
+  trackingRecHit_iterator recHitsBegin() const {
+    return track().recHitsBegin();
+  }
+  /// last iterator to RecHits
+  trackingRecHit_iterator recHitsEnd() const { return track().recHitsEnd(); }
+  /// get n-th recHit
+  TrackingRecHitRef recHit(size_t i) const { return track().recHit(i); }
+  /// number of RecHits
+  size_t recHitsSize() const { return track().recHitsSize(); }
+  //  hit pattern
+  const HitPattern &hitPattern() const { return track().hitPattern(); }
+  /// number of hits found
+  unsigned short numberOfValidHits() const {
+    return track().hitPattern().numberOfValidHits();
+  }
+  /// number of hits lost
+  unsigned short numberOfLostHits() const {
+    return track().hitPattern().numberOfLostHits(HitPattern::TRACK_HITS);
+  }
+  /// chi-squared of the fit
+  double chi2() const { return track().chi2(); }
+  /// number of degrees of freedom of the fit
+  double ndof() const { return track().ndof(); }
+  /// chi-squared divided by n.d.o.f.
+  double normalizedChi2() const { return track().chi2() / track().ndof(); }
 
-  };
+  /// Make the ReferenceCountingProxy method to check validity public
+  bool isValid() const { return Base::isValid(); }
+};
 
-}
+} // namespace reco
 
 #endif

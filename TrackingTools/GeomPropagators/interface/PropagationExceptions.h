@@ -14,8 +14,10 @@
 
 class PropagationException final : public cms::Exception {
 public:
-  PropagationException( const std::string& message) throw() :  cms::Exception(message)  {}
+  PropagationException(const std::string &message) throw()
+      : cms::Exception(message) {}
   ~PropagationException() throw() override {}
+
 private:
 };
 

@@ -1,10 +1,10 @@
 #ifndef HelixBarrelPlaneCrossingByCircle_H
 #define HelixBarrelPlaneCrossingByCircle_H
 
-#include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
 
 /** Computes the crossing of a helix with a barrel plane.
  *  Exact if the magnetic field is parallel to the plane.
@@ -12,25 +12,21 @@
 
 class HelixBarrelPlaneCrossingByCircle final : public HelixPlaneCrossing {
 public:
+  HelixBarrelPlaneCrossingByCircle(
+      const PositionType &pos, const DirectionType &dir, double rho,
+      PropagationDirection propDir = alongMomentum);
 
-  HelixBarrelPlaneCrossingByCircle( const PositionType& pos,
-				    const DirectionType& dir,
-				    double rho, 
-				    PropagationDirection propDir=alongMomentum);
+  HelixBarrelPlaneCrossingByCircle(
+      const GlobalPoint &pos, const GlobalVector &dir, double rho,
+      PropagationDirection propDir = alongMomentum);
 
-  HelixBarrelPlaneCrossingByCircle( const GlobalPoint& pos,
-				    const GlobalVector& dir,
-				    double rho, 
-				    PropagationDirection propDir=alongMomentum);
+  std::pair<bool, double> pathLength(const Plane &) override;
 
-  std::pair<bool,double> pathLength( const Plane&) override;
+  PositionType position(double s) const override;
 
-  PositionType position( double s) const override;
-
-  DirectionType direction( double s) const override;
+  DirectionType direction(double s) const override;
 
 private:
-
   typedef Basic2DVector<double> Vector2D;
 
   PositionType theStartingPos;
@@ -44,17 +40,16 @@ private:
   double theYCenter;
 
   // caching of the solution for faster access
-  double   theS;
+  double theS;
   Vector2D theD;
-  double   theDmag;
+  double theDmag;
 
   // internal communication - not very clean
-  double   theActualDir;
+  double theActualDir;
   bool useStraightLine;
 
   void init();
-  bool chooseSolution( const Vector2D& d1, const Vector2D& d2);
-
+  bool chooseSolution(const Vector2D &d1, const Vector2D &d2);
 };
 
 #endif

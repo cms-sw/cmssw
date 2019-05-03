@@ -9,37 +9,34 @@
  *  transverse impact parameter (signed), longitudinal i.p.
  */
 
-#include "DataFormats/TrajectoryState/interface/TrackCharge.h"
-#include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/Math/interface/Vector.h"
+#include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 
-class PerigeeTrajectoryParameters
-{
+class PerigeeTrajectoryParameters {
 
 public:
-
   PerigeeTrajectoryParameters() {}
 
-
-
-  explicit PerigeeTrajectoryParameters(const AlgebraicVector5 &aVector, bool charged = true):
-        theVector(aVector) {
-    if ( charged )
-      theCharge = theVector[0]>0 ? -1 : 1;
+  explicit PerigeeTrajectoryParameters(const AlgebraicVector5 &aVector,
+                                       bool charged = true)
+      : theVector(aVector) {
+    if (charged)
+      theCharge = theVector[0] > 0 ? -1 : 1;
     else
       theCharge = 0;
   }
 
   PerigeeTrajectoryParameters(double aCurv, double aTheta, double aPhi,
-  			      double aTip, double aLip, bool charged = true) {
+                              double aTip, double aLip, bool charged = true) {
     theVector[0] = aCurv;
     theVector[1] = aTheta;
     theVector[2] = aPhi;
     theVector[3] = aTip;
     theVector[4] = aLip;
 
-    if ( charged )
-      theCharge = aCurv>0 ? -1 : 1;
+    if (charged)
+      theCharge = aCurv > 0 ? -1 : 1;
     else
       theCharge = 0;
   }
@@ -48,37 +45,39 @@ public:
    * The charge
    */
 
-  TrackCharge charge() const {return theCharge;}
+  TrackCharge charge() const { return theCharge; }
 
   /**
    * The signed transverse curvature
    */
 
-  double transverseCurvature() const {return ((charge()!=0)?theVector[0]:0.);}
+  double transverseCurvature() const {
+    return ((charge() != 0) ? theVector[0] : 0.);
+  }
 
   /**
    * The theta angle
    */
 
-  double theta() const {return theVector[1];}
+  double theta() const { return theVector[1]; }
 
   /**
    * The phi angle
    */
 
-  double phi() const {return theVector[2];}
+  double phi() const { return theVector[2]; }
 
   /**
    * The (signed) transverse impact parameter
    */
 
-  double transverseImpactParameter() const {return theVector[3];}
+  double transverseImpactParameter() const { return theVector[3]; }
 
   /**
    * The longitudinal impact parameter
    */
 
-  double longitudinalImpactParameter() const {return theVector[4];}
+  double longitudinalImpactParameter() const { return theVector[4]; }
 
   /**
    * returns the perigee parameters as a vector.
@@ -86,8 +85,7 @@ public:
    *  transverse curvature (signed), theta, phi,
    *  transverse impact parameter (signed), longitudinal i.p.
    */
-   const AlgebraicVector5 & vector() const { return theVector;}
-
+  const AlgebraicVector5 &vector() const { return theVector; }
 
 private:
   AlgebraicVector5 theVector;
