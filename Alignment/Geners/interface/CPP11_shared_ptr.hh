@@ -12,4 +12,3 @@
 #endif
 
 #endif // GENERS_CPP11_SHARED_PTR_HH_
-
