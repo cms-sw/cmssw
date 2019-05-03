@@ -2,22 +2,22 @@
 #include "CalibFormats/SiStripObjects/test/plugins/testSiStripHashedDetId.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "FWCore/Framework/interface/Event.h" 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include <boost/cstdint.hpp>
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
 #include <algorithm>
+#include <boost/cstdint.hpp>
+#include <ctime>
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include <time.h>
 
 using namespace sistrip;
 
@@ -99,7 +99,7 @@ void testSiStripHashedDetId::initialize( const edm::EventSetup& setup ) {
   
   // Retrieve hashed indices
   std::vector<uint32_t> hashes;
-  uint32_t istart = time(NULL);
+  uint32_t istart = time(nullptr);
   for( uint16_t tt = 0; tt < 10000; ++tt ) { // 10000 loops just to see some non-negligible time meaasurement!
     hashes.clear();
     hashes.reserve(dets.size());
@@ -147,12 +147,12 @@ void testSiStripHashedDetId::initialize( const edm::EventSetup& setup ) {
   edm::LogVerbatim(mlDqmCommon_)
     << "[testSiStripHashedDetId::" << __func__ << "]"
     << " Processed " << hashes.size()
-    << " DetIds in " << (time(NULL)-istart)
+    << " DetIds in " << (time(nullptr)-istart)
     << " seconds";
   
   // Retrieve DetIds
   std::vector<uint32_t> detids;
-  uint32_t jstart = time(NULL);
+  uint32_t jstart = time(nullptr);
   for( uint16_t ttt = 0; ttt < 10000; ++ttt ) { // 10000 loops just to see some non-negligible time meaasurement!
     detids.clear();
     detids.reserve(dets.size());
@@ -184,7 +184,7 @@ void testSiStripHashedDetId::initialize( const edm::EventSetup& setup ) {
   edm::LogVerbatim(mlDqmCommon_)
     << "[testSiStripHashedDetId::" << __func__ << "]"
     << " Processed " << detids.size()
-    << " hashed indices in " << (time(NULL)-jstart)
+    << " hashed indices in " << (time(nullptr)-jstart)
     << " seconds";
  
 }

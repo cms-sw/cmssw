@@ -19,7 +19,7 @@
 class TestSiStripGain : public CppUnit::TestFixture {
 public:
   TestSiStripGain() {}
-  void setUp()
+  void setUp() override
   {
     detId = 436282904;
 
@@ -40,7 +40,7 @@ public:
     fillApvGain(apvGain2, detId, theSiStripVector);
   }
 
-  void tearDown()
+  void tearDown() override
   {
     delete apvGain1;
     delete apvGain2;
