@@ -21,7 +21,6 @@
 
 // user include files
 #include <FWCore/Framework/interface/ESProducer.h>
-#include <FWCore/Framework/interface/ESTransientHandle.h>
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -43,15 +42,18 @@ class FastTimeNumberingInitialization : public edm::ESProducer {
   using ReturnType = std::unique_ptr<FastTimeDDDConstants>;
 
   ReturnType produce(const IdealGeometryRecord&);
+
+private:
+  edm::ESGetToken<FastTimeParameters, IdealGeometryRecord> ftParToken_;
 };
 
-FastTimeNumberingInitialization::FastTimeNumberingInitialization(
-    const edm::ParameterSet&) {
+FastTimeNumberingInitialization::FastTimeNumberingInitialization(const edm::ParameterSet&):
+  ftParToken_{setWhatProduced(this).consumes<FastTimeParameters>(edm::ESInputTag{})}
+{
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") 
     << "constructing FastTimeNumberingInitialization";
 #endif
-  setWhatProduced(this);
 }
 
 FastTimeNumberingInitialization::~FastTimeNumberingInitialization() {}
@@ -63,9 +65,8 @@ FastTimeNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
   edm::LogVerbatim("HGCalGeom")
     << "in FastTimeNumberingInitialization::produce";
 #endif
-  edm::ESHandle<FastTimeParameters> pFTpar;
-  iRecord.get(pFTpar);
-  return std::make_unique<FastTimeDDDConstants>(&(*pFTpar));
+  const auto& pFTpar = iRecord.get(ftParToken_);
+  return std::make_unique<FastTimeDDDConstants>(&pFTpar);
 }
 
 // define this as a plug-in
