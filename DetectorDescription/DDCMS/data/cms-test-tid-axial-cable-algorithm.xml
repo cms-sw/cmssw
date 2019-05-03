@@ -1,31 +1,33 @@
 <?xml version="1.0"?>
 <DDDefinition>
-  <SolidSection>
-  </SolidSection>
-  <LogicalPartSection>
-    <LogicalPart>
-      <rMaterial />
-      <rSolid />
-    </LogicalPart>
-  </LogicalPartSection>
-  <Algorithm name="global:DDTIDAxialCable">
-    <rParent name="testDDTIDAxialCableAlgorithm:MotherOfAllBoxes"/>
-    <String name="ChildName" />
-    <String name="MaterialIn" />
-    <String name="MaterialOut" />
-    <Numeric name="ZBend" value=""/>
-    <Numeric name="ZEnd" value=""/>
-    <Numeric name="RMin" value=""/>
-    <Numeric name="RMax" value=""/>
-    <Numeric name="RTop" value=""/>
-    <Numeric name="Width" value=""/>
-    <Numeric name="Thick" value=""/>
-    <Vector name="Angles" type="numeric" nEntries=""> </Vector>
-    <Vector name="ZPosWheel" type="numeric" nEntries=""> </Vector>
-    <Vector name="ZPosRing" type="numeric" nEntries=""> </Vector>
-  </Algorithm>
-  <PosPartSection label="">
-    <PosPart>
-    </PosPart>
-  </PosPartSection>
+  <debug>
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_materials/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+  </debug>
+
+  <open_geometry/>
+  <close_geometry/>
+
+  <ConstantsSection label="" eval="true">
+    <Constant name="world_x" value="5*m"/>
+    <Constant name="world_y" value="5*m"/>
+    <Constant name="world_z" value="5*m"/>
+    <Constant name="fm"      value="1e-12*m"/>
+    <Constant name="Air"     value="materials:Air"     type="string"/>
+    <Constant name="Vacuum"  value="materials:Vacuum"  type="string"/>
+  </ConstantsSection>
+
+  <IncludeSection>
+    <Include ref="DetectorDescription/DDCMS/data/testDDTIDAxialCableAlgorithm.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
+  </IncludeSection>
+  
 </DDDefinition>
