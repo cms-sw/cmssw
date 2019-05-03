@@ -17,7 +17,6 @@
 //
 
 // user include files
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -39,19 +38,19 @@ class HGCalNumberingInitialization : public edm::ESProducer {
   ReturnType produce(const IdealGeometryRecord&);
 
  private:
-  HGCalDDDConstants* hgcalDDDConst_;
+  edm::ESGetToken<HGCalParameters, IdealGeometryRecord> hgParToken_;
   std::string name_;
 };
 
 HGCalNumberingInitialization::HGCalNumberingInitialization(
-    const edm::ParameterSet& iConfig)
-    : hgcalDDDConst_(nullptr) {
+    const edm::ParameterSet& iConfig) {
   name_ = iConfig.getUntrackedParameter<std::string>("Name");
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom")
     << "HGCalNumberingInitialization for " << name_;
 #endif
-  setWhatProduced(this, name_);
+  auto cc = setWhatProduced(this, name_);
+  hgParToken_ = cc.consumes<HGCalParameters>(edm::ESInputTag{"", name_});
 }
 
 HGCalNumberingInitialization::~HGCalNumberingInitialization() {}
@@ -60,12 +59,8 @@ HGCalNumberingInitialization::~HGCalNumberingInitialization() {}
 HGCalNumberingInitialization::ReturnType HGCalNumberingInitialization::produce(
     const IdealGeometryRecord& iRecord) {
   edm::LogVerbatim("HGCalGeom") << "in HGCalNumberingInitialization::produce";
-  if (hgcalDDDConst_ == nullptr) {
-    edm::ESHandle<HGCalParameters> pHGpar;
-    iRecord.get(name_, pHGpar);
-    hgcalDDDConst_ = new HGCalDDDConstants(&(*pHGpar), name_);
-  }
-  return ReturnType(hgcalDDDConst_);
+  const auto& pHGpar = iRecord.get(hgParToken_);
+  return std::make_unique<HGCalDDDConstants>(&pHGpar, name_);
 }
 
 // define this as a plug-in
