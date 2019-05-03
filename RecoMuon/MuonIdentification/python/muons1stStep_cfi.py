@@ -102,7 +102,7 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toModify(muons1stStep, minPt = 0.8)
 
 from Configuration.ProcessModifiers.recoFromReco_cff import recoFromReco
-recoFromReco.toModify(muons1stStep,fillShowerDigis = cms.bool(False))
+recoFromReco.toModify(muons1stStep,fillShowerDigis = False)
 
 
 
