@@ -480,5 +480,6 @@ _with_bitmapVIDForEleSpring15AndSum16_sequence.replace(slimmedElectronsWithUserD
 _with_bitmapVIDForEleSpring15AndSum16_sequence.replace(bitmapVIDForEle, _updateTo106X_sequence + bitmapVIDForEle)
 run2_nanoAOD_94X2016.toReplaceWith(electronSequence, _with_bitmapVIDForEleSpring15AndSum16_sequence)
 
-_withUpdateTo106X_sequence = cms.Sequence(_updateTo106X_sequence + electronSequence.copy())
+#note the bitmapVIDForEle needs to be part of the top level sequence as its looked for there later
+_withUpdateTo106X_sequence = cms.Sequence(_updateTo106X_sequence + bitmapVIDForEle + electronSequence.copyAndExclude([bitmapVIDForEle,]))
 run2_nanoAOD_102Xv1.toReplaceWith(electronSequence,_withUpdateTo106X_sequence)
