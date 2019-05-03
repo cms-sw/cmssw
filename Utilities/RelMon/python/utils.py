@@ -90,11 +90,20 @@ def literal2root (literal,rootType):
 #-------------------------------------------------------------------------------
 
 def getNbins(h):
+  """
+  To be used in loops on bin number with range()
+  In case of 1-d histograms the end-of-range value should be GetNbinsX()+2 
+  In case of 2-d or 3-d histograms the product of GetNbins.()+2 gives the total number of bins, and 1 needs to be added
+  Managed using an offset variable 
+  """
+  offset=0
   biny=h.GetNbinsY()
-  if biny>1:biny+=1
+  if biny>1:
+    offset=1
+    biny+=2
   binz=h.GetNbinsZ()
-  if binz>1:binz+=1
-  return (h.GetNbinsX()+1)*(biny)*(binz)
+  if binz>1:binz+=2
+  return (h.GetNbinsX()+2)*(biny)*(binz)+offset
 
 #-------------------------------------------------------------------------------
 
@@ -168,7 +177,7 @@ class StatisticalTest(object):
 #-------------------------------------------------------------------------------
 
 def is_empty(h):
-  for i in range(0,getNbins(h)+1):
+  for i in range(0,getNbins(h)):
     if h.GetBinContent(i)!=0: return False
   return True
   #return h.GetSumOfWeights()==0
@@ -253,7 +262,7 @@ class Chi2(StatisticalTest):
   def absval(self):
     nbins=getNbins(self.h1)
     binc=0
-    for i in range(0,nbins+1):
+    for i in range(0,nbins):
       for h in self.h1,self.h2:
         binc=h.GetBinContent(i)
         if binc<0:
@@ -329,7 +338,7 @@ class BinToBin(StatisticalTest):
     equal = 1
     nbins = getNbins(self.h1)
     n_ok_bins=0.0
-    for ibin in range(0, nbins+1):
+    for ibin in range(0, nbins):
       h1bin=self.h1.GetBinContent(ibin)
       h2bin=self.h2.GetBinContent(ibin)
       bindiff=h1bin-h2bin
@@ -345,7 +354,7 @@ class BinToBin(StatisticalTest):
       #if abs(bindiff)!=0 :
         #print "Bin %ibin: bindiff %s" %(ibin,bindiff)
     
-    rank=n_ok_bins/(nbins+1)
+    rank=n_ok_bins/nbins
     
     if rank!=1:
       print("Histogram %s differs: nok: %s ntot: %s" %(self.h1.GetName(),n_ok_bins,nbins))
@@ -387,7 +396,7 @@ class BinToBin1percent(StatisticalTest):
     equal = 1
     nbins = getNbins(self.h1)
     n_ok_bins=0.0
-    for ibin in range(0,nbins+1):
+    for ibin in range(0,nbins):
       ibin+=1
       h1bin=self.h1.GetBinContent(ibin)
       h2bin=self.h2.GetBinContent(ibin)
@@ -404,7 +413,7 @@ class BinToBin1percent(StatisticalTest):
       #if abs(bindiff)!=0 :
         #print "Bin %ibin: bindiff %s" %(ibin,bindiff)
     
-    rank=n_ok_bins/(nbins+1)
+    rank=n_ok_bins/nbins
     
     if rank!=1:
       print("%s nok: %s ntot: %s" %(self.h1.GetName(),n_ok_bins,nbins))
