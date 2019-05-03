@@ -31,7 +31,6 @@ namespace edm {
 
   class WaitingTaskWithArenaHolder {
   public:
-
     WaitingTaskWithArenaHolder();
 
     // Note that the arena will be the one containing the thread
@@ -69,10 +68,9 @@ namespace edm {
     WaitingTaskHolder makeWaitingTaskHolderAndRelease();
 
   private:
-
     // ---------- member data --------------------------------
     WaitingTask* m_task;
     std::shared_ptr<tbb::task_arena> m_arena;
   };
-}
+}  // namespace edm
 #endif

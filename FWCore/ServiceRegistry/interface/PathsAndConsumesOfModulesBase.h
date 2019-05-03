@@ -33,19 +33,14 @@ namespace edm {
 
   class PathsAndConsumesOfModulesBase {
   public:
-
     virtual ~PathsAndConsumesOfModulesBase();
 
     std::vector<std::string> const& paths() const { return doPaths(); }
     std::vector<std::string> const& endPaths() const { return doEndPaths(); }
 
-    std::vector<ModuleDescription const*> const& allModules() const {
-      return doAllModules();
-    }
+    std::vector<ModuleDescription const*> const& allModules() const { return doAllModules(); }
 
-    ModuleDescription const* moduleDescription(unsigned int moduleID) const {
-      return doModuleDescription(moduleID);
-    }
+    ModuleDescription const* moduleDescription(unsigned int moduleID) const { return doModuleDescription(moduleID); }
 
     std::vector<ModuleDescription const*> const& modulesOnPath(unsigned int pathIndex) const {
       return doModulesOnPath(pathIndex);
@@ -76,20 +71,18 @@ namespace edm {
     // expect this to be called during a normal production job where
     // performance and memory are important. These objects are bigger
     // than just a pointer.
-    std::vector<ConsumesInfo> consumesInfo(unsigned int moduleID) const {
-      return doConsumesInfo(moduleID);
-    }
+    std::vector<ConsumesInfo> consumesInfo(unsigned int moduleID) const { return doConsumesInfo(moduleID); }
 
   private:
-
     virtual std::vector<std::string> const& doPaths() const = 0;
     virtual std::vector<std::string> const& doEndPaths() const = 0;
     virtual std::vector<ModuleDescription const*> const& doAllModules() const = 0;
     virtual ModuleDescription const* doModuleDescription(unsigned int moduleID) const = 0;
     virtual std::vector<ModuleDescription const*> const& doModulesOnPath(unsigned int pathIndex) const = 0;
     virtual std::vector<ModuleDescription const*> const& doModulesOnEndPath(unsigned int endPathIndex) const = 0;
-    virtual std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedBy(unsigned int moduleID) const = 0;
+    virtual std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedBy(
+        unsigned int moduleID) const = 0;
     virtual std::vector<ConsumesInfo> doConsumesInfo(unsigned int moduleID) const = 0;
   };
-}
+}  // namespace edm
 #endif

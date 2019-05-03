@@ -2,7 +2,7 @@
 //
 // Package:     Subsystem/Package
 // Class  :     PythonEventProcessor
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -29,23 +29,23 @@
 #include "FWCore/PluginManager/interface/standard.h"
 
 namespace {
-   std::once_flag pluginFlag;
-   int setupPluginSystem() {
-      std::call_once(pluginFlag, []() {
-         edmplugin::PluginManager::configure(edmplugin::standard::config());
-         });
-      return 0;
-   }
-  
+  std::once_flag pluginFlag;
+  int setupPluginSystem() {
+    std::call_once(pluginFlag, []() { edmplugin::PluginManager::configure(edmplugin::standard::config()); });
+    return 0;
+  }
+
   std::shared_ptr<edm::ProcessDesc> addDefaultServicesToProcessDesc(std::shared_ptr<edm::ProcessDesc> iDesc) {
     iDesc->addServices(edm::defaultCmsRunServices());
     return iDesc;
   }
 
   edm::ServiceToken createJobReport() {
-    return edm::ServiceRegistry::createContaining(std::make_shared<edm::serviceregistry::ServiceWrapper<edm::JobReport>>(std::make_unique<edm::JobReport>(nullptr)));
+    return edm::ServiceRegistry::createContaining(
+        std::make_shared<edm::serviceregistry::ServiceWrapper<edm::JobReport>>(
+            std::make_unique<edm::JobReport>(nullptr)));
   }
-}
+}  // namespace
 
 //
 // constants, enums and typedefs
@@ -59,30 +59,25 @@ namespace {
 // constructors and destructor
 //
 PythonEventProcessor::PythonEventProcessor(PyBind11ProcessDesc const& iDesc)
-: forcePluginSetupFirst_(setupPluginSystem())
-  ,processor_(addDefaultServicesToProcessDesc(iDesc.processDesc()),createJobReport(),edm::serviceregistry::kOverlapIsError)
-{
+    : forcePluginSetupFirst_(setupPluginSystem()),
+      processor_(addDefaultServicesToProcessDesc(iDesc.processDesc()),
+                 createJobReport(),
+                 edm::serviceregistry::kOverlapIsError) {}
+
+PythonEventProcessor::~PythonEventProcessor() {
+  auto gil = PyEval_SaveThread();
+  try {
+    processor_.endJob();
+  } catch (...) {
+  }
+  PyEval_RestoreThread(gil);
 }
 
-PythonEventProcessor::~PythonEventProcessor()
-{
-   auto gil = PyEval_SaveThread();
-   try {
-      processor_.endJob();
-   }catch(...) {
-
-   }
-   PyEval_RestoreThread(gil);
-}
-
-void
-PythonEventProcessor::run()
-{
-   auto gil = PyEval_SaveThread();
-   try {
-      (void) processor_.runToCompletion();
-   }catch(...) {
-
-   }
-   PyEval_RestoreThread(gil);
+void PythonEventProcessor::run() {
+  auto gil = PyEval_SaveThread();
+  try {
+    (void)processor_.runToCompletion();
+  } catch (...) {
+  }
+  PyEval_RestoreThread(gil);
 }
