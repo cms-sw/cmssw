@@ -312,7 +312,7 @@ void L1Analysis::L1AnalysisPhaseII::SetTkEGLoose(const edm::Handle<l1t::L1TkElec
 void L1Analysis::L1AnalysisPhaseII::SetTkEM(const edm::Handle<l1t::L1TkEmParticleCollection> tkPhoton, const edm::Handle<l1t::L1TkEmParticleCollection> tkPhotonHGC, unsigned maxL1Extra)
 {
   for(l1t::L1TkEmParticleCollection::const_iterator it=tkPhoton->begin(); it!=tkPhoton->end() && l1extra_.nTkPhotons<maxL1Extra; it++){
-    if (it->et() > 10){
+    if (it->et() > 5){
     l1extra_.tkPhotonEt .push_back(it->et());
     l1extra_.tkPhotonEta.push_back(it->eta());
     l1extra_.tkPhotonPhi.push_back(it->phi());
@@ -331,7 +331,7 @@ void L1Analysis::L1AnalysisPhaseII::SetTkEM(const edm::Handle<l1t::L1TkEmParticl
     l1extra_.nTkPhotons++;
   }}
   for(l1t::L1TkEmParticleCollection::const_iterator it=tkPhotonHGC->begin(); it!=tkPhotonHGC->end() && l1extra_.nTkPhotons<maxL1Extra; it++){
-    if (it->et() > 10){
+    if (it->et() > 5){
     l1extra_.tkPhotonEt .push_back(it->et());
     l1extra_.tkPhotonEta.push_back(it->eta());
     l1extra_.tkPhotonPhi.push_back(it->phi());
@@ -347,18 +347,6 @@ void L1Analysis::L1AnalysisPhaseII::SetTkEM(const edm::Handle<l1t::L1TkEmParticl
     l1extra_.tkPhotonPassesLooseTrackID.push_back(quality);
     l1extra_.tkPhotonPassesPhotonID.push_back(quality);
     l1extra_.nTkPhotons++;
-  for(l1t::L1TkEmParticleCollection::const_iterator it=tkEM->begin(); it!=tkEM->end() && l1extra_.nTkEM<maxL1Extra; it++){
-    if (it->et() > 5){
-    l1extra_.tkEMEt .push_back(it->et());
-    l1extra_.tkEMEta.push_back(it->eta());
-    l1extra_.tkEMPhi.push_back(it->phi());
-    l1extra_.tkEMTrkIso.push_back(it->getTrkIsol());
-    l1extra_.tkEMBx.push_back(0);//it->bx());
-    l1extra_.tkEMHwQual.push_back(it->getEGRef()->hwQual());
-    l1extra_.tkEMEGRefPt.push_back(it->getEGRef()->et());
-    l1extra_.tkEMEGRefEta.push_back(it->getEGRef()->eta());
-    l1extra_.tkEMEGRefPhi.push_back(it->getEGRef()->phi());
-   l1extra_.nTkEM++;
   }}
 }
 
