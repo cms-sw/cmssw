@@ -4,35 +4,39 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <algorithm>
 #include <iterator>
 
 // local convenience functions
 namespace {
-  bool isBPIXModule(unsigned int id) { return DetId(id).subdetId() == PixelSubdetector::PixelBarrel; }
-  bool isFPIXModule(unsigned int id) { return DetId(id).subdetId() == PixelSubdetector::PixelEndcap; }
-}  // namespace
+bool isBPIXModule(unsigned int id) {
+  return DetId(id).subdetId() == PixelSubdetector::PixelBarrel;
+}
+bool isFPIXModule(unsigned int id) {
+  return DetId(id).subdetId() == PixelSubdetector::PixelEndcap;
+}
+} // namespace
 
-PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC) {
+PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet &conf,
+                                             edm::ConsumesCollector &&iC) {
   edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("Regions");
   beamSpotTag_ = regPSet.getParameter<edm::InputTag>("beamSpot");
-  inputs_ = regPSet.getParameter<std::vector<edm::InputTag> >("inputs");
-  dPhi_ = regPSet.getParameter<std::vector<double> >("deltaPhi");
-  maxZ_ = regPSet.getParameter<std::vector<double> >("maxZ");
+  inputs_ = regPSet.getParameter<std::vector<edm::InputTag>>("inputs");
+  dPhi_ = regPSet.getParameter<std::vector<double>>("deltaPhi");
+  maxZ_ = regPSet.getParameter<std::vector<double>>("maxZ");
 
   tBeamSpot = iC.consumes<reco::BeamSpot>(beamSpotTag_);
   for (unsigned int t = 0; t < inputs_.size(); t++)
@@ -41,11 +45,13 @@ PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf, edm:
   if (inputs_.size() != dPhi_.size() || dPhi_.size() != maxZ_.size()) {
     edm::LogError("PixelUnpackingRegions")
         << "Not the same size of config parameters vectors!\n"
-        << "   inputs " << inputs_.size() << "  deltaPhi " << dPhi_.size() << "  maxZ " << maxZ_.size();
+        << "   inputs " << inputs_.size() << "  deltaPhi " << dPhi_.size()
+        << "  maxZ " << maxZ_.size();
   }
 }
 
-void PixelUnpackingRegions::run(const edm::Event& e, const edm::EventSetup& es) {
+void PixelUnpackingRegions::run(const edm::Event &e,
+                                const edm::EventSetup &es) {
   feds_.clear();
   modules_.clear();
   nreg_ = 0;
@@ -55,7 +61,7 @@ void PixelUnpackingRegions::run(const edm::Event& e, const edm::EventSetup& es) 
   edm::Handle<reco::BeamSpot> beamSpot;
   e.getByToken(tBeamSpot, beamSpot);
   beamSpot_ = beamSpot->position();
-  //beamSpot_ = math::XYZPoint(0.,0.,0.);
+  // beamSpot_ = math::XYZPoint(0.,0.,0.);
 
   size_t ninputs = inputs_.size();
   for (size_t input = 0; input < ninputs; ++input) {
@@ -64,7 +70,7 @@ void PixelUnpackingRegions::run(const edm::Event& e, const edm::EventSetup& es) 
 
     size_t n = h->size();
     for (size_t i = 0; i < n; ++i) {
-      const reco::Candidate& c = (*h)[i];
+      const reco::Candidate &c = (*h)[i];
 
       // different input collections can have different dPhi and maxZ
       Region r(c.momentum(), dPhi_[input], maxZ_[input]);
@@ -73,7 +79,7 @@ void PixelUnpackingRegions::run(const edm::Event& e, const edm::EventSetup& es) 
   }
 }
 
-void PixelUnpackingRegions::initialize(const edm::EventSetup& es) {
+void PixelUnpackingRegions::initialize(const edm::EventSetup &es) {
   // initialize cabling map or update it if necessary
   // and re-cache modules information
   if (watcherSiPixelFedCablingMap_.check(es)) {
@@ -86,10 +92,11 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es) {
     es.get<TrackerDigiGeometryRecord>().get(geom);
 
     // switch on the phase1
-    unsigned int fedMin = FEDNumbering::MINSiPixelFEDID;  // phase0
+    unsigned int fedMin = FEDNumbering::MINSiPixelFEDID; // phase0
     unsigned int fedMax = FEDNumbering::MAXSiPixelFEDID;
-    if ((geom->isThere(GeomDetEnumerators::P1PXB)) && (geom->isThere(GeomDetEnumerators::P1PXEC))) {
-      fedMin = FEDNumbering::MINSiPixeluTCAFEDID;  // phase1
+    if ((geom->isThere(GeomDetEnumerators::P1PXB)) &&
+        (geom->isThere(GeomDetEnumerators::P1PXEC))) {
+      fedMin = FEDNumbering::MINSiPixeluTCAFEDID; // phase1
       fedMax = FEDNumbering::MAXSiPixeluTCAFEDID;
     }
 
@@ -104,7 +111,8 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es) {
     auto it = geom->dets().begin();
     for (; it != geom->dets().end(); ++it) {
       int subdet = (*it)->geographicalId().subdetId();
-      if (!(subdet == PixelSubdetector::PixelBarrel || subdet == PixelSubdetector::PixelEndcap))
+      if (!(subdet == PixelSubdetector::PixelBarrel ||
+            subdet == PixelSubdetector::PixelEndcap))
         continue;
 
       Module m;
@@ -116,7 +124,8 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es) {
       m.phi = (*it)->position().phi();
 
       m.id = (*it)->geographicalId().rawId();
-      const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = cabling_->pathToDetUnit(m.id);
+      const std::vector<sipixelobjects::CablingPathToDetUnit> path2det =
+          cabling_->pathToDetUnit(m.id);
 
       m.fed = path2det[0].fed;
       assert((m.fed <= fedMax) && (m.fed >= fedMin));
@@ -138,7 +147,7 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es) {
   }
 }
 
-void PixelUnpackingRegions::addRegion(Region& r) {
+void PixelUnpackingRegions::addRegion(Region &r) {
   ++nreg_;
 
   float phi = r.v.phi();
@@ -155,10 +164,10 @@ void PixelUnpackingRegions::addRegion(Region& r) {
   }
 }
 
-void PixelUnpackingRegions::addRegionLocal(Region& r,
-                                           std::vector<Module>& container,
-                                           const Module& _lo,
-                                           const Module& _hi) {
+void PixelUnpackingRegions::addRegionLocal(Region &r,
+                                           std::vector<Module> &container,
+                                           const Module &_lo,
+                                           const Module &_hi) {
   Module lo = _lo;
   Module hi = _hi;
   Module pi_m(-M_PI);
@@ -166,12 +175,13 @@ void PixelUnpackingRegions::addRegionLocal(Region& r,
 
   std::vector<Module>::const_iterator a, b;
 
-  if (lo.phi >= -M_PI && hi.phi <= M_PI)  // interval doesn't cross the +-pi overlap
+  if (lo.phi >= -M_PI &&
+      hi.phi <= M_PI) // interval doesn't cross the +-pi overlap
   {
     a = lower_bound(container.begin(), container.end(), lo);
     b = upper_bound(container.begin(), container.end(), hi);
     gatherFromRange(r, a, b);
-  } else  // interval is torn by the +-pi overlap
+  } else // interval is torn by the +-pi overlap
   {
     if (hi.phi > M_PI)
       hi.phi -= 2. * M_PI;
@@ -187,12 +197,14 @@ void PixelUnpackingRegions::addRegionLocal(Region& r,
   }
 }
 
-void PixelUnpackingRegions::gatherFromRange(Region& r,
-                                            std::vector<Module>::const_iterator a,
-                                            std::vector<Module>::const_iterator b) {
+void PixelUnpackingRegions::gatherFromRange(
+    Region &r, std::vector<Module>::const_iterator a,
+    std::vector<Module>::const_iterator b) {
   for (; a != b; ++a) {
     // projection in r's direction onto beam's z
-    float zmodule = a->z - ((a->x - beamSpot_.x()) * r.cosphi + (a->y - beamSpot_.y()) * r.sinphi) * r.atantheta;
+    float zmodule = a->z - ((a->x - beamSpot_.x()) * r.cosphi +
+                            (a->y - beamSpot_.y()) * r.sinphi) *
+                               r.atantheta;
 
     // do not include modules that project too far in z
     if (std::abs(zmodule) > r.maxZ)

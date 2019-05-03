@@ -2,13 +2,13 @@
 #define ErrorCheckerBase_H
 /** \class ErrorCheckerBase
  *
- *  
+ *
  */
 
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 
-#include <vector>
 #include <map>
+#include <vector>
 
 class SiPixelFrameConverter;
 class SiPixelFedCabling;
@@ -27,25 +27,28 @@ public:
 
   virtual void setErrorStatus(bool ErrorStatus) = 0;
 
-  virtual bool checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors) = 0;
+  virtual bool checkCRC(bool &errorsInEvent, int fedId, const Word64 *trailer,
+                        Errors &errors) = 0;
 
-  virtual bool checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors) = 0;
+  virtual bool checkHeader(bool &errorsInEvent, int fedId, const Word64 *header,
+                           Errors &errors) = 0;
 
-  virtual bool checkTrailer(
-      bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors) = 0;
+  virtual bool checkTrailer(bool &errorsInEvent, int fedId, unsigned int nWords,
+                            const Word64 *trailer, Errors &errors) = 0;
 
-  virtual bool checkROC(bool& errorsInEvent,
-                        int fedId,
-                        const SiPixelFrameConverter* converter,
-                        const SiPixelFedCabling* theCablingTree,
-                        Word32& errorWord,
-                        Errors& errors) = 0;
+  virtual bool checkROC(bool &errorsInEvent, int fedId,
+                        const SiPixelFrameConverter *converter,
+                        const SiPixelFedCabling *theCablingTree,
+                        Word32 &errorWord, Errors &errors) = 0;
 
-  virtual void conversionError(
-      int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors) = 0;
+  virtual void conversionError(int fedId,
+                               const SiPixelFrameConverter *converter,
+                               int status, Word32 &errorWord,
+                               Errors &errors) = 0;
 
 private:
-  virtual cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int errorType, const Word32& word) const = 0;
+  virtual cms_uint32_t errorDetId(const SiPixelFrameConverter *converter,
+                                  int errorType, const Word32 &word) const = 0;
 };
 
 #endif

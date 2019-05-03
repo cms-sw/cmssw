@@ -1,13 +1,13 @@
 #ifndef PixelUnpackingRegions_H
 #define PixelUnpackingRegions_H
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
@@ -15,15 +15,15 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <cmath>
-#include <vector>
 #include <set>
+#include <vector>
 
 /** \class PixelUnpackingRegions
  *
  * Input: One or several collections of Candidate-based seeds with their objects
- *        defining the directions of unpacking regions; separate deltaPhi and maxZ 
- *        tolerances could be given to each input collection.
- * Output: FED ids and module detIds that need to be unpacked
+ *        defining the directions of unpacking regions; separate deltaPhi and
+ * maxZ tolerances could be given to each input collection. Output: FED ids and
+ * module detIds that need to be unpacked
  *
  */
 class PixelUnpackingRegions {
@@ -31,9 +31,11 @@ public:
   /// container to define regions for objects of interest in each event by:
   ///   object direction
   ///   dphi max distance from region direction to center of a pixel module
-  ///   maxZ max projected z of a pixel module (when projecting along region direction onto beamline)
+  ///   maxZ max projected z of a pixel module (when projecting along region
+  ///   direction onto beamline)
   struct Region {
-    Region(const math::XYZVector& dir, float dphi = 0.5f, float maxz = 24.f) : v(dir), dPhi(dphi), maxZ(maxz) {
+    Region(const math::XYZVector &dir, float dphi = 0.5f, float maxz = 24.f)
+        : v(dir), dPhi(dphi), maxZ(maxz) {
       cosphi = v.x() / v.rho();
       sinphi = v.y() / v.rho();
       atantheta = v.z() / v.rho();
@@ -43,12 +45,12 @@ public:
     float cosphi, sinphi, atantheta;
   };
 
-  PixelUnpackingRegions(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
+  PixelUnpackingRegions(const edm::ParameterSet &, edm::ConsumesCollector &&iC);
 
   ~PixelUnpackingRegions() {}
 
   /// has to be run during each event
-  void run(const edm::Event& e, const edm::EventSetup& es);
+  void run(const edm::Event &e, const edm::EventSetup &es);
 
   /// check whether a FED has to be unpacked
   bool mayUnpackFED(unsigned int fed_n) const;
@@ -57,7 +59,7 @@ public:
   bool mayUnpackModule(unsigned int id) const;
 
   /// full set of module ids to unpack
-  const std::set<unsigned int>* modulesToUnpack() const { return &modules_; }
+  const std::set<unsigned int> *modulesToUnpack() const { return &modules_; }
 
   /// various informational accessors:
   unsigned int nFEDs() const { return feds_.size(); }
@@ -75,7 +77,7 @@ public:
     Module() {}
     Module(float ph) : phi(ph), x(0.f), y(0.f), z(0.f), id(0), fed(0) {}
 
-    bool operator<(const Module& m) const {
+    bool operator<(const Module &m) const {
       if (phi < m.phi)
         return true;
       if (phi == m.phi && id < m.id)
@@ -99,16 +101,18 @@ private:
   unsigned int nreg_;
 
   /// run by the run method: (re)initialize the cabling data when it's necessary
-  void initialize(const edm::EventSetup& es);
+  void initialize(const edm::EventSetup &es);
 
   // add a new direction of a region of interest
-  void addRegion(Region& r);
+  void addRegion(Region &r);
 
   // gather info into feds_ and modules_ from a range of a Module vector
-  void gatherFromRange(Region& r, std::vector<Module>::const_iterator, std::vector<Module>::const_iterator);
+  void gatherFromRange(Region &r, std::vector<Module>::const_iterator,
+                       std::vector<Module>::const_iterator);
 
   // addRegion for a local (BPIX or +-FPIX) container
-  void addRegionLocal(Region& r, std::vector<Module>& container, const Module& lo, const Module& hi);
+  void addRegionLocal(Region &r, std::vector<Module> &container,
+                      const Module &lo, const Module &hi);
 
   // local containers of barrel and endcaps Modules sorted by phi
   std::vector<Module> phiBPIX_;

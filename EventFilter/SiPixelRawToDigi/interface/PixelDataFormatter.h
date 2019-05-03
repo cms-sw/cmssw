@@ -34,18 +34,17 @@
 // Add the phase1 format
 //
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorCheckerPhase0.h"
 #include "FWCore/Utilities/interface/typedefs.h"
-#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 
-#include <vector>
 #include <map>
 #include <set>
+#include <vector>
 
 class FEDRawData;
 class SiPixelFedCabling;
@@ -70,30 +69,34 @@ public:
   typedef cms_uint32_t Word32;
   typedef cms_uint64_t Word64;
 
-  PixelDataFormatter(const SiPixelFedCabling* map, bool phase1 = false);
+  PixelDataFormatter(const SiPixelFedCabling *map, bool phase1 = false);
 
   void setErrorStatus(bool ErrorStatus);
-  void setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo);
-  void setModulesToUnpack(const std::set<unsigned int>* moduleIds);
-  void passFrameReverter(const SiPixelFrameReverter* reverter);
+  void setQualityStatus(bool QualityStatus, const SiPixelQuality *QualityInfo);
+  void setModulesToUnpack(const std::set<unsigned int> *moduleIds);
+  void passFrameReverter(const SiPixelFrameReverter *reverter);
 
   int nDigis() const { return theDigiCounter; }
   int nWords() const { return theWordCounter; }
 
-  void interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& data, Collection& digis, Errors& errors);
+  void interpretRawData(bool &errorsInEvent, int fedId, const FEDRawData &data,
+                        Collection &digis, Errors &errors);
 
-  void formatRawData(unsigned int lvl1_ID, RawData& fedRawData, const Digis& digis, const BadChannels& badChannels);
+  void formatRawData(unsigned int lvl1_ID, RawData &fedRawData,
+                     const Digis &digis, const BadChannels &badChannels);
 
-  cms_uint32_t linkId(cms_uint32_t word32) { return (word32 >> LINK_shift) & LINK_mask; }
+  cms_uint32_t linkId(cms_uint32_t word32) {
+    return (word32 >> LINK_shift) & LINK_mask;
+  }
 
 private:
   mutable int theDigiCounter;
   mutable int theWordCounter;
 
-  SiPixelFedCabling const* theCablingTree;
-  const SiPixelFrameReverter* theFrameReverter;
-  const SiPixelQuality* badPixelInfo;
-  const std::set<unsigned int>* modulesToUnpack;
+  SiPixelFedCabling const *theCablingTree;
+  const SiPixelFrameReverter *theFrameReverter;
+  const SiPixelQuality *badPixelInfo;
+  const std::set<unsigned int> *modulesToUnpack;
 
   bool includeErrors;
   bool useQualityInfo;
@@ -102,31 +105,31 @@ private:
   int hasDetDigis;
   std::unique_ptr<ErrorCheckerBase> errorcheck;
 
-  // For the 32bit data format (moved from *.cc namespace, keep uppercase for compatibility)
-  // Add special layer 1 roc for phase1
-  int ADC_shift, PXID_shift, DCOL_shift, ROC_shift, LINK_shift, ROW_shift, COL_shift;
-  Word32 LINK_mask, ROC_mask, DCOL_mask, PXID_mask, ADC_mask, ROW_mask, COL_mask;
+  // For the 32bit data format (moved from *.cc namespace, keep uppercase for
+  // compatibility) Add special layer 1 roc for phase1
+  int ADC_shift, PXID_shift, DCOL_shift, ROC_shift, LINK_shift, ROW_shift,
+      COL_shift;
+  Word32 LINK_mask, ROC_mask, DCOL_mask, PXID_mask, ADC_mask, ROW_mask,
+      COL_mask;
   int maxROCIndex;
   bool phase1;
 
-  int checkError(const Word32& data) const;
+  int checkError(const Word32 &data) const;
 
-  int digi2word(cms_uint32_t detId, const PixelDigi& digi, std::map<int, std::vector<Word32> >& words) const;
-  int digi2wordPhase1Layer1(cms_uint32_t detId,
-                            const PixelDigi& digi,
-                            std::map<int, std::vector<Word32> >& words) const;
+  int digi2word(cms_uint32_t detId, const PixelDigi &digi,
+                std::map<int, std::vector<Word32>> &words) const;
+  int digi2wordPhase1Layer1(cms_uint32_t detId, const PixelDigi &digi,
+                            std::map<int, std::vector<Word32>> &words) const;
 
-  int word2digi(const int fedId,
-                const SiPixelFrameConverter* converter,
-                const bool includeError,
-                const bool useQuality,
-                const Word32& word,
-                Digis& digis) const;
+  int word2digi(const int fedId, const SiPixelFrameConverter *converter,
+                const bool includeError, const bool useQuality,
+                const Word32 &word, Digis &digis) const;
 
-  std::string print(const PixelDigi& digi) const;
-  std::string print(const Word64& word) const;
+  std::string print(const PixelDigi &digi) const;
+  std::string print(const Word64 &word) const;
 
-  cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int fedId, int errorType, const Word32& word) const;
+  cms_uint32_t errorDetId(const SiPixelFrameConverter *converter, int fedId,
+                          int errorType, const Word32 &word) const;
 };
 
 #endif
