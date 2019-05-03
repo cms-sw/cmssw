@@ -420,7 +420,7 @@
             packedPuppiweightNoLepDiff_ = std::numeric_limits<int8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweightNoLepDiff_+onfile.packedPuppiweight_,-2,0,64)/2. - logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2.);
    ]]>
    </ioread>
-  <ioread sourceClass="pat::PackedCandidate" source="int8_t hcalFraction_; int pdgId_" version="[-33]" targetClass="pat::PackedCandidate" target="hcalFraction_,rawHcalFraction_">
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t hcalFraction_; int pdgId_" version="[-33]" targetClass="pat::PackedCandidate" target="rawHcalFraction_,hcalFraction_,pdgId_">
    <![CDATA[
       int absPdgId = abs(onfile.pdgId_);
       if (absPdgId == 211 || absPdgId == 11 || absPdgId == 13) {
@@ -429,6 +429,7 @@
       } else {
         hcalFraction_ = onfile.hcalFraction_;
       }
+      pdgId_ = onfile.pdgId_;
    ]]>
    </ioread>
 
