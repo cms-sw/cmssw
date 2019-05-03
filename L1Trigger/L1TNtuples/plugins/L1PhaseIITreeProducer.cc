@@ -526,12 +526,6 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                 edm::LogWarning("MissingProduct") << "L1PhaseII PFJets not found. Branch will not be filled" << std::endl;
         }
 
-/*        if (ak4L1PFForMETs.isValid()){
-                l1Extra->SetPFJetForMET(ak4L1PFForMETs, maxL1Extra_);
-        } else {
-                edm::LogWarning("MissingProduct") << "L1PhaseII PFJetForMETs not found. Branch will not be filled" << std::endl;
-        }
-*/
 
 
 /*        if (ak4L1PFForMETs.isValid()){
