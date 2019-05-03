@@ -185,8 +185,12 @@ def main(argv):
     radLenFile = open(fname + ".x0","w");
     intLenFile = open(fname + ".l0","w");
 
-    listOfMixedMaterials = loadMaterialsFile(inputFile="mixed_materials.input")
-    listOfPureMaterials = loadMaterialsFile(inputFile="pure_materials.input")
+    listOfMixedMaterials = loadMaterialsFile(
+        inputFile="../data/mixed_materials.input"
+    )
+    listOfPureMaterials = loadMaterialsFile(
+        inputFile="../data/pure_materials.input"
+    )
     listOfMaterials = listOfMixedMaterials + listOfPureMaterials
 
     dfAllMaterials = pd.DataFrame(listOfMaterials)
