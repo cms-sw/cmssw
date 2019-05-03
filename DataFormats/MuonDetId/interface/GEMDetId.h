@@ -172,7 +172,7 @@ public:
 
   /** Check the format */
   constexpr bool v11Format() const {
-    return (((id_&kGEMIdFormat) == 0) ? true : false);
+    return ((id_&kGEMIdFormat) == 0);
   }
 
   /** Region id: 0 for Barrel Not in use, +/-1 For +/- Endcap */
