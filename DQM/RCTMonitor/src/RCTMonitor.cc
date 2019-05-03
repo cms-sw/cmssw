@@ -3,7 +3,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
 
-RCTMonitor::RCTMonitor(const edm::ParameterSet& iConfig) {
+RCTMonitor::RCTMonitor(const edm::ParameterSet &iConfig) {
   // set Token(-s)
   m_rctSourceToken_ = consumes<L1CaloEmCollection>(
       iConfig.getUntrackedParameter<edm::InputTag>("rctSource"));
@@ -11,8 +11,8 @@ RCTMonitor::RCTMonitor(const edm::ParameterSet& iConfig) {
 
 RCTMonitor::~RCTMonitor() {}
 
-void RCTMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
-                                  edm::EventSetup const&) {
+void RCTMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
+                                edm::EventSetup const &) {
   // Book RCT histograms
   iBooker.setCurrentFolder("RCT");
 
@@ -80,8 +80,8 @@ void RCTMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
       iBooker.book1D("RctRegionEt", "REGION E_{T}", R10BINS, R10MIN, R10MAX);
 }
 
-void RCTMonitor::analyze(const edm::Event& iEvent,
-                         const edm::EventSetup& iSetup) {
+void RCTMonitor::analyze(const edm::Event &iEvent,
+                         const edm::EventSetup &iSetup) {
   // Fill histograms
   FillRCT(iEvent, iSetup);
 }
@@ -100,8 +100,8 @@ float DynamicScale(int EtaStamp) {
   }
 }
 
-void RCTMonitor::FillRCT(const edm::Event& iEvent,
-                         const edm::EventSetup& iSetup) {
+void RCTMonitor::FillRCT(const edm::Event &iEvent,
+                         const edm::EventSetup &iSetup) {
   // Get the RCT digis
   edm::Handle<L1CaloEmCollection> em;
 
@@ -110,8 +110,8 @@ void RCTMonitor::FillRCT(const edm::Event& iEvent,
   // Isolated and non-isolated EM with cut at >1 GeV
   for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end();
        iem++) {
-    if (iem->rank() > 1.) {   // applies the 1 GeV cut
-      if (iem->isolated()) {  // looks for isolated EM candidates only
+    if (iem->rank() > 1.) {  // applies the 1 GeV cut
+      if (iem->isolated()) { // looks for isolated EM candidates only
         m_rctIsoEmRank1->Fill(iem->rank());
         // std::cout << "Just to show what is there " << iem->rank() <<
         // std::endl ;
@@ -126,7 +126,7 @@ void RCTMonitor::FillRCT(const edm::Event& iEvent,
                                        iem->regionId().ieta(),
                                        DynamicScale(iem->regionId().ieta()));
         m_rctRelaxedEmRank1->Fill(iem->rank());
-      } else {  // instructions for Non-isolated EM candidates
+      } else { // instructions for Non-isolated EM candidates
         m_rctNonIsoEmRank1->Fill(iem->rank());
         m_rctNonIsoEmRankEtaPhi1->Fill(iem->regionId().iphi(),
                                        iem->regionId().ieta(), iem->rank());
@@ -141,15 +141,15 @@ void RCTMonitor::FillRCT(const edm::Event& iEvent,
         m_rctRelaxedEmRank1->Fill(iem->rank());
       }
     }
-    if (iem->rank() > 10.) {  // applies the 10 GeV cut
-      if (iem->isolated()) {  // looks for isolated EM candidates only
+    if (iem->rank() > 10.) { // applies the 10 GeV cut
+      if (iem->isolated()) { // looks for isolated EM candidates only
         m_rctIsoEmOccEtaPhi10->Fill(iem->regionId().iphi(),
                                     iem->regionId().ieta(),
                                     DynamicScale(iem->regionId().ieta()));
         m_rctRelaxedEmOccEtaPhi10->Fill(iem->regionId().iphi(),
                                         iem->regionId().ieta(),
                                         DynamicScale(iem->regionId().ieta()));
-      } else {  // instructions for Non-isolated EM candidates
+      } else { // instructions for Non-isolated EM candidates
         m_rctNonIsoEmOccEtaPhi10->Fill(iem->regionId().iphi(),
                                        iem->regionId().ieta(),
                                        DynamicScale(iem->regionId().ieta()));
