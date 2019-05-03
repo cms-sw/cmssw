@@ -28,10 +28,10 @@ def readFractions(fileName, materialMap):
             elif len(content) == 1:
     #            print "  "+contentName+" "+str(float(content[0][1:])*0.01)
                 fractions[getMaterial(contentName,materialMap)] = float(content[0][1:])*0.01
-    
+
     if not name == None:
         result[name] = dens,fractions
-                        
+
     for material in result:
         sum = 0
         for fraction in result[material][1]:
@@ -39,7 +39,7 @@ def readFractions(fileName, materialMap):
         if math.fabs(sum - 1.0) > maxDist:
             raise Exception("Material Fractions do not add up to 100%: "+ material+" "+str(sum))
     return result
-        
+
 #get a source:material from the [material] only
 def getMaterial(material, fileName):
     materialMap ={}
@@ -48,7 +48,7 @@ def getMaterial(material, fileName):
         line = line.strip("\n")
         content = line.split()
         if len(content) == 2:
-            materialMap[content[0]] = content[1] 
+            materialMap[content[0]] = content[1]
     if material in materialMap:
         result = materialMap[material]+":"+material
     else:
@@ -70,7 +70,7 @@ def getSection(rootNode, name):
             result = node
     if result == None:
         raise Exception("Could not find: \""+name+"\" in childnodes of the rootNode!")
-    return result          
+    return result
 
 #returns a map of [name] nodes by their names. stating from rootNode
 def getNodes(rootNode, name):
@@ -127,7 +127,7 @@ def printMaterials(rootNode):
                         fractionString += "\tof "+getAttributes(materialNode)["name"].split(":")[1]
                         fractionString += "\tfrom "+getAttributes(materialNode)["name"].split(":")[0]
                 print("   |-- "+fractionString)
-    
+
 #returns the Material Section doe of a DDD Material xmlfile
 def getMaterialSection(rootNode):
     dddef = getSection(rootNode,'DDDefinition')
@@ -136,13 +136,13 @@ def getMaterialSection(rootNode):
 
 #creates a CompositeMaterial with [name] [method] [density] and [symbol] beneeth [rootNode]. 
 #fractions is a map of material Names containing the fractions
-#NOTE: if an material of that name allready exists it will be overridden. 
+#NOTE: if an material of that name allready exists it will be overridden.
 def createCompositeMaterial(doc,rootNode,name, density,fractions,method="mixture by weight", symbol=" "):
     newMaterial = doc.createElement("CompositeMaterial")
     newMaterial.setAttribute("name",name)
     newMaterial.setAttribute("density",density)
     newMaterial.setAttribute("method",method)
-    newMaterial.setAttribute("symbol",symbol)    
+    newMaterial.setAttribute("symbol",symbol)
 
     for fracMaterialName in fractions:
         fraction = doc.createElement("MaterialFraction")
@@ -183,7 +183,7 @@ def main():
     theOptions = options
 
     materials = readFractions(options.titlesFile, options.materialMap)
-    
+
     dom = readXML(options.xmlFile)
     matSec = getMaterialSection(dom)
 
@@ -198,6 +198,6 @@ def main():
     outFile = open(options.output,"w")
     outFile.write(prettierprint(dom))
     outFile.close()
-    
+
 main()
 

@@ -3,6 +3,8 @@
 import optparse
 import ConfigParser
 
+from os.path import expandvars
+
 class Constituent:
     def __init__(self, line, predefinedMaterials):
         if  len(line.split('"')) < 5 or len(line.split('"')[4].split()) < 3:
@@ -200,8 +202,17 @@ def main():
     config = readConfig(options.config)
 
     predefinedMaterials = {}
-    predefinedMaterials.update( readMaterialFile("pure_materials.input") )
-    predefinedMaterials.update( readMaterialFile("mixed_materials.input") )
+    predefinedMaterials.update( readMaterialFile(
+        expandvars(
+            "$CMSSW_BASE/src/Geometry/TrackerCommonData/data/Materials/pure_materials.input"
+        )
+    )
+
+    predefinedMaterials.update( readMaterialFile(
+        expandvars(
+            "$CMSSW_BASE/src/Geometry/TrackerCommonData/data/Materials/mixed_materials.input"
+        )
+    )
 
     inFile = open(options.inFile,"r")
     inFileContent = inFile.read()

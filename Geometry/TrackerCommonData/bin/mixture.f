@@ -232,7 +232,7 @@ C... read in pure material file
 
       if (FIRST) then
 
-         open(unit=22,file="pure_materials.input",status="OLD",
+         open(unit=22,file="../data/pure_materials.input",status="OLD",
      +        IOSTAT=istat)
          
          if(istat.ne.0) then
@@ -253,7 +253,7 @@ C... read in pure material file
 
 C... read in mixed material file
 
-         open(unit=22,file="mixed_materials.input",status="OLD",
+         open(unit=22,file="../data/mixed_materials.input",status="OLD",
      +        IOSTAT=istat)
          
          if(istat.ne.0) then
