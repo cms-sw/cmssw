@@ -52,26 +52,29 @@ private:
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(const edm::ParameterSet& iConfig)
+CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(const edm::ParameterSet& iConfig) :
+  includeStrips_    (iConfig.getParameter<bool>("includeStrips")),
+  includeDiamonds_  (iConfig.getParameter<bool>("includeDiamonds")),
+  includePixels_    (iConfig.getParameter<bool>("includePixels")),
+  pixelTrackTxMin_  (iConfig.getParameter<double>("pixelTrackTxMin")),
+  pixelTrackTxMax_  (iConfig.getParameter<double>("pixelTrackTxMax")),
+  pixelTrackTyMin_  (iConfig.getParameter<double>("pixelTrackTyMin")),
+  pixelTrackTyMax_  (iConfig.getParameter<double>("pixelTrackTyMax")),
+  timingTrackTMin_  (iConfig.getParameter<double>("timingTrackTMin")),
+  timingTrackTMax_  (iConfig.getParameter<double>("timingTrackTMax"))
 {
-  includeStrips_ = iConfig.getParameter<bool>("includeStrips");
-  siStripTrackToken_ = consumes<edm::DetSetVector<TotemRPLocalTrack> >(iConfig.getParameter<edm::InputTag>("tagSiStripTrack"));
+  auto tagSiStripTrack = iConfig.getParameter<edm::InputTag>("tagSiStripTrack");
+  if (!tagSiStripTrack.label().empty())
+    siStripTrackToken_ = consumes<edm::DetSetVector<TotemRPLocalTrack> >(tagSiStripTrack);
 
-  includeDiamonds_ = iConfig.getParameter<bool>("includeDiamonds");
-  diamondTrackToken_ = consumes<edm::DetSetVector<CTPPSDiamondLocalTrack> >(iConfig.getParameter<edm::InputTag>("tagDiamondTrack"));
+  auto tagDiamondTrack = iConfig.getParameter<edm::InputTag>("tagDiamondTrack");
+  if (!tagDiamondTrack.label().empty())
+    diamondTrackToken_ = consumes<edm::DetSetVector<CTPPSDiamondLocalTrack> >(tagDiamondTrack);
 
-  timingTrackTMin_ = iConfig.getParameter<double>("timingTrackTMin");
-  timingTrackTMax_ = iConfig.getParameter<double>("timingTrackTMax");
-
-  includePixels_ = iConfig.getParameter<bool>("includePixels");
   auto tagPixelTrack = iConfig.getParameter<edm::InputTag>("tagPixelTrack");
   if (!tagPixelTrack.label().empty())
     pixelTrackToken_ = consumes<edm::DetSetVector<CTPPSPixelLocalTrack> >(tagPixelTrack);
 
-  pixelTrackTxMin_ = iConfig.getParameter<double>("pixelTrackTxMin");
-  pixelTrackTxMax_ = iConfig.getParameter<double>("pixelTrackTxMax");
-  pixelTrackTyMin_ = iConfig.getParameter<double>("pixelTrackTyMin");
-  pixelTrackTyMax_ = iConfig.getParameter<double>("pixelTrackTyMax");
   produces<std::vector<CTPPSLocalTrackLite> >();
 }
 
