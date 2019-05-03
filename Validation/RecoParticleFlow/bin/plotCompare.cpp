@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     
      
     
-PlotCompareUtility *pc = new PlotCompareUtility(argv[1],argv[2],branchNew.c_str(), branchNewPrefix,branchRef.c_str(),branchRefPrefix );
+PlotCompareUtility *pc = new PlotCompareUtility(argv[1],argv[2],branchNew, branchNewPrefix,branchRef,branchRefPrefix );
 
 
   // set thresholds for tests (set to zero or negative to ignore results)
