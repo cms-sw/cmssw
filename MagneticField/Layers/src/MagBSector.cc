@@ -6,8 +6,8 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/Layers/interface/MagBSector.h"
 #include "MagneticField/Layers/interface/MagBRod.h"
+#include "MagneticField/Layers/interface/MagBSector.h"
 
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
@@ -15,34 +15,32 @@
 
 using namespace std;
 
-MagBSector::MagBSector(vector<MagBRod*>& rods, Geom::Phi<float> phiMin) : 
-  theRods(rods),
-  thePhiMin(phiMin)
-{}
+MagBSector::MagBSector(vector<MagBRod *> &rods, Geom::Phi<float> phiMin)
+    : theRods(rods), thePhiMin(phiMin) {}
 
-MagBSector::~MagBSector(){
+MagBSector::~MagBSector() {
   for (vector<MagBRod *>::const_iterator irod = theRods.begin();
        irod != theRods.end(); ++irod) {
     delete (*irod);
   }
 }
 
-const MagVolume * MagBSector::findVolume(const GlobalPoint & gp, double tolerance) const {
-  const MagVolume * result = nullptr;
+const MagVolume *MagBSector::findVolume(const GlobalPoint &gp,
+                                        double tolerance) const {
+  const MagVolume *result = nullptr;
   Geom::Phi<float> phi = gp.phi();
 
   // FIXME : use a binfinder
-  for(vector<MagBRod*>::const_iterator irod = theRods.begin();
-	irod != theRods.end(); ++irod) {
+  for (vector<MagBRod *>::const_iterator irod = theRods.begin();
+       irod != theRods.end(); ++irod) {
     // TOFIX
-    if (verbose::debugOut) cout << "     Trying rod at phi " << (*irod)->minPhi()
-				<< " " << phi << endl ;
+    if (verbose::debugOut)
+      cout << "     Trying rod at phi " << (*irod)->minPhi() << " " << phi
+           << endl;
     result = (*irod)->findVolume(gp, tolerance);
-    if (result!=nullptr) return result;
+    if (result != nullptr)
+      return result;
   }
 
   return nullptr;
 }
-
-
-

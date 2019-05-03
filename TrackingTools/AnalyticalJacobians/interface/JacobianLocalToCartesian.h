@@ -3,7 +3,6 @@
 
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
-
 class Surface;
 class LocalTrajectoryParameters;
 
@@ -15,23 +14,21 @@ class LocalTrajectoryParameters;
 
 class JacobianLocalToCartesian {
 
- public:
-
-  /** Constructor from local trajectory parameters and surface defining the local frame. 
-   *  NB!! No default constructor exists!
+public:
+  /** Constructor from local trajectory parameters and surface defining the
+   * local frame. NB!! No default constructor exists!
    */
-  
-  JacobianLocalToCartesian(const Surface& surface, const LocalTrajectoryParameters& localParameters);
-  
+
+  JacobianLocalToCartesian(const Surface &surface,
+                           const LocalTrajectoryParameters &localParameters);
+
   /** Access to Jacobian.
    */
-  
-  const AlgebraicMatrix65& jacobian() const { return theJacobian;}
 
- private:
-  
+  const AlgebraicMatrix65 &jacobian() const { return theJacobian; }
+
+private:
   AlgebraicMatrix65 theJacobian;
+};
 
-};  
-
-#endif //JacobianLocalToCartesian_H
+#endif // JacobianLocalToCartesian_H

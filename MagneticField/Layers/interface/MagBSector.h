@@ -2,14 +2,14 @@
 #define MagBSector_H
 
 /** \class MagBSector
- *   
- *  A container of volumes in the barrel. It is part of the hierarchical 
+ *
+ *  A container of volumes in the barrel. It is part of the hierarchical
  *  organisation of barrel volumes:
  *
  *  A barrel layer (MagBLayer) groups volumes at the same distance to
- *  the origin. It consists of 12 sectors in phi (MagBSector). 
+ *  the origin. It consists of 12 sectors in phi (MagBSector).
  *  Each sector consists of one or more rods (MagBRods) of equal width in phi.
- *  Rods consist of one or more slabs (MagBSlab); each one consisting of one 
+ *  Rods consist of one or more slabs (MagBSlab); each one consisting of one
  *  or, in few cases, several volumes with the same lenght in Z.
  *
  *  \author N. Amapane - INFN Torino
@@ -24,20 +24,19 @@ class MagVolume;
 class MagBSector {
 public:
   /// Constructor
-  MagBSector(std::vector<MagBRod*>& rods, Geom::Phi<float> phiMin);
+  MagBSector(std::vector<MagBRod *> &rods, Geom::Phi<float> phiMin);
 
   /// Destructor
-  virtual ~MagBSector();  
+  virtual ~MagBSector();
 
   /// Find the volume containing a point, with a given tolerance
-  const MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
+  const MagVolume *findVolume(const GlobalPoint &gp, double tolerance) const;
 
   /// Phi of sector start
-  Geom::Phi<float> minPhi() const {return thePhiMin;}
+  Geom::Phi<float> minPhi() const { return thePhiMin; }
 
 private:
-  std::vector<MagBRod*> theRods;
+  std::vector<MagBRod *> theRods;
   Geom::Phi<float> thePhiMin;
 };
 #endif
-

@@ -8,15 +8,14 @@
  *  \author N. Amapane - CERN
  */
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "boost/mpl/vector.hpp"
 
+class MuonRecoGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<
+          MuonRecoGeometryRecord, boost::mpl::vector<MuonGeometryRecord>> {};
 
-class MuonRecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<MuonRecoGeometryRecord,
-  boost::mpl::vector<MuonGeometryRecord> > {};
-
-#endif 
-
+#endif

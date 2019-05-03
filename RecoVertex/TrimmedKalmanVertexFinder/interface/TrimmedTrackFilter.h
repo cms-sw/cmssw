@@ -3,17 +3,16 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-/** Select TransientTracks for a vertex search 
- *  with the ConfigurableTrimmedVertexFinder algorithm 
- *  by applying a pT cut. The pT cut value can be set 
- *  at runtime via the corresponding set() method. 
+/** Select TransientTracks for a vertex search
+ *  with the ConfigurableTrimmedVertexFinder algorithm
+ *  by applying a pT cut. The pT cut value can be set
+ *  at runtime via the corresponding set() method.
  *  The default value is pT > 0. GeV
  */
 
 class TrimmedTrackFilter {
 
 public:
-
   /** Constructor with cuts defined at runtime by configurables
    */
   TrimmedTrackFilter();
@@ -31,9 +30,7 @@ public:
   bool operator()(const reco::TransientTrack &) const;
 
 private:
-
   double thePtCut;
-
 };
 
-#endif 
+#endif

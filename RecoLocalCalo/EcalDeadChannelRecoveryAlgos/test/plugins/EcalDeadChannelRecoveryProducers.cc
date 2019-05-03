@@ -7,9 +7,9 @@
 //
 
 // system include files
+#include <cstdio>
 #include <memory>
 #include <string>
-#include <cstdio>
 
 // Geometry
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
@@ -17,10 +17,10 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 // Reconstruction Classes
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/test/plugins/EcalDeadChannelRecoveryProducers.h"
 
@@ -29,8 +29,8 @@ using namespace std;
 
 template <typename DetIdT>
 EcalDeadChannelRecoveryProducers<DetIdT>::EcalDeadChannelRecoveryProducers(
-    const edm::ParameterSet& ps) {
-  //now do what ever other initialization is needed
+    const edm::ParameterSet &ps) {
+  // now do what ever other initialization is needed
   CorrectDeadCells_ = ps.getParameter<bool>("CorrectDeadCells");
   CorrectionMethod_ = ps.getParameter<std::string>("CorrectionMethod");
   reducedHitCollection_ = ps.getParameter<std::string>("reducedHitCollection");
@@ -51,7 +51,7 @@ EcalDeadChannelRecoveryProducers<DetIdT>::~EcalDeadChannelRecoveryProducers() {
 // ------------ method called to produce the data  ------------
 template <typename DetIdT>
 void EcalDeadChannelRecoveryProducers<DetIdT>::produce(
-    edm::Event& evt, const edm::EventSetup& iSetup) {
+    edm::Event &evt, const edm::EventSetup &iSetup) {
   using namespace edm;
 
   edm::ESHandle<CaloTopology> theCaloTopology;
@@ -65,7 +65,7 @@ void EcalDeadChannelRecoveryProducers<DetIdT>::produce(
     // std::endl;
     return;
   }
-  const EcalRecHitCollection* hit_collection = rhcHandle.product();
+  const EcalRecHitCollection *hit_collection = rhcHandle.product();
 
   // create a unique_ptr to a EcalRecHitCollection, copy the RecHits into it and
   // put it in the Event:
@@ -110,8 +110,8 @@ void EcalDeadChannelRecoveryProducers<DetIdT>::produce(
 
 // method called once each job just before starting event loop  ------------
 template <> void EcalDeadChannelRecoveryProducers<EBDetId>::beginJob() {
-  //Open the DeadChannel file, read it.
-  FILE* DeadCha;
+  // Open the DeadChannel file, read it.
+  FILE *DeadCha;
   printf("Dead Channels FILE: %s\n", DeadChannelFileName_.c_str());
   DeadCha = fopen(DeadChannelFileName_.c_str(), "r");
 
@@ -133,14 +133,14 @@ template <> void EcalDeadChannelRecoveryProducers<EBDetId>::beginJob() {
       ChannelsDeadID.push_back(cell);
     }
 
-  }  //end while
+  } // end while
 
   fclose(DeadCha);
 }
 
 template <> void EcalDeadChannelRecoveryProducers<EEDetId>::beginJob() {
-  //Open the DeadChannel file, read it.
-  FILE* DeadCha;
+  // Open the DeadChannel file, read it.
+  FILE *DeadCha;
   printf("Dead Channels FILE: %s\n", DeadChannelFileName_.c_str());
   DeadCha = fopen(DeadChannelFileName_.c_str(), "r");
 
@@ -162,7 +162,7 @@ template <> void EcalDeadChannelRecoveryProducers<EEDetId>::beginJob() {
       ChannelsDeadID.push_back(cell);
     }
 
-  }  //end while
+  } // end while
 
   fclose(DeadCha);
 }

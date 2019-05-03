@@ -21,24 +21,24 @@
 //
 
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapHardcodedTopology.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 // Reconstruction Classes
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/test/plugins/EcalChannelKiller.h"
 
-#include <string>
 #include <cstdio>
+#include <string>
 
 using namespace cms;
 using namespace std;
@@ -47,7 +47,7 @@ using namespace std;
 // constructors and destructor
 //
 template <typename DetIdT>
-EcalChannelKiller<DetIdT>::EcalChannelKiller(const edm::ParameterSet& ps) {
+EcalChannelKiller<DetIdT>::EcalChannelKiller(const edm::ParameterSet &ps) {
   hitToken_ =
       consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("hitTag"));
 
@@ -64,8 +64,8 @@ template <typename DetIdT> EcalChannelKiller<DetIdT>::~EcalChannelKiller() {
 
 // ------------ method called to produce the data  ------------
 template <typename DetIdT>
-void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
-                                        const edm::EventSetup& iSetup) {
+void EcalChannelKiller<DetIdT>::produce(edm::Event &iEvent,
+                                        const edm::EventSetup &iSetup) {
   using namespace edm;
 
   // get the hit collection from the event:
@@ -76,7 +76,7 @@ void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
     // std::endl;
     return;
   }
-  const EcalRecHitCollection* hit_collection = rhcHandle.product();
+  const EcalRecHitCollection *hit_collection = rhcHandle.product();
 
   int nRed = 0;
 
@@ -90,7 +90,7 @@ void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
     double NewEnergy = it->energy();
     bool ItIsDead = false;
 
-    //Dead Cells are read from text files
+    // Dead Cells are read from text files
     typename std::vector<DetIdT>::const_iterator DeadCell;
     for (DeadCell = ChannelsDeadID.begin(); DeadCell != ChannelsDeadID.end();
          ++DeadCell) {
@@ -105,7 +105,7 @@ void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
         EcalRecHit NewDeadHit(it->id(), NewEnergy, it->time());
         redCollection->push_back(NewDeadHit);
       }
-    }  //End looping on vector of Dead Cells
+    } // End looping on vector of Dead Cells
 
     // Make a new RecHit
     //
@@ -118,14 +118,13 @@ void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
   }
 
   iEvent.put(std::move(redCollection), reducedHitCollection_);
-
 }
 
 // ------------ method called once each job just before starting event loop
 // ------------
 template <> void EcalChannelKiller<EBDetId>::beginJob() {
-  //Open the DeadChannel file, read it.
-  FILE* DeadCha;
+  // Open the DeadChannel file, read it.
+  FILE *DeadCha;
   printf("Dead Channels FILE: %s\n", DeadChannelFileName_.c_str());
   DeadCha = fopen(DeadChannelFileName_.c_str(), "r");
 
@@ -147,14 +146,14 @@ template <> void EcalChannelKiller<EBDetId>::beginJob() {
       ChannelsDeadID.push_back(cell);
     }
 
-  }  //end while
+  } // end while
 
   fclose(DeadCha);
 }
 
 template <> void EcalChannelKiller<EEDetId>::beginJob() {
-  //Open the DeadChannel file, read it.
-  FILE* DeadCha;
+  // Open the DeadChannel file, read it.
+  FILE *DeadCha;
   printf("Dead Channels FILE: %s\n", DeadChannelFileName_.c_str());
   DeadCha = fopen(DeadChannelFileName_.c_str(), "r");
 
@@ -176,7 +175,7 @@ template <> void EcalChannelKiller<EEDetId>::beginJob() {
       ChannelsDeadID.push_back(cell);
     }
 
-  }  //end while
+  } // end while
 
   fclose(DeadCha);
 }

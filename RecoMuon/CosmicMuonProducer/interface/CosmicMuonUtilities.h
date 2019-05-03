@@ -8,12 +8,16 @@
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class Propagator;
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+class ParameterSet;
+class Event;
+class EventSetup;
+} // namespace edm
 
 class Trajectory;
 class TrajectoryMeasurement;
@@ -21,32 +25,31 @@ class TrajectoryMeasurement;
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
-typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
-
+typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer
+    ConstMuonRecHitContainer;
 
 class CosmicMuonUtilities {
 
-  public:
+public:
+  CosmicMuonUtilities();
 
-    CosmicMuonUtilities();
+  virtual ~CosmicMuonUtilities();
 
-    virtual ~CosmicMuonUtilities();
+  std::string print(const ConstMuonRecHitContainer &) const;
 
-    std::string print(const ConstMuonRecHitContainer&) const;
+  std::string print(const MuonRecHitContainer &) const;
 
-    std::string print(const MuonRecHitContainer&) const;
+  std::string print(const ConstRecHitContainer &) const;
 
-    std::string print(const ConstRecHitContainer&) const;
+  bool isTraversing(const Trajectory &) const;
 
-    bool isTraversing(const Trajectory&) const;
+  void reverseDirection(TrajectoryStateOnSurface &,
+                        const MagneticField *) const;
 
-    void reverseDirection(TrajectoryStateOnSurface&,const MagneticField*) const;
+  TrajectoryStateOnSurface stepPropagate(const TrajectoryStateOnSurface &,
+                                         const ConstRecHitPointer &,
+                                         const Propagator &) const;
 
-    TrajectoryStateOnSurface stepPropagate(const TrajectoryStateOnSurface&,
-                                           const ConstRecHitPointer&,
-                                           const Propagator&) const;
-
-  private:
-  
+private:
 };
 #endif

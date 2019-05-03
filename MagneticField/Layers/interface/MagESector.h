@@ -13,25 +13,24 @@
 #include <vector>
 
 class MagVolume;
-class MagELayer; 
+class MagELayer;
 
 class MagESector {
 public:
   /// Constructor
-  MagESector(std::vector<MagELayer*>& layers, Geom::Phi<float> phiMin);
+  MagESector(std::vector<MagELayer *> &layers, Geom::Phi<float> phiMin);
 
   /// Destructor
   virtual ~MagESector();
 
   /// Find the volume containing a point, with a given tolerance
-  const MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
+  const MagVolume *findVolume(const GlobalPoint &gp, double tolerance) const;
 
   /// Phi of sector start
-  Geom::Phi<float> minPhi() const {return thePhiMin;}
+  Geom::Phi<float> minPhi() const { return thePhiMin; }
 
 private:
-  std::vector<MagELayer*> theLayers;
+  std::vector<MagELayer *> theLayers;
   Geom::Phi<float> thePhiMin;
 };
 #endif
-

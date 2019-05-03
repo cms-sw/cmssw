@@ -10,7 +10,7 @@
 #include "TMath.h"
 
 template <typename T> class EcalCrystalMatrixProbality {
- public:
+public:
   static double Central(double x);
   static double Diagonal(double x);
   static double UpDown(double x);

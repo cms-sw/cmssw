@@ -9,8 +9,8 @@
 // max. cont. crystal.
 //
 
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EcalDeadChannelRecoveryAlgos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EcalDeadChannelRecoveryAlgos.h"
 
 template <typename T>
 void EcalDeadChannelRecoveryAlgos<T>::setCaloTopology(

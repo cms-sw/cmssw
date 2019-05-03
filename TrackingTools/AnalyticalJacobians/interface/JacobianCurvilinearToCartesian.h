@@ -13,23 +13,21 @@ class GlobalTrajectoryParameters;
 
 class JacobianCurvilinearToCartesian {
 
- public:
-  
-  /** Constructor from global trajectory parameters. NB!! No default constructor exists!
+public:
+  /** Constructor from global trajectory parameters. NB!! No default constructor
+   * exists!
    */
-  
-  JacobianCurvilinearToCartesian(const GlobalTrajectoryParameters& globalParameters);
-  
+
+  JacobianCurvilinearToCartesian(
+      const GlobalTrajectoryParameters &globalParameters);
+
   /** Access to Jacobian.
    */
-  
-  const AlgebraicMatrix65& jacobian() const {return theJacobian; }
 
+  const AlgebraicMatrix65 &jacobian() const { return theJacobian; }
 
- private:
-  
+private:
   AlgebraicMatrix65 theJacobian;
+};
 
-};  
-
-#endif //JacobianCurvilinearToCartesian_H
+#endif // JacobianCurvilinearToCartesian_H

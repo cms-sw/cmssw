@@ -16,24 +16,23 @@ class MagVolume;
 class MagELayer {
 public:
   /// Constructor
-  MagELayer(const std::vector<MagVolume*>& volumes, double zMin, double zMax);
+  MagELayer(const std::vector<MagVolume *> &volumes, double zMin, double zMax);
 
   /// Destructor
   virtual ~MagELayer();
 
   /// Find the volume containing a point, with a given tolerance
-  const MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
+  const MagVolume *findVolume(const GlobalPoint &gp, double tolerance) const;
 
   /// Lower Z bound
-  double minZ() const {return theZMin;}
+  double minZ() const { return theZMin; }
 
   /// Upper Z bound
-  double maxZ() const {return theZMax;}
+  double maxZ() const { return theZMax; }
 
 private:
-  std::vector<MagVolume*> theVolumes;
+  std::vector<MagVolume *> theVolumes;
   double theZMin;
   double theZMax;
 };
 #endif
-
