@@ -29,7 +29,7 @@ namespace edm {
         thr = destin.threshold;
       }
       std::map<std::string, Destination>::iterator dd = destination.find("default");
-      if (thr == "") {
+      if (thr.empty()) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
           thr = def_destin.threshold;

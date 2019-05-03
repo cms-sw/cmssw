@@ -28,7 +28,7 @@ namespace edm {
   namespace service {
 
     edm::JobMode MessageLoggerDefaults::mode(std::string const& jm) {
-      if (jm == "")
+      if (jm.empty())
         return GridJobMode;  // no -mode option = grid
       if (jm == "grid")
         return GridJobMode;
