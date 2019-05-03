@@ -45,7 +45,7 @@ namespace ecaldqm
     EcalDQMonitor::executeOnWorkers_(FuncOnWorker _func, std::string const& _context, std::string const& _message/* = ""*/, int _verbThreshold/* = 1*/)
     {
       std::for_each(workers_.begin(), workers_.end(), [&](DQWorker* worker){
-          if(verbosity_ > _verbThreshold && _message != "") edm::LogInfo("EcalDQM") << moduleName_ << ": " << _message << " @ " << worker->getName();
+          if(verbosity_ > _verbThreshold && !_message.empty()) edm::LogInfo("EcalDQM") << moduleName_ << ": " << _message << " @ " << worker->getName();
           try{
             _func(worker);
           }

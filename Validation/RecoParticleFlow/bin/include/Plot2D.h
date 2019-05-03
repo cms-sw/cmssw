@@ -11,11 +11,11 @@
 #include <TGaxis.h>
 #include <TLine.h>
 
-#include <iostream>
+#include <cmath>
+#include <cstdio>
 #include <fstream>
+#include <iostream>
 #include <string>
-#include <math.h>
-#include <stdio.h>
 
 template < >
 bool PlotCompareUtility::compare<Plot2D>(HistoData *HD) {
@@ -25,7 +25,7 @@ bool PlotCompareUtility::compare<Plot2D>(HistoData *HD) {
   TH2F *hnew2d = (TH2F *)HD->getNewHisto();
 
   // do not run comparisons if either histogram is empty/broken
-  if (hnew2d == NULL || href2d == NULL || hnew2d->GetEntries() <= 1 || href2d->GetEntries() <= 1) {
+  if (hnew2d == nullptr || href2d == nullptr || hnew2d->GetEntries() <= 1 || href2d->GetEntries() <= 1) {
     //std::cerr << HD->getName() << " error: unable to retrieve histogram (or no entries)\n";
     HD->setIsEmpty(true); return false;
   } 
@@ -149,7 +149,7 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
 
     // get the list of projections associated with this HistoData
     std::vector<HistoData> *proj = (axis == axisX) ? &projectionsX[HD] : &projectionsY[HD];
-    if (proj == NULL || proj->size() == 0) continue;
+    if (proj == nullptr || proj->empty()) continue;
 
     // get the 2d histograms
     TH2F *hnew2d = (TH2F *)HD->getNewHisto();
@@ -177,7 +177,7 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
     // create and setup the summary histogram
     TH1F projectionsSummary("projectionsSummary","Compatibility with Reference Histograms",numHistos,1,numHistos+1);
     projectionsSummary.GetYaxis()->SetRangeUser(getThreshold()/10,2);
-    projectionsSummary.SetStats(0);
+    projectionsSummary.SetStats(false);
 
     // display histogram (take axis from original histogram)
     projectionsSummary.Draw("AH");
@@ -234,12 +234,12 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
     makePlots<Plot1D>(&allBins);
 
     // set the default image (axisY takes priority by default)
-    if (HD->getResultImage() == "" || axis == axisY) HD->setResultImage(projName + "_Results.gif");
+    if (HD->getResultImage().empty() || axis == axisY) HD->setResultImage(projName + "_Results.gif");
 
     // set the default target (in case additional HTML code is/was not produced)
     std::string currentTarget = HD->getResultTarget();
     std::string xImgTarget = HD->getName() + "_px_Results.gif";
-    if (currentTarget == "" || (axis == axisY && currentTarget == xImgTarget)) HD->setResultTarget(projName + "_Results.gif");
+    if (currentTarget.empty() || (axis == axisY && currentTarget == xImgTarget)) HD->setResultTarget(projName + "_Results.gif");
 
   }
 
@@ -334,7 +334,7 @@ void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
 
     // get the list of projections associated with this HistoData
     std::vector<HistoData> *proj = (axis == axisX) ? &projectionsX[HD] : &projectionsY[HD];
-    if (proj == NULL || proj->size() == 0) continue; else pfDone[axis] = true;
+    if (proj == nullptr || proj->empty()) continue; else pfDone[axis] = true;
 
     // setup some names, etc. for insertion into the HTML
     std::string gifNameProjections = Name + (axis == axisX ? "_Results_px.gif" : "_Results_py.gif");

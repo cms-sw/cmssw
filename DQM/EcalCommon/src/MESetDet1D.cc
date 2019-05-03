@@ -32,7 +32,7 @@ namespace ecaldqm
   MESetDet1D::clone(std::string const& _path/* = ""*/) const
   {
     std::string path(path_);
-    if(_path != "") path_ = _path;
+    if(!_path.empty()) path_ = _path;
     MESet* copy(new MESetDet1D(*this));
     path_ = path;
     return copy;
