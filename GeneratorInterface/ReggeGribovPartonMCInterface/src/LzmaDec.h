@@ -159,7 +159,7 @@ void LzmaDec_Free(CLzmaDec *state, ISzAlloc *alloc);
 */
 
 /* LzmaDec_DecodeToDic
-   
+
    The decoding to internal dictionary buffer (CLzmaDec::dic).
    You must manually update CLzmaDec::dicPos, if it reaches CLzmaDec::dicBufSize !!!
 

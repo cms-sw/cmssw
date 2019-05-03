@@ -146,7 +146,7 @@ int main (int argc, char* argv[])
 
   /* TODOS
    - inizio con EB
-  
+
    - leggi l'intervallo di validita'
    - cerca i XML file in funzione di quello che sta scritto nel parser
      (qui bisogna conoscere gia' la cartella e costruire i nomi allo stesso

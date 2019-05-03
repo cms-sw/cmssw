@@ -460,7 +460,7 @@ namespace {
 			EErms[0] = EErms[0] + diff * diff;
 			EEtot[0]++;
 		      }
-		      //		      else std::cout << " gain 12 chan " << index << " diff " << diff << std::endl;
+		      //else std::cout << " gain 12 chan " << index << " diff " << diff << std::endl;
 		      endc_p_m[1]->Fill(ix, iy, (*payload)[rawid].mean_x6 - meanEE[1][index]);
 		      diff = (*payload)[rawid].rms_x6 - rmsEE[1][index];
 		      endc_p_r[1]->Fill(ix, iy, diff);
@@ -469,7 +469,7 @@ namespace {
 			EErms[1] = EErms[1] + diff * diff;
 			EEtot[1]++;
 		      }
-		      //		      else std::cout << " gain 6 chan " << index << " diff " << diff << std::endl;
+		      //else std::cout << " gain 6 chan " << index << " diff " << diff << std::endl;
 		      endc_p_m[2]->Fill(ix, iy, (*payload)[rawid].mean_x1 - meanEE[2][index]);
 		      diff = (*payload)[rawid].rms_x1 - rmsEE[2][index];
 		      endc_p_r[2]->Fill(ix, iy, diff);
@@ -478,7 +478,7 @@ namespace {
 			EErms[2] = EErms[2] + diff * diff;
 			EEtot[2]++;
 		      }
-		      //		      else std::cout << " gain 1 chan " << index << " diff " << diff << std::endl;
+		      //else std::cout << " gain 1 chan " << index << " diff " << diff << std::endl;
 		    }// EE+
 		    else { 
 		      endc_m_m[0]->Fill(ix, iy, (*payload)[rawid].mean_x12 - meanEE[0][index]);
@@ -489,7 +489,7 @@ namespace {
 			EErms[0] = EErms[0] + diff * diff;
 			EEtot[0]++;
 		      }
-		      //		      else std::cout << " gain 12 chan " << index << " diff " << diff << std::endl;
+		      //else std::cout << " gain 12 chan " << index << " diff " << diff << std::endl;
 		      endc_m_m[1]->Fill(ix, iy, (*payload)[rawid].mean_x6 - meanEE[1][index]);
 		      diff = (*payload)[rawid].rms_x6 - rmsEE[1][index];
 		      endc_m_r[1]->Fill(ix, iy, diff);
@@ -498,7 +498,7 @@ namespace {
 			EErms[1] = EErms[1] + diff * diff;
 			EEtot[1]++;
 		      }
-		      //		      else std::cout << " gain 6 chan " << index << " diff " << diff << std::endl;
+		      //else std::cout << " gain 6 chan " << index << " diff " << diff << std::endl;
 		      endc_m_m[2]->Fill(ix, iy, (*payload)[rawid].mean_x1 - meanEE[2][index]);
 		      diff = (*payload)[rawid].rms_x1 - rmsEE[2][index];
 		      endc_m_r[2]->Fill(ix, iy, diff);
@@ -507,7 +507,7 @@ namespace {
 			EErms[2] = EErms[2] + diff * diff;
 			EEtot[2]++;
 		      }
-		      //		      else std::cout << " gain 1 chan " << index << " diff " << diff << std::endl;
+		      //else std::cout << " gain 1 chan " << index << " diff " << diff << std::endl;
 		    }// EE-
 		  } // second run
 		}  // validDetId

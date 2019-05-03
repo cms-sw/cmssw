@@ -74,7 +74,7 @@ void OptOTiltmeter::makeMeasurement( LightRay& lightray, Measurement& meas )
   CLHEP::Hep3Vector ZAxism(0.,0.,1.);
   CLHEP::Hep3Vector ZAxism_ori = ZAxism;
   ZAxism_ori *= rmtori;
-      
+
   //---------- Measure rotation with respect to original position, around the X axis defined by the original position, in the original YZ plane
   CLHEP::Hep3Vector ZAxism_rot = ZAxism;
   CLHEP::HepRotation rmt = rmGlob();
@@ -94,7 +94,7 @@ void OptOTiltmeter::makeMeasurement( LightRay& lightray, Measurement& meas )
   ALIdouble measValue =  acos( ZAxism.dot(ZAxism_proj)/ZAxism_proj.mag() );
   if( ZAxism_proj.x() < 0) measValue *= -1.;
   meas.setValueSimulated(0 , measValue );
-  
+
   if (ALIUtils::debug >= 3) {
     std::cout << " OptOTiltmeter: Original Z axis " << ZAxism_ori << std::endl;
     ALIUtils::dumprm(rmt," tiltmeter original rotation matrix");
