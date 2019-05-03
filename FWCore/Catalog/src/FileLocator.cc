@@ -255,7 +255,7 @@ namespace edm {
       // std::cerr << "Rule " << i->pathMatch << "matched! " << std::endl;
 
       std::string const chain = i->chain;
-      if ((direct == true) && (chain != "")) {
+      if ((direct == true) && (!chain.empty())) {
         name = applyRules(protocolRules, chain, destination, direct, name);
         if (name.empty()) {
           return "";
@@ -265,7 +265,7 @@ namespace edm {
       std::regex_match(name, nameMatches, i->pathMatch);
       name = replaceWithRegexp(nameMatches, i->result);
 
-      if ((direct == false) && (chain != "")) {
+      if ((direct == false) && (!chain.empty())) {
         name = applyRules(protocolRules, chain, destination, direct, name);
       }
       return name;
