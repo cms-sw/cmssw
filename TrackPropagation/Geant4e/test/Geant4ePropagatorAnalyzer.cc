@@ -60,11 +60,11 @@ class Geant4ePropagatorAnalyzer: public edm::EDAnalyzer {
 
 public:
   explicit Geant4ePropagatorAnalyzer(const edm::ParameterSet&);
-  virtual ~Geant4ePropagatorAnalyzer() {}
+  ~Geant4ePropagatorAnalyzer() override {}
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  virtual void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void beginJob() override;
   void iterateOverHits(edm::Handle<edm::PSimHitContainer> simHits,
 		       testMuChamberType muonChamberType,
 		       unsigned int trkIndex,
@@ -142,7 +142,7 @@ protected:
 Geant4ePropagatorAnalyzer::Geant4ePropagatorAnalyzer(const edm::ParameterSet& iConfig):
   theRun(-1),
   theEvent(-1),
-  thePropagator(0),
+  thePropagator(nullptr),
   G4VtxSrc_(iConfig.getParameter<edm::InputTag>("G4VtxSrc")),
   G4TrkSrc_(iConfig.getParameter<edm::InputTag>("G4TrkSrc")) {
 
@@ -559,9 +559,9 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
     //////////////////////////////////////////////////////////
     // Build the surface. This is different for DT, RPC, CSC
     //const GeomDetUnit* layer = 0;
-    const GeomDet* layer = 0;
+    const GeomDet* layer = nullptr;
     // * DT
-    DTWireId* wIdDT = 0; //For DT holds the information about the chamber
+    DTWireId* wIdDT = nullptr; //For DT holds the information about the chamber
     if (muonChamberType == DT) {
       wIdDT = new DTWireId(simHitIt->detUnitId());
       int station =  wIdDT->station();
@@ -573,7 +573,7 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
 	continue;
 
       layer = theDTGeomESH->layer(*wIdDT);
-      if (layer == 0){
+      if (layer == nullptr){
 	LogDebug("Geant4e") << "Failed to get detector unit";
 	continue;
       }
@@ -582,7 +582,7 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
     else if (muonChamberType == RPC) {
       RPCDetId rpcId(simHitIt->detUnitId());
       layer = theRPCGeomESH->idToDet(rpcId);
-      if (layer == 0){
+      if (layer == nullptr){
 	LogDebug("Geant4e") << "Failed to get detector unit";
 	continue;
       }
@@ -592,7 +592,7 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
     else if (muonChamberType ==CSC) {
       CSCDetId cscId(simHitIt->detUnitId());
       layer = theCSCGeomESH->idToDet(cscId);
-      if (layer == 0){
+      if (layer == nullptr){
 	LogDebug("Geant4e") << "Failed to get detector unit";
 	continue;
       }
@@ -631,7 +631,7 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
 
 
     const Plane* bp = dynamic_cast<const Plane*>(&surf);
-    if (bp != 0) {
+    if (bp != nullptr) {
       Float_t distance = bp->localZ(posHit);
       LogDebug("Geant4e") << "\nG4e -- Distance from plane to sim hit: " 
 			  << distance << "cm";
