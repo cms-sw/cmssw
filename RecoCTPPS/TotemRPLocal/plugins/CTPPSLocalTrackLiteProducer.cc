@@ -19,6 +19,8 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLiteFwd.h"
+
 #include "DataFormats/Math/interface/libminifloat.h"
 
 //----------------------------------------------------------------------------------------------------
@@ -37,6 +39,7 @@ public:
 private:
   /// HPTDC time slice width, in ns
   static constexpr float HPTDC_TIME_SLICE_WIDTH = 25.;
+
   bool includeStrips_;
   edm::EDGetTokenT<edm::DetSetVector<TotemRPLocalTrack> > siStripTrackToken_;
 
@@ -53,15 +56,15 @@ private:
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(const edm::ParameterSet& iConfig) :
-  includeStrips_    (iConfig.getParameter<bool>("includeStrips")),
-  includeDiamonds_  (iConfig.getParameter<bool>("includeDiamonds")),
-  includePixels_    (iConfig.getParameter<bool>("includePixels")),
-  pixelTrackTxMin_  (iConfig.getParameter<double>("pixelTrackTxMin")),
-  pixelTrackTxMax_  (iConfig.getParameter<double>("pixelTrackTxMax")),
-  pixelTrackTyMin_  (iConfig.getParameter<double>("pixelTrackTyMin")),
-  pixelTrackTyMax_  (iConfig.getParameter<double>("pixelTrackTyMax")),
-  timingTrackTMin_  (iConfig.getParameter<double>("timingTrackTMin")),
-  timingTrackTMax_  (iConfig.getParameter<double>("timingTrackTMax"))
+  includeStrips_  (iConfig.getParameter<bool>("includeStrips")),
+  includeDiamonds_(iConfig.getParameter<bool>("includeDiamonds")),
+  includePixels_  (iConfig.getParameter<bool>("includePixels")),
+  pixelTrackTxMin_(iConfig.getParameter<double>("pixelTrackTxMin")),
+  pixelTrackTxMax_(iConfig.getParameter<double>("pixelTrackTxMax")),
+  pixelTrackTyMin_(iConfig.getParameter<double>("pixelTrackTyMin")),
+  pixelTrackTyMax_(iConfig.getParameter<double>("pixelTrackTyMax")),
+  timingTrackTMin_(iConfig.getParameter<double>("timingTrackTMin")),
+  timingTrackTMax_(iConfig.getParameter<double>("timingTrackTMax"))
 {
   auto tagSiStripTrack = iConfig.getParameter<edm::InputTag>("tagSiStripTrack");
   if (!tagSiStripTrack.label().empty())
@@ -75,7 +78,7 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(const edm::ParameterSet
   if (!tagPixelTrack.label().empty())
     pixelTrackToken_ = consumes<edm::DetSetVector<CTPPSPixelLocalTrack> >(tagPixelTrack);
 
-  produces<std::vector<CTPPSLocalTrackLite> >();
+  produces<CTPPSLocalTrackLiteCollection>();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -84,14 +87,13 @@ void
 CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
 {
   // prepare output
-  auto pOut = std::make_unique<std::vector<CTPPSLocalTrackLite> >();
+  auto pOut = std::make_unique<CTPPSLocalTrackLiteCollection>();
 
   //----- TOTEM strips
 
   // get input from Si strips
-  if (includeStrips_)
-  {
-    edm::Handle< edm::DetSetVector<TotemRPLocalTrack> > inputSiStripTracks;
+  if (includeStrips_) {
+    edm::Handle<edm::DetSetVector<TotemRPLocalTrack> > inputSiStripTracks;
     iEvent.getByToken(siStripTrackToken_, inputSiStripTracks);
 
     // process tracks from Si strips
@@ -111,18 +113,22 @@ CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
         float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTySigma());
         float roundedChiSquaredOverNDF = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getChiSquaredOverNDF());
 
-        pOut->emplace_back(rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, roundedTx, roundedTxSigma, roundedTy, roundedTySigma,
-          roundedChiSquaredOverNDF, CTPPSpixelLocalTrackReconstructionInfo::invalid, trk.getNumberOfPointsUsedForFit(), 0, 0);
+        pOut->emplace_back(
+          rpId, // detector info
+          roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, // spatial info
+          roundedTx, roundedTxSigma, roundedTy, roundedTySigma, // angular info
+          roundedChiSquaredOverNDF, CTPPSpixelLocalTrackReconstructionInfo::invalid, trk.getNumberOfPointsUsedForFit(), // reconstruction info
+          0., 0. // timing info
+        );
       }
     }
   }
 
   //----- diamond detectors
 
-  if (includeDiamonds_)
-  {
+  if (includeDiamonds_) {
     // get input from diamond detectors
-    edm::Handle< edm::DetSetVector<CTPPSDiamondLocalTrack> > inputDiamondTracks;
+    edm::Handle<edm::DetSetVector<CTPPSDiamondLocalTrack> > inputDiamondTracks;
     iEvent.getByToken(diamondTrackToken_, inputDiamondTracks);
 
     // process tracks from diamond detectors
@@ -146,8 +152,8 @@ CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
         pOut->emplace_back(
           rpId, // detector info
           roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, // spatial info
-          0., 0., 0., 0., 0., // angular info
-          CTPPSpixelLocalTrackReconstructionInfo::invalid, trk.getNumOfPlanes(), // reconstruction info
+          0., 0., 0., 0., // angular info
+          0., CTPPSpixelLocalTrackReconstructionInfo::invalid, trk.getNumOfPlanes(), // reconstruction info
           roundedT, roundedTSigma // timing info
         );
       }
@@ -157,9 +163,8 @@ CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
 
   //----- pixel detectors
 
-  if (includePixels_)
-  {
-    edm::Handle< edm::DetSetVector<CTPPSPixelLocalTrack> > inputPixelTracks;
+  if (includePixels_) {
+    edm::Handle<edm::DetSetVector<CTPPSPixelLocalTrack> > inputPixelTracks;
     if (!pixelTrackToken_.isUninitialized()){
       iEvent.getByToken(pixelTrackToken_, inputPixelTracks);
 
@@ -182,8 +187,13 @@ CTPPSLocalTrackLiteProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
             float roundedTySigma = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getTySigma());
             float roundedChiSquaredOverNDF = MiniFloatConverter::reduceMantissaToNbitsRounding<8>(trk.getChiSquaredOverNDF());
 
-            pOut->emplace_back(rpId, roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, roundedTx, roundedTxSigma, roundedTy, roundedTySigma,
-              roundedChiSquaredOverNDF, trk.getRecoInfo(), trk.getNumberOfPointsUsedForFit(), 0., 0.);
+            pOut->emplace_back(
+              rpId, // detector info
+              roundedX0, roundedX0Sigma, roundedY0, roundedY0Sigma, // spatial info
+              roundedTx, roundedTxSigma, roundedTy, roundedTySigma, // angular info
+              roundedChiSquaredOverNDF, trk.getRecoInfo(), trk.getNumberOfPointsUsedForFit(), // reconstruction info
+              0., 0. // timing info
+            );
           }
         }
       }
