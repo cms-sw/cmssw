@@ -79,7 +79,7 @@
 //FAMOS
 #include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 
-class BaseParticlePropagator {
+class BaseParticlePropagator : public RawParticle {
   
 public:
 
