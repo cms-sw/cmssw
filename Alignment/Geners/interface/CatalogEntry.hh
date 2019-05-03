@@ -19,7 +19,7 @@ namespace gs {
                      const ItemLocation& location,
                      unsigned long long offset=0ULL);
 
-        inline virtual ~CatalogEntry() {}
+        inline ~CatalogEntry() override {}
 
         inline unsigned long long id() const {return id_;}
         inline unsigned long long offset() const {return offset_;}
@@ -52,7 +52,7 @@ namespace gs {
                                   std::istream& in);
 
     protected:
-        virtual bool isEqual(const ItemDescriptor&) const;
+        bool isEqual(const ItemDescriptor&) const override;
 
     private:
         unsigned long long id_;
