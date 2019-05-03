@@ -1,48 +1,50 @@
 #include <iostream>
 #include <sstream>
 
-#include "include/PlotTypes.h"
-#include "include/PlotCompareUtility.h"
 #include "include/HistoData.h"
+#include "include/PlotCompareUtility.h"
+#include "include/PlotTypes.h"
 using namespace std;
-
 
 int main(int argc, char *argv[]) {
 
   std::string branchRef("DQMData/PFTask/Benchmarks");
-  std::string branchNew("DQMData/PFTask/Benchmarks"); 
+  std::string branchNew("DQMData/PFTask/Benchmarks");
 
   std::string branchRefPrefix("ParticleFlow/Gen");
-  std::string branchNewPrefix("ParticleFlow/Gen"); 
+  std::string branchNewPrefix("ParticleFlow/Gen");
 
   // make sure command line arguments were supplied
-  cout <<argc <<endl;
+  cout << argc << endl;
 
- if (argc == 5) {
+  if (argc == 5) {
     // initialize plot comparison tool with 2 arguments
-    branchRefPrefix= argv[3];
-    branchNewPrefix= argv[4];
+    branchRefPrefix = argv[3];
+    branchNewPrefix = argv[4];
   }
- if (argc == 3) {};
- if ((argc != 3) && (argc != 5))
-     // initialize plot comparison tool with 4 arguments
-    {
-      cerr << "Usage: " << argv[0] << " [reference.root] [new-comparison.root} [RefSubDirectory(default=ParticleFlow/Gen)] [NewSubDirectory(default=ParticleFlow/Gen)]\n"; return 1; 
-    }
-    
-     
-    
-PlotCompareUtility *pc = new PlotCompareUtility(argv[1],argv[2],branchNew, branchNewPrefix,branchRef,branchRefPrefix );
+  if (argc == 3) {
+  };
+  if ((argc != 3) && (argc != 5))
+  // initialize plot comparison tool with 4 arguments
+  {
+    cerr << "Usage: " << argv[0]
+         << " [reference.root] [new-comparison.root} "
+            "[RefSubDirectory(default=ParticleFlow/Gen)] "
+            "[NewSubDirectory(default=ParticleFlow/Gen)]\n";
+    return 1;
+  }
 
+  PlotCompareUtility *pc = new PlotCompareUtility(
+      argv[1], argv[2], branchNew, branchNewPrefix, branchRef, branchRefPrefix);
 
   // set thresholds for tests (set to zero or negative to ignore results)
-  //pc->setKSThreshold(1e-6);
-  //pc->setChi2Threshold(0);
+  // pc->setKSThreshold(1e-6);
+  // pc->setChi2Threshold(0);
   pc->setKSThreshold(1e-6);
   pc->setChi2Threshold(0);
 
   // add histogram information for comparison here --reverse order
-  //PFJetBenchmark
+  // PFJetBenchmark
   pc->addHistoData("ERneutvsPt", Plot2D)->setDoAllow2DRebinningY(true);
   pc->addHistoData("ERNEEvsPt", Plot2D)->setDoAllow2DRebinningY(true);
   pc->addHistoData("ERNHEvsPt", Plot2D)->setDoAllow2DRebinningY(true);
@@ -70,26 +72,27 @@ PlotCompareUtility *pc = new PlotCompareUtility(argv[1],argv[2],branchNew, branc
   pc->addHistoData("jetsPt", Plot1D);
   pc->addHistoData("jetsEta", Plot1D);
   pc->addHistoData("Njets", Plot1D);
- 
-  // PFBenchmark Analyzer
-  pc->addHistoData("DeltaRvsEta",Plot2D)->setDoAllow2DRebinningY(true);
-  pc->addHistoData("DeltaPhivsEta",Plot2D);
-  pc->addHistoData("DeltaEtavsEta",Plot2D);
-  pc->addHistoData("DeltaEtvsEta",Plot2D)->setDoAllow2DRebinningY(true);
-  pc->addHistoData("DeltaRvsEt",Plot2D)->setDoAllow2DRebinningY(true);
-  pc->addHistoData("DeltaEtvsEt",Plot2D)->setDoAllow2DRebinningY(true);
 
-  pc->addHistoData("DeltaR",Plot1D);
-  pc->addHistoData("DeltaPhi",Plot1D);
-  pc->addHistoData("DeltaEta",Plot1D);
-  pc->addHistoData("DeltaEt",Plot1D);
+  // PFBenchmark Analyzer
+  pc->addHistoData("DeltaRvsEta", Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("DeltaPhivsEta", Plot2D);
+  pc->addHistoData("DeltaEtavsEta", Plot2D);
+  pc->addHistoData("DeltaEtvsEta", Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("DeltaRvsEt", Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("DeltaEtvsEt", Plot2D)->setDoAllow2DRebinningY(true);
+
+  pc->addHistoData("DeltaR", Plot1D);
+  pc->addHistoData("DeltaPhi", Plot1D);
+  pc->addHistoData("DeltaEta", Plot1D);
+  pc->addHistoData("DeltaEt", Plot1D);
 
   // ...
   // ...
 
   // check if everything was set up properly
   if (!pc->isValid()) {
-    cout << "PlotCompareUtility failed to initialize!!!" << endl << "Final Result: no_data" << endl;
+    cout << "PlotCompareUtility failed to initialize!!!" << endl
+         << "Final Result: no_data" << endl;
     cerr << "Invalid TFile(s), directory, task, or no histograms specified.\n";
     pc->dump();
     return 1;
@@ -105,8 +108,7 @@ PlotCompareUtility *pc = new PlotCompareUtility(argv[1],argv[2],branchNew, branc
     pc->compare(&(*hd));
     pc->makePlots(&(*hd));
     pc->makeHTML(&(*hd));
-    }
-
+  }
 
   // produce summary plots
   pc->makeDefaultPlots();
@@ -115,5 +117,4 @@ PlotCompareUtility *pc = new PlotCompareUtility(argv[1],argv[2],branchNew, branc
   // report integrated result from all studied HistoData
   cout << "Final Result: " << (pc->getFinalResult() ? "pass" : "fail") << endl;
   return 0;
-
 }
