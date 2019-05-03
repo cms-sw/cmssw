@@ -13,12 +13,12 @@ namespace gs {
         // See the note inside the "BinaryArchiveBase.hh" header
         // for the meaning of the "mode" argument
         BinaryFileArchive(const char* basename, const char* mode,
-                          const char* annotation = 0,
+                          const char* annotation = nullptr,
                           unsigned dataFileBufferSize = 1048576U,
                           unsigned catalogFileBufferSize = 131072U);
-        virtual ~BinaryFileArchive();
+        ~BinaryFileArchive() override;
 
-        void flush();
+        void flush() override;
 
     private:
         void writeCatalog();
@@ -37,14 +37,14 @@ namespace gs {
         }
 
         // The following methods have to be overriden from the base
-        std::ostream& plainOutputStream();
+        std::ostream& plainOutputStream() override;
         std::istream& plainInputStream(unsigned long long id,
                                        unsigned* compressionCode,
-                                       unsigned long long* length);
+                                       unsigned long long* length) override;
 
         unsigned long long addToCatalog(
             const AbsRecord& record, unsigned compressionCode,
-            unsigned long long itemLength);
+            unsigned long long itemLength) override;
 
         char* filebuf_;
         char* catabuf_;

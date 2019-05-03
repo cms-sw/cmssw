@@ -14,7 +14,7 @@ namespace gs {
     class AbsRecord : public ItemDescriptor
     {
     public:
-        inline virtual ~AbsRecord() {}
+        inline ~AbsRecord() override {}
 
         // Item id will be set to non-0 value upon writing the item
         // into the archive. When the id is not 0, the record can no

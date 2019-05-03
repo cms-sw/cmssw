@@ -45,7 +45,7 @@ namespace gs {
         CPP11_shared_ptr<T> getShared(unsigned long index) const;
 
     private:
-        Reference();
+        Reference() = delete;
         T* getPtr(unsigned long index) const;
     };
 }
@@ -66,7 +66,7 @@ namespace gs {
     {
         const unsigned long long itemId = this->id(index);
         assert(itemId);
-        T* barePtr = 0;
+        T* barePtr = nullptr;
         std::vector<ClassId> state;
         if (GenericReader<std::istream, std::vector<ClassId>, T*,
             Int2Type<IOTraits<int>::ISNULLPOINTER> >::process(
@@ -75,7 +75,7 @@ namespace gs {
         else
         {
             delete barePtr;
-            barePtr = 0;
+            barePtr = nullptr;
         }
         if (!barePtr)
             throw IOInvalidData("In gs::Reference::getPtr: "

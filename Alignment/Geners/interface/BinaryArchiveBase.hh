@@ -59,18 +59,18 @@ namespace gs {
         //
         BinaryArchiveBase(const char* name, const char* mode);
 
-        virtual ~BinaryArchiveBase();
+        ~BinaryArchiveBase() override;
 
-        inline bool isOpen() const {return modeIsValid_ && catalog_;}
+        inline bool isOpen() const override {return modeIsValid_ && catalog_;}
 
-        inline bool isReadable() const
+        inline bool isReadable() const override
             {return modeIsValid_ && catalog_ && (mode_ & std::ios_base::in);}
 
-        inline bool isWritable() const
+        inline bool isWritable() const override
             {return modeIsValid_ && catalog_ && (mode_ & std::ios_base::out);}
 
         // Error message produced in case the archive could not be opened
-        inline std::string error() const
+        inline std::string error() const override
             {return errorStream_ ? errorStream_->str() : std::string("");}
 
         // Check whether the constructor "mode" argument was valid.
@@ -78,29 +78,29 @@ namespace gs {
         // archive could not be opened.
         inline bool modeValid() const {return modeIsValid_;}
 
-        inline unsigned long long size() const
+        inline unsigned long long size() const override
             {return catalog_ ? catalog_->size() : 0ULL;}
 
-        inline unsigned long long smallestId() const
+        inline unsigned long long smallestId() const override
             {return catalog_ ? catalog_->smallestId() : 0ULL;}
 
-        inline unsigned long long largestId() const
+        inline unsigned long long largestId() const override
             {return catalog_ ? catalog_->largestId() : 0ULL;}
 
-        inline bool idsAreContiguous() const
+        inline bool idsAreContiguous() const override
             {return catalog_ ? catalog_->isContiguous() : false;}
 
-        inline bool itemExists(const unsigned long long id) const
+        inline bool itemExists(const unsigned long long id) const override
             {return catalog_ ? catalog_->itemExists(id) : false;}
 
         void itemSearch(const SearchSpecifier& namePattern,
                         const SearchSpecifier& categoryPattern,
-                        std::vector<unsigned long long>* idsFound) const;
+                        std::vector<unsigned long long>* idsFound) const override;
 
         inline CPP11_shared_ptr<const CatalogEntry>
-        catalogEntry(const unsigned long long id)
+        catalogEntry(const unsigned long long id) override
             {return catalog_ ? catalog_->retrieveEntry(id) :
-             CPP11_shared_ptr<const CatalogEntry>((const CatalogEntry*)0);}
+             CPP11_shared_ptr<const CatalogEntry>((const CatalogEntry*)nullptr);}
 
         // Inspection methods for compression options
         inline CStringStream::CompressionMode compressionMode() const
@@ -177,9 +177,9 @@ namespace gs {
         const ClassId* itemLocationClassId() const {return storedLocationId_;}
 
     private:
-        BinaryArchiveBase();
-        BinaryArchiveBase(const BinaryArchiveBase&);
-        BinaryArchiveBase& operator=(const BinaryArchiveBase&);
+        BinaryArchiveBase() = delete;
+        BinaryArchiveBase(const BinaryArchiveBase&) = delete;
+        BinaryArchiveBase& operator=(const BinaryArchiveBase&) = delete;
 
         static bool parseArchiveOptions(
             std::ostringstream& errmes,
@@ -193,7 +193,7 @@ namespace gs {
         // formatted header was found
         bool readHeader(std::istream& is);
 
-        virtual void search(AbsReference& reference);
+        void search(AbsReference& reference) override;
 
         // The derived classes must override the following two methods
         virtual std::ostream& plainOutputStream() = 0;
@@ -201,10 +201,10 @@ namespace gs {
                                                unsigned* compressionCode,
                                                unsigned long long* length) = 0;
 
-        std::istream& inputStream(unsigned long long id, long long* sz);
-        std::ostream& outputStream();
-        std::ostream& compressedStream(std::ostream& uncompressed);
-        unsigned flushCompressedRecord(std::ostream& compressed);
+        std::istream& inputStream(unsigned long long id, long long* sz) override;
+        std::ostream& outputStream() override;
+        std::ostream& compressedStream(std::ostream& uncompressed) override;
+        unsigned flushCompressedRecord(std::ostream& compressed) override;
         void releaseClassIds();
 
         const std::ios_base::openmode mode_;

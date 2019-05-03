@@ -89,8 +89,8 @@ namespace gs {
         // archive.
         unsigned long long copyItem(unsigned long long id,
                                     AbsArchive* destination,
-                                    const char* newName = 0,
-                                    const char* newCategory = 0);
+                                    const char* newName = nullptr,
+                                    const char* newCategory = nullptr);
 
         // The id and the length of the last item written
         // (the results make sense only for the archives
