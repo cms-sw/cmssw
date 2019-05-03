@@ -51,7 +51,6 @@ class CaloGeometryBuilder : public edm::ESProducer
    private:
       // ----------member data ---------------------------
       
-      std::vector<std::string> theCaloList;
       edm::ESGetToken<CaloSubdetectorGeometry, HcalGeometryRecord> hcalToken_;
       edm::ESGetToken<CaloSubdetectorGeometry, ZDCGeometryRecord> zdcToken_;
       edm::ESGetToken<CaloSubdetectorGeometry, CastorGeometryRecord> castorToken_;
