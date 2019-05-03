@@ -25,7 +25,7 @@ ClusterFilter::ClusterFilter( const ParameterSet & pset ) :
      size += DSViter->data.size();
    }
 
-   if(size>nMax_)return 0;
-   else return 1;	
+   if(size>nMax_)return false;
+   else return true;	
 }
 
