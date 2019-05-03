@@ -12,4 +12,3 @@
 #endif
 
 #endif // GENERS_CPP11_AUTO_PTR_HH_
-
