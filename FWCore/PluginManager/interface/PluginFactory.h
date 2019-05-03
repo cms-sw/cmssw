@@ -81,8 +81,8 @@ namespace edmplugin {
     const PluginFactory& operator=(const PluginFactory&) = delete;  // stop default
   };
 }  // namespace edmplugin
-#define CONCATENATE_HIDDEN(a, b) a##b
-#define CONCATENATE(a, b) CONCATENATE_HIDDEN(a, b)
+#define FWCORE_CONCATENATE_HIDDEN(a, b) a##b
+#define FWCORE_CONCATENATE(a, b) FWCORE_CONCATENATE_HIDDEN(a, b)
 #define EDM_REGISTER_PLUGINFACTORY(_factory_, _category_)                                                               \
   namespace edmplugin {                                                                                                 \
     template <>                                                                                                         \
@@ -96,7 +96,7 @@ namespace edmplugin {
       return s_cat;                                                                                                     \
     }                                                                                                                   \
   }                                                                                                                     \
-  enum { CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__) }
+  enum { FWCORE_CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__) }
 
 #define EDM_REGISTER_PLUGINFACTORY2(_factory_, _category_)                                                              \
   namespace edmplugin {                                                                                                 \
@@ -111,7 +111,7 @@ namespace edmplugin {
       return s_cat;                                                                                                     \
     }                                                                                                                   \
   }                                                                                                                     \
-  enum { CONCATENATE(dummy_edm_register_pluginfactory_2_, __LINE__) }
+  enum { FWCORE_CONCATENATE(dummy_edm_register_pluginfactory_2_, __LINE__) }
 
 #endif
 
