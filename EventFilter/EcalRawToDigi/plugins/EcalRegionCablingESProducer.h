@@ -4,8 +4,9 @@
 //
 // Package:    EcalRegionCablingESProducer
 // Class:      EcalRegionCablingESProducer
-// 
-/**\class EcalRegionCablingESProducer EcalRegionCablingESProducer.h EventFilter/EcalRegionCablingESProducer/src/EcalRegionCablingESProducer.cc
+//
+/**\class EcalRegionCablingESProducer EcalRegionCablingESProducer.h
+ EventFilter/EcalRegionCablingESProducer/src/EcalRegionCablingESProducer.cc
 
  Description: <one line class summary>
 
@@ -18,25 +19,25 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
 
-#include "EventFilter/EcalRawToDigi/interface/EcalRegionCablingRecord.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
+#include "EventFilter/EcalRawToDigi/interface/EcalRegionCablingRecord.h"
 
 class EcalRegionCablingESProducer : public edm::ESProducer {
 public:
-      EcalRegionCablingESProducer(const edm::ParameterSet&);
+  EcalRegionCablingESProducer(const edm::ParameterSet &);
   ~EcalRegionCablingESProducer() override;
 
   typedef std::unique_ptr<EcalRegionCabling> ReturnType;
 
-  ReturnType produce(const EcalRegionCablingRecord&);
+  ReturnType produce(const EcalRegionCablingRecord &);
+
 private:
   edm::ParameterSet conf_;
 };

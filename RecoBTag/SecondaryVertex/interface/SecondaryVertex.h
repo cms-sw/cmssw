@@ -8,7 +8,7 @@
 
 namespace reco {
 
-typedef TemplatedSecondaryVertex<reco::Vertex> SecondaryVertex; 
+typedef TemplatedSecondaryVertex<reco::Vertex> SecondaryVertex;
 
 } // namespace reco
 

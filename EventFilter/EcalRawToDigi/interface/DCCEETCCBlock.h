@@ -11,41 +11,38 @@
  *
  * \author N. Almeida
  *
-*/
+ */
 
-#include <iostream>                  
-#include <string>
-#include <vector>
+#include <iostream>
 #include <map>
+#include <string>
 #include <utility>
+#include <vector>
 
-
-#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
-#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 #include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 
 #include "DCCTCCBlock.h"
 
-class DCCEETCCBlock : public DCCTCCBlock{
-	
-  public :
-    /**
-      Class constructor
-    */
-    DCCEETCCBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, DCCEventBlock * e, bool unpacking );    
-  
-    void updateCollectors() override;
-	 
-    void addTriggerPrimitivesToCollection() override;
-	
-	unsigned int getLength() override;
-  
-  protected :
-  
-    bool checkTccIdAndNumbTTs() override;
+class DCCEETCCBlock : public DCCTCCBlock {
 
+public:
+  /**
+    Class constructor
+  */
+  DCCEETCCBlock(DCCDataUnpacker *u, EcalElectronicsMapper *m, DCCEventBlock *e,
+                bool unpacking);
 
+  void updateCollectors() override;
+
+  void addTriggerPrimitivesToCollection() override;
+
+  unsigned int getLength() override;
+
+protected:
+  bool checkTccIdAndNumbTTs() override;
 };
 
 #endif

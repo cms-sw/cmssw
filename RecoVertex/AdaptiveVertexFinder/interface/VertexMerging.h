@@ -4,8 +4,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -15,17 +15,14 @@
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 
 class VertexMerging {
-    public:
-	VertexMerging(const edm::ParameterSet &params);
-	
-	
-        reco::VertexCollection mergeVertex(reco::VertexCollection & secondaryVertices);
-	
-	
-    private:
-	bool trackFilter(const reco::TrackRef &track) const;
+public:
+  VertexMerging(const edm::ParameterSet &params);
 
-	double					maxFraction;
-	double					minSignificance;
+  reco::VertexCollection mergeVertex(reco::VertexCollection &secondaryVertices);
+
+private:
+  bool trackFilter(const reco::TrackRef &track) const;
+
+  double maxFraction;
+  double minSignificance;
 };
-

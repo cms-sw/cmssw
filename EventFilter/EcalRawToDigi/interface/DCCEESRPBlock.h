@@ -1,7 +1,6 @@
 #ifndef DCCEESRPBLOCK_HH
 #define DCCEESRPBLOCK_HH
 
-
 /*
  *\ Class DCCEESRPBlock
  *
@@ -12,45 +11,38 @@
  *
  * \author N. Almeida
  *
-*/
+ */
 
-
-#include <iostream>
-#include <memory>
 #include <cstdint>
-#include <string>
-#include <vector>
+#include <iostream>
 #include <map>
+#include <memory>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "DCCSRPBlock.h"
 
+#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
-#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
 
+class DCCEESRPBlock : public DCCSRPBlock {
 
-class DCCEESRPBlock : public DCCSRPBlock{
-	
-  public :
+public:
+  DCCEESRPBlock(DCCDataUnpacker *u, EcalElectronicsMapper *m, DCCEventBlock *e,
+                bool unpack);
 
-    DCCEESRPBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack);
-    
-    void updateCollectors() override;
-	 
-  protected :
-  
-    void addSRFlagToCollection() override; 
-    
-    bool checkSrpIdAndNumbSRFlags() override;
-	 
-    std::unique_ptr<EESrFlagCollection>  * eeSrFlagsDigis_;
-	 
-    EcalScDetId * pSCDetId_;
-    
-	 
-		
+  void updateCollectors() override;
+
+protected:
+  void addSRFlagToCollection() override;
+
+  bool checkSrpIdAndNumbSRFlags() override;
+
+  std::unique_ptr<EESrFlagCollection> *eeSrFlagsDigis_;
+
+  EcalScDetId *pSCDetId_;
 };
-
 
 #endif

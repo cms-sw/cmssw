@@ -3,16 +3,15 @@
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "TrackingTools/RecoGeometry/interface/RecoGeometryRecord.h"
 #include "TrackingTools/RecoGeometry/interface/GlobalDetLayerGeometry.h"
+#include "TrackingTools/RecoGeometry/interface/RecoGeometryRecord.h"
 #include <memory>
 
-class  GlobalDetLayerGeometryESProducer: public edm::ESProducer{
- public:
-  GlobalDetLayerGeometryESProducer(const edm::ParameterSet & p);
-  ~GlobalDetLayerGeometryESProducer() override; 
+class GlobalDetLayerGeometryESProducer : public edm::ESProducer {
+public:
+  GlobalDetLayerGeometryESProducer(const edm::ParameterSet &p);
+  ~GlobalDetLayerGeometryESProducer() override;
   std::unique_ptr<DetLayerGeometry> produce(const RecoGeometryRecord &);
 };
-
 
 #endif

@@ -6,7 +6,7 @@
 
 typedef ReferenceCountingPointer<KinematicParticle> RefCountedKinematicParticle;
 
-//template<class T, class V>
+// template<class T, class V>
 //  bool operator==(const ReferenceCountingPointer<T> & rh, const
 //   ReferenceCountingPointer<V> & lh)
 //  { return rh.get() == lh.get();}

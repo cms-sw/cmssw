@@ -1,10 +1,9 @@
 #ifndef KinematicRefittedTrackState_H
 #define KinematicRefittedTrackState_H
 
-#include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
-#include "RecoVertex/KinematicFitPrimitives/interface/PerigeeKinematicState.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/Matrices.h"
-
+#include "RecoVertex/KinematicFitPrimitives/interface/PerigeeKinematicState.h"
+#include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 
 /**
  * Refitted state for kinematic parameters
@@ -19,70 +18,71 @@
  * structure
  */
 
-class KinematicRefittedTrackState : public RefittedTrackState<6>{
+class KinematicRefittedTrackState : public RefittedTrackState<6> {
 
 public:
+  typedef ReferenceCountingPointer<RefittedTrackState<6>>
+      RefCountedRefittedTrackState;
 
- typedef ReferenceCountingPointer<RefittedTrackState<6> > RefCountedRefittedTrackState;
+  KinematicRefittedTrackState(const KinematicState &st,
+                              const AlgebraicVector4 &mv);
 
- KinematicRefittedTrackState(const KinematicState& st, const AlgebraicVector4& mv);
+  /**
+   * Access to Kinematic perigee parameters
+   */
+  AlgebraicVector6 parameters() const override;
 
-/**
- * Access to Kinematic perigee parameters
- */
- AlgebraicVector6 parameters() const override;
-  
-/**
- * Kinmatic perigee covariance
- */  
- AlgebraicSymMatrix66 covariance() const override ;
+  /**
+   * Kinmatic perigee covariance
+   */
+  AlgebraicSymMatrix66 covariance() const override;
 
-/**
- * Access to Kinematic parameters
- */
- AlgebraicVector7 kinematicParameters() const;
-  
-/**
- * Kinmatic covariance
- */  
- AlgebraicSymMatrix77 kinematicParametersCovariance() const ;
+  /**
+   * Access to Kinematic parameters
+   */
+  AlgebraicVector7 kinematicParameters() const;
 
-/**
- * FTS out of kinematic parameters
- */
- FreeTrajectoryState freeTrajectoryState() const override;
- 
- GlobalPoint position() const override;
+  /**
+   * Kinmatic covariance
+   */
+  AlgebraicSymMatrix77 kinematicParametersCovariance() const;
 
-/**
- * Kinematic momentum vector
- */
- AlgebraicVector4 kinematicMomentumVector() const;
+  /**
+   * FTS out of kinematic parameters
+   */
+  FreeTrajectoryState freeTrajectoryState() const override;
 
-/**
- * Perigee momentum vector
- */
- AlgebraicVector4 momentumVector() const override;
+  GlobalPoint position() const override;
 
- TrajectoryStateOnSurface trajectoryStateOnSurface(const Surface & surface) const override;
+  /**
+   * Kinematic momentum vector
+   */
+  AlgebraicVector4 kinematicMomentumVector() const;
 
- TrajectoryStateOnSurface trajectoryStateOnSurface(const Surface & surface, 
-                                                   const Propagator & propagator) const override;
-						   
- double weight() const override;
+  /**
+   * Perigee momentum vector
+   */
+  AlgebraicVector4 momentumVector() const override;
 
- ReferenceCountingPointer<RefittedTrackState<6> > stateWithNewWeight
-  	(const double newWeight) const override;
+  TrajectoryStateOnSurface
+  trajectoryStateOnSurface(const Surface &surface) const override;
 
- std::vector< ReferenceCountingPointer<RefittedTrackState<6> > > components() const override;						   
+  TrajectoryStateOnSurface
+  trajectoryStateOnSurface(const Surface &surface,
+                           const Propagator &propagator) const override;
 
- reco::TransientTrack transientTrack() const override;
+  double weight() const override;
 
+  ReferenceCountingPointer<RefittedTrackState<6>>
+  stateWithNewWeight(const double newWeight) const override;
+
+  std::vector<ReferenceCountingPointer<RefittedTrackState<6>>>
+  components() const override;
+
+  reco::TransientTrack transientTrack() const override;
 
 private:
-
- KinematicState state; 
- AlgebraicVector4 momentumAtVertex;
-
+  KinematicState state;
+  AlgebraicVector4 momentumAtVertex;
 };
 #endif

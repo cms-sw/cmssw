@@ -10,65 +10,62 @@
  *
  *
  * \author N. Almeida
- * 
  *
-*/
+ *
+ */
 
-#include <iostream>                  
-#include <string>
-#include <vector>
+#include <iostream>
 #include <map>
+#include <string>
 #include <utility>
+#include <vector>
 
-
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
-#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
-#include <DataFormats/EcalDigi/interface/EcalPseudoStripInputDigi.h>
-#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 #include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
+#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalDigi/interface/EcalPseudoStripInputDigi.h>
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 
 #include "DCCDataBlockPrototype.h"
 
 class DCCDataUnpacker;
 
 class DCCTCCBlock : public DCCDataBlockPrototype {
-	
-  public :
-    /**
-      Class constructor
-    */
-    DCCTCCBlock( DCCDataUnpacker *  u, EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack);    
-   
-    virtual void addTriggerPrimitivesToCollection(){};
 
-    /**
-      Unpacks TCC data 
-     */
-    using DCCDataBlockPrototype::unpack;
-    int unpack(const uint64_t ** data, unsigned int * dwToEnd, short tccChId=0);
-	 
-    void display(std::ostream & o) override; 
-	 
-  
-  protected :
+public:
+  /**
+    Class constructor
+  */
+  DCCTCCBlock(DCCDataUnpacker *u, EcalElectronicsMapper *m, DCCEventBlock *e,
+              bool unpack);
 
-    virtual bool checkTccIdAndNumbTTs(){return true;};
-	  
-    unsigned int tccId_;
-    unsigned int bx_;
-    unsigned int l1_;
-    unsigned int nTTs_;
-    unsigned int nTSamples_;
-    unsigned int expNumbTTs_;
-    unsigned int expTccId_;
-    unsigned int ps_;
-    
-    EcalTrigTowerDetId * pTTDetId_;   
-    EcalTriggerPrimitiveDigi * pTP_;
-    EcalPseudoStripInputDigi * pPS_;
-    std::unique_ptr<EcalTrigPrimDigiCollection> * tps_;  
-    std::unique_ptr<EcalPSInputDigiCollection> * pss_;  
+  virtual void addTriggerPrimitivesToCollection(){};
 
+  /**
+    Unpacks TCC data
+   */
+  using DCCDataBlockPrototype::unpack;
+  int unpack(const uint64_t **data, unsigned int *dwToEnd, short tccChId = 0);
+
+  void display(std::ostream &o) override;
+
+protected:
+  virtual bool checkTccIdAndNumbTTs() { return true; };
+
+  unsigned int tccId_;
+  unsigned int bx_;
+  unsigned int l1_;
+  unsigned int nTTs_;
+  unsigned int nTSamples_;
+  unsigned int expNumbTTs_;
+  unsigned int expTccId_;
+  unsigned int ps_;
+
+  EcalTrigTowerDetId *pTTDetId_;
+  EcalTriggerPrimitiveDigi *pTP_;
+  EcalPseudoStripInputDigi *pPS_;
+  std::unique_ptr<EcalTrigPrimDigiCollection> *tps_;
+  std::unique_ptr<EcalPSInputDigiCollection> *pss_;
 };
 
 #endif
