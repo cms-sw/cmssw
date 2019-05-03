@@ -9,7 +9,7 @@ GeometryConf={
     'DBExtended2017'   : 'DB:Extended',
     'DBExtended2017ZeroMaterial'    : 'DB:Extended2017ZeroMaterial',
     'DBExtended2018'    : 'DB:Extended',
-    'DBExtended2021'    : 'DB:Extended2021',
+    'DBExtended2021'    : 'DB:Extended',
     'DBExtended2023'    : 'DB:Extended2023',
     'DBIdeal2015'       : 'DB:Ideal2015',
     'DBIdeal2015dev'    : 'DB:Ideal2015dev',
