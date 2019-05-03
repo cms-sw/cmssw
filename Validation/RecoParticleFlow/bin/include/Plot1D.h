@@ -22,7 +22,7 @@ bool PlotCompareUtility::compare<Plot1D>(HistoData *HD) {
   TH1F *hnew = (TH1F *)HD->getNewHisto();
 
   // do not run comparisons if either histogram is empty/broken
-  if (hnew == NULL || href == NULL || hnew->GetEntries() <= 1 || href->GetEntries() <= 1) {
+  if (hnew == nullptr || href == nullptr || hnew->GetEntries() <= 1 || href->GetEntries() <= 1) {
     //std::cerr << HD->getName() << " error: unable to retrieve histogram (or no entries)\n";
     HD->setIsEmpty(true); return false;
   }
@@ -74,14 +74,14 @@ void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
   TH1F *hnew = (TH1F *)HD->getNewHisto();
 
   // set drawing options on the reference histogram
-  href->SetStats(0);
+  href->SetStats(false);
   href->SetLineWidth(2);
   href->SetLineColor(14);
   href->SetMarkerColor(14);
   href->SetFillColor(18);
 
   // set drawing options on the new histogram
-  hnew->SetStats(0);
+  hnew->SetStats(false);
   hnew->SetLineWidth(2);
   hnew->SetLineColor(HD->getShadedLineColor());
   hnew->SetFillStyle(HD->getShadedFillStyle());
@@ -124,8 +124,8 @@ void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
 
   // create the plots overlay image
   std::string gifName = HD->getName() + "_Results.gif";
-  if (HD->getResultImage() == "") HD->setResultImage(gifName);
-  if (HD->getResultTarget() == "") HD->setResultTarget(gifName);
+  if (HD->getResultImage().empty()) HD->setResultImage(gifName);
+  if (HD->getResultTarget().empty()) HD->setResultTarget(gifName);
   std::cerr << "About to print" << gifName << "\n";
   hCanvas.Print(gifName.c_str());
 

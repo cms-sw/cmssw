@@ -37,7 +37,7 @@ namespace ecaldqm
   MESetProjection::clone(std::string const& _path/* = ""*/) const
   {
     std::string path(path_);
-    if(_path != "") path_ = _path;
+    if(!_path.empty()) path_ = _path;
     MESet* copy(new MESetProjection(*this));
     path_ = path;
     return copy;
