@@ -16,6 +16,7 @@ public:
   SensitiveDetector(iname,cpv,clg,p,true) {};
 
   virtual void fillHits(edm::PCaloHitContainer &, const std::string& hname) = 0;
+  virtual void reset() {};
 };
 
 #endif
