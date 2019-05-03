@@ -3,42 +3,39 @@
 
 /** \class NoPileUpPFMEtProducer
  *
- * Produce PFMET objects from no-PU jets + "unclustered" no-PU tracks + "unclustered" neutral particles
+ * Produce PFMET objects from no-PU jets + "unclustered" no-PU tracks +
+ * "unclustered" neutral particles
  * ("unclustered" particles = particles not within jets)
  *
  * \authors Christian Veelken, LLR
  *
  */
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoMET/METPUSubtraction/interface/PFMEtSignInterfaceBase.h"
 #include "RecoMET/METPUSubtraction/interface/NoPileUpMEtUtilities.h"
+#include "RecoMET/METPUSubtraction/interface/PFMEtSignInterfaceBase.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-
 
 #include <vector>
 
-class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
-{
- public:
-  
-  NoPileUpPFMEtProducer(const edm::ParameterSet&);
+class NoPileUpPFMEtProducer : public edm::stream::EDProducer<> {
+public:
+  NoPileUpPFMEtProducer(const edm::ParameterSet &);
   ~NoPileUpPFMEtProducer() override;
-  
- private:
-  
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  
+
+private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
   std::string moduleLabel_;
 
   edm::EDGetTokenT<reco::PFMETCollection> srcMEt_;
@@ -47,8 +44,8 @@ class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
   edm::EDGetTokenT<reco::PUSubMETCandInfoCollection> srcJetInfoLeptonMatch_;
   edm::EDGetTokenT<reco::PUSubMETCandInfoCollection> srcPFCandInfo_;
   edm::EDGetTokenT<reco::PUSubMETCandInfoCollection> srcPFCandInfoLeptonMatch_;
-  typedef std::vector<edm::InputTag>  vInputTag;
-  std::vector<edm::EDGetTokenT<reco::CandidateView > > srcLeptons_;
+  typedef std::vector<edm::InputTag> vInputTag;
+  std::vector<edm::EDGetTokenT<reco::CandidateView>> srcLeptons_;
 
   edm::EDGetTokenT<CorrMETData> srcType0Correction_;
 
@@ -60,7 +57,7 @@ class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
   double sfUnclNeutralCands_;
   double sfType0Correction_;
   double sfLeptonIsoCones_;
-  
+
   std::string sfLeptonsName_;
   std::string sfNoPUjetsName_;
   std::string sfNoPUjetOffsetEnCorrName_;
@@ -71,7 +68,7 @@ class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
   std::string sfType0CorrectionName_;
   std::string sfLeptonIsoConesName_;
 
-  PFMEtSignInterfaceBase* pfMEtSignInterface_;
+  PFMEtSignInterfaceBase *pfMEtSignInterface_;
   double sfMEtCovMin_;
   double sfMEtCovMax_;
 
@@ -80,7 +77,6 @@ class NoPileUpPFMEtProducer : public edm::stream::EDProducer<>
   int verbosity_;
 
   NoPileUpMEtUtilities utils_;
-
 };
 
 #endif

@@ -1,97 +1,106 @@
 #ifndef TrackReco_TransientTrackFromFTS_h
 #define TrackReco_TransientTrackFromFTS_h
 
-  /**
-   * Concrete implementation of the TransientTrack for a multi-state reco::GsfTrack
-   * To be built through the factory TransientTrackFromFTSFactory or the TransientTrackBuilder
-   */
+/**
+ * Concrete implementation of the TransientTrack for a multi-state
+ * reco::GsfTrack To be built through the factory TransientTrackFromFTSFactory
+ * or the TransientTrackBuilder
+ */
 
-#include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
 
 namespace reco {
 
-  class TransientTrackFromFTS : public BasicTransientTrack {
-  public:
+class TransientTrackFromFTS : public BasicTransientTrack {
+public:
+  TransientTrackFromFTS();
 
-    TransientTrackFromFTS(); 
+  TransientTrackFromFTS(const FreeTrajectoryState &fts);
+  TransientTrackFromFTS(const FreeTrajectoryState &fts, const double time,
+                        const double dtime);
 
-    TransientTrackFromFTS(const FreeTrajectoryState & fts);
-    TransientTrackFromFTS(const FreeTrajectoryState & fts, const double time, const double dtime);
-    
-    TransientTrackFromFTS(const FreeTrajectoryState & fts,
-	const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-    TransientTrackFromFTS(const FreeTrajectoryState & fts,
-                          const double time,
-                          const double dtime, 
-                          const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+  TransientTrackFromFTS(
+      const FreeTrajectoryState &fts,
+      const edm::ESHandle<GlobalTrackingGeometry> &trackingGeometry);
+  TransientTrackFromFTS(
+      const FreeTrajectoryState &fts, const double time, const double dtime,
+      const edm::ESHandle<GlobalTrackingGeometry> &trackingGeometry);
 
-    TransientTrackFromFTS( const TransientTrackFromFTS & tt );
-    
-    TransientTrackFromFTS& operator=(const TransientTrackFromFTS & tt);
+  TransientTrackFromFTS(const TransientTrackFromFTS &tt);
 
-    void setES(const edm::EventSetup& ) override;
+  TransientTrackFromFTS &operator=(const TransientTrackFromFTS &tt);
 
-    void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& ) override;
+  void setES(const edm::EventSetup &) override;
 
-    void setBeamSpot(const reco::BeamSpot& beamSpot) override;
+  void
+  setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry> &) override;
 
-    FreeTrajectoryState initialFreeState() const override {return initialFTS;}
+  void setBeamSpot(const reco::BeamSpot &beamSpot) override;
 
-    TrajectoryStateOnSurface outermostMeasurementState() const override;
+  FreeTrajectoryState initialFreeState() const override { return initialFTS; }
 
-    TrajectoryStateOnSurface innermostMeasurementState() const override;
+  TrajectoryStateOnSurface outermostMeasurementState() const override;
 
-    TrajectoryStateClosestToPoint 
-      trajectoryStateClosestToPoint( const GlobalPoint & point ) const override
-      {return builder(initialFTS, point);}
+  TrajectoryStateOnSurface innermostMeasurementState() const override;
 
-   /**
-    * The TSOS at any point. The initial state will be used for the propagation.
-    */
-    TrajectoryStateOnSurface stateOnSurface(const GlobalPoint & point) const override;
+  TrajectoryStateClosestToPoint
+  trajectoryStateClosestToPoint(const GlobalPoint &point) const override {
+    return builder(initialFTS, point);
+  }
 
-    TrajectoryStateClosestToPoint impactPointTSCP() const override;
+  /**
+   * The TSOS at any point. The initial state will be used for the propagation.
+   */
+  TrajectoryStateOnSurface
+  stateOnSurface(const GlobalPoint &point) const override;
 
-    TrajectoryStateOnSurface impactPointState() const override;
+  TrajectoryStateClosestToPoint impactPointTSCP() const override;
 
-    bool impactPointStateAvailable() const override {return  initialTSOSAvailable;}
+  TrajectoryStateOnSurface impactPointState() const override;
 
-    TrackCharge charge() const override {return initialFTS.charge();}
+  bool impactPointStateAvailable() const override {
+    return initialTSOSAvailable;
+  }
 
-    const MagneticField* field() const override {return theField;}
+  TrackCharge charge() const override { return initialFTS.charge(); }
 
-    const Track & track() const override;
+  const MagneticField *field() const override { return theField; }
 
-    TrackBaseRef trackBaseRef() const override { return TrackBaseRef();}
+  const Track &track() const override;
 
-    TrajectoryStateClosestToBeamLine stateAtBeamLine() const override;
-    
-    double timeExt() const override { return ( hasTime ? timeExt_ : std::numeric_limits<double>::quiet_NaN() ); }
-    double dtErrorExt() const override { return ( hasTime ? dtErrorExt_ : std::numeric_limits<double>::quiet_NaN() ); }
+  TrackBaseRef trackBaseRef() const override { return TrackBaseRef(); }
 
-  private:
+  TrajectoryStateClosestToBeamLine stateAtBeamLine() const override;
 
-    void calculateTSOSAtVertex() const;
+  double timeExt() const override {
+    return (hasTime ? timeExt_ : std::numeric_limits<double>::quiet_NaN());
+  }
+  double dtErrorExt() const override {
+    return (hasTime ? dtErrorExt_ : std::numeric_limits<double>::quiet_NaN());
+  }
 
-    FreeTrajectoryState initialFTS;
-    bool hasTime;
-    double timeExt_;
-    double dtErrorExt_;
-    const MagneticField* theField;
-    mutable bool initialTSOSAvailable, initialTSCPAvailable, trackAvailable, blStateAvailable;
-    mutable TrajectoryStateOnSurface initialTSOS;
-    mutable TrajectoryStateClosestToPoint initialTSCP;
-    mutable Track theTrack;
-    TSCPBuilderNoMaterial builder;
-    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-    reco::BeamSpot theBeamSpot;
-    mutable TrajectoryStateClosestToBeamLine trajectoryStateClosestToBeamLine;
+private:
+  void calculateTSOSAtVertex() const;
 
-  };
+  FreeTrajectoryState initialFTS;
+  bool hasTime;
+  double timeExt_;
+  double dtErrorExt_;
+  const MagneticField *theField;
+  mutable bool initialTSOSAvailable, initialTSCPAvailable, trackAvailable,
+      blStateAvailable;
+  mutable TrajectoryStateOnSurface initialTSOS;
+  mutable TrajectoryStateClosestToPoint initialTSCP;
+  mutable Track theTrack;
+  TSCPBuilderNoMaterial builder;
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  reco::BeamSpot theBeamSpot;
+  mutable TrajectoryStateClosestToBeamLine trajectoryStateClosestToBeamLine;
+};
 
-}
+} // namespace reco
 
 #endif

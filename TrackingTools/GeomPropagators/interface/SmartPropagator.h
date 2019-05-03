@@ -19,104 +19,98 @@
  */
 
 /* Collaborating Class Declarations */
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 class Cylinder;
 class Plane;
-
 
 /* Class SmartPropagator Interface */
 
 class SmartPropagator final : public Propagator {
 
-  public:
+public:
+  /* Constructor */
+  /// Defines which propagator is used inside Tk and which outside
+  SmartPropagator(const Propagator *aTkProp, const Propagator *aGenProp,
+                  const MagneticField *field,
+                  PropagationDirection dir = alongMomentum, float epsilon = 5);
 
-    /* Constructor */
-    ///Defines which propagator is used inside Tk and which outside
-    SmartPropagator(const Propagator* aTkProp, const Propagator* aGenProp, const MagneticField* field,
-        PropagationDirection dir = alongMomentum, float epsilon = 5) ;
+  /// Defines which propagator is used inside Tk and which outside
+  SmartPropagator(const Propagator &aTkProp, const Propagator &aGenProp,
+                  const MagneticField *field,
+                  PropagationDirection dir = alongMomentum, float epsilon = 5);
 
-    ///Defines which propagator is used inside Tk and which outside
-    SmartPropagator(const Propagator& aTkProp, const Propagator& aGenProp,const MagneticField* field,
-        PropagationDirection dir = alongMomentum, float epsilon = 5) ;
+  /// Copy constructor
+  SmartPropagator(const SmartPropagator &);
 
-    ///Copy constructor
-    SmartPropagator( const SmartPropagator& );
+  /** virtual destructor */
+  ~SmartPropagator() override;
 
-    /** virtual destructor */
-    ~SmartPropagator() override ;
+  /// Virtual constructor (using copy c'tor)
+  SmartPropagator *clone() const override {
+    return new SmartPropagator(getTkPropagator(), getGenPropagator(),
+                               magneticField());
+  }
 
-    ///Virtual constructor (using copy c'tor)
-    SmartPropagator* clone() const override {
-      return new SmartPropagator(getTkPropagator(),getGenPropagator(),magneticField());
-    }
+  /// setting the direction fo both components
+  void setPropagationDirection(PropagationDirection dir) override {
+    Propagator::setPropagationDirection(dir);
+    theTkProp->setPropagationDirection(dir);
+    theGenProp->setPropagationDirection(dir);
+  }
 
-    ///setting the direction fo both components
-    void setPropagationDirection (PropagationDirection dir) override
-    {
-      Propagator::setPropagationDirection (dir);
-      theTkProp->setPropagationDirection(dir);
-      theGenProp->setPropagationDirection(dir);
-    }
+  using Propagator::propagate;
+  using Propagator::propagateWithPath;
 
+private:
+  std::pair<TrajectoryStateOnSurface, double>
+  propagateWithPath(const FreeTrajectoryState &fts,
+                    const Plane &plane) const override;
 
-    using Propagator::propagate;
-    using Propagator::propagateWithPath;
+  std::pair<TrajectoryStateOnSurface, double>
+  propagateWithPath(const FreeTrajectoryState &fts,
+                    const Cylinder &cylinder) const override;
 
+  std::pair<TrajectoryStateOnSurface, double>
+  propagateWithPath(const TrajectoryStateOnSurface &tsos,
+                    const Plane &sur) const override;
 
+  std::pair<TrajectoryStateOnSurface, double>
+  propagateWithPath(const TrajectoryStateOnSurface &tsos,
+                    const Cylinder &sur) const override;
 
- private:
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const FreeTrajectoryState& fts,
-                        const Plane& plane) const override;
-    
-    
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const FreeTrajectoryState& fts,
-                        const Cylinder& cylinder) const override;
-    
-    std::pair< TrajectoryStateOnSurface, double>
-      propagateWithPath (const TrajectoryStateOnSurface& tsos, const Plane& sur) const override;
-    
-    std::pair< TrajectoryStateOnSurface, double>
-      propagateWithPath (const TrajectoryStateOnSurface& tsos, const Cylinder& sur) const override;
+public:
+  /// true if a fts is inside tracker volume
+  bool insideTkVol(const FreeTrajectoryState &fts) const;
+  /// true if a surface is inside tracker volume
+  bool insideTkVol(const Surface &surface) const;
+  /// true if a cylinder is inside tracker volume
+  bool insideTkVol(const Cylinder &cylin) const;
+  /// true if a plane is inside tracker volume
+  bool insideTkVol(const Plane &plane) const;
 
- public:
+  /// return the propagator used inside tracker
+  const Propagator *getTkPropagator() const;
+  /// return the propagator used outside tracker
+  const Propagator *getGenPropagator() const;
+  /// return the magneticField
+  const MagneticField *magneticField() const override { return theField; }
 
-    ///true if a fts is inside tracker volume
-    bool insideTkVol(const FreeTrajectoryState& fts) const ;
-    ///true if a surface is inside tracker volume
-    bool insideTkVol(const Surface& surface) const ;
-    ///true if a cylinder is inside tracker volume
-    bool insideTkVol(const Cylinder& cylin)  const ;
-    ///true if a plane is inside tracker volume
-    bool insideTkVol(const Plane& plane)  const ;
+private:
+  /// build the tracker volume
+  void initTkVolume(float epsilon);
 
-    ///return the propagator used inside tracker
-    const Propagator* getTkPropagator() const ;
-    ///return the propagator used outside tracker
-    const Propagator* getGenPropagator() const ;
-    ///return the magneticField
-    const MagneticField* magneticField() const override {return theField;}
+  Propagator *theTkProp;
+  Propagator *theGenProp;
+  const MagneticField *theField;
+  ReferenceCountingPointer<Cylinder> theTkVolume;
 
-  private:
-    ///build the tracker volume
-    void initTkVolume(float epsilon);
-
-    Propagator* theTkProp;
-    Propagator* theGenProp;
-    const MagneticField* theField;
-    ReferenceCountingPointer<Cylinder> theTkVolume;
-
-  protected:
-
+protected:
 };
 
 #endif // SMARTPROPAGATOR_H
-
-

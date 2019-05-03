@@ -4,36 +4,34 @@
 /** \class JVFJetIdProducer
  *
  * Discriminate jets originating from the hard-scatter event from pile-up jets,
- * based on the fraction of tracks within the jet that are associated to the hard-scatter vertex.
- * Jets outside the tracking acceptance are considered to originate from the hard-scatter event per default.
- * Optionally, they can be classified as pile-up.
+ * based on the fraction of tracks within the jet that are associated to the
+ * hard-scatter vertex. Jets outside the tracking acceptance are considered to
+ * originate from the hard-scatter event per default. Optionally, they can be
+ * classified as pile-up.
  *
  * \authors Christian Veelken, LLR
  *
  */
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
-#include "DataFormats/JetReco/interface/PileupJetIdentifier.h" 
 
 #include "RecoMET/METPUSubtraction/interface/NoPileUpMEtAuxFunctions.h"
 
-class JVFJetIdProducer : public edm::stream::EDProducer<>
-{
- public:
-  
-  JVFJetIdProducer(const edm::ParameterSet&);
+class JVFJetIdProducer : public edm::stream::EDProducer<> {
+public:
+  JVFJetIdProducer(const edm::ParameterSet &);
   ~JVFJetIdProducer() override;
-  
- private:
-  
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  
-  edm::EDGetTokenT<reco::PFJetCollection > srcJets_;
+
+private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+  edm::EDGetTokenT<reco::PFJetCollection> srcJets_;
 
   edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_;
   edm::EDGetTokenT<PFCandToVertexAssMap> srcPFCandToVertexAssociations_;
@@ -44,7 +42,7 @@ class JVFJetIdProducer : public edm::stream::EDProducer<>
   double JVFcut_;
 
   int neutralJetOption_;
-  
+
   int verbosity_;
 };
 

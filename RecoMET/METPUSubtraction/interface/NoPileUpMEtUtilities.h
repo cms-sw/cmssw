@@ -10,54 +10,55 @@
 
 #include <vector>
 
-class NoPileUpMEtUtilities
-{
+class NoPileUpMEtUtilities {
 
- public:
-
-  enum {kOutsideJet=0,kWithin, kAll};
-  enum {kChHSMET=0, kChPUMET, kNeutralUncMET, kHadronicHSMET, kHadronicPUMET};
+public:
+  enum { kOutsideJet = 0, kWithin, kAll };
+  enum {
+    kChHSMET = 0,
+    kChPUMET,
+    kNeutralUncMET,
+    kHadronicHSMET,
+    kHadronicPUMET
+  };
 
   NoPileUpMEtUtilities();
   ~NoPileUpMEtUtilities();
 
- 
   // general auxiliary functions
-  void finalizeMEtData(CommonMETData&);
-  
+  void finalizeMEtData(CommonMETData &);
+
   //-------------------------------------------------------------------------------
   // auxiliary functions for jets
-  reco::PUSubMETCandInfoCollection cleanJets(const reco::PUSubMETCandInfoCollection&, 
-					     const std::vector<reco::Candidate::LorentzVector>&, 
-					     double, bool);
-  
+  reco::PUSubMETCandInfoCollection
+  cleanJets(const reco::PUSubMETCandInfoCollection &,
+            const std::vector<reco::Candidate::LorentzVector> &, double, bool);
+
   // auxiliary functions for PFCandidates
-  reco::PUSubMETCandInfoCollection cleanPFCandidates(const reco::PUSubMETCandInfoCollection&,
-						     const std::vector<reco::Candidate::LorentzVector>&,
-						     double, bool);
+  reco::PUSubMETCandInfoCollection
+  cleanPFCandidates(const reco::PUSubMETCandInfoCollection &,
+                    const std::vector<reco::Candidate::LorentzVector> &, double,
+                    bool);
 
- 
   // common internal functions for jets and pfCandidates
-  void computeAllSums( const reco::PUSubMETCandInfoCollection& jets,
-		       const reco::PUSubMETCandInfoCollection& pfCandidates);
+  void computeAllSums(const reco::PUSubMETCandInfoCollection &jets,
+                      const reco::PUSubMETCandInfoCollection &pfCandidates);
 
-  CommonMETData computeRecoil(int metType, double& sumAbsPx, double& sumAbsPy);
+  CommonMETData computeRecoil(int metType, double &sumAbsPx, double &sumAbsPy);
   //-------------------------------------------------------------------------------
 
- private:
- 
-  // common internal functions for jets and pfCandidates, to compute the different object sums
-  CommonMETData computeCandidateSum(const reco::PUSubMETCandInfoCollection& cands,
-				    bool neutralFracOnly, double& sumAbsPx, double& sumAbsPy);
-  
-  reco::PUSubMETCandInfoCollection selectCandidates(const reco::PUSubMETCandInfoCollection& cands, 
-						    double minPt, double maxPt, int type, 
-						    bool isCharged, int isWithinJet);
+private:
+  // common internal functions for jets and pfCandidates, to compute the
+  // different object sums
+  CommonMETData
+  computeCandidateSum(const reco::PUSubMETCandInfoCollection &cands,
+                      bool neutralFracOnly, double &sumAbsPx, double &sumAbsPy);
 
+  reco::PUSubMETCandInfoCollection
+  selectCandidates(const reco::PUSubMETCandInfoCollection &cands, double minPt,
+                   double maxPt, int type, bool isCharged, int isWithinJet);
 
- private:
-
-
+private:
   double minPtDef_;
   double maxPtDef_;
 
@@ -78,7 +79,6 @@ class NoPileUpMEtUtilities
   double nUncPfcSumAbsPy_;
   double nHSJetSumAbsPy_;
   double nPUJetSumAbsPy_;
-
 };
 
 #endif
