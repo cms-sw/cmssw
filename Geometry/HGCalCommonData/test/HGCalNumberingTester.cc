@@ -28,8 +28,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -51,6 +49,7 @@ class HGCalNumberingTester : public edm::one::EDAnalyzer<> {
   void endJob() override {}
 
  private:
+  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> dddToken_;
   std::string nameSense_, nameDetector_;
   std::vector<double> positionX_, positionY_;
   int increment_, detType_;
@@ -65,6 +64,9 @@ HGCalNumberingTester::HGCalNumberingTester(const edm::ParameterSet& iC) {
   increment_ = iC.getParameter<int>("Increment");
   detType_ = iC.getParameter<int>("DetType");
   reco_ = iC.getParameter<bool>("Reco");
+
+  dddToken_ = esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_});
+
   std::string unit("mm");
   if (reco_) {
     for (unsigned int k = 0; k < positionX_.size(); ++k) {
@@ -92,10 +94,7 @@ HGCalNumberingTester::~HGCalNumberingTester() {}
 // ------------ method called to produce the data  ------------
 void HGCalNumberingTester::analyze(const edm::Event& iEvent,
                                    const edm::EventSetup& iSetup) {
-  edm::ESHandle<HGCalDDDConstants> pHGNDC;
-
-  iSetup.get<IdealGeometryRecord>().get(nameSense_, pHGNDC);
-  const HGCalDDDConstants hgdc(*pHGNDC);
+  const HGCalDDDConstants& hgdc = iSetup.getData(dddToken_);
   std::cout << nameDetector_ << " Layers = " << hgdc.layers(reco_)
             << " Sectors = " << hgdc.sectors()
             << " Minimum Slope = " << hgdc.minSlope() << std::endl;
