@@ -134,7 +134,6 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
     for ( auto const & p : lepton.constituents()) {
       // ghost taus (momentum scaled with 10e-20 in RivetAnalysis.h already)
       if (p.abspid() == 15) {
-        std::cout << "Adding ghost: " << p << std::endl;
         tags->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 2, true));
         lepJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, ++iTag)));
       }
