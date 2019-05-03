@@ -218,7 +218,7 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   
   // get MET covariance matrix
   reco::METCovMatrix pfMEtCov;
-  if ( srcMEtCov_.label() != "" ) {
+  if ( !srcMEtCov_.label().empty() ) {
     //MM manual bypass to pfMET as this case has neer been presented
     // edm::Handle<PFMEtSignCovMatrix> pfMEtCovHandle;    
     // evt.getByToken(srcMEtCov_, pfMEtCovHandle);
