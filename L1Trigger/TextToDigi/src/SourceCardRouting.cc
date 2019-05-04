@@ -711,7 +711,7 @@ for (int i=0; i<2;i++){
 
 		stringstream temp;
 		
-		if (dataString!=""){
+		if (!dataString.empty()){
 	        	temp << dataString << std::endl;
 	        	temp >> dec >> eventNumber;
 	       		temp >> dec >> logicalCardID;
