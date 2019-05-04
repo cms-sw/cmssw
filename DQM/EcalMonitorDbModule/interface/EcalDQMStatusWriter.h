@@ -9,7 +9,7 @@
 class EcalDQMStatusWriter : public edm::EDAnalyzer {
  public:
   EcalDQMStatusWriter(edm::ParameterSet const&);
-  ~EcalDQMStatusWriter() {}
+  ~EcalDQMStatusWriter() override {}
 
  private:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
