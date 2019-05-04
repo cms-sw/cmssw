@@ -64,7 +64,7 @@ class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosi
 
 private:
   // Parameters
-  double threshold_;
+  double thresholdL1_, thresholdL2_, thresholdL3_, thresholdL4_, thresholdRNG1_, thresholdRNG2_;
   std::string outputBase_;
   int aveDigiOcc_;
   int nLumi_;
@@ -113,6 +113,7 @@ private:
                     edm::Run& iRun);
 
   // for testing threshold
+  bool emptyRun;
   TFile * histoFile;
   std::map<std::string, TH1F*> p001, p005, p01, p05, p1, p2, p5;
   std::map<std::string, TTree*> digiTrees;

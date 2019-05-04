@@ -58,7 +58,12 @@ using namespace edm;
 //--------------------------------------------------------------------------------------------------
 SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig) :
   HistogramManagerHolder(iConfig),
-  threshold_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("threshold")),
+  thresholdL1_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdL1")),
+  thresholdL2_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdL2")),
+  thresholdL3_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdL3")),
+  thresholdL4_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdL4")),
+  thresholdRNG1_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdRNG1")),
+  thresholdRNG2_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<double>("thresholdRNG2")),
   outputBase_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<std::string>("outputBase")),
   aveDigiOcc_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<int>("aveDigiOcc")),
   nLumi_(iConfig.getParameter<edm::ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<int>("resetEveryNLumi")),
@@ -502,6 +507,18 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                uint32_t detId = uint32_t(detid);
 
                double DetAverage_local = SiPixelStatusHarvester::perLayerRingAverage(detid,tmpSiPixelStatus);
+               double local_threshold = 0.0;
+               
+               int layer  = coord_.layer(DetId(detid));
+               int ring   = coord_.ring(DetId(detid));
+
+               if(layer==1) local_threshold = thresholdL1_;
+               if(layer==2) local_threshold = thresholdL2_;
+               if(layer==3) local_threshold = thresholdL3_;
+               if(layer==4) local_threshold = thresholdL4_;
+
+               if(ring==1) local_threshold = thresholdRNG1_;
+               if(ring==2) local_threshold = thresholdRNG2_;
 
                BadModulePCL.DetID = uint32_t(detid); BadModuleOther.DetID = uint32_t(detid);
                BadModulePCL.errorType = 3; BadModuleOther.errorType = 3;
@@ -522,7 +539,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
                    int column = rocToOfflinePixel[iroc].second;
 
                    // Bad ROC are from low DIGI Occ ROCs
-                   if(rocOccupancy<threshold_*DetAverage_local){ // if BAD
+                   if(rocOccupancy<local_threshold*DetAverage_local){ // if BAD
 
                      //PCL bad roc list
                      BadRocListPCL.push_back(uint32_t(iroc));
@@ -875,7 +892,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
               digiTrees[substructures[s]]->Fill();
 
               if(_digiLossp001>0){
-                p001[substructures[s]]->Fill(log(_digiLossp001/_digiTotal)/log(10));
+                p001[substructures[s]]->Fill(log(1.0*_digiLossp001/_digiTotal)/log(10));
               }
 
               if(_digiLossp005>0){
