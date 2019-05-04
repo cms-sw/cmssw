@@ -3,6 +3,8 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class CSCIndexerRecord : public edm::eventsetup::EventSetupRecordImplementation<CSCIndexerRecord> {};
+class CSCIndexerRecord
+    : public edm::eventsetup::EventSetupRecordImplementation<CSCIndexerRecord> {
+};
 
 #endif

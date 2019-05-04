@@ -13,14 +13,10 @@
 
 class TrajectoryStateOnSurface;
 
-class BeamSpotAlignmentDerivatives
-{
+class BeamSpotAlignmentDerivatives {
 public:
-  
   /// Returns 4x2 jacobian matrix
   AlgebraicMatrix operator()(const TrajectoryStateOnSurface &tsos) const;
-  
 };
 
 #endif
-
