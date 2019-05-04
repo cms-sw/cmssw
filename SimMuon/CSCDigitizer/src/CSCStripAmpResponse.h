@@ -1,11 +1,9 @@
 #ifndef CSCDigitizer_CSCStripAmpResponse_h
 #define CSCDigitizer_CSCStripAmpResponse_h
 
-
-class CSCStripAmpResponse
-{
+class CSCStripAmpResponse {
 public:
-  enum tailShapes {NONE, CONSERVATIVE, RADICAL};
+  enum tailShapes { NONE, CONSERVATIVE, RADICAL };
 
   CSCStripAmpResponse(int shapingTime, int tailShaping);
 
@@ -17,4 +15,3 @@ private:
 };
 
 #endif
-
