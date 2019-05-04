@@ -216,6 +216,12 @@ def L1TTurnOffHGCalTPs(process):
         process.SimL1Emulator.remove(getattr(process,b))
     return process
 
+def L1TTurnOffHGCalTPs_v9(process):
+    cutlist=['hgcalVFE','hgcalConcentrator','hgcalBackEndLayer1','hgcalBackEndLayer2','hgcalTowerMap','hgcalTower']
+    for b in cutlist:
+        process.SimL1Emulator.remove(getattr(process,b))
+    return process
+
 def appendDTChamberAgingAtL1Trigger(process):
 # #############################################################################
 # This function adds aging producers for DT TPs 
