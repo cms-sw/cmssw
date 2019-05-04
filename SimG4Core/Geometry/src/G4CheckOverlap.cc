@@ -52,7 +52,7 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
 
   if(0 < nn) { 
     for (unsigned int ii=0; ii<nn; ++ii) {
-      if("" == nodeNames[ii] || "world" == nodeNames[ii] || "World" == nodeNames[ii] ) { 
+      if(nodeNames[ii].empty() || "world" == nodeNames[ii] || "World" == nodeNames[ii] ) { 
 	nodeNames[ii] = "DDDWorld"; 
 	G4cout << "### Check overlaps for DDDWorld " << G4endl; 
 	G4VPhysicalVolume* pv = pvs->GetVolume("DDDWorld");
@@ -117,7 +117,7 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
       }
     }
   }
-  if("" != PVname) {
+  if(!PVname.empty()) {
     G4cout << "----------- List of PhysVolumes by name -----------------" << G4endl;
     for (unsigned int i=0; i<numPV; ++i) {
       if(PVname == ((*pvs)[i])->GetName()) {
@@ -135,7 +135,7 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
       }
     }
   }
-  if("" != LVname) {
+  if(!LVname.empty()) {
     G4cout << "---------- List of Logical Volumes by name ------------------" << G4endl;
     for (unsigned int i=0; i<numLV; ++i) {
       if(LVname == ((*lvs)[i])->GetName()) {
