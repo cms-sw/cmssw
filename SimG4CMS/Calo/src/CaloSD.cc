@@ -738,7 +738,7 @@ void CaloSD::cleanHitCollection() {
 #endif
     //move all nullptr to end of list and then remove them
     hitvec.erase(std::stable_partition(hitvec.begin()+cleanIndex, 
-                                       hitvec.end(), [](auto* p) { return p!= nullptr;}),
+                                       hitvec.end(), [](CaloG4Hit* p) { return p!= nullptr;}),
                  hitvec.end());
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("CaloSim") << "CaloSD::cleanHitCollection: remove the merged hits in buffer,"
@@ -795,7 +795,7 @@ void CaloSD::cleanHitCollection() {
 
   //move all nullptr to end of list and then remove them
   theCollection->erase(std::stable_partition(theCollection->begin()+cleanIndex,
-                                             theCollection->end(), [](auto* p) { return p!= nullptr;}),
+                                             theCollection->end(), [](CaloG4Hit* p) { return p!= nullptr;}),
                        theCollection->end());
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD: hit collection after selection, size = " << theHC->entries();
