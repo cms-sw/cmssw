@@ -48,6 +48,7 @@ class Eras (object):
                  'Phase2C8_timing_layer_bar',
                  'Phase2_trigger',
                  'Phase2C4_trigger',
+                 'Phase2C8_trigger',
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
