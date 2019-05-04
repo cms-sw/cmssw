@@ -34,8 +34,8 @@ MonitorElement * ScoutingAnalyzerBase::bookH1
   const std::string & titleX, const std::string & titleY,
   Option_t * option ) {
   MonitorElement * me = iBooker.book1DD(newName(name),title,nchX,lowX,highX) ;
-  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
   return me ;
 }
@@ -49,8 +49,8 @@ MonitorElement * ScoutingAnalyzerBase::bookH1withSumw2
   std::cout << newName(name) << std::endl;
   MonitorElement * me = iBooker.book1DD(newName(name),title,nchX,lowX,highX) ;
   me->getTH1()->Sumw2() ;
-  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
   return me ;
 }
@@ -63,8 +63,8 @@ MonitorElement * ScoutingAnalyzerBase::bookH1BinArray
   Option_t * option ) {
   MonitorElement * me = iBooker.book1D(newName(name),title,nchX,xbinsize) ;
   //book1DD not implemented in DQMServices/Core/src/DQMStore.cc
-  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
   return me ;
 }
@@ -79,8 +79,8 @@ MonitorElement * ScoutingAnalyzerBase::bookH1withSumw2BinArray
   MonitorElement * me = iBooker.book1D(newName(name),title,nchX,xbinsize) ;
   //book1DD not implemented in DQMServices/Core/src/DQMStore.cc
   me->getTH1()->Sumw2() ;
-  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
   return me ;
 }
@@ -93,8 +93,8 @@ MonitorElement * ScoutingAnalyzerBase::bookH2
   const std::string & titleX, const std::string & titleY,
   Option_t * option ) {
   MonitorElement * me = iBooker.book2DD(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
-  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
   return me ;
 }
@@ -108,8 +108,8 @@ MonitorElement * ScoutingAnalyzerBase::bookH2withSumw2
   Option_t * option ) {
   MonitorElement * me = iBooker.book2DD(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
   me->getTH1()->Sumw2() ;
-  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
   return me ;
 }
@@ -122,8 +122,8 @@ MonitorElement * ScoutingAnalyzerBase::bookP1
   const std::string & titleX, const std::string & titleY,
   Option_t * option ) {
   MonitorElement * me = iBooker.bookProfile(newName(name),title,nchX,lowX,highX,lowY,highY," ") ;
-  if (titleX!="") { me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTProfile()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!titleX.empty()) { me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { me->getTProfile()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTProfile()->SetOption(option) ; }
   return me ;
 }
@@ -139,7 +139,7 @@ MonitorElement * ScoutingAnalyzerBase::bookH1andDivide
   h_temp->Divide(num->getTH1(),denom->getTH1(),1,1,"b") ;
   h_temp->GetXaxis()->SetTitle(titleX.c_str()) ;
   h_temp->GetYaxis()->SetTitle(titleY.c_str()) ;
-  if (title!="") { h_temp->SetTitle(title.c_str()) ; }
+  if (!title.empty()) { h_temp->SetTitle(title.c_str()) ; }
   if (m_verbosityLevel>0) { h_temp->Print() ; }
   MonitorElement * me = iBooker.book1DD(name2,h_temp) ;
   delete h_temp ;
@@ -157,7 +157,7 @@ MonitorElement * ScoutingAnalyzerBase::bookH2andDivide
   h_temp->Divide(num->getTH1(),denom->getTH1(),1,1,"b") ;
   h_temp->GetXaxis()->SetTitle(titleX.c_str()) ;
   h_temp->GetYaxis()->SetTitle(titleY.c_str()) ;
-  if (title!="") { h_temp->SetTitle(title.c_str()) ; }
+  if (!title.empty()) { h_temp->SetTitle(title.c_str()) ; }
   if (m_verbosityLevel>0) { h_temp->Print() ; }
   MonitorElement * me = iBooker.book2DD(name2,h_temp) ;
   delete h_temp ;
@@ -171,9 +171,9 @@ MonitorElement * ScoutingAnalyzerBase::profileX
   Double_t minimum, Double_t maximum ) {
   std::string name2 = me2d->getName()+"_pfx" ;
   TProfile * p1_temp = me2d->getTH2D()->ProfileX() ;
-  if (title!="") { p1_temp->SetTitle(title.c_str()) ; }
-  if (titleX!="") { p1_temp->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { p1_temp->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!title.empty()) { p1_temp->SetTitle(title.c_str()) ; }
+  if (!titleX.empty()) { p1_temp->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { p1_temp->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (minimum!=-1111) { p1_temp->SetMinimum(minimum) ; }
   if (maximum!=-1111) { p1_temp->SetMaximum(maximum) ; }
   MonitorElement * me = iBooker.bookProfile(name2,p1_temp) ;
@@ -188,9 +188,9 @@ MonitorElement * ScoutingAnalyzerBase::profileY
   Double_t minimum, Double_t maximum ) {
   std::string name2 = me2d->getName()+"_pfy" ;
   TProfile * p1_temp = me2d->getTH2D()->ProfileY() ;
-  if (title!="") { p1_temp->SetTitle(title.c_str()) ; }
-  if (titleX!="") { p1_temp->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { p1_temp->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (!title.empty()) { p1_temp->SetTitle(title.c_str()) ; }
+  if (!titleX.empty()) { p1_temp->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (!titleY.empty()) { p1_temp->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (minimum!=-1111) { p1_temp->SetMinimum(minimum) ; }
   if (maximum!=-1111) { p1_temp->SetMaximum(maximum) ; }
   MonitorElement * me = iBooker.bookProfile(name2,p1_temp) ;

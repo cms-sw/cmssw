@@ -67,7 +67,7 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 
 	//get triggerResults
 	Handle<TriggerResults> TriggerResulsHandler;
-	if ( hlTriggerResults_Label == "" || hlTriggerResults_Label == "NULL" ) {
+	if ( hlTriggerResults_Label.empty() || hlTriggerResults_Label == "NULL" ) {
 		edm::LogInfo("NoTriggerResults") << "TriggerResults ==> Empty";
 		return;
 	}
@@ -95,7 +95,7 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 			if ( !triggerResults.accept(hltPathIndexs_[ind]) ) continue;	//if the hltPath was not accepted skip the event
 			
 			//get the recoVertex
-			if (VertexCollection_Label.at(coll) != "" && VertexCollection_Label.at(coll) != "NULL" )
+			if (!VertexCollection_Label.at(coll).empty() && VertexCollection_Label.at(coll) != "NULL" )
 			{
 				iEvent.getByToken(VertexCollection_.at(coll), VertexHandler);
 				if (VertexHandler.isValid()>0)   VertexOK=true;
@@ -132,7 +132,7 @@ void HLTVertexPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, e
 			float vertexU = maxValue;
 			float vertexL = -maxValue;
 			int   vertexBins = 100;
-			if ( VertexCollection_Label.at(coll) != "" && VertexCollection_Label.at(coll) != "NULL" ) { 
+			if ( !VertexCollection_Label.at(coll).empty() && VertexCollection_Label.at(coll) != "NULL" ) { 
 				H1_.back()["Vertex_"+VertexCollection_Label.at(coll)]       = ibooker.book1D("Vertex_"+VertexCollection_Label.at(coll),      VertexCollection_Label.at(coll).c_str(),  vertexBins, vertexL, vertexU );
 				H1_.back()["Vertex_"+VertexCollection_Label.at(coll)]      -> setAxisTitle("vertex error (cm)",1);
 			}
