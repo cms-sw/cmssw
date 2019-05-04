@@ -11,8 +11,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class PDTRecord : 
-  public edm::eventsetup::EventSetupRecordImplementation<PDTRecord> {
-};
+class PDTRecord
+    : public edm::eventsetup::EventSetupRecordImplementation<PDTRecord> {};
 
 #endif
