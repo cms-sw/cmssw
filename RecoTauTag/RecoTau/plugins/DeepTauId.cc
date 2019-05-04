@@ -67,6 +67,8 @@ struct dnn_inputs_2017v1 {
 };
 
 namespace dnn_inputs_2017_v2 {
+    constexpr int number_of_inner_cell = 11;
+    constexpr int number_of_outer_cell = 21;
 namespace TauBlockInputs {
     enum vars {
         rho = 0, tau_pt, tau_eta, tau_phi, tau_mass, tau_E_over_pt, tau_charge, tau_n_charged_prongs,
@@ -565,7 +567,7 @@ public:
         desc.add<edm::InputTag>("pfcands", edm::InputTag("packedPFCandidates"));
         desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
         desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoAll"));
-        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e2.pb");
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb");
         desc.add<bool>("mem_mapped", false);
         desc.add<unsigned>("version", 2);
 
@@ -600,9 +602,25 @@ public:
             if(shape.dim(1).size() != dnn_inputs_2017v1::NumberOfInputs)
                 throw cms::Exception("DeepTauId") << "number of inputs does not match the expected inputs for the given version";
         } else if(version == 2) {
-        } else {
+
+            tauBlockTensor_ =  std::make_shared<tensorflow::Tensor>(tensorflow::DT_FLOAT, tensorflow::TensorShape{ 1,
+                dnn_inputs_2017_v2::TauBlockInputs::NumberOfInputs});
+            eGammaInnerTensor_ = std::make_shared<tensorflow::Tensor>(tensorflow::DT_FLOAT, tensorflow::TensorShape{ 1,
+                dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs});
+            eGammaOuterTensor_ = std::make_shared<tensorflow::Tensor>(tensorflow::DT_FLOAT, tensorflow::TensorShape{ 1,
+                dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs});
+            muonInnerTensor_ = std::make_shared<tensorflow::Tensor>(tensorflow::DT_FLOAT, tensorflow::TensorShape{ 1,
+                dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs});
+            muonOuterTensor_ = std::make_shared<tensorflow::Tensor>(tensorflow::DT_FLOAT, tensorflow::TensorShape{ 1,
+                dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs});
+            hadronsInnerTensor_ = std::make_shared<tensorflow::Tensor>(tensorflow::DT_FLOAT, tensorflow::TensorShape{ 1,
+                dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs});
+            hadronsOuterTensor_ = std::make_shared<tensorflow::Tensor>(tensorflow::DT_FLOAT, tensorflow::TensorShape{ 1,
+                dnn_inputs_2017_v2::number_of_outer_cell,dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs});
+            } else {
             throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
         }
+
     }
 
     static std::unique_ptr<deep_tau::DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg)
@@ -620,7 +638,7 @@ private:
     template<typename T>
     static float getValue(T value)
     {
-        return std::isnormal<std::remove_reference<int>::type>(value) ? static_cast<float>(value) : 0.f;
+        return std::isnormal(value) ? static_cast<float>(value) : 0.f;
     }
 
     template<typename T>
@@ -693,8 +711,13 @@ private:
                 getPredictionsV2(taus->at(tau_index), *electrons, *muons, *pfCands, vertices->at(0), *rho, pred_vector);
             else
                 throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
-            for(int k = 0; k < dnn_inputs_2017v1::NumberOfOutputs; ++k)
-                predictions.matrix<float>()(tau_index, k) = pred_vector[0].flat<float>()(k);
+            for(int k = 0; k < dnn_inputs_2017v1::NumberOfOutputs; ++k) {
+                const float pred = pred_vector[0].flat<float>()(k);
+                if(!(pred >= 0 && pred <= 1))
+                    throw cms::Exception("DeepTauId") << "invalid prediction = " << pred << " for tau_index = "
+                                                      << tau_index << ", pred_index = " << k;
+                predictions.matrix<float>()(tau_index, k) = pred;
+            }
         }
         return predictions;
     }
@@ -716,19 +739,21 @@ private:
         fillGrids(tau, muons, inner_grid, outer_grid);
         fillGrids(tau, pfCands, inner_grid, outer_grid);
 
-        const auto input_tau = createTauBlockInputs(tau, pv, rho);
-        const auto input_inner_egamma = createEgammaBlockInputs(tau, pv, rho, electrons, pfCands, inner_grid, true);
-        const auto input_inner_muon = createMuonBlockInputs(tau, pv, rho, muons, pfCands, inner_grid, true);
-        const auto input_inner_hadrons = createHadronsBlockInputs(tau, pv, rho, pfCands, inner_grid, true);
-        const auto input_outer_egamma = createEgammaBlockInputs(tau, pv, rho, electrons, pfCands, outer_grid, false);
-        const auto input_outer_muon = createMuonBlockInputs(tau, pv, rho, muons, pfCands, outer_grid, false);
-        const auto input_outer_hadrons = createHadronsBlockInputs(tau, pv, rho, pfCands, outer_grid, false);
+        createTauBlockInputs(tau, pv, rho);
+        createEgammaBlockInputs(tau, pv, rho, electrons, pfCands, inner_grid, true);
+        createMuonBlockInputs(tau, pv, rho, muons, pfCands, inner_grid, true);
+        createHadronsBlockInputs(tau, pv, rho, pfCands, inner_grid, true);
+        createEgammaBlockInputs(tau, pv, rho, electrons, pfCands, outer_grid, false);
+        createMuonBlockInputs(tau, pv, rho, muons, pfCands, outer_grid, false);
+        createHadronsBlockInputs(tau, pv, rho, pfCands, outer_grid, false);
+
         tensorflow::run(&(cache_->getSession()),
-            { { "input_tau", input_tau },
-              { "input_inner_egamma", input_inner_egamma}, { "input_outer_egamma", input_outer_egamma },
-              { "input_inner_muon", input_inner_muon }, { "input_outer_muon", input_outer_muon },
-              { "input_inner_hadrons", input_inner_hadrons }, { "input_outer_hadrons", input_outer_hadrons } },
+            { { "input_tau", *tauBlockTensor_ },
+              { "input_inner_egamma", *eGammaInnerTensor_}, { "input_outer_egamma", *eGammaOuterTensor_ },
+              { "input_inner_muon", *muonInnerTensor_ }, { "input_outer_muon", *muonOuterTensor_ },
+              { "input_inner_hadrons", *hadronsInnerTensor_ }, { "input_outer_hadrons", *hadronsOuterTensor_ } },
             { "main_output/Softmax" }, &pred_vector);
+
     }
 
     template<typename Collection>
@@ -773,8 +798,9 @@ private:
         using namespace dnn_inputs_2017_v2;
         using namespace TauBlockInputs;
 
-        tensorflow::Tensor inputs(tensorflow::DT_FLOAT, { 1,NumberOfInputs});
+        tensorflow::Tensor& inputs = *tauBlockTensor_;
         const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
+
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
 
         get(rho) = getValueNorm(rho, 21.49f, 9.713f);
@@ -840,10 +866,16 @@ private:
         get(tau_inside_ecal_crack) = getValue(isInEcalCrack(tau.p4().eta()));
         get(leadChargedCand_etaAtEcalEntrance_minus_tau_eta) =
             getValueNorm(tau.etaAtEcalEntranceLeadChargedCand() - tau.p4().eta(), 0.0042f, 0.0323f);
+
+        for(int k = 0; k < NumberOfOutputs; ++k) {
+            const float input = inputs.flat<float>()(k);
+            if(std::isnan(input))
+                throw cms::Exception("DeepTauId") << "invalid prediction = " << input << ", pred_index = " << k;
+        }
         return inputs;
     }
 
-    tensorflow::Tensor createEgammaBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
+    void createEgammaBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
                                                  const pat::ElectronCollection& electrons,
                                                  const pat::PackedCandidateCollection& pfCands,
                                                  const CellGrid& grid, bool is_inner)
@@ -851,7 +883,8 @@ private:
         using namespace dnn_inputs_2017_v2;
         using namespace EgammaBlockInputs;
 
-        tensorflow::Tensor inputs(tensorflow::DT_FLOAT, {1, grid.nCellsEta, grid.nCellsPhi, NumberOfInputs});
+        tensorflow::Tensor& inputs = is_inner ? *eGammaInnerTensor_ : *eGammaOuterTensor_;
+
         inputs.flat<float>().setZero();
         for(const auto& cell : grid) {
             int eta_index = grid.getEtaTensorIndex(cell.first);
@@ -883,10 +916,10 @@ private:
                     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
                 get(pfCand_ele_dphi) = getValueLinear(dPhi(tau.polarP4(), pfCands.at(index_pf_ele).polarP4()),
                     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
-                get(pfCand_ele_pvAssociationQuality) = getValueLinear(pfCands.at(index_pf_ele).pvAssociationQuality(), 0, 7, true);
+                get(pfCand_ele_pvAssociationQuality) = getValueLinear<int>(pfCands.at(index_pf_ele).pvAssociationQuality(), 0, 7, true);
                 get(pfCand_ele_puppiWeight) = getValue(pfCands.at(index_pf_ele).puppiWeight());
                 get(pfCand_ele_charge) = getValue(pfCands.at(index_pf_ele).charge());
-                get(pfCand_ele_lostInnerHits) = getValue(pfCands.at(index_pf_ele).lostInnerHits());
+                get(pfCand_ele_lostInnerHits) = getValue<int>(pfCands.at(index_pf_ele).lostInnerHits());
                 get(pfCand_ele_numberOfPixelHits) = getValueLinear(pfCands.at(index_pf_ele).numberOfPixelHits(), 0, 10, true);
                 get(pfCand_ele_vertex_dx) = getValueNorm(pfCands.at(index_pf_ele).vertex().x() - pv.position().x(), 0.f, 0.1221f);
                 get(pfCand_ele_vertex_dy) = getValueNorm(pfCands.at(index_pf_ele).vertex().y() - pv.position().y(), 0.f, 0.1226f);
@@ -925,11 +958,11 @@ private:
                 get(pfCand_gamma_dphi) = getValueLinear(dPhi(tau.polarP4(), pfCands.at(index_pf_gamma).polarP4()),
                     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
                 get(pfCand_gamma_pvAssociationQuality) =
-                    getValueLinear(pfCands.at(index_pf_gamma).pvAssociationQuality(), 0, 7, true);
-                get(pfCand_gamma_fromPV) = getValueLinear(pfCands.at(index_pf_gamma).fromPV(), 0, 3, true);
+                    getValueLinear<int>(pfCands.at(index_pf_gamma).pvAssociationQuality(), 0, 7, true);
+                get(pfCand_gamma_fromPV) = getValueLinear<int>(pfCands.at(index_pf_gamma).fromPV(), 0, 3, true);
                 get(pfCand_gamma_puppiWeight) = getValue(pfCands.at(index_pf_gamma).puppiWeight());
                 get(pfCand_gamma_puppiWeightNoLep) = getValue(pfCands.at(index_pf_gamma).puppiWeightNoLep());
-                get(pfCand_gamma_lostInnerHits) = getValue(pfCands.at(index_pf_gamma).lostInnerHits());
+                get(pfCand_gamma_lostInnerHits) = getValue<int>(pfCands.at(index_pf_gamma).lostInnerHits());
                 get(pfCand_gamma_numberOfPixelHits) = getValueLinear(pfCands.at(index_pf_gamma).numberOfPixelHits(), 0, 7, true);
                 get(pfCand_gamma_vertex_dx) = getValueNorm(pfCands.at(index_pf_gamma).vertex().x() - pv.position().x(), 0.f, 0.0067f);
                 get(pfCand_gamma_vertex_dy) = getValueNorm(pfCands.at(index_pf_gamma).vertex().x() - pv.position().y(), 0.f, 0.0069f);
@@ -1030,7 +1063,6 @@ private:
                 }
             }
         }
-        return inputs;
     }
 
     tensorflow::Tensor createMuonBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
@@ -1041,7 +1073,7 @@ private:
         using namespace dnn_inputs_2017_v2;
         using namespace MuonBlockInputs;
 
-        tensorflow::Tensor inputs(tensorflow::DT_FLOAT, {1, grid.nCellsEta, grid.nCellsPhi, NumberOfInputs});
+        tensorflow::Tensor& inputs = is_inner ? *muonInnerTensor_ : *muonOuterTensor_;
         inputs.flat<float>().setZero();
 
         for(const auto& cell : grid) {
@@ -1073,11 +1105,11 @@ private:
                     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
                 get(pfCand_muon_dphi) = getValueLinear(dPhi(tau.polarP4(), pfCands.at(index_pf_muon).polarP4()),
                     is_inner ? -0.1f : -0.5f, is_inner ? 0.1f : 0.5f, false);
-                get(pfCand_muon_pvAssociationQuality) = getValueLinear(pfCands.at(index_pf_muon).pvAssociationQuality(), 0, 7, true);
-                get(pfCand_muon_fromPV) = getValueLinear(pfCands.at(index_pf_muon).fromPV(), 0, 3, true);
+                get(pfCand_muon_pvAssociationQuality) = getValueLinear<int>(pfCands.at(index_pf_muon).pvAssociationQuality(), 0, 7, true);
+                get(pfCand_muon_fromPV) = getValueLinear<int>(pfCands.at(index_pf_muon).fromPV(), 0, 3, true);
                 get(pfCand_muon_puppiWeight) = getValue(pfCands.at(index_pf_muon).puppiWeight());
                 get(pfCand_muon_charge) = getValue(pfCands.at(index_pf_muon).charge());
-                get(pfCand_muon_lostInnerHits) = getValue(pfCands.at(index_pf_muon).lostInnerHits());
+                get(pfCand_muon_lostInnerHits) = getValue<int>(pfCands.at(index_pf_muon).lostInnerHits());
                 get(pfCand_muon_numberOfPixelHits) = getValueLinear(pfCands.at(index_pf_muon).numberOfPixelHits(), 0, 11, true);
                 get(pfCand_muon_vertex_dx) = getValueNorm(pfCands.at(index_pf_muon).vertex().x() - pv.position().x(), -0.0007f, 0.6869f);
                 get(pfCand_muon_vertex_dy) = getValueNorm(pfCands.at(index_pf_muon).vertex().y() - pv.position().y(), 0.0001f, 0.6784f);
@@ -1178,7 +1210,7 @@ private:
         using namespace dnn_inputs_2017_v2;
         using namespace HadronBlockInputs;
 
-        tensorflow::Tensor inputs(tensorflow::DT_FLOAT, {1, grid.nCellsEta, grid.nCellsPhi, NumberOfInputs});
+        tensorflow::Tensor& inputs = is_inner ? *hadronsInnerTensor_ : *hadronsOuterTensor_;
         inputs.flat<float>().setZero();
 
         for(const auto& cell : grid) {
@@ -1213,12 +1245,12 @@ private:
                 get(pfCand_chHad_leadChargedHadrCand) = getValue(&pfCands.at(index_chH) ==
                     dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get()));
                 get(pfCand_chHad_pvAssociationQuality) =
-                    getValueLinear(pfCands.at(index_chH).pvAssociationQuality(), 0, 7, true);
-                get(pfCand_chHad_fromPV) = getValueLinear(pfCands.at(index_chH).fromPV(), 0, 3, true);
+                    getValueLinear<int>(pfCands.at(index_chH).pvAssociationQuality(), 0, 7, true);
+                get(pfCand_chHad_fromPV) = getValueLinear<int>(pfCands.at(index_chH).fromPV(), 0, 3, true);
                 get(pfCand_chHad_puppiWeight) = getValue(pfCands.at(index_chH).puppiWeight());
                 get(pfCand_chHad_puppiWeightNoLep) = getValue(pfCands.at(index_chH).puppiWeightNoLep());
                 get(pfCand_chHad_charge) =  getValue(pfCands.at(index_chH).charge());
-                get(pfCand_chHad_lostInnerHits) = getValue(pfCands.at(index_chH).lostInnerHits());
+                get(pfCand_chHad_lostInnerHits) = getValue<int>(pfCands.at(index_chH).lostInnerHits());
                 get(pfCand_chHad_numberOfPixelHits) = getValueLinear(pfCands.at(index_chH).numberOfPixelHits(), 0, 12, true);
                 get(pfCand_chHad_vertex_dx) = getValueNorm(pfCands.at(index_chH).vertex().x() - pv.position().x(), 0.0005f, 1.735f);
                 get(pfCand_chHad_vertex_dy) = getValueNorm(pfCands.at(index_chH).vertex().x() - pv.position().y(), -0.0008f, 1.752f);
@@ -1585,6 +1617,8 @@ private:
     edm::EDGetTokenT<double> rho_token_;
     std::string input_layer_, output_layer_;
     const unsigned version;
+    std::shared_ptr<tensorflow::Tensor> tauBlockTensor_, eGammaInnerTensor_, eGammaOuterTensor_, muonInnerTensor_ ,
+        muonOuterTensor_, hadronsInnerTensor_, hadronsOuterTensor_ ;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
