@@ -77,7 +77,7 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
 
   if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) {
     std::string filename = hPSet_.getParameter<std::string>("TkMapName");
-    if (filename!=""){
+    if (!filename.empty()){
       constexpr unsigned int kSLen = 128;
       char sRun[kSLen];
       snprintf(sRun,kSLen, "_Run_%d",runNumber_);

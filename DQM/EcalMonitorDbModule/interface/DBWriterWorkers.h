@@ -41,7 +41,7 @@ namespace ecaldqm {
   class IntegrityWriter : public DBWriterWorker {
   public:
     IntegrityWriter(edm::ParameterSet const& _ps) : DBWriterWorker("Integrity", _ps) {}
-    ~IntegrityWriter() {}
+    ~IntegrityWriter() override {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&) override;
   };
@@ -49,7 +49,7 @@ namespace ecaldqm {
   class LaserWriter : public DBWriterWorker {
   public:
     LaserWriter(edm::ParameterSet const&);
-    ~LaserWriter() {}
+    ~LaserWriter() override {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&) override;
 
@@ -60,7 +60,7 @@ namespace ecaldqm {
   class PedestalWriter : public DBWriterWorker {
   public:
     PedestalWriter(edm::ParameterSet const&);
-    ~PedestalWriter() {}
+    ~PedestalWriter() override {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&) override;
 
@@ -72,7 +72,7 @@ namespace ecaldqm {
   class PresampleWriter : public DBWriterWorker {
   public:
     PresampleWriter(edm::ParameterSet const& _ps) : DBWriterWorker("Presample", _ps) {}
-    ~PresampleWriter() {}
+    ~PresampleWriter() override {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&) override;
   };
@@ -80,7 +80,7 @@ namespace ecaldqm {
   class TestPulseWriter : public DBWriterWorker {
   public:
     TestPulseWriter(edm::ParameterSet const&);
-    ~TestPulseWriter() {}
+    ~TestPulseWriter() override {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&) override;
 
@@ -92,7 +92,7 @@ namespace ecaldqm {
   class TimingWriter : public DBWriterWorker {
   public:
     TimingWriter(edm::ParameterSet const& _ps) : DBWriterWorker("Timing", _ps) {}
-    ~TimingWriter() {}
+    ~TimingWriter() override {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&) override;
   };
@@ -100,7 +100,7 @@ namespace ecaldqm {
   class LedWriter : public DBWriterWorker {
   public:
     LedWriter(edm::ParameterSet const&);
-    ~LedWriter() {}
+    ~LedWriter() override {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&) override;
 
@@ -111,7 +111,7 @@ namespace ecaldqm {
   class OccupancyWriter : public DBWriterWorker {
   public:
     OccupancyWriter(edm::ParameterSet const& _ps) : DBWriterWorker("Occupancy", _ps) {}
-    ~OccupancyWriter() {}
+    ~OccupancyWriter() override {}
 
     bool run(EcalCondDBInterface*, MonRunIOV&) override;
   };
@@ -119,7 +119,7 @@ namespace ecaldqm {
   class SummaryWriter : public DBWriterWorker {
   public:
     SummaryWriter(edm::ParameterSet const& _ps) : DBWriterWorker("Summary", _ps), taskList_(0), outcome_(0), processedEvents_(0) {}
-    ~SummaryWriter() {}
+    ~SummaryWriter() override {}
 
     void setTaskList(int _list) { taskList_ = _list; }
     void setOutcome(int _outcome) { outcome_ = _outcome; }
