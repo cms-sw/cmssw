@@ -122,7 +122,7 @@ void HcalCollapseAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
     if (verbosity_ > 0) 
       edm::LogVerbatim("Collapse") << "Size of hbhereco: " << recohbhe->size()
 				   << " and hbheprereco: " << prerecohbhe->size();
-    double sfrac = (prerecohbhe->size() == 0) ? 1 :
+    double sfrac = (prerecohbhe->empty()) ? 1 :
       ((double)(recohbhe->size()))/((double)(prerecohbhe->size()));
     h_sfrac->Fill(sfrac);
     h_size->Fill(recohbhe->size());
