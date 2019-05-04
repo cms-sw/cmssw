@@ -29,64 +29,55 @@ class L1GtHfRingEtSumsTemplate;
 class L1GlobalTriggerPSB;
 
 // class declaration
-class L1GtHfRingEtSumsCondition : public L1GtConditionEvaluation
-{
+class L1GtHfRingEtSumsCondition : public L1GtConditionEvaluation {
 
 public:
+  /// constructors
+  ///     default
+  L1GtHfRingEtSumsCondition();
 
-    /// constructors
-    ///     default
-    L1GtHfRingEtSumsCondition();
+  ///     from base template condition (from event setup usually)
+  L1GtHfRingEtSumsCondition(const L1GtCondition *, const L1GlobalTriggerPSB *);
 
-    ///     from base template condition (from event setup usually)
-    L1GtHfRingEtSumsCondition(const L1GtCondition*, const L1GlobalTriggerPSB*);
+  // copy constructor
+  L1GtHfRingEtSumsCondition(const L1GtHfRingEtSumsCondition &);
 
-    // copy constructor
-    L1GtHfRingEtSumsCondition(const L1GtHfRingEtSumsCondition&);
+  // destructor
+  ~L1GtHfRingEtSumsCondition() override;
 
-    // destructor
-    ~L1GtHfRingEtSumsCondition() override;
-
-    // assign operator
-    L1GtHfRingEtSumsCondition& operator=(const L1GtHfRingEtSumsCondition&);
-
-public:
-
-    /// the core function to check if the condition matches
-     const bool evaluateCondition() const override;
-
-    /// print condition
-     void print(std::ostream& myCout) const override;
+  // assign operator
+  L1GtHfRingEtSumsCondition &operator=(const L1GtHfRingEtSumsCondition &);
 
 public:
+  /// the core function to check if the condition matches
+  const bool evaluateCondition() const override;
 
-    ///   get / set the pointer to a L1GtCondition
-    inline const L1GtHfRingEtSumsTemplate* gtHfRingEtSumsTemplate() const {
-        return m_gtHfRingEtSumsTemplate;
-    }
+  /// print condition
+  void print(std::ostream &myCout) const override;
 
-    void setGtHfRingEtSumsTemplate(const L1GtHfRingEtSumsTemplate*);
+public:
+  ///   get / set the pointer to a L1GtCondition
+  inline const L1GtHfRingEtSumsTemplate *gtHfRingEtSumsTemplate() const {
+    return m_gtHfRingEtSumsTemplate;
+  }
 
-    ///   get / set the pointer to PSB
-    inline const L1GlobalTriggerPSB* gtPSB() const {
-        return m_gtPSB;
-    }
+  void setGtHfRingEtSumsTemplate(const L1GtHfRingEtSumsTemplate *);
 
-    void setGtPSB(const L1GlobalTriggerPSB*);
+  ///   get / set the pointer to PSB
+  inline const L1GlobalTriggerPSB *gtPSB() const { return m_gtPSB; }
+
+  void setGtPSB(const L1GlobalTriggerPSB *);
 
 private:
-
-    /// copy function for copy constructor and operator=
-    void copy(const L1GtHfRingEtSumsCondition& cp);
+  /// copy function for copy constructor and operator=
+  void copy(const L1GtHfRingEtSumsCondition &cp);
 
 private:
+  /// pointer to a L1GtHfRingEtSumsTemplate
+  const L1GtHfRingEtSumsTemplate *m_gtHfRingEtSumsTemplate;
 
-    /// pointer to a L1GtHfRingEtSumsTemplate
-    const L1GtHfRingEtSumsTemplate* m_gtHfRingEtSumsTemplate;
-
-    /// pointer to PSB, to be able to get the trigger objects
-    const L1GlobalTriggerPSB* m_gtPSB;
-
+  /// pointer to PSB, to be able to get the trigger objects
+  const L1GlobalTriggerPSB *m_gtPSB;
 };
 
 #endif

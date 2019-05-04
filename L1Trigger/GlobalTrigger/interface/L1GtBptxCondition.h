@@ -29,66 +29,57 @@ class L1GtCondition;
 class L1GtBptxTemplate;
 
 // class declaration
-class L1GtBptxCondition : public L1GtConditionEvaluation
-{
+class L1GtBptxCondition : public L1GtConditionEvaluation {
 
 public:
+  /// constructors
+  ///     default
+  L1GtBptxCondition();
 
-    /// constructors
-    ///     default
-    L1GtBptxCondition();
+  ///     from base template condition (from event setup usually)
+  L1GtBptxCondition(const L1GtCondition *, const bool result);
 
-    ///     from base template condition (from event setup usually)
-    L1GtBptxCondition(const L1GtCondition*, const bool result);
+  // copy constructor
+  L1GtBptxCondition(const L1GtBptxCondition &);
 
-    // copy constructor
-    L1GtBptxCondition(const L1GtBptxCondition&);
+  // destructor
+  ~L1GtBptxCondition() override;
 
-    // destructor
-    ~L1GtBptxCondition() override;
-
-    // assign operator
-    L1GtBptxCondition& operator=(const L1GtBptxCondition&);
-
-public:
-
-    /// the core function to check if the condition matches
-    const bool evaluateCondition() const override;
-
-    /// print condition
-    void print(std::ostream& myCout) const override;
+  // assign operator
+  L1GtBptxCondition &operator=(const L1GtBptxCondition &);
 
 public:
+  /// the core function to check if the condition matches
+  const bool evaluateCondition() const override;
 
-    ///   get / set the pointer to a L1GtCondition
-    inline const L1GtBptxTemplate* gtBptxTemplate() const {
-        return m_gtBptxTemplate;
-    }
+  /// print condition
+  void print(std::ostream &myCout) const override;
 
-    void setGtBptxTemplate(const L1GtBptxTemplate*);
+public:
+  ///   get / set the pointer to a L1GtCondition
+  inline const L1GtBptxTemplate *gtBptxTemplate() const {
+    return m_gtBptxTemplate;
+  }
 
-    ///   get / set the result
-    inline const bool conditionResult() const {
-        return m_conditionResult;
-    }
+  void setGtBptxTemplate(const L1GtBptxTemplate *);
 
-    inline void setConditionResult(const bool result) {
-        m_conditionResult = result;
-    }
+  ///   get / set the result
+  inline const bool conditionResult() const { return m_conditionResult; }
+
+  inline void setConditionResult(const bool result) {
+    m_conditionResult = result;
+  }
 
 private:
-
-    /// copy function for copy constructor and operator=
-    void copy(const L1GtBptxCondition& cp);
+  /// copy function for copy constructor and operator=
+  void copy(const L1GtBptxCondition &cp);
 
 private:
+  /// pointer to a L1GtBptxTemplate
+  const L1GtBptxTemplate *m_gtBptxTemplate;
 
-    /// pointer to a L1GtBptxTemplate
-    const L1GtBptxTemplate* m_gtBptxTemplate;
-
-    /// condition result
-    bool m_conditionResult;
-
+  /// condition result
+  bool m_conditionResult;
 };
 
 #endif
