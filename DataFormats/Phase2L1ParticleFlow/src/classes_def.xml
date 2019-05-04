@@ -27,10 +27,6 @@
   <class name="l1t::PFJetCollection" />
   <class name="edm::Wrapper<l1t::PFJetCollection>" />
 
-  <class name="l1t::PFTau" />
-  <class name="l1t::PFTauCollection" />
-  <class name="edm::Wrapper<l1t::PFTauCollection>" />
-
 
 </lcgdict>
 

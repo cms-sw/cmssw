@@ -25,7 +25,7 @@ class TauMapper{
 	TauMapper();
 
 	~TauMapper();
-	
+
 	l1t::L1PFTau l1PFTau;
 
 	typedef struct
@@ -96,8 +96,6 @@ class TauMapper{
 	void ClearSeedHadron(){
 	  seedHadronSet = false;;
 	}
-	float sumEGIso;
-
  private:
 
 	bool seedHadronSet;
@@ -106,6 +104,7 @@ class TauMapper{
 	l1t::PFCandidate prong3;
 
 	float sumChargedIso;
+	float sumEGIso;
 	float strip_pt;
 	float strip_eta;
 	float strip_phi;
