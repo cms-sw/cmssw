@@ -570,6 +570,7 @@ public:
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb");
         desc.add<bool>("mem_mapped", false);
         desc.add<unsigned>("version", 2);
+        desc.add<bool>("debug", false);
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
@@ -593,7 +594,8 @@ public:
         electrons_token_(consumes<ElectronCollection>(cfg.getParameter<edm::InputTag>("electrons"))),
         muons_token_(consumes<MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
         rho_token_(consumes<double>(cfg.getParameter<edm::InputTag>("rho"))),
-        version(cfg.getParameter<unsigned>("version"))
+        version(cfg.getParameter<unsigned>("version")),
+        debug(cfg.getParameter<bool>("debug"))
     {
         if(version == 1) {
             input_layer_ = cache_->getGraph().node(0).name();
@@ -618,7 +620,7 @@ public:
             hadronsOuterTensor_ = std::make_shared<tensorflow::Tensor>(tensorflow::DT_FLOAT, tensorflow::TensorShape{ 1,
                 dnn_inputs_2017_v2::number_of_outer_cell,dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs});
             } else {
-            throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
+                throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
         }
 
     }
@@ -682,6 +684,16 @@ private:
             return false;
     }
 
+    void isNaN (tensorflow::Tensor& inputs)
+    {
+        if(debug){
+            for(int k = 0; k < dnn_inputs_2017_v2::NumberOfOutputs; ++k) {
+                const float input = inputs.flat<float>()(k);
+                if(std::isnan(input))
+                    throw cms::Exception("DeepTauId") << "invalid input = " << input << ", input_index = " << k;
+            }
+        }
+    }
 private:
     tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                       edm::Handle<TauCollection> taus) override
@@ -793,12 +805,14 @@ private:
     }
 
 
-    tensorflow::Tensor createTauBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho)
+    void createTauBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho)
     {
         using namespace dnn_inputs_2017_v2;
         using namespace TauBlockInputs;
 
         tensorflow::Tensor& inputs = *tauBlockTensor_;
+        inputs.flat<float>().setZero();
+
         const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
 
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
@@ -826,24 +840,31 @@ private:
         get(tau_dxy_pca_x) = getValueNorm(tau.dxy_PCA().x(), -0.0241f, 0.0074f);
         get(tau_dxy_pca_y) = getValueNorm(tau.dxy_PCA().y(),0.0675f, 0.0128f);
         get(tau_dxy_pca_z) = getValueNorm(tau.dxy_PCA().z(), 0.7973f, 3.456f);
+
         const bool tau_dxy_valid = std::isnormal(tau.dxy()) && tau.dxy() > - 10 && std::isnormal(tau.dxy_error())
             && tau.dxy_error() > 0;
-        get(tau_dxy_valid) = tau_dxy_valid;
-        get(tau_dxy) = tau_dxy_valid ? getValueNorm(tau.dxy(), 0.0018f, 0.0085f) : 0.f;
-        get(tau_dxy_sig) = tau_dxy_valid ? getValueNorm(std::abs(tau.dxy())/tau.dxy_error(), 2.26f, 4.191f) : 0.f;
+        if(tau_dxy_valid){
+            get(tau_dxy_valid) = tau_dxy_valid;
+            get(tau_dxy) = getValueNorm(tau.dxy(), 0.0018f, 0.0085f);
+            get(tau_dxy_sig) = getValueNorm(std::abs(tau.dxy())/tau.dxy_error(), 2.26f, 4.191f);
+        }
         const bool tau_ip3d_valid = std::isnormal(tau.ip3d()) && tau.ip3d() > - 10 && std::isnormal(tau.ip3d_error())
             && tau.ip3d_error() > 0;
-        get(tau_ip3d_valid) = tau_ip3d_valid;
-        get(tau_ip3d) = tau_ip3d_valid ? getValueNorm(tau.ip3d(), 0.0026f, 0.0114f) : 0.f;
-        get(tau_ip3d_sig) = tau_ip3d_valid ? getValueNorm(std::abs(tau.ip3d()) / tau.ip3d_error(), 2.928f, 4.466f) : 0.f;
-
-        get(tau_dz) = leadChargedHadrCand ? getValueNorm(leadChargedHadrCand->dz(), 0.f, 0.0190f) : 0.f;
-        const bool tau_dz_sig_valid = leadChargedHadrCand && leadChargedHadrCand->hasTrackDetails() &&
-            std::isnormal(leadChargedHadrCand->dz()) && std::isnormal(leadChargedHadrCand->dzError()) && leadChargedHadrCand->dzError() > 0;
-        get(tau_dz_sig_valid) = tau_dz_sig_valid;
-        get(tau_dz_sig) = tau_dz_sig_valid ?
-            getValueNorm(std::abs(leadChargedHadrCand->dz()) / leadChargedHadrCand->dzError(), 4.717f, 11.78f) : 0.f;
-
+        if(tau_ip3d_valid){
+            get(tau_ip3d_valid) = tau_ip3d_valid;
+            get(tau_ip3d) = getValueNorm(tau.ip3d(), 0.0026f, 0.0114f);
+            get(tau_ip3d_sig) = getValueNorm(std::abs(tau.ip3d()) / tau.ip3d_error(), 2.928f, 4.466f);
+        }
+        if(leadChargedHadrCand){
+            get(tau_dz) = leadChargedHadrCand ? getValueNorm(leadChargedHadrCand->dz(), 0.f, 0.0190f) : 0.f;
+            const bool tau_dz_sig_valid = leadChargedHadrCand && leadChargedHadrCand->hasTrackDetails() &&
+                std::isnormal(leadChargedHadrCand->dz()) && std::isnormal(leadChargedHadrCand->dzError()) && leadChargedHadrCand->dzError() > 0;
+            if(tau_dz_sig_valid){
+                get(tau_dz_sig_valid) = tau_dz_sig_valid;
+                get(tau_dz_sig) = tau_dz_sig_valid ?
+                    getValueNorm(std::abs(leadChargedHadrCand->dz()) / leadChargedHadrCand->dzError(), 4.717f, 11.78f) : 0.f;
+            }
+        }
         get(tau_flightLength_x) = getValueNorm(tau.flightLength().x(), -0.0003f, 0.7362f);
         get(tau_flightLength_y) = getValueNorm(tau.flightLength().y(), -0.0009f, 0.7354f);
         get(tau_flightLength_z) = getValueNorm(tau.flightLength().z(), -0.0022f, 1.993f);
@@ -867,18 +888,13 @@ private:
         get(leadChargedCand_etaAtEcalEntrance_minus_tau_eta) =
             getValueNorm(tau.etaAtEcalEntranceLeadChargedCand() - tau.p4().eta(), 0.0042f, 0.0323f);
 
-        for(int k = 0; k < NumberOfOutputs; ++k) {
-            const float input = inputs.flat<float>()(k);
-            if(std::isnan(input))
-                throw cms::Exception("DeepTauId") << "invalid prediction = " << input << ", pred_index = " << k;
-        }
-        return inputs;
+        isNaN(inputs);
     }
 
     void createEgammaBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
-                                                 const pat::ElectronCollection& electrons,
-                                                 const pat::PackedCandidateCollection& pfCands,
-                                                 const CellGrid& grid, bool is_inner)
+                                 const pat::ElectronCollection& electrons,
+                                 const pat::PackedCandidateCollection& pfCands,
+                                 const CellGrid& grid, bool is_inner)
     {
         using namespace dnn_inputs_2017_v2;
         using namespace EgammaBlockInputs;
@@ -1063,9 +1079,10 @@ private:
                 }
             }
         }
+        isNaN(inputs);
     }
 
-    tensorflow::Tensor createMuonBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
+    void createMuonBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
                                              const pat::MuonCollection& muons,
                                              const pat::PackedCandidateCollection& pfCands,
                                              const CellGrid& grid, bool is_inner)
@@ -1200,10 +1217,10 @@ private:
                 }
             }
         }
-        return inputs;
+        isNaN(inputs);
     }
 
-    tensorflow::Tensor createHadronsBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
+    void createHadronsBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
                                                 const pat::PackedCandidateCollection& pfCands,
                                                 const CellGrid& grid, bool is_inner)
     {
@@ -1295,7 +1312,7 @@ private:
                 get(pfCand_nHad_hcalFraction) = getValue(pfCands.at(index_nH).hcalFraction());
             }
         }
-        return inputs;
+        isNaN(inputs);
     }
 
     template<typename dnn>
@@ -1618,6 +1635,7 @@ private:
     edm::EDGetTokenT<double> rho_token_;
     std::string input_layer_, output_layer_;
     const unsigned version;
+    const bool debug;
     std::shared_ptr<tensorflow::Tensor> tauBlockTensor_, eGammaInnerTensor_, eGammaOuterTensor_, muonInnerTensor_ ,
         muonOuterTensor_, hadronsInnerTensor_, hadronsOuterTensor_ ;
 };
