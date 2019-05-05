@@ -684,13 +684,13 @@ private:
             return false;
     }
 
-    void isNaN (tensorflow::Tensor& inputs)
+    static inline void checkForNaNs(tensorflow::Tensor& inputs, int n_inputs, std::string block_name, const bool debug)
     {
         if(debug){
-            for(int k = 0; k < dnn_inputs_2017_v2::NumberOfOutputs; ++k) {
+            for(int k = 0; k < n_inputs; ++k) {
                 const float input = inputs.flat<float>()(k);
                 if(std::isnan(input))
-                    throw cms::Exception("DeepTauId") << "invalid input = " << input << ", input_index = " << k;
+                    throw cms::Exception("DeepTauId") << "in the " << block_name << ", invalid input = " << input << ", input_index = " << k;
             }
         }
     }
@@ -856,13 +856,12 @@ private:
             get(tau_ip3d_sig) = getValueNorm(std::abs(tau.ip3d()) / tau.ip3d_error(), 2.928f, 4.466f);
         }
         if(leadChargedHadrCand){
-            get(tau_dz) = leadChargedHadrCand ? getValueNorm(leadChargedHadrCand->dz(), 0.f, 0.0190f) : 0.f;
-            const bool tau_dz_sig_valid = leadChargedHadrCand && leadChargedHadrCand->hasTrackDetails() &&
-                std::isnormal(leadChargedHadrCand->dz()) && std::isnormal(leadChargedHadrCand->dzError()) && leadChargedHadrCand->dzError() > 0;
+            get(tau_dz) = getValueNorm(leadChargedHadrCand->dz(), 0.f, 0.0190f);
+            const bool tau_dz_sig_valid = leadChargedHadrCand->hasTrackDetails() && std::isnormal(leadChargedHadrCand->dz())
+                && std::isnormal(leadChargedHadrCand->dzError()) && leadChargedHadrCand->dzError() > 0;
             if(tau_dz_sig_valid){
                 get(tau_dz_sig_valid) = tau_dz_sig_valid;
-                get(tau_dz_sig) = tau_dz_sig_valid ?
-                    getValueNorm(std::abs(leadChargedHadrCand->dz()) / leadChargedHadrCand->dzError(), 4.717f, 11.78f) : 0.f;
+                get(tau_dz_sig) = getValueNorm(std::abs(leadChargedHadrCand->dz()) / leadChargedHadrCand->dzError(), 4.717f, 11.78f);
             }
         }
         get(tau_flightLength_x) = getValueNorm(tau.flightLength().x(), -0.0003f, 0.7362f);
@@ -888,7 +887,7 @@ private:
         get(leadChargedCand_etaAtEcalEntrance_minus_tau_eta) =
             getValueNorm(tau.etaAtEcalEntranceLeadChargedCand() - tau.p4().eta(), 0.0042f, 0.0323f);
 
-        isNaN(inputs);
+        checkForNaNs(inputs, NumberOfInputs, "Tau block", debug);
     }
 
     void createEgammaBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
@@ -1079,13 +1078,13 @@ private:
                 }
             }
         }
-        isNaN(inputs);
+        checkForNaNs(inputs, NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, "Egamma block", debug);
     }
 
     void createMuonBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
-                                             const pat::MuonCollection& muons,
-                                             const pat::PackedCandidateCollection& pfCands,
-                                             const CellGrid& grid, bool is_inner)
+                               const pat::MuonCollection& muons,
+                               const pat::PackedCandidateCollection& pfCands,
+                               const CellGrid& grid, bool is_inner)
     {
         using namespace dnn_inputs_2017_v2;
         using namespace MuonBlockInputs;
@@ -1217,12 +1216,12 @@ private:
                 }
             }
         }
-        isNaN(inputs);
+        checkForNaNs(inputs, NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, "Muon block", debug);
     }
 
     void createHadronsBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
-                                                const pat::PackedCandidateCollection& pfCands,
-                                                const CellGrid& grid, bool is_inner)
+                                  const pat::PackedCandidateCollection& pfCands,
+                                  const CellGrid& grid, bool is_inner)
     {
         using namespace dnn_inputs_2017_v2;
         using namespace HadronBlockInputs;
@@ -1312,7 +1311,7 @@ private:
                 get(pfCand_nHad_hcalFraction) = getValue(pfCands.at(index_nH).hcalFraction());
             }
         }
-        isNaN(inputs);
+        checkForNaNs(inputs, NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, "Hadron block", debug);
     }
 
     template<typename dnn>
