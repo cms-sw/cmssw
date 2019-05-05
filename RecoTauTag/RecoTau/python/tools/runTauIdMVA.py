@@ -651,31 +651,31 @@ class TauIDEmbedder(object):
 
             workingPoints_ = {
                 "e": {
-                    "VVVLoose": 0.1950947,
-                    "VVLoose": 0.3743916,
-                    "VLoose": 0.6877663,
-                    "Loose": 0.8877130,
-                    "Medium": 0.9692497,
-                    "Tight": 0.9871012,
-                    "VTight": 0.9935400,
-                    "VVTight": 0.9964663,
+                    "VVVLoose": 0.0630386,
+                    "VVLoose": 0.1686942,
+                    "VLoose": 0.3628130,
+                    "Loose": 0.6815435,
+                    "Medium": 0.8847544,
+                    "Tight": 0.9675541,
+                    "VTight": 0.9859251,
+                    "VVTight": 0.9928449,
                 },
                 "mu": {
-                    "VLoose": 0.2817462,
-                    "Loose": 0.6823795,
-                    "Medium": 0.9315399,
-                    "Tight": 0.9627454,
+                    "VLoose": 0.1058354,
+                    "Loose": 0.2158633,
+                    "Medium": 0.5551894,
+                    "Tight": 0.8754835,
                 },
                 "jet": {
-                    "VVVLoose": 0.4356258,
-                    "VVLoose": 0.6066188,
-                    "VLoose": 0.7895795,
-                    "Loose": 0.8857221,
-                    "Medium": 0.9322081,
-                    "Tight": 0.9580242,
-                    "VTight": 0.9737815,
-                    "VVTight": 0.9840425,
-                }
+                    "VVVLoose": 0.2599605,
+                    "VVLoose": 0.4249705,
+                    "VLoose": 0.5983682,
+                    "Loose": 0.7848675,
+                    "Medium": 0.8834768,
+                    "Tight": 0.9308689,
+                    "VTight": 0.9573137,
+                    "VVTight": 0.9733927,
+                },
             }
             file_name = 'RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb'
             self.process.deepTau2017v2 = self.cms.EDProducer("DeepTauId",
@@ -687,7 +687,9 @@ class TauIDEmbedder(object):
                 rho                    = self.cms.InputTag('fixedGridRhoAll'),
                 graph_file             = self.cms.string(file_name),
                 mem_mapped             = self.cms.bool(False),
-                version                = self.cms.uint32(2)
+                version                = self.cms.uint32(2),
+                debug                  = self.cms.bool(False)
+
             )
 
             self.processDeepProducer('deepTau2017v2', tauIDSources, workingPoints_)
