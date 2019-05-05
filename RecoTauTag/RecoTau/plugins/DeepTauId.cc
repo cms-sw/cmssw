@@ -619,8 +619,8 @@ public:
                 dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::number_of_inner_cell, dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs});
             hadronsOuterTensor_ = std::make_shared<tensorflow::Tensor>(tensorflow::DT_FLOAT, tensorflow::TensorShape{ 1,
                 dnn_inputs_2017_v2::number_of_outer_cell,dnn_inputs_2017_v2::number_of_outer_cell, dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs});
-            } else {
-                throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
+        } else {
+            throw cms::Exception("DeepTauId") << "version " << version << " is not supported.";
         }
 
     }
