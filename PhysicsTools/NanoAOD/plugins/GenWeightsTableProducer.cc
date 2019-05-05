@@ -323,7 +323,6 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                 std::regex weightgroupmg26x("<weightgroup\\s+(?:name|type)=\"(.*)\"\\s+combine=\"(.*)\"\\s*>");
                 std::regex weightgroup("<weightgroup\\s+combine=\"(.*)\"\\s+(?:name|type)=\"(.*)\"\\s*>");
                 std::regex weightgroupRwgt("<weightgroup\\s+(?:name|type)=\"(.*)\"\\s*>");
-                std::regex endweight("</weight>");
                 std::regex endweightgroup("</weightgroup>");
                 std::regex scalewmg26x("<weight\\s+(?:.*\\s+)?id=\"(\\d+)\"\\s*(?:lhapdf=\\d+|dyn=\\s*-?\\d+)?\\s*((?:[mM][uU][rR]|renscfact)=\"(\\S+)\"\\s+(?:[mM][uU][Ff]|facscfact)=\"(\\S+)\")(\\s+.*)?</weight>");
                 std::regex scalew("<weight\\s+(?:.*\\s+)?id=\"(\\d+)\">\\s*(?:lhapdf=\\d+|dyn=\\s*-?\\d+)?\\s*((?:mu[rR]|renscfact)=(\\S+)\\s+(?:mu[Ff]|facscfact)=(\\S+)(\\s+.*)?)</weight>");
@@ -484,10 +483,9 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                         std::string rwgtID = groups.str(1);
                                         if (lheDebug) std::cout << "    >>> LHE reweighting weight: " << rwgtID << std::endl;
                                         if (std::find(lheReweighingIDs.begin(), lheReweighingIDs.end(), rwgtID) == lheReweighingIDs.end()) {
+                                            // we're only interested in the beggining of the block
                                             lheReweighingIDs.emplace_back(rwgtID);
                                         }
-                                    } else if (std::regex_search(lines[iLine], endweight)) {
-                                        // we're only interested in the begging of the block
                                     } else if (std::regex_search(lines[iLine], endweightgroup)) {
                                         if (lheDebug) std::cout << ">>> Looks like the end of a weight group" << std::endl;
                                         if (!missed_weightgroup){
