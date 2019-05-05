@@ -27,7 +27,7 @@ _pixelCommon = cms.VPSet(
     cms.PSet(type = cms.string('PixelDigiSimLinkedmDetSetVector'))
 )
 simSiPixelDigis = cms.EDAlias(
-    mix = _pixelCommon + [cms.PSet(type = cms.string('PixelFEDChanneledmNewDetSetVector'))]
+    mix = _pixelCommon
 ) 
 simSiStripDigis = cms.EDAlias(
     mix = cms.VPSet(
@@ -52,8 +52,8 @@ genPUProtons = cms.EDAlias(
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(simCastorDigis, mix = None)
 
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(simSiPixelDigis, mix = _pixelCommon) 
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(simSiPixelDigis, mix = _pixelCommon + [cms.PSet(type = cms.string('PixelFEDChanneledmNewDetSetVector'))])
 
 # no castor,pixel,strip digis in fastsim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
