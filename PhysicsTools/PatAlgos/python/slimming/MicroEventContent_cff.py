@@ -82,6 +82,8 @@ MicroEventContent = cms.PSet(
         'keep recoForwardProtons_ctppsProtons_*_*',
 	# displacedStandAlone muon collection for EXO
 	'keep recoTracks_displacedStandAloneMuons__*',
+        # L1 prefiring weights
+        'keep *_prefiringweight_*_*',
     )
 )
 
