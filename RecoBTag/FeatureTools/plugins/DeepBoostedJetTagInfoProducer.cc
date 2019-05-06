@@ -302,9 +302,14 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(
         puppiP4 *= puppi_wgt_cache.at(cand.key());
       }
 
-      fts.fill("pfcand_hcalFrac", (packed_cand->isIsolatedChargedHadron())
-                                      ? packed_cand->rawHcalFraction()
-                                      : packed_cand->hcalFraction());
+      float hcal_fraction = 0.;
+      if (packed_cand->pdgId() == 1 || packed_cand->pdgId() == 130) {
+        hcal_fraction = packed_cand->hcalFraction();
+      } else if (packed_cand->isIsolatedChargedHadron()) {
+        hcal_fraction = packed_cand->rawHcalFraction();
+      }
+
+      fts.fill("pfcand_hcalFrac", hcal_fraction);
       fts.fill("pfcand_VTX_ass", packed_cand->pvAssociationQuality());
       fts.fill("pfcand_lostInnerHits", packed_cand->lostInnerHits());
       fts.fill("pfcand_quality", packed_cand->bestTrack()
