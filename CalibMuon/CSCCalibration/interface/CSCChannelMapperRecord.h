@@ -3,6 +3,8 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class CSCChannelMapperRecord : public edm::eventsetup::EventSetupRecordImplementation<CSCChannelMapperRecord> {};
+class CSCChannelMapperRecord
+    : public edm::eventsetup::EventSetupRecordImplementation<
+          CSCChannelMapperRecord> {};
 
 #endif

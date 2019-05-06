@@ -13,10 +13,8 @@
 
 class TrajectoryStateOnSurface;
 
-class KarimakiAlignmentDerivatives 
-{
+class KarimakiAlignmentDerivatives {
 public:
-  
   /// Returns 6x2 jacobian matrix of derivatives of residuals in x and y
   /// with respect to rigid body aligment parameters:
   ///
@@ -27,8 +25,6 @@ public:
   /// | dr_x/db  dr_y/db |
   /// \ dr_x/dg  dr_y/dg /
   AlgebraicMatrix operator()(const TrajectoryStateOnSurface &tsos) const;
-  
 };
 
 #endif
-
