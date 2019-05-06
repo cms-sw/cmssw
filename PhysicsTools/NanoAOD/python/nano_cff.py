@@ -94,7 +94,7 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016: # to be updated wh
 
 genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
     genEvent = cms.InputTag("generator"),
-    lheInfo = cms.InputTag("externalLHEProducer"),
+    lheInfo = cms.VInputTag(cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
     preferredPDFs = cms.VPSet( # see https://lhapdf.hepforge.org/pdfsets.html
         cms.PSet( name = cms.string("PDF4LHC15_nnlo_30_pdfas"), lhaid = cms.uint32(91400) ),
         cms.PSet( name = cms.string("NNPDF31_nnlo_hessian_pdfas"), lhaid = cms.uint32(306000) ),
@@ -110,7 +110,7 @@ genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
     debug = cms.untracked.bool(False),
 )
 lheInfoTable = cms.EDProducer("LHETablesProducer",
-    lheInfo = cms.InputTag("externalLHEProducer"),
+    lheInfo = cms.VInputTag(cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
     precision = cms.int32(14),
     storeLHEParticles = cms.bool(True) 
 )
