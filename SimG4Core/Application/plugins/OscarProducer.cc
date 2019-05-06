@@ -157,9 +157,9 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 {
   StaticRandomEngineSetUnset random(e.streamID());
 
-  std::vector<SensitiveTkDetector*>& sTk = 
+  auto& sTk = 
     m_runManager->sensTkDetectors();
-  std::vector<SensitiveCaloDetector*>& sCalo =
+  auto& sCalo =
     m_runManager->sensCaloDetectors();
 
   try { m_runManager->produce(e, es); }

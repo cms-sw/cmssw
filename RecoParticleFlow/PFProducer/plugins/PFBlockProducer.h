@@ -1,34 +1,12 @@
 #ifndef RecoParticleFlow_PFProducer_PFBlockProducer_h_
 #define RecoParticleFlow_PFProducer_PFBlockProducer_h_
 
-// system include files
-#include <memory>
-#include <string>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
-
-#include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h" 
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
-#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFV0.h"
-
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 
 /**\class PFBlockProducer 
 \brief Producer for particle flow blocks

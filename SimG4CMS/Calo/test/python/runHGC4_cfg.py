@@ -19,7 +19,7 @@ process.GlobalTag.globaltag = autoCond['phase2_realistic']
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('HGCalGeom')
     process.MessageLogger.categories.append('HGCSim')
-    process.MessageLogger.categories.append('SimG4CoreGeometry')
+#   process.MessageLogger.categories.append('SimG4CoreGeometry')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -40,8 +40,10 @@ process.source = cms.Source("EmptySource",
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(13),
-        MinEta = cms.double(2.95),
-        MaxEta = cms.double(3.01),
+#       MinEta = cms.double(2.95),
+#       MaxEta = cms.double(3.01),
+        MinEta = cms.double(1.69),
+        MaxEta = cms.double(2.32),
         MinPhi = cms.double(-3.1415926),
         MaxPhi = cms.double(-1.5707963),
         MinE   = cms.double(100.00),

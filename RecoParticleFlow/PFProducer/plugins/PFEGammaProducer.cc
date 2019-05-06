@@ -187,7 +187,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     // make a copy of the link data, which will be edited.
     //PFBlock::LinkData linkData =  block.linkData();
     
-    pfeg_->RunPFEG(globalCache(),blockref);
+    pfeg_->buildAndRefineEGObjects(globalCache(),blockref);
 
     if( !pfeg_->getCandidates().empty() ) {
       LOGDRESSED("PFEGammaProducer")

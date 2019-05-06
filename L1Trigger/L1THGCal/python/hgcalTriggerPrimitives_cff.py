@@ -9,7 +9,8 @@ from L1Trigger.L1THGCal.hgcalTowerMap_cff import *
 from L1Trigger.L1THGCal.hgcalTower_cff import *
 
 
-hgcalTriggerPrimitives = cms.Sequence(hgcalVFE*hgcalConcentrator*hgcalBackEndLayer1*hgcalBackEndLayer2*hgcalTowerMap*hgcalTower)
+hgcalTriggerPrimitivesTask = cms.Task(hgcalVFE, hgcalConcentrator, hgcalBackEndLayer1, hgcalBackEndLayer2, hgcalTowerMap, hgcalTower)
+hgcalTriggerPrimitives = cms.Sequence(hgcalTriggerPrimitivesTask)
 
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
@@ -23,5 +24,5 @@ from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCal
 def _fakeHGCalDigiAlias(process):
 	from EventFilter.HGCalRawToDigi.HGCDigiConverter_cfi import HGCDigiConverter as _HGCDigiConverter
 	process.simHGCalUnsuppressedDigis = _HGCDigiConverter.clone()
-	process.hgcalTriggerPrimitives.insert(0,process.simHGCalUnsuppressedDigis)
+	process.hgcalTriggerPrimitivesTask.add(process.simHGCalUnsuppressedDigis)
 doFakeHGCalDigiAlias = convertHGCalDigisSim.makeProcessModifier(_fakeHGCalDigiAlias)

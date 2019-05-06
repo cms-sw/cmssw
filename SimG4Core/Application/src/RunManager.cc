@@ -148,7 +148,6 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
 
   m_physicsList.reset(nullptr);
   m_prodCuts.reset(nullptr);
-  m_attach = nullptr;
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
@@ -237,15 +236,16 @@ void RunManager::initG4(const edm::EventSetup & es)
   // we need the track manager now
   m_trackManager = std::unique_ptr<SimTrackManager>(new SimTrackManager);
 
-  // attach sensitive detector
-  m_attach = new AttachSD;
+  {
+    // attach sensitive detector
   
-  std::pair< std::vector<SensitiveTkDetector*>,
-    std::vector<SensitiveCaloDetector*> > sensDets = 
-    m_attach->create((*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
+    AttachSD attach;
+    auto sensDets = 
+      attach.create((*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
       
-  m_sensTkDets.swap(sensDets.first);
-  m_sensCaloDets.swap(sensDets.second);
+    m_sensTkDets.swap(sensDets.first);
+    m_sensCaloDets.swap(sensDets.second);
+  }
      
   edm::LogInfo("SimG4CoreApplication") 
     << " RunManager: Sensitive Detector "

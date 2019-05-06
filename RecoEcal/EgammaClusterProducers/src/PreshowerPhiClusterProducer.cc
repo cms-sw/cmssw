@@ -95,10 +95,6 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
   // create new collection of corrected super clusters
   auto superclusters_p = std::make_unique<reco::SuperClusterCollection>();
   
-  CaloSubdetectorTopology * topology_p=nullptr;
-  if (geometry_p)
-    topology_p  = new EcalPreshowerTopology(geoHandle);
-  
   // fetch the product (pSuperClusters)
   evt.getByToken(endcapSClusterToken_, pSuperClusters);   
   const reco::SuperClusterCollection* SClusts = pSuperClusters.product();
@@ -197,13 +193,13 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
 	  //cout<<"starting cluster : "<<maxDeltaPhi<<" "<<minDeltaPhi<<" "<<esPhiClusterDeltaEta_<<endl;
 	  //cout<<"do plane 1 === "<<strip1.zside()<<" "<<strip1.plane()<<" "<<strip1.six()<<" "<<strip1.siy()<<" "<<strip1.strip()<<endl;
 	  // Get a vector of ES clusters (found by the PreshSeeded algorithm) associated with a given EE basic cluster.           
-	  reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&rechits_map,geometry_p,topology_p,esPhiClusterDeltaEta_,minDeltaPhi,maxDeltaPhi);   
+	  reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&rechits_map,geometry_p,esPhiClusterDeltaEta_,minDeltaPhi,maxDeltaPhi);
 	  cl1.setBCRef(*bc_iter);
 	  clusters1.push_back(cl1);
 	  e1 += cl1.energy();       
 	  
 	  //cout<<"do plane 2 === "<<strip2.zside()<<" "<<strip2.plane()<<" "<<strip2.six()<<" "<<strip2.siy()<<" "<<strip2.strip()<<endl;
-	  reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,geometry_p,topology_p,esPhiClusterDeltaEta_,minDeltaPhi,maxDeltaPhi); 
+	  reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,geometry_p,esPhiClusterDeltaEta_,minDeltaPhi,maxDeltaPhi);
 	  cl2.setBCRef(*bc_iter);
 	  clusters2.push_back(cl2);
 	  e2 += cl2.energy();
@@ -272,8 +268,6 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
   superclusters_p->assign(new_SC.begin(), new_SC.end());
   evt.put(std::move(superclusters_p), assocSClusterCollection_);
   LogTrace("EcalClusters") << "Corrected SClusters added to the event" ;
-  
-  if (topology_p) delete topology_p;
 }
 
 void PreshowerPhiClusterProducer::set(const edm::EventSetup& es) {

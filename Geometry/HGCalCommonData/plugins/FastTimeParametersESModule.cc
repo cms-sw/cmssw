@@ -22,12 +22,14 @@ class FastTimeParametersESModule : public edm::ESProducer {
   ReturnType produce(const IdealGeometryRecord&);
 
  private:
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
   std::vector<std::string> name_;
   std::vector<int> type_;
 };
 
-FastTimeParametersESModule::FastTimeParametersESModule(
-    const edm::ParameterSet& iC) {
+FastTimeParametersESModule::FastTimeParametersESModule(const edm::ParameterSet& iC):
+  cpvToken_{setWhatProduced(this).consumes<DDCompactView>(edm::ESInputTag{})}
+{
   name_ = iC.getUntrackedParameter<std::vector<std::string> >("Names");
   type_ = iC.getUntrackedParameter<std::vector<int> >("Types");
 #ifdef EDM_ML_DEBUG
@@ -37,7 +39,6 @@ FastTimeParametersESModule::FastTimeParametersESModule(
     edm::LogVerbatim("HGCalGeom") 
       << " [" << k << "] " << name_[k] << ":" << type_[k];
 #endif
-  setWhatProduced(this);
 }
 
 FastTimeParametersESModule::~FastTimeParametersESModule() {}
@@ -46,13 +47,12 @@ FastTimeParametersESModule::ReturnType FastTimeParametersESModule::produce(
     const IdealGeometryRecord& iRecord) {
   edm::LogVerbatim("HGCalGeom") 
     << "FastTimeParametersESModule::produce(const IdealGeometryRecord& iRecord)";
-  edm::ESTransientHandle<DDCompactView> cpv;
-  iRecord.get(cpv);
+  edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvToken_);
 
   auto ptp = std::make_unique<FastTimeParameters>();
   FastTimeParametersFromDD builder;
   for (unsigned int k = 0; k < name_.size(); ++k)
-    builder.build(&(*cpv), *ptp, name_[k], type_[k]);
+    builder.build(cpv.product(), *ptp, name_[k], type_[k]);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") 

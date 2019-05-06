@@ -5,8 +5,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <iostream>
-
 //#define LOCAL_DEBUG
 
 ME0NumberingScheme::ME0NumberingScheme( const MuonDDDConstants& muonConstants ) {
@@ -27,55 +25,32 @@ void ME0NumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
   theNEtaPart     = muonConstants.getValue("m0_nroll");
 
   // Debug using LOCAL_DEBUG
-  #ifdef LOCAL_DEBUG
-    std::cout << "Initialize ME0NumberingScheme" <<std::endl;
-    std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
-    std::cout << "theLayerLevel "  << theLayerLevel   <<std::endl;
-    std::cout << "theSectorLevel " << theSectorLevel <<std::endl;
-    std::cout << "theRollLevel "   << theRollLevel   <<std::endl;
-    std::cout << "theNEtaPart  "   << theNEtaPart    <<std::endl;
-  #endif
+#ifdef LOCAL_DEBUG
+  edm::LogVerbatim("ME0NumberingScheme") 
+    << "Initialize ME0NumberingScheme" 
+    << "\ntheRegionLevel " << theRegionLevel
+    << "\ntheLayerLevel "  << theLayerLevel 
+    << "\ntheSectorLevel " << theSectorLevel
+    << "\ntheRollLevel "   << theRollLevel
+    << "\ntheNEtaPart  "   << theNEtaPart;
+#endif
   // -----------------------
-
-  // Debug using LogDebug
-  std::stringstream DebugStringStream;
-  DebugStringStream << "Initialize ME0NumberingScheme" <<std::endl;
-  DebugStringStream << "theRegionLevel " << theRegionLevel <<std::endl;
-  DebugStringStream << "theLayerLevel "  << theLayerLevel   <<std::endl;
-  DebugStringStream << "theSectorLevel " << theSectorLevel <<std::endl;
-  DebugStringStream << "theRollLevel "   << theRollLevel   <<std::endl;
-  DebugStringStream << "theNEtaPart  "   << theNEtaPart    <<std::endl;
-  std::string DebugString = DebugStringStream.str();
-  edm::LogVerbatim("ME0NumberingScheme")<<DebugString;
-  // --------------------
 }
 
 int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
-    edm::LogVerbatim("ME0NumberingScheme")<<"ME0NumberingScheme::baseNumberToUnitNumber BEGIN "<<std::endl;
+    edm::LogVerbatim("ME0NumberingScheme")
+      << "ME0NumberingScheme::baseNumberToUnitNumber BEGIN ";
   // Debug using LOCAL_DEBUG
-  #ifdef LOCAL_DEBUG
-    std::cout << "ME0Numbering "<<num.getLevels()<<std::endl;
+#ifdef LOCAL_DEBUG
+    edm::LogVerbatim("ME0NumberingScheme") << "ME0Numbering "<< num.getLevels();
     for (int level=1;level<=num.getLevels();level++) {
-      std::cout << "level "<<level << " " << num.getSuperNo(level)
-  	      << " " << num.getBaseNo(level) << std::endl;
+      edm::LogVerbatim("ME0NumberingScheme") 
+	<< "level "<<level << " " << num.getSuperNo(level)
+	<< " " << num.getBaseNo(level);
     }
-  #endif
+#endif
   // -----------------------
-
-  // Debug using LogDebug
-  std::stringstream DebugStringStream;
-  DebugStringStream << "ME0Numbering :: number of levels = "<<num.getLevels()<<std::endl;
-  DebugStringStream << "Level \t SuperNo \t BaseNo"<<std::endl;
-  for (int level=1;level<=num.getLevels();level++) {
-    DebugStringStream <<level << " \t " << num.getSuperNo(level)
-		      << " \t " << num.getBaseNo(level) << std::endl;
-  }
-  std::string DebugString = DebugStringStream.str();
-  edm::LogVerbatim("ME0NumberingScheme")<<DebugString;
-  // -----------------------
-
-
 
   int maxLevel = theRollLevel;
   if (num.getLevels()!=maxLevel) {
@@ -100,35 +75,21 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   // collect all info
   
   // Debug using LOCAL_DEBUG
-  #ifdef LOCAL_DEBUG
-    std::cout << "ME0NumberingScheme: Region " << region 
-	      << " Layer " << layer
-	      << " Chamber " << chamber << " Roll " << roll << std::endl;
-  #endif
+#ifdef LOCAL_DEBUG
+  edm::LogVerbatim("ME0NumberingScheme") 
+    << "ME0NumberingScheme: Region " << region << " Layer " << layer
+    << " Chamber " << chamber << " Roll " << roll;
+#endif
   // -----------------------
-
-  // Debug using LogDebug
-  edm::LogVerbatim("ME0NumberingScheme") << "ME0NumberingScheme: Region " << region 
-					 << " Layer " << layer
-					 << " Chamber " << chamber << " Roll " << roll << std::endl;
-  // -----------------------                                  
 
   // Build the actual numbering
   ME0DetId id(region,layer,chamber,roll);
   
   // Debug using LOCAL_DEBUG  
-  #ifdef LOCAL_DEBUG
-    std::cout << " DetId " << id << std::endl;
-  #endif
+#ifdef LOCAL_DEBUG
+  edm::LogVerbatim("ME0NumberingScheme") << " DetId " << id;
+#endif
   // ---------------------
-    
-  // Debug using LogDebug
-  edm::LogVerbatim("ME0NumberingScheme")<< " DetId " << id << std::endl;
-  // -----------------------                                    
     
   return id.rawId();
 }
-
-
-
-

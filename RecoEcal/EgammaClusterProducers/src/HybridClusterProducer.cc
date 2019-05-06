@@ -124,7 +124,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   es.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
  
   geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  topology = std::make_unique<EcalBarrelTopology>(geoHandle);
+  topology = std::make_unique<EcalBarrelTopology>(*geoHandle);
 
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;

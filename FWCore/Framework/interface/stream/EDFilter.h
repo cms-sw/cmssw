@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     EDFilter
-// 
+//
 /**\class edm::stream::EDFilter EDFilter.h "FWCore/Framework/interface/stream/EDFilter.h"
 
  Description: Base class for stream based EDFilters
@@ -34,61 +34,47 @@ namespace edm {
   class WaitingTaskWithArenaHolder;
 
   namespace stream {
-    template< typename... T>
-    class EDFilter : public AbilityToImplementor<T>::Type...,
-                       public EDFilterBase
-    {
-      
+    template <typename... T>
+    class EDFilter : public AbilityToImplementor<T>::Type..., public EDFilterBase {
     public:
       typedef CacheContexts<T...> CacheTypes;
-      
+
       typedef typename CacheTypes::GlobalCache GlobalCache;
       typedef typename CacheTypes::RunCache RunCache;
       typedef typename CacheTypes::LuminosityBlockCache LuminosityBlockCache;
-      typedef RunContextT<RunCache,GlobalCache> RunContext;
-      typedef LuminosityBlockContextT<LuminosityBlockCache,
-                                     RunCache,
-                                     GlobalCache> LuminosityBlockContext;
+      typedef RunContextT<RunCache, GlobalCache> RunContext;
+      typedef LuminosityBlockContextT<LuminosityBlockCache, RunCache, GlobalCache> LuminosityBlockContext;
       typedef typename CacheTypes::RunSummaryCache RunSummaryCache;
       typedef typename CacheTypes::LuminosityBlockSummaryCache LuminosityBlockSummaryCache;
 
       typedef AbilityChecker<T...> HasAbility;
-      
-      
+
       EDFilter() = default;
       //virtual ~EDFilter();
-      
+
       // ---------- const member functions ---------------------
-      
+
       // ---------- static member functions --------------------
-      
+
       // ---------- member functions ---------------------------
 
-      bool hasAbilityToProduceInRuns() const final {
-        return HasAbilityToProduceInRuns<T...>::value;
-      }
+      bool hasAbilityToProduceInRuns() const final { return HasAbilityToProduceInRuns<T...>::value; }
 
-      bool hasAbilityToProduceInLumis() const final {
-        return HasAbilityToProduceInLumis<T...>::value;
-      }
+      bool hasAbilityToProduceInLumis() const final { return HasAbilityToProduceInLumis<T...>::value; }
 
     private:
-      EDFilter(const EDFilter&) = delete; // stop default
-      
-      const EDFilter& operator=(const EDFilter&) = delete; // stop default
+      EDFilter(const EDFilter&) = delete;  // stop default
 
-      void doAcquire_(Event const& ev,
-                      EventSetup const& es,
-                      WaitingTaskWithArenaHolder& holder) override final {
+      const EDFilter& operator=(const EDFilter&) = delete;  // stop default
+
+      void doAcquire_(Event const& ev, EventSetup const& es, WaitingTaskWithArenaHolder& holder) final {
         doAcquireIfNeeded(this, ev, es, holder);
       }
 
       // ---------- member data --------------------------------
-      
     };
-    
-  }
-}
 
+  }  // namespace stream
+}  // namespace edm
 
 #endif

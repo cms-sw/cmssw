@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include<memory>
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/test/DummyRecord.h"
@@ -35,26 +35,20 @@ namespace edm::eventsetup::test {
     WorkingDummyProxy(const DummyData* iDummy) : data_(iDummy) {}
 
   protected:
-    const value_type* make(const record_type&, const DataKey&) {
-      return data_ ;
-    }
-    void invalidateCache() {
-    }
+    const value_type* make(const record_type&, const DataKey&) { return data_; }
+    void invalidateCache() {}
 
   private:
     const DummyData* data_;
   };
 
-
   class DummyProxyProvider : public edm::eventsetup::DataProxyProvider {
   public:
-    DummyProxyProvider(const DummyData& iData=DummyData()): dummy_(iData) {
-      usingRecord<DummyRecord>();
-    }
-    void newInterval(const eventsetup::EventSetupRecordKey& /*iRecordType*/,
-                     const ValidityInterval& /*iInterval*/) {
+    DummyProxyProvider(const DummyData& iData = DummyData()) : dummy_(iData) { usingRecord<DummyRecord>(); }
+    void newInterval(const eventsetup::EventSetupRecordKey& /*iRecordType*/, const ValidityInterval& /*iInterval*/) {
       //do nothing
     }
+
   protected:
     void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& iProxies) {
       std::shared_ptr<WorkingDummyProxy> pProxy = std::make_shared<WorkingDummyProxy>(&dummy_);
@@ -65,5 +59,5 @@ namespace edm::eventsetup::test {
     DummyData dummy_;
   };
 
-}
+}  // namespace edm::eventsetup::test
 #endif

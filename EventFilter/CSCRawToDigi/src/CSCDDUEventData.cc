@@ -172,7 +172,6 @@ void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner)
      std::cout << i << " " << std::hex << buf[4*i+3] << " " << buf[4*i+2] << " " 
 						<< buf[4*i+1] << " " << buf[4*i] << std::endl;
     }
-  //std::cout << "DDU Size: " << std::dec << theDDUHeader.sizeInWords() << std::endl;
 
   theDDUHeader.setFromBuffer(buf);
   
@@ -196,10 +195,6 @@ void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner)
    {
      theFormatVersion = 2013;
    }
-   
-  // std::cout << "Format Version: " << theFormatVersion << std::endl;
-  //std::cout << "sandrik dduID =" << theDDUHeader.source_id() << std::endl; 
-  //int i=-1;
 
  
   // we really don't want to copy CSCEventData's while filling the vec
@@ -246,7 +241,6 @@ void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner)
 	{
 	  LogTrace ("CSCDDUEventData|CSCRawToDigi") << "size of vector of cscData = " << theData.size();
 	}
-      // std::cout << std::dec << theDDUTrailer.sizeInWords() << std::endl;
       // decode ddu tail
       theDDUTrailer.setFromBuffer(inputBuf+dduBufSize);
       // memcpy(&theDDUTrailer, dduBlock+(dduBufSize-theDDUTrailer.sizeInWords())*2, theDDUTrailer.sizeInWords()*2);
@@ -277,7 +271,6 @@ void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner)
 
     }
     theSizeInWords = dduBufSize+12;
-    buf=inputBuf+dduBufSize;
 	
   } else {
 
@@ -326,7 +319,6 @@ void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner)
     theSizeInWords = buf - inputBuf;
   }
 
-//std::cout << "DDUevData Size: " << theSizeInWords << " BUFlast: " << std::hex << inputBuf0[theSizeInWords-4] << //std::endl;
 /// Pack Trailer 0 (to access TTS)
 theDDUTrailer0 = inputBuf0[theSizeInWords-4];
 }

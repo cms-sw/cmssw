@@ -125,7 +125,6 @@ private:
   //---------------Dynamic Variables---------------------
   
   //MonitorElement
-  DQMStore* dbe;
 
   edm::ParameterSet iConfig;  
   //The Data

@@ -29,8 +29,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -51,19 +49,20 @@ class FastTimeNumberingTester : public edm::one::EDAnalyzer<> {
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+private:
+  edm::ESGetToken<FastTimeDDDConstants, IdealGeometryRecord> token_;
 };
 
-FastTimeNumberingTester::FastTimeNumberingTester(const edm::ParameterSet&) {}
+FastTimeNumberingTester::FastTimeNumberingTester(const edm::ParameterSet&):
+  token_{esConsumes<FastTimeDDDConstants, IdealGeometryRecord>(edm::ESInputTag{})}
+ {}
 
 FastTimeNumberingTester::~FastTimeNumberingTester() {}
 
 // ------------ method called to produce the data  ------------
 void FastTimeNumberingTester::analyze(const edm::Event& iEvent,
                                       const edm::EventSetup& iSetup) {
-  edm::ESHandle<FastTimeDDDConstants> pFTNDC;
-
-  iSetup.get<IdealGeometryRecord>().get(pFTNDC);
-  const FastTimeDDDConstants fTnDC(*pFTNDC);
+  const FastTimeDDDConstants& fTnDC = iSetup.getData(token_);
   std::cout << "Fast timing device with " << fTnDC.getCells(1) << ":"
             << fTnDC.getCells(2) << " cells"
             << " for barrel and endcap\n";

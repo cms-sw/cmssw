@@ -6,30 +6,24 @@
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 
-#include <iostream>
-
-using namespace std;
-using namespace cms;
-using namespace edm;
-
-class DDTestMuonNumbering : public one::EDAnalyzer<> {
+class DDTestMuonNumbering : public edm::one::EDAnalyzer<> {
 public:
-  explicit DDTestMuonNumbering(const ParameterSet&){}
+  explicit DDTestMuonNumbering(const edm::ParameterSet&){}
 
   void beginJob() override {}
-  void analyze(Event const& iEvent, EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
 };
 
 void
-DDTestMuonNumbering::analyze(const Event&, const EventSetup& iEventSetup)
+DDTestMuonNumbering::analyze(const edm::Event&, const edm::EventSetup& iEventSetup)
 {
-  LogVerbatim("Geometry") << "DDTestMuonNumbering::analyze";
-  ESTransientHandle<MuonNumbering> numbering;
+  edm::LogVerbatim("Geometry") << "DDTestMuonNumbering::analyze";
+  edm::ESTransientHandle<cms::MuonNumbering> numbering;
   iEventSetup.get<MuonNumberingRecord>().get(numbering);
 
-  LogVerbatim("Geometry") << "MuonNumbering size: " << numbering->values().size();
-  LogVerbatim("Geometry").log([&numbering](auto& log) {
+  edm::LogVerbatim("Geometry") << "MuonNumbering size: " << numbering->values().size();
+  edm::LogVerbatim("Geometry").log([&numbering](auto& log) {
       for(const auto& i: numbering->values()) {
 	log << " " << i.first << " = " << i.second;
 	log << '\n';

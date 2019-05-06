@@ -4,209 +4,223 @@
 //
 //--------------------------------------------
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <map>
 #include <memory>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
 //
 //
 #include "DataMixingSiStripWorker.h"
 
 using namespace std;
 
-namespace edm
+namespace edm {
+
+// Virtual constructor
+
+DataMixingSiStripWorker::DataMixingSiStripWorker() {}
+
+// Constructor
+DataMixingSiStripWorker::DataMixingSiStripWorker(const edm::ParameterSet &ps,
+                                                 edm::ConsumesCollector &&iC)
+    : label_(ps.getParameter<std::string>("Label"))
+
 {
 
-  // Virtual constructor
+  // get the subdetector names
+  //    this->getSubdetectorNames();  //something like this may be useful to
+  //    check what we are supposed to do...
 
-  DataMixingSiStripWorker::DataMixingSiStripWorker() { }
+  // declare the products to produce
 
-  // Constructor 
-  DataMixingSiStripWorker::DataMixingSiStripWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
-							    label_(ps.getParameter<std::string>("Label"))
+  SistripLabelSig_ = ps.getParameter<edm::InputTag>("SistripLabelSig");
+  SiStripPileInputTag_ = ps.getParameter<edm::InputTag>("SiStripPileInputTag");
 
-  {                                                         
+  SiStripDigiCollectionDM_ =
+      ps.getParameter<std::string>("SiStripDigiCollectionDM");
 
-    // get the subdetector names
-    //    this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
+  SiStripDigiToken_ =
+      iC.consumes<edm::DetSetVector<SiStripDigi>>(SistripLabelSig_);
+  SiStripDigiPToken_ =
+      iC.consumes<edm::DetSetVector<SiStripDigi>>(SiStripPileInputTag_);
 
-    // declare the products to produce
+  // clear local storage for this event
+  SiHitStorage_.clear();
+}
 
-    SistripLabelSig_   = ps.getParameter<edm::InputTag>("SistripLabelSig");
-    SiStripPileInputTag_ = ps.getParameter<edm::InputTag>("SiStripPileInputTag");
+// Virtual destructor needed.
+DataMixingSiStripWorker::~DataMixingSiStripWorker() {}
 
-    SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
+void DataMixingSiStripWorker::addSiStripSignals(const edm::Event &e) {
+  // fill in maps of hits
 
-    SiStripDigiToken_ = iC.consumes<edm::DetSetVector<SiStripDigi> >(SistripLabelSig_);
-    SiStripDigiPToken_ = iC.consumes<edm::DetSetVector<SiStripDigi> >(SiStripPileInputTag_);
+  Handle<edm::DetSetVector<SiStripDigi>> input;
 
+  if (e.getByToken(SiStripDigiToken_, input)) {
+    OneDetectorMap LocalMap;
 
-
-    // clear local storage for this event                                                                     
-    SiHitStorage_.clear();
-
-  }
-	       
-
-  // Virtual destructor needed.
-  DataMixingSiStripWorker::~DataMixingSiStripWorker() { 
-  }  
-
-
-
-  void DataMixingSiStripWorker::addSiStripSignals(const edm::Event &e) { 
-    // fill in maps of hits
-
-    Handle< edm::DetSetVector<SiStripDigi> >  input;
-
-    if( e.getByToken(SiStripDigiToken_,input) ) {
-      OneDetectorMap LocalMap;
-
-      //loop on all detsets (detectorIDs) inside the input collection
-      edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input->begin();
-      for (; DSViter!=input->end();DSViter++){
+    // loop on all detsets (detectorIDs) inside the input collection
+    edm::DetSetVector<SiStripDigi>::const_iterator DSViter = input->begin();
+    for (; DSViter != input->end(); DSViter++) {
 
 #ifdef DEBUG
-	LogDebug("DataMixingSiStripWorker")  << "Processing DetID " << DSViter->id;
+      LogDebug("DataMixingSiStripWorker") << "Processing DetID " << DSViter->id;
 #endif
 
-	LocalMap.clear();
-	LocalMap.reserve((DSViter->data).size());
-	LocalMap.insert(LocalMap.end(),(DSViter->data).begin(),(DSViter->data).end());	
-	
-	SiHitStorage_.insert( SiGlobalIndex::value_type( DSViter->id, LocalMap ) );
-      }
- 
+      LocalMap.clear();
+      LocalMap.reserve((DSViter->data).size());
+      LocalMap.insert(LocalMap.end(), (DSViter->data).begin(),
+                      (DSViter->data).end());
+
+      SiHitStorage_.insert(SiGlobalIndex::value_type(DSViter->id, LocalMap));
     }
-  } // end of addSiStripSignals
+  }
+} // end of addSiStripSignals
 
+void DataMixingSiStripWorker::addSiStripPileups(
+    const int bcr, const EventPrincipal *ep, unsigned int eventNr,
+    ModuleCallingContext const *mcc) {
+  LogDebug("DataMixingSiStripWorker")
+      << "\n===============> adding pileups from event  " << ep->id()
+      << " for bunchcrossing " << bcr;
 
+  // fill in maps of hits; same code as addSignals, except now applied to the
+  // pileup events
 
-  void DataMixingSiStripWorker::addSiStripPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,
-                                                  ModuleCallingContext const* mcc) {
-    LogDebug("DataMixingSiStripWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
+  std::shared_ptr<Wrapper<edm::DetSetVector<SiStripDigi>> const> inputPTR =
+      getProductByTag<edm::DetSetVector<SiStripDigi>>(*ep, SiStripPileInputTag_,
+                                                      mcc);
 
-    // fill in maps of hits; same code as addSignals, except now applied to the pileup events
+  if (inputPTR) {
 
-    std::shared_ptr<Wrapper<edm::DetSetVector<SiStripDigi> >  const> inputPTR =
-      getProductByTag<edm::DetSetVector<SiStripDigi> >(*ep, SiStripPileInputTag_, mcc);
+    const edm::DetSetVector<SiStripDigi> *input =
+        const_cast<edm::DetSetVector<SiStripDigi> *>(inputPTR->product());
 
-    if(inputPTR ) {
+    // Handle< edm::DetSetVector<SiStripDigi> >  input;
 
-      const edm::DetSetVector<SiStripDigi>  *input = const_cast< edm::DetSetVector<SiStripDigi> * >(inputPTR->product());
+    // if(
+    // e->getByLabel(Sistripdigi_collectionPile_.label(),SistripLabelPile_.label(),input)
+    // ) {
 
-      // Handle< edm::DetSetVector<SiStripDigi> >  input;
+    OneDetectorMap LocalMap;
 
-      // if( e->getByLabel(Sistripdigi_collectionPile_.label(),SistripLabelPile_.label(),input) ) {
-
-      OneDetectorMap LocalMap;
-
-      //loop on all detsets (detectorIDs) inside the input collection
-      edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input->begin();
-      for (; DSViter!=input->end();DSViter++){
+    // loop on all detsets (detectorIDs) inside the input collection
+    edm::DetSetVector<SiStripDigi>::const_iterator DSViter = input->begin();
+    for (; DSViter != input->end(); DSViter++) {
 
 #ifdef DEBUG
-	LogDebug("DataMixingSiStripWorker")  << "Pileups: Processing DetID " << DSViter->id;
+      LogDebug("DataMixingSiStripWorker")
+          << "Pileups: Processing DetID " << DSViter->id;
 #endif
 
-	// find correct local map (or new one) for this detector ID
+      // find correct local map (or new one) for this detector ID
 
-	SiGlobalIndex::const_iterator itest;
+      SiGlobalIndex::const_iterator itest;
 
-	itest = SiHitStorage_.find(DSViter->id);
+      itest = SiHitStorage_.find(DSViter->id);
 
-	if(itest!=SiHitStorage_.end()) {  // this detID already has hits, add to existing map
+      if (itest !=
+          SiHitStorage_
+              .end()) { // this detID already has hits, add to existing map
 
-	  LocalMap = itest->second;
+        LocalMap = itest->second;
 
-	  // fill in local map with extra channels
-	  LocalMap.insert(LocalMap.end(),(DSViter->data).begin(),(DSViter->data).end());
-	  std::stable_sort(LocalMap.begin(),LocalMap.end(),DataMixingSiStripWorker::StrictWeakOrdering());
-	  SiHitStorage_[DSViter->id]=LocalMap;
-	  
-	}
-	else{ // fill local storage with this information, put in global collection
+        // fill in local map with extra channels
+        LocalMap.insert(LocalMap.end(), (DSViter->data).begin(),
+                        (DSViter->data).end());
+        std::stable_sort(LocalMap.begin(), LocalMap.end(),
+                         DataMixingSiStripWorker::StrictWeakOrdering());
+        SiHitStorage_[DSViter->id] = LocalMap;
 
-	  LocalMap.clear();
-	  LocalMap.reserve((DSViter->data).size());
-	  LocalMap.insert(LocalMap.end(),(DSViter->data).begin(),(DSViter->data).end());
+      } else { // fill local storage with this information, put in global
+               // collection
 
-	  SiHitStorage_.insert( SiGlobalIndex::value_type( DSViter->id, LocalMap ) );
-	}
+        LocalMap.clear();
+        LocalMap.reserve((DSViter->data).size());
+        LocalMap.insert(LocalMap.end(), (DSViter->data).begin(),
+                        (DSViter->data).end());
+
+        SiHitStorage_.insert(SiGlobalIndex::value_type(DSViter->id, LocalMap));
       }
     }
   }
+}
 
+void DataMixingSiStripWorker::putSiStrip(edm::Event &e) {
 
- 
-  void DataMixingSiStripWorker::putSiStrip(edm::Event &e) {
+  // collection of Digis to put in the event
+  std::vector<edm::DetSet<SiStripDigi>> vSiStripDigi;
 
-    // collection of Digis to put in the event
-    std::vector< edm::DetSet<SiStripDigi> > vSiStripDigi;
+  // loop through our collection of detectors, merging hits and putting new ones
+  // in the output
 
-    // loop through our collection of detectors, merging hits and putting new ones in the output
+  // big loop over Detector IDs:
 
-    // big loop over Detector IDs:
+  for (SiGlobalIndex::const_iterator IDet = SiHitStorage_.begin();
+       IDet != SiHitStorage_.end(); IDet++) {
 
-    for(SiGlobalIndex::const_iterator IDet = SiHitStorage_.begin();
-	IDet != SiHitStorage_.end(); IDet++) {
+    edm::DetSet<SiStripDigi> SSD(
+        IDet->first); // Make empty collection with this detector ID
 
-      edm::DetSet<SiStripDigi> SSD(IDet->first); // Make empty collection with this detector ID
-	
-      OneDetectorMap LocalMap = IDet->second;
+    OneDetectorMap LocalMap = IDet->second;
 
-      //counter variables
-      int formerStrip = -1;
-      int currentStrip;
-      int ADCSum = 0;
+    // counter variables
+    int formerStrip = -1;
+    int currentStrip;
+    int ADCSum = 0;
 
-      OneDetectorMap::const_iterator iLocalchk;
-      OneDetectorMap::const_iterator iLocal  = LocalMap.begin();
-      for(;iLocal != LocalMap.end(); ++iLocal) {
+    OneDetectorMap::const_iterator iLocalchk;
+    OneDetectorMap::const_iterator iLocal = LocalMap.begin();
+    for (; iLocal != LocalMap.end(); ++iLocal) {
 
-	currentStrip = iLocal->strip(); 
+      currentStrip = iLocal->strip();
 
-	if (currentStrip == formerStrip) { // we have to add these digis together
-	  ADCSum+=iLocal->adc();          // on every element...
-	}
-	else{
-	  if(formerStrip!=-1){
-	    if (ADCSum > 511) ADCSum = 255;
-	    else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
-	    SiStripDigi aHit(formerStrip, ADCSum);
-	    SSD.push_back( aHit );	  
-	  }
-	  // save pointers for next iteration
-	  formerStrip = currentStrip;
-	  ADCSum = iLocal->adc();
-	}
-
-	iLocalchk = iLocal;
-	if((++iLocalchk) == LocalMap.end()) {  //make sure not to lose the last one
-	  if (ADCSum > 511) ADCSum = 255;
-	  else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
-	  SSD.push_back( SiStripDigi(formerStrip, ADCSum) );	  
-	} // end of loop over one detector
-	
+      if (currentStrip == formerStrip) { // we have to add these digis together
+        ADCSum += iLocal->adc();         // on every element...
+      } else {
+        if (formerStrip != -1) {
+          if (ADCSum > 511)
+            ADCSum = 255;
+          else if (ADCSum > 253 && ADCSum < 512)
+            ADCSum = 254;
+          SiStripDigi aHit(formerStrip, ADCSum);
+          SSD.push_back(aHit);
+        }
+        // save pointers for next iteration
+        formerStrip = currentStrip;
+        ADCSum = iLocal->adc();
       }
-      // stick this into the global vector of detector info
-      vSiStripDigi.push_back(SSD);
 
-    } // end of big loop over all detector IDs
+      iLocalchk = iLocal;
+      if ((++iLocalchk) ==
+          LocalMap.end()) { // make sure not to lose the last one
+        if (ADCSum > 511)
+          ADCSum = 255;
+        else if (ADCSum > 253 && ADCSum < 512)
+          ADCSum = 254;
+        SSD.push_back(SiStripDigi(formerStrip, ADCSum));
+      } // end of loop over one detector
+    }
+    // stick this into the global vector of detector info
+    vSiStripDigi.push_back(SSD);
 
-    // put the collection of digis in the event   
-    LogInfo("DataMixingSiStripWorker") << "total # Merged strips: " << vSiStripDigi.size() ;
+  } // end of big loop over all detector IDs
 
-    // make new digi collection
-    
-    std::unique_ptr< edm::DetSetVector<SiStripDigi> > MySiStripDigis(new edm::DetSetVector<SiStripDigi>(vSiStripDigi) );
+  // put the collection of digis in the event
+  LogInfo("DataMixingSiStripWorker")
+      << "total # Merged strips: " << vSiStripDigi.size();
 
-    // put collection
+  // make new digi collection
 
-    e.put(std::move(MySiStripDigis), SiStripDigiCollectionDM_ );
+  std::unique_ptr<edm::DetSetVector<SiStripDigi>> MySiStripDigis(
+      new edm::DetSetVector<SiStripDigi>(vSiStripDigi));
 
-    // clear local storage for this event
-    SiHitStorage_.clear();
-  }
+  // put collection
 
-} //edm
+  e.put(std::move(MySiStripDigis), SiStripDigiCollectionDM_);
+
+  // clear local storage for this event
+  SiHitStorage_.clear();
+}
+
+} // namespace edm

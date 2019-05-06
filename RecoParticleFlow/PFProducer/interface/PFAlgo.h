@@ -27,10 +27,13 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
-#include "DataFormats/Common/interface/ValueMap.h"
+#include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"
+#include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"
 
 /// \brief Particle Flow Algorithm
 /*!
@@ -42,8 +45,6 @@
 class PFEnergyCalibration;
 class PFSCEnergyCalibration;
 class PFEnergyCalibrationHF;
-class PFElectronAlgo;
-class PFPhotonAlgo;
 class PFMuonAlgo;
 
 class PFAlgo {
@@ -51,16 +52,12 @@ class PFAlgo {
  public:
 
   /// constructor
-  PFAlgo();
-
-  /// destructor
-  ~PFAlgo();
+  PFAlgo(bool debug);
 
   void setHOTag(bool ho) { useHO_ = ho;}
   void setAlgo( int algo ) {algo_ = algo;}
   void setPFMuonAlgo(PFMuonAlgo* algo) {pfmu_ =algo;}
   void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
-  void setDebug( bool debug ) {debug_ = debug; connector_.setDebug(debug_); }
 
   void setParameters(double nSigmaECAL,
                      double nSigmaHCAL, 
@@ -207,9 +204,9 @@ class PFAlgo {
     return std::move(pfCleanedCandidates_);
   }
   
-    /// \return unique_ptr to the collection of candidates (transfers ownership)
-  std::unique_ptr< reco::PFCandidateCollection> transferCandidates() {
-    return connector_.connect(pfCandidates_);
+  /// \return the collection of candidates
+  reco::PFCandidateCollection transferCandidates() {
+    return connector_.connect(*pfCandidates_);
   }
   
   /// return the pointer to the calibration function
@@ -312,7 +309,7 @@ class PFAlgo {
 
   bool               useHO_;
   int                algo_;
-  bool               debug_;
+  const bool         debug_;
 
   /// Variables for PFElectrons
   std::string mvaWeightFileEleID_;
@@ -331,8 +328,8 @@ class PFAlgo {
   double sumPtTrackIsoForEgammaSC_endcap_;
   double coneTrackIsoForEgammaSC_;
   unsigned int nTrackIsoForEgammaSC_;
-  PFElectronAlgo *pfele_;
-  PFPhotonAlgo *pfpho_;
+  std::unique_ptr<PFElectronAlgo> pfele_;
+  std::unique_ptr<PFPhotonAlgo> pfpho_;
   PFMuonAlgo *pfmu_;
 
 

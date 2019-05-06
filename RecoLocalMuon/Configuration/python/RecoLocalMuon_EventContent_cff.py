@@ -18,7 +18,9 @@ RecoLocalMuonRECO = cms.PSet(
         'keep *_dt4DCosmicSegments_*_*',
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*')
+        'keep *_rpcRecHits_*_*',
+        'keep *_muonDTDigis_*_*',
+        'keep *_muonCSCDigis_MuonCSCStripDigi_*')
 )
 # AOD content
 RecoLocalMuonAOD = cms.PSet(

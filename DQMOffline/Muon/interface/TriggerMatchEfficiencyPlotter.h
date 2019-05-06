@@ -46,7 +46,6 @@ protected:
 
 private:
   
-  DQMStore* theDbe;
   edm::ParameterSet parameters;
 
   std::string triggerhistName1_;

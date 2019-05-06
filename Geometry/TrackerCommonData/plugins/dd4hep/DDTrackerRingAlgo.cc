@@ -10,15 +10,15 @@ using namespace geant_units::operators;
 
 namespace {
   long algorithm(Detector& /* description */,
-		 cms::DDParsingContext& ctxt, xml_h e,
-		 SensitiveDetector& /* sens */)
+                 cms::DDParsingContext& ctxt, xml_h e,
+                 SensitiveDetector& /* sens */)
   {
     DDNamespace ns(ctxt, e, true);
     DDAlgoArguments args(ctxt, e);
     Volume mother     = ns.volume(args.parentName());
     string childName  = args.value<string>("ChildName");
-    Volume child      = ns.volume(childName); 
-    
+    Volume child      = ns.volume(childName);
+
     string parentName = args.parentName();
     int n             = args.value<int>("N");
     int startCopyNo   = args.value<int>("StartCopyNo");
@@ -31,95 +31,87 @@ namespace {
     double tiltAngle  = args.value<double>("TiltAngle");
     bool isFlipped    = args.value<int>("IsFlipped") == 1;
     double delta = 0.;
-    
+
     if(abs(rangeAngle - 360.0_deg) < 0.001_deg) {
       delta = rangeAngle/double(n);
     } else {
       if(n > 1) {
-	delta = rangeAngle/double(n-1);
+        delta = rangeAngle/double(n-1);
       } else {
-	delta = 0.;
+        delta = 0.;
       }
     }
-    
+
     LogDebug("TrackerGeom") << "DDTrackerRingAlgo debug: Parameters for position"
-			    << "ing:: n " << n << " Start, Range, Delta "
-			    << convertRadToDeg(startAngle) << " "
-			    << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(delta)
-			    << " Radius " << radius << " Centre " << center[0]
-			    << ", " << center[1] << ", "<< center[2];
-    
+                            << "ing:: n " << n << " Start, Range, Delta "
+                            << convertRadToDeg(startAngle) << " "
+                            << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(delta)
+                            << " Radius " << radius << " Centre " << center[0]
+                            << ", " << center[1] << ", "<< center[2];
+
     LogDebug("TrackerGeom") << "DDTrackerRingAlgo debug: Parent " << parentName
-			    << "\tChild " << childName << " NameSpace "
-			    << ns.name();
-    
-    Rotation3D flipRot, tiltRot, phiRot, globalRot; // Identity
+                            << "\tChild " << childName << " NameSpace "
+                            << ns.name();
+
     Rotation3D flipMatrix, tiltMatrix, phiRotMatrix, globalRotMatrix; // Identity matrix
-    
+
     // flipMatrix calculus
     if(isFlipped) {
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
-			      << "\t90., 180., "
-			      << "90., 90., "
-			      << "180., 0.";
-      flipRot = makeRotation3D(90._deg, 180._deg, 90._deg, 90._deg, 180._deg, 0._deg);
-      flipMatrix = flipRot;
+                              << "\t90., 180., "
+                              << "90., 90., "
+                              << "180., 0.";
+      flipMatrix = makeRotation3D(90._deg, 180._deg, 90._deg, 90._deg, 180._deg, 0._deg);
     }
     // tiltMatrix calculus
     if(isZPlus) {
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
-			      << "\t90., 90., "
-			      << convertRadToDeg(tiltAngle) << ", 180., "
-			      << convertRadToDeg(90._deg - tiltAngle) << ", 0.";
-      tiltRot = makeRotation3D(90._deg, 90._deg, tiltAngle, 180._deg, 90._deg - tiltAngle, 0._deg);
-      tiltMatrix = tiltRot;
+                              << "\t90., 90., "
+                              << convertRadToDeg(tiltAngle) << ", 180., "
+                              << convertRadToDeg(90._deg - tiltAngle) << ", 0.";
+      tiltMatrix = makeRotation3D(90._deg, 90._deg, tiltAngle, 180._deg, 90._deg - tiltAngle, 0._deg);
       if(isFlipped) { tiltMatrix *= flipMatrix; }
     }
     else {
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
-			      << "\t90., 90., "
-			      << convertRadToDeg(tiltAngle) << ", 0., "
-			      << convertRadToDeg(90._deg + tiltAngle) << ", 0.";
-      tiltRot = makeRotation3D(90._deg, 90._deg, tiltAngle, 0._deg, 90._deg + tiltAngle, 0._deg);
-      tiltMatrix = tiltRot;
+                              << "\t90., 90., "
+                              << convertRadToDeg(tiltAngle) << ", 0., "
+                              << convertRadToDeg(90._deg + tiltAngle) << ", 0.";
+      tiltMatrix = makeRotation3D(90._deg, 90._deg, tiltAngle, 0._deg, 90._deg + tiltAngle, 0._deg);
       if(isFlipped) { tiltMatrix *= flipMatrix; }
     }
-    
+
     // Loops for all phi values
     double theta  = 90._deg;
     int    copy   = startCopyNo;
     double phi    = startAngle;
-    
+
     for(int i = 0; i < n; ++i) {
       // phiRotMatrix calculus
       double phix = phi;
       double phiy = phix + 90._deg;
-      double phideg = convertRadToDeg(phix);  
-      if(phideg != 0.) {
-	LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
-				<< "\t90., " << convertRadToDeg(phix)
-				<< ", 90.," << convertRadToDeg(phiy)
-				<<", 0., 0.";
-	phiRot = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
-	phiRotMatrix = phiRot;
+      if(phix != 0.) {
+        LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: "
+                                << "\t90., " << convertRadToDeg(phix)
+                                << ", 90.," << convertRadToDeg(phiy)
+                                <<", 0., 0.";
+        phiRotMatrix = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }
-      
-      // globalRot def
+
       globalRotMatrix = phiRotMatrix * tiltMatrix;
-      globalRot = Rotation3D(globalRotMatrix);
-      
-      // translation def
+
+     // translation def
       double xpos = radius*cos(phi) + center[0];
       double ypos = radius*sin(phi) + center[1];
       double zpos = center[2];
       Position tran(xpos, ypos, zpos);
-      
+
       // Positions child with respect to parent
-      mother.placeVolume(child, copy, Transform3D(globalRot, tran));
+      mother.placeVolume(child, copy, Transform3D(globalRotMatrix, tran));
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test " << child << " number "
-			      << copy << " positioned in " << mother << " at "
-			      << tran  << " with " << globalRot;
-      
+                              << copy << " positioned in " << mother << " at "
+                              << tran  << " with " << globalRotMatrix;
+
       copy += incrCopyNo;
       phi  += delta;
     }
@@ -128,4 +120,3 @@ namespace {
 }
 // first argument is the type from the xml file
 DECLARE_DDCMS_DETELEMENT(DDCMS_track_DDTrackerRingAlgo,::algorithm)
-  

@@ -2,7 +2,7 @@
 //
 // Package:     test
 // Class  :     LoadableDummyESSource
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -18,26 +18,22 @@
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 
-
 namespace edm {
-   class ParameterSet;
+  class ParameterSet;
 }
 
-class LoadableDummyESSource : public edm::eventsetup::test::DummyProxyProvider, public DummyFinder
-{
+class LoadableDummyESSource : public edm::eventsetup::test::DummyProxyProvider, public DummyFinder {
 public:
-   LoadableDummyESSource(const edm::ParameterSet& iPSet)
-   : DummyProxyProvider( edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value",2))){
-     unsigned int startRun = iPSet.getUntrackedParameter<unsigned int>("startRunForIOV",0);
-     if ( 0 == startRun ) {
-       setInterval(edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
-                                         edm::IOVSyncValue::endOfTime()));
-     } else {
-       setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(startRun,0,0)),
-                                         edm::IOVSyncValue::endOfTime()));
-       
-     }
-   }
+  LoadableDummyESSource(const edm::ParameterSet& iPSet)
+      : DummyProxyProvider(edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value", 2))) {
+    unsigned int startRun = iPSet.getUntrackedParameter<unsigned int>("startRunForIOV", 0);
+    if (0 == startRun) {
+      setInterval(edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()));
+    } else {
+      setInterval(
+          edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(startRun, 0, 0)), edm::IOVSyncValue::endOfTime()));
+    }
+  }
 };
 
 DEFINE_FWK_EVENTSETUP_SOURCE(LoadableDummyESSource);

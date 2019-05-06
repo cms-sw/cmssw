@@ -7,19 +7,15 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-
 #include <vector>
 
-class CDividerFP420{
- public:
-  
-  typedef std::vector< EnergySegmentFP420 > ionization_type;
-  
-  virtual ~CDividerFP420() { }
+class CDividerFP420 {
+public:
+  typedef std::vector<EnergySegmentFP420> ionization_type;
+
+  virtual ~CDividerFP420() {}
   //  virtual ionization_type divide(const PSimHit, const StripDet& det) = 0;
-  virtual ionization_type divide(const PSimHit&, const double&) = 0;
-
+  virtual ionization_type divide(const PSimHit &, const double &) = 0;
 };
-
 
 #endif

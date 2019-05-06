@@ -12,10 +12,13 @@ gedGsfElectronsTmp.ctfTracksTag = cms.InputTag("hiGeneralTracks")
 gedGsfElectronsTmp.vtxTag = cms.InputTag("hiSelectedVertex")
 gedGsfElectronsTmp.preselection.minSCEtBarrel = cms.double(15.0)
 gedGsfElectronsTmp.preselection.minSCEtEndcaps = cms.double(15.0)
+gedGsfElectronsTmp.fillConvVtxFitProb = cms.bool(False)
+
 gedPhotonsTmp.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
 gedPhotonsTmp.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
 gedPhotons.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
 gedPhotons.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
+photonIDValueMaps.vertices = cms.InputTag("hiSelectedVertex")
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
 photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer=cms.InputTag("gedPhotonsTmp"))
 

@@ -51,6 +51,6 @@ void GsfElectronCoreBaseProducer::fillElectronCore( reco::GsfElectronCore * eleC
  {
   const GsfTrackRef & gsfTrackRef = eleCore->gsfTrack() ;
 
-  std::pair<TrackRef,float> ctfpair = GsfElectronTools::getClosestCtfToGsf(gsfTrackRef,ctfTracksH_) ;
+  std::pair<TrackRef,float> ctfpair = gsfElectronTools::getClosestCtfToGsf(gsfTrackRef,ctfTracksH_) ;
   eleCore->setCtfTrack(ctfpair.first,ctfpair.second) ;
  }
