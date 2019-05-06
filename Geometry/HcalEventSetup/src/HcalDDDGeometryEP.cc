@@ -24,25 +24,21 @@ HcalDDDGeometryEP::HcalDDDGeometryEP(const edm::ParameterSet& ps ){
 
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced( this,
-		   &HcalDDDGeometryEP::produceAligned,
-		   edm::es::Label("HCAL"));
+  auto cc = setWhatProduced( this,
+                             &HcalDDDGeometryEP::produceAligned,
+                             edm::es::Label("HCAL"));
+  consToken_ = cc.consumesFrom<HcalDDDRecConstants, HcalRecNumberingRecord>(edm::ESInputTag{});
+  topologyToken_ = cc.consumesFrom<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{});
 }
 
 // ------------ method called to produce the data  ------------
 HcalDDDGeometryEP::ReturnType
 HcalDDDGeometryEP::produceAligned(const HcalGeometryRecord& iRecord) {
-
-  const HcalRecNumberingRecord& idealRecord = iRecord.getRecord<HcalRecNumberingRecord>();
-
   edm::LogInfo("HCAL") << "Using default HCAL topology" ;
-  edm::ESHandle<HcalDDDRecConstants> hcons;
-  idealRecord.get( hcons ) ;
+  const auto& cons = iRecord.get(consToken_);
+  const auto& topology = iRecord.get(topologyToken_);
 
-  edm::ESHandle<HcalTopology> topology ;
-  idealRecord.get( topology ) ;
+  HcalDDDGeometryLoader loader(&cons);
 
-  HcalDDDGeometryLoader loader(&(*hcons));
-
-  return ReturnType(loader.load(*topology));
+  return ReturnType(loader.load(topology));
 }

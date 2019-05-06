@@ -6,8 +6,6 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -24,5 +22,7 @@ public:
   ReturnType produceAligned(const HcalGeometryRecord&);
 
 private:
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> consToken_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topologyToken_;
 };
 #endif
