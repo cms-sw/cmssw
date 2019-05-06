@@ -21,6 +21,17 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('sumEt', 'sumEt', 20, 600, 5000, 'raw chs PF scalar sum of Et'),
             )
         ),
+        CorrT1METJet = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 20, -0.5, 19.5, 'Additional low-pt jets for Type-1 MET re-correction'),
+                Plot1D('area', 'area', 20, 0.2, 0.8, 'jet catchment area, for JECs'),
+                Plot1D('eta', 'eta', 20, -5, 5, 'eta'),
+                Plot1D('muonSubtrFactor', 'muonSubtrFactor', 20, 0.0, 1.0, '1-(muon-subtracted raw pt)/(raw pt)'),
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+                Plot1D('rawPt', 'rawPt', 20, 5, 25, "pt()*jecFactor('Uncorrected')"),
+            )
+        ),
         Electron = cms.PSet(
             sels = cms.PSet(
                 Good = cms.string('pt > 15 && abs(dxy) < 0.2 && abs(dz) < 0.5 && cutBased >= 3 && miniPFRelIso_all < 0.4')
@@ -277,6 +288,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('muEF', 'muEF', 20, 0, 1, 'muon Energy Fraction'),
                 NoPlot('muonIdx1'),
                 NoPlot('muonIdx2'),
+                Plot1D('muonSubtrFactor', 'muonSubtrFactor', 20, 0.0, 1.0, '1-(muon-subtracted raw pt)/(raw pt)'),
                 Plot1D('nConstituents', 'nConstituents', 20, 0, 80, 'Number of particles in the jet'),
                 Plot1D('nElectrons', 'nElectrons', 5, -0.5, 4.5, 'number of electrons in the jet'),
                 Plot1D('nMuons', 'nMuons', 4, -0.5, 3.5, 'number of muons in the jet'),
