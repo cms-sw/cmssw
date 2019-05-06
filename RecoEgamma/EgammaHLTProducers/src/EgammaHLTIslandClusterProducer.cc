@@ -274,17 +274,17 @@ const {
   es.get<CaloGeometryRecord>().get(geoHandle);
 
   const CaloSubdetectorGeometry *geometry_p;
-  CaloSubdetectorTopology *topology_p;
+  std::unique_ptr<CaloSubdetectorTopology> topology_p;
 
   if (ecalPart == IslandClusterAlgo::barrel) 
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-      topology_p = new EcalBarrelTopology(geoHandle);
+      topology_p = std::make_unique<EcalBarrelTopology>(*geoHandle);
     }
   else
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-      topology_p = new EcalEndcapTopology(geoHandle); 
+      topology_p = std::make_unique<EcalEndcapTopology>(*geoHandle);
    }
 
   const CaloSubdetectorGeometry *geometryES_p;
@@ -292,7 +292,7 @@ const {
 
   // Run the clusterization algorithm:
   reco::BasicClusterCollection clusters;
-  clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, ecalPart, true, regions);
+  clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p.get(), geometryES_p, ecalPart, true, regions);
 
   // create an unique_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
   auto clusters_p = std::make_unique<reco::BasicClusterCollection>();
@@ -302,6 +302,4 @@ const {
     bccHandle = evt.put(std::move(clusters_p), barrelClusterCollection_);
   else
     bccHandle = evt.put(std::move(clusters_p), endcapClusterCollection_);
-
-  delete topology_p;
 }

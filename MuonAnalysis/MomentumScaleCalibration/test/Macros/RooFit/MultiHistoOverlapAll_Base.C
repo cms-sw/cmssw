@@ -201,6 +201,7 @@ struct Plot_1D{
     canvas->Update();
     canvas->SaveAs(Form("%s/%s%s", directory.Data(), plotname.Data(), ".png"));
     canvas->SaveAs(Form("%s/%s%s", directory.Data(), plotname.Data(), ".pdf"));
+    canvas->SaveAs(Form("%s/%s%s", directory.Data(), plotname.Data(), ".root"));
 
     for (unsigned int hf=0; hf<hfit.size(); hf++) delete hfit.at(hf);
     delete legend;
@@ -418,6 +419,7 @@ void MultiHistoOverlapAll_Base_one(string files, string labels, string colors, s
 	alignment_label.ReplaceAll(" ","_");
 	dummycanvas.SaveAs(Form("%s/%sc%s%s%s", directory.Data(),alignment_label.Data(),"_", plotname2D[s].Data(), ".png"));
 	dummycanvas.SaveAs(Form("%s/%sc%s%s%s", directory.Data(),alignment_label.Data(),"_", plotname2D[s].Data(), ".pdf"));
+	dummycanvas.SaveAs(Form("%s/%sc%s%s%s", directory.Data(),alignment_label.Data(),"_", plotname2D[s].Data(), ".root"));
       }
       
     }

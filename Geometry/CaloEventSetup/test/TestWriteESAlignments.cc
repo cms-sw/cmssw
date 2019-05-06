@@ -1,5 +1,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -15,7 +16,7 @@ class TestWriteESAlignments : public edm::one::EDAnalyzer<>
 public:
 
   explicit TestWriteESAlignments(const edm::ParameterSet& /*iConfig*/)
-    : nEventCalls_(0) {}
+    : writer_{consumesCollector()}, nEventCalls_{0} {}
   ~TestWriteESAlignments() override {}
   
   void beginJob() override {}
@@ -23,7 +24,7 @@ public:
   void endJob() override {}
 
 private:
-  
+  WriteESAlignments writer_;
   unsigned int nEventCalls_;
 };
   
@@ -48,14 +49,14 @@ void TestWriteESAlignments::analyze(const edm::Event& /*evt*/, const edm::EventS
    DVec ytranslVec ( nA, 0 ) ;
    DVec ztranslVec ( nA, 0 ) ;
 
-   const WriteESAlignments wea( evtSetup   ,
-				alphaVec   ,
-				betaVec    ,
-				gammaVec   ,
-				xtranslVec ,
-				ytranslVec ,
-				ztranslVec  ) ;
-   
+   writer_.writeAlignments( evtSetup   ,
+                            alphaVec   ,
+                            betaVec    ,
+                            gammaVec   ,
+                            xtranslVec ,
+                            ytranslVec ,
+                            ztranslVec  ) ;
+
    edm::LogInfo("TestWriteESAlignments") << "Done!";
    nEventCalls_++;
 }

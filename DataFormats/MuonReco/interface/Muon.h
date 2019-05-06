@@ -219,13 +219,17 @@ namespace reco {
       MultiIsoMedium         = 1UL<<26,   // miniIso with ptRatio and ptRel 
       PuppiIsoLoose          = 1UL<<27,
       PuppiIsoMedium         = 1UL<<28,
-      PuppiIsoTight          = 1UL<<29
+      PuppiIsoTight          = 1UL<<29, 
+      MvaVTight              = 1UL<<30,
+      MvaVVTight             = 1UL<<31,
+      LowPtMvaLoose          = 1UL<<32,
+      LowPtMvaMedium         = 1UL<<33,
     };
     
-    bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }
+    bool passed( uint64_t selection ) const { return (selectors_ & selection)==selection; }
     bool passed( Selector selection ) const { return passed(static_cast<unsigned int>(selection)); }
-    unsigned int selectors() const { return selectors_; }
-    void setSelectors( unsigned int selectors ){ selectors_ = selectors; }
+    uint64_t selectors() const { return selectors_; }
+    void setSelectors( uint64_t selectors ){ selectors_ = selectors; }
     void setSelector(Selector selector, bool passed){ 
       if (passed)
 	selectors_ |= selector;
@@ -351,7 +355,7 @@ namespace reco {
     std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> pair( const std::vector<const MuonChamberMatch*> &,
 								     ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// selector bitmap
-    unsigned int selectors_;
+    uint64_t selectors_;
    public:
      /// get number of segments
     int numberOfSegments( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;

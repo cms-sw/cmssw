@@ -47,7 +47,6 @@ class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
   
   // ----------member data ---------------------------
   MuonServiceProxy *theService;
-  DQMStore* theDbe;
   edm::ParameterSet parameters;
  
   // Switch for verbosity

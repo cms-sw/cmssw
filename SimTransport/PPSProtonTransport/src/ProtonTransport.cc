@@ -8,7 +8,6 @@ ProtonTransport::ProtonTransport() {};
 ProtonTransport::~ProtonTransport() {};
 void ProtonTransport::clear()
 {
-     for (std::map<unsigned int,TLorentzVector* >::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) delete (*it).second;
      m_beamPart.clear(); m_xAtTrPoint.clear(); m_yAtTrPoint.clear();
 };
 
@@ -16,14 +15,13 @@ void ProtonTransport::addPartToHepMC( HepMC::GenEvent * evt )
 {
     NEvent++;
     m_CorrespondenceMap.clear();
-    std::map< unsigned int, TLorentzVector* >::iterator it;
 
     int direction=0;
     HepMC::GenParticle * gpart;
 
     unsigned int line;
 
-    for( auto it : m_beamPart ) {
+    for( auto const& it : m_beamPart ) {
         line = (it ).first;
         gpart = evt->barcode_to_particle( line );
 
@@ -43,7 +41,7 @@ void ProtonTransport::addPartToHepMC( HepMC::GenEvent * evt )
                         <<"ProtonTransport:: z= "<< ddd * direction*m_to_mm << "\n"
                         <<"ProtonTransport:: t= "<< time;
         }
-        TLorentzVector* p_out = (it).second;
+        TLorentzVector const& p_out = (it).second;
 
         HepMC::GenVertex * vert = new HepMC::GenVertex(
                         HepMC::FourVector( (*(m_xAtTrPoint.find(line))).second,
@@ -52,7 +50,7 @@ void ProtonTransport::addPartToHepMC( HepMC::GenEvent * evt )
 
         gpart->set_status( 2 );
         vert->add_particle_in( gpart );
-        vert->add_particle_out( new HepMC::GenParticle( HepMC::FourVector(p_out->Px(),p_out->Py(),p_out->Pz(),p_out->E()), gpart->pdg_id(), 1, gpart->flow() )) ;
+        vert->add_particle_out( new HepMC::GenParticle( HepMC::FourVector(p_out.Px(),p_out.Py(),p_out.Pz(),p_out.E()), gpart->pdg_id(), 1, gpart->flow() )) ;
         evt->add_vertex( vert );
 
         int ingoing = (*vert->particles_in_const_begin())->barcode();

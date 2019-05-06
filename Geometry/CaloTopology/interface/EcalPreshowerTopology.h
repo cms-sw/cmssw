@@ -13,16 +13,11 @@ class EcalPreshowerTopology final : public CaloSubdetectorTopology {
 
  public:
   /// create a new Topology
-  EcalPreshowerTopology() : theGeom_(nullptr) {};
+  EcalPreshowerTopology() = default;
 
   /// virtual destructor
   ~EcalPreshowerTopology() override { }  
   
-  /// create a new Topology from geometry
-  EcalPreshowerTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(std::move(theGeom))
-    {
-    }
-
   
   /// move the Topology north (increment iy)  
   DetId  goNorth(const DetId& id) const override {
@@ -119,8 +114,6 @@ class EcalPreshowerTopology final : public CaloSubdetectorTopology {
 
   /// move the nagivator to smaller iz
   ESDetId decrementIz(const ESDetId& id) const;
-
-  edm::ESHandle<CaloGeometry> theGeom_;
 };
 
 #endif

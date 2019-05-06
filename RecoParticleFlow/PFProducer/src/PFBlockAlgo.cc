@@ -1,14 +1,17 @@
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
-#include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h" // gouzevitch
+#include "FWCore/Framework/interface/ProductRegistryHelper.h"
+#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-
-#include <stdexcept>
 #include <algorithm>
-#include "TMath.h"
+#include <iostream>
+#include <array>
+#include <iterator>
+#include <sstream>
+#include <type_traits>
+#include <utility>
 
 using namespace std;
 using namespace reco;
@@ -112,7 +115,7 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
     const PFBlockElement::Type type1 = elementTypes_.at(link1);
     const PFBlockElement::Type type2 = elementTypes_.at(link2);    
     const unsigned index  = rowsize*std::max(type1,type2)+std::min(type1,type2);
-    linkTests_[index] = LinkTestPtr{BlockElementLinkerFactory::get()->create(linkerName,conf)};
+    linkTests_[index].reset(BlockElementLinkerFactory::get()->create(linkerName,conf));
     linkTestSquare_[type1][type2] = index;
     linkTestSquare_[type2][type1] = index;
     // setup KDtree if requested
@@ -191,8 +194,6 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     blocksmap.emplace(key,i);
   }
 
-  PFBlockLink::Type linktype = PFBlockLink::NONE;
-  PFBlock::LinkTest linktest = PFBlock::LINKTEST_RECHIT;
   for( auto key : keys ) {
     blocks.push_back( reco::PFBlock() );
     auto range = blocksmap.equal_range(key);
@@ -201,7 +202,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
     the_block.addElement(p1);
     const unsigned block_size = blocksmap.count(key) + 1;
     //reserve up to 1M or 8MB; pay rehash cost for more
-    std::unordered_map<std::pair<unsigned int,unsigned int>, PFBlockLink > links(min(1000000u,block_size*block_size));
+    std::unordered_map<std::pair<unsigned int,unsigned int>, double > links(min(1000000u,block_size*block_size));
     auto itr = range.first;
     ++itr;
     for( ; itr != range.second; ++itr ) {
@@ -209,14 +210,10 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
       const PFBlockElement::Type type1 = p1->type();
       const PFBlockElement::Type type2 = p2->type();        
       the_block.addElement(p2);
-      linktest = PFBlock::LINKTEST_RECHIT; //rechit by default 
-      linktype = static_cast<PFBlockLink::Type>(1<<(type1-1)|1<<(type2-1));
       const unsigned index = linkTestSquare_[type1][type2];
       if( nullptr != linkTests_[index] ) {
         const double dist = linkTests_[index]->testLink(p1,p2);
-        links.emplace( std::make_pair(p1->index(), p2->index()) ,
-                       PFBlockLink( linktype, linktest, dist,
-                                    p1->index(), p2->index() ) );
+        links.emplace( std::make_pair(p1->index(), p2->index()), dist );
       }
     }
     packLinks( the_block, links );    
@@ -229,7 +226,7 @@ reco::PFBlockCollection PFBlockAlgo::findBlocks() {
 
 void 
 PFBlockAlgo::packLinks( reco::PFBlock& block, 
-			   const std::unordered_map<std::pair<unsigned int,unsigned int>,PFBlockLink>& links ) const {
+			   const std::unordered_map<std::pair<unsigned int,unsigned int>,double>& links ) const {
   constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
   
   const edm::OwnVector< reco::PFBlockElement >& els = block.elements();
@@ -246,15 +243,12 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
       double dist = -1;
       
       bool linked = false;
-      PFBlock::LinkTest linktest 
-	= PFBlock::LINKTEST_RECHIT; 
 
       // are these elements already linked ?
       // this can be optimized
       const auto link_itr = links.find(std::make_pair(i2,i1));
       if( link_itr != links.end() ) {
-	dist = link_itr->second.dist();
-	linktest = link_itr->second.test();
+	dist = link_itr->second;
 	linked = true;
       }      
       
@@ -263,50 +257,26 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
         const PFBlockElement::Type type2 = els[i2].type();
         const auto minmax = std::minmax(type1,type2);
         const unsigned index = rowsize*minmax.second + minmax.first;
-	PFBlockLink::Type linktype = PFBlockLink::NONE;
 	bool bTestLink = ( nullptr == linkTests_[index] ? false : linkTests_[index]->linkPrefilter(&(els[i1]),&(els[i2])) );
-	if (bTestLink) link( & els[i1], & els[i2], linktype, linktest, dist);
+	if (bTestLink) link( & els[i1], & els[i2], dist);
       }
 
       //loading link data according to link test used: RECHIT 
       //block.setLink( i1, i2, chi2, block.linkData() );
-#ifdef PFLOW_DEBUG
-      if( debug_ )
-	cout << "Setting link between elements " << i1 << " and " << i2
-	     << " of dist =" << dist << " computed from link test "
-	     << linktest << endl;
-#endif
-      block.setLink( i1, i2, dist, block.linkData(), linktest );
+      block.setLink( i1, i2, dist, block.linkData() );
     }
   }
 
 }
 
-// see plugins/linkers for the functions that calculate distances
-// for each available link type
-inline bool
-PFBlockAlgo::linkPrefilter(const reco::PFBlockElement* last, 
-			      const reco::PFBlockElement* next) const {
-  constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
-  const PFBlockElement::Type type1 = (last)->type();
-  const PFBlockElement::Type type2 = (next)->type();
-  const unsigned index = rowsize*std::max(type1,type2) + std::min(type1,type2);
-  bool result =  linkTests_[index]->linkPrefilter(last,next);
-  return result;  
-}
-
 inline void 
 PFBlockAlgo::link( const reco::PFBlockElement* el1, 
 		      const reco::PFBlockElement* el2, 
-		      PFBlockLink::Type& linktype, 
-		      reco::PFBlock::LinkTest& linktest,
 		      double& dist) const {
   constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
   dist=-1.0;
-  linktest = PFBlock::LINKTEST_RECHIT; //rechit by default 
   const PFBlockElement::Type type1 = el1->type();
   const PFBlockElement::Type type2 = el2->type();
-  linktype = static_cast<PFBlockLink::Type>(1<<(type1-1)|1<<(type2-1));
   const unsigned index = rowsize*std::max(type1,type2) + std::min(type1,type2);
   if(debug_ ) { 
     std::cout << " PFBlockAlgo links type1 " << type1 
@@ -377,9 +347,8 @@ std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {
   out<<"number of unassociated elements : "<<a.elements_.size()<<endl;
   out<<endl;
   
-  for(PFBlockAlgo::IEC ie = a.elements_.begin(); 
-      ie != a.elements_.end(); ++ie) {
-    out<<"\t"<<**ie <<endl;
+  for(auto const& element : a.elements_) {
+    out<<"\t"<< *element <<endl;
   }
   
   return out;

@@ -24,30 +24,26 @@ namespace edm {
 
   class WorkerInPath {
   public:
-    enum FilterAction { Normal=0, Ignore, Veto };
+    enum FilterAction { Normal = 0, Ignore, Veto };
 
     WorkerInPath(Worker*, FilterAction theAction, unsigned int placeInPath);
 
     template <typename T>
     void runWorkerAsync(WaitingTask* iTask,
-                        typename T::MyPrincipal const&, EventSetupImpl const&,
+                        typename T::MyPrincipal const&,
+                        EventSetupImpl const&,
                         ServiceToken const&,
                         StreamID streamID,
                         typename T::Context const* context);
 
-    
     bool checkResultsOfRunWorker(bool wasEvent);
-    
-    void skipWorker(EventPrincipal const& iPrincipal) {
-      worker_->skipOnPath();
-    }
+
+    void skipWorker(EventPrincipal const& iPrincipal) { worker_->skipOnPath(); }
     void skipWorker(RunPrincipal const&) {}
     void skipWorker(LuminosityBlockPrincipal const&) {}
-    
-    void clearCounters() {
-      timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
-    }
-    
+
+    void clearCounters() { timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0; }
+
     int timesVisited() const { return timesVisited_; }
     int timesPassed() const { return timesPassed_; }
     int timesFailed() const { return timesFailed_; }
@@ -63,65 +59,63 @@ namespace edm {
     int timesPassed_;
     int timesFailed_;
     int timesExcept_;
-    
+
     FilterAction filterAction_;
     Worker* worker_;
 
     PlaceInPathContext placeInPathContext_;
   };
-  
+
   inline bool WorkerInPath::checkResultsOfRunWorker(bool wasEvent) {
-    if(not wasEvent) {
+    if (not wasEvent) {
       return true;
     }
     auto state = worker_->state();
     bool rc = true;
     switch (state) {
-      case Worker::Fail:
-      {
+      case Worker::Fail: {
         rc = false;
         break;
       }
       case Worker::Pass:
         break;
-      case Worker::Exception:
-      {
+      case Worker::Exception: {
         ++timesExcept_;
         return true;
       }
-        
+
       default:
         assert(false);
     }
-    
-    if(Ignore == filterAction()) {
+
+    if (Ignore == filterAction()) {
       rc = true;
-    } else if(Veto == filterAction()) {
+    } else if (Veto == filterAction()) {
       rc = !rc;
     }
-    
-    if(rc) {
+
+    if (rc) {
       ++timesPassed_;
     } else {
       ++timesFailed_;
     }
     return rc;
-    
   }
 
   template <typename T>
   void WorkerInPath::runWorkerAsync(WaitingTask* iTask,
-                                    typename T::MyPrincipal const& ep, EventSetupImpl const & es,
+                                    typename T::MyPrincipal const& ep,
+                                    EventSetupImpl const& es,
                                     ServiceToken const& token,
                                     StreamID streamID,
                                     typename T::Context const* context) {
     if (T::isEvent_) {
       ++timesVisited_;
     }
-    
-    if(T::isEvent_) {
+
+    if (T::isEvent_) {
       ParentContext parentContext(&placeInPathContext_);
-      worker_->doWorkAsync<T>(iTask,ep, es, token, streamID, parentContext, context);
+      worker_->doWorkAsync<T>(iTask, ep, es, token, streamID, parentContext, context);
     } else {
       ParentContext parentContext(context);
 
@@ -130,10 +124,9 @@ namespace edm {
       // into the runs or lumis in stream transitions, so there can be
       // no data dependencies which require prefetching. Prefetching is
       // needed for global transitions, but they are run elsewhere.
-      worker_->doWorkNoPrefetchingAsync<T>(iTask,ep, es,token, streamID, parentContext, context);
+      worker_->doWorkNoPrefetchingAsync<T>(iTask, ep, es, token, streamID, parentContext, context);
     }
-  }  
-}
+  }
+}  // namespace edm
 
 #endif
-

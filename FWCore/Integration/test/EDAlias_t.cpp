@@ -11,7 +11,7 @@ static constexpr auto s_tag = "[EDAlias]";
 
 TEST_CASE("Configuration", s_tag) {
   const std::string baseConfig{
-R"_(from FWCore.TestProcessor.TestProcess import *
+      R"_(from FWCore.TestProcessor.TestProcess import *
 import FWCore.ParameterSet.Config as cms
 
 process = TestProcess()
@@ -25,11 +25,9 @@ process.test = cms.EDProducer('AddIntsProducer', labels = cms.vstring('intalias'
 process.moduleToTest(process.test, cms.Task(process.intprod))
 )_"};
 
-  edm::test::TestProcessor::Config config{ baseConfig };
+  edm::test::TestProcessor::Config config{baseConfig};
 
-  SECTION("Base configuration is OK") {
-    REQUIRE_NOTHROW(edm::test::TestProcessor(config));
-  }
+  SECTION("Base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
 
   SECTION("No event data") {
     edm::test::TestProcessor tester(config);
@@ -60,7 +58,7 @@ process.moduleToTest(process.test, cms.Task(process.intprod))
 
 TEST_CASE("Configuration with two instance aliases to a single product", s_tag) {
   const std::string baseConfig{
-R"_(from FWCore.TestProcessor.TestProcess import *
+      R"_(from FWCore.TestProcessor.TestProcess import *
 import FWCore.ParameterSet.Config as cms
 
 process = TestProcess()
@@ -79,16 +77,20 @@ process.test = cms.EDProducer('AddIntsProducer', labels = cms.vstring('intalias'
 process.moduleToTest(process.test, cms.Task(process.intprod))
 )_"};
 
-  edm::test::TestProcessor::Config config{ baseConfig };
+  edm::test::TestProcessor::Config config{baseConfig};
 
   SECTION("Alias with two instances pointing to the same product is not allowed") {
-    REQUIRE_THROWS_WITH(edm::test::TestProcessor(config), Catch::Contains("EDAlias conflict") && Catch::Contains("is used for multiple products of type") && Catch::Contains("with module label") && Catch::Contains("and instance name") && Catch::Contains("alias has the instance name") && Catch::Contains("and the other has the instance name"));
+    REQUIRE_THROWS_WITH(
+        edm::test::TestProcessor(config),
+        Catch::Contains("EDAlias conflict") && Catch::Contains("is used for multiple products of type") &&
+            Catch::Contains("with module label") && Catch::Contains("and instance name") &&
+            Catch::Contains("alias has the instance name") && Catch::Contains("and the other has the instance name"));
   }
 }
 
 TEST_CASE("Configuration with two identical aliases pointing to different products") {
   const std::string baseConfig{
-R"_(from FWCore.TestProcessor.TestProcess import *
+      R"_(from FWCore.TestProcessor.TestProcess import *
 import FWCore.ParameterSet.Config as cms
 
 process = TestProcess()
@@ -105,9 +107,12 @@ process.test = cms.EDProducer('AddIntsProducer', labels = cms.vstring('intalias'
 process.moduleToTest(process.test, cms.Task(process.intprod))
 )_"};
 
-  edm::test::TestProcessor::Config config{ baseConfig };
+  edm::test::TestProcessor::Config config{baseConfig};
 
   SECTION("Alias with two instances pointing to the same product is not allowed") {
-    REQUIRE_THROWS_WITH(edm::test::TestProcessor(config), Catch::Contains("EDAlias conflict") && Catch::Contains("and product instance alias") && Catch::Contains("are used for multiple products of type") && Catch::Contains("One has module label") && Catch::Contains("the other has module label"));
+    REQUIRE_THROWS_WITH(edm::test::TestProcessor(config),
+                        Catch::Contains("EDAlias conflict") && Catch::Contains("and product instance alias") &&
+                            Catch::Contains("are used for multiple products of type") &&
+                            Catch::Contains("One has module label") && Catch::Contains("the other has module label"));
   }
 }

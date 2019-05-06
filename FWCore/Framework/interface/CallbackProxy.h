@@ -33,15 +33,14 @@
 // forward declarations
 namespace edm::eventsetup {
 
-  template<class CallbackT, class RecordT, class DataT>
+  template <class CallbackT, class RecordT, class DataT>
   class CallbackProxy : public DataProxy {
   public:
     using smart_pointer_traits = produce::smart_pointer_traits<DataT>;
     using value_type = typename smart_pointer_traits::type;
     using record_type = RecordT;
 
-    CallbackProxy(std::shared_ptr<CallbackT>& iCallback) :
-      callback_{iCallback} {
+    CallbackProxy(std::shared_ptr<CallbackT>& iCallback) : callback_{iCallback} {
       //The callback fills the data directly.  This is done so that the callback does not have to
       //  hold onto a temporary copy of the result of the callback since the callback is allowed
       //  to return multiple items where only one item is needed by this Proxy
@@ -56,7 +55,7 @@ namespace edm::eventsetup {
     const void* getImpl(const EventSetupRecordImpl& iRecord, const DataKey&) override {
       assert(iRecord.key() == RecordT::keyForClass());
       record_type rec;
-      rec.setImpl(&iRecord);
+      rec.setImpl(&iRecord, callback_->transitionID(), callback_->getTokenIndices());
       (*callback_)(rec);
       return smart_pointer_traits::getPointer(data_);
     }
@@ -75,6 +74,6 @@ namespace edm::eventsetup {
     edm::propagate_const<std::shared_ptr<CallbackT>> callback_;
   };
 
-}
+}  // namespace edm::eventsetup
 
 #endif

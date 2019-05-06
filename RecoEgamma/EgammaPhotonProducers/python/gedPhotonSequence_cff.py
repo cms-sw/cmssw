@@ -22,11 +22,18 @@ gedPhotons = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone()
 gedPhotons.photonProducer = cms.InputTag("gedPhotonsTmp")
 gedPhotons.outputPhotonCollection = cms.string("")
 gedPhotons.reconstructionStep = cms.string("final")
-gedPhotons.chargedHadronIsolation = cms.InputTag("egmPhotonIsolationCITK:h+-DR030-")
-gedPhotons.neutralHadronIsolation = cms.InputTag("egmPhotonIsolationCITK:h0-DR030-")
-gedPhotons.photonIsolation = cms.InputTag("egmPhotonIsolationCITK:gamma-DR030-")
 gedPhotons.pfECALClusIsolation = cms.InputTag("photonEcalPFClusterIsolationProducer")
 gedPhotons.pfHCALClusIsolation = cms.InputTag("photonHcalPFClusterIsolationProducer")
+gedPhotons.pfIsolCfg = cms.PSet(
+    chargedHadronIso = cms.InputTag("photonIDValueMaps","phoChargedIsolation"),
+    neutralHadronIso = cms.InputTag("photonIDValueMaps","phoNeutralHadronIsolation"),
+    photonIso = cms.InputTag("photonIDValueMaps","phoPhotonIsolation"),
+    chargedHadronWorstVtxIso = cms.InputTag("photonIDValueMaps","phoWorstChargedIsolation"),
+    chargedHadronWorstVtxGeomVetoIso = cms.InputTag("photonIDValueMaps","phoWorstChargedIsolationConeVeto"),
+    chargedHadronPFPVIso = cms.InputTag("egmPhotonIsolationCITK:h+-DR030-"),
+    )
+    
+
 gedPhotonSequence    = cms.Sequence(gedPhotons)
 
 

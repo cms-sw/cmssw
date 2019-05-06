@@ -20,7 +20,6 @@
 
 SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig) {
   HLTDirectory = "HLTResults";
-  dqmStore_ = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
 
   filerDecisionToken_ =

@@ -107,6 +107,14 @@ class PFEnergyCalibration
   std::unique_ptr<TF1> faEtaEndcapH; 
   std::unique_ptr<TF1> fbEtaEndcapH; 
 
+  //added by Bhumika on 2 august 2018
+  std::unique_ptr<TF1> fcEtaBarrelEH;
+  std::unique_ptr<TF1> fcEtaEndcapEH;
+  std::unique_ptr<TF1> fdEtaEndcapEH;
+  std::unique_ptr<TF1> fcEtaBarrelH;
+  std::unique_ptr<TF1> fcEtaEndcapH;
+  std::unique_ptr<TF1> fdEtaEndcapH;
+
  private:
   
   double minimum(double a,double b) const;
@@ -141,6 +149,14 @@ class PFEnergyCalibration
   double bEtaEndcapEH(double x) const;
   double aEtaEndcapH(double x) const; 
   double bEtaEndcapH(double x) const;
+  //added by Bhumika on 3 august 2018
+  double cEtaBarrelEH(double x) const;
+  double cEtaEndcapEH(double x) const;
+  double dEtaEndcapEH(double x) const;
+  double cEtaBarrelH(double x) const;
+  double cEtaEndcapH(double x) const;
+  double dEtaEndcapH(double x) const;
+
 
   // Threshold correction (offset)
   double threshE, threshH;

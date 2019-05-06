@@ -21,6 +21,7 @@ class HGCalParametersESModule : public edm::ESProducer {
 
  private:
   std::string name_, namew_, namec_, namet_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
 };
 
 HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
@@ -33,7 +34,8 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
     << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":"
     << namec_ << ":" << namet_;
 #endif
-  setWhatProduced(this, name_);
+  auto cc = setWhatProduced(this, name_);
+  cpvToken_ = cc.consumes<DDCompactView>(edm::ESInputTag{});
 }
 
 HGCalParametersESModule::~HGCalParametersESModule() {}
@@ -42,12 +44,11 @@ HGCalParametersESModule::ReturnType HGCalParametersESModule::produce(
     const IdealGeometryRecord& iRecord) {
   edm::LogVerbatim("HGCalGeom")
       << "HGCalParametersESModule::produce(const IdealGeometryRecord& iRecord)";
-  edm::ESTransientHandle<DDCompactView> cpv;
-  iRecord.get(cpv);
+  edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvToken_);
 
   auto ptp = std::make_unique<HGCalParameters>(name_);
   HGCalParametersFromDD builder;
-  builder.build(&(*cpv), *ptp, name_, namew_, namec_, namet_);
+  builder.build(cpv.product(), *ptp, name_, namew_, namec_, namet_);
 
   return ptp;
 }

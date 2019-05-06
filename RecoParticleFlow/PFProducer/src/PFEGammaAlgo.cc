@@ -17,7 +17,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
-#include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
@@ -582,16 +581,6 @@ namespace {
 PFEGammaAlgo::
 PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg) : cfg_(cfg)
 {}
-
-void PFEGammaAlgo::RunPFEG(const pfEGHelpers::HeavyObjectCache* hoc,
-                           const reco::PFBlockRef&  blockRef)
-{  
-
-  fifthStepKfTrack_.clear();
-  convGsfTrack_.clear();
-  
-  buildAndRefineEGObjects(hoc, blockRef);
-}
 
 float PFEGammaAlgo::evaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
                                          const reco::PFBlockRef& blockRef, 
@@ -1759,8 +1748,8 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
 	docast(const reco::PFBlockElementCluster*,ecal->first);      
       if( addPFClusterToROSafe(elemascluster,RO) ) {
 	attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);
-	RO.localMap.push_back(ElementMap::value_type(skf.first,elemascluster));
-	RO.localMap.push_back(ElementMap::value_type(elemascluster,skf.first));
+	RO.localMap.emplace_back(skf.first,elemascluster);
+	RO.localMap.emplace_back(elemascluster,skf.first);
 	ecal->second = false;      
       }
     }
@@ -1985,7 +1974,7 @@ float PFEGammaAlgo::calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
     xtra.setGsfElectronClusterRef(_currentblock,*(ro.electronClusters[0]));
     firstEcalGsfEnergy = cref->correctedEnergy();    
     dEtGsfEcal = cref->positionREP().eta() - etaOutGsf;
-    gsfCluster.push_back(&*cref);
+    gsfCluster.push_back(cref.get());
     PFClusterWidthAlgo pfwidth(gsfCluster);
     sigmaEtaEta = pfwidth.pflowSigmaEtaEta();
   } 

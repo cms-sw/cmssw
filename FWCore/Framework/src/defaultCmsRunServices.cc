@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Function:    defaultCmsRunServices
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -16,17 +16,17 @@
 #include "FWCore/Framework/interface/defaultCmsRunServices.h"
 
 namespace edm {
-   std::vector<std::string> defaultCmsRunServices() {
-      std::vector<std::string> returnValue = {"MessageLogger",
-                                              "InitRootHandlers",
-                                              "UnixSignalService",
-                                              "AdaptorConfig",
-                                              "SiteLocalConfigService",
-                                              "StatisticsSenderService",
-                                              "CondorStatusService",
-                                              "XrdAdaptor::XrdStatisticsService"};
+  std::vector<std::string> defaultCmsRunServices() {
+    std::vector<std::string> returnValue = {"MessageLogger",
+                                            "InitRootHandlers",
+                                            "UnixSignalService",
+                                            "AdaptorConfig",
+                                            "SiteLocalConfigService",
+                                            "StatisticsSenderService",
+                                            "CondorStatusService",
+                                            "XrdAdaptor::XrdStatisticsService"};
 
-      return returnValue;
-   }
-   
-}
+    return returnValue;
+  }
+
+}  // namespace edm

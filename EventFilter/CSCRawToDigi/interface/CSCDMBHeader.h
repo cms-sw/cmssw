@@ -4,10 +4,10 @@
 #include <cassert>
 #include <iosfwd>
 #include <cstring> // bzero
+#include <memory>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVDMBHeaderFormat.h"
-#include <boost/shared_ptr.hpp>
 
 struct CSCDMBHeader2005;
 struct CSCDMBHeader2013;
@@ -18,11 +18,6 @@ public:
   CSCDMBHeader(uint16_t firmware_version = 2005);
   
   CSCDMBHeader(const uint16_t * buf, uint16_t firmware_version = 2005);
-
-  CSCDMBHeader(const CSCDMBStatusDigi & digi)
-    {
-      memcpy(this, digi.header(), sizeInWords()*2);
-    }
 
 
 
@@ -73,7 +68,7 @@ public:
 
  private:
 
-  boost::shared_ptr<CSCVDMBHeaderFormat> theHeaderFormat;
+  std::shared_ptr<CSCVDMBHeaderFormat> theHeaderFormat;
   int theFirmwareVersion;
 
 

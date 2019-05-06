@@ -41,7 +41,7 @@ class Propagator;
 class MeasurementTracker;
 class GeometricSearchTracker;
 class DirectTrackerNavigation;
-class TrajectoryStateTransform;
+struct TrajectoryStateTransform;
 class SimTrack;
 class TrackerGeometry;
 class TrackerTopology;

@@ -22,7 +22,8 @@ simGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone(
         'simCastorTechTrigDigis'
     ]
 )
-SimL1TGlobal = cms.Sequence(simGtDigis)
+SimL1TGlobalTask = cms.Task(simGtDigis)
+SimL1TGlobal = cms.Sequence(SimL1TGlobalTask)
 
 #
 # Stage-2 Trigger
@@ -32,4 +33,4 @@ SimL1TGlobal = cms.Sequence(simGtDigis)
 #
 from L1Trigger.L1TGlobal.simGtStage2Digis_cfi import *
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-stage2L1Trigger.toReplaceWith(SimL1TGlobal, cms.Sequence(simGtStage2Digis))
+stage2L1Trigger.toReplaceWith(SimL1TGlobalTask, cms.Task(simGtStage2Digis))

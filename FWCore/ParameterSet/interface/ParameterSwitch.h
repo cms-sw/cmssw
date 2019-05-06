@@ -21,87 +21,64 @@
 
 namespace edm {
 
-  template<class T>
+  template <class T>
   class ParameterSwitch : public ParameterSwitchBase {
-
   public:
     typedef std::map<T, edm::value_ptr<ParameterDescriptionNode> > CaseMap;
     typedef typename std::map<T, edm::value_ptr<ParameterDescriptionNode> >::const_iterator CaseMapConstIter;
 
     ParameterSwitch(ParameterDescription<T> const& switchParameter,
-                    std::unique_ptr<ParameterDescriptionCases<T> > cases) :
-      switch_(switchParameter),
-      cases_(*cases->caseMap())
-    {
+                    std::unique_ptr<ParameterDescriptionCases<T> > cases)
+        : switch_(switchParameter), cases_(*cases->caseMap()) {
       if (cases->duplicateCaseValues()) {
         throwDuplicateCaseValues(switchParameter.label());
       }
     }
 
-    ParameterDescriptionNode* clone() const override {
-      return new ParameterSwitch(*this);
-    }
+    ParameterDescriptionNode* clone() const override { return new ParameterSwitch(*this); }
 
   private:
-
-    void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                                    std::set<ParameterTypes> & parameterTypes,
-                                    std::set<ParameterTypes> & wildcardTypes) const override {
-
+    void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+                                    std::set<ParameterTypes>& parameterTypes,
+                                    std::set<ParameterTypes>& wildcardTypes) const override {
       std::set<std::string> caseLabels;
       std::set<ParameterTypes> caseParameterTypes;
       std::set<ParameterTypes> caseWildcardTypes;
-      for_all(cases_, std::bind(&ParameterSwitch::checkCaseLabels,
-                                std::placeholders::_1,
-                                std::ref(caseLabels),
-                                std::ref(caseParameterTypes),
-                                std::ref(caseWildcardTypes)));
+      for_all(cases_,
+              std::bind(&ParameterSwitch::checkCaseLabels,
+                        std::placeholders::_1,
+                        std::ref(caseLabels),
+                        std::ref(caseParameterTypes),
+                        std::ref(caseWildcardTypes)));
 
-      insertAndCheckLabels(switch_.label(),
-                           usedLabels,
-                           caseLabels);
+      insertAndCheckLabels(switch_.label(), usedLabels, caseLabels);
 
-      insertAndCheckTypes(switch_.type(),
-                          caseParameterTypes,
-                          caseWildcardTypes,
-                          parameterTypes,
-                          wildcardTypes);
+      insertAndCheckTypes(switch_.type(), caseParameterTypes, caseWildcardTypes, parameterTypes, wildcardTypes);
 
       if (cases_.find(switch_.getDefaultValue()) == cases_.end()) {
         throwNoCaseForDefault(switch_.label());
       }
     }
 
-    void validate_(ParameterSet & pset,
-                   std::set<std::string> & validatedLabels,
-                   bool optional) const override {
-
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override {
       switch_.validate(pset, validatedLabels, optional);
       if (switch_.exists(pset)) {
-        T switchValue;   
+        T switchValue;
         if (switch_.isTracked()) {
           switchValue = pset.getParameter<T>(switch_.label());
-        }
-        else {
+        } else {
           switchValue = pset.getUntrackedParameter<T>(switch_.label());
         }
-	typename CaseMap::const_iterator selectedCase = cases_.find(switchValue);
+        typename CaseMap::const_iterator selectedCase = cases_.find(switchValue);
         if (selectedCase != cases_.end()) {
           selectedCase->second->validate(pset, validatedLabels, false);
-        }
-        else {
-	  std::stringstream ss;
-          ss << "The switch parameter with label \""
-             << switch_.label()
-             << "\" has been assigned an illegal value.\n"
-             << "The value from the configuration is \""
-             << switchValue
-             << "\".\n"
+        } else {
+          std::stringstream ss;
+          ss << "The switch parameter with label \"" << switch_.label() << "\" has been assigned an illegal value.\n"
+             << "The value from the configuration is \"" << switchValue << "\".\n"
              << "The allowed values are:\n";
 
-          for (CaseMapConstIter iter = cases_.begin(), iEnd = cases_.end();
-               iter != iEnd;
-               ++iter) {
+          for (CaseMapConstIter iter = cases_.begin(), iEnd = cases_.end(); iter != iEnd; ++iter) {
             ss << "  " << iter->first << "\n";
           }
           throwNoCaseForSwitchValue(ss.str());
@@ -109,10 +86,7 @@ namespace edm {
       }
     }
 
-    void writeCfi_(std::ostream & os,
-                   bool & startWithComma,
-                   int indentation,
-                   bool & wroteSomething) const override {
+    void writeCfi_(std::ostream& os, bool& startWithComma, int indentation, bool& wroteSomething) const override {
       switch_.writeCfi(os, startWithComma, indentation, wroteSomething);
 
       typename CaseMap::const_iterator selectedCase = cases_.find(switch_.getDefaultValue());
@@ -121,27 +95,28 @@ namespace edm {
       }
     }
 
-    void print_(std::ostream & os,
-                bool optional,
-                bool writeToCfi,
-                DocFormatHelper & dfh) const override {
-      printBase(os, optional, writeToCfi, dfh, switch_.label(), switch_.isTracked(), parameterTypeEnumToString(switch_.type()));
+    void print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const override {
+      printBase(os,
+                optional,
+                writeToCfi,
+                dfh,
+                switch_.label(),
+                switch_.isTracked(),
+                parameterTypeEnumToString(switch_.type()));
     }
 
-    void printNestedContent_(std::ostream & os,
-                             bool optional,
-                             DocFormatHelper & dfh) const override {
-
+    void printNestedContent_(std::ostream& os, bool optional, DocFormatHelper& dfh) const override {
       DocFormatHelper new_dfh(dfh);
       printNestedContentBase(os, dfh, new_dfh, switch_.label());
 
       switch_.print(os, optional, true, new_dfh);
-      for_all(cases_, std::bind(&ParameterSwitchBase::printCaseT<T>,
-                                std::placeholders::_1,
-                                std::ref(os),
-                                optional,
-                                std::ref(new_dfh),
-                                std::cref(switch_.label())));
+      for_all(cases_,
+              std::bind(&ParameterSwitchBase::printCaseT<T>,
+                        std::placeholders::_1,
+                        std::ref(os),
+                        optional,
+                        std::ref(new_dfh),
+                        std::cref(switch_.label())));
 
       new_dfh.setPass(1);
       new_dfh.setCounter(0);
@@ -149,36 +124,38 @@ namespace edm {
       new_dfh.indent(os);
       os << "switch:\n";
       switch_.print(os, optional, true, new_dfh);
-      for_all(cases_, std::bind(&ParameterSwitchBase::printCaseT<T>,
-                                  std::placeholders::_1,
-                                  std::ref(os),
-                                  optional,
-                                  std::ref(new_dfh),
-                                  std::cref(switch_.label())));
+      for_all(cases_,
+              std::bind(&ParameterSwitchBase::printCaseT<T>,
+                        std::placeholders::_1,
+                        std::ref(os),
+                        optional,
+                        std::ref(new_dfh),
+                        std::cref(switch_.label())));
 
       new_dfh.setPass(2);
       new_dfh.setCounter(0);
 
       switch_.printNestedContent(os, optional, new_dfh);
-      for_all(cases_, std::bind(&ParameterSwitchBase::printCaseT<T>,
-                                  std::placeholders::_1,
-                                  std::ref(os),
-                                  optional,
-                                  std::ref(new_dfh),
-                                  std::cref(switch_.label())));
+      for_all(cases_,
+              std::bind(&ParameterSwitchBase::printCaseT<T>,
+                        std::placeholders::_1,
+                        std::ref(os),
+                        optional,
+                        std::ref(new_dfh),
+                        std::cref(switch_.label())));
     }
 
     bool exists_(ParameterSet const& pset) const override { return switch_.exists(pset); }
 
     static void checkCaseLabels(std::pair<T, edm::value_ptr<ParameterDescriptionNode> > const& thePair,
-                                std::set<std::string> & labels,
-                                std::set<ParameterTypes> & parameterTypes,
-                                std::set<ParameterTypes> & wildcardTypes) {
+                                std::set<std::string>& labels,
+                                std::set<ParameterTypes>& parameterTypes,
+                                std::set<ParameterTypes>& wildcardTypes) {
       thePair.second->checkAndGetLabelsAndTypes(labels, parameterTypes, wildcardTypes);
     }
 
     ParameterDescription<T> switch_;
     CaseMap cases_;
   };
-}
+}  // namespace edm
 #endif

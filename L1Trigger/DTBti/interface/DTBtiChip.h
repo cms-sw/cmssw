@@ -38,6 +38,8 @@ class DTDigi;
 // C++ Headers --
 //---------------
 #include <vector>
+#include <memory>
+#include <array>
 
 //              ---------------------
 //              -- Class Interface --
@@ -54,13 +56,15 @@ class DTBtiChip {
   DTBtiChip(DTBtiCard* card, DTTrigGeom* geom, int supl, int n, DTConfigBti* _config );
 
   //! Copy constructor
-  DTBtiChip(const DTBtiChip& bti);
+  DTBtiChip(DTBtiChip&& bti) = delete;
+  DTBtiChip(DTBtiChip const& bti) = delete;
 
   //! Destructor 
   ~DTBtiChip();
 
   //! Assignment operator
-  DTBtiChip& operator=(const DTBtiChip& bti);
+  DTBtiChip& operator=(DTBtiChip&& bti) = delete;
+  DTBtiChip& operator=(DTBtiChip const& bti) = delete;
 
   //! Add a digi to the DTBtiChip
   void add_digi(int cell, const DTDigi* digi);
@@ -69,7 +73,7 @@ class DTBtiChip {
   void add_digi_clock(int cell, int clock_digi);
 
    //! get digi vector - SV 28/XI/02
-  std::vector<const DTDigi*> get_CellDigis(int cell) { return _digis[cell];}
+  std::vector<const DTDigi*> const& get_CellDigis(int cell) const { return _digis[cell];}
 
   //! Run DTBtiChip algorithm
   void run();
@@ -79,7 +83,7 @@ class DTBtiChip {
 
   //! Add a DTBtiChip trigger
   //! (normally used by DTBtiChip itself - may be used for debugging by other classes)
-  void addTrig(int step, DTBtiTrig* btitrig);
+  void addTrig(int step, std::unique_ptr<DTBtiTrig> btitrig);
 
   // Public const methods
 
@@ -102,10 +106,10 @@ class DTBtiChip {
   int nTrig(int step) const;
 
   //  // Return the trigger vector
-  std::vector<DTBtiTrig*> trigList(int step) const;
+  std::vector<std::unique_ptr<DTBtiTrig>> const& trigList(int step) const;
 
   //! Return the requested trigger
-  DTBtiTrig* trigger(int step, unsigned n) const;
+  DTBtiTrig const* trigger(int step, unsigned n) const;
 
   //! Return the data part of the requested trigger
   DTBtiTrigData triggerData(int step, unsigned n) const;
@@ -172,20 +176,20 @@ class DTBtiChip {
   DTBtiId _id;
 
   // input data from DTDigis
-  std::vector<const DTDigi*> _digis[9];
+  std::array<std::vector<const DTDigi*>,9> _digis;
   // input data from clock digis
-  std::vector<int > _digis_clock[9];
+  std::array<std::vector<int >,9> _digis_clock;
 
   // output data (ordered by step number)
-  std::vector<DTBtiTrig*> _trigs[ DTConfig::NSTEPL - DTConfig::NSTEPF+1 ];
+  std::array<std::vector<std::unique_ptr<DTBtiTrig>>,DTConfig::NSTEPL - DTConfig::NSTEPF+1>  _trigs;
 
   // internal use variables
   int _curStep;                      // current step
-  std::vector<DTBtiHit*> _hits[9];    // current hits in cells
-  int _thisStepUsedTimes[9];         // current used times in cells (JTRIG)
-  DTBtiHit* _thisStepUsedHit[9]; // link to currently used hits
+  std::array<std::vector<DTBtiHit*>,9> _hits;    // current hits in cells
+  std::array<int,9> _thisStepUsedTimes;         // current used times in cells (JTRIG)
+  std::array<DTBtiHit*,9> _thisStepUsedHit; // link to currently used hits
   int _nStepUsedHits;                // number of currently used hits
-  float _sums[25], _difs[25];        // time sums and differences 
+  std::array<float,25> _sums, _difs;        // time sums and differences 
   float _Keq[32][6];                 // The K equations
   float _Xeq[32][2];                 // The X equations
   int _MinKAcc;                      // min K value accepted by DTBtiChip 
@@ -203,7 +207,7 @@ class DTBtiChip {
   float _KTR[32][2];                 //
   float _JTR[32][3];                 //
   int init_done;                     // initialization flag
-  int _busyStart_clock[9];            // SV - busy wire flag
+  std::array<int,9> _busyStart_clock;            // SV - busy wire flag
 
   //snap register variables
   int ST43, RE43, ST23, RE23, ST, ST2, ST3, ST4, ST5, ST7;

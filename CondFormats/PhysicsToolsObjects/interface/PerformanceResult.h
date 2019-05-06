@@ -31,8 +31,11 @@ class PerformanceResult {
     PFfaEta_BARRELH = 3011, PFfaEta_ENDCAPH = 3012, 
     PFfbEta_BARRELH = 3013, PFfbEta_ENDCAPH = 3014, 
     PFfaEta_BARRELEH = 3015, PFfaEta_ENDCAPEH = 3016, 
-    PFfbEta_BARRELEH = 3017, PFfbEta_ENDCAPEH = 3018 
-    
+    PFfbEta_BARRELEH = 3017, PFfbEta_ENDCAPEH = 3018,
+    //added by bhumika Nov 2018
+    PFfcEta_BARRELH=3019, PFfcEta_BARRELEH = 3020,
+    PFfcEta_ENDCAPH = 3021, PFfcEta_ENDCAPEH = 3022,
+    PFfdEta_ENDCAPH = 3023, PFfdEta_ENDCAPEH =3024
     
 };
   

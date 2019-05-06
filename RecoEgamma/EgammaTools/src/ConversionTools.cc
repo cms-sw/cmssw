@@ -68,6 +68,26 @@ bool ConversionTools::matchesConversion(const reco::GsfElectron &ele, const reco
 }
 
 //--------------------------------------------------------------------------------------------------
+bool ConversionTools::matchesConversion(const reco::GsfElectronCore &eleCore, const reco::Conversion &conv, bool allowCkfMatch)
+{
+
+  //check if a given GsfElectronCore matches a given conversion (no quality cuts applied)
+  //matching is always attempted through the gsf track ref, and optionally attempted through the
+  //closest ctf track ref
+
+  for (const auto& trkRef : conv.tracks() ){
+    if ( eleCore.gsfTrack().isNonnull() && eleCore.gsfTrack().id()==trkRef.id() &&
+	 eleCore.gsfTrack().key()==trkRef.key()) return true;
+    else if ( allowCkfMatch && eleCore.ctfTrack().isNonnull() &&
+	      eleCore.ctfTrack().id()==trkRef.id() &&
+	      eleCore.ctfTrack().key()==trkRef.key() ) return true;
+  }
+
+  return false;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 bool ConversionTools::matchesConversion(const reco::SuperCluster &sc, const reco::Conversion &conv, float dRMax, float dEtaMax, float dPhiMax) {
 
   //check if a given SuperCluster matches a given conversion (no quality cuts applied)
@@ -235,6 +255,34 @@ reco::Conversion const* ConversionTools::matchedConversion(const reco::GsfElectr
 }
 
 //--------------------------------------------------------------------------------------------------
+reco::Conversion const* ConversionTools::matchedConversion(const reco::GsfElectronCore &eleCore,
+                                                  const reco::ConversionCollection &convCol,
+                                                  const math::XYZPoint &beamspot, bool allowCkfMatch, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
+{
+  //check if a given electron candidate matches to at least one conversion candidate in the
+  //collection which also passes the selection cuts, optionally match with the closestckf track in
+  //in addition to just the gsf track (enabled in default arguments)
+  //If multiple conversions are found, returned reference corresponds to minimum
+  //conversion radius
+  
+  reco::Conversion const* match = nullptr;
+  
+  double minRho = 999.;
+  for(auto const& it : convCol) {
+    float rho = it.conversionVertex().position().rho();
+    if (rho>minRho) continue;
+    if (!matchesConversion(eleCore, it, allowCkfMatch)) continue;
+    if (!isGoodConversion(it,beamspot,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
+   
+    minRho = rho;
+    match = &it;
+  }
+  
+  return match;
+  
+}
+
+//--------------------------------------------------------------------------------------------------
 reco::Conversion const* ConversionTools::matchedConversion(const reco::TrackRef &trk,
                                                   const reco::ConversionCollection &convCol,
                                                   const math::XYZPoint &beamspot, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
@@ -330,4 +378,16 @@ reco::GsfElectron const* ConversionTools::matchedPromptElectron(const reco::Supe
   return match;
 
 
+}
+
+//--------------------------------------------------------------------------------------------------
+float ConversionTools::getVtxFitProb(const reco::Conversion* conv)
+{
+  if (conv!=nullptr) {
+    const reco::Vertex& vtx = conv->conversionVertex();
+    if( vtx.isValid() ) {
+      return TMath::Prob(vtx.chi2(),vtx.ndof()) ;
+    } 
+  }
+  return -1;
 }
