@@ -432,7 +432,20 @@ run2_miniAOD_80XLegacy.toModify( subJetTable.variables, n3b1 = None)
 run2_miniAOD_80XLegacy.toModify( subJetTable.variables, btagCMVA = None, btagDeepB = None)
 
 
-
+corrT1METJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = cms.InputTag("corrT1METJets"),
+    cut = cms.string(""),
+    name = cms.string("CorrT1METJet"),
+    doc  = cms.string("Additional low-pt jets for Type-1 MET re-correction"),
+    singleton = cms.bool(False), # the number of entries is variable
+    extension = cms.bool(False), # this is the main table for the jets
+    variables = cms.PSet(
+        rawPt = Var("pt()*jecFactor('Uncorrected')",float,precision=10),
+        eta  = Var("eta",  float,precision=12),
+        phi = Var("phi", float, precision=12),
+        area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
+    )
+)
 
 
 
