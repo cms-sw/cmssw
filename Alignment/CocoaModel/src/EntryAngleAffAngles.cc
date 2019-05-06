@@ -119,8 +119,8 @@ ALIdouble EntryAngleAffAngles::valueDisplaced() const
 
   /*
   CLHEP::HepRotation rmLocalOrig = OptOCurrent()->parent()->rmGlobOriginal().inverse() *  OptOCurrent()->rmGlobOriginal();
-  
-  CLHEP::HepRotation rmLocal = OptOCurrent()->parent()->rmGlob().inverse() *  OptOCurrent()->rmGlob();
+
+  CLHEP::HepRotation rmLocal = OptOCurrent()->parent()->rmGlob().inverse() * OptOCurrent()->rmGlob();
   std::vector<double> localrot = OptOCurrent()->getRotationAnglesFromMatrix(  rmLocal, OptOCurrent()->CoordinateEntryList() );
 
   std::cout << " localrot " << localrot[0] << " " << localrot[1] << " " << localrot[2] << std::endl;
@@ -139,7 +139,7 @@ ALIdouble EntryAngleAffAngles::valueDisplaced() const
     Yaxis = OptOCurrent()->parent()->rmGlob() * Yaxis;
     CLHEP::Hep3Vector YaxisOrig(0.,1.,0.);
     YaxisOrig = OptOCurrent()->parent()->rmGlobOriginal() * YaxisOrig;
-    
+
     diff = fabs( checkDiff( Yaxis, YaxisOrig, localrot, localrotorig ) );
   }
 

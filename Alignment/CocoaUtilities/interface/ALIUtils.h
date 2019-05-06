@@ -138,12 +138,10 @@ public:
 template<class T>
 ALIuint FindItemInVector( const T* item, const std::vector<T*>& item_vector )
 {
- 
   std::vector<T*>::const_iterator vtcite;
   ALIuint vfound = 1;
   for( vtcite = item_vector.begin(); vtcite != item_vector.end(); vtcite++) {
     if( (*vtcite) == item ) {
-      
     }
   }
 

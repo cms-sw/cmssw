@@ -421,23 +421,23 @@ void PixelFEDCard::readDBTBMLevels(std::vector<std::vector<std::string> > &table
      KEY_ALIAS  			       NOT NULL VARCHAR2(80)
      VERSION						VARCHAR2(40)
      KIND_OF_COND			       NOT NULL VARCHAR2(40)
-     TBM_NAME						VARCHAR2(200)
-     PIXEL_FED  					NUMBER(38)
-     FED_CHAN						NUMBER(38)
-     TBMA_HEAD_L0					NUMBER(38)    TBM_L0[1-36] index taken from FED_CHAN 
-     TBMA_HEAD_L1					NUMBER(38)    TBM_L1[1-36] index taken from FED_CHAN 
-     TBMA_HEAD_L2					NUMBER(38)    TBM_L2[1-36] index taken from FED_CHAN 
-     TBMA_HEAD_L3					NUMBER(38)    TBM_L3[1-36] index taken from FED_CHAN 
-     TBMA_HEAD_L4					NUMBER(38)    TBM_L4[1-36] index taken from FED_CHAN 
-     TBMA_TRAIL_L0					NUMBER(38)    TRL_L0[1-36] index taken from FED_CHAN 
-     TBMA_TRAIL_L1					NUMBER(38)    TRL_L1[1-36] index taken from FED_CHAN 
-     TBMA_TRAIL_L2					NUMBER(38)    TRL_L2[1-36] index taken from FED_CHAN 
-     TBMA_TRAIL_L3					NUMBER(38)    TRL_L3[1-36] index taken from FED_CHAN 
-     TBMA_TRAIL_L4					NUMBER(38)    TRL_L4[1-36] index taken from FED_CHAN
-     TBMA_HEAD_B					NUMBER(38)
-     TBMA_HEAD_UB					NUMBER(38)
-     TBMA_TRAIL_B					NUMBER(38)
-     TBMA_TRAIL_UB					NUMBER(38)
+     TBM_NAME                                           VARCHAR2(200)
+     PIXEL_FED                                          NUMBER(38)
+     FED_CHAN                                           NUMBER(38)
+     TBMA_HEAD_L0                                       NUMBER(38)    TBM_L0[1-36] index taken from FED_CHAN
+     TBMA_HEAD_L1                                       NUMBER(38)    TBM_L1[1-36] index taken from FED_CHAN
+     TBMA_HEAD_L2                                       NUMBER(38)    TBM_L2[1-36] index taken from FED_CHAN
+     TBMA_HEAD_L3                                       NUMBER(38)    TBM_L3[1-36] index taken from FED_CHAN
+     TBMA_HEAD_L4                                       NUMBER(38)    TBM_L4[1-36] index taken from FED_CHAN
+     TBMA_TRAIL_L0                                      NUMBER(38)    TRL_L0[1-36] index taken from FED_CHAN
+     TBMA_TRAIL_L1                                      NUMBER(38)    TRL_L1[1-36] index taken from FED_CHAN
+     TBMA_TRAIL_L2                                      NUMBER(38)    TRL_L2[1-36] index taken from FED_CHAN
+     TBMA_TRAIL_L3                                      NUMBER(38)    TRL_L3[1-36] index taken from FED_CHAN
+     TBMA_TRAIL_L4                                      NUMBER(38)    TRL_L4[1-36] index taken from FED_CHAN
+     TBMA_HEAD_B                                        NUMBER(38)
+     TBMA_HEAD_UB                                       NUMBER(38)
+     TBMA_TRAIL_B                                       NUMBER(38)
+     TBMA_TRAIL_UB                                      NUMBER(38)
 
   */
   
@@ -1238,7 +1238,7 @@ void PixelFEDCard::writeASCII(std::string dir) const{
   s1<<fedNumber;
   std::string fedNum=s1.str();
 
-  if (dir!="") dir+="/";
+  if (!dir.empty()) dir+="/";
 
   std::string filename=dir+"params_fed_"+fedNum+".dat";
 
