@@ -86,10 +86,21 @@ void PSMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
   std::string currentFolder = folderName_;
   booker.setCurrentFolder(currentFolder);
 
-  std::vector<std::string> const& psLabels = edm::Service<edm::service::PrescaleService>()->getLvl1Labels();
-  int nbins = (!psLabels.empty() ? psLabels.size() : ps_binning_.nbins);
-  double xmin = (!psLabels.empty() ? 0. : ps_binning_.xmin);
-  double xmax = (!psLabels.empty() ? double(psLabels.size()) : ps_binning_.xmax);
+  int nbins;
+  double xmin, xmax;
+  std::vector<std::string> labels;
+  edm::Service<edm::service::PrescaleService> prescaleService;
+  if (prescaleService.isAvailable() and not prescaleService->getLvl1Labels().empty()) {
+    labels = prescaleService->getLvl1Labels();
+    nbins = labels.size();
+    xmin = 0.;
+    xmax = double(labels.size());
+  } else {
+    nbins = ps_binning_.nbins;
+    xmin = ps_binning_.xmin;
+    xmax = ps_binning_.xmax;
+    labels.resize(nbins, "");
+  }
 
   histname = "psColumnIndexVsLS";
   histtitle = "PS column index vs LS";
@@ -98,10 +109,10 @@ void PSMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
   histograms.psColumnIndexVsLS.setAxisTitle("LS", 1);
   histograms.psColumnIndexVsLS.setAxisTitle("PS column index", 2);
 
-  int ibin = 1;
-  for (auto l : psLabels) {
-    histograms.psColumnIndexVsLS.setBinLabel(ibin, l, 2);
-    ibin++;
+  int bin = 1;
+  for (auto const& l : labels) {
+    histograms.psColumnIndexVsLS.setBinLabel(bin, l, 2);
+    bin++;
   }
 }
 
