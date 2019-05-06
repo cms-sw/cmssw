@@ -11,7 +11,11 @@
 #include "Geometry/HcalEventSetup/interface/HcalAlignmentEP.h"
 
 HcalAlignmentEP::HcalAlignmentEP(const edm::ParameterSet&) {
-  setWhatProduced( this, &HcalAlignmentEP::produceHcalAli    ) ;
+  auto cc = setWhatProduced( this, &HcalAlignmentEP::produceHcalAli    ) ;
+  hbToken_ = cc.consumesFrom<Alignments, HBAlignmentRcd>(edm::ESInputTag{});
+  heToken_ = cc.consumesFrom<Alignments, HEAlignmentRcd>(edm::ESInputTag{});
+  hfToken_ = cc.consumesFrom<Alignments, HFAlignmentRcd>(edm::ESInputTag{});
+  hoToken_ = cc.consumesFrom<Alignments, HOAlignmentRcd>(edm::ESInputTag{});
 }
 
 HcalAlignmentEP::~HcalAlignmentEP() {}
@@ -24,27 +28,20 @@ HcalAlignmentEP::ReturnAli HcalAlignmentEP::produceHcalAli( const HcalAlignmentR
   const unsigned int nA ( HcalGeometry::numberOfAlignments() ) ; 
   vtr.resize( nA ) ;
 
-  edm::ESHandle<Alignments> hb ;
-  edm::ESHandle<Alignments> he ;
-  edm::ESHandle<Alignments> hf ;
-  edm::ESHandle<Alignments> ho ;
-  iRecord.getRecord<HBAlignmentRcd>().get( hb ) ;
-  iRecord.getRecord<HEAlignmentRcd>().get( he ) ;
-  iRecord.getRecord<HFAlignmentRcd>().get( hf ) ;
-  iRecord.getRecord<HOAlignmentRcd>().get( ho ) ;
+  const auto& hb = iRecord.get(hbToken_);
+  const auto& he = iRecord.get(heToken_);
+  const auto& hf = iRecord.get(hfToken_);
+  const auto& ho = iRecord.get(hoToken_);
 
-  assert( hb.isValid() && // require valid alignments and expected size
-	  ( hb->m_align.size() == HcalGeometry::numberOfBarrelAlignments() ) ) ;
-  assert( he.isValid() && // require valid alignments and expected size
-	  ( he->m_align.size() == HcalGeometry::numberOfEndcapAlignments() ) ) ;
-  assert( hf.isValid() && // require valid alignments and expected size
-	  ( hf->m_align.size() == HcalGeometry::numberOfForwardAlignments() ) ) ;
-  assert( ho.isValid() && // require valid alignments and expected size
-	  ( ho->m_align.size() == HcalGeometry::numberOfOuterAlignments() ) ) ;
-  const std::vector<AlignTransform>& hbt = hb->m_align ;
-  const std::vector<AlignTransform>& het = he->m_align ;
-  const std::vector<AlignTransform>& hft = hf->m_align ;
-  const std::vector<AlignTransform>& hot = ho->m_align ;
+  // require valid alignments and expected size
+  assert( hb.m_align.size() == HcalGeometry::numberOfBarrelAlignments() ) ;
+  assert( he.m_align.size() == HcalGeometry::numberOfEndcapAlignments() ) ;
+  assert( hf.m_align.size() == HcalGeometry::numberOfForwardAlignments() ) ;
+  assert( ho.m_align.size() == HcalGeometry::numberOfOuterAlignments() ) ;
+  const std::vector<AlignTransform>& hbt = hb.m_align ;
+  const std::vector<AlignTransform>& het = he.m_align ;
+  const std::vector<AlignTransform>& hft = hf.m_align ;
+  const std::vector<AlignTransform>& hot = ho.m_align ;
 
   copy( hbt.begin(), hbt.end(), vtr.begin() ) ;
   copy( het.begin(), het.end(), vtr.begin()+hbt.size() ) ;
