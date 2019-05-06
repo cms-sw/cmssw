@@ -6,6 +6,7 @@
 #include "DataFormats/NanoAOD/interface/MergeableCounterTable.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
@@ -141,9 +142,9 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
     public:
         GenWeightsTableProducer( edm::ParameterSet const & params ) :
             genTag_(consumes<GenEventInfoProduct>(params.getParameter<edm::InputTag>("genEvent"))),
-            lheLabel_(params.getParameter<edm::InputTag>("lheInfo")),
-            lheTag_(consumes<LHEEventProduct>(lheLabel_)),
-            lheRunTag_(consumes<LHERunInfoProduct, edm::InRun>(lheLabel_)),
+            lheLabel_(params.getParameter<std::vector<edm::InputTag>>("lheInfo")),
+            lheTag_(edm::vector_transform(lheLabel_, [this](const edm::InputTag & tag) { return mayConsume<LHEEventProduct>(tag); })),
+            lheRunTag_(edm::vector_transform(lheLabel_, [this](const edm::InputTag & tag) { return mayConsume<LHERunInfoProduct, edm::InRun>(tag); })),
             namedWeightIDs_(params.getParameter<std::vector<std::string>>("namedWeightIDs")),
             namedWeightLabels_(params.getParameter<std::vector<std::string>>("namedWeightLabels")),
             lheWeightPrecision_(params.getParameter<int32_t>("lheWeightPrecision")),
@@ -192,7 +193,13 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             std::unique_ptr<nanoaod::FlatTable> genPSTab;
 
             edm::Handle<LHEEventProduct> lheInfo;
-            if (iEvent.getByToken(lheTag_, lheInfo)) {
+            for (const auto & lheTag: lheTag_) {
+                iEvent.getByToken(lheTag, lheInfo);
+                if (lheInfo.isValid()) {
+                    break;
+                }
+            }
+            if (lheInfo.isValid()) {
                 // get the dynamic choice of weights
                 const DynamicWeightChoice * weightChoice = runCache(iEvent.getRun().index());
                 // go fill tables
@@ -315,7 +322,13 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
 
             // getByToken throws since we're not in the endRun (see https://github.com/cms-sw/cmssw/pull/18499)
             //if (iRun.getByToken(lheRunTag_, lheInfo)) {
-            if (iRun.getByLabel(lheLabel_, lheInfo)) { 
+            for (const auto & lheLabel: lheLabel_) {
+                iRun.getByLabel(lheLabel, lheInfo);
+                if (lheInfo.isValid()) {
+                    break;
+                }
+            }
+            if (lheInfo.isValid()) {
                 std::vector<ScaleVarWeight> scaleVariationIDs;
                 std::vector<PDFSetWeights>  pdfSetWeightIDs;
                 std::vector<std::string>    lheReweighingIDs;
@@ -599,7 +612,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
         static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
             edm::ParameterSetDescription desc;
             desc.add<edm::InputTag>("genEvent", edm::InputTag("generator"))->setComment("tag for the GenEventInfoProduct, to get the main weight");
-            desc.add<edm::InputTag>("lheInfo", edm::InputTag("externalLHEProducer"))->setComment("tag for the LHE information (LHEEventProduct and LHERunInfoProduct)");
+            desc.add<std::vector<edm::InputTag>>("lheInfo", std::vector<edm::InputTag>{{"externalLHEProducer"},{"source"}})->setComment("tag(s) for the LHE information (LHEEventProduct and LHERunInfoProduct)");
 
             edm::ParameterSetDescription prefpdf;
             prefpdf.add<std::string>("name");
@@ -616,9 +629,9 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
 
     protected:
         const edm::EDGetTokenT<GenEventInfoProduct> genTag_;
-        const edm::InputTag lheLabel_;
-        const edm::EDGetTokenT<LHEEventProduct> lheTag_;
-        const edm::EDGetTokenT<LHERunInfoProduct> lheRunTag_;
+        const std::vector<edm::InputTag> lheLabel_;
+        const std::vector<edm::EDGetTokenT<LHEEventProduct>> lheTag_;
+        const std::vector<edm::EDGetTokenT<LHERunInfoProduct>> lheRunTag_;
 
         std::vector<uint32_t> preferredPDFLHAIDs_;
         std::unordered_map<std::string,uint32_t> lhaNameToID_;
