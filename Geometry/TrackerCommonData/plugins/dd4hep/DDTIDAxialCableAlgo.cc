@@ -74,7 +74,7 @@ long algorithm(dd4hep::Detector &description, cms::DDParsingContext &ctxt,
                          << " and " << matOut;
 
   std::vector<Volume> logs;
-  double thk = thick / zposRing.size();
+  const double thk = thick / zposRing.size();
   double r = rMin;
   double thktot = 0;
   double z;
