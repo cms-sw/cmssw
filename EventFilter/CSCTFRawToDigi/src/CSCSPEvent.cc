@@ -67,7 +67,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 				if( track.ME1_id() ){ // if track contains LCT from the ME1
 					unsigned int mpc = ( track.ME1_id()>3 ? 1 : 0 );
 					int ME1_tbin = tbin + second_earliest_lct_delay - track.ME1_tbin();
-///					if( track.ME1_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
+///                                     if( track.ME1_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
 					if( ME1_tbin>=0 && ME1_tbin<7 ) {
 						std::vector<CSCSP_MEblock> lcts = record_[ME1_tbin].LCTs(mpc);
 						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
@@ -81,7 +81,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 				}
 				if( track.ME2_id() ){ // ... ME2
 					int ME2_tbin = tbin + second_earliest_lct_delay - track.ME2_tbin();
-///					if( track.ME2_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
+///                                     if( track.ME2_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
 					if( ME2_tbin>=0 && ME2_tbin<7 ) {
 						std::vector<CSCSP_MEblock> lcts = record_[ME2_tbin].LCTs(2);
 						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
@@ -95,7 +95,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 				}
 				if( track.ME3_id() ){ // ... ME3
 					int ME3_tbin = tbin + second_earliest_lct_delay - track.ME3_tbin();
-///					if( track.ME3_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
+///                                     if( track.ME3_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
 					if( ME3_tbin>=0 && ME3_tbin<7 ) {
 						std::vector<CSCSP_MEblock> lcts = record_[ME3_tbin].LCTs(3);
 						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
@@ -109,7 +109,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 				}
 				if( track.ME4_id() ){ // ... fourth station
 					int ME4_tbin = tbin + second_earliest_lct_delay - track.ME4_tbin();
-///					if( track.ME4_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
+///                                     if( track.ME4_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
 					if( ME4_tbin>=0 && ME4_tbin<7 ) {
 						std::vector<CSCSP_MEblock> lcts = record_[ME4_tbin].LCTs(4);
 						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
@@ -123,7 +123,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 				}
 				if( track.MB_id() ){  // ... barrel
 					int MB_tbin = tbin + second_earliest_lct_delay - track.MB_tbin();
-///					if( track.MB_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
+///                                     if( track.MB_tbin()>2 ) unpackError |= true; // because bxaDepth<=2
 					if( MB_tbin>=0 && MB_tbin<7 ) {
 						std::vector<CSCSP_MBblock> stubs = record_[MB_tbin].mbStubs();
 						for(std::vector<CSCSP_MBblock>::const_iterator stub=stubs.begin(); stub!=stubs.end(); stub++)

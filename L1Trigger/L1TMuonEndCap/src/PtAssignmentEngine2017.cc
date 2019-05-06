@@ -339,7 +339,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     // if (not( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 3), 3) );
     // { edm::LogError("L1T") << " = " << ; return; }
     // if (not( clctA  == aux().getCLCT( aux().unpackCLCT( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 2), 
-    // 				     endcap, (sPhiAB == 1 ? 1 : -1), 2) );
+    //                               endcap, (sPhiAB == 1 ? 1 : -1), 2) );
     // { edm::LogError("L1T") << " = " << ; return; }
     // int theta_unp = theta;
     // aux().unpackTheta( theta_unp, St1_ring2, 5 );
@@ -353,10 +353,10 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     // if (not( dTheta == aux().getdTheta( aux().unpackdTheta( dTheta, 3), 3) );
     // { edm::LogError("L1T") << " = " << ; return; }
     // if (not( clctA  == aux().getCLCT( aux().unpackCLCT( clctA, endcap, (sPhiAB == 1 ? 1 : -1), 3), 
-    // 				     endcap, (sPhiAB == 1 ? 1 : -1), 3) );
+    //                               endcap, (sPhiAB == 1 ? 1 : -1), 3) );
     // { edm::LogError("L1T") << " = " << ; return; }
     // if (not( clctB  == aux().getCLCT( aux().unpackCLCT( clctB, endcap, (sPhiAB == 1 ? 1 : -1), 3), 
-    // 				     endcap, (sPhiAB == 1 ? 1 : -1), 3) );
+    //                               endcap, (sPhiAB == 1 ? 1 : -1), 3) );
     // { edm::LogError("L1T") << " = " << ; return; }
     // int theta_unp = theta;
     // aux().unpackTheta( theta_unp, St1_ring2, 5 );

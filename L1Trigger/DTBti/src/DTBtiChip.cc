@@ -86,7 +86,7 @@ DTBtiChip::DTBtiChip(DTBtiCard* card, DTTrigGeom* geom, int supl, int n, DTConfi
     _MaxKAcc = 63;
 	
 /*	   DTBtiId _id1 = DTBtiId(sid,supl,1);
-	   
+
 	   cout <<"superlayer" << _id.superlayer()<< "BTI1   " <<  _id1.bti()  << " BTICur " << _id.bti()<< endl;
 	   cout <<endl;
 	   GlobalPoint gp1 = _geom->CMSPosition(_id1);

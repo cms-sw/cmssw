@@ -351,10 +351,10 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 	  bladeF_ = tTopo->pxfBlade(detIdObj);
 	  panelF_ = tTopo->pxfPanel(detIdObj);
 	  moduleF_ = tTopo->pxfModule(detIdObj);
-	  // 					float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
-	  // 					float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
-	  // 					if ( tmp2<tmp1 ) isflipped_ = 1;
-	  // 					else isflipped_ = 0;
+	  //float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
+	  //float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
+	  //if ( tmp2<tmp1 ) isflipped_ = 1;
+	  //else isflipped_ = 0;
 	  const SiPixelRecHit * recHitPix = dynamic_cast<const SiPixelRecHit *>((*recHit).hit());
 	  if(!recHitPix) continue;
 	  rechitF_.x  = recHitPix->localPosition().x();
