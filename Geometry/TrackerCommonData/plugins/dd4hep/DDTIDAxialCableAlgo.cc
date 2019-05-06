@@ -193,7 +193,7 @@ long algorithm(dd4hep::Detector &description, cms::DDParsingContext &ctxt,
   logs.emplace_back(Volume(solid.name(), solid, ns.material(matOut)));
 
   // Position the cables
-  double theta = 90_deg;
+  constexpr double theta = 90_deg;
 
   for (int i = 0; i < (int)(angles.size()); i++) {
     double phix = angles[i];
