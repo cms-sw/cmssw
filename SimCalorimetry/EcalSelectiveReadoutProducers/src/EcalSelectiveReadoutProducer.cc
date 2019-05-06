@@ -515,8 +515,8 @@ void EcalSelectiveReadoutProducer::checkValidity(const EcalSRSettings& settings)
 //      && settings.dccNormalizedWeights_.size() != 54
 //      && settings.dccNormalizedWeights_.size() != 75848){
 //     throw cms::Exception("Configuration") << "Invalid number of DCC weight set (" << settings.dccNormalizedWeights_.size()
-// 					  << ") in condition object EcalSRSetting::dccNormalizedWeights_. "
-// 					  << "Valid counts are: 1 (single set), 2 (EB and EE), 54 (one per DCC) and 75848 "
+//       << ") in condition object EcalSRSetting::dccNormalizedWeights_. "
+//       << "Valid counts are: 1 (single set), 2 (EB and EE), 54 (one per DCC) and 75848 "
 //       "(one per crystal)\n";
 //   }
   

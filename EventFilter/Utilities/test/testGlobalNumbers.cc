@@ -103,29 +103,30 @@ namespace test{
                                                << "  summarySize;" << std::hex << (unsigned int)record->sizes.summarySize
                                                << "  headerSize;" << std::hex << (unsigned int)record->sizes.headerSize
                                                << std::endl;
-        edm::LogInfo( "GlobalNumberAnalysis" ) << "macAddress;          " << std::hex << (uint64_t)record->header.macAddress
-                                               << "\nswVersion;          " << std::hex << (unsigned int)record->header.swVersion
-                                               << "\nfwVersion;          " << std::hex <<(unsigned int)record->header.fwVersion
-                                               << "\nreserved0;	   " << std::hex <<(unsigned int)record->header.reserved0
-                                               << "\nrecordVersion;          " << std::hex <<(unsigned int)record->header.recordVersion
-                                               << "\nrunNumber;	   " << std::dec << (unsigned int)record->header.runNumber
-                                               << "\nreserved1;	   " << std::hex <<(unsigned int)record->header.reserved1
-                                               << "\nactivePartitions2;   " << std::hex <<(unsigned int)record->header.activePartitions2
-                                               << "\nbstReceptionStatus;  " << std::hex <<(unsigned int)record->header.bstReceptionStatus
-                                               << "\nactivePartitions0;   " << std::hex << (unsigned int)record->header.activePartitions0
-                                               << "\nactivePartitions1;   " << std::hex <<(unsigned int)record->header.activePartitions1
-                                               << "\nnibble;		   " << std::dec << (unsigned int)record->header.nibble
-                                               << "\nlumiSection;	   " << std::dec << (unsigned int)record->header.lumiSection
-                                               << "\nnibblesPerLumiSection;" << std::hex <<(unsigned int)record->header.nibblesPerLumiSection
-                                               << "\ntriggerTypeFlags;	   " << std::hex <<(unsigned int)record->header.triggerTypeFlags
-                                               << "\nreserved5;	   " << std::hex <<(unsigned int)record->header.reserved5
-                                               << "\ninputs;		   " << std::hex <<(unsigned int)record->header.inputs
-                                               << "\nbxid;		   " << std::dec << (unsigned int)record->header.bxid
-                                               << "\norbitLow;		   " << std::dec << (unsigned int)record->header.orbitLow
-                                               << "\norbitHigh;	   " << std::dec << (unsigned int)record->header.orbitHigh
-                                               << "\ntriggerCount;	   " << std::dec << (uint64_t)record->header.triggerCount
-                                               << "\neventNumber;         " << std::dec << (uint64_t)record->header.eventNumber
-                                               << std::endl;
+        edm::LogInfo( "GlobalNumberAnalysis" ) 
+            << "macAddress;             " << std::hex << (uint64_t)record->header.macAddress
+            << "\nswVersion;            " << std::hex << (unsigned int)record->header.swVersion
+            << "\nfwVersion;            " << std::hex <<(unsigned int)record->header.fwVersion
+            << "\nreserved0;            " << std::hex <<(unsigned int)record->header.reserved0
+            << "\nrecordVersion;        " << std::hex <<(unsigned int)record->header.recordVersion
+            << "\nrunNumber;            " << std::dec << (unsigned int)record->header.runNumber
+            << "\nreserved1;            " << std::hex <<(unsigned int)record->header.reserved1
+            << "\nactivePartitions2;    " << std::hex <<(unsigned int)record->header.activePartitions2
+            << "\nbstReceptionStatus;   " << std::hex <<(unsigned int)record->header.bstReceptionStatus
+            << "\nactivePartitions0;    " << std::hex << (unsigned int)record->header.activePartitions0
+            << "\nactivePartitions1;    " << std::hex <<(unsigned int)record->header.activePartitions1
+            << "\nnibble;               " << std::dec << (unsigned int)record->header.nibble
+            << "\nlumiSection;          " << std::dec << (unsigned int)record->header.lumiSection
+            << "\nnibblesPerLumiSection;" << std::hex <<(unsigned int)record->header.nibblesPerLumiSection
+            << "\ntriggerTypeFlags;     " << std::hex <<(unsigned int)record->header.triggerTypeFlags
+            << "\nreserved5;            " << std::hex <<(unsigned int)record->header.reserved5
+            << "\ninputs;               " << std::hex <<(unsigned int)record->header.inputs
+            << "\nbxid;                 " << std::dec << (unsigned int)record->header.bxid
+            << "\norbitLow;             " << std::dec << (unsigned int)record->header.orbitLow
+            << "\norbitHigh;            " << std::dec << (unsigned int)record->header.orbitHigh
+            << "\ntriggerCount;         " << std::dec << (uint64_t)record->header.triggerCount
+            << "\neventNumber;          " << std::dec << (uint64_t)record->header.eventNumber
+            << std::endl;
 
         std::ostringstream osl1ah;
         osl1ah << "====================l1a history===================";

@@ -61,10 +61,10 @@ class SiPixelDigiModule {
   void book(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, DQMStore::IBooker & iBooker, int type=0, bool twoD=true, bool hiRes=false, bool reducedSet=false, bool additInfo=false, bool isUpgrade=false);
   /// Fill histograms
 //  int fill(const edm::DetSetVector<PixelDigi> & input, bool modon=true, 
-//						 bool ladon=false, bool layon=false, bool phion=false, 
-//						 bool bladeon=false, bool diskon=false, bool ringon=false, 
-//						 bool twoD=true, bool reducedSet=false, bool twoDimModOn = true, bool twoDimOnlyLayDisk = false,
-//						 int &nDigisA, int &nDigisB);
+//           bool ladon=false, bool layon=false, bool phion=false, 
+//           bool bladeon=false, bool diskon=false, bool ringon=false, 
+//           bool twoD=true, bool reducedSet=false, bool twoDimModOn = true, bool twoDimOnlyLayDisk = false,
+//           int &nDigisA, int &nDigisB);
   int fill(const edm::DetSetVector<PixelDigi>& input, const edm::EventSetup& iSetup,
       MonitorElement* combBarrel, MonitorElement* chanBarrel, std::vector<MonitorElement*>& chanBarrelL, MonitorElement* combEndcap,
 	   const bool modon, const bool ladon, const bool layon, const bool phion, 
