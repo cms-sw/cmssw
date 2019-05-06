@@ -36,6 +36,7 @@
 #include "FWCore/Utilities/interface/Transition.h"
 
 #include <vector>
+#include <memory>
 namespace edm {
   using ESConsumesInfo =
       std::vector<std::tuple<edm::eventsetup::EventSetupRecordKey, edm::eventsetup::DataKey, std::string> >;
