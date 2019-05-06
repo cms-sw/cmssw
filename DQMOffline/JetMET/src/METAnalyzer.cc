@@ -1772,7 +1772,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     myLuminosityBlock = iEvent.luminosityBlock();
     //
     
-    if (subFolderName!=""){
+    if (!subFolderName.empty()){
       DirName = DirName +"/"+subFolderName;
     }
     
