@@ -65,12 +65,6 @@ class PFEGammaAlgo {
   typedef reco::PFBlockElementGsfTrack PFGSFElement;
   typedef reco::PFBlockElementTrack PFKFElement;
   typedef reco::PFBlockElementCluster PFClusterElement;
-  typedef FlaggedPtr<const reco::PFBlockElement> PFFlaggedElement;
-  typedef FlaggedPtr<const PFSCElement> PFSCFlaggedElement;
-  typedef FlaggedPtr<const PFBremElement> PFBremFlaggedElement;
-  typedef FlaggedPtr<const PFGSFElement> PFGSFFlaggedElement;
-  typedef FlaggedPtr<const PFKFElement> PFKFFlaggedElement;
-  typedef FlaggedPtr<const PFClusterElement> PFClusterFlaggedElement;
   typedef std::unordered_map<const PFKFElement*, float > KFValMap;  
 
   using ClusterMap = std::unordered_map<PFClusterElement const*,std::vector<PFClusterElement const*>>;
@@ -82,18 +76,18 @@ class PFEGammaAlgo {
     // this is a mutable list of clusters
     // if ECAL driven we take the PF SC and refine it
     // if Tracker driven we add things to it as we discover more valid clusters
-    std::vector<PFClusterFlaggedElement> ecalclusters;
+    std::vector<FlaggedPtr<const PFClusterElement>> ecalclusters;
     ClusterMap ecal2ps;
     // associations to tracks of various sorts
-    std::vector<PFGSFFlaggedElement> primaryGSFs; 
-    std::vector<PFKFFlaggedElement> primaryKFs;
-    std::vector<PFBremFlaggedElement> brems; // these are tangent based brems
+    std::vector<PFGSFElement const*> primaryGSFs; 
+    std::vector<PFKFElement const*> primaryKFs;
+    std::vector<PFBremElement const*> brems; // these are tangent based brems
     // for manual brem recovery 
-    std::vector<PFGSFFlaggedElement> secondaryGSFs;
-    std::vector<PFKFFlaggedElement> secondaryKFs;    
+    std::vector<PFGSFElement const*> secondaryGSFs;
+    std::vector<PFKFElement const*> secondaryKFs;    
     KFValMap singleLegConversionMvaMap;
     // for track-HCAL cluster linking
-    std::vector<PFClusterFlaggedElement> hcalClusters;
+    std::vector<PFClusterElement const*> hcalClusters;
     CommutativePairs<const reco::PFBlockElement*> localMap;
     // cluster closest to the gsf track(s), primary kf if none for gsf
     // last brem tangent cluster if neither of those work
@@ -156,7 +150,7 @@ private:
   reco::PFBlock::LinkData _currentlinks;  
   // keep a map of pf indices to the splayed block for convenience
   // sadly we're mashing together two ways of thinking about the block
-  std::vector<std::vector<PFFlaggedElement> > _splayedblock; 
+  std::vector<std::vector<FlaggedPtr<const reco::PFBlockElement>>> _splayedblock; 
 
   // pre-cleaning for the splayed block
   bool isMuon(const reco::PFBlockElement&);
@@ -182,7 +176,7 @@ private:
   // turn a supercluster into a map of ECAL cluster elements 
   // related to PS cluster elements
   bool unwrapSuperCluster(const reco::PFBlockElementSuperCluster*,
-			  std::vector<PFClusterFlaggedElement>&,
+			  std::vector<FlaggedPtr<const PFClusterElement>>&,
 			  ClusterMap&);    
   
   int attachPSClusters(const PFClusterElement*,
@@ -208,7 +202,7 @@ private:
   void linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject&);
   void linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject&);
   // helper function for above
-  void linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
+  void linkKFTrackToECAL(PFKFElement const*, ProtoEGObject&);
 
   // refining steps doing the ECAL -> track piece
   // this is the factorization of the old PF photon algo stuff
