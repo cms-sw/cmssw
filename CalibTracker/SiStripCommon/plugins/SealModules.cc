@@ -1,7 +1,5 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//#include "FWCore/Framework/interface/ModuleFactory.h"
-//#include "FWCore/Utilities/interface/typelookup.h"
 
 #include "CalibTracker/SiStripCommon/plugins/SiStripDetInfoFileWriter.h"
 
@@ -21,8 +19,8 @@ DEFINE_FWK_SERVICE(SiStripDetInfoFileReader);
 #include "CalibTracker/SiStripCommon/interface/ShallowRechitClustersProducer.h"
 #include "CalibTracker/SiStripCommon/interface/ShallowSimhitClustersProducer.h"
 #include "CalibTracker/SiStripCommon/interface/ShallowTracksProducer.h"
-#include "CalibTracker/SiStripCommon/interface/ShallowSimTracksProducer.h"
 #include "CalibTracker/SiStripCommon/interface/ShallowGainCalibration.h"
+#include "ShallowSimTracksProducer.h"
 
 DEFINE_FWK_MODULE(ShallowTree);
 DEFINE_FWK_MODULE(ShallowEventDataProducer);
