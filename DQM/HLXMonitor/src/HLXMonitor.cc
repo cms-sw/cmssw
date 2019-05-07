@@ -7,14 +7,14 @@
 
 // STL Headers
 
+#include <TSystem.h>
 #include <cmath>
 #include <iomanip>
-#include <TSystem.h>
 
 using std::cout;
 using std::endl;
 
-HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig) {
+HLXMonitor::HLXMonitor(const edm::ParameterSet &iConfig) {
   NUM_HLX = iConfig.getUntrackedParameter<unsigned int>("numHlx", 36);
   NUM_BUNCHES = iConfig.getUntrackedParameter<unsigned int>("numBunches", 3564);
   MAX_LS = iConfig.getUntrackedParameter<unsigned int>("maximumNumLS", 480);
@@ -24,12 +24,12 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig) {
   OutputDir = iConfig.getUntrackedParameter<std::string>("outputDir", "  data");
   SavePeriod = iConfig.getUntrackedParameter<unsigned int>("SavePeriod", 10);
   NBINS = iConfig.getUntrackedParameter<unsigned int>("NBINS",
-                                                      297);  // 12 BX per bin
+                                                      297); // 12 BX per bin
   XMIN = iConfig.getUntrackedParameter<double>("XMIN", 0);
   XMAX = iConfig.getUntrackedParameter<double>("XMAX", 3564);
   Style = iConfig.getUntrackedParameter<std::string>("Style", "BX");
   AquireMode = iConfig.getUntrackedParameter<unsigned int>("AquireMode", 0);
-  Accumulate = iConfig.getUntrackedParameter<bool>("Accumulate", true);  // all
+  Accumulate = iConfig.getUntrackedParameter<bool>("Accumulate", true); // all
   TriggerBX = iConfig.getUntrackedParameter<unsigned int>("TriggerBX", 50);
   MinLSBeforeSave =
       iConfig.getUntrackedParameter<unsigned int>("MinLSBeforeSave", 1);
@@ -71,13 +71,16 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig) {
   runNumLength = 9;
   secNumLength = 8;
 
-  if (NUM_HLX > 36) NUM_HLX = 36;
+  if (NUM_HLX > 36)
+    NUM_HLX = 36;
 
-  if (NUM_BUNCHES > 3564) NUM_BUNCHES = 3564;
+  if (NUM_BUNCHES > 3564)
+    NUM_BUNCHES = 3564;
 
   if (XMAX <= XMIN) {
     XMIN = 0;
-    if (XMAX <= 0) XMAX = 3564;
+    if (XMAX <= 0)
+      XMAX = 3564;
   }
 
   if ((Style == "History") || (NBINS == 0)) {
@@ -90,12 +93,12 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig) {
   prescaleEvt_ = iConfig.getUntrackedParameter<int>("prescaleEvt", -1);
   // cout << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
 
-  unsigned int HLXHFMapTemp[] = {31, 32, 33, 34, 35, 18,  // s2f07 hf-
-                                 13, 14, 15, 16, 17, 0,   // s2f07 hf+
-                                 25, 26, 27, 28, 29, 30,  // s2f05 hf-
-                                 7,  8,  9,  10, 11, 12,  // s2f05 hf+
-                                 19, 20, 21, 22, 23, 24,  // s2f02 hf-
-                                 1,  2,  3,  4,  5,  6};  // s2f02 hf+
+  unsigned int HLXHFMapTemp[] = {31, 32, 33, 34, 35, 18, // s2f07 hf-
+                                 13, 14, 15, 16, 17, 0,  // s2f07 hf+
+                                 25, 26, 27, 28, 29, 30, // s2f05 hf-
+                                 7,  8,  9,  10, 11, 12, // s2f05 hf+
+                                 19, 20, 21, 22, 23, 24, // s2f02 hf-
+                                 1,  2,  3,  4,  5,  6}; // s2f02 hf+
 
   currentRunEnded_ = true;
   runNumber_ = 0;
@@ -132,7 +135,8 @@ void HLXMonitor::connectHLXTCP() {
       sleep(1);
       std::cout << "Trying " << DistribIP2 << std::endl;
       HLXTCP.SetIP(DistribIP2);
-      if (HLXTCP.Connect() == 1) break;
+      if (HLXTCP.Connect() == 1)
+        break;
       std::cout << "Failed to connect to " << DistribIP2 << "." << std::endl;
       std::cout << " Reconnect in " << reconnTime << " seconds." << std::endl;
       sleep(reconnTime);
@@ -144,13 +148,13 @@ void HLXMonitor::connectHLXTCP() {
 }
 
 // ------------ Setup the monitoring elements ---------------
-void HLXMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
-                                edm::EventSetup const&) {
+void HLXMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
+                                edm::EventSetup const &) {
   SetupHists(iBooker);
   SetupEventInfo(iBooker);
 }
 
-void HLXMonitor::SetupHists(DQMStore::IBooker& iBooker) {
+void HLXMonitor::SetupHists(DQMStore::IBooker &iBooker) {
   iBooker.setCurrentFolder(monitorName_ + "/HFPlus");
 
   for (unsigned int iWedge = 0; iWedge < 18 && iWedge < NUM_HLX; ++iWedge) {
@@ -164,30 +168,30 @@ void HLXMonitor::SetupHists(DQMStore::IBooker& iBooker) {
     iBooker.setCurrentFolder(monitorName_ + "/HFPlus/Wedge" +
                              tempStreamer.str());
 
-    Set1Below[iWedge] = iBooker.book1D(
-        "Set1_Below",
-        "HF+ Wedge " + wedgeNum.str() + ": Below Threshold 1 - Set 1", NBINS,
-        XMIN, XMAX);
+    Set1Below[iWedge] = iBooker.book1D("Set1_Below",
+                                       "HF+ Wedge " + wedgeNum.str() +
+                                           ": Below Threshold 1 - Set 1",
+                                       NBINS, XMIN, XMAX);
     Set1Between[iWedge] = iBooker.book1D(
         "Set1_Between",
         "HF+ Wedge " + wedgeNum.str() + ": Between Threshold 1 & 2 - Set 1",
         NBINS, XMIN, XMAX);
-    Set1Above[iWedge] = iBooker.book1D(
-        "Set1_Above",
-        "HF+ Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 1", NBINS,
-        XMIN, XMAX);
-    Set2Below[iWedge] = iBooker.book1D(
-        "Set2_Below",
-        "HF+ Wedge " + wedgeNum.str() + ": Below Threshold 1 - Set 2", NBINS,
-        XMIN, XMAX);
+    Set1Above[iWedge] = iBooker.book1D("Set1_Above",
+                                       "HF+ Wedge " + wedgeNum.str() +
+                                           ": Above Threshold 2 - Set 1",
+                                       NBINS, XMIN, XMAX);
+    Set2Below[iWedge] = iBooker.book1D("Set2_Below",
+                                       "HF+ Wedge " + wedgeNum.str() +
+                                           ": Below Threshold 1 - Set 2",
+                                       NBINS, XMIN, XMAX);
     Set2Between[iWedge] = iBooker.book1D(
         "Set2_Between",
         "HF+ Wedge " + wedgeNum.str() + ": Between Threshold 1 & 2 - Set 2",
         NBINS, XMIN, XMAX);
-    Set2Above[iWedge] = iBooker.book1D(
-        "Set2_Above",
-        "HF+ Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 2", NBINS,
-        XMIN, XMAX);
+    Set2Above[iWedge] = iBooker.book1D("Set2_Above",
+                                       "HF+ Wedge " + wedgeNum.str() +
+                                           ": Above Threshold 2 - Set 2",
+                                       NBINS, XMIN, XMAX);
     ETSum[iWedge] = iBooker.book1D(
         "ETSum", "HF+ Wedge " + wedgeNum.str() + ": Transverse Energy", NBINS,
         XMIN, XMAX);
@@ -209,30 +213,30 @@ void HLXMonitor::SetupHists(DQMStore::IBooker& iBooker) {
 
       iBooker.setCurrentFolder(monitorName_ + "/HFMinus/Wedge" +
                                tempStreamer.str());
-      Set1Below[iWedge] = iBooker.book1D(
-          "Set1_Below",
-          "HF- Wedge " + wedgeNum.str() + ": Below Threshold 1 - Set 1", NBINS,
-          XMIN, XMAX);
+      Set1Below[iWedge] = iBooker.book1D("Set1_Below",
+                                         "HF- Wedge " + wedgeNum.str() +
+                                             ": Below Threshold 1 - Set 1",
+                                         NBINS, XMIN, XMAX);
       Set1Between[iWedge] = iBooker.book1D(
           "Set1_Between",
           "HF- Wedge " + wedgeNum.str() + ": Between Threshold 1 & 2 - Set 1",
           NBINS, XMIN, XMAX);
-      Set1Above[iWedge] = iBooker.book1D(
-          "Set1_Above",
-          "HF- Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 1", NBINS,
-          XMIN, XMAX);
-      Set2Below[iWedge] = iBooker.book1D(
-          "Set2_Below",
-          "HF- Wedge " + wedgeNum.str() + ": Below Threshold 1 - Set 2", NBINS,
-          XMIN, XMAX);
+      Set1Above[iWedge] = iBooker.book1D("Set1_Above",
+                                         "HF- Wedge " + wedgeNum.str() +
+                                             ": Above Threshold 2 - Set 1",
+                                         NBINS, XMIN, XMAX);
+      Set2Below[iWedge] = iBooker.book1D("Set2_Below",
+                                         "HF- Wedge " + wedgeNum.str() +
+                                             ": Below Threshold 1 - Set 2",
+                                         NBINS, XMIN, XMAX);
       Set2Between[iWedge] = iBooker.book1D(
           "Set2_Between",
           "HF- Wedge " + wedgeNum.str() + ": Between Threshold 1 & 2 - Set 2",
           NBINS, XMIN, XMAX);
-      Set2Above[iWedge] = iBooker.book1D(
-          "Set2_Above",
-          "HF- Wedge " + wedgeNum.str() + ": Above Threshold 2 - Set 2", NBINS,
-          XMIN, XMAX);
+      Set2Above[iWedge] = iBooker.book1D("Set2_Above",
+                                         "HF- Wedge " + wedgeNum.str() +
+                                             ": Above Threshold 2 - Set 2",
+                                         NBINS, XMIN, XMAX);
       ETSum[iWedge] = iBooker.book1D(
           "ETSum", "HF- Wedge " + wedgeNum.str() + ": Transverse Energy", NBINS,
           XMIN, XMAX);
@@ -336,15 +340,15 @@ void HLXMonitor::SetupHists(DQMStore::IBooker& iBooker) {
 
   iBooker.setCurrentFolder(monitorName_ + "/Average");
 
-  int OccBins = 10000;  // This does absolutely nothing.
+  int OccBins = 10000; // This does absolutely nothing.
   double OccMin = 0;
-  double OccMax = 0;  // If min and max are zero, no bounds on the data are set.
+  double OccMax = 0; // If min and max are zero, no bounds on the data are set.
 
-  int EtSumBins = 10000;  // This does absolutely nothing.  The Variable is not
-                          // used in the function.
+  int EtSumBins = 10000; // This does absolutely nothing.  The Variable is not
+                         // used in the function.
   double EtSumMin = 0;
   double EtSumMax =
-      0;  // If min and max are zero, no bounds on the data are set.
+      0; // If min and max are zero, no bounds on the data are set.
 
   std::string errorOpt = "i";
 
@@ -744,7 +748,7 @@ void HLXMonitor::SetupHists(DQMStore::IBooker& iBooker) {
   RecentIntegratedLumiOccSet2->setAxisTitle(HistLumiYTitle, 2);
 }
 
-void HLXMonitor::SetupEventInfo(DQMStore::IBooker& iBooker) {
+void HLXMonitor::SetupEventInfo(DQMStore::IBooker &iBooker) {
   using std::string;
 
   string currentfolder = subSystemName_ + "/" + eventInfoFolderHLX_;
@@ -802,7 +806,7 @@ void HLXMonitor::SetupEventInfo(DQMStore::IBooker& iBooker) {
   currentfolder = subSystemName_ + "/" + eventInfoFolderHLX_;
   iBooker.setCurrentFolder(currentfolder);
 
-  TH2F* summaryHist = reportSummaryMap_->getTH2F();
+  TH2F *summaryHist = reportSummaryMap_->getTH2F();
   summaryHist->GetYaxis()->SetBinLabel(1, "HF-");
   summaryHist->GetYaxis()->SetBinLabel(2, "HF+");
   summaryHist->GetXaxis()->SetTitle("Wedge #");
@@ -823,8 +827,8 @@ void HLXMonitor::SetupEventInfo(DQMStore::IBooker& iBooker) {
 }
 
 // ------------ method called to for each event  ------------
-void HLXMonitor::analyze(const edm::Event& iEvent,
-                         const edm::EventSetup& iSetup) {
+void HLXMonitor::analyze(const edm::Event &iEvent,
+                         const edm::EventSetup &iSetup) {
   using namespace edm;
 
   while (HLXTCP.IsConnected() == false) {
@@ -834,7 +838,8 @@ void HLXMonitor::analyze(const edm::Event& iEvent,
       sleep(1);
       std::cout << "Trying " << DistribIP2 << std::endl;
       HLXTCP.SetIP(DistribIP2);
-      if (HLXTCP.Connect() == 1) break;
+      if (HLXTCP.Connect() == 1)
+        break;
       std::cout << "Failed to connect to " << DistribIP2 << "." << std::endl;
       std::cout << " Reconnect in " << reconnTime << " seconds." << std::endl;
       sleep(reconnTime);
@@ -881,10 +886,12 @@ void HLXMonitor::EndRun() {
 
   // Do some things that should be done at the end of the run ...
   expectedNibbles_ = 0;
-  for (unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX) totalNibbles_[iHLX] = 0;
+  for (unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX)
+    totalNibbles_[iHLX] = 0;
 
   std::cout << "** Here in end run **" << std::endl;
-  if (ResetAtNewRun) ResetAll();
+  if (ResetAtNewRun)
+    ResetAll();
   runNumber_ = 0;
   currentRunEnded_ = true;
   sectionInstantSumEt = 0;
@@ -899,7 +906,7 @@ void HLXMonitor::EndRun() {
   previousSection = 0;
 }
 
-void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
+void HLXMonitor::FillHistograms(const LUMI_SECTION &section) {
   // Check for missing data
   if (previousSection != (section.hdr.sectionNumber - 1)) {
     double weight = (double)(section.hdr.sectionNumber - previousSection - 1);
@@ -950,36 +957,42 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
 
   double recentOldBinContent =
       RecentIntegratedLumiEtSum->getBinContent(fillBin - 1);
-  if (fillBin == 1) recentOldBinContent = 0;
+  if (fillBin == 1)
+    recentOldBinContent = 0;
   double recentNewBinContent =
       recentOldBinContent + section.lumiSummary.InstantETLumi;
   RecentIntegratedLumiEtSum->setBinContent(fillBin, recentNewBinContent);
   recentOldBinContent = RecentIntegratedLumiOccSet1->getBinContent(fillBin - 1);
-  if (fillBin == 1) recentOldBinContent = 0;
+  if (fillBin == 1)
+    recentOldBinContent = 0;
   recentNewBinContent =
       recentOldBinContent + section.lumiSummary.InstantOccLumi[0];
   RecentIntegratedLumiOccSet1->setBinContent(fillBin, recentNewBinContent);
   recentOldBinContent = RecentIntegratedLumiOccSet2->getBinContent(fillBin - 1);
-  if (fillBin == 1) recentOldBinContent = 0;
+  if (fillBin == 1)
+    recentOldBinContent = 0;
   recentNewBinContent =
       recentOldBinContent + section.lumiSummary.InstantOccLumi[0];
   RecentIntegratedLumiOccSet2->setBinContent(fillBin, recentNewBinContent);
 
   double recentOldBinError =
       RecentIntegratedLumiEtSum->getBinError(fillBin - 1);
-  if (fillBin == 1) recentOldBinError = 0;
+  if (fillBin == 1)
+    recentOldBinError = 0;
   double recentNewBinError = sqrt(recentOldBinError * recentOldBinError +
                                   section.lumiSummary.InstantETLumiErr *
                                       section.lumiSummary.InstantETLumiErr);
   RecentIntegratedLumiEtSum->setBinError(fillBin, recentNewBinError);
   recentOldBinError = RecentIntegratedLumiOccSet1->getBinError(fillBin - 1);
-  if (fillBin == 1) recentOldBinError = 0;
+  if (fillBin == 1)
+    recentOldBinError = 0;
   recentNewBinError = sqrt(recentOldBinError * recentOldBinError +
                            section.lumiSummary.InstantOccLumiErr[0] *
                                section.lumiSummary.InstantOccLumiErr[0]);
   RecentIntegratedLumiOccSet1->setBinError(fillBin, recentNewBinError);
   recentOldBinError = RecentIntegratedLumiOccSet2->getBinError(fillBin - 1);
-  if (fillBin == 1) recentOldBinError = 0;
+  if (fillBin == 1)
+    recentOldBinError = 0;
   recentNewBinError = sqrt(recentOldBinError * recentOldBinError +
                            section.lumiSummary.InstantOccLumiErr[1] *
                                section.lumiSummary.InstantOccLumiErr[1]);
@@ -994,11 +1007,14 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
     HistInstantLumiOccSet2->setBinError(lsBin, sqrt(sectionInstantErrSumOcc2));
 
     double etDenom = fabs(sectionInstantSumEt);
-    if (etDenom < 1e-10) etDenom = 1e-10;
+    if (etDenom < 1e-10)
+      etDenom = 1e-10;
     double occ1Denom = fabs(sectionInstantSumOcc1);
-    if (occ1Denom < 1e-10) occ1Denom = 1e-10;
+    if (occ1Denom < 1e-10)
+      occ1Denom = 1e-10;
     double occ2Denom = fabs(sectionInstantSumOcc2);
-    if (occ2Denom < 1e-10) occ2Denom = 1e-10;
+    if (occ2Denom < 1e-10)
+      occ2Denom = 1e-10;
     double etError = 100.0 * sqrt(sectionInstantErrSumEt) / etDenom;
     double occ1Error = 100.0 * sqrt(sectionInstantErrSumOcc1) / occ1Denom;
     double occ2Error = 100.0 * sqrt(sectionInstantErrSumOcc2) / occ2Denom;
@@ -1007,30 +1023,36 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
     HistInstantLumiOccSet2Error->setBinContent(lsBinOld, occ2Error);
 
     double histOldBinContent = HistIntegratedLumiEtSum->getBinContent(lsBinOld);
-    if (lsBinOld == 0) histOldBinContent = 0;
+    if (lsBinOld == 0)
+      histOldBinContent = 0;
     double histNewBinContent = histOldBinContent + sectionInstantSumEt;
     HistIntegratedLumiEtSum->setBinContent(lsBin, histNewBinContent);
     histOldBinContent = HistIntegratedLumiOccSet1->getBinContent(lsBinOld);
-    if (lsBinOld == 0) histOldBinContent = 0;
+    if (lsBinOld == 0)
+      histOldBinContent = 0;
     histNewBinContent = histOldBinContent + sectionInstantSumOcc1;
     HistIntegratedLumiOccSet1->setBinContent(lsBin, histNewBinContent);
     histOldBinContent = HistIntegratedLumiOccSet2->getBinContent(lsBinOld);
-    if (lsBinOld == 0) histOldBinContent = 0;
+    if (lsBinOld == 0)
+      histOldBinContent = 0;
     histNewBinContent = histOldBinContent + sectionInstantSumOcc2;
     HistIntegratedLumiOccSet2->setBinContent(lsBin, histNewBinContent);
 
     double histOldBinError = HistIntegratedLumiEtSum->getBinError(lsBinOld);
-    if (lsBinOld == 0) histOldBinError = 0;
+    if (lsBinOld == 0)
+      histOldBinError = 0;
     double histNewBinError =
         sqrt(histOldBinError * histOldBinError + sectionInstantErrSumEt);
     HistIntegratedLumiEtSum->setBinError(lsBin, histNewBinError);
     histOldBinError = HistIntegratedLumiOccSet1->getBinError(lsBinOld);
-    if (lsBinOld == 0) histOldBinError = 0;
+    if (lsBinOld == 0)
+      histOldBinError = 0;
     histNewBinError =
         sqrt(histOldBinError * histOldBinError + sectionInstantErrSumOcc1);
     HistIntegratedLumiOccSet1->setBinError(lsBin, histNewBinError);
     histOldBinError = HistIntegratedLumiOccSet2->getBinError(lsBinOld);
-    if (lsBinOld == 0) histOldBinError = 0;
+    if (lsBinOld == 0)
+      histOldBinError = 0;
     histNewBinError =
         sqrt(histOldBinError * histOldBinError + sectionInstantErrSumOcc2);
     HistIntegratedLumiOccSet2->setBinError(lsBin, histNewBinError);
@@ -1072,11 +1094,13 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
         norm[0] += section.occupancy[iHLX].data[set1BelowIndex][iBX];
         norm[0] += section.occupancy[iHLX].data[set1BetweenIndex][iBX];
         norm[0] += section.occupancy[iHLX].data[set1AboveIndex][iBX];
-        if (norm[0] == 0) norm[0] = 1;
+        if (norm[0] == 0)
+          norm[0] = 1;
         norm[1] += section.occupancy[iHLX].data[set2BelowIndex][iBX];
         norm[1] += section.occupancy[iHLX].data[set2BetweenIndex][iBX];
         norm[1] += section.occupancy[iHLX].data[set2AboveIndex][iBX];
-        if (norm[1] == 0) norm[1] = 1;
+        if (norm[1] == 0)
+          norm[1] = 1;
 
         double normEt =
             section.etSum[iHLX].data[iBX] / (double)(norm[0] + norm[1]);
@@ -1148,7 +1172,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
 
         if (Style == "BX") {
           // Get the correct bin ...
-          TH1F* Set1BelowHist = Set1Below[iWedge]->getTH1F();
+          TH1F *Set1BelowHist = Set1Below[iWedge]->getTH1F();
           int iBin = Set1BelowHist->FindBin((float)iBX);
 
           // Adjust the old bin content to make the new, unnormalize and
@@ -1274,32 +1298,38 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
                                       section.lumiDetail.OccLumiErr[1][iBX]);
 
       double oldBinContent = LumiIntegratedEtSum->getBinContent(iBin);
-      if (lumiSectionCount == 0) oldBinContent = 0;
+      if (lumiSectionCount == 0)
+        oldBinContent = 0;
       double newBinContent = oldBinContent + section.lumiDetail.ETLumi[iBX];
       LumiIntegratedEtSum->setBinContent(iBin, newBinContent);
       oldBinContent = LumiIntegratedOccSet1->getBinContent(iBin);
-      if (lumiSectionCount == 0) oldBinContent = 0;
+      if (lumiSectionCount == 0)
+        oldBinContent = 0;
       newBinContent = oldBinContent + section.lumiDetail.OccLumi[0][iBX];
       LumiIntegratedOccSet1->setBinContent(iBin, newBinContent);
       oldBinContent = LumiIntegratedOccSet2->getBinContent(iBin);
-      if (lumiSectionCount == 0) oldBinContent = 0;
+      if (lumiSectionCount == 0)
+        oldBinContent = 0;
       newBinContent = oldBinContent + section.lumiDetail.OccLumi[1][iBX];
       LumiIntegratedOccSet2->setBinContent(iBin, newBinContent);
 
       double oldBinError = LumiIntegratedEtSum->getBinError(iBin);
-      if (lumiSectionCount == 0) oldBinError = 0;
+      if (lumiSectionCount == 0)
+        oldBinError = 0;
       double newBinError = sqrt(oldBinError * oldBinError +
                                 section.lumiDetail.ETLumiErr[iBX] *
                                     section.lumiDetail.ETLumiErr[iBX]);
       LumiIntegratedEtSum->setBinError(iBin, newBinError);
       oldBinError = LumiIntegratedOccSet1->getBinError(iBin);
-      if (lumiSectionCount == 0) oldBinError = 0;
+      if (lumiSectionCount == 0)
+        oldBinError = 0;
       newBinError = sqrt(oldBinError * oldBinError +
                          section.lumiDetail.OccLumiErr[0][iBX] *
                              section.lumiDetail.OccLumiErr[0][iBX]);
       LumiIntegratedOccSet1->setBinError(iBin, newBinError);
       oldBinError = LumiIntegratedOccSet1->getBinError(iBin);
-      if (lumiSectionCount == 0) oldBinError = 0;
+      if (lumiSectionCount == 0)
+        oldBinError = 0;
       newBinError = sqrt(oldBinError * oldBinError +
                          section.lumiDetail.OccLumiErr[1][iBX] *
                              section.lumiDetail.OccLumiErr[1][iBX]);
@@ -1337,7 +1367,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
   MaxInstLumiBX4->Fill(max[3] * 0.9e1);
   MaxInstLumiBXNum4->Fill(bxmax[3]);
 
-  TH1F* tmpHist = MaxInstLumiBX1->getTH1F();
+  TH1F *tmpHist = MaxInstLumiBX1->getTH1F();
   double minX = tmpHist->GetBinLowEdge(1);
   double maxX = tmpHist->GetBinLowEdge(tmpHist->GetNbinsX() + 1);
 
@@ -1368,7 +1398,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
   ++lumiSectionCount;
 }
 
-void HLXMonitor::FillHistoHFCompare(const LUMI_SECTION& section) {
+void HLXMonitor::FillHistoHFCompare(const LUMI_SECTION &section) {
   for (unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX) {
     unsigned int iWedge = HLXHFMap[iHLX];
 
@@ -1428,8 +1458,8 @@ void HLXMonitor::FillHistoHFCompare(const LUMI_SECTION& section) {
   }
 }
 
-void HLXMonitor::FillEventInfo(const LUMI_SECTION& section,
-                               const edm::Event& e) {
+void HLXMonitor::FillEventInfo(const LUMI_SECTION &section,
+                               const edm::Event &e) {
   // New run .. set the run number and fill run summaries ...
   // std::cout << "Run number " << runNumber_ << " Section hdr run number "
   //	     << section.hdr.runNumber << std::endl;
@@ -1483,7 +1513,8 @@ void HLXMonitor::FillReportSummary() {
   }
 
   overall /= (float)NUM_HLX;
-  if (overall > 1.0) overall = 0.0;
+  if (overall > 1.0)
+    overall = 0.0;
   // std::cout << "Filling report summary! Main. " << overall << std::endl;
   reportSummary_->Fill(overall);
 }
@@ -1585,9 +1616,10 @@ void HLXMonitor::ResetAll() {
   BXvsTimeAvgEtSumHFM->softReset();
 }
 
-double HLXMonitor::getUTCtime(timeval* a, timeval* b) {
+double HLXMonitor::getUTCtime(timeval *a, timeval *b) {
   double deltaT = (*a).tv_sec * 1000.0 + (*a).tv_usec / 1000.0;
-  if (b != nullptr) deltaT = (*b).tv_sec * 1000.0 + (*b).tv_usec / 1000.0 - deltaT;
+  if (b != nullptr)
+    deltaT = (*b).tv_sec * 1000.0 + (*b).tv_usec / 1000.0 - deltaT;
   return deltaT / 1000.0;
 }
 
