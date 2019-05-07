@@ -68,18 +68,22 @@ class Eras (object):
                            'bParking']
         internalUseModChains = ['run2_2017_noTrackingModifier']
 
+        self.pythonCfgLines = {}
 
         for e in allEras:
             eObj=getattr(__import__('Configuration.Eras.Era_'+e+'_cff',globals(),locals(),[e],0),e)
             self.addEra(e,eObj)
+            self.pythonCfgLines[e] = 'from Configuration.Eras.Era_'+e+'_cff import '+e
 
         for e in internalUseMods:
             eObj=getattr(__import__('Configuration.Eras.Modifier_'+e+'_cff',globals(),locals(),[e],0),e)
             self.addEra(e,eObj)
+            self.pythonCfgLines[e] = 'from Configuration.Eras.Modifier_'+e+'_cff import '+e
 
         for e in internalUseModChains:
             eObj=getattr(__import__('Configuration.Eras.ModifierChain_'+e+'_cff',globals(),locals(),[e],0),e)
             self.addEra(e,eObj)
+            self.pythonCfgLines[e] = 'from Configuration.Eras.ModifierChain_'+e+'_cff import '+e
 
 
     def addEra(self,name,obj):
