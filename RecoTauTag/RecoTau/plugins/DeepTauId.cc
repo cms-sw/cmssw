@@ -595,7 +595,7 @@ public:
         muons_token_(consumes<MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
         rho_token_(consumes<double>(cfg.getParameter<edm::InputTag>("rho"))),
         version(cfg.getParameter<unsigned>("version")),
-        debug(cfg.getParameter<int>("debug_level"))
+        debug_level(cfg.getParameter<int>("debug_level"))
     {
         if(version == 1) {
             input_layer_ = cache_->getGraph().node(0).name();
@@ -684,26 +684,20 @@ private:
             return false;
     }
 
-    inline const void checkInputs(const tensorflow::Tensor& inputs, std::string block_name, int n_inputs, int n_eta = 1,
-                                  int n_phi = 1)
+    inline void checkInputs(const tensorflow::Tensor& inputs, const char* block_name, int n_inputs, int n_eta = 1,
+                            int n_phi = 1) const
     {
-        if(debug >= 1){
-            for(int k = 0; k < n_inputs; ++k) {
-                const float input = inputs.flat<float>()(k);
-                if(std::isnan(input))
-                    throw cms::Exception("DeepTauId") << "in the " << block_name << ", invalid input = " << input << ", input_index = " << k;
-            }
-        }
-        else if(debug >= 2){
-            float input;
+        if(debug_level >= 1){
             for(int eta = 0; eta < n_eta; ++eta){
                 for(int phi = 0; phi < n_phi; phi++){
                     for(int k = 0; k < n_inputs; ++k) {
-                        if(n_eta == 1 && n_phi == 1)
-                            input = inputs.matrix<float>()(0, k);
-                        else
-                            input = inputs.tensor<float,4>()(0, eta, phi, k);
-                        std::cout << block_name << "," << eta << ","<< phi << "," << k << "," << std::setprecision(6) << input << '\n';
+                        const float input = n_eta == 1 && n_phi == 1
+                                          ? inputs.matrix<float>()(0, k) : inputs.tensor<float,4>()(0, eta, phi, k);
+                        if(std::isnan(input))
+                            throw cms::Exception("DeepTauId") << "in the " << block_name << ", input is NaN for eta_index = "
+                                                              << n_eta << ", phi_index = " << n_phi << ", input_index = " << k;
+                        if(debug_level >= 2)
+                            std::cout << block_name << "," << eta << ","<< phi << "," << k << "," << std::setprecision(6) << input << '\n';
                     }
                 }
             }
@@ -821,7 +815,7 @@ private:
     }
 
 
-    void createTauBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho_value)
+    void createTauBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho)
     {
         namespace dnn = dnn_inputs_2017_v2::TauBlockInputs;
 
@@ -832,7 +826,7 @@ private:
 
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
 
-        get(dnn::rho) = getValueNorm(rho_value, 21.49f, 9.713f);
+        get(dnn::rho) = getValueNorm(rho, 21.49f, 9.713f);
         get(dnn::tau_pt) =  getValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
         get(dnn::tau_eta) = getValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
         get(dnn::tau_phi) = getValueLinear(tau.polarP4().phi(), -pi, pi, false);
@@ -902,10 +896,10 @@ private:
         get(dnn::leadChargedCand_etaAtEcalEntrance_minus_tau_eta) =
             getValueNorm(tau.etaAtEcalEntranceLeadChargedCand() - tau.p4().eta(), 0.0042f, 0.0323f);
 
-        checkInputs(inputs, "tau_block",  dnn::NumberOfInputs, 1, 1);
+        checkInputs(inputs, "tau_block",  dnn::NumberOfInputs);
     }
 
-    void createEgammaBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho_value,
+    void createEgammaBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
                                  const pat::ElectronCollection& electrons,
                                  const pat::PackedCandidateCollection& pfCands,
                                  const CellGrid& grid, bool is_inner)
@@ -930,7 +924,7 @@ private:
             const bool valid_index_ele = cell_map.count(CellObjectType::Electron);
 
             if(valid_index_pf_ele || valid_index_pf_gamma || valid_index_ele){
-                get(dnn::rho) = getValueNorm(rho_value, 21.49f, 9.713f);
+                get(dnn::rho) = getValueNorm(rho, 21.49f, 9.713f);
                 get(dnn::tau_pt) =  getValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
                 get(dnn::tau_eta) = getValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
                 get(dnn::tau_inside_ecal_crack) = getValue(isInEcalCrack(tau.polarP4().eta()));
@@ -1092,11 +1086,11 @@ private:
                 }
             }
         }
-        auto block_name = is_inner ? "egamma_inner_block" : "egamma_outer_block";
-        checkInputs(inputs, block_name, dnn::NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, grid.nCellsEta, grid.nCellsPhi);
+        checkInputs(inputs, is_inner ? "egamma_inner_block" : "egamma_outer_block", dnn::NumberOfInputs, grid.nCellsEta,
+            grid.nCellsPhi);
     }
 
-    void createMuonBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho_value,
+    void createMuonBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
                                const pat::MuonCollection& muons,
                                const pat::PackedCandidateCollection& pfCands,
                                const CellGrid& grid, bool is_inner)
@@ -1120,7 +1114,7 @@ private:
             const bool valid_index_muon = cell_map.count(CellObjectType::Muon);
 
             if(valid_index_pf_muon || valid_index_muon){
-                get(dnn::rho) = getValueNorm(rho_value, 21.49f, 9.713f);
+                get(dnn::rho) = getValueNorm(rho, 21.49f, 9.713f);
                 get(dnn::tau_pt) =  getValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
                 get(dnn::tau_eta) = getValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
                 get(dnn::tau_inside_ecal_crack) = getValue(isInEcalCrack(tau.polarP4().eta()));
@@ -1230,11 +1224,11 @@ private:
                 }
             }
         }
-        auto block_name = is_inner ? "muon_inner_block" : "muon_outer_blockr";
-        checkInputs(inputs, block_name, dnn::NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, grid.nCellsEta, grid.nCellsPhi);
+        checkInputs(inputs, is_inner ? "muon_inner_block" : "muon_outer_blockr", dnn::NumberOfInputs, grid.nCellsEta,
+            grid.nCellsPhi);
     }
 
-    void createHadronsBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho_value,
+    void createHadronsBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho,
                                   const pat::PackedCandidateCollection& pfCands,
                                   const CellGrid& grid, bool is_inner)
     {
@@ -1257,7 +1251,7 @@ private:
             const bool valid_nH = cell_map.count(CellObjectType::PfCand_neutralHadron);
 
             if(valid_chH || valid_nH){
-                get(dnn::rho) = getValueNorm(rho_value, 21.49f, 9.713f);
+                get(dnn::rho) = getValueNorm(rho, 21.49f, 9.713f);
                 get(dnn::tau_pt) =  getValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
                 get(dnn::tau_eta) = getValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
                 get(dnn::tau_inside_ecal_crack) = getValue(isInEcalCrack(tau.polarP4().eta()));
@@ -1325,8 +1319,8 @@ private:
                 get(dnn::pfCand_nHad_hcalFraction) = getValue(pfCands.at(index_nH).hcalFraction());
             }
         }
-        auto block_name = is_inner ? "hadron_inner_block" : "hadron_outer_block";
-        checkInputs(inputs, block_name, dnn::NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, grid.nCellsEta, grid.nCellsPhi);
+        checkInputs(inputs, is_inner ? "hadron_inner_block" : "hadron_outer_block", dnn::NumberOfInputs, grid.nCellsEta,
+            grid.nCellsPhi);
     }
 
     template<typename dnn>
@@ -1648,7 +1642,7 @@ private:
     edm::EDGetTokenT<double> rho_token_;
     std::string input_layer_, output_layer_;
     const unsigned version;
-    const int debug;
+    const int debug_level;
     std::shared_ptr<tensorflow::Tensor> tauBlockTensor_, eGammaInnerTensor_, eGammaOuterTensor_, muonInnerTensor_ ,
         muonOuterTensor_, hadronsInnerTensor_, hadronsOuterTensor_ ;
 };
