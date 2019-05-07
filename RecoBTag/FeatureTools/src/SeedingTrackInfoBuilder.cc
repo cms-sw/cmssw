@@ -8,7 +8,6 @@
 
 namespace btagbtvdeep{
 
-// adapted from DeepNtuples
      SeedingTrackInfoBuilder::SeedingTrackInfoBuilder():
         pt_(0),
         eta_(0),
