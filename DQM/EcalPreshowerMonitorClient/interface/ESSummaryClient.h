@@ -5,26 +5,25 @@
 
 class ESSummaryClient : public ESClient {
 
-   public:
+public:
+  /// Constructor
+  ESSummaryClient(const edm::ParameterSet &ps);
 
-      /// Constructor
-      ESSummaryClient(const edm::ParameterSet& ps);
+  /// Destructor
+  ~ESSummaryClient() override;
 
-      /// Destructor
-      ~ESSummaryClient() override;
+  /// Analyze
+  void endLumiAnalyze(DQMStore::IGetter &) override;
+  void endJobAnalyze(DQMStore::IGetter &) override;
 
-      /// Analyze
-      void endLumiAnalyze(DQMStore::IGetter&) override;
-      void endJobAnalyze(DQMStore::IGetter&) override;
+private:
+  void book(DQMStore::IBooker &) override;
 
- private:
-      void book(DQMStore::IBooker&) override;
+  void fillReportSummary(DQMStore::IGetter &);
 
-      void fillReportSummary(DQMStore::IGetter&);
-
-      MonitorElement* meReportSummary_;
-      MonitorElement* meReportSummaryContents_[2][2];
-      MonitorElement* meReportSummaryMap_;
+  MonitorElement *meReportSummary_;
+  MonitorElement *meReportSummaryContents_[2][2];
+  MonitorElement *meReportSummaryMap_;
 };
 
 #endif
