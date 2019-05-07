@@ -1,28 +1,26 @@
 #ifndef SimMuon_Neutron_RootChamberWriter_h
 #define SimMuon_Neutron_RootChamberWriter_h
 
-#include <TTree.h>
-#include <TClonesArray.h>
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include <TClonesArray.h>
+#include <TTree.h>
 
-class RootChamberWriter
-{
+class RootChamberWriter {
 public:
   /// default ctor, for STL
   RootChamberWriter() : theTree(nullptr), theHits(nullptr) {}
-  RootChamberWriter(const std::string & treeName);
+  RootChamberWriter(const std::string &treeName);
 
   /// writes the tree, and deletes everything
   ~RootChamberWriter();
 
-  void write(const edm::PSimHitContainer & hits);
+  void write(const edm::PSimHitContainer &hits);
 
-  TTree * tree() {return theTree;}
+  TTree *tree() { return theTree; }
 
 private:
-  TTree * theTree;
-  TClonesArray * theHits;
+  TTree *theTree;
+  TClonesArray *theHits;
 };
 
 #endif
-

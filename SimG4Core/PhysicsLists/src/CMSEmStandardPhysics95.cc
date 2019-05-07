@@ -1,83 +1,82 @@
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95.h"
-#include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
 #include "G4EmParameters.hh"
 #include "G4ParticleTable.hh"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95.h"
+#include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
 
+#include "G4LossTableManager.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ProcessManager.hh"
-#include "G4LossTableManager.hh"
 #include "G4RegionStore.hh"
 
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
-#include "G4GammaConversion.hh"
 #include "G4PairProductionRelModel.hh"
 #include "G4PhotoElectricEffect.hh"
 
-#include "G4hMultipleScattering.hh"
-#include "G4eMultipleScattering.hh"
 #include "G4MscStepLimitType.hh"
+#include "G4eMultipleScattering.hh"
+#include "G4hMultipleScattering.hh"
 
-#include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
+#include "G4eIonisation.hh"
 #include "G4eplusAnnihilation.hh"
 
-#include "G4MuMultipleScattering.hh"
-#include "G4MuIonisation.hh"
 #include "G4MuBremsstrahlung.hh"
+#include "G4MuIonisation.hh"
+#include "G4MuMultipleScattering.hh"
 #include "G4MuPairProduction.hh"
 
-#include "G4hIonisation.hh"
-#include "G4ionIonisation.hh"
 #include "G4hBremsstrahlung.hh"
+#include "G4hIonisation.hh"
 #include "G4hPairProduction.hh"
+#include "G4ionIonisation.hh"
 
-#include "G4Gamma.hh"
-#include "G4Electron.hh"
-#include "G4Positron.hh"
-#include "G4MuonPlus.hh"
-#include "G4MuonMinus.hh"
-#include "G4TauMinus.hh"
-#include "G4TauPlus.hh"
-#include "G4PionPlus.hh"
-#include "G4PionMinus.hh"
-#include "G4KaonPlus.hh"
-#include "G4KaonMinus.hh"
+#include "G4Alpha.hh"
+#include "G4AntiLambdacPlus.hh"
+#include "G4AntiOmegaMinus.hh"
+#include "G4AntiProton.hh"
+#include "G4AntiSigmaMinus.hh"
+#include "G4AntiSigmaPlus.hh"
+#include "G4AntiXiMinus.hh"
+#include "G4AntiXicPlus.hh"
 #include "G4BMesonMinus.hh"
 #include "G4BMesonPlus.hh"
+#include "G4BuilderType.hh"
 #include "G4DMesonMinus.hh"
 #include "G4DMesonPlus.hh"
-#include "G4Proton.hh"
-#include "G4AntiProton.hh"
-#include "G4SigmaMinus.hh"
-#include "G4AntiSigmaMinus.hh"
-#include "G4SigmaPlus.hh"
-#include "G4AntiSigmaPlus.hh"
-#include "G4XiMinus.hh"
-#include "G4AntiXiMinus.hh"
-#include "G4OmegaMinus.hh"
-#include "G4AntiOmegaMinus.hh"
-#include "G4LambdacPlus.hh"
-#include "G4AntiLambdacPlus.hh"
-#include "G4XicPlus.hh"
-#include "G4AntiXicPlus.hh"
 #include "G4Deuteron.hh"
-#include "G4Triton.hh"
-#include "G4He3.hh"
-#include "G4Alpha.hh"
+#include "G4Electron.hh"
+#include "G4Gamma.hh"
 #include "G4GenericIon.hh"
-#include "G4BuilderType.hh"
+#include "G4He3.hh"
+#include "G4KaonMinus.hh"
+#include "G4KaonPlus.hh"
+#include "G4LambdacPlus.hh"
+#include "G4MuonMinus.hh"
+#include "G4MuonPlus.hh"
+#include "G4OmegaMinus.hh"
+#include "G4PionMinus.hh"
+#include "G4PionPlus.hh"
+#include "G4Positron.hh"
+#include "G4Proton.hh"
+#include "G4SigmaMinus.hh"
+#include "G4SigmaPlus.hh"
+#include "G4TauMinus.hh"
+#include "G4TauPlus.hh"
+#include "G4Triton.hh"
+#include "G4XiMinus.hh"
+#include "G4XicPlus.hh"
 
 #include "G4SystemOfUnits.hh"
 
-CMSEmStandardPhysics95::CMSEmStandardPhysics95(const G4String& name, G4int ver, 
-					       const std::string& reg):
-  G4VPhysicsConstructor(name), verbose(ver), region(reg) {
-  G4EmParameters* param = G4EmParameters::Instance();
+CMSEmStandardPhysics95::CMSEmStandardPhysics95(const G4String &name, G4int ver,
+                                               const std::string &reg)
+    : G4VPhysicsConstructor(name), verbose(ver), region(reg) {
+  G4EmParameters *param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(verbose);
   param->SetApplyCuts(true);
-  param->SetStepFunction(0.8, 1*CLHEP::mm);
+  param->SetStepFunction(0.8, 1 * CLHEP::mm);
   param->SetMscRangeFactor(0.2);
   param->SetMscStepLimitType(fMinimal);
   SetPhysicsType(bElectromagnetic);
@@ -131,38 +130,37 @@ void CMSEmStandardPhysics95::ConstructParticle() {
   G4GenericIon::GenericIonDefinition();
 }
 
-void CMSEmStandardPhysics95::ConstructProcess() 
-{
+void CMSEmStandardPhysics95::ConstructProcess() {
   // This EM builder takes default models of Geant4 EMV.
   // Multiple scattering by Urban for all particles
 
-  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+  G4PhysicsListHelper *ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   // muon & hadron bremsstrahlung and pair production
-  G4MuBremsstrahlung* mub = nullptr;
-  G4MuPairProduction* mup = nullptr;
-  G4hBremsstrahlung* pib = nullptr;
-  G4hPairProduction* pip = nullptr;
-  G4hBremsstrahlung* kb = nullptr;
-  G4hPairProduction* kp = nullptr;
-  G4hBremsstrahlung* pb = nullptr;
-  G4hPairProduction* pp = nullptr;
+  G4MuBremsstrahlung *mub = nullptr;
+  G4MuPairProduction *mup = nullptr;
+  G4hBremsstrahlung *pib = nullptr;
+  G4hPairProduction *pip = nullptr;
+  G4hBremsstrahlung *kb = nullptr;
+  G4hPairProduction *kp = nullptr;
+  G4hBremsstrahlung *pb = nullptr;
+  G4hPairProduction *pp = nullptr;
 
   // muon & hadron multiple scattering
-  G4MuMultipleScattering* mumsc = nullptr;
-  G4hMultipleScattering*  pimsc = nullptr;
-  G4hMultipleScattering*  kmsc = nullptr;
-  G4hMultipleScattering*  pmsc = nullptr;
-  G4hMultipleScattering*  hmsc = nullptr;
+  G4MuMultipleScattering *mumsc = nullptr;
+  G4hMultipleScattering *pimsc = nullptr;
+  G4hMultipleScattering *kmsc = nullptr;
+  G4hMultipleScattering *pmsc = nullptr;
+  G4hMultipleScattering *hmsc = nullptr;
 
   // Add standard EM Processes
-  G4ParticleTable* table = G4ParticleTable::GetParticleTable();
+  G4ParticleTable *table = G4ParticleTable::GetParticleTable();
   EmParticleList emList;
-  for(const auto& particleName : emList.PartNames()) {
-    G4ParticleDefinition* particle = table->FindParticle(particleName);
-    if(verbose > 1)
-      G4cout << "### " << GetPhysicsName() << " instantiates for " 
-	     << particleName << G4endl;
+  for (const auto &particleName : emList.PartNames()) {
+    G4ParticleDefinition *particle = table->FindParticle(particleName);
+    if (verbose > 1)
+      G4cout << "### " << GetPhysicsName() << " instantiates for "
+             << particleName << G4endl;
 
     if (particleName == "gamma") {
 
@@ -172,9 +170,9 @@ void CMSEmStandardPhysics95::ConstructProcess()
 
     } else if (particleName == "e-") {
 
-      G4eIonisation* eioni = new G4eIonisation();
-      G4eMultipleScattering* msc = new G4eMultipleScattering();
-      G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
+      G4eIonisation *eioni = new G4eIonisation();
+      G4eMultipleScattering *msc = new G4eMultipleScattering();
+      G4eBremsstrahlung *ebrem = new G4eBremsstrahlung();
 
       ph->RegisterProcess(msc, particle);
       ph->RegisterProcess(eioni, particle);
@@ -182,74 +180,69 @@ void CMSEmStandardPhysics95::ConstructProcess()
 
     } else if (particleName == "e+") {
 
-      G4eIonisation* eioni = new G4eIonisation();
-      G4eMultipleScattering* msc = new G4eMultipleScattering();
-      G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
+      G4eIonisation *eioni = new G4eIonisation();
+      G4eMultipleScattering *msc = new G4eMultipleScattering();
+      G4eBremsstrahlung *ebrem = new G4eBremsstrahlung();
 
       ph->RegisterProcess(msc, particle);
       ph->RegisterProcess(eioni, particle);
       ph->RegisterProcess(ebrem, particle);
       ph->RegisterProcess(new G4eplusAnnihilation(), particle);
 
-    } else if (particleName == "mu+" ||
-               particleName == "mu-" ) {
+    } else if (particleName == "mu+" || particleName == "mu-") {
 
-      if(nullptr == mub) {
-	mub = new G4MuBremsstrahlung();
-	mup = new G4MuPairProduction();
-	mumsc = new G4MuMultipleScattering();
+      if (nullptr == mub) {
+        mub = new G4MuBremsstrahlung();
+        mup = new G4MuPairProduction();
+        mumsc = new G4MuMultipleScattering();
       }
       ph->RegisterProcess(mumsc, particle);
       ph->RegisterProcess(new G4MuIonisation(), particle);
       ph->RegisterProcess(mub, particle);
       ph->RegisterProcess(mup, particle);
 
-    } else if (particleName == "alpha" || 
-	       particleName == "He3" ) {
+    } else if (particleName == "alpha" || particleName == "He3") {
 
       ph->RegisterProcess(new G4hMultipleScattering(), particle);
       ph->RegisterProcess(new G4ionIonisation(), particle);
 
     } else if (particleName == "GenericIon") {
 
-      if(nullptr == hmsc) {
-	hmsc = new G4hMultipleScattering("ionmsc");
+      if (nullptr == hmsc) {
+        hmsc = new G4hMultipleScattering("ionmsc");
       }
       ph->RegisterProcess(hmsc, particle);
       ph->RegisterProcess(new G4ionIonisation(), particle);
 
-    } else if (particleName == "pi+" || 
-	       particleName == "pi-" ) {
+    } else if (particleName == "pi+" || particleName == "pi-") {
 
-      if(nullptr == pib) {
-	pib = new G4hBremsstrahlung();
-	pip = new G4hPairProduction();
-	pimsc = new G4hMultipleScattering();
+      if (nullptr == pib) {
+        pib = new G4hBremsstrahlung();
+        pip = new G4hPairProduction();
+        pimsc = new G4hMultipleScattering();
       }
       ph->RegisterProcess(pimsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);
       ph->RegisterProcess(pib, particle);
       ph->RegisterProcess(pip, particle);
 
-    } else if (particleName == "kaon+" ||
-               particleName == "kaon-" ) {
+    } else if (particleName == "kaon+" || particleName == "kaon-") {
 
-      if(nullptr == kb) {
-	kb = new G4hBremsstrahlung();
+      if (nullptr == kb) {
+        kb = new G4hBremsstrahlung();
         kp = new G4hPairProduction();
-	kmsc = new G4hMultipleScattering();
+        kmsc = new G4hMultipleScattering();
       }
       ph->RegisterProcess(kmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);
       ph->RegisterProcess(kb, particle);
       ph->RegisterProcess(kp, particle);
 
-    } else if (particleName == "proton" ||
-	       particleName == "anti_proton") {
+    } else if (particleName == "proton" || particleName == "anti_proton") {
 
-      if(nullptr == pb) {
-	pb = new G4hBremsstrahlung();
-	pp = new G4hPairProduction();
+      if (nullptr == pb) {
+        pb = new G4hBremsstrahlung();
+        pp = new G4hPairProduction();
       }
       pmsc = new G4hMultipleScattering();
       ph->RegisterProcess(pmsc, particle);
@@ -257,39 +250,27 @@ void CMSEmStandardPhysics95::ConstructProcess()
       ph->RegisterProcess(pb, particle);
       ph->RegisterProcess(pp, particle);
 
-    } else if (particleName == "B+" ||
-	       particleName == "B-" ||
-	       particleName == "D+" ||
-	       particleName == "D-" ||
-	       particleName == "Ds+" ||
-	       particleName == "Ds-" ||
-               particleName == "anti_He3" ||
-               particleName == "anti_alpha" ||
+    } else if (particleName == "B+" || particleName == "B-" ||
+               particleName == "D+" || particleName == "D-" ||
+               particleName == "Ds+" || particleName == "Ds-" ||
+               particleName == "anti_He3" || particleName == "anti_alpha" ||
                particleName == "anti_deuteron" ||
                particleName == "anti_lambda_c+" ||
                particleName == "anti_omega-" ||
                particleName == "anti_sigma_c+" ||
                particleName == "anti_sigma_c++" ||
-               particleName == "anti_sigma+" ||
-               particleName == "anti_sigma-" ||
-               particleName == "anti_triton" ||
-               particleName == "anti_xi_c+" ||
-               particleName == "anti_xi-" ||
-               particleName == "deuteron" ||
-	       particleName == "lambda_c+" ||
-               particleName == "omega-" ||
-               particleName == "sigma_c+" ||
-               particleName == "sigma_c++" ||
-               particleName == "sigma+" ||
-               particleName == "sigma-" ||
-               particleName == "tau+" ||
-               particleName == "tau-" ||
-               particleName == "triton" ||
-               particleName == "xi_c+" ||
-               particleName == "xi-" ) {
+               particleName == "anti_sigma+" || particleName == "anti_sigma-" ||
+               particleName == "anti_triton" || particleName == "anti_xi_c+" ||
+               particleName == "anti_xi-" || particleName == "deuteron" ||
+               particleName == "lambda_c+" || particleName == "omega-" ||
+               particleName == "sigma_c+" || particleName == "sigma_c++" ||
+               particleName == "sigma+" || particleName == "sigma-" ||
+               particleName == "tau+" || particleName == "tau-" ||
+               particleName == "triton" || particleName == "xi_c+" ||
+               particleName == "xi-") {
 
-      if(nullptr == hmsc) {
-	hmsc = new G4hMultipleScattering("ionmsc");
+      if (nullptr == hmsc) {
+        hmsc = new G4hMultipleScattering("ionmsc");
       }
       ph->RegisterProcess(hmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);

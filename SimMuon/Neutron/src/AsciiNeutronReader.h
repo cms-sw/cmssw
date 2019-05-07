@@ -1,11 +1,11 @@
 #ifndef AsciiNeutronReader_h
 #define AsciiNeutronReader_h
 
+#include "SimMuon/Neutron/src/NeutronReader.h"
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <fstream>
-#include "SimMuon/Neutron/src/NeutronReader.h"
 
 /** This reads patterns of neutron hits in muon chambers
  * from an ASCII database,
@@ -14,21 +14,18 @@
  * back to the beginning when it reaches EOF
  */
 
-class AsciiNeutronReader : public NeutronReader
-{
+class AsciiNeutronReader : public NeutronReader {
 public:
   AsciiNeutronReader(std::string fileNameBase);
 
-  void  readNextEvent(int chamberType, edm::PSimHitContainer & result) override;
+  void readNextEvent(int chamberType, edm::PSimHitContainer &result) override;
 
 private:
-
-  int read_nhits(std::ifstream & fin, int chamberType);
-  void resetStreampos(std::ifstream & fin, int chamberType);
+  int read_nhits(std::ifstream &fin, int chamberType);
+  void resetStreampos(std::ifstream &fin, int chamberType);
 
   std::string theFileNameBase;
   std::vector<std::streampos> theStreamPos;
 };
 
 #endif
-

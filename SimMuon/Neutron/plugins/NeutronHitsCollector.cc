@@ -3,12 +3,15 @@
 // Package:    SimMuon/Neutron
 // Class:      NeutronHitsCollector
 //
-/**\class NeutronHitsCollector NeutronHitsCollector.cc SimMuon/Neutron/plugins/NeutronHitsCollector.cc
+/**\class NeutronHitsCollector NeutronHitsCollector.cc
+ SimMuon/Neutron/plugins/NeutronHitsCollector.cc
 
  Description:
  Utility for neutron SimHits produced by CSC/RPC/DTNeutronWriter modules.
-   * Re-packs neutron simhits in muon detectors into new collections that have a single module label.
-   * Creates a bunch of empty collections with the same module label to make MixingModule happy
+   * Re-packs neutron simhits in muon detectors into new collections that have a
+ single module label.
+   * Creates a bunch of empty collections with the same module label to make
+ MixingModule happy
 
 
 */
@@ -18,32 +21,29 @@
 //
 //
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-
-
-class NeutronHitsCollector : public edm::stream::EDProducer<>
-{
+class NeutronHitsCollector : public edm::stream::EDProducer<> {
 public:
-  explicit NeutronHitsCollector(const edm::ParameterSet&);
-  ~NeutronHitsCollector() override {};
+  explicit NeutronHitsCollector(const edm::ParameterSet &);
+  ~NeutronHitsCollector() override{};
 
 private:
   virtual void beginJob();
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
   virtual void endJob();
 
   std::string neutron_label_csc;
@@ -51,13 +51,13 @@ private:
   std::string neutron_label_rpc;
 };
 
-
-
-NeutronHitsCollector::NeutronHitsCollector(const edm::ParameterSet& iConfig)
-{
-  neutron_label_csc = iConfig.getUntrackedParameter<std::string>("neutronLabelCSC","");
-  neutron_label_dt  = iConfig.getUntrackedParameter<std::string>("neutronLabelDT","");
-  neutron_label_rpc = iConfig.getUntrackedParameter<std::string>("neutronLabelRPC","");
+NeutronHitsCollector::NeutronHitsCollector(const edm::ParameterSet &iConfig) {
+  neutron_label_csc =
+      iConfig.getUntrackedParameter<std::string>("neutronLabelCSC", "");
+  neutron_label_dt =
+      iConfig.getUntrackedParameter<std::string>("neutronLabelDT", "");
+  neutron_label_rpc =
+      iConfig.getUntrackedParameter<std::string>("neutronLabelRPC", "");
 
   // The following list duplicates
   // http://cmslxr.fnal.gov/lxr/source/SimG4Core/Application/plugins/OscarProducer.cc
@@ -100,47 +100,45 @@ NeutronHitsCollector::NeutronHitsCollector(const edm::ParameterSet& iConfig)
   produces<edm::PCaloHitContainer>("EcalTBH4BeamHits");
   produces<edm::PCaloHitContainer>("HcalTB06BeamHits");
   produces<edm::PCaloHitContainer>("ZDCHITS");
-  //produces<edm::PCaloHitContainer>("ChamberHits");
-  //produces<edm::PCaloHitContainer>("FibreHits");
-  //produces<edm::PCaloHitContainer>("WedgeHits");
-
+  // produces<edm::PCaloHitContainer>("ChamberHits");
+  // produces<edm::PCaloHitContainer>("FibreHits");
+  // produces<edm::PCaloHitContainer>("WedgeHits");
 }
 
-
-void NeutronHitsCollector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void NeutronHitsCollector::produce(edm::Event &iEvent,
+                                   const edm::EventSetup &iSetup) {
   edm::PSimHitContainer::const_iterator hit;
 
   // ----- MuonCSCHits -----
   //
   std::unique_ptr<edm::PSimHitContainer> simCSC(new edm::PSimHitContainer);
-  if (neutron_label_csc.length()>0)
-  {
+  if (neutron_label_csc.length() > 0) {
     edm::Handle<edm::PSimHitContainer> MuonCSCHits;
-    iEvent.getByLabel(neutron_label_csc,MuonCSCHits);
-    for (hit = MuonCSCHits->begin();  hit != MuonCSCHits->end();  ++hit) simCSC->push_back(*hit);
+    iEvent.getByLabel(neutron_label_csc, MuonCSCHits);
+    for (hit = MuonCSCHits->begin(); hit != MuonCSCHits->end(); ++hit)
+      simCSC->push_back(*hit);
   }
   iEvent.put(std::move(simCSC), "MuonCSCHits");
 
   // ----- MuonDTHits -----
   //
   std::unique_ptr<edm::PSimHitContainer> simDT(new edm::PSimHitContainer);
-  if (neutron_label_dt.length()>0)
-  {
+  if (neutron_label_dt.length() > 0) {
     edm::Handle<edm::PSimHitContainer> MuonDTHits;
-    iEvent.getByLabel(neutron_label_dt,MuonDTHits);
-    for (hit = MuonDTHits->begin();  hit != MuonDTHits->end();  ++hit) simDT->push_back(*hit);
+    iEvent.getByLabel(neutron_label_dt, MuonDTHits);
+    for (hit = MuonDTHits->begin(); hit != MuonDTHits->end(); ++hit)
+      simDT->push_back(*hit);
   }
   iEvent.put(std::move(simDT), "MuonDTHits");
 
   // ----- MuonRPCHits -----
   //
   std::unique_ptr<edm::PSimHitContainer> simRPC(new edm::PSimHitContainer);
-  if (neutron_label_rpc.length()>0)
-  {
+  if (neutron_label_rpc.length() > 0) {
     edm::Handle<edm::PSimHitContainer> MuonRPCHits;
-    iEvent.getByLabel(neutron_label_rpc,MuonRPCHits);
-    for (hit = MuonRPCHits->begin();  hit != MuonRPCHits->end();  ++hit) simRPC->push_back(*hit);
+    iEvent.getByLabel(neutron_label_rpc, MuonRPCHits);
+    for (hit = MuonRPCHits->begin(); hit != MuonRPCHits->end(); ++hit)
+      simRPC->push_back(*hit);
   }
   iEvent.put(std::move(simRPC), "MuonRPCHits");
 
@@ -172,12 +170,12 @@ void NeutronHitsCollector::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.put(std::move(calout11), "HcalTB06BeamHits");
   std::unique_ptr<edm::PCaloHitContainer> calout12(new edm::PCaloHitContainer);
   iEvent.put(std::move(calout12), "ZDCHITS");
-  //std::unique_ptr<edm::PCaloHitContainer> calout13(new edm::PCaloHitContainer);
-  //iEvent.put(std::move(calout13), "ChamberHits");
-  //std::unique_ptr<edm::PCaloHitContainer> calout14(new edm::PCaloHitContainer);
-  //iEvent.put(std::move(calout14), "FibreHits");
-  //std::unique_ptr<edm::PCaloHitContainer> calout15(new edm::PCaloHitContainer);
-  //iEvent.put(std::move(calout15), "WedgeHits");
+  // std::unique_ptr<edm::PCaloHitContainer> calout13(new
+  // edm::PCaloHitContainer); iEvent.put(std::move(calout13), "ChamberHits");
+  // std::unique_ptr<edm::PCaloHitContainer> calout14(new
+  // edm::PCaloHitContainer); iEvent.put(std::move(calout14), "FibreHits");
+  // std::unique_ptr<edm::PCaloHitContainer> calout15(new
+  // edm::PCaloHitContainer); iEvent.put(std::move(calout15), "WedgeHits");
 
   // ----- Tracker -----
   //
@@ -225,16 +223,11 @@ void NeutronHitsCollector::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.put(std::move(simTr));
   std::unique_ptr<edm::SimVertexContainer> simVe(new edm::SimVertexContainer);
   iEvent.put(std::move(simVe));
-
-
 }
-
 
 void NeutronHitsCollector::beginJob() {}
 
-
 void NeutronHitsCollector::endJob() {}
 
-
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(NeutronHitsCollector);

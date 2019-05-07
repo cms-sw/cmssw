@@ -1,13 +1,13 @@
 #ifndef SimG4Core_PhysicsLists_CMSEmStandardPhysicsLPM_h
 #define SimG4Core_PhysicsLists_CMSEmStandardPhysicsLPM_h
 
-#include "HepPDT/ParticleDataTable.hh"
 #include "G4VPhysicsConstructor.hh"
+#include "HepPDT/ParticleDataTable.hh"
 #include "globals.hh"
 
 class CMSEmStandardPhysicsLPM : public G4VPhysicsConstructor {
 
-public: 
+public:
   CMSEmStandardPhysicsLPM(G4int ver);
   ~CMSEmStandardPhysicsLPM() override;
 
@@ -15,13 +15,7 @@ public:
   void ConstructProcess() override;
 
 private:
-  G4int               verbose;
+  G4int verbose;
 };
 
 #endif
-
-
-
-
-
-

@@ -6,7 +6,7 @@
 
 class CMSEmStandardPhysicsXS : public G4VPhysicsConstructor {
 
-public: 
+public:
   CMSEmStandardPhysicsXS(G4int ver);
   ~CMSEmStandardPhysicsXS() override;
 
@@ -14,13 +14,7 @@ public:
   void ConstructProcess() override;
 
 private:
-  G4int               verbose;
+  G4int verbose;
 };
 
 #endif
-
-
-
-
-
-
