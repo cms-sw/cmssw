@@ -5,11 +5,11 @@
  *
  *
  *
- *   \author C. Grandi, S. Vanini 
+ *   \author C. Grandi, S. Vanini
  *
  *    Modifications:
- *   III/07 : SV configuration with DTConfigManager 
-*/
+ *   III/07 : SV configuration with DTConfigManager
+ */
 //
 //--------------------------------------------------
 #ifndef DT_TRACO_CARD_H
@@ -27,128 +27,129 @@ class DTTrigGeom;
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
 #include "DataFormats/MuonDetId/interface/DTTracoId.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
+#include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigLUTs.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //---------------
 // C++ Headers --
 //---------------
-#include <vector>
 #include <map>
+#include <vector>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-typedef std::map< int,DTTracoChip*,std::less<int> >  TRACOContainer;
+typedef std::map<int, DTTracoChip *, std::less<int>> TRACOContainer;
 typedef TRACOContainer::const_iterator TRACO_const_iter;
 typedef TRACOContainer::iterator TRACO_iter;
 
-typedef std::map<DTTracoId,DTConfigTraco> ConfTracoMap;
+typedef std::map<DTTracoId, DTConfigTraco> ConfTracoMap;
 
-typedef DTCache<DTTracoTrigData,std::vector<DTTracoTrigData> > TRACOCache;
-  
+typedef DTCache<DTTracoTrigData, std::vector<DTTracoTrigData>> TRACOCache;
+
 class DTTracoCard : public TRACOCache, public DTGeomSupplier {
 
-  public:
+public:
+  /// Constructor
+  // DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*,edm::ParameterSet&);
+  DTTracoCard(DTTrigGeom *, DTBtiCard *, DTTSTheta *);
 
-    /// Constructor
-    //DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*,edm::ParameterSet&);
-    DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*);
+  /// Destructor
+  ~DTTracoCard() override;
 
-    /// Destructor 
-    ~DTTracoCard() override;
+  /// Clear all traco stuff (cache & map)
+  void clearCache();
 
-    /// Clear all traco stuff (cache & map)
-    void clearCache();
+  /// Set configuration
+  void setConfig(const DTConfigManager *conf);
 
-    /// Set configuration
-    void setConfig(const DTConfigManager *conf);
+  /// Return TU debug flag
+  inline bool debug() { return _debug; }
 
-    /// Return TU debug flag
-    inline bool debug() {return _debug;}
+  /// Return TSTheta
+  inline DTTSTheta *TSTh() const { return _tstheta; }
 
-    /// Return TSTheta
-    inline DTTSTheta* TSTh() const { return _tstheta; }
+  /// Returns the required DTTracoChip. Return 0 if it doesn't exist
+  DTTracoChip *getTRACO(int n) const;
 
-    /// Returns the required DTTracoChip. Return 0 if it doesn't exist
-    DTTracoChip* getTRACO(int n) const;
+  /// Returns the required DTTracoChip. Return 0 if it doesn't exist
+  DTTracoChip *getTRACO(const DTTracoId &tracoid) const {
+    return getTRACO(tracoid.traco());
+  }
 
-    /// Returns the required DTTracoChip. Return 0 if it doesn't exist
-    DTTracoChip* getTRACO(const DTTracoId& tracoid) const {
-      return getTRACO(tracoid.traco());
-    }
+  /// Returns the active TRACO list
+  std::vector<DTTracoChip *> tracoList();
 
-    /// Returns the active TRACO list
-    std::vector<DTTracoChip*> tracoList();
+  /**
+   * Returns a DTTracoTrig corresponding to a DTTracoTrigData.
+   * Creates the corresponding TRACO chip if needed and stores the trigger
+   */
+  DTTracoTrig *storeTrigger(DTTracoTrigData);
 
-    /**
-     * Returns a DTTracoTrig corresponding to a DTTracoTrigData.
-     * Creates the corresponding TRACO chip if needed and stores the trigger
-     */
-    DTTracoTrig* storeTrigger(DTTracoTrigData);
+  /// NEWGEO Local position in chamber of a trigger-data object
+  LocalPoint localPosition(const DTTrigData *) const override;
 
-    /// NEWGEO Local position in chamber of a trigger-data object
-    LocalPoint localPosition(const DTTrigData*) const override;
+  /// NEWGEO Local direction in chamber of a trigger-data object
+  LocalVector localDirection(const DTTrigData *) const override;
 
-    /// NEWGEO Local direction in chamber of a trigger-data object
-    LocalVector localDirection(const DTTrigData*) const override;
-    
-    /// Load BTIs triggers and run TRACOs algorithm
-    void reconstruct() override { clearCache(); loadTRACO(); runTRACO(); }
+  /// Load BTIs triggers and run TRACOs algorithm
+  void reconstruct() override {
+    clearCache();
+    loadTRACO();
+    runTRACO();
+  }
 
-    /// Return LUTS config for this chamber (=minicrate)
-    const DTConfigLUTs* config_luts() const { return _conf_luts; } 
+  /// Return LUTS config for this chamber (=minicrate)
+  const DTConfigLUTs *config_luts() const { return _conf_luts; }
 
-   /// Return acceptance flag
-   inline bool useAcceptParamFlag() { return _flag_acc; } 
+  /// Return acceptance flag
+  inline bool useAcceptParamFlag() { return _flag_acc; }
 
-   /// Return lut computation option (DB/geometry)
-   inline bool lutFromDBFlag() { return _lut_from_db; }
+  /// Return lut computation option (DB/geometry)
+  inline bool lutFromDBFlag() { return _lut_from_db; }
 
-  private:
+private:
+  /// store BTI triggers in TRACO's
+  void loadTRACO();
 
-    /// store BTI triggers in TRACO's
-    void loadTRACO();
+  /// run TRACO algorithm
+  void runTRACO();
 
-    /// run TRACO algorithm
-    void runTRACO();
+  /// Returns the required DTTracoChip. Create it if it doesn't exist
+  DTTracoChip *activeGetTRACO(int);
 
-    /// Returns the required DTTracoChip. Create it if it doesn't exist
-    DTTracoChip* activeGetTRACO(int);
+  /// Returns the required DTTracoChip. Create it if it doesn't exist
+  DTTracoChip *activeGetTRACO(const DTTracoId &tracoid) {
+    return activeGetTRACO(tracoid.traco());
+  }
 
-    /// Returns the required DTTracoChip. Create it if it doesn't exist
-    DTTracoChip* activeGetTRACO(const DTTracoId& tracoid) {
-      return activeGetTRACO(tracoid.traco());
-    }
+  /// clear the TRACO map
+  void localClear();
 
-    /// clear the TRACO map
-    void localClear();
+  /// Return single TRACO config
+  DTConfigTraco *config_traco(const DTTracoId &tracoid) const;
 
-    /// Return single TRACO config
-    DTConfigTraco* config_traco(const DTTracoId& tracoid) const; 
+private:
+  DTBtiCard *_bticard;
+  DTTSTheta *_tstheta;
 
-  private:
+  TRACOContainer _tracomap;
+  ConfTracoMap _conf_traco_map; // bti configuration map for this chamber
 
-    DTBtiCard* _bticard;
-    DTTSTheta* _tstheta;
+  const DTConfigLUTs *_conf_luts;
 
-    TRACOContainer _tracomap;
-    ConfTracoMap _conf_traco_map;	//bti configuration map for this chamber
+  bool _debug;
 
-    const DTConfigLUTs* _conf_luts;
-    
-    bool _debug;
-
-    bool _flag_acc;
-    bool _lut_from_db;
+  bool _flag_acc;
+  bool _lut_from_db;
 };
 
 #endif
