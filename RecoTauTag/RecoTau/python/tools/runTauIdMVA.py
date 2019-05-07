@@ -651,38 +651,33 @@ class TauIDEmbedder(object):
 
             workingPoints_ = {
                 "e": {
-                    "VVVLoose" : 0.96424,
-                    "VVLoose" : 0.98992,
-                    "VLoose" : 0.99574,
-                    "Loose": 0.99831,
-                    "Medium": 0.99868,
-                    "Tight": 0.99898,
-                    "VTight": 0.99911,
-                    "VVTight": 0.99918
+                    "VVVLoose": 0.0630386,
+                    "VVLoose": 0.1686942,
+                    "VLoose": 0.3628130,
+                    "Loose": 0.6815435,
+                    "Medium": 0.8847544,
+                    "Tight": 0.9675541,
+                    "VTight": 0.9859251,
+                    "VVTight": 0.9928449,
                 },
                 "mu": {
-                    "VVVLoose" : 0.959619,
-                    "VVLoose" : 0.997687,
-                    "VLoose" : 0.999392,
-                    "Loose": 0.999755,
-                    "Medium": 0.999854,
-                    "Tight": 0.999886,
-                    "VTight": 0.999944,
-                    "VVTight": 0.9999971
+                    "VLoose": 0.1058354,
+                    "Loose": 0.2158633,
+                    "Medium": 0.5551894,
+                    "Tight": 0.8754835,
                 },
-
                 "jet": {
-                    "VVVLoose" : 0.5329,
-                    "VVLoose" : 0.7645,
-                    "VLoose" : 0.8623,
-                    "Loose": 0.9140,
-                    "Medium": 0.9464,
-                    "Tight": 0.9635,
-                    "VTight": 0.9760,
-                    "VVTight": 0.9859
-                }
+                    "VVVLoose": 0.2599605,
+                    "VVLoose": 0.4249705,
+                    "VLoose": 0.5983682,
+                    "Loose": 0.7848675,
+                    "Medium": 0.8834768,
+                    "Tight": 0.9308689,
+                    "VTight": 0.9573137,
+                    "VVTight": 0.9733927,
+                },
             }
-            file_name = 'RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e2.pb'
+            file_name = 'RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb'
             self.process.deepTau2017v2 = self.cms.EDProducer("DeepTauId",
                 electrons              = self.cms.InputTag('slimmedElectrons'),
                 muons                  = self.cms.InputTag('slimmedMuons'),
@@ -692,7 +687,9 @@ class TauIDEmbedder(object):
                 rho                    = self.cms.InputTag('fixedGridRhoAll'),
                 graph_file             = self.cms.string(file_name),
                 mem_mapped             = self.cms.bool(False),
-                version                = self.cms.uint32(2)
+                version                = self.cms.uint32(2),
+                debug                  = self.cms.bool(False)
+
             )
 
             self.processDeepProducer('deepTau2017v2', tauIDSources, workingPoints_)
