@@ -214,6 +214,8 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet,jecPayload):
     if addDeepBoostedJet:
         print("Updating process to run DeepBoostedJet on datasets before 103X")
         from RecoBTag.MXNet.pfDeepBoostedJet_cff import pfDeepBoostedJetTags, pfMassDecorrelatedDeepBoostedJetTags
+        from RecoBTag.MXNet.pfDeepBoostedDiscriminatorsJetTags_cfi import pfDeepBoostedDiscriminatorsJetTags
+        from RecoBTag.MXNet.pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags_cfi import pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags
         from RecoBTag.MXNet.Parameters.V02.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams as pfDeepBoostedJetPreprocessParamsV02
         from RecoBTag.MXNet.Parameters.V02.pfMassDecorrelatedDeepBoostedJetPreprocessParams_cfi import pfMassDecorrelatedDeepBoostedJetPreprocessParams as pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
         pfDeepBoostedJetTags.preprocessParams = pfDeepBoostedJetPreprocessParamsV02
