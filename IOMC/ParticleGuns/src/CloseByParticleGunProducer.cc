@@ -46,8 +46,7 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
-  
-  srand(time(nullptr));
+
 }
 
 CloseByParticleGunProducer::~CloseByParticleGunProducer()
@@ -69,11 +68,11 @@ void CloseByParticleGunProducer::produce(Event &e, const EventSetup& es)
    // loop over particles
    //
    int barcode = 1 ;
-   int numParticles = fRandomShoot ? rand() % fNParticles + 1 : fNParticles;
+   int numParticles = fRandomShoot ? CLHEP::RandFlat::shoot(engine, 1, fNParticles) : fNParticles;
    std::vector<int> particles;
 
    for(int i=0; i<numParticles; i++){
-     int partIdx = rand() % fPartIDs.size();
+     int partIdx = CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size());
      particles.push_back(fPartIDs[partIdx]);
      }
 
