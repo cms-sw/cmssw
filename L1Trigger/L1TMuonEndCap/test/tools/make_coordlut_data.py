@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("Whatever",eras.Run2_2018)
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("Whatever",Run2_2018)
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')  # load from DB
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')

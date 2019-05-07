@@ -19,9 +19,9 @@ readFiles.extend( [
 '/store/relval/CMSSW_9_0_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/90X_mcRun2_asymptotic_v0-v1/10000/DC4B89FA-62C2-E611-BEA8-0025905A6060.root',
 '/store/relval/CMSSW_9_0_0_pre2/RelValQCD_Pt_3000_3500_13/GEN-SIM-DIGI-RAW-HLTDEBUG/90X_mcRun2_asymptotic_v0-v1/10000/EEB73D90-3BC2-E611-B0A4-0025905A60FE.root' ] );
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('makeNtuples',eras.Run2_2016)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('makeNtuples',Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

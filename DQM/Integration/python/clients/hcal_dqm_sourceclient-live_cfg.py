@@ -11,8 +11,8 @@ import os, sys, socket, string
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
-process      = cms.Process('HCALDQM', eras.Run2_2018)
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process      = cms.Process('HCALDQM', Run2_2018)
 subsystem    = 'Hcal'
 cmssw        = os.getenv("CMSSW_VERSION").split("_")
 debugstr     = "### HcalDQM::cfg::DEBUG: "
