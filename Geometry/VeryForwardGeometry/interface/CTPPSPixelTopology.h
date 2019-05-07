@@ -10,8 +10,8 @@
  **/
 class CTPPSPixelTopology {
 public:
-  CTPPSPixelTopology();
-  ~CTPPSPixelTopology();
+  CTPPSPixelTopology() = default;
+  ~CTPPSPixelTopology()= default;
 
   static constexpr double pitch_simY_ = 150E-3;
   static constexpr double pitch_simX_ = 100E-3;
