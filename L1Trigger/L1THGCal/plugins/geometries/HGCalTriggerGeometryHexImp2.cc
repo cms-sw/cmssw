@@ -40,6 +40,7 @@ public:
 
   bool validTriggerCell(const unsigned) const final;
   bool disconnectedModule(const unsigned) const final;
+  unsigned lastTriggerLayer() const final;
   unsigned triggerLayer(const unsigned) const final;
 
 private:
@@ -749,6 +750,8 @@ bool HGCalTriggerGeometryHexImp2::validTriggerCell(const unsigned trigger_cell_i
 }
 
 bool HGCalTriggerGeometryHexImp2::disconnectedModule(const unsigned module_id) const { return false; }
+
+unsigned HGCalTriggerGeometryHexImp2::lastTriggerLayer() const { return eeTopology().dddConstants().layers(true); }
 
 unsigned HGCalTriggerGeometryHexImp2::triggerLayer(const unsigned id) const { return HGCalDetId(id).layer(); }
 

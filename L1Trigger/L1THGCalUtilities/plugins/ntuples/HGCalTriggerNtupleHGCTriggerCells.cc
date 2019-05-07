@@ -80,14 +80,11 @@ DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCTriggerCells, 
 HGCalTriggerNtupleHGCTriggerCells::HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf)
     : HGCalTriggerNtupleBase(conf),
       fill_simenergy_(conf.getParameter<bool>("FillSimEnergy")),
-      filter_cells_in_multiclusters_(conf.getParameter<bool>("FilterCellsInMulticlusters")) {
-  fill_simenergy_ = conf.getParameter<bool>("FillSimEnergy");
-  filter_cells_in_multiclusters_ = conf.getParameter<bool>("FilterCellsInMulticlusters");
-  keV2fC_ = conf.getParameter<double>("keV2fC");
-  fcPerMip_ = conf.getParameter<std::vector<double>>("fcPerMip");
-  layerWeights_ = conf.getParameter<std::vector<double>>("layerWeights");
-  thicknessCorrections_ = conf.getParameter<std::vector<double>>("thicknessCorrections");
-}
+      filter_cells_in_multiclusters_(conf.getParameter<bool>("FilterCellsInMulticlusters")),
+      keV2fC_(conf.getParameter<double>("keV2fC")),
+      fcPerMip_(conf.getParameter<std::vector<double>>("fcPerMip")),
+      layerWeights_(conf.getParameter<std::vector<double>>("layerWeights")),
+      thicknessCorrections_(conf.getParameter<std::vector<double>>("thicknessCorrections")) {}
 
 void HGCalTriggerNtupleHGCTriggerCells::initialize(TTree& tree,
                                                    const edm::ParameterSet& conf,
