@@ -32,7 +32,7 @@ CutApplicatorBase::result_type
 GsfEleMinEcalEtCut::
 operator()(const reco::GsfElectronPtr& cand) const{  
   const reco::GsfElectron& ele = *cand;
-  const float sinTheta = ele.energy()!=0 ? ele.et()/ele.energy() : 0.;
+  const float sinTheta = ele.p()!=0 ? ele.pt()/ele.p() : 0.;
   const float et = ele.ecalEnergy()*sinTheta;
   return et>minEt_;
 }
