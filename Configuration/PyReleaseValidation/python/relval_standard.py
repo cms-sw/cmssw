@@ -30,6 +30,14 @@ workflows[1302.17] = ['', ['ProdTTbar_13UP17','DIGIUP17PROD1','RECOPRODUP17']]
 workflows[1303.17] = ['', ['ProdQCD_Pt_3000_3500_13UP17','DIGIUP17PROD1','RECOPRODUP17']]
 workflows.addOverride(1303.17,overridesEv5)
 
+#####Prod2018
+#workflows[1301.18] = ['', ['ProdMinBias_13UP18','DIGIUP18PROD1','RECOPRODUP18']]
+workflows[1302.18] = ['', ['ProdTTbar_13UP18','DIGIUP18PROD1','RECOPRODUP18']]
+#workflows[1303.18] = ['', ['ProdQCD_Pt_3000_3500_13UP18','DIGIUP18PROD1','RECOPRODUP18']]
+workflows[1304.18] = ['', ['ProdZEE_13UP18','DIGIUP18PROD1','RECOPRODUP18','MINIAODMCUP18']]
+workflows[1304.181] = ['', ['ProdZEE_13UP18','DIGIUP18PROD1','RECOPRODUP18bParking','MINIAODMCUP18bParking']]
+#workflows.addOverride(1303.17,overridesEv5)
+
 ### data ###
 workflows[4.5]  = ['', ['RunCosmicsA','RECOCOSD','ALCACOSD','HARVESTDC']]
 #workflows[4.6]  = ['', ['MinimumBias2010A','RECODR1','HARVESTDR1']]
@@ -336,6 +344,7 @@ workflows[136.858] = ['',['RunNoBPTX2018A','HLTDR2_2018','RECODR2_2018reHLTAlCaT
 workflows[136.859] = ['',['RunDisplacedJet2018A','HLTDR2_2018','RECODR2_2018reHLT_skimDisplacedJet_Prompt','HARVEST2018']]
 workflows[136.860] = ['',['RunCharmonium2018A','HLTDR2_2018','RECODR2_2018reHLT_skimCharmonium_Prompt','HARVEST2018']]
 ### wf to test 90 m beta* Totem run reconstruction ###
+workflows[136.8501] = ['',['RunEGamma2018A','HLTDR2_2018','RECODR2_2018reHLT_skimParkingBPH_Prompt','HARVEST2018']]
 workflows[136.8561] = ['',['RunZeroBias_hBStarTk','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Prompt_hBStar','HARVEST2018_hBStar']]
 workflows[136.8562] = ['',['RunZeroBias1_hBStarRP','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Prompt_hBStar','HARVEST2018_hBStar']]
 
@@ -355,6 +364,7 @@ workflows[136.869] = ['',['RunMuOnia2018B','HLTDR2_2018','RECODR2_2018reHLT_skim
 workflows[136.870] = ['',['RunNoBPTX2018B','HLTDR2_2018','RECODR2_2018reHLTAlCaTkCosmics_Prompt','HARVEST2018']]
 workflows[136.871] = ['',['RunDisplacedJet2018B','HLTDR2_2018','RECODR2_2018reHLT_skimDisplacedJet_Prompt','HARVEST2018']]
 workflows[136.872] = ['',['RunCharmonium2018B','HLTDR2_2018','RECODR2_2018reHLT_skimCharmonium_Prompt','HARVEST2018']]
+workflows[136.898] = ['',['RunParkingBPH2018B','HLTDR2_2018','RECODR2_2018reHLT_skimParkingBPH_Prompt','HARVEST2018']]
 
 workflows[136.8642] = ['',['RunJetHT2018BHEfail','HLTDR2_2018','RECODR2_2018reHLT_skimJetHT_Prompt_HEfail','HARVEST2018_HEfail']]
 workflows[136.8643] = ['',['RunJetHT2018BBadHcalMitig','HLTDR2_2018_BadHcalMitig','RECODR2_2018reHLT_skimJetHT_Prompt_BadHcalMitig','HARVEST2018_BadHcalMitig']]
@@ -402,6 +412,21 @@ workflows[2017.13] = ['TTbar_13_UP17', ['TTbarFS_13_trackingOnlyValidation_UP17'
 ### MinBias fastsim_13 TeV for mixing ###                                                                                                                                      
 workflows[2017.8] = ['',['MinBiasFS_13_UP17_ForMixing']]
 
+### MinBias fastsim_13 TeV for mixing, 2018 ###                                                                                                                                      
+workflows[2018.8] = ['',['MinBiasFS_13_UP18_ForMixing']]
+
+### Phase1 FastSim 13TeV, 2018 ###
+workflows[2018.1] = ['TTbar_13_UP18', ['TTbarFS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.2] = ['SingleMuPt10_UP18', ['SingleMuPt10FS_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.3] = ['SingleMuPt100_UP18', ['SingleMuPt100FS_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.4] = ['ZEE_13_UP18', ['ZEEFS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.5] = ['ZTT_13_UP18',['ZTTFS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.6] = ['QCD_FlatPt_15_3000_13_UP18', ['QCDFlatPt153000FS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.7] = ['H125GGgluonfusion_13_UP18', ['H125GGgluonfusionFS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.9] = ['ZMM_13_UP18',['ZMMFS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.11] = ['SMS-T1tttt_mGl-1500_mLSP-100_13_UP18', ['SMS-T1tttt_mGl-1500_mLSP-100FS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.12] = ['QCD_Pt_80_120_13_UP18', ['QCD_Pt_80_120FS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
+workflows[2018.13] = ['TTbar_13_UP18', ['TTbarFS_13_trackingOnlyValidation_UP18','HARVESTUP18FS_trackingOnly']]
 
 ### standard set ###
 ## particle guns

@@ -98,6 +98,7 @@ bool LHAupLesHouches::setEvent(int inProcId)
     fEvAttributes->clear();
     infoPtr->eventAttributes = fEvAttributes;
   } else {
+    infoPtr->eventAttributes = fEvAttributes;  // make sure still there
     infoPtr->eventAttributes->clear();
   }
 
