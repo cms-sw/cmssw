@@ -8,8 +8,8 @@ import FWCore.ParameterSet.Config as cms
 # options.parseArguments()
 updatedTauName = "slimmedTausNewID"
 minimalOutput = True
-eventsToProcess = 1000
-nThreads = 2
+eventsToProcess = 1
+nThreads = 1
 
 process = cms.Process('TauID')
 process.load('Configuration.StandardSequences.MagneticField_cff')
@@ -18,12 +18,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
 
 # Input source
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
-    # File from dataset /TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v12-v1/
-    '/store/mc/RunIIFall18MiniAOD/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v12-v1/100000/4A357FA9-ACD1-A546-956F-C0017C2CCD6D.root'
+    # File from dataset /TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1
+    '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/40000/A256C80D-0943-E811-998E-7CD30AB0522C.roo'
 ))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProcess) )
