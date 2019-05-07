@@ -80,17 +80,17 @@ namespace btagbtvdeep{
             GlobalVector pairMomentum((Basic3DVector<float>) (it->track().momentum()+tt->track().momentum()));
             GlobalVector pvToPCA(cp-pvp);
 
-            float pvToPCAseed = (dist.points().second-pvp).mag();
-            float pvToPCAtrack = (dist.points().first-pvp).mag();
+            float pvToPCAseed = (seedPosition-pvp).mag();
+            float pvToPCAtrack = (ttPoint-pvp).mag();
             float distance = dist.distance();
 
             GlobalVector trackDir2D(tImpactState.globalDirection().x(),tImpactState.globalDirection().y(),0.); 
             GlobalVector seedDir2D(iImpactState.globalDirection().x(),iImpactState.globalDirection().y(),0.); 
-            GlobalVector trackPCADir2D(dist.points().first.x()-pvp.x(),dist.points().first.y()-pvp.y(),0.); 
-            GlobalVector seedPCADir2D(dist.points().second.x()-pvp.x(),dist.points().second.y()-pvp.y(),0.); 
+            GlobalVector trackPCADir2D(ttPoint.x()-pvp.x(),ttPoint.y()-pvp.y(),0.);
+            GlobalVector seedPCADir2D(seedPosition.x()-pvp.x(),seedPosition.y()-pvp.y(),0.);
 
-            float dotprodTrack = (dist.points().first-pvp).unit().dot(tImpactState.globalDirection().unit());
-            float dotprodSeed = (dist.points().second-pvp).unit().dot(iImpactState.globalDirection().unit());                    
+            float dotprodTrack = (ttPoint-pvp).unit().dot(tImpactState.globalDirection().unit());
+            float dotprodSeed = (seedPosition-pvp).unit().dot(iImpactState.globalDirection().unit());
     
             std::pair<bool,Measurement1D> t_ip = IPTools::absoluteImpactParameter3D(*tt,pv);        
             std::pair<bool,Measurement1D> t_ip2d = IPTools::absoluteTransverseImpactParameter(*tt,pv);             
@@ -139,7 +139,7 @@ namespace btagbtvdeep{
             dotprodTrackSeed2D_=trackDir2D.unit().dot(seedDir2D.unit());
             dotprodTrackSeed3D_=iImpactState.globalDirection().unit().dot(tImpactState.globalDirection().unit());
             dotprodTrackSeed2DV_=trackPCADir2D.unit().dot(seedPCADir2D.unit());
-            dotprodTrackSeed3DV_=(dist.points().second-pvp).unit().dot((dist.points().first-pvp).unit());
+            dotprodTrackSeed3DV_=(seedPosition-pvp).unit().dot((ttPoint-pvp).unit());
 
             pca_jetAxis_dist_=jetLine.distance(cp).mag();
             pca_jetAxis_dotprod_=pairMomentum.unit().dot(jetdirection.unit());
