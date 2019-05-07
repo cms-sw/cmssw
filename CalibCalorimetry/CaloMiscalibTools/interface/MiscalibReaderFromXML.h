@@ -4,43 +4,44 @@
 /** \class MiscalibReaderFromXML
  * *
  *  Parses the xml file to get miscalibration constants
- * 
+ *
  *  \author Lorenzo Agostino
-  */
+ */
 
-#include <xercesc/dom/DOMNode.hpp>
+#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMap.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMCharacterData.hpp>
-#include <xercesc/parsers/XercesDOMParser.hpp>
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
-#include <xercesc/util/XMLUni.hpp>
+#include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/XMLURL.hpp>
-#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMap.h"
-          
+#include <xercesc/util/XMLUni.hpp>
 
-#include<iostream>
-#include<string>
-#include<vector>
-#include<map>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 
-
-class MiscalibReaderFromXML{
+class MiscalibReaderFromXML {
 
 public:
-MiscalibReaderFromXML(CaloMiscalibMap &);
-virtual ~MiscalibReaderFromXML(){}
+  MiscalibReaderFromXML(CaloMiscalibMap &);
+  virtual ~MiscalibReaderFromXML() {}
 
-bool parseXMLMiscalibFile(std::string configFile);
+  bool parseXMLMiscalibFile(std::string configFile);
 
-virtual DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute)=0;
-int    getIntAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute, const std::string &attribute_name);
-double getScalingFactor(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute);
-double getFloatAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute, const std::string &attribute_name);
+  virtual DetId
+  parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute) = 0;
+  int getIntAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute,
+                      const std::string &attribute_name);
+  double getScalingFactor(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute);
+  double getFloatAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute,
+                           const std::string &attribute_name);
 
 private:
-static int s_numberOfInstances;
-CaloMiscalibMap & caloMap_;
+  static int s_numberOfInstances;
+  CaloMiscalibMap &caloMap_;
 };
 
 #endif

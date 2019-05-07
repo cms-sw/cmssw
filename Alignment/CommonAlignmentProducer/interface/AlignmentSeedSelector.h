@@ -1,35 +1,32 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentSeedSelector_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentSeedSelector_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 
-namespace edm { class Event; }
+namespace edm {
+class Event;
+}
 
-class AlignmentSeedSelector
-{
+class AlignmentSeedSelector {
 
- public:
-
-  typedef std::vector<const TrajectorySeed*> Seeds; 
+public:
+  typedef std::vector<const TrajectorySeed *> Seeds;
 
   /// constructor
-  AlignmentSeedSelector(const edm::ParameterSet & cfg);
+  AlignmentSeedSelector(const edm::ParameterSet &cfg);
 
   /// destructor
   ~AlignmentSeedSelector();
 
   /// select tracks
-  Seeds select(const Seeds& seeds, const edm::Event& evt) const;
+  Seeds select(const Seeds &seeds, const edm::Event &evt) const;
 
- private:
- 
+private:
   /// private data members
   bool applySeedNumber;
-  int minNSeeds,maxNSeeds;
-
+  int minNSeeds, maxNSeeds;
 };
 
 #endif
-

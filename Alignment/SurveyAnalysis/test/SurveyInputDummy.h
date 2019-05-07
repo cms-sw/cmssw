@@ -20,7 +20,7 @@
  *  If randomizeValue is true, the survey value of a structure in a level
  *  is randomly selected from a Gaussian distribution of mean given by the
  *  ideal geometry and width = "value" (e.g. width = 5e-4 for a Panel).
- *  
+ *
  *  The covariance matrix for all structures of a level will be diagonal
  *  given by value^2 * identity.
  *
@@ -32,27 +32,16 @@
 
 #include <map>
 
-class SurveyInputDummy:
-  public SurveyInputBase
-{
-  public:
-
-  SurveyInputDummy(
-		   const edm::ParameterSet&
-		   );
+class SurveyInputDummy : public SurveyInputBase {
+public:
+  SurveyInputDummy(const edm::ParameterSet &);
 
   /// Read ideal tracker geometry from DB
-  virtual void analyze(
-		       const edm::Event&,
-		       const edm::EventSetup&
-		       );
+  virtual void analyze(const edm::Event &, const edm::EventSetup &);
 
-  private:
-
+private:
   /// Add survey info to an alignable
-  void addSurveyInfo(
-		     Alignable*
-		     );
+  void addSurveyInfo(Alignable *);
 
   bool theRandomizeValue; // randomize survey values if true
 

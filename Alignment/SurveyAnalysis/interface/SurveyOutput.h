@@ -18,22 +18,16 @@
 
 class Alignable;
 
-class SurveyOutput
-{
-  public:
-
-  SurveyOutput(const align::Alignables&,
-	       const std::string& fileName
-	       );
+class SurveyOutput {
+public:
+  SurveyOutput(const align::Alignables &, const std::string &fileName);
 
   /// write out variables
-  void write(
-	     unsigned int iter // iteration number
-	     );
+  void write(unsigned int iter // iteration number
+  );
 
-  private:
-
-  const align::Alignables& theAlignables;
+private:
+  const align::Alignables &theAlignables;
 
   TFile theFile;
 };

@@ -6,13 +6,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,16 +22,15 @@
 //
 
 class WriteEcalMiscalibConstants : public edm::EDAnalyzer {
- public:
-  explicit WriteEcalMiscalibConstants(const edm::ParameterSet&);
+public:
+  explicit WriteEcalMiscalibConstants(const edm::ParameterSet &);
   ~WriteEcalMiscalibConstants() override;
-  
-  
- private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-      // ----------member data ---------------------------
-      std::string newTagRequest_;
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
+
+  // ----------member data ---------------------------
+  std::string newTagRequest_;
 };

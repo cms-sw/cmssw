@@ -5,17 +5,14 @@
 #include "CondFormats/CastorObjects/interface/CastorQIECoder.h"
 
 namespace reco {
-  namespace castor {
+namespace castor {
 
-    void getLinearizedADC(const CastorQIEShape& shape,
-		      const CastorQIECoder* coder,
-		      int bins,int capid,
-		      float& lo,
-		      float& hi);
+void getLinearizedADC(const CastorQIEShape &shape, const CastorQIECoder *coder,
+                      int bins, int capid, float &lo, float &hi);
 
-    float maxDiff(float one, float two, float three, float four);
+float maxDiff(float one, float two, float three, float four);
 
-  }
-}
+} // namespace castor
+} // namespace reco
 
 #endif

@@ -1,22 +1,18 @@
 #ifndef _CALO_MISCALIB_MAP_H
 #define _CALO_MISCALIB_MAP_H
 
-#include <iostream>
 #include "DataFormats/DetId/interface/DetId.h"
+#include <iostream>
 #include <map>
 
-class CaloMiscalibMap{
+class CaloMiscalibMap {
 
 public:
-CaloMiscalibMap(){}
-virtual ~CaloMiscalibMap(){}
+  CaloMiscalibMap() {}
+  virtual ~CaloMiscalibMap() {}
 
 public:
-
-
-virtual void addCell(const DetId &cell, float scaling_factor)=0;
-
+  virtual void addCell(const DetId &cell, float scaling_factor) = 0;
 };
-
 
 #endif

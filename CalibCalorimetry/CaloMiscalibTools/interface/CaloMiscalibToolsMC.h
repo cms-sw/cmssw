@@ -5,8 +5,9 @@
 //
 // Package:    CaloMiscalibToolsMC
 // Class:      CaloMiscalibToolsMC
-// 
-/**\class CaloMiscalibToolsMC CaloMiscalibToolsMC.cc CalibCalorimetry/CaloMiscalibToolsMC/src/CaloMiscalibToolsMC.cc
+//
+/**\class CaloMiscalibToolsMC CaloMiscalibToolsMC.cc
+ CalibCalorimetry/CaloMiscalibToolsMC/src/CaloMiscalibToolsMC.cc
 
  Description: Definition of CaloMiscalibToolsMC
 
@@ -17,10 +18,9 @@
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
 //
-// Modified       : Luca Malgeri 
-// Date:          : 11/09/2006 
+// Modified       : Luca Malgeri
+// Date:          : 11/09/2006
 // Reason         : split class definition (.h) from source code (.cc)
- 
 
 // system include files
 #include <memory>
@@ -28,42 +28,45 @@
 // user include files
 #include "FWCore/Framework/interface/SourceFactory.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
-#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
 //
 // class decleration
 //
 
-class CaloMiscalibToolsMC : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
-   public:
-      CaloMiscalibToolsMC(const edm::ParameterSet&);
-      ~CaloMiscalibToolsMC() override;
+class CaloMiscalibToolsMC : public edm::ESProducer,
+                            public edm::EventSetupRecordIntervalFinder {
+public:
+  CaloMiscalibToolsMC(const edm::ParameterSet &);
+  ~CaloMiscalibToolsMC() override;
 
-      typedef std::unique_ptr<EcalIntercalibConstantsMC> ReturnType;
+  typedef std::unique_ptr<EcalIntercalibConstantsMC> ReturnType;
 
-      ReturnType produce(const EcalIntercalibConstantsMCRcd&);
-   private:
-      // ----------member data ---------------------------
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
-    
-    std::string barrelfile_; 
-    std::string endcapfile_; 
-    std::string barrelfileinpath_; 
-    std::string endcapfileinpath_; 
+  ReturnType produce(const EcalIntercalibConstantsMCRcd &);
 
+private:
+  // ----------member data ---------------------------
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                      const edm::IOVSyncValue &,
+                      edm::ValidityInterval &) override;
+
+  std::string barrelfile_;
+  std::string endcapfile_;
+  std::string barrelfileinpath_;
+  std::string endcapfileinpath_;
 };
 
 #endif

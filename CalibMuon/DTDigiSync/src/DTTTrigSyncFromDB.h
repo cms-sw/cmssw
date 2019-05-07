@@ -5,34 +5,38 @@
  *  Concrete implementation of a DTTTrigBaseSync.
  *  This class define the offset for RecHit building
  *  of data and simulation.
- *  The offset is computes as: 
+ *  The offset is computes as:
  *  <br>
- *  offset = t0 + tTrig + wirePropCorr - tofCorr 
+ *  offset = t0 + tTrig + wirePropCorr - tofCorr
  *  <br>
  *  where: <br>
- *     - t0 from test pulses (taken from DB, it is assumed to be in ns; can be switched off)
- *     - ttrig from the fit of time boxrising edge (taken from DB, it is assumed to be in ns)
- *       (At the moment a single value is read for ttrig offset 
- *       but this may change in the future)
+ *     - t0 from test pulses (taken from DB, it is assumed to be in ns; can be
+ * switched off)
+ *     - ttrig from the fit of time boxrising edge (taken from DB, it is assumed
+ * to be in ns) (At the moment a single value is read for ttrig offset but this
+ * may change in the future)
  *     - signal propagation along the wire (can be switched off):
  *       it is assumed the ttrig accounts on average for
  *       correction from the center of the wire to the frontend.
- *       Here we just have to correct for the distance of the hit from the wire center.
+ *       Here we just have to correct for the distance of the hit from the wire
+ * center.
  *     - TOF correction (can be switched off for cosmics):
- *       the ttrig already accounts for average TOF correction, 
- *       depending on the granularity used for the ttrig computation we just have to correct for the
- *       TOF from the center of the chamber, SL, layer or wire to the hit position.
- *       NOTE: particles are assumed as coming from the IP.
+ *       the ttrig already accounts for average TOF correction,
+ *       depending on the granularity used for the ttrig computation we just
+ * have to correct for the TOF from the center of the chamber, SL, layer or wire
+ * to the hit position. NOTE: particles are assumed as coming from the IP.
  *
  *  The emulatorOffset is computed as:
  *  <br>
  *  offset = int(ttrig/BXspace)*BXspace + t0
  *  <br>
  *  where: <br>
- *     - t0 from test pulses (taken from DB, it is assumed to be in ns; can be switched off)
- *     - ttrig from the fit of time box rising edge (taken from DB, it is assumed to be in ns)
+ *     - t0 from test pulses (taken from DB, it is assumed to be in ns; can be
+ * switched off)
+ *     - ttrig from the fit of time box rising edge (taken from DB, it is
+ * assumed to be in ns)
  *     - BXspace BX spacing (in ns). Can be configured.
- *   
+ *
  *  NOTE: this should approximate what is seen online by the BTI
  *
  *  \author G. Cerminara - INFN Torino
@@ -40,21 +44,19 @@
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
-
 class DTLayer;
 class DTWireId;
 class DTT0;
 class DTTtrig;
 
-
 namespace edm {
-  class ParameterSet;
+class ParameterSet;
 }
 
 class DTTTrigSyncFromDB : public DTTTrigBaseSync {
 public:
   /// Constructor
-  DTTTrigSyncFromDB(const edm::ParameterSet& config);
+  DTTTrigSyncFromDB(const edm::ParameterSet &config);
 
   /// Destructor
   ~DTTTrigSyncFromDB() override;
@@ -62,37 +64,29 @@ public:
   // Operations
 
   /// Pass the Event Setup to the algo at each event
-  void setES(const edm::EventSetup& setup) override;
-
+  void setES(const edm::EventSetup &setup) override;
 
   /// Time (ns) to be subtracted to the digi time,
   /// Parameters are the layer and the wireId to which the
   /// digi is referred and the estimation of
   /// the 3D hit position (globPos)
-  double offset(const DTLayer* layer,
-			const DTWireId& wireId,
-			const GlobalPoint& globPos,
-			double& tTrig,
-			double& wirePropCorr,
-			double& tofCorr) const override;
+  double offset(const DTLayer *layer, const DTWireId &wireId,
+                const GlobalPoint &globPos, double &tTrig, double &wirePropCorr,
+                double &tofCorr) const override;
 
   /// Time (ns) to be subtracted to the digi time.
   /// It does not take into account TOF and signal propagation along the wire
-  double offset(const DTWireId& wireId) const override;
-
+  double offset(const DTWireId &wireId) const override;
 
   /// Time (ns) to be subtracted to the digi time for emulation purposes
   /// It does not take into account TOF and signal propagation along the wire
   /// It also returns the different contributions separately:
   ///     - tTrig is the offset (t_trig)
   ///     - t0cell is the t0 from pulses
-  double emulatorOffset(const DTWireId& wireId,
-				double &tTrig,
-				double &t0cell) const override;
+  double emulatorOffset(const DTWireId &wireId, double &tTrig,
+                        double &t0cell) const override;
 
-
- private:
-  
+private:
   const DTT0 *tZeroMap;
   const DTTtrig *tTrigMap;
   // Set the verbosity level
@@ -111,7 +105,5 @@ public:
   double theBXspace;
 
   std::string thetTrigLabel;
-
 };
 #endif
-

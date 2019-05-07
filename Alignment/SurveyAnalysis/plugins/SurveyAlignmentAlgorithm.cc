@@ -5,28 +5,23 @@
 
 #include "Alignment/SurveyAnalysis/plugins/SurveyAlignmentAlgorithm.h"
 
-SurveyAlignmentAlgorithm::SurveyAlignmentAlgorithm(const edm::ParameterSet& cfg):
-  AlignmentAlgorithmBase(cfg),
-  theOutfile(cfg.getParameter<std::string>("outfile")),
-  theIterations(cfg.getParameter<unsigned int>("nIteration")),
-  theLevels(cfg.getParameter< std::vector<std::string> >("levels"))
-{
-}
+SurveyAlignmentAlgorithm::SurveyAlignmentAlgorithm(const edm::ParameterSet &cfg)
+    : AlignmentAlgorithmBase(cfg),
+      theOutfile(cfg.getParameter<std::string>("outfile")),
+      theIterations(cfg.getParameter<unsigned int>("nIteration")),
+      theLevels(cfg.getParameter<std::vector<std::string>>("levels")) {}
 
-void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
-					  AlignableTracker*,
-					  AlignableMuon*,
-					  AlignableExtras*,
-					  AlignmentParameterStore* store)
-{
+void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup &,
+                                          AlignableTracker *, AlignableMuon *,
+                                          AlignableExtras *,
+                                          AlignmentParameterStore *store) {
   std::vector<align::StructureType> levels;
 
   // FIXME: - currently defaulting to RunI as this was the previous behaviour
   //        - check this, when resurrecting this code in the future
   AlignableObjectId alignableObjectId{AlignableObjectId::Geometry::General};
 
-  for (unsigned int l = 0; l < theLevels.size(); ++l)
-  {
+  for (unsigned int l = 0; l < theLevels.size(); ++l) {
     levels.push_back(alignableObjectId.stringToId(theLevels[l].c_str()));
   }
 
@@ -39,4 +34,5 @@ void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 
-DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory, SurveyAlignmentAlgorithm, "SurveyAlignmentAlgorithm");
+DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory, SurveyAlignmentAlgorithm,
+                  "SurveyAlignmentAlgorithm");

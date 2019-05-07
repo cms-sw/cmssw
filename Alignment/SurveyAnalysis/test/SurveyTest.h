@@ -14,20 +14,16 @@
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-class SurveyTest:
-  public edm::EDAnalyzer
-{
-  public:
-
-  SurveyTest(const edm::ParameterSet&);
+class SurveyTest : public edm::EDAnalyzer {
+public:
+  SurveyTest(const edm::ParameterSet &);
 
   virtual void beginJob();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
+  virtual void analyze(const edm::Event &, const edm::EventSetup &) {}
 
-  private:
-
-  void getTerminals(align::Alignables& terminals, Alignable* ali);
+private:
+  void getTerminals(align::Alignables &terminals, Alignable *ali);
 
   bool theBiasFlag; // true for biased residuals
 

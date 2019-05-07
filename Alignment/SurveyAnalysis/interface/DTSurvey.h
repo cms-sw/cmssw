@@ -1,15 +1,13 @@
 /** \class DTSurvey
  *
- *  Implements a set of measurements given by survey, tipically a wheel.  
- *  Contains DTSurveyChambers and the displacements and rotations for each are 
+ *  Implements a set of measurements given by survey, tipically a wheel.
+ *  Contains DTSurveyChambers and the displacements and rotations for each are
  *  calculated.
  *
  *  $Date: 2007/12/06 01:53:28 $
  *  $Revision: 1.3 $
  *  \author Pablo Martinez Ruiz del Arbol
  */
-
-
 
 #ifndef Alignment_SurveyAnalysis_DTSurvey_H
 #define Alignment_SurveyAnalysis_DTSurvey_H
@@ -19,40 +17,39 @@
 class DTGeometry;
 class DTSurveyChamber;
 
-namespace edm { template<class> class ESHandle; }
+namespace edm {
+template <class> class ESHandle;
+}
 
 class DTSurvey {
 
-  
- public:
-  DTSurvey(const std::string&, const std::string&, int);
+public:
+  DTSurvey(const std::string &, const std::string &, int);
   ~DTSurvey();
- 
+
   void ReadChambers(edm::ESHandle<DTGeometry>);
   void CalculateChambers();
 
-  const DTSurveyChamber * getChamber(int, int) const;
+  const DTSurveyChamber *getChamber(int, int) const;
 
   int getId() const { return id; }
 
-  //void ToDB(MuonAlignment *);
- 
-  private:
+  // void ToDB(MuonAlignment *);
+
+private:
   void FillWheelInfo();
 
   std::string nameOfWheelInfoFile, nameOfChamberInfoFile;
-  int id; 
-  
-  //This is the displacement (vector) and rotation (matrix) for the wheel
+  int id;
+
+  // This is the displacement (vector) and rotation (matrix) for the wheel
   float OffsetZ;
   TMatrixD delta;
-  TMatrixD Rot; 
+  TMatrixD Rot;
 
   DTSurveyChamber ***chambers;
-  
 };
 
-
-std::ostream &operator<<(std::ostream &, const DTSurvey&);
+std::ostream &operator<<(std::ostream &, const DTSurvey &);
 
 #endif
