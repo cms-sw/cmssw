@@ -170,14 +170,14 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 def nanoAOD_recalibrateMETs(process,isData):
     runMetCorAndUncFromMiniAOD(process,isData=isData)
     process.nanoSequenceCommon.insert(process.nanoSequenceCommon.index(process.jetSequence),cms.Sequence(process.fullPatMetSequence))
-    process.basicJetsForMetForCorrT1MET = process.basicJetsForMet.clone(
+    process.basicJetsForMetForT1METNano = process.basicJetsForMet.clone(
         src = process.updatedJetsWithUserData.src,
         skipEM = False,
         type1JetPtThreshold = 0.0,
         calcMuonSubtrRawPtAsValueMap = cms.bool(True),
     )
-    process.jetSequence.insert(process.jetSequence.index(process.updatedJetsWithUserData),cms.Sequence(process.basicJetsForMetForCorrT1MET))
-    process.updatedJetsWithUserData.userFloats.muonSubtrRawPt = cms.InputTag("basicJetsForMetForCorrT1MET:MuonSubtrRawPt")
+    process.jetSequence.insert(process.jetSequence.index(process.updatedJetsWithUserData),cms.Sequence(process.basicJetsForMetForT1METNano))
+    process.updatedJetsWithUserData.userFloats.muonSubtrRawPt = cms.InputTag("basicJetsForMetForT1METNano:MuonSubtrRawPt")
     process.corrT1METJetTable.src = process.finalJets.src
     process.corrT1METJetTable.cut = "pt<15 && abs(eta)<9.9"
     for table in process.jetTable, process.corrT1METJetTable:
