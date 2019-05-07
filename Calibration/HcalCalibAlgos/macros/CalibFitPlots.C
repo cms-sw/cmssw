@@ -156,6 +156,8 @@
 
 #include "CalibCorr.C"
 
+const double fitrangeFactor = 1.5;
+
 struct cfactors {
   int    ieta, depth;
   double corrf, dcorr;
@@ -333,8 +335,8 @@ results fitTwoGauss (TH1D* hist, bool debug) {
   double rms;
   std::pair<double,double> mrms = GetMean(hist, 0.2, 2.0, rms);
   double mean  = mrms.first;
-  double LowEdge  = mean - 1.0*rms;
-  double HighEdge = mean + 1.0*rms;
+  double LowEdge  = mean - fitrangeFactor*rms;
+  double HighEdge = mean + fitrangeFactor*rms;
   if (LowEdge < 0.15) LowEdge = 0.15;
   std::string option = (hist->GetEntries() > 100) ? "QRS" : "QRWLS";
   TF1 *g1    = new TF1("g1","gaus",LowEdge,HighEdge); 
@@ -354,7 +356,8 @@ results fitTwoGauss (TH1D* hist, bool debug) {
   startvalues[4] =     Fit->Value(1); lowValue[4] = 0.5*startvalues[4]; highValue[4] = 2.*startvalues[4];
   startvalues[5] = 2.0*Fit->Value(2); lowValue[5] = 0.5*startvalues[5]; highValue[5] = 100.*startvalues[5];
 //fitrange[0] = mean - 2.0*rms; fitrange[1] = mean + 2.0*rms;
-  fitrange[0] = Fit->Value(1) - Fit->Value(2); fitrange[1] = Fit->Value(1) + Fit->Value(2);
+  fitrange[0] = Fit->Value(1) - fitrangeFactor*Fit->Value(2); 
+  fitrange[1] = Fit->Value(1) + fitrangeFactor*Fit->Value(2);
   TFitResultPtr Fitfun = functionFit(hist, fitrange, startvalues, lowValue, highValue);
   double wt1    = (Fitfun->Value(0))*(Fitfun->Value(2));
   double value1 = Fitfun->Value(1);
@@ -390,8 +393,8 @@ results fitOneGauss (TH1D* hist, bool fitTwice, bool debug) {
   double rms;
   std::pair<double,double> mrms = GetMean(hist, 0.2, 2.0, rms);
   double mean  = mrms.first;
-  double LowEdge  = ((mean-1.0*rms) < 0.5) ? 0.5 : (mean-1.0*rms);
-  double HighEdge = (mean+1.0*rms);
+  double LowEdge  = ((mean-fitrangeFactor*rms) < 0.5) ? 0.5 : (mean-fitrangeFactor*rms);
+  double HighEdge =  (mean+fitrangeFactor*rms);
   if (debug) std::cout << hist->GetName() << " Mean " << mean << " RMS "
 		       << rms << " Range " << LowEdge << ":" << HighEdge <<"\n";
   std::string option = (hist->GetEntries()>100) ? "QRS" : "QRWLS";
@@ -403,8 +406,8 @@ results fitOneGauss (TH1D* hist, bool fitTwice, bool debug) {
   double width = Fit1->Value(2);
   double werror= Fit1->FitResult::Error(2);
   if (fitTwice) {
-    LowEdge      = Fit1->Value(1) - 1.0*Fit1->Value(2);
-    HighEdge     = Fit1->Value(1) + 1.0*Fit1->Value(2);
+    LowEdge      = Fit1->Value(1) - fitrangeFactor*Fit1->Value(2);
+    HighEdge     = Fit1->Value(1) + fitrangeFactor*Fit1->Value(2);
     if (LowEdge  < 0.5) LowEdge = 0.5;
     if (HighEdge > 5.0) HighEdge= 5.0;
     if (debug) std::cout << " Range for second Fit " << LowEdge << ":" 
@@ -2269,6 +2272,121 @@ void PlotHistCorrRel(char* infile1, char* infile2, std::string text1,
       legend->AddEntry(hists[k],name,"lp");
     }
     legend->Draw("same");
+    pad->Update();
+    if (save) {
+      sprintf (name, "%s.pdf", pad->GetName());
+      pad->Print(name);
+    }
+  }
+}
+
+void PlotFourHists(std::string infile, std::string prefix0,  int type=0, 
+		   int drawStatBox=0,  bool normalize=false, bool save=false, 
+		   std::string prefix1="", std::string text1="",
+		   std::string prefix2="", std::string text2="",
+		   std::string prefix3="", std::string text3="",
+		   std::string prefix4="", std::string text4="") {
+  int         colors[4] = {2,4,6,1};
+  std::string names[5]  = {"eta02", "eta12", "eta22", "eta32", "eta42"};
+  std::string xtitle[5] = {"i#eta","i#eta","i#eta","i#eta","i#eta"};
+  std::string ytitle[5] = {"Tracks","Tracks","Tracks","Tracks","Tracks"};
+  std::string title[5]  = {"All Tracks (p = 40:60 GeV)", 
+			   "Good Quality Tracks (p = 40:60 GeV)", 
+			   "Selected Tracks (p = 40:60 GeV)", 
+			   "Isolated Tracks (p = 40:60 GeV)", 
+			   "Isolated MIP Tracks (p = 40:60 GeV)"};
+
+  gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
+  gStyle->SetOptTitle(0);         gStyle->SetOptFit(0);
+  if (drawStatBox == 0) gStyle->SetOptStat(0);
+  else                  gStyle->SetOptStat(1110);
+
+  if (type < 0 || type > 4) type = 0;  
+  char name[100], namep[100];
+  TFile      *file = new TFile(infile.c_str());
+
+  std::vector<TH1D*> hists;
+  std::vector<int>   kks;
+  std::vector<std::string> texts;
+  for (int k=0; k<4; ++k) {
+    std::string prefix, text;
+    if        (k == 0) {
+      prefix = prefix1; text = text1;
+    } else if (k == 1) {
+      prefix = prefix2; text = text2;
+    } else if (k == 2) {
+      prefix = prefix3; text = text3;
+    } else {
+      prefix = prefix4; text = text4;
+    }
+    if (prefix != "") {
+      sprintf (name, "%s%s", prefix.c_str(), names[type].c_str());
+      TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
+      if (hist1 != nullptr) {
+	hists.push_back((TH1D*)(hist1->Clone())); 
+	kks.push_back(k);
+	texts.push_back(text);
+      }
+    }
+  }
+  if (hists.size() > 0) {
+    sprintf (namep,"c_%s%s",prefix0.c_str(),names[type].c_str());
+    double ymax(0.90), dy(0.13);
+    double ymx0 = (drawStatBox==0) ? (ymax-.01) : (ymax-dy*hists.size()-.01);
+    TCanvas *pad = new TCanvas(namep, namep, 700, 500);
+    TLegend *legend = new TLegend(0.64, ymx0-0.05*hists.size(), 0.89, ymx0);
+    legend->SetFillColor(kWhite);
+    pad->SetRightMargin(0.10);
+    pad->SetTopMargin(0.10);
+    for (unsigned int jk=0; jk<hists.size(); ++jk) {
+      int k = kks[jk];
+      hists[jk]->GetXaxis()->SetTitleSize(0.040);
+      hists[jk]->GetXaxis()->SetTitle(xtitle[type].c_str());
+      hists[jk]->GetYaxis()->SetTitle(ytitle[type].c_str());
+      hists[jk]->GetYaxis()->SetLabelOffset(0.005);
+      hists[jk]->GetYaxis()->SetLabelSize(0.035);
+      hists[jk]->GetYaxis()->SetTitleSize(0.040);
+      hists[jk]->GetYaxis()->SetTitleOffset(1.15);
+      hists[jk]->SetMarkerStyle(20);
+      hists[jk]->SetMarkerColor(colors[k]);
+      hists[jk]->SetLineColor(colors[k]);
+      if (normalize) {
+	if (jk == 0) hists[jk]->DrawNormalized();
+	else         hists[jk]->DrawNormalized("sames");
+      } else {
+	if (jk == 0) hists[jk]->Draw();
+	else         hists[jk]->Draw("sames");
+      }
+      pad->Update();
+      TPaveStats* st1 = (TPaveStats*)hists[jk]->GetListOfFunctions()->FindObject("stats");
+      if (st1 != nullptr) {
+	double ymin = ymax - dy;
+	st1->SetLineColor(colors[k]);
+	st1->SetTextColor(colors[k]);
+	st1->SetY1NDC(ymin); st1->SetY2NDC(ymax);
+	st1->SetX1NDC(0.70); st1->SetX2NDC(0.90);
+	ymax = ymin;
+      }
+      sprintf (name, "%s", texts[jk].c_str());
+      legend->AddEntry(hists[jk],name,"lp");
+    }
+    legend->Draw("same");
+    pad->Update();
+    TPaveText *txt1 = new TPaveText(0.10,0.905,0.80,0.95,"blNDC");
+    txt1->SetFillColor(0);
+    char txt[100];
+    sprintf (txt, "%s", title[type].c_str());
+    txt1->AddText(txt);
+    txt1->Draw("same");
+    /*
+    TPaveText *txt2 = new TPaveText(0.11,0.825,0.33,0.895,"blNDC");
+    txt2->SetFillColor(0);
+    sprintf (txt, "CMS Preliminary");
+    txt2->AddText(txt);
+    txt2->Draw("same");
+    */
+    pad->Modified();
     pad->Update();
     if (save) {
       sprintf (name, "%s.pdf", pad->GetName());
