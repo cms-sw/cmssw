@@ -40,24 +40,19 @@ HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps ) {
 }
 
 HcalHardcodeGeometryEP::ReturnType
-HcalHardcodeGeometryEP::produceIdeal( const HcalRecNumberingRecord& iRecord ) {
-
-   edm::LogInfo("HCAL") << "Using default HCAL topology" ;
-   edm::ESHandle<HcalDDDRecConstants> hcons;
-   iRecord.get( hcons ) ;
-   edm::ESHandle<HcalTopology> topology ;
-   iRecord.get( topology ) ;
-   if (useOld_) {
-     HcalHardcodeGeometryLoader loader;
-     return ReturnType (loader.load (*topology));
-   } else {
-      HcalFlexiHardcodeGeometryLoader loader;
-     return ReturnType (loader.load (*topology, *hcons));
-   }
-}
-
-HcalHardcodeGeometryEP::ReturnType
 HcalHardcodeGeometryEP::produceAligned( const HcalGeometryRecord& iRecord ) {
   const HcalRecNumberingRecord& idealRecord = iRecord.getRecord<HcalRecNumberingRecord>();
-  return produceIdeal (idealRecord);
+
+  edm::LogInfo("HCAL") << "Using default HCAL topology" ;
+  edm::ESHandle<HcalTopology> topology ;
+  iRecord.get( topology ) ;
+  if (useOld_) {
+    HcalHardcodeGeometryLoader loader;
+    return ReturnType (loader.load (*topology));
+  } else {
+    edm::ESHandle<HcalDDDRecConstants> hcons;
+    iRecord.get( hcons ) ;
+    HcalFlexiHardcodeGeometryLoader loader;
+    return ReturnType (loader.load (*topology, *hcons));
+  }
 }

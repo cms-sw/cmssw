@@ -17,7 +17,6 @@ public:
 
   using ReturnType = std::unique_ptr<CaloSubdetectorGeometry>;
 
-  ReturnType produceIdeal(const HcalRecNumberingRecord&);
   ReturnType produceAligned(const HcalGeometryRecord& );
 
 private:

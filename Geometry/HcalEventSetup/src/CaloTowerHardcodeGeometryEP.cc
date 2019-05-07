@@ -29,12 +29,6 @@ CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet
    setWhatProduced(this,
                    &CaloTowerHardcodeGeometryEP::produce,
 		   edm::es::Label("TOWER"));
-
-  loader_=new CaloTowerHardcodeGeometryLoader(); /// TODO : allow override of Topology.
-}
-
-CaloTowerHardcodeGeometryEP::~CaloTowerHardcodeGeometryEP() {
-  delete loader_;
 }
 
 // ------------ method called to produce the data  ------------
@@ -47,5 +41,5 @@ CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& iRecord) {
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   iRecord.getRecord<HcalRecNumberingRecord>().get( pHRNDC );
 
-  return std::unique_ptr<CaloSubdetectorGeometry>( loader_->load( &*cttopo, &*hcaltopo, &*pHRNDC ));
+  return std::unique_ptr<CaloSubdetectorGeometry>( loader_.load( &*cttopo, &*hcaltopo, &*pHRNDC ));
 }
