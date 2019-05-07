@@ -42,7 +42,7 @@
 #include "RecoBTag/FeatureTools/interface/TrackPairInfoBuilder.h"
 #include "RecoBTag/FeatureTools/interface/SeedingTrackInfoBuilder.h"
 #include "RecoBTag/FeatureTools/interface/SeedingTracksConverter.h"
-//TrackProbability
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
@@ -113,7 +113,7 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
   vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
   shallow_tag_info_token_(consumes<ShallowTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos"))),
-  candidateToken_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("PFCandidates"))),
+  candidateToken_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("candidates"))),
   use_puppi_value_map_(false),
   use_pvasq_value_map_(false),
   fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
@@ -155,7 +155,7 @@ void DeepFlavourTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
-  desc.add<edm::InputTag>("PFCandidates", edm::InputTag("packedPFCandidates"));
+  desc.add<edm::InputTag>("candidates", edm::InputTag("packedPFCandidates"));
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation","original"));
   desc.add<bool>("fallback_puppi_weight", false);
   desc.add<bool>("fallback_vertex_association", false);
@@ -408,13 +408,11 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   }
   
   if (run_deepVertex_)
-  {     
-      //converter does everything
-      btagbtvdeep::seedingTracksToFeatures(tracks, jet, pv, track_builder, probabilityEstimator_.get(), compute_probabilities_, features.seed_features);    
-      
-   }
+  {
+      btagbtvdeep::seedingTracksToFeatures(tracks, jet, pv, track_builder, probabilityEstimator_.get(), compute_probabilities_, features.seed_features);     
+  }
    
-   output_tag_infos->emplace_back(features, jet_ref);
+  output_tag_infos->emplace_back(features, jet_ref);
       
   }
 
