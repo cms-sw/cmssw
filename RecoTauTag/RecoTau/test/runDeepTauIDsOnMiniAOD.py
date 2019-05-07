@@ -37,15 +37,7 @@ tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
                                "deepTau2017v2",
                                # "DPFTau_2016_v0",
                                # "DPFTau_2016_v1",
-<<<<<<< HEAD
-<<<<<<< HEAD
-                               "againstEle2018",
-=======
-                                "againstEle2018",
->>>>>>> ffc577462d6... return previus runDeepTauIDsOnMiniAOD.py configuration
-=======
-                               "againstEle2018",
->>>>>>> c30aa58ed35... applied commets
+                               "againstEle2018"
                                ])
 tauIdEmbedder.runTauID()
 
