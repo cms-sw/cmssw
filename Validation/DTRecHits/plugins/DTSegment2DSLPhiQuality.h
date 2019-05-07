@@ -2,8 +2,8 @@
 #define Validation_DTRecHits_DTSegment2DSLPhiQuality_h
 
 /** \class DTSegment2DSLPhiQuality
- *  Basic analyzer class which accesses 2D DTSegments reconstructed with both SL Phi
- *  and plot resolution comparing reconstructed and simulated quantities
+ *  Basic analyzer class which accesses 2D DTSegments reconstructed with both SL
+ * Phi and plot resolution comparing reconstructed and simulated quantities
  *
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
@@ -19,28 +19,32 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}
+class ParameterSet;
+class Event;
+class EventSetup;
+} // namespace edm
 
 class HRes2DHit;
 class HEff2DHit;
 namespace dtsegment2dsl {
-  struct Histograms;
+struct Histograms;
 }
 
-class DTSegment2DSLPhiQuality : public DQMGlobalEDAnalyzer<dtsegment2dsl::Histograms> {
+class DTSegment2DSLPhiQuality
+    : public DQMGlobalEDAnalyzer<dtsegment2dsl::Histograms> {
 public:
   /// Constructor
-  DTSegment2DSLPhiQuality(const edm::ParameterSet& pset);
+  DTSegment2DSLPhiQuality(const edm::ParameterSet &pset);
 
 private:
   /// Book the DQM plots
-  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, dtsegment2dsl::Histograms &) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const &,
+                      edm::EventSetup const &,
+                      dtsegment2dsl::Histograms &) const override;
 
   /// Perform the real analysis
-  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, dtsegment2dsl::Histograms const&) const override;
+  void dqmAnalyze(edm::Event const &, edm::EventSetup const &,
+                  dtsegment2dsl::Histograms const &) const override;
 
 private:
   // Labels to read from event

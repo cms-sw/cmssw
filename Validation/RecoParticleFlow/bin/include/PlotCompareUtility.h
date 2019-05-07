@@ -3,9 +3,9 @@
 
 #include "HistoData.h"
 
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
 
 #ifndef HTML1D
 #define HTML1D
@@ -16,11 +16,12 @@ class TH1;
 
 class PlotCompareUtility {
 public:
-
-  // BasePath = the path to data in the DQM root file (eg., "DQMData/METTask/ECAL/data")
-  // Prefix = the prefix common to all histograms in area (eg., "METTask_" or "")
-  PlotCompareUtility(std::string Reference, std::string New, std::string NewBasePath,
-    std::string NewPrefix = "", std::string RefBasePath = "", std::string RefPrefix = "");
+  // BasePath = the path to data in the DQM root file (eg.,
+  // "DQMData/METTask/ECAL/data") Prefix = the prefix common to all histograms
+  // in area (eg., "METTask_" or "")
+  PlotCompareUtility(std::string Reference, std::string New,
+                     std::string NewBasePath, std::string NewPrefix = "",
+                     std::string RefBasePath = "", std::string RefPrefix = "");
   virtual ~PlotCompareUtility();
 
   // Axis Conventions (For Specifying Profiles, Projections, etc.)
@@ -28,11 +29,16 @@ public:
 
   // Getters for HistoData Information
   std::vector<HistoData> *getHistos() { return &histos; }
-  std::vector<HistoData> *getProjectionsX(HistoData *HD) { return &projectionsX[HD]; }
-  std::vector<HistoData> *getProjectionsY(HistoData *HD) { return &projectionsY[HD]; }
-  int getNumHistos() const { return histos.size(); } 
-  //int getNumProjectionsX(HistoData *HD) const { return projectionsX[HD].size(); }
-  //int getNumProjectionsY(HistoData *HD) const { return projectionsY[HD].size(); }
+  std::vector<HistoData> *getProjectionsX(HistoData *HD) {
+    return &projectionsX[HD];
+  }
+  std::vector<HistoData> *getProjectionsY(HistoData *HD) {
+    return &projectionsY[HD];
+  }
+  int getNumHistos() const { return histos.size(); }
+  // int getNumProjectionsX(HistoData *HD) const { return
+  // projectionsX[HD].size(); } int getNumProjectionsY(HistoData *HD) const {
+  // return projectionsY[HD].size(); }
 
   // Getters for Statistical Comparisons
   double getKSThreshold() const { return ksThreshold; }
@@ -76,11 +82,17 @@ public:
   void setSummaryBottomMargin(int Pixels) { summaryBottomMargin = Pixels; }
   void setProjectionsiWidth(int Pixels) { projectionsWidth = Pixels; }
   void setProjectionsHeight(int Pixels) { projectionsHeight = Pixels; }
-  void setProjectionsBarsThickness(int Pixels) { projectionsBarsThickness = Pixels; }
+  void setProjectionsBarsThickness(int Pixels) {
+    projectionsBarsThickness = Pixels;
+  }
   void setProjectionsTopMargin(int Pixels) { projectionsTopMargin = Pixels; }
   void setProjectionsLeftMargin(int Pixels) { projectionsLeftMargin = Pixels; }
-  void setProjectionsRightMargin(int Pixels) { projectionsRightMargin = Pixels; }
-  void setProjectionsBottomMargin(int Pixels) { projectionsBottomMargin = Pixels; }
+  void setProjectionsRightMargin(int Pixels) {
+    projectionsRightMargin = Pixels;
+  }
+  void setProjectionsBottomMargin(int Pixels) {
+    projectionsBottomMargin = Pixels;
+  }
   void setPlotsHeight(int Pixels) { plotsHeight = Pixels; }
   void setPlotsWidth(int Pixels) { plotsWidth = Pixels; }
   void setPlotsTopMargin(int Pixels) { plotsTopMargin = Pixels; }
@@ -89,10 +101,17 @@ public:
   void setPlotsBottomMargin(int Pixels) { plotsBottomMargin = Pixels; }
 
   // Add HistoData Objects for Comparison
-  HistoData *addHistoData(std::string NewName, std::string RefName, int PlotType);
-  HistoData *addHistoData(std::string Name, int PlotType) { return addHistoData(Name,Name,PlotType); }
-  HistoData *addProjectionXData(HistoData *Parent, std::string Name, int PlotType, int Bin, TH1* NewHisto, TH1* RefHisto);
-  HistoData *addProjectionYData(HistoData *Parent, std::string Name, int PlotType, int Bin, TH1* NewHisto, TH1* RefHisto);
+  HistoData *addHistoData(std::string NewName, std::string RefName,
+                          int PlotType);
+  HistoData *addHistoData(std::string Name, int PlotType) {
+    return addHistoData(Name, Name, PlotType);
+  }
+  HistoData *addProjectionXData(HistoData *Parent, std::string Name,
+                                int PlotType, int Bin, TH1 *NewHisto,
+                                TH1 *RefHisto);
+  HistoData *addProjectionYData(HistoData *Parent, std::string Name,
+                                int PlotType, int Bin, TH1 *NewHisto,
+                                TH1 *RefHisto);
   void clearHistos() { histos.clear(); }
   void clearProjectionsX(HistoData *Parent) { projectionsX[Parent].clear(); }
   void clearProjectionsY(HistoData *Parent) { projectionsY[Parent].clear(); }
@@ -105,18 +124,17 @@ public:
   void makeSummary(std::string Name);
   void makeSummaryPlot(std::string Name);
   void makeSummaryHTML(std::string Name);
-  //void makeProjectionsSummary();
-  //void makeProjectionsSummaryPlots();
-  //void makeProjectionsSummaryHTML();
+  // void makeProjectionsSummary();
+  // void makeProjectionsSummaryPlots();
+  // void makeProjectionsSummaryHTML();
   bool isValid() const;
   void dump();
 
 private:
-
   // data holders for histogram types
   std::vector<HistoData> histos;
-  std::map<HistoData *,std::vector<HistoData> > projectionsX;
-  std::map<HistoData *,std::vector<HistoData> > projectionsY;
+  std::map<HistoData *, std::vector<HistoData>> projectionsX;
+  std::map<HistoData *, std::vector<HistoData>> projectionsY;
 
   // file pointers and file organization
   TFile *refFile;
@@ -138,7 +156,7 @@ private:
   void renormalize(TH1 *, TH1 *);
 
   // summary settings
-  int summaryWidth; // user defined
+  int summaryWidth;  // user defined
   int summaryHeight; // set by plotter
   int summaryBarsThickness;
   int summaryTopMargin;
@@ -147,7 +165,7 @@ private:
   int summaryBottomMargin;
 
   // 2d projections summary settings
-  int projectionsWidth; // set by plotter
+  int projectionsWidth;  // set by plotter
   int projectionsHeight; // user defined
   int projectionsBarsThickness;
   int projectionsTopMargin;
@@ -156,7 +174,7 @@ private:
   int projectionsBottomMargin;
 
   // 1d distribution plots settings
-  int plotsWidth; // user defined
+  int plotsWidth;  // user defined
   int plotsHeight; // user defined
   int plotsTopMargin;
   int plotsLeftMargin;
@@ -165,7 +183,6 @@ private:
 
   // true if all run tests pass, false if any fail
   bool finalResult;
-
 };
 
 #endif // PLOT_COMPARE_UTILITY__H
