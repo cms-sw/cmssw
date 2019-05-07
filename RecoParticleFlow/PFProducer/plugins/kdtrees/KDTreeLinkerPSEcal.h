@@ -2,8 +2,8 @@
 #define KDTreeLinkerPSEcal_h
 
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
-#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTools.h"
-#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerAlgo.h"
+#include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
+#include "CommonTools/RecoAlgos/interface/KDTreeLinkerTools.h"
 
 
 // This class is used to find all links between PreShower clusters and ECAL clusters
@@ -42,7 +42,7 @@ class KDTreeLinkerPSEcal : public KDTreeLinkerBase
  private:
   // This method allows us to build the "tree" from the "rechitsSet".
   void buildTree(const RecHitSet	&rechitsSet,
-		   KDTreeLinkerAlgo	&tree);
+		   KDTreeLinkerAlgo<reco::PFRecHit const*>	&tree);
 
  private:
   // Some const values. 
@@ -67,8 +67,8 @@ class KDTreeLinkerPSEcal : public KDTreeLinkerBase
   RecHit2BlockEltMap	rechit2ClusterLinks_;
     
   // KD trees
-  KDTreeLinkerAlgo	treeNeg_;
-  KDTreeLinkerAlgo	treePos_;
+  KDTreeLinkerAlgo<reco::PFRecHit const*>	treeNeg_;
+  KDTreeLinkerAlgo<reco::PFRecHit const*>	treePos_;
 };
 
 #endif /* !KDTreeLinkerPSEcal_h */

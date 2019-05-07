@@ -14,8 +14,8 @@
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
 #include "MatchedHitRZCorrectionFromBending.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" //amend to point at our version...
-#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
+#include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
+#include "CommonTools/RecoAlgos/interface/KDTreeLinkerTools.h"
 
 #include <algorithm>
 #include <iostream>
