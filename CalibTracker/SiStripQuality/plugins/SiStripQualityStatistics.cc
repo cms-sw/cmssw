@@ -50,7 +50,7 @@ SiStripQualityStatistics::~SiStripQualityStatistics()
 void SiStripQualityStatistics::EndJob(){
 
   std::string filename=TkMapFileName_;
-  if (filename!=""){
+  if (!filename.empty()){
     tkMapFullIOVs->save(false,0,0,filename);
     filename.erase(filename.begin()+filename.find("."),filename.end());
     tkMapFullIOVs->print(false,0,0,filename);
@@ -279,7 +279,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   std::stringstream sRun; sRun.str("");
   sRun << "_Run_"  << std::setw(6) << std::setfill('0')<< e.id().run() << std::setw(0) ;
     
-  if (filename!=""){
+  if (!filename.empty()){
     filename.insert(filename.find("."),sRun.str());
     tkMap->save(true,0,0,filename);
     filename.erase(filename.begin()+filename.find("."),filename.end());
