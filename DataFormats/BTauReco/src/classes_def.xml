@@ -445,14 +445,15 @@
     <version ClassVersion="4" checksum="2173116472"/>
     <version ClassVersion="3" checksum="1302021141"/>
   </class>
-  <class name="btagbtvdeep::SeedingTrackFeatures" ClassVersion="4">
-    <version ClassVersion="4" checksum="1570694350"/>
+  <class name="btagbtvdeep::SeedingTrackFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="1570694350"/>
   </class>
-  <class name="btagbtvdeep::TrackPairFeatures" ClassVersion="4">
-    <version ClassVersion="4" checksum="2028136496"/>
+  <class name="btagbtvdeep::TrackPairFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="2028136496"/>
   </class>
-  <class name="btagbtvdeep::DeepFlavourFeatures" ClassVersion="3">
-    <version ClassVersion="3" checksum="3827695028"/>
+  <class name="btagbtvdeep::DeepFlavourFeatures" ClassVersion="4">
+    <version ClassVersion="3" checksum="2487956635"/>
+    <version ClassVersion="4" checksum="3827695028"/>
   </class>
     <class name="btagbtvdeep::DeepDoubleXFeatures" ClassVersion="3">
     <version ClassVersion="3" checksum="1764960743"/>
