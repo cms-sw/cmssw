@@ -222,7 +222,7 @@ def plot(file_name,subdet_ids,module_directions,overlap_directions,profile_direc
 	for subdet in range(6):
 		for module in range(3):
 			for overlap in range(3):
-				if (subdet+1== 1 and (module == 1 or overlap ==1))or (subdet+1== 2 and (module == 0 or overlap == 0))or ((subdet+1== 3 or subdet+1== 5) and (overlap != 2 or module == 1))or ((subdet+1== 4 or subdet+1== 6) and (overlap != 2 or module == 0)):
+				if subdetCondition(subdet,module,overlap):
 					continue
 				for profile in range(4):
 					if not((subdet_ids[subdet]) and  (module_directions[module]) and (profile_directions[profile]) and overlap_directions[overlap]):
