@@ -109,4 +109,8 @@ bool HGCalTriggerGeometryGenericMapping::validTriggerCell(const unsigned trigger
 
 bool HGCalTriggerGeometryGenericMapping::disconnectedModule(const unsigned module_id) const { return false; }
 
+unsigned HGCalTriggerGeometryGenericMapping::lastTriggerLayer() const {
+  return eeTopology().dddConstants().layers(true);
+}
+
 unsigned HGCalTriggerGeometryGenericMapping::triggerLayer(const unsigned id) const { return HGCalDetId(id).layer(); }

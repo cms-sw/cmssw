@@ -44,6 +44,7 @@ public:
 
   bool validTriggerCell(const unsigned) const final;
   bool disconnectedModule(const unsigned) const final;
+  unsigned lastTriggerLayer() const final { return last_trigger_layer_; }
   unsigned triggerLayer(const unsigned) const final;
 
 private:
@@ -63,10 +64,11 @@ private:
   std::unordered_set<unsigned> disconnected_modules_;
   std::unordered_set<unsigned> disconnected_layers_;
   std::vector<unsigned> trigger_layers_;
+  unsigned last_trigger_layer_ = 0;
 
   // layer offsets
-  unsigned heOffset_;
-  unsigned totalLayers_;
+  unsigned heOffset_ = 0;
+  unsigned totalLayers_ = 0;
 
   void fillMaps();
   bool validCellId(unsigned det, unsigned cell_id) const;
@@ -123,6 +125,7 @@ void HGCalTriggerGeometryV9Imp2::initialize(const edm::ESHandle<HGCalGeometry>& 
       trigger_layers_[layer] = 0;
     }
   }
+  last_trigger_layer_ = trigger_layer - 1;
   fillMaps();
 }
 
