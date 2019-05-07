@@ -570,7 +570,7 @@ public:
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb");
         desc.add<bool>("mem_mapped", false);
         desc.add<unsigned>("version", 2);
-        desc.add<int>("debug_value", 1);
+        desc.add<int>("debug_level", 0);
 
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
@@ -595,7 +595,7 @@ public:
         muons_token_(consumes<MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
         rho_token_(consumes<double>(cfg.getParameter<edm::InputTag>("rho"))),
         version(cfg.getParameter<unsigned>("version")),
-        debug(cfg.getParameter<int>("debug_value"))
+        debug(cfg.getParameter<int>("debug_level"))
     {
         if(version == 1) {
             input_layer_ = cache_->getGraph().node(0).name();
@@ -684,26 +684,22 @@ private:
             return false;
     }
 
-    static inline void checkForNaNs(const tensorflow::Tensor& inputs, int n_inputs, std::string block_name, const int debug_value)
+    inline const void checkInputs(const tensorflow::Tensor& inputs, std::string block_name, int n_inputs, int n_eta = 1,
+                                  int n_phi = 1)
     {
-        if(debug_value >= 1){
+        if(debug >= 1){
             for(int k = 0; k < n_inputs; ++k) {
                 const float input = inputs.flat<float>()(k);
                 if(std::isnan(input))
                     throw cms::Exception("DeepTauId") << "in the " << block_name << ", invalid input = " << input << ", input_index = " << k;
             }
         }
-    }
-
-    static inline void printInputs(tensorflow::Tensor& inputs, std::string block_name, int n_inputs, int n_eta = 1,
-                                    int n_phi = 1, const int debug_value = 1, bool is_tau = false)
-    {
-        if(debug_value >= 2){
+        else if(debug >= 2){
             float input;
             for(int eta = 0; eta < n_eta; ++eta){
                 for(int phi = 0; phi < n_phi; phi++){
                     for(int k = 0; k < n_inputs; ++k) {
-                        if(is_tau)
+                        if(n_eta == 1 && n_phi == 1)
                             input = inputs.matrix<float>()(0, k);
                         else
                             input = inputs.tensor<float,4>()(0, eta, phi, k);
@@ -838,7 +834,6 @@ private:
 
         get(dnn::rho) = getValueNorm(rho_value, 21.49f, 9.713f);
         get(dnn::tau_pt) =  getValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
-        // std::cout << inputs.matrix<float>()(0, 1) << " - tau_pt: " << tau.polarP4().pt() << '\n';
         get(dnn::tau_eta) = getValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
         get(dnn::tau_phi) = getValueLinear(tau.polarP4().phi(), -pi, pi, false);
         get(dnn::tau_mass) = getValueNorm(tau.polarP4().mass(), 0.6669f, 0.6553f);
@@ -907,8 +902,7 @@ private:
         get(dnn::leadChargedCand_etaAtEcalEntrance_minus_tau_eta) =
             getValueNorm(tau.etaAtEcalEntranceLeadChargedCand() - tau.p4().eta(), 0.0042f, 0.0323f);
 
-        checkForNaNs(inputs, dnn::NumberOfInputs, "Tau block", debug);
-        printInputs(inputs, "tau_block",  dnn::NumberOfInputs, 1, 1, debug, true);
+        checkInputs(inputs, "tau_block",  dnn::NumberOfInputs, 1, 1);
     }
 
     void createEgammaBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho_value,
@@ -1098,9 +1092,8 @@ private:
                 }
             }
         }
-        checkForNaNs(inputs, dnn::NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, "Egamma block", debug);
         auto block_name = is_inner ? "egamma_inner_block" : "egamma_outer_block";
-        printInputs(inputs, block_name, dnn::NumberOfInputs, grid.nCellsEta, grid.nCellsPhi, debug);
+        checkInputs(inputs, block_name, dnn::NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, grid.nCellsEta, grid.nCellsPhi);
     }
 
     void createMuonBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho_value,
@@ -1237,9 +1230,8 @@ private:
                 }
             }
         }
-        checkForNaNs(inputs, dnn::NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, "Muon block", debug);
         auto block_name = is_inner ? "muon_inner_block" : "muon_outer_blockr";
-        printInputs(inputs, block_name, dnn::NumberOfInputs, grid.nCellsEta, grid.nCellsPhi, debug);
+        checkInputs(inputs, block_name, dnn::NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, grid.nCellsEta, grid.nCellsPhi);
     }
 
     void createHadronsBlockInputs(const TauType& tau, const reco::Vertex& pv, double rho_value,
@@ -1333,9 +1325,8 @@ private:
                 get(dnn::pfCand_nHad_hcalFraction) = getValue(pfCands.at(index_nH).hcalFraction());
             }
         }
-        checkForNaNs(inputs, dnn::NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, "Hadron block", debug);
         auto block_name = is_inner ? "hadron_inner_block" : "hadron_outer_block";
-        printInputs(inputs, block_name , dnn::NumberOfInputs, grid.nCellsEta, grid.nCellsPhi, debug);
+        checkInputs(inputs, block_name, dnn::NumberOfInputs * grid.nCellsEta * grid.nCellsPhi, grid.nCellsEta, grid.nCellsPhi);
     }
 
     template<typename dnn>
