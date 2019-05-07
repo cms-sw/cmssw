@@ -17,8 +17,8 @@ HGCalConcentratorSuperTriggerCellImpl::HGCalConcentratorSuperTriggerCellImpl(con
   }
 }
 
-std::map<int, int> HGCalConcentratorSuperTriggerCellImpl::kSplit_ = {{kSTCsizeFine_, kSplit_v8_Fine_},
-                                                                     {kSTCsizeCoarse_, kSplit_v8_Coarse_}};
+const std::map<int, int> HGCalConcentratorSuperTriggerCellImpl::kSplit_ = {{kSTCsizeFine_, kSplit_v8_Fine_},
+                                                                           {kSTCsizeCoarse_, kSplit_v8_Coarse_}};
 
 int HGCalConcentratorSuperTriggerCellImpl::getSuperTriggerCellId(int detid) const {
   DetId TC_id(detid);
