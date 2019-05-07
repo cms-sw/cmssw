@@ -213,7 +213,26 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet,jecPayload):
         _btagDiscriminators += ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb']
     if addDeepBoostedJet:
         print("Updating process to run DeepBoostedJet on datasets before 103X")
-        from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
+        from RecoBTag.MXNet.pfDeepBoostedJet_cff import pfDeepBoostedJetTags, pfMassDecorrelatedDeepBoostedJetTags
+        from RecoBTag.MXNet.Parameters.V02.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams as pfDeepBoostedJetPreprocessParamsV02
+        from RecoBTag.MXNet.Parameters.V02.pfMassDecorrelatedDeepBoostedJetPreprocessParams_cfi import pfMassDecorrelatedDeepBoostedJetPreprocessParams as pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
+        pfDeepBoostedJetTags.preprocessParams = pfDeepBoostedJetPreprocessParamsV02
+        pfDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-symbol.json'
+        pfDeepBoostedJetTags.param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-0000.params'
+        pfMassDecorrelatedDeepBoostedJetTags.preprocessParams = pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
+        pfMassDecorrelatedDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-symbol.json'
+        pfMassDecorrelatedDeepBoostedJetTags.param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-0000.params'
+        # build sequence of taggers and discriminators as in RecoBTag.MXNet.pfDeepBoostedJet_cff
+        pfDeepBoostedJetTagsProbs = ['pfDeepBoostedJetTags:' + flav_name
+                                     for flav_name in pfDeepBoostedJetTags.flav_names]
+        pfDeepBoostedJetTagsMetaDiscrs = ['pfDeepBoostedDiscriminatorsJetTags:' + disc.name.value()
+                                          for disc in pfDeepBoostedDiscriminatorsJetTags.discriminators]
+        pfMassDecorrelatedDeepBoostedJetTagsProbs = ['pfMassDecorrelatedDeepBoostedJetTags:' + flav_name
+                                                     for flav_name in pfMassDecorrelatedDeepBoostedJetTags.flav_names]
+        pfMassDecorrelatedDeepBoostedJetTagsMetaDiscrs = ['pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:' + disc.name.value()
+                                                          for disc in pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags.discriminators]
+        pfDeepBoostedJetTagsAll = pfDeepBoostedJetTagsProbs + pfDeepBoostedJetTagsMetaDiscrs + \
+                                  pfMassDecorrelatedDeepBoostedJetTagsProbs + pfMassDecorrelatedDeepBoostedJetTagsMetaDiscrs
         _btagDiscriminators += pfDeepBoostedJetTagsAll
     if len(_btagDiscriminators)==0: return process
     print("Will recalculate the following discriminators on AK8 jets: "+", ".join(_btagDiscriminators))
