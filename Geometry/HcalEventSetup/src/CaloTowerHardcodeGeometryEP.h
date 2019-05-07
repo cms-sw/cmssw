@@ -18,7 +18,6 @@ class IdealGeometryRecord;
 class CaloTowerHardcodeGeometryEP : public edm::ESProducer {
 public:
   CaloTowerHardcodeGeometryEP(const edm::ParameterSet&);
-  ~CaloTowerHardcodeGeometryEP() override;
 
   using ReturnType = std::unique_ptr<CaloSubdetectorGeometry>;
 
@@ -26,7 +25,7 @@ public:
 
 private:
   // ----------member data ---------------------------
-  CaloTowerHardcodeGeometryLoader* loader_;
+  CaloTowerHardcodeGeometryLoader loader_;
 };
 
 #endif
