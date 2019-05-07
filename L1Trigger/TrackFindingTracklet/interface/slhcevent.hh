@@ -10,14 +10,14 @@
 #include <math.h>
 #include <assert.h>
 #include "L1TStub.hh"
-//#include "FPGAConstants.hh"
+#include "FPGAConstants.hh"
 
 using namespace std;
 
-
-static double two_pi=8*atan(1.0);
-static double ptcut=2.0;
-static unsigned int NSector=24;
+// --- these are instead set in FPGAConstants.hh ---
+//static double two_pi=8*atan(1.0);
+//static double ptcut=2.0;
+//static unsigned int NSector=24;
 
 static double x_offset=0.199196*0.0;
 static double y_offset=0.299922*0.0;
@@ -30,12 +30,14 @@ class L1SimTrack{
 public:
 
   L1SimTrack() {
-   id_=-1; 
+    eventid_=-1; 
+    trackid_=-1;   
   }
 
-  L1SimTrack(int id, int type, double pt, double eta, double phi, 
-           double vx, double vy, double vz) {
-    id_=id;
+  L1SimTrack(int eventid, int trackid, int type, double pt, double eta, double phi, 
+	     double vx, double vy, double vz) {
+    eventid_=eventid;
+    trackid_=trackid;
     type_=type;
     pt_=pt;
     eta_=eta;
@@ -47,9 +49,10 @@ public:
 
   void write(ofstream& out){
     
-    if (pt_ > 2) {
+    if (pt_ > -2.0) {
     out << "SimTrack: " 
-	<< id_ << "\t" 
+	<< eventid_ << "\t" 
+	<< trackid_ << "\t" 
 	<< type_ << "\t" 
 	<< pt_ << "\t" 
 	<< eta_ << "\t" 
@@ -62,9 +65,10 @@ public:
   }
   void write(ostream& out){
     
-    if (pt_ > 2) {
+    if (pt_ > -2) {
     out << "SimTrack: " 
-	<< id_ << "\t" 
+	<< eventid_ << "\t" 
+	<< trackid_ << "\t" 
 	<< type_ << "\t" 
 	<< pt_ << "\t" 
 	<< eta_ << "\t" 
@@ -76,18 +80,30 @@ public:
 
   }
   
-  int id() const { return id_; }
+  int eventid() const { return eventid_; }
+  int trackid() const { return trackid_; }
   int type() const { return type_; }
-  double pt() { return pt_; }
-  double eta() { return eta_; }
-  double phi() { return phi_; }
-  double vx() { return vx_; }
-  double vy() { return vy_; }
-  double vz() { return vz_; }
-
+  double pt() const { return pt_; }
+  double rinv() const { return charge()*0.01*0.3*3.8/pt_; }
+  double eta() const { return eta_; }
+  double phi() const { return phi_; }
+  double vx() const { return vx_; }
+  double vy() const { return vy_; }
+  double vz() const { return vz_; }
+  double d0() const { return hypot(vx_,vy_); }
+  int charge() const {
+     if (type_==11) return -1;
+     if (type_==13) return -1;
+     if (type_==-211) return -1;
+     if (type_==-321) return -1;
+     if (type_==-2212) return -1;
+     return 1;
+  }
+  
 private:
 
-  int id_;
+  int eventid_;
+  int trackid_;
   int type_;
   double pt_;
   double eta_;
@@ -98,7 +114,7 @@ private:
 
 };
 
-
+/*
 class Digi{
 
 public:
@@ -218,7 +234,7 @@ struct HashEqual {
     return a == b;
   }
 };
-
+*/
 
 
 
@@ -235,17 +251,19 @@ public:
   void setIPx(double x) { x_offset=x;}
   void setIPy(double y) { y_offset=y;}
 
-  void addL1SimTrack(int id,int type,double pt,double eta,double phi,
-	      double vx,double vy,double vz){
+  void setEventNum(int eventnum) { eventnum_=eventnum; }
+
+  void addL1SimTrack(int eventid,int trackid,int type,double pt,double eta,double phi,
+		     double vx,double vy,double vz){
 
     vx-=x_offset;
     vy-=y_offset;
-    L1SimTrack simtrack(id,type,pt,eta,phi,vx,vy,vz);
+    L1SimTrack simtrack(eventid,trackid,type,pt,eta,phi,vx,vy,vz);
     simtracks_.push_back(simtrack);
 
   }
 
-
+  /*
   void addDigi(int layer,int irphi,int iz,int sensorlayer,int ladder,int module,
 	  double x,double y,double z,vector<int> simtrackids){
 
@@ -263,17 +281,18 @@ public:
     digihash_.insert(digi);
 
   }
+  */
 
-
-  bool addStub(int layer,int ladder,int module, int strip, double pt,double bend,
-	   double x,double y,double z,
-	   vector<bool> innerStack,
-	   vector<int> irphi,
-	   vector<int> iz,
-	   vector<int> iladder,
-	   vector<int> imodule,
-	   int isPSmodule,
-	   int isFlipped){
+  bool addStub(int layer,int ladder,int module, int strip, int eventid, vector<int> tps, 
+              double pt,double bend,
+              double x,double y,double z,
+              vector<bool> innerStack,
+              vector<int> irphi,
+              vector<int> iz,
+              vector<int> iladder,
+              vector<int> imodule,
+              int isPSmodule,
+              int isFlipped){
 
     
     if (layer>999&&layer<1999&& z<0.0) {
@@ -285,7 +304,8 @@ public:
     x-=x_offset;
     y-=y_offset;
 
-    L1TStub stub(-1,-1,-1,layer, ladder, module, strip, 
+    
+    L1TStub stub(eventid,tps,-1,-1,layer, ladder, module, strip, 
 		 x, y, z, -1.0, -1.0, pt, bend, isPSmodule, isFlipped);
 
     for(unsigned int i=0;i<innerStack.size();i++){
@@ -351,7 +371,6 @@ public:
 
 
     // read the SimTracks
-
     in >> tmp;
     while (tmp!="SimTrackEnd"){
       if (!(tmp=="SimTrack:"||tmp=="SimTrackEnd")) {
@@ -359,23 +378,38 @@ public:
 	     << tmp << endl;
 	abort();
       }
-      int id;
+      int eventid;
+      int trackid;
       int type;
+      string pt_str;
+      string eta_str;
+      string phi_str;
+      string vx_str;
+      string vy_str;
+      string vz_str;
       double pt;
       double eta;
       double phi;
       double vx;
       double vy;
       double vz;
-      in >> id >> type >> pt >> eta >> phi >> vx >> vy >> vz;
+      in >> eventid >> trackid >> type >> pt_str >> eta_str >> phi_str >> vx_str >> vy_str >> vz_str;
+      pt = strtod(pt_str.c_str(), NULL);
+      eta = strtod(eta_str.c_str(), NULL);
+      phi = strtod(phi_str.c_str(), NULL);
+      vx = strtod(vx_str.c_str(), NULL);
+      vy = strtod(vy_str.c_str(), NULL);
+      vz = strtod(vz_str.c_str(), NULL);
       vx-=x_offset;
       vy-=y_offset;
-      L1SimTrack simtrack(id,type,pt,eta,phi,vx,vy,vz);
+      L1SimTrack simtrack(eventid,trackid,type,pt,eta,phi,vx,vy,vz);
       simtracks_.push_back(simtrack);
       in >> tmp;
     }
 
+
     //read te Digis
+    /*
     in >> tmp;
     while (tmp!="DigiEnd"){
       if (!(tmp=="Digi:"||tmp=="DigiEnd")) {
@@ -419,13 +453,20 @@ public:
       digis_.push_back(digi);
       digihash_.insert(digi);
     }
+    */
 
     int nlayer[11];
     for (int i=0;i<10;i++) {
       nlayer[i]=0;
     }
-    
 
+    int oldlayer=0;
+    int oldladder=0;
+    int oldmodule=0;
+    int oldcbc=-1;
+    int count=1;
+    double oldz=-1000.0;
+    
     //read stubs
     in >> tmp;
     while (tmp!="StubEnd"){
@@ -442,7 +483,8 @@ public:
       int layer;
       int ladder;
       int module;
-      int simtrk;
+      int eventid;
+      vector<int> tps;
       int strip;
       double pt;
       double x;
@@ -452,12 +494,37 @@ public:
       int isPSmodule;
       int isFlipped;
 
-      in >> layer >> ladder >> module >> strip >> simtrk >> pt >> x >> y >> z >> bend >> isPSmodule >> isFlipped;
+      unsigned int ntps;
+
+      in >> layer >> ladder >> module >> strip >> eventid >> pt >> x >> y >> z >> bend >> isPSmodule >> isFlipped >> ntps;
+
+      for(unsigned int itps=0;itps<ntps;itps++){
+	int tp;
+	in >> tp;
+	tps.push_back(tp);
+      }
 
       if (layer>999&&layer<1999&& z<0.0) {
 	//cout << "Will change layer by addding 1000, before layer = " << layer <<endl;
 	layer+=1000;
       }
+
+      int cbc=strip/126;
+      if (layer>3&&layer==oldlayer&&ladder==oldladder&&module==oldmodule&&cbc==oldcbc&&fabs(oldz-z)<1.0){
+	count++;
+      } else {
+	oldlayer=layer;
+	oldladder=ladder;
+	oldmodule=module;
+	oldcbc=cbc;
+	oldz=z;
+	count=1;
+      }
+
+      if (count>3) {
+	//cout << "skipping count = "<<count<<" : "<<layer<<" "<<ladder<<" "<<module<<endl;
+      }
+      
 
       layer--;   
       x-=x_offset;
@@ -465,7 +532,14 @@ public:
 
       if (layer < 10) nlayer[layer]++;
 
-      L1TStub stub(-1,-1,-1,layer, ladder, module, strip, x, y, z, -1.0, -1.0, pt, bend, isPSmodule, isFlipped);
+      /*
+      if (layer>999&&z<0.0) {
+	bend=-bend;
+	pt=-pt;
+      }
+      */
+      
+      L1TStub stub(eventid,tps,-1,-1,layer, ladder, module, strip, x, y, z, -1.0, -1.0, pt, bend, isPSmodule, isFlipped);
 
       in >> tmp;
 
@@ -493,7 +567,7 @@ public:
       if (((fabs(stub.pt())>1.8*fact)&&(fabs(eta)<2.0))||
 	  ((fabs(stub.pt())>1.4*fact)&&(fabs(eta)>2.0))||
 	  ((fabs(stub.pt())>1.0*fact)&&(fabs(eta)>2.3))) {
-	if (fabs(eta)<2.6) {
+	if (fabs(eta)<2.6&&count<=100) {
 	  stubs_.push_back(stub);
 	}
       }
@@ -526,11 +600,13 @@ public:
       simtracks_[i].write(out);
     }
     out << "SimTrackEnd" << endl;
-    
+
+    /*
     for (unsigned int i=0; i<digis_.size(); i++) {
       digis_[i].write(out);
     }
     out << "DigiEnd" << endl;
+    */
 
     for (unsigned int i=0; i<stubs_.size(); i++) {
       stubs_[i].write(out);
@@ -548,10 +624,12 @@ public:
     }
     out << "SimTrackEnd" << endl;
     
+    /*
     for (unsigned int i=0; i<digis_.size(); i++) {
       digis_[i].write(out);
     }
     out << "DigiEnd" << endl;
+    */
 
     for (unsigned int i=0; i<stubs_.size(); i++) {
       stubs_[i].write(out);
@@ -560,7 +638,7 @@ public:
     
   }
 
-
+  /*
   int simtrackid(const L1TStub& stub){
 
     std::vector<int> simtrackids;
@@ -675,20 +753,62 @@ public:
   int ndigis() { return digis_.size(); }
 
   Digi digi(int i) { return digis_[i]; }
+  */
 
+  void layersHit(int tpid, int &nlayers, int &ndisks){
+
+    int l1=0;
+    int l2=0;
+    int l3=0;
+    int l4=0;
+    int l5=0;
+    int l6=0;
+
+    int d1=0;
+    int d2=0;
+    int d3=0;
+    int d4=0;
+    int d5=0;
+
+    for (unsigned int istub=0; istub<stubs_.size(); istub++){
+      if (stubs_[istub].tpmatch(tpid)){
+	if (stubs_[istub].layer()==0) l1=1;
+        if (stubs_[istub].layer()==1) l2=1;
+        if (stubs_[istub].layer()==2) l3=1;
+        if (stubs_[istub].layer()==3) l4=1;
+	if (stubs_[istub].layer()==4) l5=1;
+        if (stubs_[istub].layer()==5) l6=1;
+
+        if (abs(stubs_[istub].disk())==1) d1=1;
+        if (abs(stubs_[istub].disk())==2) d2=1;
+        if (abs(stubs_[istub].disk())==3) d3=1;
+        if (abs(stubs_[istub].disk())==4) d4=1;
+        if (abs(stubs_[istub].disk())==5) d5=1;
+      }
+
+    }
+
+    nlayers=l1+l2+l3+l4+l5+l6;
+    ndisks=d1+d2+d3+d4+d5;
+
+
+  }
+
+
+  
   int nstubs() { return stubs_.size(); }
 
   L1TStub stub(int i) { return stubs_[i]; }
 
-  int nsimtracks() { return simtracks_.size(); }
+  unsigned int nsimtracks() { return simtracks_.size(); }
 
   L1SimTrack simtrack(int i) { return simtracks_[i]; }
 
   int eventnum() const { return eventnum_; }
 
-  int getSimtrackFromSimtrackid(int simtrackid) const {
+  int getSimtrackFromSimtrackid(int simtrackid, int eventid=0) const {
     for(unsigned int i=0;i<simtracks_.size();i++){
-      if (simtracks_[i].id()==simtrackid) return i;
+      if (simtracks_[i].trackid()==simtrackid && simtracks_[i].eventid()==eventid) return i;
     }
     return -1;
   }
@@ -698,8 +818,8 @@ private:
 
   int eventnum_;
   vector<L1SimTrack> simtracks_;
-  vector<Digi> digis_;
-  __gnu_cxx::hash_set<Digi,HashOp,HashEqual> digihash_;
+  //vector<Digi> digis_;
+  //__gnu_cxx::hash_set<Digi,HashOp,HashEqual> digihash_;
   vector<L1TStub> stubs_;
 
 

@@ -33,31 +33,34 @@ public:
     return stubs_;
   }
 
-  int simtrackid(double& fraction) const {
+  int tpid(double& fraction) const {
 
 
-    map<int, int> simtrackids;
+    map<int, int> tpids;
 
     for(unsigned int i=0;i<stubs_.size();i++){
-      simtrackids[stubs_[i].simtrackid()]++;
+      vector<int> tps=stubs_[i].tps();
+      for(unsigned int j=0;j<tps.size();j++){
+	tpids[tps[i]]++;
+      }
     }
 
-    int simtrackid=0;
-    int nsimtrack=0;
+    int tpid=-1;
+    int ntps=-1;
 
-    map<int, int>::const_iterator it=simtrackids.begin();
+    map<int, int>::const_iterator it=tpids.begin();
 
-    while(it!=simtrackids.end()) {
-      if (it->second>nsimtrack) {
-	nsimtrack=it->second;
-	simtrackid=it->first;
+    while(it!=tpids.end()) {
+      if (it->second>ntps) {
+	ntps=it->second;
+	tpid=it->first;
       }
       it++;
     }
 
-    fraction=(1.0*nsimtrack)/stubs_.size();
+    fraction=(1.0*ntps)/stubs_.size();
 
-    return simtrackid;
+    return tpid;
 
   }
 

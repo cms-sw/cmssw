@@ -13,9 +13,10 @@ public:
  
   }
 
-  L1TStub(int simtrackid, int iphi, int iz, int layer, int ladder, int module, int strip,
+  L1TStub(int eventid, vector<int> tps, int iphi, int iz, int layer, int ladder, int module, int strip,
 	  double x, double y, double z, double sigmax, double sigmaz, double pt, double bend, int isPSmodule, int isFlipped){
-    simtrackid_=simtrackid;
+    eventid_=eventid;
+    tps_=tps;
     iphi_=iphi;
     iz_=iz;
     layer_=layer;
@@ -34,11 +35,13 @@ public:
 
     allstubindex_=999;
 
+    /*
     if (layer_>999&&z_<0.0) {
       //cout <<"Flipping pt sign"<<endl;
       pt_=-pt_;
       bend_ = -bend_;
     }
+    */
 
   }
 
@@ -67,14 +70,20 @@ public:
 	<< ladder_ << "\t" 
 	<< module_ << "\t"
 	<< strip_<< "\t"
-	<< -1 << "\t"
+	<< eventid_ << "\t"
+      //<< simtrackid_ << "\t"
 	<< pt_ << "\t" 
 	<< x_ << "\t" 
 	<< y_ << "\t" 
 	<< z_ << "\t" 
 	<< bend_ << "\t" 
 	<< isPSmodule_ << "\t" 
-	<< isFlipped_ << "\t" << endl; 
+	<< isFlipped_ << "\t" 
+	<< tps_.size() << " \t" ;
+    for(unsigned itps=0;itps<tps_.size();itps++){
+      out << tps_[itps] << " \t";
+    }
+    out << endl; 
 
   }
   void write(ostream& out){
@@ -84,14 +93,20 @@ public:
 	<< ladder_ << "\t" 
 	<< module_ << "\t"
 	<< strip_<< "\t"
-	<< -1 << "\t"
+	<< eventid_ << "\t"
 	<< pt_ << "\t" 
 	<< x_ << "\t" 
 	<< y_ << "\t" 
 	<< z_ << "\t" 
 	<< bend_ << "\t" 
 	<< isPSmodule_ << "\t" 
-	<< isFlipped_ << "\t" << endl; 	
+	<< isFlipped_ << "\t"
+	<< tps_.size() << " \t" ;
+    for(unsigned itps=0;itps<tps_.size();itps++){
+      out << tps_[itps] << " \t";
+    }
+    out << endl; 
+
   }
 
   int ptsign() {
@@ -186,7 +201,8 @@ public:
     this->y_=r*sin(phi);
   }
 
-  int simtrackid() const { return simtrackid_;}
+  int eventid() const { return eventid_;}
+  vector<int> tps() const { return tps_;}
 
   void setAllStubIndex(unsigned int index) { allstubindex_=index; }
 
@@ -199,9 +215,20 @@ public:
     int flip=1;
     if (isFlipped()) flip=-1;
     if (z_>0.0) {
-      return ((int)strip_-480.5)*0.009*flip/r2();
+      return ((int)strip_-509.5)*0.009*flip/r2();
     }
-    return -((int)strip_-480.5)*0.009*flip/r2();
+    return -((int)strip_-509.5)*0.009*flip/r2();
+  }
+
+  //Scalled to go between -1 and +1
+  double alphanew() const {
+    if (isPSmodule()) return 0.0;
+    int flip=1;
+    if (isFlipped()) flip=-1;
+    if (z_>0.0) {
+      return ((int)strip_-509.5)*flip/510.0;
+    }
+    return -((int)strip_-509.5)*flip/510.0;
   }
 
   double alphatruncated() const {
@@ -211,9 +238,9 @@ public:
     int striptruncated=strip_/1;
     striptruncated*=1;
     if (z_>0.0) {
-      return (striptruncated-480.5)*0.009*flip/r2();
+      return (striptruncated-509.5)*0.009*flip/r2();
     }
-    return -(striptruncated-480.5)*0.009*flip/r2();
+    return -(striptruncated-509.5)*0.009*flip/r2();
   }
 
   void setXY(double x, double y){
@@ -224,9 +251,20 @@ public:
   unsigned int isPSmodule() const { return isPSmodule_; }
   unsigned int isFlipped() const { return isFlipped_; }
 
+  bool tpmatch(int tp) const {
+
+    for(unsigned int i=0;i<tps_.size();i++){
+      if (tp==tps_[i]) return true;
+    }
+
+    return false;
+
+  }
+
 private:
 
-  int simtrackid_;
+  int eventid_;
+  vector<int> tps_;
   unsigned int iphi_;
   unsigned int iz_;
   unsigned int layer_;
