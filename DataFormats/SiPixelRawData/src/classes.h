@@ -1,11 +1,9 @@
 #ifndef SIPIXELRAWDATA_CLASSES_H
 #define SIPIXELRAWDATA_CLASSES_H
 
-#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include <vector>
 
-
 #endif // SIPIXELRAWDATA_CLASSES_H
-

@@ -7,11 +7,11 @@
  *  \author Rick Wilkinson
  */
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonData/interface/MuonDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 // just the BX for now
 typedef int CSCCLCTPreTrigger;
-typedef MuonDigiCollection<CSCDetId, CSCCLCTPreTrigger> CSCCLCTPreTriggerCollection;
+typedef MuonDigiCollection<CSCDetId, CSCCLCTPreTrigger>
+    CSCCLCTPreTriggerCollection;
 
 #endif
-

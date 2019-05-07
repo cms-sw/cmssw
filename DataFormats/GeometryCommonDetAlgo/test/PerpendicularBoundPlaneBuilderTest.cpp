@@ -11,10 +11,9 @@ int main() {
 
   PerpendicularBoundPlaneBuilder builder;
 
-  GlobalVector v( 1, 2, 3);
+  GlobalVector v(1, 2, 3);
 
-  BoundPlane* plane = builder( GlobalPoint(0,0,0), v);
+  BoundPlane *plane = builder(GlobalPoint(0, 0, 0), v);
 
   cout << "Local direction is " << plane->toLocal(v) << endl;
-
 }

@@ -5,8 +5,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
@@ -14,68 +14,59 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupVertexContent.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupVertexContent.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 
-class PileupInformation : public edm::stream::EDProducer<>
-{
+class PileupInformation : public edm::stream::EDProducer<> {
 
 public:
-
-    explicit PileupInformation( const edm::ParameterSet & );
+  explicit PileupInformation(const edm::ParameterSet &);
 
 private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
-    void produce( edm::Event &, const edm::EventSetup & ) override;
+  edm::ParameterSet conf_;
 
-    edm::ParameterSet conf_;
+  typedef std::map<EncodedEventId, unsigned int> EncodedEventIdToIndex;
+  typedef std::map<int, int> myindex;
+  myindex event_index_;
 
-    typedef std::map<EncodedEventId, unsigned int> EncodedEventIdToIndex;
-    typedef std::map< int, int > myindex;
-    myindex event_index_;
+  std::vector<float> zpositions;
+  std::vector<float> sumpT_lowpT;
+  std::vector<float> sumpT_highpT;
+  std::vector<int> ntrks_lowpT;
+  std::vector<int> ntrks_highpT;
 
-    std::vector<float> zpositions;
-    std::vector<float> sumpT_lowpT;
-    std::vector<float> sumpT_highpT;
-    std::vector<int> ntrks_lowpT;
-    std::vector<int> ntrks_highpT;
+  double distanceCut_;
+  double volumeRadius_;
+  double volumeZ_;
+  double pTcut_1_;
+  double pTcut_2_;
+  bool isPreMixed_;
 
+  edm::EDGetTokenT<TrackingParticleCollection> trackingTruthT_;
+  edm::EDGetTokenT<TrackingVertexCollection> trackingTruthV_;
+  edm::EDGetTokenT<PileupMixingContent> PileupInfoLabel_;
+  edm::EDGetTokenT<int> bunchSpacingToken_;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileupSummaryToken_;
+  edm::EDGetTokenT<PileupVertexContent> PileupVtxLabel_;
 
-    double                   distanceCut_;
-    double                   volumeRadius_;
-    double                   volumeZ_;
-    double                   pTcut_1_;
-    double                   pTcut_2_;
-    bool isPreMixed_;
+  bool LookAtTrackingTruth_;
 
+  bool saveVtxTimes_;
 
-    edm::EDGetTokenT<TrackingParticleCollection>     trackingTruthT_;
-    edm::EDGetTokenT<TrackingVertexCollection>     trackingTruthV_;
-    edm::EDGetTokenT<PileupMixingContent>            PileupInfoLabel_;
-    edm::EDGetTokenT<int> bunchSpacingToken_;
-    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryToken_;
-    edm::EDGetTokenT<PileupVertexContent>            PileupVtxLabel_;
-
-    bool LookAtTrackingTruth_ ;
-
-    bool saveVtxTimes_;
-
-    std::string MessageCategory_;
-    //std::string simHitLabel_;
-    //std::unique_ptr<MixCollection<SimTrack> >   simTracks_;
-    //std::unique_ptr<MixCollection<SimVertex> >  simVertexes_;
-
-
-
+  std::string MessageCategory_;
+  // std::string simHitLabel_;
+  // std::unique_ptr<MixCollection<SimTrack> >   simTracks_;
+  // std::unique_ptr<MixCollection<SimVertex> >  simVertexes_;
 };
-
 
 #endif

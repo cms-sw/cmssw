@@ -3,7 +3,7 @@
 
 /**\class CSCRPCDigi
  *
- * Digi for RPC data coming thru RAT-ALCT-DDU. 
+ * Digi for RPC data coming thru RAT-ALCT-DDU.
  *
  *
  * \author N. Terentiev, CMU
@@ -12,35 +12,33 @@
 #include <cstdint>
 #include <iosfwd>
 
-class CSCRPCDigi{
+class CSCRPCDigi {
 
 public:
-
   /// Constructors
-  CSCRPCDigi (int rpc, int pad, int bxn , int tbin);  /// from the rpc#, pad#, bxn#, tbin#
-  CSCRPCDigi ();                             /// default
+  CSCRPCDigi(int rpc, int pad, int bxn,
+             int tbin); /// from the rpc#, pad#, bxn#, tbin#
+  CSCRPCDigi();         /// default
 
   /// get RPC
-  int getRpc() const {return rpc_;}
+  int getRpc() const { return rpc_; }
   /// return pad number
-  int getPad() const {return pad_;}
+  int getPad() const { return pad_; }
   /// return tbin number
-  int getTbin() const {return tbin_;}
+  int getTbin() const { return tbin_; }
   /// return BXN
-  int getBXN() const {return bxn_;}
-  
+  int getBXN() const { return bxn_; }
+
   /// Print content of digi
   void print() const;
 
 private:
-
   uint16_t rpc_;
   uint16_t pad_;
   uint16_t bxn_;
   uint16_t tbin_;
-
 };
 
-std::ostream & operator<<(std::ostream & o, const CSCRPCDigi& digi);
+std::ostream &operator<<(std::ostream &o, const CSCRPCDigi &digi);
 
 #endif

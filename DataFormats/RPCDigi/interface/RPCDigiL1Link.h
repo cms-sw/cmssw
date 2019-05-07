@@ -1,11 +1,11 @@
 #ifndef RPCOBJECTS_RPCDIGIL1LINK_H
 #define RPCOBJECTS_RPCDIGIL1LINK_H
 
-#include <vector>
 #include <map>
+#include <vector>
 
 class RPCDigiL1Link {
- public:
+public:
   RPCDigiL1Link();
 
   ~RPCDigiL1Link();
@@ -21,11 +21,11 @@ class RPCDigiL1Link {
 
   // Setters --layer run from 1 to nlayer
   void setLink(unsigned int layer, unsigned int rpcdetId, int strip, int bx);
-  
- private:
+
+private:
   void checklayer(unsigned int layer) const;
- private:
-  std::vector< std::pair<unsigned int, int> > _link;
-  
+
+private:
+  std::vector<std::pair<unsigned int, int>> _link;
 };
 #endif

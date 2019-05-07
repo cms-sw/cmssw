@@ -3,7 +3,7 @@
 
 #include "DataFormats/Common/interface/traits.h"
 
-/** 
+/**
     @brief A Digi for the silicon strip detector, containing only adc
     information, and suitable for storing raw hit information. NOTA
     BENE: these digis use the DetSetVector, but the public inheritence
@@ -13,33 +13,31 @@
     within its container (the DetSet private vector).
 */
 class SiStripRawDigi : public edm::DoNotSortUponInsertion {
-  
- public:
 
-  SiStripRawDigi( const uint16_t& adc ) : adc_(adc) {;}
+public:
+  SiStripRawDigi(const uint16_t &adc) : adc_(adc) { ; }
 
-  SiStripRawDigi() : adc_(0) {;}
-  ~SiStripRawDigi() {;}
-  
-  inline const uint16_t& adc() const;
-  
+  SiStripRawDigi() : adc_(0) { ; }
+  ~SiStripRawDigi() { ; }
+
+  inline const uint16_t &adc() const;
+
   /** Not used! (even if implementation is required). */
-  inline bool operator< ( const SiStripRawDigi& other ) const;
-  
- private:
-  
+  inline bool operator<(const SiStripRawDigi &other) const;
+
+private:
   uint16_t adc_;
-  
 };
 
-#include<iostream>
-inline std::ostream & operator<<(std::ostream & o, const SiStripRawDigi& digi) {
+#include <iostream>
+inline std::ostream &operator<<(std::ostream &o, const SiStripRawDigi &digi) {
   return o << " " << digi.adc();
 }
 
-// inline methods 
-const uint16_t& SiStripRawDigi::adc() const {  return adc_; }
-bool SiStripRawDigi::operator< ( const SiStripRawDigi& other ) const { return ( this->adc() < other.adc() ); }
+// inline methods
+const uint16_t &SiStripRawDigi::adc() const { return adc_; }
+bool SiStripRawDigi::operator<(const SiStripRawDigi &other) const {
+  return (this->adc() < other.adc());
+}
 
 #endif // DataFormats_SiStripDigi_SiStripRawDigi_H
-

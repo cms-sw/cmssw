@@ -4,7 +4,7 @@
 /** \class MuonEndcapFrameRotation
  *
  * implementation of FrameRotation for the muon endcap
- * 
+ *
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *
  * Modification:
@@ -16,11 +16,12 @@
 #include "G4Step.hh"
 
 class MuonEndcapFrameRotation : public MuonFrameRotation {
- public:
-  ~MuonEndcapFrameRotation() override {};
-  Local3DPoint transformPoint(const Local3DPoint &,const G4Step *) const override;
- private:
-};
+public:
+  ~MuonEndcapFrameRotation() override{};
+  Local3DPoint transformPoint(const Local3DPoint &,
+                              const G4Step *) const override;
 
+private:
+};
 
 #endif

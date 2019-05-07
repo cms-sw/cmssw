@@ -7,11 +7,11 @@
  *  \author Michael Schmitt, Northwestern
  */
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/MuonData/interface/MuonDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-typedef MuonDigiCollection<CSCDetId, CSCComparatorDigi> CSCComparatorDigiCollection;
+typedef MuonDigiCollection<CSCDetId, CSCComparatorDigi>
+    CSCComparatorDigiCollection;
 
 #endif
-

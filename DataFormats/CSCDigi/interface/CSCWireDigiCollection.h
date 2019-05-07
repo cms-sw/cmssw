@@ -6,11 +6,11 @@
  *  Based on DTDigiCollection.h
  *  \author N. Terentiev - CMU
  *
-*/
+ */
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/MuonData/interface/MuonDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 typedef MuonDigiCollection<CSCDetId, CSCWireDigi> CSCWireDigiCollection;
 

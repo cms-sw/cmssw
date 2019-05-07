@@ -5,10 +5,11 @@
  *
  */
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
 #include "DataFormats/MuonData/interface/MuonDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-typedef MuonDigiCollection<CSCDetId, CSCDDUStatusDigi> CSCDDUStatusDigiCollection;
+typedef MuonDigiCollection<CSCDetId, CSCDDUStatusDigi>
+    CSCDDUStatusDigiCollection;
 
 #endif

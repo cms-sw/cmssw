@@ -3,7 +3,7 @@
 
 /** \class MuonG4Numbering
  *
- * class to handle the conversion to MuonBaseNumber from tree of 
+ * class to handle the conversion to MuonBaseNumber from tree of
  * G4 copy numbers extracted from G4VPhysicalVolume;
  * needs DDD compatible format of G4 copy numbers; the format
  * itself may in a later version also be defined by DDD constants
@@ -11,7 +11,7 @@
  * in the xml muon constant section one has to define
  * level, super and base constants (eg. 1000,100,1) and
  * the start value of the copy numbers (0 or 1)
- *  
+ *
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *
  * Modification:
@@ -24,16 +24,14 @@ class DDCompactView;
 class MuonDDDConstants;
 
 class MuonG4Numbering {
- public:
-
-  MuonG4Numbering(const DDCompactView& cpv);
-  MuonG4Numbering(const MuonDDDConstants& muonConstants);
+public:
+  MuonG4Numbering(const DDCompactView &cpv);
+  MuonG4Numbering(const MuonDDDConstants &muonConstants);
   ~MuonG4Numbering(){};
-  
-  MuonBaseNumber PhysicalVolumeToBaseNumber(const G4Step* aStep);
-  
- private:
 
+  MuonBaseNumber PhysicalVolumeToBaseNumber(const G4Step *aStep);
+
+private:
   const int getCopyNoLevel(const int);
   const int getCopyNoSuperNo(const int);
   const int getCopyNoBaseNo(const int);
@@ -43,7 +41,6 @@ class MuonG4Numbering {
   int theSuperPart;
   int theBasePart;
   int theStartCopyNo;
-
 };
 
 #endif

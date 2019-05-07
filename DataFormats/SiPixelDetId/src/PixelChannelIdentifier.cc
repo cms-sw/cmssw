@@ -2,15 +2,14 @@
 //
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 
-
 /*
 // Extract from CMSIM manual (version Thu Jul 31 16:38:50 MET DST 1997)
 // --------------------------------------------------------------------
 // DIGI format for pixel
 //
-// For pixel digitization one word per fired pixel is used. 
+// For pixel digitization one word per fired pixel is used.
 // The information includes pixel row and column number, time
-// and charge information with 7, 9, 4 and 12 bits for each as shown below. 
+// and charge information with 7, 9, 4 and 12 bits for each as shown below.
 //
 //  :DETD    :TRAK  :PXBD    4   #. no. of digitization elements
 //   #. name     no. bits
@@ -20,7 +19,7 @@
 //     :ADC       12             #. charge
 //
 // MODIFY 19.02.2002 for ORCA_6
-// Change to enable 100micron row pixels, we than have 160 pixels in the v 
+// Change to enable 100micron row pixels, we than have 160 pixels in the v
 // direction.
 //   #. name     no. bits
 //     :V          8             #. row number        (256)
@@ -30,4 +29,5 @@
 */
 
 // Initialization of static data members - DEFINES DIGI PACKING !
-const PixelChannelIdentifier::Packing PixelChannelIdentifier::thePacking( 11, 11, 0, 10); // row, col, time, adc
+const PixelChannelIdentifier::Packing
+    PixelChannelIdentifier::thePacking(11, 11, 0, 10); // row, col, time, adc

@@ -6,11 +6,11 @@
  *  For CLCT trigger primitives
  *  \author N. Terentiev - CMU
  *
-*/
+ */
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/MuonData/interface/MuonDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 typedef MuonDigiCollection<CSCDetId, CSCCLCTDigi> CSCCLCTDigiCollection;
 

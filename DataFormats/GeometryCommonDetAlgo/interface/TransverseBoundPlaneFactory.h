@@ -8,10 +8,8 @@
 
 class TransverseBoundPlaneFactory {
 public:
-
-  BoundPlane* operator()( const Surface::GlobalPoint& origin,
-			  const Surface::GlobalVector& perp) const;
-
+  BoundPlane *operator()(const Surface::GlobalPoint &origin,
+                         const Surface::GlobalVector &perp) const;
 };
-  
+
 #endif
