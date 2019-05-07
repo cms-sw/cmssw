@@ -2965,12 +2965,11 @@ defaultDataSets['2023D31']=''
 defaultDataSets['2023D33']=''
 defaultDataSets['2023D34']=''
 defaultDataSets['2023D35']='CMSSW_10_4_0_mtd3-103X_upgrade2023_realistic_v2_2023D35noPU_2-v'
-defaultDataSets['2023D36']=''
-defaultDataSets['2023D37']=''
 defaultDataSets['2023D38']=''
 defaultDataSets['2023D39']=''
 defaultDataSets['2023D40']=''
 defaultDataSets['2023D41']=''
+defaultDataSets['2023D42']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
