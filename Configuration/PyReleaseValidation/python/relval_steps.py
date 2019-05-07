@@ -2761,6 +2761,7 @@ steps['RECOFROMRECO']=merge([{'-s':'RECO,EI',
                               '--process':'reRECO',
                               '--datatier':'AODSIM',
                               '--eventcontent':'AODSIM',
+                              '--procModifiers':'recoFromReco', 
                               },
                              stCond,step3Defaults])
 
