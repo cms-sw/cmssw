@@ -5,18 +5,20 @@
 // Package:     Forward
 // Class  :     LHCTransportLink
 //
-/**\class LHCTransportLink LHCTransportLink.h SimG4CMS/Forward/interface/LHCTransportLink.h
- 
- Description: correspondence link between barcodes for GenParticle transported by Hector and original ones
+/**\class LHCTransportLink LHCTransportLink.h
+ SimG4CMS/Forward/interface/LHCTransportLink.h
+
+ Description: correspondence link between barcodes for GenParticle transported
+ by Hector and original ones
 
  Usage: in SimTrack creation when the Hector beam transport is used
- 
+
 */
 //
-// Original Author: 
+// Original Author:
 //         Created:  Fri May 29 17:00:00 CEST 2009
 //
- 
+
 // system include files
 #include <iostream>
 
@@ -24,27 +26,25 @@
 
 class LHCTransportLink {
 
- public:
-  
+public:
   // ---------- Constructor and destructor -----------------
-  explicit LHCTransportLink(int & beforeHector, int & afterHector):beforeHector_(beforeHector),afterHector_(afterHector) { };
-  LHCTransportLink():beforeHector_(0),afterHector_(0) {}; 
-  
-  // ---------- Member functions --------------------------- 
-  
-  void fill(int & afterHector, int & beforeHector);
+  explicit LHCTransportLink(int &beforeHector, int &afterHector)
+      : beforeHector_(beforeHector), afterHector_(afterHector){};
+  LHCTransportLink() : beforeHector_(0), afterHector_(0){};
+
+  // ---------- Member functions ---------------------------
+
+  void fill(int &afterHector, int &beforeHector);
   int beforeHector() const;
   int afterHector() const;
   void clear();
-  
- private: 
-  
-  // ---------- Private Data members ----------------------- 
+
+private:
+  // ---------- Private Data members -----------------------
   int beforeHector_;
   int afterHector_;
-  
 };
 
-std::ostream & operator <<(std::ostream & o , const LHCTransportLink & t);
+std::ostream &operator<<(std::ostream &o, const LHCTransportLink &t);
 
 #endif

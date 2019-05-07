@@ -2,55 +2,47 @@
 #define EcalSimAlgos_ESElectronicsSimFast_h 1
 
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
+#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESSample.h"
-#include "CondFormats/ESObjects/interface/ESPedestals.h"
-#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 
 #include <vector>
 
 namespace CLHEP {
-  class HepRandomEngine;
+class HepRandomEngine;
 }
 
-class ESElectronicsSimFast
-{
-   public:
+class ESElectronicsSimFast {
+public:
+  typedef CaloTSamples<float, 3> ESSamples;
 
-      typedef CaloTSamples<float,3> ESSamples ;
+  enum { MAXADC = 4095, MINADC = 0 };
 
-      enum { MAXADC = 4095,
-	     MINADC =    0 } ;
-  
-      ESElectronicsSimFast( bool addNoise , bool PreMix1) ;
-      ~ESElectronicsSimFast() ;
+  ESElectronicsSimFast(bool addNoise, bool PreMix1);
+  ~ESElectronicsSimFast();
 
-      void setPedestals( const ESPedestals* peds ) ;
+  void setPedestals(const ESPedestals *peds);
 
-      void setMIPs( const ESIntercalibConstants* mips ) ;
+  void setMIPs(const ESIntercalibConstants *mips);
 
-      void setMIPToGeV( double MIPToGeV ) ;
+  void setMIPToGeV(double MIPToGeV);
 
-      void analogToDigital( CLHEP::HepRandomEngine*,
-                            ESSamples&   cs ,
-			    ESDataFrame& df ,
-			    bool         isNoise = false ) const ;
+  void analogToDigital(CLHEP::HepRandomEngine *, ESSamples &cs, ESDataFrame &df,
+                       bool isNoise = false) const;
 
-      void newEvent() {}
+  void newEvent() {}
 
+private:
+  bool m_addNoise;
 
+  bool m_PreMix1;
 
-   private :
+  double m_MIPToGeV;
 
-      bool m_addNoise ;
+  const ESPedestals *m_peds;
 
-      bool m_PreMix1;
-
-      double m_MIPToGeV ;
-
-      const ESPedestals* m_peds ;
-
-      const ESIntercalibConstants* m_mips ;
-} ;
+  const ESIntercalibConstants *m_mips;
+};
 
 #endif

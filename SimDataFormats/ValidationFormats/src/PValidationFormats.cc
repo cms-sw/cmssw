@@ -1,5 +1,5 @@
 /** \file PValidationFormats.cc
- *  
+ *
  *  See header file for description of classes
  *  conglomoration of all Validation SimDataFormats
  *
@@ -12,15 +12,14 @@
 // PGlobalSimHit
 ///////////////////////////////////////////////////////////////////////////////
 
-void PGlobalSimHit::putRawGenPart(int n)
-{
+void PGlobalSimHit::putRawGenPart(int n) {
   nRawGenPart = n;
   return;
 }
 
-void PGlobalSimHit::putG4Vtx( const std::vector<float> &x, const std::vector<float> &y, 
-	       const std::vector<float> &z)
-{
+void PGlobalSimHit::putG4Vtx(const std::vector<float> &x,
+                             const std::vector<float> &y,
+                             const std::vector<float> &z) {
   nG4Vtx = x.size();
   G4Vtx.resize(nG4Vtx);
   for (int i = 0; i < nG4Vtx; ++i) {
@@ -32,8 +31,8 @@ void PGlobalSimHit::putG4Vtx( const std::vector<float> &x, const std::vector<flo
   return;
 }
 
-void PGlobalSimHit::putG4Trk(const std::vector<float> &pt, const std::vector<float> &e)
-{
+void PGlobalSimHit::putG4Trk(const std::vector<float> &pt,
+                             const std::vector<float> &e) {
   nG4Trk = pt.size();
   G4Trk.resize(nG4Trk);
   for (int i = 0; i < nG4Trk; ++i) {
@@ -44,10 +43,10 @@ void PGlobalSimHit::putG4Trk(const std::vector<float> &pt, const std::vector<flo
   return;
 }
 
-void PGlobalSimHit::putECalHits(const std::vector<float> &e, const std::vector<float> &tof,
-				 const std::vector<float> &phi, 
-				 const std::vector<float> &eta)
-{
+void PGlobalSimHit::putECalHits(const std::vector<float> &e,
+                                const std::vector<float> &tof,
+                                const std::vector<float> &phi,
+                                const std::vector<float> &eta) {
   nECalHits = e.size();
   ECalHits.resize(nECalHits);
   for (int i = 0; i < nECalHits; ++i) {
@@ -60,10 +59,10 @@ void PGlobalSimHit::putECalHits(const std::vector<float> &e, const std::vector<f
   return;
 }
 
-void PGlobalSimHit::putPreShHits(const std::vector<float>& e, const std::vector<float>& tof,
-				  const std::vector<float>& phi, 
-				  const std::vector<float>& eta)
-{
+void PGlobalSimHit::putPreShHits(const std::vector<float> &e,
+                                 const std::vector<float> &tof,
+                                 const std::vector<float> &phi,
+                                 const std::vector<float> &eta) {
   nPreShHits = e.size();
   PreShHits.resize(nPreShHits);
   for (int i = 0; i < nPreShHits; ++i) {
@@ -76,10 +75,10 @@ void PGlobalSimHit::putPreShHits(const std::vector<float>& e, const std::vector<
   return;
 }
 
-void PGlobalSimHit::putHCalHits(const std::vector<float>& e, const std::vector<float>& tof,
-				 const std::vector<float>& phi, 
-				 const std::vector<float>& eta)
-{
+void PGlobalSimHit::putHCalHits(const std::vector<float> &e,
+                                const std::vector<float> &tof,
+                                const std::vector<float> &phi,
+                                const std::vector<float> &eta) {
   nHCalHits = e.size();
   HCalHits.resize(nHCalHits);
   for (int i = 0; i < nHCalHits; ++i) {
@@ -92,11 +91,10 @@ void PGlobalSimHit::putHCalHits(const std::vector<float>& e, const std::vector<f
   return;
 }
 
-void PGlobalSimHit::putPxlFwdHits(const std::vector<float>& tof, 
-				   const std::vector<float>& z,
-				   const std::vector<float>& phi, 
-				   const std::vector<float>& eta)
-{
+void PGlobalSimHit::putPxlFwdHits(const std::vector<float> &tof,
+                                  const std::vector<float> &z,
+                                  const std::vector<float> &phi,
+                                  const std::vector<float> &eta) {
   nPxlFwdHits = tof.size();
   PxlFwdHits.resize(nPxlFwdHits);
   for (int i = 0; i < nPxlFwdHits; ++i) {
@@ -109,12 +107,11 @@ void PGlobalSimHit::putPxlFwdHits(const std::vector<float>& tof,
   return;
 }
 
-void PGlobalSimHit::putPxlBrlHits(const std::vector<float>& tof, 
-				   const std::vector<float>& r,
-				   const std::vector<float>& phi, 
-				   const std::vector<float>& eta)
-{
-  nPxlBrlHits = tof.size(); 
+void PGlobalSimHit::putPxlBrlHits(const std::vector<float> &tof,
+                                  const std::vector<float> &r,
+                                  const std::vector<float> &phi,
+                                  const std::vector<float> &eta) {
+  nPxlBrlHits = tof.size();
   PxlBrlHits.resize(nPxlBrlHits);
   for (int i = 0; i < nPxlBrlHits; ++i) {
     PxlBrlHits[i].tof = tof[i];
@@ -126,11 +123,10 @@ void PGlobalSimHit::putPxlBrlHits(const std::vector<float>& tof,
   return;
 }
 
-void PGlobalSimHit::putSiFwdHits(const std::vector<float>& tof, 
-				  const std::vector<float>& z,
-				  const std::vector<float>& phi, 
-				  const std::vector<float>& eta)
-{
+void PGlobalSimHit::putSiFwdHits(const std::vector<float> &tof,
+                                 const std::vector<float> &z,
+                                 const std::vector<float> &phi,
+                                 const std::vector<float> &eta) {
   nSiFwdHits = tof.size();
   SiFwdHits.resize(nSiFwdHits);
   for (int i = 0; i < nSiFwdHits; ++i) {
@@ -143,10 +139,10 @@ void PGlobalSimHit::putSiFwdHits(const std::vector<float>& tof,
   return;
 }
 
-void PGlobalSimHit::putSiBrlHits(const std::vector<float>& tof, const std::vector<float>& r,
-				  const std::vector<float>& phi, 
-				  const std::vector<float>& eta)
-{
+void PGlobalSimHit::putSiBrlHits(const std::vector<float> &tof,
+                                 const std::vector<float> &r,
+                                 const std::vector<float> &phi,
+                                 const std::vector<float> &eta) {
   nSiBrlHits = tof.size();
   SiBrlHits.resize(nSiBrlHits);
   for (int i = 0; i < nSiBrlHits; ++i) {
@@ -159,11 +155,10 @@ void PGlobalSimHit::putSiBrlHits(const std::vector<float>& tof, const std::vecto
   return;
 }
 
-void PGlobalSimHit::putMuonCscHits(const std::vector<float>& tof, 
-				    const std::vector<float>& z,
-				    const std::vector<float>& phi, 
-				    const std::vector<float>& eta)
-{
+void PGlobalSimHit::putMuonCscHits(const std::vector<float> &tof,
+                                   const std::vector<float> &z,
+                                   const std::vector<float> &phi,
+                                   const std::vector<float> &eta) {
   nMuonCscHits = tof.size();
   MuonCscHits.resize(nMuonCscHits);
   for (int i = 0; i < nMuonCscHits; ++i) {
@@ -176,11 +171,10 @@ void PGlobalSimHit::putMuonCscHits(const std::vector<float>& tof,
   return;
 }
 
-void PGlobalSimHit::putMuonDtHits(const std::vector<float>& tof, 
-				   const std::vector<float>& r,
-				   const std::vector<float>& phi, 
-				   const std::vector<float>& eta)
-{
+void PGlobalSimHit::putMuonDtHits(const std::vector<float> &tof,
+                                  const std::vector<float> &r,
+                                  const std::vector<float> &phi,
+                                  const std::vector<float> &eta) {
   nMuonDtHits = tof.size();
   MuonDtHits.resize(nMuonDtHits);
   for (int i = 0; i < nMuonDtHits; ++i) {
@@ -193,11 +187,10 @@ void PGlobalSimHit::putMuonDtHits(const std::vector<float>& tof,
   return;
 }
 
-void PGlobalSimHit::putMuonRpcFwdHits(const std::vector<float>& tof, 
-				       const std::vector<float>& z,
-				       const std::vector<float>& phi, 
-				       const std::vector<float>& eta)
-{
+void PGlobalSimHit::putMuonRpcFwdHits(const std::vector<float> &tof,
+                                      const std::vector<float> &z,
+                                      const std::vector<float> &phi,
+                                      const std::vector<float> &eta) {
   nMuonRpcFwdHits = tof.size();
   MuonRpcFwdHits.resize(nMuonRpcFwdHits);
   for (int i = 0; i < nMuonRpcFwdHits; ++i) {
@@ -210,11 +203,10 @@ void PGlobalSimHit::putMuonRpcFwdHits(const std::vector<float>& tof,
   return;
 }
 
-void PGlobalSimHit::putMuonRpcBrlHits(const std::vector<float>& tof, 
-				       const std::vector<float>& r,
-				       const std::vector<float>& phi, 
-				       const std::vector<float>& eta)
-{
+void PGlobalSimHit::putMuonRpcBrlHits(const std::vector<float> &tof,
+                                      const std::vector<float> &r,
+                                      const std::vector<float> &phi,
+                                      const std::vector<float> &eta) {
   nMuonRpcBrlHits = tof.size();
   MuonRpcBrlHits.resize(nMuonRpcBrlHits);
   for (int i = 0; i < nMuonRpcBrlHits; ++i) {
@@ -231,10 +223,9 @@ void PGlobalSimHit::putMuonRpcBrlHits(const std::vector<float>& tof,
 // PGlobalDigi
 ///////////////////////////////////////////////////////////////////////////////
 
-void PGlobalDigi::putEBCalDigis(const std::vector<int>& maxpos,
-				const std::vector<double>& aee,
-				const std::vector<float>& she)
-{
+void PGlobalDigi::putEBCalDigis(const std::vector<int> &maxpos,
+                                const std::vector<double> &aee,
+                                const std::vector<float> &she) {
   nEBCalDigis = maxpos.size();
   EBCalDigis.resize(nEBCalDigis);
   for (int i = 0; i < nEBCalDigis; ++i) {
@@ -246,10 +237,9 @@ void PGlobalDigi::putEBCalDigis(const std::vector<int>& maxpos,
   return;
 }
 
-void PGlobalDigi::putEECalDigis(const std::vector<int>& maxpos,
-				const std::vector<double>& aee,
-				const std::vector<float>& she)
-{
+void PGlobalDigi::putEECalDigis(const std::vector<int> &maxpos,
+                                const std::vector<double> &aee,
+                                const std::vector<float> &she) {
   nEECalDigis = maxpos.size();
   EECalDigis.resize(nEECalDigis);
   for (int i = 0; i < nEECalDigis; ++i) {
@@ -261,11 +251,10 @@ void PGlobalDigi::putEECalDigis(const std::vector<int>& maxpos,
   return;
 }
 
-void PGlobalDigi::putESCalDigis(const std::vector<float>& adc0,
-				const std::vector<float>& adc1,
-				const std::vector<float>& adc2,
-				const std::vector<float>& she)
-{
+void PGlobalDigi::putESCalDigis(const std::vector<float> &adc0,
+                                const std::vector<float> &adc1,
+                                const std::vector<float> &adc2,
+                                const std::vector<float> &she) {
   nESCalDigis = adc0.size();
   ESCalDigis.resize(nESCalDigis);
   for (int i = 0; i < nESCalDigis; ++i) {
@@ -278,9 +267,8 @@ void PGlobalDigi::putESCalDigis(const std::vector<float>& adc0,
   return;
 }
 
-void PGlobalDigi::putHBCalDigis(const std::vector<float>& aee,
-				const std::vector<float>& she)
-{
+void PGlobalDigi::putHBCalDigis(const std::vector<float> &aee,
+                                const std::vector<float> &she) {
   nHBCalDigis = aee.size();
   HBCalDigis.resize(nHBCalDigis);
   for (int i = 0; i < nHBCalDigis; ++i) {
@@ -291,9 +279,8 @@ void PGlobalDigi::putHBCalDigis(const std::vector<float>& aee,
   return;
 }
 
-void PGlobalDigi::putHECalDigis(const std::vector<float>& aee,
-				const std::vector<float>& she)
-{
+void PGlobalDigi::putHECalDigis(const std::vector<float> &aee,
+                                const std::vector<float> &she) {
   nHECalDigis = aee.size();
   HECalDigis.resize(nHECalDigis);
   for (int i = 0; i < nHECalDigis; ++i) {
@@ -304,9 +291,8 @@ void PGlobalDigi::putHECalDigis(const std::vector<float>& aee,
   return;
 }
 
-void PGlobalDigi::putHOCalDigis(const std::vector<float>& aee,
-				const std::vector<float>& she)
-{
+void PGlobalDigi::putHOCalDigis(const std::vector<float> &aee,
+                                const std::vector<float> &she) {
   nHOCalDigis = aee.size();
   HOCalDigis.resize(nHOCalDigis);
   for (int i = 0; i < nHOCalDigis; ++i) {
@@ -317,9 +303,8 @@ void PGlobalDigi::putHOCalDigis(const std::vector<float>& aee,
   return;
 }
 
-void PGlobalDigi::putHFCalDigis(const std::vector<float>& aee,
-				const std::vector<float>& she)
-{
+void PGlobalDigi::putHFCalDigis(const std::vector<float> &aee,
+                                const std::vector<float> &she) {
   nHFCalDigis = aee.size();
   HFCalDigis.resize(nHFCalDigis);
   for (int i = 0; i < nHFCalDigis; ++i) {
@@ -330,9 +315,8 @@ void PGlobalDigi::putHFCalDigis(const std::vector<float>& aee,
   return;
 }
 
-void PGlobalDigi::putTIBL1Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTIBL1Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTIBL1Digis = adc.size();
   TIBL1Digis.resize(nTIBL1Digis);
   for (int i = 0; i < nTIBL1Digis; ++i) {
@@ -343,9 +327,8 @@ void PGlobalDigi::putTIBL1Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTIBL2Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTIBL2Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTIBL2Digis = adc.size();
   TIBL2Digis.resize(nTIBL2Digis);
   for (int i = 0; i < nTIBL2Digis; ++i) {
@@ -356,9 +339,8 @@ void PGlobalDigi::putTIBL2Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTIBL3Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTIBL3Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTIBL3Digis = adc.size();
   TIBL3Digis.resize(nTIBL3Digis);
   for (int i = 0; i < nTIBL3Digis; ++i) {
@@ -369,9 +351,8 @@ void PGlobalDigi::putTIBL3Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTIBL4Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTIBL4Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTIBL4Digis = adc.size();
   TIBL4Digis.resize(nTIBL4Digis);
   for (int i = 0; i < nTIBL4Digis; ++i) {
@@ -382,9 +363,8 @@ void PGlobalDigi::putTIBL4Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTOBL1Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTOBL1Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTOBL1Digis = adc.size();
   TOBL1Digis.resize(nTOBL1Digis);
   for (int i = 0; i < nTOBL1Digis; ++i) {
@@ -395,9 +375,8 @@ void PGlobalDigi::putTOBL1Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTOBL2Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTOBL2Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTOBL2Digis = adc.size();
   TOBL2Digis.resize(nTOBL2Digis);
   for (int i = 0; i < nTOBL2Digis; ++i) {
@@ -408,9 +387,8 @@ void PGlobalDigi::putTOBL2Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTOBL3Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTOBL3Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTOBL3Digis = adc.size();
   TOBL3Digis.resize(nTOBL3Digis);
   for (int i = 0; i < nTOBL3Digis; ++i) {
@@ -421,9 +399,8 @@ void PGlobalDigi::putTOBL3Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTOBL4Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTOBL4Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTOBL4Digis = adc.size();
   TOBL4Digis.resize(nTOBL4Digis);
   for (int i = 0; i < nTOBL4Digis; ++i) {
@@ -434,9 +411,8 @@ void PGlobalDigi::putTOBL4Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTIDW1Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTIDW1Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTIDW1Digis = adc.size();
   TIDW1Digis.resize(nTIDW1Digis);
   for (int i = 0; i < nTIDW1Digis; ++i) {
@@ -447,9 +423,8 @@ void PGlobalDigi::putTIDW1Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTIDW2Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTIDW2Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTIDW2Digis = adc.size();
   TIDW2Digis.resize(nTIDW2Digis);
   for (int i = 0; i < nTIDW2Digis; ++i) {
@@ -460,9 +435,8 @@ void PGlobalDigi::putTIDW2Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTIDW3Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTIDW3Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTIDW3Digis = adc.size();
   TIDW3Digis.resize(nTIDW3Digis);
   for (int i = 0; i < nTIDW3Digis; ++i) {
@@ -473,9 +447,8 @@ void PGlobalDigi::putTIDW3Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTECW1Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTECW1Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTECW1Digis = adc.size();
   TECW1Digis.resize(nTECW1Digis);
   for (int i = 0; i < nTECW1Digis; ++i) {
@@ -486,9 +459,8 @@ void PGlobalDigi::putTECW1Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTECW2Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTECW2Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTECW2Digis = adc.size();
   TECW2Digis.resize(nTECW2Digis);
   for (int i = 0; i < nTECW2Digis; ++i) {
@@ -499,9 +471,8 @@ void PGlobalDigi::putTECW2Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTECW3Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTECW3Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTECW3Digis = adc.size();
   TECW3Digis.resize(nTECW3Digis);
   for (int i = 0; i < nTECW3Digis; ++i) {
@@ -512,9 +483,8 @@ void PGlobalDigi::putTECW3Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTECW4Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTECW4Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTECW4Digis = adc.size();
   TECW4Digis.resize(nTECW4Digis);
   for (int i = 0; i < nTECW4Digis; ++i) {
@@ -525,9 +495,8 @@ void PGlobalDigi::putTECW4Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTECW5Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTECW5Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTECW5Digis = adc.size();
   TECW5Digis.resize(nTECW5Digis);
   for (int i = 0; i < nTECW5Digis; ++i) {
@@ -538,9 +507,8 @@ void PGlobalDigi::putTECW5Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTECW6Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTECW6Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTECW6Digis = adc.size();
   TECW6Digis.resize(nTECW6Digis);
   for (int i = 0; i < nTECW6Digis; ++i) {
@@ -551,9 +519,8 @@ void PGlobalDigi::putTECW6Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTECW7Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTECW7Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTECW7Digis = adc.size();
   TECW7Digis.resize(nTECW7Digis);
   for (int i = 0; i < nTECW7Digis; ++i) {
@@ -564,9 +531,8 @@ void PGlobalDigi::putTECW7Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putTECW8Digis(const std::vector<float>& adc,
-			        const std::vector<int>& strip)
-{
+void PGlobalDigi::putTECW8Digis(const std::vector<float> &adc,
+                                const std::vector<int> &strip) {
   nTECW8Digis = adc.size();
   TECW8Digis.resize(nTECW8Digis);
   for (int i = 0; i < nTECW8Digis; ++i) {
@@ -577,10 +543,9 @@ void PGlobalDigi::putTECW8Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putBRL1Digis(const std::vector<float>& adc,
-			       const std::vector<int>& row,
-			       const std::vector<int>& column)
-{
+void PGlobalDigi::putBRL1Digis(const std::vector<float> &adc,
+                               const std::vector<int> &row,
+                               const std::vector<int> &column) {
   nBRL1Digis = adc.size();
   BRL1Digis.resize(nBRL1Digis);
   for (int i = 0; i < nBRL1Digis; ++i) {
@@ -592,10 +557,9 @@ void PGlobalDigi::putBRL1Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putBRL2Digis(const std::vector<float>& adc,
-			       const std::vector<int>& row,
-			       const std::vector<int>& column)
-{
+void PGlobalDigi::putBRL2Digis(const std::vector<float> &adc,
+                               const std::vector<int> &row,
+                               const std::vector<int> &column) {
   nBRL2Digis = adc.size();
   BRL2Digis.resize(nBRL2Digis);
   for (int i = 0; i < nBRL2Digis; ++i) {
@@ -607,10 +571,9 @@ void PGlobalDigi::putBRL2Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putBRL3Digis(const std::vector<float>& adc,
-			       const std::vector<int>& row,
-			       const std::vector<int>& column)
-{
+void PGlobalDigi::putBRL3Digis(const std::vector<float> &adc,
+                               const std::vector<int> &row,
+                               const std::vector<int> &column) {
   nBRL3Digis = adc.size();
   BRL3Digis.resize(nBRL3Digis);
   for (int i = 0; i < nBRL3Digis; ++i) {
@@ -622,10 +585,9 @@ void PGlobalDigi::putBRL3Digis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putFWD1pDigis(const std::vector<float>& adc,
-				const std::vector<int>& row,
-				const std::vector<int>& column)
-{
+void PGlobalDigi::putFWD1pDigis(const std::vector<float> &adc,
+                                const std::vector<int> &row,
+                                const std::vector<int> &column) {
   nFWD1pDigis = adc.size();
   FWD1pDigis.resize(nFWD1pDigis);
   for (int i = 0; i < nFWD1pDigis; ++i) {
@@ -637,10 +599,9 @@ void PGlobalDigi::putFWD1pDigis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putFWD1nDigis(const std::vector<float>& adc,
-				const std::vector<int>& row,
-				const std::vector<int>& column)
-{
+void PGlobalDigi::putFWD1nDigis(const std::vector<float> &adc,
+                                const std::vector<int> &row,
+                                const std::vector<int> &column) {
   nFWD1nDigis = adc.size();
   FWD1nDigis.resize(nFWD1nDigis);
   for (int i = 0; i < nFWD1nDigis; ++i) {
@@ -652,10 +613,9 @@ void PGlobalDigi::putFWD1nDigis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putFWD2pDigis(const std::vector<float>& adc,
-				const std::vector<int>& row,
-				const std::vector<int>& column)
-{
+void PGlobalDigi::putFWD2pDigis(const std::vector<float> &adc,
+                                const std::vector<int> &row,
+                                const std::vector<int> &column) {
   nFWD2pDigis = adc.size();
   FWD2pDigis.resize(nFWD2pDigis);
   for (int i = 0; i < nFWD2pDigis; ++i) {
@@ -667,10 +627,9 @@ void PGlobalDigi::putFWD2pDigis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putFWD2nDigis(const std::vector<float>& adc,
-				const std::vector<int>& row,
-				const std::vector<int>& column)
-{
+void PGlobalDigi::putFWD2nDigis(const std::vector<float> &adc,
+                                const std::vector<int> &row,
+                                const std::vector<int> &column) {
   nFWD2nDigis = adc.size();
   FWD2nDigis.resize(nFWD2nDigis);
   for (int i = 0; i < nFWD2nDigis; ++i) {
@@ -682,10 +641,9 @@ void PGlobalDigi::putFWD2nDigis(const std::vector<float>& adc,
   return;
 }
 
-void PGlobalDigi::putMB1Digis(const std::vector<int>& slayer,
-			      const std::vector<float>& time,
-			      const std::vector<int>& layer)
-{
+void PGlobalDigi::putMB1Digis(const std::vector<int> &slayer,
+                              const std::vector<float> &time,
+                              const std::vector<int> &layer) {
   nMB1Digis = slayer.size();
   MB1Digis.resize(nMB1Digis);
   for (int i = 0; i < nMB1Digis; ++i) {
@@ -697,10 +655,9 @@ void PGlobalDigi::putMB1Digis(const std::vector<int>& slayer,
   return;
 }
 
-void PGlobalDigi::putMB2Digis(const std::vector<int>& slayer,
-			      const std::vector<float>& time,
-			      const std::vector<int>& layer)
-{
+void PGlobalDigi::putMB2Digis(const std::vector<int> &slayer,
+                              const std::vector<float> &time,
+                              const std::vector<int> &layer) {
   nMB2Digis = slayer.size();
   MB2Digis.resize(nMB2Digis);
   for (int i = 0; i < nMB2Digis; ++i) {
@@ -712,10 +669,9 @@ void PGlobalDigi::putMB2Digis(const std::vector<int>& slayer,
   return;
 }
 
-void PGlobalDigi::putMB3Digis(const std::vector<int>& slayer,
-			      const std::vector<float>& time,
-			      const std::vector<int>& layer)
-{
+void PGlobalDigi::putMB3Digis(const std::vector<int> &slayer,
+                              const std::vector<float> &time,
+                              const std::vector<int> &layer) {
   nMB3Digis = slayer.size();
   MB3Digis.resize(nMB3Digis);
   for (int i = 0; i < nMB3Digis; ++i) {
@@ -727,10 +683,9 @@ void PGlobalDigi::putMB3Digis(const std::vector<int>& slayer,
   return;
 }
 
-void PGlobalDigi::putMB4Digis(const std::vector<int>& slayer,
-			      const std::vector<float>& time,
-			      const std::vector<int>& layer)
-{
+void PGlobalDigi::putMB4Digis(const std::vector<int> &slayer,
+                              const std::vector<float> &time,
+                              const std::vector<int> &layer) {
   nMB4Digis = slayer.size();
   MB4Digis.resize(nMB4Digis);
   for (int i = 0; i < nMB4Digis; ++i) {
@@ -742,8 +697,7 @@ void PGlobalDigi::putMB4Digis(const std::vector<int>& slayer,
   return;
 }
 
-void PGlobalDigi::putCSCstripDigis(const std::vector<float>& adc)
-{
+void PGlobalDigi::putCSCstripDigis(const std::vector<float> &adc) {
   nCSCstripDigis = adc.size();
   CSCstripDigis.resize(nCSCstripDigis);
   for (int i = 0; i < nCSCstripDigis; ++i) {
@@ -753,8 +707,7 @@ void PGlobalDigi::putCSCstripDigis(const std::vector<float>& adc)
   return;
 }
 
-void PGlobalDigi::putCSCwireDigis(const std::vector<float>& time)
-{
+void PGlobalDigi::putCSCwireDigis(const std::vector<float> &time) {
   nCSCwireDigis = time.size();
   CSCwireDigis.resize(nCSCwireDigis);
   for (int i = 0; i < nCSCwireDigis; ++i) {
@@ -768,9 +721,8 @@ void PGlobalDigi::putCSCwireDigis(const std::vector<float>& time)
 // PGlobalRecHit
 ///////////////////////////////////////////////////////////////////////////////
 
-void PGlobalRecHit::putEBCalRecHits(const std::vector<float>& re,
-				    const std::vector<float>& she)
-{
+void PGlobalRecHit::putEBCalRecHits(const std::vector<float> &re,
+                                    const std::vector<float> &she) {
   nEBCalRecHits = re.size();
   EBCalRecHits.resize(nEBCalRecHits);
   for (int i = 0; i < nEBCalRecHits; ++i) {
@@ -781,9 +733,8 @@ void PGlobalRecHit::putEBCalRecHits(const std::vector<float>& re,
   return;
 }
 
-void PGlobalRecHit::putEECalRecHits(const std::vector<float>& re,
-				    const std::vector<float>& she)
-{
+void PGlobalRecHit::putEECalRecHits(const std::vector<float> &re,
+                                    const std::vector<float> &she) {
   nEECalRecHits = re.size();
   EECalRecHits.resize(nEECalRecHits);
   for (int i = 0; i < nEECalRecHits; ++i) {
@@ -794,9 +745,8 @@ void PGlobalRecHit::putEECalRecHits(const std::vector<float>& re,
   return;
 }
 
-void PGlobalRecHit::putESCalRecHits(const std::vector<float>& re,
-				    const std::vector<float>& she)
-{
+void PGlobalRecHit::putESCalRecHits(const std::vector<float> &re,
+                                    const std::vector<float> &she) {
   nESCalRecHits = re.size();
   ESCalRecHits.resize(nESCalRecHits);
   for (int i = 0; i < nESCalRecHits; ++i) {
@@ -807,10 +757,9 @@ void PGlobalRecHit::putESCalRecHits(const std::vector<float>& re,
   return;
 }
 
-void PGlobalRecHit::putHBCalRecHits(const std::vector<float>& rec,
-				    const std::vector<float>& r,
-				    const std::vector<float>& she)
-{
+void PGlobalRecHit::putHBCalRecHits(const std::vector<float> &rec,
+                                    const std::vector<float> &r,
+                                    const std::vector<float> &she) {
   nHBCalRecHits = rec.size();
   HBCalRecHits.resize(nHBCalRecHits);
   for (int i = 0; i < nHBCalRecHits; ++i) {
@@ -822,10 +771,9 @@ void PGlobalRecHit::putHBCalRecHits(const std::vector<float>& rec,
   return;
 }
 
-void PGlobalRecHit::putHECalRecHits(const std::vector<float>& rec,
-				    const std::vector<float>& r,
-				    const std::vector<float>& she)
-{
+void PGlobalRecHit::putHECalRecHits(const std::vector<float> &rec,
+                                    const std::vector<float> &r,
+                                    const std::vector<float> &she) {
   nHECalRecHits = rec.size();
   HECalRecHits.resize(nHECalRecHits);
   for (int i = 0; i < nHECalRecHits; ++i) {
@@ -837,10 +785,9 @@ void PGlobalRecHit::putHECalRecHits(const std::vector<float>& rec,
   return;
 }
 
-void PGlobalRecHit::putHOCalRecHits(const std::vector<float>& rec,
-				    const std::vector<float>& r,
-				    const std::vector<float>& she)
-{
+void PGlobalRecHit::putHOCalRecHits(const std::vector<float> &rec,
+                                    const std::vector<float> &r,
+                                    const std::vector<float> &she) {
   nHOCalRecHits = rec.size();
   HOCalRecHits.resize(nHOCalRecHits);
   for (int i = 0; i < nHOCalRecHits; ++i) {
@@ -852,10 +799,9 @@ void PGlobalRecHit::putHOCalRecHits(const std::vector<float>& rec,
   return;
 }
 
-void PGlobalRecHit::putHFCalRecHits(const std::vector<float>& rec,
-				    const std::vector<float>& r,
-				    const std::vector<float>& she)
-{
+void PGlobalRecHit::putHFCalRecHits(const std::vector<float> &rec,
+                                    const std::vector<float> &r,
+                                    const std::vector<float> &she) {
   nHFCalRecHits = rec.size();
   HFCalRecHits.resize(nHFCalRecHits);
   for (int i = 0; i < nHFCalRecHits; ++i) {
@@ -867,334 +813,314 @@ void PGlobalRecHit::putHFCalRecHits(const std::vector<float>& rec,
   return;
 }
 
-void PGlobalRecHit::putTIBL1RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTIBL1RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTIBL1RecHits = rx.size();
   TIBL1RecHits.resize(nTIBL1RecHits);
   for (int i = 0; i < nTIBL1RecHits; ++i) {
     TIBL1RecHits[i].RX = rx[i];
     TIBL1RecHits[i].RY = ry[i];
     TIBL1RecHits[i].SX = sx[i];
-    TIBL1RecHits[i].SY = sy[i];    
+    TIBL1RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTIBL2RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTIBL2RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTIBL2RecHits = rx.size();
   TIBL2RecHits.resize(nTIBL2RecHits);
   for (int i = 0; i < nTIBL2RecHits; ++i) {
     TIBL2RecHits[i].RX = rx[i];
     TIBL2RecHits[i].RY = ry[i];
     TIBL2RecHits[i].SX = sx[i];
-    TIBL2RecHits[i].SY = sy[i];    
+    TIBL2RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTIBL3RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTIBL3RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTIBL3RecHits = rx.size();
   TIBL3RecHits.resize(nTIBL3RecHits);
   for (int i = 0; i < nTIBL3RecHits; ++i) {
     TIBL3RecHits[i].RX = rx[i];
     TIBL3RecHits[i].RY = ry[i];
     TIBL3RecHits[i].SX = sx[i];
-    TIBL3RecHits[i].SY = sy[i];    
+    TIBL3RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTIBL4RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTIBL4RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTIBL4RecHits = rx.size();
   TIBL4RecHits.resize(nTIBL4RecHits);
   for (int i = 0; i < nTIBL4RecHits; ++i) {
     TIBL4RecHits[i].RX = rx[i];
     TIBL4RecHits[i].RY = ry[i];
     TIBL4RecHits[i].SX = sx[i];
-    TIBL4RecHits[i].SY = sy[i];    
+    TIBL4RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTOBL1RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTOBL1RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTOBL1RecHits = rx.size();
   TOBL1RecHits.resize(nTOBL1RecHits);
   for (int i = 0; i < nTOBL1RecHits; ++i) {
     TOBL1RecHits[i].RX = rx[i];
     TOBL1RecHits[i].RY = ry[i];
     TOBL1RecHits[i].SX = sx[i];
-    TOBL1RecHits[i].SY = sy[i];    
+    TOBL1RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTOBL2RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTOBL2RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTOBL2RecHits = rx.size();
   TOBL2RecHits.resize(nTOBL2RecHits);
   for (int i = 0; i < nTOBL2RecHits; ++i) {
     TOBL2RecHits[i].RX = rx[i];
     TOBL2RecHits[i].RY = ry[i];
     TOBL2RecHits[i].SX = sx[i];
-    TOBL2RecHits[i].SY = sy[i];    
+    TOBL2RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTOBL3RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTOBL3RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTOBL3RecHits = rx.size();
   TOBL3RecHits.resize(nTOBL3RecHits);
   for (int i = 0; i < nTOBL3RecHits; ++i) {
     TOBL3RecHits[i].RX = rx[i];
     TOBL3RecHits[i].RY = ry[i];
     TOBL3RecHits[i].SX = sx[i];
-    TOBL3RecHits[i].SY = sy[i];    
+    TOBL3RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTOBL4RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTOBL4RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTOBL4RecHits = rx.size();
   TOBL4RecHits.resize(nTOBL4RecHits);
   for (int i = 0; i < nTOBL4RecHits; ++i) {
     TOBL4RecHits[i].RX = rx[i];
     TOBL4RecHits[i].RY = ry[i];
     TOBL4RecHits[i].SX = sx[i];
-    TOBL4RecHits[i].SY = sy[i];    
+    TOBL4RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTIDW1RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTIDW1RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTIDW1RecHits = rx.size();
   TIDW1RecHits.resize(nTIDW1RecHits);
   for (int i = 0; i < nTIDW1RecHits; ++i) {
     TIDW1RecHits[i].RX = rx[i];
     TIDW1RecHits[i].RY = ry[i];
     TIDW1RecHits[i].SX = sx[i];
-    TIDW1RecHits[i].SY = sy[i];    
+    TIDW1RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTIDW2RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTIDW2RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTIDW2RecHits = rx.size();
   TIDW2RecHits.resize(nTIDW2RecHits);
   for (int i = 0; i < nTIDW2RecHits; ++i) {
     TIDW2RecHits[i].RX = rx[i];
     TIDW2RecHits[i].RY = ry[i];
     TIDW2RecHits[i].SX = sx[i];
-    TIDW2RecHits[i].SY = sy[i];    
+    TIDW2RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTIDW3RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTIDW3RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTIDW3RecHits = rx.size();
   TIDW3RecHits.resize(nTIDW3RecHits);
   for (int i = 0; i < nTIDW3RecHits; ++i) {
     TIDW3RecHits[i].RX = rx[i];
     TIDW3RecHits[i].RY = ry[i];
     TIDW3RecHits[i].SX = sx[i];
-    TIDW3RecHits[i].SY = sy[i];    
+    TIDW3RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTECW1RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTECW1RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTECW1RecHits = rx.size();
   TECW1RecHits.resize(nTECW1RecHits);
   for (int i = 0; i < nTECW1RecHits; ++i) {
     TECW1RecHits[i].RX = rx[i];
     TECW1RecHits[i].RY = ry[i];
     TECW1RecHits[i].SX = sx[i];
-    TECW1RecHits[i].SY = sy[i];    
+    TECW1RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTECW2RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTECW2RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTECW2RecHits = rx.size();
   TECW2RecHits.resize(nTECW2RecHits);
   for (int i = 0; i < nTECW2RecHits; ++i) {
     TECW2RecHits[i].RX = rx[i];
     TECW2RecHits[i].RY = ry[i];
     TECW2RecHits[i].SX = sx[i];
-    TECW2RecHits[i].SY = sy[i];    
+    TECW2RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTECW3RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTECW3RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTECW3RecHits = rx.size();
   TECW3RecHits.resize(nTECW3RecHits);
   for (int i = 0; i < nTECW3RecHits; ++i) {
     TECW3RecHits[i].RX = rx[i];
     TECW3RecHits[i].RY = ry[i];
     TECW3RecHits[i].SX = sx[i];
-    TECW3RecHits[i].SY = sy[i];    
+    TECW3RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTECW4RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTECW4RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTECW4RecHits = rx.size();
   TECW4RecHits.resize(nTECW4RecHits);
   for (int i = 0; i < nTECW4RecHits; ++i) {
     TECW4RecHits[i].RX = rx[i];
     TECW4RecHits[i].RY = ry[i];
     TECW4RecHits[i].SX = sx[i];
-    TECW4RecHits[i].SY = sy[i];    
+    TECW4RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTECW5RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTECW5RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTECW5RecHits = rx.size();
   TECW5RecHits.resize(nTECW5RecHits);
   for (int i = 0; i < nTECW5RecHits; ++i) {
     TECW5RecHits[i].RX = rx[i];
     TECW5RecHits[i].RY = ry[i];
     TECW5RecHits[i].SX = sx[i];
-    TECW5RecHits[i].SY = sy[i];    
+    TECW5RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTECW6RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTECW6RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTECW6RecHits = rx.size();
   TECW6RecHits.resize(nTECW6RecHits);
   for (int i = 0; i < nTECW6RecHits; ++i) {
     TECW6RecHits[i].RX = rx[i];
     TECW6RecHits[i].RY = ry[i];
     TECW6RecHits[i].SX = sx[i];
-    TECW6RecHits[i].SY = sy[i];    
+    TECW6RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTECW7RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTECW7RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTECW7RecHits = rx.size();
   TECW7RecHits.resize(nTECW7RecHits);
   for (int i = 0; i < nTECW7RecHits; ++i) {
     TECW7RecHits[i].RX = rx[i];
     TECW7RecHits[i].RY = ry[i];
     TECW7RecHits[i].SX = sx[i];
-    TECW7RecHits[i].SY = sy[i];    
+    TECW7RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putTECW8RecHits(const std::vector<float>& rx, 
-				    const std::vector<float>& ry,
-				    const std::vector<float>& sx, 
-				    const std::vector<float>& sy)
-{
+void PGlobalRecHit::putTECW8RecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nTECW8RecHits = rx.size();
   TECW8RecHits.resize(nTECW8RecHits);
   for (int i = 0; i < nTECW8RecHits; ++i) {
     TECW8RecHits[i].RX = rx[i];
     TECW8RecHits[i].RY = ry[i];
     TECW8RecHits[i].SX = sx[i];
-    TECW8RecHits[i].SY = sy[i];    
+    TECW8RecHits[i].SY = sy[i];
   }
 
   return;
 }
 
-void PGlobalRecHit::putBRL1RecHits(const std::vector<float>& rx, 
-				   const std::vector<float>& ry,
-				   const std::vector<float>& sx, 
-				   const std::vector<float>& sy)
-{
+void PGlobalRecHit::putBRL1RecHits(const std::vector<float> &rx,
+                                   const std::vector<float> &ry,
+                                   const std::vector<float> &sx,
+                                   const std::vector<float> &sy) {
   nBRL1RecHits = rx.size();
   BRL1RecHits.resize(nBRL1RecHits);
   for (int i = 0; i < nBRL1RecHits; ++i) {
@@ -1207,11 +1133,10 @@ void PGlobalRecHit::putBRL1RecHits(const std::vector<float>& rx,
   return;
 }
 
-void PGlobalRecHit::putBRL2RecHits(const std::vector<float>& rx, 
-				   const std::vector<float>& ry,
-				   const std::vector<float>& sx, 
-				   const std::vector<float>& sy)
-{
+void PGlobalRecHit::putBRL2RecHits(const std::vector<float> &rx,
+                                   const std::vector<float> &ry,
+                                   const std::vector<float> &sx,
+                                   const std::vector<float> &sy) {
   nBRL2RecHits = rx.size();
   BRL2RecHits.resize(nBRL2RecHits);
   for (int i = 0; i < nBRL2RecHits; ++i) {
@@ -1224,11 +1149,10 @@ void PGlobalRecHit::putBRL2RecHits(const std::vector<float>& rx,
   return;
 }
 
-void PGlobalRecHit::putBRL3RecHits(const std::vector<float>& rx, 
-				   const std::vector<float>& ry,
-				   const std::vector<float>& sx, 
-				   const std::vector<float>& sy)
-{
+void PGlobalRecHit::putBRL3RecHits(const std::vector<float> &rx,
+                                   const std::vector<float> &ry,
+                                   const std::vector<float> &sx,
+                                   const std::vector<float> &sy) {
   nBRL3RecHits = rx.size();
   BRL3RecHits.resize(nBRL3RecHits);
   for (int i = 0; i < nBRL3RecHits; ++i) {
@@ -1241,11 +1165,10 @@ void PGlobalRecHit::putBRL3RecHits(const std::vector<float>& rx,
   return;
 }
 
-void PGlobalRecHit::putFWD1pRecHits(const std::vector<float>& rx, 
-				   const std::vector<float>& ry,
-				   const std::vector<float>& sx, 
-				   const std::vector<float>& sy)
-{
+void PGlobalRecHit::putFWD1pRecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nFWD1pRecHits = rx.size();
   FWD1pRecHits.resize(nFWD1pRecHits);
   for (int i = 0; i < nFWD1pRecHits; ++i) {
@@ -1258,11 +1181,10 @@ void PGlobalRecHit::putFWD1pRecHits(const std::vector<float>& rx,
   return;
 }
 
-void PGlobalRecHit::putFWD1nRecHits(const std::vector<float>& rx, 
-				   const std::vector<float>& ry,
-				   const std::vector<float>& sx, 
-				   const std::vector<float>& sy)
-{
+void PGlobalRecHit::putFWD1nRecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nFWD1nRecHits = rx.size();
   FWD1nRecHits.resize(nFWD1nRecHits);
   for (int i = 0; i < nFWD1nRecHits; ++i) {
@@ -1275,11 +1197,10 @@ void PGlobalRecHit::putFWD1nRecHits(const std::vector<float>& rx,
   return;
 }
 
-void PGlobalRecHit::putFWD2pRecHits(const std::vector<float>& rx, 
-				   const std::vector<float>& ry,
-				   const std::vector<float>& sx, 
-				   const std::vector<float>& sy)
-{
+void PGlobalRecHit::putFWD2pRecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nFWD2pRecHits = rx.size();
   FWD2pRecHits.resize(nFWD2pRecHits);
   for (int i = 0; i < nFWD2pRecHits; ++i) {
@@ -1292,11 +1213,10 @@ void PGlobalRecHit::putFWD2pRecHits(const std::vector<float>& rx,
   return;
 }
 
-void PGlobalRecHit::putFWD2nRecHits(const std::vector<float>& rx, 
-				   const std::vector<float>& ry,
-				   const std::vector<float>& sx, 
-				   const std::vector<float>& sy)
-{
+void PGlobalRecHit::putFWD2nRecHits(const std::vector<float> &rx,
+                                    const std::vector<float> &ry,
+                                    const std::vector<float> &sx,
+                                    const std::vector<float> &sy) {
   nFWD2nRecHits = rx.size();
   FWD2nRecHits.resize(nFWD2nRecHits);
   for (int i = 0; i < nFWD2nRecHits; ++i) {
@@ -1309,9 +1229,8 @@ void PGlobalRecHit::putFWD2nRecHits(const std::vector<float>& rx,
   return;
 }
 
-void PGlobalRecHit::putDTRecHits(const std::vector<float>& rhd, 
-				 const std::vector<float>& shd)
-{
+void PGlobalRecHit::putDTRecHits(const std::vector<float> &rhd,
+                                 const std::vector<float> &shd) {
   nDTRecHits = rhd.size();
   DTRecHits.resize(nDTRecHits);
   for (int i = 0; i < nDTRecHits; ++i) {
@@ -1322,10 +1241,9 @@ void PGlobalRecHit::putDTRecHits(const std::vector<float>& rhd,
   return;
 }
 
-void PGlobalRecHit::putCSCRecHits(const std::vector<float>& rhphi, 
-				  const std::vector<float>& rhperp, 
-				  const std::vector<float>& shphi)
-{
+void PGlobalRecHit::putCSCRecHits(const std::vector<float> &rhphi,
+                                  const std::vector<float> &rhperp,
+                                  const std::vector<float> &shphi) {
   nCSCRecHits = rhphi.size();
   CSCRecHits.resize(nCSCRecHits);
   for (int i = 0; i < nCSCRecHits; ++i) {
@@ -1337,9 +1255,8 @@ void PGlobalRecHit::putCSCRecHits(const std::vector<float>& rhphi,
   return;
 }
 
-void PGlobalRecHit::putRPCRecHits(const std::vector<float>& rhx, 
-				  const std::vector<float>& shx)
-{
+void PGlobalRecHit::putRPCRecHits(const std::vector<float> &rhx,
+                                  const std::vector<float> &shx) {
   nRPCRecHits = rhx.size();
   RPCRecHits.resize(nRPCRecHits);
   for (int i = 0; i < nRPCRecHits; ++i) {
@@ -1354,37 +1271,36 @@ void PGlobalRecHit::putRPCRecHits(const std::vector<float>& rhx,
 // PHcalValidInfoJets
 ///////////////////////////////////////////////////////////////////////////////
 
-void PHcalValidInfoJets::fillTProfileJet(double e, double r,  double t) {
+void PHcalValidInfoJets::fillTProfileJet(double e, double r, double t) {
   jetHite.push_back((float)e);
   jetHitr.push_back((float)r);
   jetHitt.push_back((float)t);
   nJetHit++;
 
   //  std::cout << " fillTProfileJet - nJetHit = " << nJetHit << std::endl;
-  
 }
 
-void PHcalValidInfoJets::fillEcollectJet(double ee, double he, 
-					 double hoe, double etot) {
+void PHcalValidInfoJets::fillEcollectJet(double ee, double he, double hoe,
+                                         double etot) {
   // hardest jet properties
 
   ecalJet = (float)ee;
   hcalJet = (float)he;
-    hoJet = (float)hoe;
+  hoJet = (float)hoe;
   etotJet = (float)etot;
 }
 
-void PHcalValidInfoJets::fillEtaPhiProfileJet(double eta0, double phi0, 
-					      double eta,  double phi,
-					      double dist) {
-  detaJet = (float)(eta-eta0);
-  dphiJet = (float)(phi-phi0);
-    drJet = (float)dist;
+void PHcalValidInfoJets::fillEtaPhiProfileJet(double eta0, double phi0,
+                                              double eta, double phi,
+                                              double dist) {
+  detaJet = (float)(eta - eta0);
+  dphiJet = (float)(phi - phi0);
+  drJet = (float)dist;
 }
 
-void PHcalValidInfoJets::fillJets(const std::vector<double>& en,
-				  const std::vector<double>& eta,
-				  const std::vector<double>& phi) {
+void PHcalValidInfoJets::fillJets(const std::vector<double> &en,
+                                  const std::vector<double> &eta,
+                                  const std::vector<double> &phi) {
   nJet = en.size();
   for (int i = 0; i < nJet; i++) {
     jetE.push_back((float)en[i]);
@@ -1393,43 +1309,40 @@ void PHcalValidInfoJets::fillJets(const std::vector<double>& en,
   }
 
   //  std::cout << " fillJets - nJet = " << nJet << std::endl;
-
 }
 
-void PHcalValidInfoJets::fillDiJets(double mass) {
-  dijetM = (float)mass;
-}
+void PHcalValidInfoJets::fillDiJets(double mass) { dijetM = (float)mass; }
 
 ///////////////////////////////////////////////////////////////////////////////
 // PHcalValidInfoLayer
 ///////////////////////////////////////////////////////////////////////////////
 
 void PHcalValidInfoLayer::fillLayers(double el[], double ed[], double ho,
-				     double hbhe, double ebee) {
+                                     double hbhe, double ebee) {
 
   for (int i = 0; i < 20; i++) {
-    double en  = 0.001*el[i]; // GeV
+    double en = 0.001 * el[i]; // GeV
     eLayer.push_back((float)en);
   }
   for (int i = 0; i < 4; i++) {
-    double en  = 0.001*ed[i]; // GeV
+    double en = 0.001 * ed[i]; // GeV
     eDepth.push_back((float)en);
   }
-  eHO   = (float)ho;
+  eHO = (float)ho;
   eHBHE = (float)hbhe; // MeV
   eEBEE = (float)ebee;
 }
 
 void PHcalValidInfoLayer::fillHF(double fibl, double fibs, double enec,
-				 double enhc) {
-  elongHF  = (float)fibl;
+                                 double enhc) {
+  elongHF = (float)fibl;
   eshortHF = (float)fibs;
-  eEcalHF  = (float)enec;
-  eHcalHF  = (float)enhc;
+  eEcalHF = (float)enec;
+  eHcalHF = (float)enhc;
 }
 
 void PHcalValidInfoLayer::fillHits(int nHits, int lay, int unitID, double eta,
-				   double phi, double ehit, double t){
+                                   double phi, double ehit, double t) {
 
   hitLayer.push_back((float)lay);
   hitId.push_back((float)unitID);
@@ -1439,53 +1352,51 @@ void PHcalValidInfoLayer::fillHits(int nHits, int lay, int unitID, double eta,
   hitTime.push_back((float)t);
   hitN++;
 
-  //  std::cout << " fillHits: nHits,hitN = " << nHits << "," << hitN << std::endl;
-
+  //  std::cout << " fillHits: nHits,hitN = " << nHits << "," << hitN <<
+  //  std::endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // PHcalValidInfoNxN
 ///////////////////////////////////////////////////////////////////////////////
 
-void PHcalValidInfoNxN::fillHvsE(double ee, double he, double hoe, 
-				 double etot) {
+void PHcalValidInfoNxN::fillHvsE(double ee, double he, double hoe,
+                                 double etot) {
   ecalNxNr = (float)ee;
   hcalNxNr = (float)he;
-  hoNxNr   = (float)hoe;
+  hoNxNr = (float)hoe;
   etotNxNr = (float)etot;
 }
 
 void PHcalValidInfoNxN::fillEcollectNxN(double een, double hen, double hoen,
-					double etotn) {
+                                        double etotn) {
   ecalNxN = (float)een;
   hcalNxN = (float)hen;
-  hoNxN   = (float)hoen;
+  hoNxN = (float)hoen;
   etotNxN = (float)etotn;
 }
 
-void PHcalValidInfoNxN::fillTProfileNxN (double e, int i, double t) {  
+void PHcalValidInfoNxN::fillTProfileNxN(double e, int i, double t) {
   idNxN.push_back((float)i);
   eNxN.push_back((float)e);
   tNxN.push_back((float)t);
   nNxN++;
 
   //  std::cout << " fillTProfileNxN - nNxN = " << nNxN << std::endl;
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // PMuonSimHit
 ///////////////////////////////////////////////////////////////////////////////
 
-void PMuonSimHit::putRawGenPart(int n)
-{
+void PMuonSimHit::putRawGenPart(int n) {
   nRawGenPart = n;
   return;
 }
 
-void PMuonSimHit::putG4Vtx(const std::vector<float>& x, const std::vector<float>& y, 
-	                   const std::vector<float>& z)
-{
+void PMuonSimHit::putG4Vtx(const std::vector<float> &x,
+                           const std::vector<float> &y,
+                           const std::vector<float> &z) {
   nG4Vtx = x.size();
   G4Vtx.resize(nG4Vtx);
   for (int i = 0; i < nG4Vtx; ++i) {
@@ -1496,208 +1407,181 @@ void PMuonSimHit::putG4Vtx(const std::vector<float>& x, const std::vector<float>
   return;
 }
 
-void PMuonSimHit::putG4Trk(const std::vector<float>& pt,  const std::vector<float>& e,
-		           const std::vector<float>& eta, const std::vector<float>& phi)
-{
+void PMuonSimHit::putG4Trk(const std::vector<float> &pt,
+                           const std::vector<float> &e,
+                           const std::vector<float> &eta,
+                           const std::vector<float> &phi) {
   nG4Trk = pt.size();
   G4Trk.resize(nG4Trk);
   for (int i = 0; i < nG4Trk; ++i) {
-    G4Trk[i].pt  = pt[i];
-    G4Trk[i].e   = e[i];
+    G4Trk[i].pt = pt[i];
+    G4Trk[i].e = e[i];
     G4Trk[i].eta = eta[i];
     G4Trk[i].phi = phi[i];
   }
   return;
 }
 
-void PMuonSimHit::putCSCHits (
-                              const std::vector<int>&   _cscId,
-                              const std::vector<unsigned int>& _detUnitId,
-                              const std::vector<float>& _trackId , 
-                              const std::vector<float>& _processType,
-                              const std::vector<float>& _particleType, 
-                              const std::vector<float>& _pabs,
-                              const std::vector<float>& _globposz,
-                              const std::vector<float>& _globposphi,
-                              const std::vector<float>& _globposeta,
-                              const std::vector<float>& _locposx, 
-                              const std::vector<float>& _locposy, 
-                              const std::vector<float>& _locposz,
-                              const std::vector<float>& _locdirx, 
-                              const std::vector<float>& _locdiry, 
-                              const std::vector<float>& _locdirz,
-                              const std::vector<float>& _locdirtheta, 
-                              const std::vector<float>& _locdirphi, 
-                              const std::vector<float>& _exitpointx, 
-                              const std::vector<float>& _exitpointy, 
-                              const std::vector<float>& _exitpointz,
-                              const std::vector<float>& _entrypointx, 
-                              const std::vector<float>& _entrypointy, 
-                              const std::vector<float>& _entrypointz,
-                              const std::vector<float>& _enloss, 
-                              const std::vector<float>& _tof)   
+void PMuonSimHit::putCSCHits(
+    const std::vector<int> &_cscId, const std::vector<unsigned int> &_detUnitId,
+    const std::vector<float> &_trackId, const std::vector<float> &_processType,
+    const std::vector<float> &_particleType, const std::vector<float> &_pabs,
+    const std::vector<float> &_globposz, const std::vector<float> &_globposphi,
+    const std::vector<float> &_globposeta, const std::vector<float> &_locposx,
+    const std::vector<float> &_locposy, const std::vector<float> &_locposz,
+    const std::vector<float> &_locdirx, const std::vector<float> &_locdiry,
+    const std::vector<float> &_locdirz, const std::vector<float> &_locdirtheta,
+    const std::vector<float> &_locdirphi, const std::vector<float> &_exitpointx,
+    const std::vector<float> &_exitpointy,
+    const std::vector<float> &_exitpointz,
+    const std::vector<float> &_entrypointx,
+    const std::vector<float> &_entrypointy,
+    const std::vector<float> &_entrypointz, const std::vector<float> &_enloss,
+    const std::vector<float> &_tof)
 
 {
   nCSCHits = _tof.size();
   CSCHits.resize(nCSCHits);
   for (int i = 0; i < nCSCHits; ++i) {
-    CSCHits[i]._cscId           = _cscId[i];
-    CSCHits[i]._detUnitId       = _detUnitId[i];
-    CSCHits[i]._trackId         = _trackId[i];
-    CSCHits[i]._processType     = _processType[i];
-    CSCHits[i]._particleType    = _particleType[i];
-    CSCHits[i]._pabs            = _pabs[i];
-    CSCHits[i]._globposz        = _globposz[i];
-    CSCHits[i]._globposphi      = _globposphi[i];
-    CSCHits[i]._globposeta      = _globposeta[i];
-    CSCHits[i]._locposx         = _locposx[i];
-    CSCHits[i]._locposy         = _locposy[i];
-    CSCHits[i]._locposz         = _locposz[i];
-    CSCHits[i]._locdirx         = _locdirx[i];
-    CSCHits[i]._locdiry         = _locdiry[i];
-    CSCHits[i]._locdirz         = _locdirz[i];
-    CSCHits[i]._locdirtheta     = _locdirtheta[i];
-    CSCHits[i]._locdirphi       = _locdirphi[i];
-    CSCHits[i]._exitpointx      = _exitpointx[i];
-    CSCHits[i]._exitpointy      = _exitpointy[i];
-    CSCHits[i]._exitpointz      = _exitpointz[i];
-    CSCHits[i]._entrypointx     = _entrypointx[i];
-    CSCHits[i]._entrypointy     = _entrypointy[i];
-    CSCHits[i]._entrypointz     = _entrypointz[i];
-    CSCHits[i]._enloss          = _enloss[i];
-    CSCHits[i]._tof             = _tof[i];
+    CSCHits[i]._cscId = _cscId[i];
+    CSCHits[i]._detUnitId = _detUnitId[i];
+    CSCHits[i]._trackId = _trackId[i];
+    CSCHits[i]._processType = _processType[i];
+    CSCHits[i]._particleType = _particleType[i];
+    CSCHits[i]._pabs = _pabs[i];
+    CSCHits[i]._globposz = _globposz[i];
+    CSCHits[i]._globposphi = _globposphi[i];
+    CSCHits[i]._globposeta = _globposeta[i];
+    CSCHits[i]._locposx = _locposx[i];
+    CSCHits[i]._locposy = _locposy[i];
+    CSCHits[i]._locposz = _locposz[i];
+    CSCHits[i]._locdirx = _locdirx[i];
+    CSCHits[i]._locdiry = _locdiry[i];
+    CSCHits[i]._locdirz = _locdirz[i];
+    CSCHits[i]._locdirtheta = _locdirtheta[i];
+    CSCHits[i]._locdirphi = _locdirphi[i];
+    CSCHits[i]._exitpointx = _exitpointx[i];
+    CSCHits[i]._exitpointy = _exitpointy[i];
+    CSCHits[i]._exitpointz = _exitpointz[i];
+    CSCHits[i]._entrypointx = _entrypointx[i];
+    CSCHits[i]._entrypointy = _entrypointy[i];
+    CSCHits[i]._entrypointz = _entrypointz[i];
+    CSCHits[i]._enloss = _enloss[i];
+    CSCHits[i]._tof = _tof[i];
   }
   return;
 }
 
-void PMuonSimHit::putDTHits  (const std::vector<unsigned int>& _detUnitId,
-                              const std::vector<float>& _trackId , 
-                              const std::vector<float>& _processType,
-                              const std::vector<float>& _particleType, 
-                              const std::vector<float>& _pabs,
-                              const std::vector<float>& _globposz,
-                              const std::vector<float>& _globposphi,
-                              const std::vector<float>& _globposeta,
-                              const std::vector<float>& _locposx, 
-                              const std::vector<float>& _locposy, 
-                              const std::vector<float>& _locposz,
-                              const std::vector<float>& _locdirx, 
-                              const std::vector<float>& _locdiry, 
-                              const std::vector<float>& _locdirz,
-                              const std::vector<float>& _locdirtheta, 
-                              const std::vector<float>& _locdirphi, 
-                              const std::vector<float>& _exitpointx, 
-                              const std::vector<float>& _exitpointy, 
-                              const std::vector<float>& _exitpointz,
-                              const std::vector<float>& _entrypointx, 
-                              const std::vector<float>& _entrypointy, 
-                              const std::vector<float>& _entrypointz,
-                              const std::vector<float>& _enloss, 
-                              const std::vector<float>& _tof)   
+void PMuonSimHit::putDTHits(
+    const std::vector<unsigned int> &_detUnitId,
+    const std::vector<float> &_trackId, const std::vector<float> &_processType,
+    const std::vector<float> &_particleType, const std::vector<float> &_pabs,
+    const std::vector<float> &_globposz, const std::vector<float> &_globposphi,
+    const std::vector<float> &_globposeta, const std::vector<float> &_locposx,
+    const std::vector<float> &_locposy, const std::vector<float> &_locposz,
+    const std::vector<float> &_locdirx, const std::vector<float> &_locdiry,
+    const std::vector<float> &_locdirz, const std::vector<float> &_locdirtheta,
+    const std::vector<float> &_locdirphi, const std::vector<float> &_exitpointx,
+    const std::vector<float> &_exitpointy,
+    const std::vector<float> &_exitpointz,
+    const std::vector<float> &_entrypointx,
+    const std::vector<float> &_entrypointy,
+    const std::vector<float> &_entrypointz, const std::vector<float> &_enloss,
+    const std::vector<float> &_tof)
 
 {
   nDTHits = _tof.size();
   DTHits.resize(nDTHits);
   for (int i = 0; i < nDTHits; ++i) {
-    DTHits[i]._detUnitId       = _detUnitId[i];
-    DTHits[i]._trackId         = _trackId[i];
-    DTHits[i]._processType     = _processType[i];
-    DTHits[i]._particleType    = _particleType[i];
-    DTHits[i]._pabs            = _pabs[i];
-    DTHits[i]._globposz        = _globposz[i];
-    DTHits[i]._globposphi      = _globposphi[i];
-    DTHits[i]._globposeta      = _globposeta[i];
-    DTHits[i]._locposx         = _locposx[i];
-    DTHits[i]._locposy         = _locposy[i];
-    DTHits[i]._locposz         = _locposz[i];
-    DTHits[i]._locdirx         = _locdirx[i];
-    DTHits[i]._locdiry         = _locdiry[i];
-    DTHits[i]._locdirz         = _locdirz[i];
-    DTHits[i]._locdirtheta     = _locdirtheta[i];
-    DTHits[i]._locdirphi       = _locdirphi[i];
-    DTHits[i]._exitpointx      = _exitpointx[i];
-    DTHits[i]._exitpointy      = _exitpointy[i];
-    DTHits[i]._exitpointz      = _exitpointz[i];
-    DTHits[i]._entrypointx     = _entrypointx[i];
-    DTHits[i]._entrypointy     = _entrypointy[i];
-    DTHits[i]._entrypointz     = _entrypointz[i];
-    DTHits[i]._enloss          = _enloss[i];
-    DTHits[i]._tof             = _tof[i];
+    DTHits[i]._detUnitId = _detUnitId[i];
+    DTHits[i]._trackId = _trackId[i];
+    DTHits[i]._processType = _processType[i];
+    DTHits[i]._particleType = _particleType[i];
+    DTHits[i]._pabs = _pabs[i];
+    DTHits[i]._globposz = _globposz[i];
+    DTHits[i]._globposphi = _globposphi[i];
+    DTHits[i]._globposeta = _globposeta[i];
+    DTHits[i]._locposx = _locposx[i];
+    DTHits[i]._locposy = _locposy[i];
+    DTHits[i]._locposz = _locposz[i];
+    DTHits[i]._locdirx = _locdirx[i];
+    DTHits[i]._locdiry = _locdiry[i];
+    DTHits[i]._locdirz = _locdirz[i];
+    DTHits[i]._locdirtheta = _locdirtheta[i];
+    DTHits[i]._locdirphi = _locdirphi[i];
+    DTHits[i]._exitpointx = _exitpointx[i];
+    DTHits[i]._exitpointy = _exitpointy[i];
+    DTHits[i]._exitpointz = _exitpointz[i];
+    DTHits[i]._entrypointx = _entrypointx[i];
+    DTHits[i]._entrypointy = _entrypointy[i];
+    DTHits[i]._entrypointz = _entrypointz[i];
+    DTHits[i]._enloss = _enloss[i];
+    DTHits[i]._tof = _tof[i];
   }
   return;
 }
 
-void PMuonSimHit::putRPCHits (const std::vector<unsigned int>& _detUnitId,
-                              const std::vector<float>& _trackId , 
-                              const std::vector<float>& _processType,
-                              const std::vector<float>& _particleType, 
-                              const std::vector<float>& _pabs,
-                              const std::vector<float>& _globposz,
-                              const std::vector<float>& _globposphi,
-                              const std::vector<float>& _globposeta,
-                              const std::vector<float>& _locposx, 
-                              const std::vector<float>& _locposy, 
-                              const std::vector<float>& _locposz,
-                              const std::vector<float>& _locdirx, 
-                              const std::vector<float>& _locdiry, 
-                              const std::vector<float>& _locdirz,
-                              const std::vector<float>& _locdirtheta, 
-                              const std::vector<float>& _locdirphi, 
-                              const std::vector<float>& _exitpointx, 
-                              const std::vector<float>& _exitpointy, 
-                              const std::vector<float>& _exitpointz,
-                              const std::vector<float>& _entrypointx, 
-                              const std::vector<float>& _entrypointy, 
-                              const std::vector<float>& _entrypointz,
-                              const std::vector<float>& _enloss, 
-                              const std::vector<float>& _tof)   
+void PMuonSimHit::putRPCHits(
+    const std::vector<unsigned int> &_detUnitId,
+    const std::vector<float> &_trackId, const std::vector<float> &_processType,
+    const std::vector<float> &_particleType, const std::vector<float> &_pabs,
+    const std::vector<float> &_globposz, const std::vector<float> &_globposphi,
+    const std::vector<float> &_globposeta, const std::vector<float> &_locposx,
+    const std::vector<float> &_locposy, const std::vector<float> &_locposz,
+    const std::vector<float> &_locdirx, const std::vector<float> &_locdiry,
+    const std::vector<float> &_locdirz, const std::vector<float> &_locdirtheta,
+    const std::vector<float> &_locdirphi, const std::vector<float> &_exitpointx,
+    const std::vector<float> &_exitpointy,
+    const std::vector<float> &_exitpointz,
+    const std::vector<float> &_entrypointx,
+    const std::vector<float> &_entrypointy,
+    const std::vector<float> &_entrypointz, const std::vector<float> &_enloss,
+    const std::vector<float> &_tof)
 
 {
   nRPCHits = _tof.size();
   RPCHits.resize(nRPCHits);
   for (int i = 0; i < nRPCHits; ++i) {
-    RPCHits[i]._detUnitId       = _detUnitId[i];
-    RPCHits[i]._trackId         = _trackId[i];
-    RPCHits[i]._processType     = _processType[i];
-    RPCHits[i]._particleType    = _particleType[i];
-    RPCHits[i]._pabs            = _pabs[i];
-    RPCHits[i]._globposz        = _globposz[i];
-    RPCHits[i]._globposphi      = _globposphi[i];
-    RPCHits[i]._globposeta      = _globposeta[i];
-    RPCHits[i]._locposx         = _locposx[i];
-    RPCHits[i]._locposy         = _locposy[i];
-    RPCHits[i]._locposz         = _locposz[i];
-    RPCHits[i]._locdirx         = _locdirx[i];
-    RPCHits[i]._locdiry         = _locdiry[i];
-    RPCHits[i]._locdirz         = _locdirz[i];
-    RPCHits[i]._locdirtheta     = _locdirtheta[i];
-    RPCHits[i]._locdirphi       = _locdirphi[i];
-    RPCHits[i]._exitpointx      = _exitpointx[i];
-    RPCHits[i]._exitpointy      = _exitpointy[i];
-    RPCHits[i]._exitpointz      = _exitpointz[i];
-    RPCHits[i]._entrypointx     = _entrypointx[i];
-    RPCHits[i]._entrypointy     = _entrypointy[i];
-    RPCHits[i]._entrypointz     = _entrypointz[i];
-    RPCHits[i]._enloss          = _enloss[i];
-    RPCHits[i]._tof             = _tof[i];
+    RPCHits[i]._detUnitId = _detUnitId[i];
+    RPCHits[i]._trackId = _trackId[i];
+    RPCHits[i]._processType = _processType[i];
+    RPCHits[i]._particleType = _particleType[i];
+    RPCHits[i]._pabs = _pabs[i];
+    RPCHits[i]._globposz = _globposz[i];
+    RPCHits[i]._globposphi = _globposphi[i];
+    RPCHits[i]._globposeta = _globposeta[i];
+    RPCHits[i]._locposx = _locposx[i];
+    RPCHits[i]._locposy = _locposy[i];
+    RPCHits[i]._locposz = _locposz[i];
+    RPCHits[i]._locdirx = _locdirx[i];
+    RPCHits[i]._locdiry = _locdiry[i];
+    RPCHits[i]._locdirz = _locdirz[i];
+    RPCHits[i]._locdirtheta = _locdirtheta[i];
+    RPCHits[i]._locdirphi = _locdirphi[i];
+    RPCHits[i]._exitpointx = _exitpointx[i];
+    RPCHits[i]._exitpointy = _exitpointy[i];
+    RPCHits[i]._exitpointz = _exitpointz[i];
+    RPCHits[i]._entrypointx = _entrypointx[i];
+    RPCHits[i]._entrypointy = _entrypointy[i];
+    RPCHits[i]._entrypointz = _entrypointz[i];
+    RPCHits[i]._enloss = _enloss[i];
+    RPCHits[i]._tof = _tof[i];
   }
   return;
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // PTrackerSimHit
 ///////////////////////////////////////////////////////////////////////////////
 
-void PTrackerSimHit::putRawGenPart(int n)
-{
+void PTrackerSimHit::putRawGenPart(int n) {
   nRawGenPart = n;
   return;
 }
 
-void PTrackerSimHit::putG4Vtx(const std::vector<float>& x, const std::vector<float>& y, 
-	       const std::vector<float>& z)
-{
+void PTrackerSimHit::putG4Vtx(const std::vector<float> &x,
+                              const std::vector<float> &y,
+                              const std::vector<float> &z) {
   nG4Vtx = x.size();
   G4Vtx.resize(nG4Vtx);
   for (int i = 0; i < nG4Vtx; ++i) {
@@ -1709,9 +1593,10 @@ void PTrackerSimHit::putG4Vtx(const std::vector<float>& x, const std::vector<flo
   return;
 }
 
-void PTrackerSimHit::putG4Trk(const std::vector<float>& pt, const std::vector<float>& e,
-		              const std::vector<float>& eta, const std::vector<float>& phi)
-{
+void PTrackerSimHit::putG4Trk(const std::vector<float> &pt,
+                              const std::vector<float> &e,
+                              const std::vector<float> &eta,
+                              const std::vector<float> &phi) {
   nG4Trk = pt.size();
   G4Trk.resize(nG4Trk);
   for (int i = 0; i < nG4Trk; ++i) {
@@ -1724,16 +1609,18 @@ void PTrackerSimHit::putG4Trk(const std::vector<float>& pt, const std::vector<fl
   return;
 }
 
-
-void PTrackerSimHit::putHits (const std::vector<int>& _sysID, const std::vector<float>& _detUnitId,
-	       const std::vector<float>&_trackId , const std::vector<float>&_processType,
-	       const std::vector<float>&_particleType, const std::vector<float>& _pabs,
-	       const std::vector<float>&_lpx, const std::vector<float>&_lpy, const std::vector<float>&_lpz,
-	       const std::vector<float>&_ldx, const std::vector<float>&_ldy, const std::vector<float>&_ldz,
-	       const std::vector<float>&_ldtheta, const std::vector<float>&_ldphi, 
-	       const std::vector<float>&_exx, const std::vector<float>&_exy, const std::vector<float>&_exz,
-	       const std::vector<float>&_enx, const std::vector<float>&_eny, const std::vector<float>&_enz,
-	       const std::vector<float>&_eloss, const std::vector<float>&_tof)   
+void PTrackerSimHit::putHits(
+    const std::vector<int> &_sysID, const std::vector<float> &_detUnitId,
+    const std::vector<float> &_trackId, const std::vector<float> &_processType,
+    const std::vector<float> &_particleType, const std::vector<float> &_pabs,
+    const std::vector<float> &_lpx, const std::vector<float> &_lpy,
+    const std::vector<float> &_lpz, const std::vector<float> &_ldx,
+    const std::vector<float> &_ldy, const std::vector<float> &_ldz,
+    const std::vector<float> &_ldtheta, const std::vector<float> &_ldphi,
+    const std::vector<float> &_exx, const std::vector<float> &_exy,
+    const std::vector<float> &_exz, const std::vector<float> &_enx,
+    const std::vector<float> &_eny, const std::vector<float> &_enz,
+    const std::vector<float> &_eloss, const std::vector<float> &_tof)
 
 {
   nHits = _tof.size();

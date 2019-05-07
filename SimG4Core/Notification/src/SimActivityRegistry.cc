@@ -2,7 +2,7 @@
 //
 // Package:     Notification
 // Class  :     SimActivityRegistry
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,7 +26,7 @@
 //
 // constructors and destructor
 //
-//SimActivityRegistry::SimActivityRegistry()
+// SimActivityRegistry::SimActivityRegistry()
 //{
 //}
 
@@ -36,14 +35,15 @@
 //    // do actual copying here;
 // }
 
-//SimActivityRegistry::~SimActivityRegistry()
+// SimActivityRegistry::~SimActivityRegistry()
 //{
 //}
 
 //
 // assignment operators
 //
-// const SimActivityRegistry& SimActivityRegistry::operator=(const SimActivityRegistry& rhs)
+// const SimActivityRegistry& SimActivityRegistry::operator=(const
+// SimActivityRegistry& rhs)
 // {
 //   //An exception safe implementation is
 //   SimActivityRegistry temp(rhs);
@@ -55,19 +55,17 @@
 //
 // member functions
 //
-void
-SimActivityRegistry::connect(SimActivityRegistry& iOther)
-{
-   beginOfJobSignal_.connect(iOther.beginOfJobSignal_);
-   dddWorldSignal_.connect(iOther.dddWorldSignal_);
-   beginOfRunSignal_.connect(iOther.beginOfRunSignal_);
-   beginOfEventSignal_.connect(iOther.beginOfEventSignal_);
-   beginOfTrackSignal_.connect(iOther.beginOfTrackSignal_);
-   g4StepSignal_.connect(iOther.g4StepSignal_);
+void SimActivityRegistry::connect(SimActivityRegistry &iOther) {
+  beginOfJobSignal_.connect(iOther.beginOfJobSignal_);
+  dddWorldSignal_.connect(iOther.dddWorldSignal_);
+  beginOfRunSignal_.connect(iOther.beginOfRunSignal_);
+  beginOfEventSignal_.connect(iOther.beginOfEventSignal_);
+  beginOfTrackSignal_.connect(iOther.beginOfTrackSignal_);
+  g4StepSignal_.connect(iOther.g4StepSignal_);
 
-   endOfRunSignal_.connect(iOther.endOfRunSignal_);
-   endOfEventSignal_.connect(iOther.endOfEventSignal_);
-   endOfTrackSignal_.connect(iOther.endOfTrackSignal_);
+  endOfRunSignal_.connect(iOther.endOfRunSignal_);
+  endOfEventSignal_.connect(iOther.endOfEventSignal_);
+  endOfTrackSignal_.connect(iOther.endOfTrackSignal_);
 }
 //
 // const member functions

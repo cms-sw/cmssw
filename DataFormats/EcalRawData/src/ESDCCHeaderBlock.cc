@@ -1,7 +1,6 @@
 #include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
 
-ESDCCHeaderBlock::ESDCCHeaderBlock()
-{
+ESDCCHeaderBlock::ESDCCHeaderBlock() {
 
   dccId_ = -1;
   fedId_ = -1;
@@ -47,11 +46,9 @@ ESDCCHeaderBlock::ESDCCHeaderBlock()
   ADCch_.reserve(12);
   TDCch_status_.reserve(8);
   TDCch_.reserve(8);
-
 }
 
-ESDCCHeaderBlock::ESDCCHeaderBlock(const int& dccId)
-{
+ESDCCHeaderBlock::ESDCCHeaderBlock(const int &dccId) {
 
   dccId_ = dccId;
   fedId_ = -1;
@@ -97,5 +94,4 @@ ESDCCHeaderBlock::ESDCCHeaderBlock(const int& dccId)
   ADCch_.reserve(12);
   TDCch_status_.reserve(8);
   TDCch_.reserve(8);
-
 }

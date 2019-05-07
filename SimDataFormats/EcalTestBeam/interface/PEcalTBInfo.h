@@ -4,38 +4,38 @@
 //
 // Package:     EcalTestBeam
 // Class  :     PEcalTBInfo
-// 
+//
 //
 //
 
 // system include files
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 // user include files
 
 class PEcalTBInfo {
 
-  typedef std::vector<float>  FloatVector;
-  typedef std::vector<int>    IntVector;
+  typedef std::vector<float> FloatVector;
+  typedef std::vector<int> IntVector;
 
 public:
   PEcalTBInfo();
   virtual ~PEcalTBInfo();
 
   // ---------- const member functions ---------------------
-  int         nCrystal()    const {return nCrystal_; }
+  int nCrystal() const { return nCrystal_; }
 
-  double      etaBeam()     const {return etaBeam_; }
-  double      phiBeam()     const {return phiBeam_; }
-  double      dXbeam()      const {return dXbeam_; }
-  double      dYbeam()      const {return dYbeam_; }
+  double etaBeam() const { return etaBeam_; }
+  double phiBeam() const { return phiBeam_; }
+  double dXbeam() const { return dXbeam_; }
+  double dYbeam() const { return dYbeam_; }
 
-  double      evXbeam()     const {return evXbeam_; }
-  double      evYbeam()     const {return evYbeam_; }
+  double evXbeam() const { return evXbeam_; }
+  double evYbeam() const { return evYbeam_; }
 
-  double      phaseShift()  const {return phaseShift_;}
+  double phaseShift() const { return phaseShift_; }
 
   // ---------- static member functions --------------------
 
@@ -50,25 +50,24 @@ public:
   void setPhaseShift(double phaseShift);
 
 private:
-  //  PEcalTBInfo(const PEcalTBInfo&); 
-  //  const PEcalTBInfo& operator=(const PEcalTBInfo&); 
+  //  PEcalTBInfo(const PEcalTBInfo&);
+  //  const PEcalTBInfo& operator=(const PEcalTBInfo&);
 
   // ---------- member data --------------------------------
 
-  //fixed run beam parameters
+  // fixed run beam parameters
 
   int nCrystal_;
 
-  double etaBeam_,phiBeam_;
-  double dXbeam_,dYbeam_;
+  double etaBeam_, phiBeam_;
+  double dXbeam_, dYbeam_;
 
-  //event beam parameters
+  // event beam parameters
 
-  double evXbeam_,evYbeam_;
+  double evXbeam_, evYbeam_;
 
   // phase
   double phaseShift_;
 };
-
 
 #endif

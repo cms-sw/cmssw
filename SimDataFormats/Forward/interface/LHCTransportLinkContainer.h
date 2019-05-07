@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace edm {
-  typedef std::vector<LHCTransportLink> LHCTransportLinkContainer;
+typedef std::vector<LHCTransportLink> LHCTransportLinkContainer;
 }
 
 #endif

@@ -11,35 +11,33 @@ Usage:  This should only be used by the Random Number Generator
 Service.
 
 \author W. David Dagenhart, created December 3, 2010
-*/ 
+*/
 
-#include <vector>
 #include <string>
+#include <vector>
 
 class RandomEngineState;
 
 namespace edm {
 
-  class RandomEngineStates {
-  public:
+class RandomEngineStates {
+public:
+  RandomEngineStates();
+  ~RandomEngineStates();
 
-    RandomEngineStates();
-    ~RandomEngineStates();
+  void getRandomEngineStates(std::vector<RandomEngineState> &states) const;
+  void setRandomEngineStates(std::vector<RandomEngineState> const &states);
 
-    void getRandomEngineStates(std::vector<RandomEngineState> & states) const;
-    void setRandomEngineStates(std::vector<RandomEngineState> const& states);
+  bool isProductEqual(RandomEngineStates const &randomEngineStates) const;
 
-    bool isProductEqual(RandomEngineStates const& randomEngineStates) const;
+private:
+  std::vector<std::string> moduleLabels_;
 
-  private:
+  std::vector<unsigned> seedLengths_;
+  std::vector<unsigned> seedVectors_;
 
-    std::vector<std::string> moduleLabels_;
-
-    std::vector<unsigned> seedLengths_;
-    std::vector<unsigned> seedVectors_;
-
-    std::vector<unsigned> stateLengths_;
-    std::vector<unsigned> stateVectors_;
-  };
-}
+  std::vector<unsigned> stateLengths_;
+  std::vector<unsigned> stateVectors_;
+};
+} // namespace edm
 #endif
