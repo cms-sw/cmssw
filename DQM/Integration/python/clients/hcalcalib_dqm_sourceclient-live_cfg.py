@@ -10,7 +10,6 @@ import os, sys, socket, string
 #-------------------------------------
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
-from Configuration.StandardSequences.Eras import eras
 import FWCore.ParameterSet.Config as cms
 process      = cms.Process('HCALDQM')
 subsystem    = 'HcalCalib'

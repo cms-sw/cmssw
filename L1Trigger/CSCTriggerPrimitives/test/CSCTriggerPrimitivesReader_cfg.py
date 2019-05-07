@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 # Hack to add "test" directory to the python path.
 import sys, os
 sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
                                 'src/L1Trigger/CSCTriggerPrimitives/test'))
 
-process = cms.Process("L1CSCTriggerPrimitivesReader", eras.Run2_2018)
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("L1CSCTriggerPrimitivesReader", Run2_2018)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("file:lcts.root")

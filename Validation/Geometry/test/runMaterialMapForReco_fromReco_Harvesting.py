@@ -6,7 +6,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from FWCore.ParameterSet.VarParsing import VarParsing 
-from Configuration.StandardSequences.Eras import eras
 
 options = VarParsing ('analysis')
 options.register('inputFile',
@@ -21,7 +20,8 @@ options.register('label',
                 "Label to use in the final ROOT file.")
 options.parseArguments()
 
-process = cms.Process('HARVESTING',eras.Run2_2016)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('HARVESTING',Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

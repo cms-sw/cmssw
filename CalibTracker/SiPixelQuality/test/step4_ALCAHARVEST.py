@@ -5,9 +5,9 @@
 # with command line options: step4 --conditions 100X_dataRun2_Express_v2 -s ALCAHARVEST:SiPixelQuality --data --era Run2_2017 --filein file:PromptCalibProdSiPixel.root --scenario pp -n 1 --fileout file:step4.root
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('ALCAHARVEST',eras.Run2_2018)
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process('ALCAHARVEST',Run2_2018)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
