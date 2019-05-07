@@ -10,7 +10,7 @@
  *  "split" into two parts (hence "dual"). The list of all hits
  *  the local measurements, derivatives etc. as described in (and
  *  accessed via) ReferenceTrajectoryBase are calculated.
- * 
+ *
  *  The covariance-matrix of the measurements may include effects of
  *  multiple-scattering or energy-loss effects or both. This can be
  *  defined in the constructor via the variable 'materialEffects
@@ -34,40 +34,38 @@
 
 class BzeroReferenceTrajectory;
 
-
-class DualBzeroReferenceTrajectory : public DualReferenceTrajectory
-{
+class DualBzeroReferenceTrajectory : public DualReferenceTrajectory {
 
 public:
-
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
-  DualBzeroReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
-                               const ConstRecHitContainer& forwardRecHits,
-                               const ConstRecHitContainer& backwardRecHits,
-                               const MagneticField* magField,
-                               const reco::BeamSpot& beamSpot,
-                               const ReferenceTrajectoryBase::Config& config);
+  DualBzeroReferenceTrajectory(const TrajectoryStateOnSurface &tsos,
+                               const ConstRecHitContainer &forwardRecHits,
+                               const ConstRecHitContainer &backwardRecHits,
+                               const MagneticField *magField,
+                               const reco::BeamSpot &beamSpot,
+                               const ReferenceTrajectoryBase::Config &config);
 
   ~DualBzeroReferenceTrajectory() override {}
 
-  DualBzeroReferenceTrajectory* clone() const override { return new DualBzeroReferenceTrajectory(*this); }
+  DualBzeroReferenceTrajectory *clone() const override {
+    return new DualBzeroReferenceTrajectory(*this);
+  }
 
 protected:
   using DualReferenceTrajectory::construct;
 
-  virtual ReferenceTrajectory* construct(const TrajectoryStateOnSurface &referenceTsos, 
-					 const ConstRecHitContainer &recHits,
-					 double mass, MaterialEffects materialEffects,
-					 const PropagationDirection propDir,
-					 const MagneticField *magField,
-					 bool useBeamSpot,
-					 const reco::BeamSpot &beamSpot) const;
+  virtual ReferenceTrajectory *
+  construct(const TrajectoryStateOnSurface &referenceTsos,
+            const ConstRecHitContainer &recHits, double mass,
+            MaterialEffects materialEffects, const PropagationDirection propDir,
+            const MagneticField *magField, bool useBeamSpot,
+            const reco::BeamSpot &beamSpot) const;
 
-  AlgebraicVector extractParameters(const TrajectoryStateOnSurface &referenceTsos) const override;
+  AlgebraicVector extractParameters(
+      const TrajectoryStateOnSurface &referenceTsos) const override;
 
   double theMomentumEstimate;
-
 };
 
 #endif

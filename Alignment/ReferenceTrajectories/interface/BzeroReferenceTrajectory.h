@@ -1,5 +1,5 @@
-#ifndef Alignment_ReferenceTrajectories_BzeroReferenceTrajectory_h 
-#define Alignment_ReferenceTrajectories_BzeroReferenceTrajectory_h 
+#ifndef Alignment_ReferenceTrajectories_BzeroReferenceTrajectory_h
+#define Alignment_ReferenceTrajectories_BzeroReferenceTrajectory_h
 
 /**
  *  Class implementing the reference trajectory of a single particle in
@@ -9,7 +9,7 @@
  *  Given the TrajectoryStateOnSurface at the first hit and the list of
  *  all hits the local measurements, derivatives etc. as described in
  *  (and accessed via) ReferenceTrajectoryBase are calculated.
- * 
+ *
  *  The covariance-matrix of the measurements may include effects of
  *  multiple-scattering or energy-loss effects or both. This can be
  *  defined in the constructor via the variable 'materialEffects
@@ -32,30 +32,30 @@
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
-class BzeroReferenceTrajectory : public ReferenceTrajectory
-{
+class BzeroReferenceTrajectory : public ReferenceTrajectory {
 
 public:
-  /**Constructor with Tsos at first hit (in physical order) and list of hits 
+  /**Constructor with Tsos at first hit (in physical order) and list of hits
      [if (hitsAreReverse) ==> order of hits is in opposite direction compared
-     to the flight of particle, but note that BzeroReferenceTrajectory::recHits()
-     returns the hits always in order of flight],
-     the material effects to be considered and a particle mass and a momentum extimate,
-     the magnetic field of the event is needed for propagations etc.
+     to the flight of particle, but note that
+     BzeroReferenceTrajectory::recHits() returns the hits always in order of
+     flight], the material effects to be considered and a particle mass and a
+     momentum extimate, the magnetic field of the event is needed for
+     propagations etc.
    */
-  BzeroReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
-                           const TransientTrackingRecHit::ConstRecHitContainer& recHits,
-                           const MagneticField *magField,
-                           const reco::BeamSpot& beamSpot,
-                           const ReferenceTrajectoryBase::Config& config);
+  BzeroReferenceTrajectory(
+      const TrajectoryStateOnSurface &tsos,
+      const TransientTrackingRecHit::ConstRecHitContainer &recHits,
+      const MagneticField *magField, const reco::BeamSpot &beamSpot,
+      const ReferenceTrajectoryBase::Config &config);
 
   ~BzeroReferenceTrajectory() override {}
 
-  BzeroReferenceTrajectory* clone() const override
-    { return new BzeroReferenceTrajectory(*this); }
+  BzeroReferenceTrajectory *clone() const override {
+    return new BzeroReferenceTrajectory(*this);
+  }
 
 private:
-
   double theMomentumEstimate;
 };
 

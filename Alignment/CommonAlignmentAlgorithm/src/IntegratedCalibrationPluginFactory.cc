@@ -7,10 +7,7 @@
 ///  (last update by $Author: mussgill $)
 ///
 
-
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationPluginFactory.h"
 
 EDM_REGISTER_PLUGINFACTORY(IntegratedCalibrationPluginFactory,
-			   "IntegratedCalibrationPluginFactory");
-
-
+                           "IntegratedCalibrationPluginFactory");

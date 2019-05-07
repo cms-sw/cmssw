@@ -9,24 +9,26 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 
 //
 // class decleration
 //
 
-class IsolatedEcalPixelTrackCandidateProducer : public edm::global::EDProducer<> {
+class IsolatedEcalPixelTrackCandidateProducer
+    : public edm::global::EDProducer<> {
 
 public:
-  explicit IsolatedEcalPixelTrackCandidateProducer(const edm::ParameterSet&);
+  explicit IsolatedEcalPixelTrackCandidateProducer(const edm::ParameterSet &);
   ~IsolatedEcalPixelTrackCandidateProducer() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event &,
+               const edm::EventSetup &) const override;
 
   const edm::EDGetTokenT<EcalRecHitCollection> tok_ee;
   const edm::EDGetTokenT<EcalRecHitCollection> tok_eb;

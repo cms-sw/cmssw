@@ -1,9 +1,9 @@
 
 // -*- C++ -*-
 //
-// Package:   EcalBxOrbitNumberGrapher 
-// Class:     EcalBxOrbitNumberGrapher 
-// 
+// Package:   EcalBxOrbitNumberGrapher
+// Class:     EcalBxOrbitNumberGrapher
+//
 /**\class EcalBxOrbitNumberGrapher EcalBxOrbitNumberGrapher.cc
 
  Description: <one line class summary>
@@ -17,60 +17,53 @@
 //
 //
 
-
 // system include files
-#include <memory>
-#include <vector>
 #include <map>
+#include <memory>
 #include <set>
+#include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 //#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-
-
 #include "TFile.h"
 #include "TH1F.h"
-
 
 //
 // class declaration
 //
 
 class EcalBxOrbitNumberGrapher : public edm::EDAnalyzer {
-   public:
-      explicit EcalBxOrbitNumberGrapher(const edm::ParameterSet&);
-      ~EcalBxOrbitNumberGrapher() override;
+public:
+  explicit EcalBxOrbitNumberGrapher(const edm::ParameterSet &);
+  ~EcalBxOrbitNumberGrapher() override;
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
+  void initHists(int);
 
-   private:
-      void beginJob() override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      void initHists(int);
+  // ----------member data ---------------------------
 
-    // ----------member data ---------------------------
-
- 
   std::string digiProducer_;
   int runNum_;
   std::string fileName_;
 
-  TH1F* bxnumberPlot_;
-  TH1F* orbitErrorPlot_;
-  TH1F* orbitErrorBxDiffPlot_;
-  TH1F* numberofOrbitDiffPlot_;
+  TH1F *bxnumberPlot_;
+  TH1F *orbitErrorPlot_;
+  TH1F *orbitErrorBxDiffPlot_;
+  TH1F *numberofOrbitDiffPlot_;
 
-  TFile* file;
-  
+  TFile *file;
 };

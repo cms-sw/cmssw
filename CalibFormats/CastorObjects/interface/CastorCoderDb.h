@@ -5,7 +5,7 @@
 #include "CalibFormats/CastorObjects/interface/CastorCoder.h"
 
 /** \class CastorCoderDb
-    
+
     coder which uses DB services to convert to fC
 
 */
@@ -15,18 +15,20 @@ class CastorQIEShape;
 
 class CastorCoderDb : public CastorCoder {
 public:
-  CastorCoderDb (const CastorQIECoder& fCoder, const CastorQIEShape& fShape);
+  CastorCoderDb(const CastorQIECoder &fCoder, const CastorQIEShape &fShape);
 
-  void adc2fC(const CastorDataFrame& df, CaloSamples& lf) const override;
- 
-  void fC2adc(const CaloSamples& clf, CastorDataFrame& df, int fCapIdOffset) const override;
- 
- private:
-  template <class Digi> void adc2fC_ (const Digi& df, CaloSamples& clf) const;
-  template <class Digi> void fC2adc_ (const CaloSamples& clf, Digi& df, int fCapIdOffset) const;
+  void adc2fC(const CastorDataFrame &df, CaloSamples &lf) const override;
 
-  const CastorQIECoder* mCoder;
-  const CastorQIEShape* mShape;
+  void fC2adc(const CaloSamples &clf, CastorDataFrame &df,
+              int fCapIdOffset) const override;
+
+private:
+  template <class Digi> void adc2fC_(const Digi &df, CaloSamples &clf) const;
+  template <class Digi>
+  void fC2adc_(const CaloSamples &clf, Digi &df, int fCapIdOffset) const;
+
+  const CastorQIECoder *mCoder;
+  const CastorQIEShape *mShape;
 };
 
 #endif

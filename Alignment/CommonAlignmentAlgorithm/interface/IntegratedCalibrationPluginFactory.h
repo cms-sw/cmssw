@@ -10,10 +10,11 @@
 ///  $Date: 2011/09/06 13:46:07 $
 ///  (last update by $Author: mussgill $)
 
-#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
-typedef edmplugin::PluginFactory<IntegratedCalibrationBase* (const edm::ParameterSet&)>
-		  IntegratedCalibrationPluginFactory;
+typedef edmplugin::PluginFactory<IntegratedCalibrationBase *(
+    const edm::ParameterSet &)>
+    IntegratedCalibrationPluginFactory;
 
 #endif

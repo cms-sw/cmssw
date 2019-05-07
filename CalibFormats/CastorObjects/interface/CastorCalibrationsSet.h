@@ -8,17 +8,18 @@
 class CastorCalibrationsSet {
 public:
   CastorCalibrationsSet();
-  const CastorCalibrations& getCalibrations(const DetId id) const;
-  void setCalibrations(const DetId id, const CastorCalibrations& ca);
+  const CastorCalibrations &getCalibrations(const DetId id) const;
+  void setCalibrations(const DetId id, const CastorCalibrations &ca);
   void sort();
   void clear();
+
 private:
   struct CalibSetObject {
-    CalibSetObject(const DetId& aid) : id(aid) { }
+    CalibSetObject(const DetId &aid) : id(aid) {}
     DetId id;
     CastorCalibrations calib;
-    bool operator<(const CalibSetObject& cso) const { return id < cso.id; }
-    bool operator==(const CalibSetObject& cso) const { return id == cso.id; }
+    bool operator<(const CalibSetObject &cso) const { return id < cso.id; }
+    bool operator==(const CalibSetObject &cso) const { return id == cso.id; }
   };
   typedef CalibSetObject Item;
   CastorCalibrations dummy;

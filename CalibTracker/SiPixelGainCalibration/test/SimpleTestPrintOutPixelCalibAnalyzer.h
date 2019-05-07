@@ -2,8 +2,9 @@
 //
 // Package:    SimpleTestPrintOutPixelCalibAnalyzer
 // Class:      SimpleTestPrintOutPixelCalibAnalyzer
-// 
-/**\class SimpleTestPrintOutPixelCalibAnalyzer CalibTracker/SiPixelGainCalibration/test/SimpleTestPrintOutPixelCalibAnalyzer.cc
+//
+/**\class SimpleTestPrintOutPixelCalibAnalyzer
+ CalibTracker/SiPixelGainCalibration/test/SimpleTestPrintOutPixelCalibAnalyzer.cc
 
  Description: <one line class summary>
 
@@ -15,7 +16,6 @@
 //         Created:  Mon Nov  5 16:56:35 CET 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -35,18 +35,18 @@
 
 class SimpleTestPrintOutPixelCalibAnalyzer : public edm::EDAnalyzer {
 public:
-  explicit SimpleTestPrintOutPixelCalibAnalyzer(const edm::ParameterSet&);
+  explicit SimpleTestPrintOutPixelCalibAnalyzer(const edm::ParameterSet &);
   ~SimpleTestPrintOutPixelCalibAnalyzer();
-  
-  
+
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void printInfo(const edm::Event&, const edm::EventSetup&); // print method added by Freya, this way the analyzer stays clean
-  virtual void endJob() ;
+  virtual void beginJob();
+  virtual void analyze(const edm::Event &, const edm::EventSetup &);
+  virtual void printInfo(
+      const edm::Event &,
+      const edm::EventSetup
+          &); // print method added by Freya, this way the analyzer stays clean
+  virtual void endJob();
 
-      // ----------member data ---------------------------
-  edm::EDGetTokenT<edm::DetSetVector<SiPixelCalibDigi> > tPixelCalibDigi;
-
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<edm::DetSetVector<SiPixelCalibDigi>> tPixelCalibDigi;
 };
-

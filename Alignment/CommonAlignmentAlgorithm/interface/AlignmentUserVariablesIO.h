@@ -6,7 +6,8 @@
 /// \class AlignmentUserVariablesIO
 ///
 /// Abstract base class for I/O of AlignmentUserVariables.
-/// Note that it is the caller's responsibility to delete objects created during reading.
+/// Note that it is the caller's responsibility to delete objects created during
+/// reading.
 ///
 ///  $Date: 2007/01/23 16:07:08 $
 ///  $Revision: 1.4 $
@@ -14,32 +15,31 @@
 
 class AlignmentUserVariables;
 
-class AlignmentUserVariablesIO 
-{
+class AlignmentUserVariablesIO {
 
-  protected:
-
+protected:
   virtual ~AlignmentUserVariablesIO() {}
 
   /** open IO */
-  virtual int open(const char* filename, int iteration, bool writemode) =0;
+  virtual int open(const char *filename, int iteration, bool writemode) = 0;
 
   /** close IO */
-  virtual int close(void) =0;
+  virtual int close(void) = 0;
 
   /** write AlignmentUserVariables of one Alignable */
-  virtual int writeOne(Alignable* ali) =0;
+  virtual int writeOne(Alignable *ali) = 0;
 
   /** read AlignmentUserVariables of one Alignable,
       object should be created and has to be deleted */
-  virtual AlignmentUserVariables* readOne(Alignable* ali, int& ierr) =0;
+  virtual AlignmentUserVariables *readOne(Alignable *ali, int &ierr) = 0;
 
   /** write AlignmentUserVariables of many Alignables */
-  int write(const align::Alignables& alivec, bool validCheck);
+  int write(const align::Alignables &alivec, bool validCheck);
 
-  /** read AlignmentUserVariables of many Alignables (using readOne, so take care of memory!) */
-  std::vector<AlignmentUserVariables*> read(const align::Alignables& alivec, int& ierr);
-
+  /** read AlignmentUserVariables of many Alignables (using readOne, so take
+   * care of memory!) */
+  std::vector<AlignmentUserVariables *> read(const align::Alignables &alivec,
+                                             int &ierr);
 };
 
 #endif

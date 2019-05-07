@@ -2,7 +2,7 @@
 #define QIE_SHAPE_H
 
 /** \class QieShape
-    
+
     basic linearization function for HCAL/castor QIE
    $Author: ratnikov
 */
@@ -11,18 +11,19 @@ namespace reco {
 namespace castor {
 
 class QieShape {
- public:
-  QieShape (const double fAdcShape [32], const double fAdcBin [32]);
+public:
+  QieShape(const double fAdcShape[32], const double fAdcBin[32]);
   // center of the nominal linearized QIE bin
-  double linearization (int fAdc) const {return mLinearization [fAdc];}
+  double linearization(int fAdc) const { return mLinearization[fAdc]; }
   // width of the nominal linearized bin
-  double binSize (int fAdc) const {return mBinSize [fAdc];}
- private:
-  double mLinearization [128];
-  double mBinSize [128];
+  double binSize(int fAdc) const { return mBinSize[fAdc]; }
+
+private:
+  double mLinearization[128];
+  double mBinSize[128];
 };
 
-}
-}
+} // namespace castor
+} // namespace reco
 
 #endif

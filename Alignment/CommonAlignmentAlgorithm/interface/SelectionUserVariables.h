@@ -4,9 +4,9 @@
 /**
  * \class SelectionUserVariables
  *
- * Ugly class to "missuse" AlignmentParameters::userVariables() to transfer information
- * about other parameter selections then just '1' (keep) or '0' (ignore) to the alignment
- * algorithm.
+ * Ugly class to "missuse" AlignmentParameters::userVariables() to transfer
+ * information about other parameter selections then just '1' (keep) or '0'
+ * (ignore) to the alignment algorithm.
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
@@ -19,17 +19,19 @@
 
 #include <vector>
 
-class SelectionUserVariables : public AlignmentUserVariables 
-{
- public:
-  explicit SelectionUserVariables(const std::vector<char> &sel) : myFullSelection(sel) {}
+class SelectionUserVariables : public AlignmentUserVariables {
+public:
+  explicit SelectionUserVariables(const std::vector<char> &sel)
+      : myFullSelection(sel) {}
   ~SelectionUserVariables() override {}
-  SelectionUserVariables* clone() const override { return new SelectionUserVariables(*this);}
+  SelectionUserVariables *clone() const override {
+    return new SelectionUserVariables(*this);
+  }
 
-  const std::vector<char>& fullSelection() const {return myFullSelection;}
+  const std::vector<char> &fullSelection() const { return myFullSelection; }
 
- private:
-  std::vector<char>  myFullSelection;
+private:
+  std::vector<char> myFullSelection;
 };
 
 #endif

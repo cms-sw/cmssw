@@ -3,7 +3,8 @@
 // Package:    EcalFEDErrorFilter
 // Class:      EcalFEDErrorFilter
 //
-/**\class EcalFEDErrorFilter EcalFEDErrorFilter.cc filter/EcalFEDErrorFilter/src/EcalFEDErrorFilter.cc
+/**\class EcalFEDErrorFilter EcalFEDErrorFilter.cc
+filter/EcalFEDErrorFilter/src/EcalFEDErrorFilter.cc
 
 Description: <one line class summary>
 
@@ -15,7 +16,6 @@ Implementation:
 //         Created:  Tue Jan 22 13:55:00 CET 2008
 //
 //
-
 
 // system include files
 #include <memory>
@@ -30,29 +30,30 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include <string>
-#include <iostream>
-#include <vector>
 #include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
 
+#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
-#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 //
 // class declaration
 //
 
 class EcalFEDErrorFilter : public HLTFilter {
 public:
-  explicit EcalFEDErrorFilter(const edm::ParameterSet&);
+  explicit EcalFEDErrorFilter(const edm::ParameterSet &);
   ~EcalFEDErrorFilter() override;
 
 private:
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool
+  hltFilter(edm::Event &, const edm::EventSetup &,
+            trigger::TriggerFilterObjectWithRefs &filterproduct) const override;
 
   // ----------member data ---------------------------
 
-  edm::InputTag     DataLabel_;
+  edm::InputTag DataLabel_;
   std::vector<int> fedUnpackList_;
-
 };

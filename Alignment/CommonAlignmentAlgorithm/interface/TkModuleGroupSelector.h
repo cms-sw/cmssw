@@ -16,30 +16,31 @@
  *
  */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <vector>
-#include <map>
 #include <list>
-
+#include <map>
+#include <vector>
 
 class AlignableTracker;
 class AlignableMuon;
 class AlignableExtras;
 
-namespace edm { class EventSetup; class ParameterSet; } 
+namespace edm {
+class EventSetup;
+class ParameterSet;
+} // namespace edm
 
-class TkModuleGroupSelector
-{
+class TkModuleGroupSelector {
 public:
   /// Constructor
   explicit TkModuleGroupSelector(AlignableTracker *aliTracker,
                                  const edm::ParameterSet &cfg,
                                  const std::vector<int> &sdets);
-  
+
   /// Destructor
-  virtual ~TkModuleGroupSelector() {};
+  virtual ~TkModuleGroupSelector(){};
 
   // Returns the number of parameters.
   unsigned int getNumberOfParameters() const;
@@ -52,31 +53,34 @@ public:
 
   /// Index of parameter for given detId (detId not treated => < 0)
   /// and the given run.
-  int getParameterIndexFromDetId(unsigned int detId, edm::RunNumber_t run) const;
-  
- private:
+  int getParameterIndexFromDetId(unsigned int detId,
+                                 edm::RunNumber_t run) const;
+
+private:
   // Constructs the run-dependent module groups from configuration parameters.
   void createModuleGroups(AlignableTracker *aliTracker,
                           const edm::VParameterSet &granularityConfig,
                           const std::vector<edm::RunNumber_t> &defaultRunRange,
                           edm::RunNumber_t defaultReferenceRun);
-                    
+
   // Method used to test the provided configuration for unknown parameters
-  void verifyParameterNames(const edm::ParameterSet &pset, unsigned int psetnr) const;
-  
+  void verifyParameterNames(const edm::ParameterSet &pset,
+                            unsigned int psetnr) const;
+
   // Method to test whether the split option has been turned on
   const bool testSplitOption(const edm::ParameterSet &pset) const;
 
   // Add modules to a specific group which is also created in this function.
   bool createGroup(
-                   unsigned int &Id, //id of the first run
-                   const std::vector<edm::RunNumber_t> &range, //run range
-                   const std::list<Alignable*> &selected_alis, //list of alignables for which a group is created
-                   const edm::RunNumber_t refrun //reference run number
-                   );
-  
-  // Fill the container which is a map between the det id and the id of the group
-  // to which the module belongs.
+      unsigned int &Id,                           // id of the first run
+      const std::vector<edm::RunNumber_t> &range, // run range
+      const std::list<Alignable *>
+          &selected_alis, // list of alignables for which a group is created
+      const edm::RunNumber_t refrun // reference run number
+  );
+
+  // Fill the container which is a map between the det id and the id of the
+  // group to which the module belongs.
   void fillDetIdMap(const unsigned int detid, const unsigned int groupid);
 
   // Array with run boundaries which is a combination
@@ -87,7 +91,7 @@ public:
   std::vector<unsigned int> firstId_;
 
   // Run range per module group
-  std::vector<std::vector<edm::RunNumber_t> > runRange_;
+  std::vector<std::vector<edm::RunNumber_t>> runRange_;
 
   // Mapping between module id and module group id.
   std::map<unsigned int, unsigned int> mapDetIdGroupId_;
@@ -100,7 +104,6 @@ public:
 
   // Reference run per module group
   std::vector<edm::RunNumber_t> referenceRun_;
-  
 };
 
 #endif
