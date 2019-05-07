@@ -10,16 +10,16 @@
 
 using namespace cms;
 
-DDDCmsTrackerContruction::DDDCmsTrackerContruction( void )
-{}
-
-const GeometricDet*
-DDDCmsTrackerContruction::construct( const DDCompactView* cpv, std::vector<int> detidShifts)
+std::unique_ptr<GeometricDet>
+DDDCmsTrackerContruction::construct( const DDCompactView& cpv, std::vector<int> const&  detidShifts)
 {
-  attribute = "TkDDDStructure"; // could come from .orcarc
+  std::string attribute = "TkDDDStructure"; // could come from .orcarc
   DDSpecificsHasNamedValueFilter filter{ attribute };
   
-  DDFilteredView fv( *cpv, filter ); 
+
+  DDFilteredView fv( cpv, filter );
+
+  CmsTrackerStringToEnum theCmsTrackerStringToEnum;
   if( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker )
   {
     fv.firstChild();
@@ -30,13 +30,13 @@ DDDCmsTrackerContruction::construct( const DDCompactView* cpv, std::vector<int> 
     }
   }
   
-  GeometricDet* tracker = new GeometricDet( &fv, GeometricDet::Tracker );
+  auto tracker = std::make_unique<GeometricDet>( &fv, GeometricDet::Tracker );
   CmsTrackerBuilder theCmsTrackerBuilder;
-  theCmsTrackerBuilder.build( fv, tracker, attribute );
+  theCmsTrackerBuilder.build( fv, tracker.get(), attribute );
   
-  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder( std::move(detidShifts) );
+  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder( detidShifts );
   
-  tracker = theCmsTrackerDetIdBuilder.buildId( tracker );
+  theCmsTrackerDetIdBuilder.buildId( *tracker );
   fv.parent();
   //
   // set the Tracker
