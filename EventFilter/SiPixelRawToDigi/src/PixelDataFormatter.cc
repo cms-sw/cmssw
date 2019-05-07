@@ -100,7 +100,7 @@ PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map, bool phase
   PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
   ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
 
-  if (phase1==true) {
+  if (phase1) {
     errorcheck=std::unique_ptr<ErrorCheckerBase>(new ErrorChecker());
   } else {
     errorcheck=std::unique_ptr<ErrorCheckerBase>(new ErrorCheckerPhase0());

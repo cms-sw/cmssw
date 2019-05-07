@@ -252,7 +252,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 	  for (auto const& aPixelError : errorDetSet) {
 	    // For the time being, we extend the error handling functionality with ErrorType 25
 	    // In the future, we should sort out how the usage of tkerrorlist can be generalized
-	    if (usePhase1==true && aPixelError.getType()==25) {
+	    if (usePhase1 && aPixelError.getType()==25) {
 	      assert(aPixelError.getFedId()==fedId);
 	      const sipixelobjects::PixelFEDCabling* fed = cabling_->fed(fedId);
 	      if (fed) {

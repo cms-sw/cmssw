@@ -12,8 +12,6 @@
 class ErrorChecker : public ErrorCheckerBase {
 
 public:
-//  typedef unsigned int Word32;
-//  typedef long long Word64;
   typedef cms_uint32_t Word32;
   typedef cms_uint64_t Word64;
 

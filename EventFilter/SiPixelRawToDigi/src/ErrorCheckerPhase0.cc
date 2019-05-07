@@ -123,11 +123,9 @@ bool ErrorCheckerPhase0::checkROC(bool& errorsInEvent, int fedId, const SiPixelF
      break;
    }
    case(26) : {
-     //LogDebug("")<<"  gap word found (errorType=26)";
      return false;
    }
    case(27) : {
-     //LogDebug("")<<"  dummy word found (errorType=27)";
      return false;
    }
    case(28) : {
