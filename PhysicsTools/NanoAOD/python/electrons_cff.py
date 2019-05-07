@@ -124,8 +124,8 @@ ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
 )
 run2_miniAOD_80XLegacy.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
 
-gainSeedEle = cms.EDProducer("ElectronGainSeedProducer", src = cms.InputTag("slimmedElectrons"))
-run2_miniAOD_80XLegacy.toModify(gainSeedEle, src = "slimmedElectronsUpdated")
+seedGainEle = cms.EDProducer("ElectronSeedGainProducer", src = cms.InputTag("slimmedElectrons"))
+run2_miniAOD_80XLegacy.toModify(seedGainEle, src = "slimmedElectronsUpdated")
 
 import EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi
 
@@ -187,7 +187,7 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
     ),
     userInts = cms.PSet(
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForEle"),
-        gainSeed = cms.InputTag("gainSeedEle"),
+        seedGain = cms.InputTag("seedGainEle"),
     ),
     userCands = cms.PSet(
         jetForLepJetVar = cms.InputTag("ptRatioRelForEle:jetForLepJetVar") # warning: Ptr is null if no match is found
@@ -346,7 +346,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         convVeto = Var("passConversionVeto()",bool,doc="pass conversion veto"),
         lostHits = Var("gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS')","uint8",doc="number of missing inner hits"),
         isPFcand = Var("pfCandidateRef().isNonnull()",bool,doc="electron is PF candidate"),
-        gainSeed = Var("userInt('gainSeed')","uint8",doc="Gain of the seed crystal"),
+        seedGain = Var("userInt('seedGain')","uint8",doc="Gain of the seed crystal"),
     ),
     externalVariables = cms.PSet(
         mvaTTH = ExtVar(cms.InputTag("electronMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
@@ -431,7 +431,7 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 electrons or photons"),
 )
 
-electronSequence = cms.Sequence(bitmapVIDForEle + isoForEle + ptRatioRelForEle + gainSeedEle + slimmedElectronsWithUserData + finalElectrons)
+electronSequence = cms.Sequence(bitmapVIDForEle + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
 electronMC = cms.Sequence(electronsMCMatchForTable + electronMCTable)
 

@@ -41,7 +41,7 @@ public:
     recHitsEB_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsEB"))),
     recHitsEE_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsEE")))
   {
-    produces<edm::ValueMap<int>>("gainSeed");
+    produces<edm::ValueMap<int>>();
   }
     ~EGMSeedGainProducer() override {};
 
@@ -101,7 +101,7 @@ EGMSeedGainProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, cons
   edm::ValueMap<int>::Filler fillerCorr(*gainSeedV);
   fillerCorr.insert(src,gainSeed.begin(),gainSeed.end());
   fillerCorr.fill();
-  iEvent.put(std::move(gainSeedV),"gainSeed");
+  iEvent.put(std::move(gainSeedV));
 
 }
 
@@ -111,8 +111,8 @@ void
 EGMSeedGainProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src")->setComment("input physics object collection");
-  desc.add<edm::InputTag>("recHitsEB",edm::InputTag("reducedEcalRecHitsEB"))->setComment("EB rechit collection");
-  desc.add<edm::InputTag>("recHitsEE",edm::InputTag("reducedEcalRecHitsEE"))->setComment("EE rechit collection");
+  desc.add<edm::InputTag>("recHitsEB",edm::InputTag("reducedEgamma","reducedEBRecHits"))->setComment("EB rechit collection");
+  desc.add<edm::InputTag>("recHitsEE",edm::InputTag("reducedEgamma","reducedEERecHits"))->setComment("EE rechit collection");
   descriptions.addDefault(desc);
 }
 
