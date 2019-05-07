@@ -1,7 +1,7 @@
 #ifndef Geometry_VeryForwardGeometry_CTPPSPixelSimTopology_h
 #define Geometry_VeryForwardGeometry_CTPPSPixelSimTopology_h
 
-#include "TMath.h"
+#include <cmath>
 #include "Geometry/VeryForwardGeometry/interface/CTPPSPixelTopology.h"
 
 class CTPPSPixelSimTopology : public CTPPSPixelTopology
@@ -134,10 +134,10 @@ class CTPPSPixelSimTopology : public CTPPSPixelTopology
     
     inline double activeEdgeFactor( double x, double y ) const {
       const double inv_sigma = 1./active_edge_sigma_; // precaching
-      const double topEdgeFactor =    TMath::Erf( -distanceFromTopActiveEdge( x, y )   *inv_sigma )*0.5 + 0.5;
-      const double bottomEdgeFactor = TMath::Erf( -distanceFromBottomActiveEdge( x, y )*inv_sigma )*0.5 + 0.5;
-      const double rightEdgeFactor =  TMath::Erf( -distanceFromRightActiveEdge( x, y ) *inv_sigma )*0.5 + 0.5;
-      const double leftEdgeFactor =   TMath::Erf( -distanceFromLeftActiveEdge( x, y )  *inv_sigma )*0.5 + 0.5;
+      const double topEdgeFactor =    std::erf( -distanceFromTopActiveEdge( x, y )   *inv_sigma )*0.5 + 0.5;
+      const double bottomEdgeFactor = std::erf( -distanceFromBottomActiveEdge( x, y )*inv_sigma )*0.5 + 0.5;
+      const double rightEdgeFactor =  std::erf( -distanceFromRightActiveEdge( x, y ) *inv_sigma )*0.5 + 0.5;
+      const double leftEdgeFactor =   std::erf( -distanceFromLeftActiveEdge( x, y )  *inv_sigma )*0.5 + 0.5;
 
       const double aEF = topEdgeFactor*bottomEdgeFactor*rightEdgeFactor*leftEdgeFactor;
 
