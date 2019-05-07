@@ -8,13 +8,13 @@
 //***************************************************
 
 #include "DQM/CastorMonitor/interface/CastorRecHitMonitor.h"
-#include <string>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <string>
 
 using namespace std;
 
-CastorRecHitMonitor::CastorRecHitMonitor(const edm::ParameterSet& ps) {
+CastorRecHitMonitor::CastorRecHitMonitor(const edm::ParameterSet &ps) {
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);
   if (fVerbosity > 0)
     std::cout << "CastorRecHitMonitor Constructor: " << this << std::endl;
@@ -25,9 +25,9 @@ CastorRecHitMonitor::CastorRecHitMonitor(const edm::ParameterSet& ps) {
 
 CastorRecHitMonitor::~CastorRecHitMonitor() {}
 
-void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
-                                         const edm::Run& iRun,
-                                         const edm::EventSetup& iSetup) {
+void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
+                                         const edm::Run &iRun,
+                                         const edm::EventSetup &iSetup) {
   char s[60];
   if (fVerbosity > 0)
     std::cout << "CastorRecHitMonitor::bookHistograms" << std::endl;
@@ -41,8 +41,10 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   ySec[0] = 0.;
   ySec[1] = E0sec;
   double lnBsec = log(2.);
-  for (int j = 1; j < nySec; j++) ySec[j + 1] = E0sec * exp(j * lnBsec);
-  for (int i = 0; i <= N_Sec; i++) xSec[i] = i;
+  for (int j = 1; j < nySec; j++)
+    ySec[j + 1] = E0sec * exp(j * lnBsec);
+  for (int i = 0; i <= N_Sec; i++)
+    xSec[i] = i;
 
   sprintf(s, "Castor Energy by Sectors #Phi");
   h2RHvsSec = ibooker.book2D(s, s, N_Sec, xSec, nySec, ySec);
@@ -54,12 +56,14 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   const int nyE = 18;
   float xCh[nxCh + 1];
   float yErh[nyE + 1];
-  for (int i = 0; i <= nxCh; i++) xCh[i] = i;
+  for (int i = 0; i <= nxCh; i++)
+    xCh[i] = i;
   double E0 = 1. / 1024.;
   double lnA = log(2.);
   yErh[0] = 0.;
   yErh[1] = E0;
-  for (int j = 1; j < nyE; j++) yErh[j + 1] = E0 * exp(j * lnA);
+  for (int j = 1; j < nyE; j++)
+    yErh[j + 1] = E0 * exp(j * lnA);
 
   string st = "Castor Cell Energy Map (cell-wise)";
   h2RHchan = ibooker.book2D(st, st + ";moduleZ*16 + sector #Phi;RecHit / GeV",
@@ -103,9 +107,12 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   ETower[0] = 0.;
   ETower[1] = E0tow;
   double lnBtow = log(2.);
-  for (int j = 1; j < NEtow; j++) EMTow[j + 1] = E0tow * exp(j * lnBtow);
-  for (int j = 1; j < NEtow; j++) EhadTow[j + 1] = E0tow * exp(j * lnBtow);
-  for (int j = 1; j <= NEtow; j++) ETower[j + 1] = E0tow * exp(j * lnBtow);
+  for (int j = 1; j < NEtow; j++)
+    EMTow[j + 1] = E0tow * exp(j * lnBtow);
+  for (int j = 1; j < NEtow; j++)
+    EhadTow[j + 1] = E0tow * exp(j * lnBtow);
+  for (int j = 1; j <= NEtow; j++)
+    ETower[j + 1] = E0tow * exp(j * lnBtow);
 
   sprintf(s, "CASTORTowerEMvsEhad");
   h2TowerEMhad = ibooker.book2D(s, s, NEtow, EhadTow, NEtow, EMTow);
@@ -135,8 +142,9 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void CastorRecHitMonitor::processEventTowers(
-    const reco::CastorTowerCollection& castorTowers) {
-  if (castorTowers.empty()) return;
+    const reco::CastorTowerCollection &castorTowers) {
+  if (castorTowers.empty())
+    return;
   int nTowers = 0;
 
   for (reco::CastorTowerCollection::const_iterator iTower =
@@ -151,35 +159,38 @@ void CastorRecHitMonitor::processEventTowers(
 }
 
 void CastorRecHitMonitor::processEvent(
-    const CastorRecHitCollection& castorHits) {
+    const CastorRecHitCollection &castorHits) {
   if (fVerbosity > 0)
     std::cout << "CastorRecHitMonitor::processEvent (begin)" << std::endl;
   ievt_++;
   for (int z = 0; z < 14; z++)
-    for (int phi = 0; phi < 16; phi++) energyInEachChannel[z][phi] = 0.;
+    for (int phi = 0; phi < 16; phi++)
+      energyInEachChannel[z][phi] = 0.;
 
   CastorRecHitCollection::const_iterator CASTORiter;
   // if (showTiming)  { cpu_timer.reset(); cpu_timer.start(); }
 
-  if (castorHits.empty()) return;
+  if (castorHits.empty())
+    return;
 
   for (CASTORiter = castorHits.begin(); CASTORiter != castorHits.end();
        ++CASTORiter) {
     float energy = CASTORiter->energy();
     float time = CASTORiter->time();
     float time2 = time;
-    if (time < -100.) time2 = -100.;
+    if (time < -100.)
+      time2 = -100.;
     hRHtime->Fill(time2);
 
     HcalCastorDetId id(CASTORiter->detid().rawId());
     // float zside  = id.zside();
-    int module = (int)id.module();  //-- get module
-    int sector = (int)id.sector();  //-- get sector
+    int module = (int)id.module(); //-- get module
+    int sector = (int)id.sector(); //-- get sector
 
     energyInEachChannel[module - 1][sector - 1] += energy;
 
     h2RHentriesMap->Fill(module - 1, sector - 1);
-  }  // end for(CASTORiter=castorHits.begin(); CASTORiter!= ...
+  } // end for(CASTORiter=castorHits.begin(); CASTORiter!= ...
 
   double etot = 0.;
   for (int phi = 0; phi < 16; phi++) {
@@ -190,13 +201,14 @@ void CastorRecHitMonitor::processEvent(
       //    int ind = phi*14 + z +1;
       h2RHchan->Fill(ind, rh);
       hallchan->Fill(rh);
-      if (rh < 0.) continue;
+      if (rh < 0.)
+        continue;
       h2RHoccmap->Fill(z, phi, rh);
       es += rh;
     }
     h2RHvsSec->Fill(phi, es);
     etot += es;
-  }  // end for(int phi=0;
+  } // end for(int phi=0;
 
   if (fVerbosity > 0)
     std::cout << "CastorRecHitMonitor::processEvent (end)" << std::endl;
@@ -204,7 +216,7 @@ void CastorRecHitMonitor::processEvent(
 }
 
 void CastorRecHitMonitor::processEventJets(
-    const reco::BasicJetCollection& Jets) {
+    const reco::BasicJetCollection &Jets) {
   int nJets = 0;
   for (reco::BasicJetCollection::const_iterator ibegin = Jets.begin(),
                                                 iend = Jets.end(),
