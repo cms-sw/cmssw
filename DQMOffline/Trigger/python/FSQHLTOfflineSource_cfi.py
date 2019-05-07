@@ -317,7 +317,7 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
             )
             ret.append(recoPF) 
             '''
-            recoThr = t/2
+            recoThr = t//2
             recoPFtopology  =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("RecoPFJetWithJEC"),
@@ -363,7 +363,7 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
 
             # RecoCandidateCounter
             ''' example on how to count objects
-            recoThr = t/2
+            recoThr = t//2
             recoPFJetCnt  =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("RecoCandidateCounter"),
