@@ -11,10 +11,8 @@ GenParticleSelectionForEfficiency = cms.PSet(
     statusGP = cms.int32(1)
 )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase1Pixel.toModify(GenParticleSelectionForEfficiency,minRapidityGP = -3.0, maxRapidityGP = 3.0)
-run3_common.toModify(GenParticleSelectionForEfficiency,minRapidityGP = -3.0, maxRapidityGP = 3.0)
 phase2_tracker.toModify(GenParticleSelectionForEfficiency,minRapidityGP = -4.5, maxRapidityGP = 4.5)
 
 generalGpSelectorBlock = cms.PSet(
@@ -95,14 +93,6 @@ phase1Pixel.toModify(GpSelectorForEfficiencyVsPhiBlock,  _modifyForPhase1)
 phase1Pixel.toModify(GpSelectorForEfficiencyVsPtBlock,   _modifyForPhase1)
 phase1Pixel.toModify(GpSelectorForEfficiencyVsVTXRBlock, _modifyForPhase1)
 phase1Pixel.toModify(GpSelectorForEfficiencyVsVTXZBlock, _modifyForPhase1)
-
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify(generalGpSelectorBlock,             _modifyForPhase1)
-run3_common.toModify(GpSelectorForEfficiencyVsEtaBlock,  _modifyForPhase1)
-run3_common.toModify(GpSelectorForEfficiencyVsPhiBlock,  _modifyForPhase1)
-run3_common.toModify(GpSelectorForEfficiencyVsPtBlock,   _modifyForPhase1)
-run3_common.toModify(GpSelectorForEfficiencyVsVTXRBlock, _modifyForPhase1)
-run3_common.toModify(GpSelectorForEfficiencyVsVTXZBlock, _modifyForPhase1)
 
 def _modifyForPhase2(pset):
     pset.minRapidity = -4.5
