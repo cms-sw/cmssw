@@ -24,16 +24,17 @@ trivial cases of a purely diagonal or identity correlation matrix.
 #include <vector>
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
-template <class M> class CorrelatedNoisifier {
+template <class M>
+class CorrelatedNoisifier {
 public:
   typedef std::vector<double> VecDou;
 
-  CorrelatedNoisifier(const M &symCorMat); // correlation matrix
+  CorrelatedNoisifier(const M &symCorMat);  // correlation matrix
 
-  CorrelatedNoisifier(int *dummy, const M &cholDecMat); // decomposition matrix
+  CorrelatedNoisifier(int *dummy, const M &cholDecMat);  // decomposition matrix
 
   virtual ~CorrelatedNoisifier();
 
@@ -42,16 +43,16 @@ public:
   void resetCholDecompMatrix(const M &cholMat);
 
   template <class T>
-  void noisify(T &frame, // applies random noise to frame
+  void noisify(T &frame,  // applies random noise to frame
                CLHEP::HepRandomEngine *,
-               const VecDou *rangau = nullptr) const; // use these
+               const VecDou *rangau = nullptr) const;  // use these
 
-  const M &cholMat() const; // return decomposition
+  const M &cholMat() const;  // return decomposition
 
   const VecDou &vecgau() const;
 
 private:
-  static const double k_precision; // precision to which 0 & 1 are compared
+  static const double k_precision;  // precision to which 0 & 1 are compared
 
   void init(const M &symCorMat);
 

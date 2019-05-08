@@ -86,14 +86,10 @@ void testPdtEntry::checkAll() {
   }
   {
     ParameterSet cfg;
-    vector<int> pdt1 =
-        cfg.getUntrackedParameter<vector<int>>("pdt1", vector<int>(1, 13));
-    vector<string> pdt2 = cfg.getUntrackedParameter<vector<string>>(
-        "pdt2", vector<string>(1, "mu-"));
-    vector<PdtEntry> e1 = cfg.getUntrackedParameter<vector<PdtEntry>>(
-        "pdt1", vector<PdtEntry>(1, PdtEntry(13)));
-    vector<PdtEntry> e2 = cfg.getUntrackedParameter<vector<PdtEntry>>(
-        "pdt2", vector<PdtEntry>(1, PdtEntry("mu-")));
+    vector<int> pdt1 = cfg.getUntrackedParameter<vector<int>>("pdt1", vector<int>(1, 13));
+    vector<string> pdt2 = cfg.getUntrackedParameter<vector<string>>("pdt2", vector<string>(1, "mu-"));
+    vector<PdtEntry> e1 = cfg.getUntrackedParameter<vector<PdtEntry>>("pdt1", vector<PdtEntry>(1, PdtEntry(13)));
+    vector<PdtEntry> e2 = cfg.getUntrackedParameter<vector<PdtEntry>>("pdt2", vector<PdtEntry>(1, PdtEntry("mu-")));
     CPPUNIT_ASSERT(e1.size() == pdt1.size());
     CPPUNIT_ASSERT(e2.size() == pdt2.size());
     CPPUNIT_ASSERT(pdt1.front() == e1.front().pdgId());

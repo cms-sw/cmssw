@@ -20,8 +20,11 @@ public:
   GflashEMShowerProfile(const edm::ParameterSet &parSet);
   ~GflashEMShowerProfile();
 
-  void initialize(int showerType, double energy, double globalTime,
-                  double charge, Gflash3Vector &position,
+  void initialize(int showerType,
+                  double energy,
+                  double globalTime,
+                  double charge,
+                  Gflash3Vector &position,
                   Gflash3Vector &momentum);
 
   void parameterization();
@@ -30,9 +33,8 @@ public:
 
 private:
   double getDistanceToOut(Gflash::CalorimeterNumber kCalor);
-  Gflash3Vector locateHitPosition(GflashTrajectoryPoint &point, double rCore,
-                                  double rTail, double probability,
-                                  double &rShower);
+  Gflash3Vector locateHitPosition(
+      GflashTrajectoryPoint &point, double rCore, double rTail, double probability, double &rShower);
 
 private:
   Gflash::CalorimeterNumber jCalorimeter;

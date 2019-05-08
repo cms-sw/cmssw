@@ -10,9 +10,7 @@
 #include <map>
 #include <string>
 
-typedef std::map<std::pair<std::string, std::string>, int,
-                 std::less<std::pair<std::string, std::string>>>
-    mpssi;
+typedef std::map<std::pair<std::string, std::string>, int, std::less<std::pair<std::string, std::string>>> mpssi;
 typedef std::pair<std::string, std::string> pss;
 typedef std::map<std::string, int, std::less<std::string>> psi;
 

@@ -3,9 +3,20 @@
 #include "SimGeneral/GFlash/interface/GflashTrajectory.h"
 
 GflashTrajectory::GflashTrajectory()
-    : _cotTheta(0.0), _curvature(0.0), _z0(0.0), _d0(0.0), _phi0(0.0),
-      _isStale(true), _sinPhi0(2), _cosPhi0(2), _sinTheta(2), _cosTheta(2),
-      _s(-999.999), _aa(2), _ss(2), _cc(2) {
+    : _cotTheta(0.0),
+      _curvature(0.0),
+      _z0(0.0),
+      _d0(0.0),
+      _phi0(0.0),
+      _isStale(true),
+      _sinPhi0(2),
+      _cosPhi0(2),
+      _sinTheta(2),
+      _cosTheta(2),
+      _s(-999.999),
+      _aa(2),
+      _ss(2),
+      _cc(2) {
   // detault constructor
 }
 
@@ -13,9 +24,10 @@ GflashTrajectory::GflashTrajectory()
 // MomentumGev, const HepGeom::Point3D<double>   & PositionCm, 	     double q,
 // double
 // BFieldTesla)
-void GflashTrajectory::initializeTrajectory(
-    const HepGeom::Vector3D<double> &MomentumGev,
-    const HepGeom::Point3D<double> &PositionCm, double q, double BFieldTesla) {
+void GflashTrajectory::initializeTrajectory(const HepGeom::Vector3D<double> &MomentumGev,
+                                            const HepGeom::Point3D<double> &PositionCm,
+                                            double q,
+                                            double BFieldTesla) {
   double CotTheta = 0.0;
   double W = 0;
   double Z0 = 0;
@@ -25,8 +37,7 @@ void GflashTrajectory::initializeTrajectory(
   if (BFieldTesla != 0.0 && q != 0.0) {
     double CurvatureConstant = 0.0029979;
     double Helicity = -1.0 * fabs(BFieldTesla) * fabs(q) / (BFieldTesla * q);
-    double Radius =
-        fabs(MomentumGev.perp() / (CurvatureConstant * BFieldTesla * q));
+    double Radius = fabs(MomentumGev.perp() / (CurvatureConstant * BFieldTesla * q));
 
     if (Radius == 0.0)
       W = HUGE_VAL;
@@ -35,8 +46,7 @@ void GflashTrajectory::initializeTrajectory(
     double phi1 = MomentumGev.phi();
     double x = PositionCm.x(), y = PositionCm.y(), z = PositionCm.z();
     double sinPhi1 = sin(phi1), cosPhi1 = cos(phi1);
-    double gamma =
-        atan((x * cosPhi1 + y * sinPhi1) / (x * sinPhi1 - y * cosPhi1 - 1 / W));
+    double gamma = atan((x * cosPhi1 + y * sinPhi1) / (x * sinPhi1 - y * cosPhi1 - 1 / W));
     Phi0 = phi1 + gamma;
     if (Phi0 > M_PI)
       Phi0 = Phi0 - 2.0 * M_PI;
@@ -47,8 +57,7 @@ void GflashTrajectory::initializeTrajectory(
     Z0 = z + gamma * CotTheta / W;
   } else {
     CLHEP::Hep3Vector direction = MomentumGev.unit();
-    CLHEP::Hep3Vector projectedDirection =
-        CLHEP::Hep3Vector(direction.x(), direction.y(), 0.0).unit();
+    CLHEP::Hep3Vector projectedDirection = CLHEP::Hep3Vector(direction.x(), direction.y(), 0.0).unit();
     double s = projectedDirection.dot(PositionCm);
     double sprime = s / sin(direction.theta());
     Z0 = (PositionCm - sprime * direction).z();
@@ -122,15 +131,12 @@ double GflashTrajectory::getCosTheta() const {
 HepGeom::Point3D<double> GflashTrajectory::getPosition(double s) const {
   _cacheSinesAndCosines(s);
   if (s == 0.0 || _curvature == 0.0) {
-    return HepGeom::Point3D<double>(-_d0 * _sinPhi0 + s * _cosPhi0 * _sinTheta,
-                                    _d0 * _cosPhi0 + s * _sinPhi0 * _sinTheta,
-                                    _z0 + s * _cosTheta);
+    return HepGeom::Point3D<double>(
+        -_d0 * _sinPhi0 + s * _cosPhi0 * _sinTheta, _d0 * _cosPhi0 + s * _sinPhi0 * _sinTheta, _z0 + s * _cosTheta);
   } else {
     return HepGeom::Point3D<double>(
-        (_cosPhi0 * _ss - _sinPhi0 * (2.0 * _curvature * _d0 + 1.0 - _cc)) /
-            (2.0 * _curvature),
-        (_sinPhi0 * _ss + _cosPhi0 * (2.0 * _curvature * _d0 + 1.0 - _cc)) /
-            (2.0 * _curvature),
+        (_cosPhi0 * _ss - _sinPhi0 * (2.0 * _curvature * _d0 + 1.0 - _cc)) / (2.0 * _curvature),
+        (_sinPhi0 * _ss + _cosPhi0 * (2.0 * _curvature * _d0 + 1.0 - _cc)) / (2.0 * _curvature),
         _s * _cosTheta + _z0);
   }
 }
@@ -138,8 +144,7 @@ HepGeom::Point3D<double> GflashTrajectory::getPosition(double s) const {
 HepGeom::Vector3D<double> GflashTrajectory::getDirection(double s) const {
   _cacheSinesAndCosines(s);
   if (s == 0.0) {
-    return HepGeom::Vector3D<double>(_cosPhi0 * _sinTheta, _sinPhi0 * _sinTheta,
-                                     _cosTheta);
+    return HepGeom::Vector3D<double>(_cosPhi0 * _sinTheta, _sinPhi0 * _sinTheta, _cosTheta);
   }
   double xtan = _sinTheta * (_cosPhi0 * _cc - _sinPhi0 * _ss);
   double ytan = _sinTheta * (_cosPhi0 * _ss + _sinPhi0 * _cc);
@@ -147,26 +152,19 @@ HepGeom::Vector3D<double> GflashTrajectory::getDirection(double s) const {
   return HepGeom::Vector3D<double>(xtan, ytan, ztan);
 }
 
-void GflashTrajectory::getGflashTrajectoryPoint(GflashTrajectoryPoint &point,
-                                                double s) const {
-
+void GflashTrajectory::getGflashTrajectoryPoint(GflashTrajectoryPoint &point, double s) const {
   _cacheSinesAndCosines(s);
 
   double cP0sT = _cosPhi0 * _sinTheta, sP0sT = _sinPhi0 * _sinTheta;
   if (s && _curvature) {
-    point.getPosition().set(
-        (_cosPhi0 * _ss - _sinPhi0 * (2.0 * _curvature * _d0 + 1.0 - _cc)) /
-            (2.0 * _curvature),
-        (_sinPhi0 * _ss + _cosPhi0 * (2.0 * _curvature * _d0 + 1.0 - _cc)) /
-            (2.0 * _curvature),
-        s * _cosTheta + _z0);
+    point.getPosition().set((_cosPhi0 * _ss - _sinPhi0 * (2.0 * _curvature * _d0 + 1.0 - _cc)) / (2.0 * _curvature),
+                            (_sinPhi0 * _ss + _cosPhi0 * (2.0 * _curvature * _d0 + 1.0 - _cc)) / (2.0 * _curvature),
+                            s * _cosTheta + _z0);
 
-    point.getMomentum().set(cP0sT * _cc - sP0sT * _ss,
-                            cP0sT * _ss + sP0sT * _cc, _cosTheta);
+    point.getMomentum().set(cP0sT * _cc - sP0sT * _ss, cP0sT * _ss + sP0sT * _cc, _cosTheta);
     point.setPathLength(s);
   } else {
-    point.getPosition().set(-_d0 * _sinPhi0 + s * cP0sT,
-                            _d0 * _cosPhi0 + s * sP0sT, _z0 + s * _cosTheta);
+    point.getPosition().set(-_d0 * _sinPhi0 + s * cP0sT, _d0 * _cosPhi0 + s * sP0sT, _z0 + s * _cosTheta);
 
     point.getMomentum().set(cP0sT, sP0sT, _cosTheta);
 
@@ -182,12 +180,9 @@ double GflashTrajectory::getPathLengthAtZ(double z) const {
   return (getCosTheta() ? (z - getZ0()) / getCosTheta() : 0.0);
 }
 
-double GflashTrajectory::getZAtR(double rho) const {
-  return _z0 + getCotTheta() * getL2DAtR(rho);
-}
+double GflashTrajectory::getZAtR(double rho) const { return _z0 + getCotTheta() * getL2DAtR(rho); }
 
 double GflashTrajectory::getL2DAtR(double rho) const {
-
   double L2D;
 
   double c = getCurvature();

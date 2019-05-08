@@ -8,9 +8,7 @@ public:
   GflashTrajectory();
   ~GflashTrajectory();
 
-  void initializeTrajectory(const HepGeom::Vector3D<double> &,
-                            const HepGeom::Point3D<double> &, double q,
-                            double Field);
+  void initializeTrajectory(const HepGeom::Vector3D<double> &, const HepGeom::Point3D<double> &, double q, double Field);
 
   void setCotTheta(double cotTheta);
   void setCurvature(double curvature);

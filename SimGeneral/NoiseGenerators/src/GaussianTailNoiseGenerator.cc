@@ -18,11 +18,11 @@ GaussianTailNoiseGenerator::GaussianTailNoiseGenerator() {
 }
 
 // this version is used by pixel
-void GaussianTailNoiseGenerator::generate(
-    int NumberOfchannels, float threshold, float noiseRMS,
-    std::map<int, float, std::less<int>> &theMap,
-    CLHEP::HepRandomEngine *engine) {
-
+void GaussianTailNoiseGenerator::generate(int NumberOfchannels,
+                                          float threshold,
+                                          float noiseRMS,
+                                          std::map<int, float, std::less<int>> &theMap,
+                                          CLHEP::HepRandomEngine *engine) {
   // Gaussian tail probability
   gsl_sf_result result;
   int status = gsl_sf_erf_Q_e(threshold, &result);
@@ -40,10 +40,8 @@ void GaussianTailNoiseGenerator::generate(
 
   float lowLimit = threshold * noiseRMS;
   for (int i = 0; i < numberOfNoisyChannels; i++) {
-
     // Find a random channel number
-    int theChannelNumber =
-        (int)CLHEP::RandFlat::shoot(engine, NumberOfchannels);
+    int theChannelNumber = (int)CLHEP::RandFlat::shoot(engine, NumberOfchannels);
 
     // Find random noise value
     double noise = generate_gaussian_tail(lowLimit, noiseRMS, engine);
@@ -54,10 +52,11 @@ void GaussianTailNoiseGenerator::generate(
 }
 
 // this version is used by strips
-void GaussianTailNoiseGenerator::generate(
-    int NumberOfchannels, float threshold, float noiseRMS,
-    std::vector<std::pair<int, float>> &theVector,
-    CLHEP::HepRandomEngine *engine) {
+void GaussianTailNoiseGenerator::generate(int NumberOfchannels,
+                                          float threshold,
+                                          float noiseRMS,
+                                          std::vector<std::pair<int, float>> &theVector,
+                                          CLHEP::HepRandomEngine *engine) {
   // Compute number of channels with noise above threshold
   // Gaussian tail probability
   gsl_sf_result result;
@@ -78,8 +77,7 @@ void GaussianTailNoiseGenerator::generate(
   // Compute the list of noisy channels
   theVector.reserve(numberOfNoisyChannels);
   float lowLimit = threshold * noiseRMS;
-  int *channels =
-      getRandomChannels(numberOfNoisyChannels, NumberOfchannels, engine);
+  int *channels = getRandomChannels(numberOfNoisyChannels, NumberOfchannels, engine);
 
   for (int i = 0; i < numberOfNoisyChannels; i++) {
     // Find random noise value
@@ -121,9 +119,9 @@ void GaussianTailNoiseGenerator::generateRaw(float noiseRMS,
   }
 }
 
-int *GaussianTailNoiseGenerator::getRandomChannels(
-    int numberOfNoisyChannels, int numberOfchannels,
-    CLHEP::HepRandomEngine *engine) {
+int *GaussianTailNoiseGenerator::getRandomChannels(int numberOfNoisyChannels,
+                                                   int numberOfchannels,
+                                                   CLHEP::HepRandomEngine *engine) {
   if (numberOfNoisyChannels > numberOfchannels)
     numberOfNoisyChannels = numberOfchannels;
   int *array = channel512_;
@@ -131,8 +129,7 @@ int *GaussianTailNoiseGenerator::getRandomChannels(
     array = channel768_;
   int theChannelNumber;
   for (int j = 0; j < numberOfNoisyChannels; ++j) {
-    theChannelNumber =
-        (int)CLHEP::RandFlat::shoot(engine, numberOfchannels - j) + j;
+    theChannelNumber = (int)CLHEP::RandFlat::shoot(engine, numberOfchannels - j) + j;
     // swap the two array elements... this is optimized by the compiler
     int b = array[j];
     array[j] = array[theChannelNumber];
@@ -141,8 +138,9 @@ int *GaussianTailNoiseGenerator::getRandomChannels(
   return array;
 }
 
-double GaussianTailNoiseGenerator::generate_gaussian_tail(
-    const double a, const double sigma, CLHEP::HepRandomEngine *engine) {
+double GaussianTailNoiseGenerator::generate_gaussian_tail(const double a,
+                                                          const double sigma,
+                                                          CLHEP::HepRandomEngine *engine) {
   /* Returns a gaussian random variable larger than a
    * This implementation does one-sided upper-tailed deviates.
    */
@@ -162,7 +160,6 @@ double GaussianTailNoiseGenerator::generate_gaussian_tail(
     return x * sigma;
 
   } else {
-
     /* Use the "supertail" deviates from the last two steps
      * of Marsaglia's rectangle-wedge-tail method, as described
      * in Knuth, v2, 3rd ed, pp 123-128.  (See also exercise 11, p139,

@@ -20,7 +20,6 @@
 #include <iostream>
 
 StoreSecondary::StoreSecondary(const edm::ParameterSet &p) {
-
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("StoreSecondary");
   treatSecondary = new TreatSecondary(m_p);
 
@@ -35,9 +34,7 @@ StoreSecondary::StoreSecondary(const edm::ParameterSet &p) {
 StoreSecondary::~StoreSecondary() { delete treatSecondary; }
 
 void StoreSecondary::produce(edm::Event &e, const edm::EventSetup &) {
-
-  std::unique_ptr<std::vector<math::XYZTLorentzVector>> secMom(
-      new std::vector<math::XYZTLorentzVector>);
+  std::unique_ptr<std::vector<math::XYZTLorentzVector>> secMom(new std::vector<math::XYZTLorentzVector>);
   *secMom = secondaries;
   e.put(std::move(secMom), "SecondaryMomenta");
 
@@ -45,8 +42,8 @@ void StoreSecondary::produce(edm::Event &e, const edm::EventSetup &) {
   *secNumber = nsecs;
   e.put(std::move(secNumber), "SecondaryParticles");
 
-  LogDebug("CheckSecondary") << "StoreSecondary:: Event " << e.id() << " with "
-                             << nsecs.size() << " hadronic collisions with "
+  LogDebug("CheckSecondary") << "StoreSecondary:: Event " << e.id() << " with " << nsecs.size()
+                             << " hadronic collisions with "
                              << "secondaries produced in each step";
   for (unsigned int i = 0; i < nsecs.size(); i++) {
     LogDebug("CheckSecondary") << " " << nsecs[i] << " from " << procs[i];
@@ -58,14 +55,12 @@ void StoreSecondary::produce(edm::Event &e, const edm::EventSetup &) {
 }
 
 void StoreSecondary::update(const BeginOfEvent *) {
-
   nsecs.clear();
   procs.clear();
   secondaries.clear();
 }
 
 void StoreSecondary::update(const BeginOfTrack *trk) {
-
   const G4Track *thTk = (*trk)();
   treatSecondary->initTrack(thTk);
   if (nsecs.empty() && thTk->GetParentID() <= 0)
@@ -76,14 +71,12 @@ void StoreSecondary::update(const BeginOfTrack *trk) {
 }
 
 void StoreSecondary::update(const G4Step *aStep) {
-
   std::string name;
   int procID;
   bool hadrInt;
   double deltaE;
   std::vector<int> charge;
-  std::vector<math::XYZTLorentzVector> tracks =
-      treatSecondary->tracks(aStep, name, procID, hadrInt, deltaE, charge);
+  std::vector<math::XYZTLorentzVector> tracks = treatSecondary->tracks(aStep, name, procID, hadrInt, deltaE, charge);
   if (hadrInt) {
     ++nHad;
     if (storeIt) {
