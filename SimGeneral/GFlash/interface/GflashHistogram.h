@@ -14,7 +14,6 @@
 #include <string>
 
 class GflashHistogram : public TObject {
-
 public:
   static GflashHistogram *instance();
 

@@ -25,7 +25,8 @@
 
 #include <vector>
 
-template <class C> class EcalZeroSuppressor {
+template <class C>
+class EcalZeroSuppressor {
 public:
   virtual ~EcalZeroSuppressor(){};
 
@@ -36,9 +37,7 @@ public:
   bool accept(const C &frame, const double &threshold);
 
   /// can be fetched every event from the EventSetup
-  void setPedestals(const EcalPedestals *pedestals) {
-    thePedestals = pedestals;
-  }
+  void setPedestals(const EcalPedestals *pedestals) { thePedestals = pedestals; }
 
 private:
   const EcalPedestals *thePedestals;

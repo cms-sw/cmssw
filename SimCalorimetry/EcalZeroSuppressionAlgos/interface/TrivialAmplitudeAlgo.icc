@@ -1,5 +1,5 @@
-template <class C> TrivialAmplitudeAlgo<C>::TrivialAmplitudeAlgo() {
-
+template <class C>
+TrivialAmplitudeAlgo<C>::TrivialAmplitudeAlgo() {
   // 3+1 set of trivial weights
 
   theWeights.reserve(10);
@@ -22,8 +22,8 @@ template <class C> TrivialAmplitudeAlgo<C>::TrivialAmplitudeAlgo() {
   theGainFactors[3] = 12.;
 }
 
-template <class C> double TrivialAmplitudeAlgo<C>::energy(const C &frame) {
-
+template <class C>
+double TrivialAmplitudeAlgo<C>::energy(const C &frame) {
   double Erec = 0.;
 
   // Simple energy computation with the weight method
@@ -32,20 +32,17 @@ template <class C> double TrivialAmplitudeAlgo<C>::energy(const C &frame) {
   for (int sample = 0; sample < frame.size(); ++sample) {
     int gain = (frame.sample(sample).gainId());
     if (gain >= 1 || gain <= 3) {
-      Erec = Erec + theWeights[sample] * (frame.sample(sample).adc()) *
-                        theGainFactors[gain];
+      Erec = Erec + theWeights[sample] * (frame.sample(sample).adc()) * theGainFactors[gain];
     } else {
-      edm::LogWarning("EcalAmplitudeError")
-          << "Wrong gain in frame " << sample << " \n"
-          << frame;
+      edm::LogWarning("EcalAmplitudeError") << "Wrong gain in frame " << sample << " \n" << frame;
     }
   }
 
   return Erec;
 }
 
-template <class C> double TrivialAmplitudeAlgo<C>::pedestal(const C &frame) {
-
+template <class C>
+double TrivialAmplitudeAlgo<C>::pedestal(const C &frame) {
   double PrePed = 0.;
 
   // Simple predestal from 3 first samples
@@ -54,12 +51,9 @@ template <class C> double TrivialAmplitudeAlgo<C>::pedestal(const C &frame) {
   for (int sample = 0; sample < 3; ++sample) {
     int gain = (frame.sample(sample).gainId());
     if (gain >= 1 || gain <= 3) {
-      PrePed = PrePed + theWeights[sample] * (frame.sample(sample).adc()) *
-                            theGainFactors[gain];
+      PrePed = PrePed + theWeights[sample] * (frame.sample(sample).adc()) * theGainFactors[gain];
     } else {
-      edm::LogWarning("EcalAmplitudeError")
-          << "Wrong gain in frame " << sample << " \n"
-          << frame;
+      edm::LogWarning("EcalAmplitudeError") << "Wrong gain in frame " << sample << " \n" << frame;
     }
   }
 

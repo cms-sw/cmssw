@@ -8,13 +8,11 @@
 #include "G4VProcess.hh"
 
 PrintTrackNumberAction::PrintTrackNumberAction(edm::ParameterSet const &p)
-    : theNoTracks(0), theNoTracksThisEvent(0), theNoTracksNoUL(0),
-      theNoTracksThisEventNoUL(0) {
+    : theNoTracks(0), theNoTracksThisEvent(0), theNoTracksNoUL(0), theNoTracksThisEventNoUL(0) {
   theNoTracksToPrint = p.getUntrackedParameter<int>("EachNTrack", -1);
   // do not count tracks killed by user limits (MinEkineCut for the moment only)
   bNoUserLimits = p.getUntrackedParameter<bool>("NoUserLimits", true);
-  std::cout << " PrintTrackNumberAction::bNoUserLimits " << bNoUserLimits
-            << std::endl;
+  std::cout << " PrintTrackNumberAction::bNoUserLimits " << bNoUserLimits << std::endl;
 }
 
 PrintTrackNumberAction::~PrintTrackNumberAction() {}
@@ -32,15 +30,13 @@ void PrintTrackNumberAction::update(const EndOfTrack *trk) {
     // that the energy is too low, set it to 0, and then at the next step
     // the 0-energy particle dies
     if (aTrack->GetCurrentStepNumber() == 2) {
-      const G4VProcess *proccur =
-          aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
+      const G4VProcess *proccur = aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
       if (proccur != nullptr) {
         if (proccur->GetProcessName() == "MinEkineCut") {
           countTrk = false;
         } else {
           // for e+, last step is annihil, while previous is MinEkineCut
-          const G4VProcess *procprev =
-              aTrack->GetStep()->GetPreStepPoint()->GetProcessDefinedStep();
+          const G4VProcess *procprev = aTrack->GetStep()->GetPreStepPoint()->GetProcessDefinedStep();
           if (procprev != nullptr) {
             if (procprev->GetProcessName() == "MinEkineCut") {
               countTrk = false;
@@ -54,16 +50,14 @@ void PrintTrackNumberAction::update(const EndOfTrack *trk) {
       theNoTracksThisEventNoUL++;
       if (theNoTracksToPrint > 0) {
         if (theNoTracksThisEventNoUL % theNoTracksToPrint == 0) {
-          std::cout << "PTNA: Simulating Track Number = "
-                    << theNoTracksThisEventNoUL << std::endl;
+          std::cout << "PTNA: Simulating Track Number = " << theNoTracksThisEventNoUL << std::endl;
         }
       }
     }
   } else {
     if (theNoTracksToPrint > 0) {
       if (theNoTracksThisEvent % theNoTracksToPrint == 0) {
-        std::cout << "PTNA: Simulating Track Number = " << theNoTracksThisEvent
-                  << std::endl;
+        std::cout << "PTNA: Simulating Track Number = " << theNoTracksThisEvent << std::endl;
       }
     }
   }
@@ -73,13 +67,11 @@ void PrintTrackNumberAction::update(const EndOfEvent *e) {
   const G4Event *g4e = (*e)();
   std::cout << "PTNA: Event simulated= " << g4e->GetEventID() << " #tracks= ";
   if (bNoUserLimits) {
-    std::cout << theNoTracksThisEventNoUL
-              << "  Total #tracks in run= " << theNoTracksNoUL
+    std::cout << theNoTracksThisEventNoUL << "  Total #tracks in run= " << theNoTracksNoUL
               << " counting killed by UL= " << theNoTracks << std::endl;
     theNoTracksThisEventNoUL = 0;
   } else {
-    std::cout << theNoTracksThisEvent
-              << "  Total #tracks in run= " << theNoTracks << std::endl;
+    std::cout << theNoTracksThisEvent << "  Total #tracks in run= " << theNoTracks << std::endl;
     theNoTracksThisEvent = 0;
   }
 }

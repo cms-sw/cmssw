@@ -8,8 +8,7 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GflashPiKShowerProfile(const edm::ParameterSet &parSet)
-      : GflashHadronShowerProfile(parSet){};
+  GflashPiKShowerProfile(const edm::ParameterSet &parSet) : GflashHadronShowerProfile(parSet){};
   ~GflashPiKShowerProfile() override{};
 
   void loadParameters() override;

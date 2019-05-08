@@ -28,13 +28,14 @@
 
 // forward declarations
 
-template <class T> class SimWatcherMaker : public SimWatcherMakerBase {
-
+template <class T>
+class SimWatcherMaker : public SimWatcherMakerBase {
 public:
   SimWatcherMaker() {}
 
   // ---------- const member functions ---------------------
-  void make(const edm::ParameterSet &p, SimActivityRegistry &reg,
+  void make(const edm::ParameterSet &p,
+            SimActivityRegistry &reg,
             std::shared_ptr<SimWatcher> &oWatcher,
             std::shared_ptr<SimProducer> &oProd) const override {
     auto returnValue = std::make_shared<T>(p);
@@ -46,12 +47,10 @@ public:
   }
 
 private:
-  std::shared_ptr<SimProducer> getSimProducer(SimProducer *,
-                                              std::shared_ptr<T> &iProd) const {
+  std::shared_ptr<SimProducer> getSimProducer(SimProducer *, std::shared_ptr<T> &iProd) const {
     return std::shared_ptr<SimProducer>(iProd);
   }
-  std::shared_ptr<SimProducer> getSimProducer(void *,
-                                              std::shared_ptr<T> &iProd) const {
+  std::shared_ptr<SimProducer> getSimProducer(void *, std::shared_ptr<T> &iProd) const {
     return std::shared_ptr<SimProducer>();
   }
 };

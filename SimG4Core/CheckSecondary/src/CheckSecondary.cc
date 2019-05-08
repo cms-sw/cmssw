@@ -23,13 +23,20 @@
 #include <iostream>
 
 CheckSecondary::CheckSecondary(const edm::ParameterSet &p)
-    : treatSecondary(nullptr), typeEnumerator(nullptr), nsec(nullptr),
-      procids(nullptr), px(nullptr), py(nullptr), pz(nullptr), mass(nullptr),
-      deltae(nullptr), procs(nullptr), file(nullptr), tree(nullptr) {
-
+    : treatSecondary(nullptr),
+      typeEnumerator(nullptr),
+      nsec(nullptr),
+      procids(nullptr),
+      px(nullptr),
+      py(nullptr),
+      pz(nullptr),
+      mass(nullptr),
+      deltae(nullptr),
+      procs(nullptr),
+      file(nullptr),
+      tree(nullptr) {
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("CheckSecondary");
-  std::string saveFile =
-      m_p.getUntrackedParameter<std::string>("SaveInFile", "None");
+  std::string saveFile = m_p.getUntrackedParameter<std::string>("SaveInFile", "None");
   treatSecondary = new TreatSecondary(m_p);
   typeEnumerator = new G4ProcessTypeEnumerator();
 
@@ -82,7 +89,6 @@ CheckSecondary::~CheckSecondary() {
 }
 
 TTree *CheckSecondary::bookTree(std::string fileName) {
-
   file = new TFile(fileName.c_str(), "RECREATE");
   file->cd();
 
@@ -99,10 +105,8 @@ TTree *CheckSecondary::bookTree(std::string fileName) {
 }
 
 void CheckSecondary::endTree() {
-
-  edm::LogInfo("CheckSecondary")
-      << "Save the Secondary Tree " << tree->GetName() << " (" << tree
-      << ") in file " << file->GetName() << " (" << file << ")";
+  edm::LogInfo("CheckSecondary") << "Save the Secondary Tree " << tree->GetName() << " (" << tree << ") in file "
+                                 << file->GetName() << " (" << file << ")";
   file->cd();
   tree->Write();
   file->Close();
@@ -110,10 +114,8 @@ void CheckSecondary::endTree() {
 }
 
 void CheckSecondary::update(const BeginOfEvent *evt) {
-
   int iev = (*evt)()->GetEventID();
-  LogDebug("CheckSecondary")
-      << "CheckSecondary::=====> Begin of event = " << iev;
+  LogDebug("CheckSecondary") << "CheckSecondary::=====> Begin of event = " << iev;
 
   (*nsec).clear();
   (*procs).clear();
@@ -126,7 +128,6 @@ void CheckSecondary::update(const BeginOfEvent *evt) {
 }
 
 void CheckSecondary::update(const BeginOfTrack *trk) {
-
   const G4Track *thTk = (*trk)();
   treatSecondary->initTrack(thTk);
   if (thTk->GetParentID() <= 0)
@@ -134,29 +135,25 @@ void CheckSecondary::update(const BeginOfTrack *trk) {
   else
     storeIt = false;
   nHad = 0;
-  LogDebug("CheckSecondary")
-      << "CheckSecondary:: Track " << thTk->GetTrackID() << " Parent "
-      << thTk->GetParentID() << " Flag " << storeIt;
+  LogDebug("CheckSecondary") << "CheckSecondary:: Track " << thTk->GetTrackID() << " Parent " << thTk->GetParentID()
+                             << " Flag " << storeIt;
 }
 
 void CheckSecondary::update(const G4Step *aStep) {
-
   std::string name;
   int procID;
   bool hadrInt;
   double deltaE;
   std::vector<int> charge;
-  std::vector<math::XYZTLorentzVector> tracks =
-      treatSecondary->tracks(aStep, name, procID, hadrInt, deltaE, charge);
+  std::vector<math::XYZTLorentzVector> tracks = treatSecondary->tracks(aStep, name, procID, hadrInt, deltaE, charge);
   if (storeIt && hadrInt) {
     double pInit = (aStep->GetPreStepPoint()->GetMomentum()).mag();
     double pEnd = (aStep->GetPostStepPoint()->GetMomentum()).mag();
     nHad++;
     int sec = (int)(tracks.size());
-    LogDebug("CheckSecondary")
-        << "CheckSecondary:: Hadronic Interaction " << nHad << " of type "
-        << name << " ID " << procID << " with " << sec << " secondaries "
-        << " and Momentum (MeV/c) at start " << pInit << " and at end " << pEnd;
+    LogDebug("CheckSecondary") << "CheckSecondary:: Hadronic Interaction " << nHad << " of type " << name << " ID "
+                               << procID << " with " << sec << " secondaries "
+                               << " and Momentum (MeV/c) at start " << pInit << " and at end " << pEnd;
     (*nsec).push_back(sec);
     (*procs).push_back(name);
     (*procids).push_back(procID);
@@ -176,22 +173,18 @@ void CheckSecondary::update(const G4Step *aStep) {
 }
 
 void CheckSecondary::update(const EndOfEvent *evt) {
-
-  LogDebug("CheckSecondary")
-      << "CheckSecondary::EndofEvent =====> Event " << (*evt)()->GetEventID()
-      << " with " << (*nsec).size() << " hadronic collisions with"
-      << " secondaries produced in each step";
+  LogDebug("CheckSecondary") << "CheckSecondary::EndofEvent =====> Event " << (*evt)()->GetEventID() << " with "
+                             << (*nsec).size() << " hadronic collisions with"
+                             << " secondaries produced in each step";
   for (unsigned int i = 0; i < (*nsec).size(); i++)
-    LogDebug("CheckSecondary")
-        << " " << (*nsec)[i] << " from " << (*procs)[i] << " ID "
-        << (*procids)[i] << " (" << typeEnumerator->processG4Name((*procids)[i])
-        << ") deltaE = " << (*deltae)[i] << " MeV";
+    LogDebug("CheckSecondary") << " " << (*nsec)[i] << " from " << (*procs)[i] << " ID " << (*procids)[i] << " ("
+                               << typeEnumerator->processG4Name((*procids)[i]) << ") deltaE = " << (*deltae)[i]
+                               << " MeV";
   LogDebug("CheckSecondary") << "And " << (*mass).size() << " secondaries "
                              << "produced in the first interactions";
   for (unsigned int i = 0; i < (*mass).size(); i++)
-    LogDebug("CheckSecondary")
-        << "Secondary " << i << " (" << (*px)[i] << ", " << (*py)[i] << ", "
-        << (*pz)[i] << ", " << (*mass)[i] << ")";
+    LogDebug("CheckSecondary") << "Secondary " << i << " (" << (*px)[i] << ", " << (*py)[i] << ", " << (*pz)[i] << ", "
+                               << (*mass)[i] << ")";
 
   if (saveToTree)
     tree->Fill();

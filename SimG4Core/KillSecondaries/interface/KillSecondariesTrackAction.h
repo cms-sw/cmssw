@@ -7,9 +7,7 @@
 
 class BeginOfTrack;
 
-class KillSecondariesTrackAction : public SimWatcher,
-                                   public Observer<const BeginOfTrack *> {
-
+class KillSecondariesTrackAction : public SimWatcher, public Observer<const BeginOfTrack *> {
 public:
   KillSecondariesTrackAction(edm::ParameterSet const &p);
   ~KillSecondariesTrackAction() override;
