@@ -9,7 +9,6 @@
 #include <vector>
 
 class SaveSimTrack : public SimWatcher, public Observer<const BeginOfTrack *> {
-
 public:
   SaveSimTrack(edm::ParameterSet const &p);
   ~SaveSimTrack() override;

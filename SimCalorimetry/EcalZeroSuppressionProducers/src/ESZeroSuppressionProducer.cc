@@ -2,9 +2,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "SimCalorimetry/EcalZeroSuppressionProducers/interface/ESZeroSuppressionProducer.h"
 
-ESZeroSuppressionProducer::ESZeroSuppressionProducer(
-    const edm::ParameterSet &ps) {
-
+ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet &ps) {
   digiProducer_ = ps.getParameter<std::string>("digiProducer");
   ESdigiCollection_ = ps.getParameter<std::string>("ESdigiCollection");
   ESZSdigiCollection_ = ps.getParameter<std::string>("ESZSdigiCollection");
@@ -17,9 +15,7 @@ ESZeroSuppressionProducer::ESZeroSuppressionProducer(
 
 ESZeroSuppressionProducer::~ESZeroSuppressionProducer() {}
 
-void ESZeroSuppressionProducer::produce(edm::Event &event,
-                                        const edm::EventSetup &eventSetup) {
-
+void ESZeroSuppressionProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
   eventSetup.get<ESThresholdsRcd>().get(esthresholds_);
   const ESThresholds *thresholds = esthresholds_.product();
 
@@ -33,17 +29,14 @@ void ESZeroSuppressionProducer::produce(edm::Event &event,
   bool fullESDigis = true;
   event.getByToken(ES_token, ESDigis);
   if (!ESDigis.isValid()) {
-    edm::LogError("ZeroSuppressionError")
-        << "Error! can't get the product " << ESdigiCollection_.c_str();
+    edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << ESdigiCollection_.c_str();
     fullESDigis = false;
   }
 
   std::unique_ptr<ESDigiCollection> ESZSDigis(new ESDigiCollection());
 
   if (fullESDigis) {
-    for (ESDigiCollection::const_iterator i(ESDigis->begin());
-         i != ESDigis->end(); ++i) {
-
+    for (ESDigiCollection::const_iterator i(ESDigis->begin()); i != ESDigis->end(); ++i) {
       ESDataFrame dataframe = (*i);
 
       ESPedestals::const_iterator it_ped = pedestals->find(dataframe.id());

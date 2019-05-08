@@ -21,7 +21,8 @@
 
 #include <vector>
 
-template <class C> class TrivialAmplitudeAlgo {
+template <class C>
+class TrivialAmplitudeAlgo {
 public:
   explicit TrivialAmplitudeAlgo();
   virtual ~TrivialAmplitudeAlgo(){};

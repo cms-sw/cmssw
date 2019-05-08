@@ -27,13 +27,12 @@ class CheckSecondary : public SimWatcher,
                        public Observer<const BeginOfTrack *>,
                        public Observer<const EndOfEvent *>,
                        public Observer<const G4Step *> {
-
 public:
   CheckSecondary(const edm::ParameterSet &p);
   ~CheckSecondary() override;
 
 private:
-  CheckSecondary(const CheckSecondary &) = delete; // stop default
+  CheckSecondary(const CheckSecondary &) = delete;  // stop default
   const CheckSecondary &operator=(const CheckSecondary &) = delete;
 
   // observer classes

@@ -3,23 +3,24 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-template <class M> const double CorrelatedNoisifier<M>::k_precision(1.e-7);
-
-template <class M> CorrelatedNoisifier<M>::~CorrelatedNoisifier() {}
+template <class M>
+const double CorrelatedNoisifier<M>::k_precision(1.e-7);
 
 template <class M>
-CorrelatedNoisifier<M>::CorrelatedNoisifier(const M &symCorMat)
-    : m_H(ROOT::Math::SMatrixIdentity()) {
+CorrelatedNoisifier<M>::~CorrelatedNoisifier() {}
+
+template <class M>
+CorrelatedNoisifier<M>::CorrelatedNoisifier(const M &symCorMat) : m_H(ROOT::Math::SMatrixIdentity()) {
   init(symCorMat);
 }
 
 template <class M>
-CorrelatedNoisifier<M>::CorrelatedNoisifier(int *dummy, const M &cholDecMat)
-    : m_H(cholDecMat) {
+CorrelatedNoisifier<M>::CorrelatedNoisifier(int *dummy, const M &cholDecMat) : m_H(cholDecMat) {
   initChol();
 }
 
-template <class M> void CorrelatedNoisifier<M>::initChol() {
+template <class M>
+void CorrelatedNoisifier<M>::initChol() {
   M symCorMat;
   for (unsigned int i = 0; i < m_H.kRows; ++i) {
     for (unsigned int j = 0; j < m_H.kRows; ++j) {
@@ -47,20 +48,19 @@ void CorrelatedNoisifier<M>::resetCholDecompMatrix(const M &cholDecMat) {
   initChol();
 }
 
-template <class M> void CorrelatedNoisifier<M>::init(const M &symCorMat) {
+template <class M>
+void CorrelatedNoisifier<M>::init(const M &symCorMat) {
   checkOffDiagonal(symCorMat);
 
   const bool okDecomp(m_isIdentity || computeDecomposition(symCorMat));
 
   if (!okDecomp)
-    throw cms::Exception("CorrelatedNoisifier")
-        << "Bad covariance matrix. " << symCorMat;
+    throw cms::Exception("CorrelatedNoisifier") << "Bad covariance matrix. " << symCorMat;
 
   M HHtDiff;
   const bool check(checkDecomposition(symCorMat, HHtDiff));
   if (!check)
-    throw cms::Exception("CorrelatedNoisifier")
-        << "Decomposition failed, difference = " << HHtDiff;
+    throw cms::Exception("CorrelatedNoisifier") << "Decomposition failed, difference = " << HHtDiff;
 }
 
 template <class M>
@@ -70,8 +70,7 @@ void CorrelatedNoisifier<M>::checkOffDiagonal(const M &symCorMat) {
 
   for (unsigned int i = 0; i < m_H.kRows; i++) {
     if (symCorMat(i, i) < 0.)
-      throw cms::Exception("CorrelatedNoisifier")
-          << "Bad correlation matrix.  Negative diagonal";
+      throw cms::Exception("CorrelatedNoisifier") << "Bad correlation matrix.  Negative diagonal";
     if (m_isIdentity && fabs(symCorMat(i, i) - 1.) > k_precision)
       m_isIdentity = false;
     for (unsigned int j = 0; j < i; ++j) {
@@ -91,7 +90,6 @@ bool CorrelatedNoisifier<M>::computeDecomposition(const M &symCorMat) {
   for (unsigned int i = 0; i < m_H.kRows; ++i) {
     m_H(i, 0) = symCorMat(i, 0) / s00;
     if (0 < i) {
-
       if (!m_isDiagonal) {
         for (unsigned int j = 1; j < i; ++j) {
           double sum(symCorMat(i, j));
@@ -108,7 +106,7 @@ bool CorrelatedNoisifier<M>::computeDecomposition(const M &symCorMat) {
       }
 
       if (hii <= k_precision)
-        return false; // protect sqrt in next line
+        return false;  // protect sqrt in next line
 
       m_H(i, i) = sqrt(hii);
     }
@@ -117,8 +115,7 @@ bool CorrelatedNoisifier<M>::computeDecomposition(const M &symCorMat) {
 }
 
 template <class M>
-bool CorrelatedNoisifier<M>::checkDecomposition(const M &symCorMat,
-                                                M &HHtDiff) const {
+bool CorrelatedNoisifier<M>::checkDecomposition(const M &symCorMat, M &HHtDiff) const {
   bool equal(true);
   for (unsigned int i = 0; i < m_H.kRows; ++i) {
     for (unsigned int j = 0; j < m_H.kRows; ++j) {
@@ -138,13 +135,12 @@ bool CorrelatedNoisifier<M>::checkDecomposition(const M &symCorMat,
 
 template <class M>
 template <class T>
-void CorrelatedNoisifier<M>::noisify(
-    T &frame, CLHEP::HepRandomEngine *engine,
-    const typename CorrelatedNoisifier<M>::VecDou *rangau) const {
+void CorrelatedNoisifier<M>::noisify(T &frame,
+                                     CLHEP::HepRandomEngine *engine,
+                                     const typename CorrelatedNoisifier<M>::VecDou *rangau) const {
   if ((unsigned int)frame.size() != (unsigned int)m_H.kRows)
-    throw cms::Exception("Configuration")
-        << "CorrelatedNoisifier::noisify(frame) was passed wrong size frame "
-           "object";
+    throw cms::Exception("Configuration") << "CorrelatedNoisifier::noisify(frame) was passed wrong size frame "
+                                             "object";
 
   if (nullptr != rangau) {
     assert(m_H.kRows == rangau->size());
@@ -164,12 +160,12 @@ void CorrelatedNoisifier<M>::noisify(
   }
 }
 
-template <class M> const M &CorrelatedNoisifier<M>::cholMat() const {
+template <class M>
+const M &CorrelatedNoisifier<M>::cholMat() const {
   return m_H;
 }
 
 template <class M>
-const typename CorrelatedNoisifier<M>::VecDou &
-CorrelatedNoisifier<M>::vecgau() const {
+const typename CorrelatedNoisifier<M>::VecDou &CorrelatedNoisifier<M>::vecgau() const {
   return m_vecgau;
 }

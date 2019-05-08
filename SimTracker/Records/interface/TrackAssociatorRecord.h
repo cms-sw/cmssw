@@ -18,7 +18,6 @@
 class TrackAssociatorRecord
     : public edm::eventsetup::DependentRecordImplementation<
           TrackAssociatorRecord,
-          boost::mpl::vector<IdealMagneticFieldRecord, TrackingComponentsRecord,
-                             GlobalTrackingGeometryRecord>> {};
+          boost::mpl::vector<IdealMagneticFieldRecord, TrackingComponentsRecord, GlobalTrackingGeometryRecord>> {};
 
 #endif

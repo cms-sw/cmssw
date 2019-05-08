@@ -12,8 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 CastorTTRecord::CastorTTRecord(const edm::ParameterSet &ps) {
-  CastorDigiColl_ = consumes<CastorDigiCollection>(
-      ps.getParameter<edm::InputTag>("CastorDigiCollection"));
+  CastorDigiColl_ = consumes<CastorDigiCollection>(ps.getParameter<edm::InputTag>("CastorDigiCollection"));
   CastorSignalTS_ = ps.getParameter<unsigned int>("CastorSignalTS");
 
   ttpBits_ = ps.getParameter<std::vector<unsigned int>>("ttpBits");
@@ -28,7 +27,6 @@ CastorTTRecord::CastorTTRecord(const edm::ParameterSet &ps) {
 CastorTTRecord::~CastorTTRecord() {}
 
 void CastorTTRecord::produce(edm::Event &e, const edm::EventSetup &eventSetup) {
-
   // std::cerr << "**** RUNNING THROUGH CastorTTRecord::produce" << std::endl;
 
   std::vector<L1GtTechnicalTrigger> vecTT(ttpBits_.size());
@@ -38,7 +36,6 @@ void CastorTTRecord::produce(edm::Event &e, const edm::EventSetup &eventSetup) {
   e.getByToken(CastorDigiColl_, CastorDigiColl);
 
   if (!CastorDigiColl.failedToGet()) {
-
     double cas_efC[16][14];
     getEnergy_fC(cas_efC, CastorDigiColl, e, eventSetup);
 
@@ -51,8 +48,7 @@ void CastorTTRecord::produce(edm::Event &e, const edm::EventSetup &eventSetup) {
       // std::endl; std::cout << "Run CastorTTRecord::produce. TriggerBit = " <<
       // ttpBits_.at(i) << "; TriggerName = " << TrigNames_.at(i) << "; Decision
       // = " << decision[i] << std::endl;
-      vecTT.at(i) = L1GtTechnicalTrigger(TrigNames_.at(i), ttpBits_.at(i), 0,
-                                         decision.at(i));
+      vecTT.at(i) = L1GtTechnicalTrigger(TrigNames_.at(i), ttpBits_.at(i), 0, decision.at(i));
     }
 
   } else {
@@ -60,23 +56,22 @@ void CastorTTRecord::produce(edm::Event &e, const edm::EventSetup &eventSetup) {
   }
 
   // Put output into event
-  std::unique_ptr<L1GtTechnicalTriggerRecord> output(
-      new L1GtTechnicalTriggerRecord());
+  std::unique_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
   output->setGtTechnicalTrigger(vecTT);
   e.put(std::move(output));
 }
 
-void CastorTTRecord::getEnergy_fC(
-    double energy[16][14], edm::Handle<CastorDigiCollection> &CastorDigiColl,
-    edm::Event &e, const edm::EventSetup &eventSetup) {
+void CastorTTRecord::getEnergy_fC(double energy[16][14],
+                                  edm::Handle<CastorDigiCollection> &CastorDigiColl,
+                                  edm::Event &e,
+                                  const edm::EventSetup &eventSetup) {
   // std::cerr << "**** RUNNING THROUGH CastorTTRecord::getEnergy_fC" <<
   // std::endl;
 
   // Get Conditions
   edm::ESHandle<CastorDbService> conditions;
   eventSetup.get<CastorDbRecord>().get(conditions);
-  const CastorQIEShape *shape =
-      conditions->getCastorShape(); // this one is generic
+  const CastorQIEShape *shape = conditions->getCastorShape();  // this one is generic
 
   for (int isec = 0; isec < 16; isec++)
     for (int imod = 0; imod < 14; imod++)
@@ -84,8 +79,7 @@ void CastorTTRecord::getEnergy_fC(
 
   // Loop over digis
   CastorDigiCollection::const_iterator idigi;
-  for (idigi = CastorDigiColl->begin(); idigi != CastorDigiColl->end();
-       idigi++) {
+  for (idigi = CastorDigiColl->begin(); idigi != CastorDigiColl->end(); idigi++) {
     const CastorDataFrame &digi = (*idigi);
     HcalCastorDetId cell = digi.id();
 
@@ -94,8 +88,7 @@ void CastorTTRecord::getEnergy_fC(
     CastorCoderDb coder(*channelCoder, *shape);
 
     // Get Castor Calibration
-    const CastorCalibrations &calibrations =
-        conditions->getCastorCalibrations(cell);
+    const CastorCalibrations &calibrations = conditions->getCastorCalibrations(cell);
 
     // convert adc to fC
     CaloSamples tool;
@@ -112,8 +105,7 @@ void CastorTTRecord::getEnergy_fC(
   }
 }
 
-void CastorTTRecord::getTriggerDecisions(std::vector<bool> &decision,
-                                         double energy[16][14]) const {
+void CastorTTRecord::getTriggerDecisions(std::vector<bool> &decision, double energy[16][14]) const {
   // std::cerr << "**** RUNNING THROUGH CastorTTRecord::getTriggerDecisions" <<
   // std::endl;
 
@@ -121,7 +113,7 @@ void CastorTTRecord::getTriggerDecisions(std::vector<bool> &decision,
   if (decision.size() < 4)
     return;
 
-  std::vector<bool> tdpo[8]; // TriggerDecisionsPerOctant
+  std::vector<bool> tdpo[8];  // TriggerDecisionsPerOctant
   getTriggerDecisionsPerOctant(tdpo, energy);
 
   // preset trigger decisions
@@ -158,12 +150,10 @@ void CastorTTRecord::getTriggerDecisions(std::vector<bool> &decision,
       // was one of the other sectors
       // in the octant empty ?
       if (tdpo[ioct].at(0)) {
-        if (tdpo[prev_oct].at(1) && tdpo[next_oct].at(0) &&
-            tdpo[next_oct].at(1))
+        if (tdpo[prev_oct].at(1) && tdpo[next_oct].at(0) && tdpo[next_oct].at(1))
           decision.at(3) = true;
       } else if (tdpo[ioct].at(1)) {
-        if (tdpo[prev_oct].at(0) && tdpo[prev_oct].at(1) &&
-            tdpo[next_oct].at(0))
+        if (tdpo[prev_oct].at(0) && tdpo[prev_oct].at(1) && tdpo[next_oct].at(0))
           decision.at(3) = true;
       }
       // when not no iso muon
@@ -179,8 +169,7 @@ void CastorTTRecord::getTriggerDecisions(std::vector<bool> &decision,
   // decision.at(2) = EM_decision && !HAD_decision;
 }
 
-void CastorTTRecord::getTriggerDecisionsPerOctant(std::vector<bool> tdpo[8],
-                                                  double energy[16][14]) const {
+void CastorTTRecord::getTriggerDecisionsPerOctant(std::vector<bool> tdpo[8], double energy[16][14]) const {
   // std::cerr << "**** RUNNING THROUGH
   // CastorTTRecord::getTriggerDecisionsPerOctant" << std::endl;
 
@@ -251,8 +240,7 @@ void CastorTTRecord::getTriggerDecisionsPerOctant(std::vector<bool> tdpo[8],
       */
       if (fCsum_jet_had > TrigThresholds_.at(1) / reweighted_gain)
         // additional high threshold near saturation for EM part
-        if (energy[isec][0] > 26000 / reweighted_gain &&
-            energy[isec][1] > 26000 / reweighted_gain)
+        if (energy[isec][0] > 26000 / reweighted_gain && energy[isec][1] > 26000 / reweighted_gain)
           tdpo[ioct].at(2) = true;
 
       // low pt jet Trigger
