@@ -1,6 +1,6 @@
 /*
  * Tests for loading meta graphs via the SavedModel interface.
- * Based on TensorFlow C++ API 1.3.
+ * Based on TensorFlow C++ API 1.13.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
