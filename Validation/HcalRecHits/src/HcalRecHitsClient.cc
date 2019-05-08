@@ -9,11 +9,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-HcalRecHitsClient::HcalRecHitsClient(const edm::ParameterSet &iConfig)
-    : conf_(iConfig) {
-
-  outputFile_ =
-      iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
+HcalRecHitsClient::HcalRecHitsClient(const edm::ParameterSet &iConfig) : conf_(iConfig) {
+  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
   debug_ = false;
   verbose_ = false;
@@ -23,17 +20,12 @@ HcalRecHitsClient::HcalRecHitsClient(const edm::ParameterSet &iConfig)
 
 HcalRecHitsClient::~HcalRecHitsClient() {}
 
-void HcalRecHitsClient::dqmEndJob(DQMStore::IBooker &ib,
-                                  DQMStore::IGetter &ig) {
-  ig.setCurrentFolder(dirName_);
-}
+void HcalRecHitsClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) { ig.setCurrentFolder(dirName_); }
 
 // called after entering the HcalRecHitsV/HcalRecHitTask directory
 // hcalMEs are within that directory
-int HcalRecHitsClient::HcalRecHitsEndjob(
-    const std::vector<MonitorElement *> &hcalMEs) {
-
-  return 1; // Removed all actions
+int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement *> &hcalMEs) {
+  return 1;  // Removed all actions
 }
 
 DEFINE_FWK_MODULE(HcalRecHitsClient);

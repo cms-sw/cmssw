@@ -15,15 +15,13 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 class RPCDigiValid : public DQMEDAnalyzer {
-
 public:
   RPCDigiValid(const edm::ParameterSet &ps);
   ~RPCDigiValid() override;
 
 protected:
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   MonitorElement *xyview;

@@ -8,10 +8,9 @@
 
 class HistoData {
 public:
-  HistoData(std::string Name, int PlotType, int Bin, std::string NewPath,
-            TFile *NewFile, std::string RefPath, TFile *RefFile);
-  HistoData(std::string Name, int PlotType, int Bin, TH1 *NewHisto,
-            TH1 *RefHisto);
+  HistoData(
+      std::string Name, int PlotType, int Bin, std::string NewPath, TFile *NewFile, std::string RefPath, TFile *RefFile);
+  HistoData(std::string Name, int PlotType, int Bin, TH1 *NewHisto, TH1 *RefHisto);
   virtual ~HistoData() {}
 
   // Get General Information
@@ -45,14 +44,10 @@ public:
 
   // Get Visual Attributes
   bool getLineUseFillColor() const { return lineUseFillColor; }
-  int getSolidLineColor() const {
-    return lineUseFillColor ? solidFillColor : solidLineColor;
-  }
+  int getSolidLineColor() const { return lineUseFillColor ? solidFillColor : solidLineColor; }
   int getSolidFillColor() const { return solidFillColor; }
   int getSolidFillStyle() const { return solidFillStyle; }
-  int getShadedLineColor() const {
-    return lineUseFillColor ? shadedFillColor : shadedLineColor;
-  }
+  int getShadedLineColor() const { return lineUseFillColor ? shadedFillColor : shadedLineColor; }
   int getShadedFillColor() const { return shadedFillColor; }
   int getShadedFillStyle() const { return shadedFillStyle; }
 
@@ -83,7 +78,7 @@ public:
   void setChi2Score(float Score) { chi2Score = Score; }
   void setLowScore(float Score) { lowScore = Score; }
   void setHighScore(float Score) { highScore = Score; }
-  void setResult(bool Result); // also sets display colors
+  void setResult(bool Result);  // also sets display colors
   void setIsEmpty(bool Toggle) { isEmpty = Toggle; }
 
   // Set Visual Attributes
@@ -142,4 +137,4 @@ private:
   void initialize();
 };
 
-#endif // HISTO_DATA__H
+#endif  // HISTO_DATA__H

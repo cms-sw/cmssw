@@ -20,23 +20,18 @@ DTRecHitClients::DTRecHitClients(edm::ParameterSet const &pset) {
 
 DTRecHitClients::~DTRecHitClients() {}
 
-void DTRecHitClients::dqmEndJob(DQMStore::IBooker &booker,
-                                DQMStore::IGetter &getter) {
+void DTRecHitClients::dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGetter &getter) {
   MonitorElement *hRes_S3RPhi = getter.get("DT/1DRecHits/Res/1D_S3RPhi_hRes");
   MonitorElement *hRes_S3RZ = getter.get("DT/1DRecHits/Res/1D_S3RZ_hRes");
   MonitorElement *hRes_S3RZ_W0 = getter.get("DT/1DRecHits/Res/1D_S3RZ_W0_hRes");
   MonitorElement *hRes_S3RZ_W1 = getter.get("DT/1DRecHits/Res/1D_S3RZ_W1_hRes");
   MonitorElement *hRes_S3RZ_W2 = getter.get("DT/1DRecHits/Res/1D_S3RZ_W2_hRes");
 
-  MonitorElement *hPull_S3RPhi =
-      getter.get("DT/1DRecHits/Pull/1D_S3RPhi_hPull");
+  MonitorElement *hPull_S3RPhi = getter.get("DT/1DRecHits/Pull/1D_S3RPhi_hPull");
   MonitorElement *hPull_S3RZ = getter.get("DT/1DRecHits/Pull/1D_S3RZ_hPull");
-  MonitorElement *hPull_S3RZ_W0 =
-      getter.get("DT/1DRecHits/Pull/1D_S3RZ_W0_hPull");
-  MonitorElement *hPull_S3RZ_W1 =
-      getter.get("DT/1DRecHits/Pull/1D_S3RZ_W1_hPull");
-  MonitorElement *hPull_S3RZ_W2 =
-      getter.get("DT/1DRecHits/Pull/1D_S3RZ_W2_hPull");
+  MonitorElement *hPull_S3RZ_W0 = getter.get("DT/1DRecHits/Pull/1D_S3RZ_W0_hPull");
+  MonitorElement *hPull_S3RZ_W1 = getter.get("DT/1DRecHits/Pull/1D_S3RZ_W1_hPull");
+  MonitorElement *hPull_S3RZ_W2 = getter.get("DT/1DRecHits/Pull/1D_S3RZ_W2_hPull");
 
   Tutils util;
   util.drawGFit(hRes_S3RPhi->getTH1(), -0.2, 0.2, -0.1, 0.1);
@@ -81,15 +76,11 @@ void DTRecHitClients::dqmEndJob(DQMStore::IBooker &booker,
     TString name2 = "RZ_W";
     for (long w = 0; w <= 2; ++w) {
       for (long s = 1; s <= 4; ++s) {
-        HEff1DHitHarvest hEff_S1RPhiWS(("S1" + name1 + w + "_St" + s).Data(),
-                                       booker, getter);
-        HEff1DHitHarvest hEff_S3RPhiWS(("S3" + name1 + w + "_St" + s).Data(),
-                                       booker, getter);
+        HEff1DHitHarvest hEff_S1RPhiWS(("S1" + name1 + w + "_St" + s).Data(), booker, getter);
+        HEff1DHitHarvest hEff_S3RPhiWS(("S3" + name1 + w + "_St" + s).Data(), booker, getter);
         if (s != 4) {
-          HEff1DHitHarvest hEff_S1RZWS(("S1" + name2 + w + "_St" + s).Data(),
-                                       booker, getter);
-          HEff1DHitHarvest hEff_S3RZWS(("S3" + name2 + w + "_St" + s).Data(),
-                                       booker, getter);
+          HEff1DHitHarvest hEff_S1RZWS(("S1" + name2 + w + "_St" + s).Data(), booker, getter);
+          HEff1DHitHarvest hEff_S3RZWS(("S3" + name2 + w + "_St" + s).Data(), booker, getter);
         }
       }
     }

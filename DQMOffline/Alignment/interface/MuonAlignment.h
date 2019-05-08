@@ -51,10 +51,10 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 namespace edm {
-class ParameterSet;
-class EventSetup;
-class InputTag;
-} // namespace edm
+  class ParameterSet;
+  class EventSetup;
+  class InputTag;
+}  // namespace edm
 
 class TH1F;
 
@@ -118,7 +118,8 @@ private:
 
   RecHitVector doMatching(const reco::Track &,
                           edm::Handle<DTRecSegment4DCollection> &,
-                          edm::Handle<CSCSegmentCollection> &, intDVector *,
+                          edm::Handle<CSCSegmentCollection> &,
+                          intDVector *,
                           intDVector *,
                           edm::ESHandle<GlobalTrackingGeometry> &);
 
@@ -132,10 +133,8 @@ private:
   std::string trackRefitterType;
 
   // residual histos residual range
-  double resLocalXRangeStation1, resLocalXRangeStation2, resLocalXRangeStation3,
-      resLocalXRangeStation4;
-  double resLocalYRangeStation1, resLocalYRangeStation2, resLocalYRangeStation3,
-      resLocalYRangeStation4;
+  double resLocalXRangeStation1, resLocalXRangeStation2, resLocalXRangeStation3, resLocalXRangeStation4;
+  double resLocalYRangeStation1, resLocalYRangeStation2, resLocalYRangeStation3, resLocalYRangeStation4;
   double resPhiRange, resThetaRange;
 
   // mean and rms histos ranges

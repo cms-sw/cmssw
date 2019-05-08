@@ -37,75 +37,52 @@ using namespace std;
 using namespace reco;
 
 PFTester::PFTester(const edm::ParameterSet &iConfig) {
-
-  inputPFlowLabel_tok_ = consumes<reco::PFCandidateCollection>(
-      iConfig.getParameter<std::string>("InputPFlowLabel"));
+  inputPFlowLabel_tok_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<std::string>("InputPFlowLabel"));
   outputFile_ = iConfig.getUntrackedParameter<std::string>("OutputFile");
 
   if (!outputFile_.empty())
-    edm::LogInfo("OutputInfo")
-        << " ParticleFLow Task histograms will be saved to '"
-        << outputFile_.c_str() << "'";
+    edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str() << "'";
   else
-    edm::LogInfo("OutputInfo")
-        << " ParticleFlow Task histograms will NOT be saved";
+    edm::LogInfo("OutputInfo") << " ParticleFlow Task histograms will NOT be saved";
 }
 
 PFTester::~PFTester() {}
 
 void PFTester::beginJob() {
-
   // get ahold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
 
   if (dbe_) {
-
     dbe_->setCurrentFolder("PFTask/PFCandidates");
 
-    me["CandidateEt"] =
-        dbe_->book1D("CandidateEt", "CandidateEt", 1000, 0, 1000);
-    me["CandidateEta"] =
-        dbe_->book1D("CandidateEta", "CandidateEta", 200, -5, 5);
-    me["CandidatePhi"] =
-        dbe_->book1D("CandidatePhi", "CandidatePhi", 200, -M_PI, M_PI);
-    me["CandidateCharge"] =
-        dbe_->book1D("CandidateCharge", "CandidateCharge", 5, -2, 2);
-    me["PFCandidateType"] =
-        dbe_->book1D("PFCandidateType", "PFCandidateType", 10, 0, 10);
+    me["CandidateEt"] = dbe_->book1D("CandidateEt", "CandidateEt", 1000, 0, 1000);
+    me["CandidateEta"] = dbe_->book1D("CandidateEta", "CandidateEta", 200, -5, 5);
+    me["CandidatePhi"] = dbe_->book1D("CandidatePhi", "CandidatePhi", 200, -M_PI, M_PI);
+    me["CandidateCharge"] = dbe_->book1D("CandidateCharge", "CandidateCharge", 5, -2, 2);
+    me["PFCandidateType"] = dbe_->book1D("PFCandidateType", "PFCandidateType", 10, 0, 10);
 
     dbe_->setCurrentFolder("PFTask/PFBlocks");
 
     me["NumElements"] = dbe_->book1D("NumElements", "NumElements", 25, 0, 25);
-    me["NumTrackElements"] =
-        dbe_->book1D("NumTrackElements", "NumTrackElements", 5, 0, 5);
-    me["NumPS1Elements"] =
-        dbe_->book1D("NumPS1Elements", "NumPS1Elements", 5, 0, 5);
-    me["NumPS2Elements"] =
-        dbe_->book1D("NumPS2Elements", "NumPS2Elements", 5, 0, 5);
-    me["NumECALElements"] =
-        dbe_->book1D("NumECALElements", "NumECALElements", 5, 0, 5);
-    me["NumHCALElements"] =
-        dbe_->book1D("NumHCALElements", "NumHCALElements", 5, 0, 5);
-    me["NumMuonElements"] =
-        dbe_->book1D("NumMuonElements", "NumMuonElements", 5, 0, 5);
+    me["NumTrackElements"] = dbe_->book1D("NumTrackElements", "NumTrackElements", 5, 0, 5);
+    me["NumPS1Elements"] = dbe_->book1D("NumPS1Elements", "NumPS1Elements", 5, 0, 5);
+    me["NumPS2Elements"] = dbe_->book1D("NumPS2Elements", "NumPS2Elements", 5, 0, 5);
+    me["NumECALElements"] = dbe_->book1D("NumECALElements", "NumECALElements", 5, 0, 5);
+    me["NumHCALElements"] = dbe_->book1D("NumHCALElements", "NumHCALElements", 5, 0, 5);
+    me["NumMuonElements"] = dbe_->book1D("NumMuonElements", "NumMuonElements", 5, 0, 5);
 
     dbe_->setCurrentFolder("PFTask/PFTracks");
 
     me["TrackCharge"] = dbe_->book1D("TrackCharge", "TrackCharge", 5, -2, 2);
-    me["TrackNumPoints"] =
-        dbe_->book1D("TrackNumPoints", "TrackNumPoints", 100, 0, 100);
-    me["TrackNumMeasurements"] = dbe_->book1D(
-        "TrackNumMeasurements", "TrackNumMeasurements", 100, 0, 100);
-    me["TrackImpactParameter"] = dbe_->book1D(
-        "TrackImpactParameter", "TrackImpactParameter", 1000, 0, 1);
+    me["TrackNumPoints"] = dbe_->book1D("TrackNumPoints", "TrackNumPoints", 100, 0, 100);
+    me["TrackNumMeasurements"] = dbe_->book1D("TrackNumMeasurements", "TrackNumMeasurements", 100, 0, 100);
+    me["TrackImpactParameter"] = dbe_->book1D("TrackImpactParameter", "TrackImpactParameter", 1000, 0, 1);
 
     dbe_->setCurrentFolder("PFTask/PFClusters");
   }
 }
 
-void PFTester::analyze(const edm::Event &iEvent,
-                       const edm::EventSetup &iSetup) {
-
+void PFTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Data to Retrieve from the Event
   const PFCandidateCollection *pflow_candidates;
 
@@ -114,7 +91,6 @@ void PFTester::analyze(const edm::Event &iEvent,
   // ==========================================================
 
   {
-
     // Get Particle Flow Candidates
     Handle<PFCandidateCollection> pflow_hnd;
     iEvent.getByToken(inputPFlowLabel_tok_, pflow_hnd);
@@ -122,9 +98,7 @@ void PFTester::analyze(const edm::Event &iEvent,
   }
 
   if (!pflow_candidates) {
-
-    edm::LogInfo("OutputInfo")
-        << " failed to retrieve data required by ParticleFlow Task";
+    edm::LogInfo("OutputInfo") << " failed to retrieve data required by ParticleFlow Task";
     edm::LogInfo("OutputInfo") << " ParticleFlow Task cannot continue...!";
     return;
   }
@@ -136,7 +110,6 @@ void PFTester::analyze(const edm::Event &iEvent,
   // Loop Over Particle Flow Candidates
   PFCandidateCollection::const_iterator pf;
   for (pf = pflow_candidates->begin(); pf != pflow_candidates->end(); pf++) {
-
     const PFCandidate *particle = &(*pf);
 
     // Fill Histograms for Candidate Methods
@@ -219,7 +192,6 @@ void PFTester::analyze(const edm::Event &iEvent,
 }
 
 void PFTester::endJob() {
-
   // Store the DAQ Histograms
   if (!outputFile_.empty() && dbe_)
     dbe_->save(outputFile_);

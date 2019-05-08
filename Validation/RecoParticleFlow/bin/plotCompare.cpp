@@ -7,7 +7,6 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-
   std::string branchRef("DQMData/PFTask/Benchmarks");
   std::string branchNew("DQMData/PFTask/Benchmarks");
 
@@ -34,8 +33,8 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  PlotCompareUtility *pc = new PlotCompareUtility(
-      argv[1], argv[2], branchNew, branchNewPrefix, branchRef, branchRefPrefix);
+  PlotCompareUtility *pc =
+      new PlotCompareUtility(argv[1], argv[2], branchNew, branchNewPrefix, branchRef, branchRefPrefix);
 
   // set thresholds for tests (set to zero or negative to ignore results)
   // pc->setKSThreshold(1e-6);
@@ -91,8 +90,7 @@ int main(int argc, char *argv[]) {
 
   // check if everything was set up properly
   if (!pc->isValid()) {
-    cout << "PlotCompareUtility failed to initialize!!!" << endl
-         << "Final Result: no_data" << endl;
+    cout << "PlotCompareUtility failed to initialize!!!" << endl << "Final Result: no_data" << endl;
     cerr << "Invalid TFile(s), directory, task, or no histograms specified.\n";
     pc->dump();
     return 1;
