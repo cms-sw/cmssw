@@ -17,25 +17,28 @@ using namespace std;
 
 SiG4UniversalFluctuation::SiG4UniversalFluctuation()
     : minNumberInteractionsBohr(10.0),
-      theBohrBeta2(50.0 * keV / proton_mass_c2), minLoss(10. * eV),
-      problim(5.e-3), alim(10.), nmaxCont1(4.), nmaxCont2(16.) {
+      theBohrBeta2(50.0 * keV / proton_mass_c2),
+      minLoss(10. * eV),
+      problim(5.e-3),
+      alim(10.),
+      nmaxCont1(4.),
+      nmaxCont2(16.) {
   sumalim = -log(problim);
 
   // Add these definitions d.k.
-  chargeSquare = 1.; // Assume all particles have charge 1
+  chargeSquare = 1.;  // Assume all particles have charge 1
   // Taken from Geant4 printout, HARDWIRED for Silicon.
-  ipotFluct =
-      0.0001736; // material->GetIonisation()->GetMeanExcitationEnergy();
-  electronDensity = 6.797E+20; // material->GetElectronDensity();
-  f1Fluct = 0.8571;            // material->GetIonisation()->GetF1fluct();
-  f2Fluct = 0.1429;            // material->GetIonisation()->GetF2fluct();
-  e1Fluct = 0.000116;          // material->GetIonisation()->GetEnergy1fluct();
-  e2Fluct = 0.00196;           // material->GetIonisation()->GetEnergy2fluct();
-  e1LogFluct = -9.063;   // material->GetIonisation()->GetLogEnergy1fluct();
-  e2LogFluct = -6.235;   // material->GetIonisation()->GetLogEnergy2fluct();
-  rateFluct = 0.4;       // material->GetIonisation()->GetRateionexcfluct();
-  ipotLogFluct = -8.659; // material->GetIonisation()->GetLogMeanExcEnergy();
-  e0 = 1.E-5;            // material->GetIonisation()->GetEnergy0fluct();
+  ipotFluct = 0.0001736;        // material->GetIonisation()->GetMeanExcitationEnergy();
+  electronDensity = 6.797E+20;  // material->GetElectronDensity();
+  f1Fluct = 0.8571;             // material->GetIonisation()->GetF1fluct();
+  f2Fluct = 0.1429;             // material->GetIonisation()->GetF2fluct();
+  e1Fluct = 0.000116;           // material->GetIonisation()->GetEnergy1fluct();
+  e2Fluct = 0.00196;            // material->GetIonisation()->GetEnergy2fluct();
+  e1LogFluct = -9.063;          // material->GetIonisation()->GetLogEnergy1fluct();
+  e2LogFluct = -6.235;          // material->GetIonisation()->GetLogEnergy2fluct();
+  rateFluct = 0.4;              // material->GetIonisation()->GetRateionexcfluct();
+  ipotLogFluct = -8.659;        // material->GetIonisation()->GetLogMeanExcEnergy();
+  e0 = 1.E-5;                   // material->GetIonisation()->GetEnergy0fluct();
 
   // cout << " init new fluct +++++++++++++++++++++++++++++++++++++++++"<<endl;
 }
@@ -47,9 +50,12 @@ SiG4UniversalFluctuation::SiG4UniversalFluctuation()
 
 SiG4UniversalFluctuation::~SiG4UniversalFluctuation() {}
 
-double SiG4UniversalFluctuation::SampleFluctuations(
-    const double momentum, const double mass, double &tmax, const double length,
-    const double meanLoss, CLHEP::HepRandomEngine *engine) {
+double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
+                                                    const double mass,
+                                                    double &tmax,
+                                                    const double length,
+                                                    const double meanLoss,
+                                                    CLHEP::HepRandomEngine *engine) {
   // Calculate actual loss from the mean loss.
   // The model used to get the fluctuations is essentially the same
   // as in Glandz in Geant3 (Cern program library W5013, phys332).
@@ -71,14 +77,11 @@ double SiG4UniversalFluctuation::SampleFluctuations(
   // for heavy particles only and conditions
   // for Gauusian fluct. has been changed
   //
-  if ((particleMass > electron_mass_c2) &&
-      (meanLoss >= minNumberInteractionsBohr * tmax)) {
+  if ((particleMass > electron_mass_c2) && (meanLoss >= minNumberInteractionsBohr * tmax)) {
     double massrate = electron_mass_c2 / particleMass;
-    double tmaxkine = 2. * electron_mass_c2 * beta2 * gam2 /
-                      (1. + massrate * (2. * gam + massrate));
+    double tmaxkine = 2. * electron_mass_c2 * beta2 * gam2 / (1. + massrate * (2. * gam + massrate));
     if (tmaxkine <= 2. * tmax) {
-      siga = (1.0 / beta2 - 0.5) * twopi_mc2_rcl2 * tmax * length *
-             electronDensity * chargeSquare;
+      siga = (1.0 / beta2 - 0.5) * twopi_mc2_rcl2 * tmax * length * electronDensity * chargeSquare;
       siga = sqrt(siga);
       double twomeanLoss = meanLoss + meanLoss;
       if (twomeanLoss < siga) {
@@ -118,8 +121,7 @@ double SiG4UniversalFluctuation::SampleFluctuations(
 
   // added
   if (tmax > ipotFluct) {
-    a3 = rate * meanLoss * (tmax - ipotFluct) /
-         (ipotFluct * tmax * vdt::fast_log(w1));
+    a3 = rate * meanLoss * (tmax - ipotFluct) / (ipotFluct * tmax * vdt::fast_log(w1));
   }
   double suma = a1 + a2 + a3;
 

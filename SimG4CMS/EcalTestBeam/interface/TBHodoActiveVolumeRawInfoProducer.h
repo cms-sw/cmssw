@@ -24,7 +24,6 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRawInfo.h"
 
 class TBHodoActiveVolumeRawInfoProducer : public edm::stream::EDProducer<> {
-
 public:
   /// Constructor
   explicit TBHodoActiveVolumeRawInfoProducer(const edm::ParameterSet &ps);

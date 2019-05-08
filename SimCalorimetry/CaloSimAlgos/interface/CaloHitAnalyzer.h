@@ -20,7 +20,8 @@ class CaloVHitFilter;
 
 class CaloHitAnalyzer {
 public:
-  CaloHitAnalyzer(const std::string &name, double hitEnergyThreshold,
+  CaloHitAnalyzer(const std::string &name,
+                  double hitEnergyThreshold,
                   const CaloVSimParameterMap *parameterMap,
                   const CaloVHitFilter *filter = nullptr);
 

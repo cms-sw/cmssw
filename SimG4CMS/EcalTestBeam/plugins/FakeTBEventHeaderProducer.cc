@@ -10,17 +10,14 @@
 using namespace cms;
 using namespace std;
 
-FakeTBEventHeaderProducer::FakeTBEventHeaderProducer(
-    const edm::ParameterSet &ps) {
-  ecalTBInfo_ = consumes<PEcalTBInfo>(
-      edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"));
+FakeTBEventHeaderProducer::FakeTBEventHeaderProducer(const edm::ParameterSet &ps) {
+  ecalTBInfo_ = consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"));
   produces<EcalTBEventHeader>();
 }
 
 FakeTBEventHeaderProducer::~FakeTBEventHeaderProducer() {}
 
-void FakeTBEventHeaderProducer::produce(edm::Event &event,
-                                        const edm::EventSetup &eventSetup) {
+void FakeTBEventHeaderProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
   unique_ptr<EcalTBEventHeader> product(new EcalTBEventHeader());
 
   // get the vertex information from the event
@@ -31,8 +28,7 @@ void FakeTBEventHeaderProducer::produce(edm::Event &event,
   if (EcalTBInfo.isValid()) {
     theEcalTBInfo = EcalTBInfo.product();
   } else {
-    edm::LogError("FakeTBEventHeaderProducer")
-        << "Error! can't get the product PEcalTBInfo";
+    edm::LogError("FakeTBEventHeaderProducer") << "Error! can't get the product PEcalTBInfo";
   }
 
   if (!theEcalTBInfo) {
@@ -45,8 +41,7 @@ void FakeTBEventHeaderProducer::produce(edm::Event &event,
   product->setRunNumber(event.id().run());
   product->setBurstNumber(1);
   product->setTriggerMask(0x1);
-  product->setCrystalInBeam(
-      EBDetId(1, theEcalTBInfo->nCrystal(), EBDetId::SMCRYSTALMODE));
+  product->setCrystalInBeam(EBDetId(1, theEcalTBInfo->nCrystal(), EBDetId::SMCRYSTALMODE));
 
   //   LogDebug("FakeTBHeader") << (*product);
   //   LogDebug("FakeTBHeader") << (*product).eventType();

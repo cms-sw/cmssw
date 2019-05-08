@@ -26,8 +26,6 @@
 //
 // constructors and destructor
 //
-reco::TrackToGenParticleAssociatorBaseImpl::
-    TrackToGenParticleAssociatorBaseImpl() {}
+reco::TrackToGenParticleAssociatorBaseImpl::TrackToGenParticleAssociatorBaseImpl() {}
 
-reco::TrackToGenParticleAssociatorBaseImpl::
-    ~TrackToGenParticleAssociatorBaseImpl() {}
+reco::TrackToGenParticleAssociatorBaseImpl::~TrackToGenParticleAssociatorBaseImpl() {}

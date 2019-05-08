@@ -9,7 +9,6 @@ public:
   // GNoiseFP420(int,float,float);
   virtual ~GNoiseFP420() {}
 
-  virtual PileUpFP420::signal_map_type
-  addNoise(const PileUpFP420::signal_map_type &) = 0;
+  virtual PileUpFP420::signal_map_type addNoise(const PileUpFP420::signal_map_type &) = 0;
 };
 #endif

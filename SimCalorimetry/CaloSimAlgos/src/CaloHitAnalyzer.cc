@@ -11,9 +11,12 @@ CaloHitAnalyzer::CaloHitAnalyzer(const std::string &name,
                                  double hitEnergyThreshold,
                                  const CaloVSimParameterMap *parameterMap,
                                  const CaloVHitFilter *filter)
-    : hitEnergySumMap_(), hitEnergyThreshold_(hitEnergyThreshold),
-      simParameterMap_(parameterMap), hitFilter_(filter),
-      summary_(name, 1., 0.), noiseHits_(0) {}
+    : hitEnergySumMap_(),
+      hitEnergyThreshold_(hitEnergyThreshold),
+      simParameterMap_(parameterMap),
+      hitFilter_(filter),
+      summary_(name, 1., 0.),
+      noiseHits_(0) {}
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 void CaloHitAnalyzer::fillHits(MixCollection<PCaloHit> &hits) {

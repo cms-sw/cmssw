@@ -25,14 +25,17 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
     : theParameterMap(new HcalTBSimParameterMap(ps)),
       theHcalShape(new HcalShape()),
       theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
-      theHBHEResponse(
-          new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
-      theHOResponse(
-          new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
-      theAmplifier(nullptr), theCoderFactory(nullptr),
-      theElectronicsSim(nullptr), theTimeSlewSim(nullptr),
-      theHBHEDigitizer(nullptr), theHODigitizer(nullptr), theHBHEHits(),
-      theHOHits(), thisPhaseShift(0) {
+      theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
+      theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
+      theAmplifier(nullptr),
+      theCoderFactory(nullptr),
+      theElectronicsSim(nullptr),
+      theTimeSlewSim(nullptr),
+      theHBHEDigitizer(nullptr),
+      theHODigitizer(nullptr),
+      theHBHEHits(),
+      theHOHits(),
+      thisPhaseShift(0) {
   std::string const instance("simHcalDigis");
   mixMod.produces<HBHEDigiCollection>(instance);
   mixMod.produces<HODigiCollection>(instance);
@@ -47,11 +50,10 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
 
   bool doNoise = ps.getParameter<bool>("doNoise");
   bool dummy1 = false;
-  bool dummy2 = false; // extra arguments for premixing
+  bool dummy2 = false;  // extra arguments for premixing
   theAmplifier = new HcalAmplifier(theParameterMap, doNoise, dummy1, dummy2);
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
-  theElectronicsSim =
-      new HcalElectronicsSim(theAmplifier, theCoderFactory, dummy1);
+  theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory, dummy1);
 
   double minFCToDelay = ps.getParameter<double>("minFCToDelay");
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
@@ -63,16 +65,13 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
     theAmplifier->setTimeSlewSim(theTimeSlewSim);
   }
 
-  theHBHEDigitizer =
-      new HBHEDigitizer(theHBHEResponse, theElectronicsSim, doNoise);
+  theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theElectronicsSim, doNoise);
   theHODigitizer = new HODigitizer(theHOResponse, theElectronicsSim, doNoise);
 
   tunePhaseShift = ps.getUntrackedParameter<double>("tunePhaseShiftTB", 1.);
-  ecalTBInfoLabel = ps.getUntrackedParameter<std::string>("EcalTBInfoLabel",
-                                                          "SimEcalTBG4Object");
-  edm::LogInfo("HcalSim") << "HcalTBDigiProducer initialized with doNoise = "
-                          << doNoise << ", doTimeSlew = " << doTimeSlew
-                          << " and doPhaseShift = " << doPhaseShift
+  ecalTBInfoLabel = ps.getUntrackedParameter<std::string>("EcalTBInfoLabel", "SimEcalTBG4Object");
+  edm::LogInfo("HcalSim") << "HcalTBDigiProducer initialized with doNoise = " << doNoise
+                          << ", doTimeSlew = " << doTimeSlew << " and doPhaseShift = " << doPhaseShift
                           << " tunePhasShift = " << tunePhaseShift;
 
   if (doPhaseShift) {
@@ -81,7 +80,6 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
 }
 
 HcalTBDigiProducer::~HcalTBDigiProducer() {
-
   if (theHBHEDigitizer)
     delete theHBHEDigitizer;
   if (theHODigitizer)
@@ -106,8 +104,7 @@ HcalTBDigiProducer::~HcalTBDigiProducer() {
     delete theTimeSlewSim;
 }
 
-void HcalTBDigiProducer::initializeEvent(edm::Event const &e,
-                                         edm::EventSetup const &eventSetup) {
+void HcalTBDigiProducer::initializeEvent(edm::Event const &e, edm::EventSetup const &eventSetup) {
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
@@ -124,7 +121,6 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const &e,
   theHBHEHits.clear();
   theHOHits.clear();
   if (doPhaseShift) {
-
     edm::Handle<PEcalTBInfo> theEcalTBInfo;
     e.getByLabel(ecalTBInfoLabel, theEcalTBInfo);
     thisPhaseShift = theEcalTBInfo->phaseShift();
@@ -145,9 +141,7 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const &e,
   theHODigitizer->initializeHits();
 }
 
-void HcalTBDigiProducer::accumulateCaloHits(
-    edm::Handle<std::vector<PCaloHit>> const &hcalHandle, int bunchCrossing) {
-
+void HcalTBDigiProducer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const &hcalHandle, int bunchCrossing) {
   LogDebug("HcalSim") << "HcalTBDigiProducer::accumulate trying to get SimHit";
 
   if (hcalHandle.isValid()) {
@@ -158,8 +152,7 @@ void HcalTBDigiProducer::accumulateCaloHits(
   }
 }
 
-void HcalTBDigiProducer::accumulate(edm::Event const &e,
-                                    edm::EventSetup const &) {
+void HcalTBDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const &) {
   // Step A: Get Inputs, and accumulate digis
 
   edm::InputTag hcalTag("g4SimHits", "HcalHits");
@@ -181,32 +174,27 @@ void HcalTBDigiProducer::accumulate(PileUpEventPrincipal const &e,
   accumulateCaloHits(hcalHandle, e.bunchCrossing());
 }
 
-void HcalTBDigiProducer::finalizeEvent(edm::Event &e,
-                                       const edm::EventSetup &eventSetup) {
+void HcalTBDigiProducer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSetup) {
   // Step B: Create empty output
   std::unique_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
   std::unique_ptr<HODigiCollection> hoResult(new HODigiCollection());
   LogDebug("HcalSim") << "HcalTBDigiProducer::produce Empty collection created";
   // Step C: Invoke the algorithm, getting back outputs.
   theHBHEDigitizer->run(*hbheResult, randomEngine_);
-  edm::LogInfo("HcalSim") << "HcalTBDigiProducer: HBHE digis : "
-                          << hbheResult->size();
+  edm::LogInfo("HcalSim") << "HcalTBDigiProducer: HBHE digis : " << hbheResult->size();
   theHODigitizer->run(*hoResult, randomEngine_);
-  edm::LogInfo("HcalSim") << "HcalTBDigiProducer: HO digis   : "
-                          << hoResult->size();
+  edm::LogInfo("HcalSim") << "HcalTBDigiProducer: HO digis   : " << hoResult->size();
 
   // Step D: Put outputs into event
   std::string const instance("simHcalDigis");
   e.put(std::move(hbheResult), instance);
   e.put(std::move(hoResult), instance);
 
-  randomEngine_ = nullptr; // to prevent access outside event
+  randomEngine_ = nullptr;  // to prevent access outside event
 }
 
 void HcalTBDigiProducer::sortHits(const edm::PCaloHitContainer &hits) {
-
-  for (edm::PCaloHitContainer::const_iterator hitItr = hits.begin();
-       hitItr != hits.end(); ++hitItr) {
+  for (edm::PCaloHitContainer::const_iterator hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
     HcalSubdetector subdet = HcalDetId(hitItr->id()).subdet();
     if (subdet == HcalBarrel || subdet == HcalEndcap) {
       theHBHEHits.push_back(*hitItr);
@@ -219,7 +207,6 @@ void HcalTBDigiProducer::sortHits(const edm::PCaloHitContainer &hits) {
 }
 
 void HcalTBDigiProducer::checkGeometry(const edm::EventSetup &eventSetup) {
-
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<CaloGeometryRecord>().get(geometry);
@@ -234,15 +221,13 @@ void HcalTBDigiProducer::checkGeometry(const edm::EventSetup &eventSetup) {
 }
 
 void HcalTBDigiProducer::updateGeometry() {
-
   theHBHEResponse->setGeometry(theGeometry);
   theHOResponse->setGeometry(theGeometry);
 
   // Get cells for HB and HE
   hbheCells.clear();
   hbheCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  std::vector<DetId> heCells =
-      theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+  std::vector<DetId> heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
   // combine HB & HE
   hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
 
@@ -250,8 +235,7 @@ void HcalTBDigiProducer::updateGeometry() {
   hoCells.clear();
   hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);
 
-  edm::LogInfo("HcalSim") << "HcalTBDigiProducer update Geometry with "
-                          << hbheCells.size() << " cells in HB/HE and "
+  edm::LogInfo("HcalSim") << "HcalTBDigiProducer update Geometry with " << hbheCells.size() << " cells in HB/HE and "
                           << hoCells.size() << " cells in HO";
 
   theHBHEDigitizer->setDetIds(hbheCells);
@@ -261,7 +245,6 @@ void HcalTBDigiProducer::updateGeometry() {
 }
 
 void HcalTBDigiProducer::setPhaseShift(const DetId &detId) {
-
   const CaloSimParameters &parameters = theParameterMap->simParameters(detId);
   if (!parameters.syncPhase()) {
     int myDet = detId.subdetId();

@@ -16,9 +16,12 @@ public:
   //
   //
   IChargeFP420::hit_map_type induce(const CDrifterFP420::collection_type &,
-                                    int numStrips, double localPitch,
-                                    int numStripsW, double localPitchW,
-                                    int xytype, int verbosity) override;
+                                    int numStrips,
+                                    double localPitch,
+                                    int numStripsW,
+                                    double localPitchW,
+                                    int xytype,
+                                    int verbosity) override;
   //
   //
 private:

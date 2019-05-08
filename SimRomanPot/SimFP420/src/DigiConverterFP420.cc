@@ -7,7 +7,6 @@
 #include "SimRomanPot/SimFP420/interface/DigiConverterFP420.h"
 
 DigiConverterFP420::DigiConverterFP420(float in, int verbosity) {
-
   electronperADC = in;
   verbos = verbosity;
 
@@ -26,31 +25,24 @@ DigiConverterFP420::DigiConverterFP420(float in, int verbosity) {
   //      std::cout << "theMaxADC= "<< theMaxADC  << std::endl; // = 1023
   if (verbos > 0) {
     std::cout << " ***DigiConverterFP420: constructor" << std::endl;
-    std::cout << "with known electronperADC =  " << electronperADC
-              << "the adcBits =  " << adcBits << "  theMaxADC=  " << theMaxADC
-              << "for known defaultBits=  " << defaultBits
+    std::cout << "with known electronperADC =  " << electronperADC << "the adcBits =  " << adcBits
+              << "  theMaxADC=  " << theMaxADC << "for known defaultBits=  " << defaultBits
               << " largestBits=  " << largestBits << std::endl;
   }
 }
 
-DConverterFP420::DigitalMapType
-DigiConverterFP420::convert(const signal_map_type &analogSignal) {
-
+DConverterFP420::DigitalMapType DigiConverterFP420::convert(const signal_map_type &analogSignal) {
   DConverterFP420::DigitalMapType _temp;
 
-  for (signal_map_type::const_iterator i = analogSignal.begin();
-       i != analogSignal.end(); i++) {
-
+  for (signal_map_type::const_iterator i = analogSignal.begin(); i != analogSignal.end(); i++) {
     // convert analog amplitude to digital, means integer number simulating ADC
     // digitization!
     // with truncation check
     int adc = convert((*i).second);
 
     if (verbos > 0) {
-      std::cout << " ***DigiConverterFP420: convert: after truncation "
-                << std::endl;
-      std::cout << "adc =  " << adc << " (*i).first =  " << (*i).first
-                << std::endl;
+      std::cout << " ***DigiConverterFP420: convert: after truncation " << std::endl;
+      std::cout << "adc =  " << adc << " (*i).first =  " << (*i).first << std::endl;
     }
     if (adc > 0)
       _temp.insert(_temp.end(), DigitalMapType::value_type((*i).first, adc));
@@ -60,12 +52,10 @@ DigiConverterFP420::convert(const signal_map_type &analogSignal) {
 }
 
 int DigiConverterFP420::truncate(float in_adc) {
-
   int adc = int(in_adc);
   if (verbos > 0) {
     std::cout << " ***DigiConverterFP420: truncate" << std::endl;
-    std::cout << "if adc =  " << adc << "bigger theMaxADC =  " << theMaxADC
-              << " adc=theMaxADC !!!" << std::endl;
+    std::cout << "if adc =  " << adc << "bigger theMaxADC =  " << theMaxADC << " adc=theMaxADC !!!" << std::endl;
   }
   if (adc > theMaxADC)
     adc = theMaxADC;

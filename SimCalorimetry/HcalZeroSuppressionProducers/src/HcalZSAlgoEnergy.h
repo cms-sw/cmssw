@@ -16,8 +16,7 @@
  */
 class HcalZSAlgoEnergy : public HcalZeroSuppressionAlgo {
 public:
-  HcalZSAlgoEnergy(bool markAndPass, int level, int start, int samples,
-                   bool twosided);
+  HcalZSAlgoEnergy(bool markAndPass, int level, int start, int samples, bool twosided);
   ~HcalZSAlgoEnergy() override = default;
   void prepare(const HcalDbService *db);
   void done();
