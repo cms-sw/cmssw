@@ -7,13 +7,6 @@
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromDDD.h"
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromCondDB.h"
 
-#include <Geometry/Records/interface/IdealGeometryRecord.h>
-#include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
-#include <DetectorDescription/Core/interface/DDCompactView.h>
-
-#include "Geometry/Records/interface/RPCRecoGeometryRcd.h"
-#include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
-
 #include <FWCore/Framework/interface/EventSetup.h>
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -24,32 +17,35 @@
 
 using namespace edm;
 
-RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet & p){
-  comp11 = p.getUntrackedParameter<bool>("compatibiltyWith11",true);
+RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet & p):
+  comp11{p.getUntrackedParameter<bool>("compatibiltyWith11",true)},
   // Find out if using the DDD or CondDB Geometry source.
-  useDDD = p.getUntrackedParameter<bool>("useDDD",true);
-  setWhatProduced(this);
+  useDDD{p.getUntrackedParameter<bool>("useDDD",true)}
+{
+  auto cc = setWhatProduced(this);
 
+    const edm::ESInputTag kEmptyTag;
+  if(useDDD) {
+    idealGeomToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(kEmptyTag);
+    dddConstantsToken_ = cc.consumesFrom<MuonDDDConstants, MuonNumberingRecord>(kEmptyTag);
+  } else {
+    recoIdealToken_ = cc.consumesFrom<RecoIdealGeometry, RPCRecoGeometryRcd>(kEmptyTag);
+  }
 }
-
-
-RPCGeometryESModule::~RPCGeometryESModule(){}
 
 
 std::unique_ptr<RPCGeometry>
 RPCGeometryESModule::produce(const MuonGeometryRecord & record) {
   if(useDDD){
-    edm::ESTransientHandle<DDCompactView> cpv;
-    record.getRecord<IdealGeometryRecord>().get(cpv);
-    edm::ESHandle<MuonDDDConstants> mdc;
-    record.getRecord<MuonNumberingRecord>().get(mdc);
+    edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle( idealGeomToken_ ); 
+
+    auto const& mdc = record.get( dddConstantsToken_ );
     RPCGeometryBuilderFromDDD builder(comp11);
-    return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), *mdc));
+    return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), mdc));
   }else{
-    edm::ESHandle<RecoIdealGeometry> rigrpc;
-    record.getRecord<RPCRecoGeometryRcd>().get(rigrpc);
+    auto const& rigrpc = record.get( recoIdealToken_ );
     RPCGeometryBuilderFromCondDB builder(comp11);
-    return std::unique_ptr<RPCGeometry>(builder.build(*rigrpc));
+    return std::unique_ptr<RPCGeometry>(builder.build(rigrpc));
   }
 
 }
