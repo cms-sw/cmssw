@@ -3,7 +3,6 @@
 
 #include "FitResult.h"
 
-
 namespace Rfit
 {
 
