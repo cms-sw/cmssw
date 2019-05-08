@@ -31,7 +31,7 @@ class RunPromptReco:
         self.dqmSeq = None
         self.setRepacked = False
         self.isRepacked = False
-        self.numCores = None
+        self.nThreads = None
 
     def __call__(self):
         if self.scenario == None:
@@ -43,8 +43,8 @@ class RunPromptReco:
         if self.inputLFN == None:
             msg = "No --lfn specified"
             raise RuntimeError(msg)
-        if self.numCores == None:
-            msg = "No --numCores specified"
+        if self.nThreads == None:
+            msg = "No --nThreads specified"
 
         try:
             scenario = getScenario(self.scenario)
@@ -102,8 +102,8 @@ class RunPromptReco:
                 if self.setRepacked:
                     kwds['repacked'] = self.isRepacked
                 
-                if self.numCores:
-                    kwds['nThreads'] = self.numCores
+                if self.nThreads:
+                    kwds['nThreads'] = self.nThreads
 
             process = scenario.promptReco(self.globalTag, **kwds)
 
@@ -145,7 +145,7 @@ class RunPromptReco:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "reco", "aod", "miniaod","dqm", "dqmio", "no-output", "numCores=", 
+    valid = ["scenario=", "reco", "aod", "miniaod","dqm", "dqmio", "no-output", "nThreads=", 
              "global-tag=", "lfn=", "alcarecos=", "PhysicsSkims=", "dqmSeq=", "isRepacked", "isNotRepacked" ]
     usage = \
 """
@@ -164,7 +164,7 @@ Where options are:
  --alcarecos=alcareco_plus_seprated_list
  --PhysicsSkims=skim_plus_seprated_list
  --dqmSeq=dqmSeq_plus_separated_list
- --numCores=Number_of_cores_used
+ --nThreads=Number_of_cores_or_Threads_used
 Example:
 python RunPromptReco.py --scenario=cosmics --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlCosmics0T+MuAlGlobalCosmics
 python RunPromptReco.py --scenario=pp --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlMinBias+SiStripCalMinBias
@@ -195,8 +195,8 @@ python RunPromptReco.py --scenario=ppEra_Run2_2016 --reco --aod --dqmio --global
             recoinator.writeDQMIO = True
         if opt == "--no-output":
             recoinator.noOutput = True
-        if opt == "--numCores":
-            recoinator.numCores = arg
+        if opt == "--nThreads":
+            recoinator.nThreads = arg
         if opt == "--global-tag":
             recoinator.globalTag = arg
         if opt == "--lfn" :
