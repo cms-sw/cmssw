@@ -83,20 +83,16 @@ int main(int argc, char const *argv[]) {
   std::vector<std::string> annotations;
   CPP11_auto_ptr<ContiguousCatalog> cat;
   try {
-    cat =
-        CPP11_auto_ptr<ContiguousCatalog>(readBinaryCatalog<ContiguousCatalog>(
-            in, &compressionCode, &mergeLevel, &annotations, true));
+    cat = CPP11_auto_ptr<ContiguousCatalog>(
+        readBinaryCatalog<ContiguousCatalog>(in, &compressionCode, &mergeLevel, &annotations, true));
   } catch (std::exception &e) {
-    cerr << "Failed to read catalog from file \"" << inputfile << "\". "
-         << e.what() << endl;
+    cerr << "Failed to read catalog from file \"" << inputfile << "\". " << e.what() << endl;
     return 1;
   }
 
   if (printCompressionMode) {
-    CStringStream::CompressionMode mode =
-        static_cast<CStringStream::CompressionMode>(compressionCode);
-    cout << "Default compression mode: "
-         << CStringStream::compressionModeName(mode, false) << endl;
+    CStringStream::CompressionMode mode = static_cast<CStringStream::CompressionMode>(compressionCode);
+    cout << "Default compression mode: " << CStringStream::compressionModeName(mode, false) << endl;
   }
   if (printAnnotations) {
     const unsigned nAnnotations = annotations.size();
@@ -125,8 +121,7 @@ int main(int argc, char const *argv[]) {
     } else if (!summaryMode) {
       if (printIds)
         cout << e->id() << "  ";
-      cout << e->type().name() << "  " << '"' << e->name() << '"' << "  " << '"'
-           << e->category() << '"' << endl;
+      cout << e->type().name() << "  " << '"' << e->name() << '"' << "  " << '"' << e->category() << '"' << endl;
     }
     if (summaryMode)
       typecount[e->type().name()]++;
@@ -135,8 +130,7 @@ int main(int argc, char const *argv[]) {
   if (summaryMode) {
     if (fullDump)
       cout << '\n';
-    for (std::map<std::string, unsigned>::const_iterator it = typecount.begin();
-         it != typecount.end(); ++it)
+    for (std::map<std::string, unsigned>::const_iterator it = typecount.begin(); it != typecount.end(); ++it)
       cout << it->second << ' ' << it->first << endl;
   }
 

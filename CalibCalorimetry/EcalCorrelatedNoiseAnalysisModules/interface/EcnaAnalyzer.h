@@ -133,7 +133,6 @@
 //
 
 class EcnaAnalyzer : public edm::EDAnalyzer {
-
 public:
   enum { kChannels = 1700, kGains = 3, kFirstGainId = 1 };
 
@@ -148,13 +147,13 @@ public:
   Bool_t AnalysisOutcome(const TString &);
 
 private:
-  Int_t fgMaxCar; // Max nb of caracters for char*
+  Int_t fgMaxCar;  // Max nb of caracters for char*
   TString fTTBELL;
 
   // ----------member data ---------------------------
   unsigned int verbosity_;
   Int_t nChannels_;
-  Int_t iEvent_; // should be removed when we can access class EventID
+  Int_t iEvent_;  // should be removed when we can access class EventID
   std::string eventHeaderProducer_;
   std::string digiProducer_;
   std::string eventHeaderCollection_;
@@ -180,16 +179,15 @@ private:
   Int_t *fBuildEventDistribBad;
   Int_t *fBuildEventDistribGood;
 
-  TString fCfgAnalyzerParametersFilePath; // absolute path for the analyzer
-                                          // parameters files (/afs/etc...)
-  TString
-      fCfgAnalyzerParametersFileName; // name of the analyzer parameters file
+  TString fCfgAnalyzerParametersFilePath;  // absolute path for the analyzer
+                                           // parameters files (/afs/etc...)
+  TString fCfgAnalyzerParametersFileName;  // name of the analyzer parameters file
   std::ifstream fFcin_f;
 
   TString fAnalysisName;
-  Int_t fChozenGainNumber;    // determined from fAnalysisName
-  Int_t fChozenRunTypeNumber; // determined from fAnalysisName
-  TString fDynBaseLineSub;    // determined from fAnalysisName
+  Int_t fChozenGainNumber;     // determined from fAnalysisName
+  Int_t fChozenRunTypeNumber;  // determined from fAnalysisName
+  TString fDynBaseLineSub;     // determined from fAnalysisName
 
   Int_t fNbOfSamples;
   Int_t fRunNumber;

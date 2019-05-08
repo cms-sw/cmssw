@@ -8,29 +8,21 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 //#include "DataFormats/CLHEP/interface/Migration.h"
 
-TwoBodyDecayEstimator::TwoBodyDecayEstimator(const edm::ParameterSet &config)
-    : theNdf(0) {
-  const edm::ParameterSet &estimatorConfig =
-      config.getParameter<edm::ParameterSet>("EstimatorParameters");
+TwoBodyDecayEstimator::TwoBodyDecayEstimator(const edm::ParameterSet &config) : theNdf(0) {
+  const edm::ParameterSet &estimatorConfig = config.getParameter<edm::ParameterSet>("EstimatorParameters");
 
-  theRobustificationConstant = estimatorConfig.getUntrackedParameter<double>(
-      "RobustificationConstant", 1.0);
-  theMaxIterDiff = estimatorConfig.getUntrackedParameter<double>(
-      "MaxIterationDifference", 1e-2);
-  theMaxIterations =
-      estimatorConfig.getUntrackedParameter<int>("MaxIterations", 100);
-  theUseInvariantMass =
-      estimatorConfig.getUntrackedParameter<bool>("UseInvariantMass", true);
+  theRobustificationConstant = estimatorConfig.getUntrackedParameter<double>("RobustificationConstant", 1.0);
+  theMaxIterDiff = estimatorConfig.getUntrackedParameter<double>("MaxIterationDifference", 1e-2);
+  theMaxIterations = estimatorConfig.getUntrackedParameter<int>("MaxIterations", 100);
+  theUseInvariantMass = estimatorConfig.getUntrackedParameter<bool>("UseInvariantMass", true);
 }
 
-TwoBodyDecay TwoBodyDecayEstimator::estimate(
-    const std::vector<RefCountedLinearizedTrackState> &linTracks,
-    const TwoBodyDecayParameters &linearizationPoint,
-    const TwoBodyDecayVirtualMeasurement &vm) const {
+TwoBodyDecay TwoBodyDecayEstimator::estimate(const std::vector<RefCountedLinearizedTrackState> &linTracks,
+                                             const TwoBodyDecayParameters &linearizationPoint,
+                                             const TwoBodyDecayVirtualMeasurement &vm) const {
   if (linTracks.size() != 2) {
-    edm::LogInfo("Alignment")
-        << "@SUB=TwoBodyDecayEstimator::estimate"
-        << "Need 2 linearized tracks, got " << linTracks.size() << ".\n";
+    edm::LogInfo("Alignment") << "@SUB=TwoBodyDecayEstimator::estimate"
+                              << "Need 2 linearized tracks, got " << linTracks.size() << ".\n";
     return TwoBodyDecay();
   }
 
@@ -38,8 +30,7 @@ TwoBodyDecay TwoBodyDecayEstimator::estimate(
   AlgebraicSymMatrix matG;
   AlgebraicMatrix matA;
 
-  bool check =
-      constructMatrices(linTracks, linearizationPoint, vm, vecM, matG, matA);
+  bool check = constructMatrices(linTracks, linearizationPoint, vm, vecM, matG, matA);
   if (!check)
     return TwoBodyDecay();
 
@@ -74,10 +65,9 @@ TwoBodyDecay TwoBodyDecayEstimator::estimate(
     // make LS-fit
     invAtGPrimeA = (matGPrime.similarityT(matA)).inverse(checkInversion);
     if (checkInversion != 0) {
-      LogDebug("Alignment")
-          << "@SUB=TwoBodyDecayEstimator::estimate"
-          << "Matrix At*G'*A not invertible (in iteration " << nIterations
-          << ", ifail = " << checkInversion << ").\n";
+      LogDebug("Alignment") << "@SUB=TwoBodyDecayEstimator::estimate"
+                            << "Matrix At*G'*A not invertible (in iteration " << nIterations
+                            << ", ifail = " << checkInversion << ").\n";
       isValid = false;
       break;
     }
@@ -95,8 +85,7 @@ TwoBodyDecay TwoBodyDecayEstimator::estimate(
   }
 
   if (isValid) {
-    AlgebraicSymMatrix pullsCov =
-        matGPrime.inverse(checkInversion) - invAtGPrimeA.similarity(matA);
+    AlgebraicSymMatrix pullsCov = matGPrime.inverse(checkInversion) - invAtGPrimeA.similarity(matA);
     thePulls = AlgebraicVector(matG.num_col(), 0);
     for (int i = 0; i < pullsCov.num_col(); i++)
       thePulls[i] = res[i] / sqrt(pullsCov[i][i]);
@@ -104,65 +93,48 @@ TwoBodyDecay TwoBodyDecayEstimator::estimate(
 
   theNdf = matA.num_row() - matA.num_col();
 
-  return TwoBodyDecay(TwoBodyDecayParameters(vecEstimate, invAtGPrimeA), chi2,
-                      isValid, vm);
+  return TwoBodyDecay(TwoBodyDecayParameters(vecEstimate, invAtGPrimeA), chi2, isValid, vm);
 }
 
-bool TwoBodyDecayEstimator::constructMatrices(
-    const std::vector<RefCountedLinearizedTrackState> &linTracks,
-    const TwoBodyDecayParameters &linearizationPoint,
-    const TwoBodyDecayVirtualMeasurement &vm, AlgebraicVector &vecM,
-    AlgebraicSymMatrix &matG, AlgebraicMatrix &matA) const {
-
-  PerigeeLinearizedTrackState *linTrack1 =
-      dynamic_cast<PerigeeLinearizedTrackState *>(linTracks[0].get());
-  PerigeeLinearizedTrackState *linTrack2 =
-      dynamic_cast<PerigeeLinearizedTrackState *>(linTracks[1].get());
+bool TwoBodyDecayEstimator::constructMatrices(const std::vector<RefCountedLinearizedTrackState> &linTracks,
+                                              const TwoBodyDecayParameters &linearizationPoint,
+                                              const TwoBodyDecayVirtualMeasurement &vm,
+                                              AlgebraicVector &vecM,
+                                              AlgebraicSymMatrix &matG,
+                                              AlgebraicMatrix &matA) const {
+  PerigeeLinearizedTrackState *linTrack1 = dynamic_cast<PerigeeLinearizedTrackState *>(linTracks[0].get());
+  PerigeeLinearizedTrackState *linTrack2 = dynamic_cast<PerigeeLinearizedTrackState *>(linTracks[1].get());
 
   if (!linTrack1 || !linTrack2)
     return false;
 
-  AlgebraicVector trackParam1 =
-      asHepVector(linTrack1->predictedStateParameters());
-  AlgebraicVector trackParam2 =
-      asHepVector(linTrack2->predictedStateParameters());
+  AlgebraicVector trackParam1 = asHepVector(linTrack1->predictedStateParameters());
+  AlgebraicVector trackParam2 = asHepVector(linTrack2->predictedStateParameters());
 
-  if (checkValues(trackParam1) || checkValues(trackParam2) ||
-      checkValues(linearizationPoint.parameters()))
+  if (checkValues(trackParam1) || checkValues(trackParam2) || checkValues(linearizationPoint.parameters()))
     return false;
 
-  AlgebraicVector vecLinParam = linearizationPoint.sub(
-      TwoBodyDecayParameters::px, TwoBodyDecayParameters::mass);
+  AlgebraicVector vecLinParam = linearizationPoint.sub(TwoBodyDecayParameters::px, TwoBodyDecayParameters::mass);
 
-  double zMagField = linTrack1->track()
-                         .field()
-                         ->inInverseGeV(linTrack1->linearizationPoint())
-                         .z();
+  double zMagField = linTrack1->track().field()->inInverseGeV(linTrack1->linearizationPoint()).z();
 
   int checkInversion = 0;
 
-  TwoBodyDecayDerivatives tpeDerivatives(
-      linearizationPoint[TwoBodyDecayParameters::mass], vm.secondaryMass());
-  std::pair<AlgebraicMatrix, AlgebraicMatrix> derivatives =
-      tpeDerivatives.derivatives(linearizationPoint);
+  TwoBodyDecayDerivatives tpeDerivatives(linearizationPoint[TwoBodyDecayParameters::mass], vm.secondaryMass());
+  std::pair<AlgebraicMatrix, AlgebraicMatrix> derivatives = tpeDerivatives.derivatives(linearizationPoint);
 
-  TwoBodyDecayModel decayModel(linearizationPoint[TwoBodyDecayParameters::mass],
-                               vm.secondaryMass());
-  std::pair<AlgebraicVector, AlgebraicVector> linCartMomenta =
-      decayModel.cartesianSecondaryMomenta(linearizationPoint);
+  TwoBodyDecayModel decayModel(linearizationPoint[TwoBodyDecayParameters::mass], vm.secondaryMass());
+  std::pair<AlgebraicVector, AlgebraicVector> linCartMomenta = decayModel.cartesianSecondaryMomenta(linearizationPoint);
 
   // first track
   AlgebraicMatrix matA1 = asHepMatrix(linTrack1->positionJacobian());
   AlgebraicMatrix matB1 = asHepMatrix(linTrack1->momentumJacobian());
   AlgebraicVector vecC1 = asHepVector(linTrack1->constantTerm());
 
-  AlgebraicVector curvMomentum1 =
-      asHepVector(linTrack1->predictedStateMomentumParameters());
-  AlgebraicMatrix curv2cart1 =
-      decayModel.curvilinearToCartesianJacobian(curvMomentum1, zMagField);
+  AlgebraicVector curvMomentum1 = asHepVector(linTrack1->predictedStateMomentumParameters());
+  AlgebraicMatrix curv2cart1 = decayModel.curvilinearToCartesianJacobian(curvMomentum1, zMagField);
 
-  AlgebraicVector cartMomentum1 =
-      decayModel.convertCurvilinearToCartesian(curvMomentum1, zMagField);
+  AlgebraicVector cartMomentum1 = decayModel.convertCurvilinearToCartesian(curvMomentum1, zMagField);
   vecC1 += matB1 * (curvMomentum1 - curv2cart1 * cartMomentum1);
   matB1 = matB1 * curv2cart1;
 
@@ -186,13 +158,10 @@ bool TwoBodyDecayEstimator::constructMatrices(
   AlgebraicMatrix matB2 = asHepMatrix(linTrack2->momentumJacobian());
   AlgebraicVector vecC2 = asHepVector(linTrack2->constantTerm());
 
-  AlgebraicVector curvMomentum2 =
-      asHepVector(linTrack2->predictedStateMomentumParameters());
-  AlgebraicMatrix curv2cart2 =
-      decayModel.curvilinearToCartesianJacobian(curvMomentum2, zMagField);
+  AlgebraicVector curvMomentum2 = asHepVector(linTrack2->predictedStateMomentumParameters());
+  AlgebraicMatrix curv2cart2 = decayModel.curvilinearToCartesianJacobian(curvMomentum2, zMagField);
 
-  AlgebraicVector cartMomentum2 =
-      decayModel.convertCurvilinearToCartesian(curvMomentum2, zMagField);
+  AlgebraicVector cartMomentum2 = decayModel.convertCurvilinearToCartesian(curvMomentum2, zMagField);
   vecC2 += matB2 * (curvMomentum2 - curv2cart2 * cartMomentum2);
   matB2 = matB2 * curv2cart2;
 
@@ -235,10 +204,10 @@ bool TwoBodyDecayEstimator::constructMatrices(
   matA.sub(6, 1, matU2 * matA2);
   matA.sub(1, 4, matU1 * matB1 * matF1);
   matA.sub(6, 4, matU2 * matB2 * matF2);
-  matA(11, 9) = 1.; // mass
-  matA(12, 1) = 1.; // vx
-  matA(13, 2) = 1.; // vy
-  matA(14, 3) = 1.; // vz
+  matA(11, 9) = 1.;  // mass
+  matA(12, 1) = 1.;  // vx
+  matA(13, 2) = 1.;  // vy
+  matA(14, 3) = 1.;  // vz
 
   return true;
 }

@@ -4,8 +4,7 @@
 
 // -----------------------------------------------------------------------------
 //
-SiStripFecCrate::SiStripFecCrate(const FedChannelConnection &conn)
-    : fecCrate_(conn.fecCrate()), fecs_() {
+SiStripFecCrate::SiStripFecCrate(const FedChannelConnection &conn) : fecCrate_(conn.fecCrate()), fecs_() {
   fecs_.reserve(20);
   addDevices(conn);
 }

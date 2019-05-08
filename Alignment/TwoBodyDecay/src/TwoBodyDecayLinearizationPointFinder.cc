@@ -3,15 +3,13 @@
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
-const TwoBodyDecayParameters
-TwoBodyDecayLinearizationPointFinder::getLinearizationPoint(
+const TwoBodyDecayParameters TwoBodyDecayLinearizationPointFinder::getLinearizationPoint(
     const std::vector<RefCountedLinearizedTrackState> &tracks,
-    const double primaryMass, const double secondaryMass) const {
+    const double primaryMass,
+    const double secondaryMass) const {
   GlobalPoint linPoint = tracks[0]->linearizationPoint();
-  PerigeeLinearizedTrackState *linTrack1 =
-      dynamic_cast<PerigeeLinearizedTrackState *>(tracks[0].get());
-  PerigeeLinearizedTrackState *linTrack2 =
-      dynamic_cast<PerigeeLinearizedTrackState *>(tracks[1].get());
+  PerigeeLinearizedTrackState *linTrack1 = dynamic_cast<PerigeeLinearizedTrackState *>(tracks[0].get());
+  PerigeeLinearizedTrackState *linTrack2 = dynamic_cast<PerigeeLinearizedTrackState *>(tracks[1].get());
   if (!linTrack1 || !linTrack2)
     return TwoBodyDecayParameters();
 
@@ -31,8 +29,7 @@ TwoBodyDecayLinearizationPointFinder::getLinearizationPoint(
   AlgebraicVector primaryMomentum = secondaryMomentum1 + secondaryMomentum2;
 
   TwoBodyDecayModel decayModel(primaryMass, secondaryMass);
-  AlgebraicMatrix rotMat = decayModel.rotationMatrix(
-      primaryMomentum[0], primaryMomentum[1], primaryMomentum[2]);
+  AlgebraicMatrix rotMat = decayModel.rotationMatrix(primaryMomentum[0], primaryMomentum[1], primaryMomentum[2]);
   AlgebraicMatrix invRotMat = rotMat.T();
 
   double p = primaryMomentum.norm();
@@ -49,11 +46,9 @@ TwoBodyDecayLinearizationPointFinder::getLinearizationPoint(
   boostedLorentzMomentum1[0] = sqrt(p1 * p1 + secondaryMass * secondaryMass);
   boostedLorentzMomentum1.sub(2, invRotMat * secondaryMomentum1);
 
-  AlgebraicVector restFrameLorentzMomentum1 =
-      lorentzTransformation * boostedLorentzMomentum1;
+  AlgebraicVector restFrameLorentzMomentum1 = lorentzTransformation * boostedLorentzMomentum1;
   AlgebraicVector restFrameMomentum1 = restFrameLorentzMomentum1.sub(2, 4);
-  double perp1 = sqrt(restFrameMomentum1[0] * restFrameMomentum1[0] +
-                      restFrameMomentum1[1] * restFrameMomentum1[1]);
+  double perp1 = sqrt(restFrameMomentum1[0] * restFrameMomentum1[0] + restFrameMomentum1[1] * restFrameMomentum1[1]);
   double theta1 = atan2(perp1, restFrameMomentum1[2]);
   double phi1 = atan2(restFrameMomentum1[1], restFrameMomentum1[0]);
 
@@ -62,11 +57,9 @@ TwoBodyDecayLinearizationPointFinder::getLinearizationPoint(
   boostedLorentzMomentum2[0] = sqrt(p2 * p2 + secondaryMass * secondaryMass);
   boostedLorentzMomentum2.sub(2, invRotMat * secondaryMomentum2);
 
-  AlgebraicVector restFrameLorentzMomentum2 =
-      lorentzTransformation * boostedLorentzMomentum2;
+  AlgebraicVector restFrameLorentzMomentum2 = lorentzTransformation * boostedLorentzMomentum2;
   AlgebraicVector restFrameMomentum2 = restFrameLorentzMomentum2.sub(2, 4);
-  double perp2 = sqrt(restFrameMomentum2[0] * restFrameMomentum2[0] +
-                      restFrameMomentum2[1] * restFrameMomentum2[1]);
+  double perp2 = sqrt(restFrameMomentum2[0] * restFrameMomentum2[0] + restFrameMomentum2[1] * restFrameMomentum2[1]);
   double theta2 = atan2(perp2, restFrameMomentum2[2]);
   double phi2 = atan2(restFrameMomentum2[1], restFrameMomentum2[0]);
 

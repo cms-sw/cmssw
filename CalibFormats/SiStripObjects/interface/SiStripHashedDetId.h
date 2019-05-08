@@ -17,7 +17,6 @@ std::ostream &operator<<(std::ostream &os, const SiStripHashedDetId &);
     @brief Provides dense hash map in place of DetId
 */
 class SiStripHashedDetId {
-
 public:
   // ---------- constructors ----------
 
@@ -92,11 +91,7 @@ uint32_t SiStripHashedDetId::unhashIndex(uint32_t hashed_index) const {
     return sistrip::invalid32_;
   }
 }
-SiStripHashedDetId::const_iterator SiStripHashedDetId::begin() const {
-  return detIds_.begin();
-}
-SiStripHashedDetId::const_iterator SiStripHashedDetId::end() const {
-  return detIds_.end();
-}
+SiStripHashedDetId::const_iterator SiStripHashedDetId::begin() const { return detIds_.begin(); }
+SiStripHashedDetId::const_iterator SiStripHashedDetId::end() const { return detIds_.end(); }
 
-#endif // CalibFormats_SiStripObjects_SiStripHashedDetId_H
+#endif  // CalibFormats_SiStripObjects_SiStripHashedDetId_H

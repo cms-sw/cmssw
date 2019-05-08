@@ -4,8 +4,7 @@
 
 // -----------------------------------------------------------------------------
 //
-SiStripFec::SiStripFec(const FedChannelConnection &conn)
-    : fecSlot_(conn.fecSlot()), rings_() {
+SiStripFec::SiStripFec(const FedChannelConnection &conn) : fecSlot_(conn.fecSlot()), rings_() {
   rings_.reserve(8);
   addDevices(conn);
 }

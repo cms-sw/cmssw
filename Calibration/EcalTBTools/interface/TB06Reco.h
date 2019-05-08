@@ -19,7 +19,7 @@ public:
   Int_t S6ADC;
 
   /// most energetic crystal index
-  Int_t MEXTLindex; //.ic() in CMSSW
+  Int_t MEXTLindex;  //.ic() in CMSSW
   /// most energetic crystal eta
   Int_t MEXTLeta;
   /// most energetic crystal phi

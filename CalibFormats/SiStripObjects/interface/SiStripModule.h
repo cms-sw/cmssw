@@ -22,7 +22,6 @@ std::ostream &operator<<(std::ostream &, const SiStripModule &);
     front-end module.
 */
 class SiStripModule {
-
 public:
   // ---------- Constructors and adding devices ----------
 
@@ -48,8 +47,7 @@ public:
     uint16_t fedSlot_;
     uint16_t fedId_;
     uint16_t fedCh_;
-    FedChannel(const uint16_t &crate, const uint16_t &slot, const uint16_t &id,
-               const uint16_t &ch)
+    FedChannel(const uint16_t &crate, const uint16_t &slot, const uint16_t &id, const uint16_t &ch)
         : fedCrate_(crate), fedSlot_(slot), fedId_(id), fedCh_(ch) {
       ;
     }
@@ -213,9 +211,7 @@ void SiStripModule::detId(const uint32_t &det_id) {
     detId_ = det_id;
   }
 }
-const SiStripModule::FedCabling &SiStripModule::fedChannels() const {
-  return cabling_;
-}
+const SiStripModule::FedCabling &SiStripModule::fedChannels() const { return cabling_; }
 
 const uint16_t &SiStripModule::length() const { return length_; }
 void SiStripModule::length(const uint16_t &length) { length_ = length; }
@@ -225,4 +221,4 @@ const uint16_t &SiStripModule::mux() const { return mux0x43_; }
 const uint16_t &SiStripModule::pll() const { return pll0x44_; }
 const uint16_t &SiStripModule::lld() const { return lld0x60_; }
 
-#endif // CalibTracker_SiStripObjects_SiStripModule_H
+#endif  // CalibTracker_SiStripObjects_SiStripModule_H

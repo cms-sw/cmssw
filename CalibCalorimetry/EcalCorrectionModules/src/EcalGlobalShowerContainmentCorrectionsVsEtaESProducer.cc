@@ -27,30 +27,24 @@
 #include "CondFormats/EcalCorrections/interface/EcalGlobalShowerContainmentCorrectionsVsEta.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-class EcalGlobalShowerContainmentCorrectionsVsEtaESProducer
-    : public edm::ESProducer {
-
+class EcalGlobalShowerContainmentCorrectionsVsEtaESProducer : public edm::ESProducer {
 public:
-  EcalGlobalShowerContainmentCorrectionsVsEtaESProducer(
-      const edm::ParameterSet &);
+  EcalGlobalShowerContainmentCorrectionsVsEtaESProducer(const edm::ParameterSet &);
   ~EcalGlobalShowerContainmentCorrectionsVsEtaESProducer() override;
 
-  typedef std::unique_ptr<EcalGlobalShowerContainmentCorrectionsVsEta>
-      ReturnType;
+  typedef std::unique_ptr<EcalGlobalShowerContainmentCorrectionsVsEta> ReturnType;
 
   ReturnType produce(const EcalGlobalShowerContainmentCorrectionsVsEtaRcd &);
 
 private:
 };
 
-EcalGlobalShowerContainmentCorrectionsVsEtaESProducer::
-    EcalGlobalShowerContainmentCorrectionsVsEtaESProducer(
-        const edm::ParameterSet &iConfig) {
+EcalGlobalShowerContainmentCorrectionsVsEtaESProducer::EcalGlobalShowerContainmentCorrectionsVsEtaESProducer(
+    const edm::ParameterSet &iConfig) {
   setWhatProduced(this);
 }
 
-EcalGlobalShowerContainmentCorrectionsVsEtaESProducer::
-    ~EcalGlobalShowerContainmentCorrectionsVsEtaESProducer() {}
+EcalGlobalShowerContainmentCorrectionsVsEtaESProducer::~EcalGlobalShowerContainmentCorrectionsVsEtaESProducer() {}
 
 //
 // member functions
@@ -59,29 +53,27 @@ EcalGlobalShowerContainmentCorrectionsVsEtaESProducer::
 EcalGlobalShowerContainmentCorrectionsVsEtaESProducer::ReturnType
 EcalGlobalShowerContainmentCorrectionsVsEtaESProducer::produce(
     const EcalGlobalShowerContainmentCorrectionsVsEtaRcd &iRecord) {
-
   using namespace edm::es;
   using namespace std;
 
-  auto pEcalGlobalShowerContainmentCorrectionsVsEta =
-      std::make_unique<EcalGlobalShowerContainmentCorrectionsVsEta>();
+  auto pEcalGlobalShowerContainmentCorrectionsVsEta = std::make_unique<EcalGlobalShowerContainmentCorrectionsVsEta>();
 
   double values[] = {
-      43.77, // 3x3
-      1.,    -3.97e-006,
-      43.77, // 5x5
-      1.,    -3.97e-006,
+      43.77,  // 3x3
+      1.,
+      -3.97e-006,
+      43.77,  // 5x5
+      1.,
+      -3.97e-006,
   };
 
   const size_t size = sizeof values / sizeof values[0];
   EcalGlobalShowerContainmentCorrectionsVsEta::Coefficients coeff;
   std::copy(values, values + size, coeff.data);
-  pEcalGlobalShowerContainmentCorrectionsVsEta->fillCorrectionCoefficients(
-      coeff);
+  pEcalGlobalShowerContainmentCorrectionsVsEta->fillCorrectionCoefficients(coeff);
 
   return pEcalGlobalShowerContainmentCorrectionsVsEta;
 }
 
 // define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(
-    EcalGlobalShowerContainmentCorrectionsVsEtaESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(EcalGlobalShowerContainmentCorrectionsVsEtaESProducer);
