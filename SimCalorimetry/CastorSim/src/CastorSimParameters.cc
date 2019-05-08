@@ -10,14 +10,17 @@
 CastorSimParameters::CastorSimParameters(double simHitToPhotoelectrons,
                                          double photoelectronsToAnalog,
                                          double samplingFactor,
-                                         double timePhase, bool syncPhase)
-    : CaloSimParameters(simHitToPhotoelectrons, photoelectronsToAnalog,
-                        samplingFactor, timePhase, 6, 4, false, syncPhase),
-      theDbService(nullptr), theSamplingFactor(samplingFactor),
+                                         double timePhase,
+                                         bool syncPhase)
+    : CaloSimParameters(
+          simHitToPhotoelectrons, photoelectronsToAnalog, samplingFactor, timePhase, 6, 4, false, syncPhase),
+      theDbService(nullptr),
+      theSamplingFactor(samplingFactor),
       nominalfCperPE(1) {}
 
 CastorSimParameters::CastorSimParameters(const edm::ParameterSet &p)
-    : CaloSimParameters(p), theDbService(nullptr),
+    : CaloSimParameters(p),
+      theDbService(nullptr),
       theSamplingFactor(p.getParameter<double>("samplingFactor")),
       nominalfCperPE(p.getParameter<double>("photoelectronsToAnalog")) {}
 
@@ -39,8 +42,7 @@ double CastorSimParameters::fCtoGeV(const DetId &detId) const {
   const CastorGainWidth *gwidths = theDbService->getGainWidth(hcalGenDetId);
   double result = 0.0;
   if (!gains || !gwidths) {
-    edm::LogError("CastorAmplifier")
-        << "Could not fetch HCAL conditions for channel " << hcalGenDetId;
+    edm::LogError("CastorAmplifier") << "Could not fetch HCAL conditions for channel " << hcalGenDetId;
   } else {
     // only one gain will be recorded per channel, so just use capID 0 for now
     result = gains->getValue(0);

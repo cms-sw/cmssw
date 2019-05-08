@@ -16,9 +16,7 @@
 
 #include <string>
 
-GFlash::GFlash(const edm::ParameterSet &p)
-    : PhysicsList(p), thePar(p.getParameter<edm::ParameterSet>("GFlash")) {
-
+GFlash::GFlash(const edm::ParameterSet &p) : PhysicsList(p), thePar(p.getParameter<edm::ParameterSet>("GFlash")) {
   G4DataQuestionaire it(photon);
 
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
@@ -27,18 +25,15 @@ GFlash::GFlash(const edm::ParameterSet &p)
   bool tracking = p.getParameter<bool>("TrackingCut");
   std::string region = p.getParameter<std::string>("Region");
 
-  edm::LogInfo("PhysicsList")
-      << "You are using the obsolete simulation engine: "
-      << " GFlash with Flags for EM Physics " << emPhys
-      << ", for Hadronic Physics " << hadPhys << " and tracking cut "
-      << tracking << " with special region " << region;
+  edm::LogInfo("PhysicsList") << "You are using the obsolete simulation engine: "
+                              << " GFlash with Flags for EM Physics " << emPhys << ", for Hadronic Physics " << hadPhys
+                              << " and tracking cut " << tracking << " with special region " << region;
 
   RegisterPhysics(new ParametrisedPhysics("parametrised", thePar));
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(
-        new CMSEmStandardPhysics95msc93("EM standard msc93", ver, region));
+    RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93", ver, region));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics(new G4EmExtraPhysics(ver));
@@ -68,13 +63,11 @@ GFlash::GFlash(const edm::ParameterSet &p)
   if (thePar.getParameter<bool>("GflashHistogram")) {
     theHisto = GflashHistogram::instance();
     theHisto->setStoreFlag(true);
-    theHisto->bookHistogram(
-        thePar.getParameter<std::string>("GflashHistogramName"));
+    theHisto->bookHistogram(thePar.getParameter<std::string>("GflashHistogramName"));
   }
 }
 
 GFlash::~GFlash() {
-
   if (thePar.getParameter<bool>("GflashHistogram")) {
     if (theHisto)
       delete theHisto;

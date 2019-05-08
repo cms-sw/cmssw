@@ -5,7 +5,6 @@
 #include <iosfwd>
 
 class EncodedTruthId : public EncodedEventId {
-
   friend std::ostream &operator<<(std::ostream &os, const EncodedTruthId &id);
 
 public:

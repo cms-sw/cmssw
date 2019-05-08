@@ -2,8 +2,7 @@
 #include "CalibFormats/CastorObjects/interface/CastorNominalCoder.h"
 #include "SimCalorimetry/CastorSim/src/CastorCoderFactory.h"
 
-CastorCoderFactory::CastorCoderFactory(CoderType coderType)
-    : theCoderType(coderType), theDbService(nullptr) {}
+CastorCoderFactory::CastorCoderFactory(CoderType coderType) : theCoderType(coderType), theDbService(nullptr) {}
 
 std::unique_ptr<CastorCoder> CastorCoderFactory::coder(const DetId &id) const {
   CastorCoder *result = nullptr;

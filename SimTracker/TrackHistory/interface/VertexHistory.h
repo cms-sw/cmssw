@@ -16,7 +16,6 @@
 
 //! This class traces the simulated and generated history of a given track.
 class VertexHistory : public HistoryBase {
-
 public:
   //! Constructor by pset.
   /* Creates a VertexHistory with association given by pset.
@@ -38,9 +37,7 @@ public:
   */
   bool evaluate(TrackingVertexRef tvr) {
     if (enableSimToReco_) {
-
-      std::pair<reco::VertexBaseRef, double> result =
-          match(tvr, simToReco_, bestMatchByMaxValue_);
+      std::pair<reco::VertexBaseRef, double> result = match(tvr, simToReco_, bestMatchByMaxValue_);
       recovertex_ = result.first;
       quality_ = result.second;
     }

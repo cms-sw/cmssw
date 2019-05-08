@@ -8,17 +8,22 @@
 
 class CastorDigiStatistics {
 public:
-  CastorDigiStatistics(std::string name, int maxBin, float amplitudeThreshold,
-                       float expectedPedestal, float binPrevToBinMax,
+  CastorDigiStatistics(std::string name,
+                       int maxBin,
+                       float amplitudeThreshold,
+                       float expectedPedestal,
+                       float binPrevToBinMax,
                        float binNextToBinMax,
                        CaloHitAnalyzer &amplitudeAnalyzer)
-      : maxBin_(maxBin), amplitudeThreshold_(amplitudeThreshold),
+      : maxBin_(maxBin),
+        amplitudeThreshold_(amplitudeThreshold),
         pedestal_(name + " pedestal", expectedPedestal, 0.),
         binPrevToBinMax_(name + " binPrevToBinMax", binPrevToBinMax, 0.),
         binNextToBinMax_(name + " binNextToBinMax", binNextToBinMax, 0.),
         amplitudeAnalyzer_(amplitudeAnalyzer) {}
 
-  template <class Digi> void analyze(const Digi &digi);
+  template <class Digi>
+  void analyze(const Digi &digi);
 
 private:
   int maxBin_;
@@ -29,7 +34,8 @@ private:
   CaloHitAnalyzer &amplitudeAnalyzer_;
 };
 
-template <class Digi> void CastorDigiStatistics::analyze(const Digi &digi) {
+template <class Digi>
+void CastorDigiStatistics::analyze(const Digi &digi) {
   pedestal_.addEntry(digi[0].adc());
   pedestal_.addEntry(digi[1].adc());
 
@@ -38,17 +44,13 @@ template <class Digi> void CastorDigiStatistics::analyze(const Digi &digi) {
   double maxAmplitude = digi[maxBin_].nominal_fC() - pedestal_fC;
 
   if (maxAmplitude > amplitudeThreshold_) {
-
-    double binPrevToBinMax =
-        (digi[maxBin_ - 1].nominal_fC() - pedestal_fC) / maxAmplitude;
+    double binPrevToBinMax = (digi[maxBin_ - 1].nominal_fC() - pedestal_fC) / maxAmplitude;
     binPrevToBinMax_.addEntry(binPrevToBinMax);
 
-    double binNextToBinMax =
-        (digi[maxBin_ + 1].nominal_fC() - pedestal_fC) / maxAmplitude;
+    double binNextToBinMax = (digi[maxBin_ + 1].nominal_fC() - pedestal_fC) / maxAmplitude;
     binNextToBinMax_.addEntry(binNextToBinMax);
 
-    double amplitude = digi[maxBin_].nominal_fC() +
-                       digi[maxBin_ + 1].nominal_fC() - 2 * pedestal_fC;
+    double amplitude = digi[maxBin_].nominal_fC() + digi[maxBin_ + 1].nominal_fC() - 2 * pedestal_fC;
 
     amplitudeAnalyzer_.analyze(digi.id().rawId(), amplitude);
   }

@@ -24,7 +24,6 @@
 #include "TH3F.h"
 
 class ESDigisReferenceDistrib : public edm::EDAnalyzer {
-
 public:
   /// Constructor
   ESDigisReferenceDistrib(const edm::ParameterSet &ps);

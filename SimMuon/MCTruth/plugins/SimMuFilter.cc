@@ -28,14 +28,10 @@ private:
 };
 
 SimMuFilter::SimMuFilter(const edm::ParameterSet &iConfig) {
-  simTracksToken_ = consumes<std::vector<SimTrack>>(
-      iConfig.getParameter<edm::InputTag>("simTracksInput"));
-  simHitsMuonRPCToken_ = consumes<edm::PSimHitContainer>(
-      iConfig.getParameter<edm::InputTag>("simHitsMuonRPCInput"));
-  simHitsMuonCSCToken_ = consumes<edm::PSimHitContainer>(
-      iConfig.getParameter<edm::InputTag>("simHitsMuonCSCInput"));
-  simHitsMuonDTToken_ = consumes<edm::PSimHitContainer>(
-      iConfig.getParameter<edm::InputTag>("simHitsMuonDTInput"));
+  simTracksToken_ = consumes<std::vector<SimTrack>>(iConfig.getParameter<edm::InputTag>("simTracksInput"));
+  simHitsMuonRPCToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHitsMuonRPCInput"));
+  simHitsMuonCSCToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHitsMuonCSCInput"));
+  simHitsMuonDTToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHitsMuonDTInput"));
   nMuSel_ = iConfig.getParameter<int>("nMuSel");
 }
 
@@ -70,27 +66,27 @@ bool SimMuFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
     int nSimHitCSC = 0;
     int nSimHitDT = 0;
 
-    for (PSimHitContainer::const_iterator simHitIt =
-             simHitsMuonRPCHandle->begin();
-         simHitIt != simHitsMuonRPCHandle->end(); simHitIt++) {
+    for (PSimHitContainer::const_iterator simHitIt = simHitsMuonRPCHandle->begin();
+         simHitIt != simHitsMuonRPCHandle->end();
+         simHitIt++) {
       if (simHitIt->trackId() != simTrk.trackId())
         continue;
 
       nSimHitRPC++;
     }
 
-    for (PSimHitContainer::const_iterator simHitIt =
-             simHitsMuonCSCHandle->begin();
-         simHitIt != simHitsMuonCSCHandle->end(); simHitIt++) {
+    for (PSimHitContainer::const_iterator simHitIt = simHitsMuonCSCHandle->begin();
+         simHitIt != simHitsMuonCSCHandle->end();
+         simHitIt++) {
       if (simHitIt->trackId() != simTrk.trackId())
         continue;
 
       nSimHitCSC++;
     }
 
-    for (PSimHitContainer::const_iterator simHitIt =
-             simHitsMuonDTHandle->begin();
-         simHitIt != simHitsMuonDTHandle->end(); simHitIt++) {
+    for (PSimHitContainer::const_iterator simHitIt = simHitsMuonDTHandle->begin();
+         simHitIt != simHitsMuonDTHandle->end();
+         simHitIt++) {
       if (simHitIt->trackId() != simTrk.trackId())
         continue;
 

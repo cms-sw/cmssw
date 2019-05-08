@@ -1,18 +1,14 @@
 #include "SimCalorimetry/CastorSim/src/CastorShape.h"
 #include <cmath>
 
-CastorShape::CastorShape() : nbin_(256), nt_(nbin_, 0.) {
-  computeShapeCastor();
-}
+CastorShape::CastorShape() : nbin_(256), nt_(nbin_, 0.) { computeShapeCastor(); }
 
-CastorShape::CastorShape(const CastorShape &d)
-    : CaloVShape(d), nbin_(d.nbin_), nt_(d.nt_) {}
+CastorShape::CastorShape(const CastorShape &d) : CaloVShape(d), nbin_(d.nbin_), nt_(d.nt_) {}
 
 void CastorShape::computeShapeCastor() {
-
   //  cout << endl << " ===== computeShapeCastor  !!! " << endl << endl;
 
-  const float ts = 3.0; // time constant in   t * exp(-(t/ts)**2)
+  const float ts = 3.0;  // time constant in   t * exp(-(t/ts)**2)
 
   int j;
   float norm;
@@ -31,7 +27,6 @@ void CastorShape::computeShapeCastor() {
 }
 
 double CastorShape::operator()(double time) const {
-
   // return pulse amplitude for request time in ns
   int jtime;
   jtime = static_cast<int>(time + 0.5);

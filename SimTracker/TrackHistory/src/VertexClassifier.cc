@@ -10,30 +10,27 @@
 
 #include "SimTracker/TrackHistory/interface/VertexClassifier.h"
 
-#define update(a, b)                                                           \
-  do {                                                                         \
-    (a) = (a) | (b);                                                           \
+#define update(a, b) \
+  do {               \
+    (a) = (a) | (b); \
   } while (0)
 
-VertexClassifier::VertexClassifier(edm::ParameterSet const &config,
-                                   edm::ConsumesCollector &&collector)
-    : VertexCategories(), tracer_(config, std::move(collector)),
+VertexClassifier::VertexClassifier(edm::ParameterSet const &config, edm::ConsumesCollector &&collector)
+    : VertexCategories(),
+      tracer_(config, std::move(collector)),
       hepMCLabel_(config.getUntrackedParameter<edm::InputTag>("hepMC")) {
   collector.consumes<edm::HepMCProduct>(hepMCLabel_);
   // Set the history depth after hadronization
   tracer_.depth(-2);
 
   // Set the minimum decay length for detecting long decays
-  longLivedDecayLength_ =
-      config.getUntrackedParameter<double>("longLivedDecayLength");
+  longLivedDecayLength_ = config.getUntrackedParameter<double>("longLivedDecayLength");
 
   // Set the distance for clustering vertices
-  vertexClusteringDistance_ =
-      config.getUntrackedParameter<double>("vertexClusteringDistance");
+  vertexClusteringDistance_ = config.getUntrackedParameter<double>("vertexClusteringDistance");
 }
 
-void VertexClassifier::newEvent(edm::Event const &event,
-                                edm::EventSetup const &setup) {
+void VertexClassifier::newEvent(edm::Event const &event, edm::EventSetup const &setup) {
   // Get the new event information for the tracer
   tracer_.newEvent(event, setup);
 
@@ -47,8 +44,7 @@ void VertexClassifier::newEvent(edm::Event const &event,
   genPrimaryVertices();
 }
 
-VertexClassifier const &
-VertexClassifier::evaluate(reco::VertexBaseRef const &vertex) {
+VertexClassifier const &VertexClassifier::evaluate(reco::VertexBaseRef const &vertex) {
   // Initializing the category vector
   reset();
 
@@ -74,8 +70,7 @@ VertexClassifier::evaluate(reco::VertexBaseRef const &vertex) {
   return *this;
 }
 
-VertexClassifier const &
-VertexClassifier::evaluate(TrackingVertexRef const &vertex) {
+VertexClassifier const &VertexClassifier::evaluate(TrackingVertexRef const &vertex) {
   // Initializing the category vector
   reset();
 
@@ -115,21 +110,19 @@ void VertexClassifier::simulationInformation() {
 
 void VertexClassifier::processesAtGenerator() {
   // Get the generated vetices from track history
-  VertexHistory::GenVertexTrail const &genVertexTrail =
-      tracer_.genVertexTrail();
+  VertexHistory::GenVertexTrail const &genVertexTrail = tracer_.genVertexTrail();
 
   // Loop over the generated vertices
-  for (VertexHistory::GenVertexTrail::const_iterator ivertex =
-           genVertexTrail.begin();
-       ivertex != genVertexTrail.end(); ++ivertex) {
+  for (VertexHistory::GenVertexTrail::const_iterator ivertex = genVertexTrail.begin(); ivertex != genVertexTrail.end();
+       ++ivertex) {
     // Get the pointer to the vertex by removing the const-ness (no const methos
     // in HepMC::GenVertex)
     HepMC::GenVertex *vertex = const_cast<HepMC::GenVertex *>(*ivertex);
 
     // Loop over the sources looking for specific decays
-    for (HepMC::GenVertex::particle_iterator iparent =
-             vertex->particles_begin(HepMC::parents);
-         iparent != vertex->particles_end(HepMC::parents); ++iparent) {
+    for (HepMC::GenVertex::particle_iterator iparent = vertex->particles_begin(HepMC::parents);
+         iparent != vertex->particles_end(HepMC::parents);
+         ++iparent) {
       // Collect the pdgid of the parent
       int pdgid = std::abs((*iparent)->pdg_id());
       // Get particle type
@@ -138,8 +131,7 @@ void VertexClassifier::processesAtGenerator() {
       // Check if the particle type is valid one
       if (particleID.isValid()) {
         // Get particle data
-        ParticleData const *particleData =
-            particleDataTable_->particle(particleID);
+        ParticleData const *particleData = particleDataTable_->particle(particleID);
         // Check if the particle exist in the table
         if (particleData) {
           // Check if their life time is bigger than longLivedDecayLength_
@@ -165,12 +157,10 @@ void VertexClassifier::processesAtGenerator() {
 }
 
 void VertexClassifier::processesAtSimulation() {
-  VertexHistory::SimVertexTrail const &simVertexTrail =
-      tracer_.simVertexTrail();
+  VertexHistory::SimVertexTrail const &simVertexTrail = tracer_.simVertexTrail();
 
-  for (VertexHistory::SimVertexTrail::const_iterator ivertex =
-           simVertexTrail.begin();
-       ivertex != simVertexTrail.end(); ++ivertex) {
+  for (VertexHistory::SimVertexTrail::const_iterator ivertex = simVertexTrail.begin(); ivertex != simVertexTrail.end();
+       ++ivertex) {
     // pdgid of the real source parent vertex
     int pdgid = 0;
 
@@ -178,10 +168,8 @@ void VertexClassifier::processesAtSimulation() {
     bool flag = false;
     TrackingVertex::tp_iterator itd, its;
 
-    for (its = (*ivertex)->sourceTracks_begin();
-         its != (*ivertex)->sourceTracks_end(); ++its) {
-      for (itd = (*ivertex)->daughterTracks_begin();
-           itd != (*ivertex)->daughterTracks_end(); ++itd)
+    for (its = (*ivertex)->sourceTracks_begin(); its != (*ivertex)->sourceTracks_end(); ++its) {
+      for (itd = (*ivertex)->daughterTracks_begin(); itd != (*ivertex)->daughterTracks_end(); ++itd)
         if (itd != its) {
           flag = true;
           break;
@@ -206,9 +194,7 @@ void VertexClassifier::processesAtSimulation() {
     unsigned int process = g4toCMSProcMap_.processId(processG4);
 
     // Flagging all the different processes
-    update(flags_[KnownProcess], process != CMS::Undefined &&
-                                     process != CMS::Unknown &&
-                                     process != CMS::Primary);
+    update(flags_[KnownProcess], process != CMS::Undefined && process != CMS::Unknown && process != CMS::Primary);
 
     update(flags_[UndefinedProcess], process == CMS::Undefined);
     update(flags_[UnknownProcess], process == CMS::Unknown);
@@ -224,18 +210,15 @@ void VertexClassifier::processesAtSimulation() {
     update(flags_[MuPairProdProcess], process == CMS::MuPairProd);
     update(flags_[ConversionsProcess], process == CMS::Conversions);
     update(flags_[EBremProcess], process == CMS::EBrem);
-    update(flags_[SynchrotronRadiationProcess],
-           process == CMS::SynchrotronRadiation);
+    update(flags_[SynchrotronRadiationProcess], process == CMS::SynchrotronRadiation);
     update(flags_[MuBremProcess], process == CMS::MuBrem);
     update(flags_[MuNuclProcess], process == CMS::MuNucl);
 
     // Loop over the simulated particles
-    for (TrackingVertex::tp_iterator iparticle =
-             (*ivertex)->daughterTracks_begin();
-         iparticle != (*ivertex)->daughterTracks_end(); ++iparticle) {
-
+    for (TrackingVertex::tp_iterator iparticle = (*ivertex)->daughterTracks_begin();
+         iparticle != (*ivertex)->daughterTracks_end();
+         ++iparticle) {
       if ((*iparticle)->numberOfTrackerLayers()) {
-
         // Special treatment for decays
         if (process == CMS::Decay) {
           // Get particle type
@@ -243,13 +226,11 @@ void VertexClassifier::processesAtSimulation() {
           // Check if the particle type is valid one
           if (particleID.isValid()) {
             // Get particle data
-            ParticleData const *particleData =
-                particleDataTable_->particle(particleID);
+            ParticleData const *particleData = particleDataTable_->particle(particleID);
             // Check if the particle exist in the table
             if (particleData) {
               // Check if their life time is bigger than 1e-14
-              if (particleDataTable_->particle(particleID)->lifetime() >
-                  longLivedDecayLength_) {
+              if (particleDataTable_->particle(particleID)->lifetime() > longLivedDecayLength_) {
                 // Check for B, C weak decays and long lived decays
                 update(flags_[BWeakDecay], particleID.hasBottom());
                 update(flags_[CWeakDecay], particleID.hasCharm());
@@ -283,40 +264,33 @@ void VertexClassifier::vertexInformation() {
   GeneratedPrimaryVertex const &genpv = genpvs_.back();
 
   // Get the generated history of the tracks
-  const VertexHistory::GenVertexTrail &genVertexTrail =
-      tracer_.genVertexTrail();
+  const VertexHistory::GenVertexTrail &genVertexTrail = tracer_.genVertexTrail();
 
   // Unit transformation from mm to cm
   double const mm = 0.1;
 
   // Loop over the generated vertexes
-  for (VertexHistory::GenVertexTrail::const_iterator ivertex =
-           genVertexTrail.begin();
-       ivertex != genVertexTrail.end(); ++ivertex) {
+  for (VertexHistory::GenVertexTrail::const_iterator ivertex = genVertexTrail.begin(); ivertex != genVertexTrail.end();
+       ++ivertex) {
     // Check vertex exist
     if (*ivertex) {
       // Measure the distance2 respecto the primary vertex
       HepMC::ThreeVector p = (*ivertex)->point3d();
       double distance =
-          sqrt(pow(p.x() * mm - genpv.x, 2) + pow(p.y() * mm - genpv.y, 2) +
-               pow(p.z() * mm - genpv.z, 2));
+          sqrt(pow(p.x() * mm - genpv.x, 2) + pow(p.y() * mm - genpv.y, 2) + pow(p.z() * mm - genpv.z, 2));
 
       // If there is not any clusters add the first vertex.
       if (clusters.empty()) {
-        clusters.insert(ClusterPair(
-            distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)));
+        clusters.insert(ClusterPair(distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)));
         continue;
       }
 
       // Check if there is already a cluster in the given distance from primary
       // vertex
-      Clusters::const_iterator icluster =
-          clusters.lower_bound(distance - vertexClusteringDistance_);
+      Clusters::const_iterator icluster = clusters.lower_bound(distance - vertexClusteringDistance_);
 
-      if (icluster ==
-          clusters.upper_bound(distance + vertexClusteringDistance_)) {
-        clusters.insert(ClusterPair(
-            distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)));
+      if (icluster == clusters.upper_bound(distance + vertexClusteringDistance_)) {
+        clusters.insert(ClusterPair(distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)));
         continue;
       }
 
@@ -324,11 +298,8 @@ void VertexClassifier::vertexInformation() {
 
       // Looping over the vertex clusters of a given distance from primary
       // vertex
-      for (; icluster !=
-             clusters.upper_bound(distance + vertexClusteringDistance_);
-           ++icluster) {
-        double difference = sqrt(pow(p.x() * mm - icluster->second.x(), 2) +
-                                 pow(p.y() * mm - icluster->second.y(), 2) +
+      for (; icluster != clusters.upper_bound(distance + vertexClusteringDistance_); ++icluster) {
+        double difference = sqrt(pow(p.x() * mm - icluster->second.x(), 2) + pow(p.y() * mm - icluster->second.y(), 2) +
                                  pow(p.z() * mm - icluster->second.z(), 2));
 
         if (difference < vertexClusteringDistance_) {
@@ -338,51 +309,41 @@ void VertexClassifier::vertexInformation() {
       }
 
       if (!cluster)
-        clusters.insert(ClusterPair(
-            distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)));
+        clusters.insert(ClusterPair(distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)));
     }
   }
 
-  const VertexHistory::SimVertexTrail &simVertexTrail =
-      tracer_.simVertexTrail();
+  const VertexHistory::SimVertexTrail &simVertexTrail = tracer_.simVertexTrail();
 
   // Loop over the generated particles
-  for (VertexHistory::SimVertexTrail::const_reverse_iterator ivertex =
-           simVertexTrail.rbegin();
-       ivertex != simVertexTrail.rend(); ++ivertex) {
+  for (VertexHistory::SimVertexTrail::const_reverse_iterator ivertex = simVertexTrail.rbegin();
+       ivertex != simVertexTrail.rend();
+       ++ivertex) {
     // Look for those with production vertex
     TrackingVertex::LorentzVector p = (*ivertex)->position();
 
-    double distance = sqrt(pow(p.x() - genpv.x, 2) + pow(p.y() - genpv.y, 2) +
-                           pow(p.z() - genpv.z, 2));
+    double distance = sqrt(pow(p.x() - genpv.x, 2) + pow(p.y() - genpv.y, 2) + pow(p.z() - genpv.z, 2));
 
     // If there is not any clusters add the first vertex.
     if (clusters.empty()) {
-      clusters.insert(
-          ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())));
+      clusters.insert(ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())));
       continue;
     }
 
     // Check if there is already a cluster in the given distance from primary
     // vertex
-    Clusters::const_iterator icluster =
-        clusters.lower_bound(distance - vertexClusteringDistance_);
+    Clusters::const_iterator icluster = clusters.lower_bound(distance - vertexClusteringDistance_);
 
-    if (icluster ==
-        clusters.upper_bound(distance + vertexClusteringDistance_)) {
-      clusters.insert(
-          ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())));
+    if (icluster == clusters.upper_bound(distance + vertexClusteringDistance_)) {
+      clusters.insert(ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())));
       continue;
     }
 
     bool cluster = false;
 
     // Looping over the vertex clusters of a given distance from primary vertex
-    for (;
-         icluster != clusters.upper_bound(distance + vertexClusteringDistance_);
-         ++icluster) {
-      double difference = sqrt(pow(p.x() - icluster->second.x(), 2) +
-                               pow(p.y() - icluster->second.y(), 2) +
+    for (; icluster != clusters.upper_bound(distance + vertexClusteringDistance_); ++icluster) {
+      double difference = sqrt(pow(p.x() - icluster->second.x(), 2) + pow(p.y() - icluster->second.y(), 2) +
                                pow(p.z() - icluster->second.z(), 2));
 
       if (difference < vertexClusteringDistance_) {
@@ -392,8 +353,7 @@ void VertexClassifier::vertexInformation() {
     }
 
     if (!cluster)
-      clusters.insert(
-          ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())));
+      clusters.insert(ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())));
   }
 
   if (clusters.size() == 1)
@@ -427,16 +387,15 @@ void VertexClassifier::genPrimaryVertices() {
     int idx = 0;
 
     // Loop over the different GenVertex
-    for (HepMC::GenEvent::vertex_const_iterator ivertex =
-             event->vertices_begin();
-         ivertex != event->vertices_end(); ++ivertex) {
+    for (HepMC::GenEvent::vertex_const_iterator ivertex = event->vertices_begin(); ivertex != event->vertices_end();
+         ++ivertex) {
       bool hasParentVertex = false;
 
       // Loop over the parents looking to see if they are coming from a
       // production vertex
-      for (HepMC::GenVertex::particle_iterator iparent =
-               (*ivertex)->particles_begin(HepMC::parents);
-           iparent != (*ivertex)->particles_end(HepMC::parents); ++iparent)
+      for (HepMC::GenVertex::particle_iterator iparent = (*ivertex)->particles_begin(HepMC::parents);
+           iparent != (*ivertex)->particles_end(HepMC::parents);
+           ++iparent)
         if ((*iparent)->production_vertex()) {
           hasParentVertex = true;
           break;
@@ -457,9 +416,7 @@ void VertexClassifier::genPrimaryVertices() {
 
       // Search for a VERY close vertex in the list
       for (; ientry != genpvs_.end(); ++ientry) {
-        double distance =
-            sqrt(pow(pv.x - ientry->x, 2) + pow(pv.y - ientry->y, 2) +
-                 pow(pv.z - ientry->z, 2));
+        double distance = sqrt(pow(pv.x - ientry->x, 2) + pow(pv.y - ientry->y, 2) + pow(pv.z - ientry->z, 2));
         if (distance < vertexClusteringDistance_)
           break;
       }
@@ -472,14 +429,11 @@ void VertexClassifier::genPrimaryVertices() {
       ientry->genVertex.push_back((*ivertex)->barcode());
 
       // Collect final state descendants
-      for (HepMC::GenVertex::particle_iterator idecendants =
-               (*ivertex)->particles_begin(HepMC::descendants);
+      for (HepMC::GenVertex::particle_iterator idecendants = (*ivertex)->particles_begin(HepMC::descendants);
            idecendants != (*ivertex)->particles_end(HepMC::descendants);
            ++idecendants) {
         if (isFinalstateParticle(*idecendants))
-          if (find(ientry->finalstateParticles.begin(),
-                   ientry->finalstateParticles.end(),
-                   (*idecendants)->barcode()) ==
+          if (find(ientry->finalstateParticles.begin(), ientry->finalstateParticles.end(), (*idecendants)->barcode()) ==
               ientry->finalstateParticles.end()) {
             ientry->finalstateParticles.push_back((*idecendants)->barcode());
             HepMC::FourVector m = (*idecendants)->momentum();
@@ -490,8 +444,7 @@ void VertexClassifier::genPrimaryVertices() {
             ientry->ptot.setE(ientry->ptot.e() + m.e());
             ientry->ptsq += m.perp() * m.perp();
 
-            if (m.perp() > 0.8 && std::abs(m.pseudoRapidity()) < 2.5 &&
-                isCharged(*idecendants))
+            if (m.perp() > 0.8 && std::abs(m.pseudoRapidity()) < 2.5 && isCharged(*idecendants))
               ientry->nGenTrk++;
           }
       }

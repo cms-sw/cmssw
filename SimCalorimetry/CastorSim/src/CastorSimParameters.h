@@ -8,8 +8,10 @@
 class CastorSimParameters : public CaloSimParameters {
 public:
   CastorSimParameters(double simHitToPhotoelectrons,
-                      double photoelectronsToAnalog, double samplingFactor,
-                      double timePhase, bool syncPhase);
+                      double photoelectronsToAnalog,
+                      double samplingFactor,
+                      double timePhase,
+                      bool syncPhase);
   CastorSimParameters(const edm::ParameterSet &p);
 
   ~CastorSimParameters() override {}

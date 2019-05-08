@@ -28,70 +28,69 @@
 #define SSIZE_MAX ((ssize_t)(SIZE_MAX / 2))
 #endif
 namespace {
-ssize_t getline(char **lineptr, size_t *n, FILE *fp) {
-  ssize_t result;
-  size_t cur_len = 0;
+  ssize_t getline(char **lineptr, size_t *n, FILE *fp) {
+    ssize_t result;
+    size_t cur_len = 0;
 
-  if (lineptr == NULL || n == NULL || fp == NULL) {
-    errno = EINVAL;
-    return -1;
-  }
-
-  if (*lineptr == NULL || *n == 0) {
-    *n = 120;
-    *lineptr = (char *)malloc(*n);
-    if (*lineptr == NULL) {
-      result = -1;
-      goto end;
-    }
-  }
-
-  for (;;) {
-    int i;
-
-    i = getc(fp);
-    if (i == EOF) {
-      result = -1;
-      break;
+    if (lineptr == NULL || n == NULL || fp == NULL) {
+      errno = EINVAL;
+      return -1;
     }
 
-    /* Make enough space for len+1 (for final NUL) bytes.  */
-    if (cur_len + 1 >= *n) {
-      size_t needed_max =
-          SSIZE_MAX < SIZE_MAX ? (size_t)SSIZE_MAX + 1 : SIZE_MAX;
-      size_t needed = 2 * *n + 1; /* Be generous. */
-      char *new_lineptr;
-
-      if (needed_max < needed)
-        needed = needed_max;
-      if (cur_len + 1 >= needed) {
+    if (*lineptr == NULL || *n == 0) {
+      *n = 120;
+      *lineptr = (char *)malloc(*n);
+      if (*lineptr == NULL) {
         result = -1;
         goto end;
       }
-
-      new_lineptr = (char *)realloc(*lineptr, needed);
-      if (new_lineptr == NULL) {
-        result = -1;
-        goto end;
-      }
-
-      *lineptr = new_lineptr;
-      *n = needed;
     }
 
-    (*lineptr)[cur_len] = i;
-    cur_len++;
+    for (;;) {
+      int i;
 
-    if (i == '\n')
-      break;
+      i = getc(fp);
+      if (i == EOF) {
+        result = -1;
+        break;
+      }
+
+      /* Make enough space for len+1 (for final NUL) bytes.  */
+      if (cur_len + 1 >= *n) {
+        size_t needed_max = SSIZE_MAX < SIZE_MAX ? (size_t)SSIZE_MAX + 1 : SIZE_MAX;
+        size_t needed = 2 * *n + 1; /* Be generous. */
+        char *new_lineptr;
+
+        if (needed_max < needed)
+          needed = needed_max;
+        if (cur_len + 1 >= needed) {
+          result = -1;
+          goto end;
+        }
+
+        new_lineptr = (char *)realloc(*lineptr, needed);
+        if (new_lineptr == NULL) {
+          result = -1;
+          goto end;
+        }
+
+        *lineptr = new_lineptr;
+        *n = needed;
+      }
+
+      (*lineptr)[cur_len] = i;
+      cur_len++;
+
+      if (i == '\n')
+        break;
+    }
+    (*lineptr)[cur_len] = '\0';
+    result = cur_len ? (ssize_t)cur_len : result;
+
+  end:
+    return result;
   }
-  (*lineptr)[cur_len] = '\0';
-  result = cur_len ? (ssize_t)cur_len : result;
-
-end:
-  return result;
-}
-} // namespace
+}  // namespace
 #endif
 
 using namespace std;
@@ -135,10 +134,10 @@ const int nABInPhi = 3;
 /** Number of DCCs in an endcap
  */
 const int nDCCEE = 9;
-const int nABABCh = 8;   // nbr of AB input/output ch. on an AB
-const int nABTCCCh = 12; // nbr of TCC inputs on an AB
-const int nDCCCh = 12;   // nbr of DCC outputs on an AB
-const int nTCCInEta = 6; // nbr of TCC bins along eta
+const int nABABCh = 8;    // nbr of AB input/output ch. on an AB
+const int nABTCCCh = 12;  // nbr of TCC inputs on an AB
+const int nDCCCh = 12;    // nbr of DCC outputs on an AB
+const int nTCCInEta = 6;  // nbr of TCC bins along eta
 const int nAB = nABInPhi * nABInEta;
 const int nTTInABAlongPhi = nTTInPhi / nABInPhi;
 const int iTTEtaMin[nABInEta] = {0, 11, 28, 45};
@@ -166,62 +165,60 @@ const char tccFlagMarker[] = {'.', 'S', '?', 'C', '4', '5', '6', '7'};
 
 char srp2roFlags[128];
 
-typedef enum {
-  suppress = 0,
-  sr2,
-  sr1,
-  full,
-  fsuppress,
-  fsr2,
-  fsr1,
-  ffull
-} roAction_t;
+typedef enum { suppress = 0, sr2, sr1, full, fsuppress, fsr2, fsr1, ffull } roAction_t;
 char roFlagMarker[] = {
-    /*suppress*/ '.',  /*sr1*/ 'z',  /*sr1*/ 'Z',  /*full*/ 'F',
-    /*fsuppress*/ '4', /*fsr2*/ '5', /*fsr1*/ '6', /*ffull*/ '7'};
+    /*suppress*/ '.',
+    /*sr1*/ 'z',
+    /*sr1*/ 'Z',
+    /*full*/ 'F',
+    /*fsuppress*/ '4',
+    /*fsr2*/ '5',
+    /*fsr1*/ '6',
+    /*ffull*/ '7'};
 
 const int nactions = 8;
 // can be overwritten according by cmd line arguments
 roAction_t actions[nactions] = {
-    /*LI->*/ sr2,  /*S->*/ full, /*N->*/ full, /*C->*/ full,
-    /*fLI->*/ sr2, /*fS->*/ sr2, /*fN->*/ sr2, /*fC->*/ sr2};
+    /*LI->*/ sr2,
+    /*S->*/ full,
+    /*N->*/ full,
+    /*C->*/ full,
+    /*fLI->*/ sr2,
+    /*fS->*/ sr2,
+    /*fN->*/ sr2,
+    /*fC->*/ sr2};
 
 // list of SC deserves by an endcap DCC [0(EE-)|1(EE+)][iDCCPhi]
 vector<pair<int, int>> ecalDccSC[nEndcaps][nDCCEE];
 
 void fillABTTFFiles(const char ttFlags[nTTInEta][nTTInPhi], ofstream files[]);
-void fillABSRPFiles(
-    const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
-    const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
-    ofstream files[]);
-void fillABIOFiles(
-    const char ttFlags[nTTInEta][nTTInPhi],
-    const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
-    const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
-    ofstream files[]);
+void fillABSRPFiles(const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
+                    const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
+                    ofstream files[]);
+void fillABIOFiles(const char ttFlags[nTTInEta][nTTInPhi],
+                   const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
+                   const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
+                   ofstream files[]);
 inline int abNum(int iABEta, int iABPhi) { return 3 * iABEta + iABPhi; }
 
 bool readTTF(FILE *file, char ttFlags[nTTInEta][nTTInPhi]);
-bool readSRF(
-    FILE *file, char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
-    char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins]);
+bool readSRF(FILE *file,
+             char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
+             char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins]);
 
 void writeABTTFFileHeader(ofstream &f, int abNum);
 void writeABSRFFileHeader(ofstream &f, int abNum);
 void writeABIOFileHeader(ofstream &f, int abNum);
-string getFlagStream(char flags[nTTInEta][nTTInPhi], int iEtaMin, int iEtaMax,
-                     int iPhiMin, int iPhiMax);
-string getABTCCInputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta,
-                           int iABPhi, int iTCCCh);
+string getFlagStream(char flags[nTTInEta][nTTInPhi], int iEtaMin, int iEtaMax, int iPhiMin, int iPhiMax);
+string getABTCCInputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta, int iABPhi, int iTCCCh);
 void getABTTPhiBounds(int iABPhi, int &iTTPhiMin, int &iTTPhiMax);
-string getABABOutputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta,
-                           int iABPhi, int iABCh);
-string getABABInputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta,
-                          int iABPhi, int iABCh);
-string getABDCCOutputStream(
-    const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
-    const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
-    int iABEta, int iABPhi, int DCCCh);
+string getABABOutputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta, int iABPhi, int iABCh);
+string getABABInputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta, int iABPhi, int iABCh);
+string getABDCCOutputStream(const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
+                            const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
+                            int iABEta,
+                            int iABPhi,
+                            int DCCCh);
 void abConnect(int iAB, int iABCh, int &iOtherAB, int &iOtherABCh);
 
 int iEvent = 0;
@@ -239,35 +236,34 @@ int main(int argc, char *argv[]) {
   int iarg = 0;
   while (++iarg < argc) {
     if (strcmp(argv[iarg], "-h") == 0 || strcmp(argv[iarg], "--help") == 0) {
-      cout
-          << "Usage: GenABIO [OPTIONS]\n\n"
-             "Produces TT and SR flag files for each SRP board from TTF.txt "
-             "and "
-             "SRF.txt global flag files. Requires the SRP cross-connect "
-             "description"
-             " description file (xconnect_universal.txt). TTF.txt, SRF.txt and "
-             "xconnect_universal.txt must be in the directory the command is "
-             "launched.\n\n"
-             "OPTIONS:\n"
-             "  -A, --actions IJKLMNOP. IJKLMNOP I..P integers from 0 to 7.\n"
-             "                I: action flag for low interest RUs\n"
-             "                J: action flag for single RUs\n"
-             "                K: action flag for neighbour RUs\n"
-             "                L: action flag for centers RUs\n"
-             "                M: action flag for forced low interest RUs\n"
-             "                N: action flag for forced single RUs\n"
-             "                O: action flag for forced neighbour RUs\n"
-             "                P: action flag for forced centers RUs\n\n"
-             " -h, --help display this help\n"
-             " -a n, --ab n specifies indices of the AB whose file must be "
-             "produced. The ab number runs from 1 to 12. Use -1 to produce "
-             "files "
-             "for every AB\n\n";
+      cout << "Usage: GenABIO [OPTIONS]\n\n"
+              "Produces TT and SR flag files for each SRP board from TTF.txt "
+              "and "
+              "SRF.txt global flag files. Requires the SRP cross-connect "
+              "description"
+              " description file (xconnect_universal.txt). TTF.txt, SRF.txt and "
+              "xconnect_universal.txt must be in the directory the command is "
+              "launched.\n\n"
+              "OPTIONS:\n"
+              "  -A, --actions IJKLMNOP. IJKLMNOP I..P integers from 0 to 7.\n"
+              "                I: action flag for low interest RUs\n"
+              "                J: action flag for single RUs\n"
+              "                K: action flag for neighbour RUs\n"
+              "                L: action flag for centers RUs\n"
+              "                M: action flag for forced low interest RUs\n"
+              "                N: action flag for forced single RUs\n"
+              "                O: action flag for forced neighbour RUs\n"
+              "                P: action flag for forced centers RUs\n\n"
+              " -h, --help display this help\n"
+              " -a n, --ab n specifies indices of the AB whose file must be "
+              "produced. The ab number runs from 1 to 12. Use -1 to produce "
+              "files "
+              "for every AB\n\n";
 
       return 0;
     }
 
-    if (!strcmp(argv[iarg], "-A") || !strcmp(argv[iarg], "-A")) { // actions
+    if (!strcmp(argv[iarg], "-A") || !strcmp(argv[iarg], "-A")) {  // actions
       if (++iarg >= argc) {
         cout << "Option error. Try -h\n";
         return 1;
@@ -298,8 +294,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  for (size_t i = 0; i < sizeof(srp2roFlags) / sizeof(srp2roFlags[0]);
-       srp2roFlags[i++] = '?')
+  for (size_t i = 0; i < sizeof(srp2roFlags) / sizeof(srp2roFlags[0]); srp2roFlags[i++] = '?')
     ;
   for (size_t i = 0; i < sizeof(actions) / sizeof(actions[0]); ++i) {
     srp2roFlags[(int)srpFlagMarker[i]] = roFlagMarker[actions[i]];
@@ -309,7 +304,7 @@ int main(int argc, char *argv[]) {
     for (int iY = 0; iY < nSupercrystalXBins; ++iY) {
       for (int iX = 0; iX < nSupercrystalYBins; ++iX) {
         int iDCCPhi = dccPhiIndexOfRU(iEE == 0 ? 0 : 2, iX, iY);
-        if (iDCCPhi >= 0) { // SC exists
+        if (iDCCPhi >= 0) {  // SC exists
           ecalDccSC[iEE][iDCCPhi].push_back(pair<int, int>(iX, iY));
         }
       }
@@ -347,8 +342,7 @@ int main(int argc, char *argv[]) {
   }
 
   iEvent = 0;
-  while (readSRF(srfFile, barrelSrFlags, endcapSrFlags) &&
-         readTTF(ttfFile, ttFlags)) {
+  while (readSRF(srfFile, barrelSrFlags, endcapSrFlags) && readTTF(ttfFile, ttFlags)) {
     if (iEvent % 100 == 0) {
       cout << "Event " << iEvent << endl;
     }
@@ -381,8 +375,7 @@ void fillABTTFFiles(const char ttFlags[nTTInEta][nTTInPhi], ofstream files[]) {
         } else {
           iTTEta = iTTEtaMax[iABEta] - i;
         }
-        for (int iTTPhi = iTTPhiMin;
-             mod(iTTPhiMax - iTTPhi, nTTInPhi) < nTTInABAlongPhi;
+        for (int iTTPhi = iTTPhiMin; mod(iTTPhiMax - iTTPhi, nTTInPhi) < nTTInABAlongPhi;
              iTTPhi = mod(++iTTPhi, nTTInPhi)) {
           files[iAB] << ttFlags[iTTEta][iTTPhi];
         }
@@ -394,10 +387,9 @@ void fillABTTFFiles(const char ttFlags[nTTInEta][nTTInPhi], ofstream files[]) {
   }
 }
 
-void fillABSRPFiles(
-    const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
-    const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
-    ofstream files[nAB]) {
+void fillABSRPFiles(const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
+                    const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
+                    ofstream files[nAB]) {
   // event headers:
   for (int iAB = 0; iAB < nAB; ++iAB) {
     files[iAB] << "# Event " << iEvent << "\n";
@@ -422,14 +414,14 @@ void fillABSRPFiles(
           files[iAB] << srp2roFlags[(int)endcapSrFlags[iEE][iX][iY]];
           lineAppended[iAB] = true;
         }
-      } // next iY
+      }  // next iY
       for (int iFile = 0; iFile < nAB; ++iFile) {
         if (lineAppended[iFile]) {
           files[iFile] << "\n";
           lineAppended[iFile] = false;
         }
       }
-    } // next iX
+    }  // next iX
   }
 
   // EB:
@@ -447,11 +439,9 @@ void fillABSRPFiles(
         } else {
           iTTEta = iTTEtaMax[iABEta] - i;
         }
-        for (int iTTPhi = iTTPhiMin;
-             mod(iTTPhiMax - iTTPhi, nTTInPhi) < nTTInABAlongPhi;
+        for (int iTTPhi = iTTPhiMin; mod(iTTPhiMax - iTTPhi, nTTInPhi) < nTTInABAlongPhi;
              iTTPhi = mod(++iTTPhi, nTTInPhi)) {
-          files[iAB] << srp2roFlags[(
-              int)barrelSrFlags[iTTEta - nEndcapTTInEta][iTTPhi]];
+          files[iAB] << srp2roFlags[(int)barrelSrFlags[iTTEta - nEndcapTTInEta][iTTPhi]];
         }
         files[iAB] << "\n";
       }
@@ -466,11 +456,10 @@ void fillABSRPFiles(
   }
 }
 
-void fillABIOFiles(
-    const char ttFlags[nTTInEta][nTTInPhi],
-    const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
-    const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
-    ofstream files[]) {
+void fillABIOFiles(const char ttFlags[nTTInEta][nTTInPhi],
+                   const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
+                   const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
+                   ofstream files[]) {
   for (int iABEta = 0; iABEta < nABInEta; ++iABEta) {
     for (int iABPhi = 0; iABPhi < nABInPhi; ++iABPhi) {
       int iAB = abNum(iABEta, iABPhi);
@@ -478,29 +467,21 @@ void fillABIOFiles(
       files[iAB] << "# Event " << iEvent << "\n";
       // TCC inputs:
       for (int iTCC = 0; iTCC < nABTCCCh; ++iTCC) {
-        files[iAB] << "ITCC" << iTCC + 1 << ":"
-                   << getABTCCInputStream(ttFlags, iABEta, iABPhi, iTCC)
-                   << "\n";
+        files[iAB] << "ITCC" << iTCC + 1 << ":" << getABTCCInputStream(ttFlags, iABEta, iABPhi, iTCC) << "\n";
       }
       // AB inputs:
       for (int iABCh = 0; iABCh < nABABCh; ++iABCh) {
-        files[iAB] << "IAB" << iABCh + 1 << ":"
-                   << getABABInputStream(ttFlags, iABEta, iABPhi, iABCh)
-                   << "\n";
+        files[iAB] << "IAB" << iABCh + 1 << ":" << getABABInputStream(ttFlags, iABEta, iABPhi, iABCh) << "\n";
       }
       // AB outputs:
       for (int iABCh = 0; iABCh < nABABCh; ++iABCh) {
-        files[iAB] << "OAB" << iABCh + 1 << ":"
-                   << getABABOutputStream(ttFlags, iABEta, iABPhi, iABCh)
-                   << "\n";
+        files[iAB] << "OAB" << iABCh + 1 << ":" << getABABOutputStream(ttFlags, iABEta, iABPhi, iABCh) << "\n";
       }
       // DCC output:
       for (int iDCCCh = 0; iDCCCh < nDCCCh; ++iDCCCh) {
         files[iAB] << "ODCC";
         files[iAB] << (iDCCCh <= 8 ? "0" : "") << iDCCCh + 1 << ":"
-                   << getABDCCOutputStream(barrelSrFlags, endcapSrFlags, iABEta,
-                                           iABPhi, iDCCCh)
-                   << "\n";
+                   << getABDCCOutputStream(barrelSrFlags, endcapSrFlags, iABEta, iABPhi, iDCCCh) << "\n";
       }
       files[iAB] << "#\n";
     }
@@ -527,8 +508,8 @@ bool readTTF(FILE *f, char ttFlags[nTTInEta][nTTInPhi]) {
     ++line;
     char *pos = buffer;
     while (*pos == ' ' || *pos == '\t')
-      ++pos;                           // skip spaces
-    if (*pos != '#' && *pos != '\n') { // not a comment line nor an empty line
+      ++pos;                            // skip spaces
+    if (*pos != '#' && *pos != '\n') {  // not a comment line nor an empty line
       if (read - 1 != nTTInPhi) {
         cerr << "Error: line " << line << " of file " << ttfFilename
              << " has incorrect length"
@@ -552,9 +533,9 @@ bool readTTF(FILE *f, char ttFlags[nTTInEta][nTTInPhi]) {
   return (iEta == nTTInEta) ? true : false;
 }
 
-bool readSRF(
-    FILE *f, char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
-    char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins]) {
+bool readSRF(FILE *f,
+             char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
+             char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins]) {
   char *buffer = nullptr;
   size_t bufferSize = 0;
   int read;
@@ -564,35 +545,31 @@ bool readSRF(
   int iEta = 0;
   int iXm = 0;
   int iXp = 0;
-  int iReadLine = 0; // number of read line, comment lines excluded
+  int iReadLine = 0;  // number of read line, comment lines excluded
   // number of non-comment lines to read:
   const int nReadLine = nBarrelTTInEta + nEndcaps * nSupercrystalXBins;
-  while (iReadLine < nReadLine &&
-         (read = getline(&buffer, &bufferSize, f)) != -1) {
+  while (iReadLine < nReadLine && (read = getline(&buffer, &bufferSize, f)) != -1) {
     ++line;
     char *pos = buffer;
     while (*pos == ' ' || *pos == '\t')
-      ++pos;                           // skip spaces
-    if (*pos != '#' && *pos != '\n') { // not a comment line nor an empty line
+      ++pos;                            // skip spaces
+    if (*pos != '#' && *pos != '\n') {  // not a comment line nor an empty line
       // go back to beginning of line:
       pos = buffer;
-      if (iReadLine < nSupercrystalXBins) { // EE- reading
+      if (iReadLine < nSupercrystalXBins) {  // EE- reading
         if (read - 1 != nSupercrystalYBins) {
-          cerr << "Error: line " << line << " of file " << srfFilename
-               << " has incorrect length"
-               << " (" << read - 1 << " instead of " << nSupercrystalYBins
-               << ")" << endl;
+          cerr << "Error: line " << line << " of file " << srfFilename << " has incorrect length"
+               << " (" << read - 1 << " instead of " << nSupercrystalYBins << ")" << endl;
           exit(EXIT_FAILURE);
         }
         for (int iY = 0; iY < nSupercrystalYBins; ++iY) {
           endcapSrFlags[0][iXm][iY] = buffer[iY];
         }
         ++iXm;
-      } else if (iReadLine < nSupercrystalYBins + nBarrelTTInEta) { // EB
-                                                                    // reading
+      } else if (iReadLine < nSupercrystalYBins + nBarrelTTInEta) {  // EB
+                                                                     // reading
         if (read - 1 != nTTInPhi) {
-          cerr << "Error: line " << line << " of file " << srfFilename
-               << " has incorrect length"
+          cerr << "Error: line " << line << " of file " << srfFilename << " has incorrect length"
                << " (" << read - 1 << " instead of " << nTTInPhi << ")" << endl;
           exit(EXIT_FAILURE);
         }
@@ -600,13 +577,10 @@ bool readSRF(
           barrelSrFlags[iEta][iPhi] = buffer[iPhi];
         }
         ++iEta;
-      } else if (iReadLine <
-                 2 * nSupercrystalXBins + nBarrelTTInEta) { // EE+ reading
+      } else if (iReadLine < 2 * nSupercrystalXBins + nBarrelTTInEta) {  // EE+ reading
         if (read - 1 != nSupercrystalYBins) {
-          cerr << "Error: line " << line << " of file " << srfFilename
-               << " has incorrect length"
-               << " (" << read - 1 << " instead of " << nSupercrystalYBins
-               << ")" << endl;
+          cerr << "Error: line " << line << " of file " << srfFilename << " has incorrect length"
+               << " (" << read - 1 << " instead of " << nSupercrystalYBins << ")" << endl;
           exit(EXIT_FAILURE);
         }
         for (int iY = 0; iY < nSupercrystalYBins; ++iY) {
@@ -615,7 +589,7 @@ bool readSRF(
         ++iXp;
       }
       ++iReadLine;
-    } // not a comment or empty line
+    }  // not a comment or empty line
   }
   // returns 0 if all TT were read:
   return (iReadLine == nReadLine) ? true : false;
@@ -674,10 +648,10 @@ void writeABSRFFileHeader(ofstream &f, int abNum) {
   const char *date = ctime(&t);
   const char *xLabel;
   const char *yLabel;
-  if (abNum < 3 || abNum > 8) { // endcap
+  if (abNum < 3 || abNum > 8) {  // endcap
     xLabel = "Y  ";
     yLabel = "X    ";
-  } else { // barrel
+  } else {  // barrel
     xLabel = "Phi";
     yLabel = "|Eta|";
   }
@@ -724,20 +698,16 @@ void writeABIOFileHeader(ofstream &f, int abNum) {
     << date
     << "#\n"
        "# "
-    << srpFlagMarker[0] << ": 000 (low interest)   " << tccFlagMarker[0]
-    << ": 000 (low interest)   " << roFlagMarker[0]
+    << srpFlagMarker[0] << ": 000 (low interest)   " << tccFlagMarker[0] << ": 000 (low interest)   " << roFlagMarker[0]
     << ": 000 (suppress)\n"
        "# "
-    << srpFlagMarker[1] << ": 001 (single)         " << tccFlagMarker[1]
-    << ": 001 (mid interest)   " << roFlagMarker[1]
+    << srpFlagMarker[1] << ": 001 (single)         " << tccFlagMarker[1] << ": 001 (mid interest)   " << roFlagMarker[1]
     << ": 010 (SR Threshold 2)\n"
        "# "
-    << srpFlagMarker[2] << ": 010 (neighbour)      " << tccFlagMarker[2]
-    << ": 010 (not valid)      " << roFlagMarker[2]
+    << srpFlagMarker[2] << ": 010 (neighbour)      " << tccFlagMarker[2] << ": 010 (not valid)      " << roFlagMarker[2]
     << ": 001 (SR Threshold 1)\n"
        "# "
-    << srpFlagMarker[3] << ": 011 (center)         " << tccFlagMarker[3]
-    << ": 011 (high interest)  " << roFlagMarker[3]
+    << srpFlagMarker[3] << ": 011 (center)         " << tccFlagMarker[3] << ": 011 (high interest)  " << roFlagMarker[3]
     << ": 011 (Full readout)\n"
        "#\n"
        "# action table (when forced):\n"
@@ -756,8 +726,7 @@ void writeABIOFileHeader(ofstream &f, int abNum) {
        "#\n";
 }
 
-string getFlagStream(const char flags[nTTInEta][nTTInPhi], int iEtaMin,
-                     int iEtaMax, int iPhiMin, int iPhiMax) {
+string getFlagStream(const char flags[nTTInEta][nTTInPhi], int iEtaMin, int iEtaMax, int iPhiMin, int iPhiMax) {
   assert(0 <= iEtaMin && iEtaMin <= iEtaMax && iEtaMax < nTTInEta);
   if (iEtaMin <= nTTInEta / 2 && iEtaMax > nTTInEta) {
     cerr << "Implementation Errror:" << __FILE__ << ":" << __LINE__
@@ -778,8 +747,7 @@ string getFlagStream(const char flags[nTTInEta][nTTInPhi], int iEtaMin,
       iEta = iEtaMax - jEta;
     }
 
-    for (int iPhi = mod(iPhiMin, nTTInPhi);
-         mod(iPhiMax + 1 - iPhi, nTTInPhi) != 0; iPhi = mod(++iPhi, nTTInPhi)) {
+    for (int iPhi = mod(iPhiMin, nTTInPhi); mod(iPhiMax + 1 - iPhi, nTTInPhi) != 0; iPhi = mod(++iPhi, nTTInPhi)) {
       buffer << flags[iEta][iPhi];
     }
   }
@@ -787,18 +755,17 @@ string getFlagStream(const char flags[nTTInEta][nTTInPhi], int iEtaMin,
   return buffer.str();
 }
 
-string getABTCCInputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta,
-                           int iABPhi, int iTCCCh) {
+string getABTCCInputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta, int iABPhi, int iTCCCh) {
   // gets eta bounds for this tcc channel:
   int iTCCEta;
-  if (iABEta == 1 || iABEta == 2) { // barrel
+  if (iABEta == 1 || iABEta == 2) {  // barrel
     if (iTCCCh > 5)
-      return ""; // only 6 TCCs per AB for barrel
+      return "";  // only 6 TCCs per AB for barrel
     iTCCEta = 1 + iABEta;
-  } else {             // endcap
-    if (iABEta == 0) { // EE-
+  } else {              // endcap
+    if (iABEta == 0) {  // EE-
       iTCCEta = (iTCCCh < 6) ? 1 : 0;
-    } else { // EE+
+    } else {  // EE+
       iTCCEta = (iTCCCh < 6) ? 4 : 5;
     }
   }
@@ -818,81 +785,77 @@ string getABTCCInputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta,
   return getFlagStream(tccFlags, iEtaMin, iEtaMax, iPhiMin, iPhiMax);
 }
 
-string getABABOutputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta,
-                           int iABPhi, int iABCh) {
+string getABABOutputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta, int iABPhi, int iABCh) {
   stringstream buffer;
   buffer.str("");
-  bool barrel =
-      (iABEta == 1 || iABEta == 2); // true for barrel, false for endcap
+  bool barrel = (iABEta == 1 || iABEta == 2);  // true for barrel, false for endcap
   switch (iABCh) {
-  case 0:
-    // to AB ch #0 are sent the 16 1st TCC flags received on TCC input Ch. 0
-    buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 0).substr(0, 16);
-    break;
-  case 1:
-    // to AB ch #1 are sent the 16 1st TCC flags received on TCC input Ch. 0 to
-    // 5:
-    for (int iTCCCh = 0; iTCCCh < 6; ++iTCCCh) {
-      buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, iTCCCh)
-                    .substr(0, 16);
-    }
-    break;
-  case 2:
-    // to AB ch #2 are sent the 16 1st TCC flags received on TCC input Ch. 5:
-    buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 5).substr(0, 16);
-    break;
-  case 3:
-    // to AB ch #3 are sent TCC flags received on TCC input Ch. 0 and 6:
-    buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 0);
-    buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 6);
-    break;
-  case 4:
-    // to AB ch #4 are sent TCC flags received on TCC input Ch 5 and 11:
-    buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 5);
-    buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 11);
-    break;
-  case 5:
-    // for endcaps AB output ch 5 is not used.
-    // for barrel, to AB ch #5 are sent the 16 last TCC flags received on TCC
-    // input Ch. 0:
-    if (barrel) { // in barrel
-      string s = getABTCCInputStream(tccFlags, iABEta, iABPhi, 0);
-      assert(s.size() >= 16);
-      buffer << s.substr(s.size() - 16, 16);
-    }
-    break;
-  case 6:
-    // for endcaps AB output ch 6 is not used.
-    // for barrel, to AB ch #6 are sent the 16 last TCC flags received on TCC
-    // input Ch. 0 to 5:
-    if (barrel) { // in barrel
+    case 0:
+      // to AB ch #0 are sent the 16 1st TCC flags received on TCC input Ch. 0
+      buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 0).substr(0, 16);
+      break;
+    case 1:
+      // to AB ch #1 are sent the 16 1st TCC flags received on TCC input Ch. 0 to
+      // 5:
       for (int iTCCCh = 0; iTCCCh < 6; ++iTCCCh) {
-        string s = getABTCCInputStream(tccFlags, iABEta, iABPhi, iTCCCh);
+        buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, iTCCCh).substr(0, 16);
+      }
+      break;
+    case 2:
+      // to AB ch #2 are sent the 16 1st TCC flags received on TCC input Ch. 5:
+      buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 5).substr(0, 16);
+      break;
+    case 3:
+      // to AB ch #3 are sent TCC flags received on TCC input Ch. 0 and 6:
+      buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 0);
+      buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 6);
+      break;
+    case 4:
+      // to AB ch #4 are sent TCC flags received on TCC input Ch 5 and 11:
+      buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 5);
+      buffer << getABTCCInputStream(tccFlags, iABEta, iABPhi, 11);
+      break;
+    case 5:
+      // for endcaps AB output ch 5 is not used.
+      // for barrel, to AB ch #5 are sent the 16 last TCC flags received on TCC
+      // input Ch. 0:
+      if (barrel) {  // in barrel
+        string s = getABTCCInputStream(tccFlags, iABEta, iABPhi, 0);
+        assert(s.size() >= 16);
         buffer << s.substr(s.size() - 16, 16);
       }
-    }
-    break;
-  case 7:
-    // for endcaps AB output ch 7 is not used.
-    // for barrel, to AB ch #7 are sent the 16 last TCC flags received on TCC
-    // input Ch. 5:
-    if (barrel) { // in barrel
-      string s = getABTCCInputStream(tccFlags, iABEta, iABPhi, 5);
-      assert(s.size() >= 16);
-      buffer << s.substr(s.size() - 16, 16);
-    }
-    break;
-  default:
-    assert(false);
+      break;
+    case 6:
+      // for endcaps AB output ch 6 is not used.
+      // for barrel, to AB ch #6 are sent the 16 last TCC flags received on TCC
+      // input Ch. 0 to 5:
+      if (barrel) {  // in barrel
+        for (int iTCCCh = 0; iTCCCh < 6; ++iTCCCh) {
+          string s = getABTCCInputStream(tccFlags, iABEta, iABPhi, iTCCCh);
+          buffer << s.substr(s.size() - 16, 16);
+        }
+      }
+      break;
+    case 7:
+      // for endcaps AB output ch 7 is not used.
+      // for barrel, to AB ch #7 are sent the 16 last TCC flags received on TCC
+      // input Ch. 5:
+      if (barrel) {  // in barrel
+        string s = getABTCCInputStream(tccFlags, iABEta, iABPhi, 5);
+        assert(s.size() >= 16);
+        buffer << s.substr(s.size() - 16, 16);
+      }
+      break;
+    default:
+      assert(false);
   }
   return buffer.str();
 }
 
-string getABABInputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta,
-                          int iABPhi, int iABCh) {
+string getABABInputStream(const char tccFlags[nTTInEta][nTTInPhi], int iABEta, int iABPhi, int iABCh) {
   int iAB = abNum(iABEta, iABPhi);
-  int iOtherAB;   // AB which this channel is connected to
-  int iOtherABCh; // ch # on the other side of the AB-AB link
+  int iOtherAB;    // AB which this channel is connected to
+  int iOtherABCh;  // ch # on the other side of the AB-AB link
   abConnect(iAB, iABCh, iOtherAB, iOtherABCh);
   int iOtherABEta = iOtherAB / 3;
   int iOtherABPhi = iOtherAB % 3;
@@ -910,8 +873,7 @@ void abConnect(int iAB, int iABCh, int &iOtherAB, int &iOtherABCh) {
   if (firstCall) {
     FILE *f = fopen(xconnectFilename, "r");
     if (f == nullptr) {
-      cerr << "Error. Failed to open xconnect definition file,"
-           << xconnectFilename << endl;
+      cerr << "Error. Failed to open xconnect definition file," << xconnectFilename << endl;
       exit(EXIT_FAILURE);
     }
     // skips two first lines:
@@ -944,22 +906,22 @@ void abConnect(int iAB, int iABCh, int &iOtherAB, int &iOtherABCh) {
   iOtherABCh = xconnectMap[iAB][iABCh][1];
 }
 
-string getABDCCOutputStream(
-    const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
-    const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
-    int iABEta, int iABPhi, int iDCCCh) {
+string getABDCCOutputStream(const char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
+                            const char endcapSrFlags[nEndcaps][nSupercrystalXBins][nSupercrystalYBins],
+                            int iABEta,
+                            int iABPhi,
+                            int iDCCCh) {
   bool barrel = (iABEta == 1 || iABEta == 2);
   if (barrel) {
     // same as TCC with same ch number but with TCC flags replaced by SRP flags:
-    string stream = getABTCCInputStream(barrelSrFlags - nEndcapTTInEta, iABEta,
-                                        iABPhi, iDCCCh);
+    string stream = getABTCCInputStream(barrelSrFlags - nEndcapTTInEta, iABEta, iABPhi, iDCCCh);
     // converts srp flags to readout flags:
     for (size_t i = 0; i < stream.size(); ++i) {
       stream[i] = srp2roFlags[(int)stream[i]];
     }
     return stream;
-  } else {            // endcap
-    if (iDCCCh < 3) { // used DCC output channel
+  } else {             // endcap
+    if (iDCCCh < 3) {  // used DCC output channel
       // endcap index:
       int iEE = (iABEta == 0) ? 0 : 1;
       stringstream buffer("");
@@ -971,7 +933,7 @@ string getABDCCOutputStream(
         buffer << srp2roFlags[(int)endcapSrFlags[iEE][sc.first][sc.second]];
       }
       return buffer.str();
-    } else { // unused output channel
+    } else {  // unused output channel
       return "";
     }
   }

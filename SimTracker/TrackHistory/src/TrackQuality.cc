@@ -36,34 +36,33 @@
 // #define DEBUG_TRACK_QUALITY
 
 namespace {
-const uint32_t NonMatchedTrackId = (uint32_t)-1;
+  const uint32_t NonMatchedTrackId = (uint32_t)-1;
 
-struct MatchedHit {
-  DetId detId;
-  uint32_t simTrackId;
-  EncodedEventId collision;
-  int recHitId;
-  TrackQuality::Layer::State state;
+  struct MatchedHit {
+    DetId detId;
+    uint32_t simTrackId;
+    EncodedEventId collision;
+    int recHitId;
+    TrackQuality::Layer::State state;
 
-  bool operator<(const MatchedHit &other) const {
-    if (detId < other.detId)
-      return true;
-    else if (detId > other.detId)
-      return false;
-    else if (collision < other.collision)
-      return true;
-    else if (other.collision < collision)
-      return false;
-    else
-      return simTrackId < other.simTrackId;
-  }
+    bool operator<(const MatchedHit &other) const {
+      if (detId < other.detId)
+        return true;
+      else if (detId > other.detId)
+        return false;
+      else if (collision < other.collision)
+        return true;
+      else if (other.collision < collision)
+        return false;
+      else
+        return simTrackId < other.simTrackId;
+    }
 
-  bool operator==(const MatchedHit &other) const {
-    return detId == other.detId && collision == other.collision &&
-           simTrackId == other.simTrackId;
-  }
-};
-/*
+    bool operator==(const MatchedHit &other) const {
+      return detId == other.detId && collision == other.collision && simTrackId == other.simTrackId;
+    }
+  };
+  /*
 static bool operator < (const MatchedHit &hit, DetId detId)
 {
   return hit.detId < detId;
@@ -73,7 +72,7 @@ static bool operator < (DetId detId, const MatchedHit &hit)
   return detId < hit.detId;
 }
 */
-} // namespace
+}  // namespace
 
 typedef std::pair<TrackQuality::Layer::SubDet, short int> DetLayer;
 
@@ -93,62 +92,56 @@ DetLayer getDetLayer(DetId detId, const TrackerTopology *tTopo) {
   short int layer = 0;
 
   switch (detId.det()) {
-  case DetId::Tracker:
-    layer = tTopo->layer(detId);
-    break;
-
-  case DetId::Muon:
-    switch (detId.subdetId()) {
-    case MuonSubdetId::DT:
-      det = TrackQuality::Layer::MuonDT;
-      layer = DTLayerId(detId).layer();
+    case DetId::Tracker:
+      layer = tTopo->layer(detId);
       break;
 
-    case MuonSubdetId::CSC:
-      det = TrackQuality::Layer::MuonCSC;
-      layer = CSCDetId(detId).layer();
-      break;
+    case DetId::Muon:
+      switch (detId.subdetId()) {
+        case MuonSubdetId::DT:
+          det = TrackQuality::Layer::MuonDT;
+          layer = DTLayerId(detId).layer();
+          break;
 
-    case MuonSubdetId::RPC:
-      if (RPCDetId(detId).region())
-        det = TrackQuality::Layer::MuonRPCEndcap;
-      else
-        det = TrackQuality::Layer::MuonRPCBarrel;
-      layer = RPCDetId(detId).layer();
+        case MuonSubdetId::CSC:
+          det = TrackQuality::Layer::MuonCSC;
+          layer = CSCDetId(detId).layer();
+          break;
+
+        case MuonSubdetId::RPC:
+          if (RPCDetId(detId).region())
+            det = TrackQuality::Layer::MuonRPCEndcap;
+          else
+            det = TrackQuality::Layer::MuonRPCBarrel;
+          layer = RPCDetId(detId).layer();
+          break;
+
+        default:
+            /* should not get here */
+            ;
+      }
       break;
 
     default:
         /* should not get here */
         ;
-    }
-    break;
-
-  default:
-      /* should not get here */
-      ;
   }
 
   return DetLayer(det, layer);
 }
 
-TrackQuality::TrackQuality(const edm::ParameterSet &config,
-                           edm::ConsumesCollector &iC)
-    : trackerHitAssociatorConfig_(
-          config.getParameter<edm::ParameterSet>("hitAssociator"),
-          std::move(iC)) {}
+TrackQuality::TrackQuality(const edm::ParameterSet &config, edm::ConsumesCollector &iC)
+    : trackerHitAssociatorConfig_(config.getParameter<edm::ParameterSet>("hitAssociator"), std::move(iC)) {}
 
 void TrackQuality::newEvent(const edm::Event &ev, const edm::EventSetup &es) {
   associator_.reset(new TrackerHitAssociator(ev, trackerHitAssociatorConfig_));
 }
 
-void TrackQuality::evaluate(SimParticleTrail const &spt,
-                            reco::TrackBaseRef const &tr,
-                            const TrackerTopology *tTopo) {
+void TrackQuality::evaluate(SimParticleTrail const &spt, reco::TrackBaseRef const &tr, const TrackerTopology *tTopo) {
   std::vector<MatchedHit> matchedHits;
 
   // iterate over reconstructed hits
-  for (trackingRecHit_iterator hit = tr->recHitsBegin();
-       hit != tr->recHitsEnd(); ++hit) {
+  for (trackingRecHit_iterator hit = tr->recHitsBegin(); hit != tr->recHitsEnd(); ++hit) {
     // on which module the hit lies
     DetId detId = (*hit)->geographicalId();
 
@@ -161,16 +154,16 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
       matchedHit.simTrackId = NonMatchedTrackId;
       // check why hit wasn't valid and propagate information
       switch ((*hit)->getType()) {
-      case TrackingRecHit::inactive:
-        matchedHit.state = Layer::Dead;
-        break;
+        case TrackingRecHit::inactive:
+          matchedHit.state = Layer::Dead;
+          break;
 
-      case TrackingRecHit::bad:
-        matchedHit.state = Layer::Bad;
-        break;
+        case TrackingRecHit::bad:
+          matchedHit.state = Layer::Bad;
+          break;
 
-      default:
-        matchedHit.state = Layer::Missed;
+        default:
+          matchedHit.state = Layer::Missed;
       }
       matchedHit.recHitId = hit - tr->recHitsBegin();
       matchedHits.push_back(matchedHit);
@@ -192,8 +185,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
     }
 
     // register all simulated tracks contributing
-    for (std::vector<SimHitIdpr>::const_iterator i = simIds.begin();
-         i != simIds.end(); ++i) {
+    for (std::vector<SimHitIdpr>::const_iterator i = simIds.begin(); i != simIds.end(); ++i) {
       MatchedHit matchedHit;
       matchedHit.detId = detId;
       matchedHit.simTrackId = i->first;
@@ -220,8 +212,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
   LayerHitMap layerHitMap;
 
   // iterate over all simulated/reconstructed hits again
-  for (std::vector<MatchedHit>::const_iterator hit = matchedHits.begin();
-       hit != matchedHits.end();) {
+  for (std::vector<MatchedHit>::const_iterator hit = matchedHits.begin(); hit != matchedHits.end();) {
     // we can have multiple reco-to-sim matches per module, find best one
     const MatchedHit *best = nullptr;
 
@@ -247,21 +238,16 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
   std::cout << "---------------------" << std::endl;
 #endif
   // now prepare final collection
-  for (LayerHitMap::const_iterator hit = layerHitMap.begin();
-       hit != layerHitMap.end(); ++hit) {
+  for (LayerHitMap::const_iterator hit = layerHitMap.begin(); hit != layerHitMap.end(); ++hit) {
 #ifdef DEBUG_TRACK_QUALITY
-    std::cout << "detLayer (" << hit->first.first << ", " << hit->first.second
-              << ")"
-              << " [" << (uint32_t)hit->second->detId << "] sim("
-              << (int)hit->second->simTrackId << ")"
-              << " hit(" << hit->second->recHitId << ") -> "
-              << hit->second->state << std::endl;
+    std::cout << "detLayer (" << hit->first.first << ", " << hit->first.second << ")"
+              << " [" << (uint32_t)hit->second->detId << "] sim(" << (int)hit->second->simTrackId << ")"
+              << " hit(" << hit->second->recHitId << ") -> " << hit->second->state << std::endl;
 #endif
 
     // find out if we need to start a new layer
     Layer *layer = layers_.empty() ? nullptr : &layers_.back();
-    if (!layer || hit->first.first != layer->subDet ||
-        hit->first.second != layer->layer) {
+    if (!layer || hit->first.first != layer->subDet || hit->first.second != layer->layer) {
       Layer newLayer;
       newLayer.subDet = hit->first.first;
       newLayer.layer = hit->first.second;

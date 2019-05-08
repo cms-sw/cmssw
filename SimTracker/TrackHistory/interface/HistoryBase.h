@@ -10,7 +10,6 @@
 
 //! Base class to all the history types.
 class HistoryBase {
-
 public:
   //! HepMC::GenParticle trail type.
   typedef std::vector<const HepMC::GenParticle *> GenParticleTrail;
@@ -62,14 +61,10 @@ public:
   GenParticleTrail const &genParticleTrail() const { return genParticleTrail_; }
 
   //! Return all reco::GenParticle in the history.
-  RecoGenParticleTrail const &recoGenParticleTrail() const {
-    return recoGenParticleTrail_;
-  }
+  RecoGenParticleTrail const &recoGenParticleTrail() const { return recoGenParticleTrail_; }
 
   //! Return the initial tracking particle from the history.
-  const TrackingParticleRef &simParticle() const {
-    return simParticleTrail_[0];
-  }
+  const TrackingParticleRef &simParticle() const { return simParticleTrail_[0]; }
 
   //! Return the initial tracking vertex from the history.
   const TrackingVertexRef &simVertex() const { return simVertexTrail_[0]; }

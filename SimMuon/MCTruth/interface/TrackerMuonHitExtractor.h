@@ -17,8 +17,7 @@
 
 class TrackerMuonHitExtractor {
 public:
-  explicit TrackerMuonHitExtractor(const edm::ParameterSet &,
-                                   edm::ConsumesCollector &&ic);
+  explicit TrackerMuonHitExtractor(const edm::ParameterSet &, edm::ConsumesCollector &&ic);
   explicit TrackerMuonHitExtractor(const edm::ParameterSet &);
   ~TrackerMuonHitExtractor();
 

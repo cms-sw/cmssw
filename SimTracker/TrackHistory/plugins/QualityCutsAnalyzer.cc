@@ -34,7 +34,6 @@
 //
 
 class QualityCutsAnalyzer : public edm::one::EDAnalyzer<> {
-
 public:
   explicit QualityCutsAnalyzer(const edm::ParameterSet &);
   ~QualityCutsAnalyzer() override;
@@ -61,26 +60,25 @@ private:
   bool useAllQualities_;
   reco::TrackBase::TrackQuality trackQuality_;
 
-  void LoopOverJetTracksAssociation(
-      const edm::ESHandle<TransientTrackBuilder> &,
-      const edm::Handle<reco::VertexCollection> &,
-      const edm::Handle<reco::JetTracksAssociationCollection> &);
+  void LoopOverJetTracksAssociation(const edm::ESHandle<TransientTrackBuilder> &,
+                                    const edm::Handle<reco::VertexCollection> &,
+                                    const edm::Handle<reco::JetTracksAssociationCollection> &);
 
   // Histograms for optimization
 
   struct histogram_element_t {
-    double sdl;            // Signed decay length
-    double dta;            // Distance to jet axis
-    double tip;            // Transverse impact parameter
-    double lip;            // Longitudinal impact parameter
-    double ips;            // Impact parameter significance.
-    double pt;             // Transverse momentum
-    double chi2;           // Chi^2
-    std::size_t hits;      // Number of hits
-    std::size_t pixelhits; // Number of hits
+    double sdl;             // Signed decay length
+    double dta;             // Distance to jet axis
+    double tip;             // Transverse impact parameter
+    double lip;             // Longitudinal impact parameter
+    double ips;             // Impact parameter significance.
+    double pt;              // Transverse momentum
+    double chi2;            // Chi^2
+    std::size_t hits;       // Number of hits
+    std::size_t pixelhits;  // Number of hits
 
-    histogram_element_t(double d, double a, double t, double l, double i,
-                        double p, double c, std::size_t h, std::size_t x) {
+    histogram_element_t(
+        double d, double a, double t, double l, double i, double p, double c, std::size_t h, std::size_t x) {
       sdl = d;
       dta = a;
       tip = t;
@@ -109,7 +107,6 @@ private:
   histogram_data_t histogram_data_;
 
   class histogram_t {
-
     TH1F *sdl;
     TH1F *dta;
     TH1F *tip;
@@ -140,13 +137,11 @@ private:
       pt_1gev = new TH1F(name.c_str(), title.c_str(), 100, 0., 2.);
 
       name = std::string("tip_") + particleType;
-      title = std::string("Transverse impact parameter distribution for ") +
-              particleType;
+      title = std::string("Transverse impact parameter distribution for ") + particleType;
       tip = new TH1F(name.c_str(), title.c_str(), 100, -0.3, 0.3);
 
       name = std::string("lip_") + particleType;
-      title = std::string("Longitudinal impact parameter distribution for ") +
-              particleType;
+      title = std::string("Longitudinal impact parameter distribution for ") + particleType;
       lip = new TH1F(name.c_str(), title.c_str(), 100, -1., 1.);
 
       name = std::string("ips_") + particleType;
@@ -206,35 +201,27 @@ private:
 //
 // constructors and destructor
 //
-QualityCutsAnalyzer::QualityCutsAnalyzer(const edm::ParameterSet &config)
-    : classifier_(config, consumesCollector()) {
+QualityCutsAnalyzer::QualityCutsAnalyzer(const edm::ParameterSet &config) : classifier_(config, consumesCollector()) {
   trackProducer_ = config.getUntrackedParameter<edm::InputTag>("trackProducer");
   consumes<edm::View<reco::Track>>(trackProducer_);
-  primaryVertexProducer_ =
-      config.getUntrackedParameter<edm::InputTag>("primaryVertexProducer");
+  primaryVertexProducer_ = config.getUntrackedParameter<edm::InputTag>("primaryVertexProducer");
   consumes<reco::VertexCollection>(primaryVertexProducer_);
-  jetTracksAssociation_ =
-      config.getUntrackedParameter<edm::InputTag>("jetTracksAssociation");
+  jetTracksAssociation_ = config.getUntrackedParameter<edm::InputTag>("jetTracksAssociation");
   consumes<reco::JetTracksAssociationCollection>(jetTracksAssociation_);
 
   rootFile_ = config.getUntrackedParameter<std::string>("rootFile");
 
-  minimumNumberOfHits_ =
-      config.getUntrackedParameter<int>("minimumNumberOfHits");
-  minimumNumberOfPixelHits_ =
-      config.getUntrackedParameter<int>("minimumNumberOfPixelHits");
-  minimumTransverseMomentum_ =
-      config.getUntrackedParameter<double>("minimumTransverseMomentum");
-  maximumChiSquared_ =
-      config.getUntrackedParameter<double>("maximumChiSquared");
+  minimumNumberOfHits_ = config.getUntrackedParameter<int>("minimumNumberOfHits");
+  minimumNumberOfPixelHits_ = config.getUntrackedParameter<int>("minimumNumberOfPixelHits");
+  minimumTransverseMomentum_ = config.getUntrackedParameter<double>("minimumTransverseMomentum");
+  maximumChiSquared_ = config.getUntrackedParameter<double>("maximumChiSquared");
 
-  std::string trackQualityType =
-      config.getUntrackedParameter<std::string>("trackQualityClass"); // used
+  std::string trackQualityType = config.getUntrackedParameter<std::string>("trackQualityClass");  // used
   trackQuality_ = reco::TrackBase::qualityByName(trackQualityType);
   useAllQualities_ = false;
 
-  std::transform(trackQualityType.begin(), trackQualityType.end(),
-                 trackQualityType.begin(), (int (*)(int))std::tolower);
+  std::transform(
+      trackQualityType.begin(), trackQualityType.end(), trackQualityType.begin(), (int (*)(int))std::tolower);
   if (trackQualityType == "any") {
     std::cout << "Using any" << std::endl;
     useAllQualities_ = true;
@@ -248,8 +235,7 @@ QualityCutsAnalyzer::~QualityCutsAnalyzer() {}
 //
 
 // ------------ method called to for each event  ------------
-void QualityCutsAnalyzer::analyze(const edm::Event &event,
-                                  const edm::EventSetup &setup) {
+void QualityCutsAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   // Track collection
   edm::Handle<edm::View<reco::Track>> trackCollection;
   event.getByLabel(trackProducer_, trackCollection);
@@ -309,8 +295,7 @@ void QualityCutsAnalyzer::endJob() {
 void QualityCutsAnalyzer::LoopOverJetTracksAssociation(
     const edm::ESHandle<TransientTrackBuilder> &TTbuilder,
     const edm::Handle<reco::VertexCollection> &primaryVertexProducer_,
-    const edm::Handle<reco::JetTracksAssociationCollection>
-        &jetTracksAssociation) {
+    const edm::Handle<reco::JetTracksAssociationCollection> &jetTracksAssociation) {
   const TransientTrackBuilder *bproduct = TTbuilder.product();
 
   // getting the primary vertex
@@ -319,10 +304,9 @@ void QualityCutsAnalyzer::LoopOverJetTracksAssociation(
 
   if (!primaryVertexProducer_->empty()) {
     PrimaryVertexSorter pvs;
-    std::vector<reco::Vertex> sortedList =
-        pvs.sortedList(*(primaryVertexProducer_.product()));
+    std::vector<reco::Vertex> sortedList = pvs.sortedList(*(primaryVertexProducer_.product()));
     pv = (sortedList.front());
-  } else { // create a dummy PV
+  } else {  // create a dummy PV
     // cout << "NO PV FOUND" << endl;
     reco::Vertex::Error e;
     e(0, 0) = 0.0015 * 0.0015;
@@ -332,8 +316,7 @@ void QualityCutsAnalyzer::LoopOverJetTracksAssociation(
     pv = reco::Vertex(p, e, 1, 1, 1);
   }
 
-  reco::JetTracksAssociationCollection::const_iterator it =
-      jetTracksAssociation->begin();
+  reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
 
   int i = 0;
 
@@ -342,8 +325,7 @@ void QualityCutsAnalyzer::LoopOverJetTracksAssociation(
     reco::JetTracksAssociationRef jetTracks(jetTracksAssociation, i);
 
     double pvZ = pv.z();
-    GlobalVector direction(jetTracks->first->px(), jetTracks->first->py(),
-                           jetTracks->first->pz());
+    GlobalVector direction(jetTracks->first->px(), jetTracks->first->py(), jetTracks->first->pz());
 
     // get the tracks associated to the jet
     reco::TrackRefVector tracks = jetTracks->second;
@@ -355,24 +337,15 @@ void QualityCutsAnalyzer::LoopOverJetTracksAssociation(
       int hits = tracks[index]->hitPattern().numberOfValidHits();
       int pixelHits = tracks[index]->hitPattern().numberOfValidPixelHits();
 
-      if (hits < minimumNumberOfHits_ ||
-          pixelHits < minimumNumberOfPixelHits_ ||
-          pt < minimumTransverseMomentum_ || chi2 > maximumChiSquared_ ||
-          (!useAllQualities_ && !tracks[index]->quality(trackQuality_)))
+      if (hits < minimumNumberOfHits_ || pixelHits < minimumNumberOfPixelHits_ || pt < minimumTransverseMomentum_ ||
+          chi2 > maximumChiSquared_ || (!useAllQualities_ && !tracks[index]->quality(trackQuality_)))
         continue;
 
-      const reco::TransientTrack transientTrack =
-          bproduct->build(&(*tracks[index]));
-      double dta = -IPTools::jetTrackDistance(transientTrack, direction, pv)
-                        .second.value();
-      double sdl = IPTools::signedDecayLength3D(transientTrack, direction, pv)
-                       .second.value();
-      double ips =
-          IPTools::signedImpactParameter3D(transientTrack, direction, pv)
-              .second.value();
-      double d0 = IPTools::signedTransverseImpactParameter(transientTrack,
-                                                           direction, pv)
-                      .second.value();
+      const reco::TransientTrack transientTrack = bproduct->build(&(*tracks[index]));
+      double dta = -IPTools::jetTrackDistance(transientTrack, direction, pv).second.value();
+      double sdl = IPTools::signedDecayLength3D(transientTrack, direction, pv).second.value();
+      double ips = IPTools::signedImpactParameter3D(transientTrack, direction, pv).second.value();
+      double d0 = IPTools::signedTransverseImpactParameter(transientTrack, direction, pv).second.value();
       double dz = tracks[index]->dz() - pvZ;
 
       // Classify the reco track;
@@ -380,24 +353,17 @@ void QualityCutsAnalyzer::LoopOverJetTracksAssociation(
 
       // Check for the different categories
       if (classifier_.is(TrackClassifier::Fake))
-        histogram_data_[5].push_back(histogram_element_t(
-            sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+        histogram_data_[5].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
       else if (classifier_.is(TrackClassifier::BWeakDecay))
-        histogram_data_[0].push_back(histogram_element_t(
-            sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+        histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
       else if (classifier_.is(TrackClassifier::Bad))
-        histogram_data_[4].push_back(histogram_element_t(
-            sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
-      else if (!classifier_.is(TrackClassifier::CWeakDecay) &&
-               !classifier_.is(TrackClassifier::PrimaryVertex))
-        histogram_data_[3].push_back(histogram_element_t(
-            sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+        histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+      else if (!classifier_.is(TrackClassifier::CWeakDecay) && !classifier_.is(TrackClassifier::PrimaryVertex))
+        histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
       else if (classifier_.is(TrackClassifier::CWeakDecay))
-        histogram_data_[1].push_back(histogram_element_t(
-            sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+        histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
       else
-        histogram_data_[2].push_back(histogram_element_t(
-            sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+        histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
     }
   }
 }

@@ -8,8 +8,7 @@ CSCTruthTest::CSCTruthTest(const edm::ParameterSet &iConfig) : conf_(iConfig) {}
 
 CSCTruthTest::~CSCTruthTest() {}
 
-void CSCTruthTest::analyze(const edm::Event &iEvent,
-                           const edm::EventSetup &iSetup) {
+void CSCTruthTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
   Handle<CSCRecHit2DCollection> cscRecHits;
@@ -17,10 +16,9 @@ void CSCTruthTest::analyze(const edm::Event &iEvent,
 
   MuonTruth theTruth(iEvent, iSetup, conf_);
 
-  for (CSCRecHit2DCollection::const_iterator recHitItr = cscRecHits->begin();
-       recHitItr != cscRecHits->end(); recHitItr++) {
+  for (CSCRecHit2DCollection::const_iterator recHitItr = cscRecHits->begin(); recHitItr != cscRecHits->end();
+       recHitItr++) {
     theTruth.analyze(*recHitItr);
-    edm::LogVerbatim("SimMuonCSCTruthTest")
-        << theTruth.muonFraction() << " " << recHitItr->cscDetId();
+    edm::LogVerbatim("SimMuonCSCTruthTest") << theTruth.muonFraction() << " " << recHitItr->cscDetId();
   }
 }

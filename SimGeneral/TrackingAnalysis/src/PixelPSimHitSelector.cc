@@ -13,8 +13,7 @@ void PixelPSimHitSelector::select(PSimHitCollection &selection,
                                   edm::Event const &event,
                                   edm::EventSetup const &setup) const {
   // Look for psimhit collection associated o the tracker
-  PSimHitCollectionMap::const_iterator pSimHitCollections =
-      pSimHitCollectionMap_.find("pixel");
+  PSimHitCollectionMap::const_iterator pSimHitCollections = pSimHitCollectionMap_.find("pixel");
 
   // Check that there are psimhit collections defined for the tracker
   if (pSimHitCollections == pSimHitCollectionMap_.end())
@@ -31,21 +30,18 @@ void PixelPSimHitSelector::select(PSimHitCollection &selection,
   }
 
   // Create a mix collection from the different psimhit collections
-  std::unique_ptr<MixCollection<PSimHit>> pSimHits(
-      new MixCollection<PSimHit>(cfPSimHitProductPointers));
+  std::unique_ptr<MixCollection<PSimHit>> pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
 
   // Accessing dead pixel modules from DB:
   edm::ESHandle<SiPixelQuality> siPixelBadModule;
   setup.get<SiPixelQualityRcd>().get(siPixelBadModule);
 
   // Reading the DB information
-  std::vector<SiPixelQuality::disabledModuleType> badModules(
-      siPixelBadModule->getBadComponentList());
+  std::vector<SiPixelQuality::disabledModuleType> badModules(siPixelBadModule->getBadComponentList());
   SiPixelQuality pixelQuality(badModules);
 
   // Select only psimhits from alive modules
-  for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin();
-       pSimHit != pSimHits->end(); ++pSimHit) {
+  for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin(); pSimHit != pSimHits->end(); ++pSimHit) {
     if (!pixelQuality.IsModuleBad(pSimHit->detUnitId()))
       selection.push_back(*pSimHit);
   }

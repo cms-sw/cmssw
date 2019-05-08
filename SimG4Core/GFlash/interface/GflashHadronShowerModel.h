@@ -21,8 +21,7 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GflashHadronShowerModel(G4String modelName, G4Region *envelope,
-                          const edm::ParameterSet &parSet);
+  GflashHadronShowerModel(G4String modelName, G4Region *envelope, const edm::ParameterSet &parSet);
   ~GflashHadronShowerModel() override;
 
   //------------------------------------------------------------------------
