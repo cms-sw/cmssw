@@ -60,9 +60,9 @@
 using namespace std;
 using namespace edm;
 
-SiPixelTrackResidualSource::SiPixelTrackResidualSource(
-    const edm::ParameterSet &pSet)
-    : pSet_(pSet), modOn(pSet.getUntrackedParameter<bool>("modOn", true)),
+SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet &pSet)
+    : pSet_(pSet),
+      modOn(pSet.getUntrackedParameter<bool>("modOn", true)),
       reducedSet(pSet.getUntrackedParameter<bool>("reducedSet", true)),
       ladOn(pSet.getUntrackedParameter<bool>("ladOn", false)),
       layOn(pSet.getUntrackedParameter<bool>("layOn", false)),
@@ -71,7 +71,8 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(
       bladeOn(pSet.getUntrackedParameter<bool>("bladeOn", false)),
       diskOn(pSet.getUntrackedParameter<bool>("diskOn", false)),
       isUpgrade(pSet.getUntrackedParameter<bool>("isUpgrade", false)),
-      noOfLayers(0), noOfDisks(0) {
+      noOfLayers(0),
+      noOfDisks(0) {
   pSet_ = pSet;
   debug_ = pSet_.getUntrackedParameter<bool>("debug", false);
   src_ = pSet_.getParameter<edm::InputTag>("src");
@@ -80,30 +81,22 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(
   ttrhbuilder_ = pSet_.getParameter<std::string>("TTRHBuilder");
   ptminres_ = pSet.getUntrackedParameter<double>("PtMinRes", 4.0);
   beamSpotToken_ = consumes<reco::BeamSpot>(std::string("offlineBeamSpot"));
-  vtxsrc_ = pSet_.getUntrackedParameter<std::string>("vtxsrc",
-                                                     "offlinePrimaryVertices");
-  offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(
-      vtxsrc_); // consumes<reco::VertexCollection>(std::string("hiSelectedVertex"));
-                // //"offlinePrimaryVertices"));
-  generalTracksToken_ = consumes<reco::TrackCollection>(
-      pSet_.getParameter<edm::InputTag>("tracksrc"));
-  tracksrcToken_ = consumes<std::vector<Trajectory>>(
-      pSet_.getParameter<edm::InputTag>("trajectoryInput"));
-  trackToken_ = consumes<std::vector<reco::Track>>(
-      pSet_.getParameter<edm::InputTag>("trajectoryInput"));
-  trackAssociationToken_ = consumes<TrajTrackAssociationCollection>(
-      pSet_.getParameter<edm::InputTag>("trajectoryInput"));
-  clustersrcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(
-      pSet_.getParameter<edm::InputTag>("clustersrc"));
+  vtxsrc_ = pSet_.getUntrackedParameter<std::string>("vtxsrc", "offlinePrimaryVertices");
+  offlinePrimaryVerticesToken_ =
+      consumes<reco::VertexCollection>(vtxsrc_);  // consumes<reco::VertexCollection>(std::string("hiSelectedVertex"));
+                                                  // //"offlinePrimaryVertices"));
+  generalTracksToken_ = consumes<reco::TrackCollection>(pSet_.getParameter<edm::InputTag>("tracksrc"));
+  tracksrcToken_ = consumes<std::vector<Trajectory>>(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
+  trackToken_ = consumes<std::vector<reco::Track>>(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
+  trackAssociationToken_ =
+      consumes<TrajTrackAssociationCollection>(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
+  clustersrcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(pSet_.getParameter<edm::InputTag>("clustersrc"));
   digisrc_ = pSet_.getParameter<edm::InputTag>("digisrc");
-  digisrcToken_ = consumes<edm::DetSetVector<PixelDigi>>(
-      pSet_.getParameter<edm::InputTag>("digisrc"));
+  digisrcToken_ = consumes<edm::DetSetVector<PixelDigi>>(pSet_.getParameter<edm::InputTag>("digisrc"));
 
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource constructor" << endl;
-  LogInfo("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/"
-                      << layOn << "/" << phiOn << std::endl;
-  LogInfo("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/"
-                      << ringOn << std::endl;
+  LogInfo("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" << layOn << "/" << phiOn << std::endl;
+  LogInfo("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" << ringOn << std::endl;
 
   topFolderName_ = pSet_.getParameter<std::string>("TopFolderName");
 
@@ -116,68 +109,54 @@ SiPixelTrackResidualSource::~SiPixelTrackResidualSource() {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource destructor" << endl;
 
   std::map<uint32_t, SiPixelTrackResidualModule *>::iterator struct_iter;
-  for (struct_iter = theSiPixelStructure.begin();
-       struct_iter != theSiPixelStructure.end(); struct_iter++) {
+  for (struct_iter = theSiPixelStructure.begin(); struct_iter != theSiPixelStructure.end(); struct_iter++) {
     delete struct_iter->second;
     struct_iter->second = nullptr;
   }
 }
 
-void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run &r,
-                                             edm::EventSetup const &iSetup) {
+void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run &r, edm::EventSetup const &iSetup) {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginRun()" << endl;
   // retrieve TrackerGeometry for pixel dets
   edm::ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
   if (debug_)
-    LogVerbatim("PixelDQM") << "TrackerGeometry " << &(*TG) << " size is "
-                            << TG->dets().size() << endl;
+    LogVerbatim("PixelDQM") << "TrackerGeometry " << &(*TG) << " size is " << TG->dets().size() << endl;
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   // build theSiPixelStructure with the pixel barrel and endcap dets from
   // TrackerGeometry
-  for (TrackerGeometry::DetContainer::const_iterator pxb =
-           TG->detsPXB().begin();
-       pxb != TG->detsPXB().end(); pxb++) {
+  for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin(); pxb != TG->detsPXB().end(); pxb++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxb)) != nullptr) {
-      SiPixelTrackResidualModule *module =
-          new SiPixelTrackResidualModule((*pxb)->geographicalId().rawId());
-      theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule *>(
-          (*pxb)->geographicalId().rawId(), module));
+      SiPixelTrackResidualModule *module = new SiPixelTrackResidualModule((*pxb)->geographicalId().rawId());
+      theSiPixelStructure.insert(
+          pair<uint32_t, SiPixelTrackResidualModule *>((*pxb)->geographicalId().rawId(), module));
       // int DBlayer = PixelBarrelNameWrapper(pSet_,
       // DetId((*pxb)->geographicalId())).layerName();
-      int DBlayer =
-          PixelBarrelName(DetId((*pxb)->geographicalId()), pTT, isUpgrade)
-              .layerName();
+      int DBlayer = PixelBarrelName(DetId((*pxb)->geographicalId()), pTT, isUpgrade).layerName();
       if (noOfLayers < DBlayer)
         noOfLayers = DBlayer;
     }
   }
-  for (TrackerGeometry::DetContainer::const_iterator pxf =
-           TG->detsPXF().begin();
-       pxf != TG->detsPXF().end(); pxf++) {
+  for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); pxf != TG->detsPXF().end(); pxf++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxf)) != nullptr) {
-      SiPixelTrackResidualModule *module =
-          new SiPixelTrackResidualModule((*pxf)->geographicalId().rawId());
-      theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule *>(
-          (*pxf)->geographicalId().rawId(), module));
+      SiPixelTrackResidualModule *module = new SiPixelTrackResidualModule((*pxf)->geographicalId().rawId());
+      theSiPixelStructure.insert(
+          pair<uint32_t, SiPixelTrackResidualModule *>((*pxf)->geographicalId().rawId(), module));
       int DBdisk;
-      DBdisk = PixelEndcapName(DetId((*pxf)->geographicalId()), pTT, isUpgrade)
-                   .diskName();
+      DBdisk = PixelEndcapName(DetId((*pxf)->geographicalId()), pTT, isUpgrade).diskName();
       if (noOfDisks < DBdisk)
         noOfDisks = DBdisk;
     }
   }
-  LogInfo("PixelDQM") << "SiPixelStructure size is "
-                      << theSiPixelStructure.size() << endl;
+  LogInfo("PixelDQM") << "SiPixelStructure size is " << theSiPixelStructure.size() << endl;
 }
 
 void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
                                                 edm::Run const &,
                                                 edm::EventSetup const &iSetup) {
-
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms
   // per det
   SiPixelFolderOrganizer theSiPixelFolder(false);
@@ -190,75 +169,61 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
       nameX << "siPixelTrackResidualsX_SummedLayer_" << i;
       titleX.str(std::string());
       titleX << "Layer" << i << "Hit-to-Track Residual in r-phi";
-      meResidualXSummedLay.push_back(
-          iBooker.book1D(nameX.str(), titleX.str(), 100, -150, 150));
-      meResidualXSummedLay.at(i - 1)->setAxisTitle(
-          "hit-to-track residual in r-phi (um)", 1);
+      meResidualXSummedLay.push_back(iBooker.book1D(nameX.str(), titleX.str(), 100, -150, 150));
+      meResidualXSummedLay.at(i - 1)->setAxisTitle("hit-to-track residual in r-phi (um)", 1);
       nameY.str(std::string());
       nameY << "siPixelTrackResidualsY_SummedLayer_" << i;
       titleY.str(std::string());
       titleY << "Layer" << i << "Hit-to-Track Residual in Z";
-      meResidualYSummedLay.push_back(
-          iBooker.book1D(nameY.str(), titleY.str(), 100, -300, 300));
-      meResidualYSummedLay.at(i - 1)->setAxisTitle(
-          "hit-to-track residual in z (um)", 1);
+      meResidualYSummedLay.push_back(iBooker.book1D(nameY.str(), titleY.str(), 100, -300, 300));
+      meResidualYSummedLay.at(i - 1)->setAxisTitle("hit-to-track residual in z (um)", 1);
     }
   }
 
-  for (std::map<uint32_t, SiPixelTrackResidualModule *>::iterator pxd =
-           theSiPixelStructure.begin();
-       pxd != theSiPixelStructure.end(); pxd++) {
-
+  for (std::map<uint32_t, SiPixelTrackResidualModule *>::iterator pxd = theSiPixelStructure.begin();
+       pxd != theSiPixelStructure.end();
+       pxd++) {
     if (modOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 0, isUpgrade))
         (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 0, isUpgrade);
       else
-        throw cms::Exception("LogicError")
-            << "SiPixelTrackResidualSource Folder Creation Failed! ";
+        throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Folder Creation Failed! ";
     }
     if (ladOn) {
-      if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 1,
-                                           isUpgrade)) {
-
+      if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 1, isUpgrade)) {
         (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 1, isUpgrade);
       } else
-        throw cms::Exception("LogicError")
-            << "SiPixelTrackResidualSource ladder Folder Creation Failed! ";
+        throw cms::Exception("LogicError") << "SiPixelTrackResidualSource ladder Folder Creation Failed! ";
     }
     if (layOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 2, isUpgrade))
         (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 2, isUpgrade);
       else
-        throw cms::Exception("LogicError")
-            << "SiPixelTrackResidualSource layer Folder Creation Failed! ";
+        throw cms::Exception("LogicError") << "SiPixelTrackResidualSource layer Folder Creation Failed! ";
     }
     if (phiOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 3, isUpgrade))
         (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 3, isUpgrade);
       else
-        throw cms::Exception("LogicError")
-            << "SiPixelTrackResidualSource phi Folder Creation Failed! ";
+        throw cms::Exception("LogicError") << "SiPixelTrackResidualSource phi Folder Creation Failed! ";
     }
     if (bladeOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 4, isUpgrade))
         (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 4, isUpgrade);
       else
-        throw cms::Exception("LogicError")
-            << "SiPixelTrackResidualSource Blade Folder Creation Failed! ";
+        throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Blade Folder Creation Failed! ";
     }
     if (diskOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 5, isUpgrade))
         (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 5, isUpgrade);
       else
-        throw cms::Exception("LogicError")
-            << "SiPixelTrackResidualSource Disk Folder Creation Failed! ";
+        throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Disk Folder Creation Failed! ";
     }
     if (ringOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 6, isUpgrade))
         (*pxd).second->book(pSet_, iSetup, iBooker, reducedSet, 6, isUpgrade);
       else
-        throw cms::Exception("LogicError")
-            << "SiPixelTrackResidualSource Ring Folder Creation Failed! ";
+        throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Ring Folder Creation Failed! ";
     }
   }
 
@@ -268,8 +233,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
 
   // number of tracks
   iBooker.setCurrentFolder(topFolderName_ + "/Tracks");
-  meNofTracks_ = iBooker.book1D("ntracks_" + tracksrc_.label(),
-                                "Number of Tracks", 4, 0, 4);
+  meNofTracks_ = iBooker.book1D("ntracks_" + tracksrc_.label(), "Number of Tracks", 4, 0, 4);
   meNofTracks_->setAxisTitle("Number of Tracks", 1);
   meNofTracks_->setBinLabel(1, "All");
   meNofTracks_->setBinLabel(2, "Pixel");
@@ -279,8 +243,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
   // number of tracks in pixel fiducial volume
   iBooker.setCurrentFolder(topFolderName_ + "/Tracks");
   meNofTracksInPixVol_ = iBooker.book1D(
-      "ntracksInPixVol_" + tracksrc_.label(),
-      "Number of Tracks crossing Pixel fiducial Volume", 2, 0, 2);
+      "ntracksInPixVol_" + tracksrc_.label(), "Number of Tracks crossing Pixel fiducial Volume", 2, 0, 2);
   meNofTracksInPixVol_->setAxisTitle("Number of Tracks", 1);
   meNofTracksInPixVol_->setBinLabel(1, "With Hits");
   meNofTracksInPixVol_->setBinLabel(2, "Without Hits");
@@ -288,16 +251,14 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
   // number of clusters (associated to track / not associated)
   iBooker.setCurrentFolder(topFolderName_ + "/Clusters/OnTrack");
   meNofClustersOnTrack_ =
-      iBooker.book1D("nclusters_" + clustersrc_.label() + "_tot",
-                     "Number of Clusters (on track)", 3, 0, 3);
+      iBooker.book1D("nclusters_" + clustersrc_.label() + "_tot", "Number of Clusters (on track)", 3, 0, 3);
   meNofClustersOnTrack_->setAxisTitle("Number of Clusters on Track", 1);
   meNofClustersOnTrack_->setBinLabel(1, "All");
   meNofClustersOnTrack_->setBinLabel(2, "BPix");
   meNofClustersOnTrack_->setBinLabel(3, "FPix");
   iBooker.setCurrentFolder(topFolderName_ + "/Clusters/OffTrack");
   meNofClustersNotOnTrack_ =
-      iBooker.book1D("nclusters_" + clustersrc_.label() + "_tot",
-                     "Number of Clusters (off track)", 3, 0, 3);
+      iBooker.book1D("nclusters_" + clustersrc_.label() + "_tot", "Number of Clusters (off track)", 3, 0, 3);
   meNofClustersNotOnTrack_->setAxisTitle("Number of Clusters off Track", 1);
   meNofClustersNotOnTrack_->setBinLabel(1, "All");
   meNofClustersNotOnTrack_->setBinLabel(2, "BPix");
@@ -308,24 +269,20 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
   // on track
   iBooker.setCurrentFolder(topFolderName_ + "/Clusters/OnTrack");
   std::stringstream ss1, ss2;
-  meClChargeOnTrack_all = iBooker.book1D("charge_" + clustersrc_.label(),
-                                         "Charge (on track)", 500, 0., 500.);
+  meClChargeOnTrack_all = iBooker.book1D("charge_" + clustersrc_.label(), "Charge (on track)", 500, 0., 500.);
   meClChargeOnTrack_all->setAxisTitle("Charge size (in ke)", 1);
   meClChargeOnTrack_bpix =
-      iBooker.book1D("charge_" + clustersrc_.label() + "_Barrel",
-                     "Charge (on track, barrel)", 500, 0., 500.);
+      iBooker.book1D("charge_" + clustersrc_.label() + "_Barrel", "Charge (on track, barrel)", 500, 0., 500.);
   meClChargeOnTrack_bpix->setAxisTitle("Charge size (in ke)", 1);
   meClChargeOnTrack_fpix =
-      iBooker.book1D("charge_" + clustersrc_.label() + "_Endcap",
-                     "Charge (on track, endcap)", 500, 0., 500.);
+      iBooker.book1D("charge_" + clustersrc_.label() + "_Endcap", "Charge (on track, endcap)", 500, 0., 500.);
   meClChargeOnTrack_fpix->setAxisTitle("Charge size (in ke)", 1);
   for (int i = 1; i <= noOfLayers; i++) {
     ss1.str(std::string());
     ss1 << "charge_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "Charge (on track, layer" << i << ")";
-    meClChargeOnTrack_layers.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClChargeOnTrack_layers.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
     meClChargeOnTrack_layers.at(i - 1)->setAxisTitle("Charge size (in ke)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
@@ -333,8 +290,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "charge_" + clustersrc_.label() + "_Disk_p" << i;
     ss2.str(std::string());
     ss2 << "Charge (on track, diskp" << i << ")";
-    meClChargeOnTrack_diskps.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClChargeOnTrack_diskps.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
     meClChargeOnTrack_diskps.at(i - 1)->setAxisTitle("Charge size (in ke)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
@@ -342,202 +298,160 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "charge_" + clustersrc_.label() + "_Disk_m" << i;
     ss2.str(std::string());
     ss2 << "Charge (on track, diskm" << i << ")";
-    meClChargeOnTrack_diskms.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClChargeOnTrack_diskms.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
     meClChargeOnTrack_diskms.at(i - 1)->setAxisTitle("Charge size (in ke)", 1);
   }
   // off track
   iBooker.setCurrentFolder(topFolderName_ + "/Clusters/OffTrack");
-  meClChargeNotOnTrack_all = iBooker.book1D(
-      "charge_" + clustersrc_.label(), "Charge (off track)", 500, 0., 500.);
+  meClChargeNotOnTrack_all = iBooker.book1D("charge_" + clustersrc_.label(), "Charge (off track)", 500, 0., 500.);
   meClChargeNotOnTrack_all->setAxisTitle("Charge size (in ke)", 1);
   meClChargeNotOnTrack_bpix =
-      iBooker.book1D("charge_" + clustersrc_.label() + "_Barrel",
-                     "Charge (off track, barrel)", 500, 0., 500.);
+      iBooker.book1D("charge_" + clustersrc_.label() + "_Barrel", "Charge (off track, barrel)", 500, 0., 500.);
   meClChargeNotOnTrack_bpix->setAxisTitle("Charge size (in ke)", 1);
   meClChargeNotOnTrack_fpix =
-      iBooker.book1D("charge_" + clustersrc_.label() + "_Endcap",
-                     "Charge (off track, endcap)", 500, 0., 500.);
+      iBooker.book1D("charge_" + clustersrc_.label() + "_Endcap", "Charge (off track, endcap)", 500, 0., 500.);
   meClChargeNotOnTrack_fpix->setAxisTitle("Charge size (in ke)", 1);
   for (int i = 1; i <= noOfLayers; i++) {
     ss1.str(std::string());
     ss1 << "charge_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "Charge (off track, layer" << i << ")";
-    meClChargeNotOnTrack_layers.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClChargeNotOnTrack_layers.at(i - 1)->setAxisTitle("Charge size (in ke)",
-                                                        1);
+    meClChargeNotOnTrack_layers.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClChargeNotOnTrack_layers.at(i - 1)->setAxisTitle("Charge size (in ke)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "charge_" + clustersrc_.label() + "_Disk_p" << i;
     ss2.str(std::string());
     ss2 << "Charge (off track, diskp" << i << ")";
-    meClChargeNotOnTrack_diskps.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClChargeNotOnTrack_diskps.at(i - 1)->setAxisTitle("Charge size (in ke)",
-                                                        1);
+    meClChargeNotOnTrack_diskps.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClChargeNotOnTrack_diskps.at(i - 1)->setAxisTitle("Charge size (in ke)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "charge_" + clustersrc_.label() + "_Disk_m" << i;
     ss2.str(std::string());
     ss2 << "Charge (off track, diskm" << i << ")";
-    meClChargeNotOnTrack_diskms.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClChargeNotOnTrack_diskms.at(i - 1)->setAxisTitle("Charge size (in ke)",
-                                                        1);
+    meClChargeNotOnTrack_diskms.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClChargeNotOnTrack_diskms.at(i - 1)->setAxisTitle("Charge size (in ke)", 1);
   }
 
   // size
   // on track
   iBooker.setCurrentFolder(topFolderName_ + "/Clusters/OnTrack");
-  meClSizeOnTrack_all = iBooker.book1D("size_" + clustersrc_.label(),
-                                       "Size (on track)", 100, 0., 100.);
+  meClSizeOnTrack_all = iBooker.book1D("size_" + clustersrc_.label(), "Size (on track)", 100, 0., 100.);
   meClSizeOnTrack_all->setAxisTitle("Cluster size (in pixels)", 1);
   meClSizeOnTrack_bpix =
-      iBooker.book1D("size_" + clustersrc_.label() + "_Barrel",
-                     "Size (on track, barrel)", 100, 0., 100.);
+      iBooker.book1D("size_" + clustersrc_.label() + "_Barrel", "Size (on track, barrel)", 100, 0., 100.);
   meClSizeOnTrack_bpix->setAxisTitle("Cluster size (in pixels)", 1);
   meClSizeOnTrack_fpix =
-      iBooker.book1D("size_" + clustersrc_.label() + "_Endcap",
-                     "Size (on track, endcap)", 100, 0., 100.);
+      iBooker.book1D("size_" + clustersrc_.label() + "_Endcap", "Size (on track, endcap)", 100, 0., 100.);
   meClSizeOnTrack_fpix->setAxisTitle("Cluster size (in pixels)", 1);
   for (int i = 1; i <= noOfLayers; i++) {
     ss1.str(std::string());
     ss1 << "size_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "Size (on track, layer" << i << ")";
-    meClSizeOnTrack_layers.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeOnTrack_layers.at(i - 1)->setAxisTitle("Cluster size (in pixels)",
-                                                   1);
+    meClSizeOnTrack_layers.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeOnTrack_layers.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "size_" + clustersrc_.label() + "_Disk_p" << i;
     ss2.str(std::string());
     ss2 << "Size (on track, diskp" << i << ")";
-    meClSizeOnTrack_diskps.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeOnTrack_diskps.at(i - 1)->setAxisTitle("Cluster size (in pixels)",
-                                                   1);
+    meClSizeOnTrack_diskps.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeOnTrack_diskps.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "size_" + clustersrc_.label() + "_Disk_m1" << i;
     ss2.str(std::string());
     ss2 << "Size (on track, diskm" << i << ")";
-    meClSizeOnTrack_diskms.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeOnTrack_diskms.at(i - 1)->setAxisTitle("Cluster size (in pixels)",
-                                                   1);
+    meClSizeOnTrack_diskms.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeOnTrack_diskms.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
-  meClSizeXOnTrack_all = iBooker.book1D("sizeX_" + clustersrc_.label(),
-                                        "SizeX (on track)", 100, 0., 100.);
+  meClSizeXOnTrack_all = iBooker.book1D("sizeX_" + clustersrc_.label(), "SizeX (on track)", 100, 0., 100.);
   meClSizeXOnTrack_all->setAxisTitle("Cluster sizeX (in pixels)", 1);
   meClSizeXOnTrack_bpix =
-      iBooker.book1D("sizeX_" + clustersrc_.label() + "_Barrel",
-                     "SizeX (on track, barrel)", 100, 0., 100.);
+      iBooker.book1D("sizeX_" + clustersrc_.label() + "_Barrel", "SizeX (on track, barrel)", 100, 0., 100.);
   meClSizeXOnTrack_bpix->setAxisTitle("Cluster sizeX (in pixels)", 1);
   meClSizeXOnTrack_fpix =
-      iBooker.book1D("sizeX_" + clustersrc_.label() + "_Endcap",
-                     "SizeX (on track, endcap)", 100, 0., 100.);
+      iBooker.book1D("sizeX_" + clustersrc_.label() + "_Endcap", "SizeX (on track, endcap)", 100, 0., 100.);
   meClSizeXOnTrack_fpix->setAxisTitle("Cluster sizeX (in pixels)", 1);
   for (int i = 1; i <= noOfLayers; i++) {
     ss1.str(std::string());
     ss1 << "sizeX_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "SizeX (on track, layer" << i << ")";
-    meClSizeXOnTrack_layers.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeXOnTrack_layers.at(i - 1)->setAxisTitle("Cluster size (in pixels)",
-                                                    1);
+    meClSizeXOnTrack_layers.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeXOnTrack_layers.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "sizeX_" + clustersrc_.label() + "_Disk_p" << i;
     ss2.str(std::string());
     ss2 << "SizeX (on track, diskp" << i << ")";
-    meClSizeXOnTrack_diskps.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeXOnTrack_diskps.at(i - 1)->setAxisTitle("Cluster size (in pixels)",
-                                                    1);
+    meClSizeXOnTrack_diskps.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeXOnTrack_diskps.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "sizeX_" + clustersrc_.label() + "_Disk_m" << i;
     ss2.str(std::string());
     ss2 << "SizeX (on track, diskm" << i << ")";
-    meClSizeXOnTrack_diskms.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeXOnTrack_diskms.at(i - 1)->setAxisTitle("Cluster size (in pixels)",
-                                                    1);
+    meClSizeXOnTrack_diskms.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeXOnTrack_diskms.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
-  meClSizeYOnTrack_all = iBooker.book1D("sizeY_" + clustersrc_.label(),
-                                        "SizeY (on track)", 100, 0., 100.);
+  meClSizeYOnTrack_all = iBooker.book1D("sizeY_" + clustersrc_.label(), "SizeY (on track)", 100, 0., 100.);
   meClSizeYOnTrack_all->setAxisTitle("Cluster sizeY (in pixels)", 1);
   meClSizeYOnTrack_bpix =
-      iBooker.book1D("sizeY_" + clustersrc_.label() + "_Barrel",
-                     "SizeY (on track, barrel)", 100, 0., 100.);
+      iBooker.book1D("sizeY_" + clustersrc_.label() + "_Barrel", "SizeY (on track, barrel)", 100, 0., 100.);
   meClSizeYOnTrack_bpix->setAxisTitle("Cluster sizeY (in pixels)", 1);
   meClSizeYOnTrack_fpix =
-      iBooker.book1D("sizeY_" + clustersrc_.label() + "_Endcap",
-                     "SizeY (on track, endcap)", 100, 0., 100.);
+      iBooker.book1D("sizeY_" + clustersrc_.label() + "_Endcap", "SizeY (on track, endcap)", 100, 0., 100.);
   meClSizeYOnTrack_fpix->setAxisTitle("Cluster sizeY (in pixels)", 1);
   for (int i = 1; i <= noOfLayers; i++) {
     ss1.str(std::string());
     ss1 << "sizeY_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "SizeY (on track, layer" << i << ")";
-    meClSizeYOnTrack_layers.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeYOnTrack_layers.at(i - 1)->setAxisTitle("Cluster size (in pixels)",
-                                                    1);
+    meClSizeYOnTrack_layers.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeYOnTrack_layers.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "sizeY_" + clustersrc_.label() + "_Disk_p" << i;
     ss2.str(std::string());
     ss2 << "SizeY (on track, diskp" << i << ")";
-    meClSizeYOnTrack_diskps.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeYOnTrack_diskps.at(i - 1)->setAxisTitle("Cluster size (in pixels)",
-                                                    1);
+    meClSizeYOnTrack_diskps.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeYOnTrack_diskps.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "sizeY_" + clustersrc_.label() + "_Disk_m" << i;
     ss2.str(std::string());
     ss2 << "SizeY (on track, diskm" << i << ")";
-    meClSizeYOnTrack_diskms.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeYOnTrack_diskms.at(i - 1)->setAxisTitle("Cluster size (in pixels)",
-                                                    1);
+    meClSizeYOnTrack_diskms.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeYOnTrack_diskms.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   // off track
   iBooker.setCurrentFolder(topFolderName_ + "/Clusters/OffTrack");
-  meClSizeNotOnTrack_all = iBooker.book1D("size_" + clustersrc_.label(),
-                                          "Size (off track)", 100, 0., 100.);
+  meClSizeNotOnTrack_all = iBooker.book1D("size_" + clustersrc_.label(), "Size (off track)", 100, 0., 100.);
   meClSizeNotOnTrack_all->setAxisTitle("Cluster size (in pixels)", 1);
   meClSizeNotOnTrack_bpix =
-      iBooker.book1D("size_" + clustersrc_.label() + "_Barrel",
-                     "Size (off track, barrel)", 100, 0., 100.);
+      iBooker.book1D("size_" + clustersrc_.label() + "_Barrel", "Size (off track, barrel)", 100, 0., 100.);
   meClSizeNotOnTrack_bpix->setAxisTitle("Cluster size (in pixels)", 1);
   meClSizeNotOnTrack_fpix =
-      iBooker.book1D("size_" + clustersrc_.label() + "_Endcap",
-                     "Size (off track, endcap)", 100, 0., 100.);
+      iBooker.book1D("size_" + clustersrc_.label() + "_Endcap", "Size (off track, endcap)", 100, 0., 100.);
   meClSizeNotOnTrack_fpix->setAxisTitle("Cluster size (in pixels)", 1);
   for (int i = 1; i <= noOfLayers; i++) {
     ss1.str(std::string());
     ss1 << "size_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "Size (off track, layer" << i << ")";
-    meClSizeNotOnTrack_layers.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeNotOnTrack_layers.at(i - 1)->setAxisTitle(
-        "Cluster size (in pixels)", 1);
+    meClSizeNotOnTrack_layers.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeNotOnTrack_layers.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
 
   for (int i = 1; i <= noOfLayers; i++) {
@@ -563,8 +477,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "pix_bar Occ_roc_offtrack" + digisrc_.label() + "_layer_" << i;
     ss2.str(std::string());
     ss2 << "Pixel Barrel Occupancy, ROC level (Off Track): Layer " << i;
-    meZeroRocLadvsModOffTrackBarrel.push_back(
-        iBooker.book2D(ss1.str(), ss2.str(), 72, -4.5, 4.5, ybins, ymin, ymax));
+    meZeroRocLadvsModOffTrackBarrel.push_back(iBooker.book2D(ss1.str(), ss2.str(), 72, -4.5, 4.5, ybins, ymin, ymax));
     meZeroRocLadvsModOffTrackBarrel.at(i - 1)->setAxisTitle("ROC / Module", 1);
     meZeroRocLadvsModOffTrackBarrel.at(i - 1)->setAxisTitle("ROC / Ladder", 2);
   }
@@ -574,102 +487,80 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "size_" + clustersrc_.label() + "_Disk_p" << i;
     ss2.str(std::string());
     ss2 << "Size (off track, diskp" << i << ")";
-    meClSizeNotOnTrack_diskps.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeNotOnTrack_diskps.at(i - 1)->setAxisTitle(
-        "Cluster size (in pixels)", 1);
+    meClSizeNotOnTrack_diskps.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeNotOnTrack_diskps.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "size_" + clustersrc_.label() + "_Disk_m" << i;
     ss2.str(std::string());
     ss2 << "Size (off track, diskm" << i << ")";
-    meClSizeNotOnTrack_diskms.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeNotOnTrack_diskms.at(i - 1)->setAxisTitle(
-        "Cluster size (in pixels)", 1);
+    meClSizeNotOnTrack_diskms.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeNotOnTrack_diskms.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
-  meClSizeXNotOnTrack_all = iBooker.book1D("sizeX_" + clustersrc_.label(),
-                                           "SizeX (off track)", 100, 0., 100.);
+  meClSizeXNotOnTrack_all = iBooker.book1D("sizeX_" + clustersrc_.label(), "SizeX (off track)", 100, 0., 100.);
   meClSizeXNotOnTrack_all->setAxisTitle("Cluster sizeX (in pixels)", 1);
   meClSizeXNotOnTrack_bpix =
-      iBooker.book1D("sizeX_" + clustersrc_.label() + "_Barrel",
-                     "SizeX (off track, barrel)", 100, 0., 100.);
+      iBooker.book1D("sizeX_" + clustersrc_.label() + "_Barrel", "SizeX (off track, barrel)", 100, 0., 100.);
   meClSizeXNotOnTrack_bpix->setAxisTitle("Cluster sizeX (in pixels)", 1);
   meClSizeXNotOnTrack_fpix =
-      iBooker.book1D("sizeX_" + clustersrc_.label() + "_Endcap",
-                     "SizeX (off track, endcap)", 100, 0., 100.);
+      iBooker.book1D("sizeX_" + clustersrc_.label() + "_Endcap", "SizeX (off track, endcap)", 100, 0., 100.);
   meClSizeXNotOnTrack_fpix->setAxisTitle("Cluster sizeX (in pixels)", 1);
   for (int i = 1; i <= noOfLayers; i++) {
     ss1.str(std::string());
     ss1 << "sizeX_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "SizeX (off track, layer" << i << ")";
-    meClSizeXNotOnTrack_layers.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeXNotOnTrack_layers.at(i - 1)->setAxisTitle(
-        "Cluster size (in pixels)", 1);
+    meClSizeXNotOnTrack_layers.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeXNotOnTrack_layers.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "sizeX_" + clustersrc_.label() + "_Disk_p" << i;
     ss2.str(std::string());
     ss2 << "SizeX (off track, diskp" << i << ")";
-    meClSizeXNotOnTrack_diskps.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeXNotOnTrack_diskps.at(i - 1)->setAxisTitle(
-        "Cluster size (in pixels)", 1);
+    meClSizeXNotOnTrack_diskps.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeXNotOnTrack_diskps.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "sizeX_" + clustersrc_.label() + "_Disk_m" << i;
     ss2.str(std::string());
     ss2 << "SizeX (off track, diskm" << i << ")";
-    meClSizeXNotOnTrack_diskms.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeXNotOnTrack_diskms.at(i - 1)->setAxisTitle(
-        "Cluster size (in pixels)", 1);
+    meClSizeXNotOnTrack_diskms.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeXNotOnTrack_diskms.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
-  meClSizeYNotOnTrack_all = iBooker.book1D("sizeY_" + clustersrc_.label(),
-                                           "SizeY (off track)", 100, 0., 100.);
+  meClSizeYNotOnTrack_all = iBooker.book1D("sizeY_" + clustersrc_.label(), "SizeY (off track)", 100, 0., 100.);
   meClSizeYNotOnTrack_all->setAxisTitle("Cluster sizeY (in pixels)", 1);
   meClSizeYNotOnTrack_bpix =
-      iBooker.book1D("sizeY_" + clustersrc_.label() + "_Barrel",
-                     "SizeY (off track, barrel)", 100, 0., 100.);
+      iBooker.book1D("sizeY_" + clustersrc_.label() + "_Barrel", "SizeY (off track, barrel)", 100, 0., 100.);
   meClSizeYNotOnTrack_bpix->setAxisTitle("Cluster sizeY (in pixels)", 1);
   meClSizeYNotOnTrack_fpix =
-      iBooker.book1D("sizeY_" + clustersrc_.label() + "_Endcap",
-                     "SizeY (off track, endcap)", 100, 0., 100.);
+      iBooker.book1D("sizeY_" + clustersrc_.label() + "_Endcap", "SizeY (off track, endcap)", 100, 0., 100.);
   meClSizeYNotOnTrack_fpix->setAxisTitle("Cluster sizeY (in pixels)", 1);
   for (int i = 1; i <= noOfLayers; i++) {
     ss1.str(std::string());
     ss1 << "sizeY_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "SizeY (off track, layer" << i << ")";
-    meClSizeYNotOnTrack_layers.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeYNotOnTrack_layers.at(i - 1)->setAxisTitle(
-        "Cluster size (in pixels)", 1);
+    meClSizeYNotOnTrack_layers.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeYNotOnTrack_layers.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "sizeY_" + clustersrc_.label() + "_Disk_p" << i;
     ss2.str(std::string());
     ss2 << "SizeY (off track, diskp" << i << ")";
-    meClSizeYNotOnTrack_diskps.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeYNotOnTrack_diskps.at(i - 1)->setAxisTitle(
-        "Cluster size (in pixels)", 1);
+    meClSizeYNotOnTrack_diskps.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeYNotOnTrack_diskps.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "sizeY_" + clustersrc_.label() + "_Disk_m" << i;
     ss2.str(std::string());
     ss2 << "SizeY (off track, diskm" << i << ")";
-    meClSizeYNotOnTrack_diskms.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meClSizeYNotOnTrack_diskms.at(i - 1)->setAxisTitle(
-        "Cluster size (in pixels)", 1);
+    meClSizeYNotOnTrack_diskms.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meClSizeYNotOnTrack_diskms.at(i - 1)->setAxisTitle("Cluster size (in pixels)", 1);
   }
 
   // cluster global position
@@ -681,8 +572,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "position_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "Clusters Layer" << i << " (on track)";
-    meClPosLayersOnTrack.push_back(
-        iBooker.book2D(ss1.str(), ss2.str(), 200, -30., 30., 128, -3.2, 3.2));
+    meClPosLayersOnTrack.push_back(iBooker.book2D(ss1.str(), ss2.str(), 200, -30., 30., 128, -3.2, 3.2));
     meClPosLayersOnTrack.at(i - 1)->setAxisTitle("Global Z (cm)", 1);
     meClPosLayersOnTrack.at(i - 1)->setAxisTitle("Global #phi", 2);
 
@@ -708,8 +598,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "position_" + clustersrc_.label() + "_LadvsMod_Layer_" << i;
     ss2.str(std::string());
     ss2 << "Clusters Layer" << i << "_LadvsMod (on track)";
-    meClPosLayersLadVsModOnTrack.push_back(
-        iBooker.book2D(ss1.str(), ss2.str(), 11, -5.5, 5.5, ybins, ymin, ymax));
+    meClPosLayersLadVsModOnTrack.push_back(iBooker.book2D(ss1.str(), ss2.str(), 11, -5.5, 5.5, ybins, ymin, ymax));
     meClPosLayersLadVsModOnTrack.at(i - 1)->setAxisTitle("z-module", 1);
     meClPosLayersLadVsModOnTrack.at(i - 1)->setAxisTitle("Ladder", 2);
   }
@@ -737,8 +626,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "pix_bar Occ_roc_ontrack" + digisrc_.label() + "_layer_" << i;
     ss2.str(std::string());
     ss2 << "Pixel Barrel Occupancy, ROC level (On Track): Layer " << i;
-    meZeroRocLadvsModOnTrackBarrel.push_back(
-        iBooker.book2D(ss1.str(), ss2.str(), 72, -4.5, 4.5, ybins, ymin, ymax));
+    meZeroRocLadvsModOnTrackBarrel.push_back(iBooker.book2D(ss1.str(), ss2.str(), 72, -4.5, 4.5, ybins, ymin, ymax));
     meZeroRocLadvsModOnTrackBarrel.at(i - 1)->setAxisTitle("ROC / Module", 1);
     meZeroRocLadvsModOnTrackBarrel.at(i - 1)->setAxisTitle("ROC / Ladder", 2);
   }
@@ -748,11 +636,9 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "nclustersvsPhi_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "nclusters (on track, layer" << i << ")";
-    meNofClustersvsPhiOnTrack_layers.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 1400., -3.5, 3.5));
+    meNofClustersvsPhiOnTrack_layers.push_back(iBooker.book1D(ss1.str(), ss2.str(), 1400., -3.5, 3.5));
     meNofClustersvsPhiOnTrack_layers.at(i - 1)->setAxisTitle("Global #Phi", 1);
-    meNofClustersvsPhiOnTrack_layers.at(i - 1)->setAxisTitle(
-        "Number of Clusters/Layer on Track", 2);
+    meNofClustersvsPhiOnTrack_layers.at(i - 1)->setAxisTitle("Number of Clusters/Layer on Track", 2);
   }
 
   // fpix
@@ -761,8 +647,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "position_" + clustersrc_.label() + "_pz_Disk_" << i;
     ss2.str(std::string());
     ss2 << "Clusters +Z Disk" << i << " (on track)";
-    meClPosDiskspzOnTrack.push_back(
-        iBooker.book2D(ss1.str(), ss2.str(), 80, -20., 20., 80, -20., 20.));
+    meClPosDiskspzOnTrack.push_back(iBooker.book2D(ss1.str(), ss2.str(), 80, -20., 20., 80, -20., 20.));
     meClPosDiskspzOnTrack.at(i - 1)->setAxisTitle("Global X (cm)", 1);
     meClPosDiskspzOnTrack.at(i - 1)->setAxisTitle("Global Y (cm)", 2);
   }
@@ -771,30 +656,25 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "position_" + clustersrc_.label() + "_mz_Disk_" << i;
     ss2.str(std::string());
     ss2 << "Clusters -Z Disk" << i << " (on track)";
-    meClPosDisksmzOnTrack.push_back(
-        iBooker.book2D(ss1.str(), ss2.str(), 80, -20., 20., 80, -20., 20.));
+    meClPosDisksmzOnTrack.push_back(iBooker.book2D(ss1.str(), ss2.str(), 80, -20., 20., 80, -20., 20.));
     meClPosDisksmzOnTrack.at(i - 1)->setAxisTitle("Global X (cm)", 1);
     meClPosDisksmzOnTrack.at(i - 1)->setAxisTitle("Global Y (cm)", 2);
   }
   meNClustersOnTrack_all =
-      iBooker.book1D("nclusters_" + clustersrc_.label(),
-                     "Number of Clusters (on Track)", 50, 0., 50.);
+      iBooker.book1D("nclusters_" + clustersrc_.label(), "Number of Clusters (on Track)", 50, 0., 50.);
   meNClustersOnTrack_all->setAxisTitle("Number of Clusters", 1);
-  meNClustersOnTrack_bpix =
-      iBooker.book1D("nclusters_" + clustersrc_.label() + "_Barrel",
-                     "Number of Clusters (on track, barrel)", 50, 0., 50.);
+  meNClustersOnTrack_bpix = iBooker.book1D(
+      "nclusters_" + clustersrc_.label() + "_Barrel", "Number of Clusters (on track, barrel)", 50, 0., 50.);
   meNClustersOnTrack_bpix->setAxisTitle("Number of Clusters", 1);
-  meNClustersOnTrack_fpix =
-      iBooker.book1D("nclusters_" + clustersrc_.label() + "_Endcap",
-                     "Number of Clusters (on track, endcap)", 50, 0., 50.);
+  meNClustersOnTrack_fpix = iBooker.book1D(
+      "nclusters_" + clustersrc_.label() + "_Endcap", "Number of Clusters (on track, endcap)", 50, 0., 50.);
   meNClustersOnTrack_fpix->setAxisTitle("Number of Clusters", 1);
   for (int i = 1; i <= noOfLayers; i++) {
     ss1.str(std::string());
     ss1 << "nclusters_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "Number of Clusters (on track, layer" << i << ")";
-    meNClustersOnTrack_layers.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meNClustersOnTrack_layers.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
     meNClustersOnTrack_layers.at(i - 1)->setAxisTitle("Number of Clusters", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
@@ -802,44 +682,36 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "nclusters_" + clustersrc_.label() + "_Disk_p" << i;
     ss2.str(std::string());
     ss2 << "Number of Clusters (on track, diskp" << i << ")";
-    meNClustersOnTrack_diskps.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 50, 0., 50.));
+    meNClustersOnTrack_diskps.push_back(iBooker.book1D(ss1.str(), ss2.str(), 50, 0., 50.));
     meNClustersOnTrack_diskps.at(i - 1)->setAxisTitle("Number of Clusters", 1);
 
     ss1.str(std::string());
     ss1 << "nclustersvsPhi_" + clustersrc_.label() + "_Disk_p" << i;
     ss2.str(std::string());
     ss2 << "nclusters (on track, diskp" << i << ")";
-    meNofClustersvsPhiOnTrack_diskps.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 1400., -3.5, 3.5));
+    meNofClustersvsPhiOnTrack_diskps.push_back(iBooker.book1D(ss1.str(), ss2.str(), 1400., -3.5, 3.5));
     meNofClustersvsPhiOnTrack_diskps.at(i - 1)->setAxisTitle("Global #Phi", 1);
-    meNofClustersvsPhiOnTrack_diskps.at(i - 1)->setAxisTitle(
-        "Number of Clusters/Disk on Track", 2);
+    meNofClustersvsPhiOnTrack_diskps.at(i - 1)->setAxisTitle("Number of Clusters/Disk on Track", 2);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "nclusters_" + clustersrc_.label() + "_Disk_m" << i;
     ss2.str(std::string());
     ss2 << "Number of Clusters (on track, diskm" << i << ")";
-    meNClustersOnTrack_diskms.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meNClustersOnTrack_diskms.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
     meNClustersOnTrack_diskms.at(i - 1)->setAxisTitle("Number of Clusters", 1);
 
     ss1.str(std::string());
     ss1 << "nclustersvsPhi_" + clustersrc_.label() + "_Disk_m" << i;
     ss2.str(std::string());
     ss2 << "nclusters (on track, diskm" << i << ")";
-    meNofClustersvsPhiOnTrack_diskms.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 1400., -3.5, 3.5));
+    meNofClustersvsPhiOnTrack_diskms.push_back(iBooker.book1D(ss1.str(), ss2.str(), 1400., -3.5, 3.5));
     meNofClustersvsPhiOnTrack_diskms.at(i - 1)->setAxisTitle("Global #Phi", 1);
-    meNofClustersvsPhiOnTrack_diskms.at(i - 1)->setAxisTitle(
-        "Number of Clusters/Disk on Track", 2);
+    meNofClustersvsPhiOnTrack_diskms.at(i - 1)->setAxisTitle("Number of Clusters/Disk on Track", 2);
   }
 
-  meRocBladevsDiskEndcapOnTrk =
-      iBooker.book2D("ROC_endcap_occupancy_ontrk",
-                     "Pixel Endcap Occupancy, ROC level (On Track)", 72, -4.5,
-                     4.5, 288, -12.5, 12.5);
+  meRocBladevsDiskEndcapOnTrk = iBooker.book2D(
+      "ROC_endcap_occupancy_ontrk", "Pixel Endcap Occupancy, ROC level (On Track)", 72, -4.5, 4.5, 288, -12.5, 12.5);
   meRocBladevsDiskEndcapOnTrk->setBinLabel(1, "Disk-2 Pnl2", 1);
   meRocBladevsDiskEndcapOnTrk->setBinLabel(9, "Disk-2 Pnl1", 1);
   meRocBladevsDiskEndcapOnTrk->setBinLabel(19, "Disk-1 Pnl2", 1);
@@ -848,8 +720,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
   meRocBladevsDiskEndcapOnTrk->setBinLabel(49, "Disk+1 Pnl2", 1);
   meRocBladevsDiskEndcapOnTrk->setBinLabel(59, "Disk+2 Pnl1", 1);
   meRocBladevsDiskEndcapOnTrk->setBinLabel(67, "Disk+2 Pnl2", 1);
-  meRocBladevsDiskEndcapOnTrk->setAxisTitle(
-      "Blades in Inner (>0) / Outer(<) Halves", 2);
+  meRocBladevsDiskEndcapOnTrk->setAxisTitle("Blades in Inner (>0) / Outer(<) Halves", 2);
   meRocBladevsDiskEndcapOnTrk->setAxisTitle("ROC occupancy", 3);
 
   // not on track
@@ -860,8 +731,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "position_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "Clusters Layer" << i << " (off track)";
-    meClPosLayersNotOnTrack.push_back(
-        iBooker.book2D(ss1.str(), ss2.str(), 200, -30., 30., 128, -3.2, 3.2));
+    meClPosLayersNotOnTrack.push_back(iBooker.book2D(ss1.str(), ss2.str(), 200, -30., 30., 128, -3.2, 3.2));
     meClPosLayersNotOnTrack.at(i - 1)->setAxisTitle("Global Z (cm)", 1);
     meClPosLayersNotOnTrack.at(i - 1)->setAxisTitle("Global #phi", 2);
   }
@@ -871,8 +741,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "position_" + clustersrc_.label() + "_pz_Disk_" << i;
     ss2.str(std::string());
     ss2 << "Clusters +Z Disk" << i << " (off track)";
-    meClPosDiskspzNotOnTrack.push_back(
-        iBooker.book2D(ss1.str(), ss2.str(), 80, -20., 20., 80, -20., 20.));
+    meClPosDiskspzNotOnTrack.push_back(iBooker.book2D(ss1.str(), ss2.str(), 80, -20., 20., 80, -20., 20.));
     meClPosDiskspzNotOnTrack.at(i - 1)->setAxisTitle("Global X (cm)", 1);
     meClPosDiskspzNotOnTrack.at(i - 1)->setAxisTitle("Global Y (cm)", 2);
   }
@@ -881,58 +750,46 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     ss1 << "position_" + clustersrc_.label() + "_mz_Disk_" << i;
     ss2.str(std::string());
     ss2 << "Clusters -Z Disk" << i << " (off track)";
-    meClPosDisksmzNotOnTrack.push_back(
-        iBooker.book2D(ss1.str(), ss2.str(), 80, -20., 20., 80, -20., 20.));
+    meClPosDisksmzNotOnTrack.push_back(iBooker.book2D(ss1.str(), ss2.str(), 80, -20., 20., 80, -20., 20.));
     meClPosDisksmzNotOnTrack.at(i - 1)->setAxisTitle("Global X (cm)", 1);
     meClPosDisksmzNotOnTrack.at(i - 1)->setAxisTitle("Global Y (cm)", 2);
   }
   meNClustersNotOnTrack_all =
-      iBooker.book1D("nclusters_" + clustersrc_.label(),
-                     "Number of Clusters (off Track)", 50, 0., 50.);
+      iBooker.book1D("nclusters_" + clustersrc_.label(), "Number of Clusters (off Track)", 50, 0., 50.);
   meNClustersNotOnTrack_all->setAxisTitle("Number of Clusters", 1);
-  meNClustersNotOnTrack_bpix =
-      iBooker.book1D("nclusters_" + clustersrc_.label() + "_Barrel",
-                     "Number of Clusters (off track, barrel)", 50, 0., 50.);
+  meNClustersNotOnTrack_bpix = iBooker.book1D(
+      "nclusters_" + clustersrc_.label() + "_Barrel", "Number of Clusters (off track, barrel)", 50, 0., 50.);
   meNClustersNotOnTrack_bpix->setAxisTitle("Number of Clusters", 1);
-  meNClustersNotOnTrack_fpix =
-      iBooker.book1D("nclusters_" + clustersrc_.label() + "_Endcap",
-                     "Number of Clusters (off track, endcap)", 50, 0., 50.);
+  meNClustersNotOnTrack_fpix = iBooker.book1D(
+      "nclusters_" + clustersrc_.label() + "_Endcap", "Number of Clusters (off track, endcap)", 50, 0., 50.);
   meNClustersNotOnTrack_fpix->setAxisTitle("Number of Clusters", 1);
   for (int i = 1; i <= noOfLayers; i++) {
     ss1.str(std::string());
     ss1 << "nclusters_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string());
     ss2 << "Number of Clusters (off track, layer" << i << ")";
-    meNClustersNotOnTrack_layers.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meNClustersNotOnTrack_layers.at(i - 1)->setAxisTitle("Number of Clusters",
-                                                         1);
+    meNClustersNotOnTrack_layers.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meNClustersNotOnTrack_layers.at(i - 1)->setAxisTitle("Number of Clusters", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "nclusters_" + clustersrc_.label() + "_Disk_p" << i;
     ss2.str(std::string());
     ss2 << "Number of Clusters (off track, diskp" << i << ")";
-    meNClustersNotOnTrack_diskps.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meNClustersNotOnTrack_diskps.at(i - 1)->setAxisTitle("Number of Clusters",
-                                                         1);
+    meNClustersNotOnTrack_diskps.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meNClustersNotOnTrack_diskps.at(i - 1)->setAxisTitle("Number of Clusters", 1);
   }
   for (int i = 1; i <= noOfDisks; i++) {
     ss1.str(std::string());
     ss1 << "nclusters_" + clustersrc_.label() + "_Disk_m" << i;
     ss2.str(std::string());
     ss2 << "Number of Clusters (off track, diskm" << i << ")";
-    meNClustersNotOnTrack_diskms.push_back(
-        iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
-    meNClustersNotOnTrack_diskms.at(i - 1)->setAxisTitle("Number of Clusters",
-                                                         1);
+    meNClustersNotOnTrack_diskms.push_back(iBooker.book1D(ss1.str(), ss2.str(), 500, 0., 500.));
+    meNClustersNotOnTrack_diskms.at(i - 1)->setAxisTitle("Number of Clusters", 1);
   }
 
-  meRocBladevsDiskEndcapOffTrk =
-      iBooker.book2D("ROC_endcap_occupancy_offtrk",
-                     "Pixel Endcap Occupancy, ROC level (Off Track)", 72, -4.5,
-                     4.5, 288, -12.5, 12.5);
+  meRocBladevsDiskEndcapOffTrk = iBooker.book2D(
+      "ROC_endcap_occupancy_offtrk", "Pixel Endcap Occupancy, ROC level (Off Track)", 72, -4.5, 4.5, 288, -12.5, 12.5);
   meRocBladevsDiskEndcapOffTrk->setBinLabel(1, "Disk-2 Pnl2", 1);
   meRocBladevsDiskEndcapOffTrk->setBinLabel(9, "Disk-2 Pnl1", 1);
   meRocBladevsDiskEndcapOffTrk->setBinLabel(19, "Disk-1 Pnl2", 1);
@@ -941,17 +798,14 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
   meRocBladevsDiskEndcapOffTrk->setBinLabel(49, "Disk+1 Pnl2", 1);
   meRocBladevsDiskEndcapOffTrk->setBinLabel(59, "Disk+2 Pnl1", 1);
   meRocBladevsDiskEndcapOffTrk->setBinLabel(67, "Disk+2 Pnl2", 1);
-  meRocBladevsDiskEndcapOffTrk->setAxisTitle(
-      "Blades in Inner (>0) / Outer(<) Halves", 2);
+  meRocBladevsDiskEndcapOffTrk->setAxisTitle("Blades in Inner (>0) / Outer(<) Halves", 2);
   meRocBladevsDiskEndcapOffTrk->setAxisTitle("ROC occupancy", 3);
 
   // HitProbability
   // on track
   iBooker.setCurrentFolder(topFolderName_ + "/Clusters/OnTrack");
   meHitProbability = iBooker.book1D(
-      "FractionLowProb",
-      "Fraction of hits with low probability;FractionLowProb;#HitsOnTrack", 100,
-      0., 1.);
+      "FractionLowProb", "Fraction of hits with low probability;FractionLowProb;#HitsOnTrack", 100, 0., 1.);
 
   if (debug_) {
     // book summary residual histograms in a debugging folder - one (x,y) pair
@@ -960,21 +814,17 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker &iBooker,
     char hisID[80];
     for (int s = 0; s < 3; s++) {
       sprintf(hisID, "residual_x_subdet_%i", s);
-      meSubdetResidualX[s] = iBooker.book1D(
-          hisID, "Pixel Hit-to-Track Residual in X", 500, -5., 5.);
+      meSubdetResidualX[s] = iBooker.book1D(hisID, "Pixel Hit-to-Track Residual in X", 500, -5., 5.);
 
       sprintf(hisID, "residual_y_subdet_%i", s);
-      meSubdetResidualY[s] = iBooker.book1D(
-          hisID, "Pixel Hit-to-Track Residual in Y", 500, -5., 5.);
+      meSubdetResidualY[s] = iBooker.book1D(hisID, "Pixel Hit-to-Track Residual in Y", 500, -5., 5.);
     }
   }
 
   firstRun = false;
 }
 
-void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
-                                         const edm::EventSetup &iSetup) {
-
+void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
@@ -1019,19 +869,18 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
   double bestNdof = 0.0;
   double maxSumPt = 0.0;
   reco::Vertex bestPvx;
-  for (reco::VertexCollection::const_iterator iVertex = vertices->begin();
-       iVertex != vertices->end(); ++iVertex) {
+  for (reco::VertexCollection::const_iterator iVertex = vertices->begin(); iVertex != vertices->end(); ++iVertex) {
     if (iVertex->ndof() > bestNdof) {
       bestNdof = iVertex->ndof();
       vtxN = math::XYZPoint(iVertex->x(), iVertex->y(), iVertex->z());
-    } // ndof
+    }  // ndof
     if (iVertex->p4().pt() > maxSumPt) {
       maxSumPt = iVertex->p4().pt();
       vtxP = math::XYZPoint(iVertex->x(), iVertex->y(), iVertex->z());
       bestPvx = *iVertex;
-    } // sumpt
+    }  // sumpt
 
-  } // vertex
+  }  // vertex
 
   if (maxSumPt < 1.0)
     vtxP = vtxN;
@@ -1058,8 +907,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
   // get the TransienTrackingRecHitBuilder needed for extracting the global
   // position of the hits in the pixel
   edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-  iSetup.get<TransientRecHitRecord>().get(ttrhbuilder_,
-                                          theTrackerRecHitBuilder);
+  iSetup.get<TransientRecHitRecord>().get(ttrhbuilder_, theTrackerRecHitBuilder);
 
   // check that tracks are valid
   if (TracksForRes.failedToGet())
@@ -1080,8 +928,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
   //----------------------------------------------------------------------------
   // Residuals:
   //
-  for (reco::TrackCollection::const_iterator iTrack = TracksForRes->begin();
-       iTrack != TracksForRes->end(); ++iTrack) {
+  for (reco::TrackCollection::const_iterator iTrack = TracksForRes->begin(); iTrack != TracksForRes->end(); ++iTrack) {
     // count
     kk++;
     // Calculate minimal track pt before curling
@@ -1090,9 +937,9 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
     // calo: D = 1.3 m => pt = 0.74 GeV/c
     double pt = iTrack->pt();
     if (pt < 0.75)
-      continue; // curls up
+      continue;  // curls up
     if (abs(iTrack->dxy(vtxP)) > 5 * iTrack->dxyError())
-      continue; // not prompt
+      continue;  // not prompt
 
     double charge = iTrack->charge();
 
@@ -1102,7 +949,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
     // needed for the TransienTrackingRecHitBuilder
     TrajectoryStateOnSurface initialTSOS = tTrack.innermostMeasurementState();
     if (iTrack->extra().isNonnull() && iTrack->extra().isAvailable()) {
-
       double x1 = 0;
       double y1 = 0;
       double z1 = 0;
@@ -1119,9 +965,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
       // for saving the pixel barrel hits
       vector<TransientTrackingRecHit::RecHitPointer> GoodPixBarrelHits;
       // looping through the RecHits of the track
-      for (trackingRecHit_iterator irecHit = iTrack->recHitsBegin();
-           irecHit != iTrack->recHitsEnd(); ++irecHit) {
-
+      for (trackingRecHit_iterator irecHit = iTrack->recHitsBegin(); irecHit != iTrack->recHitsEnd(); ++irecHit) {
         if ((*irecHit)->isValid()) {
           DetId detId = (*irecHit)->geographicalId();
           // enum Detector { Tracker=1, Muon=2, Ecal=3, Hcal=4, Calo=5 };
@@ -1136,15 +980,13 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
           // enum SubDetector{ PixelBarrel=1, PixelEndcap=2 };
           // enum SubDetector{ TIB=3, TID=4, TOB=5, TEC=6 };
 
-          TransientTrackingRecHit::RecHitPointer trecHit =
-              theTrackerRecHitBuilder->build(&*(*irecHit), initialTSOS);
+          TransientTrackingRecHit::RecHitPointer trecHit = theTrackerRecHitBuilder->build(&*(*irecHit), initialTSOS);
 
           double gX = trecHit->globalPosition().x();
           double gY = trecHit->globalPosition().y();
           double gZ = trecHit->globalPosition().z();
 
           if (subDet == PixelSubdetector::PixelBarrel) {
-
             int ilay = tTopo->pxbLayer(detId);
 
             if (ilay == 1) {
@@ -1154,9 +996,8 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
               z1 = gZ;
 
               GoodPixBarrelHits.push_back((trecHit));
-            } // PXB1
+            }  // PXB1
             if (ilay == 2) {
-
               n2++;
               x2 = gX;
               y2 = gY;
@@ -1164,30 +1005,27 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
 
               GoodPixBarrelHits.push_back((trecHit));
 
-            } // PXB2
+            }  // PXB2
             if (ilay == 3) {
-
               n3++;
               x3 = gX;
               y3 = gY;
               z3 = gZ;
               GoodPixBarrelHits.push_back((trecHit));
             }
-          } // PXB
+          }  // PXB
 
-        } // valid
-      }   // loop rechits
+        }  // valid
+      }    // loop rechits
 
       // CS extra plots
 
       if (n1 + n2 + n3 == 3 && n1 * n2 * n3 > 0) {
         for (unsigned int i = 0; i < GoodPixBarrelHits.size(); i++) {
-
           if (GoodPixBarrelHits[i]->isValid()) {
             DetId detId = GoodPixBarrelHits[i]->geographicalId().rawId();
             int ilay = tTopo->pxbLayer(detId);
             if (pt > ptminres_) {
-
               double dca2 = 0.0, dz2 = 0.0;
               double ptsig = pt;
               if (charge < 0.)
@@ -1201,55 +1039,43 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
               Measurement2DVector residual;
 
               if (ilay == 1) {
-
-                triplets(x2, y2, z2, x1, y1, z1, x3, y3, z3, ptsig, dca2, dz2,
-                         kap);
+                triplets(x2, y2, z2, x1, y1, z1, x3, y3, z3, ptsig, dca2, dz2, kap);
 
                 Test = MeasurementPoint(dca2 * 1E4, dz2 * 1E4);
                 residual = Test - Test2;
               }
 
               if (ilay == 2) {
-
-                triplets(x1, y1, z1, x2, y2, z2, x3, y3, z3, ptsig, dca2, dz2,
-                         kap);
+                triplets(x1, y1, z1, x2, y2, z2, x3, y3, z3, ptsig, dca2, dz2, kap);
 
                 Test = MeasurementPoint(dca2 * 1E4, dz2 * 1E4);
                 residual = Test - Test2;
               }
 
               if (ilay == 3) {
-
-                triplets(x1, y1, z1, x3, y3, z3, x2, y2, z2, ptsig, dca2, dz2,
-                         kap);
+                triplets(x1, y1, z1, x3, y3, z3, x2, y2, z2, ptsig, dca2, dz2, kap);
 
                 Test = MeasurementPoint(dca2 * 1E4, dz2 * 1E4);
                 residual = Test - Test2;
               }
               // fill the residual histograms
 
-              std::map<uint32_t, SiPixelTrackResidualModule *>::iterator pxd =
-                  theSiPixelStructure.find(detId);
+              std::map<uint32_t, SiPixelTrackResidualModule *>::iterator pxd = theSiPixelStructure.find(detId);
               if (pxd != theSiPixelStructure.end())
-                (*pxd).second->fill(residual, reducedSet, modOn, ladOn, layOn,
-                                    phiOn, bladeOn, diskOn, ringOn);
+                (*pxd).second->fill(residual, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
 
               if (ladOn && pxd != theSiPixelStructure.end()) {
-                meResidualXSummedLay
-                    .at(PixelBarrelNameUpgrade((*pxd).first).layerName() - 1)
-                    ->Fill(residual.x());
-                meResidualYSummedLay
-                    .at(PixelBarrelNameUpgrade((*pxd).first).layerName() - 1)
-                    ->Fill(residual.y());
+                meResidualXSummedLay.at(PixelBarrelNameUpgrade((*pxd).first).layerName() - 1)->Fill(residual.x());
+                meResidualYSummedLay.at(PixelBarrelNameUpgrade((*pxd).first).layerName() - 1)->Fill(residual.y());
               }
 
-            } // three hits
-          }   // is valid
-        }     // rechits loop
-      }       // pt 4
+            }  // three hits
+          }    // is valid
+        }      // rechits loop
+      }        // pt 4
     }
 
-  } //-----Tracks
+  }  //-----Tracks
   ////////////////////////////
   // get tracks
   edm::Handle<std::vector<reco::Track>> trackCollectionHandle;
@@ -1285,7 +1111,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
   }
 
   if (trajCollectionHandle.isValid()) {
-
     auto const &trajColl = *(trajCollectionHandle.product());
     // get the map
     edm::Handle<TrajTrackAssociationCollection> match;
@@ -1299,8 +1124,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
     }
 
     // Loop over map entries
-    for (TrajTrackAssociationCollection::const_iterator it = ttac.begin();
-         it != ttac.end(); ++it) {
+    for (TrajTrackAssociationCollection::const_iterator it = ttac.begin(); it != ttac.end(); ++it) {
       const edm::Ref<std::vector<Trajectory>> traj_iterator = it->key;
       // Trajectory Map, extract Trajectory for this track
       reco::TrackRef trackref = it->val;
@@ -1316,8 +1140,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
       if (abs(d0) < 15 && abs(dz) < 50)
         crossesPixVol = true;
 
-      const std::vector<TrajectoryMeasurement> &tmeasColl =
-          traj_iterator->measurements();
+      const std::vector<TrajectoryMeasurement> &tmeasColl = traj_iterator->measurements();
       std::vector<TrajectoryMeasurement>::const_iterator tmeasIt;
       // loop on measurements to find out whether there are bpix and/or fpix
       // hits
@@ -1325,15 +1148,14 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
         if (!tmeasIt->updatedState().isValid())
           continue;
         TransientTrackingRecHit::ConstRecHitPointer testhit = tmeasIt->recHit();
-        if (!testhit->isValid() ||
-            testhit->geographicalId().det() != DetId::Tracker)
+        if (!testhit->isValid() || testhit->geographicalId().det() != DetId::Tracker)
           continue;
         uint testSubDetID = (testhit->geographicalId().subdetId());
         if (testSubDetID == PixelSubdetector::PixelBarrel)
           isBpixtrack = true;
         if (testSubDetID == PixelSubdetector::PixelEndcap)
           isFpixtrack = true;
-      } // end loop on measurements
+      }  // end loop on measurements
       if (isBpixtrack) {
         bpixtracks++;
         if (debug_)
@@ -1350,42 +1172,34 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
         if (crossesPixVol)
           meNofTracksInPixVol_->Fill(0, 1);
 
-        const std::vector<TrajectoryMeasurement> &tmeasColl =
-            traj_iterator->measurements();
-        for (std::vector<TrajectoryMeasurement>::const_iterator tmeasIt =
-                 tmeasColl.begin();
-             tmeasIt != tmeasColl.end(); tmeasIt++) {
+        const std::vector<TrajectoryMeasurement> &tmeasColl = traj_iterator->measurements();
+        for (std::vector<TrajectoryMeasurement>::const_iterator tmeasIt = tmeasColl.begin(); tmeasIt != tmeasColl.end();
+             tmeasIt++) {
           if (!tmeasIt->updatedState().isValid())
             continue;
 
-          TrajectoryStateOnSurface tsos =
-              tsoscomb(tmeasIt->forwardPredictedState(),
-                       tmeasIt->backwardPredictedState());
+          TrajectoryStateOnSurface tsos = tsoscomb(tmeasIt->forwardPredictedState(), tmeasIt->backwardPredictedState());
           if (!tsos.isValid())
-            continue; // Happens rarely, due to singular matrix or similar
+            continue;  // Happens rarely, due to singular matrix or similar
 
           TransientTrackingRecHit::ConstRecHitPointer hit = tmeasIt->recHit();
-          if (!hit->isValid() ||
-              hit->geographicalId().det() != DetId::Tracker) {
+          if (!hit->isValid() || hit->geographicalId().det() != DetId::Tracker) {
             continue;
           } else {
-
             // 	  //residual
             const DetId &hit_detId = hit->geographicalId();
             // uint IntRawDetID = (hit_detId.rawId());
             uint IntSubDetID = (hit_detId.subdetId());
 
             if (IntSubDetID == 0)
-              continue; // don't look at SiStrip hits!
+              continue;  // don't look at SiStrip hits!
 
             // get the enclosed persistent hit
             const TrackingRecHit *persistentHit = hit->hit();
             // check if it's not null, and if it's a valid pixel hit
-            if ((persistentHit != nullptr) &&
-                (typeid(*persistentHit) == typeid(SiPixelRecHit))) {
+            if ((persistentHit != nullptr) && (typeid(*persistentHit) == typeid(SiPixelRecHit))) {
               // tell the C++ compiler that the hit is a pixel hit
-              const SiPixelRecHit *pixhit =
-                  static_cast<const SiPixelRecHit *>(hit->hit());
+              const SiPixelRecHit *pixhit = static_cast<const SiPixelRecHit *>(hit->hit());
               // Hit probability:
               float hit_prob = -1.;
               if (pixhit->hasFilledProb()) {
@@ -1399,17 +1213,14 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
               }
 
               // get the edm::Ref to the cluster
-              edm::Ref<edmNew::DetSetVector<SiPixelCluster>,
-                       SiPixelCluster> const &clust = (*pixhit).cluster();
+              edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const &clust = (*pixhit).cluster();
 
               //  check if the ref is not null
               if (clust.isNonnull()) {
-
                 // define tracker and pixel geometry and topology
                 const TrackerGeometry &theTracker(*theTrackerGeometry);
                 const PixelGeomDetUnit *theGeomDet =
-                    static_cast<const PixelGeomDetUnit *>(
-                        theTracker.idToDet(hit_detId));
+                    static_cast<const PixelGeomDetUnit *>(theTracker.idToDet(hit_detId));
 
                 // test if PixelGeomDetUnit exists
                 if (theGeomDet == nullptr) {
@@ -1431,16 +1242,13 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
 
                 float clust_alpha = atan2(localDir.z(), localDir.x());
                 float clust_beta = atan2(localDir.z(), localDir.y());
-                double corrCharge =
-                    clust->charge() *
-                    sqrt(1.0 / (1.0 / pow(tan(clust_alpha), 2) +
-                                1.0 / pow(tan(clust_beta), 2) + 1.0)) /
-                    1000.;
+                double corrCharge = clust->charge() *
+                                    sqrt(1.0 / (1.0 / pow(tan(clust_alpha), 2) + 1.0 / pow(tan(clust_beta), 2) + 1.0)) /
+                                    1000.;
 
                 if (pxd != theSiPixelStructure.end())
-                  (*pxd).second->fill((*clust), true, corrCharge, reducedSet,
-                                      modOn, ladOn, layOn, phiOn, bladeOn,
-                                      diskOn, ringOn);
+                  (*pxd).second->fill(
+                      (*clust), true, corrCharge, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
 
                 trackclusters++;
                 // CORR CHARGE
@@ -1455,23 +1263,21 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
                 float xcenter = clust->x();
                 float ycenter = clust->y();
                 // get the cluster position in local coordinates (cm)
-                LocalPoint clustlp =
-                    topol->localPosition(MeasurementPoint(xcenter, ycenter));
+                LocalPoint clustlp = topol->localPosition(MeasurementPoint(xcenter, ycenter));
                 // get the cluster position in global coordinates (cm)
                 GlobalPoint clustgp = theGeomDet->surface().toGlobal(clustlp);
 
                 // find location of hit (barrel or endcap, same for cluster)
-                bool barrel = DetId((*hit).geographicalId()).subdetId() ==
-                              static_cast<int>(PixelSubdetector::PixelBarrel);
-                bool endcap = DetId((*hit).geographicalId()).subdetId() ==
-                              static_cast<int>(PixelSubdetector::PixelEndcap);
+                bool barrel =
+                    DetId((*hit).geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+                bool endcap =
+                    DetId((*hit).geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
                 if (barrel) {
                   barreltrackclusters++;
 
                   DetId detId = (*hit).geographicalId();
                   if (detId >= 302055684 && detId <= 352477708) {
-                    getrococcupancy(detId, diginp, tTopo,
-                                    meZeroRocLadvsModOnTrackBarrel);
+                    getrococcupancy(detId, diginp, tTopo, meZeroRocLadvsModOnTrackBarrel);
                   }
 
                   // CORR CHARGE
@@ -1480,18 +1286,15 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
                   meClSizeXOnTrack_bpix->Fill((*clust).sizeX());
                   meClSizeYOnTrack_bpix->Fill((*clust).sizeY());
                   int DBlayer;
-                  DBlayer = PixelBarrelName(DetId((*hit).geographicalId()),
-                                            tTopo, isUpgrade)
-                                .layerName();
+                  DBlayer = PixelBarrelName(DetId((*hit).geographicalId()), tTopo, isUpgrade).layerName();
                   float phi = clustgp.phi();
                   float z = clustgp.z();
 
-                  PixelBarrelName pbn(DetId((*hit).geographicalId()), tTopo,
-                                      isUpgrade);
+                  PixelBarrelName pbn(DetId((*hit).geographicalId()), tTopo, isUpgrade);
                   int ladder = pbn.ladderName();
                   int module = pbn.moduleName();
 
-                  PixelBarrelName::Shell sh = pbn.shell(); // enum
+                  PixelBarrelName::Shell sh = pbn.shell();  // enum
                   int ladderSigned = ladder;
                   int moduleSigned = module;
                   // Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
@@ -1508,8 +1311,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
                   for (int i = 0; i < noOfLayers; i++) {
                     if (DBlayer == i + 1) {
                       meClPosLayersOnTrack.at(i)->Fill(z, phi);
-                      meClPosLayersLadVsModOnTrack.at(i)->Fill(moduleSigned,
-                                                               ladderSigned);
+                      meClPosLayersLadVsModOnTrack.at(i)->Fill(moduleSigned, ladderSigned);
                       meClChargeOnTrack_layers.at(i)->Fill(corrCharge);
                       meClSizeOnTrack_layers.at(i)->Fill((*clust).size());
                       meClSizeXOnTrack_layers.at(i)->Fill((*clust).sizeX());
@@ -1526,9 +1328,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
                   meClSizeXOnTrack_fpix->Fill((*clust).sizeX());
                   meClSizeYOnTrack_fpix->Fill((*clust).sizeY());
                   int DBdisk = 0;
-                  DBdisk = PixelEndcapName(DetId((*hit).geographicalId()),
-                                           tTopo, isUpgrade)
-                               .diskName();
+                  DBdisk = PixelEndcapName(DetId((*hit).geographicalId()), tTopo, isUpgrade).diskName();
                   float x = clustgp.x();
                   float y = clustgp.y();
                   float z = clustgp.z();
@@ -1537,8 +1337,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
                   float xclust = clust->x();
                   float yclust = clust->y();
 
-                  getepixrococcupancyontrk(tTopo, hit, xclust, yclust, z,
-                                           meRocBladevsDiskEndcapOnTrk);
+                  getepixrococcupancyontrk(tTopo, hit, xclust, yclust, z, meRocBladevsDiskEndcapOnTrk);
 
                   if (z > 0) {
                     for (int i = 0; i < noOfDisks; i++) {
@@ -1565,14 +1364,14 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
                   }
                 }
 
-              } // end if (cluster exists)
+              }  // end if (cluster exists)
 
-            } // end if (persistent hit exists and is pixel hit)
+            }  // end if (persistent hit exists and is pixel hit)
 
-          } // end of else
+          }  // end of else
 
-        } // end for (all traj measurements of pixeltrack)
-      }   // end if (is pixeltrack)
+        }  // end for (all traj measurements of pixeltrack)
+      }    // end if (is pixeltrack)
       else {
         if (debug_)
           std::cout << "no pixeltrack:\n";
@@ -1580,27 +1379,24 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
           meNofTracksInPixVol_->Fill(1, 1);
       }
 
-    } // end loop on map entries
+    }  // end loop on map entries
 
-  } // end valid trajectory:
+  }  // end valid trajectory:
 
   // find clusters that are NOT on track
   // edmNew::DetSet<SiPixelCluster>::const_iterator  di;
   if (debug_)
     std::cout << "clusters not on track: (size " << clustColl.size() << ") ";
 
-  for (TrackerGeometry::DetContainer::const_iterator it = TG->dets().begin();
-       it != TG->dets().end(); it++) {
+  for (TrackerGeometry::DetContainer::const_iterator it = TG->dets().begin(); it != TG->dets().end(); it++) {
     // if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
     DetId detId = (*it)->geographicalId();
-    if (detId >= 302055684 &&
-        detId <= 352477708) { // make sure it's a Pixel module WITHOUT using
-                              // dynamic_cast!
+    if (detId >= 302055684 && detId <= 352477708) {  // make sure it's a Pixel module WITHOUT using
+                                                     // dynamic_cast!
       int nofclOnTrack = 0, nofclOffTrack = 0;
       float z = 0.;
-      edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch =
-          clustColl.find(detId);
-      if (isearch != clustColl.end()) { // Not an empty iterator
+      edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = clustColl.find(detId);
+      if (isearch != clustColl.end()) {  // Not an empty iterator
         edmNew::DetSet<SiPixelCluster>::const_iterator di;
         for (di = isearch->begin(); di != isearch->end(); di++) {
           unsigned int temp = clusterSet.size();
@@ -1611,19 +1407,16 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
             nofclOffTrack++;
             // fill histograms for clusters off tracks
             // correct SiPixelTrackResidualModule
-            bool barrel = DetId(detId).subdetId() ==
-                          static_cast<int>(PixelSubdetector::PixelBarrel);
+            bool barrel = DetId(detId).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
             if (barrel) {
-              getrococcupancy(detId, diginp, tTopo,
-                              meZeroRocLadvsModOffTrackBarrel);
+              getrococcupancy(detId, diginp, tTopo, meZeroRocLadvsModOffTrackBarrel);
             }
 
             std::map<uint32_t, SiPixelTrackResidualModule *>::iterator pxd =
                 theSiPixelStructure.find((*it)->geographicalId().rawId());
 
             if (pxd != theSiPixelStructure.end())
-              (*pxd).second->fill((*di), false, -1., reducedSet, modOn, ladOn,
-                                  layOn, phiOn, bladeOn, diskOn, ringOn);
+              (*pxd).second->fill((*di), false, -1., reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
 
             meClSizeNotOnTrack_all->Fill((*di).size());
             meClSizeXNotOnTrack_all->Fill((*di).sizeX());
@@ -1634,9 +1427,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
             // find cluster global position (rphi, z) get cluster
             // define tracker and pixel geometry and topology
             const TrackerGeometry &theTracker(*theTrackerGeometry);
-            const PixelGeomDetUnit *theGeomDet =
-                static_cast<const PixelGeomDetUnit *>(
-                    theTracker.idToDet(detId));
+            const PixelGeomDetUnit *theGeomDet = static_cast<const PixelGeomDetUnit *>(theTracker.idToDet(detId));
             // test if PixelGeomDetUnit exists
             if (theGeomDet == nullptr) {
               if (debug_)
@@ -1649,8 +1440,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
             float xcenter = di->x();
             float ycenter = di->y();
             // get the cluster position in local coordinates (cm)
-            LocalPoint clustlp =
-                topol->localPosition(MeasurementPoint(xcenter, ycenter));
+            LocalPoint clustlp = topol->localPosition(MeasurementPoint(xcenter, ycenter));
             // get the cluster position in global coordinates (cm)
             GlobalPoint clustgp = theGeomDet->surface().toGlobal(clustlp);
 
@@ -1663,8 +1453,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
               meClSizeYNotOnTrack_bpix->Fill((*di).sizeY());
               meClChargeNotOnTrack_bpix->Fill((*di).charge() / 1000);
               barrelotherclusters++;
-              int DBlayer =
-                  PixelBarrelName(DetId(detId), tTopo, isUpgrade).layerName();
+              int DBlayer = PixelBarrelName(DetId(detId), tTopo, isUpgrade).layerName();
               float phi = clustgp.phi();
               // float r = clustgp.perp();
               z = clustgp.z();
@@ -1674,8 +1463,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
                   meClSizeNotOnTrack_layers.at(i)->Fill((*di).size());
                   meClSizeXNotOnTrack_layers.at(i)->Fill((*di).sizeX());
                   meClSizeYNotOnTrack_layers.at(i)->Fill((*di).sizeY());
-                  meClChargeNotOnTrack_layers.at(i)->Fill((*di).charge() /
-                                                          1000);
+                  meClChargeNotOnTrack_layers.at(i)->Fill((*di).charge() / 1000);
                 }
               }
             }
@@ -1686,14 +1474,12 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
               meClSizeYNotOnTrack_fpix->Fill((*di).sizeY());
               meClChargeNotOnTrack_fpix->Fill((*di).charge() / 1000);
               endcapotherclusters++;
-              int DBdisk =
-                  PixelEndcapName(DetId(detId), tTopo, isUpgrade).diskName();
+              int DBdisk = PixelEndcapName(DetId(detId), tTopo, isUpgrade).diskName();
               float x = clustgp.x();
               float y = clustgp.y();
               z = clustgp.z();
 
-              getepixrococcupancyofftrk(DetId(detId), tTopo, xcenter, ycenter,
-                                        z, meRocBladevsDiskEndcapOffTrk);
+              getepixrococcupancyofftrk(DetId(detId), tTopo, xcenter, ycenter, z, meRocBladevsDiskEndcapOffTrk);
 
               if (z > 0) {
                 for (int i = 0; i < noOfDisks; i++) {
@@ -1702,8 +1488,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
                     meClSizeNotOnTrack_diskps.at(i)->Fill((*di).size());
                     meClSizeXNotOnTrack_diskps.at(i)->Fill((*di).sizeX());
                     meClSizeYNotOnTrack_diskps.at(i)->Fill((*di).sizeY());
-                    meClChargeNotOnTrack_diskps.at(i)->Fill((*di).charge() /
-                                                            1000);
+                    meClChargeNotOnTrack_diskps.at(i)->Fill((*di).charge() / 1000);
                   }
                 }
               } else {
@@ -1713,22 +1498,19 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
                     meClSizeNotOnTrack_diskms.at(i)->Fill((*di).size());
                     meClSizeXNotOnTrack_diskms.at(i)->Fill((*di).sizeX());
                     meClSizeYNotOnTrack_diskms.at(i)->Fill((*di).sizeY());
-                    meClChargeNotOnTrack_diskms.at(i)->Fill((*di).charge() /
-                                                            1000);
+                    meClChargeNotOnTrack_diskms.at(i)->Fill((*di).charge() / 1000);
                   }
                 }
               }
             }
-          } // end "if cluster off track"
+          }  // end "if cluster off track"
           else {
             nofclOnTrack++;
             if (z == 0) {
               // find cluster global position (rphi, z) get cluster
               // define tracker and pixel geometry and topology
               const TrackerGeometry &theTracker(*theTrackerGeometry);
-              const PixelGeomDetUnit *theGeomDet =
-                  static_cast<const PixelGeomDetUnit *>(
-                      theTracker.idToDet(detId));
+              const PixelGeomDetUnit *theGeomDet = static_cast<const PixelGeomDetUnit *>(theTracker.idToDet(detId));
               // test if PixelGeomDetUnit exists
               if (theGeomDet == nullptr) {
                 if (debug_)
@@ -1740,8 +1522,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
               float xcenter = di->x();
               float ycenter = di->y();
               // get the cluster position in local coordinates (cm)
-              LocalPoint clustlp =
-                  topol->localPosition(MeasurementPoint(xcenter, ycenter));
+              LocalPoint clustlp = topol->localPosition(MeasurementPoint(xcenter, ycenter));
               // get the cluster position in global coordinates (cm)
               GlobalPoint clustgp = theGeomDet->surface().toGlobal(clustlp);
               z = clustgp.z();
@@ -1753,8 +1534,8 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
       std::map<uint32_t, SiPixelTrackResidualModule *>::iterator pxd =
           theSiPixelStructure.find((*it)->geographicalId().rawId());
       if (pxd != theSiPixelStructure.end())
-        (*pxd).second->nfill(nofclOnTrack, nofclOffTrack, reducedSet, modOn,
-                             ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
+        (*pxd).second->nfill(
+            nofclOnTrack, nofclOffTrack, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
       if (nofclOnTrack != 0)
         meNClustersOnTrack_all->Fill(nofclOnTrack);
       if (nofclOffTrack != 0)
@@ -1765,8 +1546,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
           meNClustersOnTrack_bpix->Fill(nofclOnTrack);
         if (nofclOffTrack != 0)
           meNClustersNotOnTrack_bpix->Fill(nofclOffTrack);
-        int DBlayer =
-            PixelBarrelName(DetId(detId), tTopo, isUpgrade).layerName();
+        int DBlayer = PixelBarrelName(DetId(detId), tTopo, isUpgrade).layerName();
         for (int i = 0; i < noOfLayers; i++) {
           if (DBlayer == i + 1) {
             if (nofclOnTrack != 0)
@@ -1775,7 +1555,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
               meNClustersNotOnTrack_layers.at(i)->Fill(nofclOffTrack);
           }
         }
-      } // end barrel
+      }  // end barrel
       // endcap
       if (DetId(detId).subdetId() == 2) {
         int DBdisk = PixelEndcapName(DetId(detId)).diskName();
@@ -1806,8 +1586,8 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
         }
       }
 
-    } // end if it's a Pixel module
-  }   // end for loop over tracker detector geometry modules
+    }  // end if it's a Pixel module
+  }    // end for loop over tracker detector geometry modules
 
   if (trackclusters > 0)
     (meNofClustersOnTrack_)->Fill(0, trackclusters);
@@ -1831,24 +1611,19 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent,
     (meNofTracks_)->Fill(3, fpixtracks);
 }
 
-void SiPixelTrackResidualSource::getrococcupancy(
-    DetId detId, const edm::DetSetVector<PixelDigi> &diginp,
-    const TrackerTopology *tTopo, std::vector<MonitorElement *> meinput) {
-
+void SiPixelTrackResidualSource::getrococcupancy(DetId detId,
+                                                 const edm::DetSetVector<PixelDigi> &diginp,
+                                                 const TrackerTopology *tTopo,
+                                                 std::vector<MonitorElement *> meinput) {
   edm::DetSetVector<PixelDigi>::const_iterator ipxsearch = diginp.find(detId);
   if (ipxsearch != diginp.end()) {
-
     // Look at digis now
     edm::DetSet<PixelDigi>::const_iterator pxdi;
     for (pxdi = ipxsearch->begin(); pxdi != ipxsearch->end(); pxdi++) {
-
-      bool isHalfModule =
-          PixelBarrelName(DetId(detId), tTopo, isUpgrade).isHalfModule();
+      bool isHalfModule = PixelBarrelName(DetId(detId), tTopo, isUpgrade).isHalfModule();
       int DBlayer = PixelBarrelName(DetId(detId), tTopo, isUpgrade).layerName();
-      int DBmodule =
-          PixelBarrelName(DetId(detId), tTopo, isUpgrade).moduleName();
-      int DBladder =
-          PixelBarrelName(DetId(detId), tTopo, isUpgrade).ladderName();
+      int DBmodule = PixelBarrelName(DetId(detId), tTopo, isUpgrade).moduleName();
+      int DBladder = PixelBarrelName(DetId(detId), tTopo, isUpgrade).ladderName();
       int DBshell = PixelBarrelName(DetId(detId), tTopo, isUpgrade).shell();
 
       // add sign to the modules
@@ -1864,10 +1639,8 @@ void SiPixelTrackResidualSource::getrococcupancy(
 
       float modsign = (float)DBmodule / (abs((float)DBmodule));
       float ladsign = (float)DBladder / (abs((float)DBladder));
-      float rocx = ((float)col / (52. * 8.)) * modsign +
-                   ((float)DBmodule - (modsign)*0.5);
-      float rocy = ((float)row / (80. * 2.)) * ladsign +
-                   ((float)DBladder - (ladsign)*0.5);
+      float rocx = ((float)col / (52. * 8.)) * modsign + ((float)DBmodule - (modsign)*0.5);
+      float rocy = ((float)row / (80. * 2.)) * ladsign + ((float)DBladder - (ladsign)*0.5);
 
       // do the flip where need
       bool flip = false;
@@ -1875,11 +1648,9 @@ void SiPixelTrackResidualSource::getrococcupancy(
         flip = true;
       }
       if ((flip) && (DBladder > 0)) {
-        if ((((float)DBladder - (ladsign)*0.5) <= rocy) &&
-            (rocy < (float)DBladder)) {
+        if ((((float)DBladder - (ladsign)*0.5) <= rocy) && (rocy < (float)DBladder)) {
           rocy = rocy + ladsign * 0.5;
-        } else if ((((float)DBladder) <= rocy) &&
-                   (rocy < ((float)DBladder + (ladsign)*0.5))) {
+        } else if ((((float)DBladder) <= rocy) && (rocy < ((float)DBladder + (ladsign)*0.5))) {
           rocy = rocy - ladsign * 0.5;
         }
       }
@@ -1895,7 +1666,7 @@ void SiPixelTrackResidualSource::getrococcupancy(
       }
       if (abs(DBladder) == 1) {
         rocy = rocy + ladsign * 0.5;
-      } // take care of the half module
+      }  // take care of the half module
 
       if (DBlayer == 1) {
         meinput.at(0)->Fill(rocx, rocy);
@@ -1906,16 +1677,23 @@ void SiPixelTrackResidualSource::getrococcupancy(
       if (DBlayer == 3) {
         meinput.at(2)->Fill(rocx, rocy);
       }
-    } // end of looping over pxdi
+    }  // end of looping over pxdi
   }
 }
 
-void SiPixelTrackResidualSource::triplets(double x1, double y1, double z1,
-                                          double x2, double y2, double z2,
-                                          double x3, double y3, double z3,
-                                          double ptsig, double &dca2,
-                                          double &dz2, double kap) {
-
+void SiPixelTrackResidualSource::triplets(double x1,
+                                          double y1,
+                                          double z1,
+                                          double x2,
+                                          double y2,
+                                          double z2,
+                                          double x3,
+                                          double y3,
+                                          double z3,
+                                          double ptsig,
+                                          double &dca2,
+                                          double &dz2,
+                                          double kap) {
   // Define some constants
   using namespace std;
 
@@ -1961,8 +1739,7 @@ void SiPixelTrackResidualSource::triplets(double x1, double y1, double z1,
 
   // angle from first hit to dca point:
   //
-  double dphi = atan(((x1 - x0) * y0 - (y1 - y0) * x0) /
-                     ((x1 - x0) * x0 + (y1 - y0) * y0));
+  double dphi = atan(((x1 - x0) * y0 - (y1 - y0) * x0) / ((x1 - x0) * x0 + (y1 - y0) * y0));
   // z position of the track based on the middle of the circle
   // track equation for the z component
   double uz0 = z1 + tandip * dphi * rho;
@@ -1987,22 +1764,17 @@ void SiPixelTrackResidualSource::triplets(double x1, double y1, double z1,
   // xx and yy are the new coordinates starting from x2, y2 that are on the
   // track itself vec_X2+-dca2*vec(X0-X2)/|(X0-X2)|
   if (kap < 0) {
-    xx = x2 + (dca2 * ((x0 - x2)) /
-               sqrt((x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2)));
-    yy = y2 + (dca2 * ((y0 - y2)) /
-               sqrt((x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2)));
+    xx = x2 + (dca2 * ((x0 - x2)) / sqrt((x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2)));
+    yy = y2 + (dca2 * ((y0 - y2)) / sqrt((x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2)));
   } else if (kap >= 0) {
-    xx = x2 - (dca2 * ((x0 - x2)) /
-               sqrt((x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2)));
-    yy = y2 - (dca2 * ((y0 - y2)) /
-               sqrt((x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2)));
+    xx = x2 - (dca2 * ((x0 - x2)) / sqrt((x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2)));
+    yy = y2 - (dca2 * ((y0 - y2)) / sqrt((x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2)));
   }
 
   // to get residual in z start with calculating the new uz2 position if one has
   // moved to xx, yy on the track. First calculate the change in phi2 with
   // respect to the center X0, Y0
-  double dphi2 = atan(((xx - x0) * y0 - (yy - y0) * x0) /
-                      ((xx - x0) * x0 + (yy - y0) * y0));
+  double dphi2 = atan(((xx - x0) * y0 - (yy - y0) * x0) / ((xx - x0) * x0 + (yy - y0) * y0));
   // Solve track equation for this new z depending on the dip angle of the track
   // (see above calculated based on X1, X3 and X0, use uz0 as reference point
   // again.
@@ -2016,11 +1788,12 @@ void SiPixelTrackResidualSource::triplets(double x1, double y1, double z1,
   // double arcdca2=sqrt(x2*x2+y2*y2)*acos(cosphi2);
 }
 
-void SiPixelTrackResidualSource::getepixrococcupancyontrk(
-    const TrackerTopology *tTopo,
-    TransientTrackingRecHit::ConstRecHitPointer hit, float xclust, float yclust,
-    float z, MonitorElement *meinput) {
-
+void SiPixelTrackResidualSource::getepixrococcupancyontrk(const TrackerTopology *tTopo,
+                                                          TransientTrackingRecHit::ConstRecHitPointer hit,
+                                                          float xclust,
+                                                          float yclust,
+                                                          float z,
+                                                          MonitorElement *meinput) {
   int pxfpanel = tTopo->pxfPanel((*hit).geographicalId());
   int pxfmodule = tTopo->pxfModule((*hit).geographicalId());
   int pxfdisk = tTopo->pxfDisk((*hit).geographicalId());
@@ -2049,37 +1822,28 @@ void SiPixelTrackResidualSource::getepixrococcupancyontrk(
   int clu_sdpx = ((pxfdisk > 0) ? 1 : -1) * (2 * (abs(pxfdisk) - 1) + pxfpanel);
   int binselx = (pxfpanel == 1 && (pxfmodule == 1 || pxfmodule == 4))
                     ? (pxfmodule == 1)
-                    : ((pxfpanel == 1 && xclust < 80.0) ||
-                       (pxfpanel == 2 && xclust >= 80.0));
+                    : ((pxfpanel == 1 && xclust < 80.0) || (pxfpanel == 2 && xclust >= 80.0));
   int nperpan = 2 * pxfmodule + pxfpanel - 1 + binselx;
-  int clu_roc_binx = ((pxfdisk > 0) ? nperpan : 9 - nperpan) +
-                     (clu_sdpx + 4) * 8 -
-                     2 * ((abs(pxfdisk) == 1) ? pxfdisk : 0);
+  int clu_roc_binx =
+      ((pxfdisk > 0) ? nperpan : 9 - nperpan) + (clu_sdpx + 4) * 8 - 2 * ((abs(pxfdisk) == 1) ? pxfdisk : 0);
 
   int clu_roc_biny = -99.;
   int nrocly = pxfmodule + pxfpanel;
   for (int i = 0; i < nrocly; i++) {
     int j = (pxfdisk < 0) ? i : nrocly - 1 - i;
     if (yclust >= (j * 52.0) && yclust < ((j + 1) * 52.0))
-      clu_roc_biny = 6 - nrocly + 2 * i +
-                     ((pxfblade > 0) ? pxfblade - 1 : pxfblade + 12) * 12 + 1;
+      clu_roc_biny = 6 - nrocly + 2 * i + ((pxfblade > 0) ? pxfblade - 1 : pxfblade + 12) * 12 + 1;
   }
   if (pxfblade > 0) {
     clu_roc_biny = clu_roc_biny + 144;
   }
 
-  meinput->setBinContent(clu_roc_binx, clu_roc_biny,
-                         meinput->getBinContent(clu_roc_binx, clu_roc_biny) +
-                             1);
-  meinput->setBinContent(
-      clu_roc_binx, clu_roc_biny + 1,
-      meinput->getBinContent(clu_roc_binx, clu_roc_biny + 1) + 1);
+  meinput->setBinContent(clu_roc_binx, clu_roc_biny, meinput->getBinContent(clu_roc_binx, clu_roc_biny) + 1);
+  meinput->setBinContent(clu_roc_binx, clu_roc_biny + 1, meinput->getBinContent(clu_roc_binx, clu_roc_biny + 1) + 1);
 }
 
 void SiPixelTrackResidualSource::getepixrococcupancyofftrk(
-    DetId detId, const TrackerTopology *tTopo, float xclust, float yclust,
-    float z, MonitorElement *meinput) {
-
+    DetId detId, const TrackerTopology *tTopo, float xclust, float yclust, float z, MonitorElement *meinput) {
   PXFDetId pxfid = PXFDetId(detId);
 
   // int pxfside   = PixelEndcapName(detId,tTopo,isUpgrade).halfCylinder();
@@ -2104,31 +1868,24 @@ void SiPixelTrackResidualSource::getepixrococcupancyofftrk(
   int clu_sdpx = ((pxfdisk > 0) ? 1 : -1) * (2 * (abs(pxfdisk) - 1) + pxfpanel);
   int binselx = (pxfpanel == 1 && (pxfmodule == 1 || pxfmodule == 4))
                     ? (pxfmodule == 1)
-                    : ((pxfpanel == 1 && xclust < 80.0) ||
-                       (pxfpanel == 2 && xclust >= 80.0));
+                    : ((pxfpanel == 1 && xclust < 80.0) || (pxfpanel == 2 && xclust >= 80.0));
   int nperpan = 2 * pxfmodule + pxfpanel - 1 + binselx;
-  int clu_roc_binx = ((pxfdisk > 0) ? nperpan : 9 - nperpan) +
-                     (clu_sdpx + 4) * 8 -
-                     2 * ((abs(pxfdisk) == 1) ? pxfdisk : 0);
+  int clu_roc_binx =
+      ((pxfdisk > 0) ? nperpan : 9 - nperpan) + (clu_sdpx + 4) * 8 - 2 * ((abs(pxfdisk) == 1) ? pxfdisk : 0);
 
   int clu_roc_biny = -99.;
   int nrocly = pxfmodule + pxfpanel;
   for (int i = 0; i < nrocly; i++) {
     int j = (pxfdisk < 0) ? i : nrocly - 1 - i;
     if (yclust >= (j * 52.0) && yclust < ((j + 1) * 52.0))
-      clu_roc_biny = 6 - nrocly + 2 * i +
-                     ((pxfblade > 0) ? pxfblade - 1 : pxfblade + 12) * 12 + 1;
+      clu_roc_biny = 6 - nrocly + 2 * i + ((pxfblade > 0) ? pxfblade - 1 : pxfblade + 12) * 12 + 1;
   }
   if (pxfblade > 0) {
     clu_roc_biny = clu_roc_biny + 144;
   }
 
-  meinput->setBinContent(clu_roc_binx, clu_roc_biny,
-                         meinput->getBinContent(clu_roc_binx, clu_roc_biny) +
-                             1);
-  meinput->setBinContent(
-      clu_roc_binx, clu_roc_biny + 1,
-      meinput->getBinContent(clu_roc_binx, clu_roc_biny + 1) + 1);
+  meinput->setBinContent(clu_roc_binx, clu_roc_biny, meinput->getBinContent(clu_roc_binx, clu_roc_biny) + 1);
+  meinput->setBinContent(clu_roc_binx, clu_roc_biny + 1, meinput->getBinContent(clu_roc_binx, clu_roc_biny + 1) + 1);
 }
 
-DEFINE_FWK_MODULE(SiPixelTrackResidualSource); // define this as a plug-in
+DEFINE_FWK_MODULE(SiPixelTrackResidualSource);  // define this as a plug-in

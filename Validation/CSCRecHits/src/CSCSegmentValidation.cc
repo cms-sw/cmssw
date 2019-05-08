@@ -2,50 +2,32 @@
 #include "Validation/CSCRecHits/src/CSCSegmentValidation.h"
 #include <algorithm>
 
-CSCSegmentValidation::CSCSegmentValidation(const edm::InputTag &inputTag,
-                                           edm::ConsumesCollector &&iC)
-    : CSCBaseValidation(inputTag), theLayerHitsPerChamber(),
-      theChamberSegmentMap(), theShowerThreshold(10) {
+CSCSegmentValidation::CSCSegmentValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC)
+    : CSCBaseValidation(inputTag), theLayerHitsPerChamber(), theChamberSegmentMap(), theShowerThreshold(10) {
   segments_Token_ = iC.consumes<CSCSegmentCollection>(inputTag);
 }
 
 CSCSegmentValidation::~CSCSegmentValidation() {}
 
 void CSCSegmentValidation::bookHistograms(DQMStore::IBooker &iBooker) {
-  theNPerEventPlot = iBooker.book1D(
-      "CSCSegmentsPerEvent", "Number of CSC segments per event", 100, 0, 50);
-  theNRecHitsPlot = iBooker.book1D(
-      "CSCRecHitsPerSegment", "Number of CSC rec hits per segment", 8, 0, 7);
+  theNPerEventPlot = iBooker.book1D("CSCSegmentsPerEvent", "Number of CSC segments per event", 100, 0, 50);
+  theNRecHitsPlot = iBooker.book1D("CSCRecHitsPerSegment", "Number of CSC rec hits per segment", 8, 0, 7);
   theNPerChamberTypePlot =
-      iBooker.book1D("CSCSegmentsPerChamberType",
-                     "Number of CSC segments per chamber type", 11, 0, 10);
-  theTypePlot4HitsNoShower =
-      iBooker.book1D("CSCSegments4HitsNoShower", "", 100, 0, 10);
-  theTypePlot4HitsNoShowerSeg =
-      iBooker.book1D("CSCSegments4HitsNoShowerSeg", "", 100, 0, 10);
-  theTypePlot4HitsShower =
-      iBooker.book1D("CSCSegments4HitsShower", "", 100, 0, 10);
-  theTypePlot4HitsShowerSeg =
-      iBooker.book1D("CSCSegments4HitsShowerSeg", "", 100, 0, 10);
-  theTypePlot5HitsNoShower =
-      iBooker.book1D("CSCSegments5HitsNoShower", "", 100, 0, 10);
-  theTypePlot5HitsNoShowerSeg =
-      iBooker.book1D("CSCSegments5HitsNoShowerSeg", "", 100, 0, 10);
-  theTypePlot5HitsShower =
-      iBooker.book1D("CSCSegments5HitsShower", "", 100, 0, 10);
-  theTypePlot5HitsShowerSeg =
-      iBooker.book1D("CSCSegments5HitsShowerSeg", "", 100, 0, 10);
-  theTypePlot6HitsNoShower =
-      iBooker.book1D("CSCSegments6HitsNoShower", "", 100, 0, 10);
-  theTypePlot6HitsNoShowerSeg =
-      iBooker.book1D("CSCSegments6HitsNoShowerSeg", "", 100, 0, 10);
-  theTypePlot6HitsShower =
-      iBooker.book1D("CSCSegments6HitsShower", "", 100, 0, 10);
-  theTypePlot6HitsShowerSeg =
-      iBooker.book1D("CSCSegments6HitsShowerSeg", "", 100, 0, 10);
+      iBooker.book1D("CSCSegmentsPerChamberType", "Number of CSC segments per chamber type", 11, 0, 10);
+  theTypePlot4HitsNoShower = iBooker.book1D("CSCSegments4HitsNoShower", "", 100, 0, 10);
+  theTypePlot4HitsNoShowerSeg = iBooker.book1D("CSCSegments4HitsNoShowerSeg", "", 100, 0, 10);
+  theTypePlot4HitsShower = iBooker.book1D("CSCSegments4HitsShower", "", 100, 0, 10);
+  theTypePlot4HitsShowerSeg = iBooker.book1D("CSCSegments4HitsShowerSeg", "", 100, 0, 10);
+  theTypePlot5HitsNoShower = iBooker.book1D("CSCSegments5HitsNoShower", "", 100, 0, 10);
+  theTypePlot5HitsNoShowerSeg = iBooker.book1D("CSCSegments5HitsNoShowerSeg", "", 100, 0, 10);
+  theTypePlot5HitsShower = iBooker.book1D("CSCSegments5HitsShower", "", 100, 0, 10);
+  theTypePlot5HitsShowerSeg = iBooker.book1D("CSCSegments5HitsShowerSeg", "", 100, 0, 10);
+  theTypePlot6HitsNoShower = iBooker.book1D("CSCSegments6HitsNoShower", "", 100, 0, 10);
+  theTypePlot6HitsNoShowerSeg = iBooker.book1D("CSCSegments6HitsNoShowerSeg", "", 100, 0, 10);
+  theTypePlot6HitsShower = iBooker.book1D("CSCSegments6HitsShower", "", 100, 0, 10);
+  theTypePlot6HitsShowerSeg = iBooker.book1D("CSCSegments6HitsShowerSeg", "", 100, 0, 10);
   for (int i = 0; i < 10; ++i) {
-    char title1[200], title2[200], title3[200], title4[200], title5[200],
-        title6[200], title7[200], title8[200];
+    char title1[200], title2[200], title3[200], title4[200], title5[200], title6[200], title7[200], title8[200];
     sprintf(title1, "CSCSegmentRdPhiResolution%d", i + 1);
     sprintf(title2, "CSCSegmentRdPhiPull%d", i + 1);
     sprintf(title3, "CSCSegmentThetaResolution%d", i + 1);
@@ -66,8 +48,7 @@ void CSCSegmentValidation::bookHistograms(DQMStore::IBooker &iBooker) {
   }
 }
 
-void CSCSegmentValidation::analyze(const edm::Event &e,
-                                   const edm::EventSetup &eventSetup) {
+void CSCSegmentValidation::analyze(const edm::Event &e, const edm::EventSetup &eventSetup) {
   // get the collection of CSCRecHsegmentItrD
   edm::Handle<CSCSegmentCollection> hRecHits;
   e.getByToken(segments_Token_, hRecHits);
@@ -75,8 +56,8 @@ void CSCSegmentValidation::analyze(const edm::Event &e,
 
   theChamberSegmentMap.clear();
   unsigned nPerEvent = 0;
-  for (CSCSegmentCollection::const_iterator segmentItr = cscRecHits->begin();
-       segmentItr != cscRecHits->end(); segmentItr++) {
+  for (CSCSegmentCollection::const_iterator segmentItr = cscRecHits->begin(); segmentItr != cscRecHits->end();
+       segmentItr++) {
     ++nPerEvent;
     int detId = segmentItr->geographicalId().rawId();
     int chamberType = whatChamberType(detId);
@@ -101,9 +82,9 @@ void CSCSegmentValidation::analyze(const edm::Event &e,
 
 void CSCSegmentValidation::fillEfficiencyPlots() {
   // now plot efficiency by looping over all chambers with hits
-  for (ChamberHitMap::const_iterator mapItr = theLayerHitsPerChamber.begin(),
-                                     mapEnd = theLayerHitsPerChamber.end();
-       mapItr != mapEnd; ++mapItr) {
+  for (ChamberHitMap::const_iterator mapItr = theLayerHitsPerChamber.begin(), mapEnd = theLayerHitsPerChamber.end();
+       mapItr != mapEnd;
+       ++mapItr) {
     int chamberId = mapItr->first;
     int nHitsInChamber = mapItr->second.size();
     bool isShower = (nHitsInChamber > theShowerThreshold);
@@ -117,7 +98,6 @@ void CSCSegmentValidation::fillEfficiencyPlots() {
     int nLayersHit = v.size();
 
     if (nLayersHit == 4) {
-
       if (isShower)
         theTypePlot4HitsShower->Fill(chamberType);
       else
@@ -132,7 +112,6 @@ void CSCSegmentValidation::fillEfficiencyPlots() {
     }
 
     if (nLayersHit == 5) {
-
       if (isShower)
         theTypePlot5HitsShower->Fill(chamberType);
       else
@@ -147,7 +126,6 @@ void CSCSegmentValidation::fillEfficiencyPlots() {
     }
 
     if (nLayersHit == 6) {
-
       if (isShower)
         theTypePlot6HitsShower->Fill(chamberType);
       else
@@ -188,10 +166,8 @@ void CSCSegmentValidation::plotResolution(const PSimHit &simHit,
   double sigmax = sqrt(segment.localPositionError().xx());
   // double sigmay = sqrt(segment.localPositionError().yy());
 
-  double ddxdz =
-      segmentDir.x() / segmentDir.z() - simHitDir.x() / simHitDir.z();
-  double ddydz =
-      segmentDir.y() / segmentDir.z() - simHitDir.y() / simHitDir.z();
+  double ddxdz = segmentDir.x() / segmentDir.z() - simHitDir.x() / simHitDir.z();
+  double ddydz = segmentDir.y() / segmentDir.z() - simHitDir.y() / simHitDir.z();
   double sigmadxdz = sqrt(segment.localDirectionError().xx());
   double sigmadydz = sqrt(segment.localDirectionError().yy());
 
@@ -209,9 +185,9 @@ void CSCSegmentValidation::plotResolution(const PSimHit &simHit,
 void CSCSegmentValidation::fillLayerHitsPerChamber() {
   theLayerHitsPerChamber.clear();
   std::vector<int> layersHit = theSimHitMap->detsWithHits();
-  for (std::vector<int>::const_iterator layerItr = layersHit.begin(),
-                                        layersHitEnd = layersHit.end();
-       layerItr != layersHitEnd; ++layerItr) {
+  for (std::vector<int>::const_iterator layerItr = layersHit.begin(), layersHitEnd = layersHit.end();
+       layerItr != layersHitEnd;
+       ++layerItr) {
     CSCDetId layerId(*layerItr);
     CSCDetId chamberId = layerId.chamberId();
     int nhits = theSimHitMap->hits(*layerItr).size();
@@ -223,10 +199,8 @@ void CSCSegmentValidation::fillLayerHitsPerChamber() {
 }
 
 namespace CSCSegmentValidationUtils {
-bool SimHitPabsLessThan(const PSimHit &p1, const PSimHit &p2) {
-  return p1.pabs() < p2.pabs();
-}
-} // namespace CSCSegmentValidationUtils
+  bool SimHitPabsLessThan(const PSimHit &p1, const PSimHit &p2) { return p1.pabs() < p2.pabs(); }
+}  // namespace CSCSegmentValidationUtils
 
 const PSimHit *CSCSegmentValidation::keyHit(int chamberId) const {
   const PSimHit *result = nullptr;
@@ -236,8 +210,7 @@ const PSimHit *CSCSegmentValidation::keyHit(int chamberId) const {
   if (!layerHits.empty()) {
     // pick the hit with maximum energy
     edm::PSimHitContainer::const_iterator hitItr =
-        std::max_element(layerHits.begin(), layerHits.end(),
-                         CSCSegmentValidationUtils::SimHitPabsLessThan);
+        std::max_element(layerHits.begin(), layerHits.end(), CSCSegmentValidationUtils::SimHitPabsLessThan);
     result = &(*hitItr);
   }
   return result;

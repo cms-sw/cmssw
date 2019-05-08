@@ -75,8 +75,7 @@ class RCTMonitor : public DQMEDAnalyzer {
 public:
   explicit RCTMonitor(const edm::ParameterSet &);
   ~RCTMonitor() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void FillRCT(const edm::Event &, const edm::EventSetup &);
 
@@ -153,4 +152,4 @@ private:
   edm::EDGetTokenT<L1CaloEmCollection> m_rctSourceToken_;
 };
 
-#endif // RCTMonitor_RCTMonitor_H
+#endif  // RCTMonitor_RCTMonitor_H

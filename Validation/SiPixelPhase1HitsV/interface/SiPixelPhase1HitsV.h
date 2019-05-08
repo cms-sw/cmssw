@@ -15,7 +15,7 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 namespace reco {
-class TrackToTrackingParticleAssociator;
+  class TrackToTrackingParticleAssociator;
 }
 
 class SiPixelPhase1HitsV : public SiPixelPhase1Base {
@@ -45,8 +45,7 @@ private:
 
   edm::EDGetTokenT<edm::View<reco::Track>> tracksToken_;
   edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
-  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>
-      trackAssociatorByHitsToken_;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociatorByHitsToken_;
 };
 
 #endif

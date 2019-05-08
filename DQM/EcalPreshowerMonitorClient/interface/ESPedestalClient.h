@@ -33,4 +33,4 @@ private:
   std::vector<int> senY_;
 };
 
-#endif // ESPedestalClient_H
+#endif  // ESPedestalClient_H
