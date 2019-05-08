@@ -462,6 +462,14 @@ def miniAOD_customizeCommon(process):
     process.load("RecoEgamma.EgammaTools.slimmedEgammaFromMultiCl_cff")
     phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaFromMultiClTask))
 
+    # L1 pre-firing weights for 2016 and 2017
+    from Configuration.Eras.Modifier_run2_L1prefiring_cff import run2_L1prefiring
+    from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+    from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+    process.load("PhysicsTools.PatUtils.L1ECALPrefiringWeightProducer_cff")
+    stage1L1Trigger.toModify(process.prefiringweight, DataEra = "2016BtoH")
+    stage2L1Trigger_2017.toModify(process.prefiringweight, DataEra = "2017BtoF")
+    run2_L1prefiring.toModify(task, func=lambda t: t.add(process.prefiringweight))
 
 def miniAOD_customizeMC(process):
     task = getPatAlgosToolsTask(process)
