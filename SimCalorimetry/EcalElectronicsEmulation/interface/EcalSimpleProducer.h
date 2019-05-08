@@ -36,7 +36,6 @@
  *
  */
 class EcalSimpleProducer : public edm::one::EDProducer<> {
-
   // constructor(s) and destructor(s)
 public:
   /** Constructs an EcalSimpleProducer
@@ -68,17 +67,14 @@ private:
    * @param pattern to replace.
    * @param string to substitute to the pattern
    */
-  void replaceAll(std::string &s, const std::string &from,
-                  const std::string &to) const;
+  void replaceAll(std::string &s, const std::string &from, const std::string &to) const;
 
   /** Converts c-array index (contiguous integer starting from 0) to
    * std CMSSW ECAL crystal eta index.
    * @param iEta0 c-array index. '0' postfix reminds the index starts from 0
    * @return std CMSSW ECAL crystal index.
    */
-  int cIndex2iEta(int iEta0) const {
-    return (iEta0 < 85) ? iEta0 - 85 : iEta0 - 84;
-  }
+  int cIndex2iEta(int iEta0) const { return (iEta0 < 85) ? iEta0 - 85 : iEta0 - 84; }
 
   /** Converts c-array index (contiguous integer starting from 0) to
    * std CMSSW ECAL crystal phi index.
@@ -92,9 +88,7 @@ private:
    * @param iEta0 c-array index. '0' postfix reminds the index starts from 0
    * @return std CMSSW ECAL trigger tower index.
    */
-  int cIndex2iTtEta(int iEta0) const {
-    return (iEta0 < 28) ? iEta0 - 28 : iEta0 - 27;
-  }
+  int cIndex2iTtEta(int iEta0) const { return (iEta0 < 28) ? iEta0 - 28 : iEta0 - 27; }
 
   /** Converts c-array index (contiguous integer starting from 0) to
    * std CMSSW ECAL trigger tower phi index.

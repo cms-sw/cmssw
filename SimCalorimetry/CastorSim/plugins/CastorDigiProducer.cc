@@ -25,11 +25,13 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet &ps,
     : theParameterMap(new CastorSimParameterMap(ps)),
       theCastorShape(new CastorShape()),
       theCastorIntegratedShape(new CaloShapeIntegrator(theCastorShape)),
-      theCastorResponse(
-          new CaloHitResponse(theParameterMap, theCastorIntegratedShape)),
-      theAmplifier(nullptr), theCoderFactory(nullptr),
-      theElectronicsSim(nullptr), theHitCorrection(nullptr),
-      theCastorDigitizer(nullptr), theCastorHits() {
+      theCastorResponse(new CaloHitResponse(theParameterMap, theCastorIntegratedShape)),
+      theAmplifier(nullptr),
+      theCoderFactory(nullptr),
+      theElectronicsSim(nullptr),
+      theHitCorrection(nullptr),
+      theCastorDigitizer(nullptr),
+      theCastorHits() {
   theHitsProducerTag = ps.getParameter<edm::InputTag>("hitsProducer");
   iC.consumes<std::vector<PCaloHit>>(theHitsProducerTag);
 
@@ -48,16 +50,14 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet &ps,
   theCoderFactory = new CastorCoderFactory(CastorCoderFactory::DB);
   theElectronicsSim = new CastorElectronicsSim(theAmplifier, theCoderFactory);
 
-  theCastorDigitizer =
-      new CastorDigitizer(theCastorResponse, theElectronicsSim, doNoise);
+  theCastorDigitizer = new CastorDigitizer(theCastorResponse, theElectronicsSim, doNoise);
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-        << "CastorDigiProducer requires the RandomNumberGeneratorService\n"
-           "which is not present in the configuration file.  You must add the "
-           "service\n"
-           "in the configuration file or remove the modules that require it.";
+    throw cms::Exception("Configuration") << "CastorDigiProducer requires the RandomNumberGeneratorService\n"
+                                             "which is not present in the configuration file.  You must add the "
+                                             "service\n"
+                                             "in the configuration file or remove the modules that require it.";
   }
 }
 
@@ -73,8 +73,7 @@ CastorDigiProducer::~CastorDigiProducer() {
   delete theHitCorrection;
 }
 
-void CastorDigiProducer::initializeEvent(edm::Event const &event,
-                                         edm::EventSetup const &eventSetup) {
+void CastorDigiProducer::initializeEvent(edm::Event const &event, edm::EventSetup const &eventSetup) {
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<CastorDbService> conditions;
   eventSetup.get<CastorDbRecord>().get(conditions);
@@ -96,8 +95,7 @@ void CastorDigiProducer::initializeEvent(edm::Event const &event,
   theCastorDigitizer->initializeHits();
 }
 
-void CastorDigiProducer::accumulateCaloHits(
-    std::vector<PCaloHit> const &hcalHits, int bunchCrossing) {
+void CastorDigiProducer::accumulateCaloHits(std::vector<PCaloHit> const &hcalHits, int bunchCrossing) {
   // fillFakeHits();
 
   if (theHitCorrection != nullptr) {
@@ -106,8 +104,7 @@ void CastorDigiProducer::accumulateCaloHits(
   theCastorDigitizer->add(hcalHits, bunchCrossing, randomEngine_);
 }
 
-void CastorDigiProducer::accumulate(edm::Event const &e,
-                                    edm::EventSetup const &) {
+void CastorDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const &) {
   // Step A: Get and accumulate digitized hits
   edm::Handle<std::vector<PCaloHit>> castorHandle;
   e.getByLabel(theHitsProducerTag, castorHandle);
@@ -125,35 +122,29 @@ void CastorDigiProducer::accumulate(PileUpEventPrincipal const &e,
   accumulateCaloHits(*castorHandle.product(), e.bunchCrossing());
 }
 
-void CastorDigiProducer::finalizeEvent(edm::Event &e,
-                                       const edm::EventSetup &eventSetup) {
+void CastorDigiProducer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSetup) {
   // Step B: Create empty output
 
-  std::unique_ptr<CastorDigiCollection> castorResult(
-      new CastorDigiCollection());
+  std::unique_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection());
 
   // Step C: Invoke the algorithm, getting back outputs.
   theCastorDigitizer->run(*castorResult, randomEngine_);
 
-  edm::LogInfo("CastorDigiProducer")
-      << "HCAL/Castor digis   : " << castorResult->size();
+  edm::LogInfo("CastorDigiProducer") << "HCAL/Castor digis   : " << castorResult->size();
 
   // Step D: Put outputs into event
   e.put(std::move(castorResult));
 
-  randomEngine_ = nullptr; // to prevent access outside event
+  randomEngine_ = nullptr;  // to prevent access outside event
 }
 
 void CastorDigiProducer::sortHits(const edm::PCaloHitContainer &hits) {
-  for (edm::PCaloHitContainer::const_iterator hitItr = hits.begin();
-       hitItr != hits.end(); ++hitItr) {
+  for (edm::PCaloHitContainer::const_iterator hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
     DetId detId = hitItr->id();
-    if (detId.det() == DetId::Calo &&
-        detId.subdetId() == HcalCastorDetId::SubdetectorId) {
+    if (detId.det() == DetId::Calo && detId.subdetId() == HcalCastorDetId::SubdetectorId) {
       theCastorHits.push_back(*hitItr);
     } else {
-      edm::LogError("CastorDigiProducer")
-          << "Bad Hit subdetector " << detId.subdetId();
+      edm::LogError("CastorDigiProducer") << "Bad Hit subdetector " << detId.subdetId();
     }
   }
 }
@@ -170,8 +161,7 @@ void CastorDigiProducer::checkGeometry(const edm::EventSetup &eventSetup) {
   eventSetup.get<CaloGeometryRecord>().get(geometry);
   theCastorResponse->setGeometry(&*geometry);
 
-  const std::vector<DetId> &castorCells =
-      geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
+  const std::vector<DetId> &castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
 
   // std::cout<<"CastorDigiProducer::CheckGeometry number of cells:
   // "<<castorCells.size()<<std::endl;

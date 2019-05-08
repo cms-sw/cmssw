@@ -19,34 +19,27 @@
 
 class PreMixingEcalWorker : public PreMixingWorker {
 public:
-  PreMixingEcalWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer,
-                      edm::ConsumesCollector &&iC);
+  PreMixingEcalWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer, edm::ConsumesCollector &&iC);
   ~PreMixingEcalWorker() override = default;
 
   PreMixingEcalWorker(const PreMixingEcalWorker &) = delete;
   PreMixingEcalWorker &operator=(const PreMixingEcalWorker &) = delete;
 
-  void beginLuminosityBlock(edm::LuminosityBlock const &lumi,
-                            edm::EventSetup const &setup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &setup) override;
 
   void initializeEvent(edm::Event const &e, edm::EventSetup const &ES) override;
   void addSignals(edm::Event const &e, edm::EventSetup const &ES) override;
-  void addPileups(PileUpEventPrincipal const &pep,
-                  edm::EventSetup const &es) override;
-  void put(edm::Event &e, edm::EventSetup const &iSetup,
-           std::vector<PileupSummaryInfo> const &ps, int bs) override;
+  void addPileups(PileUpEventPrincipal const &pep, edm::EventSetup const &es) override;
+  void put(edm::Event &e, edm::EventSetup const &iSetup, std::vector<PileupSummaryInfo> const &ps, int bs) override;
 
 private:
-  edm::InputTag EBPileInputTag_; // InputTag for Pileup Digis collection
-  edm::InputTag EEPileInputTag_; // InputTag for Pileup Digis collection
-  edm::InputTag ESPileInputTag_; // InputTag for Pileup Digis collection
+  edm::InputTag EBPileInputTag_;  // InputTag for Pileup Digis collection
+  edm::InputTag EEPileInputTag_;  // InputTag for Pileup Digis collection
+  edm::InputTag ESPileInputTag_;  // InputTag for Pileup Digis collection
 
-  std::string
-      EBDigiCollectionDM_; // secondary name to be given to collection of digis
-  std::string
-      EEDigiCollectionDM_; // secondary name to be given to collection of digis
-  std::string
-      ESDigiCollectionDM_; // secondary name to be given to collection of digis
+  std::string EBDigiCollectionDM_;  // secondary name to be given to collection of digis
+  std::string EEDigiCollectionDM_;  // secondary name to be given to collection of digis
+  std::string ESDigiCollectionDM_;  // secondary name to be given to collection of digis
 
   edm::EDGetTokenT<EBDigitizerTraits::DigiCollection> tok_eb_;
   edm::EDGetTokenT<EEDigitizerTraits::DigiCollection> tok_ee_;
@@ -77,12 +70,9 @@ PreMixingEcalWorker::PreMixingEcalWorker(const edm::ParameterSet &ps,
       m_EEs25notCont(ps.getParameter<double>("EEs25notContainment")),
       m_peToABarrel(ps.getParameter<double>("photoelectronsToAnalogBarrel")),
       m_peToAEndcap(ps.getParameter<double>("photoelectronsToAnalogEndcap")),
-      theEBSignalGenerator(EBPileInputTag_, tok_eb_, m_EBs25notCont,
-                           m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
-      theEESignalGenerator(EEPileInputTag_, tok_ee_, m_EBs25notCont,
-                           m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
-      theESSignalGenerator(ESPileInputTag_, tok_es_, m_EBs25notCont,
-                           m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
+      theEBSignalGenerator(EBPileInputTag_, tok_eb_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
+      theEESignalGenerator(EEPileInputTag_, tok_ee_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
+      theESSignalGenerator(ESPileInputTag_, tok_es_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap),
       myEcalDigitizer_(ps, iC) {
   EBDigiCollectionDM_ = ps.getParameter<std::string>("EBDigiCollectionDM");
   EEDigiCollectionDM_ = ps.getParameter<std::string>("EEDigiCollectionDM");
@@ -97,22 +87,17 @@ PreMixingEcalWorker::PreMixingEcalWorker(const edm::ParameterSet &ps,
   myEcalDigitizer_.setESNoiseSignalGenerator(&theESSignalGenerator);
 }
 
-void PreMixingEcalWorker::initializeEvent(const edm::Event &e,
-                                          const edm::EventSetup &ES) {
+void PreMixingEcalWorker::initializeEvent(const edm::Event &e, const edm::EventSetup &ES) {
   myEcalDigitizer_.initializeEvent(e, ES);
 }
 
-void PreMixingEcalWorker::addSignals(const edm::Event &e,
-                                     const edm::EventSetup &ES) {
+void PreMixingEcalWorker::addSignals(const edm::Event &e, const edm::EventSetup &ES) {
   myEcalDigitizer_.accumulate(e, ES);
 }
 
-void PreMixingEcalWorker::addPileups(const PileUpEventPrincipal &pep,
-                                     const edm::EventSetup &ES) {
-
-  LogDebug("PreMixingEcalWorker")
-      << "\n===============> adding pileups from event  "
-      << pep.principal().id() << " for bunchcrossing " << pep.bunchCrossing();
+void PreMixingEcalWorker::addPileups(const PileUpEventPrincipal &pep, const edm::EventSetup &ES) {
+  LogDebug("PreMixingEcalWorker") << "\n===============> adding pileups from event  " << pep.principal().id()
+                                  << " for bunchcrossing " << pep.bunchCrossing();
 
   theEBSignalGenerator.initializeEvent(&pep.principal(), &ES);
   theEESignalGenerator.initializeEvent(&pep.principal(), &ES);
@@ -124,14 +109,14 @@ void PreMixingEcalWorker::addPileups(const PileUpEventPrincipal &pep,
   theESSignalGenerator.fill(pep.moduleCallingContext());
 }
 
-void PreMixingEcalWorker::put(edm::Event &e, const edm::EventSetup &ES,
+void PreMixingEcalWorker::put(edm::Event &e,
+                              const edm::EventSetup &ES,
                               std::vector<PileupSummaryInfo> const &ps,
                               int bs) {
   myEcalDigitizer_.finalizeEvent(e, ES);
 }
 
-void PreMixingEcalWorker::beginLuminosityBlock(edm::LuminosityBlock const &lumi,
-                                               edm::EventSetup const &setup) {
+void PreMixingEcalWorker::beginLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &setup) {
   myEcalDigitizer_.beginLuminosityBlock(lumi, setup);
 }
 

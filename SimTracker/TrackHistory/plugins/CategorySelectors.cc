@@ -16,35 +16,29 @@
 #include "SimTracker/TrackHistory/interface/VertexClassifierByProxy.h"
 
 namespace reco {
-namespace modules {
+  namespace modules {
 
-// Generic TrackCategory selector
+    // Generic TrackCategory selector
 
-typedef ObjectSelector<CategoryCriteria<TrackCollection, TrackClassifier>>
-    TrackCategorySelector;
-DEFINE_FWK_MODULE(TrackCategorySelector);
+    typedef ObjectSelector<CategoryCriteria<TrackCollection, TrackClassifier>> TrackCategorySelector;
+    DEFINE_FWK_MODULE(TrackCategorySelector);
 
-typedef ObjectSelector<
-    CategoryCriteria<TrackingParticleCollection, TrackClassifier>>
-    TrackingParticleCategorySelector;
-DEFINE_FWK_MODULE(TrackingParticleCategorySelector);
+    typedef ObjectSelector<CategoryCriteria<TrackingParticleCollection, TrackClassifier>>
+        TrackingParticleCategorySelector;
+    DEFINE_FWK_MODULE(TrackingParticleCategorySelector);
 
-// Generic VertexCategory selector
+    // Generic VertexCategory selector
 
-typedef ObjectSelector<CategoryCriteria<VertexCollection, VertexClassifier>>
-    VertexCategorySelector;
-DEFINE_FWK_MODULE(VertexCategorySelector);
+    typedef ObjectSelector<CategoryCriteria<VertexCollection, VertexClassifier>> VertexCategorySelector;
+    DEFINE_FWK_MODULE(VertexCategorySelector);
 
-typedef ObjectSelector<
-    CategoryCriteria<TrackingVertexCollection, VertexClassifier>>
-    TrackingVertexCategorySelector;
-DEFINE_FWK_MODULE(TrackingVertexCategorySelector);
+    typedef ObjectSelector<CategoryCriteria<TrackingVertexCollection, VertexClassifier>> TrackingVertexCategorySelector;
+    DEFINE_FWK_MODULE(TrackingVertexCategorySelector);
 
-typedef ObjectSelector<
-    CategoryCriteria<SecondaryVertexTagInfoCollection,
-                     VertexClassifierByProxy<SecondaryVertexTagInfoCollection>>>
-    SecondaryVertexTagInfoCategorySelector;
-DEFINE_FWK_MODULE(SecondaryVertexTagInfoCategorySelector);
+    typedef ObjectSelector<
+        CategoryCriteria<SecondaryVertexTagInfoCollection, VertexClassifierByProxy<SecondaryVertexTagInfoCollection>>>
+        SecondaryVertexTagInfoCategorySelector;
+    DEFINE_FWK_MODULE(SecondaryVertexTagInfoCategorySelector);
 
-} // namespace modules
-} // namespace reco
+  }  // namespace modules
+}  // namespace reco

@@ -104,11 +104,11 @@ private:
 
   /** Number of TTs along Ecal Phi
    */
-  static const int nTtPhi = nEbPhi / ttEdge; // 72
+  static const int nTtPhi = nEbPhi / ttEdge;  // 72
 
   /** Number of TTs along Ecal barrel eta
    */
-  static const int nEbTtEta = nEbEta / ttEdge; // 34
+  static const int nEbTtEta = nEbEta / ttEdge;  // 34
 
   /** Number of TTs along eta for one endcap.
    */
@@ -116,7 +116,7 @@ private:
 
   /** Number of TTs along ECAL eta
    */
-  static const int nTtEta = nEbTtEta + 2 * nEeTtEta; // 56
+  static const int nTtEta = nEbTtEta + 2 * nEeTtEta;  // 56
 
   /** Number of barrel DCCs along Phi
    */
@@ -226,17 +226,13 @@ private:
    * @param iEta std CMSSW trigger tower eta index
    * @return the c-array index
    */
-  int iTtEta2cIndex(int iTtEta) const {
-    return (iTtEta < 0) ? (iTtEta + 28) : (iTtEta + 27);
-  }
+  int iTtEta2cIndex(int iTtEta) const { return (iTtEta < 0) ? (iTtEta + 28) : (iTtEta + 27); }
 
   /** Converse of iTtEta2cIndex
    * @param iTtEta0 c eta index of TT
    * @param std CMSSW TT eta index
    */
-  int cIndex2iTtEta(int iTtEta0) const {
-    return (iTtEta0 < 28) ? (iTtEta0 - 28) : (iTtEta0 - 27);
-  }
+  int cIndex2iTtEta(int iTtEta0) const { return (iTtEta0 < 28) ? (iTtEta0 - 28) : (iTtEta0 - 27); }
 
   /** Converse of iTtPhi2cIndex
    * @param iTtPhi0 phi index of TT
@@ -266,8 +262,7 @@ private:
    * @param [out] iEta0 eta c index of the channel
    * @param [out] iPhi0 eta c index of the channel
    */
-  void elec2GeomNum(int ittEta0, int ittPhi0, int strip1, int ch1, int &iEta0,
-                    int &iPhi0) const;
+  void elec2GeomNum(int ittEta0, int ittPhi0, int strip1, int ch1, int &iEta0, int &iPhi0) const;
 
   /* Set horizontal parity of a 16-bit word of FE data
    * @param a the word whose parity must be set.
@@ -280,8 +275,7 @@ private:
    * @param iEvent event index
    * @param adcCount the payload, the ADC count of the channels.
    */
-  void genFeData(std::string basename, int iEvent,
-                 const std::vector<uint16_t> adcCount[nEbEta][nEbPhi]) const;
+  void genFeData(std::string basename, int iEvent, const std::vector<uint16_t> adcCount[nEbEta][nEbPhi]) const;
 
   /** Generates FE trigger primitives data
    * @param basename base for the output file name. DCC number is appended to
@@ -289,8 +283,7 @@ private:
    * @param iEvent event index
    * @param tps the payload, the trigger primitives
    */
-  void genTccIn(std::string basename, int iEvent,
-                const int tps[nTtEta][nTtPhi]) const;
+  void genTccIn(std::string basename, int iEvent, const int tps[nTtEta][nTtPhi]) const;
 
   /** Generates TCC->DCC data
    * @param basename base for the output file name. DCC number is appended to
@@ -298,15 +291,13 @@ private:
    * @param iEvent event index
    * @param tps the payload, the trigger primitives
    */
-  void genTccOut(std::string basename, int iEvent,
-                 const int tps[nTtEta][nTtPhi]) const;
+  void genTccOut(std::string basename, int iEvent, const int tps[nTtEta][nTtPhi]) const;
 
   /** Retrieves barrel digis (APD ADC count).
    * @param event CMS event
    * @param adc [out] the adc counts: adc[iEta0][iPhi0][iTimeSample0]
    */
-  void getEbDigi(const edm::Event &event,
-                 std::vector<uint16_t> adc[nEbEta][nEbPhi]) const;
+  void getEbDigi(const edm::Event &event, std::vector<uint16_t> adc[nEbEta][nEbPhi]) const;
 
   /** Extracts the trigger primitive (TP). The collection name
    * parameter permits to select either the TCP Fenix output
@@ -316,8 +307,7 @@ private:
    * @param collName label of the EDM collection containing the TP.
    * @param tp [out] the trigger primitives
    */
-  void getTp(const edm::Event &event, const std::string &collName,
-             int tp[nTtEta][nTtPhi]) const;
+  void getTp(const edm::Event &event, const std::string &collName, int tp[nTtEta][nTtPhi]) const;
 
   /** Help function to get the file extension which depends on the output
    * formats.
@@ -333,16 +323,14 @@ private:
    * @param hpar if true the horizontal odd word parity is set before writing
    * the word into the file.
    */
-  void fwrite(std::ofstream &f, uint16_t data, int &iword,
-              bool hpar = true) const;
+  void fwrite(std::ofstream &f, uint16_t data, int &iword, bool hpar = true) const;
 
   /** Computes the selective readout flags.
    * @param [in] event CMS event
    * @param [out] ebSrf the computed SR flags for barrel
    * @param [out] eeSrf the computed SR flags for endcaps
    */
-  void getSrfs(const edm::Event &event, int ebSrf[nTtEta][nTtPhi],
-               int eeSrf[nEndcaps][nScX][nScY]) const;
+  void getSrfs(const edm::Event &event, int ebSrf[nTtEta][nTtPhi], int eeSrf[nEndcaps][nScX][nScY]) const;
 
   /** Generates SR flags
    * @param basename base for the output file name. DCC number is appended to
@@ -350,8 +338,7 @@ private:
    * @param iEvent event index
    * @param the trigger tower flags
    */
-  void genSrData(std::string basename, int iEvent,
-                 int ttf[nEbTtEta][nTtPhi]) const;
+  void genSrData(std::string basename, int iEvent, int ttf[nEbTtEta][nTtPhi]) const;
 
 private:
   /** Name of module/plugin/producer making digis

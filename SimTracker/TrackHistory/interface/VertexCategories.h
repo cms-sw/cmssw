@@ -6,7 +6,6 @@
 #include <vector>
 
 class VertexCategories {
-
 public:
   //! Categories available to vertexes
   enum Category {

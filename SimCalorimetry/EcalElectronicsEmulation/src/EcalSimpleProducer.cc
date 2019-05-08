@@ -31,8 +31,7 @@ void EcalSimpleProducer::produce(edm::Event &evt, const edm::EventSetup &) {
         DataFrame dframe(digis->back());
 
         for (int t = 0; t < nSamples; ++t) {
-          uint16_t encodedAdc =
-              (uint16_t)formula_->Eval(iEta0, iPhi0, ievt - 1, t);
+          uint16_t encodedAdc = (uint16_t)formula_->Eval(iEta0, iPhi0, ievt - 1, t);
           if (verbose_)
             cout << encodedAdc << ((t < (nSamples - 1)) ? "\t" : "\n");
           dframe[t] = encodedAdc;
@@ -44,8 +43,7 @@ void EcalSimpleProducer::produce(edm::Event &evt, const edm::EventSetup &) {
     evt.put(unique_ptr<EEDigiCollection>(new EEDigiCollection()));
   }
   if (tpFormula_.get() != nullptr) {
-    unique_ptr<EcalTrigPrimDigiCollection> tps =
-        unique_ptr<EcalTrigPrimDigiCollection>(new EcalTrigPrimDigiCollection);
+    unique_ptr<EcalTrigPrimDigiCollection> tps = unique_ptr<EcalTrigPrimDigiCollection>(new EcalTrigPrimDigiCollection);
     tps->reserve(56 * 72);
     const int nSamples = 5;
     for (int iTtEta0 = 0; iTtEta0 < 56; ++iTtEta0) {
@@ -56,20 +54,17 @@ void EcalSimpleProducer::produce(edm::Event &evt, const edm::EventSetup &) {
         if (verbose_)
           cout << "(" << iTtEta0 << "," << iTtPhi0 << "): ";
         int zside = iTtEta1 < 0 ? -1 : 1;
-        EcalTriggerPrimitiveDigi tpframe(
-            EcalTrigTowerDetId(zside, EcalTriggerTower, abs(iTtEta1), iTtPhi));
+        EcalTriggerPrimitiveDigi tpframe(EcalTrigTowerDetId(zside, EcalTriggerTower, abs(iTtEta1), iTtPhi));
 
         tpframe.setSize(nSamples);
 
         if (verbose_)
           cout << "TP: ";
         for (int t = 0; t < nSamples; ++t) {
-          uint16_t encodedTp =
-              (uint16_t)tpFormula_->Eval(iTtEta0, iTtPhi0, ievt - 1, t);
+          uint16_t encodedTp = (uint16_t)tpFormula_->Eval(iTtEta0, iTtPhi0, ievt - 1, t);
 
           if (verbose_)
-            cout << "TP(" << iTtEta0 << "," << iTtPhi0 << ") = " << encodedTp
-                 << ((t < (nSamples - 1)) ? "\t" : "\n");
+            cout << "TP(" << iTtEta0 << "," << iTtPhi0 << ") = " << encodedTp << ((t < (nSamples - 1)) ? "\t" : "\n");
           tpframe.setSample(t, EcalTriggerPrimitiveSample(encodedTp));
         }
         tps->push_back(tpframe);
@@ -77,9 +72,8 @@ void EcalSimpleProducer::produce(edm::Event &evt, const edm::EventSetup &) {
     }
     evt.put(std::move(tps));
   }
-  if (simHitFormula_.get() != nullptr) { // generation of barrel sim hits
-    unique_ptr<PCaloHitContainer> hits =
-        unique_ptr<PCaloHitContainer>(new PCaloHitContainer);
+  if (simHitFormula_.get() != nullptr) {  // generation of barrel sim hits
+    unique_ptr<PCaloHitContainer> hits = unique_ptr<PCaloHitContainer>(new PCaloHitContainer);
     for (int iEta0 = 0; iEta0 < 170; ++iEta0) {
       for (int iPhi0 = 0; iPhi0 < 360; ++iPhi0) {
         int iEta1 = cIndex2iEta(iEta0);
@@ -96,13 +90,11 @@ void EcalSimpleProducer::produce(edm::Event &evt, const edm::EventSetup &) {
     }
     evt.put(std::move(hits), "EcalHitsEB");
     // puts an empty digi collecion for endcap:
-    evt.put(unique_ptr<PCaloHitContainer>(new PCaloHitContainer()),
-            "EcalHitsEE");
+    evt.put(unique_ptr<PCaloHitContainer>(new PCaloHitContainer()), "EcalHitsEE");
   }
 }
 
-EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet &pset)
-    : EDProducer() {
+EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet &pset) : EDProducer() {
   string formula = pset.getParameter<string>("formula");
   string tpFormula = pset.getParameter<string>("tpFormula");
   string simHitFormula = pset.getParameter<string>("simHitFormula");
@@ -118,8 +110,7 @@ EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet &pset)
   replaceAll(formula, "isample0", "t");
   //  cout << "----------> " << formula << endl;
 
-  replaceAll(tpFormula, "itt0",
-             "((ieta0<28)*(27-ieta0)+(ieta0>=28)*(ieta0-28))*4+(iphi0+2)%4");
+  replaceAll(tpFormula, "itt0", "((ieta0<28)*(27-ieta0)+(ieta0>=28)*(ieta0-28))*4+(iphi0+2)%4");
   replaceAll(tpFormula, "eb", "(ieta0>10 && ieta0<45)");
   replaceAll(tpFormula, "ebm", "(ieta0>10 && ieta0<28)");
   replaceAll(tpFormula, "ebp", "(ieta0>27 && ieta0<45)");
@@ -158,20 +149,19 @@ EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet &pset)
     produces<EcalTrigPrimDigiCollection>();
   }
   if (!simHitFormula.empty()) {
-    simHitFormula_ =
-        unique_ptr<TFormula>(new TFormula("f", simHitFormula.c_str()));
+    simHitFormula_ = unique_ptr<TFormula>(new TFormula("f", simHitFormula.c_str()));
     Int_t err = simHitFormula_->Compile();
     if (err != 0) {
-      throw cms::Exception("Error in EcalSimpleProducer "
-                           "'simHitFormula' config.");
+      throw cms::Exception(
+          "Error in EcalSimpleProducer "
+          "'simHitFormula' config.");
     }
     produces<edm::PCaloHitContainer>("EcalHitsEB");
     produces<edm::PCaloHitContainer>("EcalHitsEE");
   }
 }
 
-void EcalSimpleProducer::replaceAll(std::string &s, const std::string &from,
-                                    const std::string &to) const {
+void EcalSimpleProducer::replaceAll(std::string &s, const std::string &from, const std::string &to) const {
   string::size_type pos = 0;
   //  cout << "replaceAll(" << s << "," << from << "," << to << ")\n";
   while ((pos = s.find(from, pos)) != string::npos) {

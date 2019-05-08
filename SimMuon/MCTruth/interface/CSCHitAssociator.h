@@ -28,8 +28,7 @@ public:
   typedef edm::DetSet<StripDigiSimLink> LayerLinks;
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
-  CSCHitAssociator(const edm::Event &, const edm::EventSetup &,
-                   const edm::ParameterSet &);
+  CSCHitAssociator(const edm::Event &, const edm::EventSetup &, const edm::ParameterSet &);
   CSCHitAssociator(const edm::ParameterSet &, edm::ConsumesCollector &&iC);
 
   void initEvent(const edm::Event &, const edm::EventSetup &);

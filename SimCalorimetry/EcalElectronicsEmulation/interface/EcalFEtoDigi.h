@@ -31,10 +31,9 @@
 
 struct TCCinput;
 typedef std::vector<TCCinput> TCCInputData;
-static const int N_SM = 36; // number of ecal barrel supermodules
+static const int N_SM = 36;  // number of ecal barrel supermodules
 
 class EcalFEtoDigi : public edm::one::EDProducer<> {
-
 public:
   explicit EcalFEtoDigi(const edm::ParameterSet &);
   ~EcalFEtoDigi() override {}
@@ -47,11 +46,9 @@ private:
   void readInput();
   EcalTrigTowerDetId create_TTDetId(TCCinput);
   EcalTriggerPrimitiveSample create_TPSample(TCCinput, const edm::EventSetup &);
-  EcalTriggerPrimitiveSample create_TPSampleTcp(TCCinput,
-                                                const edm::EventSetup &);
+  EcalTriggerPrimitiveSample create_TPSampleTcp(TCCinput, const edm::EventSetup &);
   int SMidToTCCid(const int) const;
-  void getLUT(unsigned int *lut, const int towerId,
-              const edm::EventSetup &) const;
+  void getLUT(unsigned int *lut, const int towerId, const edm::EventSetup &) const;
 
   TCCInputData inputdata_[N_SM];
 

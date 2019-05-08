@@ -16,8 +16,7 @@ void TrackerPSimHitSelector::select(PSimHitCollection &selection,
                                     edm::Event const &event,
                                     edm::EventSetup const &setup) const {
   // Look for psimhit collection associated o the tracker
-  PSimHitCollectionMap::const_iterator pSimHitCollections =
-      pSimHitCollectionMap_.find("tracker");
+  PSimHitCollectionMap::const_iterator pSimHitCollections = pSimHitCollectionMap_.find("tracker");
 
   // Check that there are psimhit collections defined for the tracker
   if (pSimHitCollections == pSimHitCollectionMap_.end())
@@ -34,8 +33,7 @@ void TrackerPSimHitSelector::select(PSimHitCollection &selection,
   }
 
   // Create a mix collection from the different psimhit collections
-  std::unique_ptr<MixCollection<PSimHit>> pSimHits(
-      new MixCollection<PSimHit>(cfPSimHitProductPointers));
+  std::unique_ptr<MixCollection<PSimHit>> pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
 
   // Setup the cabling mapping
   std::map<uint32_t, std::vector<int>> theDetIdList;
@@ -44,8 +42,7 @@ void TrackerPSimHitSelector::select(PSimHitCollection &selection,
   detCabling->addConnected(theDetIdList);
 
   // Select only psimhits from alive modules
-  std::vector<std::pair<const PSimHit *, int>> psimhits(
-      SimHitSelectorFromDB().getSimHit(pSimHits, theDetIdList));
+  std::vector<std::pair<const PSimHit *, int>> psimhits(SimHitSelectorFromDB().getSimHit(pSimHits, theDetIdList));
 
   // Add the selected psimhit to the main list
   for (std::size_t i = 0; i < psimhits.size(); ++i)

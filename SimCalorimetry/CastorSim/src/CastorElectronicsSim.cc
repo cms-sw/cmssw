@@ -5,24 +5,19 @@
 
 #include "CLHEP/Random/RandFlat.h"
 
-CastorElectronicsSim::CastorElectronicsSim(
-    CastorAmplifier *amplifier, const CastorCoderFactory *coderFactory)
-    : theAmplifier(amplifier), theCoderFactory(coderFactory),
-      theStartingCapId(0) {}
+CastorElectronicsSim::CastorElectronicsSim(CastorAmplifier *amplifier, const CastorCoderFactory *coderFactory)
+    : theAmplifier(amplifier), theCoderFactory(coderFactory), theStartingCapId(0) {}
 
 CastorElectronicsSim::~CastorElectronicsSim() {}
 
 template <class Digi>
-void CastorElectronicsSim::convert(CaloSamples &frame, Digi &result,
-                                   CLHEP::HepRandomEngine *engine) {
+void CastorElectronicsSim::convert(CaloSamples &frame, Digi &result, CLHEP::HepRandomEngine *engine) {
   result.setSize(frame.size());
   theAmplifier->amplify(frame, engine);
   theCoderFactory->coder(frame.id())->fC2adc(frame, result, theStartingCapId);
 }
 
-void CastorElectronicsSim::analogToDigital(CLHEP::HepRandomEngine *engine,
-                                           CaloSamples &lf,
-                                           CastorDataFrame &result) {
+void CastorElectronicsSim::analogToDigital(CLHEP::HepRandomEngine *engine, CaloSamples &lf, CastorDataFrame &result) {
   convert<CastorDataFrame>(lf, result, engine);
 }
 

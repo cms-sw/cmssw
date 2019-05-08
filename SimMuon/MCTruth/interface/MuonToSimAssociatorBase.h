@@ -13,7 +13,6 @@
 class TrackerTopology;
 
 class MuonToSimAssociatorBase {
-
 public:
   MuonToSimAssociatorBase();
   virtual ~MuonToSimAssociatorBase();
@@ -22,25 +21,21 @@ public:
 
   struct RefToBaseSort {
     template <typename T>
-    bool operator()(const edm::RefToBase<T> &r1,
-                    const edm::RefToBase<T> &r2) const {
+    bool operator()(const edm::RefToBase<T> &r1, const edm::RefToBase<T> &r2) const {
       return (r1.id() == r2.id() ? r1.key() < r2.key() : r1.id() < r2.id());
     }
   };
-  typedef std::map<edm::RefToBase<reco::Muon>,
-                   std::vector<std::pair<TrackingParticleRef, double>>,
-                   RefToBaseSort>
+  typedef std::map<edm::RefToBase<reco::Muon>, std::vector<std::pair<TrackingParticleRef, double>>, RefToBaseSort>
       MuonToSimCollection;
-  typedef std::map<TrackingParticleRef,
-                   std::vector<std::pair<edm::RefToBase<reco::Muon>, double>>>
-      SimToMuonCollection;
+  typedef std::map<TrackingParticleRef, std::vector<std::pair<edm::RefToBase<reco::Muon>, double>>> SimToMuonCollection;
 
-  virtual void
-  associateMuons(MuonToSimCollection &recoToSim, SimToMuonCollection &simToReco,
-                 const edm::RefToBaseVector<reco::Muon> &, MuonTrackType,
-                 const edm::RefVector<TrackingParticleCollection> &,
-                 const edm::Event *event = nullptr,
-                 const edm::EventSetup *setup = nullptr) const = 0;
+  virtual void associateMuons(MuonToSimCollection &recoToSim,
+                              SimToMuonCollection &simToReco,
+                              const edm::RefToBaseVector<reco::Muon> &,
+                              MuonTrackType,
+                              const edm::RefVector<TrackingParticleCollection> &,
+                              const edm::Event *event = nullptr,
+                              const edm::EventSetup *setup = nullptr) const = 0;
 
   virtual void associateMuons(MuonToSimCollection &recoToSim,
                               SimToMuonCollection &simToReco,

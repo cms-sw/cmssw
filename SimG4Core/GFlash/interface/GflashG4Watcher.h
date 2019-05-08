@@ -23,7 +23,6 @@ class GflashG4Watcher : public SimWatcher,
                         public Observer<const BeginOfEvent *>,
                         public Observer<const EndOfEvent *>,
                         public Observer<const G4Step *> {
-
 public:
   GflashG4Watcher(const edm::ParameterSet &p);
   ~GflashG4Watcher() override;

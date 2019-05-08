@@ -16,7 +16,6 @@
 
 //! Get track history and classify it in function of their .
 class VertexClassifier : public VertexCategories {
-
 public:
   //! Type to the associate category
   typedef VertexCategories Categories;
@@ -36,9 +35,7 @@ public:
   VertexClassifier const &evaluate(TrackingVertexRef const &);
 
   //! Classify the RecoVertex in categories.
-  VertexClassifier const &evaluate(reco::VertexRef const &vertex) {
-    return evaluate(reco::VertexBaseRef(vertex));
-  }
+  VertexClassifier const &evaluate(reco::VertexRef const &vertex) { return evaluate(reco::VertexBaseRef(vertex)); }
 
   //! Returns a reference to the vertex history used in the classification.
   VertexHistory const &history() const { return tracer_; }
@@ -74,12 +71,9 @@ private:
 
   //! Auxiliary class holding simulated primary vertices
   struct GeneratedPrimaryVertex {
-    GeneratedPrimaryVertex(double x1, double y1, double z1)
-        : x(x1), y(y1), z(z1), ptsq(0), nGenTrk(0) {}
+    GeneratedPrimaryVertex(double x1, double y1, double z1) : x(x1), y(y1), z(z1), ptsq(0), nGenTrk(0) {}
 
-    bool operator<(GeneratedPrimaryVertex const &reference) const {
-      return ptsq < reference.ptsq;
-    }
+    bool operator<(GeneratedPrimaryVertex const &reference) const { return ptsq < reference.ptsq; }
 
     double x, y, z;
     double ptsq;

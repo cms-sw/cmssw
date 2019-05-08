@@ -26,10 +26,8 @@ class GflashEMShowerProfile;
 class G4Region;
 
 class GflashEMShowerModel : public G4VFastSimulationModel {
-
 public:
-  GflashEMShowerModel(const G4String &name, G4Envelope *env,
-                      const edm::ParameterSet &parSet);
+  GflashEMShowerModel(const G4String &name, G4Envelope *env, const edm::ParameterSet &parSet);
   ~GflashEMShowerModel() override;
 
   G4bool ModelTrigger(const G4FastTrack &) override;

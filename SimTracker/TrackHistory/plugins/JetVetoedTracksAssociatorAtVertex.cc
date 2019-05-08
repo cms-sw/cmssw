@@ -34,12 +34,9 @@ private:
   TrackClassifier classifier;
 };
 
-JetVetoedTracksAssociatorAtVertex::JetVetoedTracksAssociatorAtVertex(
-    const edm::ParameterSet &fConfig)
-    : mJets(consumes<edm::View<reco::Jet>>(
-          fConfig.getParameter<edm::InputTag>("jets"))),
-      mTracks(consumes<reco::TrackCollection>(
-          fConfig.getParameter<edm::InputTag>("tracks"))),
+JetVetoedTracksAssociatorAtVertex::JetVetoedTracksAssociatorAtVertex(const edm::ParameterSet &fConfig)
+    : mJets(consumes<edm::View<reco::Jet>>(fConfig.getParameter<edm::InputTag>("jets"))),
+      mTracks(consumes<reco::TrackCollection>(fConfig.getParameter<edm::InputTag>("tracks"))),
       mAssociator(fConfig.getParameter<double>("coneSize")),
       classifier(fConfig, consumesCollector()) {
   produces<reco::JetTracksAssociation::Container>();
@@ -47,8 +44,7 @@ JetVetoedTracksAssociatorAtVertex::JetVetoedTracksAssociatorAtVertex(
 
 JetVetoedTracksAssociatorAtVertex::~JetVetoedTracksAssociatorAtVertex() {}
 
-void JetVetoedTracksAssociatorAtVertex::produce(edm::Event &fEvent,
-                                                const edm::EventSetup &fSetup) {
+void JetVetoedTracksAssociatorAtVertex::produce(edm::Event &fEvent, const edm::EventSetup &fSetup) {
   // Gather contextual information for TrackCategories
   classifier.newEvent(fEvent, fSetup);
 

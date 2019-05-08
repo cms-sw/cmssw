@@ -27,7 +27,6 @@ class TrackTopology;
 
 //! Get track history and classify it in function of their .
 class TrackClassifier : public TrackCategories {
-
 public:
   //! Type to the associate category
   typedef TrackCategories Categories;
@@ -45,9 +44,7 @@ public:
   TrackClassifier const &evaluate(TrackingParticleRef const &);
 
   //! Classify the RecoTrack in categories.
-  TrackClassifier const &evaluate(reco::TrackRef const &track) {
-    return evaluate(reco::TrackBaseRef(track));
-  }
+  TrackClassifier const &evaluate(reco::TrackRef const &track) { return evaluate(reco::TrackBaseRef(track)); }
 
   //! Returns a reference to the track history used in the classification.
   TrackHistory const &history() const { return tracer_; }
@@ -107,13 +104,9 @@ private:
 
   //! Auxiliary class holding simulated primary vertices
   struct GeneratedPrimaryVertex {
+    GeneratedPrimaryVertex(double x1, double y1, double z1) : x(x1), y(y1), z(z1), ptsq(0), nGenTrk(0) {}
 
-    GeneratedPrimaryVertex(double x1, double y1, double z1)
-        : x(x1), y(y1), z(z1), ptsq(0), nGenTrk(0) {}
-
-    bool operator<(GeneratedPrimaryVertex const &reference) const {
-      return ptsq < reference.ptsq;
-    }
+    bool operator<(GeneratedPrimaryVertex const &reference) const { return ptsq < reference.ptsq; }
 
     double x, y, z;
     double ptsq;

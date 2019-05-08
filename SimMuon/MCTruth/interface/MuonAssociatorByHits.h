@@ -19,23 +19,20 @@
 #include <memory>
 
 namespace muonAssociatorByHitsDiagnostics {
-class InputDumper;
+  class InputDumper;
 }
 
 class MuonAssociatorByHits {
-
 public:
-  MuonAssociatorByHits(const edm::ParameterSet &conf,
-                       edm::ConsumesCollector &&iC);
+  MuonAssociatorByHits(const edm::ParameterSet &conf, edm::ConsumesCollector &&iC);
   virtual ~MuonAssociatorByHits();
 
   // Originally from TrackAssociatorBase from where this class used to inherit
   // from
-  reco::RecoToSimCollection
-  associateRecoToSim(edm::Handle<edm::View<reco::Track>> &tCH,
-                     edm::Handle<TrackingParticleCollection> &tPCH,
-                     const edm::Event *event,
-                     const edm::EventSetup *setup) const {
+  reco::RecoToSimCollection associateRecoToSim(edm::Handle<edm::View<reco::Track>> &tCH,
+                                               edm::Handle<TrackingParticleCollection> &tPCH,
+                                               const edm::Event *event,
+                                               const edm::EventSetup *setup) const {
     edm::RefToBaseVector<reco::Track> tc;
     for (unsigned int j = 0; j < tCH->size(); j++)
       tc.push_back(tCH->refAt(j));
@@ -47,11 +44,10 @@ public:
     return associateRecoToSim(tc, tpc, event, setup);
   }
 
-  virtual reco::SimToRecoCollection
-  associateSimToReco(edm::Handle<edm::View<reco::Track>> &tCH,
-                     edm::Handle<TrackingParticleCollection> &tPCH,
-                     const edm::Event *event,
-                     const edm::EventSetup *setup) const {
+  virtual reco::SimToRecoCollection associateSimToReco(edm::Handle<edm::View<reco::Track>> &tCH,
+                                                       edm::Handle<TrackingParticleCollection> &tPCH,
+                                                       const edm::Event *event,
+                                                       const edm::EventSetup *setup) const {
     edm::RefToBaseVector<reco::Track> tc;
     for (unsigned int j = 0; j < tCH->size(); j++)
       tc.push_back(tCH->refAt(j));
@@ -65,18 +61,16 @@ public:
 
   /* Associate SimTracks to RecoTracks By Hits */
   /// Association Reco To Sim with Collections
-  reco::RecoToSimCollection
-  associateRecoToSim(const edm::RefToBaseVector<reco::Track> &,
-                     const edm::RefVector<TrackingParticleCollection> &,
-                     const edm::Event *event = nullptr,
-                     const edm::EventSetup *setup = nullptr) const;
+  reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track> &,
+                                               const edm::RefVector<TrackingParticleCollection> &,
+                                               const edm::Event *event = nullptr,
+                                               const edm::EventSetup *setup = nullptr) const;
 
   /// Association Sim To Reco with Collections
-  reco::SimToRecoCollection
-  associateSimToReco(const edm::RefToBaseVector<reco::Track> &,
-                     const edm::RefVector<TrackingParticleCollection> &,
-                     const edm::Event *event = nullptr,
-                     const edm::EventSetup *setup = nullptr) const;
+  reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track> &,
+                                               const edm::RefVector<TrackingParticleCollection> &,
+                                               const edm::Event *event = nullptr,
+                                               const edm::EventSetup *setup = nullptr) const;
 
 private:
   MuonAssociatorByHitsHelper helper_;

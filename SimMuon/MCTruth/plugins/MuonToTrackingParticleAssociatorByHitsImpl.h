@@ -29,40 +29,35 @@
 // forward declarations
 class TrackerMuonHitExtractor;
 
-class MuonToTrackingParticleAssociatorByHitsImpl
-    : public reco::MuonToTrackingParticleAssociatorBaseImpl {
-
+class MuonToTrackingParticleAssociatorByHitsImpl : public reco::MuonToTrackingParticleAssociatorBaseImpl {
 public:
-  MuonToTrackingParticleAssociatorByHitsImpl(
-      TrackerMuonHitExtractor const &iHitExtractor,
-      MuonAssociatorByHitsHelper::Resources const &iResources,
-      MuonAssociatorByHitsHelper const *iHelper);
+  MuonToTrackingParticleAssociatorByHitsImpl(TrackerMuonHitExtractor const &iHitExtractor,
+                                             MuonAssociatorByHitsHelper::Resources const &iResources,
+                                             MuonAssociatorByHitsHelper const *iHelper);
 
   // ---------- const member functions ---------------------
-  void associateMuons(
-      reco::MuonToSimCollection &recoToSim,
-      reco::SimToMuonCollection &simToReco,
-      const edm::RefToBaseVector<reco::Muon> &muons, reco::MuonTrackType type,
-      const edm::RefVector<TrackingParticleCollection> &tpColl) const override;
+  void associateMuons(reco::MuonToSimCollection &recoToSim,
+                      reco::SimToMuonCollection &simToReco,
+                      const edm::RefToBaseVector<reco::Muon> &muons,
+                      reco::MuonTrackType type,
+                      const edm::RefVector<TrackingParticleCollection> &tpColl) const override;
 
-  void associateMuons(
-      reco::MuonToSimCollection &recoToSim,
-      reco::SimToMuonCollection &simToReco,
-      const edm::Handle<edm::View<reco::Muon>> &muons, reco::MuonTrackType type,
-      const edm::Handle<TrackingParticleCollection> &tpColl) const override;
+  void associateMuons(reco::MuonToSimCollection &recoToSim,
+                      reco::SimToMuonCollection &simToReco,
+                      const edm::Handle<edm::View<reco::Muon>> &muons,
+                      reco::MuonTrackType type,
+                      const edm::Handle<TrackingParticleCollection> &tpColl) const override;
 
   // ---------- static member functions --------------------
 
   // ---------- member functions ---------------------------
 
 private:
-  MuonToTrackingParticleAssociatorByHitsImpl(
-      const MuonToTrackingParticleAssociatorByHitsImpl &) =
-      delete; // stop default
+  MuonToTrackingParticleAssociatorByHitsImpl(const MuonToTrackingParticleAssociatorByHitsImpl &) =
+      delete;  // stop default
 
-  const MuonToTrackingParticleAssociatorByHitsImpl &
-  operator=(const MuonToTrackingParticleAssociatorByHitsImpl &) =
-      delete; // stop default
+  const MuonToTrackingParticleAssociatorByHitsImpl &operator=(const MuonToTrackingParticleAssociatorByHitsImpl &) =
+      delete;  // stop default
 
   // ---------- member data --------------------------------
   TrackerMuonHitExtractor const *m_hitExtractor;

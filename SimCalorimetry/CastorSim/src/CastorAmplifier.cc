@@ -13,26 +13,20 @@
 
 #include <iostream>
 
-CastorAmplifier::CastorAmplifier(const CastorSimParameterMap *parameters,
-                                 bool addNoise)
-    : theDbService(nullptr), theParameterMap(parameters), theStartingCapId(0),
-      addNoise_(addNoise) {}
+CastorAmplifier::CastorAmplifier(const CastorSimParameterMap *parameters, bool addNoise)
+    : theDbService(nullptr), theParameterMap(parameters), theStartingCapId(0), addNoise_(addNoise) {}
 
-void CastorAmplifier::amplify(CaloSamples &frame,
-                              CLHEP::HepRandomEngine *engine) const {
+void CastorAmplifier::amplify(CaloSamples &frame, CLHEP::HepRandomEngine *engine) const {
   const CastorSimParameters &parameters = theParameterMap->castorParameters();
   assert(theDbService != nullptr);
   HcalGenericDetId hcalGenDetId(frame.id());
   const CastorPedestal *peds = theDbService->getPedestal(hcalGenDetId);
-  const CastorPedestalWidth *pwidths =
-      theDbService->getPedestalWidth(hcalGenDetId);
+  const CastorPedestalWidth *pwidths = theDbService->getPedestalWidth(hcalGenDetId);
   if (!peds || !pwidths) {
-    edm::LogError("CastorAmplifier")
-        << "Could not fetch HCAL/CASTOR conditions for channel "
-        << hcalGenDetId;
+    edm::LogError("CastorAmplifier") << "Could not fetch HCAL/CASTOR conditions for channel " << hcalGenDetId;
   } else {
-    double gauss[32]; // big enough
-    double noise[32]; // big enough
+    double gauss[32];  // big enough
+    double noise[32];  // big enough
     double fCperPE = parameters.photoelectronsToAnalog(frame.id());
     double nominalfCperPE = parameters.getNominalfCperPE();
 
