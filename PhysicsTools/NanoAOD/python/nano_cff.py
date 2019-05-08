@@ -207,7 +207,7 @@ def nanoAOD_activateVID(process):
     process.photonSequence.insert(process.photonSequence.index(bitmapVIDForPho),process.egmPhotonIDSequence)
     return process
 
-def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet,jecPayload):
+def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet, addDeepDoubleX, jecPayload):
     _btagDiscriminators=[]
     if addDeepBTag:
         print("Updating process to run DeepCSV btag to AK8 jets")
@@ -216,6 +216,9 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet,jecPayload):
         print("Updating process to run DeepBoostedJet on datasets before 103X")
         from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
         _btagDiscriminators += pfDeepBoostedJetTagsAll
+    if addDeepDoubleX: 
+        print("Updating process to run DeepDoubleX on datasets before 104X")
+        _btagDiscriminators += ['pfMassIndependentDeepDoubleBvLJetTags:probHbb', 'pfMassIndependentDeepDoubleCvLJetTags:probHcc', 'pfMassIndependentDeepDoubleCvBJetTags:probHcc']
     if len(_btagDiscriminators)==0: return process
     print("Will recalculate the following discriminators on AK8 jets: "+", ".join(_btagDiscriminators))
     updateJetCollection(
@@ -257,16 +260,19 @@ def nanoAOD_customizeCommon(process):
     nanoAOD_addDeepInfoAK8_switch = cms.PSet(
         nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
         nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(True), # will deactivate this in future miniAOD releases
+        nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(True), 
         jecPayload = cms.untracked.string('AK8PFPuppi')
         )
     # deepAK8 should not run on 80X, that contains ak8PFJetsCHS jets
     run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfoAK8_switch,
                                     nanoAOD_addDeepBTag_switch = cms.untracked.bool(True),
                                     nanoAOD_addDeepBoostedJet_switch = cms.untracked.bool(False),
+                                    nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(False),
                                     jecPayload = cms.untracked.string('AK8PFchs'))
     process = nanoAOD_addDeepInfoAK8(process,
                                      addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
                                      addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
+                                     addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
                                      jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
     return process
 
