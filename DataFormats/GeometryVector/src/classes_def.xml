@@ -14,11 +14,11 @@
   <class name="VectorTag" ClassVersion="10">
    <version ClassVersion="10" checksum="898711"/>
   </class>
-  <class name="Geom::Phi<double, Geom::PhiRange::MinusPiToPi>" ClassVersion="10">
-   <version ClassVersion="10" checksum="2898804398"/>
+  <class name="Geom::Phi<double, Geom::MinusPiToPi>" ClassVersion="11">
+   <version ClassVersion="11" checksum="2358963294"/>
   </class>
-  <class name="Geom::Phi<float, Geom::PhiRange::MinusPiToPi>" ClassVersion="10">
-   <version ClassVersion="10" checksum="4217567924"/>
+  <class name="Geom::Phi<float, Geom::MinusPiToPi>" ClassVersion="11">
+   <version ClassVersion="11" checksum="1613889628"/>
   </class>
   <class name="Geom::Theta<float>" ClassVersion="10">
    <version ClassVersion="10" checksum="2498739044"/>
