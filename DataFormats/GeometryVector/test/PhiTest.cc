@@ -35,11 +35,11 @@ inline constexpr valType simpleMake0to2pi(valType angle)
 template <class valType>
 static int testSmall()
 { // Test with long double
-  Phi<valType, PhiRange::ZeroTo2pi> ang1(15.3_pi);
+  Phi<valType, ZeroTo2pi> ang1(15.3_pi);
   cout << "Phi that started as 15.3 pi is " << ang1 << endl;
   cout << "In degrees " << ang1.degrees() << endl;
   constexpr valType testval = 15.2999_pi;
-  Phi<valType, PhiRange::ZeroTo2pi> ang2 = ang1 - testval;
+  Phi<valType, ZeroTo2pi> ang2 = ang1 - testval;
   ang1 -= testval;
   if  (ang1 != ang2) {
     cout << "angle1 = " << ang1 << " and angle2 = " << ang2;
@@ -59,7 +59,7 @@ static int testSmall()
 
 template <class valType>
 static int iterationTest(valType increm) {
-  Phi<valType, PhiRange::ZeroTo2pi> ang1 = 0.;
+  Phi<valType, ZeroTo2pi> ang1 = 0.;
   const int iters = 123456789;
   steady_clock::time_point startTime = steady_clock::now();
   for (int cnt = 0; cnt < iters; ++cnt) {
@@ -128,12 +128,12 @@ int main() {
   cout << "long pi   = " << std::setprecision(32) << M_PIl << endl;
   cout << "double pi = " << std::setprecision(32) << M_PI << endl;
   cout << "pi difference = " << M_PIl - M_PI << endl;
-  Phi<double, PhiRange::ZeroTo2pi> testval2{39.3_pi};
+  Phi<double, ZeroTo2pi> testval2{39.3_pi};
   cout << "testval2 initialized from 39.3pi, should be 0to2pi = " << testval2 << endl;
-  Phi<double, PhiRange::ZeroTo2pi> testval = 39.3_pi;
+  Phi<double, ZeroTo2pi> testval = 39.3_pi;
   cout << "Sizes of Phi<double> and double = " << setprecision(16) << sizeof(testval) << ", " << sizeof(double) << endl;
   {
-    Phi<double, PhiRange::ZeroTo2pi> angle = 3.3_pi;
+    Phi<double, ZeroTo2pi> angle = 3.3_pi;
     if (! angle.nearEqual(1.3_pi)) {
       cout << "Angle should be from 0-2pi but it is out of range = " << angle << endl;
       return (1);
@@ -142,14 +142,14 @@ int main() {
   double getval = testval > 0. ? static_cast<float>(testval) : 3.f;
   cout << "getval should be 39.3pi = " << getval << endl;
   {
-    Phi<long double, PhiRange::ZeroTo2pi> angle = -3.3_pi;
+    Phi<long double, ZeroTo2pi> angle = -3.3_pi;
     if (! angle.nearEqual(0.7_pi)) {
       cout << "Angle should be from 0-2pi but it is out of range = " << angle << endl;
       return (1);
     }
   }
    // Test operations
-   Phi<double, PhiRange::ZeroTo2pi> phi1, phi2;
+   Phi<double, ZeroTo2pi> phi1, phi2;
    phi1 = 0.25_pi;
    phi2 = 1._pi / 6.;
    cout << "pi/4 + pi/6 = " << phi1 + phi2 << endl;
@@ -157,13 +157,13 @@ int main() {
    cout << "pi/4 * pi/6 = " << phi1 * phi2 << endl;
    cout << "pi/4 / pi/6 = " << phi1 / phi2 << endl;
 
-  Phi<double, PhiRange::ZeroTo2pi> phi3{3.2_pi};
+  Phi<double, ZeroTo2pi> phi3{3.2_pi};
   cout << "Phi0To2pi started at 3.2pi but reduced to = " << phi3 << endl;
   phi3 += 1.9_pi;
   cout << "Phi0To2pi add 1.9pi = " << phi3 << endl;
   phi3 -= 8.9_pi;
   cout << "Phi0To2pi subtract 8.9pi = " << phi3 << endl;
-  Phi<double, PhiRange::ZeroTo2pi> phi4{2.2_pi};
+  Phi<double, ZeroTo2pi> phi4{2.2_pi};
   phi3 = -phi4;
   phi4 = -30._pi;
   cout << "Phi0To2pi set to -2.2pi = " << phi3 << endl;

@@ -21,13 +21,14 @@ namespace Geom {
   using angle_units::operators::operator""_deg;
   using angle_units::operators::convertRadToDeg;
 
-  enum class PhiRange {MinusPiToPi, ZeroTo2pi};
+  struct MinusPiToPi {};  // Dummy struct to indicate -pi to pi range
+  struct ZeroTo2pi{};  // Dummy struct to indicate 0 to 2pi range
 
-  template <class T1, PhiRange range>
+  template <typename T1, typename Range>
   class NormalizeWrapper {};
 
-  template <class T1>
-  class NormalizeWrapper<T1, PhiRange::MinusPiToPi> {
+  template <typename T1>
+  class NormalizeWrapper<T1, MinusPiToPi> {
     public:
     static void normalize(T1 &value) { // Reduce range to -pi to pi
       if( value > twoPi() || value < -twoPi()) {
@@ -38,15 +39,15 @@ namespace Geom {
     }
   };
 
-  template <class T1>
-  class NormalizeWrapper<T1, PhiRange::ZeroTo2pi> { // Reduce range to 0 to 2pi
+  template <typename T1>
+  class NormalizeWrapper<T1, ZeroTo2pi> { // Reduce range to 0 to 2pi
   public:
     static void normalize(T1 &value) {
       value = angle0to2pi::make0To2pi(value);
     }
   };
 
-  template <class T1, PhiRange range = PhiRange::MinusPiToPi>
+  template <typename T1, typename Range = MinusPiToPi>
   class Phi {
   public:
 
@@ -65,7 +66,7 @@ namespace Geom {
     operator T1() const { return theValue;}
 
     /// Template argument conversion
-    template <class T2, PhiRange range1> operator Phi<T2, range1>() { return Phi<T2, range1>(theValue);}
+    template <typename T2, typename Range1> operator Phi<T2, Range1>() { return Phi<T2, Range1>(theValue);}
 
     /// Explicit access to value in case implicit conversion not OK
     T1 value() const { return theValue;}
@@ -94,7 +95,7 @@ namespace Geom {
 
     // nearEqual() tells whether two angles are close enough to be considered equal.
     // The default tolerance is 0.001 radian.
-    inline bool nearEqual(const Phi<T1, range> &angle, float tolerance = 0.001) const {
+    inline bool nearEqual(const Phi<T1, Range> &angle, float tolerance = 0.001) const {
       return (std::abs(theValue - angle) - tolerance <= 0.0);
     }
 
@@ -103,80 +104,80 @@ namespace Geom {
     T1 theValue;
 
     void normalize(T1 &value) {
-      NormalizeWrapper<T1, range>::normalize(value);
+      NormalizeWrapper<T1, Range>::normalize(value);
     }
   };
 
 
   /// - operator
-  template <class T1, PhiRange range>
-  inline Phi<T1, range> operator-(const Phi<T1, range>& a) {return Phi<T1, range>(-a.value());}
+  template <typename T1, typename Range>
+  inline Phi<T1, Range> operator-(const Phi<T1, Range>& a) {return Phi<T1, Range>(-a.value());}
 
 
   /// Addition
-  template <class T1, PhiRange range>
-  inline Phi<T1, range> operator+(const Phi<T1, range>& a, const Phi<T1, range>& b) {
-    return Phi<T1, range>(a) += b;
+  template <typename T1, typename Range>
+  inline Phi<T1, Range> operator+(const Phi<T1, Range>& a, const Phi<T1, Range>& b) {
+    return Phi<T1, Range>(a) += b;
   }
   /// Addition with scalar, does not change the precision
-  template <class T1, PhiRange range, class Scalar>
-  inline Phi<T1, range> operator+(const Phi<T1, range>& a, const Scalar& b) {
-    return Phi<T1, range>(a) += b;
+  template <typename T1, typename Range, typename Scalar>
+  inline Phi<T1, Range> operator+(const Phi<T1, Range>& a, const Scalar& b) {
+    return Phi<T1, Range>(a) += b;
   }
   /// Addition with scalar, does not change the precision
-  template <class T1, PhiRange range, class Scalar>
-  inline Phi<T1, range> operator+(const Scalar& a, const Phi<T1, range>& b) {
-    return Phi<T1, range>(b) += a;
+  template <typename T1, typename Range, typename Scalar>
+  inline Phi<T1, Range> operator+(const Scalar& a, const Phi<T1, Range>& b) {
+    return Phi<T1, Range>(b) += a;
   }
 
 
   /// Subtraction
-  template <class T1, PhiRange range>
-  inline Phi<T1, range> operator-(const Phi<T1, range>& a, const Phi<T1, range>& b) { 
-    return Phi<T1, range>(a) -= b;
+  template <typename T1, typename Range>
+  inline Phi<T1, Range> operator-(const Phi<T1, Range>& a, const Phi<T1, Range>& b) { 
+    return Phi<T1, Range>(a) -= b;
   }
   /// Subtraction with scalar, does not change the precision
-  template <class T1, PhiRange range, class Scalar>
-  inline Phi<T1, range> operator-(const Phi<T1, range>& a, const Scalar& b) { 
-    return Phi<T1, range>(a) -= b;
+  template <typename T1, typename Range, typename Scalar>
+  inline Phi<T1, Range> operator-(const Phi<T1, Range>& a, const Scalar& b) { 
+    return Phi<T1, Range>(a) -= b;
   }
   /// Subtraction with scalar, does not change the precision
-  template <class T1, PhiRange range, class Scalar>
-  inline Phi<T1, range> operator-(const Scalar& a, const Phi<T1, range>& b) { 
-    return Phi<T1, range>(a - b.value());
+  template <typename T1, typename Range, typename Scalar>
+  inline Phi<T1, Range> operator-(const Scalar& a, const Phi<T1, Range>& b) { 
+    return Phi<T1, Range>(a - b.value());
   }
 
 
   /// Multiplication with scalar, does not change the precision
-  template <class T1, PhiRange range, class Scalar>
-  inline Phi<T1, range> operator*(const Phi<T1, range>& a, const Scalar& b) {
-    return Phi<T1, range>(a) *= b;
+  template <typename T1, typename Range, typename Scalar>
+  inline Phi<T1, Range> operator*(const Phi<T1, Range>& a, const Scalar& b) {
+    return Phi<T1, Range>(a) *= b;
   }
   /// Multiplication with scalar
-  template <class T1, PhiRange range>
-  inline Phi<T1, range> operator*(double a, const Phi<T1, range>& b) {
-    return Phi<T1, range>(b) *= a;
+  template <typename T1, typename Range>
+  inline Phi<T1, Range> operator*(double a, const Phi<T1, Range>& b) {
+    return Phi<T1, Range>(b) *= a;
   }
 
 
   /// Division
-  template <class T1, PhiRange range>
-  inline T1 operator/(const Phi<T1, range>& a, const Phi<T1, range>& b) { 
+  template <typename T1, typename Range>
+  inline T1 operator/(const Phi<T1, Range>& a, const Phi<T1, Range>& b) { 
     return a.value() / b.value();
   }
   /// Division by scalar
-  template <class T1, PhiRange range>
-  inline Phi<T1, range> operator/(const Phi<T1, range>& a, double b) {
-    return Phi<T1, range>(a) /= b;
+  template <typename T1, typename Range>
+  inline Phi<T1, Range> operator/(const Phi<T1, Range>& a, double b) {
+    return Phi<T1, Range>(a) /= b;
   }
 
   // For convenience
-  template<class T>
-  using Phi0To2pi = Phi<T, PhiRange::ZeroTo2pi>;
+  template<typename T>
+  using Phi0To2pi = Phi<T, ZeroTo2pi>;
 }
 
 /*
-// this a full mess wiht the above that is a mess in itself
+// this a full mess with the above that is a mess in itself
 #include "DataFormats/Math/interface/deltaPhi.h"
 namespace reco {
   template <class T1,class T2>
