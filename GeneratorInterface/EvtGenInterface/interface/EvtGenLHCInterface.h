@@ -28,7 +28,7 @@
 #include "EvtGenBase/EvtHighSpinParticle.hh"
 #include "EvtGenBase/EvtStdHep.hh"
 #include "EvtGenBase/EvtSecondary.hh"
-#include "EvtGenModels/EvtPythia.hh"
+#include "EvtGenExternal/EvtPythia.hh"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterfaceBase.h"
 
