@@ -9,22 +9,23 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 namespace reco {
-class MuonToTrackingParticleAssociatorBaseImpl {
+  class MuonToTrackingParticleAssociatorBaseImpl {
+  public:
+    MuonToTrackingParticleAssociatorBaseImpl();
+    virtual ~MuonToTrackingParticleAssociatorBaseImpl();
 
-public:
-  MuonToTrackingParticleAssociatorBaseImpl();
-  virtual ~MuonToTrackingParticleAssociatorBaseImpl();
+    virtual void associateMuons(MuonToSimCollection &recoToSim,
+                                SimToMuonCollection &simToReco,
+                                const edm::RefToBaseVector<reco::Muon> &muons,
+                                MuonTrackType type,
+                                const edm::RefVector<TrackingParticleCollection> &tpColl) const = 0;
 
-  virtual void associateMuons(
-      MuonToSimCollection &recoToSim, SimToMuonCollection &simToReco,
-      const edm::RefToBaseVector<reco::Muon> &muons, MuonTrackType type,
-      const edm::RefVector<TrackingParticleCollection> &tpColl) const = 0;
-
-  virtual void associateMuons(
-      MuonToSimCollection &recoToSim, SimToMuonCollection &simToReco,
-      const edm::Handle<edm::View<reco::Muon>> &muons, MuonTrackType type,
-      const edm::Handle<TrackingParticleCollection> &tpColl) const = 0;
-};
-} // namespace reco
+    virtual void associateMuons(MuonToSimCollection &recoToSim,
+                                SimToMuonCollection &simToReco,
+                                const edm::Handle<edm::View<reco::Muon>> &muons,
+                                MuonTrackType type,
+                                const edm::Handle<TrackingParticleCollection> &tpColl) const = 0;
+  };
+}  // namespace reco
 
 #endif

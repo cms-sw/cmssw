@@ -15,7 +15,6 @@ std::ostream &operator<<(std::ostream &, const SiStripDetId &);
     @brief Detector identifier class for the strip tracker.
 */
 class SiStripDetId : public DetId {
-
 public:
   // ---------- Constructors, enumerated types ----------
 
@@ -35,23 +34,7 @@ public:
   enum SubDetector { UNKNOWN = 0, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
 
   /** Enumerated type for tracker module geometries. */
-  enum ModuleGeometry {
-    UNKNOWNGEOMETRY,
-    IB1,
-    IB2,
-    OB1,
-    OB2,
-    W1A,
-    W2A,
-    W3A,
-    W1B,
-    W2B,
-    W3B,
-    W4,
-    W5,
-    W6,
-    W7
-  };
+  enum ModuleGeometry { UNKNOWNGEOMETRY, IB1, IB2, OB1, OB2, W1A, W2A, W3A, W1B, W2B, W3B, W4, W5, W6, W7 };
 
   // ---------- Common methods ----------
 
@@ -76,8 +59,7 @@ public:
   // ---------- Constructors that set "reserved" field ----------
 
   /** Construct from a raw value and set "reserved" field. */
-  SiStripDetId(const uint32_t &raw_id, const uint16_t &reserved)
-      : DetId(raw_id) {
+  SiStripDetId(const uint32_t &raw_id, const uint16_t &reserved) : DetId(raw_id) {
     id_ &= (~static_cast<uint32_t>(reservedMask_ << reservedStartBit_));
     id_ |= ((reserved & reservedMask_) << reservedStartBit_);
   }
@@ -86,8 +68,7 @@ public:
   //
 
   /** Construct from generic DetId and set "reserved" field. */
-  SiStripDetId(const DetId &det_id, const uint16_t &reserved)
-      : DetId(det_id.rawId()) {
+  SiStripDetId(const DetId &det_id, const uint16_t &reserved) : DetId(det_id.rawId()) {
     id_ &= (~static_cast<uint32_t>(reservedMask_ << reservedStartBit_));
     id_ |= ((reserved & reservedMask_) << reservedStartBit_);
   }
@@ -125,51 +106,51 @@ SiStripDetId::SubDetector SiStripDetId::subDetector() const {
 SiStripDetId::ModuleGeometry SiStripDetId::moduleGeometry() const {
   SiStripDetId::ModuleGeometry geometry = UNKNOWNGEOMETRY;
   switch (subDetector()) {
-  case TIB:
-    geometry = int((id_ >> layerStartBit_) & layerMask_) < 3 ? IB1 : IB2;
-    break;
-  case TOB:
-    geometry = int((id_ >> layerStartBit_) & layerMask_) < 5 ? OB2 : OB1;
-    break;
-  case TID:
-    switch ((id_ >> ringStartBitTID_) & ringMaskTID_) {
-    case 1:
-      geometry = W1A;
+    case TIB:
+      geometry = int((id_ >> layerStartBit_) & layerMask_) < 3 ? IB1 : IB2;
       break;
-    case 2:
-      geometry = W2A;
+    case TOB:
+      geometry = int((id_ >> layerStartBit_) & layerMask_) < 5 ? OB2 : OB1;
       break;
-    case 3:
-      geometry = W3A;
+    case TID:
+      switch ((id_ >> ringStartBitTID_) & ringMaskTID_) {
+        case 1:
+          geometry = W1A;
+          break;
+        case 2:
+          geometry = W2A;
+          break;
+        case 3:
+          geometry = W3A;
+          break;
+      }
       break;
-    }
-    break;
-  case TEC:
-    switch ((id_ >> ringStartBitTEC_) & ringMaskTEC_) {
-    case 1:
-      geometry = W1B;
-      break;
-    case 2:
-      geometry = W2B;
-      break;
-    case 3:
-      geometry = W3B;
-      break;
-    case 4:
-      geometry = W4;
-      break;
-    case 5:
-      geometry = W5;
-      break;
-    case 6:
-      geometry = W6;
-      break;
-    case 7:
-      geometry = W7;
-      break;
-    }
-  case UNKNOWN:
-  default:;
+    case TEC:
+      switch ((id_ >> ringStartBitTEC_) & ringMaskTEC_) {
+        case 1:
+          geometry = W1B;
+          break;
+        case 2:
+          geometry = W2B;
+          break;
+        case 3:
+          geometry = W3B;
+          break;
+        case 4:
+          geometry = W4;
+          break;
+        case 5:
+          geometry = W5;
+          break;
+        case 6:
+          geometry = W6;
+          break;
+        case 7:
+          geometry = W7;
+          break;
+      }
+    case UNKNOWN:
+    default:;
   }
   return geometry;
 }
@@ -179,9 +160,7 @@ uint32_t SiStripDetId::glued() const {
   return (testId == 0) ? 0 : (id_ - testId);
 }
 
-uint32_t SiStripDetId::stereo() const {
-  return (((id_ >> sterStartBit_) & sterMask_) == 1) ? 1 : 0;
-}
+uint32_t SiStripDetId::stereo() const { return (((id_ >> sterStartBit_) & sterMask_) == 1) ? 1 : 0; }
 
 uint32_t SiStripDetId::partnerDetId() const {
   uint32_t testId = (id_ >> sterStartBit_) & sterMask_;
@@ -197,8 +176,6 @@ uint32_t SiStripDetId::partnerDetId() const {
 
 double SiStripDetId::stripLength() const { return 0.; }
 
-uint16_t SiStripDetId::reserved() const {
-  return static_cast<uint16_t>((id_ >> reservedStartBit_) & reservedMask_);
-}
+uint16_t SiStripDetId::reserved() const { return static_cast<uint16_t>((id_ >> reservedStartBit_) & reservedMask_); }
 
-#endif // DataFormats_SiStripDetId_SiStripDetId_h
+#endif  // DataFormats_SiStripDetId_SiStripDetId_h

@@ -65,24 +65,27 @@ using namespace std;
 // for silicon.
 LandauFP420::LandauFP420()
     : minNumberInteractionsBohr(10.0),
-      theBohrBeta2(50.0 * keV / proton_mass_c2), minLoss(0.000001 * eV),
-      problim(0.01), alim(10.), nmaxCont1(4), nmaxCont2(16) {
+      theBohrBeta2(50.0 * keV / proton_mass_c2),
+      minLoss(0.000001 * eV),
+      problim(0.01),
+      alim(10.),
+      nmaxCont1(4),
+      nmaxCont2(16) {
   sumalim = -log(problim);
 
-  chargeSquare = 1.; // Assume all particles have charge 1
+  chargeSquare = 1.;  // Assume all particles have charge 1
   // Taken from Geant4 printout, HARDWIRED for Silicon.
-  ipotFluct =
-      0.0001736; // material->GetIonisation()->GetMeanExcitationEnergy();
-  electronDensity = 6.797E+20; // material->GetElectronDensity();
-  f1Fluct = 0.8571;            // material->GetIonisation()->GetF1fluct();
-  f2Fluct = 0.1429;            // material->GetIonisation()->GetF2fluct();
-  e1Fluct = 0.000116;          // material->GetIonisation()->GetEnergy1fluct();
-  e2Fluct = 0.00196;           // material->GetIonisation()->GetEnergy2fluct();
-  e1LogFluct = -9.063;   // material->GetIonisation()->GetLogEnergy1fluct();
-  e2LogFluct = -6.235;   // material->GetIonisation()->GetLogEnergy2fluct();
-  rateFluct = 0.4;       // material->GetIonisation()->GetRateionexcfluct();
-  ipotLogFluct = -8.659; // material->GetIonisation()->GetLogMeanExcEnergy();
-  e0 = 1.E-5;            // material->GetIonisation()->GetEnergy0fluct();
+  ipotFluct = 0.0001736;        // material->GetIonisation()->GetMeanExcitationEnergy();
+  electronDensity = 6.797E+20;  // material->GetElectronDensity();
+  f1Fluct = 0.8571;             // material->GetIonisation()->GetF1fluct();
+  f2Fluct = 0.1429;             // material->GetIonisation()->GetF2fluct();
+  e1Fluct = 0.000116;           // material->GetIonisation()->GetEnergy1fluct();
+  e2Fluct = 0.00196;            // material->GetIonisation()->GetEnergy2fluct();
+  e1LogFluct = -9.063;          // material->GetIonisation()->GetLogEnergy1fluct();
+  e2LogFluct = -6.235;          // material->GetIonisation()->GetLogEnergy2fluct();
+  rateFluct = 0.4;              // material->GetIonisation()->GetRateionexcfluct();
+  ipotLogFluct = -8.659;        // material->GetIonisation()->GetLogMeanExcEnergy();
+  e0 = 1.E-5;                   // material->GetIonisation()->GetEnergy0fluct();
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 LandauFP420::~LandauFP420() {}
@@ -90,9 +93,8 @@ LandauFP420::~LandauFP420() {}
 // The main dedx fluctuation routine.
 // Arguments: momentum in MeV/c, mass in MeV, delta ray cut (tmax) in
 // MeV, silicon thickness in mm, mean eloss in MeV.
-double LandauFP420::SampleFluctuations(const double momentum, const double mass,
-                                       double &tmax, const double length,
-                                       const double meanLoss) {
+double LandauFP420::SampleFluctuations(
+    const double momentum, const double mass, double &tmax, const double length, const double meanLoss) {
   //  calculate actual loss from the mean loss
   //  The model used to get the fluctuation is essentially the same
   // as in Glandz in Geant3.
@@ -102,7 +104,7 @@ double LandauFP420::SampleFluctuations(const double momentum, const double mass,
     return meanLoss;
 
   // if(dp->GetDefinition() != particle) {
-  particleMass = mass; // dp->GetMass();
+  particleMass = mass;  // dp->GetMass();
   // G4double q     = dp->GetCharge();
   // chargeSquare   = q*q;
   //}
@@ -115,10 +117,8 @@ double LandauFP420::SampleFluctuations(const double momentum, const double mass,
   // Validity range for delta electron cross section
   double loss, siga;
   // Gaussian fluctuation
-  if (meanLoss >= minNumberInteractionsBohr * tmax ||
-      tmax <= ipotFluct * minNumberInteractionsBohr) {
-    siga = (1.0 / beta2 - 0.5) * twopi_mc2_rcl2 * tmax * length *
-           electronDensity * chargeSquare;
+  if (meanLoss >= minNumberInteractionsBohr * tmax || tmax <= ipotFluct * minNumberInteractionsBohr) {
+    siga = (1.0 / beta2 - 0.5) * twopi_mc2_rcl2 * tmax * length * electronDensity * chargeSquare;
     siga = sqrt(siga);
     do {
       // loss = G4RandGauss::shoot(meanLoss,siga);
@@ -155,7 +155,7 @@ double LandauFP420::SampleFluctuations(const double momentum, const double mass,
 
   loss = 0.;
 
-  if (suma < sumalim) // very small Step
+  if (suma < sumalim)  // very small Step
   {
     // e0 = material->GetIonisation()->GetEnergy0fluct();//Hardwired in const
     if (tmax == ipotFluct) {
@@ -204,7 +204,7 @@ double LandauFP420::SampleFluctuations(const double momentum, const double mass,
     }
   }
 
-  else // not so small Step
+  else  // not so small Step
   {
     // excitation type 1
     if (a1 > alim) {
@@ -252,8 +252,7 @@ double LandauFP420::SampleFluctuations(const double momentum, const double mass,
           sa = float(nmaxCont1) * rfac;
           na = CLHEP::RandGaussQ::shoot(namean, sa);
           if (na > 0.) {
-            alfa = w1 * float(nmaxCont2 + p3) /
-                   (w1 * float(nmaxCont2) + float(p3));
+            alfa = w1 * float(nmaxCont2 + p3) / (w1 * float(nmaxCont2) + float(p3));
             alfa1 = alfa * log(alfa) / (alfa - 1.);
             ea = na * ipotFluct * alfa1;
             sea = ipotFluct * sqrt(na * (alfa - alfa1 * alfa1));

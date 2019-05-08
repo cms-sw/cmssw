@@ -13,8 +13,7 @@ public:
   /* calculates the lower and high signal thresholds using the noise */
   void initParams(const edm::ParameterSet &conf_);
 
-  ZSuppressFP420::DigitalMapType zeroSuppress(const DigitalMapType &,
-                                              int) override;
+  ZSuppressFP420::DigitalMapType zeroSuppress(const DigitalMapType &, int) override;
 
   ZSuppressFP420::DigitalMapType trkFEDclusterizer(const DigitalMapType &, int);
 

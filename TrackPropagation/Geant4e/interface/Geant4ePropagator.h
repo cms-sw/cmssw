@@ -18,7 +18,6 @@
  */
 
 class Geant4ePropagator : public Propagator {
-
 public:
   /** Constructor. Takes as arguments:
    *  * The magnetic field
@@ -63,24 +62,19 @@ public:
    *  All of these method calls are internally mapped to
    */
 
-  std::pair<TrajectoryStateOnSurface, double>
-  propagateWithPath(const FreeTrajectoryState &, const Plane &) const override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState &,
+                                                                const Plane &) const override;
 
-  std::pair<TrajectoryStateOnSurface, double>
-  propagateWithPath(const FreeTrajectoryState &,
-                    const Cylinder &) const override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState &,
+                                                                const Cylinder &) const override;
 
-  std::pair<TrajectoryStateOnSurface, double>
-  propagateWithPath(const TrajectoryStateOnSurface &,
-                    const Plane &) const override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface &,
+                                                                const Plane &) const override;
 
-  std::pair<TrajectoryStateOnSurface, double>
-  propagateWithPath(const TrajectoryStateOnSurface &,
-                    const Cylinder &) const override;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface &,
+                                                                const Cylinder &) const override;
 
-  Geant4ePropagator *clone() const override {
-    return new Geant4ePropagator(*this);
-  }
+  Geant4ePropagator *clone() const override { return new Geant4ePropagator(*this); }
 
   const MagneticField *magneticField() const override { return theField; }
 
@@ -101,9 +95,7 @@ private:
   // Transform a CMS Reco detector surface into a Geant4 Target for the error
   // propagation
   template <class SurfaceType>
-  ErrorTargetPair
-  transformToG4SurfaceTarget(const SurfaceType &pDest,
-                             bool moveTargetToEndOfSurface) const;
+  ErrorTargetPair transformToG4SurfaceTarget(const SurfaceType &pDest, bool moveTargetToEndOfSurface) const;
 
   // generates the Geant4 name for a particle from the
   // string stored in theParticleName ( set via constructor )
@@ -119,15 +111,15 @@ private:
   //
   // returns TSOS after the propagation and the path length
   template <class SurfaceType>
-  std::pair<TrajectoryStateOnSurface, double>
-  propagateGeneric(const FreeTrajectoryState &ftsStart,
-                   const SurfaceType &pDest) const;
+  std::pair<TrajectoryStateOnSurface, double> propagateGeneric(const FreeTrajectoryState &ftsStart,
+                                                               const SurfaceType &pDest) const;
 
   // saves the Geant4 propagation direction (Forward or Backward) in the
   // provided variable reference mode and returns true if the propagation
   // direction could be set
   template <class SurfaceType>
-  bool configurePropagation(G4ErrorMode &mode, SurfaceType const &pDest,
+  bool configurePropagation(G4ErrorMode &mode,
+                            SurfaceType const &pDest,
                             GlobalPoint const &cmsInitPos,
                             GlobalVector const &cmsInitMom) const;
 
@@ -136,7 +128,8 @@ private:
   // configurePropagation and provides specific implementations for Plane and
   // Cylinder classes
   template <class SurfaceType>
-  bool configureAnyPropagation(G4ErrorMode &mode, SurfaceType const &pDest,
+  bool configureAnyPropagation(G4ErrorMode &mode,
+                               SurfaceType const &pDest,
                                GlobalPoint const &cmsInitPos,
                                GlobalVector const &cmsInitMom) const;
 

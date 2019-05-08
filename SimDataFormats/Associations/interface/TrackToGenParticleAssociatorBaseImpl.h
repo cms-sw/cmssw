@@ -18,47 +18,43 @@
 #include "SimDataFormats/Associations/interface/TrackToGenParticleAssociatorBaseImpl.h"
 
 namespace reco {
-typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric<
-    reco::GenParticleCollection, edm::View<reco::Track>, double>>
-    GenToRecoCollection;
-typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric<
-    edm::View<reco::Track>, reco::GenParticleCollection, double>>
-    RecoToGenCollection;
+  typedef edm::AssociationMap<
+      edm::OneToManyWithQualityGeneric<reco::GenParticleCollection, edm::View<reco::Track>, double>>
+      GenToRecoCollection;
+  typedef edm::AssociationMap<
+      edm::OneToManyWithQualityGeneric<edm::View<reco::Track>, reco::GenParticleCollection, double>>
+      RecoToGenCollection;
 
-class TrackToGenParticleAssociatorBaseImpl {
+  class TrackToGenParticleAssociatorBaseImpl {
+  public:
+    /// Constructor
+    TrackToGenParticleAssociatorBaseImpl();
+    virtual ~TrackToGenParticleAssociatorBaseImpl();
 
-public:
-  /// Constructor
-  TrackToGenParticleAssociatorBaseImpl();
-  virtual ~TrackToGenParticleAssociatorBaseImpl();
+    /// Association Sim To Reco with Collections (Gen Particle version)
+    virtual reco::RecoToGenCollection associateRecoToGen(
+        const edm::RefToBaseVector<reco::Track> &tracks,
+        const edm::RefVector<reco::GenParticleCollection> &gens) const = 0;
 
-  /// Association Sim To Reco with Collections (Gen Particle version)
-  virtual reco::RecoToGenCollection associateRecoToGen(
-      const edm::RefToBaseVector<reco::Track> &tracks,
-      const edm::RefVector<reco::GenParticleCollection> &gens) const = 0;
+    /// Association Sim To Reco with Collections (Gen Particle version)
+    virtual reco::GenToRecoCollection associateGenToReco(
+        const edm::RefToBaseVector<reco::Track> &tracks,
+        const edm::RefVector<reco::GenParticleCollection> &gens) const = 0;
 
-  /// Association Sim To Reco with Collections (Gen Particle version)
-  virtual reco::GenToRecoCollection associateGenToReco(
-      const edm::RefToBaseVector<reco::Track> &tracks,
-      const edm::RefVector<reco::GenParticleCollection> &gens) const = 0;
+    /// compare reco to sim the handle of reco::Track and GenParticle collections
+    virtual reco::RecoToGenCollection associateRecoToGen(
+        const edm::Handle<edm::View<reco::Track>> &tCH, const edm::Handle<reco::GenParticleCollection> &tPCH) const = 0;
 
-  /// compare reco to sim the handle of reco::Track and GenParticle collections
-  virtual reco::RecoToGenCollection associateRecoToGen(
-      const edm::Handle<edm::View<reco::Track>> &tCH,
-      const edm::Handle<reco::GenParticleCollection> &tPCH) const = 0;
+    /// compare reco to sim the handle of reco::Track and GenParticle collections
+    virtual reco::GenToRecoCollection associateGenToReco(
+        const edm::Handle<edm::View<reco::Track>> &tCH, const edm::Handle<reco::GenParticleCollection> &tPCH) const = 0;
 
-  /// compare reco to sim the handle of reco::Track and GenParticle collections
-  virtual reco::GenToRecoCollection associateGenToReco(
-      const edm::Handle<edm::View<reco::Track>> &tCH,
-      const edm::Handle<reco::GenParticleCollection> &tPCH) const = 0;
+  private:
+    TrackToGenParticleAssociatorBaseImpl(const TrackToGenParticleAssociatorBaseImpl &) = delete;  // stop default
 
-private:
-  TrackToGenParticleAssociatorBaseImpl(
-      const TrackToGenParticleAssociatorBaseImpl &) = delete; // stop default
-
-  const TrackToGenParticleAssociatorBaseImpl &operator=(
-      const TrackToGenParticleAssociatorBaseImpl &) = delete; // stop default
-};
-} // namespace reco
+    const TrackToGenParticleAssociatorBaseImpl &operator=(const TrackToGenParticleAssociatorBaseImpl &) =
+        delete;  // stop default
+  };
+}  // namespace reco
 
 #endif

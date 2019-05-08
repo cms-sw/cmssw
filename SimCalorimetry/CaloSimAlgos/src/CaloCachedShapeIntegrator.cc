@@ -1,6 +1,6 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloCachedShapeIntegrator.h"
 
-const int NBINS = 281; // 256, plus 25 before
+const int NBINS = 281;  // 256, plus 25 before
 
 CaloCachedShapeIntegrator::CaloCachedShapeIntegrator(const CaloVShape *aShape)
     : v_(NBINS, 0.), timeToRise_(aShape->timeToRise()) {

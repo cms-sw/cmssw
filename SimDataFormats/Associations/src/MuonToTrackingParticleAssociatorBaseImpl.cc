@@ -26,8 +26,6 @@
 //
 // constructors and destructor
 //
-reco::MuonToTrackingParticleAssociatorBaseImpl::
-    MuonToTrackingParticleAssociatorBaseImpl() {}
+reco::MuonToTrackingParticleAssociatorBaseImpl::MuonToTrackingParticleAssociatorBaseImpl() {}
 
-reco::MuonToTrackingParticleAssociatorBaseImpl::
-    ~MuonToTrackingParticleAssociatorBaseImpl() {}
+reco::MuonToTrackingParticleAssociatorBaseImpl::~MuonToTrackingParticleAssociatorBaseImpl() {}

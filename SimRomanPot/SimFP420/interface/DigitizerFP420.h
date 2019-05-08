@@ -29,31 +29,30 @@
 #include <vector>
 
 namespace cms {
-class DigitizerFP420 : public edm::one::EDProducer<> {
-public:
-  explicit DigitizerFP420(const edm::ParameterSet &conf);
+  class DigitizerFP420 : public edm::one::EDProducer<> {
+  public:
+    explicit DigitizerFP420(const edm::ParameterSet &conf);
 
-  ~DigitizerFP420() override;
+    ~DigitizerFP420() override;
 
-  void produce(edm::Event &e, const edm::EventSetup &c) override;
+    void produce(edm::Event &e, const edm::EventSetup &c) override;
 
-private:
-  typedef std::vector<std::string> vstring;
-  typedef std::map<unsigned int, std::vector<PSimHit>, std::less<unsigned int>>
-      simhit_map;
-  typedef simhit_map::iterator simhit_map_iterator;
-  simhit_map SimHitMap;
+  private:
+    typedef std::vector<std::string> vstring;
+    typedef std::map<unsigned int, std::vector<PSimHit>, std::less<unsigned int>> simhit_map;
+    typedef simhit_map::iterator simhit_map_iterator;
+    simhit_map SimHitMap;
 
-  edm::ParameterSet conf_;
-  vstring trackerContainers;
+    edm::ParameterSet conf_;
+    vstring trackerContainers;
 
-  FP420DigiMain *stripDigitizer_;
-  int numStrips; // number of strips in the module
+    FP420DigiMain *stripDigitizer_;
+    int numStrips;  // number of strips in the module
 
-  int dn0, sn0, pn0, rn0, verbosity;
+    int dn0, sn0, pn0, rn0, verbosity;
 
-  std::vector<HDigiFP420> collector;
-};
-} // namespace cms
+    std::vector<HDigiFP420> collector;
+  };
+}  // namespace cms
 
 #endif

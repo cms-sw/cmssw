@@ -11,16 +11,12 @@
 
 class SimHitInfoForLinks {
 public:
-  explicit SimHitInfoForLinks(PSimHit const *hitp, size_t hitindex,
-                              unsigned int tofbin)
-      : eventId_(hitp->eventId()), trackIds_(1, hitp->trackId()),
-        hitIndex_(hitindex), tofBin_(tofbin) {}
+  explicit SimHitInfoForLinks(PSimHit const *hitp, size_t hitindex, unsigned int tofbin)
+      : eventId_(hitp->eventId()), trackIds_(1, hitp->trackId()), hitIndex_(hitindex), tofBin_(tofbin) {}
 
   const EncodedEventId &eventId() const { return eventId_; }
   const std::vector<unsigned int> &trackIds() const { return trackIds_; }
-  std::vector<unsigned int> &trackIds() {
-    return trackIds_;
-  } // needed ATM in phase2 digitizer
+  std::vector<unsigned int> &trackIds() { return trackIds_; }  // needed ATM in phase2 digitizer
   unsigned int trackId() const { return trackIds_[0]; }
   size_t hitIndex() const { return hitIndex_; }
   unsigned int tofBin() const { return tofBin_; }

@@ -11,8 +11,7 @@
 
 class CaloValidationStatistics {
 public:
-  CaloValidationStatistics(std::string name, float expectedMean,
-                           float expectedRMS);
+  CaloValidationStatistics(std::string name, float expectedMean, float expectedRMS);
   /// prints to LogInfo upon destruction
   ~CaloValidationStatistics();
 
@@ -43,7 +42,6 @@ private:
   int n_;
 };
 
-std::ostream &operator<<(std::ostream &os,
-                         const CaloValidationStatistics &stat);
+std::ostream &operator<<(std::ostream &os, const CaloValidationStatistics &stat);
 
 #endif

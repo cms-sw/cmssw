@@ -2,8 +2,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include <iostream>
 
-CaloVNoiseSignalGenerator::CaloVNoiseSignalGenerator()
-    : theNoiseSignals(), theDetIds() {}
+CaloVNoiseSignalGenerator::CaloVNoiseSignalGenerator() : theNoiseSignals(), theDetIds() {}
 
 void CaloVNoiseSignalGenerator::fillEvent(CLHEP::HepRandomEngine *engine) {
   theDetIds.clear();
@@ -17,8 +16,7 @@ void CaloVNoiseSignalGenerator::fillEvent() {
   fillDetIds();
 }
 
-void CaloVNoiseSignalGenerator::setNoiseSignals(
-    const std::vector<CaloSamples> &noiseSignals) {
+void CaloVNoiseSignalGenerator::setNoiseSignals(const std::vector<CaloSamples> &noiseSignals) {
   theNoiseSignals = noiseSignals;
 }
 
@@ -28,10 +26,8 @@ bool CaloVNoiseSignalGenerator::contains(const DetId &detId) const {
 
 void CaloVNoiseSignalGenerator::fillDetIds() {
   theDetIds.reserve(theNoiseSignals.size());
-  for (std::vector<CaloSamples>::const_iterator sampleItr =
-           theNoiseSignals.begin();
-       sampleItr != theNoiseSignals.end(); ++sampleItr) {
-
+  for (std::vector<CaloSamples>::const_iterator sampleItr = theNoiseSignals.begin(); sampleItr != theNoiseSignals.end();
+       ++sampleItr) {
     theDetIds.push_back(sampleItr->id().rawId());
   }
   edm::sort_all(theDetIds);

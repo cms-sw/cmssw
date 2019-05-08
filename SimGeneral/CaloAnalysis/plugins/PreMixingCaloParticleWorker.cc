@@ -16,25 +16,21 @@
 
 class PreMixingCaloParticleWorker : public PreMixingWorker {
 public:
-  PreMixingCaloParticleWorker(const edm::ParameterSet &ps,
-                              edm::ProducerBase &producer,
-                              edm::ConsumesCollector &&iC);
+  PreMixingCaloParticleWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer, edm::ConsumesCollector &&iC);
   ~PreMixingCaloParticleWorker() override = default;
 
-  void initializeEvent(edm::Event const &iEvent,
-                       edm::EventSetup const &iSetup) override;
-  void addSignals(edm::Event const &iEvent,
-                  edm::EventSetup const &iSetup) override;
-  void addPileups(PileUpEventPrincipal const &pep,
-                  edm::EventSetup const &iSetup) override;
-  void put(edm::Event &iEvent, edm::EventSetup const &iSetup,
-           std::vector<PileupSummaryInfo> const &ps, int bunchSpacing) override;
+  void initializeEvent(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
+  void addSignals(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
+  void addPileups(PileUpEventPrincipal const &pep, edm::EventSetup const &iSetup) override;
+  void put(edm::Event &iEvent,
+           edm::EventSetup const &iSetup,
+           std::vector<PileupSummaryInfo> const &ps,
+           int bunchSpacing) override;
 
 private:
   using EnergyMap = std::vector<std::pair<unsigned, float>>;
 
-  void add(const SimClusterCollection &clusters,
-           const CaloParticleCollection &particles, const EnergyMap &energyMap);
+  void add(const SimClusterCollection &clusters, const CaloParticleCollection &particles, const EnergyMap &energyMap);
 
   edm::EDGetTokenT<SimClusterCollection> sigClusterToken_;
   edm::EDGetTokenT<CaloParticleCollection> sigParticleToken_;
@@ -50,36 +46,29 @@ private:
   SimClusterRefProd clusterRef_;
 };
 
-PreMixingCaloParticleWorker::PreMixingCaloParticleWorker(
-    const edm::ParameterSet &ps, edm::ProducerBase &producer,
-    edm::ConsumesCollector &&iC)
-    : sigClusterToken_(iC.consumes<SimClusterCollection>(
-          ps.getParameter<edm::InputTag>("labelSig"))),
-      sigParticleToken_(iC.consumes<CaloParticleCollection>(
-          ps.getParameter<edm::InputTag>("labelSig"))),
-      sigEnergyToken_(
-          iC.consumes<EnergyMap>(ps.getParameter<edm::InputTag>("labelSig"))),
+PreMixingCaloParticleWorker::PreMixingCaloParticleWorker(const edm::ParameterSet &ps,
+                                                         edm::ProducerBase &producer,
+                                                         edm::ConsumesCollector &&iC)
+    : sigClusterToken_(iC.consumes<SimClusterCollection>(ps.getParameter<edm::InputTag>("labelSig"))),
+      sigParticleToken_(iC.consumes<CaloParticleCollection>(ps.getParameter<edm::InputTag>("labelSig"))),
+      sigEnergyToken_(iC.consumes<EnergyMap>(ps.getParameter<edm::InputTag>("labelSig"))),
       particlePileInputTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
       particleCollectionDM_(ps.getParameter<std::string>("collectionDM")) {
   producer.produces<SimClusterCollection>(particleCollectionDM_);
   producer.produces<CaloParticleCollection>(particleCollectionDM_);
 }
 
-void PreMixingCaloParticleWorker::initializeEvent(
-    edm::Event const &iEvent, edm::EventSetup const &iSetup) {
+void PreMixingCaloParticleWorker::initializeEvent(edm::Event const &iEvent, edm::EventSetup const &iSetup) {
   newClusters_ = std::make_unique<SimClusterCollection>();
   newParticles_ = std::make_unique<CaloParticleCollection>();
 
   // need RefProds in order to re-key the CaloParticle->SimCluster refs
   // TODO: try to remove const_cast, requires making Event non-const in
   // BMixingModule::initializeEvent
-  clusterRef_ =
-      const_cast<edm::Event &>(iEvent).getRefBeforePut<SimClusterCollection>(
-          particleCollectionDM_);
+  clusterRef_ = const_cast<edm::Event &>(iEvent).getRefBeforePut<SimClusterCollection>(particleCollectionDM_);
 }
 
-void PreMixingCaloParticleWorker::addSignals(edm::Event const &iEvent,
-                                             edm::EventSetup const &iSetup) {
+void PreMixingCaloParticleWorker::addSignals(edm::Event const &iEvent, edm::EventSetup const &iSetup) {
   edm::Handle<SimClusterCollection> clusters;
   iEvent.getByToken(sigClusterToken_, clusters);
 
@@ -94,8 +83,7 @@ void PreMixingCaloParticleWorker::addSignals(edm::Event const &iEvent,
   }
 }
 
-void PreMixingCaloParticleWorker::addPileups(PileUpEventPrincipal const &pep,
-                                             edm::EventSetup const &iSetup) {
+void PreMixingCaloParticleWorker::addPileups(PileUpEventPrincipal const &pep, edm::EventSetup const &iSetup) {
   edm::Handle<SimClusterCollection> clusters;
   pep.getByLabel(particlePileInputTag_, clusters);
 
@@ -117,8 +105,7 @@ void PreMixingCaloParticleWorker::add(const SimClusterCollection &clusters,
 
   // Copy SimClusters
   newClusters_->reserve(newClusters_->size() + clusters.size());
-  std::copy(clusters.begin(), clusters.end(),
-            std::back_inserter(*newClusters_));
+  std::copy(clusters.begin(), clusters.end(), std::back_inserter(*newClusters_));
 
   // Copy CaloParticles
   newParticles_->reserve(newParticles_->size() + particles.size());
@@ -129,8 +116,7 @@ void PreMixingCaloParticleWorker::add(const SimClusterCollection &clusters,
     // re-key the refs to SimClusters
     particle.clearSimClusters();
     for (const auto &ref : p.simClusters()) {
-      particle.addSimCluster(
-          SimClusterRef(clusterRef_, startingIndex + ref.index()));
+      particle.addSimCluster(SimClusterRef(clusterRef_, startingIndex + ref.index()));
     }
   }
 
@@ -154,8 +140,7 @@ void PreMixingCaloParticleWorker::put(edm::Event &iEvent,
         fraction = hAndE.second / totalenergy;
       else
         edm::LogWarning("PreMixingParticleWorker")
-            << "TotalSimEnergy for hit " << hAndE.first
-            << " is 0! The fraction for this hit cannot be computed.";
+            << "TotalSimEnergy for hit " << hAndE.first << " is 0! The fraction for this hit cannot be computed.";
       sc.addRecHitAndFraction(hAndE.first, fraction);
     }
   }
