@@ -609,11 +609,13 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	aMuon.setSimPdgId(msi.pdgId);
 	aMuon.setSimMotherPdgId(msi.motherPdgId);
 	aMuon.setSimBX(msi.tpBX);
+	aMuon.setSimTpEvent(msi.tpEvent);
 	aMuon.setSimProdRho(msi.vertex.Rho());
 	aMuon.setSimProdZ(msi.vertex.Z());
 	aMuon.setSimPt(msi.p4.pt());
 	aMuon.setSimEta(msi.p4.eta());
 	aMuon.setSimPhi(msi.p4.phi());
+	aMuon.setSimMatchQuality(msi.tpAssoQuality);
       }
       patMuons->push_back(aMuon);
     }
