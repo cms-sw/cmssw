@@ -1,5 +1,8 @@
       PROGRAM AllMaterialMixtures
 C     ========================
+C     Usage example:
+C     $ make
+C     $ ./mixture $CMSSW_BASE/src/Geometry/TrackerCommonData/data/Materials/pixel_fwd
 
       IMPLICIT NONE
 
@@ -40,7 +43,7 @@ C     ========================
       Integer ISTAT,i,j,k,l
 
       Character*1 Coding, Code
-      Character*20 Filename,OutFile,InFile,tzfile,x0file,l0file
+      Character*120 Filename,OutFile,InFile,tzfile,x0file,l0file
       Character*120 inputstring
 
       Integer Nmix, Ndiv,LunOut,LunIn,Index, Luntz,Lunx0,Lunl0
@@ -229,12 +232,16 @@ C.................................................................
 
 
 C... read in pure material file
-
+      Character MatDir*150
+      Character MixFile*150
+      Character PureFile*150
+      call getenv("CMSSW_BASE", MatDir)
+      MatDir = MatDir(:lnblnk(MatDir)) // "/src/"
+     +     // "Geometry/TrackerCommonData/data/Materials/"
       if (FIRST) then
-
-         open(unit=22,file="../data/pure_materials.input",status="OLD",
-     +        IOSTAT=istat)
-         
+         PureFile = MatDir(:lnblnk(MatDir)) // "pure_materials.input"
+         open(unit=22,file= PureFile(:lnblnk(PureFile)),
+     +        status="OLD", IOSTAT=istat)
          if(istat.ne.0) then
             write(*,*) "Pure Materials input file could not be opened",
      +           " - I quit"
@@ -252,10 +259,10 @@ C... read in pure material file
          close(22)
 
 C... read in mixed material file
+         MixFile = MatDir(:lnblnk(MatDir)) // "mixed_materials.input"
+         open(unit=22, file= MixFile(:lnblnk(MixFile)),
+     +        status="OLD", IOSTAT=istat)
 
-         open(unit=22,file="../data/mixed_materials.input",status="OLD",
-     +        IOSTAT=istat)
-         
          if(istat.ne.0) then
             write(*,*) "Mixed Materials input file could not be opened",
      +           " - I quit"
@@ -823,16 +830,3 @@ c     write(*,*) k,stringname,stringtemp
 c     write(*,*) k,stringname,stringtemp
       return
       end
-C     
-      
-
-
-
-
-
-
-
-
-
-
-
