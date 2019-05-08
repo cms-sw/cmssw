@@ -28,97 +28,98 @@ namespace {
   struct Histograms {
     ConcurrentMonitorElement psColumnIndexVsLS;
   };
-}
+}  // namespace
 
 //
 // class declaration
 //
 
-class PSMonitor : public DQMGlobalEDAnalyzer<Histograms>
-{
+class PSMonitor : public DQMGlobalEDAnalyzer<Histograms> {
 public:
-  PSMonitor( const edm::ParameterSet& );
+  PSMonitor(const edm::ParameterSet&);
   ~PSMonitor() override = default;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  static void fillHistoPSetDescription(edm::ParameterSetDescription & pset, int value);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillHistoPSetDescription(edm::ParameterSetDescription& pset, int value);
 
 protected:
-
-  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, Histograms &) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker&, edm::Run const&, edm::EventSetup const&, Histograms&) const override;
   void dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const&) const override;
 
 private:
-
   void getHistoPSet(edm::ParameterSet& pset, MEbinning& mebinning);
 
   std::string folderName_;
 
   edm::EDGetTokenT<GlobalAlgBlkBxCollection> ugtBXToken_;
-  
+
   MEbinning ps_binning_;
   MEbinning ls_binning_;
 };
-
-
 
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
 
-PSMonitor::PSMonitor( const edm::ParameterSet& config ) : 
-  folderName_   (config.getParameter<std::string>("FolderName"))
-  , ugtBXToken_ (consumes<GlobalAlgBlkBxCollection>(config.getParameter<edm::InputTag>("ugtBXInputTag")))
-{
-  edm::ParameterSet histoPSet    = config.getParameter<edm::ParameterSet>("histoPSet");
+PSMonitor::PSMonitor(const edm::ParameterSet& config)
+    : folderName_(config.getParameter<std::string>("FolderName")),
+      ugtBXToken_(consumes<GlobalAlgBlkBxCollection>(config.getParameter<edm::InputTag>("ugtBXInputTag"))) {
+  edm::ParameterSet histoPSet = config.getParameter<edm::ParameterSet>("histoPSet");
   edm::ParameterSet psColumnPSet = histoPSet.getParameter<edm::ParameterSet>("psColumnPSet");
-  edm::ParameterSet lsPSet       = histoPSet.getParameter<edm::ParameterSet>("lsPSet");
+  edm::ParameterSet lsPSet = histoPSet.getParameter<edm::ParameterSet>("lsPSet");
 
   getHistoPSet(psColumnPSet, ps_binning_);
-  getHistoPSet(lsPSet,       ls_binning_);
-
+  getHistoPSet(lsPSet, ls_binning_);
 }
 
-void PSMonitor::getHistoPSet(edm::ParameterSet& pset, MEbinning& mebinning)
-{
+void PSMonitor::getHistoPSet(edm::ParameterSet& pset, MEbinning& mebinning) {
   mebinning.nbins = pset.getParameter<int32_t>("nbins");
-  mebinning.xmin  = 0.;
-  mebinning.xmax  = double(pset.getParameter<int32_t>("nbins"));
+  mebinning.xmin = 0.;
+  mebinning.xmax = double(pset.getParameter<int32_t>("nbins"));
 }
 
-
-void PSMonitor::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const
-{  
-  
+void PSMonitor::bookHistograms(DQMStore::ConcurrentBooker& booker,
+                               edm::Run const& run,
+                               edm::EventSetup const& setup,
+                               Histograms& histograms) const {
   std::string histname, histtitle;
 
-  std::string currentFolder = folderName_ ;
+  std::string currentFolder = folderName_;
   booker.setCurrentFolder(currentFolder);
 
-  std::vector<std::string> const& psLabels = edm::Service<edm::service::PrescaleService>()->getLvl1Labels();
-  int nbins   = ( !psLabels.empty() ? psLabels.size()         : ps_binning_.nbins );
-  double xmin = ( !psLabels.empty() ? 0.                      : ps_binning_.xmin  );
-  double xmax = ( !psLabels.empty() ? double(psLabels.size()) : ps_binning_.xmax  );
-
-  histname = "psColumnIndexVsLS"; histtitle = "PS column index vs LS";
-  histograms.psColumnIndexVsLS = booker.book2D(histname, histtitle, 
-                                      ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,
-                                      nbins, xmin, xmax);
-  histograms.psColumnIndexVsLS.setAxisTitle("LS", 1);
-  histograms.psColumnIndexVsLS.setAxisTitle("PS column index", 2);
-  
-  int ibin = 1;
-  for ( auto l : psLabels ) {
-    histograms.psColumnIndexVsLS.setBinLabel(ibin, l, 2);
-    ibin++;
+  int nbins;
+  double xmin, xmax;
+  std::vector<std::string> labels;
+  edm::Service<edm::service::PrescaleService> prescaleService;
+  if (prescaleService.isAvailable() and not prescaleService->getLvl1Labels().empty()) {
+    labels = prescaleService->getLvl1Labels();
+    nbins = labels.size();
+    xmin = 0.;
+    xmax = double(labels.size());
+  } else {
+    nbins = ps_binning_.nbins;
+    xmin = ps_binning_.xmin;
+    xmax = ps_binning_.xmax;
+    labels.resize(nbins, "");
   }
 
+  histname = "psColumnIndexVsLS";
+  histtitle = "PS column index vs LS";
+  histograms.psColumnIndexVsLS =
+      booker.book2D(histname, histtitle, ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax, nbins, xmin, xmax);
+  histograms.psColumnIndexVsLS.setAxisTitle("LS", 1);
+  histograms.psColumnIndexVsLS.setAxisTitle("PS column index", 2);
+
+  int bin = 1;
+  for (auto const& l : labels) {
+    histograms.psColumnIndexVsLS.setBinLabel(bin, l, 2);
+    bin++;
+  }
 }
 
-void PSMonitor::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const& histograms) const
-{
+void PSMonitor::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const& histograms) const {
   int ls = event.id().luminosityBlock();
   int psColumn = -1;
-  
+
   edm::Handle<GlobalAlgBlkBxCollection> ugtBXhandle;
   event.getByToken(ugtBXToken_, ugtBXhandle);
   if (ugtBXhandle.isValid() and not ugtBXhandle->isEmpty(0)) {
@@ -127,16 +128,14 @@ void PSMonitor::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup
   histograms.psColumnIndexVsLS.fill(ls, psColumn);
 }
 
-void PSMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset, int value)
-{
+void PSMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset, int value) {
   pset.add<int>("nbins", value);
 }
 
-void PSMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
+void PSMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>( "ugtBXInputTag", edm::InputTag("hltGtStage2Digis") );
-  desc.add<std::string>  ( "FolderName",    "HLT/PSMonitoring" );
+  desc.add<edm::InputTag>("ugtBXInputTag", edm::InputTag("hltGtStage2Digis"));
+  desc.add<std::string>("FolderName", "HLT/PSMonitoring");
 
   edm::ParameterSetDescription histoPSet;
 
