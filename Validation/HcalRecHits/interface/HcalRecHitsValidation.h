@@ -58,8 +58,7 @@ public:
   ~HcalRecHitsValidation() override;
   void analyze(edm::Event const &ev, edm::EventSetup const &c) override;
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   virtual void fillRecHitsTmp(int subdet_, edm::Event const &ev);

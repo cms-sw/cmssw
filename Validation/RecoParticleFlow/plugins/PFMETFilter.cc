@@ -28,36 +28,31 @@ PFMETFilter::~PFMETFilter() {}
 
 bool PFMETFilter::checkInput() {
   if (collections_.size() != min_.size()) {
-    std::cout << "Error: in PFMETFilter: collections_.size()!=min_.size()"
-              << std::endl;
+    std::cout << "Error: in PFMETFilter: collections_.size()!=min_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
     std::cout << "min_.size() = " << min_.size() << std::endl;
     return false;
   }
   if (collections_.size() != max_.size()) {
-    std::cout << "Error: in PFMETFilter: collections_.size()!=max_.size()"
-              << std::endl;
+    std::cout << "Error: in PFMETFilter: collections_.size()!=max_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
     std::cout << "max_.size() = " << max_.size() << std::endl;
     return false;
   }
   if (collections_.size() != doMin_.size()) {
-    std::cout << "Error: in PFMETFilter: collections_.size()!=min_.size()"
-              << std::endl;
+    std::cout << "Error: in PFMETFilter: collections_.size()!=min_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
     std::cout << "doMin_.size() = " << doMin_.size() << std::endl;
     return false;
   }
   if (collections_.size() != doMax_.size()) {
-    std::cout << "Error: in PFMETFilter: collections_.size()!=min_.size()"
-              << std::endl;
+    std::cout << "Error: in PFMETFilter: collections_.size()!=min_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
     std::cout << "doMax_.size() = " << doMax_.size() << std::endl;
     return false;
   }
   if (collections_.size() != variables_.size()) {
-    std::cout << "Error: in PFMETFilter: collections_.size()!=variables_.size()"
-              << std::endl;
+    std::cout << "Error: in PFMETFilter: collections_.size()!=variables_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
     std::cout << "variables_.size() = " << variables_.size() << std::endl;
     return false;
@@ -74,7 +69,7 @@ bool PFMETFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // std::cout << "FL: Mins = " << min_ << std::endl;
 
   if (!checkInput())
-    return true; // no filtering !
+    return true;  // no filtering !
 
   bool skip = false;
 
@@ -89,16 +84,14 @@ bool PFMETFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       collection1.assign(collections_[varc], 0, minuspos);
       // std::cout << "collection1 = " << collection1 << std::endl;
       std::string collection2;
-      collection2.assign(collections_[varc], minuspos + 1,
-                         collections_[varc].size());
+      collection2.assign(collections_[varc], minuspos + 1, collections_[varc].size());
       // std::cout << "collection2 = " << collection2 << std::endl;
 
       const edm::View<reco::Candidate> *var1;
       edm::Handle<edm::View<reco::Candidate>> var1_hnd;
       bool isVar1 = iEvent.getByLabel(collection1, var1_hnd);
       if (!isVar1) {
-        std::cout << "Warning : no " << collection1 << " in input !"
-                  << std::endl;
+        std::cout << "Warning : no " << collection1 << " in input !" << std::endl;
         return false;
       }
       var1 = var1_hnd.product();
@@ -112,8 +105,7 @@ bool PFMETFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       else if (variables_[varc] == "eta")
         coll_var1 = var10->eta();
       else {
-        std::cout << "Error: PFMETFilter: variable unknown: "
-                  << variables_[varc] << std::endl;
+        std::cout << "Error: PFMETFilter: variable unknown: " << variables_[varc] << std::endl;
         return true;
       }
       // std::cout << "FL: coll_var1[" << variables_[varc] << "] = " <<
@@ -123,8 +115,7 @@ bool PFMETFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       edm::Handle<edm::View<reco::Candidate>> var2_hnd;
       bool isVar2 = iEvent.getByLabel(collection2, var2_hnd);
       if (!isVar2) {
-        std::cout << "Warning : no " << collection2 << " in input !"
-                  << std::endl;
+        std::cout << "Warning : no " << collection2 << " in input !" << std::endl;
         return false;
       }
       var2 = var2_hnd.product();
@@ -138,8 +129,7 @@ bool PFMETFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       else if (variables_[varc] == "eta")
         coll_var2 = var20->eta();
       else {
-        std::cout << "Error: PFMETFilter: variable unknown: "
-                  << variables_[varc] << std::endl;
+        std::cout << "Error: PFMETFilter: variable unknown: " << variables_[varc] << std::endl;
         return true;
       }
       // std::cout << "FL: coll_var2[" << variables_[varc] << "] = " <<
@@ -189,8 +179,7 @@ bool PFMETFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       edm::Handle<edm::View<reco::Candidate>> var0_hnd;
       bool isVar0 = iEvent.getByLabel(collections_[varc], var0_hnd);
       if (!isVar0) {
-        std::cout << "Warning : no " << collections_[varc] << " in input !"
-                  << std::endl;
+        std::cout << "Warning : no " << collections_[varc] << " in input !" << std::endl;
         return false;
       }
       var0 = var0_hnd.product();
@@ -204,13 +193,11 @@ bool PFMETFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       else if (variables_[varc] == "eta")
         coll_var = var00->eta();
       else if (variables_[varc] == "DeltaMEXcut") {
-
         const edm::View<reco::Candidate> *truevar0;
         edm::Handle<edm::View<reco::Candidate>> truevar0_hnd;
         bool istrueVar0 = iEvent.getByLabel(TrueMET_, truevar0_hnd);
         if (!istrueVar0) {
-          std::cout << "Warning : no " << TrueMET_ << " in input !"
-                    << std::endl;
+          std::cout << "Warning : no " << TrueMET_ << " in input !" << std::endl;
           return false;
         }
         truevar0 = truevar0_hnd.product();
@@ -222,12 +209,10 @@ bool PFMETFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
         const reco::MET *met = static_cast<const reco::MET *>(truevar00);
         const double SETc = met->sumEt();
         // std::cout << "FL: SETc = " << SETc << std::endl;
-        const double sigmac =
-            sigma_a_ + sigma_b_ * sqrt(SETc) + sigma_c_ * SETc;
+        const double sigmac = sigma_a_ + sigma_b_ * sqrt(SETc) + sigma_c_ * SETc;
         if (cutvalc > DeltaMEXsigma_ * sigmac) {
           if (verbose_) {
-            std::cout << "DeltaMET = " << var00->et() - truevar00->et()
-                      << std::endl;
+            std::cout << "DeltaMET = " << var00->et() - truevar00->et() << std::endl;
             std::cout << "trueSET = " << SETc << std::endl;
             std::cout << "pfMET = " << var00->et() << std::endl;
             std::cout << "trueMET = " << truevar00->et() << std::endl;
@@ -241,8 +226,7 @@ bool PFMETFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
         } else {
           if (verbose_ && (var00->et() - truevar00->et()) > 300.0) {
             std::cout << "EVENT NOT KEPT:" << std::endl;
-            std::cout << "DeltaMET = " << var00->et() - truevar00->et()
-                      << std::endl;
+            std::cout << "DeltaMET = " << var00->et() - truevar00->et() << std::endl;
             std::cout << "SETc = " << SETc << std::endl;
             std::cout << "pfMET = " << var00->et() << std::endl;
             std::cout << "trueMET = " << truevar00->et() << std::endl;
@@ -255,8 +239,7 @@ bool PFMETFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
           return false;
         }
       } else {
-        std::cout << "Error: PFMETFilter: variable unknown: "
-                  << variables_[varc] << std::endl;
+        std::cout << "Error: PFMETFilter: variable unknown: " << variables_[varc] << std::endl;
         return true;
       }
       // std::cout << "FL: coll_var[" << variables_[varc] << "] = " << coll_var

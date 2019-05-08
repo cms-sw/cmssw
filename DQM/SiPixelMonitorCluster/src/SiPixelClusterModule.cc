@@ -42,14 +42,11 @@
 //
 // Constructors
 //
-SiPixelClusterModule::SiPixelClusterModule()
-    : id_(0), ncols_(416), nrows_(160) {}
+SiPixelClusterModule::SiPixelClusterModule() : id_(0), ncols_(416), nrows_(160) {}
 ///
-SiPixelClusterModule::SiPixelClusterModule(const uint32_t &id)
-    : id_(id), ncols_(416), nrows_(160) {}
+SiPixelClusterModule::SiPixelClusterModule(const uint32_t &id) : id_(id), ncols_(416), nrows_(160) {}
 ///
-SiPixelClusterModule::SiPixelClusterModule(const uint32_t &id, const int &ncols,
-                                           const int &nrows)
+SiPixelClusterModule::SiPixelClusterModule(const uint32_t &id, const int &ncols, const int &nrows)
     : id_(id), ncols_(ncols), nrows_(nrows) {}
 //
 // Destructor
@@ -60,17 +57,17 @@ SiPixelClusterModule::~SiPixelClusterModule() {}
 //
 void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
                                 const edm::EventSetup &iSetup,
-                                DQMStore::IBooker &iBooker, int type, bool twoD,
-                                bool reducedSet, bool isUpgrade) {
-
+                                DQMStore::IBooker &iBooker,
+                                int type,
+                                bool twoD,
+                                bool reducedSet,
+                                bool isUpgrade) {
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   pTT = tTopoHandle.product();
 
-  bool barrel =
-      DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
-  bool endcap =
-      DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+  bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   if (barrel) {
     isHalfModule = PixelBarrelName(DetId(id_), pTT, isUpgrade).isHalfModule();
@@ -118,8 +115,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
       meX_->setAxisTitle("Barycenter x-position [row #]", 1);
       // Cluster barycenter Y position
       hid = theHistogramId->setHistoId("y", id_);
-      meY_ =
-          iBooker.book1D(hid, "Cluster barycenter Y (column #)", 500, 0., 500.);
+      meY_ = iBooker.book1D(hid, "Cluster barycenter Y (column #)", 500, 0., 500.);
       meY_->setAxisTitle("Barycenter y-position [column #]", 1);
       // Cluster width on the x-axis
       hid = theHistogramId->setHistoId("sizeX", id_);
@@ -134,19 +130,15 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
       hid = theHistogramId->setHistoId("hitmap", id_);
       if (twoD) {
         // 2D hit map
-        mePixClusters_ =
-            iBooker.book2D(hid, "Number of Clusters (1bin=four pixels)", nbinx,
-                           0., float(ncols_), nbiny, 0., float(nrows_));
+        mePixClusters_ = iBooker.book2D(
+            hid, "Number of Clusters (1bin=four pixels)", nbinx, 0., float(ncols_), nbiny, 0., float(nrows_));
         mePixClusters_->setAxisTitle("Columns", 1);
         mePixClusters_->setAxisTitle("Rows", 2);
       } else {
         // projections of hitmap
         mePixClusters_px_ =
-            iBooker.book1D(hid + "_px", "Number of Clusters (1bin=two columns)",
-                           nbinx, 0., float(ncols_));
-        mePixClusters_py_ =
-            iBooker.book1D(hid + "_py", "Number of Clusters (1bin=two rows)",
-                           nbiny, 0., float(nrows_));
+            iBooker.book1D(hid + "_px", "Number of Clusters (1bin=two columns)", nbinx, 0., float(ncols_));
+        mePixClusters_py_ = iBooker.book1D(hid + "_py", "Number of Clusters (1bin=two rows)", nbiny, 0., float(nrows_));
         mePixClusters_px_->setAxisTitle("Columns", 1);
         mePixClusters_py_->setAxisTitle("Rows", 1);
       }
@@ -157,13 +149,10 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
   //**
   if (barrel && type == 7) {
     hid = src.label() + "_Barrel";
-    meSizeYvsEtaBarrel_ =
-        iBooker.book2D("sizeYvsEta_" + hid,
-                       "Cluster size along beamline vs. Cluster position #eta",
-                       60, -3., 3., 40, 0., 40.);
+    meSizeYvsEtaBarrel_ = iBooker.book2D(
+        "sizeYvsEta_" + hid, "Cluster size along beamline vs. Cluster position #eta", 60, -3., 3., 40, 0., 40.);
     meSizeYvsEtaBarrel_->setAxisTitle("Cluster #eta", 1);
-    meSizeYvsEtaBarrel_->setAxisTitle(
-        "Cluster size along beamline [number of pixels]", 2);
+    meSizeYvsEtaBarrel_->setAxisTitle("Cluster size along beamline [number of pixels]", 2);
   }
   if (type == 1 && barrel) {
     uint32_t DBladder;
@@ -176,65 +165,57 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
     else
       hid += "F";
     // Number of clusters
-    meNClustersLad_ =
-        iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
+    meNClustersLad_ = iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
     meNClustersLad_->setAxisTitle("Number of Clusters", 1);
     // Total cluster charge in MeV
-    meChargeLad_ =
-        iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
+    meChargeLad_ = iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
     meChargeLad_->setAxisTitle("Charge [kilo electrons]", 1);
     // Total cluster size (in pixels)
-    meSizeLad_ =
-        iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
+    meSizeLad_ = iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
     meSizeLad_->setAxisTitle("Cluster size [number of pixels]", 1);
     if (!reducedSet) {
       // Lowest cluster row
-      meMinRowLad_ =
-          iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
+      meMinRowLad_ = iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
       meMinRowLad_->setAxisTitle("Lowest cluster row", 1);
       // Highest cluster row
-      meMaxRowLad_ =
-          iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
+      meMaxRowLad_ = iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
       meMaxRowLad_->setAxisTitle("Highest cluster row", 1);
       // Lowest cluster column
-      meMinColLad_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column",
-                                    500, 0., 500.);
+      meMinColLad_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column", 500, 0., 500.);
       meMinColLad_->setAxisTitle("Lowest cluster column", 1);
       // Highest cluster column
-      meMaxColLad_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column",
-                                    500, 0., 500.);
+      meMaxColLad_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column", 500, 0., 500.);
       meMaxColLad_->setAxisTitle("Highest cluster column", 1);
       // Cluster barycenter X position
-      meXLad_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)", 200,
-                               0., 200.);
+      meXLad_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)", 200, 0., 200.);
       meXLad_->setAxisTitle("Barycenter x-position [row #]", 1);
       // Cluster barycenter Y position
-      meYLad_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)",
-                               500, 0., 500.);
+      meYLad_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)", 500, 0., 500.);
       meYLad_->setAxisTitle("Barycenter y-position [column #]", 1);
       // Cluster width on the x-axis
-      meSizeXLad_ =
-          iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
+      meSizeXLad_ = iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
       meSizeXLad_->setAxisTitle("Cluster x-size [rows]", 1);
       // Cluster width on the y-axis
-      meSizeYLad_ = iBooker.book1D("sizeY_" + hid, "Cluster y-width (columns)",
-                                   15, 0., 15.);
+      meSizeYLad_ = iBooker.book1D("sizeY_" + hid, "Cluster y-width (columns)", 15, 0., 15.);
       meSizeYLad_->setAxisTitle("Cluster y-size [columns]", 1);
       if (twoD) {
         // 2D hit map
-        mePixClustersLad_ = iBooker.book2D(
-            "hitmap_" + hid, "Number of Clusters (1bin=four pixels)", nbinx, 0.,
-            float(ncols_), nbiny, 0., float(nrows_));
+        mePixClustersLad_ = iBooker.book2D("hitmap_" + hid,
+                                           "Number of Clusters (1bin=four pixels)",
+                                           nbinx,
+                                           0.,
+                                           float(ncols_),
+                                           nbiny,
+                                           0.,
+                                           float(nrows_));
         mePixClustersLad_->setAxisTitle("Columns", 1);
         mePixClustersLad_->setAxisTitle("Rows", 2);
       } else {
         // projections of hitmap
-        mePixClustersLad_px_ = iBooker.book1D(
-            "hitmap_" + hid + "_px", "Number of Clusters (1bin=two columns)",
-            nbinx, 0., float(ncols_));
-        mePixClustersLad_py_ = iBooker.book1D(
-            "hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)",
-            nbiny, 0., float(nrows_));
+        mePixClustersLad_px_ =
+            iBooker.book1D("hitmap_" + hid + "_px", "Number of Clusters (1bin=two columns)", nbinx, 0., float(ncols_));
+        mePixClustersLad_py_ =
+            iBooker.book1D("hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)", nbiny, 0., float(nrows_));
         mePixClustersLad_px_->setAxisTitle("Columns", 1);
         mePixClustersLad_py_->setAxisTitle("Rows", 1);
       }
@@ -242,83 +223,78 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
   }
 
   if (type == 2 && barrel) {
-
     uint32_t DBlayer;
     DBlayer = PixelBarrelName(DetId(id_), pTT, isUpgrade).layerName();
     char slayer[80];
     sprintf(slayer, "Layer_%i", DBlayer);
     hid = src.label() + "_" + slayer;
     // Number of clusters
-    meNClustersLay_ =
-        iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
+    meNClustersLay_ = iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
     meNClustersLay_->setAxisTitle("Number of Clusters", 1);
     // Total cluster charge in MeV
-    meChargeLay_ =
-        iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
+    meChargeLay_ = iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
     meChargeLay_->setAxisTitle("Charge [kilo electrons]", 1);
     // Total cluster size (in pixels)
-    meSizeLay_ =
-        iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
+    meSizeLay_ = iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
     meSizeLay_->setAxisTitle("Cluster size [in pixels]", 1);
     if (!reducedSet) {
       // Lowest cluster row
-      meMinRowLay_ =
-          iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
+      meMinRowLay_ = iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
       meMinRowLay_->setAxisTitle("Lowest cluster row", 1);
       // Highest cluster row
-      meMaxRowLay_ =
-          iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
+      meMaxRowLay_ = iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
       meMaxRowLay_->setAxisTitle("Highest cluster row", 1);
       // Lowest cluster column
-      meMinColLay_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column",
-                                    500, 0., 500.);
+      meMinColLay_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column", 500, 0., 500.);
       meMinColLay_->setAxisTitle("Lowest cluster column", 1);
       // Highest cluster column
-      meMaxColLay_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column",
-                                    500, 0., 500.);
+      meMaxColLay_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column", 500, 0., 500.);
       meMaxColLay_->setAxisTitle("Highest cluster column", 1);
       // Cluster barycenter X position
-      meXLay_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)", 200,
-                               0., 200.);
+      meXLay_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)", 200, 0., 200.);
       meXLay_->setAxisTitle("Barycenter x-position [row #]", 1);
       // Cluster barycenter Y position
-      meYLay_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)",
-                               500, 0., 500.);
+      meYLay_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)", 500, 0., 500.);
       meYLay_->setAxisTitle("Barycenter y-position [column #]", 1);
       // Cluster width on the x-axis
-      meSizeXLay_ =
-          iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
+      meSizeXLay_ = iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
       meSizeXLay_->setAxisTitle("Cluster x-size [rows]", 1);
       // Cluster width on the y-axis
-      meSizeYLay_ = iBooker.book1D("sizeY_" + hid, "Cluster y-width (columns)",
-                                   15, 0., 15.);
+      meSizeYLay_ = iBooker.book1D("sizeY_" + hid, "Cluster y-width (columns)", 15, 0., 15.);
       meSizeYLay_->setAxisTitle("Cluster y-size [columns]", 1);
       if (twoD) {
         // 2D hit map
         if (isHalfModule) {
-          mePixClustersLay_ = iBooker.book2D(
-              "hitmap_" + hid, "Number of Clusters (1bin=four pixels)", nbinx,
-              0., float(ncols_), 2 * nbiny, 0., float(2 * nrows_));
+          mePixClustersLay_ = iBooker.book2D("hitmap_" + hid,
+                                             "Number of Clusters (1bin=four pixels)",
+                                             nbinx,
+                                             0.,
+                                             float(ncols_),
+                                             2 * nbiny,
+                                             0.,
+                                             float(2 * nrows_));
         } else {
-          mePixClustersLay_ = iBooker.book2D(
-              "hitmap_" + hid, "Number of Clusters (1bin=four pixels)", nbinx,
-              0., float(ncols_), nbiny, 0., float(nrows_));
+          mePixClustersLay_ = iBooker.book2D("hitmap_" + hid,
+                                             "Number of Clusters (1bin=four pixels)",
+                                             nbinx,
+                                             0.,
+                                             float(ncols_),
+                                             nbiny,
+                                             0.,
+                                             float(nrows_));
         }
         mePixClustersLay_->setAxisTitle("Columns", 1);
         mePixClustersLay_->setAxisTitle("Rows", 2);
       } else {
         // projections of hitmap
-        mePixClustersLay_px_ = iBooker.book1D(
-            "hitmap_" + hid + "_px", "Number of Clusters (1bin=two columns)",
-            nbinx, 0., float(ncols_));
+        mePixClustersLay_px_ =
+            iBooker.book1D("hitmap_" + hid + "_px", "Number of Clusters (1bin=two columns)", nbinx, 0., float(ncols_));
         if (isHalfModule) {
           mePixClustersLay_py_ = iBooker.book1D(
-              "hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)",
-              2 * nbiny, 0., float(2 * nrows_));
+              "hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)", 2 * nbiny, 0., float(2 * nrows_));
         } else {
-          mePixClustersLay_py_ = iBooker.book1D(
-              "hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)",
-              nbiny, 0., float(nrows_));
+          mePixClustersLay_py_ =
+              iBooker.book1D("hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)", nbiny, 0., float(nrows_));
         }
         mePixClustersLay_px_->setAxisTitle("Columns", 1);
         mePixClustersLay_py_->setAxisTitle("Rows", 1);
@@ -332,76 +308,72 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
     sprintf(smodule, "Ring_%i", DBmodule);
     hid = src.label() + "_" + smodule;
     // Number of clusters
-    meNClustersPhi_ =
-        iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
+    meNClustersPhi_ = iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
     meNClustersPhi_->setAxisTitle("Number of Clusters", 1);
     // Total cluster charge in MeV
-    meChargePhi_ =
-        iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
+    meChargePhi_ = iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
     meChargePhi_->setAxisTitle("Charge [kilo electrons]", 1);
     // Total cluster size (in pixels)
-    meSizePhi_ =
-        iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
+    meSizePhi_ = iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
     meSizePhi_->setAxisTitle("Cluster size [number of pixels]", 1);
     if (!reducedSet) {
       // Lowest cluster row
-      meMinRowPhi_ =
-          iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
+      meMinRowPhi_ = iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
       meMinRowPhi_->setAxisTitle("Lowest cluster row", 1);
       // Highest cluster row
-      meMaxRowPhi_ =
-          iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
+      meMaxRowPhi_ = iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
       meMaxRowPhi_->setAxisTitle("Highest cluster row", 1);
       // Lowest cluster column
-      meMinColPhi_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column",
-                                    500, 0., 500.);
+      meMinColPhi_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column", 500, 0., 500.);
       meMinColPhi_->setAxisTitle("Lowest cluster column", 1);
       // Highest cluster column
-      meMaxColPhi_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column",
-                                    500, 0., 500.);
+      meMaxColPhi_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column", 500, 0., 500.);
       meMaxColPhi_->setAxisTitle("Highest cluster column", 1);
       // Cluster barycenter X position
-      meXPhi_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)", 200,
-                               0., 200.);
+      meXPhi_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)", 200, 0., 200.);
       meXPhi_->setAxisTitle("Barycenter x-position [row #]", 1);
       // Cluster barycenter Y position
-      meYPhi_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)",
-                               500, 0., 500.);
+      meYPhi_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)", 500, 0., 500.);
       meYPhi_->setAxisTitle("Barycenter y-position [column #]", 1);
       // Cluster width on the x-axis
-      meSizeXPhi_ =
-          iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
+      meSizeXPhi_ = iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
       meSizeXPhi_->setAxisTitle("Cluster x-size [rows]", 1);
       // Cluster width on the y-axis
-      meSizeYPhi_ = iBooker.book1D("sizeY_" + hid, "Cluster y-width (columns)",
-                                   15, 0., 15.);
+      meSizeYPhi_ = iBooker.book1D("sizeY_" + hid, "Cluster y-width (columns)", 15, 0., 15.);
       meSizeYPhi_->setAxisTitle("Cluster y-size [columns]", 1);
       if (twoD) {
         // 2D hit map
         if (isHalfModule) {
-          mePixClustersPhi_ = iBooker.book2D(
-              "hitmap_" + hid, "Number of Clusters (1bin=four pixels)", nbinx,
-              0., float(ncols_), 2 * nbiny, 0., float(2 * nrows_));
+          mePixClustersPhi_ = iBooker.book2D("hitmap_" + hid,
+                                             "Number of Clusters (1bin=four pixels)",
+                                             nbinx,
+                                             0.,
+                                             float(ncols_),
+                                             2 * nbiny,
+                                             0.,
+                                             float(2 * nrows_));
         } else {
-          mePixClustersPhi_ = iBooker.book2D(
-              "hitmap_" + hid, "Number of Clusters (1bin=four pixels)", nbinx,
-              0., float(ncols_), nbiny, 0., float(nrows_));
+          mePixClustersPhi_ = iBooker.book2D("hitmap_" + hid,
+                                             "Number of Clusters (1bin=four pixels)",
+                                             nbinx,
+                                             0.,
+                                             float(ncols_),
+                                             nbiny,
+                                             0.,
+                                             float(nrows_));
         }
         mePixClustersPhi_->setAxisTitle("Columns", 1);
         mePixClustersPhi_->setAxisTitle("Rows", 2);
       } else {
         // projections of hitmap
-        mePixClustersPhi_px_ = iBooker.book1D(
-            "hitmap_" + hid + "_px", "Number of Clusters (1bin=two columns)",
-            nbinx, 0., float(ncols_));
+        mePixClustersPhi_px_ =
+            iBooker.book1D("hitmap_" + hid + "_px", "Number of Clusters (1bin=two columns)", nbinx, 0., float(ncols_));
         if (isHalfModule) {
           mePixClustersPhi_py_ = iBooker.book1D(
-              "hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)",
-              2 * nbiny, 0., float(2 * nrows_));
+              "hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)", 2 * nbiny, 0., float(2 * nrows_));
         } else {
-          mePixClustersPhi_py_ = iBooker.book1D(
-              "hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)",
-              nbiny, 0., float(nrows_));
+          mePixClustersPhi_py_ =
+              iBooker.book1D("hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)", nbiny, 0., float(nrows_));
         }
         mePixClustersPhi_px_->setAxisTitle("Columns", 1);
         mePixClustersPhi_py_->setAxisTitle("Rows", 1);
@@ -417,49 +389,38 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
     sprintf(sblade, "Blade_%02i", blade);
     hid = src.label() + "_" + sblade;
     // Number of clusters
-    meNClustersBlade_ =
-        iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
+    meNClustersBlade_ = iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
     meNClustersBlade_->setAxisTitle("Number of Clusters", 1);
     // Total cluster charge in MeV
-    meChargeBlade_ =
-        iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
+    meChargeBlade_ = iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
     meChargeBlade_->setAxisTitle("Charge [kilo electrons]", 1);
     // Total cluster size (in pixels)
-    meSizeBlade_ =
-        iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
+    meSizeBlade_ = iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
     meSizeBlade_->setAxisTitle("Cluster size [number of pixels]", 1);
     if (!reducedSet) {
       // Lowest cluster row
-      meMinRowBlade_ =
-          iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
+      meMinRowBlade_ = iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
       meMinRowBlade_->setAxisTitle("Lowest cluster row", 1);
       // Highest cluster row
-      meMaxRowBlade_ =
-          iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
+      meMaxRowBlade_ = iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
       meMaxRowBlade_->setAxisTitle("Highest cluster row", 1);
       // Lowest cluster column
-      meMinColBlade_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column",
-                                      500, 0., 500.);
+      meMinColBlade_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column", 500, 0., 500.);
       meMinColBlade_->setAxisTitle("Lowest cluster column", 1);
       // Highest cluster column
-      meMaxColBlade_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column",
-                                      500, 0., 500.);
+      meMaxColBlade_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column", 500, 0., 500.);
       meMaxColBlade_->setAxisTitle("Highest cluster column", 1);
       // Cluster barycenter X position
-      meXBlade_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)",
-                                 200, 0., 200.);
+      meXBlade_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)", 200, 0., 200.);
       meXBlade_->setAxisTitle("Barycenter x-position [row #]", 1);
       // Cluster barycenter Y position
-      meYBlade_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)",
-                                 500, 0., 500.);
+      meYBlade_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)", 500, 0., 500.);
       meYBlade_->setAxisTitle("Barycenter y-position [column #]", 1);
       // Cluster width on the x-axis
-      meSizeXBlade_ =
-          iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
+      meSizeXBlade_ = iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
       meSizeXBlade_->setAxisTitle("Cluster x-size [rows]", 1);
       // Cluster width on the y-axis
-      meSizeYBlade_ = iBooker.book1D("sizeY_" + hid,
-                                     "Cluster y-width (columns)", 15, 0., 15.);
+      meSizeYBlade_ = iBooker.book1D("sizeY_" + hid, "Cluster y-width (columns)", 15, 0., 15.);
       meSizeYBlade_->setAxisTitle("Cluster y-size [columns]", 1);
     }
   }
@@ -471,49 +432,38 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
     sprintf(sdisk, "Disk_%i", disk);
     hid = src.label() + "_" + sdisk;
     // Number of clusters
-    meNClustersDisk_ =
-        iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
+    meNClustersDisk_ = iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
     meNClustersDisk_->setAxisTitle("Number of Clusters", 1);
     // Total cluster charge in MeV
-    meChargeDisk_ =
-        iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
+    meChargeDisk_ = iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
     meChargeDisk_->setAxisTitle("Charge [kilo electrons]", 1);
     // Total cluster size (in pixels)
-    meSizeDisk_ =
-        iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
+    meSizeDisk_ = iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
     meSizeDisk_->setAxisTitle("Cluster size [number of pixels]", 1);
     if (!reducedSet) {
       // Lowest cluster row
-      meMinRowDisk_ =
-          iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
+      meMinRowDisk_ = iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
       meMinRowDisk_->setAxisTitle("Lowest cluster row", 1);
       // Highest cluster row
-      meMaxRowDisk_ =
-          iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
+      meMaxRowDisk_ = iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
       meMaxRowDisk_->setAxisTitle("Highest cluster row", 1);
       // Lowest cluster column
-      meMinColDisk_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column",
-                                     500, 0., 500.);
+      meMinColDisk_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column", 500, 0., 500.);
       meMinColDisk_->setAxisTitle("Lowest cluster column", 1);
       // Highest cluster column
-      meMaxColDisk_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column",
-                                     500, 0., 500.);
+      meMaxColDisk_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column", 500, 0., 500.);
       meMaxColDisk_->setAxisTitle("Highest cluster column", 1);
       // Cluster barycenter X position
-      meXDisk_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)", 200,
-                                0., 200.);
+      meXDisk_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)", 200, 0., 200.);
       meXDisk_->setAxisTitle("Barycenter x-position [row #]", 1);
       // Cluster barycenter Y position
-      meYDisk_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)",
-                                500, 0., 500.);
+      meYDisk_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)", 500, 0., 500.);
       meYDisk_->setAxisTitle("Barycenter y-position [column #]", 1);
       // Cluster width on the x-axis
-      meSizeXDisk_ =
-          iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
+      meSizeXDisk_ = iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
       meSizeXDisk_->setAxisTitle("Cluster x-size [rows]", 1);
       // Cluster width on the y-axis
-      meSizeYDisk_ = iBooker.book1D("sizeY_" + hid, "Cluster y-width (columns)",
-                                    15, 0., 15.);
+      meSizeYDisk_ = iBooker.book1D("sizeY_" + hid, "Cluster y-width (columns)", 15, 0., 15.);
       meSizeYDisk_->setAxisTitle("Cluster y-size [columns]", 1);
     }
   }
@@ -528,65 +478,57 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
     sprintf(slab, "Panel_%i_Ring_%i", panel, module);
     hid = src.label() + "_" + slab;
     // Number of clusters
-    meNClustersRing_ =
-        iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
+    meNClustersRing_ = iBooker.book1D("nclusters_" + hid, "Number of Clusters", 8, 0., 8.);
     meNClustersRing_->setAxisTitle("Number of Clusters", 1);
     // Total cluster charge in MeV
-    meChargeRing_ =
-        iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
+    meChargeRing_ = iBooker.book1D("charge_" + hid, "Cluster charge", 100, 0., 200.);
     meChargeRing_->setAxisTitle("Charge [kilo electrons]", 1);
     // Total cluster size (in pixels)
-    meSizeRing_ =
-        iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
+    meSizeRing_ = iBooker.book1D("size_" + hid, "Total cluster size", 30, 0., 30.);
     meSizeRing_->setAxisTitle("Cluster size [number of pixels]", 1);
     if (!reducedSet) {
       // Lowest cluster row
-      meMinRowRing_ =
-          iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
+      meMinRowRing_ = iBooker.book1D("minrow_" + hid, "Lowest cluster row", 200, 0., 200.);
       meMinRowRing_->setAxisTitle("Lowest cluster row", 1);
       // Highest cluster row
-      meMaxRowRing_ =
-          iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
+      meMaxRowRing_ = iBooker.book1D("maxrow_" + hid, "Highest cluster row", 200, 0., 200.);
       meMaxRowRing_->setAxisTitle("Highest cluster row", 1);
       // Lowest cluster column
-      meMinColRing_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column",
-                                     500, 0., 500.);
+      meMinColRing_ = iBooker.book1D("mincol_" + hid, "Lowest cluster column", 500, 0., 500.);
       meMinColRing_->setAxisTitle("Lowest cluster column", 1);
       // Highest cluster column
-      meMaxColRing_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column",
-                                     500, 0., 500.);
+      meMaxColRing_ = iBooker.book1D("maxcol_" + hid, "Highest cluster column", 500, 0., 500.);
       meMaxColRing_->setAxisTitle("Highest cluster column", 1);
       // Cluster barycenter X position
-      meXRing_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)", 200,
-                                0., 200.);
+      meXRing_ = iBooker.book1D("x_" + hid, "Cluster barycenter X (row #)", 200, 0., 200.);
       meXRing_->setAxisTitle("Barycenter x-position [row #]", 1);
       // Cluster barycenter Y position
-      meYRing_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)",
-                                500, 0., 500.);
+      meYRing_ = iBooker.book1D("y_" + hid, "Cluster barycenter Y (column #)", 500, 0., 500.);
       meYRing_->setAxisTitle("Barycenter y-position [column #]", 1);
       // Cluster width on the x-axis
-      meSizeXRing_ =
-          iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
+      meSizeXRing_ = iBooker.book1D("sizeX_" + hid, "Cluster x-width (rows)", 10, 0., 10.);
       meSizeXRing_->setAxisTitle("Cluster x-size [rows]", 1);
       // Cluster width on the y-axis
-      meSizeYRing_ = iBooker.book1D("sizeY_" + hid, "Cluster y-width (columns)",
-                                    15, 0., 15.);
+      meSizeYRing_ = iBooker.book1D("sizeY_" + hid, "Cluster y-width (columns)", 15, 0., 15.);
       meSizeYRing_->setAxisTitle("Cluster y-size [columns]", 1);
       if (twoD) {
         // 2D hit map
-        mePixClustersRing_ = iBooker.book2D(
-            "hitmap_" + hid, "Number of Clusters (1bin=four pixels)", nbinx, 0.,
-            float(ncols_), nbiny, 0., float(nrows_));
+        mePixClustersRing_ = iBooker.book2D("hitmap_" + hid,
+                                            "Number of Clusters (1bin=four pixels)",
+                                            nbinx,
+                                            0.,
+                                            float(ncols_),
+                                            nbiny,
+                                            0.,
+                                            float(nrows_));
         mePixClustersRing_->setAxisTitle("Columns", 1);
         mePixClustersRing_->setAxisTitle("Rows", 2);
       } else {
         // projections of hitmap
-        mePixClustersRing_px_ = iBooker.book1D(
-            "hitmap_" + hid + "_px", "Number of Clusters (1bin=two columns)",
-            nbinx, 0., float(ncols_));
-        mePixClustersRing_py_ = iBooker.book1D(
-            "hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)",
-            nbiny, 0., float(nrows_));
+        mePixClustersRing_px_ =
+            iBooker.book1D("hitmap_" + hid + "_px", "Number of Clusters (1bin=two columns)", nbinx, 0., float(ncols_));
+        mePixClustersRing_py_ =
+            iBooker.book1D("hitmap_" + hid + "_py", "Number of Clusters (1bin=two rows)", nbiny, 0., float(nrows_));
         mePixClustersRing_px_->setAxisTitle("Columns", 1);
         mePixClustersRing_py_->setAxisTitle("Rows", 1);
       }
@@ -596,27 +538,33 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
 //
 // Fill histograms
 //
-int SiPixelClusterModule::fill(
-    const edmNew::DetSetVector<SiPixelCluster> &input,
-    const TrackerGeometry *tracker, int *barrelClusterTotal,
-    int *fpixPClusterTotal, int *fpixMClusterTotal,
-    std::vector<MonitorElement *> &layers,
-    std::vector<MonitorElement *> &diskspz,
-    std::vector<MonitorElement *> &disksmz, bool modon, bool ladon, bool layon,
-    bool phion, bool bladeon, bool diskon, bool ringon, bool twoD,
-    bool reducedSet, bool smileyon, bool isUpgrade) {
+int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster> &input,
+                               const TrackerGeometry *tracker,
+                               int *barrelClusterTotal,
+                               int *fpixPClusterTotal,
+                               int *fpixMClusterTotal,
+                               std::vector<MonitorElement *> &layers,
+                               std::vector<MonitorElement *> &diskspz,
+                               std::vector<MonitorElement *> &disksmz,
+                               bool modon,
+                               bool ladon,
+                               bool layon,
+                               bool phion,
+                               bool bladeon,
+                               bool diskon,
+                               bool ringon,
+                               bool twoD,
+                               bool reducedSet,
+                               bool smileyon,
+                               bool isUpgrade) {
+  bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+  bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
 
-  bool barrel =
-      DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
-  bool endcap =
-      DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
-
-  edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch =
-      input.find(id_); // search  clusters of detid
+  edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = input.find(id_);  // search  clusters of detid
   unsigned int numberOfClusters = 0;
   unsigned int numberOfFpixClusters = 0;
 
-  if (isearch != input.end()) { // Not an empty iterator
+  if (isearch != input.end()) {  // Not an empty iterator
 
     // Look at clusters now
     edmNew::DetSet<SiPixelCluster>::const_iterator di;
@@ -626,19 +574,18 @@ int SiPixelClusterModule::fill(
         numberOfFpixClusters++;
       if (barrel)
         (*barrelClusterTotal)++;
-      float charge = 0.001 * (di->charge()); // total charge of cluster
-      float x = di->x();                     // barycenter x position
-      float y = di->y();                     // barycenter y position
-      int size = di->size();               // total size of cluster (in pixels)
-      int sizeX = di->sizeX();             // size of cluster in x-direction
-      int sizeY = di->sizeY();             // size of cluster in y-direction
-      int minPixelRow = di->minPixelRow(); // min x index
-      int maxPixelRow = di->maxPixelRow(); // max x index
-      int minPixelCol = di->minPixelCol(); // min y index
-      int maxPixelCol = di->maxPixelCol(); // max y index
+      float charge = 0.001 * (di->charge());  // total charge of cluster
+      float x = di->x();                      // barycenter x position
+      float y = di->y();                      // barycenter y position
+      int size = di->size();                  // total size of cluster (in pixels)
+      int sizeX = di->sizeX();                // size of cluster in x-direction
+      int sizeY = di->sizeY();                // size of cluster in y-direction
+      int minPixelRow = di->minPixelRow();    // min x index
+      int maxPixelRow = di->maxPixelRow();    // max x index
+      int minPixelCol = di->minPixelCol();    // min y index
+      int maxPixelCol = di->maxPixelCol();    // max y index
 
-      const PixelGeomDetUnit *theGeomDet =
-          dynamic_cast<const PixelGeomDetUnit *>(tracker->idToDet(DetId(id_)));
+      const PixelGeomDetUnit *theGeomDet = dynamic_cast<const PixelGeomDetUnit *>(tracker->idToDet(DetId(id_)));
 
       const PixelTopology *topol = &(theGeomDet->specificTopology());
       LocalPoint clustlp = topol->localPosition(MeasurementPoint(x, y));
@@ -649,13 +596,11 @@ int SiPixelClusterModule::fill(
         meSize_->Fill((float)size);
 
       if (barrel) {
-        uint32_t DBlayer =
-            PixelBarrelName(DetId(id_), pTT, isUpgrade).layerName();
+        uint32_t DBlayer = PixelBarrelName(DetId(id_), pTT, isUpgrade).layerName();
         if (!(DBlayer > layers.size()) && (layers[DBlayer - 1]))
           layers[DBlayer - 1]->Fill(clustgp.z(), clustgp.phi());
       } else if (endcap) {
-        uint32_t DBdisk =
-            PixelEndcapName(DetId(id_), pTT, isUpgrade).diskName();
+        uint32_t DBdisk = PixelEndcapName(DetId(id_), pTT, isUpgrade).diskName();
         if (clustgp.z() > 0) {
           (*fpixPClusterTotal)++;
           if (!(DBdisk > diskspz.size()) && (diskspz[DBdisk - 1]))

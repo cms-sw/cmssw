@@ -21,36 +21,31 @@ PFFilter::~PFFilter() {}
 
 bool PFFilter::checkInput() {
   if (collections_.size() != min_.size()) {
-    std::cout << "Error: in PFFilter: collections_.size()!=min_.size()"
-              << std::endl;
+    std::cout << "Error: in PFFilter: collections_.size()!=min_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
     std::cout << "min_.size() = " << min_.size() << std::endl;
     return false;
   }
   if (collections_.size() != max_.size()) {
-    std::cout << "Error: in PFFilter: collections_.size()!=max_.size()"
-              << std::endl;
+    std::cout << "Error: in PFFilter: collections_.size()!=max_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
     std::cout << "max_.size() = " << max_.size() << std::endl;
     return false;
   }
   if (collections_.size() != doMin_.size()) {
-    std::cout << "Error: in PFFilter: collections_.size()!=min_.size()"
-              << std::endl;
+    std::cout << "Error: in PFFilter: collections_.size()!=min_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
     std::cout << "doMin_.size() = " << doMin_.size() << std::endl;
     return false;
   }
   if (collections_.size() != doMax_.size()) {
-    std::cout << "Error: in PFFilter: collections_.size()!=min_.size()"
-              << std::endl;
+    std::cout << "Error: in PFFilter: collections_.size()!=min_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
     std::cout << "doMax_.size() = " << doMax_.size() << std::endl;
     return false;
   }
   if (collections_.size() != variables_.size()) {
-    std::cout << "Error: in PFFilter: collections_.size()!=variables_.size()"
-              << std::endl;
+    std::cout << "Error: in PFFilter: collections_.size()!=variables_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
     std::cout << "variables_.size() = " << variables_.size() << std::endl;
     return false;
@@ -67,7 +62,7 @@ bool PFFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // std::cout << "FL: Mins = " << min_ << std::endl;
 
   if (!checkInput())
-    return true; // no filtering !
+    return true;  // no filtering !
 
   bool skip = false;
 
@@ -82,16 +77,14 @@ bool PFFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       collection1.assign(collections_[varc], 0, minuspos);
       // std::cout << "collection1 = " << collection1 << std::endl;
       std::string collection2;
-      collection2.assign(collections_[varc], minuspos + 1,
-                         collections_[varc].size());
+      collection2.assign(collections_[varc], minuspos + 1, collections_[varc].size());
       // std::cout << "collection2 = " << collection2 << std::endl;
 
       const edm::View<reco::Candidate> *var1;
       edm::Handle<edm::View<reco::Candidate>> var1_hnd;
       bool isVar1 = iEvent.getByLabel(collection1, var1_hnd);
       if (!isVar1) {
-        std::cout << "Warning : no " << collection1 << " in input !"
-                  << std::endl;
+        std::cout << "Warning : no " << collection1 << " in input !" << std::endl;
         return false;
       }
       var1 = var1_hnd.product();
@@ -105,8 +98,7 @@ bool PFFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       else if (variables_[varc] == "eta")
         coll_var1 = var10->eta();
       else {
-        std::cout << "Error: PFFilter: variable unknown: " << variables_[varc]
-                  << std::endl;
+        std::cout << "Error: PFFilter: variable unknown: " << variables_[varc] << std::endl;
         return true;
       }
       // std::cout << "FL: coll_var1[" << variables_[varc] << "] = " <<
@@ -116,8 +108,7 @@ bool PFFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       edm::Handle<edm::View<reco::Candidate>> var2_hnd;
       bool isVar2 = iEvent.getByLabel(collection2, var2_hnd);
       if (!isVar2) {
-        std::cout << "Warning : no " << collection2 << " in input !"
-                  << std::endl;
+        std::cout << "Warning : no " << collection2 << " in input !" << std::endl;
         return false;
       }
       var2 = var2_hnd.product();
@@ -131,8 +122,7 @@ bool PFFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       else if (variables_[varc] == "eta")
         coll_var2 = var20->eta();
       else {
-        std::cout << "Error: PFFilter: variable unknown: " << variables_[varc]
-                  << std::endl;
+        std::cout << "Error: PFFilter: variable unknown: " << variables_[varc] << std::endl;
         return true;
       }
       // std::cout << "FL: coll_var2[" << variables_[varc] << "] = " <<
@@ -182,8 +172,7 @@ bool PFFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       edm::Handle<edm::View<reco::Candidate>> var0_hnd;
       bool isVar0 = iEvent.getByLabel(collections_[varc], var0_hnd);
       if (!isVar0) {
-        std::cout << "Warning : no " << collections_[varc] << " in input !"
-                  << std::endl;
+        std::cout << "Warning : no " << collections_[varc] << " in input !" << std::endl;
         return false;
       }
       var0 = var0_hnd.product();
@@ -197,8 +186,7 @@ bool PFFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       else if (variables_[varc] == "eta")
         coll_var = var00->eta();
       else {
-        std::cout << "Error: PFFilter: variable unknown: " << variables_[varc]
-                  << std::endl;
+        std::cout << "Error: PFFilter: variable unknown: " << variables_[varc] << std::endl;
         return true;
       }
       // std::cout << "FL: coll_var[" << variables_[varc] << "] = " << coll_var

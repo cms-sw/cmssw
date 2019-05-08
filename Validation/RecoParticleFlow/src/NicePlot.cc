@@ -7,7 +7,6 @@
 using namespace std;
 
 Styles::Styles() {
-
   gROOT->SetStyle("Plain");
   gStyle->SetPalette(1);
   gStyle->SetHistMinimumZero(kTRUE);
@@ -69,7 +68,6 @@ void Styles::FormatHisto(TH1 *h, const Style *s) {
 }
 
 void Styles::FormatPad(TPad *pad, bool grid, bool logx, bool logy) {
-
   pad->SetGridx(grid);
   pad->SetGridy(grid);
 

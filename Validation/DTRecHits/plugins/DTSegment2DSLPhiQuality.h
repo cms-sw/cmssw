@@ -19,32 +19,31 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 namespace edm {
-class ParameterSet;
-class Event;
-class EventSetup;
-} // namespace edm
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class HRes2DHit;
 class HEff2DHit;
 namespace dtsegment2dsl {
-struct Histograms;
+  struct Histograms;
 }
 
-class DTSegment2DSLPhiQuality
-    : public DQMGlobalEDAnalyzer<dtsegment2dsl::Histograms> {
+class DTSegment2DSLPhiQuality : public DQMGlobalEDAnalyzer<dtsegment2dsl::Histograms> {
 public:
   /// Constructor
   DTSegment2DSLPhiQuality(const edm::ParameterSet &pset);
 
 private:
   /// Book the DQM plots
-  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const &,
+  void bookHistograms(DQMStore::ConcurrentBooker &,
+                      edm::Run const &,
                       edm::EventSetup const &,
                       dtsegment2dsl::Histograms &) const override;
 
   /// Perform the real analysis
-  void dqmAnalyze(edm::Event const &, edm::EventSetup const &,
-                  dtsegment2dsl::Histograms const &) const override;
+  void dqmAnalyze(edm::Event const &, edm::EventSetup const &, dtsegment2dsl::Histograms const &) const override;
 
 private:
   // Labels to read from event
@@ -66,4 +65,4 @@ private:
   bool debug_;
 };
 
-#endif // Validation_DTRecHits_DTSegment2DSLPhiQuality_h
+#endif  // Validation_DTRecHits_DTSegment2DSLPhiQuality_h
