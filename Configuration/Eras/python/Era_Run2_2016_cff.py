@@ -6,7 +6,8 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTconditions_2016
 from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
+from Configuration.Eras.Modifier_run2_L1prefiring_cff import run2_L1prefiring
 
 Run2_2016 = cms.ModifierChain(run2_common, run2_25ns_specific,
- stage2L1Trigger, ctpps_2016, run2_HLTconditions_2016, run2_muon_2016)
+ stage2L1Trigger, ctpps_2016, run2_HLTconditions_2016, run2_muon_2016, run2_L1prefiring)
 
