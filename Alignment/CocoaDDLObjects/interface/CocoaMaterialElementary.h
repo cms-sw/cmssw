@@ -14,11 +14,9 @@
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 class CocoaMaterialElementary {
-
 public:
   //---------- Constructors / Destructor
-  CocoaMaterialElementary(ALIstring name, float density, ALIstring symbol,
-                          float A, ALIint Z);
+  CocoaMaterialElementary(ALIstring name, float density, ALIstring symbol, float A, ALIint Z);
   ~CocoaMaterialElementary(){};
 
   ALIstring getName() const { return theName; }

@@ -13,41 +13,31 @@
  */
 
 class TwoBodyDecay {
-
 public:
   typedef TwoBodyDecayParameters::ParameterName ParameterName;
 
   TwoBodyDecay(void)
-      : theDecayParameters(), theChi2(0.), theValidityFlag(false),
-        thePrimaryMass(0.), thePrimaryWidth(0.) {}
+      : theDecayParameters(), theChi2(0.), theValidityFlag(false), thePrimaryMass(0.), thePrimaryWidth(0.) {}
 
-  TwoBodyDecay(const TwoBodyDecayParameters &param, double chi2, bool valid,
-               const TwoBodyDecayVirtualMeasurement &vm)
-      : theDecayParameters(param), theChi2(chi2), theValidityFlag(valid),
-        thePrimaryMass(vm.primaryMass()), thePrimaryWidth(vm.primaryWidth()) {}
+  TwoBodyDecay(const TwoBodyDecayParameters &param, double chi2, bool valid, const TwoBodyDecayVirtualMeasurement &vm)
+      : theDecayParameters(param),
+        theChi2(chi2),
+        theValidityFlag(valid),
+        thePrimaryMass(vm.primaryMass()),
+        thePrimaryWidth(vm.primaryWidth()) {}
 
   ~TwoBodyDecay(void) {}
 
-  inline const TwoBodyDecayParameters &decayParameters(void) const {
-    return theDecayParameters;
-  }
+  inline const TwoBodyDecayParameters &decayParameters(void) const { return theDecayParameters; }
 
-  inline const AlgebraicVector &parameters(void) const {
-    return theDecayParameters.parameters();
-  }
-  inline const AlgebraicSymMatrix &covariance(void) const {
-    return theDecayParameters.covariance();
-  }
+  inline const AlgebraicVector &parameters(void) const { return theDecayParameters.parameters(); }
+  inline const AlgebraicSymMatrix &covariance(void) const { return theDecayParameters.covariance(); }
 
   /// Get specified decay parameter.
-  inline double operator[](ParameterName name) const {
-    return theDecayParameters[name];
-  }
+  inline double operator[](ParameterName name) const { return theDecayParameters[name]; }
 
   /// Get specified decay parameter.
-  inline double operator()(ParameterName name) const {
-    return theDecayParameters(name);
-  }
+  inline double operator()(ParameterName name) const { return theDecayParameters(name); }
 
   inline bool hasError(void) const { return theDecayParameters.hasError(); }
 

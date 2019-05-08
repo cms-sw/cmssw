@@ -20,7 +20,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 class EcalContainmentCorrectionAnalyzer : public edm::EDAnalyzer {
-
 public:
   EcalContainmentCorrectionAnalyzer(const edm::ParameterSet &ps);
   ~EcalContainmentCorrectionAnalyzer();
@@ -31,14 +30,11 @@ protected:
 
 DEFINE_FWK_MODULE(EcalContainmentCorrectionAnalyzer);
 
-EcalContainmentCorrectionAnalyzer::EcalContainmentCorrectionAnalyzer(
-    const edm::ParameterSet &ps) {}
+EcalContainmentCorrectionAnalyzer::EcalContainmentCorrectionAnalyzer(const edm::ParameterSet &ps) {}
 
 EcalContainmentCorrectionAnalyzer::~EcalContainmentCorrectionAnalyzer() {}
 
-void EcalContainmentCorrectionAnalyzer::analyze(edm::Event const &iEvent,
-                                                const edm::EventSetup &iSetup) {
-
+void EcalContainmentCorrectionAnalyzer::analyze(edm::Event const &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace std;
 
@@ -49,7 +45,6 @@ void EcalContainmentCorrectionAnalyzer::analyze(edm::Event const &iEvent,
     EBDetId aId(i, 1, EBDetId::ETAPHIMODE);
     double e3x3 = pCorr->correction3x3(aId);
     double e5x5 = pCorr->correction5x5(aId);
-    std::cout << "ieta " << aId.ieta() << " " << e3x3 << " " << e5x5
-              << std::endl;
+    std::cout << "ieta " << aId.ieta() << " " << e3x3 << " " << e5x5 << std::endl;
   }
 }

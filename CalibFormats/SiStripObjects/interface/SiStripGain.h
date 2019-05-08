@@ -48,12 +48,12 @@ public:
   const SiStripGain &operator=(const SiStripGain &) = delete;
 
   /// Kept for compatibility
-  inline SiStripGain(const SiStripApvGain &apvgain, const double &factor)
-      : apvgain_(nullptr) {
+  inline SiStripGain(const SiStripApvGain &apvgain, const double &factor) : apvgain_(nullptr) {
     multiply(apvgain, factor, std::make_pair("", ""));
   }
 
-  inline SiStripGain(const SiStripApvGain &apvgain, const double &factor,
+  inline SiStripGain(const SiStripApvGain &apvgain,
+                     const double &factor,
                      const std::pair<std::string, std::string> &recordLabelPair)
       : apvgain_(nullptr) {
     multiply(apvgain, factor, recordLabelPair);
@@ -61,24 +61,19 @@ public:
 
   /// Used to input additional gain values that will be multiplied to the first
   /// one
-  void multiply(const SiStripApvGain &apvgain, const double &factor,
+  void multiply(const SiStripApvGain &apvgain,
+                const double &factor,
                 const std::pair<std::string, std::string> &recordLabelPair);
 
   // getters
   // For the product of all apvGains
   // -------------------------------
-  const SiStripApvGain::Range getRange(uint32_t detID) const {
-    return apvgain_->getRange(detID);
-  }
-  SiStripApvGain::Range getRangeByPos(unsigned short pos) const {
-    return apvgain_->getRangeByPos(pos);
-  }
-  static float getStripGain(const uint16_t &strip,
-                            const SiStripApvGain::Range &range) {
+  const SiStripApvGain::Range getRange(uint32_t detID) const { return apvgain_->getRange(detID); }
+  SiStripApvGain::Range getRangeByPos(unsigned short pos) const { return apvgain_->getRangeByPos(pos); }
+  static float getStripGain(const uint16_t &strip, const SiStripApvGain::Range &range) {
     return SiStripApvGain::getStripGain(strip, range);
   }
-  static float getApvGain(const uint16_t &apv,
-                          const SiStripApvGain::Range &range) {
+  static float getApvGain(const uint16_t &apv, const SiStripApvGain::Range &range) {
     return SiStripApvGain::getApvGain(apv, range);
   }
 
@@ -90,34 +85,24 @@ public:
    * (because we want to keep it very light) therefore it is the caller duty to
    * check that the index is in the correct range.
    */
-  const SiStripApvGain::Range getRange(const uint32_t &detID,
-                                       const uint32_t index) const;
-  float getStripGain(const uint16_t &strip, const SiStripApvGain::Range &range,
-                     const uint32_t index) const;
-  float getApvGain(const uint16_t &apv, const SiStripApvGain::Range &range,
-                   const uint32_t index) const;
+  const SiStripApvGain::Range getRange(const uint32_t &detID, const uint32_t index) const;
+  float getStripGain(const uint16_t &strip, const SiStripApvGain::Range &range, const uint32_t index) const;
+  float getApvGain(const uint16_t &apv, const SiStripApvGain::Range &range, const uint32_t index) const;
 
   /// ATTENTION: we assume the detIds are the same as those from the first gain
   void getDetIds(std::vector<uint32_t> &DetIds_) const;
 
   inline size_t getNumberOfTags() const { return apvgainVector_.size(); }
-  inline std::string getRcdName(const uint32_t index) const {
-    return recordLabelPair_[index].first;
-  }
-  inline std::string getLabelName(const uint32_t index) const {
-    return recordLabelPair_[index].second;
-  }
-  inline double getTagNorm(const uint32_t index) const {
-    return normVector_[index];
-  }
+  inline std::string getRcdName(const uint32_t index) const { return recordLabelPair_[index].first; }
+  inline std::string getLabelName(const uint32_t index) const { return recordLabelPair_[index].second; }
+  inline double getTagNorm(const uint32_t index) const { return normVector_[index]; }
 
-  void printDebug(std::stringstream &ss,
-                  const TrackerTopology *trackerTopo) const;
-  void printSummary(std::stringstream &ss,
-                    const TrackerTopology *trackerTopo) const;
+  void printDebug(std::stringstream &ss, const TrackerTopology *trackerTopo) const;
+  void printSummary(std::stringstream &ss, const TrackerTopology *trackerTopo) const;
 
 private:
-  void fillNewGain(const SiStripApvGain *apvgain, const double &factor,
+  void fillNewGain(const SiStripApvGain *apvgain,
+                   const double &factor,
                    const SiStripApvGain *apvgain2 = nullptr,
                    const double &factor2 = 1.);
 

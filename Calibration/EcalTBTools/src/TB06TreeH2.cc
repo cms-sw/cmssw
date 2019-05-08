@@ -26,8 +26,7 @@ TB06TreeH2::TB06TreeH2(const std::string &fileName, const std::string &treeName)
 // -------------------------------------------------------------------
 
 TB06TreeH2::~TB06TreeH2() {
-  std::cout << "[TB06TreeH2][dtor] saving TTree " << m_tree->GetName()
-            << " with " << m_tree->GetEntries() << " entries"
+  std::cout << "[TB06TreeH2][dtor] saving TTree " << m_tree->GetName() << " with " << m_tree->GetEntries() << " entries"
             << " on file: " << m_file->GetName() << std::endl;
 
   m_file->Write();
@@ -40,23 +39,58 @@ TB06TreeH2::~TB06TreeH2() {
 // -------------------------------------------------------------------
 
 //! to be called at each loop
-void TB06TreeH2::store(
-    const int &tableIsMoving, const int &run, const int &event,
-    const int &S6adc, const double &xhodo, const double &yhodo,
-    const double &xslope, const double &yslope, const double &xquality,
-    const double &yquality, const int &icMax, const int &ietaMax,
-    const int &iphiMax, const double &beamEnergy, const double ampl[49],
-    const int &wcAXo, const int &wcAYo, const int &wcBXo, const int &wcBYo,
-    const int &wcCXo, const int &wcCYo, const double &xwA, const double &ywA,
-    const double &xwB, const double &ywB, const double &xwC, const double &ywC,
-    const float &S1adc, const float &S2adc, const float &S3adc,
-    const float &S4adc, const float &VM1, const float &VM2, const float &VM3,
-    const float &VM4, const float &VM5, const float &VM6, const float &VM7,
-    const float &VM8, const float &VMF, const float &VMB, const float &CK1,
-    const float &CK2, const float &CK3, const float &BH1, const float &BH2,
-    const float &BH3, const float &BH4, const float &TOF1S, const float &TOF2S,
-    const float &TOF1J, const float &TOF2J) {
-
+void TB06TreeH2::store(const int &tableIsMoving,
+                       const int &run,
+                       const int &event,
+                       const int &S6adc,
+                       const double &xhodo,
+                       const double &yhodo,
+                       const double &xslope,
+                       const double &yslope,
+                       const double &xquality,
+                       const double &yquality,
+                       const int &icMax,
+                       const int &ietaMax,
+                       const int &iphiMax,
+                       const double &beamEnergy,
+                       const double ampl[49],
+                       const int &wcAXo,
+                       const int &wcAYo,
+                       const int &wcBXo,
+                       const int &wcBYo,
+                       const int &wcCXo,
+                       const int &wcCYo,
+                       const double &xwA,
+                       const double &ywA,
+                       const double &xwB,
+                       const double &ywB,
+                       const double &xwC,
+                       const double &ywC,
+                       const float &S1adc,
+                       const float &S2adc,
+                       const float &S3adc,
+                       const float &S4adc,
+                       const float &VM1,
+                       const float &VM2,
+                       const float &VM3,
+                       const float &VM4,
+                       const float &VM5,
+                       const float &VM6,
+                       const float &VM7,
+                       const float &VM8,
+                       const float &VMF,
+                       const float &VMB,
+                       const float &CK1,
+                       const float &CK2,
+                       const float &CK3,
+                       const float &BH1,
+                       const float &BH2,
+                       const float &BH3,
+                       const float &BH4,
+                       const float &TOF1S,
+                       const float &TOF2S,
+                       const float &TOF1J,
+                       const float &TOF2J) {
   m_data->Clear();
   TB06RecoH2 *entry = static_cast<TB06RecoH2 *>(m_data->AddrAt(0));
 
@@ -188,32 +222,23 @@ void TB06TreeH2::check() {
   std::cout << "[TB06TreeH2][check]reading . . . \n";
   std::cout << "[TB06TreeH2][check] entry->run: " << entry->run << "\n";
   std::cout << "[TB06TreeH2][check] entry->event: " << entry->event << "\n";
-  std::cout << "[TB06TreeH2][check] entry->tableIsMoving: "
-            << entry->tableIsMoving << "\n";
-  std::cout << "[TB06TreeH2][check] entry->MEXTLeta: " << entry->MEXTLeta
-            << "\n";
-  std::cout << "[TB06TreeH2][check] entry->MEXTLphi: " << entry->MEXTLphi
-            << "\n";
-  std::cout << "[TB06TreeH2][check] entry->MEXTLenergy: " << entry->MEXTLenergy
-            << "\n";
+  std::cout << "[TB06TreeH2][check] entry->tableIsMoving: " << entry->tableIsMoving << "\n";
+  std::cout << "[TB06TreeH2][check] entry->MEXTLeta: " << entry->MEXTLeta << "\n";
+  std::cout << "[TB06TreeH2][check] entry->MEXTLphi: " << entry->MEXTLphi << "\n";
+  std::cout << "[TB06TreeH2][check] entry->MEXTLenergy: " << entry->MEXTLenergy << "\n";
 
   for (int eta = 0; eta < 7; ++eta)
     for (int phi = 0; phi < 7; ++phi)
-      std::cout << "[TB06TreeH2][check]   entry->localMap[" << eta << "]["
-                << phi << "]: " << entry->localMap[eta][phi] << "\n";
+      std::cout << "[TB06TreeH2][check]   entry->localMap[" << eta << "][" << phi << "]: " << entry->localMap[eta][phi]
+                << "\n";
 
   std::cout << "[TB06TreeH2][check] entry->xHodo: " << entry->xHodo << "\n";
   std::cout << "[TB06TreeH2][check] entry->yHodo: " << entry->yHodo << "\n";
-  std::cout << "[TB06TreeH2][check] entry->xSlopeHodo: " << entry->xSlopeHodo
-            << "\n";
-  std::cout << "[TB06TreeH2][check] entry->ySlopeHodo: " << entry->ySlopeHodo
-            << "\n";
-  std::cout << "[TB06TreeH2][check] entry->xQualityHodo: "
-            << entry->xQualityHodo << "\n";
-  std::cout << "[TB06TreeH2][check] entry->yQualityHodo: "
-            << entry->yQualityHodo << "\n";
-  std::cout << "[TB06TreeH2][check] entry->convFactor: " << entry->convFactor
-            << "\n";
+  std::cout << "[TB06TreeH2][check] entry->xSlopeHodo: " << entry->xSlopeHodo << "\n";
+  std::cout << "[TB06TreeH2][check] entry->ySlopeHodo: " << entry->ySlopeHodo << "\n";
+  std::cout << "[TB06TreeH2][check] entry->xQualityHodo: " << entry->xQualityHodo << "\n";
+  std::cout << "[TB06TreeH2][check] entry->yQualityHodo: " << entry->yQualityHodo << "\n";
+  std::cout << "[TB06TreeH2][check] entry->convFactor: " << entry->convFactor << "\n";
 
   /* to be implemented with the right variables
   std::cout << "[TB06TreeH2][check] ------------------------" << std::endl ;
