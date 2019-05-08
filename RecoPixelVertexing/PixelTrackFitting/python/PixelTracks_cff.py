@@ -13,6 +13,7 @@ from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi import *
 from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import pixelFitterByHelixProjections
 from RecoPixelVertexing.PixelTrackFitting.pixelFitterByRiemannParaboloid_cfi import pixelFitterByRiemannParaboloid
+from RecoPixelVertexing.PixelTrackFitting.pixelFitterByBrokenLine_cfi import pixelFitterByBrokenLine
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import pixelTrackCleanerBySharedHits
 from RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi import pixelTracks as _pixelTracks
@@ -95,5 +96,14 @@ riemannFitGPU.toModify(pixelTracks, runOnGPU = True)
 _pixelTracksTask_riemannFit = pixelTracksTask.copy()
 _pixelTracksTask_riemannFit.replace(pixelFitterByHelixProjections, pixelFitterByRiemannParaboloid)
 riemannFit.toReplaceWith(pixelTracksTask, _pixelTracksTask_riemannFit)
+
+# Use BrokenLine fit and substitute previous Fitter producer with the BrokenLine one
+from Configuration.ProcessModifiers.brokenLine_cff import brokenLine
+from Configuration.ProcessModifiers.brokenLineGPU_cff import brokenLineGPU
+brokenLine.toModify(pixelTracks, Fitter = "pixelFitterByBrokenLine")
+brokenLineGPU.toModify(pixelTracks, runOnGPU = True)
+_pixelTracksTask_brokenLine = pixelTracksTask.copy()
+_pixelTracksTask_brokenLine.replace(pixelFitterByHelixProjections, pixelFitterByBrokenLine)
+brokenLine.toReplaceWith(pixelTracksTask, _pixelTracksTask_brokenLine)
 
 pixelTracksSequence = cms.Sequence(pixelTracksTask)
