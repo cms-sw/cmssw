@@ -7,17 +7,15 @@
 #include "SimRomanPot/SimFP420/interface/ChargeDrifterFP420.h"
 using namespace std;
 
-ChargeDrifterFP420::ChargeDrifterFP420(double mt, double tn, double dc,
-                                       double tm, double cdr, double dv,
-                                       double av, double ptx, double pty,
-                                       int verbosity) {
+ChargeDrifterFP420::ChargeDrifterFP420(
+    double mt, double tn, double dc, double tm, double cdr, double dv, double av, double ptx, double pty, int verbosity) {
   //
   //
   verbo = verbosity;
   modulePath = mt;
   constTe = tn;
   constDe = dc;
-  temperature = tm; // keep just in case
+  temperature = tm;  // keep just in case
   startT0 = cdr;
   depV = dv;
   appV = av;
@@ -30,17 +28,15 @@ ChargeDrifterFP420::ChargeDrifterFP420(double mt, double tn, double dc,
   //      edm::LogInfo("ChargeDrifterFP420") << "call constructor";
   if (verbo > 0) {
     std::cout << "ChargeDrifterFP420: call constructor" << std::endl;
-    std::cout << "ldriftcurrX= " << ldriftcurrX
-              << "ldriftcurrY= " << ldriftcurrY << std::endl;
-    std::cout << "modulePath= " << modulePath << "constTe= " << constTe
-              << std::endl;
+    std::cout << "ldriftcurrX= " << ldriftcurrX << "ldriftcurrY= " << ldriftcurrY << std::endl;
+    std::cout << "modulePath= " << modulePath << "constTe= " << constTe << std::endl;
     std::cout << "ChargeDrifterFP420:----------------------" << std::endl;
   }
 }
 
-CDrifterFP420::collection_type
-ChargeDrifterFP420::drift(const CDrifterFP420::ionization_type &ion,
-                          const G4ThreeVector &driftDir, const int &xytype) {
+CDrifterFP420::collection_type ChargeDrifterFP420::drift(const CDrifterFP420::ionization_type &ion,
+                                                         const G4ThreeVector &driftDir,
+                                                         const int &xytype) {
   //
   //
   if (verbo > 0) {
@@ -83,12 +79,11 @@ AmplitudeSegmentFP420 ChargeDrifterFP420::drift(const EnergySegmentFP420 &edu,
                  "====== "
               << std::endl;
     std::cout << "ChargeDrifterFP420: xytype= " << xytype << std::endl;
-    std::cout << "constTe= " << constTe << "ldriftcurrX= " << ldriftcurrX
-              << "ldriftcurrY= " << ldriftcurrY << std::endl;
-    std::cout << "1currX = " << currX << "  1currY = " << currY
-              << "  1currZ = " << currZ << std::endl;
-    std::cout << "drift.x() = " << drift.x() << "  drift.y() = " << drift.y()
-              << "  drift.z() = " << drift.z() << std::endl;
+    std::cout << "constTe= " << constTe << "ldriftcurrX= " << ldriftcurrX << "ldriftcurrY= " << ldriftcurrY
+              << std::endl;
+    std::cout << "1currX = " << currX << "  1currY = " << currY << "  1currZ = " << currZ << std::endl;
+    std::cout << "drift.x() = " << drift.x() << "  drift.y() = " << drift.y() << "  drift.z() = " << drift.z()
+              << std::endl;
   }
 
   // Yglobal Xlocal:
@@ -102,19 +97,15 @@ AmplitudeSegmentFP420 ChargeDrifterFP420::drift(const EnergySegmentFP420 &edu,
     tanShiftAngleZ = drift.z() / drift.x();
 
     //    pathValue = fabs(sliX-ldriftcurrX*int(sliX/ldriftcurrX));
-    pathValue = fabs(sliX) -
-                int(fabs(sliX / (2 * ldriftcurrX)) + 0.5) * (2 * ldriftcurrX);
+    pathValue = fabs(sliX) - int(fabs(sliX / (2 * ldriftcurrX)) + 0.5) * (2 * ldriftcurrX);
     pathValue = fabs(pathValue);
     pathFraction = pathValue / ldriftcurrX;
     if (verbo > 0) {
       std::cout << "==================================" << std::endl;
-      std::cout << "fabs(sliX)= " << fabs(sliX)
-                << "ldriftcurrX= " << ldriftcurrX << std::endl;
-      std::cout << "fabs(sliX/(2*ldriftcurrX))+0.5= "
-                << fabs(sliX / (2 * ldriftcurrX)) + 0.5 << std::endl;
+      std::cout << "fabs(sliX)= " << fabs(sliX) << "ldriftcurrX= " << ldriftcurrX << std::endl;
+      std::cout << "fabs(sliX/(2*ldriftcurrX))+0.5= " << fabs(sliX / (2 * ldriftcurrX)) + 0.5 << std::endl;
       std::cout << "int(fabs(sliX/(2*ldriftcurrX))+0.5)*(2*ldriftcurrX)= "
-                << int(fabs(sliX / (2 * ldriftcurrX)) + 0.5) * (2 * ldriftcurrX)
-                << std::endl;
+                << int(fabs(sliX / (2 * ldriftcurrX)) + 0.5) * (2 * ldriftcurrX) << std::endl;
       std::cout << "pathValue= " << pathValue << std::endl;
       std::cout << "pathFraction= " << pathFraction << std::endl;
       std::cout << "==================================" << std::endl;
@@ -123,9 +114,9 @@ AmplitudeSegmentFP420 ChargeDrifterFP420::drift(const EnergySegmentFP420 &edu,
     pathFraction = pathFraction > 0. ? pathFraction : 0.;
     pathFraction = pathFraction < 1. ? pathFraction : 1.;
 
-    yDriftDueToField // Drift along Y due to BField
+    yDriftDueToField  // Drift along Y due to BField
         = pathValue * tanShiftAngleY;
-    zDriftDueToField // Drift along Z due to BField
+    zDriftDueToField  // Drift along Z due to BField
         = pathValue * tanShiftAngleZ;
     // will define Y and Z ccordinates (E along X)
     currY = sliY + yDriftDueToField;
@@ -139,8 +130,7 @@ AmplitudeSegmentFP420 ChargeDrifterFP420::drift(const EnergySegmentFP420 &edu,
     tanShiftAngleZ = drift.z() / drift.y();
 
     // pathValue = fabs(sliY-ldriftcurrY*int(sliY/ldriftcurrY));
-    pathValue = fabs(sliY) -
-                int(fabs(sliY / (2 * ldriftcurrY)) + 0.5) * (2 * ldriftcurrY);
+    pathValue = fabs(sliY) - int(fabs(sliY / (2 * ldriftcurrY)) + 0.5) * (2 * ldriftcurrY);
     pathValue = fabs(pathValue);
     pathFraction = pathValue / ldriftcurrY;
     //
@@ -148,27 +138,23 @@ AmplitudeSegmentFP420 ChargeDrifterFP420::drift(const EnergySegmentFP420 &edu,
 
     if (verbo > 0) {
       std::cout << "==================================" << std::endl;
-      std::cout << "fabs(sliY)= " << fabs(sliY)
-                << "ldriftcurrY= " << ldriftcurrY << std::endl;
-      std::cout << "fabs(sliY/(2*ldriftcurrY))+0.5= "
-                << fabs(sliY / (2 * ldriftcurrY)) + 0.5 << std::endl;
+      std::cout << "fabs(sliY)= " << fabs(sliY) << "ldriftcurrY= " << ldriftcurrY << std::endl;
+      std::cout << "fabs(sliY/(2*ldriftcurrY))+0.5= " << fabs(sliY / (2 * ldriftcurrY)) + 0.5 << std::endl;
       std::cout << "int(fabs(sliY/(2*ldriftcurrY))+0.5)*(2*ldriftcurrY)= "
-                << int(fabs(sliY / (2 * ldriftcurrY)) + 0.5) * (2 * ldriftcurrY)
-                << std::endl;
+                << int(fabs(sliY / (2 * ldriftcurrY)) + 0.5) * (2 * ldriftcurrY) << std::endl;
       std::cout << "pathValue= " << pathValue << std::endl;
       std::cout << "pathFraction= " << pathFraction << std::endl;
       std::cout << "==================================" << std::endl;
     }
 
     if (pathFraction < 0. || pathFraction > 1.)
-      std::cout << "ChargeDrifterFP420: ERROR:pathFraction=" << pathFraction
-                << std::endl;
+      std::cout << "ChargeDrifterFP420: ERROR:pathFraction=" << pathFraction << std::endl;
     pathFraction = pathFraction > 0. ? pathFraction : 0.;
     pathFraction = pathFraction < 1. ? pathFraction : 1.;
-    xDriftDueToField // Drift along X due to BField
+    xDriftDueToField  // Drift along X due to BField
         = pathValue * tanShiftAngleX;
     //      = (ldriftcurrY-sliY)*tanShiftAngleX;
-    zDriftDueToField // Drift along Z due to BField
+    zDriftDueToField  // Drift along Z due to BField
         = pathValue * tanShiftAngleZ;
     // will define X and Z ccordinates (E along Y)
     currX = sliX + xDriftDueToField;
@@ -196,52 +182,34 @@ AmplitudeSegmentFP420 ChargeDrifterFP420::drift(const EnergySegmentFP420 &edu,
   //  <<log(1.-2*depV*pathFraction/(depV+appV))  << std::endl;
   double bbb = 1. - 2 * depV * pathFraction / (depV + appV);
   if (bbb < 0.)
-    std::cout
-        << "ChargeDrifterFP420:ERROR: check your Voltage for log(bbb) bbb="
-        << bbb << std::endl;
+    std::cout << "ChargeDrifterFP420:ERROR: check your Voltage for log(bbb) bbb=" << bbb << std::endl;
   double driftTime = -constTe * log(bbb) + startT0;
   //    log(1.-2*depV*pathFraction/(depV+appV)) + startT0;
   // since no magnetic field the Sigma_x, Sigma_y are the same =  sigma
   // !!!!!!!!!!!!!!!!!
-  double sigma =
-      sqrt(2. * constDe * driftTime *
-           100.); //  * 100.  - since constDe is [cm2/sec], but i want [mm2/sec]
+  double sigma = sqrt(2. * constDe * driftTime * 100.);  //  * 100.  - since constDe is [cm2/sec], but i want [mm2/sec]
 
   //  std::cout << "ChargeDrifterFP420: driftTime=  " << driftTime << "
   //  pathFraction=  " << pathFraction << "  constTe=  " << constTe << "  sigma=
   //  " << sigma << std::endl;
   if (verbo > 0) {
-    std::cout << "ChargeDrifterFP420: drift: xytype=" << xytype
-              << "pathFraction=" << pathFraction << std::endl;
-    std::cout << "  constTe= " << constTe << "  driftTime = " << driftTime
-              << " startT0  = " << startT0 << std::endl;
-    std::cout << " log = " << log(1. - 2 * depV * pathFraction / (depV + appV))
-              << std::endl;
-    std::cout << " negativ inside log = "
-              << -2 * depV * pathFraction / (depV + appV) << std::endl;
+    std::cout << "ChargeDrifterFP420: drift: xytype=" << xytype << "pathFraction=" << pathFraction << std::endl;
+    std::cout << "  constTe= " << constTe << "  driftTime = " << driftTime << " startT0  = " << startT0 << std::endl;
+    std::cout << " log = " << log(1. - 2 * depV * pathFraction / (depV + appV)) << std::endl;
+    std::cout << " negativ inside log = " << -2 * depV * pathFraction / (depV + appV) << std::endl;
     std::cout << " constDe = " << constDe << "  sigma = " << sigma << std::endl;
 
-    std::cout << "ChargeDrifterFP420: drift: xytype=" << xytype
-              << "pathValue=" << pathValue << std::endl;
-    std::cout << " tanShiftAngleX = " << tanShiftAngleX
-              << "  tanShiftAngleY = " << tanShiftAngleY
+    std::cout << "ChargeDrifterFP420: drift: xytype=" << xytype << "pathValue=" << pathValue << std::endl;
+    std::cout << " tanShiftAngleX = " << tanShiftAngleX << "  tanShiftAngleY = " << tanShiftAngleY
               << "  tanShiftAngleZ = " << tanShiftAngleZ << std::endl;
-    std::cout << "sliX = " << sliX << "  sliY = " << sliY << "  sliZ = " << sliZ
-              << std::endl;
-    std::cout << "pathFraction = " << pathFraction
-              << "  driftTime = " << driftTime << std::endl;
+    std::cout << "sliX = " << sliX << "  sliY = " << sliY << "  sliZ = " << sliZ << std::endl;
+    std::cout << "pathFraction = " << pathFraction << "  driftTime = " << driftTime << std::endl;
     std::cout << "sigma = " << sigma << std::endl;
-    std::cout << "xDriftDueToField = " << xDriftDueToField
-              << "  yDriftDueToField = " << yDriftDueToField
+    std::cout << "xDriftDueToField = " << xDriftDueToField << "  yDriftDueToField = " << yDriftDueToField
               << "  zDriftDueToField = " << zDriftDueToField << std::endl;
-    std::cout << "2currX = " << currX << "  2currY = " << currY
-              << "  2currZ = " << currZ << std::endl;
-    std::cout
-        << "ChargeDrifterFP420: drift; finally, rETURN AmplitudeSlimentFP420"
-        << std::endl;
-    std::cout
-        << "==================================================================="
-        << std::endl;
+    std::cout << "2currX = " << currX << "  2currY = " << currY << "  2currZ = " << currZ << std::endl;
+    std::cout << "ChargeDrifterFP420: drift; finally, rETURN AmplitudeSlimentFP420" << std::endl;
+    std::cout << "===================================================================" << std::endl;
     std::cout << " (edu).energy()= " << (edu).energy() << std::endl;
     std::cout << "==" << std::endl;
   }

@@ -20,8 +20,7 @@ public:
   // HitDigitizerFP420(const edm::ParameterSet& conf, const ElectrodGeomDetUnit
   // *det); HitDigitizerFP420(float in, float inp, float inpx, float inpy,float
   // ild,float ildx,float ildy);
-  HitDigitizerFP420(float in, float ild, float ildx, float ildy, float in0,
-                    float in2, float in3, int verbosity);
+  HitDigitizerFP420(float in, float ild, float ildx, float ildy, float in0, float in2, float in3, int verbosity);
   // HitDigitizerFP420(float in, float inp, float inpx, float inpy);
 
   ~HitDigitizerFP420();
@@ -47,8 +46,7 @@ public:
   // IChargeFP420* getInduceChargeOnElectrods(){return theIChargeFP420;}
 
   //  hit_map_type processHit(const PSimHit&, G4ThreeVector, int, int, double);
-  hit_map_type processHit(const PSimHit &, const G4ThreeVector &, int, int,
-                          double, int, double, double, int);
+  hit_map_type processHit(const PSimHit &, const G4ThreeVector &, int, int, double, int, double, double, int);
 
 private:
   CDividerFP420 *theCDividerFP420;
@@ -71,7 +69,7 @@ private:
 
   //  typedef GloballyPositioned<double>      Frame;  //  AZ
 
-  float tanLorentzAnglePerTesla; // Lorentz angle tangent per Tesla
+  float tanLorentzAnglePerTesla;  // Lorentz angle tangent per Tesla
 };
 
 #endif

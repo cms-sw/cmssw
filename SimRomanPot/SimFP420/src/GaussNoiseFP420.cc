@@ -8,14 +8,10 @@
 #include "SimRomanPot/SimFP420/interface/GaussNoiseFP420.h"
 #include "SimRomanPot/SimFP420/interface/GaussNoiseProducerFP420.h"
 
-GaussNoiseFP420::GaussNoiseFP420(int ns, float nrms, float th, bool aNpixel,
-                                 int verbosity)
-    : numPixels(ns), noiseRMS(nrms), threshold(th), addNoisyPixels(aNpixel),
-      verbosi(verbosity) {}
+GaussNoiseFP420::GaussNoiseFP420(int ns, float nrms, float th, bool aNpixel, int verbosity)
+    : numPixels(ns), noiseRMS(nrms), threshold(th), addNoisyPixels(aNpixel), verbosi(verbosity) {}
 
-PileUpFP420::signal_map_type
-GaussNoiseFP420::addNoise(const PileUpFP420::signal_map_type &in) {
-
+PileUpFP420::signal_map_type GaussNoiseFP420::addNoise(const PileUpFP420::signal_map_type &in) {
   PileUpFP420::signal_map_type _signal;
 
   // Add noise on non-hit pixels
@@ -25,18 +21,15 @@ GaussNoiseFP420::addNoise(const PileUpFP420::signal_map_type &in) {
 
   GaussNoiseProducerFP420 gen;
   gen.generate(numPixels, threshold, noiseRMS,
-               generatedNoise); // threshold is thePixelThreshold
+               generatedNoise);  // threshold is thePixelThreshold
 
   // noise for channels with signal:
   // ----------------------------
 
-  for (PileUpFP420::signal_map_type::const_iterator si = in.begin();
-       si != in.end(); si++) {
-
+  for (PileUpFP420::signal_map_type::const_iterator si = in.begin(); si != in.end(); si++) {
     if (verbosi > 0) {
       std::cout << " ***GaussNoiseFP420:  before noise:" << std::endl;
-      std::cout << " for si->first=  " << si->first
-                << "    _signal[si->first]=  " << _signal[si->first]
+      std::cout << " for si->first=  " << si->first << "    _signal[si->first]=  " << _signal[si->first]
                 << "        si->second=      " << si->second << std::endl;
     }
     // define Gaussian noise centered at 0. with sigma = noiseRMS:
@@ -46,22 +39,20 @@ GaussNoiseFP420::addNoise(const PileUpFP420::signal_map_type &in) {
     _signal[si->first] = si->second + noise;
 
     if (verbosi > 0) {
-      std::cout << " ***GaussNoiseFP420: after noise added  = " << noise
-                << std::endl;
-      std::cout << "after noise added the _signal[si->first]=  "
-                << _signal[si->first] << std::endl;
+      std::cout << " ***GaussNoiseFP420: after noise added  = " << noise << std::endl;
+      std::cout << "after noise added the _signal[si->first]=  " << _signal[si->first] << std::endl;
     }
   }
 
   //                                                                                                    //
-  if (addNoisyPixels) { // Option to skip noise in non-hit pixels
+  if (addNoisyPixels) {  // Option to skip noise in non-hit pixels
     // Noise on the other channels:
     typedef std::map<int, float, std::less<int>>::iterator MI;
     for (MI p = generatedNoise.begin(); p != generatedNoise.end(); p++) {
       if (_signal[(*p).first] == 0) {
         _signal[(*p).first] += (*p).second;
       }
-    } // for(MI
+    }  // for(MI
   }
 
   // or:

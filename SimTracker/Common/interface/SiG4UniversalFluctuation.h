@@ -19,7 +19,7 @@
 #define SiG4UniversalFluctuation_h
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class SiG4UniversalFluctuation {
@@ -30,14 +30,16 @@ public:
 
   // momentum in MeV/c, mass in MeV, tmax (delta cut) in MeV,
   // length in mm, meanLoss eloss in MeV.
-  double SampleFluctuations(const double momentum, const double mass,
-                            double &tmax, const double length,
-                            const double meanLoss, CLHEP::HepRandomEngine *);
+  double SampleFluctuations(const double momentum,
+                            const double mass,
+                            double &tmax,
+                            const double length,
+                            const double meanLoss,
+                            CLHEP::HepRandomEngine *);
 
 private:
   // hide assignment operator
-  SiG4UniversalFluctuation &
-  operator=(const SiG4UniversalFluctuation &right) = delete;
+  SiG4UniversalFluctuation &operator=(const SiG4UniversalFluctuation &right) = delete;
   SiG4UniversalFluctuation(const SiG4UniversalFluctuation &) = delete;
 
   double particleMass;

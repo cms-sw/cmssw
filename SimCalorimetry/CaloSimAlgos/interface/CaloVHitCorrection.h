@@ -4,7 +4,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CaloVHitCorrection {

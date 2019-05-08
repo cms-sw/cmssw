@@ -4,12 +4,9 @@
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBSimParameterMap.h"
 
 HcalTBSimParameterMap::HcalTBSimParameterMap()
-    : theHBParameters(2000., 117, 5, 10, 5, true, false, 1,
-                      std::vector<double>(16, 117.), 10.),
-      theHEParameters(2000., 178, 5, 10, 5, true, false, 16,
-                      std::vector<double>(16, 178.), 10.),
-      theHOParameters(4000., 217, 5, 10, 5, true, false, 1,
-                      std::vector<double>(16, 217.), 5.) {}
+    : theHBParameters(2000., 117, 5, 10, 5, true, false, 1, std::vector<double>(16, 117.), 10.),
+      theHEParameters(2000., 178, 5, 10, 5, true, false, 16, std::vector<double>(16, 178.), 10.),
+      theHOParameters(4000., 217, 5, 10, 5, true, false, 1, std::vector<double>(16, 217.), 5.) {}
 
 /*
   CaloSimParameters(double photomultiplierGain, double amplifierGain,
@@ -28,8 +25,7 @@ HcalTBSimParameterMap::HcalTBSimParameterMap(const edm::ParameterSet &p)
           p.getUntrackedParameter<bool>("doPhotostatisticsTB", true),
           p.getUntrackedParameter<bool>("syncPhaseTB", true),
           p.getUntrackedParameter<int>("firstRingTBHB", 1),
-          p.getUntrackedParameter<std::vector<double>>(
-              "samplingFactorsTBHB", std::vector<double>(16, 117.)),
+          p.getUntrackedParameter<std::vector<double>>("samplingFactorsTBHB", std::vector<double>(16, 117.)),
           p.getUntrackedParameter<double>("sipmTauTBHB", 10.)),
       theHEParameters(
           p.getUntrackedParameter<double>("photomultiplierGainTBHE", 2000.),
@@ -40,8 +36,7 @@ HcalTBSimParameterMap::HcalTBSimParameterMap(const edm::ParameterSet &p)
           p.getUntrackedParameter<bool>("doPhotostatisticsTB", true),
           p.getUntrackedParameter<bool>("syncPhaseTB", true),
           p.getUntrackedParameter<int>("firstRingTBHE", 16),
-          p.getUntrackedParameter<std::vector<double>>(
-              "samplingFactorsTBHE", std::vector<double>(16, 178.)),
+          p.getUntrackedParameter<std::vector<double>>("samplingFactorsTBHE", std::vector<double>(16, 178.)),
           p.getUntrackedParameter<double>("sipmTauTBHE", 10.)),
       theHOParameters(
           p.getUntrackedParameter<double>("photomultiplierGainTBHE", 4000.),
@@ -52,12 +47,10 @@ HcalTBSimParameterMap::HcalTBSimParameterMap(const edm::ParameterSet &p)
           p.getUntrackedParameter<bool>("doPhotostatisticsTB", true),
           p.getUntrackedParameter<bool>("syncPhaseTB", true),
           p.getUntrackedParameter<int>("firstRingTBHO", 1),
-          p.getUntrackedParameter<std::vector<double>>(
-              "samplingFactorsTBHO", std::vector<double>(16, 217.)),
+          p.getUntrackedParameter<std::vector<double>>("samplingFactorsTBHO", std::vector<double>(16, 217.)),
           p.getUntrackedParameter<double>("sipmTauTBHO", 5.)) {}
 
-const CaloSimParameters &
-HcalTBSimParameterMap::simParameters(const DetId &detId) const {
+const CaloSimParameters &HcalTBSimParameterMap::simParameters(const DetId &detId) const {
   HcalDetId hcalDetId(detId);
   if (hcalDetId.subdet() == HcalBarrel) {
     return theHBParameters;

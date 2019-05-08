@@ -6,15 +6,12 @@
 #include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 
-EcalTBReadout::EcalTBReadout(const std::string theEcalTBInfoLabel)
-    : ecalTBInfoLabel_(theEcalTBInfoLabel) {
+EcalTBReadout::EcalTBReadout(const std::string theEcalTBInfoLabel) : ecalTBInfoLabel_(theEcalTBInfoLabel) {
   theTargetCrystal_ = -1;
   theTTlist_.reserve(1);
 }
 
-void EcalTBReadout::findTTlist(const int &crysId,
-                               const EcalTrigTowerConstituentsMap &etmap) {
-
+void EcalTBReadout::findTTlist(const int &crysId, const EcalTrigTowerConstituentsMap &etmap) {
   // search for the TT involved in the NCRYMATRIX x NCRYMATRIX
   // around the target crystal if a new target, otherwise use
   // the list already filled
@@ -44,8 +41,7 @@ void EcalTBReadout::findTTlist(const int &crysId,
     ++ncount;
   }
   if (!found) {
-    throw cms::Exception("ObjectNotFound",
-                         "Ecal TB target crystal not found in geometry");
+    throw cms::Exception("ObjectNotFound", "Ecal TB target crystal not found in geometry");
     return;
   }
   theTargetCrystal_ = theTargetId.ic();
@@ -56,11 +52,8 @@ void EcalTBReadout::findTTlist(const int &crysId,
   int myEta = theTargetId.ieta();
   int myPhi = theTargetId.iphi();
 
-  for (int icrysEta = (myEta - (NCRYMATRIX - 1) / 2);
-       icrysEta <= (myEta + (NCRYMATRIX - 1) / 2); ++icrysEta) {
-    for (int icrysPhi = (myPhi - (NCRYMATRIX - 1) / 2);
-         icrysPhi <= (myPhi + (NCRYMATRIX - 1) / 2); ++icrysPhi) {
-
+  for (int icrysEta = (myEta - (NCRYMATRIX - 1) / 2); icrysEta <= (myEta + (NCRYMATRIX - 1) / 2); ++icrysEta) {
+    for (int icrysPhi = (myPhi - (NCRYMATRIX - 1) / 2); icrysPhi <= (myPhi + (NCRYMATRIX - 1) / 2); ++icrysPhi) {
       /// loop on all the valid DetId and search for the good ones
 
       EBDetId thisEBdetid;
@@ -80,22 +73,16 @@ void EcalTBReadout::findTTlist(const int &crysId,
       }
 
       if (found) {
-
         EcalTrigTowerDetId thisTTdetId = etmap.towerOf(thisEBdetid);
 
-        LogDebug("EcalDigi")
-            << "Crystal to be readout: sequential id = " << thisEBdetid.ic()
-            << " eta = " << icrysEta << " phi = " << icrysPhi
-            << " from TT = " << thisTTdetId;
+        LogDebug("EcalDigi") << "Crystal to be readout: sequential id = " << thisEBdetid.ic() << " eta = " << icrysEta
+                             << " phi = " << icrysPhi << " from TT = " << thisTTdetId;
 
-        if (theTTlist_.empty() ||
-            (theTTlist_.size() == 1 && theTTlist_[0] != thisTTdetId)) {
+        if (theTTlist_.empty() || (theTTlist_.size() == 1 && theTTlist_[0] != thisTTdetId)) {
           theTTlist_.push_back(thisTTdetId);
         } else {
-          std::vector<EcalTrigTowerDetId>::iterator ttFound =
-              find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId);
-          if (theTTlist_.size() > 1 && ttFound == theTTlist_.end() &&
-              *(theTTlist_.end()) != thisTTdetId) {
+          std::vector<EcalTrigTowerDetId>::iterator ttFound = find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId);
+          if (theTTlist_.size() > 1 && ttFound == theTTlist_.end() && *(theTTlist_.end()) != thisTTdetId) {
             theTTlist_.push_back(thisTTdetId);
           }
         }
@@ -132,14 +119,12 @@ void EcalTBReadout::readOut(const EBDigiCollection &input,
     EBDataFrame ebdf = input[digis];
 
     EcalTrigTowerDetId thisTTdetId = etmap.towerOf(ebdf.id());
-    std::vector<EcalTrigTowerDetId>::iterator ttFound =
-        find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId);
+    std::vector<EcalTrigTowerDetId>::iterator ttFound = find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId);
 
     if ((ttFound != theTTlist_.end()) || *(theTTlist_.end()) == thisTTdetId) {
       output.push_back(ebdf.id());
       EBDataFrame ebdf2(output.back());
-      std::copy(ebdf.frame().begin(), ebdf.frame().end(),
-                ebdf2.frame().begin());
+      std::copy(ebdf.frame().begin(), ebdf.frame().end(), ebdf2.frame().begin());
     }
   }
 }
@@ -152,14 +137,12 @@ void EcalTBReadout::readOut(const EEDigiCollection &input,
 
     EcalTrigTowerDetId thisTTdetId(etmap.towerOf(eedf.id()));
 
-    std::vector<EcalTrigTowerDetId>::iterator ttFound(
-        find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId));
+    std::vector<EcalTrigTowerDetId>::iterator ttFound(find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId));
 
     if ((ttFound != theTTlist_.end()) || *(theTTlist_.end()) == thisTTdetId) {
       output.push_back(eedf.id());
       EEDataFrame eedf2(output.back());
-      std::copy(eedf.frame().begin(), eedf.frame().end(),
-                eedf2.frame().begin());
+      std::copy(eedf.frame().begin(), eedf.frame().end(), eedf2.frame().begin());
     }
   }
 }
@@ -189,7 +172,6 @@ void EcalTBReadout::performReadout(edm::Event &event,
                                    const EcalTrigTowerConstituentsMap &theTTmap,
                                    const EEDigiCollection &input,
                                    EEDigiCollection &output) {
-
   // TB readout
   // step 1: get the target crystal index
 

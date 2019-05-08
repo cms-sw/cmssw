@@ -25,23 +25,18 @@
 #include <vector>
 
 namespace reco {
-enum MuonTrackType { InnerTk, OuterTk, GlobalTk, Segments, GlbOrTrk };
+  enum MuonTrackType { InnerTk, OuterTk, GlobalTk, Segments, GlbOrTrk };
 
-struct RefToBaseSort {
-  template <typename T>
-  bool operator()(const edm::RefToBase<T> &r1,
-                  const edm::RefToBase<T> &r2) const {
-    return (r1.id() == r2.id() ? r1.key() < r2.key() : r1.id() < r2.id());
-  }
-};
-typedef std::map<edm::RefToBase<reco::Muon>,
-                 std::vector<std::pair<TrackingParticleRef, double>>,
-                 RefToBaseSort>
-    MuonToSimCollection;
-typedef std::map<TrackingParticleRef,
-                 std::vector<std::pair<edm::RefToBase<reco::Muon>, double>>>
-    SimToMuonCollection;
+  struct RefToBaseSort {
+    template <typename T>
+    bool operator()(const edm::RefToBase<T> &r1, const edm::RefToBase<T> &r2) const {
+      return (r1.id() == r2.id() ? r1.key() < r2.key() : r1.id() < r2.id());
+    }
+  };
+  typedef std::map<edm::RefToBase<reco::Muon>, std::vector<std::pair<TrackingParticleRef, double>>, RefToBaseSort>
+      MuonToSimCollection;
+  typedef std::map<TrackingParticleRef, std::vector<std::pair<edm::RefToBase<reco::Muon>, double>>> SimToMuonCollection;
 
-} // namespace reco
+}  // namespace reco
 
 #endif

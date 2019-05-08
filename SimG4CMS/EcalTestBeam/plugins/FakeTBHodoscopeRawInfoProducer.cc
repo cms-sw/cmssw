@@ -9,23 +9,16 @@
 using namespace cms;
 using namespace std;
 
-FakeTBHodoscopeRawInfoProducer::FakeTBHodoscopeRawInfoProducer(
-    const edm::ParameterSet &ps) {
-
-  ecalTBInfo_ = consumes<PEcalTBInfo>(
-      edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"));
+FakeTBHodoscopeRawInfoProducer::FakeTBHodoscopeRawInfoProducer(const edm::ParameterSet &ps) {
+  ecalTBInfo_ = consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"));
   produces<EcalTBHodoscopeRawInfo>();
 
   theTBHodoGeom_ = new EcalTBHodoscopeGeometry();
 }
 
-FakeTBHodoscopeRawInfoProducer::~FakeTBHodoscopeRawInfoProducer() {
+FakeTBHodoscopeRawInfoProducer::~FakeTBHodoscopeRawInfoProducer() { delete theTBHodoGeom_; }
 
-  delete theTBHodoGeom_;
-}
-
-void FakeTBHodoscopeRawInfoProducer::produce(
-    edm::Event &event, const edm::EventSetup &eventSetup) {
+void FakeTBHodoscopeRawInfoProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
   unique_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
 
   // get the vertex information from the event
@@ -47,13 +40,11 @@ void FakeTBHodoscopeRawInfoProducer::produce(
   product->setPlanes(nPlanes);
 
   for (int iPlane = 0; iPlane < nPlanes; ++iPlane) {
-
     float theCoord = (float)partXhodo;
     if (iPlane == 1 || iPlane == 3)
       theCoord = (float)partYhodo;
 
-    vector<int> firedChannels =
-        theTBHodoGeom_->getFiredFibresInPlane(theCoord, iPlane);
+    vector<int> firedChannels = theTBHodoGeom_->getFiredFibresInPlane(theCoord, iPlane);
     unsigned int nChannels = firedChannels.size();
 
     EcalTBHodoscopePlaneRawHits planeHit(nChannels);

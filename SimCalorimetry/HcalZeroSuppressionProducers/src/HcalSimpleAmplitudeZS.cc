@@ -15,61 +15,56 @@ using namespace std;
 
 HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const &conf)
     : inputLabel_(conf.getParameter<std::string>("digiLabel")) {
-
   // register for data access
   tok_hbhe_ = consumes<HBHEDigiCollection>(edm::InputTag(inputLabel_));
   tok_ho_ = consumes<HODigiCollection>(edm::InputTag(inputLabel_));
   tok_hf_ = consumes<HFDigiCollection>(edm::InputTag(inputLabel_));
-  tok_hfQIE10_ = consumes<QIE10DigiCollection>(
-      edm::InputTag(inputLabel_, "HFQIE10DigiCollection"));
-  tok_hbheQIE11_ = consumes<QIE11DigiCollection>(
-      edm::InputTag(inputLabel_, "HBHEQIE11DigiCollection"));
+  tok_hfQIE10_ = consumes<QIE10DigiCollection>(edm::InputTag(inputLabel_, "HFQIE10DigiCollection"));
+  tok_hbheQIE11_ = consumes<QIE11DigiCollection>(edm::InputTag(inputLabel_, "HBHEQIE11DigiCollection"));
 
-  const edm::ParameterSet &psHBHE =
-      conf.getParameter<edm::ParameterSet>("hbhe");
+  const edm::ParameterSet &psHBHE = conf.getParameter<edm::ParameterSet>("hbhe");
   bool markAndPass = psHBHE.getParameter<bool>("markAndPass");
-  hbhe_ = std::unique_ptr<HcalZSAlgoEnergy>(
-      new HcalZSAlgoEnergy(markAndPass, psHBHE.getParameter<int>("level"),
-                           psHBHE.getParameter<int>("firstSample"),
-                           psHBHE.getParameter<int>("samplesToAdd"),
-                           psHBHE.getParameter<bool>("twoSided")));
+  hbhe_ = std::unique_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,
+                                                                 psHBHE.getParameter<int>("level"),
+                                                                 psHBHE.getParameter<int>("firstSample"),
+                                                                 psHBHE.getParameter<int>("samplesToAdd"),
+                                                                 psHBHE.getParameter<bool>("twoSided")));
   produces<HBHEDigiCollection>();
-  hbheQIE11_ = std::unique_ptr<HcalZSAlgoEnergy>(
-      new HcalZSAlgoEnergy(markAndPass, psHBHE.getParameter<int>("level"),
-                           psHBHE.getParameter<int>("firstSample"),
-                           psHBHE.getParameter<int>("samplesToAdd"),
-                           psHBHE.getParameter<bool>("twoSided")));
+  hbheQIE11_ = std::unique_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,
+                                                                      psHBHE.getParameter<int>("level"),
+                                                                      psHBHE.getParameter<int>("firstSample"),
+                                                                      psHBHE.getParameter<int>("samplesToAdd"),
+                                                                      psHBHE.getParameter<bool>("twoSided")));
   produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
 
   const edm::ParameterSet &psHO = conf.getParameter<edm::ParameterSet>("ho");
   markAndPass = psHO.getParameter<bool>("markAndPass");
-  ho_ = std::unique_ptr<HcalZSAlgoEnergy>(
-      new HcalZSAlgoEnergy(markAndPass, psHO.getParameter<int>("level"),
-                           psHO.getParameter<int>("firstSample"),
-                           psHO.getParameter<int>("samplesToAdd"),
-                           psHO.getParameter<bool>("twoSided")));
+  ho_ = std::unique_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,
+                                                               psHO.getParameter<int>("level"),
+                                                               psHO.getParameter<int>("firstSample"),
+                                                               psHO.getParameter<int>("samplesToAdd"),
+                                                               psHO.getParameter<bool>("twoSided")));
   produces<HODigiCollection>();
 
   const edm::ParameterSet &psHF = conf.getParameter<edm::ParameterSet>("hf");
   markAndPass = psHF.getParameter<bool>("markAndPass");
-  hf_ = std::unique_ptr<HcalZSAlgoEnergy>(
-      new HcalZSAlgoEnergy(markAndPass, psHF.getParameter<int>("level"),
-                           psHF.getParameter<int>("firstSample"),
-                           psHF.getParameter<int>("samplesToAdd"),
-                           psHF.getParameter<bool>("twoSided")));
+  hf_ = std::unique_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,
+                                                               psHF.getParameter<int>("level"),
+                                                               psHF.getParameter<int>("firstSample"),
+                                                               psHF.getParameter<int>("samplesToAdd"),
+                                                               psHF.getParameter<bool>("twoSided")));
   produces<HFDigiCollection>();
-  hfQIE10_ = std::unique_ptr<HcalZSAlgoEnergy>(
-      new HcalZSAlgoEnergy(markAndPass, psHF.getParameter<int>("level"),
-                           psHF.getParameter<int>("firstSample"),
-                           psHF.getParameter<int>("samplesToAdd"),
-                           psHF.getParameter<bool>("twoSided")));
+  hfQIE10_ = std::unique_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,
+                                                                    psHF.getParameter<int>("level"),
+                                                                    psHF.getParameter<int>("firstSample"),
+                                                                    psHF.getParameter<int>("samplesToAdd"),
+                                                                    psHF.getParameter<bool>("twoSided")));
   produces<QIE10DigiCollection>("HFQIE10DigiCollection");
 }
 
 HcalSimpleAmplitudeZS::~HcalSimpleAmplitudeZS() {}
 
-void HcalSimpleAmplitudeZS::produce(edm::Event &e,
-                                    const edm::EventSetup &eventSetup) {
+void HcalSimpleAmplitudeZS::produce(edm::Event &e, const edm::EventSetup &eventSetup) {
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
@@ -84,9 +79,8 @@ void HcalSimpleAmplitudeZS::produce(edm::Event &e,
     // run the algorithm
     hbhe_->suppress(*(digi.product()), *zs);
 
-    edm::LogInfo("HcalZeroSuppression")
-        << "Suppression (HBHE) input " << digi->size() << " digis, output "
-        << zs->size() << " digis";
+    edm::LogInfo("HcalZeroSuppression") << "Suppression (HBHE) input " << digi->size() << " digis, output "
+                                        << zs->size() << " digis";
 
     // return result
     e.put(std::move(zs));
@@ -102,9 +96,8 @@ void HcalSimpleAmplitudeZS::produce(edm::Event &e,
     // run the algorithm
     ho_->suppress(*(digi.product()), *zs);
 
-    edm::LogInfo("HcalZeroSuppression")
-        << "Suppression (HO) input " << digi->size() << " digis, output "
-        << zs->size() << " digis";
+    edm::LogInfo("HcalZeroSuppression") << "Suppression (HO) input " << digi->size() << " digis, output " << zs->size()
+                                        << " digis";
 
     // return result
     e.put(std::move(zs));
@@ -120,9 +113,8 @@ void HcalSimpleAmplitudeZS::produce(edm::Event &e,
     // run the algorithm
     hf_->suppress(*(digi.product()), *zs);
 
-    edm::LogInfo("HcalZeroSuppression")
-        << "Suppression (HF) input " << digi->size() << " digis, output "
-        << zs->size() << " digis";
+    edm::LogInfo("HcalZeroSuppression") << "Suppression (HF) input " << digi->size() << " digis, output " << zs->size()
+                                        << " digis";
 
     // return result
     e.put(std::move(zs));
@@ -134,14 +126,12 @@ void HcalSimpleAmplitudeZS::produce(edm::Event &e,
     e.getByToken(tok_hfQIE10_, digi);
 
     // create empty output
-    std::unique_ptr<QIE10DigiCollection> zs(
-        new QIE10DigiCollection(digi->samples()));
+    std::unique_ptr<QIE10DigiCollection> zs(new QIE10DigiCollection(digi->samples()));
     // run the algorithm
     hfQIE10_->suppress(*(digi.product()), *zs);
 
-    edm::LogInfo("HcalZeroSuppression")
-        << "Suppression (HFQIE10) input " << digi->size() << " digis, output "
-        << zs->size() << " digis";
+    edm::LogInfo("HcalZeroSuppression") << "Suppression (HFQIE10) input " << digi->size() << " digis, output "
+                                        << zs->size() << " digis";
 
     // return result
     e.put(std::move(zs), "HFQIE10DigiCollection");
@@ -153,14 +143,12 @@ void HcalSimpleAmplitudeZS::produce(edm::Event &e,
     e.getByToken(tok_hbheQIE11_, digi);
 
     // create empty output
-    std::unique_ptr<QIE11DigiCollection> zs(
-        new QIE11DigiCollection(digi->samples()));
+    std::unique_ptr<QIE11DigiCollection> zs(new QIE11DigiCollection(digi->samples()));
     // run the algorithm
     hbheQIE11_->suppress(*(digi.product()), *zs);
 
-    edm::LogInfo("HcalZeroSuppression")
-        << "Suppression (HBHEQIE11) input " << digi->size() << " digis, output "
-        << zs->size() << " digis";
+    edm::LogInfo("HcalZeroSuppression") << "Suppression (HBHEQIE11) input " << digi->size() << " digis, output "
+                                        << zs->size() << " digis";
 
     // return result
     e.put(std::move(zs), "HBHEQIE11DigiCollection");
