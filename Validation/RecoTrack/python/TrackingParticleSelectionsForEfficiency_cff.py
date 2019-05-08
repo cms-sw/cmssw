@@ -33,9 +33,6 @@ def _modifyForPhase1(pset):
 phase1Pixel.toModify(generalTpSelectorBlock, _modifyForPhase1)
 phase1Pixel.toModify(TpSelectorForEfficiencyVsEtaBlock, _modifyForPhase1)
 
-run3_common.toModify(generalTpSelectorBlock, _modifyForPhase1)
-run3_common.toModify(TpSelectorForEfficiencyVsEtaBlock, _modifyForPhase1)
-
 def _modifyForPhase2(pset):
     pset.minRapidity = -4.5
     pset.maxRapidity = 4.5
