@@ -18,7 +18,8 @@ public:
   CaloDigiCollectionSorter(int bin) : theMaxBin(bin) {}
 
   /// embedded class to be used as a sort predicate
-  template <class T> class CaloDigiSortByMaxBin {
+  template <class T>
+  class CaloDigiSortByMaxBin {
   public:
     CaloDigiSortByMaxBin(int bin) : theMaxBin(bin) {}
 

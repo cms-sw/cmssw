@@ -11,10 +11,7 @@
 
 using namespace std;
 
-void computeRotation(double &myTheta, double &myPhi,
-                     ROOT::Math::Rotation3D &CMStoTB,
-                     ROOT::Math::Rotation3D &TBtoCMS) {
-
+void computeRotation(double &myTheta, double &myPhi, ROOT::Math::Rotation3D &CMStoTB, ROOT::Math::Rotation3D &TBtoCMS) {
   // rotation matrix to move from the CMS reference frame to the test beam one
 
   ROOT::Math::Rotation3D *fromCMStoTB = new ROOT::Math::Rotation3D();
@@ -33,8 +30,7 @@ void computeRotation(double &myTheta, double &myPhi,
   (*fromCMStoTB) *= (*r2);
   (*fromCMStoTB) *= (*r1);
 
-  cout << "Rotation matrix from CMS to test beam frame = " << (*fromCMStoTB)
-       << "built from: \n"
+  cout << "Rotation matrix from CMS to test beam frame = " << (*fromCMStoTB) << "built from: \n"
        << " the rotation of " << angle1 << " around Z " << (*r1) << "\n"
        << " the rotation of " << angle2 << " around X " << (*r2) << "\n"
        << " the rotation of " << angle3 << " around Z " << (*r3) << std::endl;
@@ -50,8 +46,7 @@ void computeRotation(double &myTheta, double &myPhi,
   (*fromTBtoCMS) *= (*r12);
   (*fromTBtoCMS) *= (*r13);
 
-  cout << "Rotation matrix from test beam to CMS frame = " << (*fromTBtoCMS)
-       << "built from: \n"
+  cout << "Rotation matrix from test beam to CMS frame = " << (*fromTBtoCMS) << "built from: \n"
        << " the rotation of " << angle13 << " around Z " << (*r13) << "\n"
        << " the rotation of " << angle12 << " around X " << (*r12) << "\n"
        << " the rotation of " << angle11 << " around Z " << (*r11) << std::endl;
@@ -71,7 +66,6 @@ void computeRotation(double &myTheta, double &myPhi,
 }
 
 void checkTotalRotation(double &myTheta, double &myPhi) {
-
   // rotation matrix to move from the CMS reference frame to the test beam one
 
   double xx = -cos(myTheta) * cos(myPhi);
@@ -86,11 +80,9 @@ void checkTotalRotation(double &myTheta, double &myPhi) {
   double zy = sin(myTheta) * sin(myPhi);
   double zz = cos(myTheta);
 
-  ROOT::Math::Rotation3D *fromCMStoTB =
-      new ROOT::Math::Rotation3D(xx, xy, xz, yx, yy, yz, zx, zy, zz);
+  ROOT::Math::Rotation3D *fromCMStoTB = new ROOT::Math::Rotation3D(xx, xy, xz, yx, yy, yz, zx, zy, zz);
 
-  cout << "Total rotation matrix from CMS to test beam frame = "
-       << (*fromCMStoTB) << endl;
+  cout << "Total rotation matrix from CMS to test beam frame = " << (*fromCMStoTB) << endl;
 
   // rotation matrix to move from the test beam reference frame to the CMS one
 
@@ -106,11 +98,9 @@ void checkTotalRotation(double &myTheta, double &myPhi) {
   zy = 0.;
   zz = cos(myTheta);
 
-  ROOT::Math::Rotation3D *fromTBtoCMS =
-      new ROOT::Math::Rotation3D(xx, xy, xz, yx, yy, yz, zx, zy, zz);
+  ROOT::Math::Rotation3D *fromTBtoCMS = new ROOT::Math::Rotation3D(xx, xy, xz, yx, yy, yz, zx, zy, zz);
 
-  cout << "Total rotation matrix from test beam to CMS frame = "
-       << (*fromTBtoCMS) << endl;
+  cout << "Total rotation matrix from test beam to CMS frame = " << (*fromTBtoCMS) << endl;
 
   ROOT::Math::Rotation3D test = (*fromCMStoTB) * (*fromTBtoCMS);
 
@@ -118,7 +108,6 @@ void checkTotalRotation(double &myTheta, double &myPhi) {
 }
 
 int main() {
-
   // (eta,phi) for a crystal
 
   double myMod = 1.;
@@ -147,7 +136,6 @@ int main() {
 
   for (int ieta = -1; ieta <= 1; ++ieta) {
     for (int iphi = -1; iphi <= 1; ++iphi) {
-
       newTheta = myTheta + (double)ieta;
       newPhi = myPhi + (double)iphi;
 
@@ -158,22 +146,18 @@ int main() {
 
       cout << "\n ieta = " << ieta << " iphi = " << iphi << endl;
       cout << "\n From CMS to TB \n" << endl;
-      cout << "Input vector  = " << test
-           << " corresponding to theta = " << newTheta << " phi = " << newPhi
-           << endl;
+      cout << "Input vector  = " << test << " corresponding to theta = " << newTheta << " phi = " << newPhi << endl;
 
       math::XYZPoint testrot = (*CMStoTB) * test;
 
-      cout << "Output vector = " << testrot
-           << " corresponding to theta = " << testrot.theta()
+      cout << "Output vector = " << testrot << " corresponding to theta = " << testrot.theta()
            << " phi = " << testrot.phi() << endl;
 
       cout << "\n From TB to CMS \n" << endl;
 
       math::XYZPoint thistest = (*TBtoCMS) * testrot;
 
-      cout << "Output vector = " << thistest
-           << " corresponding to theta = " << thistest.theta()
+      cout << "Output vector = " << thistest << " corresponding to theta = " << thistest.theta()
            << " phi = " << thistest.phi() << endl;
       cout << "\n===========================================\n" << endl;
     }
@@ -183,7 +167,6 @@ int main() {
 
   for (int ix = -1; ix <= 1; ++ix) {
     for (int iy = -1; iy <= 1; ++iy) {
-
       xx = (double)ix * 0.01;
       yy = (double)iy * 0.01;
       zz = 1.;
@@ -195,8 +178,7 @@ int main() {
 
       math::XYZPoint testrot = (*TBtoCMS) * test;
 
-      cout << "Output vector = " << testrot
-           << " corresponding to theta = " << testrot.theta()
+      cout << "Output vector = " << testrot << " corresponding to theta = " << testrot.theta()
            << " phi = " << testrot.phi() << endl;
 
       cout << "\n From CMS to TB \n" << endl;

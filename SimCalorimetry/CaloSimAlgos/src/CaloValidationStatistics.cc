@@ -3,15 +3,17 @@
 #include <cmath>
 #include <iostream>
 
-CaloValidationStatistics::CaloValidationStatistics(std::string name,
-                                                   float expectedMean,
-                                                   float expectedRMS)
-    : name_(name), expectedMean_(expectedMean), expectedRMS_(expectedRMS),
-      sum_(0.), sumOfSquares_(0.), weightedSum_(0.), sumOfWeights_(0.), n_(0) {}
+CaloValidationStatistics::CaloValidationStatistics(std::string name, float expectedMean, float expectedRMS)
+    : name_(name),
+      expectedMean_(expectedMean),
+      expectedRMS_(expectedRMS),
+      sum_(0.),
+      sumOfSquares_(0.),
+      weightedSum_(0.),
+      sumOfWeights_(0.),
+      n_(0) {}
 
-CaloValidationStatistics::~CaloValidationStatistics() {
-  edm::LogInfo("CaloValidationStatistics") << *this;
-}
+CaloValidationStatistics::~CaloValidationStatistics() { edm::LogInfo("CaloValidationStatistics") << *this; }
 
 void CaloValidationStatistics::addEntry(float value, float weight) {
   sum_ += value;
@@ -29,12 +31,9 @@ float CaloValidationStatistics::RMS() const {
   return std::sqrt(numerator / denominator);
 }
 
-float CaloValidationStatistics::weightedMean() const {
-  return weightedSum_ / sumOfWeights_;
-}
+float CaloValidationStatistics::weightedMean() const { return weightedSum_ / sumOfWeights_; }
 
-std::ostream &operator<<(std::ostream &os,
-                         const CaloValidationStatistics &stat) {
+std::ostream &operator<<(std::ostream &os, const CaloValidationStatistics &stat) {
   os << "OVAL " << stat.name() << " entries:" << stat.nEntries();
   if (stat.nEntries() > 0) {
     os << " Mean: " << stat.mean() << " (expect " << stat.expectedMean() << ")";

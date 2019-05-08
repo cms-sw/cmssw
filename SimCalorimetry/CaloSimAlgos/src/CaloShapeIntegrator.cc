@@ -1,7 +1,6 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 
-CaloShapeIntegrator::CaloShapeIntegrator(const CaloVShape *aShape)
-    : m_shape(aShape) {}
+CaloShapeIntegrator::CaloShapeIntegrator(const CaloVShape *aShape) : m_shape(aShape) {}
 
 CaloShapeIntegrator::~CaloShapeIntegrator() {}
 

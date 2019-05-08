@@ -13,8 +13,7 @@
 
 using namespace edm;
 
-GeantPropagatorESProducer::GeantPropagatorESProducer(
-    const edm::ParameterSet &p) {
+GeantPropagatorESProducer::GeantPropagatorESProducer(const edm::ParameterSet &p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
   setWhatProduced(this, myname);
@@ -22,9 +21,7 @@ GeantPropagatorESProducer::GeantPropagatorESProducer(
 
 GeantPropagatorESProducer::~GeantPropagatorESProducer() {}
 
-std::unique_ptr<Propagator>
-GeantPropagatorESProducer::produce(const TrackingComponentsRecord &iRecord) {
-
+std::unique_ptr<Propagator> GeantPropagatorESProducer::produce(const TrackingComponentsRecord &iRecord) {
   ESHandle<MagneticField> magfield;
   iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
 

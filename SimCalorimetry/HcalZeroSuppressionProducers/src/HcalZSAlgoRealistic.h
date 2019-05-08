@@ -14,12 +14,17 @@
  */
 class HcalZSAlgoRealistic : public HcalZeroSuppressionAlgo {
 public:
-  HcalZSAlgoRealistic(bool markAndPass, std::pair<int, int> HBsearchTS,
+  HcalZSAlgoRealistic(bool markAndPass,
+                      std::pair<int, int> HBsearchTS,
                       std::pair<int, int> HEsearchTS,
                       std::pair<int, int> HOsearchTS,
                       std::pair<int, int> HFsearchTS);
-  HcalZSAlgoRealistic(bool markAndPass, int levelHB, int levelHE, int levelHO,
-                      int levelHF, std::pair<int, int> HBsearchTS,
+  HcalZSAlgoRealistic(bool markAndPass,
+                      int levelHB,
+                      int levelHE,
+                      int levelHO,
+                      int levelHF,
+                      std::pair<int, int> HBsearchTS,
                       std::pair<int, int> HEsearchTS,
                       std::pair<int, int> HOsearchTS,
                       std::pair<int, int> HFsearchTS);
@@ -39,8 +44,7 @@ private:
   int thresholdHB_, thresholdHE_, thresholdHO_, thresholdHF_;
   std::pair<int, int> HBsearchTS_, HEsearchTS_, HOsearchTS_, HFsearchTS_;
   template <class Digi>
-  bool keepMe(const Digi &inp, int start, int finish, int threshold,
-              uint32_t zsmask) const;
+  bool keepMe(const Digi &inp, int start, int finish, int threshold, uint32_t zsmask) const;
 };
 
 #endif

@@ -18,20 +18,34 @@
 
 #include <iostream>
 
-CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap,
-                                 const CaloVShape *shape)
-    : theAnalogSignalMap(), theParameterMap(parametersMap), theShapes(nullptr),
-      theShape(shape), theHitCorrection(nullptr), thePECorrection(nullptr),
-      theHitFilter(nullptr), theGeometry(nullptr), theMinBunch(-10),
-      theMaxBunch(10), thePhaseShift_(1.), storePrecise(false),
+CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, const CaloVShape *shape)
+    : theAnalogSignalMap(),
+      theParameterMap(parametersMap),
+      theShapes(nullptr),
+      theShape(shape),
+      theHitCorrection(nullptr),
+      thePECorrection(nullptr),
+      theHitFilter(nullptr),
+      theGeometry(nullptr),
+      theMinBunch(-10),
+      theMaxBunch(10),
+      thePhaseShift_(1.),
+      storePrecise(false),
       ignoreTime(false) {}
 
-CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap,
-                                 const CaloShapes *shapes)
-    : theAnalogSignalMap(), theParameterMap(parametersMap), theShapes(shapes),
-      theShape(nullptr), theHitCorrection(nullptr), thePECorrection(nullptr),
-      theHitFilter(nullptr), theGeometry(nullptr), theMinBunch(-10),
-      theMaxBunch(10), thePhaseShift_(1.), storePrecise(false),
+CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, const CaloShapes *shapes)
+    : theAnalogSignalMap(),
+      theParameterMap(parametersMap),
+      theShapes(shapes),
+      theShape(nullptr),
+      theHitCorrection(nullptr),
+      thePECorrection(nullptr),
+      theHitFilter(nullptr),
+      theGeometry(nullptr),
+      theMinBunch(-10),
+      theMaxBunch(10),
+      thePhaseShift_(1.),
+      storePrecise(false),
       ignoreTime(false) {}
 
 CaloHitResponse::~CaloHitResponse() {}
@@ -41,14 +55,11 @@ void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
   theMaxBunch = maxBunch;
 }
 
-void CaloHitResponse::run(const MixCollection<PCaloHit> &hits,
-                          CLHEP::HepRandomEngine *engine) {
-
-  for (MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
-       hitItr != hits.end(); ++hitItr) {
+void CaloHitResponse::run(const MixCollection<PCaloHit> &hits, CLHEP::HepRandomEngine *engine) {
+  for (MixCollection<PCaloHit>::MixItr hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
     if (withinBunchRange(hitItr.bunch())) {
       add(*hitItr, engine);
-    } // loop over hits
+    }  // loop over hits
   }
 }
 
@@ -62,8 +73,7 @@ void CaloHitResponse::add(const PCaloHit &hit, CLHEP::HepRandomEngine *engine) {
   if (theHitFilter == nullptr || theHitFilter->accepts(hit)) {
     LogDebug("CaloHitResponse") << hit;
     CaloSamples signal(makeAnalogSignal(hit, engine));
-    bool keep(
-        keepBlank()); // here we  check for blank signal if not keeping them
+    bool keep(keepBlank());  // here we  check for blank signal if not keeping them
     if (!keep) {
       const unsigned int size(signal.size());
       if (0 != size) {
@@ -89,14 +99,10 @@ void CaloHitResponse::add(const CaloSamples &signal) {
   }
 }
 
-CaloSamples
-CaloHitResponse::makeAnalogSignal(const PCaloHit &hit,
-                                  CLHEP::HepRandomEngine *engine) const {
-
+CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit &hit, CLHEP::HepRandomEngine *engine) const {
   DetId detId(hit.id());
   const CaloSimParameters &parameters = theParameterMap->simParameters(detId);
-  double signal =
-      analogSignalAmplitude(detId, hit.energy(), parameters, engine);
+  double signal = analogSignalAmplitude(detId, hit.energy(), parameters, engine);
 
   double time = hit.time();
   double tof = timeOfFlight(detId);
@@ -112,9 +118,8 @@ CaloHitResponse::makeAnalogSignal(const PCaloHit &hit,
     shape = theShapes->shape(detId, storePrecise);
   }
   // assume bins count from zero, go for center of bin
-  const double tzero =
-      (shape->timeToRise() + parameters.timePhase() - jitter -
-       BUNCHSPACE * (parameters.binOfMaximum() - thePhaseShift_));
+  const double tzero = (shape->timeToRise() + parameters.timePhase() - jitter -
+                        BUNCHSPACE * (parameters.binOfMaximum() - thePhaseShift_));
   double binTime = tzero;
 
   CaloSamples result(makeBlankSignal(detId));
@@ -139,11 +144,10 @@ CaloHitResponse::makeAnalogSignal(const PCaloHit &hit,
   return result;
 }
 
-double
-CaloHitResponse::analogSignalAmplitude(const DetId &detId, float energy,
-                                       const CaloSimParameters &parameters,
-                                       CLHEP::HepRandomEngine *engine) const {
-
+double CaloHitResponse::analogSignalAmplitude(const DetId &detId,
+                                              float energy,
+                                              const CaloSimParameters &parameters,
+                                              CLHEP::HepRandomEngine *engine) const {
   // OK, the "energy" in the hit could be a real energy, deposited energy,
   // or pe count.  This factor converts to photoelectrons
   // GMA Smeared in photon production it self
@@ -170,8 +174,7 @@ CaloSamples *CaloHitResponse::findSignal(const DetId &detId) {
 
 CaloSamples CaloHitResponse::makeBlankSignal(const DetId &detId) const {
   const CaloSimParameters &parameters = theParameterMap->simParameters(detId);
-  int preciseSize(storePrecise ? parameters.readoutFrameSize() * BUNCHSPACE
-                               : 0);
+  int preciseSize(storePrecise ? parameters.readoutFrameSize() * BUNCHSPACE : 0);
   CaloSamples result(detId, parameters.readoutFrameSize(), preciseSize);
   result.setPresamples(parameters.binOfMaximum() - 1);
   if (storePrecise)
@@ -184,18 +187,15 @@ double CaloHitResponse::timeOfFlight(const DetId &detId) const {
   // Take the whole CaloGeometry and find the right subdet
   double result = 0.;
   if (theGeometry == nullptr) {
-    edm::LogWarning("CaloHitResponse")
-        << "No Calo Geometry set, so no time of flight correction";
+    edm::LogWarning("CaloHitResponse") << "No Calo Geometry set, so no time of flight correction";
   } else {
-    auto cellGeometry =
-        theGeometry->getSubdetectorGeometry(detId)->getGeometry(detId);
+    auto cellGeometry = theGeometry->getSubdetectorGeometry(detId)->getGeometry(detId);
     if (cellGeometry == nullptr) {
-      edm::LogWarning("CaloHitResponse")
-          << "No Calo cell found for ID" << detId.rawId()
-          << " so no time-of-flight subtraction will be done";
+      edm::LogWarning("CaloHitResponse") << "No Calo cell found for ID" << detId.rawId()
+                                         << " so no time-of-flight subtraction will be done";
     } else {
       double distance = cellGeometry->getPosition().mag();
-      result = distance * cm / c_light; // Units of c_light: mm/ns
+      result = distance * cm / c_light;  // Units of c_light: mm/ns
     }
   }
   return result;

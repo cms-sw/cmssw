@@ -15,10 +15,10 @@
 extern "C" float freq_(const float &x);
 extern "C" float gausin_(const float &x);
 
-void GaussNoiseProducerFP420::generate(
-    int NumberOfchannels, float threshold, float noiseRMS,
-    std::map<int, float, std::less<int>> &theMap) {
-
+void GaussNoiseProducerFP420::generate(int NumberOfchannels,
+                                       float threshold,
+                                       float noiseRMS,
+                                       std::map<int, float, std::less<int>> &theMap) {
   // estimale mean number of noisy channels with amplidudes above $AdcThreshold$
 
   // Gauss is centered at 0 with sigma=1
@@ -37,8 +37,7 @@ void GaussNoiseProducerFP420::generate(
   // with known probability higher threshold compute number of noisy channels
   // distributed in Poisson:
   float meanNumberOfNoisyChannels = probabilityLeft * NumberOfchannels;
-  int numberOfNoisyChannels =
-      CLHEP::RandPoisson::shoot(meanNumberOfNoisyChannels);
+  int numberOfNoisyChannels = CLHEP::RandPoisson::shoot(meanNumberOfNoisyChannels);
 
   // draw noise at random according to Gaussian tail
 
@@ -47,7 +46,6 @@ void GaussNoiseProducerFP420::generate(
 
   float lowLimit = threshold * noiseRMS;
   for (int i = 0; i < numberOfNoisyChannels; i++) {
-
     // Find a random channel number
     int theChannelNumber = (int)CLHEP::RandFlat::shootInt(NumberOfchannels);
 

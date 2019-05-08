@@ -1,15 +1,23 @@
 #include "HcalZSAlgoRealistic.h"
 #include <iostream>
 
-HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp, int levelHB, int levelHE,
-                                         int levelHO, int levelHF,
+HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp,
+                                         int levelHB,
+                                         int levelHE,
+                                         int levelHO,
+                                         int levelHF,
                                          std::pair<int, int> HBsearchTS,
                                          std::pair<int, int> HEsearchTS,
                                          std::pair<int, int> HOsearchTS,
                                          std::pair<int, int> HFsearchTS)
-    : HcalZeroSuppressionAlgo(mp), thresholdHB_(levelHB), thresholdHE_(levelHE),
-      thresholdHO_(levelHO), thresholdHF_(levelHF), HBsearchTS_(HBsearchTS),
-      HEsearchTS_(HEsearchTS), HOsearchTS_(HOsearchTS),
+    : HcalZeroSuppressionAlgo(mp),
+      thresholdHB_(levelHB),
+      thresholdHE_(levelHE),
+      thresholdHO_(levelHO),
+      thresholdHF_(levelHF),
+      HBsearchTS_(HBsearchTS),
+      HEsearchTS_(HEsearchTS),
+      HOsearchTS_(HOsearchTS),
       HFsearchTS_(HFsearchTS) {
   usingDBvalues = false;
 }
@@ -19,8 +27,10 @@ HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp,
                                          std::pair<int, int> HEsearchTS,
                                          std::pair<int, int> HOsearchTS,
                                          std::pair<int, int> HFsearchTS)
-    : HcalZeroSuppressionAlgo(mp), HBsearchTS_(HBsearchTS),
-      HEsearchTS_(HEsearchTS), HOsearchTS_(HOsearchTS),
+    : HcalZeroSuppressionAlgo(mp),
+      HBsearchTS_(HBsearchTS),
+      HEsearchTS_(HEsearchTS),
+      HOsearchTS_(HOsearchTS),
       HFsearchTS_(HFsearchTS) {
   thresholdHB_ = -1;
   thresholdHE_ = -1;
@@ -30,8 +40,7 @@ HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp,
 }
 
 template <class Digi>
-bool HcalZSAlgoRealistic::keepMe(const Digi &inp, int start, int finish,
-                                 int threshold, uint32_t zsmask) const {
+bool HcalZSAlgoRealistic::keepMe(const Digi &inp, int start, int finish, int threshold, uint32_t zsmask) const {
   if ((usingDBvalues) && (threshold < 0) && (m_dbService != nullptr)) {
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
@@ -49,10 +58,8 @@ bool HcalZSAlgoRealistic::keepMe(const Digi &inp, int start, int finish,
 // zs mask not used for QIE10,11
 
 template <>
-bool HcalZSAlgoRealistic::keepMe<QIE10DataFrame>(const QIE10DataFrame &inp,
-                                                 int start, int finish,
-                                                 int threshold,
-                                                 uint32_t zsmask) const {
+bool HcalZSAlgoRealistic::keepMe<QIE10DataFrame>(
+    const QIE10DataFrame &inp, int start, int finish, int threshold, uint32_t zsmask) const {
   if ((usingDBvalues) && (threshold < 0) && (m_dbService != nullptr)) {
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
@@ -66,10 +73,8 @@ bool HcalZSAlgoRealistic::keepMe<QIE10DataFrame>(const QIE10DataFrame &inp,
 }
 
 template <>
-bool HcalZSAlgoRealistic::keepMe<QIE11DataFrame>(const QIE11DataFrame &inp,
-                                                 int start, int finish,
-                                                 int threshold,
-                                                 uint32_t zsmask) const {
+bool HcalZSAlgoRealistic::keepMe<QIE11DataFrame>(
+    const QIE11DataFrame &inp, int start, int finish, int threshold, uint32_t zsmask) const {
   if ((usingDBvalues) && (threshold < 0) && (m_dbService != nullptr)) {
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }

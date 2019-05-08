@@ -24,30 +24,26 @@
 class PEcalTBInfo;
 
 namespace edm {
-class StreamID;
-class ConsumesCollector;
-} // namespace edm
+  class StreamID;
+  class ConsumesCollector;
+}  // namespace edm
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class HcalTBDigiProducer : public DigiAccumulatorMixMod {
 public:
-  explicit HcalTBDigiProducer(const edm::ParameterSet &ps,
-                              edm::ProducerBase &mixMod,
-                              edm::ConsumesCollector &iC);
+  explicit HcalTBDigiProducer(const edm::ParameterSet &ps, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
   ~HcalTBDigiProducer() override;
 
   void initializeEvent(edm::Event const &e, edm::EventSetup const &c) override;
   void accumulate(edm::Event const &e, edm::EventSetup const &c) override;
-  void accumulate(PileUpEventPrincipal const &e, edm::EventSetup const &c,
-                  edm::StreamID const &) override;
+  void accumulate(PileUpEventPrincipal const &e, edm::EventSetup const &c, edm::StreamID const &) override;
   void finalizeEvent(edm::Event &e, edm::EventSetup const &c) override;
 
 private:
-  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const &hits,
-                          int bunchCrossing);
+  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const &hits, int bunchCrossing);
 
   /// fills the vectors for each subdetector
   void sortHits(const edm::PCaloHitContainer &hits);
