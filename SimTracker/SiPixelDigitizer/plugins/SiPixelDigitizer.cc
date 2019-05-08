@@ -117,7 +117,8 @@ namespace cms
     }
     
     _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig));
-    mixMod.produces<PixelFEDChannelCollection>();
+    if (NumberOfEndcapDisks != 2)
+      mixMod.produces<PixelFEDChannelCollection>();
   }
   
   SiPixelDigitizer::~SiPixelDigitizer(){  
