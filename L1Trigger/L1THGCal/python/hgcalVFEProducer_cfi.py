@@ -34,27 +34,30 @@ thicknessCorrection_200 = thicknessCorrection[1]
 triggerCellLsbBeforeCompression = 100./1024.
 triggerCellTruncationBits = 0
 
-calib_parValues = cms.PSet( siliconCellLSB_fC =  cms.double( triggerCellLsbBeforeCompression*(2**triggerCellTruncationBits) ),
-                            scintillatorCellLSB_MIP = cms.double(float(adcSaturationBH_MIP.value())/(2**float(adcNbitsBH.value()))),
-                            fCperMIP = cms.double(fCPerMIP_200),
-                            dEdXweights = layerWeights,
-                            thickCorr = cms.double(thicknessCorrection_200)
-                            )
-
 vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
-                     calib_parameters = calib_parValues.clone(),
-                     linLSB = cms.double(100./1024.),
+                     linLSB = cms.double(triggerCellLsbBeforeCompression),
                      adcsaturation = adcSaturation_fC,
                      tdcnBits = tdcNbits,
                      tdcOnsetfC = tdcOnset_fC,
                      adcnBits = adcNbits,
-                     tdcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
+                     tdcsaturation = tdcSaturation_fC,
                      linnBits = cms.uint32(16),
-                     ThicknessCorrections = cms.vdouble(frontend_thickness_corrections),
+                     siliconCellLSB_fC =  cms.double( triggerCellLsbBeforeCompression*(2**triggerCellTruncationBits) ),
+                     scintillatorCellLSB_MIP = cms.double(float(adcSaturationBH_MIP.value())/(2**float(adcNbitsBH.value()))),
+                     # cell thresholds before TC sums
+                     # Cut at 3sigma of the noise
+                     thresholdsSilicon = cms.vdouble([3.*x for x in digiparam.HGCAL_noise_fC.values.value()]),
+                     thresholdScintillator = cms.double(3.*digiparam.HGCAL_noise_MIP.value.value()),
+                     # Floating point compression
                      exponentBits = cms.uint32(4),
                      mantissaBits = cms.uint32(4),
-                     rounding = cms.bool(True)
-                   )
+                     rounding = cms.bool(True),
+                     # Trigger cell calibration
+                     fCperMIP = cms.double(fCPerMIP_200),
+                     dEdXweights = layerWeights,
+                     ThicknessCorrections = cms.vdouble(frontend_thickness_corrections),
+                     thickCorr = cms.double(thicknessCorrection_200)
+                     )
 
 hgcalVFEProducer = cms.EDProducer(
         "HGCalVFEProducer",

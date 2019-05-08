@@ -1,106 +1,119 @@
 import FWCore.ParameterSet.Config as cms
+from L1Trigger.L1THGCal.hgcalBackEndLayer2Producer_cfi import distance_C3d_params, \
+                                                              dbscan_C3d_params, \
+                                                              histoMax_C3d_params, \
+                                                              histoMaxVariableDR_C3d_params, \
+                                                              histoSecondaryMax_C3d_params, \
+                                                              histoInterpolatedMax_C3d_params, \
+                                                              histoThreshold_C3d_params, \
+                                                              neighbour_weights_1stOrder, \
+                                                              neighbour_weights_2ndOrder
 
-from L1Trigger.L1THGCal.customClustering import binSums, dr_layerbylayer
+from L1Trigger.L1THGCal.customClustering import set_histomax_params
 
 
 def create_distance(process, inputs,
-        distance=0.01
-        ):
-    producer = process.hgcalBackEndLayer2Producer.clone() 
-    producer.ProcessorParameters.C3d_parameters.dR_multicluster = cms.double(distance)
-    producer.ProcessorParameters.C3d_parameters.dist_dbscan_multicluster=cms.double(0.)
-    producer.ProcessorParameters.C3d_parameters.minN_dbscan_multicluster=cms.uint32(0)
-    producer.ProcessorParameters.C3d_parameters.type_multicluster = cms.string('dRC3d')
-    producer.InputCluster = cms.InputTag('{}:HGCalBackendLayer1Processor2DClustering'.format(inputs))
+                    distance=distance_C3d_params.dR_multicluster
+                    ):
+    producer = process.hgcalBackEndLayer2Producer.clone(
+            InputCluster = cms.InputTag('{}:HGCalBackendLayer1Processor2DClustering'.format(inputs))
+            )
+    producer.ProcessorParameters.C3d_parameters = distance_C3d_params.clone(
+            dR_multicluster = distance
+            )
     return producer
 
 
 def create_dbscan(process, inputs,
-        distance=0.005,
-        min_points=3
-        ):
-    producer = process.hgcalBackEndLayer2Producer.clone() 
-    producer.ProcessorParameters.C3d_parameters.dR_multicluster = cms.double(0.)
-    producer.ProcessorParameters.C3d_parameters.dist_dbscan_multicluster = cms.double(distance)
-    producer.ProcessorParameters.C3d_parameters.minN_dbscan_multicluster = cms.uint32(min_points)
-    producer.ProcessorParameters.C3d_parameters.type_multicluster = cms.string('DBSCANC3d')
-    producer.InputCluster = cms.InputTag('{}:HGCalBackendLayer1Processor2DClustering'.format(inputs))
+                  distance=dbscan_C3d_params.dist_dbscan_multicluster,
+                  min_points=dbscan_C3d_params.minN_dbscan_multicluster
+                  ):
+    producer = process.hgcalBackEndLayer2Producer.clone(
+            InputCluster = cms.InputTag('{}:HGCalBackendLayer1Processor2DClustering'.format(inputs))
+            )
+    producer.ProcessorParameters.C3d_parameters = dbscan_C3d_params.clone(
+            dist_dbscan_multicluster = distance,
+            minN_dbscan_multicluster = min_points
+            )
     return producer
 
 
 def create_histoMax(process, inputs,
-        distance = 0.03,
-        nBins_R = 36,
-        nBins_Phi = 216,
-        binSumsHisto = binSums,                        
-        seed_threshold = 0,
-        ):
-    producer = process.hgcalBackEndLayer2Producer.clone() 
-    producer.ProcessorParameters.C3d_parameters.dR_multicluster = cms.double(distance)
-    producer.ProcessorParameters.C3d_parameters.nBins_R_histo_multicluster = cms.uint32(nBins_R)
-    producer.ProcessorParameters.C3d_parameters.nBins_Phi_histo_multicluster = cms.uint32(nBins_Phi)
-    producer.ProcessorParameters.C3d_parameters.binSumsHisto = binSumsHisto
-    producer.ProcessorParameters.C3d_parameters.threshold_histo_multicluster = seed_threshold
-    producer.ProcessorParameters.C3d_parameters.type_multicluster = cms.string('HistoMaxC3d')
-    producer.InputCluster = cms.InputTag('{}:HGCalBackendLayer1Processor2DClustering'.format(inputs))
+                    distance=histoMax_C3d_params.dR_multicluster,
+                    nBins_R=histoMax_C3d_params.nBins_R_histo_multicluster,
+                    nBins_Phi=histoMax_C3d_params.nBins_Phi_histo_multicluster,
+                    binSumsHisto=histoMax_C3d_params.binSumsHisto,
+                    seed_threshold=histoMax_C3d_params.threshold_histo_multicluster,
+                    ):
+    producer = process.hgcalBackEndLayer2Producer.clone(
+            InputCluster = cms.InputTag('{}:HGCalBackendLayer1Processor2DClustering'.format(inputs))
+            )
+    producer.ProcessorParameters.C3d_parameters = histoMax_C3d_params.clone()
+    set_histomax_params(producer.ProcessorParameters.C3d_parameters, distance, nBins_R, nBins_Phi, binSumsHisto, seed_threshold)
     return producer
 
 
 def create_histoMax_variableDr(process, inputs,
-        distances = dr_layerbylayer,
-        nBins_R = 36,
-        nBins_Phi = 216,
-        binSumsHisto = binSums,
-        seed_threshold = 0,
-        ):
-    producer = create_histoMax(process, inputs, 0, nBins_R, nBins_Phi, binSumsHisto, seed_threshold)
-    producer.ProcessorParameters.C3d_parameters.dR_multicluster_byLayer = cms.vdouble(distances)
+                               distances=histoMaxVariableDR_C3d_params.dR_multicluster_byLayer_coefficientA,
+                               nBins_R=histoMaxVariableDR_C3d_params.nBins_R_histo_multicluster,
+                               nBins_Phi=histoMaxVariableDR_C3d_params.nBins_Phi_histo_multicluster,
+                               binSumsHisto=histoMaxVariableDR_C3d_params.binSumsHisto,
+                               seed_threshold=histoMaxVariableDR_C3d_params.threshold_histo_multicluster,
+                               ):
+    producer = process.hgcalBackEndLayer2Producer.clone(
+            InputCluster = cms.InputTag('{}:HGCalBackendLayer1Processor2DClustering'.format(inputs))
+            )
+    producer.ProcessorParameters.C3d_parameters = histoMax_C3d_params.clone(
+            dR_multicluster_byLayer_coefficientA = distances
+            )
+    set_histomax_params(producer.ProcessorParameters.C3d_parameters, 0, nBins_R, nBins_Phi, binSumsHisto, seed_threshold)
     return producer
 
 
-def create_histoInterpolatedMax(process, inputs,
-        distance = 0.03,
-        nBins_R = 36,
-        nBins_Phi = 216,
-        binSumsHisto = binSums,
-        ):
-    producer = create_histoMax( process, inputs, distance, nBins_R, nBins_Phi, binSumsHisto )
-    producer.ProcessorParameters.C3d_parameters.type_multicluster = cms.string('HistoInterpolatedMaxC3d')
+def create_histoInterpolatedMax1stOrder(process, inputs,
+                                        distance=histoInterpolatedMax_C3d_params.dR_multicluster,
+                                        nBins_R=histoInterpolatedMax_C3d_params.nBins_R_histo_multicluster,
+                                        nBins_Phi=histoInterpolatedMax_C3d_params.nBins_Phi_histo_multicluster,
+                                        binSumsHisto=histoInterpolatedMax_C3d_params.binSumsHisto,
+                                        seed_threshold=histoInterpolatedMax_C3d_params.threshold_histo_multicluster,
+                                        ):
+    producer = process.hgcalBackEndLayer2Producer.clone(
+            InputCluster = cms.InputTag('{}:HGCalBackendLayer1Processor2DClustering'.format(inputs))
+            )
+    producer.ProcessorParameters.C3d_parameters = histoInterpolatedMax_C3d_params.clone(
+            neighbour_weights = neighbour_weights_1stOrder
+            )
+    set_histomax_params(producer.ProcessorParameters.C3d_parameters, distance, nBins_R, nBins_Phi, binSumsHisto, seed_threshold)
     return producer
 
-def create_histoInterpolatedMax1stOrder(process, inputs):
-    producer = create_histoInterpolatedMax( process, inputs )
-    producer.ProcessorParameters.C3d_parameters.neighbour_weights=cms.vdouble(  0    , 0.25, 0   ,
-                                                   0.25 , 0   , 0.25,
-                                                   0    , 0.25, 0
-                                                )
+
+def create_histoInterpolatedMax2ndOrder(process, inputs,
+                                        distance=histoInterpolatedMax_C3d_params.dR_multicluster,
+                                        nBins_R=histoInterpolatedMax_C3d_params.nBins_R_histo_multicluster,
+                                        nBins_Phi=histoInterpolatedMax_C3d_params.nBins_Phi_histo_multicluster,
+                                        binSumsHisto=histoInterpolatedMax_C3d_params.binSumsHisto,
+                                        seed_threshold=histoInterpolatedMax_C3d_params.threshold_histo_multicluster,
+                                        ):
+    producer = process.hgcalBackEndLayer2Producer.clone(
+            InputCluster = cms.InputTag('{}:HGCalBackendLayer1Processor2DClustering'.format(inputs))
+            )
+    producer.ProcessorParameters.C3d_parameters = histoInterpolatedMax_C3d_params.clone(
+            neighbour_weights = neighbour_weights_2ndOrder
+            )
+    set_histomax_params(producer.ProcessorParameters.C3d_parameters, distance, nBins_R, nBins_Phi, binSumsHisto, seed_threshold)
     return producer
-
-
-
-def create_histoInterpolatedMax2ndOrder(process, inputs):
-    producer = create_histoInterpolatedMax( process,inputs )
-    producer.ProcessorParameters.C3d_parameters.neighbour_weights=cms.vdouble( -0.25, 0.5, -0.25,
-                                                   0.5 , 0  ,  0.5 ,
-                                                  -0.25, 0.5, -0.25
-                                                )
-    return producer
-
 
 
 def create_histoThreshold(process, inputs,
-        threshold = 20.,
-        distance = 0.03,
-        nBins_R = 36,
-        nBins_Phi = 216,
-        binSumsHisto = binSums,
-        ):
-    producer = process.hgcalBackEndLayer2Producer.clone() 
-    producer.ProcessorParameters.C3d_parameters.threshold_histo_multicluster = cms.double(threshold)
-    producer.ProcessorParameters.C3d_parameters.dR_multicluster = cms.double(distance)
-    producer.ProcessorParameters.C3d_parameters.nBins_R_histo_multicluster = cms.uint32(nBins_R)
-    producer.ProcessorParameters.C3d_parameters.nBins_Phi_histo_multicluster = cms.uint32(nBins_Phi)
-    producer.ProcessorParameters.C3d_parameters.binSumsHisto = binSumsHisto
-    producer.ProcessorParameters.C3d_parameters.type_multicluster = cms.string('HistoThresholdC3d')
-    producer.InputCluster = cms.InputTag('{}:HGCalBackendLayer1Processor2DClustering'.format(inputs))
+                          threshold=histoThreshold_C3d_params.threshold_histo_multicluster,
+                          distance=histoThreshold_C3d_params.dR_multicluster,
+                          nBins_R=histoThreshold_C3d_params.nBins_R_histo_multicluster,
+                          nBins_Phi=histoThreshold_C3d_params.nBins_Phi_histo_multicluster,
+                          binSumsHisto=histoThreshold_C3d_params.binSumsHisto
+                          ):
+    producer = process.hgcalBackEndLayer2Producer.clone(
+            InputCluster = cms.InputTag('{}:HGCalBackendLayer1Processor2DClustering'.format(inputs))
+            )
+    producer.ProcessorParameters.C3d_parameters = histoThreshold_C3d_params.clone()
+    set_histomax_params(producer.ProcessorParameters.C3d_parameters, distance, nBins_R, nBins_Phi, binSumsHisto, threshold)
     return producer
