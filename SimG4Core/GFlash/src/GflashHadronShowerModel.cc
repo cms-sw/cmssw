@@ -32,8 +32,9 @@
 
 using namespace CLHEP;
 
-GflashHadronShowerModel::GflashHadronShowerModel(
-    G4String modelName, G4Region *envelope, const edm::ParameterSet &parSet)
+GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName,
+                                                 G4Region *envelope,
+                                                 const edm::ParameterSet &parSet)
     : G4VFastSimulationModel(modelName, envelope), theParSet(parSet) {
   theWatcherOn = parSet.getParameter<bool>("watcherOn");
 
@@ -57,14 +58,10 @@ GflashHadronShowerModel::~GflashHadronShowerModel() {
     delete theGflashStep;
 }
 
-G4bool GflashHadronShowerModel::IsApplicable(
-    const G4ParticleDefinition &particleType) {
-  return &particleType == G4PionMinus::PionMinusDefinition() ||
-         &particleType == G4PionPlus::PionPlusDefinition() ||
-         &particleType == G4KaonMinus::KaonMinusDefinition() ||
-         &particleType == G4KaonPlus::KaonPlusDefinition() ||
-         &particleType == G4AntiProton::AntiProtonDefinition() ||
-         &particleType == G4Proton::ProtonDefinition();
+G4bool GflashHadronShowerModel::IsApplicable(const G4ParticleDefinition &particleType) {
+  return &particleType == G4PionMinus::PionMinusDefinition() || &particleType == G4PionPlus::PionPlusDefinition() ||
+         &particleType == G4KaonMinus::KaonMinusDefinition() || &particleType == G4KaonPlus::KaonPlusDefinition() ||
+         &particleType == G4AntiProton::AntiProtonDefinition() || &particleType == G4Proton::ProtonDefinition();
 }
 
 G4bool GflashHadronShowerModel::ModelTrigger(const G4FastTrack &fastTrack) {
@@ -79,14 +76,12 @@ G4bool GflashHadronShowerModel::ModelTrigger(const G4FastTrack &fastTrack) {
   G4bool trigger = false;
 
   // mininum energy cutoff to parameterize
-  if (fastTrack.GetPrimaryTrack()->GetKineticEnergy() / GeV <
-      Gflash::energyCutOff)
+  if (fastTrack.GetPrimaryTrack()->GetKineticEnergy() / GeV < Gflash::energyCutOff)
     return trigger;
 
   // check whether this is called from the normal GPIL or the wrapper process
   // GPIL
   if (fastTrack.GetPrimaryTrack()->GetTrackStatus() == fPostponeToNextEvent) {
-
     // Shower pameterization start at the first inelastic interaction point
     G4bool isInelastic = isFirstInelasticInteraction(fastTrack);
 
@@ -99,15 +94,13 @@ G4bool GflashHadronShowerModel::ModelTrigger(const G4FastTrack &fastTrack) {
   return trigger;
 }
 
-void GflashHadronShowerModel::DoIt(const G4FastTrack &fastTrack,
-                                   G4FastStep &fastStep) {
+void GflashHadronShowerModel::DoIt(const G4FastTrack &fastTrack, G4FastStep &fastStep) {
   // kill the particle
   fastStep.KillPrimaryTrack();
   fastStep.ProposePrimaryTrackPathLength(0.0);
 
   // parameterize energy depostion by the particle type
-  G4ParticleDefinition *particleType =
-      fastTrack.GetPrimaryTrack()->GetDefinition();
+  G4ParticleDefinition *particleType = fastTrack.GetPrimaryTrack()->GetDefinition();
 
   theProfile = thePiKProfile;
   if (particleType == G4KaonMinus::KaonMinusDefinition())
@@ -121,18 +114,13 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack &fastTrack,
 
   // input variables for GflashHadronShowerProfile
   G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy() / GeV;
-  G4double globalTime = fastTrack.GetPrimaryTrack()
-                            ->GetStep()
-                            ->GetPostStepPoint()
-                            ->GetGlobalTime();
-  G4double charge =
-      fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
+  G4double globalTime = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetGlobalTime();
+  G4double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
   G4ThreeVector position = fastTrack.GetPrimaryTrack()->GetPosition() / cm;
   G4ThreeVector momentum = fastTrack.GetPrimaryTrack()->GetMomentum() / GeV;
   G4int showerType = Gflash::findShowerType(position);
 
-  theProfile->initialize(showerType, energy, globalTime, charge, position,
-                         momentum);
+  theProfile->initialize(showerType, energy, globalTime, charge, position, momentum);
   theProfile->loadParameters();
   theProfile->hadronicParameterization();
 
@@ -141,41 +129,30 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack &fastTrack,
 }
 
 void GflashHadronShowerModel::makeHits(const G4FastTrack &fastTrack) {
-
   std::vector<GflashHit> &gflashHitList = theProfile->getGflashHitList();
 
   theGflashStep->SetTrack(const_cast<G4Track *>(fastTrack.GetPrimaryTrack()));
   theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(
-      const_cast<G4VProcess *>(fastTrack.GetPrimaryTrack()
-                                   ->GetStep()
-                                   ->GetPostStepPoint()
-                                   ->GetProcessDefinedStep()));
+      const_cast<G4VProcess *>(fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
   theGflashNavigator->SetWorldVolume(
-      G4TransportationManager::GetTransportationManager()
-          ->GetNavigatorForTracking()
-          ->GetWorldVolume());
+      G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
   std::vector<GflashHit>::const_iterator spotIter = gflashHitList.begin();
   std::vector<GflashHit>::const_iterator spotIterEnd = gflashHitList.end();
 
   for (; spotIter != spotIterEnd; spotIter++) {
-
     theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(
-        spotIter->getPosition(), G4ThreeVector(0, 0, 0),
-        theGflashTouchableHandle, false);
+        spotIter->getPosition(), G4ThreeVector(0, 0, 0), theGflashTouchableHandle, false);
     updateGflashStep(spotIter->getPosition(), spotIter->getTime());
 
     // if there is a watcher defined in a job and the flag is turned on
     if (theWatcherOn) {
       theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy());
-      SteppingAction *userSteppingAction =
-          (SteppingAction *)G4EventManager::GetEventManager()
-              ->GetUserSteppingAction();
+      SteppingAction *userSteppingAction = (SteppingAction *)G4EventManager::GetEventManager()->GetUserSteppingAction();
       userSteppingAction->m_g4StepSignal(theGflashStep);
     }
 
-    G4VPhysicalVolume *aCurrentVolume =
-        theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
+    G4VPhysicalVolume *aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
     if (aCurrentVolume == nullptr)
       continue;
 
@@ -183,10 +160,8 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack &fastTrack) {
     if (lv->GetRegion()->GetName() != "CaloRegion")
       continue;
 
-    theGflashStep->GetPreStepPoint()->SetSensitiveDetector(
-        aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
-    G4VSensitiveDetector *aSensitive =
-        theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
+    theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
+    G4VSensitiveDetector *aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
 
     if (aSensitive == nullptr)
       continue;
@@ -199,57 +174,42 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack &fastTrack) {
     } else if (nameCalor == "HE" || nameCalor == "HT") {
       samplingWeight = Gflash::scaleSensitiveHE;
     }
-    theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy() *
-                                         samplingWeight);
+    theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy() * samplingWeight);
 
     aSensitive->Hit(theGflashStep);
   }
 }
 
-void GflashHadronShowerModel::updateGflashStep(
-    const G4ThreeVector &spotPosition, G4double timeGlobal) {
+void GflashHadronShowerModel::updateGflashStep(const G4ThreeVector &spotPosition, G4double timeGlobal) {
   theGflashStep->GetPostStepPoint()->SetGlobalTime(timeGlobal);
   theGflashStep->GetPreStepPoint()->SetPosition(spotPosition);
   theGflashStep->GetPostStepPoint()->SetPosition(spotPosition);
-  theGflashStep->GetPreStepPoint()->SetTouchableHandle(
-      theGflashTouchableHandle);
+  theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
 }
 
-G4bool GflashHadronShowerModel::isFirstInelasticInteraction(
-    const G4FastTrack &fastTrack) {
+G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack &fastTrack) {
   G4bool isFirst = false;
 
-  G4StepPoint *preStep =
-      fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint();
-  G4StepPoint *postStep =
-      fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint();
+  G4StepPoint *preStep = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint();
+  G4StepPoint *postStep = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint();
 
   G4String procName = postStep->GetProcessDefinedStep()->GetProcessName();
-  G4ParticleDefinition *particleType =
-      fastTrack.GetPrimaryTrack()->GetDefinition();
+  G4ParticleDefinition *particleType = fastTrack.GetPrimaryTrack()->GetDefinition();
 
   //@@@ this part is still temporary and the cut for the variable ratio should
   // be optimized later
 
-  if ((particleType == G4PionPlus::PionPlusDefinition() &&
-       procName == "WrappedPionPlusInelastic") ||
-      (particleType == G4PionMinus::PionMinusDefinition() &&
-       procName == "WrappedPionMinusInelastic") ||
-      (particleType == G4KaonPlus::KaonPlusDefinition() &&
-       procName == "WrappedKaonPlusInelastic") ||
-      (particleType == G4KaonMinus::KaonMinusDefinition() &&
-       procName == "WrappedKaonMinusInelastic") ||
-      (particleType == G4AntiProton::AntiProtonDefinition() &&
-       procName == "WrappedAntiProtonInelastic") ||
-      (particleType == G4Proton::ProtonDefinition() &&
-       procName == "WrappedProtonInelastic")) {
-
+  if ((particleType == G4PionPlus::PionPlusDefinition() && procName == "WrappedPionPlusInelastic") ||
+      (particleType == G4PionMinus::PionMinusDefinition() && procName == "WrappedPionMinusInelastic") ||
+      (particleType == G4KaonPlus::KaonPlusDefinition() && procName == "WrappedKaonPlusInelastic") ||
+      (particleType == G4KaonMinus::KaonMinusDefinition() && procName == "WrappedKaonMinusInelastic") ||
+      (particleType == G4AntiProton::AntiProtonDefinition() && procName == "WrappedAntiProtonInelastic") ||
+      (particleType == G4Proton::ProtonDefinition() && procName == "WrappedProtonInelastic")) {
     // skip to the second interaction if the first inelastic is a quasi-elastic
     // like interaction
     //@@@ the cut may be optimized later
 
-    const G4TrackVector *fSecondaryVector =
-        fastTrack.GetPrimaryTrack()->GetStep()->GetSecondary();
+    const G4TrackVector *fSecondaryVector = fastTrack.GetPrimaryTrack()->GetStep()->GetSecondary();
     G4double leadingEnergy = 0.0;
 
     // loop over 'all' secondaries including those produced by continuous
@@ -266,8 +226,7 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(
       }
     }
 
-    if ((preStep->GetTotalEnergy() != 0) &&
-        (leadingEnergy / preStep->GetTotalEnergy() < Gflash::QuasiElasticLike))
+    if ((preStep->GetTotalEnergy() != 0) && (leadingEnergy / preStep->GetTotalEnergy() < Gflash::QuasiElasticLike))
       isFirst = true;
 
     // Fill debugging histograms and check information on secondaries -
@@ -276,20 +235,16 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(
     if (theHisto->getStoreFlag()) {
       theHisto->preStepPosition->Fill(preStep->GetPosition().getRho() / cm);
       theHisto->postStepPosition->Fill(postStep->GetPosition().getRho() / cm);
-      theHisto->deltaStep->Fill(
-          (postStep->GetPosition() - preStep->GetPosition()).getRho() / cm);
-      theHisto->kineticEnergy->Fill(
-          fastTrack.GetPrimaryTrack()->GetKineticEnergy() / GeV);
-      theHisto->energyLoss->Fill(
-          fabs(fastTrack.GetPrimaryTrack()->GetStep()->GetDeltaEnergy() / GeV));
+      theHisto->deltaStep->Fill((postStep->GetPosition() - preStep->GetPosition()).getRho() / cm);
+      theHisto->kineticEnergy->Fill(fastTrack.GetPrimaryTrack()->GetKineticEnergy() / GeV);
+      theHisto->energyLoss->Fill(fabs(fastTrack.GetPrimaryTrack()->GetStep()->GetDeltaEnergy() / GeV));
       theHisto->energyRatio->Fill(leadingEnergy / preStep->GetTotalEnergy());
     }
   }
   return isFirst;
 }
 
-G4bool
-GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack &fastTrack) {
+G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack &fastTrack) {
   G4bool isExcluded = false;
   int verbosity = theParSet.getUntrackedParameter<int>("Verbosity");
 
@@ -298,23 +253,19 @@ GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack &fastTrack) {
   G4double eta = fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity();
   if (std::fabs(eta) > 1.392 && std::fabs(eta) < 1.566) {
     if (verbosity > 0) {
-      edm::LogInfo("SimGeneralGFlash")
-          << "GflashHadronShowerModel: excluding region of eta = " << eta;
+      edm::LogInfo("SimGeneralGFlash") << "GflashHadronShowerModel: excluding region of eta = " << eta;
     }
     return true;
   } else {
-    G4StepPoint *postStep =
-        fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint();
+    G4StepPoint *postStep = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint();
 
-    Gflash::CalorimeterNumber kCalor =
-        Gflash::getCalorimeterNumber(postStep->GetPosition() / cm);
+    Gflash::CalorimeterNumber kCalor = Gflash::getCalorimeterNumber(postStep->GetPosition() / cm);
     G4double distOut = 9999.0;
 
     // exclude the region where the shower starting point is inside the
     // preshower
     if (std::fabs(eta) > Gflash::EtaMin[Gflash::kENCA] &&
-        std::fabs((postStep->GetPosition()).getZ() / cm) <
-            Gflash::Zmin[Gflash::kENCA]) {
+        std::fabs((postStep->GetPosition()).getZ() / cm) < Gflash::Zmin[Gflash::kENCA]) {
       return true;
     }
 
@@ -324,25 +275,20 @@ GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack &fastTrack) {
     //@@@if we extend parameterization including Magnet/HO, we need to change
     // this strategy
     if (kCalor == Gflash::kHB) {
-      distOut =
-          Gflash::Rmax[Gflash::kHB] - postStep->GetPosition().getRho() / cm;
+      distOut = Gflash::Rmax[Gflash::kHB] - postStep->GetPosition().getRho() / cm;
       if (distOut < Gflash::MinDistanceToOut)
         isExcluded = true;
     } else if (kCalor == Gflash::kHE) {
-      distOut = Gflash::Zmax[Gflash::kHE] -
-                std::fabs(postStep->GetPosition().getZ() / cm);
+      distOut = Gflash::Zmax[Gflash::kHE] - std::fabs(postStep->GetPosition().getZ() / cm);
       if (distOut < Gflash::MinDistanceToOut)
         isExcluded = true;
     }
 
     //@@@remove this print statement later
     if (isExcluded && verbosity > 0) {
-      std::cout << "GflashHadronShowerModel: skipping kCalor = " << kCalor
-                << " DistanceToOut " << distOut << " from ("
-                << (postStep->GetPosition()).getRho() / cm << ":"
-                << (postStep->GetPosition()).getZ() / cm << ") of KE = "
-                << fastTrack.GetPrimaryTrack()->GetKineticEnergy() / GeV
-                << std::endl;
+      std::cout << "GflashHadronShowerModel: skipping kCalor = " << kCalor << " DistanceToOut " << distOut << " from ("
+                << (postStep->GetPosition()).getRho() / cm << ":" << (postStep->GetPosition()).getZ() / cm
+                << ") of KE = " << fastTrack.GetPrimaryTrack()->GetKineticEnergy() / GeV << std::endl;
     }
   }
 

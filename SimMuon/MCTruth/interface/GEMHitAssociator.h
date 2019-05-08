@@ -31,7 +31,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 class GEMHitAssociator {
-
 public:
   typedef edm::DetSetVector<StripDigiSimLink> DigiSimLinks;
   typedef edm::DetSet<StripDigiSimLink> LayerLinks;
@@ -39,8 +38,7 @@ public:
 
   // Constructor with configurable parameters
   GEMHitAssociator(const edm::ParameterSet &, edm::ConsumesCollector &&ic);
-  GEMHitAssociator(const edm::Event &e, const edm::EventSetup &eventSetup,
-                   const edm::ParameterSet &conf);
+  GEMHitAssociator(const edm::Event &e, const edm::EventSetup &eventSetup, const edm::ParameterSet &conf);
 
   void initEvent(const edm::Event &, const edm::EventSetup &);
 

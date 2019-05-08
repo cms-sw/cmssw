@@ -13,16 +13,13 @@
 using namespace CLHEP;
 
 GflashHadronWrapperProcess::GflashHadronWrapperProcess(G4String processName)
-    : particleChange(nullptr), pmanager(nullptr), fProcessVector(nullptr),
-      fProcess(nullptr) {
+    : particleChange(nullptr), pmanager(nullptr), fProcessVector(nullptr), fProcess(nullptr) {
   theProcessName = processName;
 }
 
 GflashHadronWrapperProcess::~GflashHadronWrapperProcess() {}
 
-G4VParticleChange *
-GflashHadronWrapperProcess::PostStepDoIt(const G4Track &track,
-                                         const G4Step &step) {
+G4VParticleChange *GflashHadronWrapperProcess::PostStepDoIt(const G4Track &track, const G4Step &step) {
   // process PostStepDoIt for the original process
 
   particleChange = pRegProcess->PostStepDoIt(track, step);
@@ -66,7 +63,7 @@ GflashHadronWrapperProcess::PostStepDoIt(const G4Track &track,
     // add secondaries from this wrapper process to the existing list
     fSecondary->push_back(tempSecondaryTrack);
 
-  } // end of loop on secondary
+  }  // end of loop on secondary
 
   // Now we can still impose conditions on the secondaries from ModelTrigger,
   // such as the number of secondaries produced by the original process as well
@@ -112,7 +109,6 @@ GflashHadronWrapperProcess::PostStepDoIt(const G4Track &track,
       // physics process takes over the current process
 
       if (fForceCondition == ExclusivelyForced) {
-
         // clean up memory for changing the process - counter clean up for
         // the secondaries created by new G4Track in
         // G4HadronicProcess::FillTotalResult
@@ -150,8 +146,7 @@ GflashHadronWrapperProcess::PostStepDoIt(const G4Track &track,
         step.GetPostStepPoint()->SetSafety(0.0);
 
         // additional nullification
-        (const_cast<G4Track *>(&track))
-            ->SetTrackStatus(particleChange->GetTrackStatus());
+        (const_cast<G4Track *>(&track))->SetTrackStatus(particleChange->GetTrackStatus());
       } else {
         // restore TrackStatus if fForceCondition !=  ExclusivelyForced
         (const_cast<G4Track *>(&track))->SetTrackStatus(keepStatus);
@@ -178,14 +173,10 @@ GflashHadronWrapperProcess::PostStepDoIt(const G4Track &track,
 }
 
 void GflashHadronWrapperProcess::Print(const G4Step &step) {
-
-  std::cout
-      << " GflashHadronWrapperProcess ProcessName, PreStepPosition, "
-         "preStepPoint KE, PostStepPoint KE, DeltaEnergy Nsec \n "
-      << step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()
-      << " " << step.GetPostStepPoint()->GetPosition() << " "
-      << step.GetPreStepPoint()->GetKineticEnergy() / GeV << " "
-      << step.GetPostStepPoint()->GetKineticEnergy() / GeV << " "
-      << step.GetDeltaEnergy() / GeV << " "
-      << particleChange->GetNumberOfSecondaries() << std::endl;
+  std::cout << " GflashHadronWrapperProcess ProcessName, PreStepPosition, "
+               "preStepPoint KE, PostStepPoint KE, DeltaEnergy Nsec \n "
+            << step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << " "
+            << step.GetPostStepPoint()->GetPosition() << " " << step.GetPreStepPoint()->GetKineticEnergy() / GeV << " "
+            << step.GetPostStepPoint()->GetKineticEnergy() / GeV << " " << step.GetDeltaEnergy() / GeV << " "
+            << particleChange->GetNumberOfSecondaries() << std::endl;
 }

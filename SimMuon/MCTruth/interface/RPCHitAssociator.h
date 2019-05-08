@@ -30,15 +30,13 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 class RPCHitAssociator {
-
 public:
   typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
   // Constructor with configurable parameters
   RPCHitAssociator(const edm::ParameterSet &, edm::ConsumesCollector &&ic);
-  RPCHitAssociator(const edm::Event &e, const edm::EventSetup &eventSetup,
-                   const edm::ParameterSet &conf);
+  RPCHitAssociator(const edm::Event &e, const edm::EventSetup &eventSetup, const edm::ParameterSet &conf);
 
   void initEvent(const edm::Event &, const edm::EventSetup &);
 
@@ -46,8 +44,7 @@ public:
   ~RPCHitAssociator() {}
 
   std::vector<SimHitIdpr> associateRecHit(const TrackingRecHit &hit) const;
-  std::set<RPCDigiSimLink> findRPCDigiSimLink(uint32_t rpcDetId, int strip,
-                                              int bx) const;
+  std::set<RPCDigiSimLink> findRPCDigiSimLink(uint32_t rpcDetId, int strip, int bx) const;
   //   const PSimHit* linkToSimHit(RPCDigiSimLink link);
 
 private:

@@ -41,33 +41,31 @@ class ESDigiCollection;
 class PileUpEventPrincipal;
 
 namespace edm {
-class ConsumesCollector;
-class ProducerBase;
-class Event;
-class EventSetup;
-template <typename T> class Handle;
-class ParameterSet;
-class StreamID;
-} // namespace edm
+  class ConsumesCollector;
+  class ProducerBase;
+  class Event;
+  class EventSetup;
+  template <typename T>
+  class Handle;
+  class ParameterSet;
+  class StreamID;
+}  // namespace edm
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class EcalDigiProducer : public DigiAccumulatorMixMod {
 public:
-  EcalDigiProducer(const edm::ParameterSet &params, edm::ProducerBase &mixMod,
-                   edm::ConsumesCollector &iC);
+  EcalDigiProducer(const edm::ParameterSet &params, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
   EcalDigiProducer(const edm::ParameterSet &params, edm::ConsumesCollector &iC);
   ~EcalDigiProducer() override;
 
   void initializeEvent(edm::Event const &e, edm::EventSetup const &c) override;
   void accumulate(edm::Event const &e, edm::EventSetup const &c) override;
-  void accumulate(PileUpEventPrincipal const &e, edm::EventSetup const &c,
-                  edm::StreamID const &) override;
+  void accumulate(PileUpEventPrincipal const &e, edm::EventSetup const &c, edm::StreamID const &) override;
   void finalizeEvent(edm::Event &e, edm::EventSetup const &c) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const &lumi,
-                            edm::EventSetup const &setup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &setup) override;
   void beginRun(edm::Run const &run, edm::EventSetup const &setup) override;
 
   void setEBNoiseSignalGenerator(EcalBaseSignalGenerator *noiseGenerator);
@@ -81,19 +79,19 @@ private:
   typedef edm::Handle<std::vector<PCaloHit>> HitsHandle;
   void accumulateCaloHits(HitsHandle const &ebHandle,
                           HitsHandle const &eeHandle,
-                          HitsHandle const &esHandle, int bunchCrossing);
+                          HitsHandle const &esHandle,
+                          int bunchCrossing);
 
   void checkGeometry(const edm::EventSetup &eventSetup);
 
   void updateGeometry();
 
-  void checkCalibrations(const edm::Event &event,
-                         const edm::EventSetup &eventSetup);
+  void checkCalibrations(const edm::Event &event, const edm::EventSetup &eventSetup);
 
   APDShape m_APDShape;
   EBShape m_EBShape;
   EEShape m_EEShape;
-  ESShape m_ESShape; // no const because gain must be set
+  ESShape m_ESShape;  // no const because gain must be set
 
   const std::string m_EBdigiCollection;
   const std::string m_EEdigiCollection;
@@ -151,10 +149,8 @@ private:
 
   const CaloGeometry *m_Geometry;
 
-  std::array<std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix>>, 3>
-      m_EBCorrNoise;
-  std::array<std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix>>, 3>
-      m_EECorrNoise;
+  std::array<std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix>>, 3> m_EBCorrNoise;
+  std::array<std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix>>, 3> m_EECorrNoise;
 
   CLHEP::HepRandomEngine *randomEngine_ = nullptr;
 };

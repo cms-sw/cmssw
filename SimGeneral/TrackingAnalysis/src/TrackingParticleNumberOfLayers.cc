@@ -7,32 +7,28 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 namespace {
-bool trackIdHitPairLess(const std::pair<unsigned int, const PSimHit *> &a,
-                        const std::pair<unsigned int, const PSimHit *> &b) {
-  return a.first < b.first;
-}
-
-bool trackIdHitPairLessSort(const std::pair<unsigned int, const PSimHit *> &a,
-                            const std::pair<unsigned int, const PSimHit *> &b) {
-  if (a.first == b.first) {
-    const auto atof =
-        edm::isFinite(a.second->timeOfFlight())
-            ? a.second->timeOfFlight()
-            : std::numeric_limits<decltype(a.second->timeOfFlight())>::max();
-    const auto btof =
-        edm::isFinite(b.second->timeOfFlight())
-            ? b.second->timeOfFlight()
-            : std::numeric_limits<decltype(b.second->timeOfFlight())>::max();
-    return atof < btof;
+  bool trackIdHitPairLess(const std::pair<unsigned int, const PSimHit *> &a,
+                          const std::pair<unsigned int, const PSimHit *> &b) {
+    return a.first < b.first;
   }
-  return a.first < b.first;
-}
-} // namespace
+
+  bool trackIdHitPairLessSort(const std::pair<unsigned int, const PSimHit *> &a,
+                              const std::pair<unsigned int, const PSimHit *> &b) {
+    if (a.first == b.first) {
+      const auto atof = edm::isFinite(a.second->timeOfFlight())
+                            ? a.second->timeOfFlight()
+                            : std::numeric_limits<decltype(a.second->timeOfFlight())>::max();
+      const auto btof = edm::isFinite(b.second->timeOfFlight())
+                            ? b.second->timeOfFlight()
+                            : std::numeric_limits<decltype(b.second->timeOfFlight())>::max();
+      return atof < btof;
+    }
+    return a.first < b.first;
+  }
+}  // namespace
 
 TrackingParticleNumberOfLayers::TrackingParticleNumberOfLayers(
-    const edm::Event &iEvent,
-    const std::vector<edm::EDGetTokenT<std::vector<PSimHit>>> &simHitTokens) {
-
+    const edm::Event &iEvent, const std::vector<edm::EDGetTokenT<std::vector<PSimHit>>> &simHitTokens) {
   // A multimap linking SimTrack::trackId() to a pointer to PSimHit
   // Similar to TrackingTruthAccumulator
   for (const auto &simHitToken : simHitTokens) {
@@ -43,16 +39,14 @@ TrackingParticleNumberOfLayers::TrackingParticleNumberOfLayers(
       trackIdToHitPtr_.emplace_back(simHit.trackId(), &simHit);
     }
   }
-  std::stable_sort(trackIdToHitPtr_.begin(), trackIdToHitPtr_.end(),
-                   trackIdHitPairLessSort);
+  std::stable_sort(trackIdToHitPtr_.begin(), trackIdToHitPtr_.end(), trackIdHitPairLessSort);
 }
 
 std::tuple<std::unique_ptr<edm::ValueMap<unsigned int>>,
            std::unique_ptr<edm::ValueMap<unsigned int>>,
            std::unique_ptr<edm::ValueMap<unsigned int>>>
-TrackingParticleNumberOfLayers::calculate(
-    const edm::Handle<TrackingParticleCollection> &htps,
-    const edm::EventSetup &iSetup) const {
+TrackingParticleNumberOfLayers::calculate(const edm::Handle<TrackingParticleCollection> &htps,
+                                          const edm::EventSetup &iSetup) const {
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
@@ -67,9 +61,8 @@ TrackingParticleNumberOfLayers::calculate(
     const auto pdgId = tp.pdgId();
 
     // I would prefer a better way...
-    constexpr unsigned int maxSubdet =
-        static_cast<unsigned>(StripSubdetector::TEC) + 1;
-    constexpr unsigned int maxLayer = 0xF + 1; // as in HitPattern.h
+    constexpr unsigned int maxSubdet = static_cast<unsigned>(StripSubdetector::TEC) + 1;
+    constexpr unsigned int maxLayer = 0xF + 1;  // as in HitPattern.h
     bool hasHit[maxSubdet][maxLayer];
     bool hasPixel[maxSubdet][maxLayer];
     bool hasMono[maxSubdet][maxLayer];
@@ -81,10 +74,10 @@ TrackingParticleNumberOfLayers::calculate(
 
     for (const SimTrack &simTrack : tp.g4Tracks()) {
       // Logic is from TrackingTruthAccumulator
-      auto range = std::equal_range(
-          trackIdToHitPtr_.begin(), trackIdToHitPtr_.end(),
-          std::pair<unsigned int, const PSimHit *>(simTrack.trackId(), nullptr),
-          trackIdHitPairLess);
+      auto range = std::equal_range(trackIdToHitPtr_.begin(),
+                                    trackIdToHitPtr_.end(),
+                                    std::pair<unsigned int, const PSimHit *>(simTrack.trackId(), nullptr),
+                                    trackIdHitPairLess);
       if (range.first == range.second)
         continue;
 
@@ -94,7 +87,7 @@ TrackingParticleNumberOfLayers::calculate(
         if (iHitPtr->second->particleType() == pdgId)
           break;
       }
-      if (iHitPtr == range.second) // no simhits with particleType == pdgId
+      if (iHitPtr == range.second)  // no simhits with particleType == pdgId
         continue;
       int processType = iHitPtr->second->processType();
       int particleType = iHitPtr->second->particleType();
@@ -106,8 +99,7 @@ TrackingParticleNumberOfLayers::calculate(
         DetId newDetector = DetId(simHit.detUnitId());
 
         // Check for delta and interaction products discards
-        if (processType == simHit.processType() &&
-            particleType == simHit.particleType() &&
+        if (processType == simHit.processType() && particleType == simHit.particleType() &&
             pdgId == simHit.particleType()) {
           // The logic of this piece follows HitPattern
           bool isPixel = false;
@@ -115,26 +107,26 @@ TrackingParticleNumberOfLayers::calculate(
           bool isStripMono = false;
 
           switch (newDetector.subdetId()) {
-          case PixelSubdetector::PixelBarrel:
-          case PixelSubdetector::PixelEndcap:
-            isPixel = true;
-            break;
-          case StripSubdetector::TIB:
-            isStripMono = tTopo.tibIsRPhi(newDetector);
-            isStripStereo = tTopo.tibIsStereo(newDetector);
-            break;
-          case StripSubdetector::TID:
-            isStripMono = tTopo.tidIsRPhi(newDetector);
-            isStripStereo = tTopo.tidIsStereo(newDetector);
-            break;
-          case StripSubdetector::TOB:
-            isStripMono = tTopo.tobIsRPhi(newDetector);
-            isStripStereo = tTopo.tobIsStereo(newDetector);
-            break;
-          case StripSubdetector::TEC:
-            isStripMono = tTopo.tecIsRPhi(newDetector);
-            isStripStereo = tTopo.tecIsStereo(newDetector);
-            break;
+            case PixelSubdetector::PixelBarrel:
+            case PixelSubdetector::PixelEndcap:
+              isPixel = true;
+              break;
+            case StripSubdetector::TIB:
+              isStripMono = tTopo.tibIsRPhi(newDetector);
+              isStripStereo = tTopo.tibIsStereo(newDetector);
+              break;
+            case StripSubdetector::TID:
+              isStripMono = tTopo.tidIsRPhi(newDetector);
+              isStripStereo = tTopo.tidIsStereo(newDetector);
+              break;
+            case StripSubdetector::TOB:
+              isStripMono = tTopo.tobIsRPhi(newDetector);
+              isStripStereo = tTopo.tobIsStereo(newDetector);
+              break;
+            case StripSubdetector::TEC:
+              isStripMono = tTopo.tecIsRPhi(newDetector);
+              isStripStereo = tTopo.tecIsStereo(newDetector);
+              break;
           }
 
           const auto subdet = newDetector.subdetId();
@@ -182,8 +174,7 @@ TrackingParticleNumberOfLayers::calculate(
   auto ret2 = std::make_unique<edm::ValueMap<unsigned int>>();
   {
     edm::ValueMap<unsigned int>::Filler filler(*ret2);
-    filler.insert(htps, valuesStripMonoAndStereoLayers.begin(),
-                  valuesStripMonoAndStereoLayers.end());
+    filler.insert(htps, valuesStripMonoAndStereoLayers.begin(), valuesStripMonoAndStereoLayers.end());
     filler.fill();
   }
 

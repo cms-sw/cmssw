@@ -12,7 +12,7 @@
 #include "SimTracker/TrackHistory/interface/TrackHistory.h"
 
 namespace edm {
-class ParameterSet;
+  class ParameterSet;
 }
 
 using namespace edm;
@@ -41,12 +41,9 @@ private:
 
 GenTrackMatcher::GenTrackMatcher(const ParameterSet &p)
     : tracer_(p, consumesCollector()),
-      tracks_(consumes<View<Track>>(
-          p.getUntrackedParameter<edm::InputTag>("trackProducer"))),
-      genParticles_(consumes<GenParticleCollection>(
-          p.getUntrackedParameter<edm::InputTag>("genParticles"))),
-      genParticleInts_(consumes<vector<int>>(
-          p.getUntrackedParameter<edm::InputTag>("genParticles"))) {
+      tracks_(consumes<View<Track>>(p.getUntrackedParameter<edm::InputTag>("trackProducer"))),
+      genParticles_(consumes<GenParticleCollection>(p.getUntrackedParameter<edm::InputTag>("genParticles"))),
+      genParticleInts_(consumes<vector<int>>(p.getUntrackedParameter<edm::InputTag>("genParticles"))) {
   produces<GenParticleMatch>();
 }
 
@@ -57,8 +54,7 @@ void GenTrackMatcher::produce(Event &evt, const EventSetup &es) {
   evt.getByToken(genParticles_, barCodes);
   Handle<GenParticleCollection> genParticles;
   evt.getByToken(genParticles_, genParticles);
-  unique_ptr<GenParticleMatch> match(
-      new GenParticleMatch(GenParticleRefProd(genParticles)));
+  unique_ptr<GenParticleMatch> match(new GenParticleMatch(GenParticleRefProd(genParticles)));
   GenParticleMatch::Filler filler(*match);
   size_t n = tracks->size();
   vector<int> indices(n, -1);
@@ -69,14 +65,12 @@ void GenTrackMatcher::produce(Event &evt, const EventSetup &es) {
       const HepMC::GenParticle *particle = tracer_.genParticle();
       if (particle) {
         int barCode = particle->barcode();
-        vector<int>::const_iterator b = barCodes->begin(), e = barCodes->end(),
-                                    f = find(b, e, barCode);
+        vector<int>::const_iterator b = barCodes->begin(), e = barCodes->end(), f = find(b, e, barCode);
         if (f == e) {
           edm::EDConsumerBase::Labels labels;
           labelsForToken(genParticles_, labels);
           throw edm::Exception(errors::InvalidReference)
-              << "found matching particle with barcode" << *f
-              << " which has not been found in " << labels.module;
+              << "found matching particle with barcode" << *f << " which has not been found in " << labels.module;
         }
         indices[i] = *f;
       }

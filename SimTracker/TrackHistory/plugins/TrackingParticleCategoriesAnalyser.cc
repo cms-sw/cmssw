@@ -21,8 +21,7 @@
 // class decleration
 //
 
-class TrackingParticleCategoriesAnalyzer
-    : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class TrackingParticleCategoriesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit TrackingParticleCategoriesAnalyzer(const edm::ParameterSet &);
   ~TrackingParticleCategoriesAnalyzer() override;
@@ -43,12 +42,10 @@ private:
   Int_t numberTrackingParticleCategories_;
 };
 
-TrackingParticleCategoriesAnalyzer::TrackingParticleCategoriesAnalyzer(
-    const edm::ParameterSet &config)
+TrackingParticleCategoriesAnalyzer::TrackingParticleCategoriesAnalyzer(const edm::ParameterSet &config)
     : classifier_(config, consumesCollector()) {
   // Get the track collection
-  trackingTruth_ = consumes<TrackingParticleCollection>(
-      config.getUntrackedParameter<edm::InputTag>("trackingTruth"));
+  trackingTruth_ = consumes<TrackingParticleCollection>(config.getUntrackedParameter<edm::InputTag>("trackingTruth"));
 
   // Get the file service
   usesResource("TFileService");
@@ -61,21 +58,20 @@ TrackingParticleCategoriesAnalyzer::TrackingParticleCategoriesAnalyzer(
   numberTrackingParticleCategories_ = TrackCategories::Unknown + 1;
 
   // Define a new histograms
-  trackingParticleCategories_ = fs->make<TH1F>(
-      "Frequency", "Frequency for the different track categories",
-      numberTrackingParticleCategories_, -0.5,
-      numberTrackingParticleCategories_ - 0.5);
+  trackingParticleCategories_ = fs->make<TH1F>("Frequency",
+                                               "Frequency for the different track categories",
+                                               numberTrackingParticleCategories_,
+                                               -0.5,
+                                               numberTrackingParticleCategories_ - 0.5);
 
   // Set the proper categories names
   for (Int_t i = 0; i < numberTrackingParticleCategories_; ++i)
-    trackingParticleCategories_->GetXaxis()->SetBinLabel(
-        i + 1, TrackCategories::Names[i]);
+    trackingParticleCategories_->GetXaxis()->SetBinLabel(i + 1, TrackCategories::Names[i]);
 }
 
 TrackingParticleCategoriesAnalyzer::~TrackingParticleCategoriesAnalyzer() {}
 
-void TrackingParticleCategoriesAnalyzer::analyze(const edm::Event &event,
-                                                 const edm::EventSetup &setup) {
+void TrackingParticleCategoriesAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   // Track collection
   edm::Handle<TrackingParticleCollection> TPCollection;
   event.getByToken(trackingTruth_, TPCollection);
