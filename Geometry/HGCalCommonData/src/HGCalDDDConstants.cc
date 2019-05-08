@@ -201,6 +201,19 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z,
   return std::array<int, 3>{{irad, iphi, type}};
 }
 
+std::pair<double, double> HGCalDDDConstants::cellEtaPhiTrap(int type, 
+							    int irad) const {
+  double dr(0), df(0);
+  if (mode_ == HGCalGeometryMode::Trapezoid) {
+    double r = 0.5*((hgpar_->radiusLayer_[type][irad-1] +
+		     hgpar_->radiusLayer_[type][irad]));
+    dr       = (hgpar_->radiusLayer_[type][irad] - 
+		hgpar_->radiusLayer_[type][irad-1]);
+    df       = r * hgpar_->cellSize_[type];
+  }
+  return std::make_pair(dr,df);
+}
+
 bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU,
                                     int cellV, int lay, bool reco) const {
   const auto& indx = getIndex(lay, true);
@@ -1064,7 +1077,7 @@ std::pair<double, double> HGCalDDDConstants::rangeR(double z, bool reco) const {
   edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants:rangeR: " << z << ":"
                                 << zz << " R " << rmin << ":" << rmax;
 #endif
-  return std::pair<double, double>(rmin, rmax);
+  return std::make_pair(rmin, rmax);
 }
 
 std::pair<double, double> HGCalDDDConstants::rangeZ(bool reco) const {
@@ -1079,7 +1092,7 @@ std::pair<double, double> HGCalDDDConstants::rangeZ(bool reco) const {
     zmin *= HGCalParameters::k_ScaleToDDD;
     zmax *= HGCalParameters::k_ScaleToDDD;
   }
-  return std::pair<double, double>(zmin, zmax);
+  return std::make_pair(zmin, zmax);
 }
 
 std::pair<int, int> HGCalDDDConstants::rowColumnWafer(int wafer) const {

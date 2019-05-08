@@ -47,12 +47,13 @@ class HGCalDDDConstants {
   std::array<int, 5> assignCellHex(float x, float y, int lay, bool reco) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay,
                                     bool reco) const;
+  std::pair<double, double> cellEtaPhiTrap(int type, int irad) const;
   bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay,
                    bool reco) const;
   double cellSizeHex(int type) const;
   std::pair<double, double> cellSizeTrap(int type, int irad) const {
-    return std::pair<double, double>(hgpar_->radiusLayer_[type][irad - 1],
-                                     hgpar_->radiusLayer_[type][irad]);
+    return std::make_pair(hgpar_->radiusLayer_[type][irad - 1],
+			  hgpar_->radiusLayer_[type][irad]);
   }
   double cellThickness(int layer, int waferU, int waferV) const;
   CellType cellType(int type, int waferU, int waferV) const;
@@ -70,6 +71,11 @@ class HGCalDDDConstants {
   const HGCalParameters* getParameter() const { return hgpar_; }
   int getPhiBins(int lay) const;
   std::pair<int, int> getREtaRange(int lay) const;
+  const std::vector<double> & getRadiusLayer(int layer) const {
+    int type = ((mode_ == HGCalGeometryMode::Trapezoid) ? 
+		hgpar_->scintType(layer) : 0);
+    return hgpar_->radiusLayer_[type];
+  }
   HGCalParameters::hgtrform getTrForm(unsigned int k) const {
     return hgpar_->getTrForm(k);
   }
