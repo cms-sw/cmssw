@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowSimTracksProducer.h"
+#include "ShallowSimTracksProducer.h"
 #include "CalibTracker/SiStripCommon/interface/ShallowTools.h"
 
 #include "FWCore/Framework/interface/Event.h"
