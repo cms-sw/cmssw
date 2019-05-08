@@ -20,7 +20,7 @@
 */
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CaloVShape;
@@ -36,10 +36,8 @@ public:
   // get this from somewhere external
   enum { BUNCHSPACE = 25 };
 
-  CaloHitResponse(const CaloVSimParameterMap *parameterMap,
-                  const CaloVShape *shape);
-  CaloHitResponse(const CaloVSimParameterMap *parameterMap,
-                  const CaloShapes *shapes);
+  CaloHitResponse(const CaloVSimParameterMap *parameterMap, const CaloVShape *shape);
+  CaloHitResponse(const CaloVSimParameterMap *parameterMap, const CaloShapes *shapes);
 
   /// doesn't delete the pointers passed in
   virtual ~CaloHitResponse();
@@ -59,8 +57,7 @@ public:
   virtual void finalizeHits(CLHEP::HepRandomEngine *) {}
 
   /// Complete cell digitization.
-  virtual void run(const MixCollection<PCaloHit> &hits,
-                   CLHEP::HepRandomEngine *);
+  virtual void run(const MixCollection<PCaloHit> &hits, CLHEP::HepRandomEngine *);
 
   /// process a single SimHit
   virtual void add(const PCaloHit &hit, CLHEP::HepRandomEngine *);
@@ -73,14 +70,10 @@ public:
   void setHitFilter(const CaloVHitFilter *filter) { theHitFilter = filter; }
 
   /// If you want to correct hits, for attenuation or delay, set this.
-  void setHitCorrection(const CaloVHitCorrection *hitCorrection) {
-    theHitCorrection = hitCorrection;
-  }
+  void setHitCorrection(const CaloVHitCorrection *hitCorrection) { theHitCorrection = hitCorrection; }
 
   /// if you want to correct the photoelectrons
-  void setPECorrection(const CaloVPECorrection *peCorrection) {
-    thePECorrection = peCorrection;
-  }
+  void setPECorrection(const CaloVPECorrection *peCorrection) { thePECorrection = peCorrection; }
 
   /// frees up memory
   void clear() { theAnalogSignalMap.clear(); }
@@ -89,12 +82,12 @@ public:
   void addHit(const PCaloHit *hit, CaloSamples &frame) const;
 
   /// creates the signal corresponding to this hit
-  virtual CaloSamples makeAnalogSignal(const PCaloHit &inputHit,
-                                       CLHEP::HepRandomEngine *) const;
+  virtual CaloSamples makeAnalogSignal(const PCaloHit &inputHit, CLHEP::HepRandomEngine *) const;
 
   /// finds the amplitude contribution from this hit, applying
   /// photostatistics, if needed.  Results are in photoelectrons
-  double analogSignalAmplitude(const DetId &id, float energy,
+  double analogSignalAmplitude(const DetId &id,
+                               float energy,
                                const CaloSimParameters &parameters,
                                CLHEP::HepRandomEngine *) const;
 
@@ -112,9 +105,7 @@ public:
   double timeOfFlight(const DetId &detId) const;
 
   /// setting the phase shift for asynchronous trigger (e.g. test beams)
-  void setPhaseShift(const double &thePhaseShift) {
-    thePhaseShift_ = thePhaseShift;
-  }
+  void setPhaseShift(const double &thePhaseShift) { thePhaseShift_ = thePhaseShift; }
 
   /// check if crossing is within bunch range:
 

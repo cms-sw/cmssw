@@ -28,22 +28,22 @@ public:
   void findTTlist(const int &crysId, const EcalTrigTowerConstituentsMap &etmap);
 
   /// read only the digis from the selected TT
-  void readOut(const EBDigiCollection &input, EBDigiCollection &output,
-               const EcalTrigTowerConstituentsMap &etmap);
+  void readOut(const EBDigiCollection &input, EBDigiCollection &output, const EcalTrigTowerConstituentsMap &etmap);
 
   /// read only the digis from the selected TT
-  void readOut(const EEDigiCollection &input, EEDigiCollection &output,
-               const EcalTrigTowerConstituentsMap &etmap);
+  void readOut(const EEDigiCollection &input, EEDigiCollection &output, const EcalTrigTowerConstituentsMap &etmap);
 
   /// master function to be called once per event
   void performReadout(edm::Event &event,
                       const EcalTrigTowerConstituentsMap &theTTmap,
-                      const EBDigiCollection &input, EBDigiCollection &output);
+                      const EBDigiCollection &input,
+                      EBDigiCollection &output);
 
   /// master function to be called once per event
   void performReadout(edm::Event &event,
                       const EcalTrigTowerConstituentsMap &theTTmap,
-                      const EEDigiCollection &input, EEDigiCollection &output);
+                      const EEDigiCollection &input,
+                      EEDigiCollection &output);
 
 private:
   int theTargetCrystal_;

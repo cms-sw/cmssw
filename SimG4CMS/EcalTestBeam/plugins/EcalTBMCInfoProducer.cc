@@ -20,13 +20,10 @@ using namespace std;
 using namespace cms;
 
 EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) {
-
   produces<PEcalTBInfo>();
 
-  edm::FileInPath CrystalMapFile =
-      ps.getParameter<edm::FileInPath>("CrystalMapFile");
-  GenVtxToken =
-      consumes<edm::HepMCProduct>(edm::InputTag("moduleLabelVtx", "source"));
+  edm::FileInPath CrystalMapFile = ps.getParameter<edm::FileInPath>("CrystalMapFile");
+  GenVtxToken = consumes<edm::HepMCProduct>(edm::InputTag("moduleLabelVtx", "source"));
   double fMinEta = ps.getParameter<double>("MinEta");
   double fMaxEta = ps.getParameter<double>("MaxEta");
   double fMinPhi = ps.getParameter<double>("MinPhi");
@@ -51,15 +48,13 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) {
       deltaEta = fabs(beamEta - eta);
       deltaPhi = fabs(beamPhi - phi);
       crysNumber = cryIndex;
-    } else if (fabs(beamEta - eta) < deltaEta &&
-               fabs(beamPhi - phi) > deltaPhi) {
+    } else if (fabs(beamEta - eta) < deltaEta && fabs(beamPhi - phi) > deltaPhi) {
       if (fabs(beamPhi - phi) < 0.017) {
         deltaEta = fabs(beamEta - eta);
         deltaPhi = fabs(beamPhi - phi);
         crysNumber = cryIndex;
       }
-    } else if (fabs(beamEta - eta) > deltaEta &&
-               fabs(beamPhi - phi) < deltaPhi) {
+    } else if (fabs(beamEta - eta) > deltaEta && fabs(beamPhi - phi) < deltaPhi) {
       if (fabs(beamEta - eta) < 0.017) {
         deltaEta = fabs(beamEta - eta);
         deltaPhi = fabs(beamPhi - phi);
@@ -68,14 +63,13 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) {
     }
   }
 
-  edm::LogInfo("EcalTBInfo")
-      << "Initialize TB MC ECAL info producer with parameters: \n"
-      << "Crystal map file:  " << CrystalMapFile << "\n"
-      << "Beam average eta = " << beamEta << "\n"
-      << "Beam average phi = " << beamPhi << "\n"
-      << "Corresponding to crystal number = " << crysNumber << "\n"
-      << "Beam X offset =    " << beamXoff << "\n"
-      << "Beam Y offset =    " << beamYoff;
+  edm::LogInfo("EcalTBInfo") << "Initialize TB MC ECAL info producer with parameters: \n"
+                             << "Crystal map file:  " << CrystalMapFile << "\n"
+                             << "Beam average eta = " << beamEta << "\n"
+                             << "Beam average phi = " << beamPhi << "\n"
+                             << "Corresponding to crystal number = " << crysNumber << "\n"
+                             << "Beam X offset =    " << beamXoff << "\n"
+                             << "Beam Y offset =    " << beamYoff;
 
   // rotation matrix to move from the CMS reference frame to the test beam one
 
@@ -96,18 +90,16 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) {
   // random number
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-        << "EcalTBMCInfoProducer requires the RandomNumberGeneratorService\n"
-           "which is not present in the configuration file.  You must add the "
-           "service\n"
-           "in the configuration file or remove the modules that require it.";
+    throw cms::Exception("Configuration") << "EcalTBMCInfoProducer requires the RandomNumberGeneratorService\n"
+                                             "which is not present in the configuration file.  You must add the "
+                                             "service\n"
+                                             "in the configuration file or remove the modules that require it.";
   }
 }
 
 EcalTBMCInfoProducer::~EcalTBMCInfoProducer() { delete theTestMap; }
 
-void EcalTBMCInfoProducer::produce(edm::Event &event,
-                                   const edm::EventSetup &eventSetup) {
+void EcalTBMCInfoProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine *engine = &rng->getEngine(event.streamID());
 
@@ -131,17 +123,14 @@ void EcalTBMCInfoProducer::produce(edm::Event &event,
   const HepMC::GenEvent *Evt = GenEvt->GetEvent();
   HepMC::GenEvent::vertex_const_iterator Vtx = Evt->vertices_begin();
 
-  math::XYZPoint eventCMSVertex((*Vtx)->position().x(), (*Vtx)->position().y(),
-                                (*Vtx)->position().z());
+  math::XYZPoint eventCMSVertex((*Vtx)->position().x(), (*Vtx)->position().y(), (*Vtx)->position().z());
 
-  LogDebug("EcalTBInfo") << "Generated vertex position = " << eventCMSVertex.x()
-                         << " " << eventCMSVertex.y() << " "
+  LogDebug("EcalTBInfo") << "Generated vertex position = " << eventCMSVertex.x() << " " << eventCMSVertex.y() << " "
                          << eventCMSVertex.z();
 
   math::XYZPoint eventTBVertex = (*fromCMStoTB) * eventCMSVertex;
 
-  LogDebug("EcalTBInfo") << "Rotated vertex position   = " << eventTBVertex.x()
-                         << " " << eventTBVertex.y() << " "
+  LogDebug("EcalTBInfo") << "Rotated vertex position   = " << eventTBVertex.x() << " " << eventTBVertex.y() << " "
                          << eventTBVertex.z();
 
   partXhodo = eventTBVertex.x();

@@ -10,8 +10,7 @@ class AmplitudeSegmentFP420 {
 public:
   AmplitudeSegmentFP420() : _pos(0, 0, 0), _sigma(0), _amplitude(0) {}
 
-  AmplitudeSegmentFP420(float x, float y, float z, float s, float a = 1.0)
-      : _pos(x, y, z), _sigma(s), _amplitude(a) {}
+  AmplitudeSegmentFP420(float x, float y, float z, float s, float a = 1.0) : _pos(x, y, z), _sigma(s), _amplitude(a) {}
 
   const G4ThreeVector &position() const { return _pos; }
   float x() const { return _pos.x(); }

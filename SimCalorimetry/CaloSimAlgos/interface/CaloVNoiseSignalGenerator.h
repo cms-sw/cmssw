@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CaloVNoiseSignalGenerator {
@@ -16,11 +16,9 @@ public:
   ///  fill theNoiseSignals with one event's worth of noise, in units of pe
   void fillEvent(CLHEP::HepRandomEngine *);
 
-  void fillEvent(); // don't need random engine for some tasks
+  void fillEvent();  // don't need random engine for some tasks
 
-  void getNoiseSignals(std::vector<CaloSamples> &noiseSignals) {
-    noiseSignals = theNoiseSignals;
-  }
+  void getNoiseSignals(std::vector<CaloSamples> &noiseSignals) { noiseSignals = theNoiseSignals; }
 
   bool contains(const DetId &detId) const;
 

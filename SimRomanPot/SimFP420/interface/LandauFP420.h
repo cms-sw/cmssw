@@ -56,9 +56,8 @@ public:
 
   // momentum in MeV/c, mass in MeV, tmax (delta cut) in MeV,
   // length in mm, meanLoss eloss in MeV.
-  double SampleFluctuations(const double momentum, const double mass,
-                            double &tmax, const double length,
-                            const double meanLoss);
+  double SampleFluctuations(
+      const double momentum, const double mass, double &tmax, const double length, const double meanLoss);
 
   // G4double Dispersion(    const G4Material*,
   //                        const G4DynamicParticle*,

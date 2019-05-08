@@ -11,11 +11,8 @@
 using namespace cms;
 using namespace std;
 
-TBHodoActiveVolumeRawInfoProducer::TBHodoActiveVolumeRawInfoProducer(
-    const edm::ParameterSet &ps) {
-
-  m_EcalToken = consumes<edm::PCaloHitContainer>(
-      edm::InputTag("g4SimHits", "EcalTBH4BeamHits"));
+TBHodoActiveVolumeRawInfoProducer::TBHodoActiveVolumeRawInfoProducer(const edm::ParameterSet &ps) {
+  m_EcalToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalTBH4BeamHits"));
   produces<EcalTBHodoscopeRawInfo>();
 
   theTBHodoGeom_ = new EcalTBHodoscopeGeometry();
@@ -23,12 +20,9 @@ TBHodoActiveVolumeRawInfoProducer::TBHodoActiveVolumeRawInfoProducer(
   myThreshold = 0.05E-3;
 }
 
-TBHodoActiveVolumeRawInfoProducer::~TBHodoActiveVolumeRawInfoProducer() {
-  delete theTBHodoGeom_;
-}
+TBHodoActiveVolumeRawInfoProducer::~TBHodoActiveVolumeRawInfoProducer() { delete theTBHodoGeom_; }
 
-void TBHodoActiveVolumeRawInfoProducer::produce(
-    edm::Event &event, const edm::EventSetup &eventSetup) {
+void TBHodoActiveVolumeRawInfoProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
   unique_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
 
   // caloHit container
@@ -70,8 +64,7 @@ void TBHodoActiveVolumeRawInfoProducer::produce(
       firedChannels[iPlane][iFiber] = 0.;
     }
   }
-  for (std::map<unsigned int, double>::const_iterator itmap = energyMap.begin();
-       itmap != energyMap.end(); ++itmap) {
+  for (std::map<unsigned int, double>::const_iterator itmap = energyMap.begin(); itmap != energyMap.end(); ++itmap) {
     if ((*itmap).second > myThreshold) {
       HodoscopeDetId myHodoDetId = HodoscopeDetId((*itmap).first);
       firedChannels[myHodoDetId.planeId()][myHodoDetId.fibrId()] = true;

@@ -44,10 +44,10 @@ class EndOfRun;
 class EndOfEvent;
 class EndOfTrack;
 
-#define OBSERVES(type)                                                         \
-public                                                                         \
+#define OBSERVES(type) \
+public                 \
   Observer<const type *>
-#define UPDATEH4(type)                                                         \
+#define UPDATEH4(type) \
   void update(const type *) {}
 class EcalTBH4Trigger : public SimWatcher,
                         // OBSERVES(DDDWorld),
@@ -61,7 +61,6 @@ class EcalTBH4Trigger : public SimWatcher,
 //,
 // OBSERVES(EndOfTrack)
 {
-
 public:
   EcalTBH4Trigger(const edm::ParameterSet &pSet)
       : m_verbose(pSet.getUntrackedParameter<bool>("verbose", false)),
@@ -93,8 +92,7 @@ public:
   //  UPDATEH4(BeginOfTrack)
   void update(const G4Step *iStep) override {
     if (trigEvents_ >= 0 && nTriggeredEvents_ >= trigEvents_)
-      throw SimG4Exception(
-          "Number of needed trigger events reached in ECALTBH4");
+      throw SimG4Exception("Number of needed trigger events reached in ECALTBH4");
 
     const G4StepPoint *pre = iStep->GetPreStepPoint();
     const G4StepPoint *post = iStep->GetPostStepPoint();
@@ -104,8 +102,7 @@ public:
       // Get name and copy numbers
       if (touch->GetHistoryDepth() > 0) {
         for (int ii = 0; ii <= touch->GetHistoryDepth(); ii++) {
-          std::cout << "EcalTBH4::Level " << ii << ": "
-                    << touch->GetVolume(ii)->GetName() << "["
+          std::cout << "EcalTBH4::Level " << ii << ": " << touch->GetVolume(ii)->GetName() << "["
                     << touch->GetReplicaNumber(ii) << "]";
         }
       }
@@ -113,30 +110,23 @@ public:
       const G4Track *theTrack = iStep->GetTrack();
       const G4ThreeVector &pos = post->GetPosition();
       std::cout << "( " << pos.x() << "," << pos.y() << "," << pos.z() << ") ";
-      std::cout << " released energy (MeV) "
-                << iStep->GetTotalEnergyDeposit() / CLHEP::MeV;
+      std::cout << " released energy (MeV) " << iStep->GetTotalEnergyDeposit() / CLHEP::MeV;
       if (theTrack) {
         const G4ThreeVector mom = theTrack->GetMomentum();
-        std::cout << " track length (cm) "
-                  << theTrack->GetTrackLength() / CLHEP::cm << " particle type "
-                  << theTrack->GetDefinition()->GetParticleName()
-                  << " momentum "
-                  << "( " << mom.x() << "," << mom.y() << "," << mom.z()
-                  << ") ";
+        std::cout << " track length (cm) " << theTrack->GetTrackLength() / CLHEP::cm << " particle type "
+                  << theTrack->GetDefinition()->GetParticleName() << " momentum "
+                  << "( " << mom.x() << "," << mom.y() << "," << mom.z() << ") ";
         if (theTrack->GetCreatorProcess()) {
-          std::cout << " created by "
-                    << theTrack->GetCreatorProcess()->GetProcessName();
+          std::cout << " created by " << theTrack->GetCreatorProcess()->GetProcessName();
         }
       }
       if (post->GetPhysicalVolume()) {
-        std::cout << " " << pre->GetPhysicalVolume()->GetName() << "->"
-                  << post->GetPhysicalVolume()->GetName();
+        std::cout << " " << pre->GetPhysicalVolume()->GetName() << "->" << post->GetPhysicalVolume()->GetName();
       }
       std::cout << std::endl;
     }
 
     if (post && post->GetPhysicalVolume()) {
-
       if (!m_passedTrg1 && post->GetPhysicalVolume()->GetName() == "TRG1")
         m_passedTrg1 = true;
       if (!m_passedTrg3 && post->GetPhysicalVolume()->GetName() == "TRG3")
@@ -147,9 +137,8 @@ public:
         m_passedTrg5 = true;
       if (!m_passedTrg6 && post->GetPhysicalVolume()->GetName() == "TRG6")
         m_passedTrg6 = true;
-      if (post->GetPhysicalVolume()->GetName() ==
-          "CMSSE")                           // Exiting TBH4BeamLine
-        if (!(m_passedTrg1 && m_passedTrg6)) // Trigger defined as Trg4 && Trg6
+      if (post->GetPhysicalVolume()->GetName() == "CMSSE")  // Exiting TBH4BeamLine
+        if (!(m_passedTrg1 && m_passedTrg6))                // Trigger defined as Trg4 && Trg6
           throw SimG4Exception("Event is not triggered by ECALTBH4");
     }
 

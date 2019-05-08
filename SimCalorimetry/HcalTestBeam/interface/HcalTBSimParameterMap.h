@@ -6,7 +6,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
 
 class HcalTBSimParameterMap : public CaloVSimParameterMap {
-
 public:
   /// hardcoded default parameters
   HcalTBSimParameterMap();

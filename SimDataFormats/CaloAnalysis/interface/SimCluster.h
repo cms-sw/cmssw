@@ -30,11 +30,11 @@ class SimCluster {
   friend std::ostream &operator<<(std::ostream &s, SimCluster const &tp);
 
 public:
-  typedef int Charge;                             ///< electric charge type
-  typedef math::XYZTLorentzVectorD LorentzVector; ///< Lorentz vector
-  typedef math::PtEtaPhiMLorentzVector PolarLorentzVector; ///< Lorentz vector
-  typedef math::XYZPointD Point;   ///< point in the space
-  typedef math::XYZVectorD Vector; ///< point in the space
+  typedef int Charge;                                       ///< electric charge type
+  typedef math::XYZTLorentzVectorD LorentzVector;           ///< Lorentz vector
+  typedef math::PtEtaPhiMLorentzVector PolarLorentzVector;  ///< Lorentz vector
+  typedef math::XYZPointD Point;                            ///< point in the space
+  typedef math::XYZVectorD Vector;                          ///< point in the space
 
   /// reference to reco::GenParticle
   typedef reco::GenParticleRefVector::iterator genp_iterator;
@@ -43,7 +43,7 @@ public:
   SimCluster();
 
   SimCluster(const SimTrack &simtrk);
-  SimCluster(EncodedEventId eventID, uint32_t particleID); // for PU
+  SimCluster(EncodedEventId eventID, uint32_t particleID);  // for PU
 
   // destructor
   ~SimCluster();
@@ -68,9 +68,7 @@ public:
   uint64_t particleId() const { return particleId_; }
 
   // Setters for G4 and reco::GenParticle
-  void addGenParticle(const reco::GenParticleRef &ref) {
-    genParticles_.push_back(ref);
-  }
+  void addGenParticle(const reco::GenParticleRef &ref) { genParticles_.push_back(ref); }
   void addG4Track(const SimTrack &t) { g4Tracks_.push_back(t); }
   /// iterators
   genp_iterator genParticle_begin() const { return genParticles_.begin(); }
@@ -79,9 +77,7 @@ public:
   g4t_iterator g4Track_end() const { return g4Tracks_.end(); }
 
   // Getters for Embd and Sim Tracks
-  const reco::GenParticleRefVector &genParticles() const {
-    return genParticles_;
-  }
+  const reco::GenParticleRefVector &genParticles() const { return genParticles_; }
   // Only for clusters from the signal vertex
   const std::vector<SimTrack> &g4Tracks() const { return g4Tracks_; }
 
@@ -162,11 +158,9 @@ public:
    *
    * Returns status() from the first gen particle, or -99 if there are no gen
    * particles attached. */
-  int status() const {
-    return genParticles_.empty() ? -99 : (*genParticles_[0]).status();
-  }
+  int status() const { return genParticles_.empty() ? -99 : (*genParticles_[0]).status(); }
 
-  static const unsigned int longLivedTag; ///< long lived flag
+  static const unsigned int longLivedTag;  ///< long lived flag
 
   /// is long lived?
   bool longLived() const { return status() & longLivedTag; }
@@ -220,4 +214,4 @@ private:
   reco::GenParticleRefVector genParticles_;
 };
 
-#endif // SimDataFormats_SimCluster_H
+#endif  // SimDataFormats_SimCluster_H

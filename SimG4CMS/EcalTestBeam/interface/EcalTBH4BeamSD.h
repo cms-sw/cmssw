@@ -18,10 +18,11 @@
 class EcalBaseNumber;
 
 class EcalTBH4BeamSD : public CaloSD {
-
 public:
-  EcalTBH4BeamSD(const std::string &, const DDCompactView &,
-                 const SensitiveDetectorCatalog &, edm::ParameterSet const &,
+  EcalTBH4BeamSD(const std::string &,
+                 const DDCompactView &,
+                 const SensitiveDetectorCatalog &,
+                 edm::ParameterSet const &,
                  const SimTrackManager *);
   ~EcalTBH4BeamSD() override;
   uint32_t setDetUnitId(const G4Step *step) override;
@@ -39,4 +40,4 @@ private:
   EcalBaseNumber theBaseNumber;
 };
 
-#endif // EcalTBH4BeamSD_h
+#endif  // EcalTBH4BeamSD_h

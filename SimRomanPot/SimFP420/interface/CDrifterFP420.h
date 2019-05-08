@@ -15,8 +15,7 @@ public:
 
   virtual ~CDrifterFP420() {}
 
-  virtual collection_type drift(const ionization_type &, const G4ThreeVector &,
-                                const int &) = 0;
+  virtual collection_type drift(const ionization_type &, const G4ThreeVector &, const int &) = 0;
   //  virtual collection_type drift (const ionization_type, const
   //  G4ThreeVector&) = 0;
 };
