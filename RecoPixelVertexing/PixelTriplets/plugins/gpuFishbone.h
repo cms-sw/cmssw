@@ -53,7 +53,7 @@ namespace gpuPixelDoublets {
       if (checkTrack && ci.tracks().empty())
         continue;
       cc[sg] = vc[ic];
-      d[sg] = ci.get_inner_detId(hh);
+      d[sg] = ci.get_inner_detIndex(hh);
       //      l[sg] = layer(d[sg]);
       x[sg] = ci.get_inner_x(hh) - xo;
       y[sg] = ci.get_inner_y(hh) - yo;

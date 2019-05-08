@@ -86,8 +86,8 @@ public:
   __device__ __forceinline__ auto get_inner_iphi(Hits const& hh) const { return hh.iphi(theInnerHitId); }
   __device__ __forceinline__ auto get_outer_iphi(Hits const& hh) const { return hh.iphi(theOuterHitId); }
 
-  __device__ __forceinline__ float get_inner_detId(Hits const& hh) const { return hh.detectorIndex(theInnerHitId); }
-  __device__ __forceinline__ float get_outer_detId(Hits const& hh) const { return hh.detectorIndex(theOuterHitId); }
+  __device__ __forceinline__ float get_inner_detIndex(Hits const& hh) const { return hh.detectorIndex(theInnerHitId); }
+  __device__ __forceinline__ float get_outer_detIndex(Hits const& hh) const { return hh.detectorIndex(theOuterHitId); }
 
   constexpr unsigned int get_inner_hit_id() const { return theInnerHitId; }
   constexpr unsigned int get_outer_hit_id() const { return theOuterHitId; }
@@ -105,7 +105,16 @@ public:
   __device__ bool check_alignment(Hits const& hh,
                                   GPUCACell const& otherCell,
                                   const float ptmin,
-                                  const float hardCurvCut) const {
+                                  const float hardCurvCut,
+                                  const float CAThetaCutBarrel,
+                                  const float CAThetaCutForward,
+                                  const float dcaCutInnerTriplet,
+                                  const float dcaCutOuterTriplet) const {
+    // detIndex of the layerStart for the Phase1 Pixel Detector:
+    // [BPX1, BPX2, BPX3, BPX4,  FP1,  FP2,  FP3,  FN1,  FN2,  FN3, LAST_VALID]
+    // [   0,   96,  320,  672, 1184, 1296, 1408, 1520, 1632, 1744,       1856]
+    constexpr uint32_t last_bpix1_detIndex = 96;
+    constexpr uint32_t last_barrel_detIndex = 1184;
     auto ri = get_inner_r(hh);
     auto zi = get_inner_z(hh);
 
@@ -114,12 +123,21 @@ public:
 
     auto r1 = otherCell.get_inner_r(hh);
     auto z1 = otherCell.get_inner_z(hh);
-    auto isBarrel = otherCell.get_outer_detId(hh) < 1184;
-    bool aligned =
-        areAlignedRZ(r1, z1, ri, zi, ro, zo, ptmin, isBarrel ? 0.002f : 0.003f);  // 2.f*thetaCut); // FIXME tune cuts
+    auto isBarrel = otherCell.get_outer_detIndex(hh) < last_barrel_detIndex;
+    bool aligned = areAlignedRZ(r1,
+                                z1,
+                                ri,
+                                zi,
+                                ro,
+                                zo,
+                                ptmin,
+                                isBarrel ? CAThetaCutBarrel : CAThetaCutForward);  // 2.f*thetaCut); // FIXME tune cuts
     return (aligned &&
-            dcaCut(hh, otherCell, otherCell.get_inner_detId(hh) < 96 ? 0.15f : 0.25f, hardCurvCut));  // FIXME tune cuts
-    // region_origin_radius_plus_tolerance,  hardCurvCut));
+            dcaCut(hh,
+                   otherCell,
+                   otherCell.get_inner_detIndex(hh) < last_bpix1_detIndex ? dcaCutInnerTriplet : dcaCutOuterTriplet,
+                   hardCurvCut));  // FIXME tune cuts
+                                   // region_origin_radius_plus_tolerance,  hardCurvCut));
   }
 
   __device__ __forceinline__ static bool areAlignedRZ(
@@ -156,20 +174,27 @@ public:
   }
 
   __device__ inline bool hole(Hits const& hh, GPUCACell const& innerCell) const {
+    constexpr uint32_t max_ladder_bpx4 = 64;
+    constexpr float radius_even_ladder = 15.815f;
+    constexpr float radius_odd_ladder = 16.146f;
+    constexpr float ladder_length = 6.7f;
+    constexpr float ladder_tolerance = 0.2f;
+    constexpr float barrel_z_length = 26.f;
+    constexpr float forward_z_begin = 32.f;
     int p = get_outer_iphi(hh);
     if (p < 0)
       p += std::numeric_limits<unsigned short>::max();
-    p = (64 * p) / std::numeric_limits<unsigned short>::max();
+    p = (max_ladder_bpx4 * p) / std::numeric_limits<unsigned short>::max();
     p %= 2;
-    float r4 = p == 0 ? 15.815 : 16.146;  // later on from geom
+    float r4 = p == 0 ? radius_even_ladder : radius_odd_ladder;  // later on from geom
     auto ri = innerCell.get_inner_r(hh);
     auto zi = innerCell.get_inner_z(hh);
     auto ro = get_outer_r(hh);
     auto zo = get_outer_z(hh);
     auto z4 = std::abs(zi + (r4 - ri) * (zo - zi) / (ro - ri));
-    auto zm = z4 - 6.7 * int(z4 / 6.7);
-    auto h = zm < 0.2 || zm > 6.5;
-    return h || (z4 > 26 && z4 < 32.f);
+    auto z_in_ladder = z4 - ladder_length * int(z4 / ladder_length);
+    auto h = z_in_ladder < ladder_tolerance || z_in_ladder > (ladder_length - ladder_tolerance);
+    return h || (z4 > barrel_z_length && z4 < forward_z_begin);
   }
 
   // trying to free the track building process from hardcoded layers, leaving
