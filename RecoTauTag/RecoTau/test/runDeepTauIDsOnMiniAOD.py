@@ -8,8 +8,8 @@ import FWCore.ParameterSet.Config as cms
 # options.parseArguments()
 updatedTauName = "slimmedTausNewID"
 minimalOutput = True
-eventsToProcess = 1000
-nThreads = 2
+eventsToProcess = 1
+nThreads = 1
 
 process = cms.Process('TauID')
 process.load('Configuration.StandardSequences.MagneticField_cff')

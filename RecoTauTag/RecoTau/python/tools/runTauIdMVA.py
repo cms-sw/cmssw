@@ -688,7 +688,7 @@ class TauIDEmbedder(object):
                 graph_file             = self.cms.string(file_name),
                 mem_mapped             = self.cms.bool(False),
                 version                = self.cms.uint32(2),
-                debug                  = self.cms.bool(False)
+                debug_level            = self.cms.int32(0)
 
             )
 
