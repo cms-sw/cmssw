@@ -6,12 +6,12 @@
 #include "SimTracker/TrackHistory/interface/VertexCategories.h"
 
 namespace SimTracker_TrackHistory {
-struct dictionary {
-  // Dictionaires for Track and Vertex categories
+  struct dictionary {
+    // Dictionaires for Track and Vertex categories
 
-  std::vector<TrackCategories> dummy01;
-  std::vector<VertexCategories> dummy02;
-  edm::Wrapper<std::vector<TrackCategories>> dummy03;
-  edm::Wrapper<std::vector<VertexCategories>> dummy04;
-};
-} // namespace SimTracker_TrackHistory
+    std::vector<TrackCategories> dummy01;
+    std::vector<VertexCategories> dummy02;
+    edm::Wrapper<std::vector<TrackCategories>> dummy03;
+    edm::Wrapper<std::vector<VertexCategories>> dummy04;
+  };
+}  // namespace SimTracker_TrackHistory

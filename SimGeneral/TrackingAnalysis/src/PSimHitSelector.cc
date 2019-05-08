@@ -6,19 +6,15 @@
 
 PSimHitSelector::PSimHitSelector(edm::ParameterSet const &config) {
   // Initilize psimhit collection discriminated by sub systems
-  edm::ParameterSet pSimHitCollections =
-      config.getParameter<edm::ParameterSet>("simHitCollections");
+  edm::ParameterSet pSimHitCollections = config.getParameter<edm::ParameterSet>("simHitCollections");
 
   std::vector<std::string> subdetectors(pSimHitCollections.getParameterNames());
 
   mixLabel_ = config.getParameter<std::string>("mixLabel");
 
   for (size_t i = 0; i < subdetectors.size(); ++i) {
-    pSimHitCollectionMap_.insert(
-        std::pair<std::string, std::vector<std::string>>(
-            subdetectors[i],
-            pSimHitCollections.getParameter<std::vector<std::string>>(
-                subdetectors[i])));
+    pSimHitCollectionMap_.insert(std::pair<std::string, std::vector<std::string>>(
+        subdetectors[i], pSimHitCollections.getParameter<std::vector<std::string>>(subdetectors[i])));
   }
 }
 
@@ -26,13 +22,11 @@ void PSimHitSelector::select(PSimHitCollection &selection,
                              edm::Event const &event,
                              edm::EventSetup const &setup) const {
   // Look for all psimhit collections
-  PSimHitCollectionMap::const_iterator pSimHitCollections =
-      pSimHitCollectionMap_.begin();
+  PSimHitCollectionMap::const_iterator pSimHitCollections = pSimHitCollectionMap_.begin();
 
   std::vector<const CrossingFrame<PSimHit> *> cfPSimHitProductPointers;
 
-  for (; pSimHitCollections != pSimHitCollectionMap_.end();
-       ++pSimHitCollections) {
+  for (; pSimHitCollections != pSimHitCollectionMap_.end(); ++pSimHitCollections) {
     // Grab all the PSimHit from the different sencitive volumes
     edm::Handle<CrossingFrame<PSimHit>> cfPSimHits;
 
@@ -47,11 +41,9 @@ void PSimHitSelector::select(PSimHitCollection &selection,
     return;
 
   // Create a mix collection from the different psimhit collections
-  std::unique_ptr<MixCollection<PSimHit>> pSimHits(
-      new MixCollection<PSimHit>(cfPSimHitProductPointers));
+  std::unique_ptr<MixCollection<PSimHit>> pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
 
   // Select all psimhits
-  for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin();
-       pSimHit != pSimHits->end(); ++pSimHit)
+  for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin(); pSimHit != pSimHits->end(); ++pSimHit)
     selection.push_back(*pSimHit);
 }

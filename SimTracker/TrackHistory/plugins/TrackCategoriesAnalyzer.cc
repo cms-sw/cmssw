@@ -21,8 +21,7 @@
 // class decleration
 //
 
-class TrackCategoriesAnalyzer
-    : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class TrackCategoriesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit TrackCategoriesAnalyzer(const edm::ParameterSet &);
   ~TrackCategoriesAnalyzer() override;
@@ -43,12 +42,10 @@ private:
   Int_t numberTrackCategories_;
 };
 
-TrackCategoriesAnalyzer::TrackCategoriesAnalyzer(
-    const edm::ParameterSet &config)
+TrackCategoriesAnalyzer::TrackCategoriesAnalyzer(const edm::ParameterSet &config)
     : classifier_(config, consumesCollector()) {
   // Get the track collection
-  trackProducer_ = consumes<edm::View<reco::Track>>(
-      config.getUntrackedParameter<edm::InputTag>("trackProducer"));
+  trackProducer_ = consumes<edm::View<reco::Track>>(config.getUntrackedParameter<edm::InputTag>("trackProducer"));
 
   // Get the file service
   usesResource("TFileService");
@@ -61,9 +58,11 @@ TrackCategoriesAnalyzer::TrackCategoriesAnalyzer(
   numberTrackCategories_ = TrackCategories::Unknown + 1;
 
   // Define a new histograms
-  trackCategories_ = fs->make<TH1F>(
-      "Frequency", "Frequency for the different track categories",
-      numberTrackCategories_, -0.5, numberTrackCategories_ - 0.5);
+  trackCategories_ = fs->make<TH1F>("Frequency",
+                                    "Frequency for the different track categories",
+                                    numberTrackCategories_,
+                                    -0.5,
+                                    numberTrackCategories_ - 0.5);
 
   // Set the proper categories names
   for (Int_t i = 0; i < numberTrackCategories_; ++i)
@@ -72,8 +71,7 @@ TrackCategoriesAnalyzer::TrackCategoriesAnalyzer(
 
 TrackCategoriesAnalyzer::~TrackCategoriesAnalyzer() {}
 
-void TrackCategoriesAnalyzer::analyze(const edm::Event &event,
-                                      const edm::EventSetup &setup) {
+void TrackCategoriesAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   // Track collection
   edm::Handle<edm::View<reco::Track>> trackCollection;
   event.getByToken(trackProducer_, trackCollection);

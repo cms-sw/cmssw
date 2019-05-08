@@ -15,8 +15,7 @@ void MuonPSimHitSelector::select(PSimHitCollection &selection,
                                  edm::Event const &event,
                                  edm::EventSetup const &setup) const {
   // Look for psimhit collection associated to the muon system
-  PSimHitCollectionMap::const_iterator pSimHitCollections =
-      pSimHitCollectionMap_.find("muon");
+  PSimHitCollectionMap::const_iterator pSimHitCollections = pSimHitCollectionMap_.find("muon");
 
   // Check that there are psimhit collections defined for the tracker
   if (pSimHitCollections == pSimHitCollectionMap_.end())
@@ -33,16 +32,14 @@ void MuonPSimHitSelector::select(PSimHitCollection &selection,
   }
 
   // Create a mix collection from the different psimhit collections
-  std::unique_ptr<MixCollection<PSimHit>> pSimHits(
-      new MixCollection<PSimHit>(cfPSimHitProductPointers));
+  std::unique_ptr<MixCollection<PSimHit>> pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
 
   // Get CSC Bad Chambers (ME4/2)
   edm::ESHandle<CSCBadChambers> cscBadChambers;
   setup.get<CSCBadChambersRcd>().get(cscBadChambers);
 
   // Select only psimhits from alive modules
-  for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin();
-       pSimHit != pSimHits->end(); ++pSimHit) {
+  for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin(); pSimHit != pSimHits->end(); ++pSimHit) {
     DetId dId = DetId(pSimHit->detUnitId());
 
     if (dId.det() == DetId::Muon && dId.subdetId() == MuonSubdetId::CSC) {

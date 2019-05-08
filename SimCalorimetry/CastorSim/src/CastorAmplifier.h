@@ -7,7 +7,7 @@
 class CastorDbService;
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CastorAmplifier {
@@ -18,8 +18,7 @@ public:
   /// the Producer will probably update this every event
   void setDbService(const CastorDbService *service) { theDbService = service; }
 
-  virtual void amplify(CaloSamples &linearFrame,
-                       CLHEP::HepRandomEngine *) const;
+  virtual void amplify(CaloSamples &linearFrame, CLHEP::HepRandomEngine *) const;
 
   void setStartingCapId(int capId) { theStartingCapId = capId; }
 

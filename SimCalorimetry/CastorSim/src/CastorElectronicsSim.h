@@ -13,17 +13,15 @@ class CastorAmplifier;
 class CastorCoderFactory;
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CastorElectronicsSim {
 public:
-  CastorElectronicsSim(CastorAmplifier *amplifier,
-                       const CastorCoderFactory *coderFactory);
+  CastorElectronicsSim(CastorAmplifier *amplifier, const CastorCoderFactory *coderFactory);
   ~CastorElectronicsSim();
 
-  void analogToDigital(CLHEP::HepRandomEngine *, CaloSamples &linearFrame,
-                       CastorDataFrame &result);
+  void analogToDigital(CLHEP::HepRandomEngine *, CaloSamples &linearFrame, CastorDataFrame &result);
 
   /// Things that need to be initialized every event
   void newEvent(CLHEP::HepRandomEngine *);

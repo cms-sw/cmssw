@@ -24,16 +24,12 @@ EcalTimeDigiProducer::EcalTimeDigiProducer(const edm::ParameterSet &params,
                                            edm::ProducerBase &mixMod,
                                            edm::ConsumesCollector &sumes)
     : DigiAccumulatorMixMod(),
-      m_EBdigiCollection(
-          params.getParameter<std::string>("EBtimeDigiCollection")),
-      m_EEdigiCollection(
-          params.getParameter<std::string>("EEtimeDigiCollection")),
+      m_EBdigiCollection(params.getParameter<std::string>("EBtimeDigiCollection")),
+      m_EEdigiCollection(params.getParameter<std::string>("EEtimeDigiCollection")),
       m_hitsProducerTagEB(params.getParameter<edm::InputTag>("hitsProducerEB")),
       m_hitsProducerTagEE(params.getParameter<edm::InputTag>("hitsProducerEE")),
-      m_hitsProducerTokenEB(
-          sumes.consumes<std::vector<PCaloHit>>(m_hitsProducerTagEB)),
-      m_hitsProducerTokenEE(
-          sumes.consumes<std::vector<PCaloHit>>(m_hitsProducerTagEE)),
+      m_hitsProducerTokenEB(sumes.consumes<std::vector<PCaloHit>>(m_hitsProducerTagEB)),
+      m_hitsProducerTokenEE(sumes.consumes<std::vector<PCaloHit>>(m_hitsProducerTagEE)),
       m_timeLayerEB(params.getParameter<int>("timeLayerBarrel")),
       m_timeLayerEE(params.getParameter<int>("timeLayerEndcap")),
       m_Geometry(nullptr) {
@@ -44,9 +40,8 @@ EcalTimeDigiProducer::EcalTimeDigiProducer(const edm::ParameterSet &params,
   m_EndcapDigitizer = new EcalTimeMapDigitizer(EcalEndcap);
 
 #ifdef ecal_time_debug
-  std::cout << "[EcalTimeDigiProducer]::Create EB " << m_EBdigiCollection
-            << " and EE " << m_EEdigiCollection << " collections and digitizers"
-            << std::endl;
+  std::cout << "[EcalTimeDigiProducer]::Create EB " << m_EBdigiCollection << " and EE " << m_EEdigiCollection
+            << " collections and digitizers" << std::endl;
 #endif
 
   m_BarrelDigitizer->setTimeLayerId(m_timeLayerEB);
@@ -55,8 +50,7 @@ EcalTimeDigiProducer::EcalTimeDigiProducer(const edm::ParameterSet &params,
 
 EcalTimeDigiProducer::~EcalTimeDigiProducer() {}
 
-void EcalTimeDigiProducer::initializeEvent(edm::Event const &event,
-                                           edm::EventSetup const &eventSetup) {
+void EcalTimeDigiProducer::initializeEvent(edm::Event const &event, edm::EventSetup const &eventSetup) {
   checkGeometry(eventSetup);
   //    checkCalibrations( event, eventSetup );
   // here the methods to clean the maps
@@ -78,8 +72,7 @@ void EcalTimeDigiProducer::accumulateCaloHits(HitsHandle const &ebHandle,
   }
 }
 
-void EcalTimeDigiProducer::accumulate(edm::Event const &e,
-                                      edm::EventSetup const &eventSetup) {
+void EcalTimeDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const &eventSetup) {
   // Step A: Get Inputs
   edm::Handle<std::vector<PCaloHit>> ebHandle;
   e.getByToken(m_hitsProducerTokenEB, ebHandle);
@@ -104,18 +97,14 @@ void EcalTimeDigiProducer::accumulate(PileUpEventPrincipal const &e,
   e.getByLabel(m_hitsProducerTagEE, eeHandle);
 
 #ifdef ecal_time_debug
-  std::cout << "[EcalTimeDigiProducer]::Accumulate Hits for BC "
-            << e.bunchCrossing() << std::endl;
+  std::cout << "[EcalTimeDigiProducer]::Accumulate Hits for BC " << e.bunchCrossing() << std::endl;
 #endif
   accumulateCaloHits(ebHandle, eeHandle, e.bunchCrossing());
 }
 
-void EcalTimeDigiProducer::finalizeEvent(edm::Event &event,
-                                         edm::EventSetup const &eventSetup) {
-  std::unique_ptr<EcalTimeDigiCollection> barrelResult(
-      new EcalTimeDigiCollection());
-  std::unique_ptr<EcalTimeDigiCollection> endcapResult(
-      new EcalTimeDigiCollection());
+void EcalTimeDigiProducer::finalizeEvent(edm::Event &event, edm::EventSetup const &eventSetup) {
+  std::unique_ptr<EcalTimeDigiCollection> barrelResult(new EcalTimeDigiCollection());
+  std::unique_ptr<EcalTimeDigiCollection> endcapResult(new EcalTimeDigiCollection());
 
 #ifdef ecal_time_debug
   std::cout << "[EcalTimeDigiProducer]::finalizeEvent" << std::endl;
@@ -125,8 +114,7 @@ void EcalTimeDigiProducer::finalizeEvent(edm::Event &event,
   m_BarrelDigitizer->run(*barrelResult);
 
 #ifdef ecal_time_debug
-  std::cout << "[EcalTimeDigiProducer]::EB Digi size " << barrelResult->size()
-            << std::endl;
+  std::cout << "[EcalTimeDigiProducer]::EB Digi size " << barrelResult->size() << std::endl;
 #endif
 
   edm::LogInfo("TimeDigiInfo") << "EB time Digis: " << barrelResult->size();
@@ -134,15 +122,13 @@ void EcalTimeDigiProducer::finalizeEvent(edm::Event &event,
   m_EndcapDigitizer->run(*endcapResult);
 
 #ifdef ecal_time_debug
-  std::cout << "[EcalTimeDigiProducer]::EE Digi size " << endcapResult->size()
-            << std::endl;
+  std::cout << "[EcalTimeDigiProducer]::EE Digi size " << endcapResult->size() << std::endl;
 #endif
 
   edm::LogInfo("TimeDigiInfo") << "EE Digis: " << endcapResult->size();
 
 #ifdef ecal_time_debug
-  std::cout << "[EcalTimeDigiProducer]::putting collections into the event "
-            << std::endl;
+  std::cout << "[EcalTimeDigiProducer]::putting collections into the event " << std::endl;
 #endif
 
   event.put(std::move(barrelResult), m_EBdigiCollection);
@@ -163,8 +149,6 @@ void EcalTimeDigiProducer::checkGeometry(const edm::EventSetup &eventSetup) {
 }
 
 void EcalTimeDigiProducer::updateGeometry() {
-  m_BarrelDigitizer->setGeometry(
-      m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
-  m_EndcapDigitizer->setGeometry(
-      m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
+  m_BarrelDigitizer->setGeometry(m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
+  m_EndcapDigitizer->setGeometry(m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
 }

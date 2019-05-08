@@ -15,7 +15,7 @@
 #include <vector>
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CastorHitCorrection : public CaloVHitCorrection {

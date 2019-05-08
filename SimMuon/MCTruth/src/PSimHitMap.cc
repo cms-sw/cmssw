@@ -11,15 +11,13 @@ void PSimHitMap::fill(const edm::Event &e) {
   LogTrace("PSimHitMap") << "... size = " << simHits.size();
 
   // arrange the hits by detUnit
-  for (MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
-       hitItr != simHits.end(); ++hitItr) {
+  for (MixCollection<PSimHit>::MixItr hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr) {
     theMap[hitItr->detUnitId()].push_back(*hitItr);
   }
 }
 
 const edm::PSimHitContainer &PSimHitMap::hits(int detId) const {
-  std::map<int, edm::PSimHitContainer>::const_iterator mapItr =
-      theMap.find(detId);
+  std::map<int, edm::PSimHitContainer>::const_iterator mapItr = theMap.find(detId);
   if (mapItr != theMap.end()) {
     return mapItr->second;
   } else {
@@ -30,10 +28,9 @@ const edm::PSimHitContainer &PSimHitMap::hits(int detId) const {
 std::vector<int> PSimHitMap::detsWithHits() const {
   std::vector<int> result;
   result.reserve(theMap.size());
-  for (std::map<int, edm::PSimHitContainer>::const_iterator
-           mapItr = theMap.begin(),
-           mapEnd = theMap.end();
-       mapItr != mapEnd; ++mapItr) {
+  for (std::map<int, edm::PSimHitContainer>::const_iterator mapItr = theMap.begin(), mapEnd = theMap.end();
+       mapItr != mapEnd;
+       ++mapItr) {
     result.push_back(mapItr->first);
   }
   return result;

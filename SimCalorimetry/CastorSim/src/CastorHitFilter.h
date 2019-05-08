@@ -8,8 +8,7 @@
 class CastorHitFilter : public CaloVHitFilter {
   bool accepts(const PCaloHit &hit) const override {
     DetId detId(hit.id());
-    return (detId.det() == DetId::Calo &&
-            detId.subdetId() == HcalCastorDetId::SubdetectorId);
+    return (detId.det() == DetId::Calo && detId.subdetId() == HcalCastorDetId::SubdetectorId);
   }
 };
 

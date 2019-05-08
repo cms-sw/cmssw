@@ -6,8 +6,7 @@
 #include <iostream>
 
 // some arbitrary numbers for now
-CastorSimParameterMap::CastorSimParameterMap()
-    : theCastorParameters(1., 4.3333, 2.09, -4., false) {}
+CastorSimParameterMap::CastorSimParameterMap() : theCastorParameters(1., 4.3333, 2.09, -4., false) {}
 /*
   CaloSimParameters(double photomultiplierGain, double amplifierGain,
                  double samplingFactor, double timePhase,
@@ -18,8 +17,7 @@ CastorSimParameterMap::CastorSimParameterMap()
 CastorSimParameterMap::CastorSimParameterMap(const edm::ParameterSet &p)
     : theCastorParameters(p.getParameter<edm::ParameterSet>("castor")) {}
 
-const CaloSimParameters &
-CastorSimParameterMap::simParameters(const DetId &detId) const {
+const CaloSimParameters &CastorSimParameterMap::simParameters(const DetId &detId) const {
   HcalGenericDetId genericId(detId);
 
   //  if(detId.det()==DetId::Calo &&

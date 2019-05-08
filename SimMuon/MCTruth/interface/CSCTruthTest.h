@@ -6,7 +6,6 @@
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
 
 class CSCTruthTest : public edm::stream::EDAnalyzer<> {
-
 public:
   explicit CSCTruthTest(const edm::ParameterSet &);
   ~CSCTruthTest() override;

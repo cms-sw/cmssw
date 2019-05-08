@@ -10,8 +10,7 @@
 
 class PSimHitMap {
 public:
-  PSimHitMap(const edm::InputTag &iT, edm::ConsumesCollector &&iC)
-      : theMap(), theEmptyContainer() {
+  PSimHitMap(const edm::InputTag &iT, edm::ConsumesCollector &&iC) : theMap(), theEmptyContainer() {
     sh_token = iC.consumes<CrossingFrame<PSimHit>>(iT);
   }
 

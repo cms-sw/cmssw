@@ -5,17 +5,17 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
-#include <memory> // required for std::unique_ptr
+#include <memory>  // required for std::unique_ptr
 
 // Forward declarations
 namespace edm {
-class ParameterSet;
-class ConsumesCollector;
-class ProducerBase;
-class Event;
-class EventSetup;
-class StreamID;
-} // namespace edm
+  class ParameterSet;
+  class ConsumesCollector;
+  class ProducerBase;
+  class Event;
+  class EventSetup;
+  class StreamID;
+}  // namespace edm
 class PileUpEventPrincipal;
 class PSimHit;
 
@@ -93,27 +93,24 @@ public:
                                     edm::ConsumesCollector &iC);
 
 private:
-  void initializeEvent(const edm::Event &event,
-                       const edm::EventSetup &setup) override;
-  void accumulate(const edm::Event &event,
-                  const edm::EventSetup &setup) override;
-  void accumulate(const PileUpEventPrincipal &event,
-                  const edm::EventSetup &setup, edm::StreamID const &) override;
+  void initializeEvent(const edm::Event &event, const edm::EventSetup &setup) override;
+  void accumulate(const edm::Event &event, const edm::EventSetup &setup) override;
+  void accumulate(const PileUpEventPrincipal &event, const edm::EventSetup &setup, edm::StreamID const &) override;
   void finalizeEvent(edm::Event &event, const edm::EventSetup &setup) override;
 
   /** @brief Both forms of accumulate() delegate to this templated method. */
   template <class T>
-  void accumulateEvent(const T &event, const edm::EventSetup &setup,
+  void accumulateEvent(const T &event,
+                       const edm::EventSetup &setup,
                        const edm::Handle<edm::HepMCProduct> &hepMCproduct);
 
   /** @brief Fills the supplied vector with pointers to the SimHits, checking
    * for bad modules if required */
   template <class T>
-  void fillSimHits(std::vector<const PSimHit *> &returnValue, const T &event,
-                   const edm::EventSetup &setup);
+  void fillSimHits(std::vector<const PSimHit *> &returnValue, const T &event, const edm::EventSetup &setup);
 
-  const std::string messageCategory_; ///< The message category used to send
-                                      ///< messages to MessageLogger
+  const std::string messageCategory_;  ///< The message category used to send
+                                       ///< messages to MessageLogger
 
   const double volumeRadius_;
   const double volumeZ_;
@@ -188,4 +185,4 @@ private:
   std::unique_ptr<TrackingVertexCollection> pInitialVertices_;
 };
 
-#endif // end of "#ifndef TrackingAnalysis_TrackingTruthAccumulator_h"
+#endif  // end of "#ifndef TrackingAnalysis_TrackingTruthAccumulator_h"

@@ -44,16 +44,7 @@ public:
       MuonRPCEndcap
     };
 
-    enum State {
-      Unknown = 0,
-      Good,
-      Missed,
-      Noise,
-      Bad,
-      Dead,
-      Shared,
-      Misassoc
-    };
+    enum State { Unknown = 0, Good, Missed, Noise, Bad, Dead, Shared, Misassoc };
 
     struct Hit {
       short int recHitId;
@@ -77,8 +68,7 @@ public:
   void newEvent(const edm::Event &, const edm::EventSetup &);
 
   //! Compute information about the track reconstruction quality
-  void evaluate(SimParticleTrail const &, reco::TrackBaseRef const &,
-                const TrackerTopology *tTopo);
+  void evaluate(SimParticleTrail const &, reco::TrackBaseRef const &, const TrackerTopology *tTopo);
 
   //! Return the number of layers with simulated and/or reconstructed hits
   unsigned int numberOfLayers() const { return layers_.size(); }

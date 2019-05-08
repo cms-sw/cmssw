@@ -15,7 +15,6 @@
 
 //! This class traces the simulated and generated history of a given track.
 class TrackHistory : public HistoryBase {
-
 public:
   //! Constructor by pset.
   /* Creates a TrackHistory with association given by pset.
@@ -37,8 +36,7 @@ public:
   */
   bool evaluate(TrackingParticleRef tpr) {
     if (enableSimToReco_) {
-      std::pair<reco::TrackBaseRef, double> result =
-          match(tpr, simToReco_, bestMatchByMaxValue_);
+      std::pair<reco::TrackBaseRef, double> result = match(tpr, simToReco_, bestMatchByMaxValue_);
       recotrack_ = result.first;
       quality_ = result.second;
     }
@@ -57,8 +55,7 @@ public:
   const reco::TrackBaseRef &recoTrack() const { return recotrack_; }
 
   // return the TrackingParticle to which the Track was matched
-  const std::pair<TrackingParticleRef, double>
-  getMatchedTrackingParticle() const {
+  const std::pair<TrackingParticleRef, double> getMatchedTrackingParticle() const {
     std::pair<TrackingParticleRef, double> result;
     result.first = trackingParticle_;
     result.second = quality_;
