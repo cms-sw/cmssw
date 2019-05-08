@@ -34,7 +34,13 @@ CAHitQuadrupletGeneratorGPU::CAHitQuadrupletGeneratorGPU(const edm::ParameterSet
               cfg.getParameter<bool>("earlyFishbone"),
               cfg.getParameter<bool>("lateFishbone"),
               cfg.getParameter<bool>("idealConditions"),
-              cfg.getParameter<bool>("fillStatistics")),
+              cfg.getParameter<bool>("fillStatistics"),
+              cfg.getParameter<double>("ptmin"),
+              cfg.getParameter<double>("CAThetaCutBarrel"),
+              cfg.getParameter<double>("CAThetaCutForward"),
+              cfg.getParameter<double>("hardCurvCut"),
+              cfg.getParameter<double>("dcaCutInnerTriplet"),
+              cfg.getParameter<double>("dcaCutOuterTriplet")),
       fitter(cfg.getParameter<bool>("fit5as4")),
       caThetaCut(cfg.getParameter<double>("CAThetaCut")),
       caPhiCut(cfg.getParameter<double>("CAPhiCut")),
@@ -44,6 +50,15 @@ void CAHitQuadrupletGeneratorGPU::fillDescriptions(edm::ParameterSetDescription 
   desc.add<double>("CAThetaCut", 0.00125);
   desc.add<double>("CAPhiCut", 10);
   desc.add<double>("CAHardPtCut", 0);
+  // 87 cm/GeV = 1/(3.8T * 0.3)
+  // take less than radius given by the hardPtCut and reject everything below
+  // auto hardCurvCut = 1.f/(0.35 * 87.f);
+  desc.add<double>("ptmin", 0.9f)->setComment("Cut on minimum pt");
+  desc.add<double>("CAThetaCutBarrel", 0.002f)->setComment("Cut on RZ alignement for Barrel");
+  desc.add<double>("CAThetaCutForward", 0.003f)->setComment("Cut on RZ alignment for Forward");
+  desc.add<double>("hardCurvCut", 1.f / (0.35 * 87.f))->setComment("Cut on minimum curvature");
+  desc.add<double>("dcaCutInnerTriplet", 0.15f)->setComment("Cut on origin radius when the inner hit is on BPix1");
+  desc.add<double>("dcaCutOuterTriplet", 0.25f)->setComment("Cut on origin radius when the outer hit is on BPix1");
   desc.add<bool>("earlyFishbone", false);
   desc.add<bool>("lateFishbone", true);
   desc.add<bool>("idealConditions", true), desc.add<bool>("fillStatistics", false),

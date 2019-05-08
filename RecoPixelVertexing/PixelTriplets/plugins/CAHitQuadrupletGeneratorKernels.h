@@ -31,13 +31,28 @@ public:
   using HitToTuple = CAConstants::HitToTuple;
   using TupleMultiplicity = CAConstants::TupleMultiplicity;
 
-  CAHitQuadrupletGeneratorKernels(
-      uint32_t minHitsPerNtuplet, bool earlyFishbone, bool lateFishbone, bool idealConditions, bool doStats)
+  CAHitQuadrupletGeneratorKernels(uint32_t minHitsPerNtuplet,
+                                  bool earlyFishbone,
+                                  bool lateFishbone,
+                                  bool idealConditions,
+                                  bool doStats,
+                                  float ptmin,
+                                  float CAThetaCutBarrel,
+                                  float CAThetaCutForward,
+                                  float hardCurvCut,
+                                  float dcaCutInnerTriplet,
+                                  float dcaCutOuterTriplet)
       : minHitsPerNtuplet_(minHitsPerNtuplet),
         earlyFishbone_(earlyFishbone),
         lateFishbone_(lateFishbone),
         idealConditions_(idealConditions),
-        doStats_(doStats) {}
+        doStats_(doStats),
+        ptmin_(ptmin),
+        CAThetaCutBarrel_(CAThetaCutBarrel),
+        CAThetaCutForward_(CAThetaCutForward),
+        hardCurvCut_(hardCurvCut),
+        dcaCutInnerTriplet_(dcaCutInnerTriplet),
+        dcaCutOuterTriplet_(dcaCutOuterTriplet){};
   ~CAHitQuadrupletGeneratorKernels() { deallocateOnGPU(); }
 
   TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_; }
@@ -77,6 +92,12 @@ private:
   const bool lateFishbone_;
   const bool idealConditions_;
   const bool doStats_;
+  const float ptmin_;
+  const float CAThetaCutBarrel_;
+  const float CAThetaCutForward_;
+  const float hardCurvCut_;
+  const float dcaCutInnerTriplet_;
+  const float dcaCutOuterTriplet_;
 };
 
 #endif  // RecoPixelVertexing_PixelTriplets_plugins_CAHitQuadrupletGeneratorKernels_h

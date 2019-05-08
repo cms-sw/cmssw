@@ -163,14 +163,14 @@ __global__ void kernel_connect(AtomicPairCounter *apc1,
                                GPUCACell *cells,
                                uint32_t const *__restrict__ nCells,
                                CellNeighborsVector *cellNeighbors,
-                               GPUCACell::OuterHitOfCell const *__restrict__ isOuterHitOfCell) {
+                               GPUCACell::OuterHitOfCell const *__restrict__ isOuterHitOfCell,
+                               float hardCurvCut,
+                               float ptmin,
+                               float CAThetaCutBarrel,
+                               float CAThetaCutForward,
+                               float dcaCutInnerTriplet,
+                               float dcaCutOuterTriplet) {
   auto const &hh = *hhp;
-
-  // 87 cm/GeV = 1/(3.8T * 0.3)
-  // take less than radius given by the hardPtCut and reject everything below
-  // auto hardCurvCut = 1.f/(hardPtCut * 87.f);
-  constexpr auto hardCurvCut = 1.f / (0.35f * 87.f);  // FIXME VI tune
-  constexpr auto ptmin = 0.9f;                        // FIXME original "tune"
 
   auto cellIndex = threadIdx.y + blockIdx.y * blockDim.y;
   auto first = threadIdx.x;
@@ -193,7 +193,14 @@ __global__ void kernel_connect(AtomicPairCounter *apc1,
     auto otherCell = __ldg(vi + j);
     if (cells[otherCell].theDoubletId < 0)
       continue;
-    if (thisCell.check_alignment(hh, cells[otherCell], ptmin, hardCurvCut)) {
+    if (thisCell.check_alignment(hh,
+                                 cells[otherCell],
+                                 ptmin,
+                                 hardCurvCut,
+                                 CAThetaCutBarrel,
+                                 CAThetaCutForward,
+                                 dcaCutInnerTriplet,
+                                 dcaCutOuterTriplet)) {
       cells[otherCell].addOuterNeighbor(cellIndex, *cellNeighbors);
     }
   }
@@ -476,7 +483,13 @@ void CAHitQuadrupletGeneratorKernels::launchKernels(  // here goes algoparms....
       device_theCells_.get(),
       device_nCells_,
       device_theCellNeighbors_,
-      device_isOuterHitOfCell_.get());
+      device_isOuterHitOfCell_.get(),
+      hardCurvCut_,
+      ptmin_,
+      CAThetaCutBarrel_,
+      CAThetaCutForward_,
+      dcaCutInnerTriplet_,
+      dcaCutOuterTriplet_);
   cudaCheck(cudaGetLastError());
 
   kernel_find_ntuplets<<<numberOfBlocks, blockSize, 0, cudaStream>>>(hh.view(),
