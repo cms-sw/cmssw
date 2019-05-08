@@ -19,6 +19,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -36,5 +37,6 @@ REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemDetSetAccessor<edm::DetSetVector<SiStrip
 REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemDetSetAccessor<edm::DetSetVector<PixelDigi> >, edm::DetSetVector<PixelDigi>, "SiPixelDigiCollectionAccessor" );
 REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemNewDetSetAccessor<edmNew::DetSetVector<SiStripCluster> >, edmNew::DetSetVector<SiStripCluster>, "SiStripClusterCollectionNewAccessor" );
 REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemNewDetSetAccessor<edmNew::DetSetVector<SiPixelCluster> >, edmNew::DetSetVector<SiPixelCluster>, "SiPixelClusterCollectionNewAccessor" );
+REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemNewDetSetAccessor<edmNew::DetSetVector<Phase2TrackerCluster1D> >, edmNew::DetSetVector<Phase2TrackerCluster1D>, "Phase2TrackerCluster1DCollectionNewAccessor" );
 
 REGISTER_FWITEMACCESSOR(BeamSpotSingleAccessor, reco::BeamSpot, "BeamSpotAccessor");
