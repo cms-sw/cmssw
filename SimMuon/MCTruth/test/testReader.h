@@ -9,7 +9,6 @@
 #include <memory>
 
 class testReader : public edm::EDAnalyzer {
-
 public:
   testReader(const edm::ParameterSet &);
   ~testReader() override;

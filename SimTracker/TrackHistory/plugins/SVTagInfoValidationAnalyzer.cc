@@ -35,7 +35,6 @@ using namespace std;
 using namespace edm;
 
 class SVTagInfoValidationAnalyzer : public edm::one::EDAnalyzer<> {
-
 public:
   explicit SVTagInfoValidationAnalyzer(const edm::ParameterSet &);
 
@@ -75,17 +74,14 @@ private:
   void bookSimToReco(std::string const &);
 
   // Fill all histogram per category
-  void fillRecoToSim(std::string const &, reco::Vertex const &,
-                     TrackingVertexRef const &);
-  void fillSimToReco(std::string const &, reco::VertexBaseRef const &,
-                     TrackingVertexRef const &);
+  void fillRecoToSim(std::string const &, reco::Vertex const &, TrackingVertexRef const &);
+  void fillSimToReco(std::string const &, reco::VertexBaseRef const &, TrackingVertexRef const &);
 
   // Histogram handlers
   std::map<std::string, TH1D *> TH1Index_;
 };
 
-SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(
-    const edm::ParameterSet &config)
+SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(const edm::ParameterSet &config)
     : classifier_(config, consumesCollector()) {
   // Initialize counters
   n_event = 0;
@@ -106,8 +102,7 @@ SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(
   total_nmiss = 0;
 
   // Get the track collection
-  svTagInfoProducer_ =
-      config.getUntrackedParameter<edm::InputTag>("svTagInfoProducer");
+  svTagInfoProducer_ = config.getUntrackedParameter<edm::InputTag>("svTagInfoProducer");
   consumes<reco::SecondaryVertexTagInfoCollection>(svTagInfoProducer_);
 
   // Name of the traking pariticle collection
@@ -118,65 +113,52 @@ SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(
   numberVertexClassifier_ = VertexCategories::Unknown + 1;
 
   // Define histogram for counting categories
-  TH1Index_["VertexClassifier"] = fs_->make<TH1D>(
-      "VertexClassifier", "Frequency for the different track categories",
-      numberVertexClassifier_, -0.5, numberVertexClassifier_ - 0.5);
+  TH1Index_["VertexClassifier"] = fs_->make<TH1D>("VertexClassifier",
+                                                  "Frequency for the different track categories",
+                                                  numberVertexClassifier_,
+                                                  -0.5,
+                                                  numberVertexClassifier_ - 0.5);
 
   //--- RecoToSim
-  TH1Index_["rs_All_MatchQuality"] = fs_->make<TH1D>(
-      "rs_All_MatchQuality", "Quality of Match", 51, -0.01, 1.01);
-  TH1Index_["rs_All_FlightDistance2d"] = fs_->make<TH1D>(
-      "rs_All_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
+  TH1Index_["rs_All_MatchQuality"] = fs_->make<TH1D>("rs_All_MatchQuality", "Quality of Match", 51, -0.01, 1.01);
+  TH1Index_["rs_All_FlightDistance2d"] =
+      fs_->make<TH1D>("rs_All_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
   TH1Index_["rs_SecondaryVertex_FlightDistance2d"] =
-      fs_->make<TH1D>("rs_SecondaryVertex_FlightDistance2d",
-                      "Transverse flight distance [cm]", 100, 0, 5);
-  TH1Index_["rs_BSV_FlightDistance2d"] = fs_->make<TH1D>(
-      "rs_BSV_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
+      fs_->make<TH1D>("rs_SecondaryVertex_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
+  TH1Index_["rs_BSV_FlightDistance2d"] =
+      fs_->make<TH1D>("rs_BSV_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
   TH1Index_["rs_BWeakDecay_FlightDistance2d"] =
-      fs_->make<TH1D>("rs_BWeakDecay_FlightDistance2d",
-                      "Transverse flight distance [cm]", 100, 0, 5);
+      fs_->make<TH1D>("rs_BWeakDecay_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
   TH1Index_["rs_CWeakDecay_FlightDistance2d"] =
-      fs_->make<TH1D>("rs_CWeakDecay_FlightDistance2d",
-                      "Transverse flight distance [cm]", 100, 0, 5);
+      fs_->make<TH1D>("rs_CWeakDecay_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
   TH1Index_["rs_Light_FlightDistance2d"] =
-      fs_->make<TH1D>("rs_Light_FlightDistance2d",
-                      "Transverse flight distance [cm]", 100, 0, 5);
+      fs_->make<TH1D>("rs_Light_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
 
-  TH1Index_["rs_All_nRecVtx"] = fs_->make<TH1D>(
-      "rs_All_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  TH1Index_["rs_All_nRecVtx"] = fs_->make<TH1D>("rs_All_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
   TH1Index_["rs_SecondaryVertex_nRecVtx"] =
-      fs_->make<TH1D>("rs_SecondaryVertex_nRecVtx",
-                      "Number of Vertices per event", 11, -0.5, 10.5);
-  TH1Index_["rs_BSV_nRecVtx"] = fs_->make<TH1D>(
-      "rs_BSV_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  TH1Index_["rs_BWeakDecay_nRecVtx"] = fs_->make<TH1D>(
-      "rs_BWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  TH1Index_["rs_CWeakDecay_nRecVtx"] = fs_->make<TH1D>(
-      "rs_CWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  TH1Index_["rs_Light_nRecVtx"] = fs_->make<TH1D>(
-      "rs_Light_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+      fs_->make<TH1D>("rs_SecondaryVertex_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  TH1Index_["rs_BSV_nRecVtx"] = fs_->make<TH1D>("rs_BSV_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  TH1Index_["rs_BWeakDecay_nRecVtx"] =
+      fs_->make<TH1D>("rs_BWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  TH1Index_["rs_CWeakDecay_nRecVtx"] =
+      fs_->make<TH1D>("rs_CWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  TH1Index_["rs_Light_nRecVtx"] = fs_->make<TH1D>("rs_Light_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
 
   //--- SimToReco
-  TH1Index_["sr_All_MatchQuality"] = fs_->make<TH1D>(
-      "sr_All_MatchQuality", "Quality of Match", 51, -0.01, 1.01);
-  TH1Index_["sr_All_nRecVtx"] = fs_->make<TH1D>(
-      "sr_All_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  TH1Index_["sr_All_MatchQuality"] = fs_->make<TH1D>("sr_All_MatchQuality", "Quality of Match", 51, -0.01, 1.01);
+  TH1Index_["sr_All_nRecVtx"] = fs_->make<TH1D>("sr_All_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
   TH1Index_["sr_SecondaryVertex_nRecVtx"] =
-      fs_->make<TH1D>("sr_SecondaryVertex_nRecVtx",
-                      "Number of Vertices per event", 11, -0.5, 10.5);
-  TH1Index_["sr_BSV_nRecVtx"] = fs_->make<TH1D>(
-      "sr_BSV_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  TH1Index_["sr_BWeakDecay_nRecVtx"] = fs_->make<TH1D>(
-      "sr_BWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  TH1Index_["sr_CWeakDecay_nRecVtx"] = fs_->make<TH1D>(
-      "sr_CWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  TH1Index_["sr_Light_nRecVtx"] = fs_->make<TH1D>(
-      "sr_Light_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+      fs_->make<TH1D>("sr_SecondaryVertex_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  TH1Index_["sr_BSV_nRecVtx"] = fs_->make<TH1D>("sr_BSV_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  TH1Index_["sr_BWeakDecay_nRecVtx"] =
+      fs_->make<TH1D>("sr_BWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  TH1Index_["sr_CWeakDecay_nRecVtx"] =
+      fs_->make<TH1D>("sr_CWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  TH1Index_["sr_Light_nRecVtx"] = fs_->make<TH1D>("sr_Light_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
 
   // Set the proper categories names
   for (Int_t i = 0; i < numberVertexClassifier_; ++i)
-    TH1Index_["VertexClassifier"]->GetXaxis()->SetBinLabel(
-        i + 1, VertexCategories::Names[i]);
+    TH1Index_["VertexClassifier"]->GetXaxis()->SetBinLabel(i + 1, VertexCategories::Names[i]);
 
   // book histograms
   bookRecoToSim("rs_All");
@@ -194,13 +176,10 @@ SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(
   bookSimToReco("sr_Light");
 }
 
-void SVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
-                                          const edm::EventSetup &setup) {
+void SVTagInfoValidationAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   ++n_event;
 
-  std::cout << "*** Analyzing " << event.id() << " n_event = " << n_event
-            << std::endl
-            << std::endl;
+  std::cout << "*** Analyzing " << event.id() << " n_event = " << n_event << std::endl << std::endl;
 
   // Set the classifier for a new event
   classifier_.newEvent(event, setup);
@@ -212,9 +191,7 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
   // Get a constant reference to the track history associated to the classifier
   VertexHistory const &tracer = classifier_.history();
 
-  cout << "* Event " << n_event
-       << " ; svTagInfoCollection->size() = " << svTagInfoCollection->size()
-       << endl;
+  cout << "* Event " << n_event << " ; svTagInfoCollection->size() = " << svTagInfoCollection->size() << endl;
 
   int rs_nall = 0;
   int rs_nsv = 0;
@@ -234,12 +211,10 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
 
   // Loop over the svTagInfo collection.
   for (std::size_t index = 0; index < svTagInfoCollection->size(); ++index) {
-
     reco::SecondaryVertexTagInfoRef svTagInfo(svTagInfoCollection, index);
 
     // Loop over the vertexes in svTagInfo
     for (std::size_t vindex = 0; vindex < svTagInfo->nVertices(); ++vindex) {
-
       // Classify the vertices
       classifier_.evaluate(svTagInfo, vindex);
 
@@ -248,80 +223,62 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
 
       // Fill the histogram with the categories
       for (Int_t i = 0; i != numberVertexClassifier_; ++i) {
-
         if (classifier_.is((VertexCategories::Category)i)) {
-
           TH1Index_["VertexClassifier"]->Fill(i);
         }
       }
       if (!classifier_.is(VertexCategories::Fake)) {
-
         cout << "R2S: MatchQuality = " << rs_quality << endl;
 
         TH1Index_["rs_All_MatchQuality"]->Fill(rs_quality);
-        fillRecoToSim("rs_All", svTagInfo->secondaryVertex(vindex),
-                      tracer.simVertex());
-        TH1Index_["rs_All_FlightDistance2d"]->Fill(
-            svTagInfo->flightDistance(vindex, true).value());
+        fillRecoToSim("rs_All", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+        TH1Index_["rs_All_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
         rs_nall++;
 
         if (classifier_.is(VertexCategories::SecondaryVertex)) {
-
           // cout << "    R2S VertexCategories::SecondaryVertex" << endl;
-          fillRecoToSim("rs_SecondaryVertex",
-                        svTagInfo->secondaryVertex(vindex), tracer.simVertex());
-          TH1Index_["rs_SecondaryVertex_FlightDistance2d"]->Fill(
-              svTagInfo->flightDistance(vindex, true).value());
+          fillRecoToSim("rs_SecondaryVertex", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+          TH1Index_["rs_SecondaryVertex_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
           rs_nsv++;
         }
 
         if (classifier_.is(VertexCategories::BWeakDecay)) {
-
           // cout << "    R2S VertexCategories::BWeakDecay" << endl;
-          fillRecoToSim("rs_BWeakDecay", svTagInfo->secondaryVertex(vindex),
-                        tracer.simVertex());
-          TH1Index_["rs_BWeakDecay_FlightDistance2d"]->Fill(
-              svTagInfo->flightDistance(vindex, true).value());
+          fillRecoToSim("rs_BWeakDecay", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+          TH1Index_["rs_BWeakDecay_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
           rs_nbv++;
 
           if (classifier_.is(VertexCategories::SecondaryVertex)) {
             // cout << "    R2S VertexCategories::BWeakDecay SecondaryVertex" <<
             // endl;
-            fillRecoToSim("rs_BSV", svTagInfo->secondaryVertex(vindex),
-                          tracer.simVertex());
-            TH1Index_["rs_BSV_FlightDistance2d"]->Fill(
-                svTagInfo->flightDistance(vindex, true).value());
+            fillRecoToSim("rs_BSV", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+            TH1Index_["rs_BSV_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
             rs_nbsv++;
           }
-        } // BWeakDecay
+        }  // BWeakDecay
 
         else if (classifier_.is(VertexCategories::CWeakDecay)) {
-
           // cout << "    R2S VertexCategories::CWeakDecay" << endl;
-          fillRecoToSim("rs_CWeakDecay", svTagInfo->secondaryVertex(vindex),
-                        tracer.simVertex());
-          TH1Index_["rs_CWeakDecay_FlightDistance2d"]->Fill(
-              svTagInfo->flightDistance(vindex, true).value());
+          fillRecoToSim("rs_CWeakDecay", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+          TH1Index_["rs_CWeakDecay_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
           rs_ncv++;
 
         } else {
           // cout << "    R2S Light (rest of categories)" << endl;
-          fillRecoToSim("rs_Light", svTagInfo->secondaryVertex(vindex),
-                        tracer.simVertex());
-          TH1Index_["rs_Light_FlightDistance2d"]->Fill(
-              svTagInfo->flightDistance(vindex, true).value());
+          fillRecoToSim("rs_Light", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+          TH1Index_["rs_Light_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
           rs_nlv++;
         }
-      } // end if classifier
+      }  // end if classifier
 
       else {
         cout << "    VertexCategories::Fake!!" << endl;
         nfake++;
       }
 
-    } // end loop over vertices in svTagInfo
+    }  // end loop over vertices in svTagInfo
 
-  } // loop over svTagInfo
+  }  // loop over svTagInfo
 
   TH1Index_["rs_All_nRecVtx"]->Fill(rs_nall);
   TH1Index_["rs_SecondaryVertex_nRecVtx"]->Fill(rs_nsv);
@@ -340,7 +297,6 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
 
   // Loop over the TV collection.
   for (std::size_t index = 0; index < TVCollection->size(); ++index) {
-
     TrackingVertexRef trackingVertex(TVCollection, index);
 
     classifier_.evaluate(trackingVertex);
@@ -348,7 +304,6 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
     double sr_quality = tracer.quality();
 
     if (classifier_.is(VertexCategories::Reconstructed)) {
-
       cout << "S2R: MatchQuality = " << sr_quality << endl;
 
       // cout << "    S2R VertexCategories::Reconstructed" << endl;
@@ -357,52 +312,46 @@ void SVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
       sr_nall++;
 
       if (classifier_.is(VertexCategories::SecondaryVertex)) {
-
         // cout << "    S2R VertexCategories::Reconstructed::SecondaryVertex" <<
         // endl;
-        fillSimToReco("sr_SecondaryVertex", tracer.recoVertex(),
-                      trackingVertex);
+        fillSimToReco("sr_SecondaryVertex", tracer.recoVertex(), trackingVertex);
         sr_nsv++;
       }
 
       if (classifier_.is(VertexCategories::BWeakDecay)) {
-
         // cout << "    S2R VertexCategories::Reconstructed::BWeakDecay" <<
         // endl;
         fillSimToReco("sr_BWeakDecay", tracer.recoVertex(), trackingVertex);
         sr_nbv++;
 
         if (classifier_.is(VertexCategories::SecondaryVertex)) {
-
           // cout << "    S2R VertexCategories::Reconstructed::BWeakDecay
           // SecondaryVertex" << endl;
           fillSimToReco("sr_BSV", tracer.recoVertex(), trackingVertex);
           sr_nbsv++;
         }
 
-      } // BWeakDecay
+      }  // BWeakDecay
 
       else if (classifier_.is(VertexCategories::CWeakDecay)) {
-
         // cout << "    S2R VertexCategories::CWeakDecay" << endl;
         fillSimToReco("sr_CWeakDecay", tracer.recoVertex(), trackingVertex);
         sr_ncv++;
       }
 
       else {
-
         // cout << "    S2R Light (rest of categories)" << endl;
         fillSimToReco("sr_Light", tracer.recoVertex(), trackingVertex);
         sr_nlv++;
       }
 
-    } // Reconstructed
+    }  // Reconstructed
     else {
       // cout << "##### Not reconstructed!" << endl;
       nmiss++;
     }
 
-  } // TVCollection.size()
+  }  // TVCollection.size()
 
   TH1Index_["sr_All_nRecVtx"]->Fill(sr_nall);
   TH1Index_["sr_SecondaryVertex_nRecVtx"]->Fill(sr_nsv);
@@ -439,14 +388,11 @@ void SVTagInfoValidationAnalyzer::bookRecoToSim(std::string const &prefix) {
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -10., 10.);
 
   name = prefix + "_Resx";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
   name = prefix + "_Resy";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
   name = prefix + "_Resz";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
 
   name = prefix + "_Chi2Norm";
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, 0, 10.);
@@ -454,8 +400,7 @@ void SVTagInfoValidationAnalyzer::bookRecoToSim(std::string const &prefix) {
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, 0., 1.);
 
   name = prefix + "_nRecTrks";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 501, -0.5, 500.5);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 501, -0.5, 500.5);
 
   name = prefix + "_AverageTrackWeight";
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.1, 1.1);
@@ -464,8 +409,7 @@ void SVTagInfoValidationAnalyzer::bookRecoToSim(std::string const &prefix) {
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 65, 0., 6.5);
 
   name = prefix + "_RecPt";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_RecEta";
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 200, -3., 3.);
@@ -474,19 +418,16 @@ void SVTagInfoValidationAnalyzer::bookRecoToSim(std::string const &prefix) {
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 21, -0.5, 20.5);
 
   name = prefix + "_RecTrackPt";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_RecTrackEta";
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 200, -3., 3.);
 
   name = prefix + "_nSimTrks";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 501, -0.5, 500.5);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 501, -0.5, 500.5);
 
   name = prefix + "_SimPt";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_SimEta";
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 200, -3., 3.);
@@ -512,14 +453,11 @@ void SVTagInfoValidationAnalyzer::bookSimToReco(std::string const &prefix) {
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -10., 10.);
 
   name = prefix + "_Resx";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
   name = prefix + "_Resy";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
   name = prefix + "_Resz";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.05, 0.05);
 
   name = prefix + "_Chi2Norm";
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, 0, 10.);
@@ -527,8 +465,7 @@ void SVTagInfoValidationAnalyzer::bookSimToReco(std::string const &prefix) {
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, 0., 1.);
 
   name = prefix + "_nRecTrks";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 501, -0.5, 500.5);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 501, -0.5, 500.5);
 
   name = prefix + "_AverageTrackWeight";
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 100, -0.1, 1.1);
@@ -537,8 +474,7 @@ void SVTagInfoValidationAnalyzer::bookSimToReco(std::string const &prefix) {
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 65, 0., 6.5);
 
   name = prefix + "_RecPt";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_RecEta";
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 200, -3., 3.);
@@ -547,19 +483,16 @@ void SVTagInfoValidationAnalyzer::bookSimToReco(std::string const &prefix) {
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 21, -0.5, 20.5);
 
   name = prefix + "_RecTrackPt";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_RecTrackEta";
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 200, -3., 3.);
 
   name = prefix + "_nSimTrks";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 501, -0.5, 500.5);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 501, -0.5, 500.5);
 
   name = prefix + "_SimPt";
-  TH1Index_[name] =
-      fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_SimEta";
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 200, -3., 3.);
@@ -574,10 +507,9 @@ void SVTagInfoValidationAnalyzer::bookSimToReco(std::string const &prefix) {
   TH1Index_[name] = fs_->make<TH1D>(name.c_str(), name.c_str(), 200, -3., 3.);
 }
 
-void SVTagInfoValidationAnalyzer::fillRecoToSim(
-    std::string const &prefix, reco::Vertex const &vertex,
-    TrackingVertexRef const &simVertex) {
-
+void SVTagInfoValidationAnalyzer::fillRecoToSim(std::string const &prefix,
+                                                reco::Vertex const &vertex,
+                                                TrackingVertexRef const &simVertex) {
   double pullx = (vertex.x() - simVertex->position().x()) / vertex.xError();
   double pully = (vertex.y() - simVertex->position().y()) / vertex.yError();
   double pullz = (vertex.z() - simVertex->position().z()) / vertex.zError();
@@ -596,9 +528,8 @@ void SVTagInfoValidationAnalyzer::fillRecoToSim(
   math::XYZTLorentzVector sum;
   int charge = 0;
   double thePiMass = 0.13957;
-  for (reco::Vertex::trackRef_iterator recDaughter = vertex.tracks_begin();
-       recDaughter != vertex.tracks_end(); ++recDaughter) {
-
+  for (reco::Vertex::trackRef_iterator recDaughter = vertex.tracks_begin(); recDaughter != vertex.tracks_end();
+       ++recDaughter) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> vec;
 
     vec.SetPx((**recDaughter).px());
@@ -619,7 +550,7 @@ void SVTagInfoValidationAnalyzer::fillRecoToSim(
 
     TH1Index_[prefix + "_RecTrackPt"]->Fill((*recDaughter)->pt());
     TH1Index_[prefix + "_RecTrackEta"]->Fill((*recDaughter)->eta());
-  } // end loop to recDaughters
+  }  // end loop to recDaughters
   // cout << "                   average sum of weights = " <<
   // sum_weight/tracksize << endl;
 
@@ -629,10 +560,9 @@ void SVTagInfoValidationAnalyzer::fillRecoToSim(
 
   math::XYZVector simmomentum;
   int simcharge = 0;
-  for (TrackingVertex::tp_iterator simDaughter =
-           simVertex->daughterTracks_begin();
-       simDaughter != simVertex->daughterTracks_end(); ++simDaughter) {
-
+  for (TrackingVertex::tp_iterator simDaughter = simVertex->daughterTracks_begin();
+       simDaughter != simVertex->daughterTracks_end();
+       ++simDaughter) {
     math::XYZVector p;
     p = (**simDaughter).momentum();
     simmomentum += p;
@@ -670,10 +600,9 @@ void SVTagInfoValidationAnalyzer::fillRecoToSim(
   TH1Index_[prefix + "_SimCharge"]->Fill(simcharge);
 }
 
-void SVTagInfoValidationAnalyzer::fillSimToReco(
-    std::string const &prefix, reco::VertexBaseRef const &vertex,
-    TrackingVertexRef const &simVertex) {
-
+void SVTagInfoValidationAnalyzer::fillSimToReco(std::string const &prefix,
+                                                reco::VertexBaseRef const &vertex,
+                                                TrackingVertexRef const &simVertex) {
   double pullx = (vertex->x() - simVertex->position().x()) / vertex->xError();
   double pully = (vertex->y() - simVertex->position().y()) / vertex->yError();
   double pullz = (vertex->z() - simVertex->position().z()) / vertex->zError();
@@ -692,9 +621,8 @@ void SVTagInfoValidationAnalyzer::fillSimToReco(
   math::XYZTLorentzVector sum;
   int charge = 0;
   double thePiMass = 0.13957;
-  for (reco::Vertex::trackRef_iterator recDaughter = vertex->tracks_begin();
-       recDaughter != vertex->tracks_end(); ++recDaughter) {
-
+  for (reco::Vertex::trackRef_iterator recDaughter = vertex->tracks_begin(); recDaughter != vertex->tracks_end();
+       ++recDaughter) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> vec;
 
     vec.SetPx((**recDaughter).px());
@@ -725,10 +653,9 @@ void SVTagInfoValidationAnalyzer::fillSimToReco(
 
   math::XYZVector simmomentum;
   int simcharge = 0;
-  for (TrackingVertex::tp_iterator simDaughter =
-           simVertex->daughterTracks_begin();
-       simDaughter != simVertex->daughterTracks_end(); ++simDaughter) {
-
+  for (TrackingVertex::tp_iterator simDaughter = simVertex->daughterTracks_begin();
+       simDaughter != simVertex->daughterTracks_end();
+       ++simDaughter) {
     math::XYZVector p;
     p = (**simDaughter).momentum();
     simmomentum += p;
@@ -767,38 +694,23 @@ void SVTagInfoValidationAnalyzer::fillSimToReco(
 }
 
 void SVTagInfoValidationAnalyzer::endJob() {
-
   std::cout << std::endl;
-  std::cout << " ====== Total Number of analyzed events: " << n_event
-            << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S All:                         "
-            << rs_total_nall << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S SecondaryVertex:             "
-            << rs_total_nsv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S BWeakDecay:                  "
-            << rs_total_nbv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S BWeakDecay::SecondaryVertex: "
-            << rs_total_nbsv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S CWeakDecay:                  "
-            << rs_total_ncv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S Light:                       "
-            << rs_total_nlv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of analyzed events: " << n_event << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S All:                         " << rs_total_nall << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S SecondaryVertex:             " << rs_total_nsv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S BWeakDecay:                  " << rs_total_nbv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S BWeakDecay::SecondaryVertex: " << rs_total_nbsv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S CWeakDecay:                  " << rs_total_ncv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S Light:                       " << rs_total_nlv << " ====== " << std::endl;
   std::cout << std::endl;
-  std::cout << " ====== Total Number of S2R All:                         "
-            << sr_total_nall << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R SecondaryVertex:             "
-            << sr_total_nsv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R BWeakDecay:                  "
-            << sr_total_nbv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R BWeakDecay::SecondaryVertex: "
-            << sr_total_nbsv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R CWeakDecay:                  "
-            << sr_total_ncv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R Light:                       "
-            << sr_total_nlv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R All:                         " << sr_total_nall << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R SecondaryVertex:             " << sr_total_nsv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R BWeakDecay:                  " << sr_total_nbv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R BWeakDecay::SecondaryVertex: " << sr_total_nbsv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R CWeakDecay:                  " << sr_total_ncv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R Light:                       " << sr_total_nlv << " ====== " << std::endl;
   std::cout << std::endl;
-  std::cout << " ====== Total Number of Fake Vertices:              "
-            << total_nfake << " ====== " << std::endl;
+  std::cout << " ====== Total Number of Fake Vertices:              " << total_nfake << " ====== " << std::endl;
 }
 
 DEFINE_FWK_MODULE(SVTagInfoValidationAnalyzer);

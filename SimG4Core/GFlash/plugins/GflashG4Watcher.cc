@@ -19,7 +19,6 @@ using namespace CLHEP;
 // constructors and destructor
 //
 GflashG4Watcher::GflashG4Watcher(const edm::ParameterSet &p) {
-
   edm::ParameterSet myP = p.getParameter<edm::ParameterSet>("GflashG4Watcher");
   histFileName_ = myP.getParameter<std::string>("histFileName");
   recoEnergyScaleEB_ = myP.getParameter<double>("recoEnergyScaleEB");
@@ -29,72 +28,73 @@ GflashG4Watcher::GflashG4Watcher(const edm::ParameterSet &p) {
 
   TH1::AddDirectory(kTRUE);
 
-  em_incE =
-      new TH1F("em_incE", "Incoming energy at Ecal;E (GeV);Number of Events",
-               500, 0.0, 500.0);
-  em_vtx_rho =
-      new TH1F("em_vtx_rho", "vertex position;#rho (cm);Number of Events", 100,
-               0.0, 10.0);
-  em_vtx_z = new TH1F("em_vtx_z", "vertex position;z (cm);Number of Events",
-                      100, -10.0, 10.0);
+  em_incE = new TH1F("em_incE", "Incoming energy at Ecal;E (GeV);Number of Events", 500, 0.0, 500.0);
+  em_vtx_rho = new TH1F("em_vtx_rho", "vertex position;#rho (cm);Number of Events", 100, 0.0, 10.0);
+  em_vtx_z = new TH1F("em_vtx_z", "vertex position;z (cm);Number of Events", 100, -10.0, 10.0);
 
-  eb_ssp_rho = new TH1F("eb_ssp_rho",
-                        "Shower starting position;#rho (cm);Number of Events",
-                        200, 0.0, 200.0);
+  eb_ssp_rho = new TH1F("eb_ssp_rho", "Shower starting position;#rho (cm);Number of Events", 200, 0.0, 200.0);
   eb_hit_long = new TH1F("eb_hit_long",
                          "longitudinal hit position;shower depth (cm);Number "
                          "of energy weighted hits",
-                         400, 0.0, 200.0);
-  eb_hit_lat =
-      new TH1F("eb_hit_lat",
-               "lateral hit position;arm (cm);Number of energy weighted hits",
-               100, 0.0, 5.0);
+                         400,
+                         0.0,
+                         200.0);
+  eb_hit_lat = new TH1F("eb_hit_lat", "lateral hit position;arm (cm);Number of energy weighted hits", 100, 0.0, 5.0);
   eb_hit_rz = new TH2F(
-      "eb_hit_rz",
-      "hit position along the shower direction;shower depth (cm);arm (cm)", 400,
-      0.0, 200.0, 100, 0.0, 5.0);
-  eb_hit_long_sd =
-      new TH1F("eb_hit_long_sd",
-               "longitudinal hit position in Sensitive Detector;shower depth "
-               "(cm);Number of energy weighted hits",
-               400, 0.0, 200.0);
+      "eb_hit_rz", "hit position along the shower direction;shower depth (cm);arm (cm)", 400, 0.0, 200.0, 100, 0.0, 5.0);
+  eb_hit_long_sd = new TH1F("eb_hit_long_sd",
+                            "longitudinal hit position in Sensitive Detector;shower depth "
+                            "(cm);Number of energy weighted hits",
+                            400,
+                            0.0,
+                            200.0);
   eb_hit_lat_sd = new TH1F("eb_hit_lat_sd",
                            "lateral hit position in Sensitive Detector;arm "
                            "(cm);Number of energy weighted hits",
-                           100, 0.0, 5.0);
+                           100,
+                           0.0,
+                           5.0);
   eb_hit_rz_sd = new TH2F("eb_hit_rz_sd",
                           "hit position along the shower direction in "
                           "Sensitive Detector;shower depth (cm);arm (cm)",
-                          400, 0.0, 200.0, 100, 0.0, 5.0);
+                          400,
+                          0.0,
+                          200.0,
+                          100,
+                          0.0,
+                          5.0);
 
-  ee_ssp_z =
-      new TH1F("ee_ssp_z", "Shower starting position;z (cm);Number of Events",
-               800, -400.0, 400.0);
+  ee_ssp_z = new TH1F("ee_ssp_z", "Shower starting position;z (cm);Number of Events", 800, -400.0, 400.0);
   ee_hit_long = new TH1F("ee_hit_long",
                          "longitudinal hit position;shower depth (cm);Number "
                          "of energy weighted hits",
-                         800, 0.0, 400.0);
-  ee_hit_lat =
-      new TH1F("ee_hit_lat",
-               "lateral hit position;arm (cm);Number of energy weighted hits",
-               100, 0.0, 5.0);
+                         800,
+                         0.0,
+                         400.0);
+  ee_hit_lat = new TH1F("ee_hit_lat", "lateral hit position;arm (cm);Number of energy weighted hits", 100, 0.0, 5.0);
   ee_hit_rz = new TH2F(
-      "ee_hit_rz",
-      "hit position along the shower direction;shower depth (cm);arm (cm)", 800,
-      0.0, 400.0, 100, 0.0, 5.0);
-  ee_hit_long_sd =
-      new TH1F("ee_hit_long_sd",
-               "longitudinal hit position in Sensitive Detector;shower depth "
-               "(cm);Number of energy weighted hits",
-               800, 0.0, 400.0);
+      "ee_hit_rz", "hit position along the shower direction;shower depth (cm);arm (cm)", 800, 0.0, 400.0, 100, 0.0, 5.0);
+  ee_hit_long_sd = new TH1F("ee_hit_long_sd",
+                            "longitudinal hit position in Sensitive Detector;shower depth "
+                            "(cm);Number of energy weighted hits",
+                            800,
+                            0.0,
+                            400.0);
   ee_hit_lat_sd = new TH1F("ee_hit_lat_sd",
                            "lateral hit position in Sensitive Detector;arm "
                            "(cm);Number of energy weighted hits",
-                           100, 0.0, 5.0);
+                           100,
+                           0.0,
+                           5.0);
   ee_hit_rz_sd = new TH2F("ee_hit_rz_sd",
                           "hit position along the shower direction in "
                           "Sensitive Detector;shower depth (cm);arm (cm)",
-                          800, 0.0, 400.0, 100, 0.0, 5.0);
+                          800,
+                          0.0,
+                          400.0,
+                          100,
+                          0.0,
+                          5.0);
 }
 
 GflashG4Watcher::~GflashG4Watcher() {
@@ -104,7 +104,6 @@ GflashG4Watcher::~GflashG4Watcher() {
 }
 
 void GflashG4Watcher::update(const BeginOfEvent *g4Event) {
-
   inc_flag = false;
 
   const G4Event *evt = (*g4Event)();
@@ -127,7 +126,6 @@ void GflashG4Watcher::update(const BeginOfEvent *g4Event) {
 void GflashG4Watcher::update(const EndOfEvent *g4Event) {}
 
 void GflashG4Watcher::update(const G4Step *aStep) {
-
   if (aStep == nullptr)
     return;
 
@@ -138,7 +136,7 @@ void GflashG4Watcher::update(const G4Step *aStep) {
 
   bool inEB = std::abs(inc_direction.eta()) < 1.5;
 
-  out_energy += hitEnergy; // to check outgoing energy
+  out_energy += hitEnergy;  // to check outgoing energy
 
   // This is to calculate shower depth and arm of hits from the shower direction
   G4ThreeVector hitPosition = aStep->GetPreStepPoint()->GetPosition();
@@ -147,10 +145,9 @@ void GflashG4Watcher::update(const G4Step *aStep) {
   double diff_z = std::abs(diff.mag() * std::cos(angle));
   double diff_r = std::abs(diff.mag() * std::sin(angle));
 
-  G4VSensitiveDetector *aSensitive =
-      aStep->GetPreStepPoint()->GetSensitiveDetector();
+  G4VSensitiveDetector *aSensitive = aStep->GetPreStepPoint()->GetSensitiveDetector();
 
-  if (inEB) { // showers in barrel crystals
+  if (inEB) {  // showers in barrel crystals
     hitEnergy *= recoEnergyScaleEB_;
     eb_hit_long->Fill(diff_z / cm, hitEnergy / GeV);
     eb_hit_lat->Fill(diff_r / cm, hitEnergy / GeV);
@@ -160,7 +157,7 @@ void GflashG4Watcher::update(const G4Step *aStep) {
       eb_hit_lat_sd->Fill(diff_r / cm, hitEnergy / GeV);
       eb_hit_rz_sd->Fill(diff_z / cm, diff_r / cm, hitEnergy / GeV);
     }
-  } else { // showers in endcap crystals
+  } else {  // showers in endcap crystals
     hitEnergy *= recoEnergyScaleEE_;
     ee_hit_long->Fill(diff_z / cm, hitEnergy / GeV);
     ee_hit_lat->Fill(diff_r / cm, hitEnergy / GeV);

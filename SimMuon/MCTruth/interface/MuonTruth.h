@@ -28,17 +28,14 @@ public:
   typedef edm::DetSet<StripDigiSimLink> LayerLinks;
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
-  MuonTruth(const edm::Event &, const edm::EventSetup &,
-            const edm::ParameterSet &);
+  MuonTruth(const edm::Event &, const edm::EventSetup &, const edm::ParameterSet &);
   MuonTruth(const edm::ParameterSet &, edm::ConsumesCollector &&iC);
 
   void initEvent(const edm::Event &, const edm::EventSetup &);
 
   void analyze(const CSCRecHit2D &recHit);
-  void analyze(const CSCStripDigi &stripDigi,
-               int rawDetIdCorrespondingToCSCLayer);
-  void analyze(const CSCWireDigi &wireDigi,
-               int rawDetIdCorrespondingToCSCLayer);
+  void analyze(const CSCStripDigi &stripDigi, int rawDetIdCorrespondingToCSCLayer);
+  void analyze(const CSCWireDigi &wireDigi, int rawDetIdCorrespondingToCSCLayer);
 
   /// analyze() must be called before any of the following
   float muonFraction();

@@ -3,23 +3,18 @@
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 #include "SimTracker/TrackHistory/interface/VertexHistory.h"
 
-VertexHistory::VertexHistory(const edm::ParameterSet &config,
-                             edm::ConsumesCollector &&collector)
-    : HistoryBase() {
+VertexHistory::VertexHistory(const edm::ParameterSet &config, edm::ConsumesCollector &&collector) : HistoryBase() {
   // Name of the track collection
-  vertexProducer_ =
-      config.getUntrackedParameter<edm::InputTag>("vertexProducer");
+  vertexProducer_ = config.getUntrackedParameter<edm::InputTag>("vertexProducer");
 
   // Name of the traking pariticle collection
   trackingTruth_ = config.getUntrackedParameter<edm::InputTag>("trackingTruth");
 
   // Vertex association record
-  vertexAssociator_ =
-      config.getUntrackedParameter<edm::InputTag>("vertexAssociator");
+  vertexAssociator_ = config.getUntrackedParameter<edm::InputTag>("vertexAssociator");
 
   // Association by max. value
-  bestMatchByMaxValue_ =
-      config.getUntrackedParameter<bool>("bestMatchByMaxValue");
+  bestMatchByMaxValue_ = config.getUntrackedParameter<bool>("bestMatchByMaxValue");
 
   // Enable RecoToSim association
   enableRecoToSim_ = config.getUntrackedParameter<bool>("enableRecoToSim");
@@ -30,15 +25,13 @@ VertexHistory::VertexHistory(const edm::ParameterSet &config,
   if (enableRecoToSim_ or enableSimToReco_) {
     collector.consumes<edm::View<reco::Vertex>>(vertexProducer_);
     collector.consumes<TrackingVertexCollection>(trackingTruth_);
-    collector.consumes<reco::VertexToTrackingVertexAssociator>(
-        vertexAssociator_);
+    collector.consumes<reco::VertexToTrackingVertexAssociator>(vertexAssociator_);
   }
 
   quality_ = 0.;
 }
 
-void VertexHistory::newEvent(const edm::Event &event,
-                             const edm::EventSetup &setup) {
+void VertexHistory::newEvent(const edm::Event &event, const edm::EventSetup &setup) {
   if (enableRecoToSim_ || enableSimToReco_) {
     // Vertex collection
     edm::Handle<edm::View<reco::Vertex>> vertexCollection;
@@ -54,25 +47,21 @@ void VertexHistory::newEvent(const edm::Event &event,
 
     if (enableRecoToSim_) {
       // Calculate the map between recovertex -> simvertex
-      recoToSim_ =
-          vertexAssociator->associateRecoToSim(vertexCollection, TVCollection);
+      recoToSim_ = vertexAssociator->associateRecoToSim(vertexCollection, TVCollection);
     }
 
     if (enableSimToReco_) {
       // Calculate the map between recovertex <- simvertex
-      simToReco_ =
-          vertexAssociator->associateSimToReco(vertexCollection, TVCollection);
+      simToReco_ = vertexAssociator->associateSimToReco(vertexCollection, TVCollection);
     }
   }
 }
 
 bool VertexHistory::evaluate(reco::VertexBaseRef tv) {
-
   if (!enableRecoToSim_)
     return false;
 
-  std::pair<TrackingVertexRef, double> result =
-      match(tv, recoToSim_, bestMatchByMaxValue_);
+  std::pair<TrackingVertexRef, double> result = match(tv, recoToSim_, bestMatchByMaxValue_);
 
   TrackingVertexRef tvr(result.first);
   quality_ = result.second;

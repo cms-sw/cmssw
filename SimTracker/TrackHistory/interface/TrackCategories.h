@@ -6,7 +6,6 @@
 #include <vector>
 
 class TrackCategories {
-
 public:
   //! Categories available to vertex
   enum Category {

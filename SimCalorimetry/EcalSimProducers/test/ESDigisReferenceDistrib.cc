@@ -19,15 +19,12 @@ ESDigisReferenceDistrib::ESDigisReferenceDistrib(const edm::ParameterSet &ps)
     meESDigiADC_[ii] = new TH1F(histo, histo, 80, 960.5, 1040.5);
   }
 
-  meESDigi3D_ = new TH3F("meESDigi3D_", "meESDigi3D_", 80, 960.5, 1040.5, 80,
-                         960.5, 1040.5, 80, 960.5, 1040.5);
+  meESDigi3D_ = new TH3F("meESDigi3D_", "meESDigi3D_", 80, 960.5, 1040.5, 80, 960.5, 1040.5, 80, 960.5, 1040.5);
 }
 
 ESDigisReferenceDistrib::~ESDigisReferenceDistrib() {
-
   // preparing the txt file with the histo infos
-  std::ofstream *outFile_ =
-      new std::ofstream(outputTxtFile_.c_str(), std::ios::out);
+  std::ofstream *outFile_ = new std::ofstream(outputTxtFile_.c_str(), std::ios::out);
   *outFile_ << "# number of bin" << std::endl;
   *outFile_ << "# axis inf (common to the three axes" << std::endl;
   *outFile_ << "# axis sup (common to the three axes" << std::endl;
@@ -35,26 +32,20 @@ ESDigisReferenceDistrib::~ESDigisReferenceDistrib() {
   *outFile_ << "# " << std::endl;
 
   if (!meESDigi3D_)
-    throw cms::Exception(
-        "ESDigisReferenceDistrib: problems with the reference histo");
+    throw cms::Exception("ESDigisReferenceDistrib: problems with the reference histo");
   else {
     float histoBin_ = meESDigi3D_->GetNbinsX();
     float histoInf_ = meESDigi3D_->GetBinLowEdge(1);
-    float histoSup_ = meESDigi3D_->GetBinLowEdge((int)histoBin_) +
-                      meESDigi3D_->GetBinWidth((int)histoBin_);
+    float histoSup_ = meESDigi3D_->GetBinLowEdge((int)histoBin_) + meESDigi3D_->GetBinWidth((int)histoBin_);
 
     *outFile_ << histoBin_ << std::endl;
     *outFile_ << histoInf_ << std::endl;
     *outFile_ << histoSup_ << std::endl;
 
-    for (int thisBinZ = 1; thisBinZ <= meESDigi3D_->GetNbinsZ();
-         thisBinZ++) { // sample2
-      for (int thisBinY = 1; thisBinY <= meESDigi3D_->GetNbinsY();
-           thisBinY++) { // sample1
-        for (int thisBinX = 1; thisBinX <= meESDigi3D_->GetNbinsX();
-             thisBinX++) { // sample0
-          *outFile_ << meESDigi3D_->GetBinContent(thisBinX, thisBinY, thisBinZ)
-                    << std::endl;
+    for (int thisBinZ = 1; thisBinZ <= meESDigi3D_->GetNbinsZ(); thisBinZ++) {      // sample2
+      for (int thisBinY = 1; thisBinY <= meESDigi3D_->GetNbinsY(); thisBinY++) {    // sample1
+        for (int thisBinX = 1; thisBinX <= meESDigi3D_->GetNbinsX(); thisBinX++) {  // sample0
+          *outFile_ << meESDigi3D_->GetBinContent(thisBinX, thisBinY, thisBinZ) << std::endl;
         }
       }
     }
@@ -81,9 +72,7 @@ void ESDigisReferenceDistrib::beginJob() {}
 
 void ESDigisReferenceDistrib::endJob() {}
 
-void ESDigisReferenceDistrib::analyze(const edm::Event &e,
-                                      const edm::EventSetup &c) {
-
+void ESDigisReferenceDistrib::analyze(const edm::Event &e, const edm::EventSetup &c) {
   edm::Handle<ESDigiCollection> EcalDigiES;
   e.getByLabel(ESdigiCollection_, EcalDigiES);
 
@@ -94,7 +83,6 @@ void ESDigisReferenceDistrib::analyze(const edm::Event &e,
   esADCCounts.reserve(ESDataFrame::MAXSAMPLES);
 
   for (unsigned int digis = 0; digis < EcalDigiES->size(); ++digis) {
-
     ESDataFrame esdf = (*preshowerDigi)[digis];
     int nrSamples = esdf.size();
 

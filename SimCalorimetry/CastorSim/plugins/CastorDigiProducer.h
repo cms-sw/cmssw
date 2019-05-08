@@ -21,12 +21,12 @@
 #include <vector>
 
 namespace edm {
-class StreamID;
-class ConsumesCollector;
-} // namespace edm
+  class StreamID;
+  class ConsumesCollector;
+}  // namespace edm
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class PCaloHit;
@@ -34,15 +34,12 @@ class PileUpEventPrincipal;
 
 class CastorDigiProducer : public DigiAccumulatorMixMod {
 public:
-  explicit CastorDigiProducer(const edm::ParameterSet &ps,
-                              edm::ProducerBase &mixMod,
-                              edm::ConsumesCollector &iC);
+  explicit CastorDigiProducer(const edm::ParameterSet &ps, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
   ~CastorDigiProducer() override;
 
   void initializeEvent(edm::Event const &e, edm::EventSetup const &c) override;
   void accumulate(edm::Event const &e, edm::EventSetup const &c) override;
-  void accumulate(PileUpEventPrincipal const &e, edm::EventSetup const &c,
-                  edm::StreamID const &) override;
+  void accumulate(PileUpEventPrincipal const &e, edm::EventSetup const &c, edm::StreamID const &) override;
   void finalizeEvent(edm::Event &e, edm::EventSetup const &c) override;
 
 private:

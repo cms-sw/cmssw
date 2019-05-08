@@ -13,7 +13,6 @@
 
 //! PSimHitSelector class
 class PSimHitSelector {
-
 public:
   typedef std::vector<PSimHit> PSimHitCollection;
 
@@ -29,8 +28,7 @@ public:
   virtual ~PSimHitSelector() {}
 
   //! Select the psimhit add them to a PSimHitCollection
-  virtual void select(PSimHitCollection &, edm::Event const &,
-                      edm::EventSetup const &) const;
+  virtual void select(PSimHitCollection &, edm::Event const &, edm::EventSetup const &) const;
 
 protected:
   typedef std::map<std::string, std::vector<std::string>> PSimHitCollectionMap;

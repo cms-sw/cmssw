@@ -50,25 +50,21 @@ private:
 
   std::string particleString(int) const;
 
-  std::string vertexString(const TrackingParticleRefVector &,
-                           const TrackingParticleRefVector &) const;
+  std::string vertexString(const TrackingParticleRefVector &, const TrackingParticleRefVector &) const;
 
-  std::string
-      vertexString(HepMC::GenVertex::particles_in_const_iterator,
-                   HepMC::GenVertex::particles_in_const_iterator,
-                   HepMC::GenVertex::particles_out_const_iterator,
-                   HepMC::GenVertex::particles_out_const_iterator) const;
+  std::string vertexString(HepMC::GenVertex::particles_in_const_iterator,
+                           HepMC::GenVertex::particles_in_const_iterator,
+                           HepMC::GenVertex::particles_out_const_iterator,
+                           HepMC::GenVertex::particles_out_const_iterator) const;
 };
 
 VertexHistoryAnalyzer::VertexHistoryAnalyzer(const edm::ParameterSet &config)
     : classifier_(config, consumesCollector()) {
-  vertexProducer_ =
-      config.getUntrackedParameter<edm::InputTag>("vertexProducer");
+  vertexProducer_ = config.getUntrackedParameter<edm::InputTag>("vertexProducer");
   consumes<edm::View<reco::Vertex>>(vertexProducer_);
 }
 
-void VertexHistoryAnalyzer::analyze(const edm::Event &event,
-                                    const edm::EventSetup &setup) {
+void VertexHistoryAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   // Set the classifier for a new event
   classifier_.newEvent(event, setup);
 
@@ -81,19 +77,16 @@ void VertexHistoryAnalyzer::analyze(const edm::Event &event,
 
   // Loop over the track collection.
   for (std::size_t index = 0; index < vertexCollection->size(); index++) {
-    std::cout << std::endl
-              << "History for vertex #" << index << " : " << std::endl;
+    std::cout << std::endl << "History for vertex #" << index << " : " << std::endl;
 
     // Classify the track and detect for fakes
-    if (!classifier_.evaluate(reco::VertexBaseRef(vertexCollection, index))
-             .is(VertexClassifier::Fake)) {
+    if (!classifier_.evaluate(reco::VertexBaseRef(vertexCollection, index)).is(VertexClassifier::Fake)) {
       // Get the list of TrackingParticles associated to
       VertexHistory::SimParticleTrail simParticles(tracer.simParticleTrail());
 
       // Loop over all simParticles
       for (std::size_t hindex = 0; hindex < simParticles.size(); hindex++) {
-        std::cout << "  simParticles [" << hindex
-                  << "] : " << particleString(simParticles[hindex]->pdgId())
+        std::cout << "  simParticles [" << hindex << "] : " << particleString(simParticles[hindex]->pdgId())
                   << std::endl;
       }
 
@@ -104,8 +97,7 @@ void VertexHistoryAnalyzer::analyze(const edm::Event &event,
       if (!simVertexes.empty()) {
         for (std::size_t hindex = 0; hindex < simVertexes.size(); hindex++) {
           std::cout << "  simVertex    [" << hindex << "] : "
-                    << vertexString(simVertexes[hindex]->sourceTracks(),
-                                    simVertexes[hindex]->daughterTracks())
+                    << vertexString(simVertexes[hindex]->sourceTracks(), simVertexes[hindex]->daughterTracks())
                     << std::endl;
         }
       } else
@@ -116,8 +108,7 @@ void VertexHistoryAnalyzer::analyze(const edm::Event &event,
 
       // Loop over all genParticles
       for (std::size_t hindex = 0; hindex < genParticles.size(); hindex++) {
-        std::cout << "  genParticles [" << hindex
-                  << "] : " << particleString(genParticles[hindex]->pdg_id())
+        std::cout << "  genParticles [" << hindex << "] : " << particleString(genParticles[hindex]->pdg_id())
                   << std::endl;
       }
 
@@ -128,11 +119,10 @@ void VertexHistoryAnalyzer::analyze(const edm::Event &event,
       if (!genVertexes.empty()) {
         for (std::size_t hindex = 0; hindex < genVertexes.size(); hindex++) {
           std::cout << "  genVertex    [" << hindex << "] : "
-                    << vertexString(
-                           genVertexes[hindex]->particles_in_const_begin(),
-                           genVertexes[hindex]->particles_in_const_end(),
-                           genVertexes[hindex]->particles_out_const_begin(),
-                           genVertexes[hindex]->particles_out_const_end())
+                    << vertexString(genVertexes[hindex]->particles_in_const_begin(),
+                                    genVertexes[hindex]->particles_in_const_end(),
+                                    genVertexes[hindex]->particles_out_const_begin(),
+                                    genVertexes[hindex]->particles_out_const_end())
                     << std::endl;
         }
       } else
@@ -145,8 +135,7 @@ void VertexHistoryAnalyzer::analyze(const edm::Event &event,
   }
 }
 
-void VertexHistoryAnalyzer::beginRun(const edm::Run &run,
-                                     const edm::EventSetup &setup) {
+void VertexHistoryAnalyzer::beginRun(const edm::Run &run, const edm::EventSetup &setup) {
   // Get the particles table.
   setup.getData(pdt_);
 }
@@ -172,9 +161,8 @@ std::string VertexHistoryAnalyzer::particleString(int pdgId) const {
   return vDescription.str();
 }
 
-std::string VertexHistoryAnalyzer::vertexString(
-    const TrackingParticleRefVector &in,
-    const TrackingParticleRefVector &out) const {
+std::string VertexHistoryAnalyzer::vertexString(const TrackingParticleRefVector &in,
+                                                const TrackingParticleRefVector &out) const {
   ParticleData const *pid;
 
   std::ostringstream vDescription;
@@ -226,11 +214,10 @@ std::string VertexHistoryAnalyzer::vertexString(
   return vDescription.str();
 }
 
-std::string VertexHistoryAnalyzer::vertexString(
-    HepMC::GenVertex::particles_in_const_iterator in_begin,
-    HepMC::GenVertex::particles_in_const_iterator in_end,
-    HepMC::GenVertex::particles_out_const_iterator out_begin,
-    HepMC::GenVertex::particles_out_const_iterator out_end) const {
+std::string VertexHistoryAnalyzer::vertexString(HepMC::GenVertex::particles_in_const_iterator in_begin,
+                                                HepMC::GenVertex::particles_in_const_iterator in_end,
+                                                HepMC::GenVertex::particles_out_const_iterator out_begin,
+                                                HepMC::GenVertex::particles_out_const_iterator out_end) const {
   ParticleData const *pid;
 
   std::ostringstream vDescription;

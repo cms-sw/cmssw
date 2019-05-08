@@ -11,12 +11,10 @@ testReader::testReader(const edm::ParameterSet &parset)
 
 testReader::~testReader() {}
 
-void testReader::analyze(const edm::Event &event,
-                         const edm::EventSetup &setup) {
+void testReader::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   edm::Handle<edm::View<reco::Track>> trackCollectionH;
   edm::View<reco::Track> trackCollection;
-  LogTrace("testReader")
-      << "testReader::analyze : getting reco::Track collection, " << tracksTag;
+  LogTrace("testReader") << "testReader::analyze : getting reco::Track collection, " << tracksTag;
   event.getByLabel(tracksTag, trackCollectionH);
   if (trackCollectionH.isValid()) {
     trackCollection = *(trackCollectionH.product());
@@ -26,8 +24,7 @@ void testReader::analyze(const edm::Event &event,
 
   edm::Handle<TrackingParticleCollection> TPCollectionH;
   TrackingParticleCollection tPC;
-  LogTrace("testReader")
-      << "testReader::analyze : getting TrackingParticle collection, " << tpTag;
+  LogTrace("testReader") << "testReader::analyze : getting TrackingParticle collection, " << tpTag;
   event.getByLabel(tpTag, TPCollectionH);
   if (TPCollectionH.isValid()) {
     tPC = *(TPCollectionH.product());
@@ -37,8 +34,7 @@ void testReader::analyze(const edm::Event &event,
 
   edm::Handle<reco::RecoToSimCollection> recSimH;
   reco::RecoToSimCollection recSimColl;
-  LogTrace("testReader")
-      << "testReader::analyze : getting  RecoToSimCollection - " << assoMapsTag;
+  LogTrace("testReader") << "testReader::analyze : getting  RecoToSimCollection - " << assoMapsTag;
   event.getByLabel(assoMapsTag, recSimH);
   if (recSimH.isValid()) {
     recSimColl = *(recSimH.product());
@@ -49,8 +45,7 @@ void testReader::analyze(const edm::Event &event,
 
   edm::Handle<reco::SimToRecoCollection> simRecH;
   reco::SimToRecoCollection simRecColl;
-  LogTrace("testReader")
-      << "testReader::analyze : getting  SimToRecoCollection - " << assoMapsTag;
+  LogTrace("testReader") << "testReader::analyze : getting  SimToRecoCollection - " << assoMapsTag;
   event.getByLabel(assoMapsTag, simRecH);
   if (simRecH.isValid()) {
     simRecColl = *(simRecH.product());
@@ -59,42 +54,34 @@ void testReader::analyze(const edm::Event &event,
     LogTrace("testReader") << "... NOT FOUND.";
   }
 
-  edm::LogVerbatim("testReader")
-      << "\n === Event ID = " << event.id() << " ===";
+  edm::LogVerbatim("testReader") << "\n === Event ID = " << event.id() << " ===";
 
   // RECOTOSIM
-  edm::LogVerbatim("testReader")
-      << "\n                      ****************** Reco To Sim "
-         "****************** ";
+  edm::LogVerbatim("testReader") << "\n                      ****************** Reco To Sim "
+                                    "****************** ";
   if (recSimH.isValid()) {
+    edm::LogVerbatim("testReader") << "\n There are " << trackCollection.size() << " reco::Tracks "
+                                   << "(" << recSimColl.size() << " matched) \n";
 
-    edm::LogVerbatim("testReader")
-        << "\n There are " << trackCollection.size() << " reco::Tracks "
-        << "(" << recSimColl.size() << " matched) \n";
-
-    for (edm::View<reco::Track>::size_type i = 0; i < trackCollection.size();
-         ++i) {
+    for (edm::View<reco::Track>::size_type i = 0; i < trackCollection.size(); ++i) {
       edm::RefToBase<reco::Track> track(trackCollectionH, i);
 
       if (recSimColl.find(track) != recSimColl.end()) {
-        std::vector<std::pair<TrackingParticleRef, double>> recSimAsso =
-            recSimColl[track];
+        std::vector<std::pair<TrackingParticleRef, double>> recSimAsso = recSimColl[track];
 
-        for (std::vector<std::pair<TrackingParticleRef, double>>::const_iterator
-                 IT = recSimAsso.begin();
-             IT != recSimAsso.end(); ++IT) {
+        for (std::vector<std::pair<TrackingParticleRef, double>>::const_iterator IT = recSimAsso.begin();
+             IT != recSimAsso.end();
+             ++IT) {
           TrackingParticleRef trpart = IT->first;
           double purity = IT->second;
-          edm::LogVerbatim("testReader")
-              << "reco::Track #" << int(i) << " with pt = " << track->pt()
-              << " associated to TrackingParticle #" << trpart.key()
-              << " (pt = " << trpart->pt() << ") with Quality = " << purity;
+          edm::LogVerbatim("testReader") << "reco::Track #" << int(i) << " with pt = " << track->pt()
+                                         << " associated to TrackingParticle #" << trpart.key()
+                                         << " (pt = " << trpart->pt() << ") with Quality = " << purity;
         }
       } else {
-        edm::LogVerbatim("testReader")
-            << "reco::Track #" << int(i) << " with pt = " << track->pt()
-            << " NOT associated to any TrackingParticle"
-            << "\n";
+        edm::LogVerbatim("testReader") << "reco::Track #" << int(i) << " with pt = " << track->pt()
+                                       << " NOT associated to any TrackingParticle"
+                                       << "\n";
       }
     }
 
@@ -102,14 +89,11 @@ void testReader::analyze(const edm::Event &event,
     edm::LogVerbatim("testReader") << "\n RtS map not found in the Event.";
 
   // SIMTORECO
-  edm::LogVerbatim("testReader")
-      << "\n                      ****************** Sim To Reco "
-         "****************** ";
+  edm::LogVerbatim("testReader") << "\n                      ****************** Sim To Reco "
+                                    "****************** ";
   if (simRecH.isValid()) {
-
-    edm::LogVerbatim("testReader")
-        << "\n There are " << tPC.size() << " TrackingParticles "
-        << "(" << simRecColl.size() << " matched) \n";
+    edm::LogVerbatim("testReader") << "\n There are " << tPC.size() << " TrackingParticles "
+                                   << "(" << simRecColl.size() << " matched) \n";
     bool any_trackingParticle_matched = false;
 
     for (TrackingParticleCollection::size_type i = 0; i < tPC.size(); i++) {
@@ -118,13 +102,11 @@ void testReader::analyze(const edm::Event &event,
       std::vector<std::pair<edm::RefToBase<reco::Track>, double>> simRecAsso;
 
       if (simRecColl.find(trpart) != simRecColl.end()) {
-        simRecAsso =
-            (std::vector<std::pair<edm::RefToBase<reco::Track>, double>>)
-                simRecColl[trpart];
+        simRecAsso = (std::vector<std::pair<edm::RefToBase<reco::Track>, double>>)simRecColl[trpart];
 
-        for (std::vector<std::pair<edm::RefToBase<reco::Track>, double>>::
-                 const_iterator IT = simRecAsso.begin();
-             IT != simRecAsso.end(); ++IT) {
+        for (std::vector<std::pair<edm::RefToBase<reco::Track>, double>>::const_iterator IT = simRecAsso.begin();
+             IT != simRecAsso.end();
+             ++IT) {
           edm::RefToBase<reco::Track> track = IT->first;
           double quality = IT->second;
           any_trackingParticle_matched = true;
@@ -133,22 +115,19 @@ void testReader::analyze(const edm::Event &event,
           // unmatched recoToSim)
           double purity = -1.;
           if (recSimColl.find(track) != recSimColl.end()) {
-            std::vector<std::pair<TrackingParticleRef, double>> recSimAsso =
-                recSimColl[track];
-            for (std::vector<std::pair<TrackingParticleRef, double>>::
-                     const_iterator ITS = recSimAsso.begin();
-                 ITS != recSimAsso.end(); ++ITS) {
+            std::vector<std::pair<TrackingParticleRef, double>> recSimAsso = recSimColl[track];
+            for (std::vector<std::pair<TrackingParticleRef, double>>::const_iterator ITS = recSimAsso.begin();
+                 ITS != recSimAsso.end();
+                 ++ITS) {
               TrackingParticleRef tp = ITS->first;
               if (tp == trpart)
                 purity = ITS->second;
             }
           }
 
-          edm::LogVerbatim("testReader")
-              << "TrackingParticle #" << int(i) << " with pt = " << trpart->pt()
-              << " associated to reco::Track #" << track.key()
-              << " (pt = " << track->pt() << ") with Quality = " << quality
-              << " and Purity = " << purity;
+          edm::LogVerbatim("testReader") << "TrackingParticle #" << int(i) << " with pt = " << trpart->pt()
+                                         << " associated to reco::Track #" << track.key() << " (pt = " << track->pt()
+                                         << ") with Quality = " << quality << " and Purity = " << purity;
         }
       }
 
@@ -161,9 +140,8 @@ void testReader::analyze(const edm::Event &event,
     }
 
     if (!any_trackingParticle_matched) {
-      edm::LogVerbatim("testReader")
-          << "NO TrackingParticle associated to ANY input reco::Track !"
-          << "\n";
+      edm::LogVerbatim("testReader") << "NO TrackingParticle associated to ANY input reco::Track !"
+                                     << "\n";
     }
 
   } else

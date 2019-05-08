@@ -11,7 +11,6 @@
 #include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 
 class JetVetoedTracksAssociationDRVertex {
-
 public:
   JetVetoedTracksAssociationDRVertex(double fDr);
   ~JetVetoedTracksAssociationDRVertex() {}

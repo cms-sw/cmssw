@@ -13,11 +13,9 @@
 
 using namespace CLHEP;
 
-G4ThreadLocal ParametrisedPhysics::ThreadPrivate *ParametrisedPhysics::tpdata =
-    nullptr;
+G4ThreadLocal ParametrisedPhysics::ThreadPrivate *ParametrisedPhysics::tpdata = nullptr;
 
-ParametrisedPhysics::ParametrisedPhysics(std::string name,
-                                         const edm::ParameterSet &p)
+ParametrisedPhysics::ParametrisedPhysics(std::string name, const edm::ParameterSet &p)
     : G4VPhysicsConstructor(name), theParSet(p) {}
 
 ParametrisedPhysics::~ParametrisedPhysics() {
@@ -48,7 +46,6 @@ void ParametrisedPhysics::ConstructParticle() {
 }
 
 void ParametrisedPhysics::ConstructProcess() {
-
   tpdata = new ThreadPrivate;
   tpdata->theEMShowerModel = nullptr;
   tpdata->theHadShowerModel = nullptr;
@@ -60,8 +57,7 @@ void ParametrisedPhysics::ConstructProcess() {
   G4cout << "GFlash Construct: " << gem << "  " << ghad << G4endl;
 
   if (gem || ghad) {
-    tpdata->theFastSimulationManagerProcess =
-        new G4FastSimulationManagerProcess();
+    tpdata->theFastSimulationManagerProcess = new G4FastSimulationManagerProcess();
 
     G4ParticleTable *table = G4ParticleTable::GetParticleTable();
     EmParticleList emList;
@@ -82,10 +78,8 @@ void ParametrisedPhysics::ConstructProcess() {
         G4cout << "This means that GFlash will not be turned on." << G4endl;
 
       } else {
-
         // Electromagnetic Shower Model for ECAL
-        tpdata->theEMShowerModel =
-            new GflashEMShowerModel("GflashEMShowerModel", aRegion, theParSet);
+        tpdata->theEMShowerModel = new GflashEMShowerModel("GflashEMShowerModel", aRegion, theParSet);
         G4cout << "GFlash is defined for EcalRegion" << G4endl;
       }
     }
@@ -96,10 +90,8 @@ void ParametrisedPhysics::ConstructProcess() {
         G4cout << "This means that GFlash will not be turned on." << G4endl;
 
       } else {
-
         // Electromagnetic Shower Model for HCAL
-        tpdata->theHadShowerModel =
-            new GflashEMShowerModel("GflashHadShowerModel", aRegion, theParSet);
+        tpdata->theHadShowerModel = new GflashEMShowerModel("GflashHadShowerModel", aRegion, theParSet);
         G4cout << "GFlash is defined for HcalRegion" << G4endl;
       }
     }

@@ -24,48 +24,39 @@ public:
   explicit SecondaryVertexTagInfoProxy(const edm::ParameterSet &);
 
 private:
-  void produce(edm::StreamID, edm::Event &,
-               const edm::EventSetup &) const override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
   edm::EDGetTokenT<reco::SecondaryVertexTagInfoCollection> svTagInfoCollection_;
 };
 
-SecondaryVertexTagInfoProxy::SecondaryVertexTagInfoProxy(
-    const edm::ParameterSet &config) {
+SecondaryVertexTagInfoProxy::SecondaryVertexTagInfoProxy(const edm::ParameterSet &config) {
   // Get the cfg parameter
   svTagInfoCollection_ = consumes<reco::SecondaryVertexTagInfoCollection>(
       config.getUntrackedParameter<edm::InputTag>("svTagInfoProducer"));
 
   // Declare the type of objects to be produced.
   produces<reco::VertexCollection>();
-  produces<edm::AssociationMap<edm::OneToMany<
-      reco::SecondaryVertexTagInfoCollection, reco::VertexCollection>>>();
+  produces<edm::AssociationMap<edm::OneToMany<reco::SecondaryVertexTagInfoCollection, reco::VertexCollection>>>();
 }
 
-void SecondaryVertexTagInfoProxy::produce(edm::StreamID, edm::Event &event,
-                                          const edm::EventSetup &setup) const {
+void SecondaryVertexTagInfoProxy::produce(edm::StreamID, edm::Event &event, const edm::EventSetup &setup) const {
   // Vertex collection
   edm::Handle<reco::SecondaryVertexTagInfoCollection> svTagInfoCollection;
   event.getByToken(svTagInfoCollection_, svTagInfoCollection);
 
   // Auto pointers to the collection to be added to the event
   std::unique_ptr<reco::VertexCollection> proxy(new reco::VertexCollection);
-  std::unique_ptr<edm::AssociationMap<edm::OneToMany<
-      reco::SecondaryVertexTagInfoCollection, reco::VertexCollection>>>
-      assoc(
-          new edm::AssociationMap<edm::OneToMany<
-              reco::SecondaryVertexTagInfoCollection, reco::VertexCollection>>);
+  std::unique_ptr<edm::AssociationMap<edm::OneToMany<reco::SecondaryVertexTagInfoCollection, reco::VertexCollection>>>
+      assoc(new edm::AssociationMap<edm::OneToMany<reco::SecondaryVertexTagInfoCollection, reco::VertexCollection>>);
 
   // Get a reference before to put in the event
-  reco::VertexRefProd vertexRefProd =
-      event.getRefBeforePut<reco::VertexCollection>();
+  reco::VertexRefProd vertexRefProd = event.getRefBeforePut<reco::VertexCollection>();
 
   // General index
   std::size_t index = 0;
 
   // Loop over SecondaryVertexTagInfo collection
-  for (std::size_t svIndex = 0; svIndex < svTagInfoCollection->size();
-       ++svIndex) {
+  for (std::size_t svIndex = 0; svIndex < svTagInfoCollection->size(); ++svIndex) {
     // Reference to svTagInfo
     reco::SecondaryVertexTagInfoRef svTagInfo(svTagInfoCollection, svIndex);
 

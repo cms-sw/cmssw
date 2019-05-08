@@ -20,7 +20,6 @@
 #include <vector>
 
 class DTHitAssociator {
-
 public:
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
   typedef std::pair<PSimHit, bool> PSimHit_withFlag;
@@ -29,8 +28,7 @@ public:
   typedef std::map<DTWireId, std::vector<DTDigi>> DigiMap;
   typedef std::map<DTWireId, std::vector<DTDigiSimLink>> LinksMap;
 
-  DTHitAssociator(const edm::Event &, const edm::EventSetup &,
-                  const edm::ParameterSet &, bool printRtS);
+  DTHitAssociator(const edm::Event &, const edm::EventSetup &, const edm::ParameterSet &, bool printRtS);
   DTHitAssociator(const edm::ParameterSet &, edm::ConsumesCollector &&iC);
 
   void initEvent(const edm::Event &, const edm::EventSetup &);

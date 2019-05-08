@@ -29,13 +29,11 @@
 using namespace std;
 using namespace cms;
 
-void testHitCorrection(CastorHitCorrection *correction,
-                       std::vector<PCaloHit> &hits) {
+void testHitCorrection(CastorHitCorrection *correction, std::vector<PCaloHit> &hits) {
   correction->fillChargeSums(hits);
   for (PCaloHit &hit : hits) {
     DetId detId(hit.id());
-    if (detId.det() == DetId::Calo &&
-        detId.subdetId() == HcalCastorDetId::SubdetectorId) {
+    if (detId.det() == DetId::Calo && detId.subdetId() == HcalCastorDetId::SubdetectorId) {
       std::cout << "Castor -- ";
     }
     std::cout << "HIT charge " << correction->charge(hit)
@@ -123,8 +121,7 @@ int main() {
   CastorGainWidths gainWidths;
 
   // make a calibration service by hand
-  for (vector<DetId>::const_iterator detItr = allDetIds.begin();
-       detItr != allDetIds.end(); ++detItr) {
+  for (vector<DetId>::const_iterator detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
     /* check CastorCondObjectContainer!
           pedestals.addValues(*detItr,
        CastorDbHardcode::makePedestal(*detItr).getValues ());
@@ -175,8 +172,7 @@ int main() {
   amplifier.setDbService(&calibratorHandle);
   parameterMap.setDbService(&calibratorHandle);
 
-  CaloTDigitizer<CastorDigitizerTraits> castorDigitizer(
-      &castorResponse, &electronicsSim, addNoise);
+  CaloTDigitizer<CastorDigitizerTraits> castorDigitizer(&castorResponse, &electronicsSim, addNoise);
 
   castorDigitizer.setDetIds(hcastorDetIds);
   cout << "setDetIds" << std::endl;
@@ -194,8 +190,7 @@ int main() {
   castorDigitizer.run(*castorResult, &randomEngine);
 
   cout << "Castor Frames" << std::endl;
-  copy(castorResult->begin(), castorResult->end(),
-       std::ostream_iterator<CastorDataFrame>(std::cout, "\n"));
+  copy(castorResult->begin(), castorResult->end(), std::ostream_iterator<CastorDataFrame>(std::cout, "\n"));
 
   return 0;
 }
