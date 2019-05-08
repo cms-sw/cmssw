@@ -13,32 +13,35 @@
  * the quality in the association, i.e. multiple associations are
  * sorted by it in descending order.
  */
-class VertexAssociatorByPositionAndTracks
-    : public reco::VertexToTrackingVertexAssociatorBaseImpl {
+class VertexAssociatorByPositionAndTracks : public reco::VertexToTrackingVertexAssociatorBaseImpl {
 public:
-  VertexAssociatorByPositionAndTracks(
-      const edm::EDProductGetter *productGetter, double absZ, double sigmaZ,
-      double maxRecoZ, double absT, double sigmaT, double maxRecoT,
-      double sharedTrackFraction,
-      const reco::RecoToSimCollection *trackRecoToSimAssociation,
-      const reco::SimToRecoCollection *trackSimToRecoAssociation);
+  VertexAssociatorByPositionAndTracks(const edm::EDProductGetter *productGetter,
+                                      double absZ,
+                                      double sigmaZ,
+                                      double maxRecoZ,
+                                      double absT,
+                                      double sigmaT,
+                                      double maxRecoT,
+                                      double sharedTrackFraction,
+                                      const reco::RecoToSimCollection *trackRecoToSimAssociation,
+                                      const reco::SimToRecoCollection *trackSimToRecoAssociation);
 
-  VertexAssociatorByPositionAndTracks(
-      const edm::EDProductGetter *productGetter, double absZ, double sigmaZ,
-      double maxRecoZ, double sharedTrackFraction,
-      const reco::RecoToSimCollection *trackRecoToSimAssociation,
-      const reco::SimToRecoCollection *trackSimToRecoAssociation);
+  VertexAssociatorByPositionAndTracks(const edm::EDProductGetter *productGetter,
+                                      double absZ,
+                                      double sigmaZ,
+                                      double maxRecoZ,
+                                      double sharedTrackFraction,
+                                      const reco::RecoToSimCollection *trackRecoToSimAssociation,
+                                      const reco::SimToRecoCollection *trackSimToRecoAssociation);
 
   ~VertexAssociatorByPositionAndTracks() override;
 
   /* Associate TrackingVertex to RecoVertex By Hits */
-  reco::VertexRecoToSimCollection associateRecoToSim(
-      const edm::Handle<edm::View<reco::Vertex>> &vCH,
-      const edm::Handle<TrackingVertexCollection> &tVCH) const override;
+  reco::VertexRecoToSimCollection associateRecoToSim(const edm::Handle<edm::View<reco::Vertex>> &vCH,
+                                                     const edm::Handle<TrackingVertexCollection> &tVCH) const override;
 
-  reco::VertexSimToRecoCollection associateSimToReco(
-      const edm::Handle<edm::View<reco::Vertex>> &vCH,
-      const edm::Handle<TrackingVertexCollection> &tVCH) const override;
+  reco::VertexSimToRecoCollection associateSimToReco(const edm::Handle<edm::View<reco::Vertex>> &vCH,
+                                                     const edm::Handle<TrackingVertexCollection> &tVCH) const override;
 
 private:
   // ----- member data

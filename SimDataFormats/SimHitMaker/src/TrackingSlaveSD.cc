@@ -9,14 +9,12 @@ using std::cout;
 using std::endl;
 
 TrackingSlaveSD::TrackingSlaveSD(std::string myName) : name_(myName) {
-
   LogDebug("HitBuildInfo") << " TrackingSlaveSD " << name_;
 }
 
 TrackingSlaveSD::~TrackingSlaveSD() {}
 
 void TrackingSlaveSD::Initialize() {
-
   LogDebug("HitBuildInfo") << " initialize TrackingSlaveSD " << name_;
 
   hits_.clear();
@@ -46,21 +44,16 @@ temp.trackId()
 }
 */
 bool TrackingSlaveSD::format() {
-
-  LogDebug("HitBuildInfo") << " TrackingSlaveSD " << name_ << " formatting "
-                           << hits_.size() << " hits.";
+  LogDebug("HitBuildInfo") << " TrackingSlaveSD " << name_ << " formatting " << hits_.size() << " hits.";
 
   return true;
 }
 
 bool TrackingSlaveSD::processHits(const PSimHit &ps) {
-
   LogDebug("HitBuildInfo") << " Sent Hit " << ps << " to ROU " << name_;
 
   hits_.push_back(ps);
   return true;
 }
 
-void TrackingSlaveSD::setTrackId(PSimHit &hit, unsigned int k) {
-  hit.theTrackId = k;
-}
+void TrackingSlaveSD::setTrackId(PSimHit &hit, unsigned int k) { hit.theTrackId = k; }

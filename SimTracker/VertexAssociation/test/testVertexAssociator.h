@@ -27,12 +27,11 @@
 #include <cmath>
 
 namespace reco {
-class TrackToTrackingParticleAssociator;
-class VertexToTrackingVertexAssociator;
-} // namespace reco
+  class TrackToTrackingParticleAssociator;
+  class VertexToTrackingVertexAssociator;
+}  // namespace reco
 
 class testVertexAssociator : public edm::EDAnalyzer {
-
 public:
   testVertexAssociator(const edm::ParameterSet &conf);
   ~testVertexAssociator() override;
@@ -46,8 +45,7 @@ private:
   const reco::VertexToTrackingVertexAssociator *associatorByTracks;
 
   edm::InputTag vertexCollection_;
-  edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator>
-      associatorByTracksToken;
+  edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> associatorByTracksToken;
 
   int n_event_;
   int n_rs_vertices_;

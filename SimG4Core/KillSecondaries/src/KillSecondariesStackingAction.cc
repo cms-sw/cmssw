@@ -4,9 +4,7 @@
 
 #include "G4Track.hh"
 
-G4ClassificationOfNewTrack
-KillSecondariesStackingAction::ClassifyNewTrack(const G4Track *aTrack) {
-
+G4ClassificationOfNewTrack KillSecondariesStackingAction::ClassifyNewTrack(const G4Track *aTrack) {
   NewTrackAction newTA;
   if (aTrack->GetCreatorProcess() == nullptr || aTrack->GetParentID() == 0) {
     newTA.primary(aTrack);

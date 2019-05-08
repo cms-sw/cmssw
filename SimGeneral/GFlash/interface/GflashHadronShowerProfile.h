@@ -20,8 +20,11 @@ public:
   GflashHadronShowerProfile(const edm::ParameterSet &parSet);
   virtual ~GflashHadronShowerProfile();
 
-  void initialize(int showerType, double energy, double globalTime,
-                  double charge, Gflash3Vector &position,
+  void initialize(int showerType,
+                  double energy,
+                  double globalTime,
+                  double charge,
+                  Gflash3Vector &position,
                   Gflash3Vector &momentum);
 
   virtual void loadParameters();
@@ -38,16 +41,13 @@ protected:
 
   int getNumberOfSpots(Gflash::CalorimeterNumber kCalor);
   double medianLateralArm(double depth, Gflash::CalorimeterNumber kCalor);
-  Gflash3Vector locateHitPosition(GflashTrajectoryPoint &point,
-                                  double lateralArm);
+  Gflash3Vector locateHitPosition(GflashTrajectoryPoint &point, double lateralArm);
 
   double fTanh(double einc, const double *par);
   double fLnE1(double einc, const double *par);
   double depthScale(double ssp, double ssp0, double length);
-  double gammaProfile(double alpha, double beta, double depth,
-                      double lengthUnit);
-  double twoGammaProfile(double *par, double depth,
-                         Gflash::CalorimeterNumber kIndex);
+  double gammaProfile(double alpha, double beta, double depth, double lengthUnit);
+  double twoGammaProfile(double *par, double depth, Gflash::CalorimeterNumber kIndex);
 
   //  SimActivityRegistry::G4StepSignal gflash_g4StepSignal;
 

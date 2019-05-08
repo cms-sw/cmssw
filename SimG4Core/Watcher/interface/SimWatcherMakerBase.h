@@ -28,18 +28,18 @@
 // forward declarations
 class SimActivityRegistry;
 namespace edm {
-class ParameterSet;
+  class ParameterSet;
 }
 class SimWatcher;
 class SimProducer;
 class SimWatcherMakerBase {
-
 public:
   SimWatcherMakerBase() {}
   virtual ~SimWatcherMakerBase() {}
 
   // ---------- const member functions ---------------------
-  virtual void make(const edm::ParameterSet &, SimActivityRegistry &,
+  virtual void make(const edm::ParameterSet &,
+                    SimActivityRegistry &,
                     std::shared_ptr<SimWatcher> &,
                     std::shared_ptr<SimProducer> &) const = 0;
 };

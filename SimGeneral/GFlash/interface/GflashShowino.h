@@ -6,7 +6,6 @@
 #include "SimGeneral/GFlash/interface/GflashTrajectory.h"
 
 class GflashShowino {
-
 public:
   //-------------------------
   // Constructor, destructor
@@ -14,9 +13,13 @@ public:
   GflashShowino();
   ~GflashShowino();
 
-  void initialize(int showerType, double energy, double globalTime,
-                  double charge, Gflash3Vector &position,
-                  Gflash3Vector &momentum, double magneticField);
+  void initialize(int showerType,
+                  double energy,
+                  double globalTime,
+                  double charge,
+                  Gflash3Vector &position,
+                  Gflash3Vector &momentum,
+                  double magneticField);
 
   void updateShowino(double deltaStep);
 
@@ -41,8 +44,7 @@ public:
   void addEnergyDeposited(double energy) { theEnergyDeposited += energy; }
 
 private:
-  Gflash3Vector &simulateFirstInteractionPoint(int showType,
-                                               Gflash3Vector &pos);
+  Gflash3Vector &simulateFirstInteractionPoint(int showType, Gflash3Vector &pos);
   int convertShowerType(int fastSimShowerType, const Gflash3Vector &pos);
   void evaluateLengths();
 
