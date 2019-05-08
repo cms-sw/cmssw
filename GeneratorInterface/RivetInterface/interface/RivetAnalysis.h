@@ -152,6 +152,17 @@ namespace Rivet {
         Cut fatjet_cut = (Cuts::abseta < _fatJetMaxEta) and (Cuts::pT > _fatJetMinPt*GeV);
         
         _leptons   = applyProjection<DressedLeptons>(event, "DressedLeptons").dressedLeptons();
+        // search tau ancestors
+        for ( auto & lepton : _leptons ) {
+          const auto & cl = lepton.constituentLepton();
+          for ( auto & p : cl.ancestors()) {
+            if (p.abspid() == 15) {
+              p.setMomentum(p.momentum()*10e-20);
+              lepton.addPhoton(p, false);
+            }
+          }
+        }
+
         _jets      = applyProjection<FastJets>(event, "Jets").jetsByPt(jet_cut);
         _fatjets   = applyProjection<FastJets>(event, "FatJets").jetsByPt(fatjet_cut);
         _photons   = applyProjection<FinalState>(event, "Photons").particlesByPt();
