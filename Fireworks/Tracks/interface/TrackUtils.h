@@ -67,6 +67,9 @@ TEveTrack* prepareTrack( const reco::Track& track,
 float pixelLocalX( const double mpx, const float* );
 float pixelLocalY( const double mpy, const float* );
 
+float phase2PixelLocalX( const double mpx, const float*, const float* );
+float phase2PixelLocalY( const double mpy, const float*, const float* );
+
 void localSiStrip( short strip, float* localTop, float* localBottom, const float* pars, unsigned int id );
 
 void pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
