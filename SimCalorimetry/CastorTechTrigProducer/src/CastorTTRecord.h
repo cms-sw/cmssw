@@ -19,16 +19,15 @@ public:
   // modules]
   void getEnergy_fC(double energy[16][14],
                     edm::Handle<CastorDigiCollection> &CastorDigiColl,
-                    edm::Event &e, const edm::EventSetup &c);
+                    edm::Event &e,
+                    const edm::EventSetup &c);
 
   // get Trigger decisions | vector needs same SIZE and ORDER as in 'ttpBits_'
-  void getTriggerDecisions(std::vector<bool> &decision,
-                           double energy[16][14]) const;
+  void getTriggerDecisions(std::vector<bool> &decision, double energy[16][14]) const;
 
   // get Trigger decisions for every octant | vector has size of 6 -> 6 HTR card
   // bits
-  void getTriggerDecisionsPerOctant(std::vector<bool> tdps[16],
-                                    double energy[16][14]) const;
+  void getTriggerDecisionsPerOctant(std::vector<bool> tdps[16], double energy[16][14]) const;
 
 private:
   edm::EDGetTokenT<CastorDigiCollection> CastorDigiColl_;

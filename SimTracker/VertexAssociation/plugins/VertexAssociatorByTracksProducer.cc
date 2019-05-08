@@ -21,8 +21,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  void produce(edm::StreamID, edm::Event &,
-               const edm::EventSetup &) const override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
   // ----------member data ---------------------------
   const double R2SMatchedSimRatio_;
@@ -38,43 +37,39 @@ private:
 };
 
 namespace {
-TrackingParticleSelector makeSelector(const edm::ParameterSet &param) {
-  return TrackingParticleSelector(
-      param.getParameter<double>("ptMinTP"),
-      param.getParameter<double>("ptMaxTP"),
-      param.getParameter<double>("minRapidityTP"),
-      param.getParameter<double>("maxRapidityTP"),
-      param.getParameter<double>("tipTP"), param.getParameter<double>("lipTP"),
-      param.getParameter<int>("minHitTP"),
-      param.getParameter<bool>("signalOnlyTP"),
-      param.getParameter<bool>("intimeOnlyTP"),
-      param.getParameter<bool>("chargedOnlyTP"),
-      param.getParameter<bool>("stableOnlyTP"),
-      param.getParameter<std::vector<int>>("pdgIdTP"));
-}
-} // namespace
+  TrackingParticleSelector makeSelector(const edm::ParameterSet &param) {
+    return TrackingParticleSelector(param.getParameter<double>("ptMinTP"),
+                                    param.getParameter<double>("ptMaxTP"),
+                                    param.getParameter<double>("minRapidityTP"),
+                                    param.getParameter<double>("maxRapidityTP"),
+                                    param.getParameter<double>("tipTP"),
+                                    param.getParameter<double>("lipTP"),
+                                    param.getParameter<int>("minHitTP"),
+                                    param.getParameter<bool>("signalOnlyTP"),
+                                    param.getParameter<bool>("intimeOnlyTP"),
+                                    param.getParameter<bool>("chargedOnlyTP"),
+                                    param.getParameter<bool>("stableOnlyTP"),
+                                    param.getParameter<std::vector<int>>("pdgIdTP"));
+  }
+}  // namespace
 
-VertexAssociatorByTracksProducer::VertexAssociatorByTracksProducer(
-    const edm::ParameterSet &config)
+VertexAssociatorByTracksProducer::VertexAssociatorByTracksProducer(const edm::ParameterSet &config)
     : R2SMatchedSimRatio_(config.getParameter<double>("R2SMatchedSimRatio")),
       R2SMatchedRecoRatio_(config.getParameter<double>("R2SMatchedRecoRatio")),
       S2RMatchedSimRatio_(config.getParameter<double>("S2RMatchedSimRatio")),
       S2RMatchedRecoRatio_(config.getParameter<double>("S2RMatchedRecoRatio")),
-      selector_(makeSelector(
-          config.getParameter<edm::ParameterSet>("trackingParticleSelector"))),
-      trackQuality_(reco::TrackBase::qualityByName(
-          config.getParameter<std::string>("trackQuality"))),
-      trackRecoToSimAssociationToken_(consumes<reco::RecoToSimCollection>(
-          config.getParameter<edm::InputTag>("trackAssociation"))),
-      trackSimToRecoAssociationToken_(consumes<reco::SimToRecoCollection>(
-          config.getParameter<edm::InputTag>("trackAssociation"))) {
+      selector_(makeSelector(config.getParameter<edm::ParameterSet>("trackingParticleSelector"))),
+      trackQuality_(reco::TrackBase::qualityByName(config.getParameter<std::string>("trackQuality"))),
+      trackRecoToSimAssociationToken_(
+          consumes<reco::RecoToSimCollection>(config.getParameter<edm::InputTag>("trackAssociation"))),
+      trackSimToRecoAssociationToken_(
+          consumes<reco::SimToRecoCollection>(config.getParameter<edm::InputTag>("trackAssociation"))) {
   produces<reco::VertexToTrackingVertexAssociator>();
 }
 
 VertexAssociatorByTracksProducer::~VertexAssociatorByTracksProducer() {}
 
-void VertexAssociatorByTracksProducer::fillDescriptions(
-    edm::ConfigurationDescriptions &descriptions) {
+void VertexAssociatorByTracksProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
   // Matching conditions
@@ -102,29 +97,29 @@ void VertexAssociatorByTracksProducer::fillDescriptions(
   desc.add<edm::ParameterSetDescription>("trackingParticleSelector", descTp);
 
   // Track-TrackingParticle association
-  desc.add<edm::InputTag>(
-      "trackAssociation",
-      edm::InputTag("trackingParticleRecoTrackAsssociation"));
+  desc.add<edm::InputTag>("trackAssociation", edm::InputTag("trackingParticleRecoTrackAsssociation"));
 
   descriptions.add("VertexAssociatorByTracks", desc);
 }
 
-void VertexAssociatorByTracksProducer::produce(edm::StreamID,
-                                               edm::Event &iEvent,
-                                               const edm::EventSetup &) const {
+void VertexAssociatorByTracksProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &) const {
   edm::Handle<reco::RecoToSimCollection> recotosimCollectionH;
   iEvent.getByToken(trackRecoToSimAssociationToken_, recotosimCollectionH);
 
   edm::Handle<reco::SimToRecoCollection> simtorecoCollectionH;
   iEvent.getByToken(trackSimToRecoAssociationToken_, simtorecoCollectionH);
 
-  auto impl = std::make_unique<VertexAssociatorByTracks>(
-      &(iEvent.productGetter()), R2SMatchedSimRatio_, R2SMatchedRecoRatio_,
-      S2RMatchedSimRatio_, S2RMatchedRecoRatio_, &selector_, trackQuality_,
-      recotosimCollectionH.product(), simtorecoCollectionH.product());
+  auto impl = std::make_unique<VertexAssociatorByTracks>(&(iEvent.productGetter()),
+                                                         R2SMatchedSimRatio_,
+                                                         R2SMatchedRecoRatio_,
+                                                         S2RMatchedSimRatio_,
+                                                         S2RMatchedRecoRatio_,
+                                                         &selector_,
+                                                         trackQuality_,
+                                                         recotosimCollectionH.product(),
+                                                         simtorecoCollectionH.product());
 
-  auto toPut =
-      std::make_unique<reco::VertexToTrackingVertexAssociator>(std::move(impl));
+  auto toPut = std::make_unique<reco::VertexToTrackingVertexAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 

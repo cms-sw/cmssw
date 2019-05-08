@@ -14,7 +14,6 @@
 #include <vector>
 
 class CaloSlaveSD {
-
 public:
   typedef std::vector<PCaloHit> Collection;
   typedef Collection::iterator iterator;
@@ -24,8 +23,7 @@ public:
   virtual ~CaloSlaveSD();
   virtual void Initialize();
   std::string name() const { return name_; }
-  virtual bool processHits(uint32_t, double, double, double, int,
-                           uint16_t depth = 0);
+  virtual bool processHits(uint32_t, double, double, double, int, uint16_t depth = 0);
   virtual bool format();
   Collection &hits() { return hits_; }
   std::string type() { return "calo"; }
@@ -41,4 +39,4 @@ private:
   std::string name_;
 };
 
-#endif // CaloSlaveSD_h
+#endif  // CaloSlaveSD_h

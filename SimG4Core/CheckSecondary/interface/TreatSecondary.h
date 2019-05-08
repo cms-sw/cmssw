@@ -14,18 +14,16 @@ class G4Track;
 class G4ProcessTypeEnumerator;
 
 class TreatSecondary {
-
 public:
   TreatSecondary(const edm::ParameterSet &p);
   virtual ~TreatSecondary();
 
   void initTrack(const G4Track *trk);
-  std::vector<math::XYZTLorentzVector>
-  tracks(const G4Step *step, std::string &procName, int &procID, bool &intr,
-         double &deltaE, std::vector<int> &charges);
+  std::vector<math::XYZTLorentzVector> tracks(
+      const G4Step *step, std::string &procName, int &procID, bool &intr, double &deltaE, std::vector<int> &charges);
 
 private:
-  TreatSecondary(const TreatSecondary &) = delete; // stop default
+  TreatSecondary(const TreatSecondary &) = delete;  // stop default
   const TreatSecondary &operator=(const TreatSecondary &) = delete;
 
 private:

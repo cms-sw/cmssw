@@ -23,8 +23,7 @@ void CountProcessesAction::update(const BeginOfRun *run) {
     G4ParticleDefinition *particle = partTable->GetParticle(ii);
     std::string particleName = particle->GetParticleName();
     if (fDEBUG)
-      std::cout << ii << " PCA " << particleName << " "
-                << particle->GetPDGStable() << " " << particle->IsShortLived()
+      std::cout << ii << " PCA " << particleName << " " << particle->GetPDGStable() << " " << particle->IsShortLived()
                 << std::endl;
     theParticleList[particleName] = 0;
 
@@ -62,21 +61,17 @@ void CountProcessesAction::update(const BeginOfTrack *trk) {
   else
     (*ite).second = (*ite).second + 1;
   if (fDEBUG)
-    std::cout << " creator " << particleName << " " << processName
-              << theCreatorProcessList.size() << std::endl;
+    std::cout << " creator " << particleName << " " << processName << theCreatorProcessList.size() << std::endl;
 }
 
 void CountProcessesAction::update(const G4Step *aStep) {
   std::string processName;
   if (aStep->GetPostStepPoint()->GetProcessDefinedStep() != nullptr)
-    processName =
-        aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
+    processName = aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
   else
     processName = "User Limit";
-  std::string particleName =
-      aStep->GetTrack()->GetDefinition()->GetParticleName();
-  theProcessList[pss(particleName, processName)] =
-      theProcessList[pss(particleName, processName)] + 1;
+  std::string particleName = aStep->GetTrack()->GetDefinition()->GetParticleName();
+  theProcessList[pss(particleName, processName)] = theProcessList[pss(particleName, processName)] + 1;
 }
 
 void CountProcessesAction::update(const EndOfRun *run) {
@@ -85,30 +80,24 @@ void CountProcessesAction::update(const EndOfRun *run) {
   DumpParticleList();
 }
 
-void CountProcessesAction::DumpProcessList(bool printNsteps,
-                                           std::ostream &out) {
+void CountProcessesAction::DumpProcessList(bool printNsteps, std::ostream &out) {
   mpssi::iterator ite;
   for (ite = theProcessList.begin(); ite != theProcessList.end(); ite++) {
     if (!printNsteps)
-      out << "PROC_LIST " << (*ite).first.first << " : " << (*ite).first.second
-          << std::endl;
+      out << "PROC_LIST " << (*ite).first.first << " : " << (*ite).first.second << std::endl;
     else if ((*ite).second != 0)
-      out << "PROC_COUNT " << (*ite).first.first << " : " << (*ite).first.second
-          << " = " << (*ite).second << std::endl;
+      out << "PROC_COUNT " << (*ite).first.first << " : " << (*ite).first.second << " = " << (*ite).second << std::endl;
   }
 }
 
-void CountProcessesAction::DumpCreatorProcessList(bool printNsteps,
-                                                  std::ostream &out) {
+void CountProcessesAction::DumpCreatorProcessList(bool printNsteps, std::ostream &out) {
   mpssi::iterator ite;
-  for (ite = theCreatorProcessList.begin(); ite != theCreatorProcessList.end();
-       ite++) {
+  for (ite = theCreatorProcessList.begin(); ite != theCreatorProcessList.end(); ite++) {
     if (!printNsteps)
-      out << "PROC-CREATOR_LIST " << (*ite).first.first << " : "
-          << (*ite).first.second << std::endl;
+      out << "PROC-CREATOR_LIST " << (*ite).first.first << " : " << (*ite).first.second << std::endl;
     else if ((*ite).second != 0)
-      out << "PROC_CREATOR_COUNT " << (*ite).first.first << " : "
-          << (*ite).first.second << " = " << (*ite).second << std::endl;
+      out << "PROC_CREATOR_COUNT " << (*ite).first.first << " : " << (*ite).first.second << " = " << (*ite).second
+          << std::endl;
   }
 }
 
@@ -116,7 +105,6 @@ void CountProcessesAction::DumpParticleList(std::ostream &out) {
   psi::iterator ite;
   for (ite = theParticleList.begin(); ite != theParticleList.end(); ite++) {
     if ((*ite).second != 0)
-      out << "PART_LIST: " << (*ite).first << " = " << (*ite).second
-          << std::endl;
+      out << "PART_LIST: " << (*ite).first << " = " << (*ite).second << std::endl;
   }
 }

@@ -30,9 +30,7 @@ using namespace edm;
 testVertexAssociator::testVertexAssociator(edm::ParameterSet const &conf)
     : associatorByTracksToken(consumes<reco::VertexToTrackingVertexAssociator>(
           conf.getUntrackedParameter<edm::InputTag>("vertexAssociation"))) {
-
-  vertexCollection_ =
-      conf.getUntrackedParameter<edm::InputTag>("vertexCollection");
+  vertexCollection_ = conf.getUntrackedParameter<edm::InputTag>("vertexCollection");
 
   n_event_ = 0;
   n_rs_vertices_ = 0;
@@ -44,31 +42,21 @@ testVertexAssociator::testVertexAssociator(edm::ParameterSet const &conf)
 testVertexAssociator::~testVertexAssociator() {}
 
 void testVertexAssociator::beginJob() {
-
   edm::Service<TFileService> fs;
 
   // RecoToSim Histos
 
   rs_dist = fs->make<TH1F>("rs_dist", "r Miss Distance (cm)", 100, 0, 0.1);
-  rs_recz = fs->make<TH1F>("rs_recz", "z, Reconstructed Vertex (cm)", 200,
-                           -25.0, 25.0);
-  rs_simz =
-      fs->make<TH1F>("rs_simz", "z, Simulated Vertex (cm)", 200, -25.0, 25.0);
-  rs_nsimtrk =
-      fs->make<TH1F>("rs_nsimtrk", "# of tracks, Simulated", 501, -0.5, 500.5);
-  rs_nrectrk = fs->make<TH1F>("rs_nrectrk", "# of tracks, Reconstructed", 501,
-                              -0.5, 500.5);
+  rs_recz = fs->make<TH1F>("rs_recz", "z, Reconstructed Vertex (cm)", 200, -25.0, 25.0);
+  rs_simz = fs->make<TH1F>("rs_simz", "z, Simulated Vertex (cm)", 200, -25.0, 25.0);
+  rs_nsimtrk = fs->make<TH1F>("rs_nsimtrk", "# of tracks, Simulated", 501, -0.5, 500.5);
+  rs_nrectrk = fs->make<TH1F>("rs_nrectrk", "# of tracks, Reconstructed", 501, -0.5, 500.5);
   rs_qual = fs->make<TH1F>("rs_qual", "Quality of Match", 51, -0.01, 1.01);
-  rs_chi2norm =
-      fs->make<TH1F>("rs_chi2norm", "Vertex Normalized Chi2", 100, 0, 10.);
-  rs_chi2prob =
-      fs->make<TH1F>("rs_chi2prob", "Vertex Chi2 Probability", 100, 0, 1.);
-  rs_resx =
-      fs->make<TH1F>("rs_resx", "rec - sim Distance (cm)", 100, -0.05, 0.05);
-  rs_resy =
-      fs->make<TH1F>("rs_resy", "rec - sim Distance (cm)", 100, -0.05, 0.05);
-  rs_resz =
-      fs->make<TH1F>("rs_resz", "rec - sim Distance (cm)", 100, -0.05, 0.05);
+  rs_chi2norm = fs->make<TH1F>("rs_chi2norm", "Vertex Normalized Chi2", 100, 0, 10.);
+  rs_chi2prob = fs->make<TH1F>("rs_chi2prob", "Vertex Chi2 Probability", 100, 0, 1.);
+  rs_resx = fs->make<TH1F>("rs_resx", "rec - sim Distance (cm)", 100, -0.05, 0.05);
+  rs_resy = fs->make<TH1F>("rs_resy", "rec - sim Distance (cm)", 100, -0.05, 0.05);
+  rs_resz = fs->make<TH1F>("rs_resz", "rec - sim Distance (cm)", 100, -0.05, 0.05);
   rs_pullx = fs->make<TH1F>("rs_pullx", "(rec - sim)/err_rec ", 100, -10., 10.);
   rs_pully = fs->make<TH1F>("rs_pully", "(rec - sim)/err_rec ", 100, -10., 10.);
   rs_pullz = fs->make<TH1F>("rs_pullz", "(rec - sim)/err_rec ", 100, -10., 10.);
@@ -76,48 +64,31 @@ void testVertexAssociator::beginJob() {
   // SimToReco Histos
 
   sr_dist = fs->make<TH1F>("sr_dist", "r Miss Distance (cm)", 100, 0, 0.1);
-  sr_recz = fs->make<TH1F>("sr_recz", "z, Reconstructed Vertex (cm)", 200,
-                           -25.0, 25.0);
-  sr_simz =
-      fs->make<TH1F>("sr_simz", "z, Simulated Vertex (cm)", 200, -25.0, 25.0);
-  sr_nsimtrk =
-      fs->make<TH1F>("sr_nsimtrk", "# of tracks, Simulated", 501, -0.5, 500.5);
-  sr_nrectrk = fs->make<TH1F>("sr_nrectrk", "# of tracks, Reconstructed", 501,
-                              -0.5, 500.5);
+  sr_recz = fs->make<TH1F>("sr_recz", "z, Reconstructed Vertex (cm)", 200, -25.0, 25.0);
+  sr_simz = fs->make<TH1F>("sr_simz", "z, Simulated Vertex (cm)", 200, -25.0, 25.0);
+  sr_nsimtrk = fs->make<TH1F>("sr_nsimtrk", "# of tracks, Simulated", 501, -0.5, 500.5);
+  sr_nrectrk = fs->make<TH1F>("sr_nrectrk", "# of tracks, Reconstructed", 501, -0.5, 500.5);
   sr_qual = fs->make<TH1F>("sr_qual", "Quality of Match", 51, -0.01, 1.01);
-  sr_chi2norm =
-      fs->make<TH1F>("sr_chi2norm", "Vertex Normalized Chi2", 100, 0, 10.);
-  sr_chi2prob =
-      fs->make<TH1F>("sr_chi2prob", "Vertex Chi2 Probability", 100, 0, 1.);
-  sr_resx =
-      fs->make<TH1F>("sr_resx", "rec - sim Distance (cm)", 100, -0.05, 0.05);
-  sr_resy =
-      fs->make<TH1F>("sr_resy", "rec - sim Distance (cm)", 100, -0.05, 0.05);
-  sr_resz =
-      fs->make<TH1F>("sr_resz", "rec - sim Distance (cm)", 100, -0.05, 0.05);
+  sr_chi2norm = fs->make<TH1F>("sr_chi2norm", "Vertex Normalized Chi2", 100, 0, 10.);
+  sr_chi2prob = fs->make<TH1F>("sr_chi2prob", "Vertex Chi2 Probability", 100, 0, 1.);
+  sr_resx = fs->make<TH1F>("sr_resx", "rec - sim Distance (cm)", 100, -0.05, 0.05);
+  sr_resy = fs->make<TH1F>("sr_resy", "rec - sim Distance (cm)", 100, -0.05, 0.05);
+  sr_resz = fs->make<TH1F>("sr_resz", "rec - sim Distance (cm)", 100, -0.05, 0.05);
   sr_pullx = fs->make<TH1F>("sr_pullx", "(rec - sim)/err_rec ", 100, -10., 10.);
   sr_pully = fs->make<TH1F>("sr_pully", "(rec - sim)/err_rec ", 100, -10., 10.);
   sr_pullz = fs->make<TH1F>("sr_pullz", "(rec - sim)/err_rec ", 100, -10., 10.);
 }
 
 void testVertexAssociator::endJob() {
-
   std::cout << std::endl;
-  std::cout << " ====== Total Number of analyzed events: " << n_event_
-            << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S vertices:    " << n_rs_vertices_
-            << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S vtx assocs:  " << n_rs_vtxassocs_
-            << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R vertices:    " << n_sr_vertices_
-            << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R vtx assocs:  " << n_sr_vtxassocs_
-            << " ====== " << std::endl;
+  std::cout << " ====== Total Number of analyzed events: " << n_event_ << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S vertices:    " << n_rs_vertices_ << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S vtx assocs:  " << n_rs_vtxassocs_ << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R vertices:    " << n_sr_vertices_ << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R vtx assocs:  " << n_sr_vtxassocs_ << " ====== " << std::endl;
 }
 
-void testVertexAssociator::analyze(const edm::Event &event,
-                                   const edm::EventSetup &setup) {
-
+void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   using namespace edm;
   using namespace reco;
 
@@ -130,9 +101,7 @@ void testVertexAssociator::analyze(const edm::Event &event,
 
   ++n_event_;
 
-  std::cout << "*** Analyzing " << event.id() << " n_event = " << n_event_
-            << std::endl
-            << std::endl;
+  std::cout << "*** Analyzing " << event.id() << " n_event = " << n_event_ << std::endl << std::endl;
 
   edm::Handle<TrackingVertexCollection> TVCollection;
   event.getByLabel("mix", "MergedTrackTruth", TVCollection);
@@ -159,25 +128,20 @@ void testVertexAssociator::analyze(const edm::Event &event,
        << endl;
 
   // cout << "-- Associator by hits --" << endl;
-  reco::VertexRecoToSimCollection r2sVertices =
-      associatorByTracks->associateRecoToSim(vertexCollection, TVCollection);
+  reco::VertexRecoToSimCollection r2sVertices = associatorByTracks->associateRecoToSim(vertexCollection, TVCollection);
 
-  reco::VertexSimToRecoCollection s2rVertices =
-      associatorByTracks->associateSimToReco(vertexCollection, TVCollection);
+  reco::VertexSimToRecoCollection s2rVertices = associatorByTracks->associateSimToReco(vertexCollection, TVCollection);
 
   cout << endl;
   cout << "VertexRecoToSim size           = " << r2sVertices.size()
-       << " ; VertexSimToReco size           = " << r2sVertices.size() << " "
-       << endl;
+       << " ; VertexSimToReco size           = " << r2sVertices.size() << " " << endl;
 
   cout << endl << " [testVertexAssociator] Analyzing Reco To Sim" << endl;
 
   int cont_recvR2S = 0;
 
-  for (reco::VertexRecoToSimCollection::const_iterator iR2S =
-           r2sVertices.begin();
-       iR2S != r2sVertices.end(); ++iR2S, ++cont_recvR2S) {
-
+  for (reco::VertexRecoToSimCollection::const_iterator iR2S = r2sVertices.begin(); iR2S != r2sVertices.end();
+       ++iR2S, ++cont_recvR2S) {
     ++n_rs_vertices_;
 
     reco::VertexBaseRef recVertex = iR2S->key;
@@ -188,40 +152,32 @@ void testVertexAssociator::analyze(const edm::Event &event,
     std::vector<std::pair<TrackingVertexRef, double>> simVertices = iR2S->val;
 
     int cont_simvR2S = 0;
-    for (std::vector<std::pair<TrackingVertexRef, double>>::const_iterator
-             iMatch = simVertices.begin();
-         iMatch != simVertices.end(); ++iMatch, ++cont_simvR2S) {
-
+    for (std::vector<std::pair<TrackingVertexRef, double>>::const_iterator iMatch = simVertices.begin();
+         iMatch != simVertices.end();
+         ++iMatch, ++cont_simvR2S) {
       TrackingVertexRef simVertex = iMatch->first;
       math::XYZTLorentzVectorD simVec = (iMatch->first)->position();
-      math::XYZPoint simPos =
-          math::XYZPoint(simVec.x(), simVec.y(), simVec.z());
+      math::XYZPoint simPos = math::XYZPoint(simVec.x(), simVec.y(), simVec.z());
 
       ++n_rs_vtxassocs_;
 
-      cout << "rec vertex " << cont_recvR2S << " has associated sim vertex "
-           << cont_simvR2S << endl;
+      cout << "rec vertex " << cont_recvR2S << " has associated sim vertex " << cont_simvR2S << endl;
 
       double nsimtrk = simVertex->daughterTracks().size();
       double qual = iMatch->second;
 
       double chi2norm = recVertex->normalizedChi2();
-      double chi2prob =
-          ChiSquaredProbability(recVertex->chi2(), recVertex->ndof());
+      double chi2prob = ChiSquaredProbability(recVertex->chi2(), recVertex->ndof());
 
       double resx = recVertex->x() - simVertex->position().x();
       double resy = recVertex->y() - simVertex->position().y();
       double resz = recVertex->z() - simVertex->position().z();
-      double pullx =
-          (recVertex->x() - simVertex->position().x()) / recVertex->xError();
-      double pully =
-          (recVertex->y() - simVertex->position().y()) / recVertex->yError();
-      double pullz =
-          (recVertex->z() - simVertex->position().z()) / recVertex->zError();
+      double pullx = (recVertex->x() - simVertex->position().x()) / recVertex->xError();
+      double pully = (recVertex->y() - simVertex->position().y()) / recVertex->yError();
+      double pullz = (recVertex->z() - simVertex->position().z()) / recVertex->zError();
       double dist = sqrt(resx * resx + resy * resy + resz * resz);
 
-      cout << "            R2S: recPos = " << recPos << " ; simPos = " << simPos
-           << endl;
+      cout << "            R2S: recPos = " << recPos << " ; simPos = " << simPos << endl;
 
       rs_resx->Fill(resx);
       rs_resy->Fill(resy);
@@ -238,9 +194,9 @@ void testVertexAssociator::analyze(const edm::Event &event,
       rs_chi2norm->Fill(chi2norm);
       rs_chi2prob->Fill(chi2prob);
 
-    } // end simVertices
+    }  // end simVertices
 
-  } // end iR2S
+  }  // end iR2S
 
   cout << endl
        << "                      ****************** Sim To Reco "
@@ -251,10 +207,8 @@ void testVertexAssociator::analyze(const edm::Event &event,
   cout << endl << "[testVertexAssociator] Analyzing Sim To Reco" << endl;
 
   int cont_simvS2R = 0;
-  for (reco::VertexSimToRecoCollection::const_iterator iS2R =
-           s2rVertices.begin();
-       iS2R != s2rVertices.end(); ++iS2R, ++cont_simvS2R) {
-
+  for (reco::VertexSimToRecoCollection::const_iterator iS2R = s2rVertices.begin(); iS2R != s2rVertices.end();
+       ++iS2R, ++cont_simvS2R) {
     ++n_sr_vertices_;
 
     TrackingVertexRef simVertex = iS2R->key;
@@ -267,38 +221,31 @@ void testVertexAssociator::analyze(const edm::Event &event,
 
     int cont_recvS2R = 0;
 
-    for (std::vector<std::pair<VertexBaseRef, double>>::const_iterator iMatch =
-             recoVertices.begin();
-         iMatch != recoVertices.end(); ++iMatch, ++cont_recvS2R) {
-
+    for (std::vector<std::pair<VertexBaseRef, double>>::const_iterator iMatch = recoVertices.begin();
+         iMatch != recoVertices.end();
+         ++iMatch, ++cont_recvS2R) {
       VertexBaseRef recVertex = iMatch->first;
       math::XYZPoint recPos = recVertex->position();
 
       ++n_sr_vtxassocs_;
 
-      cout << "sim vertex " << cont_simvS2R << " has associated rec vertex "
-           << cont_recvS2R << endl;
+      cout << "sim vertex " << cont_simvS2R << " has associated rec vertex " << cont_recvS2R << endl;
 
       double nrectrk = recVertex->tracksSize();
       double qual = iMatch->second;
 
       double chi2norm = recVertex->normalizedChi2();
-      double chi2prob =
-          ChiSquaredProbability(recVertex->chi2(), recVertex->ndof());
+      double chi2prob = ChiSquaredProbability(recVertex->chi2(), recVertex->ndof());
 
       double resx = recVertex->x() - simVertex->position().x();
       double resy = recVertex->y() - simVertex->position().y();
       double resz = recVertex->z() - simVertex->position().z();
-      double pullx =
-          (recVertex->x() - simVertex->position().x()) / recVertex->xError();
-      double pully =
-          (recVertex->y() - simVertex->position().y()) / recVertex->yError();
-      double pullz =
-          (recVertex->z() - simVertex->position().z()) / recVertex->zError();
+      double pullx = (recVertex->x() - simVertex->position().x()) / recVertex->xError();
+      double pully = (recVertex->y() - simVertex->position().y()) / recVertex->yError();
+      double pullz = (recVertex->z() - simVertex->position().z()) / recVertex->zError();
       double dist = sqrt(resx * resx + resy * resy + resz * resz);
 
-      cout << "            S2R: simPos = " << simPos << " ; recPos = " << recPos
-           << endl;
+      cout << "            S2R: simPos = " << simPos << " ; recPos = " << recPos << endl;
 
       sr_resx->Fill(resx);
       sr_resy->Fill(resy);
@@ -315,9 +262,9 @@ void testVertexAssociator::analyze(const edm::Event &event,
       sr_chi2norm->Fill(chi2norm);
       sr_chi2prob->Fill(chi2prob);
 
-    } // end recoVertices
+    }  // end recoVertices
 
-  } // end iS2R
+  }  // end iS2R
 
   cout << endl;
 }

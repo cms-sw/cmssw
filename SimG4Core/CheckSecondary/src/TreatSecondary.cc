@@ -14,18 +14,15 @@
 #include <iomanip>
 #include <iostream>
 
-TreatSecondary::TreatSecondary(const edm::ParameterSet &p)
-    : typeEnumerator(nullptr) {
-
+TreatSecondary::TreatSecondary(const edm::ParameterSet &p) : typeEnumerator(nullptr) {
   verbosity = p.getUntrackedParameter<int>("Verbosity", 0);
   killAfter = p.getUntrackedParameter<int>("KillAfter", -1);
   minDeltaE = p.getUntrackedParameter<double>("MinimumDeltaE", 10.0) * MeV;
 
-  edm::LogInfo("CheckSecondary")
-      << "Instantiate CheckSecondary with Flag"
-      << " for Killing track after " << killAfter
-      << " hadronic interactions\nDefine inelastic"
-      << " if > 1 seondary or change in KE > " << minDeltaE << " MeV\n";
+  edm::LogInfo("CheckSecondary") << "Instantiate CheckSecondary with Flag"
+                                 << " for Killing track after " << killAfter
+                                 << " hadronic interactions\nDefine inelastic"
+                                 << " if > 1 seondary or change in KE > " << minDeltaE << " MeV\n";
 
   typeEnumerator = new G4ProcessTypeEnumerator();
 }
@@ -36,24 +33,18 @@ TreatSecondary::~TreatSecondary() {
 }
 
 void TreatSecondary::initTrack(const G4Track *thTk) {
-
   step = 0;
   nsecL = 0;
   nHad = 0;
   eTrack = thTk->GetKineticEnergy() / MeV;
-  LogDebug("CheckSecondary")
-      << "TreatSecondary::initTrack:Track: " << thTk->GetTrackID()
-      << " Type: " << thTk->GetDefinition()->GetParticleName() << " KE "
-      << thTk->GetKineticEnergy() / GeV << " GeV p "
-      << thTk->GetMomentum().mag() / GeV << " GeV daughter of particle "
-      << thTk->GetParentID();
+  LogDebug("CheckSecondary") << "TreatSecondary::initTrack:Track: " << thTk->GetTrackID()
+                             << " Type: " << thTk->GetDefinition()->GetParticleName() << " KE "
+                             << thTk->GetKineticEnergy() / GeV << " GeV p " << thTk->GetMomentum().mag() / GeV
+                             << " GeV daughter of particle " << thTk->GetParentID();
 }
 
-std::vector<math::XYZTLorentzVector>
-TreatSecondary::tracks(const G4Step *aStep, std::string &name, int &procid,
-                       bool &hadrInt, double &deltaE,
-                       std::vector<int> &charges) {
-
+std::vector<math::XYZTLorentzVector> TreatSecondary::tracks(
+    const G4Step *aStep, std::string &name, int &procid, bool &hadrInt, double &deltaE, std::vector<int> &charges) {
   step++;
   procid = -1;
   name = "Unknown";
@@ -78,19 +69,15 @@ TreatSecondary::tracks(const G4Step *aStep, std::string &name, int &procid,
         procid = typeEnumerator->processIdLong(proc);
         name = proc->GetProcessName();
         int sec = nsc - nsecL;
-        LogDebug("CheckSecondary")
-            << sec << " secondaries in step " << thTk->GetCurrentStepNumber()
-            << " of track " << thTk->GetTrackID() << " from " << name
-            << " of type " << type << " ID " << procid << " ("
-            << typeEnumerator->processG4Name(procid) << ")";
+        LogDebug("CheckSecondary") << sec << " secondaries in step " << thTk->GetCurrentStepNumber() << " of track "
+                                   << thTk->GetTrackID() << " from " << name << " of type " << type << " ID " << procid
+                                   << " (" << typeEnumerator->processG4Name(procid) << ")";
 
         // hadronic interaction
         if (procid >= 121 && procid <= 151) {
-          LogDebug("CheckSecondary")
-              << "Hadronic Interaction " << nHad << " of Type " << procid
-              << " with " << sec << " secondaries from process "
-              << proc->GetProcessName() << " Delta E " << deltaE << " Flag "
-              << hadrInt;
+          LogDebug("CheckSecondary") << "Hadronic Interaction " << nHad << " of Type " << procid << " with " << sec
+                                     << " secondaries from process " << proc->GetProcessName() << " Delta E " << deltaE
+                                     << " Flag " << hadrInt;
           math::XYZTLorentzVector secondary;
           for (int i = nsecL; i < nsc; ++i) {
             G4Track *tk = (*tkV)[i];
@@ -104,12 +91,10 @@ TreatSecondary::tracks(const G4Step *aStep, std::string &name, int &procid,
           if (verbosity > 0) {
             for (int i = nsecL; i < nsc; i++) {
               G4Track *tk = (*tkV)[i];
-              LogDebug("CheckSecondary")
-                  << "Secondary: " << sec << " ID " << tk->GetTrackID()
-                  << " Status " << tk->GetTrackStatus() << " Particle "
-                  << tk->GetDefinition()->GetParticleName() << " Position "
-                  << tk->GetPosition() << " KE " << tk->GetKineticEnergy()
-                  << " Time " << tk->GetGlobalTime();
+              LogDebug("CheckSecondary") << "Secondary: " << sec << " ID " << tk->GetTrackID() << " Status "
+                                         << tk->GetTrackStatus() << " Particle "
+                                         << tk->GetDefinition()->GetParticleName() << " Position " << tk->GetPosition()
+                                         << " KE " << tk->GetKineticEnergy() << " Time " << tk->GetGlobalTime();
             }
           }
         }
@@ -117,16 +102,12 @@ TreatSecondary::tracks(const G4Step *aStep, std::string &name, int &procid,
       }
     }
     if (verbosity > 1) {
-      LogDebug("CheckSecondary")
-          << "Track: " << thTk->GetTrackID() << " Status "
-          << thTk->GetTrackStatus() << " Particle "
-          << thTk->GetDefinition()->GetParticleName() << " at "
-          << preStepPoint->GetPosition() << " Step: " << step << " KE "
-          << thTk->GetKineticEnergy() / GeV << " GeV; p "
-          << thTk->GetMomentum().mag() / GeV << " GeV/c; Step Length "
-          << aStep->GetStepLength() << " Energy Deposit "
-          << aStep->GetTotalEnergyDeposit() / MeV << " MeV; Interaction "
-          << hadrInt;
+      LogDebug("CheckSecondary") << "Track: " << thTk->GetTrackID() << " Status " << thTk->GetTrackStatus()
+                                 << " Particle " << thTk->GetDefinition()->GetParticleName() << " at "
+                                 << preStepPoint->GetPosition() << " Step: " << step << " KE "
+                                 << thTk->GetKineticEnergy() / GeV << " GeV; p " << thTk->GetMomentum().mag() / GeV
+                                 << " GeV/c; Step Length " << aStep->GetStepLength() << " Energy Deposit "
+                                 << aStep->GetTotalEnergyDeposit() / MeV << " MeV; Interaction " << hadrInt;
     }
   }
   return secondaries;

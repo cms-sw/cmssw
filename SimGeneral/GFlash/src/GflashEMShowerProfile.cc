@@ -17,8 +17,7 @@
 #include <CLHEP/Random/Randomize.h>
 #include <CLHEP/Units/PhysicalConstants.h>
 
-GflashEMShowerProfile::GflashEMShowerProfile(const edm::ParameterSet &parSet)
-    : theParSet(parSet) {
+GflashEMShowerProfile::GflashEMShowerProfile(const edm::ParameterSet &parSet) : theParSet(parSet) {
   theBField = parSet.getParameter<double>("bField");
   theEnergyScaleEB = parSet.getParameter<double>("energyScaleEB");
   theEnergyScaleEE = parSet.getParameter<double>("energyScaleEE");
@@ -35,12 +34,9 @@ GflashEMShowerProfile::~GflashEMShowerProfile() {
     delete theShowino;
 }
 
-void GflashEMShowerProfile::initialize(int showerType, double energy,
-                                       double globalTime, double charge,
-                                       Gflash3Vector &position,
-                                       Gflash3Vector &momentum) {
-  theShowino->initialize(showerType, energy, globalTime, charge, position,
-                         momentum, theBField);
+void GflashEMShowerProfile::initialize(
+    int showerType, double energy, double globalTime, double charge, Gflash3Vector &position, Gflash3Vector &momentum) {
+  theShowino->initialize(showerType, energy, globalTime, charge, position, momentum, theBField);
 }
 
 void GflashEMShowerProfile::parameterization() {
@@ -59,24 +55,20 @@ void GflashEMShowerProfile::parameterization() {
   jCalorimeter = Gflash::getCalorimeterNumber(showerStartingPosition);
 
   double logEinc = std::log(incomingEnergy);
-  double y = incomingEnergy /
-             Gflash::criticalEnergy; // y = E/Ec, criticalEnergy is in GeV
+  double y = incomingEnergy / Gflash::criticalEnergy;  // y = E/Ec, criticalEnergy is in GeV
   double logY = std::log(y);
 
   // Total number of spots are not yet optimized.
-  double nSpots = 93.0 * std::log(Gflash::Z[jCalorimeter]) *
-                  std::pow(incomingEnergy, 0.876);
+  double nSpots = 93.0 * std::log(Gflash::Z[jCalorimeter]) * std::pow(incomingEnergy, 0.876);
 
   // path Length from the origin to the shower starting point in cm
   double pathLength0 = theShowino->getPathLengthAtShower();
-  double pathLength =
-      pathLength0; // this will grow along the shower development
+  double pathLength = pathLength0;  // this will grow along the shower development
 
   //--- 2.2  Fix intrinsic properties of em. showers.
 
   double fluctuatedTmax = std::log(logY - 0.7157);
-  double fluctuatedAlpha =
-      std::log(0.7996 + (0.4581 + 1.8628 / Gflash::Z[jCalorimeter]) * logY);
+  double fluctuatedAlpha = std::log(0.7996 + (0.4581 + 1.8628 / Gflash::Z[jCalorimeter]) * logY);
 
   double sigmaTmax = 1.0 / (-1.4 + 1.26 * logY);
   double sigmaAlpha = 1.0 / (-0.58 + 0.86 * logY);
@@ -86,10 +78,8 @@ void GflashEMShowerProfile::parameterization() {
 
   double norm1 = CLHEP::RandGaussQ::shoot();
   double norm2 = CLHEP::RandGaussQ::shoot();
-  double tempTmax =
-      fluctuatedTmax + sigmaTmax * (sqrtPL * norm1 + sqrtLE * norm2);
-  double tempAlpha =
-      fluctuatedAlpha + sigmaAlpha * (sqrtPL * norm1 - sqrtLE * norm2);
+  double tempTmax = fluctuatedTmax + sigmaTmax * (sqrtPL * norm1 + sqrtLE * norm2);
+  double tempAlpha = fluctuatedAlpha + sigmaAlpha * (sqrtPL * norm1 - sqrtLE * norm2);
 
   // tmax, alpha, beta : parameters of gamma distribution
   double tmax = std::exp(tempTmax);
@@ -139,27 +129,26 @@ void GflashEMShowerProfile::parameterization() {
   // preparation of longitudinal integration
   double stepLengthLeft = getDistanceToOut(jCalorimeter);
 
-  int nSpots_sd = 0;               // count total number of spots in SD
-  double zInX0 = 0.0;              // shower depth in X0 unit
-  double deltaZInX0 = 0.0;         // segment of depth in X0 unit
-  double deltaZ = 0.0;             // segment of depth in cm
-  double stepLengthLeftInX0 = 0.0; // step length left in X0 unit
+  int nSpots_sd = 0;                // count total number of spots in SD
+  double zInX0 = 0.0;               // shower depth in X0 unit
+  double deltaZInX0 = 0.0;          // segment of depth in X0 unit
+  double deltaZ = 0.0;              // segment of depth in cm
+  double stepLengthLeftInX0 = 0.0;  // step length left in X0 unit
 
-  const double divisionStepInX0 = 0.1; // step size in X0 unit
-  double energy = incomingEnergy;      // energy left in GeV
+  const double divisionStepInX0 = 0.1;  // step size in X0 unit
+  double energy = incomingEnergy;       // energy left in GeV
 
   Genfun::IncompleteGamma gammaDist;
 
-  double energyInGamma =
-      0.0; // energy in a specific depth(z) according to Gamma distribution
-  double preEnergyInGamma = 0.0; // energy calculated in a previous depth
-  double sigmaInGamma = 0.; // sigma of energy in a specific depth(z) according
-                            // to Gamma distribution
-  double preSigmaInGamma = 0.0; // sigma of energy in a previous depth
+  double energyInGamma = 0.0;     // energy in a specific depth(z) according to Gamma distribution
+  double preEnergyInGamma = 0.0;  // energy calculated in a previous depth
+  double sigmaInGamma = 0.;       // sigma of energy in a specific depth(z) according
+                                  // to Gamma distribution
+  double preSigmaInGamma = 0.0;   // sigma of energy in a previous depth
 
   // energy segment in Gamma distribution of shower in each step
-  double deltaEnergy = 0.0; // energy in deltaZ
-  int spotCounter = 0;      // keep track of number of spots generated
+  double deltaEnergy = 0.0;  // energy in deltaZ
+  int spotCounter = 0;       // keep track of number of spots generated
 
   // step increment along the shower direction
   double deltaStep = 0.0;
@@ -168,7 +157,6 @@ void GflashEMShowerProfile::parameterization() {
 
   // loop for longitudinal integration
   while (energy > 0.0 && stepLengthLeft > 0.0) {
-
     stepLengthLeftInX0 = stepLengthLeft / Gflash::radLength[jCalorimeter];
 
     if (stepLengthLeftInX0 < divisionStepInX0) {
@@ -187,16 +175,15 @@ void GflashEMShowerProfile::parameterization() {
 
     if (energy > energyCutoff) {
       preEnergyInGamma = energyInGamma;
-      gammaDist.a().setValue(alpha);           // alpha
-      energyInGamma = gammaDist(beta * zInX0); // beta
+      gammaDist.a().setValue(alpha);            // alpha
+      energyInGamma = gammaDist(beta * zInX0);  // beta
       double energyInDeltaZ = energyInGamma - preEnergyInGamma;
       deltaEnergy = std::min(energy, incomingEnergy * energyInDeltaZ);
 
       preSigmaInGamma = sigmaInGamma;
-      gammaDist.a().setValue(spotAlpha);          // alpha spot
-      sigmaInGamma = gammaDist(spotBeta * zInX0); // beta spot
-      nSpotsInStep =
-          std::max(1, int(nSpots * (sigmaInGamma - preSigmaInGamma)));
+      gammaDist.a().setValue(spotAlpha);           // alpha spot
+      sigmaInGamma = gammaDist(spotBeta * zInX0);  // beta spot
+      nSpotsInStep = std::max(1, int(nSpots * (sigmaInGamma - preSigmaInGamma)));
     } else {
       deltaEnergy = energy;
       preSigmaInGamma = sigmaInGamma;
@@ -210,11 +197,9 @@ void GflashEMShowerProfile::parameterization() {
 
     if (spotCounter + nSpotsInStep > maxNumberOfSpots) {
       nSpotsInStep = maxNumberOfSpots - spotCounter;
-      if (nSpotsInStep < 1) { // @@ check
-        edm::LogInfo("SimGeneralGFlash")
-            << "GflashEMShowerProfile: Too Many Spots ";
-        edm::LogInfo("SimGeneralGFlash")
-            << " - break to regenerate nSpotsInStep ";
+      if (nSpotsInStep < 1) {  // @@ check
+        edm::LogInfo("SimGeneralGFlash") << "GflashEMShowerProfile: Too Many Spots ";
+        edm::LogInfo("SimGeneralGFlash") << " - break to regenerate nSpotsInStep ";
         break;
       }
     }
@@ -225,13 +210,10 @@ void GflashEMShowerProfile::parameterization() {
     deltaStep = 0.5 * deltaZ;
 
     // lateral shape and fluctuations for  homogenous calo.
-    double tScale = tmax * alpha / (alpha - 1.0) *
-                    (std::exp(fluctuatedAlpha) - 1.0) /
-                    std::exp(fluctuatedAlpha);
+    double tScale = tmax * alpha / (alpha - 1.0) * (std::exp(fluctuatedAlpha) - 1.0) / std::exp(fluctuatedAlpha);
     double tau = std::min(10.0, (zInX0 - 0.5 * deltaZInX0) / tScale);
     double rCore = z1 + z2 * tau;
-    double rTail = k1 * (std::exp(k3 * (tau - k2)) +
-                         std::exp(k4 * (tau - k2))); // @@ check RT3 sign
+    double rTail = k1 * (std::exp(k3 * (tau - k2)) + std::exp(k4 * (tau - k2)));  // @@ check RT3 sign
     double p23 = (p2 - tau) / p3;
     double probabilityWeight = p1 * std::exp(p23 - std::exp(p23));
 
@@ -239,8 +221,7 @@ void GflashEMShowerProfile::parameterization() {
     // Apply absolute energy scale
     // Convert into MeV unit
     double hitEnergy = deltaEnergy / nSpotsInStep * e25Scale * CLHEP::GeV;
-    double hitTime = theShowino->getGlobalTime() * CLHEP::nanosecond +
-                     (pathLength - pathLength0) / 30.0;
+    double hitTime = theShowino->getGlobalTime() * CLHEP::nanosecond + (pathLength - pathLength0) / 30.0;
 
     GflashHit aHit;
 
@@ -250,18 +231,15 @@ void GflashEMShowerProfile::parameterization() {
       // Compute global position of generated spots with taking into account
       // magnetic field Divide deltaZ into nSpotsInStep and give a spot a global
       // position
-      double incrementPath =
-          (deltaZ / nSpotsInStep) * (ispot + 0.5 - 0.5 * nSpotsInStep);
+      double incrementPath = (deltaZ / nSpotsInStep) * (ispot + 0.5 - 0.5 * nSpotsInStep);
 
       // trajectoryPoint give a spot an imaginary point along the shower
       // development
       GflashTrajectoryPoint trajectoryPoint;
-      theShowino->getHelix()->getGflashTrajectoryPoint(
-          trajectoryPoint, pathLength + incrementPath);
+      theShowino->getHelix()->getGflashTrajectoryPoint(trajectoryPoint, pathLength + incrementPath);
 
       double rShower = 0.0;
-      Gflash3Vector hitPosition = locateHitPosition(
-          trajectoryPoint, rCore, rTail, probabilityWeight, rShower);
+      Gflash3Vector hitPosition = locateHitPosition(trajectoryPoint, rCore, rTail, probabilityWeight, rShower);
 
       // Convert into mm unit
       hitPosition *= CLHEP::cm;
@@ -275,26 +253,21 @@ void GflashEMShowerProfile::parameterization() {
       aHit.setPosition(hitPosition);
       theGflashHitList.push_back(aHit);
 
-      double zInX0_spot = std::abs(pathLength + incrementPath - pathLength0) /
-                          Gflash::radLength[jCalorimeter];
+      double zInX0_spot = std::abs(pathLength + incrementPath - pathLength0) / Gflash::radLength[jCalorimeter];
 
       nSpots_sd++;
 
       // for histogramming
       if (theHisto->getStoreFlag()) {
         theHisto->em_long->Fill(zInX0_spot, hitEnergy / CLHEP::GeV);
-        theHisto->em_lateral->Fill(zInX0_spot,
-                                   rShower / Gflash::rMoliere[jCalorimeter],
-                                   hitEnergy / CLHEP::GeV);
+        theHisto->em_lateral->Fill(zInX0_spot, rShower / Gflash::rMoliere[jCalorimeter], hitEnergy / CLHEP::GeV);
         theHisto->em_long_sd->Fill(zInX0_spot, hitEnergy / CLHEP::GeV);
-        theHisto->em_lateral_sd->Fill(zInX0_spot,
-                                      rShower / Gflash::rMoliere[jCalorimeter],
-                                      hitEnergy / CLHEP::GeV);
+        theHisto->em_lateral_sd->Fill(zInX0_spot, rShower / Gflash::rMoliere[jCalorimeter], hitEnergy / CLHEP::GeV);
       }
 
-    } // end of for spot iteration
+    }  // end of for spot iteration
 
-  } // end of while for longitudinal integration
+  }  // end of while for longitudinal integration
 
   if (theHisto->getStoreFlag()) {
     theHisto->em_nSpots_sd->Fill(nSpots_sd);
@@ -303,27 +276,21 @@ void GflashEMShowerProfile::parameterization() {
   //  delete theGflashNavigator;
 }
 
-double
-GflashEMShowerProfile::getDistanceToOut(Gflash::CalorimeterNumber kCalor) {
-
+double GflashEMShowerProfile::getDistanceToOut(Gflash::CalorimeterNumber kCalor) {
   double stepLengthLeft = 0.0;
   if (kCalor == Gflash::kESPM) {
-    stepLengthLeft = theShowino->getHelix()->getPathLengthAtRhoEquals(
-                         Gflash::Rmax[Gflash::kESPM]) -
+    stepLengthLeft = theShowino->getHelix()->getPathLengthAtRhoEquals(Gflash::Rmax[Gflash::kESPM]) -
                      theShowino->getPathLengthAtShower();
   } else if (kCalor == Gflash::kENCA) {
     double zsign = (theShowino->getPosition()).getEta() > 0 ? 1.0 : -1.0;
-    stepLengthLeft = theShowino->getHelix()->getPathLengthAtZ(
-                         zsign * Gflash::Zmax[Gflash::kENCA]) -
+    stepLengthLeft = theShowino->getHelix()->getPathLengthAtZ(zsign * Gflash::Zmax[Gflash::kENCA]) -
                      theShowino->getPathLengthAtShower();
   }
   return stepLengthLeft;
 }
 
-Gflash3Vector
-GflashEMShowerProfile::locateHitPosition(GflashTrajectoryPoint &point,
-                                         double rCore, double rTail,
-                                         double probability, double &rShower) {
+Gflash3Vector GflashEMShowerProfile::locateHitPosition(
+    GflashTrajectoryPoint &point, double rCore, double rTail, double probability, double &rShower) {
   double u1 = CLHEP::HepUniformRand();
   double u2 = CLHEP::HepUniformRand();
   double rInRM = 0.0;
@@ -340,10 +307,8 @@ GflashEMShowerProfile::locateHitPosition(GflashTrajectoryPoint &point,
   double azimuthalAngle = CLHEP::twopi * CLHEP::HepUniformRand();
 
   // actual spot position by adding a radial vector to a trajectoryPoint
-  Gflash3Vector position =
-      point.getPosition() +
-      rShower * std::cos(azimuthalAngle) * point.getOrthogonalUnitVector() +
-      rShower * std::sin(azimuthalAngle) * point.getCrossUnitVector();
+  Gflash3Vector position = point.getPosition() + rShower * std::cos(azimuthalAngle) * point.getOrthogonalUnitVector() +
+                           rShower * std::sin(azimuthalAngle) * point.getCrossUnitVector();
 
   return position;
 }

@@ -36,37 +36,31 @@ private:
 };
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
-GaussianTailNoiseGeneratorTest::GaussianTailNoiseGeneratorTest(
-    const edm::ParameterSet &iConfig)
+GaussianTailNoiseGeneratorTest::GaussianTailNoiseGeneratorTest(const edm::ParameterSet &iConfig)
     : filename_(iConfig.getParameter<std::string>("FileName")) {
   // now do what ever initialization is needed
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-        << "GaussianTailNoiseGeneratorTest requires the "
-           "RandomNumberGeneratorService\n"
-           "which is not present in the configuration file.  You must add the "
-           "service\n"
-           "in the configuration file or remove the modules that require it.";
+    throw cms::Exception("Configuration") << "GaussianTailNoiseGeneratorTest requires the "
+                                             "RandomNumberGeneratorService\n"
+                                             "which is not present in the configuration file.  You must add the "
+                                             "service\n"
+                                             "in the configuration file or remove the modules that require it.";
   }
   genNoise = new GaussianTailNoiseGenerator();
 }
 
-GaussianTailNoiseGeneratorTest::~GaussianTailNoiseGeneratorTest() {
-  delete genNoise;
-}
+GaussianTailNoiseGeneratorTest::~GaussianTailNoiseGeneratorTest() { delete genNoise; }
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void GaussianTailNoiseGeneratorTest::analyze(const edm::Event &iEvent,
-                                             const edm::EventSetup &iSetup) {
-
+void GaussianTailNoiseGeneratorTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   float threshold = 2.;
   int numStrips = 512;
   float noiseRMS = 5 * 250;
@@ -74,8 +68,7 @@ void GaussianTailNoiseGeneratorTest::analyze(const edm::Event &iEvent,
   std::vector<std::pair<int, float>> generatedNoise;
 
   edm::Service<edm::RandomNumberGenerator> rng;
-  genNoise->generate(numStrips, threshold, noiseRMS, generatedNoise,
-                     &rng->getEngine(iEvent.streamID()));
+  genNoise->generate(numStrips, threshold, noiseRMS, generatedNoise, &rng->getEngine(iEvent.streamID()));
 
   typedef std::vector<std::pair<int, float>>::const_iterator VI;
 
@@ -88,8 +81,7 @@ void GaussianTailNoiseGeneratorTest::analyze(const edm::Event &iEvent,
 // ------------
 void GaussianTailNoiseGeneratorTest::beginJob() {
   hFile = new TFile(filename_.c_str(), "RECREATE");
-  randNumber =
-      new TH1F("randNumber", "Random Number Distribution", 200, 2000, 6000);
+  randNumber = new TH1F("randNumber", "Random Number Distribution", 200, 2000, 6000);
 }
 
 // ------------ method called once each job just after ending the event loop
