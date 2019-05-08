@@ -7,8 +7,7 @@ public:
 
 protected:
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
-  void endLuminosityBlock(edm::LuminosityBlock const &lumiSeg,
-                          edm::EventSetup const &c) override;
+  void endLuminosityBlock(edm::LuminosityBlock const &lumiSeg, edm::EventSetup const &c) override;
   void endRun(const edm::Run &r, const edm::EventSetup &c) override;
   void endJob() override;
 

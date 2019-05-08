@@ -42,8 +42,7 @@ harvesting
 //
 
 // ------------ method called for each event  ------------
-void B2GHadronicHLTValidation::analyze(const edm::Event &iEvent,
-                                       const edm::EventSetup &iSetup) {
+void B2GHadronicHLTValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
   isAll_ = false;
@@ -52,8 +51,7 @@ void B2GHadronicHLTValidation::analyze(const edm::Event &iEvent,
   // Jets
   Handle<edm::View<reco::Jet>> jets;
   if (!iEvent.getByToken(tokJets_, jets))
-    edm::LogWarning("B2GHadronicHLTValidation")
-        << "Jets collection not found \n";
+    edm::LogWarning("B2GHadronicHLTValidation") << "Jets collection not found \n";
   unsigned int nGoodJ = 0;
   double ht = 0.0;
   // Check to see if we want asymmetric jet pt cuts
@@ -71,8 +69,7 @@ void B2GHadronicHLTValidation::analyze(const edm::Event &iEvent,
       }
     }
   } else if (minJets_ > 0 || htMin_ > 0) {
-    for (edm::View<reco::Jet>::const_iterator j = jets->begin();
-         j != jets->end(); ++j) {
+    for (edm::View<reco::Jet>::const_iterator j = jets->begin(); j != jets->end(); ++j) {
       if (j->pt() < ptJets_)
         continue;
       if (fabs(j->eta()) > etaJets_)
@@ -90,12 +87,10 @@ void B2GHadronicHLTValidation::analyze(const edm::Event &iEvent,
   // Trigger
   Handle<edm::TriggerResults> triggerTable;
   if (!iEvent.getByToken(tokTrigger_, triggerTable))
-    edm::LogWarning("B2GHadronicHLTValidation")
-        << "Trigger collection not found \n";
+    edm::LogWarning("B2GHadronicHLTValidation") << "Trigger collection not found \n";
   const edm::TriggerNames &triggerNames = iEvent.triggerNames(*triggerTable);
   bool isInteresting = false;
   for (unsigned int i = 0; i < triggerNames.triggerNames().size(); ++i) {
-
     TString name = triggerNames.triggerNames()[i].c_str();
     for (unsigned int j = 0; j < vsPaths_.size(); j++) {
       if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) {
@@ -137,9 +132,7 @@ void B2GHadronicHLTValidation::analyze(const edm::Event &iEvent,
 }
 
 // ------------ booking histograms -----------
-void B2GHadronicHLTValidation::bookHistograms(DQMStore::IBooker &dbe,
-                                              edm::Run const &,
-                                              edm::EventSetup const &) {
+void B2GHadronicHLTValidation::bookHistograms(DQMStore::IBooker &dbe, edm::Run const &, edm::EventSetup const &) {
   dbe.setCurrentFolder(sDir_);
   hDenJetPt = dbe.book1D("PtLastJetAll", "PtLastJetAll", 60, 0., 3000.);
   hDenJetEta = dbe.book1D("EtaLastJetAll", "EtaLastJetAll", 30, -3., 3.);
@@ -148,18 +141,15 @@ void B2GHadronicHLTValidation::bookHistograms(DQMStore::IBooker &dbe,
   // determine number of bins for trigger monitoring
   unsigned int nPaths = vsPaths_.size();
   // monitored trigger occupancy for single lepton triggers
-  hNumTriggerMon =
-      dbe.book1D("TriggerMonSel", "TriggerMonSel", nPaths, 0., nPaths);
-  hDenTriggerMon =
-      dbe.book1D("TriggerMonAll", "TriggerMonAll", nPaths, 0., nPaths);
+  hNumTriggerMon = dbe.book1D("TriggerMonSel", "TriggerMonSel", nPaths, 0., nPaths);
+  hDenTriggerMon = dbe.book1D("TriggerMonAll", "TriggerMonAll", nPaths, 0., nPaths);
   // set bin labels for trigger monitoring
   triggerBinLabels(vsPaths_);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the
 // module  ------------
-void B2GHadronicHLTValidation::fillDescriptions(
-    edm::ConfigurationDescriptions &descriptions) {
+void B2GHadronicHLTValidation::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // The following says we do not know what parameters are allowed so do no
   // validation
   // Please change this to state exactly what you do use, even if it is no

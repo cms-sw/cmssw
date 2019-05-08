@@ -26,4 +26,4 @@ private:
   std::string subDir_;
 };
 
-#endif // Validation_RPCRecHits_RPCRecHitValidClient_h
+#endif  // Validation_RPCRecHits_RPCRecHitValidClient_h

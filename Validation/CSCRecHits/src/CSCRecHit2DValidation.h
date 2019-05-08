@@ -11,8 +11,7 @@
 
 class CSCRecHit2DValidation : public CSCBaseValidation {
 public:
-  CSCRecHit2DValidation(const edm::InputTag &inputTag,
-                        edm::ConsumesCollector &&iC);
+  CSCRecHit2DValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC);
   ~CSCRecHit2DValidation() override;
   void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -20,8 +19,7 @@ public:
 private:
   edm::EDGetTokenT<CSCRecHit2DCollection> rechits_Token_;
 
-  void plotResolution(const PSimHit &simHit, const CSCRecHit2D &recHit,
-                      const CSCLayer *layer, int chamberType);
+  void plotResolution(const PSimHit &simHit, const CSCRecHit2D &recHit, const CSCLayer *layer, int chamberType);
 
   MonitorElement *theNPerEventPlot;
   MonitorElement *theResolutionPlots[10];

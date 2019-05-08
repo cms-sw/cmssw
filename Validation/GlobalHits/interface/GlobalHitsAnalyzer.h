@@ -72,7 +72,6 @@
 #include "TString.h"
 
 class GlobalHitsAnalyzer : public DQMEDAnalyzer {
-
 public:
   // typedef std::vector<float> FloatVector;
 
@@ -81,8 +80,7 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // production related methods
@@ -249,7 +247,7 @@ private:
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
+};  // end class declaration
 
 #endif
 

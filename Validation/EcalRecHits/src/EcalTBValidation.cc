@@ -13,7 +13,6 @@
 #include <string>
 
 EcalTBValidation::EcalTBValidation(const edm::ParameterSet &config) {
-
   data_ = config.getUntrackedParameter<int>("data", -1000);
   xtalInBeam_ = config.getUntrackedParameter<int>("xtalInBeam", -1000);
 
@@ -21,28 +20,18 @@ EcalTBValidation::EcalTBValidation(const edm::ParameterSet &config) {
   digiProducer_ = config.getParameter<std::string>("digiProducer");
   hitCollection_ = config.getParameter<std::string>("hitCollection");
   hitProducer_ = config.getParameter<std::string>("hitProducer");
-  hodoRecInfoCollection_ =
-      config.getParameter<std::string>("hodoRecInfoCollection");
-  hodoRecInfoProducer_ =
-      config.getParameter<std::string>("hodoRecInfoProducer");
-  tdcRecInfoCollection_ =
-      config.getParameter<std::string>("tdcRecInfoCollection");
+  hodoRecInfoCollection_ = config.getParameter<std::string>("hodoRecInfoCollection");
+  hodoRecInfoProducer_ = config.getParameter<std::string>("hodoRecInfoProducer");
+  tdcRecInfoCollection_ = config.getParameter<std::string>("tdcRecInfoCollection");
   tdcRecInfoProducer_ = config.getParameter<std::string>("tdcRecInfoProducer");
-  eventHeaderCollection_ =
-      config.getParameter<std::string>("eventHeaderCollection");
-  eventHeaderProducer_ =
-      config.getParameter<std::string>("eventHeaderProducer");
+  eventHeaderCollection_ = config.getParameter<std::string>("eventHeaderCollection");
+  eventHeaderProducer_ = config.getParameter<std::string>("eventHeaderProducer");
 
-  digi_Token_ =
-      consumes<EBDigiCollection>(edm::InputTag(digiProducer_, digiCollection_));
-  hit_Token_ = consumes<EBUncalibratedRecHitCollection>(
-      edm::InputTag(hitProducer_, hitCollection_));
-  hodoRec_Token_ = consumes<EcalTBHodoscopeRecInfo>(
-      edm::InputTag(hodoRecInfoProducer_, hodoRecInfoCollection_));
-  tdcRec_Token_ = consumes<EcalTBTDCRecInfo>(
-      edm::InputTag(tdcRecInfoProducer_, tdcRecInfoCollection_));
-  eventHeader_Token_ =
-      consumes<EcalTBEventHeader>(edm::InputTag(eventHeaderProducer_));
+  digi_Token_ = consumes<EBDigiCollection>(edm::InputTag(digiProducer_, digiCollection_));
+  hit_Token_ = consumes<EBUncalibratedRecHitCollection>(edm::InputTag(hitProducer_, hitCollection_));
+  hodoRec_Token_ = consumes<EcalTBHodoscopeRecInfo>(edm::InputTag(hodoRecInfoProducer_, hodoRecInfoCollection_));
+  tdcRec_Token_ = consumes<EcalTBTDCRecInfo>(edm::InputTag(tdcRecInfoProducer_, tdcRecInfoCollection_));
+  eventHeader_Token_ = consumes<EcalTBEventHeader>(edm::InputTag(eventHeaderProducer_));
   // rootfile_              =
   // config.getUntrackedParameter<std::string>("rootfile","EcalTBValidation.root");
 
@@ -75,10 +64,7 @@ EcalTBValidation::EcalTBValidation(const edm::ParameterSet &config) {
 
 EcalTBValidation::~EcalTBValidation() {}
 
-void EcalTBValidation::bookHistograms(DQMStore::IBooker &ibooker,
-                                      edm::Run const &,
-                                      edm::EventSetup const &) {
-
+void EcalTBValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {
   std::string hname;
   ibooker.setCurrentFolder("EcalRecHitsV/EcalTBValidationTask");
 
@@ -128,9 +114,7 @@ void EcalTBValidation::bookHistograms(DQMStore::IBooker &ibooker,
   meETBShape_ = ibooker.book2D(hname, hname, 250, 0, 10, 350, 0, 3500);
 }
 
-void EcalTBValidation::analyze(const edm::Event &event,
-                               const edm::EventSetup &setup) {
-
+void EcalTBValidation::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   using namespace edm;
   using namespace cms;
 
@@ -141,8 +125,7 @@ void EcalTBValidation::analyze(const edm::Event &event,
   if (pdigis.isValid()) {
     theDigis = pdigis.product();
   } else {
-    std::cerr << "Error! can't get the product " << digiCollection_.c_str()
-              << std::endl;
+    std::cerr << "Error! can't get the product " << digiCollection_.c_str() << std::endl;
     return;
   }
 
@@ -153,8 +136,7 @@ void EcalTBValidation::analyze(const edm::Event &event,
   if (phits.isValid()) {
     theHits = phits.product();
   } else {
-    std::cerr << "Error! can't get the product " << hitCollection_.c_str()
-              << std::endl;
+    std::cerr << "Error! can't get the product " << hitCollection_.c_str() << std::endl;
     return;
   }
 
@@ -165,8 +147,7 @@ void EcalTBValidation::analyze(const edm::Event &event,
   if (pHodo.isValid()) {
     theHodo = pHodo.product();
   } else {
-    std::cerr << "Error! can't get the product "
-              << hodoRecInfoCollection_.c_str() << std::endl;
+    std::cerr << "Error! can't get the product " << hodoRecInfoCollection_.c_str() << std::endl;
     return;
   }
 
@@ -177,8 +158,7 @@ void EcalTBValidation::analyze(const edm::Event &event,
   if (pTDC.isValid()) {
     theTDC = pTDC.product();
   } else {
-    std::cerr << "Error! can't get the product "
-              << tdcRecInfoCollection_.c_str() << std::endl;
+    std::cerr << "Error! can't get the product " << tdcRecInfoCollection_.c_str() << std::endl;
     return;
   }
 
@@ -189,8 +169,7 @@ void EcalTBValidation::analyze(const edm::Event &event,
   if (pEventHeader.isValid()) {
     evtHeader = pEventHeader.product();
   } else {
-    std::cerr << "Error! can't get the product " << eventHeaderProducer_.c_str()
-              << std::endl;
+    std::cerr << "Error! can't get the product " << eventHeaderProducer_.c_str() << std::endl;
     return;
   }
 
@@ -236,8 +215,8 @@ void EcalTBValidation::analyze(const edm::Event &event,
       if (icry == 12) {
         ampl1x1 = theAmpl;
       }
-      if (icry == 6 || icry == 7 || icry == 8 || icry == 11 || icry == 12 ||
-          icry == 13 || icry == 16 || icry == 17 || icry == 18) {
+      if (icry == 6 || icry == 7 || icry == 8 || icry == 11 || icry == 12 || icry == 13 || icry == 16 || icry == 17 ||
+          icry == 18) {
         ampl3x3 += theAmpl;
       }
     }

@@ -6,7 +6,6 @@
 class ESClient;
 
 class EcalPreshowerMonitorClient : public DQMEDHarvester {
-
 public:
   EcalPreshowerMonitorClient(const edm::ParameterSet &);
   ~EcalPreshowerMonitorClient() override;
@@ -14,7 +13,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 private:
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &,
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
                              const edm::LuminosityBlock &,
                              const edm::EventSetup &) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;

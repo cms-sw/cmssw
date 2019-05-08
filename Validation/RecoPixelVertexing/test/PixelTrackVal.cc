@@ -28,7 +28,10 @@
 #include <iostream>
 #include <vector>
 
-template <class T> T sqr(T t) { return t * t; }
+template <class T>
+T sqr(T t) {
+  return t * t;
+}
 
 class PixelTrackVal : public edm::EDAnalyzer {
 public:
@@ -49,17 +52,14 @@ private:
 
 PixelTrackVal::PixelTrackVal(const edm::ParameterSet &conf)
     : verbose_(conf.getUntrackedParameter<unsigned int>("Verbosity",
-                                                        0)) // How noisy?
+                                                        0))  // How noisy?
       ,
-      file_(conf.getUntrackedParameter<std::string>("HistoFile",
-                                                    "pixelTrackHistos.root")),
+      file_(conf.getUntrackedParameter<std::string>("HistoFile", "pixelTrackHistos.root")),
       hList(0),
-      trackCollectionToken_(consumes<reco::TrackCollection>(
-          edm::InputTag(conf.getParameter<std::string>("TrackCollection")))),
-      simTrackContainerToken_(consumes<edm::SimTrackContainer>(
-          conf.getParameter<edm::InputTag>("simG4"))),
-      simVertexContainerToken_(consumes<edm::SimVertexContainer>(
-          conf.getParameter<edm::InputTag>("simG4"))) {
+      trackCollectionToken_(
+          consumes<reco::TrackCollection>(edm::InputTag(conf.getParameter<std::string>("TrackCollection")))),
+      simTrackContainerToken_(consumes<edm::SimTrackContainer>(conf.getParameter<edm::InputTag>("simG4"))),
+      simVertexContainerToken_(consumes<edm::SimVertexContainer>(conf.getParameter<edm::InputTag>("simG4"))) {
   edm::LogInfo("PixelTrackVal") << " CTOR";
 }
 
@@ -71,13 +71,11 @@ void PixelTrackVal::beginJob() {
   hList.Add(new TH1F("h_TIP", "h_TIP", 100, -0.1, 0.1));
   hList.Add(new TH1F("h_VtxZ", "h_VtxZ", 100, -0.1, 0.1));
   hList.Add(new TH1F("h_VtxZ_Pull", "h_VtxZ_Pull", 80, 0., 8));
-  hList.Add(new TH1F("h_Nan", "Illegal values for x,y,z,xx,xy,xz,yy,yz,zz", 9,
-                     0.5, 9.5));
+  hList.Add(new TH1F("h_Nan", "Illegal values for x,y,z,xx,xy,xz,yy,yz,zz", 9, 0.5, 9.5));
   hList.SetOwner();
 }
 
 void PixelTrackVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
-
   std::cout << "*** PixelTrackVal, analyze event: " << ev.id() << std::endl;
 
   //------------------------ simulated tracks
@@ -93,7 +91,6 @@ void PixelTrackVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
   }
 
   for (unsigned int idx = 0; idx < tracks.size(); idx++) {
-
     const reco::Track *it = &tracks[idx];
     TH1 *h = static_cast<TH1 *>(hList.FindObject("h_Nan"));
     h->Fill(1., edm::isNotFinite(it->momentum().x()) * 1.);
@@ -105,8 +102,7 @@ void PixelTrackVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
     for (int i = 0; i != 3; i++) {
       for (int j = i; j != 3; j++) {
         index++;
-        static_cast<TH1 *>(hList.FindObject("h_Nan"))
-            ->Fill(index * 1., edm::isNotFinite(it->covariance(i, j)) * 1.);
+        static_cast<TH1 *>(hList.FindObject("h_Nan"))->Fill(index * 1., edm::isNotFinite(it->covariance(i, j)) * 1.);
         if (edm::isNotFinite(it->covariance(i, j)))
           problem = true;
         // in addition, diagonal element must be positive
@@ -120,12 +116,10 @@ void PixelTrackVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
       std::cout << " *** PROBLEM **" << std::endl;
 
     if (verbose_ > 0) {
-      std::cout << "\tmomentum: " << tracks[idx].momentum()
-                << "\tPT: " << tracks[idx].pt() << std::endl;
-      std::cout << "\tvertex: " << tracks[idx].vertex()
-                << "\tTIP: " << tracks[idx].d0() << " +- "
-                << tracks[idx].d0Error() << "\tZ0: " << tracks[idx].dz()
-                << " +- " << tracks[idx].dzError() << std::endl;
+      std::cout << "\tmomentum: " << tracks[idx].momentum() << "\tPT: " << tracks[idx].pt() << std::endl;
+      std::cout << "\tvertex: " << tracks[idx].vertex() << "\tTIP: " << tracks[idx].d0() << " +- "
+                << tracks[idx].d0Error() << "\tZ0: " << tracks[idx].dz() << " +- " << tracks[idx].dzError()
+                << std::endl;
       std::cout << "\tcharge: " << tracks[idx].charge() << std::endl;
     }
   }
@@ -160,12 +154,10 @@ void PixelTrackVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
     if ((*p).vertIndex() != 0)
       continue;
 
-    math::XYZVector mom_gen((*p).momentum().x(), (*p).momentum().y(),
-                            (*p).momentum().z());
+    math::XYZVector mom_gen((*p).momentum().x(), (*p).momentum().y(), (*p).momentum().z());
     float phi_gen = (*p).momentum().phi();
     //    float pt_gen = (*p).momentum().Pt();
-    float pt_gen = sqrt((*p).momentum().x() * (*p).momentum().x() +
-                        (*p).momentum().y() * (*p).momentum().y());
+    float pt_gen = sqrt((*p).momentum().x() * (*p).momentum().x() + (*p).momentum().y() * (*p).momentum().y());
     float eta_gen = (*p).momentum().eta();
     math::XYZTLorentzVectorD vtx((*simVtcs)[p->vertIndex()].position().x(),
                                  (*simVtcs)[p->vertIndex()].position().y(),
@@ -199,12 +191,10 @@ void PixelTrackVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
       if (fabs(deta) < 0.3 && fabs(dphi) < 0.3)
         static_cast<TH1 *>(hList.FindObject("h_dR"))->Fill(dR);
       if (fabs(deta) < detaMax && dR < dRMax) {
-        static_cast<TH1 *>(hList.FindObject("h_Pt"))
-            ->Fill((pt_gen - pt_rec) / pt_gen);
+        static_cast<TH1 *>(hList.FindObject("h_Pt"))->Fill((pt_gen - pt_rec) / pt_gen);
         static_cast<TH1 *>(hList.FindObject("h_TIP"))->Fill(it->d0());
         static_cast<TH1 *>(hList.FindObject("h_VtxZ"))->Fill(dz);
-        static_cast<TH1 *>(hList.FindObject("h_VtxZ_Pull"))
-            ->Fill(fabs(dz / it->dzError()));
+        static_cast<TH1 *>(hList.FindObject("h_VtxZ_Pull"))->Fill(fabs(dz / it->dzError()));
       }
     }
   }
