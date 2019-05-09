@@ -5,7 +5,7 @@
 #include <map>
 
 class RPCDigiL1Link {
- public:
+public:
   RPCDigiL1Link();
 
   ~RPCDigiL1Link();
@@ -21,11 +21,11 @@ class RPCDigiL1Link {
 
   // Setters --layer run from 1 to nlayer
   void setLink(unsigned int layer, unsigned int rpcdetId, int strip, int bx);
-  
- private:
+
+private:
   void checklayer(unsigned int layer) const;
- private:
-  std::vector< std::pair<unsigned int, int> > _link;
-  
+
+private:
+  std::vector<std::pair<unsigned int, int> > _link;
 };
 #endif
