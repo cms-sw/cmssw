@@ -28,6 +28,7 @@ import Validation.RecoTrack.plotting.html as html
 layerscheme = { 'lastLayerEEzm': 0, 'lastLayerFHzm': 0, 'maxlayerzm': 0, 'lastLayerEEzp': 0, 'lastLayerFHzp': 0, 'maxlayerzp': 0 }
 
 #Let's take the relevant values of layerscheme from the dqm file.
+'''
 theDQMfile =  "DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root" 
 if not os.path.isfile(theDQMfile):
     print("Error: file", theDQMfile, "not found, exit")
@@ -57,6 +58,7 @@ while key:
 thefile.Close()
 
 print(layerscheme)
+'''
 #TODO: Anticipating the fine/coarse layer information in CMSSW we overwrite values from DQM file
 #For now values returned for 
 # 'lastLayerFHzp': '104', 'lastLayerFHzm': '52' 
