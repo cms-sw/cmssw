@@ -9,13 +9,16 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "Validation/GlobalHits/interface/GlobalHitsProdHistStripper.h"
 
-GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(
-    const edm::ParameterSet &iPSet)
-    : fName(""), verbosity(0), frequency(0), vtxunit(0),
-      getAllProvenances(false), printProvenanceInfo(false), outputfile(""),
+GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const edm::ParameterSet &iPSet)
+    : fName(""),
+      verbosity(0),
+      frequency(0),
+      vtxunit(0),
+      getAllProvenances(false),
+      printProvenanceInfo(false),
+      outputfile(""),
       count(0) {
-  std::string MsgLoggerCat =
-      "GlobalHitsProdHistStripper_GlobalHitsProdHistStripper";
+  std::string MsgLoggerCat = "GlobalHitsProdHistStripper_GlobalHitsProdHistStripper";
 
   // get information from parameter set
   fName = iPSet.getUntrackedParameter<std::string>("Name");
@@ -24,11 +27,9 @@ GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(
   vtxunit = iPSet.getUntrackedParameter<int>("VtxUnit");
   outputfile = iPSet.getParameter<std::string>("OutputFile");
   doOutput = iPSet.getParameter<bool>("DoOutput");
-  edm::ParameterSet m_Prov =
-      iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
+  edm::ParameterSet m_Prov = iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = m_Prov.getUntrackedParameter<bool>("GetAllProvenances");
-  printProvenanceInfo =
-      m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
+  printProvenanceInfo = m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -52,18 +53,17 @@ GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(
 
   // print out Parameter Set information being used
   if (verbosity >= 0) {
-    edm::LogInfo(MsgLoggerCat)
-        << "\n===============================\n"
-        << "Initialized as EDAnalyzer with parameter values:\n"
-        << "    Name           = " << fName << "\n"
-        << "    Verbosity      = " << verbosity << "\n"
-        << "    Frequency      = " << frequency << "\n"
-        << "    VtxUnit        = " << vtxunit << "\n"
-        << "    OutputFile     = " << outputfile << "\n"
-        << "    DoOutput      = " << doOutput << "\n"
-        << "    GetProv        = " << getAllProvenances << "\n"
-        << "    PrintProv      = " << printProvenanceInfo << "\n"
-        << "===============================\n";
+    edm::LogInfo(MsgLoggerCat) << "\n===============================\n"
+                               << "Initialized as EDAnalyzer with parameter values:\n"
+                               << "    Name           = " << fName << "\n"
+                               << "    Verbosity      = " << verbosity << "\n"
+                               << "    Frequency      = " << frequency << "\n"
+                               << "    VtxUnit        = " << vtxunit << "\n"
+                               << "    OutputFile     = " << outputfile << "\n"
+                               << "    DoOutput      = " << doOutput << "\n"
+                               << "    GetProv        = " << getAllProvenances << "\n"
+                               << "    PrintProv      = " << printProvenanceInfo << "\n"
+                               << "===============================\n";
   }
 }
 
@@ -78,13 +78,11 @@ void GlobalHitsProdHistStripper::beginJob(void) { return; }
 void GlobalHitsProdHistStripper::endJob() {
   std::string MsgLoggerCat = "GlobalHitsProdHistStripper_endJob";
   if (verbosity >= 0)
-    edm::LogInfo(MsgLoggerCat)
-        << "Terminating having processed " << count << " runs.";
+    edm::LogInfo(MsgLoggerCat) << "Terminating having processed " << count << " runs.";
   return;
 }
 
-void GlobalHitsProdHistStripper::beginRun(const edm::Run &iRun,
-                                          const edm::EventSetup &iSetup) {
+void GlobalHitsProdHistStripper::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   std::string MsgLoggerCat = "GlobalHitsProdHistStripper_beginRun";
   // keep track of number of runs processed
   ++count;
@@ -92,23 +90,19 @@ void GlobalHitsProdHistStripper::beginRun(const edm::Run &iRun,
   int nrun = iRun.run();
 
   if (verbosity > 0) {
-    edm::LogInfo(MsgLoggerCat)
-        << "Processing run " << nrun << " (" << count << " runs total)";
+    edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << " (" << count << " runs total)";
   } else if (verbosity == 0) {
     if (nrun % frequency == 0 || count == 1) {
-      edm::LogInfo(MsgLoggerCat)
-          << "Processing run " << nrun << " (" << count << " runs total)";
+      edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << " (" << count << " runs total)";
     }
   }
 
   if (getAllProvenances) {
-
     std::vector<const edm::StableProvenance *> AllProv;
     iRun.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
-      edm::LogInfo(MsgLoggerCat)
-          << "Number of Provenances = " << AllProv.size();
+      edm::LogInfo(MsgLoggerCat) << "Number of Provenances = " << AllProv.size();
 
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
@@ -136,8 +130,7 @@ void GlobalHitsProdHistStripper::beginRun(const edm::Run &iRun,
   return;
 }
 
-void GlobalHitsProdHistStripper::endRun(const edm::Run &iRun,
-                                        const edm::EventSetup &iSetup) {
+void GlobalHitsProdHistStripper::endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   std::string MsgLoggerCat = "GlobalHitsProdHistStripper_endRun";
 
   edm::Handle<TH1F> histogram1D;
@@ -149,8 +142,7 @@ void GlobalHitsProdHistStripper::endRun(const edm::Run &iRun,
   for (uint i = 0; i < allhistogram1D.size(); ++i) {
     histogram1D = allhistogram1D[i];
     if (!histogram1D.isValid()) {
-      edm::LogWarning(MsgLoggerCat)
-          << "Invalid histogram extracted from event.";
+      edm::LogWarning(MsgLoggerCat) << "Invalid histogram extracted from event.";
       continue;
     }
 
@@ -177,8 +169,7 @@ void GlobalHitsProdHistStripper::endRun(const edm::Run &iRun,
               << std::endl;
     */
 
-    if ((histogram1D.provenance()->branchDescription()).moduleLabel() !=
-        "globalhitsprodhist")
+    if ((histogram1D.provenance()->branchDescription()).moduleLabel() != "globalhitsprodhist")
       continue;
 
     std::string histname = histogram1D->GetName();
@@ -191,8 +182,7 @@ void GlobalHitsProdHistStripper::endRun(const edm::Run &iRun,
         dbe->setCurrentFolder("GlobalHitsV/ECal");
       } else if (subhist1 == "CaloH") {
         dbe->setCurrentFolder("GlobalHitsV/HCal");
-      } else if (subhist1 == "Geant" || subhist2 == "MCG4" ||
-                 subhist1 == "MCRGP") {
+      } else if (subhist1 == "Geant" || subhist2 == "MCG4" || subhist1 == "MCRGP") {
         dbe->setCurrentFolder("GlobalHitsV/MCGeant");
       } else if (subhist2 == "Muon") {
         dbe->setCurrentFolder("GlobalHitsV/Muon");
@@ -200,7 +190,8 @@ void GlobalHitsProdHistStripper::endRun(const edm::Run &iRun,
         dbe->setCurrentFolder("GlobalHitsV/Tracker");
       }
 
-      me[i] = dbe->book1D(histname, histogram1D->GetTitle(),
+      me[i] = dbe->book1D(histname,
+                          histogram1D->GetTitle(),
                           histogram1D->GetXaxis()->GetNbins(),
                           histogram1D->GetXaxis()->GetXmin(),
                           histogram1D->GetXaxis()->GetXmax());
@@ -264,7 +255,4 @@ return;
 }
 */
 
-void GlobalHitsProdHistStripper::analyze(const edm::Event &iEvent,
-                                         const edm::EventSetup &iSetup) {
-  return;
-}
+void GlobalHitsProdHistStripper::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) { return; }

@@ -8,22 +8,21 @@
 #include <string>
 
 namespace edm {
-template <class T> class DetSetVector;
+  template <class T>
+  class DetSetVector;
 }
 class SiStripDigi;
 class DQMStore;
 class MonitorElement;
 
 class SiStripDigiValid : public DQMEDAnalyzer {
-
 public:
   SiStripDigiValid(const edm::ParameterSet &ps);
   ~SiStripDigiValid() override;
 
 protected:
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &run,
-                      const edm::EventSetup &es) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &run, const edm::EventSetup &es) override;
   void endJob(void) override;
 
 private:
@@ -172,8 +171,7 @@ private:
   DQMStore *dbe_;
   bool runStandalone;
   std::string outputFile_;
-  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>>
-      edmDetSetVector_SiStripDigi_Token_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>> edmDetSetVector_SiStripDigi_Token_;
 };
 
 #endif

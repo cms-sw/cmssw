@@ -49,8 +49,7 @@ public:
   explicit SiStripMonitorQuality(const edm::ParameterSet &);
   ~SiStripMonitorQuality() override;
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
   void endJob() override;

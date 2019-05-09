@@ -7,11 +7,10 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 namespace edm {
-class ParameterSet;
+  class ParameterSet;
 }
 
 class ESClient {
-
 public:
   ESClient(edm::ParameterSet const &);
   virtual ~ESClient() {}
@@ -35,8 +34,7 @@ protected:
 };
 
 template <typename T>
-T *ESClient::getHisto(MonitorElement *_me, bool _clone /* = false*/,
-                      T *_current /* = 0*/) const {
+T *ESClient::getHisto(MonitorElement *_me, bool _clone /* = false*/, T *_current /* = 0*/) const {
   if (!_me) {
     if (_clone)
       return _current;
@@ -59,4 +57,4 @@ T *ESClient::getHisto(MonitorElement *_me, bool _clone /* = false*/,
     return dynamic_cast<T *>(obj);
 }
 
-#endif // ESClient_H
+#endif  // ESClient_H

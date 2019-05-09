@@ -14,8 +14,7 @@
 #include <sstream>
 
 /// Constructor
-SiPixelFolderOrganizer::SiPixelFolderOrganizer(bool getStore)
-    : topFolderName("Pixel") {
+SiPixelFolderOrganizer::SiPixelFolderOrganizer(bool getStore) : topFolderName("Pixel") {
   // Not allowed in multithread framework, but can still be called by other
   // modules not from DQM.
   if (getStore)
@@ -25,9 +24,7 @@ SiPixelFolderOrganizer::SiPixelFolderOrganizer(bool getStore)
 SiPixelFolderOrganizer::~SiPixelFolderOrganizer() {}
 
 // Overloaded function for calling outside of DQM framework
-bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t &rawdetid, int type,
-                                             bool isUpgrade) {
-
+bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t &rawdetid, int type, bool isUpgrade) {
   bool flag = false;
 
   if (rawdetid == 0) {
@@ -37,9 +34,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t &rawdetid, int type,
   ///
   /// Pixel Barrel
   ///
-  else if (DetId(rawdetid).subdetId() ==
-           static_cast<int>(PixelSubdetector::PixelBarrel)) {
-
+  else if (DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
     if (!isUpgrade) {
       // for endcap types there is nothing to do:
       if (type > 3 && type != 7)
@@ -86,8 +81,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t &rawdetid, int type,
         return true;
 
       std::string subDetectorFolder = "Barrel";
-      PixelBarrelNameUpgrade::Shell DBshell =
-          PixelBarrelNameUpgrade(DetId(rawdetid)).shell();
+      PixelBarrelNameUpgrade::Shell DBshell = PixelBarrelNameUpgrade(DetId(rawdetid)).shell();
       int DBlayer = PixelBarrelNameUpgrade(DetId(rawdetid)).layerName();
       int DBladder = PixelBarrelNameUpgrade(DetId(rawdetid)).ladderName();
       int DBmodule = PixelBarrelNameUpgrade(DetId(rawdetid)).moduleName();
@@ -121,23 +115,20 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t &rawdetid, int type,
 
       dbe_->setCurrentFolder(sfolder.str());
       flag = true;
-    } // endif(isUpgrade)
+    }  // endif(isUpgrade)
   }
 
   ///
   /// Pixel Endcap
   ///
-  else if (DetId(rawdetid).subdetId() ==
-           static_cast<int>(PixelSubdetector::PixelEndcap)) {
-
+  else if (DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
     if (!isUpgrade) {
       // for barrel types there is nothing to do:
       if (type > 0 && type < 4)
         return true;
 
       std::string subDetectorFolder = "Endcap";
-      PixelEndcapName::HalfCylinder side =
-          PixelEndcapName(DetId(rawdetid)).halfCylinder();
+      PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(rawdetid)).halfCylinder();
       int disk = PixelEndcapName(DetId(rawdetid)).diskName();
       int blade = PixelEndcapName(DetId(rawdetid)).bladeName();
       int panel = PixelEndcapName(DetId(rawdetid)).pannelName();
@@ -154,8 +145,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t &rawdetid, int type,
 
       std::ostringstream sfolder;
 
-      sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_"
-              << side << "/" << sdisk;
+      sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk;
       if (type == 0 || type == 4) {
         sfolder << "/" << sblade;
       }
@@ -178,8 +168,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t &rawdetid, int type,
         return true;
 
       std::string subDetectorFolder = "Endcap";
-      PixelEndcapNameUpgrade::HalfCylinder side =
-          PixelEndcapNameUpgrade(DetId(rawdetid)).halfCylinder();
+      PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(rawdetid)).halfCylinder();
       int disk = PixelEndcapNameUpgrade(DetId(rawdetid)).diskName();
       int blade = PixelEndcapNameUpgrade(DetId(rawdetid)).bladeName();
       int panel = PixelEndcapNameUpgrade(DetId(rawdetid)).pannelName();
@@ -196,8 +185,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t &rawdetid, int type,
 
       std::ostringstream sfolder;
 
-      sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_"
-              << side << "/" << sdisk;
+      sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk;
       if (type == 0 || type == 4) {
         sfolder << "/" << sblade;
       }
@@ -213,20 +201,19 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t &rawdetid, int type,
 
       dbe_->setCurrentFolder(sfolder.str());
       flag = true;
-    } // endifendcap&&isUpgrade
+    }  // endifendcap&&isUpgrade
   } else
-    throw cms::Exception("LogicError")
-        << "[SiPixelFolderOrganizer::setModuleFolder] Not a Pixel detector "
-           "DetId ";
+    throw cms::Exception("LogicError") << "[SiPixelFolderOrganizer::setModuleFolder] Not a Pixel detector "
+                                          "DetId ";
 
   return flag;
 }
 
 // Overloaded setModuleFolder for multithread safe operation
 bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker &iBooker,
-                                             const uint32_t &rawdetid, int type,
+                                             const uint32_t &rawdetid,
+                                             int type,
                                              bool isUpgrade) {
-
   bool flag = false;
 
   if (rawdetid == 0) {
@@ -236,9 +223,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker &iBooker,
   ///
   /// Pixel Barrel
   ///
-  else if (DetId(rawdetid).subdetId() ==
-           static_cast<int>(PixelSubdetector::PixelBarrel)) {
-
+  else if (DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
     if (!isUpgrade) {
       // for endcap types there is nothing to do:
       if (type > 3 && type != 7)
@@ -285,8 +270,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker &iBooker,
         return true;
 
       std::string subDetectorFolder = "Barrel";
-      PixelBarrelNameUpgrade::Shell DBshell =
-          PixelBarrelNameUpgrade(DetId(rawdetid)).shell();
+      PixelBarrelNameUpgrade::Shell DBshell = PixelBarrelNameUpgrade(DetId(rawdetid)).shell();
       int DBlayer = PixelBarrelNameUpgrade(DetId(rawdetid)).layerName();
       int DBladder = PixelBarrelNameUpgrade(DetId(rawdetid)).ladderName();
       int DBmodule = PixelBarrelNameUpgrade(DetId(rawdetid)).moduleName();
@@ -320,23 +304,20 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker &iBooker,
 
       iBooker.setCurrentFolder(sfolder.str());
       flag = true;
-    } // endif(isUpgrade)
+    }  // endif(isUpgrade)
   }
 
   ///
   /// Pixel Endcap
   ///
-  else if (DetId(rawdetid).subdetId() ==
-           static_cast<int>(PixelSubdetector::PixelEndcap)) {
-
+  else if (DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
     if (!isUpgrade) {
       // for barrel types there is nothing to do:
       if (type > 0 && type < 4)
         return true;
 
       std::string subDetectorFolder = "Endcap";
-      PixelEndcapName::HalfCylinder side =
-          PixelEndcapName(DetId(rawdetid)).halfCylinder();
+      PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(rawdetid)).halfCylinder();
       int disk = PixelEndcapName(DetId(rawdetid)).diskName();
       int blade = PixelEndcapName(DetId(rawdetid)).bladeName();
       int panel = PixelEndcapName(DetId(rawdetid)).pannelName();
@@ -353,8 +334,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker &iBooker,
 
       std::ostringstream sfolder;
 
-      sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_"
-              << side << "/" << sdisk;
+      sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk;
       if (type == 0 || type == 4) {
         sfolder << "/" << sblade;
       }
@@ -377,8 +357,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker &iBooker,
         return true;
 
       std::string subDetectorFolder = "Endcap";
-      PixelEndcapNameUpgrade::HalfCylinder side =
-          PixelEndcapNameUpgrade(DetId(rawdetid)).halfCylinder();
+      PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(rawdetid)).halfCylinder();
       int disk = PixelEndcapNameUpgrade(DetId(rawdetid)).diskName();
       int blade = PixelEndcapNameUpgrade(DetId(rawdetid)).bladeName();
       int panel = PixelEndcapNameUpgrade(DetId(rawdetid)).pannelName();
@@ -395,8 +374,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker &iBooker,
 
       std::ostringstream sfolder;
 
-      sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_"
-              << side << "/" << sdisk;
+      sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk;
       if (type == 0 || type == 4) {
         sfolder << "/" << sblade;
       }
@@ -412,18 +390,16 @@ bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker &iBooker,
 
       iBooker.setCurrentFolder(sfolder.str());
       flag = true;
-    } // endifendcap&&isUpgrade
+    }  // endifendcap&&isUpgrade
   } else
-    throw cms::Exception("LogicError")
-        << "[SiPixelFolderOrganizer::setModuleFolder] Not a Pixel detector "
-           "DetId ";
+    throw cms::Exception("LogicError") << "[SiPixelFolderOrganizer::setModuleFolder] Not a Pixel detector "
+                                          "DetId ";
 
   return flag;
 }
 
 // Overloaded setFedFolder for use outside of DQM framework
 bool SiPixelFolderOrganizer::setFedFolder(const uint32_t FedId) {
-
   std::string subDetectorFolder = "AdditionalPixelErrors";
   char sFed[80];
   sprintf(sFed, "FED_%i", FedId);
@@ -436,9 +412,7 @@ bool SiPixelFolderOrganizer::setFedFolder(const uint32_t FedId) {
 }
 
 // Overloaded setFedFolder to avoid accessing DQMStore directly.
-bool SiPixelFolderOrganizer::setFedFolder(DQMStore::IBooker &iBooker,
-                                          const uint32_t FedId) {
-
+bool SiPixelFolderOrganizer::setFedFolder(DQMStore::IBooker &iBooker, const uint32_t FedId) {
   std::string subDetectorFolder = "AdditionalPixelErrors";
   char sFed[80];
   sprintf(sFed, "FED_%i", FedId);
@@ -450,16 +424,11 @@ bool SiPixelFolderOrganizer::setFedFolder(DQMStore::IBooker &iBooker,
   return true;
 }
 
-void SiPixelFolderOrganizer::getModuleFolder(const uint32_t &rawdetid,
-                                             std::string &path,
-                                             bool isUpgrade) {
-
+void SiPixelFolderOrganizer::getModuleFolder(const uint32_t &rawdetid, std::string &path, bool isUpgrade) {
   path = topFolderName;
   if (rawdetid == 0) {
     return;
-  } else if ((DetId(rawdetid).subdetId() ==
-              static_cast<int>(PixelSubdetector::PixelBarrel)) &&
-             (!isUpgrade)) {
+  } else if ((DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) && (!isUpgrade)) {
     std::string subDetectorFolder = "Barrel";
     PixelBarrelName::Shell DBshell = PixelBarrelName(DetId(rawdetid)).shell();
     int DBlayer = PixelBarrelName(DetId(rawdetid)).layerName();
@@ -475,8 +444,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t &rawdetid,
     sprintf(smodule, "Module_%i", DBmodule);
 
     std::ostringstream sfolder;
-    sfolder << topFolderName << "/" << subDetectorFolder << "/Shell_" << DBshell
-            << "/" << slayer << "/" << sladder;
+    sfolder << topFolderName << "/" << subDetectorFolder << "/Shell_" << DBshell << "/" << slayer << "/" << sladder;
     if (PixelBarrelName(DetId(rawdetid)).isHalfModule())
       sfolder << "H";
     else
@@ -490,12 +458,9 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t &rawdetid,
     // else path = path + "F";
     // path = path + "/" + smodule;
 
-  } else if ((DetId(rawdetid).subdetId() ==
-              static_cast<int>(PixelSubdetector::PixelBarrel)) &&
-             (isUpgrade)) {
+  } else if ((DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) && (isUpgrade)) {
     std::string subDetectorFolder = "Barrel";
-    PixelBarrelNameUpgrade::Shell DBshell =
-        PixelBarrelNameUpgrade(DetId(rawdetid)).shell();
+    PixelBarrelNameUpgrade::Shell DBshell = PixelBarrelNameUpgrade(DetId(rawdetid)).shell();
     int DBlayer = PixelBarrelNameUpgrade(DetId(rawdetid)).layerName();
     int DBladder = PixelBarrelNameUpgrade(DetId(rawdetid)).ladderName();
     int DBmodule = PixelBarrelNameUpgrade(DetId(rawdetid)).moduleName();
@@ -509,8 +474,7 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t &rawdetid,
     sprintf(smodule, "Module_%i", DBmodule);
 
     std::ostringstream sfolder;
-    sfolder << topFolderName << "/" << subDetectorFolder << "/Shell_" << DBshell
-            << "/" << slayer << "/" << sladder;
+    sfolder << topFolderName << "/" << subDetectorFolder << "/Shell_" << DBshell << "/" << slayer << "/" << sladder;
     if (PixelBarrelNameUpgrade(DetId(rawdetid)).isHalfModule())
       sfolder << "H";
     else
@@ -524,12 +488,9 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t &rawdetid,
     // else path = path + "F";
     // path = path + "/" + smodule;
 
-  } else if ((DetId(rawdetid).subdetId() ==
-              static_cast<int>(PixelSubdetector::PixelEndcap)) &&
-             (!isUpgrade)) {
+  } else if ((DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
     std::string subDetectorFolder = "Endcap";
-    PixelEndcapName::HalfCylinder side =
-        PixelEndcapName(DetId(rawdetid)).halfCylinder();
+    PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(rawdetid)).halfCylinder();
     int disk = PixelEndcapName(DetId(rawdetid)).diskName();
     int blade = PixelEndcapName(DetId(rawdetid)).bladeName();
     int panel = PixelEndcapName(DetId(rawdetid)).pannelName();
@@ -546,20 +507,16 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t &rawdetid,
     sprintf(smodule, "Module_%i", module);
 
     std::ostringstream sfolder;
-    sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_"
-            << side << "/" << sdisk << "/" << sblade << "/" << spanel << "/"
-            << smodule;
+    sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk << "/" << sblade
+            << "/" << spanel << "/" << smodule;
     path = sfolder.str();
 
     // path = path + "/" + subDetectorFolder + "/" + shc + "/" + sdisk + "/" +
     // sblade + "/" + spanel + "/" + smodule;
 
-  } else if ((DetId(rawdetid).subdetId() ==
-              static_cast<int>(PixelSubdetector::PixelEndcap)) &&
-             (isUpgrade)) {
+  } else if ((DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
     std::string subDetectorFolder = "Endcap";
-    PixelEndcapNameUpgrade::HalfCylinder side =
-        PixelEndcapNameUpgrade(DetId(rawdetid)).halfCylinder();
+    PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(rawdetid)).halfCylinder();
     int disk = PixelEndcapNameUpgrade(DetId(rawdetid)).diskName();
     int blade = PixelEndcapNameUpgrade(DetId(rawdetid)).bladeName();
     int panel = PixelEndcapNameUpgrade(DetId(rawdetid)).pannelName();
@@ -576,18 +533,16 @@ void SiPixelFolderOrganizer::getModuleFolder(const uint32_t &rawdetid,
     sprintf(smodule, "Module_%i", module);
 
     std::ostringstream sfolder;
-    sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_"
-            << side << "/" << sdisk << "/" << sblade << "/" << spanel << "/"
-            << smodule;
+    sfolder << topFolderName << "/" << subDetectorFolder << "/HalfCylinder_" << side << "/" << sdisk << "/" << sblade
+            << "/" << spanel << "/" << smodule;
     path = sfolder.str();
 
     // path = path + "/" + subDetectorFolder + "/" + shc + "/" + sdisk + "/" +
     // sblade + "/" + spanel + "/" + smodule;
 
   } else
-    throw cms::Exception("LogicError")
-        << "[SiPixelFolderOrganizer::getModuleFolder] Not a Pixel detector "
-           "DetId ";
+    throw cms::Exception("LogicError") << "[SiPixelFolderOrganizer::getModuleFolder] Not a Pixel detector "
+                                          "DetId ";
 
   // std::cout<<"resulting final path name: "<<path<<std::endl;
 

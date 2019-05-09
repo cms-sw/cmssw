@@ -22,7 +22,6 @@ class DQMStore;
 class MonitorElement;
 
 class TrackerHitAnalyzer : public DQMEDAnalyzer {
-
 public:
   /// Constructor
   TrackerHitAnalyzer(const edm::ParameterSet &ps);
@@ -31,8 +30,7 @@ public:
   ~TrackerHitAnalyzer() override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &run,
-                      const edm::EventSetup &es) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &run, const edm::EventSetup &es) override;
 
   /// Analyze
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
@@ -45,18 +43,12 @@ protected:
 private:
   bool verbose_;
 
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlBrlLow_Token_,
-      edmPSimHitContainer_pxlBrlHigh_Token_;
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlFwdLow_Token_,
-      edmPSimHitContainer_pxlFwdHigh_Token_;
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIBLow_Token_,
-      edmPSimHitContainer_siTIBHigh_Token_;
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTOBLow_Token_,
-      edmPSimHitContainer_siTOBHigh_Token_;
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIDLow_Token_,
-      edmPSimHitContainer_siTIDHigh_Token_;
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTECLow_Token_,
-      edmPSimHitContainer_siTECHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlBrlLow_Token_, edmPSimHitContainer_pxlBrlHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlFwdLow_Token_, edmPSimHitContainer_pxlFwdHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIBLow_Token_, edmPSimHitContainer_siTIBHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTOBLow_Token_, edmPSimHitContainer_siTOBHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIDLow_Token_, edmPSimHitContainer_siTIDHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTECLow_Token_, edmPSimHitContainer_siTECHigh_Token_;
   edm::EDGetTokenT<edm::SimTrackContainer> edmSimTrackContainerToken_;
 
   DQMStore *fDBE;

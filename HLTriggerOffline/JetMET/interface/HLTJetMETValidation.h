@@ -49,24 +49,20 @@
 #include <vector>
 
 namespace edm {
-class TriggerNames;
+  class TriggerNames;
 }
 
 class HLTJetMETValidation : public DQMEDAnalyzer {
-
 public:
   explicit HLTJetMETValidation(const edm::ParameterSet &);
   ~HLTJetMETValidation() override;
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &iRun,
-                      edm::EventSetup const &iSetup) override;
-  void dqmBeginRun(edm::Run const &iRun,
-                   edm::EventSetup const &iSetup) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &iRun, edm::EventSetup const &iSetup) override;
+  void dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) override;
 
-  void getHLTResults(const edm::TriggerResults &,
-                     const edm::TriggerNames &triggerNames);
+  void getHLTResults(const edm::TriggerResults &, const edm::TriggerNames &triggerNames);
 
   /// InputTag of TriggerEventWithRefs to analyze
   edm::EDGetTokenT<trigger::TriggerEventWithRefs> triggerEventObject_;

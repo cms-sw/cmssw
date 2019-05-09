@@ -24,12 +24,10 @@ public:
   explicit ME0BaseValidation(const edm::ParameterSet &ps);
   ~ME0BaseValidation() override;
   void analyze(const edm::Event &e, const edm::EventSetup &) override = 0;
-  MonitorElement *BookHistZR(DQMStore::IBooker &, const char *name,
-                             const char *label, unsigned int region_num,
-                             unsigned int layer_num = 99);
-  MonitorElement *BookHistXY(DQMStore::IBooker &, const char *name,
-                             const char *label, unsigned int region_num,
-                             unsigned int layer_num = 99);
+  MonitorElement *BookHistZR(
+      DQMStore::IBooker &, const char *name, const char *label, unsigned int region_num, unsigned int layer_num = 99);
+  MonitorElement *BookHistXY(
+      DQMStore::IBooker &, const char *name, const char *label, unsigned int region_num, unsigned int layer_num = 99);
 
 protected:
   std::vector<std::string> regionLabel;

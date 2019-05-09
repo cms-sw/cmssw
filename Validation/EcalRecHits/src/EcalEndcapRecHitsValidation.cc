@@ -13,14 +13,11 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(
-    const ParameterSet &ps) {
-
+EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet &ps) {
   // ----------------------
-  EEdigiCollection_token_ = consumes<EEDigiCollection>(
-      ps.getParameter<edm::InputTag>("EEdigiCollection"));
-  EEuncalibrechitCollection_token_ = consumes<EEUncalibratedRecHitCollection>(
-      ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
+  EEdigiCollection_token_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigiCollection"));
+  EEuncalibrechitCollection_token_ =
+      consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
 
   // ----------------------
   // verbosity switch
@@ -50,18 +47,15 @@ EcalEndcapRecHitsValidation::~EcalEndcapRecHitsValidation() {}
 void EcalEndcapRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker,
                                                  edm::Run const &,
                                                  edm::EventSetup const &) {
-
   Char_t histo[200];
 
   ibooker.setCurrentFolder("EcalRecHitsV/EcalEndcapRecHitsTask");
 
   sprintf(histo, "EE+ Occupancy");
-  meEEUncalibRecHitsOccupancyPlus_ =
-      ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meEEUncalibRecHitsOccupancyPlus_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
   sprintf(histo, "EE- Occupancy");
-  meEEUncalibRecHitsOccupancyMinus_ =
-      ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meEEUncalibRecHitsOccupancyMinus_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
   sprintf(histo, "EE Amplitude");
   meEEUncalibRecHitsAmplitude_ = ibooker.book1D(histo, histo, 201, -20., 4000.);
@@ -76,48 +70,37 @@ void EcalEndcapRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker,
   meEEUncalibRecHitsChi2_ = ibooker.book1D(histo, histo, 100, 18000., 22000.);
 
   sprintf(histo, "EE RecHit Max Sample Ratio");
-  meEEUncalibRecHitMaxSampleRatio_ =
-      ibooker.book1D(histo, histo, 120, 0.90, 1.05);
+  meEEUncalibRecHitMaxSampleRatio_ = ibooker.book1D(histo, histo, 120, 0.90, 1.05);
 
   sprintf(histo, "EE+ Occupancy gt 60 adc counts");
-  meEEUncalibRecHitsOccupancyPlusGt60adc_ =
-      ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meEEUncalibRecHitsOccupancyPlusGt60adc_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
   sprintf(histo, "EE- Occupancy gt 60 adc counts");
-  meEEUncalibRecHitsOccupancyMinusGt60adc_ =
-      ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meEEUncalibRecHitsOccupancyMinusGt60adc_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
   sprintf(histo, "EE Amplitude gt 60 adc counts");
-  meEEUncalibRecHitsAmplitudeGt60adc_ =
-      ibooker.book1D(histo, histo, 200, 0., 4000.);
+  meEEUncalibRecHitsAmplitudeGt60adc_ = ibooker.book1D(histo, histo, 200, 0., 4000.);
 
   sprintf(histo, "EE Pedestal gt 60 adc counts");
-  meEEUncalibRecHitsPedestalGt60adc_ =
-      ibooker.book1D(histo, histo, 50, 190., 210.);
+  meEEUncalibRecHitsPedestalGt60adc_ = ibooker.book1D(histo, histo, 50, 190., 210.);
 
   sprintf(histo, "EE Jitter gt 60 adc counts");
-  meEEUncalibRecHitsJitterGt60adc_ =
-      ibooker.book1D(histo, histo, 100, 0., 100.);
+  meEEUncalibRecHitsJitterGt60adc_ = ibooker.book1D(histo, histo, 100, 0., 100.);
 
   sprintf(histo, "EE Chi2 gt 60 adc counts");
-  meEEUncalibRecHitsChi2Gt60adc_ =
-      ibooker.book1D(histo, histo, 100, 18000., 22000.);
+  meEEUncalibRecHitsChi2Gt60adc_ = ibooker.book1D(histo, histo, 100, 18000., 22000.);
 
   sprintf(histo, "EE RecHit Max Sample Ratio gt 60 adc counts");
-  meEEUncalibRecHitMaxSampleRatioGt60adc_ =
-      ibooker.book1D(histo, histo, 120, 0.90, 1.05);
+  meEEUncalibRecHitMaxSampleRatioGt60adc_ = ibooker.book1D(histo, histo, 120, 0.90, 1.05);
 
   sprintf(histo, "EE Amplitude Full Map");
-  meEEUncalibRecHitsAmpFullMap_ = ibooker.bookProfile2D(
-      histo, histo, 100, 0., 100., 100, 0., 100., 200, 0., 4000.);
+  meEEUncalibRecHitsAmpFullMap_ = ibooker.bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 200, 0., 4000.);
 
   sprintf(histo, "EE Pedestal Full Map");
-  meEEUncalibRecHitsPedFullMap_ = ibooker.bookProfile2D(
-      histo, histo, 100, 0., 100., 100, 0., 100., 50, 194., 201.);
+  meEEUncalibRecHitsPedFullMap_ = ibooker.bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 50, 194., 201.);
 }
 
 void EcalEndcapRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
-
   const EEUncalibratedRecHitCollection *EEUncalibRecHit = nullptr;
   Handle<EEUncalibratedRecHitCollection> EcalUncalibRecHitEE;
   e.getByToken(EEuncalibrechitCollection_token_, EcalUncalibRecHitEE);
@@ -142,9 +125,9 @@ void EcalEndcapRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
 
   // ----------------------
   // loop over UncalibRecHits
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit =
-           EEUncalibRecHit->begin();
-       uncalibRecHit != EEUncalibRecHit->end(); ++uncalibRecHit) {
+  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin();
+       uncalibRecHit != EEUncalibRecHit->end();
+       ++uncalibRecHit) {
     EEDetId EEid = EEDetId(uncalibRecHit->id());
 
     int mySide = EEid.zside();
@@ -167,11 +150,9 @@ void EcalEndcapRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     if (meEEUncalibRecHitsChi2_)
       meEEUncalibRecHitsChi2_->Fill(uncalibRecHit->chi2());
     if (meEEUncalibRecHitsAmpFullMap_)
-      meEEUncalibRecHitsAmpFullMap_->Fill(EEid.ix(), EEid.iy(),
-                                          uncalibRecHit->amplitude());
+      meEEUncalibRecHitsAmpFullMap_->Fill(EEid.ix(), EEid.iy(), uncalibRecHit->amplitude());
     if (meEEUncalibRecHitsPedFullMap_)
-      meEEUncalibRecHitsPedFullMap_->Fill(EEid.ix(), EEid.iy(),
-                                          uncalibRecHit->pedestal());
+      meEEUncalibRecHitsPedFullMap_->Fill(EEid.ix(), EEid.iy(), uncalibRecHit->pedestal());
 
     // general checks, with threshold at 60 ADC counts
     if (uncalibRecHit->amplitude() > 60) {
@@ -214,30 +195,23 @@ void EcalEndcapRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
       const EcalPedestals *myped = ecalPeds.product();
       EcalPedestalsMap::const_iterator it = myped->getMap().find(EEid);
       if (it != myped->getMap().end()) {
-
-        if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 &&
-            eMax != 0) { // only real signal RecHit
+        if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 && eMax != 0) {  // only real signal RecHit
 
           if (meEEUncalibRecHitMaxSampleRatio_) {
-            meEEUncalibRecHitMaxSampleRatio_->Fill(
-                (uncalibRecHit->amplitude() + uncalibRecHit->pedestal()) /
-                eMax);
+            meEEUncalibRecHitMaxSampleRatio_->Fill((uncalibRecHit->amplitude() + uncalibRecHit->pedestal()) / eMax);
           }
 
-          if (meEEUncalibRecHitMaxSampleRatioGt60adc_ &&
-              (uncalibRecHit->amplitude() > 60)) {
-            meEEUncalibRecHitMaxSampleRatioGt60adc_->Fill(
-                (uncalibRecHit->amplitude() + uncalibRecHit->pedestal()) /
-                eMax);
+          if (meEEUncalibRecHitMaxSampleRatioGt60adc_ && (uncalibRecHit->amplitude() > 60)) {
+            meEEUncalibRecHitMaxSampleRatioGt60adc_->Fill((uncalibRecHit->amplitude() + uncalibRecHit->pedestal()) /
+                                                          eMax);
           }
 
           LogDebug("EcalRecHitsTaskInfo")
-              << "endcap, eMax = " << eMax << " Amplitude = "
-              << uncalibRecHit->amplitude() + uncalibRecHit->pedestal();
+              << "endcap, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude() + uncalibRecHit->pedestal();
         } else
           continue;
       } else
         continue;
     }
-  } // loop over the UncalibratedRecHitCollection
+  }  // loop over the UncalibratedRecHitCollection
 }

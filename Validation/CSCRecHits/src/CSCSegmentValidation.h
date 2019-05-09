@@ -11,15 +11,13 @@
 
 class CSCSegmentValidation : public CSCBaseValidation {
 public:
-  CSCSegmentValidation(const edm::InputTag &inputTag,
-                       edm::ConsumesCollector &&iC);
+  CSCSegmentValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC);
   ~CSCSegmentValidation() override;
   void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-  void plotResolution(const PSimHit &simHit, const CSCSegment &recHit,
-                      const CSCLayer *layer, int chamberType);
+  void plotResolution(const PSimHit &simHit, const CSCSegment &recHit, const CSCLayer *layer, int chamberType);
 
   bool hasSegment(int chamberId) const;
   static int whatChamberType(int detId);

@@ -1,4 +1,4 @@
-#ifndef SiPixelPhase1DigisV_h // Can we use #pragma once?
+#ifndef SiPixelPhase1DigisV_h  // Can we use #pragma once?
 #define SiPixelPhase1DigisV_h
 // -*- C++ -*-
 //
@@ -19,12 +19,12 @@
 class SiPixelPhase1DigisV : public SiPixelPhase1Base {
   // List of quantities to be plotted.
   enum {
-    ADC,    // digi ADC readouts
-    NDIGIS, // number of digis per event and module
-    ROW,    // number of digis per row
-    COLUMN, // number of digis per column
+    ADC,     // digi ADC readouts
+    NDIGIS,  // number of digis per event and module
+    ROW,     // number of digis per row
+    COLUMN,  // number of digis per column
 
-    MAX_HIST // a sentinel that gives the number of quantities (not a plot).
+    MAX_HIST  // a sentinel that gives the number of quantities (not a plot).
   };
 
 public:
@@ -38,10 +38,10 @@ private:
 
 class SiPixelPhase1DigisHarvesterV : public SiPixelPhase1Harvester {
   enum {
-    ADC,    // digi ADC readouts
-    NDIGIS, // number of digis per event and module
-    ROW,    // number of digis per row
-    COLUMN, // number of digis per column
+    ADC,     // digi ADC readouts
+    NDIGIS,  // number of digis per event and module
+    ROW,     // number of digis per row
+    COLUMN,  // number of digis per column
 
     MAX_HIST
   };

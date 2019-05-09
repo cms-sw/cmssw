@@ -41,8 +41,7 @@ public:
   void beginRun(const edm::Run &run, const edm::EventSetup &setup) override;
   void endRun(edm::Run const &, edm::EventSetup const &) override;
   void endJob() override;
-  void analyze(const edm::Event &event, const edm::EventSetup &setup) override {
-  }
+  void analyze(const edm::Event &event, const edm::EventSetup &setup) override {}
 
 private:
   void bookHistos(DTLayerId lId, int firstWire, int lastWire);

@@ -22,18 +22,15 @@
 #include "Validation/TrackerDigis/interface/SiStripDigiValid.h"
 
 SiStripDigiValid::SiStripDigiValid(const edm::ParameterSet &ps)
-    : dbe_(nullptr), runStandalone(ps.getParameter<bool>("runStandalone")),
-      outputFile_(ps.getUntrackedParameter<std::string>("outputFile",
-                                                        "stripdigihisto.root")),
+    : dbe_(nullptr),
+      runStandalone(ps.getParameter<bool>("runStandalone")),
+      outputFile_(ps.getUntrackedParameter<std::string>("outputFile", "stripdigihisto.root")),
       edmDetSetVector_SiStripDigi_Token_(
-          consumes<edm::DetSetVector<SiStripDigi>>(
-              ps.getParameter<edm::InputTag>("src"))) {}
+          consumes<edm::DetSetVector<SiStripDigi>>(ps.getParameter<edm::InputTag>("src"))) {}
 
 SiStripDigiValid::~SiStripDigiValid() {}
 
-void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
-                                      const edm::Run &run,
-                                      const edm::EventSetup &es) {
+void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &run, const edm::EventSetup &es) {
   dbe_ = edm::Service<DQMStore>().operator->();
 
   if (dbe_) {
@@ -43,102 +40,70 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
       Char_t histo[200];
       // Z Plus Side
       sprintf(histo, "adc_tib_layer1_extmodule%d_zp", i + 1);
-      meAdcTIBLayer1Extzp_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer1Extzp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer1_intmodule%d_zp", i + 1);
-      meAdcTIBLayer1Intzp_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer1Intzp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer2_extmodule%d_zp", i + 1);
-      meAdcTIBLayer2Extzp_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer2Extzp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer2_intmodule%d_zp", i + 1);
-      meAdcTIBLayer2Intzp_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer2Intzp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer3_extmodule%d_zp", i + 1);
-      meAdcTIBLayer3Extzp_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer3Extzp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer3_intmodule%d_zp", i + 1);
-      meAdcTIBLayer3Intzp_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer3Intzp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer4_extmodule%d_zp", i + 1);
-      meAdcTIBLayer4Extzp_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer4Extzp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer4_intmodule%d_zp", i + 1);
-      meAdcTIBLayer4Intzp_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer4Intzp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tib_layer1_extmodule%d_zp", i + 1);
-      meStripTIBLayer1Extzp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer1Extzp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer1_intmodule%d_zp", i + 1);
-      meStripTIBLayer1Intzp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer1Intzp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer2_extmodule%d_zp", i + 1);
-      meStripTIBLayer2Extzp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer2Extzp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer2_intmodule%d_zp", i + 1);
-      meStripTIBLayer2Intzp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer2Intzp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer3_extmodule%d_zp", i + 1);
-      meStripTIBLayer3Extzp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer3Extzp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer3_intmodule%d_zp", i + 1);
-      meStripTIBLayer3Intzp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer3Intzp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer4_extmodule%d_zp", i + 1);
-      meStripTIBLayer4Extzp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer4Extzp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer4_intmodule%d_zp", i + 1);
-      meStripTIBLayer4Intzp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer4Intzp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       //  Z Minus Side
       sprintf(histo, "adc_tib_layer1_extmodule%d_zm", i + 1);
-      meAdcTIBLayer1Extzm_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer1Extzm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer1_intmodule%d_zm", i + 1);
-      meAdcTIBLayer1Intzm_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer1Intzm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer2_extmodule%d_zm", i + 1);
-      meAdcTIBLayer2Extzm_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer2Extzm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer2_intmodule%d_zm", i + 1);
-      meAdcTIBLayer2Intzm_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer2Intzm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer3_extmodule%d_zm", i + 1);
-      meAdcTIBLayer3Extzm_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer3Extzm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer3_intmodule%d_zm", i + 1);
-      meAdcTIBLayer3Intzm_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer3Intzm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer4_extmodule%d_zm", i + 1);
-      meAdcTIBLayer4Extzm_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer4Extzm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "adc_tib_layer4_intmodule%d_zm", i + 1);
-      meAdcTIBLayer4Intzm_[i] =
-          ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
+      meAdcTIBLayer4Intzm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tib_layer1_extmodule%d_zm", i + 1);
-      meStripTIBLayer1Extzm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer1Extzm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer1_intmodule%d_zm", i + 1);
-      meStripTIBLayer1Intzm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer1Intzm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer2_extmodule%d_zm", i + 1);
-      meStripTIBLayer2Extzm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer2Extzm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer2_intmodule%d_zm", i + 1);
-      meStripTIBLayer2Intzm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer2Intzm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer3_extmodule%d_zm", i + 1);
-      meStripTIBLayer3Extzm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer3Extzm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer3_intmodule%d_zm", i + 1);
-      meStripTIBLayer3Intzm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer3Intzm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer4_extmodule%d_zm", i + 1);
-      meStripTIBLayer4Extzm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer4Extzm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tib_layer4_intmodule%d_zm", i + 1);
-      meStripTIBLayer4Intzm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIBLayer4Intzm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
     }
 
     for (int i = 0; i < 6; i++) {
@@ -147,64 +112,52 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
       sprintf(histo, "adc_tob_layer1_module%d_zp", i + 1);
       meAdcTOBLayer1zp_[i] = ibooker.book1D(histo, "Digis ADC", 10, 0., 300.);
       sprintf(histo, "strip_tob_layer1_module%d_zp", i + 1);
-      meStripTOBLayer1zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer1zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "adc_tob_layer2_module%d_zp", i + 1);
       meAdcTOBLayer2zp_[i] = ibooker.book1D(histo, "Digis ADC", 10, 0., 300.);
       sprintf(histo, "strip_tob_layer2_module%d_zp", i + 1);
-      meStripTOBLayer2zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer2zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "adc_tob_layer3_module%d_zp", i + 1);
       meAdcTOBLayer3zp_[i] = ibooker.book1D(histo, "Digis ADC", 10, 0., 300.);
       sprintf(histo, "strip_tob_layer3_module%d_zp", i + 1);
-      meStripTOBLayer3zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer3zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "adc_tob_layer4_module%d_zp", i + 1);
       meAdcTOBLayer4zp_[i] = ibooker.book1D(histo, "Digis ADC", 10, 0., 300.);
       sprintf(histo, "strip_tob_layer4_module%d_zp", i + 1);
-      meStripTOBLayer4zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer4zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "adc_tob_layer5_module%d_zp", i + 1);
       meAdcTOBLayer5zp_[i] = ibooker.book1D(histo, "Digis ADC", 10, 0., 300.);
       sprintf(histo, "strip_tob_layer5_module%d_zp", i + 1);
-      meStripTOBLayer5zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer5zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "adc_tob_layer6_module%d_zp", i + 1);
       meAdcTOBLayer6zp_[i] = ibooker.book1D(histo, "Digis ADC", 10, 0., 300.);
       sprintf(histo, "strip_tob_layer6_module%d_zp", i + 1);
-      meStripTOBLayer6zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer6zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       // Z Minus Side
       sprintf(histo, "adc_tob_layer1_module%d_zm", i + 1);
       meAdcTOBLayer1zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tob_layer1_module%d_zm", i + 1);
-      meStripTOBLayer1zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer1zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "adc_tob_layer2_module%d_zm", i + 1);
       meAdcTOBLayer2zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tob_layer2_module%d_zm", i + 1);
-      meStripTOBLayer2zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer2zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "adc_tob_layer3_module%d_zm", i + 1);
       meAdcTOBLayer3zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tob_layer3_module%d_zm", i + 1);
-      meStripTOBLayer3zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer3zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "adc_tob_layer4_module%d_zm", i + 1);
       meAdcTOBLayer4zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tob_layer4_module%d_zm", i + 1);
-      meStripTOBLayer4zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer4zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "adc_tob_layer5_module%d_zm", i + 1);
       meAdcTOBLayer5zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tob_layer5_module%d_zm", i + 1);
-      meStripTOBLayer5zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer5zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "adc_tob_layer6_module%d_zm", i + 1);
       meAdcTOBLayer6zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tob_layer6_module%d_zm", i + 1);
-      meStripTOBLayer6zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTOBLayer6zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
     }
 
     for (int i = 0; i < 3; i++) {
@@ -217,14 +170,11 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
       sprintf(histo, "adc_tid_wheel3_ring%d_zp", i + 1);
       meAdcTIDWheel3zp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tid_wheel1_ring%d_zp", i + 1);
-      meStripTIDWheel1zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIDWheel1zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tid_wheel2_ring%d_zp", i + 1);
-      meStripTIDWheel2zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIDWheel2zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tid_wheel3_ring%d_zp", i + 1);
-      meStripTIDWheel3zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIDWheel3zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       // Z minus Side
       sprintf(histo, "adc_tid_wheel1_ring%d_zm", i + 1);
       meAdcTIDWheel1zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
@@ -233,14 +183,11 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
       sprintf(histo, "adc_tid_wheel3_ring%d_zm", i + 1);
       meAdcTIDWheel3zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tid_wheel1_ring%d_zm", i + 1);
-      meStripTIDWheel1zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIDWheel1zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tid_wheel2_ring%d_zm", i + 1);
-      meStripTIDWheel2zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIDWheel2zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tid_wheel3_ring%d_zm", i + 1);
-      meStripTIDWheel3zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTIDWheel3zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
     }
 
     for (int i = 0; i < 7; i++) {
@@ -253,14 +200,11 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
       sprintf(histo, "adc_tec_wheel3_ring%d_zp", i + 1);
       meAdcTECWheel3zp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tec_wheel1_ring%d_zp", i + 1);
-      meStripTECWheel1zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel1zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tec_wheel2_ring%d_zp", i + 1);
-      meStripTECWheel2zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel2zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tec_wheel3_ring%d_zp", i + 1);
-      meStripTECWheel3zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel3zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
 
       // Z Minus Side
       sprintf(histo, "adc_tec_wheel1_ring%d_zm", i + 1);
@@ -270,14 +214,11 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
       sprintf(histo, "adc_tec_wheel3_ring%d_zm", i + 1);
       meAdcTECWheel3zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tec_wheel1_ring%d_zm", i + 1);
-      meStripTECWheel1zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel1zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tec_wheel2_ring%d_zm", i + 1);
-      meStripTECWheel2zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel2zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tec_wheel3_ring%d_zm", i + 1);
-      meStripTECWheel3zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel3zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
     }
 
     for (int i = 0; i < 6; i++) {
@@ -290,14 +231,11 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
       sprintf(histo, "adc_tec_wheel6_ring%d_zp", i + 1);
       meAdcTECWheel6zp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tec_wheel4_ring%d_zp", i + 1);
-      meStripTECWheel4zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel4zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tec_wheel5_ring%d_zp", i + 1);
-      meStripTECWheel5zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel5zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tec_wheel6_ring%d_zp", i + 1);
-      meStripTECWheel6zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel6zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
 
       // Z Minus Side
       sprintf(histo, "adc_tec_wheel4_ring%d_zm", i + 1);
@@ -307,14 +245,11 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
       sprintf(histo, "adc_tec_wheel6_ring%d_zm", i + 1);
       meAdcTECWheel6zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tec_wheel4_ring%d_zm", i + 1);
-      meStripTECWheel4zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel4zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tec_wheel5_ring%d_zm", i + 1);
-      meStripTECWheel5zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel5zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tec_wheel6_ring%d_zm", i + 1);
-      meStripTECWheel6zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel6zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
     }
 
     for (int i = 0; i < 5; i++) {
@@ -325,11 +260,9 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
       sprintf(histo, "adc_tec_wheel8_ring%d_zp", i + 1);
       meAdcTECWheel8zp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tec_wheel7_ring%d_zp", i + 1);
-      meStripTECWheel7zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel7zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tec_wheel8_ring%d_zp", i + 1);
-      meStripTECWheel8zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel8zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
 
       // Z Minus Side
       sprintf(histo, "adc_tec_wheel7_ring%d_zm", i + 1);
@@ -337,11 +270,9 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
       sprintf(histo, "adc_tec_wheel8_ring%d_zm", i + 1);
       meAdcTECWheel8zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tec_wheel7_ring%d_zm", i + 1);
-      meStripTECWheel7zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel7zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
       sprintf(histo, "strip_tec_wheel8_ring%d_zm", i + 1);
-      meStripTECWheel8zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel8zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
     }
 
     for (int i = 0; i < 4; i++) {
@@ -350,55 +281,45 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker,
       sprintf(histo, "adc_tec_wheel9_ring%d_zp", i + 1);
       meAdcTECWheel9zp_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tec_wheel9_ring%d_zp", i + 1);
-      meStripTECWheel9zp_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel9zp_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
 
       // Z Minus Side
       sprintf(histo, "adc_tec_wheel9_ring%d_zm", i + 1);
       meAdcTECWheel9zm_[i] = ibooker.book1D(histo, "Digis ADC", 50, 0., 300.);
       sprintf(histo, "strip_tec_wheel9_ring%d_zm", i + 1);
-      meStripTECWheel9zm_[i] =
-          ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
+      meStripTECWheel9zm_[i] = ibooker.book1D(histo, "Digis Strip Num.", 200, 0., 800.);
     }
 
     for (int i = 0; i < 4; i++) {
       Char_t histo[200];
       sprintf(histo, "ndigi_tib_layer_%d_zm", i + 1);
-      meNDigiTIBLayerzm_[i] =
-          ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
+      meNDigiTIBLayerzm_[i] = ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
       sprintf(histo, "ndigi_tib_layer_%d_zp", i + 1);
-      meNDigiTIBLayerzp_[i] =
-          ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
+      meNDigiTIBLayerzp_[i] = ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
     }
 
     for (int i = 0; i < 6; i++) {
       Char_t histo[200];
       sprintf(histo, "ndigi_tob_layer_%d_zm", i + 1);
-      meNDigiTOBLayerzm_[i] =
-          ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
+      meNDigiTOBLayerzm_[i] = ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
       sprintf(histo, "ndigi_tob_layer_%d_zp", i + 1);
-      meNDigiTOBLayerzp_[i] =
-          ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
+      meNDigiTOBLayerzp_[i] = ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
     }
 
     for (int i = 0; i < 3; i++) {
       Char_t histo[200];
       sprintf(histo, "ndigi_tid_wheel_%d_zm", i + 1);
-      meNDigiTIDWheelzm_[i] =
-          ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
+      meNDigiTIDWheelzm_[i] = ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
       sprintf(histo, "ndigi_tid_wheel_%d_zp", i + 1);
-      meNDigiTIDWheelzp_[i] =
-          ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
+      meNDigiTIDWheelzp_[i] = ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
     }
 
     for (int i = 0; i < 9; i++) {
       Char_t histo[200];
       sprintf(histo, "ndigi_tec_wheel_%d_zm", i + 1);
-      meNDigiTECWheelzm_[i] =
-          ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
+      meNDigiTECWheelzm_[i] = ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
       sprintf(histo, "ndigi_tec_wheel_%d_zp", i + 1);
-      meNDigiTECWheelzp_[i] =
-          ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
+      meNDigiTECWheelzp_[i] = ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
     }
   }
 }
@@ -464,8 +385,7 @@ void SiStripDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
     edm::DetSet<SiStripDigi>::const_iterator iter;
 
     if (detId.subdetId() == StripSubdetector::TIB) {
-
-      for (iter = begin; iter != end; iter++) { // loop digis
+      for (iter = begin; iter != end; iter++) {  // loop digis
         if (tTopo->tibStringInfo(id)[0] == 1) {
           ++ndigilayertibzm[tTopo->tibLayer(id) - 1];
           if (tTopo->tibLayer(id) == 1) {
@@ -706,8 +626,7 @@ void SiStripDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
       }
     }
     if (detId.subdetId() == StripSubdetector::TOB) {
-
-      for (iter = begin; iter != end; iter++) { // loop digis
+      for (iter = begin; iter != end; iter++) {  // loop digis
         if (tTopo->tobRodInfo(id)[0] == 1) {
           ++ndigilayertobzm[tTopo->tobLayer(id) - 1];
           if (tTopo->tobLayer(id) == 1) {
@@ -1030,7 +949,6 @@ void SiStripDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
     }
 
     if (detId.subdetId() == StripSubdetector::TID) {
-
       for (iter = begin; iter != end; iter++) {
         if (tTopo->tidSide(id) == 1) {
           ++ndigiwheeltidzm[tTopo->tidWheel(id) - 1];
@@ -1125,7 +1043,6 @@ void SiStripDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
       }
     }
     if (detId.subdetId() == StripSubdetector::TEC) {
-
       for (iter = begin; iter != end; iter++) {
         if (tTopo->tecSide(id) == 1) {
           ++ndigiwheelteczm[tTopo->tecWheel(id) - 1];

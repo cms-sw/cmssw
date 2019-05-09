@@ -11,24 +11,16 @@ using namespace l1extra;
 using namespace trigger;
 
 HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet &ps)
-    : triggerEventObject_(consumes<TriggerEventWithRefs>(
-          ps.getUntrackedParameter<edm::InputTag>("triggerEventObject"))),
-      PFJetAlgorithm(consumes<PFJetCollection>(
-          ps.getUntrackedParameter<edm::InputTag>("PFJetAlgorithm"))),
-      GenJetAlgorithm(consumes<GenJetCollection>(
-          ps.getUntrackedParameter<edm::InputTag>("GenJetAlgorithm"))),
-      CaloMETColl(consumes<CaloMETCollection>(
-          ps.getUntrackedParameter<edm::InputTag>("CaloMETCollection"))),
-      GenMETColl(consumes<GenMETCollection>(
-          ps.getUntrackedParameter<edm::InputTag>("GenMETCollection"))),
-      HLTriggerResults(consumes<edm::TriggerResults>(
-          ps.getParameter<edm::InputTag>("HLTriggerResults"))),
-      triggerTag_(
-          ps.getUntrackedParameter<std::string>("DQMFolder", "SingleJet")),
-      patternJetTrg_(
-          ps.getUntrackedParameter<std::string>("PatternJetTrg", "")),
-      patternMetTrg_(
-          ps.getUntrackedParameter<std::string>("PatternMetTrg", "")),
+    : triggerEventObject_(
+          consumes<TriggerEventWithRefs>(ps.getUntrackedParameter<edm::InputTag>("triggerEventObject"))),
+      PFJetAlgorithm(consumes<PFJetCollection>(ps.getUntrackedParameter<edm::InputTag>("PFJetAlgorithm"))),
+      GenJetAlgorithm(consumes<GenJetCollection>(ps.getUntrackedParameter<edm::InputTag>("GenJetAlgorithm"))),
+      CaloMETColl(consumes<CaloMETCollection>(ps.getUntrackedParameter<edm::InputTag>("CaloMETCollection"))),
+      GenMETColl(consumes<GenMETCollection>(ps.getUntrackedParameter<edm::InputTag>("GenMETCollection"))),
+      HLTriggerResults(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("HLTriggerResults"))),
+      triggerTag_(ps.getUntrackedParameter<std::string>("DQMFolder", "SingleJet")),
+      patternJetTrg_(ps.getUntrackedParameter<std::string>("PatternJetTrg", "")),
+      patternMetTrg_(ps.getUntrackedParameter<std::string>("PatternMetTrg", "")),
       patternMuTrg_(ps.getUntrackedParameter<std::string>("PatternMuTrg", "")),
       HLTinit_(false) {
   evtCnt = 0;
@@ -41,9 +33,7 @@ HLTJetMETValidation::~HLTJetMETValidation() {}
 //
 
 // ------------ method called when starting to processes a run ------------
-void HLTJetMETValidation::dqmBeginRun(edm::Run const &iRun,
-                                      edm::EventSetup const &iSetup) {
-
+void HLTJetMETValidation::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
   bool foundMuTrg = false;
   std::string trgMuNm;
   bool changedConfig = true;
@@ -54,8 +44,7 @@ void HLTJetMETValidation::dqmBeginRun(edm::Run const &iRun,
   TPRegexp patternMu(patternMuTrg_);
 
   if (!hltConfig_.init(iRun, iSetup, "HLT", changedConfig)) {
-    edm::LogError("HLTJetMETValidation")
-        << "Initialization of HLTConfigProvider failed!!";
+    edm::LogError("HLTJetMETValidation") << "Initialization of HLTConfigProvider failed!!";
     return;
   }
 
@@ -81,9 +70,9 @@ void HLTJetMETValidation::dqmBeginRun(edm::Run const &iRun,
   //----set the denominator paths
   for (size_t it = 0; it < hltTrgJet.size(); it++) {
     if (it == 0 && foundMuTrg)
-      hltTrgJetLow.push_back(trgMuNm); //--lowest threshold uses muon path
+      hltTrgJetLow.push_back(trgMuNm);  //--lowest threshold uses muon path
     if (it == 0 && !foundMuTrg)
-      hltTrgJetLow.push_back(hltTrgJet[it]); //---if no muon then itself
+      hltTrgJetLow.push_back(hltTrgJet[it]);  //---if no muon then itself
     if (it != 0)
       hltTrgJetLow.push_back(hltTrgJet[it - 1]);
     // std::cout<<hltTrgJet[it].c_str()<<"
@@ -144,114 +133,77 @@ void HLTJetMETValidation::dqmBeginRun(edm::Run const &iRun,
 void HLTJetMETValidation::bookHistograms(DQMStore::IBooker &iBooker,
                                          edm::Run const &iRun,
                                          edm::EventSetup const &iSetup) {
-
   //----define DQM folders and elements
   for (size_t it = 0; it < hltTrgJet.size(); it++) {
     // std::cout<<hltTrgJet[it].c_str()<<"
     // "<<hltTrgJetLow[it].c_str()<<std::endl;
-    std::string trgPathName =
-        HLTConfigProvider::removeVersion(triggerTag_ + hltTrgJet[it]);
+    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_ + hltTrgJet[it]);
     // std::cout << "str = " << triggerTag_+hltTrgJet[it].c_str() << std::endl;
     // std::cout << "trgPathName = " << trgPathName << std::endl;
     iBooker.setCurrentFolder(trgPathName);
-    _meHLTJetPt.push_back(
-        iBooker.book1D("_meHLTJetPt", "Single HLT Jet Pt", 100, 0, 500));
-    _meHLTJetPtTrgMC.push_back(iBooker.book1D(
-        "_meHLTJetPtTrgMC", "Single HLT Jet Pt - HLT Triggered", 100, 0, 500));
-    _meHLTJetPtTrg.push_back(iBooker.book1D(
-        "_meHLTJetPtTrg", "Single HLT Jet Pt - HLT Triggered", 100, 0, 500));
+    _meHLTJetPt.push_back(iBooker.book1D("_meHLTJetPt", "Single HLT Jet Pt", 100, 0, 500));
+    _meHLTJetPtTrgMC.push_back(iBooker.book1D("_meHLTJetPtTrgMC", "Single HLT Jet Pt - HLT Triggered", 100, 0, 500));
+    _meHLTJetPtTrg.push_back(iBooker.book1D("_meHLTJetPtTrg", "Single HLT Jet Pt - HLT Triggered", 100, 0, 500));
     _meHLTJetPtTrgLow.push_back(
-        iBooker.book1D("_meHLTJetPtTrgLow",
-                       "Single HLT Jet Pt - HLT Triggered Low", 100, 0, 500));
+        iBooker.book1D("_meHLTJetPtTrgLow", "Single HLT Jet Pt - HLT Triggered Low", 100, 0, 500));
 
-    _meHLTJetEta.push_back(
-        iBooker.book1D("_meHLTJetEta", "Single HLT Jet Eta", 100, -10, 10));
+    _meHLTJetEta.push_back(iBooker.book1D("_meHLTJetEta", "Single HLT Jet Eta", 100, -10, 10));
     _meHLTJetEtaTrgMC.push_back(
-        iBooker.book1D("_meHLTJetEtaTrgMC",
-                       "Single HLT Jet Eta - HLT Triggered", 100, -10, 10));
-    _meHLTJetEtaTrg.push_back(iBooker.book1D(
-        "_meHLTJetEtaTrg", "Single HLT Jet Eta - HLT Triggered", 100, -10, 10));
+        iBooker.book1D("_meHLTJetEtaTrgMC", "Single HLT Jet Eta - HLT Triggered", 100, -10, 10));
+    _meHLTJetEtaTrg.push_back(iBooker.book1D("_meHLTJetEtaTrg", "Single HLT Jet Eta - HLT Triggered", 100, -10, 10));
     _meHLTJetEtaTrgLow.push_back(
-        iBooker.book1D("_meHLTJetEtaTrgLow",
-                       "Single HLT Jet Eta - HLT Triggered Low", 100, -10, 10));
+        iBooker.book1D("_meHLTJetEtaTrgLow", "Single HLT Jet Eta - HLT Triggered Low", 100, -10, 10));
 
-    _meHLTJetPhi.push_back(
-        iBooker.book1D("_meHLTJetPhi", "Single HLT Jet Phi", 100, -4., 4.));
+    _meHLTJetPhi.push_back(iBooker.book1D("_meHLTJetPhi", "Single HLT Jet Phi", 100, -4., 4.));
     _meHLTJetPhiTrgMC.push_back(
-        iBooker.book1D("_meHLTJetPhiTrgMC",
-                       "Single HLT Jet Phi - HLT Triggered", 100, -4., 4.));
-    _meHLTJetPhiTrg.push_back(iBooker.book1D(
-        "_meHLTJetPhiTrg", "Single HLT Jet Phi - HLT Triggered", 100, -4., 4.));
+        iBooker.book1D("_meHLTJetPhiTrgMC", "Single HLT Jet Phi - HLT Triggered", 100, -4., 4.));
+    _meHLTJetPhiTrg.push_back(iBooker.book1D("_meHLTJetPhiTrg", "Single HLT Jet Phi - HLT Triggered", 100, -4., 4.));
     _meHLTJetPhiTrgLow.push_back(
-        iBooker.book1D("_meHLTJetPhiTrgLow",
-                       "Single HLT Jet Phi - HLT Triggered Low", 100, -4., 4.));
+        iBooker.book1D("_meHLTJetPhiTrgLow", "Single HLT Jet Phi - HLT Triggered Low", 100, -4., 4.));
 
-    _meGenJetPt.push_back(
-        iBooker.book1D("_meGenJetPt", "Single Generated Jet Pt", 100, 0, 500));
+    _meGenJetPt.push_back(iBooker.book1D("_meGenJetPt", "Single Generated Jet Pt", 100, 0, 500));
     _meGenJetPtTrgMC.push_back(
-        iBooker.book1D("_meGenJetPtTrgMC",
-                       "Single Generated Jet Pt - HLT Triggered", 100, 0, 500));
-    _meGenJetPtTrg.push_back(
-        iBooker.book1D("_meGenJetPtTrg",
-                       "Single Generated Jet Pt - HLT Triggered", 100, 0, 500));
-    _meGenJetPtTrgLow.push_back(iBooker.book1D(
-        "_meGenJetPtTrgLow", "Single Generated Jet Pt - HLT Triggered Low", 100,
-        0, 500));
+        iBooker.book1D("_meGenJetPtTrgMC", "Single Generated Jet Pt - HLT Triggered", 100, 0, 500));
+    _meGenJetPtTrg.push_back(iBooker.book1D("_meGenJetPtTrg", "Single Generated Jet Pt - HLT Triggered", 100, 0, 500));
+    _meGenJetPtTrgLow.push_back(
+        iBooker.book1D("_meGenJetPtTrgLow", "Single Generated Jet Pt - HLT Triggered Low", 100, 0, 500));
 
-    _meGenJetEta.push_back(iBooker.book1D(
-        "_meGenJetEta", "Single Generated Jet Eta", 100, -10, 10));
-    _meGenJetEtaTrgMC.push_back(iBooker.book1D(
-        "_meGenJetEtaTrgMC", "Single Generated Jet Eta - HLT Triggered", 100,
-        -10, 10));
-    _meGenJetEtaTrg.push_back(iBooker.book1D(
-        "_meGenJetEtaTrg", "Single Generated Jet Eta - HLT Triggered", 100, -10,
-        10));
-    _meGenJetEtaTrgLow.push_back(iBooker.book1D(
-        "_meGenJetEtaTrgLow", "Single Generated Jet Eta - HLT Triggered Low",
-        100, -10, 10));
+    _meGenJetEta.push_back(iBooker.book1D("_meGenJetEta", "Single Generated Jet Eta", 100, -10, 10));
+    _meGenJetEtaTrgMC.push_back(
+        iBooker.book1D("_meGenJetEtaTrgMC", "Single Generated Jet Eta - HLT Triggered", 100, -10, 10));
+    _meGenJetEtaTrg.push_back(
+        iBooker.book1D("_meGenJetEtaTrg", "Single Generated Jet Eta - HLT Triggered", 100, -10, 10));
+    _meGenJetEtaTrgLow.push_back(
+        iBooker.book1D("_meGenJetEtaTrgLow", "Single Generated Jet Eta - HLT Triggered Low", 100, -10, 10));
 
-    _meGenJetPhi.push_back(iBooker.book1D(
-        "_meGenJetPhi", "Single Generated Jet Phi", 100, -4., 4.));
-    _meGenJetPhiTrgMC.push_back(iBooker.book1D(
-        "_meGenJetPhiTrgMC", "Single Generated Jet Phi - HLT Triggered", 100,
-        -4., 4.));
-    _meGenJetPhiTrg.push_back(iBooker.book1D(
-        "_meGenJetPhiTrg", "Single Generated Jet Phi - HLT Triggered", 100, -4.,
-        4.));
-    _meGenJetPhiTrgLow.push_back(iBooker.book1D(
-        "_meGenJetPhiTrgLow", "Single Generated Jet Phi - HLT Triggered Low",
-        100, -4., 4.));
+    _meGenJetPhi.push_back(iBooker.book1D("_meGenJetPhi", "Single Generated Jet Phi", 100, -4., 4.));
+    _meGenJetPhiTrgMC.push_back(
+        iBooker.book1D("_meGenJetPhiTrgMC", "Single Generated Jet Phi - HLT Triggered", 100, -4., 4.));
+    _meGenJetPhiTrg.push_back(
+        iBooker.book1D("_meGenJetPhiTrg", "Single Generated Jet Phi - HLT Triggered", 100, -4., 4.));
+    _meGenJetPhiTrgLow.push_back(
+        iBooker.book1D("_meGenJetPhiTrgLow", "Single Generated Jet Phi - HLT Triggered Low", 100, -4., 4.));
   }
   for (size_t it = 0; it < hltTrgMet.size(); it++) {
     // std::cout<<hltTrgMet[it].c_str()<<"
     // "<<hltTrgMetLow[it].c_str()<<std::endl;
-    std::string trgPathName =
-        HLTConfigProvider::removeVersion(triggerTag_ + hltTrgMet[it]);
+    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_ + hltTrgMet[it]);
     iBooker.setCurrentFolder(trgPathName);
-    _meHLTMET.push_back(
-        iBooker.book1D("_meHLTMET", "HLT Missing ET", 100, 0, 500));
-    _meHLTMETTrgMC.push_back(iBooker.book1D(
-        "_meHLTMETTrgMC", "HLT Missing ET - HLT Triggered", 100, 0, 500));
-    _meHLTMETTrg.push_back(iBooker.book1D(
-        "_meHLTMETTrg", "HLT Missing ET - HLT Triggered", 100, 0, 500));
-    _meHLTMETTrgLow.push_back(iBooker.book1D(
-        "_meHLTMETTrgLow", "HLT Missing ET - HLT Triggered Low", 100, 0, 500));
+    _meHLTMET.push_back(iBooker.book1D("_meHLTMET", "HLT Missing ET", 100, 0, 500));
+    _meHLTMETTrgMC.push_back(iBooker.book1D("_meHLTMETTrgMC", "HLT Missing ET - HLT Triggered", 100, 0, 500));
+    _meHLTMETTrg.push_back(iBooker.book1D("_meHLTMETTrg", "HLT Missing ET - HLT Triggered", 100, 0, 500));
+    _meHLTMETTrgLow.push_back(iBooker.book1D("_meHLTMETTrgLow", "HLT Missing ET - HLT Triggered Low", 100, 0, 500));
 
-    _meGenMET.push_back(
-        iBooker.book1D("_meGenMET", "Generated Missing ET", 100, 0, 500));
-    _meGenMETTrgMC.push_back(iBooker.book1D(
-        "_meGenMETTrgMC", "Generated Missing ET - HLT Triggered", 100, 0, 500));
-    _meGenMETTrg.push_back(iBooker.book1D(
-        "_meGenMETTrg", "Generated Missing ET - HLT Triggered", 100, 0, 500));
-    _meGenMETTrgLow.push_back(iBooker.book1D(
-        "_meGenMETTrgLow", "Generated Missing ET - HLT Triggered Low", 100, 0,
-        500));
+    _meGenMET.push_back(iBooker.book1D("_meGenMET", "Generated Missing ET", 100, 0, 500));
+    _meGenMETTrgMC.push_back(iBooker.book1D("_meGenMETTrgMC", "Generated Missing ET - HLT Triggered", 100, 0, 500));
+    _meGenMETTrg.push_back(iBooker.book1D("_meGenMETTrg", "Generated Missing ET - HLT Triggered", 100, 0, 500));
+    _meGenMETTrgLow.push_back(
+        iBooker.book1D("_meGenMETTrgLow", "Generated Missing ET - HLT Triggered Low", 100, 0, 500));
   }
 }
 
 // ------------ method called for each event ------------
-void HLTJetMETValidation::analyze(const edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
+void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -354,8 +306,7 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent,
   if (pfJets.isValid()) {
     // Loop over the PFJets and fill some histograms
     int jetInd = 0;
-    for (PFJetCollection::const_iterator pf = pfJets->begin();
-         pf != pfJets->end(); ++pf) {
+    for (PFJetCollection::const_iterator pf = pfJets->begin(); pf != pfJets->end(); ++pf) {
       // std::cout << "PF JET #" << jetInd << std::endl << pf->print() <<
       // std::endl;
       if (jetInd == 0) {
@@ -387,7 +338,7 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent,
         }
         jetInd++;
       }
-    } // loop over pfjets
+    }  // loop over pfjets
   } else {
     // std::cout << "  -- No PFJets" << std::endl;
     // if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No
@@ -404,8 +355,7 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent,
   if (genJets.isValid()) {
     // Loop over the GenJets and fill some histograms
     int jetInd = 0;
-    for (GenJetCollection::const_iterator gen = genJets->begin();
-         gen != genJets->end(); ++gen) {
+    for (GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end(); ++gen) {
       if (jetInd == 0) {
         genJetPt = gen->pt();
         genJetEta = gen->eta();
@@ -457,8 +407,7 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent,
         _meHLTMET[it]->Fill(calMet);
         if (myTrigM.size() > it && myTrigM[it])
           _meHLTMETTrgMC[it]->Fill(calMet);
-        if (myTrigM.size() > it && myTrigMLow.size() > it && myTrigM[it] &&
-            myTrigMLow[it])
+        if (myTrigM.size() > it && myTrigMLow.size() > it && myTrigM[it] && myTrigMLow[it])
           _meHLTMETTrg[it]->Fill(calMet);
         if (myTrigMLow.size() > it && myTrigMLow[it])
           _meHLTMETTrgLow[it]->Fill(calMet);
@@ -482,8 +431,7 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent,
         _meGenMET[it]->Fill(genMet);
         if (myTrigM.size() > it && myTrigM[it])
           _meGenMETTrgMC[it]->Fill(genMet);
-        if (myTrigM.size() > it && myTrigMLow.size() > it && myTrigM[it] &&
-            myTrigMLow[it])
+        if (myTrigM.size() > it && myTrigMLow.size() > it && myTrigM[it] && myTrigMLow[it])
           _meGenMETTrg[it]->Fill(genMet);
         if (myTrigMLow.size() > it && myTrigMLow[it])
           _meGenMETTrgLow[it]->Fill(genMet);
@@ -496,9 +444,7 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent,
   }
 }
 
-void HLTJetMETValidation::getHLTResults(const edm::TriggerResults &hltresults,
-                                        const edm::TriggerNames &triggerNames) {
-
+void HLTJetMETValidation::getHLTResults(const edm::TriggerResults &hltresults, const edm::TriggerNames &triggerNames) {
   int ntrigs = hltresults.size();
   if (!HLTinit_) {
     HLTinit_ = true;

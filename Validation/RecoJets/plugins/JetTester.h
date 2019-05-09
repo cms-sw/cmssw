@@ -47,14 +47,17 @@ public:
   ~JetTester() override;
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
-  void fillMatchHists(const double GenEta, const double GenPhi,
-                      const double GenPt, const double GenMass,
-                      const double RecoEta, const double RecoPhi,
-                      const double RecoPt, const double RecoMass);
+  void fillMatchHists(const double GenEta,
+                      const double GenPhi,
+                      const double GenPt,
+                      const double GenMass,
+                      const double RecoEta,
+                      const double RecoPhi,
+                      const double RecoPt,
+                      const double RecoMass);
 
   edm::InputTag mInputCollection;
   edm::InputTag mInputGenCollection;

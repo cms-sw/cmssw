@@ -52,16 +52,15 @@ private:
 
 PixelVertexVal::PixelVertexVal(const edm::ParameterSet &conf)
     : verbose_(conf.getUntrackedParameter<unsigned int>("Verbosity",
-                                                        0)) // How noisy?
+                                                        0))  // How noisy?
       ,
-      file_(conf.getUntrackedParameter<std::string>("HistoFile",
-                                                    "pixelVertexHistos.root")),
-      h(), trackCollectionToken_(consumes<reco::TrackCollection>(edm::InputTag(
-               conf.getParameter<std::string>("TrackCollection")))),
-      vertexCollectionToken_(consumes<reco::VertexCollection>(
-          edm::InputTag(conf.getParameter<std::string>("VertexCollection")))),
-      simVertexContainerToken_(consumes<edm::SimVertexContainer>(
-          conf.getParameter<edm::InputTag>("simG4"))) {
+      file_(conf.getUntrackedParameter<std::string>("HistoFile", "pixelVertexHistos.root")),
+      h(),
+      trackCollectionToken_(
+          consumes<reco::TrackCollection>(edm::InputTag(conf.getParameter<std::string>("TrackCollection")))),
+      vertexCollectionToken_(
+          consumes<reco::VertexCollection>(edm::InputTag(conf.getParameter<std::string>("VertexCollection")))),
+      simVertexContainerToken_(consumes<edm::SimVertexContainer>(conf.getParameter<edm::InputTag>("simG4"))) {
   edm::LogInfo("PixelVertexVal") << " CTOR";
 }
 
@@ -133,8 +132,7 @@ void PixelVertexVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
     h["h_ResZ"]->Fill(dz);
     h["h_PullZ"]->Fill(dz / pv.zError());
 
-    for (reco::Vertex::trackRef_iterator it = pv.tracks_begin();
-         it != pv.tracks_end(); it++) {
+    for (reco::Vertex::trackRef_iterator it = pv.tracks_begin(); it != pv.tracks_end(); it++) {
       //    for (reco::Vertex::track_iterator it=pv.tracks_begin(); it !=
       //    pv.tracks_end(); it++) { for (reco::TrackRefVector::iterator
       //    it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
@@ -146,8 +144,7 @@ void PixelVertexVal::analyze(const edm::Event &ev, const edm::EventSetup &es) {
 
 void PixelVertexVal::endJob() {
   TFile rootFile(file_.c_str(), "RECREATE");
-  for (std::map<std::string, TH1 *>::const_iterator ih = h.begin();
-       ih != h.end(); ++ih) {
+  for (std::map<std::string, TH1 *>::const_iterator ih = h.begin(); ih != h.end(); ++ih) {
     TH1 *histo = (*ih).second;
     histo->Write();
     delete histo;

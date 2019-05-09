@@ -22,18 +22,13 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
-SiPixelPhase1TrackClustersV::SiPixelPhase1TrackClustersV(
-    const edm::ParameterSet &iConfig)
+SiPixelPhase1TrackClustersV::SiPixelPhase1TrackClustersV(const edm::ParameterSet &iConfig)
     : SiPixelPhase1Base(iConfig) {
-  clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(
-      iConfig.getParameter<edm::InputTag>("clusters"));
-  tracksToken_ = consumes<reco::TrackCollection>(
-      iConfig.getParameter<edm::InputTag>("tracks"));
+  clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("clusters"));
+  tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
 }
 
-void SiPixelPhase1TrackClustersV::analyze(const edm::Event &iEvent,
-                                          const edm::EventSetup &iSetup) {
-
+void SiPixelPhase1TrackClustersV::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get geometry
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);

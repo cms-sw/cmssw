@@ -15,7 +15,7 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 namespace reco {
-class TrackToTrackingParticleAssociator;
+  class TrackToTrackingParticleAssociator;
 }
 
 class SiPixelPhase1TrackingParticleV : public SiPixelPhase1Base {

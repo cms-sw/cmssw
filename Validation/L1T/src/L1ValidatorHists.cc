@@ -34,98 +34,98 @@ void L1ValidatorHists::Book(DQMStore::IBooker &iBooker, std::string dirname) {
 
   iBooker.setCurrentFolder(dirname + "/numerators_denominators");
   for (int i = 0; i < Type::Number; i++) {
-    Eff_Pt_Denom[i] = iBooker.book1D(
-        (Name[i] + "_Eff_Pt_Denom").c_str(),
-        (Name[i] + " Efficiency vs Pt Denom; Gen p_{T} [GeV]; Entries").c_str(),
-        Nptbin, ptbins);
-    Eff_Pt_Nomin[i] = iBooker.book1D(
-        (Name[i] + "_Eff_Pt_Nomin").c_str(),
-        (Name[i] + " Efficiency vs Pt Nomin; Gen p_{T} [GeV]; Entries").c_str(),
-        Nptbin, ptbins);
-    Eff_Eta_Denom[i] = iBooker.book1D(
-        (Name[i] + "_Eff_Eta_Denom").c_str(),
-        (Name[i] + " Efficiency vs #eta Denom; Gen #eta; Entries").c_str(), 80,
-        -4, 4);
-    Eff_Eta_Nomin[i] = iBooker.book1D(
-        (Name[i] + "_Eff_Eta_Nomin").c_str(),
-        (Name[i] + " Efficiency vs #eta Nomin; Gen #eta; Entries").c_str(), 80,
-        -4, 4);
-    TurnOn_15_Denom[i] = iBooker.book1D(
-        (Name[i] + "_TurnOn_15_Denom").c_str(),
-        (Name[i] + " Turn On (15 GeV) Denom; Gen p_{T} [GeV]; Entries").c_str(),
-        Nptbin, ptbins);
-    TurnOn_15_Nomin[i] = iBooker.book1D(
-        (Name[i] + "_TurnOn_15_Nomin").c_str(),
-        (Name[i] + " Turn On (15 GeV) Nomin; Gen p_{T} [GeV]; Entries").c_str(),
-        Nptbin, ptbins);
-    TurnOn_30_Denom[i] = iBooker.book1D(
-        (Name[i] + "_TurnOn_30_Denom").c_str(),
-        (Name[i] + " Turn On (30 GeV) Denom; Gen p_{T} [GeV]; Entries").c_str(),
-        Nptbin, ptbins);
-    TurnOn_30_Nomin[i] = iBooker.book1D(
-        (Name[i] + "_TurnOn_30_Nomin").c_str(),
-        (Name[i] + " Turn On (30 GeV) Nomin; Gen p_{T} [GeV]; Entries").c_str(),
-        Nptbin, ptbins);
+    Eff_Pt_Denom[i] = iBooker.book1D((Name[i] + "_Eff_Pt_Denom").c_str(),
+                                     (Name[i] + " Efficiency vs Pt Denom; Gen p_{T} [GeV]; Entries").c_str(),
+                                     Nptbin,
+                                     ptbins);
+    Eff_Pt_Nomin[i] = iBooker.book1D((Name[i] + "_Eff_Pt_Nomin").c_str(),
+                                     (Name[i] + " Efficiency vs Pt Nomin; Gen p_{T} [GeV]; Entries").c_str(),
+                                     Nptbin,
+                                     ptbins);
+    Eff_Eta_Denom[i] = iBooker.book1D((Name[i] + "_Eff_Eta_Denom").c_str(),
+                                      (Name[i] + " Efficiency vs #eta Denom; Gen #eta; Entries").c_str(),
+                                      80,
+                                      -4,
+                                      4);
+    Eff_Eta_Nomin[i] = iBooker.book1D((Name[i] + "_Eff_Eta_Nomin").c_str(),
+                                      (Name[i] + " Efficiency vs #eta Nomin; Gen #eta; Entries").c_str(),
+                                      80,
+                                      -4,
+                                      4);
+    TurnOn_15_Denom[i] = iBooker.book1D((Name[i] + "_TurnOn_15_Denom").c_str(),
+                                        (Name[i] + " Turn On (15 GeV) Denom; Gen p_{T} [GeV]; Entries").c_str(),
+                                        Nptbin,
+                                        ptbins);
+    TurnOn_15_Nomin[i] = iBooker.book1D((Name[i] + "_TurnOn_15_Nomin").c_str(),
+                                        (Name[i] + " Turn On (15 GeV) Nomin; Gen p_{T} [GeV]; Entries").c_str(),
+                                        Nptbin,
+                                        ptbins);
+    TurnOn_30_Denom[i] = iBooker.book1D((Name[i] + "_TurnOn_30_Denom").c_str(),
+                                        (Name[i] + " Turn On (30 GeV) Denom; Gen p_{T} [GeV]; Entries").c_str(),
+                                        Nptbin,
+                                        ptbins);
+    TurnOn_30_Nomin[i] = iBooker.book1D((Name[i] + "_TurnOn_30_Nomin").c_str(),
+                                        (Name[i] + " Turn On (30 GeV) Nomin; Gen p_{T} [GeV]; Entries").c_str(),
+                                        Nptbin,
+                                        ptbins);
   }
 
   iBooker.setCurrentFolder(dirname);
   for (int i = 0; i < Type::Number; i++) {
-    N[i] = iBooker.book1D((Name[i] + "_N").c_str(),
-                          ("L1 " + Name[i] + " Number with BX=0").c_str(), 16,
-                          -0.5, 15.5);
+    N[i] = iBooker.book1D((Name[i] + "_N").c_str(), ("L1 " + Name[i] + " Number with BX=0").c_str(), 16, -0.5, 15.5);
 
-    Eff_Pt[i] = iBooker.book1D(
-        (Name[i] + "_Eff_Pt").c_str(),
-        (Name[i] + " Efficiency vs Pt; Gen p_{T} [GeV]; L1T Efficiency")
-            .c_str(),
-        Nptbin, ptbins);
+    Eff_Pt[i] = iBooker.book1D((Name[i] + "_Eff_Pt").c_str(),
+                               (Name[i] + " Efficiency vs Pt; Gen p_{T} [GeV]; L1T Efficiency").c_str(),
+                               Nptbin,
+                               ptbins);
     Eff_Pt[i]->setEfficiencyFlag();
-    Eff_Eta[i] = iBooker.book1D(
-        (Name[i] + "_Eff_Eta").c_str(),
-        (Name[i] +
-         " Efficiency vs #eta (Gen p_{T} > 10GeV); Gen #eta; L1T Efficiency")
-            .c_str(),
-        80, -4, 4);
+    Eff_Eta[i] = iBooker.book1D((Name[i] + "_Eff_Eta").c_str(),
+                                (Name[i] + " Efficiency vs #eta (Gen p_{T} > 10GeV); Gen #eta; L1T Efficiency").c_str(),
+                                80,
+                                -4,
+                                4);
     Eff_Eta[i]->setEfficiencyFlag();
-    TurnOn_15[i] = iBooker.book1D(
-        (Name[i] + "_TurnOn_15").c_str(),
-        (Name[i] + " Turn On (15 GeV); Gen p_{T} [GeV]; L1T Efficiency")
-            .c_str(),
-        Nptbin, ptbins);
+    TurnOn_15[i] = iBooker.book1D((Name[i] + "_TurnOn_15").c_str(),
+                                  (Name[i] + " Turn On (15 GeV); Gen p_{T} [GeV]; L1T Efficiency").c_str(),
+                                  Nptbin,
+                                  ptbins);
     TurnOn_15[i]->setEfficiencyFlag();
-    TurnOn_30[i] = iBooker.book1D(
-        (Name[i] + "_TurnOn_30").c_str(),
-        (Name[i] + " Turn On (30 GeV); Gen p_{T} [GeV]; L1T Efficiency")
-            .c_str(),
-        Nptbin, ptbins);
+    TurnOn_30[i] = iBooker.book1D((Name[i] + "_TurnOn_30").c_str(),
+                                  (Name[i] + " Turn On (30 GeV); Gen p_{T} [GeV]; L1T Efficiency").c_str(),
+                                  Nptbin,
+                                  ptbins);
     TurnOn_30[i]->setEfficiencyFlag();
     dR[i] = iBooker.book1D(
-        (Name[i] + "_dR").c_str(),
-        (Name[i] + " #DeltaR; #DeltaR(L1 object, Gen object); Entries").c_str(),
-        40, 0, 1);
-    dR_vs_Pt[i] =
-        iBooker.book2D((Name[i] + "_dR_vs_Pt").c_str(),
-                       (Name[i] + " #DeltaR vs p_{T}; Gen p_{T} [GeV]; "
-                                  "#DeltaR(L1 object, Gen object); Entries")
-                           .c_str(),
-                       12, 0, 120, 40, 0, 1);
-    dPt[i] = iBooker.book1D(
-        (Name[i] + "_dPt").c_str(),
-        (Name[i] +
-         " #Deltap_{T}; (p_{T}^{L1}-p_{T}^{Gen})/p_{T}^{Gen}; Entries")
-            .c_str(),
-        100, -2, 2);
-    dPt_vs_Pt[i] = iBooker.book2D(
-        (Name[i] + "_dPt_vs_Pt").c_str(),
-        (Name[i] + " #Deltap_{T} vs p_{T}; Gen p_{T} [GeV]; "
-                   "(p_{T}^{L1}-p_{T}^{Gen})/p_{T}^{Gen}; Entries")
-            .c_str(),
-        12, 0, 120, 40, -2, 2);
+        (Name[i] + "_dR").c_str(), (Name[i] + " #DeltaR; #DeltaR(L1 object, Gen object); Entries").c_str(), 40, 0, 1);
+    dR_vs_Pt[i] = iBooker.book2D((Name[i] + "_dR_vs_Pt").c_str(),
+                                 (Name[i] + " #DeltaR vs p_{T}; Gen p_{T} [GeV]; "
+                                            "#DeltaR(L1 object, Gen object); Entries")
+                                     .c_str(),
+                                 12,
+                                 0,
+                                 120,
+                                 40,
+                                 0,
+                                 1);
+    dPt[i] = iBooker.book1D((Name[i] + "_dPt").c_str(),
+                            (Name[i] + " #Deltap_{T}; (p_{T}^{L1}-p_{T}^{Gen})/p_{T}^{Gen}; Entries").c_str(),
+                            100,
+                            -2,
+                            2);
+    dPt_vs_Pt[i] = iBooker.book2D((Name[i] + "_dPt_vs_Pt").c_str(),
+                                  (Name[i] + " #Deltap_{T} vs p_{T}; Gen p_{T} [GeV]; "
+                                             "(p_{T}^{L1}-p_{T}^{Gen})/p_{T}^{Gen}; Entries")
+                                      .c_str(),
+                                  12,
+                                  0,
+                                  120,
+                                  40,
+                                  -2,
+                                  2);
   }
 }
 
-void L1ValidatorHists::Fill(int i, const reco::LeafCandidate *GenPart,
-                            const reco::LeafCandidate *L1Part) {
+void L1ValidatorHists::Fill(int i, const reco::LeafCandidate *GenPart, const reco::LeafCandidate *L1Part) {
   double GenPartPt = GenPart->pt();
   // fill the overflow in the last bin
   if (GenPart->pt() >= 160.0)
@@ -137,8 +137,7 @@ void L1ValidatorHists::Fill(int i, const reco::LeafCandidate *GenPart,
     TurnOn_15_Denom[i]->Fill(GenPartPt);
     TurnOn_30_Denom[i]->Fill(GenPartPt);
   } else {
-    double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), L1Part->eta(),
-                              L1Part->phi());
+    double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), L1Part->eta(), L1Part->phi());
     bool matched = idR < 0.15;
     Eff_Pt_Denom[i]->Fill(GenPartPt);
     if (GenPart->pt() > 10)
@@ -156,8 +155,7 @@ void L1ValidatorHists::Fill(int i, const reco::LeafCandidate *GenPart,
     dR[i]->Fill(idR);
     dPt[i]->Fill((L1Part->pt() - GenPart->pt()) / GenPart->pt());
     dR_vs_Pt[i]->Fill(GenPart->pt(), idR);
-    dPt_vs_Pt[i]->Fill(GenPart->pt(),
-                       (L1Part->pt() - GenPart->pt()) / GenPart->pt());
+    dPt_vs_Pt[i]->Fill(GenPart->pt(), (L1Part->pt() - GenPart->pt()) / GenPart->pt());
   }
 }
 

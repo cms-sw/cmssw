@@ -36,7 +36,6 @@
 #include <vector>
 
 class EcalBarrelRecHitsValidation : public DQMEDAnalyzer {
-
 public:
   /// Constructor
   EcalBarrelRecHitsValidation(const edm::ParameterSet &ps);
@@ -46,8 +45,7 @@ public:
 
 protected:
   /// Analyze
-  void bookHistograms(DQMStore::IBooker &i, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
 private:
@@ -55,8 +53,7 @@ private:
 
   // fix for consumes
   edm::EDGetTokenT<EBDigiCollection> EBdigiCollection_token_;
-  edm::EDGetTokenT<EBUncalibratedRecHitCollection>
-      EBuncalibrechitCollection_token_;
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> EBuncalibrechitCollection_token_;
 
   MonitorElement *meEBUncalibRecHitsOccupancy_;
   MonitorElement *meEBUncalibRecHitsAmplitude_;

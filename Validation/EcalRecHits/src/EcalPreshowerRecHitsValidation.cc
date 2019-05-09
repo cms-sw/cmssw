@@ -14,33 +14,29 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalPreshowerRecHitsValidation::EcalPreshowerRecHitsValidation(
-    const ParameterSet &ps) {
-
+EcalPreshowerRecHitsValidation::EcalPreshowerRecHitsValidation(const ParameterSet &ps) {
   // ----------------------
-  EEuncalibrechitCollection_token_ = consumes<EEUncalibratedRecHitCollection>(
-      ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
-  EErechitCollection_token_ = consumes<EERecHitCollection>(
-      ps.getParameter<edm::InputTag>("EErechitCollection"));
-  ESrechitCollection_token_ = consumes<ESRecHitCollection>(
-      ps.getParameter<edm::InputTag>("ESrechitCollection"));
+  EEuncalibrechitCollection_token_ =
+      consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
+  EErechitCollection_token_ = consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("EErechitCollection"));
+  ESrechitCollection_token_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("ESrechitCollection"));
 
   // ----------------------
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // ----------------------
-  meESRecHitsEnergy_ = nullptr; // total energy
+  meESRecHitsEnergy_ = nullptr;  // total energy
   meESRecHitsEnergy_zp1st_ = nullptr;
   meESRecHitsEnergy_zp2nd_ = nullptr;
   meESRecHitsEnergy_zm1st_ = nullptr;
   meESRecHitsEnergy_zm2nd_ = nullptr;
-  meESRecHitsMultip_ = nullptr; // total multiplicity
+  meESRecHitsMultip_ = nullptr;  // total multiplicity
   meESRecHitsMultip_zp1st_ = nullptr;
   meESRecHitsMultip_zp2nd_ = nullptr;
   meESRecHitsMultip_zm1st_ = nullptr;
   meESRecHitsMultip_zm2nd_ = nullptr;
-  meESEERecHitsEnergy_zp_ = nullptr; // versus EE energy
+  meESEERecHitsEnergy_zp_ = nullptr;  // versus EE energy
   meESEERecHitsEnergy_zm_ = nullptr;
 
   for (int kk = 0; kk < 32; kk++) {
@@ -56,7 +52,6 @@ EcalPreshowerRecHitsValidation::~EcalPreshowerRecHitsValidation() {}
 void EcalPreshowerRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker,
                                                     edm::Run const &,
                                                     edm::EventSetup const &) {
-
   Char_t histo[200];
 
   ibooker.setCurrentFolder("EcalRecHitsV/EcalPreshowerRecHitsTask");
@@ -92,35 +87,27 @@ void EcalPreshowerRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker,
   meESRecHitsMultip_zm2nd_ = ibooker.book1D(histo, histo, 100, 0., 700.);
 
   sprintf(histo, "Preshower EE vs ES energy Side+");
-  meESEERecHitsEnergy_zp_ =
-      ibooker.book2D(histo, histo, 100, 0., 0.2, 100, 0., 150.);
+  meESEERecHitsEnergy_zp_ = ibooker.book2D(histo, histo, 100, 0., 0.2, 100, 0., 150.);
 
   sprintf(histo, "Preshower EE vs ES energy Side-");
-  meESEERecHitsEnergy_zm_ =
-      ibooker.book2D(histo, histo, 100, 0., 0.2, 100, 0., 150.);
+  meESEERecHitsEnergy_zm_ = ibooker.book2D(histo, histo, 100, 0., 0.2, 100, 0., 150.);
 
   for (int kk = 0; kk < 32; kk++) {
     sprintf(histo, "ES Occupancy Plane1 Side+ Strip%02d", kk + 1);
-    meESRecHitsStripOccupancy_zp1st_[kk] =
-        ibooker.book2D(histo, histo, 40, 0., 40., 40, 0., 40.);
+    meESRecHitsStripOccupancy_zp1st_[kk] = ibooker.book2D(histo, histo, 40, 0., 40., 40, 0., 40.);
 
     sprintf(histo, "ES Occupancy Plane2 Side+ Strip%02d", kk + 1);
-    meESRecHitsStripOccupancy_zp2nd_[kk] =
-        ibooker.book2D(histo, histo, 40, 0., 40., 40, 0., 40.);
+    meESRecHitsStripOccupancy_zp2nd_[kk] = ibooker.book2D(histo, histo, 40, 0., 40., 40, 0., 40.);
 
     sprintf(histo, "ES Occupancy Plane1 Side- Strip%02d", kk + 1);
-    meESRecHitsStripOccupancy_zm1st_[kk] =
-        ibooker.book2D(histo, histo, 40, 0., 40., 40, 0., 40.);
+    meESRecHitsStripOccupancy_zm1st_[kk] = ibooker.book2D(histo, histo, 40, 0., 40., 40, 0., 40.);
 
     sprintf(histo, "ES Occupancy Plane2 Side- Strip%02d", kk + 1);
-    meESRecHitsStripOccupancy_zm2nd_[kk] =
-        ibooker.book2D(histo, histo, 40, 0., 40., 40, 0., 40.);
+    meESRecHitsStripOccupancy_zm2nd_[kk] = ibooker.book2D(histo, histo, 40, 0., 40., 40, 0., 40.);
   }
 }
 
-void EcalPreshowerRecHitsValidation::analyze(const Event &e,
-                                             const EventSetup &c) {
-
+void EcalPreshowerRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
   const ESRecHitCollection *ESRecHit = nullptr;
   Handle<ESRecHitCollection> EcalRecHitES;
   e.getByToken(ESrechitCollection_token_, EcalRecHitES);
@@ -165,8 +152,7 @@ void EcalPreshowerRecHitsValidation::analyze(const Event &e,
   float ene_zm2nd = 0.;
 
   // ES
-  for (ESRecHitCollection::const_iterator recHit = ESRecHit->begin();
-       recHit != ESRecHit->end(); ++recHit) {
+  for (ESRecHitCollection::const_iterator recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit) {
     ESDetId ESid = ESDetId(recHit->id());
 
     int zside = ESid.zside();
@@ -228,16 +214,15 @@ void EcalPreshowerRecHitsValidation::analyze(const Event &e,
       }
     }
 
-  } // loop over the ES RecHitCollection
+  }  // loop over the ES RecHitCollection
 
   // EE
   double zpEE = 0.;
   double zmEE = 0.;
   if (!skipEE) {
-
-    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit =
-             EEUncalibRecHit->begin();
-         uncalibRecHit != EEUncalibRecHit->end(); ++uncalibRecHit) {
+    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin();
+         uncalibRecHit != EEUncalibRecHit->end();
+         ++uncalibRecHit) {
       EEDetId EEid = EEDetId(uncalibRecHit->id());
       int mySide = EEid.zside();
 

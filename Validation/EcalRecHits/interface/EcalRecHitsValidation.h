@@ -42,7 +42,6 @@
 #include <vector>
 
 class EcalRecHitsValidation : public DQMEDAnalyzer {
-
   typedef std::map<uint32_t, float, std::less<uint32_t>> MapType;
 
 public:
@@ -53,16 +52,13 @@ public:
   ~EcalRecHitsValidation() override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker &i, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
   /// Analyze
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
   uint32_t getUnitWithMaxEnergy(MapType &themap);
-  void findBarrelMatrix(int nCellInEta, int nCellInPhi, int CentralEta,
-                        int CentralPhi, int CentralZ, MapType &themap);
-  void findEndcapMatrix(int nCellInX, int nCellInY, int CentralX, int CentralY,
-                        int CentralZ, MapType &themap);
+  void findBarrelMatrix(int nCellInEta, int nCellInPhi, int CentralEta, int CentralPhi, int CentralZ, MapType &themap);
+  void findEndcapMatrix(int nCellInX, int nCellInY, int CentralX, int CentralY, int CentralZ, MapType &themap);
 
 private:
   std::string HepMCLabel;
@@ -82,10 +78,8 @@ private:
   edm::EDGetTokenT<EBRecHitCollection> EBrechitCollection_Token_;
   edm::EDGetTokenT<EERecHitCollection> EErechitCollection_Token_;
   edm::EDGetTokenT<ESRecHitCollection> ESrechitCollection_Token_;
-  edm::EDGetTokenT<EBUncalibratedRecHitCollection>
-      EBuncalibrechitCollection_Token_;
-  edm::EDGetTokenT<EEUncalibratedRecHitCollection>
-      EEuncalibrechitCollection_Token_;
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> EBuncalibrechitCollection_Token_;
+  edm::EDGetTokenT<EEUncalibratedRecHitCollection> EEuncalibrechitCollection_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;

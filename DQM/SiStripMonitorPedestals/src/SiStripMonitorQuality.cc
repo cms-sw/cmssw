@@ -42,7 +42,8 @@
 #include <numeric>
 
 SiStripMonitorQuality::SiStripMonitorQuality(edm::ParameterSet const &iConfig)
-    : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig),
+    : dqmStore_(edm::Service<DQMStore>().operator->()),
+      conf_(iConfig),
       m_cacheID_(0)
 
 {
@@ -58,9 +59,7 @@ SiStripMonitorQuality::~SiStripMonitorQuality() {
 void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
                                            const edm::Run &run,
                                            const edm::EventSetup &eSetup) {
-
-  unsigned long long cacheID =
-      eSetup.get<SiStripQualityRcd>().cacheIdentifier();
+  unsigned long long cacheID = eSetup.get<SiStripQualityRcd>().cacheIdentifier();
   if (m_cacheID_ == cacheID)
     return;
 
@@ -71,39 +70,32 @@ void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
 
   m_cacheID_ = cacheID;
 
-  std::string quality_label =
-      conf_.getParameter<std::string>("StripQualityLabel");
+  std::string quality_label = conf_.getParameter<std::string>("StripQualityLabel");
   eSetup.get<SiStripQualityRcd>().get(quality_label, stripQuality_);
   eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
 
-  edm::LogInfo("SiStripMonitorQuality")
-      << "SiStripMonitorQuality::analyze: "
-      << " Reading SiStripQuality " << std::endl;
+  edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze: "
+                                        << " Reading SiStripQuality " << std::endl;
 
-  SiStripBadStrip::RegistryIterator rbegin =
-      stripQuality_->getRegistryVectorBegin();
-  SiStripBadStrip::RegistryIterator rend =
-      stripQuality_->getRegistryVectorEnd();
+  SiStripBadStrip::RegistryIterator rbegin = stripQuality_->getRegistryVectorBegin();
+  SiStripBadStrip::RegistryIterator rend = stripQuality_->getRegistryVectorEnd();
   uint32_t detid;
 
   if (rbegin == rend)
     return;
 
   for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
-
     detid = rp->detid;
     // Check consistency in DetId
     if (detid == 0 || detid == 0xFFFFFFFF) {
-      edm::LogError("SiStripMonitorQuality")
-          << "SiStripMonitorQuality::bookHistograms : "
-          << "Wrong DetId !!!!!! " << detid << " Neglecting !!!!!! ";
+      edm::LogError("SiStripMonitorQuality") << "SiStripMonitorQuality::bookHistograms : "
+                                             << "Wrong DetId !!!!!! " << detid << " Neglecting !!!!!! ";
       continue;
     }
     // check if the detid is connected in cabling
     if (!detCabling_->IsConnected(detid)) {
-      edm::LogError("SiStripMonitorQuality")
-          << "SiStripMonitorQuality::bookHistograms : "
-          << " DetId " << detid << " not connected,  Neglecting !!!!!! ";
+      edm::LogError("SiStripMonitorQuality") << "SiStripMonitorQuality::bookHistograms : "
+                                             << " DetId " << detid << " not connected,  Neglecting !!!!!! ";
       continue;
     }
 
@@ -117,7 +109,7 @@ void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
     SiStripFolderOrganizer folder_organizer;
     // set appropriate folder using SiStripFolderOrganizer
     folder_organizer.setDetectorFolder(detid,
-                                       tTopo); // pass the detid to this method
+                                       tTopo);  // pass the detid to this method
 
     std::string hid;
     hid = hidmanager.createHistoId("StripQualityFromCondDB", "det", detid);
@@ -131,10 +123,8 @@ void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
 }
 
 // ------------ method called to produce the data  ------------
-void SiStripMonitorQuality::analyze(edm::Event const &iEvent,
-                                    edm::EventSetup const &eSetup) {
-  unsigned long long cacheID =
-      eSetup.get<SiStripQualityRcd>().cacheIdentifier();
+void SiStripMonitorQuality::analyze(edm::Event const &iEvent, edm::EventSetup const &eSetup) {
+  unsigned long long cacheID = eSetup.get<SiStripQualityRcd>().cacheIdentifier();
   if (m_cacheID_ == cacheID)
     return;
 
@@ -145,45 +135,37 @@ void SiStripMonitorQuality::analyze(edm::Event const &iEvent,
 
   m_cacheID_ = cacheID;
 
-  std::string quality_label =
-      conf_.getParameter<std::string>("StripQualityLabel");
+  std::string quality_label = conf_.getParameter<std::string>("StripQualityLabel");
   eSetup.get<SiStripQualityRcd>().get(quality_label, stripQuality_);
   eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
 
-  edm::LogInfo("SiStripMonitorQuality")
-      << "SiStripMonitorQuality::analyze: "
-      << " Reading SiStripQuality " << std::endl;
+  edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze: "
+                                        << " Reading SiStripQuality " << std::endl;
 
-  SiStripBadStrip::RegistryIterator rbegin =
-      stripQuality_->getRegistryVectorBegin();
-  SiStripBadStrip::RegistryIterator rend =
-      stripQuality_->getRegistryVectorEnd();
+  SiStripBadStrip::RegistryIterator rbegin = stripQuality_->getRegistryVectorBegin();
+  SiStripBadStrip::RegistryIterator rend = stripQuality_->getRegistryVectorEnd();
   uint32_t detid;
 
   if (rbegin == rend)
     return;
 
   for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
-
     detid = rp->detid;
     // Check consistency in DetId
     if (detid == 0 || detid == 0xFFFFFFFF) {
-      edm::LogError("SiStripMonitorQuality")
-          << "SiStripMonitorQuality::analyze : "
-          << "Wrong DetId !!!!!! " << detid << " Neglecting !!!!!! ";
+      edm::LogError("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze : "
+                                             << "Wrong DetId !!!!!! " << detid << " Neglecting !!!!!! ";
       continue;
     }
     // check if the detid is connected in cabling
     if (!detCabling_->IsConnected(detid)) {
-      edm::LogError("SiStripMonitorQuality")
-          << "SiStripMonitorQuality::analyze : "
-          << " DetId " << detid << " not connected,  Neglecting !!!!!! ";
+      edm::LogError("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze : "
+                                             << " DetId " << detid << " not connected,  Neglecting !!!!!! ";
       continue;
     }
     MonitorElement *me = getQualityME(detid, tTopo);
-    SiStripBadStrip::Range range =
-        SiStripBadStrip::Range(stripQuality_->getDataVectorBegin() + rp->ibegin,
-                               stripQuality_->getDataVectorBegin() + rp->iend);
+    SiStripBadStrip::Range range = SiStripBadStrip::Range(stripQuality_->getDataVectorBegin() + rp->ibegin,
+                                                          stripQuality_->getDataVectorBegin() + rp->iend);
     SiStripBadStrip::ContainerIterator it = range.first;
     for (; it != range.second; ++it) {
       unsigned int value = (*it);
@@ -199,11 +181,9 @@ void SiStripMonitorQuality::analyze(edm::Event const &iEvent,
 //
 // -- End Run
 //
-void SiStripMonitorQuality::endRun(edm::Run const &run,
-                                   edm::EventSetup const &eSetup) {
+void SiStripMonitorQuality::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName =
-      conf_.getParameter<std::string>("OutputFileName");
+  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {
     // dqmStore_->showDirStructure();
     dqmStore_->save(outputFileName);
@@ -219,10 +199,7 @@ void SiStripMonitorQuality::endJob(void) {
 //
 // -- End Job
 //
-MonitorElement *
-SiStripMonitorQuality::getQualityME(uint32_t idet,
-                                    const TrackerTopology *tTopo) {
-
+MonitorElement *SiStripMonitorQuality::getQualityME(uint32_t idet, const TrackerTopology *tTopo) {
   std::map<uint32_t, MonitorElement *>::iterator pos = QualityMEs.find(idet);
   MonitorElement *det_me = nullptr;
   if (pos != QualityMEs.end()) {
@@ -230,9 +207,8 @@ SiStripMonitorQuality::getQualityME(uint32_t idet,
     det_me->Reset();
   } else {
     // this should never happen because of bookHistograms()
-    edm::LogError("SiStripMonitorQuality")
-        << "SiStripMonitorQuality::getQualityME : "
-        << "Wrong DetId !!!!!! " << idet << " No ME found!";
+    edm::LogError("SiStripMonitorQuality") << "SiStripMonitorQuality::getQualityME : "
+                                           << "Wrong DetId !!!!!! " << idet << " No ME found!";
   }
   return det_me;
 }
