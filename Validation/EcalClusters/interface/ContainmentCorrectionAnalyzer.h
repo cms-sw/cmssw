@@ -56,11 +56,9 @@ public:
 
 private:
   float ecalEta(float EtaParticle, float Zvertex, float plane_Radius);
-  std::vector<EcalSimPhotonMCTruth>
-  findMcTruth(std::vector<SimTrack> &theSimTracks,
-              std::vector<SimVertex> &theSimVertices);
-  void fillMcTruth(std::vector<SimTrack> &theSimTracks,
-                   std::vector<SimVertex> &theSimVertices);
+  std::vector<EcalSimPhotonMCTruth> findMcTruth(std::vector<SimTrack> &theSimTracks,
+                                                std::vector<SimVertex> &theSimVertices);
+  void fillMcTruth(std::vector<SimTrack> &theSimTracks, std::vector<SimVertex> &theSimVertices);
 
   edm::EDGetTokenT<edm::SimTrackContainer> SimTrackCollection_;
   edm::EDGetTokenT<edm::SimVertexContainer> SimVertexCollection_;
@@ -74,8 +72,7 @@ private:
   std::vector<int> isConverted;
   std::vector<float> x_vtx, y_vtx, z_vtx;
   int nRECOphotons;
-  std::vector<float> superClusterEnergy, superClusterEta, superClusterPhi,
-      superClusterEt;
+  std::vector<float> superClusterEnergy, superClusterEta, superClusterPhi, superClusterEt;
   std::vector<float> e1, e9, e25;
   std::vector<int> seedXtal;
   std::vector<int> iMC;

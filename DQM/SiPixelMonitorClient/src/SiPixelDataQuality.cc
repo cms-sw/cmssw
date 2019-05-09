@@ -54,7 +54,7 @@
 #include <iostream>
 #include <map>
 
-#include <cstdlib> // for free() - Root can allocate with malloc() - sigh...
+#include <cstdlib>  // for free() - Root can allocate with malloc() - sigh...
 #include <fstream>
 
 using namespace std;
@@ -64,8 +64,7 @@ using namespace edm;
 /*! \brief Constructor of the SiPixelInformationExtractor class.
  *
  */
-SiPixelDataQuality::SiPixelDataQuality(bool offlineXMLfile)
-    : offlineXMLfile_(offlineXMLfile) {
+SiPixelDataQuality::SiPixelDataQuality(bool offlineXMLfile) : offlineXMLfile_(offlineXMLfile) {
   edm::LogInfo("SiPixelDataQuality") << " Creating SiPixelDataQuality "
                                      << "\n";
 
@@ -130,40 +129,32 @@ int SiPixelDataQuality::getDetId(MonitorElement *mE) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore::IBooker &iBooker,
-                                               bool Tier0Flag, int nFEDs) {
+void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore::IBooker &iBooker, bool Tier0Flag, int nFEDs) {
   // std::cout<<"BOOK GLOBAL QUALITY FLAG MEs!"<<std::endl;
   iBooker.cd();
 
   iBooker.setCurrentFolder("Pixel/Barrel");
   if (!Tier0Flag) {
-    ClusterModAll = iBooker.book1D("NClustertoChargeRatio_AllMod",
-                                   "Cluster Noise All Modules", 768, 0., 768.);
+    ClusterModAll = iBooker.book1D("NClustertoChargeRatio_AllMod", "Cluster Noise All Modules", 768, 0., 768.);
     ClusterMod1 = iBooker.book1D(
-        "NClustertoChargeRatio_NormMod1",
-        "Normalized N_{Clusters} to Charge Ratio per Module1", 192, 0., 192.);
+        "NClustertoChargeRatio_NormMod1", "Normalized N_{Clusters} to Charge Ratio per Module1", 192, 0., 192.);
     ClusterMod2 = iBooker.book1D(
-        "NClustertoChargeRatio_NormMod2",
-        "Normalized N_{Clusters} to Charge Ratio per Module2", 192, 0., 192.);
+        "NClustertoChargeRatio_NormMod2", "Normalized N_{Clusters} to Charge Ratio per Module2", 192, 0., 192.);
     ClusterMod3 = iBooker.book1D(
-        "NClustertoChargeRatio_NormMod3",
-        "Normalized N_{Clusters} to Charge Ratio per Module3", 192, 0., 192.);
+        "NClustertoChargeRatio_NormMod3", "Normalized N_{Clusters} to Charge Ratio per Module3", 192, 0., 192.);
     ClusterMod4 = iBooker.book1D(
-        "NClustertoChargeRatio_NormMod4",
-        "Normalized N_{Clusters} to Charge Ratio per Module4", 192, 0., 192.);
+        "NClustertoChargeRatio_NormMod4", "Normalized N_{Clusters} to Charge Ratio per Module4", 192, 0., 192.);
   }
   iBooker.setCurrentFolder("Pixel/EventInfo");
   if (!Tier0Flag) {
-    SummaryReportMap = iBooker.book2D("reportSummaryMap", "Pixel Summary Map",
-                                      3000, 0., 3000., 40, 0., 40.);
+    SummaryReportMap = iBooker.book2D("reportSummaryMap", "Pixel Summary Map", 3000, 0., 3000., 40, 0., 40.);
     SummaryReportMap->setAxisTitle("Lumi Section", 1);
     SummaryReportMap->setAxisTitle("Pixel FED #", 2);
     allmodsVec = new TH1D("allmodsVec", "allmodsVec", 40, 0., 40.);
     errmodsVec = new TH1D("errmodsVec", "errmodsVec", 40, 0., 40.);
     goodmodsVec = new TH1D("goodmodsVec", "goodmodsVec", 40, 0., 40.);
   } else {
-    SummaryReportMap = iBooker.book2D("reportSummaryMap", "Pixel Summary Map",
-                                      2, 0., 2., 7, 0., 7.);
+    SummaryReportMap = iBooker.book2D("reportSummaryMap", "Pixel Summary Map", 2, 0., 2., 7, 0., 7.);
     SummaryReportMap->setBinLabel(1, "Barrel", 1);
     SummaryReportMap->setBinLabel(2, "Endcaps", 1);
     SummaryReportMap->setBinLabel(1, "Errors", 2);
@@ -287,10 +278,8 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore::IBooker &iBooker,
 
 //**********************************************************************************************
 
-void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore::IBooker &iBooker,
-                                                  DQMStore::IGetter &iGetter,
-                                                  bool init, int nFEDs,
-                                                  bool Tier0Flag) {
+void SiPixelDataQuality::computeGlobalQualityFlag(
+    DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, bool init, int nFEDs, bool Tier0Flag) {
   if (init) {
     allMods_ = 0;
     errorMods_ = 0;
@@ -307,11 +296,9 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore::IBooker &iBooker,
     endcap_error_flag_ = 0.;
     n_errors_pixel_ = 0;
     pixel_error_flag_ = 0.;
-    digiStatsBarrel = false, clusterStatsBarrel = false,
-    trackStatsBarrel = false;
+    digiStatsBarrel = false, clusterStatsBarrel = false, trackStatsBarrel = false;
     digiCounterBarrel = 0, clusterCounterBarrel = 0, trackCounterBarrel = 0;
-    digiStatsEndcap = false, clusterStatsEndcap = false,
-    trackStatsEndcap = false;
+    digiStatsEndcap = false, clusterStatsEndcap = false, trackStatsEndcap = false;
     digiCounterEndcap = 0, clusterCounterEndcap = 0, trackCounterEndcap = 0;
     init = false;
   }
@@ -322,9 +309,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore::IBooker &iBooker,
   string dname = currDir.substr(currDir.find_last_of("/") + 1);
 
   if ((!Tier0Flag && dname.find("Module_") != string::npos) ||
-      (Tier0Flag && (dname.find("Ladder_") != string::npos ||
-                     dname.find("Blade_") != string::npos))) {
-
+      (Tier0Flag && (dname.find("Ladder_") != string::npos || dname.find("Blade_") != string::npos))) {
     objectCount_++;
 
     if (currDir.find("Pixel") != string::npos)
@@ -334,8 +319,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore::IBooker &iBooker,
     if (currDir.find("Endcap") != string::npos)
       endcapMods_++;
     vector<string> meVec = iGetter.getMEs();
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end();
-         it++) {
+    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
       if (full_path.find("ndigis_") != string::npos) {
         MonitorElement *me = iGetter.get(full_path);
@@ -347,8 +331,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore::IBooker &iBooker,
           if (full_path.find("Endcap") != string::npos)
             digiCounterEndcap++;
         }
-      } else if (Tier0Flag &&
-                 full_path.find("nclusters_OnTrack_") != string::npos) {
+      } else if (Tier0Flag && full_path.find("nclusters_OnTrack_") != string::npos) {
         MonitorElement *me = iGetter.get(full_path);
         if (!me)
           continue;
@@ -372,8 +355,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore::IBooker &iBooker,
     }
   }
   vector<string> subDirVec = iGetter.getSubdirs();
-  for (vector<string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
+  for (vector<string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
     iGetter.cd(*ic);
     iBooker.cd(*ic);
     init = false;
@@ -383,42 +365,33 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore::IBooker &iBooker,
   }
 
   // Make sure I have finished looping over all Modules/Ladders/Blades:
-  if (!Tier0Flag) { // online case
+  if (!Tier0Flag) {  // online case
     if (objectCount_ == 1440)
       DONE_ = true;
-  } else { // offline case
+  } else {  // offline case
     if (objectCount_ == 288)
       DONE_ = true;
   }
 
   if (DONE_ && currDir == "Pixel/EventInfo/reportSummaryContents") {
-
     // Evaluate error flag now, only stored in AdditionalPixelErrors:
-    MonitorElement *me_err =
-        iGetter.get("Pixel/AdditionalPixelErrors/FedETypeNErr");
+    MonitorElement *me_err = iGetter.get("Pixel/AdditionalPixelErrors/FedETypeNErr");
     MonitorElement *me_evt = iGetter.get("Pixel/EventInfo/processedEvents");
     if (me_err && me_evt) {
       for (int i = 1; i != 41; i++)
         for (int j = 1; j != 22; j++)
           if (me_err->getBinContent(i, j) > 0) {
-            n_errors_pixel_ =
-                n_errors_pixel_ + int(me_err->getBinContent(i, j));
+            n_errors_pixel_ = n_errors_pixel_ + int(me_err->getBinContent(i, j));
             if (i < 33)
-              n_errors_barrel_ =
-                  n_errors_barrel_ + int(me_err->getBinContent(i, j));
+              n_errors_barrel_ = n_errors_barrel_ + int(me_err->getBinContent(i, j));
             if (i > 32)
-              n_errors_endcap_ =
-                  n_errors_endcap_ + int(me_err->getBinContent(i, j));
+              n_errors_endcap_ = n_errors_endcap_ + int(me_err->getBinContent(i, j));
           }
       int NProcEvts = me_evt->getIntValue();
       if (NProcEvts > 0) {
-        barrel_error_flag_ =
-            (float(NProcEvts) - float(n_errors_barrel_)) / float(NProcEvts);
-        endcap_error_flag_ =
-            (float(NProcEvts) - float(n_errors_endcap_)) / float(NProcEvts);
-        pixel_error_flag_ = (float(NProcEvts) - float(n_errors_barrel_) -
-                             float(n_errors_endcap_)) /
-                            float(NProcEvts);
+        barrel_error_flag_ = (float(NProcEvts) - float(n_errors_barrel_)) / float(NProcEvts);
+        endcap_error_flag_ = (float(NProcEvts) - float(n_errors_endcap_)) / float(NProcEvts);
+        pixel_error_flag_ = (float(NProcEvts) - float(n_errors_barrel_) - float(n_errors_endcap_)) / float(NProcEvts);
       }
     }
     NErrorsBarrel = iGetter.get("Pixel/Barrel/BarrelNErrorsCut");
@@ -712,12 +685,10 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore::IBooker &iBooker,
     SummaryPixel = iGetter.get("Pixel/EventInfo/reportSummary");
     if (SummaryPixel)
       SummaryPixel->Fill(pixelFlag);
-    SummaryBarrel = iGetter.get(
-        "Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction");
+    SummaryBarrel = iGetter.get("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction");
     if (SummaryBarrel)
       SummaryBarrel->Fill(barrelFlag);
-    SummaryEndcap = iGetter.get(
-        "Pixel/EventInfo/reportSummaryContents/PixelEndcapFraction");
+    SummaryEndcap = iGetter.get("Pixel/EventInfo/reportSummaryContents/PixelEndcapFraction");
     if (SummaryEndcap)
       SummaryEndcap->Fill(endcapFlag);
   }
@@ -725,9 +696,13 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore::IBooker &iBooker,
 
 //**********************************************************************************************
 
-void SiPixelDataQuality::computeGlobalQualityFlagByLumi(
-    DQMStore::IGetter &iGetter, bool init, int nFEDs, bool Tier0Flag,
-    int nEvents_lastLS_, int nErrorsBarrel_lastLS_, int nErrorsEndcap_lastLS_) {
+void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore::IGetter &iGetter,
+                                                        bool init,
+                                                        int nFEDs,
+                                                        bool Tier0Flag,
+                                                        int nEvents_lastLS_,
+                                                        int nErrorsBarrel_lastLS_,
+                                                        int nErrorsEndcap_lastLS_) {
   if (nFEDs == 0)
     return;
 
@@ -752,16 +727,13 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(
   float BarrelClusterCharge = 1.;
   float EndcapClusterCharge = 1.;
   float PixelClusterCharge = 1.;
-  MonitorElement *me1 =
-      iGetter.get("Pixel/Clusters/OnTrack/charge_siPixelClusters_Barrel");
+  MonitorElement *me1 = iGetter.get("Pixel/Clusters/OnTrack/charge_siPixelClusters_Barrel");
   if (me1 && me1->getMean() < 12.)
     BarrelClusterCharge = 0.;
-  MonitorElement *me2 =
-      iGetter.get("Pixel/Clusters/OnTrack/charge_siPixelClusters_Endcap");
+  MonitorElement *me2 = iGetter.get("Pixel/Clusters/OnTrack/charge_siPixelClusters_Endcap");
   if (me2 && me2->getMean() < 12.)
     EndcapClusterCharge = 0.;
-  MonitorElement *me3 =
-      iGetter.get("Pixel/Clusters/OnTrack/charge_siPixelClusters");
+  MonitorElement *me3 = iGetter.get("Pixel/Clusters/OnTrack/charge_siPixelClusters");
   if (me3 && me3->getMean() < 12.)
     PixelClusterCharge = 0.;
 
@@ -793,11 +765,9 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(
     }
     meanBarrelOcc = meanBarrelOcc / 32.;
     meanEndcapOcc = meanEndcapOcc / 8.;
-    if (minBarrelOcc < 0.1 * meanBarrelOcc ||
-        maxBarrelOcc > 2.5 * meanBarrelOcc)
+    if (minBarrelOcc < 0.1 * meanBarrelOcc || maxBarrelOcc > 2.5 * meanBarrelOcc)
       BarrelOccupancy = 0.;
-    if (minEndcapOcc < 0.2 * meanEndcapOcc ||
-        maxEndcapOcc > 1.8 * meanEndcapOcc)
+    if (minEndcapOcc < 0.2 * meanEndcapOcc || maxEndcapOcc > 1.8 * meanEndcapOcc)
       EndcapOccupancy = 0.;
     PixelOccupancy = BarrelOccupancy * EndcapOccupancy;
   }
@@ -808,22 +778,23 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(
   SummaryPixel = iGetter.get("Pixel/EventInfo/reportSummary");
   if (SummaryPixel)
     SummaryPixel->Fill(pixelFlag);
-  SummaryBarrel =
-      iGetter.get("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction");
+  SummaryBarrel = iGetter.get("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction");
   if (SummaryBarrel)
     SummaryBarrel->Fill(barrelFlag);
-  SummaryEndcap =
-      iGetter.get("Pixel/EventInfo/reportSummaryContents/PixelEndcapFraction");
+  SummaryEndcap = iGetter.get("Pixel/EventInfo/reportSummaryContents/PixelEndcapFraction");
   if (SummaryEndcap)
     SummaryEndcap->Fill(endcapFlag);
 }
 
 //**********************************************************************************************
 
-void SiPixelDataQuality::fillGlobalQualityPlot(
-    DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, bool init,
-    edm::ESHandle<SiPixelFedCablingMap> theCablingMap, int nFEDs,
-    bool Tier0Flag, int lumisec) {
+void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
+                                               DQMStore::IGetter &iGetter,
+                                               bool init,
+                                               edm::ESHandle<SiPixelFedCablingMap> theCablingMap,
+                                               int nFEDs,
+                                               bool Tier0Flag,
+                                               int lumisec) {
   // std::cout<<"Entering SiPixelDataQuality::fillGlobalQualityPlot:
   // "<<nFEDs<<std::endl;
   if (init) {
@@ -838,7 +809,6 @@ void SiPixelDataQuality::fillGlobalQualityPlot(
     count6 = 0;
     modCounter_ = 0;
     if (!Tier0Flag) {
-
       // The plots that these Vecs are integrated throughout a run
       // So at each lumi section I save their last values (lastmods)
       // And then subtract them out later when filling the SummaryMap
@@ -876,8 +846,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(
 
   if (!Tier0Flag) {
     // Not elegant, but not sure where else to put this sweet new plot!
-    MonitorElement *meTmp =
-        iGetter.get("Pixel/Barrel/NClustertoChargeRatio_AllMod");
+    MonitorElement *meTmp = iGetter.get("Pixel/Barrel/NClustertoChargeRatio_AllMod");
     MonitorElement *meTop = iGetter.get("Pixel/Barrel/SUMCLU_nclusters_Barrel");
     MonitorElement *meBot = iGetter.get("Pixel/Barrel/SUMCLU_charge_Barrel");
     if (meTop && meBot && meTmp) {
@@ -889,8 +858,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(
         meTmp->setBinContent(bin, content);
       }
       for (int j = 0; j < 4; ++j) {
-        static const char buf[] =
-            "Pixel/Barrel/NClustertoChargeRatio_NormMod%i";
+        static const char buf[] = "Pixel/Barrel/NClustertoChargeRatio_NormMod%i";
         char modplot[sizeof(buf) + 2];
         sprintf(modplot, buf, j + 1);
         MonitorElement *meFinal = iGetter.get(modplot);
@@ -927,23 +895,20 @@ void SiPixelDataQuality::fillGlobalQualityPlot(
     }
 
     string currDir = iBooker.pwd();
-    if (currDir.find("Reference") != string::npos ||
-        currDir.find("Additional") != string::npos)
+    if (currDir.find("Reference") != string::npos || currDir.find("Additional") != string::npos)
       return;
     string dname = currDir.substr(currDir.find_last_of("/") + 1);
-    if (dname.find("Module_") != string::npos &&
-        currDir.find("Reference") == string::npos) {
+    if (dname.find("Module_") != string::npos && currDir.find("Reference") == string::npos) {
       vector<string> meVec = iGetter.getMEs();
       int detId = -1;
       int fedId = -1;
       for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end();
-           it++) { // loop over all modules and fill ndigis into allmodsMap
+           it++) {  // loop over all modules and fill ndigis into allmodsMap
         // checking for any digis or FED errors to decide if this module is in
         // DAQ:
         string full_path = currDir + "/" + (*it);
         if (detId == -1 && full_path.find("SUMOFF") == string::npos &&
-            (full_path.find("ndigis") != string::npos &&
-             full_path.find("SUMDIG") == string::npos) &&
+            (full_path.find("ndigis") != string::npos && full_path.find("SUMDIG") == string::npos) &&
             (getDetId(iGetter.get(full_path)) > 100)) {
           MonitorElement *me = iGetter.get(full_path);
           if (!me)
@@ -966,16 +931,14 @@ void SiPixelDataQuality::fillGlobalQualityPlot(
             allmodsVec->SetBinContent(fedId + 1, weight);
           }
         }
-      } // end loop over MEs
-    }   // end of module dir's
+      }  // end loop over MEs
+    }    // end of module dir's
     vector<string> subDirVec = iGetter.getSubdirs();
-    for (vector<string>::const_iterator ic = subDirVec.begin();
-         ic != subDirVec.end(); ic++) {
+    for (vector<string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
       iBooker.cd(*ic);
       iGetter.cd(*ic);
       init = false;
-      fillGlobalQualityPlot(iBooker, iGetter, init, theCablingMap, nFEDs,
-                            Tier0Flag, lumisec);
+      fillGlobalQualityPlot(iBooker, iGetter, init, theCablingMap, nFEDs, Tier0Flag, lumisec);
       iBooker.goUp();
       iGetter.setCurrentFolder(iBooker.pwd());
     }
@@ -983,12 +946,11 @@ void SiPixelDataQuality::fillGlobalQualityPlot(
       iBooker.cd("Pixel/EventInfo/reportSummaryContents");
       iGetter.cd("Pixel/EventInfo/reportSummaryContents");
       if (iBooker.pwd() == "Pixel/EventInfo/reportSummaryContents") {
-        for (int i = 0; i != 40; i++) { // loop over FEDs to fetch the errors
-          static const char buf[] =
-              "Pixel/AdditionalPixelErrors/FED_%d/FedChNErr";
+        for (int i = 0; i != 40; i++) {  // loop over FEDs to fetch the errors
+          static const char buf[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChNErr";
           char fedplot[sizeof(buf) + 4];
           int NErrors = 0;
-          for (int j = 0; j != 37; j++) { // loop over FED channels within a FED
+          for (int j = 0; j != 37; j++) {  // loop over FED channels within a FED
             sprintf(fedplot, buf, i);
             MonitorElement *me = iGetter.get(fedplot);
             if (me)
@@ -1016,11 +978,11 @@ void SiPixelDataQuality::fillGlobalQualityPlot(
               contents = -0.5;
             }
             SummaryReportMap->setBinContent(lumisec + 1, i, contents);
-          } // end for loop over summaryReportMap bins
-        }   // end if reportSummaryMap ME exists
-      }     // end if in summary directory
-    }       // end if modCounter_
-  } else {  // Offline
+          }  // end for loop over summaryReportMap bins
+        }    // end if reportSummaryMap ME exists
+      }      // end if in summary directory
+    }        // end if modCounter_
+  } else {   // Offline
     float barrel_errors_temp[1] = {-1.};
     int barrel_cuts_temp[6] = {6 * -1};
     float endcap_errors_temp[1] = {-1.};
@@ -1075,7 +1037,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(
       pixel_cuts_temp[0] = me->getIntValue();
     SummaryReportMap->setBinContent(1, 7, pixel_cuts_temp[0]);
     SummaryReportMap->setBinContent(2, 7, pixel_cuts_temp[0]);
-  } // end of offline map
+  }  // end of offline map
   if (allmodsMap)
     allmodsMap->Clear();
   if (goodmodsMap)

@@ -27,7 +27,6 @@ class SiPixelDataQuality;
 class SiPixelActionExecutor;
 
 class SiPixelEDAClient : public DQMEDHarvester {
-
 public:
   SiPixelEDAClient(const edm::ParameterSet &ps);
   ~SiPixelEDAClient() override;
@@ -38,8 +37,7 @@ protected:
                              DQMStore::IGetter &iGetter,
                              edm::LuminosityBlock const &lumiSeg,
                              edm::EventSetup const &c) override;
-  void dqmEndJob(DQMStore::IBooker &iBooker,
-                 DQMStore::IGetter &iGetter) override;
+  void dqmEndJob(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter) override;
 
 private:
   unsigned long long m_cacheID_;

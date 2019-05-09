@@ -15,11 +15,8 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-PFCandidateBenchmarkAnalyzer::PFCandidateBenchmarkAnalyzer(
-    const edm::ParameterSet &parameterSet)
-    : BenchmarkAnalyzer(parameterSet),
-      PFCandidateBenchmark(
-          (Benchmark::Mode)parameterSet.getParameter<int>("mode")) {
+PFCandidateBenchmarkAnalyzer::PFCandidateBenchmarkAnalyzer(const edm::ParameterSet &parameterSet)
+    : BenchmarkAnalyzer(parameterSet), PFCandidateBenchmark((Benchmark::Mode)parameterSet.getParameter<int>("mode")) {
   setRange(parameterSet.getParameter<double>("ptMin"),
            parameterSet.getParameter<double>("ptMax"),
            parameterSet.getParameter<double>("etaMin"),
@@ -30,16 +27,14 @@ PFCandidateBenchmarkAnalyzer::PFCandidateBenchmarkAnalyzer(
   myColl_ = consumes<PFCandidateCollection>(inputLabel_);
 }
 
-void PFCandidateBenchmarkAnalyzer::bookHistograms(
-    DQMStore::IBooker &ibooker, edm::Run const &iRun,
-    edm::EventSetup const &iSetup) {
+void PFCandidateBenchmarkAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
+                                                  edm::Run const &iRun,
+                                                  edm::EventSetup const &iSetup) {
   BenchmarkAnalyzer::bookHistograms(ibooker, iRun, iSetup);
   setup(ibooker);
 }
 
-void PFCandidateBenchmarkAnalyzer::analyze(const edm::Event &iEvent,
-                                           const edm::EventSetup &iSetup) {
-
+void PFCandidateBenchmarkAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   Handle<PFCandidateCollection> collection;
   iEvent.getByToken(myColl_, collection);
 

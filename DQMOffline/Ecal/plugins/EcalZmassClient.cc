@@ -54,8 +54,7 @@ EcalZmassClient::EcalZmassClient(const edm::ParameterSet &iConfig)
 
 EcalZmassClient::~EcalZmassClient() {}
 
-void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
-                                DQMStore::IGetter &_igetter) {
+void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker, DQMStore::IGetter &_igetter) {
   MonitorElement *h_fitres1;
   MonitorElement *h_fitres1bis;
   MonitorElement *h_fitres1Chi2;
@@ -67,29 +66,20 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
   MonitorElement *h_fitres3Chi2;
 
   _ibooker.setCurrentFolder(prefixME_ + "/Zmass");
-  h_fitres1 = _ibooker.book1D("Gaussian mean WP80 EB-EB",
-                              "Gaussian mean WP80 EB-EB", 1, 0, 1);
-  h_fitres1bis = _ibooker.book1D("Gaussian sigma WP80 EB-EB",
-                                 "Gaussian sigma WP80 EB-EB", 1, 0, 1);
-  h_fitres1Chi2 =
-      _ibooker.book1D("Gaussian Chi2 result over NDF  WP80 EB-EB",
-                      "Gaussian Chi2 result over NDF  WP80 EB-EB", 1, 0, 1);
+  h_fitres1 = _ibooker.book1D("Gaussian mean WP80 EB-EB", "Gaussian mean WP80 EB-EB", 1, 0, 1);
+  h_fitres1bis = _ibooker.book1D("Gaussian sigma WP80 EB-EB", "Gaussian sigma WP80 EB-EB", 1, 0, 1);
+  h_fitres1Chi2 = _ibooker.book1D(
+      "Gaussian Chi2 result over NDF  WP80 EB-EB", "Gaussian Chi2 result over NDF  WP80 EB-EB", 1, 0, 1);
 
-  h_fitres3 = _ibooker.book1D("Gaussian mean WP80 EB-EE",
-                              "Gaussian mean result WP80 EB-EE", 1, 0, 1);
-  h_fitres3bis = _ibooker.book1D("Gaussian sigma WP80 EB-EE",
-                                 "Gaussian sigma WP80 EB-EE", 1, 0, 1);
+  h_fitres3 = _ibooker.book1D("Gaussian mean WP80 EB-EE", "Gaussian mean result WP80 EB-EE", 1, 0, 1);
+  h_fitres3bis = _ibooker.book1D("Gaussian sigma WP80 EB-EE", "Gaussian sigma WP80 EB-EE", 1, 0, 1);
   h_fitres3Chi2 =
-      _ibooker.book1D("Gaussian Chi2 result over NDF WP80 EB-EE",
-                      "Gaussian Chi2 result over NDF WP80 EB-EE", 1, 0, 1);
+      _ibooker.book1D("Gaussian Chi2 result over NDF WP80 EB-EE", "Gaussian Chi2 result over NDF WP80 EB-EE", 1, 0, 1);
 
-  h_fitres2 = _ibooker.book1D("Gaussian mean WP80 EE-EE",
-                              "Gaussian mean WP80 EE-EE", 1, 0, 1);
-  h_fitres2bis = _ibooker.book1D("Gaussian sigma WP80 EE-EE",
-                                 "Gaussian sigma WP80 EE-EE", 1, 0, 1);
+  h_fitres2 = _ibooker.book1D("Gaussian mean WP80 EE-EE", "Gaussian mean WP80 EE-EE", 1, 0, 1);
+  h_fitres2bis = _ibooker.book1D("Gaussian sigma WP80 EE-EE", "Gaussian sigma WP80 EE-EE", 1, 0, 1);
   h_fitres2Chi2 =
-      _ibooker.book1D("Gaussian Chi2 result over NDF WP80 EE-EE",
-                      "Gaussian Chi2 result over NDF WP80 EE-EE", 1, 0, 1);
+      _ibooker.book1D("Gaussian Chi2 result over NDF WP80 EE-EE", "Gaussian Chi2 result over NDF WP80 EE-EE", 1, 0, 1);
 
   LogTrace("EwkAnalyzer") << "Parameters initialization";
 
@@ -122,7 +112,6 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
 
     try {
       if (N != 0) {
-
         B->Fit("mygauss", "QR");
         mean = std::abs(func->GetParameter(1));
         sigma = std::abs(func->GetParError(1));
@@ -135,8 +124,7 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
       }
 
     } catch (cms::Exception &e) {
-      edm::LogError("ZFitter")
-          << "[Zfitter]: Exception when fitting..." << e.what();
+      edm::LogError("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
       N = 1;
       mean = 40;
       sigma = 0;
@@ -176,7 +164,6 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
 
     try {
       if (N != 0) {
-
         Bbis->Fit("mygauss", "QR");
         rms = std::abs(func->GetParameter(2));
         rmsErr = std::abs(func->GetParError(2));
@@ -189,8 +176,7 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
       }
 
     } catch (cms::Exception &e) {
-      edm::LogError("ZFitter")
-          << "[Zfitter]: Exception when fitting..." << e.what();
+      edm::LogError("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
       N = 1;
       rms = 40;
       rmsErr = 0;
@@ -243,8 +229,7 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
       }
 
     } catch (cms::Exception &e) {
-      edm::LogError("ZFitter")
-          << "[Zfitter]: Exception when fitting..." << e.what();
+      edm::LogError("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
       N = 1;
       mean = 40;
       sigma = 0;
@@ -285,7 +270,6 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
 
     try {
       if (N != 0) {
-
         Ebis->Fit("mygauss", "QR");
         rms = std::abs(func->GetParameter(2));
         rmsErr = std::abs(func->GetParError(2));
@@ -298,8 +282,7 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
       }
 
     } catch (cms::Exception &e) {
-      edm::LogError("ZFitter")
-          << "[Zfitter]: Exception when fitting..." << e.what();
+      edm::LogError("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
       N = 1;
       rms = 40;
       rmsErr = 0;
@@ -340,7 +323,6 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
 
     try {
       if (N != 0) {
-
         M->Fit("mygauss", "QR");
         mean = std::abs(func->GetParameter(1));
         sigma = std::abs(func->GetParError(1));
@@ -352,8 +334,7 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
       }
 
     } catch (cms::Exception &e) {
-      edm::LogError("ZFitter")
-          << "[Zfitter]: Exception when fitting..." << e.what();
+      edm::LogError("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
       N = 1;
       mean = 40;
       sigma = 0;
@@ -394,7 +375,6 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
 
     try {
       if (N != 0) {
-
         Mbis->Fit("mygauss", "QR");
         rms = std::abs(func->GetParameter(2));
         rmsErr = std::abs(func->GetParError(2));
@@ -407,8 +387,7 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
       }
 
     } catch (cms::Exception &e) {
-      edm::LogError("ZFitter")
-          << "[Zfitter]: Exception when fitting..." << e.what();
+      edm::LogError("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
       N = 1;
       rms = 40;
       rmsErr = 0;
@@ -450,7 +429,6 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
 
     try {
       if (N != 0) {
-
         C1->Fit("mygauss", "QR");
         if ((func->GetNDF() != 0)) {
           Chi2 = std::abs(func->GetChisquare()) / std::abs(func->GetNDF());
@@ -465,8 +443,7 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
       }
 
     } catch (cms::Exception &e) {
-      edm::LogError("ZFitter")
-          << "[Zfitter]: Exception when fitting..." << e.what();
+      edm::LogError("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
       N = 1;
       Chi2 = 40;
       NDF = 0;
@@ -521,8 +498,7 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
       }
 
     } catch (cms::Exception &e) {
-      edm::LogError("ZFitter")
-          << "[Zfitter]: Exception when fitting..." << e.what();
+      edm::LogError("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
       N = 1;
       Chi2 = 40;
       NDF = 0;
@@ -576,8 +552,7 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
       }
 
     } catch (cms::Exception &e) {
-      edm::LogError("ZFitter")
-          << "[Zfitter]: Exception when fitting..." << e.what();
+      edm::LogError("ZFitter") << "[Zfitter]: Exception when fitting..." << e.what();
       N = 1;
       Chi2 = 40;
       NDF = 0;
@@ -595,12 +570,10 @@ void EcalZmassClient::dqmEndJob(DQMStore::IBooker &_ibooker,
 
 // Breit-Wigner function
 Double_t mybw(Double_t *x, Double_t *par) {
-  Double_t arg1 = 14.0 / 22.0;                       // 2 over pi
-  Double_t arg2 = par[1] * par[1] * par[2] * par[2]; // Gamma=par[2]  M=par[1]
-  Double_t arg3 =
-      ((x[0] * x[0]) - (par[1] * par[1])) * ((x[0] * x[0]) - (par[1] * par[1]));
-  Double_t arg4 =
-      x[0] * x[0] * x[0] * x[0] * ((par[2] * par[2]) / (par[1] * par[1]));
+  Double_t arg1 = 14.0 / 22.0;                        // 2 over pi
+  Double_t arg2 = par[1] * par[1] * par[2] * par[2];  // Gamma=par[2]  M=par[1]
+  Double_t arg3 = ((x[0] * x[0]) - (par[1] * par[1])) * ((x[0] * x[0]) - (par[1] * par[1]));
+  Double_t arg4 = x[0] * x[0] * x[0] * x[0] * ((par[2] * par[2]) / (par[1] * par[1]));
   return par[0] * arg1 * arg2 / (arg3 + arg4);
 }
 
@@ -608,11 +581,10 @@ Double_t mybw(Double_t *x, Double_t *par) {
 Double_t mygauss(Double_t *x, Double_t *par) {
   Double_t arg = 0;
   if (par[2] < 0)
-    par[2] = -par[2]; // par[2]: sigma
+    par[2] = -par[2];  // par[2]: sigma
   if (par[2] != 0)
-    arg = (x[0] - par[1]) / par[2]; // par[1]: mean
-  return par[0] * TMath::Exp(-0.5 * arg * arg) /
-         (TMath::Sqrt(2 * TMath::Pi()) * par[2]); // par[0] is constant
+    arg = (x[0] - par[1]) / par[2];                                                        // par[1]: mean
+  return par[0] * TMath::Exp(-0.5 * arg * arg) / (TMath::Sqrt(2 * TMath::Pi()) * par[2]);  // par[0] is constant
 }
 
 DEFINE_FWK_MODULE(EcalZmassClient);

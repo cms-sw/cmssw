@@ -21,8 +21,7 @@ int SiPixelUtility::getMEList(string name, vector<string> &values) {
 //
 // Get a list of MEs in a folder and the path name
 //
-int SiPixelUtility::getMEList(string name, string &dir_path,
-                              vector<string> &values) {
+int SiPixelUtility::getMEList(string name, string &dir_path, vector<string> &values) {
   values.clear();
   dir_path = name.substr(0, (name.find(":")));
   dir_path += "/";
@@ -52,8 +51,7 @@ bool SiPixelUtility::checkME(string name, string me_name, string &full_path) {
 // -- Split a given string into a number of strings using given
 //    delimiters and fill a vector with splitted strings
 //
-void SiPixelUtility::split(const string &str, vector<string> &tokens,
-                           const string &delimiters) {
+void SiPixelUtility::split(const string &str, vector<string> &tokens, const string &delimiters) {
   // Skip delimiters at beginning.
   string::size_type lastPos = str.find_first_not_of(delimiters, 0);
 
@@ -74,8 +72,7 @@ void SiPixelUtility::split(const string &str, vector<string> &tokens,
 //
 // -- Get Color code from Status
 //
-void SiPixelUtility::getStatusColor(int status, int &rval, int &gval,
-                                    int &bval) {
+void SiPixelUtility::getStatusColor(int status, int &rval, int &gval, int &bval) {
   if (status == dqm::qstatus::STATUS_OK) {
     rval = 0;
     gval = 255;
@@ -122,8 +119,7 @@ void SiPixelUtility::getStatusColor(int status, int &icol, string &tag) {
 //
 // -- Get Color code from Status
 //
-void SiPixelUtility::getStatusColor(double status, int &rval, int &gval,
-                                    int &bval) {
+void SiPixelUtility::getStatusColor(double status, int &rval, int &gval, int &bval) {
   rval = SiPixelContinuousPalette::r[(int)(status * 100)];
   gval = SiPixelContinuousPalette::g[(int)(status * 100)];
   bval = SiPixelContinuousPalette::b[(int)(status * 100)];
@@ -155,16 +151,16 @@ vector<string> SiPixelUtility::getQTestNameList(MonitorElement *me) {
 int SiPixelUtility::computeErrorCode(int status) {
   int code = 0;
   switch (status) {
-  case dqm::qstatus::INSUF_STAT:
-    code = 1;
-    break;
-  case dqm::qstatus::WARNING:
-    code = 2;
-    break;
-  case dqm::qstatus::ERROR:
-    code = 3;
-    break;
-  } // end switch
+    case dqm::qstatus::INSUF_STAT:
+      code = 1;
+      break;
+    case dqm::qstatus::WARNING:
+      code = 2;
+      break;
+    case dqm::qstatus::ERROR:
+      code = 3;
+      break;
+  }  // end switch
 
   return code;
 }
@@ -174,25 +170,24 @@ int SiPixelUtility::computeErrorCode(DQMStore *bei, string &module_path) {
 
   int code = -1;
   switch (status) {
-  case dqm::qstatus::STATUS_OK:
-    code = 0;
-    break;
-  case dqm::qstatus::INSUF_STAT:
-    code = 1;
-    break;
-  case dqm::qstatus::WARNING:
-    code = 2;
-    break;
-  case dqm::qstatus::ERROR:
-    code = 3;
-    break;
-  } // end of switch
+    case dqm::qstatus::STATUS_OK:
+      code = 0;
+      break;
+    case dqm::qstatus::INSUF_STAT:
+      code = 1;
+      break;
+    case dqm::qstatus::WARNING:
+      code = 2;
+      break;
+    case dqm::qstatus::ERROR:
+      code = 3;
+      break;
+  }  // end of switch
 
   return code;
 }
 
 int SiPixelUtility::computeHistoBin(string &module_path) {
-
   int module_bin = 0;
 
   int module = 0;
@@ -216,14 +211,11 @@ int SiPixelUtility::computeHistoBin(string &module_path) {
   vector<string> subDirVector;
   SiPixelUtility::split(module_path, subDirVector, "/");
 
-  for (vector<string>::const_iterator it = subDirVector.begin();
-       it != subDirVector.end(); it++) {
+  for (vector<string>::const_iterator it = subDirVector.begin(); it != subDirVector.end(); it++) {
     if ((*it).find("Collector") != string::npos ||
         //(*it).find("Collated") != string::npos ||
-        (*it).find("FU") != string::npos ||
-        (*it).find("Pixel") != string::npos ||
-        (*it).find("Barrel") != string::npos ||
-        (*it).find("Endcap") != string::npos)
+        (*it).find("FU") != string::npos || (*it).find("Pixel") != string::npos ||
+        (*it).find("Barrel") != string::npos || (*it).find("Endcap") != string::npos)
       continue;
 
     if ((*it).find("Module") != string::npos) {
@@ -280,12 +272,11 @@ int SiPixelUtility::computeHistoBin(string &module_path) {
     }
   }
   if (module_path.find("Barrel") != string::npos) {
-    module_bin = module + (ladder - 1) * nbinLadder + nbinLayer +
-                 (shell - 1) * nbinShell;
+    module_bin = module + (ladder - 1) * nbinLadder + nbinLayer + (shell - 1) * nbinShell;
   }
   if (module_path.find("Endcap") != string::npos) {
-    module_bin = module + (panel - 1) * nbinPanel + (blade - 1) * nbinBlade +
-                 (disk - 1) * nbinDisk + (halfcylinder - 1) * nbinHalfcylinder;
+    module_bin = module + (panel - 1) * nbinPanel + (blade - 1) * nbinBlade + (disk - 1) * nbinDisk +
+                 (halfcylinder - 1) * nbinHalfcylinder;
   }
 
   return module_bin;
@@ -293,12 +284,9 @@ int SiPixelUtility::computeHistoBin(string &module_path) {
   //  cout << "leaving SiPixelInformationExtractor::computeHistoBin" << endl;
 }
 
-void SiPixelUtility::fillPaveText(
-    TPaveText *pave, const map<string, pair<int, double>> &messages) {
-
+void SiPixelUtility::fillPaveText(TPaveText *pave, const map<string, pair<int, double>> &messages) {
   TText *sourceCodeOnCanvas;
-  for (map<string, pair<int, double>>::const_iterator it = messages.begin();
-       it != messages.end(); it++) {
+  for (map<string, pair<int, double>>::const_iterator it = messages.begin(); it != messages.end(); it++) {
     string message = it->first;
     int color = (it->second).first;
     double size = (it->second).second;
@@ -310,40 +298,38 @@ void SiPixelUtility::fillPaveText(
 }
 
 map<string, string> SiPixelUtility::sourceCodeMap() {
-
   map<string, string> sourceCode;
   for (int iSource = 0; iSource < 5; iSource++) {
     string type;
     string code;
     switch (iSource) {
-    case 0:
-      type = "RAW";
-      code = "1    ";
-      break;
-    case 1:
-      type = "DIG";
-      code = "10   ";
-      break;
-    case 2:
-      type = "CLU";
-      code = "100  ";
-      break;
-    case 3:
-      type = "TRK";
-      code = "1000 ";
-      break;
-    case 4:
-      type = "REC";
-      code = "10000";
-      break;
-    } // end of switch
+      case 0:
+        type = "RAW";
+        code = "1    ";
+        break;
+      case 1:
+        type = "DIG";
+        code = "10   ";
+        break;
+      case 2:
+        type = "CLU";
+        code = "100  ";
+        break;
+      case 3:
+        type = "TRK";
+        code = "1000 ";
+        break;
+      case 4:
+        type = "REC";
+        code = "10000";
+        break;
+    }  // end of switch
     sourceCode[type] = code;
   }
   return sourceCode;
 }
 
-void SiPixelUtility::createStatusLegendMessages(
-    map<string, pair<int, double>> &messages) {
+void SiPixelUtility::createStatusLegendMessages(map<string, pair<int, double>> &messages) {
   for (int iStatus = 1; iStatus < 5; iStatus++) {
     pair<int, double> color_size;
     int color = 1;
@@ -352,27 +338,27 @@ void SiPixelUtility::createStatusLegendMessages(
     string type;
     color_size.second = size;
     switch (iStatus) {
-    case 1:
-      code = "1";
-      type = "INSUF_STAT";
-      color = kBlue;
-      break;
-    case 2:
-      code = "2";
-      type = "WARNING(S)";
-      color = kYellow;
-      break;
-    case 3:
-      code = "3";
-      type = "ERROR(S)  ";
-      color = kRed;
-      break;
-    case 4:
-      code = "4";
-      type = "ERRORS    ";
-      color = kMagenta;
-      break;
-    } // end of switch
+      case 1:
+        code = "1";
+        type = "INSUF_STAT";
+        color = kBlue;
+        break;
+      case 2:
+        code = "2";
+        type = "WARNING(S)";
+        color = kYellow;
+        break;
+      case 3:
+        code = "3";
+        type = "ERROR(S)  ";
+        color = kRed;
+        break;
+      case 4:
+        code = "4";
+        type = "ERRORS    ";
+        color = kMagenta;
+        break;
+    }  // end of switch
     string messageString = code + ": " + type;
     color_size.first = color;
     messages[messageString] = color_size;

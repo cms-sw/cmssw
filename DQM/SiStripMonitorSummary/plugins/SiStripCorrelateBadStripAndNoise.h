@@ -56,8 +56,7 @@ private:
   void endJob() override;
 
   void DoAnalysis(const edm::EventSetup &);
-  void getHistos(const uint32_t &detid, const TrackerTopology *tTopo,
-                 std::vector<TH2F *> &histos);
+  void getHistos(const uint32_t &detid, const TrackerTopology *tTopo, std::vector<TH2F *> &histos);
   TH2F *getHisto(const long unsigned int &index);
 
   unsigned long long getNoiseCache(const edm::EventSetup &eSetup) {
@@ -68,12 +67,12 @@ private:
   }
 
   void iterateOnDets(const TrackerTopology *tTopo);
-  void iterateOnBadStrips(const uint32_t &detid, const TrackerTopology *tTopo,
-                          SiStripQuality::Range &sqrange);
-  void correlateWithNoise(const uint32_t &detid, const TrackerTopology *tTopo,
-                          const uint32_t &firstStrip, const uint32_t &range);
-  float getMeanNoise(const SiStripNoises::Range &noiseRange,
-                     const uint32_t &first, const uint32_t &range);
+  void iterateOnBadStrips(const uint32_t &detid, const TrackerTopology *tTopo, SiStripQuality::Range &sqrange);
+  void correlateWithNoise(const uint32_t &detid,
+                          const TrackerTopology *tTopo,
+                          const uint32_t &firstStrip,
+                          const uint32_t &range);
+  float getMeanNoise(const SiStripNoises::Range &noiseRange, const uint32_t &first, const uint32_t &range);
 
   // ----------member data ---------------------------
 

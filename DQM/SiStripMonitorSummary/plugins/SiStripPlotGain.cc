@@ -3,17 +3,15 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-SiStripPlotGain::SiStripPlotGain(const edm::ParameterSet &iConfig)
-    : cacheID(0xFFFFFFFF) {
+SiStripPlotGain::SiStripPlotGain(const edm::ParameterSet &iConfig) : cacheID(0xFFFFFFFF) {
   // now do what ever initialization is needed
   if (!edm::Service<SiStripDetInfoFileReader>().isAvailable()) {
-    edm::LogError("TkLayerMap")
-        << "\n------------------------------------------"
-           "\nUnAvailable Service SiStripDetInfoFileReader: please insert in "
-           "the configuration file an instance like"
-           "\n\tprocess.SiStripDetInfoFileReader = "
-           "cms.Service(\"SiStripDetInfoFileReader\")"
-           "\n------------------------------------------";
+    edm::LogError("TkLayerMap") << "\n------------------------------------------"
+                                   "\nUnAvailable Service SiStripDetInfoFileReader: please insert in "
+                                   "the configuration file an instance like"
+                                   "\n\tprocess.SiStripDetInfoFileReader = "
+                                   "cms.Service(\"SiStripDetInfoFileReader\")"
+                                   "\n------------------------------------------";
   }
 
   fr = edm::Service<SiStripDetInfoFileReader>().operator->();
@@ -26,21 +24,17 @@ SiStripPlotGain::~SiStripPlotGain() {}
 //
 
 void SiStripPlotGain::beginRun(const edm::Run &run, const edm::EventSetup &es) {
-
   if (getCache(es) == cacheID)
     return;
   cacheID = getCache(es);
 
-  edm::LogInfo("") << "[SiStripPlotGain::beginRun] cacheID " << cacheID
-                   << std::endl;
+  edm::LogInfo("") << "[SiStripPlotGain::beginRun] cacheID " << cacheID << std::endl;
 
   es.get<SiStripApvGainRcd>().get(Handle_);
   DoAnalysis(es, *Handle_.product());
 }
 
-void SiStripPlotGain::DoAnalysis(const edm::EventSetup &es,
-                                 const SiStripApvGain &gain) {
-
+void SiStripPlotGain::DoAnalysis(const edm::EventSetup &es, const SiStripApvGain &gain) {
   edm::LogInfo("") << "[Doanalysis]";
 
   // Retrieve tracker topology from geometry
@@ -60,11 +54,9 @@ void SiStripPlotGain::DoAnalysis(const edm::EventSetup &es,
   // Divide result by d
   for (; iter != iterE; ++iter) {
     getHistos(*iter, tTopo, histos);
-    SiStripApvGain::Range range =
-        SiStripApvGain::Range(p.getFirstElement(iter), p.getLastElement(iter));
+    SiStripApvGain::Range range = SiStripApvGain::Range(p.getFirstElement(iter), p.getLastElement(iter));
 
-    edm::LogInfo("") << "[Doanalysis] detid " << *iter << " range "
-                     << range.second - range.first;
+    edm::LogInfo("") << "[Doanalysis] detid " << *iter << " range " << range.second - range.first;
     size_t apv = 0, apvE = (range.second - range.first);
     for (; apv < apvE; apv += 2) {
       value = gain.getApvGain(apv, range);
@@ -75,10 +67,7 @@ void SiStripPlotGain::DoAnalysis(const edm::EventSetup &es,
   }
 }
 
-void SiStripPlotGain::getHistos(const uint32_t &detid,
-                                const TrackerTopology *tTopo,
-                                std::vector<TH1F *> &histos) {
-
+void SiStripPlotGain::getHistos(const uint32_t &detid, const TrackerTopology *tTopo, std::vector<TH1F *> &histos) {
   histos.clear();
 
   int subdet = -999;
@@ -89,15 +78,13 @@ void SiStripPlotGain::getHistos(const uint32_t &detid,
     component = tTopo->tibLayer(detid);
   } else if (a.subdetId() == 4) {
     subdet = 1;
-    component = tTopo->tidSide(detid) == 2 ? tTopo->tidWheel(detid)
-                                           : tTopo->tidWheel(detid) + 3;
+    component = tTopo->tidSide(detid) == 2 ? tTopo->tidWheel(detid) : tTopo->tidWheel(detid) + 3;
   } else if (a.subdetId() == 5) {
     subdet = 2;
     component = tTopo->tobLayer(detid);
   } else if (a.subdetId() == 6) {
     subdet = 3;
-    component = tTopo->tecSide(detid) == 2 ? tTopo->tecWheel(detid)
-                                           : tTopo->tecWheel(detid) + 9;
+    component = tTopo->tecSide(detid) == 2 ? tTopo->tecWheel(detid) : tTopo->tecWheel(detid) + 9;
   }
 
   int index = 100 + subdet * 100 + component;

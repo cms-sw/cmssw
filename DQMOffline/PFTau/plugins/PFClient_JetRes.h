@@ -19,12 +19,9 @@ private:
 
   void doSummaries(DQMStore::IBooker &, DQMStore::IGetter &);
   void doEfficiency(DQMStore::IBooker &, DQMStore::IGetter &);
-  void createResolutionPlots(DQMStore::IBooker &, DQMStore::IGetter &,
-                             std::string &folder, std::string &name);
-  void getHistogramParameters(MonitorElement *me_slice, double &avarage,
-                              double &rms, double &mean, double &sigma);
-  void createEfficiencyPlots(DQMStore::IBooker &, DQMStore::IGetter &,
-                             std::string &folder, std::string &name);
+  void createResolutionPlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string &folder, std::string &name);
+  void getHistogramParameters(MonitorElement *me_slice, double &avarage, double &rms, double &mean, double &sigma);
+  void createEfficiencyPlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string &folder, std::string &name);
 
   std::vector<std::string> folderNames_;
   std::vector<std::string> histogramNames_;

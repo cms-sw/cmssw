@@ -20,21 +20,18 @@
 */
 
 namespace HDQMUtil {
-double langaufun(double *x, double *par);
-int32_t langaupro(double *params, double &maxx, double &FWHM);
-double Gauss(double *x, double *par);
-} // namespace HDQMUtil
+  double langaufun(double *x, double *par);
+  int32_t langaupro(double *params, double &maxx, double &FWHM);
+  double Gauss(double *x, double *par);
+}  // namespace HDQMUtil
 
 class HDQMfitUtilities {
-
 public:
   HDQMfitUtilities();
   ~HDQMfitUtilities();
 
   void init();
-  double doLanGaussFit(MonitorElement *ME) {
-    return doLanGaussFit(ME->getTH1F());
-  }
+  double doLanGaussFit(MonitorElement *ME) { return doLanGaussFit(ME->getTH1F()); }
   double doLanGaussFit(TH1F *);
 
   double doGaussFit(MonitorElement *ME) { return doGaussFit(ME->getTH1F()); }
@@ -60,4 +57,4 @@ private:
   TF1 *gausFit;
 };
 
-#endif // DQM_SiStripHistoricInfoClient_HDQMfitUtilities_H
+#endif  // DQM_SiStripHistoricInfoClient_HDQMfitUtilities_H

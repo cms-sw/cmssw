@@ -11,14 +11,12 @@
 
 class CSCStripDigiValidation : public CSCBaseValidation {
 public:
-  CSCStripDigiValidation(const edm::InputTag &inputTag,
-                         edm::ConsumesCollector &&iC);
+  CSCStripDigiValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC);
   ~CSCStripDigiValidation() override;
   void bookHistograms(DQMStore::IBooker &, bool doSim);
   void analyze(const edm::Event &e, const edm::EventSetup &) override;
   void setGeometry(const CSCGeometry *geom) { theCSCGeometry = geom; }
-  void plotResolution(const PSimHit &hit, int strip, const CSCLayer *layer,
-                      int chamberType);
+  void plotResolution(const PSimHit &hit, int strip, const CSCLayer *layer, int chamberType);
 
 private:
   void fillPedestalPlots(const CSCStripDigi &digi);

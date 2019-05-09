@@ -34,15 +34,12 @@ enum {
 
 // Analyser constructor
 HltComparator::HltComparator(const edm::ParameterSet &iConfig)
-    : hltOnlineResults_(consumes<edm::TriggerResults>(
-          iConfig.getParameter<edm::InputTag>("OnlineResults"))),
-      hltOfflineResults_(consumes<edm::TriggerResults>(
-          iConfig.getParameter<edm::InputTag>("OfflineResults"))),
-      init_(false), verbose_(iConfig.getUntrackedParameter<bool>("verbose")),
-      skipPathList_(
-          iConfig.getUntrackedParameter<std::vector<std::string>>("skipPaths")),
-      usePathList_(
-          iConfig.getUntrackedParameter<std::vector<std::string>>("usePaths")) {
+    : hltOnlineResults_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("OnlineResults"))),
+      hltOfflineResults_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("OfflineResults"))),
+      init_(false),
+      verbose_(iConfig.getUntrackedParameter<bool>("verbose")),
+      skipPathList_(iConfig.getUntrackedParameter<std::vector<std::string>>("skipPaths")),
+      usePathList_(iConfig.getUntrackedParameter<std::vector<std::string>>("usePaths")) {
   // std::cout << " HERE I AM " << std::endl;
   produces<StringCollection>("failedTriggerDescription");
   // std::cout << " HERE I GO " << std::endl;
@@ -66,9 +63,8 @@ void HltComparator::initialise(const edm::TriggerResults &onlineResults,
   // do we need to throw? I guess the whole job is crap if this happens.
   // sort of assumes we're the only game in town.
   if (numTriggers_ != offlineActualNames_.size()) {
-    throw cms::Exception("IncorrectTriggers")
-        << "Online had " << numTriggers_ << "triggers, "
-        << "Offline had " << offlineActualNames_.size() << "triggers";
+    throw cms::Exception("IncorrectTriggers") << "Online had " << numTriggers_ << "triggers, "
+                                              << "Offline had " << offlineActualNames_.size() << "triggers";
   }
 
   // Create bit mappings
@@ -78,22 +74,19 @@ void HltComparator::initialise(const edm::TriggerResults &onlineResults,
   }
   for (unsigned int i = 0; i < numTriggers_; ++i) {
     // Find offline position for fixed online bit
-    std::map<std::string, unsigned int>::iterator it =
-        offlineNameBitMap.find(onlineActualNames_[i]);
+    std::map<std::string, unsigned int>::iterator it = offlineNameBitMap.find(onlineActualNames_[i]);
     if (it != offlineNameBitMap.end()) {
       onlineToOfflineBitMappings_.push_back(it->second);
     } else {
-      throw cms::Exception("IncorrectTriggers")
-          << "Online trigger path " << onlineActualNames_[i]
-          << " not found in Offline "
-             "processing";
+      throw cms::Exception("IncorrectTriggers") << "Online trigger path " << onlineActualNames_[i]
+                                                << " not found in Offline "
+                                                   "processing";
     }
   }
 
   // Create histograms
   edm::Service<TFileService> fs;
-  for (std::vector<std::string>::iterator it = onlineActualNames_.begin();
-       it != onlineActualNames_.end(); ++it) {
+  for (std::vector<std::string>::iterator it = onlineActualNames_.begin(); it != onlineActualNames_.end(); ++it) {
     // Bin descriptions: OnOfPass, OnOffFail, OnPassOffFail, OnFailOffPass,
     // OnOffError, OnRunOffError, OnErrorOffRun, OnRunOffNot OnNotOffRun
     // OnNotOffNot
@@ -116,36 +109,36 @@ void HltComparator::initialise(const edm::TriggerResults &onlineResults,
 // Format a comparison result
 std::string HltComparator::formatResult(const unsigned int i) {
   switch (i) {
-  case 0:
-    return std::string("OnPass_OffPass");
-    break;
-  case 1:
-    return std::string("OnFail_OffFail");
-    break;
-  case 2:
-    return std::string("OnPass_OffFail");
-    break;
-  case 3:
-    return std::string("OnFail_OffPass");
-    break;
-  case 4:
-    return std::string("OnError_OffError");
-    break;
-  case 5:
-    return std::string("OnRun_OffError");
-    break;
-  case 6:
-    return std::string("OnError_OffRun");
-    break;
-  case 7:
-    return std::string("OnRun_OffNotRun");
-    break;
-  case 8:
-    return std::string("OnNotRun_OffRun");
-    break;
-  case 9:
-    return std::string("OnNotRun_OffNotRun");
-    break;
+    case 0:
+      return std::string("OnPass_OffPass");
+      break;
+    case 1:
+      return std::string("OnFail_OffFail");
+      break;
+    case 2:
+      return std::string("OnPass_OffFail");
+      break;
+    case 3:
+      return std::string("OnFail_OffPass");
+      break;
+    case 4:
+      return std::string("OnError_OffError");
+      break;
+    case 5:
+      return std::string("OnRun_OffError");
+      break;
+    case 6:
+      return std::string("OnError_OffRun");
+      break;
+    case 7:
+      return std::string("OnRun_OffNotRun");
+      break;
+    case 8:
+      return std::string("OnNotRun_OffRun");
+      break;
+    case 9:
+      return std::string("OnNotRun_OffNotRun");
+      break;
   }
   return std::string("CODE NOT KNOWN");
 }
@@ -213,24 +206,19 @@ bool HltComparator::filter(edm::Event &event, const edm::EventSetup &iSetup) {
     // want to send the result to a special stream. Hence we _pass_ the filter.
     // If it all worked as expected the filter fails and the event doesn't go
     // to the output stream.
-    if ((result == kOnPassOffFail) || (result == kOnFailOffPass) ||
-        (result == kOnRunOffError) || (result == kOnErrorOffRun) ||
-        (result == kOnRunOffNot) || (result == kOnNotOffRun)) {
+    if ((result == kOnPassOffFail) || (result == kOnFailOffPass) || (result == kOnRunOffError) ||
+        (result == kOnErrorOffRun) || (result == kOnRunOffNot) || (result == kOnNotOffRun)) {
       // is this one we should ignore? check the skip list
       if (verbose()) {
-        std::cout << "Found disagreemenet " << result << ", name is "
-                  << onlineActualNames_[i] << std::endl;
+        std::cout << "Found disagreemenet " << result << ", name is " << onlineActualNames_[i] << std::endl;
       }
       std::ostringstream desc;
       desc << onlineActualNames_[i] << ":" << formatResult(result);
       resultDescription->push_back(desc.str());
-      if (std::find(skipPathList_.begin(), skipPathList_.end(),
-                    onlineActualNames_[i]) == skipPathList_.end()) {
-
+      if (std::find(skipPathList_.begin(), skipPathList_.end(), onlineActualNames_[i]) == skipPathList_.end()) {
         if (!usePathList_.empty()) {
           // only use specified paths to debug
-          if (std::find(usePathList_.begin(), usePathList_.end(),
-                        onlineActualNames_[i]) != usePathList_.end())
+          if (std::find(usePathList_.begin(), usePathList_.end(), onlineActualNames_[i]) != usePathList_.end())
             hasDisagreement = true;
         } else
           hasDisagreement = true;
@@ -240,13 +228,11 @@ bool HltComparator::filter(edm::Event &event, const edm::EventSetup &iSetup) {
     // Record the trigger error code
     // I think this should be result > 2? (pw)
     if (verbose() && (result > 1)) {
-      std::cout << "HLT-Compare: Event " << event.id().event() << " Path "
-                << onlineActualNames_[i] << " " << formatResult(result)
-                << std::endl;
+      std::cout << "HLT-Compare: Event " << event.id().event() << " Path " << onlineActualNames_[i] << " "
+                << formatResult(result) << std::endl;
 #ifdef NOTDEF
-      triggerComparisonErrors_[event.id().event()][onlineActualNames_[i]] =
-          result;
-#endif // NOTDEF
+      triggerComparisonErrors_[event.id().event()][onlineActualNames_[i]] = result;
+#endif  // NOTDEF
     }
   }
 
@@ -265,21 +251,16 @@ void HltComparator::beginJob() {}
 // Print the trigger results
 void HltComparator::endJob() {
 #ifdef NOTDEF
-  std::cout << "HLT-Compare ---------- Trigger Comparison Summary ----------"
-            << std::endl;
-  std::cout << "HLT-Compare  The following events had trigger mismatches:"
-            << std::endl;
+  std::cout << "HLT-Compare ---------- Trigger Comparison Summary ----------" << std::endl;
+  std::cout << "HLT-Compare  The following events had trigger mismatches:" << std::endl;
   std::map<unsigned int, std::map<std::string, unsigned int>>::iterator it;
-  for (it = triggerComparisonErrors_.begin();
-       it != triggerComparisonErrors_.end(); ++it) {
+  for (it = triggerComparisonErrors_.begin(); it != triggerComparisonErrors_.end(); ++it) {
     std::cout << "HLT-Compare  Event: " << it->first << std::endl;
     std::map<std::string, unsigned int>::iterator jt;
     for (jt = it->second.begin(); jt != it->second.end(); ++jt) {
-      std::cout << "HLT-Compare    Path: " << jt->first << " : "
-                << formatResult(jt->second) << std::endl;
+      std::cout << "HLT-Compare    Path: " << jt->first << " : " << formatResult(jt->second) << std::endl;
     }
   }
-  std::cout << "HLT-Compare ------------ End Trigger Comparison ------------"
-            << std::endl;
-#endif // NOTDEF
+  std::cout << "HLT-Compare ------------ End Trigger Comparison ------------" << std::endl;
+#endif  // NOTDEF
 }

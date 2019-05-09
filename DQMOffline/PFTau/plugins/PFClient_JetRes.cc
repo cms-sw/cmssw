@@ -16,21 +16,17 @@
 // -- Constructor
 //
 PFClient_JetRes::PFClient_JetRes(const edm::ParameterSet &parameterSet) {
-  folderNames_ =
-      parameterSet.getParameter<std::vector<std::string>>("FolderNames");
-  histogramNames_ =
-      parameterSet.getParameter<std::vector<std::string>>("HistogramNames");
+  folderNames_ = parameterSet.getParameter<std::vector<std::string>>("FolderNames");
+  histogramNames_ = parameterSet.getParameter<std::vector<std::string>>("HistogramNames");
   efficiencyFlag_ = parameterSet.getParameter<bool>("CreateEfficiencyPlots");
-  effHistogramNames_ = parameterSet.getParameter<std::vector<std::string>>(
-      "HistogramNamesForEfficiencyPlots");
+  effHistogramNames_ = parameterSet.getParameter<std::vector<std::string>>("HistogramNamesForEfficiencyPlots");
   PtBins_ = parameterSet.getParameter<std::vector<int>>("VariablePtBins");
 }
 
 //
 // -- EndJobBegin Run
 //
-void PFClient_JetRes::dqmEndJob(DQMStore::IBooker &ibooker,
-                                DQMStore::IGetter &igetter) {
+void PFClient_JetRes::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
   doSummaries(ibooker, igetter);
   if (efficiencyFlag_)
     doEfficiency(ibooker, igetter);
@@ -39,16 +35,13 @@ void PFClient_JetRes::dqmEndJob(DQMStore::IBooker &ibooker,
 //
 // -- Create Summaries
 //
-void PFClient_JetRes::doSummaries(DQMStore::IBooker &ibooker,
-                                  DQMStore::IGetter &igetter) {
-
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin();
-       ifolder != folderNames_.end(); ifolder++) {
+void PFClient_JetRes::doSummaries(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
+  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
+       ifolder++) {
     std::string path = "ParticleFlow/" + (*ifolder);
 
-    for (std::vector<std::string>::const_iterator ihist =
-             histogramNames_.begin();
-         ihist != histogramNames_.end(); ihist++) {
+    for (std::vector<std::string>::const_iterator ihist = histogramNames_.begin(); ihist != histogramNames_.end();
+         ihist++) {
       std::string hname = (*ihist);
       createResolutionPlots(ibooker, igetter, path, hname);
     }
@@ -58,15 +51,13 @@ void PFClient_JetRes::doSummaries(DQMStore::IBooker &ibooker,
 //
 // -- Create Efficiency
 //
-void PFClient_JetRes::doEfficiency(DQMStore::IBooker &ibooker,
-                                   DQMStore::IGetter &igetter) {
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin();
-       ifolder != folderNames_.end(); ifolder++) {
+void PFClient_JetRes::doEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
+  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
+       ifolder++) {
     std::string path = "ParticleFlow/" + (*ifolder);
 
-    for (std::vector<std::string>::const_iterator ihist =
-             effHistogramNames_.begin();
-         ihist != effHistogramNames_.end(); ihist++) {
+    for (std::vector<std::string>::const_iterator ihist = effHistogramNames_.begin(); ihist != effHistogramNames_.end();
+         ihist++) {
       std::string hname = (*ihist);
       createEfficiencyPlots(ibooker, igetter, path, hname);
     }
@@ -97,8 +88,7 @@ void PFClient_JetRes::createResolutionPlots(DQMStore::IBooker &ibooker,
   MonitorElement *me_mean;
   MonitorElement *me_sigma;
 
-  if ((me->kind() == MonitorElement::DQM_KIND_TH2F) ||
-      (me->kind() == MonitorElement::DQM_KIND_TH2S) ||
+  if ((me->kind() == MonitorElement::DQM_KIND_TH2F) || (me->kind() == MonitorElement::DQM_KIND_TH2S) ||
       (me->kind() == MonitorElement::DQM_KIND_TH2D)) {
     TH2 *th = me->getTH2F();
     // size_t nbinx = me->getNbinsX();
@@ -117,14 +107,11 @@ void PFClient_JetRes::createResolutionPlots(DQMStore::IBooker &ibooker,
       xbins[ix - 1] = PtBins_[ix - 1];
       // snprintf(pTRange[ix-1].data(), 15, "Pt%d_%d", PtBins_[ix-1],
       // PtBins_[ix]);
-      pTRange[ix - 1] =
-          TString::Format("Pt%d_%d", PtBins_[ix - 1], PtBins_[ix]);
+      pTRange[ix - 1] = TString::Format("Pt%d_%d", PtBins_[ix - 1], PtBins_[ix]);
       if (name == "BRdelta_et_Over_et_VS_et_")
-        pTRange[ix - 1] =
-            TString::Format("BRPt%d_%d", PtBins_[ix - 1], PtBins_[ix]);
+        pTRange[ix - 1] = TString::Format("BRPt%d_%d", PtBins_[ix - 1], PtBins_[ix]);
       else if (name == "ERdelta_et_Over_et_VS_et_")
-        pTRange[ix - 1] =
-            TString::Format("ERPt%d_%d", PtBins_[ix - 1], PtBins_[ix]);
+        pTRange[ix - 1] = TString::Format("ERPt%d_%d", PtBins_[ix - 1], PtBins_[ix]);
 
       // pTCenter[ix-1] = (PtBins_[ix] - PtBins_[ix-1]) / 2. ;
       if (ix == nbinx) {
@@ -156,21 +143,15 @@ void PFClient_JetRes::createResolutionPlots(DQMStore::IBooker &ibooker,
       // me_slice->Reset();
       if (name == "delta_et_Over_et_VS_et_")
         pT[ix - 1] = ibooker.book1D(
-            pTRange[ix - 1],
-            TString::Format("Total %s;%s;Events", ytit.data(), ytit.data()),
-            nbiny, ymin, ymax);
+            pTRange[ix - 1], TString::Format("Total %s;%s;Events", ytit.data(), ytit.data()), nbiny, ymin, ymax);
       if (name == "BRdelta_et_Over_et_VS_et_")
         pT[ix - 1] = ibooker.book1D(
-            pTRange[ix - 1],
-            TString::Format("Barrel %s;%s;Events", ytit.data(), ytit.data()),
-            nbiny, ymin, ymax);
+            pTRange[ix - 1], TString::Format("Barrel %s;%s;Events", ytit.data(), ytit.data()), nbiny, ymin, ymax);
       else if (name == "ERdelta_et_Over_et_VS_et_")
         pT[ix - 1] = ibooker.book1D(
-            pTRange[ix - 1],
-            TString::Format("Endcap %s;%s;Events", ytit.data(), ytit.data()),
-            nbiny, ymin, ymax);
+            pTRange[ix - 1], TString::Format("Endcap %s;%s;Events", ytit.data(), ytit.data()), nbiny, ymin, ymax);
 
-      for (size_t iy = 0; iy <= nbiny + 1; ++iy) // add under and overflow
+      for (size_t iy = 0; iy <= nbiny + 1; ++iy)  // add under and overflow
         if (th->GetBinContent(ix, iy)) {
           // me_slice->setBinContent(iy,th->GetBinContent(ix,iy));
           pT[ix - 1]->setBinContent(iy, th->GetBinContent(ix, iy));
@@ -195,9 +176,8 @@ void PFClient_JetRes::createResolutionPlots(DQMStore::IBooker &ibooker,
 //
 // -- Get Histogram Parameters
 //
-void PFClient_JetRes::getHistogramParameters(MonitorElement *me_slice,
-                                             double &average, double &rms,
-                                             double &mean, double &sigma) {
+void PFClient_JetRes::getHistogramParameters(
+    MonitorElement *me_slice, double &average, double &rms, double &mean, double &sigma) {
   average = 0.0;
   rms = 0.0;
   mean = 0.0;
@@ -231,8 +211,7 @@ void PFClient_JetRes::createEfficiencyPlots(DQMStore::IBooker &ibooker,
   if (!me1 || !me2)
     return;
   MonitorElement *me_eff;
-  if ((me1->kind() == MonitorElement::DQM_KIND_TH1F) &&
-      (me1->kind() == MonitorElement::DQM_KIND_TH1F)) {
+  if ((me1->kind() == MonitorElement::DQM_KIND_TH1F) && (me1->kind() == MonitorElement::DQM_KIND_TH1F)) {
     TH1 *th1 = me1->getTH1F();
     size_t nbinx = me1->getNbinsX();
 

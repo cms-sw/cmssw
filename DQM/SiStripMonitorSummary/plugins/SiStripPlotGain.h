@@ -56,8 +56,7 @@ private:
   void endJob() override;
 
   void DoAnalysis(const edm::EventSetup &es, const SiStripApvGain &);
-  void getHistos(const uint32_t &detid, const TrackerTopology *tTopo,
-                 std::vector<TH1F *> &histos);
+  void getHistos(const uint32_t &detid, const TrackerTopology *tTopo, std::vector<TH1F *> &histos);
   TH1F *getHisto(const long unsigned int &index);
 
   unsigned long long getCache(const edm::EventSetup &eSetup) {

@@ -47,9 +47,8 @@ void PFMuonDQMAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
                                        edm::EventSetup const & /* iSetup */) {
   ibooker.setCurrentFolder(eventInfoFolder_);
 
-  edm::LogInfo("PFMuonDQMAnalyzer")
-      << " PFMuonDQMAnalyzer::bookHistograms "
-      << "Histogram Folder path set to " << eventInfoFolder_;
+  edm::LogInfo("PFMuonDQMAnalyzer") << " PFMuonDQMAnalyzer::bookHistograms "
+                                    << "Histogram Folder path set to " << eventInfoFolder_;
 
   pfCandidateMonitor_.setup(ibooker, pSet_);
 }
@@ -57,9 +56,7 @@ void PFMuonDQMAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
 //
 // -- Analyze
 //
-void PFMuonDQMAnalyzer::analyze(edm::Event const &iEvent,
-                                edm::EventSetup const &iSetup) {
-
+void PFMuonDQMAnalyzer::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) {
   edm::Handle<edm::View<reco::Muon>> candCollection;
   edm::Handle<edm::View<reco::Muon>> matchedCandCollection;
   if (!createEfficiencyHistos_) {
@@ -73,8 +70,7 @@ void PFMuonDQMAnalyzer::analyze(edm::Event const &iEvent,
   float maxRes = 0.0;
   float minRes = 99.99;
   if (candCollection.isValid() && matchedCandCollection.isValid()) {
-    pfCandidateMonitor_.fill(*candCollection, *matchedCandCollection, minRes,
-                             maxRes, pSet_, *matchedCandCollection);
+    pfCandidateMonitor_.fill(*candCollection, *matchedCandCollection, minRes, maxRes, pSet_, *matchedCandCollection);
   }
 }
 

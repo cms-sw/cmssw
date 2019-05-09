@@ -31,9 +31,7 @@
 
 #include "DQM/EcalMonitorDbModule/interface/MonitorElementsDb.h"
 
-MonitorElementsDb::MonitorElementsDb(const edm::ParameterSet &ps,
-                                     std::string &xmlFile) {
-
+MonitorElementsDb::MonitorElementsDb(const edm::ParameterSet &ps, std::string &xmlFile) {
   xmlFile_ = xmlFile;
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
@@ -41,7 +39,6 @@ MonitorElementsDb::MonitorElementsDb(const edm::ParameterSet &ps,
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   if (dqmStore_) {
-
     dqmStore_->setCurrentFolder(prefixME_);
 
     parser_ = new MonitorXMLParser(xmlFile_);
@@ -57,29 +54,40 @@ MonitorElementsDb::MonitorElementsDb(const edm::ParameterSet &ps,
       MEinfo_ = parser_->getDB_ME();
 
     for (unsigned int i = 0; i < MEinfo_.size(); i++) {
-
       MonitorElement *tmp;
       tmp = nullptr;
       if (strcmp(MEinfo_[i].type.c_str(), "th1d") == 0) {
-        tmp = dqmStore_->book1D(MEinfo_[i].title, MEinfo_[i].title,
-                                MEinfo_[i].xbins, MEinfo_[i].xfrom,
-                                MEinfo_[i].xto);
+        tmp = dqmStore_->book1D(MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto);
       } else if (strcmp(MEinfo_[i].type.c_str(), "th2d") == 0) {
-        tmp = dqmStore_->book2D(MEinfo_[i].title, MEinfo_[i].title,
-                                MEinfo_[i].xbins, MEinfo_[i].xfrom,
-                                MEinfo_[i].xto, MEinfo_[i].ybins,
-                                MEinfo_[i].yfrom, MEinfo_[i].yto);
+        tmp = dqmStore_->book2D(MEinfo_[i].title,
+                                MEinfo_[i].title,
+                                MEinfo_[i].xbins,
+                                MEinfo_[i].xfrom,
+                                MEinfo_[i].xto,
+                                MEinfo_[i].ybins,
+                                MEinfo_[i].yfrom,
+                                MEinfo_[i].yto);
       } else if (strcmp(MEinfo_[i].type.c_str(), "tprofile") == 0) {
-        tmp = dqmStore_->bookProfile(MEinfo_[i].title, MEinfo_[i].title,
-                                     MEinfo_[i].xbins, MEinfo_[i].xfrom,
-                                     MEinfo_[i].xto, MEinfo_[i].ybins,
-                                     MEinfo_[i].yfrom, MEinfo_[i].yto);
+        tmp = dqmStore_->bookProfile(MEinfo_[i].title,
+                                     MEinfo_[i].title,
+                                     MEinfo_[i].xbins,
+                                     MEinfo_[i].xfrom,
+                                     MEinfo_[i].xto,
+                                     MEinfo_[i].ybins,
+                                     MEinfo_[i].yfrom,
+                                     MEinfo_[i].yto);
       } else if (strcmp(MEinfo_[i].type.c_str(), "tprofile2d") == 0) {
-        tmp = dqmStore_->bookProfile2D(
-            MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins,
-            MEinfo_[i].xfrom, MEinfo_[i].xto, MEinfo_[i].ybins,
-            MEinfo_[i].yfrom, MEinfo_[i].yto, MEinfo_[i].zbins,
-            MEinfo_[i].zfrom, MEinfo_[i].zto);
+        tmp = dqmStore_->bookProfile2D(MEinfo_[i].title,
+                                       MEinfo_[i].title,
+                                       MEinfo_[i].xbins,
+                                       MEinfo_[i].xfrom,
+                                       MEinfo_[i].xto,
+                                       MEinfo_[i].ybins,
+                                       MEinfo_[i].yfrom,
+                                       MEinfo_[i].yto,
+                                       MEinfo_[i].zbins,
+                                       MEinfo_[i].zfrom,
+                                       MEinfo_[i].zto);
       }
 
       MEs_.push_back(tmp);
@@ -94,18 +102,14 @@ MonitorElementsDb::~MonitorElementsDb() { delete parser_; }
 void MonitorElementsDb::beginJob(void) { ievt_ = 0; }
 
 void MonitorElementsDb::endJob(void) {
-
-  std::cout << "MonitorElementsDb: analyzed " << ievt_ << " events"
-            << std::endl;
+  std::cout << "MonitorElementsDb: analyzed " << ievt_ << " events" << std::endl;
   for (unsigned int i = 0; i < MEs_.size(); i++) {
     if (MEs_[i] != nullptr)
       dqmStore_->removeElement(MEs_[i]->getName());
   }
 }
 
-void MonitorElementsDb::analyze(const edm::Event &e, const edm::EventSetup &c,
-                                coral::ISessionProxy *session) {
-
+void MonitorElementsDb::analyze(const edm::Event &e, const edm::EventSetup &c, coral::ISessionProxy *session) {
   ievt_++;
 
   bool atLeastAQuery;
@@ -114,19 +118,15 @@ void MonitorElementsDb::analyze(const edm::Event &e, const edm::EventSetup &c,
   std::vector<std::string> vars;
 
   if (session) {
-
     for (unsigned int i = 0; i < MEinfo_.size(); i++) {
-
       // i-th ME...
 
       if (MEs_[i] != nullptr && (ievt_ % MEinfo_[i].ncycle) == 0) {
-
         MEs_[i]->Reset();
 
         vars.clear();
 
         try {
-
           atLeastAQuery = true;
 
           session->transaction().start(true);
@@ -136,20 +136,14 @@ void MonitorElementsDb::analyze(const edm::Event &e, const edm::EventSetup &c,
           coral::IQuery *query = schema.newQuery();
 
           for (unsigned int j = 0; j < MEinfo_[i].queries.size(); j++) {
-            if (strcmp(MEinfo_[i].queries[j].query.c_str(), "addToTableList") ==
-                0) {
+            if (strcmp(MEinfo_[i].queries[j].query.c_str(), "addToTableList") == 0) {
               query->addToTableList(MEinfo_[i].queries[j].arg);
-            } else if (strcmp(MEinfo_[i].queries[j].query.c_str(),
-                              "addToOutputList") == 0) {
-              query->addToOutputList(MEinfo_[i].queries[j].arg,
-                                     MEinfo_[i].queries[j].alias);
+            } else if (strcmp(MEinfo_[i].queries[j].query.c_str(), "addToOutputList") == 0) {
+              query->addToOutputList(MEinfo_[i].queries[j].arg, MEinfo_[i].queries[j].alias);
               vars.push_back(MEinfo_[i].queries[j].alias);
-            } else if (strcmp(MEinfo_[i].queries[j].query.c_str(),
-                              "setCondition") == 0) {
-              query->setCondition(MEinfo_[i].queries[j].arg,
-                                  coral::AttributeList());
-            } else if (strcmp(MEinfo_[i].queries[j].query.c_str(),
-                              "addToOrderList") == 0) {
+            } else if (strcmp(MEinfo_[i].queries[j].query.c_str(), "setCondition") == 0) {
+              query->setCondition(MEinfo_[i].queries[j].arg, coral::AttributeList());
+            } else if (strcmp(MEinfo_[i].queries[j].query.c_str(), "addToOrderList") == 0) {
               query->addToOrderList(MEinfo_[i].queries[j].arg);
             }
           }
@@ -206,20 +200,15 @@ void MonitorElementsDb::analyze(const edm::Event &e, const edm::EventSetup &c,
 }
 
 void MonitorElementsDb::htmlOutput(std::string &htmlDir) {
-
   gStyle->SetOptStat(0);
   gStyle->SetOptFit();
   gStyle->SetPalette(1, nullptr);
 
   for (unsigned int i = 0; i < MEinfo_.size(); i++) {
-
     if (MEs_[i] != nullptr && (ievt_ % MEinfo_[i].ncycle) == 0) {
-
       TCanvas *c1;
-      int n =
-          MEinfo_[i].xbins > MEinfo_[i].ybins
-              ? int(round(float(MEinfo_[i].xbins) / float(MEinfo_[i].ybins)))
-              : int(round(float(MEinfo_[i].ybins) / float(MEinfo_[i].xbins)));
+      int n = MEinfo_[i].xbins > MEinfo_[i].ybins ? int(round(float(MEinfo_[i].xbins) / float(MEinfo_[i].ybins)))
+                                                  : int(round(float(MEinfo_[i].ybins) / float(MEinfo_[i].xbins)));
       if (MEinfo_[i].xbins > MEinfo_[i].ybins) {
         c1 = new TCanvas("c1", "dummy", 400 * n, 400);
       } else {

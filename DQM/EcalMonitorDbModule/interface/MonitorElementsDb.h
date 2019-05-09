@@ -25,7 +25,6 @@ class MonitorElement;
 class DQMStore;
 
 class MonitorElementsDb {
-
   friend class EcalBarrelMonitorDbModule;
 
 public:
@@ -37,8 +36,7 @@ public:
 
 protected:
   /// Analyze
-  void analyze(const edm::Event &e, const edm::EventSetup &c,
-               coral::ISessionProxy *s);
+  void analyze(const edm::Event &e, const edm::EventSetup &c, coral::ISessionProxy *s);
 
   // BeginJob
   void beginJob(void);
@@ -61,4 +59,4 @@ private:
   DQMStore *dqmStore_;
 };
 
-#endif // MonitorElementsDb_H
+#endif  // MonitorElementsDb_H

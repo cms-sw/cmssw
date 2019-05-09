@@ -12,15 +12,13 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 HcalSimHitsClient::HcalSimHitsClient(const edm::ParameterSet &iConfig) {
-
   dirName_ = iConfig.getParameter<std::string>("DQMDirName");
   verbose_ = iConfig.getUntrackedParameter<bool>("Verbosity", false);
 }
 
 HcalSimHitsClient::~HcalSimHitsClient() {}
 
-void HcalSimHitsClient::beginRun(edm::Run const &run,
-                                 edm::EventSetup const &c) {
+void HcalSimHitsClient::beginRun(edm::Run const &run, edm::EventSetup const &c) {
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   c.get<HcalRecNumberingRecord>().get(pHRNDC);
   hcons = &(*pHRNDC);
@@ -29,19 +27,13 @@ void HcalSimHitsClient::beginRun(edm::Run const &run,
   maxDepthHF_ = hcons->getMaxDepth(2);
   maxDepthHO_ = hcons->getMaxDepth(3);
 
-  edm::LogInfo("HitsValidationHcal")
-      << " Maximum Depths HB:" << maxDepthHB_ << " HE:" << maxDepthHE_
-      << " HO:" << maxDepthHO_ << " HF:" << maxDepthHF_;
+  edm::LogInfo("HitsValidationHcal") << " Maximum Depths HB:" << maxDepthHB_ << " HE:" << maxDepthHE_
+                                     << " HO:" << maxDepthHO_ << " HF:" << maxDepthHF_;
 }
 
-void HcalSimHitsClient::dqmEndJob(DQMStore::IBooker &ib,
-                                  DQMStore::IGetter &ig) {
-  runClient_(ib, ig);
-}
+void HcalSimHitsClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) { runClient_(ib, ig); }
 
-void HcalSimHitsClient::runClient_(DQMStore::IBooker &ib,
-                                   DQMStore::IGetter &ig) {
-
+void HcalSimHitsClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
   ig.setCurrentFolder(dirName_);
 
   if (verbose_)
@@ -52,23 +44,18 @@ void HcalSimHitsClient::runClient_(DQMStore::IBooker &ib,
   std::vector<std::string> fullPathHLTFolders = ig.getSubdirs();
   for (unsigned int i = 0; i < fullPathHLTFolders.size(); i++) {
     if (verbose_)
-      edm::LogInfo("HitsValidationHcal")
-          << "fullPath: " << fullPathHLTFolders[i];
+      edm::LogInfo("HitsValidationHcal") << "fullPath: " << fullPathHLTFolders[i];
     ig.setCurrentFolder(fullPathHLTFolders[i]);
 
     std::vector<std::string> fullSubPathHLTFolders = ig.getSubdirs();
     for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
-
       if (verbose_)
-        edm::LogInfo("HitsValidationHcal")
-            << "fullSub: " << fullSubPathHLTFolders[j];
+        edm::LogInfo("HitsValidationHcal") << "fullSub: " << fullSubPathHLTFolders[j];
 
-      if (strcmp(fullSubPathHLTFolders[j].c_str(),
-                 "HcalHitsV/SimHitsValidationHcal") == 0) {
+      if (strcmp(fullSubPathHLTFolders[j].c_str(), "HcalHitsV/SimHitsValidationHcal") == 0) {
         hcalMEs = ig.getContents(fullSubPathHLTFolders[j]);
         if (verbose_)
-          edm::LogInfo("HitsValidationHcal")
-              << "hltMES size : " << hcalMEs.size();
+          edm::LogInfo("HitsValidationHcal") << "hltMES size : " << hcalMEs.size();
         if (!SimHitsEndjob(hcalMEs))
           edm::LogWarning("HitsValidationHcal") << "Error in SimhitEndjob!";
       }
@@ -78,14 +65,11 @@ void HcalSimHitsClient::runClient_(DQMStore::IBooker &ib,
 
 // called after entering the  directory
 // hcalMEs are within that directory
-int HcalSimHitsClient::SimHitsEndjob(
-    const std::vector<MonitorElement *> &hcalMEs) {
-
+int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement *> &hcalMEs) {
   std::vector<std::string> divisions = getHistogramTypes();
   MonitorElement *Occupancy_map[nTime][divisions.size()];
   MonitorElement *Energy[nType1], *Time_weighteden[nType1];
-  MonitorElement *HitEnergyvsieta[divisions.size()],
-      *HitTimevsieta[divisions.size()];
+  MonitorElement *HitEnergyvsieta[divisions.size()], *HitTimevsieta[divisions.size()];
 
   std::string time[nTime] = {"25", "50", "100", "250"};
   std::string detdivision[nType1] = {"HB", "HE", "HF", "HO"};
@@ -175,8 +159,7 @@ int HcalSimHitsClient::SimHitsEndjob(
       int nx = Occupancy_map[itime][det]->getNbinsX();
       for (int i = 1; i < nx + 1; i++) {
         for (int j = 1; j < ny + 1; j++) {
-          cont[itime][det] =
-              Occupancy_map[itime][det]->getBinContent(i, j) / fev;
+          cont[itime][det] = Occupancy_map[itime][det]->getBinContent(i, j) / fev;
           Occupancy_map[itime][det]->setBinContent(i, j, cont[itime][det]);
         }
       }
@@ -187,7 +170,6 @@ int HcalSimHitsClient::SimHitsEndjob(
 }
 
 std::vector<std::string> HcalSimHitsClient::getHistogramTypes() {
-
   int maxDepth = std::max(maxDepthHB_, maxDepthHE_);
   if (verbose_)
     edm::LogInfo("HitsValidationHcal") << "Max depth 1st step:: " << maxDepth;

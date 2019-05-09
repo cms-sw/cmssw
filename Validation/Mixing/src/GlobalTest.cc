@@ -40,20 +40,15 @@ GlobalTest::GlobalTest(const edm::ParameterSet &iConfig)
     : filename_(iConfig.getParameter<std::string>("fileName")),
       minbunch_(iConfig.getParameter<int>("minBunch")),
       maxbunch_(iConfig.getParameter<int>("maxBunch")),
-      cfTrackToken_(consumes<CrossingFrame<SimTrack>>(
-          iConfig.getParameter<edm::InputTag>("cfTrackTag"))),
-      cfVertexToken_(consumes<CrossingFrame<SimTrack>>(
-          iConfig.getParameter<edm::InputTag>("cfVertexTag"))) {
+      cfTrackToken_(consumes<CrossingFrame<SimTrack>>(iConfig.getParameter<edm::InputTag>("cfTrackTag"))),
+      cfVertexToken_(consumes<CrossingFrame<SimTrack>>(iConfig.getParameter<edm::InputTag>("cfVertexTag"))) {
   std::string ecalsubdetb("");
   std::string ecalsubdete("g4SimHitsEcalHitsEE");
-  g4SimHits_EB_Token_ = consumes<CrossingFrame<PCaloHit>>(
-      edm::InputTag("mix", "g4SimHitsEcalHitsEB"));
-  g4SimHits_EE_Token_ = consumes<CrossingFrame<PCaloHit>>(
-      edm::InputTag("mix", "g4SimHitsEcalHitsEE"));
+  g4SimHits_EB_Token_ = consumes<CrossingFrame<PCaloHit>>(edm::InputTag("mix", "g4SimHitsEcalHitsEB"));
+  g4SimHits_EE_Token_ = consumes<CrossingFrame<PCaloHit>>(edm::InputTag("mix", "g4SimHitsEcalHitsEE"));
 
-  std::cout << "Constructed GlobalTest, filename: " << filename_
-            << " minbunch: " << minbunch_ << ", maxbunch: " << maxbunch_
-            << std::endl;
+  std::cout << "Constructed GlobalTest, filename: " << filename_ << " minbunch: " << minbunch_
+            << ", maxbunch: " << maxbunch_ << std::endl;
 }
 
 GlobalTest::~GlobalTest() {
@@ -61,8 +56,7 @@ GlobalTest::~GlobalTest() {
     delete[] labels[i];
 }
 
-void GlobalTest::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &,
-                                edm::EventSetup const &) {
+void GlobalTest::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {
   using namespace std;
 
   ibooker.setCurrentFolder("MixingV/Mixing");
@@ -117,8 +111,7 @@ void GlobalTest::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &,
 //
 
 // ------------ method called to analyze the data  ------------
-void GlobalTest::analyze(const edm::Event &iEvent,
-                         const edm::EventSetup &iSetup) {
+void GlobalTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace std;
 
@@ -147,8 +140,7 @@ void GlobalTest::analyze(const edm::Event &iEvent,
   }
 
   // part id for each track
-  std::unique_ptr<MixCollection<SimTrack>> coltr(
-      new MixCollection<SimTrack>(cf_track.product()));
+  std::unique_ptr<MixCollection<SimTrack>> coltr(new MixCollection<SimTrack>(cf_track.product()));
   MixCollection<SimTrack>::iterator cfitr;
   for (cfitr = coltr->begin(); cfitr != coltr->end(); cfitr++) {
     trackPartIdH_[cfitr.bunch() - minbunch_]->Fill(cfitr->type());
@@ -156,8 +148,7 @@ void GlobalTest::analyze(const edm::Event &iEvent,
 
   // energy sum
   double sumE[10] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
-  std::unique_ptr<MixCollection<PCaloHit>> colecalb(
-      new MixCollection<PCaloHit>(cf_calohitB.product()));
+  std::unique_ptr<MixCollection<PCaloHit>> colecalb(new MixCollection<PCaloHit>(cf_calohitB.product()));
   MixCollection<PCaloHit>::iterator cfiecalb;
   for (cfiecalb = colecalb->begin(); cfiecalb != colecalb->end(); cfiecalb++) {
     sumE[cfiecalb.bunch() - minbunch_] += cfiecalb->energy();
@@ -168,8 +159,7 @@ void GlobalTest::analyze(const edm::Event &iEvent,
     caloEnergyEBH_[i - minbunch_]->Fill(sumE[i - minbunch_]);
   }
   double sumEE[10] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
-  std::unique_ptr<MixCollection<PCaloHit>> colecale(
-      new MixCollection<PCaloHit>(cf_calohitE.product()));
+  std::unique_ptr<MixCollection<PCaloHit>> colecale(new MixCollection<PCaloHit>(cf_calohitE.product()));
   MixCollection<PCaloHit>::iterator cfiecale;
   for (cfiecale = colecale->begin(); cfiecale != colecale->end(); cfiecale++) {
     sumEE[cfiecale.bunch() - minbunch_] += cfiecale->energy();

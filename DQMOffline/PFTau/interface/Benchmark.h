@@ -19,7 +19,6 @@ class DQMStore;
 
 /// abstract base class
 class Benchmark {
-
 public:
   class PhaseSpace {
   public:
@@ -33,15 +32,13 @@ public:
   enum Mode { DEFAULT, DQMOFFLINE, VALIDATION };
 
   Benchmark(Mode mode = DEFAULT)
-      : dir_(nullptr), mode_(mode), ptMin_(0), ptMax_(10e10), etaMin_(-10),
-        etaMax_(10), phiMin_(-10), phiMax_(10) {}
+      : dir_(nullptr), mode_(mode), ptMin_(0), ptMax_(10e10), etaMin_(-10), etaMax_(10), phiMin_(-10), phiMax_(10) {}
 
   virtual ~Benchmark() noexcept(false);
 
   void setParameters(Mode mode) { mode_ = mode; }
 
-  void setRange(float ptMin, float ptMax, float etaMin, float etaMax,
-                float phiMin, float phiMax) {
+  void setRange(float ptMin, float ptMax, float etaMin, float etaMax, float phiMin, float phiMax) {
     ptMin_ = ptMin;
     ptMax_ = ptMax;
     etaMin_ = etaMin;
@@ -51,10 +48,8 @@ public:
   }
 
   bool isInRange(float pt, float eta, float phi) const {
-    return pt > ptMin_ && pt < ptMax_ && eta > etaMin_ && eta < etaMax_ &&
-                   phi > phiMin_ && phi < phiMax_
-               ? true
-               : false;
+    return pt > ptMin_ && pt < ptMax_ && eta > etaMin_ && eta < etaMax_ && phi > phiMin_ && phi < phiMax_ ? true
+                                                                                                          : false;
   }
 
   virtual void setDirectory(TDirectory *dir);
@@ -68,39 +63,61 @@ protected:
   /// been initialized in a child analyzer or not.
   // TH1F* book1D(const char* histname, const char* title,
   /// book a 1D histogram, either through IBooker or plain root
-  TH1F *book1D(DQMStore::IBooker &b, const char *histname, const char *title,
-               int nbins, float xmin, float xmax);
+  TH1F *book1D(DQMStore::IBooker &b, const char *histname, const char *title, int nbins, float xmin, float xmax);
 
   /// book a 2D histogram, either with DQM or plain root depending if DQM_ has
   /// been initialized in a child analyzer or not.
   // TH2F* book2D(const char* histname, const char* title,
   /// book a 2D histogram, either through IBooker or plain root
-  TH2F *book2D(DQMStore::IBooker &b, const char *histname, const char *title,
-               int nbinsx, float xmin, float xmax, int nbinsy, float ymin,
+  TH2F *book2D(DQMStore::IBooker &b,
+               const char *histname,
+               const char *title,
+               int nbinsx,
+               float xmin,
+               float xmax,
+               int nbinsy,
+               float ymin,
                float ymax);
 
   /// book a 2D histogram, either with DQM or plain root depending if DQM_ has
   /// been initialized in a child analyzer or not.
   // TH2F* book2D(const char* histname, const char* title,
   /// book a 2D histogram, either through IBooker or plain root
-  TH2F *book2D(DQMStore::IBooker &b, const char *histname, const char *title,
-               int nbinsx, float *xbins, int nbinsy, float ymin, float ymax);
+  TH2F *book2D(DQMStore::IBooker &b,
+               const char *histname,
+               const char *title,
+               int nbinsx,
+               float *xbins,
+               int nbinsy,
+               float ymin,
+               float ymax);
 
   /// book a TProfile histogram, either with DQM or plain root depending if DQM_
   /// has been initialized in a child analyzer or not.
   // TProfile* bookProfile(const char* histname, const char* title,
   /// book a TProfile, either through IBooker or plain root
-  TProfile *bookProfile(DQMStore::IBooker &b, const char *histname,
-                        const char *title, int nbinsx, float xmin, float xmax,
-                        float ymin, float ymax, const char *option);
+  TProfile *bookProfile(DQMStore::IBooker &b,
+                        const char *histname,
+                        const char *title,
+                        int nbinsx,
+                        float xmin,
+                        float xmax,
+                        float ymin,
+                        float ymax,
+                        const char *option);
 
   /// book a TProfile histogram, either with DQM or plain root depending if DQM_
   /// has been initialized in a child analyzer or not.
   // TProfile* bookProfile(const char* histname, const char* title,
   /// book a TProfile, either through IBooker or plain root
-  TProfile *bookProfile(DQMStore::IBooker &b, const char *histname,
-                        const char *title, int nbinsx, float *xbins, float ymin,
-                        float ymax, const char *option);
+  TProfile *bookProfile(DQMStore::IBooker &b,
+                        const char *histname,
+                        const char *title,
+                        int nbinsx,
+                        float *xbins,
+                        float ymin,
+                        float ymax,
+                        const char *option);
 
   TDirectory *dir_;
 

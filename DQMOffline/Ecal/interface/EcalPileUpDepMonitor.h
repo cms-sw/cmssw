@@ -24,7 +24,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class EcalPileUpDepMonitor : public DQMEDAnalyzer {
-
 public:
   /// Constructor
   EcalPileUpDepMonitor(const edm::ParameterSet &ps);
@@ -35,22 +34,19 @@ public:
 protected:
   /// Analyze
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // profiles
-  MonitorElement
-      *bcEB_PV; // basic clusters Ecal-Barrel vs Number of Primary Vertices
+  MonitorElement *bcEB_PV;  // basic clusters Ecal-Barrel vs Number of Primary Vertices
   MonitorElement *bcEE_PV;
   MonitorElement *scEB_PV;
   MonitorElement *scEE_PV;
 
-  MonitorElement *scEtEB_PV; // super cluster Et profiles vs Number of vertices
+  MonitorElement *scEtEB_PV;  // super cluster Et profiles vs Number of vertices
   MonitorElement *scEtEE_PV;
 
-  MonitorElement
-      *recHitEtEB_PV; // reconstructed hit Et profiles vs number of vertices
+  MonitorElement *recHitEtEB_PV;  // reconstructed hit Et profiles vs number of vertices
   MonitorElement *recHitEtEE_PV;
 
   MonitorElement *emIso_PV;
@@ -92,16 +88,12 @@ private:
   edm::ESHandle<CaloGeometry> geomH;
   edm::ESHandle<CaloTopology> caloTop;
 
-  edm::EDGetTokenT<reco::VertexCollection>
-      VertexCollection_; // vertex collection
+  edm::EDGetTokenT<reco::VertexCollection> VertexCollection_;  // vertex collection
 
-  edm::EDGetTokenT<edm::View<reco::CaloCluster>>
-      basicClusterCollection_EB_; // Ecal Barrel Basic Clusters
-  edm::EDGetTokenT<edm::View<reco::CaloCluster>>
-      basicClusterCollection_EE_; // Ecal Endcap Basic Clusters
-  edm::EDGetTokenT<edm::View<reco::CaloCluster>>
-      basicClusterCollection_; // Ecal Barrel & Endcap Basic Clusters (for >=
-                               // 70X, BC collection is merged)
+  edm::EDGetTokenT<edm::View<reco::CaloCluster>> basicClusterCollection_EB_;  // Ecal Barrel Basic Clusters
+  edm::EDGetTokenT<edm::View<reco::CaloCluster>> basicClusterCollection_EE_;  // Ecal Endcap Basic Clusters
+  edm::EDGetTokenT<edm::View<reco::CaloCluster>> basicClusterCollection_;  // Ecal Barrel & Endcap Basic Clusters (for >=
+                                                                           // 70X, BC collection is merged)
 
   edm::EDGetTokenT<reco::SuperClusterCollection> superClusterCollection_EB_;
   edm::EDGetTokenT<reco::SuperClusterCollection> superClusterCollection_EE_;

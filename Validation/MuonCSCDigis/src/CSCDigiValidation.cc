@@ -13,23 +13,22 @@
 
 CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet &ps)
     : doSim_(ps.getParameter<bool>("doSim")),
-      theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag"),
-                   consumesCollector()),
-      theCSCGeometry(nullptr), theStripDigiValidation(nullptr),
-      theWireDigiValidation(nullptr), theComparatorDigiValidation(nullptr),
-      theALCTDigiValidation(nullptr), theCLCTDigiValidation(nullptr) {
-  theStripDigiValidation = new CSCStripDigiValidation(
-      ps.getParameter<edm::InputTag>("stripDigiTag"), consumesCollector());
+      theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag"), consumesCollector()),
+      theCSCGeometry(nullptr),
+      theStripDigiValidation(nullptr),
+      theWireDigiValidation(nullptr),
+      theComparatorDigiValidation(nullptr),
+      theALCTDigiValidation(nullptr),
+      theCLCTDigiValidation(nullptr) {
+  theStripDigiValidation =
+      new CSCStripDigiValidation(ps.getParameter<edm::InputTag>("stripDigiTag"), consumesCollector());
   theWireDigiValidation =
-      new CSCWireDigiValidation(ps.getParameter<edm::InputTag>("wireDigiTag"),
-                                consumesCollector(), doSim_);
-  theComparatorDigiValidation = new CSCComparatorDigiValidation(
-      ps.getParameter<edm::InputTag>("comparatorDigiTag"),
-      ps.getParameter<edm::InputTag>("stripDigiTag"), consumesCollector());
-  theALCTDigiValidation = new CSCALCTDigiValidation(
-      ps.getParameter<edm::InputTag>("alctDigiTag"), consumesCollector());
-  theCLCTDigiValidation = new CSCCLCTDigiValidation(
-      ps.getParameter<edm::InputTag>("clctDigiTag"), consumesCollector());
+      new CSCWireDigiValidation(ps.getParameter<edm::InputTag>("wireDigiTag"), consumesCollector(), doSim_);
+  theComparatorDigiValidation = new CSCComparatorDigiValidation(ps.getParameter<edm::InputTag>("comparatorDigiTag"),
+                                                                ps.getParameter<edm::InputTag>("stripDigiTag"),
+                                                                consumesCollector());
+  theALCTDigiValidation = new CSCALCTDigiValidation(ps.getParameter<edm::InputTag>("alctDigiTag"), consumesCollector());
+  theCLCTDigiValidation = new CSCCLCTDigiValidation(ps.getParameter<edm::InputTag>("clctDigiTag"), consumesCollector());
 
   if (doSim_) {
     theStripDigiValidation->setSimHitMap(&theSimHitMap);
@@ -57,8 +56,7 @@ void CSCDigiValidation::bookHistograms(DQMStore::IBooker &iBooker,
   theCLCTDigiValidation->bookHistograms(iBooker);
 }
 
-void CSCDigiValidation::analyze(const edm::Event &e,
-                                const edm::EventSetup &eventSetup) {
+void CSCDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &eventSetup) {
   theSimHitMap.fill(e);
 
   // find the geometry & conditions for this event

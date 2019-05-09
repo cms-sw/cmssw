@@ -1,178 +1,176 @@
 #include "DQMServices/Diagnostic/interface/HDQMfitUtilities.h"
 
 namespace HDQMUtil {
-//-----------------------------------------------------------------------------------------------
-double langaufun(double *x, double *par) {
-  // Fit parameters:
-  // par[0]=Width (scale) parameter of Landau density
-  // par[1]=Most Probable (MP, location) parameter of Landau density
-  // par[2]=Total area (integral -inf to inf, normalization constant)
-  // par[3]=Width (sigma) of convoluted Gaussian function
-  //
-  // In the Landau distribution (represented by the CERNLIB approximation),
-  // the maximum is located at x=-0.22278298 with the location parameter=0.
-  // This shift is corrected within this function, so that the actual
-  // maximum is identical to the MP parameter.
+  //-----------------------------------------------------------------------------------------------
+  double langaufun(double *x, double *par) {
+    // Fit parameters:
+    // par[0]=Width (scale) parameter of Landau density
+    // par[1]=Most Probable (MP, location) parameter of Landau density
+    // par[2]=Total area (integral -inf to inf, normalization constant)
+    // par[3]=Width (sigma) of convoluted Gaussian function
+    //
+    // In the Landau distribution (represented by the CERNLIB approximation),
+    // the maximum is located at x=-0.22278298 with the location parameter=0.
+    // This shift is corrected within this function, so that the actual
+    // maximum is identical to the MP parameter.
 
-  // Numeric constants
-  double invsq2pi = 0.3989422804014; // (2 pi)^(-1/2)
-  double mpshift = -0.22278298;      // Landau maximum location
+    // Numeric constants
+    double invsq2pi = 0.3989422804014;  // (2 pi)^(-1/2)
+    double mpshift = -0.22278298;       // Landau maximum location
 
-  // Control constants
-  double np = 100.0; // number of convolution steps
-  double sc = 5.0;   // convolution extends to +-sc Gaussian sigmas
+    // Control constants
+    double np = 100.0;  // number of convolution steps
+    double sc = 5.0;    // convolution extends to +-sc Gaussian sigmas
 
-  // Variables
-  double xx;
-  double mpc;
-  double fland;
-  double sum = 0.0;
-  double xlow, xupp;
-  double step;
-  double i;
+    // Variables
+    double xx;
+    double mpc;
+    double fland;
+    double sum = 0.0;
+    double xlow, xupp;
+    double step;
+    double i;
 
-  // MP shift correction
-  mpc = par[1] - mpshift * par[0];
+    // MP shift correction
+    mpc = par[1] - mpshift * par[0];
 
-  // Range of convolution integral
-  xlow = x[0] - sc * par[3];
-  xupp = x[0] + sc * par[3];
+    // Range of convolution integral
+    xlow = x[0] - sc * par[3];
+    xupp = x[0] + sc * par[3];
 
-  step = (xupp - xlow) / np;
+    step = (xupp - xlow) / np;
 
-  // Landau Distribution Production
-  for (i = 1.0; i <= np / 2; i++) {
-    xx = xlow + (i - .5) * step;
-    fland = TMath::Landau(xx, mpc, par[0]) / par[0];
-    sum += fland * TMath::Gaus(x[0], xx, par[3]);
+    // Landau Distribution Production
+    for (i = 1.0; i <= np / 2; i++) {
+      xx = xlow + (i - .5) * step;
+      fland = TMath::Landau(xx, mpc, par[0]) / par[0];
+      sum += fland * TMath::Gaus(x[0], xx, par[3]);
 
-    xx = xupp - (i - .5) * step;
-    fland = TMath::Landau(xx, mpc, par[0]) / par[0];
-    sum += fland * TMath::Gaus(x[0], xx, par[3]);
+      xx = xupp - (i - .5) * step;
+      fland = TMath::Landau(xx, mpc, par[0]) / par[0];
+      sum += fland * TMath::Gaus(x[0], xx, par[3]);
+    }
+
+    return (par[2] * step * sum * invsq2pi / par[3]);
   }
 
-  return (par[2] * step * sum * invsq2pi / par[3]);
-}
+  //-----------------------------------------------------------------------------------------------
+  int32_t langaupro(double *params, double &maxx, double &FWHM) {
+    edm::LogInfo("fitUtility") << "inside langaupro " << std::endl;
+    // Seaches for the location (x value) at the maximum of the
+    // Landau and its full width at half-maximum.
+    //
+    // The search is probably not very efficient, but it's a first try.
 
-//-----------------------------------------------------------------------------------------------
-int32_t langaupro(double *params, double &maxx, double &FWHM) {
-  edm::LogInfo("fitUtility") << "inside langaupro " << std::endl;
-  // Seaches for the location (x value) at the maximum of the
-  // Landau and its full width at half-maximum.
-  //
-  // The search is probably not very efficient, but it's a first try.
+    double p, x, fy, fxr, fxl;
+    double step;
+    double l, lold, dl;
+    int32_t i = 0;
+    const int32_t MAXCALLS = 10000;
+    const double dlStop = 1e-3;  // relative change < .001
 
-  double p, x, fy, fxr, fxl;
-  double step;
-  double l, lold, dl;
-  int32_t i = 0;
-  const int32_t MAXCALLS = 10000;
-  const double dlStop = 1e-3; // relative change < .001
+    // Search for maximum
+    p = params[1] - 0.1 * params[0];
+    step = 0.05 * params[0];
+    lold = -2.0;
+    l = -1.0;
 
-  // Search for maximum
-  p = params[1] - 0.1 * params[0];
-  step = 0.05 * params[0];
-  lold = -2.0;
-  l = -1.0;
+    dl = (l - lold) / lold;  // FIXME catch divide by zero
+    while ((TMath::Abs(dl) > dlStop) && (i < MAXCALLS)) {
+      i++;
 
-  dl = (l - lold) / lold; // FIXME catch divide by zero
-  while ((TMath::Abs(dl) > dlStop) && (i < MAXCALLS)) {
-    i++;
+      lold = l;
+      x = p + step;
+      l = langaufun(&x, params);
+      dl = (l - lold) / lold;  // FIXME catch divide by zero
 
-    lold = l;
-    x = p + step;
-    l = langaufun(&x, params);
-    dl = (l - lold) / lold; // FIXME catch divide by zero
+      if (l < lold)
+        step = -step / 10;
 
-    if (l < lold)
-      step = -step / 10;
+      p += step;
+    }
 
-    p += step;
+    if (i == MAXCALLS)
+      return (-1);
+
+    maxx = x;
+
+    fy = l / 2;
+
+    // Search for right x location of fy
+    p = maxx + params[0];
+    step = params[0];
+    lold = -2.0;
+    l = -1e300;
+    i = 0;
+
+    dl = (l - lold) / lold;  // FIXME catch divide by zero
+    while ((TMath::Abs(dl) > dlStop) && (i < MAXCALLS)) {
+      i++;
+
+      lold = l;
+      x = p + step;
+      l = TMath::Abs(langaufun(&x, params) - fy);
+      dl = (l - lold) / lold;  // FIXME catch divide by zero
+
+      if (l > lold)
+        step = -step / 10;
+
+      p += step;
+    }
+
+    if (i == MAXCALLS)
+      return (-2);
+
+    fxr = x;
+
+    // Search for left x location of fy
+    p = maxx - 0.5 * params[0];
+    step = -params[0];
+    lold = -2.0;
+    l = -1e300;
+    i = 0;
+
+    dl = (l - lold) / lold;  // FIXME catch divide by zero
+    while ((TMath::Abs(dl) > dlStop) && (i < MAXCALLS)) {
+      i++;
+
+      lold = l;
+      x = p + step;
+      l = TMath::Abs(langaufun(&x, params) - fy);
+      dl = (l - lold) / lold;  // FIXME catch divide by zero
+
+      if (l > lold)
+        step = -step / 10;
+
+      p += step;
+    }
+
+    if (i == MAXCALLS)
+      return (-3);
+
+    fxl = x;
+
+    FWHM = fxr - fxl;
+    return (0);
   }
 
-  if (i == MAXCALLS)
-    return (-1);
+  //-----------------------------------------------------------------------------------------------
+  double Gauss(double *x, double *par) {
+    // The noise function: a gaussian
 
-  maxx = x;
+    double arg = 0;
+    if (par[2])
+      arg = (x[0] - par[1]) / par[2];
 
-  fy = l / 2;
-
-  // Search for right x location of fy
-  p = maxx + params[0];
-  step = params[0];
-  lold = -2.0;
-  l = -1e300;
-  i = 0;
-
-  dl = (l - lold) / lold; // FIXME catch divide by zero
-  while ((TMath::Abs(dl) > dlStop) && (i < MAXCALLS)) {
-    i++;
-
-    lold = l;
-    x = p + step;
-    l = TMath::Abs(langaufun(&x, params) - fy);
-    dl = (l - lold) / lold; // FIXME catch divide by zero
-
-    if (l > lold)
-      step = -step / 10;
-
-    p += step;
+    double noise = par[0] * TMath::Exp(-0.5 * arg * arg);
+    return noise;
   }
 
-  if (i == MAXCALLS)
-    return (-2);
-
-  fxr = x;
-
-  // Search for left x location of fy
-  p = maxx - 0.5 * params[0];
-  step = -params[0];
-  lold = -2.0;
-  l = -1e300;
-  i = 0;
-
-  dl = (l - lold) / lold; // FIXME catch divide by zero
-  while ((TMath::Abs(dl) > dlStop) && (i < MAXCALLS)) {
-    i++;
-
-    lold = l;
-    x = p + step;
-    l = TMath::Abs(langaufun(&x, params) - fy);
-    dl = (l - lold) / lold; // FIXME catch divide by zero
-
-    if (l > lold)
-      step = -step / 10;
-
-    p += step;
-  }
-
-  if (i == MAXCALLS)
-    return (-3);
-
-  fxl = x;
-
-  FWHM = fxr - fxl;
-  return (0);
-}
+}  // namespace HDQMUtil
 
 //-----------------------------------------------------------------------------------------------
-double Gauss(double *x, double *par) {
-  // The noise function: a gaussian
-
-  double arg = 0;
-  if (par[2])
-    arg = (x[0] - par[1]) / par[2];
-
-  double noise = par[0] * TMath::Exp(-0.5 * arg * arg);
-  return noise;
-}
-
-} // namespace HDQMUtil
-
-//-----------------------------------------------------------------------------------------------
-HDQMfitUtilities::HDQMfitUtilities() : langausFit(nullptr), gausFit(nullptr) {
-  init();
-}
+HDQMfitUtilities::HDQMfitUtilities() : langausFit(nullptr), gausFit(nullptr) { init(); }
 
 //-----------------------------------------------------------------------------------------------
 void HDQMfitUtilities::init() {
@@ -262,15 +260,14 @@ double HDQMfitUtilities::doLanGaussFit(TH1F *htoFit) {
     }
 
     try {
-      htoFit->Fit(langausFit, "R0"); // "R" fit in a range,"0" quiet fit
+      htoFit->Fit(langausFit, "R0");  // "R" fit in a range,"0" quiet fit
 
       langausFit->SetRange(fr[0], fr[1]);
       langausFit->GetParameters(pLanGausS);
-      std::memcpy((void *)epLanGausS, (void *)langausFit->GetParErrors(),
-                  4 * sizeof(double));
+      std::memcpy((void *)epLanGausS, (void *)langausFit->GetParErrors(), 4 * sizeof(double));
 
-      chi2GausS = langausFit->GetChisquare(); // obtain chi^2
-      nDofGausS = langausFit->GetNDF();       // obtain ndf
+      chi2GausS = langausFit->GetChisquare();  // obtain chi^2
+      nDofGausS = langausFit->GetNDF();        // obtain ndf
 
       double sPeak, sFWHM;
       HDQMUtil::langaupro(pLanGausS, sPeak, sFWHM);
@@ -279,9 +276,8 @@ double HDQMfitUtilities::doLanGaussFit(TH1F *htoFit) {
       edm::LogInfo("fitUtility") << "langaupro:  max  " << sPeak << std::endl;
       edm::LogInfo("fitUtility") << "langaupro:  FWHM " << sFWHM << std::endl;
     } catch (cms::Exception &iException) {
-      edm::LogError("fitUtility")
-          << "problem in fitting " << htoFit->GetTitle()
-          << " \n\tDefault values of the parameters will be used";
+      edm::LogError("fitUtility") << "problem in fitting " << htoFit->GetTitle()
+                                  << " \n\tDefault values of the parameters will be used";
       pLanGausS[0] = -9999;
       pLanGausS[1] = -9999;
       pLanGausS[2] = -9999;
@@ -318,7 +314,6 @@ double HDQMfitUtilities::doGaussFit(TH1F *htoFit) {
   init();
   // if (htoFit->GetEntries()!=0) {
   if (htoFit->Integral() != 0) {
-
     // Setting fit range and start values
     double fr[2];
     double sv[3], pllo[3], plhi[3];
@@ -363,15 +358,13 @@ double HDQMfitUtilities::doGaussFit(TH1F *htoFit) {
 
       gausFit->SetRange(fr[0], fr[1]);
       gausFit->GetParameters(pGausS);
-      std::memcpy((void *)epGausS, (void *)gausFit->GetParErrors(),
-                  3 * sizeof(double));
+      std::memcpy((void *)epGausS, (void *)gausFit->GetParErrors(), 3 * sizeof(double));
 
-      chi2GausS = langausFit->GetChisquare(); // obtain chi^2
-      nDofGausS = langausFit->GetNDF();       // obtain ndf
+      chi2GausS = langausFit->GetChisquare();  // obtain chi^2
+      nDofGausS = langausFit->GetNDF();        // obtain ndf
     } catch (cms::Exception &iException) {
-      edm::LogError("fitUtility")
-          << "problem in fitting " << htoFit->GetTitle()
-          << " \n\tDefault values of the parameters will be used";
+      edm::LogError("fitUtility") << "problem in fitting " << htoFit->GetTitle()
+                                  << " \n\tDefault values of the parameters will be used";
       pGausS[0] = -9999;
       pGausS[1] = -9999;
       pGausS[2] = -9999;
