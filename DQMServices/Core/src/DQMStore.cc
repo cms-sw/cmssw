@@ -1098,6 +1098,7 @@ MonitorElement*
 DQMStore::book1D(char_string const& name, char_string const& title,
                  int const nchX, double const lowX, double const highX)
 {
+  assert((highX - lowX) > 0);
   return book1D_(pwd_, name, new TH1F(name, title, nchX, lowX, highX));
 }
 
@@ -1106,6 +1107,7 @@ MonitorElement*
 DQMStore::book1S(char_string const& name, char_string const& title,
                  int const nchX, double const lowX, double const highX)
 {
+  assert((highX - lowX) > 0);
   return book1S_(pwd_, name, new TH1S(name, title, nchX, lowX, highX));
 }
 
@@ -1114,6 +1116,7 @@ MonitorElement*
 DQMStore::book1DD(char_string const& name, char_string const& title,
                   int const nchX, double const lowX, double const highX)
 {
+  assert((highX - lowX) > 0);
   return book1DD_(pwd_, name, new TH1D(name, title, nchX, lowX, highX));
 }
 
@@ -1174,6 +1177,8 @@ DQMStore::book2D(char_string const& name, char_string const& title,
                  int const nchX, double const lowX, double const highX,
                  int const nchY, double const lowY, double const highY)
 {
+  assert((highX - lowX) > 0);
+  assert((highY - lowY) > 0);
   return book2D_(pwd_, name, new TH2F(name, title,
                                              nchX, lowX, highX,
                                              nchY, lowY, highY));
@@ -1185,6 +1190,8 @@ DQMStore::book2S(char_string const& name, char_string const& title,
                  int const nchX, double const lowX, double const highX,
                  int const nchY, double const lowY, double const highY)
 {
+  assert((highX - lowX) > 0);
+  assert((highY - lowY) > 0);
   return book2S_(pwd_, name, new TH2S(name, title,
                                              nchX, lowX, highX,
                                              nchY, lowY, highY));
@@ -1196,6 +1203,8 @@ DQMStore::book2DD(char_string const& name, char_string const& title,
                   int const nchX, double const lowX, double const highX,
                   int const nchY, double const lowY, double const highY)
 {
+  assert((highX - lowX) > 0);
+  assert((highY - lowY) > 0);
   return book2DD_(pwd_, name, new TH2D(name, title,
                                               nchX, lowX, highX,
                                               nchY, lowY, highY));
@@ -1255,6 +1264,9 @@ DQMStore::book3D(char_string const& name, char_string const& title,
                  int const nchY, double const lowY, double const highY,
                  int const nchZ, double const lowZ, double const highZ)
 {
+  assert((highX - lowX) > 0);
+  assert((highY - lowY) > 0);
+  assert((highZ - lowZ) > 0);
   return book3D_(pwd_, name, new TH3F(name, title,
                                              nchX, lowX, highX,
                                              nchY, lowY, highY,
@@ -1287,6 +1299,7 @@ DQMStore::bookProfile(char_string const& name, char_string const& title,
                       int /* nchY */, double const lowY, double const highY,
                       char const* option /* = "s" */)
 {
+  assert((highX - lowX) > 0);
   return bookProfile_(pwd_, name, new TProfile(name, title,
                                                       nchX, lowX, highX,
                                                       lowY, highY,
@@ -1302,6 +1315,7 @@ DQMStore::bookProfile(char_string const& name, char_string const& title,
                       double const lowY, double const highY,
                       char const* option /* = "s" */)
 {
+  assert((highX - lowX) > 0);
   return bookProfile_(pwd_, name, new TProfile(name, title,
                                                       nchX, lowX, highX,
                                                       lowY, highY,
@@ -1365,6 +1379,8 @@ DQMStore::bookProfile2D(char_string const& name, char_string const& title,
                         int /* nchZ */, double const lowZ, double const highZ,
                         char const* option /* = "s" */)
 {
+  assert((highX - lowX) > 0);
+  assert((highY - lowY) > 0);
   return bookProfile2D_(pwd_, name, new TProfile2D(name, title,
                                                           nchX, lowX, highX,
                                                           nchY, lowY, highY,
@@ -1382,6 +1398,8 @@ DQMStore::bookProfile2D(char_string const& name, char_string const& title,
                         double const lowZ, double const highZ,
                         char const* option /* = "s" */)
 {
+  assert((highX - lowX) > 0);
+  assert((highY - lowY) > 0);
   return bookProfile2D_(pwd_, name, new TProfile2D(name, title,
                                                           nchX, lowX, highX,
                                                           nchY, lowY, highY,
