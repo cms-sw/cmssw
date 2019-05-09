@@ -34,7 +34,6 @@
 #include <vector>
 
 class EcalEndcapSimHitsValidation : public edm::EDAnalyzer {
-
   typedef std::map<uint32_t, float, std::less<uint32_t>> MapType;
 
 public:
@@ -57,15 +56,13 @@ protected:
 private:
   uint32_t getUnitWithMaxEnergy(MapType &themap);
 
-  virtual float energyInMatrixEE(int nCellInX, int nCellInY, int centralX,
-                                 int centralY, int centralZ, MapType &themap);
+  virtual float energyInMatrixEE(int nCellInX, int nCellInY, int centralX, int centralY, int centralZ, MapType &themap);
 
-  std::vector<uint32_t> getIdsAroundMax(int nCellInX, int nCellInY,
-                                        int centralX, int centralY,
-                                        int centralZ, MapType &themap);
+  std::vector<uint32_t> getIdsAroundMax(
+      int nCellInX, int nCellInY, int centralX, int centralY, int centralZ, MapType &themap);
 
-  bool fillEEMatrix(int nCellInX, int nCellInY, int CentralX, int CentralY,
-                    int CentralZ, MapType &fillmap, MapType &themap);
+  bool fillEEMatrix(
+      int nCellInX, int nCellInY, int CentralX, int CentralY, int CentralZ, MapType &fillmap, MapType &themap);
 
   float eCluster2x2(MapType &themap);
   float eCluster4x4(float e33, MapType &themap);

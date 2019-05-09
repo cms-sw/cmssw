@@ -10,12 +10,14 @@
 #include "Validation/GlobalHits/interface/GlobalHitsProdHist.h"
 
 GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
-    : fName(""), verbosity(0), frequency(0), vtxunit(0),
-      getAllProvenances(false), printProvenanceInfo(false),
-      G4VtxSrc_Token_(consumes<edm::SimVertexContainer>(
-          (iPSet.getParameter<edm::InputTag>("G4VtxSrc")))),
-      G4TrkSrc_Token_(consumes<edm::SimTrackContainer>(
-          iPSet.getParameter<edm::InputTag>("G4TrkSrc"))),
+    : fName(""),
+      verbosity(0),
+      frequency(0),
+      vtxunit(0),
+      getAllProvenances(false),
+      printProvenanceInfo(false),
+      G4VtxSrc_Token_(consumes<edm::SimVertexContainer>((iPSet.getParameter<edm::InputTag>("G4VtxSrc")))),
+      G4TrkSrc_Token_(consumes<edm::SimTrackContainer>(iPSet.getParameter<edm::InputTag>("G4TrkSrc"))),
       count(0) {
   std::string MsgLoggerCat = "GlobalHitsProdHist_GlobalHitsProdHist";
 
@@ -24,11 +26,9 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
   vtxunit = iPSet.getUntrackedParameter<int>("VtxUnit");
-  edm::ParameterSet m_Prov =
-      iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
+  edm::ParameterSet m_Prov = iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = m_Prov.getUntrackedParameter<bool>("GetAllProvenances");
-  printProvenanceInfo =
-      m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
+  printProvenanceInfo = m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
 
   // get Labels to use to extract information
   PxlBrlLowSrc_ = iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc");
@@ -70,44 +70,25 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
         << "    VtxUnit       = " << vtxunit << "\n"
         << "    GetProv       = " << getAllProvenances << "\n"
         << "    PrintProv     = " << printProvenanceInfo << "\n"
-        << "    PxlBrlLowSrc  = " << PxlBrlLowSrc_.label() << ":"
-        << PxlBrlLowSrc_.instance() << "\n"
-        << "    PxlBrlHighSrc = " << PxlBrlHighSrc_.label() << ":"
-        << PxlBrlHighSrc_.instance() << "\n"
-        << "    PxlFwdLowSrc  = " << PxlFwdLowSrc_.label() << ":"
-        << PxlBrlLowSrc_.instance() << "\n"
-        << "    PxlFwdHighSrc = " << PxlFwdHighSrc_.label() << ":"
-        << PxlBrlHighSrc_.instance() << "\n"
-        << "    SiTIBLowSrc   = " << SiTIBLowSrc_.label() << ":"
-        << SiTIBLowSrc_.instance() << "\n"
-        << "    SiTIBHighSrc  = " << SiTIBHighSrc_.label() << ":"
-        << SiTIBHighSrc_.instance() << "\n"
-        << "    SiTOBLowSrc   = " << SiTOBLowSrc_.label() << ":"
-        << SiTOBLowSrc_.instance() << "\n"
-        << "    SiTOBHighSrc  = " << SiTOBHighSrc_.label() << ":"
-        << SiTOBHighSrc_.instance() << "\n"
-        << "    SiTIDLowSrc   = " << SiTIDLowSrc_.label() << ":"
-        << SiTIDLowSrc_.instance() << "\n"
-        << "    SiTIDHighSrc  = " << SiTIDHighSrc_.label() << ":"
-        << SiTIDHighSrc_.instance() << "\n"
-        << "    SiTECLowSrc   = " << SiTECLowSrc_.label() << ":"
-        << SiTECLowSrc_.instance() << "\n"
-        << "    SiTECHighSrc  = " << SiTECHighSrc_.label() << ":"
-        << SiTECHighSrc_.instance() << "\n"
-        << "    MuonCscSrc    = " << MuonCscSrc_.label() << ":"
-        << MuonCscSrc_.instance() << "\n"
-        << "    MuonDtSrc     = " << MuonDtSrc_.label() << ":"
-        << MuonDtSrc_.instance() << "\n"
-        << "    MuonRpcSrc    = " << MuonRpcSrc_.label() << ":"
-        << MuonRpcSrc_.instance() << "\n"
-        << "    ECalEBSrc     = " << ECalEBSrc_.label() << ":"
-        << ECalEBSrc_.instance() << "\n"
-        << "    ECalEESrc     = " << ECalEESrc_.label() << ":"
-        << ECalEESrc_.instance() << "\n"
-        << "    ECalESSrc     = " << ECalESSrc_.label() << ":"
-        << ECalESSrc_.instance() << "\n"
-        << "    HCalSrc       = " << HCalSrc_.label() << ":"
-        << HCalSrc_.instance() << "\n"
+        << "    PxlBrlLowSrc  = " << PxlBrlLowSrc_.label() << ":" << PxlBrlLowSrc_.instance() << "\n"
+        << "    PxlBrlHighSrc = " << PxlBrlHighSrc_.label() << ":" << PxlBrlHighSrc_.instance() << "\n"
+        << "    PxlFwdLowSrc  = " << PxlFwdLowSrc_.label() << ":" << PxlBrlLowSrc_.instance() << "\n"
+        << "    PxlFwdHighSrc = " << PxlFwdHighSrc_.label() << ":" << PxlBrlHighSrc_.instance() << "\n"
+        << "    SiTIBLowSrc   = " << SiTIBLowSrc_.label() << ":" << SiTIBLowSrc_.instance() << "\n"
+        << "    SiTIBHighSrc  = " << SiTIBHighSrc_.label() << ":" << SiTIBHighSrc_.instance() << "\n"
+        << "    SiTOBLowSrc   = " << SiTOBLowSrc_.label() << ":" << SiTOBLowSrc_.instance() << "\n"
+        << "    SiTOBHighSrc  = " << SiTOBHighSrc_.label() << ":" << SiTOBHighSrc_.instance() << "\n"
+        << "    SiTIDLowSrc   = " << SiTIDLowSrc_.label() << ":" << SiTIDLowSrc_.instance() << "\n"
+        << "    SiTIDHighSrc  = " << SiTIDHighSrc_.label() << ":" << SiTIDHighSrc_.instance() << "\n"
+        << "    SiTECLowSrc   = " << SiTECLowSrc_.label() << ":" << SiTECLowSrc_.instance() << "\n"
+        << "    SiTECHighSrc  = " << SiTECHighSrc_.label() << ":" << SiTECHighSrc_.instance() << "\n"
+        << "    MuonCscSrc    = " << MuonCscSrc_.label() << ":" << MuonCscSrc_.instance() << "\n"
+        << "    MuonDtSrc     = " << MuonDtSrc_.label() << ":" << MuonDtSrc_.instance() << "\n"
+        << "    MuonRpcSrc    = " << MuonRpcSrc_.label() << ":" << MuonRpcSrc_.instance() << "\n"
+        << "    ECalEBSrc     = " << ECalEBSrc_.label() << ":" << ECalEBSrc_.instance() << "\n"
+        << "    ECalEESrc     = " << ECalEESrc_.label() << ":" << ECalEESrc_.instance() << "\n"
+        << "    ECalESSrc     = " << ECalESSrc_.label() << ":" << ECalESSrc_.instance() << "\n"
+        << "    HCalSrc       = " << HCalSrc_.label() << ":" << HCalSrc_.instance() << "\n"
         << "===============================\n";
   }
 
@@ -607,8 +588,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet &iPSet)
 
   // create persistent objects
   for (std::size_t i = 0; i < histName_.size(); ++i) {
-    produces<TH1F, edm::Transition::EndRun>(histName_[i])
-        .setBranchAlias(histName_[i]);
+    produces<TH1F, edm::Transition::EndRun>(histName_[i]).setBranchAlias(histName_[i]);
   }
 }
 
@@ -619,13 +599,11 @@ void GlobalHitsProdHist::beginJob() { return; }
 void GlobalHitsProdHist::endJob() {
   std::string MsgLoggerCat = "GlobalHitsProdHist_endJob";
   if (verbosity >= 0)
-    edm::LogInfo(MsgLoggerCat)
-        << "Terminating having processed " << count << " events.";
+    edm::LogInfo(MsgLoggerCat) << "Terminating having processed " << count << " events.";
   return;
 }
 
-void GlobalHitsProdHist::produce(edm::Event &iEvent,
-                                 const edm::EventSetup &iSetup) {
+void GlobalHitsProdHist::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   std::string MsgLoggerCat = "GlobalHitsProdHist_produce";
 
   // keep track of number of events processed
@@ -636,24 +614,21 @@ void GlobalHitsProdHist::produce(edm::Event &iEvent,
   edm::EventNumber_t nevt = iEvent.id().event();
 
   if (verbosity > 0) {
-    edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event "
-                               << nevt << " (" << count << " events total)";
+    edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event " << nevt << " (" << count << " events total)";
   } else if (verbosity == 0) {
     if (nevt % frequency == 0 || nevt == 1) {
-      edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event "
-                                 << nevt << " (" << count << " events total)";
+      edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event " << nevt << " (" << count
+                                 << " events total)";
     }
   }
 
   // look at information available in the event
   if (getAllProvenances) {
-
     std::vector<const edm::StableProvenance *> AllProv;
     iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
-      edm::LogInfo(MsgLoggerCat)
-          << "Number of Provenances = " << AllProv.size();
+      edm::LogInfo(MsgLoggerCat) << "Number of Provenances = " << AllProv.size();
 
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
@@ -696,9 +671,7 @@ void GlobalHitsProdHist::produce(edm::Event &iEvent,
   return;
 }
 
-void GlobalHitsProdHist::endRunProduce(edm::Run &iRun,
-                                       const edm::EventSetup &iSetup) {
-
+void GlobalHitsProdHist::endRunProduce(edm::Run &iRun, const edm::EventSetup &iSetup) {
   std::string MsgLoggerCat = "GlobalHitsProdHist_endRun";
 
   TString eventout;
@@ -732,7 +705,6 @@ void GlobalHitsProdHist::endRunProduce(edm::Run &iRun,
 
 //==================fill and store functions================================
 void GlobalHitsProdHist::fillG4MC(edm::Event &iEvent) {
-
   std::string MsgLoggerCat = "GlobalHitsProdHist_fillG4MC";
 
   TString eventout;
@@ -750,8 +722,7 @@ void GlobalHitsProdHist::fillG4MC(edm::Event &iEvent) {
   // should have the information needed
   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
     HepMCEvt = AllHepMCEvt[i];
-    if ((HepMCEvt.provenance()->branchDescription()).moduleLabel() ==
-        "generatorSmeared")
+    if ((HepMCEvt.provenance()->branchDescription()).moduleLabel() == "generatorSmeared")
       break;
   }
 
@@ -781,9 +752,9 @@ void GlobalHitsProdHist::fillG4MC(edm::Event &iEvent) {
   // convert unit stored in SimVertex to mm
   float unit = 0.;
   if (vtxunit == 0)
-    unit = 1.; // already in mm
+    unit = 1.;  // already in mm
   if (vtxunit == 1)
-    unit = 10.; // stored in cm, convert to mm
+    unit = 10.;  // stored in cm, convert to mm
 
   edm::Handle<edm::SimVertexContainer> G4VtxContainer;
   iEvent.getByToken(G4VtxSrc_Token_, G4VtxContainer);
@@ -793,14 +764,11 @@ void GlobalHitsProdHist::fillG4MC(edm::Event &iEvent) {
   }
   int i = 0;
   edm::SimVertexContainer::const_iterator itVtx;
-  for (itVtx = G4VtxContainer->begin(); itVtx != G4VtxContainer->end();
-       ++itVtx) {
-
+  for (itVtx = G4VtxContainer->begin(); itVtx != G4VtxContainer->end(); ++itVtx) {
     ++i;
 
     const math::XYZTLorentzVector G4Vtx1(
-        itVtx->position().x(), itVtx->position().y(), itVtx->position().z(),
-        itVtx->position().e());
+        itVtx->position().x(), itVtx->position().y(), itVtx->position().z(), itVtx->position().e());
 
     double G4Vtx[4];
     G4Vtx1.GetCoordinates(G4Vtx);
@@ -842,14 +810,11 @@ void GlobalHitsProdHist::fillG4MC(edm::Event &iEvent) {
   }
   i = 0;
   edm::SimTrackContainer::const_iterator itTrk;
-  for (itTrk = G4TrkContainer->begin(); itTrk != G4TrkContainer->end();
-       ++itTrk) {
-
+  for (itTrk = G4TrkContainer->begin(); itTrk != G4TrkContainer->end(); ++itTrk) {
     ++i;
 
     const math::XYZTLorentzVector G4Trk1(
-        itTrk->momentum().x(), itTrk->momentum().y(), itTrk->momentum().z(),
-        itTrk->momentum().e());
+        itTrk->momentum().x(), itTrk->momentum().y(), itTrk->momentum().z(), itTrk->momentum().e());
     double G4Trk[4];
     G4Trk1.GetCoordinates(G4Trk);
 
@@ -875,9 +840,7 @@ void GlobalHitsProdHist::fillG4MC(edm::Event &iEvent) {
   return;
 }
 
-void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
-                                 const edm::EventSetup &iSetup) {
-
+void GlobalHitsProdHist::fillTrk(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   nPxlHits = 0;
   std::string MsgLoggerCat = "GlobalHitsProdHist_fillTrk";
 
@@ -889,8 +852,7 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
   iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
   if (!theTrackerGeometry.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find TrackerDigiGeometryRecord in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerDigiGeometryRecord in event!";
     return;
   }
   const TrackerGeometry &theTracker(*theTrackerGeometry);
@@ -906,28 +868,23 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> PxlBrlLowContainer;
   iEvent.getByToken(PxlBrlLowSrc_Token_, PxlBrlLowContainer);
   if (!PxlBrlLowContainer.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
     return;
   }
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlBrlHighContainer;
   iEvent.getByToken(PxlBrlHighSrc_Token_, PxlBrlHighContainer);
   if (!PxlBrlHighContainer.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
     return;
   }
   // place both containers into new container
-  thePxlBrlHits.insert(thePxlBrlHits.end(), PxlBrlLowContainer->begin(),
-                       PxlBrlLowContainer->end());
-  thePxlBrlHits.insert(thePxlBrlHits.end(), PxlBrlHighContainer->begin(),
-                       PxlBrlHighContainer->end());
+  thePxlBrlHits.insert(thePxlBrlHits.end(), PxlBrlLowContainer->begin(), PxlBrlLowContainer->end());
+  thePxlBrlHits.insert(thePxlBrlHits.end(), PxlBrlHighContainer->begin(), PxlBrlHighContainer->end());
 
   // cycle through new container
   int i = 0, j = 0;
   for (itHit = thePxlBrlHits.begin(); itHit != thePxlBrlHits.end(); ++itHit) {
-
     ++i;
 
     // create a DetId from the detUnitId
@@ -937,13 +894,11 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
 
     // check that expected detector is returned
     if ((detector == dTrk) && (subdetector == sdPxlBrl)) {
-
       // get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
-        edm::LogWarning(MsgLoggerCat)
-            << "Unable to get GeomDetUnit from PxlBrlHits for Hit " << i;
+        edm::LogWarning(MsgLoggerCat) << "Unable to get GeomDetUnit from PxlBrlHits for Hit " << i;
         continue;
       }
 
@@ -962,13 +917,11 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
         hTrackerPxEta->Fill(bSurface.toGlobal(itHit->localPosition()).eta());
 
     } else {
-      edm::LogWarning(MsgLoggerCat)
-          << "PxlBrl PSimHit " << i << " is expected to be (det,subdet) = ("
-          << dTrk << "," << sdPxlBrl << "); value returned is: (" << detector
-          << "," << subdetector << ")";
+      edm::LogWarning(MsgLoggerCat) << "PxlBrl PSimHit " << i << " is expected to be (det,subdet) = (" << dTrk << ","
+                                    << sdPxlBrl << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
-    } // end detector type check
-  }   // end loop through PxlBrl Hits
+    }  // end detector type check
+  }    // end loop through PxlBrl Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Pixel Barrel Hits collected:..... ";
@@ -985,29 +938,24 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> PxlFwdLowContainer;
   iEvent.getByToken(PxlFwdLowSrc_Token_, PxlFwdLowContainer);
   if (!PxlFwdLowContainer.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
     return;
   }
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
   iEvent.getByToken(PxlFwdHighSrc_Token_, PxlFwdHighContainer);
   if (!PxlFwdHighContainer.isValid()) {
-    edm::LogWarning("GlobalHitsProdHist_fillTrk")
-        << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
+    edm::LogWarning("GlobalHitsProdHist_fillTrk") << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
     return;
   }
   // place both containers into new container
-  thePxlFwdHits.insert(thePxlFwdHits.end(), PxlFwdLowContainer->begin(),
-                       PxlFwdLowContainer->end());
-  thePxlFwdHits.insert(thePxlFwdHits.end(), PxlFwdHighContainer->begin(),
-                       PxlFwdHighContainer->end());
+  thePxlFwdHits.insert(thePxlFwdHits.end(), PxlFwdLowContainer->begin(), PxlFwdLowContainer->end());
+  thePxlFwdHits.insert(thePxlFwdHits.end(), PxlFwdHighContainer->begin(), PxlFwdHighContainer->end());
 
   // cycle through new container
   i = 0;
   j = 0;
   for (itHit = thePxlFwdHits.begin(); itHit != thePxlFwdHits.end(); ++itHit) {
-
     ++i;
 
     // create a DetId from the detUnitId
@@ -1017,13 +965,11 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
 
     // check that expected detector is returned
     if ((detector == dTrk) && (subdetector == sdPxlFwd)) {
-
       // get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
-        edm::LogWarning(MsgLoggerCat)
-            << "Unable to get GeomDetUnit from PxlFwdHits for Hit " << i;
+        edm::LogWarning(MsgLoggerCat) << "Unable to get GeomDetUnit from PxlFwdHits for Hit " << i;
         ;
         continue;
       }
@@ -1043,13 +989,11 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
         hTrackerPxEta->Fill(bSurface.toGlobal(itHit->localPosition()).eta());
 
     } else {
-      edm::LogWarning(MsgLoggerCat)
-          << "PxlFwd PSimHit " << i << " is expected to be (det,subdet) = ("
-          << dTrk << "," << sdPxlFwd << "); value returned is: (" << detector
-          << "," << subdetector << ")";
+      edm::LogWarning(MsgLoggerCat) << "PxlFwd PSimHit " << i << " is expected to be (det,subdet) = (" << dTrk << ","
+                                    << sdPxlFwd << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
-    } // end detector type check
-  }   // end loop through PxlFwd Hits
+    }  // end detector type check
+  }    // end loop through PxlFwd Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Pixel Forward Hits collected:.... ";
@@ -1072,49 +1016,40 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> SiTIBLowContainer;
   iEvent.getByToken(SiTIBLowSrc_Token_, SiTIBLowContainer);
   if (!SiTIBLowContainer.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find TrackerHitsTIBLowTof in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerHitsTIBLowTof in event!";
     return;
   }
   // extract TIB high container
   edm::Handle<edm::PSimHitContainer> SiTIBHighContainer;
   iEvent.getByToken(SiTIBHighSrc_Token_, SiTIBHighContainer);
   if (!SiTIBHighContainer.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find TrackerHitsTIBHighTof in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerHitsTIBHighTof in event!";
     return;
   }
   // extract TOB low container
   edm::Handle<edm::PSimHitContainer> SiTOBLowContainer;
   iEvent.getByToken(SiTOBLowSrc_Token_, SiTOBLowContainer);
   if (!SiTOBLowContainer.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find TrackerHitsTOBLowTof in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerHitsTOBLowTof in event!";
     return;
   }
   // extract TOB high container
   edm::Handle<edm::PSimHitContainer> SiTOBHighContainer;
   iEvent.getByToken(SiTOBHighSrc_Token_, SiTOBHighContainer);
   if (!SiTOBHighContainer.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find TrackerHitsTOBHighTof in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerHitsTOBHighTof in event!";
     return;
   }
   // place all containers into new container
-  theSiBrlHits.insert(theSiBrlHits.end(), SiTIBLowContainer->begin(),
-                      SiTIBLowContainer->end());
-  theSiBrlHits.insert(theSiBrlHits.end(), SiTIBHighContainer->begin(),
-                      SiTIBHighContainer->end());
-  theSiBrlHits.insert(theSiBrlHits.end(), SiTOBLowContainer->begin(),
-                      SiTOBLowContainer->end());
-  theSiBrlHits.insert(theSiBrlHits.end(), SiTOBHighContainer->begin(),
-                      SiTOBHighContainer->end());
+  theSiBrlHits.insert(theSiBrlHits.end(), SiTIBLowContainer->begin(), SiTIBLowContainer->end());
+  theSiBrlHits.insert(theSiBrlHits.end(), SiTIBHighContainer->begin(), SiTIBHighContainer->end());
+  theSiBrlHits.insert(theSiBrlHits.end(), SiTOBLowContainer->begin(), SiTOBLowContainer->end());
+  theSiBrlHits.insert(theSiBrlHits.end(), SiTOBHighContainer->begin(), SiTOBHighContainer->end());
 
   // cycle through new container
   i = 0;
   j = 0;
   for (itHit = theSiBrlHits.begin(); itHit != theSiBrlHits.end(); ++itHit) {
-
     ++i;
 
     // create a DetId from the detUnitId
@@ -1123,15 +1058,12 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
     int subdetector = theDetUnitId.subdetId();
 
     // check that expected detector is returned
-    if ((detector == dTrk) &&
-        ((subdetector == sdSiTIB) || (subdetector == sdSiTOB))) {
-
+    if ((detector == dTrk) && ((subdetector == sdSiTIB) || (subdetector == sdSiTOB))) {
       // get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
-        edm::LogWarning(MsgLoggerCat)
-            << "Unable to get GeomDetUnit from SiBrlHits for Hit " << i;
+        edm::LogWarning(MsgLoggerCat) << "Unable to get GeomDetUnit from SiBrlHits for Hit " << i;
         continue;
       }
 
@@ -1150,13 +1082,12 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
         hTrackerSiEta->Fill(bSurface.toGlobal(itHit->localPosition()).eta());
 
     } else {
-      edm::LogWarning(MsgLoggerCat)
-          << "SiBrl PSimHit " << i << " is expected to be (det,subdet) = ("
-          << dTrk << "," << sdSiTIB << " || " << sdSiTOB
-          << "); value returned is: (" << detector << "," << subdetector << ")";
+      edm::LogWarning(MsgLoggerCat) << "SiBrl PSimHit " << i << " is expected to be (det,subdet) = (" << dTrk << ","
+                                    << sdSiTIB << " || " << sdSiTOB << "); value returned is: (" << detector << ","
+                                    << subdetector << ")";
       continue;
-    } // end detector type check
-  }   // end loop through SiBrl Hits
+    }  // end detector type check
+  }    // end loop through SiBrl Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Silicon Barrel Hits collected:... ";
@@ -1173,49 +1104,40 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> SiTIDLowContainer;
   iEvent.getByToken(SiTIDLowSrc_Token_, SiTIDLowContainer);
   if (!SiTIDLowContainer.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find TrackerHitsTIDLowTof in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerHitsTIDLowTof in event!";
     return;
   }
   // extract TID high container
   edm::Handle<edm::PSimHitContainer> SiTIDHighContainer;
   iEvent.getByToken(SiTIDHighSrc_Token_, SiTIDHighContainer);
   if (!SiTIDHighContainer.isValid()) {
-    edm::LogWarning("GlobalHitsProdHist_fillTrk")
-        << "Unable to find TrackerHitsTIDHighTof in event!";
+    edm::LogWarning("GlobalHitsProdHist_fillTrk") << "Unable to find TrackerHitsTIDHighTof in event!";
     return;
   }
   // extract TEC low container
   edm::Handle<edm::PSimHitContainer> SiTECLowContainer;
   iEvent.getByToken(SiTECLowSrc_Token_, SiTECLowContainer);
   if (!SiTECLowContainer.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find TrackerHitsTECLowTof in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerHitsTECLowTof in event!";
     return;
   }
   // extract TEC high container
   edm::Handle<edm::PSimHitContainer> SiTECHighContainer;
   iEvent.getByToken(SiTECHighSrc_Token_, SiTECHighContainer);
   if (!SiTECHighContainer.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find TrackerHitsTECHighTof in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find TrackerHitsTECHighTof in event!";
     return;
   }
   // place all containers into new container
-  theSiFwdHits.insert(theSiFwdHits.end(), SiTIDLowContainer->begin(),
-                      SiTIDLowContainer->end());
-  theSiFwdHits.insert(theSiFwdHits.end(), SiTIDHighContainer->begin(),
-                      SiTIDHighContainer->end());
-  theSiFwdHits.insert(theSiFwdHits.end(), SiTECLowContainer->begin(),
-                      SiTECLowContainer->end());
-  theSiFwdHits.insert(theSiFwdHits.end(), SiTECHighContainer->begin(),
-                      SiTECHighContainer->end());
+  theSiFwdHits.insert(theSiFwdHits.end(), SiTIDLowContainer->begin(), SiTIDLowContainer->end());
+  theSiFwdHits.insert(theSiFwdHits.end(), SiTIDHighContainer->begin(), SiTIDHighContainer->end());
+  theSiFwdHits.insert(theSiFwdHits.end(), SiTECLowContainer->begin(), SiTECLowContainer->end());
+  theSiFwdHits.insert(theSiFwdHits.end(), SiTECHighContainer->begin(), SiTECHighContainer->end());
 
   // cycle through container
   i = 0;
   j = 0;
   for (itHit = theSiFwdHits.begin(); itHit != theSiFwdHits.end(); ++itHit) {
-
     ++i;
 
     // create a DetId from the detUnitId
@@ -1224,15 +1146,12 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
     int subdetector = theDetUnitId.subdetId();
 
     // check that expected detector is returned
-    if ((detector == dTrk) &&
-        ((subdetector == sdSiTID) || (subdetector == sdSiTEC))) {
-
+    if ((detector == dTrk) && ((subdetector == sdSiTID) || (subdetector == sdSiTEC))) {
       // get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theTracker.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
-        edm::LogWarning(MsgLoggerCat)
-            << "Unable to get GeomDetUnit from SiFwdHits Hit " << i;
+        edm::LogWarning(MsgLoggerCat) << "Unable to get GeomDetUnit from SiFwdHits Hit " << i;
         return;
       }
 
@@ -1251,13 +1170,12 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
         hTrackerSiEta->Fill(bSurface.toGlobal(itHit->localPosition()).eta());
 
     } else {
-      edm::LogWarning(MsgLoggerCat)
-          << "SiFwd PSimHit " << i << " is expected to be (det,subdet) = ("
-          << dTrk << "," << sdSiTOB << " || " << sdSiTEC
-          << "); value returned is: (" << detector << "," << subdetector << ")";
+      edm::LogWarning(MsgLoggerCat) << "SiFwd PSimHit " << i << " is expected to be (det,subdet) = (" << dTrk << ","
+                                    << sdSiTOB << " || " << sdSiTEC << "); value returned is: (" << detector << ","
+                                    << subdetector << ")";
       continue;
-    } // end check detector type
-  }   // end loop through SiFwd Hits
+    }  // end check detector type
+  }    // end loop through SiFwd Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Silicon Forward Hits collected:.. ";
@@ -1277,8 +1195,7 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent,
   return;
 }
 
-void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
+void GlobalHitsProdHist::fillMuon(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   nMuonHits = 0;
   std::string MsgLoggerCat = "GlobalHitsProdHist_fillMuon";
 
@@ -1296,8 +1213,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
   edm::ESHandle<CSCGeometry> theCSCGeometry;
   iSetup.get<MuonGeometryRecord>().get(theCSCGeometry);
   if (!theCSCGeometry.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find MuonGeometryRecord for the CSCGeometry in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find MuonGeometryRecord for the CSCGeometry in event!";
     return;
   }
   const CSCGeometry &theCSCMuon(*theCSCGeometry);
@@ -1312,9 +1228,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
 
   // cycle through container
   int i = 0, j = 0;
-  for (itHit = MuonCSCContainer->begin(); itHit != MuonCSCContainer->end();
-       ++itHit) {
-
+  for (itHit = MuonCSCContainer->begin(); itHit != MuonCSCContainer->end(); ++itHit) {
     ++i;
 
     // create a DetId from the detUnitId
@@ -1324,13 +1238,11 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
 
     // check that expected detector is returned
     if ((detector == dMuon) && (subdetector == sdMuonCSC)) {
-
       // get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theCSCMuon.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
-        edm::LogWarning(MsgLoggerCat)
-            << "Unable to get GeomDetUnit from theCSCMuon for hit " << i;
+        edm::LogWarning(MsgLoggerCat) << "Unable to get GeomDetUnit from theCSCMuon for hit " << i;
         continue;
       }
 
@@ -1351,13 +1263,11 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
         hMuonEta->Fill(bSurface.toGlobal(itHit->localPosition()).eta());
 
     } else {
-      edm::LogWarning(MsgLoggerCat)
-          << "MuonCsc PSimHit " << i << " is expected to be (det,subdet) = ("
-          << dMuon << "," << sdMuonCSC << "); value returned is: (" << detector
-          << "," << subdetector << ")";
+      edm::LogWarning(MsgLoggerCat) << "MuonCsc PSimHit " << i << " is expected to be (det,subdet) = (" << dMuon << ","
+                                    << sdMuonCSC << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
-    } // end detector type check
-  }   // end loop through CSC Hits
+    }  // end detector type check
+  }    // end loop through CSC Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of CSC muon Hits collected:......... ";
@@ -1373,8 +1283,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
   edm::ESHandle<DTGeometry> theDTGeometry;
   iSetup.get<MuonGeometryRecord>().get(theDTGeometry);
   if (!theDTGeometry.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find MuonGeometryRecord for the DTGeometry in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find MuonGeometryRecord for the DTGeometry in event!";
     return;
   }
   const DTGeometry &theDTMuon(*theDTGeometry);
@@ -1389,9 +1298,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
 
   // cycle through container
   i = 0, j = 0;
-  for (itHit = MuonDtContainer->begin(); itHit != MuonDtContainer->end();
-       ++itHit) {
-
+  for (itHit = MuonDtContainer->begin(); itHit != MuonDtContainer->end(); ++itHit) {
     ++i;
 
     // create a DetId from the detUnitId
@@ -1401,7 +1308,6 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
 
     // check that expected detector is returned
     if ((detector == dMuon) && (subdetector == sdMuonDT)) {
-
       // CSC uses wires and layers rather than the full detID
       // get the wireId
       DTWireId wireId(itHit->detUnitId());
@@ -1410,8 +1316,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
       const DTLayer *theDet = theDTMuon.layer(wireId.layerId());
 
       if (!theDet) {
-        edm::LogWarning(MsgLoggerCat)
-            << "Unable to get GeomDetUnit from theDtMuon for hit " << i;
+        edm::LogWarning(MsgLoggerCat) << "Unable to get GeomDetUnit from theDtMuon for hit " << i;
         continue;
       }
 
@@ -1432,13 +1337,11 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
         hMuonEta->Fill(bSurface.toGlobal(itHit->localPosition()).eta());
 
     } else {
-      edm::LogWarning(MsgLoggerCat)
-          << "MuonDt PSimHit " << i << " is expected to be (det,subdet) = ("
-          << dMuon << "," << sdMuonDT << "); value returned is: (" << detector
-          << "," << subdetector << ")";
+      edm::LogWarning(MsgLoggerCat) << "MuonDt PSimHit " << i << " is expected to be (det,subdet) = (" << dMuon << ","
+                                    << sdMuonDT << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
-    } // end detector type check
-  }   // end loop through DT Hits
+    }  // end detector type check
+  }    // end loop through DT Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of DT muon Hits collected:.......... ";
@@ -1455,8 +1358,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
   edm::ESHandle<RPCGeometry> theRPCGeometry;
   iSetup.get<MuonGeometryRecord>().get(theRPCGeometry);
   if (!theRPCGeometry.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find MuonGeometryRecord for the RPCGeometry in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find MuonGeometryRecord for the RPCGeometry in event!";
     return;
   }
   const RPCGeometry &theRPCMuon(*theRPCGeometry);
@@ -1472,9 +1374,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
   // cycle through container
   i = 0, j = 0;
   int RPCBrl = 0, RPCFwd = 0;
-  for (itHit = MuonRPCContainer->begin(); itHit != MuonRPCContainer->end();
-       ++itHit) {
-
+  for (itHit = MuonRPCContainer->begin(); itHit != MuonRPCContainer->end(); ++itHit) {
     ++i;
 
     // create a DetID from the detUnitId
@@ -1484,7 +1384,6 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
 
     // check that expected detector is returned
     if ((detector == dMuon) && (subdetector == sdMuonRPC)) {
-
       // get an RPCDetID from the detUnitID
       RPCDetId RPCId(itHit->detUnitId());
 
@@ -1495,8 +1394,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
       const GeomDetUnit *theDet = theRPCMuon.idToDetUnit(theDetUnitId);
 
       if (!theDet) {
-        edm::LogWarning(MsgLoggerCat)
-            << "Unable to get GeomDetUnit from theRPCMuon for hit " << i;
+        edm::LogWarning(MsgLoggerCat) << "Unable to get GeomDetUnit from theRPCMuon for hit " << i;
         continue;
       }
 
@@ -1537,15 +1435,13 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
       } else {
         edm::LogWarning(MsgLoggerCat) << "Invalid region for RPC Muon hit" << i;
         continue;
-      } // end check of region
+      }  // end check of region
     } else {
-      edm::LogWarning(MsgLoggerCat)
-          << "MuonRpc PSimHit " << i << " is expected to be (det,subdet) = ("
-          << dMuon << "," << sdMuonRPC << "); value returned is: (" << detector
-          << "," << subdetector << ")";
+      edm::LogWarning(MsgLoggerCat) << "MuonRpc PSimHit " << i << " is expected to be (det,subdet) = (" << dMuon << ","
+                                    << sdMuonRPC << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
-    } // end detector type check
-  }   // end loop through RPC Hits
+    }  // end detector type check
+  }    // end loop through RPC Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of RPC muon Hits collected:......... ";
@@ -1569,8 +1465,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent,
   return;
 }
 
-void GlobalHitsProdHist::fillECal(edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
+void GlobalHitsProdHist::fillECal(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   std::string MsgLoggerCat = "GlobalHitsProdHist_fillECal";
 
   TString eventout;
@@ -1581,8 +1476,7 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent,
   edm::ESHandle<CaloGeometry> theCaloGeometry;
   iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
   if (!theCaloGeometry.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find CaloGeometryRecord in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find CaloGeometryRecord in event!";
     return;
   }
   const CaloGeometry &theCalo(*theCaloGeometry);
@@ -1609,15 +1503,12 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent,
     return;
   }
   // place both containers into new container
-  theECalHits.insert(theECalHits.end(), EBContainer->begin(),
-                     EBContainer->end());
-  theECalHits.insert(theECalHits.end(), EEContainer->begin(),
-                     EEContainer->end());
+  theECalHits.insert(theECalHits.end(), EBContainer->begin(), EBContainer->end());
+  theECalHits.insert(theECalHits.end(), EEContainer->begin(), EEContainer->end());
 
   // cycle through new container
   int i = 0, j = 0;
   for (itHit = theECalHits.begin(); itHit != theECalHits.end(); ++itHit) {
-
     ++i;
 
     // create a DetId from the detUnitId
@@ -1626,16 +1517,12 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent,
     int subdetector = theDetUnitId.subdetId();
 
     // check that expected detector is returned
-    if ((detector == dEcal) &&
-        ((subdetector == sdEcalBrl) || (subdetector == sdEcalFwd))) {
-
+    if ((detector == dEcal) && ((subdetector == sdEcalBrl) || (subdetector == sdEcalFwd))) {
       // get the Cell geometry
-      auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))
-                        ->getGeometry(theDetUnitId);
+      auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))->getGeometry(theDetUnitId);
 
       if (!theDet) {
-        edm::LogWarning(MsgLoggerCat)
-            << "Unable to get CaloCellGeometry from ECalHits for Hit " << i;
+        edm::LogWarning(MsgLoggerCat) << "Unable to get CaloCellGeometry from ECalHits for Hit " << i;
         continue;
       }
 
@@ -1658,13 +1545,12 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent,
         hCaloEcalEta->Fill(globalposition.eta());
 
     } else {
-      edm::LogWarning(MsgLoggerCat)
-          << "ECal PCaloHit " << i << " is expected to be (det,subdet) = ("
-          << dEcal << "," << sdEcalBrl << " || " << sdEcalFwd
-          << "); value returned is: (" << detector << "," << subdetector << ")";
+      edm::LogWarning(MsgLoggerCat) << "ECal PCaloHit " << i << " is expected to be (det,subdet) = (" << dEcal << ","
+                                    << sdEcalBrl << " || " << sdEcalFwd << "); value returned is: (" << detector << ","
+                                    << subdetector << ")";
       continue;
-    } // end detector type check
-  }   // end loop through ECal Hits
+    }  // end detector type check
+  }    // end loop through ECal Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of ECal Hits collected:............. ";
@@ -1689,9 +1575,7 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent,
 
   // cycle through container
   i = 0, j = 0;
-  for (itHit = PreShContainer->begin(); itHit != PreShContainer->end();
-       ++itHit) {
-
+  for (itHit = PreShContainer->begin(); itHit != PreShContainer->end(); ++itHit) {
     ++i;
 
     // create a DetId from the detUnitId
@@ -1701,15 +1585,11 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent,
 
     // check that expected detector is returned
     if ((detector == dEcal) && (subdetector == sdEcalPS)) {
-
       // get the Cell geometry
-      auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))
-                        ->getGeometry(theDetUnitId);
+      auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))->getGeometry(theDetUnitId);
 
       if (!theDet) {
-        edm::LogWarning(MsgLoggerCat)
-            << "Unable to get CaloCellGeometry from PreShContainer for Hit "
-            << i;
+        edm::LogWarning(MsgLoggerCat) << "Unable to get CaloCellGeometry from PreShContainer for Hit " << i;
         continue;
       }
 
@@ -1732,13 +1612,11 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent,
         hCaloPreShEta->Fill(globalposition.eta());
 
     } else {
-      edm::LogWarning(MsgLoggerCat)
-          << "PreSh PCaloHit " << i << " is expected to be (det,subdet) = ("
-          << dEcal << "," << sdEcalPS << "); value returned is: (" << detector
-          << "," << subdetector << ")";
+      edm::LogWarning(MsgLoggerCat) << "PreSh PCaloHit " << i << " is expected to be (det,subdet) = (" << dEcal << ","
+                                    << sdEcalPS << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
-    } // end detector type check
-  }   // end loop through PreShower Hits
+    }  // end detector type check
+  }    // end loop through PreShower Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of PreSh Hits collected:............ ";
@@ -1756,8 +1634,7 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent,
   return;
 }
 
-void GlobalHitsProdHist::fillHCal(edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
+void GlobalHitsProdHist::fillHCal(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   std::string MsgLoggerCat = "GlobalHitsProdHist_fillHCal";
 
   TString eventout;
@@ -1768,8 +1645,7 @@ void GlobalHitsProdHist::fillHCal(edm::Event &iEvent,
   edm::ESHandle<CaloGeometry> theCaloGeometry;
   iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
   if (!theCaloGeometry.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find CaloGeometryRecord in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find CaloGeometryRecord in event!";
     return;
   }
   const CaloGeometry &theCalo(*theCaloGeometry);
@@ -1791,7 +1667,6 @@ void GlobalHitsProdHist::fillHCal(edm::Event &iEvent,
   // cycle through container
   int i = 0, j = 0;
   for (itHit = HCalContainer->begin(); itHit != HCalContainer->end(); ++itHit) {
-
     ++i;
 
     // create a DetId from the detUnitId
@@ -1800,17 +1675,13 @@ void GlobalHitsProdHist::fillHCal(edm::Event &iEvent,
     int subdetector = theDetUnitId.subdetId();
 
     // check that expected detector is returned
-    if ((detector == dHcal) &&
-        ((subdetector == sdHcalBrl) || (subdetector == sdHcalEC) ||
-         (subdetector == sdHcalOut) || (subdetector == sdHcalFwd))) {
-
+    if ((detector == dHcal) && ((subdetector == sdHcalBrl) || (subdetector == sdHcalEC) || (subdetector == sdHcalOut) ||
+                                (subdetector == sdHcalFwd))) {
       // get the Cell geometry
-      const HcalGeometry *theDet = dynamic_cast<const HcalGeometry *>(
-          theCalo.getSubdetectorGeometry(theDetUnitId));
+      const HcalGeometry *theDet = dynamic_cast<const HcalGeometry *>(theCalo.getSubdetectorGeometry(theDetUnitId));
 
       if (!theDet) {
-        edm::LogWarning(MsgLoggerCat)
-            << "Unable to get HcalGeometry from HCalContainer for Hit " << i;
+        edm::LogWarning(MsgLoggerCat) << "Unable to get HcalGeometry from HCalContainer for Hit " << i;
         continue;
       }
 
@@ -1833,14 +1704,12 @@ void GlobalHitsProdHist::fillHCal(edm::Event &iEvent,
         hCaloHcalEta->Fill(globalposition.eta());
 
     } else {
-      edm::LogWarning(MsgLoggerCat)
-          << "HCal PCaloHit " << i << " is expected to be (det,subdet) = ("
-          << dHcal << "," << sdHcalBrl << " || " << sdHcalEC << " || "
-          << sdHcalOut << " || " << sdHcalFwd << "); value returned is: ("
-          << detector << "," << subdetector << ")";
+      edm::LogWarning(MsgLoggerCat) << "HCal PCaloHit " << i << " is expected to be (det,subdet) = (" << dHcal << ","
+                                    << sdHcalBrl << " || " << sdHcalEC << " || " << sdHcalOut << " || " << sdHcalFwd
+                                    << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
-    } // end detector type check
-  }   // end loop through HCal Hits
+    }  // end detector type check
+  }    // end loop through HCal Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of HCal Hits collected:............. ";

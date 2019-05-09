@@ -19,7 +19,7 @@ class EndOfEvent;
 class PEcalValidInfo;
 
 namespace edm {
-class ParameterSet;
+  class ParameterSet;
 }
 
 class EcalSimHitsValidProducer : public SimProducer,
@@ -36,10 +36,8 @@ public:
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-  EcalSimHitsValidProducer(const EcalSimHitsValidProducer &) =
-      delete; // stop default
-  const EcalSimHitsValidProducer &
-  operator=(const EcalSimHitsValidProducer &) = delete; // stop default
+  EcalSimHitsValidProducer(const EcalSimHitsValidProducer &) = delete;                   // stop default
+  const EcalSimHitsValidProducer &operator=(const EcalSimHitsValidProducer &) = delete;  // stop default
 
   void update(const BeginOfEvent *) override;
   void update(const G4Step *) override;
@@ -50,18 +48,14 @@ private:
 private:
   uint32_t getUnitWithMaxEnergy(MapType &themap);
 
-  float energyInEEMatrix(int nCellInX, int nCellInY, int centralX, int centralY,
-                         int centralZ, MapType &themap);
-  float energyInEBMatrix(int nCellInX, int nCellInY, int centralX, int centralY,
-                         int centralZ, MapType &themap);
+  float energyInEEMatrix(int nCellInX, int nCellInY, int centralX, int centralY, int centralZ, MapType &themap);
+  float energyInEBMatrix(int nCellInX, int nCellInY, int centralX, int centralY, int centralZ, MapType &themap);
 
-  bool fillEEMatrix(int nCellInEta, int nCellInPhi, int CentralEta,
-                    int CentralPhi, int CentralZ, MapType &fillmap,
-                    MapType &themap);
+  bool fillEEMatrix(
+      int nCellInEta, int nCellInPhi, int CentralEta, int CentralPhi, int CentralZ, MapType &fillmap, MapType &themap);
 
-  bool fillEBMatrix(int nCellInEta, int nCellInPhi, int CentralEta,
-                    int CentralPhi, int CentralZ, MapType &fillmap,
-                    MapType &themap);
+  bool fillEBMatrix(
+      int nCellInEta, int nCellInPhi, int CentralEta, int CentralPhi, int CentralZ, MapType &fillmap, MapType &themap);
 
   float eCluster2x2(MapType &themap);
   float eCluster4x4(float e33, MapType &themap);

@@ -23,8 +23,7 @@ public:
   ~MuonME0SegHarvestor() override;
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
-  void ProcessBooking(DQMStore::IBooker &, DQMStore::IGetter &,
-                      std::string nameHist, TH1F *num, TH1F *den);
+  void ProcessBooking(DQMStore::IBooker &, DQMStore::IGetter &, std::string nameHist, TH1F *num, TH1F *den);
   TProfile *ComputeEff(TH1F *num, TH1F *denum, std::string nameHist);
 
 private:

@@ -60,8 +60,7 @@ public:
   ~MuonIdVal() override;
 
 private:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   virtual void Fill(MonitorElement *, float);
 
@@ -78,16 +77,13 @@ private:
   edm::InputTag inputMuonCosmicCompatibilityValueMap_;
   edm::InputTag inputMuonShowerInformationValueMap_;
   edm::EDGetTokenT<reco::MuonCollection> inputMuonCollectionToken_;
-  edm::EDGetTokenT<DTRecSegment4DCollection>
-      inputDTRecSegment4DCollectionToken_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DCollectionToken_;
   edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentCollectionToken_;
   edm::EDGetTokenT<reco::MuonTimeExtraMap> inputMuonTimeExtraValueMapCombToken_;
   edm::EDGetTokenT<reco::MuonTimeExtraMap> inputMuonTimeExtraValueMapDTToken_;
   edm::EDGetTokenT<reco::MuonTimeExtraMap> inputMuonTimeExtraValueMapCSCToken_;
-  edm::EDGetTokenT<edm::ValueMap<reco::MuonCosmicCompatibility>>
-      inputMuonCosmicCompatibilityValueMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<reco::MuonShower>>
-      inputMuonShowerInformationValueMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonCosmicCompatibility>> inputMuonCosmicCompatibilityValueMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonShower>> inputMuonShowerInformationValueMapToken_;
   bool useTrackerMuons_;
   bool useGlobalMuons_;
   bool useTrackerMuonsNotGlobalMuons_;
@@ -106,8 +102,7 @@ private:
   edm::Handle<reco::MuonTimeExtraMap> combinedMuonTimeExtraValueMapH_;
   edm::Handle<reco::MuonTimeExtraMap> cscMuonTimeExtraValueMapH_;
   edm::Handle<reco::MuonTimeExtraMap> dtMuonTimeExtraValueMapH_;
-  edm::Handle<edm::ValueMap<reco::MuonCosmicCompatibility>>
-      muonCosmicCompatibilityValueMapH_;
+  edm::Handle<edm::ValueMap<reco::MuonCosmicCompatibility>> muonCosmicCompatibilityValueMapH_;
   edm::Handle<edm::ValueMap<reco::MuonShower>> muonShowerInformationValueMapH_;
   edm::ESHandle<GlobalTrackingGeometry> geometry_;
 

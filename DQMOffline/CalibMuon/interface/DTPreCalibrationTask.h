@@ -28,7 +28,6 @@ class DQMStore;
 class MonitorElement;
 
 class DTPreCalibrationTask : public DQMEDAnalyzer {
-
 public:
   /// Constructor
   DTPreCalibrationTask(const edm::ParameterSet &ps);
@@ -36,8 +35,7 @@ public:
   /// Destructor
   ~DTPreCalibrationTask() override;
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   /// Book histos

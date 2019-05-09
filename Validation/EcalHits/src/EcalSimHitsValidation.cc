@@ -19,25 +19,21 @@ using namespace std;
 
 EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet &ps)
     : g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")),
-      HepMCToken(consumes<edm::HepMCProduct>(
-          ps.getParameter<std::string>("moduleLabelMC"))) {
-  EBHitsCollectionToken = consumes<edm::PCaloHitContainer>(edm::InputTag(
-      g4InfoLabel, ps.getParameter<std::string>("EBHitsCollection")));
-  EEHitsCollectionToken = consumes<edm::PCaloHitContainer>(edm::InputTag(
-      g4InfoLabel, ps.getParameter<std::string>("EEHitsCollection")));
-  ESHitsCollectionToken = consumes<edm::PCaloHitContainer>(edm::InputTag(
-      g4InfoLabel, ps.getParameter<std::string>("ESHitsCollection")));
+      HepMCToken(consumes<edm::HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC"))) {
+  EBHitsCollectionToken =
+      consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("EBHitsCollection")));
+  EEHitsCollectionToken =
+      consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("EEHitsCollection")));
+  ESHitsCollectionToken =
+      consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("ESHitsCollection")));
 
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
 
   if (!outputFile_.empty()) {
-    edm::LogInfo("OutputInfo")
-        << " Ecal SimHits Task histograms will be saved to "
-        << outputFile_.c_str();
+    edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will be saved to " << outputFile_.c_str();
   } else {
-    edm::LogInfo("OutputInfo")
-        << " Ecal SimHits Task histograms will NOT be saved";
+    edm::LogInfo("OutputInfo") << " Ecal SimHits Task histograms will NOT be saved";
   }
 
   // verbosity switch
@@ -94,7 +90,6 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet &ps)
 }
 
 EcalSimHitsValidation::~EcalSimHitsValidation() {
-
   if (!outputFile_.empty() && dbe_)
     dbe_->save(outputFile_);
 }
@@ -103,11 +98,8 @@ void EcalSimHitsValidation::beginJob() {}
 
 void EcalSimHitsValidation::endJob() {}
 
-void EcalSimHitsValidation::analyze(const edm::Event &e,
-                                    const edm::EventSetup &c) {
-
-  edm::LogInfo("EventInfo")
-      << " Run = " << e.id().run() << " Event = " << e.id().event();
+void EcalSimHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &c) {
+  edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
   std::vector<PCaloHit> theEBCaloHits;
   std::vector<PCaloHit> theEECaloHits;
@@ -123,10 +115,9 @@ void EcalSimHitsValidation::analyze(const edm::Event &e,
   e.getByToken(EEHitsCollectionToken, EcalHitsEE);
   e.getByToken(ESHitsCollectionToken, EcalHitsES);
 
-  for (HepMC::GenEvent::particle_const_iterator p =
-           MCEvt->GetEvent()->particles_begin();
-       p != MCEvt->GetEvent()->particles_end(); ++p) {
-
+  for (HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
+       p != MCEvt->GetEvent()->particles_end();
+       ++p) {
     double htheta = (*p)->momentum().theta();
     double heta = -99999.;
     if (tan(htheta * 0.5) > 0) {
@@ -136,10 +127,8 @@ void EcalSimHitsValidation::analyze(const edm::Event &e,
     hphi = (hphi >= 0) ? hphi : hphi + 2 * M_PI;
     hphi = hphi / M_PI * 180.;
 
-    LogDebug("EventInfo") << "Particle gun type form MC = "
-                          << abs((*p)->pdg_id()) << "\n"
-                          << "Energy = " << (*p)->momentum().e()
-                          << " Eta = " << heta << " Phi = " << hphi;
+    LogDebug("EventInfo") << "Particle gun type form MC = " << abs((*p)->pdg_id()) << "\n"
+                          << "Energy = " << (*p)->momentum().e() << " Eta = " << heta << " Phi = " << hphi;
 
     if (meGunEnergy_)
       meGunEnergy_->Fill((*p)->momentum().e());
@@ -151,30 +140,24 @@ void EcalSimHitsValidation::analyze(const edm::Event &e,
 
   double EBEnergy_ = 0.;
   if (EcalHitsEB.isValid()) {
-    theEBCaloHits.insert(theEBCaloHits.end(), EcalHitsEB->begin(),
-                         EcalHitsEB->end());
-    for (std::vector<PCaloHit>::iterator isim = theEBCaloHits.begin();
-         isim != theEBCaloHits.end(); ++isim) {
+    theEBCaloHits.insert(theEBCaloHits.end(), EcalHitsEB->begin(), EcalHitsEB->end());
+    for (std::vector<PCaloHit>::iterator isim = theEBCaloHits.begin(); isim != theEBCaloHits.end(); ++isim) {
       EBEnergy_ += isim->energy();
     }
   }
 
   double EEEnergy_ = 0.;
   if (EcalHitsEE.isValid()) {
-    theEECaloHits.insert(theEECaloHits.end(), EcalHitsEE->begin(),
-                         EcalHitsEE->end());
-    for (std::vector<PCaloHit>::iterator isim = theEECaloHits.begin();
-         isim != theEECaloHits.end(); ++isim) {
+    theEECaloHits.insert(theEECaloHits.end(), EcalHitsEE->begin(), EcalHitsEE->end());
+    for (std::vector<PCaloHit>::iterator isim = theEECaloHits.begin(); isim != theEECaloHits.end(); ++isim) {
       EEEnergy_ += isim->energy();
     }
   }
 
   double ESEnergy_ = 0.;
   if (EcalHitsES.isValid()) {
-    theESCaloHits.insert(theESCaloHits.end(), EcalHitsES->begin(),
-                         EcalHitsES->end());
-    for (std::vector<PCaloHit>::iterator isim = theESCaloHits.begin();
-         isim != theESCaloHits.end(); ++isim) {
+    theESCaloHits.insert(theESCaloHits.end(), EcalHitsES->begin(), EcalHitsES->end());
+    for (std::vector<PCaloHit>::iterator isim = theESCaloHits.begin(); isim != theESCaloHits.end(); ++isim) {
       ESEnergy_ += isim->energy();
     }
   }

@@ -33,7 +33,6 @@
 #include <vector>
 
 class EcalBarrelSimHitsValidation : public edm::EDAnalyzer {
-
   typedef std::map<uint32_t, float, std::less<uint32_t>> MapType;
 
 public:
@@ -56,16 +55,14 @@ protected:
 private:
   uint32_t getUnitWithMaxEnergy(MapType &themap);
 
-  virtual float energyInMatrixEB(int nCellInEta, int nCellInPhi, int centralEta,
-                                 int centralPhi, int centralZ, MapType &themap);
+  virtual float energyInMatrixEB(
+      int nCellInEta, int nCellInPhi, int centralEta, int centralPhi, int centralZ, MapType &themap);
 
-  std::vector<uint32_t> getIdsAroundMax(int nCellInEta, int nCellInPhi,
-                                        int centralEta, int centralPhi,
-                                        int centralZ, MapType &themap);
+  std::vector<uint32_t> getIdsAroundMax(
+      int nCellInEta, int nCellInPhi, int centralEta, int centralPhi, int centralZ, MapType &themap);
 
-  bool fillEBMatrix(int nCellInEta, int nCellInPhi, int CentralEta,
-                    int CentralPhi, int CentralZ, MapType &fillmap,
-                    MapType &themap);
+  bool fillEBMatrix(
+      int nCellInEta, int nCellInPhi, int CentralEta, int CentralPhi, int CentralZ, MapType &fillmap, MapType &themap);
 
   float eCluster2x2(MapType &themap);
   float eCluster4x4(float e33, MapType &themap);

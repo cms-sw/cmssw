@@ -19,8 +19,7 @@ JetMETDQMPostProcessor::JetMETDQMPostProcessor(const edm::ParameterSet &pset) {
   patternMetTrg_ = pset.getUntrackedParameter<std::string>("PatternMetTrg", "");
 }
 
-void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker,
-                                       DQMStore::IGetter &igetter) {
+void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
   //////////////////////////////////
   // setup DQM stor               //
   //////////////////////////////////
@@ -35,15 +34,12 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker,
   if (igetter.dirExists(subDir_))
     ibooker.cd(subDir_);
   else {
-    edm::LogWarning("JetMETDQMPostProcessor")
-        << "cannot find directory: " << subDir_ << " , skipping";
+    edm::LogWarning("JetMETDQMPostProcessor") << "cannot find directory: " << subDir_ << " , skipping";
     return;
   }
 
   std::vector<std::string> subdirectories = igetter.getSubdirs();
-  for (std::vector<std::string>::iterator dir = subdirectories.begin();
-       dir != subdirectories.end(); dir++) {
-
+  for (std::vector<std::string>::iterator dir = subdirectories.begin(); dir != subdirectories.end(); dir++) {
     ibooker.cd(*dir);
 
     isJetDir = false;
@@ -55,70 +51,132 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker,
       isMetDir = true;
 
     if (isMetDir) {
-
       // std::cout << "JetMETDQMPostProcessor - Met paths: " << ibooker.pwd() <<
       // " " << *dir << std::endl;
 
       // GenMET
-      dividehistos(ibooker, igetter, "_meGenMETTrgMC", "_meGenMET",
-                   "_meTurnOngMET", "Gen Missing ET",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meGenMETTrgMC",
+                   "_meGenMET",
+                   "_meTurnOngMET",
+                   "Gen Missing ET",
                    "Gen Missing ET Turn-On RelVal");
-      dividehistos(ibooker, igetter, "_meGenMETTrg", "_meGenMETTrgLow",
-                   "_meTurnOngMETLow", "Gen Missing ETLow",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meGenMETTrg",
+                   "_meGenMETTrgLow",
+                   "_meTurnOngMETLow",
+                   "Gen Missing ETLow",
                    "Gen Missing ET Turn-On Data");
 
       // HLTMET
-      dividehistos(ibooker, igetter, "_meHLTMETTrgMC", "_meHLTMET",
-                   "_meTurnOnhMET", "HLT Missing ET",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meHLTMETTrgMC",
+                   "_meHLTMET",
+                   "_meTurnOnhMET",
+                   "HLT Missing ET",
                    "HLT Missing ET Turn-On RelVal");
-      dividehistos(ibooker, igetter, "_meHLTMETTrg", "_meHLTMETTrgLow",
-                   "_meTurnOnhMETLow", "HLT Missing ETLow",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meHLTMETTrg",
+                   "_meHLTMETTrgLow",
+                   "_meTurnOnhMETLow",
+                   "HLT Missing ETLow",
                    "HLT Missing ET Turn-On Data");
     }
 
     if (isJetDir) {
-
       // std::cout << "JetMETDQMPostProcessor - Jet paths: " << ibooker.pwd() <<
       // " " << *dir << std::endl;
 
       // GenJets
-      dividehistos(ibooker, igetter, "_meGenJetPtTrgMC", "_meGenJetPt",
-                   "_meTurnOngJetPt", "Gen Jet Pt",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meGenJetPtTrgMC",
+                   "_meGenJetPt",
+                   "_meTurnOngJetPt",
+                   "Gen Jet Pt",
                    "Gen Jet Pt Turn-On RelVal");
-      dividehistos(ibooker, igetter, "_meGenJetPtTrg", "_meGenJetPtTrgLow",
-                   "_meTurnOngJetPt", "Gen Jet PtLow",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meGenJetPtTrg",
+                   "_meGenJetPtTrgLow",
+                   "_meTurnOngJetPt",
+                   "Gen Jet PtLow",
                    "Gen Jet Pt Turn-On Data");
-      dividehistos(ibooker, igetter, "_meGenJetEtaTrgMC", "_meGenJetEta",
-                   "_meTurnOngJetEta", "Gen Jet Eta",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meGenJetEtaTrgMC",
+                   "_meGenJetEta",
+                   "_meTurnOngJetEta",
+                   "Gen Jet Eta",
                    "Gen Jet Eta Turn-On RelVal");
-      dividehistos(ibooker, igetter, "_meGenJetEtaTrg", "_meGenJetEtaTrgLow",
-                   "_meTurnOngJetEta", "Gen Jet EtaLow",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meGenJetEtaTrg",
+                   "_meGenJetEtaTrgLow",
+                   "_meTurnOngJetEta",
+                   "Gen Jet EtaLow",
                    "Gen Jet Eta Turn-On Data");
-      dividehistos(ibooker, igetter, "_meGenJetPhiTrgMC", "_meGenJetPhi",
-                   "_meTurnOngJetPhi", "Gen Jet Phi",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meGenJetPhiTrgMC",
+                   "_meGenJetPhi",
+                   "_meTurnOngJetPhi",
+                   "Gen Jet Phi",
                    "Gen Jet Phi Turn-On RelVal");
-      dividehistos(ibooker, igetter, "_meGenJetPhiTrg", "_meGenJetPhiTrgLow",
-                   "_meTurnOngJetPhi", "Gen Jet PhiLow",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meGenJetPhiTrg",
+                   "_meGenJetPhiTrgLow",
+                   "_meTurnOngJetPhi",
+                   "Gen Jet PhiLow",
                    "Gen Jet Phi Turn-On Data");
 
       // HLTJets
-      dividehistos(ibooker, igetter, "_meHLTJetPtTrgMC", "_meHLTJetPt",
-                   "_meTurnOnhJetPt", "HLT Jet Pt",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meHLTJetPtTrgMC",
+                   "_meHLTJetPt",
+                   "_meTurnOnhJetPt",
+                   "HLT Jet Pt",
                    "HLT Jet Pt Turn-On RelVal");
-      dividehistos(ibooker, igetter, "_meHLTJetPtTrg", "_meHLTJetPtTrgLow",
-                   "_meTurnOnhJetPt", "HLT Jet PtLow",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meHLTJetPtTrg",
+                   "_meHLTJetPtTrgLow",
+                   "_meTurnOnhJetPt",
+                   "HLT Jet PtLow",
                    "HLT Jet Pt Turn-On Data");
-      dividehistos(ibooker, igetter, "_meHLTJetEtaTrgMC", "_meHLTJetEta",
-                   "_meTurnOnhJetEta", "HLT Jet Eta",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meHLTJetEtaTrgMC",
+                   "_meHLTJetEta",
+                   "_meTurnOnhJetEta",
+                   "HLT Jet Eta",
                    "HLT Jet Eta Turn-On RelVal");
-      dividehistos(ibooker, igetter, "_meHLTJetEtaTrg", "_meHLTJetEtaTrgLow",
-                   "_meTurnOnhJetEta", "HLT Jet EtaLow",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meHLTJetEtaTrg",
+                   "_meHLTJetEtaTrgLow",
+                   "_meTurnOnhJetEta",
+                   "HLT Jet EtaLow",
                    "HLT Jet Eta Turn-On Data");
-      dividehistos(ibooker, igetter, "_meHLTJetPhiTrgMC", "_meHLTJetPhi",
-                   "_meTurnOnhJetPhi", "HLT Jet Phi",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meHLTJetPhiTrgMC",
+                   "_meHLTJetPhi",
+                   "_meTurnOnhJetPhi",
+                   "HLT Jet Phi",
                    "HLT Jet Phi Turn-On RelVal");
-      dividehistos(ibooker, igetter, "_meHLTJetPhiTrg", "_meHLTJetPhiTrgLow",
-                   "_meTurnOnhJetPhi", "HLT Jet PhiLow",
+      dividehistos(ibooker,
+                   igetter,
+                   "_meHLTJetPhiTrg",
+                   "_meHLTJetPhiTrgLow",
+                   "_meTurnOnhJetPhi",
+                   "HLT Jet PhiLow",
                    "HLT Jet Phi Turn-On Data");
     }
 
@@ -145,20 +203,17 @@ TProfile *JetMETDQMPostProcessor::dividehistos(DQMStore::IBooker &ibooker,
 
   if (num == nullptr)
     edm::LogWarning("JetMETDQMPostProcessor")
-        << "numerator histogram " << ibooker.pwd() + "/" + numName
-        << " does not exist";
+        << "numerator histogram " << ibooker.pwd() + "/" + numName << " does not exist";
   if (denom == nullptr)
     edm::LogWarning("JetMETDQMPostProcessor")
-        << "denominator histogram " << ibooker.pwd() + "/" + denomName
-        << " does not exist";
+        << "denominator histogram " << ibooker.pwd() + "/" + denomName << " does not exist";
 
   // Check if histograms actually exist
   if (!num || !denom)
     return nullptr;
 
   MonitorElement *meOut = ibooker.bookProfile(
-      outName, titel, num->GetXaxis()->GetNbins(), num->GetXaxis()->GetXmin(),
-      num->GetXaxis()->GetXmax(), 0., 1.2);
+      outName, titel, num->GetXaxis()->GetNbins(), num->GetXaxis()->GetXmin(), num->GetXaxis()->GetXmax(), 0., 1.2);
   meOut->setEfficiencyFlag();
   TProfile *out = meOut->getTProfile();
   out->GetXaxis()->SetTitle(label.c_str());
@@ -172,8 +227,7 @@ TProfile *JetMETDQMPostProcessor::dividehistos(DQMStore::IBooker &ibooker,
 
   for (int i = 1; i <= num->GetNbinsX(); i++) {
     double e, low, high;
-    Efficiency((int)num->GetBinContent(i), (int)denom->GetBinContent(i), 0.683,
-               e, low, high);
+    Efficiency((int)num->GetBinContent(i), (int)denom->GetBinContent(i), 0.683, e, low, high);
     double err = e - low > high - e ? e - low : high - e;
     // here is the trick to store info in TProfile:
     out->SetBinContent(i, e);
@@ -196,9 +250,8 @@ TH1F *JetMETDQMPostProcessor::getHistogram(DQMStore::IBooker &ibooker,
 }
 
 //----------------------------------------------------------------------
-void JetMETDQMPostProcessor::Efficiency(int passing, int total, double level,
-                                        double &mode, double &lowerBound,
-                                        double &upperBound) {
+void JetMETDQMPostProcessor::Efficiency(
+    int passing, int total, double level, double &mode, double &lowerBound, double &upperBound) {
   // protection
   if (total == 0) {
     mode = 0.5;

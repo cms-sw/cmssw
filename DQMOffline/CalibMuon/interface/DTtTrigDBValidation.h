@@ -21,7 +21,6 @@
 class TFile;
 
 class DTtTrigDBValidation : public DQMEDAnalyzer {
-
 public:
   /// Constructor
   DTtTrigDBValidation(const edm::ParameterSet &pset);
@@ -30,8 +29,7 @@ public:
   ~DTtTrigDBValidation() override;
 
   /// Operations
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:

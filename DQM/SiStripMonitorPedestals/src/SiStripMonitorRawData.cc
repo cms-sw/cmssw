@@ -41,15 +41,16 @@
 #include <numeric>
 
 SiStripMonitorRawData::SiStripMonitorRawData(edm::ParameterSet const &iConfig)
-    : BadFedNumber(nullptr), dqmStore_(edm::Service<DQMStore>().operator->()),
-      conf_(iConfig), m_cacheID_(0)
+    : BadFedNumber(nullptr),
+      dqmStore_(edm::Service<DQMStore>().operator->()),
+      conf_(iConfig),
+      m_cacheID_(0)
 
 {
   // retrieve producer name of input StripDigiCollection
   std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
   std::string digiType = "VirginRaw";
-  digiToken_ = consumes<edm::DetSetVector<SiStripRawDigi>>(
-      edm::InputTag(digiProducer, digiType));
+  digiToken_ = consumes<edm::DetSetVector<SiStripRawDigi>>(edm::InputTag(digiProducer, digiType));
 
   edm::LogInfo("SiStripMonitorRawData") << "SiStripMonitorRawData  "
                                         << " Constructing....... ";
@@ -66,8 +67,7 @@ SiStripMonitorRawData::~SiStripMonitorRawData() {
 void SiStripMonitorRawData::bookHistograms(DQMStore::IBooker &ibooker,
                                            const edm::Run &run,
                                            const edm::EventSetup &eSetup) {
-  unsigned long long cacheID =
-      eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
+  unsigned long long cacheID = eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
 
   if (BadFedNumber)
     BadFedNumber->Reset();
@@ -77,26 +77,21 @@ void SiStripMonitorRawData::bookHistograms(DQMStore::IBooker &ibooker,
     SelectedDetIds.clear();
     detcabling->addActiveDetectorsRawIds(SelectedDetIds);
 
-    edm::LogInfo("SiStripMonitorRawData")
-        << "SiStripMonitorRawData::bookHistograms: "
-        << " Creating MEs for new Cabling ";
+    edm::LogInfo("SiStripMonitorRawData") << "SiStripMonitorRawData::bookHistograms: "
+                                          << " Creating MEs for new Cabling ";
     ibooker.setCurrentFolder("Track/GlobalParameter");
     if (!BadFedNumber) {
-      BadFedNumber = ibooker.book1D("FaultyFedNumberAndChannel",
-                                    "Faulty Fed Id and Channel and Numbers",
-                                    60000, 0.5, 600.5);
+      BadFedNumber =
+          ibooker.book1D("FaultyFedNumberAndChannel", "Faulty Fed Id and Channel and Numbers", 60000, 0.5, 600.5);
       BadFedNumber->setAxisTitle("Fed Id and Channel numbers", 1);
     }
   }
 }
 
 // ------------ method called to produce the data  ------------
-void SiStripMonitorRawData::analyze(edm::Event const &iEvent,
-                                    edm::EventSetup const &iSetup) {
-
-  edm::LogInfo("SiStripMonitorRawData")
-      << "SiStripMonitorRawData::analyze: Run " << iEvent.id().run()
-      << " Event " << iEvent.id().event();
+void SiStripMonitorRawData::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) {
+  edm::LogInfo("SiStripMonitorRawData") << "SiStripMonitorRawData::analyze: Run " << iEvent.id().run() << " Event "
+                                        << iEvent.id().event();
 
   iSetup.get<SiStripDetCablingRcd>().get(detcabling);
 
@@ -104,15 +99,12 @@ void SiStripMonitorRawData::analyze(edm::Event const &iEvent,
   edm::Handle<edm::DetSetVector<SiStripRawDigi>> digi_collection;
   iEvent.getByToken(digiToken_, digi_collection);
 
-  for (std::vector<uint32_t>::const_iterator idetid = SelectedDetIds.begin(),
-                                             iEnd = SelectedDetIds.end();
-       idetid != iEnd; ++idetid) {
-    std::vector<edm::DetSet<SiStripRawDigi>>::const_iterator digis =
-        digi_collection->find((*idetid));
-    if (digis == digi_collection->end() || digis->data.empty() ||
-        digis->data.size() > 768) {
-      std::vector<const FedChannelConnection *> fed_conns =
-          detcabling->getConnections((*idetid));
+  for (std::vector<uint32_t>::const_iterator idetid = SelectedDetIds.begin(), iEnd = SelectedDetIds.end();
+       idetid != iEnd;
+       ++idetid) {
+    std::vector<edm::DetSet<SiStripRawDigi>>::const_iterator digis = digi_collection->find((*idetid));
+    if (digis == digi_collection->end() || digis->data.empty() || digis->data.size() > 768) {
+      std::vector<const FedChannelConnection *> fed_conns = detcabling->getConnections((*idetid));
       for (unsigned int k = 0; k < fed_conns.size(); k++) {
         if (fed_conns[k] && fed_conns[k]->isConnected()) {
           float fed_id = fed_conns[k]->fedId() + 0.01 * fed_conns[k]->fedCh();
@@ -126,11 +118,9 @@ void SiStripMonitorRawData::analyze(edm::Event const &iEvent,
 //
 // -- End Run
 //
-void SiStripMonitorRawData::endRun(edm::Run const &run,
-                                   edm::EventSetup const &eSetup) {
+void SiStripMonitorRawData::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName =
-      conf_.getParameter<std::string>("OutputFileName");
+  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {
     // dqmStore_->showDirStructure();
     dqmStore_->save(outputFileName);
