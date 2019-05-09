@@ -50,7 +50,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
-#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h" //no CastorUnpackerReport at the moment
+#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"  //no CastorUnpackerReport at the moment
 
 //#include "DQM/CastorMonitor/interface/CastorMonitorSelector.h"
 #include "DQM/CastorMonitor/interface/CastorDigiMonitor.h"
@@ -59,8 +59,8 @@
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
 //#include "DQM/CastorMonitor/interface/CastorTowerJetMonitor.h"
 
-#include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h" //-- use to get/dump Calib to DB
-#include "CondFormats/CastorObjects/interface/CastorChannelQuality.h" //-- use to get/hold channel status
+#include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"    //-- use to get/dump Calib to DB
+#include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"  //-- use to get/hold channel status
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 
 #include <fstream>
@@ -71,18 +71,15 @@
 #include <vector>
 
 class CastorMonitorModule : public DQMEDAnalyzer {
-
 public:
   CastorMonitorModule(const edm::ParameterSet &ps);
   ~CastorMonitorModule() override;
 
 protected:
-  void analyze(const edm::Event &iEvent,
-               const edm::EventSetup &eventSetup) override;
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &eventSetup) override;
 
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   void endRun(const edm::Run &run, const edm::EventSetup &eventSetup) override;
 

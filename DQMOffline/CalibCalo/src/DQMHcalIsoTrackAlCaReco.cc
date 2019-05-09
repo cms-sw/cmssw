@@ -26,13 +26,10 @@
 #include "DQMOffline/CalibCalo/src/DQMHcalIsoTrackAlCaReco.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DQMHcalIsoTrackAlCaReco::DQMHcalIsoTrackAlCaReco(
-    const edm::ParameterSet &iConfig) {
+DQMHcalIsoTrackAlCaReco::DQMHcalIsoTrackAlCaReco(const edm::ParameterSet &iConfig) {
   folderName_ = iConfig.getParameter<std::string>("FolderName");
-  l1FilterTag_ =
-      iConfig.getParameter<std::vector<std::string>>("L1FilterLabel");
-  hltFilterTag_ =
-      iConfig.getParameter<std::vector<std::string>>("HltFilterLabels");
+  l1FilterTag_ = iConfig.getParameter<std::vector<std::string>>("L1FilterLabel");
+  hltFilterTag_ = iConfig.getParameter<std::vector<std::string>>("HltFilterLabels");
   type_ = iConfig.getParameter<std::vector<int>>("TypeFilter");
   labelTrigger_ = iConfig.getParameter<edm::InputTag>("TriggerLabel");
   labelTrack_ = iConfig.getParameter<edm::InputTag>("TracksLabel");
@@ -41,25 +38,19 @@ DQMHcalIsoTrackAlCaReco::DQMHcalIsoTrackAlCaReco(
   nTotal_ = nHLTaccepts_ = 0;
   tokTrigger_ = consumes<trigger::TriggerEvent>(labelTrigger_);
   tokTrack_ = consumes<reco::HcalIsolatedTrackCandidateCollection>(labelTrack_);
-  LogDebug("HcalIsoTrack") << "Folder " << folderName_
-                           << " Input Tag for Trigger " << labelTrigger_
-                           << " track " << labelTrack_ << " threshold " << pThr_
-                           << " with " << l1FilterTag_.size() << " level 1 and "
-                           << hltFilterTag_.size() << " hlt filter tags"
+  LogDebug("HcalIsoTrack") << "Folder " << folderName_ << " Input Tag for Trigger " << labelTrigger_ << " track "
+                           << labelTrack_ << " threshold " << pThr_ << " with " << l1FilterTag_.size()
+                           << " level 1 and " << hltFilterTag_.size() << " hlt filter tags"
                            << "\n";
   for (unsigned int k = 0; k < l1FilterTag_.size(); ++k)
-    LogDebug("HcalIsoTrack")
-        << "L1FilterTag[" << k << "] " << l1FilterTag_[k] << "\n";
+    LogDebug("HcalIsoTrack") << "L1FilterTag[" << k << "] " << l1FilterTag_[k] << "\n";
   for (unsigned int k = 0; k < hltFilterTag_.size(); ++k)
-    LogDebug("HcalIsoTrack")
-        << "HLTFilterTag[" << k << "] " << hltFilterTag_[k] << "\n";
+    LogDebug("HcalIsoTrack") << "HLTFilterTag[" << k << "] " << hltFilterTag_[k] << "\n";
 }
 
 DQMHcalIsoTrackAlCaReco::~DQMHcalIsoTrackAlCaReco() {}
 
-void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent,
-                                      const edm::EventSetup &iSetup) {
-
+void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   nTotal_++;
   bool accept(false);
   edm::Handle<trigger::TriggerEvent> trEv;
@@ -67,8 +58,7 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent,
 
   edm::Handle<reco::HcalIsolatedTrackCandidateCollection> recoIsoTracks;
   iEvent.getByToken(tokTrack_, recoIsoTracks);
-  LogDebug("HcalIsoTrack") << "Gets Trigger information with " << trEv.isValid()
-                           << " and offline tracks with "
+  LogDebug("HcalIsoTrack") << "Gets Trigger information with " << trEv.isValid() << " and offline tracks with "
                            << recoIsoTracks.isValid() << "\n";
 
   if (trEv.isValid()) {
@@ -79,20 +69,16 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent,
       trigger::Keys KEYSl1;
       double etaTrigl1(-10000), phiTrigl1(-10000), ptMaxl1(0);
       for (trigger::size_type iFilt = 0; iFilt != nFilt; iFilt++) {
-        LogDebug("HcalIsoTrack")
-            << trEv->filterTag(iFilt).label() << " find for " << l1FilterTag_[k]
-            << " gives "
-            << (trEv->filterTag(iFilt).label()).find(l1FilterTag_[k]) << "\n";
-        if ((trEv->filterTag(iFilt).label()).find(l1FilterTag_[k]) !=
-            std::string::npos) {
+        LogDebug("HcalIsoTrack") << trEv->filterTag(iFilt).label() << " find for " << l1FilterTag_[k] << " gives "
+                                 << (trEv->filterTag(iFilt).label()).find(l1FilterTag_[k]) << "\n";
+        if ((trEv->filterTag(iFilt).label()).find(l1FilterTag_[k]) != std::string::npos) {
           KEYSl1 = trEv->filterKeys(iFilt);
           trigger::size_type nRegl1 = KEYSl1.size();
           LogDebug("HcalIsoTrack") << "# of objects " << nRegl1 << "\n";
           for (trigger::size_type iReg = 0; iReg < nRegl1; iReg++) {
             const trigger::TriggerObject &TObj(TOCol[KEYSl1[iReg]]);
-            LogDebug("HcalIsoTrack")
-                << "Object[" << iReg << "] with pt " << TObj.pt() << " "
-                << TObj.eta() << " " << TObj.phi() << "\n";
+            LogDebug("HcalIsoTrack") << "Object[" << iReg << "] with pt " << TObj.pt() << " " << TObj.eta() << " "
+                                     << TObj.phi() << "\n";
             if (TObj.pt() > ptMaxl1) {
               etaTrigl1 = TObj.eta();
               phiTrigl1 = TObj.phi();
@@ -101,9 +87,8 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent,
           }
         }
       }
-      LogDebug("HcalIsoTrack")
-          << "For L1 trigger type " << k << " pt " << ptMaxl1 << " eta "
-          << etaTrigl1 << " phi " << phiTrigl1 << "\n";
+      LogDebug("HcalIsoTrack") << "For L1 trigger type " << k << " pt " << ptMaxl1 << " eta " << etaTrigl1 << " phi "
+                               << phiTrigl1 << "\n";
       if (ptMaxl1 > 0) {
         hL1Pt_[k]->Fill(ptMaxl1);
         hL1Eta_[k]->Fill(etaTrigl1);
@@ -114,23 +99,18 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent,
     trigger::Keys KEYS;
     for (unsigned l = 0; l < hltFilterTag_.size(); l++) {
       for (trigger::size_type iFilt = 0; iFilt != nFilt; iFilt++) {
-        LogDebug("HcalIsoTrack")
-            << trEv->filterTag(iFilt).label() << " find for "
-            << hltFilterTag_[l] << " gives "
-            << (trEv->filterTag(iFilt).label()).find(hltFilterTag_[l]) << "\n";
-        if ((trEv->filterTag(iFilt).label()).find(hltFilterTag_[l]) !=
-            std::string::npos) {
+        LogDebug("HcalIsoTrack") << trEv->filterTag(iFilt).label() << " find for " << hltFilterTag_[l] << " gives "
+                                 << (trEv->filterTag(iFilt).label()).find(hltFilterTag_[l]) << "\n";
+        if ((trEv->filterTag(iFilt).label()).find(hltFilterTag_[l]) != std::string::npos) {
           KEYS = trEv->filterKeys(iFilt);
           trigger::size_type nReg = KEYS.size();
           LogDebug("HcalIsoTrack") << "# of objects for HLT " << nReg << "\n";
           // checks with IsoTrack trigger results
           for (trigger::size_type iReg = 0; iReg < nReg; iReg++) {
             const trigger::TriggerObject &TObj(TOCol[KEYS[iReg]]);
-            LogDebug("HcalIsoTrack")
-                << "HLT Filter Tag " << l << " trigger " << iFilt << " object "
-                << iReg << " p " << TObj.p() << " pointer " << indexH_[l] << ":"
-                << hHltP_[indexH_[l]] << ":" << hHltEta_[indexH_[l]] << ":"
-                << hHltPhi_[indexH_[l]] << "\n";
+            LogDebug("HcalIsoTrack") << "HLT Filter Tag " << l << " trigger " << iFilt << " object " << iReg << " p "
+                                     << TObj.p() << " pointer " << indexH_[l] << ":" << hHltP_[indexH_[l]] << ":"
+                                     << hHltEta_[indexH_[l]] << ":" << hHltPhi_[indexH_[l]] << "\n";
             if (TObj.p() > pThr_) {
               hHltP_[indexH_[l]]->Fill(TObj.p());
               hHltEta_[indexH_[l]]->Fill(TObj.eta());
@@ -140,18 +120,14 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent,
               if (recoIsoTracks.isValid() && ifL3_[l]) {
                 double minRecoL3dist(1000), pt(1000);
                 reco::HcalIsolatedTrackCandidateCollection::const_iterator mrtr;
-                for (mrtr = recoIsoTracks->begin();
-                     mrtr != recoIsoTracks->end(); mrtr++) {
-                  double R =
-                      deltaR(mrtr->eta(), mrtr->phi(), TObj.eta(), TObj.phi());
+                for (mrtr = recoIsoTracks->begin(); mrtr != recoIsoTracks->end(); mrtr++) {
+                  double R = deltaR(mrtr->eta(), mrtr->phi(), TObj.eta(), TObj.phi());
                   if (R < minRecoL3dist) {
                     minRecoL3dist = R;
                     pt = mrtr->pt();
                   }
                 }
-                LogDebug("HcalIsoTrack")
-                    << "Minimum R " << minRecoL3dist << " pt " << pt << ":"
-                    << TObj.pt() << "\n";
+                LogDebug("HcalIsoTrack") << "Minimum R " << minRecoL3dist << " pt " << pt << ":" << TObj.pt() << "\n";
                 hL3Dr_->Fill(minRecoL3dist);
                 if (minRecoL3dist < 0.02)
                   hL3Rat_->Fill(TObj.pt() / pt);
@@ -165,19 +141,17 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent,
 
   // general distributions
   if (recoIsoTracks.isValid()) {
-    for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr =
-             recoIsoTracks->begin();
-         itr != recoIsoTracks->end(); itr++) {
+    for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr = recoIsoTracks->begin();
+         itr != recoIsoTracks->end();
+         itr++) {
       hMaxP_->Fill(itr->maxP());
       hEnEcal_->Fill(itr->energyEcal());
       std::pair<int, int> etaphi = itr->towerIndex();
       hIeta_->Fill(etaphi.first);
       hIphi_->Fill(etaphi.second);
-      LogDebug("HcalIsoTrack")
-          << "Reco track p " << itr->p() << " eta|phi " << etaphi.first << "|"
-          << etaphi.second << " maxP " << itr->maxP() << " EcalE "
-          << itr->energyEcal() << " pointers " << hHltP_[3] << ":"
-          << hHltEta_[3] << ":" << hHltPhi_[3] << "\n";
+      LogDebug("HcalIsoTrack") << "Reco track p " << itr->p() << " eta|phi " << etaphi.first << "|" << etaphi.second
+                               << " maxP " << itr->maxP() << " EcalE " << itr->energyEcal() << " pointers " << hHltP_[3]
+                               << ":" << hHltEta_[3] << ":" << hHltPhi_[3] << "\n";
       if (itr->p() >= pThr_) {
         hHltP_[3]->Fill(itr->p());
         hHltEta_[3]->Fill(itr->eta());
@@ -187,8 +161,7 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent,
       hOffP_[0]->Fill(itr->p());
       for (unsigned int l = 1; l < etaRange_.size(); l++) {
         if (etaAbs >= etaRange_[l - 1] && etaAbs < etaRange_[l]) {
-          LogDebug("HcalIsoTrack")
-              << "Range " << l << " p " << itr->p() << " pointer " << hOffP_[l];
+          LogDebug("HcalIsoTrack") << "Range " << l << " p " << itr->p() << " pointer " << hOffP_[l];
           hOffP_[l]->Fill(itr->p());
           break;
         }
@@ -201,10 +174,7 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent,
   LogDebug("HcalIsoTrack") << "Accept " << accept << "\n";
 }
 
-void DQMHcalIsoTrackAlCaReco::bookHistograms(DQMStore::IBooker &iBooker,
-                                             edm::Run const &,
-                                             edm::EventSetup const &) {
-
+void DQMHcalIsoTrackAlCaReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
   iBooker.setCurrentFolder(folderName_);
   LogDebug("HcalIsoTrack") << "Set the folder to " << folderName_ << "\n";
   char name[100], title[200];
@@ -249,9 +219,8 @@ void DQMHcalIsoTrackAlCaReco::bookHistograms(DQMStore::IBooker &iBooker,
     unsigned int indx = (type_[l] >= 0 && type_[l] < 3) ? type_[l] : 0;
     indexH_.push_back(indx);
     ifL3_.push_back(indx == 2);
-    LogDebug("HcalIsoTrack")
-        << "Filter[" << l << "] " << hltFilterTag_[l] << " type " << type_[l]
-        << " index " << indexH_[l] << " L3? " << ifL3_[l] << "\n";
+    LogDebug("HcalIsoTrack") << "Filter[" << l << "] " << hltFilterTag_[l] << " type " << type_[l] << " index "
+                             << indexH_[l] << " L3? " << ifL3_[l] << "\n";
   }
 
   double etaV[6] = {0.0, 0.5, 1.0, 1.5, 2.0, 2.5};
@@ -260,15 +229,13 @@ void DQMHcalIsoTrackAlCaReco::bookHistograms(DQMStore::IBooker &iBooker,
     if (k == 0) {
       sprintf(title, "p of AlCaReco object (All)");
     } else {
-      sprintf(title, "p of AlCaReco object (%3.1f < |#eta| < %3.1f)",
-              etaV[k - 1], etaV[k]);
+      sprintf(title, "p of AlCaReco object (%3.1f < |#eta| < %3.1f)", etaV[k - 1], etaV[k]);
     }
     etaRange_.push_back(etaV[k]);
     hOffP_.push_back(iBooker.book1D(name, title, 1000, 0, 1000));
     hOffP_[k]->setAxisTitle("E (GeV)", 1);
   }
-  hMaxP_ =
-      iBooker.book1D("hChgIsol", "Energy for charge isolation", 110, -10, 100);
+  hMaxP_ = iBooker.book1D("hChgIsol", "Energy for charge isolation", 110, -10, 100);
   hMaxP_->setAxisTitle("p (GeV)", 1);
   hEnEcal_ = iBooker.book1D("hEnEcal", "Energy in ECAL", 100, 0, 20);
   hEnEcal_->setAxisTitle("E (GeV)", 1);

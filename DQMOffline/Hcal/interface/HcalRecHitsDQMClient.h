@@ -45,7 +45,6 @@
 class MonitorElement;
 
 class HcalRecHitsDQMClient : public DQMEDHarvester {
-
 private:
   std::string outputFile_;
   edm::ParameterSet conf_;
@@ -60,7 +59,7 @@ private:
   const HcalDDDRecConstants *hcons;
   int maxDepthHB_, maxDepthHE_, maxDepthHO_, maxDepthHF_, maxDepthAll_;
 
-  int nChannels_[5]; // 0:any, 1:HB, 2:HE, 3:HO, 4: HF
+  int nChannels_[5];  // 0:any, 1:HB, 2:HE, 3:HO, 4: HF
 
 public:
   explicit HcalRecHitsDQMClient(const edm::ParameterSet &);
@@ -69,11 +68,11 @@ public:
   void beginJob(void) override;
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void dqmEndJob(DQMStore::IBooker &,
-                 DQMStore::IGetter &) override; // performed in the endJob
+                 DQMStore::IGetter &) override;  // performed in the endJob
 
   int HcalRecHitsEndjob(const std::vector<MonitorElement *> &hcalMEs);
 
   float phifactor(int ieta);
 };
 
-#endif // _DQMOFFLINE_HCAL_HCALRECHITSDQMCLIENT_H_
+#endif  // _DQMOFFLINE_HCAL_HCALRECHITSDQMCLIENT_H_

@@ -41,54 +41,43 @@
 // constructors
 // *****************************************
 
-DQMHcalIsolatedBunchAlCaReco::DQMHcalIsolatedBunchAlCaReco(
-    const edm::ParameterSet &ps) {
+DQMHcalIsolatedBunchAlCaReco::DQMHcalIsolatedBunchAlCaReco(const edm::ParameterSet &ps) {
   //
   // Input from configurator file
   //
-  folderName_ = ps.getUntrackedParameter<std::string>(
-      "FolderName", "ALCAStreamHcalIsolatedBunch");
+  folderName_ = ps.getUntrackedParameter<std::string>("FolderName", "ALCAStreamHcalIsolatedBunch");
   trigName_ = ps.getParameter<std::string>("TriggerName");
   plotAll_ = ps.getUntrackedParameter<bool>("PlotAll", true);
 
-  hbhereco_ = consumes<HBHERecHitCollection>(
-      ps.getParameter<edm::InputTag>("hbheInput"));
-  horeco_ =
-      consumes<HORecHitCollection>(ps.getParameter<edm::InputTag>("hoInput"));
-  hfreco_ =
-      consumes<HFRecHitCollection>(ps.getParameter<edm::InputTag>("hfInput"));
-  trigResult_ = consumes<edm::TriggerResults>(
-      ps.getParameter<edm::InputTag>("TriggerResult"));
+  hbhereco_ = consumes<HBHERecHitCollection>(ps.getParameter<edm::InputTag>("hbheInput"));
+  horeco_ = consumes<HORecHitCollection>(ps.getParameter<edm::InputTag>("hoInput"));
+  hfreco_ = consumes<HFRecHitCollection>(ps.getParameter<edm::InputTag>("hfInput"));
+  trigResult_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResult"));
 }
 
 DQMHcalIsolatedBunchAlCaReco::~DQMHcalIsolatedBunchAlCaReco() {}
 
 //--------------------------------------------------------
-void DQMHcalIsolatedBunchAlCaReco::bookHistograms(
-    DQMStore::IBooker &ibooker, edm::Run const &irun,
-    edm::EventSetup const &isetup) {
-
+void DQMHcalIsolatedBunchAlCaReco::bookHistograms(DQMStore::IBooker &ibooker,
+                                                  edm::Run const &irun,
+                                                  edm::EventSetup const &isetup) {
   // create and cd into new folder
   ibooker.setCurrentFolder(folderName_);
   h_Event_ = ibooker.book1D("hEvent", "Selection summary", 10, 0, 10);
-  h_hbhehit_ =
-      ibooker.book1D("hHBHEHit", "Size of HBHE Collection", 200, 0, 2000);
+  h_hbhehit_ = ibooker.book1D("hHBHEHit", "Size of HBHE Collection", 200, 0, 2000);
   h_hohit_ = ibooker.book1D("hHOHit", "Size of HO Collection", 200, 0, 2000);
   h_hfhit_ = ibooker.book1D("hHFHit", "Size of HF Collection", 200, 0, 2000);
 }
 
 //-------------------------------------------------------------
 
-void DQMHcalIsolatedBunchAlCaReco::analyze(const edm::Event &iEvent,
-                                           const edm::EventSetup &iSetup) {
-
+void DQMHcalIsolatedBunchAlCaReco::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   bool accept(false);
   /////////////////////////////TriggerResults
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(trigResult_, triggerResults);
   if (triggerResults.isValid()) {
-    const edm::TriggerNames &triggerNames =
-        iEvent.triggerNames(*triggerResults);
+    const edm::TriggerNames &triggerNames = iEvent.triggerNames(*triggerResults);
     const std::vector<std::string> &triggerNames_ = triggerNames.triggerNames();
     for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
       int hlt = triggerResults->accept(iHLT);
@@ -130,4 +119,4 @@ void DQMHcalIsolatedBunchAlCaReco::analyze(const edm::Event &iEvent,
     }
   }
 
-} // analyze
+}  // analyze

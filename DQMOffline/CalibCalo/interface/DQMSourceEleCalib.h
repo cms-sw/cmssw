@@ -25,21 +25,20 @@ class DQMStore;
 class MonitorElement;
 
 class DQMSourceEleCalib : public DQMEDAnalyzer {
-
 public:
   DQMSourceEleCalib(const edm::ParameterSet &);
   ~DQMSourceEleCalib() override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
 private:
   //! find the MOX
   DetId findMaxHit(const std::vector<std::pair<DetId, float>> &,
-                   const EcalRecHitCollection *, const EcalRecHitCollection *);
+                   const EcalRecHitCollection *,
+                   const EcalRecHitCollection *);
   //! fills local occupancy graphs
   void fillAroundBarrel(const EcalRecHitCollection *, int, int);
   void fillAroundEndcap(const EcalRecHitCollection *, int, int);

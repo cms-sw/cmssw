@@ -34,7 +34,6 @@
 #include "TString.h"
 
 class ConverterTester : public edm::EDAnalyzer {
-
 public:
   explicit ConverterTester(const edm::ParameterSet &);
   ~ConverterTester() override;

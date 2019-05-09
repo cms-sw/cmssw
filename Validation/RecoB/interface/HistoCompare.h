@@ -21,7 +21,6 @@ ________________________________________________________________**/
 #include <vector>
 
 class HistoCompare {
-
 public:
   HistoCompare();
   HistoCompare(const TString &refFilename);
