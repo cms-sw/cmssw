@@ -17,8 +17,7 @@
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCBadChambersConditions : public edm::ESProducer,
-                                 public edm::EventSetupRecordIntervalFinder {
+class CSCBadChambersConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCBadChambersConditions(const edm::ParameterSet &);
   ~CSCBadChambersConditions() override;
@@ -61,7 +60,6 @@ inline CSCBadChambers *CSCBadChambersConditions::prefillBadChambers() {
   }
 
   while (!newdata.eof()) {
-
     newdata >> new_chambers;
     if (new_chambers != old_chamber) {
       new_badchambers.push_back(new_chambers);
@@ -72,8 +70,7 @@ inline CSCBadChambers *CSCBadChambersConditions::prefillBadChambers() {
   }
   newdata.close();
 
-  CSCBadChambers *cndbbadchambers =
-      new CSCBadChambers(new_nrlines, new_badchambers);
+  CSCBadChambers *cndbbadchambers = new CSCBadChambers(new_nrlines, new_badchambers);
 
   // std::cout <<"numberOfBadChambers "<<new_nrlines<<std::endl;
 

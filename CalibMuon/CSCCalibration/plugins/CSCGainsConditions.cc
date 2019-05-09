@@ -4,7 +4,6 @@
 #include "CalibMuon/CSCCalibration/interface/CSCGainsConditions.h"
 
 CSCGains *CSCGainsConditions::prefillGains() {
-
   float mean, min, minchi;
   int seed;
   int old_chamber_id, old_strip, new_chamber_id, new_strip;
@@ -39,8 +38,7 @@ CSCGains *CSCGainsConditions::prefillGains() {
   }
 
   while (!olddata.eof()) {
-    olddata >> old_chamber_id >> old_strip >> old_gainslope >> old_intercpt >>
-        old_chisq;
+    olddata >> old_chamber_id >> old_strip >> old_gainslope >> old_intercpt >> old_chisq;
     old_cham_id.push_back(old_chamber_id);
     old_strips.push_back(old_strip);
     old_slope.push_back(old_gainslope);
@@ -58,8 +56,7 @@ CSCGains *CSCGainsConditions::prefillGains() {
   }
 
   while (!newdata.eof()) {
-    newdata >> new_chamber_id >> new_strip >> new_gainslope >> new_intercpt >>
-        new_chisq;
+    newdata >> new_chamber_id >> new_strip >> new_gainslope >> new_intercpt >> new_chisq;
     new_cham_id.push_back(new_chamber_id);
     new_strips.push_back(new_strip);
     new_slope.push_back(new_gainslope);
@@ -70,10 +67,8 @@ CSCGains *CSCGainsConditions::prefillGains() {
   newdata.close();
 
   // endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6
-  for (int iendcap = detId.minEndcapId(); iendcap <= detId.maxEndcapId();
-       iendcap++) {
-    for (int istation = detId.minStationId(); istation <= detId.maxStationId();
-         istation++) {
+  for (int iendcap = detId.minEndcapId(); iendcap <= detId.maxEndcapId(); iendcap++) {
+    for (int istation = detId.minStationId(); istation <= detId.maxStationId(); istation++) {
       max_ring = detId.maxRingId();
       // station 4 ring 4 not there(36 chambers*2 missing)
       // 3 rings max this way of counting (ME1a & b)
@@ -106,27 +101,20 @@ CSCGains *CSCGainsConditions::prefillGains() {
         if (istation == 4 && iring == 1)
           max_cham = 18;
 
-        for (int ichamber = detId.minChamberId(); ichamber <= max_cham;
-             ichamber++) {
-          for (int ilayer = detId.minLayerId(); ilayer <= detId.maxLayerId();
-               ilayer++) {
+        for (int ichamber = detId.minChamberId(); ichamber <= max_cham; ichamber++) {
+          for (int ilayer = detId.minLayerId(); ilayer <= detId.maxLayerId(); ilayer++) {
             // station 1 ring 3 has 64 strips per layer instead of 80
             if (istation == 1 && iring == 3)
               max_istrip = 64;
 
             std::vector<CSCGains::Item> itemvector;
             itemvector.resize(max_istrip);
-            id_layer = 100000 * iendcap + 10000 * istation + 1000 * iring +
-                       10 * ichamber + ilayer;
+            id_layer = 100000 * iendcap + 10000 * istation + 1000 * iring + 10 * ichamber + ilayer;
 
             for (int istrip = 0; istrip < max_istrip; istrip++) {
-              itemvector[istrip].gain_slope =
-                  ((double)rand() / ((double)(RAND_MAX) + (double)(1))) + mean;
-              itemvector[istrip].gain_intercept =
-                  ((double)rand() / ((double)(RAND_MAX) + (double)(1))) + min;
-              itemvector[istrip].gain_chi2 =
-                  ((double)rand() / ((double)(RAND_MAX) + (double)(1))) +
-                  minchi;
+              itemvector[istrip].gain_slope = ((double)rand() / ((double)(RAND_MAX) + (double)(1))) + mean;
+              itemvector[istrip].gain_intercept = ((double)rand() / ((double)(RAND_MAX) + (double)(1))) + min;
+              itemvector[istrip].gain_chi2 = ((double)rand() / ((double)(RAND_MAX) + (double)(1))) + minchi;
               cngains->gains[id_layer] = itemvector;
             }
           }
@@ -225,7 +213,6 @@ CSCGainsConditions::CSCGainsConditions(const edm::ParameterSet &iConfig) {
 }
 
 CSCGainsConditions::~CSCGainsConditions() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -235,15 +222,13 @@ CSCGainsConditions::~CSCGainsConditions() {
 //
 
 // ------------ method called to produce the data  ------------
-CSCGainsConditions::ReturnType
-CSCGainsConditions::produceGains(const CSCGainsRcd &iRecord) {
+CSCGainsConditions::ReturnType CSCGainsConditions::produceGains(const CSCGainsRcd &iRecord) {
   // Added by Zhen, need a new object so to not be deleted at exit
   return CSCGainsConditions::ReturnType(prefillGains());
 }
 
-void CSCGainsConditions::setIntervalFor(
-    const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &,
-    edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
-                                    edm::IOVSyncValue::endOfTime());
+void CSCGainsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                                        const edm::IOVSyncValue &,
+                                        edm::ValidityInterval &oValidity) {
+  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }

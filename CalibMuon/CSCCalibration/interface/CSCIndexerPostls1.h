@@ -71,10 +71,8 @@ public:
    *
    * Assume ME1a has 48 unganged readout channels.
    */
-  IndexType stripChannelsPerOfflineLayer(IndexType is,
-                                         IndexType ir) const override {
-    const IndexType nSC[16] = {64, 80, 64, 48, 80, 80, 0, 0,
-                               80, 80, 0,  0,  80, 80, 0, 0};
+  IndexType stripChannelsPerOfflineLayer(IndexType is, IndexType ir) const override {
+    const IndexType nSC[16] = {64, 80, 64, 48, 80, 80, 0, 0, 80, 80, 0, 0, 80, 80, 0, 0};
     return nSC[(is - 1) * 4 + ir - 1];
   }
 
@@ -85,10 +83,8 @@ public:
    * Assume ME1a has 48 unganged readout channels.
    * Online chambers ME1a and ME1b are separate.
    */
-  IndexType stripChannelsPerOnlineLayer(IndexType is,
-                                        IndexType ir) const override {
-    const IndexType nSC[16] = {64, 80, 64, 48, 80, 80, 0, 0,
-                               80, 80, 0,  0,  80, 80, 0, 0};
+  IndexType stripChannelsPerOnlineLayer(IndexType is, IndexType ir) const override {
+    const IndexType nSC[16] = {64, 80, 64, 48, 80, 80, 0, 0, 80, 80, 0, 0, 80, 80, 0, 0};
     return nSC[(is - 1) * 4 + ir - 1];
   }
 
@@ -101,8 +97,7 @@ public:
    * chambers with 3 and 4 CFEBs respectively
    */
   IndexType chipsPerOnlineLayer(IndexType is, IndexType ir) const override {
-    const IndexType nCinL[16] = {4, 5, 4, 3, 5, 5, 0, 0,
-                                 5, 5, 0, 0, 5, 5, 0, 0};
+    const IndexType nCinL[16] = {4, 5, 4, 3, 5, 5, 0, 0, 5, 5, 0, 0, 5, 5, 0, 0};
     return nCinL[(is - 1) * 4 + ir - 1];
   }
 
@@ -123,8 +118,7 @@ public:
    * indices wide ranges.
    */
   IndexType stripChannelsPerLayer(IndexType is, IndexType ir) const override {
-    const IndexType nSCinC[16] = {80, 80, 64, 48, 80, 80, 0, 0,
-                                  80, 80, 0,  0,  80, 80, 0, 0};
+    const IndexType nSCinC[16] = {80, 80, 64, 48, 80, 80, 0, 0, 80, 80, 0, 0, 80, 80, 0, 0};
     return nSCinC[(is - 1) * 4 + ir - 1];
   }
 
@@ -138,8 +132,7 @@ public:
    * WARNING: ME1a channels are  NOT  considered the last 16 of the 80 total in
    * each layer of an ME11 chamber!
    */
-  LongIndexType stripChannelStart(IndexType ie, IndexType is,
-                                  IndexType ir) const override {
+  LongIndexType stripChannelStart(IndexType ie, IndexType is, IndexType ir) const override {
     // These are in the ranges 1-217728 (CSCs 2008), 217729-252288 (ME42), and
     // 252289-273024 (unganged ME1a) There are 1-108884 channels per endcap
     // (CSCs 2008), 17280 channels per endcap (ME42), and 10368 channels per
@@ -148,11 +141,9 @@ public:
     // of -z (ME42) is 217728 + 1 + 17280          = 235009 Start of +z
     // (unganged ME1a) is 252288 + 1         = 252289 Start of -z (unganged
     // ME1a) is 252288 + 1 + 10368 = 262657
-    const LongIndexType nStart[32] = {
-        1,      17281,  34561,  252289, 48385,  57025,  0, 0,
-        74305,  82945,  0,      0,      100225, 217729, 0, 0,
-        108865, 126145, 143425, 262657, 157249, 165889, 0, 0,
-        183169, 191809, 0,      0,      209089, 235009, 0, 0};
+    const LongIndexType nStart[32] = {1, 17281,  34561,  252289, 48385, 57025,  0,      0,      74305,  82945,  0,
+                                      0, 100225, 217729, 0,      0,     108865, 126145, 143425, 262657, 157249, 165889,
+                                      0, 0,      183169, 191809, 0,     0,      209089, 235009, 0,      0};
     return nStart[(ie - 1) * 16 + (is - 1) * 4 + ir - 1];
   }
   //@}
@@ -175,8 +166,7 @@ public:
    * chip #5 are ignored in the unganged case.
    */
   IndexType chipsPerLayer(IndexType is, IndexType ir) const override {
-    const IndexType nCinL[16] = {5, 5, 4, 3, 5, 5, 0, 0,
-                                 5, 5, 0, 0, 5, 5, 0, 0};
+    const IndexType nCinL[16] = {5, 5, 4, 3, 5, 5, 0, 0, 5, 5, 0, 0, 5, 5, 0, 0};
     return nCinL[(is - 1) * 4 + ir - 1];
   }
 
@@ -197,10 +187,8 @@ public:
     // channels (CSCs 2008) is 6804 + 1 = 6805 Start of +z (ME42) is 13608 + 1 =
     // 13609 Start of -z (ME42) is 13608 + 1 + 1080 = 14689 Start of +z (ME1a)
     // is 15768 + 1 = 15769 Start of -z (ME1a) is 15768 + 1 + 648 = 16417
-    const IndexType nStart[32] = {
-        1, 1081, 2161,  15769, 3025, 3565, 0,     0,     4645,  5185, 0,
-        0, 6265, 13609, 0,     0,    6805, 7885,  8965,  16417, 9829, 10369,
-        0, 0,    11449, 11989, 0,    0,    13069, 14689, 0,     0};
+    const IndexType nStart[32] = {1,    1081, 2161, 15769, 3025, 3565,  0, 0, 4645,  5185,  0, 0, 6265,  13609, 0, 0,
+                                  6805, 7885, 8965, 16417, 9829, 10369, 0, 0, 11449, 11989, 0, 0, 13069, 14689, 0, 0};
     return nStart[(ie - 1) * 16 + (is - 1) * 4 + ir - 1];
   }
   //@}
@@ -218,8 +206,7 @@ public:
    * the end of the index range, ME1b still keeps 5 chips with the chip #5 index
    * being unused.
    */
-  IndexType sectorStart(IndexType ie, IndexType is,
-                        IndexType ir) const override {
+  IndexType sectorStart(IndexType ie, IndexType is, IndexType ir) const override {
     // There are 36 chambers * 6 layers * 5 CFEB's * 1 HV segment = 1080
     // gas-gain sectors in ME1/1 (non-upgraded) There are 36 chambers * 6 layers
     // * 3 CFEB's * 1 HV segment = 648 gas-gain sectors in ME1/1a (upgraded)
@@ -232,23 +219,14 @@ public:
     // Start of -z (ME42) is 45144 + 1 + 5400 = 50545
     // Start of +z (ME1a) is 45144 + 1 + 2*5400 = 55945
     // Start of -z (ME42) is 45144 + 1 + 2*5400 + 648 = 56593
-    const IndexType nStart[32] = {
-        1,     1081,
-        4321,  55945, // ME+1/1,ME+1/2,ME+1/3,ME+1/a
-        6913,  8533,
-        0,     0, // ME+2/1,ME+2/2
-        13933, 15553,
-        0,     0, // ME+3/1,ME+3/2
-        20953, 45145,
-        0,     0, // ME+4/1,ME+4/2 (note, ME+4/2 index follows ME-4/1...)
-        22573, 23653,
-        26893, 56593, // ME-1/1,ME-1/2,ME-1/3,ME+1/a
-        29485, 31105,
-        0,     0, // ME-2/1,ME-2/2
-        36505, 38125,
-        0,     0, // ME-3/1,ME-3/2
-        43525, 50545,
-        0,     0}; // ME-4/1,ME-4/2 (note, ME-4/2 index follows ME+4/2...)
+    const IndexType nStart[32] = {1,     1081,  4321,  55945,  // ME+1/1,ME+1/2,ME+1/3,ME+1/a
+                                  6913,  8533,  0,     0,      // ME+2/1,ME+2/2
+                                  13933, 15553, 0,     0,      // ME+3/1,ME+3/2
+                                  20953, 45145, 0,     0,      // ME+4/1,ME+4/2 (note, ME+4/2 index follows ME-4/1...)
+                                  22573, 23653, 26893, 56593,  // ME-1/1,ME-1/2,ME-1/3,ME+1/a
+                                  29485, 31105, 0,     0,      // ME-2/1,ME-2/2
+                                  36505, 38125, 0,     0,      // ME-3/1,ME-3/2
+                                  43525, 50545, 0,     0};     // ME-4/1,ME-4/2 (note, ME-4/2 index follows ME+4/2...)
     return nStart[(ie - 1) * 16 + (is - 1) * 4 + ir - 1];
   }
   //@}
@@ -256,12 +234,9 @@ public:
   /**
    *  Decode CSCDetId from various indexes and labels
    */
-  std::pair<CSCDetId, IndexType>
-  detIdFromStripChannelIndex(LongIndexType ichi) const override;
-  std::pair<CSCDetId, IndexType>
-  detIdFromChipIndex(IndexType ichi) const override;
-  CSCIndexerBase::GasGainIndexType
-  detIdFromGasGainIndex(IndexType igg) const override;
+  std::pair<CSCDetId, IndexType> detIdFromStripChannelIndex(LongIndexType ichi) const override;
+  std::pair<CSCDetId, IndexType> detIdFromChipIndex(IndexType ichi) const override;
+  CSCIndexerBase::GasGainIndexType detIdFromGasGainIndex(IndexType igg) const override;
 
   /**
    * Build index used internally in online CSC conditions databases (the 'Igor

@@ -23,8 +23,7 @@ public:
   /// default constructor
   LaserBeamsTEC2();
   /// constructor
-  LaserBeamsTEC2(G4int nPhotonsInGun, G4int nPhotonsInBeam,
-                 G4double PhotonEnergy);
+  LaserBeamsTEC2(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4double PhotonEnergy);
   /// destructor
   ~LaserBeamsTEC2() override;
 

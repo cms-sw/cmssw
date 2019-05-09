@@ -4,7 +4,6 @@
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkConditions.h"
 
 CSCcrosstalk *CSCCrosstalkConditions::prefillCrosstalk() {
-
   float mean, min, minchi;
   int seed;
   int old_chamber_id, old_strip, new_chamber_id, new_strip;
@@ -48,9 +47,8 @@ CSCcrosstalk *CSCCrosstalkConditions::prefillCrosstalk() {
   }
 
   while (!olddata.eof()) {
-    olddata >> old_chamber_id >> old_strip >> old_slope_right >>
-        old_intercept_right >> old_chi2_right >> old_slope_left >>
-        old_intercept_left >> old_chi2_left;
+    olddata >> old_chamber_id >> old_strip >> old_slope_right >> old_intercept_right >> old_chi2_right >>
+        old_slope_left >> old_intercept_left >> old_chi2_left;
     old_cham_id.push_back(old_chamber_id);
     old_strips.push_back(old_strip);
     old_slope_r.push_back(old_slope_right);
@@ -71,9 +69,8 @@ CSCcrosstalk *CSCCrosstalkConditions::prefillCrosstalk() {
   }
 
   while (!newdata.eof()) {
-    newdata >> new_chamber_id >> new_strip >> new_slope_right >>
-        new_intercept_right >> new_chi2_right >> new_slope_left >>
-        new_intercept_left >> new_chi2_left;
+    newdata >> new_chamber_id >> new_strip >> new_slope_right >> new_intercept_right >> new_chi2_right >>
+        new_slope_left >> new_intercept_left >> new_chi2_left;
     new_cham_id.push_back(new_chamber_id);
     new_strips.push_back(new_strip);
     new_slope_r.push_back(new_slope_right);
@@ -86,10 +83,8 @@ CSCcrosstalk *CSCCrosstalkConditions::prefillCrosstalk() {
   }
   newdata.close();
 
-  for (int iendcap = detId.minEndcapId(); iendcap <= detId.maxEndcapId();
-       iendcap++) {
-    for (int istation = detId.minStationId(); istation <= detId.maxStationId();
-         istation++) {
+  for (int iendcap = detId.minEndcapId(); iendcap <= detId.maxEndcapId(); iendcap++) {
+    for (int istation = detId.minStationId(); istation <= detId.maxStationId(); istation++) {
       max_ring = detId.maxRingId();
       // station 4 ring 4 not there(36 chambers*2 missing)
       // 3 rings max this way of counting (ME1a & b)
@@ -124,56 +119,36 @@ CSCcrosstalk *CSCCrosstalkConditions::prefillCrosstalk() {
         // station 1 ring 3 has 64 strips per layer instead of 80(minus & plus
         // side!!!)
 
-        for (int ichamber = detId.minChamberId(); ichamber <= max_cham;
-             ichamber++) {
-
-          for (int ilayer = detId.minLayerId(); ilayer <= detId.maxLayerId();
-               ilayer++) {
+        for (int ichamber = detId.minChamberId(); ichamber <= max_cham; ichamber++) {
+          for (int ilayer = detId.minLayerId(); ilayer <= detId.maxLayerId(); ilayer++) {
             // station 1 ring 3 has 64 strips per layer instead of 80
             if (istation == 1 && iring == 3)
               max_istrip = 64;
 
             std::vector<CSCcrosstalk::Item> itemvector;
             itemvector.resize(max_istrip);
-            id_layer = 100000 * iendcap + 10000 * istation + 1000 * iring +
-                       10 * ichamber + ilayer;
+            id_layer = 100000 * iendcap + 10000 * istation + 1000 * iring + 10 * ichamber + ilayer;
 
             for (int istrip = 0; istrip < max_istrip; istrip++) {
               // create fake values
               itemvector[istrip].xtalk_slope_right =
-                  -((double)rand() / ((double)(RAND_MAX) + (double)(1))) /
-                      10000 +
-                  mean;
+                  -((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 10000 + mean;
               itemvector[istrip].xtalk_intercept_right =
-                  ((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 100 +
-                  min;
-              itemvector[istrip].xtalk_chi2_right =
-                  ((double)rand() / ((double)(RAND_MAX) + (double)(1))) +
-                  minchi;
+                  ((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 100 + min;
+              itemvector[istrip].xtalk_chi2_right = ((double)rand() / ((double)(RAND_MAX) + (double)(1))) + minchi;
               itemvector[istrip].xtalk_slope_left =
-                  -((double)rand() / ((double)(RAND_MAX) + (double)(1))) /
-                      10000 +
-                  mean;
+                  -((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 10000 + mean;
               itemvector[istrip].xtalk_intercept_left =
-                  ((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 100 +
-                  min;
-              itemvector[istrip].xtalk_chi2_left =
-                  ((double)rand() / ((double)(RAND_MAX) + (double)(1))) +
-                  minchi;
+                  ((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 100 + min;
+              itemvector[istrip].xtalk_chi2_left = ((double)rand() / ((double)(RAND_MAX) + (double)(1))) + minchi;
               cncrosstalk->crosstalk[id_layer] = itemvector;
 
               if (istrip == 0) {
                 itemvector[istrip].xtalk_slope_right =
-                    -((double)rand() / ((double)(RAND_MAX) + (double)(1))) /
-                        10000 +
-                    mean;
+                    -((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 10000 + mean;
                 itemvector[istrip].xtalk_intercept_right =
-                    ((double)rand() / ((double)(RAND_MAX) + (double)(1))) /
-                        100 +
-                    min;
-                itemvector[istrip].xtalk_chi2_right =
-                    ((double)rand() / ((double)(RAND_MAX) + (double)(1))) +
-                    minchi;
+                    ((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 100 + min;
+                itemvector[istrip].xtalk_chi2_right = ((double)rand() / ((double)(RAND_MAX) + (double)(1))) + minchi;
                 itemvector[istrip].xtalk_slope_left = 0.0;
                 itemvector[istrip].xtalk_intercept_left = 0.0;
                 itemvector[istrip].xtalk_chi2_left = 0.0;
@@ -185,16 +160,10 @@ CSCcrosstalk *CSCCrosstalkConditions::prefillCrosstalk() {
                 itemvector[istrip].xtalk_intercept_right = 0.0;
                 itemvector[istrip].xtalk_chi2_right = 0.0;
                 itemvector[istrip].xtalk_slope_left =
-                    -((double)rand() / ((double)(RAND_MAX) + (double)(1))) /
-                        10000 +
-                    mean;
+                    -((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 10000 + mean;
                 itemvector[istrip].xtalk_intercept_left =
-                    ((double)rand() / ((double)(RAND_MAX) + (double)(1))) /
-                        100 +
-                    min;
-                itemvector[istrip].xtalk_chi2_left =
-                    ((double)rand() / ((double)(RAND_MAX) + (double)(1))) +
-                    minchi;
+                    ((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 100 + min;
+                itemvector[istrip].xtalk_chi2_left = ((double)rand() / ((double)(RAND_MAX) + (double)(1))) + minchi;
                 cncrosstalk->crosstalk[id_layer] = itemvector;
               }
             }
@@ -304,8 +273,7 @@ CSCcrosstalk *CSCCrosstalkConditions::prefillCrosstalk() {
   return cncrosstalk;
 }
 
-CSCCrosstalkConditions::CSCCrosstalkConditions(
-    const edm::ParameterSet &iConfig) {
+CSCCrosstalkConditions::CSCCrosstalkConditions(const edm::ParameterSet &iConfig) {
   // the following line is needed to tell the framework what
   // data is being produced
   // added by Zhen (changed since 1_2_0)
@@ -315,7 +283,6 @@ CSCCrosstalkConditions::CSCCrosstalkConditions(
 }
 
 CSCCrosstalkConditions::~CSCCrosstalkConditions() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -325,15 +292,13 @@ CSCCrosstalkConditions::~CSCCrosstalkConditions() {
 //
 
 // ------------ method called to produce the data  ------------
-CSCCrosstalkConditions::ReturnType
-CSCCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd &iRecord) {
+CSCCrosstalkConditions::ReturnType CSCCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd &iRecord) {
   // Added by Zhen, need a new object so to not be deleted at exit
   return CSCCrosstalkConditions::ReturnType(prefillCrosstalk());
 }
 
-void CSCCrosstalkConditions::setIntervalFor(
-    const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &,
-    edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
-                                    edm::IOVSyncValue::endOfTime());
+void CSCCrosstalkConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                                            const edm::IOVSyncValue &,
+                                            edm::ValidityInterval &oValidity) {
+  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }

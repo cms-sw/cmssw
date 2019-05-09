@@ -37,16 +37,14 @@ void LaserSteppingVerbose::StepInfo() {
              << " " << std::setw(10) << "Volume"
              << " " << std::setw(10) << "Process" << G4endl;
 
-      G4cout << std::setw(5) << fTrack->GetCurrentStepNumber() << " "
-             << std::setw(6) << G4BestUnit(fTrack->GetPosition().x(), "Length")
-             << std::setw(6) << G4BestUnit(fTrack->GetPosition().y(), "Length")
-             << std::setw(6) << G4BestUnit(fTrack->GetPosition().z(), "Length")
-             << std::setw(6) << G4BestUnit(fTrack->GetKineticEnergy(), "Energy")
-             << std::setw(6)
-             << G4BestUnit(fStep->GetTotalEnergyDeposit(), "Energy")
-             << std::setw(6) << G4BestUnit(fStep->GetStepLength(), "Length")
-             << std::setw(6) << G4BestUnit(fTrack->GetTrackLength(), "Length")
-             << " ";
+      G4cout << std::setw(5) << fTrack->GetCurrentStepNumber() << " " << std::setw(6)
+             << G4BestUnit(fTrack->GetPosition().x(), "Length") << std::setw(6)
+             << G4BestUnit(fTrack->GetPosition().y(), "Length") << std::setw(6)
+             << G4BestUnit(fTrack->GetPosition().z(), "Length") << std::setw(6)
+             << G4BestUnit(fTrack->GetKineticEnergy(), "Energy") << std::setw(6)
+             << G4BestUnit(fStep->GetTotalEnergyDeposit(), "Energy") << std::setw(6)
+             << G4BestUnit(fStep->GetStepLength(), "Length") << std::setw(6)
+             << G4BestUnit(fTrack->GetTrackLength(), "Length") << " ";
 
       if (fTrack->GetNextVolume() != nullptr) {
         G4cout << std::setw(10) << fTrack->GetVolume()->GetName();
@@ -55,10 +53,7 @@ void LaserSteppingVerbose::StepInfo() {
       }
 
       if (fStep->GetPostStepPoint()->GetProcessDefinedStep() != nullptr) {
-        G4cout << " " << std::setw(10)
-               << fStep->GetPostStepPoint()
-                      ->GetProcessDefinedStep()
-                      ->GetProcessName();
+        G4cout << " " << std::setw(10) << fStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
       } else {
         G4cout << "    UserLimit";
       }
@@ -67,40 +62,27 @@ void LaserSteppingVerbose::StepInfo() {
 
       if (verboseLevel == 2) {
         // total number of secondaries
-        G4int tN2ndariesTot = fN2ndariesAtRestDoIt + fN2ndariesAlongStepDoIt +
-                              fN2ndariesPostStepDoIt;
+        G4int tN2ndariesTot = fN2ndariesAtRestDoIt + fN2ndariesAlongStepDoIt + fN2ndariesPostStepDoIt;
 
         if (tN2ndariesTot > 0) {
           G4cout << "   :---- List of Secondaries - "
-                 << "#SpawnInStep = " << std::setw(3) << tN2ndariesTot
-                 << "(Rest = " << std::setw(2) << fN2ndariesAtRestDoIt
-                 << ", Along = " << std::setw(2) << fN2ndariesAlongStepDoIt
-                 << ", Post = " << std::setw(2) << fN2ndariesPostStepDoIt
-                 << "), "
-                 << "#SpawnTotal = " << std::setw(3) << (*fSecondary).size()
-                 << " --------- " << G4endl;
+                 << "#SpawnInStep = " << std::setw(3) << tN2ndariesTot << "(Rest = " << std::setw(2)
+                 << fN2ndariesAtRestDoIt << ", Along = " << std::setw(2) << fN2ndariesAlongStepDoIt
+                 << ", Post = " << std::setw(2) << fN2ndariesPostStepDoIt << "), "
+                 << "#SpawnTotal = " << std::setw(3) << (*fSecondary).size() << " --------- " << G4endl;
 
-          for (size_t lp1 = (*fSecondary).size() - tN2ndariesTot;
-               lp1 < (*fSecondary).size(); lp1++) {
-            G4cout
-                << "   : " << std::setw(6)
-                << G4BestUnit((*fSecondary)[lp1]->GetPosition().x(), "Length")
-                << std::setw(6)
-                << G4BestUnit((*fSecondary)[lp1]->GetPosition().y(), "Length")
-                << std::setw(6)
-                << G4BestUnit((*fSecondary)[lp1]->GetPosition().z(), "Length")
-                << std::setw(6)
-                << G4BestUnit((*fSecondary)[lp1]->GetKineticEnergy(), "Energy")
-                << std::setw(10)
-                << (*fSecondary)[lp1]->GetDefinition()->GetParticleName();
+          for (size_t lp1 = (*fSecondary).size() - tN2ndariesTot; lp1 < (*fSecondary).size(); lp1++) {
+            G4cout << "   : " << std::setw(6) << G4BestUnit((*fSecondary)[lp1]->GetPosition().x(), "Length")
+                   << std::setw(6) << G4BestUnit((*fSecondary)[lp1]->GetPosition().y(), "Length") << std::setw(6)
+                   << G4BestUnit((*fSecondary)[lp1]->GetPosition().z(), "Length") << std::setw(6)
+                   << G4BestUnit((*fSecondary)[lp1]->GetKineticEnergy(), "Energy") << std::setw(10)
+                   << (*fSecondary)[lp1]->GetDefinition()->GetParticleName();
             G4cout << G4endl;
           }
 
-          G4cout
-              << "   :----------------------"
-              << "--------------------------"
-              << "-- End of Secondaries Info --------------------------------- "
-              << G4endl;
+          G4cout << "   :----------------------"
+                 << "--------------------------"
+                 << "-- End of Secondaries Info --------------------------------- " << G4endl;
         }
       }
     }
@@ -124,16 +106,14 @@ void LaserSteppingVerbose::TrackingStarted() {
            << " " << std::setw(10) << "Volume"
            << "  " << std::setw(10) << "Process " << G4endl;
 
-    G4cout << std::setw(5) << fTrack->GetCurrentStepNumber() << " "
-           << std::setw(6) << G4BestUnit(fTrack->GetPosition().x(), "Length")
-           << std::setw(6) << G4BestUnit(fTrack->GetPosition().y(), "Length")
-           << std::setw(6) << G4BestUnit(fTrack->GetPosition().z(), "Length")
-           << std::setw(6) << G4BestUnit(fTrack->GetKineticEnergy(), "Energy")
-           << std::setw(6)
-           << G4BestUnit(fStep->GetTotalEnergyDeposit(), "Energy")
-           << std::setw(6) << G4BestUnit(fStep->GetStepLength(), "Length")
-           << std::setw(6) << G4BestUnit(fTrack->GetTrackLength(), "Length")
-           << "   ";
+    G4cout << std::setw(5) << fTrack->GetCurrentStepNumber() << " " << std::setw(6)
+           << G4BestUnit(fTrack->GetPosition().x(), "Length") << std::setw(6)
+           << G4BestUnit(fTrack->GetPosition().y(), "Length") << std::setw(6)
+           << G4BestUnit(fTrack->GetPosition().z(), "Length") << std::setw(6)
+           << G4BestUnit(fTrack->GetKineticEnergy(), "Energy") << std::setw(6)
+           << G4BestUnit(fStep->GetTotalEnergyDeposit(), "Energy") << std::setw(6)
+           << G4BestUnit(fStep->GetStepLength(), "Length") << std::setw(6)
+           << G4BestUnit(fTrack->GetTrackLength(), "Length") << "   ";
 
     if (fTrack->GetNextVolume() != nullptr) {
       G4cout << std::setw(10) << fTrack->GetVolume()->GetName();

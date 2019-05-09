@@ -17,8 +17,7 @@
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCPedestalsDBConditions : public edm::ESProducer,
-                                 public edm::EventSetupRecordIntervalFinder {
+class CSCPedestalsDBConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCPedestalsDBConditions(const edm::ParameterSet &);
   ~CSCPedestalsDBConditions() override;

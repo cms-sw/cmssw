@@ -24,34 +24,44 @@ testChannel::testChannel(const edm::ParameterSet &paramSet)
       m_RMSmax(paramSet.getParameter<double>("RMSmax")),
       m_bestPed(paramSet.getParameter<int>("bestPed")),
       m_xtal(paramSet.getParameter<int>("xtal")),
-      m_pedVSDAC("pedVSDAC", "pedVSDAC", 100, 150, 250, m_DACmax - m_DACmin,
-                 m_DACmin, m_DACmax),
+      m_pedVSDAC("pedVSDAC", "pedVSDAC", 100, 150, 250, m_DACmax - m_DACmin, m_DACmin, m_DACmax),
       m_singlePedVSDAC_1("singlePedVSDAC_1",
-                         "pedVSDAC (g1) for xtal " + TString(m_xtal), 100, 150,
-                         250, m_DACmax - m_DACmin, m_DACmin, m_DACmax),
+                         "pedVSDAC (g1) for xtal " + TString(m_xtal),
+                         100,
+                         150,
+                         250,
+                         m_DACmax - m_DACmin,
+                         m_DACmin,
+                         m_DACmax),
       m_singlePedVSDAC_2("singlePedVSDAC_2",
-                         "pedVSDAC (g2) for xtal " + TString(m_xtal), 100, 150,
-                         250, m_DACmax - m_DACmin, m_DACmin, m_DACmax),
+                         "pedVSDAC (g2) for xtal " + TString(m_xtal),
+                         100,
+                         150,
+                         250,
+                         m_DACmax - m_DACmin,
+                         m_DACmin,
+                         m_DACmax),
       m_singlePedVSDAC_3("singlePedVSDAC_3",
-                         "pedVSDAC (g3) for xtal " + TString(m_xtal), 100, 150,
-                         250, m_DACmax - m_DACmin, m_DACmin, m_DACmax) {
-  edm::LogInfo("testChannel")
-      << " reading "
-      << " m_DACmin: " << m_DACmin << " m_DACmax: " << m_DACmax
-      << " m_RMSmax: " << m_RMSmax << " m_bestPed: " << m_bestPed;
+                         "pedVSDAC (g3) for xtal " + TString(m_xtal),
+                         100,
+                         150,
+                         250,
+                         m_DACmax - m_DACmin,
+                         m_DACmin,
+                         m_DACmax) {
+  edm::LogInfo("testChannel") << " reading "
+                              << " m_DACmin: " << m_DACmin << " m_DACmax: " << m_DACmax << " m_RMSmax: " << m_RMSmax
+                              << " m_bestPed: " << m_bestPed;
 }
 
 //! dtor
 testChannel::~testChannel() {}
 
 //! begin the job
-void testChannel::beginJob() {
-  LogDebug("testChannel") << "entering beginJob ...";
-}
+void testChannel::beginJob() { LogDebug("testChannel") << "entering beginJob ..."; }
 
 //! perform te analysis
-void testChannel::analyze(edm::Event const &event,
-                          edm::EventSetup const &eventSetup) {
+void testChannel::analyze(edm::Event const &event, edm::EventSetup const &eventSetup) {
   LogDebug("testChannel") << "entering analyze ...";
 
   // get the headers
@@ -59,42 +69,37 @@ void testChannel::analyze(edm::Event const &event,
   edm::Handle<EcalRawDataCollection> DCCHeaders;
   event.getByLabel(m_headerProducer, DCCHeaders);
   if (!DCCHeaders.isValid()) {
-    edm::LogError("testChannel")
-        << "Error! can't get the product " << m_headerProducer.c_str();
+    edm::LogError("testChannel") << "Error! can't get the product " << m_headerProducer.c_str();
   }
 
   std::map<int, int> DACvalues;
 
   // loop over the headers
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeaders->begin();
-       headerItr != DCCHeaders->end(); ++headerItr) {
-    EcalDCCHeaderBlock::EcalDCCEventSettings settings =
-        headerItr->getEventSettings();
+  for (EcalRawDataCollection::const_iterator headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end();
+       ++headerItr) {
+    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
     DACvalues[getHeaderSMId(headerItr->id())] = settings.ped_offset;
     //       std::cout << "DCCid: " << headerItr->id () << "" ;
     //       std::cout << "Ped offset DAC: " << settings.ped_offset << "" ;
-  } //! loop over the headers
+  }  //! loop over the headers
 
   // get the digis
   // (one digi for each crystal)
   edm::Handle<EBDigiCollection> pDigis;
   event.getByLabel(m_digiProducer, pDigis);
   if (!pDigis.isValid()) {
-    edm::LogError("testChannel")
-        << "Error! can't get the product " << m_digiCollection.c_str();
+    edm::LogError("testChannel") << "Error! can't get the product " << m_digiCollection.c_str();
   }
 
   // loop over the digis
-  for (EBDigiCollection::const_iterator itdigi = pDigis->begin();
-       itdigi != pDigis->end(); ++itdigi) {
+  for (EBDigiCollection::const_iterator itdigi = pDigis->begin(); itdigi != pDigis->end(); ++itdigi) {
     EBDataFrame df(*itdigi);
     int gainId = df.sample(0).gainId();
     int crystalId = EBDetId(itdigi->id()).ic();
     int smId = EBDetId(itdigi->id()).ism();
 
-    edm::LogInfo("testChannel")
-        << "channel " << event.id() << "\tcry: " << crystalId
-        << "\tG: " << gainId << "\tDAC: " << DACvalues[smId];
+    edm::LogInfo("testChannel") << "channel " << event.id() << "\tcry: " << crystalId << "\tG: " << gainId
+                                << "\tDAC: " << DACvalues[smId];
 
     // loop over the samples
     for (int iSample = 0; iSample < EBDataFrame::MAXSAMPLES; ++iSample) {
@@ -108,8 +113,8 @@ void testChannel::analyze(edm::Event const &event,
         if (gainId == 3)
           m_singlePedVSDAC_3.Fill(df.sample(iSample).adc(), DACvalues[smId]);
       }
-    } // loop over the samples
-  }   // loop over the digis
+    }  // loop over the samples
+  }    // loop over the digis
 }
 
 //! perform the minimiation and write results

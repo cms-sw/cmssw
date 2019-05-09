@@ -26,7 +26,6 @@ class EEDigiCollection;
 class EcalElectronicsMapping;
 
 class EcalPedOffset : public edm::EDAnalyzer {
-
 public:
   //! Constructor
   EcalPedOffset(const edm::ParameterSet &ps);
@@ -35,8 +34,7 @@ public:
   ~EcalPedOffset() override;
 
   ///! Analyze
-  void analyze(edm::Event const &event,
-               edm::EventSetup const &eventSetup) override;
+  void analyze(edm::Event const &event, edm::EventSetup const &eventSetup) override;
 
   //! BeginRun
   void beginRun(edm::Run const &, edm::EventSetup const &eventSetup) override;
@@ -57,19 +55,14 @@ private:
   const EcalElectronicsMapping *ecalElectronicsMap_;
 
   std::string intToString(int num);
-  void readDACs(const edm::Handle<EBDigiCollection> &pDigis,
-                const std::map<int, int> &DACvalues);
-  void readDACs(const edm::Handle<EEDigiCollection> &pDigis,
-                const std::map<int, int> &DACvalues);
+  void readDACs(const edm::Handle<EBDigiCollection> &pDigis, const std::map<int, int> &DACvalues);
+  void readDACs(const edm::Handle<EEDigiCollection> &pDigis, const std::map<int, int> &DACvalues);
 
-  edm::InputTag
-      m_barrelDigiCollection; //!< secondary name given to collection of digis
-  edm::InputTag
-      m_endcapDigiCollection; //!< secondary name given to collection of digis
-  edm::InputTag
-      m_headerCollection; //!< name of module/plugin/producer making headers
+  edm::InputTag m_barrelDigiCollection;  //!< secondary name given to collection of digis
+  edm::InputTag m_endcapDigiCollection;  //!< secondary name given to collection of digis
+  edm::InputTag m_headerCollection;      //!< name of module/plugin/producer making headers
 
-  std::string m_xmlFile; //!< name of the xml file to be saved
+  std::string m_xmlFile;  //!< name of the xml file to be saved
 
   std::map<int, TPedValues *> m_pedValues;
   std::map<int, TPedResult *> m_pedResult;

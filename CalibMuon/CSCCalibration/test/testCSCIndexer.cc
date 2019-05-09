@@ -49,30 +49,21 @@ public:
   virtual IndexType gasGainIndex(int hvseg, int chit, CSCDetId &id) = 0;
 };
 
-template <class INDEXER> class IndexerAdapter : public IndexerAdapterBase {
+template <class INDEXER>
+class IndexerAdapter : public IndexerAdapterBase {
   INDEXER indexer;
 
 public:
   int ringsInStation(int s) { return indexer.ringsInStation(s); }
-  int chambersInRingOfStation(int s, int r) {
-    return indexer.chambersInRingOfStation(s, r);
-  }
-  int stripChannelsPerLayer(int s, int r) {
-    return indexer.stripChannelsPerLayer(s, r);
-  }
+  int chambersInRingOfStation(int s, int r) { return indexer.chambersInRingOfStation(s, r); }
+  int stripChannelsPerLayer(int s, int r) { return indexer.stripChannelsPerLayer(s, r); }
   int chipsPerLayer(int s, int r) { return indexer.chipsPerLayer(s, r); }
   int sectorsPerLayer(int s, int r) { return indexer.sectorsPerLayer(s, r); }
   int chamberIndex(CSCDetId &id) { return indexer.chamberIndex(id); }
   IndexType layerIndex(CSCDetId &id) { return indexer.layerIndex(id); }
-  LongIndexType stripChannelIndex(CSCDetId &id, int strip) {
-    return indexer.stripChannelIndex(id, strip);
-  }
-  IndexType chipIndex(CSCDetId &id, int chip) {
-    return indexer.chipIndex(id, chip);
-  }
-  IndexType gasGainIndex(int hvseg, int chip, CSCDetId &id) {
-    return indexer.gasGainIndex(hvseg, chip, id);
-  }
+  LongIndexType stripChannelIndex(CSCDetId &id, int strip) { return indexer.stripChannelIndex(id, strip); }
+  IndexType chipIndex(CSCDetId &id, int chip) { return indexer.chipIndex(id, chip); }
+  IndexType gasGainIndex(int hvseg, int chip, CSCDetId &id) { return indexer.gasGainIndex(hvseg, chip, id); }
 };
 
 class testCSCIndexer : public CppUnit::TestFixture {
@@ -223,9 +214,9 @@ void testCSCIndexer::testChamber() {
     IndexType ii = indexer_->chamberIndex(id);
 
     if (i != ii)
-      cout << " BAD CHAMBER INDEX: " << i << " != " << ii << " \t   (" << ie
-           << " " << is << " " << ir << " " << ic << ")" << endl;
-    CPPUNIT_ASSERT(i == ii); // loop-back index test
+      cout << " BAD CHAMBER INDEX: " << i << " != " << ii << " \t   (" << ie << " " << is << " " << ir << " " << ic
+           << ")" << endl;
+    CPPUNIT_ASSERT(i == ii);  // loop-back index test
     CPPUNIT_ASSERT(ie >= 1 && ie <= 2);
     CPPUNIT_ASSERT(is >= 1 && is <= 4);
     CPPUNIT_ASSERT(ir >= 1 && ir <= indexer_->offlineRingsInStation(is));
@@ -246,9 +237,9 @@ void testCSCIndexer::testLayer() {
     IndexType ii = indexer_->layerIndex(id);
 
     if (i != ii)
-      cout << " BAD LAYER INDEX: " << i << " != " << ii << " \t   (" << ie
-           << " " << is << " " << ir << " " << ic << " " << il << ")" << endl;
-    CPPUNIT_ASSERT(i == ii); // loop-back index test
+      cout << " BAD LAYER INDEX: " << i << " != " << ii << " \t   (" << ie << " " << is << " " << ir << " " << ic << " "
+           << il << ")" << endl;
+    CPPUNIT_ASSERT(i == ii);  // loop-back index test
     CPPUNIT_ASSERT(ie >= 1 && ie <= 2);
     CPPUNIT_ASSERT(is >= 1 && is <= 4);
     CPPUNIT_ASSERT(ir >= 1 && ir <= indexer_->offlineRingsInStation(is));
@@ -262,8 +253,7 @@ void testCSCIndexer::testStripChannel() {
   // std::endl;
 
   for (LongIndexType i = 1; i <= indexer_->maxStripChannelIndex(); ++i) {
-    std::pair<CSCDetId, CSCIndexerBase::IndexType> t =
-        indexer_->detIdFromStripChannelIndex(i);
+    std::pair<CSCDetId, CSCIndexerBase::IndexType> t = indexer_->detIdFromStripChannelIndex(i);
     CSCDetId id = t.first;
     int ie = id.endcap();
     int is = id.station();
@@ -274,10 +264,9 @@ void testCSCIndexer::testStripChannel() {
     LongIndexType ii = indexer_->stripChannelIndex(id, st);
 
     if (i != ii)
-      cout << " BAD STRIPCHANNEL INDEX: " << i << " != " << ii << " \t   ("
-           << ie << " " << is << " " << ir << " " << ic << " " << il << ") "
-           << st << endl;
-    CPPUNIT_ASSERT(i == ii); // loop-back index test
+      cout << " BAD STRIPCHANNEL INDEX: " << i << " != " << ii << " \t   (" << ie << " " << is << " " << ir << " " << ic
+           << " " << il << ") " << st << endl;
+    CPPUNIT_ASSERT(i == ii);  // loop-back index test
     CPPUNIT_ASSERT(ie >= 1 && ie <= 2);
     CPPUNIT_ASSERT(is >= 1 && is <= 4);
     CPPUNIT_ASSERT(ir >= 1 && ir <= indexer_->offlineRingsInStation(is));
@@ -302,9 +291,9 @@ void testCSCIndexer::testChip() {
     IndexType ii = indexer_->chipIndex(id, ch);
 
     if (i != ii)
-      cout << " BAD CHIP INDEX: " << i << " != " << ii << " \t   (" << ie << " "
-           << is << " " << ir << " " << ic << " " << il << ") " << ch << endl;
-    CPPUNIT_ASSERT(i == ii); // loop-back index test
+      cout << " BAD CHIP INDEX: " << i << " != " << ii << " \t   (" << ie << " " << is << " " << ir << " " << ic << " "
+           << il << ") " << ch << endl;
+    CPPUNIT_ASSERT(i == ii);  // loop-back index test
     CPPUNIT_ASSERT(ie >= 1 && ie <= 2);
     CPPUNIT_ASSERT(is >= 1 && is <= 4);
     CPPUNIT_ASSERT(ir >= 1 && ir <= indexer_->offlineRingsInStation(is));
@@ -330,10 +319,9 @@ void testCSCIndexer::testGasGain() {
     IndexType ii = indexer_->gasGainIndex(hv, ch, id);
 
     if (i != ii)
-      cout << " BAD GASGAIN INDEX: " << i << " != " << ii << " \t   (" << ie
-           << " " << is << " " << ir << " " << ic << " " << il << ") " << hv
-           << " " << ch << endl;
-    CPPUNIT_ASSERT(i == ii); // loop-back index test
+      cout << " BAD GASGAIN INDEX: " << i << " != " << ii << " \t   (" << ie << " " << is << " " << ir << " " << ic
+           << " " << il << ") " << hv << " " << ch << endl;
+    CPPUNIT_ASSERT(i == ii);  // loop-back index test
     CPPUNIT_ASSERT(ie >= 1 && ie <= 2);
     CPPUNIT_ASSERT(is >= 1 && is <= 4);
     CPPUNIT_ASSERT(ir >= 1 && ir <= indexer_->offlineRingsInStation(is));
@@ -348,16 +336,14 @@ void testCSCIndexer::testStartupChamberME1a() {
   modeStartup();
   const CSCDetId id_me1a(1, 1, 4, 1);
   const CSCDetId id_me1b(1, 1, 1, 1);
-  CPPUNIT_ASSERT(indexer_->chamberIndex(id_me1a) ==
-                 indexer_->chamberIndex(id_me1b));
+  CPPUNIT_ASSERT(indexer_->chamberIndex(id_me1a) == indexer_->chamberIndex(id_me1b));
 }
 
 void testCSCIndexer::testStartupLayerME1a() {
   modeStartup();
   const CSCDetId id_me1a(1, 1, 4, 1, 2);
   const CSCDetId id_me1b(1, 1, 1, 1, 2);
-  CPPUNIT_ASSERT(indexer_->layerIndex(id_me1a) ==
-                 indexer_->layerIndex(id_me1b));
+  CPPUNIT_ASSERT(indexer_->layerIndex(id_me1a) == indexer_->layerIndex(id_me1b));
 }
 
 void testCSCIndexer::testStartupStripChannelME1a() {
@@ -365,8 +351,7 @@ void testCSCIndexer::testStartupStripChannelME1a() {
   const CSCDetId id_me1a(1, 1, 4, 1, 2);
   const CSCDetId id_me1b(1, 1, 1, 1, 2);
   const IndexType istrip = 66;
-  CPPUNIT_ASSERT(indexer_->stripChannelIndex(id_me1a, istrip) ==
-                 indexer_->stripChannelIndex(id_me1b, istrip));
+  CPPUNIT_ASSERT(indexer_->stripChannelIndex(id_me1a, istrip) == indexer_->stripChannelIndex(id_me1b, istrip));
 }
 
 void testCSCIndexer::testStartupChipME1a() {
@@ -374,8 +359,7 @@ void testCSCIndexer::testStartupChipME1a() {
   const CSCDetId id_me1a(1, 1, 4, 1, 2);
   const CSCDetId id_me1b(1, 1, 1, 1, 2);
   const IndexType ichip = 5;
-  CPPUNIT_ASSERT(indexer_->chipIndex(id_me1a, ichip) ==
-                 indexer_->chipIndex(id_me1b, ichip));
+  CPPUNIT_ASSERT(indexer_->chipIndex(id_me1a, ichip) == indexer_->chipIndex(id_me1b, ichip));
 }
 
 void testCSCIndexer::testStartupGasGainME1a() {
@@ -384,8 +368,7 @@ void testCSCIndexer::testStartupGasGainME1a() {
   const CSCDetId id_me1b(1, 1, 1, 1, 2);
   const IndexType istrip = 66;
   const IndexType iwire = 4;
-  CPPUNIT_ASSERT(indexer_->gasGainIndex(id_me1a, istrip, iwire) ==
-                 indexer_->gasGainIndex(id_me1b, istrip, iwire));
+  CPPUNIT_ASSERT(indexer_->gasGainIndex(id_me1a, istrip, iwire) == indexer_->gasGainIndex(id_me1b, istrip, iwire));
 }
 
 void testCSCIndexer::testAgainstOldCode() {
@@ -401,40 +384,32 @@ void testCSCIndexer::testAgainstOldCode() {
         int cmax = indexer_->chambersInRingOfStation(s, r);
         CPPUNIT_ASSERT(cmax == indexer_old_->chambersInRingOfStation(s, r));
 
-        CPPUNIT_ASSERT(indexer_->stripChannelsPerLayer(s, r) ==
-                       indexer_old_->stripChannelsPerLayer(s, r));
+        CPPUNIT_ASSERT(indexer_->stripChannelsPerLayer(s, r) == indexer_old_->stripChannelsPerLayer(s, r));
         int stripmax = indexer_->stripChannelsPerOnlineLayer(s, r);
 
-        CPPUNIT_ASSERT(indexer_->chipsPerLayer(s, r) ==
-                       indexer_old_->chipsPerLayer(s, r));
+        CPPUNIT_ASSERT(indexer_->chipsPerLayer(s, r) == indexer_old_->chipsPerLayer(s, r));
         int chipmax = indexer_->chipsPerOnlineLayer(s, r);
 
-        CPPUNIT_ASSERT(indexer_->sectorsPerLayer(s, r) ==
-                       indexer_old_->sectorsPerLayer(s, r));
+        CPPUNIT_ASSERT(indexer_->sectorsPerLayer(s, r) == indexer_old_->sectorsPerLayer(s, r));
         int hvsegmax = indexer_->sectorsPerOnlineLayer(s, r);
 
         for (int c = 1; c <= cmax; ++c) {
           CSCDetId cid(e, s, r, c);
-          CPPUNIT_ASSERT(indexer_->chamberIndex(cid) ==
-                         indexer_old_->chamberIndex(cid));
+          CPPUNIT_ASSERT(indexer_->chamberIndex(cid) == indexer_old_->chamberIndex(cid));
 
           for (int l = 1; l <= 6; ++l) {
             CSCDetId id(e, s, r, c, l);
-            CPPUNIT_ASSERT(indexer_->layerIndex(id) ==
-                           indexer_old_->layerIndex(id));
+            CPPUNIT_ASSERT(indexer_->layerIndex(id) == indexer_old_->layerIndex(id));
 
             for (int strip = 1; strip <= stripmax; ++strip) {
-              CPPUNIT_ASSERT(indexer_->stripChannelIndex(id, strip) ==
-                             indexer_old_->stripChannelIndex(id, strip));
+              CPPUNIT_ASSERT(indexer_->stripChannelIndex(id, strip) == indexer_old_->stripChannelIndex(id, strip));
             }
 
             for (int chip = 1; chip <= chipmax; ++chip) {
-              CPPUNIT_ASSERT(indexer_->chipIndex(id, chip) ==
-                             indexer_old_->chipIndex(id, chip));
+              CPPUNIT_ASSERT(indexer_->chipIndex(id, chip) == indexer_old_->chipIndex(id, chip));
 
               for (int hvseg = 1; hvseg <= hvsegmax; ++hvseg) {
-                CPPUNIT_ASSERT(indexer_->gasGainIndex(hvseg, chip, id) ==
-                               indexer_old_->gasGainIndex(hvseg, chip, id));
+                CPPUNIT_ASSERT(indexer_->gasGainIndex(hvseg, chip, id) == indexer_old_->gasGainIndex(hvseg, chip, id));
               }
             }
           }

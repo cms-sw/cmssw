@@ -36,7 +36,6 @@
 #include <CalibMuon/CSCCalibration/interface/CSCIndexerBase.h>
 
 class CSCIndexerStartup : public CSCIndexerBase {
-
 public:
   ~CSCIndexerStartup() override;
 
@@ -69,10 +68,8 @@ public:
    *
    * Assume ME1a has 16 ganged readout channels.
    */
-  IndexType stripChannelsPerOfflineLayer(IndexType is,
-                                         IndexType ir) const override {
-    const IndexType nSC[16] = {64, 80, 64, 16, 80, 80, 0, 0,
-                               80, 80, 0,  0,  80, 80, 0, 0};
+  IndexType stripChannelsPerOfflineLayer(IndexType is, IndexType ir) const override {
+    const IndexType nSC[16] = {64, 80, 64, 16, 80, 80, 0, 0, 80, 80, 0, 0, 80, 80, 0, 0};
     return nSC[(is - 1) * 4 + ir - 1];
   }
 
@@ -84,10 +81,8 @@ public:
    * Assume ME1a has 16 ganged readout channels. Online chamber has 64+16=80
    * channels.
    */
-  IndexType stripChannelsPerOnlineLayer(IndexType is,
-                                        IndexType ir) const override {
-    const IndexType nSC[16] = {80, 80, 64, 80, 80, 80, 0, 0,
-                               80, 80, 0,  0,  80, 80, 0, 0};
+  IndexType stripChannelsPerOnlineLayer(IndexType is, IndexType ir) const override {
+    const IndexType nSC[16] = {80, 80, 64, 80, 80, 80, 0, 0, 80, 80, 0, 0, 80, 80, 0, 0};
     return nSC[(is - 1) * 4 + ir - 1];
   }
 
@@ -100,8 +95,7 @@ public:
    * chips
    */
   IndexType chipsPerOnlineLayer(IndexType is, IndexType ir) const override {
-    const IndexType nCinL[16] = {5, 5, 4, 5, 5, 5, 0, 0,
-                                 5, 5, 0, 0, 5, 5, 0, 0};
+    const IndexType nCinL[16] = {5, 5, 4, 5, 5, 5, 0, 0, 5, 5, 0, 0, 5, 5, 0, 0};
     return nCinL[(is - 1) * 4 + ir - 1];
   }
 
@@ -122,8 +116,7 @@ public:
    * hardware channels numbering is implemented.
    */
   IndexType stripChannelsPerLayer(IndexType is, IndexType ir) const override {
-    const IndexType nSCinC[16] = {80, 80, 64, 80, 80, 80, 0, 0,
-                                  80, 80, 0,  0,  80, 80, 0, 0};
+    const IndexType nSCinC[16] = {80, 80, 64, 80, 80, 80, 0, 0, 80, 80, 0, 0, 80, 80, 0, 0};
     return nSCinC[(is - 1) * 4 + ir - 1];
   }
 
@@ -137,18 +130,15 @@ public:
    * of an ME11 chamber, their start index here defaults to the start index of
    * ME1a.
    */
-  LongIndexType stripChannelStart(IndexType ie, IndexType is,
-                                  IndexType ir) const override {
+  LongIndexType stripChannelStart(IndexType ie, IndexType is, IndexType ir) const override {
     // These are in the ranges 1-217728 (CSCs 2008) and 217729-252288 (ME42).
     // There are 1-108884 channels per endcap (CSCs 2008) and 17280 channels per
     // endcap (ME42). Start of -z channels (CSCs 2008) is 108864 + 1 = 108865
     // Start of +z (ME42) is 217728 + 1 = 217729
     // Start of -z (ME42) is 217728 + 1 + 17280 = 235009
-    const LongIndexType nStart[32] = {
-        1,      17281,  34561,  1,      48385,  57025,  0, 0,
-        74305,  82945,  0,      0,      100225, 217729, 0, 0,
-        108865, 126145, 143425, 108865, 157249, 165889, 0, 0,
-        183169, 191809, 0,      0,      209089, 235009, 0, 0};
+    const LongIndexType nStart[32] = {1, 17281,  34561,  1,      48385, 57025,  0,      0,      74305,  82945,  0,
+                                      0, 100225, 217729, 0,      0,     108865, 126145, 143425, 108865, 157249, 165889,
+                                      0, 0,      183169, 191809, 0,     0,      209089, 235009, 0,      0};
     return nStart[(ie - 1) * 16 + (is - 1) * 4 + ir - 1];
   }
   //@}
@@ -168,8 +158,7 @@ public:
    * Considers ME42 as standard 5 chip per layer chambers.
    */
   IndexType chipsPerLayer(IndexType is, IndexType ir) const override {
-    const IndexType nCinL[16] = {5, 5, 4, 5, 5, 5, 0, 0,
-                                 5, 5, 0, 0, 5, 5, 0, 0};
+    const IndexType nCinL[16] = {5, 5, 4, 5, 5, 5, 0, 0, 5, 5, 0, 0, 5, 5, 0, 0};
     return nCinL[(is - 1) * 4 + ir - 1];
   }
 
@@ -189,10 +178,8 @@ public:
     // endcap (ME42). Start of -z channels (CSCs 2008) is 6804 + 1 = 6805 Start
     // of +z (ME42) is 13608 + 1 = 13609 Start of -z (ME42) is 13608 + 1 + 1080
     // = 14689
-    const IndexType nStart[32] = {1,     1081,  2161, 1,    3025,  3565,  0, 0,
-                                  4645,  5185,  0,    0,    6265,  13609, 0, 0,
-                                  6805,  7885,  8965, 6805, 9829,  10369, 0, 0,
-                                  11449, 11989, 0,    0,    13069, 14689, 0, 0};
+    const IndexType nStart[32] = {1,    1081, 2161, 1,    3025, 3565,  0, 0, 4645,  5185,  0, 0, 6265,  13609, 0, 0,
+                                  6805, 7885, 8965, 6805, 9829, 10369, 0, 0, 11449, 11989, 0, 0, 13069, 14689, 0, 0};
     return nStart[(ie - 1) * 16 + (is - 1) * 4 + ir - 1];
   }
   //@}
@@ -210,8 +197,7 @@ public:
    * ME11 chamber, and an input ir=4 in this case would give the same result as
    * ir=1
    */
-  IndexType sectorStart(IndexType ie, IndexType is,
-                        IndexType ir) const override {
+  IndexType sectorStart(IndexType ie, IndexType is, IndexType ir) const override {
     // There are 36 chambers * 6 layers * 5 CFEB's * 1 HV segment = 1080
     // gas-gain sectors in ME1/1 There are 36*6*5*3 = 3240 gas-gain sectors in
     // ME1/2 There are 36*6*4*3 = 2592 gas-gain sectors in ME1/3 There are
@@ -219,23 +205,22 @@ public:
     // gas-gain sectors in ME[2-4]/2 Start of -z channels (CSCs 2008) is 22572 +
     // 1 = 22573 Start of +z (ME42) is 45144 + 1 = 45145 Start of -z (ME42) is
     // 45144 + 1 + 5400 = 50545
-    const IndexType nStart[32] = {
-        1,     1081,  4321,
-        1, // ME+1/1,ME+1/2,ME+1/3,ME+1/4
-        6913,  8533,  0,
-        0, // ME+2/1,ME+2/2,
-        13933, 15553, 0,
-        0, // ME+3/1,ME+3/2,
-        20953, 45145, 0,
-        0, // ME+4/1,ME+4/2,ME+4/3 (note, ME+4/2 index follows ME-4/1...)
-        22573, 23653, 26893,
-        22573, // ME-1/1,ME-1/2,ME-1/3, ME-1/4
-        29485, 31105, 0,
-        0, // ME-2/1,ME-2/2,ME-2/3
-        36505, 38125, 0,
-        0, // ME-3/1,ME-3/2,ME-3/3
-        43525, 50545, 0,
-        0}; // ME-4/1,ME-4/2,ME-4/3 (note, ME-4/2 index follows ME+4/2...)
+    const IndexType nStart[32] = {1,     1081,  4321,
+                                  1,  // ME+1/1,ME+1/2,ME+1/3,ME+1/4
+                                  6913,  8533,  0,
+                                  0,  // ME+2/1,ME+2/2,
+                                  13933, 15553, 0,
+                                  0,  // ME+3/1,ME+3/2,
+                                  20953, 45145, 0,
+                                  0,  // ME+4/1,ME+4/2,ME+4/3 (note, ME+4/2 index follows ME-4/1...)
+                                  22573, 23653, 26893,
+                                  22573,  // ME-1/1,ME-1/2,ME-1/3, ME-1/4
+                                  29485, 31105, 0,
+                                  0,  // ME-2/1,ME-2/2,ME-2/3
+                                  36505, 38125, 0,
+                                  0,  // ME-3/1,ME-3/2,ME-3/3
+                                  43525, 50545, 0,
+                                  0};  // ME-4/1,ME-4/2,ME-4/3 (note, ME-4/2 index follows ME+4/2...)
     return nStart[(ie - 1) * 16 + (is - 1) * 4 + ir - 1];
   }
   //@}
@@ -243,10 +228,8 @@ public:
   /**
    *  Decode CSCDetId from various indexes and labels
    */
-  std::pair<CSCDetId, IndexType>
-  detIdFromStripChannelIndex(LongIndexType ichi) const override;
-  std::pair<CSCDetId, IndexType>
-  detIdFromChipIndex(IndexType ichi) const override;
+  std::pair<CSCDetId, IndexType> detIdFromStripChannelIndex(LongIndexType ichi) const override;
+  std::pair<CSCDetId, IndexType> detIdFromChipIndex(IndexType ichi) const override;
   GasGainIndexType detIdFromGasGainIndex(IndexType igg) const override;
 
   /**

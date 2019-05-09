@@ -18,42 +18,34 @@ class AlignableDetOrUnitPtr;
 class TrajectoryStateOnSurface;
 
 class CompositeAlignmentDerivativesExtractor {
-
 public:
   /// deprecated  constructor for backward compatibility (use mor general
   /// AlignableDetOrUnitPtr)
-  CompositeAlignmentDerivativesExtractor(
-      const align::Alignables &alignables,
-      const std::vector<AlignableDet *> &alignableDets,
-      const std::vector<TrajectoryStateOnSurface> &tsos);
+  CompositeAlignmentDerivativesExtractor(const align::Alignables &alignables,
+                                         const std::vector<AlignableDet *> &alignableDets,
+                                         const std::vector<TrajectoryStateOnSurface> &tsos);
   /// constructor
-  CompositeAlignmentDerivativesExtractor(
-      const align::Alignables &alignables,
-      const std::vector<AlignableDetOrUnitPtr> &alignableDets,
-      const std::vector<TrajectoryStateOnSurface> &tsos);
+  CompositeAlignmentDerivativesExtractor(const align::Alignables &alignables,
+                                         const std::vector<AlignableDetOrUnitPtr> &alignableDets,
+                                         const std::vector<TrajectoryStateOnSurface> &tsos);
 
   /// destructor
   ~CompositeAlignmentDerivativesExtractor(void){};
 
   const AlgebraicMatrix &derivatives(void) const { return theDerivatives; }
-  const AlgebraicVector &correctionTerm(void) const {
-    return theCorrectionTerm;
-  }
+  const AlgebraicVector &correctionTerm(void) const { return theCorrectionTerm; }
 
 private:
-  void extractCurrentAlignment(
-      const align::Alignables &alignables,
-      const std::vector<AlignableDetOrUnitPtr> &alignableDets,
-      const std::vector<TrajectoryStateOnSurface> &tsos);
+  void extractCurrentAlignment(const align::Alignables &alignables,
+                               const std::vector<AlignableDetOrUnitPtr> &alignableDets,
+                               const std::vector<TrajectoryStateOnSurface> &tsos);
 
-  void extractWithoutMultipleHits(
-      const std::vector<AlgebraicVector> &subCorrectionTerm,
-      const std::vector<AlgebraicMatrix> &subDerivatives);
+  void extractWithoutMultipleHits(const std::vector<AlgebraicVector> &subCorrectionTerm,
+                                  const std::vector<AlgebraicMatrix> &subDerivatives);
 
-  void
-  extractWithMultipleHits(const std::vector<AlgebraicVector> &subCorrectionTerm,
-                          const std::vector<AlgebraicMatrix> &subDerivatives,
-                          const align::Alignables &alignables);
+  void extractWithMultipleHits(const std::vector<AlgebraicVector> &subCorrectionTerm,
+                               const std::vector<AlgebraicMatrix> &subDerivatives,
+                               const align::Alignables &alignables);
 
   AlgebraicMatrix theDerivatives;
   AlgebraicVector theCorrectionTerm;
