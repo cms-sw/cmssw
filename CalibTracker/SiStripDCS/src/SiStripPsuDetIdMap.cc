@@ -37,7 +37,7 @@ void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, std::vector<std:
   std::ifstream ifs( file.fullPath().c_str() );
   string line;
   while( getline( ifs, line ) ) {
-    if( line != "" ) {
+    if( !line.empty() ) {
       // split the line and insert in the map
       stringstream ss(line);
       string PSUChannel;
@@ -64,7 +64,7 @@ void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, const bool debug
   std::ifstream ifs( file.fullPath().c_str() );
   string line;
   while( getline( ifs, line ) ) {
-    if( line != "" ) {
+    if( !line.empty() ) {
       // split the line and insert in the map
       stringstream ss(line);
       string PSUChannel;
@@ -516,7 +516,7 @@ std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > SiStri
   SiStripConfigDb::DeviceType device_ = DCU;
   
   for (iter = dbParams_.partitions().begin(); iter != dbParams_.partitions().end(); ++iter) {
-    if ( partition == "" || partition == iter->second.partitionName() ) {
+    if ( partition.empty() || partition == iter->second.partitionName() ) {
       if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
       if (iter->second.dcuVersion().first > 0 && iter->second.fecVersion().first > 0) {
 	SiStripConfigDb::DeviceDescriptionsRange range = db_->getDeviceDescriptions(device_,iter->second.partitionName());

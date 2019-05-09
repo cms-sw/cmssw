@@ -73,7 +73,7 @@ SiStripDetVOffTrendPlotter::SiStripDetVOffTrendPlotter(const edm::ParameterSet& 
     fout(nullptr){
   m_connectionPool.setParameters( iConfig.getParameter<edm::ParameterSet>("DBParameters")  );
   m_connectionPool.configure();
-  if (m_outputRootFile!="") fout = new TFile(m_outputRootFile.data(), "RECREATE");
+  if (!m_outputRootFile.empty()) fout = new TFile(m_outputRootFile.data(), "RECREATE");
 }
 
 SiStripDetVOffTrendPlotter::~SiStripDetVOffTrendPlotter() {
@@ -180,7 +180,7 @@ void SiStripDetVOffTrendPlotter::analyze(const edm::Event& evt, const edm::Event
     }
   }
   leg_hv->Draw();
-  std::string plot_postfix = m_outputPlot!="" ? m_outputPlot : "from_" + formatIOV(startIov) + "_to_" + formatIOV(endIov) + ".png";
+  std::string plot_postfix = !m_outputPlot.empty() ? m_outputPlot : "from_" + formatIOV(startIov) + "_to_" + formatIOV(endIov) + ".png";
   c.Print( ("HVOff_" + plot_postfix).data() );
 
   c.Clear();
@@ -197,7 +197,7 @@ void SiStripDetVOffTrendPlotter::analyze(const edm::Event& evt, const edm::Event
   leg_lv->Draw();
   c.Print( ("LVOff_" + plot_postfix).data() );
 
-  if (m_outputCSV!="") {
+  if (!m_outputCSV.empty()) {
     dumpCSV(true);
     dumpCSV(false);
   }
