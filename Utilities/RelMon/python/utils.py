@@ -92,18 +92,16 @@ def literal2root (literal,rootType):
 def getNbins(h):
   """
   To be used in loops on bin number with range()
-  In case of 1-d histograms the end-of-range value should be GetNbinsX()+2 
-  In case of 2-d or 3-d histograms the product of GetNbins.()+2 gives the total number of bins, and 1 needs to be added
-  Managed using an offset variable 
+  For each dimension there are GetNbinsX()+2 bins including underflow 
+  and overflow, and range() loops starts from 0. So the total number
+  of bins as upper limit of a range() loop already includes the next 
+  to last value needed.
   """
-  offset=0
   biny=h.GetNbinsY()
-  if biny>1:
-    offset=1
-    biny+=2
+  if biny>1: biny+=2
   binz=h.GetNbinsZ()
   if binz>1:binz+=2
-  return (h.GetNbinsX()+2)*(biny)*(binz)+offset
+  return (h.GetNbinsX()+2)*(biny)*(binz)
 
 #-------------------------------------------------------------------------------
 
