@@ -33,7 +33,7 @@ namespace HcalTopologyMode {
     TriggerMode_2017=3,         // HF upgraded to QIE10
     TriggerMode_2017plan1=4,    // HF upgraded to QIE10, 1 RBX of HE to QIE11
     TriggerMode_2018=5,         // HF upgraded to QIE10, HE to QIE11
-    TriggerMode_2019=6          // HF upgraded to QIE10, HBHE to QIE11
+    TriggerMode_2021=6          // HF upgraded to QIE10, HBHE to QIE11
   };
 }
 
