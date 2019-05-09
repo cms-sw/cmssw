@@ -14,7 +14,7 @@
  </class>
 
  <class name="L1Phase2MuDTPhDigi" ClassVersion="3">
-  <version ClassVersion="3" checksum="851692670"/>
+  <version ClassVersion="3" checksum="1236020577"/>
  </class>
 
  <class name="std::vector<L1MuDTChambPhDigi>"/>
