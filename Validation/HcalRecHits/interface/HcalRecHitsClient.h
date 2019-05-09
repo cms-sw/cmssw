@@ -32,7 +32,6 @@
 class MonitorElement;
 
 class HcalRecHitsClient : public DQMEDHarvester {
-
 private:
   std::string outputFile_;
 

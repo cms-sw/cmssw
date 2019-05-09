@@ -15,10 +15,8 @@
 //
 
 NoiseRates::NoiseRates(const edm::ParameterSet &iConfig) {
-
   // DQM ROOT output
-  outputFile_ =
-      iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
+  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
   // set parameters
   rbxCollName_ = iConfig.getUntrackedParameter<edm::InputTag>("rbxCollName");
@@ -30,8 +28,7 @@ NoiseRates::NoiseRates(const edm::ParameterSet &iConfig) {
   useAllHistos_ = iConfig.getUntrackedParameter<bool>("useAllHistos", false);
 
   // Hcal Noise Summary
-  noisetoken_ = consumes<HcalNoiseSummary>(
-      iConfig.getParameter<edm::InputTag>("noiselabel"));
+  noisetoken_ = consumes<HcalNoiseSummary>(iConfig.getParameter<edm::InputTag>("noiselabel"));
 }
 
 NoiseRates::~NoiseRates() {}
@@ -40,9 +37,7 @@ NoiseRates::~NoiseRates() {}
 // member functions
 //
 
-void NoiseRates::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
-                                edm::EventSetup const &es) {
-
+void NoiseRates::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
   ib.setCurrentFolder("NoiseRatesV/NoiseRatesTask");
 
   // book histograms
@@ -101,9 +96,7 @@ void NoiseRates::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
 }
 
 // ------------ method called to for each event  ------------
-void NoiseRates::analyze(const edm::Event &iEvent,
-                         const edm::EventSetup &evSetup) {
-
+void NoiseRates::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetup) {
   // get the lumi section
   int lumiSection = iEvent.luminosityBlock();
   lumiCountMap_[lumiSection]++;
@@ -113,8 +106,7 @@ void NoiseRates::analyze(const edm::Event &iEvent,
   iEvent.getByToken(tok_rbx_, handle);
   if (!handle.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
-        << " could not find HcalNoiseRBXCollection named " << rbxCollName_
-        << ".\n";
+        << " could not find HcalNoiseRBXCollection named " << rbxCollName_ << ".\n";
     return;
   }
 
@@ -122,8 +114,7 @@ void NoiseRates::analyze(const edm::Event &iEvent,
   edm::Handle<HcalNoiseSummary> summary_h;
   iEvent.getByToken(noisetoken_, summary_h);
   if (!summary_h.isValid()) {
-    throw edm::Exception(edm::errors::ProductNotFound)
-        << " could not find HcalNoiseSummary.\n";
+    throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
     return;
   }
   const HcalNoiseSummary summary = *summary_h;
@@ -146,8 +137,7 @@ void NoiseRates::analyze(const edm::Event &iEvent,
   hNoise_maxHPDNoOtherHits_->Fill(summary.maxHPDNoOtherHits());
 
   // loop over the RBXs and fill the histograms
-  for (reco::HcalNoiseRBXCollection::const_iterator it = handle->begin();
-       it != handle->end(); ++it) {
+  for (reco::HcalNoiseRBXCollection::const_iterator it = handle->begin(); it != handle->end(); ++it) {
     const reco::HcalNoiseRBX &rbx = (*it);
 
     double energy = rbx.recHitEnergy(minHitEnergy_);
@@ -168,7 +158,7 @@ void NoiseRates::analyze(const edm::Event &iEvent,
 
     hRBXNHits_->Fill(nhits);
 
-  } // done looping over RBXs
+  }  // done looping over RBXs
 }
 
 // define this as a plug-in

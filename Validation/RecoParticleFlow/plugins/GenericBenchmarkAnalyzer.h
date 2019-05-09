@@ -14,8 +14,7 @@
 
 #include <map>
 
-class GenericBenchmarkAnalyzer : public edm::EDAnalyzer,
-                                 public GenericBenchmark {
+class GenericBenchmarkAnalyzer : public edm::EDAnalyzer, public GenericBenchmark {
 public:
   explicit GenericBenchmarkAnalyzer(const edm::ParameterSet &);
   ~GenericBenchmarkAnalyzer() override;
@@ -46,4 +45,4 @@ private:
   bool doMetPlots_;
 };
 
-#endif // GENERICBENCHMARKANALYZER_H
+#endif  // GENERICBENCHMARKANALYZER_H

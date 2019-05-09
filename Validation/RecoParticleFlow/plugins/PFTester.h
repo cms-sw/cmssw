@@ -35,4 +35,4 @@ private:
   edm::EDGetTokenT<reco::PFCandidateCollection> inputPFlowLabel_tok_;
 };
 
-#endif // PFTESTER_H
+#endif  // PFTESTER_H

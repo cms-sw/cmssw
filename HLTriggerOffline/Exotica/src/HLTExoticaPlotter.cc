@@ -16,22 +16,20 @@
 #include <cctype>
 #include <set>
 
-HLTExoticaPlotter::HLTExoticaPlotter(
-    const edm::ParameterSet &pset, const std::string &hltPath,
-    const std::vector<unsigned int> &objectsType)
+HLTExoticaPlotter::HLTExoticaPlotter(const edm::ParameterSet &pset,
+                                     const std::string &hltPath,
+                                     const std::vector<unsigned int> &objectsType)
     : _hltPath(hltPath),
       _hltProcessName(pset.getParameter<std::string>("hltProcessName")),
-      _objectsType(
-          std::set<unsigned int>(objectsType.begin(), objectsType.end())),
+      _objectsType(std::set<unsigned int>(objectsType.begin(), objectsType.end())),
       _nObjects(objectsType.size()),
       _parametersEta(pset.getParameter<std::vector<double>>("parametersEta")),
       _parametersPhi(pset.getParameter<std::vector<double>>("parametersPhi")),
-      _parametersTurnOn(
-          pset.getParameter<std::vector<double>>("parametersTurnOn")),
-      _parametersTurnOnSumEt(
-          pset.getParameter<std::vector<double>>("parametersTurnOnSumEt")),
+      _parametersTurnOn(pset.getParameter<std::vector<double>>("parametersTurnOn")),
+      _parametersTurnOnSumEt(pset.getParameter<std::vector<double>>("parametersTurnOnSumEt")),
       _parametersDxy(pset.getParameter<std::vector<double>>("parametersDxy")),
-      _drop_pt2(false), _drop_pt3(false) {
+      _drop_pt2(false),
+      _drop_pt3(false) {
   if (pset.exists("dropPt2")) {
     _drop_pt2 = pset.getParameter<bool>("dropPt2");
   }
@@ -49,8 +47,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker &iBooker,
                                           const edm::Run &iRun,
                                           const edm::EventSetup &iSetup) {
   LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::plotterBookHistos()";
-  for (std::set<unsigned int>::iterator it = _objectsType.begin();
-       it != _objectsType.end(); ++it) {
+  for (std::set<unsigned int>::iterator it = _objectsType.begin(); it != _objectsType.end(); ++it) {
     std::vector<std::string> sources(2);
     sources[0] = "gen";
     sources[1] = "rec";
@@ -61,8 +58,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker &iBooker,
       std::string source = sources[i];
 
       if (source == "gen") {
-        if (TString(objTypeStr).Contains("MET") ||
-            TString(objTypeStr).Contains("MHT") ||
+        if (TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ||
             TString(objTypeStr).Contains("Jet")) {
           continue;
         } else {
@@ -76,14 +72,12 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker &iBooker,
 
           // If the target is electron or muon,
           // we will add Dxy plots.
-          if (*it == EVTColContainer::ELEC || *it == EVTColContainer::MUON ||
-              *it == EVTColContainer::MUTRK) {
+          if (*it == EVTColContainer::ELEC || *it == EVTColContainer::MUON || *it == EVTColContainer::MUTRK) {
             bookHist(iBooker, source, objTypeStr, "Dxy");
           }
         }
-      } else { // reco
-        if (TString(objTypeStr).Contains("MET") ||
-            TString(objTypeStr).Contains("MHT")) {
+      } else {  // reco
+        if (TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT")) {
           bookHist(iBooker, source, objTypeStr, "MaxPt1");
           bookHist(iBooker, source, objTypeStr, "SumEt");
         } else {
@@ -97,8 +91,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker &iBooker,
 
           // If the target is electron or muon,
           // we will add Dxy plots.
-          if (*it == EVTColContainer::ELEC || *it == EVTColContainer::MUON ||
-              *it == EVTColContainer::MUTRK) {
+          if (*it == EVTColContainer::ELEC || *it == EVTColContainer::MUON || *it == EVTColContainer::MUTRK) {
             bookHist(iBooker, source, objTypeStr, "Dxy");
           }
         }
@@ -119,8 +112,7 @@ void HLTExoticaPlotter::analyze(const bool &isPassTrigger,
 
   std::map<unsigned int, int> countobjects;
   // Initializing the count of the used object
-  for (std::set<unsigned int>::iterator co = _objectsType.begin();
-       co != _objectsType.end(); ++co) {
+  for (std::set<unsigned int>::iterator co = _objectsType.begin(); co != _objectsType.end(); ++co) {
     countobjects[*co] = 0;
   }
 
@@ -147,42 +139,35 @@ void HLTExoticaPlotter::analyze(const bool &isPassTrigger,
     float eta = matches[j].eta();
     float phi = matches[j].phi();
 
-    if (!(TString(objTypeStr).Contains("MET") ||
-          TString(objTypeStr).Contains("MHT"))) {
+    if (!(TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT"))) {
       this->fillHist(isPassTrigger, source, objTypeStr, "Eta", eta);
       this->fillHist(isPassTrigger, source, objTypeStr, "Phi", phi);
     } else if (source != "gen") {
       if (theSumEt[objType] >= 0 && countobjects[objType] == 0) {
-        this->fillHist(isPassTrigger, source, objTypeStr, "SumEt",
-                       theSumEt[objType]);
+        this->fillHist(isPassTrigger, source, objTypeStr, "SumEt", theSumEt[objType]);
       }
     }
 
     if (!dxys.empty() &&
-        (objType == EVTColContainer::ELEC || objType == EVTColContainer::MUON ||
-         objType == EVTColContainer::MUTRK))
+        (objType == EVTColContainer::ELEC || objType == EVTColContainer::MUON || objType == EVTColContainer::MUTRK))
       this->fillHist(isPassTrigger, source, objTypeStr, "Dxy", dxys[j]);
 
     if (countobjects[objType] == 0) {
-      if (!(TString(objTypeStr).Contains("MET") ||
-            TString(objTypeStr).Contains("MHT")) ||
-          source != "gen") {
+      if (!(TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT")) || source != "gen") {
         this->fillHist(isPassTrigger, source, objTypeStr, "MaxPt1", pt);
       }
       // Filled the high pt ...
       ++(countobjects[objType]);
       ++counttotal;
     } else if (countobjects[objType] == 1 && !_drop_pt2) {
-      if (!(TString(objTypeStr).Contains("MET") ||
-            TString(objTypeStr).Contains("MHT"))) {
+      if (!(TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT"))) {
         this->fillHist(isPassTrigger, source, objTypeStr, "MaxPt2", pt);
       }
       // Filled the second high pt ...
       ++(countobjects[objType]);
       ++counttotal;
     } else if (countobjects[objType] == 2 && !_drop_pt3) {
-      if (!(TString(objTypeStr).Contains("MET") ||
-            TString(objTypeStr).Contains("MHT"))) {
+      if (!(TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT"))) {
         this->fillHist(isPassTrigger, source, objTypeStr, "MaxPt3", pt);
       }
       // Filled the third highest pt ...
@@ -194,7 +179,7 @@ void HLTExoticaPlotter::analyze(const bool &isPassTrigger,
       }
     }
 
-  } // end loop over matches
+  }  // end loop over matches
 }
 
 void HLTExoticaPlotter::bookHist(DQMStore::IBooker &iBooker,
@@ -223,10 +208,8 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker &iBooker,
     double max = _parametersDxy[2];
     h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
   } else if (variable.find("MaxPt") != std::string::npos) {
-    std::string desc = (variable == "MaxPt1")
-                           ? "Leading"
-                           : (variable == "MaxPt2") ? "Next-to-Leading"
-                                                    : "Next-to-next-to-Leading";
+    std::string desc =
+        (variable == "MaxPt1") ? "Leading" : (variable == "MaxPt2") ? "Next-to-Leading" : "Next-to-next-to-Leading";
     std::string title = "pT of " + desc + " " + sourceUpper + " " + objType +
                         " "
                         "where event pass the " +
@@ -242,10 +225,8 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker &iBooker,
 
   else {
     std::string symbol = (variable == "Eta") ? "#eta" : "#phi";
-    std::string title = symbol + " of " + sourceUpper + " " + objType + " " +
-                        "where event pass the " + _hltPath;
-    std::vector<double> params =
-        (variable == "Eta") ? _parametersEta : _parametersPhi;
+    std::string title = symbol + " of " + sourceUpper + " " + objType + " " + "where event pass the " + _hltPath;
+    std::vector<double> params = (variable == "Eta") ? _parametersEta : _parametersPhi;
 
     int nBins = (int)params[0];
     double min = params[1];
@@ -271,9 +252,7 @@ void HLTExoticaPlotter::fillHist(const bool &passTrigger,
   sourceUpper[0] = toupper(sourceUpper[0]);
   std::string name = source + objType + variable + "_" + _hltPath;
 
-  LogDebug("ExoticaValidation")
-      << "In HLTExoticaPlotter::fillHist()" << name << " " << value;
+  LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::fillHist()" << name << " " << value;
   _elements[name]->Fill(value);
-  LogDebug("ExoticaValidation")
-      << "In HLTExoticaPlotter::fillHist()" << name << " worked";
+  LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::fillHist()" << name << " worked";
 }

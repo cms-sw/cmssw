@@ -2,8 +2,7 @@
 #include "TProfile.h"
 #include "Validation/DTRecHits/interface/utils.h"
 //#include "TLine.h"
-void Tutils::drawGFit(TH1 *h1, float min, float max, float minfit,
-                      float maxfit) {
+void Tutils::drawGFit(TH1 *h1, float min, float max, float minfit, float maxfit) {
   setStyle(h1);
   static int i = 0;
   i++;
@@ -72,9 +71,9 @@ TStyle *Tutils::getStyle(const TString &name) {
     // For the canvas:
     theStyle->SetCanvasBorderMode(0);
     theStyle->SetCanvasColor(kWhite);
-    theStyle->SetCanvasDefH(600); // Height of canvas
-    theStyle->SetCanvasDefW(600); // Width of canvas
-    theStyle->SetCanvasDefX(0);   // POsition on screen
+    theStyle->SetCanvasDefH(600);  // Height of canvas
+    theStyle->SetCanvasDefW(600);  // Width of canvas
+    theStyle->SetCanvasDefX(0);    // POsition on screen
     theStyle->SetCanvasDefY(0);
 
     // For the Pad:
@@ -185,8 +184,7 @@ TStyle *Tutils::getStyle(const TString &name) {
     theStyle->SetStripDecimals(kTRUE);
     theStyle->SetTickLength(0.03, "XYZ");
     theStyle->SetNdivisions(510, "XYZ");
-    theStyle->SetPadTickX(
-        1); // To get tick marks on the opposite side of the frame
+    theStyle->SetPadTickX(1);  // To get tick marks on the opposite side of the frame
     theStyle->SetPadTickY(1);
 
     // Change for log plots:

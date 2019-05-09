@@ -13,26 +13,19 @@
 class Style;
 
 class Comparator {
-
 public:
   enum Mode { NORMAL, SCALE, RATIO, GRAPH, EFF };
 
-  Comparator()
-      : rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), s0_(nullptr),
-        s1_(nullptr), legend_(0, 0, 1, 1) {}
+  Comparator() : rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), s0_(nullptr), s1_(nullptr), legend_(0, 0, 1, 1) {}
 
-  Comparator(const char *file0, const char *dir0, const char *file1,
-             const char *dir1)
-      : rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), s0_(nullptr),
-        s1_(nullptr), legend_(0, 0, 1, 1) {
-
+  Comparator(const char *file0, const char *dir0, const char *file1, const char *dir1)
+      : rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), s0_(nullptr), s1_(nullptr), legend_(0, 0, 1, 1) {
     SetDirs(file0, dir0, file1, dir1);
   }
 
   /// set the 2 files, and the directory within each file, in which the
   /// histograms will be compared
-  void SetDirs(const char *file0, const char *dir0, const char *file1,
-               const char *dir1);
+  void SetDirs(const char *file0, const char *dir0, const char *file1, const char *dir1);
 
   // set the rebinning factor and the range
   void SetAxis(int rebin, float xmin, float xmax) {
@@ -54,14 +47,11 @@ public:
   void DrawMeanSlice(const char *key, const int rebinFactor, Mode mode);
   void DrawSigmaSlice(const char *key, const int rebinFactor, Mode mode);
   void DrawGaussSigmaSlice(const char *key, const int rebinFactor, Mode mode);
-  void DrawGaussSigmaSlice(const char *key, const int rebinFactor,
-                           const int binxmin, const int binxmax,
-                           const bool cst_binning, Mode mode);
-  void DrawGaussSigmaOverMeanXSlice(const char *key, const int rebinFactor,
-                                    const int binxmin, const int binxmax,
-                                    const bool cst_binning, Mode mode);
-  void DrawGaussSigmaOverMeanSlice(const char *key, const char *key2,
-                                   const int rebinFactor, Mode mode);
+  void DrawGaussSigmaSlice(
+      const char *key, const int rebinFactor, const int binxmin, const int binxmax, const bool cst_binning, Mode mode);
+  void DrawGaussSigmaOverMeanXSlice(
+      const char *key, const int rebinFactor, const int binxmin, const int binxmax, const bool cst_binning, Mode mode);
+  void DrawGaussSigmaOverMeanSlice(const char *key, const char *key2, const int rebinFactor, Mode mode);
 
   void Draw(const char *key, Mode mode);
 

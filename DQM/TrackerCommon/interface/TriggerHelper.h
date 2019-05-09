@@ -32,12 +32,11 @@
 #include <memory>
 
 namespace edm {
-class ConsumesCollector;
-class ParameterSet;
-} // namespace edm
+  class ConsumesCollector;
+  class ParameterSet;
+}  // namespace edm
 
 class TriggerHelper {
-
   // Utility classes
   edm::ESWatcher<AlCaRecoTriggerBitsRcd> *watchDB_;
   std::unique_ptr<L1GtUtils> l1Gt_;
@@ -75,24 +74,20 @@ class TriggerHelper {
 public:
   // Constructors must be called from the ED module's c'tor
   template <typename T>
-  TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &&iC,
-                T &module);
+  TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &&iC, T &module);
 
   template <typename T>
-  TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &iC,
-                T &module);
+  TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &iC, T &module);
 
   ~TriggerHelper();
 
   // Public methods
   bool on() { return on_; }
   bool off() { return (!on_); }
-  void
-  initRun(const edm::Run &run,
-          const edm::EventSetup &setup); // To be called from beginRun() methods
+  void initRun(const edm::Run &run,
+               const edm::EventSetup &setup);  // To be called from beginRun() methods
   bool accept(const edm::Event &event,
-              const edm::EventSetup
-                  &setup); // To be called from analyze/filter() methods
+              const edm::EventSetup &setup);  // To be called from analyze/filter() methods
 
 private:
   // Private methods
@@ -101,40 +96,33 @@ private:
 
   // DCS
   bool acceptDcs(const edm::Event &event);
-  bool acceptDcsPartition(const edm::Handle<DcsStatusCollection> &dcsStatus,
-                          int dcsPartition) const;
+  bool acceptDcsPartition(const edm::Handle<DcsStatusCollection> &dcsStatus, int dcsPartition) const;
 
   // GT status bits
   bool acceptGt(const edm::Event &event);
-  bool acceptGtLogicalExpression(
-      const edm::Handle<L1GlobalTriggerReadoutRecord> &gtReadoutRecord,
-      std::string gtLogicalExpression);
+  bool acceptGtLogicalExpression(const edm::Handle<L1GlobalTriggerReadoutRecord> &gtReadoutRecord,
+                                 std::string gtLogicalExpression);
 
   // L1
   bool acceptL1(const edm::Event &event, const edm::EventSetup &setup);
-  bool acceptL1LogicalExpression(const edm::Event &event,
-                                 std::string l1LogicalExpression);
+  bool acceptL1LogicalExpression(const edm::Event &event, std::string l1LogicalExpression);
 
   // HLT
   bool acceptHlt(const edm::Event &event);
-  bool acceptHltLogicalExpression(
-      const edm::Handle<edm::TriggerResults> &hltTriggerResults,
-      std::string hltLogicalExpression) const;
+  bool acceptHltLogicalExpression(const edm::Handle<edm::TriggerResults> &hltTriggerResults,
+                                  std::string hltLogicalExpression) const;
 
   // Algos
-  std::vector<std::string> expressionsFromDB(const std::string &key,
-                                             const edm::EventSetup &setup);
+  std::vector<std::string> expressionsFromDB(const std::string &key, const edm::EventSetup &setup);
   bool negate(std::string &word) const;
 };
 
 template <typename T>
-TriggerHelper::TriggerHelper(const edm::ParameterSet &config,
-                             edm::ConsumesCollector &&iC, T &module)
+TriggerHelper::TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &&iC, T &module)
     : TriggerHelper(config, iC, module) {}
 
 template <typename T>
-TriggerHelper::TriggerHelper(const edm::ParameterSet &config,
-                             edm::ConsumesCollector &iC, T &module)
+TriggerHelper::TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &iC, T &module)
     : TriggerHelper(config) {
   l1Gt_.reset(new L1GtUtils(config, iC, false, module));
 }

@@ -15,16 +15,7 @@ public:
   bool filter(edm::Event &, edm::EventSetup const &) override;
 
 private:
-  enum Prescalers {
-    kPhysics,
-    kCosmics,
-    kCalibration,
-    kLaser,
-    kLed,
-    kTestPulse,
-    kPedestal,
-    nPrescalers
-  };
+  enum Prescalers { kPhysics, kCosmics, kCalibration, kLaser, kLed, kTestPulse, kPedestal, nPrescalers };
 
   static uint32_t filterBits_[nPrescalers];
 
@@ -33,4 +24,4 @@ private:
   std::pair<unsigned, unsigned> prescalers_[nPrescalers];
 };
 
-#endif // EcalMonitorPrescaler_H
+#endif  // EcalMonitorPrescaler_H

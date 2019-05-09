@@ -4,7 +4,6 @@
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Validation/RecoParticleFlow/plugins/GenJetClosestMatchSelectorDefinition.h"
 
-typedef ObjectSelector<GenJetClosestMatchSelectorDefinition>
-    GenJetClosestMatchSelector;
+typedef ObjectSelector<GenJetClosestMatchSelectorDefinition> GenJetClosestMatchSelector;
 
 DEFINE_FWK_MODULE(GenJetClosestMatchSelector);

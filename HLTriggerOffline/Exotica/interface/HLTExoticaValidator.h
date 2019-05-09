@@ -42,17 +42,14 @@ public:
 
 protected:
   /// Method called by the framework to book histograms.
-  void bookHistograms(DQMStore::IBooker &iBooker, const edm::Run &iRun,
-                      const edm::EventSetup &iSetup) override;
+  void bookHistograms(DQMStore::IBooker &iBooker, const edm::Run &iRun, const edm::EventSetup &iSetup) override;
 
 private:
   void beginJob() override;
   /// Method called by the framework just before dqmBeginRun()
-  void dqmBeginRun(const edm::Run &iRun,
-                   const edm::EventSetup &iSetup) override;
+  void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
   /// Method called for each event.
-  void analyze(const edm::Event &iEvent,
-               const edm::EventSetup &iSetup) override;
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
   void endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
   void endJob() override;
 

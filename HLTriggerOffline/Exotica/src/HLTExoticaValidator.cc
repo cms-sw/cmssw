@@ -20,10 +20,7 @@
 
 // Constructor
 HLTExoticaValidator::HLTExoticaValidator(const edm::ParameterSet &pset)
-    : _pset(pset),
-      _analysisnames(pset.getParameter<std::vector<std::string>>("analyses")),
-      _collections(nullptr) {
-
+    : _pset(pset), _analysisnames(pset.getParameter<std::vector<std::string>>("analyses")), _collections(nullptr) {
   LogDebug("ExoticaValidation") << "In HLTExoticaValidator::constructor()";
 
   // Prepare the event collections to be used.
@@ -33,8 +30,7 @@ HLTExoticaValidator::HLTExoticaValidator(const edm::ParameterSet &pset)
   // Notice that the constructor takes the full parameter set,
   // the analysis name and the consumesCollector() separately.
   for (size_t i = 0; i < _analysisnames.size(); ++i) {
-    HLTExoticaSubAnalysis analyzer(_pset, _analysisnames.at(i),
-                                   consumesCollector());
+    HLTExoticaSubAnalysis analyzer(_pset, _analysisnames.at(i), consumesCollector());
     _analyzers.push_back(analyzer);
   }
 }
@@ -52,13 +48,11 @@ HLTExoticaValidator::~HLTExoticaValidator() {
 // beginRun() into bookHistograms() and dqmBeginRun() 3) Call
 // subAnalysisBookHistos() for each subAnalysis from inside bookHistograms()
 // *** IMPORTANT *** notice that now dqmBeginRun() runs before bookHistograms()!
-void HLTExoticaValidator::dqmBeginRun(const edm::Run &iRun,
-                                      const edm::EventSetup &iSetup) {
+void HLTExoticaValidator::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   LogDebug("ExoticaValidation") << "In HLTExoticaValidator::dqmBeginRun()";
 
   // Call the Plotter beginRun (which stores the triggers paths..:)
-  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin();
-       iter != _analyzers.end(); ++iter) {
+  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
     iter->beginRun(iRun, iSetup);
   }
 }
@@ -66,21 +60,18 @@ void HLTExoticaValidator::dqmBeginRun(const edm::Run &iRun,
 void HLTExoticaValidator::bookHistograms(DQMStore::IBooker &iBooker,
                                          const edm::Run &iRun,
                                          const edm::EventSetup &iSetup) {
-
   LogDebug("ExoticaValidation") << "In HLTExoticaValidator::bookHistograms()";
 
   // Loop over all sub-analyses and book histograms for all of them.
   // For this to work, I think we have to pass the iBooker to each of them.
   // I don't think we have any guarantee that this loop is executed
   // sequentially, but the booking with iBooker itself has such a guarantee.
-  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin();
-       iter != _analyzers.end(); ++iter) {
+  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
     iter->subAnalysisBookHistos(iBooker, iRun, iSetup);
   }
 }
 
-void HLTExoticaValidator::analyze(const edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
+void HLTExoticaValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   LogDebug("ExoticaValidation") << "In HLTExoticaValidator::analyze()";
 
   // static int eventNumber = 0;
@@ -91,20 +82,15 @@ void HLTExoticaValidator::analyze(const edm::Event &iEvent,
   // Initialize the event collections
   this->_collections->reset();
 
-  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin();
-       iter != _analyzers.end(); ++iter) {
+  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
     iter->analyze(iEvent, iSetup, this->_collections);
   }
 }
 
-void HLTExoticaValidator::beginJob() {
-  LogDebug("ExoticaValidation") << "In HLTExoticaValidator::beginJob()";
-}
+void HLTExoticaValidator::beginJob() { LogDebug("ExoticaValidation") << "In HLTExoticaValidator::beginJob()"; }
 
-void HLTExoticaValidator::endRun(const edm::Run &iRun,
-                                 const edm::EventSetup &iSetup) {
-  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin();
-       iter != _analyzers.end(); ++iter) {
+void HLTExoticaValidator::endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
+  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
     iter->endRun();
   }
 }

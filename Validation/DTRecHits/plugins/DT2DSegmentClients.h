@@ -13,7 +13,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DT2DSegmentClients : public DQMEDHarvester {
-
 public:
   /// Constructor
   DT2DSegmentClients(const edm::ParameterSet &ps);
@@ -30,4 +29,4 @@ private:
   bool doSLPhi_;
 };
 
-#endif // Validation_DTRecHits_DT2DSegmentClients_h
+#endif  // Validation_DTRecHits_DT2DSegmentClients_h
