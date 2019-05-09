@@ -35,7 +35,7 @@ particleLevel = cms.EDProducer("ParticleLevelProducer",
     
     lepConeSize = cms.double(0.1), # for photon dressing
     lepMinPt    = cms.double(0.),
-    lepMaxEta   = cms.double(6.0),
+    lepMaxEta   = cms.double(10.0),
     
     jetConeSize = cms.double(0.4),
     jetMinPt    = cms.double(10.),

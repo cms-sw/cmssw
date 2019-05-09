@@ -81,7 +81,68 @@ genParticleTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 
+finalGenParticlesWmass = cms.EDProducer("GenParticlePruner",
+    src = cms.InputTag("prunedGenParticles"),
+    select = cms.vstring(
+    "drop *",
+    "+keep abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15", #keep leptons, with at most one mother back in the history
+    "keep abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16",   # keep neutrinos     
+   )
+)
 
-genParticleSequence = cms.Sequence(finalGenParticles)
-genParticleTables = cms.Sequence(genParticleTable)
+
+
+##################### Tables for final output and docs ##########################
+genParticleTableWmass = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = cms.InputTag("finalGenParticlesWmass"),
+    cut = cms.string(""), #we should not filter after pruning
+    name= cms.string("GenPartWmass"),
+    doc = cms.string("Charged leptons and neutrinos from GenParticles at high numerical precision"),
+    singleton = cms.bool(False), # the number of entries is variable
+    extension = cms.bool(False), # this is the main table for the taus
+    variables = cms.PSet(
+         pt  = Var("pt",  float),
+         phi = Var("phi", float),
+         eta  = Var("eta",  float),
+         pdgId  = Var("pdgId", int, doc="PDG id"),
+         status  = Var("status", int, doc="Particle status. 1=stable"),
+         genPartIdxMother = Var("?numberOfMothers>0?motherRef(0).key():-1", int, doc="index of the mother particle"),
+         statusFlags = (Var(
+            "statusFlags().isLastCopyBeforeFSR()                  * 16384 +"
+            "statusFlags().isLastCopy()                           * 8192  +"
+            "statusFlags().isFirstCopy()                          * 4096  +"
+            "statusFlags().fromHardProcessBeforeFSR()             * 2048  +"
+            "statusFlags().isDirectHardProcessTauDecayProduct()   * 1024  +"
+            "statusFlags().isHardProcessTauDecayProduct()         * 512   +"
+            "statusFlags().fromHardProcess()                      * 256   +"
+            "statusFlags().isHardProcess()                        * 128   +"
+            "statusFlags().isDirectHadronDecayProduct()           * 64    +"
+            "statusFlags().isDirectPromptTauDecayProduct()        * 32    +"
+            "statusFlags().isDirectTauDecayProduct()              * 16    +"
+            "statusFlags().isPromptTauDecayProduct()              * 8     +"
+            "statusFlags().isTauDecayProduct()                    * 4     +"
+            "statusFlags().isDecayedLeptonHadron()                * 2     +"
+            "statusFlags().isPrompt()                             * 1      ",
+            int, doc=("gen status flags stored bitwise, bits are: "
+                "0 : isPrompt, "
+                "1 : isDecayedLeptonHadron, "
+                "2 : isTauDecayProduct, "
+                "3 : isPromptTauDecayProduct, "
+                "4 : isDirectTauDecayProduct, "
+                "5 : isDirectPromptTauDecayProduct, "
+                "6 : isDirectHadronDecayProduct, "
+                "7 : isHardProcess, "
+                "8 : fromHardProcess, "
+                "9 : isHardProcessTauDecayProduct, "
+                "10 : isDirectHardProcessTauDecayProduct, "
+                "11 : fromHardProcessBeforeFSR, "
+                "12 : isFirstCopy, "
+                "13 : isLastCopy, "
+                "14 : isLastCopyBeforeFSR, ")
+            )),
+    )
+)
+
+genParticleSequence = cms.Sequence(finalGenParticles+finalGenParticlesWmass)
+genParticleTables = cms.Sequence(genParticleTable+genParticleTableWmass)
 
