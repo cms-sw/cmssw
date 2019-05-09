@@ -61,6 +61,7 @@ ntuple_triggercells = cms.PSet(
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
     FillSimEnergy = cms.bool(False),
+    FillTruthMap = cms.bool(False),
     fcPerMip = fcPerMip,
     keV2fC = keV2fC,
     layerWeights = layerWeights,
