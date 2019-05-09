@@ -19,7 +19,6 @@
  *     EventSetup and AlignmentAlgorithmBase::EventInfo.
  */
 
-
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
 #include <vector>
@@ -33,21 +32,22 @@ class AlignableExtras;
 class TrajectoryStateOnSurface;
 class TrackingRecHit;
 
-namespace edm { class EventSetup; class ParameterSet; } 
+namespace edm {
+  class EventSetup;
+  class ParameterSet;
+}  // namespace edm
 
-class IntegratedCalibrationBase
-{
+class IntegratedCalibrationBase {
 public:
-
   typedef AlignmentAlgorithmBase::EventInfo EventInfo;
-  typedef std::pair<double,double> Values; /// x- and y-values
-  typedef std::pair<Values, unsigned int> ValuesIndexPair; /// Values and their parameter index
+  typedef std::pair<double, double> Values;                 /// x- and y-values
+  typedef std::pair<Values, unsigned int> ValuesIndexPair;  /// Values and their parameter index
 
   /// Constructor
   explicit IntegratedCalibrationBase(const edm::ParameterSet &cfg);
-  
+
   /// Destructor
-  virtual ~IntegratedCalibrationBase() {};
+  virtual ~IntegratedCalibrationBase(){};
 
   /// How many parameters does this calibration define?
   virtual unsigned int numParameters() const = 0;
@@ -56,19 +56,19 @@ public:
   /// default implementation uses other derivatives(..) method,
   /// but can be overwritten in derived class for efficiency.
   virtual std::vector<Values> derivatives(const TrackingRecHit &hit,
-					  const TrajectoryStateOnSurface &tsos,
-					  const edm::EventSetup &setup,
-					  const EventInfo &eventInfo) const;
+                                          const TrajectoryStateOnSurface &tsos,
+                                          const edm::EventSetup &setup,
+                                          const EventInfo &eventInfo) const;
 
   /// Return non-zero derivatives for x- (ValuesIndexPair.first.first)
   /// and y-measurement (ValuesIndexPair.first.second) with their
   /// indices (ValuesIndexPair.second) by reference.
   /// Return value is their number.
   virtual unsigned int derivatives(std::vector<ValuesIndexPair> &outDerivInds,
-				   const TrackingRecHit &hit,
-				   const TrajectoryStateOnSurface &tsos,
-				   const edm::EventSetup &setup,
-				   const EventInfo &eventInfo) const = 0;
+                                   const TrackingRecHit &hit,
+                                   const TrajectoryStateOnSurface &tsos,
+                                   const edm::EventSetup &setup,
+                                   const EventInfo &eventInfo) const = 0;
 
   /// Setting the determined parameter identified by index,
   /// should return false if out-of-bounds, true otherwise.
@@ -88,23 +88,21 @@ public:
 
   /// Call at beginning of job:
   /// default implementation is dummy, to be overwritten in derived class if useful.
-  virtual void beginOfJob(AlignableTracker *tracker,
-			  AlignableMuon *muon,
-			  AlignableExtras *extras) {};
+  virtual void beginOfJob(AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras){};
 
   /// Call at beginning of run:
   /// default implementation is dummy, to be overwritten in derived class if useful.
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) {};
+  virtual void beginRun(const edm::Run &, const edm::EventSetup &){};
 
   /// Called at beginning of a loop of the AlignmentProducer,
   /// to be used for iterative algorithms, default does nothing.
   /// FIXME: move call to algorithm?
-  virtual void startNewLoop() {};
+  virtual void startNewLoop(){};
 
   /// Called at end of a loop of the AlignmentProducer,
   /// to be used for iterative algorithms, default does nothing.
   /// FIXME: move call to algorithm?
-  virtual void endOfLoop() {};
+  virtual void endOfLoop(){};
 
   /// Called at end of a the job of the AlignmentProducer.
   /// Do here the necessary stuff with the results that should have been passed
@@ -125,10 +123,10 @@ public:
   /* virtual void endLuminosityBlock(const edm::EventSetup &setup) {}; */
 
   /// name of this calibration
-  const std::string& name() const { return name_;} // non-virtual since refering to private member
+  const std::string &name() const { return name_; }  // non-virtual since refering to private member
 
- private:
-  const std::string name_; /// name of this calibration (i.e. defining plugin)
+private:
+  const std::string name_;  /// name of this calibration (i.e. defining plugin)
 };
 
 #endif
