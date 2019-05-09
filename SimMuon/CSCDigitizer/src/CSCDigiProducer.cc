@@ -24,8 +24,7 @@
 
 #include <string>
 
-CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet &ps)
-    : theDigitizer(ps), theStripConditions(nullptr) {
+CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet &ps) : theDigitizer(ps), theStripConditions(nullptr) {
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
@@ -39,18 +38,16 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet &ps)
   } else if (stripConditions == "Database") {
     theStripConditions = new CSCDbStripConditions(stripPSet);
   } else {
-    throw cms::Exception("CSCDigiProducer")
-        << "Bad option for strip conditions: " << stripConditions;
+    throw cms::Exception("CSCDigiProducer") << "Bad option for strip conditions: " << stripConditions;
   }
   theDigitizer.setStripConditions(theStripConditions);
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-        << "CSCDigitizer requires the RandomNumberGeneratorService\n"
-           "which is not present in the configuration file.  You must add the "
-           "service\n"
-           "in the configuration file or remove the modules that require it.";
+    throw cms::Exception("Configuration") << "CSCDigitizer requires the RandomNumberGeneratorService\n"
+                                             "which is not present in the configuration file.  You must add the "
+                                             "service\n"
+                                             "in the configuration file or remove the modules that require it.";
   }
 
   std::string mix_ = ps.getParameter<std::string>("mixLabel");
@@ -60,29 +57,22 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet &ps)
 
 CSCDigiProducer::~CSCDigiProducer() { delete theStripConditions; }
 
-void CSCDigiProducer::produce(edm::Event &ev,
-                              const edm::EventSetup &eventSetup) {
-
-  edm::LogVerbatim("CSCDigitizer")
-      << "[CSCDigiProducer::produce] starting event " << ev.id().event()
-      << " of run " << ev.id().run();
+void CSCDigiProducer::produce(edm::Event &ev, const edm::EventSetup &eventSetup) {
+  edm::LogVerbatim("CSCDigitizer") << "[CSCDigiProducer::produce] starting event " << ev.id().event() << " of run "
+                                   << ev.id().run();
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine *engine = &rng->getEngine(ev.streamID());
 
   edm::Handle<CrossingFrame<PSimHit>> cf;
   ev.getByToken(cf_token, cf);
 
-  std::unique_ptr<MixCollection<PSimHit>> hits(
-      new MixCollection<PSimHit>(cf.product()));
+  std::unique_ptr<MixCollection<PSimHit>> hits(new MixCollection<PSimHit>(cf.product()));
 
   // Create empty output
 
-  std::unique_ptr<CSCWireDigiCollection> pWireDigis(
-      new CSCWireDigiCollection());
-  std::unique_ptr<CSCStripDigiCollection> pStripDigis(
-      new CSCStripDigiCollection());
-  std::unique_ptr<CSCComparatorDigiCollection> pComparatorDigis(
-      new CSCComparatorDigiCollection());
+  std::unique_ptr<CSCWireDigiCollection> pWireDigis(new CSCWireDigiCollection());
+  std::unique_ptr<CSCStripDigiCollection> pStripDigis(new CSCStripDigiCollection());
+  std::unique_ptr<CSCComparatorDigiCollection> pComparatorDigis(new CSCComparatorDigiCollection());
   std::unique_ptr<DigiSimLinks> pWireDigiSimLinks(new DigiSimLinks());
   std::unique_ptr<DigiSimLinks> pStripDigiSimLinks(new DigiSimLinks());
 
@@ -109,8 +99,8 @@ void CSCDigiProducer::produce(edm::Event &ev,
     theStripConditions->initializeEvent(eventSetup);
 
     // run the digitizer
-    theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis,
-                          *pWireDigiSimLinks, *pStripDigiSimLinks, engine);
+    theDigitizer.doAction(
+        *hits, *pWireDigis, *pStripDigis, *pComparatorDigis, *pWireDigiSimLinks, *pStripDigiSimLinks, engine);
   }
 
   // store them in the event

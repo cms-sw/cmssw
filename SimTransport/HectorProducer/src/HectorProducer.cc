@@ -31,8 +31,7 @@
 class TRandom3;
 
 HectorProducer::HectorProducer(edm::ParameterSet const &p)
-    : m_HepMC(consumes<edm::HepMCProduct>(
-          p.getParameter<edm::InputTag>("HepMCProductLabel"))) {
+    : m_HepMC(consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProductLabel"))) {
   m_verbosity = p.getParameter<bool>("Verbosity");
   m_FP420Transport = p.getParameter<bool>("FP420Transport");
   m_ZDCTransport = p.getParameter<bool>("ZDCTransport");
@@ -45,12 +44,11 @@ HectorProducer::HectorProducer(edm::ParameterSet const &p)
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-        << "LHCTransport (HectorProducer) requires the "
-           "RandomNumberGeneratorService\n"
-           "which is not present in the configuration file.  You must add the "
-           "service\n"
-           "in the configuration file or remove the modules that require it.";
+    throw cms::Exception("Configuration") << "LHCTransport (HectorProducer) requires the "
+                                             "RandomNumberGeneratorService\n"
+                                             "which is not present in the configuration file.  You must add the "
+                                             "service\n"
+                                             "in the configuration file or remove the modules that require it.";
   }
   edm::LogInfo("SimTransportHectorProducer") << "Hector is created";
 }
@@ -62,13 +60,11 @@ void HectorProducer::beginRun(const edm::Run &r, const edm::EventSetup &c) {}
 void HectorProducer::endRun(const edm::Run &r, const edm::EventSetup &c) {}
 
 void HectorProducer::produce(edm::Event &iEvent, const edm::EventSetup &es) {
-
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine *engine = &rng->getEngine(iEvent.streamID());
   if (engine->name() != "TRandom3") {
-    throw cms::Exception("Configuration")
-        << "The TRandom3 engine type must be used with HectorProducer, "
-        << "Random Number Generator Service not correctly configured!";
+    throw cms::Exception("Configuration") << "The TRandom3 engine type must be used with HectorProducer, "
+                                          << "Random Number Generator Service not correctly configured!";
   }
   TRandom3 *rootEngine = ((edm::TRandomAdaptor *)engine)->getRootEngine();
 
@@ -80,13 +76,11 @@ void HectorProducer::produce(edm::Event &iEvent, const edm::EventSetup &es) {
   iEvent.getByToken(m_HepMC, HepMCEvt);
 
   if (!HepMCEvt.isValid()) {
-    throw cms::Exception("InvalidReference")
-        << "Invalid reference to HepMCProduct\n";
+    throw cms::Exception("InvalidReference") << "Invalid reference to HepMCProduct\n";
   }
 
   if (HepMCEvt.provenance()->moduleLabel() == "LHCTransport") {
-    throw cms::Exception("LogicError")
-        << "HectorTrasported HepMCProduce already exists\n";
+    throw cms::Exception("LogicError") << "HectorTrasported HepMCProduce already exists\n";
   }
 
   evt_ = new HepMC::GenEvent(*HepMCEvt->GetEvent());
@@ -117,17 +111,14 @@ void HectorProducer::produce(edm::Event &iEvent, const edm::EventSetup &es) {
 
   iEvent.put(std::move(NewProduct));
 
-  edm::LogInfo("SimTransportHectorProducer")
-      << "new LHCTransportLinkContainer ";
-  unique_ptr<edm::LHCTransportLinkContainer> NewCorrespondenceMap(
-      new edm::LHCTransportLinkContainer());
+  edm::LogInfo("SimTransportHectorProducer") << "new LHCTransportLinkContainer ";
+  unique_ptr<edm::LHCTransportLinkContainer> NewCorrespondenceMap(new edm::LHCTransportLinkContainer());
   edm::LHCTransportLinkContainer thisLink(m_Hector->getCorrespondenceMap());
   (*NewCorrespondenceMap).swap(thisLink);
 
   if (m_verbosity) {
     for (unsigned int i = 0; i < (*NewCorrespondenceMap).size(); i++)
-      LogDebug("HectorEventProcessing")
-          << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
+      LogDebug("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
   }
 
   iEvent.put(std::move(NewCorrespondenceMap));

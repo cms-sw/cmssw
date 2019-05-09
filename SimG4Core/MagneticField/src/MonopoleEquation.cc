@@ -20,8 +20,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-MonopoleEquation::MonopoleEquation(G4MagneticField *emField)
-    : G4EquationOfMotion(emField) {}
+MonopoleEquation::MonopoleEquation(G4MagneticField *emField) : G4EquationOfMotion(emField) {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -29,8 +28,7 @@ MonopoleEquation::~MonopoleEquation() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MonopoleEquation::SetChargeMomentumMass(G4ChargeState particleChargeState,
-                                             G4double, G4double particleMass) {
+void MonopoleEquation::SetChargeMomentumMass(G4ChargeState particleChargeState, G4double, G4double particleMass) {
   G4double particleMagneticCharge = particleChargeState.MagneticCharge();
   G4double particleElectricCharge = particleChargeState.GetCharge();
 
@@ -47,9 +45,7 @@ void MonopoleEquation::SetChargeMomentumMass(G4ChargeState particleChargeState,
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MonopoleEquation::EvaluateRhsGivenB(const G4double y[],
-                                         const G4double Field[],
-                                         G4double dydx[]) const {
+void MonopoleEquation::EvaluateRhsGivenB(const G4double y[], const G4double Field[], G4double dydx[]) const {
   // Components of y:
   //    0-2 dr/ds,
   //    3-5 dp/ds - momentum derivatives
@@ -94,7 +90,7 @@ void MonopoleEquation::EvaluateRhsGivenB(const G4double y[],
   //               <<"; dydx[5]=" << dydx[5]
   //               << G4endl;
 
-  dydx[6] = 0.; // not used
+  dydx[6] = 0.;  // not used
 
   // Lab Time of flight
   dydx[7] = inverse_velocity;

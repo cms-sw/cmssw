@@ -33,11 +33,9 @@ void testTruncTubs::matched_g4_and_dd(void) {
   bool cutInside = true;
   string name("fred1");
 
-  DDI::TruncTubs dd(zHalf, rIn, rOut, startPhi, deltaPhi, cutAtStart,
-                    cutAtDelta, cutInside);
+  DDI::TruncTubs dd(zHalf, rIn, rOut, startPhi, deltaPhi, cutAtStart, cutAtDelta, cutInside);
   DDTruncTubs dds =
-      DDSolidFactory::truncTubs(name, zHalf, rIn, rOut, startPhi, deltaPhi,
-                                cutAtStart, cutAtDelta, cutInside);
+      DDSolidFactory::truncTubs(name, zHalf, rIn, rOut, startPhi, deltaPhi, cutAtStart, cutAtDelta, cutInside);
   G4VSolid *g4 = DDG4SolidConverter::trunctubs(dds);
   cout << endl;
   dd.stream(cout);

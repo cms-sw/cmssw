@@ -20,10 +20,9 @@
 
 class TrajectoryStateClosestToBeamLineBuilder;
 
-TrackingParticle::Vector
-CosmicParametersDefinerForTP::momentum(const edm::Event &iEvent,
-                                       const edm::EventSetup &iSetup,
-                                       const TrackingParticleRef &tpr) const {
+TrackingParticle::Vector CosmicParametersDefinerForTP::momentum(const edm::Event &iEvent,
+                                                                const edm::EventSetup &iSetup,
+                                                                const TrackingParticleRef &tpr) const {
   // to add a new implementation for cosmic. For the moment, it is just as for
   // the base class:
   using namespace edm;
@@ -47,11 +46,9 @@ CosmicParametersDefinerForTP::momentum(const edm::Event &iEvent,
   bool found(false);
   TrackingParticle::Vector momentum(0, 0, 0);
 
+  edm::LogVerbatim("CosmicParametersDefinerForTP") << "\t in CosmicParametersDefinerForTP::momentum";
   edm::LogVerbatim("CosmicParametersDefinerForTP")
-      << "\t in CosmicParametersDefinerForTP::momentum";
-  edm::LogVerbatim("CosmicParametersDefinerForTP")
-      << "\t \t Original TP state:          pt = " << tpr->pt()
-      << ", pz = " << tpr->pz();
+      << "\t \t Original TP state:          pt = " << tpr->pt() << ", pz = " << tpr->pz();
 
   if (simHitsTPAssoc.isValid() == 0) {
     LogError("TrackAssociation") << "Invalid handle!";
@@ -59,11 +56,12 @@ CosmicParametersDefinerForTP::momentum(const edm::Event &iEvent,
   }
   std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(
       tpr,
-      TrackPSimHitRef()); // SimHit is dummy: for simHitTPAssociationListGreater
-                          // sorting only the cluster is needed
-  auto range = std::equal_range(
-      simHitsTPAssoc->begin(), simHitsTPAssoc->end(), clusterTPpairWithDummyTP,
-      SimHitTPAssociationProducer::simHitTPAssociationListGreater);
+      TrackPSimHitRef());  // SimHit is dummy: for simHitTPAssociationListGreater
+                           // sorting only the cluster is needed
+  auto range = std::equal_range(simHitsTPAssoc->begin(),
+                                simHitsTPAssoc->end(),
+                                clusterTPpairWithDummyTP,
+                                SimHitTPAssociationProducer::simHitTPAssociationListGreater);
   for (auto ip = range.first; ip != range.second; ++ip) {
     TrackPSimHitRef it = ip->second;
     const GeomDet *tmpDet = theGeometry->idToDet(DetId(it->detUnitId()));
@@ -97,29 +95,25 @@ CosmicParametersDefinerForTP::momentum(const edm::Event &iEvent,
       //   <<"\t FINAL State at InnerMost Hit: Radius = "<< finalGP.perp() << ",
       //   z = "<< finalGP.z()
       //  <<", pt = "<< finalGV.perp() << ", pz = "<< finalGV.z();
-      << "\t \t FINAL State at InnerMost Hit:   pt = " << finalGV.perp()
-      << ", pz = " << finalGV.z();
+      << "\t \t FINAL State at InnerMost Hit:   pt = " << finalGV.perp() << ", pz = " << finalGV.z();
 
   if (found) {
-    FreeTrajectoryState ftsAtProduction(
-        finalGP, finalGV, TrackCharge(tpr->charge()), theMF.product());
+    FreeTrajectoryState ftsAtProduction(finalGP, finalGV, TrackCharge(tpr->charge()), theMF.product());
     TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tsAtClosestApproach =
-        tscblBuilder(ftsAtProduction, *bs); // as in TrackProducerAlgorithm
+        tscblBuilder(ftsAtProduction, *bs);  // as in TrackProducerAlgorithm
 
     if (tsAtClosestApproach.isValid()) {
       GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
       momentum = TrackingParticle::Vector(p.x(), p.y(), p.z());
     } else {
-      edm::LogVerbatim("CosmicParametersDefinerForTP")
-          << "*** WARNING in CosmicParametersDefinerForTP::momentum: "
-             "tsAtClosestApproach is not valid."
-          << "\n";
+      edm::LogVerbatim("CosmicParametersDefinerForTP") << "*** WARNING in CosmicParametersDefinerForTP::momentum: "
+                                                          "tsAtClosestApproach is not valid."
+                                                       << "\n";
     }
 
     edm::LogVerbatim("CosmicParametersDefinerForTP")
-        << "\t \t FINAL State extrap. at PCA: pt = "
-        << sqrt(momentum.x() * momentum.x() + momentum.y() * momentum.y())
+        << "\t \t FINAL State extrap. at PCA: pt = " << sqrt(momentum.x() * momentum.x() + momentum.y() * momentum.y())
         << ", pz = " << momentum.z() << "\n";
 
     return momentum;
@@ -130,16 +124,13 @@ CosmicParametersDefinerForTP::momentum(const edm::Event &iEvent,
          "innermost TP point"
       << "\n";
   edm::LogVerbatim("CosmicParametersDefinerForTP")
-      << "*** FINAL Reference MOMENTUM TP (px,py,pz) = " << momentum.x()
-      << momentum.y() << momentum.z() << "\n";
+      << "*** FINAL Reference MOMENTUM TP (px,py,pz) = " << momentum.x() << momentum.y() << momentum.z() << "\n";
   return momentum;
 }
 
-TrackingParticle::Point
-CosmicParametersDefinerForTP::vertex(const edm::Event &iEvent,
-                                     const edm::EventSetup &iSetup,
-                                     const TrackingParticleRef &tpr) const {
-
+TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event &iEvent,
+                                                             const edm::EventSetup &iSetup,
+                                                             const TrackingParticleRef &tpr) const {
   using namespace edm;
   using namespace std;
   using namespace reco;
@@ -161,12 +152,10 @@ CosmicParametersDefinerForTP::vertex(const edm::Event &iEvent,
   bool found(false);
   TrackingParticle::Point vertex(0, 0, 0);
 
-  edm::LogVerbatim("CosmicParametersDefinerForTP")
-      << "\t in CosmicParametersDefinerForTP::vertex";
+  edm::LogVerbatim("CosmicParametersDefinerForTP") << "\t in CosmicParametersDefinerForTP::vertex";
   edm::LogVerbatim("CosmicParametersDefinerForTP")
       << "\t \t Original TP state:          radius = "
-      << sqrt(tpr->vertex().x() * tpr->vertex().x() +
-              tpr->vertex().y() * tpr->vertex().y())
+      << sqrt(tpr->vertex().x() * tpr->vertex().x() + tpr->vertex().y() * tpr->vertex().y())
       << ", z = " << tpr->vertex().z();
 
   if (simHitsTPAssoc.isValid() == 0) {
@@ -175,11 +164,12 @@ CosmicParametersDefinerForTP::vertex(const edm::Event &iEvent,
   }
   std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(
       tpr,
-      TrackPSimHitRef()); // SimHit is dummy: for simHitTPAssociationListGreater
-                          // sorting only the cluster is needed
-  auto range = std::equal_range(
-      simHitsTPAssoc->begin(), simHitsTPAssoc->end(), clusterTPpairWithDummyTP,
-      SimHitTPAssociationProducer::simHitTPAssociationListGreater);
+      TrackPSimHitRef());  // SimHit is dummy: for simHitTPAssociationListGreater
+                           // sorting only the cluster is needed
+  auto range = std::equal_range(simHitsTPAssoc->begin(),
+                                simHitsTPAssoc->end(),
+                                clusterTPpairWithDummyTP,
+                                SimHitTPAssociationProducer::simHitTPAssociationListGreater);
   for (auto ip = range.first; ip != range.second; ++ip) {
     TrackPSimHitRef it = ip->second;
     const GeomDet *tmpDet = theGeometry->idToDet(DetId(it->detUnitId()));
@@ -209,15 +199,13 @@ CosmicParametersDefinerForTP::vertex(const edm::Event &iEvent,
     }
   }
   edm::LogVerbatim("CosmicParametersDefinerForTP")
-      << "\t \t FINAL State at InnerMost Hit:   radius = " << finalGP.perp()
-      << ", z = " << finalGP.z();
+      << "\t \t FINAL State at InnerMost Hit:   radius = " << finalGP.perp() << ", z = " << finalGP.z();
 
   if (found) {
-    FreeTrajectoryState ftsAtProduction(
-        finalGP, finalGV, TrackCharge(tpr->charge()), theMF.product());
+    FreeTrajectoryState ftsAtProduction(finalGP, finalGV, TrackCharge(tpr->charge()), theMF.product());
     TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tsAtClosestApproach =
-        tscblBuilder(ftsAtProduction, *bs); // as in TrackProducerAlgorithm
+        tscblBuilder(ftsAtProduction, *bs);  // as in TrackProducerAlgorithm
 
     if (tsAtClosestApproach.isValid()) {
       GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
@@ -226,14 +214,12 @@ CosmicParametersDefinerForTP::vertex(const edm::Event &iEvent,
       // to preserve old behaviour
       // would be better to flag this somehow to allow ignoring in downstream
       vertex = TrackingParticle::Point(bs->x0(), bs->y0(), bs->z0());
-      edm::LogVerbatim("CosmicParametersDefinerForTP")
-          << "*** WARNING in CosmicParametersDefinerForTP::vertex: "
-             "tsAtClosestApproach is not valid."
-          << "\n";
+      edm::LogVerbatim("CosmicParametersDefinerForTP") << "*** WARNING in CosmicParametersDefinerForTP::vertex: "
+                                                          "tsAtClosestApproach is not valid."
+                                                       << "\n";
     }
     edm::LogVerbatim("CosmicParametersDefinerForTP")
-        << "\t \t FINAL State extrap. at PCA: radius = "
-        << sqrt(vertex.x() * vertex.x() + vertex.y() * vertex.y())
+        << "\t \t FINAL State extrap. at PCA: radius = " << sqrt(vertex.x() * vertex.x() + vertex.y() * vertex.y())
         << ", z = " << vertex.z() << "\n";
 
     return vertex;
@@ -244,8 +230,7 @@ CosmicParametersDefinerForTP::vertex(const edm::Event &iEvent,
          "innermost TP point"
       << "\n";
   edm::LogVerbatim("CosmicParametersDefinerForTP")
-      << "*** FINAL Reference VERTEX TP   V(x,y,z) = " << vertex.x()
-      << vertex.y() << vertex.z() << "\n";
+      << "*** FINAL Reference VERTEX TP   V(x,y,z) = " << vertex.x() << vertex.y() << vertex.z() << "\n";
 
   return vertex;
 }

@@ -4,7 +4,6 @@
 
 //________________________________________________________________________________________
 double PMTResponse::getEfficiency(const double &waveLengthNm) {
-
   // Overall range
   if (waveLengthNm < 300. || waveLengthNm > 850)
     return 0.;

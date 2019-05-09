@@ -15,10 +15,8 @@ class PSimHit;
 
 class CSCDetectorHit {
 public:
-  CSCDetectorHit(int element, float charge, float position, float time,
-                 const PSimHit *hitp)
-      : theElement(element), theCharge(charge), thePosition(position),
-        theTime(time), theHitp(hitp) {}
+  CSCDetectorHit(int element, float charge, float position, float time, const PSimHit *hitp)
+      : theElement(element), theCharge(charge), thePosition(position), theTime(time), theHitp(hitp) {}
 
   int getElement() const { return theElement; }
   float getCharge() const { return theCharge; }

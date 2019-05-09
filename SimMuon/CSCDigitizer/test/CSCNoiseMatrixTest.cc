@@ -17,19 +17,17 @@ public:
   CSCNoiseMatrixTest(const edm::ParameterSet &pset) : theDbConditions(pset) {
     edm::Service<edm::RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
-      throw cms::Exception("Configuration")
-          << "CSCNoiseMatrixTest requires the RandomNumberGeneratorService\n"
-             "which is not present in the configuration file.  You must add "
-             "the service\n"
-             "in the configuration file or remove the modules that require it.";
+      throw cms::Exception("Configuration") << "CSCNoiseMatrixTest requires the RandomNumberGeneratorService\n"
+                                               "which is not present in the configuration file.  You must add "
+                                               "the service\n"
+                                               "in the configuration file or remove the modules that require it.";
     }
   }
 
   ~CSCNoiseMatrixTest() override {}
   // virtual void beginRun(edm::Run const& run, edm::EventSetup const&
   // eventSetup)
-  void analyze(const edm::Event &e,
-               const edm::EventSetup &eventSetup) override {
+  void analyze(const edm::Event &e, const edm::EventSetup &eventSetup) override {
     edm::Service<edm::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine *engine = &rng->getEngine(e.streamID());
 
@@ -54,8 +52,7 @@ public:
         try {
           theDbConditions.noisify((**layerItr).id(), signal, engine);
         } catch (cms::Exception &e) {
-          std::cerr << "Bad Noise Matrix for " << (**layerItr).id() << "strip "
-                    << istrip << "\n";
+          std::cerr << "Bad Noise Matrix for " << (**layerItr).id() << "strip " << istrip << "\n";
           std::cerr << e.what() << std::endl;
         }
       }

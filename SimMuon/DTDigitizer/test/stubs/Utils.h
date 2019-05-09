@@ -13,18 +13,15 @@
  */
 
 // Drift space-time parametrization after J. Puerta, P. Garcia-Abia
-void *driftTime(double x, double theta, double Bwire, double Bnorm,
-                short interpolate);
+void *driftTime(double x, double theta, double Bwire, double Bnorm, short interpolate);
 
 // Inverse time-space parametrization after J. Puerta, P. Garcia-Abia
-void *trackDistance(double x, double theta, double Bwire, double Bnorm,
-                    short interpolate);
+void *trackDistance(double x, double theta, double Bwire, double Bnorm, short interpolate);
 
 // Drift time parametrization after T. Rovelli, A. Gresele
 float oldParametrization(float x, float theta, float Bwire, float Bnorm);
 
-double smearedTime(double x, double theta, double Bwire, double Bnorm,
-                   short interpolate);
+double smearedTime(double x, double theta, double Bwire, double Bnorm, short interpolate);
 
 // Smearing of an asymmetric distribution which results from combining two
 // gaussians with the same peak and different sigmas.

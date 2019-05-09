@@ -37,11 +37,12 @@
 //----------------
 
 DTBNormParam::DTBNormParam()
-    : // default constructor : assume 0 field
-      _bnorm(0.0), l_func(0), h_func(1) {}
+    :  // default constructor : assume 0 field
+      _bnorm(0.0),
+      l_func(0),
+      h_func(1) {}
 
 DTBNormParam::DTBNormParam(float bnorm) {
-
   // determine Bnorm bin in 0.0/1.0 range by steps of 0.1
 
   float x_bno = fabs(bnorm) * 10.0;
@@ -72,25 +73,37 @@ DTBNormParam::~DTBNormParam() {}
 //--------------
 
 float DTBNormParam::tcor(float xpos) const {
-
   // compute drift time for lower/higher bin bounds
   float l_tcor = l_func.tcor(xpos);
   float h_tcor = h_func.tcor(xpos);
 
   // interpolate time corrections for actual Bnorm
-  return l_tcor +
-         ((h_tcor - l_tcor) * l_func.dist(_bnorm) / l_func.dist(h_func));
+  return l_tcor + ((h_tcor - l_tcor) * l_func.dist(_bnorm) / l_func.dist(h_func));
 }
 
-const float DTBNormParam::table_offsc[11] = {
-    0.0,         0.51630E-03, 0.31628E-02, 0.49082E-02,
-    0.75994E-02, 0.10643E-01, 0.13419E-01, 0.16636E-01,
-    0.20108E-01, 0.24405E-01, 0.28550E-01};
+const float DTBNormParam::table_offsc[11] = {0.0,
+                                             0.51630E-03,
+                                             0.31628E-02,
+                                             0.49082E-02,
+                                             0.75994E-02,
+                                             0.10643E-01,
+                                             0.13419E-01,
+                                             0.16636E-01,
+                                             0.20108E-01,
+                                             0.24405E-01,
+                                             0.28550E-01};
 
-const float DTBNormParam::table_coeff[11] = {
-    0.0,          0.13900E-03,  -0.16361E-02, -0.25234E-02,
-    -0.39586E-02, -0.56774E-02, -0.70548E-02, -0.86567E-02,
-    -0.10549E-01, -0.12765E-01, -0.14833E-01};
+const float DTBNormParam::table_coeff[11] = {0.0,
+                                             0.13900E-03,
+                                             -0.16361E-02,
+                                             -0.25234E-02,
+                                             -0.39586E-02,
+                                             -0.56774E-02,
+                                             -0.70548E-02,
+                                             -0.86567E-02,
+                                             -0.10549E-01,
+                                             -0.12765E-01,
+                                             -0.14833E-01};
 
 DTBNormParam::ParamFunc::ParamFunc() {
   /*
@@ -102,7 +115,6 @@ DTBNormParam::ParamFunc::ParamFunc() {
 }
 
 DTBNormParam::ParamFunc::ParamFunc(int bin) {
-
   // store bound
   bin_bnorm = bin * 0.1;
   // select parameters inside tables
@@ -125,7 +137,6 @@ void DTBNormParam::ParamFunc::set(int bin) {
 DTBNormParam::ParamFunc::~ParamFunc() {}
 
 float DTBNormParam::ParamFunc::tcor(float xpos) const {
-
   // compute drift time correction
   return *offsc + (*coeff * xpos);
 }

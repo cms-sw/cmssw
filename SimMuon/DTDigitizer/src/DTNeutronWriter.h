@@ -22,9 +22,7 @@ protected:
   int chamberId(int globalDetId) const override;
 
   /// decides whether this cluster is good enough to be included
-  bool accept(const edm::PSimHitContainer &cluster) const override {
-    return true;
-  }
+  bool accept(const edm::PSimHitContainer &cluster) const override { return true; }
 };
 
 #endif

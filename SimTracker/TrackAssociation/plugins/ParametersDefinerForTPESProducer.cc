@@ -13,9 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
-ParametersDefinerForTPESProducer::ParametersDefinerForTPESProducer(
-    const edm::ParameterSet &iConfig)
-    : pset_(iConfig) {
+ParametersDefinerForTPESProducer::ParametersDefinerForTPESProducer(const edm::ParameterSet &iConfig) : pset_(iConfig) {
   // the following line is needed to tell the framework what
   // data is being produced
   std::string myName = iConfig.getParameter<std::string>("ComponentName");
@@ -26,7 +24,6 @@ ParametersDefinerForTPESProducer::ParametersDefinerForTPESProducer(
 }
 
 ParametersDefinerForTPESProducer::~ParametersDefinerForTPESProducer() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -36,8 +33,7 @@ ParametersDefinerForTPESProducer::~ParametersDefinerForTPESProducer() {
 //
 
 // ------------ method called to produce the data  ------------
-ParametersDefinerForTPESProducer::ReturnType
-ParametersDefinerForTPESProducer::produce(
+ParametersDefinerForTPESProducer::ReturnType ParametersDefinerForTPESProducer::produce(
     const TrackAssociatorRecord &iRecord) {
   return std::make_unique<ParametersDefinerForTP>(pset_);
 }

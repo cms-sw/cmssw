@@ -45,8 +45,7 @@ public:
   ~TrackMCQuality() override;
 
 private:
-  void produce(edm::StreamID, edm::Event &,
-               const edm::EventSetup &) const override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
   // ----------member data ---------------------------
 
@@ -69,12 +68,9 @@ private:
 // constructors and destructor
 //
 TrackMCQuality::TrackMCQuality(const edm::ParameterSet &pset)
-    : label_assoc(consumes<reco::TrackToTrackingParticleAssociator>(
-          pset.getParameter<edm::InputTag>("associator"))),
-      label_tp(consumes<TrackingParticleCollection>(
-          pset.getParameter<edm::InputTag>("trackingParticles"))),
-      label_tr(consumes<edm::View<reco::Track>>(
-          pset.getParameter<edm::InputTag>("tracks"))) {
+    : label_assoc(consumes<reco::TrackToTrackingParticleAssociator>(pset.getParameter<edm::InputTag>("associator"))),
+      label_tp(consumes<TrackingParticleCollection>(pset.getParameter<edm::InputTag>("trackingParticles"))),
+      label_tr(consumes<edm::View<reco::Track>>(pset.getParameter<edm::InputTag>("tracks"))) {
   produces<Product>();
 }
 
@@ -85,9 +81,7 @@ TrackMCQuality::~TrackMCQuality() {}
 //
 
 // ------------ method called to produce the data  ------------
-void TrackMCQuality::produce(edm::StreamID, edm::Event &iEvent,
-                             const edm::EventSetup &iSetup) const {
-
+void TrackMCQuality::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   using namespace edm;
   Handle<reco::TrackToTrackingParticleAssociator> associator;
   iEvent.getByToken(label_assoc, associator);
@@ -98,8 +92,7 @@ void TrackMCQuality::produce(edm::StreamID, edm::Event &iEvent,
   Handle<edm::View<reco::Track>> trackCollection;
   iEvent.getByToken(label_tr, trackCollection);
 
-  reco::RecoToSimCollection recSimColl =
-      associator->associateRecoToSim(trackCollection, TPCollection);
+  reco::RecoToSimCollection recSimColl = associator->associateRecoToSim(trackCollection, TPCollection);
 
   // then loop the track collection
   std::unique_ptr<Product> product(new Product(trackCollection->size(), 0));
@@ -116,12 +109,11 @@ void TrackMCQuality::produce(edm::StreamID, edm::Event &iEvent,
     auto const &tp = recSimColl[track];
 
     if (tp.empty())
-      continue; // can it be?
+      continue;  // can it be?
     // nSimHits = tp[0].first->numberOfTrackerHits();
     prod = tp[0].second;
     // if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
-    if ((tp[0].first->eventId().event() != 0) ||
-        (tp[0].first->eventId().bunchCrossing() != 0))
+    if ((tp[0].first->eventId().event() != 0) || (tp[0].first->eventId().bunchCrossing() != 0))
       prod = -prod;
   }
 

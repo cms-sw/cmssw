@@ -7,10 +7,9 @@
 ///
 
 class PMTResponse {
-
 public:
   /// Return efficiency for given photon wavelength (in nm)
   static double getEfficiency(const double &waveLengthNm);
 };
 
-#endif // DreamSD_h
+#endif  // DreamSD_h
