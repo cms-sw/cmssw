@@ -1,7 +1,6 @@
 #ifndef FWCore_PythonFramework_PythonModule_h
 #define FWCore_PythonFramework_PythonModule_h
 
-
 #include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 
 #include "FWCore/PythonFramework/interface/PythonEventProcessor.h"
@@ -19,22 +18,21 @@
 // to add module type and label context to the messages being caught
 // here. At this point we did not think it worth the time to implement.
 
-PYBIND11_MODULE(libFWCorePythonFramework,m)
-{
+PYBIND11_MODULE(libFWCorePythonFramework, m) {
   pybind11::register_exception_translator([](std::exception_ptr p) {
-      try {
-        if (p) std::rethrow_exception(p);
-      } catch (const cms::Exception &e) {
-        PyErr_SetString(PyExc_RuntimeError, e.what());
-      }
-    });
+    try {
+      if (p)
+        std::rethrow_exception(p);
+    } catch (const cms::Exception &e) {
+      PyErr_SetString(PyExc_RuntimeError, e.what());
+    }
+  });
 
-  pybind11::class_<PythonEventProcessor>(m,"PythonEventProcessor")
-    .def(pybind11::init<PyBind11ProcessDesc const&>())
-    .def("run", &PythonEventProcessor::run)
-    .def("totalEvents", &PythonEventProcessor::totalEvents)
-    .def("totalEventsPassed", &PythonEventProcessor::totalEventsPassed)
-    .def("totalEventsFailed", &PythonEventProcessor::totalEventsFailed);
-  
+  pybind11::class_<PythonEventProcessor>(m, "PythonEventProcessor")
+      .def(pybind11::init<PyBind11ProcessDesc const &>())
+      .def("run", &PythonEventProcessor::run)
+      .def("totalEvents", &PythonEventProcessor::totalEvents)
+      .def("totalEventsPassed", &PythonEventProcessor::totalEventsPassed)
+      .def("totalEventsFailed", &PythonEventProcessor::totalEventsFailed);
 }
 #endif

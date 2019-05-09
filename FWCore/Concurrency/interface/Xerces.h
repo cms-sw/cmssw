@@ -8,7 +8,7 @@ namespace cms {
     // a multithreaded environment.
     void xercesInitialize();
     void xercesTerminate();
-  }
-}
+  }  // namespace concurrency
+}  // namespace cms
 
-#endif // FWCore_Concurrency_h
+#endif  // FWCore_Concurrency_h

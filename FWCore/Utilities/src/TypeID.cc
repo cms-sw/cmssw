@@ -10,8 +10,7 @@
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 
 namespace edm {
-  void
-  TypeID::print(std::ostream& os) const {
+  void TypeID::print(std::ostream& os) const {
     try {
       os << className();
     } catch (cms::Exception const&) {
@@ -19,21 +18,21 @@ namespace edm {
     }
   }
 
-namespace {
+  namespace {
 
-  TypeID const nullTypeID;
+    TypeID const nullTypeID;
 
-  std::string typeToClassName(std::type_info const& iType) {
-    try {
-      return typeDemangle(iType.name());
-    } catch (cms::Exception const& e) {
-      cms::Exception theError("Name Demangling Error");
-      theError << "TypeID::typeToClassName: can't demangle " << iType.name() << '\n';
-      theError.append(e);
-      throw theError;
+    std::string typeToClassName(std::type_info const& iType) {
+      try {
+        return typeDemangle(iType.name());
+      } catch (cms::Exception const& e) {
+        cms::Exception theError("Name Demangling Error");
+        theError << "TypeID::typeToClassName: can't demangle " << iType.name() << '\n';
+        theError.append(e);
+        throw theError;
+      }
     }
-  }
-}
+  }  // namespace
   struct TypeIDHasher {
     size_t operator()(TypeID const& tid) const {
       tbb::tbb_hash<std::string> hasher;
@@ -41,21 +40,18 @@ namespace {
     }
   };
 
-
-  std::string const&
-  TypeID::className() const {
+  std::string const& TypeID::className() const {
     typedef tbb::concurrent_unordered_map<edm::TypeID, std::string, TypeIDHasher> Map;
     static Map s_typeToName;
 
     auto itFound = s_typeToName.find(*this);
-    if(s_typeToName.end() == itFound) {
+    if (s_typeToName.end() == itFound) {
       itFound = s_typeToName.insert(Map::value_type(*this, typeToClassName(typeInfo()))).first;
     }
     return itFound->second;
   }
 
-  std::string
-  TypeID::userClassName() const {
+  std::string TypeID::userClassName() const {
     std::string theName = className();
     if (theName.find("edm::Wrapper") == 0) {
       stripTemplate(theName);
@@ -63,13 +59,9 @@ namespace {
     return theName;
   }
 
-  std::string
-  TypeID::friendlyClassName() const {
-    return friendlyname::friendlyName(className());
-  }
+  std::string TypeID::friendlyClassName() const { return friendlyname::friendlyName(className()); }
 
-  bool
-  stripTemplate(std::string& theName) {
+  bool stripTemplate(std::string& theName) {
     std::string const spec("<,>");
     char const space = ' ';
     std::string::size_type idx = theName.find_first_of(spec);
@@ -80,57 +72,53 @@ namespace {
     std::string::size_type after = idx;
     if (theName[idx] == '<') {
       after = theName.rfind('>');
-      assert (after != std::string::npos);
+      assert(after != std::string::npos);
       first = ++idx;
     } else {
       theName = theName.substr(0, idx);
     }
     std::string::size_type idxa = after;
-    while (space == theName[--idxa]) --after;
+    while (space == theName[--idxa])
+      --after;
     std::string::size_type idxf = first;
-    while (space == theName[idxf++]) ++first;
+    while (space == theName[idxf++])
+      ++first;
     theName = theName.substr(first, after - first);
     return true;
   }
 
-  std::string
-  stripNamespace(std::string const& theName) {
+  std::string stripNamespace(std::string const& theName) {
     // Find last colon
     std::string::size_type colonIndex = theName.rfind(':');
-    if(colonIndex == std::string::npos) {
+    if (colonIndex == std::string::npos) {
       // No colons, so no namespace to strip
       return theName;
     }
     std::string::size_type bracketIndex = theName.rfind('>');
-    if(bracketIndex == std::string::npos || bracketIndex < colonIndex) {
+    if (bracketIndex == std::string::npos || bracketIndex < colonIndex) {
       // No '>' after last colon.  Strip up to and including last colon.
-      return theName.substr(colonIndex+1);
+      return theName.substr(colonIndex + 1);
     }
     // There is a '>' after the last colon.
     int depth = 1;
-    for(size_t index = bracketIndex; index != 0; --index) {
-      char c = theName[index - 1]; 
-      if(c == '>') {
+    for (size_t index = bracketIndex; index != 0; --index) {
+      char c = theName[index - 1];
+      if (c == '>') {
         ++depth;
-      } else if(c == '<') {
+      } else if (c == '<') {
         --depth;
         assert(depth >= 0);
-      } else if(depth == 0 && c == ':') {
+      } else if (depth == 0 && c == ':') {
         return theName.substr(index);
       }
     }
     return theName;
   }
 
-  TypeID::operator bool() const {
-    return !(*this == nullTypeID);
-  }
+  TypeID::operator bool() const { return !(*this == nullTypeID); }
 
-
-  std::ostream&
-  operator<<(std::ostream& os, TypeID const& id) {
+  std::ostream& operator<<(std::ostream& os, TypeID const& id) {
     id.print(os);
     return os;
   }
-}
-
+}  // namespace edm

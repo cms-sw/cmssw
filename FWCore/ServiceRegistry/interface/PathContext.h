@@ -23,16 +23,9 @@ namespace edm {
 
   class PathContext {
   public:
+    enum class PathType { kPath, kEndPath };
 
-    enum class PathType {
-      kPath,
-      kEndPath
-    };
-
-    PathContext(std::string const& pathName,
-                StreamContext const* streamContext,
-                unsigned int pathID,
-                PathType pathType);
+    PathContext(std::string const& pathName, StreamContext const* streamContext, unsigned int pathID, PathType pathType);
 
     std::string const& pathName() const { return pathName_; }
     StreamContext const* streamContext() const { return streamContext_; }
@@ -49,5 +42,5 @@ namespace edm {
   };
 
   std::ostream& operator<<(std::ostream&, PathContext const&);
-}
+}  // namespace edm
 #endif

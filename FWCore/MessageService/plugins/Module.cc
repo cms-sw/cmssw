@@ -12,5 +12,3 @@ DEFINE_FWK_SERVICE(MessageLogger);
 DEFINE_FWK_PRESENCE(MessageServicePresence);
 DEFINE_FWK_PRESENCE(SingleThreadMSPresence);
 #pragma GCC visibility pop
- 
- 

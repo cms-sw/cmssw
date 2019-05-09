@@ -46,5 +46,5 @@ namespace edm {
   // the same shared resource name, there will be no performance effects.
   // This function provides a unique name to be used for that purpose.
   std::string uniqueSharedResourceName();
-}
+}  // namespace edm
 #endif

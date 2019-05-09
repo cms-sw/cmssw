@@ -3,8 +3,7 @@
 
 namespace edm {
 
-  void
-  IterWithDictBase::advance() {
+  void IterWithDictBase::advance() {
     if (atEnd_) {
       return;
     }
@@ -14,10 +13,7 @@ namespace edm {
     }
   }
 
-  TIter const&
-  IterWithDictBase::iter() const {
-    return iter_;
-  }
+  TIter const& IterWithDictBase::iter() const { return iter_; }
 
   IterWithDictBase::IterWithDictBase() : iter_(static_cast<TList*>(nullptr)), atEnd_(true) {
     // This ctor is used by the framework for the end of a range,
@@ -34,8 +30,7 @@ namespace edm {
     }
   }
 
-  bool
-  IterWithDictBase::operator!=(IterWithDictBase const& rhs) const {
+  bool IterWithDictBase::operator!=(IterWithDictBase const& rhs) const {
     // The special cases are needed because TIter::operator!=()
     // dereferences a null pointer (i.e. segfaults) if the left hand TIter
     // was constucted with a nullptr argument (the first constructor above).
@@ -51,4 +46,4 @@ namespace edm {
     return iter_ != rhs.iter_;
   }
 
-} // namespace edm
+}  // namespace edm

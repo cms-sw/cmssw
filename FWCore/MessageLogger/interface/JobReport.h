@@ -100,18 +100,17 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 
 namespace edm {
 
-    class JobReport {
-    public:
+  class JobReport {
+  public:
+    typedef unsigned int RunNumber;
+    typedef std::size_t Token;
 
-      typedef unsigned int RunNumber;
-      typedef std::size_t Token;
+    struct RunReport {
+      RunNumber runNumber;
+      std::map<unsigned int, unsigned long> lumiSectionsToNEvents;
+    };
 
-      struct RunReport {
-        RunNumber runNumber;
-        std::map<unsigned int,unsigned long> lumiSectionsToNEvents;
-      };
-
-      /**\struct InputFile
+    /**\struct InputFile
 
       Description: Holds information about an InputFile.
 
@@ -120,24 +119,24 @@ namespace edm {
       been opened for input.
       */
 
-      struct InputFile {
-        typedef std::vector<std::string> StringVector;
+    struct InputFile {
+      typedef std::vector<std::string> StringVector;
 
-        std::string     logicalFileName;
-        std::string     physicalFileName;
-        std::string     catalog;
-        std::string     inputType; // primaryFiles, secondaryFiles, mixingFiles
-        std::string     inputSourceClassName; // class which created the file
-        std::string     moduleLabel;   // name of class instance
-        std::string     guid;
-        std::size_t     numEventsRead;
-        StringVector    branchNames;
-        std::map<RunNumber, RunReport> runReports;
-        bool            fileHasBeenClosed;
-        std::set<std::string> fastClonedBranches;
-      };
+      std::string logicalFileName;
+      std::string physicalFileName;
+      std::string catalog;
+      std::string inputType;             // primaryFiles, secondaryFiles, mixingFiles
+      std::string inputSourceClassName;  // class which created the file
+      std::string moduleLabel;           // name of class instance
+      std::string guid;
+      std::size_t numEventsRead;
+      StringVector branchNames;
+      std::map<RunNumber, RunReport> runReports;
+      bool fileHasBeenClosed;
+      std::set<std::string> fastClonedBranches;
+    };
 
-      /**\struct OutputFile
+    /**\struct OutputFile
 
       Description: Holds information about an OutputFile.
 
@@ -146,83 +145,85 @@ namespace edm {
       been opened for output.
       */
 
-      struct OutputFile {
+    struct OutputFile {
+      typedef InputFile::StringVector StringVector;
 
-        typedef InputFile::StringVector StringVector;
+      std::string logicalFileName;
+      std::string physicalFileName;
+      std::string catalog;
+      std::string outputModuleClassName;
+      std::string moduleLabel;  // name of class instance
+      std::string guid;
+      std::string dataType;
+      std::string branchHash;
+      std::size_t numEventsWritten;
+      StringVector branchNames;
+      std::vector<Token> contributingInputs;
+      tbb::concurrent_vector<Token> contributingInputsSecSource;
+      std::map<std::string, bool> fastCopyingInputs;
+      std::map<RunNumber, RunReport> runReports;
+      bool fileHasBeenClosed;
+    };
 
-        std::string     logicalFileName;
-        std::string     physicalFileName;
-        std::string     catalog;
-        std::string     outputModuleClassName;
-        std::string     moduleLabel;   // name of class instance
-        std::string     guid;
-        std::string     dataType;
-        std::string     branchHash;
-        std::size_t     numEventsWritten;
-        StringVector    branchNames;
-        std::vector<Token> contributingInputs;
-        tbb::concurrent_vector<Token> contributingInputsSecSource;
-        std::map<std::string, bool> fastCopyingInputs;
-        std::map<RunNumber, RunReport> runReports;
-        bool            fileHasBeenClosed;
-      };
+    class AtomicLongLong {
+    public:
+      AtomicLongLong() : value_(0) {}
+      AtomicLongLong(AtomicLongLong const& r) : value_(r.value_.load()) {}
+      std::atomic<long long>& value() { return value_; }
+      std::atomic<long long> const& value() const { return value_; }
 
-      class AtomicLongLong {
-      public:
-        AtomicLongLong() : value_(0) {}
-        AtomicLongLong(AtomicLongLong const& r) : value_(r.value_.load()) {}
-        std::atomic<long long>& value() { return value_; }
-        std::atomic<long long> const& value() const { return value_; }
-      private:
-        std::atomic<long long> value_;
-      };
+    private:
+      std::atomic<long long> value_;
+    };
 
-      struct JobReportImpl {
+    struct JobReportImpl {
+      JobReportImpl& operator=(JobReportImpl const&) = delete;
+      JobReportImpl(JobReportImpl const&) = delete;
 
-        JobReportImpl& operator=(JobReportImpl const&) = delete;
-        JobReportImpl(JobReportImpl const&) = delete;
+      InputFile& getInputFileForToken(InputType inputType, Token t);
+      OutputFile& getOutputFileForToken(Token t);
 
-        InputFile& getInputFileForToken(InputType inputType, Token t);
-        OutputFile& getOutputFileForToken(Token t);
-
-        /*
+      /*
          * Add the input file token provided to every output
          * file currently available.
          * Used whenever a new input file is opened, it's token
          * is added to all open output files as a contributor
          */
-        void insertInputForOutputs(InputType inputType, Token t);
+      void insertInputForOutputs(InputType inputType, Token t);
 
-        /*
+      /*
          * Associate a Lumi Section to all open output files
          *
          */
-        void associateLumiSection(JobReport::Token token, unsigned int runNumber, unsigned int lumiSection, unsigned long nEvents);
+      void associateLumiSection(JobReport::Token token,
+                                unsigned int runNumber,
+                                unsigned int lumiSection,
+                                unsigned long nEvents);
 
-        /*
+      /*
          * Associate a Lumi Section to all open input files
          *
          */
-        void associateInputLumiSection(unsigned int runNumber, unsigned int lumiSection);
+      void associateInputLumiSection(unsigned int runNumber, unsigned int lumiSection);
 
-        /*
+      /*
          * Associate a run to all open output files
          */
-        void associateRun(JobReport::Token token, unsigned int runNumber);
+      void associateRun(JobReport::Token token, unsigned int runNumber);
 
-        /*
+      /*
          * Associate a run to all open output files
          */
-        void associateInputRun(unsigned int runNumber);
+      void associateInputRun(unsigned int runNumber);
 
-        /*
+      /*
          * Write an InputFile object to the Logger
          * Generate XML string for InputFile instance and dispatch to
          * job report via MessageLogger
          */
-        void writeInputFile(InputFile const& f);
+      void writeInputFile(InputFile const& f);
 
-        /*
+      /*
          * Write an OutputFile object to the Logger
          * Generate an XML string for the OutputFile provided and
          * dispatch it to the logger
@@ -236,206 +237,201 @@ namespace edm {
          * output file due to filtering etc.
          *
          */
-        void writeOutputFile(OutputFile const& f);
-
-        /*
-         *  Flush all open files to logger in event of a problem.
-         */
-        void flushFiles(void);
-
-        JobReportImpl(std::ostream* iOst): printedReadBranches_(false), ost_(iOst) {}
-
-        std::ostream const* ost() const {return get_underlying_safe(ost_);}
-        std::ostream*& ost() {return get_underlying_safe(ost_);}
-
-        std::vector<InputFile> inputFiles_;
-        tbb::concurrent_vector<InputFile> inputFilesSecSource_;
-        tbb::concurrent_vector<OutputFile> outputFiles_;
-        std::map<std::string, long long> readBranches_;
-        std::map<std::string, long long> readBranchesSecFile_;
-        tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;
-        bool printedReadBranches_;
-        std::vector<InputFile>::size_type lastOpenedPrimaryInputFile_;
-        edm::propagate_const<std::ostream*> ost_;
-      };
-
-      JobReport();
-      //Does not take ownership of pointer
-      JobReport(std::ostream* outputStream);
-
-      JobReport& operator=(JobReport const&) = delete;
-      JobReport(JobReport const&) = delete;
-
-      ~JobReport();
-
-      /// Report that an input file has been opened.
-      /// The returned Token should be used for later identification
-      /// of this file.
-      Token inputFileOpened(std::string const& physicalFileName,
-                            std::string const& logicalFileName,
-                            std::string const& catalog,
-                            std::string const& inputType,
-                            std::string const& inputSourceClassName,
-                            std::string const& moduleLabel,
-                            std::string const& guid,
-                            std::vector<std::string> const& branchNames);
-
-      /// Report that an event has been read from
-      /// the file identified by the given Token.
-      void eventReadFromFile(InputType inputType, Token fileToken);
-
-      ///
-      /// Report the data type of a file after it has been opened
-      /// Needed since the data type isn't known until an event has been
-      /// read
-      // CMS-THREADING Current implementation requires an instance of an
-      // OuputModule run on only one thread at a time.
-      void reportDataType(Token fileToken, std::string const& dataType);
-
-
-      /// Report that the input file identified by the given Token has
-      /// been closed. An exception will be thrown if the given Token
-      /// was not obtained from inputFileOpened.
-      void inputFileClosed(InputType inputType, Token fileToken);
-
-      /// Report that an output file has been opened.
-      /// The returned Token should be used for later identification
-      /// of this file.
-      Token outputFileOpened(std::string const& physicalFileName,
-                             std::string const& logicalFileName,
-                             std::string const& catalog,
-                             std::string const& outputModuleClassName,
-                             std::string const& moduleLabel,
-                             std::string const& guid,
-                             std::string const& dataType,
-                             std::string const& branchHash,
-                             std::vector<std::string> const& branchNames);
-
-      /// Report that the event with the given id has been written to
-      /// the file identified by the given Token.
-      // CMS-THREADING Current implementation requires an instance of an
-      // OuputModule run on only one thread at a time.
-      void eventWrittenToFile(Token fileToken, RunNumber_t run, EventNumber_t event);
-
-      /// Report that the output file identified by the given Token has
-      /// been closed. An exception will be thrown if the given Token
-      /// was not obtained from outputFileOpened.
-      void outputFileClosed(Token fileToken);
-
-      void reportSkippedEvent(RunNumber_t run, EventNumber_t event);
-
-      /// API for reporting a Run to the job report.
-      /// for output files, call only if Run is written to
-      /// the output file
-      ///
-      void reportRunNumber(JobReport::Token token, unsigned int run);
-
-      /// API for reporting a Lumi Section to the job report.
-      /// for output files, call only if lumi section is written to
-      /// the output file
-      ///
-      void reportLumiSection(JobReport::Token token, unsigned int run, unsigned int lumiSectId, unsigned long nEvents=0);
-
-      ///
-      /// API for reporting a Lumi Section to the job report.
-      /// for input files, call only if lumi section is physically read
-      /// from the input file
-      ///
-      void reportInputLumiSection(unsigned int run, unsigned int lumiSectId);
-
-      ///
-      /// API to report a run read from input
-      ///
-      void reportInputRunNumber(unsigned int run);
-
-      ///
-      /// Report an exception, providing details of the problem as
-      /// a short description (Eg "XXXError") and a long description
-      /// (Eg "XXX crashed because...")
-      /// Also overload this method to accept an optional standard exit code
-      void reportError(std::string const& shortDesc,
-                       std::string const& longDesc,
-                       int const& exitCode);
-
-      ///
-      /// Report Skipped File
-      ///
-      /// Report that a file has been skipped due to it not being
-      /// found.
-      void reportSkippedFile(std::string const& pfn, std::string const& lfn);
-
-      void reportFallbackAttempt(std::string const& pfn, std::string const& lfn, std::string const& err);
-
-      void reportAnalysisFile(std::string const& fileName,
-                              std::map<std::string, std::string> const& fileData) ;
-
-      ///
-      /// Report Memory statistics
-      /// ALTERNATE FORM - USING THIS MAY NECESSITATE CHANGES IN PARSING XML!
-      /// Invoked by the Memory service to send an end of job
-      /// summary about memory usage for inclusion in the job report
-      ///
-      void reportMemoryInfo(std::vector<std::string> const& memoryData);
-
-      ///
-      /// Report Message statistics
-      /// Invoked by the MessageLogger service to send an end of job
-      /// summary about numbers of various categories messages issued
-      /// for inclusion in the job report
-      ///
-      void reportMessageInfo(std::map<std::string, double> const& messageData);
-
-      ///
-      /// Report read branches
-      /// Invoked by the source that reads ROOT/EDM files at the end of a job
-      /// to report which product branches in the Events tree have been read,
-      /// with a count of the number of events for which the branch was read.
-      ///
-      void reportReadBranches();
-
-      ///  Inform the job report that a branch has been read.
-      void reportReadBranch(InputType inputType, std::string const& branchName);
-
-      ///  Inform the job report that branches have been fast Cloned.
-      void reportFastClonedBranches(std::set<std::string> const& fastClonedBranches, long long nEvents);
-
-      ///
-      /// Report the name of the random engine persistency file
-      ///
-      void reportRandomStateFile(std::string const& name);
+      void writeOutputFile(OutputFile const& f);
 
       /*
+         *  Flush all open files to logger in event of a problem.
+         */
+      void flushFiles(void);
+
+      JobReportImpl(std::ostream* iOst) : printedReadBranches_(false), ost_(iOst) {}
+
+      std::ostream const* ost() const { return get_underlying_safe(ost_); }
+      std::ostream*& ost() { return get_underlying_safe(ost_); }
+
+      std::vector<InputFile> inputFiles_;
+      tbb::concurrent_vector<InputFile> inputFilesSecSource_;
+      tbb::concurrent_vector<OutputFile> outputFiles_;
+      std::map<std::string, long long> readBranches_;
+      std::map<std::string, long long> readBranchesSecFile_;
+      tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;
+      bool printedReadBranches_;
+      std::vector<InputFile>::size_type lastOpenedPrimaryInputFile_;
+      edm::propagate_const<std::ostream*> ost_;
+    };
+
+    JobReport();
+    //Does not take ownership of pointer
+    JobReport(std::ostream* outputStream);
+
+    JobReport& operator=(JobReport const&) = delete;
+    JobReport(JobReport const&) = delete;
+
+    ~JobReport();
+
+    /// Report that an input file has been opened.
+    /// The returned Token should be used for later identification
+    /// of this file.
+    Token inputFileOpened(std::string const& physicalFileName,
+                          std::string const& logicalFileName,
+                          std::string const& catalog,
+                          std::string const& inputType,
+                          std::string const& inputSourceClassName,
+                          std::string const& moduleLabel,
+                          std::string const& guid,
+                          std::vector<std::string> const& branchNames);
+
+    /// Report that an event has been read from
+    /// the file identified by the given Token.
+    void eventReadFromFile(InputType inputType, Token fileToken);
+
+    ///
+    /// Report the data type of a file after it has been opened
+    /// Needed since the data type isn't known until an event has been
+    /// read
+    // CMS-THREADING Current implementation requires an instance of an
+    // OuputModule run on only one thread at a time.
+    void reportDataType(Token fileToken, std::string const& dataType);
+
+    /// Report that the input file identified by the given Token has
+    /// been closed. An exception will be thrown if the given Token
+    /// was not obtained from inputFileOpened.
+    void inputFileClosed(InputType inputType, Token fileToken);
+
+    /// Report that an output file has been opened.
+    /// The returned Token should be used for later identification
+    /// of this file.
+    Token outputFileOpened(std::string const& physicalFileName,
+                           std::string const& logicalFileName,
+                           std::string const& catalog,
+                           std::string const& outputModuleClassName,
+                           std::string const& moduleLabel,
+                           std::string const& guid,
+                           std::string const& dataType,
+                           std::string const& branchHash,
+                           std::vector<std::string> const& branchNames);
+
+    /// Report that the event with the given id has been written to
+    /// the file identified by the given Token.
+    // CMS-THREADING Current implementation requires an instance of an
+    // OuputModule run on only one thread at a time.
+    void eventWrittenToFile(Token fileToken, RunNumber_t run, EventNumber_t event);
+
+    /// Report that the output file identified by the given Token has
+    /// been closed. An exception will be thrown if the given Token
+    /// was not obtained from outputFileOpened.
+    void outputFileClosed(Token fileToken);
+
+    void reportSkippedEvent(RunNumber_t run, EventNumber_t event);
+
+    /// API for reporting a Run to the job report.
+    /// for output files, call only if Run is written to
+    /// the output file
+    ///
+    void reportRunNumber(JobReport::Token token, unsigned int run);
+
+    /// API for reporting a Lumi Section to the job report.
+    /// for output files, call only if lumi section is written to
+    /// the output file
+    ///
+    void reportLumiSection(JobReport::Token token, unsigned int run, unsigned int lumiSectId, unsigned long nEvents = 0);
+
+    ///
+    /// API for reporting a Lumi Section to the job report.
+    /// for input files, call only if lumi section is physically read
+    /// from the input file
+    ///
+    void reportInputLumiSection(unsigned int run, unsigned int lumiSectId);
+
+    ///
+    /// API to report a run read from input
+    ///
+    void reportInputRunNumber(unsigned int run);
+
+    ///
+    /// Report an exception, providing details of the problem as
+    /// a short description (Eg "XXXError") and a long description
+    /// (Eg "XXX crashed because...")
+    /// Also overload this method to accept an optional standard exit code
+    void reportError(std::string const& shortDesc, std::string const& longDesc, int const& exitCode);
+
+    ///
+    /// Report Skipped File
+    ///
+    /// Report that a file has been skipped due to it not being
+    /// found.
+    void reportSkippedFile(std::string const& pfn, std::string const& lfn);
+
+    void reportFallbackAttempt(std::string const& pfn, std::string const& lfn, std::string const& err);
+
+    void reportAnalysisFile(std::string const& fileName, std::map<std::string, std::string> const& fileData);
+
+    ///
+    /// Report Memory statistics
+    /// ALTERNATE FORM - USING THIS MAY NECESSITATE CHANGES IN PARSING XML!
+    /// Invoked by the Memory service to send an end of job
+    /// summary about memory usage for inclusion in the job report
+    ///
+    void reportMemoryInfo(std::vector<std::string> const& memoryData);
+
+    ///
+    /// Report Message statistics
+    /// Invoked by the MessageLogger service to send an end of job
+    /// summary about numbers of various categories messages issued
+    /// for inclusion in the job report
+    ///
+    void reportMessageInfo(std::map<std::string, double> const& messageData);
+
+    ///
+    /// Report read branches
+    /// Invoked by the source that reads ROOT/EDM files at the end of a job
+    /// to report which product branches in the Events tree have been read,
+    /// with a count of the number of events for which the branch was read.
+    ///
+    void reportReadBranches();
+
+    ///  Inform the job report that a branch has been read.
+    void reportReadBranch(InputType inputType, std::string const& branchName);
+
+    ///  Inform the job report that branches have been fast Cloned.
+    void reportFastClonedBranches(std::set<std::string> const& fastClonedBranches, long long nEvents);
+
+    ///
+    /// Report the name of the random engine persistency file
+    ///
+    void reportRandomStateFile(std::string const& name);
+
+    /*
        * Report information about fast copying. Called for each open output file
        * whenever an input file is opened.
        */
-      void reportFastCopyingStatus(Token t, std::string const& inputFileName, bool fastCopying);
+    void reportFastCopyingStatus(Token t, std::string const& inputFileName, bool fastCopying);
 
-      ///
-      /// Performance Reports
-      ///
-      /// Two categories:  Summary for entire job and module
-      /// for a specific module
-      /// Each one requires a performance metric class such
-      /// as Timing, Memory, CPU, Trigger etc.
-      void reportPerformanceSummary(std::string const&  metricClass,
+    ///
+    /// Performance Reports
+    ///
+    /// Two categories:  Summary for entire job and module
+    /// for a specific module
+    /// Each one requires a performance metric class such
+    /// as Timing, Memory, CPU, Trigger etc.
+    void reportPerformanceSummary(std::string const& metricClass, std::map<std::string, std::string> const& metrics);
+
+    void reportPerformanceForModule(std::string const& metricClass,
+                                    std::string const& moduleName,
                                     std::map<std::string, std::string> const& metrics);
 
-      void reportPerformanceForModule(std::string const&  metricClass,
-                                      std::string const&  moduleName,
-                                      std::map<std::string, std::string> const& metrics);
+    /// debug/test util
+    std::string dumpFiles(void);
 
-      /// debug/test util
-      std::string dumpFiles(void);
+  protected:
+    edm::propagate_const<std::unique_ptr<JobReportImpl>>& impl() { return impl_; }
 
-   protected:
-      edm::propagate_const<std::unique_ptr<JobReportImpl>>& impl() {return impl_;}
+  private:
+    edm::propagate_const<std::unique_ptr<JobReportImpl>> impl_;
+    std::mutex write_mutex;
+  };
 
-   private:
-      edm::propagate_const<std::unique_ptr<JobReportImpl>> impl_;
-      std::mutex write_mutex;
-   };
-
-   std::ostream& operator<< (std::ostream& os, JobReport::InputFile const& f);
-   std::ostream& operator<< (std::ostream& os, JobReport::OutputFile const& f);
-}
+  std::ostream& operator<<(std::ostream& os, JobReport::InputFile const& f);
+  std::ostream& operator<<(std::ostream& os, JobReport::OutputFile const& f);
+}  // namespace edm
 #endif
