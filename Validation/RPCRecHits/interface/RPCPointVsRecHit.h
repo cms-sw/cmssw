@@ -21,10 +21,8 @@ public:
   RPCPointVsRecHit(const edm::ParameterSet &pset);
   ~RPCPointVsRecHit() override{};
 
-  void analyze(const edm::Event &event,
-               const edm::EventSetup &eventSetup) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   edm::EDGetTokenT<RPCRecHitCollection> refHitToken_, recHitToken_;
@@ -33,4 +31,4 @@ private:
   RPCValidHistograms h_;
 };
 
-#endif // Validation_RPCRecHits_RPCPointVsRecHit_h
+#endif  // Validation_RPCRecHits_RPCPointVsRecHit_h

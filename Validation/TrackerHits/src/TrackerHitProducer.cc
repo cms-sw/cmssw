@@ -34,46 +34,43 @@
 #include <memory>
 
 TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet &iPSet)
-    : getAllProvenances(
-          iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup")
-              .getUntrackedParameter<bool>("GetAllProvenances", false)),
-      printProvenanceInfo(
-          iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup")
-              .getUntrackedParameter<bool>("PrintProvenanceInfo", false)),
-      verbosity(iPSet.getUntrackedParameter<int>("Verbosity", 0)), count(0),
-      nRawGenPart(0), config_(iPSet),
-      edmHepMCProductToken_(consumes<edm::HepMCProduct>(edm::InputTag(
-          iPSet.getUntrackedParameter<std::string>("HepMCProductLabel",
-                                                   "source"),
-          iPSet.getUntrackedParameter<std::string>("HepMCInputInstance", "")))),
-      edmSimVertexContainerToken_(consumes<edm::SimVertexContainer>(
-          iPSet.getParameter<edm::InputTag>("G4VtxSrc"))),
-      edmSimTrackContainerToken_(consumes<edm::SimTrackContainer>(
-          iPSet.getParameter<edm::InputTag>("G4TrkSrc"))),
-      edmPSimHitContainer_pxlBrlLow_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc"))),
-      edmPSimHitContainer_pxlBrlHigh_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("PxlBrlHighSrc"))),
-      edmPSimHitContainer_pxlFwdLow_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("PxlFwdLowSrc"))),
-      edmPSimHitContainer_pxlFwdHigh_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("PxlFwdHighSrc"))),
-      edmPSimHitContainer_siTIBLow_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("SiTIBLowSrc"))),
-      edmPSimHitContainer_siTIBHigh_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("SiTIBHighSrc"))),
-      edmPSimHitContainer_siTOBLow_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("SiTOBLowSrc"))),
-      edmPSimHitContainer_siTOBHigh_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("SiTOBHighSrc"))),
-      edmPSimHitContainer_siTIDLow_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("SiTIDLowSrc"))),
-      edmPSimHitContainer_siTIDHigh_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("SiTIDHighSrc"))),
-      edmPSimHitContainer_siTECLow_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("SiTECLowSrc"))),
-      edmPSimHitContainer_siTECHigh_Token_(consumes<edm::PSimHitContainer>(
-          iPSet.getParameter<edm::InputTag>("SiTECHighSrc"))),
+    : getAllProvenances(iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup")
+                            .getUntrackedParameter<bool>("GetAllProvenances", false)),
+      printProvenanceInfo(iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup")
+                              .getUntrackedParameter<bool>("PrintProvenanceInfo", false)),
+      verbosity(iPSet.getUntrackedParameter<int>("Verbosity", 0)),
+      count(0),
+      nRawGenPart(0),
+      config_(iPSet),
+      edmHepMCProductToken_(consumes<edm::HepMCProduct>(
+          edm::InputTag(iPSet.getUntrackedParameter<std::string>("HepMCProductLabel", "source"),
+                        iPSet.getUntrackedParameter<std::string>("HepMCInputInstance", "")))),
+      edmSimVertexContainerToken_(consumes<edm::SimVertexContainer>(iPSet.getParameter<edm::InputTag>("G4VtxSrc"))),
+      edmSimTrackContainerToken_(consumes<edm::SimTrackContainer>(iPSet.getParameter<edm::InputTag>("G4TrkSrc"))),
+      edmPSimHitContainer_pxlBrlLow_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc"))),
+      edmPSimHitContainer_pxlBrlHigh_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("PxlBrlHighSrc"))),
+      edmPSimHitContainer_pxlFwdLow_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("PxlFwdLowSrc"))),
+      edmPSimHitContainer_pxlFwdHigh_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("PxlFwdHighSrc"))),
+      edmPSimHitContainer_siTIBLow_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("SiTIBLowSrc"))),
+      edmPSimHitContainer_siTIBHigh_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("SiTIBHighSrc"))),
+      edmPSimHitContainer_siTOBLow_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("SiTOBLowSrc"))),
+      edmPSimHitContainer_siTOBHigh_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("SiTOBHighSrc"))),
+      edmPSimHitContainer_siTIDLow_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("SiTIDLowSrc"))),
+      edmPSimHitContainer_siTIDHigh_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("SiTIDHighSrc"))),
+      edmPSimHitContainer_siTECLow_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("SiTECLowSrc"))),
+      edmPSimHitContainer_siTECHigh_Token_(
+          consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("SiTECHighSrc"))),
       fName(iPSet.getUntrackedParameter<std::string>("Name", "")),
       label(iPSet.getParameter<std::string>("Label")) {
   // use value of first digit to determine default output level (inclusive)
@@ -93,41 +90,29 @@ TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet &iPSet)
         << "    Label     =" << label << "\n"
         << "    GetProv   =" << getAllProvenances << "\n"
         << "    PrintProv =" << printProvenanceInfo << "\n"
-        << "    PxlBrlLowSrc  = "
-        << iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc").label() << ":"
+        << "    PxlBrlLowSrc  = " << iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc").instance() << "\n"
-        << "    PxlBrlHighSrc = "
-        << iPSet.getParameter<edm::InputTag>("PxlBrlHighSrc").label() << ":"
+        << "    PxlBrlHighSrc = " << iPSet.getParameter<edm::InputTag>("PxlBrlHighSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("PxlBrlHighSrc").instance() << "\n"
-        << "    PxlFwdLowSrc  = "
-        << iPSet.getParameter<edm::InputTag>("PxlFwdLowSrc").label() << ":"
+        << "    PxlFwdLowSrc  = " << iPSet.getParameter<edm::InputTag>("PxlFwdLowSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("PxlFwdLowSrc").instance() << "\n"
-        << "    PxlFwdHighSrc = "
-        << iPSet.getParameter<edm::InputTag>("PxlFwdHighSrc").label() << ":"
+        << "    PxlFwdHighSrc = " << iPSet.getParameter<edm::InputTag>("PxlFwdHighSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("PxlFwdHighSrc").instance() << "\n"
-        << "    SiTIBLowSrc   = "
-        << iPSet.getParameter<edm::InputTag>("SiTIBLowSrc").label() << ":"
+        << "    SiTIBLowSrc   = " << iPSet.getParameter<edm::InputTag>("SiTIBLowSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("SiTIBLowSrc").instance() << "\n"
-        << "    SiTIBHighSrc  = "
-        << iPSet.getParameter<edm::InputTag>("SiTIBHighSrc").label() << ":"
+        << "    SiTIBHighSrc  = " << iPSet.getParameter<edm::InputTag>("SiTIBHighSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("SiTIBHighSrc").instance() << "\n"
-        << "    SiTOBLowSrc   = "
-        << iPSet.getParameter<edm::InputTag>("SiTOBLowSrc").label() << ":"
+        << "    SiTOBLowSrc   = " << iPSet.getParameter<edm::InputTag>("SiTOBLowSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("SiTOBLowSrc").instance() << "\n"
-        << "    SiTOBHighSrc  = "
-        << iPSet.getParameter<edm::InputTag>("SiTOBHighSrc").label() << ":"
+        << "    SiTOBHighSrc  = " << iPSet.getParameter<edm::InputTag>("SiTOBHighSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("SiTOBHighSrc").instance() << "\n"
-        << "    SiTIDLowSrc   = "
-        << iPSet.getParameter<edm::InputTag>("SiTIDLowSrc").label() << ":"
+        << "    SiTIDLowSrc   = " << iPSet.getParameter<edm::InputTag>("SiTIDLowSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("SiTIDLowSrc").instance() << "\n"
-        << "    SiTIDHighSrc  = "
-        << iPSet.getParameter<edm::InputTag>("SiTIDHighSrc").label() << ":"
+        << "    SiTIDHighSrc  = " << iPSet.getParameter<edm::InputTag>("SiTIDHighSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("SiTIDHighSrc").instance() << "\n"
-        << "    SiTECLowSrc   = "
-        << iPSet.getParameter<edm::InputTag>("SiTECLowSrc").label() << ":"
+        << "    SiTECLowSrc   = " << iPSet.getParameter<edm::InputTag>("SiTECLowSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("SiTECLowSrc").instance() << "\n"
-        << "    SiTECHighSrc  = "
-        << iPSet.getParameter<edm::InputTag>("SiTECHighSrc").label() << ":"
+        << "    SiTECHighSrc  = " << iPSet.getParameter<edm::InputTag>("SiTECHighSrc").label() << ":"
         << iPSet.getParameter<edm::InputTag>("SiTECHighSrc").instance() << "\n"
         << "===============================\n";
   }
@@ -144,13 +129,11 @@ void TrackerHitProducer::beginJob() {
 
 void TrackerHitProducer::endJob() {
   if (verbosity > 0)
-    edm::LogInfo("TrackerHitProducer::endJob")
-        << "Terminating having processed" << count << "events.";
+    edm::LogInfo("TrackerHitProducer::endJob") << "Terminating having processed" << count << "events.";
   return;
 }
 
-void TrackerHitProducer::produce(edm::Event &iEvent,
-                                 const edm::EventSetup &iSetup) {
+void TrackerHitProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // keep track of number of events processed
   ++count;
 
@@ -163,9 +146,8 @@ void TrackerHitProducer::produce(edm::Event &iEvent,
   // iSetup.get<edm::SetupRecord>().get(pSetup);
 
   if (verbosity > 0) {
-    edm::LogInfo("TrackerHitProducer::produce")
-        << "Processing run" << nrun << ","
-        << "event " << nevt;
+    edm::LogInfo("TrackerHitProducer::produce") << "Processing run" << nrun << ","
+                                                << "event " << nevt;
   }
 
   // clear event holders
@@ -173,13 +155,11 @@ void TrackerHitProducer::produce(edm::Event &iEvent,
 
   // look at information available in the event
   if (getAllProvenances) {
-
     std::vector<const edm::StableProvenance *> AllProv;
     iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity > 0)
-      edm::LogInfo("TrackerHitProducer::produce")
-          << "Number of Provenances =" << AllProv.size();
+      edm::LogInfo("TrackerHitProducer::produce") << "Number of Provenances =" << AllProv.size();
 
     if (printProvenanceInfo && (verbosity > 0)) {
       TString eventout("\nProvenance info:\n");
@@ -211,8 +191,7 @@ void TrackerHitProducer::produce(edm::Event &iEvent,
   fillTrk(iEvent, iSetup);
 
   if (verbosity > 0)
-    edm::LogInfo("TrackerHitProducer::produce")
-        << "Done gathering data from event.";
+    edm::LogInfo("TrackerHitProducer::produce") << "Done gathering data from event.";
 
   // produce object to put into event
   std::unique_ptr<PTrackerSimHit> pOut(new PTrackerSimHit);
@@ -234,7 +213,6 @@ void TrackerHitProducer::produce(edm::Event &iEvent,
 
 //==================fill and store functions================================
 void TrackerHitProducer::fillG4MC(edm::Event &iEvent) {
-
   TString eventout;
   if (verbosity > 0)
     eventout = "\nGathering info:";
@@ -245,8 +223,7 @@ void TrackerHitProducer::fillG4MC(edm::Event &iEvent) {
   edm::Handle<edm::HepMCProduct> HepMCEvt_;
   iEvent.getByToken(edmHepMCProductToken_, HepMCEvt_);
   if (!HepMCEvt_.isValid()) {
-    edm::LogError("TrackerHitProducer::fillG4MC")
-        << "Unable to find HepMCProduct in event!";
+    edm::LogError("TrackerHitProducer::fillG4MC") << "Unable to find HepMCProduct in event!";
     return;
   }
   const HepMC::GenEvent *MCEvt = HepMCEvt_->GetEvent();
@@ -263,25 +240,21 @@ void TrackerHitProducer::fillG4MC(edm::Event &iEvent) {
   edm::Handle<edm::SimVertexContainer> G4VtxContainer;
   iEvent.getByToken(edmSimVertexContainerToken_, G4VtxContainer);
   if (!G4VtxContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillG4MC")
-        << "Unable to find SimVertex in event!";
+    edm::LogError("TrackerHitProducer::fillG4MC") << "Unable to find SimVertex in event!";
     return;
   }
   int i = 0;
   edm::SimVertexContainer::const_iterator itVtx;
-  for (itVtx = G4VtxContainer->begin(); itVtx != G4VtxContainer->end();
-       ++itVtx) {
-
+  for (itVtx = G4VtxContainer->begin(); itVtx != G4VtxContainer->end(); ++itVtx) {
     ++i;
 
-    const CLHEP::HepLorentzVector &G4Vtx =
-        CLHEP::HepLorentzVector(itVtx->position().x(), itVtx->position().y(),
-                                itVtx->position().z(), itVtx->position().e());
-    G4VtxX.push_back(G4Vtx[0] / micrometer); // cm from code -> micrometer
-                                             // *10000
-    G4VtxY.push_back(G4Vtx[1] / micrometer); // cm from code -> micrometer
-                                             // *10000
-    G4VtxZ.push_back(G4Vtx[2] / millimeter); // cm from code -> millimeter *10
+    const CLHEP::HepLorentzVector &G4Vtx = CLHEP::HepLorentzVector(
+        itVtx->position().x(), itVtx->position().y(), itVtx->position().z(), itVtx->position().e());
+    G4VtxX.push_back(G4Vtx[0] / micrometer);  // cm from code -> micrometer
+                                              // *10000
+    G4VtxY.push_back(G4Vtx[1] / micrometer);  // cm from code -> micrometer
+                                              // *10000
+    G4VtxZ.push_back(G4Vtx[2] / millimeter);  // cm from code -> millimeter *10
   }
 
   if (verbosity > 1) {
@@ -295,26 +268,20 @@ void TrackerHitProducer::fillG4MC(edm::Event &iEvent) {
   edm::Handle<edm::SimTrackContainer> G4TrkContainer;
   iEvent.getByToken(edmSimTrackContainerToken_, G4TrkContainer);
   if (!G4TrkContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillG4MC")
-        << "Unable to find SimTrack in event!";
+    edm::LogError("TrackerHitProducer::fillG4MC") << "Unable to find SimTrack in event!";
     return;
   }
   i = 0;
   edm::SimTrackContainer::const_iterator itTrk;
-  for (itTrk = G4TrkContainer->begin(); itTrk != G4TrkContainer->end();
-       ++itTrk) {
-
+  for (itTrk = G4TrkContainer->begin(); itTrk != G4TrkContainer->end(); ++itTrk) {
     ++i;
 
     double etaInit = 0, phiInit = 0, pInit = 0;
-    const CLHEP::HepLorentzVector &G4Trk =
-        CLHEP::HepLorentzVector(itTrk->momentum().x(), itTrk->momentum().y(),
-                                itTrk->momentum().z(), itTrk->momentum().e());
-    pInit =
-        sqrt(G4Trk[0] * G4Trk[0] + G4Trk[1] * G4Trk[1] + G4Trk[2] * G4Trk[2]);
+    const CLHEP::HepLorentzVector &G4Trk = CLHEP::HepLorentzVector(
+        itTrk->momentum().x(), itTrk->momentum().y(), itTrk->momentum().z(), itTrk->momentum().e());
+    pInit = sqrt(G4Trk[0] * G4Trk[0] + G4Trk[1] * G4Trk[1] + G4Trk[2] * G4Trk[2]);
     if (pInit == 0)
-      edm::LogError("TrackerHitProducer::fillG4MC")
-          << "TrackerTest::INFO: Primary has p = 0 ";
+      edm::LogError("TrackerHitProducer::fillG4MC") << "TrackerTest::INFO: Primary has p = 0 ";
     else {
       double costheta = G4Trk[2] / pInit;
       double theta = acos(TMath::Min(TMath::Max(costheta, -1.), 1.));
@@ -323,8 +290,8 @@ void TrackerHitProducer::fillG4MC(edm::Event &iEvent) {
       if (G4Trk[0] != 0 || G4Trk[1] != 0)
         phiInit = atan2(G4Trk[1], G4Trk[0]);
     }
-    G4TrkPt.push_back(sqrt(G4Trk[0] * G4Trk[0] + G4Trk[1] * G4Trk[1])); // GeV
-    G4TrkE.push_back(G4Trk[3]);                                         // GeV
+    G4TrkPt.push_back(sqrt(G4Trk[0] * G4Trk[0] + G4Trk[1] * G4Trk[1]));  // GeV
+    G4TrkE.push_back(G4Trk[3]);                                          // GeV
     G4TrkEta.push_back(etaInit);
     G4TrkPhi.push_back(phiInit);
   }
@@ -341,7 +308,6 @@ void TrackerHitProducer::fillG4MC(edm::Event &iEvent) {
 }
 
 void TrackerHitProducer::storeG4MC(PTrackerSimHit &product) {
-
   if (verbosity > 2) {
     TString eventout("\nnRawGenPart        = ");
     eventout += nRawGenPart;
@@ -370,7 +336,7 @@ void TrackerHitProducer::storeG4MC(PTrackerSimHit &product) {
       eventout += ")";
     }
     edm::LogInfo("TrackerHitProducer::storeG4MC") << eventout;
-  } // end verbose output
+  }  // end verbose output
 
   product.putRawGenPart(nRawGenPart);
   product.putG4Vtx(G4VtxX, G4VtxY, G4VtxZ);
@@ -379,8 +345,7 @@ void TrackerHitProducer::storeG4MC(PTrackerSimHit &product) {
   return;
 }
 
-void TrackerHitProducer::fillTrk(edm::Event &iEvent,
-                                 const edm::EventSetup &iSetup) {
+void TrackerHitProducer::fillTrk(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   TString eventout;
   int sysID = 0;
   if (verbosity > 0)
@@ -398,8 +363,7 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> PxlBrlLowContainer;
   iEvent.getByToken(edmPSimHitContainer_pxlBrlLow_Token_, PxlBrlLowContainer);
   if (!PxlBrlLowContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
     return;
   }
 
@@ -407,10 +371,9 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   //  theHits.insert(theHits.end(),PxlBrlLowContainer->begin(),
   //             PxlBrlLowContainer->end());
 
-  sysID = 100; // TrackerHitsPixelBarrelLowTof
+  sysID = 100;  // TrackerHitsPixelBarrelLowTof
   int j = 0;
-  for (itHit = PxlBrlLowContainer->begin(); itHit != PxlBrlLowContainer->end();
-       ++itHit) {
+  for (itHit = PxlBrlLowContainer->begin(); itHit != PxlBrlLowContainer->end(); ++itHit) {
     //  for (itHit = theHits.begin(); itHit != theHits.end(); ++itHit) {
 
     // gather necessary information
@@ -443,11 +406,10 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through PxlBrl Hits
+  }  // end loop through PxlBrl Hits
 
   if (verbosity > 1) {
-    eventout +=
-        "\n          Number of Pixel Barrel Low TOF Hits collected:     ";
+    eventout += "\n          Number of Pixel Barrel Low TOF Hits collected:     ";
     eventout += j;
   }
 
@@ -457,16 +419,13 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> PxlBrlHighContainer;
   iEvent.getByToken(edmPSimHitContainer_pxlBrlHigh_Token_, PxlBrlHighContainer);
   if (!PxlBrlHighContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
     return;
   }
 
-  sysID = 200; // TrackerHitsPixelBarrelHighTof
+  sysID = 200;  // TrackerHitsPixelBarrelHighTof
   j = 0;
-  for (itHit = PxlBrlHighContainer->begin();
-       itHit != PxlBrlHighContainer->end(); ++itHit) {
-
+  for (itHit = PxlBrlHighContainer->begin(); itHit != PxlBrlHighContainer->end(); ++itHit) {
     // gather necessary information
     ++j;
     HitsSysID.push_back(sysID);
@@ -497,11 +456,10 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through PxlBrl Hits
+  }  // end loop through PxlBrl Hits
 
   if (verbosity > 1) {
-    eventout +=
-        "\n          Number of Pixel Barrel High TOF Hits collected:     ";
+    eventout += "\n          Number of Pixel Barrel High TOF Hits collected:     ";
     eventout += j;
   }
 
@@ -512,16 +470,13 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> PxlFwdLowContainer;
   iEvent.getByToken(edmPSimHitContainer_pxlFwdLow_Token_, PxlFwdLowContainer);
   if (!PxlFwdLowContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
     return;
   }
 
-  sysID = 300; // TrackerHitsPixelEndcapLowTof
+  sysID = 300;  // TrackerHitsPixelEndcapLowTof
   j = 0;
-  for (itHit = PxlFwdLowContainer->begin(); itHit != PxlFwdLowContainer->end();
-       ++itHit) {
-
+  for (itHit = PxlFwdLowContainer->begin(); itHit != PxlFwdLowContainer->end(); ++itHit) {
     // gather necessary information
     ++j;
     HitsSysID.push_back(sysID);
@@ -552,11 +507,10 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through PxlFwd Hits
+  }  // end loop through PxlFwd Hits
 
   if (verbosity > 1) {
-    eventout +=
-        "\n          Number of Pixel Forward Low TOF Hits collected:     ";
+    eventout += "\n          Number of Pixel Forward Low TOF Hits collected:     ";
     eventout += j;
   }
 
@@ -564,16 +518,13 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
   iEvent.getByToken(edmPSimHitContainer_pxlFwdHigh_Token_, PxlFwdHighContainer);
   if (!PxlFwdHighContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
     return;
   }
 
-  sysID = 400; // TrackerHitsPixelEndcapHighTof
+  sysID = 400;  // TrackerHitsPixelEndcapHighTof
   j = 0;
-  for (itHit = PxlFwdHighContainer->begin();
-       itHit != PxlFwdHighContainer->end(); ++itHit) {
-
+  for (itHit = PxlFwdHighContainer->begin(); itHit != PxlFwdHighContainer->end(); ++itHit) {
     // gather necessary information
     ++j;
     HitsSysID.push_back(sysID);
@@ -604,11 +555,10 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through PxlFwd Hits
+  }  // end loop through PxlFwd Hits
 
   if (verbosity > 1) {
-    eventout +=
-        "\n          Number of Pixel Forward High TOF Hits collected:     ";
+    eventout += "\n          Number of Pixel Forward High TOF Hits collected:     ";
     eventout += j;
   }
 
@@ -619,16 +569,13 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> SiTIBLowContainer;
   iEvent.getByToken(edmPSimHitContainer_siTIBLow_Token_, SiTIBLowContainer);
   if (!SiTIBLowContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsTIBLowTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsTIBLowTof in event!";
     return;
   }
 
-  sysID = 10; // TrackerHitsTIBLowTof
+  sysID = 10;  // TrackerHitsTIBLowTof
   j = 0;
-  for (itHit = SiTIBLowContainer->begin(); itHit != SiTIBLowContainer->end();
-       ++itHit) {
-
+  for (itHit = SiTIBLowContainer->begin(); itHit != SiTIBLowContainer->end(); ++itHit) {
     // gather necessary information
     ++j;
     HitsSysID.push_back(sysID);
@@ -659,7 +606,7 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through PxlFwd Hits
+  }  // end loop through PxlFwd Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of TIB low TOF Hits collected:     ";
@@ -670,16 +617,13 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> SiTIBHighContainer;
   iEvent.getByToken(edmPSimHitContainer_siTIBHigh_Token_, SiTIBHighContainer);
   if (!SiTIBHighContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsTIBHighTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsTIBHighTof in event!";
     return;
   }
 
-  sysID = 20; // TrackerHitsTIBHighTof
+  sysID = 20;  // TrackerHitsTIBHighTof
   j = 0;
-  for (itHit = SiTIBHighContainer->begin(); itHit != SiTIBHighContainer->end();
-       ++itHit) {
-
+  for (itHit = SiTIBHighContainer->begin(); itHit != SiTIBHighContainer->end(); ++itHit) {
     // gather necessary information
     ++j;
     HitsSysID.push_back(sysID);
@@ -710,7 +654,7 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through PxlFwd Hits
+  }  // end loop through PxlFwd Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of TIB high TOF Hits collected:     ";
@@ -724,16 +668,13 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> SiTOBLowContainer;
   iEvent.getByToken(edmPSimHitContainer_siTOBLow_Token_, SiTOBLowContainer);
   if (!SiTOBLowContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsTOBLowTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsTOBLowTof in event!";
     return;
   }
 
-  sysID = 30; // TrackerHitsTOBLowTof
+  sysID = 30;  // TrackerHitsTOBLowTof
   j = 0;
-  for (itHit = SiTOBLowContainer->begin(); itHit != SiTOBLowContainer->end();
-       ++itHit) {
-
+  for (itHit = SiTOBLowContainer->begin(); itHit != SiTOBLowContainer->end(); ++itHit) {
     // gather necessary information
     ++j;
     HitsSysID.push_back(sysID);
@@ -764,7 +705,7 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through PxlFwd Hits
+  }  // end loop through PxlFwd Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of TOB low TOF Hits collected:     ";
@@ -775,16 +716,13 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> SiTOBHighContainer;
   iEvent.getByToken(edmPSimHitContainer_siTOBHigh_Token_, SiTOBHighContainer);
   if (!SiTOBHighContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsTOBHighTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsTOBHighTof in event!";
     return;
   }
 
-  sysID = 40; // TrackerHitsTOBHighTof
+  sysID = 40;  // TrackerHitsTOBHighTof
   j = 0;
-  for (itHit = SiTOBHighContainer->begin(); itHit != SiTOBHighContainer->end();
-       ++itHit) {
-
+  for (itHit = SiTOBHighContainer->begin(); itHit != SiTOBHighContainer->end(); ++itHit) {
     // gather necessary information
     ++j;
     HitsSysID.push_back(sysID);
@@ -815,7 +753,7 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through SiTOB Hits
+  }  // end loop through SiTOB Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of TOB high TOF Hits collected:     ";
@@ -829,16 +767,13 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> SiTIDLowContainer;
   iEvent.getByToken(edmPSimHitContainer_siTIDLow_Token_, SiTIDLowContainer);
   if (!SiTIDLowContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsTIDLowTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsTIDLowTof in event!";
     return;
   }
 
-  sysID = 50; // TrackerHitsTIDLowTof
+  sysID = 50;  // TrackerHitsTIDLowTof
   j = 0;
-  for (itHit = SiTIDLowContainer->begin(); itHit != SiTIDLowContainer->end();
-       ++itHit) {
-
+  for (itHit = SiTIDLowContainer->begin(); itHit != SiTIDLowContainer->end(); ++itHit) {
     // gather necessary information
     ++j;
     HitsSysID.push_back(sysID);
@@ -869,7 +804,7 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through SiTID Hits
+  }  // end loop through SiTID Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of TID low TOF Hits collected:     ";
@@ -880,16 +815,13 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> SiTIDHighContainer;
   iEvent.getByToken(edmPSimHitContainer_siTIDHigh_Token_, SiTIDHighContainer);
   if (!SiTIDHighContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsTIDHighTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsTIDHighTof in event!";
     return;
   }
 
-  sysID = 60; // TrackerHitsTIDHighTof
+  sysID = 60;  // TrackerHitsTIDHighTof
   j = 0;
-  for (itHit = SiTIDHighContainer->begin(); itHit != SiTIDHighContainer->end();
-       ++itHit) {
-
+  for (itHit = SiTIDHighContainer->begin(); itHit != SiTIDHighContainer->end(); ++itHit) {
     // gather necessary information
     ++j;
     HitsSysID.push_back(sysID);
@@ -920,7 +852,7 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through SiTID Hits
+  }  // end loop through SiTID Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of TID high TOF Hits collected:     ";
@@ -934,16 +866,13 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> SiTECLowContainer;
   iEvent.getByToken(edmPSimHitContainer_siTECLow_Token_, SiTECLowContainer);
   if (!SiTECLowContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsTECLowTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsTECLowTof in event!";
     return;
   }
 
-  sysID = 70; // TrackerHitsTECLowTof
+  sysID = 70;  // TrackerHitsTECLowTof
   j = 0;
-  for (itHit = SiTECLowContainer->begin(); itHit != SiTECLowContainer->end();
-       ++itHit) {
-
+  for (itHit = SiTECLowContainer->begin(); itHit != SiTECLowContainer->end(); ++itHit) {
     // gather necessary information
     ++j;
     HitsSysID.push_back(sysID);
@@ -974,7 +903,7 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through SiTEC Hits
+  }  // end loop through SiTEC Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of TEC low TOF Hits collected:     ";
@@ -985,15 +914,12 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
   edm::Handle<edm::PSimHitContainer> SiTECHighContainer;
   iEvent.getByToken(edmPSimHitContainer_siTECHigh_Token_, SiTECHighContainer);
   if (!SiTECHighContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::fillTrk")
-        << "Unable to find TrackerHitsTECHighTof in event!";
+    edm::LogError("TrackerHitProducer::fillTrk") << "Unable to find TrackerHitsTECHighTof in event!";
     return;
   }
-  sysID = 80; // TrackerHitsTECHighTof
+  sysID = 80;  // TrackerHitsTECHighTof
   j = 0;
-  for (itHit = SiTECHighContainer->begin(); itHit != SiTECHighContainer->end();
-       ++itHit) {
-
+  for (itHit = SiTECHighContainer->begin(); itHit != SiTECHighContainer->end(); ++itHit) {
     // gather necessary information
     ++j;
     HitsSysID.push_back(sysID);
@@ -1024,7 +950,7 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
     HitsEloss.push_back(itHit->energyLoss());
     HitsToF.push_back(itHit->tof());
 
-  } // end loop through SiTEC Hits
+  }  // end loop through SiTEC Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of TEC high TOF Hits collected:     ";
@@ -1038,7 +964,6 @@ void TrackerHitProducer::fillTrk(edm::Event &iEvent,
 }
 
 void TrackerHitProducer::storeTrk(PTrackerSimHit &product) {
-
   /*
     if (verbosity > 2) {
       TString eventout("\nnPxlBrlHits        = ");
@@ -1096,10 +1021,28 @@ void TrackerHitProducer::storeTrk(PTrackerSimHit &product) {
       edm::LogInfo("TrackerHitProducer::storeTrk") << eventout;
     } // end verbose output
   */
-  product.putHits(HitsSysID, HitsDuID, HitsTkID, HitsProT, HitsParT, HitsP,
-                  HitsLpX, HitsLpY, HitsLpZ, HitsLdX, HitsLdY, HitsLdZ,
-                  HitsLdTheta, HitsLdPhi, HitsExPx, HitsExPy, HitsExPz,
-                  HitsEnPx, HitsEnPy, HitsEnPz, HitsEloss, HitsToF);
+  product.putHits(HitsSysID,
+                  HitsDuID,
+                  HitsTkID,
+                  HitsProT,
+                  HitsParT,
+                  HitsP,
+                  HitsLpX,
+                  HitsLpY,
+                  HitsLpZ,
+                  HitsLdX,
+                  HitsLdY,
+                  HitsLdZ,
+                  HitsLdTheta,
+                  HitsLdPhi,
+                  HitsExPx,
+                  HitsExPy,
+                  HitsExPz,
+                  HitsEnPx,
+                  HitsEnPy,
+                  HitsEnPz,
+                  HitsEloss,
+                  HitsToF);
 
   return;
 }

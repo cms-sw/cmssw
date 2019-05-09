@@ -73,8 +73,7 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // ----------member data ---------------------------
@@ -93,17 +92,13 @@ private:
 
   //---------------helper functions------------------
 private:
-  const reco::LeafCandidate *
-  FindBest(const reco::GenParticle *,
-           const std::vector<l1extra::L1EmParticle> *,
-           const std::vector<l1extra::L1EmParticle> *);
-  const reco::LeafCandidate *
-  FindBest(const reco::GenParticle *,
-           const std::vector<l1extra::L1JetParticle> *,
-           const std::vector<l1extra::L1JetParticle> *);
-  const reco::LeafCandidate *
-  FindBest(const reco::GenParticle *,
-           const std::vector<l1extra::L1MuonParticle> *);
+  const reco::LeafCandidate *FindBest(const reco::GenParticle *,
+                                      const std::vector<l1extra::L1EmParticle> *,
+                                      const std::vector<l1extra::L1EmParticle> *);
+  const reco::LeafCandidate *FindBest(const reco::GenParticle *,
+                                      const std::vector<l1extra::L1JetParticle> *,
+                                      const std::vector<l1extra::L1JetParticle> *);
+  const reco::LeafCandidate *FindBest(const reco::GenParticle *, const std::vector<l1extra::L1MuonParticle> *);
 };
 
 //

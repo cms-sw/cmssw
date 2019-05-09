@@ -9,8 +9,14 @@
 // #include "DQMServices/Core/interface/DQMStore.h"
 
 GlobalHitsHistogrammer::GlobalHitsHistogrammer(const edm::ParameterSet &iPSet)
-    : fName(""), verbosity(0), frequency(0), vtxunit(0), label(""),
-      getAllProvenances(false), printProvenanceInfo(false), count(0) {
+    : fName(""),
+      verbosity(0),
+      frequency(0),
+      vtxunit(0),
+      label(""),
+      getAllProvenances(false),
+      printProvenanceInfo(false),
+      count(0) {
   std::string MsgLoggerCat = "GlobalHitsHistogrammer_GlobalHitsHistogrammer";
 
   // get information from parameter set
@@ -20,17 +26,14 @@ GlobalHitsHistogrammer::GlobalHitsHistogrammer(const edm::ParameterSet &iPSet)
   vtxunit = iPSet.getUntrackedParameter<int>("VtxUnit");
   outputfile = iPSet.getParameter<std::string>("OutputFile");
   doOutput = iPSet.getParameter<bool>("DoOutput");
-  edm::ParameterSet m_Prov =
-      iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
+  edm::ParameterSet m_Prov = iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = m_Prov.getUntrackedParameter<bool>("GetAllProvenances");
-  printProvenanceInfo =
-      m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
+  printProvenanceInfo = m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
 
   // get Labels to use to extract information
   GlobalHitSrc_ = iPSet.getParameter<edm::InputTag>("GlobalHitSrc");
   // fix for consumes
-  GlobalHitSrc_Token_ = consumes<PGlobalSimHit>(
-      iPSet.getParameter<edm::InputTag>("GlobalHitSrc"));
+  GlobalHitSrc_Token_ = consumes<PGlobalSimHit>(iPSet.getParameter<edm::InputTag>("GlobalHitSrc"));
 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -38,27 +41,23 @@ GlobalHitsHistogrammer::GlobalHitsHistogrammer(const edm::ParameterSet &iPSet)
 
   // print out Parameter Set information being used
   if (verbosity >= 0) {
-    edm::LogInfo(MsgLoggerCat)
-        << "\n===============================\n"
-        << "Initialized as EDAnalyzer with parameter values:\n"
-        << "    Name          = " << fName << "\n"
-        << "    Verbosity     = " << verbosity << "\n"
-        << "    Frequency     = " << frequency << "\n"
-        << "    VtxUnit       = " << vtxunit << "\n"
-        << "    OutputFile    = " << outputfile << "\n"
-        << "    DoOutput      = " << doOutput << "\n"
-        << "    GetProv       = " << getAllProvenances << "\n"
-        << "    PrintProv     = " << printProvenanceInfo << "\n"
-        << "    GlobalHitSrc  = " << GlobalHitSrc_.label() << ":"
-        << GlobalHitSrc_.instance() << "\n"
-        << "===============================\n";
+    edm::LogInfo(MsgLoggerCat) << "\n===============================\n"
+                               << "Initialized as EDAnalyzer with parameter values:\n"
+                               << "    Name          = " << fName << "\n"
+                               << "    Verbosity     = " << verbosity << "\n"
+                               << "    Frequency     = " << frequency << "\n"
+                               << "    VtxUnit       = " << vtxunit << "\n"
+                               << "    OutputFile    = " << outputfile << "\n"
+                               << "    DoOutput      = " << doOutput << "\n"
+                               << "    GetProv       = " << getAllProvenances << "\n"
+                               << "    PrintProv     = " << printProvenanceInfo << "\n"
+                               << "    GlobalHitSrc  = " << GlobalHitSrc_.label() << ":" << GlobalHitSrc_.instance()
+                               << "\n"
+                               << "===============================\n";
   }
 }
 
-void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker,
-                                            edm::Run const &,
-                                            edm::EventSetup const &) {
-
+void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {
   // initialize monitor elements
   for (Int_t i = 0; i < 2; ++i) {
     meMCRGP[i] = nullptr;
@@ -498,8 +497,7 @@ void GlobalHitsHistogrammer::bookHistograms(DQMStore::IBooker &ibooker,
 
 GlobalHitsHistogrammer::~GlobalHitsHistogrammer() {}
 
-void GlobalHitsHistogrammer::analyze(const edm::Event &iEvent,
-                                     const edm::EventSetup &iSetup) {
+void GlobalHitsHistogrammer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   std::string MsgLoggerCat = "GlobalHitsHistogrammer_analyze";
 
   // keep track of number of events processed
@@ -510,24 +508,21 @@ void GlobalHitsHistogrammer::analyze(const edm::Event &iEvent,
   edm::EventNumber_t nevt = iEvent.id().event();
 
   if (verbosity > 0) {
-    edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event "
-                               << nevt << " (" << count << " events total)";
+    edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event " << nevt << " (" << count << " events total)";
   } else if (verbosity == 0) {
     if (nevt % frequency == 0 || nevt == 1) {
-      edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event "
-                                 << nevt << " (" << count << " events total)";
+      edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event " << nevt << " (" << count
+                                 << " events total)";
     }
   }
 
   // look at information available in the event
   if (getAllProvenances) {
-
     std::vector<const edm::StableProvenance *> AllProv;
     iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
-      edm::LogInfo(MsgLoggerCat)
-          << "Number of Provenances = " << AllProv.size();
+      edm::LogInfo(MsgLoggerCat) << "Number of Provenances = " << AllProv.size();
 
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
@@ -635,8 +630,7 @@ void GlobalHitsHistogrammer::analyze(const edm::Event &iEvent,
   }
 
   // get Pixel Barrel info
-  std::vector<PGlobalSimHit::BrlHit> PxlBrlHits =
-      srcGlobalHits->getPxlBrlHits();
+  std::vector<PGlobalSimHit::BrlHit> PxlBrlHits = srcGlobalHits->getPxlBrlHits();
   for (unsigned int i = 0; i < PxlBrlHits.size(); ++i) {
     meTrackerPxPhi->Fill(PxlBrlHits[i].phi);
     meTrackerPxEta->Fill(PxlBrlHits[i].eta);
@@ -645,8 +639,7 @@ void GlobalHitsHistogrammer::analyze(const edm::Event &iEvent,
   }
 
   // get Pixel Forward info
-  std::vector<PGlobalSimHit::FwdHit> PxlFwdHits =
-      srcGlobalHits->getPxlFwdHits();
+  std::vector<PGlobalSimHit::FwdHit> PxlFwdHits = srcGlobalHits->getPxlFwdHits();
   for (unsigned int i = 0; i < PxlFwdHits.size(); ++i) {
     meTrackerPxPhi->Fill(PxlFwdHits[i].phi);
     meTrackerPxEta->Fill(PxlFwdHits[i].eta);
@@ -673,8 +666,7 @@ void GlobalHitsHistogrammer::analyze(const edm::Event &iEvent,
   }
 
   // get Muon CSC info
-  std::vector<PGlobalSimHit::FwdHit> MuonCscHits =
-      srcGlobalHits->getMuonCscHits();
+  std::vector<PGlobalSimHit::FwdHit> MuonCscHits = srcGlobalHits->getMuonCscHits();
   for (unsigned int i = 0; i < MuonCscHits.size(); ++i) {
     meMuonPhi->Fill(MuonCscHits[i].phi);
     meMuonEta->Fill(MuonCscHits[i].eta);
@@ -685,8 +677,7 @@ void GlobalHitsHistogrammer::analyze(const edm::Event &iEvent,
   }
 
   // get Muon DT info
-  std::vector<PGlobalSimHit::BrlHit> MuonDtHits =
-      srcGlobalHits->getMuonDtHits();
+  std::vector<PGlobalSimHit::BrlHit> MuonDtHits = srcGlobalHits->getMuonDtHits();
   for (unsigned int i = 0; i < MuonDtHits.size(); ++i) {
     meMuonPhi->Fill(MuonDtHits[i].phi);
     meMuonEta->Fill(MuonDtHits[i].eta);
@@ -697,8 +688,7 @@ void GlobalHitsHistogrammer::analyze(const edm::Event &iEvent,
   }
 
   // get Muon RPC forward info
-  std::vector<PGlobalSimHit::FwdHit> MuonRpcFwdHits =
-      srcGlobalHits->getMuonRpcFwdHits();
+  std::vector<PGlobalSimHit::FwdHit> MuonRpcFwdHits = srcGlobalHits->getMuonRpcFwdHits();
   for (unsigned int i = 0; i < MuonRpcFwdHits.size(); ++i) {
     meMuonPhi->Fill(MuonRpcFwdHits[i].phi);
     meMuonEta->Fill(MuonRpcFwdHits[i].eta);
@@ -709,8 +699,7 @@ void GlobalHitsHistogrammer::analyze(const edm::Event &iEvent,
   }
 
   // get Muon RPC barrel info
-  std::vector<PGlobalSimHit::BrlHit> MuonRpcBrlHits =
-      srcGlobalHits->getMuonRpcBrlHits();
+  std::vector<PGlobalSimHit::BrlHit> MuonRpcBrlHits = srcGlobalHits->getMuonRpcBrlHits();
   for (unsigned int i = 0; i < MuonRpcBrlHits.size(); ++i) {
     meMuonPhi->Fill(MuonRpcBrlHits[i].phi);
     meMuonEta->Fill(MuonRpcBrlHits[i].eta);

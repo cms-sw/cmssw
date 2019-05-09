@@ -74,13 +74,11 @@
 #include "TString.h"
 
 class GlobalHitsTester : public DQMEDAnalyzer {
-
 public:
   explicit GlobalHitsTester(const edm::ParameterSet &);
   ~GlobalHitsTester() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   std::string fName;

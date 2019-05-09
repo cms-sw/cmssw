@@ -36,7 +36,6 @@
 #include <vector>
 
 class EcalEndcapRecHitsValidation : public DQMEDAnalyzer {
-
 public:
   /// Constructor
   EcalEndcapRecHitsValidation(const edm::ParameterSet &ps);
@@ -45,8 +44,7 @@ public:
   ~EcalEndcapRecHitsValidation() override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker &i, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
 
   /// Analyze
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
@@ -56,8 +54,7 @@ private:
 
   // fix for consumes
   edm::EDGetTokenT<EEDigiCollection> EEdigiCollection_token_;
-  edm::EDGetTokenT<EEUncalibratedRecHitCollection>
-      EEuncalibrechitCollection_token_;
+  edm::EDGetTokenT<EEUncalibratedRecHitCollection> EEuncalibrechitCollection_token_;
 
   MonitorElement *meEEUncalibRecHitsOccupancyPlus_;
   MonitorElement *meEEUncalibRecHitsOccupancyMinus_;

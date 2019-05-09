@@ -16,17 +16,39 @@
 
 #include <iostream>
 
-EcalSimHitsValidProducer::EcalSimHitsValidProducer(
-    const edm::ParameterSet &iPSet)
-    : ee1(0.0), ee4(0.0), ee9(0.0), ee16(0.0), ee25(0.0), eb1(0.0), eb4(0.0),
-      eb9(0.0), eb16(0.0), eb25(0.0), totalEInEE(0.0), totalEInEB(0),
-      totalEInES(0.0), totalEInEEzp(0.0), totalEInEEzm(0.0), totalEInESzp(0.0),
-      totalEInESzm(0.0), totalHits(0), nHitsInEE(0), nHitsInEB(0), nHitsInES(0),
-      nHitsIn1ES(0), nHitsIn2ES(0), nCrystalInEB(0), nCrystalInEEzp(0),
-      nCrystalInEEzm(0), nHitsIn1ESzp(0), nHitsIn1ESzm(0), nHitsIn2ESzp(0),
-      nHitsIn2ESzm(0), thePID(0),
-      label(iPSet.getUntrackedParameter<std::string>("instanceLabel",
-                                                     "EcalValidInfo")) {
+EcalSimHitsValidProducer::EcalSimHitsValidProducer(const edm::ParameterSet &iPSet)
+    : ee1(0.0),
+      ee4(0.0),
+      ee9(0.0),
+      ee16(0.0),
+      ee25(0.0),
+      eb1(0.0),
+      eb4(0.0),
+      eb9(0.0),
+      eb16(0.0),
+      eb25(0.0),
+      totalEInEE(0.0),
+      totalEInEB(0),
+      totalEInES(0.0),
+      totalEInEEzp(0.0),
+      totalEInEEzm(0.0),
+      totalEInESzp(0.0),
+      totalEInESzm(0.0),
+      totalHits(0),
+      nHitsInEE(0),
+      nHitsInEB(0),
+      nHitsInES(0),
+      nHitsIn1ES(0),
+      nHitsIn2ES(0),
+      nCrystalInEB(0),
+      nCrystalInEEzp(0),
+      nCrystalInEEzm(0),
+      nHitsIn1ESzp(0),
+      nHitsIn1ESzm(0),
+      nHitsIn2ESzp(0),
+      nHitsIn2ESzm(0),
+      thePID(0),
+      label(iPSet.getUntrackedParameter<std::string>("instanceLabel", "EcalValidInfo")) {
   produces<PEcalValidInfo>(label);
 
   for (int i = 0; i < 26; i++) {
@@ -192,7 +214,6 @@ void EcalSimHitsValidProducer::update(const BeginOfEvent *) {
 }
 
 void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
-
   int trackID = 0;
   G4PrimaryParticle *thePrim = nullptr;
   int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
@@ -202,8 +223,7 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
     for (int i = 0; i < nvertex; i++) {
       G4PrimaryVertex *avertex = (*evt)()->GetPrimaryVertex(i);
       if (avertex == nullptr)
-        edm::LogWarning("EcalSimHitsValidProducer")
-            << " Pointer to vertex is NULL!";
+        edm::LogWarning("EcalSimHitsValidProducer") << " Pointer to vertex is NULL!";
       else {
         float x0 = avertex->GetX0();
         float y0 = avertex->GetY0();
@@ -213,8 +233,7 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
 
         int npart = avertex->GetNumberOfParticle();
         if (npart == 0)
-          edm::LogWarning("EcalSimHitsValidProducer")
-              << " No primary particle in this event";
+          edm::LogWarning("EcalSimHitsValidProducer") << " No primary particle in this event";
         else {
           if (thePrim == nullptr)
             thePrim = avertex->GetPrimary(trackID);
@@ -223,7 +242,7 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
     }
 
     // the direction of momentum of primary particles
-    double pInit = 0; // etaInit =0, phiInit =0, // UNUSED
+    double pInit = 0;  // etaInit =0, phiInit =0, // UNUSED
     if (thePrim != nullptr) {
       double px = thePrim->GetPx();
       double py = thePrim->GetPy();
@@ -244,8 +263,7 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
 
       thePID = thePrim->GetPDGcode();
     } else {
-      edm::LogWarning("EcalSimHitsValidProducer")
-          << " Could not find the primary particle!!";
+      edm::LogWarning("EcalSimHitsValidProducer") << " Could not find the primary particle!!";
     }
   }
   // hit map for EB for matrices
@@ -330,7 +348,6 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
     ESDetId esid = ESDetId(aHit->getUnitID());
 
     if (esid.zside() == -1) {
-
       totalEInESzm += aHit->getEnergyDeposit();
 
       if (esid.plane() == 1) {
@@ -342,7 +359,6 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
       }
     }
     if (esid.zside() == 1) {
-
       totalEInESzp += aHit->getEnergyDeposit();
 
       if (esid.plane() == 1) {
@@ -421,10 +437,8 @@ void EcalSimHitsValidProducer::update(const G4Step *aStep) {
   }
 }
 
-bool EcalSimHitsValidProducer::fillEEMatrix(int nCellInEta, int nCellInPhi,
-                                            int CentralEta, int CentralPhi,
-                                            int CentralZ, MapType &fillmap,
-                                            MapType &themap) {
+bool EcalSimHitsValidProducer::fillEEMatrix(
+    int nCellInEta, int nCellInPhi, int CentralEta, int CentralPhi, int CentralZ, MapType &fillmap, MapType &themap) {
   int goBackInEta = nCellInEta / 2;
   int goBackInPhi = nCellInPhi / 2;
 
@@ -433,7 +447,6 @@ bool EcalSimHitsValidProducer::fillEEMatrix(int nCellInEta, int nCellInPhi,
 
   int i = 0;
   for (int ieta = startEta; ieta < startEta + nCellInEta; ieta++) {
-
     for (int iphi = startPhi; iphi < startPhi + nCellInPhi; iphi++) {
       uint32_t index;
 
@@ -454,10 +467,8 @@ bool EcalSimHitsValidProducer::fillEEMatrix(int nCellInEta, int nCellInPhi,
     return false;
 }
 
-bool EcalSimHitsValidProducer::fillEBMatrix(int nCellInEta, int nCellInPhi,
-                                            int CentralEta, int CentralPhi,
-                                            int CentralZ, MapType &fillmap,
-                                            MapType &themap) {
+bool EcalSimHitsValidProducer::fillEBMatrix(
+    int nCellInEta, int nCellInPhi, int CentralEta, int CentralPhi, int CentralZ, MapType &fillmap, MapType &themap) {
   int goBackInEta = nCellInEta / 2;
   int goBackInPhi = nCellInPhi / 2;
 
@@ -518,27 +529,20 @@ float EcalSimHitsValidProducer::eCluster4x4(float e33, MapType &themap) {
   float e0_24 = themap[20] + themap[21] + themap[22] + themap[23] + themap[24];
 
   if ((e0_4 > e0_24 || e0_4 == e0_24) && (e0_20 > e4_24 || e0_20 == e4_24))
-    return E44 = e33 + themap[0] + themap[1] + themap[2] + themap[3] +
-                 themap[5] + themap[10] + themap[15];
+    return E44 = e33 + themap[0] + themap[1] + themap[2] + themap[3] + themap[5] + themap[10] + themap[15];
   else if ((e0_4 > e0_24 || e0_4 == e0_24) && (e0_20 < e4_24 || e0_20 == e4_24))
-    return E44 = e33 + themap[1] + themap[2] + themap[3] + themap[4] +
-                 themap[9] + themap[14] + themap[19];
+    return E44 = e33 + themap[1] + themap[2] + themap[3] + themap[4] + themap[9] + themap[14] + themap[19];
   else if ((e0_4 < e0_24 || e0_4 == e0_24) && (e0_20 > e4_24 || e0_20 == e4_24))
-    return E44 = e33 + themap[5] + themap[10] + themap[15] + themap[20] +
-                 themap[21] + themap[22] + themap[23];
+    return E44 = e33 + themap[5] + themap[10] + themap[15] + themap[20] + themap[21] + themap[22] + themap[23];
   else if ((e0_4 < e0_24 || e0_4 == e0_24) && (e0_20 < e4_24 || e0_20 == e4_24))
-    return E44 = e33 + themap[21] + themap[22] + themap[23] + themap[24] +
-                 themap[9] + themap[14] + themap[19];
+    return E44 = e33 + themap[21] + themap[22] + themap[23] + themap[24] + themap[9] + themap[14] + themap[19];
   else {
     return E44;
   }
 }
 
-float EcalSimHitsValidProducer::energyInEEMatrix(int nCellInX, int nCellInY,
-                                                 int centralX, int centralY,
-                                                 int centralZ,
-                                                 MapType &themap) {
-
+float EcalSimHitsValidProducer::energyInEEMatrix(
+    int nCellInX, int nCellInY, int centralX, int centralY, int centralZ, MapType &themap) {
   int ncristals = 0;
   float totalEnergy = 0.;
 
@@ -549,7 +553,6 @@ float EcalSimHitsValidProducer::energyInEEMatrix(int nCellInX, int nCellInY,
 
   for (int ix = startX; ix < startX + nCellInX; ix++) {
     for (int iy = startY; iy < startY + nCellInY; iy++) {
-
       uint32_t index;
       if (EEDetId::validDetId(ix, iy, centralZ)) {
         index = EEDetId(ix, iy, centralZ).rawId();
@@ -561,24 +564,19 @@ float EcalSimHitsValidProducer::energyInEEMatrix(int nCellInX, int nCellInY,
       ncristals += 1;
 
       LogDebug("EcalSimHitsValidProducer")
-          << " EnergyInEEMatrix: ix - iy - E = " << ix << "  " << iy << " "
-          << themap[index];
+          << " EnergyInEEMatrix: ix - iy - E = " << ix << "  " << iy << " " << themap[index];
     }
   }
 
-  LogDebug("EcalSimHitsValidProducer")
-      << " EnergyInEEMatrix: energy in " << nCellInX << " cells in x times "
-      << nCellInY << " cells in y matrix = " << totalEnergy << " for "
-      << ncristals << " crystals";
+  LogDebug("EcalSimHitsValidProducer") << " EnergyInEEMatrix: energy in " << nCellInX << " cells in x times "
+                                       << nCellInY << " cells in y matrix = " << totalEnergy << " for " << ncristals
+                                       << " crystals";
 
   return totalEnergy;
 }
 
-float EcalSimHitsValidProducer::energyInEBMatrix(int nCellInEta, int nCellInPhi,
-                                                 int centralEta, int centralPhi,
-                                                 int centralZ,
-                                                 MapType &themap) {
-
+float EcalSimHitsValidProducer::energyInEBMatrix(
+    int nCellInEta, int nCellInPhi, int centralEta, int centralPhi, int centralZ, MapType &themap) {
   int ncristals = 0;
   float totalEnergy = 0.;
 
@@ -589,7 +587,6 @@ float EcalSimHitsValidProducer::energyInEBMatrix(int nCellInEta, int nCellInPhi,
 
   for (int ieta = startEta; ieta < startEta + nCellInEta; ieta++) {
     for (int iphi = startPhi; iphi < startPhi + nCellInPhi; iphi++) {
-
       uint32_t index;
       if (abs(ieta) > 85 || abs(ieta) < 1) {
         continue;
@@ -606,36 +603,31 @@ float EcalSimHitsValidProducer::energyInEBMatrix(int nCellInEta, int nCellInPhi,
       ncristals += 1;
 
       LogDebug("EcalSimHitsValidProducer")
-          << " EnergyInEBMatrix: ieta - iphi - E = " << ieta << "  " << iphi
-          << " " << themap[index];
+          << " EnergyInEBMatrix: ieta - iphi - E = " << ieta << "  " << iphi << " " << themap[index];
     }
   }
 
-  LogDebug("EcalSimHitsValidProducer")
-      << " EnergyInEBMatrix: energy in " << nCellInEta << " cells in eta times "
-      << nCellInPhi << " cells in phi matrix = " << totalEnergy << " for "
-      << ncristals << " crystals";
+  LogDebug("EcalSimHitsValidProducer") << " EnergyInEBMatrix: energy in " << nCellInEta << " cells in eta times "
+                                       << nCellInPhi << " cells in phi matrix = " << totalEnergy << " for " << ncristals
+                                       << " crystals";
 
   return totalEnergy;
 }
 
 uint32_t EcalSimHitsValidProducer::getUnitWithMaxEnergy(MapType &themap) {
-
   uint32_t unitWithMaxEnergy = 0;
   float maxEnergy = 0.;
 
   MapType::iterator iter;
   for (iter = themap.begin(); iter != themap.end(); iter++) {
-
     if (maxEnergy < (*iter).second) {
       maxEnergy = (*iter).second;
       unitWithMaxEnergy = (*iter).first;
     }
   }
 
-  LogDebug("EcalSimHitsValidProducer")
-      << " Max energy of " << maxEnergy << " MeV was found in Unit id 0x"
-      << std::hex << unitWithMaxEnergy << std::dec;
+  LogDebug("EcalSimHitsValidProducer") << " Max energy of " << maxEnergy << " MeV was found in Unit id 0x" << std::hex
+                                       << unitWithMaxEnergy << std::dec;
 
   return unitWithMaxEnergy;
 }

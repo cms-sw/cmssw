@@ -30,7 +30,7 @@ class MonitorElement;
 class DQMStore;
 class GenericTriggerEventFlag;
 namespace edm {
-class Event;
+  class Event;
 }
 
 enum TrackerType { TRACKERTYPE_STRIP, TRACKERTYPE_PIXEL };
@@ -43,14 +43,12 @@ public:
   ~MonitorTrackResidualsBase() override;
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // Own methods
   void createMEs(DQMStore::IBooker &, const edm::EventSetup &);
-  std::pair<std::string, int32_t>
-  findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology *tTopo);
+  std::pair<std::string, int32_t> findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology *tTopo);
 
   struct HistoPair {
     HistoPair() {
@@ -83,7 +81,6 @@ private:
 
 // Naming is for legacy reasons.
 typedef MonitorTrackResidualsBase<TRACKERTYPE_STRIP> MonitorTrackResiduals;
-typedef MonitorTrackResidualsBase<TRACKERTYPE_PIXEL>
-    SiPixelMonitorTrackResiduals;
+typedef MonitorTrackResidualsBase<TRACKERTYPE_PIXEL> SiPixelMonitorTrackResiduals;
 
 #endif

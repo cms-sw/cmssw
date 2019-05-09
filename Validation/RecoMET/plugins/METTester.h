@@ -53,8 +53,7 @@ public:
   explicit METTester(const edm::ParameterSet &);
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   std::map<std::string, MonitorElement *> me;
@@ -176,4 +175,4 @@ private:
   bool isMiniAODMET;
 };
 
-#endif // METTESTER_H
+#endif  // METTESTER_H

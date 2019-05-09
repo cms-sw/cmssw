@@ -21,47 +21,36 @@ using namespace edm;
 using namespace std;
 
 EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet &ps) {
-
   // ----------------------
   HepMCLabel = ps.getParameter<std::string>("moduleLabelMC");
   hitsProducer_ = ps.getParameter<std::string>("hitsProducer");
   EBrechitCollection_ = ps.getParameter<edm::InputTag>("EBrechitCollection");
   EErechitCollection_ = ps.getParameter<edm::InputTag>("EErechitCollection");
   ESrechitCollection_ = ps.getParameter<edm::InputTag>("ESrechitCollection");
-  EBuncalibrechitCollection_ =
-      ps.getParameter<edm::InputTag>("EBuncalibrechitCollection");
-  EEuncalibrechitCollection_ =
-      ps.getParameter<edm::InputTag>("EEuncalibrechitCollection");
+  EBuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibrechitCollection");
+  EEuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibrechitCollection");
   // fix for consumes
-  HepMCLabel_Token_ =
-      consumes<HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC"));
-  EBrechitCollection_Token_ = consumes<EBRecHitCollection>(
-      ps.getParameter<edm::InputTag>("EBrechitCollection"));
-  EErechitCollection_Token_ = consumes<EERecHitCollection>(
-      ps.getParameter<edm::InputTag>("EErechitCollection"));
-  ESrechitCollection_Token_ = consumes<ESRecHitCollection>(
-      ps.getParameter<edm::InputTag>("ESrechitCollection"));
-  EBuncalibrechitCollection_Token_ = consumes<EBUncalibratedRecHitCollection>(
-      ps.getParameter<edm::InputTag>("EBuncalibrechitCollection"));
-  EEuncalibrechitCollection_Token_ = consumes<EEUncalibratedRecHitCollection>(
-      ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
-  EBHits_Token_ = consumes<CrossingFrame<PCaloHit>>(edm::InputTag(
-      std::string("mix"), ps.getParameter<std::string>("hitsProducer") +
-                              std::string("EcalHitsEB")));
-  EEHits_Token_ = consumes<CrossingFrame<PCaloHit>>(edm::InputTag(
-      std::string("mix"), ps.getParameter<std::string>("hitsProducer") +
-                              std::string("EcalHitsEE")));
-  ESHits_Token_ = consumes<CrossingFrame<PCaloHit>>(edm::InputTag(
-      std::string("mix"), ps.getParameter<std::string>("hitsProducer") +
-                              std::string("EcalHitsES")));
+  HepMCLabel_Token_ = consumes<HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC"));
+  EBrechitCollection_Token_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EBrechitCollection"));
+  EErechitCollection_Token_ = consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("EErechitCollection"));
+  ESrechitCollection_Token_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("ESrechitCollection"));
+  EBuncalibrechitCollection_Token_ =
+      consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibrechitCollection"));
+  EEuncalibrechitCollection_Token_ =
+      consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
+  EBHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
+      edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
+      edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")));
+  ESHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
+      edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")));
 
   // ----------------------
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
 
   if (!outputFile_.empty()) {
-    LogInfo("OutputInfo") << " Ecal RecHits Task histograms will be saved to '"
-                          << outputFile_.c_str() << "'";
+    LogInfo("OutputInfo") << " Ecal RecHits Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     LogInfo("OutputInfo") << " Ecal RecHits Task histograms will NOT be saved";
   }
@@ -126,10 +115,7 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet &ps) {
 
 EcalRecHitsValidation::~EcalRecHitsValidation() {}
 
-void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker,
-                                           edm::Run const &,
-                                           edm::EventSetup const &) {
-
+void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {
   std::string histo;
 
   ibooker.setCurrentFolder("EcalRecHitsV/EcalRecHitsTask");
@@ -144,71 +130,55 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker,
   meGunPhi_ = ibooker.book1D(histo.c_str(), histo.c_str(), 360, 0., 360.);
 
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio";
-  meEBRecHitSimHitRatio_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEBRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Endcap RecSimHit Ratio";
-  meEERecHitSimHitRatio_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEERecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Preshower RecSimHit Ratio";
-  meESRecHitSimHitRatio_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meESRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio gt 3p5 GeV";
-  meEBRecHitSimHitRatioGt35_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+  meEBRecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
   histo = "EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV";
-  meEERecHitSimHitRatioGt35_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+  meEERecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
   histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio";
-  meEBUnRecHitSimHitRatio_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEBUnRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio";
-  meEEUnRecHitSimHitRatio_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEEUnRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=10 11";
-  meEBRecHitSimHitRatio1011_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEBRecHitSimHitRatio1011_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=10 11";
-  meEERecHitSimHitRatio1011_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEERecHitSimHitRatio1011_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=12";
-  meEBRecHitSimHitRatio12_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEBRecHitSimHitRatio12_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=12";
-  meEERecHitSimHitRatio12_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEERecHitSimHitRatio12_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=13";
-  meEBRecHitSimHitRatio13_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEBRecHitSimHitRatio13_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=13";
-  meEERecHitSimHitRatio13_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEERecHitSimHitRatio13_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio gt 3p5 GeV";
-  meEBUnRecHitSimHitRatioGt35_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+  meEBUnRecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
   histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio gt 3p5 GeV";
-  meEEUnRecHitSimHitRatioGt35_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+  meEEUnRecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
   histo = "EcalRecHitsTask Barrel Rec E5x5";
   meEBe5x5_ = ibooker.book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
 
   histo = "EcalRecHitsTask Barrel Rec E5x5 over Sim E5x5";
-  meEBe5x5OverSimHits_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+  meEBe5x5OverSimHits_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
   histo = "EcalRecHitsTask Barrel Rec E5x5 over gun energy";
   meEBe5x5OverGun_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
@@ -217,95 +187,96 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker,
   meEEe5x5_ = ibooker.book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
 
   histo = "EcalRecHitsTask Endcap Rec E5x5 over Sim E5x5";
-  meEEe5x5OverSimHits_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+  meEEe5x5OverSimHits_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
   histo = "EcalRecHitsTask Endcap Rec E5x5 over gun energy";
   meEEe5x5OverGun_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
   meEBRecHitLog10Energy_ =
-      ibooker.book1D("EcalRecHitsTask Barrel Log10 Energy",
-                     "EcalRecHitsTask Barrel Log10 Energy", 90, -5., 4.);
+      ibooker.book1D("EcalRecHitsTask Barrel Log10 Energy", "EcalRecHitsTask Barrel Log10 Energy", 90, -5., 4.);
   meEERecHitLog10Energy_ =
-      ibooker.book1D("EcalRecHitsTask Endcap Log10 Energy",
-                     "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4.);
+      ibooker.book1D("EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4.);
   meESRecHitLog10Energy_ =
-      ibooker.book1D("EcalRecHitsTask Preshower Log10 Energy",
-                     "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4.);
-  meEBRecHitLog10EnergyContr_ =
-      ibooker.bookProfile("EcalRecHits Barrel Log10En vs Hit Contribution",
-                          "EcalRecHits Barrel Log10En vs Hit Contribution", 90,
-                          -5., 4., 100, 0., 1.);
-  meEERecHitLog10EnergyContr_ =
-      ibooker.bookProfile("EcalRecHits Endcap Log10En vs Hit Contribution",
-                          "EcalRecHits Endcap Log10En vs Hit Contribution", 90,
-                          -5., 4., 100, 0., 1.);
-  meESRecHitLog10EnergyContr_ =
-      ibooker.bookProfile("EcalRecHits Preshower Log10En vs Hit Contribution",
-                          "EcalRecHits Preshower Log10En vs Hit Contribution",
-                          90, -5., 4., 100, 0., 1.);
-  meEBRecHitLog10Energy5x5Contr_ =
-      ibooker.bookProfile("EcalRecHits Barrel Log10En5x5 vs Hit Contribution",
-                          "EcalRecHits Barrel Log10En5x5 vs Hit Contribution",
-                          90, -5., 4., 100, 0., 1.);
-  meEERecHitLog10Energy5x5Contr_ =
-      ibooker.bookProfile("EcalRecHits Endcap Log10En5x5 vs Hit Contribution",
-                          "EcalRecHits Endcap Log10En5x5 vs Hit Contribution",
-                          90, -5., 4., 100, 0., 1.);
+      ibooker.book1D("EcalRecHitsTask Preshower Log10 Energy", "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4.);
+  meEBRecHitLog10EnergyContr_ = ibooker.bookProfile("EcalRecHits Barrel Log10En vs Hit Contribution",
+                                                    "EcalRecHits Barrel Log10En vs Hit Contribution",
+                                                    90,
+                                                    -5.,
+                                                    4.,
+                                                    100,
+                                                    0.,
+                                                    1.);
+  meEERecHitLog10EnergyContr_ = ibooker.bookProfile("EcalRecHits Endcap Log10En vs Hit Contribution",
+                                                    "EcalRecHits Endcap Log10En vs Hit Contribution",
+                                                    90,
+                                                    -5.,
+                                                    4.,
+                                                    100,
+                                                    0.,
+                                                    1.);
+  meESRecHitLog10EnergyContr_ = ibooker.bookProfile("EcalRecHits Preshower Log10En vs Hit Contribution",
+                                                    "EcalRecHits Preshower Log10En vs Hit Contribution",
+                                                    90,
+                                                    -5.,
+                                                    4.,
+                                                    100,
+                                                    0.,
+                                                    1.);
+  meEBRecHitLog10Energy5x5Contr_ = ibooker.bookProfile("EcalRecHits Barrel Log10En5x5 vs Hit Contribution",
+                                                       "EcalRecHits Barrel Log10En5x5 vs Hit Contribution",
+                                                       90,
+                                                       -5.,
+                                                       4.,
+                                                       100,
+                                                       0.,
+                                                       1.);
+  meEERecHitLog10Energy5x5Contr_ = ibooker.bookProfile("EcalRecHits Endcap Log10En5x5 vs Hit Contribution",
+                                                       "EcalRecHits Endcap Log10En5x5 vs Hit Contribution",
+                                                       90,
+                                                       -5.,
+                                                       4.,
+                                                       100,
+                                                       0.,
+                                                       1.);
 
   histo = "EB Occupancy Flag=5 6";
-  meEBRecHitsOccupancyFlag5_6_ =
-      ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
+  meEBRecHitsOccupancyFlag5_6_ = ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
   histo = "EB Occupancy Flag=8 9";
-  meEBRecHitsOccupancyFlag8_9_ =
-      ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
+  meEBRecHitsOccupancyFlag8_9_ = ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
 
   histo = "EE+ Occupancy Flag=5 6";
-  meEERecHitsOccupancyPlusFlag5_6_ =
-      ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meEERecHitsOccupancyPlusFlag5_6_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   histo = "EE- Occupancy Flag=5 6";
-  meEERecHitsOccupancyMinusFlag5_6_ =
-      ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meEERecHitsOccupancyMinusFlag5_6_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   histo = "EE+ Occupancy Flag=8 9";
-  meEERecHitsOccupancyPlusFlag8_9_ =
-      ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meEERecHitsOccupancyPlusFlag8_9_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   histo = "EE- Occupancy Flag=8 9";
-  meEERecHitsOccupancyMinusFlag8_9_ =
-      ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meEERecHitsOccupancyMinusFlag8_9_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
   histo = "EcalRecHitsTask Barrel Reco Flags";
   meEBRecHitFlags_ = ibooker.book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);
   histo = "EcalRecHitsTask Endcap Reco Flags";
   meEERecHitFlags_ = ibooker.book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio vs SimHit Flag=5 6";
-  meEBRecHitSimHitvsSimHitFlag5_6_ =
-      ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
+  meEBRecHitSimHitvsSimHitFlag5_6_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
   histo = "EcalRecHitsTask Endcap RecSimHit Ratio vs SimHit Flag=5 6";
-  meEERecHitSimHitvsSimHitFlag5_6_ =
-      ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
+  meEERecHitSimHitvsSimHitFlag5_6_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Flag=6";
-  meEBRecHitSimHitFlag6_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEBRecHitSimHitFlag6_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
   histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=6";
-  meEERecHitSimHitFlag6_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEERecHitSimHitFlag6_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Flag=7";
-  meEBRecHitSimHitFlag7_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEBRecHitSimHitFlag7_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
   histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=7";
-  meEERecHitSimHitFlag7_ =
-      ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  meEERecHitSimHitFlag7_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
   histo = "EcalRecHitsTask Barrel 5x5 RecSimHit Ratio vs SimHit Flag=8";
-  meEB5x5RecHitSimHitvsSimHitFlag8_ =
-      ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
+  meEB5x5RecHitSimHitvsSimHitFlag8_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
 }
 
 void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
-
   // Temporary stuff
 
-  LogInfo("EcalRecHitsTask, EventInfo: ")
-      << " Run = " << e.id().run() << " Event = " << e.id().event();
+  LogInfo("EcalRecHitsTask, EventInfo: ") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
   // ADC -> GeV Scale
   edm::ESHandle<EcalADCToGeVConstant> pAgc;
@@ -375,9 +346,9 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
   // gun
   double eGun = 0.;
   if (!skipMC) {
-    for (HepMC::GenEvent::particle_const_iterator p =
-             MCEvt->GetEvent()->particles_begin();
-         p != MCEvt->GetEvent()->particles_end(); ++p) {
+    for (HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
+         p != MCEvt->GetEvent()->particles_end();
+         ++p) {
       double htheta = (*p)->momentum().theta();
       double heta = -99999.;
       if (tan(htheta * 0.5) > 0) {
@@ -387,8 +358,7 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
       hphi = (hphi >= 0) ? hphi : hphi + 2 * M_PI;
       hphi = hphi / M_PI * 180.;
 
-      LogDebug("EventInfo") << "EcalRecHitsTask: Particle gun type form MC = "
-                            << abs((*p)->pdg_id()) << "\n"
+      LogDebug("EventInfo") << "EcalRecHitsTask: Particle gun type form MC = " << abs((*p)->pdg_id()) << "\n"
                             << "Energy = " << (*p)->momentum().e() << "\n"
                             << "Eta = " << heta << "\n"
                             << "Phi = " << hphi;
@@ -409,7 +379,6 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
   // BARREL
 
   if (!skipBarrel) {
-
     // 1) loop over simHits
     e.getByToken(EBHits_Token_, crossingFrame);
     const MixCollection<PCaloHit> barrelHits(crossingFrame.product());
@@ -428,19 +397,18 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     for (auto const &iHit : barrelHits) {
       EBDetId ebid = EBDetId(iHit.id());
 
-      LogDebug("SimHitInfo, barrel")
-          << "CaloHit " << iHit.getName() << " DetID = " << iHit.id() << "\n"
-          << "Energy = " << iHit.energy() << " Time = " << iHit.time() << "\n"
-          << "EBDetId = " << ebid.ieta() << " " << ebid.iphi();
+      LogDebug("SimHitInfo, barrel") << "CaloHit " << iHit.getName() << " DetID = " << iHit.id() << "\n"
+                                     << "Energy = " << iHit.energy() << " Time = " << iHit.time() << "\n"
+                                     << "EBDetId = " << ebid.ieta() << " " << ebid.iphi();
 
       uint32_t crystid = ebid.rawId();
       ebSimMap[crystid] += iHit.energy();
     }
 
     // 2) loop over RecHits
-    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit =
-             EBUncalibRecHit->begin();
-         uncalibRecHit != EBUncalibRecHit->end(); ++uncalibRecHit) {
+    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin();
+         uncalibRecHit != EBUncalibRecHit->end();
+         ++uncalibRecHit) {
       EBDetId EBid = EBDetId(uncalibRecHit->id());
 
       // Find corresponding recHit
@@ -466,20 +434,17 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
           meEBUnRecHitSimHitRatio_->Fill(uncEnergy / ebSimMap[EBid.rawId()]);
         }
         if (meEBUnRecHitSimHitRatioGt35_ && (myRecHit->energy() > 3.5)) {
-          meEBUnRecHitSimHitRatioGt35_->Fill(uncEnergy /
-                                             ebSimMap[EBid.rawId()]);
+          meEBUnRecHitSimHitRatioGt35_->Fill(uncEnergy / ebSimMap[EBid.rawId()]);
         }
       }
 
       if (myRecHit != EBRecHit->end()) {
         if (ebSimMap[EBid.rawId()] != 0.) {
           if (meEBRecHitSimHitRatio_) {
-            meEBRecHitSimHitRatio_->Fill(myRecHit->energy() /
-                                         ebSimMap[EBid.rawId()]);
+            meEBRecHitSimHitRatio_->Fill(myRecHit->energy() / ebSimMap[EBid.rawId()]);
           }
           if (meEBRecHitSimHitRatioGt35_ && (myRecHit->energy() > 3.5)) {
-            meEBRecHitSimHitRatioGt35_->Fill(myRecHit->energy() /
-                                             ebSimMap[EBid.rawId()]);
+            meEBRecHitSimHitRatioGt35_->Fill(myRecHit->energy() / ebSimMap[EBid.rawId()]);
           }
           uint16_t sc = 0;
           edm::ESHandle<EcalChannelStatus> pEcs;
@@ -496,12 +461,10 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
           }
 
           if (meEBRecHitSimHitRatio1011_ != nullptr && (sc == 10 || sc == 11)) {
-            meEBRecHitSimHitRatio1011_->Fill(myRecHit->energy() /
-                                             ebSimMap[EBid.rawId()]);
+            meEBRecHitSimHitRatio1011_->Fill(myRecHit->energy() / ebSimMap[EBid.rawId()]);
           }
           if (meEBRecHitSimHitRatio12_ != nullptr && sc == 12) {
-            meEBRecHitSimHitRatio12_->Fill(myRecHit->energy() /
-                                           ebSimMap[EBid.rawId()]);
+            meEBRecHitSimHitRatio12_->Fill(myRecHit->energy() / ebSimMap[EBid.rawId()]);
           }
 
           edm::ESHandle<EcalTrigTowerConstituentsMap> pttMap;
@@ -513,52 +476,38 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
           if (ttMap != nullptr) {
             EcalTrigTowerDetId ttDetId = EBid.tower();
             std::vector<DetId> vid = ttMap->constituentsOf(ttDetId);
-            for (std::vector<DetId>::const_iterator dit = vid.begin();
-                 dit != vid.end(); dit++) {
+            for (std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); dit++) {
               EBDetId ttEBid = EBDetId(*dit);
               ttSimEnergy += ebSimMap[ttEBid.rawId()];
             }
             if (!vid.empty())
               ttSimEnergy = ttSimEnergy / vid.size();
           }
-          if (meEBRecHitSimHitRatio13_ != nullptr && sc == 13 &&
-              ttSimEnergy != 0)
+          if (meEBRecHitSimHitRatio13_ != nullptr && sc == 13 && ttSimEnergy != 0)
             meEBRecHitSimHitRatio13_->Fill(myRecHit->energy() / ttSimEnergy);
 
           int flag = myRecHit->recoFlag();
           if (meEBRecHitFlags_ != nullptr)
             meEBRecHitFlags_->Fill(flag);
           if (meEBRecHitSimHitvsSimHitFlag5_6_ &&
-              (flag == EcalRecHit::kSaturated ||
-               flag == EcalRecHit::kLeadingEdgeRecovered))
-            meEBRecHitSimHitvsSimHitFlag5_6_->Fill(myRecHit->energy() /
-                                                       ebSimMap[EBid.rawId()],
-                                                   ebSimMap[EBid.rawId()]);
-          if (meEBRecHitSimHitFlag6_ &&
-              (flag == EcalRecHit::kLeadingEdgeRecovered))
-            meEBRecHitSimHitFlag6_->Fill(myRecHit->energy() /
-                                         ebSimMap[EBid.rawId()]);
-          if (meEBRecHitSimHitFlag7_ &&
-              (flag == EcalRecHit::kNeighboursRecovered))
-            meEBRecHitSimHitFlag6_->Fill(myRecHit->energy() /
-                                         ebSimMap[EBid.rawId()]);
-          if (meEB5x5RecHitSimHitvsSimHitFlag8_ &&
-              (flag == EcalRecHit::kTowerRecovered) && ttSimEnergy != 0)
-            meEB5x5RecHitSimHitvsSimHitFlag8_->Fill(
-                myRecHit->energy() / ttSimEnergy, ttSimEnergy);
+              (flag == EcalRecHit::kSaturated || flag == EcalRecHit::kLeadingEdgeRecovered))
+            meEBRecHitSimHitvsSimHitFlag5_6_->Fill(myRecHit->energy() / ebSimMap[EBid.rawId()], ebSimMap[EBid.rawId()]);
+          if (meEBRecHitSimHitFlag6_ && (flag == EcalRecHit::kLeadingEdgeRecovered))
+            meEBRecHitSimHitFlag6_->Fill(myRecHit->energy() / ebSimMap[EBid.rawId()]);
+          if (meEBRecHitSimHitFlag7_ && (flag == EcalRecHit::kNeighboursRecovered))
+            meEBRecHitSimHitFlag6_->Fill(myRecHit->energy() / ebSimMap[EBid.rawId()]);
+          if (meEB5x5RecHitSimHitvsSimHitFlag8_ && (flag == EcalRecHit::kTowerRecovered) && ttSimEnergy != 0)
+            meEB5x5RecHitSimHitvsSimHitFlag8_->Fill(myRecHit->energy() / ttSimEnergy, ttSimEnergy);
 
           if (meEBRecHitsOccupancyFlag5_6_ &&
-              ((flag == EcalRecHit::kSaturated) ||
-               (flag == EcalRecHit::kLeadingEdgeRecovered)))
+              ((flag == EcalRecHit::kSaturated) || (flag == EcalRecHit::kLeadingEdgeRecovered)))
             meEBRecHitsOccupancyFlag5_6_->Fill(EBid.ieta(), EBid.iphi());
-          if (meEBRecHitsOccupancyFlag8_9_ &&
-              ((flag == EcalRecHit::kTowerRecovered) ||
-               (flag == EcalRecHit::kDead)))
+          if (meEBRecHitsOccupancyFlag8_9_ && ((flag == EcalRecHit::kTowerRecovered) || (flag == EcalRecHit::kDead)))
             meEBRecHitsOccupancyFlag8_9_->Fill(EBid.ieta(), EBid.iphi());
         }
       } else
         continue;
-    } // loop over the UncalibratedRecHitCollection
+    }  // loop over the UncalibratedRecHitCollection
 
     // RecHits matrix
     uint32_t ebcenterid = getUnitWithMaxEnergy(ebRecMap);
@@ -588,15 +537,13 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
 
     if (meEBRecHitLog10EnergyContr_ && ebtotal != 0) {
       for (int i = 0; i < ebcSize; i++) {
-        meEBRecHitLog10EnergyContr_->Fill(-5. + (float(i) + 0.5) / 10.,
-                                          ebcontr[i] / ebtotal);
+        meEBRecHitLog10EnergyContr_->Fill(-5. + (float(i) + 0.5) / 10., ebcontr[i] / ebtotal);
       }
     }
 
     if (meEBRecHitLog10Energy5x5Contr_ && e5x5rec != 0) {
       for (int i = 0; i < ebcSize; i++) {
-        meEBRecHitLog10Energy5x5Contr_->Fill(-5. + (float(i) + 0.5) / 10.,
-                                             ebcontr25[i] / e5x5rec);
+        meEBRecHitLog10Energy5x5Contr_->Fill(-5. + (float(i) + 0.5) / 10., ebcontr25[i] / e5x5rec);
       }
     }
   }
@@ -605,7 +552,6 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
   // ENDCAP
 
   if (!skipEndcap) {
-
     // 1) loop over simHits
     e.getByToken(EEHits_Token_, crossingFrame);
     const MixCollection<PCaloHit> endcapHits(crossingFrame.product());
@@ -624,20 +570,18 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     for (auto const &iHit : endcapHits) {
       EEDetId eeid(iHit.id());
 
-      LogDebug("Endcap, HitInfo")
-          << " CaloHit " << iHit.getName() << " DetID = " << iHit.id() << "\n"
-          << "Energy = " << iHit.energy() << " Time = " << iHit.time() << "\n"
-          << "EEDetId side " << eeid.zside() << " = " << eeid.ix() << " "
-          << eeid.iy();
+      LogDebug("Endcap, HitInfo") << " CaloHit " << iHit.getName() << " DetID = " << iHit.id() << "\n"
+                                  << "Energy = " << iHit.energy() << " Time = " << iHit.time() << "\n"
+                                  << "EEDetId side " << eeid.zside() << " = " << eeid.ix() << " " << eeid.iy();
 
       uint32_t crystid = eeid.rawId();
       eeSimMap[crystid] += iHit.energy();
     }
 
     // 2) loop over RecHits
-    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit =
-             EEUncalibRecHit->begin();
-         uncalibRecHit != EEUncalibRecHit->end(); ++uncalibRecHit) {
+    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin();
+         uncalibRecHit != EEUncalibRecHit->end();
+         ++uncalibRecHit) {
       EEDetId EEid = EEDetId(uncalibRecHit->id());
 
       // Find corresponding recHit
@@ -663,20 +607,17 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
           meEEUnRecHitSimHitRatio_->Fill(uncEnergy / eeSimMap[EEid.rawId()]);
         }
         if (meEEUnRecHitSimHitRatioGt35_ && (myRecHit->energy() > 3.5)) {
-          meEEUnRecHitSimHitRatioGt35_->Fill(uncEnergy /
-                                             eeSimMap[EEid.rawId()]);
+          meEEUnRecHitSimHitRatioGt35_->Fill(uncEnergy / eeSimMap[EEid.rawId()]);
         }
       }
 
       if (myRecHit != EERecHit->end()) {
         if (eeSimMap[EEid.rawId()] != 0.) {
           if (meEERecHitSimHitRatio_) {
-            meEERecHitSimHitRatio_->Fill(myRecHit->energy() /
-                                         eeSimMap[EEid.rawId()]);
+            meEERecHitSimHitRatio_->Fill(myRecHit->energy() / eeSimMap[EEid.rawId()]);
           }
           if (meEERecHitSimHitRatioGt35_ && (myRecHit->energy() > 3.5)) {
-            meEERecHitSimHitRatioGt35_->Fill(myRecHit->energy() /
-                                             eeSimMap[EEid.rawId()]);
+            meEERecHitSimHitRatioGt35_->Fill(myRecHit->energy() / eeSimMap[EEid.rawId()]);
           }
 
           edm::ESHandle<EcalChannelStatus> pEcs;
@@ -690,18 +631,14 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
             if (csmi != ecs->end())
               csc = *csmi;
             uint16_t sc = csc.getStatusCode();
-            if (meEERecHitSimHitRatio1011_ != nullptr &&
-                (sc == 10 || sc == 11)) {
-              meEERecHitSimHitRatio1011_->Fill(myRecHit->energy() /
-                                               eeSimMap[EEid.rawId()]);
+            if (meEERecHitSimHitRatio1011_ != nullptr && (sc == 10 || sc == 11)) {
+              meEERecHitSimHitRatio1011_->Fill(myRecHit->energy() / eeSimMap[EEid.rawId()]);
             }
             if (meEERecHitSimHitRatio12_ != nullptr && sc == 12) {
-              meEERecHitSimHitRatio12_->Fill(myRecHit->energy() /
-                                             eeSimMap[EEid.rawId()]);
+              meEERecHitSimHitRatio12_->Fill(myRecHit->energy() / eeSimMap[EEid.rawId()]);
             }
             if (meEERecHitSimHitRatio13_ != nullptr && sc == 13) {
-              meEERecHitSimHitRatio13_->Fill(myRecHit->energy() /
-                                             eeSimMap[EEid.rawId()]);
+              meEERecHitSimHitRatio13_->Fill(myRecHit->energy() / eeSimMap[EEid.rawId()]);
             }
           }
 
@@ -709,44 +646,33 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
           if (meEERecHitFlags_ != nullptr)
             meEERecHitFlags_->Fill(flag);
           if (meEERecHitSimHitvsSimHitFlag5_6_ &&
-              (flag == EcalRecHit::kSaturated ||
-               flag == EcalRecHit::kLeadingEdgeRecovered))
-            meEERecHitSimHitvsSimHitFlag5_6_->Fill(myRecHit->energy() /
-                                                       eeSimMap[EEid.rawId()],
-                                                   eeSimMap[EEid.rawId()]);
-          if (meEERecHitSimHitFlag6_ &&
-              (flag == EcalRecHit::kLeadingEdgeRecovered))
-            meEERecHitSimHitFlag6_->Fill(myRecHit->energy() /
-                                         eeSimMap[EEid.rawId()]);
-          if (meEERecHitSimHitFlag7_ &&
-              (flag == EcalRecHit::kNeighboursRecovered))
-            meEERecHitSimHitFlag6_->Fill(myRecHit->energy() /
-                                         eeSimMap[EEid.rawId()]);
+              (flag == EcalRecHit::kSaturated || flag == EcalRecHit::kLeadingEdgeRecovered))
+            meEERecHitSimHitvsSimHitFlag5_6_->Fill(myRecHit->energy() / eeSimMap[EEid.rawId()], eeSimMap[EEid.rawId()]);
+          if (meEERecHitSimHitFlag6_ && (flag == EcalRecHit::kLeadingEdgeRecovered))
+            meEERecHitSimHitFlag6_->Fill(myRecHit->energy() / eeSimMap[EEid.rawId()]);
+          if (meEERecHitSimHitFlag7_ && (flag == EcalRecHit::kNeighboursRecovered))
+            meEERecHitSimHitFlag6_->Fill(myRecHit->energy() / eeSimMap[EEid.rawId()]);
 
           if (EEid.zside() > 0) {
             if (meEERecHitsOccupancyPlusFlag5_6_ &&
-                ((flag == EcalRecHit::kSaturated) ||
-                 (flag == EcalRecHit::kLeadingEdgeRecovered)))
+                ((flag == EcalRecHit::kSaturated) || (flag == EcalRecHit::kLeadingEdgeRecovered)))
               meEERecHitsOccupancyPlusFlag5_6_->Fill(EEid.ix(), EEid.iy());
             if (meEERecHitsOccupancyPlusFlag8_9_ &&
-                ((flag == EcalRecHit::kTowerRecovered) ||
-                 (flag == EcalRecHit::kDead)))
+                ((flag == EcalRecHit::kTowerRecovered) || (flag == EcalRecHit::kDead)))
               meEERecHitsOccupancyPlusFlag8_9_->Fill(EEid.ix(), EEid.iy());
           }
           if (EEid.zside() < 0) {
             if (meEERecHitsOccupancyMinusFlag5_6_ &&
-                ((flag == EcalRecHit::kSaturated) ||
-                 (flag == EcalRecHit::kLeadingEdgeRecovered)))
+                ((flag == EcalRecHit::kSaturated) || (flag == EcalRecHit::kLeadingEdgeRecovered)))
               meEERecHitsOccupancyMinusFlag5_6_->Fill(EEid.ix(), EEid.iy());
             if (meEERecHitsOccupancyMinusFlag8_9_ &&
-                ((flag == EcalRecHit::kTowerRecovered) ||
-                 (flag == EcalRecHit::kDead)))
+                ((flag == EcalRecHit::kTowerRecovered) || (flag == EcalRecHit::kDead)))
               meEERecHitsOccupancyMinusFlag8_9_->Fill(EEid.ix(), EEid.iy());
           }
         }
       } else
         continue;
-    } // loop over the UncalibratedechitCollection
+    }  // loop over the UncalibratedechitCollection
 
     // RecHits matrix
     uint32_t eecenterid = getUnitWithMaxEnergy(eeRecMap);
@@ -776,15 +702,13 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
 
     if (meEERecHitLog10EnergyContr_ && eetotal != 0) {
       for (int i = 0; i < eecSize; i++) {
-        meEERecHitLog10EnergyContr_->Fill(-5. + (float(i) + 0.5) / 10.,
-                                          eecontr[i] / eetotal);
+        meEERecHitLog10EnergyContr_->Fill(-5. + (float(i) + 0.5) / 10., eecontr[i] / eetotal);
       }
     }
 
     if (meEERecHitLog10Energy5x5Contr_ && e5x5rec != 0) {
       for (int i = 0; i < eecSize; i++) {
-        meEERecHitLog10Energy5x5Contr_->Fill(-5. + (float(i) + 0.5) / 10.,
-                                             eecontr25[i] / e5x5rec);
+        meEERecHitLog10Energy5x5Contr_->Fill(-5. + (float(i) + 0.5) / 10., eecontr25[i] / e5x5rec);
       }
     }
   }
@@ -793,7 +717,6 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
   // PRESHOWER
 
   if (!skipPreshower) {
-
     // 1) loop over simHits
     e.getByToken(ESHits_Token_, crossingFrame);
     const MixCollection<PCaloHit> preshowerHits(crossingFrame.product());
@@ -808,22 +731,18 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
 
     for (auto const &iHit : preshowerHits) {
       ESDetId esid(iHit.id());
-      LogDebug("Preshower, HitInfo")
-          << " CaloHit " << iHit.getName() << " DetID = " << iHit.id() << "\n"
-          << "Energy = " << iHit.energy() << " Time = " << iHit.time() << "\n"
-          << "ESDetId strip " << esid.strip() << " = " << esid.six() << " "
-          << esid.siy();
+      LogDebug("Preshower, HitInfo") << " CaloHit " << iHit.getName() << " DetID = " << iHit.id() << "\n"
+                                     << "Energy = " << iHit.energy() << " Time = " << iHit.time() << "\n"
+                                     << "ESDetId strip " << esid.strip() << " = " << esid.six() << " " << esid.siy();
 
       uint32_t crystid = esid.rawId();
       esSimMap[crystid] += iHit.energy();
     }
 
     // 2) loop over RecHits
-    for (EcalRecHitCollection::const_iterator recHit = ESRecHit->begin();
-         recHit != ESRecHit->end(); ++recHit) {
+    for (EcalRecHitCollection::const_iterator recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit) {
       ESDetId ESid = ESDetId(recHit->id());
       if (esSimMap[ESid.rawId()] != 0.) {
-
         // Fill log10(Energy) stuff...
         estotal += recHit->energy();
         if (recHit->energy() > 0) {
@@ -835,31 +754,27 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
         }
 
         if (meESRecHitSimHitRatio_) {
-          meESRecHitSimHitRatio_->Fill(recHit->energy() /
-                                       esSimMap[ESid.rawId()]);
+          meESRecHitSimHitRatio_->Fill(recHit->energy() / esSimMap[ESid.rawId()]);
         }
       } else
         continue;
-    } // loop over the RechitCollection
+    }  // loop over the RechitCollection
 
     if (meESRecHitLog10EnergyContr_ && estotal != 0) {
       for (int i = 0; i < escSize; i++) {
-        meESRecHitLog10EnergyContr_->Fill(-5. + (float(i) + 0.5) / 10.,
-                                          escontr[i] / estotal);
+        meESRecHitLog10EnergyContr_->Fill(-5. + (float(i) + 0.5) / 10., escontr[i] / estotal);
       }
     }
   }
 }
 
 uint32_t EcalRecHitsValidation::getUnitWithMaxEnergy(MapType &themap) {
-
   // look for max
   uint32_t unitWithMaxEnergy = 0;
   float maxEnergy = 0.;
 
   MapType::iterator iter;
   for (iter = themap.begin(); iter != themap.end(); iter++) {
-
     if (maxEnergy < (*iter).second) {
       maxEnergy = (*iter).second;
       unitWithMaxEnergy = (*iter).first;
@@ -869,10 +784,8 @@ uint32_t EcalRecHitsValidation::getUnitWithMaxEnergy(MapType &themap) {
   return unitWithMaxEnergy;
 }
 
-void EcalRecHitsValidation::findBarrelMatrix(int nCellInEta, int nCellInPhi,
-                                             int CentralEta, int CentralPhi,
-                                             int CentralZ, MapType &themap) {
-
+void EcalRecHitsValidation::findBarrelMatrix(
+    int nCellInEta, int nCellInPhi, int CentralEta, int CentralPhi, int CentralZ, MapType &themap) {
   int goBackInEta = nCellInEta / 2;
   int goBackInPhi = nCellInPhi / 2;
   int matrixSize = nCellInEta * nCellInPhi;
@@ -901,9 +814,8 @@ void EcalRecHitsValidation::findBarrelMatrix(int nCellInEta, int nCellInPhi,
   }
 }
 
-void EcalRecHitsValidation::findEndcapMatrix(int nCellInX, int nCellInY,
-                                             int CentralX, int CentralY,
-                                             int CentralZ, MapType &themap) {
+void EcalRecHitsValidation::findEndcapMatrix(
+    int nCellInX, int nCellInY, int CentralX, int CentralY, int CentralZ, MapType &themap) {
   int goBackInX = nCellInX / 2;
   int goBackInY = nCellInY / 2;
   crystalMatrix.clear();
@@ -912,9 +824,7 @@ void EcalRecHitsValidation::findEndcapMatrix(int nCellInX, int nCellInY,
   int startY = CentralY - goBackInY;
 
   for (int ix = startX; ix < startX + nCellInX; ix++) {
-
     for (int iy = startY; iy < startY + nCellInY; iy++) {
-
       uint32_t index;
 
       if (EEDetId::validDetId(ix, iy, CentralZ)) {
