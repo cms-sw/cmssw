@@ -31,10 +31,8 @@ public:
   EcalFenixStripFormatEE();
   virtual ~EcalFenixStripFormatEE();
 
-  virtual void process(std::vector<int> &, std::vector<int> &,
-                       std::vector<int> &, std::vector<int> &);
-  void setParameters(uint32_t id, const EcalTPGSlidingWindow *&,
-                     const EcalTPGStripStatus *);
+  virtual void process(std::vector<int> &, std::vector<int> &, std::vector<int> &, std::vector<int> &);
+  void setParameters(uint32_t id, const EcalTPGSlidingWindow *&, const EcalTPGStripStatus *);
 };
 
 #endif

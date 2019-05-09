@@ -27,20 +27,16 @@ const unsigned TextToRaw::EVT_MAX_SIZE;
 
 TextToRaw::TextToRaw(const edm::ParameterSet &iConfig)
     : fedId_(iConfig.getUntrackedParameter<int>("fedId", 745)),
-      filename_(iConfig.getUntrackedParameter<std::string>("filename",
-                                                           "slinkOutput.txt")),
-      fileEventOffset_(
-          iConfig.getUntrackedParameter<int>("FileEventOffset", 0)),
+      filename_(iConfig.getUntrackedParameter<std::string>("filename", "slinkOutput.txt")),
+      fileEventOffset_(iConfig.getUntrackedParameter<int>("FileEventOffset", 0)),
       nevt_(0) {
-  edm::LogInfo("TextToDigi")
-      << "Reading ASCII dump from " << filename_ << std::endl;
+  edm::LogInfo("TextToDigi") << "Reading ASCII dump from " << filename_ << std::endl;
 
   // register the products
   produces<FEDRawDataCollection>();
 }
 
 TextToRaw::~TextToRaw() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -70,10 +66,9 @@ void TextToRaw::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       while (getline(file_, line) && !line.empty()) {
         iline++;
         if (iline * 4 >= EVT_MAX_SIZE)
-          throw cms::Exception("TextToRawEventSizeOverflow")
-              << "TextToRaw::produce() : "
-              << " read too many lines (" << iline << ": " << line << ")"
-              << ", maximum event size is " << EVT_MAX_SIZE << std::endl;
+          throw cms::Exception("TextToRawEventSizeOverflow") << "TextToRaw::produce() : "
+                                                             << " read too many lines (" << iline << ": " << line << ")"
+                                                             << ", maximum event size is " << EVT_MAX_SIZE << std::endl;
       }
     }
   }
@@ -82,16 +77,14 @@ void TextToRaw::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
 
   // read file
   std::string line;
-  unsigned i = 0; // count 32-bit words
+  unsigned i = 0;  // count 32-bit words
 
   // while not encountering dumb errors
   while (getline(file_, line) && !line.empty()) {
-
     // bail if we reached the EVT_MAX_SIZE
     if (i * 4 >= EVT_MAX_SIZE) {
-      throw cms::Exception("TextToRaw")
-          << "Read too many lines from file. Maximum event size is "
-          << EVT_MAX_SIZE << " lines" << std::endl;
+      throw cms::Exception("TextToRaw") << "Read too many lines from file. Maximum event size is " << EVT_MAX_SIZE
+                                        << " lines" << std::endl;
     }
 
     // convert string to int
@@ -111,9 +104,8 @@ void TextToRaw::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
 
     // bail if we reached the EVT_MAX_SIZE
     if (i >= EVT_MAX_SIZE) {
-      throw cms::Exception("TextToRaw")
-          << "Read too many lines from file. Maximum event size is "
-          << EVT_MAX_SIZE << " lines" << std::endl;
+      throw cms::Exception("TextToRaw") << "Read too many lines from file. Maximum event size is " << EVT_MAX_SIZE
+                                        << " lines" << std::endl;
     }
   }
 
@@ -141,8 +133,7 @@ void TextToRaw::beginJob() {
   // open VME file
   file_.open(filename_.c_str(), std::ios::in);
   if (!file_.good()) {
-    edm::LogInfo("TextToDigi")
-        << "Failed to open ASCII file " << filename_ << std::endl;
+    edm::LogInfo("TextToDigi") << "Failed to open ASCII file " << filename_ << std::endl;
   }
 }
 

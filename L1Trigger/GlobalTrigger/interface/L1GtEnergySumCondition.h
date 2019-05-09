@@ -31,7 +31,6 @@ class L1GlobalTriggerPSB;
 
 // class declaration
 class L1GtEnergySumCondition : public L1GtConditionEvaluation {
-
 public:
   /// constructors
   ///     default
@@ -58,9 +57,7 @@ public:
 
 public:
   ///   get / set the pointer to a L1GtCondition
-  inline const L1GtEnergySumTemplate *gtEnergySumTemplate() const {
-    return m_gtEnergySumTemplate;
-  }
+  inline const L1GtEnergySumTemplate *gtEnergySumTemplate() const { return m_gtEnergySumTemplate; }
 
   void setGtEnergySumTemplate(const L1GtEnergySumTemplate *);
 

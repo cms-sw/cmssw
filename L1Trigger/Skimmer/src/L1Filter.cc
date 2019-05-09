@@ -45,7 +45,6 @@ L1Filter::L1Filter(const edm::ParameterSet &ps)
 L1Filter::~L1Filter() {}
 
 bool L1Filter::filter(edm::Event &iEvent, edm::EventSetup const &evSetup) {
-
   // get menu
   edm::ESHandle<L1GtTriggerMenu> menuRcd;
   evSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);

@@ -11,9 +11,13 @@
 
 #include <vector>
 //----------------------------------------------------------------------------------------
-EcalFenixTcp::EcalFenixTcp(const edm::EventSetup &setup, bool tcpFormat,
-                           bool debug, bool famos, int binOfMax,
-                           int maxNrSamples, int nbMaxStrips)
+EcalFenixTcp::EcalFenixTcp(const edm::EventSetup &setup,
+                           bool tcpFormat,
+                           bool debug,
+                           bool famos,
+                           int binOfMax,
+                           int maxNrSamples,
+                           int nbMaxStrips)
     : debug_(debug), nbMaxStrips_(nbMaxStrips) {
   bypasslin_.resize(nbMaxStrips_);
   for (int i = 0; i < nbMaxStrips_; i++)
@@ -47,41 +51,58 @@ EcalFenixTcp::~EcalFenixTcp() {
 }
 //-----------------------------------------------------------------------------------------
 
-void EcalFenixTcp::process(
-    const edm::EventSetup &setup,
-    std::vector<EBDataFrame> &bid, // dummy argument for template call
-    std::vector<std::vector<int>> &tpframetow, int nStr,
-    std::vector<EcalTriggerPrimitiveSample> &tptow,
-    std::vector<EcalTriggerPrimitiveSample> &tptow2, bool isInInnerRing,
-    EcalTrigTowerDetId towid) {
-
+void EcalFenixTcp::process(const edm::EventSetup &setup,
+                           std::vector<EBDataFrame> &bid,  // dummy argument for template call
+                           std::vector<std::vector<int>> &tpframetow,
+                           int nStr,
+                           std::vector<EcalTriggerPrimitiveSample> &tptow,
+                           std::vector<EcalTriggerPrimitiveSample> &tptow2,
+                           bool isInInnerRing,
+                           EcalTrigTowerDetId towid) {
   int bitMask = 12;
   process_part1(tpframetow, nStr, bitMask);
 
-  process_part2_barrel(tpframetow, nStr, bitMask, ecaltpgFgEBGroup_,
-                       ecaltpgLutGroup_, ecaltpgLut_, ecaltpgFineGrainEB_,
-                       ecaltpgBadTT_, ecaltpgSpike_, tptow, tptow2, towid);
+  process_part2_barrel(tpframetow,
+                       nStr,
+                       bitMask,
+                       ecaltpgFgEBGroup_,
+                       ecaltpgLutGroup_,
+                       ecaltpgLut_,
+                       ecaltpgFineGrainEB_,
+                       ecaltpgBadTT_,
+                       ecaltpgSpike_,
+                       tptow,
+                       tptow2,
+                       towid);
 }
 
 //-----------------------------------------------------------------------------------------
-void EcalFenixTcp::process(
-    const edm::EventSetup &setup,
-    std::vector<EEDataFrame> &bid, // dummy argument for template call
-    std::vector<std::vector<int>> &tpframetow, int nStr,
-    std::vector<EcalTriggerPrimitiveSample> &tptow,
-    std::vector<EcalTriggerPrimitiveSample> &tptow2, bool isInInnerRing,
-    EcalTrigTowerDetId towid) {
-  int bitMask = 12; // Pascal: endcap has 12 bits as in EB (bug in FENIX!!!!)
-                    // {was 10 before]
+void EcalFenixTcp::process(const edm::EventSetup &setup,
+                           std::vector<EEDataFrame> &bid,  // dummy argument for template call
+                           std::vector<std::vector<int>> &tpframetow,
+                           int nStr,
+                           std::vector<EcalTriggerPrimitiveSample> &tptow,
+                           std::vector<EcalTriggerPrimitiveSample> &tptow2,
+                           bool isInInnerRing,
+                           EcalTrigTowerDetId towid) {
+  int bitMask = 12;  // Pascal: endcap has 12 bits as in EB (bug in FENIX!!!!)
+                     // {was 10 before]
   process_part1(tpframetow, nStr, bitMask);
 
-  process_part2_endcap(tpframetow, nStr, bitMask, ecaltpgLutGroup_, ecaltpgLut_,
-                       ecaltpgFineGrainTowerEE_, ecaltpgBadTT_, tptow, tptow2,
-                       isInInnerRing, towid);
+  process_part2_endcap(tpframetow,
+                       nStr,
+                       bitMask,
+                       ecaltpgLutGroup_,
+                       ecaltpgLut_,
+                       ecaltpgFineGrainTowerEE_,
+                       ecaltpgBadTT_,
+                       tptow,
+                       tptow2,
+                       isInInnerRing,
+                       towid);
 }
 //-----------------------------------------------------------------------------------------
-void EcalFenixTcp::process_part1(std::vector<std::vector<int>> &tpframetow,
-                                 int nStr, int bitMask) {
+void EcalFenixTcp::process_part1(std::vector<std::vector<int>> &tpframetow, int nStr, int bitMask) {
   //  //call bypasslin
   //     for (int istrip=0;istrip<nStr;istrip ++){
   //       this->getBypasslin(istrip)->process(tpframetow[istrip],bypasslin_out_[istrip]);
@@ -103,8 +124,7 @@ void EcalFenixTcp::process_part1(std::vector<std::vector<int>> &tpframetow,
   this->getAdder()->process(tpframetow, nStr, bitMask, adder_out_);
   // this is a test:
   if (debug_) {
-    std::cout << "output of adder is a vector of size: " << adder_out_.size()
-              << std::endl;
+    std::cout << "output of adder is a vector of size: " << adder_out_.size() << std::endl;
     std::cout << "value : " << std::endl;
     for (unsigned int i = 0; i < adder_out_.size(); i++) {
       std::cout << " " << adder_out_[i];
@@ -115,22 +135,24 @@ void EcalFenixTcp::process_part1(std::vector<std::vector<int>> &tpframetow,
   return;
 }
 //-----------------------------------------------------------------------------------------
-void EcalFenixTcp::process_part2_barrel(
-    std::vector<std::vector<int>> &bypasslinout, int nStr, int bitMask,
-    const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
-    const EcalTPGLutGroup *ecaltpgLutGroup, const EcalTPGLutIdMap *ecaltpgLut,
-    const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB,
-    const EcalTPGTowerStatus *ecaltpgBadTT, const EcalTPGSpike *ecaltpgSpike,
-    std::vector<EcalTriggerPrimitiveSample> &tcp_out,
-    std::vector<EcalTriggerPrimitiveSample> &tcp_outTcc,
-    EcalTrigTowerDetId towid) {
+void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int>> &bypasslinout,
+                                        int nStr,
+                                        int bitMask,
+                                        const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
+                                        const EcalTPGLutGroup *ecaltpgLutGroup,
+                                        const EcalTPGLutIdMap *ecaltpgLut,
+                                        const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB,
+                                        const EcalTPGTowerStatus *ecaltpgBadTT,
+                                        const EcalTPGSpike *ecaltpgSpike,
+                                        std::vector<EcalTriggerPrimitiveSample> &tcp_out,
+                                        std::vector<EcalTriggerPrimitiveSample> &tcp_outTcc,
+                                        EcalTrigTowerDetId towid) {
   // call maxof2
   //  this->getMaxOf2()->process(bypasslin_out_,nStr,maxOf2_out_);
   this->getMaxOf2()->process(bypasslinout, nStr, bitMask, maxOf2_out_);
   // this is a test:
   if (debug_) {
-    std::cout << "output of maxof2 is a vector of size: " << maxOf2_out_.size()
-              << std::endl;
+    std::cout << "output of maxof2 is a vector of size: " << maxOf2_out_.size() << std::endl;
     std::cout << "value : " << std::endl;
     for (unsigned int i = 0; i < maxOf2_out_.size(); i++) {
       std::cout << " " << std::dec << maxOf2_out_[i];
@@ -140,8 +162,7 @@ void EcalFenixTcp::process_part2_barrel(
 
   // call fgvb
 
-  this->getFGVBEB()->setParameters(towid.rawId(), ecaltpgFgEBGroup,
-                                   ecaltpgFineGrainEB);
+  this->getFGVBEB()->setParameters(towid.rawId(), ecaltpgFgEBGroup, ecaltpgFineGrainEB);
   this->getFGVBEB()->process(adder_out_, maxOf2_out_, fgvb_out_);
 
   // Call sFGVB
@@ -149,8 +170,7 @@ void EcalFenixTcp::process_part2_barrel(
 
   // this is a test:
   if (debug_) {
-    std::cout << "output of fgvb is a vector of size: " << fgvb_out_.size()
-              << std::endl;
+    std::cout << "output of fgvb is a vector of size: " << fgvb_out_.size() << std::endl;
     std::cout << "value : " << std::endl;
     for (unsigned int i = 0; i < fgvb_out_.size(); i++) {
       std::cout << " " << std::dec << fgvb_out_[i];
@@ -161,14 +181,11 @@ void EcalFenixTcp::process_part2_barrel(
   // call formatter
   int eTTotShift = 2;
 
-  this->getFormatter()->setParameters(towid.rawId(), ecaltpgLutGroup,
-                                      ecaltpgLut, ecaltpgBadTT, ecaltpgSpike);
-  this->getFormatter()->process(adder_out_, fgvb_out_, strip_fgvb_out_,
-                                eTTotShift, tcp_out, tcp_outTcc, false);
+  this->getFormatter()->setParameters(towid.rawId(), ecaltpgLutGroup, ecaltpgLut, ecaltpgBadTT, ecaltpgSpike);
+  this->getFormatter()->process(adder_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc, false);
   // this is a test:
   if (debug_) {
-    std::cout << "output of TCP formatter Barrel is a vector of size: "
-              << std::dec << tcp_out.size() << std::endl;
+    std::cout << "output of TCP formatter Barrel is a vector of size: " << std::dec << tcp_out.size() << std::endl;
     std::cout << "value : " << std::endl;
     for (unsigned int i = 0; i < tcp_out.size(); i++) {
       std::cout << " " << i << " " << std::dec << tcp_out[i];
@@ -179,14 +196,17 @@ void EcalFenixTcp::process_part2_barrel(
   return;
 }
 //-----------------------------------------------------------------------------------------
-void EcalFenixTcp::process_part2_endcap(
-    std::vector<std::vector<int>> &bypasslinout, int nStr, int bitMask,
-    const EcalTPGLutGroup *ecaltpgLutGroup, const EcalTPGLutIdMap *ecaltpgLut,
-    const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
-    const EcalTPGTowerStatus *ecaltpgbadTT,
-    std::vector<EcalTriggerPrimitiveSample> &tcp_out,
-    std::vector<EcalTriggerPrimitiveSample> &tcp_outTcc, bool isInInnerRings,
-    EcalTrigTowerDetId towid)
+void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int>> &bypasslinout,
+                                        int nStr,
+                                        int bitMask,
+                                        const EcalTPGLutGroup *ecaltpgLutGroup,
+                                        const EcalTPGLutIdMap *ecaltpgLut,
+                                        const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
+                                        const EcalTPGTowerStatus *ecaltpgbadTT,
+                                        std::vector<EcalTriggerPrimitiveSample> &tcp_out,
+                                        std::vector<EcalTriggerPrimitiveSample> &tcp_outTcc,
+                                        bool isInInnerRings,
+                                        EcalTrigTowerDetId towid)
 
 {
   // Zero EB strip records
@@ -200,19 +220,16 @@ void EcalFenixTcp::process_part2_endcap(
   fgvbEE_->process(bypasslinout, nStr, bitMask, fgvb_out_);
 
   // call formatter
-  int eTTotShift = 2; // Pascal: endcap has 12 bits as in EB (bug in FENIX!!!!)
-                      // so shift must be applied to just keep [11:2]
+  int eTTotShift = 2;  // Pascal: endcap has 12 bits as in EB (bug in FENIX!!!!)
+                       // so shift must be applied to just keep [11:2]
 
-  this->getFormatter()->setParameters(towid.rawId(), ecaltpgLutGroup,
-                                      ecaltpgLut, ecaltpgbadTT, nullptr);
+  this->getFormatter()->setParameters(towid.rawId(), ecaltpgLutGroup, ecaltpgLut, ecaltpgbadTT, nullptr);
 
-  this->getFormatter()->process(adder_out_, fgvb_out_, strip_fgvb_out_,
-                                eTTotShift, tcp_out, tcp_outTcc,
-                                isInInnerRings);
+  this->getFormatter()->process(
+      adder_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc, isInInnerRings);
   // this is a test:
   if (debug_) {
-    std::cout << "output of TCP formatter(endcap) is a vector of size: "
-              << std::dec << tcp_out.size() << std::endl;
+    std::cout << "output of TCP formatter(endcap) is a vector of size: " << std::dec << tcp_out.size() << std::endl;
     std::cout << "value : " << std::endl;
     for (unsigned int i = 0; i < tcp_out.size(); i++) {
       std::cout << " " << i << " " << std::dec << tcp_out[i] << std::endl;

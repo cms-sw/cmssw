@@ -21,7 +21,6 @@ class EcalTPGFineGrainEBIdMap;
    comparison to decide ---> needs to get some values from outside
     */
 class EcalFenixFgvbEB {
-
 private:
   uint32_t ETlow_, EThigh_, Ratlow_, Rathigh_, lut_;
   //    std::vector<int> adder_out_;
@@ -36,8 +35,7 @@ public:
                      const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
                      const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB);
 
-  void process(std::vector<int> &add_out, std::vector<int> &maxof2_out,
-               std::vector<int> &output);
+  void process(std::vector<int> &add_out, std::vector<int> &maxof2_out, std::vector<int> &output);
 };
 
 #endif

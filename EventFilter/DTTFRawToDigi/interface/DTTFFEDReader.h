@@ -29,7 +29,6 @@
 #include <string>
 
 class DTTFFEDReader : public edm::stream::EDProducer<> {
-
 public:
   /// Constructor
   DTTFFEDReader(const edm::ParameterSet &pset);

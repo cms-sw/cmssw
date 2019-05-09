@@ -15,18 +15,14 @@
 RawToText::RawToText(const edm::ParameterSet &iConfig)
     : inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
       fedId_(iConfig.getUntrackedParameter<int>("fedId", 745)),
-      filename_(iConfig.getUntrackedParameter<std::string>("filename",
-                                                           "slinkOutput.txt")),
+      filename_(iConfig.getUntrackedParameter<std::string>("filename", "slinkOutput.txt")),
       nevt_(0) {
-  edm::LogInfo("TextToDigi")
-      << "Creating ASCII dump " << filename_ << std::endl;
+  edm::LogInfo("TextToDigi") << "Creating ASCII dump " << filename_ << std::endl;
 }
 
 RawToText::~RawToText() {}
 
-void RawToText::analyze(const edm::Event &iEvent,
-                        const edm::EventSetup &iSetup) {
-
+void RawToText::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   nevt_++;
 
   // get raw data collection
@@ -34,13 +30,11 @@ void RawToText::analyze(const edm::Event &iEvent,
   iEvent.getByLabel(inputLabel_, feds);
   const FEDRawData &gctRcd = feds->FEDData(fedId_);
 
-  edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec
-                      << gctRcd.size() << std::endl;
+  edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size() << std::endl;
 
   // do a simple check of the raw data
   if (gctRcd.size() < 16) {
-    edm::LogWarning("Invalid Data")
-        << "Empty/invalid GCT raw data, size = " << gctRcd.size() << std::endl;
+    edm::LogWarning("Invalid Data") << "Empty/invalid GCT raw data, size = " << gctRcd.size() << std::endl;
     return;
   }
 
@@ -62,13 +56,11 @@ void RawToText::analyze(const edm::Event &iEvent,
 }
 
 void RawToText::beginJob() {
-
   // open VME file
   file_.open(filename_.c_str(), std::ios::out);
 
   if (!file_.good()) {
-    edm::LogInfo("RawToText")
-        << "Failed to open ASCII file " << filename_ << std::endl;
+    edm::LogInfo("RawToText") << "Failed to open ASCII file " << filename_ << std::endl;
   }
 }
 

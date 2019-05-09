@@ -4,7 +4,6 @@
 #include <vector>
 
 class L1RCTRegion {
-
 public:
   L1RCTRegion();
   ~L1RCTRegion();
