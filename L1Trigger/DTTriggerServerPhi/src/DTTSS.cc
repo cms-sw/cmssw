@@ -34,7 +34,6 @@
 // Constructors --
 //----------------
 DTTSS::DTTSS(int n) : _n(n), _ignoreSecondTrack(0) {
-
   // reserve the appropriate amount of space for vectors
   //_tctrig[0].reserve(DTConfigTSPhi::NTCTSS);
   //_tctrig[1].reserve(DTConfigTSPhi::NTCTSS);
@@ -67,15 +66,13 @@ void DTTSS::clear() {
 }
 
 void DTTSS::run() {
-
   if (config()->debug()) {
     std::cout << "DTTSS::run: Processing DTTSS number " << _n << " : ";
-    std::cout << nFirstT() << " first & " << nSecondT() << " second tracks"
-              << std::endl;
+    std::cout << nFirstT() << " first & " << nSecondT() << " second tracks" << std::endl;
   }
 
   if (nFirstT() < 1)
-    return; // skip if no first tracks
+    return;  // skip if no first tracks
   //
   // SORT 1
   //
@@ -95,15 +92,14 @@ void DTTSS::run() {
   }
 
   if (nSecondT() < 1)
-    return; // skip if no second tracks
+    return;  // skip if no second tracks
   //
   // SORT 2
   //
   // debugging
   if (config()->debug()) {
     std::vector<DTTSCand *>::const_iterator p;
-    std::cout << "Vector of second tracks (including carry) in DTTSS: "
-              << std::endl;
+    std::cout << "Vector of second tracks (including carry) in DTTSS: " << std::endl;
     for (p = _tctrig[1].begin(); p != _tctrig[1].end(); p++) {
       (*p)->print();
     }
@@ -117,7 +113,6 @@ void DTTSS::run() {
 }
 
 DTTSCand *DTTSS::sortTSS1() {
-
   // Do a sort 1
   DTTSCand *best = nullptr;
   DTTSCand *carry = nullptr;
@@ -145,7 +140,7 @@ DTTSCand *DTTSS::sortTSS1() {
 
   // Ghost 1 suppression: use carry only if not suppressed
 
-  if (carry != nullptr) { // A carry is present
+  if (carry != nullptr) {  // A carry is present
 
     // Carry enabled if correlated and TRACO is next to best
     bool inner_or_corr;
@@ -155,17 +150,16 @@ DTTSCand *DTTSS::sortTSS1() {
     } else {
       inner_or_corr = carry->isInner();
     }
-    if (config()->TssGhost1Flag() < 2 &&
-        (                                     // Carry isn't always suppressed
-            config()->TssGhost1Flag() == 0 || // Carry always enabled
-            //       carry->isInner() ||                    // Carry is inner
-            inner_or_corr ||                          // carry is inner or corr
-            abs(carry->TcPos() - best->TcPos()) != 1) // Carry not adj. to best
+    if (config()->TssGhost1Flag() < 2 && (                                      // Carry isn't always suppressed
+                                             config()->TssGhost1Flag() == 0 ||  // Carry always enabled
+                                             //       carry->isInner() ||                    // Carry is inner
+                                             inner_or_corr ||                           // carry is inner or corr
+                                             abs(carry->TcPos() - best->TcPos()) != 1)  // Carry not adj. to best
     ) {
       // add carry to second tracks for sort 2
-      carry->setSecondTrack();     // change value of first/second track bit
-      carry->setBitsTss();         // set quality bits as for second tracks
-      _tctrig[1].push_back(carry); // add to list of second tracks
+      carry->setSecondTrack();      // change value of first/second track bit
+      carry->setBitsTss();          // set quality bits as for second tracks
+      _tctrig[1].push_back(carry);  // add to list of second tracks
     } else {
       _logWord1[1 + carry->TcPos()] = 'g';
     }
@@ -191,7 +185,6 @@ DTTSCand *DTTSS::sortTSS1() {
 }
 
 DTTSCand *DTTSS::sortTSS2() {
-
   // Check if there are second tracks
   if (nTracks() < 1) {
     std::cout << "DTTSS::DTTSSsort2: called with no first track.";
@@ -210,7 +203,7 @@ DTTSCand *DTTSS::sortTSS2() {
     std::vector<DTTSCand *>::iterator p;
     for (p = _tctrig[1].begin(); p != _tctrig[1].end(); p++)
       if (!(*p)->isCarry())
-        _logWord2[1 + (*p)->TcPos()] = 'o'; // out of time
+        _logWord2[1 + (*p)->TcPos()] = 'o';  // out of time
     return nullptr;
   }
 
@@ -239,7 +232,7 @@ DTTSCand *DTTSS::sortTSS2() {
         continue;
     }
     // ghost 2 suppression: skip track if suppressed
-    if (config()->TssGhost2Flag() != 0) { // 2nd tracks not always enabled
+    if (config()->TssGhost2Flag() != 0) {  // 2nd tracks not always enabled
 
       bool inner_or_corr;
       if (config()->TssGhost2Corr()) {
@@ -251,18 +244,16 @@ DTTSCand *DTTSS::sortTSS2() {
 
       if (
           //! curr->isInner() &&               // outer track
-          !inner_or_corr &&                   // outer and not corr
-          curr->TcPos() == best->TcPos()) {   // same correlator of 1st track
-        if (config()->TssGhost2Flag() == 2 || // do not look to corr bit of 1st
-            ((!best->isCorr()) &&
-             config()->TssGhost2Flag() != 4) || // skip if best is not corr
+          !inner_or_corr &&                                           // outer and not corr
+          curr->TcPos() == best->TcPos()) {                           // same correlator of 1st track
+        if (config()->TssGhost2Flag() == 2 ||                         // do not look to corr bit of 1st
+            ((!best->isCorr()) && config()->TssGhost2Flag() != 4) ||  // skip if best is not corr
             ((!best->isCorr()) && best->isInner() &&
-             config()->TssGhost2Flag() ==
-                 4)) // skip only if best is inner and not corr
+             config()->TssGhost2Flag() == 4))  // skip only if best is inner and not corr
         {
           _logWord2[1 + curr->TcPos()] = 'G';
           // 	  std::cout << " skip sort 2 in TSS" << std::endl;
-          continue; // skip track
+          continue;  // skip track
         }
       }
     }
@@ -345,15 +336,15 @@ DTTSCand *DTTSS::getCarry() const {
 std::string DTTSS::logWord(int n) const {
   std::string lw = "";
   switch (n) {
-  case 1:
-    lw = _logWord1;
-    break;
-  case 2:
-    lw = _logWord2;
-    break;
-  default:
-    std::cout << "DTTSS::logWord: requested track not present: " << n;
-    std::cout << " empty string returned!" << std::endl;
+    case 1:
+      lw = _logWord1;
+      break;
+    case 2:
+      lw = _logWord2;
+      break;
+    default:
+      std::cout << "DTTSS::logWord: requested track not present: " << n;
+      std::cout << " empty string returned!" << std::endl;
   }
   return lw;
 }

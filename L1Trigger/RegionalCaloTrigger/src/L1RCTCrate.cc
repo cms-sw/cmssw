@@ -2,8 +2,7 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 L1RCTCrate::L1RCTCrate(int crtNo, const L1RCTLookupTables *rctLookupTables)
-    : jetSummaryCard(crtNo, rctLookupTables), crtNo(crtNo),
-      rctLookupTables_(rctLookupTables) {
+    : jetSummaryCard(crtNo, rctLookupTables), crtNo(crtNo), rctLookupTables_(rctLookupTables) {
   for (int i = 0; i < 7; i++) {
     L1RCTReceiverCard rc(crtNo, i, rctLookupTables);
     L1RCTElectronIsolationCard eic(crtNo, i, rctLookupTables);
@@ -55,11 +54,9 @@ void L1RCTCrate::fillJetSummaryCard() {
     mipBits.at(2 * i) = receiverCards.at(i).getMuonBitRegion(0);
     mipBits.at(2 * i + 1) = receiverCards.at(i).getMuonBitRegion(1);
     isoElectrons.at(2 * i) = electronCards.at(i).getIsoElectrons(0);
-    isoElectrons.at(2 * i + 1) =
-        electronCards.at(i).getIsoElectrons(1) + 1; // the +1 adds region info
+    isoElectrons.at(2 * i + 1) = electronCards.at(i).getIsoElectrons(1) + 1;  // the +1 adds region info
     nonIsoElectrons.at(2 * i) = electronCards.at(i).getNonIsoElectrons(0);
-    nonIsoElectrons.at(2 * i + 1) =
-        electronCards.at(i).getNonIsoElectrons(1) + 1; // +1 adds region info
+    nonIsoElectrons.at(2 * i + 1) = electronCards.at(i).getNonIsoElectrons(1) + 1;  // +1 adds region info
     barrelSums.at(2 * i) = receiverCards.at(i).getEtIn10BitsRegion(0);
     barrelSums.at(2 * i + 1) = receiverCards.at(i).getEtIn10BitsRegion(1);
     overFlowBits.at(2 * i) = receiverCards.at(i).getOverFlowBitRegion(0);

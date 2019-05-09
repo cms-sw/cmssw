@@ -51,7 +51,6 @@ class DTTracoTrigData;
 //              ---------------------
 
 class DTTracoChip {
-
 public:
   /// Constructor
   // DTTracoChip(DTTracoCard* card, int n);
@@ -154,9 +153,7 @@ public:
   void setFlag(int step, int ext = 0);
 
   /// return overlap flag
-  inline int ovlFlag(int step) {
-    return _flag[step - DTConfigTraco::NSTEPF].element(1);
-  }
+  inline int ovlFlag(int step) { return _flag[step - DTConfigTraco::NSTEPF].element(1); }
 
 private:
   /// Get the best inner/outer candidate
@@ -172,12 +169,10 @@ private:
   int AdjBtiLTSuppressed(DTTracoCand *candidate);
 
   /// Check correlation and store correlated trigger
-  int storeCorr(DTTracoTrig *tctrig, DTTracoCand *inner, DTTracoCand *outer,
-                int tkn);
+  int storeCorr(DTTracoTrig *tctrig, DTTracoCand *inner, DTTracoCand *outer, int tkn);
 
   /// Store uncorrelated trigger
-  int storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner, DTTracoCand *outer,
-                  int tkn);
+  int storeUncorr(DTTracoTrig *tctrig, DTTracoCand *inner, DTTracoCand *outer, int tkn);
 
   /// Check if a trigger is inside the angular acceptance window
   int insideAngWindow(DTTracoTrig *) const;
@@ -200,14 +195,11 @@ private:
   int _dd;
 
   // input data
-  std::vector<DTTracoCand>
-      _innerCand[DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1];
-  std::vector<DTTracoCand>
-      _outerCand[DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1];
+  std::vector<DTTracoCand> _innerCand[DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1];
+  std::vector<DTTracoCand> _outerCand[DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1];
 
   // output data
-  std::vector<DTTracoTrig *>
-      _tracotrig[DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1];
+  std::vector<DTTracoTrig *> _tracotrig[DTConfigTraco::NSTEPL - DTConfigTraco::NSTEPF + 1];
 
   // internal use variables: SV 11V04 lts suppression if to bx+1, bx=array index
   BitArray<DTConfigTraco::NSTEPL + 2> _bxlts;

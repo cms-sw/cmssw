@@ -58,7 +58,7 @@
 // static data member definitions
 //
 
-double const L1ExtraParticlesProd::muonMassGeV_ = 0.105658369; // PDG06
+double const L1ExtraParticlesProd::muonMassGeV_ = 0.105658369;  // PDG06
 
 //
 // constructors and destructor
@@ -68,8 +68,7 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet &iConfig)
       muonSource_(iConfig.getParameter<edm::InputTag>("muonSource")),
       produceCaloParticles_(iConfig.getParameter<bool>("produceCaloParticles")),
       isoEmSource_(iConfig.getParameter<edm::InputTag>("isolatedEmSource")),
-      nonIsoEmSource_(
-          iConfig.getParameter<edm::InputTag>("nonIsolatedEmSource")),
+      nonIsoEmSource_(iConfig.getParameter<edm::InputTag>("nonIsolatedEmSource")),
       cenJetSource_(iConfig.getParameter<edm::InputTag>("centralJetSource")),
       forJetSource_(iConfig.getParameter<edm::InputTag>("forwardJetSource")),
       tauJetSource_(iConfig.getParameter<edm::InputTag>("tauJetSource")),
@@ -78,10 +77,8 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet &iConfig)
       etHadSource_(iConfig.getParameter<edm::InputTag>("etHadSource")),
       etMissSource_(iConfig.getParameter<edm::InputTag>("etMissSource")),
       htMissSource_(iConfig.getParameter<edm::InputTag>("htMissSource")),
-      hfRingEtSumsSource_(
-          iConfig.getParameter<edm::InputTag>("hfRingEtSumsSource")),
-      hfRingBitCountsSource_(
-          iConfig.getParameter<edm::InputTag>("hfRingBitCountsSource")),
+      hfRingEtSumsSource_(iConfig.getParameter<edm::InputTag>("hfRingEtSumsSource")),
+      hfRingBitCountsSource_(iConfig.getParameter<edm::InputTag>("hfRingBitCountsSource")),
       centralBxOnly_(iConfig.getParameter<bool>("centralBxOnly")),
       ignoreHtMiss_(iConfig.getParameter<bool>("ignoreHtMiss")) {
   using namespace l1extra;
@@ -115,7 +112,6 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet &iConfig)
 }
 
 L1ExtraParticlesProd::~L1ExtraParticlesProd() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -125,8 +121,7 @@ L1ExtraParticlesProd::~L1ExtraParticlesProd() {
 //
 
 // ------------ method called to produce the data  ------------
-void L1ExtraParticlesProd::produce(edm::Event &iEvent,
-                                   const edm::EventSetup &iSetup) {
+void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace l1extra;
   using namespace std;
@@ -150,10 +145,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
     vector<L1MuGMTExtendedCand> hwMuCands;
 
     if (!hwMuCollection.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       if (centralBxOnly_) {
         // Get GMT candidates from central bunch crossing only
@@ -188,8 +181,7 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
 
         if (!muItr->empty()) {
           // keep x and y components non-zero and protect against roundoff.
-          double pt =
-              muPtScale->getPtScale()->getLowEdge(muItr->ptIndex()) + 1.e-6;
+          double pt = muPtScale->getPtScale()->getLowEdge(muItr->ptIndex()) + 1.e-6;
 
           // 	    cout << "L1Extra pt " << pt << endl ;
 
@@ -199,15 +191,13 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
 
           math::PtEtaPhiMLorentzVector p4(pt, eta, phi, muonMassGeV_);
 
-          muColl->push_back(
-              L1MuonParticle(muItr->charge(), p4, *muItr, muItr->bx()));
+          muColl->push_back(L1MuonParticle(muItr->charge(), p4, *muItr, muItr->bx()));
         }
       }
     }
   }
 
-  OrphanHandle<L1MuonParticleCollection> muHandle =
-      iEvent.put(std::move(muColl));
+  OrphanHandle<L1MuonParticleCollection> muHandle = iEvent.put(std::move(muColl));
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // ~~~~~~~~~~~~~~~~~~~~ Calorimeter ~~~~~~~~~~~~~~~~~~~~
@@ -223,14 +213,11 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
 
   unique_ptr<L1JetParticleCollection> tauJetColl(new L1JetParticleCollection);
 
-  unique_ptr<L1JetParticleCollection> isoTauJetColl(
-      new L1JetParticleCollection);
+  unique_ptr<L1JetParticleCollection> isoTauJetColl(new L1JetParticleCollection);
 
-  unique_ptr<L1EtMissParticleCollection> etMissColl(
-      new L1EtMissParticleCollection);
+  unique_ptr<L1EtMissParticleCollection> etMissColl(new L1EtMissParticleCollection);
 
-  unique_ptr<L1EtMissParticleCollection> htMissColl(
-      new L1EtMissParticleCollection);
+  unique_ptr<L1EtMissParticleCollection> htMissColl(new L1EtMissParticleCollection);
 
   unique_ptr<L1HFRingsCollection> hfRingsColl(new L1HFRingsCollection);
 
@@ -251,10 +238,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
     iEvent.getByLabel(isoEmSource_, hwIsoEmCands);
 
     if (!hwIsoEmCands.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctEmCandCollection with " << isoEmSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctEmCandCollection with " << isoEmSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       //       cout << "HW iso EM" << endl ;
 
@@ -278,8 +263,7 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
           // 	    cout << "L1Extra et " << et << endl ;
 
           isoEmColl->push_back(L1EmParticle(
-              gctLorentzVector(et, *emItr, caloGeom, true),
-              Ref<L1GctEmCandCollection>(hwIsoEmCands, i), emItr->bx()));
+              gctLorentzVector(et, *emItr, caloGeom, true), Ref<L1GctEmCandCollection>(hwIsoEmCands, i), emItr->bx()));
         }
       }
     }
@@ -289,10 +273,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
     iEvent.getByLabel(nonIsoEmSource_, hwNonIsoEmCands);
 
     if (!hwNonIsoEmCands.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctEmCandCollection with " << nonIsoEmSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctEmCandCollection with " << nonIsoEmSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       //       cout << "HW non-iso EM" << endl ;
       L1GctEmCandCollection::const_iterator emItr = hwNonIsoEmCands->begin();
@@ -314,9 +296,9 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
 
           // 	    cout << "L1Extra et " << et << endl ;
 
-          nonIsoEmColl->push_back(L1EmParticle(
-              gctLorentzVector(et, *emItr, caloGeom, true),
-              Ref<L1GctEmCandCollection>(hwNonIsoEmCands, i), emItr->bx()));
+          nonIsoEmColl->push_back(L1EmParticle(gctLorentzVector(et, *emItr, caloGeom, true),
+                                               Ref<L1GctEmCandCollection>(hwNonIsoEmCands, i),
+                                               emItr->bx()));
         }
       }
     }
@@ -331,10 +313,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
     iEvent.getByLabel(cenJetSource_, hwCenJetCands);
 
     if (!hwCenJetCands.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctJetCandCollection with " << cenJetSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctJetCandCollection with " << cenJetSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       //       cout << "HW central jets" << endl ;
       L1GctJetCandCollection::const_iterator jetItr = hwCenJetCands->begin();
@@ -358,9 +338,9 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
 
           // 	    cout << "L1Extra et " << et << endl ;
 
-          cenJetColl->push_back(L1JetParticle(
-              gctLorentzVector(et, *jetItr, caloGeom, true),
-              Ref<L1GctJetCandCollection>(hwCenJetCands, i), jetItr->bx()));
+          cenJetColl->push_back(L1JetParticle(gctLorentzVector(et, *jetItr, caloGeom, true),
+                                              Ref<L1GctJetCandCollection>(hwCenJetCands, i),
+                                              jetItr->bx()));
         }
       }
     }
@@ -370,10 +350,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
     iEvent.getByLabel(forJetSource_, hwForJetCands);
 
     if (!hwForJetCands.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctEmCandCollection with " << forJetSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctEmCandCollection with " << forJetSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       //       cout << "HW forward jets" << endl ;
       L1GctJetCandCollection::const_iterator jetItr = hwForJetCands->begin();
@@ -397,9 +375,9 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
 
           // 	    cout << "L1Extra et " << et << endl ;
 
-          forJetColl->push_back(L1JetParticle(
-              gctLorentzVector(et, *jetItr, caloGeom, false),
-              Ref<L1GctJetCandCollection>(hwForJetCands, i), jetItr->bx()));
+          forJetColl->push_back(L1JetParticle(gctLorentzVector(et, *jetItr, caloGeom, false),
+                                              Ref<L1GctJetCandCollection>(hwForJetCands, i),
+                                              jetItr->bx()));
         }
       }
     }
@@ -410,10 +388,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
     iEvent.getByLabel(tauJetSource_, hwTauJetCands);
 
     if (!hwTauJetCands.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctJetCandCollection with " << tauJetSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctJetCandCollection with " << tauJetSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       L1GctJetCandCollection::const_iterator jetItr = hwTauJetCands->begin();
       L1GctJetCandCollection::const_iterator jetEnd = hwTauJetCands->end();
@@ -436,9 +412,9 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
 
           // 	    cout << "L1Extra et " << et << endl ;
 
-          tauJetColl->push_back(L1JetParticle(
-              gctLorentzVector(et, *jetItr, caloGeom, true),
-              Ref<L1GctJetCandCollection>(hwTauJetCands, i), jetItr->bx()));
+          tauJetColl->push_back(L1JetParticle(gctLorentzVector(et, *jetItr, caloGeom, true),
+                                              Ref<L1GctJetCandCollection>(hwTauJetCands, i),
+                                              jetItr->bx()));
         }
       }
     }
@@ -449,10 +425,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
     iEvent.getByLabel(isoTauJetSource_, hwIsoTauJetCands);
 
     if (!hwIsoTauJetCands.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctJetCandCollection with " << isoTauJetSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctJetCandCollection with " << isoTauJetSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       L1GctJetCandCollection::const_iterator jetItr = hwIsoTauJetCands->begin();
       L1GctJetCandCollection::const_iterator jetEnd = hwIsoTauJetCands->end();
@@ -475,9 +449,9 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
 
           // 	    cout << "L1Extra et " << et << endl ;
 
-          isoTauJetColl->push_back(L1JetParticle(
-              gctLorentzVector(et, *jetItr, caloGeom, true),
-              Ref<L1GctJetCandCollection>(hwIsoTauJetCands, i), jetItr->bx()));
+          isoTauJetColl->push_back(L1JetParticle(gctLorentzVector(et, *jetItr, caloGeom, true),
+                                                 Ref<L1GctJetCandCollection>(hwIsoTauJetCands, i),
+                                                 jetItr->bx()));
         }
       }
     }
@@ -493,15 +467,11 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
     iEvent.getByLabel(etMissSource_, hwEtMissColl);
 
     if (!hwEtTotColl.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctEtTotalCollection with " << etTotSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctEtTotalCollection with " << etTotSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else if (!hwEtMissColl.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctEtMissCollection with " << etMissSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctEtMissCollection with " << etMissSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       // Make a L1EtMissParticle even if either L1GctEtTotal or L1GctEtMiss
       // is missing for a given bx.  Keep track of which L1GctEtMiss objects
@@ -525,9 +495,7 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
         if (!centralBxOnly_ || bx == 0) {
           // ET bin low edge
           double etTot =
-              (hwEtTotItr->overFlow() ? (double)L1GctEtTotal::kEtTotalMaxValue
-                                      : (double)hwEtTotItr->et()) *
-                  etSumLSB +
+              (hwEtTotItr->overFlow() ? (double)L1GctEtTotal::kEtTotalMaxValue : (double)hwEtTotItr->et()) * etSumLSB +
               1.e-6;
 
           int iMiss = 0;
@@ -548,11 +516,9 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
           // If a L1GctEtMiss with the right bx is not found, itr == end.
           if (hwEtMissItr != hwEtMissEnd) {
             // ET bin low edge
-            etMiss =
-                (hwEtMissItr->overFlow() ? (double)L1GctEtMiss::kEtMissMaxValue
-                                         : (double)hwEtMissItr->et()) *
-                    etSumLSB +
-                1.e-6;
+            etMiss = (hwEtMissItr->overFlow() ? (double)L1GctEtMiss::kEtMissMaxValue : (double)hwEtMissItr->et()) *
+                         etSumLSB +
+                     1.e-6;
             // keep x and y components non-zero and
             // protect against roundoff.
 
@@ -579,10 +545,14 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
           // 		    << endl ;
           // 	     }
 
-          etMissColl->push_back(L1EtMissParticle(
-              p4, L1EtMissParticle::kMET, etTot, metRef,
-              Ref<L1GctEtTotalCollection>(hwEtTotColl, iTot),
-              Ref<L1GctHtMissCollection>(), Ref<L1GctEtHadCollection>(), bx));
+          etMissColl->push_back(L1EtMissParticle(p4,
+                                                 L1EtMissParticle::kMET,
+                                                 etTot,
+                                                 metRef,
+                                                 Ref<L1GctEtTotalCollection>(hwEtTotColl, iTot),
+                                                 Ref<L1GctHtMissCollection>(),
+                                                 Ref<L1GctEtHadCollection>(),
+                                                 bx));
         }
       }
 
@@ -601,8 +571,7 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
 
             // ET bin low edge
             double etMiss =
-                (hwEtMissItr->overFlow() ? (double)L1GctEtMiss::kEtMissMaxValue
-                                         : (double)hwEtMissItr->et()) *
+                (hwEtMissItr->overFlow() ? (double)L1GctEtMiss::kEtMissMaxValue : (double)hwEtMissItr->et()) *
                     etSumLSB +
                 1.e-6;
             // keep x and y components non-zero and
@@ -620,11 +589,14 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
             // 		       << " bx " << bx
             // 		       << endl ;
 
-            etMissColl->push_back(L1EtMissParticle(
-                p4, L1EtMissParticle::kMET, etTot,
-                Ref<L1GctEtMissCollection>(hwEtMissColl, iMiss),
-                Ref<L1GctEtTotalCollection>(), Ref<L1GctHtMissCollection>(),
-                Ref<L1GctEtHadCollection>(), bx));
+            etMissColl->push_back(L1EtMissParticle(p4,
+                                                   L1EtMissParticle::kMET,
+                                                   etTot,
+                                                   Ref<L1GctEtMissCollection>(hwEtMissColl, iMiss),
+                                                   Ref<L1GctEtTotalCollection>(),
+                                                   Ref<L1GctHtMissCollection>(),
+                                                   Ref<L1GctEtHadCollection>(),
+                                                   bx));
           }
         }
       }
@@ -650,21 +622,16 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
       iSetup.get<L1HtMissScaleRcd>().get(htMissScale);
 
       if (!hwEtHadColl.isValid()) {
-        LogDebug("L1ExtraParticlesProd")
-            << "\nWarning: L1GctEtHadCollection with " << etHadSource_
-            << "\nrequested in configuration, but not found in the event."
-            << std::endl;
+        LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctEtHadCollection with " << etHadSource_
+                                         << "\nrequested in configuration, but not found in the event." << std::endl;
       } else if (!hwHtMissColl.isValid()) {
-        LogDebug("L1ExtraParticlesProd")
-            << "\nWarning: L1GctHtMissCollection with " << htMissSource_
-            << "\nrequested in configuration, but not found in the event."
-            << std::endl;
+        LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctHtMissCollection with " << htMissSource_
+                                         << "\nrequested in configuration, but not found in the event." << std::endl;
       } else {
         // Make a L1EtMissParticle even if either L1GctEtHad or L1GctHtMiss
         // is missing for a given bx. Keep track of which L1GctHtMiss objects
         // have a corresponding L1GctHtTotal object.
-        L1GctHtMissCollection::const_iterator hwHtMissItr =
-            hwHtMissColl->begin();
+        L1GctHtMissCollection::const_iterator hwHtMissItr = hwHtMissColl->begin();
         L1GctHtMissCollection::const_iterator hwHtMissEnd = hwHtMissColl->end();
         for (; hwHtMissItr != hwHtMissEnd; ++hwHtMissItr) {
           htMissMatched.push_back(false);
@@ -673,15 +640,11 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
     }
 
     if (!hwEtHadColl.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctEtHadCollection with " << etHadSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctEtHadCollection with " << etHadSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else if (!hwHtMissColl.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctHtMissCollection with " << htMissSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctHtMissCollection with " << htMissSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
       L1GctEtHadCollection::const_iterator hwEtHadItr = hwEtHadColl->begin();
       L1GctEtHadCollection::const_iterator hwEtHadEnd = hwEtHadColl->end();
@@ -693,9 +656,7 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
         if (!centralBxOnly_ || bx == 0) {
           // HT bin low edge
           double htTot =
-              (hwEtHadItr->overFlow() ? (double)L1GctEtHad::kEtHadMaxValue
-                                      : (double)hwEtHadItr->et()) *
-                  htSumLSB +
+              (hwEtHadItr->overFlow() ? (double)L1GctEtHad::kEtHadMaxValue : (double)hwEtHadItr->et()) * htSumLSB +
               1.e-6;
 
           double htMiss = 0.;
@@ -704,10 +665,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
           Ref<L1GctHtMissCollection> mhtRef;
 
           if (!ignoreHtMiss_) {
-            L1GctHtMissCollection::const_iterator hwHtMissItr =
-                hwHtMissColl->begin();
-            L1GctHtMissCollection::const_iterator hwHtMissEnd =
-                hwHtMissColl->end();
+            L1GctHtMissCollection::const_iterator hwHtMissItr = hwHtMissColl->begin();
+            L1GctHtMissCollection::const_iterator hwHtMissEnd = hwHtMissColl->end();
 
             int iMiss = 0;
             for (; hwHtMissItr != hwHtMissEnd; ++hwHtMissItr, ++iMiss) {
@@ -720,10 +679,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
             // If a L1GctHtMiss with the right bx is not found, itr == end.
             if (hwHtMissItr != hwHtMissEnd) {
               // HT bin low edge
-              htMiss = htMissScale->et(hwHtMissItr->overFlow()
-                                           ? htMissScale->rankScaleMax()
-                                           : hwHtMissItr->et()) +
-                       1.e-6;
+              htMiss =
+                  htMissScale->et(hwHtMissItr->overFlow() ? htMissScale->rankScaleMax() : hwHtMissItr->et()) + 1.e-6;
               // keep x and y components non-zero and
               // protect against roundoff.
 
@@ -756,10 +713,14 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
             // 		 }
           }
 
-          htMissColl->push_back(L1EtMissParticle(
-              p4, L1EtMissParticle::kMHT, htTot, Ref<L1GctEtMissCollection>(),
-              Ref<L1GctEtTotalCollection>(), mhtRef,
-              Ref<L1GctEtHadCollection>(hwEtHadColl, iHad), bx));
+          htMissColl->push_back(L1EtMissParticle(p4,
+                                                 L1EtMissParticle::kMHT,
+                                                 htTot,
+                                                 Ref<L1GctEtMissCollection>(),
+                                                 Ref<L1GctEtTotalCollection>(),
+                                                 mhtRef,
+                                                 Ref<L1GctEtHadCollection>(hwEtHadColl, iHad),
+                                                 bx));
         }
       }
 
@@ -768,8 +729,7 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
         // a matched L1GctHtTotal object.
         double htTot = 0.;
 
-        L1GctHtMissCollection::const_iterator hwHtMissItr =
-            hwHtMissColl->begin();
+        L1GctHtMissCollection::const_iterator hwHtMissItr = hwHtMissColl->begin();
         L1GctHtMissCollection::const_iterator hwHtMissEnd = hwHtMissColl->end();
 
         int iMiss = 0;
@@ -778,10 +738,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
             int bx = hwHtMissItr->bx();
 
             // HT bin low edge
-            double htMiss = htMissScale->et(hwHtMissItr->overFlow()
-                                                ? htMissScale->rankScaleMax()
-                                                : hwHtMissItr->et()) +
-                            1.e-6;
+            double htMiss =
+                htMissScale->et(hwHtMissItr->overFlow() ? htMissScale->rankScaleMax() : hwHtMissItr->et()) + 1.e-6;
             // keep x and y components non-zero and
             // protect against roundoff.
 
@@ -797,11 +755,14 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
             // 		       << " bx " << bx
             // 		       << endl ;
 
-            htMissColl->push_back(L1EtMissParticle(
-                p4, L1EtMissParticle::kMHT, htTot, Ref<L1GctEtMissCollection>(),
-                Ref<L1GctEtTotalCollection>(),
-                Ref<L1GctHtMissCollection>(hwHtMissColl, iMiss),
-                Ref<L1GctEtHadCollection>(), bx));
+            htMissColl->push_back(L1EtMissParticle(p4,
+                                                   L1EtMissParticle::kMHT,
+                                                   htTot,
+                                                   Ref<L1GctEtMissCollection>(),
+                                                   Ref<L1GctEtTotalCollection>(),
+                                                   Ref<L1GctHtMissCollection>(hwHtMissColl, iMiss),
+                                                   Ref<L1GctEtHadCollection>(),
+                                                   bx));
           }
         }
       }
@@ -819,36 +780,25 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
     iSetup.get<L1HfRingEtScaleRcd>().get(hfRingEtScale);
 
     if (!hwHFEtSumsColl.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctHFRingEtSumsCollection with "
-          << hfRingEtSumsSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctHFRingEtSumsCollection with " << hfRingEtSumsSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else if (!hwHFBitCountsColl.isValid()) {
-      LogDebug("L1ExtraParticlesProd")
-          << "\nWarning: L1GctHFBitCountsCollection with "
-          << hfRingBitCountsSource_
-          << "\nrequested in configuration, but not found in the event."
-          << std::endl;
+      LogDebug("L1ExtraParticlesProd") << "\nWarning: L1GctHFBitCountsCollection with " << hfRingBitCountsSource_
+                                       << "\nrequested in configuration, but not found in the event." << std::endl;
     } else {
-      L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsItr =
-          hwHFEtSumsColl->begin();
-      L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsEnd =
-          hwHFEtSumsColl->end();
+      L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsItr = hwHFEtSumsColl->begin();
+      L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsEnd = hwHFEtSumsColl->end();
 
       int iEtSums = 0;
       for (; hwHFEtSumsItr != hwHFEtSumsEnd; ++hwHFEtSumsItr, ++iEtSums) {
         int bx = hwHFEtSumsItr->bx();
 
         if (!centralBxOnly_ || bx == 0) {
-          L1GctHFBitCountsCollection::const_iterator hwHFBitCountsItr =
-              hwHFBitCountsColl->begin();
-          L1GctHFBitCountsCollection::const_iterator hwHFBitCountsEnd =
-              hwHFBitCountsColl->end();
+          L1GctHFBitCountsCollection::const_iterator hwHFBitCountsItr = hwHFBitCountsColl->begin();
+          L1GctHFBitCountsCollection::const_iterator hwHFBitCountsEnd = hwHFBitCountsColl->end();
 
           int iBitCounts = 0;
-          for (; hwHFBitCountsItr != hwHFBitCountsEnd;
-               ++hwHFBitCountsItr, ++iBitCounts) {
+          for (; hwHFBitCountsItr != hwHFBitCountsEnd; ++hwHFBitCountsItr, ++iBitCounts) {
             if (hwHFBitCountsItr->bx() == bx) {
               break;
             }
@@ -862,14 +812,10 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
 
             // HF Et sums
             double etSums[L1HFRings::kNumRings];
-            etSums[L1HFRings::kRing1PosEta] =
-                hfRingEtScale->et(hwHFEtSumsItr->etSum(0)) + 1.e-6;
-            etSums[L1HFRings::kRing1NegEta] =
-                hfRingEtScale->et(hwHFEtSumsItr->etSum(1)) + 1.e-6;
-            etSums[L1HFRings::kRing2PosEta] =
-                hfRingEtScale->et(hwHFEtSumsItr->etSum(2)) + 1.e-6;
-            etSums[L1HFRings::kRing2NegEta] =
-                hfRingEtScale->et(hwHFEtSumsItr->etSum(3)) + 1.e-6;
+            etSums[L1HFRings::kRing1PosEta] = hfRingEtScale->et(hwHFEtSumsItr->etSum(0)) + 1.e-6;
+            etSums[L1HFRings::kRing1NegEta] = hfRingEtScale->et(hwHFEtSumsItr->etSum(1)) + 1.e-6;
+            etSums[L1HFRings::kRing2PosEta] = hfRingEtScale->et(hwHFEtSumsItr->etSum(2)) + 1.e-6;
+            etSums[L1HFRings::kRing2NegEta] = hfRingEtScale->et(hwHFEtSumsItr->etSum(3)) + 1.e-6;
             // protect against roundoff.
 
             // 	       cout << "HF Et Sums "
@@ -897,52 +843,43 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent,
             // 		    << hwHFBitCountsItr->bitCount( 3 ) << " "
             // 		    << endl ;
 
-            hfRingsColl->push_back(L1HFRings(
-                etSums, bitCounts,
-                Ref<L1GctHFRingEtSumsCollection>(hwHFEtSumsColl, iEtSums),
-                Ref<L1GctHFBitCountsCollection>(hwHFBitCountsColl, iBitCounts),
-                bx));
+            hfRingsColl->push_back(L1HFRings(etSums,
+                                             bitCounts,
+                                             Ref<L1GctHFRingEtSumsCollection>(hwHFEtSumsColl, iEtSums),
+                                             Ref<L1GctHFBitCountsCollection>(hwHFBitCountsColl, iBitCounts),
+                                             bx));
           }
         }
       }
     }
   }
 
-  OrphanHandle<L1EmParticleCollection> isoEmHandle =
-      iEvent.put(std::move(isoEmColl), "Isolated");
+  OrphanHandle<L1EmParticleCollection> isoEmHandle = iEvent.put(std::move(isoEmColl), "Isolated");
 
-  OrphanHandle<L1EmParticleCollection> nonIsoEmHandle =
-      iEvent.put(std::move(nonIsoEmColl), "NonIsolated");
+  OrphanHandle<L1EmParticleCollection> nonIsoEmHandle = iEvent.put(std::move(nonIsoEmColl), "NonIsolated");
 
-  OrphanHandle<L1JetParticleCollection> cenJetHandle =
-      iEvent.put(std::move(cenJetColl), "Central");
+  OrphanHandle<L1JetParticleCollection> cenJetHandle = iEvent.put(std::move(cenJetColl), "Central");
 
-  OrphanHandle<L1JetParticleCollection> forJetHandle =
-      iEvent.put(std::move(forJetColl), "Forward");
+  OrphanHandle<L1JetParticleCollection> forJetHandle = iEvent.put(std::move(forJetColl), "Forward");
 
-  OrphanHandle<L1JetParticleCollection> tauJetHandle =
-      iEvent.put(std::move(tauJetColl), "Tau");
+  OrphanHandle<L1JetParticleCollection> tauJetHandle = iEvent.put(std::move(tauJetColl), "Tau");
 
-  OrphanHandle<L1JetParticleCollection> IsoTauJetHandle =
-      iEvent.put(std::move(isoTauJetColl), "IsoTau");
+  OrphanHandle<L1JetParticleCollection> IsoTauJetHandle = iEvent.put(std::move(isoTauJetColl), "IsoTau");
 
-  OrphanHandle<L1EtMissParticleCollection> etMissCollHandle =
-      iEvent.put(std::move(etMissColl), "MET");
+  OrphanHandle<L1EtMissParticleCollection> etMissCollHandle = iEvent.put(std::move(etMissColl), "MET");
 
-  OrphanHandle<L1EtMissParticleCollection> htMissCollHandle =
-      iEvent.put(std::move(htMissColl), "MHT");
+  OrphanHandle<L1EtMissParticleCollection> htMissCollHandle = iEvent.put(std::move(htMissColl), "MHT");
 
-  OrphanHandle<L1HFRingsCollection> hfRingsCollHandle =
-      iEvent.put(std::move(hfRingsColl));
+  OrphanHandle<L1HFRingsCollection> hfRingsCollHandle = iEvent.put(std::move(hfRingsColl));
 }
 
 // math::XYZTLorentzVector
-math::PtEtaPhiMLorentzVector
-L1ExtraParticlesProd::gctLorentzVector(const double &et, const L1GctCand &cand,
-                                       const L1CaloGeometry *geom,
-                                       bool central) {
+math::PtEtaPhiMLorentzVector L1ExtraParticlesProd::gctLorentzVector(const double &et,
+                                                                    const L1GctCand &cand,
+                                                                    const L1CaloGeometry *geom,
+                                                                    bool central) {
   // To keep x and y components non-zero.
-  double etCorr = et + 1.e-6; // protect against roundoff, not only for et=0
+  double etCorr = et + 1.e-6;  // protect against roundoff, not only for et=0
 
   double eta = geom->etaBinCenter(cand.etaIndex(), central);
 

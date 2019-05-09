@@ -31,7 +31,6 @@ class EcalTPGTowerStatus;
     \brief class representing the Fenix chip, format strip
 */
 class EcalFenixTcp {
-
 private:
   bool debug_;
 
@@ -72,29 +71,36 @@ public:
   }
   // end temporary, for timing tests
 
-  EcalFenixTcp(const edm::EventSetup &setup, bool tcpFormat, bool debug,
-               bool famos, int binOfMax, int maxNrSamples, int nbMaxStrips);
+  EcalFenixTcp(const edm::EventSetup &setup,
+               bool tcpFormat,
+               bool debug,
+               bool famos,
+               int binOfMax,
+               int maxNrSamples,
+               int nbMaxStrips);
   virtual ~EcalFenixTcp();
 
-  void
-  process(const edm::EventSetup &setup,
-          std::vector<EBDataFrame> &bid, // dummy argument for template call
-          std::vector<std::vector<int>> &tpframetow, int nStr,
-          std::vector<EcalTriggerPrimitiveSample> &tptow,
-          std::vector<EcalTriggerPrimitiveSample> &tptow2, bool isInInnerRings,
-          EcalTrigTowerDetId thisTower);
-  void
-  process(const edm::EventSetup &setup,
-          std::vector<EEDataFrame> &bid, // dummy argument for template call
-          std::vector<std::vector<int>> &tpframetow, int nStr,
-          std::vector<EcalTriggerPrimitiveSample> &tptow,
-          std::vector<EcalTriggerPrimitiveSample> &tptow2, bool isInInnerRings,
-          EcalTrigTowerDetId thisTower);
+  void process(const edm::EventSetup &setup,
+               std::vector<EBDataFrame> &bid,  // dummy argument for template call
+               std::vector<std::vector<int>> &tpframetow,
+               int nStr,
+               std::vector<EcalTriggerPrimitiveSample> &tptow,
+               std::vector<EcalTriggerPrimitiveSample> &tptow2,
+               bool isInInnerRings,
+               EcalTrigTowerDetId thisTower);
+  void process(const edm::EventSetup &setup,
+               std::vector<EEDataFrame> &bid,  // dummy argument for template call
+               std::vector<std::vector<int>> &tpframetow,
+               int nStr,
+               std::vector<EcalTriggerPrimitiveSample> &tptow,
+               std::vector<EcalTriggerPrimitiveSample> &tptow2,
+               bool isInInnerRings,
+               EcalTrigTowerDetId thisTower);
 
-  void process_part1(std::vector<std::vector<int>> &tpframetow, int nStr,
-                     int bitMask);
+  void process_part1(std::vector<std::vector<int>> &tpframetow, int nStr, int bitMask);
 
-  void process_part2_barrel(std::vector<std::vector<int>> &, int nStr,
+  void process_part2_barrel(std::vector<std::vector<int>> &,
+                            int nStr,
                             int bitMask,
                             const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
                             const EcalTPGLutGroup *ecaltpgLutGroup,
@@ -106,15 +112,17 @@ public:
                             std::vector<EcalTriggerPrimitiveSample> &tptow2,
                             EcalTrigTowerDetId towid);
 
-  void
-  process_part2_endcap(std::vector<std::vector<int>> &, int nStr, int bitMask,
-                       const EcalTPGLutGroup *ecaltpgLutGroup,
-                       const EcalTPGLutIdMap *ecaltpgLut,
-                       const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
-                       const EcalTPGTowerStatus *ecaltpgBadTT,
-                       std::vector<EcalTriggerPrimitiveSample> &tptow,
-                       std::vector<EcalTriggerPrimitiveSample> &tptow2,
-                       bool isInInnerRings, EcalTrigTowerDetId towid);
+  void process_part2_endcap(std::vector<std::vector<int>> &,
+                            int nStr,
+                            int bitMask,
+                            const EcalTPGLutGroup *ecaltpgLutGroup,
+                            const EcalTPGLutIdMap *ecaltpgLut,
+                            const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
+                            const EcalTPGTowerStatus *ecaltpgBadTT,
+                            std::vector<EcalTriggerPrimitiveSample> &tptow,
+                            std::vector<EcalTriggerPrimitiveSample> &tptow2,
+                            bool isInInnerRings,
+                            EcalTrigTowerDetId towid);
 
   EcalFenixBypassLin *getBypasslin(int i) const { return bypasslin_[i]; }
   EcalFenixEtTot *getAdder() const { return adder_; }

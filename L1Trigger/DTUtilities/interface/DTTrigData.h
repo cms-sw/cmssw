@@ -33,7 +33,6 @@
 //              ---------------------
 
 class DTTrigData {
-
 public:
   ///  Constructor
   DTTrigData() {}

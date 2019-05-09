@@ -7,15 +7,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class EmulateCPPF {
-
 public:
-  explicit EmulateCPPF(const edm::ParameterSet &iConfig,
-                       edm::ConsumesCollector &&iConsumes);
+  explicit EmulateCPPF(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&iConsumes);
   ~EmulateCPPF();
 
   void process(
       // Input
-      const edm::Event &iEvent, const edm::EventSetup &iSetup,
+      const edm::Event &iEvent,
+      const edm::EventSetup &iSetup,
       // Output
       l1t::CPPFDigiCollection &cppf_recHit);
 
@@ -29,6 +28,6 @@ private:
   enum class CppfSource { File, EventSetup } cppfSource_;
   std::vector<RecHitProcessor::CppfItem> CppfVec_1;
   int MaxClusterSize_;
-}; // End class EmulateCPPF
+};  // End class EmulateCPPF
 
-#endif // #define L1Trigger_L1TMuonCPPF_EmulateCPPF_h
+#endif  // #define L1Trigger_L1TMuonCPPF_EmulateCPPF_h
