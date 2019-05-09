@@ -23,7 +23,6 @@
 #include <vector>
 
 class SiPixelConfigWriter {
-
 public:
   /// Creator
   SiPixelConfigWriter();

@@ -74,39 +74,26 @@
 EnergyScaleAnalyzer::EnergyScaleAnalyzer(const edm::ParameterSet &ps)
 //========================================================================
 {
-
-  hepMCLabel_ =
-      consumes<edm::HepMCProduct>(ps.getParameter<std::string>("hepMCLabel"));
+  hepMCLabel_ = consumes<edm::HepMCProduct>(ps.getParameter<std::string>("hepMCLabel"));
   hybridSuperClusters_token = consumes<reco::SuperClusterCollection>(
-      ps.getUntrackedParameter<edm::InputTag>(
-          "hybridSuperClusters", edm::InputTag("hybridSuperClusters")));
-  dynamicHybridSuperClusters_token = consumes<reco::SuperClusterCollection>(
-      ps.getUntrackedParameter<edm::InputTag>(
-          "dynamicHybridSuperClusters",
-          edm::InputTag("dynamicHybridSuperClusters")));
-  correctedHybridSuperClusters_token = consumes<reco::SuperClusterCollection>(
-      ps.getUntrackedParameter<edm::InputTag>(
-          "correctedHybridSuperClusters",
-          edm::InputTag("correctedHybridSuperClusters")));
+      ps.getUntrackedParameter<edm::InputTag>("hybridSuperClusters", edm::InputTag("hybridSuperClusters")));
+  dynamicHybridSuperClusters_token = consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>(
+      "dynamicHybridSuperClusters", edm::InputTag("dynamicHybridSuperClusters")));
+  correctedHybridSuperClusters_token = consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>(
+      "correctedHybridSuperClusters", edm::InputTag("correctedHybridSuperClusters")));
   correctedDynamicHybridSuperClusters_token =
-      consumes<reco::SuperClusterCollection>(
-          ps.getUntrackedParameter<edm::InputTag>(
-              "correctedDynamicHybridSuperClusters",
-              edm::InputTag("correctedDynamicHybridSuperClusters")));
-  correctedFixedMatrixSuperClustersWithPreshower_token =
-      consumes<reco::SuperClusterCollection>(
-          ps.getUntrackedParameter<edm::InputTag>(
-              "correctedFixedMatrixSuperClustersWithPreshower",
-              edm::InputTag("correctedFixedMatrixSuperClustersWithPreshower")));
+      consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>(
+          "correctedDynamicHybridSuperClusters", edm::InputTag("correctedDynamicHybridSuperClusters")));
+  correctedFixedMatrixSuperClustersWithPreshower_token = consumes<reco::SuperClusterCollection>(
+      ps.getUntrackedParameter<edm::InputTag>("correctedFixedMatrixSuperClustersWithPreshower",
+                                              edm::InputTag("correctedFixedMatrixSuperClustersWithPreshower")));
   fixedMatrixSuperClustersWithPreshower_token =
-      consumes<reco::SuperClusterCollection>(
-          ps.getUntrackedParameter<edm::InputTag>(
-              "fixedMatrixSuperClustersWithPreshower",
-              edm::InputTag("fixedMatrixSuperClustersWithPreshower")));
+      consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>(
+          "fixedMatrixSuperClustersWithPreshower", edm::InputTag("fixedMatrixSuperClustersWithPreshower")));
 
   outputFile_ = ps.getParameter<std::string>("outputFile");
   rootFile_ = TFile::Open(outputFile_.c_str(),
-                          "RECREATE"); // open output file to store histograms
+                          "RECREATE");  // open output file to store histograms
 
   evtN = 0;
 }
@@ -125,32 +112,28 @@ void EnergyScaleAnalyzer::beginJob() {
   mytree_ = new TTree("energyScale", "");
   TString treeVariables =
       "mc_npar/I:parID:mc_sep/"
-      "F:mc_e:mc_et:mc_phi:mc_eta:mc_theta:"; // MC information
-  treeVariables += "em_dR/F:";                // MC <-> EM matching information
+      "F:mc_e:mc_et:mc_phi:mc_eta:mc_theta:";  // MC information
+  treeVariables += "em_dR/F:";                 // MC <-> EM matching information
   treeVariables +=
       "em_isInCrack/I:em_scType:em_e/F:em_et:em_phi:em_eta:em_theta:em_nCell/"
-      "I:em_nBC:"; // EM SC info
-  treeVariables +=
-      "em_pet/F:em_pe:em_peta:em_ptheta:"; // EM SC physics (eta corrected
-                                           // information)
+      "I:em_nBC:";                                       // EM SC info
+  treeVariables += "em_pet/F:em_pe:em_peta:em_ptheta:";  // EM SC physics (eta corrected
+                                                         // information)
 
-  treeVariables +=
-      "emCorr_e/F:emCorr_et:emCorr_eta:emCorr_phi:emCorr_theta:"; // CMSSW
-                                                                  // standard
-                                                                  // corrections
-  treeVariables +=
-      "emCorr_pet/F:emCorr_peta:emCorr_ptheta:"; // CMSSW standard physics
+  treeVariables += "emCorr_e/F:emCorr_et:emCorr_eta:emCorr_phi:emCorr_theta:";  // CMSSW
+                                                                                // standard
+                                                                                // corrections
+  treeVariables += "emCorr_pet/F:emCorr_peta:emCorr_ptheta:";                   // CMSSW standard physics
 
-  treeVariables += "em_pw/F:em_ew:em_br"; // EM widths pw -- phiWidth, ew --
-                                          // etaWidth, ratios of pw/ew
+  treeVariables += "em_pw/F:em_ew:em_br";  // EM widths pw -- phiWidth, ew --
+                                           // etaWidth, ratios of pw/ew
 
   mytree_->Branch("energyScale", &(tree_.mc_npar), treeVariables);
 }
 
 //========================================================================
-void EnergyScaleAnalyzer::analyze(const edm::Event &evt,
-                                  const edm::EventSetup &es) {
-  using namespace edm; // needed for all fwk related classes
+void EnergyScaleAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup &es) {
+  using namespace edm;  // needed for all fwk related classes
   using namespace std;
 
   //  std::cout << "Proceccing event # " << ++evtN << std::endl;
@@ -197,27 +180,22 @@ void EnergyScaleAnalyzer::analyze(const edm::Event &evt,
   try {
     evt.getByToken(hybridSuperClusters_token, hybridSuperClusters);
   } catch (cms::Exception &ex) {
-    edm::LogError("EnergyScaleAnalyzer")
-        << "Can't get collection with producer hybridSuperClusters.";
+    edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer hybridSuperClusters.";
   }
 
   Handle<reco::SuperClusterCollection> dynamicHybridSuperClusters;
   try {
-    evt.getByToken(dynamicHybridSuperClusters_token,
-                   dynamicHybridSuperClusters);
+    evt.getByToken(dynamicHybridSuperClusters_token, dynamicHybridSuperClusters);
   } catch (cms::Exception &ex) {
-    edm::LogError("EnergyScaleAnalyzer")
-        << "Can't get collection with producer dynamicHybridSuperClusters.";
+    edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer dynamicHybridSuperClusters.";
   }
 
   Handle<reco::SuperClusterCollection> fixedMatrixSuperClustersWithPS;
   try {
-    evt.getByToken(fixedMatrixSuperClustersWithPreshower_token,
-                   fixedMatrixSuperClustersWithPS);
+    evt.getByToken(fixedMatrixSuperClustersWithPreshower_token, fixedMatrixSuperClustersWithPS);
   } catch (cms::Exception &ex) {
-    edm::LogError("EnergyScaleAnalyzer")
-        << "Can't get collection with producer "
-           "fixedMatrixSuperClustersWithPreshower.";
+    edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer "
+                                            "fixedMatrixSuperClustersWithPreshower.";
   }
 
   // Corrected collections
@@ -225,39 +203,31 @@ void EnergyScaleAnalyzer::analyze(const edm::Event &evt,
   try {
     evt.getByToken(correctedHybridSuperClusters_token, correctedHybridSC);
   } catch (cms::Exception &ex) {
-    edm::LogError("EnergyScaleAnalyzer")
-        << "Can't get collection with producer correctedHybridSuperClusters.";
+    edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer correctedHybridSuperClusters.";
   }
 
   Handle<reco::SuperClusterCollection> correctedDynamicHybridSC;
   try {
-    evt.getByToken(correctedDynamicHybridSuperClusters_token,
-                   correctedDynamicHybridSC);
+    evt.getByToken(correctedDynamicHybridSuperClusters_token, correctedDynamicHybridSC);
   } catch (cms::Exception &ex) {
-    edm::LogError("EnergyScaleAnalyzer")
-        << "Can't get collection with producer "
-           "correctedDynamicHybridSuperClusters.";
+    edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer "
+                                            "correctedDynamicHybridSuperClusters.";
   }
 
   Handle<reco::SuperClusterCollection> correctedFixedMatrixSCWithPS;
   try {
-    evt.getByToken(correctedFixedMatrixSuperClustersWithPreshower_token,
-                   correctedFixedMatrixSCWithPS);
+    evt.getByToken(correctedFixedMatrixSuperClustersWithPreshower_token, correctedFixedMatrixSCWithPS);
   } catch (cms::Exception &ex) {
-    edm::LogError("EnergyScaleAnalyzer")
-        << "Can't get collection with producer "
-           "correctedFixedMatrixSuperClustersWithPreshower.";
+    edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer "
+                                            "correctedFixedMatrixSuperClustersWithPreshower.";
   }
 
-  const reco::SuperClusterCollection *dSC =
-      dynamicHybridSuperClusters.product();
+  const reco::SuperClusterCollection *dSC = dynamicHybridSuperClusters.product();
   const reco::SuperClusterCollection *hSC = hybridSuperClusters.product();
-  const reco::SuperClusterCollection *fmSC =
-      fixedMatrixSuperClustersWithPS.product();
+  const reco::SuperClusterCollection *fmSC = fixedMatrixSuperClustersWithPS.product();
   const reco::SuperClusterCollection *chSC = correctedHybridSC.product();
   const reco::SuperClusterCollection *cdSC = correctedDynamicHybridSC.product();
-  const reco::SuperClusterCollection *cfmSC =
-      correctedFixedMatrixSCWithPS.product();
+  const reco::SuperClusterCollection *cfmSC = correctedFixedMatrixSCWithPS.product();
 
   // -----------------------  Print outs for debugging
   /*
@@ -307,8 +277,7 @@ void EnergyScaleAnalyzer::analyze(const edm::Event &evt,
 
   std::vector<HepMC::GenParticle *> mcParticles;
   // int counter = 0;
-  for (HepMC::GenEvent::particle_const_iterator p = genEvent->particles_begin();
-       p != genEvent->particles_end(); ++p) {
+  for (HepMC::GenEvent::particle_const_iterator p = genEvent->particles_begin(); p != genEvent->particles_end(); ++p) {
     // LogInfo("EnergyScaleAnalyzer") << "Particle " << ++counter
     //<< " PDG ID = " << (*p)->pdg_id() << " pT = " << (*p)->momentum().perp();
     // require photon or electron
@@ -316,8 +285,7 @@ void EnergyScaleAnalyzer::analyze(const edm::Event &evt,
       continue;
 
     // require selection criteria
-    bool satisfySelectionCriteria = (*p)->momentum().perp() > min_eT &&
-                                    fabs((*p)->momentum().eta()) < max_eta;
+    bool satisfySelectionCriteria = (*p)->momentum().perp() > min_eT && fabs((*p)->momentum().eta()) < max_eta;
 
     if (!satisfySelectionCriteria)
       continue;
@@ -330,16 +298,14 @@ void EnergyScaleAnalyzer::analyze(const edm::Event &evt,
   if (mcParticles.size() == 2) {
     HepMC::GenParticle *mc1 = mcParticles[0];
     HepMC::GenParticle *mc2 = mcParticles[1];
-    tree_.mc_sep = kinem::delta_R(mc1->momentum().eta(), mc1->momentum().phi(),
-                                  mc2->momentum().eta(), mc2->momentum().phi());
+    tree_.mc_sep =
+        kinem::delta_R(mc1->momentum().eta(), mc1->momentum().phi(), mc2->momentum().eta(), mc2->momentum().phi());
   } else
     tree_.mc_sep = -100;
 
   // now loop over MC particles, find the match with SC and do everything we
   // need then save info in the tree for every MC particle
-  for (std::vector<HepMC::GenParticle *>::const_iterator p =
-           mcParticles.begin();
-       p != mcParticles.end(); ++p) {
+  for (std::vector<HepMC::GenParticle *>::const_iterator p = mcParticles.begin(); p != mcParticles.end(); ++p) {
     HepMC::GenParticle *mc = *p;
 
     // Fill MC information
@@ -370,23 +336,25 @@ void EnergyScaleAnalyzer::analyze(const edm::Event &evt,
     //    tree_.em_phi << " : " << tree_.em_eta << std::endl;
 
     //   mytree_->Fill();
-  } // loop over particles
+  }  // loop over particles
 }
 
-void EnergyScaleAnalyzer::fillTree(
-    const reco::SuperClusterCollection *scColl,
-    const reco::SuperClusterCollection *corrSCColl, HepMC::GenParticle *mc,
-    tree_structure_ &tree_, float xV, float yV, float zV, int scType) {
-
+void EnergyScaleAnalyzer::fillTree(const reco::SuperClusterCollection *scColl,
+                                   const reco::SuperClusterCollection *corrSCColl,
+                                   HepMC::GenParticle *mc,
+                                   tree_structure_ &tree_,
+                                   float xV,
+                                   float yV,
+                                   float zV,
+                                   int scType) {
   // -----------------------------  SuperClusters before energy correction
   reco::SuperClusterCollection::const_iterator em = scColl->end();
-  float energyMax = -100.0; // dummy energy of the matched SC
-  for (reco::SuperClusterCollection::const_iterator aClus = scColl->begin();
-       aClus != scColl->end(); ++aClus) {
+  float energyMax = -100.0;  // dummy energy of the matched SC
+  for (reco::SuperClusterCollection::const_iterator aClus = scColl->begin(); aClus != scColl->end(); ++aClus) {
     // check the matching
-    float dR = kinem::delta_R(mc->momentum().eta(), mc->momentum().phi(),
-                              aClus->position().eta(), aClus->position().phi());
-    if (dR < 0.4) { // a rather loose matching cut
+    float dR =
+        kinem::delta_R(mc->momentum().eta(), mc->momentum().phi(), aClus->position().eta(), aClus->position().phi());
+    if (dR < 0.4) {  // a rather loose matching cut
       float energy = aClus->energy();
       if (energy < energyMax)
         continue;
@@ -409,14 +377,11 @@ void EnergyScaleAnalyzer::fillTree(
   double emAbsEta = fabs(em->position().eta());
   // copied from
   // RecoEgama/EgammaElectronAlgos/src/EgammaElectronClassification.cc
-  if (emAbsEta < 0.018 || (emAbsEta > 0.423 && emAbsEta < 0.461) ||
-      (emAbsEta > 0.770 && emAbsEta < 0.806) ||
-      (emAbsEta > 1.127 && emAbsEta < 1.163) ||
-      (emAbsEta > 1.460 && emAbsEta < 1.558))
+  if (emAbsEta < 0.018 || (emAbsEta > 0.423 && emAbsEta < 0.461) || (emAbsEta > 0.770 && emAbsEta < 0.806) ||
+      (emAbsEta > 1.127 && emAbsEta < 1.163) || (emAbsEta > 1.460 && emAbsEta < 1.558))
     tree_.em_isInCrack = 1;
 
-  tree_.em_dR = kinem::delta_R(mc->momentum().eta(), mc->momentum().phi(),
-                               em->position().eta(), em->position().phi());
+  tree_.em_dR = kinem::delta_R(mc->momentum().eta(), mc->momentum().phi(), em->position().eta(), em->position().phi());
   tree_.em_e = em->energy();
   tree_.em_et = em->energy() * sin(em->position().theta());
   tree_.em_phi = em->position().phi();
@@ -443,8 +408,7 @@ void EnergyScaleAnalyzer::fillTree(
   if (phiMax_ < 0)
     phiMax_ += 2 * 3.14159;
 
-  rClust_vtx_ = sqrt(xClust_vtx_ * xClust_vtx_ + yClust_vtx_ * yClust_vtx_ +
-                     zClust_vtx_ * zClust_vtx_);
+  rClust_vtx_ = sqrt(xClust_vtx_ * xClust_vtx_ + yClust_vtx_ * yClust_vtx_ + zClust_vtx_ * zClust_vtx_);
   thetaMaxVtx_ = acos(zClust_vtx_ / rClust_vtx_);
   etaMaxVtx_ = -log(tan(thetaMaxVtx_ / 2));
   eTMaxVtx_ = energyMax_ * sin(thetaMaxVtx_);
@@ -460,12 +424,11 @@ void EnergyScaleAnalyzer::fillTree(
 
   //-------------------------------   Get SC after energy correction
   em = corrSCColl->end();
-  energyMax = -100.0; // dummy energy of the matched SC
-  for (reco::SuperClusterCollection::const_iterator aClus = corrSCColl->begin();
-       aClus != corrSCColl->end(); ++aClus) {
+  energyMax = -100.0;  // dummy energy of the matched SC
+  for (reco::SuperClusterCollection::const_iterator aClus = corrSCColl->begin(); aClus != corrSCColl->end(); ++aClus) {
     // check the matching
-    float dR = kinem::delta_R(mc->momentum().eta(), mc->momentum().phi(),
-                              aClus->position().eta(), aClus->position().phi());
+    float dR =
+        kinem::delta_R(mc->momentum().eta(), mc->momentum().phi(), aClus->position().eta(), aClus->position().phi());
     if (dR < 0.4) {
       float energy = aClus->energy();
       if (energy < energyMax)

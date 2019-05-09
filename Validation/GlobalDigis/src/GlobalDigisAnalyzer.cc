@@ -11,20 +11,25 @@
 #include "Validation/GlobalDigis/interface/GlobalDigisAnalyzer.h"
 
 GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet &iPSet)
-    : fName(""), verbosity(0), frequency(0), label(""),
-      getAllProvenances(false), printProvenanceInfo(false), hitsProducer(""),
-      theCSCStripPedestalSum(0), theCSCStripPedestalCount(0), count(0) {
+    : fName(""),
+      verbosity(0),
+      frequency(0),
+      label(""),
+      getAllProvenances(false),
+      printProvenanceInfo(false),
+      hitsProducer(""),
+      theCSCStripPedestalSum(0),
+      theCSCStripPedestalCount(0),
+      count(0) {
   std::string MsgLoggerCat = "GlobalDigisAnalyzer_GlobalDigisAnalyzer";
 
   // get information from parameter set
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
-  edm::ParameterSet m_Prov =
-      iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
+  edm::ParameterSet m_Prov = iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = m_Prov.getUntrackedParameter<bool>("GetAllProvenances");
-  printProvenanceInfo =
-      m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
+  printProvenanceInfo = m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
   hitsProducer = iPSet.getParameter<std::string>("hitsProducer");
 
   // get Labels to use to extract information
@@ -40,82 +45,57 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet &iPSet)
   MuCSCWireSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCWireSrc");
   MuRPCSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSrc");
 
-  ECalEBSrc_Token_ = consumes<EBDigiCollection>(
-      iPSet.getParameter<edm::InputTag>("ECalEBSrc"));
-  ECalEESrc_Token_ = consumes<EEDigiCollection>(
-      iPSet.getParameter<edm::InputTag>("ECalEESrc"));
-  ECalESSrc_Token_ = consumes<ESDigiCollection>(
-      iPSet.getParameter<edm::InputTag>("ECalESSrc"));
-  HCalSrc_Token_ = consumes<edm::PCaloHitContainer>(
-      iPSet.getParameter<edm::InputTag>("HCalSrc"));
-  HBHEDigi_Token_ = consumes<edm::SortedCollection<HBHEDataFrame>>(
-      iPSet.getParameter<edm::InputTag>("HCalDigi"));
-  HODigi_Token_ = consumes<edm::SortedCollection<HODataFrame>>(
-      iPSet.getParameter<edm::InputTag>("HCalDigi"));
-  HFDigi_Token_ = consumes<edm::SortedCollection<HFDataFrame>>(
-      iPSet.getParameter<edm::InputTag>("HCalDigi"));
-  SiStripSrc_Token_ = consumes<edm::DetSetVector<SiStripDigi>>(
-      iPSet.getParameter<edm::InputTag>("SiStripSrc"));
-  SiPxlSrc_Token_ = consumes<edm::DetSetVector<PixelDigi>>(
-      iPSet.getParameter<edm::InputTag>("SiPxlSrc"));
-  MuDTSrc_Token_ =
-      consumes<DTDigiCollection>(iPSet.getParameter<edm::InputTag>("MuDTSrc"));
-  MuCSCStripSrc_Token_ = consumes<CSCStripDigiCollection>(
-      iPSet.getParameter<edm::InputTag>("MuCSCStripSrc"));
-  MuCSCWireSrc_Token_ = consumes<CSCWireDigiCollection>(
-      iPSet.getParameter<edm::InputTag>("MuCSCWireSrc"));
-  MuRPCSrc_Token_ = consumes<RPCDigiCollection>(
-      iPSet.getParameter<edm::InputTag>("MuRPCSrc"));
+  ECalEBSrc_Token_ = consumes<EBDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEBSrc"));
+  ECalEESrc_Token_ = consumes<EEDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEESrc"));
+  ECalESSrc_Token_ = consumes<ESDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalESSrc"));
+  HCalSrc_Token_ = consumes<edm::PCaloHitContainer>(iPSet.getParameter<edm::InputTag>("HCalSrc"));
+  HBHEDigi_Token_ = consumes<edm::SortedCollection<HBHEDataFrame>>(iPSet.getParameter<edm::InputTag>("HCalDigi"));
+  HODigi_Token_ = consumes<edm::SortedCollection<HODataFrame>>(iPSet.getParameter<edm::InputTag>("HCalDigi"));
+  HFDigi_Token_ = consumes<edm::SortedCollection<HFDataFrame>>(iPSet.getParameter<edm::InputTag>("HCalDigi"));
+  SiStripSrc_Token_ = consumes<edm::DetSetVector<SiStripDigi>>(iPSet.getParameter<edm::InputTag>("SiStripSrc"));
+  SiPxlSrc_Token_ = consumes<edm::DetSetVector<PixelDigi>>(iPSet.getParameter<edm::InputTag>("SiPxlSrc"));
+  MuDTSrc_Token_ = consumes<DTDigiCollection>(iPSet.getParameter<edm::InputTag>("MuDTSrc"));
+  MuCSCStripSrc_Token_ = consumes<CSCStripDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCStripSrc"));
+  MuCSCWireSrc_Token_ = consumes<CSCWireDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCWireSrc"));
+  MuRPCSrc_Token_ = consumes<RPCDigiCollection>(iPSet.getParameter<edm::InputTag>("MuRPCSrc"));
   //
   const std::string barrelHitsName(hitsProducer + "EcalHitsEB");
   const std::string endcapHitsName(hitsProducer + "EcalHitsEE");
   const std::string preshowerHitsName(hitsProducer + "EcalHitsES");
-  EBHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
-      edm::InputTag(std::string("mix"), std::string("barrelHitsName")));
-  EEHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
-      edm::InputTag(std::string("mix"), std::string("endcapHitsName")));
-  ESHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
-      edm::InputTag(std::string("mix"), std::string("preshowerHitsName")));
+  EBHits_Token_ = consumes<CrossingFrame<PCaloHit>>(edm::InputTag(std::string("mix"), std::string("barrelHitsName")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit>>(edm::InputTag(std::string("mix"), std::string("endcapHitsName")));
+  ESHits_Token_ =
+      consumes<CrossingFrame<PCaloHit>>(edm::InputTag(std::string("mix"), std::string("preshowerHitsName")));
 
-  RPCSimHit_Token_ = consumes<edm::PSimHitContainer>(
-      edm::InputTag(std::string("g4SimHits"), std::string("MuonRPCHits")));
+  RPCSimHit_Token_ =
+      consumes<edm::PSimHitContainer>(edm::InputTag(std::string("g4SimHits"), std::string("MuonRPCHits")));
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
 
   // print out Parameter Set information being used
   if (verbosity >= 0) {
-    edm::LogInfo(MsgLoggerCat)
-        << "\n===============================\n"
-        << "Initialized as EDAnalyzer with parameter values:\n"
-        << "    Name          = " << fName << "\n"
-        << "    Verbosity     = " << verbosity << "\n"
-        << "    Frequency     = " << frequency << "\n"
-        << "    GetProv       = " << getAllProvenances << "\n"
-        << "    PrintProv     = " << printProvenanceInfo << "\n"
-        << "    ECalEBSrc     = " << ECalEBSrc_.label() << ":"
-        << ECalEBSrc_.instance() << "\n"
-        << "    ECalEESrc     = " << ECalEESrc_.label() << ":"
-        << ECalEESrc_.instance() << "\n"
-        << "    ECalESSrc     = " << ECalESSrc_.label() << ":"
-        << ECalESSrc_.instance() << "\n"
-        << "    HCalSrc       = " << HCalSrc_.label() << ":"
-        << HCalSrc_.instance() << "\n"
-        << "    HCalDigi       = " << HCalDigi_.label() << ":"
-        << HCalDigi_.instance() << "\n"
-        << "    SiStripSrc    = " << SiStripSrc_.label() << ":"
-        << SiStripSrc_.instance() << "\n"
-        << "    SiPixelSrc    = " << SiPxlSrc_.label() << ":"
-        << SiPxlSrc_.instance() << "\n"
-        << "    MuDTSrc       = " << MuDTSrc_.label() << ":"
-        << MuDTSrc_.instance() << "\n"
-        << "    MuCSCStripSrc = " << MuCSCStripSrc_.label() << ":"
-        << MuCSCStripSrc_.instance() << "\n"
-        << "    MuCSCWireSrc  = " << MuCSCWireSrc_.label() << ":"
-        << MuCSCWireSrc_.instance() << "\n"
-        << "    MuRPCSrc      = " << MuRPCSrc_.label() << ":"
-        << MuRPCSrc_.instance() << "\n"
-        << "===============================\n";
+    edm::LogInfo(MsgLoggerCat) << "\n===============================\n"
+                               << "Initialized as EDAnalyzer with parameter values:\n"
+                               << "    Name          = " << fName << "\n"
+                               << "    Verbosity     = " << verbosity << "\n"
+                               << "    Frequency     = " << frequency << "\n"
+                               << "    GetProv       = " << getAllProvenances << "\n"
+                               << "    PrintProv     = " << printProvenanceInfo << "\n"
+                               << "    ECalEBSrc     = " << ECalEBSrc_.label() << ":" << ECalEBSrc_.instance() << "\n"
+                               << "    ECalEESrc     = " << ECalEESrc_.label() << ":" << ECalEESrc_.instance() << "\n"
+                               << "    ECalESSrc     = " << ECalESSrc_.label() << ":" << ECalESSrc_.instance() << "\n"
+                               << "    HCalSrc       = " << HCalSrc_.label() << ":" << HCalSrc_.instance() << "\n"
+                               << "    HCalDigi       = " << HCalDigi_.label() << ":" << HCalDigi_.instance() << "\n"
+                               << "    SiStripSrc    = " << SiStripSrc_.label() << ":" << SiStripSrc_.instance() << "\n"
+                               << "    SiPixelSrc    = " << SiPxlSrc_.label() << ":" << SiPxlSrc_.instance() << "\n"
+                               << "    MuDTSrc       = " << MuDTSrc_.label() << ":" << MuDTSrc_.instance() << "\n"
+                               << "    MuCSCStripSrc = " << MuCSCStripSrc_.label() << ":" << MuCSCStripSrc_.instance()
+                               << "\n"
+                               << "    MuCSCWireSrc  = " << MuCSCWireSrc_.label() << ":" << MuCSCWireSrc_.instance()
+                               << "\n"
+                               << "    MuRPCSrc      = " << MuRPCSrc_.label() << ":" << MuRPCSrc_.instance() << "\n"
+                               << "===============================\n";
   }
 
   // set default constants
@@ -131,23 +111,35 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet &iPSet)
   ECalgainConv_[3] = ECalgainConv_[2] * (defaultRatios.gain6Over1());
 
   if (verbosity >= 0) {
-    edm::LogInfo(MsgLoggerCat)
-        << "Modified Calorimeter gain constants: g0 = " << ECalgainConv_[0]
-        << ", g1 = " << ECalgainConv_[1] << ", g2 = " << ECalgainConv_[2]
-        << ", g3 = " << ECalgainConv_[3];
+    edm::LogInfo(MsgLoggerCat) << "Modified Calorimeter gain constants: g0 = " << ECalgainConv_[0]
+                               << ", g1 = " << ECalgainConv_[1] << ", g2 = " << ECalgainConv_[2]
+                               << ", g3 = " << ECalgainConv_[3];
   }
 }
 
 GlobalDigisAnalyzer::~GlobalDigisAnalyzer() {}
 
-void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker,
-                                         edm::Run const &,
-                                         edm::EventSetup const &) {
+void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
   // Si Strip
-  std::string SiStripString[19] = {"TECW1", "TECW2", "TECW3", "TECW4", "TECW5",
-                                   "TECW6", "TECW7", "TECW8", "TIBL1", "TIBL2",
-                                   "TIBL3", "TIBL4", "TIDW1", "TIDW2", "TIDW3",
-                                   "TOBL1", "TOBL2", "TOBL3", "TOBL4"};
+  std::string SiStripString[19] = {"TECW1",
+                                   "TECW2",
+                                   "TECW3",
+                                   "TECW4",
+                                   "TECW5",
+                                   "TECW6",
+                                   "TECW7",
+                                   "TECW8",
+                                   "TIBL1",
+                                   "TIBL2",
+                                   "TIBL3",
+                                   "TIBL4",
+                                   "TIDW1",
+                                   "TIDW2",
+                                   "TIDW3",
+                                   "TOBL1",
+                                   "TOBL2",
+                                   "TOBL3",
+                                   "TOBL4"};
   for (int i = 0; i < 19; ++i) {
     mehSiStripn[i] = nullptr;
     mehSiStripADC[i] = nullptr;
@@ -158,22 +150,19 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker,
   for (int amend = 0; amend < 19; ++amend) {
     hcharname = "hSiStripn_" + SiStripString[amend];
     hchartitle = SiStripString[amend] + "  Digis";
-    mehSiStripn[amend] =
-        iBooker.book1D(hcharname, hchartitle, 5000, 0., 10000.);
+    mehSiStripn[amend] = iBooker.book1D(hcharname, hchartitle, 5000, 0., 10000.);
     mehSiStripn[amend]->setAxisTitle("Number of Digis", 1);
     mehSiStripn[amend]->setAxisTitle("Count", 2);
 
     hcharname = "hSiStripADC_" + SiStripString[amend];
     hchartitle = SiStripString[amend] + " ADC";
-    mehSiStripADC[amend] =
-        iBooker.book1D(hcharname, hchartitle, 150, 0.0, 300.);
+    mehSiStripADC[amend] = iBooker.book1D(hcharname, hchartitle, 150, 0.0, 300.);
     mehSiStripADC[amend]->setAxisTitle("ADC", 1);
     mehSiStripADC[amend]->setAxisTitle("Count", 2);
 
     hcharname = "hSiStripStripADC_" + SiStripString[amend];
     hchartitle = SiStripString[amend] + " Strip";
-    mehSiStripStrip[amend] =
-        iBooker.book1D(hcharname, hchartitle, 200, 0.0, 800.);
+    mehSiStripStrip[amend] = iBooker.book1D(hcharname, hchartitle, 200, 0.0, 800.);
     mehSiStripStrip[amend]->setAxisTitle("Strip Number", 1);
     mehSiStripStrip[amend]->setAxisTitle("Count", 2);
   }
@@ -200,8 +189,7 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker,
   for (int amend = 0; amend < 4; ++amend) {
     hcharname = "hHcaln_" + HCalString[amend];
     hchartitle = HCalString[amend] + "  digis";
-    mehHcaln[amend] = iBooker.book1D(hcharname, hchartitle, 10000,
-                                     calnLower[amend], calnUpper[amend]);
+    mehHcaln[amend] = iBooker.book1D(hcharname, hchartitle, 10000, calnLower[amend], calnUpper[amend]);
     mehHcaln[amend]->setAxisTitle("Number of Digis", 1);
     mehHcaln[amend]->setAxisTitle("Count", 2);
 
@@ -213,24 +201,21 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker,
 
     hcharname = "hHcalSHE_" + HCalString[amend];
     hchartitle = HCalString[amend] + "Cal SHE";
-    mehHcalSHE[amend] =
-        iBooker.book1D(hcharname, hchartitle, 1000, 0.0, SHEUpper[amend]);
+    mehHcalSHE[amend] = iBooker.book1D(hcharname, hchartitle, 1000, 0.0, SHEUpper[amend]);
     mehHcalSHE[amend]->setAxisTitle("Simulated Hit Energy", 1);
     mehHcalSHE[amend]->setAxisTitle("Count", 2);
 
     hcharname = "hHcalAEESHE_" + HCalString[amend];
     hchartitle = HCalString[amend] + "Cal AEE/SHE";
     mehHcalAEESHE[amend] =
-        iBooker.book1D(hcharname, hchartitle, SHEvAEEnBins[amend],
-                       SHEvAEELower[amend], SHEvAEEUpper[amend]);
+        iBooker.book1D(hcharname, hchartitle, SHEvAEEnBins[amend], SHEvAEELower[amend], SHEvAEEUpper[amend]);
     mehHcalAEESHE[amend]->setAxisTitle("ADC / SHE", 1);
     mehHcalAEESHE[amend]->setAxisTitle("Count", 2);
 
     hcharname = "hHcalSHEvAEE_" + HCalString[amend];
     hchartitle = HCalString[amend] + "Cal SHE vs. AEE";
     mehHcalSHEvAEE[amend] =
-        iBooker.bookProfile(hcharname, hchartitle, 60, -10., 50., 100, 0.,
-                            (float)ProfileUpper[amend], "");
+        iBooker.bookProfile(hcharname, hchartitle, 60, -10., 50., 100, 0., (float)ProfileUpper[amend], "");
     mehHcalSHEvAEE[amend]->setAxisTitle("AEE / SHE", 1);
     mehHcalSHEvAEE[amend]->setAxisTitle("SHE", 2);
   }
@@ -275,15 +260,13 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker,
 
     hcharname = "hEcalSHEvAEESHE_" + ECalString[amend];
     hchartitle = ECalString[amend] + "Cal SHE vs. AEE/SHE";
-    mehEcalSHEvAEESHE[amend] = iBooker.bookProfile(hcharname, hchartitle, 1000,
-                                                   0., 100., 500, 0., 50., "");
+    mehEcalSHEvAEESHE[amend] = iBooker.bookProfile(hcharname, hchartitle, 1000, 0., 100., 500, 0., 50., "");
     mehEcalSHEvAEESHE[amend]->setAxisTitle("AEE / SHE", 1);
     mehEcalSHEvAEESHE[amend]->setAxisTitle("SHE", 2);
 
     hcharname = "hEcalMultvAEE_" + ECalString[amend];
     hchartitle = ECalString[amend] + "Cal Multi vs. AEE";
-    mehEcalMultvAEE[amend] = iBooker.bookProfile(
-        hcharname, hchartitle, 1000, 0., 100., 4000, 0., 40000., "");
+    mehEcalMultvAEE[amend] = iBooker.bookProfile(hcharname, hchartitle, 1000, 0., 100., 4000, 0., 40000., "");
     mehEcalMultvAEE[amend]->setAxisTitle("Analog Equivalent Energy", 1);
     mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis", 2);
   }
@@ -306,8 +289,7 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker,
   }
 
   // Si Pixels ***DONE***
-  std::string SiPixelString[7] = {"BRL1",  "BRL2",  "BRL3", "FWD1n",
-                                  "FWD1p", "FWD2n", "FWD2p"};
+  std::string SiPixelString[7] = {"BRL1", "BRL2", "BRL3", "FWD1n", "FWD1p", "FWD2n", "FWD2p"};
   for (int j = 0; j < 7; ++j) {
     mehSiPixeln[j] = nullptr;
     mehSiPixelADC[j] = nullptr;
@@ -320,32 +302,27 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker,
     hcharname = "hSiPixeln_" + SiPixelString[amend];
     hchartitle = SiPixelString[amend] + " Digis";
     if (amend < 3)
-      mehSiPixeln[amend] =
-          iBooker.book1D(hcharname, hchartitle, 500, 0., 1000.);
+      mehSiPixeln[amend] = iBooker.book1D(hcharname, hchartitle, 500, 0., 1000.);
     else
-      mehSiPixeln[amend] =
-          iBooker.book1D(hcharname, hchartitle, 500, 0., 1000.);
+      mehSiPixeln[amend] = iBooker.book1D(hcharname, hchartitle, 500, 0., 1000.);
     mehSiPixeln[amend]->setAxisTitle("Number of Digis", 1);
     mehSiPixeln[amend]->setAxisTitle("Count", 2);
 
     hcharname = "hSiPixelADC_" + SiPixelString[amend];
     hchartitle = SiPixelString[amend] + " ADC";
-    mehSiPixelADC[amend] =
-        iBooker.book1D(hcharname, hchartitle, 150, 0.0, 300.);
+    mehSiPixelADC[amend] = iBooker.book1D(hcharname, hchartitle, 150, 0.0, 300.);
     mehSiPixelADC[amend]->setAxisTitle("ADC", 1);
     mehSiPixelADC[amend]->setAxisTitle("Count", 2);
 
     hcharname = "hSiPixelRow_" + SiPixelString[amend];
     hchartitle = SiPixelString[amend] + " Row";
-    mehSiPixelRow[amend] =
-        iBooker.book1D(hcharname, hchartitle, 100, 0.0, 100.);
+    mehSiPixelRow[amend] = iBooker.book1D(hcharname, hchartitle, 100, 0.0, 100.);
     mehSiPixelRow[amend]->setAxisTitle("Row Number", 1);
     mehSiPixelRow[amend]->setAxisTitle("Count", 2);
 
     hcharname = "hSiPixelColumn_" + SiPixelString[amend];
     hchartitle = SiPixelString[amend] + " Column";
-    mehSiPixelCol[amend] =
-        iBooker.book1D(hcharname, hchartitle, 200, 0.0, 500.);
+    mehSiPixelCol[amend] = iBooker.book1D(hcharname, hchartitle, 200, 0.0, 500.);
     mehSiPixelCol[amend]->setAxisTitle("Column Number", 1);
     mehSiPixelCol[amend]->setAxisTitle("Count", 2);
   }
@@ -384,8 +361,7 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker,
 
     hcharname = "hDtMuonTimevLayer_" + MuonString[j];
     hchartitle = MuonString[j] + "  Time vs. Layer";
-    mehDtMuonTimevLayer[j] = iBooker.bookProfile(hcharname, hchartitle, 12, 1.,
-                                                 13., 300, 400., 1000., "");
+    mehDtMuonTimevLayer[j] = iBooker.bookProfile(hcharname, hchartitle, 12, 1., 13., 300, 400., 1000., "");
     mehDtMuonTimevLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer", 1);
     mehDtMuonTimevLayer[j]->setAxisTitle("Time", 2);
   }
@@ -441,8 +417,7 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker,
   }
 }
 
-void GlobalDigisAnalyzer::analyze(const edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
+void GlobalDigisAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   std::string MsgLoggerCat = "GlobalDigisAnalyzer_analyze";
 
   // keep track of number of events processed
@@ -456,9 +431,8 @@ void GlobalDigisAnalyzer::analyze(const edm::Event &iEvent,
   ECalbarrelADCtoGeV_ = agc->getEBValue();
   ECalendcapADCtoGeV_ = agc->getEEValue();
   if (verbosity >= 0) {
-    edm::LogInfo(MsgLoggerCat)
-        << "Modified Calorimeter ADCtoGeV constants: barrel = "
-        << ECalbarrelADCtoGeV_ << ", endcap = " << ECalendcapADCtoGeV_;
+    edm::LogInfo(MsgLoggerCat) << "Modified Calorimeter ADCtoGeV constants: barrel = " << ECalbarrelADCtoGeV_
+                               << ", endcap = " << ECalendcapADCtoGeV_;
   }
 
   // get event id information
@@ -466,24 +440,21 @@ void GlobalDigisAnalyzer::analyze(const edm::Event &iEvent,
   edm::EventNumber_t nevt = iEvent.id().event();
 
   if (verbosity > 0) {
-    edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event "
-                               << nevt << " (" << count << " events total)";
+    edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event " << nevt << " (" << count << " events total)";
   } else if (verbosity == 0) {
     if (nevt % frequency == 0 || nevt == 1) {
-      edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event "
-                                 << nevt << " (" << count << " events total)";
+      edm::LogInfo(MsgLoggerCat) << "Processing run " << nrun << ", event " << nevt << " (" << count
+                                 << " events total)";
     }
   }
 
   // look at information available in the event
   if (getAllProvenances) {
-
     std::vector<const edm::StableProvenance *> AllProv;
     iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
-      edm::LogInfo(MsgLoggerCat)
-          << "Number of Provenances = " << AllProv.size();
+      edm::LogInfo(MsgLoggerCat) << "Number of Provenances = " << AllProv.size();
 
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");
@@ -527,8 +498,7 @@ void GlobalDigisAnalyzer::analyze(const edm::Event &iEvent,
   return;
 }
 
-void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
-                                   const edm::EventSetup &iSetup) {
+void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   std::string MsgLoggerCat = "GlobalDigisAnalyzer_fillECal";
 
   TString eventout;
@@ -554,14 +524,12 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
       isBarrel = false;
 
     if (isBarrel) {
-
       // loop over simhits
       MapType ebSimMap;
       iEvent.getByToken(EBHits_Token_, crossingFrame);
       bool validXFrame = true;
       if (!crossingFrame.isValid()) {
-        LogDebug(MsgLoggerCat)
-            << "Unable to find cal barrel crossingFrame in event!";
+        LogDebug(MsgLoggerCat) << "Unable to find cal barrel crossingFrame in event!";
         validXFrame = false;
       }
       if (validXFrame) {
@@ -569,7 +537,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
 
         // keep track of sum of simhit energy in each crystal
         for (auto const &iHit : barrelHits) {
-
           EBDetId ebid = EBDetId(iHit.id());
 
           uint32_t crystid = ebid.rawId();
@@ -589,7 +556,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
 
       int i = 0;
       for (unsigned int digis = 0; digis < EcalDigiEB->size(); ++digis) {
-
         ++i;
 
         EBDataFrame ebdf = (*barrelDigi)[digis];
@@ -610,30 +576,25 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
 
         // calculate maximum energy and pedestal
         for (int sample = 0; sample < nrSamples; ++sample) {
-
           EcalMGPASample thisSample = ebdf[sample];
           ebADCCounts[sample] = (thisSample.adc());
           ebADCGains[sample] = (thisSample.gainId());
-          ebAnalogSignal[sample] =
-              (ebADCCounts[sample] * ECalgainConv_[(int)ebADCGains[sample]] *
-               ECalbarrelADCtoGeV_);
+          ebAnalogSignal[sample] = (ebADCCounts[sample] * ECalgainConv_[(int)ebADCGains[sample]] * ECalbarrelADCtoGeV_);
           if (Emax < ebAnalogSignal[sample]) {
             Emax = ebAnalogSignal[sample];
             Pmax = sample;
           }
           if (sample < 3) {
             pedestalPreSample += ebADCCounts[sample];
-            pedestalPreSampleAnalog += ebADCCounts[sample] *
-                                       ECalgainConv_[(int)ebADCGains[sample]] *
-                                       ECalbarrelADCtoGeV_;
+            pedestalPreSampleAnalog +=
+                ebADCCounts[sample] * ECalgainConv_[(int)ebADCGains[sample]] * ECalbarrelADCtoGeV_;
           }
         }
         pedestalPreSample /= 3.;
         pedestalPreSampleAnalog /= 3.;
 
         // calculate pedestal subtracted digi energy in the crystal
-        double Erec = Emax - pedestalPreSampleAnalog *
-                                 ECalgainConv_[(int)ebADCGains[Pmax]];
+        double Erec = Emax - pedestalPreSampleAnalog * ECalgainConv_[(int)ebADCGains[Pmax]];
 
         // gather necessary information
         mehEcalMaxPos[0]->Fill(Pmax);
@@ -641,8 +602,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
         mehEcalAEE[0]->Fill(Erec);
         // Adding protection against FPE
         if (ebSimMap[ebid.rawId()] != 0) {
-          mehEcalSHEvAEESHE[0]->Fill(Erec / ebSimMap[ebid.rawId()],
-                                     ebSimMap[ebid.rawId()]);
+          mehEcalSHEvAEESHE[0]->Fill(Erec / ebSimMap[ebid.rawId()], ebSimMap[ebid.rawId()]);
         }
         // else {
         //  std::cout<<"Would have been an FPE! with
@@ -676,14 +636,12 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
       isEndCap = false;
 
     if (isEndCap) {
-
       // loop over simhits
       MapType eeSimMap;
       iEvent.getByToken(EEHits_Token_, crossingFrame);
       bool validXFrame = true;
       if (!crossingFrame.isValid()) {
-        LogDebug(MsgLoggerCat)
-            << "Unable to find cal endcap crossingFrame in event!";
+        LogDebug(MsgLoggerCat) << "Unable to find cal endcap crossingFrame in event!";
         validXFrame = false;
       }
       if (validXFrame) {
@@ -691,7 +649,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
 
         // keep track of sum of simhit energy in each crystal
         for (auto const &iHit : endcapHits) {
-
           EEDetId eeid = EEDetId(iHit.id());
 
           uint32_t crystid = eeid.rawId();
@@ -711,7 +668,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
 
       int inc = 0;
       for (unsigned int digis = 0; digis < EcalDigiEE->size(); ++digis) {
-
         ++inc;
 
         EEDataFrame eedf = (*endcapDigi)[digis];
@@ -732,31 +688,26 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
 
         // calculate maximum enery and pedestal
         for (int sample = 0; sample < nrSamples; ++sample) {
-
           EcalMGPASample thisSample = eedf[sample];
 
           eeADCCounts[sample] = (thisSample.adc());
           eeADCGains[sample] = (thisSample.gainId());
-          eeAnalogSignal[sample] =
-              (eeADCCounts[sample] * ECalgainConv_[(int)eeADCGains[sample]] *
-               ECalbarrelADCtoGeV_);
+          eeAnalogSignal[sample] = (eeADCCounts[sample] * ECalgainConv_[(int)eeADCGains[sample]] * ECalbarrelADCtoGeV_);
           if (Emax < eeAnalogSignal[sample]) {
             Emax = eeAnalogSignal[sample];
             Pmax = sample;
           }
           if (sample < 3) {
             pedestalPreSample += eeADCCounts[sample];
-            pedestalPreSampleAnalog += eeADCCounts[sample] *
-                                       ECalgainConv_[(int)eeADCGains[sample]] *
-                                       ECalbarrelADCtoGeV_;
+            pedestalPreSampleAnalog +=
+                eeADCCounts[sample] * ECalgainConv_[(int)eeADCGains[sample]] * ECalbarrelADCtoGeV_;
           }
         }
         pedestalPreSample /= 3.;
         pedestalPreSampleAnalog /= 3.;
 
         // calculate pedestal subtracted digi energy in the crystal
-        double Erec = Emax - pedestalPreSampleAnalog *
-                                 ECalgainConv_[(int)eeADCGains[Pmax]];
+        double Erec = Emax - pedestalPreSampleAnalog * ECalgainConv_[(int)eeADCGains[Pmax]];
 
         // gather necessary information
         mehEcalMaxPos[1]->Fill(Pmax);
@@ -764,8 +715,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
         mehEcalAEE[1]->Fill(Erec);
         // Adding protection against FPE
         if (eeSimMap[eeid.rawId()] != 0) {
-          mehEcalSHEvAEESHE[1]->Fill(Erec / eeSimMap[eeid.rawId()],
-                                     eeSimMap[eeid.rawId()]);
+          mehEcalSHEvAEESHE[1]->Fill(Erec / eeSimMap[eeid.rawId()], eeSimMap[eeid.rawId()]);
         }
         // else{
         //  std::cout<<"Would have been an FPE! with
@@ -803,13 +753,11 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
       isPreshower = false;
 
     if (isPreshower) {
-
       // loop over simhits
       iEvent.getByToken(ESHits_Token_, crossingFrame);
       bool validXFrame = true;
       if (!crossingFrame.isValid()) {
-        LogDebug(MsgLoggerCat)
-            << "Unable to find cal preshower crossingFrame in event!";
+        LogDebug(MsgLoggerCat) << "Unable to find cal preshower crossingFrame in event!";
         validXFrame = false;
       }
       if (validXFrame) {
@@ -818,7 +766,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
         // keep track of sum of simhit energy in each crystal
         MapType esSimMap;
         for (auto const &iHit : preshowerHits) {
-
           ESDetId esid = ESDetId(iHit.id());
 
           uint32_t crystid = esid.rawId();
@@ -834,7 +781,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
 
       int i = 0;
       for (unsigned int digis = 0; digis < EcalDigiES->size(); ++digis) {
-
         ++i;
 
         ESDataFrame esdf = (*preshowerDigi)[digis];
@@ -846,7 +792,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
 
         // gether ADC counts
         for (int sample = 0; sample < nrSamples; ++sample) {
-
           ESSample thisSample = esdf[sample];
           esADCCounts[sample] = (thisSample.adc());
         }
@@ -870,8 +815,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent,
   return;
 }
 
-void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent,
-                                   const edm::EventSetup &iSetup) {
+void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   std::string MsgLoggerCat = "GlobalDigisAnalyzer_fillHCal";
 
   TString eventout;
@@ -905,9 +849,8 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent,
   if (validhcalHits) {
     const edm::PCaloHitContainer *simhitResult = hcalHits.product();
 
-    for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin();
-         simhits != simhitResult->end(); ++simhits) {
-
+    for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
+         ++simhits) {
       HcalDetId detId(simhits->id());
       uint32_t cellid = detId.rawId();
 
@@ -946,10 +889,8 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent,
       HcalDetId cell(ihbhe->id());
 
       if ((cell.subdet() == sdHcalBrl) || (cell.subdet() == sdHcalEC)) {
-
         // HCalconditions->makeHcalCalibration(cell, &calibrations);
-        const HcalCalibrations &calibrations =
-            HCalconditions->getHcalCalibrations(cell);
+        const HcalCalibrations &calibrations = HCalconditions->getHcalCalibrations(cell);
         const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
         const HcalQIEShape *shape = HCalconditions->getHcalShape(channelCoder);
         HcalCoderDb coder(*channelCoder, *shape);
@@ -957,7 +898,6 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent,
 
         // get HB info
         if (cell.subdet() == sdHcalBrl) {
-
           ++iHB;
           float fDigiSum = 0.0;
           for (int ii = 0; ii < tool.size(); ++ii) {
@@ -981,7 +921,6 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent,
 
         // get HE info
         if (cell.subdet() == sdHcalEC) {
-
           ++iHE;
           float fDigiSum = 0.0;
           for (int ii = 0; ii < tool.size(); ++ii) {
@@ -1035,10 +974,8 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent,
       HcalDetId cell(iho->id());
 
       if (cell.subdet() == sdHcalOut) {
-
         // HCalconditions->makeHcalCalibration(cell, &calibrations);
-        const HcalCalibrations &calibrations =
-            HCalconditions->getHcalCalibrations(cell);
+        const HcalCalibrations &calibrations = HCalconditions->getHcalCalibrations(cell);
         const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
         const HcalQIEShape *shape = HCalconditions->getHcalShape(channelCoder);
         HcalCoderDb coder(*channelCoder, *shape);
@@ -1091,10 +1028,8 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent,
       HcalDetId cell(ihf->id());
 
       if (cell.subdet() == sdHcalFwd) {
-
         // HCalconditions->makeHcalCalibration(cell, &calibrations);
-        const HcalCalibrations &calibrations =
-            HCalconditions->getHcalCalibrations(cell);
+        const HcalCalibrations &calibrations = HCalconditions->getHcalCalibrations(cell);
         const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
         const HcalQIEShape *shape = HCalconditions->getHcalShape(channelCoder);
         HcalCoderDb coder(*channelCoder, *shape);
@@ -1135,8 +1070,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event &iEvent,
   return;
 }
 
-void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
+void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
@@ -1160,8 +1094,7 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
   if (validstripDigis) {
     int nStripBrl = 0, nStripFwd = 0;
     edm::DetSetVector<SiStripDigi>::const_iterator DSViter;
-    for (DSViter = stripDigis->begin(); DSViter != stripDigis->end();
-         ++DSViter) {
+    for (DSViter = stripDigis->begin(); DSViter != stripDigis->end(); ++DSViter) {
       unsigned int id = DSViter->id;
       DetId detId(id);
       edm::DetSet<SiStripDigi>::const_iterator begin = DSViter->data.begin();
@@ -1170,7 +1103,6 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
 
       // get TIB
       if (detId.subdetId() == sdSiTIB) {
-
         for (iter = begin; iter != end; ++iter) {
           ++nStripBrl;
           if (tTopo->tibLayer(id) == 1) {
@@ -1194,7 +1126,6 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
 
       // get TOB
       if (detId.subdetId() == sdSiTOB) {
-
         for (iter = begin; iter != end; ++iter) {
           ++nStripBrl;
           if (tTopo->tobLayer(id) == 1) {
@@ -1218,7 +1149,6 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
 
       // get TID
       if (detId.subdetId() == sdSiTID) {
-
         for (iter = begin; iter != end; ++iter) {
           ++nStripFwd;
           if (tTopo->tidWheel(id) == 1) {
@@ -1238,7 +1168,6 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
 
       // get TEC
       if (detId.subdetId() == sdSiTEC) {
-
         for (iter = begin; iter != end; ++iter) {
           ++nStripFwd;
           if (tTopo->tecWheel(id) == 1) {
@@ -1275,7 +1204,7 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
           }
         }
       }
-    } // end loop over DataSetVector
+    }  // end loop over DataSetVector
 
     if (verbosity > 1) {
       eventout += "\n          Number of BrlStripDigis collected:........ ";
@@ -1305,8 +1234,7 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
   if (validpixelDigis) {
     int nPxlBrl = 0, nPxlFwd = 0;
     edm::DetSetVector<PixelDigi>::const_iterator DPViter;
-    for (DPViter = pixelDigis->begin(); DPViter != pixelDigis->end();
-         ++DPViter) {
+    for (DPViter = pixelDigis->begin(); DPViter != pixelDigis->end(); ++DPViter) {
       unsigned int id = DPViter->id;
       DetId detId(id);
       edm::DetSet<PixelDigi>::const_iterator begin = DPViter->data.begin();
@@ -1315,7 +1243,6 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
 
       // get Barrel pixels
       if (detId.subdetId() == sdPxlBrl) {
-
         for (iter = begin; iter != end; ++iter) {
           ++nPxlBrl;
           if (tTopo->pxbLayer(id) == 1) {
@@ -1338,7 +1265,6 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
 
       // get Forward pixels
       if (detId.subdetId() == sdPxlFwd) {
-
         for (iter = begin; iter != end; ++iter) {
           ++nPxlFwd;
           if (tTopo->pxfDisk(id) == 1) {
@@ -1355,7 +1281,6 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
           }
           if (tTopo->pxfDisk(id) == 2) {
             if (tTopo->pxfSide(id) == 1) {
-
               mehSiPixelADC[6]->Fill((*iter).adc());
               mehSiPixelRow[6]->Fill((*iter).row());
               mehSiPixelCol[6]->Fill((*iter).column());
@@ -1394,8 +1319,7 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event &iEvent,
   return;
 }
 
-void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent,
-                                   const edm::EventSetup &iSetup) {
+void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   std::string MsgLoggerCat = "GlobalDigisAnalyzer_fillMuon";
 
   TString eventout;
@@ -1417,14 +1341,10 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent,
     int nDt3 = 0;
     int nDt = 0;
     DTDigiCollection::DigiRangeIterator detUnitIt;
-    for (detUnitIt = dtDigis->begin(); detUnitIt != dtDigis->end();
-         ++detUnitIt) {
-
+    for (detUnitIt = dtDigis->begin(); detUnitIt != dtDigis->end(); ++detUnitIt) {
       const DTLayerId &id = (*detUnitIt).first;
       const DTDigiCollection::Range &range = (*detUnitIt).second;
-      for (DTDigiCollection::const_iterator digiIt = range.first;
-           digiIt != range.second; ++digiIt) {
-
+      for (DTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
         ++nDt;
 
         DTWireId wireId(id, (*digiIt).wire());
@@ -1476,9 +1396,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent,
 
   if (validstrips) {
     int nStrips = 0;
-    for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin();
-         j != strips->end(); ++j) {
-
+    for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin(); j != strips->end(); ++j) {
       std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
       std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
 
@@ -1518,9 +1436,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent,
 
   if (validwires) {
     int nWires = 0;
-    for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin();
-         j != wires->end(); ++j) {
-
+    for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin(); j != wires->end(); ++j) {
       std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
       std::vector<CSCWireDigi>::const_iterator endDigi = (*j).second.second;
 
@@ -1542,8 +1458,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent,
   edm::ESHandle<RPCGeometry> rpcGeom;
   iSetup.get<MuonGeometryRecord>().get(rpcGeom);
   if (!rpcGeom.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-        << "Unable to find RPCGeometryRecord in event!";
+    edm::LogWarning(MsgLoggerCat) << "Unable to find RPCGeometryRecord in event!";
     return;
   }
 
@@ -1571,8 +1486,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent,
   std::map<RPCDetId, std::vector<double>> allsims;
 
   if (validrpcsim) {
-    for (rpcsimIt = rpcsimHit->begin(); rpcsimIt != rpcsimHit->end();
-         rpcsimIt++) {
+    for (rpcsimIt = rpcsimHit->begin(); rpcsimIt != rpcsimHit->end(); rpcsimIt++) {
       RPCDetId Rsid = (RPCDetId)(*rpcsimIt).detUnitId();
       int ptype = rpcsimIt->particleType();
 
@@ -1592,9 +1506,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent,
   if (validrpcdigi) {
     int nRPC = 0;
     RPCDigiCollection::DigiRangeIterator rpcdetUnitIt;
-    for (rpcdetUnitIt = rpcDigis->begin(); rpcdetUnitIt != rpcDigis->end();
-         ++rpcdetUnitIt) {
-
+    for (rpcdetUnitIt = rpcDigis->begin(); rpcdetUnitIt != rpcDigis->end(); ++rpcdetUnitIt) {
       const RPCDetId Rsid = (*rpcdetUnitIt).first;
       const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(Rsid));
       const RPCDigiCollection::Range &range = (*rpcdetUnitIt).second;
@@ -1605,9 +1517,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent,
       }
 
       int ndigi = 0;
-      for (RPCDigiCollection::const_iterator rpcdigiIt = range.first;
-           rpcdigiIt != range.second; ++rpcdigiIt) {
-
+      for (RPCDigiCollection::const_iterator rpcdigiIt = range.first; rpcdigiIt != range.second; ++rpcdigiIt) {
         ++ndigi;
         ++nRPC;
       }

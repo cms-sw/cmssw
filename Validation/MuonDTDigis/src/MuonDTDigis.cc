@@ -17,18 +17,15 @@ using namespace edm;
 using namespace std;
 
 MuonDTDigis::MuonDTDigis(const ParameterSet &pset) {
-
   // ----------------------
   // Get the debug parameter for verbose output
   verbose_ = pset.getUntrackedParameter<bool>("verbose", false);
 
   // the name of the Digi collection
-  SimHitToken_ = consumes<edm::PSimHitContainer>(
-      pset.getParameter<edm::InputTag>("SimHitLabel"));
+  SimHitToken_ = consumes<edm::PSimHitContainer>(pset.getParameter<edm::InputTag>("SimHitLabel"));
 
   // the name of the Digi collection
-  DigiToken_ = consumes<DTDigiCollection>(
-      pset.getParameter<edm::InputTag>(("DigiLabel")));
+  DigiToken_ = consumes<DTDigiCollection>(pset.getParameter<edm::InputTag>(("DigiLabel")));
 
   hDigis_global = std::make_unique<hDigis>("Global");
   hDigis_W0 = std::make_unique<hDigis>("Wheel0");
@@ -163,10 +160,9 @@ void MuonDTDigis::bookHistograms(DQMStore::IBooker &iBooker,
 }
 
 void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
-
   if (verbose_)
-    cout << "--- [MuonDTDigis] Analysing Event: #Run: " << event.id().run()
-         << " #Event: " << event.id().event() << endl;
+    cout << "--- [MuonDTDigis] Analysing Event: #Run: " << event.id().run() << " #Event: " << event.id().event()
+         << endl;
 
   // Get the DT Geometry
   ESHandle<DTGeometry> muonGeom;
@@ -191,8 +187,7 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
   num_musimhits = 0;
   DTWireIdMap wireMap;
 
-  for (vector<PSimHit>::const_iterator hit = simHits->begin();
-       hit != simHits->end(); hit++) {
+  for (vector<PSimHit>::const_iterator hit = simHits->begin(); hit != simHits->end(); hit++) {
     // Create the id of the wire, the simHits in the DT known also the wireId
     DTWireId wireId(hit->detUnitId());
     //   cout << " PSimHits wire id " << wireId << " part type " <<
@@ -219,8 +214,16 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
     float path = (exitP - entryP).mag();
     float path_x = fabs((exitP - entryP).x());
 
-    hAllHits->Fill(entryP.x(), exitP.x(), entryP.y(), exitP.y(), entryP.z(),
-                   exitP.z(), path, path_x, partType, hit->processType(),
+    hAllHits->Fill(entryP.x(),
+                   exitP.x(),
+                   entryP.y(),
+                   exitP.y(),
+                   entryP.z(),
+                   exitP.z(),
+                   path,
+                   path_x,
+                   partType,
+                   hit->processType(),
                    hit->pabs());
   }
 
@@ -228,7 +231,6 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
 
   DTDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt = dtDigis->begin(); detUnitIt != dtDigis->end(); ++detUnitIt) {
-
     const DTLayerId &id = (*detUnitIt).first;
     const DTDigiCollection::Range &range = (*detUnitIt).second;
 
@@ -237,8 +239,7 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
     wire_touched = 0;
 
     // Loop over the digis of this DetUnit
-    for (DTDigiCollection::const_iterator digiIt = range.first;
-         digiIt != range.second; ++digiIt) {
+    for (DTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
       //   cout<<" Wire: "<<(*digiIt).wire()<<endl
       //  <<" digi time (ns): "<<(*digiIt).time()<<endl;
 
@@ -267,8 +268,7 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
 
       //   Superlayer number and fill histo with digi timebox
 
-      cham_num =
-          (id.wheel() + 2) * 12 + (id.station() - 1) * 3 + id.superlayer();
+      cham_num = (id.wheel() + 2) * 12 + (id.station() - 1) * 3 + id.superlayer();
       //   cout << " Histo number " << cham_num << endl;
 
       meDigiTimeBox_SL_[cham_num]->Fill((*digiIt).time());
@@ -288,12 +288,9 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
       int mu = 0;
       float theta = 0;
 
-      for (vector<const PSimHit *>::iterator hit = wireMap[wireId].begin();
-           hit != wireMap[wireId].end(); hit++)
+      for (vector<const PSimHit *>::iterator hit = wireMap[wireId].begin(); hit != wireMap[wireId].end(); hit++)
         if (abs((*hit)->particleType()) == 13) {
-          theta = atan((*hit)->momentumAtEntry().x() /
-                       (-(*hit)->momentumAtEntry().z())) *
-                  180 / M_PI;
+          theta = atan((*hit)->momentumAtEntry().x() / (-(*hit)->momentumAtEntry().z())) * 180 / M_PI;
           //	  cout<<"momentum x: "<<(*hit)->momentumAtEntry().x()<<endl
           //	      <<"momentum z: "<<(*hit)->momentumAtEntry().z()<<endl
           //	      <<"atan: "<<theta<<endl;
@@ -309,11 +306,11 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
         WheelHistos(id.wheel())->Fill((*digiIt).time(), theta, id.superlayer());
       }
 
-    } // for digis in layer
+    }  // for digis in layer
 
     meDoubleDigi_->Fill((float)num_digis_layer);
 
-  } // for layers
+  }  // for layers
 
   // cout << "num_digis " << num_digis << "mu digis " << num_mudigis << endl;
 
@@ -328,18 +325,17 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
 
 hDigis *MuonDTDigis::WheelHistos(int wheel) {
   switch (abs(wheel)) {
+    case 0:
+      return hDigis_W0.get();
 
-  case 0:
-    return hDigis_W0.get();
+    case 1:
+      return hDigis_W1.get();
 
-  case 1:
-    return hDigis_W1.get();
+    case 2:
+      return hDigis_W2.get();
 
-  case 2:
-    return hDigis_W2.get();
-
-  default:
-    return nullptr;
+    default:
+      return nullptr;
   }
 }
 #include "DQMServices/Core/interface/DQMStore.h"

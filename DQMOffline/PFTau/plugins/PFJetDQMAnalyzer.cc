@@ -28,8 +28,7 @@ PFJetDQMAnalyzer::PFJetDQMAnalyzer(const edm::ParameterSet &parameterSet)
   matchLabel_ = pSet_.getParameter<edm::InputTag>("MatchCollection");
   benchmarkLabel_ = pSet_.getParameter<std::string>("BenchmarkLabel");
 
-  pfJetMonitor_.setParameters(
-      parameterSet); // set parameters for booking histograms and validating jet
+  pfJetMonitor_.setParameters(parameterSet);  // set parameters for booking histograms and validating jet
 
   myJet_ = consumes<edm::View<reco::Jet>>(inputLabel_);
   myMatchedJet_ = consumes<edm::View<reco::Jet>>(matchLabel_);
@@ -50,9 +49,8 @@ void PFJetDQMAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
                                       edm::EventSetup const & /* iSetup */) {
   ibooker.setCurrentFolder(eventInfoFolder_);
 
-  edm::LogInfo("PFJetDQMAnalyzer")
-      << " PFJetDQMAnalyzer::bookHistograms "
-      << "Histogram Folder path set to " << eventInfoFolder_;
+  edm::LogInfo("PFJetDQMAnalyzer") << " PFJetDQMAnalyzer::bookHistograms "
+                                   << "Histogram Folder path set to " << eventInfoFolder_;
 
   pfJetMonitor_.setup(ibooker, pSet_);
 }
@@ -60,9 +58,7 @@ void PFJetDQMAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
 //
 // -- Analyze
 //
-void PFJetDQMAnalyzer::analyze(edm::Event const &iEvent,
-                               edm::EventSetup const &iSetup) {
-
+void PFJetDQMAnalyzer::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) {
   edm::Handle<edm::View<reco::Jet>> jetCollection;
   iEvent.getByToken(myJet_, jetCollection);
 
@@ -73,11 +69,14 @@ void PFJetDQMAnalyzer::analyze(edm::Event const &iEvent,
   float minRes = 99.99;
   float jetpT = 0.0;
   if (jetCollection.isValid() && matchedJetCollection.isValid()) {
-    pfJetMonitor_.fill(
-        *jetCollection, *matchedJetCollection, minRes, maxRes, jetpT,
-        pSet_); // match collections and fill pt eta phi and charge histos for
-                // candidate jet, fill delta_x_VS_y histos for matched couples,
-                // book and fill delta_frac_VS_frac histos for matched couples
+    pfJetMonitor_.fill(*jetCollection,
+                       *matchedJetCollection,
+                       minRes,
+                       maxRes,
+                       jetpT,
+                       pSet_);  // match collections and fill pt eta phi and charge histos for
+                                // candidate jet, fill delta_x_VS_y histos for matched couples,
+                                // book and fill delta_frac_VS_frac histos for matched couples
   }
 }
 

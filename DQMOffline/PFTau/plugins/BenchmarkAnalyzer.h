@@ -20,8 +20,7 @@ public:
   /// Destructor
   ~BenchmarkAnalyzer() override {}
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 protected:
   /// name of the output root file

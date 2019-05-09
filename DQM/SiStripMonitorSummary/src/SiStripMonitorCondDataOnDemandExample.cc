@@ -31,40 +31,36 @@
 //
 // ----- Constructor
 //
-SiStripMonitorCondDataOnDemandExample::SiStripMonitorCondDataOnDemandExample(
-    edm::ParameterSet const &iConfig)
+SiStripMonitorCondDataOnDemandExample::SiStripMonitorCondDataOnDemandExample(edm::ParameterSet const &iConfig)
     : conf_(iConfig) {}
 // -----
 
 //
 // ----- Destructor
 //
-SiStripMonitorCondDataOnDemandExample::
-    ~SiStripMonitorCondDataOnDemandExample() {}
+SiStripMonitorCondDataOnDemandExample::~SiStripMonitorCondDataOnDemandExample() {}
 // -----
 
 //
 // ----- beginRun
 //
-void SiStripMonitorCondDataOnDemandExample::beginRun(
-    edm::Run const &run, edm::EventSetup const &eSetup) {
+void SiStripMonitorCondDataOnDemandExample::beginRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   eventCounter_ = 0;
   condDataMonitoring_ = new SiStripClassToMonitorCondData(conf_);
   condDataMonitoring_->beginRun(run.run(), eSetup);
 
-} // beginRun
+}  // beginRun
 // -----
 
 //
 // ----- beginJob
 //
-void SiStripMonitorCondDataOnDemandExample::beginJob(void) {} // beginJob
+void SiStripMonitorCondDataOnDemandExample::beginJob(void) {}  // beginJob
 
 //
 // ----- Analyze
 //
-void SiStripMonitorCondDataOnDemandExample::analyze(
-    edm::Event const &iEvent, edm::EventSetup const &eSetup) {
+void SiStripMonitorCondDataOnDemandExample::analyze(edm::Event const &iEvent, edm::EventSetup const &eSetup) {
   // eventCounter_++;
 
   // on demand type I : eventSetup and detId to be passed
@@ -82,24 +78,22 @@ void SiStripMonitorCondDataOnDemandExample::analyze(
   // getModMEsOnDemand(eSetup,369125542);
   condDataMonitoring_->getLayerMEsOnDemand(eSetup, "TEC", 2, 4);
 
-} // analyze
+}  // analyze
 // -----
 
 //
 // ----- endRun
 //
-void SiStripMonitorCondDataOnDemandExample::endRun(
-    edm::Run const &run, edm::EventSetup const &eSetup) {
-
+void SiStripMonitorCondDataOnDemandExample::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   condDataMonitoring_->endRun(eSetup);
 
-} // endRun
+}  // endRun
 // -----
 
 //
 // ----- endJob
 //
-void SiStripMonitorCondDataOnDemandExample::endJob(void) {} // endJob
+void SiStripMonitorCondDataOnDemandExample::endJob(void) {}  // endJob
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripMonitorCondDataOnDemandExample);

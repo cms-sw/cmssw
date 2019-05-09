@@ -15,7 +15,6 @@
 #include <vector>
 
 class SiPixelLayoutParser : public DQMParserBase {
-
 public:
   // Constructor
   SiPixelLayoutParser();
