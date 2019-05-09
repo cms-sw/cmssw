@@ -8,52 +8,38 @@
 #include "DQMOffline/Alignment/interface/MuonAlignment.h"
 
 MuonAlignment::MuonAlignment(const edm::ParameterSet &pSet) {
-
   metname = "MuonAlignment";
 
   LogTrace(metname) << "[MuonAlignment] Constructor called!" << std::endl;
 
   parameters = pSet;
 
-  theMuonCollectionLabel = consumes<reco::TrackCollection>(
-      parameters.getParameter<edm::InputTag>("MuonCollection"));
+  theMuonCollectionLabel = consumes<reco::TrackCollection>(parameters.getParameter<edm::InputTag>("MuonCollection"));
 
-  theRecHits4DTagDT = consumes<DTRecSegment4DCollection>(
-      parameters.getParameter<edm::InputTag>("RecHits4DDTCollectionTag"));
-  theRecHits4DTagCSC = consumes<CSCSegmentCollection>(
-      parameters.getParameter<edm::InputTag>("RecHits4DCSCCollectionTag"));
+  theRecHits4DTagDT =
+      consumes<DTRecSegment4DCollection>(parameters.getParameter<edm::InputTag>("RecHits4DDTCollectionTag"));
+  theRecHits4DTagCSC =
+      consumes<CSCSegmentCollection>(parameters.getParameter<edm::InputTag>("RecHits4DCSCCollectionTag"));
 
-  resLocalXRangeStation1 =
-      parameters.getUntrackedParameter<double>("resLocalXRangeStation1");
-  resLocalXRangeStation2 =
-      parameters.getUntrackedParameter<double>("resLocalXRangeStation2");
-  resLocalXRangeStation3 =
-      parameters.getUntrackedParameter<double>("resLocalXRangeStation3");
-  resLocalXRangeStation4 =
-      parameters.getUntrackedParameter<double>("resLocalXRangeStation4");
-  resLocalYRangeStation1 =
-      parameters.getUntrackedParameter<double>("resLocalYRangeStation1");
-  resLocalYRangeStation2 =
-      parameters.getUntrackedParameter<double>("resLocalYRangeStation2");
-  resLocalYRangeStation3 =
-      parameters.getUntrackedParameter<double>("resLocalYRangeStation3");
-  resLocalYRangeStation4 =
-      parameters.getUntrackedParameter<double>("resLocalYRangeStation4");
+  resLocalXRangeStation1 = parameters.getUntrackedParameter<double>("resLocalXRangeStation1");
+  resLocalXRangeStation2 = parameters.getUntrackedParameter<double>("resLocalXRangeStation2");
+  resLocalXRangeStation3 = parameters.getUntrackedParameter<double>("resLocalXRangeStation3");
+  resLocalXRangeStation4 = parameters.getUntrackedParameter<double>("resLocalXRangeStation4");
+  resLocalYRangeStation1 = parameters.getUntrackedParameter<double>("resLocalYRangeStation1");
+  resLocalYRangeStation2 = parameters.getUntrackedParameter<double>("resLocalYRangeStation2");
+  resLocalYRangeStation3 = parameters.getUntrackedParameter<double>("resLocalYRangeStation3");
+  resLocalYRangeStation4 = parameters.getUntrackedParameter<double>("resLocalYRangeStation4");
   resPhiRange = parameters.getUntrackedParameter<double>("resPhiRange");
   resThetaRange = parameters.getUntrackedParameter<double>("resThetaRange");
 
-  meanPositionRange =
-      parameters.getUntrackedParameter<double>("meanPositionRange");
-  rmsPositionRange =
-      parameters.getUntrackedParameter<double>("rmsPositionRange");
+  meanPositionRange = parameters.getUntrackedParameter<double>("meanPositionRange");
+  rmsPositionRange = parameters.getUntrackedParameter<double>("rmsPositionRange");
   meanAngleRange = parameters.getUntrackedParameter<double>("meanAngleRange");
   rmsAngleRange = parameters.getUntrackedParameter<double>("rmsAngleRange");
 
   nbins = parameters.getUntrackedParameter<unsigned int>("nbins");
-  min1DTrackRecHitSize =
-      parameters.getUntrackedParameter<unsigned int>("min1DTrackRecHitSize");
-  min4DTrackSegmentSize =
-      parameters.getUntrackedParameter<unsigned int>("min4DTrackSegmentSize");
+  min1DTrackRecHitSize = parameters.getUntrackedParameter<unsigned int>("min1DTrackRecHitSize");
+  min4DTrackSegmentSize = parameters.getUntrackedParameter<unsigned int>("min4DTrackSegmentSize");
 
   doDT = parameters.getUntrackedParameter<bool>("doDT");
   doCSC = parameters.getUntrackedParameter<bool>("doCSC");
@@ -69,16 +55,13 @@ MuonAlignment::MuonAlignment(const edm::ParameterSet &pSet) {
 MuonAlignment::~MuonAlignment() {}
 
 void MuonAlignment::beginJob() {
-
   LogTrace(metname) << "[MuonAlignment] Parameters initialization";
 
   if (!(doDT || doCSC)) {
     edm::LogError("MuonAlignment") << " Error!! At least one Muon subsystem "
                                       "(DT or CSC) must be monitorized!!"
                                    << std::endl;
-    edm::LogError("MuonAlignment")
-        << " Please enable doDT or doCSC to True in your python cfg file!!!"
-        << std::endl;
+    edm::LogError("MuonAlignment") << " Please enable doDT or doCSC to True in your python cfg file!!!" << std::endl;
     exit(1);
   }
 
@@ -88,117 +71,125 @@ void MuonAlignment::beginJob() {
     if (doDT) {
       dbe->setCurrentFolder(topFolder.str() + "/DT");
       hLocalPositionDT = dbe->book2D(
-          "hLocalPositionDT",
-          "Local DT position (cm) absolute MEAN residuals;Sector;;cm", 14, 1,
-          15, 40, 0, 40);
+          "hLocalPositionDT", "Local DT position (cm) absolute MEAN residuals;Sector;;cm", 14, 1, 15, 40, 0, 40);
       hLocalAngleDT = dbe->book2D(
-          "hLocalAngleDT",
-          "Local DT angle (rad) absolute MEAN residuals;Sector;;rad", 14, 1, 15,
-          40, 0, 40);
+          "hLocalAngleDT", "Local DT angle (rad) absolute MEAN residuals;Sector;;rad", 14, 1, 15, 40, 0, 40);
       hLocalPositionRmsDT =
-          dbe->book2D("hLocalPositionRmsDT",
-                      "Local DT position (cm) RMS residuals;Sector;;cm", 14, 1,
-                      15, 40, 0, 40);
-      hLocalAngleRmsDT = dbe->book2D(
-          "hLocalAngleRmsDT", "Local DT angle (rad) RMS residuals;Sector;;rad",
-          14, 1, 15, 40, 0, 40);
+          dbe->book2D("hLocalPositionRmsDT", "Local DT position (cm) RMS residuals;Sector;;cm", 14, 1, 15, 40, 0, 40);
+      hLocalAngleRmsDT =
+          dbe->book2D("hLocalAngleRmsDT", "Local DT angle (rad) RMS residuals;Sector;;rad", 14, 1, 15, 40, 0, 40);
 
-      hLocalXMeanDT =
-          dbe->book1D("hLocalXMeanDT",
-                      "Distribution of absolute MEAN Local X (cm) residuals "
-                      "for DT;<X> (cm);number of chambers",
-                      100, 0, meanPositionRange);
+      hLocalXMeanDT = dbe->book1D("hLocalXMeanDT",
+                                  "Distribution of absolute MEAN Local X (cm) residuals "
+                                  "for DT;<X> (cm);number of chambers",
+                                  100,
+                                  0,
+                                  meanPositionRange);
       hLocalXRmsDT = dbe->book1D("hLocalXRmsDT",
                                  "Distribution of RMS Local X (cm) residuals "
                                  "for DT;X RMS (cm);number of chambers",
-                                 100, 0, rmsPositionRange);
-      hLocalYMeanDT =
-          dbe->book1D("hLocalYMeanDT",
-                      "Distribution of absolute MEAN Local Y (cm) residuals "
-                      "for DT;<Y> (cm);number of chambers",
-                      100, 0, meanPositionRange);
+                                 100,
+                                 0,
+                                 rmsPositionRange);
+      hLocalYMeanDT = dbe->book1D("hLocalYMeanDT",
+                                  "Distribution of absolute MEAN Local Y (cm) residuals "
+                                  "for DT;<Y> (cm);number of chambers",
+                                  100,
+                                  0,
+                                  meanPositionRange);
       hLocalYRmsDT = dbe->book1D("hLocalYRmsDT",
                                  "Distribution of RMS Local Y (cm) residuals "
                                  "for DT;Y RMS (cm);number of chambers",
-                                 100, 0, rmsPositionRange);
+                                 100,
+                                 0,
+                                 rmsPositionRange);
 
       hLocalPhiMeanDT = dbe->book1D("hLocalPhiMeanDT",
                                     "Distribution of MEAN #phi (rad) residuals "
                                     "for DT;<#phi>(rad);number of chambers",
-                                    100, -meanAngleRange, meanAngleRange);
+                                    100,
+                                    -meanAngleRange,
+                                    meanAngleRange);
       hLocalPhiRmsDT = dbe->book1D("hLocalPhiRmsDT",
                                    "Distribution of RMS #phi (rad) residuals "
                                    "for DT;#phi RMS (rad);number of chambers",
-                                   100, 0, rmsAngleRange);
-      hLocalThetaMeanDT =
-          dbe->book1D("hLocalThetaMeanDT",
-                      "Distribution of MEAN #theta (rad) residuals for "
-                      "DT;<#theta>(rad);number of chambers",
-                      100, -meanAngleRange, meanAngleRange);
-      hLocalThetaRmsDT =
-          dbe->book1D("hLocalThetaRmsDT",
-                      "Distribution of RMS #theta (rad) residuals for "
-                      "DT;#theta RMS (rad);number of chambers",
-                      100, 0, rmsAngleRange);
+                                   100,
+                                   0,
+                                   rmsAngleRange);
+      hLocalThetaMeanDT = dbe->book1D("hLocalThetaMeanDT",
+                                      "Distribution of MEAN #theta (rad) residuals for "
+                                      "DT;<#theta>(rad);number of chambers",
+                                      100,
+                                      -meanAngleRange,
+                                      meanAngleRange);
+      hLocalThetaRmsDT = dbe->book1D("hLocalThetaRmsDT",
+                                     "Distribution of RMS #theta (rad) residuals for "
+                                     "DT;#theta RMS (rad);number of chambers",
+                                     100,
+                                     0,
+                                     rmsAngleRange);
     }
 
     if (doCSC) {
       dbe->setCurrentFolder(topFolder.str() + "/CSC");
       hLocalPositionCSC = dbe->book2D(
-          "hLocalPositionCSC",
-          "Local CSC position (cm) absolute MEAN residuals;Sector;;cm", 36, 1,
-          37, 40, 0, 40);
+          "hLocalPositionCSC", "Local CSC position (cm) absolute MEAN residuals;Sector;;cm", 36, 1, 37, 40, 0, 40);
       hLocalAngleCSC = dbe->book2D(
-          "hLocalAngleCSC",
-          "Local CSC angle (rad) absolute MEAN residuals;Sector;;rad", 36, 1,
-          37, 40, 0, 40);
+          "hLocalAngleCSC", "Local CSC angle (rad) absolute MEAN residuals;Sector;;rad", 36, 1, 37, 40, 0, 40);
       hLocalPositionRmsCSC =
-          dbe->book2D("hLocalPositionRmsCSC",
-                      "Local CSC position (cm) RMS residuals;Sector;;cm", 36, 1,
-                      37, 40, 0, 40);
+          dbe->book2D("hLocalPositionRmsCSC", "Local CSC position (cm) RMS residuals;Sector;;cm", 36, 1, 37, 40, 0, 40);
       hLocalAngleRmsCSC =
-          dbe->book2D("hLocalAngleRmsCSC",
-                      "Local CSC angle (rad) RMS residuals;Sector;;rad", 36, 1,
-                      37, 40, 0, 40);
+          dbe->book2D("hLocalAngleRmsCSC", "Local CSC angle (rad) RMS residuals;Sector;;rad", 36, 1, 37, 40, 0, 40);
 
-      hLocalXMeanCSC =
-          dbe->book1D("hLocalXMeanCSC",
-                      "Distribution of absolute MEAN Local X (cm) residuals "
-                      "for CSC;<X> (cm);number of chambers",
-                      100, 0, meanPositionRange);
+      hLocalXMeanCSC = dbe->book1D("hLocalXMeanCSC",
+                                   "Distribution of absolute MEAN Local X (cm) residuals "
+                                   "for CSC;<X> (cm);number of chambers",
+                                   100,
+                                   0,
+                                   meanPositionRange);
       hLocalXRmsCSC = dbe->book1D("hLocalXRmsCSC",
                                   "Distribution of RMS Local X (cm) residuals "
                                   "for CSC;X RMS (cm);number of chambers",
-                                  100, 0, rmsPositionRange);
-      hLocalYMeanCSC =
-          dbe->book1D("hLocalYMeanCSC",
-                      "Distribution of absolute MEAN Local Y (cm) residuals "
-                      "for CSC;<Y> (cm);number of chambers",
-                      100, 0, meanPositionRange);
+                                  100,
+                                  0,
+                                  rmsPositionRange);
+      hLocalYMeanCSC = dbe->book1D("hLocalYMeanCSC",
+                                   "Distribution of absolute MEAN Local Y (cm) residuals "
+                                   "for CSC;<Y> (cm);number of chambers",
+                                   100,
+                                   0,
+                                   meanPositionRange);
       hLocalYRmsCSC = dbe->book1D("hLocalYRmsCSC",
                                   "Distribution of RMS Local Y (cm) residuals "
                                   "for CSC;Y RMS (cm);number of chambers",
-                                  100, 0, rmsPositionRange);
+                                  100,
+                                  0,
+                                  rmsPositionRange);
 
-      hLocalPhiMeanCSC =
-          dbe->book1D("hLocalPhiMeanCSC",
-                      "Distribution of absolute MEAN #phi (rad) residuals for "
-                      "CSC;<#phi>(rad);number of chambers",
-                      100, 0, meanAngleRange);
+      hLocalPhiMeanCSC = dbe->book1D("hLocalPhiMeanCSC",
+                                     "Distribution of absolute MEAN #phi (rad) residuals for "
+                                     "CSC;<#phi>(rad);number of chambers",
+                                     100,
+                                     0,
+                                     meanAngleRange);
       hLocalPhiRmsCSC = dbe->book1D("hLocalPhiRmsCSC",
                                     "Distribution of RMS #phi (rad) residuals "
                                     "for CSC;#phi RMS (rad);number of chambers",
-                                    100, 0, rmsAngleRange);
-      hLocalThetaMeanCSC =
-          dbe->book1D("hLocalThetaMeanCSC",
-                      "Distribution of absolute MEAN #theta (rad) residuals "
-                      "for CSC;<#theta>(rad);number of chambers",
-                      100, 0, meanAngleRange);
-      hLocalThetaRmsCSC =
-          dbe->book1D("hLocalThetaRmsCSC",
-                      "Distribution of RMS #theta (rad) residuals for "
-                      "CSC;#theta RMS (rad);number of chambers",
-                      100, 0, rmsAngleRange);
+                                    100,
+                                    0,
+                                    rmsAngleRange);
+      hLocalThetaMeanCSC = dbe->book1D("hLocalThetaMeanCSC",
+                                       "Distribution of absolute MEAN #theta (rad) residuals "
+                                       "for CSC;<#theta>(rad);number of chambers",
+                                       100,
+                                       0,
+                                       meanAngleRange);
+      hLocalThetaRmsCSC = dbe->book1D("hLocalThetaRmsCSC",
+                                      "Distribution of RMS #theta (rad) residuals for "
+                                      "CSC;#theta RMS (rad);number of chambers",
+                                      100,
+                                      0,
+                                      rmsAngleRange);
     }
   }
 
@@ -208,41 +199,35 @@ void MuonAlignment::beginJob() {
 
   // variables for histos ranges
   double rangeX = 0, rangeY = 0;
-  std::string nameOfHistoLocalX, nameOfHistoLocalY, nameOfHistoLocalPhi,
-      nameOfHistoLocalTheta;
+  std::string nameOfHistoLocalX, nameOfHistoLocalY, nameOfHistoLocalPhi, nameOfHistoLocalTheta;
 
   for (int station = -4; station < 5; station++) {
-
     // This piece of code calculates the range of the residuals
     switch (abs(station)) {
-    case 1: {
-      rangeX = resLocalXRangeStation1;
-      rangeY = resLocalYRangeStation1;
-    } break;
-    case 2: {
-      rangeX = resLocalXRangeStation2;
-      rangeY = resLocalYRangeStation2;
-    } break;
-    case 3: {
-      rangeX = resLocalXRangeStation3;
-      rangeY = resLocalYRangeStation3;
-    } break;
-    case 4: {
-      rangeX = resLocalXRangeStation4;
-      rangeY = resLocalYRangeStation4;
-    } break;
-    default:
-      break;
+      case 1: {
+        rangeX = resLocalXRangeStation1;
+        rangeY = resLocalYRangeStation1;
+      } break;
+      case 2: {
+        rangeX = resLocalXRangeStation2;
+        rangeY = resLocalYRangeStation2;
+      } break;
+      case 3: {
+        rangeX = resLocalXRangeStation3;
+        rangeY = resLocalYRangeStation3;
+      } break;
+      case 4: {
+        rangeX = resLocalXRangeStation4;
+        rangeY = resLocalYRangeStation4;
+      } break;
+      default:
+        break;
     }
     if (doDT) {
       if (station > 0) {
-
         for (int wheel = -2; wheel < 3; wheel++) {
-
           for (int sector = 1; sector < 15; sector++) {
-
             if (!((sector == 13 || sector == 14) && station != 4)) {
-
               std::stringstream Wheel;
               Wheel << wheel;
               std::stringstream Station;
@@ -250,54 +235,38 @@ void MuonAlignment::beginJob() {
               std::stringstream Sector;
               Sector << sector;
 
-              nameOfHistoLocalX = "ResidualLocalX_W" + Wheel.str() + "MB" +
-                                  Station.str() + "S" + Sector.str();
-              nameOfHistoLocalPhi = "ResidualLocalPhi_W" + Wheel.str() + "MB" +
-                                    Station.str() + "S" + Sector.str();
-              nameOfHistoLocalTheta = "ResidualLocalTheta_W" + Wheel.str() +
-                                      "MB" + Station.str() + "S" + Sector.str();
-              nameOfHistoLocalY = "ResidualLocalY_W" + Wheel.str() + "MB" +
-                                  Station.str() + "S" + Sector.str();
+              nameOfHistoLocalX = "ResidualLocalX_W" + Wheel.str() + "MB" + Station.str() + "S" + Sector.str();
+              nameOfHistoLocalPhi = "ResidualLocalPhi_W" + Wheel.str() + "MB" + Station.str() + "S" + Sector.str();
+              nameOfHistoLocalTheta = "ResidualLocalTheta_W" + Wheel.str() + "MB" + Station.str() + "S" + Sector.str();
+              nameOfHistoLocalY = "ResidualLocalY_W" + Wheel.str() + "MB" + Station.str() + "S" + Sector.str();
 
-              dbe->setCurrentFolder(topFolder.str() + "/DT/Wheel" +
-                                    Wheel.str() + "/Station" + Station.str() +
+              dbe->setCurrentFolder(topFolder.str() + "/DT/Wheel" + Wheel.str() + "/Station" + Station.str() +
                                     "/Sector" + Sector.str());
 
               // Create ME and push histos into their respective vectors
 
-              MonitorElement *histoLocalX = dbe->book1D(
-                  nameOfHistoLocalX, nameOfHistoLocalX, nbins, -rangeX, rangeX);
+              MonitorElement *histoLocalX = dbe->book1D(nameOfHistoLocalX, nameOfHistoLocalX, nbins, -rangeX, rangeX);
               unitsLocalX.push_back(histoLocalX);
               MonitorElement *histoLocalPhi =
-                  dbe->book1D(nameOfHistoLocalPhi, nameOfHistoLocalPhi, nbins,
-                              -resPhiRange, resPhiRange);
+                  dbe->book1D(nameOfHistoLocalPhi, nameOfHistoLocalPhi, nbins, -resPhiRange, resPhiRange);
               unitsLocalPhi.push_back(histoLocalPhi);
               MonitorElement *histoLocalTheta =
-                  dbe->book1D(nameOfHistoLocalTheta, nameOfHistoLocalTheta,
-                              nbins, -resThetaRange, resThetaRange);
+                  dbe->book1D(nameOfHistoLocalTheta, nameOfHistoLocalTheta, nbins, -resThetaRange, resThetaRange);
               unitsLocalTheta.push_back(histoLocalTheta);
-              MonitorElement *histoLocalY = dbe->book1D(
-                  nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
+              MonitorElement *histoLocalY = dbe->book1D(nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
               unitsLocalY.push_back(histoLocalY);
             }
           }
         }
-      } // station>0
-    }   // doDT
+      }  // station>0
+    }    // doDT
 
     if (doCSC) {
       if (station != 0) {
-
         for (int ring = 1; ring < 5; ring++) {
-
           for (int chamber = 1; chamber < 37; chamber++) {
-
-            if (!(((abs(station) == 2 || abs(station) == 3 ||
-                    abs(station) == 4) &&
-                   ring == 1 && chamber > 18) ||
-                  ((abs(station) == 2 || abs(station) == 3 ||
-                    abs(station) == 4) &&
-                   ring > 2))) {
+            if (!(((abs(station) == 2 || abs(station) == 3 || abs(station) == 4) && ring == 1 && chamber > 18) ||
+                  ((abs(station) == 2 || abs(station) == 3 || abs(station) == 4) && ring > 2))) {
               std::stringstream Ring;
               Ring << ring;
               std::stringstream Station;
@@ -305,47 +274,36 @@ void MuonAlignment::beginJob() {
               std::stringstream Chamber;
               Chamber << chamber;
 
-              nameOfHistoLocalX = "ResidualLocalX_ME" + Station.str() + "R" +
-                                  Ring.str() + "C" + Chamber.str();
-              nameOfHistoLocalPhi = "ResidualLocalPhi_ME" + Station.str() +
-                                    "R" + Ring.str() + "C" + Chamber.str();
-              nameOfHistoLocalTheta = "ResidualLocalTheta_ME" + Station.str() +
-                                      "R" + Ring.str() + "C" + Chamber.str();
-              nameOfHistoLocalY = "ResidualLocalY_ME" + Station.str() + "R" +
-                                  Ring.str() + "C" + Chamber.str();
+              nameOfHistoLocalX = "ResidualLocalX_ME" + Station.str() + "R" + Ring.str() + "C" + Chamber.str();
+              nameOfHistoLocalPhi = "ResidualLocalPhi_ME" + Station.str() + "R" + Ring.str() + "C" + Chamber.str();
+              nameOfHistoLocalTheta = "ResidualLocalTheta_ME" + Station.str() + "R" + Ring.str() + "C" + Chamber.str();
+              nameOfHistoLocalY = "ResidualLocalY_ME" + Station.str() + "R" + Ring.str() + "C" + Chamber.str();
 
-              dbe->setCurrentFolder(topFolder.str() + "/CSC/Station" +
-                                    Station.str() + "/Ring" + Ring.str() +
+              dbe->setCurrentFolder(topFolder.str() + "/CSC/Station" + Station.str() + "/Ring" + Ring.str() +
                                     "/Chamber" + Chamber.str());
 
               // Create ME and push histos into their respective vectors
 
-              MonitorElement *histoLocalX = dbe->book1D(
-                  nameOfHistoLocalX, nameOfHistoLocalX, nbins, -rangeX, rangeX);
+              MonitorElement *histoLocalX = dbe->book1D(nameOfHistoLocalX, nameOfHistoLocalX, nbins, -rangeX, rangeX);
               unitsLocalX.push_back(histoLocalX);
               MonitorElement *histoLocalPhi =
-                  dbe->book1D(nameOfHistoLocalPhi, nameOfHistoLocalPhi, nbins,
-                              -resPhiRange, resPhiRange);
+                  dbe->book1D(nameOfHistoLocalPhi, nameOfHistoLocalPhi, nbins, -resPhiRange, resPhiRange);
               unitsLocalPhi.push_back(histoLocalPhi);
               MonitorElement *histoLocalTheta =
-                  dbe->book1D(nameOfHistoLocalTheta, nameOfHistoLocalTheta,
-                              nbins, -resThetaRange, resThetaRange);
+                  dbe->book1D(nameOfHistoLocalTheta, nameOfHistoLocalTheta, nbins, -resThetaRange, resThetaRange);
               unitsLocalTheta.push_back(histoLocalTheta);
-              MonitorElement *histoLocalY = dbe->book1D(
-                  nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
+              MonitorElement *histoLocalY = dbe->book1D(nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
               unitsLocalY.push_back(histoLocalY);
             }
           }
         }
-      } // station!=0
-    }   // doCSC
+      }  // station!=0
+    }    // doCSC
 
-  } // loop on stations
+  }  // loop on stations
 }
 
-void MuonAlignment::analyze(const edm::Event &iEvent,
-                            const edm::EventSetup &iSetup) {
-
+void MuonAlignment::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   LogTrace(metname) << "[MuonAlignment] Analysis of event # ";
 
   edm::ESHandle<MagneticField> theMGField;
@@ -355,12 +313,10 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
   edm::ESHandle<Propagator> thePropagatorOpp;
-  iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorOpposite",
-                                             thePropagatorOpp);
+  iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorOpposite", thePropagatorOpp);
 
   edm::ESHandle<Propagator> thePropagatorAlo;
-  iSetup.get<TrackingComponentsRecord>().get("SmartPropagator",
-                                             thePropagatorAlo);
+  iSetup.get<TrackingComponentsRecord>().get("SmartPropagator", thePropagatorAlo);
 
   //	edm::ESHandle<Propagator> thePropagator;
   //  	iSetup.get<TrackingComponentsRecord>().get(
@@ -400,17 +356,14 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
     // reco::TrackRef trackSA = muon;
 
     if (muon->recHitsSize() > (min1DTrackRecHitSize - 1)) {
-
       //      reco::TransientTrack tTrackTR( *trackTR, &*theMGField,
       //      theTrackingGeometry );
       reco::TransientTrack tTrackSA(*muon, &*theMGField, theTrackingGeometry);
 
       // Adapted code for muonCosmics
 
-      Double_t innerPerpSA =
-          tTrackSA.innermostMeasurementState().globalPosition().perp();
-      Double_t outerPerpSA =
-          tTrackSA.outermostMeasurementState().globalPosition().perp();
+      Double_t innerPerpSA = tTrackSA.innermostMeasurementState().globalPosition().perp();
+      Double_t outerPerpSA = tTrackSA.outermostMeasurementState().globalPosition().perp();
 
       TrajectoryStateOnSurface innerTSOS = tTrackSA.outermostMeasurementState();
       //      PropagationDirection propagationDir=alongMomentum;
@@ -418,13 +371,12 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
 
       // Define which kind of reco track is used
       if ((outerPerpSA - innerPerpSA) > 0) {
-
         trackRefitterType = "LHCLike";
         innerTSOS = tTrackSA.innermostMeasurementState();
         thePropagator = thePropagatorAlo.product();
         //	propagationDir = alongMomentum;
 
-      } else { // if ((outerPerpSA-innerPerpSA) < 0 ) {
+      } else {  // if ((outerPerpSA-innerPerpSA) < 0 ) {
 
         trackRefitterType = "CosmicLike";
         innerTSOS = tTrackSA.outermostMeasurementState();
@@ -433,12 +385,10 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
       }
 
       RecHitVector my4DTrack = this->doMatching(
-          *muon, all4DSegmentsDT, all4DSegmentsCSC, &indexCollectionDT,
-          &indexCollectionCSC, theTrackingGeometry);
+          *muon, all4DSegmentsDT, all4DSegmentsCSC, &indexCollectionDT, &indexCollectionCSC, theTrackingGeometry);
 
       // cut in number of segments
       if (my4DTrack.size() > (min4DTrackSegmentSize - 1)) {
-
         // start propagation
         //    TrajectoryStateOnSurface innerTSOS = track.impactPointState();
         //                    TrajectoryStateOnSurface innerTSOS =
@@ -446,26 +396,18 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
 
         // If the state is valid
         if (innerTSOS.isValid()) {
-
           // Loop over Associated segments
-          for (RecHitVector::iterator rechit = my4DTrack.begin();
-               rechit != my4DTrack.end(); ++rechit) {
-
-            const GeomDet *geomDet =
-                theTrackingGeometry->idToDet((*rechit)->geographicalId());
+          for (RecHitVector::iterator rechit = my4DTrack.begin(); rechit != my4DTrack.end(); ++rechit) {
+            const GeomDet *geomDet = theTrackingGeometry->idToDet((*rechit)->geographicalId());
             // Otherwise the propagator could throw an exception
-            const Plane *pDest =
-                dynamic_cast<const Plane *>(&geomDet->surface());
-            const Cylinder *cDest =
-                dynamic_cast<const Cylinder *>(&geomDet->surface());
+            const Plane *pDest = dynamic_cast<const Plane *>(&geomDet->surface());
+            const Cylinder *cDest = dynamic_cast<const Cylinder *>(&geomDet->surface());
 
             if (pDest != nullptr || cDest != nullptr) {
-
               //			 	    Propagator
               //*updatePropagator=thePropagator->clone();
               //				    updatePropagator->setPropagationDirection(propagationDir);
-              TrajectoryStateOnSurface destiny = thePropagator->propagate(
-                  *(innerTSOS.freeState()), geomDet->surface());
+              TrajectoryStateOnSurface destiny = thePropagator->propagate(*(innerTSOS.freeState()), geomDet->surface());
 
               if (!destiny.isValid() || !destiny.hasError())
                 continue;
@@ -479,8 +421,7 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
               int endcap = 0, ring = 0, chamber = 0;
               bool goAhead = (det == 1 && doDT) || (det == 2 && doCSC);
 
-              double residualLocalX = 0, residualLocalPhi = 0,
-                     residualLocalY = 0, residualLocalTheta = 0;
+              double residualLocalX = 0, residualLocalPhi = 0, residualLocalY = 0, residualLocalTheta = 0;
 
               // Fill generic histograms
               // If it's a DT
@@ -490,24 +431,17 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
                 station = myChamber.station();
                 sector = myChamber.sector();
 
-                residualLocalX = (*rechit)->localPosition().x() -
-                                 destiny.localPosition().x();
+                residualLocalX = (*rechit)->localPosition().x() - destiny.localPosition().x();
 
-                residualLocalPhi =
-                    atan2(((RecSegment *)(*rechit))->localDirection().z(),
-                          ((RecSegment *)(*rechit))->localDirection().x()) -
-                    atan2(destiny.localDirection().z(),
-                          destiny.localDirection().x());
+                residualLocalPhi = atan2(((RecSegment *)(*rechit))->localDirection().z(),
+                                         ((RecSegment *)(*rechit))->localDirection().x()) -
+                                   atan2(destiny.localDirection().z(), destiny.localDirection().x());
                 if (station != 4) {
+                  residualLocalY = (*rechit)->localPosition().y() - destiny.localPosition().y();
 
-                  residualLocalY = (*rechit)->localPosition().y() -
-                                   destiny.localPosition().y();
-
-                  residualLocalTheta =
-                      atan2(((RecSegment *)(*rechit))->localDirection().z(),
-                            ((RecSegment *)(*rechit))->localDirection().y()) -
-                      atan2(destiny.localDirection().z(),
-                            destiny.localDirection().y());
+                  residualLocalTheta = atan2(((RecSegment *)(*rechit))->localDirection().z(),
+                                             ((RecSegment *)(*rechit))->localDirection().y()) -
+                                       atan2(destiny.localDirection().z(), destiny.localDirection().y());
                 }
 
               } else if (det == 2 && doCSC) {
@@ -519,34 +453,27 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
                 ring = myChamber.ring();
                 chamber = myChamber.chamber();
 
-                residualLocalX = (*rechit)->localPosition().x() -
-                                 destiny.localPosition().x();
+                residualLocalX = (*rechit)->localPosition().x() - destiny.localPosition().x();
 
-                residualLocalY = (*rechit)->localPosition().y() -
-                                 destiny.localPosition().y();
+                residualLocalY = (*rechit)->localPosition().y() - destiny.localPosition().y();
 
-                residualLocalPhi =
-                    atan2(((RecSegment *)(*rechit))->localDirection().y(),
-                          ((RecSegment *)(*rechit))->localDirection().x()) -
-                    atan2(destiny.localDirection().y(),
-                          destiny.localDirection().x());
+                residualLocalPhi = atan2(((RecSegment *)(*rechit))->localDirection().y(),
+                                         ((RecSegment *)(*rechit))->localDirection().x()) -
+                                   atan2(destiny.localDirection().y(), destiny.localDirection().x());
 
-                residualLocalTheta =
-                    atan2(((RecSegment *)(*rechit))->localDirection().y(),
-                          ((RecSegment *)(*rechit))->localDirection().z()) -
-                    atan2(destiny.localDirection().y(),
-                          destiny.localDirection().z());
+                residualLocalTheta = atan2(((RecSegment *)(*rechit))->localDirection().y(),
+                                           ((RecSegment *)(*rechit))->localDirection().z()) -
+                                     atan2(destiny.localDirection().y(), destiny.localDirection().z());
 
               } else {
-                residualLocalX = 0, residualLocalPhi = 0, residualLocalY = 0,
-                residualLocalTheta = 0;
+                residualLocalX = 0, residualLocalPhi = 0, residualLocalY = 0, residualLocalTheta = 0;
               }
 
               // Fill individual chamber histograms
 
               std::string nameOfHistoLocalX;
 
-              if (det == 1 && doDT) { // DT
+              if (det == 1 && doDT) {  // DT
                 std::stringstream Wheel;
                 Wheel << wheel;
                 std::stringstream Station;
@@ -554,10 +481,9 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
                 std::stringstream Sector;
                 Sector << sector;
 
-                nameOfHistoLocalX = "ResidualLocalX_W" + Wheel.str() + "MB" +
-                                    Station.str() + "S" + Sector.str();
+                nameOfHistoLocalX = "ResidualLocalX_W" + Wheel.str() + "MB" + Station.str() + "S" + Sector.str();
 
-              } else if (det == 2 && doCSC) { // CSC
+              } else if (det == 2 && doCSC) {  // CSC
                 std::stringstream Ring;
                 Ring << ring;
                 std::stringstream Station;
@@ -565,23 +491,19 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
                 std::stringstream Chamber;
                 Chamber << chamber;
 
-                nameOfHistoLocalX = "ResidualLocalX_ME" + Station.str() + "R" +
-                                    Ring.str() + "C" + Chamber.str();
+                nameOfHistoLocalX = "ResidualLocalX_ME" + Station.str() + "R" + Ring.str() + "C" + Chamber.str();
               }
 
               if (goAhead) {
-
                 for (unsigned int i = 0; i < unitsLocalX.size(); i++) {
-
                   if (nameOfHistoLocalX == unitsLocalX[i]->getName()) {
                     position = i;
                     break;
                   }
                 }
 
-                if (trackRefitterType ==
-                    "CosmicLike") { // problem with angle convention in reverse
-                                    // extrapolation
+                if (trackRefitterType == "CosmicLike") {  // problem with angle convention in reverse
+                                                          // extrapolation
                   residualLocalPhi += 3.1416;
                   residualLocalTheta += 3.1416;
                 }
@@ -611,20 +533,19 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
               // delete thePropagator;
 
             } else {
-              edm::LogError("MuonAlignment")
-                  << " Error!! Exception in propagator catched" << std::endl;
+              edm::LogError("MuonAlignment") << " Error!! Exception in propagator catched" << std::endl;
               continue;
             }
 
-          } // loop over my4DTrack
-        }   // TSOS was valid
+          }  // loop over my4DTrack
+        }    // TSOS was valid
 
-      } // cut in at least 4 segments
+      }  // cut in at least 4 segments
 
-    } // end cut in RecHitsSize>36
+    }  // end cut in RecHitsSize>36
     numberOfHits = numberOfHits + countPoints;
     //       } //Muon is GlobalMuon
-  } // loop over Muons
+  }  // loop over Muons
   numberOfTracks = numberOfTracks + countTracks;
 
   //        delete thePropagator;
@@ -634,13 +555,12 @@ void MuonAlignment::analyze(const edm::Event &iEvent,
   // ProductNotFound!!"<<std::endl;
 }
 
-RecHitVector MuonAlignment::doMatching(
-    const reco::Track &staTrack,
-    edm::Handle<DTRecSegment4DCollection> &all4DSegmentsDT,
-    edm::Handle<CSCSegmentCollection> &all4DSegmentsCSC,
-    intDVector *indexCollectionDT, intDVector *indexCollectionCSC,
-    edm::ESHandle<GlobalTrackingGeometry> &theTrackingGeometry) {
-
+RecHitVector MuonAlignment::doMatching(const reco::Track &staTrack,
+                                       edm::Handle<DTRecSegment4DCollection> &all4DSegmentsDT,
+                                       edm::Handle<CSCSegmentCollection> &all4DSegmentsCSC,
+                                       intDVector *indexCollectionDT,
+                                       intDVector *indexCollectionCSC,
+                                       edm::ESHandle<GlobalTrackingGeometry> &theTrackingGeometry) {
   DTRecSegment4DCollection::const_iterator segmentDT;
   CSCSegmentCollection::const_iterator segmentCSC;
 
@@ -649,47 +569,37 @@ RecHitVector MuonAlignment::doMatching(
   RecHitVector my4DTrack;
 
   // Loop over the hits of the track
-  for (unsigned int counter = 0; counter != staTrack.recHitsSize() - 1;
-       counter++) {
-
+  for (unsigned int counter = 0; counter != staTrack.recHitsSize() - 1; counter++) {
     TrackingRecHitRef myRef = staTrack.recHit(counter);
     const TrackingRecHit *rechit = myRef.get();
-    const GeomDet *geomDet =
-        theTrackingGeometry->idToDet(rechit->geographicalId());
+    const GeomDet *geomDet = theTrackingGeometry->idToDet(rechit->geographicalId());
 
     // It's a DT Hit
     if (geomDet->subDetector() == GeomDetEnumerators::DT) {
-
       // Take the layer associated to this hit
       DTLayerId myLayer(rechit->geographicalId().rawId());
 
       int NumberOfDTSegment = 0;
       // Loop over segments
-      for (segmentDT = all4DSegmentsDT->begin();
-           segmentDT != all4DSegmentsDT->end(); ++segmentDT) {
-
+      for (segmentDT = all4DSegmentsDT->begin(); segmentDT != all4DSegmentsDT->end(); ++segmentDT) {
         // By default the chamber associated to this Segment is new
         bool isNewChamber = true;
 
         // Loop over segments already included in the vector of segments in the
         // actual track
-        for (std::vector<int>::iterator positionIt = positionDT.begin();
-             positionIt != positionDT.end(); positionIt++) {
-
+        for (std::vector<int>::iterator positionIt = positionDT.begin(); positionIt != positionDT.end(); positionIt++) {
           // If this segment has been used before isNewChamber = false
           if (NumberOfDTSegment == *positionIt)
             isNewChamber = false;
         }
 
         // Loop over vectors of segments associated to previous tracks
-        for (std::vector<std::vector<int>>::iterator collect =
-                 indexCollectionDT->begin();
-             collect != indexCollectionDT->end(); ++collect) {
-
+        for (std::vector<std::vector<int>>::iterator collect = indexCollectionDT->begin();
+             collect != indexCollectionDT->end();
+             ++collect) {
           // Loop over segments associated to a track
-          for (std::vector<int>::iterator positionIt = (*collect).begin();
-               positionIt != (*collect).end(); positionIt++) {
-
+          for (std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end();
+               positionIt++) {
             // If this segment was used in a previos track then isNewChamber =
             // false
             if (NumberOfDTSegment == *positionIt)
@@ -699,13 +609,10 @@ RecHitVector MuonAlignment::doMatching(
 
         // If the chamber is new
         if (isNewChamber) {
-
           DTChamberId myChamber((*segmentDT).geographicalId().rawId());
           // If the layer of the hit belongs to the chamber of the 4D Segment
-          if (myLayer.wheel() == myChamber.wheel() &&
-              myLayer.station() == myChamber.station() &&
+          if (myLayer.wheel() == myChamber.wheel() && myLayer.station() == myChamber.station() &&
               myLayer.sector() == myChamber.sector()) {
-
             // push position of the segment and tracking rechit
             positionDT.push_back(NumberOfDTSegment);
             my4DTrack.push_back((TrackingRecHit *)&(*segmentDT));
@@ -715,35 +622,29 @@ RecHitVector MuonAlignment::doMatching(
       }
       // In case is a CSC
     } else if (geomDet->subDetector() == GeomDetEnumerators::CSC) {
-
       // Take the layer associated to this hit
       CSCDetId myLayer(rechit->geographicalId().rawId());
 
       int NumberOfCSCSegment = 0;
       // Loop over 4Dsegments
-      for (segmentCSC = all4DSegmentsCSC->begin();
-           segmentCSC != all4DSegmentsCSC->end(); segmentCSC++) {
-
+      for (segmentCSC = all4DSegmentsCSC->begin(); segmentCSC != all4DSegmentsCSC->end(); segmentCSC++) {
         // By default the chamber associated to the segment is new
         bool isNewChamber = true;
 
         // Loop over segments in the current track
-        for (std::vector<int>::iterator positionIt = positionCSC.begin();
-             positionIt != positionCSC.end(); positionIt++) {
-
+        for (std::vector<int>::iterator positionIt = positionCSC.begin(); positionIt != positionCSC.end();
+             positionIt++) {
           // If this segment has been used then newchamber = false
           if (NumberOfCSCSegment == *positionIt)
             isNewChamber = false;
         }
         // Loop over vectors of segments in previous tracks
-        for (std::vector<std::vector<int>>::iterator collect =
-                 indexCollectionCSC->begin();
-             collect != indexCollectionCSC->end(); ++collect) {
-
+        for (std::vector<std::vector<int>>::iterator collect = indexCollectionCSC->begin();
+             collect != indexCollectionCSC->end();
+             ++collect) {
           // Loop over segments in a track
-          for (std::vector<int>::iterator positionIt = (*collect).begin();
-               positionIt != (*collect).end(); positionIt++) {
-
+          for (std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end();
+               positionIt++) {
             // If the segment was used in a previous track isNewChamber = false
             if (NumberOfCSCSegment == *positionIt)
               isNewChamber = false;
@@ -751,7 +652,6 @@ RecHitVector MuonAlignment::doMatching(
         }
         // If the chamber is new
         if (isNewChamber) {
-
           CSCDetId myChamber((*segmentCSC).geographicalId().rawId());
           // If the chambers are the same
           if (myLayer.chamberId() == myChamber.chamberId()) {
@@ -769,28 +669,20 @@ RecHitVector MuonAlignment::doMatching(
   indexCollectionCSC->push_back(positionCSC);
 
   if (trackRefitterType == "CosmicLike") {
-
     std::reverse(my4DTrack.begin(), my4DTrack.end());
   }
   return my4DTrack;
 }
 
 void MuonAlignment::endJob(void) {
-
   LogTrace(metname) << "[MuonAlignment] Saving the histos";
-  bool outputMEsInRootFile =
-      parameters.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName =
-      parameters.getParameter<std::string>("OutputFileName");
+  bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
+  std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
 
-  edm::LogInfo("MuonAlignment")
-      << "Number of Tracks considered for residuals: " << numberOfTracks
-      << std::endl
-      << std::endl;
-  edm::LogInfo("MuonAlignment")
-      << "Number of Hits considered for residuals: " << numberOfHits
-      << std::endl
-      << std::endl;
+  edm::LogInfo("MuonAlignment") << "Number of Tracks considered for residuals: " << numberOfTracks << std::endl
+                                << std::endl;
+  edm::LogInfo("MuonAlignment") << "Number of Hits considered for residuals: " << numberOfHits << std::endl
+                                << std::endl;
 
   if (doSummary) {
     char binLabel[15];
@@ -804,9 +696,7 @@ void MuonAlignment::endJob(void) {
       return;
 
     for (unsigned int i = 0; i < unitsLocalX.size(); i++) {
-
       if (unitsLocalX[i]->getEntries() != 0) {
-
         TString nameHistoLocalX = unitsLocalX[i]->getName();
 
         TString nameHistoLocalPhi = unitsLocalPhi[i]->getName();
@@ -815,12 +705,11 @@ void MuonAlignment::endJob(void) {
 
         TString nameHistoLocalY = unitsLocalY[i]->getName();
 
-        if (nameHistoLocalX.Contains("MB")) // HistoLocalX DT
+        if (nameHistoLocalX.Contains("MB"))  // HistoLocalX DT
         {
           int wheel, station, sector;
 
-          sscanf(nameHistoLocalX, "ResidualLocalX_W%dMB%1dS%d", &wheel,
-                 &station, &sector);
+          sscanf(nameHistoLocalX, "ResidualLocalX_W%dMB%1dS%d", &wheel, &station, &sector);
 
           Int_t nstation = station - 1;
           Int_t nwheel = wheel + 2;
@@ -839,12 +728,11 @@ void MuonAlignment::endJob(void) {
           hLocalXRmsDT->Fill(Error);
         }
 
-        if (nameHistoLocalX.Contains("ME")) // HistoLocalX CSC
+        if (nameHistoLocalX.Contains("ME"))  // HistoLocalX CSC
         {
           int station, ring, chamber;
 
-          sscanf(nameHistoLocalX, "ResidualLocalX_ME%dR%1dC%d", &station, &ring,
-                 &chamber);
+          sscanf(nameHistoLocalX, "ResidualLocalX_ME%dR%1dC%d", &station, &ring, &chamber);
 
           Double_t Mean = unitsLocalX[i]->getMean();
           Double_t Error = unitsLocalX[i]->getMeanError();
@@ -867,13 +755,11 @@ void MuonAlignment::endJob(void) {
           hLocalXRmsCSC->Fill(Error);
         }
 
-        if (nameHistoLocalTheta.Contains("MB")) // HistoLocalTheta DT
+        if (nameHistoLocalTheta.Contains("MB"))  // HistoLocalTheta DT
         {
-
           int wheel, station, sector;
 
-          sscanf(nameHistoLocalTheta, "ResidualLocalTheta_W%dMB%1dS%d", &wheel,
-                 &station, &sector);
+          sscanf(nameHistoLocalTheta, "ResidualLocalTheta_W%dMB%1dS%d", &wheel, &station, &sector);
 
           if (station != 4) {
             Int_t nstation = station - 1;
@@ -884,8 +770,7 @@ void MuonAlignment::endJob(void) {
 
             Int_t ybin = 2 + nwheel * 8 + nstation * 2;
             hLocalAngleDT->setBinContent(sector, ybin, fabs(Mean));
-            snprintf(binLabel, sizeof(binLabel), "MB%d/%d_#theta", wheel,
-                     station);
+            snprintf(binLabel, sizeof(binLabel), "MB%d/%d_#theta", wheel, station);
             hLocalAngleDT->setBinLabel(ybin, binLabel, 2);
             hLocalAngleRmsDT->setBinContent(sector, ybin, Error);
             hLocalAngleRmsDT->setBinLabel(ybin, binLabel, 2);
@@ -895,13 +780,11 @@ void MuonAlignment::endJob(void) {
           }
         }
 
-        if (nameHistoLocalPhi.Contains("MB")) // HistoLocalPhi DT
+        if (nameHistoLocalPhi.Contains("MB"))  // HistoLocalPhi DT
         {
-
           int wheel, station, sector;
 
-          sscanf(nameHistoLocalPhi, "ResidualLocalPhi_W%dMB%1dS%d", &wheel,
-                 &station, &sector);
+          sscanf(nameHistoLocalPhi, "ResidualLocalPhi_W%dMB%1dS%d", &wheel, &station, &sector);
 
           Int_t nstation = station - 1;
           Int_t nwheel = wheel + 2;
@@ -920,13 +803,11 @@ void MuonAlignment::endJob(void) {
           hLocalPhiRmsDT->Fill(Error);
         }
 
-        if (nameHistoLocalPhi.Contains("ME")) // HistoLocalPhi CSC
+        if (nameHistoLocalPhi.Contains("ME"))  // HistoLocalPhi CSC
         {
-
           int station, ring, chamber;
 
-          sscanf(nameHistoLocalPhi, "ResidualLocalPhi_ME%dR%1dC%d", &station,
-                 &ring, &chamber);
+          sscanf(nameHistoLocalPhi, "ResidualLocalPhi_ME%dR%1dC%d", &station, &ring, &chamber);
 
           Double_t Mean = unitsLocalPhi[i]->getMean();
           Double_t Error = unitsLocalPhi[i]->getMeanError();
@@ -949,13 +830,11 @@ void MuonAlignment::endJob(void) {
           hLocalPhiRmsCSC->Fill(Error);
         }
 
-        if (nameHistoLocalTheta.Contains("ME")) // HistoLocalTheta CSC
+        if (nameHistoLocalTheta.Contains("ME"))  // HistoLocalTheta CSC
         {
-
           int station, ring, chamber;
 
-          sscanf(nameHistoLocalTheta, "ResidualLocalTheta_ME%dR%1dC%d",
-                 &station, &ring, &chamber);
+          sscanf(nameHistoLocalTheta, "ResidualLocalTheta_ME%dR%1dC%d", &station, &ring, &chamber);
 
           Double_t Mean = unitsLocalTheta[i]->getMean();
           Double_t Error = unitsLocalTheta[i]->getMeanError();
@@ -978,13 +857,11 @@ void MuonAlignment::endJob(void) {
           hLocalThetaRmsCSC->Fill(Error);
         }
 
-        if (nameHistoLocalY.Contains("MB")) // HistoLocalY DT
+        if (nameHistoLocalY.Contains("MB"))  // HistoLocalY DT
         {
-
           int wheel, station, sector;
 
-          sscanf(nameHistoLocalY, "ResidualLocalY_W%dMB%1dS%d", &wheel,
-                 &station, &sector);
+          sscanf(nameHistoLocalY, "ResidualLocalY_W%dMB%1dS%d", &wheel, &station, &sector);
 
           if (station != 4) {
             Int_t nstation = station - 1;
@@ -1005,13 +882,11 @@ void MuonAlignment::endJob(void) {
           }
         }
 
-        if (nameHistoLocalY.Contains("ME")) // HistoLocalY CSC
+        if (nameHistoLocalY.Contains("ME"))  // HistoLocalY CSC
         {
-
           int station, ring, chamber;
 
-          sscanf(nameHistoLocalY, "ResidualLocalY_ME%dR%1dC%d", &station, &ring,
-                 &chamber);
+          sscanf(nameHistoLocalY, "ResidualLocalY_ME%dR%1dC%d", &station, &ring, &chamber);
 
           Double_t Mean = unitsLocalY[i]->getMean();
           Double_t Error = unitsLocalY[i]->getMeanError();
@@ -1033,9 +908,9 @@ void MuonAlignment::endJob(void) {
           hLocalYMeanCSC->Fill(fabs(Mean));
           hLocalYRmsCSC->Fill(Error);
         }
-      } // check in # entries
-    }   // loop on vector of histos
-  }     // doSummary
+      }  // check in # entries
+    }    // loop on vector of histos
+  }      // doSummary
 
   if (outputMEsInRootFile) {
     //    dbe->showDirStructure();

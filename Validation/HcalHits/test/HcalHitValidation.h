@@ -33,8 +33,7 @@ public:
 
 protected:
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   void analyzeHits(std::vector<PCaloHit> &);
   void analyzeLayer(edm::Handle<PHcalValidInfoLayer> &);

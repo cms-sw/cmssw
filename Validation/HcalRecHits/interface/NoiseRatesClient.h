@@ -32,7 +32,6 @@
 class MonitorElement;
 
 class NoiseRatesClient : public DQMEDHarvester {
-
 private:
   std::string outputFile_;
 

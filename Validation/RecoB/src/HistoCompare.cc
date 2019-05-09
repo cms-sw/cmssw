@@ -19,7 +19,6 @@ HistoCompare::HistoCompare() {
 }
 
 HistoCompare::HistoCompare(const TString &refFilename) {
-
   result_ = 0;
   do_nothing_ = false;
   // open reference file
@@ -38,7 +37,6 @@ HistoCompare::HistoCompare(const TString &refFilename) {
 HistoCompare::~HistoCompare() {}
 
 TH1 *HistoCompare::Compare(TH1 *h, const TString &hname) {
-
   if (do_nothing_)
     return nullptr;
 

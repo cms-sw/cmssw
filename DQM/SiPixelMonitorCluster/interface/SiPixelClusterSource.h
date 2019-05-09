@@ -65,8 +65,7 @@ public:
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void dqmBeginRun(const edm::Run &, edm::EventSetup const &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   virtual void buildStructure(edm::EventSetup const &);
   virtual void bookMEs(DQMStore::IBooker &, const edm::EventSetup &iSetup);
@@ -89,7 +88,7 @@ private:
   bool ladOn, layOn, phiOn;
   // forward:
   bool ringOn, bladeOn, diskOn;
-  bool smileyOn; // cluster sizeY vs Cluster eta plot
+  bool smileyOn;  // cluster sizeY vs Cluster eta plot
   bool firstRun;
   int lumSec;
   int nLumiSecs;
@@ -112,7 +111,8 @@ private:
   int noOfLayers;
   int noOfDisks;
 
-  void getrococcupancy(DetId detId, const edm::DetSetVector<PixelDigi> &diginp,
+  void getrococcupancy(DetId detId,
+                       const edm::DetSetVector<PixelDigi> &diginp,
                        const TrackerTopology *const tTopo,
                        std::vector<MonitorElement *> const &meinput);
   void getrococcupancye(DetId detId,

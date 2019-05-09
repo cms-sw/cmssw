@@ -55,20 +55,15 @@ public:
   void endJob() override;
 
 private:
-  std::string outputFile_; // output file
+  std::string outputFile_;  // output file
 
   edm::EDGetTokenT<edm::HepMCProduct> hepMCLabel_;
   edm::EDGetTokenT<reco::SuperClusterCollection> hybridSuperClusters_token;
-  edm::EDGetTokenT<reco::SuperClusterCollection>
-      dynamicHybridSuperClusters_token;
-  edm::EDGetTokenT<reco::SuperClusterCollection>
-      correctedHybridSuperClusters_token;
-  edm::EDGetTokenT<reco::SuperClusterCollection>
-      correctedDynamicHybridSuperClusters_token;
-  edm::EDGetTokenT<reco::SuperClusterCollection>
-      correctedFixedMatrixSuperClustersWithPreshower_token;
-  edm::EDGetTokenT<reco::SuperClusterCollection>
-      fixedMatrixSuperClustersWithPreshower_token;
+  edm::EDGetTokenT<reco::SuperClusterCollection> dynamicHybridSuperClusters_token;
+  edm::EDGetTokenT<reco::SuperClusterCollection> correctedHybridSuperClusters_token;
+  edm::EDGetTokenT<reco::SuperClusterCollection> correctedDynamicHybridSuperClusters_token;
+  edm::EDGetTokenT<reco::SuperClusterCollection> correctedFixedMatrixSuperClustersWithPreshower_token;
+  edm::EDGetTokenT<reco::SuperClusterCollection> fixedMatrixSuperClustersWithPreshower_token;
 
   // root file to store histograms
   TFile *rootFile_;
@@ -155,7 +150,11 @@ private:
   // Function
   void fillTree(const reco::SuperClusterCollection *scColl,
                 const reco::SuperClusterCollection *corrSCColl,
-                HepMC::GenParticle *mc, tree_structure_ &tree_, float xV,
-                float yV, float zV, int scType);
+                HepMC::GenParticle *mc,
+                tree_structure_ &tree_,
+                float xV,
+                float yV,
+                float zV,
+                int scType);
 };
 #endif

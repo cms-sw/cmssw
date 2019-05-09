@@ -39,7 +39,6 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 class SiPixelClusterModule {
-
 public:
   /// Default constructor
   SiPixelClusterModule();
@@ -53,19 +52,32 @@ public:
   typedef edmNew::DetSet<SiPixelCluster>::const_iterator ClusterIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet &iConfig, const edm::EventSetup &iSetup,
-            DQMStore::IBooker &iBooker, int type = 0, bool twoD = true,
-            bool reducedSet = false, bool isUpgrade = false);
+  void book(const edm::ParameterSet &iConfig,
+            const edm::EventSetup &iSetup,
+            DQMStore::IBooker &iBooker,
+            int type = 0,
+            bool twoD = true,
+            bool reducedSet = false,
+            bool isUpgrade = false);
   /// Fill histograms
   int fill(const edmNew::DetSetVector<SiPixelCluster> &input,
-           const TrackerGeometry *tracker, int *barrelClusterTotal,
-           int *fpixPClusterTotal, int *fpixMClusterTotal,
+           const TrackerGeometry *tracker,
+           int *barrelClusterTotal,
+           int *fpixPClusterTotal,
+           int *fpixMClusterTotal,
            std::vector<MonitorElement *> &layers,
            std::vector<MonitorElement *> &diskspz,
-           std::vector<MonitorElement *> &disksmz, bool modon = true,
-           bool ladon = false, bool layon = false, bool phion = false,
-           bool bladeon = false, bool diskon = false, bool ringon = false,
-           bool twoD = true, bool reducedSet = false, bool smileyon = false,
+           std::vector<MonitorElement *> &disksmz,
+           bool modon = true,
+           bool ladon = false,
+           bool layon = false,
+           bool phion = false,
+           bool bladeon = false,
+           bool diskon = false,
+           bool ringon = false,
+           bool twoD = true,
+           bool reducedSet = false,
+           bool smileyon = false,
            bool isUpgrade = false);
 
 private:

@@ -9,9 +9,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 
 class SiStripApvGainsDQM : public SiStripBaseCondObjDQM {
-
 public:
-  SiStripApvGainsDQM(const edm::EventSetup &eSetup, edm::RunNumber_t iRun,
+  SiStripApvGainsDQM(const edm::EventSetup &eSetup,
+                     edm::RunNumber_t iRun,
                      edm::ParameterSet const &hPSet,
                      edm::ParameterSet const &fPSet);
 
@@ -19,17 +19,13 @@ public:
 
   void getActiveDetIds(const edm::EventSetup &eSetup) override;
 
-  void fillModMEs(const std::vector<uint32_t> &selectedDetIds,
-                  const edm::EventSetup &es) override;
-  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds,
-                      const edm::EventSetup &es) override;
+  void fillModMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
+  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
 
-  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_,
-                     const TrackerTopology *tTopo) override;
+  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) override;
 
   void fillMEsForLayer(
-      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_,
-      const TrackerTopology *tTopo) override;
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology *tTopo) override;
 
   unsigned long long getCache(const edm::EventSetup &eSetup) override {
     return eSetup.get<SiStripApvGainRcd>().cacheIdentifier();

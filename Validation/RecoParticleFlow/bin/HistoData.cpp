@@ -10,9 +10,8 @@
 
 using namespace std;
 
-HistoData::HistoData(std::string Name, int Type, int Bin, string NewPath,
-                     TFile *NewFile, string RefPath, TFile *RefFile) {
-
+HistoData::HistoData(
+    std::string Name, int Type, int Bin, string NewPath, TFile *NewFile, string RefPath, TFile *RefFile) {
   name = Name;
   type = Type;
   bin = Bin;
@@ -23,9 +22,7 @@ HistoData::HistoData(std::string Name, int Type, int Bin, string NewPath,
   initialize();
 }
 
-HistoData::HistoData(std::string Name, int Type, int Bin, TH1 *NewHisto,
-                     TH1 *RefHisto) {
-
+HistoData::HistoData(std::string Name, int Type, int Bin, TH1 *NewHisto, TH1 *RefHisto) {
   name = Name;
   type = Type;
   bin = Bin;
@@ -36,7 +33,6 @@ HistoData::HistoData(std::string Name, int Type, int Bin, TH1 *NewHisto,
 }
 
 void HistoData::initialize() {
-
   // scores/tests initialization
   lowScore = 10.0;
   highScore = 0.0;
@@ -64,7 +60,7 @@ void HistoData::initialize() {
   // test result color conventions
   passColor = kGreen;
   failColor = kRed;
-  errorColor = 16; // kGray
+  errorColor = 16;  // kGray
 
   // default color and style scheme
   lineUseFillColor = true;
@@ -77,7 +73,6 @@ void HistoData::initialize() {
 }
 
 void HistoData::setResult(bool Result) {
-
   // set the test result
   result = Result;
 
@@ -87,7 +82,6 @@ void HistoData::setResult(bool Result) {
 }
 
 void HistoData::dump() {
-
   cout << "name      = " << name << endl
        << "type      = " << type << endl
        << "bin       = " << bin << endl
@@ -97,7 +91,6 @@ void HistoData::dump() {
 }
 
 void HistoData::drawResult(TH1 *Summary, bool Vertical, bool SetBinLabel) {
-
   // add label to the summary if desired
   if (SetBinLabel) {
     Summary->GetXaxis()->SetBinLabel(bin, getRefHisto()->GetTitle());
@@ -112,8 +105,7 @@ void HistoData::drawResult(TH1 *Summary, bool Vertical, bool SetBinLabel) {
   //   3: hatched bar ends
   double score1 = minimum;
   double score2 = (lowScore == 10. || lowScore < minimum) ? minimum : lowScore;
-  double score3 =
-      (lowScore == 10.) ? 1 : ((highScore < minimum) ? minimum : highScore);
+  double score3 = (lowScore == 10.) ? 1 : ((highScore < minimum) ? minimum : highScore);
 
   // determine where to draw the result (binning axis)
   double binCenter = Summary->GetBinCenter(bin);
@@ -165,11 +157,9 @@ void HistoData::drawResult(TH1 *Summary, bool Vertical, bool SetBinLabel) {
 
   // a hatched bar is drawn from the lowest score to the highest score
   if ((lowScore != highScore && highScore > minimum) || lowScore == 10.) {
-    TPave *hatchedBar =
-        new TPave(hatchedX1, hatchedY1, hatchedX2, hatchedY2, 1, "");
+    TPave *hatchedBar = new TPave(hatchedX1, hatchedY1, hatchedX2, hatchedY2, 1, "");
     hatchedBar->SetBit(kCanDelete);
-    hatchedBar->SetLineColor(lineUseFillColor ? shadedFillColor
-                                              : shadedLineColor);
+    hatchedBar->SetLineColor(lineUseFillColor ? shadedFillColor : shadedLineColor);
     hatchedBar->SetFillColor(shadedFillColor);
     hatchedBar->SetFillStyle(3004);
     hatchedBar->Draw();

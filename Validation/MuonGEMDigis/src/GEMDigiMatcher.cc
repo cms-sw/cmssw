@@ -7,7 +7,8 @@
 using namespace std;
 using namespace matching;
 
-GEMDigiMatcher::GEMDigiMatcher(const SimHitMatcher &sh, const edm::Event &e,
+GEMDigiMatcher::GEMDigiMatcher(const SimHitMatcher &sh,
+                               const edm::Event &e,
                                const GEMGeometry &geom,
                                const edm::ParameterSet &cfg,
                                edm::EDGetToken &gem_digiToken,
@@ -45,14 +46,12 @@ void GEMDigiMatcher::matchDigisToSimTrack(const GEMDigiCollection &digis) {
   auto det_ids = simhit_matcher_.detIdsGEM();
   for (auto id : det_ids) {
     GEMDetId p_id(id);
-    GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 1,
-                        p_id.chamber(), 0);
+    GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 1, p_id.chamber(), 0);
 
     auto hit_strips = simhit_matcher_.hitStripsInDetId(id, matchDeltaStrip_);
     if (verbose_) {
       cout << "hit_strips_fat ";
-      copy(hit_strips.begin(), hit_strips.end(),
-           ostream_iterator<int>(cout, " "));
+      copy(hit_strips.begin(), hit_strips.end(), ostream_iterator<int>(cout, " "));
       cout << endl;
     }
 
@@ -86,15 +85,13 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection &pads) {
   auto det_ids = simhit_matcher_.detIdsGEM();
   for (auto id : det_ids) {
     GEMDetId p_id(id);
-    GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 1,
-                        p_id.chamber(), 0);
+    GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 1, p_id.chamber(), 0);
 
     auto hit_pads = simhit_matcher_.hitPadsInDetId(id);
     auto pads_in_det = pads.get(p_id);
 
     if (verbose_) {
-      cout << "checkpads " << hit_pads.size() << " "
-           << std::distance(pads_in_det.first, pads_in_det.second)
+      cout << "checkpads " << hit_pads.size() << " " << std::distance(pads_in_det.first, pads_in_det.second)
            << " hit_pads: ";
       copy(hit_pads.begin(), hit_pads.end(), ostream_iterator<int>(cout, " "));
       cout << endl;
@@ -122,13 +119,11 @@ void GEMDigiMatcher::matchPadsToSimTrack(const GEMPadDigiCollection &pads) {
   }
 }
 
-void GEMDigiMatcher::matchCoPadsToSimTrack(
-    const GEMCoPadDigiCollection &co_pads) {
+void GEMDigiMatcher::matchCoPadsToSimTrack(const GEMCoPadDigiCollection &co_pads) {
   auto det_ids = simhit_matcher_.detIdsGEMCoincidences();
   for (auto id : det_ids) {
     GEMDetId p_id(id);
-    GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 1,
-                        p_id.chamber(), 0);
+    GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 1, p_id.chamber(), 0);
 
     auto hit_co_pads = simhit_matcher_.hitCoPadsInDetId(id);
     auto co_pads_in_det = co_pads.get(p_id);
@@ -199,57 +194,49 @@ std::set<unsigned int> GEMDigiMatcher::detIdsWithCoPads() const {
   return result;
 }
 
-const matching::DigiContainer &
-GEMDigiMatcher::digisInDetId(unsigned int detid) const {
+const matching::DigiContainer &GEMDigiMatcher::digisInDetId(unsigned int detid) const {
   if (detid_to_digis_.find(detid) == detid_to_digis_.end())
     return no_digis_;
   return detid_to_digis_.at(detid);
 }
 
-const matching::DigiContainer &
-GEMDigiMatcher::digisInChamber(unsigned int detid) const {
+const matching::DigiContainer &GEMDigiMatcher::digisInChamber(unsigned int detid) const {
   if (chamber_to_digis_.find(detid) == chamber_to_digis_.end())
     return no_digis_;
   return chamber_to_digis_.at(detid);
 }
 
-const matching::DigiContainer &
-GEMDigiMatcher::digisInSuperChamber(unsigned int detid) const {
+const matching::DigiContainer &GEMDigiMatcher::digisInSuperChamber(unsigned int detid) const {
   if (superchamber_to_digis_.find(detid) == superchamber_to_digis_.end())
     return no_digis_;
   return superchamber_to_digis_.at(detid);
 }
 
-const matching::DigiContainer &
-GEMDigiMatcher::padsInDetId(unsigned int detid) const {
+const matching::DigiContainer &GEMDigiMatcher::padsInDetId(unsigned int detid) const {
   if (detid_to_pads_.find(detid) == detid_to_pads_.end())
     return no_digis_;
   return detid_to_pads_.at(detid);
 }
 
-const matching::DigiContainer &
-GEMDigiMatcher::padsInChamber(unsigned int detid) const {
+const matching::DigiContainer &GEMDigiMatcher::padsInChamber(unsigned int detid) const {
   if (chamber_to_pads_.find(detid) == chamber_to_pads_.end())
     return no_digis_;
   return chamber_to_pads_.at(detid);
 }
 
-const matching::DigiContainer &
-GEMDigiMatcher::padsInSuperChamber(unsigned int detid) const {
+const matching::DigiContainer &GEMDigiMatcher::padsInSuperChamber(unsigned int detid) const {
   if (superchamber_to_pads_.find(detid) == superchamber_to_pads_.end())
     return no_digis_;
   return superchamber_to_pads_.at(detid);
 }
 
-const matching::DigiContainer &
-GEMDigiMatcher::coPadsInDetId(unsigned int detid) const {
+const matching::DigiContainer &GEMDigiMatcher::coPadsInDetId(unsigned int detid) const {
   if (detid_to_copads_.find(detid) == detid_to_copads_.end())
     return no_digis_;
   return detid_to_copads_.at(detid);
 }
 
-const matching::DigiContainer &
-GEMDigiMatcher::coPadsInSuperChamber(unsigned int detid) const {
+const matching::DigiContainer &GEMDigiMatcher::coPadsInSuperChamber(unsigned int detid) const {
   if (superchamber_to_copads_.find(detid) == superchamber_to_copads_.end())
     return no_digis_;
   return superchamber_to_copads_.at(detid);

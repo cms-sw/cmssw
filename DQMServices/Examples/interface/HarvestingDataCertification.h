@@ -30,7 +30,6 @@
 #include <vector>
 
 class HarvestingDataCertification : public edm::EDAnalyzer {
-
 public:
   explicit HarvestingDataCertification(const edm::ParameterSet &);
   ~HarvestingDataCertification() override;

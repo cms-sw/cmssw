@@ -21,17 +21,12 @@ private:
   void doEfficiency(DQMStore::IBooker &, DQMStore::IGetter &);
   void doProjection(DQMStore::IBooker &, DQMStore::IGetter &);
   void doProfiles(DQMStore::IBooker &, DQMStore::IGetter &);
-  void createResolutionPlots(DQMStore::IBooker &, DQMStore::IGetter &,
-                             std::string &folder, std::string &name);
-  void getHistogramParameters(MonitorElement *me_slice, double &avarage,
-                              double &rms, double &mean, double &sigma);
-  void createEfficiencyPlots(DQMStore::IBooker &, DQMStore::IGetter &,
-                             std::string &folder, std::string &name);
+  void createResolutionPlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string &folder, std::string &name);
+  void getHistogramParameters(MonitorElement *me_slice, double &avarage, double &rms, double &mean, double &sigma);
+  void createEfficiencyPlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string &folder, std::string &name);
 
-  void createProjectionPlots(DQMStore::IBooker &, DQMStore::IGetter &,
-                             std::string &folder, std::string &name);
-  void createProfilePlots(DQMStore::IBooker &, DQMStore::IGetter &,
-                          std::string &folder, std::string &name);
+  void createProjectionPlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string &folder, std::string &name);
+  void createProfilePlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string &folder, std::string &name);
 
   std::vector<std::string> folderNames_;
   std::vector<std::string> histogramNames_;

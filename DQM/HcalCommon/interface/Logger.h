@@ -9,18 +9,15 @@ public:
   Logger() {}
   virtual ~Logger() {}
 
-  inline void dqmthrow(std::string const &msg) const {
-    throw cms::Exception("HCALDQM") << _name << "::" << msg;
-  }
-  inline void warn(std::string const &msg) const {
-    edm::LogWarning("HCALDQM") << _name << "::" << msg;
-  }
+  inline void dqmthrow(std::string const &msg) const { throw cms::Exception("HCALDQM") << _name << "::" << msg; }
+  inline void warn(std::string const &msg) const { edm::LogWarning("HCALDQM") << _name << "::" << msg; }
   inline void info(std::string const &msg) const {
     if (_debug == 0)
       return;
     edm::LogInfo("HCALDQM") << _name << "::" << msg;
   }
-  template <typename STDTYPE> inline void debug(STDTYPE const &msg) const {
+  template <typename STDTYPE>
+  inline void debug(STDTYPE const &msg) const {
     if (_debug == 0)
       return;
 

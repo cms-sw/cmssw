@@ -9,15 +9,19 @@
 
 #include <vector>
 class PFMETMonitor : public Benchmark {
-
 public:
   PFMETMonitor(Benchmark::Mode mode = Benchmark::DEFAULT);
 
   ~PFMETMonitor() override;
 
   /// set the parameters locally
-  void setParameters(Benchmark::Mode mode, float ptmin, float ptmax,
-                     float etamin, float etamax, float phimin, float phimax,
+  void setParameters(Benchmark::Mode mode,
+                     float ptmin,
+                     float ptmax,
+                     float etamin,
+                     float etamax,
+                     float phimin,
+                     float phimax,
                      bool metSpHistos);
 
   /// set the parameters accessing them from ParameterSet
@@ -30,11 +34,13 @@ public:
   void setup(DQMStore::IBooker &b);
   void setup(DQMStore::IBooker &b, const edm::ParameterSet &parameterSet);
 
-  void fillOne(const reco::MET &met, const reco::MET &matchedMet, float &minVal,
-               float &maxVal);
+  void fillOne(const reco::MET &met, const reco::MET &matchedMet, float &minVal, float &maxVal);
 
-  void fillOne(const reco::MET &met, const reco::MET &matchedMet, float &minVal,
-               float &maxVal, const edm::ParameterSet &parameterSet);
+  void fillOne(const reco::MET &met,
+               const reco::MET &matchedMet,
+               float &minVal,
+               float &maxVal,
+               const edm::ParameterSet &parameterSet);
 
 protected:
   TH1F *px_;

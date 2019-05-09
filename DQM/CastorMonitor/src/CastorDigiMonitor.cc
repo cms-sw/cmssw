@@ -25,29 +25,27 @@ using namespace std;
 using namespace edm;
 
 namespace {
-vector<std::string> HltPaths_;
-int StatusBadChannel = 1;
-int ChannelStatus[14][16]{};
-int N_GoodChannels = 224;
-int EtowerLastModule = 5;
-int TrigIndexMax = 0;
-} // namespace
+  vector<std::string> HltPaths_;
+  int StatusBadChannel = 1;
+  int ChannelStatus[14][16]{};
+  int N_GoodChannels = 224;
+  int EtowerLastModule = 5;
+  int TrigIndexMax = 0;
+}  // namespace
 
 CastorDigiMonitor::CastorDigiMonitor(const edm::ParameterSet &ps) {
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);
-  subsystemname_ =
-      ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor");
+  subsystemname_ = ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor");
   EtowerLastModule = ps.getUntrackedParameter<int>("towerLastModule", 6);
   RatioThresh1 = ps.getUntrackedParameter<double>("ratioThreshold", 0.9);
-  Qrms_DEAD = ps.getUntrackedParameter<double>("QrmsDead", 0.01); // fC
+  Qrms_DEAD = ps.getUntrackedParameter<double>("QrmsDead", 0.01);  // fC
   HltPaths_ = ps.getParameter<vector<string>>("HltPaths");
 
   Qrms_DEAD = Qrms_DEAD * Qrms_DEAD;
   TS_MAX = ps.getUntrackedParameter<double>("qieTSmax", 6);
   StatusBadChannel = CastorChannelStatus::StatusBit::BAD;
   if (fVerbosity > 0)
-    LogPrint("CastorDigi") << "enum CastorChannelStatus::StatusBit::BAD="
-                           << StatusBadChannel
+    LogPrint("CastorDigi") << "enum CastorChannelStatus::StatusBit::BAD=" << StatusBadChannel
                            << "EtowerLastModule = " << EtowerLastModule << endl;
 }
 
@@ -69,29 +67,29 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   ievt_ = 0;
 
   ibooker.setCurrentFolder(subsystemname_);
-  hBX = ibooker.bookProfile("average E(digi) in BX",
-                            "Castor average E (digi);Event.BX;fC", 3601, -0.5,
-                            3600.5, 0., 1.e10, "");
+  hBX = ibooker.bookProfile(
+      "average E(digi) in BX", "Castor average E (digi);Event.BX;fC", 3601, -0.5, 3600.5, 0., 1.e10, "");
   hBX->getTProfile()->SetOption("hist");
 
   string trname = HltPaths_[0];
   hpBXtrig = ibooker.bookProfile("average E(digi) in BXtrig",
-                                 "Castor average E (digi) trigger:'" + trname +
-                                     "';Event.BX;fC",
-                                 3601, -0.5, 3600.5, 0., 1.e10, "");
+                                 "Castor average E (digi) trigger:'" + trname + "';Event.BX;fC",
+                                 3601,
+                                 -0.5,
+                                 3600.5,
+                                 0.,
+                                 1.e10,
+                                 "");
   hpBXtrig->getTProfile()->SetOption("hist");
 
   hpTrigRes = ibooker.bookProfile(
-      "E(digi)vsTriggerIndex",
-      "Castor average E(digi) by triggerIndex;triggerIndex;fC", 512, 0., 512,
-      0., 1.e10, "");
+      "E(digi)vsTriggerIndex", "Castor average E(digi) by triggerIndex;triggerIndex;fC", 512, 0., 512, 0., 1.e10, "");
   hpTrigRes->getTProfile()->SetOption("hist");
 
   ibooker.setCurrentFolder(subsystemname_ + "/CastorDigiMonitor");
 
   std::string s2 = "CASTOR QIE_capID+er+dv";
-  h2digierr = ibooker.bookProfile2D(s2, s2, 14, 0., 14., 16, 0., 16., 100, 0,
-                                    1.e10, "");
+  h2digierr = ibooker.bookProfile2D(s2, s2, 14, 0., 14., 16, 0., 16., 100, 0, 1.e10, "");
   h2digierr->getTProfile2D()->GetXaxis()->SetTitle("Module Z");
   h2digierr->getTProfile2D()->GetYaxis()->SetTitle("Sector #phi");
   h2digierr->getTProfile2D()->SetMaximum(1.);
@@ -99,8 +97,7 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   h2digierr->getTProfile2D()->SetOption("colz");
 
   sprintf(s, "CASTORreportSummaryMap");
-  h2repsum =
-      ibooker.bookProfile2D(s, s, 14, 0., 14., 16, 0., 16., 100, 0, 1.e10, "");
+  h2repsum = ibooker.bookProfile2D(s, s, 14, 0., 14., 16, 0., 16., 100, 0, 1.e10, "");
   h2repsum->getTProfile2D()->GetXaxis()->SetTitle("Module Z");
   h2repsum->getTProfile2D()->GetYaxis()->SetTitle("Sector #phi");
   h2repsum->getTProfile2D()->SetMaximum(1.);
@@ -135,13 +132,11 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker &ibooker,
 
   st = "Castor cells avr digi(fC) per event Map TS vs Channel";
   h2QmeantsvsCh =
-      ibooker.bookProfile2D(st, st + ";" + string(sTileIndex) + ";TS", 224, 0.,
-                            224., 10, 0., 10., 0., 1.e10, "");
+      ibooker.bookProfile2D(st, st + ";" + string(sTileIndex) + ";TS", 224, 0., 224., 10, 0., 10., 0., 1.e10, "");
   h2QmeantsvsCh->getTProfile2D()->SetOption("colz");
 
   st = "Castor cells avr digiRMS(fC) per event Map TS vs Channel";
-  h2QrmsTSvsCh = ibooker.book2D(st, st + ";" + string(sTileIndex) + ";TS", 224,
-                                0., 224., 10, 0., 10.);
+  h2QrmsTSvsCh = ibooker.book2D(st, st + ";" + string(sTileIndex) + ";TS", 224, 0., 224., 10, 0., 10.);
   h2QrmsTSvsCh->getTH2F()->SetOption("colz");
 
   sprintf(s, "CASTOR data quality");
@@ -169,7 +164,7 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   EhadTow[1] = E0tow;
   ETower[0] = 0.;
   ETower[1] = E0tow;
-  double lnBtow = log(1.8); // 2.
+  double lnBtow = log(1.8);  // 2.
   for (int j = 1; j < NEtow; j++)
     EMTow[j + 1] = E0tow * exp(j * lnBtow);
   for (int j = 1; j < NEtow; j++)
@@ -217,8 +212,7 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
   }
 
   float Ecell[14][16]{};
-  for (CastorDigiCollection::const_iterator j = castorDigis.begin();
-       j != castorDigis.end(); j++) {
+  for (CastorDigiCollection::const_iterator j = castorDigis.begin(); j != castorDigis.end(); j++) {
     const CastorDataFrame digi = (const CastorDataFrame)(*j);
 
     int module = digi.id().module() - 1;
@@ -236,21 +230,19 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
       int er = digi.sample(i).er();
       int rawd = digi.sample(i).adc();
       rawd = rawd & 0x7F;
-      err |= (capid != capid1) | er << 1 | (!dv) << 2; // =0
-      err2 += (capid != capid1) | er | (!dv);          // =0
+      err |= (capid != capid1) | er << 1 | (!dv) << 2;  // =0
+      err2 += (capid != capid1) | er | (!dv);           // =0
       //     if(err !=0) continue;
       int ind = ModSecToIndex(module, sector);
       h2QmeantsvsCh->Fill(ind, i, LedMonAdc2fc[rawd]);
       float q = LedMonAdc2fc[rawd];
       Ecell[module][sector] = q;
-      sum += q; //     sum += LedMonAdc2fc[rawd];
+      sum += q;  //     sum += LedMonAdc2fc[rawd];
       QrmsTS[ind][i] += (q * q);
       QmeanTS[ind][i] += q;
       if (err != 0 && fVerbosity > 0)
-        LogPrint("CastorDigiMonitor")
-            << "event/idigi=" << ievt_ << "/" << i
-            << " cap=cap1_dv_er_err: " << capid << "=" << capid1 << " " << dv
-            << " " << er << " " << err;
+        LogPrint("CastorDigiMonitor") << "event/idigi=" << ievt_ << "/" << i << " cap=cap1_dv_er_err: " << capid << "="
+                                      << capid1 << " " << dv << " " << er << " " << err;
       if (capid1 < 3)
         capid1 = capid + 1;
       else
@@ -258,7 +250,7 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
     }
     h2digierr->Fill(module, sector, err);
     h2repsum->Fill(module, sector, 1. - err2 / digi.size());
-  } // end for(CastorDigiCollection::const_iterator ...
+  }  // end for(CastorDigiCollection::const_iterator ...
 
   ievt_++;
 
@@ -300,7 +292,7 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
       double sum = 0.;
       for (int ts = 1; ts <= TS_MAX; ts++) {
         int ind = ModSecToIndex(mod, sec) + 1;
-        double a = //(1) h2QtsvsCh->getTH2D()->GetBinContent(ind,ts);
+        double a =  //(1) h2QtsvsCh->getTH2D()->GetBinContent(ind,ts);
             h2QmeantsvsCh->getTProfile2D()->GetBinContent(ind, ts);
         sum += a;
         double Qmean = QmeanTS[ind - 1][ts - 1] / ievt_;
@@ -312,7 +304,7 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
       float isum = float(int(sum * 10. + 0.5)) / 10.;
       if (ChannelStatus[mod][sec] != StatusBadChannel)
         h2QmeanMap->getTH2F()->SetBinContent(mod + 1, sec + 1, isum);
-    } // end for(int mod=0; mod<14; mod++) for(int sec=0;...
+    }  // end for(int mod=0; mod<14; mod++) for(int sec=0;...
 
   for (int mod = 0; mod < 14; mod++)
     hModule->getTH1F()->SetBinContent(mod + 1, ModuleSum[mod]);
@@ -335,9 +327,8 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
 
       float am = 0.;
       for (int ts = 0; ts < TS_MAX - 1; ts++) {
-        float a =
-            h2QmeantsvsCh->getTProfile2D()->GetBinContent(ind + 1, ts + 1) +
-            h2QmeantsvsCh->getTProfile2D()->GetBinContent(ind + 1, ts + 2);
+        float a = h2QmeantsvsCh->getTProfile2D()->GetBinContent(ind + 1, ts + 1) +
+                  h2QmeantsvsCh->getTProfile2D()->GetBinContent(ind + 1, ts + 2);
         if (am < a)
           am = a;
       }
@@ -346,7 +337,7 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
       for (int ts = 0; ts < TS_MAX; ts++)
         sum += h2QmeantsvsCh->getTProfile2D()->GetBinContent(ind + 1, ts + 1);
 
-      float r = 0.; // worth case - no peak
+      float r = 0.;  // worth case - no peak
       if (am > 0.)
         r = 1. - (sum - am) / (TS_MAX - 2) / am * 2.;
       // if(r<0.|| r>1.) cout<<"ievt="<<ievt<<" r="<<r<<" amax= "<<am<<"
@@ -361,7 +352,7 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
         statusTS = repChanBAD;
       float gChanStatus = statusTS;
       if (ChanStatus > 0.)
-        gChanStatus = repChanBAD; // RMS
+        gChanStatus = repChanBAD;  // RMS
       h2qualityMap->getTH2F()->SetBinContent(mod + 1, sec + 1, gChanStatus);
       if (gChanStatus > repChanBAD)
         ++nGoodCh;
@@ -372,18 +363,14 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
 
 void CastorDigiMonitor::endRun() {
   if (fVerbosity > 0)
-    LogPrint("CastorDigiMonitor")
-        << "DigiMonitor::endRun: trigger max index = " << TrigIndexMax
-        << "  TriggerIndexies(N):" << endl;
+    LogPrint("CastorDigiMonitor") << "DigiMonitor::endRun: trigger max index = " << TrigIndexMax
+                                  << "  TriggerIndexies(N):" << endl;
   for (int i = 1; i < hpTrigRes->getTProfile()->GetNbinsX(); i++)
     if (hpTrigRes->getTProfile()->GetBinContent(i) > 0)
-      LogPrint("CastorDigiMonitor")
-          << i - 1 << "(" << hpTrigRes->getTProfile()->GetBinContent(i) << ") ";
+      LogPrint("CastorDigiMonitor") << i - 1 << "(" << hpTrigRes->getTProfile()->GetBinContent(i) << ") ";
 }
 
-void CastorDigiMonitor::fillTrigRes(edm::Event const &event,
-                                    const edm::TriggerResults &TrigResults,
-                                    double Etotal) {
+void CastorDigiMonitor::fillTrigRes(edm::Event const &event, const edm::TriggerResults &TrigResults, double Etotal) {
   int nTriggers = TrigResults.size();
   const edm::TriggerNames &trigName = event.triggerNames(TrigResults);
   bool event_triggered = false;
@@ -394,16 +381,14 @@ void CastorDigiMonitor::fillTrigRes(edm::Event const &event,
         if (TrigIndexMax < index)
           TrigIndexMax = index;
         if (fVerbosity > 0)
-          LogPrint("CastorDigi")
-              << "trigger[" << iTrig << "] name:" << trigName.triggerName(iTrig)
-              << " index= " << index << endl;
+          LogPrint("CastorDigi") << "trigger[" << iTrig << "] name:" << trigName.triggerName(iTrig)
+                                 << " index= " << index << endl;
         hpTrigRes->Fill(index, Etotal);
         for (int n = 0; n < int(HltPaths_.size()); n++) {
-          if (trigName.triggerName(iTrig).find(HltPaths_[n]) !=
-              std::string::npos)
+          if (trigName.triggerName(iTrig).find(HltPaths_[n]) != std::string::npos)
             event_triggered = true;
         }
-      } // end if(TrigResults.accept(iTrig)
+      }  // end if(TrigResults.accept(iTrig)
     }
 
   if (event_triggered)
@@ -415,8 +400,7 @@ void CastorDigiMonitor::getDbData(const edm::EventSetup &iSetup) {
   edm::ESHandle<CastorChannelQuality> dbChQuality;
   iSetup.get<CastorChannelQualityRcd>().get(dbChQuality);
   if (fVerbosity > 0) {
-    LogPrint("CastorDigiMonitor")
-        << " CastorChQuality in CondDB=" << dbChQuality.isValid() << endl;
+    LogPrint("CastorDigiMonitor") << " CastorChQuality in CondDB=" << dbChQuality.isValid() << endl;
   }
 
   int chInd = 0;
@@ -426,10 +410,8 @@ void CastorDigiMonitor::getDbData(const edm::EventSetup &iSetup) {
   std::vector<DetId> channels = dbChQuality->getAllChannels();
   N_GoodChannels = 224 - channels.size();
   if (fVerbosity > 0)
-    LogPrint("CastorDigiMonitor")
-        << "CastorDigiMonitor::getDBData: QualityRcdSize=" << channels.size();
-  for (std::vector<DetId>::iterator ch = channels.begin(); ch != channels.end();
-       ch++) {
+    LogPrint("CastorDigiMonitor") << "CastorDigiMonitor::getDBData: QualityRcdSize=" << channels.size();
+  for (std::vector<DetId>::iterator ch = channels.begin(); ch != channels.end(); ch++) {
     const CastorChannelStatus *quality = dbChQuality->getValues(*ch);
     int value = quality->getValue();
     int rawId = quality->rawId();
@@ -439,10 +421,9 @@ void CastorDigiMonitor::getDbData(const edm::EventSetup &iSetup) {
     if (mod > 0 && mod < 16 && sec > 0 && sec < 16)
       ChannelStatus[mod][sec] = value;
     if (fVerbosity > 0)
-      LogPrint("CastorDigiMonitor")
-          << chInd << " module=" << mod << " sec=" << sec << " rawId=" << rawId
-          << " value=" << value << endl;
-  } // end for(std::vector<DetId>::it...
+      LogPrint("CastorDigiMonitor") << chInd << " module=" << mod << " sec=" << sec << " rawId=" << rawId
+                                    << " value=" << value << endl;
+  }  // end for(std::vector<DetId>::it...
   return;
 }
 

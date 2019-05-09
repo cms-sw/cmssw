@@ -28,30 +28,28 @@
 #include <boost/cstdint.hpp>
 
 class SiPixelRawDataErrorModule {
-
 public:
   /// Default constructor
   SiPixelRawDataErrorModule();
   /// Constructor with raw DetId
   SiPixelRawDataErrorModule(const uint32_t &id);
   /// Constructor with raw DetId and sensor size
-  SiPixelRawDataErrorModule(const uint32_t &id, const int &ncols,
-                            const int &nrows);
+  SiPixelRawDataErrorModule(const uint32_t &id, const int &ncols, const int &nrows);
   /// Destructor
   ~SiPixelRawDataErrorModule();
 
   typedef edm::DetSet<SiPixelRawDataError>::const_iterator ErrorIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet &iConfig, DQMStore::IBooker &, int type = 0,
-            bool isUpgrade = false);
+  void book(const edm::ParameterSet &iConfig, DQMStore::IBooker &, int type = 0, bool isUpgrade = false);
   /// Fill histograms
   int fill(const edm::DetSetVector<SiPixelRawDataError> &input,
            std::map<std::string, MonitorElement **> *meMapFEDs,
-           bool modon = true, bool ladon = false, bool bladeon = false);
+           bool modon = true,
+           bool ladon = false,
+           bool bladeon = false);
   /// Fill FED histograms
-  int fillFED(const edm::DetSetVector<SiPixelRawDataError> &input,
-              std::map<std::string, MonitorElement **> *meMapFEDs);
+  int fillFED(const edm::DetSetVector<SiPixelRawDataError> &input, std::map<std::string, MonitorElement **> *meMapFEDs);
 
 private:
   uint32_t id_;
@@ -77,13 +75,11 @@ private:
   MonitorElement *meEvtNbrBlade_;
   MonitorElement *meEvtSizeBlade_;
 
-  static const int LINK_bits, ROC_bits, DCOL_bits, PXID_bits, ADC_bits,
-      DataBit_bits, TRLRBGN_bits, EVTLGT_bits, TRLREND_bits;
-  static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift,
-      DB0_shift, DB1_shift, DB2_shift, DB3_shift, DB4_shift, DB5_shift,
-      DB6_shift, DB7_shift, TRLRBGN_shift, EVTLGT_shift, TRLREND_shift;
-  static const uint32_t LINK_mask, ROC_mask, DCOL_mask, PXID_mask, ADC_mask,
-      DataBit_mask;
+  static const int LINK_bits, ROC_bits, DCOL_bits, PXID_bits, ADC_bits, DataBit_bits, TRLRBGN_bits, EVTLGT_bits,
+      TRLREND_bits;
+  static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift, DB0_shift, DB1_shift, DB2_shift, DB3_shift,
+      DB4_shift, DB5_shift, DB6_shift, DB7_shift, TRLRBGN_shift, EVTLGT_shift, TRLREND_shift;
+  static const uint32_t LINK_mask, ROC_mask, DCOL_mask, PXID_mask, ADC_mask, DataBit_mask;
   static const unsigned long long TRLRBGN_mask, EVTLGT_mask, TRLREND_mask;
 };
 #endif

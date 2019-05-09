@@ -43,7 +43,6 @@ DQMClientExample::~DQMClientExample() {}
 //======================= Initialise ===============================//
 //==================================================================//
 void DQMClientExample::initialize() {
-
   ////---- initialise Event and LS counters
   counterEvt_ = 0;
   counterLS_ = 0;
@@ -53,41 +52,31 @@ void DQMClientExample::initialize() {
   dbe_ = Service<DQMStore>().operator->();
 
   ////---- define base folder for the contents of this job
-  monitorName_ = parameters_.getUntrackedParameter<string>("monitorName",
-                                                           "YourSubsystemName");
+  monitorName_ = parameters_.getUntrackedParameter<string>("monitorName", "YourSubsystemName");
   cout << "DQMClientExample: Monitor name = " << monitorName_ << endl;
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 
   ////--- get steerable parameters
   prescaleLS_ = parameters_.getUntrackedParameter<int>("prescaleLS", -1);
-  cout << "DQMClientExample: DQM lumi section prescale = " << prescaleLS_
-       << " lumi section(s)" << endl;
+  cout << "DQMClientExample: DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)" << endl;
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
-  cout << "DQMClientExample: DQM event prescale = " << prescaleEvt_
-       << " events(s)" << endl;
+  cout << "DQMClientExample: DQM event prescale = " << prescaleEvt_ << " events(s)" << endl;
 
   //-- QTestName that is going to bu run on clienHisto, as defined in XML file
-  QTestName_ =
-      parameters_.getUntrackedParameter<string>("QTestName", "exampleQTest");
-  cout << "DQMClientExample: QTest name to be ran on clientHisto = "
-       << QTestName_ << endl;
+  QTestName_ = parameters_.getUntrackedParameter<string>("QTestName", "exampleQTest");
+  cout << "DQMClientExample: QTest name to be ran on clientHisto = " << QTestName_ << endl;
   //-- define where to run the Client
-  clientOnEachEvent =
-      parameters_.getUntrackedParameter<bool>("clientOnEachEvent", false);
+  clientOnEachEvent = parameters_.getUntrackedParameter<bool>("clientOnEachEvent", false);
   if (clientOnEachEvent)
     cout << "DQMClientExample: run Client on each event" << endl;
-  clientOnEndLumi =
-      parameters_.getUntrackedParameter<bool>("clientOnEndLumi", true);
+  clientOnEndLumi = parameters_.getUntrackedParameter<bool>("clientOnEndLumi", true);
   if (clientOnEndLumi)
-    cout << "DQMClientExample: run Client at the end of each lumi section"
-         << endl;
-  clientOnEndRun =
-      parameters_.getUntrackedParameter<bool>("clientOnEndRun", false);
+    cout << "DQMClientExample: run Client at the end of each lumi section" << endl;
+  clientOnEndRun = parameters_.getUntrackedParameter<bool>("clientOnEndRun", false);
   if (clientOnEndRun)
     cout << "DQMClientExample: run Client at the end of each run" << endl;
-  clientOnEndJob =
-      parameters_.getUntrackedParameter<bool>("clientOnEndJob", false);
+  clientOnEndJob = parameters_.getUntrackedParameter<bool>("clientOnEndJob", false);
   if (clientOnEndJob)
     cout << "DQMClientExample: run Client at the end of the job" << endl;
 }
@@ -95,7 +84,6 @@ void DQMClientExample::initialize() {
 //========================= beginJob ===============================//
 //==================================================================//
 void DQMClientExample::beginJob() {
-
   ////---- get DQM store interface
   dbe_ = Service<DQMStore>().operator->();
 
@@ -112,8 +100,7 @@ void DQMClientExample::beginRun(const Run &r, const EventSetup &context) {}
 //==================================================================//
 //==================== beginLuminosityBlock ========================//
 //==================================================================//
-void DQMClientExample::beginLuminosityBlock(const LuminosityBlock &lumiSeg,
-                                            const EventSetup &context) {
+void DQMClientExample::beginLuminosityBlock(const LuminosityBlock &lumiSeg, const EventSetup &context) {
   // optionally reset histograms here
   // clientHisto->Reset();
 }
@@ -132,8 +119,7 @@ void DQMClientExample::analyze(const Event &e, const EventSetup &context) {
 //==================================================================//
 //========================= endLuminosityBlock =====================//
 //==================================================================//
-void DQMClientExample::endLuminosityBlock(const LuminosityBlock &lumiSeg,
-                                          const EventSetup &context) {
+void DQMClientExample::endLuminosityBlock(const LuminosityBlock &lumiSeg, const EventSetup &context) {
   counterLS_++;
   if (!clientOnEachEvent && clientOnEndLumi) {
     if (prescaleLS_ > 0 && counterLS_ % prescaleLS_ == 0)
@@ -161,7 +147,6 @@ void DQMClientExample::endJob() {
 //======================= performClient ============================//
 //==================================================================//
 void DQMClientExample::performClient() {
-
   std::cout << "***** run  Client operations as defined in: *****" << std::endl;
   std::cout << "***** DQMClientExample::performClient    ********" << std::endl;
 
@@ -183,8 +168,7 @@ void DQMClientExample::performClient() {
         std::cout << "=== DQMClientExample::performClient => the histo is "
                      "found: entries="
                   << rootHisto->GetEntries() << "\n"
-                  << " mean=" << rootHisto->GetMean()
-                  << " rms=" << rootHisto->GetRMS() << std::endl;
+                  << " mean=" << rootHisto->GetMean() << " rms=" << rootHisto->GetRMS() << std::endl;
 
       ////---- make the Gaussian fit to this histogram
       TF1 *f1 = new TF1("f1", "gaus", 1, 3);
@@ -196,13 +180,12 @@ void DQMClientExample::performClient() {
     clientHisto->setBinContent(2, rms);
   }
 
-  else { // when it is not found !
+  else {  // when it is not found !
     clientHisto->setBinContent(1, -1);
     clientHisto->setBinContent(2, -1);
     if (counterClientOperation < 1)
-      edm::LogError("DQMClientExample")
-          << "--- The following ME :" << histoName << " cannot be found\n"
-          << "--- on the DQM source side !\n";
+      edm::LogError("DQMClientExample") << "--- The following ME :" << histoName << " cannot be found\n"
+                                        << "--- on the DQM source side !\n";
   }
 
   //----------------------------------------------------------------------------------------------
@@ -213,26 +196,23 @@ void DQMClientExample::performClient() {
   const QReport *theQReport = clientHisto->getQReport(QTestName_);
   if (theQReport) {
     if (counterClientOperation < 1)
-      edm::LogWarning("DQMClientExample")
-          << "*** Summary of Quality Test for clientHisto: \n"
-          //<<"---  value  ="<< theQReport->getQTresult()<<"\n"
-          << "--- status =" << theQReport->getStatus() << "\n"
-          << "--- message =" << theQReport->getMessage() << "\n";
+      edm::LogWarning("DQMClientExample") << "*** Summary of Quality Test for clientHisto: \n"
+                                          //<<"---  value  ="<< theQReport->getQTresult()<<"\n"
+                                          << "--- status =" << theQReport->getStatus() << "\n"
+                                          << "--- message =" << theQReport->getMessage() << "\n";
 
     vector<dqm::me_util::Channel> badChannels = theQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin();
-         channel != badChannels.end(); channel++) {
+    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
+         channel++) {
       if (counterClientOperation < 1)
         edm::LogError("DQMClientExample")
-            << " Bad channels: " << (*channel).getBin() << " "
-            << (*channel).getContents();
+            << " Bad channels: " << (*channel).getBin() << " " << (*channel).getContents();
     }
   } else {
     if (counterClientOperation < 1)
-      edm::LogError("DQMClientExample")
-          << "--- No QReport is found for clientHisto!\n"
-          << "--- Please check your XML and config files -> QTestName ( "
-          << QTestName_ << " )must be the same!\n";
+      edm::LogError("DQMClientExample") << "--- No QReport is found for clientHisto!\n"
+                                        << "--- Please check your XML and config files -> QTestName ( " << QTestName_
+                                        << " )must be the same!\n";
   }
 
   counterClientOperation++;

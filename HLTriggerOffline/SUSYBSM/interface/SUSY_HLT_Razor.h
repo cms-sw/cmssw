@@ -35,11 +35,12 @@
 #include "TLorentzVector.h"
 
 class SUSY_HLT_Razor : public DQMEDAnalyzer {
-
 public:
   SUSY_HLT_Razor(const edm::ParameterSet &ps);
   static double CalcMR(TLorentzVector ja, TLorentzVector jb);
-  static double CalcR(double MR, TLorentzVector ja, TLorentzVector jb,
+  static double CalcR(double MR,
+                      TLorentzVector ja,
+                      TLorentzVector jb,
                       edm::Handle<edm::View<reco::MET>> met,
                       const std::vector<math::XYZTLorentzVector> &muons);
   ~SUSY_HLT_Razor() override;
@@ -47,8 +48,7 @@ public:
 
 protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
   void endRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
 

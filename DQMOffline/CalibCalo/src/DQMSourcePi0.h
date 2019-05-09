@@ -25,22 +25,18 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
 // Less than operator for sorting EcalRecHits according to energy.
-bool ecalRecHitGreater(EcalRecHit x, EcalRecHit y) {
-  return (x.energy() > y.energy());
-}
+bool ecalRecHitGreater(EcalRecHit x, EcalRecHit y) { return (x.energy() > y.energy()); }
 
 class DQMStore;
 class MonitorElement;
 
 class DQMSourcePi0 : public DQMEDAnalyzer {
-
 public:
   DQMSourcePi0(const edm::ParameterSet &);
   ~DQMSourcePi0() override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
   void convxtalid(int &, int &);

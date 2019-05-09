@@ -24,16 +24,14 @@ enum funcType { EachBinContent, Entries, Mean, Sum, WeightedSum };
 #define PI 3.141592
 #define PI_2 1.570796
 
-#define NLev1                                                                  \
-  4 // Number of HalfCylinders in Endcap or number of Shells in Barrel, which is
-    // bigger
-#define NLev2                                                                  \
-  3 // Number of Disks in Endcap or number of Layers in Barrel, which is bigger
-#define NLev3                                                                  \
-  22 // Number of Blades in Endcap or number of Ladders in Barrel, which is
-     // bigger
-#define NLev4                                                                  \
-  7 // Number of Modules - different for Endcap and Barrel, which is bigger
+// Number of HalfCylinders in Endcap or number of Shells in Barrel, which is bigger
+#define NLev1 4
+// Number of Disks in Endcap or number of Layers in Barrel, which is bigger
+#define NLev2 3
+// Number of Blades in Endcap or number of Ladders in Barrel, which is bigger
+#define NLev3 22
+// Number of Modules - different for Endcap and Barrel, which is bigger
+#define NLev4 7
 
 #define NCyl 4
 #define NDisk 2
@@ -49,35 +47,29 @@ enum funcType { EachBinContent, Entries, Mean, Sum, WeightedSum };
 // End for Tracker Map
 
 class SiPixelActionExecutor {
-
 public:
   SiPixelActionExecutor(bool offlineXMLfile, bool Tier0Flag);
   ~SiPixelActionExecutor();
 
-  void createSummary(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter,
-                     bool isUpgrade);
+  void createSummary(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, bool isUpgrade);
   void bookDeviations(DQMStore::IBooker &iBooker, bool isUpgrade);
   void bookEfficiency(DQMStore::IBooker &iBooker, bool isUpgrade);
-  void createEfficiency(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter,
-                        bool isUpgrade);
-  void fillEfficiency(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter,
-                      bool isbarrel, bool isUpgrade);
-  void fillEfficiencySummary(DQMStore::IBooker &iBooker,
-                             DQMStore::IGetter &iGetter);
-  void bookOccupancyPlots(DQMStore::IBooker &iBooker,
-                          DQMStore::IGetter &iGetter, bool hiRes,
-                          bool isbarrel);
-  void bookOccupancyPlots(DQMStore::IBooker &iBooker,
-                          DQMStore::IGetter &iGetter, bool hiRes);
+  void createEfficiency(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, bool isUpgrade);
+  void fillEfficiency(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, bool isbarrel, bool isUpgrade);
+  void fillEfficiencySummary(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter);
+  void bookOccupancyPlots(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, bool hiRes, bool isbarrel);
+  void bookOccupancyPlots(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, bool hiRes);
   void createOccupancy(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter);
-  void normaliseAvDigiOcc(DQMStore::IBooker &iBooker,
-                          DQMStore::IGetter &iGetter);
-  void normaliseAvDigiOccVsLumi(DQMStore::IBooker &iBooker,
-                                DQMStore::IGetter &iGetter, int lumisec);
-  bool readConfiguration(int &tkmap_freq, int &sum_barrel_freq,
-                         int &sum_endcap_freq, int &sum_grandbarrel_freq,
-                         int &sum_grandendcap_freq, int &message_limit,
-                         int &source_type, int &calib_type);
+  void normaliseAvDigiOcc(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter);
+  void normaliseAvDigiOccVsLumi(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, int lumisec);
+  bool readConfiguration(int &tkmap_freq,
+                         int &sum_barrel_freq,
+                         int &sum_endcap_freq,
+                         int &sum_grandbarrel_freq,
+                         int &sum_grandendcap_freq,
+                         int &message_limit,
+                         int &source_type,
+                         int &calib_type);
   bool readConfiguration(int &tkmap_freq, int &summary_freq);
   void readConfiguration();
   int getLadder(const std::string &dname);
@@ -85,19 +77,21 @@ public:
 
 private:
   MonitorElement *getSummaryME(DQMStore::IBooker &iBooker,
-                               DQMStore::IGetter &iGetter, std::string me_name,
+                               DQMStore::IGetter &iGetter,
+                               std::string me_name,
                                bool isUpgrade);
-  MonitorElement *getFEDSummaryME(DQMStore::IBooker &iBooker,
-                                  DQMStore::IGetter &iGetter,
-                                  std::string me_name);
-  void GetBladeSubdirs(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter,
-                       std::vector<std::string> &blade_subdirs);
-  void fillSummary(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter,
-                   std::string dir_name, std::vector<std::string> &me_names,
-                   bool isbarrel, bool isUpgrade);
+  MonitorElement *getFEDSummaryME(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, std::string me_name);
+  void GetBladeSubdirs(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, std::vector<std::string> &blade_subdirs);
+  void fillSummary(DQMStore::IBooker &iBooker,
+                   DQMStore::IGetter &iGetter,
+                   std::string dir_name,
+                   std::vector<std::string> &me_names,
+                   bool isbarrel,
+                   bool isUpgrade);
   void fillDeviations(DQMStore::IGetter &iGetter);
   void fillFEDErrorSummary(DQMStore::IBooker &iBooker,
-                           DQMStore::IGetter &iGetter, std::string dir_name,
+                           DQMStore::IGetter &iGetter,
+                           std::string dir_name,
                            std::vector<std::string> &me_names);
   void fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBooker,
                                     DQMStore::IGetter &iGetter,
@@ -107,12 +101,13 @@ private:
                                     DQMStore::IGetter &iGetter,
                                     std::vector<std::string> &me_names,
                                     bool isUpgrade);
-  void getGrandSummaryME(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter,
-                         int nbin, std::string &me_name,
+  void getGrandSummaryME(DQMStore::IBooker &iBooker,
+                         DQMStore::IGetter &iGetter,
+                         int nbin,
+                         std::string &me_name,
                          std::vector<MonitorElement *> &mes);
 
-  void fillOccupancy(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter,
-                     bool isbarrel);
+  void fillOccupancy(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, bool isbarrel);
 
   SiPixelConfigParser *configParser_;
   SiPixelConfigWriter *configWriter_;

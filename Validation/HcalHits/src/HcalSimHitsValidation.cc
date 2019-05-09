@@ -4,40 +4,29 @@
 
 HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf) {
   // DQM ROOT output
-  outputFile_ =
-      conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
+  outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   testNumber_ = conf.getUntrackedParameter<bool>("TestNumber", false);
   auxPlots_ = conf.getUntrackedParameter<bool>("auxiliaryPlots", false);
 
   // register for data access
-  g4Label_ =
-      conf.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits");
-  hcalHits_ =
-      conf.getUntrackedParameter<std::string>("HcalHitCollection", "HcalHits");
-  ebHits_ =
-      conf.getUntrackedParameter<std::string>("EBHitCollection", "EcalHitsEB");
-  eeHits_ =
-      conf.getUntrackedParameter<std::string>("EEHitCollection", "EcalHitsEE");
+  g4Label_ = conf.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits");
+  hcalHits_ = conf.getUntrackedParameter<std::string>("HcalHitCollection", "HcalHits");
+  ebHits_ = conf.getUntrackedParameter<std::string>("EBHitCollection", "EcalHitsEB");
+  eeHits_ = conf.getUntrackedParameter<std::string>("EEHitCollection", "EcalHitsEE");
 
   // import sampling factors
   hf1_ = conf.getParameter<double>("hf1");
   hf2_ = conf.getParameter<double>("hf2");
 
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
-  tok_hcal_ =
-      consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_));
-  tok_ecalEB_ =
-      consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, ebHits_));
-  tok_ecalEE_ =
-      consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, eeHits_));
+  tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_));
+  tok_ecalEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, ebHits_));
+  tok_ecalEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, eeHits_));
 
   if (!outputFile_.empty()) {
-    edm::LogInfo("OutputInfo")
-        << " Hcal SimHit Task histograms will be saved to '"
-        << outputFile_.c_str() << "'";
+    edm::LogInfo("OutputInfo") << " Hcal SimHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
-    edm::LogInfo("OutputInfo")
-        << " Hcal SimHit Task histograms will NOT be saved";
+    edm::LogInfo("OutputInfo") << " Hcal SimHit Task histograms will NOT be saved";
   }
 
   nevtot = 0;
@@ -45,9 +34,7 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf) {
 
 HcalSimHitsValidation::~HcalSimHitsValidation() {}
 
-void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib,
-                                           edm::Run const &run,
-                                           edm::EventSetup const &es) {
+void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   es.get<HcalRecNumberingRecord>().get(pHRNDC);
   hcons = &(*pHRNDC);
@@ -110,7 +97,6 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib,
   ib.setCurrentFolder("HcalHitsV/HcalSimHitTask");
 
   if (auxPlots_) {
-
     // General counters
     for (int depth = 0; depth <= maxDepthHB_; depth++) {
       if (depth == 0) {
@@ -152,9 +138,8 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib,
         sprintf(histo, "emean_vs_ieta_HB%d", depth);
       }
 
-      emean_vs_ieta_HB.push_back(ib.bookProfile(histo, histo, ieta_bins_HB,
-                                                ieta_min_HB, ieta_max_HB, -10.,
-                                                2000., " "));
+      emean_vs_ieta_HB.push_back(
+          ib.bookProfile(histo, histo, ieta_bins_HB, ieta_min_HB, ieta_max_HB, -10., 2000., " "));
     }
     for (int depth = 0; depth <= maxDepthHE_; depth++) {
       if (depth == 0) {
@@ -163,14 +148,12 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib,
         sprintf(histo, "emean_vs_ieta_HE%d", depth);
       }
 
-      emean_vs_ieta_HE.push_back(ib.bookProfile(histo, histo, ieta_bins_HE,
-                                                ieta_min_HE, ieta_max_HE, -10.,
-                                                2000., " "));
+      emean_vs_ieta_HE.push_back(
+          ib.bookProfile(histo, histo, ieta_bins_HE, ieta_min_HE, ieta_max_HE, -10., 2000., " "));
     }
 
     sprintf(histo, "emean_vs_ieta_HO");
-    emean_vs_ieta_HO = ib.bookProfile(histo, histo, ieta_bins_HO, ieta_min_HO,
-                                      ieta_max_HO, -10., 2000., " ");
+    emean_vs_ieta_HO = ib.bookProfile(histo, histo, ieta_bins_HO, ieta_min_HO, ieta_max_HO, -10., 2000., " ");
 
     for (int depth = 0; depth <= maxDepthHF_; depth++) {
       if (depth == 0) {
@@ -179,9 +162,8 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib,
         sprintf(histo, "emean_vs_ieta_HF%d", depth);
       }
 
-      emean_vs_ieta_HF.push_back(ib.bookProfile(histo, histo, ieta_bins_HF,
-                                                ieta_min_HF, ieta_max_HF, -10.,
-                                                2000., " "));
+      emean_vs_ieta_HF.push_back(
+          ib.bookProfile(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF, -10., 2000., " "));
     }
 
     // Occupancy vs. iEta TH1Fs
@@ -192,8 +174,7 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib,
         sprintf(histo, "occupancy_vs_ieta_HB%d", depth);
       }
 
-      occupancy_vs_ieta_HB.push_back(
-          ib.book1D(histo, histo, ieta_bins_HB, ieta_min_HB, ieta_max_HB));
+      occupancy_vs_ieta_HB.push_back(ib.book1D(histo, histo, ieta_bins_HB, ieta_min_HB, ieta_max_HB));
     }
     for (int depth = 0; depth <= maxDepthHE_; depth++) {
       if (depth == 0) {
@@ -202,13 +183,11 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib,
         sprintf(histo, "occupancy_vs_ieta_HE%d", depth);
       }
 
-      occupancy_vs_ieta_HE.push_back(
-          ib.book1D(histo, histo, ieta_bins_HE, ieta_min_HE, ieta_max_HE));
+      occupancy_vs_ieta_HE.push_back(ib.book1D(histo, histo, ieta_bins_HE, ieta_min_HE, ieta_max_HE));
     }
 
     sprintf(histo, "occupancy_vs_ieta_HO");
-    occupancy_vs_ieta_HO =
-        ib.book1D(histo, histo, ieta_bins_HO, ieta_min_HO, ieta_max_HO);
+    occupancy_vs_ieta_HO = ib.book1D(histo, histo, ieta_bins_HO, ieta_min_HO, ieta_max_HO);
 
     for (int depth = 0; depth <= maxDepthHF_; depth++) {
       if (depth == 0) {
@@ -217,8 +196,7 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib,
         sprintf(histo, "occupancy_vs_ieta_HF%d", depth);
       }
 
-      occupancy_vs_ieta_HF.push_back(
-          ib.book1D(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF));
+      occupancy_vs_ieta_HF.push_back(ib.book1D(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF));
     }
 
     // Energy spectra
@@ -254,30 +232,23 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib,
       meSimHitsEnergyHF.push_back(ib.book1D(histo, histo, 1010, -5., 500.));
     }
 
-  } // auxPlots_
+  }  // auxPlots_
 
   // Energy in Cone
   sprintf(histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths");
-  meEnConeEtaProfile = ib.bookProfile(histo, histo, ieta_bins_HF, ieta_min_HF,
-                                      ieta_max_HF, -10., 200., " ");
+  meEnConeEtaProfile = ib.bookProfile(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF, -10., 200., " ");
 
   sprintf(histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E");
-  meEnConeEtaProfile_E = ib.bookProfile(histo, histo, ieta_bins_HF, ieta_min_HF,
-                                        ieta_max_HF, -10., 200., " ");
+  meEnConeEtaProfile_E = ib.bookProfile(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF, -10., 200., " ");
 
-  sprintf(histo,
-          "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH");
-  meEnConeEtaProfile_EH = ib.bookProfile(
-      histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF, -10., 200., " ");
+  sprintf(histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH");
+  meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, ieta_bins_HF, ieta_min_HF, ieta_max_HF, -10., 200., " ");
 }
 
 void HcalSimHitsValidation::endJob() {
-
   if (auxPlots_) {
-
     for (int i = 1; i <= occupancy_vs_ieta_HB[0]->getNbinsX(); i++) {
-
-      int ieta = i - 43; // -41 -1, 1 41
+      int ieta = i - 43;  // -41 -1, 1 41
 
       float phi_factor;
 
@@ -292,13 +263,11 @@ void HcalSimHitsValidation::endJob() {
 
       // Occupancy vs. iEta TH1Fs
       for (int depth = 0; depth <= maxDepthHB_; depth++) {
-        cnorm = occupancy_vs_ieta_HB[depth]->getBinContent(i) /
-                (phi_factor * nevtot);
+        cnorm = occupancy_vs_ieta_HB[depth]->getBinContent(i) / (phi_factor * nevtot);
         occupancy_vs_ieta_HB[depth]->setBinContent(i, cnorm);
       }
       for (int depth = 0; depth <= maxDepthHE_; depth++) {
-        cnorm = occupancy_vs_ieta_HE[depth]->getBinContent(i) /
-                (phi_factor * nevtot);
+        cnorm = occupancy_vs_ieta_HE[depth]->getBinContent(i) / (phi_factor * nevtot);
         occupancy_vs_ieta_HE[depth]->setBinContent(i, cnorm);
       }
 
@@ -306,8 +275,7 @@ void HcalSimHitsValidation::endJob() {
       occupancy_vs_ieta_HO->setBinContent(i, cnorm);
 
       for (int depth = 0; depth <= maxDepthHF_; depth++) {
-        cnorm = occupancy_vs_ieta_HF[depth]->getBinContent(i) /
-                (phi_factor * nevtot);
+        cnorm = occupancy_vs_ieta_HF[depth]->getBinContent(i) / (phi_factor * nevtot);
         occupancy_vs_ieta_HF[depth]->setBinContent(i, cnorm);
       }
     }
@@ -317,9 +285,7 @@ void HcalSimHitsValidation::endJob() {
   // if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
-void HcalSimHitsValidation::analyze(edm::Event const &ev,
-                                    edm::EventSetup const &c) {
-
+void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const &c) {
   using namespace edm;
   using namespace std;
 
@@ -327,11 +293,11 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev,
   // Getting SimHits
   //===========================================================================
 
-  double phi_MC = -999.; // phi of initial particle from HepMC
-  double eta_MC = -999.; // eta of initial particle from HepMC
+  double phi_MC = -999.;  // phi of initial particle from HepMC
+  double eta_MC = -999.;  // eta of initial particle from HepMC
 
   edm::Handle<edm::HepMCProduct> evtMC;
-  ev.getByToken(tok_evt_, evtMC); // generator in late 310_preX
+  ev.getByToken(tok_evt_, evtMC);  // generator in late 310_preX
   if (!evtMC.isValid()) {
     std::cout << "no HepMCProduct found" << std::endl;
   }
@@ -341,9 +307,8 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev,
   int npart = 0;
 
   const HepMC::GenEvent *myGenEvent = evtMC->GetEvent();
-  for (HepMC::GenEvent::particle_const_iterator p =
-           myGenEvent->particles_begin();
-       p != myGenEvent->particles_end(); ++p) {
+  for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
+       ++p) {
     double phip = (*p)->momentum().phi();
     double etap = (*p)->momentum().eta();
     double pt = (*p)->momentum().perp();
@@ -362,8 +327,8 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev,
   // Approximate calibration constants
   const float calib_HB = 120.;
   const float calib_HE = 190.;
-  const float calib_HF1 = hf1_; // 1.0/0.383;
-  const float calib_HF2 = hf2_; // 1.0/0.368;
+  const float calib_HF1 = hf1_;  // 1.0/0.383;
+  const float calib_HF2 = hf2_;  // 1.0/0.368;
 
   edm::Handle<PCaloHitContainer> hcalHits;
   ev.getByToken(tok_hcal_, hcalHits);
@@ -377,16 +342,15 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev,
 
   c.get<CaloGeometryRecord>().get(geometry);
 
-  for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin();
-       SimHits != SimHitResult->end(); ++SimHits) {
+  for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin(); SimHits != SimHitResult->end();
+       ++SimHits) {
     HcalDetId cell;
     if (testNumber_)
       cell = HcalHitRelabeller::relabel(SimHits->id(), hcons);
     else
       cell = HcalDetId(SimHits->id());
 
-    auto cellGeometry =
-        geometry->getSubdetectorGeometry(cell)->getGeometry(cell);
+    auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry(cell);
     double etaS = cellGeometry->getPosition().eta();
     double phiS = cellGeometry->getPosition().phi();
     double en = SimHits->energy();
@@ -416,7 +380,6 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev,
     }
 
     if (auxPlots_) {
-
       // HB
       if (sub == 1) {
         meSimHitsEnergyHB[0]->Fill(en);
@@ -459,9 +422,9 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev,
         occupancy_vs_ieta_HF[depth]->Fill(double(ieta));
       }
 
-    } // auxPlots_
+    }  // auxPlots_
 
-  } // Loop over SimHits
+  }  // Loop over SimHits
 
   // Ecal EB SimHits
   double EcalCone = 0;
@@ -471,14 +434,11 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev,
     ev.getByToken(tok_ecalEB_, ecalEBHits);
     const PCaloHitContainer *SimHitResultEB = ecalEBHits.product();
 
-    for (std::vector<PCaloHit>::const_iterator SimHits =
-             SimHitResultEB->begin();
-         SimHits != SimHitResultEB->end(); ++SimHits) {
-
+    for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEB->begin(); SimHits != SimHitResultEB->end();
+         ++SimHits) {
       EBDetId EBid = EBDetId(SimHits->id());
 
-      auto cellGeometry =
-          geometry->getSubdetectorGeometry(EBid)->getGeometry(EBid);
+      auto cellGeometry = geometry->getSubdetectorGeometry(EBid)->getGeometry(EBid);
       double etaS = cellGeometry->getPosition().eta();
       double phiS = cellGeometry->getPosition().phi();
       double en = SimHits->energy();
@@ -488,7 +448,7 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev,
       if (r < partR)
         EcalCone += en;
     }
-  } // ebHits_
+  }  // ebHits_
 
   // Ecal EE SimHits
   if (!eeHits_.empty()) {
@@ -496,14 +456,11 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev,
     ev.getByToken(tok_ecalEE_, ecalEEHits);
     const PCaloHitContainer *SimHitResultEE = ecalEEHits.product();
 
-    for (std::vector<PCaloHit>::const_iterator SimHits =
-             SimHitResultEE->begin();
-         SimHits != SimHitResultEE->end(); ++SimHits) {
-
+    for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEE->begin(); SimHits != SimHitResultEE->end();
+         ++SimHits) {
       EEDetId EEid = EEDetId(SimHits->id());
 
-      auto cellGeometry =
-          geometry->getSubdetectorGeometry(EEid)->getGeometry(EEid);
+      auto cellGeometry = geometry->getSubdetectorGeometry(EEid)->getGeometry(EEid);
       double etaS = cellGeometry->getPosition().eta();
       double phiS = cellGeometry->getPosition().phi();
       double en = SimHits->energy();
@@ -513,9 +470,9 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev,
       if (r < partR)
         EcalCone += en;
     }
-  } // eeHits_
+  }  // eeHits_
 
-  if (ietaMax != 0) { // If ietaMax == 0, there were no good HCAL SimHits
+  if (ietaMax != 0) {  // If ietaMax == 0, there were no good HCAL SimHits
     meEnConeEtaProfile->Fill(double(ietaMax), HcalCone);
     meEnConeEtaProfile_E->Fill(double(ietaMax), EcalCone);
     meEnConeEtaProfile_EH->Fill(double(ietaMax), HcalCone + EcalCone);
@@ -524,8 +481,7 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev,
   nevtot++;
 }
 
-double HcalSimHitsValidation::dR(double eta1, double phi1, double eta2,
-                                 double phi2) {
+double HcalSimHitsValidation::dR(double eta1, double phi1, double eta2, double phi2) {
   double PI = 3.1415926535898;
   double deltaphi = phi1 - phi2;
   if (phi2 > phi1) {
@@ -539,8 +495,7 @@ double HcalSimHitsValidation::dR(double eta1, double phi1, double eta2,
   return tmp;
 }
 
-double HcalSimHitsValidation::phi12(double phi1, double en1, double phi2,
-                                    double en2) {
+double HcalSimHitsValidation::phi12(double phi1, double en1, double phi2, double en2) {
   // weighted mean value of phi1 and phi2
 
   double tmp;

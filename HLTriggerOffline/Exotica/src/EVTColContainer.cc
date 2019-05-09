@@ -85,11 +85,24 @@ struct EVTColContainer {
   const reco::BeamSpot *bs;
 
   EVTColContainer()
-      : nOfCollections(6), nInitialized(0), genParticles(nullptr),
-        muons(nullptr), tracks(nullptr), electrons(nullptr), photons(nullptr),
-        METs(nullptr), pfMETs(nullptr), pfMHTs(nullptr), genMETs(nullptr),
-        caloMETs(nullptr), caloMHTs(nullptr), l1METs(nullptr), pfTaus(nullptr),
-        pfJets(nullptr), caloJets(nullptr), triggerResults(nullptr),
+      : nOfCollections(6),
+        nInitialized(0),
+        genParticles(nullptr),
+        muons(nullptr),
+        tracks(nullptr),
+        electrons(nullptr),
+        photons(nullptr),
+        METs(nullptr),
+        pfMETs(nullptr),
+        pfMHTs(nullptr),
+        genMETs(nullptr),
+        caloMETs(nullptr),
+        caloMHTs(nullptr),
+        l1METs(nullptr),
+        pfTaus(nullptr),
+        pfJets(nullptr),
+        caloJets(nullptr),
+        triggerResults(nullptr),
         bs(nullptr) {}
   ///
   bool isAllInit() { return (nInitialized == nOfCollections); }
@@ -249,10 +262,8 @@ struct EVTColContainer {
     } else if (objtype == EVTColContainer::CALOJET) {
       objTypestr = "CaloJet";
     } else {
-      edm::LogError("ExoticaValidations")
-          << "EVTColContainer::getTypeString, "
-          << "NOT Implemented error (object type id='" << objtype << "')"
-          << std::endl;
+      edm::LogError("ExoticaValidations") << "EVTColContainer::getTypeString, "
+                                          << "NOT Implemented error (object type id='" << objtype << "')" << std::endl;
       ;
     }
 

@@ -22,8 +22,7 @@ class CSCDigiValidation : public DQMEDAnalyzer {
 public:
   explicit CSCDigiValidation(const edm::ParameterSet &);
   ~CSCDigiValidation() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:

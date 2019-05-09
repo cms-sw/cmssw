@@ -39,7 +39,6 @@ class SiStripBackPlaneCorrectionDQM;
 class SiStripCablingDQM;
 
 class SiStripMonitorCondData : public edm::EDAnalyzer {
-
 public:
   explicit SiStripMonitorCondData(const edm::ParameterSet &);
 

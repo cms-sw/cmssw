@@ -42,14 +42,12 @@ Implementation:
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 class EcalZmassTask : public DQMEDAnalyzer {
-
 public:
   explicit EcalZmassTask(const edm::ParameterSet &);
   ~EcalZmassTask() override {}
 
 private:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   const edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionToken_;
@@ -73,16 +71,14 @@ private:
 };
 
 EcalZmassTask::EcalZmassTask(const edm::ParameterSet &parameters)
-    : electronCollectionToken_(consumes<reco::GsfElectronCollection>(
-          parameters.getParameter<edm::InputTag>("electronCollection"))),
-      trackCollectionToken_(consumes<reco::GsfTrackCollection>(
-          parameters.getParameter<edm::InputTag>("trackCollection"))),
-      prefixME_(parameters.getUntrackedParameter<std::string>("prefixME", "")) {
-}
+    : electronCollectionToken_(
+          consumes<reco::GsfElectronCollection>(parameters.getParameter<edm::InputTag>("electronCollection"))),
+      trackCollectionToken_(
+          consumes<reco::GsfTrackCollection>(parameters.getParameter<edm::InputTag>("trackCollection"))),
+      prefixME_(parameters.getUntrackedParameter<std::string>("prefixME", "")) {}
 
 // ------------ method called for each event  ------------
-void EcalZmassTask::analyze(const edm::Event &iEvent,
-                            const edm::EventSetup &iSetup) {
+void EcalZmassTask::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   Handle<reco::GsfElectronCollection> electronCollection;
   iEvent.getByToken(electronCollectionToken_, electronCollection);
@@ -106,10 +102,9 @@ void EcalZmassTask::analyze(const edm::Event &iEvent,
 
   std::vector<TLorentzVector> LV;
 
-  for (reco::GsfElectronCollection::const_iterator recoElectron =
-           electronCollection->begin();
-       recoElectron != electronCollection->end(); recoElectron++) {
-
+  for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection->begin();
+       recoElectron != electronCollection->end();
+       recoElectron++) {
     if (recoElectron->et() <= 25)
       continue;
 
@@ -130,8 +125,7 @@ void EcalZmassTask::analyze(const edm::Event &iEvent,
     float Dcot = recoElectron->convDcot();
     float Dist = recoElectron->convDist();
     int NumberOfExpectedInnerHits =
-        recoElectron->gsfTrack()->hitPattern().numberOfLostHits(
-            reco::HitPattern::MISSING_INNER_HITS);
+        recoElectron->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
     // quality flags
 
@@ -145,21 +139,18 @@ void EcalZmassTask::analyze(const edm::Event &iEvent,
     /***** Barrel WP80 Cuts *****/
 
     if (fabs(recoElectron->eta()) <= 1.4442) {
-
       /* Isolation */
       if (IsoTrk < 0.09 && IsoEcal < 0.07 && IsoHcal < 0.10) {
         isIsolatedBarrel = true;
       }
 
       /* Identification */
-      if (fabs(DeltaEtaTkClu) < 0.004 && fabs(DeltaPhiTkClu) < 0.06 &&
-          sigmaIeIe < 0.01 && HE < 0.04) {
+      if (fabs(DeltaEtaTkClu) < 0.004 && fabs(DeltaPhiTkClu) < 0.06 && sigmaIeIe < 0.01 && HE < 0.04) {
         isIDBarrel = true;
       }
 
       /* Conversion Rejection */
-      if ((fabs(Dist) >= 0.02 || fabs(Dcot) >= 0.02) &&
-          NumberOfExpectedInnerHits <= 1.0) {
+      if ((fabs(Dist) >= 0.02 || fabs(Dcot) >= 0.02) && NumberOfExpectedInnerHits <= 1.0) {
         isConvertedBarrel = true;
       }
     }
@@ -167,40 +158,34 @@ void EcalZmassTask::analyze(const edm::Event &iEvent,
     if (isIsolatedBarrel && isIDBarrel && isConvertedBarrel) {
       elIsAccepted++;
       elIsAcceptedEB++;
-      TLorentzVector b_e2(recoElectron->momentum().x(),
-                          recoElectron->momentum().y(),
-                          recoElectron->momentum().z(), recoElectron->p());
+      TLorentzVector b_e2(
+          recoElectron->momentum().x(), recoElectron->momentum().y(), recoElectron->momentum().z(), recoElectron->p());
       LV.push_back(b_e2);
     }
 
     /***** Endcap WP80 Cuts *****/
 
-    if (fabs(recoElectron->eta()) >= 1.5660 &&
-        fabs(recoElectron->eta()) <= 2.5000) {
-
+    if (fabs(recoElectron->eta()) >= 1.5660 && fabs(recoElectron->eta()) <= 2.5000) {
       /* Isolation */
       if (IsoTrk < 0.04 && IsoEcal < 0.05 && IsoHcal < 0.025) {
         isIsolatedEndcap = true;
       }
 
       /* Identification */
-      if (fabs(DeltaEtaTkClu) < 0.007 && fabs(DeltaPhiTkClu) < 0.03 &&
-          sigmaIeIe < 0.031 && HE < 0.15) {
+      if (fabs(DeltaEtaTkClu) < 0.007 && fabs(DeltaPhiTkClu) < 0.03 && sigmaIeIe < 0.031 && HE < 0.15) {
         isIDEndcap = true;
       }
 
       /* Conversion Rejection */
-      if ((fabs(Dcot) > 0.02 || fabs(Dist) > 0.02) &&
-          NumberOfExpectedInnerHits <= 1.0) {
+      if ((fabs(Dcot) > 0.02 || fabs(Dist) > 0.02) && NumberOfExpectedInnerHits <= 1.0) {
         isConvertedEndcap = true;
       }
     }
     if (isIsolatedEndcap && isIDEndcap && isConvertedEndcap) {
       elIsAccepted++;
       elIsAcceptedEE++;
-      TLorentzVector e_e2(recoElectron->momentum().x(),
-                          recoElectron->momentum().y(),
-                          recoElectron->momentum().z(), recoElectron->p());
+      TLorentzVector e_e2(
+          recoElectron->momentum().x(), recoElectron->momentum().y(), recoElectron->momentum().z(), recoElectron->p());
       LV.push_back(e_e2);
     }
   }
@@ -228,8 +213,7 @@ void EcalZmassTask::analyze(const edm::Event &iEvent,
   }
 }
 
-void EcalZmassTask::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
-                                   edm::EventSetup const &) {
+void EcalZmassTask::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
   std::string logTraceName("EcalZmassTask");
 
   h_ee_invMass_EB = nullptr;
@@ -238,17 +222,11 @@ void EcalZmassTask::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
 
   LogTrace(logTraceName) << "Parameters initialization";
 
-  iBooker.setCurrentFolder(prefixME_ + "/Zmass"); // Use folder with name of PAG
+  iBooker.setCurrentFolder(prefixME_ + "/Zmass");  // Use folder with name of PAG
 
-  h_ee_invMass_EB =
-      iBooker.book1D("Z peak - WP80 EB-EE", "Z peak - WP80 EB-EE;InvMass (GeV)",
-                     60, 60.0, 120.0);
-  h_ee_invMass_EE =
-      iBooker.book1D("Z peak - WP80 EE-EE", "Z peak - WP80 EE-EE;InvMass (Gev)",
-                     60, 60.0, 120.0);
-  h_ee_invMass_BB =
-      iBooker.book1D("Z peak - WP80 EB-EB", "Z peak - WP80 EB-EB;InvMass (Gev)",
-                     60, 60.0, 120.0);
+  h_ee_invMass_EB = iBooker.book1D("Z peak - WP80 EB-EE", "Z peak - WP80 EB-EE;InvMass (GeV)", 60, 60.0, 120.0);
+  h_ee_invMass_EE = iBooker.book1D("Z peak - WP80 EE-EE", "Z peak - WP80 EE-EE;InvMass (Gev)", 60, 60.0, 120.0);
+  h_ee_invMass_BB = iBooker.book1D("Z peak - WP80 EB-EB", "Z peak - WP80 EB-EB;InvMass (Gev)", 60, 60.0, 120.0);
 }
 
 // define this as a plug-in

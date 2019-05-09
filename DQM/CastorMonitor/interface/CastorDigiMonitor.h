@@ -18,21 +18,19 @@
 //#include "FWCore/Framework/interface/Run.h"
 
 class CastorDigiMonitor {
-
 public:
   CastorDigiMonitor(const edm::ParameterSet &ps);
   ~CastorDigiMonitor();
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &);
-  void processEvent(edm::Event const &event, const CastorDigiCollection &cast,
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void processEvent(edm::Event const &event,
+                    const CastorDigiCollection &cast,
                     const edm::TriggerResults &trig,
                     const CastorDbService &cond);
   void endRun();
   void getDbData(const edm::EventSetup &iSetup);
   int ModSecToIndex(int module, int sector);
-  void fillTrigRes(edm::Event const &event,
-                   const edm::TriggerResults &TrigResults, double Etot);
+  void fillTrigRes(edm::Event const &event, const edm::TriggerResults &TrigResults, double Etot);
 
 private:
   std::string subsystemname_;

@@ -4,9 +4,7 @@
 ///
 ///
 ///
-LaserAlignmentT0ProducerDQM::LaserAlignmentT0ProducerDQM(
-    const edm::ParameterSet &aConfiguration) {
-
+LaserAlignmentT0ProducerDQM::LaserAlignmentT0ProducerDQM(const edm::ParameterSet &aConfiguration) {
   theConfiguration = aConfiguration;
   FillDetectorId();
 }
@@ -19,20 +17,14 @@ LaserAlignmentT0ProducerDQM::~LaserAlignmentT0ProducerDQM() {}
 void LaserAlignmentT0ProducerDQM::bookHistograms(DQMStore::IBooker &iBooker,
                                                  edm::Run const &,
                                                  edm::EventSetup const &) {
-
   // upper and lower treshold for a profile considered showing a signal
-  theLowerAdcThreshold =
-      theConfiguration.getParameter<unsigned int>("LowerAdcThreshold");
-  theUpperAdcThreshold =
-      theConfiguration.getParameter<unsigned int>("UpperAdcThreshold");
+  theLowerAdcThreshold = theConfiguration.getParameter<unsigned int>("LowerAdcThreshold");
+  theUpperAdcThreshold = theConfiguration.getParameter<unsigned int>("UpperAdcThreshold");
 
   // the list of input digi products from the cfg
-  theDigiProducerList =
-      theConfiguration.getParameter<std::vector<edm::ParameterSet>>(
-          "DigiProducerList");
+  theDigiProducerList = theConfiguration.getParameter<std::vector<edm::ParameterSet>>("DigiProducerList");
 
-  std::string folderName =
-      theConfiguration.getParameter<std::string>("FolderName");
+  std::string folderName = theConfiguration.getParameter<std::string>("FolderName");
   iBooker.setCurrentFolder(folderName);
 
   std::string nameAndTitle;
@@ -45,8 +37,7 @@ void LaserAlignmentT0ProducerDQM::bookHistograms(DQMStore::IBooker &iBooker,
   // x: 16 modules (5*TEC-, 6*TIB, 6*TOB, 5*TEC+), all from -z to z
   // y: 8 beams
   nameAndTitle = "NumberOfSignals_AlignmentTubes";
-  nSignalsAT =
-      iBooker.book2D(nameAndTitle, nameAndTitle, 22, 0, 22, nBeams, 0, nBeams);
+  nSignalsAT = iBooker.book2D(nameAndTitle, nameAndTitle, 22, 0, 22, nBeams, 0, nBeams);
   //  nSignalsAT->setAxisTitle( "z-pos", 1 );
   //  nSignalsAT->setAxisTitle( "beam", 2 );
 
@@ -54,21 +45,21 @@ void LaserAlignmentT0ProducerDQM::bookHistograms(DQMStore::IBooker &iBooker,
   for (unsigned int i = 1; i <= 5; ++i) {
     labelBuilder.clear();
     labelBuilder.str("");
-    labelBuilder << "TEC- D" << 5 - i; // TEC-
+    labelBuilder << "TEC- D" << 5 - i;  // TEC-
     nSignalsAT->setBinLabel(i, labelBuilder.str(), 1);
     labelBuilder.clear();
     labelBuilder.str("");
-    labelBuilder << "TEC+ D" << i - 1; // TEC+
+    labelBuilder << "TEC+ D" << i - 1;  // TEC+
     nSignalsAT->setBinLabel(17 + i, labelBuilder.str(), 1);
   }
   for (unsigned int i = 0; i < 6; ++i) {
     labelBuilder.clear();
     labelBuilder.str("");
-    labelBuilder << "TIB" << i; // TIB
+    labelBuilder << "TIB" << i;  // TIB
     nSignalsAT->setBinLabel(6 + i, labelBuilder.str(), 1);
     labelBuilder.clear();
     labelBuilder.str("");
-    labelBuilder << "TOB" << i; // TOB
+    labelBuilder << "TOB" << i;  // TOB
     nSignalsAT->setBinLabel(12 + i, labelBuilder.str(), 1);
   }
 
@@ -76,26 +67,22 @@ void LaserAlignmentT0ProducerDQM::bookHistograms(DQMStore::IBooker &iBooker,
   // x: disk1...disk9 (from inner to outer, so z changes direction!)
   // y: 8 beams
   nameAndTitle = "NumberOfSignals_TEC+R4";
-  nSignalsTECPlusR4 = iBooker.book2D(nameAndTitle, nameAndTitle, nDisks, 0,
-                                     nDisks, nBeams, 0, nBeams);
+  nSignalsTECPlusR4 = iBooker.book2D(nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams);
   //  nSignalsTECPlusR4->setAxisTitle( "disk", 1 );
   //  nSignalsTECPlusR4->setAxisTitle( "beam", 2 );
 
   nameAndTitle = "NumberOfSignals_TEC+R6";
-  nSignalsTECPlusR6 = iBooker.book2D(nameAndTitle, nameAndTitle, nDisks, 0,
-                                     nDisks, nBeams, 0, nBeams);
+  nSignalsTECPlusR6 = iBooker.book2D(nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams);
   //  nSignalsTECPlusR6->setAxisTitle( "disk", 1 );
   //  nSignalsTECPlusR6->setAxisTitle( "beam", 2 );
 
   nameAndTitle = "NumberOfSignals_TEC-R4";
-  nSignalsTECMinusR4 = iBooker.book2D(nameAndTitle, nameAndTitle, nDisks, 0,
-                                      nDisks, nBeams, 0, nBeams);
+  nSignalsTECMinusR4 = iBooker.book2D(nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams);
   //  nSignalsTECMinusR4->setAxisTitle( "disk", 1 );
   //  nSignalsTECMinusR4->setAxisTitle( "beam", 2 );
 
   nameAndTitle = "NumberOfSignals_TEC-R6";
-  nSignalsTECMinusR6 = iBooker.book2D(nameAndTitle, nameAndTitle, nDisks, 0,
-                                      nDisks, nBeams, 0, nBeams);
+  nSignalsTECMinusR6 = iBooker.book2D(nameAndTitle, nameAndTitle, nDisks, 0, nDisks, nBeams, 0, nBeams);
   //  nSignalsTECMinusR6->setAxisTitle( "disk", 1 );
   //  nSignalsTECMinusR6->setAxisTitle( "beam", 2 );
 
@@ -126,25 +113,19 @@ void LaserAlignmentT0ProducerDQM::bookHistograms(DQMStore::IBooker &iBooker,
 ///
 ///
 ///
-void LaserAlignmentT0ProducerDQM::analyze(const edm::Event &aEvent,
-                                          const edm::EventSetup &aSetup) {
-
+void LaserAlignmentT0ProducerDQM::analyze(const edm::Event &aEvent, const edm::EventSetup &aSetup) {
   // loop all input products
-  for (std::vector<edm::ParameterSet>::iterator aDigiProducer =
-           theDigiProducerList.begin();
-       aDigiProducer != theDigiProducerList.end(); ++aDigiProducer) {
-    const std::string digiProducer =
-        aDigiProducer->getParameter<std::string>("DigiProducer");
-    const std::string digiLabel =
-        aDigiProducer->getParameter<std::string>("DigiLabel");
-    const std::string digiType =
-        aDigiProducer->getParameter<std::string>("DigiType");
+  for (std::vector<edm::ParameterSet>::iterator aDigiProducer = theDigiProducerList.begin();
+       aDigiProducer != theDigiProducerList.end();
+       ++aDigiProducer) {
+    const std::string digiProducer = aDigiProducer->getParameter<std::string>("DigiProducer");
+    const std::string digiLabel = aDigiProducer->getParameter<std::string>("DigiLabel");
+    const std::string digiType = aDigiProducer->getParameter<std::string>("DigiType");
 
     // now a distinction of cases: raw or processed digis?
 
     // first we go for raw digis => SiStripRawDigi
     if (digiType == "Raw") {
-
       // retrieve the SiStripRawDigis collection
       edm::Handle<edm::DetSetVector<SiStripRawDigi>> rawDigis;
       aEvent.getByLabel(digiProducer, digiLabel, rawDigis);
@@ -156,7 +137,6 @@ void LaserAlignmentT0ProducerDQM::analyze(const edm::Event &aEvent,
 
     // next we assume "ZeroSuppressed" (non-raw) => SiStripDigi
     else if (digiType == "Processed") {
-
       edm::Handle<edm::DetSetVector<SiStripDigi>> processedDigis;
       aEvent.getByLabel(digiProducer, digiLabel, processedDigis);
 
@@ -168,19 +148,16 @@ void LaserAlignmentT0ProducerDQM::analyze(const edm::Event &aEvent,
     // otherwise we have a problem
     else {
       throw cms::Exception("LaserAlignmentT0ProducerDQM")
-          << " ERROR ** Unknown DigiType: " << digiType
-          << " specified in config." << std::endl;
+          << " ERROR ** Unknown DigiType: " << digiType << " specified in config." << std::endl;
     }
 
-  } // loop all input products
+  }  // loop all input products
 }
 
 ///
 ///
 ///
-void LaserAlignmentT0ProducerDQM::FillFromRawDigis(
-    const edm::DetSetVector<SiStripRawDigi> &aDetSetVector) {
-
+void LaserAlignmentT0ProducerDQM::FillFromRawDigis(const edm::DetSetVector<SiStripRawDigi> &aDetSetVector) {
   LASGlobalLoop moduleLoop;
   int det, ring, beam, disk, pos;
 
@@ -190,7 +167,6 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(
   beam = 0;
   disk = 0;
   do {
-
     bool isAboveThreshold = false;
     bool isExceedThreshold = false;
 
@@ -198,19 +174,16 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(
     const int detRawId = detectorId.GetTECEntry(det, ring, beam, disk);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter =
-        aDetSetVector.find(detRawId);
+    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
 
     // raw DetSets may not be missing
     if (detSetIter == aDetSetVector.end()) {
       throw cms::Exception("[LaserAlignmentT0ProducerDQM::FillFromRawDigis]")
-          << " ** ERROR: No raw DetSet found for det: " << detRawId << "."
-          << std::endl;
+          << " ** ERROR: No raw DetSet found for det: " << detRawId << "." << std::endl;
     }
 
     // access single modules' digis
-    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator =
-        detSetIter->data.begin();
+    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripRawDigi &digi = *digiRangeIterator;
@@ -226,18 +199,17 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(
 
     // if we have signal, fill the histos
     if (isAboveThreshold && !isExceedThreshold) {
-
       // determine the appropriate histogram & bin from the position variables
-      if (det == 0) { // TEC+
+      if (det == 0) {  // TEC+
         if (ring == 0)
-          nSignalsTECPlusR4->Fill(disk, beam); // R4
+          nSignalsTECPlusR4->Fill(disk, beam);  // R4
         else
-          nSignalsTECPlusR6->Fill(disk, beam); // R6
-      } else {                                 // TEC-
+          nSignalsTECPlusR6->Fill(disk, beam);  // R6
+      } else {                                  // TEC-
         if (ring == 0)
-          nSignalsTECMinusR4->Fill(disk, beam); // R4
+          nSignalsTECMinusR4->Fill(disk, beam);  // R4
         else
-          nSignalsTECMinusR6->Fill(disk, beam); // R6
+          nSignalsTECMinusR6->Fill(disk, beam);  // R6
       }
     }
 
@@ -248,7 +220,6 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(
   beam = 0;
   disk = 0;
   do {
-
     bool isAboveThreshold = false;
     bool isExceedThreshold = false;
 
@@ -256,19 +227,16 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(
     const int detRawId = detectorId.GetTEC2TECEntry(det, beam, disk);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter =
-        aDetSetVector.find(detRawId);
+    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
 
     // raw DetSets may not be missing
     if (detSetIter == aDetSetVector.end()) {
       throw cms::Exception("[LaserAlignmentT0ProducerDQM::FillFromRawDigis]")
-          << " ** ERROR: No raw DetSet found for det: " << detRawId << "."
-          << std::endl;
+          << " ** ERROR: No raw DetSet found for det: " << detRawId << "." << std::endl;
     }
 
     // access single modules' digis
-    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator =
-        detSetIter->data.begin();
+    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripRawDigi &digi = *digiRangeIterator;
@@ -284,15 +252,14 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(
 
     // if we have signal, fill the histos
     if (isAboveThreshold && !isExceedThreshold) {
-
       // there is only one histogram for all AT hits
       // but the bin scheme is a little complicated:
       // the TEC(AT) go in the first 5(-) and last 5(+) of 22 bins along x
 
       if (det == 1)
-        nSignalsAT->Fill(4 - disk, beam); // TEC-
+        nSignalsAT->Fill(4 - disk, beam);  // TEC-
       else
-        nSignalsAT->Fill(17 + disk, beam); // TEC+
+        nSignalsAT->Fill(17 + disk, beam);  // TEC+
     }
 
   } while (moduleLoop.TEC2TECLoop(det, beam, disk));
@@ -302,7 +269,6 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(
   beam = 0;
   pos = 0;
   do {
-
     bool isAboveThreshold = false;
     bool isExceedThreshold = false;
 
@@ -310,19 +276,16 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(
     const int detRawId = detectorId.GetTIBTOBEntry(det, beam, pos);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter =
-        aDetSetVector.find(detRawId);
+    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
 
     // raw DetSets may not be missing
     if (detSetIter == aDetSetVector.end()) {
       throw cms::Exception("[LaserAlignmentT0ProducerDQM::FillFromRawDigis]")
-          << " ** ERROR: No raw DetSet found for det: " << detRawId << "."
-          << std::endl;
+          << " ** ERROR: No raw DetSet found for det: " << detRawId << "." << std::endl;
     }
 
     // access single modules' digis
-    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator =
-        detSetIter->data.begin();
+    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripRawDigi &digi = *digiRangeIterator;
@@ -338,15 +301,14 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(
 
     // if we have signal, fill the histos
     if (isAboveThreshold && !isExceedThreshold) {
-
       // there is only one histogram for all AT hits
       // but the bin scheme is a little complicated:
       // the TIB go into bins 6-11, TOB in 12-17
 
       if (det == 2)
-        nSignalsAT->Fill(5 + (5 - pos), beam); // TIB
+        nSignalsAT->Fill(5 + (5 - pos), beam);  // TIB
       else
-        nSignalsAT->Fill(11 + (5 - pos), beam); // TOB
+        nSignalsAT->Fill(11 + (5 - pos), beam);  // TOB
     }
 
   } while (moduleLoop.TIBTOBLoop(det, beam, pos));
@@ -355,9 +317,7 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(
 ///
 ///
 ///
-void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(
-    const edm::DetSetVector<SiStripDigi> &aDetSetVector) {
-
+void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(const edm::DetSetVector<SiStripDigi> &aDetSetVector) {
   LASGlobalLoop moduleLoop;
   int det, ring, beam, disk, pos;
 
@@ -367,7 +327,6 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(
   beam = 0;
   disk = 0;
   do {
-
     bool isAboveThreshold = false;
     bool isExceedThreshold = false;
 
@@ -375,16 +334,14 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(
     const int detRawId = detectorId.GetTECEntry(det, ring, beam, disk);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripDigi>::const_iterator detSetIter =
-        aDetSetVector.find(detRawId);
+    edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
 
     // processed DetSets may be missing (=empty), just skip
     if (detSetIter == aDetSetVector.end())
       continue;
 
     // access single modules' digis
-    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator =
-        detSetIter->data.begin();
+    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripDigi &digi = *digiRangeIterator;
@@ -400,18 +357,17 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(
 
     // if we have signal, fill the histos
     if (isAboveThreshold && !isExceedThreshold) {
-
       // determine the appropriate histogram & bin from the position variables
-      if (det == 0) { // TEC+
+      if (det == 0) {  // TEC+
         if (ring == 0)
-          nSignalsTECPlusR4->Fill(disk, beam); // R4
+          nSignalsTECPlusR4->Fill(disk, beam);  // R4
         else
-          nSignalsTECPlusR6->Fill(disk, beam); // R6
-      } else {                                 // TEC-
+          nSignalsTECPlusR6->Fill(disk, beam);  // R6
+      } else {                                  // TEC-
         if (ring == 0)
-          nSignalsTECMinusR4->Fill(disk, beam); // R4
+          nSignalsTECMinusR4->Fill(disk, beam);  // R4
         else
-          nSignalsTECMinusR6->Fill(disk, beam); // R6
+          nSignalsTECMinusR6->Fill(disk, beam);  // R6
       }
     }
 
@@ -422,7 +378,6 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(
   beam = 0;
   disk = 0;
   do {
-
     bool isAboveThreshold = false;
     bool isExceedThreshold = false;
 
@@ -430,16 +385,14 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(
     const int detRawId = detectorId.GetTEC2TECEntry(det, beam, disk);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripDigi>::const_iterator detSetIter =
-        aDetSetVector.find(detRawId);
+    edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
 
     // processed DetSets may be missing (=empty), just skip
     if (detSetIter == aDetSetVector.end())
       continue;
 
     // access single modules' digis
-    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator =
-        detSetIter->data.begin();
+    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripDigi &digi = *digiRangeIterator;
@@ -455,15 +408,14 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(
 
     // if we have signal, fill the histos
     if (isAboveThreshold && !isExceedThreshold) {
-
       // there is only one histogram for all AT hits
       // but the bin scheme is a little complicated:
       // the TEC(AT) go in the first 5(-) and last 5(+) of 22 bins along x
 
       if (det == 1)
-        nSignalsAT->Fill(4 - disk, beam); // TEC-
+        nSignalsAT->Fill(4 - disk, beam);  // TEC-
       else
-        nSignalsAT->Fill(17 + disk, beam); // TEC+
+        nSignalsAT->Fill(17 + disk, beam);  // TEC+
     }
 
   } while (moduleLoop.TEC2TECLoop(det, beam, disk));
@@ -473,7 +425,6 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(
   beam = 0;
   pos = 0;
   do {
-
     bool isAboveThreshold = false;
     bool isExceedThreshold = false;
 
@@ -481,16 +432,14 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(
     const int detRawId = detectorId.GetTIBTOBEntry(det, beam, pos);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripDigi>::const_iterator detSetIter =
-        aDetSetVector.find(detRawId);
+    edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
 
     // processed DetSets may be missing (=empty), just skip
     if (detSetIter == aDetSetVector.end())
       continue;
 
     // access single modules' digis
-    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator =
-        detSetIter->data.begin();
+    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripDigi &digi = *digiRangeIterator;
@@ -506,15 +455,14 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(
 
     // if we have signal, fill the histos
     if (isAboveThreshold && !isExceedThreshold) {
-
       // there is only one histogram for all AT hits
       // but the bin scheme is a little complicated:
       // the TIB go into bins 6-11, TOB in 12-17
 
       if (det == 2)
-        nSignalsAT->Fill(5 + (5 - pos), beam); // TIB
+        nSignalsAT->Fill(5 + (5 - pos), beam);  // TIB
       else
-        nSignalsAT->Fill(11 + (5 - pos), beam); // TOB
+        nSignalsAT->Fill(11 + (5 - pos), beam);  // TOB
     }
 
   } while (moduleLoop.TIBTOBLoop(det, beam, pos));
@@ -528,7 +476,6 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(
 /// LaserAlignmentT0ProducerDQM
 ///
 void LaserAlignmentT0ProducerDQM::FillDetectorId(void) {
-
   // these are the detids of the TEC modules hit
   // by the AT as well as the TEC beams
   tecDoubleHitDetId.push_back(470307208);

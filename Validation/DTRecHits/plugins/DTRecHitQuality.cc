@@ -22,67 +22,55 @@ using namespace std;
 using namespace edm;
 
 namespace dtrechit {
-struct Histograms {
-  std::unique_ptr<HRes1DHit> hRes_S1RPhi;    // RecHits, 1. step, RPh
-  std::unique_ptr<HRes1DHit> hRes_S2RPhi;    // RecHits, 2. step, RPhi
-  std::unique_ptr<HRes1DHit> hRes_S3RPhi;    // RecHits, 3. step, RPhi
-  std::unique_ptr<HRes1DHit> hRes_S1RZ;      // RecHits, 1. step, RZ
-  std::unique_ptr<HRes1DHit> hRes_S2RZ;      // RecHits, 2. step, RZ
-  std::unique_ptr<HRes1DHit> hRes_S3RZ;      // RecHits, 3. step, RZ
-  std::unique_ptr<HRes1DHit> hRes_S1RZ_W0;   // RecHits, 1. step, RZ, wheel 0
-  std::unique_ptr<HRes1DHit> hRes_S2RZ_W0;   // RecHits, 2. step, RZ, wheel 0
-  std::unique_ptr<HRes1DHit> hRes_S3RZ_W0;   // RecHits, 3. step, RZ, wheel 0
-  std::unique_ptr<HRes1DHit> hRes_S1RZ_W1;   // RecHits, 1. step, RZ, wheel +-1
-  std::unique_ptr<HRes1DHit> hRes_S2RZ_W1;   // RecHits, 2. step, RZ, wheel +-1
-  std::unique_ptr<HRes1DHit> hRes_S3RZ_W1;   // RecHits, 3. step, RZ, wheel +-1
-  std::unique_ptr<HRes1DHit> hRes_S1RZ_W2;   // RecHits, 1. step, RZ, wheel +-2
-  std::unique_ptr<HRes1DHit> hRes_S2RZ_W2;   // RecHits, 2. step, RZ, wheel +-2
-  std::unique_ptr<HRes1DHit> hRes_S3RZ_W2;   // RecHits, 3. step, RZ, wheel +-2
-  std::unique_ptr<HRes1DHit> hRes_S1RPhi_W0; // RecHits, 1. step, RPhi, wheel 0
-  std::unique_ptr<HRes1DHit> hRes_S2RPhi_W0; // RecHits, 2. step, RPhi, wheel 0
-  std::unique_ptr<HRes1DHit> hRes_S3RPhi_W0; // RecHits, 3. step, RPhi, wheel 0
-  std::unique_ptr<HRes1DHit>
-      hRes_S1RPhi_W1; // RecHits, 1. step, RPhi, wheel +-1
-  std::unique_ptr<HRes1DHit>
-      hRes_S2RPhi_W1; // RecHits, 2. step, RPhi, wheel +-1
-  std::unique_ptr<HRes1DHit>
-      hRes_S3RPhi_W1; // RecHits, 3. step, RPhi, wheel +-1
-  std::unique_ptr<HRes1DHit>
-      hRes_S1RPhi_W2; // RecHits, 1. step, RPhi, wheel +-2
-  std::unique_ptr<HRes1DHit>
-      hRes_S2RPhi_W2; // RecHits, 2. step, RPhi, wheel +-2
-  std::unique_ptr<HRes1DHit>
-      hRes_S3RPhi_W2; // RecHits, 3. step, RPhi, wheel +-2
-  std::unique_ptr<HRes1DHit>
-      hRes_S3RPhiWS[3][4]; // RecHits, 3. step, by wheel/station
-  std::unique_ptr<HRes1DHit>
-      hRes_S3RZWS[3][4]; // RecHits, 3. step, by wheel/station
+  struct Histograms {
+    std::unique_ptr<HRes1DHit> hRes_S1RPhi;          // RecHits, 1. step, RPh
+    std::unique_ptr<HRes1DHit> hRes_S2RPhi;          // RecHits, 2. step, RPhi
+    std::unique_ptr<HRes1DHit> hRes_S3RPhi;          // RecHits, 3. step, RPhi
+    std::unique_ptr<HRes1DHit> hRes_S1RZ;            // RecHits, 1. step, RZ
+    std::unique_ptr<HRes1DHit> hRes_S2RZ;            // RecHits, 2. step, RZ
+    std::unique_ptr<HRes1DHit> hRes_S3RZ;            // RecHits, 3. step, RZ
+    std::unique_ptr<HRes1DHit> hRes_S1RZ_W0;         // RecHits, 1. step, RZ, wheel 0
+    std::unique_ptr<HRes1DHit> hRes_S2RZ_W0;         // RecHits, 2. step, RZ, wheel 0
+    std::unique_ptr<HRes1DHit> hRes_S3RZ_W0;         // RecHits, 3. step, RZ, wheel 0
+    std::unique_ptr<HRes1DHit> hRes_S1RZ_W1;         // RecHits, 1. step, RZ, wheel +-1
+    std::unique_ptr<HRes1DHit> hRes_S2RZ_W1;         // RecHits, 2. step, RZ, wheel +-1
+    std::unique_ptr<HRes1DHit> hRes_S3RZ_W1;         // RecHits, 3. step, RZ, wheel +-1
+    std::unique_ptr<HRes1DHit> hRes_S1RZ_W2;         // RecHits, 1. step, RZ, wheel +-2
+    std::unique_ptr<HRes1DHit> hRes_S2RZ_W2;         // RecHits, 2. step, RZ, wheel +-2
+    std::unique_ptr<HRes1DHit> hRes_S3RZ_W2;         // RecHits, 3. step, RZ, wheel +-2
+    std::unique_ptr<HRes1DHit> hRes_S1RPhi_W0;       // RecHits, 1. step, RPhi, wheel 0
+    std::unique_ptr<HRes1DHit> hRes_S2RPhi_W0;       // RecHits, 2. step, RPhi, wheel 0
+    std::unique_ptr<HRes1DHit> hRes_S3RPhi_W0;       // RecHits, 3. step, RPhi, wheel 0
+    std::unique_ptr<HRes1DHit> hRes_S1RPhi_W1;       // RecHits, 1. step, RPhi, wheel +-1
+    std::unique_ptr<HRes1DHit> hRes_S2RPhi_W1;       // RecHits, 2. step, RPhi, wheel +-1
+    std::unique_ptr<HRes1DHit> hRes_S3RPhi_W1;       // RecHits, 3. step, RPhi, wheel +-1
+    std::unique_ptr<HRes1DHit> hRes_S1RPhi_W2;       // RecHits, 1. step, RPhi, wheel +-2
+    std::unique_ptr<HRes1DHit> hRes_S2RPhi_W2;       // RecHits, 2. step, RPhi, wheel +-2
+    std::unique_ptr<HRes1DHit> hRes_S3RPhi_W2;       // RecHits, 3. step, RPhi, wheel +-2
+    std::unique_ptr<HRes1DHit> hRes_S3RPhiWS[3][4];  // RecHits, 3. step, by wheel/station
+    std::unique_ptr<HRes1DHit> hRes_S3RZWS[3][4];    // RecHits, 3. step, by wheel/station
 
-  std::unique_ptr<HEff1DHit> hEff_S1RPhi;  // RecHits, 1. step, RPhi
-  std::unique_ptr<HEff1DHit> hEff_S2RPhi;  // RecHits, 2. step, RPhi
-  std::unique_ptr<HEff1DHit> hEff_S3RPhi;  // RecHits, 3. step, RPhi
-  std::unique_ptr<HEff1DHit> hEff_S1RZ;    // RecHits, 1. step, RZ
-  std::unique_ptr<HEff1DHit> hEff_S2RZ;    // RecHits, 2. step, RZ
-  std::unique_ptr<HEff1DHit> hEff_S3RZ;    // RecHits, 3. step, RZ
-  std::unique_ptr<HEff1DHit> hEff_S1RZ_W0; // RecHits, 1. step, RZ, wheel 0
-  std::unique_ptr<HEff1DHit> hEff_S2RZ_W0; // RecHits, 2. step, RZ, wheel 0
-  std::unique_ptr<HEff1DHit> hEff_S3RZ_W0; // RecHits, 3. step, RZ, wheel 0
-  std::unique_ptr<HEff1DHit> hEff_S1RZ_W1; // RecHits, 1. step, RZ, wheel +-1
-  std::unique_ptr<HEff1DHit> hEff_S2RZ_W1; // RecHits, 2. step, RZ, wheel +-1
-  std::unique_ptr<HEff1DHit> hEff_S3RZ_W1; // RecHits, 3. step, RZ, wheel +-1
-  std::unique_ptr<HEff1DHit> hEff_S1RZ_W2; // RecHits, 1. step, RZ, wheel +-2
-  std::unique_ptr<HEff1DHit> hEff_S2RZ_W2; // RecHits, 2. step, RZ, wheel +-2
-  std::unique_ptr<HEff1DHit> hEff_S3RZ_W2; // RecHits, 3. step, RZ, wheel +-2
-  std::unique_ptr<HEff1DHit>
-      hEff_S1RPhiWS[3][4]; // RecHits, 3. step, by wheel/station
-  std::unique_ptr<HEff1DHit>
-      hEff_S3RPhiWS[3][4]; // RecHits, 3. step, by wheel/station
-  std::unique_ptr<HEff1DHit>
-      hEff_S1RZWS[3][4]; // RecHits, 3. step, by wheel/station
-  std::unique_ptr<HEff1DHit>
-      hEff_S3RZWS[3][4]; // RecHits, 3. step, by wheel/station
-};
-} // namespace dtrechit
+    std::unique_ptr<HEff1DHit> hEff_S1RPhi;          // RecHits, 1. step, RPhi
+    std::unique_ptr<HEff1DHit> hEff_S2RPhi;          // RecHits, 2. step, RPhi
+    std::unique_ptr<HEff1DHit> hEff_S3RPhi;          // RecHits, 3. step, RPhi
+    std::unique_ptr<HEff1DHit> hEff_S1RZ;            // RecHits, 1. step, RZ
+    std::unique_ptr<HEff1DHit> hEff_S2RZ;            // RecHits, 2. step, RZ
+    std::unique_ptr<HEff1DHit> hEff_S3RZ;            // RecHits, 3. step, RZ
+    std::unique_ptr<HEff1DHit> hEff_S1RZ_W0;         // RecHits, 1. step, RZ, wheel 0
+    std::unique_ptr<HEff1DHit> hEff_S2RZ_W0;         // RecHits, 2. step, RZ, wheel 0
+    std::unique_ptr<HEff1DHit> hEff_S3RZ_W0;         // RecHits, 3. step, RZ, wheel 0
+    std::unique_ptr<HEff1DHit> hEff_S1RZ_W1;         // RecHits, 1. step, RZ, wheel +-1
+    std::unique_ptr<HEff1DHit> hEff_S2RZ_W1;         // RecHits, 2. step, RZ, wheel +-1
+    std::unique_ptr<HEff1DHit> hEff_S3RZ_W1;         // RecHits, 3. step, RZ, wheel +-1
+    std::unique_ptr<HEff1DHit> hEff_S1RZ_W2;         // RecHits, 1. step, RZ, wheel +-2
+    std::unique_ptr<HEff1DHit> hEff_S2RZ_W2;         // RecHits, 2. step, RZ, wheel +-2
+    std::unique_ptr<HEff1DHit> hEff_S3RZ_W2;         // RecHits, 3. step, RZ, wheel +-2
+    std::unique_ptr<HEff1DHit> hEff_S1RPhiWS[3][4];  // RecHits, 3. step, by wheel/station
+    std::unique_ptr<HEff1DHit> hEff_S3RPhiWS[3][4];  // RecHits, 3. step, by wheel/station
+    std::unique_ptr<HEff1DHit> hEff_S1RZWS[3][4];    // RecHits, 3. step, by wheel/station
+    std::unique_ptr<HEff1DHit> hEff_S3RZWS[3][4];    // RecHits, 3. step, by wheel/station
+  };
+}  // namespace dtrechit
 
 using namespace dtrechit;
 
@@ -93,7 +81,7 @@ using namespace dtrechit;
 // simmetrized one.
 // Set mirrorMinusWheels to avoid this.
 namespace {
-constexpr bool mirrorMinusWheels = true;
+  constexpr bool mirrorMinusWheels = true;
 }
 
 // Constructor
@@ -102,20 +90,16 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet &pset) {
   debug_ = pset.getUntrackedParameter<bool>("debug");
   // the name of the simhit collection
   simHitLabel_ = pset.getUntrackedParameter<InputTag>("simHitLabel");
-  simHitToken_ = consumes<PSimHitContainer>(
-      pset.getUntrackedParameter<InputTag>("simHitLabel"));
+  simHitToken_ = consumes<PSimHitContainer>(pset.getUntrackedParameter<InputTag>("simHitLabel"));
   // the name of the 1D rec hit collection
   recHitLabel_ = pset.getUntrackedParameter<InputTag>("recHitLabel");
-  recHitToken_ = consumes<DTRecHitCollection>(
-      pset.getUntrackedParameter<InputTag>("recHitLabel"));
+  recHitToken_ = consumes<DTRecHitCollection>(pset.getUntrackedParameter<InputTag>("recHitLabel"));
   // the name of the 2D rec hit collection
   segment2DLabel_ = pset.getUntrackedParameter<InputTag>("segment2DLabel");
-  segment2DToken_ = consumes<DTRecSegment2DCollection>(
-      pset.getUntrackedParameter<InputTag>("segment2DLabel"));
+  segment2DToken_ = consumes<DTRecSegment2DCollection>(pset.getUntrackedParameter<InputTag>("segment2DLabel"));
   // the name of the 4D rec hit collection
   segment4DLabel_ = pset.getUntrackedParameter<InputTag>("segment4DLabel");
-  segment4DToken_ = consumes<DTRecSegment4DCollection>(
-      pset.getUntrackedParameter<InputTag>("segment4DLabel"));
+  segment4DToken_ = consumes<DTRecSegment4DCollection>(pset.getUntrackedParameter<InputTag>("segment4DLabel"));
   // Switches for analysis at various steps
   doStep1_ = pset.getUntrackedParameter<bool>("doStep1", false);
   doStep2_ = pset.getUntrackedParameter<bool>("doStep2", false);
@@ -129,80 +113,66 @@ void DTRecHitQuality::bookHistograms(DQMStore::ConcurrentBooker &booker,
                                      edm::EventSetup const &setup,
                                      Histograms &histograms) const {
   if (doall_ && doStep1_) {
-    histograms.hRes_S1RPhi = std::make_unique<HRes1DHit>(
-        "S1RPhi", booker, true, local_); // RecHits, 1. step, RPhi
-    histograms.hRes_S1RPhi_W0 = std::make_unique<HRes1DHit>(
-        "S1RPhi_W0", booker, true, local_); // RecHits, 1. step, RZ, wheel 0
-    histograms.hRes_S1RPhi_W1 = std::make_unique<HRes1DHit>(
-        "S1RPhi_W1", booker, true, local_); // RecHits, 1. step, RZ, wheel +-1
-    histograms.hRes_S1RPhi_W2 = std::make_unique<HRes1DHit>(
-        "S1RPhi_W2", booker, true, local_); // RecHits, 1. step, RZ, wheel +-2
-    histograms.hRes_S1RZ = std::make_unique<HRes1DHit>(
-        "S1RZ", booker, true, local_); // RecHits, 1. step, RZ
-    histograms.hRes_S1RZ_W0 = std::make_unique<HRes1DHit>(
-        "S1RZ_W0", booker, true, local_); // RecHits, 1. step, RZ, wheel 0
-    histograms.hRes_S1RZ_W1 = std::make_unique<HRes1DHit>(
-        "S1RZ_W1", booker, true, local_); // RecHits, 1. step, RZ, wheel +-1
-    histograms.hRes_S1RZ_W2 = std::make_unique<HRes1DHit>(
-        "S1RZ_W2", booker, true, local_); // RecHits, 1. step, RZ, wheel +-2
-    histograms.hEff_S1RPhi =
-        std::make_unique<HEff1DHit>("S1RPhi", booker); // RecHits, 1. step, RPhi
-    histograms.hEff_S1RZ =
-        std::make_unique<HEff1DHit>("S1RZ", booker); // RecHits, 1. step, RZ
-    histograms.hEff_S1RZ_W0 = std::make_unique<HEff1DHit>(
-        "S1RZ_W0", booker); // RecHits, 1. step, RZ, wheel 0
-    histograms.hEff_S1RZ_W1 = std::make_unique<HEff1DHit>(
-        "S1RZ_W1", booker); // RecHits, 1. step, RZ, wheel +-1
-    histograms.hEff_S1RZ_W2 = std::make_unique<HEff1DHit>(
-        "S1RZ_W2", booker); // RecHits, 1. step, RZ, wheel +-2
+    histograms.hRes_S1RPhi = std::make_unique<HRes1DHit>("S1RPhi", booker, true, local_);  // RecHits, 1. step, RPhi
+    histograms.hRes_S1RPhi_W0 =
+        std::make_unique<HRes1DHit>("S1RPhi_W0", booker, true, local_);  // RecHits, 1. step, RZ, wheel 0
+    histograms.hRes_S1RPhi_W1 =
+        std::make_unique<HRes1DHit>("S1RPhi_W1", booker, true, local_);  // RecHits, 1. step, RZ, wheel +-1
+    histograms.hRes_S1RPhi_W2 =
+        std::make_unique<HRes1DHit>("S1RPhi_W2", booker, true, local_);  // RecHits, 1. step, RZ, wheel +-2
+    histograms.hRes_S1RZ = std::make_unique<HRes1DHit>("S1RZ", booker, true, local_);  // RecHits, 1. step, RZ
+    histograms.hRes_S1RZ_W0 =
+        std::make_unique<HRes1DHit>("S1RZ_W0", booker, true, local_);  // RecHits, 1. step, RZ, wheel 0
+    histograms.hRes_S1RZ_W1 =
+        std::make_unique<HRes1DHit>("S1RZ_W1", booker, true, local_);  // RecHits, 1. step, RZ, wheel +-1
+    histograms.hRes_S1RZ_W2 =
+        std::make_unique<HRes1DHit>("S1RZ_W2", booker, true, local_);          // RecHits, 1. step, RZ, wheel +-2
+    histograms.hEff_S1RPhi = std::make_unique<HEff1DHit>("S1RPhi", booker);    // RecHits, 1. step, RPhi
+    histograms.hEff_S1RZ = std::make_unique<HEff1DHit>("S1RZ", booker);        // RecHits, 1. step, RZ
+    histograms.hEff_S1RZ_W0 = std::make_unique<HEff1DHit>("S1RZ_W0", booker);  // RecHits, 1. step, RZ, wheel 0
+    histograms.hEff_S1RZ_W1 = std::make_unique<HEff1DHit>("S1RZ_W1", booker);  // RecHits, 1. step, RZ, wheel +-1
+    histograms.hEff_S1RZ_W2 = std::make_unique<HEff1DHit>("S1RZ_W2", booker);  // RecHits, 1. step, RZ, wheel +-2
   }
   if (doall_ && doStep2_) {
-    histograms.hRes_S2RPhi = std::make_unique<HRes1DHit>(
-        "S2RPhi", booker, true, local_); // RecHits, 2. step, RPhi
-    histograms.hRes_S2RPhi_W0 = std::make_unique<HRes1DHit>(
-        "S2RPhi_W0", booker, true, local_); // RecHits, 2. step, RPhi, wheel 0
-    histograms.hRes_S2RPhi_W1 = std::make_unique<HRes1DHit>(
-        "S2RPhi_W1", booker, true, local_); // RecHits, 2. step, RPhi, wheel +-1
-    histograms.hRes_S2RPhi_W2 = std::make_unique<HRes1DHit>(
-        "S2RPhi_W2", booker, true, local_); // RecHits, 2. step, RPhi, wheel +-2
-    histograms.hRes_S2RZ = std::make_unique<HRes1DHit>(
-        "S2RZ", booker, true, local_); // RecHits, 2. step, RZ
-    histograms.hRes_S2RZ_W0 = std::make_unique<HRes1DHit>(
-        "S2RZ_W0", booker, true, local_); // RecHits, 2. step, RZ, wheel 0
-    histograms.hRes_S2RZ_W1 = std::make_unique<HRes1DHit>(
-        "S2RZ_W1", booker, true, local_); // RecHits, 2. step, RZ, wheel +-1
-    histograms.hRes_S2RZ_W2 = std::make_unique<HRes1DHit>(
-        "S2RZ_W2", booker, true, local_); // RecHits, 2. step, RZ, wheel +-2
-    histograms.hEff_S2RPhi =
-        std::make_unique<HEff1DHit>("S2RPhi", booker); // RecHits, 2. step, RPhi
-    histograms.hEff_S2RZ_W0 = std::make_unique<HEff1DHit>(
-        "S2RZ_W0", booker); // RecHits, 2. step, RZ, wheel 0
-    histograms.hEff_S2RZ_W1 = std::make_unique<HEff1DHit>(
-        "S2RZ_W1", booker); // RecHits, 2. step, RZ, wheel +-1
-    histograms.hEff_S2RZ_W2 = std::make_unique<HEff1DHit>(
-        "S2RZ_W2", booker); // RecHits, 2. step, RZ, wheel +-2
-    histograms.hEff_S2RZ =
-        std::make_unique<HEff1DHit>("S2RZ", booker); // RecHits, 2. step, RZ
+    histograms.hRes_S2RPhi = std::make_unique<HRes1DHit>("S2RPhi", booker, true, local_);  // RecHits, 2. step, RPhi
+    histograms.hRes_S2RPhi_W0 =
+        std::make_unique<HRes1DHit>("S2RPhi_W0", booker, true, local_);  // RecHits, 2. step, RPhi, wheel 0
+    histograms.hRes_S2RPhi_W1 =
+        std::make_unique<HRes1DHit>("S2RPhi_W1", booker, true, local_);  // RecHits, 2. step, RPhi, wheel +-1
+    histograms.hRes_S2RPhi_W2 =
+        std::make_unique<HRes1DHit>("S2RPhi_W2", booker, true, local_);  // RecHits, 2. step, RPhi, wheel +-2
+    histograms.hRes_S2RZ = std::make_unique<HRes1DHit>("S2RZ", booker, true, local_);  // RecHits, 2. step, RZ
+    histograms.hRes_S2RZ_W0 =
+        std::make_unique<HRes1DHit>("S2RZ_W0", booker, true, local_);  // RecHits, 2. step, RZ, wheel 0
+    histograms.hRes_S2RZ_W1 =
+        std::make_unique<HRes1DHit>("S2RZ_W1", booker, true, local_);  // RecHits, 2. step, RZ, wheel +-1
+    histograms.hRes_S2RZ_W2 =
+        std::make_unique<HRes1DHit>("S2RZ_W2", booker, true, local_);          // RecHits, 2. step, RZ, wheel +-2
+    histograms.hEff_S2RPhi = std::make_unique<HEff1DHit>("S2RPhi", booker);    // RecHits, 2. step, RPhi
+    histograms.hEff_S2RZ_W0 = std::make_unique<HEff1DHit>("S2RZ_W0", booker);  // RecHits, 2. step, RZ, wheel 0
+    histograms.hEff_S2RZ_W1 = std::make_unique<HEff1DHit>("S2RZ_W1", booker);  // RecHits, 2. step, RZ, wheel +-1
+    histograms.hEff_S2RZ_W2 = std::make_unique<HEff1DHit>("S2RZ_W2", booker);  // RecHits, 2. step, RZ, wheel +-2
+    histograms.hEff_S2RZ = std::make_unique<HEff1DHit>("S2RZ", booker);        // RecHits, 2. step, RZ
   }
   if (doStep3_) {
-    histograms.hRes_S3RPhi = std::make_unique<HRes1DHit>(
-        "S3RPhi", booker, doall_, local_); // RecHits, 3. step, RPhi
-    histograms.hRes_S3RPhi_W0 = std::make_unique<HRes1DHit>(
-        "S3RPhi_W0", booker, doall_, local_); // RecHits, 3. step, RPhi, wheel 0
-    histograms.hRes_S3RPhi_W1 = std::make_unique<HRes1DHit>(
-        "S3RPhi_W1", booker, doall_,
-        local_); // RecHits, 3. step, RPhi, wheel +-1
-    histograms.hRes_S3RPhi_W2 = std::make_unique<HRes1DHit>(
-        "S3RPhi_W2", booker, doall_,
-        local_); // RecHits, 3. step, RPhi, wheel +-2
-    histograms.hRes_S3RZ = std::make_unique<HRes1DHit>(
-        "S3RZ", booker, doall_, local_); // RecHits, 3. step, RZ
-    histograms.hRes_S3RZ_W0 = std::make_unique<HRes1DHit>(
-        "S3RZ_W0", booker, doall_, local_); // RecHits, 3. step, RZ, wheel 0
-    histograms.hRes_S3RZ_W1 = std::make_unique<HRes1DHit>(
-        "S3RZ_W1", booker, doall_, local_); // RecHits, 3. step, RZ, wheel +-1
-    histograms.hRes_S3RZ_W2 = std::make_unique<HRes1DHit>(
-        "S3RZ_W2", booker, doall_, local_); // RecHits, 3. step, RZ, wheel +-2
+    histograms.hRes_S3RPhi = std::make_unique<HRes1DHit>("S3RPhi", booker, doall_, local_);  // RecHits, 3. step, RPhi
+    histograms.hRes_S3RPhi_W0 =
+        std::make_unique<HRes1DHit>("S3RPhi_W0", booker, doall_, local_);  // RecHits, 3. step, RPhi, wheel 0
+    histograms.hRes_S3RPhi_W1 = std::make_unique<HRes1DHit>("S3RPhi_W1",
+                                                            booker,
+                                                            doall_,
+                                                            local_);  // RecHits, 3. step, RPhi, wheel +-1
+    histograms.hRes_S3RPhi_W2 = std::make_unique<HRes1DHit>("S3RPhi_W2",
+                                                            booker,
+                                                            doall_,
+                                                            local_);  // RecHits, 3. step, RPhi, wheel +-2
+    histograms.hRes_S3RZ = std::make_unique<HRes1DHit>("S3RZ", booker, doall_, local_);  // RecHits, 3. step, RZ
+    histograms.hRes_S3RZ_W0 =
+        std::make_unique<HRes1DHit>("S3RZ_W0", booker, doall_, local_);  // RecHits, 3. step, RZ, wheel 0
+    histograms.hRes_S3RZ_W1 =
+        std::make_unique<HRes1DHit>("S3RZ_W1", booker, doall_, local_);  // RecHits, 3. step, RZ, wheel +-1
+    histograms.hRes_S3RZ_W2 =
+        std::make_unique<HRes1DHit>("S3RZ_W2", booker, doall_, local_);  // RecHits, 3. step, RZ, wheel +-2
 
     if (local_) {
       // Plots with finer granularity, not to be included in DQM
@@ -210,35 +180,30 @@ void DTRecHitQuality::bookHistograms(DQMStore::ConcurrentBooker &booker,
       TString name2 = "RZ_W";
       for (long w = 0; w <= 2; ++w) {
         for (long s = 1; s <= 4; ++s) {
-          histograms.hRes_S3RPhiWS[w][s - 1] = std::make_unique<HRes1DHit>(
-              ("S3" + name1 + w + "_St" + s).Data(), booker, doall_, local_);
-          histograms.hEff_S1RPhiWS[w][s - 1] = std::make_unique<HEff1DHit>(
-              ("S1" + name1 + w + "_St" + s).Data(), booker);
-          histograms.hEff_S3RPhiWS[w][s - 1] = std::make_unique<HEff1DHit>(
-              ("S3" + name1 + w + "_St" + s).Data(), booker);
+          histograms.hRes_S3RPhiWS[w][s - 1] =
+              std::make_unique<HRes1DHit>(("S3" + name1 + w + "_St" + s).Data(), booker, doall_, local_);
+          histograms.hEff_S1RPhiWS[w][s - 1] =
+              std::make_unique<HEff1DHit>(("S1" + name1 + w + "_St" + s).Data(), booker);
+          histograms.hEff_S3RPhiWS[w][s - 1] =
+              std::make_unique<HEff1DHit>(("S3" + name1 + w + "_St" + s).Data(), booker);
           if (s != 4) {
-            histograms.hRes_S3RZWS[w][s - 1] = std::make_unique<HRes1DHit>(
-                ("S3" + name2 + w + "_St" + s).Data(), booker, doall_, local_);
-            histograms.hEff_S1RZWS[w][s - 1] = std::make_unique<HEff1DHit>(
-                ("S1" + name2 + w + "_St" + s).Data(), booker);
-            histograms.hEff_S3RZWS[w][s - 1] = std::make_unique<HEff1DHit>(
-                ("S3" + name2 + w + "_St" + s).Data(), booker);
+            histograms.hRes_S3RZWS[w][s - 1] =
+                std::make_unique<HRes1DHit>(("S3" + name2 + w + "_St" + s).Data(), booker, doall_, local_);
+            histograms.hEff_S1RZWS[w][s - 1] =
+                std::make_unique<HEff1DHit>(("S1" + name2 + w + "_St" + s).Data(), booker);
+            histograms.hEff_S3RZWS[w][s - 1] =
+                std::make_unique<HEff1DHit>(("S3" + name2 + w + "_St" + s).Data(), booker);
           }
         }
       }
     }
 
     if (doall_) {
-      histograms.hEff_S3RPhi = std::make_unique<HEff1DHit>(
-          "S3RPhi", booker); // RecHits, 3. step, RPhi
-      histograms.hEff_S3RZ =
-          std::make_unique<HEff1DHit>("S3RZ", booker); // RecHits, 3. step, RZ
-      histograms.hEff_S3RZ_W0 = std::make_unique<HEff1DHit>(
-          "S3RZ_W0", booker); // RecHits, 3. step, RZ, wheel 0
-      histograms.hEff_S3RZ_W1 = std::make_unique<HEff1DHit>(
-          "S3RZ_W1", booker); // RecHits, 3. step, RZ, wheel +-1
-      histograms.hEff_S3RZ_W2 = std::make_unique<HEff1DHit>(
-          "S3RZ_W2", booker); // RecHits, 3. step, RZ, wheel +-2
+      histograms.hEff_S3RPhi = std::make_unique<HEff1DHit>("S3RPhi", booker);    // RecHits, 3. step, RPhi
+      histograms.hEff_S3RZ = std::make_unique<HEff1DHit>("S3RZ", booker);        // RecHits, 3. step, RZ
+      histograms.hEff_S3RZ_W0 = std::make_unique<HEff1DHit>("S3RZ_W0", booker);  // RecHits, 3. step, RZ, wheel 0
+      histograms.hEff_S3RZ_W1 = std::make_unique<HEff1DHit>("S3RZ_W1", booker);  // RecHits, 3. step, RZ, wheel +-1
+      histograms.hEff_S3RZ_W2 = std::make_unique<HEff1DHit>("S3RZ_W2", booker);  // RecHits, 3. step, RZ, wheel +-2
     }
   }
 }
@@ -248,8 +213,8 @@ void DTRecHitQuality::dqmAnalyze(edm::Event const &event,
                                  edm::EventSetup const &setup,
                                  Histograms const &histograms) const {
   if (debug_) {
-    cout << "--- [DTRecHitQuality] Analysing Event: #Run: " << event.id().run()
-         << " #Event: " << event.id().event() << endl;
+    cout << "--- [DTRecHitQuality] Analysing Event: #Run: " << event.id().run() << " #Event: " << event.id().event()
+         << endl;
   }
 
   // Get the DT Geometry
@@ -261,8 +226,7 @@ void DTRecHitQuality::dqmAnalyze(edm::Event const &event,
   event.getByToken(simHitToken_, simHits);
 
   // Map simhits per wire
-  map<DTWireId, PSimHitContainer> simHitsPerWire =
-      DTHitQualityUtils::mapSimHitsPerWire(*(simHits.product()));
+  map<DTWireId, PSimHitContainer> simHitsPerWire = DTHitQualityUtils::mapSimHitsPerWire(*(simHits.product()));
 
   //=======================================================================================
   // RecHit analysis at Step 1
@@ -276,8 +240,8 @@ void DTRecHitQuality::dqmAnalyze(edm::Event const &event,
 
     if (!dtRecHits.isValid()) {
       if (debug_) {
-        cout << "[DTRecHitQuality]**Warning: no 1DRechits with label: "
-             << recHitLabel_ << " in this event, skipping!" << endl;
+        cout << "[DTRecHitQuality]**Warning: no 1DRechits with label: " << recHitLabel_ << " in this event, skipping!"
+             << endl;
       }
       return;
     }
@@ -300,8 +264,8 @@ void DTRecHitQuality::dqmAnalyze(edm::Event const &event,
 
     if (!segment2Ds.isValid()) {
       if (debug_) {
-        cout << "[DTRecHitQuality]**Warning: no 2DSegments with label: "
-             << segment2DLabel_ << " in this event, skipping!" << endl;
+        cout << "[DTRecHitQuality]**Warning: no 2DSegments with label: " << segment2DLabel_
+             << " in this event, skipping!" << endl;
       }
 
     } else {
@@ -324,8 +288,8 @@ void DTRecHitQuality::dqmAnalyze(edm::Event const &event,
 
     if (!segment4Ds.isValid()) {
       if (debug_) {
-        cout << "[DTRecHitQuality]**Warning: no 4D Segments with label: "
-             << segment4DLabel_ << " in this event, skipping!" << endl;
+        cout << "[DTRecHitQuality]**Warning: no 4D Segments with label: " << segment4DLabel_
+             << " in this event, skipping!" << endl;
       }
       return;
     }
@@ -388,23 +352,18 @@ map<DTWireId, std::vector<DTRecHit1D>> DTRecHitQuality::map1DRecHitsPerWire(
 }
 
 // Compute SimHit distance from wire (cm)
-float DTRecHitQuality::simHitDistFromWire(const DTLayer *layer,
-                                          const DTWireId &wireId,
-                                          const PSimHit &hit) const {
+float DTRecHitQuality::simHitDistFromWire(const DTLayer *layer, const DTWireId &wireId, const PSimHit &hit) const {
   float xwire = layer->specificTopology().wirePosition(wireId.wire());
   LocalPoint entryP = hit.entryPoint();
   LocalPoint exitP = hit.exitPoint();
   float xEntry = entryP.x() - xwire;
   float xExit = exitP.x() - xwire;
 
-  return fabs(xEntry - (entryP.z() * (xExit - xEntry)) /
-                           (exitP.z() - entryP.z())); // FIXME: check...
+  return fabs(xEntry - (entryP.z() * (xExit - xEntry)) / (exitP.z() - entryP.z()));  // FIXME: check...
 }
 
 // Compute SimHit impact angle (in direction perp to wire), in the SL RF
-float DTRecHitQuality::simHitImpactAngle(const DTLayer *layer,
-                                         const DTWireId &wireId,
-                                         const PSimHit &hit) const {
+float DTRecHitQuality::simHitImpactAngle(const DTLayer *layer, const DTWireId &wireId, const PSimHit &hit) const {
   LocalPoint entryP = hit.entryPoint();
   LocalPoint exitP = hit.exitPoint();
   float theta = (exitP.x() - entryP.x()) / (exitP.z() - entryP.z());
@@ -412,9 +371,7 @@ float DTRecHitQuality::simHitImpactAngle(const DTLayer *layer,
 }
 
 // Compute SimHit distance from FrontEnd
-float DTRecHitQuality::simHitDistFromFE(const DTLayer *layer,
-                                        const DTWireId &wireId,
-                                        const PSimHit &hit) const {
+float DTRecHitQuality::simHitDistFromFE(const DTLayer *layer, const DTWireId &wireId, const PSimHit &hit) const {
   LocalPoint entryP = hit.entryPoint();
   LocalPoint exitP = hit.exitPoint();
   float wireLenght = layer->specificTopology().cellLenght();
@@ -439,33 +396,28 @@ const type *DTRecHitQuality::findBestRecHit(const DTLayer *layer,
       res = fabs(distTmp - simHitDist);
       theBestRecHit = &(*recHit);
     }
-  } // End of loop over RecHits within the cell
+  }  // End of loop over RecHits within the cell
 
   return theBestRecHit;
 }
 
 // Compute the distance from wire (cm) of a hits in a DTRecHit1DPair
-float DTRecHitQuality::recHitDistFromWire(const DTRecHit1DPair &hitPair,
-                                          const DTLayer *layer) const {
+float DTRecHitQuality::recHitDistFromWire(const DTRecHit1DPair &hitPair, const DTLayer *layer) const {
   // Compute the rechit distance from wire
-  return fabs(hitPair.localPosition(DTEnums::Left).x() -
-              hitPair.localPosition(DTEnums::Right).x()) /
-         2.;
+  return fabs(hitPair.localPosition(DTEnums::Left).x() - hitPair.localPosition(DTEnums::Right).x()) / 2.;
 }
 
 // Compute the distance from wire (cm) of a hits in a DTRecHit1D
-float DTRecHitQuality::recHitDistFromWire(const DTRecHit1D &recHit,
-                                          const DTLayer *layer) const {
-  return fabs(recHit.localPosition().x() -
-              layer->specificTopology().wirePosition(recHit.wireId().wire()));
+float DTRecHitQuality::recHitDistFromWire(const DTRecHit1D &recHit, const DTLayer *layer) const {
+  return fabs(recHit.localPosition().x() - layer->specificTopology().wirePosition(recHit.wireId().wire()));
 }
 
 template <typename type>
-void DTRecHitQuality::compute(
-    const DTGeometry *dtGeom,
-    const std::map<DTWireId, std::vector<PSimHit>> &simHitsPerWire,
-    const std::map<DTWireId, std::vector<type>> &recHitsPerWire,
-    Histograms const &histograms, int step) const {
+void DTRecHitQuality::compute(const DTGeometry *dtGeom,
+                              const std::map<DTWireId, std::vector<PSimHit>> &simHitsPerWire,
+                              const std::map<DTWireId, std::vector<type>> &recHitsPerWire,
+                              Histograms const &histograms,
+                              int step) const {
   // Loop over cells with a muon SimHit
   for (const auto &wireAndSHits : simHitsPerWire) {
     DTWireId wireId = wireAndSHits.first;
@@ -481,10 +433,9 @@ void DTRecHitQuality::compute(
     const PSimHit *muSimHit = DTHitQualityUtils::findMuSimHit(simHitsInCell);
     if (muSimHit == nullptr) {
       if (debug_) {
-        cout << "   No mu SimHit in channel: " << wireId << ", skipping! "
-             << endl;
+        cout << "   No mu SimHit in channel: " << wireId << ", skipping! " << endl;
       }
-      continue; // Skip this cell
+      continue;  // Skip this cell
     }
 
     // Find the distance of the simhit from the wire
@@ -496,7 +447,7 @@ void DTRecHitQuality::compute(
                 "cell, skipping!"
              << endl;
       }
-      continue; // Skip this cell
+      continue;  // Skip this cell
     }
     GlobalPoint simHitGlobalPos = layer->toGlobal(muSimHit->localPosition());
 
@@ -512,21 +463,18 @@ void DTRecHitQuality::compute(
     if (recHitsPerWire.find(wireId) == recHitsPerWire.end()) {
       // No RecHit found in this cell
       if (debug_) {
-        cout << "   No RecHit found at Step: " << step << " in cell: " << wireId
-             << endl;
+        cout << "   No RecHit found at Step: " << step << " in cell: " << wireId << endl;
       }
     } else {
       recHitReconstructed = true;
       // vector<type> recHits = (*wireAndRecHits).second;
       const vector<type> &recHits = recHitsPerWire.at(wireId);
       if (debug_) {
-        cout << "   " << recHits.size() << " RecHits, Step " << step
-             << " in channel: " << wireId << endl;
+        cout << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId << endl;
       }
 
       // Find the best RecHit
-      const type *theBestRecHit =
-          findBestRecHit(layer, wireId, recHits, simHitWireDist);
+      const type *theBestRecHit = findBestRecHit(layer, wireId, recHits, simHitWireDist);
 
       float recHitWireDist = recHitDistFromWire(*theBestRecHit, layer);
       if (debug_) {
@@ -613,10 +561,14 @@ void DTRecHitQuality::compute(
             hRes = histograms.hRes_S3RPhi_W2.get();
           }
           if (local_) {
-            histograms.hRes_S3RPhiWS[abs(wheel)][wireId.station() - 1]->fill(
-                simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist,
-                simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitErr,
-                wireId.station());
+            histograms.hRes_S3RPhiWS[abs(wheel)][wireId.station() - 1]->fill(simHitWireDist,
+                                                                             simHitTheta,
+                                                                             simHitFEDist,
+                                                                             recHitWireDist,
+                                                                             simHitGlobalPos.eta(),
+                                                                             simHitGlobalPos.phi(),
+                                                                             recHitErr,
+                                                                             wireId.station());
           }
         } else {
           hResTot = histograms.hRes_S3RZ.get();
@@ -630,21 +582,35 @@ void DTRecHitQuality::compute(
             hRes = histograms.hRes_S3RZ_W2.get();
           }
           if (local_) {
-            histograms.hRes_S3RZWS[abs(wheel)][wireId.station() - 1]->fill(
-                simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist,
-                simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitErr,
-                wireId.station());
+            histograms.hRes_S3RZWS[abs(wheel)][wireId.station() - 1]->fill(simHitWireDist,
+                                                                           simHitTheta,
+                                                                           simHitFEDist,
+                                                                           recHitWireDist,
+                                                                           simHitGlobalPos.eta(),
+                                                                           simHitGlobalPos.phi(),
+                                                                           recHitErr,
+                                                                           wireId.station());
           }
         }
       }
 
       // Fill
-      hRes->fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist,
-                 simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitErr,
+      hRes->fill(simHitWireDist,
+                 simHitTheta,
+                 simHitFEDist,
+                 recHitWireDist,
+                 simHitGlobalPos.eta(),
+                 simHitGlobalPos.phi(),
+                 recHitErr,
                  wireId.station());
       if (hResTot != nullptr) {
-        hResTot->fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist,
-                      simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitErr,
+        hResTot->fill(simHitWireDist,
+                      simHitTheta,
+                      simHitFEDist,
+                      recHitWireDist,
+                      simHitGlobalPos.eta(),
+                      simHitGlobalPos.phi(),
+                      recHitErr,
                       wireId.station());
       }
     }
@@ -659,8 +625,7 @@ void DTRecHitQuality::compute(
           hEff = histograms.hEff_S1RPhi.get();
           if (local_) {
             histograms.hEff_S1RPhiWS[abs(wheel)][wireId.station() - 1]->fill(
-                simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(),
-                recHitReconstructed);
+                simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
           }
         } else {
           hEffTot = histograms.hEff_S1RZ.get();
@@ -675,8 +640,7 @@ void DTRecHitQuality::compute(
           }
           if (local_) {
             histograms.hEff_S1RZWS[abs(wheel)][wireId.station() - 1]->fill(
-                simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(),
-                recHitReconstructed);
+                simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
           }
         }
 
@@ -703,8 +667,7 @@ void DTRecHitQuality::compute(
           hEff = histograms.hEff_S3RPhi.get();
           if (local_) {
             histograms.hEff_S3RPhiWS[abs(wheel)][wireId.station() - 1]->fill(
-                simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(),
-                recHitReconstructed);
+                simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
           }
         } else {
           hEffTot = histograms.hEff_S3RZ.get();
@@ -719,17 +682,14 @@ void DTRecHitQuality::compute(
           }
           if (local_) {
             histograms.hEff_S3RZWS[abs(wheel)][wireId.station() - 1]->fill(
-                simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(),
-                recHitReconstructed);
+                simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
           }
         }
       }
       // Fill
-      hEff->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(),
-                 recHitReconstructed);
+      hEff->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
       if (hEffTot != nullptr) {
-        hEffTot->fill(simHitWireDist, simHitGlobalPos.eta(),
-                      simHitGlobalPos.phi(), recHitReconstructed);
+        hEffTot->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
       }
     }
   }

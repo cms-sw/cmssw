@@ -35,7 +35,6 @@ using namespace std;
 using namespace edm;
 
 class recoBSVTagInfoValidationAnalyzer : public edm::EDAnalyzer {
-
 public:
   explicit recoBSVTagInfoValidationAnalyzer(const edm::ParameterSet &);
 
@@ -75,10 +74,8 @@ private:
   void bookSimToReco(std::string const &);
 
   // Fill all histogram per category
-  void fillRecoToSim(std::string const &, reco::Vertex const &,
-                     TrackingVertexRef const &);
-  void fillSimToReco(std::string const &, reco::VertexBaseRef const &,
-                     TrackingVertexRef const &);
+  void fillRecoToSim(std::string const &, reco::Vertex const &, TrackingVertexRef const &);
+  void fillSimToReco(std::string const &, reco::VertexBaseRef const &, TrackingVertexRef const &);
 
   // Histogram handlers
   std::map<std::string, MonitorElement *> HistIndex_;
@@ -88,8 +85,7 @@ private:
   edm::EDGetTokenT<TrackingVertexCollection> tvToken;
 };
 
-recoBSVTagInfoValidationAnalyzer::recoBSVTagInfoValidationAnalyzer(
-    const edm::ParameterSet &config)
+recoBSVTagInfoValidationAnalyzer::recoBSVTagInfoValidationAnalyzer(const edm::ParameterSet &config)
     : classifier_(config, consumesCollector()) {
   // Initialize counters
   n_event = 0;
@@ -115,74 +111,61 @@ recoBSVTagInfoValidationAnalyzer::recoBSVTagInfoValidationAnalyzer(
   dqmStore_->setCurrentFolder(dqmLabel);
 
   // Get the track collection
-  svInfoToken = consumes<reco::SecondaryVertexTagInfoCollection>(
-      config.getParameter<InputTag>("svTagInfoProducer"));
+  svInfoToken = consumes<reco::SecondaryVertexTagInfoCollection>(config.getParameter<InputTag>("svTagInfoProducer"));
   // Name of the traking pariticle collection
-  tvToken = consumes<TrackingVertexCollection>(
-      config.getParameter<InputTag>("trackingTruth"));
+  tvToken = consumes<TrackingVertexCollection>(config.getParameter<InputTag>("trackingTruth"));
   // Number of track categories
   numberVertexClassifier_ = VertexCategories::Unknown + 1;
 
   // Define histogram for counting categories
-  HistIndex_["VertexClassifier"] = dqmStore_->book1D(
-      "VertexClassifier", "Frequency for the different track categories",
-      numberVertexClassifier_, -0.5, numberVertexClassifier_ - 0.5);
+  HistIndex_["VertexClassifier"] = dqmStore_->book1D("VertexClassifier",
+                                                     "Frequency for the different track categories",
+                                                     numberVertexClassifier_,
+                                                     -0.5,
+                                                     numberVertexClassifier_ - 0.5);
 
   //--- RecoToSim
-  HistIndex_["rs_All_MatchQuality"] = dqmStore_->book1D(
-      "rs_All_MatchQuality", "Quality of Match", 51, -0.01, 1.01);
-  HistIndex_["rs_All_FlightDistance2d"] = dqmStore_->book1D(
-      "rs_All_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
+  HistIndex_["rs_All_MatchQuality"] = dqmStore_->book1D("rs_All_MatchQuality", "Quality of Match", 51, -0.01, 1.01);
+  HistIndex_["rs_All_FlightDistance2d"] =
+      dqmStore_->book1D("rs_All_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
   HistIndex_["rs_SecondaryVertex_FlightDistance2d"] =
-      dqmStore_->book1D("rs_SecondaryVertex_FlightDistance2d",
-                        "Transverse flight distance [cm]", 100, 0, 5);
-  HistIndex_["rs_BSV_FlightDistance2d"] = dqmStore_->book1D(
-      "rs_BSV_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
+      dqmStore_->book1D("rs_SecondaryVertex_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
+  HistIndex_["rs_BSV_FlightDistance2d"] =
+      dqmStore_->book1D("rs_BSV_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
   HistIndex_["rs_BWeakDecay_FlightDistance2d"] =
-      dqmStore_->book1D("rs_BWeakDecay_FlightDistance2d",
-                        "Transverse flight distance [cm]", 100, 0, 5);
+      dqmStore_->book1D("rs_BWeakDecay_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
   HistIndex_["rs_CWeakDecay_FlightDistance2d"] =
-      dqmStore_->book1D("rs_CWeakDecay_FlightDistance2d",
-                        "Transverse flight distance [cm]", 100, 0, 5);
+      dqmStore_->book1D("rs_CWeakDecay_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
   HistIndex_["rs_Light_FlightDistance2d"] =
-      dqmStore_->book1D("rs_Light_FlightDistance2d",
-                        "Transverse flight distance [cm]", 100, 0, 5);
+      dqmStore_->book1D("rs_Light_FlightDistance2d", "Transverse flight distance [cm]", 100, 0, 5);
 
-  HistIndex_["rs_All_nRecVtx"] = dqmStore_->book1D(
-      "rs_All_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  HistIndex_["rs_All_nRecVtx"] = dqmStore_->book1D("rs_All_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
   HistIndex_["rs_SecondaryVertex_nRecVtx"] =
-      dqmStore_->book1D("rs_SecondaryVertex_nRecVtx",
-                        "Number of Vertices per event", 11, -0.5, 10.5);
-  HistIndex_["rs_BSV_nRecVtx"] = dqmStore_->book1D(
-      "rs_BSV_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  HistIndex_["rs_BWeakDecay_nRecVtx"] = dqmStore_->book1D(
-      "rs_BWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  HistIndex_["rs_CWeakDecay_nRecVtx"] = dqmStore_->book1D(
-      "rs_CWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  HistIndex_["rs_Light_nRecVtx"] = dqmStore_->book1D(
-      "rs_Light_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+      dqmStore_->book1D("rs_SecondaryVertex_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  HistIndex_["rs_BSV_nRecVtx"] = dqmStore_->book1D("rs_BSV_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  HistIndex_["rs_BWeakDecay_nRecVtx"] =
+      dqmStore_->book1D("rs_BWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  HistIndex_["rs_CWeakDecay_nRecVtx"] =
+      dqmStore_->book1D("rs_CWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  HistIndex_["rs_Light_nRecVtx"] =
+      dqmStore_->book1D("rs_Light_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
 
   //--- SimToReco
-  HistIndex_["sr_All_MatchQuality"] = dqmStore_->book1D(
-      "sr_All_MatchQuality", "Quality of Match", 51, -0.01, 1.01);
-  HistIndex_["sr_All_nRecVtx"] = dqmStore_->book1D(
-      "sr_All_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  HistIndex_["sr_All_MatchQuality"] = dqmStore_->book1D("sr_All_MatchQuality", "Quality of Match", 51, -0.01, 1.01);
+  HistIndex_["sr_All_nRecVtx"] = dqmStore_->book1D("sr_All_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
   HistIndex_["sr_SecondaryVertex_nRecVtx"] =
-      dqmStore_->book1D("sr_SecondaryVertex_nRecVtx",
-                        "Number of Vertices per event", 11, -0.5, 10.5);
-  HistIndex_["sr_BSV_nRecVtx"] = dqmStore_->book1D(
-      "sr_BSV_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  HistIndex_["sr_BWeakDecay_nRecVtx"] = dqmStore_->book1D(
-      "sr_BWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  HistIndex_["sr_CWeakDecay_nRecVtx"] = dqmStore_->book1D(
-      "sr_CWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
-  HistIndex_["sr_Light_nRecVtx"] = dqmStore_->book1D(
-      "sr_Light_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+      dqmStore_->book1D("sr_SecondaryVertex_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  HistIndex_["sr_BSV_nRecVtx"] = dqmStore_->book1D("sr_BSV_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  HistIndex_["sr_BWeakDecay_nRecVtx"] =
+      dqmStore_->book1D("sr_BWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  HistIndex_["sr_CWeakDecay_nRecVtx"] =
+      dqmStore_->book1D("sr_CWeakDecay_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
+  HistIndex_["sr_Light_nRecVtx"] =
+      dqmStore_->book1D("sr_Light_nRecVtx", "Number of Vertices per event", 11, -0.5, 10.5);
 
   // Set the proper categories names
   for (Int_t i = 0; i < numberVertexClassifier_; ++i)
-    HistIndex_["VertexClassifier"]->getTH1F()->GetXaxis()->SetBinLabel(
-        i + 1, VertexCategories::Names[i]);
+    HistIndex_["VertexClassifier"]->getTH1F()->GetXaxis()->SetBinLabel(i + 1, VertexCategories::Names[i]);
 
   // book histograms
   bookRecoToSim("rs_All");
@@ -200,13 +183,10 @@ recoBSVTagInfoValidationAnalyzer::recoBSVTagInfoValidationAnalyzer(
   bookSimToReco("sr_Light");
 }
 
-void recoBSVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
-                                               const edm::EventSetup &setup) {
+void recoBSVTagInfoValidationAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   ++n_event;
 
-  std::cout << "*** Analyzing " << event.id() << " n_event = " << n_event
-            << std::endl
-            << std::endl;
+  std::cout << "*** Analyzing " << event.id() << " n_event = " << n_event << std::endl << std::endl;
 
   // Set the classifier for a new event
   classifier_.newEvent(event, setup);
@@ -217,9 +197,7 @@ void recoBSVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
   // Get a constant reference to the track history associated to the classifier
   VertexHistory const &tracer = classifier_.history();
 
-  cout << "* Event " << n_event
-       << " ; svTagInfoCollection->size() = " << svTagInfoCollection->size()
-       << endl;
+  cout << "* Event " << n_event << " ; svTagInfoCollection->size() = " << svTagInfoCollection->size() << endl;
 
   int rs_nall = 0;
   int rs_nsv = 0;
@@ -239,12 +217,10 @@ void recoBSVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
 
   // Loop over the svTagInfo collection.
   for (std::size_t index = 0; index < svTagInfoCollection->size(); ++index) {
-
     reco::SecondaryVertexTagInfoRef svTagInfo(svTagInfoCollection, index);
 
     // Loop over the vertexes in svTagInfo
     for (std::size_t vindex = 0; vindex < svTagInfo->nVertices(); ++vindex) {
-
       // Classify the vertices
       classifier_.evaluate(svTagInfo, vindex);
 
@@ -253,74 +229,54 @@ void recoBSVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
 
       // Fill the histogram with the categories
       for (Int_t i = 0; i != numberVertexClassifier_; ++i) {
-
         if (classifier_.is((VertexCategories::Category)i)) {
-
           HistIndex_["VertexClassifier"]->Fill(i);
         }
       }
       if (!classifier_.is(VertexCategories::Fake)) {
-
         HistIndex_["rs_All_MatchQuality"]->Fill(rs_quality);
-        fillRecoToSim("rs_All", svTagInfo->secondaryVertex(vindex),
-                      tracer.simVertex());
-        HistIndex_["rs_All_FlightDistance2d"]->Fill(
-            svTagInfo->flightDistance(vindex, true).value());
+        fillRecoToSim("rs_All", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+        HistIndex_["rs_All_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
         rs_nall++;
 
         if (classifier_.is(VertexCategories::SecondaryVertex)) {
-
-          fillRecoToSim("rs_SecondaryVertex",
-                        svTagInfo->secondaryVertex(vindex), tracer.simVertex());
-          HistIndex_["rs_SecondaryVertex_FlightDistance2d"]->Fill(
-              svTagInfo->flightDistance(vindex, true).value());
+          fillRecoToSim("rs_SecondaryVertex", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+          HistIndex_["rs_SecondaryVertex_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
           rs_nsv++;
         }
 
         if (classifier_.is(VertexCategories::BWeakDecay)) {
-
-          fillRecoToSim("rs_BWeakDecay", svTagInfo->secondaryVertex(vindex),
-                        tracer.simVertex());
-          HistIndex_["rs_BWeakDecay_FlightDistance2d"]->Fill(
-              svTagInfo->flightDistance(vindex, true).value());
+          fillRecoToSim("rs_BWeakDecay", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+          HistIndex_["rs_BWeakDecay_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
           rs_nbv++;
 
           if (classifier_.is(VertexCategories::SecondaryVertex)) {
-
-            fillRecoToSim("rs_BSV", svTagInfo->secondaryVertex(vindex),
-                          tracer.simVertex());
-            HistIndex_["rs_BSV_FlightDistance2d"]->Fill(
-                svTagInfo->flightDistance(vindex, true).value());
+            fillRecoToSim("rs_BSV", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+            HistIndex_["rs_BSV_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
             rs_nbsv++;
           }
-        } // BWeakDecay
+        }  // BWeakDecay
 
         else if (classifier_.is(VertexCategories::CWeakDecay)) {
-
-          fillRecoToSim("rs_CWeakDecay", svTagInfo->secondaryVertex(vindex),
-                        tracer.simVertex());
-          HistIndex_["rs_CWeakDecay_FlightDistance2d"]->Fill(
-              svTagInfo->flightDistance(vindex, true).value());
+          fillRecoToSim("rs_CWeakDecay", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+          HistIndex_["rs_CWeakDecay_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
           rs_ncv++;
 
         } else {
-
-          fillRecoToSim("rs_Light", svTagInfo->secondaryVertex(vindex),
-                        tracer.simVertex());
-          HistIndex_["rs_Light_FlightDistance2d"]->Fill(
-              svTagInfo->flightDistance(vindex, true).value());
+          fillRecoToSim("rs_Light", svTagInfo->secondaryVertex(vindex), tracer.simVertex());
+          HistIndex_["rs_Light_FlightDistance2d"]->Fill(svTagInfo->flightDistance(vindex, true).value());
           rs_nlv++;
         }
-      } // end if classifier
+      }  // end if classifier
 
       else {
         cout << "    VertexCategories::Fake!!" << endl;
         nfake++;
       }
 
-    } // end loop over vertices in svTagInfo
+    }  // end loop over vertices in svTagInfo
 
-  } // loop over svTagInfo
+  }  // loop over svTagInfo
 
   HistIndex_["rs_All_nRecVtx"]->Fill(rs_nall);
   HistIndex_["rs_SecondaryVertex_nRecVtx"]->Fill(rs_nsv);
@@ -338,7 +294,6 @@ void recoBSVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
   event.getByToken(tvToken, TVCollection);
   // Loop over the TV collection.
   for (std::size_t index = 0; index < TVCollection->size(); ++index) {
-
     TrackingVertexRef trackingVertex(TVCollection, index);
 
     classifier_.evaluate(trackingVertex);
@@ -346,50 +301,43 @@ void recoBSVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
     double sr_quality = tracer.quality();
 
     if (classifier_.is(VertexCategories::Reconstructed)) {
-
       HistIndex_["sr_All_MatchQuality"]->Fill(sr_quality);
       fillSimToReco("sr_All", tracer.recoVertex(), trackingVertex);
       sr_nall++;
 
       if (classifier_.is(VertexCategories::SecondaryVertex)) {
-
-        fillSimToReco("sr_SecondaryVertex", tracer.recoVertex(),
-                      trackingVertex);
+        fillSimToReco("sr_SecondaryVertex", tracer.recoVertex(), trackingVertex);
         sr_nsv++;
       }
 
       if (classifier_.is(VertexCategories::BWeakDecay)) {
-
         fillSimToReco("sr_BWeakDecay", tracer.recoVertex(), trackingVertex);
         sr_nbv++;
 
         if (classifier_.is(VertexCategories::SecondaryVertex)) {
-
           fillSimToReco("sr_BSV", tracer.recoVertex(), trackingVertex);
           sr_nbsv++;
         }
 
-      } // BWeakDecay
+      }  // BWeakDecay
 
       else if (classifier_.is(VertexCategories::CWeakDecay)) {
-
         fillSimToReco("sr_CWeakDecay", tracer.recoVertex(), trackingVertex);
         sr_ncv++;
       }
 
       else {
-
         fillSimToReco("sr_Light", tracer.recoVertex(), trackingVertex);
         sr_nlv++;
       }
 
-    } // Reconstructed
+    }  // Reconstructed
     else {
       // cout << "##### Not reconstructed!" << endl;
       nmiss++;
     }
 
-  } // TVCollection.size()
+  }  // TVCollection.size()
 
   HistIndex_["sr_All_nRecVtx"]->Fill(sr_nall);
   HistIndex_["sr_SecondaryVertex_nRecVtx"]->Fill(sr_nsv);
@@ -415,29 +363,22 @@ void recoBSVTagInfoValidationAnalyzer::analyze(const edm::Event &event,
   total_nmiss += nmiss;
 }
 
-void recoBSVTagInfoValidationAnalyzer::bookRecoToSim(
-    std::string const &prefix) {
+void recoBSVTagInfoValidationAnalyzer::bookRecoToSim(std::string const &prefix) {
   // Book pull histograms
 
   std::string name = prefix + "_Pullx";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
   name = prefix + "_Pully";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
   name = prefix + "_Pullz";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
 
   name = prefix + "_Resx";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
   name = prefix + "_Resy";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
   name = prefix + "_Resz";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
 
   name = prefix + "_Chi2Norm";
   HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, 0, 10.);
@@ -445,84 +386,64 @@ void recoBSVTagInfoValidationAnalyzer::bookRecoToSim(
   HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, 0., 1.);
 
   name = prefix + "_nRecTrks";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 501, -0.5, 500.5);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 501, -0.5, 500.5);
 
   name = prefix + "_AverageTrackWeight";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.1, 1.1);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.1, 1.1);
 
   name = prefix + "_Mass";
   HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 65, 0., 6.5);
 
   name = prefix + "_RecPt";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_RecEta";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
 
   name = prefix + "_RecCharge";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 21, -0.5, 20.5);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 21, -0.5, 20.5);
 
   name = prefix + "_RecTrackPt";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_RecTrackEta";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
 
   name = prefix + "_nSimTrks";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 501, -0.5, 500.5);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 501, -0.5, 500.5);
 
   name = prefix + "_SimPt";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_SimEta";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
 
   name = prefix + "_SimCharge";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 21, -0.5, 20.5);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 21, -0.5, 20.5);
 
   name = prefix + "_SimTrackPt";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 500, 0., 500.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 500, 0., 500.);
 
   name = prefix + "_SimTrackEta";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
 }
 
-void recoBSVTagInfoValidationAnalyzer::bookSimToReco(
-    std::string const &prefix) {
+void recoBSVTagInfoValidationAnalyzer::bookSimToReco(std::string const &prefix) {
   // Book pull histograms
 
   std::string name = prefix + "_Pullx";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
   name = prefix + "_Pully";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
   name = prefix + "_Pullz";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -10., 10.);
 
   name = prefix + "_Resx";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
   name = prefix + "_Resy";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
   name = prefix + "_Resz";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.05, 0.05);
 
   name = prefix + "_Chi2Norm";
   HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, 0, 10.);
@@ -530,65 +451,51 @@ void recoBSVTagInfoValidationAnalyzer::bookSimToReco(
   HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, 0., 1.);
 
   name = prefix + "_nRecTrks";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 501, -0.5, 500.5);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 501, -0.5, 500.5);
 
   name = prefix + "_AverageTrackWeight";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.1, 1.1);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 100, -0.1, 1.1);
 
   name = prefix + "_Mass";
   HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 65, 0., 6.5);
 
   name = prefix + "_RecPt";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_RecEta";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
 
   name = prefix + "_RecCharge";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 21, -0.5, 20.5);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 21, -0.5, 20.5);
 
   name = prefix + "_RecTrackPt";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_RecTrackEta";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
 
   name = prefix + "_nSimTrks";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 501, -0.5, 500.5);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 501, -0.5, 500.5);
 
   name = prefix + "_SimPt";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 2000, 0., 1000.);
 
   name = prefix + "_SimEta";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
 
   name = prefix + "_SimCharge";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 21, -0.5, 20.5);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 21, -0.5, 20.5);
 
   name = prefix + "_SimTrackPt";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 500, 0., 500.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 500, 0., 500.);
 
   name = prefix + "_SimTrackEta";
-  HistIndex_[name] =
-      dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
+  HistIndex_[name] = dqmStore_->book1D(name.c_str(), name.c_str(), 200, -3., 3.);
 }
 
-void recoBSVTagInfoValidationAnalyzer::fillRecoToSim(
-    std::string const &prefix, reco::Vertex const &vertex,
-    TrackingVertexRef const &simVertex) {
-
+void recoBSVTagInfoValidationAnalyzer::fillRecoToSim(std::string const &prefix,
+                                                     reco::Vertex const &vertex,
+                                                     TrackingVertexRef const &simVertex) {
   double pullx = (vertex.x() - simVertex->position().x()) / vertex.xError();
   double pully = (vertex.y() - simVertex->position().y()) / vertex.yError();
   double pullz = (vertex.z() - simVertex->position().z()) / vertex.zError();
@@ -607,9 +514,8 @@ void recoBSVTagInfoValidationAnalyzer::fillRecoToSim(
   math::XYZTLorentzVector sum;
   int charge = 0;
   double thePiMass = 0.13957;
-  for (reco::Vertex::trackRef_iterator recDaughter = vertex.tracks_begin();
-       recDaughter != vertex.tracks_end(); ++recDaughter) {
-
+  for (reco::Vertex::trackRef_iterator recDaughter = vertex.tracks_begin(); recDaughter != vertex.tracks_end();
+       ++recDaughter) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> vec;
 
     vec.SetPx((**recDaughter).px());
@@ -630,7 +536,7 @@ void recoBSVTagInfoValidationAnalyzer::fillRecoToSim(
 
     HistIndex_[prefix + "_RecTrackPt"]->Fill((*recDaughter)->pt());
     HistIndex_[prefix + "_RecTrackEta"]->Fill((*recDaughter)->eta());
-  } // end loop to recDaughters
+  }  // end loop to recDaughters
   // cout << "                   average sum of weights = " <<
   // sum_weight/tracksize << endl;
 
@@ -640,10 +546,9 @@ void recoBSVTagInfoValidationAnalyzer::fillRecoToSim(
 
   math::XYZVector simmomentum;
   int simcharge = 0;
-  for (TrackingVertex::tp_iterator simDaughter =
-           simVertex->daughterTracks_begin();
-       simDaughter != simVertex->daughterTracks_end(); ++simDaughter) {
-
+  for (TrackingVertex::tp_iterator simDaughter = simVertex->daughterTracks_begin();
+       simDaughter != simVertex->daughterTracks_end();
+       ++simDaughter) {
     math::XYZVector p;
     p = (**simDaughter).momentum();
     simmomentum += p;
@@ -681,10 +586,9 @@ void recoBSVTagInfoValidationAnalyzer::fillRecoToSim(
   HistIndex_[prefix + "_SimCharge"]->Fill(simcharge);
 }
 
-void recoBSVTagInfoValidationAnalyzer::fillSimToReco(
-    std::string const &prefix, reco::VertexBaseRef const &vertex,
-    TrackingVertexRef const &simVertex) {
-
+void recoBSVTagInfoValidationAnalyzer::fillSimToReco(std::string const &prefix,
+                                                     reco::VertexBaseRef const &vertex,
+                                                     TrackingVertexRef const &simVertex) {
   double pullx = (vertex->x() - simVertex->position().x()) / vertex->xError();
   double pully = (vertex->y() - simVertex->position().y()) / vertex->yError();
   double pullz = (vertex->z() - simVertex->position().z()) / vertex->zError();
@@ -703,9 +607,8 @@ void recoBSVTagInfoValidationAnalyzer::fillSimToReco(
   math::XYZTLorentzVector sum;
   int charge = 0;
   double thePiMass = 0.13957;
-  for (reco::Vertex::trackRef_iterator recDaughter = vertex->tracks_begin();
-       recDaughter != vertex->tracks_end(); ++recDaughter) {
-
+  for (reco::Vertex::trackRef_iterator recDaughter = vertex->tracks_begin(); recDaughter != vertex->tracks_end();
+       ++recDaughter) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> vec;
 
     vec.SetPx((**recDaughter).px());
@@ -736,10 +639,9 @@ void recoBSVTagInfoValidationAnalyzer::fillSimToReco(
 
   math::XYZVector simmomentum;
   int simcharge = 0;
-  for (TrackingVertex::tp_iterator simDaughter =
-           simVertex->daughterTracks_begin();
-       simDaughter != simVertex->daughterTracks_end(); ++simDaughter) {
-
+  for (TrackingVertex::tp_iterator simDaughter = simVertex->daughterTracks_begin();
+       simDaughter != simVertex->daughterTracks_end();
+       ++simDaughter) {
     math::XYZVector p;
     p = (**simDaughter).momentum();
     simmomentum += p;
@@ -778,38 +680,23 @@ void recoBSVTagInfoValidationAnalyzer::fillSimToReco(
 }
 
 void recoBSVTagInfoValidationAnalyzer::endJob() {
-
   std::cout << std::endl;
-  std::cout << " ====== Total Number of analyzed events: " << n_event
-            << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S All:                         "
-            << rs_total_nall << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S SecondaryVertex:             "
-            << rs_total_nsv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S BWeakDecay:                  "
-            << rs_total_nbv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S BWeakDecay::SecondaryVertex: "
-            << rs_total_nbsv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S CWeakDecay:                  "
-            << rs_total_ncv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of R2S Light:                       "
-            << rs_total_nlv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of analyzed events: " << n_event << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S All:                         " << rs_total_nall << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S SecondaryVertex:             " << rs_total_nsv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S BWeakDecay:                  " << rs_total_nbv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S BWeakDecay::SecondaryVertex: " << rs_total_nbsv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S CWeakDecay:                  " << rs_total_ncv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S Light:                       " << rs_total_nlv << " ====== " << std::endl;
   std::cout << std::endl;
-  std::cout << " ====== Total Number of S2R All:                         "
-            << sr_total_nall << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R SecondaryVertex:             "
-            << sr_total_nsv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R BWeakDecay:                  "
-            << sr_total_nbv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R BWeakDecay::SecondaryVertex: "
-            << sr_total_nbsv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R CWeakDecay:                  "
-            << sr_total_ncv << " ====== " << std::endl;
-  std::cout << " ====== Total Number of S2R Light:                       "
-            << sr_total_nlv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R All:                         " << sr_total_nall << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R SecondaryVertex:             " << sr_total_nsv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R BWeakDecay:                  " << sr_total_nbv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R BWeakDecay::SecondaryVertex: " << sr_total_nbsv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R CWeakDecay:                  " << sr_total_ncv << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R Light:                       " << sr_total_nlv << " ====== " << std::endl;
   std::cout << std::endl;
-  std::cout << " ====== Total Number of Fake Vertices:              "
-            << total_nfake << " ====== " << std::endl;
+  std::cout << " ====== Total Number of Fake Vertices:              " << total_nfake << " ====== " << std::endl;
 }
 
 DEFINE_FWK_MODULE(recoBSVTagInfoValidationAnalyzer);

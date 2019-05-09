@@ -35,30 +35,32 @@
 
 class SiPixelEDAClient;
 class SiPixelDataQuality {
-
 public:
   SiPixelDataQuality(bool offlineXMLfile);
   ~SiPixelDataQuality();
 
   int getDetId(MonitorElement *mE);
 
-  void bookGlobalQualityFlag(DQMStore::IBooker &iBooker, bool Tier0Flag,
-                             int nFEDs);
+  void bookGlobalQualityFlag(DQMStore::IBooker &iBooker, bool Tier0Flag, int nFEDs);
 
-  void computeGlobalQualityFlag(DQMStore::IBooker &iBooker,
-                                DQMStore::IGetter &iGetter, bool init,
-                                int nFEDs, bool Tier0Flag);
+  void computeGlobalQualityFlag(
+      DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, bool init, int nFEDs, bool Tier0Flag);
 
-  void computeGlobalQualityFlagByLumi(DQMStore::IGetter &iGetter, bool init,
-                                      int nFEDs, bool Tier0Flag,
+  void computeGlobalQualityFlagByLumi(DQMStore::IGetter &iGetter,
+                                      bool init,
+                                      int nFEDs,
+                                      bool Tier0Flag,
                                       int nEvents_lastLS_,
                                       int nErrorsBarrel_lastLS_,
                                       int nErrorsEndcap_lastLS_);
 
   void fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
-                             DQMStore::IGetter &iGetter, bool init,
+                             DQMStore::IGetter &iGetter,
+                             bool init,
                              edm::ESHandle<SiPixelFedCablingMap> theCablingMap,
-                             int nFEDs, bool Tier0Flag, int lumisec);
+                             int nFEDs,
+                             bool Tier0Flag,
+                             int lumisec);
 
 private:
   bool offlineXMLfile_;

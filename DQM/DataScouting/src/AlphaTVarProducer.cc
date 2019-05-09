@@ -25,12 +25,10 @@
 //
 AlphaTVarProducer::AlphaTVarProducer(const edm::ParameterSet &iConfig)
     : inputJetTag_(iConfig.getParameter<edm::InputTag>("inputJetTag")) {
-
   produces<std::vector<double>>();
 
   // set Token(-s)
-  inputJetTagToken_ = consumes<reco::CaloJetCollection>(
-      iConfig.getParameter<edm::InputTag>("inputJetTag"));
+  inputJetTagToken_ = consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("inputJetTag"));
 
   LogDebug("") << "Inputs: " << inputJetTag_.encode() << " ";
 }
@@ -38,8 +36,7 @@ AlphaTVarProducer::AlphaTVarProducer(const edm::ParameterSet &iConfig)
 AlphaTVarProducer::~AlphaTVarProducer() {}
 
 // ------------ method called to produce the data  ------------
-void AlphaTVarProducer::produce(edm::Event &iEvent,
-                                const edm::EventSetup &iSetup) {
+void AlphaTVarProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -53,8 +50,7 @@ void AlphaTVarProducer::produce(edm::Event &iEvent,
   if (calojet_handle.isValid()) {
     std::vector<TLorentzVector> myJets;
     reco::CaloJetCollection::const_iterator jetIt;
-    for (jetIt = calojet_handle->begin(); jetIt != calojet_handle->end();
-         jetIt++) {
+    for (jetIt = calojet_handle->begin(); jetIt != calojet_handle->end(); jetIt++) {
       TLorentzVector j;
       j.SetPtEtaPhiE(jetIt->pt(), jetIt->eta(), jetIt->phi(), jetIt->energy());
       myJets.push_back(j);
@@ -105,13 +101,11 @@ double AlphaTVarProducer::deltaHt(const std::vector<double> &ETs) {
   return min;
 }
 
-double AlphaTVarProducer::alphaT(const double HT, const double DHT,
-                                 const double MHT) {
+double AlphaTVarProducer::alphaT(const double HT, const double DHT, const double MHT) {
   return 0.5 * (HT - DHT) / sqrt(HT * HT - MHT * MHT);
 }
 
 double AlphaTVarProducer::CalcHT(const std::vector<TLorentzVector> &jets) {
-
   double HT = 0;
   for (unsigned int i = 0; i < jets.size(); i++) {
     if (jets[i].Et() > 50. && fabs(jets[i].Eta()) < 2.5)

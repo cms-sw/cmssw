@@ -34,16 +34,13 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(
-    const edm::ParameterSet &iConfig) {
-
+GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(const edm::ParameterSet &iConfig) {
   inputTruthLabel_ = iConfig.getParameter<edm::InputTag>("InputTruthLabel");
   inputRecoLabel_ = iConfig.getParameter<edm::InputTag>("InputRecoLabel");
   outputFile_ = iConfig.getUntrackedParameter<std::string>("OutputFile");
   benchmarkLabel_ = iConfig.getParameter<std::string>("BenchmarkLabel");
   startFromGen_ = iConfig.getParameter<bool>("StartFromGen");
-  plotAgainstRecoQuantities_ =
-      iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
+  plotAgainstRecoQuantities_ = iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
   onlyTwoJets_ = iConfig.getParameter<bool>("OnlyTwoJets");
   recPt_cut = iConfig.getParameter<double>("recPt");
   minEta_cut = iConfig.getParameter<double>("minEta");
@@ -57,12 +54,9 @@ GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(
   doMetPlots_ = iConfig.getParameter<bool>("doMetPlots");
 
   if (!outputFile_.empty())
-    edm::LogInfo("OutputInfo")
-        << " ParticleFLow Task histograms will be saved to '"
-        << outputFile_.c_str() << "'";
+    edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str() << "'";
   else
-    edm::LogInfo("OutputInfo")
-        << " ParticleFlow Task histograms will NOT be saved";
+    edm::LogInfo("OutputInfo") << " ParticleFlow Task histograms will NOT be saved";
 
   myTruth_ = consumes<edm::View<reco::Candidate>>(inputTruthLabel_);
   myReco_ = consumes<edm::View<reco::Candidate>>(inputRecoLabel_);
@@ -71,7 +65,6 @@ GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(
 GenericBenchmarkAnalyzer::~GenericBenchmarkAnalyzer() {}
 
 void GenericBenchmarkAnalyzer::beginJob() {
-
   // get ahold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
 
@@ -84,14 +77,11 @@ void GenericBenchmarkAnalyzer::beginJob() {
     else
       path += "Gen";
     dbe_->setCurrentFolder(path);
-    setup(dbe_, plotAgainstRecoQuantities_, minDeltaEt_, maxDeltaEt_,
-          minDeltaPhi_, maxDeltaPhi_, doMetPlots_);
+    setup(dbe_, plotAgainstRecoQuantities_, minDeltaEt_, maxDeltaEt_, minDeltaPhi_, maxDeltaPhi_, doMetPlots_);
   }
 }
 
-void GenericBenchmarkAnalyzer::analyze(const edm::Event &iEvent,
-                                       const edm::EventSetup &iSetup) {
-
+void GenericBenchmarkAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Typedefs to use views
   typedef edm::View<reco::Candidate> candidateCollection;
   typedef edm::View<reco::Candidate> candidateCollection;
@@ -131,9 +121,7 @@ void GenericBenchmarkAnalyzer::analyze(const edm::Event &iEvent,
     // &reco_storage;
   }
   if (!truth_candidates || !reco_candidates) {
-
-    edm::LogInfo("OutputInfo")
-        << " failed to retrieve data required by ParticleFlow Task";
+    edm::LogInfo("OutputInfo") << " failed to retrieve data required by ParticleFlow Task";
     edm::LogInfo("OutputInfo") << " ParticleFlow Task cannot continue...!";
     return;
   }
@@ -142,13 +130,18 @@ void GenericBenchmarkAnalyzer::analyze(const edm::Event &iEvent,
   // Analyze!
   // ==========================================================
 
-  fill(reco_candidates, truth_candidates, startFromGen_,
-       plotAgainstRecoQuantities_, onlyTwoJets_, recPt_cut, minEta_cut,
-       maxEta_cut, deltaR_cut);
+  fill(reco_candidates,
+       truth_candidates,
+       startFromGen_,
+       plotAgainstRecoQuantities_,
+       onlyTwoJets_,
+       recPt_cut,
+       minEta_cut,
+       maxEta_cut,
+       deltaR_cut);
 }
 
 void GenericBenchmarkAnalyzer::endJob() {
-
   // Store the DAQ Histograms
   if (!outputFile_.empty())
     dbe_->save(outputFile_);

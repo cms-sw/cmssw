@@ -35,9 +35,13 @@ class GEMDigiMatcher {
   using DigiContainer = matching::DigiContainer;
 
 public:
-  GEMDigiMatcher(const SimHitMatcher &sh, const edm::Event &,
-                 const GEMGeometry &geom, const edm::ParameterSet &cfg,
-                 edm::EDGetToken &, edm::EDGetToken &, edm::EDGetToken &);
+  GEMDigiMatcher(const SimHitMatcher &sh,
+                 const edm::Event &,
+                 const GEMGeometry &geom,
+                 const edm::ParameterSet &cfg,
+                 edm::EDGetToken &,
+                 edm::EDGetToken &,
+                 edm::EDGetToken &);
 
   ~GEMDigiMatcher();
 

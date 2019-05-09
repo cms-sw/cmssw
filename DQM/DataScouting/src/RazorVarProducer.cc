@@ -26,24 +26,19 @@
 RazorVarProducer::RazorVarProducer(const edm::ParameterSet &iConfig)
     : inputTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
       inputMetTag_(iConfig.getParameter<edm::InputTag>("inputMetTag")) {
-
   // set Token(-s)
-  inputTagToken_ = consumes<std::vector<math::XYZTLorentzVector>>(
-      iConfig.getParameter<edm::InputTag>("inputTag"));
-  inputMetTagToken_ = consumes<reco::CaloMETCollection>(
-      iConfig.getParameter<edm::InputTag>("inputMetTag"));
+  inputTagToken_ = consumes<std::vector<math::XYZTLorentzVector>>(iConfig.getParameter<edm::InputTag>("inputTag"));
+  inputMetTagToken_ = consumes<reco::CaloMETCollection>(iConfig.getParameter<edm::InputTag>("inputMetTag"));
 
   produces<std::vector<double>>();
 
-  LogDebug("") << "Inputs: " << inputTag_.encode() << " "
-               << inputMetTag_.encode() << ".";
+  LogDebug("") << "Inputs: " << inputTag_.encode() << " " << inputMetTag_.encode() << ".";
 }
 
 RazorVarProducer::~RazorVarProducer() {}
 
 // ------------ method called to produce the data  ------------
-void RazorVarProducer::produce(edm::Event &iEvent,
-                               const edm::EventSetup &iSetup) {
+void RazorVarProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -59,11 +54,8 @@ void RazorVarProducer::produce(edm::Event &iEvent,
   std::unique_ptr<std::vector<double>> result(new std::vector<double>);
   // check the the input collections are available
   if (hemispheres.isValid() && inputMet.isValid() && hemispheres->size() > 1) {
-
-    TLorentzVector ja(hemispheres->at(0).x(), hemispheres->at(0).y(),
-                      hemispheres->at(0).z(), hemispheres->at(0).t());
-    TLorentzVector jb(hemispheres->at(1).x(), hemispheres->at(1).y(),
-                      hemispheres->at(1).z(), hemispheres->at(1).t());
+    TLorentzVector ja(hemispheres->at(0).x(), hemispheres->at(0).y(), hemispheres->at(0).z(), hemispheres->at(0).t());
+    TLorentzVector jb(hemispheres->at(1).x(), hemispheres->at(1).y(), hemispheres->at(1).z(), hemispheres->at(1).t());
 
     std::vector<math::XYZTLorentzVector> muonVec;
     const double MR = CalcMR(ja, jb);
@@ -97,11 +89,9 @@ double RazorVarProducer::CalcMR(TLorentzVector ja, TLorentzVector jb) {
   double ATBT = (jaT + jbT).Mag2();
 
   double MR = sqrt((A + B) * (A + B) - (az + bz) * (az + bz) -
-                   (jbT.Dot(jbT) - jaT.Dot(jaT)) *
-                       (jbT.Dot(jbT) - jaT.Dot(jaT)) / (jaT + jbT).Mag2());
+                   (jbT.Dot(jbT) - jaT.Dot(jaT)) * (jbT.Dot(jbT) - jaT.Dot(jaT)) / (jaT + jbT).Mag2());
 
-  double mybeta = (jbT.Dot(jbT) - jaT.Dot(jaT)) /
-                  sqrt(ATBT * ((A + B) * (A + B) - (az + bz) * (az + bz)));
+  double mybeta = (jbT.Dot(jbT) - jaT.Dot(jaT)) / sqrt(ATBT * ((A + B) * (A + B) - (az + bz) * (az + bz)));
 
   double mygamma = 1. / sqrt(1. - mybeta * mybeta);
 
@@ -109,11 +99,11 @@ double RazorVarProducer::CalcMR(TLorentzVector ja, TLorentzVector jb) {
   return MR * mygamma;
 }
 
-double
-RazorVarProducer::CalcR(double MR, const TLorentzVector &ja,
-                        const TLorentzVector &jb,
-                        edm::Handle<reco::CaloMETCollection> inputMet,
-                        const std::vector<math::XYZTLorentzVector> &muons) {
+double RazorVarProducer::CalcR(double MR,
+                               const TLorentzVector &ja,
+                               const TLorentzVector &jb,
+                               edm::Handle<reco::CaloMETCollection> inputMet,
+                               const std::vector<math::XYZTLorentzVector> &muons) {
   // now we can calculate MTR
   TVector3 met;
   met.SetPtEtaPhi((inputMet->front()).pt(), 0.0, (inputMet->front()).phi());
@@ -125,11 +115,10 @@ RazorVarProducer::CalcR(double MR, const TLorentzVector &ja,
     met -= tmp;
   }
 
-  double MTR = sqrt(
-      0.5 * (met.Mag() * (ja.Pt() + jb.Pt()) - met.Dot(ja.Vect() + jb.Vect())));
+  double MTR = sqrt(0.5 * (met.Mag() * (ja.Pt() + jb.Pt()) - met.Dot(ja.Vect() + jb.Vect())));
 
   // filter events
-  return float(MTR) / float(MR); // R
+  return float(MTR) / float(MR);  // R
 }
 
 DEFINE_FWK_MODULE(RazorVarProducer);

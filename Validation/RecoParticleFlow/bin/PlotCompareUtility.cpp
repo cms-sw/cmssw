@@ -18,12 +18,12 @@
 #include <TText.h>
 using namespace std;
 
-PlotCompareUtility::PlotCompareUtility(std::string Reference, std::string New,
+PlotCompareUtility::PlotCompareUtility(std::string Reference,
+                                       std::string New,
                                        std::string NewBasePath,
                                        std::string NewPrefix,
                                        std::string RefBasePath,
                                        std::string RefPrefix) {
-
   // open TFiles
   cout << refFile << " " << newFile << endl;
   refFile = new TFile(Reference.c_str(), "READ");
@@ -43,7 +43,7 @@ PlotCompareUtility::PlotCompareUtility(std::string Reference, std::string New,
   summaryWidth = 700;
   summaryBarsThickness = 20;
   summaryTopMargin = 60;
-  summaryLeftMargin = 250; // former 180
+  summaryLeftMargin = 250;  // former 180
   summaryRightMargin = 60;
   summaryBottomMargin = 60;
 
@@ -72,7 +72,6 @@ PlotCompareUtility::PlotCompareUtility(std::string Reference, std::string New,
 }
 
 PlotCompareUtility::~PlotCompareUtility() {
-
   // close TFiles
   if (refFile != nullptr)
     refFile->Close();
@@ -81,7 +80,6 @@ PlotCompareUtility::~PlotCompareUtility() {
 }
 
 void PlotCompareUtility::dump() {
-
   cout << "RefFile     = " << refFile->GetName() << endl
        << "RefBasePath = " << refBasePath << endl
        << "RefPrefix   = " << refPrefix << endl
@@ -92,15 +90,14 @@ void PlotCompareUtility::dump() {
 }
 
 bool PlotCompareUtility::compare(HistoData *HD) {
-
   bool retval = false;
   switch (HD->getType()) {
-  case Plot1D:
-    retval = compare<Plot1D>(HD);
-    break;
-  case Plot2D:
-    retval = compare<Plot2D>(HD);
-    break;
+    case Plot1D:
+      retval = compare<Plot1D>(HD);
+      break;
+    case Plot2D:
+      retval = compare<Plot2D>(HD);
+      break;
   }
 
   finalResult &= retval;
@@ -108,32 +105,28 @@ bool PlotCompareUtility::compare(HistoData *HD) {
 }
 
 void PlotCompareUtility::makePlots(HistoData *HD) {
-
   switch (HD->getType()) {
-  case Plot1D:
-    makePlots<Plot1D>(HD);
-    break;
-  case Plot2D:
-    makePlots<Plot2D>(HD);
-    break;
+    case Plot1D:
+      makePlots<Plot1D>(HD);
+      break;
+    case Plot2D:
+      makePlots<Plot2D>(HD);
+      break;
   }
 }
 
 void PlotCompareUtility::makeHTML(HistoData *HD) {
-
   switch (HD->getType()) {
-  case Plot1D:
-    makeHTML<Plot1D>(HD);
-    break;
-  case Plot2D:
-    makeHTML<Plot2D>(HD);
-    break;
+    case Plot1D:
+      makeHTML<Plot1D>(HD);
+      break;
+    case Plot2D:
+      makeHTML<Plot2D>(HD);
+      break;
   }
 }
 
-HistoData *PlotCompareUtility::addHistoData(string NewName, string RefName,
-                                            int Type) {
-
+HistoData *PlotCompareUtility::addHistoData(string NewName, string RefName, int Type) {
   // location of this HistoData within the PCU
   static int bin = 0;
   bin++;
@@ -150,22 +143,16 @@ HistoData *PlotCompareUtility::addHistoData(string NewName, string RefName,
   return &(*histos.rbegin());
 }
 
-HistoData *PlotCompareUtility::addProjectionXData(HistoData *Parent,
-                                                  std::string Name, int Type,
-                                                  int Bin, TH1 *NewHisto,
-                                                  TH1 *RefHisto) {
-
+HistoData *PlotCompareUtility::addProjectionXData(
+    HistoData *Parent, std::string Name, int Type, int Bin, TH1 *NewHisto, TH1 *RefHisto) {
   // store the HistoData/projection information
   HistoData hd(Name, Type, Bin, NewHisto, RefHisto);
   projectionsX[Parent].push_back(hd);
   return &(*projectionsX[Parent].rbegin());
 }
 
-HistoData *PlotCompareUtility::addProjectionYData(HistoData *Parent,
-                                                  std::string Name, int Type,
-                                                  int Bin, TH1 *NewHisto,
-                                                  TH1 *RefHisto) {
-
+HistoData *PlotCompareUtility::addProjectionYData(
+    HistoData *Parent, std::string Name, int Type, int Bin, TH1 *NewHisto, TH1 *RefHisto) {
   // store the HistoData/projection information
   HistoData hd(Name, Type, Bin, NewHisto, RefHisto);
   projectionsY[Parent].push_back(hd);
@@ -173,20 +160,16 @@ HistoData *PlotCompareUtility::addProjectionYData(HistoData *Parent,
 }
 
 bool PlotCompareUtility::isValid() const {
-
   string newPath = newBasePath + "/" + newPrefix;
   string refPath = refBasePath + "/" + refPrefix;
   // check the files and that the paths are valid
-  bool refValid =
-      (refFile != nullptr) && (refFile->Get(refPath.c_str()) != nullptr);
-  bool newValid =
-      (newFile != nullptr) && (newFile->Get(newPath.c_str()) != nullptr);
+  bool refValid = (refFile != nullptr) && (refFile->Get(refPath.c_str()) != nullptr);
+  bool newValid = (newFile != nullptr) && (newFile->Get(newPath.c_str()) != nullptr);
 
   return refValid && newValid;
 }
 
 void PlotCompareUtility::centerRebin(TH1 *H1, TH1 *H2) {
-
   // determine x axis range and binning requirements
   float h1RMS = H1->GetRMS();
   float h2RMS = H2->GetRMS();
@@ -232,13 +215,11 @@ void PlotCompareUtility::centerRebin(TH1 *H1, TH1 *H2) {
 }
 
 void PlotCompareUtility::renormalize(TH1 *H1, TH1 *H2) {
-
   // normalize H2 to H1 (typically this would be hnew to href)
   H2->SetNormFactor(H1->GetEntries());
 }
 
 double PlotCompareUtility::getThreshold() const {
-
   double threshold;
 
   // the largest non-zero threshold
@@ -251,14 +232,12 @@ double PlotCompareUtility::getThreshold() const {
 }
 
 void PlotCompareUtility::makeSummary(string Name) {
-
   // produce plot and html
   makeSummaryPlot(Name);
   makeSummaryHTML(Name);
 }
 
 void PlotCompareUtility::makeDefaultPlots() {
-
   // make a default plot for when there i nothing to display
   TCanvas noDataCanvas("noDataCanvas", "noDataCanvas", plotsWidth, plotsHeight);
   noDataCanvas.SetFrameFillColor(10);
@@ -269,11 +248,9 @@ void PlotCompareUtility::makeDefaultPlots() {
 }
 
 void PlotCompareUtility::makeSummaryPlot(string Name) {
-
   // generate a reasonable height for the summary plot
   int numHistos = histos.size();
-  summaryHeight = summaryBottomMargin + summaryTopMargin +
-                  int(float(numHistos * summaryBarsThickness) * 1.5);
+  summaryHeight = summaryBottomMargin + summaryTopMargin + int(float(numHistos * summaryBarsThickness) * 1.5);
 
   // the canvas is rescaled during gif conversion, so add padding to Canvas
   // dimensions
@@ -281,8 +258,7 @@ void PlotCompareUtility::makeSummaryPlot(string Name) {
   int summaryCanvasHeight = summaryHeight + 28;
 
   // create and setup summary canvas
-  TCanvas summaryCanvas("summaryCanvas", "summaryCanvas", summaryCanvasWidth,
-                        summaryCanvasHeight);
+  TCanvas summaryCanvas("summaryCanvas", "summaryCanvas", summaryCanvasWidth, summaryCanvasHeight);
   summaryCanvas.SetFrameFillColor(10);
   summaryCanvas.SetLogx(1);
   summaryCanvas.SetGrid();
@@ -293,10 +269,8 @@ void PlotCompareUtility::makeSummaryPlot(string Name) {
   summaryCanvas.Draw();
 
   // create and setup the summary histogram
-  TH1F summary("summary", "Compatibility with Reference Histograms", numHistos,
-               1, numHistos + 1);
-  summary.GetXaxis()->SetLabelSize(float(summaryLeftMargin) /
-                                   (11 * summaryWidth)); // used to be 3*
+  TH1F summary("summary", "Compatibility with Reference Histograms", numHistos, 1, numHistos + 1);
+  summary.GetXaxis()->SetLabelSize(float(summaryLeftMargin) / (11 * summaryWidth));  // used to be 3*
   summary.GetYaxis()->SetLabelSize(summary.GetXaxis()->GetLabelSize());
   summary.GetYaxis()->SetTitle("Compatibility");
   summary.SetStats(false);
@@ -321,15 +295,13 @@ void PlotCompareUtility::makeSummaryPlot(string Name) {
 }
 
 void PlotCompareUtility::makeSummaryHTML(string Name) {
-
   // create HTML support code
   string gifName = Name + ".gif";
   string html = "index.html";
   ofstream fout(html.c_str());
 
   // print top portion of document
-  fout << "<!DOCTYPE gif PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">"
-       << endl
+  fout << "<!DOCTYPE gif PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">" << endl
        << "<html>" << endl
        << endl
        << "  <head>" << endl
@@ -363,50 +335,43 @@ void PlotCompareUtility::makeSummaryHTML(string Name) {
        << "    </script> -->" << endl
        << endl
        << "    <div id=\"main_d\">" << endl
-       << "      <img src=\"" << gifName << "\" usemap=\"#" << Name
-       << "\" alt=\"\" style=\"border-style: none;\""
-       << " height=" << summaryHeight << " width=" << summaryWidth
-       << " border=0>" << endl
+       << "      <img src=\"" << gifName << "\" usemap=\"#" << Name << "\" alt=\"\" style=\"border-style: none;\""
+       << " height=" << summaryHeight << " width=" << summaryWidth << " border=0>" << endl
        << "      <map id=\"" << Name << "\" name=\"" << Name << "\">" << endl;
 
   // loop over HistoData entries
   vector<HistoData>::iterator hd;
   for (hd = histos.begin(); hd != histos.end(); hd++) {
-
     // determine map coordinates for this bin (2 pixel offset due to borders?)
     int bin = hd->getBin();
     int x1 = summaryLeftMargin;
-    int y1 = summaryHeight - summaryBottomMargin -
-             int(float(bin * 1.5 - .25) * summaryBarsThickness) + 2;
+    int y1 = summaryHeight - summaryBottomMargin - int(float(bin * 1.5 - .25) * summaryBarsThickness) + 2;
     int x2 = summaryWidth - summaryRightMargin;
     int y2 = y1 + summaryBarsThickness;
     string image = hd->getResultImage();
     string target = hd->getResultTarget();
 
     // add coordinates area to image map
-    fout << "        <area shape=\"rect\" alt=\"\" coords=\"" << x1 << "," << y1
-         << "," << x2 << "," << y2 << "\" href=\"" << target
-         << "\" onMouseOver=\"tn('" << target << "','" << image << "')\">"
-         << endl;
+    fout << "        <area shape=\"rect\" alt=\"\" coords=\"" << x1 << "," << y1 << "," << x2 << "," << y2
+         << "\" href=\"" << target << "\" onMouseOver=\"tn('" << target << "','" << image << "')\">" << endl;
   }
 
   // print bottom portion of document
-  fout
-      << "        <area shape=\"default\" nohref=\"nohref\" alt=\"\">" << endl
-      << "      </map>" << endl
-      << "    </div>" << endl
-      << endl
-      << "    <div id=\"thumb_d\">" << endl
-      << "      <a href=\"#\" id=\"thumblink\"><img src=\"NoData_Results.gif\" "
-         "id=\"thumb\" width=200 height=150 border=0></a>"
-      << endl
-      << "      <br><a href=\"log.txt\">Root Output</a>" << endl
-      << "      <br><a href=\"err.txt\">Root Warnings</a>" << endl
-      << "    </div>" << endl
-      << endl
-      << "  </body>" << endl
-      << endl
-      << "</html>" << endl;
+  fout << "        <area shape=\"default\" nohref=\"nohref\" alt=\"\">" << endl
+       << "      </map>" << endl
+       << "    </div>" << endl
+       << endl
+       << "    <div id=\"thumb_d\">" << endl
+       << "      <a href=\"#\" id=\"thumblink\"><img src=\"NoData_Results.gif\" "
+          "id=\"thumb\" width=200 height=150 border=0></a>"
+       << endl
+       << "      <br><a href=\"log.txt\">Root Output</a>" << endl
+       << "      <br><a href=\"err.txt\">Root Warnings</a>" << endl
+       << "    </div>" << endl
+       << endl
+       << "  </body>" << endl
+       << endl
+       << "</html>" << endl;
 
   // close the file
   fout.close();
