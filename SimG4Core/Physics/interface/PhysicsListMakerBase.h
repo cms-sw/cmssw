@@ -4,7 +4,7 @@
 //
 // Package:     Physics
 // Class  :     PhysicsListMakerBase
-// 
+//
 /**\class PhysicsListMakerBase PhysicsListMakerBase.h SimG4Core/Physics/interface/PhysicsListMakerBase.h
 
  Description: Base class for the 'maker' which creates PhysicsLists
@@ -27,22 +27,20 @@
 
 // forward declarations
 class SimActivityRegistry;
-namespace edm{
+namespace edm {
   class ParameterSet;
 }
 
-class PhysicsListMakerBase
-{
- public:
+class PhysicsListMakerBase {
+public:
   PhysicsListMakerBase() {}
   virtual ~PhysicsListMakerBase() {}
 
-  virtual std::unique_ptr<PhysicsList> make(const edm::ParameterSet&,
-					    SimActivityRegistry&) const = 0;
+  virtual std::unique_ptr<PhysicsList> make(const edm::ParameterSet&, SimActivityRegistry&) const = 0;
 
- private:
+private:
   PhysicsListMakerBase(const PhysicsListMakerBase&) = delete;
-  const PhysicsListMakerBase& operator=(const PhysicsListMakerBase&) = delete; 
+  const PhysicsListMakerBase& operator=(const PhysicsListMakerBase&) = delete;
 };
 
 #endif

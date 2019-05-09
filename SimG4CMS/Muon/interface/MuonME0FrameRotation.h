@@ -20,16 +20,14 @@
 class MuonDDDConstants;
 
 class MuonME0FrameRotation : public MuonFrameRotation {
-
 public:
-  MuonME0FrameRotation( const MuonDDDConstants& muonConstants );
+  MuonME0FrameRotation(const MuonDDDConstants& muonConstants);
   ~MuonME0FrameRotation() override;
-  Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const override;
+  Local3DPoint transformPoint(const Local3DPoint&, const G4Step*) const override;
 
 private:
   MuonG4Numbering* g4numbering;
-  int              theSectorLevel;
+  int theSectorLevel;
 };
-
 
 #endif

@@ -27,110 +27,96 @@
  * Bits [0:12] => not assigned
 **/
 
-class TotemRPDetId : public CTPPSDetId
-{  
-  public:
-    /// Construct from a raw id. It is required that the Detector part of
-    /// id is Totem and the SubDet part is RP, otherwise an exception is thrown.
-    explicit TotemRPDetId(uint32_t id);
+class TotemRPDetId : public CTPPSDetId {
+public:
+  /// Construct from a raw id. It is required that the Detector part of
+  /// id is Totem and the SubDet part is RP, otherwise an exception is thrown.
+  explicit TotemRPDetId(uint32_t id);
 
-    TotemRPDetId(const CTPPSDetId &id) : CTPPSDetId(id)
-    {
-    }
-  
-    /// Construct from hierarchy indeces.
-    TotemRPDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot=0, uint32_t Plane=0, uint32_t Chip=0);
+  TotemRPDetId(const CTPPSDetId& id) : CTPPSDetId(id) {}
 
-    static const uint32_t startPlaneBit, maskPlane, maxPlane, lowMaskPlane;
-    static const uint32_t startChipBit, maskChip, maxChip, lowMaskChip;
-    
-    //-------------------- component getters and setters --------------------
-     
-    uint32_t plane() const
-    {
-      return ((id_>>startPlaneBit) & maskPlane);
-    }
+  /// Construct from hierarchy indeces.
+  TotemRPDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot = 0, uint32_t Plane = 0, uint32_t Chip = 0);
 
-    void setPlane(uint32_t det)
-    {
-      id_ &= ~(maskPlane << startPlaneBit);
-      id_ |= ((det & maskPlane) << startPlaneBit);
-    }
+  static const uint32_t startPlaneBit, maskPlane, maxPlane, lowMaskPlane;
+  static const uint32_t startChipBit, maskChip, maxChip, lowMaskChip;
 
-    uint32_t chip() const
-    {
-      return ((id_>>startChipBit) & maskChip);
-    }
+  //-------------------- component getters and setters --------------------
 
-    void setChip(uint32_t chip)
-    {
-      id_ &= ~(maskChip << startChipBit);
-      id_ |= ((chip & maskChip) << startChipBit);
-    }
+  uint32_t plane() const { return ((id_ >> startPlaneBit) & maskPlane); }
 
-    //-------------------- id getters for higher-level objects --------------------
+  void setPlane(uint32_t det) {
+    id_ &= ~(maskPlane << startPlaneBit);
+    id_ |= ((det & maskPlane) << startPlaneBit);
+  }
 
-    TotemRPDetId getPlaneId() const
-    {
-      return TotemRPDetId( rawId() & (~lowMaskPlane) );
-    }
+  uint32_t chip() const { return ((id_ >> startChipBit) & maskChip); }
 
-    //-------------------- strip orientation methods --------------------
+  void setChip(uint32_t chip) {
+    id_ &= ~(maskChip << startChipBit);
+    id_ |= ((chip & maskChip) << startChipBit);
+  }
 
-    bool isStripsCoordinateUDirection() const
-    {
-      return plane() % 2;
-    }
+  //-------------------- id getters for higher-level objects --------------------
 
-    bool isStripsCoordinateVDirection() const
-    {
-      return !isStripsCoordinateUDirection();
-    }
+  TotemRPDetId getPlaneId() const { return TotemRPDetId(rawId() & (~lowMaskPlane)); }
 
-    //-------------------- conversions to the obsolete decimal representation --------------------
-    // NOTE: only for backward compatibility, do not use otherwise!
-    
-    inline uint32_t getRPDecimalId() const
-    {
-      return rp() + station()*10 + arm()*100;
+  //-------------------- strip orientation methods --------------------
+
+  bool isStripsCoordinateUDirection() const { return plane() % 2; }
+
+  bool isStripsCoordinateVDirection() const { return !isStripsCoordinateUDirection(); }
+
+  //-------------------- conversions to the obsolete decimal representation --------------------
+  // NOTE: only for backward compatibility, do not use otherwise!
+
+  inline uint32_t getRPDecimalId() const { return rp() + station() * 10 + arm() * 100; }
+
+  inline uint32_t getPlaneDecimalId() const { return plane() + getRPDecimalId() * 10; }
+
+  //-------------------- name methods --------------------
+
+  inline void planeName(std::string& name, NameFlag flag = nFull) const {
+    switch (flag) {
+      case nShort:
+        name = "";
+        break;
+      case nFull:
+        rpName(name, flag);
+        name += "_";
+        break;
+      case nPath:
+        rpName(name, flag);
+        name += "/plane ";
+        break;
     }
 
-    inline uint32_t getPlaneDecimalId() const
-    {
-      return plane() + getRPDecimalId()*10;
+    name += planeNames[plane()];
+  }
+
+  inline void chipName(std::string& name, NameFlag flag = nFull) const {
+    switch (flag) {
+      case nShort:
+        name = "";
+        break;
+      case nFull:
+        planeName(name, flag);
+        name += "_";
+        break;
+      case nPath:
+        planeName(name, flag);
+        name += "/chip ";
+        break;
     }
 
-    //-------------------- name methods --------------------
+    name += chipNames[chip()];
+  }
 
-    inline void planeName(std::string &name, NameFlag flag = nFull) const
-    {
-      switch (flag)
-      {
-        case nShort: name = ""; break;
-        case nFull: rpName(name, flag); name += "_"; break;
-        case nPath: rpName(name, flag); name += "/plane "; break;
-      }
-
-      name += planeNames[plane()];
-    }
-
-    inline void chipName(std::string &name, NameFlag flag = nFull) const
-    {
-      switch (flag)
-      {
-        case nShort: name = ""; break;
-        case nFull: planeName(name, flag); name += "_"; break;
-        case nPath: planeName(name, flag); name += "/chip "; break;
-      }
-
-      name += chipNames[chip()];
-    }
-
-  private:
-    static const std::string planeNames[];
-    static const std::string chipNames[];
+private:
+  static const std::string planeNames[];
+  static const std::string chipNames[];
 };
 
 std::ostream& operator<<(std::ostream& os, const TotemRPDetId& id);
 
-#endif 
+#endif
