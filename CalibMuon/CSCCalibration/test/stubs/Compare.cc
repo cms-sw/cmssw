@@ -169,8 +169,7 @@ Compare::Compare(const edm::ParameterSet &iConfig)
   }
 
   while (!olddata1.eof()) {
-    olddata1 >> old_index >> old_xtalk_left >> old_int_left >>
-        old_xtalk_right >> old_int_right;
+    olddata1 >> old_index >> old_xtalk_left >> old_int_left >> old_xtalk_right >> old_int_right;
     old_index_id.push_back(old_index);
     old_Rxtalk.push_back(old_xtalk_right);
     old_Rint.push_back(old_int_right);
@@ -189,8 +188,7 @@ Compare::Compare(const edm::ParameterSet &iConfig)
   }
 
   while (!newdata1.eof()) {
-    newdata1 >> new_index >> new_xtalk_left >> new_int_left >>
-        new_xtalk_right >> new_int_right;
+    newdata1 >> new_index >> new_xtalk_left >> new_int_left >> new_xtalk_right >> new_int_right;
     new_index_id.push_back(new_index);
     new_Rxtalk.push_back(new_xtalk_right);
     new_Rint.push_back(new_int_right);
@@ -222,9 +220,8 @@ Compare::Compare(const edm::ParameterSet &iConfig)
         diffXtalkL[k] = old_Lxtalk[i] / 10000000. - new_Lxtalk[k];
         diffIntR[k] = old_Rint[i] / 100000. - new_Rint[k];
         diffIntL[k] = old_Rint[i] / 100000. - new_Rint[k];
-        myXtalkFile << counter << "  " << diffXtalkL[k] << "  " << diffIntL[k]
-                    << "  " << diffXtalkR[k] << "  " << diffIntR[k] << "  "
-                    << std::endl;
+        myXtalkFile << counter << "  " << diffXtalkL[k] << "  " << diffIntL[k] << "  " << diffXtalkR[k] << "  "
+                    << diffIntR[k] << "  " << std::endl;
       }
     }
   }
@@ -305,8 +302,7 @@ Compare::Compare(const edm::ParameterSet &iConfig)
   std::cout << "Comparing NOISE MATRIX, please wait!" << std::endl;
 
   old_index = 0;
-  float old_elem33, old_elem34, old_elem35, old_elem44, old_elem45, old_elem46,
-      old_elem55, old_elem56;
+  float old_elem33, old_elem34, old_elem35, old_elem44, old_elem45, old_elem46, old_elem55, old_elem56;
   float old_elem57, old_elem66, old_elem67, old_elem77;
   old_index_id.clear();
   std::vector<float> old_el33;
@@ -323,8 +319,7 @@ Compare::Compare(const edm::ParameterSet &iConfig)
   std::vector<float> old_el77;
 
   new_index = 0;
-  float new_elem33, new_elem34, new_elem35, new_elem44, new_elem45, new_elem46,
-      new_elem55, new_elem56;
+  float new_elem33, new_elem34, new_elem35, new_elem44, new_elem45, new_elem46, new_elem55, new_elem56;
   float new_elem57, new_elem66, new_elem67, new_elem77;
   new_index_id.clear();
   std::vector<float> new_el33;
@@ -381,9 +376,8 @@ Compare::Compare(const edm::ParameterSet &iConfig)
   }
 
   while (!olddata3.eof()) {
-    olddata3 >> old_index >> old_elem33 >> old_elem34 >> old_elem44 >>
-        old_elem35 >> old_elem45 >> old_elem55 >> old_elem46 >> old_elem56 >>
-        old_elem66 >> old_elem57 >> old_elem67 >> old_elem77;
+    olddata3 >> old_index >> old_elem33 >> old_elem34 >> old_elem44 >> old_elem35 >> old_elem45 >> old_elem55 >>
+        old_elem46 >> old_elem56 >> old_elem66 >> old_elem57 >> old_elem67 >> old_elem77;
     old_index_id.push_back(old_index);
     old_el33.push_back(old_elem33);
     old_el34.push_back(old_elem34);
@@ -410,9 +404,8 @@ Compare::Compare(const edm::ParameterSet &iConfig)
   }
 
   while (!newdata3.eof()) {
-    newdata3 >> new_index >> new_elem33 >> new_elem34 >> new_elem44 >>
-        new_elem35 >> new_elem45 >> new_elem55 >> new_elem46 >> new_elem56 >>
-        new_elem66 >> new_elem57 >> new_elem67 >> new_elem77;
+    newdata3 >> new_index >> new_elem33 >> new_elem34 >> new_elem44 >> new_elem35 >> new_elem45 >> new_elem55 >>
+        new_elem46 >> new_elem56 >> new_elem66 >> new_elem57 >> new_elem67 >> new_elem77;
     new_index_id.push_back(new_index);
     new_el33.push_back(new_elem33);
     new_el34.push_back(new_elem34);
@@ -487,13 +480,10 @@ Compare::Compare(const edm::ParameterSet &iConfig)
         diff_el66[k] = old_el66[i] / 1000. - new_el66[k];
         diff_el67[k] = old_el67[i] / 1000. - new_el67[k];
         diff_el77[k] = old_el77[i] / 1000. - new_el77[k];
-        myMatrixFile << counter << "  " << diff_el33[k] << "  " << diff_el34[k]
-                     << "  " << diff_el35[k] << "  " << diff_el44[k] << "  "
-                     << diff_el45[k] << "  " << diff_el46[k] << "  "
-                     << diff_el55[k] << "  " << diff_el56[k] << "  "
-                     << diff_el57[k] << "  " << diff_el66[k] << "  "
-                     << diff_el67[k] << "  " << diff_el77[k] << "  "
-                     << std::endl;
+        myMatrixFile << counter << "  " << diff_el33[k] << "  " << diff_el34[k] << "  " << diff_el35[k] << "  "
+                     << diff_el44[k] << "  " << diff_el45[k] << "  " << diff_el46[k] << "  " << diff_el55[k] << "  "
+                     << diff_el56[k] << "  " << diff_el57[k] << "  " << diff_el66[k] << "  " << diff_el67[k] << "  "
+                     << diff_el77[k] << "  " << std::endl;
       }
     }
   }
@@ -501,7 +491,6 @@ Compare::Compare(const edm::ParameterSet &iConfig)
 }
 
 Compare::~Compare() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }

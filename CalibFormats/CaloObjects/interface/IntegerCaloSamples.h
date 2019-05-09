@@ -37,7 +37,7 @@ public:
 
 private:
   DetId id_;
-  uint32_t data_[MAXSAMPLES]; //
+  uint32_t data_[MAXSAMPLES];  //
   int size_, presamples_;
 };
 

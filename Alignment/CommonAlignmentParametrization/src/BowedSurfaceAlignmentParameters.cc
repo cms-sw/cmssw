@@ -23,39 +23,36 @@
 #include <iostream>
 //_________________________________________________________________________________________________
 BowedSurfaceAlignmentParameters::BowedSurfaceAlignmentParameters(Alignable *ali)
-    : AlignmentParameters(ali, AlgebraicVector(N_PARAM),
-                          AlgebraicSymMatrix(N_PARAM, 0)) {}
+    : AlignmentParameters(ali, AlgebraicVector(N_PARAM), AlgebraicSymMatrix(N_PARAM, 0)) {}
 
 //_________________________________________________________________________________________________
-BowedSurfaceAlignmentParameters ::BowedSurfaceAlignmentParameters(
-    Alignable *alignable, const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix)
+BowedSurfaceAlignmentParameters ::BowedSurfaceAlignmentParameters(Alignable *alignable,
+                                                                  const AlgebraicVector &parameters,
+                                                                  const AlgebraicSymMatrix &covMatrix)
     : AlignmentParameters(alignable, parameters, covMatrix) {
   if (parameters.num_row() != N_PARAM) {
-    throw cms::Exception("BadParameters")
-        << "in BowedSurfaceAlignmentParameters(): " << parameters.num_row()
-        << " instead of " << N_PARAM << " parameters.";
+    throw cms::Exception("BadParameters") << "in BowedSurfaceAlignmentParameters(): " << parameters.num_row()
+                                          << " instead of " << N_PARAM << " parameters.";
   }
 }
 
 //_________________________________________________________________________________________________
-BowedSurfaceAlignmentParameters ::BowedSurfaceAlignmentParameters(
-    Alignable *alignable, const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix, const std::vector<bool> &selection)
+BowedSurfaceAlignmentParameters ::BowedSurfaceAlignmentParameters(Alignable *alignable,
+                                                                  const AlgebraicVector &parameters,
+                                                                  const AlgebraicSymMatrix &covMatrix,
+                                                                  const std::vector<bool> &selection)
     : AlignmentParameters(alignable, parameters, covMatrix, selection) {
   if (parameters.num_row() != N_PARAM) {
-    throw cms::Exception("BadParameters")
-        << "in BowedSurfaceAlignmentParameters(): " << parameters.num_row()
-        << " instead of " << N_PARAM << " parameters.";
+    throw cms::Exception("BadParameters") << "in BowedSurfaceAlignmentParameters(): " << parameters.num_row()
+                                          << " instead of " << N_PARAM << " parameters.";
   }
 }
 
 //_________________________________________________________________________________________________
-BowedSurfaceAlignmentParameters *BowedSurfaceAlignmentParameters::clone(
-    const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix) const {
-  BowedSurfaceAlignmentParameters *rbap = new BowedSurfaceAlignmentParameters(
-      this->alignable(), parameters, covMatrix, selector());
+BowedSurfaceAlignmentParameters *BowedSurfaceAlignmentParameters::clone(const AlgebraicVector &parameters,
+                                                                        const AlgebraicSymMatrix &covMatrix) const {
+  BowedSurfaceAlignmentParameters *rbap =
+      new BowedSurfaceAlignmentParameters(this->alignable(), parameters, covMatrix, selector());
 
   if (this->userVariables())
     rbap->setUserVariables(this->userVariables()->clone());
@@ -65,19 +62,16 @@ BowedSurfaceAlignmentParameters *BowedSurfaceAlignmentParameters::clone(
 }
 
 //_________________________________________________________________________________________________
-BowedSurfaceAlignmentParameters *
-BowedSurfaceAlignmentParameters::cloneFromSelected(
-    const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix) const {
+BowedSurfaceAlignmentParameters *BowedSurfaceAlignmentParameters::cloneFromSelected(
+    const AlgebraicVector &parameters, const AlgebraicSymMatrix &covMatrix) const {
   return this->clone(this->expandVector(parameters, this->selector()),
                      this->expandSymMatrix(covMatrix, this->selector()));
 }
 
 //_________________________________________________________________________________________________
-AlgebraicMatrix BowedSurfaceAlignmentParameters::derivatives(
-    const TrajectoryStateOnSurface &tsos,
-    const AlignableDetOrUnitPtr &alidet) const {
-  const Alignable *ali = this->alignable(); // Alignable of these parameters
+AlgebraicMatrix BowedSurfaceAlignmentParameters::derivatives(const TrajectoryStateOnSurface &tsos,
+                                                             const AlignableDetOrUnitPtr &alidet) const {
+  const Alignable *ali = this->alignable();  // Alignable of these parameters
 
   if (ali == alidet) {
     const AlignableSurface &surf = ali->surface();
@@ -89,12 +83,11 @@ AlgebraicMatrix BowedSurfaceAlignmentParameters::derivatives(
     // keep the remaining three untouched in local meaning.
     // In this way we could do higher level alignment and determine 'average'
     // surface structures for the components.
-    throw cms::Exception("MisMatch")
-        << "BowedSurfaceAlignmentParameters::derivatives: The hit alignable "
-           "must match the "
-        << "aligned one (i.e. bowed surface parameters cannot be used for "
-           "composed alignables)\n";
-    return AlgebraicMatrix(N_PARAM, 2); // please compiler
+    throw cms::Exception("MisMatch") << "BowedSurfaceAlignmentParameters::derivatives: The hit alignable "
+                                        "must match the "
+                                     << "aligned one (i.e. bowed surface parameters cannot be used for "
+                                        "composed alignables)\n";
+    return AlgebraicMatrix(N_PARAM, 2);  // please compiler
   }
 }
 
@@ -116,8 +109,7 @@ align::EulerAngles BowedSurfaceAlignmentParameters::rotation() const {
   // Should we use atan of these values? Anyway it is small...
   eulerAngles[0] = params[dslopeY] * 2. / surface.length();
   eulerAngles[1] = -params[dslopeX] * 2. / surface.width();
-  const double aScale =
-      BowedDerivs::gammaScale(surface.width(), surface.length());
+  const double aScale = BowedDerivs::gammaScale(surface.width(), surface.length());
   eulerAngles[2] = params[drotZ] / aScale;
 
   return eulerAngles;
@@ -127,9 +119,8 @@ align::EulerAngles BowedSurfaceAlignmentParameters::rotation() const {
 void BowedSurfaceAlignmentParameters::apply() {
   Alignable *alignable = this->alignable();
   if (!alignable) {
-    throw cms::Exception("BadParameters")
-        << "BowedSurfaceAlignmentParameters::apply: parameters without "
-           "alignable";
+    throw cms::Exception("BadParameters") << "BowedSurfaceAlignmentParameters::apply: parameters without "
+                                             "alignable";
   }
 
   // Get translation in local frame, transform to global and apply:
@@ -140,17 +131,14 @@ void BowedSurfaceAlignmentParameters::apply() {
   // original code:
   //  alignable->rotateInLocalFrame( align::toMatrix(angles) );
   // correct for rounding errors:
-  align::RotationType rot(
-      alignable->surface().toGlobal(align::toMatrix(angles)));
+  align::RotationType rot(alignable->surface().toGlobal(align::toMatrix(angles)));
   align::rectify(rot);
   alignable->rotateInGlobalFrame(rot);
 
   // only update the surface deformations if they were selected for alignment
-  if (selector()[dsagittaX] || selector()[dsagittaXY] ||
-      selector()[dsagittaY]) {
+  if (selector()[dsagittaX] || selector()[dsagittaXY] || selector()[dsagittaY]) {
     const auto &params = theData->parameters();
-    const BowedSurfaceDeformation deform{params[dsagittaX], params[dsagittaXY],
-                                         params[dsagittaY]};
+    const BowedSurfaceDeformation deform{params[dsagittaX], params[dsagittaXY], params[dsagittaY]};
 
     // FIXME: true to propagate down?
     //        Needed for hierarchy with common deformation parameter,
@@ -160,13 +148,10 @@ void BowedSurfaceAlignmentParameters::apply() {
 }
 
 //_________________________________________________________________________________________________
-int BowedSurfaceAlignmentParameters::type() const {
-  return AlignmentParametersFactory::kBowedSurface;
-}
+int BowedSurfaceAlignmentParameters::type() const { return AlignmentParametersFactory::kBowedSurface; }
 
 //_________________________________________________________________________________________________
 void BowedSurfaceAlignmentParameters::print() const {
   std::cout << "Contents of BowedSurfaceAlignmentParameters:"
-            << "\nParameters: " << theData->parameters()
-            << "\nCovariance: " << theData->covariance() << std::endl;
+            << "\nParameters: " << theData->parameters() << "\nCovariance: " << theData->covariance() << std::endl;
 }

@@ -16,20 +16,18 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 namespace popcon {
-class CSCDBChipSpeedCorrectionImpl
-    : public popcon::PopConSourceHandler<CSCDBChipSpeedCorrection> {
+  class CSCDBChipSpeedCorrectionImpl : public popcon::PopConSourceHandler<CSCDBChipSpeedCorrection> {
+  public:
+    void getNewObjects();
+    std::string id() const { return m_name; }
+    ~CSCDBChipSpeedCorrectionImpl();
+    CSCDBChipSpeedCorrectionImpl(const edm::ParameterSet &pset);
 
-public:
-  void getNewObjects();
-  std::string id() const { return m_name; }
-  ~CSCDBChipSpeedCorrectionImpl();
-  CSCDBChipSpeedCorrectionImpl(const edm::ParameterSet &pset);
-
-private:
-  std::string m_name;
-  bool isForMC;
-  std::string dataCorrFileName;
-  float dataOffset;
-};
-} // namespace popcon
+  private:
+    std::string m_name;
+    bool isForMC;
+    std::string dataCorrFileName;
+    float dataOffset;
+  };
+}  // namespace popcon
 #endif

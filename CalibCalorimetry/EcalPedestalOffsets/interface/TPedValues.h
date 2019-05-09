@@ -28,8 +28,7 @@ public:
   ~TPedValues();
 
   //! add a single value
-  void insert(const int gainId, const int crystal, const int DAC,
-              const int pedestal, const int endcapIndex);
+  void insert(const int gainId, const int crystal, const int DAC, const int pedestal, const int endcapIndex);
 
   //! calculate the offset values for all the containers
   TPedResult terminate(const int &DACstart = 0, const int &DACend = 256) const;
@@ -38,8 +37,10 @@ public:
   int checkEntries(const int &DACstart = 0, const int &DACend = 256) const;
 
   //! create a plot of the DAC pedestal trend
-  int makePlots(TFile *rootFile, const std::string &dirName,
-                const double maxSlopeAllowed, const double minSlopeAllowed,
+  int makePlots(TFile *rootFile,
+                const std::string &dirName,
+                const double maxSlopeAllowed,
+                const double minSlopeAllowed,
                 const double maxChi2OverNDF) const;
 
   //! return the index from the table

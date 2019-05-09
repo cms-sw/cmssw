@@ -2,22 +2,18 @@
 
 CSCIndexerPostls1::~CSCIndexerPostls1() {}
 
-std::pair<CSCDetId, CSCIndexerBase::IndexType>
-CSCIndexerPostls1::detIdFromStripChannelIndex(LongIndexType isi) const {
-  const LongIndexType lastnonme1a = 252288; // channels with ME42 installed
-  const LongIndexType lastpluszme1a =
-      262656; // last unganged ME1a +z channel = 252288 + 10368
-  const LongIndexType lastnonme42 =
-      217728; // channels in 2008 installed chambers
-  const LongIndexType lastplusznonme42 = 108864; // = 217728/2
-  const LongIndexType firstme13 = 34561;         // First channel of ME13
-  const LongIndexType lastme13 = 48384;          // Last channel of ME13
+std::pair<CSCDetId, CSCIndexerBase::IndexType> CSCIndexerPostls1::detIdFromStripChannelIndex(LongIndexType isi) const {
+  const LongIndexType lastnonme1a = 252288;       // channels with ME42 installed
+  const LongIndexType lastpluszme1a = 262656;     // last unganged ME1a +z channel = 252288 + 10368
+  const LongIndexType lastnonme42 = 217728;       // channels in 2008 installed chambers
+  const LongIndexType lastplusznonme42 = 108864;  // = 217728/2
+  const LongIndexType firstme13 = 34561;          // First channel of ME13
+  const LongIndexType lastme13 = 48384;           // Last channel of ME13
 
   const IndexType lastnonme42layer = 2808;
-  const IndexType lastplusznonme42layer = 1404; // = 2808/2
-  const IndexType firstme13layer =
-      433; // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
-  const IndexType lastme13layer = 648; // = 108*6
+  const IndexType lastplusznonme42layer = 1404;  // = 2808/2
+  const IndexType firstme13layer = 433;          // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
+  const IndexType lastme13layer = 648;           // = 108*6
 
   bool me1a = false;
 
@@ -39,22 +35,22 @@ CSCIndexerPostls1::detIdFromStripChannelIndex(LongIndexType isi) const {
       ie = 2;
       isi -= lastplusznonme42;
     }
-    if (isi > lastme13) // after ME13
+    if (isi > lastme13)  // after ME13
     {
       istart = lastme13;
       layerOffset = lastme13layer;
-    } else if (isi >= firstme13) // ME13
+    } else if (isi >= firstme13)  // ME13
     {
       istart = firstme13 - 1;
       layerOffset = firstme13layer - 1;
       nchan = 64;
     }
-  } else if (isi <= lastnonme1a) // ME42 chambers
+  } else if (isi <= lastnonme1a)  // ME42 chambers
   {
     istart = lastnonme42;
     layerOffset = lastnonme42layer;
     // don't care about ie, as ME42 stretch of indices is uniform
-  } else // Unganged ME1a channels
+  } else  // Unganged ME1a channels
   {
     me1a = true;
     if (isi > lastpluszme1a)
@@ -64,13 +60,13 @@ CSCIndexerPostls1::detIdFromStripChannelIndex(LongIndexType isi) const {
     // layerOffset stays 0, as we want to map them onto ME1b's layer indices
   }
 
-  isi -= istart; // remove earlier group(s)
+  isi -= istart;  // remove earlier group(s)
   IndexType ichan = (isi - 1) % nchan + 1;
   IndexType ili = (isi - 1) / nchan + 1;
-  ili += layerOffset; // add appropriate offset for earlier group(s)
+  ili += layerOffset;  // add appropriate offset for earlier group(s)
   if (ie != 1)
-    ili += lastplusznonme42layer; // add offset to -z endcap; ME42 doesn't need
-                                  // this.
+    ili += lastplusznonme42layer;  // add offset to -z endcap; ME42 doesn't need
+                                   // this.
 
   CSCDetId id = detIdFromLayerIndex(ili);
 
@@ -81,22 +77,18 @@ CSCIndexerPostls1::detIdFromStripChannelIndex(LongIndexType isi) const {
   return std::make_pair(id, ichan);
 }
 
-std::pair<CSCDetId, CSCIndexerBase::IndexType>
-CSCIndexerPostls1::detIdFromChipIndex(IndexType ici) const {
-  const LongIndexType lastnonme1a =
-      15768; // chips in chambers with ME42 installed
-  const LongIndexType lastpluszme1a =
-      16416; // last unganged ME1a +z chip = 15768 + 648 = 16416
-  const LongIndexType lastnonme42 = 13608; // chips in 2008 installed chambers
-  const LongIndexType lastplusznonme42 = 6804; // = 13608/2
-  const LongIndexType firstme13 = 2161;        // First channel of ME13
-  const LongIndexType lastme13 = 3024;         // Last channel of ME13
+std::pair<CSCDetId, CSCIndexerBase::IndexType> CSCIndexerPostls1::detIdFromChipIndex(IndexType ici) const {
+  const LongIndexType lastnonme1a = 15768;      // chips in chambers with ME42 installed
+  const LongIndexType lastpluszme1a = 16416;    // last unganged ME1a +z chip = 15768 + 648 = 16416
+  const LongIndexType lastnonme42 = 13608;      // chips in 2008 installed chambers
+  const LongIndexType lastplusznonme42 = 6804;  // = 13608/2
+  const LongIndexType firstme13 = 2161;         // First channel of ME13
+  const LongIndexType lastme13 = 3024;          // Last channel of ME13
 
   const IndexType lastnonme42layer = 2808;
-  const IndexType lastplusznonme42layer = 1404; // = 2808/2
-  const IndexType firstme13layer =
-      433; // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
-  const IndexType lastme13layer = 648; // = 108*6
+  const IndexType lastplusznonme42layer = 1404;  // = 2808/2
+  const IndexType firstme13layer = 433;          // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
+  const IndexType lastme13layer = 648;           // = 108*6
 
   bool me1a = false;
 
@@ -117,22 +109,22 @@ CSCIndexerPostls1::detIdFromChipIndex(IndexType ici) const {
       ie = 2;
       ici -= lastplusznonme42;
     }
-    if (ici > lastme13) // after ME13
+    if (ici > lastme13)  // after ME13
     {
       istart = lastme13;
       layerOffset = lastme13layer;
-    } else if (ici >= firstme13) // ME13
+    } else if (ici >= firstme13)  // ME13
     {
       istart = firstme13 - 1;
       layerOffset = firstme13layer - 1;
       nchipPerLayer = 4;
     }
-  } else if (ici <= lastnonme1a) // ME42 chambers
+  } else if (ici <= lastnonme1a)  // ME42 chambers
   {
     istart = lastnonme42;
     layerOffset = lastnonme42layer;
     // don't care about ie, as ME42 stratch of indices is uniform
-  } else // Unganged ME1a channels
+  } else  // Unganged ME1a channels
   {
     me1a = true;
     if (ici > lastpluszme1a)
@@ -142,13 +134,13 @@ CSCIndexerPostls1::detIdFromChipIndex(IndexType ici) const {
     // layerOffset stays 0, as we want to map them onto ME1b's layer indices
   }
 
-  ici -= istart; // remove earlier group(s)
+  ici -= istart;  // remove earlier group(s)
   IndexType ichip = (ici - 1) % nchipPerLayer + 1;
   IndexType ili = (ici - 1) / nchipPerLayer + 1;
-  ili += layerOffset; // add appropriate offset for earlier group(s)
+  ili += layerOffset;  // add appropriate offset for earlier group(s)
   if (ie != 1)
-    ili += lastplusznonme42layer; // add offset to -z endcap; ME42 doesn't need
-                                  // this.
+    ili += lastplusznonme42layer;  // add offset to -z endcap; ME42 doesn't need
+                                   // this.
 
   CSCDetId id = detIdFromLayerIndex(ili);
 
@@ -169,28 +161,20 @@ int CSCIndexerPostls1::dbIndex(const CSCDetId &id, int &channel) const {
   return ec * 100000 + st * 10000 + rg * 1000 + ch * 10 + la;
 }
 
-CSCIndexerBase::GasGainIndexType
-CSCIndexerPostls1::detIdFromGasGainIndex(IndexType igg) const {
+CSCIndexerBase::GasGainIndexType CSCIndexerPostls1::detIdFromGasGainIndex(IndexType igg) const {
   const int n_types = 20;
-  const IndexType type_starts[n_types] = {
-      1,     1081,  4321,  6913,  8533,  13933, 15553, 20953, 22573, 23653,
-      26893, 29485, 31105, 36505, 38125, 43525, 45145, 50545, 55945, 56593};
+  const IndexType type_starts[n_types] = {1,     1081,  4321,  6913,  8533,  13933, 15553, 20953, 22573, 23653,
+                                          26893, 29485, 31105, 36505, 38125, 43525, 45145, 50545, 55945, 56593};
   //+1/1 +1/2  +1/3  +2/1  +2/2  +3/1   +3/2   +4/1   -1/1   -1/2   -1/3   -2/1
   //-2/2   -3/1   -3/2   -4/1   +4/2   -4/2   +1/4   -1/4
 
-  const int endcaps[n_types] = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
-                                2, 2, 2, 2, 2, 2, 1, 2, 1, 2};
-  const int stations[n_types] = {1, 1, 1, 2, 2, 3, 3, 4, 1, 1,
-                                 1, 2, 2, 3, 3, 4, 4, 4, 1, 1};
-  const int rings[n_types] = {1, 2, 3, 1, 2, 1, 2, 1, 1, 2,
-                              3, 1, 2, 1, 2, 1, 2, 2, 4, 4};
+  const int endcaps[n_types] = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2};
+  const int stations[n_types] = {1, 1, 1, 2, 2, 3, 3, 4, 1, 1, 1, 2, 2, 3, 3, 4, 4, 4, 1, 1};
+  const int rings[n_types] = {1, 2, 3, 1, 2, 1, 2, 1, 1, 2, 3, 1, 2, 1, 2, 1, 2, 2, 4, 4};
 
   // determine chamber type
   std::vector<IndexType> v_type_starts(type_starts, type_starts + n_types);
-  int type =
-      int(std::upper_bound(v_type_starts.begin(), v_type_starts.end(), igg) -
-          v_type_starts.begin()) -
-      1;
+  int type = int(std::upper_bound(v_type_starts.begin(), v_type_starts.end(), igg) - v_type_starts.begin()) - 1;
 
   // determine factors for #HVsectors and #chips
   int sectors_per_layer = sectorsPerLayer(stations[type], rings[type]);
@@ -198,8 +182,7 @@ CSCIndexerPostls1::detIdFromGasGainIndex(IndexType igg) const {
 
   IndexType igg_chamber_etc = igg - type_starts[type] + 1;
 
-  IndexType igg_chamber_and_layer =
-      (igg_chamber_etc - 1) / sectors_per_layer + 1;
+  IndexType igg_chamber_and_layer = (igg_chamber_etc - 1) / sectors_per_layer + 1;
 
   // extract chamber & layer
   int chamber = (igg_chamber_and_layer - 1) / 6 + 1;

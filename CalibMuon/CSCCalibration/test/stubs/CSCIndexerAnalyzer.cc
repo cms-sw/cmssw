@@ -27,15 +27,13 @@ CSCIndexerAnalyzer::CSCIndexerAnalyzer(const edm::ParameterSet &pset) {}
 
 CSCIndexerAnalyzer::~CSCIndexerAnalyzer() {}
 
-void CSCIndexerAnalyzer::analyze(const edm::Event &ev,
-                                 const edm::EventSetup &esu) {
-  const int evalues[10] = {1, 2, 1, 2, 1, 2, 1, 2, 1, 2};   // endcap 1=+z, 2=-z
-  const int svalues[10] = {1, 1, 1, 1, 4, 4, 4, 4, 4, 4};   // station 1-4
-  const int rvalues[10] = {1, 1, 4, 4, 2, 2, 2, 2, 2, 2};   // ring 1-4
-  const int cvalues[10] = {1, 1, 1, 1, 1, 1, 36, 36, 1, 1}; // chamber 1-18/36
-  const int lvalues[10] = {1, 1, 1, 1, 1, 1, 1, 1, 6, 6};   // layer 1-6
-  const int tvalues[10] = {1, 1, 1, 1,  1,
-                           1, 1, 1, 80, 80}; // strip 1-80 (16, 48 64)
+void CSCIndexerAnalyzer::analyze(const edm::Event &ev, const edm::EventSetup &esu) {
+  const int evalues[10] = {1, 2, 1, 2, 1, 2, 1, 2, 1, 2};    // endcap 1=+z, 2=-z
+  const int svalues[10] = {1, 1, 1, 1, 4, 4, 4, 4, 4, 4};    // station 1-4
+  const int rvalues[10] = {1, 1, 4, 4, 2, 2, 2, 2, 2, 2};    // ring 1-4
+  const int cvalues[10] = {1, 1, 1, 1, 1, 1, 36, 36, 1, 1};  // chamber 1-18/36
+  const int lvalues[10] = {1, 1, 1, 1, 1, 1, 1, 1, 6, 6};    // layer 1-6
+  const int tvalues[10] = {1, 1, 1, 1, 1, 1, 1, 1, 80, 80};  // strip 1-80 (16, 48 64)
 
   const CSCIndexerRecord &irec = esu.get<CSCIndexerRecord>();
   edm::ESHandle<CSCIndexerBase> indexer_;
@@ -43,8 +41,7 @@ void CSCIndexerAnalyzer::analyze(const edm::Event &ev,
 
   algoName = indexer_->name();
 
-  std::cout << "CSCIndexerAnalyzer: analyze sees algorithm " << algoName
-            << " in Event Setup" << std::endl;
+  std::cout << "CSCIndexerAnalyzer: analyze sees algorithm " << algoName << " in Event Setup" << std::endl;
 
   for (int i = 0; i < 10; ++i) {
     int ie = evalues[i];
@@ -54,11 +51,9 @@ void CSCIndexerAnalyzer::analyze(const edm::Event &ev,
     int il = lvalues[i];
     int istrip = tvalues[i];
 
-    std::cout << "CSCIndexerAnalyzer: calling " << algoName
-              << "::stripChannelIndex(" << ie << "," << is << "," << ir << ","
-              << ic << "," << il << "," << istrip << ") = "
-              << indexer_->stripChannelIndex(ie, is, ir, ic, il, istrip)
-              << std::endl;
+    std::cout << "CSCIndexerAnalyzer: calling " << algoName << "::stripChannelIndex(" << ie << "," << is << "," << ir
+              << "," << ic << "," << il << "," << istrip
+              << ") = " << indexer_->stripChannelIndex(ie, is, ir, ic, il, istrip) << std::endl;
   }
 }
 

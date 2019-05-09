@@ -49,9 +49,9 @@ public:
     dx1 = BowedDerivs::dx,
     dy1 = BowedDerivs::dy,
     dz1 = BowedDerivs::dz,
-    dslopeX1 = BowedDerivs::dslopeX, // NOTE: slope(u) -> halfWidth*tan(beta),
-    dslopeY1 = BowedDerivs::dslopeY, //       slope(v) -> halfLength*tan(alpha)
-    drotZ1 = BowedDerivs::drotZ,     //       rot(w)   -> g-scale*gamma
+    dslopeX1 = BowedDerivs::dslopeX,  // NOTE: slope(u) -> halfWidth*tan(beta),
+    dslopeY1 = BowedDerivs::dslopeY,  //       slope(v) -> halfLength*tan(alpha)
+    drotZ1 = BowedDerivs::drotZ,      //       rot(w)   -> g-scale*gamma
     dsagittaX1 = BowedDerivs::dsagittaX,
     dsagittaXY1 = BowedDerivs::dsagittaXY,
     dsagittaY1 = BowedDerivs::dsagittaY,
@@ -59,12 +59,9 @@ public:
     dx2 = BowedDerivs::dx + BowedDerivs::N_PARAM,
     dy2 = BowedDerivs::dy + BowedDerivs::N_PARAM,
     dz2 = BowedDerivs::dz + BowedDerivs::N_PARAM,
-    dslopeX2 = BowedDerivs::dslopeX +
-               BowedDerivs::N_PARAM, // NOTE: slope(u) -> k*tan(beta),
-    dslopeY2 = BowedDerivs::dslopeY +
-               BowedDerivs::N_PARAM, //       slope(v) -> k*tan(alpha)
-    drotZ2 =
-        BowedDerivs::drotZ + BowedDerivs::N_PARAM, //       rot(w)   -> m*gamma
+    dslopeX2 = BowedDerivs::dslopeX + BowedDerivs::N_PARAM,  // NOTE: slope(u) -> k*tan(beta),
+    dslopeY2 = BowedDerivs::dslopeY + BowedDerivs::N_PARAM,  //       slope(v) -> k*tan(alpha)
+    drotZ2 = BowedDerivs::drotZ + BowedDerivs::N_PARAM,      //       rot(w)   -> m*gamma
     dsagittaX2 = BowedDerivs::dsagittaX + BowedDerivs::N_PARAM,
     dsagittaXY2 = BowedDerivs::dsagittaXY + BowedDerivs::N_PARAM,
     dsagittaY2 = BowedDerivs::dsagittaY + BowedDerivs::N_PARAM,
@@ -92,19 +89,15 @@ public:
   int type() const override;
 
   /// Clone all parameters (for update of parameters)
-  TwoBowedSurfacesAlignmentParameters *
-  clone(const AlgebraicVector &parameters,
-        const AlgebraicSymMatrix &covMatrix) const override;
+  TwoBowedSurfacesAlignmentParameters *clone(const AlgebraicVector &parameters,
+                                             const AlgebraicSymMatrix &covMatrix) const override;
 
   /// Clone selected parameters (for update of parameters)
-  TwoBowedSurfacesAlignmentParameters *
-  cloneFromSelected(const AlgebraicVector &parameters,
-                    const AlgebraicSymMatrix &covMatrix) const override;
+  TwoBowedSurfacesAlignmentParameters *cloneFromSelected(const AlgebraicVector &parameters,
+                                                         const AlgebraicSymMatrix &covMatrix) const override;
 
   /// Get all derivatives
-  AlgebraicMatrix
-  derivatives(const TrajectoryStateOnSurface &tsos,
-              const AlignableDetOrUnitPtr &aliDet) const override;
+  AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos, const AlignableDetOrUnitPtr &aliDet) const override;
 
   /// print parameters to screen
   virtual void print() const;

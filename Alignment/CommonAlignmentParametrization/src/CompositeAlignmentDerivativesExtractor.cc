@@ -16,8 +16,7 @@ CompositeAlignmentDerivativesExtractor::CompositeAlignmentDerivativesExtractor(
   detOrUnits.reserve(alignableDets.size());
 
   std::vector<AlignableDet *>::const_iterator it, itEnd;
-  for (it = alignableDets.begin(), itEnd = alignableDets.end(); it != itEnd;
-       ++it)
+  for (it = alignableDets.begin(), itEnd = alignableDets.end(); it != itEnd; ++it)
     detOrUnits.push_back(AlignableDetOrUnitPtr(*it));
 
   extractCurrentAlignment(alignables, detOrUnits, tsos);
@@ -37,7 +36,6 @@ void CompositeAlignmentDerivativesExtractor::extractCurrentAlignment(
     const align::Alignables &alignables,
     const std::vector<AlignableDetOrUnitPtr> &alignableDets,
     const std::vector<TrajectoryStateOnSurface> &tsos) {
-
   // sanity check
   if (alignables.size() != alignableDets.size()) {
     edm::LogError("CompositeAlignmentDerivativesExtractor")
@@ -48,14 +46,12 @@ void CompositeAlignmentDerivativesExtractor::extractCurrentAlignment(
 
   if (alignables.size() != tsos.size()) {
     edm::LogError("CompositeAlignmentDerivativesExtractor")
-        << "Inconsistent length of arguments: alignables=" << alignables.size()
-        << ", tsos=" << tsos.size();
+        << "Inconsistent length of arguments: alignables=" << alignables.size() << ", tsos=" << tsos.size();
     return;
   }
 
   align::Alignables::const_iterator itAlignable = alignables.begin();
-  std::vector<AlignableDetOrUnitPtr>::const_iterator itAlignableDet =
-      alignableDets.begin();
+  std::vector<AlignableDetOrUnitPtr>::const_iterator itAlignableDet = alignableDets.begin();
   std::vector<TrajectoryStateOnSurface>::const_iterator itTsos = tsos.begin();
 
   int nRow = 0;
@@ -69,19 +65,15 @@ void CompositeAlignmentDerivativesExtractor::extractCurrentAlignment(
   // dimension
   while (itAlignable != alignables.end()) {
     // Get the current estimate on the alignment parameters
-    AlgebraicVector subAlignmentParameters =
-        (*itAlignable)->alignmentParameters()->selectedParameters();
+    AlgebraicVector subAlignmentParameters = (*itAlignable)->alignmentParameters()->selectedParameters();
 
     // Get the derivatives or the local coordinates w.r.t. the corresponding
     // alignment parameters
     AlgebraicMatrix subAlignmentDerivatives =
-        (*itAlignable)
-            ->alignmentParameters()
-            ->selectedDerivatives(*itTsos, *itAlignableDet);
+        (*itAlignable)->alignmentParameters()->selectedDerivatives(*itTsos, *itAlignableDet);
 
     subDerivatives.push_back(subAlignmentDerivatives.T());
-    subCorrectionTerm.push_back(subAlignmentDerivatives.T() *
-                                subAlignmentParameters);
+    subCorrectionTerm.push_back(subAlignmentDerivatives.T() * subAlignmentParameters);
 
     nRow += 2;
     // check if it is the first occurrence of this Alignable
@@ -113,12 +105,9 @@ void CompositeAlignmentDerivativesExtractor::extractCurrentAlignment(
 //--------------------------------------------------------------------------------------
 
 void CompositeAlignmentDerivativesExtractor::extractWithoutMultipleHits(
-    const std::vector<AlgebraicVector> &subCorrectionTerm,
-    const std::vector<AlgebraicMatrix> &subDerivatives) {
-  std::vector<AlgebraicVector>::const_iterator itSubCorrectionTerm =
-      subCorrectionTerm.begin();
-  std::vector<AlgebraicMatrix>::const_iterator itSubDerivatives =
-      subDerivatives.begin();
+    const std::vector<AlgebraicVector> &subCorrectionTerm, const std::vector<AlgebraicMatrix> &subDerivatives) {
+  std::vector<AlgebraicVector>::const_iterator itSubCorrectionTerm = subCorrectionTerm.begin();
+  std::vector<AlgebraicMatrix>::const_iterator itSubDerivatives = subDerivatives.begin();
 
   int iRow = 1;
   int iCollumn = 1;
@@ -144,11 +133,8 @@ void CompositeAlignmentDerivativesExtractor::extractWithMultipleHits(
     const std::vector<AlgebraicVector> &subCorrectionTerm,
     const std::vector<AlgebraicMatrix> &subDerivatives,
     const align::Alignables &alignables) {
-
-  std::vector<AlgebraicVector>::const_iterator itSubCorrectionTerm =
-      subCorrectionTerm.begin();
-  std::vector<AlgebraicMatrix>::const_iterator itSubDerivatives =
-      subDerivatives.begin();
+  std::vector<AlgebraicVector>::const_iterator itSubCorrectionTerm = subCorrectionTerm.begin();
+  std::vector<AlgebraicMatrix>::const_iterator itSubDerivatives = subDerivatives.begin();
   align::Alignables::const_iterator itAlignables = alignables.begin();
   align::Alignables::const_iterator itPosition;
   align::Alignables::const_iterator itLastPosition;
@@ -164,8 +150,7 @@ void CompositeAlignmentDerivativesExtractor::extractWithMultipleHits(
 
     itLastPosition = find(alignables.begin(), itAlignables, *itAlignables);
 
-    for (itPosition = alignables.begin(); itPosition != itLastPosition;
-         ++itPosition) {
+    for (itPosition = alignables.begin(); itPosition != itLastPosition; ++itPosition) {
       if (count(alignables.begin(), itPosition, *itPosition) == 0)
         iCollumn += subDerivatives[iAlignable].num_col();
       iAlignable++;

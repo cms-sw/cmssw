@@ -18,15 +18,12 @@
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCGasGainCorrectionDBConditions
-    : public edm::ESProducer,
-      public edm::EventSetupRecordIntervalFinder {
+class CSCGasGainCorrectionDBConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCGasGainCorrectionDBConditions(const edm::ParameterSet &);
   ~CSCGasGainCorrectionDBConditions() override;
 
-  inline static CSCDBGasGainCorrection *
-  prefillDBGasGainCorrection(bool isForMC, std::string dataCorrFileName);
+  inline static CSCDBGasGainCorrection *prefillDBGasGainCorrection(bool isForMC, std::string dataCorrFileName);
 
   typedef std::unique_ptr<CSCDBGasGainCorrection> ReturnType;
 
@@ -53,9 +50,8 @@ private:
 #include <vector>
 
 // to workaround plugin library
-inline CSCDBGasGainCorrection *
-CSCGasGainCorrectionDBConditions::prefillDBGasGainCorrection(
-    bool isMC, std::string filename) {
+inline CSCDBGasGainCorrection *CSCGasGainCorrectionDBConditions::prefillDBGasGainCorrection(bool isMC,
+                                                                                            std::string filename) {
   if (isMC)
     printf("\n Generating fake DB constants for MC\n");
   else {
@@ -68,8 +64,7 @@ CSCGasGainCorrectionDBConditions::prefillDBGasGainCorrection(
 
   CSCDBGasGainCorrection *cndbGasGainCorr = new CSCDBGasGainCorrection();
 
-  CSCDBGasGainCorrection::GasGainContainer &itemvector =
-      cndbGasGainCorr->gasGainCorr;
+  CSCDBGasGainCorrection::GasGainContainer &itemvector = cndbGasGainCorr->gasGainCorr;
   itemvector.resize(MAX_SIZE);
 
   // Filling corrections for MC is very simple
@@ -112,20 +107,24 @@ CSCGasGainCorrectionDBConditions::prefillDBGasGainCorrection(
 
   FILE *fin = fopen(filename.data(), "r");
 
-  int linecounter =
-      0; // set the line counter to the first serial number in the file....
+  int linecounter = 0;  // set the line counter to the first serial number in the file....
 
   while (!feof(fin)) {
     // note space at end of format string to convert last \n
-    int check =
-        fscanf(fin, "%d %d %d %d %d %d %d %d %d %f %f %f \n",
-               &gains[linecounter].gas_gain_index, &gains[linecounter].endcap,
-               &gains[linecounter].station, &gains[linecounter].ring,
-               &gains[linecounter].chamber, &gains[linecounter].layer,
-               &gains[linecounter].hvsegment, &gains[linecounter].cfeb,
-               &gains[linecounter].nentries, &gains[linecounter].mean,
-               &gains[linecounter].truncated_mean,
-               &gains[linecounter].gas_gain_correction);
+    int check = fscanf(fin,
+                       "%d %d %d %d %d %d %d %d %d %f %f %f \n",
+                       &gains[linecounter].gas_gain_index,
+                       &gains[linecounter].endcap,
+                       &gains[linecounter].station,
+                       &gains[linecounter].ring,
+                       &gains[linecounter].chamber,
+                       &gains[linecounter].layer,
+                       &gains[linecounter].hvsegment,
+                       &gains[linecounter].cfeb,
+                       &gains[linecounter].nentries,
+                       &gains[linecounter].mean,
+                       &gains[linecounter].truncated_mean,
+                       &gains[linecounter].gas_gain_correction);
 
     if (check != 12) {
       printf("The input file format is not as expected\n");
@@ -138,8 +137,7 @@ CSCGasGainCorrectionDBConditions::prefillDBGasGainCorrection(
   fclose(fin);
 
   if (linecounter == MAX_SIZE) {
-    std::cout << "Total number of gas gains read in = " << linecounter
-              << std::endl;
+    std::cout << "Total number of gas gains read in = " << linecounter << std::endl;
   } else {
     std::cout << "ERROR:  Total number of gas-gains read in = " << linecounter
               << " while total number expected = " << MAX_SIZE << std::endl;
@@ -147,15 +145,13 @@ CSCGasGainCorrectionDBConditions::prefillDBGasGainCorrection(
 
   // Fill the chip corrections with values from the file
   for (int i = 0; i < MAX_SIZE; i++) {
-
     itemvector[i].gainCorr = 0.;
 
     if (gains[i].gas_gain_correction > 0.) {
       itemvector[i].gainCorr = gains[i].gas_gain_correction;
     } else {
       // if there is no value, this should be fixed...
-      std::cout << "ERROR:  gas_gain_correction < 0 for index "
-                << gains[i].gas_gain_index << std::endl;
+      std::cout << "ERROR:  gas_gain_correction < 0 for index " << gains[i].gas_gain_index << std::endl;
     }
   }
 

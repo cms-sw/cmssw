@@ -17,30 +17,29 @@ class Alignable;
 class AlignmentParameters;
 
 namespace AlignmentParametersFactory {
-/// enums for all available AlignmentParameters
-enum ParametersType {
-  kRigidBody = 0, // RigidBodyAlignmentParameters
-  kSurvey, // SurveyParameters GF: do not belong here, so remove in the long
-           // term...
-  kRigidBody4D,     // RigidBodyAlignmentParameters4D
-  kBeamSpot,        // BeamSpotAlignmentParameters
-  kBowedSurface,    // BowedSurfaceAlignmentParameters
-  kTwoBowedSurfaces // TwoBowedSurfacesAlignmentParameters
-};
+  /// enums for all available AlignmentParameters
+  enum ParametersType {
+    kRigidBody = 0,    // RigidBodyAlignmentParameters
+    kSurvey,           // SurveyParameters GF: do not belong here, so remove in the long
+                       // term...
+    kRigidBody4D,      // RigidBodyAlignmentParameters4D
+    kBeamSpot,         // BeamSpotAlignmentParameters
+    kBowedSurface,     // BowedSurfaceAlignmentParameters
+    kTwoBowedSurfaces  // TwoBowedSurfacesAlignmentParameters
+  };
 
-/// convert string to ParametersType - exception if not known
-ParametersType parametersType(const std::string &typeString);
-/// convert int to ParametersType (if same value) - exception if no
-/// corresponding type
-ParametersType parametersType(int typeInt);
-/// convert ParametersType to string understood by parametersType(string
-/// &typeString)
-std::string parametersTypeName(ParametersType parType);
+  /// convert string to ParametersType - exception if not known
+  ParametersType parametersType(const std::string &typeString);
+  /// convert int to ParametersType (if same value) - exception if no
+  /// corresponding type
+  ParametersType parametersType(int typeInt);
+  /// convert ParametersType to string understood by parametersType(string
+  /// &typeString)
+  std::string parametersTypeName(ParametersType parType);
 
-/// create AlignmentParameters of type 'parType' for Alignable 'ali' with
-/// selection 'sel' for active parameters
-AlignmentParameters *createParameters(Alignable *ali, ParametersType parType,
-                                      const std::vector<bool> &sel);
-} // namespace AlignmentParametersFactory
+  /// create AlignmentParameters of type 'parType' for Alignable 'ali' with
+  /// selection 'sel' for active parameters
+  AlignmentParameters *createParameters(Alignable *ali, ParametersType parType, const std::vector<bool> &sel);
+}  // namespace AlignmentParametersFactory
 
 #endif

@@ -14,8 +14,13 @@
 #include "G4SystemOfUnits.hh"
 
 MaterialProperties::MaterialProperties(int DebugLevel, double SiAbsLengthScale)
-    : theMaterialTable(), theMPDebugLevel(0), theSiAbsLengthScalingFactor(0),
-      theMPT(), theTECWafer(), theTOBWafer(), theTIBWafer() {
+    : theMaterialTable(),
+      theMPDebugLevel(0),
+      theSiAbsLengthScalingFactor(0),
+      theMPT(),
+      theTECWafer(),
+      theTOBWafer(),
+      theTIBWafer() {
   theMPDebugLevel = DebugLevel;
   theSiAbsLengthScalingFactor = SiAbsLengthScale;
   /* *********************************************************************** */
@@ -30,12 +35,9 @@ MaterialProperties::MaterialProperties(int DebugLevel, double SiAbsLengthScale)
   G4double theAtomicWeight = 28.09 * g / mole;
   G4double theAtomicNumber = 14.0;
 
-  theTECWafer =
-      new G4Material("TEC_Wafer", theAtomicNumber, theAtomicWeight, theDensity);
-  theTOBWafer =
-      new G4Material("TOB_Wafer", theAtomicNumber, theAtomicWeight, theDensity);
-  theTIBWafer =
-      new G4Material("TIB_Wafer", theAtomicNumber, theAtomicWeight, theDensity);
+  theTECWafer = new G4Material("TEC_Wafer", theAtomicNumber, theAtomicWeight, theDensity);
+  theTOBWafer = new G4Material("TOB_Wafer", theAtomicNumber, theAtomicWeight, theDensity);
+  theTIBWafer = new G4Material("TIB_Wafer", theAtomicNumber, theAtomicWeight, theDensity);
 
   // set the properties of the materials
   setMaterialProperties();
@@ -81,8 +83,7 @@ void MaterialProperties::setMaterialProperties() {
   //     {
   // print the materialtable
   LogDebug("SimLaserAlignment:MaterialProperties")
-      << " **** here comes the material table **** "
-      << *(G4Material::GetMaterialTable());
+      << " **** here comes the material table **** " << *(G4Material::GetMaterialTable());
   //     }
 
   // define the MateriapropertiesTable for the Sensitive Regions in the Tracker
@@ -111,22 +112,18 @@ void MaterialProperties::setMaterialProperties() {
   // Absorption Length
   // G4double AbsorptionLengthSi[nEntries] = { 198.8 * micrometer, 198.8 *
   // micrometer, 198.8 * micrometer }; ///////////////////////////////////
-  G4double AbsorptionLengthSi[nEntries] = {1136 * micrometer, 1136 * micrometer,
-                                           1136 * micrometer};
+  G4double AbsorptionLengthSi[nEntries] = {1136 * micrometer, 1136 * micrometer, 1136 * micrometer};
 
-  G4double AbsorptionLengthSiBarrel[nEntries] = {0.1 * fermi, 0.1 * fermi,
-                                                 0.1 * fermi};
+  G4double AbsorptionLengthSiBarrel[nEntries] = {0.1 * fermi, 0.1 * fermi, 0.1 * fermi};
 
   // Absorption length of the mirrors
-  G4double AbsorptionLengthMirror[nEntries] = {11.7 * cm, 0.5 * 11.7 * cm,
-                                               11.7 * cm};
+  G4double AbsorptionLengthMirror[nEntries] = {11.7 * cm, 0.5 * 11.7 * cm, 11.7 * cm};
 
   // Absorption Length for dead material in the tracker; set to small values
   // to kill the optical photons outside the TEC. Maybe this is later a problem
   // when implementing Ray 1 to connect both TECs which eachother and with TIB
   // and TOB!??
-  G4double AbsorptionLengthDead[nEntries] = {
-      0.001 * micrometer, 0.001 * micrometer, 0.001 * micrometer};
+  G4double AbsorptionLengthDead[nEntries] = {0.001 * micrometer, 0.001 * micrometer, 0.001 * micrometer};
 
   // Absorption Length of the other Materials in the Tracker
   G4double AbsorptionLengthGeneral[nEntries] = {75 * cm, 75 * cm, 75 * cm};
@@ -162,8 +159,8 @@ void MaterialProperties::setMaterialProperties() {
 
   // set the options for the materials
   {
-    for (G4MaterialTable::const_iterator theMTEntry = theMaterialTable->begin();
-         theMTEntry != theMaterialTable->end(); theMTEntry++) {
+    for (G4MaterialTable::const_iterator theMTEntry = theMaterialTable->begin(); theMTEntry != theMaterialTable->end();
+         theMTEntry++) {
       if (*theMTEntry) {
         G4Material *theMaterial = const_cast<G4Material *>(*theMTEntry);
 
@@ -175,16 +172,11 @@ void MaterialProperties::setMaterialProperties() {
 
         // properties of the TEC_Wafer
         if (theMaterial->GetName() == "TEC_Wafer") {
-          theMPT->AddProperty("FASTCOMPONENT", PhotonEnergy, Scintillation,
-                              nEntries);
-          theMPT->AddProperty("SLOWCOMPONENT", PhotonEnergy, Scintillation,
-                              nEntries);
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndex,
-                              nEntries);
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthSi,
-                              nEntries);
-          theMPT->AddProperty("EFFICIENCY", PhotonEnergy, TECEfficiency,
-                              nEntries);
+          theMPT->AddProperty("FASTCOMPONENT", PhotonEnergy, Scintillation, nEntries);
+          theMPT->AddProperty("SLOWCOMPONENT", PhotonEnergy, Scintillation, nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndex, nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthSi, nEntries);
+          theMPT->AddProperty("EFFICIENCY", PhotonEnergy, TECEfficiency, nEntries);
 
           theMPT->AddConstProperty("SCINTILLATIONYIELD", 12000.0 / MeV);
           theMPT->AddConstProperty("RESOLTUIONSCALE", 1.0);
@@ -198,16 +190,11 @@ void MaterialProperties::setMaterialProperties() {
 
         // properties of Silicon (used as Module Material in CMSSW)
         else if (theMaterial->GetName() == "Silicon") {
-          theMPT->AddProperty("FASTCOMPONENT", PhotonEnergy, Scintillation,
-                              nEntries);
-          theMPT->AddProperty("SLOWCOMPONENT", PhotonEnergy, Scintillation,
-                              nEntries);
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndex,
-                              nEntries);
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthSi,
-                              nEntries);
-          theMPT->AddProperty("EFFICIENCY", PhotonEnergy, TECEfficiency,
-                              nEntries);
+          theMPT->AddProperty("FASTCOMPONENT", PhotonEnergy, Scintillation, nEntries);
+          theMPT->AddProperty("SLOWCOMPONENT", PhotonEnergy, Scintillation, nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndex, nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthSi, nEntries);
+          theMPT->AddProperty("EFFICIENCY", PhotonEnergy, TECEfficiency, nEntries);
 
           theMPT->AddConstProperty("SCINTILLATIONYIELD", 12000.0 / MeV);
           theMPT->AddConstProperty("RESOLTUIONSCALE", 1.0);
@@ -220,20 +207,13 @@ void MaterialProperties::setMaterialProperties() {
         }
 
         // properties of the TOB_Wafer, TOB_Silicon, TIB_Wafer
-        else if ((theMaterial->GetName() == "TOB_Wafer") ||
-                 (theMaterial->GetName() == "TIB_Wafer")) {
-          theMPT->AddProperty("FASTCOMPONENT", PhotonEnergy, Scintillation,
-                              nEntries);
-          theMPT->AddProperty("SLOWCOMPONENT", PhotonEnergy, Scintillation,
-                              nEntries);
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndex,
-                              nEntries);
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy,
-                              AbsorptionLengthSiBarrel, nEntries);
-          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity,
-                              nEntries);
-          theMPT->AddProperty("EFFICIENCY", PhotonEnergy, BarrelEfficiency,
-                              nEntries);
+        else if ((theMaterial->GetName() == "TOB_Wafer") || (theMaterial->GetName() == "TIB_Wafer")) {
+          theMPT->AddProperty("FASTCOMPONENT", PhotonEnergy, Scintillation, nEntries);
+          theMPT->AddProperty("SLOWCOMPONENT", PhotonEnergy, Scintillation, nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndex, nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthSiBarrel, nEntries);
+          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity, nEntries);
+          theMPT->AddProperty("EFFICIENCY", PhotonEnergy, BarrelEfficiency, nEntries);
 
           theMPT->AddConstProperty("SCINTILLATIONYIELD", 12000.0 / MeV);
           theMPT->AddConstProperty("RESOLTUIONSCALE", 1.0);
@@ -248,27 +228,21 @@ void MaterialProperties::setMaterialProperties() {
         // properties of the TIB_ledge_side
         else if (theMaterial->GetName() == "TIB_ledge_side") {
           // set the refractive index
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral,
-                              nEntries);
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy,
-                              AbsorptionLengthGeneral, nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral, nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthGeneral, nEntries);
 
           // set the MaterialPropertiesTable
           theMaterial->SetMaterialPropertiesTable(theMPT);
         }
 
         // properties of air
-        else if ((theMaterial->GetName() == "T_Air") ||
-                 (theMaterial->GetName() == "Air")) {
+        else if ((theMaterial->GetName() == "T_Air") || (theMaterial->GetName() == "Air")) {
           // set the refractive index
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral,
-                              nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral, nEntries);
           // set the reflectivity
-          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity,
-                              nEntries);
+          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity, nEntries);
           // set the absorptionlength
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthTAir,
-                              nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthTAir, nEntries);
 
           // set the MaterialPropertiesTable
           theMaterial->SetMaterialPropertiesTable(theMPT);
@@ -276,18 +250,14 @@ void MaterialProperties::setMaterialProperties() {
 
         // properties of some materials in the Barrel
         // used to absorb photons to avoid hits in other TEC
-        else if ((theMaterial->GetName() == "TIB_connector") ||
-                 (theMaterial->GetName() == "TIB_cylinder") ||
+        else if ((theMaterial->GetName() == "TIB_connector") || (theMaterial->GetName() == "TIB_cylinder") ||
                  (theMaterial->GetName() == "TID_Connector")) {
           // set the refractive index
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral,
-                              nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral, nEntries);
           // set the reflectivity
-          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity,
-                              nEntries);
+          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity, nEntries);
           // set the absorptionlength
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthDead,
-                              nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthDead, nEntries);
 
           // set the MaterialPropertiesTable
           theMaterial->SetMaterialPropertiesTable(theMPT);
@@ -296,31 +266,24 @@ void MaterialProperties::setMaterialProperties() {
         // properties of SiO2; used for the mirrors of the Alignment Tubes
         else if (theMaterial->GetName() == "Si O_2") {
           // set the refractive index
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexMirror,
-                              nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexMirror, nEntries);
           // set the absorptionlength
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthMirror,
-                              nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthMirror, nEntries);
           // set the reflectivity
-          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, Reflectivity,
-                              nEntries);
+          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, Reflectivity, nEntries);
 
           // set the MaterialPropertiesTable
           theMaterial->SetMaterialPropertiesTable(theMPT);
         }
 
         // properties of Aluminium
-        else if ((theMaterial->GetName() == "TOB_Aluminium") ||
-                 (theMaterial->GetName() == "Aluminium")) {
+        else if ((theMaterial->GetName() == "TOB_Aluminium") || (theMaterial->GetName() == "Aluminium")) {
           // set the refractive index
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral,
-                              nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral, nEntries);
           // set the reflectivity
-          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity,
-                              nEntries);
+          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity, nEntries);
           // set the absorptionlength
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthAl,
-                              nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthAl, nEntries);
 
           // set the MaterialPropertiesTable
           theMaterial->SetMaterialPropertiesTable(theMPT);
@@ -329,71 +292,49 @@ void MaterialProperties::setMaterialProperties() {
         // properties of TOB_CF_Str
         else if ((theMaterial->GetName() == "TOB_CF_Str")) {
           // set the refractive index
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral,
-                              nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral, nEntries);
           // set the reflectivity
-          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity,
-                              nEntries);
+          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity, nEntries);
           // set the absorptionlength
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy,
-                              AbsorptionLengthTOB_CF_Str, nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthTOB_CF_Str, nEntries);
 
           // set the MaterialPropertiesTable
           theMaterial->SetMaterialPropertiesTable(theMPT);
         }
 
         // some other Tracker materials
-        else if ((theMaterial->GetName() == "TID_CF") ||
-                 (theMaterial->GetName() == "Nomex") ||
-                 (theMaterial->GetName() == "TOB_Nomex") ||
-                 (theMaterial->GetName() == "TID_Nomex") ||
-                 (theMaterial->GetName() == "TOB_plate_C") ||
-                 (theMaterial->GetName() == "TOB_rod") ||
-                 (theMaterial->GetName() == "TOB_cool_DS") ||
-                 (theMaterial->GetName() == "TOB_cool_SS") ||
-                 (theMaterial->GetName() == "TID_in_cable") ||
-                 (theMaterial->GetName() == "TOB_PA_rphi") ||
-                 (theMaterial->GetName() == "TOB_frame_ele") ||
-                 (theMaterial->GetName() == "TOB_PA_ster") ||
-                 (theMaterial->GetName() == "TOB_ICB") ||
-                 (theMaterial->GetName() == "TOB_CONN1") ||
-                 (theMaterial->GetName() == "TOB_CONN2") ||
-                 (theMaterial->GetName() == "TOB_CONN3") ||
-                 (theMaterial->GetName() == "TOB_rail") ||
-                 (theMaterial->GetName() == "TOB_sid_rail1") ||
+        else if ((theMaterial->GetName() == "TID_CF") || (theMaterial->GetName() == "Nomex") ||
+                 (theMaterial->GetName() == "TOB_Nomex") || (theMaterial->GetName() == "TID_Nomex") ||
+                 (theMaterial->GetName() == "TOB_plate_C") || (theMaterial->GetName() == "TOB_rod") ||
+                 (theMaterial->GetName() == "TOB_cool_DS") || (theMaterial->GetName() == "TOB_cool_SS") ||
+                 (theMaterial->GetName() == "TID_in_cable") || (theMaterial->GetName() == "TOB_PA_rphi") ||
+                 (theMaterial->GetName() == "TOB_frame_ele") || (theMaterial->GetName() == "TOB_PA_ster") ||
+                 (theMaterial->GetName() == "TOB_ICB") || (theMaterial->GetName() == "TOB_CONN1") ||
+                 (theMaterial->GetName() == "TOB_CONN2") || (theMaterial->GetName() == "TOB_CONN3") ||
+                 (theMaterial->GetName() == "TOB_rail") || (theMaterial->GetName() == "TOB_sid_rail1") ||
                  (theMaterial->GetName() == "TOB_sid_rail2")) {
           // set the refractive index
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral,
-                              nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral, nEntries);
           // set the reflectivity
-          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity,
-                              nEntries);
+          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity, nEntries);
           // set the absorptionlength
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthTOBCF,
-                              nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthTOBCF, nEntries);
 
           // set the MaterialPropertiesTable
           theMaterial->SetMaterialPropertiesTable(theMPT);
         }
 
         // properties of some TIB materials
-        else if ((theMaterial->GetName() == "TIB_CF") ||
-                 (theMaterial->GetName() == "TIB_cables_ax_out") ||
-                 (theMaterial->GetName() == "TIB_outer_supp") ||
-                 (theMaterial->GetName() == "TIB_PA_rphi") ||
-                 (theMaterial->GetName() == "TIB_rail") ||
-                 (theMaterial->GetName() == "TIB_sid_rail1") ||
-                 (theMaterial->GetName() == "TIB_sid_rail2") ||
-                 (theMaterial->GetName() == "TIB_mod_cool")) {
+        else if ((theMaterial->GetName() == "TIB_CF") || (theMaterial->GetName() == "TIB_cables_ax_out") ||
+                 (theMaterial->GetName() == "TIB_outer_supp") || (theMaterial->GetName() == "TIB_PA_rphi") ||
+                 (theMaterial->GetName() == "TIB_rail") || (theMaterial->GetName() == "TIB_sid_rail1") ||
+                 (theMaterial->GetName() == "TIB_sid_rail2") || (theMaterial->GetName() == "TIB_mod_cool")) {
           // set the refractive index
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral,
-                              nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral, nEntries);
           // set the reflectivity
-          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity,
-                              nEntries);
+          theMPT->AddProperty("REFLECTIVITY", PhotonEnergy, SiReflectivity, nEntries);
           // set the absorptionlength
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthTIBCF,
-                              nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthTIBCF, nEntries);
 
           // set the MaterialPropertiesTable
           theMaterial->SetMaterialPropertiesTable(theMPT);
@@ -402,11 +343,9 @@ void MaterialProperties::setMaterialProperties() {
         // properties of all other materials in the detector
         else {
           // set the refractive index
-          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral,
-                              nEntries);
+          theMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexGeneral, nEntries);
           // set the absorptionlength
-          theMPT->AddProperty("ABSLENGTH", PhotonEnergy,
-                              AbsorptionLengthGeneral, nEntries);
+          theMPT->AddProperty("ABSLENGTH", PhotonEnergy, AbsorptionLengthGeneral, nEntries);
 
           // set the MaterialPropertiesTable
           theMaterial->SetMaterialPropertiesTable(theMPT);
@@ -417,12 +356,11 @@ void MaterialProperties::setMaterialProperties() {
 
   // loop over the logical volumes and set the material for the sensitive
   // detectors
-  const G4LogicalVolumeStore *theLogicalVolumeStore =
-      G4LogicalVolumeStore::GetInstance();
+  const G4LogicalVolumeStore *theLogicalVolumeStore = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume *>::const_iterator theLogicalVolume;
 
-  for (theLogicalVolume = theLogicalVolumeStore->begin();
-       theLogicalVolume != theLogicalVolumeStore->end(); theLogicalVolume++) {
+  for (theLogicalVolume = theLogicalVolumeStore->begin(); theLogicalVolume != theLogicalVolumeStore->end();
+       theLogicalVolume++) {
     if (((*theLogicalVolume)->GetName() == "TECModule0StereoActive") ||
         ((*theLogicalVolume)->GetName() == "TECModule0RphiActive") ||
         ((*theLogicalVolume)->GetName() == "TECModule1StereoActive") ||
@@ -437,15 +375,11 @@ void MaterialProperties::setMaterialProperties() {
       (*theLogicalVolume)->SetMaterial(theTECWafer);
 
       if (theMPDebugLevel > 2) {
-        std::cout << "  AC1CMS: found a logical volume: "
-                  << (*theLogicalVolume)->GetName() << std::endl;
-        std::cout << "  AC1CMS: the logical volume material = "
-                  << (*theLogicalVolume)->GetMaterial()->GetName() << std::endl;
+        std::cout << "  AC1CMS: found a logical volume: " << (*theLogicalVolume)->GetName() << std::endl;
+        std::cout << "  AC1CMS: the logical volume material = " << (*theLogicalVolume)->GetMaterial()->GetName()
+                  << std::endl;
         std::cout << "  AC1CMS: the MaterialPropertiesTable = " << std::endl;
-        (*theLogicalVolume)
-            ->GetMaterial()
-            ->GetMaterialPropertiesTable()
-            ->DumpTable();
+        (*theLogicalVolume)->GetMaterial()->GetMaterialPropertiesTable()->DumpTable();
       }
     } else if (((*theLogicalVolume)->GetName() == "TOBActiveSter0") ||
                ((*theLogicalVolume)->GetName() == "TOBActiveRphi0") ||
@@ -455,15 +389,11 @@ void MaterialProperties::setMaterialProperties() {
       (*theLogicalVolume)->SetMaterial(theTOBWafer);
 
       if (theMPDebugLevel > 2) {
-        std::cout << "  AC1CMS: found a logical volume: "
-                  << (*theLogicalVolume)->GetName() << std::endl;
-        std::cout << "  AC1CMS: the logical volume material = "
-                  << (*theLogicalVolume)->GetMaterial()->GetName() << std::endl;
+        std::cout << "  AC1CMS: found a logical volume: " << (*theLogicalVolume)->GetName() << std::endl;
+        std::cout << "  AC1CMS: the logical volume material = " << (*theLogicalVolume)->GetMaterial()->GetName()
+                  << std::endl;
         std::cout << "  AC1CMS: the MaterialPropertiesTable = " << std::endl;
-        (*theLogicalVolume)
-            ->GetMaterial()
-            ->GetMaterialPropertiesTable()
-            ->DumpTable();
+        (*theLogicalVolume)->GetMaterial()->GetMaterialPropertiesTable()->DumpTable();
       }
     } else if (((*theLogicalVolume)->GetName() == "TIBActiveSter0") ||
                ((*theLogicalVolume)->GetName() == "TIBActiveRphi0") ||
@@ -472,15 +402,11 @@ void MaterialProperties::setMaterialProperties() {
       (*theLogicalVolume)->SetMaterial(theTIBWafer);
 
       if (theMPDebugLevel > 2) {
-        std::cout << "  AC1CMS: found a logical volume: "
-                  << (*theLogicalVolume)->GetName() << std::endl;
-        std::cout << "  AC1CMS: the logical volume material = "
-                  << (*theLogicalVolume)->GetMaterial()->GetName() << std::endl;
+        std::cout << "  AC1CMS: found a logical volume: " << (*theLogicalVolume)->GetName() << std::endl;
+        std::cout << "  AC1CMS: the logical volume material = " << (*theLogicalVolume)->GetMaterial()->GetName()
+                  << std::endl;
         std::cout << "  AC1CMS: the MaterialPropertiesTable = " << std::endl;
-        (*theLogicalVolume)
-            ->GetMaterial()
-            ->GetMaterialPropertiesTable()
-            ->DumpTable();
+        (*theLogicalVolume)->GetMaterial()->GetMaterialPropertiesTable()->DumpTable();
       }
     }
   }

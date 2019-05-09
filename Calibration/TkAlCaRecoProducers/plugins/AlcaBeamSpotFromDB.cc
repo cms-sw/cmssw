@@ -28,19 +28,16 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 AlcaBeamSpotFromDB::AlcaBeamSpotFromDB(const edm::ParameterSet &iConfig) {
-
   produces<reco::BeamSpot, edm::Transition::EndLuminosityBlock>("alcaBeamSpot");
 }
 
 AlcaBeamSpotFromDB::~AlcaBeamSpotFromDB() {}
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotFromDB::produce(edm::Event &iEvent,
-                                 const edm::EventSetup &iSetup) {}
+void AlcaBeamSpotFromDB::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {}
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotFromDB::endLuminosityBlockProduce(
-    edm::LuminosityBlock &lumiSeg, const edm::EventSetup &iSetup) {
+void AlcaBeamSpotFromDB::endLuminosityBlockProduce(edm::LuminosityBlock &lumiSeg, const edm::EventSetup &iSetup) {
   // read DB object
   edm::ESHandle<BeamSpotObjects> beamhandle;
   iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
@@ -58,8 +55,8 @@ void AlcaBeamSpotFromDB::endLuminosityBlockProduce(
 
   reco::BeamSpot aSpot;
   // this assume beam width same in x and y
-  aSpot = reco::BeamSpot(apoint, spotDB->GetSigmaZ(), spotDB->Getdxdz(),
-                         spotDB->Getdydz(), spotDB->GetBeamWidthX(), matrix);
+  aSpot = reco::BeamSpot(
+      apoint, spotDB->GetSigmaZ(), spotDB->Getdxdz(), spotDB->Getdydz(), spotDB->GetBeamWidthX(), matrix);
   aSpot.setBeamWidthY(spotDB->GetBeamWidthY());
   aSpot.setEmittanceX(spotDB->GetEmittanceX());
   aSpot.setEmittanceY(spotDB->GetEmittanceY());

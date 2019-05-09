@@ -62,9 +62,9 @@ public:
     preciseData_.resize(preciseSize_, 0.);
   }
 
-  bool isBlank() const; // are the samples blank (zero?)
+  bool isBlank() const;  // are the samples blank (zero?)
 
-  void setBlank(); // keep id, presamples, size but zero out data
+  void setBlank();  // keep id, presamples, size but zero out data
 
   /// get the size
   int preciseSize() const {
@@ -88,7 +88,7 @@ public:
 private:
   DetId id_;
   int size_, presamples_;
-  std::vector<double> data_; //
+  std::vector<double> data_;  //
   float deltaTprecise_;
   std::vector<float> preciseData_;
   int preciseSize_, precisePresamples_;

@@ -15,7 +15,6 @@ CSCGainsDBConditions::CSCGainsDBConditions(const edm::ParameterSet &iConfig) {
 }
 
 CSCGainsDBConditions::~CSCGainsDBConditions() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -25,15 +24,13 @@ CSCGainsDBConditions::~CSCGainsDBConditions() {
 //
 
 // ------------ method called to produce the data  ------------
-CSCGainsDBConditions::ReturnType
-CSCGainsDBConditions::produceDBGains(const CSCDBGainsRcd &iRecord) {
+CSCGainsDBConditions::ReturnType CSCGainsDBConditions::produceDBGains(const CSCDBGainsRcd &iRecord) {
   // need a new object so to not be deleted at exit
   return CSCGainsDBConditions::ReturnType(prefillDBGains());
 }
 
-void CSCGainsDBConditions::setIntervalFor(
-    const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &,
-    edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
-                                    edm::IOVSyncValue::endOfTime());
+void CSCGainsDBConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                                          const edm::IOVSyncValue &,
+                                          edm::ValidityInterval &oValidity) {
+  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }

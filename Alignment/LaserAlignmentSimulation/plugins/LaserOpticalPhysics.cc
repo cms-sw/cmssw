@@ -23,8 +23,7 @@
 #include "G4IonPhysics.hh"
 #include "G4StoppingPhysics.hh"
 
-LaserOpticalPhysics::LaserOpticalPhysics(const edm::ParameterSet &p)
-    : PhysicsList(p) {
+LaserOpticalPhysics::LaserOpticalPhysics(const edm::ParameterSet &p) : PhysicsList(p) {
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   G4DataQuestionaire it(photon);
   std::cout << "You are using the simulation engine: QGSP together with "

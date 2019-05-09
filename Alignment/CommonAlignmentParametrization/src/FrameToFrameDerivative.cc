@@ -13,29 +13,25 @@
 #include "DataFormats/CLHEP/interface/Migration.h"
 
 //__________________________________________________________________________________________________
-AlgebraicMatrix FrameToFrameDerivative::frameToFrameDerivative(
-    const Alignable *object, const Alignable *composedObject) const {
-
-  return getDerivative(
-      object->globalRotation(), composedObject->globalRotation(),
-      composedObject->globalPosition() - object->globalPosition());
+AlgebraicMatrix FrameToFrameDerivative::frameToFrameDerivative(const Alignable *object,
+                                                               const Alignable *composedObject) const {
+  return getDerivative(object->globalRotation(),
+                       composedObject->globalRotation(),
+                       composedObject->globalPosition() - object->globalPosition());
 }
 
 //__________________________________________________________________________________________________
-AlgebraicMatrix66 FrameToFrameDerivative::getDerivative(
-    const align::RotationType &objectRot, const align::RotationType &composeRot,
-    const align::GlobalPoint &objectPos,
-    const align::GlobalPoint &composePos) const {
-  return asSMatrix<6, 6>(
-      this->getDerivative(objectRot, composeRot, composePos - objectPos));
+AlgebraicMatrix66 FrameToFrameDerivative::getDerivative(const align::RotationType &objectRot,
+                                                        const align::RotationType &composeRot,
+                                                        const align::GlobalPoint &objectPos,
+                                                        const align::GlobalPoint &composePos) const {
+  return asSMatrix<6, 6>(this->getDerivative(objectRot, composeRot, composePos - objectPos));
 }
 
 //__________________________________________________________________________________________________
-AlgebraicMatrix
-FrameToFrameDerivative::getDerivative(const align::RotationType &objectRot,
-                                      const align::RotationType &composeRot,
-                                      const align::GlobalVector &posVec) const {
-
+AlgebraicMatrix FrameToFrameDerivative::getDerivative(const align::RotationType &objectRot,
+                                                      const align::RotationType &composeRot,
+                                                      const align::GlobalVector &posVec) const {
   AlgebraicMatrix rotDet = transform(objectRot);
   AlgebraicMatrix rotCompO = transform(composeRot);
 
@@ -96,19 +92,15 @@ FrameToFrameDerivative::getDerivative(const align::RotationType &objectRot,
 }
 
 //__________________________________________________________________________________________________
-AlgebraicMatrix
-FrameToFrameDerivative::derivativePosPos(const AlgebraicMatrix &RotDet,
-                                         const AlgebraicMatrix &RotRot) const {
-
+AlgebraicMatrix FrameToFrameDerivative::derivativePosPos(const AlgebraicMatrix &RotDet,
+                                                         const AlgebraicMatrix &RotRot) const {
   return RotDet * RotRot.T();
 }
 
 //__________________________________________________________________________________________________
-AlgebraicMatrix
-FrameToFrameDerivative::derivativePosRot(const AlgebraicMatrix &RotDet,
-                                         const AlgebraicMatrix &RotRot,
-                                         const AlgebraicVector &S) const {
-
+AlgebraicMatrix FrameToFrameDerivative::derivativePosRot(const AlgebraicMatrix &RotDet,
+                                                         const AlgebraicMatrix &RotRot,
+                                                         const AlgebraicVector &S) const {
   AlgebraicVector dEulerA(3);
   AlgebraicVector dEulerB(3);
   AlgebraicVector dEulerC(3);
@@ -119,7 +111,7 @@ FrameToFrameDerivative::derivativePosRot(const AlgebraicMatrix &RotDet,
   RotDa[1][2] = 1;
   RotDa[2][1] = -1;
   RotDb[0][2] = -1;
-  RotDb[2][0] = 1; // New beta sign
+  RotDb[2][0] = 1;  // New beta sign
   RotDc[0][1] = 1;
   RotDc[1][0] = -1;
 
@@ -142,10 +134,8 @@ FrameToFrameDerivative::derivativePosRot(const AlgebraicMatrix &RotDet,
 }
 
 //__________________________________________________________________________________________________
-AlgebraicMatrix
-FrameToFrameDerivative::derivativeRotRot(const AlgebraicMatrix &RotDet,
-                                         const AlgebraicMatrix &RotRot) const {
-
+AlgebraicMatrix FrameToFrameDerivative::derivativeRotRot(const AlgebraicMatrix &RotDet,
+                                                         const AlgebraicMatrix &RotRot) const {
   AlgebraicVector dEulerA(3);
   AlgebraicVector dEulerB(3);
   AlgebraicVector dEulerC(3);
@@ -156,16 +146,13 @@ FrameToFrameDerivative::derivativeRotRot(const AlgebraicMatrix &RotDet,
   RotDa[1][2] = 1;
   RotDa[2][1] = -1;
   RotDb[0][2] = -1;
-  RotDb[2][0] = 1; // New beta sign
+  RotDb[2][0] = 1;  // New beta sign
   RotDc[0][1] = 1;
   RotDc[1][0] = -1;
 
-  dEulerA =
-      linearEulerAngles(RotDet * RotRot.T() * RotDa * RotRot * RotDet.T());
-  dEulerB =
-      linearEulerAngles(RotDet * RotRot.T() * RotDb * RotRot * RotDet.T());
-  dEulerC =
-      linearEulerAngles(RotDet * RotRot.T() * RotDc * RotRot * RotDet.T());
+  dEulerA = linearEulerAngles(RotDet * RotRot.T() * RotDa * RotRot * RotDet.T());
+  dEulerB = linearEulerAngles(RotDet * RotRot.T() * RotDb * RotRot * RotDet.T());
+  dEulerC = linearEulerAngles(RotDet * RotRot.T() * RotDc * RotRot * RotDet.T());
 
   AlgebraicMatrix eulerDeriv(3, 3);
 
@@ -183,13 +170,11 @@ FrameToFrameDerivative::derivativeRotRot(const AlgebraicMatrix &RotDet,
 }
 
 //__________________________________________________________________________________________________
-AlgebraicVector FrameToFrameDerivative::linearEulerAngles(
-    const AlgebraicMatrix &rotDelta) const {
-
+AlgebraicVector FrameToFrameDerivative::linearEulerAngles(const AlgebraicMatrix &rotDelta) const {
   AlgebraicMatrix eulerAB(3, 3);
   AlgebraicVector aB(3);
   eulerAB[0][1] = 1;
-  eulerAB[1][0] = -1; // New beta sign
+  eulerAB[1][0] = -1;  // New beta sign
   aB[2] = 1;
 
   AlgebraicMatrix eulerC(3, 3);

@@ -1,8 +1,6 @@
 #include "CalibMuon/CSCCalibration/interface/CSCChannelMapperPostls1.h"
 
-int CSCChannelMapperPostls1::rawStripChannel(const CSCDetId &id,
-                                             int igeo) const {
-
+int CSCChannelMapperPostls1::rawStripChannel(const CSCDetId &id, int igeo) const {
   // Translate a geometry-oriented strip channel in range 1-80, igeo,
   // into corresponding raw channel.
 
@@ -15,16 +13,15 @@ int CSCChannelMapperPostls1::rawStripChannel(const CSCDetId &id,
 
   if (me1a && zplus) {
     iraw = 49 - iraw;
-  } // 1-48 -> 48-1
+  }  // 1-48 -> 48-1
   if (me1b && !zplus) {
     iraw = 65 - iraw;
-  } // 1-64 -> 64-1
+  }  // 1-64 -> 64-1
 
   return iraw;
 }
 
-int CSCChannelMapperPostls1::geomStripChannel(const CSCDetId &id,
-                                              int iraw) const {
+int CSCChannelMapperPostls1::geomStripChannel(const CSCDetId &id, int iraw) const {
   // Translate a raw strip channel in range 1-80, iraw,  into
   // corresponding geometry-oriented channel in which increasing
   // channel number <-> strip number increasing with +ve local x.
@@ -37,16 +34,15 @@ int CSCChannelMapperPostls1::geomStripChannel(const CSCDetId &id,
 
   if (me1a && zplus) {
     igeo = 49 - igeo;
-  } // 1-48 -> 48-1
+  }  // 1-48 -> 48-1
   if (me1b && !zplus) {
     igeo = 65 - igeo;
-  } // 1-64 -> 64-1
+  }  // 1-64 -> 64-1
 
   return igeo;
 }
 
-int CSCChannelMapperPostls1::channelFromStrip(const CSCDetId &id,
-                                              int strip) const {
+int CSCChannelMapperPostls1::channelFromStrip(const CSCDetId &id, int strip) const {
   // This just returns the electronics channel label to which a given strip is
   // connected In all chambers (including upgraded ME1A) this is just a direct
   // 1-1 correspondence.
