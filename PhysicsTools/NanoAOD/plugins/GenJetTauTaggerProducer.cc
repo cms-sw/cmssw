@@ -43,7 +43,7 @@ class GenJetTauTaggerProducer : public edm::stream::EDProducer<> {
       explicit GenJetTauTaggerProducer(const edm::ParameterSet &iConfig):
         src_(consumes<std::vector<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src")))
         {
-          produces<edm::ValueMap<int>>();
+          produces<edm::ValueMap<bool>>();
         } 
       ~GenJetTauTaggerProducer();
 
@@ -76,19 +76,20 @@ GenJetTauTaggerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<reco::GenJetCollection> jets;
   iEvent.getByToken(src_, jets);
 
-  std::vector<int> tags;
+  std::vector<bool> tags;
 
   for(auto jet = jets->begin(); jet != jets->end(); ++jet){
 
-    int found = 0;
+    bool found = false;
     for(auto cand : jet->getJetConstituentsQuick()){
-      if( abs(cand->pdgId()) == 15) found = 1;
-      tags.push_back(found);
+      if( abs(cand->pdgId()) == 15) found = true;
+      
     }
+    tags.push_back(found);
   }
 
-  std::unique_ptr<edm::ValueMap<int>> tagsV(new edm::ValueMap<int>());
-  edm::ValueMap<int>::Filler fillerCorr(*tagsV);
+  std::unique_ptr<edm::ValueMap<bool>> tagsV(new edm::ValueMap<bool>());
+  edm::ValueMap<bool>::Filler fillerCorr(*tagsV);
   fillerCorr.insert(jets,tags.begin(),tags.end());
   fillerCorr.fill();
   iEvent.put(std::move(tagsV));
@@ -100,7 +101,7 @@ GenJetTauTaggerProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<edm::InputTag>("src")->setComment("input physics object collection");
   descriptions.addDefault(desc);
 }
 
