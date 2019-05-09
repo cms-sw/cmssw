@@ -4,7 +4,7 @@
 //
 // Package:     Utilities
 // Class  :     CPUTimer
-// 
+//
 /**\class CPUTimer CPUTimer.h FWCore/Utilities/interface/CPUTimer.h
 
  Description: Timer which measures the CPU and wallclock time
@@ -34,54 +34,51 @@
 
 // forward declarations
 namespace edm {
-class CPUTimer
-{
+  class CPUTimer {
+  public:
+    CPUTimer();
+    ~CPUTimer();
+    CPUTimer(CPUTimer&&) = default;
 
-   public:
-      CPUTimer();
-      ~CPUTimer();
-      CPUTimer(CPUTimer&&) = default;
-  
-      struct Times {
-         Times():real_(0),cpu_(0) {}
-         double real_;
-         double cpu_;
-      };
-   
-   
-      // ---------- const member functions ---------------------
-      double realTime() const ;
-      double cpuTime() const ;
-      
-      // ---------- static member functions --------------------
+    struct Times {
+      Times() : real_(0), cpu_(0) {}
+      double real_;
+      double cpu_;
+    };
 
-      // ---------- member functions ---------------------------
-      void start();
-      Times stop(); //returns delta time
-      void reset();
-      
-      void add(const Times& t);
-   private:
-      CPUTimer(const CPUTimer&) = delete; // stop default
+    // ---------- const member functions ---------------------
+    double realTime() const;
+    double cpuTime() const;
 
-      const CPUTimer& operator=(const CPUTimer&) = delete; // stop default
+    // ---------- static member functions --------------------
 
-      Times calculateDeltaTime() const;
-      
-      // ---------- member data --------------------------------
-      enum State {kRunning, kStopped} state_;
+    // ---------- member functions ---------------------------
+    void start();
+    Times stop();  //returns delta time
+    void reset();
+
+    void add(const Times& t);
+
+  private:
+    CPUTimer(const CPUTimer&) = delete;  // stop default
+
+    const CPUTimer& operator=(const CPUTimer&) = delete;  // stop default
+
+    Times calculateDeltaTime() const;
+
+    // ---------- member data --------------------------------
+    enum State { kRunning, kStopped } state_;
 #ifdef USE_CLOCK_GETTIME
-      struct timespec startRealTime_;
-      struct timespec startCPUTime_;
+    struct timespec startRealTime_;
+    struct timespec startCPUTime_;
 #else
-      struct timeval startRealTime_;
-      struct timeval startCPUTime_;
+    struct timeval startRealTime_;
+    struct timeval startCPUTime_;
 #endif
-   
-      double accumulatedRealTime_;
-      double accumulatedCPUTime_;
-      
-};
-}
+
+    double accumulatedRealTime_;
+    double accumulatedCPUTime_;
+  };
+}  // namespace edm
 
 #endif

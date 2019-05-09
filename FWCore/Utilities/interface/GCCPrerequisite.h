@@ -9,13 +9,12 @@
    Note - it won't work for gcc1 since the _MINOR macros
    were not defined then.  */
 #if defined __GNUC__ && defined __GNUC_MINOR__ && defined __GNUC_PATCHLEVEL__
-# define GCC_PREREQUISITE(maj, min, patch) \
-        ((__GNUC__ << 16) + (__GNUC_MINOR__ << 8) + __GNUC_PATCHLEVEL__ >= ((maj) << 16) + ((min) << 8) + (patch))
-#elif defined __GNUC__ && defined __GNUC_MINOR__ 
-# define GCC_PREREQUISITE(maj, min, patch) \
-        ((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
+#define GCC_PREREQUISITE(maj, min, patch) \
+  ((__GNUC__ << 16) + (__GNUC_MINOR__ << 8) + __GNUC_PATCHLEVEL__ >= ((maj) << 16) + ((min) << 8) + (patch))
+#elif defined __GNUC__ && defined __GNUC_MINOR__
+#define GCC_PREREQUISITE(maj, min, patch) ((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
 #else
-# define GCC_PREREQUISITE(maj, min, patch) 0
+#define GCC_PREREQUISITE(maj, min, patch) 0
 #endif
 
 #endif

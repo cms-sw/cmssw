@@ -71,84 +71,80 @@
 #include "tbb/task.h"
 #include "tbb/concurrent_queue.h"
 
-
 namespace edm {
-  template<class T>
+  template <class T>
   class ReusableObjectHolder {
   public:
-    ReusableObjectHolder():m_outstandingObjects(0){}
-    ReusableObjectHolder(ReusableObjectHolder&& iOther):
-    m_availableQueue(std::move(iOther.m_availableQueue)),
-    m_outstandingObjects(0) {
-      assert(0== iOther.m_outstandingObjects);
+    ReusableObjectHolder() : m_outstandingObjects(0) {}
+    ReusableObjectHolder(ReusableObjectHolder&& iOther)
+        : m_availableQueue(std::move(iOther.m_availableQueue)), m_outstandingObjects(0) {
+      assert(0 == iOther.m_outstandingObjects);
     }
     ~ReusableObjectHolder() {
-      assert(0==m_outstandingObjects);
-   		T* item = 0;
-      while(  m_availableQueue.try_pop(item)) {
+      assert(0 == m_outstandingObjects);
+      T* item = 0;
+      while (m_availableQueue.try_pop(item)) {
         delete item;
       }
     }
-    
+
     ///Adds the item to the cache.
     /// Use this function if you know ahead of time
     /// how many cached items you will need.
-   	void add(std::unique_ptr<T> iItem){
-   		if(0!=iItem) {
-   			m_availableQueue.push(iItem.release());
-   		}
-   	}
-    
+    void add(std::unique_ptr<T> iItem) {
+      if (0 != iItem) {
+        m_availableQueue.push(iItem.release());
+      }
+    }
+
     ///Tries to get an already created object,
-   	/// if none are available, returns an empty shared_ptr.
+    /// if none are available, returns an empty shared_ptr.
     /// Use this function in conjunction with add()
-   	std::shared_ptr<T> tryToGet() {
-   		T* item = 0;
-   		m_availableQueue.try_pop(item);
-   		if (0==item) {
-   			return std::shared_ptr<T>{};
-   		}
-   		//instead of deleting, hand back to queue
+    std::shared_ptr<T> tryToGet() {
+      T* item = 0;
+      m_availableQueue.try_pop(item);
+      if (0 == item) {
+        return std::shared_ptr<T>{};
+      }
+      //instead of deleting, hand back to queue
       auto pHolder = this;
       ++m_outstandingObjects;
-   		return std::shared_ptr<T>{item, [pHolder](T* iItem) {pHolder->addBack(iItem);} };
-   	}
-    
+      return std::shared_ptr<T>{item, [pHolder](T* iItem) { pHolder->addBack(iItem); }};
+    }
+
     ///If there isn't an object already available, creates a new one using iFunc
-   	template< typename F>
-   	std::shared_ptr<T> makeOrGet( F iFunc) {
-   		std::shared_ptr<T> returnValue;
-   		while ( ! ( returnValue = tryToGet()) ) {
-   			add( std::unique_ptr<T>(iFunc()) );
-   		}
-   		return returnValue;
-   	}
-    
+    template <typename F>
+    std::shared_ptr<T> makeOrGet(F iFunc) {
+      std::shared_ptr<T> returnValue;
+      while (!(returnValue = tryToGet())) {
+        add(std::unique_ptr<T>(iFunc()));
+      }
+      return returnValue;
+    }
+
     ///If there is an object already available, passes the object to iClearFunc and then
     /// returns the object.
     ///If there is not an object already available, creates a new one using iMakeFunc
-   	template< typename FM, typename FC>
-   	std::shared_ptr<T> makeOrGetAndClear( FM iMakeFunc, FC iClearFunc) {
-   		std::shared_ptr<T> returnValue;
-   		while ( ! ( returnValue = tryToGet()) ) {
-   			add( std::unique_ptr<T>(iMakeFunc()) );
-   		}
-   		iClearFunc(returnValue.get());
-   		return returnValue;
-   	}
-    
+    template <typename FM, typename FC>
+    std::shared_ptr<T> makeOrGetAndClear(FM iMakeFunc, FC iClearFunc) {
+      std::shared_ptr<T> returnValue;
+      while (!(returnValue = tryToGet())) {
+        add(std::unique_ptr<T>(iMakeFunc()));
+      }
+      iClearFunc(returnValue.get());
+      return returnValue;
+    }
+
   private:
-    void addBack(T* iItem){
-   		m_availableQueue.push(iItem);
+    void addBack(T* iItem) {
+      m_availableQueue.push(iItem);
       --m_outstandingObjects;
-   	}
-   	
-   	tbb::concurrent_queue<T*> m_availableQueue;
+    }
+
+    tbb::concurrent_queue<T*> m_availableQueue;
     std::atomic<size_t> m_outstandingObjects;
   };
-  
-}
 
-
+}  // namespace edm
 
 #endif /* end of include guard: FWCore_Utilities_ReusableObjectHolder_h */

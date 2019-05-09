@@ -26,23 +26,23 @@
 // forward declarations
 
 namespace edm {
-namespace soa {
-namespace impl {
-  
-template<int I>
-struct FoundIndex {
-  static constexpr int index = I;
-};
+  namespace soa {
+    namespace impl {
 
-template <int I, typename T, typename TPL>
-struct GetIndex {
-  static constexpr int index = std::conditional<std::is_same<T, typename std::tuple_element<I,TPL>::type >::value,
-  FoundIndex<I>,
-  GetIndex<I+1, T,TPL>>::type::index;
-};
+      template <int I>
+      struct FoundIndex {
+        static constexpr int index = I;
+      };
 
-}
-}
-}
+      template <int I, typename T, typename TPL>
+      struct GetIndex {
+        static constexpr int index = std::conditional<std::is_same<T, typename std::tuple_element<I, TPL>::type>::value,
+                                                      FoundIndex<I>,
+                                                      GetIndex<I + 1, T, TPL>>::type::index;
+      };
+
+    }  // namespace impl
+  }    // namespace soa
+}  // namespace edm
 
 #endif

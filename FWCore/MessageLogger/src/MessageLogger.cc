@@ -49,98 +49,89 @@
 
 namespace edm {
 
-LogInfo::~LogInfo() {}
-LogWarning::~LogWarning() {}
-LogError::~LogError() {}
-LogAbsolute::~LogAbsolute() {}
-LogSystem::~LogSystem() {}
-LogVerbatim::~LogVerbatim() {}
-LogDebug_::~LogDebug_() {}
-LogTrace_::~LogTrace_() {}
-LogPrint::~LogPrint() {}
-LogProblem::~LogProblem() {}
-LogImportant::~LogImportant() {}
-namespace edmmltest {						// 9/27/10b mf
- LogWarningThatSuppressesLikeLogInfo::~LogWarningThatSuppressesLikeLogInfo() {}
-}
+  LogInfo::~LogInfo() {}
+  LogWarning::~LogWarning() {}
+  LogError::~LogError() {}
+  LogAbsolute::~LogAbsolute() {}
+  LogSystem::~LogSystem() {}
+  LogVerbatim::~LogVerbatim() {}
+  LogDebug_::~LogDebug_() {}
+  LogTrace_::~LogTrace_() {}
+  LogPrint::~LogPrint() {}
+  LogProblem::~LogProblem() {}
+  LogImportant::~LogImportant() {}
+  namespace edmmltest {  // 9/27/10b mf
+    LogWarningThatSuppressesLikeLogInfo::~LogWarningThatSuppressesLikeLogInfo() {}
+  }  // namespace edmmltest
 
-void LogStatistics() {
-  edm::MessageLoggerQ::MLqSUM ( ); // trigger summary info
-}
+  void LogStatistics() {
+    edm::MessageLoggerQ::MLqSUM();  // trigger summary info
+  }
 
-bool isDebugEnabled() {
-  return ((!edm::MessageDrop::debugAlwaysSuppressed)		// 9/27/10 mf
-         && edm::MessageDrop::instance()->debugEnabled );
-}
+  bool isDebugEnabled() {
+    return ((!edm::MessageDrop::debugAlwaysSuppressed)  // 9/27/10 mf
+            && edm::MessageDrop::instance()->debugEnabled);
+  }
 
-bool isInfoEnabled() {
-  return ((!edm::MessageDrop::infoAlwaysSuppressed)		// 9/27/10 mf
-         && edm::MessageDrop::instance()->infoEnabled );
-}
+  bool isInfoEnabled() {
+    return ((!edm::MessageDrop::infoAlwaysSuppressed)  // 9/27/10 mf
+            && edm::MessageDrop::instance()->infoEnabled);
+  }
 
-bool isWarningEnabled() {
-  return ((!edm::MessageDrop::warningAlwaysSuppressed)		// 9/27/10 mf
-         && edm::MessageDrop::instance()->warningEnabled );
-}
+  bool isWarningEnabled() {
+    return ((!edm::MessageDrop::warningAlwaysSuppressed)  // 9/27/10 mf
+            && edm::MessageDrop::instance()->warningEnabled);
+  }
 
-bool isErrorEnabled() {
-  return edm::MessageDrop::instance()->errorEnabled;                        // 7/6/11 fwyzard
-}
+  bool isErrorEnabled() {
+    return edm::MessageDrop::instance()->errorEnabled;  // 7/6/11 fwyzard
+  }
 
-void HaltMessageLogging() {
-  edm::MessageLoggerQ::MLqSHT ( ); // Shut the logger up
-}
+  void HaltMessageLogging() {
+    edm::MessageLoggerQ::MLqSHT();  // Shut the logger up
+  }
 
-void FlushMessageLog() {
-  if (MessageDrop::instance()->messageLoggerScribeIsRunning !=
-  			MLSCRIBE_RUNNING_INDICATOR) return; 	// 6/20/08 mf
-  edm::MessageLoggerQ::MLqFLS ( ); // Flush the message log queue
-}
+  void FlushMessageLog() {
+    if (MessageDrop::instance()->messageLoggerScribeIsRunning != MLSCRIBE_RUNNING_INDICATOR)
+      return;                       // 6/20/08 mf
+    edm::MessageLoggerQ::MLqFLS();  // Flush the message log queue
+  }
 
-void clearMessageLog() {					// 11/30/10 mf
-  MessageDrop::instance()->clear();
-}
+  void clearMessageLog() {  // 11/30/10 mf
+    MessageDrop::instance()->clear();
+  }
 
-bool isMessageProcessingSetUp() {				// 6/20/08 mf
-//  std::cerr << "isMessageProcessingSetUp: \n";
-//  std::cerr << "messageLoggerScribeIsRunning = "
-//            << (int)MessageDrop::instance()->messageLoggerScribeIsRunning << "\n";
-  return (MessageDrop::instance()->messageLoggerScribeIsRunning ==
-  			MLSCRIBE_RUNNING_INDICATOR);
-}
+  bool isMessageProcessingSetUp() {  // 6/20/08 mf
+                                     //  std::cerr << "isMessageProcessingSetUp: \n";
+                                     //  std::cerr << "messageLoggerScribeIsRunning = "
+    //            << (int)MessageDrop::instance()->messageLoggerScribeIsRunning << "\n";
+    return (MessageDrop::instance()->messageLoggerScribeIsRunning == MLSCRIBE_RUNNING_INDICATOR);
+  }
 
-void GroupLogStatistics(std::string const & category) {
-  std::string * cat_p = new std::string(category);
-  edm::MessageLoggerQ::MLqGRP (cat_p); // Indicate a group summary category
-  // Note that the scribe will be responsible for deleting cat_p
-}
+  void GroupLogStatistics(std::string const& category) {
+    std::string* cat_p = new std::string(category);
+    edm::MessageLoggerQ::MLqGRP(cat_p);  // Indicate a group summary category
+    // Note that the scribe will be responsible for deleting cat_p
+  }
 
-edm::LogDebug_::LogDebug_( std::string const & id, std::string const & file, int line )
-  : ap( ELdebug,id)
-{
-   *this
-        << " "
-        << stripLeadingDirectoryTree(file)
-        << ":" << line << "\n";
-}
+  edm::LogDebug_::LogDebug_(std::string const& id, std::string const& file, int line) : ap(ELdebug, id) {
+    *this << " " << stripLeadingDirectoryTree(file) << ":" << line << "\n";
+  }
 
-std::string
-edm::LogDebug_::stripLeadingDirectoryTree(const std::string & file) const {
-  std::string::size_type lastSlash = file.find_last_of('/');
-  if (lastSlash == std::string::npos) return file;
-  if (lastSlash == file.size()-1)     return file;
-  return file.substr(lastSlash+1, file.size()-lastSlash-1);
-}
+  std::string edm::LogDebug_::stripLeadingDirectoryTree(const std::string& file) const {
+    std::string::size_type lastSlash = file.find_last_of('/');
+    if (lastSlash == std::string::npos)
+      return file;
+    if (lastSlash == file.size() - 1)
+      return file;
+    return file.substr(lastSlash + 1, file.size() - lastSlash - 1);
+  }
 
-edm::LogTrace_::LogTrace_( std::string const & id )
-  : ap( ELdebug,id,true)
-  {  }
+  edm::LogTrace_::LogTrace_(std::string const& id) : ap(ELdebug, id, true) {}
 
-void setStandAloneMessageThreshold(edm::ELseverityLevel const& severity) {
-  edm::MessageLoggerQ::standAloneThreshold(severity);
-}
-void squelchStandAloneMessageCategory(std::string const & category){
-  edm::MessageLoggerQ::squelch(category);
-}
+  void setStandAloneMessageThreshold(edm::ELseverityLevel const& severity) {
+    edm::MessageLoggerQ::standAloneThreshold(severity);
+  }
+  void squelchStandAloneMessageCategory(std::string const& category) { edm::MessageLoggerQ::squelch(category); }
 
 }  // namespace edm
