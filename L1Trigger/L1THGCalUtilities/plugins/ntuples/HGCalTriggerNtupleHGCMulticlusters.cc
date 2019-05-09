@@ -60,31 +60,39 @@ void HGCalTriggerNtupleHGCMulticlusters::initialize(TTree& tree,
       HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT")};
   id_->initialize(conf.getParameter<edm::ParameterSet>("EGIdentification"));
 
-  tree.Branch("cl3d_n", &cl3d_n_, "cl3d_n/I");
-  tree.Branch("cl3d_id", &cl3d_id_);
-  tree.Branch("cl3d_pt", &cl3d_pt_);
-  tree.Branch("cl3d_energy", &cl3d_energy_);
-  tree.Branch("cl3d_eta", &cl3d_eta_);
-  tree.Branch("cl3d_phi", &cl3d_phi_);
-  tree.Branch("cl3d_clusters_n", &cl3d_clusters_n_);
-  tree.Branch("cl3d_clusters_id", &cl3d_clusters_id_);
+  std::string prefix(conf.getUntrackedParameter<std::string>("Prefix", "cl3d"));
+
+  std::string bname;
+  auto withPrefix([&prefix, &bname](char const* vname) -> char const* {
+    bname = prefix + "_" + vname;
+    return bname.c_str();
+  });
+
+  tree.Branch(withPrefix("n"), &cl3d_n_, (prefix + "_n/I").c_str());
+  tree.Branch(withPrefix("id"), &cl3d_id_);
+  tree.Branch(withPrefix("pt"), &cl3d_pt_);
+  tree.Branch(withPrefix("energy"), &cl3d_energy_);
+  tree.Branch(withPrefix("eta"), &cl3d_eta_);
+  tree.Branch(withPrefix("phi"), &cl3d_phi_);
+  tree.Branch(withPrefix("clusters_n"), &cl3d_clusters_n_);
+  tree.Branch(withPrefix("clusters_id"), &cl3d_clusters_id_);
   if (fill_layer_info_)
-    tree.Branch("cl3d_layer_pt", &cl3d_layer_pt_);
-  tree.Branch("cl3d_showerlength", &cl3d_showerlength_);
-  tree.Branch("cl3d_coreshowerlength", &cl3d_coreshowerlength_);
-  tree.Branch("cl3d_firstlayer", &cl3d_firstlayer_);
-  tree.Branch("cl3d_maxlayer", &cl3d_maxlayer_);
-  tree.Branch("cl3d_seetot", &cl3d_seetot_);
-  tree.Branch("cl3d_seemax", &cl3d_seemax_);
-  tree.Branch("cl3d_spptot", &cl3d_spptot_);
-  tree.Branch("cl3d_sppmax", &cl3d_sppmax_);
-  tree.Branch("cl3d_szz", &cl3d_szz_);
-  tree.Branch("cl3d_srrtot", &cl3d_srrtot_);
-  tree.Branch("cl3d_srrmax", &cl3d_srrmax_);
-  tree.Branch("cl3d_srrmean", &cl3d_srrmean_);
-  tree.Branch("cl3d_emaxe", &cl3d_emaxe_);
-  tree.Branch("cl3d_bdteg", &cl3d_bdteg_);
-  tree.Branch("cl3d_quality", &cl3d_quality_);
+    tree.Branch(withPrefix("layer_pt"), &cl3d_layer_pt_);
+  tree.Branch(withPrefix("showerlength"), &cl3d_showerlength_);
+  tree.Branch(withPrefix("coreshowerlength"), &cl3d_coreshowerlength_);
+  tree.Branch(withPrefix("firstlayer"), &cl3d_firstlayer_);
+  tree.Branch(withPrefix("maxlayer"), &cl3d_maxlayer_);
+  tree.Branch(withPrefix("seetot"), &cl3d_seetot_);
+  tree.Branch(withPrefix("seemax"), &cl3d_seemax_);
+  tree.Branch(withPrefix("spptot"), &cl3d_spptot_);
+  tree.Branch(withPrefix("sppmax"), &cl3d_sppmax_);
+  tree.Branch(withPrefix("szz"), &cl3d_szz_);
+  tree.Branch(withPrefix("srrtot"), &cl3d_srrtot_);
+  tree.Branch(withPrefix("srrmax"), &cl3d_srrmax_);
+  tree.Branch(withPrefix("srrmean"), &cl3d_srrmean_);
+  tree.Branch(withPrefix("emaxe"), &cl3d_emaxe_);
+  tree.Branch(withPrefix("bdteg"), &cl3d_bdteg_);
+  tree.Branch(withPrefix("quality"), &cl3d_quality_);
 }
 
 void HGCalTriggerNtupleHGCMulticlusters::fill(const edm::Event& e, const edm::EventSetup& es) {

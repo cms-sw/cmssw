@@ -1,0 +1,8 @@
+<lcgdict>
+  <class name="edm::RefProd<BXVector<l1t::HGCalTriggerCell> >"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<CaloParticle> >,edm::RefProd<BXVector<l1t::HGCalTriggerCell> > >"/>
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<CaloParticle>,BXVector<l1t::HGCalTriggerCell>,unsigned int> >">
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<CaloParticle>,BXVector<l1t::HGCalTriggerCell>,unsigned int> > >"/>
+</lcgdict>
