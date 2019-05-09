@@ -14,7 +14,7 @@ process.GlobalTag.globaltag = "80X_dataRun2_2016SeptRepro_v7"
 process.load("Phase2L1Trigger.CalibratedDigis.CalibratedDigis_cfi")
 process.load("L1Trigger.DTPhase2Trigger.dtTriggerPhase2PrimitiveDigis_cfi")
 
-process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring('file:/eos/user/c/carrillo/digis_segments_Run2016BSingleMuonRAW-RECO.root'))
+process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring('file:/eos/cms/store/user/folguera/P2L1TUpgrade/digis_segments_Run2016BSingleMuonRAW-RECO_camilo.root'))
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 
 process.out = cms.OutputModule("PoolOutputModule",
