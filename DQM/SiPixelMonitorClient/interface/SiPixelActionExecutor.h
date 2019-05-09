@@ -24,14 +24,14 @@ enum funcType { EachBinContent, Entries, Mean, Sum, WeightedSum };
 #define PI 3.141592
 #define PI_2 1.570796
 
-#define NLev1 \
-  4              // Number of HalfCylinders in Endcap or number of Shells in Barrel, which is \
-                 // bigger
-#define NLev2 3  // Number of Disks in Endcap or number of Layers in Barrel, which is bigger
-#define NLev3 \
-  22             // Number of Blades in Endcap or number of Ladders in Barrel, which is \
-                 // bigger
-#define NLev4 7  // Number of Modules - different for Endcap and Barrel, which is bigger
+// Number of HalfCylinders in Endcap or number of Shells in Barrel, which is bigger
+#define NLev1 4
+// Number of Disks in Endcap or number of Layers in Barrel, which is bigger
+#define NLev2 3
+// Number of Blades in Endcap or number of Ladders in Barrel, which is bigger
+#define NLev3 22
+// Number of Modules - different for Endcap and Barrel, which is bigger
+#define NLev4 7
 
 #define NCyl 4
 #define NDisk 2
