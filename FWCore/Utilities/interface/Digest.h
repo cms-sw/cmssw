@@ -6,12 +6,9 @@
 #include <iosfwd>
 #include <string>
 
+namespace cms {
 
-namespace cms
-{
-
-  struct MD5Result
-  {
+  struct MD5Result {
     // The default-constructed MD5Result is invalid; all others are
     // valid. The MD5 digest of the empty string is the value of the
     // default-constructed MD5Result.
@@ -35,36 +32,30 @@ namespace cms
   };
 
   bool operator==(MD5Result const& a, MD5Result const& b);
-  bool operator< (MD5Result const& a, MD5Result const& b);
+  bool operator<(MD5Result const& a, MD5Result const& b);
 
-  inline bool operator!=(MD5Result const& a, MD5Result const& b)
-  {
-    return !(a==b);
-  }
+  inline bool operator!=(MD5Result const& a, MD5Result const& b) { return !(a == b); }
 
-  inline
-  std::ostream& operator<< (std::ostream& os, MD5Result const& r)
-  {
+  inline std::ostream& operator<<(std::ostream& os, MD5Result const& r) {
     os << r.toString();
     return os;
   }
 
   // Digest creates an MD5 digest of the given string. The digest can
   // be updated by using 'append'.
-  class Digest
-  {
+  class Digest {
   public:
     Digest();
     explicit Digest(std::string const& s);
 
     void append(std::string const& s);
-    void append(const char *data, size_t size);
+    void append(const char* data, size_t size);
 
     MD5Result digest() const;
 
   private:
     mutable md5_state_t state_;
   };
-}
+}  // namespace cms
 
 #endif

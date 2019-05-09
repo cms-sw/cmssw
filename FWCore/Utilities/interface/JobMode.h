@@ -12,12 +12,7 @@
 
 namespace edm {
 
-  enum JobMode {
-         GridJobMode
-       , ReleaseValidationJobMode
-       , AnalysisJobMode
-       , NilJobMode
-  };
+  enum JobMode { GridJobMode, ReleaseValidationJobMode, AnalysisJobMode, NilJobMode };
 
 }
-#endif // FWCore_Utilities_JobMode_h
+#endif  // FWCore_Utilities_JobMode_h

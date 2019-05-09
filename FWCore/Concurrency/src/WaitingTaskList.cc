@@ -2,7 +2,7 @@
 //
 // Package:     Concurrency
 // Class  :     WaitingTaskList
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -33,25 +33,22 @@ using namespace edm;
 //
 // constructors and destructor
 //
-WaitingTaskList::WaitingTaskList(unsigned int iInitialSize):
-m_head{nullptr},
-m_nodeCache{new WaitNode[iInitialSize]},
-m_nodeCacheSize{iInitialSize},
-m_lastAssignedCacheIndex{0},
-m_waiting{true}
-{
+WaitingTaskList::WaitingTaskList(unsigned int iInitialSize)
+    : m_head{nullptr},
+      m_nodeCache{new WaitNode[iInitialSize]},
+      m_nodeCacheSize{iInitialSize},
+      m_lastAssignedCacheIndex{0},
+      m_waiting{true} {
   auto nodeCache = m_nodeCache.get();
-  for(auto it = nodeCache, itEnd = nodeCache+m_nodeCacheSize; it!=itEnd; ++it) {
-    it->m_fromCache=true;
+  for (auto it = nodeCache, itEnd = nodeCache + m_nodeCacheSize; it != itEnd; ++it) {
+    it->m_fromCache = true;
   }
 }
 
 //
 // member functions
 //
-void
-WaitingTaskList::reset()
-{
+void WaitingTaskList::reset() {
   m_exceptionPtr = std::exception_ptr{};
   unsigned int nSeenTasks = m_lastAssignedCacheIndex;
   m_lastAssignedCacheIndex = 0;
@@ -60,46 +57,42 @@ WaitingTaskList::reset()
     //need to expand so next time we don't have to do any
     // memory requests
     m_nodeCacheSize = nSeenTasks;
-    m_nodeCache.reset( new WaitNode[nSeenTasks] );
+    m_nodeCache.reset(new WaitNode[nSeenTasks]);
     auto nodeCache = m_nodeCache.get();
-    for(auto it = nodeCache, itEnd = nodeCache+m_nodeCacheSize; it!=itEnd; ++it) {
-      it->m_fromCache=true;
+    for (auto it = nodeCache, itEnd = nodeCache + m_nodeCacheSize; it != itEnd; ++it) {
+      it->m_fromCache = true;
     }
   }
   //this will make sure all cores see the changes
   m_waiting = true;
 }
 
-WaitingTaskList::WaitNode*
-WaitingTaskList::createNode(WaitingTask* iTask)
-{
+WaitingTaskList::WaitNode* WaitingTaskList::createNode(WaitingTask* iTask) {
   unsigned int index = m_lastAssignedCacheIndex++;
-  
+
   WaitNode* returnValue;
-  if( index < m_nodeCacheSize) {
-    returnValue = m_nodeCache.get()+index;
+  if (index < m_nodeCacheSize) {
+    returnValue = m_nodeCache.get() + index;
   } else {
     returnValue = new WaitNode;
-    returnValue->m_fromCache=false;
+    returnValue->m_fromCache = false;
   }
   returnValue->m_task = iTask;
   //No other thread can see m_next yet. The caller to create node
   // will be doing a synchronization operation anyway which will
   // make sure m_task and m_next are synched across threads
-  returnValue->m_next.store(returnValue,std::memory_order_relaxed);
-  
+  returnValue->m_next.store(returnValue, std::memory_order_relaxed);
+
   return returnValue;
 }
 
-
-void
-WaitingTaskList::add(WaitingTask* iTask) {
+void WaitingTaskList::add(WaitingTask* iTask) {
   iTask->increment_ref_count();
-  if(!m_waiting) {
-    if(UNLIKELY(bool(m_exceptionPtr))) {
+  if (!m_waiting) {
+    if (UNLIKELY(bool(m_exceptionPtr))) {
       iTask->dependentTaskFailed(m_exceptionPtr);
     }
-    if(0==iTask->decrement_ref_count()) {
+    if (0 == iTask->decrement_ref_count()) {
       tbb::task::spawn(*iTask);
     }
   } else {
@@ -115,8 +108,8 @@ WaitingTaskList::add(WaitingTask* iTask) {
     // the ordering of 'm_head.exchange' call so iTask
     // is guaranteed to be in the link list
 
-    if(nullptr == oldHead) {
-      if(!m_waiting) {
+    if (nullptr == oldHead) {
+      if (!m_waiting) {
         //if finished waiting right before we did the
         // exchange our task will not be spawned. Also,
         // additional threads may be calling add() and swapping
@@ -128,13 +121,12 @@ WaitingTaskList::add(WaitingTask* iTask) {
   }
 }
 
-void
-WaitingTaskList::presetTaskAsFailed(std::exception_ptr iExcept) {
-  if(iExcept and m_waiting) {
+void WaitingTaskList::presetTaskAsFailed(std::exception_ptr iExcept) {
+  if (iExcept and m_waiting) {
     WaitNode* node = m_head.load();
-    while(node) {
+    while (node) {
       WaitNode* next;
-      while(node == (next=node->nextNode())) {
+      while (node == (next = node->nextNode())) {
         hardware_pause();
       }
       node->m_task->dependentTaskFailed(iExcept);
@@ -143,43 +135,39 @@ WaitingTaskList::presetTaskAsFailed(std::exception_ptr iExcept) {
   }
 }
 
-void
-WaitingTaskList::announce()
-{
+void WaitingTaskList::announce() {
   //Need a temporary storage since one of these tasks could
   // cause the next event to start processing which would refill
   // this waiting list after it has been reset
   WaitNode* n = m_head.exchange(nullptr);
   WaitNode* next;
-  while(n) {
+  while (n) {
     //it is possible that 'WaitingTaskList::add' is running in a different
     // thread and we have a new 'head' but the old head has not yet been
     // attached to the new head (we identify this since 'nextNode' will return itself).
     //  In that case we have to wait until the link has been established before going on.
-    while(n == (next=n->nextNode())) {
+    while (n == (next = n->nextNode())) {
       hardware_pause();
     }
     auto t = n->m_task;
-    if(UNLIKELY(bool(m_exceptionPtr))) {
+    if (UNLIKELY(bool(m_exceptionPtr))) {
       t->dependentTaskFailed(m_exceptionPtr);
     }
-    if(!n->m_fromCache ) {
+    if (!n->m_fromCache) {
       delete n;
     }
-    n=next;
+    n = next;
 
     //the task may indirectly call WaitingTaskList::reset
     // so we need to call spawn after we are done using the node.
-    if(0==t->decrement_ref_count()){
+    if (0 == t->decrement_ref_count()) {
       tbb::task::spawn(*t);
     }
   }
 }
 
-void
-WaitingTaskList::doneWaiting(std::exception_ptr iPtr)
-{
+void WaitingTaskList::doneWaiting(std::exception_ptr iPtr) {
   m_exceptionPtr = iPtr;
-  m_waiting=false;
+  m_waiting = false;
   announce();
 }

@@ -2,7 +2,7 @@
 //
 // Package:     PluginManager
 // Class  :     PluginManager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -31,35 +31,32 @@
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edmplugin {
-//
-// constants, enums and typedefs
-//
+  //
+  // constants, enums and typedefs
+  //
 
-//
-// static data member definitions
-//
+  //
+  // static data member definitions
+  //
 
-static bool readCacheFile(const boost::filesystem::path &cacheFile,
-                          const boost::filesystem::path &dir, 
-                          PluginManager::CategoryToInfos &categoryToInfos) 
-{
-  if(exists(cacheFile) ) {
-    std::ifstream file(cacheFile.string().c_str());
-    if(not file) {
-      throw cms::Exception("PluginMangerCacheProblem")<<"Unable to open the cache file '"<<cacheFile.string()
-      <<"'. Please check permissions on file";
+  static bool readCacheFile(const boost::filesystem::path& cacheFile,
+                            const boost::filesystem::path& dir,
+                            PluginManager::CategoryToInfos& categoryToInfos) {
+    if (exists(cacheFile)) {
+      std::ifstream file(cacheFile.string().c_str());
+      if (not file) {
+        throw cms::Exception("PluginMangerCacheProblem")
+            << "Unable to open the cache file '" << cacheFile.string() << "'. Please check permissions on file";
+      }
+      CacheParser::read(file, dir, categoryToInfos);
+      return true;
     }
-    CacheParser::read(file, dir, categoryToInfos);          
-    return true;
+    return false;
   }
-  return false;
-}
-//
-// constructors and destructor
-//
-PluginManager::PluginManager(const PluginManager::Config& iConfig) :
-  searchPath_( iConfig.searchPath() )
-{
+  //
+  // constructors and destructor
+  //
+  PluginManager::PluginManager(const PluginManager::Config& iConfig) : searchPath_(iConfig.searchPath()) {
     using std::placeholders::_1;
     const boost::filesystem::path& kCacheFile(standard::cachefileName());
     // This is the filename of a file which contains plugins which exist in the
@@ -68,14 +65,13 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
     const boost::filesystem::path& kPoisonedCacheFile(standard::poisonedCachefileName());
     //NOTE: This may not be needed :/
     PluginFactoryManager* pfm = PluginFactoryManager::get();
-    pfm->newFactory_.connect(std::bind(std::mem_fn(&PluginManager::newFactory),this,_1));
+    pfm->newFactory_.connect(std::bind(std::mem_fn(&PluginManager::newFactory), this, _1));
 
-    // When building a single big executable the plugins are already registered in the 
+    // When building a single big executable the plugins are already registered in the
     // PluginFactoryManager, we therefore only need to populate the categoryToInfos_ map
     // with the relevant information.
-    for (PluginFactoryManager::const_iterator i = pfm->begin(), e = pfm->end(); i != e; ++i)
-    {
-    	categoryToInfos_[(*i)->category()] = (*i)->available();
+    for (PluginFactoryManager::const_iterator i = pfm->begin(), e = pfm->end(); i != e; ++i) {
+      categoryToInfos_[(*i)->category()] = (*i)->available();
     }
 
     //read in the files
@@ -83,297 +79,261 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
     // in that order
     bool foundAtLeastOneCacheFile = false;
     std::set<std::string> alreadySeen;
-    for(SearchPath::const_iterator itPath=searchPath_.begin(), itEnd = searchPath_.end();
-        itPath != itEnd;
-        ++itPath) {
+    for (SearchPath::const_iterator itPath = searchPath_.begin(), itEnd = searchPath_.end(); itPath != itEnd;
+         ++itPath) {
       //take care of the case where the same path is passed in multiple times
-      if (alreadySeen.find(*itPath) != alreadySeen.end() ) {
+      if (alreadySeen.find(*itPath) != alreadySeen.end()) {
         continue;
       }
       alreadySeen.insert(*itPath);
       boost::filesystem::path dir(*itPath);
-      if( exists( dir) ) {
-        if(not is_directory(dir) ) {
-          throw cms::Exception("PluginManagerBadPath") <<"The path '"<<dir.string()<<"' for the PluginManager is not a directory";
+      if (exists(dir)) {
+        if (not is_directory(dir)) {
+          throw cms::Exception("PluginManagerBadPath")
+              << "The path '" << dir.string() << "' for the PluginManager is not a directory";
         }
-        boost::filesystem::path cacheFile = dir/kCacheFile;
-        
-        if (readCacheFile(cacheFile, dir, categoryToInfos_))
-        {
-          foundAtLeastOneCacheFile=true; 
+        boost::filesystem::path cacheFile = dir / kCacheFile;
+
+        if (readCacheFile(cacheFile, dir, categoryToInfos_)) {
+          foundAtLeastOneCacheFile = true;
         }
 
         // We do not check for return code since we do not want to consider a
         // poison cache file as a valid cache file having been found.
-        boost::filesystem::path poisonedCacheFile = dir/kPoisonedCacheFile;
-        readCacheFile(poisonedCacheFile, dir/"poisoned", categoryToInfos_);
+        boost::filesystem::path poisonedCacheFile = dir / kPoisonedCacheFile;
+        readCacheFile(poisonedCacheFile, dir / "poisoned", categoryToInfos_);
       }
     }
-    if(not foundAtLeastOneCacheFile and iConfig.mustHaveCache()) {
-      auto ex = cms::Exception("PluginManagerNoCacheFile")<<"No cache files named '"<<standard::cachefileName()<<"' were found in the directories \n";
-      for( auto const& seen : alreadySeen) {
-        ex <<" '"<<seen<<"'\n";
+    if (not foundAtLeastOneCacheFile and iConfig.mustHaveCache()) {
+      auto ex = cms::Exception("PluginManagerNoCacheFile")
+                << "No cache files named '" << standard::cachefileName() << "' were found in the directories \n";
+      for (auto const& seen : alreadySeen) {
+        ex << " '" << seen << "'\n";
       }
       throw ex;
     }
     //Since this should not be called until after 'main' has started, we can set the value
-    loadingLibraryNamed_()="<loaded by another plugin system>";
-}
-
-// PluginManager::PluginManager(const PluginManager& rhs)
-// {
-//    // do actual copying here;
-// }
-
-PluginManager::~PluginManager()
-{
-}
-
-//
-// assignment operators
-//
-// const PluginManager& PluginManager::operator=(const PluginManager& rhs)
-// {
-//   //An exception safe implementation is
-//   PluginManager temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-void
-PluginManager::newFactory(const PluginFactoryBase*)
-{
-}
-//
-// const member functions
-//
-namespace {
-  struct PICompare {
-    bool operator()(const PluginInfo& iLHS,
-                    const PluginInfo& iRHS) const {
-                      return iLHS.name_ < iRHS.name_;
-                    }
-  };
-}
-
-const boost::filesystem::path& 
-PluginManager::loadableFor(const std::string& iCategory,
-                             const std::string& iPlugin)
-{
-  bool throwIfFail = true;
-  return loadableFor_(iCategory, iPlugin,throwIfFail);
-}
-
-const boost::filesystem::path& 
-PluginManager::loadableFor_(const std::string& iCategory,
-                                            const std::string& iPlugin,
-                                            bool& ioThrowIfFailElseSucceedStatus)
-{
-  const bool throwIfFail = ioThrowIfFailElseSucceedStatus;
-  ioThrowIfFailElseSucceedStatus = true;
-  CategoryToInfos::iterator itFound = categoryToInfos_.find(iCategory);
-  if(itFound == categoryToInfos_.end()) {
-    if(throwIfFail) {
-      throw cms::Exception("PluginNotFound")<<"Unable to find plugin '"<<iPlugin<<
-      "' because the category '"<<iCategory<<"' has no known plugins";
-    } else {
-      ioThrowIfFailElseSucceedStatus = false;
-      static const boost::filesystem::path s_path;
-      return s_path;
-    }
+    loadingLibraryNamed_() = "<loaded by another plugin system>";
   }
-  
-  PluginInfo i;
-  i.name_ = iPlugin;
-  typedef std::vector<PluginInfo>::iterator PIItr;
-  std::pair<PIItr,PIItr> range = std::equal_range(itFound->second.begin(),
-                                                  itFound->second.end(),
-                                                  i,
-                                                  PICompare() );
-  
-  if(range.first == range.second) {
-    if(throwIfFail) {
-      throw cms::Exception("PluginNotFound")<<"Unable to find plugin '"<<iPlugin
-      <<"' in category '"<<iCategory<<"'. Please check spelling of name.";
-    } else {
-      ioThrowIfFailElseSucceedStatus = false;
-      static const boost::filesystem::path s_path;
-      return s_path;
-    }
-  }
-  
-  if(range.second - range.first > 1 ) {
-    //see if the come from the same directory
-    if(range.first->loadable_.branch_path() == (range.first+1)->loadable_.branch_path()) {
-      //std::cout<<range.first->name_ <<" " <<(range.first+1)->name_<<std::endl;
-      throw cms::Exception("MultiplePlugins")<<"The plugin '"<<iPlugin<<"' is found in multiple files \n"
-      " '"<<range.first->loadable_.leaf()<<"'\n '"
-      <<(range.first+1)->loadable_.leaf()<<"'\n"
-      "in directory '"<<range.first->loadable_.branch_path().string()<<"'.\n"
-      "The code must be changed so the plugin only appears in one plugin file. "
-      "You will need to remove the macro which registers the plugin so it only appears in"
-      " one of these files.\n"
-      "  If none of these files register such a plugin, "
-      "then the problem originates in a library to which all these files link.\n"
-      "The plugin registration must be removed from that library since plugins are not allowed in regular libraries.";
-    }
-  }
-  
-  return range.first->loadable_;
-}
 
-namespace {
-  class Sentry {
-public:
-    Sentry( std::string& iPath, const std::string& iNewPath):
-      path_(iPath),
-      oldPath_(iPath)
-    {
-      path_ = iNewPath;
+  // PluginManager::PluginManager(const PluginManager& rhs)
+  // {
+  //    // do actual copying here;
+  // }
+
+  PluginManager::~PluginManager() {}
+
+  //
+  // assignment operators
+  //
+  // const PluginManager& PluginManager::operator=(const PluginManager& rhs)
+  // {
+  //   //An exception safe implementation is
+  //   PluginManager temp(rhs);
+  //   swap(rhs);
+  //
+  //   return *this;
+  // }
+
+  //
+  // member functions
+  //
+  void PluginManager::newFactory(const PluginFactoryBase*) {}
+  //
+  // const member functions
+  //
+  namespace {
+    struct PICompare {
+      bool operator()(const PluginInfo& iLHS, const PluginInfo& iRHS) const { return iLHS.name_ < iRHS.name_; }
+    };
+  }  // namespace
+
+  const boost::filesystem::path& PluginManager::loadableFor(const std::string& iCategory, const std::string& iPlugin) {
+    bool throwIfFail = true;
+    return loadableFor_(iCategory, iPlugin, throwIfFail);
+  }
+
+  const boost::filesystem::path& PluginManager::loadableFor_(const std::string& iCategory,
+                                                             const std::string& iPlugin,
+                                                             bool& ioThrowIfFailElseSucceedStatus) {
+    const bool throwIfFail = ioThrowIfFailElseSucceedStatus;
+    ioThrowIfFailElseSucceedStatus = true;
+    CategoryToInfos::iterator itFound = categoryToInfos_.find(iCategory);
+    if (itFound == categoryToInfos_.end()) {
+      if (throwIfFail) {
+        throw cms::Exception("PluginNotFound") << "Unable to find plugin '" << iPlugin << "' because the category '"
+                                               << iCategory << "' has no known plugins";
+      } else {
+        ioThrowIfFailElseSucceedStatus = false;
+        static const boost::filesystem::path s_path;
+        return s_path;
+      }
     }
-    ~Sentry() {
-      path_ = oldPath_;
+
+    PluginInfo i;
+    i.name_ = iPlugin;
+    typedef std::vector<PluginInfo>::iterator PIItr;
+    std::pair<PIItr, PIItr> range = std::equal_range(itFound->second.begin(), itFound->second.end(), i, PICompare());
+
+    if (range.first == range.second) {
+      if (throwIfFail) {
+        throw cms::Exception("PluginNotFound") << "Unable to find plugin '" << iPlugin << "' in category '" << iCategory
+                                               << "'. Please check spelling of name.";
+      } else {
+        ioThrowIfFailElseSucceedStatus = false;
+        static const boost::filesystem::path s_path;
+        return s_path;
+      }
     }
-private:
+
+    if (range.second - range.first > 1) {
+      //see if the come from the same directory
+      if (range.first->loadable_.branch_path() == (range.first + 1)->loadable_.branch_path()) {
+        //std::cout<<range.first->name_ <<" " <<(range.first+1)->name_<<std::endl;
+        throw cms::Exception("MultiplePlugins")
+            << "The plugin '" << iPlugin
+            << "' is found in multiple files \n"
+               " '"
+            << range.first->loadable_.leaf() << "'\n '" << (range.first + 1)->loadable_.leaf()
+            << "'\n"
+               "in directory '"
+            << range.first->loadable_.branch_path().string()
+            << "'.\n"
+               "The code must be changed so the plugin only appears in one plugin file. "
+               "You will need to remove the macro which registers the plugin so it only appears in"
+               " one of these files.\n"
+               "  If none of these files register such a plugin, "
+               "then the problem originates in a library to which all these files link.\n"
+               "The plugin registration must be removed from that library since plugins are not allowed in regular "
+               "libraries.";
+      }
+    }
+
+    return range.first->loadable_;
+  }
+
+  namespace {
+    class Sentry {
+    public:
+      Sentry(std::string& iPath, const std::string& iNewPath) : path_(iPath), oldPath_(iPath) { path_ = iNewPath; }
+      ~Sentry() { path_ = oldPath_; }
+
+    private:
       std::string& path_;
       std::string oldPath_;
-  };
-}
+    };
+  }  // namespace
 
-const SharedLibrary& 
-PluginManager::load(const std::string& iCategory,
-                      const std::string& iPlugin)
-{
-  askedToLoadCategoryWithPlugin_(iCategory,iPlugin);
-  const boost::filesystem::path& p = loadableFor(iCategory,iPlugin);
-  
-  //have we already loaded this?
-  auto itLoaded = loadables_.find(p);
-  if(itLoaded == loadables_.end()) {
-    //Need to make sure we only have on SharedLibrary loading at a time
-    std::lock_guard<std::recursive_mutex> guard(pluginLoadMutex());
-    //Another thread may have gotten this while we were waiting on the mutex
-    itLoaded = loadables_.find(p);
-    if(itLoaded == loadables_.end()){
-      //try to make one
-      goingToLoad_(p);
-      Sentry s(loadingLibraryNamed_(), p.string());
-      //boost::filesystem::path native(p.string());
-      std::shared_ptr<SharedLibrary> ptr;
-      {
-	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
-	// take the lock ourselves
-	R__LOCKGUARD2(gInterpreterMutex);
-	ptr.reset( new SharedLibrary(p) );
+  const SharedLibrary& PluginManager::load(const std::string& iCategory, const std::string& iPlugin) {
+    askedToLoadCategoryWithPlugin_(iCategory, iPlugin);
+    const boost::filesystem::path& p = loadableFor(iCategory, iPlugin);
+
+    //have we already loaded this?
+    auto itLoaded = loadables_.find(p);
+    if (itLoaded == loadables_.end()) {
+      //Need to make sure we only have on SharedLibrary loading at a time
+      std::lock_guard<std::recursive_mutex> guard(pluginLoadMutex());
+      //Another thread may have gotten this while we were waiting on the mutex
+      itLoaded = loadables_.find(p);
+      if (itLoaded == loadables_.end()) {
+        //try to make one
+        goingToLoad_(p);
+        Sentry s(loadingLibraryNamed_(), p.string());
+        //boost::filesystem::path native(p.string());
+        std::shared_ptr<SharedLibrary> ptr;
+        {
+          //TEMPORARY: to avoid possible deadlocks from ROOT, we must
+          // take the lock ourselves
+          R__LOCKGUARD2(gInterpreterMutex);
+          ptr.reset(new SharedLibrary(p));
+        }
+        loadables_[p] = ptr;
+        justLoaded_(*ptr);
+        return *ptr;
       }
-      loadables_[p]=ptr;
-      justLoaded_(*ptr);
-      return *ptr;
     }
+    return *(itLoaded->second);
   }
-  return *(itLoaded->second);
-}
 
-const SharedLibrary* 
-PluginManager::tryToLoad(const std::string& iCategory,
-                         const std::string& iPlugin)
-{
-  askedToLoadCategoryWithPlugin_(iCategory,iPlugin);
-  bool ioThrowIfFailElseSucceedStatus = false;
-  const boost::filesystem::path& p = loadableFor_(iCategory,iPlugin, ioThrowIfFailElseSucceedStatus);
-  
-  if( not ioThrowIfFailElseSucceedStatus ) {
-    return nullptr;
-  }
-  
+  const SharedLibrary* PluginManager::tryToLoad(const std::string& iCategory, const std::string& iPlugin) {
+    askedToLoadCategoryWithPlugin_(iCategory, iPlugin);
+    bool ioThrowIfFailElseSucceedStatus = false;
+    const boost::filesystem::path& p = loadableFor_(iCategory, iPlugin, ioThrowIfFailElseSucceedStatus);
 
-  //have we already loaded this?
-  auto itLoaded = loadables_.find(p);
-  if(itLoaded == loadables_.end()) {
-    //Need to make sure we only have on SharedLibrary loading at a time
-    std::lock_guard<std::recursive_mutex> guard(pluginLoadMutex());
-    //Another thread may have gotten this while we were waiting on the mutex
-    itLoaded = loadables_.find(p);
-    if(itLoaded == loadables_.end()){
-      //try to make one
-      goingToLoad_(p);
-      Sentry s(loadingLibraryNamed_(), p.string());
-      //boost::filesystem::path native(p.string());
-      std::shared_ptr<SharedLibrary> ptr;
-      {
-	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
-	// take the lock ourselves
-	R__LOCKGUARD(gInterpreterMutex);
-	ptr.reset( new SharedLibrary(p) );
+    if (not ioThrowIfFailElseSucceedStatus) {
+      return nullptr;
+    }
+
+    //have we already loaded this?
+    auto itLoaded = loadables_.find(p);
+    if (itLoaded == loadables_.end()) {
+      //Need to make sure we only have on SharedLibrary loading at a time
+      std::lock_guard<std::recursive_mutex> guard(pluginLoadMutex());
+      //Another thread may have gotten this while we were waiting on the mutex
+      itLoaded = loadables_.find(p);
+      if (itLoaded == loadables_.end()) {
+        //try to make one
+        goingToLoad_(p);
+        Sentry s(loadingLibraryNamed_(), p.string());
+        //boost::filesystem::path native(p.string());
+        std::shared_ptr<SharedLibrary> ptr;
+        {
+          //TEMPORARY: to avoid possible deadlocks from ROOT, we must
+          // take the lock ourselves
+          R__LOCKGUARD(gInterpreterMutex);
+          ptr.reset(new SharedLibrary(p));
+        }
+        loadables_[p] = ptr;
+        justLoaded_(*ptr);
+        return ptr.get();
       }
-      loadables_[p]=ptr;
-      justLoaded_(*ptr);
-      return ptr.get();
     }
+    return (itLoaded->second).get();
   }
-  return (itLoaded->second).get();
-}
 
-//
-// static member functions
-//
-PluginManager* 
-PluginManager::get()
-{
-  PluginManager* manager = singleton();
-  if(nullptr==manager) {
-    throw cms::Exception("PluginManagerNotConfigured")<<"PluginManager::get() was called before PluginManager::configure.";
+  //
+  // static member functions
+  //
+  PluginManager* PluginManager::get() {
+    PluginManager* manager = singleton();
+    if (nullptr == manager) {
+      throw cms::Exception("PluginManagerNotConfigured")
+          << "PluginManager::get() was called before PluginManager::configure.";
+    }
+    return manager;
   }
-  return manager;
-}
 
-PluginManager& 
-PluginManager::configure(const Config& iConfig )
-{
-  PluginManager*& s = singleton();
-  if( nullptr != s ){
-    throw cms::Exception("PluginManagerReconfigured");
+  PluginManager& PluginManager::configure(const Config& iConfig) {
+    PluginManager*& s = singleton();
+    if (nullptr != s) {
+      throw cms::Exception("PluginManagerReconfigured");
+    }
+
+    const Config& realConfig = iConfig;
+    if (realConfig.searchPath().empty()) {
+      throw cms::Exception("PluginManagerEmptySearchPath");
+    }
+    s = new PluginManager(realConfig);
+    return *s;
   }
-  
-  const Config& realConfig = iConfig;
-  if (realConfig.searchPath().empty() ) {
-    throw cms::Exception("PluginManagerEmptySearchPath");
+
+  const std::string& PluginManager::staticallyLinkedLoadingFileName() {
+    static const std::string s_name("static");
+    return s_name;
   }
-  s = new PluginManager (realConfig);
-  return *s;
-}
 
+  std::string& PluginManager::loadingLibraryNamed_() {
+    //NOTE: pluginLoadMutex() indirectly guards this since this value
+    // is only accessible via the Sentry call which us guarded by the mutex
+    CMS_THREAD_SAFE static std::string s_name(staticallyLinkedLoadingFileName());
+    return s_name;
+  }
 
-const std::string& 
-PluginManager::staticallyLinkedLoadingFileName()
-{
-  static const std::string s_name("static");
-  return s_name;
-}
+  PluginManager*& PluginManager::singleton() {
+    CMS_THREAD_SAFE static PluginManager* s_singleton = nullptr;
+    return s_singleton;
+  }
 
-std::string& 
-PluginManager::loadingLibraryNamed_()
-{
-  //NOTE: pluginLoadMutex() indirectly guards this since this value
-  // is only accessible via the Sentry call which us guarded by the mutex
-  CMS_THREAD_SAFE static std::string s_name(staticallyLinkedLoadingFileName());
-  return s_name;
-}
+  bool PluginManager::isAvailable() { return nullptr != singleton(); }
 
-PluginManager*& PluginManager::singleton()
-{
-  CMS_THREAD_SAFE static PluginManager* s_singleton=nullptr;
-  return s_singleton;
-}
-
-bool
-PluginManager::isAvailable()
-{
-  return nullptr != singleton();
-}
-
-}
+}  // namespace edmplugin
