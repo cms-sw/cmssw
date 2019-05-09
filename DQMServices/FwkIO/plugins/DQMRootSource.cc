@@ -80,21 +80,26 @@ namespace {
         edm::LogError("MergeFailure")<<"Failed to merge DQM element "<<iOriginal->GetName();
       }
     } else {
-      if (iOriginal->GetNbinsX() == iToAdd->GetNbinsX() &&
-          iOriginal->GetXaxis()->GetXmin() == iToAdd->GetXaxis()->GetXmin() &&
-          iOriginal->GetXaxis()->GetXmax() == iToAdd->GetXaxis()->GetXmax() &&
-          iOriginal->GetNbinsY() == iToAdd->GetNbinsY() &&
-          iOriginal->GetYaxis()->GetXmin() == iToAdd->GetYaxis()->GetXmin() &&
-          iOriginal->GetYaxis()->GetXmax() == iToAdd->GetYaxis()->GetXmax() &&
-          iOriginal->GetNbinsZ() == iToAdd->GetNbinsZ() &&
-          iOriginal->GetZaxis()->GetXmin() == iToAdd->GetZaxis()->GetXmin() &&
-          iOriginal->GetZaxis()->GetXmax() == iToAdd->GetZaxis()->GetXmax() &&
-	  MonitorElement::CheckBinLabels(iOriginal->GetXaxis(),iToAdd->GetXaxis()) &&
-	  MonitorElement::CheckBinLabels(iOriginal->GetYaxis(),iToAdd->GetYaxis()) &&
-	  MonitorElement::CheckBinLabels(iOriginal->GetZaxis(),iToAdd->GetZaxis())) {
-	iOriginal->Add(iToAdd);
-      } else {
-	edm::LogError("MergeFailure")<<"Found histograms with different axis limits or different labels'"<<iOriginal->GetName()<<"' not merged.";
+      try {
+        // TODO: we might want to switch to Merge() which should be smarter. It
+        // seems that Add() would call Merge() if needed (not identical bins
+        // etc.) but that seems to not work, see below.
+        iOriginal->Add(iToAdd);
+      } catch (std::exception const& ex) {
+        // Add() internally calls CheckConsistency(), which checks all the 
+        // histogram properties in various ways. It does that by calling 
+        // further helper functions, which throw exceptions to signal problems.
+        // The relevant exceptions are 
+        // class DifferentDimension: public std::exception {};
+        // class DifferentNumberOfBins: public std::exception {};
+        // class DifferentAxisLimits: public std::exception {};
+        // class DifferentBinLimits: public std::exception {};
+        // class DifferentLabels: public std::exception {};
+        // which should be caught by CheckConsistency(), but apparently can
+        // escape to us. So, either we'd have to duplicate all the checks here
+        // (which can probably change over time), or we need to resort to 
+        // catching.
+        edm::LogError("MergeFailure")<<"Found histograms with different axis limits or different labels'"<<iOriginal->GetName()<<"' not merged. Possible reason: "<<ex.what();
       } 
     }
   }
