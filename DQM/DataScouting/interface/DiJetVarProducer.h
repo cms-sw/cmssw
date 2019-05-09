@@ -23,11 +23,11 @@ public:
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-  edm::InputTag inputJetTag_; // input tag jets
-  double wideJetDeltaR_;      // Radius parameter for wide jets
+  edm::InputTag inputJetTag_;  // input tag jets
+  double wideJetDeltaR_;       // Radius parameter for wide jets
 
   // set Token(-s)
   edm::EDGetTokenT<reco::CaloJetCollection> inputJetTagToken_;
 };
 
-#endif // DiJetVarProducer_h
+#endif  // DiJetVarProducer_h

@@ -10,8 +10,7 @@ public:
   explicit GEMPadDigiValidation(const edm::ParameterSet &);
   ~GEMPadDigiValidation() override;
   void analyze(const edm::Event &e, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // Detail plots

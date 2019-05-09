@@ -11,8 +11,7 @@ class RazorVarAnalyzer : public ScoutingAnalyzerBase {
 public:
   explicit RazorVarAnalyzer(const edm::ParameterSet &);
   ~RazorVarAnalyzer() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
@@ -45,8 +44,7 @@ private:
 
   // define Token(-s)
   edm::EDGetTokenT<reco::CaloJetCollection> m_jetCollectionTagToken_;
-  edm::EDGetTokenT<std::vector<reco::RecoChargedCandidate>>
-      m_muCollectionTagToken_;
+  edm::EDGetTokenT<std::vector<reco::RecoChargedCandidate>> m_muCollectionTagToken_;
   edm::EDGetTokenT<reco::ElectronCollection> m_eleCollectionTagToken_;
   edm::EDGetTokenT<std::vector<double>> m_razorVarCollectionTagToken_;
 };

@@ -27,7 +27,6 @@
 #include <vector>
 
 class DQMClientExample : public edm::EDAnalyzer {
-
 public:
   ////---- constructor
   DQMClientExample(const edm::ParameterSet &ps);
@@ -49,12 +48,10 @@ protected:
   void performClient();
 
   ////---- beginLuminosityBlock
-  void beginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                            const edm::EventSetup &context) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &context) override;
 
   ////--- endLuminosityBlock
-  void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                          const edm::EventSetup &c) override;
+  void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
 
   ////---- endRun
   void endRun(const edm::Run &r, const edm::EventSetup &c) override;
@@ -71,11 +68,11 @@ private:
   DQMStore *dbe_;
   std::string monitorName_;
   std::string QTestName_;
-  int counterClientOperation; //-- counter on Client Operations
-  int counterEvt_;            //-- event counter
-  int counterLS_;             //-- LS counter
-  int prescaleEvt_;           //-- prescale on number of events
-  int prescaleLS_;            //-- prescale on number of lumisections
+  int counterClientOperation;  //-- counter on Client Operations
+  int counterEvt_;             //-- event counter
+  int counterLS_;              //-- LS counter
+  int prescaleEvt_;            //-- prescale on number of events
+  int prescaleLS_;             //-- prescale on number of lumisections
   bool clientOnEachEvent;
   bool clientOnEndLumi;
   bool clientOnEndRun;

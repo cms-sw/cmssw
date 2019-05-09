@@ -15,8 +15,7 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase {
 public:
   explicit DiJetVarAnalyzer(const edm::ParameterSet &);
   ~DiJetVarAnalyzer() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
@@ -91,8 +90,7 @@ private:
 
   // define Token(-s)
   edm::EDGetTokenT<reco::CaloJetCollection> jetCollectionTagToken_;
-  edm::EDGetTokenT<std::vector<math::PtEtaPhiMLorentzVector>>
-      widejetsCollectionTagToken_;
+  edm::EDGetTokenT<std::vector<math::PtEtaPhiMLorentzVector>> widejetsCollectionTagToken_;
   edm::EDGetTokenT<reco::CaloMETCollection> metCollectionTagToken_;
   edm::EDGetTokenT<reco::CaloMETCollection> metCleanCollectionTagToken_;
 };

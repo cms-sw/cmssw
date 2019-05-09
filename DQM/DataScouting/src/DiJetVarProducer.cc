@@ -29,8 +29,7 @@ DiJetVarProducer::DiJetVarProducer(const edm::ParameterSet &iConfig)
   produces<std::vector<math::PtEtaPhiMLorentzVector>>("widejets");
 
   // set Token(-s)
-  inputJetTagToken_ = consumes<reco::CaloJetCollection>(
-      iConfig.getParameter<edm::InputTag>("inputJetTag"));
+  inputJetTagToken_ = consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("inputJetTag"));
 
   LogDebug("") << "Input Jet Tag: " << inputJetTag_.encode() << " ";
   LogDebug("") << "Radius Parameter Wide Jet: " << wideJetDeltaR_ << ".";
@@ -39,8 +38,7 @@ DiJetVarProducer::DiJetVarProducer(const edm::ParameterSet &iConfig)
 DiJetVarProducer::~DiJetVarProducer() {}
 
 // ------------ method called to produce the data  ------------
-void DiJetVarProducer::produce(edm::Event &iEvent,
-                               const edm::EventSetup &iSetup) {
+void DiJetVarProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -48,8 +46,7 @@ void DiJetVarProducer::produce(edm::Event &iEvent,
   // ## The output collections
   // std::unique_ptr<std::vector<double> > dijetvariables(new
   // std::vector<double>);
-  std::unique_ptr<std::vector<math::PtEtaPhiMLorentzVector>> widejets(
-      new std::vector<math::PtEtaPhiMLorentzVector>);
+  std::unique_ptr<std::vector<math::PtEtaPhiMLorentzVector>> widejets(new std::vector<math::PtEtaPhiMLorentzVector>);
 
   // ## Get jet collection
   edm::Handle<reco::CaloJetCollection> calojets_handle;
@@ -88,8 +85,7 @@ void DiJetVarProducer::produce(edm::Event &iEvent,
     // jet2.Phi() << endl;
 
     // Create wide jets (radiation recovery algorithm)
-    for (reco::CaloJetCollection::const_iterator it = calojets_handle->begin();
-         it != calojets_handle->end(); ++it) {
+    for (reco::CaloJetCollection::const_iterator it = calojets_handle->begin(); it != calojets_handle->end(); ++it) {
       TLorentzVector currentJet;
       currentJet.SetPtEtaPhiM(it->pt(), it->eta(), it->phi(), it->mass());
 
@@ -129,10 +125,8 @@ void DiJetVarProducer::produce(edm::Event &iEvent,
     //        fabs(wj1.DeltaPhi(wj2)) );    //2 = DeltaPhiJJWide
 
     // Put widejets in the container
-    math::PtEtaPhiMLorentzVector wj1math(wj1.Pt(), wj1.Eta(), wj1.Phi(),
-                                         wj1.M());
-    math::PtEtaPhiMLorentzVector wj2math(wj2.Pt(), wj2.Eta(), wj2.Phi(),
-                                         wj2.M());
+    math::PtEtaPhiMLorentzVector wj1math(wj1.Pt(), wj1.Eta(), wj1.Phi(), wj1.M());
+    math::PtEtaPhiMLorentzVector wj2math(wj2.Pt(), wj2.Eta(), wj2.Phi(), wj2.M());
     widejets->push_back(wj1math);
     widejets->push_back(wj2math);
   }

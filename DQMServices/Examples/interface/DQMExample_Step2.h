@@ -12,18 +12,18 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 class DQMExample_Step2 : public DQMEDHarvester {
-
 public:
   DQMExample_Step2(const edm::ParameterSet &ps);
   ~DQMExample_Step2() override;
 
 protected:
   void beginJob() override;
-  void dqmEndLuminosityBlock(
-      DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &,
-      edm::EventSetup const &) override; // performed in the endLumi
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;  // performed in the endLumi
   void dqmEndJob(DQMStore::IBooker &,
-                 DQMStore::IGetter &) override; // performed in the endJob
+                 DQMStore::IGetter &) override;  // performed in the endJob
 
 private:
   // private variables

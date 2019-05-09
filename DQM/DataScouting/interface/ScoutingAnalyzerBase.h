@@ -31,76 +31,113 @@ protected:
   void prepareBooking(DQMStore::IBooker &);
 
   // Members for ME booking
-  MonitorElement *bookH1(DQMStore::IBooker &, const std::string &name,
-                         const std::string &title, int nchX, double lowX,
-                         double highX, const std::string &titleX = "",
+  MonitorElement *bookH1(DQMStore::IBooker &,
+                         const std::string &name,
+                         const std::string &title,
+                         int nchX,
+                         double lowX,
+                         double highX,
+                         const std::string &titleX = "",
                          const std::string &titleY = "Events",
                          Option_t *option = "E1 P");
 
-  MonitorElement *bookH1withSumw2(DQMStore::IBooker &, const std::string &name,
-                                  const std::string &title, int nchX,
-                                  double lowX, double highX,
+  MonitorElement *bookH1withSumw2(DQMStore::IBooker &,
+                                  const std::string &name,
+                                  const std::string &title,
+                                  int nchX,
+                                  double lowX,
+                                  double highX,
                                   const std::string &titleX = "",
                                   const std::string &titleY = "Events",
                                   Option_t *option = "E1 P");
 
-  MonitorElement *bookH1BinArray(DQMStore::IBooker &, const std::string &name,
-                                 const std::string &title, int nchX,
+  MonitorElement *bookH1BinArray(DQMStore::IBooker &,
+                                 const std::string &name,
+                                 const std::string &title,
+                                 int nchX,
                                  float *xbinsize,
                                  const std::string &titleX = "",
                                  const std::string &titleY = "Events",
                                  Option_t *option = "E1 P");
 
-  MonitorElement *bookH1withSumw2BinArray(
-      DQMStore::IBooker &, const std::string &name, const std::string &title,
-      int nchX, float *xbinsize, const std::string &titleX = "",
-      const std::string &titleY = "Events", Option_t *option = "E1 P");
+  MonitorElement *bookH1withSumw2BinArray(DQMStore::IBooker &,
+                                          const std::string &name,
+                                          const std::string &title,
+                                          int nchX,
+                                          float *xbinsize,
+                                          const std::string &titleX = "",
+                                          const std::string &titleY = "Events",
+                                          Option_t *option = "E1 P");
 
-  MonitorElement *bookH2(DQMStore::IBooker &, const std::string &name,
-                         const std::string &title, int nchX, double lowX,
-                         double highX, int nchY, double lowY, double highY,
+  MonitorElement *bookH2(DQMStore::IBooker &,
+                         const std::string &name,
+                         const std::string &title,
+                         int nchX,
+                         double lowX,
+                         double highX,
+                         int nchY,
+                         double lowY,
+                         double highY,
                          const std::string &titleX = "",
                          const std::string &titleY = "",
                          Option_t *option = "COLZ");
 
-  MonitorElement *bookH2withSumw2(DQMStore::IBooker &, const std::string &name,
-                                  const std::string &title, int nchX,
-                                  double lowX, double highX, int nchY,
-                                  double lowY, double highY,
+  MonitorElement *bookH2withSumw2(DQMStore::IBooker &,
+                                  const std::string &name,
+                                  const std::string &title,
+                                  int nchX,
+                                  double lowX,
+                                  double highX,
+                                  int nchY,
+                                  double lowY,
+                                  double highY,
                                   const std::string &titleX = "",
                                   const std::string &titleY = "",
                                   Option_t *option = "COLZ");
 
-  MonitorElement *bookP1(DQMStore::IBooker &, const std::string &name,
-                         const std::string &title, int nchX, double lowX,
-                         double highX, double lowY, double highY,
+  MonitorElement *bookP1(DQMStore::IBooker &,
+                         const std::string &name,
+                         const std::string &title,
+                         int nchX,
+                         double lowX,
+                         double highX,
+                         double lowY,
+                         double highY,
                          const std::string &titleX = "",
                          const std::string &titleY = "",
                          Option_t *option = "E1 P");
 
-  MonitorElement *bookH1andDivide(DQMStore::IBooker &, const std::string &name,
-                                  MonitorElement *num, MonitorElement *denom,
+  MonitorElement *bookH1andDivide(DQMStore::IBooker &,
+                                  const std::string &name,
+                                  MonitorElement *num,
+                                  MonitorElement *denom,
                                   const std::string &titleX,
                                   const std::string &titleY,
                                   const std::string &title = "");
 
-  MonitorElement *bookH2andDivide(DQMStore::IBooker &, const std::string &name,
-                                  MonitorElement *num, MonitorElement *denom,
+  MonitorElement *bookH2andDivide(DQMStore::IBooker &,
+                                  const std::string &name,
+                                  MonitorElement *num,
+                                  MonitorElement *denom,
                                   const std::string &titleX,
                                   const std::string &titleY,
                                   const std::string &title = "");
 
-  MonitorElement *profileX(DQMStore::IBooker &, MonitorElement *me2d,
+  MonitorElement *profileX(DQMStore::IBooker &,
+                           MonitorElement *me2d,
                            const std::string &title = "",
                            const std::string &titleX = "",
                            const std::string &titleY = "",
-                           Double_t minimum = -1111, Double_t maximum = -1111);
+                           Double_t minimum = -1111,
+                           Double_t maximum = -1111);
 
-  MonitorElement *profileY(DQMStore::IBooker &, MonitorElement *me2d,
+  MonitorElement *profileY(DQMStore::IBooker &,
+                           MonitorElement *me2d,
                            const std::string &title = "",
                            const std::string &titleX = "",
                            const std::string &titleY = "",
-                           Double_t minimum = -1111, Double_t maximum = -1111);
+                           Double_t minimum = -1111,
+                           Double_t maximum = -1111);
 
 private:
   std::string m_modulePath;

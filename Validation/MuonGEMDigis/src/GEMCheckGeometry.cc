@@ -10,7 +10,6 @@
 #include <iomanip>
 
 GEMCheckGeometry::GEMCheckGeometry(const edm::ParameterSet &gc) {
-
   GE11PhiBegin_ = gc.getUntrackedParameter<double>("GE11PhiBegin", -5.);
   GE11PhiStep_ = gc.getUntrackedParameter<double>("GE11PhiStep", 10);
   minPhi_ = gc.getUntrackedParameter<double>("minPhi", -180.);
@@ -18,10 +17,7 @@ GEMCheckGeometry::GEMCheckGeometry(const edm::ParameterSet &gc) {
   detailPlot_ = gc.getParameter<bool>("detailPlot");
 }
 
-void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker,
-                                      edm::Run const &Run,
-                                      edm::EventSetup const &iSetup) {
-
+void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &Run, edm::EventSetup const &iSetup) {
   if (!detailPlot_)
     return;
   const GEMGeometry *GEMGeometry_;
@@ -31,8 +27,7 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker,
     iSetup.get<MuonGeometryRecord>().get(hGeom);
     GEMGeometry_ = &*hGeom;
   } catch (edm::eventsetup::NoProxyException<GEMGeometry> &e) {
-    edm::LogError("MuonGEMGeometry")
-        << "+++ Error : GEM geometry  is unavailable on event loop. +++\n";
+    edm::LogError("MuonGEMGeometry") << "+++ Error : GEM geometry  is unavailable on event loop. +++\n";
     return;
   }
 
@@ -40,12 +35,9 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker,
   LogDebug("GEMCheckGeometry") << "ibooker set current folder\n";
 
   for (auto region : GEMGeometry_->regions()) {
-    TString title = TString::Format(
-        "Geometry's phi distribution on Region %d ; #phi(degree); ;",
-        region->region());
+    TString title = TString::Format("Geometry's phi distribution on Region %d ; #phi(degree); ;", region->region());
     TString name = TString::Format("geo_phi_r%d", region->region());
-    auto temp_me = ibooker.book2D(name.Data(), title.Data(), 360000, -180., 180,
-                                  12, 1, 13);
+    auto temp_me = ibooker.book2D(name.Data(), title.Data(), 360000, -180., 180, 12, 1, 13);
     temp_me->setBinLabel(1, "St1,La1_even", 2);
     temp_me->setBinLabel(2, "St1,La1_odd", 2);
     temp_me->setBinLabel(3, "St1,La2_even", 2);
@@ -54,8 +46,7 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker,
     temp_me->setBinLabel(6, "St2,La1_odd", 2);
     temp_me->setBinLabel(7, "St2,La2_even", 2);
     temp_me->setBinLabel(8, "St2,La2_odd", 2);
-    theStdPlots.insert(
-        std::map<UInt_t, MonitorElement *>::value_type(name.Hash(), temp_me));
+    theStdPlots.insert(std::map<UInt_t, MonitorElement *>::value_type(name.Hash(), temp_me));
   }
 
   for (auto region : GEMGeometry_->regions())
@@ -82,8 +73,7 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker,
                 int chamber_idx = id.chamber();
                 int layer_idx = id.layer();
                 // int roll_idx = id.roll();
-                int value = (station_idx - 1) * 4 + (layer_idx - 1) * 2 +
-                            (chamber_idx % 2) + 1;
+                int value = (station_idx - 1) * 4 + (layer_idx - 1) * 2 + (chamber_idx % 2) + 1;
 
                 if (region_idx == 1) {
                   UInt_t hash = TString("geo_phi_r1").Hash();

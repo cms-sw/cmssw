@@ -9,11 +9,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-CaloTowersDQMClient::CaloTowersDQMClient(const edm::ParameterSet &iConfig)
-    : conf_(iConfig) {
-
-  outputFile_ =
-      iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
+CaloTowersDQMClient::CaloTowersDQMClient(const edm::ParameterSet &iConfig) : conf_(iConfig) {
+  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   debug_ = false;
   verbose_ = false;
   dirName_ = iConfig.getParameter<std::string>("DQMDirName");
@@ -23,49 +20,38 @@ CaloTowersDQMClient::~CaloTowersDQMClient() {}
 
 void CaloTowersDQMClient::beginJob() {}
 
-void CaloTowersDQMClient::beginRun(const edm::Run &run,
-                                   const edm::EventSetup &c) {}
+void CaloTowersDQMClient::beginRun(const edm::Run &run, const edm::EventSetup &c) {}
 
 // called after entering the CaloTowersD/CaloTowersTask directory
 // hcalMEs are within that directory
-int CaloTowersDQMClient::CaloTowersEndjob(
-    const std::vector<MonitorElement *> &hcalMEs) {
-
+int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement *> &hcalMEs) {
   int useAllHistos = 0;
   MonitorElement *Ntowers_vs_ieta = nullptr;
-  MonitorElement *mapEnergy_N = nullptr, *mapEnergy_E = nullptr,
-                 *mapEnergy_H = nullptr, *mapEnergy_EH = nullptr;
+  MonitorElement *mapEnergy_N = nullptr, *mapEnergy_E = nullptr, *mapEnergy_H = nullptr, *mapEnergy_EH = nullptr;
   MonitorElement *occupancy_map = nullptr, *occupancy_vs_ieta = nullptr;
   for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "Ntowers_per_event_vs_ieta") ==
-        0) {
+    if (strcmp(hcalMEs[ih]->getName().c_str(), "Ntowers_per_event_vs_ieta") == 0) {
       Ntowers_vs_ieta = hcalMEs[ih];
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_Nentries") ==
-        0) {
+    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_Nentries") == 0) {
       mapEnergy_N = hcalMEs[ih];
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_energy_H") ==
-        0) {
+    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_energy_H") == 0) {
       useAllHistos++;
       mapEnergy_H = hcalMEs[ih];
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_energy_E") ==
-        0) {
+    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_energy_E") == 0) {
       useAllHistos++;
       mapEnergy_E = hcalMEs[ih];
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(),
-               "CaloTowersTask_map_energy_EH") == 0) {
+    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_energy_EH") == 0) {
       useAllHistos++;
       mapEnergy_EH = hcalMEs[ih];
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(),
-               "CaloTowersTask_map_occupancy") == 0) {
+    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_occupancy") == 0) {
       occupancy_map = hcalMEs[ih];
     }
-    if (strcmp(hcalMEs[ih]->getName().c_str(),
-               "CaloTowersTask_occupancy_vs_ieta") == 0) {
+    if (strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_occupancy_vs_ieta") == 0) {
       occupancy_vs_ieta = hcalMEs[ih];
     }
   }
@@ -101,12 +87,10 @@ int CaloTowersDQMClient::CaloTowersEndjob(
     float sumphi = 0.;
 
     for (int j = 1; j <= ny; j++) {
-
       // Emean
       cnorm = mapEnergy_N->getBinContent(i, j);
       // Phi histos are not used in the macros
       if (cnorm > 0.000001 && useAllHistos) {
-
         cont = mapEnergy_E->getBinContent(i, j) / cnorm;
         conte = mapEnergy_E->getBinError(i, j) / cnorm;
         mapEnergy_E->setBinContent(i, j, cont);
@@ -133,12 +117,12 @@ int CaloTowersDQMClient::CaloTowersEndjob(
 
       sumphi += cont;
 
-    } // end of iphy cycle (j)
+    }  // end of iphy cycle (j)
 
     // Occupancy vs ieta histo is drawn
     // phi-factor evaluation for occupancy_vs_ieta calculation
-    int ieta = i - 43; // should be the same as int ieta =
-                       // int(occupancy_vs_ieta->getBinCenter(i));
+    int ieta = i - 43;  // should be the same as int ieta =
+                        // int(occupancy_vs_ieta->getBinCenter(i));
 
     if (ieta >= -20 && ieta <= 20) {
       phi_factor = 72.;
@@ -156,14 +140,12 @@ int CaloTowersDQMClient::CaloTowersEndjob(
       occupancy_vs_ieta->setBinError(i, cnorme / fev);
     }
 
-  } // end of ieta cycle (i)
+  }  // end of ieta cycle (i)
 
   return 1;
 }
 
-void CaloTowersDQMClient::dqmEndJob(DQMStore::IBooker &ibooker,
-                                    DQMStore::IGetter &igetter) {
-
+void CaloTowersDQMClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
   igetter.setCurrentFolder(dirName_);
   if (verbose_)
     std::cout << "\nrunClient" << std::endl;
@@ -175,19 +157,16 @@ void CaloTowersDQMClient::dqmEndJob(DQMStore::IBooker &ibooker,
   // NoiseRatesV/NoiseRatesTask.
   std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
   for (unsigned int i = 0; i < fullPathHLTFolders.size(); i++) {
-
     if (verbose_)
       std::cout << "\nfullPath: " << fullPathHLTFolders[i] << std::endl;
     igetter.setCurrentFolder(fullPathHLTFolders[i]);
 
     std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
     for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
-
       if (verbose_)
         std::cout << "fullSub: " << fullSubPathHLTFolders[j] << std::endl;
 
-      if (strcmp(fullSubPathHLTFolders[j].c_str(),
-                 "CaloTowersD/CaloTowersTask") == 0) {
+      if (strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersD/CaloTowersTask") == 0) {
         hcalMEs = igetter.getContents(fullSubPathHLTFolders[j]);
         if (verbose_)
           std::cout << "hltMES size : " << hcalMEs.size() << std::endl;

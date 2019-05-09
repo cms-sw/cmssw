@@ -47,64 +47,46 @@ const unsigned int PixelLumiDQM::lastBunchCrossing;
 // Constructors and destructor.
 PixelLumiDQM::PixelLumiDQM(const edm::ParameterSet &iConfig)
     : fPixelClusterLabel(consumes<edmNew::DetSetVector<SiPixelCluster>>(
-          iConfig.getUntrackedParameter<edm::InputTag>(
-              "pixelClusterLabel", edm::InputTag("siPixelClusters")))),
-      fIncludePixelClusterInfo(
-          iConfig.getUntrackedParameter<bool>("includePixelClusterInfo", true)),
-      fIncludePixelQualCheckHistos(iConfig.getUntrackedParameter<bool>(
-          "includePixelQualCheckHistos", true)),
-      fResetIntervalInLumiSections(
-          iConfig.getUntrackedParameter<int>("resetEveryNLumiSections", 1)),
-      fDeadModules(iConfig.getUntrackedParameter<std::vector<uint32_t>>(
-          "deadModules", std::vector<uint32_t>())),
-      fMinPixelsPerCluster(
-          iConfig.getUntrackedParameter<int>("minNumPixelsPerCluster", 0)),
-      fMinClusterCharge(
-          iConfig.getUntrackedParameter<double>("minChargePerCluster", 0)),
+          iConfig.getUntrackedParameter<edm::InputTag>("pixelClusterLabel", edm::InputTag("siPixelClusters")))),
+      fIncludePixelClusterInfo(iConfig.getUntrackedParameter<bool>("includePixelClusterInfo", true)),
+      fIncludePixelQualCheckHistos(iConfig.getUntrackedParameter<bool>("includePixelQualCheckHistos", true)),
+      fResetIntervalInLumiSections(iConfig.getUntrackedParameter<int>("resetEveryNLumiSections", 1)),
+      fDeadModules(iConfig.getUntrackedParameter<std::vector<uint32_t>>("deadModules", std::vector<uint32_t>())),
+      fMinPixelsPerCluster(iConfig.getUntrackedParameter<int>("minNumPixelsPerCluster", 0)),
+      fMinClusterCharge(iConfig.getUntrackedParameter<double>("minChargePerCluster", 0)),
       bunchTriggerMask(lastBunchCrossing + 1, false),
       filledAndUnmaskedBunches(0),
-      useInnerBarrelLayer(
-          iConfig.getUntrackedParameter<bool>("useInnerBarrelLayer", false)),
-      fLogFileName_(iConfig.getUntrackedParameter<std::string>(
-          "logFileName", "/tmp/pixel_lumi.txt")) {
-  edm::LogInfo("Configuration")
-      << "PixelLumiDQM looking for pixel clusters in '"
-      << iConfig.getUntrackedParameter<edm::InputTag>(
-             "pixelClusterLabel", edm::InputTag("siPixelClusters"))
-      << "'";
-  edm::LogInfo("Configuration") << "PixelLumiDQM storing pixel cluster info? "
-                                << fIncludePixelClusterInfo;
-  edm::LogInfo("Configuration")
-      << "PixelLumiDQM storing pixel cluster quality check histograms? "
-      << fIncludePixelQualCheckHistos;
+      useInnerBarrelLayer(iConfig.getUntrackedParameter<bool>("useInnerBarrelLayer", false)),
+      fLogFileName_(iConfig.getUntrackedParameter<std::string>("logFileName", "/tmp/pixel_lumi.txt")) {
+  edm::LogInfo("Configuration") << "PixelLumiDQM looking for pixel clusters in '"
+                                << iConfig.getUntrackedParameter<edm::InputTag>("pixelClusterLabel",
+                                                                                edm::InputTag("siPixelClusters"))
+                                << "'";
+  edm::LogInfo("Configuration") << "PixelLumiDQM storing pixel cluster info? " << fIncludePixelClusterInfo;
+  edm::LogInfo("Configuration") << "PixelLumiDQM storing pixel cluster quality check histograms? "
+                                << fIncludePixelQualCheckHistos;
 
   if (fDeadModules.empty()) {
     edm::LogInfo("Configuration") << "No pixel modules specified to be ignored";
   } else {
-    edm::LogInfo("Configuration")
-        << fDeadModules.size() << " pixel modules specified to be ignored:";
-    for (std::vector<uint32_t>::const_iterator it = fDeadModules.begin();
-         it != fDeadModules.end(); ++it) {
+    edm::LogInfo("Configuration") << fDeadModules.size() << " pixel modules specified to be ignored:";
+    for (std::vector<uint32_t>::const_iterator it = fDeadModules.begin(); it != fDeadModules.end(); ++it) {
       edm::LogInfo("Configuration") << "  " << *it;
     }
   }
-  edm::LogInfo("Configuration") << "Ignoring pixel clusters with less than "
-                                << fMinPixelsPerCluster << " pixels";
-  edm::LogInfo("Configuration")
-      << "Ignoring pixel clusters with charge less than " << fMinClusterCharge;
+  edm::LogInfo("Configuration") << "Ignoring pixel clusters with less than " << fMinPixelsPerCluster << " pixels";
+  edm::LogInfo("Configuration") << "Ignoring pixel clusters with charge less than " << fMinClusterCharge;
 }
 
 PixelLumiDQM::~PixelLumiDQM() {}
 
-void PixelLumiDQM::fillDescriptions(
-    edm::ConfigurationDescriptions &descriptions) {
+void PixelLumiDQM::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
 
-void PixelLumiDQM::analyze(const edm::Event &iEvent,
-                           const edm::EventSetup &iSetup) {
+void PixelLumiDQM::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Collect all bookkeeping information.
   fRunNo = iEvent.id().run();
   fEvtNo = iEvent.id().event();
@@ -128,26 +110,21 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent,
     iEvent.getByToken(fPixelClusterLabel, pixelClusters);
 
     // Loop over entire tracker geometry.
-    for (TrackerGeometry::DetContainer::const_iterator i =
-             trackerGeo->dets().begin();
-         i != trackerGeo->dets().end(); ++i) {
+    for (TrackerGeometry::DetContainer::const_iterator i = trackerGeo->dets().begin(); i != trackerGeo->dets().end();
+         ++i) {
       // See if this is a pixel unit(?).
 
       if (GeomDetEnumerators::isTrackerPixel((*i)->subDetector())) {
         DetId detId = (*i)->geographicalId();
         // Find all clusters on this detector module.
-        edmNew::DetSetVector<SiPixelCluster>::const_iterator iSearch =
-            pixelClusters->find(detId);
+        edmNew::DetSetVector<SiPixelCluster>::const_iterator iSearch = pixelClusters->find(detId);
         if (iSearch != pixelClusters->end()) {
-
           // Count the number of clusters with at least a minimum
           // number of pixels per cluster and at least a minimum charge.
           size_t numClusters = 0;
-          for (edmNew::DetSet<SiPixelCluster>::const_iterator itClus =
-                   iSearch->begin();
-               itClus != iSearch->end(); ++itClus) {
-            if ((itClus->size() >= fMinPixelsPerCluster) &&
-                (itClus->charge() >= fMinClusterCharge)) {
+          for (edmNew::DetSet<SiPixelCluster>::const_iterator itClus = iSearch->begin(); itClus != iSearch->end();
+               ++itClus) {
+            if ((itClus->size() >= fMinPixelsPerCluster) && (itClus->charge() >= fMinClusterCharge)) {
               ++numClusters;
             }
           }
@@ -168,23 +145,22 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent,
             // DEBUG DEBUG DEBUG end
 
             PixelEndcapNameUpgrade detName = PixelEndcapNameUpgrade(detId);
-            PixelEndcapNameUpgrade::HalfCylinder halfCylinder =
-                detName.halfCylinder();
+            PixelEndcapNameUpgrade::HalfCylinder halfCylinder = detName.halfCylinder();
             int disk = detName.diskName() - kOffsetDisks;
             switch (halfCylinder) {
-            case PixelEndcapNameUpgrade::mO:
-            case PixelEndcapNameUpgrade::mI:
-              fNumPixelClusters[fBXNo].numFM.at(disk) += numClusters;
-              fNumPixelClusters[fBXNo].dnumFM.at(disk) += sqrt(numClusters);
-              break;
-            case PixelEndcapNameUpgrade::pO:
-            case PixelEndcapNameUpgrade::pI:
-              fNumPixelClusters[fBXNo].numFP.at(disk) += numClusters;
-              fNumPixelClusters[fBXNo].dnumFP.at(disk) += sqrt(numClusters);
-              break;
-            default:
-              assert(false);
-              break;
+              case PixelEndcapNameUpgrade::mO:
+              case PixelEndcapNameUpgrade::mI:
+                fNumPixelClusters[fBXNo].numFM.at(disk) += numClusters;
+                fNumPixelClusters[fBXNo].dnumFM.at(disk) += sqrt(numClusters);
+                break;
+              case PixelEndcapNameUpgrade::pO:
+              case PixelEndcapNameUpgrade::pI:
+                fNumPixelClusters[fBXNo].numFP.at(disk) += numClusters;
+                fNumPixelClusters[fBXNo].dnumFP.at(disk) += sqrt(numClusters);
+                break;
+              default:
+                assert(false);
+                break;
             }
           }
         }
@@ -195,7 +171,6 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent,
 
   // Fill some pixel cluster quality check histograms if requested.
   if (fIncludePixelQualCheckHistos) {
-
     // Find tracker geometry.
     edm::ESHandle<TrackerGeometry> trackerGeo;
     iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeo);
@@ -205,41 +180,29 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent,
     iEvent.getByToken(fPixelClusterLabel, pixelClusters);
 
     bool filterDeadModules = (!fDeadModules.empty());
-    std::vector<uint32_t>::const_iterator deadModulesBegin =
-        fDeadModules.begin();
+    std::vector<uint32_t>::const_iterator deadModulesBegin = fDeadModules.begin();
     std::vector<uint32_t>::const_iterator deadModulesEnd = fDeadModules.end();
 
     // Loop over entire tracker geometry.
-    for (TrackerGeometry::DetContainer::const_iterator i =
-             trackerGeo->dets().begin();
-         i != trackerGeo->dets().end(); ++i) {
-
+    for (TrackerGeometry::DetContainer::const_iterator i = trackerGeo->dets().begin(); i != trackerGeo->dets().end();
+         ++i) {
       // See if this is a pixel module.
       if (GeomDetEnumerators::isTrackerPixel((*i)->subDetector())) {
         DetId detId = (*i)->geographicalId();
 
         // Skip this module if it's on the list of modules to be ignored.
-        if (filterDeadModules &&
-            find(deadModulesBegin, deadModulesEnd, detId()) != deadModulesEnd) {
+        if (filterDeadModules && find(deadModulesBegin, deadModulesEnd, detId()) != deadModulesEnd) {
           continue;
         }
 
         // Find all clusters in this module.
-        edmNew::DetSetVector<SiPixelCluster>::const_iterator iSearch =
-            pixelClusters->find(detId);
+        edmNew::DetSetVector<SiPixelCluster>::const_iterator iSearch = pixelClusters->find(detId);
 
         // Loop over all clusters in this module.
         if (iSearch != pixelClusters->end()) {
-          for (edmNew::DetSet<SiPixelCluster>::const_iterator clus =
-                   iSearch->begin();
-               clus != iSearch->end(); ++clus) {
-
-            if ((clus->size() >= fMinPixelsPerCluster) &&
-                (clus->charge() >= fMinClusterCharge)) {
-
-              PixelGeomDetUnit const *theGeomDet =
-                  dynamic_cast<PixelGeomDetUnit const *>(
-                      trackerGeo->idToDet(detId));
+          for (edmNew::DetSet<SiPixelCluster>::const_iterator clus = iSearch->begin(); clus != iSearch->end(); ++clus) {
+            if ((clus->size() >= fMinPixelsPerCluster) && (clus->charge() >= fMinClusterCharge)) {
+              PixelGeomDetUnit const *theGeomDet = dynamic_cast<PixelGeomDetUnit const *>(trackerGeo->idToDet(detId));
               PixelTopology const *topol = &(theGeomDet->specificTopology());
               double x = clus->x();
               double y = clus->y();
@@ -254,20 +217,15 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent,
                 if (layer < kNumLayers) {
                   std::string histName;
                   histName = "clusPosBarrel" + std::to_string(layer);
-                  fHistContainerThisRun[histName]->Fill(clustGP.z(),
-                                                        clustGP.phi());
+                  fHistContainerThisRun[histName]->Fill(clustGP.z(), clustGP.phi());
                   histName = "clusChargeBarrel" + std::to_string(layer);
-                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(),
-                                                        charge);
+                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(), charge);
                   histName = "clusSizeBarrel" + std::to_string(layer);
-                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(),
-                                                        size);
+                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(), size);
                 } else {
-                  edm::LogWarning("pixelLumi")
-                      << "higher layer number, " << layer << ", than layers";
+                  edm::LogWarning("pixelLumi") << "higher layer number, " << layer << ", than layers";
                 }
               } else {
-
                 // DEBUG DEBUG DEBUG
                 assert(detId.subdetId() == PixelSubdetector::PixelEndcap);
                 // DEBUG DEBUG DEBUG end
@@ -277,18 +235,14 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent,
                 if (disk < kNumDisks) {
                   std::string histName;
                   histName = "clusPosEndCap" + std::to_string(disk);
-                  fHistContainerThisRun[histName]->Fill(clustGP.x(),
-                                                        clustGP.y());
+                  fHistContainerThisRun[histName]->Fill(clustGP.x(), clustGP.y());
                   histName = "clusChargeEndCap" + std::to_string(disk);
-                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(),
-                                                        charge);
+                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(), charge);
                   histName = "clusSizeEndCap" + std::to_string(disk);
-                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(),
-                                                        size);
+                  fHistContainerThisRun[histName]->Fill(iEvent.bunchCrossing(), size);
                 } else {
                   edm::LogWarning("pixelLumi")
-                      << "higher disk number, " << disk << ", than disks,"
-                      << kNumDisks << std::endl;
+                      << "higher disk number, " << disk << ", than disks," << kNumDisks << std::endl;
                 }
               }
             }
@@ -308,56 +262,37 @@ void PixelLumiDQM::bookHistograms(DQMStore::IBooker &ibooker,
   std::string folder = "PixelLumi/";
   ibooker.setCurrentFolder(folder);
 
-  fHistTotalRecordedLumiByLS = ibooker.book1D(
-      "totalPixelLumiByLS", "Pixel Lumi in nb vs LS", 8000, 0.5, 8000.5);
-  fHistRecordedByBxCumulative =
-      ibooker.book1D("PXLumiByBXsum", "Pixel Lumi in nb by BX Cumulative vs LS",
-                     lastBunchCrossing, 0.5, float(lastBunchCrossing) + 0.5);
+  fHistTotalRecordedLumiByLS = ibooker.book1D("totalPixelLumiByLS", "Pixel Lumi in nb vs LS", 8000, 0.5, 8000.5);
+  fHistRecordedByBxCumulative = ibooker.book1D("PXLumiByBXsum",
+                                               "Pixel Lumi in nb by BX Cumulative vs LS",
+                                               lastBunchCrossing,
+                                               0.5,
+                                               float(lastBunchCrossing) + 0.5);
 
   std::string subfolder = folder + "lastLS/";
   ibooker.setCurrentFolder(subfolder);
   fHistRecordedByBxLastLumi = ibooker.book1D(
-      "PXByBXLastLumi", "Pixel By BX Last Lumi", lastBunchCrossing + 1, -0.5,
-      float(lastBunchCrossing) + 0.5);
+      "PXByBXLastLumi", "Pixel By BX Last Lumi", lastBunchCrossing + 1, -0.5, float(lastBunchCrossing) + 0.5);
 
   subfolder = folder + "ClusterCountingDetails/";
   ibooker.setCurrentFolder(subfolder);
 
-  fHistnBClusVsLS[0] = ibooker.book1D(
-      "nBClusVsLS_0", "Fraction of Clusters vs LS Barrel layer 0", 8000, 0.5,
-      8000.5);
-  fHistnBClusVsLS[1] = ibooker.book1D(
-      "nBClusVsLS_1", "Fraction of Clusters vs LS Barrel layer 1", 8000, 0.5,
-      8000.5);
-  fHistnBClusVsLS[2] = ibooker.book1D(
-      "nBClusVsLS_2", "Fraction of Clusters vs LS Barrel layer 2", 8000, 0.5,
-      8000.5);
-  fHistnFPClusVsLS[0] = ibooker.book1D(
-      "nFPClusVsLS_0", "Fraction of Clusters vs LS Barrel layer 0", 8000, 0.5,
-      8000.5);
-  fHistnFPClusVsLS[1] = ibooker.book1D(
-      "nFPClusVsLS_1", "Fraction of Clusters vs LS Barrel layer 1", 8000, 0.5,
-      8000.5);
-  fHistnFMClusVsLS[0] = ibooker.book1D(
-      "nFMClusVsLS_0", "Fraction of Clusters vs LS Barrel layer 0", 8000, 0.5,
-      8000.5);
-  fHistnFMClusVsLS[1] = ibooker.book1D(
-      "nFMClusVsLS_1", "Fraction of Clusters vs LS Barrel layer 1", 8000, 0.5,
-      8000.5);
-  fHistBunchCrossings =
-      ibooker.book1D("BunchCrossings", "Cumulative Bunch Crossings",
-                     lastBunchCrossing, 0.5, float(lastBunchCrossing) + 0.5);
-  fHistBunchCrossingsLastLumi =
-      ibooker.book1D("BunchCrossingsLL", "Bunch Crossings Last Lumi",
-                     lastBunchCrossing, 0.5, float(lastBunchCrossing) + 0.5);
-  fHistClusterCountByBxLastLumi =
-      ibooker.book1D("ClusterCountByBxLL", "Cluster Count by BX Last Lumi",
-                     lastBunchCrossing, 0.5, float(lastBunchCrossing) + 0.5);
-  fHistClusterCountByBxCumulative =
-      ibooker.book1D("ClusterCountByBxSum", "Cluster Count by BX Cumulative",
-                     lastBunchCrossing, 0.5, float(lastBunchCrossing) + 0.5);
-  fHistClusByLS = ibooker.book1D(
-      "totalClusByLS", "Number of Clusters all dets vs LS", 8000, 0.5, 8000.5);
+  fHistnBClusVsLS[0] = ibooker.book1D("nBClusVsLS_0", "Fraction of Clusters vs LS Barrel layer 0", 8000, 0.5, 8000.5);
+  fHistnBClusVsLS[1] = ibooker.book1D("nBClusVsLS_1", "Fraction of Clusters vs LS Barrel layer 1", 8000, 0.5, 8000.5);
+  fHistnBClusVsLS[2] = ibooker.book1D("nBClusVsLS_2", "Fraction of Clusters vs LS Barrel layer 2", 8000, 0.5, 8000.5);
+  fHistnFPClusVsLS[0] = ibooker.book1D("nFPClusVsLS_0", "Fraction of Clusters vs LS Barrel layer 0", 8000, 0.5, 8000.5);
+  fHistnFPClusVsLS[1] = ibooker.book1D("nFPClusVsLS_1", "Fraction of Clusters vs LS Barrel layer 1", 8000, 0.5, 8000.5);
+  fHistnFMClusVsLS[0] = ibooker.book1D("nFMClusVsLS_0", "Fraction of Clusters vs LS Barrel layer 0", 8000, 0.5, 8000.5);
+  fHistnFMClusVsLS[1] = ibooker.book1D("nFMClusVsLS_1", "Fraction of Clusters vs LS Barrel layer 1", 8000, 0.5, 8000.5);
+  fHistBunchCrossings = ibooker.book1D(
+      "BunchCrossings", "Cumulative Bunch Crossings", lastBunchCrossing, 0.5, float(lastBunchCrossing) + 0.5);
+  fHistBunchCrossingsLastLumi = ibooker.book1D(
+      "BunchCrossingsLL", "Bunch Crossings Last Lumi", lastBunchCrossing, 0.5, float(lastBunchCrossing) + 0.5);
+  fHistClusterCountByBxLastLumi = ibooker.book1D(
+      "ClusterCountByBxLL", "Cluster Count by BX Last Lumi", lastBunchCrossing, 0.5, float(lastBunchCrossing) + 0.5);
+  fHistClusterCountByBxCumulative = ibooker.book1D(
+      "ClusterCountByBxSum", "Cluster Count by BX Cumulative", lastBunchCrossing, 0.5, float(lastBunchCrossing) + 0.5);
+  fHistClusByLS = ibooker.book1D("totalClusByLS", "Number of Clusters all dets vs LS", 8000, 0.5, 8000.5);
 
   // Add some pixel cluster quality check histograms (in a subfolder).
   subfolder = folder + "qualityChecks/";
@@ -376,8 +311,7 @@ void PixelLumiDQM::bookHistograms(DQMStore::IBooker &ibooker,
       std::stringstream title;
       title << "Pixel cluster position - barrel layer " << i;
       fHistContainerThisRun[key.str()] =
-          ibooker.book2D(name.str().c_str(), title.str().c_str(), 100, -30.,
-                         30., 64, -Geom::pi(), Geom::pi());
+          ibooker.book2D(name.str().c_str(), title.str().c_str(), 100, -30., 30., 64, -Geom::pi(), Geom::pi());
     }
 
     // Pixel cluster positions in the endcaps (x, y).
@@ -389,8 +323,7 @@ void PixelLumiDQM::bookHistograms(DQMStore::IBooker &ibooker,
       std::stringstream title;
       title << "Pixel cluster position - endcap disk " << i;
       fHistContainerThisRun[key.str()] =
-          ibooker.book2D(name.str().c_str(), title.str().c_str(), 100, -20.,
-                         20., 100, -20., 20.);
+          ibooker.book2D(name.str().c_str(), title.str().c_str(), 100, -20., 20., 100, -20., 20.);
     }
 
     // Pixel cluster charge in the barrel, per bx.
@@ -402,8 +335,7 @@ void PixelLumiDQM::bookHistograms(DQMStore::IBooker &ibooker,
       std::stringstream title;
       title << "Pixel cluster charge - barrel layer " << i;
       fHistContainerThisRun[key.str()] =
-          ibooker.book2D(name.str().c_str(), title.str().c_str(), 3564, .5,
-                         3564.5, 100, 0., 100.);
+          ibooker.book2D(name.str().c_str(), title.str().c_str(), 3564, .5, 3564.5, 100, 0., 100.);
     }
 
     // Pixel cluster charge in the endcaps, per bx.
@@ -415,8 +347,7 @@ void PixelLumiDQM::bookHistograms(DQMStore::IBooker &ibooker,
       std::stringstream title;
       title << "Pixel cluster charge - endcap disk " << i;
       fHistContainerThisRun[key.str()] =
-          ibooker.book2D(name.str().c_str(), title.str().c_str(), 3564, .5,
-                         3564.5, 100, 0., 100.);
+          ibooker.book2D(name.str().c_str(), title.str().c_str(), 3564, .5, 3564.5, 100, 0., 100.);
     }
 
     // Pixel cluster size in the barrel, per bx.
@@ -428,8 +359,7 @@ void PixelLumiDQM::bookHistograms(DQMStore::IBooker &ibooker,
       std::stringstream title;
       title << "Pixel cluster size - barrel layer " << i;
       fHistContainerThisRun[key.str()] =
-          ibooker.book2D(name.str().c_str(), title.str().c_str(), 3564, .5,
-                         3564.5, 100, 0., 100.);
+          ibooker.book2D(name.str().c_str(), title.str().c_str(), 3564, .5, 3564.5, 100, 0., 100.);
     }
 
     // Pixel cluster size in the endcaps, per bx.
@@ -441,8 +371,7 @@ void PixelLumiDQM::bookHistograms(DQMStore::IBooker &ibooker,
       std::stringstream title;
       title << "Pixel cluster size - endcap disk " << i;
       fHistContainerThisRun[key.str()] =
-          ibooker.book2D(name.str().c_str(), title.str().c_str(), 3564, .5,
-                         3564.5, 100, 0., 100.);
+          ibooker.book2D(name.str().c_str(), title.str().c_str(), 3564, .5, 3564.5, 100, 0., 100.);
     }
   }
 }
@@ -455,8 +384,7 @@ void PixelLumiDQM::endRun(edm::Run const &, edm::EventSetup const &) {}
 
 // ------------ Method called when starting to process a luminosity block.
 // ------------
-void PixelLumiDQM::beginLuminosityBlock(edm::LuminosityBlock const &lumiBlock,
-                                        edm::EventSetup const &) {
+void PixelLumiDQM::beginLuminosityBlock(edm::LuminosityBlock const &lumiBlock, edm::EventSetup const &) {
   // Only reset and fill every fResetIntervalInLumiSections (default is 1 LS)
   // Return unless the PREVIOUS LS was at the right modulo value
   // (e.g. is resetinterval = 5 the rest will only be executed at LS=6
@@ -474,9 +402,7 @@ void PixelLumiDQM::beginLuminosityBlock(edm::LuminosityBlock const &lumiBlock,
 
 // ------------ Method called when ending the processing of a luminosity block.
 // ------------
-void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock,
-                                      edm::EventSetup const &es) {
-
+void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock, edm::EventSetup const &es) {
   unsigned int ls = lumiBlock.luminosityBlockAuxiliary().luminosityBlock();
 
   // Only fill every fResetIntervalInLumiSections (default is 1 LS)
@@ -502,26 +428,19 @@ void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock,
   double totalevents = 0.0;
   double lumi_factor_per_bx = 0.0;
   if (useInnerBarrelLayer)
-    lumi_factor_per_bx = FREQ_ORBIT * SECONDS_PER_LS *
-                         fResetIntervalInLumiSections / XSEC_PIXEL_CLUSTER;
+    lumi_factor_per_bx = FREQ_ORBIT * SECONDS_PER_LS * fResetIntervalInLumiSections / XSEC_PIXEL_CLUSTER;
   else
-    lumi_factor_per_bx = FREQ_ORBIT * SECONDS_PER_LS *
-                         fResetIntervalInLumiSections / rXSEC_PIXEL_CLUSTER;
+    lumi_factor_per_bx = FREQ_ORBIT * SECONDS_PER_LS * fResetIntervalInLumiSections / rXSEC_PIXEL_CLUSTER;
 
-  for (std::map<int, PixelClusterCount>::iterator it =
-           fNumPixelClusters.begin();
-       it != fNumPixelClusters.end(); it++) {
-
+  for (std::map<int, PixelClusterCount>::iterator it = fNumPixelClusters.begin(); it != fNumPixelClusters.end(); it++) {
     // Sum all clusters for this BX.
-    unsigned int total = (*it).second.numB.at(1) + (*it).second.numB.at(2) +
-                         (*it).second.numFP.at(0) + (*it).second.numFP.at(1) +
-                         (*it).second.numFM.at(0) + (*it).second.numFM.at(1);
+    unsigned int total = (*it).second.numB.at(1) + (*it).second.numB.at(2) + (*it).second.numFP.at(0) +
+                         (*it).second.numFP.at(1) + (*it).second.numFM.at(0) + (*it).second.numFM.at(1);
     if (useInnerBarrelLayer)
       total += (*it).second.numB.at(0);
     totalcounts += total;
-    double etotal = (*it).second.dnumB.at(1) + (*it).second.dnumB.at(2) +
-                    (*it).second.dnumFP.at(0) + (*it).second.dnumFP.at(1) +
-                    (*it).second.dnumFM.at(0) + (*it).second.dnumFM.at(1);
+    double etotal = (*it).second.dnumB.at(1) + (*it).second.dnumB.at(2) + (*it).second.dnumFP.at(0) +
+                    (*it).second.dnumFP.at(1) + (*it).second.dnumFM.at(0) + (*it).second.dnumFM.at(1);
     if (useInnerBarrelLayer)
       etotal = (*it).second.dnumB.at(0);
     etotalcounts += etotal;
@@ -529,46 +448,33 @@ void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock,
 
     fHistClusterCountByBxLastLumi->setBinContent((*it).first, total);
     fHistClusterCountByBxLastLumi->setBinError((*it).first, etotal);
-    fHistClusterCountByBxCumulative->setBinContent(
-        (*it).first,
-        fHistClusterCountByBxCumulative->getBinContent((*it).first) + total);
+    fHistClusterCountByBxCumulative->setBinContent((*it).first,
+                                                   fHistClusterCountByBxCumulative->getBinContent((*it).first) + total);
 
-    unsigned int events_per_bx =
-        fHistBunchCrossingsLastLumi->getBinContent((*it).first);
+    unsigned int events_per_bx = fHistBunchCrossingsLastLumi->getBinContent((*it).first);
     totalevents += events_per_bx;
-    double average_cluster_count =
-        events_per_bx != 0 ? double(total) / events_per_bx : 0.;
-    double average_cluster_count_unc =
-        events_per_bx != 0 ? etotal / events_per_bx : 0.;
-    double pixel_bx_lumi_per_ls =
-        lumi_factor_per_bx * average_cluster_count / CM2_TO_NANOBARN;
+    double average_cluster_count = events_per_bx != 0 ? double(total) / events_per_bx : 0.;
+    double average_cluster_count_unc = events_per_bx != 0 ? etotal / events_per_bx : 0.;
+    double pixel_bx_lumi_per_ls = lumi_factor_per_bx * average_cluster_count / CM2_TO_NANOBARN;
     double pixel_bx_lumi_per_ls_unc = 0.0;
     if (useInnerBarrelLayer)
-      pixel_bx_lumi_per_ls_unc =
-          sqrt(lumi_factor_per_bx * lumi_factor_per_bx *
-               (average_cluster_count_unc * average_cluster_count_unc +
-                (average_cluster_count * XSEC_PIXEL_CLUSTER_UNC /
-                 XSEC_PIXEL_CLUSTER) *
-                    (average_cluster_count * XSEC_PIXEL_CLUSTER /
-                     XSEC_PIXEL_CLUSTER))) /
-          CM2_TO_NANOBARN;
+      pixel_bx_lumi_per_ls_unc = sqrt(lumi_factor_per_bx * lumi_factor_per_bx *
+                                      (average_cluster_count_unc * average_cluster_count_unc +
+                                       (average_cluster_count * XSEC_PIXEL_CLUSTER_UNC / XSEC_PIXEL_CLUSTER) *
+                                           (average_cluster_count * XSEC_PIXEL_CLUSTER / XSEC_PIXEL_CLUSTER))) /
+                                 CM2_TO_NANOBARN;
     else
-      pixel_bx_lumi_per_ls_unc =
-          sqrt(lumi_factor_per_bx * lumi_factor_per_bx *
-               (average_cluster_count_unc * average_cluster_count_unc +
-                (average_cluster_count * rXSEC_PIXEL_CLUSTER_UNC /
-                 rXSEC_PIXEL_CLUSTER) *
-                    (average_cluster_count * rXSEC_PIXEL_CLUSTER /
-                     rXSEC_PIXEL_CLUSTER))) /
-          CM2_TO_NANOBARN;
+      pixel_bx_lumi_per_ls_unc = sqrt(lumi_factor_per_bx * lumi_factor_per_bx *
+                                      (average_cluster_count_unc * average_cluster_count_unc +
+                                       (average_cluster_count * rXSEC_PIXEL_CLUSTER_UNC / rXSEC_PIXEL_CLUSTER) *
+                                           (average_cluster_count * rXSEC_PIXEL_CLUSTER / rXSEC_PIXEL_CLUSTER))) /
+                                 CM2_TO_NANOBARN;
 
     fHistRecordedByBxLastLumi->setBinContent((*it).first, pixel_bx_lumi_per_ls);
-    fHistRecordedByBxLastLumi->setBinError((*it).first,
-                                           pixel_bx_lumi_per_ls_unc);
+    fHistRecordedByBxLastLumi->setBinError((*it).first, pixel_bx_lumi_per_ls_unc);
 
     fHistRecordedByBxCumulative->setBinContent(
-        (*it).first, fHistRecordedByBxCumulative->getBinContent((*it).first) +
-                         pixel_bx_lumi_per_ls);
+        (*it).first, fHistRecordedByBxCumulative->getBinContent((*it).first) + pixel_bx_lumi_per_ls);
 
     /*
       if(fHistRecordedByBxLastLumi->getBinContent((*it).first)!=0.)
@@ -592,8 +498,7 @@ void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock,
     // (*it).second.numB.at(0));
   }
 
-  if ((filledAndUnmaskedBunches = calculateBunchMask(
-           fHistClusterCountByBxCumulative, bunchTriggerMask)) != 0) {
+  if ((filledAndUnmaskedBunches = calculateBunchMask(fHistClusterCountByBxCumulative, bunchTriggerMask)) != 0) {
     for (unsigned int i = 0; i <= lastBunchCrossing; i++) {
       if (bunchTriggerMask[i]) {
         double err = fHistRecordedByBxLastLumi->getBinError(i);
@@ -606,15 +511,13 @@ void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock,
     // from the total cluster count and rescale
 
     if (totalevents > 10) {
-      total_recorded =
-          lumi_factor_per_bx * totalcounts / totalevents / CM2_TO_NANOBARN;
+      total_recorded = lumi_factor_per_bx * totalcounts / totalevents / CM2_TO_NANOBARN;
     } else
       total_recorded = 0.0;
 
     edm::LogWarning("pixelLumi") << " Total recorded " << total_recorded;
     fHistTotalRecordedLumiByLS->setBinContent(ls, total_recorded);
-    fHistTotalRecordedLumiByLS->setBinError(ls,
-                                            sqrt(total_recorded_unc_square));
+    fHistTotalRecordedLumiByLS->setBinError(ls, sqrt(total_recorded_unc_square));
   }
   // fill cluster counts by detector regions for sanity checks
   unsigned int all_detectors_counts = 0;
@@ -631,16 +534,13 @@ void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock,
   fHistClusByLS->setBinContent(ls, all_detectors_counts);
 
   for (unsigned int i = 0; i < 3; i++) {
-    fHistnBClusVsLS[i]->setBinContent(ls, float(nBClus[i]) /
-                                              float(all_detectors_counts));
+    fHistnBClusVsLS[i]->setBinContent(ls, float(nBClus[i]) / float(all_detectors_counts));
   }
   for (unsigned int i = 0; i < 2; i++) {
-    fHistnFPClusVsLS[i]->setBinContent(ls, float(nFPClus[i]) /
-                                               float(all_detectors_counts));
+    fHistnFPClusVsLS[i]->setBinContent(ls, float(nFPClus[i]) / float(all_detectors_counts));
   }
   for (unsigned int i = 0; i < 2; i++) {
-    fHistnFMClusVsLS[i]->setBinContent(ls, float(nFMClus[i]) /
-                                               float(all_detectors_counts));
+    fHistnFMClusVsLS[i]->setBinContent(ls, float(nFMClus[i]) / float(all_detectors_counts));
   }
 
   logFile_.open(fLogFileName_.c_str(), std::ios_base::trunc);
@@ -655,15 +555,13 @@ void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock,
   logFile_ << "LumiRange " << ls << "-" << ls << std::endl;
   logFile_ << "Fill " << -99 << std::endl;
   logFile_ << "ActiveBunchCrossings " << filledAndUnmaskedBunches << std::endl;
-  logFile_ << "PixelLumi "
-           << fHistTotalRecordedLumiByLS->getBinContent(ls) * 0.98 << std::endl;
+  logFile_ << "PixelLumi " << fHistTotalRecordedLumiByLS->getBinContent(ls) * 0.98 << std::endl;
   logFile_ << "HFLumi " << -99 << std::endl;
   logFile_ << "Ratio " << -99 << std::endl;
   logFile_.close();
 }
 
-unsigned int PixelLumiDQM::calculateBunchMask(MonitorElement *e,
-                                              std::vector<bool> &mask) {
+unsigned int PixelLumiDQM::calculateBunchMask(MonitorElement *e, std::vector<bool> &mask) {
   unsigned int nbins = e->getNbinsX();
   std::vector<float> ar(nbins, 0.);
   for (unsigned int i = 1; i <= nbins; i++) {
@@ -671,14 +569,12 @@ unsigned int PixelLumiDQM::calculateBunchMask(MonitorElement *e,
   }
   return calculateBunchMask(ar, nbins, mask);
 }
-unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e,
-                                              unsigned int nbins,
-                                              std::vector<bool> &mask) {
+unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e, unsigned int nbins, std::vector<bool> &mask) {
   // Take the cumulative cluster count histogram and find max and average of
   // non-empty bins.
   unsigned int active_count = 0;
   double maxc = 0.0;
-  double ave = 0.0; // Average of non-empty bins
+  double ave = 0.0;  // Average of non-empty bins
   unsigned int non_empty_bins = 0;
 
   for (unsigned int i = 1; i <= nbins; i++) {
@@ -692,10 +588,8 @@ unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e,
   }
 
   ave /= non_empty_bins;
-  edm::LogWarning("pixelLumi")
-      << "Bunch mask finder - non empty bins " << non_empty_bins
-      << " average of non empty bins " << ave << " max content of one bin "
-      << maxc;
+  edm::LogWarning("pixelLumi") << "Bunch mask finder - non empty bins " << non_empty_bins
+                               << " average of non empty bins " << ave << " max content of one bin " << maxc;
   double mean = 0.;
   double sigma = 0.;
   if (non_empty_bins < 50) {
@@ -712,8 +606,7 @@ unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e,
     mean = fit.GetParameter("Mean");
     sigma = fit.GetParameter("Sigma");
   }
-  edm::LogWarning("pixelLumi")
-      << "Bunch mask will use mean" << mean << " sigma " << sigma;
+  edm::LogWarning("pixelLumi") << "Bunch mask will use mean" << mean << " sigma " << sigma;
   // Active BX defined as those which have nclus within fixed standard
   // deviations of peak.
   for (unsigned int i = 1; i <= nbins; i++) {
@@ -723,8 +616,7 @@ unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e,
       active_count++;
     }
   }
-  edm::LogWarning("pixelLumi")
-      << "Bunch mask finds " << active_count << " active bunch crossings ";
+  edm::LogWarning("pixelLumi") << "Bunch mask finds " << active_count << " active bunch crossings ";
   //   edm::LogWarning("pixelLumi") << "this is the full bx mask " ;
   //   for(unsigned int i = 1; i<= nbins; i++)
   //     edm::LogWarning("pixelLumi") << ((mask[i]) ? 1:0);
