@@ -158,33 +158,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData, unsigned i
             marker->SetLineWidth(1);
 
             // center of RecHit
-            float center[3] = {
-                corners[0], corners[1], corners[2] + shapes[3] * 0.5f};
-
-            if (isScintillator)
-            {
-               constexpr int offset = 9;
-
-               center[0] = (corners[6] + corners[6 + offset]) / 2;
-               center[1] = (corners[7] + corners[7 + offset]) / 2;
-            }
-            else
-            {
-               float min[2] = {1e3f, 1e3f};
-               float max[2] = {-1e3f, -1e3f};
-
-               for (int i = 0; i < total_points; ++i)
-               {
-                  min[0] = fmin(min[0], corners[i * 3]);
-                  min[1] = fmin(min[1], corners[i * 3 + 1]);
-
-                  max[0] = fmax(max[0], corners[i * 3]);
-                  max[1] = fmax(max[1], corners[i * 3 + 1]);
-               }
-
-               center[0] = (min[0] + max[0]) / 2.0f;
-               center[1] = (min[1] + max[1]) / 2.0f;
-            }
+            const float center[3] = { corners[total_points*3 + 0], corners[total_points*3+ 1], corners[total_points*3 + 2] + shapes[3] * 0.5f };
 
             // draw 3D cross
             const float crossScale = 1.0f + fmin(iData.energy(), 5.0f);
