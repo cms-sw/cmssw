@@ -25,19 +25,17 @@ class PSimHit;
 class hDigis;
 
 namespace edm {
-class ParameterSet;
-class Event;
-class EventSetup;
-} // namespace edm
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class DTDigiAnalyzer : public edm::EDAnalyzer {
-
 public:
   explicit DTDigiAnalyzer(const edm::ParameterSet &pset);
   ~DTDigiAnalyzer() override;
   void endJob() override;
-  void analyze(const edm::Event &event,
-               const edm::EventSetup &eventSetup) override;
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
   hDigis *WheelHistos(int wheel);
 
 private:

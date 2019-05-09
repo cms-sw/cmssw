@@ -12,7 +12,7 @@
 class DTWireId;
 class DTLayer;
 namespace edm {
-class ParameterSet;
+  class ParameterSet;
 }
 
 class DTDigiSyncFromTable : public DTDigiSyncBase {
@@ -24,8 +24,7 @@ public:
   ~DTDigiSyncFromTable() override;
 
   /// Delays to be added to digi times during digitization, in ns.
-  double digitizerOffset(const DTWireId *id,
-                         const DTLayer *layer = nullptr) const override;
+  double digitizerOffset(const DTWireId *id, const DTLayer *layer = nullptr) const override;
 
   /// Offset to obtain "raw" TDCs for the L1 emulator from digis.
   double emulatorOffset(const DTWireId *id) const override;

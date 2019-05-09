@@ -4,17 +4,15 @@
 #include "SimMuon/Neutron/interface/SubsystemNeutronReader.h"
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CSCNeutronReader : public SubsystemNeutronReader {
 public:
-  CSCNeutronReader(const edm::ParameterSet &pset)
-      : SubsystemNeutronReader(pset) {}
+  CSCNeutronReader(const edm::ParameterSet &pset) : SubsystemNeutronReader(pset) {}
   ~CSCNeutronReader() override {}
 
-  void addHits(std::map<int, edm::PSimHitContainer> &hitMap,
-               CLHEP::HepRandomEngine *);
+  void addHits(std::map<int, edm::PSimHitContainer> &hitMap, CLHEP::HepRandomEngine *);
 
   int detId(int chamberIndex, int localDetId) override;
 

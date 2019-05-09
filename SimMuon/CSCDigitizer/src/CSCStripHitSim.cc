@@ -7,9 +7,8 @@
 // This is CSCStripHitSim.cc
 // Author: Rick Wilkinson, Tim Cox
 
-std::vector<CSCDetectorHit> &
-CSCStripHitSim::simulate(const CSCLayer *layer,
-                         const std::vector<CSCDetectorHit> &wireHits) {
+std::vector<CSCDetectorHit> &CSCStripHitSim::simulate(const CSCLayer *layer,
+                                                      const std::vector<CSCDetectorHit> &wireHits) {
   // make sure the gatti function is initialized
   const CSCChamberSpecs *chamberSpecs = layer->chamber()->specs();
   const CSCLayerGeometry *geom = layer->geometry();
@@ -47,14 +46,13 @@ CSCStripHitSim::simulate(const CSCLayer *layer,
       // around 0.14.  The difference may be because the amp response
       // convolutes in different drift times.
       // float collectionFraction = 0.19;
-      const float igain = 1. / 0.9; // mv/fC
+      const float igain = 1. / 0.9;  // mv/fC
       float stripCharge = wireCharge * binValue * igain * 0.5;
       float stripTime = wireHitTime;
       float position = hitY / sin(geom->stripAngle(istrip));
-      CSCDetectorHit newStripHit(istrip, stripCharge, position, stripTime,
-                                 (*wireHitI).getSimHit());
+      CSCDetectorHit newStripHit(istrip, stripCharge, position, stripTime, (*wireHitI).getSimHit());
       newStripHits.push_back(newStripHit);
     }
-  } // loop over wire hits
+  }  // loop over wire hits
   return newStripHits;
 }

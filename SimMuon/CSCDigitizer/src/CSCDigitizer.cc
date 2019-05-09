@@ -16,16 +16,14 @@ CSCDigitizer::CSCDigitizer(const edm::ParameterSet &p)
     : theDriftSim(new CSCDriftSim()),
       theWireHitSim(new CSCWireHitSim(theDriftSim, p)),
       theStripHitSim(new CSCStripHitSim()),
-      theWireElectronicsSim(new CSCWireElectronicsSim(
-          p.getParameter<edm::ParameterSet>("wires"))),
-      theStripElectronicsSim(new CSCStripElectronicsSim(
-          p.getParameter<edm::ParameterSet>("strips"))),
-      theNeutronReader(nullptr), theCSCGeometry(nullptr),
+      theWireElectronicsSim(new CSCWireElectronicsSim(p.getParameter<edm::ParameterSet>("wires"))),
+      theStripElectronicsSim(new CSCStripElectronicsSim(p.getParameter<edm::ParameterSet>("strips"))),
+      theNeutronReader(nullptr),
+      theCSCGeometry(nullptr),
       theLayersNeeded(p.getParameter<unsigned int>("layersNeeded")),
       digitizeBadChambers_(p.getParameter<bool>("digitizeBadChambers")) {
   if (p.getParameter<bool>("doNeutrons")) {
-    theNeutronReader =
-        new CSCNeutronReader(p.getParameter<edm::ParameterSet>("neutrons"));
+    theNeutronReader = new CSCNeutronReader(p.getParameter<edm::ParameterSet>("neutrons"));
   }
 }
 
@@ -47,16 +45,14 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> &simHits,
                             CLHEP::HepRandomEngine *engine) {
   // arrange the hits by layer
   std::map<int, edm::PSimHitContainer> hitMap;
-  for (MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
-       hitItr != simHits.end(); ++hitItr) {
+  for (MixCollection<PSimHit>::MixItr hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr) {
     hitMap[hitItr->detUnitId()].push_back(*hitItr);
   }
 
   // count how many layers on each chamber are hit
   std::map<int, std::set<int>> layersInChamberHit;
-  for (std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr =
-           hitMap.begin();
-       hitMapItr != hitMap.end(); ++hitMapItr) {
+  for (std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin(); hitMapItr != hitMap.end();
+       ++hitMapItr) {
     CSCDetId cscDetId(hitMapItr->first);
     int chamberId = cscDetId.chamberId();
     layersInChamberHit[chamberId].insert(cscDetId.layer());
@@ -68,9 +64,8 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> &simHits,
   }
 
   // now loop over layers and run the simulation for each one
-  for (std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr =
-           hitMap.begin();
-       hitMapItr != hitMap.end(); ++hitMapItr) {
+  for (std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin(); hitMapItr != hitMap.end();
+       ++hitMapItr) {
     CSCDetId detId = CSCDetId(hitMapItr->first);
     int chamberId = detId.chamberId();
     int endc = detId.endcap();
@@ -79,30 +74,25 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> &simHits,
     int cham = detId.chamber();
 
     unsigned int nLayersInChamberHitForWireDigis = 0;
-    if (stat == 1 && ring == 1) { // ME1b
-      std::set<int> layersInME1a =
-          layersInChamberHit[CSCDetId(endc, stat, 4, cham, 0)];
+    if (stat == 1 && ring == 1) {  // ME1b
+      std::set<int> layersInME1a = layersInChamberHit[CSCDetId(endc, stat, 4, cham, 0)];
       std::set<int> layersInME11 = layersInChamberHit[chamberId];
       layersInME11.insert(layersInME1a.begin(), layersInME1a.end());
       nLayersInChamberHitForWireDigis = layersInME11.size();
-    } else if (stat == 1 && ring == 4) { // ME1a
-      std::set<int> layersInME1b =
-          layersInChamberHit[CSCDetId(endc, stat, 1, cham, 0)];
+    } else if (stat == 1 && ring == 4) {  // ME1a
+      std::set<int> layersInME1b = layersInChamberHit[CSCDetId(endc, stat, 1, cham, 0)];
       std::set<int> layersInME11 = layersInChamberHit[chamberId];
       layersInME11.insert(layersInME1b.begin(), layersInME1b.end());
       nLayersInChamberHitForWireDigis = layersInME11.size();
     } else
       nLayersInChamberHitForWireDigis = layersInChamberHit[chamberId].size();
 
-    unsigned int nLayersInChamberHitForStripDigis =
-        layersInChamberHit[chamberId].size();
+    unsigned int nLayersInChamberHitForStripDigis = layersInChamberHit[chamberId].size();
 
-    if (nLayersInChamberHitForWireDigis < theLayersNeeded &&
-        nLayersInChamberHitForStripDigis < theLayersNeeded)
+    if (nLayersInChamberHitForWireDigis < theLayersNeeded && nLayersInChamberHitForStripDigis < theLayersNeeded)
       continue;
     // skip bad chambers
-    if (!digitizeBadChambers_ &&
-        theConditions->isInBadChamber(CSCDetId(hitMapItr->first)))
+    if (!digitizeBadChambers_ && theConditions->isInBadChamber(CSCDetId(hitMapItr->first)))
       continue;
 
     const CSCLayer *layer = findLayer(hitMapItr->first);
@@ -112,9 +102,8 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> &simHits,
 
     //    LogTrace("CSCDigitizer") << "CSCDigitizer: found " <<
     //    layerSimHits.size() <<" hit(s) in layer"
-    edm::LogVerbatim("CSCDigitizer")
-        << "[CSCDigitizer] found " << layerSimHits.size() << " hit(s) in layer"
-        << layer->id();
+    edm::LogVerbatim("CSCDigitizer") << "[CSCDigitizer] found " << layerSimHits.size() << " hit(s) in layer"
+                                     << layer->id();
     //       << " E" << layer->id().endcap() << " S" << layer->id().station() <<
     //       " R" << layer->id().ring()
     //       << " C" << layer->id().chamber() << " L" << layer->id().layer();
@@ -140,21 +129,18 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> &simHits,
 
   // fill in the layers were missing from this chamber
   std::list<int> missingLayers = layersMissing(stripDigis);
-  for (std::list<int>::const_iterator missingLayerItr = missingLayers.begin();
-       missingLayerItr != missingLayers.end(); ++missingLayerItr) {
+  for (std::list<int>::const_iterator missingLayerItr = missingLayers.begin(); missingLayerItr != missingLayers.end();
+       ++missingLayerItr) {
     const CSCLayer *layer = findLayer(*missingLayerItr);
-    theStripElectronicsSim->fillMissingLayer(layer, comparators, stripDigis,
-                                             engine);
+    theStripElectronicsSim->fillMissingLayer(layer, comparators, stripDigis, engine);
   }
 }
 
-std::list<int>
-CSCDigitizer::layersMissing(const CSCStripDigiCollection &stripDigis) const {
+std::list<int> CSCDigitizer::layersMissing(const CSCStripDigiCollection &stripDigis) const {
   std::list<int> result;
 
   std::map<int, std::list<int>> layersInChamberWithDigi;
-  for (CSCStripDigiCollection::DigiRangeIterator j = stripDigis.begin();
-       j != stripDigis.end(); j++) {
+  for (CSCStripDigiCollection::DigiRangeIterator j = stripDigis.begin(); j != stripDigis.end(); j++) {
     CSCDetId layerId((*j).first);
     // make sure the vector of digis isn't empty
     if ((*j).second.first != (*j).second.second) {
@@ -167,8 +153,7 @@ CSCDigitizer::layersMissing(const CSCStripDigiCollection &stripDigis) const {
   for (int i = 1; i <= 6; ++i)
     oneThruSix.push_back(i);
 
-  for (std::map<int, std::list<int>>::iterator layersInChamberWithDigiItr =
-           layersInChamberWithDigi.begin();
+  for (std::map<int, std::list<int>>::iterator layersInChamberWithDigiItr = layersInChamberWithDigi.begin();
        layersInChamberWithDigiItr != layersInChamberWithDigi.end();
        ++layersInChamberWithDigiItr) {
     std::list<int> &layersHit = layersInChamberWithDigiItr->second;
@@ -176,11 +161,10 @@ CSCDigitizer::layersMissing(const CSCStripDigiCollection &stripDigis) const {
       layersHit.sort();
       std::list<int> missingLayers(6);
       std::list<int>::iterator lastLayerMissing = set_difference(
-          oneThruSix.begin(), oneThruSix.end(), layersHit.begin(),
-          layersHit.end(), missingLayers.begin());
+          oneThruSix.begin(), oneThruSix.end(), layersHit.begin(), layersHit.end(), missingLayers.begin());
       int chamberId = layersInChamberWithDigiItr->first;
-      for (std::list<int>::iterator layerMissingItr = missingLayers.begin();
-           layerMissingItr != lastLayerMissing; ++layerMissingItr) {
+      for (std::list<int>::iterator layerMissingItr = missingLayers.begin(); layerMissingItr != lastLayerMissing;
+           ++layerMissingItr) {
         // got from layer 1-6 to layer ID
         result.push_back(chamberId + *layerMissingItr);
       }
@@ -189,27 +173,22 @@ CSCDigitizer::layersMissing(const CSCStripDigiCollection &stripDigis) const {
   return result;
 }
 
-void CSCDigitizer::setMagneticField(const MagneticField *field) {
-  theDriftSim->setMagneticField(field);
-}
+void CSCDigitizer::setMagneticField(const MagneticField *field) { theDriftSim->setMagneticField(field); }
 
 void CSCDigitizer::setStripConditions(CSCStripConditions *cond) {
-  theConditions = cond;                             // cache here
-  theStripElectronicsSim->setStripConditions(cond); // percolate downwards
+  theConditions = cond;                              // cache here
+  theStripElectronicsSim->setStripConditions(cond);  // percolate downwards
 }
 
-void CSCDigitizer::setParticleDataTable(const ParticleDataTable *pdt) {
-  theWireHitSim->setParticleDataTable(pdt);
-}
+void CSCDigitizer::setParticleDataTable(const ParticleDataTable *pdt) { theWireHitSim->setParticleDataTable(pdt); }
 
 const CSCLayer *CSCDigitizer::findLayer(int detId) const {
   assert(theCSCGeometry != nullptr);
   const GeomDetUnit *detUnit = theCSCGeometry->idToDetUnit(CSCDetId(detId));
   if (detUnit == nullptr) {
-    throw cms::Exception("CSCDigiProducer")
-        << "Invalid DetUnit: " << CSCDetId(detId)
-        << "\nPerhaps your signal or pileup dataset are not compatible with "
-           "the current release?";
+    throw cms::Exception("CSCDigiProducer") << "Invalid DetUnit: " << CSCDetId(detId)
+                                            << "\nPerhaps your signal or pileup dataset are not compatible with "
+                                               "the current release?";
   }
   return dynamic_cast<const CSCLayer *>(detUnit);
 }

@@ -31,7 +31,7 @@ class DetId;
 class PSimHit;
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CSCBaseElectronicsSim {
@@ -41,9 +41,7 @@ public:
 
   // takes the input detector hits, turns them into DIGIs, and
   // stores them in the layer
-  void simulate(const CSCLayer *layer,
-                const std::vector<CSCDetectorHit> &inputHits,
-                CLHEP::HepRandomEngine *);
+  void simulate(const CSCLayer *layer, const std::vector<CSCDetectorHit> &inputHits, CLHEP::HepRandomEngine *);
 
   const DigiSimLinks &digiSimLinks() const { return theDigiSimLinks; }
 
@@ -88,8 +86,7 @@ protected:
   // signal, not the original.  If another signal
   // is found on this element, they will be superimposed.
   CSCAnalogSignal &add(const CSCAnalogSignal &, CLHEP::HepRandomEngine *);
-  virtual CSCAnalogSignal makeNoiseSignal(int element,
-                                          CLHEP::HepRandomEngine *);
+  virtual CSCAnalogSignal makeNoiseSignal(int element, CLHEP::HepRandomEngine *);
 
   /// how long, in ns, it takes a signal at pos to propagate to
   /// the readout edge.  This may be negative, since the timing
@@ -115,7 +112,7 @@ protected:
 
   const CSCChamberSpecs *theSpecs;
   const CSCLayerGeometry *theLayerGeometry;
-  const CSCLayer *theLayer; // the one currently being digitized
+  const CSCLayer *theLayer;  // the one currently being digitized
   CSCDetId theLayerId;
 
   CSCSignalMap theSignalMap;
@@ -150,7 +147,7 @@ protected:
   int theNumberOfSamples;
 
   // Which bit in the 16-bit time word corresponds to the zeroth beam crossing?
-  int theOffsetOfBxZero; // bit corresponding to bx 0 (counting from 0-15)
+  int theOffsetOfBxZero;  // bit corresponding to bx 0 (counting from 0-15)
   /// Speed (cm/ns) that it takes for the signal to get from the element to the
   /// readout. Actually negative in strips, due to reflection effects.
   std::vector<double> theSignalPropagationSpeed;

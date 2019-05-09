@@ -5,9 +5,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigiProducer.h"
 
-HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const &pset,
-                                   edm::ProducerBase &mixMod,
-                                   edm::ConsumesCollector &iC)
+HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const &pset, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC)
     : DigiAccumulatorMixMod(), theDigitizer_(pset, iC) {
   mixMod.produces<HBHEDigiCollection>();
   mixMod.produces<HODigiCollection>();
@@ -23,25 +21,21 @@ HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const &pset,
   }
 }
 
-HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const &pset,
-                                   edm::ConsumesCollector &iC)
+HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const &pset, edm::ConsumesCollector &iC)
     : DigiAccumulatorMixMod(), theDigitizer_(pset, iC) {}
 
-void HcalDigiProducer::initializeEvent(edm::Event const &event,
-                                       edm::EventSetup const &es) {
+void HcalDigiProducer::initializeEvent(edm::Event const &event, edm::EventSetup const &es) {
   edm::Service<edm::RandomNumberGenerator> rng;
   randomEngine_ = &rng->getEngine(event.streamID());
   theDigitizer_.initializeEvent(event, es);
 }
 
-void HcalDigiProducer::finalizeEvent(edm::Event &event,
-                                     edm::EventSetup const &es) {
+void HcalDigiProducer::finalizeEvent(edm::Event &event, edm::EventSetup const &es) {
   theDigitizer_.finalizeEvent(event, es, randomEngine_);
-  randomEngine_ = nullptr; // to prevent access outside event
+  randomEngine_ = nullptr;  // to prevent access outside event
 }
 
-void HcalDigiProducer::accumulate(edm::Event const &event,
-                                  edm::EventSetup const &es) {
+void HcalDigiProducer::accumulate(edm::Event const &event, edm::EventSetup const &es) {
   theDigitizer_.accumulate(event, es, randomEngine_);
 }
 
@@ -55,32 +49,26 @@ void HcalDigiProducer::beginRun(edm::Run const &, edm::EventSetup const &es) {}
 
 void HcalDigiProducer::endRun(edm::Run const &, edm::EventSetup const &) {}
 
-void HcalDigiProducer::setHBHENoiseSignalGenerator(
-    HcalBaseSignalGenerator *noiseGenerator) {
+void HcalDigiProducer::setHBHENoiseSignalGenerator(HcalBaseSignalGenerator *noiseGenerator) {
   theDigitizer_.setHBHENoiseSignalGenerator(noiseGenerator);
 }
 
-void HcalDigiProducer::setHFNoiseSignalGenerator(
-    HcalBaseSignalGenerator *noiseGenerator) {
+void HcalDigiProducer::setHFNoiseSignalGenerator(HcalBaseSignalGenerator *noiseGenerator) {
   theDigitizer_.setHFNoiseSignalGenerator(noiseGenerator);
 }
 
-void HcalDigiProducer::setHONoiseSignalGenerator(
-    HcalBaseSignalGenerator *noiseGenerator) {
+void HcalDigiProducer::setHONoiseSignalGenerator(HcalBaseSignalGenerator *noiseGenerator) {
   theDigitizer_.setHONoiseSignalGenerator(noiseGenerator);
 }
 
-void HcalDigiProducer::setZDCNoiseSignalGenerator(
-    HcalBaseSignalGenerator *noiseGenerator) {
+void HcalDigiProducer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator *noiseGenerator) {
   theDigitizer_.setZDCNoiseSignalGenerator(noiseGenerator);
 }
 
-void HcalDigiProducer::setQIE10NoiseSignalGenerator(
-    HcalBaseSignalGenerator *noiseGenerator) {
+void HcalDigiProducer::setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator *noiseGenerator) {
   theDigitizer_.setQIE10NoiseSignalGenerator(noiseGenerator);
 }
 
-void HcalDigiProducer::setQIE11NoiseSignalGenerator(
-    HcalBaseSignalGenerator *noiseGenerator) {
+void HcalDigiProducer::setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator *noiseGenerator) {
   theDigitizer_.setQIE11NoiseSignalGenerator(noiseGenerator);
 }

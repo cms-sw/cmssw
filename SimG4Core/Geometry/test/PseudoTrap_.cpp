@@ -23,26 +23,18 @@ public:
 };
 
 void testPseudoTrap::matched_g4_and_dd(void) {
-  double pDx1 =
-      0.293734 * m; /**< Half-length along x at the surface positioned at -dz */
-  double pDx2 =
-      1.86356 * m; /**<  Half-length along x at the surface positioned at +dz */
-  double pDy1 =
-      0.3000 * m; /**<  Half-length along y at the surface positioned at -dz */
-  double pDy2 =
-      0.3000 * m; /**<  Half-length along y at the surface positioned at +dz */
-  double pDz =
-      2.92934 * m; /**< Half of the height of the pseudo trapezoid along z */
-  double radius =
-      -1.1350 *
-      m; /**< radius of the cut-out (negative sign) or rounding (pos. sign) */
-  bool atMinusZ = true; /**< if true, the cut-out or rounding is applied at -dz,
+  double pDx1 = 0.293734 * m;  /**< Half-length along x at the surface positioned at -dz */
+  double pDx2 = 1.86356 * m;   /**<  Half-length along x at the surface positioned at +dz */
+  double pDy1 = 0.3000 * m;    /**<  Half-length along y at the surface positioned at -dz */
+  double pDy2 = 0.3000 * m;    /**<  Half-length along y at the surface positioned at +dz */
+  double pDz = 2.92934 * m;    /**< Half of the height of the pseudo trapezoid along z */
+  double radius = -1.1350 * m; /**< radius of the cut-out (negative sign) or rounding (pos. sign) */
+  bool atMinusZ = true;        /**< if true, the cut-out or rounding is applied at -dz,
                            else at +dz */
   string name("fred1");
 
   DDI::PseudoTrap dd(pDx1, pDx2, pDy1, pDy2, pDz, radius, atMinusZ);
-  DDPseudoTrap dds = DDSolidFactory::pseudoTrap(name, pDx1, pDx2, pDy1, pDy2,
-                                                pDz, radius, atMinusZ);
+  DDPseudoTrap dds = DDSolidFactory::pseudoTrap(name, pDx1, pDx2, pDy1, pDy2, pDz, radius, atMinusZ);
   G4VSolid *g4 = DDG4SolidConverter::pseudotrap(dds);
   cout << endl;
   dd.stream(cout);

@@ -12,9 +12,8 @@ FieldStepWatcher::FieldStepWatcher(const edm::ParameterSet &p) {
   level = p.getUntrackedParameter<int>("DepthLevel", 2);
   outFile = p.getUntrackedParameter<std::string>("OutputFile", "field.root");
 
-  edm::LogInfo("FieldStepWatcher")
-      << "FieldStepWatcher initialised to monitor"
-      << " level " << level << " with o/p on " << outFile;
+  edm::LogInfo("FieldStepWatcher") << "FieldStepWatcher initialised to monitor"
+                                   << " level " << level << " with o/p on " << outFile;
   dbe_ = edm::Service<DQMStore>().operator->();
   if (dbe_) {
     dbe_->setVerbose(0);
@@ -27,20 +26,17 @@ FieldStepWatcher::~FieldStepWatcher() {
 }
 
 void FieldStepWatcher::update(const BeginOfRun *) {
-  G4VPhysicalVolume *pv = G4TransportationManager::GetTransportationManager()
-                              ->GetNavigatorForTracking()
-                              ->GetWorldVolume();
+  G4VPhysicalVolume *pv =
+      G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
   findTouch(pv, 0);
   lvnames.push_back("Not Found");
 
-  edm::LogInfo("FieldStepWatcher")
-      << "FieldStepWatcher: Finds " << lvnames.size() << " different volumes"
-      << " at level " << level;
+  edm::LogInfo("FieldStepWatcher") << "FieldStepWatcher: Finds " << lvnames.size() << " different volumes"
+                                   << " at level " << level;
   unsigned num = lvnames.size();
   steps.push_back(0);
   for (unsigned int i = 0; i < num; i++) {
-    edm::LogInfo("FieldStepWatcher")
-        << "FieldStepWatcher: lvnames[" << i << "] = " << lvnames[i];
+    edm::LogInfo("FieldStepWatcher") << "FieldStepWatcher: lvnames[" << i << "] = " << lvnames[i];
     steps.push_back(0);
   }
 
@@ -75,23 +71,19 @@ void FieldStepWatcher::update(const BeginOfRun *) {
       m1 = dbe_->book1D(name, titl, 5000, 0., 10000.);
       meStepNu.push_back(m1);
       sprintf(name, "StepCH%d", i);
-      sprintf(titl, "Step Length for Charged Hadrons in Volume %s",
-              lvname.c_str());
+      sprintf(titl, "Step Length for Charged Hadrons in Volume %s", lvname.c_str());
       m1 = dbe_->book1D(name, titl, 5000, 0., 10000.);
       meStepCH.push_back(m1);
       sprintf(name, "StepNH%d", i);
-      sprintf(titl, "Step Length for Neutral Hadrons in Volume %s",
-              lvname.c_str());
+      sprintf(titl, "Step Length for Neutral Hadrons in Volume %s", lvname.c_str());
       m1 = dbe_->book1D(name, titl, 5000, 0., 10000.);
       meStepNH.push_back(m1);
       sprintf(name, "StepC%d", i);
-      sprintf(titl, "Step Length for Charged Particles in Volume %s",
-              lvname.c_str());
+      sprintf(titl, "Step Length for Charged Particles in Volume %s", lvname.c_str());
       m1 = dbe_->book1D(name, titl, 5000, 0., 10000.);
       meStepC.push_back(m1);
       sprintf(name, "StepN%d", i);
-      sprintf(titl, "Step Length for Neutral Particles in Volume %s",
-              lvname.c_str());
+      sprintf(titl, "Step Length for Neutral Particles in Volume %s", lvname.c_str());
       m1 = dbe_->book1D(name, titl, 5000, 0., 10000.);
       meStepN.push_back(m1);
     }
@@ -111,7 +103,6 @@ void FieldStepWatcher::update(const EndOfEvent *) {
 }
 
 void FieldStepWatcher::update(const G4Step *aStep) {
-
   if (aStep) {
     G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
     const G4VTouchable *pre_touch = preStepPoint->GetTouchable();
@@ -124,12 +115,10 @@ void FieldStepWatcher::update(const G4Step *aStep) {
     int indx = findName(name);
     double charge = aStep->GetTrack()->GetDefinition()->GetPDGCharge();
     int code = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
-    LogDebug("FieldStepWatcher")
-        << "FieldStepWatcher:: Step at Level " << pre_level << " with " << name
-        << " at"
-        << " level " << level << " corresponding"
-        << " to index " << indx << " due to "
-        << "particle " << code << " of charge " << charge;
+    LogDebug("FieldStepWatcher") << "FieldStepWatcher:: Step at Level " << pre_level << " with " << name << " at"
+                                 << " level " << level << " corresponding"
+                                 << " to index " << indx << " due to "
+                                 << "particle " << code << " of charge " << charge;
     steps[0]++;
     if (indx >= 0) {
       int i = indx + 1;
@@ -146,8 +135,7 @@ void FieldStepWatcher::update(const G4Step *aStep) {
         } else if (code == 13 || code == -13) {
           meStepMu[0]->Fill(aStep->GetStepLength());
           meStepMu[i]->Fill(aStep->GetStepLength());
-        } else if (code == 12 || code == -12 || code == 14 || code == -14 ||
-                   code == 16 || code == -16) {
+        } else if (code == 12 || code == -12 || code == 14 || code == -14 || code == 16 || code == -16) {
           meStepNu[0]->Fill(aStep->GetStepLength());
           meStepNu[i]->Fill(aStep->GetStepLength());
         } else if (charge == 0) {
@@ -170,15 +158,13 @@ void FieldStepWatcher::update(const G4Step *aStep) {
 }
 
 void FieldStepWatcher::findTouch(G4VPhysicalVolume *pv, int leafDepth) {
-
   if (leafDepth == 0)
     fHistory.SetFirstEntry(pv);
   else
     fHistory.NewLevel(pv, kNormal, pv->GetCopyNo());
 
   G4LogicalVolume *lv = pv->GetLogicalVolume();
-  LogDebug("FieldStepWatcher") << "FieldStepWatcher::find Touch "
-                               << lv->GetName() << " at level " << leafDepth;
+  LogDebug("FieldStepWatcher") << "FieldStepWatcher::find Touch " << lv->GetName() << " at level " << leafDepth;
   if (leafDepth == level - 1) {
     const std::string &lvname = lv->GetName();
     if (findName(lvname) < 0)
@@ -196,7 +182,6 @@ void FieldStepWatcher::findTouch(G4VPhysicalVolume *pv, int leafDepth) {
 }
 
 int FieldStepWatcher::findName(std::string name) {
-
   for (unsigned int i = 0; i < lvnames.size(); i++)
     if (name == lvnames[i])
       return i;

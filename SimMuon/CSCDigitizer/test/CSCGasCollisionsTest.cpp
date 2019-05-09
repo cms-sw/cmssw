@@ -13,7 +13,6 @@
 #include <numeric>
 
 int main() {
-
   // Set up pset param explicitly required by CSCGasCollisions.
   // Note that it has no effect because this stand-alone program
   // does not activate MessageLogger which now controls output
@@ -30,8 +29,8 @@ int main() {
 
   CLHEP::HepJamesRandom engine;
 
-  PSimHit simHit(LocalPoint(0., 0., -0.5), LocalPoint(0., 0., 0.5), 4., 0.,
-                 0.000005, 13, CSCDetId(1, 1, 1, 1, 1), 0, 0., 0., 0);
+  PSimHit simHit(
+      LocalPoint(0., 0., -0.5), LocalPoint(0., 0., 0.5), 4., 0., 0.000005, 13, CSCDetId(1, 1, 1, 1, 1), 0, 0., 0., 0);
 
   /*
   PSimHit( const Local3DPoint& entry, const Local3DPoint& exit,
@@ -52,7 +51,6 @@ int main() {
     sumClusters += clusters.size();
   }
 
-  std::cout << "Clusters: " << sumClusters / n
-            << "  electrons: " << sumElectrons / n << std::endl;
+  std::cout << "Clusters: " << sumClusters / n << "  electrons: " << sumElectrons / n << std::endl;
   return 0;
 }

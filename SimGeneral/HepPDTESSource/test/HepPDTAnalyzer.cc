@@ -15,8 +15,7 @@ HepPDTAnalyzer::HepPDTAnalyzer(const edm::ParameterSet &iConfig)
 
 HepPDTAnalyzer::~HepPDTAnalyzer() {}
 
-void HepPDTAnalyzer::analyze(const edm::Event &iEvent,
-                             const edm::EventSetup &iSetup) {
+void HepPDTAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
   ESHandle<ParticleDataTable> pdt;
@@ -25,16 +24,14 @@ void HepPDTAnalyzer::analyze(const edm::Event &iEvent,
   if (particleName_ == "all") {
     std::cout << " Number of particles in table = " << pdt->size() << std::endl;
     printBanner();
-    for (ParticleDataTable::const_iterator iter = pdt->begin();
-         iter != pdt->end(); iter++) {
+    for (ParticleDataTable::const_iterator iter = pdt->begin(); iter != pdt->end(); iter++) {
       const ParticleData *part = pdt->particle((*iter).first);
       printInfo(part);
     }
   } else if (particleName_ == "names") {
     std::cout << " Number of particles in table = " << pdt->size() << std::endl;
     printBanner();
-    for (ParticleDataTable::const_iterator iter = pdt->begin();
-         iter != pdt->end(); iter++) {
+    for (ParticleDataTable::const_iterator iter = pdt->begin(); iter != pdt->end(); iter++) {
       const ParticleData *part = pdt->particle((*iter).first);
       std::cout << " " << part->name() << std::endl;
     }
@@ -53,8 +50,7 @@ void HepPDTAnalyzer::analyze(const edm::Event &iEvent,
       if (abs(ii) >= 1000000000)
         ii = ii + 9;
     }
-    std::cout << "  Found " << legalcount << " legal IDs in range."
-              << std::endl;
+    std::cout << "  Found " << legalcount << " legal IDs in range." << std::endl;
   } else {
     printBanner();
     const ParticleData *part = pdt->particle(particleName_);
@@ -63,7 +59,6 @@ void HepPDTAnalyzer::analyze(const edm::Event &iEvent,
 }
 
 void HepPDTAnalyzer::printInfo(const ParticleData *&part) {
-
   cout << setfill(' ') << setw(14);
   cout << part->name();
   cout << setfill(' ') << setw(12);

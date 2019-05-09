@@ -20,8 +20,7 @@
 
 using namespace sim;
 
-FieldBuilder::FieldBuilder(const MagneticField *f, const edm::ParameterSet &p)
-    : theTopVolume(nullptr), thePSet(p) {
+FieldBuilder::FieldBuilder(const MagneticField *f, const edm::ParameterSet &p) : theTopVolume(nullptr), thePSet(p) {
   theDelta = p.getParameter<double>("delta") * CLHEP::mm;
   theField = new Field(f, theDelta);
   theFieldEquation = new G4Mag_UsualEqRhs(theField);
@@ -30,16 +29,13 @@ FieldBuilder::FieldBuilder(const MagneticField *f, const edm::ParameterSet &p)
 FieldBuilder::~FieldBuilder() {}
 
 void FieldBuilder::build(CMSFieldManager *fM, G4PropagatorInField *fP) {
-  edm::ParameterSet thePSetForGMFM =
-      thePSet.getParameter<edm::ParameterSet>("ConfGlobalMFM");
+  edm::ParameterSet thePSetForGMFM = thePSet.getParameter<edm::ParameterSet>("ConfGlobalMFM");
   std::string volName = thePSetForGMFM.getParameter<std::string>("Volume");
-  edm::ParameterSet volPSet =
-      thePSetForGMFM.getParameter<edm::ParameterSet>(volName);
+  edm::ParameterSet volPSet = thePSetForGMFM.getParameter<edm::ParameterSet>(volName);
 
   configureForVolume(volName, volPSet, fM, fP);
 
-  edm::LogVerbatim("SimG4CoreMagneticField")
-      << " FieldBuilder::build: Global magnetic field is used";
+  edm::LogVerbatim("SimG4CoreMagneticField") << " FieldBuilder::build: Global magnetic field is used";
 }
 
 void FieldBuilder::configureForVolume(const std::string &volName,
@@ -57,18 +53,15 @@ void FieldBuilder::configureForVolume(const std::string &volName,
   std::string fieldType = volPSet.getParameter<std::string>("Type");
   std::string stepper = volPSet.getParameter<std::string>("Stepper");
 
-  edm::ParameterSet stpPSet =
-      volPSet.getParameter<edm::ParameterSet>("StepperParam");
+  edm::ParameterSet stpPSet = volPSet.getParameter<edm::ParameterSet>("StepperParam");
   double minStep = stpPSet.getParameter<double>("MinStep") * CLHEP::mm;
 
-  FieldStepper *dStepper =
-      new FieldStepper(theFieldEquation, theDelta, stepper);
+  FieldStepper *dStepper = new FieldStepper(theFieldEquation, theDelta, stepper);
   G4ChordFinder *cf = new G4ChordFinder(theField, minStep, dStepper);
 
   MonopoleEquation *monopoleEquation = new MonopoleEquation(theField);
   G4MagIntegratorStepper *mStepper = new G4ClassicalRK4(monopoleEquation, 8);
   G4ChordFinder *cfmon = new G4ChordFinder(theField, minStep, mStepper);
 
-  fM->InitialiseForVolume(stpPSet, theField, cf, cfmon, volName, fieldType,
-                          stepper, theDelta, fP);
+  fM->InitialiseForVolume(stpPSet, theField, cf, cfmon, volName, fieldType, stepper, theDelta, fP);
 }
