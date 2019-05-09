@@ -5,7 +5,6 @@
 #include "CastorHardcodeCalibrations.h"
 #include "CastorTextCalibrations.h"
 
-
 DEFINE_FWK_EVENTSETUP_MODULE(CastorDbProducer);
 DEFINE_FWK_EVENTSETUP_SOURCE(CastorHardcodeCalibrations);
 DEFINE_FWK_EVENTSETUP_SOURCE(CastorTextCalibrations);

@@ -17,30 +17,27 @@
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/util/XMLURL.hpp>
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMap.h"
-          
 
-#include<iostream>
-#include<string>
-#include<vector>
-#include<map>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
 
-
-class MiscalibReaderFromXML{
-
+class MiscalibReaderFromXML {
 public:
-MiscalibReaderFromXML(CaloMiscalibMap &);
-virtual ~MiscalibReaderFromXML(){}
+  MiscalibReaderFromXML(CaloMiscalibMap &);
+  virtual ~MiscalibReaderFromXML() {}
 
-bool parseXMLMiscalibFile(std::string configFile);
+  bool parseXMLMiscalibFile(std::string configFile);
 
-virtual DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute)=0;
-int    getIntAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute, const std::string &attribute_name);
-double getScalingFactor(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute);
-double getFloatAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute, const std::string &attribute_name);
+  virtual DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute) = 0;
+  int getIntAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute, const std::string &attribute_name);
+  double getScalingFactor(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute);
+  double getFloatAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute, const std::string &attribute_name);
 
 private:
-static int s_numberOfInstances;
-CaloMiscalibMap & caloMap_;
+  static int s_numberOfInstances;
+  CaloMiscalibMap &caloMap_;
 };
 
 #endif
