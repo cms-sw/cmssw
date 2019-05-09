@@ -14,62 +14,50 @@
 #include <map>
 #include <vector>
 
-class CaloMiscalibMapHcal: public CaloMiscalibMap {
+class CaloMiscalibMapHcal : public CaloMiscalibMap {
 public:
-    CaloMiscalibMapHcal(){
-    }
+  CaloMiscalibMapHcal() {}
 
-void prefillMap(const HcalTopology & topology){
+  void prefillMap(const HcalTopology &topology) {
+    for (int det = 1; det <= HcalForward; det++) {
+      for (int eta = -HcalDetId::kHcalEtaMask2; eta <= (int)(HcalDetId::kHcalEtaMask2); eta++) {
+        for (unsigned int phi = 1; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+          for (unsigned int depth = 1; depth <= HcalDetId::kHcalDepthMask2; depth++) {
+            try {
+              HcalDetId hcaldetid((HcalSubdetector)det, eta, phi, depth);
+              if (topology.valid(hcaldetid)) {
+                mapHcal_[hcaldetid.rawId()] = 1.0;
+                //	      std::cout << "Valid cell found: " << det << " " << eta << " " << phi << " " << depth << std::endl;
+              }
 
-  for (int det = 1; det <= HcalForward; det++) {
-    for (int eta = -HcalDetId::kHcalEtaMask2; eta <= (int)(HcalDetId::kHcalEtaMask2); eta++) {
-      for (unsigned int phi = 1; phi <= HcalDetId::kHcalPhiMask2; phi++) {
-	for (unsigned int depth = 1; depth <= HcalDetId::kHcalDepthMask2; depth++) {
-
-	  try {
-	    HcalDetId hcaldetid ((HcalSubdetector) det, eta, phi, depth);
-	    if (topology.valid(hcaldetid)) {
-	      mapHcal_[hcaldetid.rawId()]=1.0; 
-	      //	      std::cout << "Valid cell found: " << det << " " << eta << " " << phi << " " << depth << std::endl;
-	    }
-		
-	  }
-	  catch (...) {
-	  }
-	}
+            } catch (...) {
+            }
+          }
+        }
       }
     }
   }
-}
 
+  void addCell(const DetId &cell, float scaling_factor) override {
+    //mapHcal_.setValue(cell.rawId(),scaling_factor);
+    mapHcal_[cell.rawId()] = scaling_factor;
+  }
 
-void addCell(const DetId &cell, float scaling_factor) override
-{
-  //mapHcal_.setValue(cell.rawId(),scaling_factor);
-  mapHcal_[cell.rawId()]=scaling_factor;
-}
+  void print() {
+    std::map<uint32_t, float>::const_iterator it;
 
-void print()
- {
- 
- std::map<uint32_t,float>::const_iterator it;
- 
- //   for(it=mapHcal_.getMap().begin();it!=mapHcal_.getMap().end();it++){
- //   }
-   for(it=mapHcal_.begin();it!=mapHcal_.end();it++){
-   }
- 
-}
+    //   for(it=mapHcal_.getMap().begin();it!=mapHcal_.getMap().end();it++){
+    //   }
+    for (it = mapHcal_.begin(); it != mapHcal_.end(); it++) {
+    }
+  }
 
-const std::map<uint32_t, float> & get(){
-return mapHcal_;
-}
+  const std::map<uint32_t, float> &get() { return mapHcal_; }
 
 private:
-
-   std::map<uint32_t, float> mapHcal_;
-   // EcalIntercalibConstants map_;
-   // const CaloSubdetectorGeometry *geometry;
+  std::map<uint32_t, float> mapHcal_;
+  // EcalIntercalibConstants map_;
+  // const CaloSubdetectorGeometry *geometry;
 };
 
 #endif
