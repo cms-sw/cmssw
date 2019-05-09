@@ -221,6 +221,7 @@ class DTTrigPhase2Prod: public edm::EDProducer{
     bool debug;
     bool pinta;
     double tanPhiTh;
+    double chi2Th;
     double dT0_correlate_TP;
     double min_dT0_match_segment;
     double minx_match_2digis;

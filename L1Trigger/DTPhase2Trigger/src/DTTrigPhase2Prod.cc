@@ -79,10 +79,10 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset):
   minQuality(LOWQGHOST)
 {
     for (int lay = 0; lay < NUM_LAYERS; lay++)  {
-     for (int ch = 0; ch < NUM_CH_PER_LAYER; ch++) {
+	for (int ch = 0; ch < NUM_CH_PER_LAYER; ch++) {
 	channelIn[lay][ch] = {chInDummy};
 	channelIn[lay][ch].clear();
-     }
+	}
     }
     
     produces<L1MuDTChambContainer>();
@@ -93,6 +93,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset):
     debug = pset.getUntrackedParameter<bool>("debug");
     pinta = pset.getUntrackedParameter<bool>("pinta");
     tanPhiTh = pset.getUntrackedParameter<double>("tanPhiTh");
+    chi2Th = pset.getUntrackedParameter<double>("chi2Th");
     dT0_correlate_TP = pset.getUntrackedParameter<double>("dT0_correlate_TP");
     min_dT0_match_segment = pset.getUntrackedParameter<double>("min_dT0_match_segment");
     min_phinhits_match_segment = pset.getUntrackedParameter<int>("min_phinhits_match_segment");
@@ -110,21 +111,22 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset):
     rpcRecHitsLabel = consumes<RPCRecHitCollection>(pset.getUntrackedParameter < edm::InputTag > ("rpcRecHits"));
   
     
-  // Choosing grouping scheme:
-  grcode = pset.getUntrackedParameter<Int_t>("grouping_code");
-  
-  if (grcode == 0) grouping_obj = new InitialGrouping(pset);
-  else {
-    if (debug) cout << "DTp2::constructor: Non-valid grouping code. Choosing InitialGrouping by default." << endl;
-    grouping_obj = new InitialGrouping(pset);
-  }
-  
-  
+    // Choosing grouping scheme:
+    grcode = pset.getUntrackedParameter<Int_t>("grouping_code");
+    
+    if (grcode == 0) grouping_obj = new InitialGrouping(pset);
+    else {
+	if (debug) cout << "DTp2::constructor: Non-valid grouping code. Choosing InitialGrouping by default." << endl;
+	grouping_obj = new InitialGrouping(pset);
+    }
+    
+    setChiSquareThreshold(chi2Th*100.); 
+    
     if(pinta){
 	std::cout<<"BOOKING HISTOS"<<std::endl;
-
+	
 	theFileOut = new TFile("dt_phase2.root", "RECREATE");
-
+	
 	Nsegments = new TH1F("Nsegments","Nsegments",21,-0.5,20.5);
 	NmetaPrimitives = new TH1F("NmetaPrimitives","NmetaPrimitives",201,-0.5,200.5);
 	NfilteredMetaPrimitives = new TH1F("NfilteredMetaPrimitives","NfilteredMetaPrimitives",201,-0.5,200.5);
