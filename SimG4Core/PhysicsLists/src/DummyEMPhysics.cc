@@ -23,13 +23,12 @@
 
 #include "G4SystemOfUnits.hh"
 
-DummyEMPhysics::DummyEMPhysics(G4int ver) :
-  G4VPhysicsConstructor("CMSEmGeantV"), verbose(ver) {
+DummyEMPhysics::DummyEMPhysics(G4int ver) : G4VPhysicsConstructor("CMSEmGeantV"), verbose(ver) {
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(verbose);
   param->SetApplyCuts(true);
-  param->SetStepFunction(0.8, 1*CLHEP::mm);
+  param->SetStepFunction(0.8, 1 * CLHEP::mm);
   param->SetLossFluctuations(false);
   param->SetMscRangeFactor(0.2);
   param->SetMscStepLimitType(fMinimal);
@@ -49,8 +48,7 @@ void DummyEMPhysics::ConstructParticle() {
 }
 
 void DummyEMPhysics::ConstructProcess() {
-
-  if(verbose > 0) {
+  if (verbose > 0) {
     G4cout << "### " << GetPhysicsName() << " Construct Processes " << G4endl;
   }
 
