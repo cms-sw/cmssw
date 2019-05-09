@@ -1,13 +1,11 @@
 #include "HcalTrigTowerGeometryESProducer.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include <memory>
 
 HcalTrigTowerGeometryESProducer::HcalTrigTowerGeometryESProducer( const edm::ParameterSet & config )
-{
-  setWhatProduced( this );
-}
+  : topologyToken_{setWhatProduced( this ).consumesFrom<HcalTopology, HcalRecNumberingRecord>(edm::ESInputTag{})}
+{}
 
 HcalTrigTowerGeometryESProducer::~HcalTrigTowerGeometryESProducer( void ) 
 {}
@@ -15,10 +13,8 @@ HcalTrigTowerGeometryESProducer::~HcalTrigTowerGeometryESProducer( void )
 std::unique_ptr<HcalTrigTowerGeometry>
 HcalTrigTowerGeometryESProducer::produce( const CaloGeometryRecord & iRecord )
 {
-    edm::ESHandle<HcalTopology> hcalTopology;
-    iRecord.getRecord<HcalRecNumberingRecord>().get( hcalTopology );
-
-    return std::make_unique<HcalTrigTowerGeometry>(&*hcalTopology);
+  const auto& hcalTopology = iRecord.get(topologyToken_);
+  return std::make_unique<HcalTrigTowerGeometry>(&hcalTopology);
 }
 
 void HcalTrigTowerGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
