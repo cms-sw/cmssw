@@ -81,10 +81,17 @@ namespace {
       }
     } else {
       try {
-        // TODO: we might want to switch to Merge() which should be smarter. It
-        // seems that Add() would call Merge() if needed (not identical bins
-        // etc.) but that seems to not work, see below.
-        iOriginal->Add(iToAdd);
+        // Check the labels, the rest is checked internally by ROOT.
+        if(MonitorElement::CheckBinLabels(iOriginal->GetXaxis(),iToAdd->GetXaxis()) &&
+           MonitorElement::CheckBinLabels(iOriginal->GetYaxis(),iToAdd->GetYaxis()) &&
+           MonitorElement::CheckBinLabels(iOriginal->GetZaxis(),iToAdd->GetZaxis())) {
+          bool ok = iOriginal->Add(iToAdd);
+          if (!ok) {
+            edm::LogError("MergeFailure")<<"ROOT failed to merge histogrmas (maybe different axis limits?): '"<<iOriginal->GetName()<<"'";
+          }
+        } else {
+            edm::LogError("MergeFailure")<<"Different labels, refusing to merge histograms: '"<<iOriginal->GetName()<<"'";
+        }
       } catch (std::exception const& ex) {
         // Add() internally calls CheckConsistency(), which checks all the 
         // histogram properties in various ways. It does that by calling 
@@ -95,11 +102,12 @@ namespace {
         // class DifferentAxisLimits: public std::exception {};
         // class DifferentBinLimits: public std::exception {};
         // class DifferentLabels: public std::exception {};
-        // which should be caught by CheckConsistency(), but apparently can
+        // which should be caught by Add(), but apparently can
         // escape to us. So, either we'd have to duplicate all the checks here
         // (which can probably change over time), or we need to resort to 
         // catching.
-        edm::LogError("MergeFailure")<<"Found histograms with different axis limits or different labels'"<<iOriginal->GetName()<<"' not merged. Possible reason: "<<ex.what();
+        edm::LogError("MergeFailure")<<"ROOT failed to merge histograms: '"<<iOriginal->GetName()<<"'. Possible reason: "<<ex.what();
+        // TODO: We don't know what state iOriginal is in now, let's hope it is still good.
       } 
     }
   }
