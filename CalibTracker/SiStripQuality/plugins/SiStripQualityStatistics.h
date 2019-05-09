@@ -28,8 +28,8 @@ class SiStripQualityStatistics : public DQMEDAnalyzer {
   explicit SiStripQualityStatistics( const edm::ParameterSet& );
   ~SiStripQualityStatistics() override;
   
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override; 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override; 
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
  
  private:
