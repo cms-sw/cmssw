@@ -19,17 +19,19 @@ public:
   void produce(edm::Event &, const edm::EventSetup &) override;
 
   double CalcMR(TLorentzVector ja, TLorentzVector jb);
-  double CalcR(double MR, const TLorentzVector &ja, const TLorentzVector &jb,
+  double CalcR(double MR,
+               const TLorentzVector &ja,
+               const TLorentzVector &jb,
                edm::Handle<reco::CaloMETCollection> met,
                const std::vector<math::XYZTLorentzVector> &muons);
 
 private:
-  edm::InputTag inputTag_;    // input tag identifying product
-  edm::InputTag inputMetTag_; // input tag identifying MET product
+  edm::InputTag inputTag_;     // input tag identifying product
+  edm::InputTag inputMetTag_;  // input tag identifying MET product
 
   // define Token(-s)
   edm::EDGetTokenT<std::vector<math::XYZTLorentzVector>> inputTagToken_;
   edm::EDGetTokenT<reco::CaloMETCollection> inputMetTagToken_;
 };
 
-#endif // RazorVarProducer_h
+#endif  // RazorVarProducer_h

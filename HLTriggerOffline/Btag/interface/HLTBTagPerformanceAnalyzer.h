@@ -44,17 +44,14 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 public:
   explicit HLTBTagPerformanceAnalyzer(const edm::ParameterSet &);
   ~HLTBTagPerformanceAnalyzer() override;
-  void dqmBeginRun(const edm::Run &iRun,
-                   const edm::EventSetup &iSetup) override;
+  void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
-                      edm::EventSetup const &iSetup) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun, edm::EventSetup const &iSetup) override;
 
   struct JetRefCompare {
-    inline bool operator()(const edm::RefToBase<reco::Jet> &j1,
-                           const edm::RefToBase<reco::Jet> &j2) const {
+    inline bool operator()(const edm::RefToBase<reco::Jet> &j1, const edm::RefToBase<reco::Jet> &j2) const {
       return j1.id() < j2.id() || (j1.id() == j2.id() && j1.key() < j2.key());
     }
   };
@@ -85,23 +82,20 @@ private:
   typedef unsigned int flavour_t;
   typedef std::vector<flavour_t> flavours_t;
 
-  edm::EDGetTokenT<reco::JetFlavourMatchingCollection>
-      m_mcPartons; // MC truth match - jet association to partons
-  std::vector<std::string> m_mcLabels;  // MC truth match - labels
-  std::vector<flavours_t> m_mcFlavours; // MC truth match - flavours selection
-  double m_mcRadius; // MC truth match - deltaR association radius
-  bool m_mcMatching; // MC truth matching anabled/disabled
+  edm::EDGetTokenT<reco::JetFlavourMatchingCollection> m_mcPartons;  // MC truth match - jet association to partons
+  std::vector<std::string> m_mcLabels;                               // MC truth match - labels
+  std::vector<flavours_t> m_mcFlavours;                              // MC truth match - flavours selection
+  double m_mcRadius;                                                 // MC truth match - deltaR association radius
+  bool m_mcMatching;                                                 // MC truth matching anabled/disabled
 
   /// DQM folder handle
   std::vector<std::string> folders;
 
   // Histogram handler
   std::vector<std::map<std::string, MonitorElement *>> H1_;
-  std::vector<std::map<std::string, std::map<HCALSpecials, MonitorElement *>>>
-      H1mod_;
+  std::vector<std::map<std::string, std::map<HCALSpecials, MonitorElement *>>> H1mod_;
   std::vector<std::map<std::string, MonitorElement *>> H2_;
-  std::vector<std::map<std::string, std::map<HCALSpecials, MonitorElement *>>>
-      H2mod_;
+  std::vector<std::map<std::string, std::map<HCALSpecials, MonitorElement *>>> H2mod_;
   std::vector<std::map<std::string, MonitorElement *>> H2Eta_;
   std::vector<std::map<std::string, MonitorElement *>> H2EtaPhi_;
   std::vector<std::map<std::string, MonitorElement *>> H2EtaPhi_threshold_;
@@ -113,8 +107,7 @@ private:
   std::vector<std::string> JetTagCollection_Label;
   std::string hlTriggerResults_Label;
   std::string hltConfigProvider_Label;
-  std::map<HLTBTagPerformanceAnalyzer::HCALSpecials, std::string>
-      HCALSpecialsNames;
+  std::map<HLTBTagPerformanceAnalyzer::HCALSpecials, std::string> HCALSpecialsNames;
 };
 
 #endif

@@ -7,13 +7,10 @@
 #include <iostream>
 
 SUSY_HLT_ElecFakes::SUSY_HLT_ElecFakes(const edm::ParameterSet &ps) {
-  edm::LogInfo("SUSY_HLT_ElecFakes")
-      << "Constructor SUSY_HLT_ElecFakes::SUSY_HLT_ElecFakes " << std::endl;
+  edm::LogInfo("SUSY_HLT_ElecFakes") << "Constructor SUSY_HLT_ElecFakes::SUSY_HLT_ElecFakes " << std::endl;
   // Get parameters from configuration file
-  theTrigSummary_ = consumes<trigger::TriggerEvent>(
-      ps.getParameter<edm::InputTag>("trigSummary"));
-  triggerResults_ = consumes<edm::TriggerResults>(
-      ps.getParameter<edm::InputTag>("TriggerResults"));
+  theTrigSummary_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("trigSummary"));
+  triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
   HLTProcess_ = ps.getParameter<std::string>("HLTProcess");
   triggerPath_ = ps.getParameter<std::string>("TriggerPath");
   triggerFilter_ = ps.getParameter<edm::InputTag>("TriggerFilter");
@@ -21,18 +18,14 @@ SUSY_HLT_ElecFakes::SUSY_HLT_ElecFakes(const edm::ParameterSet &ps) {
 }
 
 SUSY_HLT_ElecFakes::~SUSY_HLT_ElecFakes() {
-  edm::LogInfo("SUSY_HLT_ElecFakes")
-      << "Destructor SUSY_HLT_ElecFakes::~SUSY_HLT_ElecFakes " << std::endl;
+  edm::LogInfo("SUSY_HLT_ElecFakes") << "Destructor SUSY_HLT_ElecFakes::~SUSY_HLT_ElecFakes " << std::endl;
 }
 
-void SUSY_HLT_ElecFakes::dqmBeginRun(edm::Run const &run,
-                                     edm::EventSetup const &e) {
-
+void SUSY_HLT_ElecFakes::dqmBeginRun(edm::Run const &run, edm::EventSetup const &e) {
   bool changed;
 
   if (!fHltConfig.init(run, e, HLTProcess_, changed)) {
-    edm::LogError("SUSY_HLT_ElecFakes")
-        << "Initialization of HLTConfigProvider failed!!";
+    edm::LogError("SUSY_HLT_ElecFakes") << "Initialization of HLTConfigProvider failed!!";
     return;
   }
 
@@ -50,23 +43,17 @@ void SUSY_HLT_ElecFakes::dqmBeginRun(edm::Run const &run,
     return;
   }
 
-  edm::LogInfo("SUSY_HLT_ElecFakes")
-      << "SUSY_HLT_ElecFakes::beginRun" << std::endl;
+  edm::LogInfo("SUSY_HLT_ElecFakes") << "SUSY_HLT_ElecFakes::beginRun" << std::endl;
 }
 
-void SUSY_HLT_ElecFakes::bookHistograms(DQMStore::IBooker &ibooker_,
-                                        edm::Run const &,
-                                        edm::EventSetup const &) {
-  edm::LogInfo("SUSY_HLT_ElecFakes")
-      << "SUSY_HLT_ElecFakes::bookHistograms" << std::endl;
+void SUSY_HLT_ElecFakes::bookHistograms(DQMStore::IBooker &ibooker_, edm::Run const &, edm::EventSetup const &) {
+  edm::LogInfo("SUSY_HLT_ElecFakes") << "SUSY_HLT_ElecFakes::bookHistograms" << std::endl;
   // book at beginRun
   bookHistos(ibooker_);
 }
 
-void SUSY_HLT_ElecFakes::analyze(edm::Event const &e,
-                                 edm::EventSetup const &eSetup) {
-  edm::LogInfo("SUSY_HLT_ElecFakes")
-      << "SUSY_HLT_ElecFakes::analyze" << std::endl;
+void SUSY_HLT_ElecFakes::analyze(edm::Event const &e, edm::EventSetup const &eSetup) {
+  edm::LogInfo("SUSY_HLT_ElecFakes") << "SUSY_HLT_ElecFakes::analyze" << std::endl;
 
   //-------------------------------
   //--- Trigger
@@ -88,8 +75,7 @@ void SUSY_HLT_ElecFakes::analyze(edm::Event const &e,
 
   // get online objects
   size_t filterIndex = triggerSummary->filterIndex(triggerFilter_);
-  trigger::TriggerObjectCollection triggerObjects =
-      triggerSummary->getObjects();
+  trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
   if (!(filterIndex >= triggerSummary->sizeFilters())) {
     const trigger::Keys &keys = triggerSummary->filterKeys(filterIndex);
     for (size_t j = 0; j < keys.size(); ++j) {
@@ -115,10 +101,8 @@ void SUSY_HLT_ElecFakes::analyze(edm::Event const &e,
   }
 }
 
-void SUSY_HLT_ElecFakes::endRun(edm::Run const &run,
-                                edm::EventSetup const &eSetup) {
-  edm::LogInfo("SUSY_HLT_ElecFakes")
-      << "SUSY_HLT_ElecFakes::endRun" << std::endl;
+void SUSY_HLT_ElecFakes::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+  edm::LogInfo("SUSY_HLT_ElecFakes") << "SUSY_HLT_ElecFakes::endRun" << std::endl;
 }
 
 void SUSY_HLT_ElecFakes::bookHistos(DQMStore::IBooker &ibooker_) {
@@ -126,19 +110,13 @@ void SUSY_HLT_ElecFakes::bookHistos(DQMStore::IBooker &ibooker_) {
   ibooker_.setCurrentFolder("HLT/SUSYBSM/" + triggerPath_);
 
   // online quantities
-  h_triggerElPt =
-      ibooker_.book1D("triggerElPt", "Trigger El Pt; GeV", 50, 0.0, 100.0);
-  h_triggerElEta =
-      ibooker_.book1D("triggerElEta", "Trigger El Eta", 20, -2.5, 2.5);
-  h_triggerElPhi =
-      ibooker_.book1D("triggerElPhi", "Trigger El Phi", 20, -3.5, 3.5);
+  h_triggerElPt = ibooker_.book1D("triggerElPt", "Trigger El Pt; GeV", 50, 0.0, 100.0);
+  h_triggerElEta = ibooker_.book1D("triggerElEta", "Trigger El Eta", 20, -2.5, 2.5);
+  h_triggerElPhi = ibooker_.book1D("triggerElPhi", "Trigger El Phi", 20, -3.5, 3.5);
 
-  h_triggerJetPt =
-      ibooker_.book1D("triggerJetPt", "Trigger Jet Pt; GeV", 20, 0.0, 200.0);
-  h_triggerJetEta =
-      ibooker_.book1D("triggerJetEta", "Trigger Jet Eta", 20, -3.0, 3.0);
-  h_triggerJetPhi =
-      ibooker_.book1D("triggerJetPhi", "Trigger Jet Phi", 20, -3.5, 3.5);
+  h_triggerJetPt = ibooker_.book1D("triggerJetPt", "Trigger Jet Pt; GeV", 20, 0.0, 200.0);
+  h_triggerJetEta = ibooker_.book1D("triggerJetEta", "Trigger Jet Eta", 20, -3.0, 3.0);
+  h_triggerJetPhi = ibooker_.book1D("triggerJetPhi", "Trigger Jet Phi", 20, -3.5, 3.5);
 
   //  h_triggerElJetdPhi = ibooker_.book1D("triggerElJetdPhi", "Trigger El,Jet
   //  dPhi", 20, -3.5, 3.5);

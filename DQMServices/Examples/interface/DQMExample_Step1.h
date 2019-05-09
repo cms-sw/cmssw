@@ -45,15 +45,13 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 
 class DQMExample_Step1 : public DQMEDAnalyzer {
-
 public:
   DQMExample_Step1(const edm::ParameterSet &ps);
   ~DQMExample_Step1() override;
 
 protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
   void endRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
 
@@ -62,8 +60,7 @@ private:
   void bookHistos(DQMStore::IBooker &);
 
   // other functions
-  bool MediumEle(const edm::Event &iEvent, const edm::EventSetup &iESetup,
-                 const reco::GsfElectron &electron);
+  bool MediumEle(const edm::Event &iEvent, const edm::EventSetup &iESetup, const reco::GsfElectron &electron);
   double Distance(const reco::Candidate &c1, const reco::Candidate &c2);
   double DistancePhi(const reco::Candidate &c1, const reco::Candidate &c2);
   double calcDeltaPhi(double phi1, double phi2);

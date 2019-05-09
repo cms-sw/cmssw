@@ -49,16 +49,15 @@ private:
   void beginJob() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endJob() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   std::string outputFile_;
 
   // parameters
-  edm::InputTag rbxCollName_; // label for the rbx collection
+  edm::InputTag rbxCollName_;  // label for the rbx collection
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> tok_rbx_;
-  double minRBXEnergy_; // RBX energy threshold
-  double minHitEnergy_; // RecHit energy threshold
+  double minRBXEnergy_;  // RBX energy threshold
+  double minHitEnergy_;  // RecHit energy threshold
   bool useAllHistos_;
 
   // Hcal Noise Summary Parameters

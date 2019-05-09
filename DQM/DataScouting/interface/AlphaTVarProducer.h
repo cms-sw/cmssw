@@ -26,10 +26,10 @@ private:
   static double deltaHt(const std::vector<double> &);
   static double alphaT(const double, const double, const double);
 
-  edm::InputTag inputJetTag_; // input tag identifying product
+  edm::InputTag inputJetTag_;  // input tag identifying product
 
   // define Token(-s)
   edm::EDGetTokenT<reco::CaloJetCollection> inputJetTagToken_;
 };
 
-#endif // AlphaTVarProducer_h
+#endif  // AlphaTVarProducer_h

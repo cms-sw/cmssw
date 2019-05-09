@@ -54,19 +54,10 @@ public:
 
   ~BDHadronTrackMonitoringAnalyzer() override;
 
-  void analyze(const edm::Event &iEvent,
-               const edm::EventSetup &iSetup) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  enum HistoryClasses {
-    BCWeakDecay = 0,
-    BWeakDecay = 1,
-    CWeakDecay = 2,
-    PU = 3,
-    Other = 4,
-    Fake = 5
-  };
+  enum HistoryClasses { BCWeakDecay = 0, BWeakDecay = 1, CWeakDecay = 2, PU = 3, Other = 4, Fake = 5 };
   static const std::vector<std::string> TrkHistCat;
 
 private:
@@ -96,46 +87,40 @@ private:
 
   // Histograms
   // b jets
-  MonitorElement
-      *nTrkAll_bjet; // total number of selected tracks (or TrackingParticles)
-  MonitorElement
-      *nTrk_bjet[6]; // total number of selected tracks (or TrackingParticles)
-                     // in each TrackHistory category
+  MonitorElement *nTrkAll_bjet;  // total number of selected tracks (or TrackingParticles)
+  MonitorElement *nTrk_bjet[6];  // total number of selected tracks (or TrackingParticles)
+                                 // in each TrackHistory category
   // c jets
-  MonitorElement
-      *nTrkAll_cjet; // total number of selected tracks (or TrackingParticles)
-  MonitorElement
-      *nTrk_cjet[6]; // total number of selected tracks (or TrackingParticles)
-                     // in each TrackHistory category
+  MonitorElement *nTrkAll_cjet;  // total number of selected tracks (or TrackingParticles)
+  MonitorElement *nTrk_cjet[6];  // total number of selected tracks (or TrackingParticles)
+                                 // in each TrackHistory category
   // dusg jets
-  MonitorElement *
-      nTrkAll_dusgjet; // total number of selected tracks (or TrackingParticles)
-  MonitorElement
-      *nTrk_dusgjet[6]; // total number of selected tracks (or
-                        // TrackingParticles) in each TrackHistory category
+  MonitorElement *nTrkAll_dusgjet;  // total number of selected tracks (or TrackingParticles)
+  MonitorElement *nTrk_dusgjet[6];  // total number of selected tracks (or
+                                    // TrackingParticles) in each TrackHistory category
 
   // track properties for all flavours combined
   MonitorElement *TrkPt_alljets[6],
-      *TrkTruthPt_alljets[5]; // Pt of selected tracks (or TrackingParticles)
+      *TrkTruthPt_alljets[5];  // Pt of selected tracks (or TrackingParticles)
   MonitorElement *TrkEta_alljets[6],
-      *TrkTruthEta_alljets[5]; // Eta of selected tracks (or TrackingParticles)
+      *TrkTruthEta_alljets[5];  // Eta of selected tracks (or TrackingParticles)
   MonitorElement *TrkPhi_alljets[6],
-      *TrkTruthPhi_alljets[5]; // Phi of selected tracks (or TrackingParticles)
+      *TrkTruthPhi_alljets[5];  // Phi of selected tracks (or TrackingParticles)
   MonitorElement *TrkDxy_alljets[6],
-      *TrkTruthDxy_alljets[5]; // Transverse IP of selected tracks (or
-                               // TrackingParticles)
+      *TrkTruthDxy_alljets[5];  // Transverse IP of selected tracks (or
+                                // TrackingParticles)
   MonitorElement *TrkDz_alljets[6],
-      *TrkTruthDz_alljets[5]; // Longitudinal IP of selected tracks (or
-                              // TrackingParticles)
+      *TrkTruthDz_alljets[5];  // Longitudinal IP of selected tracks (or
+                               // TrackingParticles)
   MonitorElement *TrkHitAll_alljets[6],
-      *TrkTruthHitAll_alljets[5]; // total number Tracker hits of selected
-                                  // tracks (or TrackingParticles)
+      *TrkTruthHitAll_alljets[5];  // total number Tracker hits of selected
+                                   // tracks (or TrackingParticles)
   MonitorElement *TrkHitStrip_alljets[6],
-      *TrkTruthHitStrip_alljets[5]; // number of strip hits of of selected
-                                    // tracks (or TrackingParticles)
+      *TrkTruthHitStrip_alljets[5];  // number of strip hits of of selected
+                                     // tracks (or TrackingParticles)
   MonitorElement *TrkHitPixel_alljets[6],
-      *TrkTruthHitPixel_alljets[5]; // number of pixel hits of selected tracks
-                                    // (or TrackingParticles)
+      *TrkTruthHitPixel_alljets[5];  // number of pixel hits of selected tracks
+                                     // (or TrackingParticles)
 };
 
 #endif

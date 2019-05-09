@@ -36,7 +36,6 @@ class DQMStore;
 class MonitorElement;
 
 class CaloTowersDQMClient : public DQMEDHarvester {
-
 private:
   std::string outputFile_;
   edm::ParameterSet conf_;
@@ -54,7 +53,7 @@ public:
 
   void beginJob(void) override;
   void dqmEndJob(DQMStore::IBooker &,
-                 DQMStore::IGetter &) override; // performed in the endJob
+                 DQMStore::IGetter &) override;  // performed in the endJob
   void beginRun(const edm::Run &run, const edm::EventSetup &c) override;
 
   int CaloTowersEndjob(const std::vector<MonitorElement *> &hcalMEs);
