@@ -34,17 +34,17 @@
 // Constructors --
 //----------------
 L1Phase2MuDTPhDigi::L1Phase2MuDTPhDigi() :
-  m_bx(-100), m_wheel(0), m_sector(0), m_station(0), m_phiAngle(0), m_phiBending(0),
-  m_qualityCode(-1), m_index(0), m_t0(0), m_chi2(0), m_rpcFlag(-10)
+  m_bx(-100), m_wheel(0), m_sector(0), m_station(0), m_superlayer(0), m_phiAngle(0), 
+  m_phiBending(0), m_qualityCode(-1), m_index(0), m_t0(0), m_chi2(0), m_rpcFlag(-10)
 {
 
 }
 
 
-L1Phase2MuDTPhDigi::L1Phase2MuDTPhDigi( int bx, int wh, int sc, int st, int phi, int phib,
+L1Phase2MuDTPhDigi::L1Phase2MuDTPhDigi( int bx, int wh, int sc, int st, int sl, int phi, int phib,
 					int qual, int idx, int t0, int chi2, int rpc) :
-  m_bx(bx), m_wheel(wh), m_sector(sc), m_station(st), m_phiAngle(phi), m_phiBending(phib),
-  m_qualityCode(qual), m_index(idx), m_t0(t0), m_chi2(chi2), m_rpcFlag(rpc)
+  m_bx(bx), m_wheel(wh), m_sector(sc), m_station(st), m_superlayer(sl), m_phiAngle(phi), 
+  m_phiBending(phib), m_qualityCode(qual), m_index(idx), m_t0(t0), m_chi2(chi2), m_rpcFlag(rpc)
 {
  
 }
@@ -71,6 +71,11 @@ int L1Phase2MuDTPhDigi::scNum() const
 int L1Phase2MuDTPhDigi::stNum() const 
 {
   return m_station;
+}
+
+int L1Phase2MuDTPhDigi::slNum() const 
+{
+  return m_superlayer;
 }
 
 int L1Phase2MuDTPhDigi::phi() const 
