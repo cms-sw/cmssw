@@ -744,11 +744,14 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	muon.setSelector(reco::Muon::MvaTight,  muon.mvaValue()> 0.15);
 	muon.setSelector(reco::Muon::MvaVTight,  muon.mvaValue()> 0.45);
 	muon.setSelector(reco::Muon::MvaVVTight,  muon.mvaValue()> 0.9);
+      }
+      if (muon.pt()>5 and muon.isLooseMuon() and
+	  sip3D<4 and dB2D < 0.5 and dz < 1){
 	muon.setSelector(reco::Muon::LowPtMvaLoose,  muon.lowptMvaValue()>-0.60);
 	muon.setSelector(reco::Muon::LowPtMvaMedium, muon.lowptMvaValue()>-0.20);
       }
     }
-
+    
     //SOFT MVA
     if (computeSoftMuonMVA_){
       float mva = globalCache()->softMuonMvaEstimator()->computeMva(muon);
