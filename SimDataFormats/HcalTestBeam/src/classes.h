@@ -3,4 +3,3 @@
 #include "SimDataFormats/HcalTestBeam/interface/HcalTB02HistoClass.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
-

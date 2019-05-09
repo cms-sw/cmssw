@@ -4,10 +4,8 @@
 #include <vector>
 
 class ESKCHIPBlock {
-  
-  public :
-    
-  typedef int key_type; // For the sorted collection 
+public:
+  typedef int key_type;  // For the sorted collection
 
   ESKCHIPBlock();
   ESKCHIPBlock(const int& kId);
@@ -26,8 +24,8 @@ class ESKCHIPBlock {
 
   void setBC(const int& BC) { BC_ = BC; }
   void setEC(const int& EC) { EC_ = EC; }
-  void setOptoBC(const int & OptoBC) { OptoBC_ = BC_; } 
-  void setOptoEC(const int & OptoEC) { OptoEC_ = EC_; } 
+  void setOptoBC(const int& OptoBC) { OptoBC_ = BC_; }
+  void setOptoEC(const int& OptoEC) { OptoEC_ = EC_; }
   void setFlag1(const int& flag1) { flag1_ = flag1; };
   void setFlag2(const int& flag2) { flag2_ = flag2; };
   void setCRC(const int& CRC) { CRC_ = CRC; }
@@ -40,8 +38,7 @@ class ESKCHIPBlock {
   int getFlag2() const { return flag2_; }
   int getCRC() const { return CRC_; }
 
-  private :
-
+private:
   int kId_;
   int dccId_;
   int fedId_;
@@ -53,9 +50,6 @@ class ESKCHIPBlock {
   int flag1_;
   int flag2_;
   int CRC_;
-
 };
 
 #endif
-
-
