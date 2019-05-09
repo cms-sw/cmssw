@@ -44,17 +44,16 @@ using namespace edm;
 // *****************************************
 
 DQMSourcePi0::DQMSourcePi0(const edm::ParameterSet &ps) : eventCounter_(0) {
-  folderName_ =
-      ps.getUntrackedParameter<string>("FolderName", "HLT/AlCaEcalPi0");
+  folderName_ = ps.getUntrackedParameter<string>("FolderName", "HLT/AlCaEcalPi0");
   prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor", 1);
-  productMonitoredEBpi0_ = consumes<EcalRecHitCollection>(
-      ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBpi0Tag"));
-  productMonitoredEBeta_ = consumes<EcalRecHitCollection>(
-      ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBetaTag"));
-  productMonitoredEEpi0_ = consumes<EcalRecHitCollection>(
-      ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEEpi0Tag"));
-  productMonitoredEEeta_ = consumes<EcalRecHitCollection>(
-      ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEEetaTag"));
+  productMonitoredEBpi0_ =
+      consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBpi0Tag"));
+  productMonitoredEBeta_ =
+      consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBetaTag"));
+  productMonitoredEEpi0_ =
+      consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEEpi0Tag"));
+  productMonitoredEEeta_ =
+      consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEEetaTag"));
 
   isMonEBpi0_ = ps.getUntrackedParameter<bool>("isMonEBpi0", false);
   isMonEBeta_ = ps.getUntrackedParameter<bool>("isMonEBeta", false);
@@ -62,16 +61,14 @@ DQMSourcePi0::DQMSourcePi0(const edm::ParameterSet &ps) : eventCounter_(0) {
   isMonEEeta_ = ps.getUntrackedParameter<bool>("isMonEEeta", false);
 
   saveToFile_ = ps.getUntrackedParameter<bool>("SaveToFile", false);
-  fileName_ =
-      ps.getUntrackedParameter<string>("FileName", "MonitorAlCaEcalPi0.root");
+  fileName_ = ps.getUntrackedParameter<string>("FileName", "MonitorAlCaEcalPi0.root");
 
   clusSeedThr_ = ps.getParameter<double>("clusSeedThr");
   clusSeedThrEndCap_ = ps.getParameter<double>("clusSeedThrEndCap");
   clusEtaSize_ = ps.getParameter<int>("clusEtaSize");
   clusPhiSize_ = ps.getParameter<int>("clusPhiSize");
   if (clusPhiSize_ % 2 == 0 || clusEtaSize_ % 2 == 0)
-    edm::LogError("AlCaPi0RecHitsProducerError")
-        << "Size of eta/phi for simple clustering should be odd numbers";
+    edm::LogError("AlCaPi0RecHitsProducerError") << "Size of eta/phi for simple clustering should be odd numbers";
 
   seleXtalMinEnergy_ = ps.getParameter<double>("seleXtalMinEnergy");
   seleXtalMinEnergyEndCap_ = ps.getParameter<double>("seleXtalMinEnergyEndCap");
@@ -117,186 +114,143 @@ DQMSourcePi0::DQMSourcePi0(const edm::ParameterSet &ps) : eventCounter_(0) {
   seleS9S25GammaEtaEndCap_ = ps.getParameter<double>("seleS9S25GammaEtaEndCap");
   seleMinvMaxEtaEndCap_ = ps.getParameter<double>("seleMinvMaxEtaEndCap");
   seleMinvMinEtaEndCap_ = ps.getParameter<double>("seleMinvMinEtaEndCap");
-  ptMinForIsolationEtaEndCap_ =
-      ps.getParameter<double>("ptMinForIsolationEtaEndCap");
+  ptMinForIsolationEtaEndCap_ = ps.getParameter<double>("ptMinForIsolationEtaEndCap");
   seleEtaIsoEndCap_ = ps.getParameter<double>("seleEtaIsoEndCap");
   seleEtaBeltDREndCap_ = ps.getParameter<double>("seleEtaBeltDREndCap");
   seleEtaBeltDetaEndCap_ = ps.getParameter<double>("seleEtaBeltDetaEndCap");
 
   // Parameters for the position calculation:
-  edm::ParameterSet posCalcParameters =
-      ps.getParameter<edm::ParameterSet>("posCalcParameters");
+  edm::ParameterSet posCalcParameters = ps.getParameter<edm::ParameterSet>("posCalcParameters");
   posCalculator_ = PositionCalc(posCalcParameters);
 }
 
 DQMSourcePi0::~DQMSourcePi0() {}
 
 //--------------------------------------------------------
-void DQMSourcePi0::bookHistograms(DQMStore::IBooker &ibooker,
-                                  edm::Run const &irun,
-                                  edm::EventSetup const &isetup) {
-
+void DQMSourcePi0::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &irun, edm::EventSetup const &isetup) {
   // create and cd into new folder
   ibooker.setCurrentFolder(folderName_);
 
   // book some histograms 1D
 
-  hiPhiDistrEBpi0_ =
-      ibooker.book1D("iphiDistributionEBpi0", "RechitEB pi0 iphi", 361, 1, 361);
+  hiPhiDistrEBpi0_ = ibooker.book1D("iphiDistributionEBpi0", "RechitEB pi0 iphi", 361, 1, 361);
   hiPhiDistrEBpi0_->setAxisTitle("i#phi ", 1);
   hiPhiDistrEBpi0_->setAxisTitle("# rechits", 2);
 
-  hiXDistrEEpi0_ =
-      ibooker.book1D("iXDistributionEEpi0", "RechitEE pi0 ix", 100, 0, 100);
+  hiXDistrEEpi0_ = ibooker.book1D("iXDistributionEEpi0", "RechitEE pi0 ix", 100, 0, 100);
   hiXDistrEEpi0_->setAxisTitle("ix ", 1);
   hiXDistrEEpi0_->setAxisTitle("# rechits", 2);
 
-  hiPhiDistrEBeta_ =
-      ibooker.book1D("iphiDistributionEBeta", "RechitEB eta iphi", 361, 1, 361);
+  hiPhiDistrEBeta_ = ibooker.book1D("iphiDistributionEBeta", "RechitEB eta iphi", 361, 1, 361);
   hiPhiDistrEBeta_->setAxisTitle("i#phi ", 1);
   hiPhiDistrEBeta_->setAxisTitle("# rechits", 2);
 
-  hiXDistrEEeta_ =
-      ibooker.book1D("iXDistributionEEeta", "RechitEE eta ix", 100, 0, 100);
+  hiXDistrEEeta_ = ibooker.book1D("iXDistributionEEeta", "RechitEE eta ix", 100, 0, 100);
   hiXDistrEEeta_->setAxisTitle("ix ", 1);
   hiXDistrEEeta_->setAxisTitle("# rechits", 2);
 
-  hiEtaDistrEBpi0_ = ibooker.book1D("iEtaDistributionEBpi0",
-                                    "RechitEB pi0 ieta", 171, -85, 86);
+  hiEtaDistrEBpi0_ = ibooker.book1D("iEtaDistributionEBpi0", "RechitEB pi0 ieta", 171, -85, 86);
   hiEtaDistrEBpi0_->setAxisTitle("i#eta", 1);
   hiEtaDistrEBpi0_->setAxisTitle("#rechits", 2);
 
-  hiYDistrEEpi0_ =
-      ibooker.book1D("iYDistributionEEpi0", "RechitEE pi0 iY", 100, 0, 100);
+  hiYDistrEEpi0_ = ibooker.book1D("iYDistributionEEpi0", "RechitEE pi0 iY", 100, 0, 100);
   hiYDistrEEpi0_->setAxisTitle("iy", 1);
   hiYDistrEEpi0_->setAxisTitle("#rechits", 2);
 
-  hiEtaDistrEBeta_ = ibooker.book1D("iEtaDistributionEBeta",
-                                    "RechitEB eta ieta", 171, -85, 86);
+  hiEtaDistrEBeta_ = ibooker.book1D("iEtaDistributionEBeta", "RechitEB eta ieta", 171, -85, 86);
   hiEtaDistrEBeta_->setAxisTitle("i#eta", 1);
   hiEtaDistrEBeta_->setAxisTitle("#rechits", 2);
 
-  hiYDistrEEeta_ =
-      ibooker.book1D("iYDistributionEEeta", "RechitEE eta iY", 100, 0, 100);
+  hiYDistrEEeta_ = ibooker.book1D("iYDistributionEEeta", "RechitEE eta iY", 100, 0, 100);
   hiYDistrEEeta_->setAxisTitle("iy", 1);
   hiYDistrEEeta_->setAxisTitle("#rechits", 2);
 
-  hRechitEnergyEBpi0_ =
-      ibooker.book1D("rhEnergyEBpi0", "Pi0 rechits energy EB", 160, 0., 2.0);
+  hRechitEnergyEBpi0_ = ibooker.book1D("rhEnergyEBpi0", "Pi0 rechits energy EB", 160, 0., 2.0);
   hRechitEnergyEBpi0_->setAxisTitle("energy (GeV) ", 1);
   hRechitEnergyEBpi0_->setAxisTitle("#rechits", 2);
 
-  hRechitEnergyEEpi0_ =
-      ibooker.book1D("rhEnergyEEpi0", "Pi0 rechits energy EE", 160, 0., 3.0);
+  hRechitEnergyEEpi0_ = ibooker.book1D("rhEnergyEEpi0", "Pi0 rechits energy EE", 160, 0., 3.0);
   hRechitEnergyEEpi0_->setAxisTitle("energy (GeV) ", 1);
   hRechitEnergyEEpi0_->setAxisTitle("#rechits", 2);
 
-  hRechitEnergyEBeta_ =
-      ibooker.book1D("rhEnergyEBeta", "Eta rechits energy EB", 160, 0., 2.0);
+  hRechitEnergyEBeta_ = ibooker.book1D("rhEnergyEBeta", "Eta rechits energy EB", 160, 0., 2.0);
   hRechitEnergyEBeta_->setAxisTitle("energy (GeV) ", 1);
   hRechitEnergyEBeta_->setAxisTitle("#rechits", 2);
 
-  hRechitEnergyEEeta_ =
-      ibooker.book1D("rhEnergyEEeta", "Eta rechits energy EE", 160, 0., 3.0);
+  hRechitEnergyEEeta_ = ibooker.book1D("rhEnergyEEeta", "Eta rechits energy EE", 160, 0., 3.0);
   hRechitEnergyEEeta_->setAxisTitle("energy (GeV) ", 1);
   hRechitEnergyEEeta_->setAxisTitle("#rechits", 2);
 
-  hEventEnergyEBpi0_ =
-      ibooker.book1D("eventEnergyEBpi0", "Pi0 event energy EB", 100, 0., 20.0);
+  hEventEnergyEBpi0_ = ibooker.book1D("eventEnergyEBpi0", "Pi0 event energy EB", 100, 0., 20.0);
   hEventEnergyEBpi0_->setAxisTitle("energy (GeV) ", 1);
 
-  hEventEnergyEEpi0_ =
-      ibooker.book1D("eventEnergyEEpi0", "Pi0 event energy EE", 100, 0., 50.0);
+  hEventEnergyEEpi0_ = ibooker.book1D("eventEnergyEEpi0", "Pi0 event energy EE", 100, 0., 50.0);
   hEventEnergyEEpi0_->setAxisTitle("energy (GeV) ", 1);
 
-  hEventEnergyEBeta_ =
-      ibooker.book1D("eventEnergyEBeta", "Eta event energy EB", 100, 0., 20.0);
+  hEventEnergyEBeta_ = ibooker.book1D("eventEnergyEBeta", "Eta event energy EB", 100, 0., 20.0);
   hEventEnergyEBeta_->setAxisTitle("energy (GeV) ", 1);
 
-  hEventEnergyEEeta_ =
-      ibooker.book1D("eventEnergyEEeta", "Eta event energy EE", 100, 0., 50.0);
+  hEventEnergyEEeta_ = ibooker.book1D("eventEnergyEEeta", "Eta event energy EE", 100, 0., 50.0);
   hEventEnergyEEeta_->setAxisTitle("energy (GeV) ", 1);
 
-  hNRecHitsEBpi0_ = ibooker.book1D(
-      "nRechitsEBpi0", "#rechits in pi0 collection EB", 100, 0., 250.);
+  hNRecHitsEBpi0_ = ibooker.book1D("nRechitsEBpi0", "#rechits in pi0 collection EB", 100, 0., 250.);
   hNRecHitsEBpi0_->setAxisTitle("rechits ", 1);
 
-  hNRecHitsEEpi0_ = ibooker.book1D(
-      "nRechitsEEpi0", "#rechits in pi0 collection EE", 100, 0., 250.);
+  hNRecHitsEEpi0_ = ibooker.book1D("nRechitsEEpi0", "#rechits in pi0 collection EE", 100, 0., 250.);
   hNRecHitsEEpi0_->setAxisTitle("rechits ", 1);
 
-  hNRecHitsEBeta_ = ibooker.book1D(
-      "nRechitsEBeta", "#rechits in eta collection EB", 100, 0., 250.);
+  hNRecHitsEBeta_ = ibooker.book1D("nRechitsEBeta", "#rechits in eta collection EB", 100, 0., 250.);
   hNRecHitsEBeta_->setAxisTitle("rechits ", 1);
 
-  hNRecHitsEEeta_ = ibooker.book1D(
-      "nRechitsEEeta", "#rechits in eta collection EE", 100, 0., 250.);
+  hNRecHitsEEeta_ = ibooker.book1D("nRechitsEEeta", "#rechits in eta collection EE", 100, 0., 250.);
   hNRecHitsEEeta_->setAxisTitle("rechits ", 1);
 
-  hMeanRecHitEnergyEBpi0_ = ibooker.book1D(
-      "meanEnergyEBpi0", "Mean rechit energy in pi0 collection EB", 50, 0., 2.);
+  hMeanRecHitEnergyEBpi0_ = ibooker.book1D("meanEnergyEBpi0", "Mean rechit energy in pi0 collection EB", 50, 0., 2.);
   hMeanRecHitEnergyEBpi0_->setAxisTitle("Mean Energy [GeV] ", 1);
 
-  hMeanRecHitEnergyEEpi0_ =
-      ibooker.book1D("meanEnergyEEpi0",
-                     "Mean rechit energy in pi0 collection EE", 100, 0., 5.);
+  hMeanRecHitEnergyEEpi0_ = ibooker.book1D("meanEnergyEEpi0", "Mean rechit energy in pi0 collection EE", 100, 0., 5.);
   hMeanRecHitEnergyEEpi0_->setAxisTitle("Mean Energy [GeV] ", 1);
 
-  hMeanRecHitEnergyEBeta_ = ibooker.book1D(
-      "meanEnergyEBeta", "Mean rechit energy in eta collection EB", 50, 0., 2.);
+  hMeanRecHitEnergyEBeta_ = ibooker.book1D("meanEnergyEBeta", "Mean rechit energy in eta collection EB", 50, 0., 2.);
   hMeanRecHitEnergyEBeta_->setAxisTitle("Mean Energy [GeV] ", 1);
 
-  hMeanRecHitEnergyEEeta_ =
-      ibooker.book1D("meanEnergyEEeta",
-                     "Mean rechit energy in eta collection EE", 100, 0., 5.);
+  hMeanRecHitEnergyEEeta_ = ibooker.book1D("meanEnergyEEeta", "Mean rechit energy in eta collection EE", 100, 0., 5.);
   hMeanRecHitEnergyEEeta_->setAxisTitle("Mean Energy [GeV] ", 1);
 
-  hMinvPi0EB_ =
-      ibooker.book1D("Pi0InvmassEB", "Pi0 Invariant Mass in EB", 100, 0., 0.5);
+  hMinvPi0EB_ = ibooker.book1D("Pi0InvmassEB", "Pi0 Invariant Mass in EB", 100, 0., 0.5);
   hMinvPi0EB_->setAxisTitle("Inv Mass [GeV] ", 1);
 
-  hMinvPi0EE_ =
-      ibooker.book1D("Pi0InvmassEE", "Pi0 Invariant Mass in EE", 100, 0., 0.5);
+  hMinvPi0EE_ = ibooker.book1D("Pi0InvmassEE", "Pi0 Invariant Mass in EE", 100, 0., 0.5);
   hMinvPi0EE_->setAxisTitle("Inv Mass [GeV] ", 1);
 
-  hMinvEtaEB_ =
-      ibooker.book1D("EtaInvmassEB", "Eta Invariant Mass in EB", 100, 0., 0.85);
+  hMinvEtaEB_ = ibooker.book1D("EtaInvmassEB", "Eta Invariant Mass in EB", 100, 0., 0.85);
   hMinvEtaEB_->setAxisTitle("Inv Mass [GeV] ", 1);
 
-  hMinvEtaEE_ =
-      ibooker.book1D("EtaInvmassEE", "Eta Invariant Mass in EE", 100, 0., 0.85);
+  hMinvEtaEE_ = ibooker.book1D("EtaInvmassEE", "Eta Invariant Mass in EE", 100, 0., 0.85);
   hMinvEtaEE_->setAxisTitle("Inv Mass [GeV] ", 1);
 
-  hPt1Pi0EB_ = ibooker.book1D(
-      "Pt1Pi0EB", "Pt 1st most energetic Pi0 photon in EB", 100, 0., 20.);
+  hPt1Pi0EB_ = ibooker.book1D("Pt1Pi0EB", "Pt 1st most energetic Pi0 photon in EB", 100, 0., 20.);
   hPt1Pi0EB_->setAxisTitle("1st photon Pt [GeV] ", 1);
 
-  hPt1Pi0EE_ = ibooker.book1D(
-      "Pt1Pi0EE", "Pt 1st most energetic Pi0 photon in EE", 100, 0., 20.);
+  hPt1Pi0EE_ = ibooker.book1D("Pt1Pi0EE", "Pt 1st most energetic Pi0 photon in EE", 100, 0., 20.);
   hPt1Pi0EE_->setAxisTitle("1st photon Pt [GeV] ", 1);
 
-  hPt1EtaEB_ = ibooker.book1D(
-      "Pt1EtaEB", "Pt 1st most energetic Eta photon in EB", 100, 0., 20.);
+  hPt1EtaEB_ = ibooker.book1D("Pt1EtaEB", "Pt 1st most energetic Eta photon in EB", 100, 0., 20.);
   hPt1EtaEB_->setAxisTitle("1st photon Pt [GeV] ", 1);
 
-  hPt1EtaEE_ = ibooker.book1D(
-      "Pt1EtaEE", "Pt 1st most energetic Eta photon in EE", 100, 0., 20.);
+  hPt1EtaEE_ = ibooker.book1D("Pt1EtaEE", "Pt 1st most energetic Eta photon in EE", 100, 0., 20.);
   hPt1EtaEE_->setAxisTitle("1st photon Pt [GeV] ", 1);
 
-  hPt2Pi0EB_ = ibooker.book1D(
-      "Pt2Pi0EB", "Pt 2nd most energetic Pi0 photon in EB", 100, 0., 20.);
+  hPt2Pi0EB_ = ibooker.book1D("Pt2Pi0EB", "Pt 2nd most energetic Pi0 photon in EB", 100, 0., 20.);
   hPt2Pi0EB_->setAxisTitle("2nd photon Pt [GeV] ", 1);
 
-  hPt2Pi0EE_ = ibooker.book1D(
-      "Pt2Pi0EE", "Pt 2nd most energetic Pi0 photon in EE", 100, 0., 20.);
+  hPt2Pi0EE_ = ibooker.book1D("Pt2Pi0EE", "Pt 2nd most energetic Pi0 photon in EE", 100, 0., 20.);
   hPt2Pi0EE_->setAxisTitle("2nd photon Pt [GeV] ", 1);
 
-  hPt2EtaEB_ = ibooker.book1D(
-      "Pt2EtaEB", "Pt 2nd most energetic Eta photon in EB", 100, 0., 20.);
+  hPt2EtaEB_ = ibooker.book1D("Pt2EtaEB", "Pt 2nd most energetic Eta photon in EB", 100, 0., 20.);
   hPt2EtaEB_->setAxisTitle("2nd photon Pt [GeV] ", 1);
 
-  hPt2EtaEE_ = ibooker.book1D(
-      "Pt2EtaEE", "Pt 2nd most energetic Eta photon in EE", 100, 0., 20.);
+  hPt2EtaEE_ = ibooker.book1D("Pt2EtaEE", "Pt 2nd most energetic Eta photon in EE", 100, 0., 20.);
   hPt2EtaEE_->setAxisTitle("2nd photon Pt [GeV] ", 1);
 
   hPtPi0EB_ = ibooker.book1D("PtPi0EB", "Pi0 Pt in EB", 100, 0., 20.);
@@ -323,42 +277,33 @@ void DQMSourcePi0::bookHistograms(DQMStore::IBooker &ibooker,
   hIsoEtaEE_ = ibooker.book1D("IsoEtaEE", "Eta Iso in EE", 50, 0., 1.);
   hIsoEtaEE_->setAxisTitle("Eta Iso", 1);
 
-  hS4S91Pi0EB_ = ibooker.book1D(
-      "S4S91Pi0EB", "S4S9 1st most energetic Pi0 photon in EB", 50, 0., 1.);
+  hS4S91Pi0EB_ = ibooker.book1D("S4S91Pi0EB", "S4S9 1st most energetic Pi0 photon in EB", 50, 0., 1.);
   hS4S91Pi0EB_->setAxisTitle("S4S9 of the 1st Pi0 Photon ", 1);
 
-  hS4S91Pi0EE_ = ibooker.book1D(
-      "S4S91Pi0EE", "S4S9 1st most energetic Pi0 photon in EE", 50, 0., 1.);
+  hS4S91Pi0EE_ = ibooker.book1D("S4S91Pi0EE", "S4S9 1st most energetic Pi0 photon in EE", 50, 0., 1.);
   hS4S91Pi0EE_->setAxisTitle("S4S9 of the 1st Pi0 Photon ", 1);
 
-  hS4S91EtaEB_ = ibooker.book1D(
-      "S4S91EtaEB", "S4S9 1st most energetic Eta photon in EB", 50, 0., 1.);
+  hS4S91EtaEB_ = ibooker.book1D("S4S91EtaEB", "S4S9 1st most energetic Eta photon in EB", 50, 0., 1.);
   hS4S91EtaEB_->setAxisTitle("S4S9 of the 1st Eta Photon ", 1);
 
-  hS4S91EtaEE_ = ibooker.book1D(
-      "S4S91EtaEE", "S4S9 1st most energetic Eta photon in EE", 50, 0., 1.);
+  hS4S91EtaEE_ = ibooker.book1D("S4S91EtaEE", "S4S9 1st most energetic Eta photon in EE", 50, 0., 1.);
   hS4S91EtaEE_->setAxisTitle("S4S9 of the 1st Eta Photon ", 1);
 
-  hS4S92Pi0EB_ = ibooker.book1D(
-      "S4S92Pi0EB", "S4S9 2nd most energetic Pi0 photon in EB", 50, 0., 1.);
+  hS4S92Pi0EB_ = ibooker.book1D("S4S92Pi0EB", "S4S9 2nd most energetic Pi0 photon in EB", 50, 0., 1.);
   hS4S92Pi0EB_->setAxisTitle("S4S9 of the 2nd Pi0 Photon", 1);
 
-  hS4S92Pi0EE_ = ibooker.book1D(
-      "S4S92Pi0EE", "S4S9 2nd most energetic Pi0 photon in EE", 50, 0., 1.);
+  hS4S92Pi0EE_ = ibooker.book1D("S4S92Pi0EE", "S4S9 2nd most energetic Pi0 photon in EE", 50, 0., 1.);
   hS4S92Pi0EE_->setAxisTitle("S4S9 of the 2nd Pi0 Photon", 1);
 
-  hS4S92EtaEB_ = ibooker.book1D(
-      "S4S92EtaEB", "S4S9 2nd most energetic Pi0 photon in EB", 50, 0., 1.);
+  hS4S92EtaEB_ = ibooker.book1D("S4S92EtaEB", "S4S9 2nd most energetic Pi0 photon in EB", 50, 0., 1.);
   hS4S92EtaEB_->setAxisTitle("S4S9 of the 2nd Eta Photon", 1);
 
-  hS4S92EtaEE_ = ibooker.book1D(
-      "S4S92EtaEE", "S4S9 2nd most energetic Pi0 photon in EE", 50, 0., 1.);
+  hS4S92EtaEE_ = ibooker.book1D("S4S92EtaEE", "S4S9 2nd most energetic Pi0 photon in EE", 50, 0., 1.);
   hS4S92EtaEE_->setAxisTitle("S4S9 of the 2nd Eta Photon", 1);
 }
 
 //-------------------------------------------------------------
 void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
-
   if (eventCounter_ % prescaleFactor_)
     return;
   eventCounter_++;
@@ -372,8 +317,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
   vector<EBDetId> usedXtals;
   usedXtals.clear();
 
-  detIdEBRecHits.clear(); //// EBDetId
-  EBRecHits.clear();      /// EcalRecHit
+  detIdEBRecHits.clear();  //// EBDetId
+  EBRecHits.clear();       /// EcalRecHit
 
   edm::Handle<EcalRecHitCollection> rhEBpi0;
   edm::Handle<EcalRecHitCollection> rhEBeta;
@@ -393,28 +338,21 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  const CaloSubdetectorGeometry *geometry_p =
-      geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  const CaloSubdetectorGeometry *geometryEE_p =
-      geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  const CaloSubdetectorGeometry *geometryES_p =
-      geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  const CaloSubdetectorGeometry *geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const CaloSubdetectorGeometry *geometryEE_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  const CaloSubdetectorGeometry *geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
-  const CaloSubdetectorTopology *topology_p =
-      theCaloTopology->getSubdetectorTopology(DetId::Ecal, EcalBarrel);
-  const CaloSubdetectorTopology *topology_ee =
-      theCaloTopology->getSubdetectorTopology(DetId::Ecal, EcalEndcap);
+  const CaloSubdetectorTopology *topology_p = theCaloTopology->getSubdetectorTopology(DetId::Ecal, EcalBarrel);
+  const CaloSubdetectorTopology *topology_ee = theCaloTopology->getSubdetectorTopology(DetId::Ecal, EcalEndcap);
 
   EcalRecHitCollection::const_iterator itb;
 
   // fill EB pi0 histos
   if (isMonEBpi0_) {
     if (rhEBpi0.isValid() && (!rhEBpi0->empty())) {
-
       const EcalRecHitCollection *hitCollection_p = rhEBpi0.product();
       float etot = 0;
       for (itb = rhEBpi0->begin(); itb != rhEBpi0->end(); ++itb) {
-
         EBDetId id(itb->id());
         double energy = itb->energy();
         if (energy < seleXtalMinEnergy_)
@@ -433,7 +371,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         hRechitEnergyEBpi0_->Fill(itb->energy());
 
         etot += itb->energy();
-      } // Eb rechits
+      }  // Eb rechits
 
       hNRecHitsEBpi0_->Fill(rhEBpi0->size());
       hMeanRecHitEnergyEBpi0_->Fill(etot / rhEBpi0->size());
@@ -465,14 +403,12 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seeds.begin(), seeds.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seeds.begin();
-           itseed != seeds.end(); itseed++) {
+      for (std::vector<EcalRecHit>::iterator itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
         EBDetId seed_id = itseed->id();
         std::vector<EBDetId>::const_iterator usedIds;
 
         bool seedAlreadyUsed = false;
-        for (usedIds = usedXtals.begin(); usedIds != usedXtals.end();
-             usedIds++) {
+        for (usedIds = usedXtals.begin(); usedIds != usedXtals.end(); usedIds++) {
           if (*usedIds == seed_id) {
             seedAlreadyUsed = true;
             // cout<< " Seed with energy "<<itseed->energy()<<" was used
@@ -482,8 +418,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         }
         if (seedAlreadyUsed)
           continue;
-        std::vector<DetId> clus_v =
-            topology_p->getWindow(seed_id, clusEtaSize_, clusPhiSize_);
+        std::vector<DetId> clus_v = topology_p->getWindow(seed_id, clusEtaSize_, clusPhiSize_);
         std::vector<std::pair<DetId, float>> clus_used;
         // Reject the seed if not able to build the cluster around it correctly
         // if(clus_v.size() < clusEtaSize_*clusPhiSize_){cout<<" Not enough
@@ -493,14 +428,12 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         double simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin();
-             det != clus_v.end(); det++) {
+        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
           EBDetId EBdet = *det;
           //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi
           //      "<<EBdet.iphi()<<endl;
           bool HitAlreadyUsed = false;
-          for (usedIds = usedXtals.begin(); usedIds != usedXtals.end();
-               usedIds++) {
+          for (usedIds = usedXtals.begin(); usedIds != usedXtals.end(); usedIds++) {
             if (*usedIds == *det) {
               HitAlreadyUsed = true;
               break;
@@ -509,8 +442,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
           if (HitAlreadyUsed)
             continue;
 
-          std::vector<EBDetId>::iterator itdet =
-              find(detIdEBRecHits.begin(), detIdEBRecHits.end(), EBdet);
+          std::vector<EBDetId>::iterator itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), EBdet);
           if (itdet == detIdEBRecHits.end())
             continue;
 
@@ -524,8 +456,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         if (simple_energy <= 0)
           continue;
 
-        math::XYZPoint clus_pos = posCalculator_.Calculate_Location(
-            clus_used, hitCollection_p, geometry_p, geometryES_p);
+        math::XYZPoint clus_pos =
+            posCalculator_.Calculate_Location(clus_used, hitCollection_p, geometry_p, geometryES_p);
         // cout<< "       Simple Clustering: Total energy for this simple
         // cluster : "<<simple_energy<<endl; cout<< "       Simple Clustering:
         // eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<endl; cout<< "
@@ -593,20 +525,17 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         /// calculate e5x5
         std::vector<DetId> clus_v5x5 = topology_p->getWindow(seed_id, 5, 5);
-        for (std::vector<DetId>::const_iterator idItr = clus_v5x5.begin();
-             idItr != clus_v5x5.end(); idItr++) {
+        for (std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++) {
           EBDetId det = *idItr;
 
-          std::vector<EBDetId>::iterator itdet0 =
-              find(usedXtals.begin(), usedXtals.end(), det);
+          std::vector<EBDetId>::iterator itdet0 = find(usedXtals.begin(), usedXtals.end(), det);
 
           /// already clustered
           if (itdet0 != usedXtals.end())
             continue;
 
           // inside collections
-          std::vector<EBDetId>::iterator itdet =
-              find(detIdEBRecHits.begin(), detIdEBRecHits.end(), det);
+          std::vector<EBDetId>::iterator itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), det);
           if (itdet == detIdEBRecHits.end())
             continue;
 
@@ -648,9 +577,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         for (Int_t j = i + 1; j < nClus; j++) {
           //      cout<<" i "<<i<<"  etClus[i] "<<etClus[i]<<" j "<<j<<"
           //      etClus[j] "<<etClus[j]<<endl;
-          if (etClus[i] > selePtGamma_ && etClus[j] > selePtGamma_ &&
-              s4s9Clus[i] > seleS4S9Gamma_ && s4s9Clus[j] > seleS4S9Gamma_) {
-
+          if (etClus[i] > selePtGamma_ && etClus[j] > selePtGamma_ && s4s9Clus[i] > seleS4S9Gamma_ &&
+              s4s9Clus[j] > seleS4S9Gamma_) {
             float p0x = etClus[i] * cos(phiClus[i]);
             float p1x = etClus[j] * cos(phiClus[j]);
             float p0y = etClus[i] * sin(phiClus[i]);
@@ -658,34 +586,27 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
             float p0z = eClus[i] * cos(thetaClus[i]);
             float p1z = eClus[j] * cos(thetaClus[j]);
 
-            float pt_pair =
-                sqrt((p0x + p1x) * (p0x + p1x) + (p0y + p1y) * (p0y + p1y));
+            float pt_pair = sqrt((p0x + p1x) * (p0x + p1x) + (p0y + p1y) * (p0y + p1y));
 
             if (pt_pair < selePtPi0_)
               continue;
 
-            float m_inv =
-                sqrt((eClus[i] + eClus[j]) * (eClus[i] + eClus[j]) -
-                     (p0x + p1x) * (p0x + p1x) - (p0y + p1y) * (p0y + p1y) -
-                     (p0z + p1z) * (p0z + p1z));
+            float m_inv = sqrt((eClus[i] + eClus[j]) * (eClus[i] + eClus[j]) - (p0x + p1x) * (p0x + p1x) -
+                               (p0y + p1y) * (p0y + p1y) - (p0z + p1z) * (p0z + p1z));
             if ((m_inv < seleMinvMaxPi0_) && (m_inv > seleMinvMinPi0_)) {
-
               // New Loop on cluster to measure isolation:
               vector<int> IsoClus;
               IsoClus.clear();
               float Iso = 0;
-              TVector3 pairVect =
-                  TVector3((p0x + p1x), (p0y + p1y), (p0z + p1z));
+              TVector3 pairVect = TVector3((p0x + p1x), (p0y + p1y), (p0z + p1z));
               for (Int_t k = 0; k < nClus; k++) {
-
                 if (etClus[k] < ptMinForIsolation_)
                   continue;
 
                 if (k == i || k == j)
                   continue;
-                TVector3 ClusVect = TVector3(etClus[k] * cos(phiClus[k]),
-                                             etClus[k] * sin(phiClus[k]),
-                                             eClus[k] * cos(thetaClus[k]));
+                TVector3 ClusVect =
+                    TVector3(etClus[k] * cos(phiClus[k]), etClus[k] * sin(phiClus[k]), eClus[k] * cos(thetaClus[k]));
 
                 float dretacl = fabs(etaClus[k] - pairVect.Eta());
                 float drcl = ClusVect.DeltaR(pairVect);
@@ -724,25 +645,23 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
               }
             }
           }
-        } // End of the "j" loop over Simple Clusters
-      }   // End of the "i" loop over Simple Clusters
+        }  // End of the "j" loop over Simple Clusters
+      }    // End of the "i" loop over Simple Clusters
 
       //      cout<<"  (Simple Clustering) EB Pi0 candidates #: "<<npi0_s<<endl;
 
-    } // rhEBpi0.valid() ends
+    }  // rhEBpi0.valid() ends
 
-  } //  isMonEBpi0 ends
+  }  //  isMonEBpi0 ends
 
   //------------------ End of pi0 in EB --------------------------//
 
   // fill EB eta histos
   if (isMonEBeta_) {
     if (rhEBeta.isValid() && (!rhEBeta->empty())) {
-
       const EcalRecHitCollection *hitCollection_p = rhEBeta.product();
       float etot = 0;
       for (itb = rhEBeta->begin(); itb != rhEBeta->end(); ++itb) {
-
         EBDetId id(itb->id());
         double energy = itb->energy();
         if (energy < seleXtalMinEnergy_)
@@ -761,7 +680,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         hRechitEnergyEBeta_->Fill(itb->energy());
 
         etot += itb->energy();
-      } // Eb rechits
+      }  // Eb rechits
 
       hNRecHitsEBeta_->Fill(rhEBeta->size());
       hMeanRecHitEnergyEBeta_->Fill(etot / rhEBeta->size());
@@ -793,14 +712,12 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seeds.begin(), seeds.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seeds.begin();
-           itseed != seeds.end(); itseed++) {
+      for (std::vector<EcalRecHit>::iterator itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
         EBDetId seed_id = itseed->id();
         std::vector<EBDetId>::const_iterator usedIds;
 
         bool seedAlreadyUsed = false;
-        for (usedIds = usedXtals.begin(); usedIds != usedXtals.end();
-             usedIds++) {
+        for (usedIds = usedXtals.begin(); usedIds != usedXtals.end(); usedIds++) {
           if (*usedIds == seed_id) {
             seedAlreadyUsed = true;
             // cout<< " Seed with energy "<<itseed->energy()<<" was used
@@ -810,8 +727,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         }
         if (seedAlreadyUsed)
           continue;
-        std::vector<DetId> clus_v =
-            topology_p->getWindow(seed_id, clusEtaSize_, clusPhiSize_);
+        std::vector<DetId> clus_v = topology_p->getWindow(seed_id, clusEtaSize_, clusPhiSize_);
         std::vector<std::pair<DetId, float>> clus_used;
         // Reject the seed if not able to build the cluster around it correctly
         // if(clus_v.size() < clusEtaSize_*clusPhiSize_){cout<<" Not enough
@@ -821,14 +737,12 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         double simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin();
-             det != clus_v.end(); det++) {
+        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
           EBDetId EBdet = *det;
           //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi
           //      "<<EBdet.iphi()<<endl;
           bool HitAlreadyUsed = false;
-          for (usedIds = usedXtals.begin(); usedIds != usedXtals.end();
-               usedIds++) {
+          for (usedIds = usedXtals.begin(); usedIds != usedXtals.end(); usedIds++) {
             if (*usedIds == *det) {
               HitAlreadyUsed = true;
               break;
@@ -837,8 +751,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
           if (HitAlreadyUsed)
             continue;
 
-          std::vector<EBDetId>::iterator itdet =
-              find(detIdEBRecHits.begin(), detIdEBRecHits.end(), EBdet);
+          std::vector<EBDetId>::iterator itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), EBdet);
           if (itdet == detIdEBRecHits.end())
             continue;
 
@@ -852,8 +765,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         if (simple_energy <= 0)
           continue;
 
-        math::XYZPoint clus_pos = posCalculator_.Calculate_Location(
-            clus_used, hitCollection_p, geometry_p, geometryES_p);
+        math::XYZPoint clus_pos =
+            posCalculator_.Calculate_Location(clus_used, hitCollection_p, geometry_p, geometryES_p);
         // cout<< "       Simple Clustering: Total energy for this simple
         // cluster : "<<simple_energy<<endl; cout<< "       Simple Clustering:
         // eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<endl; cout<< "
@@ -921,20 +834,17 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         /// calculate e5x5
         std::vector<DetId> clus_v5x5 = topology_p->getWindow(seed_id, 5, 5);
-        for (std::vector<DetId>::const_iterator idItr = clus_v5x5.begin();
-             idItr != clus_v5x5.end(); idItr++) {
+        for (std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++) {
           EBDetId det = *idItr;
 
-          std::vector<EBDetId>::iterator itdet0 =
-              find(usedXtals.begin(), usedXtals.end(), det);
+          std::vector<EBDetId>::iterator itdet0 = find(usedXtals.begin(), usedXtals.end(), det);
 
           /// already clustered
           if (itdet0 != usedXtals.end())
             continue;
 
           // inside collections
-          std::vector<EBDetId>::iterator itdet =
-              find(detIdEBRecHits.begin(), detIdEBRecHits.end(), det);
+          std::vector<EBDetId>::iterator itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), det);
           if (itdet == detIdEBRecHits.end())
             continue;
 
@@ -976,10 +886,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         for (Int_t j = i + 1; j < nClus; j++) {
           //      cout<<" i "<<i<<"  etClus[i] "<<etClus[i]<<" j "<<j<<"
           //      etClus[j] "<<etClus[j]<<endl;
-          if (etClus[i] > selePtGammaEta_ && etClus[j] > selePtGammaEta_ &&
-              s4s9Clus[i] > seleS4S9GammaEta_ &&
+          if (etClus[i] > selePtGammaEta_ && etClus[j] > selePtGammaEta_ && s4s9Clus[i] > seleS4S9GammaEta_ &&
               s4s9Clus[j] > seleS4S9GammaEta_) {
-
             float p0x = etClus[i] * cos(phiClus[i]);
             float p1x = etClus[j] * cos(phiClus[j]);
             float p0y = etClus[i] * sin(phiClus[i]);
@@ -987,34 +895,27 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
             float p0z = eClus[i] * cos(thetaClus[i]);
             float p1z = eClus[j] * cos(thetaClus[j]);
 
-            float pt_pair =
-                sqrt((p0x + p1x) * (p0x + p1x) + (p0y + p1y) * (p0y + p1y));
+            float pt_pair = sqrt((p0x + p1x) * (p0x + p1x) + (p0y + p1y) * (p0y + p1y));
 
             if (pt_pair < selePtEta_)
               continue;
 
-            float m_inv =
-                sqrt((eClus[i] + eClus[j]) * (eClus[i] + eClus[j]) -
-                     (p0x + p1x) * (p0x + p1x) - (p0y + p1y) * (p0y + p1y) -
-                     (p0z + p1z) * (p0z + p1z));
+            float m_inv = sqrt((eClus[i] + eClus[j]) * (eClus[i] + eClus[j]) - (p0x + p1x) * (p0x + p1x) -
+                               (p0y + p1y) * (p0y + p1y) - (p0z + p1z) * (p0z + p1z));
             if ((m_inv < seleMinvMaxEta_) && (m_inv > seleMinvMinEta_)) {
-
               // New Loop on cluster to measure isolation:
               vector<int> IsoClus;
               IsoClus.clear();
               float Iso = 0;
-              TVector3 pairVect =
-                  TVector3((p0x + p1x), (p0y + p1y), (p0z + p1z));
+              TVector3 pairVect = TVector3((p0x + p1x), (p0y + p1y), (p0z + p1z));
               for (Int_t k = 0; k < nClus; k++) {
-
                 if (etClus[k] < ptMinForIsolationEta_)
                   continue;
 
                 if (k == i || k == j)
                   continue;
-                TVector3 ClusVect = TVector3(etClus[k] * cos(phiClus[k]),
-                                             etClus[k] * sin(phiClus[k]),
-                                             eClus[k] * cos(thetaClus[k]));
+                TVector3 ClusVect =
+                    TVector3(etClus[k] * cos(phiClus[k]), etClus[k] * sin(phiClus[k]), eClus[k] * cos(thetaClus[k]));
 
                 float dretacl = fabs(etaClus[k] - pairVect.Eta());
                 float drcl = ClusVect.DeltaR(pairVect);
@@ -1053,14 +954,14 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
               }
             }
           }
-        } // End of the "j" loop over Simple Clusters
-      }   // End of the "i" loop over Simple Clusters
+        }  // End of the "j" loop over Simple Clusters
+      }    // End of the "i" loop over Simple Clusters
 
       //      cout<<"  (Simple Clustering) EB Eta candidates #: "<<npi0_s<<endl;
 
-    } // rhEBeta.valid() ends
+    }  // rhEBeta.valid() ends
 
-  } //  isMonEBeta ends
+  }  //  isMonEBeta ends
 
   //------------------ End of Eta in EB --------------------------//
 
@@ -1071,12 +972,11 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
   // fill pi0 EE histos
   if (isMonEEpi0_) {
     if (rhEEpi0.isValid() && (!rhEEpi0->empty())) {
-
       const EcalRecHitCollection *hitCollection_ee = rhEEpi0.product();
       float etot = 0;
 
-      detIdEERecHits.clear(); //// EEDetId
-      EERecHits.clear();      /// EcalRecHit
+      detIdEERecHits.clear();  //// EEDetId
+      EERecHits.clear();       /// EcalRecHit
 
       std::vector<EcalRecHit> seedsEndCap;
       seedsEndCap.clear();
@@ -1105,7 +1005,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
           seedsEndCap.push_back(*ite);
 
         etot += ite->energy();
-      } // EE rechits
+      }  // EE rechits
 
       hNRecHitsEEpi0_->Fill(rhEEpi0->size());
       hMeanRecHitEnergyEEpi0_->Fill(etot / rhEEpi0->size());
@@ -1130,14 +1030,12 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seedsEndCap.begin();
-           itseed != seedsEndCap.end(); itseed++) {
+      for (std::vector<EcalRecHit>::iterator itseed = seedsEndCap.begin(); itseed != seedsEndCap.end(); itseed++) {
         EEDetId seed_id = itseed->id();
         std::vector<EEDetId>::const_iterator usedIds;
 
         bool seedAlreadyUsed = false;
-        for (usedIds = usedXtalsEndCap.begin();
-             usedIds != usedXtalsEndCap.end(); usedIds++) {
+        for (usedIds = usedXtalsEndCap.begin(); usedIds != usedXtalsEndCap.end(); usedIds++) {
           if (*usedIds == seed_id) {
             seedAlreadyUsed = true;
             break;
@@ -1146,8 +1044,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         if (seedAlreadyUsed)
           continue;
-        std::vector<DetId> clus_v =
-            topology_ee->getWindow(seed_id, clusEtaSize_, clusPhiSize_);
+        std::vector<DetId> clus_v = topology_ee->getWindow(seed_id, clusEtaSize_, clusPhiSize_);
         std::vector<std::pair<DetId, float>> clus_used;
 
         vector<EcalRecHit> RecHitsInWindow;
@@ -1155,13 +1052,11 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         float simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin();
-             det != clus_v.end(); det++) {
+        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
           EEDetId EEdet = *det;
 
           bool HitAlreadyUsed = false;
-          for (usedIds = usedXtalsEndCap.begin();
-               usedIds != usedXtalsEndCap.end(); usedIds++) {
+          for (usedIds = usedXtalsEndCap.begin(); usedIds != usedXtalsEndCap.end(); usedIds++) {
             if (*usedIds == *det) {
               HitAlreadyUsed = true;
               break;
@@ -1171,8 +1066,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
           if (HitAlreadyUsed)
             continue;
 
-          std::vector<EEDetId>::iterator itdet =
-              find(detIdEERecHits.begin(), detIdEERecHits.end(), EEdet);
+          std::vector<EEDetId>::iterator itdet = find(detIdEERecHits.begin(), detIdEERecHits.end(), EEdet);
           if (itdet == detIdEERecHits.end())
             continue;
 
@@ -1186,8 +1080,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         if (simple_energy <= 0)
           continue;
 
-        math::XYZPoint clus_pos = posCalculator_.Calculate_Location(
-            clus_used, hitCollection_ee, geometryEE_p, geometryES_p);
+        math::XYZPoint clus_pos =
+            posCalculator_.Calculate_Location(clus_used, hitCollection_ee, geometryEE_p, geometryES_p);
 
         float theta_s = 2. * atan(exp(-clus_pos.eta()));
         float et_s = simple_energy * sin(theta_s);
@@ -1256,12 +1150,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
       for (Int_t i = 0; i < nClusEndCap; i++) {
         for (Int_t j = i + 1; j < nClusEndCap; j++) {
-
-          if (etClusEndCap[i] > selePtGammaEndCap_ &&
-              etClusEndCap[j] > selePtGammaEndCap_ &&
-              s4s9ClusEndCap[i] > seleS4S9GammaEndCap_ &&
-              s4s9ClusEndCap[j] > seleS4S9GammaEndCap_) {
-
+          if (etClusEndCap[i] > selePtGammaEndCap_ && etClusEndCap[j] > selePtGammaEndCap_ &&
+              s4s9ClusEndCap[i] > seleS4S9GammaEndCap_ && s4s9ClusEndCap[j] > seleS4S9GammaEndCap_) {
             float p0x = etClusEndCap[i] * cos(phiClusEndCap[i]);
             float p1x = etClusEndCap[j] * cos(phiClusEndCap[j]);
             float p0y = etClusEndCap[i] * sin(phiClusEndCap[i]);
@@ -1269,42 +1159,32 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
             float p0z = eClusEndCap[i] * cos(thetaClusEndCap[i]);
             float p1z = eClusEndCap[j] * cos(thetaClusEndCap[j]);
 
-            float pt_pair =
-                sqrt((p0x + p1x) * (p0x + p1x) + (p0y + p1y) * (p0y + p1y));
+            float pt_pair = sqrt((p0x + p1x) * (p0x + p1x) + (p0y + p1y) * (p0y + p1y));
             if (pt_pair < selePtPi0EndCap_)
               continue;
-            float m_inv =
-                sqrt((eClusEndCap[i] + eClusEndCap[j]) *
-                         (eClusEndCap[i] + eClusEndCap[j]) -
-                     (p0x + p1x) * (p0x + p1x) - (p0y + p1y) * (p0y + p1y) -
-                     (p0z + p1z) * (p0z + p1z));
+            float m_inv = sqrt((eClusEndCap[i] + eClusEndCap[j]) * (eClusEndCap[i] + eClusEndCap[j]) -
+                               (p0x + p1x) * (p0x + p1x) - (p0y + p1y) * (p0y + p1y) - (p0z + p1z) * (p0z + p1z));
 
-            if ((m_inv < seleMinvMaxPi0EndCap_) &&
-                (m_inv > seleMinvMinPi0EndCap_)) {
-
+            if ((m_inv < seleMinvMaxPi0EndCap_) && (m_inv > seleMinvMinPi0EndCap_)) {
               // New Loop on cluster to measure isolation:
               vector<int> IsoClus;
               IsoClus.clear();
               float Iso = 0;
-              TVector3 pairVect =
-                  TVector3((p0x + p1x), (p0y + p1y), (p0z + p1z));
+              TVector3 pairVect = TVector3((p0x + p1x), (p0y + p1y), (p0z + p1z));
               for (Int_t k = 0; k < nClusEndCap; k++) {
-
                 if (etClusEndCap[k] < ptMinForIsolationEndCap_)
                   continue;
 
                 if (k == i || k == j)
                   continue;
 
-                TVector3 clusVect =
-                    TVector3(etClusEndCap[k] * cos(phiClusEndCap[k]),
-                             etClusEndCap[k] * sin(phiClusEndCap[k]),
-                             eClusEndCap[k] * cos(thetaClusEndCap[k]));
+                TVector3 clusVect = TVector3(etClusEndCap[k] * cos(phiClusEndCap[k]),
+                                             etClusEndCap[k] * sin(phiClusEndCap[k]),
+                                             eClusEndCap[k] * cos(thetaClusEndCap[k]));
                 float dretacl = fabs(etaClusEndCap[k] - pairVect.Eta());
                 float drcl = clusVect.DeltaR(pairVect);
 
-                if (drcl < selePi0BeltDREndCap_ &&
-                    dretacl < selePi0BeltDetaEndCap_) {
+                if (drcl < selePi0BeltDREndCap_ && dretacl < selePi0BeltDetaEndCap_) {
                   Iso = Iso + etClusEndCap[k];
                   IsoClus.push_back(k);
                 }
@@ -1328,14 +1208,14 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
               }
             }
           }
-        } // End of the "j" loop over Simple Clusters
-      }   // End of the "i" loop over Simple Clusters
+        }  // End of the "j" loop over Simple Clusters
+      }    // End of the "i" loop over Simple Clusters
 
       //      cout<<"  (Simple Clustering) EE Pi0 candidates #:
       //      "<<npi0_se<<endl;
 
-    } // rhEEpi0
-  }   // isMonEEpi0
+    }  // rhEEpi0
+  }    // isMonEEpi0
 
   //================End of Pi0 endcap=======================//
 
@@ -1344,12 +1224,11 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
   // fill pi0 EE histos
   if (isMonEEeta_) {
     if (rhEEeta.isValid() && (!rhEEeta->empty())) {
-
       const EcalRecHitCollection *hitCollection_ee = rhEEeta.product();
       float etot = 0;
 
-      detIdEERecHits.clear(); //// EEDetId
-      EERecHits.clear();      /// EcalRecHit
+      detIdEERecHits.clear();  //// EEDetId
+      EERecHits.clear();       /// EcalRecHit
 
       std::vector<EcalRecHit> seedsEndCap;
       seedsEndCap.clear();
@@ -1378,7 +1257,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
           seedsEndCap.push_back(*ite);
 
         etot += ite->energy();
-      } // EE rechits
+      }  // EE rechits
 
       hNRecHitsEEeta_->Fill(rhEEeta->size());
       hMeanRecHitEnergyEEeta_->Fill(etot / rhEEeta->size());
@@ -1403,14 +1282,12 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seedsEndCap.begin();
-           itseed != seedsEndCap.end(); itseed++) {
+      for (std::vector<EcalRecHit>::iterator itseed = seedsEndCap.begin(); itseed != seedsEndCap.end(); itseed++) {
         EEDetId seed_id = itseed->id();
         std::vector<EEDetId>::const_iterator usedIds;
 
         bool seedAlreadyUsed = false;
-        for (usedIds = usedXtalsEndCap.begin();
-             usedIds != usedXtalsEndCap.end(); usedIds++) {
+        for (usedIds = usedXtalsEndCap.begin(); usedIds != usedXtalsEndCap.end(); usedIds++) {
           if (*usedIds == seed_id) {
             seedAlreadyUsed = true;
             break;
@@ -1419,8 +1296,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         if (seedAlreadyUsed)
           continue;
-        std::vector<DetId> clus_v =
-            topology_ee->getWindow(seed_id, clusEtaSize_, clusPhiSize_);
+        std::vector<DetId> clus_v = topology_ee->getWindow(seed_id, clusEtaSize_, clusPhiSize_);
         std::vector<std::pair<DetId, float>> clus_used;
 
         vector<EcalRecHit> RecHitsInWindow;
@@ -1428,13 +1304,11 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         float simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin();
-             det != clus_v.end(); det++) {
+        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
           EEDetId EEdet = *det;
 
           bool HitAlreadyUsed = false;
-          for (usedIds = usedXtalsEndCap.begin();
-               usedIds != usedXtalsEndCap.end(); usedIds++) {
+          for (usedIds = usedXtalsEndCap.begin(); usedIds != usedXtalsEndCap.end(); usedIds++) {
             if (*usedIds == *det) {
               HitAlreadyUsed = true;
               break;
@@ -1444,8 +1318,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
           if (HitAlreadyUsed)
             continue;
 
-          std::vector<EEDetId>::iterator itdet =
-              find(detIdEERecHits.begin(), detIdEERecHits.end(), EEdet);
+          std::vector<EEDetId>::iterator itdet = find(detIdEERecHits.begin(), detIdEERecHits.end(), EEdet);
           if (itdet == detIdEERecHits.end())
             continue;
 
@@ -1459,8 +1332,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
         if (simple_energy <= 0)
           continue;
 
-        math::XYZPoint clus_pos = posCalculator_.Calculate_Location(
-            clus_used, hitCollection_ee, geometryEE_p, geometryES_p);
+        math::XYZPoint clus_pos =
+            posCalculator_.Calculate_Location(clus_used, hitCollection_ee, geometryEE_p, geometryES_p);
 
         float theta_s = 2. * atan(exp(-clus_pos.eta()));
         float et_s = simple_energy * sin(theta_s);
@@ -1529,12 +1402,8 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
       for (Int_t i = 0; i < nClusEndCap; i++) {
         for (Int_t j = i + 1; j < nClusEndCap; j++) {
-
-          if (etClusEndCap[i] > selePtGammaEtaEndCap_ &&
-              etClusEndCap[j] > selePtGammaEtaEndCap_ &&
-              s4s9ClusEndCap[i] > seleS4S9GammaEtaEndCap_ &&
-              s4s9ClusEndCap[j] > seleS4S9GammaEtaEndCap_) {
-
+          if (etClusEndCap[i] > selePtGammaEtaEndCap_ && etClusEndCap[j] > selePtGammaEtaEndCap_ &&
+              s4s9ClusEndCap[i] > seleS4S9GammaEtaEndCap_ && s4s9ClusEndCap[j] > seleS4S9GammaEtaEndCap_) {
             float p0x = etClusEndCap[i] * cos(phiClusEndCap[i]);
             float p1x = etClusEndCap[j] * cos(phiClusEndCap[j]);
             float p0y = etClusEndCap[i] * sin(phiClusEndCap[i]);
@@ -1542,42 +1411,32 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
             float p0z = eClusEndCap[i] * cos(thetaClusEndCap[i]);
             float p1z = eClusEndCap[j] * cos(thetaClusEndCap[j]);
 
-            float pt_pair =
-                sqrt((p0x + p1x) * (p0x + p1x) + (p0y + p1y) * (p0y + p1y));
+            float pt_pair = sqrt((p0x + p1x) * (p0x + p1x) + (p0y + p1y) * (p0y + p1y));
             if (pt_pair < selePtEtaEndCap_)
               continue;
-            float m_inv =
-                sqrt((eClusEndCap[i] + eClusEndCap[j]) *
-                         (eClusEndCap[i] + eClusEndCap[j]) -
-                     (p0x + p1x) * (p0x + p1x) - (p0y + p1y) * (p0y + p1y) -
-                     (p0z + p1z) * (p0z + p1z));
+            float m_inv = sqrt((eClusEndCap[i] + eClusEndCap[j]) * (eClusEndCap[i] + eClusEndCap[j]) -
+                               (p0x + p1x) * (p0x + p1x) - (p0y + p1y) * (p0y + p1y) - (p0z + p1z) * (p0z + p1z));
 
-            if ((m_inv < seleMinvMaxEtaEndCap_) &&
-                (m_inv > seleMinvMinEtaEndCap_)) {
-
+            if ((m_inv < seleMinvMaxEtaEndCap_) && (m_inv > seleMinvMinEtaEndCap_)) {
               // New Loop on cluster to measure isolation:
               vector<int> IsoClus;
               IsoClus.clear();
               float Iso = 0;
-              TVector3 pairVect =
-                  TVector3((p0x + p1x), (p0y + p1y), (p0z + p1z));
+              TVector3 pairVect = TVector3((p0x + p1x), (p0y + p1y), (p0z + p1z));
               for (Int_t k = 0; k < nClusEndCap; k++) {
-
                 if (etClusEndCap[k] < ptMinForIsolationEtaEndCap_)
                   continue;
 
                 if (k == i || k == j)
                   continue;
 
-                TVector3 clusVect =
-                    TVector3(etClusEndCap[k] * cos(phiClusEndCap[k]),
-                             etClusEndCap[k] * sin(phiClusEndCap[k]),
-                             eClusEndCap[k] * cos(thetaClusEndCap[k]));
+                TVector3 clusVect = TVector3(etClusEndCap[k] * cos(phiClusEndCap[k]),
+                                             etClusEndCap[k] * sin(phiClusEndCap[k]),
+                                             eClusEndCap[k] * cos(thetaClusEndCap[k]));
                 float dretacl = fabs(etaClusEndCap[k] - pairVect.Eta());
                 float drcl = clusVect.DeltaR(pairVect);
 
-                if (drcl < seleEtaBeltDREndCap_ &&
-                    dretacl < seleEtaBeltDetaEndCap_) {
+                if (drcl < seleEtaBeltDREndCap_ && dretacl < seleEtaBeltDetaEndCap_) {
                   Iso = Iso + etClusEndCap[k];
                   IsoClus.push_back(k);
                 }
@@ -1601,14 +1460,14 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
               }
             }
           }
-        } // End of the "j" loop over Simple Clusters
-      }   // End of the "i" loop over Simple Clusters
+        }  // End of the "j" loop over Simple Clusters
+      }    // End of the "i" loop over Simple Clusters
 
       //      cout<<"  (Simple Clustering) EE Eta candidates #:
       //      "<<npi0_se<<endl;
 
-    } // rhEEeta
-  }   // isMonEEeta
+    }  // rhEEeta
+  }    // isMonEEeta
 
   //================End of Pi0 endcap=======================//
 
@@ -1625,7 +1484,7 @@ void DQMSourcePi0::convxtalid(Int_t &nphi, Int_t &neta) {
   if (nphi > 359)
     nphi = nphi - 360;
 
-} // end of convxtalid
+}  // end of convxtalid
 
 int DQMSourcePi0::diff_neta_s(Int_t neta1, Int_t neta2) {
   Int_t mdiff;

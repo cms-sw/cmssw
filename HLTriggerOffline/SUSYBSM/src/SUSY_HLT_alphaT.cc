@@ -9,21 +9,16 @@
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> LorentzV;
 
 SUSY_HLT_alphaT::SUSY_HLT_alphaT(const edm::ParameterSet &ps) {
-  edm::LogInfo("SUSY_HLT_alphaT")
-      << "Constructor SUSY_HLT_alphaT::SUSY_HLT_alphaT " << std::endl;
+  edm::LogInfo("SUSY_HLT_alphaT") << "Constructor SUSY_HLT_alphaT::SUSY_HLT_alphaT " << std::endl;
   // Get parameters from configuration file
-  theTrigSummary_ = consumes<trigger::TriggerEvent>(
-      ps.getParameter<edm::InputTag>("trigSummary"));
-  thePfJetCollection_ = consumes<reco::PFJetCollection>(
-      ps.getParameter<edm::InputTag>("pfJetCollection"));
+  theTrigSummary_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("trigSummary"));
+  thePfJetCollection_ = consumes<reco::PFJetCollection>(ps.getParameter<edm::InputTag>("pfJetCollection"));
   // theCaloJetCollection_ =
   // consumes<reco::CaloJetCollection>(ps.getParameter<edm::InputTag>("caloJetCollection"));
-  triggerResults_ = consumes<edm::TriggerResults>(
-      ps.getParameter<edm::InputTag>("TriggerResults"));
+  triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
   HLTProcess_ = ps.getParameter<std::string>("HLTProcess");
   triggerPath_ = ps.getParameter<std::string>("TriggerPath");
-  triggerPathAuxiliaryForHadronic_ =
-      ps.getParameter<std::string>("TriggerPathAuxiliaryForHadronic");
+  triggerPathAuxiliaryForHadronic_ = ps.getParameter<std::string>("TriggerPathAuxiliaryForHadronic");
   triggerFilter_ = ps.getParameter<edm::InputTag>("TriggerFilter");
   triggerPreFilter_ = ps.getParameter<edm::InputTag>("TriggerPreFilter");
   ptThrJet_ = ps.getUntrackedParameter<double>("PtThrJet");
@@ -36,18 +31,14 @@ SUSY_HLT_alphaT::SUSY_HLT_alphaT(const edm::ParameterSet &ps) {
 }
 
 SUSY_HLT_alphaT::~SUSY_HLT_alphaT() {
-  edm::LogInfo("SUSY_HLT_alphaT")
-      << "Destructor SUSY_HLT_alphaT::~SUSY_HLT_alphaT " << std::endl;
+  edm::LogInfo("SUSY_HLT_alphaT") << "Destructor SUSY_HLT_alphaT::~SUSY_HLT_alphaT " << std::endl;
 }
 
-void SUSY_HLT_alphaT::dqmBeginRun(edm::Run const &run,
-                                  edm::EventSetup const &e) {
-
+void SUSY_HLT_alphaT::dqmBeginRun(edm::Run const &run, edm::EventSetup const &e) {
   bool changed;
 
   if (!fHltConfig.init(run, e, HLTProcess_, changed)) {
-    edm::LogError("SUSY_HLT_alphaT")
-        << "Initialization of HLTConfigProvider failed!!";
+    edm::LogError("SUSY_HLT_alphaT") << "Initialization of HLTConfigProvider failed!!";
     return;
   }
 
@@ -73,17 +64,13 @@ void SUSY_HLT_alphaT::dqmBeginRun(edm::Run const &run,
   edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::beginRun" << std::endl;
 }
 
-void SUSY_HLT_alphaT::bookHistograms(DQMStore::IBooker &ibooker_,
-                                     edm::Run const &,
-                                     edm::EventSetup const &) {
-  edm::LogInfo("SUSY_HLT_alphaT")
-      << "SUSY_HLT_alphaT::bookHistograms" << std::endl;
+void SUSY_HLT_alphaT::bookHistograms(DQMStore::IBooker &ibooker_, edm::Run const &, edm::EventSetup const &) {
+  edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::bookHistograms" << std::endl;
   // book at beginRun
   bookHistos(ibooker_);
 }
 
-void SUSY_HLT_alphaT::analyze(edm::Event const &e,
-                              edm::EventSetup const &eSetup) {
+void SUSY_HLT_alphaT::analyze(edm::Event const &e, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::analyze" << std::endl;
 
   //-------------------------------
@@ -125,8 +112,7 @@ void SUSY_HLT_alphaT::analyze(edm::Event const &e,
   // For now just get the jets and recalculate ht and alphaT
   size_t filterIndex = triggerSummary->filterIndex(triggerFilter_);
   // size_t preFilterIndex = triggerSummary->filterIndex( triggerPreFilter_ );
-  trigger::TriggerObjectCollection triggerObjects =
-      triggerSummary->getObjects();
+  trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
 
   // Get the PF objects from the filter
   double hltPfHt = 0.;
@@ -138,11 +124,9 @@ void SUSY_HLT_alphaT::analyze(edm::Event const &e,
       trigger::TriggerObject foundObject = triggerObjects[keys[j]];
 
       //  if(foundObject.id() == 85){ //It's a jet
-      if (foundObject.pt() > ptThrJet_ &&
-          fabs(foundObject.eta()) < etaThrJet_) {
+      if (foundObject.pt() > ptThrJet_ && fabs(foundObject.eta()) < etaThrJet_) {
         hltPfHt += foundObject.pt();
-        LorentzV JetLVec(foundObject.pt(), foundObject.eta(), foundObject.phi(),
-                         foundObject.mass());
+        LorentzV JetLVec(foundObject.pt(), foundObject.eta(), foundObject.phi(), foundObject.mass());
         hltPfJets.push_back(JetLVec);
       }
       //   }
@@ -191,30 +175,25 @@ void SUSY_HLT_alphaT::analyze(edm::Event const &e,
   const edm::TriggerNames &trigNames = e.triggerNames(*hltresults);
   unsigned int numTriggers = trigNames.size();
   for (unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex) {
-    if (trigNames.triggerName(hltIndex).find(triggerPath_) !=
-            std::string::npos &&
-        hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex))
+    if (trigNames.triggerName(hltIndex).find(triggerPath_) != std::string::npos && hltresults->wasrun(hltIndex) &&
+        hltresults->accept(hltIndex))
       hasFired = true;
-    if (trigNames.triggerName(hltIndex).find(
-            triggerPathAuxiliaryForHadronic_) != std::string::npos &&
+    if (trigNames.triggerName(hltIndex).find(triggerPathAuxiliaryForHadronic_) != std::string::npos &&
         hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex))
       hasFiredAuxiliaryForHadronicLeg = true;
   }
 
   if (hasFiredAuxiliaryForHadronicLeg) {
-
     float pfHT = 0.0;
     std::vector<LorentzV> pfJets;
-    for (reco::PFJetCollection::const_iterator i_pfjet =
-             pfJetCollection->begin();
-         i_pfjet != pfJetCollection->end(); ++i_pfjet) {
+    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
+         ++i_pfjet) {
       if (i_pfjet->pt() < ptThrJet_)
         continue;
       if (fabs(i_pfjet->eta()) > etaThrJet_)
         continue;
       pfHT += i_pfjet->pt();
-      LorentzV JetLVec(i_pfjet->pt(), i_pfjet->eta(), i_pfjet->phi(),
-                       i_pfjet->mass());
+      LorentzV JetLVec(i_pfjet->pt(), i_pfjet->eta(), i_pfjet->phi(), i_pfjet->mass());
       pfJets.push_back(JetLVec);
     }
 
@@ -256,8 +235,7 @@ void SUSY_HLT_alphaT::analyze(edm::Event const &e,
   }
 }
 
-void SUSY_HLT_alphaT::endRun(edm::Run const &run,
-                             edm::EventSetup const &eSetup) {
+void SUSY_HLT_alphaT::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::endRun" << std::endl;
 }
 
@@ -274,14 +252,16 @@ void SUSY_HLT_alphaT::bookHistos(DQMStore::IBooker &ibooker_) {
   // 0., 1.0); h_triggerCaloAlphaT_triggerCaloHt =
   // ibooker_.book2D("triggerCaloAlphaT_triggerCaloHt","Trigger Calo HT vs
   // Trigger Calo AlphaT; HT (GeV); AlphaT", 60,0.0,1500.,80,0.,1.0);
-  h_triggerPfHt = ibooker_.book1D("triggerPfHt", "Trigger PF Ht; HT (GeV)", 60,
-                                  0.0, 1500.0);
-  h_triggerPfAlphaT = ibooker_.book1D("triggerPfAlphaT",
-                                      "Trigger PF AlphaT; AlphaT", 80, 0., 1.0);
-  h_triggerPfAlphaT_triggerPfHt =
-      ibooker_.book2D("triggerPfAlphaT_triggerPfHt",
-                      "Trigger PF HT vs Trigger PF AlphaT; HT (GeV); AlphaT",
-                      60, 0.0, 1500., 80, 0., 1.0);
+  h_triggerPfHt = ibooker_.book1D("triggerPfHt", "Trigger PF Ht; HT (GeV)", 60, 0.0, 1500.0);
+  h_triggerPfAlphaT = ibooker_.book1D("triggerPfAlphaT", "Trigger PF AlphaT; AlphaT", 80, 0., 1.0);
+  h_triggerPfAlphaT_triggerPfHt = ibooker_.book2D("triggerPfAlphaT_triggerPfHt",
+                                                  "Trigger PF HT vs Trigger PF AlphaT; HT (GeV); AlphaT",
+                                                  60,
+                                                  0.0,
+                                                  1500.,
+                                                  80,
+                                                  0.,
+                                                  1.0);
 
   // num and den hists to be divided in harvesting step to make turn on curves
   // h_caloAlphaTTurnOn_num = ibooker_.book1D("caloAlphaTTurnOn_num", "Calo
@@ -292,16 +272,10 @@ void SUSY_HLT_alphaT::bookHistos(DQMStore::IBooker &ibooker_) {
   // 30, 0.0, 1500.0 ); h_caloHtTurnOn_den = ibooker_.book1D("caloHtTurnOn_den",
   // "Calo HT Turn On Denominator; HT (GeV)", 30, 0.0, 1500.0 );
 
-  h_pfAlphaTTurnOn_num =
-      ibooker_.book1D("pfAlphaTTurnOn_num",
-                      "PF AlphaT Turn On Numerator; AlphaT", 40, 0.0, 1.0);
-  h_pfAlphaTTurnOn_den =
-      ibooker_.book1D("pfAlphaTTurnOn_den",
-                      "PF AlphaT Turn OnDenominator; AlphaT", 40, 0.0, 1.0);
-  h_pfHtTurnOn_num = ibooker_.book1D(
-      "pfHtTurnOn_num", "PF HT Turn On Numerator; HT (GeV)", 30, 0.0, 1500.0);
-  h_pfHtTurnOn_den = ibooker_.book1D(
-      "pfHtTurnOn_den", "PF HT Turn On Denominator; HT (GeV)", 30, 0.0, 1500.0);
+  h_pfAlphaTTurnOn_num = ibooker_.book1D("pfAlphaTTurnOn_num", "PF AlphaT Turn On Numerator; AlphaT", 40, 0.0, 1.0);
+  h_pfAlphaTTurnOn_den = ibooker_.book1D("pfAlphaTTurnOn_den", "PF AlphaT Turn OnDenominator; AlphaT", 40, 0.0, 1.0);
+  h_pfHtTurnOn_num = ibooker_.book1D("pfHtTurnOn_num", "PF HT Turn On Numerator; HT (GeV)", 30, 0.0, 1500.0);
+  h_pfHtTurnOn_den = ibooker_.book1D("pfHtTurnOn_den", "PF HT Turn On Denominator; HT (GeV)", 30, 0.0, 1500.0);
 
   ibooker_.cd();
 }

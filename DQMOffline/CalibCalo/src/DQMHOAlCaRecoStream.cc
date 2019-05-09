@@ -56,20 +56,15 @@ using namespace edm;
 // constructors and destructor
 //
 DQMHOAlCaRecoStream::DQMHOAlCaRecoStream(const edm::ParameterSet &iConfig)
-    : hoCalibVariableCollectionTag(consumes<HOCalibVariableCollection>(
-          iConfig.getParameter<edm::InputTag>(
-              "hoCalibVariableCollectionTag"))) {
-
+    : hoCalibVariableCollectionTag(
+          consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"))) {
   // now do what ever initialization is needed
 
-  theRootFileName =
-      iConfig.getUntrackedParameter<string>("RootFileName", "tmp.root");
+  theRootFileName = iConfig.getUntrackedParameter<string>("RootFileName", "tmp.root");
   folderName_ = iConfig.getUntrackedParameter<string>("folderName");
   m_sigmaValue = iConfig.getUntrackedParameter<double>("sigmaval", 0.2);
-  m_lowRadPosInMuch =
-      iConfig.getUntrackedParameter<double>("lowradposinmuch", 400.0);
-  m_highRadPosInMuch =
-      iConfig.getUntrackedParameter<double>("highradposinmuch", 480.0);
+  m_lowRadPosInMuch = iConfig.getUntrackedParameter<double>("lowradposinmuch", 400.0);
+  m_highRadPosInMuch = iConfig.getUntrackedParameter<double>("highradposinmuch", 480.0);
   m_lowEdge = iConfig.getUntrackedParameter<double>("lowedge", -2.0);
   m_highEdge = iConfig.getUntrackedParameter<double>("highedge", 6.0);
   m_nbins = iConfig.getUntrackedParameter<int>("nbins", 40);
@@ -77,7 +72,6 @@ DQMHOAlCaRecoStream::DQMHOAlCaRecoStream(const edm::ParameterSet &iConfig)
 }
 
 DQMHOAlCaRecoStream::~DQMHOAlCaRecoStream() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -87,8 +81,7 @@ DQMHOAlCaRecoStream::~DQMHOAlCaRecoStream() {
 //
 
 // ------------ method called to for each event  ------------
-void DQMHOAlCaRecoStream::analyze(const edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
+void DQMHOAlCaRecoStream::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
   Nevents++;
@@ -99,16 +92,14 @@ void DQMHOAlCaRecoStream::analyze(const edm::Event &iEvent,
   iEvent.getByToken(hoCalibVariableCollectionTag, HOCalib);
 
   if (!HOCalib.isValid()) {
-    LogDebug("") << "DQMHOAlCaRecoStream:: Error! can't get HOCalib product!"
-                 << std::endl;
+    LogDebug("") << "DQMHOAlCaRecoStream:: Error! can't get HOCalib product!" << std::endl;
     return;
   }
 
   if (isCosMu) {
     hMuonMultipl->Fill((*HOCalib).size(), 1.);
     if (!(*HOCalib).empty()) {
-      for (HOCalibVariableCollection::const_iterator hoC = (*HOCalib).begin();
-           hoC != (*HOCalib).end(); hoC++) {
+      for (HOCalibVariableCollection::const_iterator hoC = (*HOCalib).begin(); hoC != (*HOCalib).end(); hoC++) {
         // OK!!!!
         float okt = 2.;
         double okx = std::pow((*hoC).trkvx, okt) + std::pow((*hoC).trkvy, okt);
@@ -153,9 +144,9 @@ void DQMHOAlCaRecoStream::analyze(const edm::Event &iEvent,
         for (int k = 0; k < 9; k++) {
           hSignal3x3[k]->Fill((*hoC).hosig[k]);
         }
-      } // for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin()
-    }   // if ((*HOCalib).size() >0 ) {
-  }     // if (isCosMu) {
+      }  // for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin()
+    }    // if ((*HOCalib).size() >0 ) {
+  }      // if (isCosMu) {
 }
 
 // ------------ method called once each job just before starting event loop
@@ -171,20 +162,16 @@ void DQMHOAlCaRecoStream::bookHistograms(DQMStore::IBooker &ibooker,
   hMuonMom = ibooker.book1D("hMuonMom", "Muon momentum (GeV)", 50, -100, 100);
   hMuonMom->setAxisTitle("Muon momentum (GeV)", 1);
 
-  hMuonEta =
-      ibooker.book1D("hMuonEta", "Pseudo-rapidity of muon", 50, -1.5, 1.5);
+  hMuonEta = ibooker.book1D("hMuonEta", "Pseudo-rapidity of muon", 50, -1.5, 1.5);
   hMuonEta->setAxisTitle("Pseudo-rapidity of muon", 1);
 
-  hMuonPhi = ibooker.book1D("hMuonPhi", "Azimuthal angle of muon", 24,
-                            -acos(-1), acos(-1));
+  hMuonPhi = ibooker.book1D("hMuonPhi", "Azimuthal angle of muon", 24, -acos(-1), acos(-1));
   hMuonPhi->setAxisTitle("Azimuthal angle of muon", 1);
 
-  hMuonMultipl =
-      ibooker.book1D("hMuonMultipl", "Muon Multiplicity", 10, 0.5, 10.5);
+  hMuonMultipl = ibooker.book1D("hMuonMultipl", "Muon Multiplicity", 10, 0.5, 10.5);
   hMuonMultipl->setAxisTitle("Muon Multiplicity", 1);
 
-  hDirCosine = ibooker.book1D(
-      "hDirCosine", "Direction Cosine of muon at HO tower", 50, -1., 1.);
+  hDirCosine = ibooker.book1D("hDirCosine", "Direction Cosine of muon at HO tower", 50, -1., 1.);
   hDirCosine->setAxisTitle("Direction Cosine of muon at HO tower", 1);
 
   hHOTime = ibooker.book1D("hHOTime", "HO time distribution", 60, -20, 100.);
@@ -228,8 +215,7 @@ void DQMHOAlCaRecoStream::bookHistograms(DQMStore::IBooker &ibooker,
       int k = 3 * (i + 1) + j + 1;
 
       sprintf(title, "hSignal3x3_deta%i_dphi%i", i, j);
-      hSignal3x3[k] =
-          ibooker.book1D(title, title, m_nbins, m_lowEdge, m_highEdge);
+      hSignal3x3[k] = ibooker.book1D(title, title, m_nbins, m_lowEdge, m_highEdge);
       hSignal3x3[k]->setAxisTitle(title, 1);
     }
   }

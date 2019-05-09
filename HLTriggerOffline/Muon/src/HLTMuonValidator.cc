@@ -34,15 +34,13 @@
 //////// Define the interface ////////////////////////////////////////////////
 
 class HLTMuonValidator : public DQMEDAnalyzer {
-
 public:
   explicit HLTMuonValidator(const edm::ParameterSet &);
 
 private:
   // Analyzer Methods
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endRun(const edm::Run &, const edm::EventSetup &) override;
 
@@ -78,14 +76,13 @@ typedef vector<string> vstring;
 //////// Class Methods ///////////////////////////////////////////////////////
 
 HLTMuonValidator::HLTMuonValidator(const ParameterSet &pset)
-    : pset_(pset), hltProcessName_(pset.getParameter<string>("hltProcessName")),
+    : pset_(pset),
+      hltProcessName_(pset.getParameter<string>("hltProcessName")),
       hltPathsToCheck_(pset.getParameter<vstring>("hltPathsToCheck")) {
-
   myTokens_ = HLTMuonPlotter::getTokens(pset_, consumesCollector());
 }
 
 vector<string> HLTMuonValidator::moduleLabels(string path) {
-
   vector<string> modules = hltConfig_.moduleLabels(path);
   vector<string>::iterator iter = modules.begin();
 
@@ -133,8 +130,7 @@ vector<string> HLTMuonValidator::stepLabels(const vector<string> &modules) {
   return steps;
 }
 
-void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun,
-                                   const edm::EventSetup &iSetup) {
+void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   // Initialize hltConfig
   bool changedConfig;
   if (!hltConfig_.init(iRun, iSetup, hltProcessName_, changedConfig)) {
@@ -155,7 +151,6 @@ void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun,
   analyzers_.clear();
   set<string>::iterator iPath;
   for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
-
     string path = *iPath;
     string shortpath = path;
     if (path.rfind("_v") < path.length())
@@ -171,10 +166,7 @@ void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun,
   }
 }
 
-void HLTMuonValidator::bookHistograms(DQMStore::IBooker &iBooker,
-                                      edm::Run const &iRun,
-                                      edm::EventSetup const &iSetup) {
-
+void HLTMuonValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::EventSetup const &iSetup) {
   // Call the beginRun (which books all the histograms)
   vector<HLTMuonPlotter>::iterator iter;
   for (iter = analyzers_.begin(); iter != analyzers_.end(); ++iter) {
@@ -183,16 +175,13 @@ void HLTMuonValidator::bookHistograms(DQMStore::IBooker &iBooker,
 }
 
 void HLTMuonValidator::analyze(const Event &iEvent, const EventSetup &iSetup) {
-
   vector<HLTMuonPlotter>::iterator iter;
   for (iter = analyzers_.begin(); iter != analyzers_.end(); ++iter) {
     iter->analyze(iEvent, iSetup);
   }
 }
 
-void HLTMuonValidator::endRun(const edm::Run &iRun,
-                              const edm::EventSetup &iSetup) {
-
+void HLTMuonValidator::endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   // vector<HLTMuonPlotter>::iterator iter;
   // for (iter = analyzers_.begin(); iter != analyzers_.end(); ++iter) {
   //   iter->endRun(iRun, iSetup);

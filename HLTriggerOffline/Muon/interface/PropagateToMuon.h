@@ -21,8 +21,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-class DetLayer; // #include "TrackingTools/DetLayers/interface/DetLayer.h" //
-                // forward declaration can suffice
+class DetLayer;  // #include "TrackingTools/DetLayers/interface/DetLayer.h" //
+                 // forward declaration can suffice
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
@@ -37,15 +37,11 @@ public:
 
   /// Extrapolate reco::Track to the muon station 2, return an invalid TSOS if
   /// it fails
-  TrajectoryStateOnSurface extrapolate(const reco::Track &tk) const {
-    return extrapolate(startingState(tk));
-  }
+  TrajectoryStateOnSurface extrapolate(const reco::Track &tk) const { return extrapolate(startingState(tk)); }
 
   /// Extrapolate reco::Candidate to the muon station 2, return an invalid TSOS
   /// if it fails
-  TrajectoryStateOnSurface extrapolate(const reco::Candidate &tk) const {
-    return extrapolate(startingState(tk));
-  }
+  TrajectoryStateOnSurface extrapolate(const reco::Candidate &tk) const { return extrapolate(startingState(tk)); }
 
   /// Extrapolate a FreeTrajectoryState to the muon station 2, return an invalid
   /// TSOS if it fails
@@ -82,8 +78,7 @@ private:
 
   /// Get the best TSOS on one of the chambres of this DetLayer, or an invalid
   /// TSOS if none match
-  TrajectoryStateOnSurface getBestDet(const TrajectoryStateOnSurface &tsos,
-                                      const DetLayer *station) const;
+  TrajectoryStateOnSurface getBestDet(const TrajectoryStateOnSurface &tsos, const DetLayer *station) const;
 };
 
 #endif

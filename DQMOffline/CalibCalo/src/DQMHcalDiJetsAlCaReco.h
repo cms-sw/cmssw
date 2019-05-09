@@ -24,14 +24,12 @@
 class MonitorElement;
 
 class DQMHcalDiJetsAlCaReco : public DQMEDAnalyzer {
-
 public:
   DQMHcalDiJetsAlCaReco(const edm::ParameterSet &);
   ~DQMHcalDiJetsAlCaReco() override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
 private:

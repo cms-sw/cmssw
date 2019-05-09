@@ -59,8 +59,7 @@ public:
   HcalRecHitsAnalyzer(edm::ParameterSet const &conf);
 
   void analyze(edm::Event const &ev, edm::EventSetup const &c) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   // virtual void beginRun(edm::Run const& run, edm::EventSetup const& c)
   // override;
   void dqmBeginRun(const edm::Run &run, const edm::EventSetup &c) override;
@@ -85,7 +84,7 @@ private:
   const HcalDDDRecConstants *hcons;
   int maxDepthHB_, maxDepthHE_, maxDepthHO_, maxDepthHF_, maxDepthAll_;
 
-  int nChannels_[5]; // 0:any, 1:HB, 2:HE
+  int nChannels_[5];  // 0:any, 1:HB, 2:HE
 
   int iphi_bins_;
   float iphi_min_, iphi_max_;
@@ -116,8 +115,7 @@ private:
   const HcalSeverityLevelComputer *theHcalSevLvlComputer;
   int hcalSevLvl(const CaloRecHit *hit);
 
-  std::vector<int> hcalHBSevLvlVec, hcalHESevLvlVec, hcalHFSevLvlVec,
-      hcalHOSevLvlVec;
+  std::vector<int> hcalHBSevLvlVec, hcalHESevLvlVec, hcalHFSevLvlVec, hcalHOSevLvlVec;
 
   MonitorElement *sevLvl_HB;
   MonitorElement *sevLvl_HE;

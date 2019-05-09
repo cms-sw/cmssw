@@ -19,47 +19,45 @@
 #include "string"
 
 namespace hcaldqm {
-namespace electronicsmap {
-enum ElectronicsMapType {
-  fHcalElectronicsMap = 0,
-  fD2EHashMap = 1,
-  fT2EHashMap = 2,
-  fE2DHashMap = 3,
-  fE2THashMap = 4,
-  nElectronicsMapType = 5
-};
+  namespace electronicsmap {
+    enum ElectronicsMapType {
+      fHcalElectronicsMap = 0,
+      fD2EHashMap = 1,
+      fT2EHashMap = 2,
+      fE2DHashMap = 3,
+      fE2THashMap = 4,
+      nElectronicsMapType = 5
+    };
 
-class ElectronicsMap {
-public:
-  ElectronicsMap() : _emap(nullptr) {}
-  //	define how to use upon construction
-  ElectronicsMap(ElectronicsMapType etype) : _etype(etype), _emap(nullptr) {}
-  ~ElectronicsMap() {}
+    class ElectronicsMap {
+    public:
+      ElectronicsMap() : _emap(nullptr) {}
+      //	define how to use upon construction
+      ElectronicsMap(ElectronicsMapType etype) : _etype(etype), _emap(nullptr) {}
+      ~ElectronicsMap() {}
 
-  void initialize(HcalElectronicsMap const *,
-                  ElectronicsMapType etype = fHcalElectronicsMap);
+      void initialize(HcalElectronicsMap const *, ElectronicsMapType etype = fHcalElectronicsMap);
 
-  //	filter is to filter things you do not need out
-  void initialize(HcalElectronicsMap const *, ElectronicsMapType,
-                  filter::HashFilter const &);
-  uint32_t lookup(DetId const &);
-  uint32_t lookup(HcalDetId const &);
-  uint32_t lookup(HcalElectronicsId const &);
+      //	filter is to filter things you do not need out
+      void initialize(HcalElectronicsMap const *, ElectronicsMapType, filter::HashFilter const &);
+      uint32_t lookup(DetId const &);
+      uint32_t lookup(HcalDetId const &);
+      uint32_t lookup(HcalElectronicsId const &);
 
-  void print();
+      void print();
 
-private:
-  //	configures how to use emap
-  ElectronicsMapType _etype;
+    private:
+      //	configures how to use emap
+      ElectronicsMapType _etype;
 
-  //	2 choices either use as HcalElectronicsMap or as ur hash
-  typedef boost::unordered_map<uint32_t, uint32_t> EMapType;
-  EMapType _ids;
+      //	2 choices either use as HcalElectronicsMap or as ur hash
+      typedef boost::unordered_map<uint32_t, uint32_t> EMapType;
+      EMapType _ids;
 
-  //
-  HcalElectronicsMap const *_emap;
-};
-} // namespace electronicsmap
-} // namespace hcaldqm
+      //
+      HcalElectronicsMap const *_emap;
+    };
+  }  // namespace electronicsmap
+}  // namespace hcaldqm
 
 #endif

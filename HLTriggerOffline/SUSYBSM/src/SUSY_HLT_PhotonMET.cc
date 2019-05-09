@@ -6,15 +6,11 @@
 #include "HLTriggerOffline/SUSYBSM/interface/SUSY_HLT_PhotonMET.h"
 
 SUSY_HLT_PhotonMET::SUSY_HLT_PhotonMET(const edm::ParameterSet &ps) {
-  edm::LogInfo("SUSY_HLT_PhotonMET")
-      << "Constructor SUSY_HLT_PhotonMET::SUSY_HLT_PhotonMET " << std::endl;
+  edm::LogInfo("SUSY_HLT_PhotonMET") << "Constructor SUSY_HLT_PhotonMET::SUSY_HLT_PhotonMET " << std::endl;
   // Get parameters from configuration file
-  thePfMETCollection_ = consumes<reco::PFMETCollection>(
-      ps.getParameter<edm::InputTag>("pfMETCollection"));
-  thePhotonCollection_ = consumes<reco::PhotonCollection>(
-      ps.getParameter<edm::InputTag>("photonCollection"));
-  triggerResults_ = consumes<edm::TriggerResults>(
-      ps.getParameter<edm::InputTag>("TriggerResults"));
+  thePfMETCollection_ = consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("pfMETCollection"));
+  thePhotonCollection_ = consumes<reco::PhotonCollection>(ps.getParameter<edm::InputTag>("photonCollection"));
+  triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
   triggerPath_ = ps.getParameter<std::string>("TriggerPath");
   triggerPathBase_ = ps.getParameter<std::string>("TriggerPathBase");
   ptThrOffline_ = ps.getUntrackedParameter<double>("ptThrOffline");
@@ -22,29 +18,21 @@ SUSY_HLT_PhotonMET::SUSY_HLT_PhotonMET(const edm::ParameterSet &ps) {
 }
 
 SUSY_HLT_PhotonMET::~SUSY_HLT_PhotonMET() {
-  edm::LogInfo("SUSY_HLT_PhotonMET")
-      << "Destructor SUSY_HLT_PhotonMET::~SUSY_HLT_PhotonMET " << std::endl;
+  edm::LogInfo("SUSY_HLT_PhotonMET") << "Destructor SUSY_HLT_PhotonMET::~SUSY_HLT_PhotonMET " << std::endl;
 }
 
-void SUSY_HLT_PhotonMET::dqmBeginRun(edm::Run const &,
-                                     edm::EventSetup const &) {
-  edm::LogInfo("SUSY_HLT_PhotonMET")
-      << "SUSY_HLT_PhotonMET::beginRun" << std::endl;
+void SUSY_HLT_PhotonMET::dqmBeginRun(edm::Run const &, edm::EventSetup const &) {
+  edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::beginRun" << std::endl;
 }
 
-void SUSY_HLT_PhotonMET::bookHistograms(DQMStore::IBooker &ibooker_,
-                                        edm::Run const &,
-                                        edm::EventSetup const &) {
-  edm::LogInfo("SUSY_HLT_PhotonMET")
-      << "SUSY_HLT_PhotonMET::bookHistograms" << std::endl;
+void SUSY_HLT_PhotonMET::bookHistograms(DQMStore::IBooker &ibooker_, edm::Run const &, edm::EventSetup const &) {
+  edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::bookHistograms" << std::endl;
   // book at beginRun
   bookHistos(ibooker_);
 }
 
-void SUSY_HLT_PhotonMET::analyze(edm::Event const &e,
-                                 edm::EventSetup const &eSetup) {
-  edm::LogInfo("SUSY_HLT_PhotonMET")
-      << "SUSY_HLT_PhotonMET::analyze" << std::endl;
+void SUSY_HLT_PhotonMET::analyze(edm::Event const &e, edm::EventSetup const &eSetup) {
+  edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::analyze" << std::endl;
 
   //-------------------------------
   //--- MET
@@ -77,15 +65,12 @@ void SUSY_HLT_PhotonMET::analyze(edm::Event const &e,
   }
 
   // use only events with leading photon in barrel
-  if (photonCollection->empty() ||
-      abs(photonCollection->begin()->superCluster()->eta()) > 1.4442)
+  if (photonCollection->empty() || abs(photonCollection->begin()->superCluster()->eta()) > 1.4442)
     return;
 
   // get reco photon and met
-  float const recoPhotonPt =
-      !photonCollection->empty() ? photonCollection->begin()->et() : 0;
-  float const recoMET =
-      !pfMETCollection->empty() ? pfMETCollection->begin()->et() : 0;
+  float const recoPhotonPt = !photonCollection->empty() ? photonCollection->begin()->et() : 0;
+  float const recoMET = !pfMETCollection->empty() ? pfMETCollection->begin()->et() : 0;
   h_recoPhotonPt->Fill(recoPhotonPt);
   h_recoMet->Fill(recoMET);
 
@@ -94,13 +79,11 @@ void SUSY_HLT_PhotonMET::analyze(edm::Event const &e,
   edm::TriggerNames const &trigNames = e.triggerNames(*hltresults);
   unsigned int const numTriggers = trigNames.size();
   for (unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex) {
-    if (trigNames.triggerName(hltIndex).find(triggerPath_) !=
-            std::string::npos &&
-        hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex))
+    if (trigNames.triggerName(hltIndex).find(triggerPath_) != std::string::npos && hltresults->wasrun(hltIndex) &&
+        hltresults->accept(hltIndex))
       hasFired = true;
-    if (trigNames.triggerName(hltIndex).find(triggerPathBase_) !=
-            std::string::npos &&
-        hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex))
+    if (trigNames.triggerName(hltIndex).find(triggerPathBase_) != std::string::npos && hltresults->wasrun(hltIndex) &&
+        hltresults->accept(hltIndex))
       hasFiredBaseTrigger = true;
   }
 
@@ -120,10 +103,8 @@ void SUSY_HLT_PhotonMET::analyze(edm::Event const &e,
   }
 }
 
-void SUSY_HLT_PhotonMET::endRun(edm::Run const &run,
-                                edm::EventSetup const &eSetup) {
-  edm::LogInfo("SUSY_HLT_PhotonMET")
-      << "SUSY_HLT_PhotonMET::endRun" << std::endl;
+void SUSY_HLT_PhotonMET::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
+  edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::endRun" << std::endl;
 }
 
 void SUSY_HLT_PhotonMET::bookHistos(DQMStore::IBooker &ibooker_) {
@@ -131,20 +112,12 @@ void SUSY_HLT_PhotonMET::bookHistos(DQMStore::IBooker &ibooker_) {
   ibooker_.setCurrentFolder("HLT/SUSYBSM/" + triggerPath_);
 
   // offline quantities
-  h_recoPhotonPt = ibooker_.book1D(
-      "recoPhotonPt", "reco Photon transverse momentum; p_{T} (GeV)", 20, 0,
-      1000);
-  h_recoMet = ibooker_.book1D(
-      "recoMet", "reco Missing transverse energy;E_{T}^{miss} (GeV)", 20, 0,
-      1000);
-  h_metTurnOn_num = ibooker_.book1D("pfMetTurnOn_num",
-                                    "PF MET Turn On Numerator", 20, 0, 500);
-  h_metTurnOn_den = ibooker_.book1D("pfMetTurnOn_den",
-                                    "PF MET Turn On Denominator", 20, 0, 500);
-  h_photonTurnOn_num = ibooker_.book1D("photonTurnOn_num",
-                                       "Photon Turn On Numerator", 20, 0, 1000);
-  h_photonTurnOn_den = ibooker_.book1D(
-      "photonTurnOn_den", "Photon Turn On Denominator", 20, 0, 1000);
+  h_recoPhotonPt = ibooker_.book1D("recoPhotonPt", "reco Photon transverse momentum; p_{T} (GeV)", 20, 0, 1000);
+  h_recoMet = ibooker_.book1D("recoMet", "reco Missing transverse energy;E_{T}^{miss} (GeV)", 20, 0, 1000);
+  h_metTurnOn_num = ibooker_.book1D("pfMetTurnOn_num", "PF MET Turn On Numerator", 20, 0, 500);
+  h_metTurnOn_den = ibooker_.book1D("pfMetTurnOn_den", "PF MET Turn On Denominator", 20, 0, 500);
+  h_photonTurnOn_num = ibooker_.book1D("photonTurnOn_num", "Photon Turn On Numerator", 20, 0, 1000);
+  h_photonTurnOn_den = ibooker_.book1D("photonTurnOn_den", "Photon Turn On Denominator", 20, 0, 1000);
 
   ibooker_.cd();
 }

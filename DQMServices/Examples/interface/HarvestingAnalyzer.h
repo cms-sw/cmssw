@@ -32,7 +32,6 @@
 #include "TString.h"
 
 class HarvestingAnalyzer : public edm::EDAnalyzer {
-
 public:
   explicit HarvestingAnalyzer(const edm::ParameterSet &);
   ~HarvestingAnalyzer() override;

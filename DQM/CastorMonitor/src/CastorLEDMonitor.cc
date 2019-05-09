@@ -15,16 +15,13 @@ CastorLEDMonitor::CastorLEDMonitor(const edm::ParameterSet &ps) {
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);
   if (fVerbosity > 0)
     std::cout << "CastorLEDMonitor Constructor: " << this << std::endl;
-  subsystemname =
-      ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor");
+  subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor");
   ievt_ = 0;
 }
 
 CastorLEDMonitor::~CastorLEDMonitor() {}
 
-void CastorLEDMonitor::bookHistograms(DQMStore::IBooker &ibooker,
-                                      const edm::Run &iRun,
-                                      const edm::EventSetup &iSetup) {
+void CastorLEDMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iRun, const edm::EventSetup &iSetup) {
   char s[60];
 
   ibooker.setCurrentFolder(subsystemname + "/CastorLEDMonitor");
@@ -42,8 +39,7 @@ void CastorLEDMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   return;
 }
 
-void CastorLEDMonitor::processEvent(const CastorDigiCollection &castorDigis,
-                                    const CastorDbService &cond) {
+void CastorLEDMonitor::processEvent(const CastorDigiCollection &castorDigis, const CastorDbService &cond) {
   if (fVerbosity > 0)
     std::cout << "CastorLEDMonitor::processEvent (start)" << std::endl;
 
@@ -56,13 +52,11 @@ void CastorLEDMonitor::processEvent(const CastorDigiCollection &castorDigis,
 
   if (castorDigis.empty()) {
     if (fVerbosity > 0)
-      std::cout << "CastorLEDMonitor::processEvent NO Castor Digis"
-                << std::endl;
+      std::cout << "CastorLEDMonitor::processEvent NO Castor Digis" << std::endl;
     return;
   }
 
-  for (CastorDigiCollection::const_iterator j = castorDigis.begin();
-       j != castorDigis.end(); j++) {
+  for (CastorDigiCollection::const_iterator j = castorDigis.begin(); j != castorDigis.end(); j++) {
     const CastorDataFrame digi = (const CastorDataFrame)(*j);
     int module = digi.id().module() - 1;
     int sector = digi.id().sector() - 1;
@@ -76,7 +70,7 @@ void CastorLEDMonitor::processEvent(const CastorDigiCollection &castorDigis,
     // int ind = sector*14 + module;
     // h2QvsPMT->Fill(ind,qsum);
     h2qMap->Fill(module, sector, qsum);
-  } // end for(CastorDigiCollection::const_iterator j=castorDigis...
+  }  // end for(CastorDigiCollection::const_iterator j=castorDigis...
 
   ievt_++;
   if (ievt_ % 100 == 0) {
