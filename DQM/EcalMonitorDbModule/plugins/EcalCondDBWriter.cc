@@ -14,22 +14,19 @@
 
 void setBit(int &_bitArray, unsigned _iBit) { _bitArray |= (0x1 << _iBit); }
 
-bool getBit(int &_bitArray, unsigned _iBit) {
-  return (_bitArray & (0x1 << _iBit)) != 0;
-}
+bool getBit(int &_bitArray, unsigned _iBit) { return (_bitArray & (0x1 << _iBit)) != 0; }
 
 EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const &_ps)
-    : runNumber_(0), db_(nullptr),
+    : runNumber_(0),
+      db_(nullptr),
       location_(_ps.getUntrackedParameter<std::string>("location")),
       runType_(_ps.getUntrackedParameter<std::string>("runType")),
       runGeneralTag_(_ps.getUntrackedParameter<std::string>("runGeneralTag")),
-      monRunGeneralTag_(
-          _ps.getUntrackedParameter<std::string>("monRunGeneralTag")),
+      monRunGeneralTag_(_ps.getUntrackedParameter<std::string>("monRunGeneralTag")),
       summaryWriter_(_ps.getUntrackedParameterSet("workerParams")),
       verbosity_(_ps.getUntrackedParameter<int>("verbosity")),
       executed_(false) {
-  std::vector<std::string> inputRootFiles(
-      _ps.getUntrackedParameter<std::vector<std::string>>("inputRootFiles"));
+  std::vector<std::string> inputRootFiles(_ps.getUntrackedParameter<std::vector<std::string>>("inputRootFiles"));
 
   if (inputRootFiles.empty())
     throw cms::Exception("Configuration") << "No input ROOT file given";
@@ -48,14 +45,12 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const &_ps)
     TPRegexp pat("DQM_V[0-9]+(?:|_[0-9a-zA-Z]+)_R([0-9]+)");
     std::unique_ptr<TObjArray> matches(pat.MatchS(fileName.c_str()));
     if (matches->GetEntries() == 0)
-      throw cms::Exception("Configuration")
-          << "Input file " << fileName << " is not an DQM output";
+      throw cms::Exception("Configuration") << "Input file " << fileName << " is not an DQM output";
 
     if (iF == 0)
       runNumber_ = TString(matches->At(1)->GetName()).Atoi();
     else if (TString(matches->At(1)->GetName()).Atoi() != runNumber_)
-      throw cms::Exception("Configuration")
-          << "Input files disagree in run number";
+      throw cms::Exception("Configuration") << "Input files disagree in run number";
 
     dqmStore.open(fileName, false, "", "", DQMStore::StripRunDirs);
   }
@@ -72,13 +67,12 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const &_ps)
     edm::LogInfo("EcalDQM") << "Establishing DB connection";
 
   try {
-    db = std::unique_ptr<EcalCondDBInterface>(
-        new EcalCondDBInterface(DBName, userName, password));
+    db = std::unique_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
   } catch (std::runtime_error &re) {
     if (!hostName.empty()) {
       try {
-        db = std::unique_ptr<EcalCondDBInterface>(new EcalCondDBInterface(
-            hostName, DBName, userName, password, hostPort));
+        db = std::unique_ptr<EcalCondDBInterface>(
+            new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
       } catch (std::runtime_error &re2) {
         throw cms::Exception("DBError") << re2.what();
       }
@@ -91,8 +85,7 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const &_ps)
   if (verbosity_ > 0)
     edm::LogInfo("EcalDQM") << " Done.";
 
-  edm::ParameterSet const &workerParams(
-      _ps.getUntrackedParameterSet("workerParams"));
+  edm::ParameterSet const &workerParams(_ps.getUntrackedParameterSet("workerParams"));
 
   workers_[Integrity] = new ecaldqm::IntegrityWriter(workerParams);
   workers_[Cosmic] = nullptr;
@@ -125,8 +118,7 @@ EcalCondDBWriter::~EcalCondDBWriter() {
     delete workers_[iC];
 }
 
-void EcalCondDBWriter::dqmEndJob(DQMStore::IBooker &,
-                                 DQMStore::IGetter &_igetter) {
+void EcalCondDBWriter::dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &_igetter) {
   if (executed_)
     return;
 
@@ -144,8 +136,7 @@ void EcalCondDBWriter::dqmEndJob(DQMStore::IBooker &,
     if (!_igetter.dirExists(dirs[iD] + "/EventInfo"))
       continue;
 
-    MonitorElement *timeStampME(
-        _igetter.get(dirs[iD] + "/EventInfo/runStartTimeStamp"));
+    MonitorElement *timeStampME(_igetter.get(dirs[iD] + "/EventInfo/runStartTimeStamp"));
     if (timeStampME) {
       double timeStampValue(timeStampME->getFloatValue());
       uint64_t seconds(timeStampValue);
@@ -153,16 +144,14 @@ void EcalCondDBWriter::dqmEndJob(DQMStore::IBooker &,
       timeStampInFile = (seconds << 32) | microseconds;
     }
 
-    MonitorElement *eventsME(
-        _igetter.get(dirs[iD] + "/EventInfo/processedEvents"));
+    MonitorElement *eventsME(_igetter.get(dirs[iD] + "/EventInfo/processedEvents"));
     if (eventsME)
       processedEvents = eventsME->getIntValue();
 
     if (timeStampInFile != 0 && processedEvents != 0) {
       if (verbosity_ > 1)
-        edm::LogInfo("EcalDQM")
-            << " Event info found; timestamp=" << timeStampInFile
-            << " processedEvents=" << processedEvents;
+        edm::LogInfo("EcalDQM") << " Event info found; timestamp=" << timeStampInFile
+                                << " processedEvents=" << processedEvents;
       break;
     }
   }
@@ -173,8 +162,7 @@ void EcalCondDBWriter::dqmEndJob(DQMStore::IBooker &,
   //////////////////////// SOURCE INITIALIZATION //////////////////////////
 
   if (verbosity_ > 0)
-    edm::LogInfo("EcalDQM")
-        << "Setting up source MonitorElements for given run type " << runType_;
+    edm::LogInfo("EcalDQM") << "Setting up source MonitorElements for given run type " << runType_;
 
   int taskList(0);
   for (unsigned iC(0); iC < nTasks; ++iC) {
@@ -203,8 +191,7 @@ void EcalCondDBWriter::dqmEndJob(DQMStore::IBooker &,
     std::cerr << e.what();
 
     if (timeStampInFile == 0)
-      throw cms::Exception("Initialization")
-          << "Time stamp for the run could not be found";
+      throw cms::Exception("Initialization") << "Time stamp for the run could not be found";
 
     LocationDef locationDef;
     locationDef.setLocation(location_);
@@ -233,9 +220,8 @@ void EcalCondDBWriter::dqmEndJob(DQMStore::IBooker &,
   //     runIOV.getRunTag().getRunTypeDef().getRunType();
 
   MonVersionDef versionDef;
-  versionDef.setMonitoringVersion(
-      "test01"); // the only mon_ver in mon_version_def table as of September
-                 // 2012
+  versionDef.setMonitoringVersion("test01");  // the only mon_ver in mon_version_def table as of September
+                                              // 2012
   MonRunTag monTag;
   monTag.setMonVersionDef(versionDef);
   monTag.setGeneralTag(monRunGeneralTag_);

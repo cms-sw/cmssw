@@ -45,14 +45,18 @@
 
 class EmDQM;
 
-template <class T> class HistoFiller {
+template <class T>
+class HistoFiller {
 public:
   HistoFiller(EmDQM *d) : dqm(d){};
   ~HistoFiller(){};
 
   void fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &,
-                  const edm::Event &, unsigned int, unsigned int,
-                  std::vector<reco::Particle> &, bool &);
+                  const edm::Event &,
+                  unsigned int,
+                  unsigned int,
+                  std::vector<reco::Particle> &,
+                  bool &);
   // std::vector<edm::EDGetTokenT<edm::AssociationMap<edm::OneToValue< T ,
   // float>>>> isoNameTokens_;
 
@@ -77,8 +81,7 @@ public:
   void analyze(const edm::Event &event, const edm::EventSetup &) override;
 
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void endRun(edm::Run const &, edm::EventSetup const &) override;
 
 private:
@@ -138,17 +141,14 @@ private:
   std::vector<std::string> getFilterModules(const std::string &);
   double getPrimaryEtCut(const std::string &);
   edm::ParameterSet makePSetForL1SeedFilter(const std::string &);
-  edm::ParameterSet
-  makePSetForL1SeedToSuperClusterMatchFilter(const std::string &);
+  edm::ParameterSet makePSetForL1SeedToSuperClusterMatchFilter(const std::string &);
   edm::ParameterSet makePSetForEtFilter(const std::string &);
   edm::ParameterSet makePSetForOneOEMinusOneOPFilter(const std::string &);
   edm::ParameterSet makePSetForPixelMatchFilter(const std::string &);
   edm::ParameterSet makePSetForEgammaGenericFilter(const std::string &);
-  edm::ParameterSet
-  makePSetForEgammaGenericQuadraticFilter(const std::string &);
+  edm::ParameterSet makePSetForEgammaGenericQuadraticFilter(const std::string &);
   edm::ParameterSet makePSetForElectronGenericFilter(const std::string &);
-  edm::ParameterSet
-  makePSetForEgammaDoubleEtDeltaPhiFilter(const std::string &);
+  edm::ParameterSet makePSetForEgammaDoubleEtDeltaPhiFilter(const std::string &);
 
   // set validation configuration parameters for a trigger path
   void SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator);
@@ -158,14 +158,12 @@ private:
   // input from generated parameter set
   unsigned int pathIndex;
   std::vector<edm::InputTag> theHLTCollectionLabels;
-  unsigned int numOfHLTCollectionLabels; // Will be size of above vector
-  std::vector<std::string>
-      theHLTCollectionHumanNames; // Human-readable names for the collections
+  unsigned int numOfHLTCollectionLabels;                // Will be size of above vector
+  std::vector<std::string> theHLTCollectionHumanNames;  // Human-readable names for the collections
   edm::InputTag theL1Seed;
   std::vector<int> theHLTOutputTypes;
   std::vector<bool> plotiso;
-  std::vector<std::vector<edm::InputTag>>
-      isoNames; // there has to be a better solution
+  std::vector<std::vector<edm::InputTag>> isoNames;  // there has to be a better solution
   std::vector<std::pair<double, double>> plotBounds;
   std::vector<unsigned int> nCandCuts;
   // paramters for generator study

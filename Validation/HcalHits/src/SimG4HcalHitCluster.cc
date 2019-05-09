@@ -15,7 +15,6 @@ bool SimG4HcalHitCluster::operator<(const SimG4HcalHitCluster &cluster) const {
 }
 
 SimG4HcalHitCluster &SimG4HcalHitCluster::operator+=(const CaloHit &hit) {
-
   hitsc.push_back(hit);
 
   if (ec == 0. && etac == 0. && phic == 0.) {
@@ -55,7 +54,6 @@ SimG4HcalHitCluster &SimG4HcalHitCluster::operator+=(const CaloHit &hit) {
 }
 
 double SimG4HcalHitCluster::collectEcalEnergyR() {
-
   double sum = 0.;
   std::vector<CaloHit>::iterator itr;
 
@@ -68,7 +66,6 @@ double SimG4HcalHitCluster::collectEcalEnergyR() {
 }
 
 std::ostream &operator<<(std::ostream &os, const SimG4HcalHitCluster &cluster) {
-  os << " SimG4HcalHitCluster:: E " << cluster.e() << "  eta " << cluster.eta()
-     << "  phi " << cluster.phi();
+  os << " SimG4HcalHitCluster:: E " << cluster.e() << "  eta " << cluster.eta() << "  phi " << cluster.phi();
   return os;
 }

@@ -13,25 +13,35 @@ Benchmark::~Benchmark() noexcept(false) {}
 
 void Benchmark::setDirectory(TDirectory *dir) { dir_ = dir; }
 
-TH1F *Benchmark::book1D(DQMStore::IBooker &b, const char *histname,
-                        const char *title, int nbins, float xmin, float xmax) {
+TH1F *Benchmark::book1D(
+    DQMStore::IBooker &b, const char *histname, const char *title, int nbins, float xmin, float xmax) {
   edm::LogInfo("Benchmark") << " Benchmark::book1D "
                             << "booking " << histname;
   return b.book1D(histname, title, nbins, xmin, xmax)->getTH1F();
 }
 
-TH2F *Benchmark::book2D(DQMStore::IBooker &b, const char *histname,
-                        const char *title, int nbinsx, float xmin, float xmax,
-                        int nbinsy, float ymin, float ymax) {
+TH2F *Benchmark::book2D(DQMStore::IBooker &b,
+                        const char *histname,
+                        const char *title,
+                        int nbinsx,
+                        float xmin,
+                        float xmax,
+                        int nbinsy,
+                        float ymin,
+                        float ymax) {
   edm::LogInfo("Benchmark") << " Benchmark::book2D "
                             << "booked " << histname;
-  return b.book2D(histname, title, nbinsx, xmin, xmax, nbinsy, ymin, ymax)
-      ->getTH2F();
+  return b.book2D(histname, title, nbinsx, xmin, xmax, nbinsy, ymin, ymax)->getTH2F();
 }
 
-TH2F *Benchmark::book2D(DQMStore::IBooker &b, const char *histname,
-                        const char *title, int nbinsx, float *xbins, int nbinsy,
-                        float ymin, float ymax) {
+TH2F *Benchmark::book2D(DQMStore::IBooker &b,
+                        const char *histname,
+                        const char *title,
+                        int nbinsx,
+                        float *xbins,
+                        int nbinsy,
+                        float ymin,
+                        float ymax) {
   edm::LogInfo("Benchmark") << " Benchmark::book2D "
                             << " booked " << histname;
 
@@ -46,20 +56,28 @@ TH2F *Benchmark::book2D(DQMStore::IBooker &b, const char *histname,
   return b.book2D(histname, title, nbinsx, xbins, nbinsy, &ybins[0])->getTH2F();
 }
 
-TProfile *Benchmark::bookProfile(DQMStore::IBooker &b, const char *histname,
-                                 const char *title, int nbinsx, float xmin,
-                                 float xmax, float ymin, float ymax,
+TProfile *Benchmark::bookProfile(DQMStore::IBooker &b,
+                                 const char *histname,
+                                 const char *title,
+                                 int nbinsx,
+                                 float xmin,
+                                 float xmax,
+                                 float ymin,
+                                 float ymax,
                                  const char *option) {
   edm::LogInfo("Benchmark") << " Benchmark::bookProfile "
                             << "booked " << histname;
-  return b.bookProfile(histname, title, nbinsx, xmin, xmax, 0.0, 0.0, option)
-      ->getTProfile();
+  return b.bookProfile(histname, title, nbinsx, xmin, xmax, 0.0, 0.0, option)->getTProfile();
 }
 
-TProfile *Benchmark::bookProfile(DQMStore::IBooker &b, const char *histname,
-                                 const char *title, int nbinsx, float *xbins,
-                                 float ymin, float ymax, const char *option) {
-
+TProfile *Benchmark::bookProfile(DQMStore::IBooker &b,
+                                 const char *histname,
+                                 const char *title,
+                                 int nbinsx,
+                                 float *xbins,
+                                 float ymin,
+                                 float ymax,
+                                 const char *option) {
   // need to convert the float bin array into a double bin array, because the
   // DQMStore TProfile functions take floats, while the  DQMStore TH2 functions
   // take double.
@@ -70,8 +88,7 @@ TProfile *Benchmark::bookProfile(DQMStore::IBooker &b, const char *histname,
 
   edm::LogInfo("Benchmark") << " Benchmark::bookProfile "
                             << "booked " << histname;
-  return b.bookProfile(histname, title, nbinsx, &xbinsd[0], ymin, ymax, option)
-      ->getTProfile();
+  return b.bookProfile(histname, title, nbinsx, &xbinsd[0], ymin, ymax, option)->getTProfile();
 }
 
 void Benchmark::write() {

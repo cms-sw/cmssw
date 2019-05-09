@@ -31,16 +31,13 @@ PFDQMEventSelector::~PFDQMEventSelector() {}
 // -- BeginJob
 //
 void PFDQMEventSelector::beginJob() {
-
   dqmStore_ = edm::Service<DQMStore>().operator->();
   fileOpened_ = openInputFile();
 }
 //
 // -- Event Filtering
 //
-bool PFDQMEventSelector::filter(edm::Event &iEvent,
-                                edm::EventSetup const &iSetup) {
-
+bool PFDQMEventSelector::filter(edm::Event &iEvent, edm::EventSetup const &iSetup) {
   nEvents_++;
   if (!fileOpened_)
     return false;
@@ -51,17 +48,15 @@ bool PFDQMEventSelector::filter(edm::Event &iEvent,
   std::ostringstream eventid_str;
   eventid_str << runNb << "_" << evtNb << "_" << lumiNb;
 
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin();
-       ifolder != folderNames_.end(); ifolder++) {
+  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
+       ifolder++) {
     std::string path = "ParticleFlow/" + (*ifolder) + "/BadEvents";
     MonitorElement *me = dqmStore_->get(path + "/" + eventid_str.str());
     if (me) {
       nSelectedEvents_++;
       if (verbose_)
-        std::cout << " Total Events " << nEvents_ << " Selected Events "
-                  << nSelectedEvents_ << " Run # : " << runNb
-                  << " Event # : " << evtNb
-                  << " Luminosity Block # : " << lumiNb << std::endl;
+        std::cout << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " Run # : " << runNb
+                  << " Event # : " << evtNb << " Luminosity Block # : " << lumiNb << std::endl;
       return true;
     }
   }
@@ -72,8 +67,7 @@ bool PFDQMEventSelector::filter(edm::Event &iEvent,
 //
 void PFDQMEventSelector::endJob() {
   if (verbose_)
-    std::cout << " Total Events " << nEvents_ << " Selected Events "
-              << nSelectedEvents_ << std::endl;
+    std::cout << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << std::endl;
 }
 //
 // -- Open Input File
@@ -81,9 +75,7 @@ void PFDQMEventSelector::endJob() {
 bool PFDQMEventSelector::openInputFile() {
   if (inputFileName_.empty())
     return false;
-  edm::LogInfo("SiStripOfflineDQM")
-      << "SiStripOfflineDQM::openInputFile: Accessing root File"
-      << inputFileName_;
+  edm::LogInfo("SiStripOfflineDQM") << "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
   dqmStore_->open(inputFileName_, false, "", "", DQMStore::StripRunDirs);
   return true;
 }

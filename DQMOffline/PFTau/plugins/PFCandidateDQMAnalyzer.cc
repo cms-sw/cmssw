@@ -17,8 +17,7 @@
 //
 // -- Constructor
 //
-PFCandidateDQMAnalyzer::PFCandidateDQMAnalyzer(
-    const edm::ParameterSet &parameterSet)
+PFCandidateDQMAnalyzer::PFCandidateDQMAnalyzer(const edm::ParameterSet &parameterSet)
 
 {
   pSet_ = parameterSet;
@@ -43,14 +42,13 @@ PFCandidateDQMAnalyzer::PFCandidateDQMAnalyzer(
 //
 // -- BookHistograms
 //
-void PFCandidateDQMAnalyzer::bookHistograms(
-    DQMStore::IBooker &ibooker, edm::Run const & /* iRun */,
-    edm::EventSetup const & /* iSetup */) {
+void PFCandidateDQMAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
+                                            edm::Run const & /* iRun */,
+                                            edm::EventSetup const & /* iSetup */) {
   ibooker.setCurrentFolder(eventInfoFolder_);
 
-  edm::LogInfo("PFCandidateDQMAnalyzer")
-      << " PFCandidateDQMAnalyzer::bookHistograms "
-      << "Histogram Folder path set to " << eventInfoFolder_;
+  edm::LogInfo("PFCandidateDQMAnalyzer") << " PFCandidateDQMAnalyzer::bookHistograms "
+                                         << "Histogram Folder path set to " << eventInfoFolder_;
 
   pfCandidateMonitor_.setup(ibooker, pSet_);
 }
@@ -58,9 +56,7 @@ void PFCandidateDQMAnalyzer::bookHistograms(
 //
 // -- Analyze
 //
-void PFCandidateDQMAnalyzer::analyze(edm::Event const &iEvent,
-                                     edm::EventSetup const &iSetup) {
-
+void PFCandidateDQMAnalyzer::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) {
   edm::Handle<edm::View<reco::Candidate>> candCollection;
   edm::Handle<edm::View<reco::Candidate>> matchedCandCollection;
   if (!createEfficiencyHistos_) {
@@ -74,8 +70,7 @@ void PFCandidateDQMAnalyzer::analyze(edm::Event const &iEvent,
   float maxRes = 0.0;
   float minRes = 99.99;
   if (candCollection.isValid() && matchedCandCollection.isValid()) {
-    pfCandidateMonitor_.fill(*candCollection, *matchedCandCollection, minRes,
-                             maxRes, pSet_);
+    pfCandidateMonitor_.fill(*candCollection, *matchedCandCollection, minRes, maxRes, pSet_);
   }
 }
 

@@ -22,9 +22,9 @@
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
 class SiStripQualityDQM : public SiStripBaseCondObjDQM {
-
 public:
-  SiStripQualityDQM(const edm::EventSetup &eSetup, edm::RunNumber_t iRun,
+  SiStripQualityDQM(const edm::EventSetup &eSetup,
+                    edm::RunNumber_t iRun,
                     edm::ParameterSet const &hPSet,
                     edm::ParameterSet const &fPSet);
 
@@ -32,16 +32,12 @@ public:
 
   void getActiveDetIds(const edm::EventSetup &eSetup) override;
 
-  void fillModMEs(const std::vector<uint32_t> &selectedDetIds,
-                  const edm::EventSetup &es) override;
-  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_,
-                     const TrackerTopology *tTopo) override;
+  void fillModMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
+  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) override;
 
-  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds,
-                      const edm::EventSetup &es) override;
+  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
   void fillMEsForLayer(
-      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_,
-      const TrackerTopology *tTopo) override;
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology *tTopo) override;
   void fillGrandSummaryMEs(const edm::EventSetup &eSetup);
 
   unsigned long long getCache(const edm::EventSetup &eSetup) override {
@@ -56,7 +52,7 @@ public:
 private:
   std::string qualityLabel_;
   edm::ESHandle<SiStripQuality> qualityHandle_;
-  int NTkBadComponent[4]; // k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
+  int NTkBadComponent[4];  // k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
   int NBadComponent[4][19][4];
   std::stringstream ssV[4][19];
   void SetBadComponents(int i, int component, SiStripQuality::BadComponent &BC);

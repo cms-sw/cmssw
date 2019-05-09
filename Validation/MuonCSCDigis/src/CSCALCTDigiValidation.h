@@ -11,8 +11,7 @@
 
 class CSCALCTDigiValidation : public CSCBaseValidation {
 public:
-  CSCALCTDigiValidation(const edm::InputTag &inputTag,
-                        edm::ConsumesCollector &&iC);
+  CSCALCTDigiValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC);
   ~CSCALCTDigiValidation() override;
   void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event &, const edm::EventSetup &) override;

@@ -50,7 +50,6 @@ struct DB_ME {
 // - - - - - - - - - - - - - - - - - - - -
 
 class TagNames {
-
 public:
   XMLCh *TAG_DBE;
   XMLCh *TAG_ME;
@@ -100,14 +99,11 @@ public:
         ATTR_NAME(xercesc::XMLString::transcode("name")),
         ATTR_ARG(xercesc::XMLString::transcode("arg")),
         ATTR_ALIAS(xercesc::XMLString::transcode("alias")) {
-
     return;
   }
 
   ~TagNames() noexcept(false) {
-
     try {
-
       xercesc::XMLString::release(&TAG_DBE);
       xercesc::XMLString::release(&TAG_ME);
       xercesc::XMLString::release(&TAG_1D);
@@ -130,7 +126,6 @@ public:
       xercesc::XMLString::release(&ATTR_ALIAS);
 
     } catch (xercesc::XMLException &e) {
-
       char *message = xercesc::XMLString::transcode(e.getMessage());
 
       std::ostringstream buf;
@@ -141,7 +136,6 @@ public:
       throw(std::runtime_error(buf.str()));
 
     } catch (const xercesc::DOMException &e) {
-
       char *message = xercesc::XMLString::transcode(e.getMessage());
 
       std::ostringstream buf;
@@ -153,12 +147,11 @@ public:
     }
   }
 
-}; // class TagNames
+};  // class TagNames
 
 // - - - - - - - - - - - - - - - - - - - -
 
 class MonitorXMLParser {
-
 private:
   std::vector<DB_ME> DBMonitoringElements_;
   std::string xmlFile_;
@@ -171,12 +164,10 @@ public:
 
   ~MonitorXMLParser() throw();
 
-  const std::vector<DB_ME> &getDB_ME(void) const {
-    return (DBMonitoringElements_);
-  }
+  const std::vector<DB_ME> &getDB_ME(void) const { return (DBMonitoringElements_); }
 
   void load() noexcept(false);
 
-}; // class MonitorXMLParser
+};  // class MonitorXMLParser
 
-#endif // MonitorXMLParser_h
+#endif  // MonitorXMLParser_h

@@ -18,8 +18,7 @@ public:
   virtual ~CSCBaseValidation() {}
   void setGeometry(const CSCGeometry *geom) { theCSCGeometry = geom; }
   void setSimHitMap(const PSimHitMap *simHitMap) { theSimHitMap = simHitMap; }
-  virtual void analyze(const edm::Event &e,
-                       const edm::EventSetup &eventSetup) = 0;
+  virtual void analyze(const edm::Event &e, const edm::EventSetup &eventSetup) = 0;
 
 protected:
   const CSCLayer *findLayer(int detId) const;

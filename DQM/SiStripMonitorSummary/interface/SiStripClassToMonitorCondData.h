@@ -38,7 +38,6 @@ class SiStripCablingDQM;
 class SiStripThresholdDQM;
 
 class SiStripClassToMonitorCondData {
-
 public:
   explicit SiStripClassToMonitorCondData(edm::ParameterSet const &iConfig);
 
@@ -50,11 +49,11 @@ public:
   void endRun(edm::EventSetup const &eSetup);
   void endJob();
 
-  void getModMEsOnDemand(edm::EventSetup const &eSetup,
-                         uint32_t requestedDetId);
+  void getModMEsOnDemand(edm::EventSetup const &eSetup, uint32_t requestedDetId);
   void getLayerMEsOnDemand(edm::EventSetup const &eSetup,
                            std::string requestedSubDetector,
-                           uint32_t requestedSide, uint32_t requestedLayer);
+                           uint32_t requestedSide,
+                           uint32_t requestedLayer);
 
 private:
   edm::ParameterSet conf_;

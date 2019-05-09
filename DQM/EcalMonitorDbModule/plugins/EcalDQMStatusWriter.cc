@@ -12,8 +12,7 @@
 #include <fstream>
 
 EcalDQMStatusWriter::EcalDQMStatusWriter(edm::ParameterSet const &_ps)
-    : channelStatus_(), towerStatus_(),
-      firstRun_(_ps.getUntrackedParameter<unsigned>("firstRun")) {
+    : channelStatus_(), towerStatus_(), firstRun_(_ps.getUntrackedParameter<unsigned>("firstRun")) {
   std::ifstream inputFile(_ps.getUntrackedParameter<std::string>("inputFile"));
   if (!inputFile.is_open())
     throw cms::Exception("Invalid input for EcalDQMStatusWriter");
@@ -24,18 +23,15 @@ EcalDQMStatusWriter::EcalDQMStatusWriter(edm::ParameterSet const &_ps)
   statusManager.writeToObj(channelStatus_, towerStatus_);
 }
 
-void EcalDQMStatusWriter::analyze(edm::Event const &,
-                                  edm::EventSetup const &_es) {
-  cond::service::PoolDBOutputService &dbOutput(
-      *edm::Service<cond::service::PoolDBOutputService>());
+void EcalDQMStatusWriter::analyze(edm::Event const &, edm::EventSetup const &_es) {
+  cond::service::PoolDBOutputService &dbOutput(*edm::Service<cond::service::PoolDBOutputService>());
   if (firstRun_ == dbOutput.endOfTime())
     return;
 
   dbOutput.writeOne(&channelStatus_, firstRun_, "EcalDQMChannelStatusRcd");
   dbOutput.writeOne(&towerStatus_, firstRun_, "EcalDQMTowerStatusRcd");
 
-  firstRun_ =
-      dbOutput.endOfTime(); // avoid accidentally re-writing the conditions
+  firstRun_ = dbOutput.endOfTime();  // avoid accidentally re-writing the conditions
 }
 
 DEFINE_FWK_MODULE(EcalDQMStatusWriter);

@@ -32,8 +32,7 @@ bool SiPixelLayoutParser::getAllLayouts(map<string, vector<string>> &layouts) {
 
   layouts.clear();
 
-  DOMNodeList *layoutList =
-      doc()->getElementsByTagName(qtxml::_toDOMS("layout"));
+  DOMNodeList *layoutList = doc()->getElementsByTagName(qtxml::_toDOMS("layout"));
 
   unsigned int nlayout = layoutList->getLength();
   if (nlayout == 0)
@@ -47,11 +46,9 @@ bool SiPixelLayoutParser::getAllLayouts(map<string, vector<string>> &layouts) {
     DOMElement *layoutElement = static_cast<DOMElement *>(layoutNode);
     if (!layoutElement)
       return false;
-    string layoutName =
-        qtxml::_toString(layoutElement->getAttribute(qtxml::_toDOMS("name")));
+    string layoutName = qtxml::_toString(layoutElement->getAttribute(qtxml::_toDOMS("name")));
 
-    DOMNodeList *meList =
-        layoutElement->getElementsByTagName(qtxml::_toDOMS("monitorable"));
+    DOMNodeList *meList = layoutElement->getElementsByTagName(qtxml::_toDOMS("monitorable"));
     vector<string> me_names;
     for (unsigned int l = 0; l < meList->getLength(); l++) {
       DOMNode *meNode = meList->item(l);
@@ -60,8 +57,7 @@ bool SiPixelLayoutParser::getAllLayouts(map<string, vector<string>> &layouts) {
       DOMElement *meElement = static_cast<DOMElement *>(meNode);
       if (!meElement)
         return false;
-      string meName =
-          qtxml::_toString(meElement->getAttribute(qtxml::_toDOMS("name")));
+      string meName = qtxml::_toString(meElement->getAttribute(qtxml::_toDOMS("name")));
       me_names.push_back(meName);
     }
     if (!me_names.empty())

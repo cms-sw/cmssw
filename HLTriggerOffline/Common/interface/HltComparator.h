@@ -26,8 +26,7 @@ private:
   std::vector<unsigned int> onlineToOfflineBitMappings_;
 
   std::vector<TH1F *> comparisonHists_;
-  std::map<unsigned int, std::map<std::string, unsigned int>>
-      triggerComparisonErrors_;
+  std::map<unsigned int, std::map<std::string, unsigned int>> triggerComparisonErrors_;
 
   bool init_;
   bool verbose_;
@@ -41,9 +40,8 @@ private:
   void beginJob() override;
   bool filter(edm::Event &, const edm::EventSetup &) override;
   void endJob() override;
-  void initialise(const edm::TriggerResults &, const edm::TriggerResults &,
-                  edm::Event &e);
+  void initialise(const edm::TriggerResults &, const edm::TriggerResults &, edm::Event &e);
   std::string formatResult(const unsigned int);
 };
 
-#endif // HLTCOMPARATOR_HH
+#endif  // HLTCOMPARATOR_HH

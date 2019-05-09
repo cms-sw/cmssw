@@ -19,8 +19,7 @@ public:
 private:
   void analyze(edm::Event const &, edm::EventSetup const &) override;
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   edm::EDGetTokenT<edm::View<reco::Muon>> myCand_;
   edm::EDGetTokenT<edm::View<reco::Muon>> myMatchedCand_;

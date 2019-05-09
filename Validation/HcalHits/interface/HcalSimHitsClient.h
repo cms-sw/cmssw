@@ -34,7 +34,6 @@
 class MonitorElement;
 
 class HcalSimHitsClient : public DQMEDHarvester {
-
 private:
   int SimHitsEndjob(const std::vector<MonitorElement *> &hcalMEs);
   std::vector<std::string> getHistogramTypes();

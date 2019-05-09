@@ -11,7 +11,6 @@
 
 /// To plot Candidate quantities
 class MatchCandidateBenchmark : public Benchmark {
-
 public:
   MatchCandidateBenchmark(Mode mode);
 
@@ -22,8 +21,7 @@ public:
   void setup(DQMStore::IBooker &b, const edm::ParameterSet &parameterSet);
 
   /// fill histograms with a given particle
-  void fillOne(const reco::Candidate &candidate,
-               const reco::Candidate &matchedCandidate);
+  void fillOne(const reco::Candidate &candidate, const reco::Candidate &matchedCandidate);
 
   void fillOne(const reco::Candidate &candidate,
                const reco::Candidate &matchedCandidate,

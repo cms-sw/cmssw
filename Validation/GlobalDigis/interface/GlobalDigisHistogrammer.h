@@ -47,7 +47,6 @@
 #include "TString.h"
 
 class GlobalDigisHistogrammer : public DQMEDAnalyzer {
-
 public:
   // typedef std::vector<float> FloatVector;
   // typedef std::vector<double> DoubleVector;
@@ -57,8 +56,7 @@ public:
   explicit GlobalDigisHistogrammer(const edm::ParameterSet &);
   ~GlobalDigisHistogrammer() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   //  parameter information
@@ -126,6 +124,6 @@ private:
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
+};  // end class declaration
 
-#endif // PGlobalDigisHistogrammer_h
+#endif  // PGlobalDigisHistogrammer_h
