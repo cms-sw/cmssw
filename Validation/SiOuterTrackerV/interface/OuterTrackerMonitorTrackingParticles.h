@@ -24,13 +24,11 @@
 class DQMStore;
 
 class OuterTrackerMonitorTrackingParticles : public DQMEDAnalyzer {
-
 public:
   explicit OuterTrackerMonitorTrackingParticles(const edm::ParameterSet &);
   ~OuterTrackerMonitorTrackingParticles() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   int Layer(const float R_, const float Z_) const;
 
   // Tracking particle distributions
@@ -39,29 +37,27 @@ public:
   MonitorElement *trackParts_Pt = nullptr;
 
   // Plots for correctly matched tracks
-  MonitorElement *Track_MatchedChi2 =
-      nullptr; // Chi2 for only tracks correctly matched to truth level
-  MonitorElement *Track_MatchedChi2Red =
-      nullptr; // Chi2/dof for only tracks correctly matched to truth level
+  MonitorElement *Track_MatchedChi2 = nullptr;     // Chi2 for only tracks correctly matched to truth level
+  MonitorElement *Track_MatchedChi2Red = nullptr;  // Chi2/dof for only tracks correctly matched to truth level
 
   // pT and eta for efficiency plots
-  MonitorElement *tp_pt = nullptr;            // denominator
-  MonitorElement *tp_pt_zoom = nullptr;       // denominator
-  MonitorElement *tp_eta = nullptr;           // denominator
-  MonitorElement *tp_d0 = nullptr;            // denominator
-  MonitorElement *tp_VtxR = nullptr;          // denominator (also known as vxy)
-  MonitorElement *tp_VtxZ = nullptr;          // denominator
-  MonitorElement *match_tp_pt = nullptr;      // numerator
-  MonitorElement *match_tp_pt_zoom = nullptr; // numerator
-  MonitorElement *match_tp_eta = nullptr;     // numerator
-  MonitorElement *match_tp_d0 = nullptr;      // numerator
-  MonitorElement *match_tp_VtxR = nullptr;    // numerator (also known as vxy)
-  MonitorElement *match_tp_VtxZ = nullptr;    // numerator
+  MonitorElement *tp_pt = nullptr;             // denominator
+  MonitorElement *tp_pt_zoom = nullptr;        // denominator
+  MonitorElement *tp_eta = nullptr;            // denominator
+  MonitorElement *tp_d0 = nullptr;             // denominator
+  MonitorElement *tp_VtxR = nullptr;           // denominator (also known as vxy)
+  MonitorElement *tp_VtxZ = nullptr;           // denominator
+  MonitorElement *match_tp_pt = nullptr;       // numerator
+  MonitorElement *match_tp_pt_zoom = nullptr;  // numerator
+  MonitorElement *match_tp_eta = nullptr;      // numerator
+  MonitorElement *match_tp_d0 = nullptr;       // numerator
+  MonitorElement *match_tp_VtxR = nullptr;     // numerator (also known as vxy)
+  MonitorElement *match_tp_VtxZ = nullptr;     // numerator
 
   // 1D intermediate resolution plots (pT and eta)
-  MonitorElement *res_eta = nullptr;   // for all eta and pT
-  MonitorElement *res_pt = nullptr;    // for all eta and pT
-  MonitorElement *res_ptRel = nullptr; // for all eta and pT (delta(pT)/pT)
+  MonitorElement *res_eta = nullptr;    // for all eta and pT
+  MonitorElement *res_pt = nullptr;     // for all eta and pT
+  MonitorElement *res_ptRel = nullptr;  // for all eta and pT (delta(pT)/pT)
   MonitorElement *respt_eta0to0p7_pt2to3 = nullptr;
   MonitorElement *respt_eta0p7to1_pt2to3 = nullptr;
   MonitorElement *respt_eta1to1p2_pt2to3 = nullptr;
@@ -110,15 +106,14 @@ public:
 private:
   edm::ParameterSet conf_;
   edm::EDGetTokenT<std::vector<TrackingParticle>> trackingParticleToken_;
-  edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>
-      ttStubToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> ttStubToken_;
   edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> ttTrackToken_;
   edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>
-      ttClusterMCTruthToken_; // MC truth association map for clusters
+      ttClusterMCTruthToken_;  // MC truth association map for clusters
   edm::EDGetTokenT<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>
-      ttStubMCTruthToken_; // MC truth association map for stubs
+      ttStubMCTruthToken_;  // MC truth association map for stubs
   edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
-      ttTrackMCTruthToken_; // MC truth association map for tracks
+      ttTrackMCTruthToken_;  // MC truth association map for tracks
   int L1Tk_nPar;
   int L1Tk_minNStub;
   double L1Tk_maxChi2;
@@ -136,8 +131,7 @@ private:
   struct TpStruct {
     int TpId;
     std::vector<bool> layer;
-    int
-    Nlayers() { // Counts how many layers are set to "true" for their hit status
+    int Nlayers() {  // Counts how many layers are set to "true" for their hit status
       int layers = 0;
       for (unsigned l = 0; l < layer.size(); ++l)
         if (layer[l])

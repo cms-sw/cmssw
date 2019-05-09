@@ -14,15 +14,14 @@
 #include <iostream>
 #include <string>
 
-template <> bool PlotCompareUtility::compare<Plot1D>(HistoData *HD) {
-
+template <>
+bool PlotCompareUtility::compare<Plot1D>(HistoData *HD) {
   // get the reference and comparison histograms
   TH1F *href = (TH1F *)HD->getRefHisto();
   TH1F *hnew = (TH1F *)HD->getNewHisto();
 
   // do not run comparisons if either histogram is empty/broken
-  if (hnew == nullptr || href == nullptr || hnew->GetEntries() <= 1 ||
-      href->GetEntries() <= 1) {
+  if (hnew == nullptr || href == nullptr || hnew->GetEntries() <= 1 || href->GetEntries() <= 1) {
     // std::cerr << HD->getName() << " error: unable to retrieve histogram (or
     // no entries)\n";
     HD->setIsEmpty(true);
@@ -53,8 +52,7 @@ template <> bool PlotCompareUtility::compare<Plot1D>(HistoData *HD) {
     HD->setLowScore(chi2Score);
     HD->setHighScore(chi2Score);
   } else
-    std::cerr
-        << "error: no test performed? chi2Threshold and ksThreshold <= 0\n";
+    std::cerr << "error: no test performed? chi2Threshold and ksThreshold <= 0\n";
 
   // check overall result
   bool passed = (ksScore >= ksThreshold && chi2Score >= chi2Threshold);
@@ -65,8 +63,8 @@ template <> bool PlotCompareUtility::compare<Plot1D>(HistoData *HD) {
   return passed;
 }
 
-template <> void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
-
+template <>
+void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
   std::cerr << HD->getName() << "makePlots<Plot1D>\n";
 
   // do not make any new plot if empty
@@ -147,8 +145,8 @@ template <> void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
   hCanvas.Print(gifName.c_str());
 }
 
-template <> void PlotCompareUtility::makeHTML<Plot1D>(HistoData *HD) {
-
+template <>
+void PlotCompareUtility::makeHTML<Plot1D>(HistoData *HD) {
   /* HTML is not presently required for 1D histograms -- do nothing
 
   // create HTML support code for this HistoData
@@ -166,4 +164,4 @@ template <> void PlotCompareUtility::makeHTML<Plot1D>(HistoData *HD) {
   */
 }
 
-#endif // PLOT_1D__H
+#endif  // PLOT_1D__H

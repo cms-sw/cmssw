@@ -14,7 +14,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 private:
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &,
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
                              edm::LuminosityBlock const &,
                              edm::EventSetup const &) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;

@@ -14,8 +14,7 @@ class OuterTrackerMCHarvester : public DQMEDHarvester {
 public:
   explicit OuterTrackerMCHarvester(const edm::ParameterSet &);
   ~OuterTrackerMCHarvester() override;
-  void dqmEndJob(DQMStore::IBooker &ibooker,
-                 DQMStore::IGetter &igetter) override;
+  void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
 
 private:
   // ----------member data ---------------------------

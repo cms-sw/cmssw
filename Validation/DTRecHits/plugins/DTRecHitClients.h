@@ -13,7 +13,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DTRecHitClients : public DQMEDHarvester {
-
 public:
   /// Constructor
   DTRecHitClients(const edm::ParameterSet &ps);
@@ -33,4 +32,4 @@ private:
   bool doall_;
 };
 
-#endif // Validation_DTRecHits_DTRecHitClients_h
+#endif  // Validation_DTRecHits_DTRecHitClients_h

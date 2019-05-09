@@ -11,23 +11,23 @@
 
 namespace ecaldqm {
 
-class StatusManager {
-public:
-  StatusManager();
-  ~StatusManager() {}
+  class StatusManager {
+  public:
+    StatusManager();
+    ~StatusManager() {}
 
-  void readFromStream(std::istream &);
-  void readFromObj(EcalDQMChannelStatus const &, EcalDQMTowerStatus const &);
-  void writeToStream(std::ostream &) const;
-  void writeToObj(EcalDQMChannelStatus &, EcalDQMTowerStatus &) const;
+    void readFromStream(std::istream &);
+    void readFromObj(EcalDQMChannelStatus const &, EcalDQMTowerStatus const &);
+    void writeToStream(std::ostream &) const;
+    void writeToObj(EcalDQMChannelStatus &, EcalDQMTowerStatus &) const;
 
-  uint32_t getStatus(uint32_t) const;
+    uint32_t getStatus(uint32_t) const;
 
-private:
-  std::map<std::string, uint32_t> dictionary_;
-  std::map<uint32_t, uint32_t> status_;
-};
+  private:
+    std::map<std::string, uint32_t> dictionary_;
+    std::map<uint32_t, uint32_t> status_;
+  };
 
-} // namespace ecaldqm
+}  // namespace ecaldqm
 
 #endif

@@ -19,15 +19,15 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 namespace edm {
-class ParameterSet;
-class Event;
-class EventSetup;
-} // namespace edm
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class HRes2DHit;
 class HEff2DHit;
 namespace dtsegment2d {
-struct Histograms;
+  struct Histograms;
 }
 
 class DTSegment2DQuality : public DQMGlobalEDAnalyzer<dtsegment2d::Histograms> {
@@ -37,13 +37,13 @@ public:
 
 private:
   /// Book the DQM plots
-  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const &,
+  void bookHistograms(DQMStore::ConcurrentBooker &,
+                      edm::Run const &,
                       edm::EventSetup const &,
                       dtsegment2d::Histograms &) const override;
 
   /// Perform the real analysis
-  void dqmAnalyze(edm::Event const &, edm::EventSetup const &,
-                  dtsegment2d::Histograms const &) const override;
+  void dqmAnalyze(edm::Event const &, edm::EventSetup const &, dtsegment2d::Histograms const &) const override;
 
 private:
   // Labels to read from event
@@ -62,4 +62,4 @@ private:
   bool debug_;
 };
 
-#endif // Validation_DTRecHits_DTSegment2DQuality_h
+#endif  // Validation_DTRecHits_DTSegment2DQuality_h

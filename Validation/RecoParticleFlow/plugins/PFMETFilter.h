@@ -36,4 +36,4 @@ private:
   bool verbose_;
 };
 
-#endif // PFMETFILTER_H
+#endif  // PFMETFILTER_H

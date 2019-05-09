@@ -43,24 +43,30 @@ struct EVTColContainer;
 
 class HLTExoticaPlotter {
 public:
-  HLTExoticaPlotter(const edm::ParameterSet &pset, const std::string &hltPath,
+  HLTExoticaPlotter(const edm::ParameterSet &pset,
+                    const std::string &hltPath,
                     const std::vector<unsigned int> &objectsType);
   ~HLTExoticaPlotter();
   void beginJob();
   void beginRun(const edm::Run &, const edm::EventSetup &);
-  void plotterBookHistos(DQMStore::IBooker &iBooker, const edm::Run &iRun,
-                         const edm::EventSetup &iSetup);
-  void analyze(const bool &isPassTrigger, const std::string &source,
+  void plotterBookHistos(DQMStore::IBooker &iBooker, const edm::Run &iRun, const edm::EventSetup &iSetup);
+  void analyze(const bool &isPassTrigger,
+               const std::string &source,
                const std::vector<reco::LeafCandidate> &matches,
-               std::map<int, double> theSumEt, std::vector<float> &dxys);
+               std::map<int, double> theSumEt,
+               std::vector<float> &dxys);
 
   inline const std::string gethltpath() const { return _hltPath; }
 
 private:
-  void bookHist(DQMStore::IBooker &iBooker, const std::string &source,
-                const std::string &objType, const std::string &variable);
-  void fillHist(const bool &passTrigger, const std::string &source,
-                const std::string &objType, const std::string &var,
+  void bookHist(DQMStore::IBooker &iBooker,
+                const std::string &source,
+                const std::string &objType,
+                const std::string &variable);
+  void fillHist(const bool &passTrigger,
+                const std::string &source,
+                const std::string &objType,
+                const std::string &var,
                 const float &value);
 
   std::string _hltPath;

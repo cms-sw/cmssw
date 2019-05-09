@@ -78,14 +78,12 @@ public:
   /// Method to book all relevant histograms in the DQMStore.
   /// Uses the IBooker interface for thread safety.
   /// Intended to be called from master object.
-  void subAnalysisBookHistos(DQMStore::IBooker &iBooker, const edm::Run &iRun,
-                             const edm::EventSetup &iSetup);
+  void subAnalysisBookHistos(DQMStore::IBooker &iBooker, const edm::Run &iRun, const edm::EventSetup &iSetup);
 
   /// Method to fill all relevant histograms.
   /// Notice that we update the EVTColContaner to point to the collections we
   /// want.
-  void analyze(const edm::Event &iEvent, const edm::EventSetup &iEventSetup,
-               EVTColContainer *cols);
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &iEventSetup, EVTColContainer *cols);
 
 private:
   /// Return the objects (muons,electrons,photons,...) needed by a HLT path.
@@ -93,8 +91,7 @@ private:
   /// 3 for PFMET, 4 for PFTau, 5 for Jet.
   /// Notice that this function is really based on a parsing of the name of
   /// the path; any incongruences there may lead to problems.
-  const std::vector<unsigned int>
-  getObjectsType(const std::string &hltpath) const;
+  const std::vector<unsigned int> getObjectsType(const std::string &hltpath) const;
 
   /// Creates the maps that map  which collection should come from which label
   void getNamesOfObjects(const edm::ParameterSet &anpset);
@@ -106,17 +103,18 @@ private:
   void initSelector(const unsigned int &objtype);
   /// This function applies the selectors initialized previously to the objects,
   /// and matches the passing objects to HLT objects.
-  void
-  insertCandidates(const unsigned int &objtype, const EVTColContainer *col,
-                   std::vector<reco::LeafCandidate> *matches,
-                   std::map<int, double> &theSumEt,
-                   std::map<int, std::vector<const reco::Track *>> &trkObjs);
+  void insertCandidates(const unsigned int &objtype,
+                        const EVTColContainer *col,
+                        std::vector<reco::LeafCandidate> *matches,
+                        std::map<int, double> &theSumEt,
+                        std::map<int, std::vector<const reco::Track *>> &trkObjs);
 
   /// The internal functions to book and fill histograms
-  void bookHist(DQMStore::IBooker &iBooker, const std::string &source,
-                const std::string &objType, const std::string &variable);
-  void fillHist(const std::string &source, const std::string &objType,
-                const std::string &variable, const float &value);
+  void bookHist(DQMStore::IBooker &iBooker,
+                const std::string &source,
+                const std::string &objType,
+                const std::string &variable);
+  void fillHist(const std::string &source, const std::string &objType, const std::string &variable, const float &value);
 
   /// Internal, working copy of the PSet passed from above.
   edm::ParameterSet _pset;
@@ -166,8 +164,7 @@ private:
 
   /// The concrete String selectors (use the string cuts introduced
   /// via the config python)
-  std::map<unsigned int, StringCutObjectSelector<reco::GenParticle> *>
-      _genSelectorMap;
+  std::map<unsigned int, StringCutObjectSelector<reco::GenParticle> *> _genSelectorMap;
   StringCutObjectSelector<reco::Muon> *_recMuonSelector;
   StringCutObjectSelector<reco::Track> *_recMuonTrkSelector;
   StringCutObjectSelector<reco::Track> *_recTrackSelector;
