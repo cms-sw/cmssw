@@ -14,7 +14,7 @@ class Storage;
 /** TFile wrapper around #StorageFactory and #Storage.  */
 class TStorageFactoryFile : public TFile {
 public:
-  ClassDef(TStorageFactoryFile, 0);  // ROOT File operating on CMS Storage.
+  ClassDefOverride(TStorageFactoryFile, 0);  // ROOT File operating on CMS Storage.
 
   // Due to limitations in the ROOT plugin manager, TStorageFactoryFile must
   // provide a constructor matching all the different variants that other
