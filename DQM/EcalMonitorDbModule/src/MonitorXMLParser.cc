@@ -16,13 +16,10 @@
 #include "DQM/EcalMonitorDbModule/interface/MonitorXMLParser.h"
 
 MonitorXMLParser::MonitorXMLParser(const std::string &fromFile) {
-
   try {
-
     cms::concurrency::xercesInitialize();
 
   } catch (xercesc::XMLException &e) {
-
     char *message = xercesc::XMLString::transcode(e.getMessage());
 
     std::cerr << "XML toolkit initialization error: " << message << std::endl;
@@ -40,7 +37,6 @@ MonitorXMLParser::MonitorXMLParser(const std::string &fromFile) {
 // - - - - - - - - - - - - - - - - -
 
 MonitorXMLParser::~MonitorXMLParser() throw() {
-
   try {
     cms::concurrency::xercesTerminate();
   } catch (xercesc::XMLException &e) {
@@ -56,9 +52,7 @@ MonitorXMLParser::~MonitorXMLParser() throw() {
 // - - - - - - - - - - - - - - - - -
 
 void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
-
   if (xercesc::XMLString::equals(tags_->TAG_ME, element->getTagName())) {
-
     char *c;
     std::stringstream s;
     DB_ME me;
@@ -66,16 +60,13 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
 
     meok = false;
 
-    xercesc::DOMNodeList *d1Nodes =
-        element->getElementsByTagName(tags_->TAG_1D);
+    xercesc::DOMNodeList *d1Nodes = element->getElementsByTagName(tags_->TAG_1D);
     const XMLSize_t d1Count = d1Nodes->getLength();
 
     for (XMLSize_t d1Index = 0; d1Index < d1Count; ++d1Index) {
-
       xercesc::DOMNode *d1Node = d1Nodes->item(d1Index);
 
-      xercesc::DOMElement *d1Element =
-          dynamic_cast<xercesc::DOMElement *>(d1Node);
+      xercesc::DOMElement *d1Element = dynamic_cast<xercesc::DOMElement *>(d1Node);
 
       const XMLCh *d1titleXMLCh = d1Element->getAttribute(tags_->ATTR_TITLE);
       c = xercesc::XMLString::transcode(d1titleXMLCh);
@@ -127,16 +118,13 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
       me.zto = 0.0;
     }
 
-    xercesc::DOMNodeList *d2Nodes =
-        element->getElementsByTagName(tags_->TAG_2D);
+    xercesc::DOMNodeList *d2Nodes = element->getElementsByTagName(tags_->TAG_2D);
     const XMLSize_t d2Count = d2Nodes->getLength();
 
     for (XMLSize_t d2Index = 0; d2Index < d2Count; ++d2Index) {
-
       xercesc::DOMNode *d2Node = d2Nodes->item(d2Index);
 
-      xercesc::DOMElement *d2Element =
-          dynamic_cast<xercesc::DOMElement *>(d2Node);
+      xercesc::DOMElement *d2Element = dynamic_cast<xercesc::DOMElement *>(d2Node);
 
       const XMLCh *d2titleXMLCh = d2Element->getAttribute(tags_->ATTR_TITLE);
       c = xercesc::XMLString::transcode(d2titleXMLCh);
@@ -206,16 +194,13 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
       me.zto = 0.0;
     }
 
-    xercesc::DOMNodeList *tpNodes =
-        element->getElementsByTagName(tags_->TAG_TPROFILE);
+    xercesc::DOMNodeList *tpNodes = element->getElementsByTagName(tags_->TAG_TPROFILE);
     const XMLSize_t tpCount = tpNodes->getLength();
 
     for (XMLSize_t tpIndex = 0; tpIndex < tpCount; ++tpIndex) {
-
       xercesc::DOMNode *tpNode = tpNodes->item(tpIndex);
 
-      xercesc::DOMElement *tpElement =
-          dynamic_cast<xercesc::DOMElement *>(tpNode);
+      xercesc::DOMElement *tpElement = dynamic_cast<xercesc::DOMElement *>(tpNode);
 
       const XMLCh *tptitleXMLCh = tpElement->getAttribute(tags_->ATTR_TITLE);
       c = xercesc::XMLString::transcode(tptitleXMLCh);
@@ -285,35 +270,29 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
       me.zto = 0.0;
     }
 
-    xercesc::DOMNodeList *tp2dNodes =
-        element->getElementsByTagName(tags_->TAG_TPROFILE2D);
+    xercesc::DOMNodeList *tp2dNodes = element->getElementsByTagName(tags_->TAG_TPROFILE2D);
     const XMLSize_t tp2dCount = tp2dNodes->getLength();
 
     for (XMLSize_t tp2dIndex = 0; tp2dIndex < tp2dCount; ++tp2dIndex) {
-
       xercesc::DOMNode *tp2dNode = tp2dNodes->item(tp2dIndex);
 
-      xercesc::DOMElement *tp2dElement =
-          dynamic_cast<xercesc::DOMElement *>(tp2dNode);
+      xercesc::DOMElement *tp2dElement = dynamic_cast<xercesc::DOMElement *>(tp2dNode);
 
-      const XMLCh *tp2dtitleXMLCh =
-          tp2dElement->getAttribute(tags_->ATTR_TITLE);
+      const XMLCh *tp2dtitleXMLCh = tp2dElement->getAttribute(tags_->ATTR_TITLE);
       c = xercesc::XMLString::transcode(tp2dtitleXMLCh);
       me.type = "tprofile2d";
       me.title = c;
       meok = true;
       xercesc::XMLString::release(&c);
 
-      const XMLCh *tp2dxbinsXMLCh =
-          tp2dElement->getAttribute(tags_->ATTR_XBINS);
+      const XMLCh *tp2dxbinsXMLCh = tp2dElement->getAttribute(tags_->ATTR_XBINS);
       c = xercesc::XMLString::transcode(tp2dxbinsXMLCh);
       s.clear();
       s.str(c);
       s >> me.xbins;
       xercesc::XMLString::release(&c);
 
-      const XMLCh *tp2dxfromXMLCh =
-          tp2dElement->getAttribute(tags_->ATTR_XFROM);
+      const XMLCh *tp2dxfromXMLCh = tp2dElement->getAttribute(tags_->ATTR_XFROM);
       c = xercesc::XMLString::transcode(tp2dxfromXMLCh);
       s.clear();
       s.str(c);
@@ -327,16 +306,14 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
       s >> me.xto;
       xercesc::XMLString::release(&c);
 
-      const XMLCh *tp2dybinsXMLCh =
-          tp2dElement->getAttribute(tags_->ATTR_YBINS);
+      const XMLCh *tp2dybinsXMLCh = tp2dElement->getAttribute(tags_->ATTR_YBINS);
       c = xercesc::XMLString::transcode(tp2dybinsXMLCh);
       s.clear();
       s.str(c);
       s >> me.ybins;
       xercesc::XMLString::release(&c);
 
-      const XMLCh *tp2dyfromXMLCh =
-          tp2dElement->getAttribute(tags_->ATTR_YFROM);
+      const XMLCh *tp2dyfromXMLCh = tp2dElement->getAttribute(tags_->ATTR_YFROM);
       c = xercesc::XMLString::transcode(tp2dyfromXMLCh);
       s.clear();
       s.str(c);
@@ -350,16 +327,14 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
       s >> me.yto;
       xercesc::XMLString::release(&c);
 
-      const XMLCh *tp2dzbinsXMLCh =
-          tp2dElement->getAttribute(tags_->ATTR_ZBINS);
+      const XMLCh *tp2dzbinsXMLCh = tp2dElement->getAttribute(tags_->ATTR_ZBINS);
       c = xercesc::XMLString::transcode(tp2dzbinsXMLCh);
       s.clear();
       s.str(c);
       s >> me.zbins;
       xercesc::XMLString::release(&c);
 
-      const XMLCh *tp2dzfromXMLCh =
-          tp2dElement->getAttribute(tags_->ATTR_ZFROM);
+      const XMLCh *tp2dzfromXMLCh = tp2dElement->getAttribute(tags_->ATTR_ZFROM);
       c = xercesc::XMLString::transcode(tp2dzfromXMLCh);
       s.clear();
       s.str(c);
@@ -373,8 +348,7 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
       s >> me.zto;
       xercesc::XMLString::release(&c);
 
-      const XMLCh *tp2dncycleXMLCh =
-          tp2dElement->getAttribute(tags_->ATTR_NCYCLE);
+      const XMLCh *tp2dncycleXMLCh = tp2dElement->getAttribute(tags_->ATTR_NCYCLE);
       c = xercesc::XMLString::transcode(tp2dncycleXMLCh);
       s.clear();
       s.str(c);
@@ -389,16 +363,13 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
       xercesc::XMLString::release(&c);
     }
 
-    xercesc::DOMNodeList *qNodes =
-        element->getElementsByTagName(tags_->TAG_QUERY);
+    xercesc::DOMNodeList *qNodes = element->getElementsByTagName(tags_->TAG_QUERY);
     const XMLSize_t qCount = qNodes->getLength();
 
     for (XMLSize_t qIndex = 0; qIndex < qCount; ++qIndex) {
-
       xercesc::DOMNode *qNode = qNodes->item(qIndex);
 
-      xercesc::DOMElement *qElement =
-          dynamic_cast<xercesc::DOMElement *>(qNode);
+      xercesc::DOMElement *qElement = dynamic_cast<xercesc::DOMElement *>(qNode);
 
       const XMLCh *nameXMLCh = qElement->getAttribute(tags_->ATTR_NAME);
       c = xercesc::XMLString::transcode(nameXMLCh);
@@ -424,19 +395,17 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
     if (meok)
       DBMonitoringElements_.push_back(me);
   }
-} // handleElement()
+}  // handleElement()
 
 // - - - - - - - - - - - - - - - - - - -
 
 void MonitorXMLParser::load() noexcept(false) {
-
   parser_->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
   parser_->setDoNamespaces(false);
   parser_->setDoSchema(false);
   parser_->setLoadExternalDTD(false);
 
   try {
-
     parser_->parse(xmlFile_.c_str());
 
     xercesc::DOMDocument *xmlDoc = parser_->getDocument();
@@ -448,7 +417,6 @@ void MonitorXMLParser::load() noexcept(false) {
     }
 
     if (xercesc::XMLString::equals(tags_->TAG_DBE, dbe->getTagName())) {
-
       xercesc::DOMNodeList *children = dbe->getChildNodes();
       const XMLSize_t nodeCount = children->getLength();
 
@@ -463,15 +431,13 @@ void MonitorXMLParser::load() noexcept(false) {
           continue;
         }
 
-        xercesc::DOMElement *currentElement =
-            dynamic_cast<xercesc::DOMElement *>(currentNode);
+        xercesc::DOMElement *currentElement = dynamic_cast<xercesc::DOMElement *>(currentNode);
 
         handleElement(currentElement);
       }
     }
 
   } catch (xercesc::XMLException &e) {
-
     char *message = xercesc::XMLString::transcode(e.getMessage());
 
     std::ostringstream buf;
@@ -482,7 +448,6 @@ void MonitorXMLParser::load() noexcept(false) {
     throw(std::runtime_error(buf.str()));
 
   } catch (const xercesc::DOMException &e) {
-
     char *message = xercesc::XMLString::transcode(e.getMessage());
 
     std::ostringstream buf;
@@ -495,4 +460,4 @@ void MonitorXMLParser::load() noexcept(false) {
 
   return;
 
-} // load()
+}  // load()

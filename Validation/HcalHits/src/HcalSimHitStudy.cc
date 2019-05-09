@@ -5,7 +5,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet &ps) {
-
   g4Label = ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits");
   hcalHits = ps.getUntrackedParameter<std::string>("HitCollection", "HcalHits");
   outFile_ = ps.getUntrackedParameter<std::string>("outputFile", "hcHit.root");
@@ -14,18 +13,15 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet &ps) {
   hep17_ = ps.getParameter<bool>("hep17");
   checkHit_ = true;
 
-  tok_hits_ =
-      consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hcalHits));
+  tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hcalHits));
 
-  edm::LogInfo("HcalSim") << "Module Label: " << g4Label
-                          << "   Hits: " << hcalHits << " / " << checkHit_
+  edm::LogInfo("HcalSim") << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / " << checkHit_
                           << "   Output: " << outFile_;
 }
 
 HcalSimHitStudy::~HcalSimHitStudy() {}
 
-void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
-                                     edm::EventSetup const &es) {
+void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   es.get<HcalRecNumberingRecord>().get(pHRNDC);
   hcons = &(*pHRNDC);
@@ -93,8 +89,7 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
 
   // Histograms for Hits
   if (checkHit_) {
-    meAllNHit_ =
-        ib.book1D("Hit01", "Number of Hits in HCal", 20000, 0., 20000.);
+    meAllNHit_ = ib.book1D("Hit01", "Number of Hits in HCal", 20000, 0., 20000.);
     meBadDetHit_ = ib.book1D("Hit02", "Hits with wrong Det", 100, 0., 100.);
     meBadSubHit_ = ib.book1D("Hit03", "Hits with wrong Subdet", 100, 0., 100.);
     meBadIdHit_ = ib.book1D("Hit04", "Hits with wrong ID", 100, 0., 100.);
@@ -105,24 +100,19 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
     meDetectHit_ = ib.book1D("Hit09", "Detector ID", 50, 0., 50.);
     meSubdetHit_ = ib.book1D("Hit10", "Subdetectors in HCal", 50, 0., 50.);
     meDepthHit_ = ib.book1D("Hit11", "Depths in HCal", 20, 0., 20.);
-    meEtaHit_ = ib.book1D("Hit12", "Eta in HCal", ieta_bins_HF, ieta_min_HF,
-                          ieta_max_HF);
+    meEtaHit_ = ib.book1D("Hit12", "Eta in HCal", ieta_bins_HF, ieta_min_HF, ieta_max_HF);
     meEtaPhiHit_ =
-        ib.book2D("Hit12b", "Eta-phi in HCal", ieta_bins_HF, ieta_min_HF,
-                  ieta_max_HF, iphi_bins, iphi_min, iphi_max);
+        ib.book2D("Hit12b", "Eta-phi in HCal", ieta_bins_HF, ieta_min_HF, ieta_max_HF, iphi_bins, iphi_min, iphi_max);
     for (int depth = 1; depth <= maxDepth_; depth++) {
       sprintf(hname, "Hit12bd%d", depth);
       sprintf(htitle, "Eta-phi in HCal d%d", depth);
-      meEtaPhiHitDepth_.push_back(ib.book2D(hname, htitle, ieta_bins_HF,
-                                            ieta_min_HF, ieta_max_HF, iphi_bins,
-                                            iphi_min, iphi_max));
+      meEtaPhiHitDepth_.push_back(
+          ib.book2D(hname, htitle, ieta_bins_HF, ieta_min_HF, ieta_max_HF, iphi_bins, iphi_min, iphi_max));
     }
     // KC: There are different phi segmentation schemes, this plot uses wider
     // bins to represent the most sparse segmentation
-    mePhiHit_ = ib.book1D("Hit13", "Phi in HCal (HB,HO)", iphi_bins, iphi_min,
-                          iphi_max);
-    mePhiHitb_ = ib.book1D("Hit13b", "Phi in HCal (HE,HF)", iphi_bins, iphi_min,
-                           iphi_max);
+    mePhiHit_ = ib.book1D("Hit13", "Phi in HCal (HB,HO)", iphi_bins, iphi_min, iphi_max);
+    mePhiHitb_ = ib.book1D("Hit13b", "Phi in HCal (HE,HF)", iphi_bins, iphi_min, iphi_max);
     meEnergyHit_ = ib.book1D("Hit14", "Energy in HCal", 2000, 0., 20.);
     meTimeHit_ = ib.book1D("Hit15", "Time in HCal", 528, 0., 528.);
     meTimeWHit_ = ib.book1D("Hit16", "Time in HCal (E wtd)", 528, 0., 528.);
@@ -130,24 +120,15 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
     meHEDepHit_ = ib.book1D("Hit18", "Depths in HE", 20, 0., 20.);
     meHODepHit_ = ib.book1D("Hit19", "Depths in HO", 20, 0., 20.);
     meHFDepHit_ = ib.book1D("Hit20", "Depths in HF", 20, 0., 20.);
-    meHFDepHitw_ =
-        ib.book1D("Hit20b", "Depths in HF (p.e. weighted)", 20, 0., 20.);
-    meHBEtaHit_ =
-        ib.book1D("Hit21", "Eta in HB", ieta_bins_HB, ieta_min_HB, ieta_max_HB);
-    meHEEtaHit_ =
-        ib.book1D("Hit22", "Eta in HE", ieta_bins_HE, ieta_min_HE, ieta_max_HE);
-    meHOEtaHit_ =
-        ib.book1D("Hit23", "Eta in HO", ieta_bins_HO, ieta_min_HO, ieta_max_HO);
-    meHFEtaHit_ =
-        ib.book1D("Hit24", "Eta in HF", ieta_bins_HF, ieta_min_HF, ieta_max_HF);
-    meHBPhiHit_ =
-        ib.book1D("Hit25", "Phi in HB", iphi_bins, iphi_min, iphi_max);
-    meHEPhiHit_ =
-        ib.book1D("Hit26", "Phi in HE", iphi_bins, iphi_min, iphi_max);
-    meHOPhiHit_ =
-        ib.book1D("Hit27", "Phi in HO", iphi_bins, iphi_min, iphi_max);
-    meHFPhiHit_ =
-        ib.book1D("Hit28", "Phi in HF", iphi_bins, iphi_min, iphi_max);
+    meHFDepHitw_ = ib.book1D("Hit20b", "Depths in HF (p.e. weighted)", 20, 0., 20.);
+    meHBEtaHit_ = ib.book1D("Hit21", "Eta in HB", ieta_bins_HB, ieta_min_HB, ieta_max_HB);
+    meHEEtaHit_ = ib.book1D("Hit22", "Eta in HE", ieta_bins_HE, ieta_min_HE, ieta_max_HE);
+    meHOEtaHit_ = ib.book1D("Hit23", "Eta in HO", ieta_bins_HO, ieta_min_HO, ieta_max_HO);
+    meHFEtaHit_ = ib.book1D("Hit24", "Eta in HF", ieta_bins_HF, ieta_min_HF, ieta_max_HF);
+    meHBPhiHit_ = ib.book1D("Hit25", "Phi in HB", iphi_bins, iphi_min, iphi_max);
+    meHEPhiHit_ = ib.book1D("Hit26", "Phi in HE", iphi_bins, iphi_min, iphi_max);
+    meHOPhiHit_ = ib.book1D("Hit27", "Phi in HO", iphi_bins, iphi_min, iphi_max);
+    meHFPhiHit_ = ib.book1D("Hit28", "Phi in HF", iphi_bins, iphi_min, iphi_max);
     meHBEneHit_ = ib.book1D("Hit29", "Energy in HB", 2000, 0., 20.);
     meHEEneHit_ = ib.book1D("Hit30", "Energy in HE", 500, 0., 5.);
     meHEP17EneHit_ = ib.book1D("Hit30b", "Energy in HEP17", 500, 0., 5.);
@@ -157,32 +138,28 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
     // HxEneMap, HxEneSum, HxEneSum_vs_ieta plot the sum of the simhits energy
     // within a single ieta-iphi tower.
 
-    meHBEneMap_ = ib.book2D("HBEneMap", "HBEneMap", ieta_bins_HB, ieta_min_HB,
-                            ieta_max_HB, iphi_bins, iphi_min, iphi_max);
-    meHEEneMap_ = ib.book2D("HEEneMap", "HEEneMap", ieta_bins_HE, ieta_min_HE,
-                            ieta_max_HE, iphi_bins, iphi_min, iphi_max);
-    meHOEneMap_ = ib.book2D("HOEneMap", "HOEneMap", ieta_bins_HO, ieta_min_HO,
-                            ieta_max_HO, iphi_bins, iphi_min, iphi_max);
-    meHFEneMap_ = ib.book2D("HFEneMap", "HFEneMap", ieta_bins_HF, ieta_min_HF,
-                            ieta_max_HF, iphi_bins, iphi_min, iphi_max);
+    meHBEneMap_ =
+        ib.book2D("HBEneMap", "HBEneMap", ieta_bins_HB, ieta_min_HB, ieta_max_HB, iphi_bins, iphi_min, iphi_max);
+    meHEEneMap_ =
+        ib.book2D("HEEneMap", "HEEneMap", ieta_bins_HE, ieta_min_HE, ieta_max_HE, iphi_bins, iphi_min, iphi_max);
+    meHOEneMap_ =
+        ib.book2D("HOEneMap", "HOEneMap", ieta_bins_HO, ieta_min_HO, ieta_max_HO, iphi_bins, iphi_min, iphi_max);
+    meHFEneMap_ =
+        ib.book2D("HFEneMap", "HFEneMap", ieta_bins_HF, ieta_min_HF, ieta_max_HF, iphi_bins, iphi_min, iphi_max);
 
     meHBEneSum_ = ib.book1D("HBEneSum", "HBEneSum", 2000, 0., 20.);
     meHEEneSum_ = ib.book1D("HEEneSum", "HEEneSum", 500, 0., 5.);
     meHOEneSum_ = ib.book1D("HOEneSum", "HOEneSum", 500, 0., 5.);
     meHFEneSum_ = ib.book1D("HFEneSum", "HFEneSum", 1001, -0.5, 1000.5);
 
-    meHBEneSum_vs_ieta_ =
-        ib.bookProfile("HBEneSum_vs_ieta", "HBEneSum_vs_ieta", ieta_bins_HB,
-                       ieta_min_HB, ieta_max_HB, 2011, -10.5, 2000.5, " ");
-    meHEEneSum_vs_ieta_ =
-        ib.bookProfile("HEEneSum_vs_ieta", "HEEneSum_vs_ieta", ieta_bins_HE,
-                       ieta_min_HE, ieta_max_HE, 2011, -10.5, 2000.5, " ");
-    meHOEneSum_vs_ieta_ =
-        ib.bookProfile("HOEneSum_vs_ieta", "HOEneSum_vs_ieta", ieta_bins_HO,
-                       ieta_min_HO, ieta_max_HO, 2011, -10.5, 2000.5, " ");
-    meHFEneSum_vs_ieta_ =
-        ib.bookProfile("HFEneSum_vs_ieta", "HFEneSum_vs_ieta", ieta_bins_HF,
-                       ieta_min_HF, ieta_max_HF, 2011, -10.5, 2000.5, " ");
+    meHBEneSum_vs_ieta_ = ib.bookProfile(
+        "HBEneSum_vs_ieta", "HBEneSum_vs_ieta", ieta_bins_HB, ieta_min_HB, ieta_max_HB, 2011, -10.5, 2000.5, " ");
+    meHEEneSum_vs_ieta_ = ib.bookProfile(
+        "HEEneSum_vs_ieta", "HEEneSum_vs_ieta", ieta_bins_HE, ieta_min_HE, ieta_max_HE, 2011, -10.5, 2000.5, " ");
+    meHOEneSum_vs_ieta_ = ib.bookProfile(
+        "HOEneSum_vs_ieta", "HOEneSum_vs_ieta", ieta_bins_HO, ieta_min_HO, ieta_max_HO, 2011, -10.5, 2000.5, " ");
+    meHFEneSum_vs_ieta_ = ib.bookProfile(
+        "HFEneSum_vs_ieta", "HFEneSum_vs_ieta", ieta_bins_HF, ieta_min_HF, ieta_max_HF, 2011, -10.5, 2000.5, " ");
 
     meHBTimHit_ = ib.book1D("Hit33", "Time in HB", 528, 0., 528.);
     meHETimHit_ = ib.book1D("Hit34", "Time in HE", 528, 0., 528.);
@@ -198,18 +175,10 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
     meHEL10Ene_ = ib.book1D("Hit42", "Log10Energy in HE", 140, -10., 4.);
     meHFL10Ene_ = ib.book1D("Hit43", "Log10Energy in HF", 50, -1., 4.);
     meHOL10Ene_ = ib.book1D("Hit44", "Log10Energy in HO", 140, -10., 4.);
-    meHBL10EneP_ =
-        ib.bookProfile("Hit45", "Log10Energy in HB vs Hit contribution", 140,
-                       -10., 4., 100, 0., 1.);
-    meHEL10EneP_ =
-        ib.bookProfile("Hit46", "Log10Energy in HE vs Hit contribution", 140,
-                       -10., 4., 100, 0., 1.);
-    meHFL10EneP_ =
-        ib.bookProfile("Hit47", "Log10Energy in HF vs Hit contribution", 140,
-                       -10., 4., 100, 0., 1.);
-    meHOL10EneP_ =
-        ib.bookProfile("Hit48", "Log10Energy in HO vs Hit contribution", 140,
-                       -10., 4., 100, 0., 1.);
+    meHBL10EneP_ = ib.bookProfile("Hit45", "Log10Energy in HB vs Hit contribution", 140, -10., 4., 100, 0., 1.);
+    meHEL10EneP_ = ib.bookProfile("Hit46", "Log10Energy in HE vs Hit contribution", 140, -10., 4., 100, 0., 1.);
+    meHFL10EneP_ = ib.bookProfile("Hit47", "Log10Energy in HF vs Hit contribution", 140, -10., 4., 100, 0., 1.);
+    meHOL10EneP_ = ib.bookProfile("Hit48", "Log10Energy in HO vs Hit contribution", 140, -10., 4., 100, 0., 1.);
   }
 }
 
@@ -218,9 +187,7 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
 }*/
 
 void HcalSimHitStudy::analyze(const edm::Event &e, const edm::EventSetup &) {
-
-  LogDebug("HcalSim") << "Run = " << e.id().run()
-                      << " Event = " << e.id().event();
+  LogDebug("HcalSim") << "Run = " << e.id().run() << " Event = " << e.id().event();
 
   std::vector<PCaloHit> caloHits;
   edm::Handle<edm::PCaloHitContainer> hitsHcal;
@@ -242,7 +209,6 @@ void HcalSimHitStudy::analyze(const edm::Event &e, const edm::EventSetup &) {
 }
 
 void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
-
   int nHit = hits.size();
   int nHB = 0, nHE = 0, nHO = 0, nHF = 0, nBad1 = 0, nBad2 = 0, nBad = 0;
   std::vector<double> encontHB(140, 0.);
@@ -304,11 +270,10 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
     eta = hid.ieta();
     phi = hid.iphi();
 
-    LogDebug("HcalSim") << "Hit[" << i << "] ID " << std::hex << id_ << std::dec
-                        << " Det " << det << " Sub " << subdet << " depth "
-                        << depth << " Eta " << eta << " Phi " << phi << " E "
-                        << energy << " time " << time;
-    if (det == 4) { // Check DetId.h
+    LogDebug("HcalSim") << "Hit[" << i << "] ID " << std::hex << id_ << std::dec << " Det " << det << " Sub " << subdet
+                        << " depth " << depth << " Eta " << eta << " Phi " << phi << " E " << energy << " time "
+                        << time;
+    if (det == 4) {  // Check DetId.h
       if (subdet == static_cast<int>(HcalBarrel))
         nHB++;
       else if (subdet == static_cast<int>(HcalEndcap))
@@ -452,7 +417,6 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
 
   for (int i = 0; i < ieta_bins_HB; i++) {
     for (int j = 0; j < iphi_bins; j++) {
-
       if (HBEneMap[i][j] != 0) {
         meHBEneSum_->Fill(HBEneMap[i][j]);
         meHBEneSum_vs_ieta_->Fill((i - eta_offset_HB), HBEneMap[i][j]);
@@ -463,7 +427,6 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
 
   for (int i = 0; i < ieta_bins_HE; i++) {
     for (int j = 0; j < iphi_bins; j++) {
-
       if (HEEneMap[i][j] != 0) {
         meHEEneSum_->Fill(HEEneMap[i][j]);
         meHEEneSum_vs_ieta_->Fill((i - eta_offset_HE), HEEneMap[i][j]);
@@ -474,7 +437,6 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
 
   for (int i = 0; i < ieta_bins_HO; i++) {
     for (int j = 0; j < iphi_bins; j++) {
-
       if (HOEneMap[i][j] != 0) {
         meHOEneSum_->Fill(HOEneMap[i][j]);
         meHOEneSum_vs_ieta_->Fill((i - eta_offset_HO), HOEneMap[i][j]);
@@ -485,7 +447,6 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
 
   for (int i = 0; i < ieta_bins_HF; i++) {
     for (int j = 0; j < iphi_bins; j++) {
-
       if (HFEneMap[i][j] != 0) {
         meHFEneSum_->Fill(HFEneMap[i][j]);
         meHFEneSum_vs_ieta_->Fill((i - eta_offset_HF), HFEneMap[i][j]);
@@ -494,7 +455,6 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
     }
   }
 
-  LogDebug("HcalSim") << "HcalSimHitStudy::analyzeHits: HB " << nHB << " HE "
-                      << nHE << " HO " << nHO << " HF " << nHF << " Bad "
-                      << nBad << " All " << nHit;
+  LogDebug("HcalSim") << "HcalSimHitStudy::analyzeHits: HB " << nHB << " HE " << nHE << " HO " << nHO << " HF " << nHF
+                      << " Bad " << nBad << " All " << nHit;
 }

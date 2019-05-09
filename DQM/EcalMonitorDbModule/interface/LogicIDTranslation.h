@@ -12,15 +12,15 @@
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
 namespace ecaldqm {
-EcalLogicID ecalID();
-EcalLogicID subdetID(EcalSubdetector);
-EcalLogicID crystalID(DetId const &);
-EcalLogicID towerID(EcalElectronicsId const &);
-EcalLogicID memChannelID(EcalPnDiodeDetId const &);
-EcalLogicID memTowerID(EcalElectronicsId const &);
-EcalLogicID lmPNID(EcalPnDiodeDetId const &);
+  EcalLogicID ecalID();
+  EcalLogicID subdetID(EcalSubdetector);
+  EcalLogicID crystalID(DetId const &);
+  EcalLogicID towerID(EcalElectronicsId const &);
+  EcalLogicID memChannelID(EcalPnDiodeDetId const &);
+  EcalLogicID memTowerID(EcalElectronicsId const &);
+  EcalLogicID lmPNID(EcalPnDiodeDetId const &);
 
-DetId toDetId(EcalLogicID const &);
-} // namespace ecaldqm
+  DetId toDetId(EcalLogicID const &);
+}  // namespace ecaldqm
 
 #endif

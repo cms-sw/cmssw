@@ -14,12 +14,8 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-CandidateBenchmarkAnalyzer::CandidateBenchmarkAnalyzer(
-    const edm::ParameterSet &parameterSet)
-    : BenchmarkAnalyzer(parameterSet),
-      CandidateBenchmark(
-          (Benchmark::Mode)parameterSet.getParameter<int>("mode")) {
-
+CandidateBenchmarkAnalyzer::CandidateBenchmarkAnalyzer(const edm::ParameterSet &parameterSet)
+    : BenchmarkAnalyzer(parameterSet), CandidateBenchmark((Benchmark::Mode)parameterSet.getParameter<int>("mode")) {
   setRange(parameterSet.getParameter<double>("ptMin"),
            parameterSet.getParameter<double>("ptMax"),
            parameterSet.getParameter<double>("etaMin"),
@@ -37,9 +33,7 @@ void CandidateBenchmarkAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
   setup(ibooker);
 }
 
-void CandidateBenchmarkAnalyzer::analyze(const edm::Event &iEvent,
-                                         const edm::EventSetup &iSetup) {
-
+void CandidateBenchmarkAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   Handle<View<Candidate>> collection;
   iEvent.getByToken(myColl_, collection);
 

@@ -9,7 +9,6 @@
 
 /// To plot MET quantities
 class METBenchmark : public Benchmark {
-
 public:
   METBenchmark(Mode mode) : Benchmark(mode) {}
   ~METBenchmark() override;
@@ -18,7 +17,8 @@ public:
   void setup(DQMStore::IBooker &b);
 
   /// fill a collection
-  template <class C> void fill(const C &candidates);
+  template <class C>
+  void fill(const C &candidates);
 
   /// fill histograms with a given particle
   void fillOne(const reco::MET &candidate);
@@ -35,8 +35,8 @@ protected:
   TH2F *mex_VS_sumEt_;
 };
 
-template <class C> void METBenchmark::fill(const C &candCollection) {
-
+template <class C>
+void METBenchmark::fill(const C &candCollection) {
   for (unsigned int i = 0; i < candCollection.size(); ++i) {
     const reco::MET &cand = candCollection[i];
     fillOne(cand);

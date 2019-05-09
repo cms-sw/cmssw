@@ -9,9 +9,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
 class SiStripNoisesDQM : public SiStripBaseCondObjDQM {
-
 public:
-  SiStripNoisesDQM(const edm::EventSetup &eSetup, edm::RunNumber_t iRun,
+  SiStripNoisesDQM(const edm::EventSetup &eSetup,
+                   edm::RunNumber_t iRun,
                    edm::ParameterSet const &hPSet,
                    edm::ParameterSet const &fPSet);
 
@@ -19,11 +19,9 @@ public:
 
   void getActiveDetIds(const edm::EventSetup &eSetup) override;
 
-  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_,
-                     const TrackerTopology *tTopo) override;
+  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) override;
   void fillMEsForLayer(
-      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_,
-      const TrackerTopology *tTopo) override;
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology *tTopo) override;
 
   unsigned long long getCache(const edm::EventSetup &eSetup) override {
     return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();

@@ -11,22 +11,27 @@ public:
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-  TProfile *dividehistos(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter,
-                         const std::string &num, const std::string &denom,
-                         const std::string &out, const std::string &label,
+  TProfile *dividehistos(DQMStore::IBooker &ibooker,
+                         DQMStore::IGetter &igetter,
+                         const std::string &num,
+                         const std::string &denom,
+                         const std::string &out,
+                         const std::string &label,
                          const std::string &titel = "");
 
-  TH2F *dividehistos2D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter,
-                       const std::string &num, const std::string &denom,
-                       const std::string &out, const std::string &label,
+  TH2F *dividehistos2D(DQMStore::IBooker &ibooker,
+                       DQMStore::IGetter &igetter,
+                       const std::string &num,
+                       const std::string &denom,
+                       const std::string &out,
+                       const std::string &label,
                        const std::string &titel = "");
 
 private:
   /** a replacement for the function TGraphAsymmErrors::Efficiency(..) used with
      earlier versions of ROOT (this functionality has been moved to a separate
      class TEfficiency) */
-  static void Efficiency(int passing, int total, double level, double &mode,
-                         double &lowerBound, double &upperBound);
+  static void Efficiency(int passing, int total, double level, double &mode, double &lowerBound, double &upperBound);
 
   /** read from the configuration: if set to true, efficiencies
       are calculated with respect to reconstructed objects (instead
@@ -39,10 +44,8 @@ private:
   /** convenience method to get a histogram but checks first
       whether the corresponding MonitorElement is non-null.
       @return null if the MonitorElement is null */
-  TH1F *getHistogram(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter,
-                     const std::string &histoPath);
-  TH2F *get2DHistogram(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter,
-                       const std::string &histoPath);
+  TH1F *getHistogram(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const std::string &histoPath);
+  TH2F *get2DHistogram(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const std::string &histoPath);
   std::string subDir_;
 
   /** dataset with which these histograms were produced.

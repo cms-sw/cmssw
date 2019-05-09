@@ -25,7 +25,7 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
-#include "DQM/SiStripCommon/interface/TkHistoMap.h" /// ADDITON OF TK_HISTO_MAP
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"  /// ADDITON OF TK_HISTO_MAP
 
 #include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
 
@@ -36,9 +36,9 @@
 
 class TrackerTopology;
 class SiStripBaseCondObjDQM {
-
 public:
-  SiStripBaseCondObjDQM(const edm::EventSetup &eSetup, edm::RunNumber_t iRun,
+  SiStripBaseCondObjDQM(const edm::EventSetup &eSetup,
+                        edm::RunNumber_t iRun,
                         edm::ParameterSet const &hPSet,
                         edm::ParameterSet const &fPSet);
 
@@ -48,15 +48,14 @@ public:
 
   void analysis(const edm::EventSetup &eSetup_);
   void analysisOnDemand(const edm::EventSetup &eSetup_, uint32_t detIdOnDemand);
-  void analysisOnDemand(const edm::EventSetup &eSetup_,
-                        const std::vector<uint32_t> &detIdsOnDemand);
+  void analysisOnDemand(const edm::EventSetup &eSetup_, const std::vector<uint32_t> &detIdsOnDemand);
   void analysisOnDemand(const edm::EventSetup &eSetup_,
                         std::string requestedSubDetector,
-                        uint32_t requestedSide, uint32_t requestedLayer);
+                        uint32_t requestedSide,
+                        uint32_t requestedLayer);
 
   std::vector<uint32_t> getCabledModules();
-  void selectModules(std::vector<uint32_t> &detIds_,
-                     const TrackerTopology *tTopo);
+  void selectModules(std::vector<uint32_t> &detIds_, const TrackerTopology *tTopo);
 
   //    virtual void fillTopSummaryMEs()=0;
 
@@ -68,8 +67,10 @@ public:
 protected:
   struct ModMEs {
     ModMEs()
-        : ProfileDistr(nullptr), CumulDistr(nullptr),
-          SummaryOfProfileDistr(nullptr), SummaryOfCumulDistr(nullptr),
+        : ProfileDistr(nullptr),
+          CumulDistr(nullptr),
+          SummaryOfProfileDistr(nullptr),
+          SummaryOfCumulDistr(nullptr),
           SummaryDistr(nullptr) {
       ;
     }
@@ -80,27 +81,19 @@ protected:
     MonitorElement *SummaryDistr;
   };
 
-  void getModMEs(ModMEs &CondObj_ME, const uint32_t &detId_,
-                 const TrackerTopology *tTopo);
-  void getSummaryMEs(ModMEs &CondObj_ME, const uint32_t &detId_,
-                     const TrackerTopology *tTopo);
-  std::pair<std::string, uint32_t>
-  getLayerNameAndId(const uint32_t &detId_, const TrackerTopology *tTopo);
-  std::pair<std::string, uint32_t>
-  getStringNameAndId(const uint32_t &detId_, const TrackerTopology *tTopo);
-  std::vector<uint32_t>
-  GetSameLayerDetId(const std::vector<uint32_t> &activeDetIds,
-                    uint32_t selDetId, const TrackerTopology *tTopo);
+  void getModMEs(ModMEs &CondObj_ME, const uint32_t &detId_, const TrackerTopology *tTopo);
+  void getSummaryMEs(ModMEs &CondObj_ME, const uint32_t &detId_, const TrackerTopology *tTopo);
+  std::pair<std::string, uint32_t> getLayerNameAndId(const uint32_t &detId_, const TrackerTopology *tTopo);
+  std::pair<std::string, uint32_t> getStringNameAndId(const uint32_t &detId_, const TrackerTopology *tTopo);
+  std::vector<uint32_t> GetSameLayerDetId(const std::vector<uint32_t> &activeDetIds,
+                                          uint32_t selDetId,
+                                          const TrackerTopology *tTopo);
 
-  virtual void fillModMEs(const std::vector<uint32_t> &selectedDetIds,
-                          const edm::EventSetup &es);
-  virtual void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds,
-                              const edm::EventSetup &es);
-  virtual void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_,
-                             const TrackerTopology *tTopo) = 0;
+  virtual void fillModMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es);
+  virtual void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es);
+  virtual void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) = 0;
   virtual void fillMEsForLayer(
-      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_,
-      const TrackerTopology *tTopo) = 0;
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology *tTopo) = 0;
 
   void fillTkMap(const uint32_t &detid, const float &value);
 
@@ -137,23 +130,19 @@ protected:
   TrackerMap *tkMap;
 
 private:
-  void bookProfileMEs(SiStripBaseCondObjDQM::ModMEs &CondObj_ME,
-                      const uint32_t &detId_, const TrackerTopology *tTopo);
-  void bookCumulMEs(SiStripBaseCondObjDQM::ModMEs &CondObj_ME,
-                    const uint32_t &detId_, const TrackerTopology *tTopo);
+  void bookProfileMEs(SiStripBaseCondObjDQM::ModMEs &CondObj_ME, const uint32_t &detId_, const TrackerTopology *tTopo);
+  void bookCumulMEs(SiStripBaseCondObjDQM::ModMEs &CondObj_ME, const uint32_t &detId_, const TrackerTopology *tTopo);
   void bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs &CondObj_ME,
                              const uint32_t &detId_,
                              const TrackerTopology *tTopo);
   void bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs &CondObj_ME,
                            const uint32_t &detId_,
                            const TrackerTopology *tTopo);
-  void bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs &CondObj_ME,
-                      const uint32_t &detId_, const TrackerTopology *tTopo);
+  void bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs &CondObj_ME, const uint32_t &detId_, const TrackerTopology *tTopo);
 
   void bookTkMap(const std::string &TkMapname);
 
-  void saveTkMap(const std::string &TkMapname, double minValue,
-                 double maxValue);
+  void saveTkMap(const std::string &TkMapname, double minValue, double maxValue);
 
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<uint32_t> ModulesToBeIncluded_;

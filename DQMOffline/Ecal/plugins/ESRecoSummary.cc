@@ -43,35 +43,27 @@ ESRecoSummary::ESRecoSummary(const edm::ParameterSet &ps) {
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // now do what ever initialization is needed
-  esRecHitCollection_ = consumes<ESRecHitCollection>(
-      ps.getParameter<edm::InputTag>("recHitCollection_ES"));
-  esClusterCollectionX_ = consumes<reco::PreshowerClusterCollection>(
-      ps.getParameter<edm::InputTag>("ClusterCollectionX_ES"));
-  esClusterCollectionY_ = consumes<reco::PreshowerClusterCollection>(
-      ps.getParameter<edm::InputTag>("ClusterCollectionY_ES"));
+  esRecHitCollection_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("recHitCollection_ES"));
+  esClusterCollectionX_ =
+      consumes<reco::PreshowerClusterCollection>(ps.getParameter<edm::InputTag>("ClusterCollectionX_ES"));
+  esClusterCollectionY_ =
+      consumes<reco::PreshowerClusterCollection>(ps.getParameter<edm::InputTag>("ClusterCollectionY_ES"));
 
-  superClusterCollection_EE_ = consumes<reco::SuperClusterCollection>(
-      ps.getParameter<edm::InputTag>("superClusterCollection_EE"));
+  superClusterCollection_EE_ =
+      consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("superClusterCollection_EE"));
 }
 
-void ESRecoSummary::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
-                                   edm::EventSetup const &) {
+void ESRecoSummary::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
   // Monitor Elements (ex THXD)
-  iBooker.setCurrentFolder(
-      prefixME_ + "/ESRecoSummary"); // to organise the histos in folders
+  iBooker.setCurrentFolder(prefixME_ + "/ESRecoSummary");  // to organise the histos in folders
 
   // Preshower ----------------------------------------------
-  h_recHits_ES_energyMax = iBooker.book1D(
-      "recHits_ES_energyMax", "recHits_ES_energyMax", 200, 0., 0.01);
-  h_recHits_ES_time =
-      iBooker.book1D("recHits_ES_time", "recHits_ES_time", 200, -100., 100.);
+  h_recHits_ES_energyMax = iBooker.book1D("recHits_ES_energyMax", "recHits_ES_energyMax", 200, 0., 0.01);
+  h_recHits_ES_time = iBooker.book1D("recHits_ES_time", "recHits_ES_time", 200, -100., 100.);
 
-  h_esClusters_energy_plane1 = iBooker.book1D(
-      "esClusters_energy_plane1", "esClusters_energy_plane1", 200, 0., 0.01);
-  h_esClusters_energy_plane2 = iBooker.book1D(
-      "esClusters_energy_plane2", "esClusters_energy_plane2", 200, 0., 0.01);
-  h_esClusters_energy_ratio = iBooker.book1D(
-      "esClusters_energy_ratio", "esClusters_energy_ratio", 200, 0., 20.);
+  h_esClusters_energy_plane1 = iBooker.book1D("esClusters_energy_plane1", "esClusters_energy_plane1", 200, 0., 0.01);
+  h_esClusters_energy_plane2 = iBooker.book1D("esClusters_energy_plane2", "esClusters_energy_plane2", 200, 0., 0.01);
+  h_esClusters_energy_ratio = iBooker.book1D("esClusters_energy_ratio", "esClusters_energy_ratio", 200, 0., 20.);
 }
 
 //
@@ -91,14 +83,13 @@ void ESRecoSummary::analyze(const edm::Event &ev, const edm::EventSetup &) {
 
   float maxRecHitEnergyES = -999.;
 
-  for (ESRecHitCollection::const_iterator esItr = thePreShowerRecHits->begin();
-       esItr != thePreShowerRecHits->end(); ++esItr) {
-
+  for (ESRecHitCollection::const_iterator esItr = thePreShowerRecHits->begin(); esItr != thePreShowerRecHits->end();
+       ++esItr) {
     h_recHits_ES_time->Fill(esItr->time());
     if (esItr->energy() > maxRecHitEnergyES)
       maxRecHitEnergyES = esItr->energy();
 
-  } // end loop over ES rec Hits
+  }  // end loop over ES rec Hits
 
   h_recHits_ES_energyMax->Fill(maxRecHitEnergyES);
 
@@ -115,18 +106,15 @@ void ESRecoSummary::analyze(const edm::Event &ev, const edm::EventSetup &) {
   // ... endcap
   edm::Handle<reco::SuperClusterCollection> superClusters_EE_h;
   ev.getByToken(superClusterCollection_EE_, superClusters_EE_h);
-  const reco::SuperClusterCollection *theEndcapSuperClusters =
-      superClusters_EE_h.product();
+  const reco::SuperClusterCollection *theEndcapSuperClusters = superClusters_EE_h.product();
   if (!superClusters_EE_h.isValid()) {
-    std::cerr << "EcalRecHitSummary::analyze --> superClusters_EE_h not found"
-              << std::endl;
+    std::cerr << "EcalRecHitSummary::analyze --> superClusters_EE_h not found" << std::endl;
   }
 
   // loop over all super clusters
-  for (reco::SuperClusterCollection::const_iterator itSC =
-           theEndcapSuperClusters->begin();
-       itSC != theEndcapSuperClusters->end(); ++itSC) {
-
+  for (reco::SuperClusterCollection::const_iterator itSC = theEndcapSuperClusters->begin();
+       itSC != theEndcapSuperClusters->end();
+       ++itSC) {
     if (fabs(itSC->eta()) < 1.65 || fabs(itSC->eta()) > 2.6)
       continue;
 
@@ -134,30 +122,30 @@ void ESRecoSummary::analyze(const edm::Event &ev, const edm::EventSetup &) {
     float ESenergyPlane2 = 0.;
 
     // Loop over all ECAL Basic clusters in the supercluster
-    for (reco::CaloCluster_iterator ecalBasicCluster = itSC->clustersBegin();
-         ecalBasicCluster != itSC->clustersEnd(); ecalBasicCluster++) {
+    for (reco::CaloCluster_iterator ecalBasicCluster = itSC->clustersBegin(); ecalBasicCluster != itSC->clustersEnd();
+         ecalBasicCluster++) {
       const reco::CaloClusterPtr ecalBasicClusterPtr = *(ecalBasicCluster);
 
-      for (reco::PreshowerClusterCollection::const_iterator iESClus =
-               ESclustersX->begin();
-           iESClus != ESclustersX->end(); ++iESClus) {
+      for (reco::PreshowerClusterCollection::const_iterator iESClus = ESclustersX->begin();
+           iESClus != ESclustersX->end();
+           ++iESClus) {
         const reco::CaloClusterPtr preshBasicCluster = iESClus->basicCluster();
         const reco::PreshowerCluster *esCluster = &*iESClus;
         if (preshBasicCluster == ecalBasicClusterPtr) {
           ESenergyPlane1 += esCluster->energy();
         }
-      } // end of x loop
+      }  // end of x loop
 
-      for (reco::PreshowerClusterCollection::const_iterator iESClus =
-               ESclustersY->begin();
-           iESClus != ESclustersY->end(); ++iESClus) {
+      for (reco::PreshowerClusterCollection::const_iterator iESClus = ESclustersY->begin();
+           iESClus != ESclustersY->end();
+           ++iESClus) {
         const reco::CaloClusterPtr preshBasicCluster = iESClus->basicCluster();
         const reco::PreshowerCluster *esCluster = &*iESClus;
         if (preshBasicCluster == ecalBasicClusterPtr) {
           ESenergyPlane2 += esCluster->energy();
         }
-      } // end of y loop
-    }   // end loop over all basic clusters in the supercluster
+      }  // end of y loop
+    }    // end loop over all basic clusters in the supercluster
 
     // cout<<"DQM : "<<ESenergyPlane1<<" "<<ESenergyPlane2<<endl;
     h_esClusters_energy_plane1->Fill(ESenergyPlane1);
@@ -165,7 +153,7 @@ void ESRecoSummary::analyze(const edm::Event &ev, const edm::EventSetup &) {
     if (ESenergyPlane1 > 0 && ESenergyPlane2 > 0)
       h_esClusters_energy_ratio->Fill(ESenergyPlane1 / ESenergyPlane2);
 
-  } // end loop over superclusters
+  }  // end loop over superclusters
 }
 
 // define this as a plug-in
