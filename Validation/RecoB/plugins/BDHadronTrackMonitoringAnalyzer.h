@@ -37,10 +37,6 @@
 #include <fstream>
 #include <iostream>
 
-using namespace reco;
-using namespace edm;
-using namespace std;
-
 /** \class BDHadronTrackMonitoringAnalyzer
  *
  *  Top level steering routine for B + D hadron track monitoring tool from
