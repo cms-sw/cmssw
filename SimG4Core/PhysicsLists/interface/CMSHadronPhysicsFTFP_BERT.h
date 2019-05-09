@@ -21,46 +21,45 @@
 class G4ComponentGGHadronNucleusXsc;
 class G4VCrossSectionDataSet;
 
-class CMSHadronPhysicsFTFP_BERT : public G4VPhysicsConstructor
-{
-  public: 
-    explicit CMSHadronPhysicsFTFP_BERT(G4int verbose =1);
-    ~CMSHadronPhysicsFTFP_BERT() override;
+class CMSHadronPhysicsFTFP_BERT : public G4VPhysicsConstructor {
+public:
+  explicit CMSHadronPhysicsFTFP_BERT(G4int verbose = 1);
+  ~CMSHadronPhysicsFTFP_BERT() override;
 
-    void ConstructParticle() override;
-    //This will call in order:
-    // DumpBanner (for master)
-    // CreateModels
-    // ExtraConfiguation
-    void ConstructProcess() override;
+  void ConstructParticle() override;
+  //This will call in order:
+  // DumpBanner (for master)
+  // CreateModels
+  // ExtraConfiguation
+  void ConstructProcess() override;
 
-    void TerminateWorker() override;
-  protected:
-    G4bool QuasiElastic;
-    //This calls the specific ones for the different particles in order
-    virtual void CreateModels();
-    virtual void Neutron();
-    virtual void Proton();
-    virtual void Pion();
-    virtual void Kaon();
-    virtual void Others();
-    virtual void DumpBanner();
-    //This contains extra configurataion specific to this PL
-    virtual void ExtraConfiguration();
+  void TerminateWorker() override;
 
-    G4double minFTFP_pion;
-    G4double maxBERT_pion;
-    G4double minFTFP_kaon;
-    G4double maxBERT_kaon;
-    G4double minFTFP_proton;
-    G4double maxBERT_proton;
-    G4double minFTFP_neutron;
-    G4double maxBERT_neutron;
+protected:
+  G4bool QuasiElastic;
+  //This calls the specific ones for the different particles in order
+  virtual void CreateModels();
+  virtual void Neutron();
+  virtual void Proton();
+  virtual void Pion();
+  virtual void Kaon();
+  virtual void Others();
+  virtual void DumpBanner();
+  //This contains extra configurataion specific to this PL
+  virtual void ExtraConfiguration();
 
-    //Thread-private data write them here to delete them
-    G4VectorCache<G4VCrossSectionDataSet*> xs_ds;
-    G4Cache<G4ComponentGGHadronNucleusXsc*> xs_k;
+  G4double minFTFP_pion;
+  G4double maxBERT_pion;
+  G4double minFTFP_kaon;
+  G4double maxBERT_kaon;
+  G4double minFTFP_proton;
+  G4double maxBERT_proton;
+  G4double minFTFP_neutron;
+  G4double maxBERT_neutron;
+
+  //Thread-private data write them here to delete them
+  G4VectorCache<G4VCrossSectionDataSet*> xs_ds;
+  G4Cache<G4ComponentGGHadronNucleusXsc*> xs_k;
 };
 
 #endif
-
