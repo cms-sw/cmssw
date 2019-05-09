@@ -12,61 +12,50 @@
 #include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalBaseSignalGenerator.h"
 
-class EcalHitResponse ;
+class EcalHitResponse;
 class EcalBaseSignalGenerator;
 
 namespace CLHEP {
   class HepRandomEngine;
 }
 
-template< class Traits >
-class EcalTDigitizer
-{
-   public:
+template <class Traits>
+class EcalTDigitizer {
+public:
+  typedef typename Traits::ElectronicsSim ElectronicsSim;
+  typedef typename Traits::Digi Digi;
+  typedef typename Traits::DigiCollection DigiCollection;
+  typedef typename Traits::EcalSamples EcalSamples;
 
-      typedef typename Traits::ElectronicsSim ElectronicsSim ;
-      typedef typename Traits::Digi           Digi           ;
-      typedef typename Traits::DigiCollection DigiCollection ;
-      typedef typename Traits::EcalSamples    EcalSamples    ;
+  EcalTDigitizer<Traits>(EcalHitResponse* hitResponse, ElectronicsSim* electronicsSim, bool addNoise);
 
-      EcalTDigitizer< Traits >( EcalHitResponse* hitResponse    ,
-				ElectronicsSim*  electronicsSim ,
-				bool             addNoise         ) ;
+  virtual ~EcalTDigitizer<Traits>();
 
-      virtual ~EcalTDigitizer< Traits >() ;
+  void add(const std::vector<PCaloHit>& hits, int bunchCrossing, CLHEP::HepRandomEngine*);
 
-      void add(const std::vector<PCaloHit> & hits, int bunchCrossing, CLHEP::HepRandomEngine*);
+  virtual void initializeHits();
 
-      virtual void initializeHits();
+  virtual void run(DigiCollection& output, CLHEP::HepRandomEngine*);
 
-      virtual void run(DigiCollection&          output, CLHEP::HepRandomEngine* );
+  virtual void run(MixCollection<PCaloHit>& input, DigiCollection& output) { assert(0); }
 
-      virtual void run( MixCollection<PCaloHit>& input ,
-			DigiCollection&          output  ) {
-         assert(0);
-      }
+  void setNoiseSignalGenerator(EcalBaseSignalGenerator* noiseSignalGenerator);
 
-      void setNoiseSignalGenerator(EcalBaseSignalGenerator * noiseSignalGenerator);
+  void addNoiseSignals();
 
-      void addNoiseSignals();
+protected:
+  bool addNoise() const;
 
-   protected:
+  const EcalHitResponse* hitResponse() const;
 
-      bool addNoise() const ;
+  const ElectronicsSim* elecSim() const;
 
-      const EcalHitResponse* hitResponse() const ;
+private:
+  EcalHitResponse* m_hitResponse;
+  ElectronicsSim* m_electronicsSim;
+  bool m_addNoise;
 
-      const ElectronicsSim* elecSim() const ;
-
-   private:
-
-      EcalHitResponse* m_hitResponse    ;
-      ElectronicsSim*  m_electronicsSim ;
-      bool             m_addNoise       ;
-
-      EcalBaseSignalGenerator * theNoiseSignalGenerator;
-
+  EcalBaseSignalGenerator* theNoiseSignalGenerator;
 };
 
 #endif
-

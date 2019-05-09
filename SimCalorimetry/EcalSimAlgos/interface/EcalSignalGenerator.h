@@ -42,145 +42,135 @@ namespace edm {
   class ModuleCallingContext;
 }
 
-template<class ECALDIGITIZERTRAITS>
-class EcalSignalGenerator : public EcalBaseSignalGenerator
-{
+template <class ECALDIGITIZERTRAITS>
+class EcalSignalGenerator : public EcalBaseSignalGenerator {
 public:
   typedef typename ECALDIGITIZERTRAITS::Digi DIGI;
   typedef typename ECALDIGITIZERTRAITS::DigiCollection COLLECTION;
 
-  EcalSignalGenerator():EcalBaseSignalGenerator() { }
+  EcalSignalGenerator() : EcalBaseSignalGenerator() {}
 
-    EcalSignalGenerator(const edm::InputTag & inputTag, const edm::EDGetTokenT<COLLECTION> &t, const double EBs25notCont, const double EEs25notCont, const double peToABarrel, const double peToAEndcap)
-    : EcalBaseSignalGenerator(), 
-      theEvent(nullptr), 
-      theEventPrincipal(nullptr), 
-      theInputTag(inputTag), 
-      tok_(t)
-      { 
-	EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
-	theDefaultGains[2] = defaultRatios->gain6Over1() ;
-	theDefaultGains[1] = theDefaultGains[2]*(defaultRatios->gain12Over6()) ;
-	m_EBs25notCont = EBs25notCont; 
-	m_EEs25notCont = EEs25notCont; 
-	m_peToABarrel = peToABarrel;
-	m_peToAEndcap = peToAEndcap;
-
-      }
+  EcalSignalGenerator(const edm::InputTag& inputTag,
+                      const edm::EDGetTokenT<COLLECTION>& t,
+                      const double EBs25notCont,
+                      const double EEs25notCont,
+                      const double peToABarrel,
+                      const double peToAEndcap)
+      : EcalBaseSignalGenerator(), theEvent(nullptr), theEventPrincipal(nullptr), theInputTag(inputTag), tok_(t) {
+    EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
+    theDefaultGains[2] = defaultRatios->gain6Over1();
+    theDefaultGains[1] = theDefaultGains[2] * (defaultRatios->gain12Over6());
+    m_EBs25notCont = EBs25notCont;
+    m_EEs25notCont = EEs25notCont;
+    m_peToABarrel = peToABarrel;
+    m_peToAEndcap = peToAEndcap;
+  }
 
   ~EcalSignalGenerator() override {}
 
-
-  void initializeEvent(const edm::Event * event, const edm::EventSetup * eventSetup)
-  {
+  void initializeEvent(const edm::Event* event, const edm::EventSetup* eventSetup) {
     theEvent = event;
-    eventSetup->get<EcalGainRatiosRcd>().get(grHandle); // find the gains
+    eventSetup->get<EcalGainRatiosRcd>().get(grHandle);  // find the gains
     // Ecal Intercalibration Constants
-    eventSetup->get<EcalIntercalibConstantsMCRcd>().get( pIcal ) ;
+    eventSetup->get<EcalIntercalibConstantsMCRcd>().get(pIcal);
     ical = pIcal.product();
     // adc to GeV
     eventSetup->get<EcalADCToGeVConstantRcd>().get(pAgc);
     agc = pAgc.product();
 
-    m_maxEneEB = (agc->getEBValue())*theDefaultGains[1]*MAXADC*m_EBs25notCont  ;
-    m_maxEneEE = (agc->getEEValue())*theDefaultGains[1]*MAXADC*m_EEs25notCont  ;
+    m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
+    m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
 
     //ES
-    eventSetup->get<ESGainRcd>().               get( hesgain      ) ;
-    eventSetup->get<ESMIPToGeVConstantRcd>().   get( hesMIPToGeV  ) ;
-    eventSetup->get<ESIntercalibConstantsRcd>().get( hesMIPs      ) ;
+    eventSetup->get<ESGainRcd>().get(hesgain);
+    eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
+    eventSetup->get<ESIntercalibConstantsRcd>().get(hesMIPs);
 
-    esgain     = hesgain.product()      ;
-    esmips     = hesMIPs.product()      ;
-    esMipToGeV = hesMIPToGeV.product()  ;
-    if( 1.1 > esgain->getESGain() ) ESgain = 1;
-    else ESgain = 2;
-    if( ESgain ==1 ) ESMIPToGeV = esMipToGeV->getESValueLow();
-    else ESMIPToGeV = esMipToGeV->getESValueHigh();
+    esgain = hesgain.product();
+    esmips = hesMIPs.product();
+    esMipToGeV = hesMIPToGeV.product();
+    if (1.1 > esgain->getESGain())
+      ESgain = 1;
+    else
+      ESgain = 2;
+    if (ESgain == 1)
+      ESMIPToGeV = esMipToGeV->getESValueLow();
+    else
+      ESMIPToGeV = esMipToGeV->getESValueHigh();
   }
 
   /// some users use EventPrincipals, not Events.  We support both
-  void initializeEvent(const edm::EventPrincipal * eventPrincipal, const edm::EventSetup * eventSetup)
-  {
+  void initializeEvent(const edm::EventPrincipal* eventPrincipal, const edm::EventSetup* eventSetup) {
     theEventPrincipal = eventPrincipal;
     eventSetup->get<EcalGainRatiosRcd>().get(grHandle);  // find the gains
     // Ecal Intercalibration Constants
-    eventSetup->get<EcalIntercalibConstantsMCRcd>().get( pIcal ) ;
+    eventSetup->get<EcalIntercalibConstantsMCRcd>().get(pIcal);
     ical = pIcal.product();
     // adc to GeV
     eventSetup->get<EcalADCToGeVConstantRcd>().get(pAgc);
     agc = pAgc.product();
-    m_maxEneEB = (agc->getEBValue())*theDefaultGains[1]*MAXADC*m_EBs25notCont  ;
-    m_maxEneEE = (agc->getEEValue())*theDefaultGains[1]*MAXADC*m_EEs25notCont  ;
+    m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
+    m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
 
     //ES
-    eventSetup->get<ESGainRcd>().               get( hesgain      ) ;
-    eventSetup->get<ESMIPToGeVConstantRcd>().   get( hesMIPToGeV  ) ;
-    eventSetup->get<ESIntercalibConstantsRcd>().get( hesMIPs      ) ;
+    eventSetup->get<ESGainRcd>().get(hesgain);
+    eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
+    eventSetup->get<ESIntercalibConstantsRcd>().get(hesMIPs);
 
-    esgain     = hesgain.product()      ;
-    esmips     = hesMIPs.product()      ;
-    esMipToGeV = hesMIPToGeV.product()  ;
-    if( 1.1 > esgain->getESGain() ) ESgain = 1;
-    else ESgain = 2;
-    if( ESgain ==1 ) ESMIPToGeV = esMipToGeV->getESValueLow();
-    else ESMIPToGeV = esMipToGeV->getESValueHigh();
+    esgain = hesgain.product();
+    esmips = hesMIPs.product();
+    esMipToGeV = hesMIPToGeV.product();
+    if (1.1 > esgain->getESGain())
+      ESgain = 1;
+    else
+      ESgain = 2;
+    if (ESgain == 1)
+      ESMIPToGeV = esMipToGeV->getESValueLow();
+    else
+      ESMIPToGeV = esMipToGeV->getESValueHigh();
   }
 
-  virtual void fill(edm::ModuleCallingContext const* mcc)
-  {
-
+  virtual void fill(edm::ModuleCallingContext const* mcc) {
     theNoiseSignals.clear();
     edm::Handle<COLLECTION> pDigis;
-    const COLLECTION *  digis = nullptr;
+    const COLLECTION* digis = nullptr;
     // try accessing by whatever is set, Event or EventPrincipal
-    if(theEvent) 
-     {
-      if( theEvent->getByToken(tok_, pDigis) ) {
-        digis = pDigis.product(); // get a ptr to the product
-      }
-      else
-      {
+    if (theEvent) {
+      if (theEvent->getByToken(tok_, pDigis)) {
+        digis = pDigis.product();  // get a ptr to the product
+      } else {
         throw cms::Exception("EcalSignalGenerator") << "Cannot find input data " << theInputTag;
       }
-    }
-    else if(theEventPrincipal)
-    {
-       std::shared_ptr<edm::Wrapper<COLLECTION>  const> digisPTR =
-          edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag, mcc );
-       if(digisPTR) {
-          digis = digisPTR->product();
-       }
-    }
-    else
-    {
+    } else if (theEventPrincipal) {
+      std::shared_ptr<edm::Wrapper<COLLECTION> const> digisPTR =
+          edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag, mcc);
+      if (digisPTR) {
+        digis = digisPTR->product();
+      }
+    } else {
       throw cms::Exception("EcalSignalGenerator") << "No Event or EventPrincipal was set";
     }
 
-    if (digis)
-    {
+    if (digis) {
       // loop over digis, adding these to the existing maps
-      for(typename COLLECTION::const_iterator it  = digis->begin();
-          it != digis->end(); ++it) 
-      {
-	// need to convert to something useful
-	if(validDigi(*it)){
-	  theNoiseSignals.push_back(samplesInPE(*it));
-	}
+      for (typename COLLECTION::const_iterator it = digis->begin(); it != digis->end(); ++it) {
+        // need to convert to something useful
+        if (validDigi(*it)) {
+          theNoiseSignals.push_back(samplesInPE(*it));
+        }
       }
     }
     //else { std::cout << " NO digis for this input: " << theInputTag << std::endl;}
   }
 
 private:
-
-  bool validDigi(const DIGI & digi)
-  {
+  bool validDigi(const DIGI& digi) {
     int DigiSum = 0;
-    for(int id = 0; id<digi.size(); id++) {
-      if(digi[id].adc() > 0) ++DigiSum;
+    for (int id = 0; id < digi.size(); id++) {
+      if (digi[id].adc() > 0)
+        ++DigiSum;
     }
-    return(DigiSum>0);
+    return (DigiSum > 0);
   }
 
   void fillNoiseSignals() override {}
@@ -188,61 +178,55 @@ private:
 
   // much of this stolen from EcalSimAlgos/EcalCoder
 
-  enum { NBITS         =   12 , // number of available bits
-	 MAXADC        = 4095 , // 2^12 -1,  adc max range
-	 ADCGAINSWITCH = 4079 , // adc gain switch
-	 NGAINS        =    3 };  // number of electronic gains
+  enum {
+    NBITS = 12,            // number of available bits
+    MAXADC = 4095,         // 2^12 -1,  adc max range
+    ADCGAINSWITCH = 4079,  // adc gain switch
+    NGAINS = 3
+  };  // number of electronic gains
 
-  CaloSamples samplesInPE(const DIGI & digi);  // have to define this separately for ES
+  CaloSamples samplesInPE(const DIGI& digi);  // have to define this separately for ES
 
-  const std::vector<float>  GetGainRatios(const DetId& detid) {
-
+  const std::vector<float> GetGainRatios(const DetId& detid) {
     std::vector<float> gainRatios(4);
-    // get gain ratios  
-    EcalMGPAGainRatio theRatio= (*grHandle)[detid];
-    
+    // get gain ratios
+    EcalMGPAGainRatio theRatio = (*grHandle)[detid];
+
     gainRatios[0] = 0.;
     gainRatios[3] = 1.;
     gainRatios[2] = theRatio.gain6Over1();
-    gainRatios[1] = theRatio.gain6Over1()  * theRatio.gain12Over6();
+    gainRatios[1] = theRatio.gain6Over1() * theRatio.gain12Over6();
 
     return gainRatios;
   }
 
+  double fullScaleEnergy(const DetId& detId) const { return detId.subdetId() == EcalBarrel ? m_maxEneEB : m_maxEneEE; }
 
-  double fullScaleEnergy( const DetId & detId ) const 
-  {
-     return detId.subdetId() == EcalBarrel ? m_maxEneEB : m_maxEneEE ;
+  double peToAConversion(const DetId& detId) const {
+    return detId.subdetId() == EcalBarrel ? m_peToABarrel : m_peToAEndcap;
   }
 
-
-  double peToAConversion( const DetId & detId ) const 
-  {
-     return detId.subdetId() == EcalBarrel ? m_peToABarrel : m_peToAEndcap ;
-  }
-
-    
   /// these fields are set in initializeEvent()
-  const edm::Event * theEvent;
-  const edm::EventPrincipal * theEventPrincipal;
+  const edm::Event* theEvent;
+  const edm::EventPrincipal* theEventPrincipal;
 
-  edm::ESHandle<EcalGainRatios> grHandle; 
+  edm::ESHandle<EcalGainRatios> grHandle;
   edm::ESHandle<EcalIntercalibConstantsMC> pIcal;
   edm::ESHandle<EcalADCToGeVConstant> pAgc;
 
- /// these come from the ParameterSet
+  /// these come from the ParameterSet
   edm::InputTag theInputTag;
   edm::EDGetTokenT<COLLECTION> tok_;
 
-  edm::ESHandle<ESGain>                hesgain      ;
-  edm::ESHandle<ESMIPToGeVConstant>    hesMIPToGeV  ;
-  edm::ESHandle<ESIntercalibConstants> hesMIPs      ;
+  edm::ESHandle<ESGain> hesgain;
+  edm::ESHandle<ESMIPToGeVConstant> hesMIPToGeV;
+  edm::ESHandle<ESIntercalibConstants> hesMIPs;
 
-  const ESGain*                esgain;
+  const ESGain* esgain;
   const ESIntercalibConstants* esmips;
-  const ESMIPToGeVConstant*    esMipToGeV;
-  int ESgain ;
-  double ESMIPToGeV; 
+  const ESMIPToGeVConstant* esMipToGeV;
+  int ESgain;
+  double ESMIPToGeV;
 
   double m_EBs25notCont;
   double m_EEs25notCont;
@@ -250,19 +234,17 @@ private:
   double m_peToABarrel;
   double m_peToAEndcap;
 
-  double m_maxEneEB ; // max attainable energy in the ecal barrel
-  double m_maxEneEE ; // max attainable energy in the ecal endcap
+  double m_maxEneEB;  // max attainable energy in the ecal barrel
+  double m_maxEneEE;  // max attainable energy in the ecal endcap
 
   const EcalADCToGeVConstant* agc;
   const EcalIntercalibConstantsMC* ical;
 
   double theDefaultGains[NGAINS];
-
 };
 
-typedef EcalSignalGenerator<EBDigitizerTraits>   EBSignalGenerator;
-typedef EcalSignalGenerator<EEDigitizerTraits>   EESignalGenerator;
-typedef EcalSignalGenerator<ESDigitizerTraits>   ESSignalGenerator;
+typedef EcalSignalGenerator<EBDigitizerTraits> EBSignalGenerator;
+typedef EcalSignalGenerator<EEDigitizerTraits> EESignalGenerator;
+typedef EcalSignalGenerator<ESDigitizerTraits> ESSignalGenerator;
 
 #endif
-
