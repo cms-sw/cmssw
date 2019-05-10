@@ -7,35 +7,33 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-class L1TStage2RatioClient: public DQMEDHarvester
-{
-  public:
+class L1TStage2RatioClient : public DQMEDHarvester {
+public:
+  L1TStage2RatioClient(const edm::ParameterSet&);
+  ~L1TStage2RatioClient() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    L1TStage2RatioClient(const edm::ParameterSet&);
-    ~L1TStage2RatioClient() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+protected:
+  void dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
+                             DQMStore::IGetter& igetter,
+                             const edm::LuminosityBlock& lumiSeg,
+                             const edm::EventSetup& c) override;
 
-  protected:
+private:
+  void book(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter);
+  void processHistograms(DQMStore::IGetter& igetter);
 
-    void dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)override;
-    void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,DQMStore::IGetter& igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
+  std::string monitorDir_;
+  std::string inputNum_;
+  std::string inputDen_;
+  std::string ratioName_;
+  std::string ratioTitle_;
+  std::string yAxisTitle_;
+  bool binomialErr_;
+  std::vector<int> ignoreBin_;
 
-  private:
-
-    void book(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter);
-    void processHistograms(DQMStore::IGetter& igetter);
-
-    std::string monitorDir_;
-    std::string inputNum_;
-    std::string inputDen_;
-    std::string ratioName_;
-    std::string ratioTitle_;
-    std::string yAxisTitle_;
-    bool binomialErr_;
-    std::vector<int> ignoreBin_;
-
-    MonitorElement* ratioME_;
+  MonitorElement* ratioME_;
 };
 
 #endif
-

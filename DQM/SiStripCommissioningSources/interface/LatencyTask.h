@@ -9,26 +9,20 @@
    @class LatencyTask
 */
 class LatencyTask : public CommissioningTask {
-
- public:
-  
-  LatencyTask( DQMStore*, const FedChannelConnection& );
+public:
+  LatencyTask(DQMStore*, const FedChannelConnection&);
   ~LatencyTask() override;
-  
- private:
 
+private:
   void book() override;
-  void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& ) override;
+  void fill(const SiStripEventSummary&, const edm::DetSet<SiStripRawDigi>&) override;
   void update() override;
-  
+
   static HistoSet timing_;
   static HistoSet cluster_;
   HistoSet timingPartition_;
   HistoSet clusterPartition_;
   int firstReading_;
-
 };
 
-#endif // DQM_SiStripCommissioningSources_LatencyTask_h
-
+#endif  // DQM_SiStripCommissioningSources_LatencyTask_h
