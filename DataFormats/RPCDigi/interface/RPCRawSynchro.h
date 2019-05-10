@@ -6,8 +6,7 @@
 
 namespace RPCRawSynchro {
 
-  typedef std::vector< std::pair<LinkBoardElectronicIndex, int> > ProdItem;
+  typedef std::vector<std::pair<LinkBoardElectronicIndex, int> > ProdItem;
 }
 
 #endif
-
