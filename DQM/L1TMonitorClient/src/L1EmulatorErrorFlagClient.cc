@@ -67,7 +67,7 @@ void L1EmulatorErrorFlagClient::initialize() {
 
     // [SYS]ErrorFlag histogram
     for (unsigned int iSys = 0; iSys < m_nrL1Systems; ++iSys) {
-        if (m_systemFolder[iSys] == "") {
+        if (m_systemFolder[iSys].empty()) {
             m_systemErrorFlag.push_back("L1TEMU/" + m_systemLabel[iSys] + "/"
                     + m_systemLabelExt[iSys] + "ErrorFlag");
         } else {
