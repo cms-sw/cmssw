@@ -265,7 +265,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
     //if there are no detIds, get them from the comparison digis...
     if (detIDs_.empty()) {
         //get the detIds of the modules in the zero-suppressed comparison
-        if (!((inputCompZeroSuppressedDigiLabel_.label()=="") && (inputCompZeroSuppressedDigiLabel_.instance()==""))) {
+        if (!((inputCompZeroSuppressedDigiLabel_.label().empty()) && (inputCompZeroSuppressedDigiLabel_.instance().empty()))) {
             edm::Handle< edm::DetSetVector< SiStripDigi > > czs_digis;
 	    //            iEvent.getByLabel( inputCompZeroSuppressedDigiLabel_, czs_digis );
             iEvent.getByToken( inputCompZeroSuppressedDigiToken_, czs_digis );
@@ -274,7 +274,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
                 detIDs_.push_back(digis_it->detId());
             }
         }
-        else if (!((inputCompVirginRawDigiLabel_.label()=="") && (inputCompVirginRawDigiLabel_.instance()==""))) {
+        else if (!((inputCompVirginRawDigiLabel_.label().empty()) && (inputCompVirginRawDigiLabel_.instance().empty()))) {
             edm::Handle< edm::DetSetVector< SiStripRawDigi > > cvr_digis;
 	    //            iEvent.getByLabel( inputCompVirginRawDigiLabel_, cvr_digis );
             iEvent.getByToken( inputCompVirginRawDigiToken_, cvr_digis );
@@ -318,7 +318,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
             //=======================
             // Get the fed key from the FED ID and the FED channel (from conns)
             // This is because scope mode always stores in the collection by FED ID
-            if (!((inputScopeModeRawDigiLabel_.label()=="") && (inputScopeModeRawDigiLabel_.instance()==""))) {
+            if (!((inputScopeModeRawDigiLabel_.label().empty()) && (inputScopeModeRawDigiLabel_.instance().empty()))) {
                 // Use the SiStripFedKey object to return the FED key
                 //cout << "detID=" << *d << ", FED key looking for is " << fedkey << endl;
                 //cout << "Attempting to find scope mode raw digis" << endl;
@@ -336,7 +336,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
 
             // Payload Unordered Raw (UR)
             //============================
-            if (!((inputPayloadRawDigiLabel_.label()=="") && (inputPayloadRawDigiLabel_.instance()==""))) {
+            if (!((inputPayloadRawDigiLabel_.label().empty()) && (inputPayloadRawDigiLabel_.instance().empty()))) {
                 uint32_t fedindex = SiStripFedKey::fedIndex(conns[ch]->fedId(), conns[ch]->fedCh());
                 //cout << "Attempting to find payload mode raw digis" << endl;
                 edm::Handle< edm::DetSetVector< SiStripRawDigi > > ur_rawdigis;
@@ -346,7 +346,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
             }
             // Payload Reordered Raw
             //=======================
-            if (!((inputReorderedPayloadRawDigiLabel_.label()=="") && (inputReorderedPayloadRawDigiLabel_.instance()==""))) {
+            if (!((inputReorderedPayloadRawDigiLabel_.label().empty()) && (inputReorderedPayloadRawDigiLabel_.instance().empty()))) {
                 uint32_t fedkey = SiStripFedKey::fedIndex(conns[ch]->fedId(), conns[ch]->fedCh());
                 edm::Handle< edm::DetSetVector< SiStripRawDigi > > rrp_rawdigis;
 		//                iEvent.getByLabel( inputReorderedPayloadRawDigiLabel_, rrp_rawdigis );
@@ -358,7 +358,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
         //
         // Module Reordered Raw (RR)
         //====================
-        if (!((inputReorderedModuleRawDigiLabel_.label()=="") && (inputReorderedModuleRawDigiLabel_.instance()==""))) {
+        if (!((inputReorderedModuleRawDigiLabel_.label().empty()) && (inputReorderedModuleRawDigiLabel_.instance().empty()))) {
             edm::Handle< edm::DetSetVector< SiStripRawDigi > > rr_rawdigis;
 	    //            iEvent.getByLabel( inputReorderedModuleRawDigiLabel_, rr_rawdigis );
             iEvent.getByToken( inputReorderedModuleRawDigiToken_, rr_rawdigis );
@@ -369,7 +369,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
         //
         // Pedestal values 
         //========================
-        if (!((inputPedestalsLabel_.label()=="") && (inputPedestalsLabel_.instance()==""))) {
+        if (!((inputPedestalsLabel_.label().empty()) && (inputPedestalsLabel_.instance().empty()))) {
             edm::Handle< edm::DetSetVector< SiStripRawDigi > > pd_rawdigis;
 	    //            iEvent.getByLabel( inputPedestalsLabel_, pd_rawdigis );
             iEvent.getByToken( inputPedestalsToken_, pd_rawdigis );
@@ -379,7 +379,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
          //
         // Noise values 
         //========================
-        if (!((inputNoisesLabel_.label()=="") && (inputNoisesLabel_.instance()==""))) {
+        if (!((inputNoisesLabel_.label().empty()) && (inputNoisesLabel_.instance().empty()))) {
             edm::Handle< edm::DetSetVector< SiStripProcessedRawDigi > > pd_rawdigis;
 	    //            iEvent.getByLabel( inputNoisesLabel_, pd_rawdigis );
             iEvent.getByToken( inputNoisesToken_, pd_rawdigis );
@@ -389,7 +389,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
         //
         // Post-Pedestal Raw (PP)
         //========================
-        if (!((inputPostPedestalRawDigiLabel_.label()=="") && (inputPostPedestalRawDigiLabel_.instance()==""))) {
+        if (!((inputPostPedestalRawDigiLabel_.label().empty()) && (inputPostPedestalRawDigiLabel_.instance().empty()))) {
             edm::Handle< edm::DetSetVector< SiStripRawDigi > > pp_rawdigis;
 	    //            iEvent.getByLabel( inputPostPedestalRawDigiLabel_, pp_rawdigis );
             iEvent.getByToken( inputPostPedestalRawDigiToken_, pp_rawdigis );
@@ -399,7 +399,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
         //
         // Post-Common Mode Subtraction Raw (PC)
         //=======================================
-        if (!((inputPostCMRawDigiLabel_.label()=="") && (inputPostCMRawDigiLabel_.instance()==""))) {
+        if (!((inputPostCMRawDigiLabel_.label().empty()) && (inputPostCMRawDigiLabel_.instance().empty()))) {
             edm::Handle< edm::DetSetVector< SiStripRawDigi > > pc_rawdigis;
 	    //            iEvent.getByLabel( inputPostCMRawDigiLabel_, pc_rawdigis );
             iEvent.getByToken( inputPostCMRawDigiToken_, pc_rawdigis );
@@ -411,7 +411,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
         // Zero-Suppressed Digis
         //=======================
         //bool founddigispy = false, founddigimain = false;
-        if (!((inputZeroSuppressedDigiLabel_.label()=="") && (inputZeroSuppressedDigiLabel_.instance()==""))) {
+        if (!((inputZeroSuppressedDigiLabel_.label().empty()) && (inputZeroSuppressedDigiLabel_.instance().empty()))) {
             //cout << "Making ZeroSuppressed histogram!" << endl;
             edm::Handle< edm::DetSetVector< SiStripDigi > > zs_digis;
 	    //            iEvent.getByLabel( inputZeroSuppressedDigiLabel_, zs_digis );
@@ -420,7 +420,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    MakeDigiHist_(zs_digis, *d, detID_dir, ZERO_SUPPRESSED);
         }
         //comparison to mainline data
-        if (!((inputCompVirginRawDigiLabel_.label()=="") && (inputCompVirginRawDigiLabel_.instance()==""))) {
+        if (!((inputCompVirginRawDigiLabel_.label().empty()) && (inputCompVirginRawDigiLabel_.instance().empty()))) {
             //cout << "Making Mainline VirginRaw histogram!" << endl;
             edm::Handle< edm::DetSetVector< SiStripRawDigi > > cvr_digis;
 	    //            iEvent.getByLabel( inputCompVirginRawDigiLabel_, cvr_digis );
@@ -428,7 +428,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
             //founddigimain = 
 	    MakeRawDigiHist_(cvr_digis, *d, detID_dir, VR_COMP);
         }
-        if (!((inputCompZeroSuppressedDigiLabel_.label()=="") && (inputCompZeroSuppressedDigiLabel_.instance()==""))) {
+        if (!((inputCompZeroSuppressedDigiLabel_.label().empty()) && (inputCompZeroSuppressedDigiLabel_.instance().empty()))) {
             //cout << "Making ZeroSuppressed histogram!" << endl;
             edm::Handle< edm::DetSetVector< SiStripDigi > > czs_digis;
 	    //            iEvent.getByLabel( inputCompZeroSuppressedDigiLabel_, czs_digis );

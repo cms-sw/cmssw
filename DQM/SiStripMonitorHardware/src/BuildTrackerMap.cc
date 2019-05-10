@@ -155,7 +155,7 @@ void BuildTrackerMapPlugin::read(bool aMechView,
   aValidVec.reserve(nHists);
 
   std::string dirName = folderName_;
-  if (dirName == "") {
+  if (dirName.empty()) {
     dirName += "Run ";
     dirName += aFile.substr(aFile.find_last_of("_")+5,6);
     dirName += "/SiStrip/Run summary";

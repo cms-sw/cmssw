@@ -18,7 +18,7 @@ namespace ecaldqm {
   class SelectiveReadoutTask : public DQWorkerTask {
   public:
     SelectiveReadoutTask();
-    ~SelectiveReadoutTask() {}
+    ~SelectiveReadoutTask() override {}
 
     void addDependencies(DependencySet&) override;
 

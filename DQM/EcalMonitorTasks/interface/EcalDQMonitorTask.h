@@ -19,7 +19,7 @@ namespace edm
 class EcalDQMonitorTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements>, public ecaldqm::EcalDQMonitor {
  public:
   EcalDQMonitorTask(edm::ParameterSet const&);
-  ~EcalDQMonitorTask() {}
+  ~EcalDQMonitorTask() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 

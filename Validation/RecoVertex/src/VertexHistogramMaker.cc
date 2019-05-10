@@ -50,7 +50,7 @@ void VertexHistogramMaker::book(const std::string dirname) {
   edm::Service<TFileService> tfserv;
   TFileDirectory* currdir = &(tfserv->tFileDirectory());
 
-  if(dirname!="") {
+  if(!dirname.empty()) {
     currdir = new TFileDirectory(tfserv->mkdir(dirname));
     m_currdir = currdir;
   }
