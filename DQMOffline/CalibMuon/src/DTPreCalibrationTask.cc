@@ -28,13 +28,10 @@ using namespace edm;
 using namespace std;
 
 DTPreCalibrationTask::DTPreCalibrationTask(const edm::ParameterSet &ps) {
-
-  LogTrace("DTPreCalibSummary")
-      << "[DTPrecalibrationTask]: Constructor" << endl;
+  LogTrace("DTPreCalibSummary") << "[DTPrecalibrationTask]: Constructor" << endl;
 
   // Label to retrieve DT digis from the event
-  digiLabel =
-      consumes<DTDigiCollection>(ps.getUntrackedParameter<string>("digiLabel"));
+  digiLabel = consumes<DTDigiCollection>(ps.getUntrackedParameter<string>("digiLabel"));
 
   // parameter for Time Boxes booking
   minTriggerWidth = ps.getUntrackedParameter<int>("minTriggerWidth", 2000);
@@ -46,15 +43,11 @@ DTPreCalibrationTask::DTPreCalibrationTask(const edm::ParameterSet &ps) {
 
 DTPreCalibrationTask::~DTPreCalibrationTask() {}
 
-void DTPreCalibrationTask::bookHistograms(DQMStore::IBooker &iBooker,
-                                          edm::Run const &,
-                                          edm::EventSetup const &) {
-
+void DTPreCalibrationTask::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
   for (int wheel = -2; wheel <= 2; wheel++) {
     for (int sector = 1; sector <= 14; sector++) {
-      LogTrace("DTPreCalibSummary")
-          << "[DTPrecalibrationTask]: Book histos for wheel " << wheel
-          << ", sector " << sector << endl;
+      LogTrace("DTPreCalibSummary") << "[DTPrecalibrationTask]: Book histos for wheel " << wheel << ", sector "
+                                    << sector << endl;
       iBooker.setCurrentFolder(folderName + "/TimeBoxes");
       bookTimeBoxes(iBooker, wheel, sector);
       iBooker.setCurrentFolder(folderName + "/OccupancyHistos");
@@ -64,82 +57,64 @@ void DTPreCalibrationTask::bookHistograms(DQMStore::IBooker &iBooker,
   }
 }
 
-void DTPreCalibrationTask::analyze(const edm::Event &event,
-                                   const edm::EventSetup &setup) {
-
+void DTPreCalibrationTask::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   // Get the digis from the event
   edm::Handle<DTDigiCollection> dtdigis;
   event.getByToken(digiLabel, dtdigis);
 
   // LOOP OVER ALL THE DIGIS OF THE EVENT
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
-  for (dtLayerId_It = dtdigis->begin(); dtLayerId_It != dtdigis->end();
-       ++dtLayerId_It) {
-    for (DTDigiCollection::const_iterator digiIt =
-             ((*dtLayerId_It).second).first;
-         digiIt != ((*dtLayerId_It).second).second; ++digiIt) {
-
+  for (dtLayerId_It = dtdigis->begin(); dtLayerId_It != dtdigis->end(); ++dtLayerId_It) {
+    for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
+         digiIt != ((*dtLayerId_It).second).second;
+         ++digiIt) {
       // Fill the Time Boxes
       int tdcTime = (*digiIt).countsTDC();
-      TimeBoxes[make_pair(
-                    (*dtLayerId_It).first.superlayerId().chamberId().wheel(),
-                    (*dtLayerId_It).first.superlayerId().chamberId().sector())]
+      TimeBoxes[make_pair((*dtLayerId_It).first.superlayerId().chamberId().wheel(),
+                          (*dtLayerId_It).first.superlayerId().chamberId().sector())]
           ->Fill(tdcTime);
 
       // Fill the occupancy plot
       const DTLayerId dtLId = (*dtLayerId_It).first;
-      int yBin = (dtLId.station() - 1) * 12 + dtLId.layer() +
-                 4 * (dtLId.superlayer() - 1);
+      int yBin = (dtLId.station() - 1) * 12 + dtLId.layer() + 4 * (dtLId.superlayer() - 1);
       if (dtLId.station() == 4 && dtLId.superlayer() == 3)
-        yBin = (dtLId.station() - 1) * 12 + dtLId.layer() +
-               4 * (dtLId.superlayer() - 2);
+        yBin = (dtLId.station() - 1) * 12 + dtLId.layer() + 4 * (dtLId.superlayer() - 2);
       if ((*dtLayerId_It).first.superlayerId().chamberId().sector() < 13)
-        OccupancyHistos
-            [make_pair(
-                 (*dtLayerId_It).first.superlayerId().chamberId().wheel(),
-                 (*dtLayerId_It).first.superlayerId().chamberId().sector())]
-                ->Fill((*digiIt).wire(), yBin);
+        OccupancyHistos[make_pair((*dtLayerId_It).first.superlayerId().chamberId().wheel(),
+                                  (*dtLayerId_It).first.superlayerId().chamberId().sector())]
+            ->Fill((*digiIt).wire(), yBin);
       else {
         if (dtLId.superlayer() != 3)
           yBin = 44 + dtLId.layer();
         else
           yBin = 48 + dtLId.layer();
         if ((*dtLayerId_It).first.superlayerId().chamberId().sector() == 13)
-          OccupancyHistos
-              [make_pair(
-                   (*dtLayerId_It).first.superlayerId().chamberId().wheel(), 4)]
-                  ->Fill((*digiIt).wire(), yBin);
+          OccupancyHistos[make_pair((*dtLayerId_It).first.superlayerId().chamberId().wheel(), 4)]->Fill(
+              (*digiIt).wire(), yBin);
         if ((*dtLayerId_It).first.superlayerId().chamberId().sector() == 14)
-          OccupancyHistos
-              [make_pair(
-                   (*dtLayerId_It).first.superlayerId().chamberId().wheel(),
-                   10)]
-                  ->Fill((*digiIt).wire(), yBin);
+          OccupancyHistos[make_pair((*dtLayerId_It).first.superlayerId().chamberId().wheel(), 10)]->Fill(
+              (*digiIt).wire(), yBin);
       }
     }
   }
 }
 
-void DTPreCalibrationTask::bookTimeBoxes(DQMStore::IBooker &iBooker, int wheel,
-                                         int sector) {
-
+void DTPreCalibrationTask::bookTimeBoxes(DQMStore::IBooker &iBooker, int wheel, int sector) {
   stringstream wh;
   wh << wheel;
   stringstream sec;
   sec << sector;
 
   // book the time boxes
-  TimeBoxes[make_pair(wheel, sector)] =
-      iBooker.book1D("TimeBox_W" + wh.str() + "_Sec" + sec.str(),
-                     "Time Box W" + wh.str() + "_Sec" + sec.str(),
-                     (maxTriggerWidth - minTriggerWidth) / 50, minTriggerWidth,
-                     maxTriggerWidth);
+  TimeBoxes[make_pair(wheel, sector)] = iBooker.book1D("TimeBox_W" + wh.str() + "_Sec" + sec.str(),
+                                                       "Time Box W" + wh.str() + "_Sec" + sec.str(),
+                                                       (maxTriggerWidth - minTriggerWidth) / 50,
+                                                       minTriggerWidth,
+                                                       maxTriggerWidth);
   TimeBoxes[make_pair(wheel, sector)]->setAxisTitle("TDC counts");
 }
 
-void DTPreCalibrationTask::bookOccupancyPlot(DQMStore::IBooker &iBooker,
-                                             int wheel, int sector) {
-
+void DTPreCalibrationTask::bookOccupancyPlot(DQMStore::IBooker &iBooker, int wheel, int sector) {
   stringstream wh;
   wh << wheel;
   stringstream sec;
@@ -147,13 +122,23 @@ void DTPreCalibrationTask::bookOccupancyPlot(DQMStore::IBooker &iBooker,
 
   // book the occpancy plot
   if (sector == 4 || sector == 10)
-    OccupancyHistos[make_pair(wheel, sector)] = iBooker.book2D(
-        "Occupancy_W" + wh.str() + "_Sec" + sec.str(),
-        "Occupancy W" + wh.str() + "_Sec" + sec.str(), 100, 1, 100, 52, 1, 53);
+    OccupancyHistos[make_pair(wheel, sector)] = iBooker.book2D("Occupancy_W" + wh.str() + "_Sec" + sec.str(),
+                                                               "Occupancy W" + wh.str() + "_Sec" + sec.str(),
+                                                               100,
+                                                               1,
+                                                               100,
+                                                               52,
+                                                               1,
+                                                               53);
   else
-    OccupancyHistos[make_pair(wheel, sector)] = iBooker.book2D(
-        "Occupancy_W" + wh.str() + "_Sec" + sec.str(),
-        "Occupancy W" + wh.str() + "_Sec" + sec.str(), 100, 1, 100, 44, 1, 45);
+    OccupancyHistos[make_pair(wheel, sector)] = iBooker.book2D("Occupancy_W" + wh.str() + "_Sec" + sec.str(),
+                                                               "Occupancy W" + wh.str() + "_Sec" + sec.str(),
+                                                               100,
+                                                               1,
+                                                               100,
+                                                               44,
+                                                               1,
+                                                               45);
   OccupancyHistos[make_pair(wheel, sector)]->setAxisTitle("wire number", 1);
   OccupancyHistos[make_pair(wheel, sector)]->setBinLabel(1, "M1L1", 2);
   OccupancyHistos[make_pair(wheel, sector)]->setBinLabel(2, "M1L2", 2);

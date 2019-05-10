@@ -44,8 +44,7 @@ public:
   explicit NoiseRates(const edm::ParameterSet &);
   ~NoiseRates() override;
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -53,10 +52,10 @@ private:
   std::string outputFile_;
 
   // parameters
-  edm::InputTag rbxCollName_; // label for the rbx collection
+  edm::InputTag rbxCollName_;  // label for the rbx collection
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> tok_rbx_;
-  double minRBXEnergy_; // RBX energy threshold
-  double minHitEnergy_; // RecHit energy threshold
+  double minRBXEnergy_;  // RBX energy threshold
+  double minHitEnergy_;  // RecHit energy threshold
 
   bool useAllHistos_;
 

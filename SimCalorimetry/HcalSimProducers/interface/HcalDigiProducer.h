@@ -7,28 +7,26 @@
 #include <vector>
 
 namespace edm {
-class ConsumesCollector;
-class ProducerBase;
-class ParameterSet;
-class StreamID;
-} // namespace edm
+  class ConsumesCollector;
+  class ProducerBase;
+  class ParameterSet;
+  class StreamID;
+}  // namespace edm
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class HcalDigiProducer : public DigiAccumulatorMixMod {
 public:
-  HcalDigiProducer(edm::ParameterSet const &pset, edm::ProducerBase &mixMod,
-                   edm::ConsumesCollector &iC);
+  HcalDigiProducer(edm::ParameterSet const &pset, edm::ProducerBase &mixMod, edm::ConsumesCollector &iC);
 
   HcalDigiProducer(edm::ParameterSet const &pset, edm::ConsumesCollector &iC);
 
   void initializeEvent(edm::Event const &, edm::EventSetup const &) override;
   void finalizeEvent(edm::Event &, edm::EventSetup const &) override;
   void accumulate(edm::Event const &, edm::EventSetup const &) override;
-  void accumulate(PileUpEventPrincipal const &, edm::EventSetup const &,
-                  edm::StreamID const &) override;
+  void accumulate(PileUpEventPrincipal const &, edm::EventSetup const &, edm::StreamID const &) override;
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void endRun(edm::Run const &, edm::EventSetup const &) override;
 

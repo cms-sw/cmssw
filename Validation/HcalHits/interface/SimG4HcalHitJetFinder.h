@@ -11,7 +11,6 @@
 #include <vector>
 
 class SimG4HcalHitJetFinder {
-
 public:
   SimG4HcalHitJetFinder(double cone = 0.5);
   virtual ~SimG4HcalHitJetFinder();

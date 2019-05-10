@@ -8,13 +8,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const &_ps)
-    : db_(nullptr), monIOV_(), worker_(nullptr),
+    : db_(nullptr),
+      monIOV_(),
+      worker_(nullptr),
       formula_(_ps.getUntrackedParameter<std::string>("formula")),
       meSet_(ecaldqm::createMESet(_ps.getUntrackedParameterSet("plot"))),
       verbosity_(_ps.getUntrackedParameter<int>("verbosity")) {
   std::string table(_ps.getUntrackedParameter<std::string>("table"));
-  edm::ParameterSet const &workerParams(
-      _ps.getUntrackedParameterSet("workerParams"));
+  edm::ParameterSet const &workerParams(_ps.getUntrackedParameterSet("workerParams"));
 
   if (table == "CrystalConsistency")
     worker_ = new ecaldqm::CrystalConsistencyReader(workerParams);
@@ -88,13 +89,12 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const &_ps)
     edm::LogInfo("EcalDQM") << "Establishing DB connection";
 
   try {
-    db = std::unique_ptr<EcalCondDBInterface>(
-        new EcalCondDBInterface(DBName, userName, password));
+    db = std::unique_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
   } catch (std::runtime_error &re) {
     if (!hostName.empty()) {
       try {
-        db = std::unique_ptr<EcalCondDBInterface>(new EcalCondDBInterface(
-            hostName, DBName, userName, password, hostPort));
+        db = std::unique_ptr<EcalCondDBInterface>(
+            new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
       } catch (std::runtime_error &re2) {
         throw cms::Exception("DBError") << re2.what();
       }
@@ -106,8 +106,7 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const &_ps)
 
   std::string location(_ps.getUntrackedParameter<std::string>("location"));
   int runNumber(_ps.getUntrackedParameter<int>("runNumber"));
-  std::string monRunGeneralTag(
-      _ps.getUntrackedParameter<std::string>("monRunGeneralTag"));
+  std::string monRunGeneralTag(_ps.getUntrackedParameter<std::string>("monRunGeneralTag"));
 
   if (verbosity_ > 0)
     edm::LogInfo("EcalDQM") << "Initializing DB entry";
@@ -117,15 +116,13 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const &_ps)
   try {
     runTag = db_->fetchRunIOV(location, runNumber).getRunTag();
   } catch (std::exception &) {
-    edm::LogError("EcalDQM") << "Cannot fetch RunIOV for location=" << location
-                             << " runNumber=" << runNumber;
+    edm::LogError("EcalDQM") << "Cannot fetch RunIOV for location=" << location << " runNumber=" << runNumber;
     throw;
   }
 
   MonVersionDef versionDef;
-  versionDef.setMonitoringVersion(
-      "test01"); // the only mon_ver in mon_version_def table as of September
-                 // 2012
+  versionDef.setMonitoringVersion("test01");  // the only mon_ver in mon_version_def table as of September
+                                              // 2012
   MonRunTag monTag;
   monTag.setMonVersionDef(versionDef);
   monTag.setGeneralTag(monRunGeneralTag);
@@ -133,10 +130,8 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const &_ps)
   try {
     monIOV_ = db_->fetchMonRunIOV(&runTag, &monTag, runNumber, 1);
   } catch (std::runtime_error &e) {
-    edm::LogError("EcalDQM")
-        << "Cannot fetch MonRunIOV for location=" << location
-        << " runNumber=" << runNumber
-        << " monVersion=test01 monRunGeneralTag=" << monRunGeneralTag;
+    edm::LogError("EcalDQM") << "Cannot fetch MonRunIOV for location=" << location << " runNumber=" << runNumber
+                             << " monVersion=test01 monRunGeneralTag=" << monRunGeneralTag;
     throw;
   }
 
@@ -149,12 +144,10 @@ EcalCondDBReader::~EcalCondDBReader() {
   delete meSet_;
 }
 
-void EcalCondDBReader::dqmEndJob(DQMStore::IBooker &_ibooker,
-                                 DQMStore::IGetter &) {
+void EcalCondDBReader::dqmEndJob(DQMStore::IBooker &_ibooker, DQMStore::IGetter &) {
   meSet_->book(_ibooker);
 
   std::map<DetId, double> values(worker_->run(db_, monIOV_, formula_));
-  for (std::map<DetId, double>::const_iterator vItr(values.begin());
-       vItr != values.end(); ++vItr)
+  for (std::map<DetId, double>::const_iterator vItr(values.begin()); vItr != values.end(); ++vItr)
     meSet_->setBinContent(vItr->first, vItr->second);
 }

@@ -20,39 +20,36 @@
 
 #include "G4PiNuclearCrossSection.hh"
 
-class CMSFTFPPiKBuilder : public G4VPiKBuilder
-{
-  public: 
-    CMSFTFPPiKBuilder(G4bool quasiElastic=false);
-    ~CMSFTFPPiKBuilder() override;
+class CMSFTFPPiKBuilder : public G4VPiKBuilder {
+public:
+  CMSFTFPPiKBuilder(G4bool quasiElastic = false);
+  ~CMSFTFPPiKBuilder() override;
 
-  public: 
-    void Build(G4HadronElasticProcess * aP) override;
-    void Build(G4PionPlusInelasticProcess * aP) override;
-    void Build(G4PionMinusInelasticProcess * aP) override;
-    void Build(G4KaonPlusInelasticProcess * aP) override;
-    void Build(G4KaonMinusInelasticProcess * aP) override;
-    void Build(G4KaonZeroLInelasticProcess * aP) override;
-    void Build(G4KaonZeroSInelasticProcess * aP) override;
-    
-    void SetMinEnergy(G4double aM) override {theMin = aM;}
-    void SetMaxEnergy(G4double aM) override {theMax = aM;}
+public:
+  void Build(G4HadronElasticProcess* aP) override;
+  void Build(G4PionPlusInelasticProcess* aP) override;
+  void Build(G4PionMinusInelasticProcess* aP) override;
+  void Build(G4KaonPlusInelasticProcess* aP) override;
+  void Build(G4KaonMinusInelasticProcess* aP) override;
+  void Build(G4KaonZeroLInelasticProcess* aP) override;
+  void Build(G4KaonZeroSInelasticProcess* aP) override;
 
-  private:
-    G4TheoFSGenerator * theModel;
-    G4PreCompoundModel * thePreEquilib;
-    G4GeneratorPrecompoundInterface * theCascade;
-    G4FTFModel * theStringModel;
-    G4ExcitedStringDecay * theStringDecay;
-    G4QuasiElasticChannel * theQuasiElastic;
+  void SetMinEnergy(G4double aM) override { theMin = aM; }
+  void SetMaxEnergy(G4double aM) override { theMax = aM; }
 
-    G4PiNuclearCrossSection* thePiData;
-    G4double theMin;
-    G4double theMax;
+private:
+  G4TheoFSGenerator* theModel;
+  G4PreCompoundModel* thePreEquilib;
+  G4GeneratorPrecompoundInterface* theCascade;
+  G4FTFModel* theStringModel;
+  G4ExcitedStringDecay* theStringDecay;
+  G4QuasiElasticChannel* theQuasiElastic;
 
+  G4PiNuclearCrossSection* thePiData;
+  G4double theMin;
+  G4double theMax;
 };
 
 // 2002 by J.P. Wellisch
 
 #endif
-

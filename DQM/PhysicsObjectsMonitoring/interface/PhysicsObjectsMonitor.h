@@ -19,10 +19,10 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 namespace edm {
-class ParameterSet;
-class Event;
-class EventSetup;
-} // namespace edm
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class TFile;
 class TH1F;
@@ -35,10 +35,8 @@ public:
   /// Destructor
   ~PhysicsObjectsMonitor() override;
   // Operations
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
-  void analyze(const edm::Event &event,
-               const edm::EventSetup &eventSetup) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
 private:
   std::string theSTAMuonLabel;

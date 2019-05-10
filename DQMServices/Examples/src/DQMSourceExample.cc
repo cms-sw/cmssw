@@ -30,7 +30,6 @@ DQMSourceExample::~DQMSourceExample() {}
 //======================= Initialise ===============================//
 //==================================================================//
 void DQMSourceExample::initialize() {
-
   ////---- initialise Event and LS counters
   counterEvt_ = 0;
   counterLS_ = 0;
@@ -39,19 +38,16 @@ void DQMSourceExample::initialize() {
   dbe_ = Service<DQMStore>().operator->();
 
   ////---- define base folder for the contents of this job
-  monitorName_ = parameters_.getUntrackedParameter<string>("monitorName",
-                                                           "YourSubsystemName");
+  monitorName_ = parameters_.getUntrackedParameter<string>("monitorName", "YourSubsystemName");
   cout << "DQMSourceExample: Monitor name = " << monitorName_ << endl;
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 
   ////--- get steerable parameters
   prescaleLS_ = parameters_.getUntrackedParameter<int>("prescaleLS", -1);
-  cout << "DQMSourceExample: DQM lumi section prescale = " << prescaleLS_
-       << " lumi section(s)" << endl;
+  cout << "DQMSourceExample: DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)" << endl;
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
-  cout << "DQMSourceExample: DQM event prescale = " << prescaleEvt_
-       << " events(s)" << endl;
+  cout << "DQMSourceExample: DQM event prescale = " << prescaleEvt_ << " events(s)" << endl;
 
   // read in files (use DQMStore.collateHistograms = True for summing
   //  dbe_->load("ref.root");
@@ -88,21 +84,14 @@ void DQMSourceExample::beginJob() {
   xFalse = dbe_->book1D("XFalse", "X Range QTest", NBINS, XMIN, XMAX);
   yTrue = dbe_->book1D("YTrue", "Y Range QTest", NBINS, XMIN, XMAX);
   yFalse = dbe_->book1D("YFalse", "Y Range QTest", NBINS, XMIN, XMAX);
-  wExpTrue = dbe_->book2D("WExpTrue", "Contents Within Expected QTest", NBINS,
-                          XMIN, XMAX, NBINS, XMIN, XMAX);
-  wExpFalse = dbe_->book2D("WExpFalse", "Contents Within Expected QTest", NBINS,
-                           XMIN, XMAX, NBINS, XMIN, XMAX);
-  meanTrue =
-      dbe_->book1D("MeanTrue", "Mean Within Expected QTest", NBINS, XMIN, XMAX);
-  meanFalse = dbe_->book1D("MeanFalse", "Mean Within Expected QTest", NBINS,
-                           XMIN, XMAX);
+  wExpTrue = dbe_->book2D("WExpTrue", "Contents Within Expected QTest", NBINS, XMIN, XMAX, NBINS, XMIN, XMAX);
+  wExpFalse = dbe_->book2D("WExpFalse", "Contents Within Expected QTest", NBINS, XMIN, XMAX, NBINS, XMIN, XMAX);
+  meanTrue = dbe_->book1D("MeanTrue", "Mean Within Expected QTest", NBINS, XMIN, XMAX);
+  meanFalse = dbe_->book1D("MeanFalse", "Mean Within Expected QTest", NBINS, XMIN, XMAX);
   deadTrue = dbe_->book1D("DeadTrue", "Dead Channel QTest", NBINS, XMIN, XMAX);
-  deadFalse =
-      dbe_->book1D("DeadFalse", "Dead Channel QTest", NBINS, XMIN, XMAX);
-  noisyTrue =
-      dbe_->book1D("NoisyTrue", "Noisy Channel QTest", NBINS, XMIN, XMAX);
-  noisyFalse =
-      dbe_->book1D("NoisyFalse", "Noisy Channel QTest", NBINS, XMIN, XMAX);
+  deadFalse = dbe_->book1D("DeadFalse", "Dead Channel QTest", NBINS, XMIN, XMAX);
+  noisyTrue = dbe_->book1D("NoisyTrue", "Noisy Channel QTest", NBINS, XMIN, XMAX);
+  noisyFalse = dbe_->book1D("NoisyFalse", "Noisy Channel QTest", NBINS, XMIN, XMAX);
 
   //-------------------------------------
   // book several ME more
@@ -120,10 +109,8 @@ void DQMSourceExample::beginJob() {
   //  h3        = dbe_->book1DD("h1d", "Example TH1D histogram.", NBINS, XMIN,
   //  XMAX); h4        = dbe_->book2DD("h2d", "Example TH2D histogram.", NBINS,
   //  XMIN, XMAX,NBINS, XMIN, XMAX);
-  p1 = dbe_->bookProfile("prof1", "My profile 1D", NBINS, XMIN, XMAX, NBINS,
-                         XMIN, XMAX, "");
-  p2 = dbe_->bookProfile2D("prof2", "My profile 2D", NBINS, XMIN, XMAX, NBINS,
-                           XMIN, XMAX, NBINS, XMIN, XMAX, "");
+  p1 = dbe_->bookProfile("prof1", "My profile 1D", NBINS, XMIN, XMAX, NBINS, XMIN, XMAX, "");
+  p2 = dbe_->bookProfile2D("prof2", "My profile 2D", NBINS, XMIN, XMAX, NBINS, XMIN, XMAX, NBINS, XMIN, XMAX, "");
   h1hist = dbe_->book1D("history 1D", "Example 1 1D history plot", 30, 0., 30.);
 
   // set labels for h1
@@ -171,7 +158,7 @@ void DQMSourceExample::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
   // fill integer and float
   // number exceeding 32 bits
-  i1->Fill(400000000000000LL); // FIXME use double
+  i1->Fill(400000000000000LL);  // FIXME use double
   f1->Fill(-3.14);
 
   //----------------------------------------
@@ -229,6 +216,4 @@ void DQMSourceExample::endRun(const Run &r, const EventSetup &context) {}
 //==================================================================//
 //============================= endJob =============================//
 //==================================================================//
-void DQMSourceExample::endJob() {
-  std::cout << "DQMSourceExample::endJob()" << std::endl;
-}
+void DQMSourceExample::endJob() { std::cout << "DQMSourceExample::endJob()" << std::endl; }

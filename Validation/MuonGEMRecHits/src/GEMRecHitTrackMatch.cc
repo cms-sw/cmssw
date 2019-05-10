@@ -10,19 +10,13 @@
 #include <TMath.h>
 
 using namespace std;
-GEMRecHitTrackMatch::GEMRecHitTrackMatch(const edm::ParameterSet &ps)
-    : GEMTrackMatch(ps) {
-  std::string simInputLabel_ =
-      ps.getUntrackedParameter<std::string>("simInputLabel");
-  simHitsToken_ = consumes<edm::PSimHitContainer>(
-      edm::InputTag(simInputLabel_, "MuonGEMHits"));
-  simTracksToken_ = consumes<edm::SimTrackContainer>(
-      ps.getParameter<edm::InputTag>("simTrackCollection"));
-  simVerticesToken_ = consumes<edm::SimVertexContainer>(
-      ps.getParameter<edm::InputTag>("simVertexCollection"));
+GEMRecHitTrackMatch::GEMRecHitTrackMatch(const edm::ParameterSet &ps) : GEMTrackMatch(ps) {
+  std::string simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel");
+  simHitsToken_ = consumes<edm::PSimHitContainer>(edm::InputTag(simInputLabel_, "MuonGEMHits"));
+  simTracksToken_ = consumes<edm::SimTrackContainer>(ps.getParameter<edm::InputTag>("simTrackCollection"));
+  simVerticesToken_ = consumes<edm::SimVertexContainer>(ps.getParameter<edm::InputTag>("simVertexCollection"));
 
-  gem_recHitToken_ = consumes<GEMRecHitCollection>(
-      ps.getParameter<edm::InputTag>("gemRecHitInput"));
+  gem_recHitToken_ = consumes<GEMRecHitCollection>(ps.getParameter<edm::InputTag>("gemRecHitInput"));
 
   detailPlot_ = ps.getParameter<bool>("detailPlot");
   cfg_ = ps;
@@ -31,18 +25,14 @@ GEMRecHitTrackMatch::GEMRecHitTrackMatch(const edm::ParameterSet &ps)
 void GEMRecHitTrackMatch::bookHistograms(DQMStore::IBooker &ibooker,
                                          edm::Run const &run,
                                          edm::EventSetup const &iSetup) {
-  edm::LogInfo("GEMRecHitTrackMatch")
-      << "GEM RecHitTrackMatch :: bookHistograms" << std::endl;
+  edm::LogInfo("GEMRecHitTrackMatch") << "GEM RecHitTrackMatch :: bookHistograms" << std::endl;
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry &geom = *hGeom;
-  edm::LogInfo("GEMRecHitTrackMatch")
-      << "GEM RecHitTrackMatch :: about to set the geometry" << std::endl;
+  edm::LogInfo("GEMRecHitTrackMatch") << "GEM RecHitTrackMatch :: about to set the geometry" << std::endl;
   setGeometry(geom);
-  edm::LogInfo("GEMRecHitTrackMatch")
-      << "GEM RecHitTrackMatch :: successfully set the geometry" << std::endl;
-  edm::LogInfo("GEMRecHitTrackMatch")
-      << "GEM RecHitTrackMatch :: geom = " << &geom << std::endl;
+  edm::LogInfo("GEMRecHitTrackMatch") << "GEM RecHitTrackMatch :: successfully set the geometry" << std::endl;
+  edm::LogInfo("GEMRecHitTrackMatch") << "GEM RecHitTrackMatch :: geom = " << &geom << std::endl;
 
   ibooker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask");
   edm::LogInfo("GEMRecHitTrackMatch") << "ibooker set current folder\n";
@@ -54,45 +44,35 @@ void GEMRecHitTrackMatch::bookHistograms(DQMStore::IBooker &ibooker,
   nstation = geom.regions()[0]->stations().size();
   for (unsigned int j = 0; j < nstation; j++) {
     string track_eta_name = string("track_eta") + s_suffix.at(j);
-    string track_eta_title =
-        string("track_eta") + ";SimTrack |#eta|;# of tracks";
-    track_eta[j] = ibooker.book1D(
-        track_eta_name.c_str(), track_eta_title.c_str(), 140, minEta_, maxEta_);
+    string track_eta_title = string("track_eta") + ";SimTrack |#eta|;# of tracks";
+    track_eta[j] = ibooker.book1D(track_eta_name.c_str(), track_eta_title.c_str(), 140, minEta_, maxEta_);
 
     for (unsigned int k = 0; k < c_suffix.size(); k++) {
       string suffix = string(s_suffix[j]) + string(c_suffix[k]);
       string track_phi_name = string("track_phi") + suffix;
-      string track_phi_title =
-          string("track_phi") + suffix + ";SimTrack #phi;# of tracks";
-      track_phi[j][k] = ibooker.book1D(track_phi_name.c_str(),
-                                       track_phi_title.c_str(), 200, -PI, PI);
+      string track_phi_title = string("track_phi") + suffix + ";SimTrack #phi;# of tracks";
+      track_phi[j][k] = ibooker.book1D(track_phi_name.c_str(), track_phi_title.c_str(), 200, -PI, PI);
     }
 
     for (unsigned int i = 0; i < l_suffix.size(); i++) {
       string suffix = string(s_suffix[j]) + string(l_suffix[i]);
       string rh_eta_name = string("rh_eta") + suffix;
       string rh_eta_title = rh_eta_name + "; tracks |#eta|; # of tracks";
-      rh_eta[i][j] = ibooker.book1D(rh_eta_name.c_str(), rh_eta_title.c_str(),
-                                    140, minEta_, maxEta_);
+      rh_eta[i][j] = ibooker.book1D(rh_eta_name.c_str(), rh_eta_title.c_str(), 140, minEta_, maxEta_);
 
       string rh_sh_eta_name = string("rh_sh_eta") + suffix;
       string rh_sh_eta_title = rh_sh_eta_name + "; tracks |#eta|; # of tracks";
-      rh_sh_eta[i][j] =
-          ibooker.book1D(rh_sh_eta_name.c_str(), rh_sh_eta_title.c_str(), 140,
-                         minEta_, maxEta_);
+      rh_sh_eta[i][j] = ibooker.book1D(rh_sh_eta_name.c_str(), rh_sh_eta_title.c_str(), 140, minEta_, maxEta_);
 
       for (unsigned int k = 0; k < c_suffix.size(); k++) {
-        suffix =
-            string(s_suffix[j]) + string(l_suffix[i]) + string(c_suffix[k]);
+        suffix = string(s_suffix[j]) + string(l_suffix[i]) + string(c_suffix[k]);
         string rh_phi_name = string("rh_phi") + suffix;
         string rh_phi_title = rh_phi_name + "; tracks #phi; # of tracks";
-        rh_phi[i][j][k] = ibooker.book1D((rh_phi_name).c_str(),
-                                         rh_phi_title.c_str(), 200, -PI, PI);
+        rh_phi[i][j][k] = ibooker.book1D((rh_phi_name).c_str(), rh_phi_title.c_str(), 200, -PI, PI);
 
         string rh_sh_phi_name = string("rh_sh_phi") + suffix;
         string rh_sh_phi_title = rh_sh_phi_name + "; tracks #phi; # of tracks";
-        rh_sh_phi[i][j][k] = ibooker.book1D(
-            (rh_sh_phi_name).c_str(), rh_sh_phi_title.c_str(), 200, -PI, PI);
+        rh_sh_phi[i][j][k] = ibooker.book1D((rh_sh_phi_name).c_str(), rh_sh_phi_title.c_str(), 200, -PI, PI);
       }
     }
   }
@@ -100,10 +80,8 @@ void GEMRecHitTrackMatch::bookHistograms(DQMStore::IBooker &ibooker,
 
 GEMRecHitTrackMatch::~GEMRecHitTrackMatch() {}
 
-void GEMRecHitTrackMatch::analyze(const edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
-  edm::LogInfo("GEMRecHitTrackMatch")
-      << "GEM RecHitTrackMatch :: analyze" << std::endl;
+void GEMRecHitTrackMatch::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  edm::LogInfo("GEMRecHitTrackMatch") << "GEM RecHitTrackMatch :: analyze" << std::endl;
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry &geom = *hGeom;
@@ -131,10 +109,8 @@ void GEMRecHitTrackMatch::analyze(const edm::Event &iEvent,
     // match hits and rechits to this SimTrack
 
     const SimHitMatcher &match_sh =
-        SimHitMatcher(t, iEvent, geom, cfg_, simHitsToken_, simTracksToken_,
-                      simVerticesToken_);
-    const GEMRecHitMatcher &match_rh =
-        GEMRecHitMatcher(match_sh, iEvent, geom, cfg_, gem_recHitToken_);
+        SimHitMatcher(t, iEvent, geom, cfg_, simHitsToken_, simTracksToken_, simVerticesToken_);
+    const GEMRecHitMatcher &match_rh = GEMRecHitMatcher(match_sh, iEvent, geom, cfg_, gem_recHitToken_);
 
     track_.pt = t.momentum().pt();
     // std::cout << "SimTrack pt value :  " << track_.pt << "\n";
@@ -159,8 +135,7 @@ void GEMRecHitTrackMatch::analyze(const edm::Event &iEvent,
       else if (id.chamber() % 2 == 1)
         track_.hitOdd[id.station() - 1] = true;
       else {
-        edm::LogInfo("GEMRecHitTrackMatch")
-            << "Error to get chamber id" << std::endl;
+        edm::LogInfo("GEMRecHitTrackMatch") << "Error to get chamber id" << std::endl;
       }
 
       track_.gem_sh[id.station() - 1][(id.layer() - 1)] = true;
@@ -174,18 +149,15 @@ void GEMRecHitTrackMatch::analyze(const edm::Event &iEvent,
     }
 
     FillWithTrigger(track_eta, fabs(track_.eta));
-    FillWithTrigger(track_phi, fabs(track_.eta), track_.phi, track_.hitOdd,
-                    track_.hitEven);
+    FillWithTrigger(track_phi, fabs(track_.eta), track_.phi, track_.hitOdd, track_.hitEven);
 
     FillWithTrigger(rh_sh_eta, track_.gem_sh, fabs(track_.eta));
     FillWithTrigger(rh_eta, track_.gem_rh, fabs(track_.eta));
 
     // Separate station.
 
-    FillWithTrigger(rh_sh_phi, track_.gem_sh, fabs(track_.eta), track_.phi,
-                    track_.hitOdd, track_.hitEven);
-    FillWithTrigger(rh_phi, track_.gem_rh, fabs(track_.eta), track_.phi,
-                    track_.hitOdd, track_.hitEven);
+    FillWithTrigger(rh_sh_phi, track_.gem_sh, fabs(track_.eta), track_.phi, track_.hitOdd, track_.hitEven);
+    FillWithTrigger(rh_phi, track_.gem_rh, fabs(track_.eta), track_.phi, track_.hitOdd, track_.hitEven);
 
     /*
 

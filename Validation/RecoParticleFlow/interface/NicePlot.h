@@ -21,8 +21,7 @@ public:
 
   static void FormatHisto(TH1 *h, const Style *s);
 
-  static void FormatPad(TPad *pad, bool grid = true, bool logx = false,
-                        bool logy = false);
+  static void FormatPad(TPad *pad, bool grid = true, bool logx = false, bool logy = false);
 
   static void SavePlot(const char *name, const char *dir);
 };

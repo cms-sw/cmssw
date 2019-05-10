@@ -9,11 +9,8 @@
 using namespace std;
 using namespace edm;
 SiPixelDaqInfo::SiPixelDaqInfo(const edm::ParameterSet &ps) {
-
-  FEDRange_.first =
-      ps.getUntrackedParameter<unsigned int>("MinimumPixelFEDId", 0);
-  FEDRange_.second =
-      ps.getUntrackedParameter<unsigned int>("MaximumPixelFEDId", 39);
+  FEDRange_.first = ps.getUntrackedParameter<unsigned int>("MinimumPixelFEDId", 0);
+  FEDRange_.second = ps.getUntrackedParameter<unsigned int>("MaximumPixelFEDId", 39);
   daqSource_ = ps.getUntrackedParameter<string>("daqSource", "source");
 
   NumberOfFeds_ = FEDRange_.second - FEDRange_.first + 1;
@@ -25,16 +22,15 @@ SiPixelDaqInfo::SiPixelDaqInfo(const edm::ParameterSet &ps) {
   firstLumi = true;
 
   // set Token(-s)
-  daqSourceToken_ = consumes<FEDRawDataCollection>(
-      ps.getUntrackedParameter<string>("daqSource", "source"));
+  daqSourceToken_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<string>("daqSource", "source"));
 }
 
 SiPixelDaqInfo::~SiPixelDaqInfo() {}
 
-void SiPixelDaqInfo::dqmEndLuminosityBlock(
-    DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter,
-    const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup) {
-
+void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker &iBooker,
+                                           DQMStore::IGetter &iGetter,
+                                           const edm::LuminosityBlock &lumiBlock,
+                                           const edm::EventSetup &iSetup) {
   // Book somethings first time around
   if (firstLumi) {
     iBooker.setCurrentFolder("Pixel/EventInfo");
@@ -70,8 +66,7 @@ void SiPixelDaqInfo::dqmEndLuminosityBlock(
     }
     // Fill active fed fraction ME
     if (FedCountBarrel <= 32) {
-      MonitorElement *mefed =
-          iGetter.get("Pixel/EventInfo/DAQContents/fedcounter");
+      MonitorElement *mefed = iGetter.get("Pixel/EventInfo/DAQContents/fedcounter");
       FedCountBarrel = 0;
       FedCountEndcap = 0;
       FedCount = 0;
@@ -107,5 +102,4 @@ void SiPixelDaqInfo::dqmEndLuminosityBlock(
   }
 }
 
-void SiPixelDaqInfo::dqmEndJob(DQMStore::IBooker &iBooker,
-                               DQMStore::IGetter &iGetter) {}
+void SiPixelDaqInfo::dqmEndJob(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter) {}

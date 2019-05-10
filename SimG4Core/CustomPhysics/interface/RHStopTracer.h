@@ -15,25 +15,25 @@ class EndOfTrack;
 class G4Step;
 class G4ParticleDefinition;
 
-class RHStopTracer :  public SimProducer,
-		      public Observer<const BeginOfRun *>, 
-		      public Observer<const BeginOfEvent *>, 
-		      public Observer<const BeginOfTrack *>,
-		      public Observer<const EndOfTrack *>
-{
- public:
-  RHStopTracer(edm::ParameterSet const & p);
+class RHStopTracer : public SimProducer,
+                     public Observer<const BeginOfRun *>,
+                     public Observer<const BeginOfEvent *>,
+                     public Observer<const BeginOfTrack *>,
+                     public Observer<const EndOfTrack *> {
+public:
+  RHStopTracer(edm::ParameterSet const &p);
   ~RHStopTracer() override;
   void update(const BeginOfRun *) override;
   void update(const BeginOfEvent *) override;
   void update(const BeginOfTrack *) override;
   void update(const EndOfTrack *) override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
- private:
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+private:
   struct StopPoint {
-    StopPoint (const std::string& fName, double fX, double fY, double fZ, double fT, int fId, double fMass, double fCharge) 
-    : name(fName), x(fX), y(fY), z(fZ), t(fT), id(fId), mass(fMass), charge(fCharge) 
-    {}
+    StopPoint(
+        const std::string &fName, double fX, double fY, double fZ, double fT, int fId, double fMass, double fCharge)
+        : name(fName), x(fX), y(fY), z(fZ), t(fT), id(fId), mass(fMass), charge(fCharge) {}
     std::string name;
     double x;
     double y;
@@ -50,7 +50,7 @@ class RHStopTracer :  public SimProducer,
   int otherPdgId;
   std::string mTraceParticleName;
   std::regex rePartName;
-  std::vector <StopPoint> mStopPoints;
+  std::vector<StopPoint> mStopPoints;
 };
 
 #endif

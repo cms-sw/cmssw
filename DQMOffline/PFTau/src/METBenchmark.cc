@@ -15,7 +15,6 @@ using namespace std;
 METBenchmark::~METBenchmark() {}
 
 void METBenchmark::setup(DQMStore::IBooker &b) {
-
   // std::cout << "FL: METBenchmark.cc: start setup()" << std::endl;
 
   PhaseSpace ptPS(100, 0, 200);
@@ -28,13 +27,13 @@ void METBenchmark::setup(DQMStore::IBooker &b) {
   PhaseSpace etOverSumEtPS(100, 0.0, 1.0);
 
   switch (mode_) {
-  case DQMOFFLINE:
-    ptPS = PhaseSpace(200, 0, 200);
-    pxPS = PhaseSpace(200, -100., 100);
-    sumEtPS = PhaseSpace(200, 0, 200);
-    break;
-  default:
-    break;
+    case DQMOFFLINE:
+      ptPS = PhaseSpace(200, 0, 200);
+      pxPS = PhaseSpace(200, -100., 100);
+      sumEtPS = PhaseSpace(200, 0, 200);
+      break;
+    default:
+      break;
   }
 
   pt_ = book1D(b, "pt_", "pt_;p_{T} [GeV]", ptPS.n, ptPS.m, ptPS.M);
@@ -45,20 +44,16 @@ void METBenchmark::setup(DQMStore::IBooker &b) {
   // might want to increase the number of bins, to match the size of the ECAL
   // crystals
   phi_ = book1D(b, "phi_", "phi_;#phi", phiPS.n, phiPS.m, phiPS.M);
-  sumEt_ = book1D(b, "sumEt_", "sumEt_;#SigmaE_{T} [GeV]", sumEtPS.n, sumEtPS.m,
-                  sumEtPS.M);
-  sumEt2_ = book1D(b, "sumEt2_", "sumEt2_;#SigmaE_{T} [GeV]", sumEt2PS.n,
-                   sumEt2PS.m, sumEt2PS.M);
-  etOverSumEt_ = book1D(b, "etOverSumEt_", "etOverSumEt_;p_{T}/#SigmaE_{T}",
-                        etOverSumEtPS.n, etOverSumEtPS.m, etOverSumEtPS.M);
+  sumEt_ = book1D(b, "sumEt_", "sumEt_;#SigmaE_{T} [GeV]", sumEtPS.n, sumEtPS.m, sumEtPS.M);
+  sumEt2_ = book1D(b, "sumEt2_", "sumEt2_;#SigmaE_{T} [GeV]", sumEt2PS.n, sumEt2PS.m, sumEt2PS.M);
+  etOverSumEt_ =
+      book1D(b, "etOverSumEt_", "etOverSumEt_;p_{T}/#SigmaE_{T}", etOverSumEtPS.n, etOverSumEtPS.m, etOverSumEtPS.M);
 
-  mex_VS_sumEt_ =
-      book2D(b, "mex_VS_sumEt_", ";#SigmaE_{T} [GeV];p_{X} [GeV]", sumEt3PS.n,
-             sumEt3PS.m, sumEt3PS.M, pxPS.n, pxPS.m, pxPS.M);
+  mex_VS_sumEt_ = book2D(
+      b, "mex_VS_sumEt_", ";#SigmaE_{T} [GeV];p_{X} [GeV]", sumEt3PS.n, sumEt3PS.m, sumEt3PS.M, pxPS.n, pxPS.m, pxPS.M);
 }
 
 void METBenchmark::fillOne(const reco::MET &cand) {
-
   if (!isInRange(cand.pt(), cand.eta(), cand.phi()))
     return;
 

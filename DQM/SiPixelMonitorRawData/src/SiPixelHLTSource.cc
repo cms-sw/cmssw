@@ -47,31 +47,24 @@ using namespace std;
 using namespace edm;
 
 SiPixelHLTSource::SiPixelHLTSource(const edm::ParameterSet &iConfig)
-    : conf_(iConfig), rawin_(consumes<FEDRawDataCollection>(
-                          conf_.getParameter<edm::InputTag>("RawInput"))),
-      errin_(consumes<edm::DetSetVector<SiPixelRawDataError>>(
-          conf_.getParameter<edm::InputTag>("ErrorInput"))),
+    : conf_(iConfig),
+      rawin_(consumes<FEDRawDataCollection>(conf_.getParameter<edm::InputTag>("RawInput"))),
+      errin_(consumes<edm::DetSetVector<SiPixelRawDataError>>(conf_.getParameter<edm::InputTag>("ErrorInput"))),
       saveFile(conf_.getUntrackedParameter<bool>("saveFile", false)),
       slowDown(conf_.getUntrackedParameter<bool>("slowDown", false)),
-      dirName_(conf_.getUntrackedParameter<string>("DirName",
-                                                   "Pixel/FEDIntegrity/")) {
+      dirName_(conf_.getUntrackedParameter<string>("DirName", "Pixel/FEDIntegrity/")) {
   firstRun = true;
-  LogInfo("PixelDQM")
-      << "SiPixelHLTSource::SiPixelHLTSource: Got DQM BackEnd interface"
-      << endl;
+  LogInfo("PixelDQM") << "SiPixelHLTSource::SiPixelHLTSource: Got DQM BackEnd interface" << endl;
 }
 
 SiPixelHLTSource::~SiPixelHLTSource() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  LogInfo("PixelDQM") << "SiPixelHLTSource::~SiPixelHLTSource: Destructor"
-                      << endl;
+  LogInfo("PixelDQM") << "SiPixelHLTSource::~SiPixelHLTSource: Destructor" << endl;
 }
 
-void SiPixelHLTSource::dqmBeginRun(const edm::Run &r,
-                                   const edm::EventSetup &iSetup) {
-  LogInfo("PixelDQM") << " SiPixelHLTSource::beginJob - Initialisation ... "
-                      << std::endl;
+void SiPixelHLTSource::dqmBeginRun(const edm::Run &r, const edm::EventSetup &iSetup) {
+  LogInfo("PixelDQM") << " SiPixelHLTSource::beginJob - Initialisation ... " << std::endl;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
   if (firstRun) {
     eventNo = 0;
@@ -80,9 +73,7 @@ void SiPixelHLTSource::dqmBeginRun(const edm::Run &r,
   }
 }
 
-void SiPixelHLTSource::bookHistograms(DQMStore::IBooker &iBooker,
-                                      edm::Run const &,
-                                      edm::EventSetup const &) {
+void SiPixelHLTSource::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
   // Book Monitoring Elements
   bookMEs(iBooker);
 }
@@ -90,8 +81,7 @@ void SiPixelHLTSource::bookHistograms(DQMStore::IBooker &iBooker,
 //------------------------------------------------------------------
 // Method called for every event
 //------------------------------------------------------------------
-void SiPixelHLTSource::analyze(const edm::Event &iEvent,
-                               const edm::EventSetup &iSetup) {
+void SiPixelHLTSource::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   eventNo++;
   // get raw input data
   edm::Handle<FEDRawDataCollection> rawinput;
@@ -109,69 +99,66 @@ void SiPixelHLTSource::analyze(const edm::Event &iEvent,
     const FEDRawData &fedRawData = rawinput->FEDData(fedId);
     if (fedRawData.size() != 0)
       (meRawWords_)->Fill(fedId);
-  } // end for
+  }  // end for
 
   edm::DetSet<SiPixelRawDataError>::const_iterator di;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin();
-       it != pDD->dets().end(); it++) {
+  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     if (GeomDetEnumerators::isTrackerPixel((*it)->subDetector())) {
       uint32_t detId = (*it)->geographicalId();
-      edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch =
-          errorinput->find(detId);
+      edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = errorinput->find(detId);
       if (isearch != errorinput->end()) {
         for (di = isearch->data.begin(); di != isearch->data.end(); di++) {
-          fedId = di->getFedId();        // FED the error came from
-          int errorType = di->getType(); // type of error
+          fedId = di->getFedId();         // FED the error came from
+          int errorType = di->getType();  // type of error
           switch (errorType) {
-          case (35):
-            (meNErrors_)->Fill(fedId);
-            break;
-          case (36):
-            (meNErrors_)->Fill(fedId);
-            break;
-          case (37):
-            (meNErrors_)->Fill(fedId);
-            break;
-          case (38):
-            (meNErrors_)->Fill(fedId);
-            break;
-          default:
-            break;
-          }; // end switch
-        }    // end for(di
-      }      // end if( isearch
-    }        // end if( ((*it)->subDetector()
-  }          // for(TrackerGeometry
+            case (35):
+              (meNErrors_)->Fill(fedId);
+              break;
+            case (36):
+              (meNErrors_)->Fill(fedId);
+              break;
+            case (37):
+              (meNErrors_)->Fill(fedId);
+              break;
+            case (38):
+              (meNErrors_)->Fill(fedId);
+              break;
+            default:
+              break;
+          };  // end switch
+        }     // end for(di
+      }       // end if( isearch
+    }         // end if( ((*it)->subDetector()
+  }           // for(TrackerGeometry
 
-  edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch =
-      errorinput->find(0xffffffff);
+  edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = errorinput->find(0xffffffff);
 
-  if (isearch != errorinput->end()) { // Not at empty iterator
+  if (isearch != errorinput->end()) {  // Not at empty iterator
     for (di = isearch->data.begin(); di != isearch->data.end(); di++) {
-      fedId = di->getFedId();        // FED the error came from
-      int errorType = di->getType(); // type of error
+      fedId = di->getFedId();         // FED the error came from
+      int errorType = di->getType();  // type of error
       switch (errorType) {
-      case (35):
-        (meNErrors_)->Fill(fedId);
-        break;
-      case (36):
-        (meNErrors_)->Fill(fedId);
-        break;
-      case (37):
-        (meNErrors_)->Fill(fedId);
-        break;
-      case (38):
-        (meNErrors_)->Fill(fedId);
-        break;
-      case (39):
-        (meNCRCs_)->Fill(fedId);
-        break;
-      default:
-        break;
-      }; // end switch
-    }    // end for(di
-  }      // end if( isearch
+        case (35):
+          (meNErrors_)->Fill(fedId);
+          break;
+        case (36):
+          (meNErrors_)->Fill(fedId);
+          break;
+        case (37):
+          (meNErrors_)->Fill(fedId);
+          break;
+        case (38):
+          (meNErrors_)->Fill(fedId);
+          break;
+        case (39):
+          (meNCRCs_)->Fill(fedId);
+          break;
+        default:
+          break;
+      };  // end switch
+    }     // end for(di
+  }       // end if( isearch
   // slow down...
   if (slowDown)
     usleep(100000);
@@ -181,7 +168,6 @@ void SiPixelHLTSource::analyze(const edm::Event &iEvent,
 // Book MEs
 //------------------------------------------------------------------
 void SiPixelHLTSource::bookMEs(DQMStore::IBooker &iBooker) {
-
   iBooker.cd();
   iBooker.setCurrentFolder(dirName_);
 
@@ -194,18 +180,15 @@ void SiPixelHLTSource::bookMEs(DQMStore::IBooker &iBooker) {
   SiPixelHistogramId *ErrorHistogramId = new SiPixelHistogramId(errin.label());
 
   // Is a FED sending raw data
-  meRawWords_ =
-      iBooker.book1D("FEDEntries", "Number of raw words", 40, -0.5, 39.5);
+  meRawWords_ = iBooker.book1D("FEDEntries", "Number of raw words", 40, -0.5, 39.5);
   meRawWords_->setAxisTitle("Number of raw words", 1);
 
   // Number of CRC errors
-  meNCRCs_ =
-      iBooker.book1D("FEDFatal", "Number of fatal errors", 40, -0.5, 39.5);
+  meNCRCs_ = iBooker.book1D("FEDFatal", "Number of fatal errors", 40, -0.5, 39.5);
   meNCRCs_->setAxisTitle("Number of fatal errors", 1);
 
   // Number of translation error words
-  meNErrors_ = iBooker.book1D("FEDNonFatal", "Number of non-fatal errors", 40,
-                              -0.5, 39.5);
+  meNErrors_ = iBooker.book1D("FEDNonFatal", "Number of non-fatal errors", 40, -0.5, 39.5);
   meNErrors_->setAxisTitle("Number of non-fatal errors", 1);
 
   delete RawHistogramId;

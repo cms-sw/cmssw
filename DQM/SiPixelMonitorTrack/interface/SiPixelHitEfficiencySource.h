@@ -48,8 +48,7 @@ public:
   ~SiPixelHitEfficiencySource() override;
 
   void dqmBeginRun(const edm::Run &r, edm::EventSetup const &iSetup) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   virtual void fillClusterProbability(int, int, bool, double);
 
@@ -59,8 +58,7 @@ private:
   // edm::InputTag tracksrc_;
   edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken_;
   edm::EDGetTokenT<TrajTrackAssociationCollection> tracksrc_;
-  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>>
-      clusterCollectionToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> clusterCollectionToken_;
 
   edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken_;
 

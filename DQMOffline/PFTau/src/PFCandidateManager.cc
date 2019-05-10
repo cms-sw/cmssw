@@ -14,7 +14,6 @@ using namespace std;
 PFCandidateManager::~PFCandidateManager() {}
 
 void PFCandidateManager::setDirectory(TDirectory *dir) {
-
   Benchmark::setDirectory(dir);
 
   candBench_.setDirectory(dir);
@@ -22,8 +21,7 @@ void PFCandidateManager::setDirectory(TDirectory *dir) {
   matchCandBench_.setDirectory(dir);
 }
 
-void PFCandidateManager::setParameters(float dRMax, bool matchCharge,
-                                       Benchmark::Mode mode) {
+void PFCandidateManager::setParameters(float dRMax, bool matchCharge, Benchmark::Mode mode) {
   dRMax_ = dRMax;
   matchCharge_ = matchCharge;
   mode_ = mode;

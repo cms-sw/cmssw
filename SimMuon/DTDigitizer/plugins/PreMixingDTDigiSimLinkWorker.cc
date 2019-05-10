@@ -4,8 +4,8 @@
 
 // DT does not use DetSetVector, so have to specialize put()
 template <>
-void PreMixingDigiSimLinkWorker<DTDigiSimLinkCollection>::addPileups(
-    PileUpEventPrincipal const &pep, edm::EventSetup const &iSetup) {
+void PreMixingDigiSimLinkWorker<DTDigiSimLinkCollection>::addPileups(PileUpEventPrincipal const &pep,
+                                                                     edm::EventSetup const &iSetup) {
   edm::Handle<DTDigiSimLinkCollection> digis;
   pep.getByLabel(pileupTag_, digis);
   if (digis.isValid()) {
@@ -15,7 +15,6 @@ void PreMixingDigiSimLinkWorker<DTDigiSimLinkCollection>::addPileups(
   }
 }
 
-using PreMixingDTDigiSimLinkWorker =
-    PreMixingDigiSimLinkWorker<DTDigiSimLinkCollection>;
+using PreMixingDTDigiSimLinkWorker = PreMixingDigiSimLinkWorker<DTDigiSimLinkCollection>;
 
 DEFINE_PREMIXING_WORKER(PreMixingDTDigiSimLinkWorker);

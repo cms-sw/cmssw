@@ -12,12 +12,13 @@
 class TrajectoryStateClosestToBeamLineBuilder;
 
 ParametersDefinerForTP::ParametersDefinerForTP(const edm::ParameterSet &iConfig)
-    : beamSpotInputTag_(iConfig.getUntrackedParameter<edm::InputTag>(
-          "beamSpot", edm::InputTag("offlineBeamSpot"))) {}
+    : beamSpotInputTag_(iConfig.getUntrackedParameter<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"))) {}
 
-TrackingParticle::Vector ParametersDefinerForTP::momentum(
-    const edm::Event &iEvent, const edm::EventSetup &iSetup,
-    const Charge charge, const Point &vtx, const LorentzVector &lv) const {
+TrackingParticle::Vector ParametersDefinerForTP::momentum(const edm::Event &iEvent,
+                                                          const edm::EventSetup &iSetup,
+                                                          const Charge charge,
+                                                          const Point &vtx,
+                                                          const LorentzVector &lv) const {
   // to add a new implementation for cosmic. For the moment, it is just as for
   // the base class:
 
@@ -33,11 +34,12 @@ TrackingParticle::Vector ParametersDefinerForTP::momentum(
 
   FreeTrajectoryState ftsAtProduction(GlobalPoint(vtx.x(), vtx.y(), vtx.z()),
                                       GlobalVector(lv.x(), lv.y(), lv.z()),
-                                      TrackCharge(charge), theMF.product());
+                                      TrackCharge(charge),
+                                      theMF.product());
 
   TSCBLBuilderNoMaterial tscblBuilder;
   TrajectoryStateClosestToBeamLine tsAtClosestApproach =
-      tscblBuilder(ftsAtProduction, *bs); // as in TrackProducerAlgorithm
+      tscblBuilder(ftsAtProduction, *bs);  // as in TrackProducerAlgorithm
   if (tsAtClosestApproach.isValid()) {
     GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
     momentum = TrackingParticle::Vector(p.x(), p.y(), p.z());
@@ -45,9 +47,11 @@ TrackingParticle::Vector ParametersDefinerForTP::momentum(
   return momentum;
 }
 
-TrackingParticle::Point ParametersDefinerForTP::vertex(
-    const edm::Event &iEvent, const edm::EventSetup &iSetup,
-    const Charge charge, const Point &vtx, const LorentzVector &lv) const {
+TrackingParticle::Point ParametersDefinerForTP::vertex(const edm::Event &iEvent,
+                                                       const edm::EventSetup &iSetup,
+                                                       const Charge charge,
+                                                       const Point &vtx,
+                                                       const LorentzVector &lv) const {
   // to add a new implementation for cosmic. For the moment, it is just as for
   // the base class:
   using namespace edm;
@@ -62,11 +66,12 @@ TrackingParticle::Point ParametersDefinerForTP::vertex(
 
   FreeTrajectoryState ftsAtProduction(GlobalPoint(vtx.x(), vtx.y(), vtx.z()),
                                       GlobalVector(lv.x(), lv.y(), lv.z()),
-                                      TrackCharge(charge), theMF.product());
+                                      TrackCharge(charge),
+                                      theMF.product());
 
   TSCBLBuilderNoMaterial tscblBuilder;
   TrajectoryStateClosestToBeamLine tsAtClosestApproach =
-      tscblBuilder(ftsAtProduction, *bs); // as in TrackProducerAlgorithm
+      tscblBuilder(ftsAtProduction, *bs);  // as in TrackProducerAlgorithm
   if (tsAtClosestApproach.isValid()) {
     GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
     vertex = TrackingParticle::Point(v.x(), v.y(), v.z());

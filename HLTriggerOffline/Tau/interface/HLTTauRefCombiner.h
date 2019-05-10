@@ -19,7 +19,6 @@ for matching in the Tau HLT
 #include <vector>
 
 class HLTTauRefCombiner : public edm::EDProducer {
-
 public:
   explicit HLTTauRefCombiner(const edm::ParameterSet &);
   ~HLTTauRefCombiner() override;
@@ -30,13 +29,12 @@ private:
   typedef math::XYZTLorentzVectorD LorentzVector;
   typedef std::vector<LorentzVector> LorentzVectorCollection;
 
-  std::vector<edm::EDGetTokenT<LorentzVectorCollection>>
-      inputColl_;       // Input LV Collections
-  double matchDeltaR_;  // Delta R for matching
-  std::string outName_; // outputObjectName
+  std::vector<edm::EDGetTokenT<LorentzVectorCollection>> inputColl_;  // Input LV Collections
+  double matchDeltaR_;                                                // Delta R for matching
+  std::string outName_;                                               // outputObjectName
 
   bool match(const LorentzVector &,
-             const LorentzVectorCollection &); // See if this Jet Is Matched
+             const LorentzVectorCollection &);  // See if this Jet Is Matched
 };
 
 #endif

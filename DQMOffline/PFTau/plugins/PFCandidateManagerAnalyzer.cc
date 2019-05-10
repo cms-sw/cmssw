@@ -15,13 +15,11 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-PFCandidateManagerAnalyzer::PFCandidateManagerAnalyzer(
-    const edm::ParameterSet &parameterSet)
+PFCandidateManagerAnalyzer::PFCandidateManagerAnalyzer(const edm::ParameterSet &parameterSet)
     : BenchmarkAnalyzer(parameterSet),
-      PFCandidateManager(
-          parameterSet.getParameter<double>("dRMax"),
-          parameterSet.getParameter<bool>("matchCharge"),
-          (Benchmark::Mode)parameterSet.getParameter<int>("mode")),
+      PFCandidateManager(parameterSet.getParameter<double>("dRMax"),
+                         parameterSet.getParameter<bool>("matchCharge"),
+                         (Benchmark::Mode)parameterSet.getParameter<int>("mode")),
       matchLabel_(parameterSet.getParameter<InputTag>("MatchCollection")) {
   setRange(parameterSet.getParameter<double>("ptMin"),
            parameterSet.getParameter<double>("ptMax"),
@@ -41,9 +39,7 @@ void PFCandidateManagerAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
   setup(ibooker);
 }
 
-void PFCandidateManagerAnalyzer::analyze(const edm::Event &iEvent,
-                                         const edm::EventSetup &iSetup) {
-
+void PFCandidateManagerAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   Handle<PFCandidateCollection> collection;
   iEvent.getByToken(myColl_, collection);
 

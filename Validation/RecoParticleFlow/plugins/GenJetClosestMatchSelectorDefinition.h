@@ -13,26 +13,20 @@
 #include <iostream>
 
 struct GenJetClosestMatchSelectorDefinition {
-
   typedef reco::GenJetCollection collection;
   typedef edm::Handle<collection> HandleToCollection;
   typedef std::vector<reco::GenJet *> container;
   typedef container::const_iterator const_iterator;
 
-  GenJetClosestMatchSelectorDefinition(const edm::ParameterSet &cfg,
-                                       edm::ConsumesCollector &&iC) {
-
-    matchTo_ = iC.consumes<edm::View<reco::Candidate>>(
-        cfg.getParameter<edm::InputTag>("MatchTo"));
+  GenJetClosestMatchSelectorDefinition(const edm::ParameterSet &cfg, edm::ConsumesCollector &&iC) {
+    matchTo_ = iC.consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("MatchTo"));
   }
 
   const_iterator begin() const { return selected_.begin(); }
 
   const_iterator end() const { return selected_.end(); }
 
-  void select(const HandleToCollection &hc, const edm::Event &e,
-              const edm::EventSetup &s) {
-
+  void select(const HandleToCollection &hc, const edm::Event &e, const edm::EventSetup &s) {
     selected_.clear();
 
     edm::Handle<edm::View<reco::Candidate>> matchCandidates;
@@ -45,7 +39,6 @@ struct GenJetClosestMatchSelectorDefinition {
 
     typedef edm::View<reco::Candidate>::const_iterator IC;
     for (IC ic = matchCandidates->begin(); ic != matchCandidates->end(); ++ic) {
-
       double eta2 = ic->eta();
       double phi2 = ic->phi();
 
@@ -54,9 +47,7 @@ struct GenJetClosestMatchSelectorDefinition {
       // look for the closest gen jet
       double deltaR2Min = 9999;
       collection::const_iterator closest = hc->end();
-      for (collection::const_iterator genjet = hc->begin(); genjet != hc->end();
-           ++genjet, ++key) {
-
+      for (collection::const_iterator genjet = hc->begin(); genjet != hc->end(); ++genjet, ++key) {
         reco::GenJetRef genJetRef(hc, key);
 
         // is it matched?
@@ -79,10 +70,10 @@ struct GenJetClosestMatchSelectorDefinition {
         // std::cout<<deltaR2Min<<std::endl;
         selected_.push_back(new reco::GenJet(*closest));
       }
-    } // end collection iteration
+    }  // end collection iteration
 
     // std::cout<<selected_.size()<<std::endl;
-  } // end select()
+  }  // end select()
 
   size_t size() const { return selected_.size(); }
 

@@ -23,7 +23,6 @@
 using namespace std;
 
 RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet &ps) {
-
   _mapDetIdNoise.clear();
   _mapDetIdEff.clear();
   _bxmap.clear();
@@ -43,7 +42,6 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet &ps) {
 
   int count = 0;
   while (getline(_infile1, buff, '\n')) {
-
     words.clear();
     vnoise.clear();
 
@@ -55,7 +53,6 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet &ps) {
     std::string::size_type pos = 0, prev_pos = 0;
 
     while ((pos = buff.find("  ", pos)) != string::npos) {
-
       words.push_back(buff.substr(prev_pos, pos - prev_pos));
       prev_pos = ++pos;
     }
@@ -81,7 +78,6 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet &ps) {
   rpcdetid = 0;
 
   while (getline(_infile2, buff, '\n')) {
-
     words.clear();
     veff.clear();
 
@@ -92,7 +88,6 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet &ps) {
 
     std::string::size_type pos = 0, prev_pos = 0;
     while ((pos = buff.find("  ", pos)) != string::npos) {
-
       words.push_back(buff.substr(prev_pos, pos - prev_pos));
       prev_pos = ++pos;
     }
@@ -155,7 +150,6 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet &ps) {
   rpcdetid = 0;
 
   while (getline(_infile5, buff, '\n')) {
-
     words.clear();
     vClsDistrib.clear();
 
@@ -165,7 +159,6 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet &ps) {
 
     std::string::size_type pos = 0, prev_pos = 0;
     while ((pos = buff.find("  ", pos)) != string::npos) {
-
       words.push_back(buff.substr(prev_pos, pos - prev_pos));
       prev_pos = ++pos;
     }
@@ -183,13 +176,11 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet &ps) {
       }
     }
     if (vClsDistrib.size() != 100) {
-      throw cms::Exception("DataCorrupt")
-          << "Exception comming from RPCCalibSetUp - cluster size - a wrong "
-             "format "
-          << std::endl;
+      throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - cluster size - a wrong "
+                                             "format "
+                                          << std::endl;
     }
-    _mapDetClsMap.insert(
-        make_pair(static_cast<uint32_t>(rpcdetid), vClsDistrib));
+    _mapDetClsMap.insert(make_pair(static_cast<uint32_t>(rpcdetid), vClsDistrib));
     std::cout << "_mapDetClsMap.size()\t" << _mapDetClsMap.size() << std::endl;
   }
 
@@ -199,10 +190,9 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet &ps) {
 std::vector<float> RPCCalibSetUp::getNoise(uint32_t id) {
   map<uint32_t, std::vector<float>>::iterator iter = _mapDetIdNoise.find(id);
   if (iter == _mapDetIdNoise.end()) {
-    throw cms::Exception("DataCorrupt")
-        << "Exception comming from RPCCalibSetUp - no noise information for "
-           "DetId\t"
-        << id << std::endl;
+    throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - no noise information for "
+                                           "DetId\t"
+                                        << id << std::endl;
   }
   return (iter->second);
 }
@@ -210,16 +200,14 @@ std::vector<float> RPCCalibSetUp::getNoise(uint32_t id) {
 std::vector<float> RPCCalibSetUp::getEff(uint32_t id) {
   map<uint32_t, std::vector<float>>::iterator iter = _mapDetIdEff.find(id);
   if (iter == _mapDetIdEff.end()) {
-    throw cms::Exception("DataCorrupt")
-        << "Exception comming from RPCCalibSetUp - no efficiency information "
-           "for DetId\t"
-        << id << std::endl;
+    throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - no efficiency information "
+                                           "for DetId\t"
+                                        << id << std::endl;
   }
   if ((iter->second).size() != 96) {
-    throw cms::Exception("DataCorrupt")
-        << "Exception comming from RPCCalibSetUp - efficiency information in a "
-           "wrong format for DetId\t"
-        << id << std::endl;
+    throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - efficiency information in a "
+                                           "wrong format for DetId\t"
+                                        << id << std::endl;
   }
   return iter->second;
 }
@@ -229,38 +217,33 @@ float RPCCalibSetUp::getTime(uint32_t id) {
 
   std::map<RPCDetId, float>::iterator iter = _bxmap.find(rpcid);
   if (iter == _bxmap.end()) {
-    throw cms::Exception("DataCorrupt")
-        << "Exception comming from RPCCalibSetUp - no timing information for "
-           "rpcid.rawId()\t"
-        << rpcid.rawId() << std::endl;
+    throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - no timing information for "
+                                           "rpcid.rawId()\t"
+                                        << rpcid.rawId() << std::endl;
   }
   return iter->second;
 }
 
 std::map<int, std::vector<double>> RPCCalibSetUp::getClsMap() {
   if (_clsMap.size() != 5) {
-    throw cms::Exception("DataCorrupt")
-        << "Exception comming from RPCCalibSetUp - cluster size - a wrong "
-           "format "
-        << std::endl;
+    throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - cluster size - a wrong "
+                                           "format "
+                                        << std::endl;
   }
   return _clsMap;
 }
 
 std::vector<double> RPCCalibSetUp::getCls(uint32_t id) {
-  std::map<uint32_t, std::vector<double>>::iterator iter =
-      _mapDetClsMap.find(id);
+  std::map<uint32_t, std::vector<double>>::iterator iter = _mapDetClsMap.find(id);
   if (iter == _mapDetClsMap.end()) {
-    throw cms::Exception("DataCorrupt")
-        << "Exception comming from RPCCalibSetUp - no cluster size information "
-           "for DetId\t"
-        << id << std::endl;
+    throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - no cluster size information "
+                                           "for DetId\t"
+                                        << id << std::endl;
   }
   if ((iter->second).size() != 100) {
-    throw cms::Exception("DataCorrupt")
-        << "Exception comming from RPCCalibSetUp - cluster size information in "
-           "a wrong format for DetId\t"
-        << id << std::endl;
+    throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - cluster size information in "
+                                           "a wrong format for DetId\t"
+                                        << id << std::endl;
   }
   return iter->second;
 }

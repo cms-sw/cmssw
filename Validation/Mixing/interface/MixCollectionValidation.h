@@ -35,8 +35,7 @@ class MixCollectionValidation : public DQMEDAnalyzer {
 public:
   explicit MixCollectionValidation(const edm::ParameterSet &);
   ~MixCollectionValidation() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
@@ -46,8 +45,7 @@ private:
   void fillMultiplicity(T1 &theItr_, T2 &theColl_, MonitorElement *theProfile_);
 
   template <class T1, class T2>
-  void fillGenParticleMulti(T1 &theItr_, T2 &theColl_,
-                            MonitorElement *theProfile_);
+  void fillGenParticleMulti(T1 &theItr_, T2 &theColl_, MonitorElement *theProfile_);
 
   template <class T1, class T2>
   void fillSimHitTime(T1 &theItr_, T2 &theColl_, MonitorElement *theProfile_);
@@ -65,10 +63,8 @@ private:
   edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> crossingFrame_Hep_Token_;
   edm::EDGetTokenT<CrossingFrame<SimTrack>> crossingFrame_SimTr_Token_;
   edm::EDGetTokenT<CrossingFrame<SimVertex>> crossingFrame_SimVtx_Token_;
-  std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit>>>
-      crossingFrame_PSimHit_Tokens_;
-  std::vector<edm::EDGetTokenT<CrossingFrame<PCaloHit>>>
-      crossingFrame_PCaloHit_Tokens_;
+  std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit>>> crossingFrame_PSimHit_Tokens_;
+  std::vector<edm::EDGetTokenT<CrossingFrame<PCaloHit>>> crossingFrame_PCaloHit_Tokens_;
 
   std::string outputFile_;
   int minbunch_;

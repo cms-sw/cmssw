@@ -43,8 +43,7 @@ public:
   TrackTimeValueMapProducer(const edm::ParameterSet &);
   ~TrackTimeValueMapProducer() override {}
 
-  void produce(edm::StreamID, edm::Event &,
-               const edm::EventSetup &) const override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
 private:
   // inputs
@@ -54,63 +53,54 @@ private:
   const edm::EDGetTokenT<TrackingVertexCollection> trackingVertices_;
   const edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileupSummaryInfo_;
   // tracking particle associators by order of preference
-  const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>>
-      associators_;
+  const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>> associators_;
   // eta bounds
   const float etaMin_, etaMax_, ptMin_, pMin_, etaMaxForPtThreshold_;
   // options
   std::vector<std::unique_ptr<const ResolutionModel>> resolutions_;
   // functions
-  float extractTrackVertexTime(const TrackingParticle &,
-                               const reco::TransientTrack &) const;
+  float extractTrackVertexTime(const TrackingParticle &, const reco::TransientTrack &) const;
 };
 
 DEFINE_FWK_MODULE(TrackTimeValueMapProducer);
 
 namespace {
-constexpr float m_pion = 139.57061e-3;
-const std::string resolution("Resolution");
+  constexpr float m_pion = 139.57061e-3;
+  const std::string resolution("Resolution");
 
-template <typename ParticleType, typename T>
-void writeValueMap(edm::Event &iEvent,
-                   const edm::Handle<edm::View<ParticleType>> &handle,
-                   const std::vector<T> &values, const std::string &label) {
-  std::unique_ptr<edm::ValueMap<T>> valMap(new edm::ValueMap<T>());
-  typename edm::ValueMap<T>::Filler filler(*valMap);
-  filler.insert(handle, values.begin(), values.end());
-  filler.fill();
-  iEvent.put(std::move(valMap), label);
-}
-} // namespace
+  template <typename ParticleType, typename T>
+  void writeValueMap(edm::Event &iEvent,
+                     const edm::Handle<edm::View<ParticleType>> &handle,
+                     const std::vector<T> &values,
+                     const std::string &label) {
+    std::unique_ptr<edm::ValueMap<T>> valMap(new edm::ValueMap<T>());
+    typename edm::ValueMap<T>::Filler filler(*valMap);
+    filler.insert(handle, values.begin(), values.end());
+    filler.fill();
+    iEvent.put(std::move(valMap), label);
+  }
+}  // namespace
 
-TrackTimeValueMapProducer::TrackTimeValueMapProducer(
-    const edm::ParameterSet &conf)
-    : tracks_(consumes<edm::View<reco::Track>>(
-          conf.getParameter<edm::InputTag>("trackSrc"))),
+TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet &conf)
+    : tracks_(consumes<edm::View<reco::Track>>(conf.getParameter<edm::InputTag>("trackSrc"))),
       tracksName_(conf.getParameter<edm::InputTag>("trackSrc").label()),
-      trackingParticles_(consumes<TrackingParticleCollection>(
-          conf.getParameter<edm::InputTag>("trackingParticleSrc"))),
-      trackingVertices_(consumes<TrackingVertexCollection>(
-          conf.getParameter<edm::InputTag>("trackingVertexSrc"))),
-      pileupSummaryInfo_(consumes<std::vector<PileupSummaryInfo>>(
-          conf.getParameter<edm::InputTag>("pileupSummaryInfo"))),
+      trackingParticles_(consumes<TrackingParticleCollection>(conf.getParameter<edm::InputTag>("trackingParticleSrc"))),
+      trackingVertices_(consumes<TrackingVertexCollection>(conf.getParameter<edm::InputTag>("trackingVertexSrc"))),
+      pileupSummaryInfo_(
+          consumes<std::vector<PileupSummaryInfo>>(conf.getParameter<edm::InputTag>("pileupSummaryInfo"))),
       associators_(edm::vector_transform(
           conf.getParameter<std::vector<edm::InputTag>>("associators"),
-          [this](const edm::InputTag &tag) {
-            return this->consumes<reco::TrackToTrackingParticleAssociator>(tag);
-          })),
+          [this](const edm::InputTag &tag) { return this->consumes<reco::TrackToTrackingParticleAssociator>(tag); })),
       etaMin_(conf.getParameter<double>("etaMin")),
       etaMax_(conf.getParameter<double>("etaMax")),
       ptMin_(conf.getParameter<double>("ptMin")),
       pMin_(conf.getParameter<double>("pMin")),
       etaMaxForPtThreshold_(conf.getParameter<double>("etaMaxForPtThreshold")) {
   // setup resolution models
-  const std::vector<edm::ParameterSet> &resos =
-      conf.getParameterSetVector("resolutionModels");
+  const std::vector<edm::ParameterSet> &resos = conf.getParameterSetVector("resolutionModels");
   for (const auto &reso : resos) {
     const std::string &name = reso.getParameter<std::string>("modelName");
-    resolutions_.emplace_back(
-        ResolutionModelFactory::get()->create(name, reso));
+    resolutions_.emplace_back(ResolutionModelFactory::get()->create(name, reso));
 
     // times and time resolutions for general tracks
     produces<edm::ValueMap<float>>(tracksName_ + name);
@@ -118,8 +108,7 @@ TrackTimeValueMapProducer::TrackTimeValueMapProducer(
   }
 }
 
-void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event &evt,
-                                        const edm::EventSetup &es) const {
+void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event &evt, const edm::EventSetup &es) const {
   // get sim track associators
   std::vector<edm::Handle<reco::TrackToTrackingParticleAssociator>> associators;
   for (const auto &token : associators_) {
@@ -149,8 +138,7 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event &evt,
   // associate the reco tracks / gsf Tracks
   std::vector<reco::RecoToSimCollection> associatedTracks;
   for (auto associator : associators) {
-    associatedTracks.emplace_back(
-        associator->associateRecoToSim(TrackCollectionH, TPCollectionH));
+    associatedTracks.emplace_back(associator->associateRecoToSim(TrackCollectionH, TPCollectionH));
   }
 
   double sumSimTime = 0.;
@@ -175,19 +163,15 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event &evt,
 
   // get event-based seed for RNG
   unsigned int runNum_uint = static_cast<unsigned int>(evt.id().run());
-  unsigned int lumiNum_uint =
-      static_cast<unsigned int>(evt.id().luminosityBlock());
+  unsigned int lumiNum_uint = static_cast<unsigned int>(evt.id().luminosityBlock());
   unsigned int evNum_uint = static_cast<unsigned int>(evt.id().event());
-  unsigned int tkChi2_uint = uint32_t(
-      TrackCollection.empty() ? 0 : TrackCollection.refAt(0)->chi2() / 0.01);
-  std::uint32_t seed =
-      tkChi2_uint + (lumiNum_uint << 10) + (runNum_uint << 20) + evNum_uint;
+  unsigned int tkChi2_uint = uint32_t(TrackCollection.empty() ? 0 : TrackCollection.refAt(0)->chi2() / 0.01);
+  std::uint32_t seed = tkChi2_uint + (lumiNum_uint << 10) + (runNum_uint << 20) + evNum_uint;
   std::mt19937 rng(seed);
 
   for (unsigned itk = 0; itk < TrackCollection.size(); ++itk) {
     const auto tkref = TrackCollection.refAt(itk);
-    reco::RecoToSimCollection::const_iterator track_tps =
-        associatedTracks.back().end();
+    reco::RecoToSimCollection::const_iterator track_tps = associatedTracks.back().end();
 
     for (const auto &association : associatedTracks) {
       track_tps = association.find(tkref);
@@ -195,19 +179,16 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event &evt,
         break;
     }
 
-    if (track_tps != associatedTracks.back().end() &&
-        track_tps->val.size() == 1) {
+    if (track_tps != associatedTracks.back().end() && track_tps->val.size() == 1) {
       reco::TransientTrack tt = theB->build(*tkref);
       float time = extractTrackVertexTime(*track_tps->val[0].first, tt);
       generalTrackTimes.push_back(time);
     } else {
       float rndtime = gausSimTime(rng);
       generalTrackTimes.push_back(rndtime);
-      if (track_tps != associatedTracks.back().end() &&
-          track_tps->val.size() > 1) {
-        LogDebug("TooManyTracks")
-            << "track matched to " << track_tps->val.size()
-            << " tracking particles!" << std::endl;
+      if (track_tps != associatedTracks.back().end() && track_tps->val.size() > 1) {
+        LogDebug("TooManyTracks") << "track matched to " << track_tps->val.size() << " tracking particles!"
+                                  << std::endl;
       }
     }
   }
@@ -222,13 +203,11 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event &evt,
     for (unsigned i = 0; i < TrackCollection.size(); ++i) {
       const reco::Track &tk = TrackCollection[i];
       const float absEta = std::abs(tk.eta());
-      bool inAcceptance = absEta < etaMax_ && absEta >= etaMin_ &&
-                          tk.p() > pMin_ &&
+      bool inAcceptance = absEta < etaMax_ && absEta >= etaMin_ && tk.p() > pMin_ &&
                           (absEta > etaMaxForPtThreshold_ || tk.pt() > ptMin_);
       if (inAcceptance) {
         const float resolution = reso->getTimeResolution(tk);
-        std::normal_distribution<float> gausGeneralTime(generalTrackTimes[i],
-                                                        resolution);
+        std::normal_distribution<float> gausGeneralTime(generalTrackTimes[i], resolution);
         times.push_back(gausGeneralTime(rng));
         resos.push_back(resolution);
       } else {
@@ -238,24 +217,21 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event &evt,
     }
 
     writeValueMap(evt, TrackCollectionH, times, tracksName_ + name);
-    writeValueMap(evt, TrackCollectionH, resos,
-                  tracksName_ + name + resolution);
+    writeValueMap(evt, TrackCollectionH, resos, tracksName_ + name + resolution);
   }
 }
 
-float TrackTimeValueMapProducer::extractTrackVertexTime(
-    const TrackingParticle &tp, const reco::TransientTrack &tt) const {
+float TrackTimeValueMapProducer::extractTrackVertexTime(const TrackingParticle &tp,
+                                                        const reco::TransientTrack &tt) const {
   int pdgid = tp.pdgId();
   const auto &tvertex = tp.parentVertex();
   math::XYZTLorentzVectorD result = tvertex->position();
 
   // account for secondary vertices...
-  if (tvertex->nSourceTracks() &&
-      tvertex->sourceTracks()[0]->pdgId() == pdgid) {
+  if (tvertex->nSourceTracks() && tvertex->sourceTracks()[0]->pdgId() == pdgid) {
     auto pvertex = tvertex->sourceTracks()[0]->parentVertex();
     result = pvertex->position();
-    while (pvertex->nSourceTracks() &&
-           pvertex->sourceTracks()[0]->pdgId() == pdgid) {
+    while (pvertex->nSourceTracks() && pvertex->sourceTracks()[0]->pdgId() == pdgid) {
       pvertex = pvertex->sourceTracks()[0]->parentVertex();
       result = pvertex->position();
     }
@@ -270,15 +246,13 @@ float TrackTimeValueMapProducer::extractTrackVertexTime(
   float dphi = reco::deltaPhi(tkphi, tt.track().phi());
   float dz = tkz - tt.track().vz();
 
-  float radius = 100. * tt.track().pt() /
-                 (0.3 * tt.field()->inTesla(GlobalPoint(0, 0, 0)).z());
+  float radius = 100. * tt.track().pt() / (0.3 * tt.field()->inTesla(GlobalPoint(0, 0, 0)).z());
   float pathlengthrphi = tt.track().charge() * dphi * radius;
 
   float pathlength = std::sqrt(pathlengthrphi * pathlengthrphi + dz * dz);
   float p = tt.track().p();
 
-  float speed = std::sqrt(1. / (1. + m_pion / p)) * CLHEP::c_light /
-                CLHEP::cm; // speed in cm/ns
+  float speed = std::sqrt(1. / (1. + m_pion / p)) * CLHEP::c_light / CLHEP::cm;  // speed in cm/ns
   float dt = pathlength / speed;
 
   return time - dt;

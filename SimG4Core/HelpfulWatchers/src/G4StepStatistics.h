@@ -54,7 +54,6 @@ class EndOfTrack;
 
 // Define a class StepID
 class StepID {
-
 private:
   // G4 Region
   G4String theG4RegionName;
@@ -66,22 +65,16 @@ private:
 public:
   // Constructor using G4Step
   StepID(const G4Step *theG4Step)
-      : theG4RegionName("UNDEFINED"), theG4ProcessName("UNDEFINED"),
-        theParticlePDGID(
-            theG4Step->GetTrack()->GetDefinition()->GetPDGEncoding()) {
+      : theG4RegionName("UNDEFINED"),
+        theG4ProcessName("UNDEFINED"),
+        theParticlePDGID(theG4Step->GetTrack()->GetDefinition()->GetPDGEncoding()) {
     std::cout << "Start" << std::endl;
     if (theG4Step->GetPreStepPoint()->GetPhysicalVolume()) {
-      theG4RegionName = theG4Step->GetPreStepPoint()
-                            ->GetPhysicalVolume()
-                            ->GetLogicalVolume()
-                            ->GetRegion()
-                            ->GetName();
+      theG4RegionName = theG4Step->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetRegion()->GetName();
     }
     std::cout << "Physical Volume" << std::endl;
     if (theG4Step->GetPreStepPoint()->GetProcessDefinedStep()) {
-      theG4ProcessName = theG4Step->GetPreStepPoint()
-                             ->GetProcessDefinedStep()
-                             ->GetProcessName();
+      theG4ProcessName = theG4Step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName();
     }
     std::cout << "Process Name" << std::endl;
   }
@@ -93,8 +86,7 @@ public:
 
   // Comparison Operators (necessary in order to use StepID as a key in a map)
   bool operator==(const StepID &id) const {
-    return (strcmp(theG4RegionName, id.GetRegionName()) == 0 &&
-            strcmp(theG4ProcessName, id.GetProcessName()) == 0 &&
+    return (strcmp(theG4RegionName, id.GetRegionName()) == 0 && strcmp(theG4ProcessName, id.GetProcessName()) == 0 &&
             theParticlePDGID == id.GetParticlePDGID())
                ? true
                : false;
@@ -107,7 +99,7 @@ public:
       return strcmp(theG4RegionName, id.GetRegionName()) > 0 ? true : false;
     } else if (strcmp(theG4ProcessName, id.GetProcessName()) != 0) {
       return strcmp(theG4ProcessName, id.GetProcessName()) > 0 ? true : false;
-    } else { // The case in which they are all equal!
+    } else {  // The case in which they are all equal!
       return false;
     }
   }
@@ -119,19 +111,17 @@ public:
       return strcmp(theG4RegionName, id.GetRegionName()) < 0 ? true : false;
     } else if (strcmp(theG4ProcessName, id.GetProcessName()) != 0) {
       return strcmp(theG4ProcessName, id.GetProcessName()) < 0 ? true : false;
-    } else { // The case in which they are all equal!
+    } else {  // The case in which they are all equal!
       return false;
     }
   }
 };
 
-#define OBSERVES(type)                                                         \
-public                                                                         \
+#define OBSERVES(type) \
+public                 \
   Observer<const type *>
-#define UPDATE(type)                                                           \
-  void update(const type *) override {                                         \
-    std::cout << "++ signal " #type << std::endl;                              \
-  }
+#define UPDATE(type) \
+  void update(const type *) override { std::cout << "++ signal " #type << std::endl; }
 class G4StepStatistics : public SimWatcher,
                          OBSERVES(DDDWorld),
                          OBSERVES(BeginOfJob),
@@ -144,8 +134,7 @@ class G4StepStatistics : public SimWatcher,
                          OBSERVES(EndOfTrack) {
 public:
   G4StepStatistics(const edm::ParameterSet &pSet)
-      : m_verbose(pSet.getUntrackedParameter<bool>("verbose", false)),
-        Event(0) {
+      : m_verbose(pSet.getUntrackedParameter<bool>("verbose", false)), Event(0) {
     // Adding TFile Service output
     G4StepTree = fs->make<TTree>("G4StepTree", "G4Step Tree ");
     G4StepTree->Branch("Event", &Event, "Event/I");
@@ -205,15 +194,11 @@ public:
       std::cout << " G4StatsMap size is: " << G4StatsMap.size() << std::endl;
     }
     int index(0);
-    for (std::map<const StepID, unsigned int *>::const_iterator step =
-             G4StatsMap.begin();
-         step != G4StatsMap.end(); ++step, ++index) {
+    for (std::map<const StepID, unsigned int *>::const_iterator step = G4StatsMap.begin(); step != G4StatsMap.end();
+         ++step, ++index) {
       if (m_verbose) {
-        std::cout
-            << " G4StatsMap step is: " << step->first.GetRegionName() << " "
-            << step->first.GetProcessName() << " "
-            << step->first
-                   .GetParticlePDGID(); //<<" "<<step->first.GetTrackID() ;
+        std::cout << " G4StatsMap step is: " << step->first.GetRegionName() << " " << step->first.GetProcessName()
+                  << " " << step->first.GetParticlePDGID();  //<<" "<<step->first.GetTrackID() ;
         std::cout << " Number of such steps: " << *step->second << std::endl;
       }
       // Rolling the map into 5 "arrays", containing the StepID information and

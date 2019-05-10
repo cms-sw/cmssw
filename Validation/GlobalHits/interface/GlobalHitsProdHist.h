@@ -72,7 +72,6 @@
 #include "TString.h"
 
 class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer> {
-
 public:
   // typedef std::vector<float> FloatVector;
 
@@ -225,7 +224,7 @@ private:
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
+};  // end class declaration
 
 #endif
 

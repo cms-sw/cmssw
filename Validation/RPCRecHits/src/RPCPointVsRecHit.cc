@@ -13,16 +13,13 @@ using namespace std;
 typedef MonitorElement *MEP;
 
 RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet &pset) {
-  refHitToken_ =
-      consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("refHit"));
-  recHitToken_ =
-      consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("recHit"));
+  refHitToken_ = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("refHit"));
+  recHitToken_ = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("recHit"));
 
   subDir_ = pset.getParameter<std::string>("subDir");
 }
 
-void RPCPointVsRecHit::analyze(const edm::Event &event,
-                               const edm::EventSetup &eventSetup) {
+void RPCPointVsRecHit::analyze(const edm::Event &event, const edm::EventSetup &eventSetup) {
   // Get the RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeom;
   eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
@@ -30,8 +27,7 @@ void RPCPointVsRecHit::analyze(const edm::Event &event,
   // Retrieve RefHits from the event
   edm::Handle<RPCRecHitCollection> refHitHandle;
   if (!event.getByToken(refHitToken_, refHitHandle)) {
-    edm::LogInfo("RPCPointVsRecHit")
-        << "Cannot find reference hit collection\n";
+    edm::LogInfo("RPCPointVsRecHit") << "Cannot find reference hit collection\n";
     return;
   }
 
@@ -46,8 +42,7 @@ void RPCPointVsRecHit::analyze(const edm::Event &event,
 
   // Loop over refHits, fill histograms which does not need associations
   int nRefHitBarrel = 0, nRefHitEndcap = 0;
-  for (RecHitIter refHitIter = refHitHandle->begin();
-       refHitIter != refHitHandle->end(); ++refHitIter) {
+  for (RecHitIter refHitIter = refHitHandle->begin(); refHitIter != refHitHandle->end(); ++refHitIter) {
     const RPCDetId detId = static_cast<const RPCDetId>(refHitIter->rpcId());
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(detId()));
     if (!roll)
@@ -75,8 +70,7 @@ void RPCPointVsRecHit::analyze(const edm::Event &event,
   // Loop over recHits, fill histograms which does not need associations
   int sumClusterSizeBarrel = 0, sumClusterSizeEndcap = 0;
   int nRecHitBarrel = 0, nRecHitEndcap = 0;
-  for (RecHitIter recHitIter = recHitHandle->begin();
-       recHitIter != recHitHandle->end(); ++recHitIter) {
+  for (RecHitIter recHitIter = recHitHandle->begin(); recHitIter != recHitHandle->end(); ++recHitIter) {
     const RPCDetId detId = static_cast<const RPCDetId>(recHitIter->rpcId());
     const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(detId()));
     if (!roll)
@@ -114,12 +108,10 @@ void RPCPointVsRecHit::analyze(const edm::Event &event,
     h_.avgClusterSize->Fill(double(sumClusterSize) / nRecHit);
 
     if (nRecHitBarrel > 0) {
-      h_.avgClusterSizeBarrel->Fill(double(sumClusterSizeBarrel) /
-                                    nRecHitBarrel);
+      h_.avgClusterSizeBarrel->Fill(double(sumClusterSizeBarrel) / nRecHitBarrel);
     }
     if (nRecHitEndcap > 0) {
-      h_.avgClusterSizeEndcap->Fill(double(sumClusterSizeEndcap) /
-                                    nRecHitEndcap);
+      h_.avgClusterSizeEndcap->Fill(double(sumClusterSizeEndcap) / nRecHitEndcap);
     }
   }
 
@@ -127,22 +119,17 @@ void RPCPointVsRecHit::analyze(const edm::Event &event,
   typedef std::map<RecHitIter, RecHitIter> RecToRecHitMap;
   RecToRecHitMap refToRecHitMap;
 
-  for (RecHitIter refHitIter = refHitHandle->begin();
-       refHitIter != refHitHandle->end(); ++refHitIter) {
+  for (RecHitIter refHitIter = refHitHandle->begin(); refHitIter != refHitHandle->end(); ++refHitIter) {
     const RPCDetId refDetId = static_cast<const RPCDetId>(refHitIter->rpcId());
-    const RPCRoll *refRoll =
-        dynamic_cast<const RPCRoll *>(rpcGeom->roll(refDetId));
+    const RPCRoll *refRoll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(refDetId));
     if (!refRoll)
       continue;
 
     const double refX = refHitIter->localPosition().x();
 
-    for (RecHitIter recHitIter = recHitHandle->begin();
-         recHitIter != recHitHandle->end(); ++recHitIter) {
-      const RPCDetId recDetId =
-          static_cast<const RPCDetId>(recHitIter->rpcId());
-      const RPCRoll *recRoll =
-          dynamic_cast<const RPCRoll *>(rpcGeom->roll(recDetId));
+    for (RecHitIter recHitIter = recHitHandle->begin(); recHitIter != recHitHandle->end(); ++recHitIter) {
+      const RPCDetId recDetId = static_cast<const RPCDetId>(recHitIter->rpcId());
+      const RPCRoll *recRoll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(recDetId));
       if (!recRoll)
         continue;
 
@@ -153,13 +140,11 @@ void RPCPointVsRecHit::analyze(const edm::Event &event,
       const double newDx = fabs(recX - refX);
 
       // Associate RefHit to RecHit
-      RecToRecHitMap::const_iterator prevRefToReco =
-          refToRecHitMap.find(refHitIter);
+      RecToRecHitMap::const_iterator prevRefToReco = refToRecHitMap.find(refHitIter);
       if (prevRefToReco == refToRecHitMap.end()) {
         refToRecHitMap.insert(std::make_pair(refHitIter, recHitIter));
       } else {
-        const double oldDx =
-            fabs(prevRefToReco->second->localPosition().x() - refX);
+        const double oldDx = fabs(prevRefToReco->second->localPosition().x() - refX);
 
         if (newDx < oldDx) {
           refToRecHitMap[refHitIter] = recHitIter;
@@ -170,8 +155,7 @@ void RPCPointVsRecHit::analyze(const edm::Event &event,
 
   // Now we have refHit-recHit mapping
   // So we can fill up relavant histograms
-  for (RecToRecHitMap::const_iterator match = refToRecHitMap.begin();
-       match != refToRecHitMap.end(); ++match) {
+  for (RecToRecHitMap::const_iterator match = refToRecHitMap.begin(); match != refToRecHitMap.end(); ++match) {
     RecHitIter refHitIter = match->first;
     RecHitIter recHitIter = match->second;
 

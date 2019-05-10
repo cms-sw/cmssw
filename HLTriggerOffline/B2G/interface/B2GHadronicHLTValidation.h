@@ -56,13 +56,10 @@ public:
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   /// deduce monitorPath from label, the label is expected
   /// to be of type 'selectionPath:monitorPath'
-  std::string monitorPath(const std::string &label) const {
-    return label.substr(label.find(':') + 1);
-  };
+  std::string monitorPath(const std::string &label) const { return label.substr(label.find(':') + 1); };
   /// set configurable labels for trigger monitoring histograms
   void triggerBinLabels(const std::vector<std::string> &labels);
 
@@ -94,13 +91,10 @@ private:
   bool isSel_ = false;
 };
 
-inline void B2GHadronicHLTValidation::triggerBinLabels(
-    const std::vector<std::string> &labels) {
+inline void B2GHadronicHLTValidation::triggerBinLabels(const std::vector<std::string> &labels) {
   for (unsigned int idx = 0; idx < labels.size(); ++idx) {
-    hNumTriggerMon->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]",
-                                1);
-    hDenTriggerMon->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]",
-                                1);
+    hNumTriggerMon->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]", 1);
+    hDenTriggerMon->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]", 1);
   }
 }
 
@@ -115,10 +109,8 @@ inline void B2GHadronicHLTValidation::triggerBinLabels(
 //
 // constructors and destructor
 //
-B2GHadronicHLTValidation::B2GHadronicHLTValidation(
-    const edm::ParameterSet &iConfig)
-    : sDir_(iConfig.getUntrackedParameter<std::string>(
-          "sDir", "HLTValidation/B2G/Efficiencies/")),
+B2GHadronicHLTValidation::B2GHadronicHLTValidation(const edm::ParameterSet &iConfig)
+    : sDir_(iConfig.getUntrackedParameter<std::string>("sDir", "HLTValidation/B2G/Efficiencies/")),
       sJets_(iConfig.getUntrackedParameter<std::string>("sJets", "ak5PFJets")),
       ptJets_(iConfig.getUntrackedParameter<double>("ptJets", 0.)),
       ptJets0_(iConfig.getUntrackedParameter<double>("ptJets0", 0.)),
@@ -126,21 +118,17 @@ B2GHadronicHLTValidation::B2GHadronicHLTValidation(
       etaJets_(iConfig.getUntrackedParameter<double>("etaJets", 0.)),
       minJets_(iConfig.getUntrackedParameter<unsigned int>("minJets", 0)),
       htMin_(iConfig.getUntrackedParameter<double>("htMin", 0.0)),
-      sTrigger_(iConfig.getUntrackedParameter<std::string>("sTrigger",
-                                                           "TriggerResults")),
-      vsPaths_(
-          iConfig.getUntrackedParameter<std::vector<std::string>>("vsPaths"))
+      sTrigger_(iConfig.getUntrackedParameter<std::string>("sTrigger", "TriggerResults")),
+      vsPaths_(iConfig.getUntrackedParameter<std::vector<std::string>>("vsPaths"))
 
 {
   // Jets
   tokJets_ = consumes<edm::View<reco::Jet>>(edm::InputTag(sJets_));
   // Trigger
-  tokTrigger_ =
-      consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "HLT"));
+  tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "HLT"));
 }
 
 B2GHadronicHLTValidation::~B2GHadronicHLTValidation() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }

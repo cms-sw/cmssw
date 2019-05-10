@@ -41,8 +41,10 @@ public:
   typedef matching::Digi RecHit;
   typedef matching::DigiContainer RecHitContainer;
 
-  GEMRecHitMatcher(const SimHitMatcher &sh, const edm::Event &,
-                   const GEMGeometry &geom, const edm::ParameterSet &cfg,
+  GEMRecHitMatcher(const SimHitMatcher &sh,
+                   const edm::Event &,
+                   const GEMGeometry &geom,
+                   const edm::ParameterSet &cfg,
                    edm::EDGetToken &);
 
   ~GEMRecHitMatcher();

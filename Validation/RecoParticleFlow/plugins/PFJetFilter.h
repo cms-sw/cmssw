@@ -40,4 +40,4 @@ private:
   PFBenchmarkAlgo *algo_;
 };
 
-#endif // PFJETBENCHMARKFILTER_H
+#endif  // PFJETBENCHMARKFILTER_H

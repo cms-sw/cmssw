@@ -9,54 +9,48 @@
 
 class GlobalTrajectoryParameters;
 
-
-class TwoBodyDecayTrajectoryState
-{
-
+class TwoBodyDecayTrajectoryState {
 public:
-
-  typedef std::pair< TrajectoryStateOnSurface, TrajectoryStateOnSurface > TsosContainer;
-  typedef std::pair< AlgebraicMatrix, AlgebraicMatrix > Derivatives;
+  typedef std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> TsosContainer;
+  typedef std::pair<AlgebraicMatrix, AlgebraicMatrix> Derivatives;
 
   /** The constructor takes the two trajectory states that are to be updated (typically the
    *  innermost trajectory states of two tracks) and the decay parameters.
    */
-  TwoBodyDecayTrajectoryState( const TsosContainer & tsos,
-			       const TwoBodyDecay & tbd,
-			       double particleMass,
-			       const MagneticField* magField,
-			       bool propagateErrors = false );
+  TwoBodyDecayTrajectoryState(const TsosContainer& tsos,
+                              const TwoBodyDecay& tbd,
+                              double particleMass,
+                              const MagneticField* magField,
+                              bool propagateErrors = false);
 
-  ~TwoBodyDecayTrajectoryState( void ) {}
+  ~TwoBodyDecayTrajectoryState(void) {}
 
-  inline bool isValid( void ) const { return theValidityFlag; }
+  inline bool isValid(void) const { return theValidityFlag; }
 
-  inline double particleMass( void ) const { return theParticleMass; }
-  inline const TwoBodyDecayParameters & decayParameters( void ) const { return theParameters; }
-  inline const TsosContainer& trajectoryStates( bool useRefittedState = true ) const { return useRefittedState ? theRefittedTsos : theOriginalTsos; }
-  inline const Derivatives& derivatives( void ) const { return theDerivatives; }
+  inline double particleMass(void) const { return theParticleMass; }
+  inline const TwoBodyDecayParameters& decayParameters(void) const { return theParameters; }
+  inline const TsosContainer& trajectoryStates(bool useRefittedState = true) const {
+    return useRefittedState ? theRefittedTsos : theOriginalTsos;
+  }
+  inline const Derivatives& derivatives(void) const { return theDerivatives; }
 
-  void rescaleError( double scale );
+  void rescaleError(double scale);
 
-  inline double primaryMass( void ) const { return thePrimaryMass; }
-  inline double primaryWidth( void ) const { return thePrimaryWidth; }
+  inline double primaryMass(void) const { return thePrimaryMass; }
+  inline double primaryWidth(void) const { return thePrimaryWidth; }
 
 private:
+  void construct(const MagneticField* magField, bool propagateErrors);
 
-  void construct( const MagneticField* magField,
-		  bool propagateErrors );
+  bool propagateSingleState(const FreeTrajectoryState& fts,
+                            const GlobalTrajectoryParameters& gtp,
+                            const AlgebraicMatrix& startDeriv,
+                            const Surface& surface,
+                            const MagneticField* magField,
+                            TrajectoryStateOnSurface& tsos,
+                            AlgebraicMatrix& endDeriv) const;
 
-  bool propagateSingleState( const FreeTrajectoryState & fts,
-			     const GlobalTrajectoryParameters & gtp,
-			     const AlgebraicMatrix & startDeriv,
-			     const Surface & surface,
-			     const MagneticField* magField,
-			     TrajectoryStateOnSurface & tsos,
-			     AlgebraicMatrix & endDeriv ) const;
-
-
-  void setError( FreeTrajectoryState& fts,
-		 AlgebraicMatrix& derivative ) const;
+  void setError(FreeTrajectoryState& fts, AlgebraicMatrix& derivative) const;
 
   bool theValidityFlag;
 
@@ -73,6 +67,5 @@ private:
   static const unsigned int nLocalParam = 5;
   static const unsigned int nDecayParam = TwoBodyDecayParameters::dimension;
 };
-
 
 #endif

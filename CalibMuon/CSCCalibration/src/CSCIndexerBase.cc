@@ -1,8 +1,7 @@
 #include "CalibMuon/CSCCalibration/interface/CSCIndexerBase.h"
 
 CSCIndexerBase::CSCIndexerBase()
-    : chamberLabel_(
-          271) // # of physical chambers per endcap + 1. Includes ME42.
+    : chamberLabel_(271)  // # of physical chambers per endcap + 1. Includes ME42.
 {
   // Fill the member vector which permits decoding of the linear chamber index.
   // Beware that the ME42 indices 235-270 within this vector do NOT correspond
@@ -23,8 +22,7 @@ CSCIndexerBase::CSCIndexerBase()
 
 CSCIndexerBase::~CSCIndexerBase() {}
 
-CSCIndexerBase::IndexType
-CSCIndexerBase::chamberLabelFromChamberIndex(IndexType ici) const {
+CSCIndexerBase::IndexType CSCIndexerBase::chamberLabelFromChamberIndex(IndexType ici) const {
   // This is just for cross-checking
 
   // Expected range of input range argument is 1-540.
@@ -32,35 +30,32 @@ CSCIndexerBase::chamberLabelFromChamberIndex(IndexType ici) const {
 
   if (ici > 468) {
     // ME42
-    ici -= 234;    // now in range 235-306
-    if (ici > 270) // -z
+    ici -= 234;     // now in range 235-306
+    if (ici > 270)  // -z
     {
-      ici -= 36; // now in range 235-270
+      ici -= 36;  // now in range 235-270
     }
-  } else // in range 1-468
+  } else  // in range 1-468
   {
-    if (ici > 234) // -z
+    if (ici > 234)  // -z
     {
-      ici -= 234; // now in range 1-234
+      ici -= 234;  // now in range 1-234
     }
   }
   return chamberLabel_[ici];
 }
 
-CSCIndexerBase::IndexType
-CSCIndexerBase::hvSegmentIndex(IndexType is, IndexType ir,
-                               IndexType iwire) const {
-  IndexType hvSegment = 1; // There is only one HV segment in ME1/1
+CSCIndexerBase::IndexType CSCIndexerBase::hvSegmentIndex(IndexType is, IndexType ir, IndexType iwire) const {
+  IndexType hvSegment = 1;  // There is only one HV segment in ME1/1
 
-  if (is > 2 && ir == 1) // HV segments are the same in ME3/1 and ME4/1
+  if (is > 2 && ir == 1)  // HV segments are the same in ME3/1 and ME4/1
   {
     if (iwire >= 33 && iwire <= 64) {
       hvSegment = 2;
     } else if (iwire >= 65 && iwire <= 96) {
       hvSegment = 3;
     }
-  } else if (is > 1 &&
-             ir == 2) // HV segments are the same in ME2/2, ME3/2, and ME4/2
+  } else if (is > 1 && ir == 2)  // HV segments are the same in ME2/2, ME3/2, and ME4/2
   {
     if (iwire >= 17 && iwire <= 28) {
       hvSegment = 2;
@@ -93,8 +88,7 @@ CSCIndexerBase::hvSegmentIndex(IndexType is, IndexType ir,
   return hvSegment;
 }
 
-CSCDetId CSCIndexerBase::detIdFromChamberLabel(IndexType ie,
-                                               IndexType label) const {
+CSCDetId CSCIndexerBase::detIdFromChamberLabel(IndexType ie, IndexType label) const {
   IndexType is = label / 1000;
   label -= is * 1000;
   IndexType ir = label / 100;
@@ -111,18 +105,18 @@ CSCDetId CSCIndexerBase::detIdFromChamberIndex(IndexType ici) const {
   IndexType ie = 1;
   if (ici > 468) {
     // ME42
-    ici -= 234;    // now in range 235-306
-    if (ici > 270) // -z
+    ici -= 234;     // now in range 235-306
+    if (ici > 270)  // -z
     {
       ie = 2;
-      ici -= 36; // now in range 235-270
+      ici -= 36;  // now in range 235-270
     }
-  } else // in range 1-468
+  } else  // in range 1-468
   {
-    if (ici > 234) // -z
+    if (ici > 234)  // -z
     {
       ie = 2;
-      ici -= 234; // now in range 1-234
+      ici -= 234;  // now in range 1-234
     }
   }
 

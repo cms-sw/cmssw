@@ -30,7 +30,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 namespace edm {
-class ParameterSet;
+  class ParameterSet;
 }
 
 class HepPDTAnalyzer : public edm::EDAnalyzer {

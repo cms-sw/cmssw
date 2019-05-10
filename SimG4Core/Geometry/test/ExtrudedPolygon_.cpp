@@ -38,8 +38,7 @@ void testExtrudedPgon::matched_g4_and_dd(void) {
     zsections.emplace_back(z[it], G4TwoVector(zx[it], zy[it]), zscale[it]);
   G4ExtrudedSolid g4(name, polygon, zsections);
   DDI::ExtrudedPolygon dd(x, y, z, zx, zy, zscale);
-  DDExtrudedPolygon dds =
-      DDSolidFactory::extrudedpolygon(name, x, y, z, zx, zy, zscale);
+  DDExtrudedPolygon dds = DDSolidFactory::extrudedpolygon(name, x, y, z, zx, zy, zscale);
 
   dd.stream(cout);
   cout << endl;

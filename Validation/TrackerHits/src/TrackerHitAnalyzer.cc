@@ -40,41 +40,38 @@
 
 TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet &ps)
     : verbose_(ps.getUntrackedParameter<bool>("Verbosity", false)),
-      edmPSimHitContainer_pxlBrlLow_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("PxlBrlLowSrc"))),
-      edmPSimHitContainer_pxlBrlHigh_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("PxlBrlHighSrc"))),
-      edmPSimHitContainer_pxlFwdLow_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("PxlFwdLowSrc"))),
-      edmPSimHitContainer_pxlFwdHigh_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("PxlFwdHighSrc"))),
-      edmPSimHitContainer_siTIBLow_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("SiTIBLowSrc"))),
-      edmPSimHitContainer_siTIBHigh_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("SiTIBHighSrc"))),
-      edmPSimHitContainer_siTOBLow_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("SiTOBLowSrc"))),
-      edmPSimHitContainer_siTOBHigh_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("SiTOBHighSrc"))),
-      edmPSimHitContainer_siTIDLow_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("SiTIDLowSrc"))),
-      edmPSimHitContainer_siTIDHigh_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("SiTIDHighSrc"))),
-      edmPSimHitContainer_siTECLow_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("SiTECLowSrc"))),
-      edmPSimHitContainer_siTECHigh_Token_(consumes<edm::PSimHitContainer>(
-          ps.getParameter<edm::InputTag>("SiTECHighSrc"))),
-      edmSimTrackContainerToken_(consumes<edm::SimTrackContainer>(
-          ps.getParameter<edm::InputTag>("G4TrkSrc"))),
-      fDBE(nullptr), conf_(ps),
+      edmPSimHitContainer_pxlBrlLow_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("PxlBrlLowSrc"))),
+      edmPSimHitContainer_pxlBrlHigh_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("PxlBrlHighSrc"))),
+      edmPSimHitContainer_pxlFwdLow_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("PxlFwdLowSrc"))),
+      edmPSimHitContainer_pxlFwdHigh_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("PxlFwdHighSrc"))),
+      edmPSimHitContainer_siTIBLow_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("SiTIBLowSrc"))),
+      edmPSimHitContainer_siTIBHigh_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("SiTIBHighSrc"))),
+      edmPSimHitContainer_siTOBLow_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("SiTOBLowSrc"))),
+      edmPSimHitContainer_siTOBHigh_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("SiTOBHighSrc"))),
+      edmPSimHitContainer_siTIDLow_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("SiTIDLowSrc"))),
+      edmPSimHitContainer_siTIDHigh_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("SiTIDHighSrc"))),
+      edmPSimHitContainer_siTECLow_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("SiTECLowSrc"))),
+      edmPSimHitContainer_siTECHigh_Token_(
+          consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("SiTECHighSrc"))),
+      edmSimTrackContainerToken_(consumes<edm::SimTrackContainer>(ps.getParameter<edm::InputTag>("G4TrkSrc"))),
+      fDBE(nullptr),
+      conf_(ps),
       runStandalone(ps.getParameter<bool>("runStandalone")),
-      fOutputFile(ps.getUntrackedParameter<std::string>(
-          "outputFile", "TrackerHitHisto.root")),
+      fOutputFile(ps.getUntrackedParameter<std::string>("outputFile", "TrackerHitHisto.root")),
       pixelOutput(ps.getParameter<bool>("pixelOutput")) {}
 
-void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
-                                        const edm::Run &run,
-                                        const edm::EventSetup &es) {
+void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &run, const edm::EventSetup &es) {
   ////// booking histograms
   fDBE = edm::Service<DQMStore>().operator->();
 
@@ -106,24 +103,18 @@ void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     int nbin = 5000;
 
     ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/");
-    htofeta = ibooker.book2D("tof_eta", "Time of flight vs eta", nbin, -3.0,
-                             3.0, 200, -100, 100);
-    htofphi = ibooker.book2D("tof_phi", "Time of flight vs phi", nbin, -180,
-                             180, 200, -100, 100);
-    htofr = ibooker.book2D("tof_r", "Time of flight vs r", nbin, 0, 300, 200,
-                           -100, 100);
-    htofz = ibooker.book2D("tof_z", "Time of flight vs z", nbin, -280, 280, 200,
-                           -100, 100);
+    htofeta = ibooker.book2D("tof_eta", "Time of flight vs eta", nbin, -3.0, 3.0, 200, -100, 100);
+    htofphi = ibooker.book2D("tof_phi", "Time of flight vs phi", nbin, -180, 180, 200, -100, 100);
+    htofr = ibooker.book2D("tof_r", "Time of flight vs r", nbin, 0, 300, 200, -100, 100);
+    htofz = ibooker.book2D("tof_z", "Time of flight vs z", nbin, -280, 280, 200, -100, 100);
 
     const float E2NEL = 1.;
 
-    const char *Region[] = {"005",  "051",  "115",  "152",  "225",  "253",
-                            "-050", "-105", "-151", "-215", "-252", "-325"};
+    const char *Region[] = {"005", "051", "115", "152", "225", "253", "-050", "-105", "-151", "-215", "-252", "-325"};
     nbin = 200;
 
     // Energy loss histograms
     for (int i = 0; i < 12; i++) {
-
       sprintf(htitle1, "Energy loss in TIB %s", Region[i]);
       sprintf(htitle2, "Energy loss in TOB %s", Region[i]);
       sprintf(htitle3, "Energy loss in TID %s", Region[i]);
@@ -163,7 +154,6 @@ void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     const float low[] = {-0.03, -0.03, -0.02, -0.03, -0.03, -0.03};
 
     for (int i = 0; i < 12; i++) {
-
       sprintf(htitle1, "Entryx-Exitx in TIB %s", Region[i]);
       sprintf(htitle2, "Entryx-Exitx in TOB %s", Region[i]);
       sprintf(htitle3, "Entryx-Exitx in TID %s", Region[i]);
@@ -202,7 +192,6 @@ void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     const float low0[] = {-0.05, -0.06, -0.03, -0.03, -0.03, -0.03};
 
     for (int i = 0; i < 12; i++) {
-
       sprintf(htitle1, "Entryy-Exity in TIB %s", Region[i]);
       sprintf(htitle2, "Entryy-Exity in TOB %s", Region[i]);
       sprintf(htitle3, "Entryy-Exity in TID %s", Region[i]);
@@ -241,7 +230,6 @@ void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     const float low1[] = {0., 0., 0., 0., 0., 0.};
 
     for (int i = 0; i < 12; i++) {
-
       sprintf(htitle1, "abs(Entryz-Exitz) in TIB %s", Region[i]);
       sprintf(htitle2, "abs(Entryz-Exitz) in TOB %s", Region[i]);
       sprintf(htitle3, "abs(Entryz-Exitz) in TID %s", Region[i]);
@@ -280,7 +268,6 @@ void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     const float low2[] = {-3.2, -5.0, -5.5, -6.2, -0.85, -0.5};
 
     for (int i = 0; i < 12; i++) {
-
       sprintf(htitle1, "Localx in TIB %s", Region[i]);
       sprintf(htitle2, "Localx in TOB %s", Region[i]);
       sprintf(htitle3, "Localx in TID %s", Region[i]);
@@ -319,7 +306,6 @@ void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     const float low3[] = {-6.0, -10., -5.6, -10.5, -3.4, -0.52};
 
     for (int i = 0; i < 12; i++) {
-
       sprintf(htitle1, "Localy in TIB %s", Region[i]);
       sprintf(htitle2, "Localy in TOB %s", Region[i]);
       sprintf(htitle3, "Localy in TID %s", Region[i]);
@@ -373,11 +359,8 @@ void TrackerHitAnalyzer::endJob() {
   }
 }
 
-void TrackerHitAnalyzer::analyze(const edm::Event &e,
-                                 const edm::EventSetup &c) {
-
-  edm::LogInfo("EventInfo")
-      << " Run = " << e.id().run() << " Event = " << e.id().event();
+void TrackerHitAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c) {
+  edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
   // iterator to access containers
   edm::PSimHitContainer::const_iterator itHit;
@@ -388,16 +371,14 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   edm::Handle<edm::PSimHitContainer> PxlBrlLowContainer;
   e.getByToken(edmPSimHitContainer_pxlBrlLow_Token_, PxlBrlLowContainer);
   if (!PxlBrlLowContainer.isValid()) {
-    edm::LogError("TrackerHitAnalyzer::analyze")
-        << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
+    edm::LogError("TrackerHitAnalyzer::analyze") << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
     return;
   }
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlBrlHighContainer;
   e.getByToken(edmPSimHitContainer_pxlBrlHigh_Token_, PxlBrlHighContainer);
   if (!PxlBrlHighContainer.isValid()) {
-    edm::LogError("TrackerHitAnalyzer::analyze")
-        << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
+    edm::LogError("TrackerHitAnalyzer::analyze") << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
     return;
   }
   /////////////////////////////////
@@ -407,16 +388,14 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   edm::Handle<edm::PSimHitContainer> PxlFwdLowContainer;
   e.getByToken(edmPSimHitContainer_pxlFwdLow_Token_, PxlFwdLowContainer);
   if (!PxlFwdLowContainer.isValid()) {
-    edm::LogError("TrackerHitAnalyzer::analyze")
-        << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
+    edm::LogError("TrackerHitAnalyzer::analyze") << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
     return;
   }
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
   e.getByToken(edmPSimHitContainer_pxlFwdHigh_Token_, PxlFwdHighContainer);
   if (!PxlFwdHighContainer.isValid()) {
-    edm::LogError("TrackerHitAnalyzer::analyze")
-        << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
+    edm::LogError("TrackerHitAnalyzer::analyze") << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
     return;
   }
   ///////////////////////////////////
@@ -426,8 +405,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   edm::Handle<edm::PSimHitContainer> SiTIBLowContainer;
   e.getByToken(edmPSimHitContainer_siTIBLow_Token_, SiTIBLowContainer);
   if (!SiTIBLowContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::analyze")
-        << "Unable to find TrackerHitsTIBLowTof in event!";
+    edm::LogError("TrackerHitProducer::analyze") << "Unable to find TrackerHitsTIBLowTof in event!";
     return;
   }
   //////////////////////////////////
@@ -435,8 +413,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   edm::Handle<edm::PSimHitContainer> SiTIBHighContainer;
   e.getByToken(edmPSimHitContainer_siTIBHigh_Token_, SiTIBHighContainer);
   if (!SiTIBHighContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::analyze")
-        << "Unable to find TrackerHitsTIBHighTof in event!";
+    edm::LogError("TrackerHitProducer::analyze") << "Unable to find TrackerHitsTIBHighTof in event!";
     return;
   }
   ///////////////////////////////////
@@ -446,8 +423,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   edm::Handle<edm::PSimHitContainer> SiTOBLowContainer;
   e.getByToken(edmPSimHitContainer_siTOBLow_Token_, SiTOBLowContainer);
   if (!SiTOBLowContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::analyze")
-        << "Unable to find TrackerHitsTOBLowTof in event!";
+    edm::LogError("TrackerHitProducer::analyze") << "Unable to find TrackerHitsTOBLowTof in event!";
     return;
   }
   //////////////////////////////////
@@ -455,8 +431,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   edm::Handle<edm::PSimHitContainer> SiTOBHighContainer;
   e.getByToken(edmPSimHitContainer_siTOBHigh_Token_, SiTOBHighContainer);
   if (!SiTOBHighContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::analyze")
-        << "Unable to find TrackerHitsTOBHighTof in event!";
+    edm::LogError("TrackerHitProducer::analyze") << "Unable to find TrackerHitsTOBHighTof in event!";
     return;
   }
 
@@ -467,8 +442,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   edm::Handle<edm::PSimHitContainer> SiTIDLowContainer;
   e.getByToken(edmPSimHitContainer_siTIDLow_Token_, SiTIDLowContainer);
   if (!SiTIDLowContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::analyze")
-        << "Unable to find TrackerHitsTIDLowTof in event!";
+    edm::LogError("TrackerHitProducer::analyze") << "Unable to find TrackerHitsTIDLowTof in event!";
     return;
   }
   //////////////////////////////////
@@ -476,8 +450,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   edm::Handle<edm::PSimHitContainer> SiTIDHighContainer;
   e.getByToken(edmPSimHitContainer_siTIDHigh_Token_, SiTIDHighContainer);
   if (!SiTIDHighContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::analyze")
-        << "Unable to find TrackerHitsTIDHighTof in event!";
+    edm::LogError("TrackerHitProducer::analyze") << "Unable to find TrackerHitsTIDHighTof in event!";
     return;
   }
   ///////////////////////////////////
@@ -487,8 +460,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   edm::Handle<edm::PSimHitContainer> SiTECLowContainer;
   e.getByToken(edmPSimHitContainer_siTECLow_Token_, SiTECLowContainer);
   if (!SiTECLowContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::analyze")
-        << "Unable to find TrackerHitsTECLowTof in event!";
+    edm::LogError("TrackerHitProducer::analyze") << "Unable to find TrackerHitsTECLowTof in event!";
     return;
   }
   //////////////////////////////////
@@ -496,8 +468,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   edm::Handle<edm::PSimHitContainer> SiTECHighContainer;
   e.getByToken(edmPSimHitContainer_siTECHigh_Token_, SiTECHighContainer);
   if (!SiTECHighContainer.isValid()) {
-    edm::LogError("TrackerHitProducer::analyze")
-        << "Unable to find TrackerHitsTECHighTof in event!";
+    edm::LogError("TrackerHitProducer::analyze") << "Unable to find TrackerHitsTECHighTof in event!";
     return;
   }
 
@@ -508,8 +479,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   edm::Handle<edm::SimTrackContainer> G4TrkContainer;
   e.getByToken(edmSimTrackContainerToken_, G4TrkContainer);
   if (!G4TrkContainer.isValid()) {
-    edm::LogError("TrackerHitAnalyzer::analyze")
-        << "Unable to find SimTrack in event!";
+    edm::LogError("TrackerHitAnalyzer::analyze") << "Unable to find SimTrack in event!";
     return;
   }
 
@@ -520,18 +490,14 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
 
   int ir = -100;
   edm::SimTrackContainer::const_iterator itTrk;
-  for (itTrk = G4TrkContainer->begin(); itTrk != G4TrkContainer->end();
-       ++itTrk) {
-
+  for (itTrk = G4TrkContainer->begin(); itTrk != G4TrkContainer->end(); ++itTrk) {
     //    std::cout << "itTrk = "<< itTrk << std::endl;
     double eta = 0, p = 0;
-    const CLHEP::HepLorentzVector &G4Trk =
-        CLHEP::HepLorentzVector(itTrk->momentum().x(), itTrk->momentum().y(),
-                                itTrk->momentum().z(), itTrk->momentum().e());
+    const CLHEP::HepLorentzVector &G4Trk = CLHEP::HepLorentzVector(
+        itTrk->momentum().x(), itTrk->momentum().y(), itTrk->momentum().z(), itTrk->momentum().e());
     p = sqrt(G4Trk[0] * G4Trk[0] + G4Trk[1] * G4Trk[1] + G4Trk[2] * G4Trk[2]);
     if (p == 0)
-      edm::LogError("TrackerHitAnalyzer::analyze")
-          << "TrackerTest::INFO: Primary has p = 0 ";
+      edm::LogError("TrackerHitAnalyzer::analyze") << "TrackerTest::INFO: Primary has p = 0 ";
     else {
       double costheta = G4Trk[2] / p;
       double theta = acos(TMath::Min(TMath::Max(costheta, -1.), 1.));
@@ -575,8 +541,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   // If Phase 1, do not run - will run in new Phase 1 module
 
   if (pixelOutput) {
-    for (itHit = PxlBrlLowContainer->begin();
-         itHit != PxlBrlLowContainer->end(); ++itHit) {
+    for (itHit = PxlBrlLowContainer->begin(); itHit != PxlBrlLowContainer->end(); ++itHit) {
       DetId detid = DetId(itHit->detUnitId());
       const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
       GlobalPoint gpos = det->toGlobal(itHit->localPosition());
@@ -588,13 +553,11 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
       h5e[ir]->Fill(itHit->energyLoss());
       h5ex[ir]->Fill(itHit->entryPoint().x() - itHit->exitPoint().x());
       h5ey[ir]->Fill(itHit->entryPoint().y() - itHit->exitPoint().y());
-      h5ez[ir]->Fill(
-          std::fabs(itHit->entryPoint().z() - itHit->exitPoint().z()));
+      h5ez[ir]->Fill(std::fabs(itHit->entryPoint().z() - itHit->exitPoint().z()));
       h5lx[ir]->Fill(itHit->localPosition().x());
       h5ly[ir]->Fill(itHit->localPosition().y());
     }
-    for (itHit = PxlBrlHighContainer->begin();
-         itHit != PxlBrlHighContainer->end(); ++itHit) {
+    for (itHit = PxlBrlHighContainer->begin(); itHit != PxlBrlHighContainer->end(); ++itHit) {
       DetId detid = DetId(itHit->detUnitId());
       const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
       GlobalPoint gpos = det->toGlobal(itHit->localPosition());
@@ -606,13 +569,11 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
       h5e[ir]->Fill(itHit->energyLoss());
       h5ex[ir]->Fill(itHit->entryPoint().x() - itHit->exitPoint().x());
       h5ey[ir]->Fill(itHit->entryPoint().y() - itHit->exitPoint().y());
-      h5ez[ir]->Fill(
-          std::fabs(itHit->entryPoint().z() - itHit->exitPoint().z()));
+      h5ez[ir]->Fill(std::fabs(itHit->entryPoint().z() - itHit->exitPoint().z()));
       h5lx[ir]->Fill(itHit->localPosition().x());
       h5ly[ir]->Fill(itHit->localPosition().y());
     }
-    for (itHit = PxlFwdLowContainer->begin();
-         itHit != PxlFwdLowContainer->end(); ++itHit) {
+    for (itHit = PxlFwdLowContainer->begin(); itHit != PxlFwdLowContainer->end(); ++itHit) {
       DetId detid = DetId(itHit->detUnitId());
       const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
       GlobalPoint gpos = det->toGlobal(itHit->localPosition());
@@ -624,13 +585,11 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
       h6e[ir]->Fill(itHit->energyLoss());
       h6ex[ir]->Fill(itHit->entryPoint().x() - itHit->exitPoint().x());
       h6ey[ir]->Fill(itHit->entryPoint().y() - itHit->exitPoint().y());
-      h6ez[ir]->Fill(
-          std::fabs(itHit->entryPoint().z() - itHit->exitPoint().z()));
+      h6ez[ir]->Fill(std::fabs(itHit->entryPoint().z() - itHit->exitPoint().z()));
       h6lx[ir]->Fill(itHit->localPosition().x());
       h6ly[ir]->Fill(itHit->localPosition().y());
     }
-    for (itHit = PxlFwdHighContainer->begin();
-         itHit != PxlFwdHighContainer->end(); ++itHit) {
+    for (itHit = PxlFwdHighContainer->begin(); itHit != PxlFwdHighContainer->end(); ++itHit) {
       DetId detid = DetId(itHit->detUnitId());
       const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
       GlobalPoint gpos = det->toGlobal(itHit->localPosition());
@@ -642,8 +601,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
       h6e[ir]->Fill(itHit->energyLoss());
       h6ex[ir]->Fill(itHit->entryPoint().x() - itHit->exitPoint().x());
       h6ey[ir]->Fill(itHit->entryPoint().y() - itHit->exitPoint().y());
-      h6ez[ir]->Fill(
-          std::fabs(itHit->entryPoint().z() - itHit->exitPoint().z()));
+      h6ez[ir]->Fill(std::fabs(itHit->entryPoint().z() - itHit->exitPoint().z()));
       h6lx[ir]->Fill(itHit->localPosition().x());
       h6ly[ir]->Fill(itHit->localPosition().y());
     }
@@ -651,8 +609,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   ///////////////////////////////
   // get TIB information
   ///////////////////////////////
-  for (itHit = SiTIBLowContainer->begin(); itHit != SiTIBLowContainer->end();
-       ++itHit) {
+  for (itHit = SiTIBLowContainer->begin(); itHit != SiTIBLowContainer->end(); ++itHit) {
     DetId detid = DetId(itHit->detUnitId());
     const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
     GlobalPoint gpos = det->toGlobal(itHit->localPosition());
@@ -668,8 +625,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
     h1lx[ir]->Fill(itHit->localPosition().x());
     h1ly[ir]->Fill(itHit->localPosition().y());
   }
-  for (itHit = SiTIBHighContainer->begin(); itHit != SiTIBHighContainer->end();
-       ++itHit) {
+  for (itHit = SiTIBHighContainer->begin(); itHit != SiTIBHighContainer->end(); ++itHit) {
     DetId detid = DetId(itHit->detUnitId());
     const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
     GlobalPoint gpos = det->toGlobal(itHit->localPosition());
@@ -688,8 +644,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   ///////////////////////////////
   // get TOB information
   ///////////////////////////////
-  for (itHit = SiTOBLowContainer->begin(); itHit != SiTOBLowContainer->end();
-       ++itHit) {
+  for (itHit = SiTOBLowContainer->begin(); itHit != SiTOBLowContainer->end(); ++itHit) {
     DetId detid = DetId(itHit->detUnitId());
     const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
     GlobalPoint gpos = det->toGlobal(itHit->localPosition());
@@ -705,8 +660,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
     h2lx[ir]->Fill(itHit->localPosition().x());
     h2ly[ir]->Fill(itHit->localPosition().y());
   }
-  for (itHit = SiTOBHighContainer->begin(); itHit != SiTOBHighContainer->end();
-       ++itHit) {
+  for (itHit = SiTOBHighContainer->begin(); itHit != SiTOBHighContainer->end(); ++itHit) {
     DetId detid = DetId(itHit->detUnitId());
     const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
     GlobalPoint gpos = det->toGlobal(itHit->localPosition());
@@ -725,8 +679,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   ///////////////////////////////
   // get TID information
   ///////////////////////////////
-  for (itHit = SiTIDLowContainer->begin(); itHit != SiTIDLowContainer->end();
-       ++itHit) {
+  for (itHit = SiTIDLowContainer->begin(); itHit != SiTIDLowContainer->end(); ++itHit) {
     DetId detid = DetId(itHit->detUnitId());
     const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
     GlobalPoint gpos = det->toGlobal(itHit->localPosition());
@@ -742,8 +695,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
     h3lx[ir]->Fill(itHit->localPosition().x());
     h3ly[ir]->Fill(itHit->localPosition().y());
   }
-  for (itHit = SiTIDHighContainer->begin(); itHit != SiTIDHighContainer->end();
-       ++itHit) {
+  for (itHit = SiTIDHighContainer->begin(); itHit != SiTIDHighContainer->end(); ++itHit) {
     DetId detid = DetId(itHit->detUnitId());
     const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
     GlobalPoint gpos = det->toGlobal(itHit->localPosition());
@@ -762,8 +714,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
   ///////////////////////////////
   // get TEC information
   ///////////////////////////////
-  for (itHit = SiTECLowContainer->begin(); itHit != SiTECLowContainer->end();
-       ++itHit) {
+  for (itHit = SiTECLowContainer->begin(); itHit != SiTECLowContainer->end(); ++itHit) {
     DetId detid = DetId(itHit->detUnitId());
     const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
     GlobalPoint gpos = det->toGlobal(itHit->localPosition());
@@ -779,8 +730,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event &e,
     h4lx[ir]->Fill(itHit->localPosition().x());
     h4ly[ir]->Fill(itHit->localPosition().y());
   }
-  for (itHit = SiTECHighContainer->begin(); itHit != SiTECHighContainer->end();
-       ++itHit) {
+  for (itHit = SiTECHighContainer->begin(); itHit != SiTECHighContainer->end(); ++itHit) {
     DetId detid = DetId(itHit->detUnitId());
     const GeomDetUnit *det = (const GeomDetUnit *)tracker->idToDetUnit(detid);
     GlobalPoint gpos = det->toGlobal(itHit->localPosition());

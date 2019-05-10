@@ -11,7 +11,6 @@
 // remove the old benchmarks from these 2 packages (Validation and PFRootEvent)
 // (python files, C++ code, ...)
 class MatchMETBenchmark : public Benchmark {
-
 public:
   MatchMETBenchmark(Mode mode) : Benchmark(mode) {}
   ~MatchMETBenchmark() override;

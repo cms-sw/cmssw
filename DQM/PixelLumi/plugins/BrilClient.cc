@@ -10,10 +10,8 @@
 #include "TH2F.h"
 
 BrilClient::BrilClient(const edm::ParameterSet &ps) {
-  pathToken_ = consumes<std::string, edm::InLumi>(
-      edm::InputTag("source", "sourceDataPath"));
-  jsonToken_ = consumes<std::string, edm::InLumi>(
-      edm::InputTag("source", "sourceJsonPath"));
+  pathToken_ = consumes<std::string, edm::InLumi>(edm::InputTag("source", "sourceDataPath"));
+  jsonToken_ = consumes<std::string, edm::InLumi>(edm::InputTag("source", "sourceJsonPath"));
 }
 
 BrilClient::~BrilClient() {}
@@ -41,9 +39,8 @@ void BrilClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker_,
 
   ptree json;
   if (!boost::filesystem::exists(*filePath_)) {
-    edm::LogWarning("BrilClient")
-        << "BrilClient"
-        << " File missing: " << *filePath_ << std::endl;
+    edm::LogWarning("BrilClient") << "BrilClient"
+                                  << " File missing: " << *filePath_ << std::endl;
 
     return;
   } else {
@@ -65,15 +62,15 @@ void BrilClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker_,
     }
     std::string name = title.substr(0, pos);
 
-    auto nBins = as_vector<int>(mainTree.second, "nbins");   // x, y
-    auto xrange = as_vector<int>(mainTree.second, "xrange"); // min, max
-    auto yrange = as_vector<int>(mainTree.second, "yrange"); // min, max
+    auto nBins = as_vector<int>(mainTree.second, "nbins");    // x, y
+    auto xrange = as_vector<int>(mainTree.second, "xrange");  // min, max
+    auto yrange = as_vector<int>(mainTree.second, "yrange");  // min, max
 
-    TH2F *th = new TH2F(name.c_str(), title.c_str(), nBins.at(0), xrange.at(0),
-                        xrange.at(1), nBins.at(1), yrange.at(0), yrange.at(1));
+    TH2F *th = new TH2F(
+        name.c_str(), title.c_str(), nBins.at(0), xrange.at(0), xrange.at(1), nBins.at(1), yrange.at(0), yrange.at(1));
 
     for (auto &dataArray : mainTree.second.get_child("data")) {
-      int elements[3] = {0, 0, 0}; // binX, binY, binCont;
+      int elements[3] = {0, 0, 0};  // binX, binY, binCont;
       auto element = std::begin(elements);
 
       for (auto &binContent : dataArray.second) {

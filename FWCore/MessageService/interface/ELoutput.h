@@ -1,7 +1,6 @@
 #ifndef FWCore_MessageService_ELoutput_h
 #define FWCore_MessageService_ELoutput_h
 
-
 // ----------------------------------------------------------------------
 //
 // ELoutput	is a subclass of ELdestination representing the standard
@@ -17,8 +16,8 @@
 // 10/4/00 mf	add excludeModule()
 //  4/4/01 mf 	Removed moduleOfInterest and moduleToExclude, in favor
 //		of using base class method.
-//  6/23/03 mf  changeFile(), flush() 
-//  6/11/07 mf  changed default for emitAtStart to false  
+//  6/23/03 mf  changeFile(), flush()
+//  6/11/07 mf  changed default for emitAtStart to false
 //
 // ----------------------------------------------------------------------
 
@@ -29,103 +28,86 @@
 
 #include <memory>
 
-namespace edm {       
+namespace edm {
 
+  // ----------------------------------------------------------------------
+  // prerequisite classes:
+  // ----------------------------------------------------------------------
 
-// ----------------------------------------------------------------------
-// prerequisite classes:
-// ----------------------------------------------------------------------
+  class ErrorObj;
+  namespace service {
 
-class ErrorObj;
-namespace service {       
+    // ----------------------------------------------------------------------
+    // ELoutput:
+    // ----------------------------------------------------------------------
 
+    class ELoutput : public ELdestination {
+    public:
+      // ---  Birth/death:
+      //
+      ELoutput();
+      ELoutput(std::ostream& os, bool emitAtStart = false);  // 6/11/07 mf
+      ELoutput(const ELstring& fileName, bool emitAtStart = false);
+      ELoutput(const ELoutput& orig);
+      ~ELoutput() override;
 
-// ----------------------------------------------------------------------
-// ELoutput:
-// ----------------------------------------------------------------------
+      // ---  Methods invoked by the ELadministrator:
+      //
+    public:
+      bool log(const edm::ErrorObj& msg) override;
 
-class ELoutput : public ELdestination  {
+    protected:
+      // trivial clearSummary(), wipe(), zero() from base class
+      // trivial three summary(..) from base class
 
-public:
+    protected:
+      // ---  Internal Methods -- Users should not invoke these:
+      //
+    protected:
+      void emitToken(const ELstring& s, bool nl = false);
 
-  // ---  Birth/death:
-  //
-  ELoutput();
-  ELoutput( std::ostream & os, bool emitAtStart = false );	// 6/11/07 mf
-  ELoutput( const ELstring & fileName, bool emitAtStart = false );
-  ELoutput( const ELoutput & orig );
-  ~ELoutput() override;
+      void suppressTime() override;
+      void includeTime() override;
+      void suppressModule() override;
+      void includeModule() override;
+      void suppressSubroutine() override;
+      void includeSubroutine() override;
+      void suppressText() override;
+      void includeText() override;
+      void suppressContext() override;
+      void includeContext() override;
+      void suppressSerial() override;
+      void includeSerial() override;
+      void useFullContext() override;
+      void useContext() override;
+      void separateTime() override;
+      void attachTime() override;
+      void separateEpilogue() override;
+      void attachEpilogue() override;
 
-  // ---  Methods invoked by the ELadministrator:
-  //
-public:
-  bool log( const edm::ErrorObj & msg ) override;
+      void changeFile(std::ostream& os) override;
+      void changeFile(const ELstring& filename) override;
+      void flush() override;
 
-protected:
-    // trivial clearSummary(), wipe(), zero() from base class
-    // trivial three summary(..) from base class
+    protected:
+      // --- member data:
+      //
+      std::shared_ptr<std::ostream> os;
+      int charsOnLine;
+      edm::ELextendedID xid;
 
-protected:
-  // ---  Internal Methods -- Users should not invoke these:
-  //
-protected:
-  void emitToken( const ELstring & s, bool nl=false ) ;
+      bool wantTimestamp, wantModule, wantSubroutine, wantText, wantSomeContext, wantSerial, wantFullContext,
+          wantTimeSeparate, wantEpilogueSeparate, preambleMode;
 
-  void suppressTime() override;
-  void includeTime() override;
-  void suppressModule()override;
-  void includeModule() override;
-  void suppressSubroutine() override;
-  void includeSubroutine() override;
-  void suppressText() override;
-  void includeText() override;
-  void suppressContext() override;
-  void includeContext() override;
-  void suppressSerial() override;
-  void includeSerial() override;
-  void useFullContext() override;
-  void useContext() override;
-  void separateTime() override;
-  void attachTime() override;
-  void separateEpilogue() override;
-  void attachEpilogue() override;
+      // --- Verboten method:
+      //
+      ELoutput& operator=(const ELoutput& orig) = delete;
 
-  void changeFile (std::ostream & os) override;
-  void changeFile (const ELstring & filename) override;
-  void flush() override;
+    };  // ELoutput
 
+    // ----------------------------------------------------------------------
 
-protected:
-  // --- member data:
-  //
-  std::shared_ptr<std::ostream> os;
-  int                             charsOnLine;
-  edm::ELextendedID               xid;
+  }  // end of namespace service
+}  // end of namespace edm
 
-  bool wantTimestamp
-  ,    wantModule
-  ,    wantSubroutine
-  ,    wantText
-  ,    wantSomeContext
-  ,    wantSerial
-  ,    wantFullContext
-  ,    wantTimeSeparate
-  ,    wantEpilogueSeparate
-  ,    preambleMode
-  ;
-
-  // --- Verboten method:
-  //
-  ELoutput & operator=( const ELoutput & orig ) = delete;
-
-};  // ELoutput
-
-
-// ----------------------------------------------------------------------
-
-
-}        // end of namespace service
-}        // end of namespace edm
-
-
-#endif // FWCore_MessageService_ELoutput_h
+#endif  // FWCore_MessageService_ELoutput_h

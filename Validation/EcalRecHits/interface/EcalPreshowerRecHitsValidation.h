@@ -33,7 +33,6 @@
 #include <vector>
 
 class EcalPreshowerRecHitsValidation : public DQMEDAnalyzer {
-
 public:
   /// Constructor
   EcalPreshowerRecHitsValidation(const edm::ParameterSet &ps);
@@ -42,16 +41,14 @@ public:
   ~EcalPreshowerRecHitsValidation() override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker &i, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
   /// Analyze
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
 private:
   bool verbose_;
 
-  edm::EDGetTokenT<EEUncalibratedRecHitCollection>
-      EEuncalibrechitCollection_token_;
+  edm::EDGetTokenT<EEUncalibratedRecHitCollection> EEuncalibrechitCollection_token_;
   edm::EDGetTokenT<EERecHitCollection> EErechitCollection_token_;
   edm::EDGetTokenT<ESRecHitCollection> ESrechitCollection_token_;
 

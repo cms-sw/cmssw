@@ -29,8 +29,7 @@ public:
   ~LaserDQM() override;
 
   /// this method will do the user analysis
-  void analyze(edm::Event const &theEvent,
-               edm::EventSetup const &theSetup) override;
+  void analyze(edm::Event const &theEvent, edm::EventSetup const &theSetup) override;
   /// begin job
   void beginJob() override;
   /// end job
@@ -38,15 +37,13 @@ public:
 
 private:
   /// fill adc counts from the laser beam into a monitor histogram
-  void
-  fillAdcCounts(MonitorElement *theMonitor,
-                edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator,
-                edm::DetSet<SiStripDigi>::const_iterator digiRangeIteratorEnd);
+  void fillAdcCounts(MonitorElement *theMonitor,
+                     edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator,
+                     edm::DetSet<SiStripDigi>::const_iterator digiRangeIteratorEnd);
   /// initialize monitors
   void initMonitors();
   /// find dets which are hit by a laser beam and fill the monitors
-  void trackerStatistics(edm::Event const &theEvent,
-                         edm::EventSetup const &theSetup);
+  void trackerStatistics(edm::Event const &theEvent, edm::EventSetup const &theSetup);
 
 private:
   int theDebugLevel;

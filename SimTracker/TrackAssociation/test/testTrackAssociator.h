@@ -14,11 +14,10 @@
 #include <string>
 
 namespace reco {
-class TrackToTrackingParticleAssociator;
+  class TrackToTrackingParticleAssociator;
 }
 
 class testTrackAssociator : public edm::EDAnalyzer {
-
 public:
   testTrackAssociator(const edm::ParameterSet &conf);
   ~testTrackAssociator() override;

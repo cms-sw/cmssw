@@ -10,7 +10,6 @@
 #include <vector>
 
 class SimG4HcalHitCluster {
-
 public:
   SimG4HcalHitCluster();
   virtual ~SimG4HcalHitCluster();

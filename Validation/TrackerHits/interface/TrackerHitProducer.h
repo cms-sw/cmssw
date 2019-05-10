@@ -14,12 +14,11 @@
 #include <vector>
 
 namespace edm {
-class HepMCProduct;
+  class HepMCProduct;
 }
 class PTrackerSimHit;
 
 class TrackerHitProducer : public edm::EDProducer {
-
 public:
   typedef std::vector<float> FloatVector;
   typedef std::vector<int> IntegerVector;
@@ -55,18 +54,12 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> edmHepMCProductToken_;
   edm::EDGetTokenT<edm::SimVertexContainer> edmSimVertexContainerToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> edmSimTrackContainerToken_;
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlBrlLow_Token_,
-      edmPSimHitContainer_pxlBrlHigh_Token_;
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlFwdLow_Token_,
-      edmPSimHitContainer_pxlFwdHigh_Token_;
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIBLow_Token_,
-      edmPSimHitContainer_siTIBHigh_Token_;
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTOBLow_Token_,
-      edmPSimHitContainer_siTOBHigh_Token_;
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIDLow_Token_,
-      edmPSimHitContainer_siTIDHigh_Token_;
-  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTECLow_Token_,
-      edmPSimHitContainer_siTECHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlBrlLow_Token_, edmPSimHitContainer_pxlBrlHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlFwdLow_Token_, edmPSimHitContainer_pxlFwdHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIBLow_Token_, edmPSimHitContainer_siTIBHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTOBLow_Token_, edmPSimHitContainer_siTOBHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIDLow_Token_, edmPSimHitContainer_siTIDHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTECLow_Token_, edmPSimHitContainer_siTECHigh_Token_;
 
   // G4MC info
   FloatVector G4VtxX;
@@ -106,6 +99,6 @@ private:
   std::string fName;
   std::string label;
 
-}; // end class declaration
+};  // end class declaration
 
 #endif

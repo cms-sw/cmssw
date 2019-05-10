@@ -8,9 +8,7 @@
 
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
 
-AlgebraicMatrix KarimakiAlignmentDerivatives::
-operator()(const TrajectoryStateOnSurface &tsos) const {
-
+AlgebraicMatrix KarimakiAlignmentDerivatives::operator()(const TrajectoryStateOnSurface &tsos) const {
   // Get track parameters on surface
   AlgebraicVector5 alivec = tsos.localParameters().mixedFormatVector();
 
@@ -36,8 +34,8 @@ operator()(const TrajectoryStateOnSurface &tsos) const {
   aliderivs[2][1] = tantheta;
   aliderivs[3][0] = vx * tanpsi;
   aliderivs[3][1] = vx * tantheta;
-  aliderivs[4][0] = -ux * tanpsi;   // New beta sign convention
-  aliderivs[4][1] = -ux * tantheta; // New beta sign convention
+  aliderivs[4][0] = -ux * tanpsi;    // New beta sign convention
+  aliderivs[4][1] = -ux * tantheta;  // New beta sign convention
   aliderivs[5][0] = vx;
   aliderivs[5][1] = -ux;
 

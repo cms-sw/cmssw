@@ -101,7 +101,6 @@
 class PGlobalDigi;
 
 class GlobalDigisProducer : public edm::EDProducer {
-
 public:
   typedef std::vector<float> FloatVector;
   typedef std::vector<double> DoubleVector;
@@ -187,10 +186,8 @@ private:
   FloatVector TIDW1ADC, TIDW2ADC, TIDW3ADC;
   IntVector TIDW1Strip, TIDW2Strip, TIDW3Strip;
 
-  FloatVector TECW1ADC, TECW2ADC, TECW3ADC, TECW4ADC, TECW5ADC, TECW6ADC,
-      TECW7ADC, TECW8ADC;
-  IntVector TECW1Strip, TECW2Strip, TECW3Strip, TECW4Strip, TECW5Strip,
-      TECW6Strip, TECW7Strip, TECW8Strip;
+  FloatVector TECW1ADC, TECW2ADC, TECW3ADC, TECW4ADC, TECW5ADC, TECW6ADC, TECW7ADC, TECW8ADC;
+  IntVector TECW1Strip, TECW2Strip, TECW3Strip, TECW4Strip, TECW5Strip, TECW6Strip, TECW7Strip, TECW8Strip;
 
   edm::InputTag SiStripSrc_;
 
@@ -250,7 +247,7 @@ private:
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
 
-}; // end class declaration
+};  // end class declaration
 
 #endif
 
@@ -291,4 +288,4 @@ static const int sdHcalTT = 5;
 static const int sdHcalCalib = 6;
 static const int sdHcalCompst = 7;
 
-#endif // PGlobalDigisProducer_h
+#endif  // PGlobalDigisProducer_h

@@ -19,26 +19,18 @@
 // --------------------------------------------
 //
 DQMExample_Step1::DQMExample_Step1(const edm::ParameterSet &ps) {
-  edm::LogInfo("DQMExample_Step1")
-      << "Constructor  DQMExample_Step1::DQMExample_Step1 " << std::endl;
+  edm::LogInfo("DQMExample_Step1") << "Constructor  DQMExample_Step1::DQMExample_Step1 " << std::endl;
 
   // Get parameters from configuration file
-  theElectronCollection_ = consumes<reco::GsfElectronCollection>(
-      ps.getParameter<edm::InputTag>("electronCollection"));
-  theCaloJetCollection_ = consumes<reco::CaloJetCollection>(
-      ps.getParameter<edm::InputTag>("caloJetCollection"));
-  thePfMETCollection_ = consumes<reco::PFMETCollection>(
-      ps.getParameter<edm::InputTag>("pfMETCollection"));
-  theConversionCollection_ = consumes<reco::ConversionCollection>(
-      ps.getParameter<edm::InputTag>("conversionsCollection"));
-  thePVCollection_ = consumes<reco::VertexCollection>(
-      ps.getParameter<edm::InputTag>("PVCollection"));
-  theBSCollection_ = consumes<reco::BeamSpot>(
-      ps.getParameter<edm::InputTag>("beamSpotCollection"));
-  triggerEvent_ = consumes<trigger::TriggerEvent>(
-      ps.getParameter<edm::InputTag>("TriggerEvent"));
-  triggerResults_ = consumes<edm::TriggerResults>(
-      ps.getParameter<edm::InputTag>("TriggerResults"));
+  theElectronCollection_ = consumes<reco::GsfElectronCollection>(ps.getParameter<edm::InputTag>("electronCollection"));
+  theCaloJetCollection_ = consumes<reco::CaloJetCollection>(ps.getParameter<edm::InputTag>("caloJetCollection"));
+  thePfMETCollection_ = consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("pfMETCollection"));
+  theConversionCollection_ =
+      consumes<reco::ConversionCollection>(ps.getParameter<edm::InputTag>("conversionsCollection"));
+  thePVCollection_ = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("PVCollection"));
+  theBSCollection_ = consumes<reco::BeamSpot>(ps.getParameter<edm::InputTag>("beamSpotCollection"));
+  triggerEvent_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("TriggerEvent"));
+  triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
   triggerFilter_ = ps.getParameter<edm::InputTag>("TriggerFilter");
   triggerPath_ = ps.getParameter<std::string>("TriggerPath");
 
@@ -53,8 +45,7 @@ DQMExample_Step1::DQMExample_Step1(const edm::ParameterSet &ps) {
 // -- Destructor
 //
 DQMExample_Step1::~DQMExample_Step1() {
-  edm::LogInfo("DQMExample_Step1")
-      << "Destructor DQMExample_Step1::~DQMExample_Step1 " << std::endl;
+  edm::LogInfo("DQMExample_Step1") << "Destructor DQMExample_Step1::~DQMExample_Step1 " << std::endl;
 }
 
 //
@@ -68,11 +59,8 @@ void DQMExample_Step1::dqmBeginRun(edm::Run const &, edm::EventSetup const &) {
 // -------------------------------------- bookHistos
 // --------------------------------------------
 //
-void DQMExample_Step1::bookHistograms(DQMStore::IBooker &ibooker_,
-                                      edm::Run const &,
-                                      edm::EventSetup const &) {
-  edm::LogInfo("DQMExample_Step1")
-      << "DQMExample_Step1::bookHistograms" << std::endl;
+void DQMExample_Step1::bookHistograms(DQMStore::IBooker &ibooker_, edm::Run const &, edm::EventSetup const &) {
+  edm::LogInfo("DQMExample_Step1") << "DQMExample_Step1::bookHistograms" << std::endl;
 
   // book at beginRun
   bookHistos(ibooker_);
@@ -81,8 +69,7 @@ void DQMExample_Step1::bookHistograms(DQMStore::IBooker &ibooker_,
 // -------------------------------------- Analyze
 // --------------------------------------------
 //
-void DQMExample_Step1::analyze(edm::Event const &e,
-                               edm::EventSetup const &eSetup) {
+void DQMExample_Step1::analyze(edm::Event const &e, edm::EventSetup const &eSetup) {
   edm::LogInfo("DQMExample_Step1") << "DQMExample_Step1::analyze" << std::endl;
 
   //-------------------------------
@@ -101,8 +88,7 @@ void DQMExample_Step1::analyze(edm::Event const &e,
 
   math::XYZPoint PVPoint(-999, -999, -999);
   if (vertex_number != 0)
-    PVPoint =
-        math::XYZPoint(v->position().x(), v->position().y(), v->position().z());
+    PVPoint = math::XYZPoint(v->position().x(), v->position().y(), v->position().z());
 
   PVPoint_ = PVPoint;
 
@@ -131,9 +117,9 @@ void DQMExample_Step1::analyze(edm::Event const &e,
   int posEle = 0, negEle = 0;
   const reco::GsfElectron *ele1 = nullptr;
   const reco::GsfElectron *ele2 = nullptr;
-  for (reco::GsfElectronCollection::const_iterator recoElectron =
-           electronCollection->begin();
-       recoElectron != electronCollection->end(); ++recoElectron) {
+  for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection->begin();
+       recoElectron != electronCollection->end();
+       ++recoElectron) {
     // decreasing pT
     if (MediumEle(e, eSetup, *recoElectron)) {
       if (!ele1 && recoElectron->pt() > ptThrL1_)
@@ -148,7 +134,7 @@ void DQMExample_Step1::analyze(edm::Event const &e,
     else if (recoElectron->charge() == -1)
       negEle++;
 
-  } // end of loop over electrons
+  }  // end of loop over electrons
 
   nEle = posEle + negEle;
 
@@ -167,9 +153,9 @@ void DQMExample_Step1::analyze(edm::Event const &e,
   const reco::CaloJet *jet1 = nullptr;
   const reco::CaloJet *jet2 = nullptr;
 
-  for (reco::CaloJetCollection::const_iterator i_calojet =
-           caloJetCollection->begin();
-       i_calojet != caloJetCollection->end(); ++i_calojet) {
+  for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
+       i_calojet != caloJetCollection->end();
+       ++i_calojet) {
     // remove jet-ele matching
     if (ele1)
       if (Distance(*i_calojet, *ele1) < 0.3)
@@ -210,8 +196,7 @@ void DQMExample_Step1::analyze(edm::Event const &e,
   unsigned int numTriggers = trigNames.size();
 
   for (unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex) {
-    if (trigNames.triggerName(hltIndex) == triggerPath_ &&
-        hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex))
+    if (trigNames.triggerName(hltIndex) == triggerPath_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex))
       hasFired = true;
   }
 
@@ -236,7 +221,7 @@ void DQMExample_Step1::analyze(edm::Event const &e,
     for (size_t j = 0; j < keys.size(); ++j) {
       trigger::TriggerObject foundObject = triggerObjects[keys[j]];
       if (abs(foundObject.particle().pdgId()) != 11)
-        continue; // make sure that it is an electron
+        continue;  // make sure that it is an electron
 
       triggeredEle.push_back(foundObject.particle());
       ++nEle_HLT;
@@ -297,8 +282,7 @@ void DQMExample_Step1::analyze(edm::Event const &e,
 // -------------------------------------- endRun
 // --------------------------------------------
 //
-void DQMExample_Step1::endRun(edm::Run const &run,
-                              edm::EventSetup const &eSetup) {
+void DQMExample_Step1::endRun(edm::Run const &run, edm::EventSetup const &eSetup) {
   edm::LogInfo("DQMExample_Step1") << "DQMExample_Step1::endRun" << std::endl;
 }
 
@@ -310,58 +294,36 @@ void DQMExample_Step1::bookHistos(DQMStore::IBooker &ibooker_) {
   ibooker_.cd();
   ibooker_.setCurrentFolder("Physics/TopTest");
 
-  h_vertex_number =
-      ibooker_.book1D("Vertex_number", "Number of event vertices in collection",
-                      40, -0.5, 39.5);
+  h_vertex_number = ibooker_.book1D("Vertex_number", "Number of event vertices in collection", 40, -0.5, 39.5);
 
   h_pfMet = ibooker_.book1D("pfMet", "Pf Missing E_{T}; GeV", 20, 0.0, 100);
 
-  h_eMultiplicity =
-      ibooker_.book1D("NElectrons", "# of electrons per event", 10, 0., 10.);
-  h_ePt_leading_matched = ibooker_.book1D(
-      "ElePt_leading_matched", "Pt of leading electron", 50, 0., 100.);
-  h_eEta_leading_matched = ibooker_.book1D(
-      "EleEta_leading_matched", "Eta of leading electron", 50, -5., 5.);
-  h_ePhi_leading_matched = ibooker_.book1D(
-      "ElePhi_leading_matched", "Phi of leading electron", 50, -3.5, 3.5);
+  h_eMultiplicity = ibooker_.book1D("NElectrons", "# of electrons per event", 10, 0., 10.);
+  h_ePt_leading_matched = ibooker_.book1D("ElePt_leading_matched", "Pt of leading electron", 50, 0., 100.);
+  h_eEta_leading_matched = ibooker_.book1D("EleEta_leading_matched", "Eta of leading electron", 50, -5., 5.);
+  h_ePhi_leading_matched = ibooker_.book1D("ElePhi_leading_matched", "Phi of leading electron", 50, -3.5, 3.5);
 
-  h_ePt_leading =
-      ibooker_.book1D("ElePt_leading", "Pt of leading electron", 50, 0., 100.);
-  h_eEta_leading =
-      ibooker_.book1D("EleEta_leading", "Eta of leading electron", 50, -5., 5.);
-  h_ePhi_leading = ibooker_.book1D("ElePhi_leading", "Phi of leading electron",
-                                   50, -3.5, 3.5);
+  h_ePt_leading = ibooker_.book1D("ElePt_leading", "Pt of leading electron", 50, 0., 100.);
+  h_eEta_leading = ibooker_.book1D("EleEta_leading", "Eta of leading electron", 50, -5., 5.);
+  h_ePhi_leading = ibooker_.book1D("ElePhi_leading", "Phi of leading electron", 50, -3.5, 3.5);
 
-  h_jMultiplicity =
-      ibooker_.book1D("NJets", "# of electrons per event", 10, 0., 10.);
-  h_jPt_leading =
-      ibooker_.book1D("JetPt_leading", "Pt of leading Jet", 150, 0., 300.);
-  h_jEta_leading =
-      ibooker_.book1D("JetEta_leading", "Eta of leading Jet", 50, -5., 5.);
-  h_jPhi_leading =
-      ibooker_.book1D("JetPhi_leading", "Phi of leading Jet", 50, -3.5, 3.5);
+  h_jMultiplicity = ibooker_.book1D("NJets", "# of electrons per event", 10, 0., 10.);
+  h_jPt_leading = ibooker_.book1D("JetPt_leading", "Pt of leading Jet", 150, 0., 300.);
+  h_jEta_leading = ibooker_.book1D("JetEta_leading", "Eta of leading Jet", 50, -5., 5.);
+  h_jPhi_leading = ibooker_.book1D("JetPhi_leading", "Phi of leading Jet", 50, -3.5, 3.5);
 
-  h_eMultiplicity_HLT = ibooker_.book1D(
-      "NElectrons_HLT", "# of electrons per event @HLT", 10, 0., 10.);
-  h_ePt_leading_HLT = ibooker_.book1D(
-      "ElePt_leading_HLT", "Pt of leading electron @HLT", 50, 0., 100.);
-  h_eEta_leading_HLT = ibooker_.book1D(
-      "EleEta_leading_HLT", "Eta of leading electron @HLT", 50, -5., 5.);
-  h_ePhi_leading_HLT = ibooker_.book1D(
-      "ElePhi_leading_HLT", "Phi of leading electron @HLT", 50, -3.5, 3.5);
+  h_eMultiplicity_HLT = ibooker_.book1D("NElectrons_HLT", "# of electrons per event @HLT", 10, 0., 10.);
+  h_ePt_leading_HLT = ibooker_.book1D("ElePt_leading_HLT", "Pt of leading electron @HLT", 50, 0., 100.);
+  h_eEta_leading_HLT = ibooker_.book1D("EleEta_leading_HLT", "Eta of leading electron @HLT", 50, -5., 5.);
+  h_ePhi_leading_HLT = ibooker_.book1D("ElePhi_leading_HLT", "Phi of leading electron @HLT", 50, -3.5, 3.5);
 
-  h_ePt_leading_HLT_matched = ibooker_.book1D(
-      "ElePt_leading_HLT_matched", "Pt of leading electron @HLT", 50, 0., 100.);
+  h_ePt_leading_HLT_matched = ibooker_.book1D("ElePt_leading_HLT_matched", "Pt of leading electron @HLT", 50, 0., 100.);
   h_eEta_leading_HLT_matched =
-      ibooker_.book1D("EleEta_leading_HLT_matched",
-                      "Eta of leading electron @HLT", 50, -5., 5.);
+      ibooker_.book1D("EleEta_leading_HLT_matched", "Eta of leading electron @HLT", 50, -5., 5.);
   h_ePhi_leading_HLT_matched =
-      ibooker_.book1D("ElePhi_leading_HLT_matched",
-                      "Phi of leading electron @HLT", 50, -3.5, 3.5);
+      ibooker_.book1D("ElePhi_leading_HLT_matched", "Phi of leading electron @HLT", 50, -3.5, 3.5);
 
-  h_ePt_diff = ibooker_.book1D("ElePt_diff_matched",
-                               "pT(RECO) - pT(HLT) for mathed candidates", 100,
-                               -10, 10.);
+  h_ePt_diff = ibooker_.book1D("ElePt_diff_matched", "pT(RECO) - pT(HLT) for mathed candidates", 100, -10, 10.);
 
   ibooker_.cd();
 }
@@ -370,13 +332,9 @@ void DQMExample_Step1::bookHistos(DQMStore::IBooker &ibooker_) {
 // -------------------------------------- functions
 // --------------------------------------------
 //
-double DQMExample_Step1::Distance(const reco::Candidate &c1,
-                                  const reco::Candidate &c2) {
-  return deltaR(c1, c2);
-}
+double DQMExample_Step1::Distance(const reco::Candidate &c1, const reco::Candidate &c2) { return deltaR(c1, c2); }
 
-double DQMExample_Step1::DistancePhi(const reco::Candidate &c1,
-                                     const reco::Candidate &c2) {
+double DQMExample_Step1::DistancePhi(const reco::Candidate &c1, const reco::Candidate &c2) {
   return deltaPhi(c1.p4().phi(), c2.p4().phi());
 }
 
@@ -398,7 +356,6 @@ double DQMExample_Step1::calcDeltaPhi(double phi1, double phi2) {
 bool DQMExample_Step1::MediumEle(const edm::Event &iEvent,
                                  const edm::EventSetup &iESetup,
                                  const reco::GsfElectron &electron) {
-
   //********* CONVERSION TOOLS
   edm::Handle<reco::ConversionCollection> conversions_h;
   iEvent.getByToken(theConversionCollection_, conversions_h);
@@ -413,11 +370,9 @@ bool DQMExample_Step1::MediumEle(const edm::Event &iEvent,
   float DetaIn = electron.deltaEtaSuperClusterTrackAtVtx();
   float DphiIn = electron.deltaPhiSuperClusterTrackAtVtx();
   float HOverE = electron.hadronicOverEm();
-  float ooemoop = (1.0 / electron.ecalEnergy() -
-                   electron.eSuperClusterOverP() / electron.ecalEnergy());
+  float ooemoop = (1.0 / electron.ecalEnergy() - electron.eSuperClusterOverP() / electron.ecalEnergy());
 
-  int mishits = electron.gsfTrack()->hitPattern().numberOfLostHits(
-      reco::HitPattern::MISSING_INNER_HITS);
+  int mishits = electron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
 
   reco::GsfTrackRef eleTrack = electron.gsfTrack();
@@ -428,27 +383,19 @@ bool DQMExample_Step1::MediumEle(const edm::Event &iEvent,
   iEvent.getByToken(theBSCollection_, BSHandle);
   const reco::BeamSpot BS = *BSHandle;
 
-  bool isConverted = ConversionTools::hasMatchedConversion(
-      electron, *conversions_h, BS.position());
+  bool isConverted = ConversionTools::hasMatchedConversion(electron, *conversions_h, BS.position());
 
   // default
   if ((pt > 12.) && (fabs(eta) < 2.5) &&
-      (((isEB == 1) && (fabs(DetaIn) < 0.004)) ||
-       ((isEB == 0) && (fabs(DetaIn) < 0.007))) &&
-      (((isEB == 1) && (fabs(DphiIn) < 0.060)) ||
-       ((isEB == 0) && (fabs(DphiIn) < 0.030))) &&
-      (((isEB == 1) && (sigmaIetaIeta < 0.010)) ||
-       ((isEB == 0) && (sigmaIetaIeta < 0.030))) &&
-      (((isEB == 1) && (HOverE < 0.120)) ||
-       ((isEB == 0) && (HOverE < 0.100))) &&
-      (((isEB == 1) && (fabs(ooemoop) < 0.050)) ||
-       ((isEB == 0) && (fabs(ooemoop) < 0.050))) &&
-      (((isEB == 1) && (fabs(dxy) < 0.020)) ||
-       ((isEB == 0) && (fabs(dxy) < 0.020))) &&
-      (((isEB == 1) && (fabs(dz) < 0.100)) ||
-       ((isEB == 0) && (fabs(dz) < 0.100))) &&
-      (((isEB == 1) && (!isConverted)) || ((isEB == 0) && (!isConverted))) &&
-      (mishits == 0) && (nAmbiguousGsfTracks == 0))
+      (((isEB == 1) && (fabs(DetaIn) < 0.004)) || ((isEB == 0) && (fabs(DetaIn) < 0.007))) &&
+      (((isEB == 1) && (fabs(DphiIn) < 0.060)) || ((isEB == 0) && (fabs(DphiIn) < 0.030))) &&
+      (((isEB == 1) && (sigmaIetaIeta < 0.010)) || ((isEB == 0) && (sigmaIetaIeta < 0.030))) &&
+      (((isEB == 1) && (HOverE < 0.120)) || ((isEB == 0) && (HOverE < 0.100))) &&
+      (((isEB == 1) && (fabs(ooemoop) < 0.050)) || ((isEB == 0) && (fabs(ooemoop) < 0.050))) &&
+      (((isEB == 1) && (fabs(dxy) < 0.020)) || ((isEB == 0) && (fabs(dxy) < 0.020))) &&
+      (((isEB == 1) && (fabs(dz) < 0.100)) || ((isEB == 0) && (fabs(dz) < 0.100))) &&
+      (((isEB == 1) && (!isConverted)) || ((isEB == 0) && (!isConverted))) && (mishits == 0) &&
+      (nAmbiguousGsfTracks == 0))
     isMediumEle = true;
 
   return isMediumEle;

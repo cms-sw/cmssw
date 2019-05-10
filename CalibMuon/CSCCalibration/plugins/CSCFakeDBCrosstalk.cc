@@ -13,14 +13,12 @@ CSCFakeDBCrosstalk::CSCFakeDBCrosstalk(const edm::ParameterSet &iConfig) {
 CSCFakeDBCrosstalk::~CSCFakeDBCrosstalk() {}
 
 // ------------ method called to produce the data  ------------
-CSCFakeDBCrosstalk::Pointer
-CSCFakeDBCrosstalk::produceDBCrosstalk(const CSCDBCrosstalkRcd &iRecord) {
+CSCFakeDBCrosstalk::Pointer CSCFakeDBCrosstalk::produceDBCrosstalk(const CSCDBCrosstalkRcd &iRecord) {
   return CSCFakeDBCrosstalk::Pointer(prefillDBCrosstalk());
 }
 
-void CSCFakeDBCrosstalk::setIntervalFor(
-    const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &,
-    edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
-                                    edm::IOVSyncValue::endOfTime());
+void CSCFakeDBCrosstalk::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                                        const edm::IOVSyncValue &,
+                                        edm::ValidityInterval &oValidity) {
+  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }

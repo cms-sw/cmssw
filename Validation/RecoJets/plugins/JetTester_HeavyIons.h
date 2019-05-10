@@ -82,16 +82,18 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   // virtual void beginJob();
   // virtual void endJob();
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   // reco::Vertex::Point getVtx(const edm::Event& ev);
 
   // double getEt(const DetID )
 
 private:
-  void fillMatchHists(const double GenEta, const double GenPhi,
-                      const double GenPt, const double RecoEta,
-                      const double RecoPhi, const double RecoPt);
+  void fillMatchHists(const double GenEta,
+                      const double GenPhi,
+                      const double GenPt,
+                      const double RecoEta,
+                      const double RecoPhi,
+                      const double RecoPt);
 
   edm::InputTag mInputCollection;
   edm::InputTag mInputGenCollection;
@@ -431,41 +433,41 @@ private:
   MonitorElement *mPtRecoOverGen_GenEta_180_300_Cent_50_80;
   MonitorElement *mPtRecoOverGen_GenEta_300_Inf_Cent_50_80;
 
-  MonitorElement *mPFCandpT_vs_eta_Unknown;       // pf id 0
-  MonitorElement *mPFCandpT_vs_eta_ChargedHadron; // pf id - 1
-  MonitorElement *mPFCandpT_vs_eta_electron;      // pf id - 2
-  MonitorElement *mPFCandpT_vs_eta_muon;          // pf id - 3
-  MonitorElement *mPFCandpT_vs_eta_photon;        // pf id - 4
-  MonitorElement *mPFCandpT_vs_eta_NeutralHadron; // pf id - 5
-  MonitorElement *mPFCandpT_vs_eta_HadE_inHF;     // pf id - 6
-  MonitorElement *mPFCandpT_vs_eta_EME_inHF;      // pf id - 7
+  MonitorElement *mPFCandpT_vs_eta_Unknown;        // pf id 0
+  MonitorElement *mPFCandpT_vs_eta_ChargedHadron;  // pf id - 1
+  MonitorElement *mPFCandpT_vs_eta_electron;       // pf id - 2
+  MonitorElement *mPFCandpT_vs_eta_muon;           // pf id - 3
+  MonitorElement *mPFCandpT_vs_eta_photon;         // pf id - 4
+  MonitorElement *mPFCandpT_vs_eta_NeutralHadron;  // pf id - 5
+  MonitorElement *mPFCandpT_vs_eta_HadE_inHF;      // pf id - 6
+  MonitorElement *mPFCandpT_vs_eta_EME_inHF;       // pf id - 7
 
-  MonitorElement *mPFCandpT_Barrel_Unknown;       // pf id 0
-  MonitorElement *mPFCandpT_Barrel_ChargedHadron; // pf id - 1
-  MonitorElement *mPFCandpT_Barrel_electron;      // pf id - 2
-  MonitorElement *mPFCandpT_Barrel_muon;          // pf id - 3
-  MonitorElement *mPFCandpT_Barrel_photon;        // pf id - 4
-  MonitorElement *mPFCandpT_Barrel_NeutralHadron; // pf id - 5
-  MonitorElement *mPFCandpT_Barrel_HadE_inHF;     // pf id - 6
-  MonitorElement *mPFCandpT_Barrel_EME_inHF;      // pf id - 7
+  MonitorElement *mPFCandpT_Barrel_Unknown;        // pf id 0
+  MonitorElement *mPFCandpT_Barrel_ChargedHadron;  // pf id - 1
+  MonitorElement *mPFCandpT_Barrel_electron;       // pf id - 2
+  MonitorElement *mPFCandpT_Barrel_muon;           // pf id - 3
+  MonitorElement *mPFCandpT_Barrel_photon;         // pf id - 4
+  MonitorElement *mPFCandpT_Barrel_NeutralHadron;  // pf id - 5
+  MonitorElement *mPFCandpT_Barrel_HadE_inHF;      // pf id - 6
+  MonitorElement *mPFCandpT_Barrel_EME_inHF;       // pf id - 7
 
-  MonitorElement *mPFCandpT_Endcap_Unknown;       // pf id 0
-  MonitorElement *mPFCandpT_Endcap_ChargedHadron; // pf id - 1
-  MonitorElement *mPFCandpT_Endcap_electron;      // pf id - 2
-  MonitorElement *mPFCandpT_Endcap_muon;          // pf id - 3
-  MonitorElement *mPFCandpT_Endcap_photon;        // pf id - 4
-  MonitorElement *mPFCandpT_Endcap_NeutralHadron; // pf id - 5
-  MonitorElement *mPFCandpT_Endcap_HadE_inHF;     // pf id - 6
-  MonitorElement *mPFCandpT_Endcap_EME_inHF;      // pf id - 7
+  MonitorElement *mPFCandpT_Endcap_Unknown;        // pf id 0
+  MonitorElement *mPFCandpT_Endcap_ChargedHadron;  // pf id - 1
+  MonitorElement *mPFCandpT_Endcap_electron;       // pf id - 2
+  MonitorElement *mPFCandpT_Endcap_muon;           // pf id - 3
+  MonitorElement *mPFCandpT_Endcap_photon;         // pf id - 4
+  MonitorElement *mPFCandpT_Endcap_NeutralHadron;  // pf id - 5
+  MonitorElement *mPFCandpT_Endcap_HadE_inHF;      // pf id - 6
+  MonitorElement *mPFCandpT_Endcap_EME_inHF;       // pf id - 7
 
-  MonitorElement *mPFCandpT_Forward_Unknown;       // pf id 0
-  MonitorElement *mPFCandpT_Forward_ChargedHadron; // pf id - 1
-  MonitorElement *mPFCandpT_Forward_electron;      // pf id - 2
-  MonitorElement *mPFCandpT_Forward_muon;          // pf id - 3
-  MonitorElement *mPFCandpT_Forward_photon;        // pf id - 4
-  MonitorElement *mPFCandpT_Forward_NeutralHadron; // pf id - 5
-  MonitorElement *mPFCandpT_Forward_HadE_inHF;     // pf id - 6
-  MonitorElement *mPFCandpT_Forward_EME_inHF;      // pf id - 7
+  MonitorElement *mPFCandpT_Forward_Unknown;        // pf id 0
+  MonitorElement *mPFCandpT_Forward_ChargedHadron;  // pf id - 1
+  MonitorElement *mPFCandpT_Forward_electron;       // pf id - 2
+  MonitorElement *mPFCandpT_Forward_muon;           // pf id - 3
+  MonitorElement *mPFCandpT_Forward_photon;         // pf id - 4
+  MonitorElement *mPFCandpT_Forward_NeutralHadron;  // pf id - 5
+  MonitorElement *mPFCandpT_Forward_HadE_inHF;      // pf id - 6
+  MonitorElement *mPFCandpT_Forward_EME_inHF;       // pf id - 7
 
   // Parameters
 

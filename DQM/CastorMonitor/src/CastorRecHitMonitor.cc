@@ -18,8 +18,7 @@ CastorRecHitMonitor::CastorRecHitMonitor(const edm::ParameterSet &ps) {
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);
   if (fVerbosity > 0)
     std::cout << "CastorRecHitMonitor Constructor: " << this << std::endl;
-  subsystemname =
-      ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor");
+  subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor");
   ievt_ = 0;
 }
 
@@ -66,8 +65,7 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
     yErh[j + 1] = E0 * exp(j * lnA);
 
   string st = "Castor Cell Energy Map (cell-wise)";
-  h2RHchan = ibooker.book2D(st, st + ";moduleZ*16 + sector #Phi;RecHit / GeV",
-                            nxCh, xCh, nyE, yErh);
+  h2RHchan = ibooker.book2D(st, st + ";moduleZ*16 + sector #Phi;RecHit / GeV", nxCh, xCh, nyE, yErh);
   h2RHchan->getTH2F()->SetOption("colz");
 
   sprintf(s, "Castor Cell Energy");
@@ -75,8 +73,7 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   hallchan->getTH1F()->GetXaxis()->SetTitle("GeV");
 
   st = "Castor cell avr Energy per event Map Z-Phi";
-  h2RHoccmap = ibooker.bookProfile2D(st, st + ";module Z;sector Phi", 14, 0, 14,
-                                     16, 0, 16, 0., 1.e10, "");
+  h2RHoccmap = ibooker.bookProfile2D(st, st + ";module Z;sector Phi", 14, 0, 14, 16, 0, 16, 0., 1.e10, "");
   h2RHoccmap->getTProfile2D()->SetOption("colz");
 
   sprintf(s, "CastorRecHitEntriesMap");
@@ -141,15 +138,13 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   return;
 }
 
-void CastorRecHitMonitor::processEventTowers(
-    const reco::CastorTowerCollection &castorTowers) {
+void CastorRecHitMonitor::processEventTowers(const reco::CastorTowerCollection &castorTowers) {
   if (castorTowers.empty())
     return;
   int nTowers = 0;
 
-  for (reco::CastorTowerCollection::const_iterator iTower =
-           castorTowers.begin();
-       iTower != castorTowers.end(); iTower++) {
+  for (reco::CastorTowerCollection::const_iterator iTower = castorTowers.begin(); iTower != castorTowers.end();
+       iTower++) {
     hTowerE->Fill(iTower->energy() * 0.001);
     h2TowerEMhad->Fill(iTower->hadEnergy() * 0.001, iTower->emEnergy() * 0.001);
     hTowerDepth->Fill(iTower->depth());
@@ -158,8 +153,7 @@ void CastorRecHitMonitor::processEventTowers(
   hTowerMultipl->Fill(nTowers);
 }
 
-void CastorRecHitMonitor::processEvent(
-    const CastorRecHitCollection &castorHits) {
+void CastorRecHitMonitor::processEvent(const CastorRecHitCollection &castorHits) {
   if (fVerbosity > 0)
     std::cout << "CastorRecHitMonitor::processEvent (begin)" << std::endl;
   ievt_++;
@@ -173,8 +167,7 @@ void CastorRecHitMonitor::processEvent(
   if (castorHits.empty())
     return;
 
-  for (CASTORiter = castorHits.begin(); CASTORiter != castorHits.end();
-       ++CASTORiter) {
+  for (CASTORiter = castorHits.begin(); CASTORiter != castorHits.end(); ++CASTORiter) {
     float energy = CASTORiter->energy();
     float time = CASTORiter->time();
     float time2 = time;
@@ -184,13 +177,13 @@ void CastorRecHitMonitor::processEvent(
 
     HcalCastorDetId id(CASTORiter->detid().rawId());
     // float zside  = id.zside();
-    int module = (int)id.module(); //-- get module
-    int sector = (int)id.sector(); //-- get sector
+    int module = (int)id.module();  //-- get module
+    int sector = (int)id.sector();  //-- get sector
 
     energyInEachChannel[module - 1][sector - 1] += energy;
 
     h2RHentriesMap->Fill(module - 1, sector - 1);
-  } // end for(CASTORiter=castorHits.begin(); CASTORiter!= ...
+  }  // end for(CASTORiter=castorHits.begin(); CASTORiter!= ...
 
   double etot = 0.;
   for (int phi = 0; phi < 16; phi++) {
@@ -208,20 +201,17 @@ void CastorRecHitMonitor::processEvent(
     }
     h2RHvsSec->Fill(phi, es);
     etot += es;
-  } // end for(int phi=0;
+  }  // end for(int phi=0;
 
   if (fVerbosity > 0)
     std::cout << "CastorRecHitMonitor::processEvent (end)" << std::endl;
   return;
 }
 
-void CastorRecHitMonitor::processEventJets(
-    const reco::BasicJetCollection &Jets) {
+void CastorRecHitMonitor::processEventJets(const reco::BasicJetCollection &Jets) {
   int nJets = 0;
-  for (reco::BasicJetCollection::const_iterator ibegin = Jets.begin(),
-                                                iend = Jets.end(),
-                                                ijet = ibegin;
-       ijet != iend; ++ijet) {
+  for (reco::BasicJetCollection::const_iterator ibegin = Jets.begin(), iend = Jets.end(), ijet = ibegin; ijet != iend;
+       ++ijet) {
     nJets++;
     float energy = ijet->energy() * 0.001;
     hJetEnergy->Fill(energy);

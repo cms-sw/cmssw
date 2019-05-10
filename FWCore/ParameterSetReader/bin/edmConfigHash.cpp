@@ -5,7 +5,7 @@
 // of a cmsRun process, because validation code may insert
 // additional parameters into the configuration.
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -14,18 +14,18 @@
 #include <iostream>
 #include <string>
 
-int main(int argc, char **argv) try {
+int main(int argc, char** argv) try {
   // config can either be a name or a string
   std::string config;
 
-  if(argc == 1) {
+  if (argc == 1) {
     // Read input from cin into configstring..
     std::string line;
-    while(std::getline(std::cin, line)) {
+    while (std::getline(std::cin, line)) {
       config += line;
       config += '\n';
     }
-  } else if(argc == 2) {
+  } else if (argc == 2) {
     config = std::string(argv[1]);
   }
 
@@ -33,10 +33,10 @@ int main(int argc, char **argv) try {
   parameterSet->registerIt();
   std::cout << parameterSet->id() << std::endl;
   return 0;
-} catch(cms::Exception const& e) {
+} catch (cms::Exception const& e) {
   std::cout << e.explainSelf() << std::endl;
   return 1;
-} catch(std::exception const& e) {
+} catch (std::exception const& e) {
   std::cout << e.what() << std::endl;
   return 1;
 }

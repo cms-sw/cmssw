@@ -5,26 +5,19 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 class EcalElectronicsSim;
 
-class EcalBaseSignalGenerator : public CaloVNoiseSignalGenerator
-{
+class EcalBaseSignalGenerator : public CaloVNoiseSignalGenerator {
 public:
   EcalBaseSignalGenerator() {}
-    
+
   ~EcalBaseSignalGenerator() override {}
 
-  
 protected:
-
   //  void fC2pe(CaloSamples & samples) const
   // {
   //  assert(theParameterMap != 0);
   //  float factor = 1./theParameterMap->simParameters(samples.id()).photoelectronsToAnalog(samples.id());
   //  samples *= factor;
   // }
-
 };
 
 #endif
-
-
-

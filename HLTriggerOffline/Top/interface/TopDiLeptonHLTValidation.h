@@ -59,13 +59,10 @@ public:
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   /// deduce monitorPath from label, the label is expected
   /// to be of type 'selectionPath:monitorPath'
-  std::string monitorPath(const std::string &label) const {
-    return label.substr(label.find(':') + 1);
-  };
+  std::string monitorPath(const std::string &label) const { return label.substr(label.find(':') + 1); };
   /// set configurable labels for trigger monitoring histograms
   void triggerBinLabels(const std::vector<std::string> &labels);
 
@@ -116,13 +113,10 @@ private:
   bool isSel_ = false;
 };
 
-inline void TopDiLeptonHLTValidation::triggerBinLabels(
-    const std::vector<std::string> &labels) {
+inline void TopDiLeptonHLTValidation::triggerBinLabels(const std::vector<std::string> &labels) {
   for (unsigned int idx = 0; idx < labels.size(); ++idx) {
-    hNumTriggerMon->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]",
-                                1);
-    hDenTriggerMon->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]",
-                                1);
+    hNumTriggerMon->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]", 1);
+    hDenTriggerMon->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]", 1);
   }
 }
 
@@ -137,17 +131,13 @@ inline void TopDiLeptonHLTValidation::triggerBinLabels(
 //
 // constructors and destructor
 //
-TopDiLeptonHLTValidation::TopDiLeptonHLTValidation(
-    const edm::ParameterSet &iConfig)
-    : sDir_(iConfig.getUntrackedParameter<std::string>(
-          "sDir", "Validation/Top/Efficiencies/")),
-      sElectrons_(iConfig.getUntrackedParameter<std::string>("sElectrons",
-                                                             "gsfElectrons")),
+TopDiLeptonHLTValidation::TopDiLeptonHLTValidation(const edm::ParameterSet &iConfig)
+    : sDir_(iConfig.getUntrackedParameter<std::string>("sDir", "Validation/Top/Efficiencies/")),
+      sElectrons_(iConfig.getUntrackedParameter<std::string>("sElectrons", "gsfElectrons")),
       ptElectrons_(iConfig.getUntrackedParameter<double>("ptElectrons", 0.)),
       etaElectrons_(iConfig.getUntrackedParameter<double>("etaElectrons", 0.)),
       isoElectrons_(iConfig.getUntrackedParameter<double>("isoElectrons", 0.)),
-      minElectrons_(
-          iConfig.getUntrackedParameter<unsigned int>("minElectrons", 0)),
+      minElectrons_(iConfig.getUntrackedParameter<unsigned int>("minElectrons", 0)),
       sMuons_(iConfig.getUntrackedParameter<std::string>("sMuons", "muons")),
       ptMuons_(iConfig.getUntrackedParameter<double>("ptMuons", 0.)),
       etaMuons_(iConfig.getUntrackedParameter<double>("etaMuons", 0.)),
@@ -158,13 +148,11 @@ TopDiLeptonHLTValidation::TopDiLeptonHLTValidation(
       etaJets_(iConfig.getUntrackedParameter<double>("etaJets", 0.)),
       minJets_(iConfig.getUntrackedParameter<unsigned int>("minJets", 0)),
       iTrigger_(iConfig.getUntrackedParameter<edm::InputTag>("iTrigger")),
-      vsPaths_(
-          iConfig.getUntrackedParameter<std::vector<std::string>>("vsPaths"))
+      vsPaths_(iConfig.getUntrackedParameter<std::vector<std::string>>("vsPaths"))
 
 {
   // Electrons
-  tokElectrons_ =
-      consumes<edm::View<reco::GsfElectron>>(edm::InputTag(sElectrons_));
+  tokElectrons_ = consumes<edm::View<reco::GsfElectron>>(edm::InputTag(sElectrons_));
   // Muons
   tokMuons_ = consumes<edm::View<reco::Muon>>(edm::InputTag(sMuons_));
   // Jets
@@ -174,7 +162,6 @@ TopDiLeptonHLTValidation::TopDiLeptonHLTValidation(
 }
 
 TopDiLeptonHLTValidation::~TopDiLeptonHLTValidation() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }

@@ -8,7 +8,8 @@
 using namespace std;
 using namespace matching;
 
-GEMRecHitMatcher::GEMRecHitMatcher(const SimHitMatcher &sh, const edm::Event &e,
+GEMRecHitMatcher::GEMRecHitMatcher(const SimHitMatcher &sh,
+                                   const edm::Event &e,
                                    const GEMGeometry &geom,
                                    const edm::ParameterSet &cfg,
                                    edm::EDGetToken &gem_recHitToken)
@@ -28,24 +29,18 @@ GEMRecHitMatcher::GEMRecHitMatcher(const SimHitMatcher &sh, const edm::Event &e,
 
 GEMRecHitMatcher::~GEMRecHitMatcher() {}
 
-void GEMRecHitMatcher::init(const edm::Event &e) {
-  matchRecHitsToSimTrack(*gem_rechits_.product());
-}
+void GEMRecHitMatcher::init(const edm::Event &e) { matchRecHitsToSimTrack(*gem_rechits_.product()); }
 
-void GEMRecHitMatcher::matchRecHitsToSimTrack(
-    const GEMRecHitCollection &rechits) {
-
+void GEMRecHitMatcher::matchRecHitsToSimTrack(const GEMRecHitCollection &rechits) {
   auto det_ids = simhit_matcher_.detIdsGEM();
   for (auto id : det_ids) {
     GEMDetId p_id(id);
-    GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 1,
-                        p_id.chamber(), 0);
+    GEMDetId superch_id(p_id.region(), p_id.ring(), p_id.station(), 1, p_id.chamber(), 0);
 
     auto hit_strips = simhit_matcher_.hitStripsInDetId(id, matchDeltaStrip_);
     if (verbose()) {
       cout << "hit_strips_fat ";
-      copy(hit_strips.begin(), hit_strips.end(),
-           ostream_iterator<int>(cout, " "));
+      copy(hit_strips.begin(), hit_strips.end(), ostream_iterator<int>(cout, " "));
       cout << endl;
     }
 
@@ -64,7 +59,6 @@ void GEMRecHitMatcher::matchRecHitsToSimTrack(
       bool stripFound = false;
 
       for (int i = firstStrip; i < (firstStrip + cls); i++) {
-
         if (hit_strips.find(i) != hit_strips.end())
           stripFound = true;
         // std::cout<<i<<" "<<firstStrip<<" "<<cls<<" "<<stripFound<<std::endl;
@@ -75,8 +69,7 @@ void GEMRecHitMatcher::matchRecHitsToSimTrack(
       if (verbose())
         cout << "oki" << endl;
 
-      auto myrechit = make_digi(id, d->firstClusterStrip(), d->BunchX(),
-                                GEM_STRIP, d->clusterSize());
+      auto myrechit = make_digi(id, d->firstClusterStrip(), d->BunchX(), GEM_STRIP, d->clusterSize());
       detid_to_recHits_[id].push_back(myrechit);
       chamber_to_recHits_[p_id.chamberId().rawId()].push_back(myrechit);
       superchamber_to_recHits_[superch_id()].push_back(myrechit);
@@ -105,29 +98,25 @@ std::set<unsigned int> GEMRecHitMatcher::superChamberIds() const {
   return result;
 }
 
-const GEMRecHitMatcher::RecHitContainer &
-GEMRecHitMatcher::recHitsInDetId(unsigned int detid) const {
+const GEMRecHitMatcher::RecHitContainer &GEMRecHitMatcher::recHitsInDetId(unsigned int detid) const {
   if (detid_to_recHits_.find(detid) == detid_to_recHits_.end())
     return no_recHits_;
   return detid_to_recHits_.at(detid);
 }
 
-const GEMRecHitMatcher::RecHitContainer &
-GEMRecHitMatcher::recHitsInChamber(unsigned int detid) const {
+const GEMRecHitMatcher::RecHitContainer &GEMRecHitMatcher::recHitsInChamber(unsigned int detid) const {
   if (chamber_to_recHits_.find(detid) == chamber_to_recHits_.end())
     return no_recHits_;
   return chamber_to_recHits_.at(detid);
 }
 
-const GEMRecHitMatcher::RecHitContainer &
-GEMRecHitMatcher::recHitsInSuperChamber(unsigned int detid) const {
+const GEMRecHitMatcher::RecHitContainer &GEMRecHitMatcher::recHitsInSuperChamber(unsigned int detid) const {
   if (superchamber_to_recHits_.find(detid) == superchamber_to_recHits_.end())
     return no_recHits_;
   return superchamber_to_recHits_.at(detid);
 }
 
-int GEMRecHitMatcher::nLayersWithRecHitsInSuperChamber(
-    unsigned int detid) const {
+int GEMRecHitMatcher::nLayersWithRecHitsInSuperChamber(unsigned int detid) const {
   set<int> layers;
   /*
   auto recHits = recHitsInSuperChamber(detid);
@@ -178,11 +167,10 @@ GlobalPoint GEMRecHitMatcher::recHitPosition(const RecHit &rechit) const {
   return gp;
 }
 
-GlobalPoint
-GEMRecHitMatcher::recHitMeanPosition(const RecHitContainer &rechit) const {
+GlobalPoint GEMRecHitMatcher::recHitMeanPosition(const RecHitContainer &rechit) const {
   GlobalPoint point_zero;
   if (rechit.empty())
-    return point_zero; // point "zero"
+    return point_zero;  // point "zero"
 
   float sumx, sumy, sumz;
   sumx = sumy = sumz = 0.f;

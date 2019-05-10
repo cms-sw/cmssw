@@ -25,27 +25,17 @@
 
 SiPixelPhase1HitsV::SiPixelPhase1HitsV(const edm::ParameterSet &iConfig)
     : SiPixelPhase1Base(iConfig),
-      pixelBarrelLowToken_(consumes<edm::PSimHitContainer>(
-          iConfig.getParameter<edm::InputTag>("pixBarrelLowSrc"))),
-      pixelBarrelHighToken_(consumes<edm::PSimHitContainer>(
-          iConfig.getParameter<edm::InputTag>("pixBarrelHighSrc"))),
-      pixelForwardLowToken_(consumes<edm::PSimHitContainer>(
-          iConfig.getParameter<edm::InputTag>("pixForwardLowSrc"))),
-      pixelForwardHighToken_(consumes<edm::PSimHitContainer>(
-          iConfig.getParameter<edm::InputTag>("pixForwardHighSrc"))),
+      pixelBarrelLowToken_(consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("pixBarrelLowSrc"))),
+      pixelBarrelHighToken_(consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("pixBarrelHighSrc"))),
+      pixelForwardLowToken_(consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("pixForwardLowSrc"))),
+      pixelForwardHighToken_(consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("pixForwardHighSrc"))),
 
-      tracksToken_(consumes<edm::View<reco::Track>>(
-          iConfig.getParameter<edm::InputTag>("tracksTag"))),
-      tpToken_(consumes<TrackingParticleCollection>(
-          iConfig.getParameter<edm::InputTag>("tpTag"))),
-      trackAssociatorByHitsToken_(
-          consumes<reco::TrackToTrackingParticleAssociator>(
-              iConfig.getParameter<edm::InputTag>(
-                  "trackAssociatorByHitsTag"))) {}
+      tracksToken_(consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("tracksTag"))),
+      tpToken_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpTag"))),
+      trackAssociatorByHitsToken_(consumes<reco::TrackToTrackingParticleAssociator>(
+          iConfig.getParameter<edm::InputTag>("trackAssociatorByHitsTag"))) {}
 
-void SiPixelPhase1HitsV::analyze(const edm::Event &iEvent,
-                                 const edm::EventSetup &iSetup) {
-
+void SiPixelPhase1HitsV::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<edm::PSimHitContainer> barrelLowInput;
   iEvent.getByToken(pixelBarrelLowToken_, barrelLowInput);
   if (!barrelLowInput.isValid())
@@ -217,18 +207,16 @@ void SiPixelPhase1HitsV::analyze(const edm::Event &iEvent,
   if (!theHitsAssociator.isValid()) {
     throw cms::Exception("NO VALID HIT ASSOCIATOR");
   }
-  reco::TrackToTrackingParticleAssociator const *associatorByHits =
-      theHitsAssociator.product();
+  reco::TrackToTrackingParticleAssociator const *associatorByHits = theHitsAssociator.product();
 
   if (TPCollectionH.isValid() && trackCollectionH.isValid()) {
-    reco::RecoToSimCollection const &p =
-        associatorByHits->associateRecoToSim(trackCollectionH, TPCollectionH);
+    reco::RecoToSimCollection const &p = associatorByHits->associateRecoToSim(trackCollectionH, TPCollectionH);
 
     for (edm::View<reco::Track>::size_type i = 0; i < tC.size(); ++i) {
       edm::RefToBase<reco::Track> track(trackCollectionH, i);
       //      const reco::Track& t = *track;
-      auto id = DetId(track->innerDetId()); // histo manager requires a det ID,
-                                            // use innermost ID for ease
+      auto id = DetId(track->innerDetId());  // histo manager requires a det ID,
+                                             // use innermost ID for ease
 
       auto iter = p.find(track);
       histo[EFFICIENCY_TRACK].fill(iter != p.end() ? 1 : 0, id, &iEvent);

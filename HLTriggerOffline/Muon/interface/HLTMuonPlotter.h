@@ -51,14 +51,14 @@
 const unsigned int kNull = (unsigned int)-1;
 
 class HLTMuonPlotter {
-
 public:
-  HLTMuonPlotter(
-      const edm::ParameterSet &, std::string, const std::vector<std::string> &,
-      const std::vector<std::string> &,
-      const boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-                         edm::EDGetTokenT<reco::GenParticleCollection>,
-                         edm::EDGetTokenT<reco::MuonCollection>> &);
+  HLTMuonPlotter(const edm::ParameterSet &,
+                 std::string,
+                 const std::vector<std::string> &,
+                 const std::vector<std::string> &,
+                 const boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+                                    edm::EDGetTokenT<reco::GenParticleCollection>,
+                                    edm::EDGetTokenT<reco::MuonCollection>> &);
 
   ~HLTMuonPlotter() {
     delete genMuonSelector_;
@@ -87,27 +87,22 @@ private:
       candBase = cand;
       candL1 = nullptr;
     }
-    bool operator<(MatchStruct match) {
-      return candBase->pt() < match.candBase->pt();
-    }
-    bool operator>(MatchStruct match) {
-      return candBase->pt() > match.candBase->pt();
-    }
+    bool operator<(MatchStruct match) { return candBase->pt() < match.candBase->pt(); }
+    bool operator>(MatchStruct match) { return candBase->pt() > match.candBase->pt(); }
   };
   struct matchesByDescendingPt {
-    bool operator()(MatchStruct a, MatchStruct b) {
-      return a.candBase->pt() > b.candBase->pt();
-    }
+    bool operator()(MatchStruct a, MatchStruct b) { return a.candBase->pt() > b.candBase->pt(); }
   };
 
-  void analyzePath(const edm::Event &, const std::string &, const std::string &,
+  void analyzePath(const edm::Event &,
+                   const std::string &,
+                   const std::string &,
                    const std::vector<MatchStruct> &,
                    edm::Handle<trigger::TriggerEventWithRefs>);
-  void findMatches(
-      std::vector<MatchStruct> &, const l1t::MuonVectorRef &candsL1,
-      const std::vector<std::vector<const reco::RecoChargedCandidate *>> &);
-  void bookHist(DQMStore::IBooker &, std::string, std::string, std::string,
-                std::string);
+  void findMatches(std::vector<MatchStruct> &,
+                   const l1t::MuonVectorRef &candsL1,
+                   const std::vector<std::vector<const reco::RecoChargedCandidate *>> &);
+  void bookHist(DQMStore::IBooker &, std::string, std::string, std::string, std::string);
 
   std::string hltPath_;
   std::string hltProcessName_;

@@ -88,22 +88,17 @@ PFMETBenchmarkAnalyzer::PFMETBenchmarkAnalyzer(const edm::ParameterSet &iConfig)
 
 {
   // now do what ever initialization is needed
-  sInputTruthLabel_tok_ = consumes<reco::GenParticleCollection>(
-      iConfig.getParameter<InputTag>("InputTruthLabel"));
-  sInputRecoLabel_tok_ = consumes<reco::PFMETCollection>(
-      iConfig.getParameter<InputTag>("InputRecoLabel"));
-  sInputCaloLabel_tok_ = consumes<reco::CaloMETCollection>(
-      iConfig.getParameter<InputTag>("InputCaloLabel"));
-  sInputTCLabel_tok_ = consumes<reco::METCollection>(
-      iConfig.getParameter<InputTag>("InputTCLabel"));
+  sInputTruthLabel_tok_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<InputTag>("InputTruthLabel"));
+  sInputRecoLabel_tok_ = consumes<reco::PFMETCollection>(iConfig.getParameter<InputTag>("InputRecoLabel"));
+  sInputCaloLabel_tok_ = consumes<reco::CaloMETCollection>(iConfig.getParameter<InputTag>("InputCaloLabel"));
+  sInputTCLabel_tok_ = consumes<reco::METCollection>(iConfig.getParameter<InputTag>("InputTCLabel"));
   OutputFileName = iConfig.getUntrackedParameter<string>("OutputFile");
   pfmBenchmarkDebug = iConfig.getParameter<bool>("pfjBenchmarkDebug");
   xplotAgainstReco = iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
   xbenchmarkLabel_ = iConfig.getParameter<string>("BenchmarkLabel");
   xdbe_ = edm::Service<DQMStore>().operator->();
 
-  PFMETBenchmark_.setup(OutputFileName, pfmBenchmarkDebug, xplotAgainstReco,
-                        xbenchmarkLabel_, xdbe_);
+  PFMETBenchmark_.setup(OutputFileName, pfmBenchmarkDebug, xplotAgainstReco, xbenchmarkLabel_, xdbe_);
 }
 
 PFMETBenchmarkAnalyzer::~PFMETBenchmarkAnalyzer() {
@@ -116,8 +111,7 @@ PFMETBenchmarkAnalyzer::~PFMETBenchmarkAnalyzer() {
 //
 
 // ------------ method called to for each event  ------------
-void PFMETBenchmarkAnalyzer::analyze(const edm::Event &iEvent,
-                                     const edm::EventSetup &iSetup) {
+void PFMETBenchmarkAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get gen jet collection
   Handle<GenParticleCollection> genparticles;
   bool isGen = iEvent.getByToken(sInputTruthLabel_tok_, genparticles);

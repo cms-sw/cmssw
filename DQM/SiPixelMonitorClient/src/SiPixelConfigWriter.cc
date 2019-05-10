@@ -23,17 +23,14 @@ bool SiPixelConfigWriter::init() {
     cout << "Problem to initialise XML !!! " << endl;
     return false;
   }
-  unique_ptr<DOMImplementation> domImpl(
-      DOMImplementationRegistry::getDOMImplementation(qtxml::_toDOMS("Range")));
+  unique_ptr<DOMImplementation> domImpl(DOMImplementationRegistry::getDOMImplementation(qtxml::_toDOMS("Range")));
   if (domImpl == nullptr)
     return false;
   theDomWriter = domImpl->createLSSerializer();
   if (theDomWriter == nullptr)
     return false;
-  if (theDomWriter->getDomConfig()->canSetParameter(
-          XMLUni::fgDOMWRTFormatPrettyPrint, true))
-    theDomWriter->getDomConfig()->setParameter(
-        XMLUni::fgDOMWRTFormatPrettyPrint, true);
+  if (theDomWriter->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+    theDomWriter->getDomConfig()->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
   theDoc = domImpl->createDocument(nullptr, qtxml::_toDOMS("Layouts"), nullptr);
   if (theDoc == nullptr)
     return false;
@@ -66,7 +63,6 @@ void SiPixelConfigWriter::createRow() {
 // -- Add an Element with Children
 //
 void SiPixelConfigWriter::createColumn(string &element, string &name) {
-
   theLastRow->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
   DOMElement *e1 = theDoc->createElement(qtxml::_toDOMS("column"));
   theLastRow->appendChild(e1);

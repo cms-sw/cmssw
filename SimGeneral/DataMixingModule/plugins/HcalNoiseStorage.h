@@ -29,25 +29,25 @@
 #include <vector>
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 namespace edm {
-class HcalNoiseStorage : public CaloVNoiseSignalGenerator {
-public:
-  HcalNoiseStorage(){};
-  ~HcalNoiseStorage() override{};
+  class HcalNoiseStorage : public CaloVNoiseSignalGenerator {
+  public:
+    HcalNoiseStorage(){};
+    ~HcalNoiseStorage() override{};
 
-  /** standard constructor*/
-  // explicit HcalNoiseStorage();
+    /** standard constructor*/
+    // explicit HcalNoiseStorage();
 
-  /**Default destructor*/
-  // virtual ~HcalNoiseStorage();
+    /**Default destructor*/
+    // virtual ~HcalNoiseStorage();
 
-  void fillNoiseSignals(CLHEP::HepRandomEngine *) override{};
+    void fillNoiseSignals(CLHEP::HepRandomEngine *) override{};
 
-private:
-};
-} // namespace edm
+  private:
+  };
+}  // namespace edm
 
-#endif // SimHcalNoiseStorage_h
+#endif  // SimHcalNoiseStorage_h

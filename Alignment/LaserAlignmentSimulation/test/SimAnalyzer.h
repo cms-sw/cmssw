@@ -27,8 +27,7 @@ public:
   ~SimAnalyzer();
 
   /// this method will do the user analysis
-  virtual void analyze(edm::Event const &theEvent,
-                       edm::EventSetup const &theSetup);
+  virtual void analyze(edm::Event const &theEvent, edm::EventSetup const &theSetup);
   /// begin job
   virtual void beginJob();
 
@@ -41,8 +40,7 @@ private:
   void initHistograms();
   /// find the dets which are hit by a laser beam and fill the SimHit info into
   /// histograms
-  void trackerStatistics(edm::Event const &theEvent,
-                         edm::EventSetup const &theSetup);
+  void trackerStatistics(edm::Event const &theEvent, edm::EventSetup const &theSetup);
 
 private:
   int theEvents;

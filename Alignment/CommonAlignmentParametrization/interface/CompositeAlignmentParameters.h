@@ -25,13 +25,11 @@ class AlignableDet;
 class Alignable;
 
 class CompositeAlignmentParameters {
-
 public:
   /// vector of alignable components
   typedef align::Alignables Components;
 
-  typedef std::map<AlignableDetOrUnitPtr, Alignable *>
-      AlignableDetToAlignableMap;
+  typedef std::map<AlignableDetOrUnitPtr, Alignable *> AlignableDetToAlignableMap;
   typedef std::map<Alignable *, int> Aliposmap;
   typedef std::map<Alignable *, int> Alilenmap;
 
@@ -39,9 +37,7 @@ public:
 
   /// constructors
 
-  CompositeAlignmentParameters(const AlgebraicVector &par,
-                               const AlgebraicSymMatrix &cov,
-                               const Components &comp);
+  CompositeAlignmentParameters(const AlgebraicVector &par, const AlgebraicSymMatrix &cov, const Components &comp);
 
   CompositeAlignmentParameters(const AlgebraicVector &par,
                                const AlgebraicSymMatrix &cov,
@@ -66,8 +62,7 @@ public:
   const AlgebraicSymMatrix &covariance() const { return theData->covariance(); }
 
   /// Clone parameters
-  CompositeAlignmentParameters *clone(const AlgebraicVector &par,
-                                      const AlgebraicSymMatrix &cov) const;
+  CompositeAlignmentParameters *clone(const AlgebraicVector &par, const AlgebraicSymMatrix &cov) const;
 
   /// Clone parameters
   CompositeAlignmentParameters *clone(const AlgebraicVector &par,
@@ -80,53 +75,39 @@ public:
   Components components() const;
 
   /// Get derivatives
-  AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos,
-                              const AlignableDetOrUnitPtr &alidet) const;
+  AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos, const AlignableDetOrUnitPtr &alidet) const;
   /// Get derivatives for selected alignables
-  AlgebraicMatrix
-  selectedDerivatives(const TrajectoryStateOnSurface &tsos,
-                      const AlignableDetOrUnitPtr &alidet) const;
+  AlgebraicMatrix selectedDerivatives(const TrajectoryStateOnSurface &tsos, const AlignableDetOrUnitPtr &alidet) const;
   /// for backward compatibility, use std::vector<AlignableDetOrUnitPtr>
-  AlgebraicMatrix
-  derivatives(const std::vector<TrajectoryStateOnSurface> &tsosvec,
-              const std::vector<AlignableDet *> &alidetvec) const;
-  AlgebraicMatrix
-  derivatives(const std::vector<TrajectoryStateOnSurface> &tsosvec,
-              const std::vector<AlignableDetOrUnitPtr> &alidetvec) const;
+  AlgebraicMatrix derivatives(const std::vector<TrajectoryStateOnSurface> &tsosvec,
+                              const std::vector<AlignableDet *> &alidetvec) const;
+  AlgebraicMatrix derivatives(const std::vector<TrajectoryStateOnSurface> &tsosvec,
+                              const std::vector<AlignableDetOrUnitPtr> &alidetvec) const;
   /// for backward compatibility, use std::vector<AlignableDetOrUnitPtr>
-  AlgebraicMatrix
-  selectedDerivatives(const std::vector<TrajectoryStateOnSurface> &tsosvec,
-                      const std::vector<AlignableDet *> &alidetvec) const;
-  AlgebraicMatrix selectedDerivatives(
-      const std::vector<TrajectoryStateOnSurface> &tsosvec,
-      const std::vector<AlignableDetOrUnitPtr> &alidetvec) const;
+  AlgebraicMatrix selectedDerivatives(const std::vector<TrajectoryStateOnSurface> &tsosvec,
+                                      const std::vector<AlignableDet *> &alidetvec) const;
+  AlgebraicMatrix selectedDerivatives(const std::vector<TrajectoryStateOnSurface> &tsosvec,
+                                      const std::vector<AlignableDetOrUnitPtr> &alidetvec) const;
 
   /// for backward compatibility, use std::vector<AlignableDetOrUnitPtr>
-  AlgebraicVector
-  correctionTerm(const std::vector<TrajectoryStateOnSurface> &tsosvec,
-                 const std::vector<AlignableDet *> &alidetvec) const;
-  AlgebraicVector
-  correctionTerm(const std::vector<TrajectoryStateOnSurface> &tsosvec,
-                 const std::vector<AlignableDetOrUnitPtr> &alidetvec) const;
+  AlgebraicVector correctionTerm(const std::vector<TrajectoryStateOnSurface> &tsosvec,
+                                 const std::vector<AlignableDet *> &alidetvec) const;
+  AlgebraicVector correctionTerm(const std::vector<TrajectoryStateOnSurface> &tsosvec,
+                                 const std::vector<AlignableDetOrUnitPtr> &alidetvec) const;
   /// deprecated due to 'AlignableDet*' interface (legacy code should not be
   /// needed anymore)
-  AlgebraicMatrix derivativesLegacy(const TrajectoryStateOnSurface &tsos,
-                                    AlignableDet *alidet) const;
+  AlgebraicMatrix derivativesLegacy(const TrajectoryStateOnSurface &tsos, AlignableDet *alidet) const;
   /// deprecated due to 'AlignableDet*' interface (legacy code should not be
   /// needed anymore)
-  AlgebraicMatrix
-  selectedDerivativesLegacy(const TrajectoryStateOnSurface &tsos,
-                            AlignableDet *alidet) const;
+  AlgebraicMatrix selectedDerivativesLegacy(const TrajectoryStateOnSurface &tsos, AlignableDet *alidet) const;
   /// deprecated due to 'AlignableDet*' interface (legacy code should not be
   /// needed anymore)
-  AlgebraicMatrix
-  derivativesLegacy(const std::vector<TrajectoryStateOnSurface> &tsosvec,
-                    const std::vector<AlignableDet *> &alidetvec) const;
+  AlgebraicMatrix derivativesLegacy(const std::vector<TrajectoryStateOnSurface> &tsosvec,
+                                    const std::vector<AlignableDet *> &alidetvec) const;
   /// deprecated due to 'AlignableDet*' interface (legacy code should not be
   /// needed anymore)
-  AlgebraicMatrix selectedDerivativesLegacy(
-      const std::vector<TrajectoryStateOnSurface> &tsosvec,
-      const std::vector<AlignableDet *> &alidetvec) const;
+  AlgebraicMatrix selectedDerivativesLegacy(const std::vector<TrajectoryStateOnSurface> &tsosvec,
+                                            const std::vector<AlignableDet *> &alidetvec) const;
 
   /// Get relevant Alignable from AlignableDet
   Alignable *alignableFromAlignableDet(const AlignableDetOrUnitPtr &adet) const;
@@ -138,8 +119,7 @@ public:
   AlgebraicSymMatrix covarianceSubset(const align::Alignables &) const;
 
   /// Extract covariance matrix elements between two subsets of alignables
-  AlgebraicMatrix covarianceSubset(const align::Alignables &,
-                                   const align::Alignables &) const;
+  AlgebraicMatrix covarianceSubset(const align::Alignables &, const align::Alignables &) const;
 
 protected:
   DataContainer theData;
@@ -148,15 +128,15 @@ private:
   /// Extract position and length of parameters for a subset of Alignables.
   bool extractPositionAndLength(const align::Alignables &alignables,
                                 std::vector<int> &posvec,
-                                std::vector<int> &lenvec, int &length) const;
+                                std::vector<int> &lenvec,
+                                int &length) const;
 
   /// Return vector of alignables without multiple occurences.
   align::Alignables extractAlignables(const align::Alignables &) const;
 
   /// backward compatibility method to convert vectors from specific
   /// AlignableDet to more general AlignableDetOrUnitPtr
-  void convert(const std::vector<AlignableDet *> &input,
-               std::vector<AlignableDetOrUnitPtr> &output) const;
+  void convert(const std::vector<AlignableDet *> &input, std::vector<AlignableDetOrUnitPtr> &output) const;
 
   /// Vector of alignable components
   Components theComponents;

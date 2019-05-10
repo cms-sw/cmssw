@@ -20,33 +20,28 @@
 class TrackerTopology;
 
 class SiStripQualityHotStripIdentifier : public ConditionDBWriter<SiStripBadStrip> {
-
 public:
-
-  explicit SiStripQualityHotStripIdentifier(const edm::ParameterSet&);
+  explicit SiStripQualityHotStripIdentifier(const edm::ParameterSet &);
   ~SiStripQualityHotStripIdentifier() override;
 
 private:
-
- //Will be called at the beginning of the job
-  void algoBeginJob(const edm::EventSetup&) override{}
+  //Will be called at the beginning of the job
+  void algoBeginJob(const edm::EventSetup &) override {}
   //Will be called at the beginning of each run in the job
   void algoBeginRun(const edm::Run &, const edm::EventSetup &) override;
   //Will be called at the beginning of each luminosity block in the run
-  void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override{ resetHistos(); }
+  void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override { resetHistos(); }
   //Will be called at the end of the job
   void algoEndJob() override;
 
-
   //Will be called at every event
-  void algoAnalyze(const edm::Event&, const edm::EventSetup&) override;
+  void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
 
   std::unique_ptr<SiStripBadStrip> getNewObject() override;
 
-
   void bookHistos();
   void resetHistos();
-  void fillHisto(uint32_t detid,float value);
+  void fillHisto(uint32_t detid, float value);
 
 private:
   unsigned long long m_cacheID_;
@@ -54,11 +49,11 @@ private:
   edm::ESHandle<SiStripQuality> SiStripQuality_;
   const edm::ParameterSet conf_;
   edm::FileInPath fp_;
-  SiStripDetInfoFileReader* reader;
+  SiStripDetInfoFileReader *reader;
   edm::InputTag Cluster_src_;
   edm::InputTag Track_src_;
   bool tracksCollection_in_EventTree;
-  const TrackerTopology* tTopo;
+  const TrackerTopology *tTopo;
 
   unsigned short MinClusterWidth_, MaxClusterWidth_;
 

@@ -33,7 +33,6 @@
 #include <TH1I.h>
 
 class XtalDedxAnalysis : public edm::EDAnalyzer {
-
 public:
   explicit XtalDedxAnalysis(const edm::ParameterSet &);
   ~XtalDedxAnalysis() override {}
@@ -60,14 +59,11 @@ private:
 };
 
 XtalDedxAnalysis::XtalDedxAnalysis(const edm::ParameterSet &ps) {
-
   caloHitSource_ = ps.getParameter<edm::InputTag>("caloHitSource");
-  simTkLabel_ =
-      ps.getUntrackedParameter<std::string>("moduleLabelTk", "g4SimHits");
+  simTkLabel_ = ps.getUntrackedParameter<std::string>("moduleLabelTk", "g4SimHits");
   double energyMax = ps.getParameter<double>("EnergyMax");
-  edm::LogInfo("XtalDedxAnalysis")
-      << "XtalDedxAnalysis::Source " << caloHitSource_ << " Track Label "
-      << simTkLabel_ << " Energy Max " << energyMax;
+  edm::LogInfo("XtalDedxAnalysis") << "XtalDedxAnalysis::Source " << caloHitSource_ << " Track Label " << simTkLabel_
+                                   << " Energy Max " << energyMax;
 
   // register for data access
   tok_calo_ = consumes<edm::PCaloHitContainer>(caloHitSource_);
@@ -118,9 +114,7 @@ XtalDedxAnalysis::XtalDedxAnalysis(const edm::ParameterSet &ps) {
 }
 
 void XtalDedxAnalysis::analyze(const edm::Event &e, const edm::EventSetup &) {
-
-  LogDebug("XtalDedxAnalysis")
-      << "Run = " << e.id().run() << " Event = " << e.id().event();
+  LogDebug("XtalDedxAnalysis") << "Run = " << e.id().run() << " Event = " << e.id().event();
 
   std::vector<PCaloHit> caloHits;
   edm::Handle<edm::PCaloHitContainer> pCaloHits;
@@ -136,16 +130,14 @@ void XtalDedxAnalysis::analyze(const edm::Event &e, const edm::EventSetup &) {
 
   if (pCaloHits.isValid()) {
     caloHits.insert(caloHits.end(), pCaloHits->begin(), pCaloHits->end());
-    LogDebug("XtalDedxAnalysis")
-        << "HcalValidation: Hit buffer " << caloHits.size();
+    LogDebug("XtalDedxAnalysis") << "HcalValidation: Hit buffer " << caloHits.size();
     analyzeHits(caloHits, simTk, simVtx);
   }
 }
 
-void XtalDedxAnalysis::analyzeHits(
-    std::vector<PCaloHit> &hits, edm::Handle<edm::SimTrackContainer> &SimTk,
-    edm::Handle<edm::SimVertexContainer> &SimVtx) {
-
+void XtalDedxAnalysis::analyzeHits(std::vector<PCaloHit> &hits,
+                                   edm::Handle<edm::SimTrackContainer> &SimTk,
+                                   edm::Handle<edm::SimVertexContainer> &SimVtx) {
   edm::SimTrackContainer::const_iterator simTrkItr;
   int nHit = hits.size();
   double e10[4], e90[4], e11[4], e91[4], hit[4];
@@ -183,14 +175,12 @@ void XtalDedxAnalysis::analyzeHits(
         e11[type] += energy;
       }
     }
-    LogDebug("XtalDedxAnalysis")
-        << "Hit[" << i << "] ID " << id_ << " E " << energy << " time " << time
-        << " track " << trackID << " type " << type;
+    LogDebug("XtalDedxAnalysis") << "Hit[" << i << "] ID " << id_ << " E " << energy << " time " << time << " track "
+                                 << trackID << " type " << type;
   }
   for (int i = 0; i < 4; i++) {
-    LogDebug("XtalDedxAnalysis")
-        << "Type(" << i << ") Hit " << hit[i] << " E10 " << e10[i] << " E11 "
-        << e11[i] << " E90 " << e90[i] << " E91 " << e91[i];
+    LogDebug("XtalDedxAnalysis") << "Type(" << i << ") Hit " << hit[i] << " E10 " << e10[i] << " E11 " << e11[i]
+                                 << " E90 " << e90[i] << " E91 " << e91[i];
     meNHit_[i]->Fill(hit[i]);
     meE1T0_[i]->Fill(e10[i]);
     meE9T0_[i]->Fill(e90[i]);
@@ -206,27 +196,22 @@ void XtalDedxAnalysis::analyzeHits(
   for (simVtxItr = SimVtx->begin(); simVtxItr != SimVtx->end(); simVtxItr++)
     nvtx++;
   LogDebug("XtalDedxAnalysis") << ntrk << " tracks and " << nvtx << " vertices";
-  for (simTrkItr = SimTk->begin(); simTrkItr != SimTk->end();
-       simTrkItr++, ++k1) {
-    LogDebug("XtalDedxAnalysis")
-        << "Track " << k1 << " PDGId " << simTrkItr->type() << " Vertex ID "
-        << simTrkItr->vertIndex() << " Generator " << simTrkItr->noGenpart();
-    if (simTrkItr->noGenpart()) {             // This is a secondary
-      int vertIndex = simTrkItr->vertIndex(); // Vertex index of origin
+  for (simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++, ++k1) {
+    LogDebug("XtalDedxAnalysis") << "Track " << k1 << " PDGId " << simTrkItr->type() << " Vertex ID "
+                                 << simTrkItr->vertIndex() << " Generator " << simTrkItr->noGenpart();
+    if (simTrkItr->noGenpart()) {              // This is a secondary
+      int vertIndex = simTrkItr->vertIndex();  // Vertex index of origin
       if (vertIndex >= 0 && vertIndex < nvtx) {
         simVtxItr = SimVtx->begin();
         for (int iv = 0; iv < vertIndex; iv++)
           simVtxItr++;
         int parent = simVtxItr->parentIndex(), k2 = 0;
-        for (edm::SimTrackContainer::const_iterator trkItr = SimTk->begin();
-             trkItr != SimTk->end(); trkItr++, ++k2) {
-          LogDebug("XtalDedxAnalysis")
-              << "Track " << k2 << " ID " << trkItr->trackId() << " (" << parent
-              << ")  Generator " << trkItr->noGenpart();
-          if ((int)trkItr->trackId() == parent) { // Parent track
-            if (!trkItr->noGenpart()) {           // Generator level
-              LogDebug("XtalDedxAnalysis")
-                  << "Track found with ID " << simTrkItr->type();
+        for (edm::SimTrackContainer::const_iterator trkItr = SimTk->begin(); trkItr != SimTk->end(); trkItr++, ++k2) {
+          LogDebug("XtalDedxAnalysis") << "Track " << k2 << " ID " << trkItr->trackId() << " (" << parent
+                                       << ")  Generator " << trkItr->noGenpart();
+          if ((int)trkItr->trackId() == parent) {  // Parent track
+            if (!trkItr->noGenpart()) {            // Generator level
+              LogDebug("XtalDedxAnalysis") << "Track found with ID " << simTrkItr->type();
               mType_->Fill(simTrkItr->type());
             }
             break;

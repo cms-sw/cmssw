@@ -16,15 +16,14 @@
 
 // cfr. DTTimeDrift::ShortDistCorrect
 float ShortDistCorrect(float x) {
-  float mu_drift_corr = fabs(x); // cfr. DTSpaceDrift:69
+  float mu_drift_corr = fabs(x);  // cfr. DTSpaceDrift:69
   float min_dist = 0.03;
 
   const float factor_range = 2.0;
   float short_range = factor_range * min_dist;
   float punch_dist = short_range - mu_drift_corr;
   if (punch_dist > 0.0)
-    mu_drift_corr =
-        short_range - punch_dist * (factor_range - 1.0) / factor_range;
+    mu_drift_corr = short_range - punch_dist * (factor_range - 1.0) / factor_range;
 
   return mu_drift_corr;
 }
@@ -34,9 +33,8 @@ float ShortDistCorrect(float x) {
 // Bnorm = Bz in ORCA r.f.
 
 float oldParametrization(float x, float theta, float Bwire, float Bnorm) {
-
   // Change coordinates.
-  Bwire = -Bwire; // correct BUG in ORCA.
+  Bwire = -Bwire;  // correct BUG in ORCA.
 
   //**********************************************************************
 
@@ -46,7 +44,7 @@ float oldParametrization(float x, float theta, float Bwire, float Bnorm) {
   // CFR DTTimeDrift::TimeCompute
 
   // set some cell parameters
-  const float cell_width = 2.1; // (mu_wire->wireType()->width())/2;
+  const float cell_width = 2.1;  // (mu_wire->wireType()->width())/2;
 
   const float volume_lim = cell_width - 0.0025;
   const float volume_par = cell_width - 0.1;

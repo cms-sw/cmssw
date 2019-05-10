@@ -18,14 +18,13 @@
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters4D.h"
 
 //__________________________________________________________________________________________________
-AlgebraicMatrix RigidBodyAlignmentParameters4D::derivatives(
-    const TrajectoryStateOnSurface &tsos,
-    const AlignableDetOrUnitPtr &alidet) const {
-  const Alignable *ali = this->alignable(); // Alignable of these parameters
+AlgebraicMatrix RigidBodyAlignmentParameters4D::derivatives(const TrajectoryStateOnSurface &tsos,
+                                                            const AlignableDetOrUnitPtr &alidet) const {
+  const Alignable *ali = this->alignable();  // Alignable of these parameters
 
-  if (ali == alidet) { // same alignable => same frame
+  if (ali == alidet) {  // same alignable => same frame
     return SegmentAlignmentDerivatives4D()(tsos);
-  } else { // different alignable => transform into correct frame
+  } else {  // different alignable => transform into correct frame
     const AlgebraicMatrix deriv = SegmentAlignmentDerivatives4D()(tsos);
     FrameToFrameDerivative ftfd;
     return ftfd.frameToFrameDerivative(alidet, ali).T() * deriv;
@@ -33,11 +32,10 @@ AlgebraicMatrix RigidBodyAlignmentParameters4D::derivatives(
 }
 
 //__________________________________________________________________________________________________
-RigidBodyAlignmentParameters4D *RigidBodyAlignmentParameters4D::clone(
-    const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix) const {
-  RigidBodyAlignmentParameters4D *rbap = new RigidBodyAlignmentParameters4D(
-      alignable(), parameters, covMatrix, selector());
+RigidBodyAlignmentParameters4D *RigidBodyAlignmentParameters4D::clone(const AlgebraicVector &parameters,
+                                                                      const AlgebraicSymMatrix &covMatrix) const {
+  RigidBodyAlignmentParameters4D *rbap =
+      new RigidBodyAlignmentParameters4D(alignable(), parameters, covMatrix, selector());
 
   if (userVariables())
     rbap->setUserVariables(userVariables()->clone());
@@ -47,13 +45,10 @@ RigidBodyAlignmentParameters4D *RigidBodyAlignmentParameters4D::clone(
 }
 
 //__________________________________________________________________________________________________
-RigidBodyAlignmentParameters4D *
-RigidBodyAlignmentParameters4D::cloneFromSelected(
-    const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix) const {
+RigidBodyAlignmentParameters4D *RigidBodyAlignmentParameters4D::cloneFromSelected(
+    const AlgebraicVector &parameters, const AlgebraicSymMatrix &covMatrix) const {
   RigidBodyAlignmentParameters4D *rbap = new RigidBodyAlignmentParameters4D(
-      alignable(), expandVector(parameters, selector()),
-      expandSymMatrix(covMatrix, selector()), selector());
+      alignable(), expandVector(parameters, selector()), expandSymMatrix(covMatrix, selector()), selector());
 
   if (userVariables())
     rbap->setUserVariables(userVariables()->clone());
@@ -63,6 +58,4 @@ RigidBodyAlignmentParameters4D::cloneFromSelected(
 }
 
 //__________________________________________________________________________________________________
-int RigidBodyAlignmentParameters4D::type() const {
-  return AlignmentParametersFactory::kRigidBody4D;
-}
+int RigidBodyAlignmentParameters4D::type() const { return AlignmentParametersFactory::kRigidBody4D; }

@@ -29,7 +29,6 @@
 class SiStripClassToMonitorCondData;
 
 class SiStripMonitorCondDataOnDemandExample : public edm::EDAnalyzer {
-
 public:
   explicit SiStripMonitorCondDataOnDemandExample(const edm::ParameterSet &);
 

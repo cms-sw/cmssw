@@ -37,8 +37,7 @@ using namespace edm;
 using namespace std;
 
 DTDigiAnalyzer::DTDigiAnalyzer(const ParameterSet &pset)
-    : hDigis_global("Global"), hDigis_W0("Wheel0"), hDigis_W1("Wheel1"),
-      hDigis_W2("Wheel2"), hAllHits("AllHits") {
+    : hDigis_global("Global"), hDigis_W0("Wheel0"), hDigis_W1("Wheel1"), hDigis_W2("Wheel2"), hAllHits("AllHits") {
   //   MCStatistics = new DTMCStatistics();
   //   MuonDigiStatistics = new DTMuonDigiStatistics();
   //   HitsAnalysis = new DTHitsAnalysis();
@@ -51,8 +50,7 @@ DTDigiAnalyzer::DTDigiAnalyzer(const ParameterSet &pset)
   else
     cout << "*** Error in opening file ***" << endl;
 
-  psim_token =
-      consumes<PSimHitContainer>(edm::InputTag("g4SimHits", "MuonDTHits"));
+  psim_token = consumes<PSimHitContainer>(edm::InputTag("g4SimHits", "MuonDTHits"));
   DTd_token = consumes<DTDigiCollection>(edm::InputTag(label));
 }
 
@@ -74,8 +72,7 @@ void DTDigiAnalyzer::endJob() {
 }
 
 void DTDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
-  cout << "--- Run: " << event.id().run() << " Event: " << event.id().event()
-       << endl;
+  cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
 
   Handle<DTDigiCollection> dtDigis;
   event.getByToken(DTd_token, dtDigis);
@@ -88,8 +85,7 @@ void DTDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
 
   DTWireIdMap wireMap;
 
-  for (vector<PSimHit>::const_iterator hit = simHits->begin();
-       hit != simHits->end(); hit++) {
+  for (vector<PSimHit>::const_iterator hit = simHits->begin(); hit != simHits->end(); hit++) {
     // Create the id of the wire, the simHits in the DT known also the wireId
     DTWireId wireId(hit->detUnitId());
     // Fill the map
@@ -102,21 +98,27 @@ void DTDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
     float path = (exitP - entryP).mag();
     float path_x = fabs((exitP - entryP).x());
 
-    hAllHits.Fill(entryP.x(), exitP.x(), entryP.y(), exitP.y(), entryP.z(),
-                  exitP.z(), path, path_x, partType, hit->processType(),
+    hAllHits.Fill(entryP.x(),
+                  exitP.x(),
+                  entryP.y(),
+                  exitP.y(),
+                  entryP.z(),
+                  exitP.z(),
+                  path,
+                  path_x,
+                  partType,
+                  hit->processType(),
                   hit->pabs());
 
     if (hit->timeOfFlight() > 1e4) {
-      cout << "PID: " << hit->particleType() << " TOF: " << hit->timeOfFlight()
-           << " Proc Type: " << hit->processType() << " p: " << hit->pabs()
-           << endl;
+      cout << "PID: " << hit->particleType() << " TOF: " << hit->timeOfFlight() << " Proc Type: " << hit->processType()
+           << " p: " << hit->pabs() << endl;
       hAllHits.FillTOF(hit->timeOfFlight());
     }
   }
 
   DTDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt = dtDigis->begin(); detUnitIt != dtDigis->end(); ++detUnitIt) {
-
     const DTLayerId &id = (*detUnitIt).first;
     const DTDigiCollection::Range &range = (*detUnitIt).second;
 
@@ -125,24 +127,19 @@ void DTDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
     cout << "id: " << id;
 
     // Loop over the digis of this DetUnit
-    for (DTDigiCollection::const_iterator digiIt = range.first;
-         digiIt != range.second; ++digiIt) {
-      cout << " Wire: " << (*digiIt).wire() << endl
-           << " digi time (ns): " << (*digiIt).time() << endl;
+    for (DTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
+      cout << " Wire: " << (*digiIt).wire() << endl << " digi time (ns): " << (*digiIt).time() << endl;
       DigiTimeBox->Fill((*digiIt).time());
 
       DTWireId wireId(id, (*digiIt).wire());
       int mu = 0;
       float theta = 0;
 
-      for (vector<const PSimHit *>::iterator hit = wireMap[wireId].begin();
-           hit != wireMap[wireId].end(); hit++) {
+      for (vector<const PSimHit *>::iterator hit = wireMap[wireId].begin(); hit != wireMap[wireId].end(); hit++) {
         cout << "momentum x: " << (*hit)->momentumAtEntry().x() << endl
              << "momentum z: " << (*hit)->momentumAtEntry().z() << endl;
         if (abs((*hit)->particleType()) == 13) {
-          theta = atan((*hit)->momentumAtEntry().x() /
-                       (-(*hit)->momentumAtEntry().z())) *
-                  180 / M_PI;
+          theta = atan((*hit)->momentumAtEntry().x() / (-(*hit)->momentumAtEntry().z())) * 180 / M_PI;
           cout << "atan: " << theta << endl;
           mu++;
         } else {
@@ -158,25 +155,24 @@ void DTDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
         WheelHistos(id.wheel())->Fill((*digiIt).time(), theta, id.superlayer());
       }
 
-    } // for digis in layer
-  }   // for layers
+    }  // for digis in layer
+  }    // for layers
   cout << "--------------" << endl;
 }
 
 hDigis *DTDigiAnalyzer::WheelHistos(int wheel) {
   switch (abs(wheel)) {
+    case 0:
+      return &hDigis_W0;
 
-  case 0:
-    return &hDigis_W0;
+    case 1:
+      return &hDigis_W1;
 
-  case 1:
-    return &hDigis_W1;
+    case 2:
+      return &hDigis_W2;
 
-  case 2:
-    return &hDigis_W2;
-
-  default:
-    return nullptr;
+    default:
+      return nullptr;
   }
 }
 

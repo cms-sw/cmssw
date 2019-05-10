@@ -20,7 +20,6 @@ class RPCCalibSetUp;
 */
 
 class RPCFakeCalibration : public RPCPerformanceESSource {
-
 public:
   RPCFakeCalibration(const edm::ParameterSet &);
   ~RPCFakeCalibration() override { ; }
@@ -35,4 +34,4 @@ private:
   RPCCalibSetUp *theRPCCalibSetUp;
 };
 
-#endif // RPCCalibration_RPCFakeCalibration_H
+#endif  // RPCCalibration_RPCFakeCalibration_H

@@ -4,17 +4,12 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 HcalHitValidation::HcalHitValidation(const edm::ParameterSet &ps) {
-
   g4Label = ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits");
   hcalHits = ps.getUntrackedParameter<std::string>("HitCollection", "HcalHits");
-  layerInfo =
-      ps.getUntrackedParameter<std::string>("LayerInfo", "PHcalValidInfoLayer");
-  nxNInfo =
-      ps.getUntrackedParameter<std::string>("NxNInfo", "PHcalValidInfoNxN");
-  jetsInfo =
-      ps.getUntrackedParameter<std::string>("JetsInfo", "PHcalValidInfoJets");
-  outFile_ =
-      ps.getUntrackedParameter<std::string>("outputFile", "hcValid.root");
+  layerInfo = ps.getUntrackedParameter<std::string>("LayerInfo", "PHcalValidInfoLayer");
+  nxNInfo = ps.getUntrackedParameter<std::string>("NxNInfo", "PHcalValidInfoNxN");
+  jetsInfo = ps.getUntrackedParameter<std::string>("JetsInfo", "PHcalValidInfoJets");
+  outFile_ = ps.getUntrackedParameter<std::string>("outputFile", "hcValid.root");
   verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
   scheme_ = ps.getUntrackedParameter<bool>("TestNumbering", true);
   checkHit_ = ps.getUntrackedParameter<bool>("CheckHits", true);
@@ -28,42 +23,29 @@ HcalHitValidation::HcalHitValidation(const edm::ParameterSet &ps) {
   tok_iN_ = consumes<PHcalValidInfoNxN>(edm::InputTag(g4Label, nxNInfo));
   tok_iJ_ = consumes<PHcalValidInfoJets>(edm::InputTag(g4Label, jetsInfo));
 
-  edm::LogInfo("HcalHitValid")
-      << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / "
-      << checkHit_ << "   LayerInfo: " << layerInfo << " / " << checkLay_
-      << "  NxNInfo: " << nxNInfo << " / " << checkNxN_
-      << "  jetsInfo: " << jetsInfo << " / " << checkJet_
-      << "   Output: " << outFile_ << "   Usage of TestNumberingScheme "
-      << scheme_;
+  edm::LogInfo("HcalHitValid") << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / " << checkHit_
+                               << "   LayerInfo: " << layerInfo << " / " << checkLay_ << "  NxNInfo: " << nxNInfo
+                               << " / " << checkNxN_ << "  jetsInfo: " << jetsInfo << " / " << checkJet_
+                               << "   Output: " << outFile_ << "   Usage of TestNumberingScheme " << scheme_;
 }
 
 HcalHitValidation::~HcalHitValidation() {}
 
-void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker,
-                                       edm::Run const &,
-                                       edm::EventSetup const &) {
-
+void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {
   ibooker.setCurrentFolder("HcalHitValidation");
 
   char title[60], name[20];
   double my_pi = 3.1415926;
   // Histograms for Hits
   if (checkHit_) {
-    meAllNHit_ =
-        ibooker.book1D("Hit01", "Number of Hits in HCal", 1000, 0., 5000.);
-    meBadDetHit_ =
-        ibooker.book1D("Hit02", "Hits with wrong Det", 100, 0., 100.);
-    meBadSubHit_ =
-        ibooker.book1D("Hit03", "Hits with wrong Subdet", 100, 0., 100.);
+    meAllNHit_ = ibooker.book1D("Hit01", "Number of Hits in HCal", 1000, 0., 5000.);
+    meBadDetHit_ = ibooker.book1D("Hit02", "Hits with wrong Det", 100, 0., 100.);
+    meBadSubHit_ = ibooker.book1D("Hit03", "Hits with wrong Subdet", 100, 0., 100.);
     meBadIdHit_ = ibooker.book1D("Hit04", "Hits with wrong ID", 100, 0., 100.);
-    meHBNHit_ =
-        ibooker.book1D("Hit05", "Number of Hits in HB", 1000, 0., 5000.);
-    meHENHit_ =
-        ibooker.book1D("Hit06", "Number of Hits in HE", 1000, 0., 5000.);
-    meHONHit_ =
-        ibooker.book1D("Hit07", "Number of Hits in HO", 1000, 0., 5000.);
-    meHFNHit_ =
-        ibooker.book1D("Hit08", "Number of Hits in HF", 1000, 0., 5000.);
+    meHBNHit_ = ibooker.book1D("Hit05", "Number of Hits in HB", 1000, 0., 5000.);
+    meHENHit_ = ibooker.book1D("Hit06", "Number of Hits in HE", 1000, 0., 5000.);
+    meHONHit_ = ibooker.book1D("Hit07", "Number of Hits in HO", 1000, 0., 5000.);
+    meHFNHit_ = ibooker.book1D("Hit08", "Number of Hits in HF", 1000, 0., 5000.);
     meDetectHit_ = ibooker.book1D("Hit09", "Detector ID", 50, 0., 50.);
     meSubdetHit_ = ibooker.book1D("Hit10", "Subdetectors in HCal", 50, 0., 50.);
     meDepthHit_ = ibooker.book1D("Hit11", "Depths in HCal", 20, 0., 20.);
@@ -71,8 +53,7 @@ void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker,
     mePhiHit_ = ibooker.book1D("Hit13", "Phi in HCal", 100, 0., 100.);
     meEnergyHit_ = ibooker.book1D("Hit14", "Energy in HCal", 100, 0., 1.);
     meTimeHit_ = ibooker.book1D("Hit15", "Time in HCal", 100, 0., 400.);
-    meTimeWHit_ =
-        ibooker.book1D("Hit16", "Time in HCal (E wtd)", 100, 0., 400.);
+    meTimeWHit_ = ibooker.book1D("Hit16", "Time in HCal (E wtd)", 100, 0., 400.);
     meHBDepHit_ = ibooker.book1D("Hit17", "Depths in HB", 20, 0., 20.);
     meHEDepHit_ = ibooker.book1D("Hit18", "Depths in HE", 20, 0., 20.);
     meHODepHit_ = ibooker.book1D("Hit19", "Depths in HO", 20, 0., 20.);
@@ -93,15 +74,12 @@ void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker,
     meHETimHit_ = ibooker.book1D("Hit34", "Time in HE", 100, 0., 400.);
     meHOTimHit_ = ibooker.book1D("Hit35", "Time in HO", 100, 0., 400.);
     meHFTimHit_ = ibooker.book1D("Hit36", "Time in HF", 100, 0., 400.);
-    mePMTHit_ =
-        ibooker.book1D("Hit37", "Number of Hit in PMT", 1000, 0., 1000.);
+    mePMTHit_ = ibooker.book1D("Hit37", "Number of Hit in PMT", 1000, 0., 1000.);
     mePMTDepHit_ = ibooker.book1D("Hit38", "Depths in HF PMT", 20, 0., 20.);
     mePMTEtaHit_ = ibooker.book1D("Hit39", "Eta in HF PMT", 100, -50., 50.);
     mePMTPhiHit_ = ibooker.book1D("Hit40", "Phi in HF PMT", 100, 0., 100.);
-    mePMTEn1Hit_ =
-        ibooker.book1D("Hit41", "Energy (Ceren) in PMT", 100, 0., 100.);
-    mePMTEn2Hit_ =
-        ibooker.book1D("Hit42", "Energy (dE/dx) in PMT", 100, 0., 100.);
+    mePMTEn1Hit_ = ibooker.book1D("Hit41", "Energy (Ceren) in PMT", 100, 0., 100.);
+    mePMTEn2Hit_ = ibooker.book1D("Hit42", "Energy (dE/dx) in PMT", 100, 0., 100.);
     mePMTTimHit_ = ibooker.book1D("Hit43", "Time in HF PMT", 100, 0., 400.);
   }
 
@@ -114,8 +92,7 @@ void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker,
     meDepHlay_ = ibooker.book1D("Lay05", "Depth  of the Hits", 10, 0., 10.);
     meTimHLay_ = ibooker.book1D("Lay06", "Time of the Hits", 100, 0., 400.);
     meTimWLay_ = ibooker.book1D("Lay07", "Time (wtd) of Hits", 100, 0., 400.);
-    meEtaPhi_ = ibooker.book2D("Lay08", "Phi%Eta of the Hits", 100, -5., 5.,
-                               100, -my_pi, my_pi);
+    meEtaPhi_ = ibooker.book2D("Lay08", "Phi%Eta of the Hits", 100, -5., 5., 100, -my_pi, my_pi);
 
     meHitELay_ = ibooker.book1D("Lay09", "Hit in Ecal", 1000, 0., 2000.);
     meHitHLay_ = ibooker.book1D("Lay10", "Hit in Hcal", 1000, 0., 2000.);
@@ -128,8 +105,7 @@ void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker,
       sprintf(title, "Energy deposit in Layer %d", i);
       meEneLay_[i] = ibooker.book1D(name, title, 100, 0., 0.4);
     }
-    meLngLay_ =
-        ibooker.book1D("Lay13", "Lonitudinal Shower Profile", 20, 0, 20.);
+    meLngLay_ = ibooker.book1D("Lay13", "Lonitudinal Shower Profile", 20, 0, 20.);
     meEneDLay_ = ibooker.book1D("Lay14", "Energy per depth", 100, 0., 1.);
     for (int i = 0; i < nDepthsMAX; i++) {
       sprintf(name, "Layl%d", nn);
@@ -142,18 +118,15 @@ void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker,
     meEHOLay_ = ibooker.book1D("Lay16", "Energy in HO", 100, 0., 2000.);
     meEHBHELay_ = ibooker.book1D("Lay17", "Energy in HB/HE", 100, 0., 2000.);
     meEFibLLay_ = ibooker.book1D("Lay18", "Energy in HF (Long)", 100, 0., 100.);
-    meEFibSLay_ =
-        ibooker.book1D("Lay19", "Energy in HF (Short)", 100, 0., 100.);
+    meEFibSLay_ = ibooker.book1D("Lay19", "Energy in HF (Short)", 100, 0., 100.);
     meEHFEmLay_ = ibooker.book1D("Lay20", "EM   energy in HF", 100, 0., 200.);
     meEHFHdLay_ = ibooker.book1D("Lay21", "Had. energy in HF", 100, 0., 200.);
   }
 
   // Histograms for NxN analysis
   if (checkNxN_) {
-    meEcalRNxN_ =
-        ibooker.book1D("NxN01", "Energy in ECal (NxN)r", 100, 0., 200.);
-    meHcalRNxN_ =
-        ibooker.book1D("NxN02", "Energy in HCal (NxN)r", 100, 0., 200.);
+    meEcalRNxN_ = ibooker.book1D("NxN01", "Energy in ECal (NxN)r", 100, 0., 200.);
+    meHcalRNxN_ = ibooker.book1D("NxN02", "Energy in HCal (NxN)r", 100, 0., 200.);
     meHoRNxN_ = ibooker.book1D("NxN03", "Energy in HO (NxN)r", 100, 0., 200.);
     meEtotRNxN_ = ibooker.book1D("NxN04", "Energy Total (NxN)r", 100, 0., 200.);
     meEcalNxN_ = ibooker.book1D("NxN05", "Energy in ECal (NxN)", 100, 0., 200.);
@@ -161,8 +134,7 @@ void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker,
     meHoNxN_ = ibooker.book1D("NxN07", "Energy in HO (NxN)", 100, 0., 200.);
     meEtotNxN_ = ibooker.book1D("NxN08", "Energy Total (NxN)", 100, 0., 200.);
     meEiNxN_ = ibooker.book1D("NxN09", "Energy of Hits in (NxN)", 100, 0., 1.);
-    meTiNxN_ =
-        ibooker.book1D("NxN10", "Time   of Hits in (NxN)", 100, 0., 400.);
+    meTiNxN_ = ibooker.book1D("NxN10", "Time   of Hits in (NxN)", 100, 0., 400.);
     meTrNxN_ = ibooker.book1D("NxN11", "Dist.  of Hits in (NxN)", 100, 0., 1.);
   }
 
@@ -171,16 +143,11 @@ void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker,
     meRJet_ = ibooker.book1D("Jet01", "R of Hits", 100, 0., 1.);
     meTJet_ = ibooker.book1D("Jet02", "T of Hits", 100, 0., 200.);
     meEJet_ = ibooker.book1D("Jet03", "E of Hits", 100, 0., 200.);
-    meEcalJet_ =
-        ibooker.book1D("Jet04", "Ecal Energy (First Jet)", 100, 0., 200.);
-    meHcalJet_ =
-        ibooker.book1D("Jet05", "Hcal Energy (First Jet)", 100, 0., 200.);
-    meHoJet_ =
-        ibooker.book1D("Jet06", "Ho   Energy (First Jet)", 100, 0., 200.);
-    meEtotJet_ =
-        ibooker.book1D("Jet07", "Total Energy(First Jet)", 100, 0., 200.);
-    meEcHcJet_ = ibooker.book2D("Jet08", "Energy in Hcal% Ecal", 100, 0., 200.,
-                                100, 0., 200.);
+    meEcalJet_ = ibooker.book1D("Jet04", "Ecal Energy (First Jet)", 100, 0., 200.);
+    meHcalJet_ = ibooker.book1D("Jet05", "Hcal Energy (First Jet)", 100, 0., 200.);
+    meHoJet_ = ibooker.book1D("Jet06", "Ho   Energy (First Jet)", 100, 0., 200.);
+    meEtotJet_ = ibooker.book1D("Jet07", "Total Energy(First Jet)", 100, 0., 200.);
+    meEcHcJet_ = ibooker.book2D("Jet08", "Energy in Hcal% Ecal", 100, 0., 200., 100, 0., 200.);
 
     meDetaJet_ = ibooker.book1D("Jet09", "Delta Eta", 100, 0., 2.);
     meDphiJet_ = ibooker.book1D("Jet10", "Delta Phi", 100, 0., 1.);
@@ -193,9 +160,7 @@ void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker,
 }
 
 void HcalHitValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
-
-  LogDebug("HcalHitValid") << "Run = " << e.id().run()
-                           << " Event = " << e.id().event();
+  LogDebug("HcalHitValid") << "Run = " << e.id().run() << " Event = " << e.id().event();
 
   std::vector<PCaloHit> caloHits;
   edm::Handle<edm::PCaloHitContainer> hitsHcal;
@@ -231,14 +196,12 @@ void HcalHitValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
       getJets = true;
   }
 
-  LogDebug("HcalHitValid") << "HcalValidation: Input flags Hits " << getHits
-                           << ", Layer " << getLayer << ", NxN " << getNxN
-                           << ", Jets " << getJets;
+  LogDebug("HcalHitValid") << "HcalValidation: Input flags Hits " << getHits << ", Layer " << getLayer << ", NxN "
+                           << getNxN << ", Jets " << getJets;
 
   if (getHits) {
     caloHits.insert(caloHits.end(), hitsHcal->begin(), hitsHcal->end());
-    LogDebug("HcalHitValid")
-        << "HcalValidation: Hit buffer " << caloHits.size();
+    LogDebug("HcalHitValid") << "HcalValidation: Hit buffer " << caloHits.size();
     analyzeHits(caloHits);
   }
 
@@ -251,10 +214,8 @@ void HcalHitValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
 }
 
 void HcalHitValidation::analyzeHits(std::vector<PCaloHit> &hits) {
-
   int nHit = hits.size();
-  int nHB = 0, nHE = 0, nHO = 0, nHF = 0, nPMT = 0, nBad1 = 0, nBad2 = 0,
-      nBad = 0;
+  int nHB = 0, nHE = 0, nHO = 0, nHF = 0, nPMT = 0, nBad1 = 0, nBad2 = 0, nBad = 0;
   for (int i = 0; i < nHit; i++) {
     double energy = hits[i].energy();
     double time = hits[i].time();
@@ -279,12 +240,10 @@ void HcalHitValidation::analyzeHits(std::vector<PCaloHit> &hits) {
     uint16_t depth_ = hits[i].depth();
     double energyEM = hits[i].energyEM();
     double energyHad = hits[i].energyHad();
-    LogDebug("HcalHitValid")
-        << "Hit[" << i << "] ID " << std::hex << id_ << std::dec << " Det "
-        << det << " Sub " << subdet << " depth " << depth << " " << depth_
-        << " Eta " << eta << " Phi " << phi << " E " << energy << "(EM "
-        << energyEM << ", Had " << energyHad << ") time " << time;
-    if (det == 4) { // Check DetId.h
+    LogDebug("HcalHitValid") << "Hit[" << i << "] ID " << std::hex << id_ << std::dec << " Det " << det << " Sub "
+                             << subdet << " depth " << depth << " " << depth_ << " Eta " << eta << " Phi " << phi
+                             << " E " << energy << "(EM " << energyEM << ", Had " << energyHad << ") time " << time;
+    if (det == 4) {  // Check DetId.h
       if (subdet == static_cast<int>(HcalBarrel)) {
         nHB++;
       } else if (subdet == static_cast<int>(HcalEndcap)) {
@@ -358,15 +317,11 @@ void HcalHitValidation::analyzeHits(std::vector<PCaloHit> &hits) {
   meHFNHit_->Fill(double(nHF));
   mePMTHit_->Fill(double(nPMT));
 
-  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeHits: HB " << nHB
-                           << " HE " << nHE << " HO " << nHO << " HF " << nHF
-                           << " PMT " << nPMT << " Bad " << nBad << " All "
-                           << nHit;
+  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeHits: HB " << nHB << " HE " << nHE << " HO " << nHO << " HF "
+                           << nHF << " PMT " << nPMT << " Bad " << nBad << " All " << nHit;
 }
 
-void HcalHitValidation::analyzeLayer(
-    edm::Handle<PHcalValidInfoLayer> &infoLayer) {
-
+void HcalHitValidation::analyzeLayer(edm::Handle<PHcalValidInfoLayer> &infoLayer) {
   // CaloHits from PHcalValidInfoLayer
   int nHits = infoLayer->nHit();
   std::vector<float> idHits = infoLayer->idHit();
@@ -397,7 +352,7 @@ void HcalHitValidation::analyzeLayer(
     meDepHlay_->Fill(idHits[j]);
     meTimHLay_->Fill(tHits[j]);
     meTimWLay_->Fill(tHits[j], eHits[j]);
-    if (id < 6) // HCAL only. Depth is needed, not layer !!!
+    if (id < 6)  // HCAL only. Depth is needed, not layer !!!
     {
       meEtaPhi_->Fill(etaHits[j], phiHits[j]);
     }
@@ -416,7 +371,7 @@ void HcalHitValidation::analyzeLayer(
     eTot += eLayer[j];
     meEneLLay_->Fill(eLayer[j]);
     meEneLay_[j]->Fill(eLayer[j]);
-    meLngLay_->Fill((double)(j), eLayer[j]); // HCAL SimHits only
+    meLngLay_->Fill((double)(j), eLayer[j]);  // HCAL SimHits only
   }
   for (int j = 0; j < nDepthsMAX; j++) {
     meEneDLay_->Fill(eDepth[j]);
@@ -439,15 +394,12 @@ void HcalHitValidation::analyzeLayer(
   meEHFEmLay_->Fill(eEcalHF);
   meEHFHdLay_->Fill(eHcalHF);
 
-  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeLayer: eHO " << eHO
-                           << "  eHBHE = " << eHBHE << " elongHF = " << elongHF
-                           << " eshortHF = " << eshortHF
-                           << "  eEcalHF = " << eEcalHF
+  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeLayer: eHO " << eHO << "  eHBHE = " << eHBHE
+                           << " elongHF = " << elongHF << " eshortHF = " << eshortHF << "  eEcalHF = " << eEcalHF
                            << "  eHcalHF = " << eHcalHF;
 }
 
 void HcalHitValidation::analyzeNxN(edm::Handle<PHcalValidInfoNxN> &infoNxN) {
-
   // NxN quantities
   double ecalNxNr = infoNxN->ecalnxnr();
   double hcalNxNr = infoNxN->hcalnxnr();
@@ -474,20 +426,18 @@ void HcalHitValidation::analyzeNxN(edm::Handle<PHcalValidInfoNxN> &infoNxN) {
   std::vector<float> eIxI = infoNxN->enxn();
   std::vector<float> tIxI = infoNxN->tnxn();
 
-  for (int j = 0; j < nIxI; j++) // NB !!! j < nIxI
+  for (int j = 0; j < nIxI; j++)  // NB !!! j < nIxI
   {
     meEiNxN_->Fill(eIxI[j]);
     meTiNxN_->Fill(tIxI[j]);
-    meTrNxN_->Fill(idIxI[j], eIxI[j]); // transverse profile
+    meTrNxN_->Fill(idIxI[j], eIxI[j]);  // transverse profile
   }
 
-  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeNxN: " << nIxI
-                           << " hits in NxN analysis; Total Energy " << etotNxN
-                           << "/" << etotNxNr;
+  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeNxN: " << nIxI << " hits in NxN analysis; Total Energy "
+                           << etotNxN << "/" << etotNxNr;
 }
 
 void HcalHitValidation::analyzeJets(edm::Handle<PHcalValidInfoJets> &infoJets) {
-
   // -- Leading Jet
   int nJetHits = infoJets->njethit();
 
@@ -533,11 +483,10 @@ void HcalHitValidation::analyzeJets(edm::Handle<PHcalValidInfoJets> &infoJets) {
     meEtaJet_->Fill(jetEta[j]);
     mePhiJet_->Fill(jetPhi[j]);
   }
-  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeJets: " << nJets
-                           << " jets with " << nJetHits << " hits in the "
+  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeJets: " << nJets << " jets with " << nJetHits
+                           << " hits in the "
                            << "leading jet\n"
-                           << "   d(Eta) = " << detaJet
-                           << "  d(Phi) = " << dphiJet << "  d(R) = " << drJet
+                           << "   d(Eta) = " << detaJet << "  d(Phi) = " << dphiJet << "  d(R) = " << drJet
                            << "  diJet Mass = " << dijetM;
 }
 

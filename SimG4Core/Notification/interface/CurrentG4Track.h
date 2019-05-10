@@ -11,13 +11,13 @@
  *  this class will be removed.
  */
 
-class CurrentG4Track 
-{
+class CurrentG4Track {
 public:
-    static const G4Track * track();
-    static void setTrack(const G4Track *);
+  static const G4Track *track();
+  static void setTrack(const G4Track *);
+
 private:
-    static thread_local const G4Track * m_track;
+  static thread_local const G4Track *m_track;
 };
 
 #endif

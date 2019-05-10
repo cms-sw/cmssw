@@ -16,9 +16,7 @@ class RPCStripNoisesRcd;
     @brief Pure virtual class for EventSetup sources of RPCStripNoises.
     @author R. Trentadue
 */
-class RPCPerformanceESSource : public edm::ESProducer,
-                               public edm::EventSetupRecordIntervalFinder {
-
+class RPCPerformanceESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   RPCPerformanceESSource(const edm::ParameterSet &);
   ~RPCPerformanceESSource() override { ; }
@@ -39,4 +37,4 @@ public:
   virtual RPCStripNoises *makeNoise() = 0;
 };
 
-#endif // CalibTracker_RPCCalibration_RPCPerformanceESSource_H
+#endif  // CalibTracker_RPCCalibration_RPCPerformanceESSource_H

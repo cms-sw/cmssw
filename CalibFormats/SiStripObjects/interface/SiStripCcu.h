@@ -12,7 +12,6 @@
     \author R.Bainbridge
 */
 class SiStripCcu {
-
 public:
   /** */
   SiStripCcu(const FedChannelConnection &conn);
@@ -43,10 +42,8 @@ private:
 
 // ---------- inline methods ----------
 
-const std::vector<SiStripModule> &SiStripCcu::modules() const {
-  return modules_;
-}
+const std::vector<SiStripModule> &SiStripCcu::modules() const { return modules_; }
 std::vector<SiStripModule> &SiStripCcu::modules() { return modules_; }
 const uint16_t &SiStripCcu::ccuAddr() const { return ccuAddr_; }
 
-#endif // CalibTracker_SiStripObjects_SiStripCcu_H
+#endif  // CalibTracker_SiStripObjects_SiStripCcu_H

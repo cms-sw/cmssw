@@ -10,16 +10,13 @@ using namespace std;
 // -----------------------------------------------------------------------------
 //
 RPCPerformanceESSource::RPCPerformanceESSource(const edm::ParameterSet &pset) {
-
   setWhatProduced(this);
   findingRecord<RPCStripNoisesRcd>();
 }
 
 // -----------------------------------------------------------------------------
 //
-unique_ptr<RPCStripNoises>
-RPCPerformanceESSource::produce(const RPCStripNoisesRcd &) {
-
+unique_ptr<RPCStripNoises> RPCPerformanceESSource::produce(const RPCStripNoisesRcd &) {
   RPCStripNoises *noise = makeNoise();
 
   return unique_ptr<RPCStripNoises>(noise);
@@ -27,9 +24,9 @@ RPCPerformanceESSource::produce(const RPCStripNoisesRcd &) {
 
 // -----------------------------------------------------------------------------
 //
-void RPCPerformanceESSource::setIntervalFor(
-    const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &iosv,
-    edm::ValidityInterval &oValidity) {
+void RPCPerformanceESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                                            const edm::IOVSyncValue &iosv,
+                                            edm::ValidityInterval &oValidity) {
   edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
 }

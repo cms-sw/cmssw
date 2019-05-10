@@ -17,8 +17,7 @@
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCFakeDBGains : public edm::ESProducer,
-                       public edm::EventSetupRecordIntervalFinder {
+class CSCFakeDBGains : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCFakeDBGains(const edm::ParameterSet &);
   ~CSCFakeDBGains() override;
@@ -45,7 +44,7 @@ private:
 inline CSCDBGains *CSCFakeDBGains::prefillDBGains() {
   int seed;
   float mean;
-  const int MAX_SIZE = 217728; // or 252288 for ME4/2 chambers
+  const int MAX_SIZE = 217728;  // or 252288 for ME4/2 chambers
   const int FACTOR = 1000;
 
   CSCDBGains *cndbgains = new CSCDBGains();
@@ -58,8 +57,7 @@ inline CSCDBGains *CSCFakeDBGains::prefillDBGains() {
 
   for (int i = 0; i < MAX_SIZE; i++) {
     cndbgains->gains[i].gain_slope =
-        (short int)(((double)rand() / ((double)(RAND_MAX) + (double)(1))) +
-                    mean * FACTOR + 0.5);
+        (short int)(((double)rand() / ((double)(RAND_MAX) + (double)(1))) + mean * FACTOR + 0.5);
   }
   return cndbgains;
 }

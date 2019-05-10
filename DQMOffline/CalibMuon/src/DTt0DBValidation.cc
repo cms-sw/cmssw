@@ -36,7 +36,6 @@ using namespace edm;
 using namespace std;
 
 DTt0DBValidation::DTt0DBValidation(const ParameterSet &pset) {
-
   metname_ = "InterChannelSynchDBValidation";
   LogVerbatim(metname_) << "[DTt0DBValidation] Constructor called!";
 
@@ -62,21 +61,18 @@ DTt0DBValidation::DTt0DBValidation(const ParameterSet &pset) {
 DTt0DBValidation::~DTt0DBValidation() {}
 
 void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
-
   metname_ = "InterChannelSynchDBValidation";
   LogVerbatim(metname_) << "[DTt0DBValidation] Parameters initialization";
 
   ESHandle<DTT0> t0_Ref;
   setup.get<DTT0Rcd>().get(labelDBRef_, t0_Ref);
   tZeroRefMap_ = &*t0_Ref;
-  LogVerbatim(metname_) << "[DTt0DBValidation] reference T0 version: "
-                        << t0_Ref->version();
+  LogVerbatim(metname_) << "[DTt0DBValidation] reference T0 version: " << t0_Ref->version();
 
   ESHandle<DTT0> t0;
   setup.get<DTT0Rcd>().get(labelDB_, t0);
   tZeroMap_ = &*t0;
-  LogVerbatim(metname_) << "[DTt0DBValidation] T0 to validate version: "
-                        << t0->version();
+  LogVerbatim(metname_) << "[DTt0DBValidation] T0 to validate version: " << t0->version();
 
   // book&reset the summary histos
   for (int wheel = -2; wheel <= 2; wheel++) {
@@ -88,8 +84,7 @@ void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
   setup.get<MuonGeometryRecord>().get(dtGeom_);
 
   // Loop over Ref DB entries
-  for (DTT0::const_iterator tzero = tZeroRefMap_->begin();
-       tzero != tZeroRefMap_->end(); tzero++) {
+  for (DTT0::const_iterator tzero = tZeroRefMap_->begin(); tzero != tZeroRefMap_->end(); tzero++) {
     // t0s and rms are TDC counts
     // @@@ NEW DTT0 FORMAT
     //    DTWireId wireId((*tzero).first.wheelId,
@@ -107,16 +102,14 @@ void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
     float t0rms;
     tZeroRefMap_->get(wireId, t0mean, t0rms, DTTimeUnits::counts);
     LogTrace(metname_) << "Ref Wire: " << wireId << endl
-                       << " T0 mean (TDC counts): " << t0mean
-                       << " T0_rms (TDC counts): " << t0rms;
+                       << " T0 mean (TDC counts): " << t0mean << " T0_rms (TDC counts): " << t0rms;
 
     t0RefMap_[wireId].push_back(t0mean);
     t0RefMap_[wireId].push_back(t0rms);
   }
 
   // Loop over Ref DB entries
-  for (DTT0::const_iterator tzero = tZeroMap_->begin();
-       tzero != tZeroMap_->end(); tzero++) {
+  for (DTT0::const_iterator tzero = tZeroMap_->begin(); tzero != tZeroMap_->end(); tzero++) {
     // t0s and rms are TDC counts
     // @@@ NEW DTT0 FORMAT
     //    DTWireId wireId((*tzero).first.wheelId,
@@ -134,18 +127,15 @@ void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
     float t0rms;
     tZeroMap_->get(wireId, t0mean, t0rms, DTTimeUnits::counts);
     LogTrace(metname_) << "Wire: " << wireId << endl
-                       << " T0 mean (TDC counts): " << t0mean
-                       << " T0_rms (TDC counts): " << t0rms;
+                       << " T0 mean (TDC counts): " << t0mean << " T0_rms (TDC counts): " << t0rms;
 
     t0Map_[wireId].push_back(t0mean);
     t0Map_[wireId].push_back(t0rms);
   }
 
   double difference = 0;
-  for (map<DTWireId, vector<float>>::const_iterator theMap = t0RefMap_.begin();
-       theMap != t0RefMap_.end(); theMap++) {
+  for (map<DTWireId, vector<float>>::const_iterator theMap = t0RefMap_.begin(); theMap != t0RefMap_.end(); theMap++) {
     if (t0Map_.find((*theMap).first) != t0Map_.end()) {
-
       // Compute the difference
       difference = t0Map_[(*theMap).first][0] - (*theMap).second[0];
 
@@ -158,46 +148,33 @@ void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
         bookHistos(layerId, firstWire, lastWire);
       }
 
-      LogTrace(metname_) << "Filling the histo for wire: " << (*theMap).first
-                         << "  difference: " << difference;
+      LogTrace(metname_) << "Filling the histo for wire: " << (*theMap).first << "  difference: " << difference;
       t0DiffHistos_[layerId]->Fill((*theMap).first.wire(), difference);
     }
-  } // Loop over the t0 map reference
+  }  // Loop over the t0 map reference
 }
 
-void DTt0DBValidation::endRun(edm::Run const &run,
-                              edm::EventSetup const &setup) {
-
+void DTt0DBValidation::endRun(edm::Run const &run, edm::EventSetup const &setup) {
   // Check the histos
   string testCriterionName = t0TestName_;
-  for (map<DTLayerId, MonitorElement *>::const_iterator hDiff =
-           t0DiffHistos_.begin();
-       hDiff != t0DiffHistos_.end(); hDiff++) {
-
-    const QReport *theDiffQReport =
-        (*hDiff).second->getQReport(testCriterionName);
+  for (map<DTLayerId, MonitorElement *>::const_iterator hDiff = t0DiffHistos_.begin(); hDiff != t0DiffHistos_.end();
+       hDiff++) {
+    const QReport *theDiffQReport = (*hDiff).second->getQReport(testCriterionName);
     if (theDiffQReport) {
-      int xBin = ((*hDiff).first.station() - 1) * 12 + (*hDiff).first.layer() +
-                 4 * ((*hDiff).first.superlayer() - 1);
+      int xBin = ((*hDiff).first.station() - 1) * 12 + (*hDiff).first.layer() + 4 * ((*hDiff).first.superlayer() - 1);
       if ((*hDiff).first.station() == 4 && (*hDiff).first.superlayer() == 3)
-        xBin = ((*hDiff).first.station() - 1) * 12 + (*hDiff).first.layer() +
-               4 * ((*hDiff).first.superlayer() - 2);
+        xBin = ((*hDiff).first.station() - 1) * 12 + (*hDiff).first.layer() + 4 * ((*hDiff).first.superlayer() - 2);
 
       int qReportStatus = theDiffQReport->getStatus() / 100;
-      wheelSummary_[(*hDiff).first.wheel()]->setBinContent(
-          xBin, (*hDiff).first.sector(), qReportStatus);
+      wheelSummary_[(*hDiff).first.wheel()]->setBinContent(xBin, (*hDiff).first.sector(), qReportStatus);
 
-      LogVerbatim(metname_) << "-------- layer: " << (*hDiff).first << "  "
-                            << theDiffQReport->getMessage() << " ------- "
-                            << theDiffQReport->getStatus() << " ------- "
-                            << setprecision(3) << theDiffQReport->getQTresult();
-      vector<dqm::me_util::Channel> badChannels =
-          theDiffQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel =
-               badChannels.begin();
-           channel != badChannels.end(); channel++) {
-        LogVerbatim(metname_) << "layer: " << (*hDiff).first
-                              << " Bad channel: " << (*channel).getBin()
+      LogVerbatim(metname_) << "-------- layer: " << (*hDiff).first << "  " << theDiffQReport->getMessage()
+                            << " ------- " << theDiffQReport->getStatus() << " ------- " << setprecision(3)
+                            << theDiffQReport->getQTresult();
+      vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
+           channel++) {
+        LogVerbatim(metname_) << "layer: " << (*hDiff).first << " Bad channel: " << (*channel).getBin()
                               << "  Contents : " << (*channel).getContents();
 
         // wheelSummary_[(*hDiff).first.wheel()]->Fill(xBin,(*hDiff).first.sector());
@@ -214,7 +191,6 @@ void DTt0DBValidation::endJob() {
 
 // Book a set of histograms for a given Layer
 void DTt0DBValidation::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
-
   LogTrace(metname_) << "   Booking histos for L: " << lId;
 
   // Compose the chamber name
@@ -229,18 +205,18 @@ void DTt0DBValidation::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
   stringstream layer;
   layer << lId.layer();
 
-  string lHistoName = "_W" + wheel.str() + "_St" + station.str() + "_Sec" +
-                      sector.str() + "_SL" + superLayer.str() + "_L" +
-                      layer.str();
+  string lHistoName = "_W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() + "_SL" + superLayer.str() +
+                      "_L" + layer.str();
 
-  dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation/Wheel" +
-                         wheel.str() + "/Station" + station.str() + "/Sector" +
-                         sector.str() + "/SuperLayer" + superLayer.str());
+  dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation/Wheel" + wheel.str() + "/Station" + station.str() +
+                         "/Sector" + sector.str() + "/SuperLayer" + superLayer.str());
   // Create the monitor elements
   MonitorElement *hDifference;
-  hDifference = dbe_->book1D(
-      "T0Difference" + lHistoName, "difference between the two t0 values",
-      lastWire - firstWire + 1, firstWire - 0.5, lastWire + 0.5);
+  hDifference = dbe_->book1D("T0Difference" + lHistoName,
+                             "difference between the two t0 values",
+                             lastWire - firstWire + 1,
+                             firstWire - 0.5,
+                             lastWire + 0.5);
 
   t0DiffHistos_[lId] = hDifference;
 }
@@ -250,10 +226,8 @@ void DTt0DBValidation::bookHistos(int wheel) {
   dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation");
   stringstream wh;
   wh << wheel;
-  wheelSummary_[wheel] =
-      dbe_->book2D("SummaryWrongT0_W" + wh.str(),
-                   "W" + wh.str() + ": summary of wrong t0 differences", 44, 1,
-                   45, 14, 1, 15);
+  wheelSummary_[wheel] = dbe_->book2D(
+      "SummaryWrongT0_W" + wh.str(), "W" + wh.str() + ": summary of wrong t0 differences", 44, 1, 45, 14, 1, 15);
   wheelSummary_[wheel]->setBinLabel(1, "M1L1", 1);
   wheelSummary_[wheel]->setBinLabel(2, "M1L2", 1);
   wheelSummary_[wheel]->setBinLabel(3, "M1L3", 1);

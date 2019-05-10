@@ -8,10 +8,8 @@ class DDG4Builder;
 class DDCompactView;
 
 class DDDWorld {
-
 public:
-  DDDWorld(const DDCompactView *, G4LogicalVolumeToDDLogicalPartMap &,
-           SensitiveDetectorCatalog &, bool check = false);
+  DDDWorld(const DDCompactView *, G4LogicalVolumeToDDLogicalPartMap &, SensitiveDetectorCatalog &, bool check = false);
   ~DDDWorld();
   static void SetAsWorld(G4VPhysicalVolume *pv);
   static void WorkerSetAsWorld(G4VPhysicalVolume *pv);

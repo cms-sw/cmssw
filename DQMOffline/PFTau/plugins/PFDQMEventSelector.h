@@ -6,7 +6,6 @@
 
 class DQMStore;
 class PFDQMEventSelector : public edm::EDFilter {
-
 public:
   PFDQMEventSelector(const edm::ParameterSet &);
   ~PFDQMEventSelector() override;

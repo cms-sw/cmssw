@@ -17,28 +17,23 @@
 #include "TFile.h"
 #include "TGraph.h"
 
-
-
-class EcalPnGraphs: public edm::EDAnalyzer{
-  
+class EcalPnGraphs : public edm::EDAnalyzer {
 public:
-
-  EcalPnGraphs(const edm::ParameterSet& ps);   
+  EcalPnGraphs(const edm::ParameterSet& ps);
   ~EcalPnGraphs() override;
-    
+
 private:
-  void analyze(const edm::Event & e, const  edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void beginJob() override;
   void endJob() override;
- 
+
   //  void pnGraphs (edm::Handle<EcalPnDiodeDigiCollection> PNs );
 
   std::string intToString(int num);
 
   EcalFedMap* fedMap;
-  
-protected:
 
+protected:
   //  std::string ebDigiCollection_;
   //std::string eeDigiCollection_;
   std::string digiProducer_;
@@ -48,10 +43,9 @@ protected:
 
   int verbosity;
   int eventCounter;
-   
+
   //  std::vector<int ieb_id;
   int first_Pn;
-  
 
   bool inputIsOk;
 
@@ -66,12 +60,10 @@ protected:
 
   int abscissa[50];
   int ordinate[50];
-  
+
   std::vector<TGraph> graphs;
-  
-  TFile * root_file;
-  
+
+  TFile* root_file;
 };
 
 #endif
-

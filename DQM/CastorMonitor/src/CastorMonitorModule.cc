@@ -28,22 +28,14 @@ using namespace edm;
 
 CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet &ps) {
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);
-  subsystemname_ =
-      ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor");
-  inputTokenRaw_ = consumes<FEDRawDataCollection>(
-      ps.getParameter<edm::InputTag>("rawLabel"));
-  inputTokenReport_ = consumes<HcalUnpackerReport>(
-      ps.getParameter<edm::InputTag>("unpackerReportLabel"));
-  inputTokenDigi_ = consumes<CastorDigiCollection>(
-      ps.getParameter<edm::InputTag>("digiLabel"));
-  inputTokenRecHitCASTOR_ = consumes<CastorRecHitCollection>(
-      ps.getParameter<edm::InputTag>("CastorRecHitLabel"));
-  inputTokenCastorTowers_ = consumes<CastorTowerCollection>(
-      ps.getParameter<edm::InputTag>("CastorTowerLabel"));
-  JetAlgorithm = consumes<BasicJetCollection>(
-      ps.getParameter<edm::InputTag>("CastorBasicJetsLabel"));
-  tokenTriggerResults = consumes<edm::TriggerResults>(
-      ps.getParameter<edm::InputTag>("tagTriggerResults"));
+  subsystemname_ = ps.getUntrackedParameter<std::string>("subSystemFolder", "Castor");
+  inputTokenRaw_ = consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("rawLabel"));
+  inputTokenReport_ = consumes<HcalUnpackerReport>(ps.getParameter<edm::InputTag>("unpackerReportLabel"));
+  inputTokenDigi_ = consumes<CastorDigiCollection>(ps.getParameter<edm::InputTag>("digiLabel"));
+  inputTokenRecHitCASTOR_ = consumes<CastorRecHitCollection>(ps.getParameter<edm::InputTag>("CastorRecHitLabel"));
+  inputTokenCastorTowers_ = consumes<CastorTowerCollection>(ps.getParameter<edm::InputTag>("CastorTowerLabel"));
+  JetAlgorithm = consumes<BasicJetCollection>(ps.getParameter<edm::InputTag>("CastorBasicJetsLabel"));
+  tokenTriggerResults = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("tagTriggerResults"));
 
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
 
@@ -61,8 +53,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet &ps) {
 
 CastorMonitorModule::~CastorMonitorModule() {}
 
-void CastorMonitorModule::dqmBeginRun(const edm::Run &iRun,
-                                      const edm::EventSetup &iSetup) {
+void CastorMonitorModule::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   if (fVerbosity > 0)
     LogPrint("CastorMonitorModule") << "dqmBeginRun(start)";
 }
@@ -105,15 +96,13 @@ void CastorMonitorModule::bookHistograms(DQMStore::IBooker &ibooker,
   return;
 }
 
-void CastorMonitorModule::endRun(const edm::Run &r,
-                                 const edm::EventSetup &context) {
+void CastorMonitorModule::endRun(const edm::Run &r, const edm::EventSetup &context) {
   if (DigiMon_) {
     DigiMon_->endRun();
   }
 }
 
-void CastorMonitorModule::analyze(const edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
+void CastorMonitorModule::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   if (fVerbosity > 1)
     LogPrint("CastorMonitorModule") << "analyze (start)";
 
@@ -177,12 +166,11 @@ void CastorMonitorModule::analyze(const edm::Event &iEvent,
     jetsOK_ = false;
 
   if (fVerbosity > 0)
-    LogPrint("CastorMonitorModule")
-        << "CastorProductValid(size): RawDataValid=" << RawData.isValid()
-        << " Digi=" << digiOK_ << "(" << nDigi << ") Hits=" << rechitOK_ << "("
-        << nrecHits << ")"
-        << " Towers=" << towerOK_ << "(" << nTowers << ")"
-        << " Jets=" << jetsOK_ << "(" << nJets << ")";
+    LogPrint("CastorMonitorModule") << "CastorProductValid(size): RawDataValid=" << RawData.isValid()
+                                    << " Digi=" << digiOK_ << "(" << nDigi << ") Hits=" << rechitOK_ << "(" << nrecHits
+                                    << ")"
+                                    << " Towers=" << towerOK_ << "(" << nTowers << ")"
+                                    << " Jets=" << jetsOK_ << "(" << nJets << ")";
 
   CastorEventProduct->Fill(0, fedsUnpacked / 3.);
   CastorEventProduct->Fill(1, rawOK_);
@@ -200,8 +188,7 @@ void CastorMonitorModule::analyze(const edm::Event &iEvent,
   if (showTiming_) {
     cpu_timer.stop();
     if (DigiMon_ != nullptr)
-      std::cout << "TIMER:: DIGI MONITOR ->" << cpu_timer.cpuTime()
-                << std::endl;
+      std::cout << "TIMER:: DIGI MONITOR ->" << cpu_timer.cpuTime() << std::endl;
     cpu_timer.reset();
     cpu_timer.start();
   }
@@ -211,8 +198,7 @@ void CastorMonitorModule::analyze(const edm::Event &iEvent,
   if (showTiming_) {
     cpu_timer.stop();
     if (RecHitMon_ != nullptr)
-      std::cout << "TIMER:: RECHIT MONITOR->" << cpu_timer.cpuTime()
-                << std::endl;
+      std::cout << "TIMER:: RECHIT MONITOR->" << cpu_timer.cpuTime() << std::endl;
     cpu_timer.reset();
     cpu_timer.start();
   }

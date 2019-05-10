@@ -5,15 +5,14 @@
 
 // tdrGrid: Turns the grid lines on (true) or off (false)
 TStyle genStyle() {
-
   TStyle myStyle("myStyle", "Style similar to P-TDR");
 
   // For the canvas:
   myStyle.SetCanvasBorderMode(0);
   myStyle.SetCanvasColor(kWhite);
-  myStyle.SetCanvasDefH(600); // Height of canvas
-  myStyle.SetCanvasDefW(600); // Width of canvas
-  myStyle.SetCanvasDefX(0);   // POsition on screen
+  myStyle.SetCanvasDefH(600);  // Height of canvas
+  myStyle.SetCanvasDefW(600);  // Width of canvas
+  myStyle.SetCanvasDefX(0);    // POsition on screen
   myStyle.SetCanvasDefY(0);
 
   // For the Pad:
@@ -64,7 +63,7 @@ TStyle genStyle() {
 
   // For the statistics box:
   myStyle.SetOptFile(1);
-  myStyle.SetOptStat("mre"); // To display the mean and RMS:   SetOptStat("mr");
+  myStyle.SetOptStat("mre");  // To display the mean and RMS:   SetOptStat("mr");
   myStyle.SetStatColor(kWhite);
   myStyle.SetStatFont(42);
   myStyle.SetStatFontSize(0.025);
@@ -122,7 +121,7 @@ TStyle genStyle() {
   myStyle.SetStripDecimals(kTRUE);
   myStyle.SetTickLength(0.03, "XYZ");
   myStyle.SetNdivisions(510, "XYZ");
-  myStyle.SetPadTickX(1); // To get tick marks on the opposite side of the frame
+  myStyle.SetPadTickX(1);  // To get tick marks on the opposite side of the frame
   myStyle.SetPadTickY(1);
 
   // Change for log plots:
@@ -147,4 +146,4 @@ TStyle genStyle() {
   return myStyle;
 }
 
-#endif // STYLE__H
+#endif  // STYLE__H

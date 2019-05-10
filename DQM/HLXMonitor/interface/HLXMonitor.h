@@ -29,10 +29,10 @@ Implementation:
 #include <sys/time.h>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h" // Not included in example
+#include "FWCore/Framework/interface/Frameworkfwd.h"  // Not included in example
 
-#include "FWCore/Framework/interface/Event.h"       // Not included in example
-#include "FWCore/Framework/interface/MakerMacros.h" // Not included in example
+#include "FWCore/Framework/interface/Event.h"        // Not included in example
+#include "FWCore/Framework/interface/MakerMacros.h"  // Not included in example
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -53,8 +53,7 @@ public:
   ~HLXMonitor() override;
 
 private:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   void connectHLXTCP();
@@ -171,7 +170,7 @@ private:
   ///   by the module
   //////////////////////////////////////////////////////////////////
   MonitorElement *runId_;
-  MonitorElement *runStartTimeStamp_; /// UTC time of the run start
+  MonitorElement *runStartTimeStamp_;  /// UTC time of the run start
   MonitorElement *eventId_;
   MonitorElement *lumisecId_;
   MonitorElement *eventTimeStamp_;
@@ -179,23 +178,21 @@ private:
   //////////////////////////////////////////////////////////////////
   /// These MEs are either static or updated upon each analyze() call
   //////////////////////////////////////////////////////////////////
-  MonitorElement *nUpdates_;  /// Number of collector updates (TBD)
-  MonitorElement *processId_; /// The PID associated with this job
-  MonitorElement
-      *processStartTimeStamp_; /// The UTC time of the first event processed
-  MonitorElement *processTimeStamp_; /// The UTC time of the last event
-  MonitorElement *processLatency_;   /// Time elapsed since the last event
-  MonitorElement *processEventRate_; /// Avg # of events in programmable window
-                                     /// (default: 5 min)
-  MonitorElement *processEvents_;    ///# of event processed so far
-  MonitorElement *hostName_;         /// Hostname of the local machine
-  MonitorElement *processName_;      /// DQM "name" of the job (eg, Hcal or DT)
-  MonitorElement *workingDir_;       /// Current working directory of the job
-  MonitorElement *cmsswVer_;         /// CMSSW version run for this job
-  MonitorElement *dqmPatch_;         /// DQM patch version for this job
-  MonitorElement *errSummary_; /// Subdetector-specific error summary (float)
-  MonitorElement
-      *errSummaryEtaPhi_; /// Subdetector-specific etaPhi summary (float)
+  MonitorElement *nUpdates_;               /// Number of collector updates (TBD)
+  MonitorElement *processId_;              /// The PID associated with this job
+  MonitorElement *processStartTimeStamp_;  /// The UTC time of the first event processed
+  MonitorElement *processTimeStamp_;       /// The UTC time of the last event
+  MonitorElement *processLatency_;         /// Time elapsed since the last event
+  MonitorElement *processEventRate_;       /// Avg # of events in programmable window
+                                           /// (default: 5 min)
+  MonitorElement *processEvents_;          ///# of event processed so far
+  MonitorElement *hostName_;               /// Hostname of the local machine
+  MonitorElement *processName_;            /// DQM "name" of the job (eg, Hcal or DT)
+  MonitorElement *workingDir_;             /// Current working directory of the job
+  MonitorElement *cmsswVer_;               /// CMSSW version run for this job
+  MonitorElement *dqmPatch_;               /// DQM patch version for this job
+  MonitorElement *errSummary_;             /// Subdetector-specific error summary (float)
+  MonitorElement *errSummaryEtaPhi_;       /// Subdetector-specific etaPhi summary (float)
   MonitorElement *errSummarySegment_[10];
 
   // Report Summary
@@ -216,7 +213,7 @@ private:
   bool Accumulate;
   std::string OutputFilePrefix;
   std::string OutputDir;
-  std::string Style; // BX, History, Distribution
+  std::string Style;  // BX, History, Distribution
   int SavePeriod;
   unsigned int NUM_HLX;
   unsigned int NUM_BUNCHES;

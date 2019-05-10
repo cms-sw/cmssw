@@ -57,8 +57,7 @@ public:
   //       typedef edm::DetSet<PixelRecHit>::const_iterator    RecHitIterator;
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, const edm::EventSetup &) override;
   void dqmBeginRun(const edm::Run &, edm::EventSetup const &) override;
 
   virtual void buildStructure(edm::EventSetup const &);

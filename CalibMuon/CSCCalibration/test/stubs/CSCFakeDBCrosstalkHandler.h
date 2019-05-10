@@ -16,18 +16,16 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 namespace popcon {
-class CSCFakeDBCrosstalkImpl
-    : public popcon::PopConSourceHandler<CSCDBCrosstalk> {
+  class CSCFakeDBCrosstalkImpl : public popcon::PopConSourceHandler<CSCDBCrosstalk> {
+  public:
+    void getNewObjects();
+    std::string id() const { return m_name; }
+    ~CSCFakeDBCrosstalkImpl();
 
-public:
-  void getNewObjects();
-  std::string id() const { return m_name; }
-  ~CSCFakeDBCrosstalkImpl();
+    CSCFakeDBCrosstalkImpl(const edm::ParameterSet &pset);
 
-  CSCFakeDBCrosstalkImpl(const edm::ParameterSet &pset);
-
-private:
-  std::string m_name;
-};
-} // namespace popcon
+  private:
+    std::string m_name;
+  };
+}  // namespace popcon
 #endif

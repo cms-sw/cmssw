@@ -64,20 +64,16 @@ public:
   float pedestalSigma(const CSCDetId &detId, int channel) const;
 
   /// crosstalk slope for left and right
-  float crosstalkSlope(const CSCDetId &detId, int channel,
-                       bool leftRight) const;
+  float crosstalkSlope(const CSCDetId &detId, int channel, bool leftRight) const;
   /// crosstalk intercept for left and right
-  float crosstalkIntercept(const CSCDetId &detId, int channel,
-                           bool leftRight) const;
+  float crosstalkIntercept(const CSCDetId &detId, int channel, bool leftRight) const;
 
   /// raw noise matrix (unscaled short int elements)
-  const CSCDBNoiseMatrix::Item &noiseMatrix(const CSCDetId &detId,
-                                            int channel) const;
+  const CSCDBNoiseMatrix::Item &noiseMatrix(const CSCDetId &detId, int channel) const;
 
   /// fill vector (dim 12, must be allocated by caller) with noise matrix
   /// elements (scaled to float)
-  void noiseMatrixElements(const CSCDetId &id, int channel,
-                           std::vector<float> &me) const;
+  void noiseMatrixElements(const CSCDetId &id, int channel, std::vector<float> &me) const;
 
   /// fill vector (dim 4, must be allocated by caller) with crosstalk sl, il,
   /// sr, ir
@@ -162,22 +158,22 @@ private:
 
   // logical flags controlling some conditions data usage
 
-  bool readBadChannels_;      // flag whether or not to even attempt reading bad
-                              // channel info from db
-  bool readBadChambers_;      // flag whether or not to even attempt reading bad
-                              // chamber info from db
-  bool useTimingCorrections_; // flag whether or not to even attempt reading
-                              // timing correction info from db
-  bool useGasGainCorrections_; // flag whether or not to even attempt reading
-                               // gas-gain correction info from db
+  bool readBadChannels_;        // flag whether or not to even attempt reading bad
+                                // channel info from db
+  bool readBadChambers_;        // flag whether or not to even attempt reading bad
+                                // chamber info from db
+  bool useTimingCorrections_;   // flag whether or not to even attempt reading
+                                // timing correction info from db
+  bool useGasGainCorrections_;  // flag whether or not to even attempt reading
+                                // gas-gain correction info from db
 
   // Cache bad channel content for current CSC layer
   CSCDetId idOfBadChannelWords_;
   std::bitset<112> badStripWord_;
   std::bitset<112> badWireWord_;
 
-  mutable float theAverageGain; // average over entire system, subject to some
-                                // constraints!
+  mutable float theAverageGain;  // average over entire system, subject to some
+                                 // constraints!
 
   edm::ESWatcher<CSCDBGainsRcd> gainsWatcher_;
   //@@ remove until we have real information to use

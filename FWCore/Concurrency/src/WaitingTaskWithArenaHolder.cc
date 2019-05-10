@@ -12,16 +12,13 @@
 
 namespace edm {
 
-  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder() : m_task(nullptr) {
-  }
+  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder() : m_task(nullptr) {}
 
   // Note that the arena will be the one containing the thread
   // that runs this constructor. This is the arena where you
   // eventually intend for the task to be spawned.
-  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTask* iTask) :
-    m_task(iTask),
-    m_arena(std::make_shared<tbb::task_arena>(tbb::task_arena::attach())) {
-
+  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTask* iTask)
+      : m_task(iTask), m_arena(std::make_shared<tbb::task_arena>(tbb::task_arena::attach())) {
     m_task->increment_ref_count();
   }
 
@@ -31,17 +28,13 @@ namespace edm {
     }
   }
 
-  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder const& iHolder) :
-    m_task(iHolder.m_task),
-    m_arena(iHolder.m_arena) {
-
+  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder const& iHolder)
+      : m_task(iHolder.m_task), m_arena(iHolder.m_arena) {
     m_task->increment_ref_count();
   }
 
-  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder&& iOther) :
-    m_task(iOther.m_task),
-    m_arena(std::move(iOther.m_arena)) {
-
+  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder&& iOther)
+      : m_task(iOther.m_task), m_arena(std::move(iOther.m_arena)) {
     iOther.m_task = nullptr;
   }
 
@@ -76,7 +69,7 @@ namespace edm {
     if (0 == task->decrement_ref_count()) {
       // The enqueue call will cause a worker thread to be created in
       // the arena if there is not one already.
-      m_arena->enqueue( [task = task](){ tbb::task::spawn(*task); });
+      m_arena->enqueue([task = task]() { tbb::task::spawn(*task); });
     }
   }
 
@@ -98,4 +91,4 @@ namespace edm {
     m_task = nullptr;
     return holder;
   }
-}
+}  // namespace edm

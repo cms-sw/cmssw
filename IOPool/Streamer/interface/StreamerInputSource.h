@@ -8,7 +8,6 @@
  * framework objects (e.g. ProductRegistry and EventPrincipal)
  */
 
-
 #include "TBufferFile.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,9 +29,8 @@ namespace edm {
   class ThinnedAssociationsHelper;
 
   class StreamerInputSource : public RawInputSource {
-  public:  
-    explicit StreamerInputSource(ParameterSet const& pset,
-                 InputSourceDescription const& desc);
+  public:
+    explicit StreamerInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     ~StreamerInputSource() override;
     static void fillDescription(ParameterSetDescription& description);
 
@@ -42,12 +40,11 @@ namespace edm {
 
     void deserializeEvent(EventMsgView const& eventView);
 
-    static
-    void mergeIntoRegistry(SendJobHeader const& header,
-                           ProductRegistry&,
-                           BranchIDListHelper&,
-                           ThinnedAssociationsHelper&,
-                           bool subsequent);
+    static void mergeIntoRegistry(SendJobHeader const& header,
+                                  ProductRegistry&,
+                                  BranchIDListHelper&,
+                                  ThinnedAssociationsHelper&,
+                                  bool subsequent);
 
     /**
      * Uncompresses the data in the specified input buffer into the
@@ -61,13 +58,13 @@ namespace edm {
                                          unsigned int inputSize,
                                          std::vector<unsigned char>& outputBuffer,
                                          unsigned int expectedFullSize);
+
   protected:
     static void declareStreamers(SendDescs const& descs);
     static void buildClassCache(SendDescs const& descs);
     void resetAfterEndRun();
 
   private:
-
     class EventPrincipalHolder : public EDProductGetter {
     public:
       EventPrincipalHolder();
@@ -76,9 +73,8 @@ namespace edm {
       WrapperBase const* getIt(ProductID const& id) const override;
       WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
       void getThinnedProducts(ProductID const& pid,
-                                      std::vector<WrapperBase const*>& wrappers,
-                                      std::vector<unsigned int>& keys) const override;
-
+                              std::vector<WrapperBase const*>& wrappers,
+                              std::vector<unsigned int>& keys) const override;
 
       unsigned int transitionIndex_() const override;
 
@@ -105,7 +101,7 @@ namespace edm {
 
     std::string processName_;
     unsigned int protocolVersion_;
-  }; //end-of-class-def
-} // end of namespace-edm
-  
+  };  //end-of-class-def
+}  // namespace edm
+
 #endif

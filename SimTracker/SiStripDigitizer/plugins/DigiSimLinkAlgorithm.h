@@ -39,39 +39,45 @@ namespace CLHEP {
 class TrackerTopolgoy;
 
 class DigiSimLinkAlgorithm {
- public:
+public:
   typedef SiDigitalConverter::DigitalVecType DigitalVecType;
   typedef SiDigitalConverter::DigitalRawVecType DigitalRawVecType;
   typedef DigiSimLinkPileUpSignals::HitToDigisMapType HitToDigisMapType;
   typedef DigiSimLinkPileUpSignals::HitCounterToDigisMapType HitCounterToDigisMapType;
-  typedef std::map< int, float, std::less<int> > hit_map_type;
+  typedef std::map<int, float, std::less<int> > hit_map_type;
   typedef float Amplitude;
-  
+
   // Constructor
-  DigiSimLinkAlgorithm(const edm::ParameterSet& conf);
+  DigiSimLinkAlgorithm(const edm::ParameterSet &conf);
 
   // Destructor
   ~DigiSimLinkAlgorithm();
 
   // Runs the algorithm
-  void  run(edm::DetSet<SiStripDigi>&, edm::DetSet<SiStripRawDigi>&,
-            const std::vector<std::pair<const PSimHit*, int > >  &, 
-            StripGeomDetUnit const *, GlobalVector, float, 
-            edm::ESHandle<SiStripGain> &, edm::ESHandle<SiStripThreshold> &, 
-            edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripBadStrip> &,
-	    const TrackerTopology *tTopo,
-            CLHEP::HepRandomEngine*);
+  void run(edm::DetSet<SiStripDigi> &,
+           edm::DetSet<SiStripRawDigi> &,
+           const std::vector<std::pair<const PSimHit *, int> > &,
+           StripGeomDetUnit const *,
+           GlobalVector,
+           float,
+           edm::ESHandle<SiStripGain> &,
+           edm::ESHandle<SiStripThreshold> &,
+           edm::ESHandle<SiStripNoises> &,
+           edm::ESHandle<SiStripPedestals> &,
+           edm::ESHandle<SiStripBadStrip> &,
+           const TrackerTopology *tTopo,
+           CLHEP::HepRandomEngine *);
 
   // digisimlink
   std::vector<StripDigiSimLink> make_link() { return link_coll; }
 
   // ParticleDataTable
-  void setParticleDataTable(const ParticleDataTable * pardt) {
-  	theSiHitDigitizer->setParticleDataTable(pardt); 
-  	pdt= pardt; 
+  void setParticleDataTable(const ParticleDataTable *pardt) {
+    theSiHitDigitizer->setParticleDataTable(pardt);
+    pdt = pardt;
   }
-  
- private:
+
+private:
   edm::ParameterSet conf_;
   double theElectronPerADC;
   double theThreshold;
@@ -79,29 +85,28 @@ class DigiSimLinkAlgorithm {
   double cmnRMStob;
   double cmnRMStid;
   double cmnRMStec;
-  double APVSaturationProb;          
+  double APVSaturationProb;
   bool peakMode;
   bool noise;
-  bool RealPedestals;              
-  bool SingleStripNoise;          
-  bool CommonModeNoise;           
-  bool BaselineShift;             
+  bool RealPedestals;
+  bool SingleStripNoise;
+  bool CommonModeNoise;
+  bool BaselineShift;
   bool APVSaturationFromHIP;
-  
+
   int theFedAlgo;
   bool zeroSuppression;
   double theTOFCutForPeak;
   double theTOFCutForDeconvolution;
   double tofCut;
-  int numStrips; 
-  int strip;     
+  int numStrips;
+  int strip;
   //double noiseRMS;
   //double pedValue;
   double cosmicShift;
   double inefficiency;
   double pedOffset;
   bool PreMixing_;
-
 
   size_t firstChannelWithSignal;
   size_t lastChannelWithSignal;
@@ -113,30 +118,30 @@ class DigiSimLinkAlgorithm {
   // total amplitude of detector channels
   std::vector<float> detAmpl;
 
-  const ParticleDataTable * pdt;
-  const ParticleData * particle;
-  
-  SiHitDigitizer* theSiHitDigitizer;
-  DigiSimLinkPileUpSignals* theDigiSimLinkPileUpSignals;
-  SiGaussianTailNoiseAdder* theSiNoiseAdder;
-  SiTrivialDigitalConverter* theSiDigitalConverter;
-  SiStripFedZeroSuppression* theSiZeroSuppress;
+  const ParticleDataTable *pdt;
+  const ParticleData *particle;
+
+  SiHitDigitizer *theSiHitDigitizer;
+  DigiSimLinkPileUpSignals *theDigiSimLinkPileUpSignals;
+  SiGaussianTailNoiseAdder *theSiNoiseAdder;
+  SiTrivialDigitalConverter *theSiDigitalConverter;
+  SiStripFedZeroSuppression *theSiZeroSuppress;
 
   DigitalVecType digis;
   DigitalRawVecType rawdigis;
   std::vector<StripDigiSimLink> link_coll;
 
-  void push_link(const DigitalVecType&,
-		 const HitToDigisMapType&,
-		 const HitCounterToDigisMapType&,
-		 const std::vector<float>&,
-		 unsigned int);
-  
-  void push_link_raw(const DigitalRawVecType&,
-		     const HitToDigisMapType&,
-		     const HitCounterToDigisMapType&,
-		     const std::vector<float>&,
-		     unsigned int);
+  void push_link(const DigitalVecType &,
+                 const HitToDigisMapType &,
+                 const HitCounterToDigisMapType &,
+                 const std::vector<float> &,
+                 unsigned int);
+
+  void push_link_raw(const DigitalRawVecType &,
+                     const HitToDigisMapType &,
+                     const HitCounterToDigisMapType &,
+                     const std::vector<float> &,
+                     unsigned int);
 };
 
 #endif

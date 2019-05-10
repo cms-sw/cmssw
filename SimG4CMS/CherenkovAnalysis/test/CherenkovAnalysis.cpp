@@ -60,8 +60,7 @@ private:
 CherenkovAnalysis::CherenkovAnalysis(const edm::ParameterSet &iConfig)
     : maxEnergy_(iConfig.getParameter<double>("maxEnergy")),
       nBinsEnergy_(iConfig.getParameter<unsigned>("nBinsEnergy")) {
-  tok_calo_ = consumes<edm::PCaloHitContainer>(
-      iConfig.getParameter<edm::InputTag>("caloHitSource"));
+  tok_calo_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("caloHitSource"));
 
   // Book histograms
   edm::Service<TFileService> tfile;
@@ -70,15 +69,12 @@ CherenkovAnalysis::CherenkovAnalysis(const edm::ParameterSet &iConfig)
     throw cms::Exception("BadConfig") << "TFileService unavailable: "
                                       << "please add it to config file";
 
-  hEnergy_ = tfile->make<TH1F>("hEnergy", "Total energy deposit [GeV]",
-                               nBinsEnergy_, 0, maxEnergy_);
-  hTimeStructure_ =
-      tfile->make<TH1F>("hTimeStructure", "Time structure [ns]", 100, 0, 0.3);
+  hEnergy_ = tfile->make<TH1F>("hEnergy", "Total energy deposit [GeV]", nBinsEnergy_, 0, maxEnergy_);
+  hTimeStructure_ = tfile->make<TH1F>("hTimeStructure", "Time structure [ns]", 100, 0, 0.3);
 }
 
 //__________________________________________________________________________________________________
-void CherenkovAnalysis::analyze(const edm::Event &iEvent,
-                                const edm::EventSetup &iSetup) {
+void CherenkovAnalysis::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<edm::PCaloHitContainer> pCaloHits;
   iEvent.getByToken(tok_calo_, pCaloHits);
 
@@ -90,7 +86,7 @@ void CherenkovAnalysis::analyze(const edm::Event &iEvent,
   for (; it != itend; ++it) {
     totalEnergy += (*it).energy();
     hTimeStructure_->Fill((*it).time(),
-                          (*it).energy()); // Time weighted by energy...
+                          (*it).energy());  // Time weighted by energy...
     //     edm::LogInfo("CherenkovAnalysis") << "Time = " << (*it).time() <<
     //     std::endl;
   }

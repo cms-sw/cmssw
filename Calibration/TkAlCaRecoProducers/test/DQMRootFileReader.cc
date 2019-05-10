@@ -59,8 +59,7 @@ DQMRootFileReader::DQMRootFileReader(const edm::ParameterSet &iConfig) {
   // get hold of back-end interface
   dbe = edm::Service<DQMStore>().operator->();
 
-  filename = iConfig.getUntrackedParameter<std::string>("RootFileName",
-                                                        "test_playback.root");
+  filename = iConfig.getUntrackedParameter<std::string>("RootFileName", "test_playback.root");
 }
 
 DQMRootFileReader::~DQMRootFileReader() {
@@ -79,8 +78,7 @@ void DQMRootFileReader::endJob(void) {
 //
 
 // ------------ method called to produce the data  ------------
-void DQMRootFileReader::analyze(const edm::Event &iEvent,
-                                const edm::EventSetup &iSetup) {
+void DQMRootFileReader::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // NOTE: this is here just because we need it after the beginRun of
   // MEtoEDMCoverter which calls a Reset on all MEs.
   dbe->open(filename, false, "", "", DQMStore::OpenRunDirs::StripRunDirs);

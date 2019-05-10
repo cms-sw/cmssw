@@ -106,7 +106,6 @@
 class PGlobalDigi;
 
 class GlobalDigisAnalyzer : public DQMEDAnalyzer {
-
 public:
   typedef std::vector<float> FloatVector;
   typedef std::vector<double> DoubleVector;
@@ -118,8 +117,7 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // production related methods
@@ -244,7 +242,7 @@ private:
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
+};  // end class declaration
 
 #endif
 
@@ -285,4 +283,4 @@ static const int sdHcalTT = 5;
 static const int sdHcalCalib = 6;
 static const int sdHcalCompst = 7;
 
-#endif // PGlobalDigisAnalyzer_h
+#endif  // PGlobalDigisAnalyzer_h

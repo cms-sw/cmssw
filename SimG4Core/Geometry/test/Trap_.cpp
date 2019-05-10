@@ -37,12 +37,9 @@ void testTrap::matched_g4_and_dd(void) {
   // <Trapezoid name="E8CD" dz="17.35*cm" alp1="0*deg" bl1="10.5446*cm"
   // tl1="10.5446*cm" h1="500*mum" alp2="0*deg" bl2="0.1*mum" tl2="0.1*mum"
   // h2="500*mum" phi="180*deg" theta="16.90296*deg" />
-  G4Trap g4(name, dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4,
-            pAlp2);
-  DDI::Trap dd(dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4,
-               pAlp2);
-  DDTrap dds = DDSolidFactory::trap(name, dz, pTheta, pPhi, pDy1, pDx1, pDx2,
-                                    pAlp1, pDy2, pDx3, pDx4, pAlp2);
+  G4Trap g4(name, dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2);
+  DDI::Trap dd(dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2);
+  DDTrap dds = DDSolidFactory::trap(name, dz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2);
   cout << endl;
   dd.stream(cout);
   cout << endl;

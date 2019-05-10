@@ -73,7 +73,6 @@
 class PGlobalSimHit;
 
 class GlobalHitsProducer : public edm::EDProducer {
-
 public:
   typedef std::vector<float> FloatVector;
 
@@ -227,7 +226,7 @@ private:
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
+};  // end class declaration
 
 #endif
 

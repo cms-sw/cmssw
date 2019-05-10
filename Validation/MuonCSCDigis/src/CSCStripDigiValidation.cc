@@ -3,10 +3,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Validation/MuonCSCDigis/src/CSCStripDigiValidation.h"
 
-CSCStripDigiValidation::CSCStripDigiValidation(const edm::InputTag &inputTag,
-                                               edm::ConsumesCollector &&iC)
-    : CSCBaseValidation(inputTag), thePedestalSum(0),
-      thePedestalCovarianceSum(0), thePedestalCount(0),
+CSCStripDigiValidation::CSCStripDigiValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC)
+    : CSCBaseValidation(inputTag),
+      thePedestalSum(0),
+      thePedestalCovarianceSum(0),
+      thePedestalCount(0),
       thePedestalTimeCorrelationPlot(nullptr),
       thePedestalNeighborCorrelationPlot(nullptr),
       theNDigisPerChamberPlot(nullptr) {
@@ -15,22 +16,13 @@ CSCStripDigiValidation::CSCStripDigiValidation(const edm::InputTag &inputTag,
 
 CSCStripDigiValidation::~CSCStripDigiValidation() {}
 
-void CSCStripDigiValidation::bookHistograms(DQMStore::IBooker &iBooker,
-                                            bool doSim) {
-  thePedestalPlot =
-      iBooker.book1D("CSCPedestal", "CSC Pedestal ", 400, 550, 650);
-  theAmplitudePlot =
-      iBooker.book1D("CSCStripAmplitude", "CSC Strip Amplitude", 200, 0, 2000);
-  theRatio4to5Plot = iBooker.book1D(
-      "CSCStrip4to5", "CSC Strip Ratio tbin 4 to tbin 5", 100, 0, 1);
-  theRatio6to5Plot = iBooker.book1D(
-      "CSCStrip6to5", "CSC Strip Ratio tbin 6 to tbin 5", 120, 0, 1.2);
-  theNDigisPerLayerPlot =
-      iBooker.book1D("CSCStripDigisPerLayer",
-                     "Number of CSC Strip Digis per layer", 48, 0, 48);
-  theNDigisPerEventPlot =
-      iBooker.book1D("CSCStripDigisPerEvent",
-                     "Number of CSC Strip Digis per event", 100, 0, 500);
+void CSCStripDigiValidation::bookHistograms(DQMStore::IBooker &iBooker, bool doSim) {
+  thePedestalPlot = iBooker.book1D("CSCPedestal", "CSC Pedestal ", 400, 550, 650);
+  theAmplitudePlot = iBooker.book1D("CSCStripAmplitude", "CSC Strip Amplitude", 200, 0, 2000);
+  theRatio4to5Plot = iBooker.book1D("CSCStrip4to5", "CSC Strip Ratio tbin 4 to tbin 5", 100, 0, 1);
+  theRatio6to5Plot = iBooker.book1D("CSCStrip6to5", "CSC Strip Ratio tbin 6 to tbin 5", 120, 0, 1.2);
+  theNDigisPerLayerPlot = iBooker.book1D("CSCStripDigisPerLayer", "Number of CSC Strip Digis per layer", 48, 0, 48);
+  theNDigisPerEventPlot = iBooker.book1D("CSCStripDigisPerEvent", "Number of CSC Strip Digis per event", 100, 0, 500);
   if (doSim) {
     for (int i = 0; i < 10; ++i) {
       char title1[200];
@@ -40,19 +32,16 @@ void CSCStripDigiValidation::bookHistograms(DQMStore::IBooker &iBooker,
   }
 }
 
-void CSCStripDigiValidation::analyze(const edm::Event &e,
-                                     const edm::EventSetup &) {
+void CSCStripDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
   edm::Handle<CSCStripDigiCollection> strips;
   e.getByToken(strips_Token_, strips);
   if (!strips.isValid()) {
-    edm::LogError("CSCDigiValidation")
-        << "Cannot get strips by label " << theInputTag.encode();
+    edm::LogError("CSCDigiValidation") << "Cannot get strips by label " << theInputTag.encode();
   }
 
   unsigned nDigisPerEvent = 0;
 
-  for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin();
-       j != strips->end(); j++) {
+  for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin(); j != strips->end(); j++) {
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
     int nDigis = last - digiItr;
@@ -84,7 +73,7 @@ void CSCStripDigiValidation::analyze(const edm::Event &e,
         }
       }
     }
-  } // loop over digis
+  }  // loop over digis
 
   theNDigisPerEventPlot->Fill(nDigisPerEvent);
 }
@@ -103,9 +92,7 @@ void CSCStripDigiValidation::fillSignalPlots(const CSCStripDigi &digi) {
   theRatio6to5Plot->Fill((adcCounts[5] - pedestal) / (adcCounts[4] - pedestal));
 }
 
-void CSCStripDigiValidation::plotResolution(const PSimHit &hit, int strip,
-                                            const CSCLayer *layer,
-                                            int chamberType) {
+void CSCStripDigiValidation::plotResolution(const PSimHit &hit, int strip, const CSCLayer *layer, int chamberType) {
   double hitX = hit.localPosition().x();
   double hitY = hit.localPosition().y();
   double digiX = layer->geometry()->xOfStrip(strip, hitY);
