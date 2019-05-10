@@ -251,7 +251,7 @@ void ElectronAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
   labelsForToken(matchingObjectCollection_,l);
   if (std::string::npos != std::string(l.module).find("SuperCluster",0))
     { matchingObjectType = "SC" ; }
-  if (matchingObjectType=="")
+  if (matchingObjectType.empty())
     { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }
   else
    { edm::LogInfo("ElectronMcFakeValidator::beginJob")<<"Matching object type: "<<matchingObjectType ; }
