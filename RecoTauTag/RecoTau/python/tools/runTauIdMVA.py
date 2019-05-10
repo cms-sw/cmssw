@@ -644,7 +644,7 @@ class TauIDEmbedder(object):
                 rho                    = self.cms.InputTag('fixedGridRhoAll'),
                 graph_file             = self.cms.string(file_name),
                 mem_mapped             = self.cms.bool(False),
-                version                = self.cms.uint32(1)
+                version                = self.cms.uint32(self.getDeepTauVersion(file_name)[1])
             )
 
             self.processDeepProducer('deepTau2017v1', tauIDSources, workingPoints_)
@@ -693,7 +693,7 @@ class TauIDEmbedder(object):
                 rho                    = self.cms.InputTag('fixedGridRhoAll'),
                 graph_file             = self.cms.string(file_name),
                 mem_mapped             = self.cms.bool(False),
-                version                = self.cms.uint32(2),
+                version                = self.cms.uint32(self.getDeepTauVersion(file_name)[1]),
                 debug_level            = self.cms.int32(0)
 
             )
@@ -1068,3 +1068,20 @@ class TauIDEmbedder(object):
                                 Unable to extract version number.'.format(file_name))
         version = version_search.group(1)
         return int(version)
+
+    def getDeepTauVersion(self, file_name):
+        """returns the DeepTau year, version, subversion. File name should contain a version label with data takig year \
+        (2011-2, 2015-8), version number (vX) and subversion (pX), e.g. 2017v0p6, in general the following format: \
+        {year}v{version}p{subversion}"""
+        version_search = re.search('(201[125678])v([0-9]+)(p[0-9]+|)[\._]', file_name)
+        if not version_search:
+            raise RuntimeError('File "{}" has an invalid name pattern, should be in the format "{year}v{version}p{subversion}". \
+                                Unable to extract version number.'.format(file_name))
+        year = version_search.group(1)
+        version = version_search.group(2)
+        subversion = version_search.group(3)
+        if len(subversion) > 0:
+            subversion = subversion[1:]
+        else:
+            subversion = 0
+        return int(year), int(version), int(subversion)
