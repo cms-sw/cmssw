@@ -29,15 +29,14 @@ public:
   edm::ESHandle<SiStripRegionCabling> strip_cabling;
 
   double delta_;
-  
+
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
 
 private:
-  void beginJob() override ;
+  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-
+  void endJob() override;
 };
 
 #endif

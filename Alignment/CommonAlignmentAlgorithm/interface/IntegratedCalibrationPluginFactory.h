@@ -13,7 +13,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
 
-typedef edmplugin::PluginFactory<IntegratedCalibrationBase* (const edm::ParameterSet&)>
-		  IntegratedCalibrationPluginFactory;
+typedef edmplugin::PluginFactory<IntegratedCalibrationBase*(const edm::ParameterSet&)>
+    IntegratedCalibrationPluginFactory;
 
 #endif
