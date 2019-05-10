@@ -13,18 +13,16 @@
  */
 
 class TwoBodyDecayLinearizationPointFinder {
-
 public:
-  typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState
-      RefCountedLinearizedTrackState;
+  typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
   TwoBodyDecayLinearizationPointFinder(const edm::ParameterSet &config) {}
 
   virtual ~TwoBodyDecayLinearizationPointFinder(void) {}
 
-  virtual const TwoBodyDecayParameters getLinearizationPoint(
-      const std::vector<RefCountedLinearizedTrackState> &tracks,
-      const double primaryMass, const double secondaryMass) const;
+  virtual const TwoBodyDecayParameters getLinearizationPoint(const std::vector<RefCountedLinearizedTrackState> &tracks,
+                                                             const double primaryMass,
+                                                             const double secondaryMass) const;
 
   virtual TwoBodyDecayLinearizationPointFinder *clone(void) const {
     return new TwoBodyDecayLinearizationPointFinder(*this);

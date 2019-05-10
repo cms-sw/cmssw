@@ -14,9 +14,9 @@
 #include "FWCore/Utilities/interface/typelookup.h"
 #include <sstream>
 
-void SiStripGain::multiply(
-    const SiStripApvGain &apvgain, const double &factor,
-    const std::pair<std::string, std::string> &recordLabelPair) {
+void SiStripGain::multiply(const SiStripApvGain &apvgain,
+                           const double &factor,
+                           const std::pair<std::string, std::string> &recordLabelPair) {
   // When inserting the first ApvGain
   if (apvgain_ == nullptr) {
     if ((factor != 1) && (factor != 0)) {
@@ -43,8 +43,7 @@ void SiStripGain::fillNewGain(const SiStripApvGain *apvgain,
   SiStripApvGain *newApvGain = new SiStripApvGain;
   edm::FileInPath fp("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
   SiStripDetInfoFileReader reader(fp.fullPath());
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> &DetInfos =
-      reader.getAllData();
+  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> &DetInfos = reader.getAllData();
 
   // Loop on the apvgain in input and fill the newApvGain with the
   // values/factor.
@@ -52,11 +51,8 @@ void SiStripGain::fillNewGain(const SiStripApvGain *apvgain,
   apvgain->getDetIds(detIds);
   std::vector<uint32_t>::const_iterator it = detIds.begin();
   for (; it != detIds.end(); ++it) {
-
-    std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator
-        detInfoIt = DetInfos.find(*it);
+    std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator detInfoIt = DetInfos.find(*it);
     if (detInfoIt != DetInfos.end()) {
-
       std::vector<float> theSiStripVector;
 
       // Loop on all the apvs and then on the strips
@@ -76,8 +72,7 @@ void SiStripGain::fillNewGain(const SiStripApvGain *apvgain,
 
         theSiStripVector.push_back(apvGainValue);
       }
-      SiStripApvGain::Range inputRange(theSiStripVector.begin(),
-                                       theSiStripVector.end());
+      SiStripApvGain::Range inputRange(theSiStripVector.begin(), theSiStripVector.end());
       if (!newApvGain->put(*it, inputRange)) {
         edm::LogError("SiStripGain") << "detid already exists" << std::endl;
       }
@@ -88,26 +83,19 @@ void SiStripGain::fillNewGain(const SiStripApvGain *apvgain,
   apvgainAutoPtr_.reset(newApvGain);
 }
 
-float SiStripGain::getStripGain(const uint16_t &strip,
-                                const SiStripApvGain::Range &range,
-                                const uint32_t index) const {
+float SiStripGain::getStripGain(const uint16_t &strip, const SiStripApvGain::Range &range, const uint32_t index) const {
   if (!(apvgainVector_.empty())) {
     return (apvgainVector_[index]->getStripGain(strip, range));
   }
-  edm::LogError("SiStripGain::getStripGain")
-      << "ERROR: no gain available. Returning gain = 1." << std::endl;
+  edm::LogError("SiStripGain::getStripGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
   return 1.;
 }
 
-float SiStripGain::getApvGain(const uint16_t &apv,
-                              const SiStripApvGain::Range &range,
-                              const uint32_t index) const {
+float SiStripGain::getApvGain(const uint16_t &apv, const SiStripApvGain::Range &range, const uint32_t index) const {
   if (!(apvgainVector_.empty())) {
-    return (apvgainVector_[index]->getApvGain(apv, range)) /
-           (normVector_[index]);
+    return (apvgainVector_[index]->getApvGain(apv, range)) / (normVector_[index]);
   }
-  edm::LogError("SiStripGain::getApvGain")
-      << "ERROR: no gain available. Returning gain = 1." << std::endl;
+  edm::LogError("SiStripGain::getApvGain") << "ERROR: no gain available. Returning gain = 1." << std::endl;
   return 1.;
 }
 
@@ -116,13 +104,11 @@ void SiStripGain::getDetIds(std::vector<uint32_t> &DetIds_) const {
   return apvgain_->getDetIds(DetIds_);
 }
 
-const SiStripApvGain::Range SiStripGain::getRange(const uint32_t &DetId,
-                                                  const uint32_t index) const {
+const SiStripApvGain::Range SiStripGain::getRange(const uint32_t &DetId, const uint32_t index) const {
   return apvgainVector_[index]->getRange(DetId);
 }
 
-void SiStripGain::printDebug(std::stringstream &ss,
-                             const TrackerTopology * /*trackerTopo*/) const {
+void SiStripGain::printDebug(std::stringstream &ss, const TrackerTopology * /*trackerTopo*/) const {
   std::vector<unsigned int> detIds;
   getDetIds(detIds);
   std::vector<unsigned int>::const_iterator detid = detIds.begin();
@@ -133,14 +119,12 @@ void SiStripGain::printDebug(std::stringstream &ss,
     int apv = 0;
     for (int it = 0; it < range.second - range.first; ++it) {
       ss << "detid " << *detid << " \t"
-         << " apv " << apv++ << " \t" << getApvGain(it, range) << " \t"
-         << std::endl;
+         << " apv " << apv++ << " \t" << getApvGain(it, range) << " \t" << std::endl;
     }
   }
 }
 
-void SiStripGain::printSummary(std::stringstream &ss,
-                               const TrackerTopology *trackerTopo) const {
+void SiStripGain::printSummary(std::stringstream &ss, const TrackerTopology *trackerTopo) const {
   SiStripDetSummary summaryGain{trackerTopo};
 
   std::vector<unsigned int> detIds;

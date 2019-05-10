@@ -26,8 +26,7 @@ TB06Tree::TB06Tree(const std::string &fileName, const std::string &treeName)
 // -------------------------------------------------------------------
 
 TB06Tree::~TB06Tree() {
-  std::cout << "[TB06Tree][dtor] saving TTree " << m_tree->GetName() << " with "
-            << m_tree->GetEntries() << " entries"
+  std::cout << "[TB06Tree][dtor] saving TTree " << m_tree->GetName() << " with " << m_tree->GetEntries() << " entries"
             << " on file: " << m_file->GetName() << std::endl;
 
   m_file->Write();
@@ -40,13 +39,21 @@ TB06Tree::~TB06Tree() {
 // -------------------------------------------------------------------
 
 //! to be called at each loop
-void TB06Tree::store(const int &tableIsMoving, const int &run, const int &event,
-                     const int &S6adc, const double &xhodo, const double &yhodo,
-                     const double &xslope, const double &yslope,
-                     const double &xquality, const double &yquality,
-                     const int &icMax, const int &ietaMax, const int &iphiMax,
-                     const double &beamEnergy, const double ampl[49]) {
-
+void TB06Tree::store(const int &tableIsMoving,
+                     const int &run,
+                     const int &event,
+                     const int &S6adc,
+                     const double &xhodo,
+                     const double &yhodo,
+                     const double &xslope,
+                     const double &yslope,
+                     const double &xquality,
+                     const double &yquality,
+                     const int &icMax,
+                     const int &ietaMax,
+                     const int &iphiMax,
+                     const double &beamEnergy,
+                     const double ampl[49]) {
   m_data->Clear();
   TB06Reco *entry = static_cast<TB06Reco *>(m_data->AddrAt(0));
 
@@ -120,30 +127,23 @@ void TB06Tree::check() {
   std::cout << "[TB06Tree][check]reading . . . \n";
   std::cout << "[TB06Tree][check] entry->run: " << entry->run << "\n";
   std::cout << "[TB06Tree][check] entry->event: " << entry->event << "\n";
-  std::cout << "[TB06Tree][check] entry->tableIsMoving: "
-            << entry->tableIsMoving << "\n";
+  std::cout << "[TB06Tree][check] entry->tableIsMoving: " << entry->tableIsMoving << "\n";
   std::cout << "[TB06Tree][check] entry->MEXTLeta: " << entry->MEXTLeta << "\n";
   std::cout << "[TB06Tree][check] entry->MEXTLphi: " << entry->MEXTLphi << "\n";
-  std::cout << "[TB06Tree][check] entry->MEXTLenergy: " << entry->MEXTLenergy
-            << "\n";
+  std::cout << "[TB06Tree][check] entry->MEXTLenergy: " << entry->MEXTLenergy << "\n";
 
   for (int eta = 0; eta < 7; ++eta)
     for (int phi = 0; phi < 7; ++phi)
-      std::cout << "[TB06Tree][check]   entry->localMap[" << eta << "][" << phi
-                << "]: " << entry->localMap[eta][phi] << "\n";
+      std::cout << "[TB06Tree][check]   entry->localMap[" << eta << "][" << phi << "]: " << entry->localMap[eta][phi]
+                << "\n";
 
   std::cout << "[TB06Tree][check] entry->xHodo: " << entry->xHodo << "\n";
   std::cout << "[TB06Tree][check] entry->yHodo: " << entry->yHodo << "\n";
-  std::cout << "[TB06Tree][check] entry->xSlopeHodo: " << entry->xSlopeHodo
-            << "\n";
-  std::cout << "[TB06Tree][check] entry->ySlopeHodo: " << entry->ySlopeHodo
-            << "\n";
-  std::cout << "[TB06Tree][check] entry->xQualityHodo: " << entry->xQualityHodo
-            << "\n";
-  std::cout << "[TB06Tree][check] entry->yQualityHodo: " << entry->yQualityHodo
-            << "\n";
-  std::cout << "[TB06Tree][check] entry->convFactor: " << entry->convFactor
-            << "\n";
+  std::cout << "[TB06Tree][check] entry->xSlopeHodo: " << entry->xSlopeHodo << "\n";
+  std::cout << "[TB06Tree][check] entry->ySlopeHodo: " << entry->ySlopeHodo << "\n";
+  std::cout << "[TB06Tree][check] entry->xQualityHodo: " << entry->xQualityHodo << "\n";
+  std::cout << "[TB06Tree][check] entry->yQualityHodo: " << entry->yQualityHodo << "\n";
+  std::cout << "[TB06Tree][check] entry->convFactor: " << entry->convFactor << "\n";
 
   /* to be implemented with the right variables
   std::cout << "[TB06Tree][check] ------------------------" << std::endl ;

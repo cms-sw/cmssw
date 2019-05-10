@@ -63,8 +63,7 @@ int main(int argc, char const *argv[]) {
   try {
     ar = readCompressedStringArchiveExt(inputfile.c_str());
   } catch (std::exception &e) {
-    cerr << "Failed to load string archive from file \"" << inputfile << "\" ("
-         << e.what() << ')' << endl;
+    cerr << "Failed to load string archive from file \"" << inputfile << "\" (" << e.what() << ')' << endl;
     return 1;
   }
 
@@ -82,8 +81,8 @@ int main(int argc, char const *argv[]) {
         cout << '\n';
       e->humanReadable(cout);
     } else if (!summaryMode)
-      cout << e->id() << "  " << e->type().name() << "  " << '"' << e->name()
-           << '"' << "  " << '"' << e->category() << '"' << endl;
+      cout << e->id() << "  " << e->type().name() << "  " << '"' << e->name() << '"' << "  " << '"' << e->category()
+           << '"' << endl;
     if (summaryMode)
       typecount[e->type().name()]++;
   }
@@ -91,8 +90,7 @@ int main(int argc, char const *argv[]) {
   if (summaryMode) {
     if (fullDump)
       cout << '\n';
-    for (std::map<std::string, unsigned>::const_iterator it = typecount.begin();
-         it != typecount.end(); ++it)
+    for (std::map<std::string, unsigned>::const_iterator it = typecount.begin(); it != typecount.end(); ++it)
       cout << it->second << ' ' << it->first << endl;
   }
 
