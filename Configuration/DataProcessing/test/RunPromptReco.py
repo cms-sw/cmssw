@@ -45,6 +45,7 @@ class RunPromptReco:
             raise RuntimeError(msg)
         if self.nThreads == None:
             msg = "No --nThreads specified"
+            raise RuntimeError(msg)
 
         try:
             scenario = getScenario(self.scenario)
