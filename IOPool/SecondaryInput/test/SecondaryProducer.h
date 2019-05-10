@@ -19,9 +19,8 @@ namespace edm {
   class ProcessConfiguration;
   class VectorInputSource;
 
-  class SecondaryProducer: public EDProducer {
+  class SecondaryProducer : public EDProducer {
   public:
-
     /** standard constructor*/
     explicit SecondaryProducer(ParameterSet const& pset);
 
@@ -34,13 +33,13 @@ namespace edm {
     bool processOneEvent(EventPrincipal const& eventPrincipal, Event& e);
 
   private:
-    virtual void put(Event &) {}
+    virtual void put(Event&) {}
     virtual void beginJob();
     virtual void endJob();
     std::shared_ptr<VectorInputSource> makeSecInput(ParameterSet const& ps);
 
-    std::shared_ptr<ProductRegistry const> productRegistry() const {return get_underlying_safe(productRegistry_);}
-    std::shared_ptr<ProductRegistry>& productRegistry() {return get_underlying_safe(productRegistry_);}
+    std::shared_ptr<ProductRegistry const> productRegistry() const { return get_underlying_safe(productRegistry_); }
+    std::shared_ptr<ProductRegistry>& productRegistry() { return get_underlying_safe(productRegistry_); }
 
     edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
     edm::propagate_const<std::shared_ptr<VectorInputSource> const> secInput_;
@@ -53,6 +52,6 @@ namespace edm {
     bool firstLoop_;
     EventNumber_t expectedEventNumber_;
   };
-}//edm
+}  // namespace edm
 
 #endif

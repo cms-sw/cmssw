@@ -25,8 +25,7 @@ namespace edm {
     if (ttest != nullptr) {
       ttest->BuildRealData();
     } else {
-      throw edm::Exception(errors::Configuration)
-			<< "Could not find TClass for " << name << "\n";
+      throw edm::Exception(errors::Configuration) << "Could not find TClass for " << name << "\n";
     }
   }
   // ---------------------
@@ -45,26 +44,24 @@ namespace edm {
         throwMissingDictionariesException(missingDictionaries, context);
       }
     }
-    done=true;
+    done = true;
   }
 
   namespace {
     TClass* getRootClass(std::string const& name) {
-      TClass* tc = TClass::GetClass(name.c_str());    
-      
-      if(tc == nullptr) {
-	throw edm::Exception(errors::Configuration,"getRootClass")
-	  << "could not find TClass for " << name
-	  << "\n";
+      TClass* tc = TClass::GetClass(name.c_str());
+
+      if (tc == nullptr) {
+        throw edm::Exception(errors::Configuration, "getRootClass") << "could not find TClass for " << name << "\n";
       }
-      
+
       return tc;
     }
-  }
+  }  // namespace
 
   // ---------------------
   TClass* getTClass(std::type_info const& ti) {
     TypeID const type(ti);
     return getRootClass(type.className());
   }
-}
+}  // namespace edm
