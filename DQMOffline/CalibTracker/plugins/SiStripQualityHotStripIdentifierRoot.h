@@ -35,21 +35,17 @@ class SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy;
 class TrackerTopology;
 
 class SiStripQualityHotStripIdentifierRoot : public ConditionDBWriter<SiStripBadStrip> {
-
 public:
-
   explicit SiStripQualityHotStripIdentifierRoot(const edm::ParameterSet&);
   ~SiStripQualityHotStripIdentifierRoot() override;
 
 private:
-
   //Will be called at the beginning of each run in the job
-  void algoBeginRun(const edm::Run &, const edm::EventSetup &) override;
+  void algoBeginRun(const edm::Run&, const edm::EventSetup&) override;
   //Will be called at the beginning of each luminosity block in the run
-  void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override{  }
+  void algoBeginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override {}
   //Will be called at the end of the job
   void algoEndJob() override;
-
 
   //Will be called at every event
   void algoAnalyze(const edm::Event&, const edm::EventSetup&) override{};
@@ -79,9 +75,8 @@ private:
   uint32_t calibrationthreshold;
 
   SiStrip::QualityHistosMap ClusterPositionHistoMap;
-  SiStripHotStripAlgorithmFromClusterOccupancy*          theIdentifier;
-  SiStripBadAPVAlgorithmFromClusterOccupancy*            theIdentifier2;
+  SiStripHotStripAlgorithmFromClusterOccupancy* theIdentifier;
+  SiStripBadAPVAlgorithmFromClusterOccupancy* theIdentifier2;
   SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy* theIdentifier3;
-
 };
 #endif

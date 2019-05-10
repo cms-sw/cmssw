@@ -23,7 +23,6 @@ namespace ecaldqm {
     std::map<int, unsigned> pedPNGainToME_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

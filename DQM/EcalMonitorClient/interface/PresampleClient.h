@@ -3,8 +3,7 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class PresampleClient : public DQWorkerClient {
   public:
     PresampleClient();
@@ -23,7 +22,6 @@ namespace ecaldqm
     float toleranceRMSFwd_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

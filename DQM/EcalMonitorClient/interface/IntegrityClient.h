@@ -7,8 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class IntegrityClient : public DQWorkerClient {
   public:
     IntegrityClient();
@@ -23,7 +22,6 @@ namespace ecaldqm
 
     float errFractionThreshold_;
   };
-}
+}  // namespace ecaldqm
 
 #endif
-

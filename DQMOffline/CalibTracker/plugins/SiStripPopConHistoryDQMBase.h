@@ -7,14 +7,15 @@
 
 class HDQMfitUtilities;
 
-class SiStripPopConHistoryDQMBase : public SiStripDQMPopConSourceHandler<HDQMSummary>, protected SiStripDQMHistoryHelper
-{
+class SiStripPopConHistoryDQMBase : public SiStripDQMPopConSourceHandler<HDQMSummary>,
+                                    protected SiStripDQMHistoryHelper {
 public:
   explicit SiStripPopConHistoryDQMBase(const edm::ParameterSet& pset);
   ~SiStripPopConHistoryDQMBase() override;
   void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
   HDQMSummary* getObj() const override;
-  bool checkForCompatibility( const std::string& otherMetaData ) const override;
+  bool checkForCompatibility(const std::string& otherMetaData) const override;
+
 private:
   std::unique_ptr<HDQMfitUtilities> fitME_;
   std::string MEDir_;
@@ -23,4 +24,4 @@ private:
   HDQMSummary m_obj;
 };
 
-#endif // DQM_SiStripHistoricInfoClient_SiStripPopConHistoryDQMBase_H
+#endif  // DQM_SiStripHistoricInfoClient_SiStripPopConHistoryDQMBase_H

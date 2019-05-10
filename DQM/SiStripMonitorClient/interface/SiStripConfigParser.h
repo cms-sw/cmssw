@@ -14,15 +14,11 @@
 #include <string>
 #include <map>
 
-
 class SiStripConfigParser : public DQMParserBase {
-
- public:
-  
-
+public:
   // Constructor
   SiStripConfigParser();
-  
+
   // Destructor
   ~SiStripConfigParser() override;
 
@@ -30,8 +26,7 @@ class SiStripConfigParser : public DQMParserBase {
   bool getMENamesForSummary(std::map<std::string, std::string>& me_names);
   bool getFrequencyForSummary(int& u_freq);
 
- private:
-  
+private:
 };
 
 #endif

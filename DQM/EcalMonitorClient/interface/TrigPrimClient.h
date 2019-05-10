@@ -3,8 +3,7 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class TrigPrimClient : public DQWorkerClient {
   public:
     TrigPrimClient();
@@ -20,7 +19,6 @@ namespace ecaldqm
     float TTF4MaskingAlarmThreshold_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

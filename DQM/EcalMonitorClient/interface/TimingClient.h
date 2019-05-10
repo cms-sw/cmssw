@@ -26,7 +26,6 @@ namespace ecaldqm {
     float tailPopulThreshold_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

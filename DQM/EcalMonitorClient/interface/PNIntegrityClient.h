@@ -3,8 +3,7 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class PNIntegrityClient : public DQWorkerClient {
   public:
     PNIntegrityClient();
@@ -17,7 +16,6 @@ namespace ecaldqm
 
     float errFractionThreshold_;
   };
-}
+}  // namespace ecaldqm
 
 #endif
-

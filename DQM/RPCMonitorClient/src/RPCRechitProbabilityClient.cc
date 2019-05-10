@@ -9,74 +9,66 @@
 
 #include <string>
 
-RPCRecHitProbabilityClient::RPCRecHitProbabilityClient(const edm::ParameterSet& iConfig){
+RPCRecHitProbabilityClient::RPCRecHitProbabilityClient(const edm::ParameterSet &iConfig) {
+  edm::LogVerbatim("rpcdqmclient") << "[RPCRecHitProbabilityClient]: Constructor";
 
- edm::LogVerbatim ("rpcdqmclient") << "[RPCRecHitProbabilityClient]: Constructor";
-
-  
-  std::string subsystemFolder= iConfig.getUntrackedParameter<std::string>("RPCFolder", "RPC");
-  std::string recHitTypeFolder= iConfig.getUntrackedParameter<std::string>("MuonFolder", "Muon");
+  std::string subsystemFolder = iConfig.getUntrackedParameter<std::string>("RPCFolder", "RPC");
+  std::string recHitTypeFolder = iConfig.getUntrackedParameter<std::string>("MuonFolder", "Muon");
 
   std::string summaryFolder = iConfig.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
 
-  globalFolder_ = subsystemFolder + "/"+ recHitTypeFolder + "/"+ summaryFolder ;
-
+  globalFolder_ = subsystemFolder + "/" + recHitTypeFolder + "/" + summaryFolder;
 }
 
-RPCRecHitProbabilityClient::~RPCRecHitProbabilityClient(){}
+RPCRecHitProbabilityClient::~RPCRecHitProbabilityClient() {}
 
-void RPCRecHitProbabilityClient::beginJob(){
-
-  edm::LogVerbatim ("rpcrechitprobabilityclient") << "[RPCRecHitProbabilityClient]: Begin Job";
-
+void RPCRecHitProbabilityClient::beginJob() {
+  edm::LogVerbatim("rpcrechitprobabilityclient") << "[RPCRecHitProbabilityClient]: Begin Job";
 }
 
+void RPCRecHitProbabilityClient::dqmEndLuminosityBlock(DQMStore::IBooker &,
+                                                       DQMStore::IGetter &,
+                                                       edm::LuminosityBlock const &,
+                                                       edm::EventSetup const &) {}
 
-void RPCRecHitProbabilityClient::dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&){}
+void RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
+  edm::LogVerbatim("rpcrechitprobabilityclient") << "[RPCRecHitProbabilityClient]: End Run";
 
+  MonitorElement *NumberOfMuonEta = igetter.get(globalFolder_ + "/NumberOfMuonEta");
+  MonitorElement *NumberOfMuonPt_B = igetter.get(globalFolder_ + "/NumberOfMuonPt_Barrel");
+  MonitorElement *NumberOfMuonPt_EP = igetter.get(globalFolder_ + "/NumberOfMuonPt_EndcapP");
+  MonitorElement *NumberOfMuonPt_EM = igetter.get(globalFolder_ + "/NumberOfMuonPt_EndcapM");
+  MonitorElement *NumberOfMuonPhi_B = igetter.get(globalFolder_ + "/NumberOfMuonPhi_Barrel");
+  MonitorElement *NumberOfMuonPhi_EP = igetter.get(globalFolder_ + "/NumberOfMuonPhi_EndcapP");
+  MonitorElement *NumberOfMuonPhi_EM = igetter.get(globalFolder_ + "/NumberOfMuonPhi_EndcapM");
 
+  if (NumberOfMuonEta == nullptr || NumberOfMuonPt_B == nullptr || NumberOfMuonPt_EP == nullptr ||
+      NumberOfMuonPt_EM == nullptr || NumberOfMuonPhi_B == nullptr || NumberOfMuonPhi_EP == nullptr ||
+      NumberOfMuonPhi_EM == nullptr)
+    return;
 
-void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
-  
-  edm::LogVerbatim ("rpcrechitprobabilityclient") << "[RPCRecHitProbabilityClient]: End Run";
-  
-  MonitorElement *  NumberOfMuonEta = igetter.get( globalFolder_ +"/NumberOfMuonEta");
-  MonitorElement *  NumberOfMuonPt_B = igetter.get( globalFolder_ + "/NumberOfMuonPt_Barrel");
-  MonitorElement *  NumberOfMuonPt_EP = igetter.get( globalFolder_ + "/NumberOfMuonPt_EndcapP");
-  MonitorElement *  NumberOfMuonPt_EM = igetter.get( globalFolder_ + "/NumberOfMuonPt_EndcapM");
-  MonitorElement *  NumberOfMuonPhi_B = igetter.get( globalFolder_ + "/NumberOfMuonPhi_Barrel");
-  MonitorElement *  NumberOfMuonPhi_EP = igetter.get( globalFolder_ + "/NumberOfMuonPhi_EndcapP");
-  MonitorElement *  NumberOfMuonPhi_EM = igetter.get( globalFolder_ + "/NumberOfMuonPhi_EndcapM");
-  
-  if(NumberOfMuonEta == nullptr  || 
-     NumberOfMuonPt_B == nullptr  || NumberOfMuonPt_EP == nullptr  || NumberOfMuonPt_EM == nullptr  || 
-     NumberOfMuonPhi_B == nullptr  || NumberOfMuonPhi_EP == nullptr  || NumberOfMuonPhi_EM == nullptr ) return;
+  TH1F *NumberOfMuonEtaTH1F = NumberOfMuonEta->getTH1F();
+  TH1F *NumberOfMuonPtBTH1F = NumberOfMuonPt_B->getTH1F();
+  TH1F *NumberOfMuonPtEPTH1F = NumberOfMuonPt_EP->getTH1F();
+  TH1F *NumberOfMuonPtEMTH1F = NumberOfMuonPt_EM->getTH1F();
+  TH1F *NumberOfMuonPhiBTH1F = NumberOfMuonPhi_B->getTH1F();
+  TH1F *NumberOfMuonPhiEPTH1F = NumberOfMuonPhi_EP->getTH1F();
+  TH1F *NumberOfMuonPhiEMTH1F = NumberOfMuonPhi_EM->getTH1F();
 
-
-  TH1F *    NumberOfMuonEtaTH1F = NumberOfMuonEta->getTH1F(); 
-  TH1F *    NumberOfMuonPtBTH1F = NumberOfMuonPt_B->getTH1F(); 
-  TH1F *    NumberOfMuonPtEPTH1F = NumberOfMuonPt_EP->getTH1F(); 
-  TH1F *    NumberOfMuonPtEMTH1F = NumberOfMuonPt_EM->getTH1F(); 
-  TH1F *    NumberOfMuonPhiBTH1F = NumberOfMuonPhi_B->getTH1F(); 
-  TH1F *    NumberOfMuonPhiEPTH1F = NumberOfMuonPhi_EP->getTH1F(); 
-  TH1F *    NumberOfMuonPhiEMTH1F = NumberOfMuonPhi_EM->getTH1F(); 
-      
-  MonitorElement *  recHit;
-  TH1F *  recHitTH1F; 
+  MonitorElement *recHit;
+  TH1F *recHitTH1F;
   std::stringstream name;
-      
-  for(int i = 1 ; i<= 6  ; i++) {
-    
+
+  for (int i = 1; i <= 6; i++) {
     recHit = nullptr;
     recHitTH1F = nullptr;
 
     name.str("");
-    name<< globalFolder_ <<"/"<<i<<"RecHitMuonEta";
+    name << globalFolder_ << "/" << i << "RecHitMuonEta";
     recHit = igetter.get(name.str());
 
-    if(recHit){
-      
-      recHitTH1F = recHit->getTH1F(); 
+    if (recHit) {
+      recHitTH1F = recHit->getTH1F();
       recHitTH1F->Divide(NumberOfMuonEtaTH1F);
     }
 
@@ -84,23 +76,23 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
     recHitTH1F = nullptr;
 
     name.str("");
-    name<< globalFolder_ <<"/"<<i<<"RecHitMuonPtB";
+    name << globalFolder_ << "/" << i << "RecHitMuonPtB";
     recHit = igetter.get(name.str());
 
-    if(recHit){      
-      recHitTH1F = recHit->getTH1F(); 
+    if (recHit) {
+      recHitTH1F = recHit->getTH1F();
       recHitTH1F->Divide(NumberOfMuonPtBTH1F);
     }
 
     recHit = nullptr;
     recHitTH1F = nullptr;
-    
+
     name.str("");
-    name<< globalFolder_ <<"/"<<i<<"RecHitMuonPhiB";
+    name << globalFolder_ << "/" << i << "RecHitMuonPhiB";
     recHit = igetter.get(name.str());
 
-    if(recHit){      
-      recHitTH1F = recHit->getTH1F(); 
+    if (recHit) {
+      recHitTH1F = recHit->getTH1F();
       recHitTH1F->Divide(NumberOfMuonPhiBTH1F);
     }
 
@@ -108,11 +100,11 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
     recHitTH1F = nullptr;
 
     name.str("");
-    name<< globalFolder_ <<"/"<<i<<"RecHitMuonPtEP";
+    name << globalFolder_ << "/" << i << "RecHitMuonPtEP";
     recHit = igetter.get(name.str());
 
-    if(recHit){      
-      recHitTH1F = recHit->getTH1F(); 
+    if (recHit) {
+      recHitTH1F = recHit->getTH1F();
       recHitTH1F->Divide(NumberOfMuonPtEPTH1F);
     }
 
@@ -120,24 +112,23 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
     recHitTH1F = nullptr;
 
     name.str("");
-    name<< globalFolder_ <<"/"<<i<<"RecHitMuonPhiEP";
+    name << globalFolder_ << "/" << i << "RecHitMuonPhiEP";
     recHit = igetter.get(name.str());
 
-    if(recHit){      
-      recHitTH1F = recHit->getTH1F(); 
+    if (recHit) {
+      recHitTH1F = recHit->getTH1F();
       recHitTH1F->Divide(NumberOfMuonPhiEPTH1F);
     }
 
-    
     recHit = nullptr;
     recHitTH1F = nullptr;
 
     name.str("");
-    name<< globalFolder_ <<"/"<<i<<"RecHitMuonPtEM";
+    name << globalFolder_ << "/" << i << "RecHitMuonPtEM";
     recHit = igetter.get(name.str());
 
-    if(recHit){      
-      recHitTH1F = recHit->getTH1F(); 
+    if (recHit) {
+      recHitTH1F = recHit->getTH1F();
       recHitTH1F->Divide(NumberOfMuonPtEMTH1F);
     }
 
@@ -145,20 +136,12 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
     recHitTH1F = nullptr;
 
     name.str("");
-    name<< globalFolder_ <<"/"<<i<<"RecHitMuonPhiEM";
+    name << globalFolder_ << "/" << i << "RecHitMuonPhiEM";
     recHit = igetter.get(name.str());
 
-    if(recHit){     
-      recHitTH1F = recHit->getTH1F(); 
+    if (recHit) {
+      recHitTH1F = recHit->getTH1F();
       recHitTH1F->Divide(NumberOfMuonPhiEMTH1F);
     }
-
-
-
   }
-
 }
-
-
-
-
