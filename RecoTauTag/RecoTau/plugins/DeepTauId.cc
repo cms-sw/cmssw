@@ -708,7 +708,6 @@ private:
     tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
                                       edm::Handle<TauCollection> taus) override
     {
-
         edm::Handle<pat::ElectronCollection> electrons;
         event.getByToken(electrons_token_, electrons);
 
@@ -723,7 +722,6 @@ private:
 
         edm::Handle<double> rho;
         event.getByToken(rho_token_, rho);
-
 
         tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()),
                                        dnn_inputs_2017v1::NumberOfOutputs});
