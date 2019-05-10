@@ -36,11 +36,11 @@ namespace edm {
 
   class StreamContext;
   class ModuleCallingContext;
-  
-  namespace signalslot {
-    template <typename T> class Signal;
-  }
 
+  namespace signalslot {
+    template <typename T>
+    class Signal;
+  }
 
   namespace roottree {
     unsigned int const defaultCacheSize = 20U * 1024 * 1024;
@@ -49,50 +49,54 @@ namespace edm {
     unsigned int const defaultNonEventLearningEntries = 1U;
     typedef IndexIntoFile::EntryNumber_t EntryNumber;
     struct BranchInfo {
-      BranchInfo(BranchDescription const& prod) :
-        branchDescription_(prod),
-        productBranch_(nullptr),
-        provenanceBranch_(nullptr),
-        classCache_(nullptr),
-        offsetToWrapperBase_(0) {}
+      BranchInfo(BranchDescription const& prod)
+          : branchDescription_(prod),
+            productBranch_(nullptr),
+            provenanceBranch_(nullptr),
+            classCache_(nullptr),
+            offsetToWrapperBase_(0) {}
       BranchDescription const branchDescription_;
       TBranch* productBranch_;
-      TBranch* provenanceBranch_; // For backward compatibility
+      TBranch* provenanceBranch_;  // For backward compatibility
       mutable TClass* classCache_;
       mutable Int_t offsetToWrapperBase_;
     };
-    
+
     class BranchMap {
       enum {
         kKeys,
         kInfos,
       };
+
     public:
-      void reserve(size_t iSize) {
-        map_.reserve(iSize);
-      }
-      void insert(edm::BranchID const& iKey, BranchInfo const& iInfo) {
-        map_.emplace(iKey.id(),iInfo);
-      }
+      void reserve(size_t iSize) { map_.reserve(iSize); }
+      void insert(edm::BranchID const& iKey, BranchInfo const& iInfo) { map_.emplace(iKey.id(), iInfo); }
       BranchInfo const* find(BranchID const& iKey) const {
         auto itFound = map_.find(iKey.id());
-        if(itFound == map_.end()) {return nullptr;}
+        if (itFound == map_.end()) {
+          return nullptr;
+        }
         return &itFound->second;
       }
       BranchInfo* find(BranchID const& iKey) {
         auto itFound = map_.find(iKey.id());
-        if(itFound == map_.end()) {return nullptr;}
+        if (itFound == map_.end()) {
+          return nullptr;
+        }
         return &itFound->second;
       }
 
     private:
-      std::unordered_map<unsigned int,BranchInfo> map_;
+      std::unordered_map<unsigned int, BranchInfo> map_;
     };
 
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
     Int_t getEntry(TTree* tree, EntryNumber entryNumber);
-    std::unique_ptr<TTreeCache> trainCache(TTree* tree, InputFile& file, unsigned int cacheSize, char const* branchNames);
-  }
+    std::unique_ptr<TTreeCache> trainCache(TTree* tree,
+                                           InputFile& file,
+                                           unsigned int cacheSize,
+                                           char const* branchNames);
+  }  // namespace roottree
 
   class RootTree {
   public:
@@ -108,32 +112,30 @@ namespace edm {
              InputType inputType);
     ~RootTree();
 
-    RootTree(RootTree const&) = delete; // Disallow copying and moving
-    RootTree& operator=(RootTree const&) = delete; // Disallow copying and moving
+    RootTree(RootTree const&) = delete;             // Disallow copying and moving
+    RootTree& operator=(RootTree const&) = delete;  // Disallow copying and moving
 
     bool isValid() const;
-    void numberOfBranchesToAdd(size_t iSize) { branches_.reserve(iSize);}
-    void addBranch(BranchDescription const& prod,
-                   std::string const& oldBranchName);
+    void numberOfBranchesToAdd(size_t iSize) { branches_.reserve(iSize); }
+    void addBranch(BranchDescription const& prod, std::string const& oldBranchName);
     void dropBranch(std::string const& oldBranchName);
-    void getEntry(TBranch *branch, EntryNumber entry) const;
-    void setPresence(BranchDescription& prod,
-                   std::string const& oldBranchName);
+    void getEntry(TBranch* branch, EntryNumber entry) const;
+    void setPresence(BranchDescription& prod, std::string const& oldBranchName);
 
-    bool next() {return ++entryNumber_ < entries_;}
+    bool next() { return ++entryNumber_ < entries_; }
     bool nextWithCache();
-    bool previous() {return --entryNumber_ >= 0;}
-    bool current() const {return entryNumber_ < entries_ && entryNumber_ >= 0;}
-    bool current(EntryNumber entry) const {return entry < entries_ && entry >= 0;}
-    void rewind() {entryNumber_ = 0;}
+    bool previous() { return --entryNumber_ >= 0; }
+    bool current() const { return entryNumber_ < entries_ && entryNumber_ >= 0; }
+    bool current(EntryNumber entry) const { return entry < entries_ && entry >= 0; }
+    void rewind() { entryNumber_ = 0; }
     void close();
     bool skipEntries(unsigned int& offset);
-    EntryNumber const& entryNumber() const {return entryNumber_;}
+    EntryNumber const& entryNumber() const { return entryNumber_; }
     EntryNumber const& entryNumberForIndex(unsigned int index) const;
-    EntryNumber const& entries() const {return entries_;}
+    EntryNumber const& entries() const { return entries_; }
     void setEntryNumber(EntryNumber theEntryNumber);
     void insertEntryForIndex(unsigned int index);
-    std::vector<std::string> const& branchNames() const {return branchNames_;}
+    std::vector<std::string> const& branchNames() const { return branchNames_; }
     DelayedReader* rootDelayedReader() const;
     DelayedReader* resetAndGetRootDelayedReader() const;
     template <typename T>
@@ -168,31 +170,32 @@ namespace edm {
         fillBranchEntry<T>(branch, entryNumber, pbuf);
       }
     }
-    
+
     template <typename T>
     void fillBranchEntry(TBranch* branch, EntryNumber entryNumber, T*& pbuf) {
       branch->SetAddress(&pbuf);
       getEntry(branch, entryNumber);
     }
-    
-    TTree const* tree() const {return tree_;}
-    TTree* tree() {return tree_;}
-    TTree const* metaTree() const {return metaTree_;}
+
+    TTree const* tree() const { return tree_; }
+    TTree* tree() { return tree_; }
+    TTree const* metaTree() const { return metaTree_; }
     BranchMap const& branches() const;
 
     //For backwards compatibility
-    TBranch* branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
+    TBranch* branchEntryInfoBranch() const { return branchEntryInfoBranch_; }
 
     inline TTreeCache* checkTriggerCache(TBranch* branch, EntryNumber entryNumber) const;
     TTreeCache* checkTriggerCacheImpl(TBranch* branch, EntryNumber entryNumber) const;
     inline TTreeCache* selectCache(TBranch* branch, EntryNumber entryNumber) const;
     void trainCache(char const* branchNames);
-    void resetTraining() {trainNow_ = true;}
+    void resetTraining() { trainNow_ = true; }
 
-    BranchType branchType() const {return branchType_;}
-    
-    void setSignals(signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
-                    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource);
+    BranchType branchType() const { return branchType_; }
+
+    void setSignals(
+        signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
+        signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource);
 
   private:
     void setCacheSize(unsigned int cacheSize);
@@ -201,16 +204,16 @@ namespace edm {
     void stopTraining();
 
     std::shared_ptr<InputFile> filePtr_;
-// We use bare pointers for pointers to some ROOT entities.
-// Root owns them and uses bare pointers internally.
-// Therefore,using smart pointers here will do no good.
+    // We use bare pointers for pointers to some ROOT entities.
+    // Root owns them and uses bare pointers internally.
+    // Therefore,using smart pointers here will do no good.
     TTree* tree_;
     TTree* metaTree_;
     BranchType branchType_;
     TBranch* auxBranch_;
-// We use a smart pointer to own the TTreeCache.
-// Unfortunately, ROOT owns it when attached to a TFile, but not after it is detached.
-// So, we make sure to it is detached before closing the TFile so there is no double delete.
+    // We use a smart pointer to own the TTreeCache.
+    // Unfortunately, ROOT owns it when attached to a TFile, but not after it is detached.
+    // So, we make sure to it is detached before closing the TFile so there is no double delete.
     std::shared_ptr<TTreeCache> treeCache_;
     std::shared_ptr<TTreeCache> rawTreeCache_;
     mutable std::shared_ptr<TTreeCache> triggerTreeCache_;
@@ -229,16 +232,16 @@ namespace edm {
     unsigned int learningEntries_;
     unsigned int cacheSize_;
     unsigned long treeAutoFlush_;
-// Enable asynchronous I/O in ROOT (done in a separate thread).  Only takes
-// effect on the primary treeCache_; all other caches have this explicitly disabled.
+    // Enable asynchronous I/O in ROOT (done in a separate thread).  Only takes
+    // effect on the primary treeCache_; all other caches have this explicitly disabled.
     bool enablePrefetching_;
     bool enableTriggerCache_;
     std::unique_ptr<RootDelayedReader> rootDelayedReader_;
 
-    TBranch* branchEntryInfoBranch_; //backwards compatibility
+    TBranch* branchEntryInfoBranch_;  //backwards compatibility
     // below for backward compatibility
-    TTree* infoTree_; // backward compatibility
-    TBranch* statusBranch_; // backward compatibility
+    TTree* infoTree_;        // backward compatibility
+    TBranch* statusBranch_;  // backward compatibility
   };
-}
+}  // namespace edm
 #endif
