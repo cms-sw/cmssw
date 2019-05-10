@@ -49,7 +49,7 @@ void ElectronOfflineClient::finalize( DQMStore::IBooker & iBooker,DQMStore::IGet
 //  //remove(iBooker,iGetter, "matchedEle_eta_narrow") ;
 
   setBookIndex(100) ;
-  if (effHistoTitle_=="")
+  if (effHistoTitle_.empty())
    {
     bookH1andDivide(iBooker,iGetter, "ptEff","matchedObject_Pt","matchingObject_Pt","p_{T} (GeV/c)","Efficiency","efficiency vs p_{T}") ;
     bookH1andDivide(iBooker,iGetter, "etaEff","matchedObject_Eta","matchingObject_Eta","#eta","Efficiency","efficiency vs #eta") ;
