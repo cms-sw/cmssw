@@ -14,7 +14,7 @@ namespace ecaldqm {
   class TestPulseTask : public DQWorkerTask {
   public:
     TestPulseTask();
-    ~TestPulseTask() {}
+    ~TestPulseTask() override {}
 
     bool filterRunType(short const*) override;
 

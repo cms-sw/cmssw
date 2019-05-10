@@ -13,7 +13,7 @@ namespace ecaldqm {
   class PNDiodeTask : public DQWorkerTask {
   public:
     PNDiodeTask();
-    ~PNDiodeTask() {}
+    ~PNDiodeTask() override {}
 
     bool filterRunType(short const*) override;
 

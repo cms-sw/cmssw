@@ -10,7 +10,7 @@ namespace ecaldqm {
   class TimingTask : public DQWorkerTask {
   public:
     TimingTask();
-    ~TimingTask() {}
+    ~TimingTask() override {}
 
     bool filterRunType(short const*) override;
 
