@@ -9,12 +9,11 @@
 
 namespace l1t {
 BayesMuCorrelatorTrack::BayesMuCorrelatorTrack() {
-	// TODO Auto-generated constructor stub
 
 }
 
 BayesMuCorrelatorTrack::~BayesMuCorrelatorTrack() {
-	// TODO Auto-generated destructor stub
+
 }
 
 } //end of namespace l1t

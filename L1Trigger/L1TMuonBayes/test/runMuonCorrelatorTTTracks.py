@@ -129,7 +129,7 @@ process.TTTracksWithTruth = cms.Path(process.L1TrackletTracksWithAssociators)
 process.load('L1Trigger.L1TMuonBayes.simBayesMuCorrelatorTrackProducer_cfi')
 
 process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("L1_TRACKER")
-process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml")
+process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml")
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")

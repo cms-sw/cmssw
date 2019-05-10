@@ -10,28 +10,59 @@ from os.path import isfile, join
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
-process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
+verbose = False
+
+if verbose: 
+    process.MessageLogger = cms.Service("MessageLogger",
+       #suppressInfo       = cms.untracked.vstring('AfterSource', 'PostModule'),
+       destinations   = cms.untracked.vstring(
+                                               #'detailedInfo',
+                                               #'critical',
+                                               #'cout',
+                                               #'cerr',
+                                               'omtfEventDump'
+                    ),
+       categories        = cms.untracked.vstring('omtfEventPrintout'),
+       omtfEventDump = cms.untracked.PSet(    
+                         extension = cms.untracked.string('.txt'),                
+                         threshold = cms.untracked.string('DEBUG'),
+                         default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
+                         #INFO   =  cms.untracked.int32(0),
+                         #DEBUG   = cms.untracked.int32(0),
+                         omtfEventPrintout = cms.untracked.PSet( limit = cms.untracked.int32(100000000) )
+                       ),
+       debugModules = cms.untracked.vstring('L1TMuonOverlapTTMergerTrackProducer', 'OmtfTTAnalyzer', 'simOmtfDigis', 'omtfTTAnalyzer', 'simBayesMuCorrelatorTrackProducer') 
+       #debugModules = cms.untracked.vstring('*')
+    )
+
+    #process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+if not verbose:
+    process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+    process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False), 
+                                         #SkipEvent = cms.untracked.vstring('ProductNotFound') 
+                                     )
+
 
 #######################################TTTracks################################################
 GEOMETRY = "D17"
 
-if GEOMETRY == "D17":
-    print "using geometry " + GEOMETRY + " (tilted)"
-    process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
-elif GEOMETRY == "TkOnly":
-    print "using geometry " + GEOMETRY + " (tilted)"
-    process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff')
-else:
-    print "this is not a valid geometry!!!"
-
+# import of standard configurations
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+#process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
+from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '') 
 
 ############################################################
 # input and output
@@ -77,7 +108,7 @@ chosenFiles = []
 filesPerPtBin = 100
 
 if filesNameLike == 'allPt' :
-    for ptCode in range(20, 10, -1) :
+    for ptCode in range(31, 3, -1) :
         for sign in ['_m', '_p'] : #, m
             selFilesPerPtBin = 0
             for i in range(1, 101, 1): #TODO
@@ -172,12 +203,14 @@ process.load('L1Trigger.L1TMuonBayes.simBayesMuCorrelatorTrackProducer_cfi')
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('pdfModuleSimTracksTestNoDtQCut.root'), closeFileFast = cms.untracked.bool(True))
+process.TFileService = cms.Service("TFileService", fileName = cms.string('muCorrelatorHistsSimTracks100FilesWithiRPC.root'), closeFileFast = cms.untracked.bool(True))
 
+process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("SIM_TRACKS")
 process.simBayesMuCorrelatorTrackProducer.pdfModuleType = cms.string("PdfModuleWithStats") #TODO
-process.simBayesMuCorrelatorTrackProducer.minDtPhQuality = cms.int32(2);
+process.simBayesMuCorrelatorTrackProducer.minDtPhQuality = cms.int32(4);
 process.simBayesMuCorrelatorTrackProducer.generatePdfs = cms.bool(True);
-process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModuleSimTracksTestNoDtQCut.xml")
+process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModuleSimTracks100FilesWithiRPC.xml") #TODO
+process.simBayesMuCorrelatorTrackProducer.generateTiming = cms.bool(False)
 
 process.L1TMuonSeq = cms.Sequence( #process.esProd +         
                                    process.simBayesMuCorrelatorTrackProducer 

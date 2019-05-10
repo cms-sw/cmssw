@@ -19,7 +19,7 @@ timigVs1_BetaHists(config->nLayers()) {
     for(unsigned int iRoll = 0; iRoll < timigTo1_Beta[iLayer].size(); ++iRoll) {
       timigVs1_BetaHists[iLayer].emplace_back();
       for(unsigned int iEtaBin = 0; iEtaBin < timigTo1_Beta[iLayer][iRoll].size(); ++iEtaBin) {
-        /*if(iLayer < 13 || iLayer > 22) {//TODO for the moment only RPC chambers
+        /*if(iLayer < 13 || iLayer > 22) {
           timigVs1_BetaHists[iLayer][iRoll].emplace_back(nullptr);
           continue;
         }*/
@@ -55,9 +55,6 @@ void MuTimingModuleWithStat::process(AlgoMuonBase* algoMuon) {
   for(auto& stubResult : algoMuon->getStubResults() ) {
     if(!stubResult.getValid())
       continue;
-
-    //if(stubResult.getMuonStub()->type != MuonStub::RPC) //TODO add another types if available
-    //  continue;
 
     unsigned int layer = stubResult.getMuonStub()->logicLayer;
     unsigned int roll =  stubResult.getMuonStub()->roll;
@@ -97,7 +94,7 @@ void MuTimingModuleWithStat::generateCoefficients() {
         }
 
         for(unsigned int iBetaBin = 0; iBetaBin < betaBins; iBetaBin++) {
-          //Normalize pdf in each ptBin separately, to get p(timing | beta, eta)
+          //Normalize pdf in each betaBin separately, to get p(timing | beta, eta)
           std::ostringstream ostr;
           ostr<<timigVs1_BetaHist->GetName()<<"_ptBin_"<<iBetaBin;
           TH1D* timingHistInBetaBin = timigVs1_BetaHist->ProjectionX(ostr.str().c_str(), iBetaBin +1, iBetaBin +1); //+1 Because the bins in root hist are counted from 1

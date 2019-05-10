@@ -8,12 +8,11 @@
 #include "L1Trigger/L1TMuonBayes/interface/ProcConfigurationBase.h"
 
 ProcConfigurationBase::ProcConfigurationBase() {
-  // TODO Auto-generated constructor stub
 
 }
 
 ProcConfigurationBase::~ProcConfigurationBase() {
-  // TODO Auto-generated destructor stub
+
 }
 
 

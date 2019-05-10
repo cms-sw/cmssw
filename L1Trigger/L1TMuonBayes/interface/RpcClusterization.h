@@ -25,7 +25,7 @@ public:
   RpcCluster(unsigned int firstStrip, unsigned int lastStrip): firstStrip(firstStrip), lastStrip(lastStrip) {};
 
   float halfStrip() {
-    return (lastStrip - firstStrip)/2. ;
+    return (lastStrip + firstStrip)/2. ;
   }
 
   unsigned int size() const {

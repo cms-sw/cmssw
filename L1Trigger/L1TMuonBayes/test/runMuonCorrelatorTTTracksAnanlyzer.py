@@ -7,7 +7,7 @@ import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-verbose = False
+verbose = True
 
 if verbose: 
     process.MessageLogger = cms.Service("MessageLogger",
@@ -28,7 +28,7 @@ if verbose:
                          #DEBUG   = cms.untracked.int32(0),
                          omtfEventPrintout = cms.untracked.PSet( limit = cms.untracked.int32(100000000) )
                        ),
-       debugModules = cms.untracked.vstring('L1TMuonOverlapTTMergerTrackProducer', 'OmtfTTAnalyzer', 'simOmtfDigis', 'omtfTTAnalyzer', 'simBayesMuCorrelatorTrackProducer') 
+       debugModules = cms.untracked.vstring('L1TMuonBayesMuCorrelatorTrackProducer', 'OmtfTTAnalyzer', 'simOmtfDigis', 'omtfTTAnalyzer', 'simBayesMuCorrelatorTrackProducer') 
        #debugModules = cms.untracked.vstring('*')
     )
 
@@ -84,8 +84,8 @@ if GEOMETRY == "D17":
          #'file:///eos/user/a/akalinow/Data/SingleMu/9_3_14_FullEta_v2/SingleMu_26_m_1.root'
          #'file:///eos/user/a/akalinow/Data/9_3_14_HSCP_v5/HSCPppstau_M_494_TuneZ2star_13TeV_pythia6_cff_py_GEN_SIM_DIGI_L1_L1TrackTrigger_DIGI2RAW_HLT_1.root'
          #'file:///afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_5_0_pre1/src/L1Trigger/L1TMuonBayes/test/SingleMu_PU200_32DF01CC-A342-E811-9FE7-48D539F3863E_dump500Events.root'
-         'file:///eos/user/k/kbunkow/cms_data/mc/PhaseIIFall17D/SingleMu_PU200_32DF01CC-A342-E811-9FE7-48D539F3863E_dump500Events.root'
-         #'file:///afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_1_7/src/L1Trigger/L1TMuonBayes/test/ZMM_EE29AF8E-51AF-E811-A2BD-484D7E8DF0D3_dump1000Events.root'
+         #'file:///eos/user/k/kbunkow/cms_data/mc/PhaseIIFall17D/SingleMu_PU200_32DF01CC-A342-E811-9FE7-48D539F3863E_dump500Events.root'
+         'file:///eos/user/k/kbunkow/cms_data/mc/PhaseIIFall17D/ZMM_EE29AF8E-51AF-E811-A2BD-484D7E8DF0D3_dump1000Events.root'
          #'file:///eos/user/a/akalinow/Data/SingleMu/SingleMuFlatPt_50GeVto10GeV_cfi_py_GEN_SIM_DIGI_L1_L1TrackTrigger_DIGI2RAW_HLT.root'
 )
 elif GEOMETRY == "TkOnly":
@@ -172,9 +172,12 @@ process.load('L1Trigger.L1TMuonBayes.simBayesMuCorrelatorTrackProducer_cfi')
 process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("L1_TRACKER")
 #process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("SIM_TRACKS") #TODO !!!!!!!
 process.simBayesMuCorrelatorTrackProducer.pdfModuleType = cms.string("PdfModuleWithStats") #TODO
-#process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml") #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!11
-process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModuleSimTracks100FilesSigma1p3.xml")
-process.simBayesMuCorrelatorTrackProducer.timingModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/muTimingModuleTest.xml")
+#process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml") #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!11
+#process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModuleSimTracks100FilesWithiRPC.xml")
+#process.simBayesMuCorrelatorTrackProducer.timingModuleFile  = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muTimingModule100FilesWithiRPC.xml")
+#process.simBayesMuCorrelatorTrackProducer.timingModuleFile  = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muTimingModuleTest.xml")
+#process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModuleSimTracks100FilesSigma1p3.xml")  
+
 process.simBayesMuCorrelatorTrackProducer.generateTiming = cms.bool(False)
 process.simBayesMuCorrelatorTrackProducer.useStubsFromAdditionalBxs = cms.int32(3)
 #process.simBayesMuCorrelatorTrackProducer.bxRangeMin = cms.int32(-3)
@@ -197,6 +200,15 @@ process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 #process.output_step = cms.EndPath(process.out)
 
 ############################################################
+
+analysisType = "efficiency" # or rate
+  
+for a in sys.argv :
+    if a == "efficiency" or a ==  "rate" or a == "withTrackPart" :
+        analysisType = a
+        break;
+    
+print "analysisType=" + analysisType
 
 process.omtfTTAnalyzer= cms.EDAnalyzer("MuCorrelatorAnalyzer", 
                                  outRootFile = cms.string("muCorrelatorTTAnalysis1.root"),
@@ -224,7 +236,8 @@ process.omtfTTAnalyzer= cms.EDAnalyzer("MuCorrelatorAnalyzer",
                                        TrackingParticleInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        TrackingVertexInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        
-                                       muCandQualityCut = cms.int32(12)
+                                       muCandQualityCut = cms.int32(12),
+                                       analysisType = cms.string(analysisType)
                                         )
 process.omtfTTAnalyzerPath = cms.Path(process.omtfTTAnalyzer)
 

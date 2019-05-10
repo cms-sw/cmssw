@@ -18,7 +18,7 @@ namespace {
 AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
 
   // sorting within GB.
-  auto customLess = [&](const AlgoMuons::value_type& a, const AlgoMuons::value_type& b)->bool {
+/*  auto customLess = [&](const AlgoMuons::value_type& a, const AlgoMuons::value_type& b)->bool {
     if(!a->isValid()) {
       return true;
     }
@@ -38,6 +38,32 @@ AlgoMuons GhostBusterPreferRefDt::select(AlgoMuons muonsIN, int charge) {
     else if (a->getQ()==b->getQ() && aRefLayerLogicNum == bRefLayerLogicNum && a->getDisc() == b->getDisc() && a->getPatternNumber() > b->getPatternNumber() )
       return false;
     else if (a->getQ()==b->getQ() && aRefLayerLogicNum == bRefLayerLogicNum && a->getDisc() == b->getDisc() && a->getPatternNumber() == b->getPatternNumber() && a->getRefHitNumber() < b->getRefHitNumber())
+      return false;
+    else
+      return true;
+  };*/
+
+
+  auto customLess = [&](const AlgoMuons::value_type& a, const AlgoMuons::value_type& b)->bool {
+    if(!a->isValid()) {
+      return true;
+    }
+    if(!b->isValid()) {
+      return false;
+    }
+
+    int aRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[a->getRefLayer()];
+    int bRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[b->getRefLayer()];
+    // if(a->getQ() > b->getQ())
+    //   return false;
+    if(aRefLayerLogicNum < bRefLayerLogicNum) {
+      return false;
+    }
+    else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getDisc() > b->getDisc() )
+      return false;
+    else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getDisc() == b->getDisc() && a->getPatternNumber() > b->getPatternNumber() )
+      return false;
+    else if (aRefLayerLogicNum == bRefLayerLogicNum && a->getDisc() == b->getDisc() && a->getPatternNumber() == b->getPatternNumber() && a->getRefHitNumber() < b->getRefHitNumber())
       return false;
     else
       return true;

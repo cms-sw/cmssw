@@ -22,7 +22,7 @@ MuTimingModule::MuTimingModule(const ProcConfigurationBase* config): config(conf
 }
 
 MuTimingModule::~MuTimingModule() {
-  // TODO Auto-generated destructor stub
+
 }
 
 void MuTimingModule::process(AlgoMuonBase* algoMuon) {
@@ -33,9 +33,6 @@ void MuTimingModule::process(AlgoMuonBase* algoMuon) {
     if(!stubResult.getValid())
       continue;
 
-/*    if(stubResult.getMuonStub()->type != MuonStub::RPC) //TODO add aother types if available
-      continue;*/
-
     unsigned int layer = stubResult.getMuonStub()->logicLayer;
     unsigned int roll =  stubResult.getMuonStub()->roll;
     unsigned int etaBin = etaHwToEtaBin(algoMuon->getEtaHw(), stubResult.getMuonStub());
@@ -44,7 +41,8 @@ void MuTimingModule::process(AlgoMuonBase* algoMuon) {
     for(unsigned int iOne_beta = 0; iOne_beta < betaBins; iOne_beta++) {
       int logPVal = timigTo1_Beta.at(layer).at(roll).at(etaBin).at(hitTimingBin).at(iOne_beta);
 
-      //LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" layer "<<layer<<" roll "<<roll<<" etaBin "<<etaBin<<" hitTiming "<<stubResult.getMuonStub()->timing<<" hitTimingBin "<<hitTimingBin<<" = one_beta "<<iOne_beta<<" logPVal "<<logPVal<<std::endl;
+//      LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" layer "<<layer<<" roll "<<roll<<" etaBin "<<etaBin<<" hitTiming "<<stubResult.getMuonStub()->timing<<" hitTimingBin "<<hitTimingBin<<" = one_beta "<<iOne_beta<<" logPVal "<<logPVal
+//          <<" "<<(*(stubResult.getMuonStub()))<<std::endl;
       one_betaHist.at(iOne_beta) += logPVal;
     }
   }

@@ -6,12 +6,13 @@
  */
 
 #include <L1Trigger/L1TMuonBayes/interface/RpcClusterization.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
 #include <algorithm>
 
 RpcClusterization::~RpcClusterization() {
-  // TODO Auto-generated destructor stub
+
 }
 
 

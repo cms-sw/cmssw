@@ -16,6 +16,8 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <cmath> 
 
 namespace {
@@ -144,6 +146,10 @@ int AngleConverterBase::getProcessorPhi(int phiZero, l1t::tftype part, const RPC
   // local angle in CSC halfStrip usnits
   int halfStrip = lround ( ( (stripPhi1+stripPhi2)/2.)/hsPhiPitch);
   halfStrip = config->foldPhi(halfStrip); //only for the case when the two strips are on different sides of phi = pi
+
+//  LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" roll "<<rollId<<" cluster: firstStrip "<<digi1<<" stripPhi1 "<<stripPhi1
+//      <<" lastStrip "<<digi2<<" stripPhi2 "<<stripPhi2<<" halfStrip "<<halfStrip<<std::endl;
+
   return config->foldPhi(halfStrip - phiZero);
 }
 
@@ -396,25 +402,25 @@ EtaValue AngleConverterBase::getGlobalEta(unsigned int rawid, const unsigned int
   const LocalPoint lp = roll->centreOfStrip((int)strip);
   const GlobalPoint gp = roll->toGlobal(lp);
 
-  int neightRoll = 1;
+  int neighbRoll = 1; //neighbor roll in eta
   //roll->chamber()->nrolls() does not work
   if(id.region() == 0) {//barel
     if( id.station() == 2 && ( (abs(id.ring()) == 2 && id.layer() == 2 ) || (abs(id.ring()) != 2 && id.layer() == 1 ) ) ) { //three-roll chamber
       if(id.roll() == 2)
-        neightRoll = 1;
+        neighbRoll = 1;
       else {
-        neightRoll = 2;
+        neighbRoll = 2;
       }
     }
-    else
-      neightRoll = (id.roll() == 1 ? 3 : 1 );
+    else //two-roll chamber
+      neighbRoll = (id.roll() == 1 ? 3 : 1 );
   }
-  else {//two-roll chamber
-    neightRoll = id.roll() + (id.roll() == 1 ? +1 : -1);
+  else {//endcap
+    neighbRoll = id.roll() + (id.roll() == 1 ? +1 : -1);
   }
   roll.release();
 
-  const RPCDetId idNeigh = RPCDetId(id.region(), id.ring(), id.station(), id.sector(), id.layer(), id.subsector(), neightRoll );
+  const RPCDetId idNeigh = RPCDetId(id.region(), id.ring(), id.station(), id.sector(), id.layer(), id.subsector(), neighbRoll );
   //std::cout<<__FUNCTION__<<":"<<__LINE__<<" rpc "<<id<<std::endl;
   //std::cout<<__FUNCTION__<<":"<<__LINE__<<" rpc "<<idNeigh<<std::endl;
   std::unique_ptr<const RPCRoll>  rollNeigh(_georpc->roll(idNeigh));

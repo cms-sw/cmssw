@@ -125,34 +125,60 @@ void MuonStubMakerBase::processRPC(MuonStubPtrs2D& muonStubsInLayers, const RPCD
     RPCDetId roll = rollDigis.first;    
     unsigned int rawid = roll.rawId();
 
-    if(roll.region() != 0  &&  abs(roll.station()) >= 3 && roll.ring() == 1 ) {
-      //iRPC TODO add iRPC handling
-      /*for (auto& pDigi=rollDigis.second.first; pDigi != rollDigis.second.second; pDigi++) {
-        std::cout<<__FUNCTION__<<":"<<__LINE__<<" ignoring hit from irpc "<<roll<<" bx "<<pDigi->bx()<<" time "<<pDigi->time()<<std::endl;
-      }*/
-      continue;
-    }
+//    if(roll.region() != 0  &&  abs(roll.station()) >= 3 && roll.ring() == 1 ) {
+//      //iRPC
+//      for (auto pDigi=rollDigis.second.first; pDigi != rollDigis.second.second; pDigi++) {
+//        LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" roll "<<roll
+//            <<" strip "<<pDigi->strip()
+//            <<" hasX "<<pDigi->hasX()<<" coordinateX "<<pDigi->coordinateX()<<" hasY "<<pDigi->hasY()<<" coordinateY "<<pDigi->coordinateY()
+//            <<" bx "<<pDigi->bx()<<" time "<<pDigi->time()<<" irpc"<<std::endl;
+//      }
+//      //continue;
+//    }
 
     if(!acceptDigi(rawid, iProcessor, procTyp))
       continue;
 
-    ///Find clusters of consecutive fired strips.
-    ///Have to copy the digis in chamber to sort them (not optimal).
-    ///NOTE: when copying I select only digis with bx==       //FIXME: find a better place/way to filtering digi against quality/BX etc.
+    ///To find the clusters we have to copy the digis in chamber to sort them (not optimal).
     //  for (auto tdigi = rollDigis.second.first; tdigi != rollDigis.second.second; tdigi++) { std::cout << "RPC DIGIS: " << roll.rawId()<< " "<<roll<<" digi: " << tdigi->strip() <<" bx: " << tdigi->bx() << std::endl; }
     std::vector<RPCDigi> digisCopy;
     //  std::copy_if(rollDigis.second.first, rollDigis.second.second, std::back_inserter(digisCopy), [](const RPCDigi & aDigi){return (aDigi.bx()==0);} );
-    for (auto& pDigi=rollDigis.second.first; pDigi != rollDigis.second.second; pDigi++) {
-      if(pDigi->bx() >= bxFrom && pDigi->bx() <= bxTo )
+    for (auto pDigi=rollDigis.second.first; pDigi != rollDigis.second.second; pDigi++) {
+      if(pDigi->bx() >= bxFrom && pDigi->bx() <= bxTo ) {
         digisCopy.push_back( *pDigi);
+      }
     }
 
     std::vector<RpcCluster> clusters = rpcClusterization.getClusters(roll, digisCopy);
 
     for (auto & cluster: clusters) {
+      LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" roll "<<roll<<" cluster: firstStrip "<<cluster.firstStrip<<" lastStrip "<<cluster.lastStrip<<" halfStrip "<<cluster.halfStrip()<<std::endl;
       addRPCstub(muonStubsInLayers, roll, cluster, iProcessor, procTyp);
     }
   }
+}
+
+//should it use GEMPadDigiClusterCollection???
+void MuonStubMakerBase::processGEM(MuonStubPtrs2D& muonStubsInLayers, const GEMPadDigiCollection* gemDigis,
+    unsigned int iProcessor,
+    l1t::tftype procType, int bxFrom, int bxTo) {
+
+  if(!gemDigis) return;
+
+  for(auto chamber = gemDigis->begin() ; chamber != gemDigis->end(); ++chamber ) {
+    for(auto digi = (*chamber).second.first ; digi != (*chamber).second.second; ++digi ) {
+      //muon_primitives.emplace_back((*chamber).first, *digi);
+
+      GEMDetId geDetId = (*chamber).first;
+      unsigned int rawid = geDetId.rawId();
+
+      if(!acceptDigi(rawid, iProcessor, procType))
+        continue;
+
+      //TODO implement
+    }
+  }
+
 }
 ////////////////////////////////////////////
 ////////////////////////////////////////////

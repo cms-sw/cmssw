@@ -59,7 +59,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '') 
+process.GlobalTag = GlobalTag(process.GlobalTag, '100X_upgrade2023_realistic_v1', '') # this one os for 10_1_7 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '') # <<<<<!!!!!!!!!!!! this one is for 10_5_x
 
 ############################################################
 # input and output
@@ -72,7 +73,9 @@ if GEOMETRY == "D17":
  #       "/store/relval/CMSSW_10_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/94X_upgrade2023_realistic_v2_2023D17noPU-v2/10000/06C888F3-CFCE-E711-8928-0CC47A4D764C.root"
          #"/store/relval/CMSSW_9_3_2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/93X_upgrade2023_realistic_v2_2023D17noPU-v1/10000/0681719F-AFA6-E711-87C9-0CC47A4C8E14.root"
          #"file:///eos/user/k/kbunkow/cms_data/0681719F-AFA6-E711-87C9-0CC47A4C8E14.root"
-         'file:///afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_1_7/src/L1Trigger/L1TMuonBayes/test/F4EEAE55-C937-E811-8C29-48FD8EE739D1_dump1000Events.root'
+         #'file:///afs/cern.ch/work/k/kbunkow/public/CMSSW/cmssw_10_x_x_l1tOfflinePhase2/CMSSW_10_1_7/src/L1Trigger/L1TMuonBayes/test/F4EEAE55-C937-E811-8C29-48FD8EE739D1_dump1000Events.root'
+         #'file:///eos/user/k/kbunkow/cms_data/mc/PhaseIIFall17D/SingleMu_PU200_32DF01CC-A342-E811-9FE7-48D539F3863E_dump500Events.root' #not works in 10_1_7
+         'file:///eos/user/k/kbunkow/cms_data/mc/PhaseIIFall17D/ZMM_EE29AF8E-51AF-E811-A2BD-484D7E8DF0D3_dump1000Events.root'
          #"file:///eos/cms/store/group/upgrade/sandhya/SMP-PhaseIIFall17D-00001.root"
          #'file:///afs/cern.ch/work/k/kbunkow/private/omtf_data/SingleMu_15_p_1_1_qtl.root' 
 )
@@ -156,9 +159,8 @@ process.TTTracksWithTruth = cms.Path(process.L1TrackletTracksWithAssociators)
 process.load('L1Trigger.L1TMuonBayes.simBayesMuCorrelatorTrackProducer_cfi')
 
 process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("L1_TRACKER")
-#process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml") #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!11
-process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModuleSimTracks100FilesSigma1p3.xml")
-process.simBayesMuCorrelatorTrackProducer.timingModuleFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/muTimingModuleTest.xml")
+#process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml") #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!11      
+  
 process.simBayesMuCorrelatorTrackProducer.generateTiming = cms.bool(False)
 process.simBayesMuCorrelatorTrackProducer.useStubsFromAdditionalBxs = cms.int32(3)
 
@@ -179,6 +181,15 @@ process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 #process.output_step = cms.EndPath(process.out)
 
 ############################################################
+
+analysisType = "efficiency" # or rate
+  
+for a in sys.argv :
+    if a == "efficiency" or a ==  "rate" or a == "withTrackPart" :
+        analysisType = a
+        break;
+    
+print "analysisType=" + analysisType
 
 process.omtfTTAnalyzer= cms.EDAnalyzer("MuCorrelatorAnalyzer", 
                                  outRootFile = cms.string("muCorrelatorTTAnalysis1.root"),
@@ -206,7 +217,8 @@ process.omtfTTAnalyzer= cms.EDAnalyzer("MuCorrelatorAnalyzer",
                                        TrackingParticleInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        TrackingVertexInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        
-                                       muCandQualityCut = cms.int32(12)
+                                       muCandQualityCut = cms.int32(12),
+                                       analysisType = cms.string(analysisType)
                                         )
 process.omtfTTAnalyzerPath = cms.Path(process.omtfTTAnalyzer)
 

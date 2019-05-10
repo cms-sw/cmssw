@@ -7,7 +7,7 @@ import commands
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-verbose = True
+verbose = False
 
 if verbose: 
     process.MessageLogger = cms.Service("MessageLogger",
@@ -180,13 +180,13 @@ process.load('L1Trigger.L1TMuonBayes.simBayesMuCorrelatorTrackProducer_cfi')
 #process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("SIM_TRACKS") #TODO !!!!!!!
 process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("TRACKING_PARTICLES") #TODO !!!!!!!
 process.simBayesMuCorrelatorTrackProducer.pdfModuleType = cms.string("PdfModuleWithStats") #TODO
-#process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml") #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!11
-#process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModule.xml")
+#process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml") #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!11
+#process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModule.xml")
 process.simBayesMuCorrelatorTrackProducer.useStubsFromAdditionalBxs = cms.int32(3)
 
 process.simBayesMuCorrelatorTrackProducer.generateTiming = cms.bool(False)
 #process.simBayesMuCorrelatorTrackProducer.outputTimingFile = cms.string("muTimingModule.xml")
-process.simBayesMuCorrelatorTrackProducer.timingModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/muTimingModuleTest.xml")
+#process.simBayesMuCorrelatorTrackProducer.timingModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/muTimingModuleTest.xml")#
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
@@ -233,7 +233,7 @@ process.omtfTTAnalyzer= cms.EDAnalyzer("MuCorrelatorAnalyzer",
                                        TrackingVertexInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                        
                                        muCandQualityCut = cms.int32(12),
-                                       applyTriggerRules = cms.bool(True)
+                                       analysisType = cms.string("withTrackPart")
                                         )
 process.omtfTTAnalyzerPath = cms.Path(process.omtfTTAnalyzer)
 

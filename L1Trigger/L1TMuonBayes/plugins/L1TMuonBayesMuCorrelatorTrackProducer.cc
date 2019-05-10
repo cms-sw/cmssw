@@ -41,7 +41,7 @@ L1TMuonBayesMuCorrelatorTrackProducer::L1TMuonBayesMuCorrelatorTrackProducer(con
   edm::InputTag l1TrackInputTag = cfg.getParameter<edm::InputTag>("L1TrackInputTag");
   ttTrackToken = consumes< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > >(l1TrackInputTag);
 
-  inputTokenSimTracks = consumes<edm::SimTrackContainer>(edmParameterSet.getParameter<edm::InputTag>("g4SimTrackSrc")); //TODO remove
+  inputTokenSimTracks = consumes<edm::SimTrackContainer>(edmParameterSet.getParameter<edm::InputTag>("g4SimTrackSrc")); //TODO is it needed?
 
   trackingParticleToken = mayConsume< std::vector< TrackingParticle > >(edmParameterSet.getParameter<edm::InputTag>("TrackingParticleInputTag") );
 
@@ -91,11 +91,11 @@ void L1TMuonBayesMuCorrelatorTrackProducer::endJob(){
     //pdfModuleWithStats->write();*/
 
     if(edmParameterSet.exists("generatePdfs") && edmParameterSet.getParameter<bool>("generatePdfs")) {
-      if(edmParameterSet.exists("pdfModuleFileName") ) {//if we read the patterns directly from the xml, we do it only once, at the beginning of the first run, not every run
-        pdfModuleFileName = edmParameterSet.getParameter<edm::FileInPath>("pdfModuleFileName").fullPath();
+      if(edmParameterSet.exists("pdfModuleFile") ) {//if we read the patterns directly from the xml, we do it only once, at the beginning of the first run, not every run
+        pdfModuleFile = edmParameterSet.getParameter<edm::FileInPath>("pdfModuleFile").fullPath();
       }
       pdfModuleWithStats->generateCoefficients();
-      writePdfs(pdfModule, pdfModuleFileName);
+      writePdfs(pdfModule, pdfModuleFile);
     }
   }
 
@@ -146,10 +146,10 @@ void L1TMuonBayesMuCorrelatorTrackProducer::beginRun(edm::Run const& run, edm::E
     if(edmParameterSet.exists("generatePdfs") && edmParameterSet.getParameter<bool>("generatePdfs")) {
       //dont read the pdf if they are going to be generated
     }
-    else if(edmParameterSet.exists("pdfModuleFileName") ) {//if we read the patterns directly from the xml, we do it only once, at the beginning of the first run, not every run
-      pdfModuleFileName = edmParameterSet.getParameter<edm::FileInPath>("pdfModuleFileName").fullPath();
-      edm::LogImportant("L1TMuonBayesMuCorrelatorTrackProducer")<<" reading the pdfModule from file "<<pdfModuleFileName<<std::endl;
-      readPdfs(pdfModule, pdfModuleFileName);
+    else if(edmParameterSet.exists("pdfModuleFile") ) {//if we read the patterns directly from the xml, we do it only once, at the beginning of the first run, not every run
+      pdfModuleFile = edmParameterSet.getParameter<edm::FileInPath>("pdfModuleFile").fullPath();
+      edm::LogImportant("L1TMuonBayesMuCorrelatorTrackProducer")<<" reading the pdfModule from file "<<pdfModuleFile<<std::endl;
+      readPdfs(pdfModule, pdfModuleFile);
     }
 
     std::unique_ptr<PdfModule> pdfModuleUniqPtr(pdfModule);
@@ -219,52 +219,10 @@ void L1TMuonBayesMuCorrelatorTrackProducer::produce(edm::Event& iEvent, const ed
     //edm::LogInfo("L1TMuonBayesMuCorrelatorTrackProducer") <<"MuCorr:  Number of candidates in BX="<<bx<<": "<<candidates->size(bx) << std::endl;;
   }
 
-  /*
-  applyTriggerRules(bayesMuCorrTracks);
-  for(int bx = bayesMuCorrTracks->getFirstBX(); bx <= bayesMuCorrTracks->getLastBX(); bx++) {
-    for(auto itL1MuCand = bayesMuCorrTracks->begin(bx); itL1MuCand != bayesMuCorrTracks->end(bx); ++itL1MuCand) {
-      LogTrace("omtfEventPrintout")<<" bx "<<bx<<" pt "<<itL1MuCand->getPt()<<" CanceledByTriggerRules: "<<itL1MuCand->getCanceledByTriggerRules()<<endl;
-    }
-  } */
-
   iEvent.put(std::move(candidates), "MuCorr");
   iEvent.put(std::move(bayesMuCorrTracks), "BayesMuCorrTracks");
 }
 
-/* has no sens here, should be done in the analyzer
-void L1TMuonBayesMuCorrelatorTrackProducer::applyTriggerRules(std::unique_ptr<l1t::BayesMuCorrTrackBxCollection>& bayesMuCorrTracks) {
-  std::set<int> cancelledBxes; //bxes in which the candidates should be marked as cancelled by the trigger rules, i.e. by the candidates in the previous BXEs
-
-  double singleMuThresh = 20; //GeV TODO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-  double doubleMuThresh = 10; //GeV
-
-  for(int bx = bayesMuCorrTracks->getFirstBX(); bx <= bayesMuCorrTracks->getLastBX(); bx++) {
-    int singleMuCands = 0;
-    int doubleMuCands = 0;
-
-    for(auto itL1MuCand = bayesMuCorrTracks->begin(bx); itL1MuCand != bayesMuCorrTracks->end(bx); ++itL1MuCand) {
-      if(itL1MuCand->getPt() >= singleMuThresh) {
-        singleMuCands++;
-      }
-      if(itL1MuCand->getPt() >= doubleMuThresh) {
-        doubleMuCands++;
-      }
-    }
-
-    if(singleMuCands >= 1 || doubleMuCands >= 2) {
-      cancelledBxes.insert(bx +1);
-      cancelledBxes.insert(bx +2); //as much as BXes cancelled by the first trigger rule, here assumed that two
-    }
-  }
-
-  for(int bx = bayesMuCorrTracks->getFirstBX(); bx <= bayesMuCorrTracks->getLastBX(); bx++) {
-    if(cancelledBxes.count(bx)) {
-      for(auto itL1MuCand = bayesMuCorrTracks->begin(bx); itL1MuCand != bayesMuCorrTracks->end(bx); ++itL1MuCand) {
-        itL1MuCand->setCanceledByTriggerRules(1);
-      }
-    }
-  }
-}*/
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 
@@ -274,16 +232,16 @@ void L1TMuonBayesMuCorrelatorTrackProducer::readPdfs(IPdfModule* pdfModule, std:
   assert(ifs.good());
   boost::archive::xml_iarchive ia(ifs);
 
-  // write class instance to archive
   PdfModule* pdfModuleImpl = dynamic_cast<PdfModule*>(pdfModule);
-  // write class instance to archive
   if(pdfModuleImpl) {
     PdfModule& pdfModuleRef = *pdfModuleImpl;
     ia >> BOOST_SERIALIZATION_NVP(pdfModuleRef);
 
     LogTrace("omtfEventPrintout")<<__FUNCTION__<<": "<<__LINE__<<" pdfModule->getCoefficients().size() "<<pdfModuleRef.getCoefficients().size()<<endl;
   }
-  //else TODO
+  else {
+    throw cms::Exception("L1TMuonBayesMuCorrelatorTrackProducer::readPdfs: pdfModule is not of the type PdfModule*");
+  }
 }
 
 void L1TMuonBayesMuCorrelatorTrackProducer::writePdfs(const IPdfModule* pdfModule, std::string fileName) {
@@ -319,7 +277,9 @@ void L1TMuonBayesMuCorrelatorTrackProducer::readTimingModule(MuTimingModule* muT
 
     LogTrace("omtfEventPrintout")<<__FUNCTION__<<": "<<__LINE__<<" readTimingModule from file "<<fileName<<endl;
   }
-  //else TODO
+  else {
+    throw cms::Exception("L1TMuonBayesMuCorrelatorTrackProducer::readTimingModule: muTimingModule is 0");
+  }
 }
 
 void L1TMuonBayesMuCorrelatorTrackProducer::writeTimingModule(const MuTimingModule* muTimingModule, std::string fileName) {

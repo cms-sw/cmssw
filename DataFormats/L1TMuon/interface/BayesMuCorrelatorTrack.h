@@ -46,9 +46,9 @@ public:
   inline void setHwPt(int hwPt) { this->hwPt_ = hwPt; };
   //inline void setHwCharge(int charge) { hwCharge_ = charge; };
   //inline void setHwChargeValid(int valid) { hwChargeValid_ = valid; };
-  inline void setTfMuonIndex(int index) { tfMuonIndex_ = index; };
+  //inline void setTfMuonIndex(int index) { tfMuonIndex_ = index; };
 //  inline void setHwTag(int tag) { hwTag_ = tag; };
-  void setHwSign(int sign) { this->hwSign_ = sign; };
+  inline void setHwSign(int sign) { this->hwSign_ = sign; };
   inline void setHwQual(int quality) { this->quality = quality; };
 
 
@@ -127,18 +127,22 @@ public:
     this->eta = eta;
   }
 
+  //in radians
   double getPhi() const {
     return phi;
   }
 
+  //in radians
   void setPhi(double phi = 0) {
     this->phi = phi;
   }
 
+  //in GeV
   double getPt() const {
     return pt;
   }
 
+  //in GeV
   void setPt(double pt = 0) {
     this->pt = pt;
   }

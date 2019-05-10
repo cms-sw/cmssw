@@ -112,7 +112,7 @@ process.source = cms.Source("PoolSource", fileNames = Source_Files,
         'drop l1tEMTFTrack2016s_simEmtfDigis__HLT')
 )
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('muCorrelatorTTAnalysis1.root'), closeFileFast = cms.untracked.bool(True))
+process.TFileService = cms.Service("TFileService", fileName = cms.string('muCorrelatorTimingGen100FilesWithiRPC.root'), closeFileFast = cms.untracked.bool(True))
 
 
 ############################################################
@@ -179,12 +179,13 @@ process.load('L1Trigger.L1TMuonBayes.simBayesMuCorrelatorTrackProducer_cfi')
 #process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("L1_TRACKER")
 process.simBayesMuCorrelatorTrackProducer.ttTracksSource = cms.string("SIM_TRACKS") #TODO !!!!!!!
 process.simBayesMuCorrelatorTrackProducer.pdfModuleType = cms.string("PdfModuleWithStats") #TODO
-#process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml") #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!11
-#process.simBayesMuCorrelatorTrackProducer.pdfModuleFileName = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModule.xml")
+process.simBayesMuCorrelatorTrackProducer.minDtPhQuality = cms.int32(4);
+#process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/pdfModule.xml") #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!11
+#process.simBayesMuCorrelatorTrackProducer.pdfModuleFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/pdfModule.xml")
 process.simBayesMuCorrelatorTrackProducer.useStubsFromAdditionalBxs = cms.int32(3)
 
 process.simBayesMuCorrelatorTrackProducer.generateTiming = cms.bool(True)
-process.simBayesMuCorrelatorTrackProducer.outputTimingFile = cms.string("muTimingModuleTest.xml")
+process.simBayesMuCorrelatorTrackProducer.outputTimingFile = cms.string("muTimingModule100FilesWithiRPC.xml")
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
@@ -207,7 +208,7 @@ process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 process.omtfTTAnalyzer= cms.EDAnalyzer("MuCorrelatorAnalyzer", 
                                  #outRootFile = cms.string("muCorrelatorTTAnalysis1Test.root"),
                                  etaCutFrom = cms.double(0.), #OMTF eta range
-                                 etaCutTo = cms.double(2.35),
+                                 etaCutTo = cms.double(2.4),
                                           
                                        MyProcess = cms.int32(1),
                                        DebugMode = cms.bool(verbose),      # printout lots of debug statements

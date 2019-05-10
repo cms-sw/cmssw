@@ -235,7 +235,11 @@ void MuCorrelatorInputMaker::addRPCstub(MuonStubPtrs2D& muonStubsInLayers, const
     }
   }
   else {
-    stub.roll = (roll.ring() -1) * 3 + roll.roll()-1;
+    if(roll.region() != 0  &&  abs(roll.station()) >= 3 && roll.ring() == 1 ) { //iRPC
+      stub.roll = 0; //todo fix when the iRPC rolls understood
+    }
+    else
+      stub.roll = (roll.ring() -1) * 3 + roll.roll()-1;
   }
 
   stub.detId = rawid;

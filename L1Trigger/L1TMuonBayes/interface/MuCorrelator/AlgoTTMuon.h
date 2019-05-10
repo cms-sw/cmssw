@@ -34,7 +34,6 @@ public:
   int getEtaHw() const override { return ttTrack->getEtaHw(); }
 
   bool isValid() const override {
-    //TODO where and when it should be set?
     return valid;
   }
 

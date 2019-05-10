@@ -14,12 +14,10 @@
 #include <L1Trigger/L1TMuonBayes/interface/Omtf/OMTFConfiguration.h>
 #include <L1Trigger/L1TMuonBayes/interface/Omtf/OMTFinput.h>
 #include <L1Trigger/L1TMuonBayes/interface/Omtf/OMTFProcessor.h>
-#include <L1Trigger/L1TMuonBayes/interface/Omtf/OMTFProcessorTTMerger.h>
 #include <L1Trigger/L1TMuonBayes/interface/Omtf/OMTFReconstruction.h>
 #include <L1Trigger/L1TMuonBayes/interface/Omtf/XMLConfigReader.h>
 #include <L1Trigger/L1TMuonBayes/interface/Omtf/XMLConfigWriter.h>
 #include <L1Trigger/L1TMuonBayes/interface/Omtf/XMLEventWriter.h>
-#include <L1Trigger/L1TMuonBayes/interface/OmtfPatternGeneration/PatternGeneratorTT.h>
 #include <L1Trigger/L1TMuonBayes/interface/OmtfPatternGeneration/PatternOptimizer.h>
 
 /*OMTFReconstruction::OMTFReconstruction() :
@@ -91,8 +89,6 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
       //m_OMTFConfig->initPatternPtRange();
       if(processorType == "OMTFProcessor")
         m_OMTF.reset(new OMTFProcessor<GoldenPattern>(m_OMTFConfig, m_Config, iSetup, omtfParams) );
-      else if(processorType == "OMTFProcessorTTMerger")
-        m_OMTF.reset(new OMTFProcessorTTMerger<GoldenPattern>(m_OMTFConfig, m_Config, iSetup, omtfParams) );
     }
   }
   if(m_OMTF == 0 && m_Config.exists("patternsXMLFile") ) {//if we read the patterns directly from the xml, we do it only once, at the beginning of the first run, not every run
@@ -113,9 +109,6 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
       if(processorType == "OMTFProcessor") {
         m_OMTF.reset(new OMTFProcessor<GoldenPattern>(m_OMTFConfig, m_Config, iSetup, gps) );
       }
-      else if(processorType == "OMTFProcessorTTMerger") {
-        m_OMTF.reset(new OMTFProcessorTTMerger<GoldenPattern>(m_OMTFConfig, m_Config, iSetup, gps) );
-      }
 
       edm::LogImportant("OMTFReconstruction") << "OMTFProcessor constructed. processorType "<<processorType<<". GoldenPattern type: "<<patternType<<" size: "<<gps.size() << std::endl;
 
@@ -135,11 +128,7 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
         m_OMTF.reset(new OMTFProcessor<GoldenPatternWithStat>(m_OMTFConfig, m_Config, iSetup, gps) );
         observers.emplace_back(std::move(obs));
       }
-      else if(processorType == "OMTFProcessorTTMerger") {
-        std::unique_ptr<IOMTFEmulationObserver> obs(new PatternGeneratorTT(m_Config, m_OMTFConfig, gps));
-        observers.emplace_back(std::move(obs));
-        m_OMTF.reset(new OMTFProcessorTTMerger<GoldenPatternWithStat>(m_OMTFConfig, m_Config, iSetup, gps) );
-      }
+
       edm::LogImportant("OMTFReconstruction") << "OMTFProcessor constructed. GoldenPattern type: "<<patternType<<" size: "<<gps.size() << std::endl;
 
       for(auto& gp : gps) {

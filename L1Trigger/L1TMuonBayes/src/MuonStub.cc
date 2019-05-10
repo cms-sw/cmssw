@@ -15,12 +15,11 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 MuonStub::MuonStub() {
-  // TODO Auto-generated constructor stub
 
 }
 
 MuonStub::~MuonStub() {
-  // TODO Auto-generated destructor stub
+
 }
 
 std::ostream & operator<< (std::ostream &out, const MuonStub &stub){
@@ -46,17 +45,20 @@ std::ostream & operator<< (std::ostream &out, const MuonStub &stub){
   switch (detId.subdetId()) {
   case MuonSubdetId::RPC: {
     RPCDetId rpcId(stub.detId);
-    out <<" RPC "<< rpcId;
+    if(rpcId.region() != 0  &&  abs(rpcId.station()) >= 3 && rpcId.ring() == 1 )
+      out <<" iRPC "<< rpcId;
+    else
+      out <<" RPC  "<< rpcId;
     break;
   }
   case MuonSubdetId::DT: {
     DTChamberId dtId(stub.detId);
-    out <<" DT  "<< dtId;
+    out <<" DT   "<< dtId;
     break;
   }
   case MuonSubdetId::CSC: {
     CSCDetId cscId(stub.detId);
-    out <<" CSC "<< cscId;
+    out <<" CSC  "<< cscId;
     break;
   }
   }

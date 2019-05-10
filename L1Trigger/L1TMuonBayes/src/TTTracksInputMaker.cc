@@ -30,7 +30,7 @@ TTTracksInputMaker::TTTracksInputMaker(const edm::ParameterSet& edmCfg) {
 }
 
 TTTracksInputMaker::~TTTracksInputMaker() {
-  // TODO Auto-generated destructor stub
+
 }
 
 TrackingTriggerTracks TTTracksInputMaker::loadTTTracks(const edm::Event &event, int bx, const edm::ParameterSet& edmCfg, const ProcConfigurationBase* procConf) {
@@ -67,7 +67,7 @@ TrackingTriggerTracks TTTracksInputMaker::loadTTTracks(const edm::Event &event, 
 
       if(trackingParticlePtr->eventId().bunchCrossing() == bx) {//to emulate the trigger rules we should process every track not only the muons!!!!
         //if ( (abs(trackingParticlePtr->pdgId()) == 13  ||  abs(trackingParticlePtr->pdgId()) == 1000015) && trackingParticlePtr->pt() > 2.5) //TODO 1000015 is stau
-        if(trackingParticlePtr->pt() > 2.5 && abs(trackingParticlePtr->eta() ) < 2.4) //todo move values to config
+        if(trackingParticlePtr->pt() > 2.4 && abs(trackingParticlePtr->eta() ) < 2.4) //todo move values to config
         {
           auto ttTrack = std::make_shared<TrackingTriggerTrack>(trackingParticlePtr);
           ttTrack->setSimBeta(trackingParticlePtr->p4().Beta());

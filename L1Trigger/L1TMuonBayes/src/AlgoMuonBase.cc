@@ -8,11 +8,10 @@
 #include "L1Trigger/L1TMuonBayes/interface/AlgoMuonBase.h"
 
 AlgoMuonBase::AlgoMuonBase() {
-  // TODO Auto-generated constructor stub
 
 }
 
 AlgoMuonBase::~AlgoMuonBase() {
-  // TODO Auto-generated destructor stub
+
 }
 

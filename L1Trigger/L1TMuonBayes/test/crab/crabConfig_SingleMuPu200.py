@@ -9,6 +9,7 @@ config.General.transferLogs = True
 config.JobType.pluginName = 'Analysis'
 #config.JobType.psetName = 'runMuonOverlapTTMergerAnalyzerCrab.py'
 config.JobType.psetName = 'runMuonCorrelatorTTTracksAnanlyzer.py'
+config.JobType.pyCfgParams = ['efficiency']
 
 config.Data.inputDataset = '/SingleMu_FlatPt-2to100/PhaseIIFall17D-L1TPU200_93X_upgrade2023_realistic_v5-v1/GEN-SIM-DIGI-RAW'
 #config.Data.inputDataset = '/SingleMu_FlatPt-2to100/PhaseIIFall17D-L1TnoPU_93X_upgrade2023_realistic_v5-v1/GEN-SIM-DIGI-RAW'

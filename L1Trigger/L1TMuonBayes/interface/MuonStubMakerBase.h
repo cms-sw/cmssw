@@ -11,6 +11,9 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 
 #include <L1Trigger/L1TMuonBayes/interface/RpcClusterization.h>
 
@@ -69,6 +72,9 @@ protected:
   virtual void addRPCstub(MuonStubPtrs2D& muonStubsInLayers, const RPCDetId& roll, const RpcCluster& cluster,
      unsigned int iProcessor, l1t::tftype procTyp) = 0;
 
+//  virtual void addGEMstub(MuonStubPtrs2D& muonStubsInLayers, const GEMDetId& roll, const RpcCluster& cluster,
+//     unsigned int iProcessor, l1t::tftype procTyp) = 0;
+
   ///Take the DT digis, select chambers connected to given
   ///processor, convers logal angles to global scale.
   ///For DT take also the bending angle.
@@ -91,6 +97,9 @@ protected:
 		  unsigned int iProcessor,
 		  l1t::tftype procType, int bxFrom = 0, int bxTo = 0);
 
+  virtual void processGEM(MuonStubPtrs2D& muonStubsInLayers, const GEMPadDigiCollection* gemDigis,
+      unsigned int iProcessor,
+      l1t::tftype procType, int bxFrom = 0, int bxTo = 0);
 
   ///Give input number for givedn processor, using
   ///the chamber sector number.

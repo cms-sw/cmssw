@@ -71,10 +71,10 @@ class L1TMuonBayesMuCorrelatorTrackProducer : public edm::EDProducer {
   std::unique_ptr<MuCorrelatorProcessor> muCorrelatorProcessor;
   std::unique_ptr<TTTracksInputMaker> ttTracksInputMaker;
 
-  std::string pdfModuleFileName = "pdfModule.xml";
+  std::string pdfModuleFile = "pdfModule.xml";
 
   //Range of the BXes for which the emulation is performed,
-  int bxRangeMin = 0, bxRangeMax = 0; //TODO
+  int bxRangeMin = 0, bxRangeMax = 0;
 
   //if 1 then the emulator takes the input data from one more BX, which allows to reconstruct the HSCPs
   int useStubsFromAdditionalBxs = 0;
