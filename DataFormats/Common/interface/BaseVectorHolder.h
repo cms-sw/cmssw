@@ -1,9 +1,9 @@
 #ifndef DataFormats_Common_BaseVectorHolder_h
 #define DataFormats_Common_BaseVectorHolder_h
+#include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/Common/interface/BaseHolder.h"
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 
 namespace edm {
