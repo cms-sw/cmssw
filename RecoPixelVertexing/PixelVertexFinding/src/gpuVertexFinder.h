@@ -79,12 +79,22 @@ namespace gpuVertexFinder {
     using ZVertices = gpuVertexFinder::ZVertices;
     using WorkSpace = gpuVertexFinder::WorkSpace;
 
-    Producer(int iminT,       // min number of neighbours to be "core"
+    Producer(bool useDensity,
+             bool useDBSCAN,
+             bool useIterative,
+             int iminT,       // min number of neighbours to be "core"
              float ieps,      // max absolute distance to cluster
              float ierrmax,   // max error to be "seed"
              float ichi2max,  // max normalized distance to cluster
              bool ienableTransfer)
-        : minT(iminT), eps(ieps), errmax(ierrmax), chi2max(ichi2max), enableTransfer(ienableTransfer) {}
+        : useDensity_(useDensity),
+          useDBSCAN_(useDBSCAN),
+          useIterative_(useIterative),
+          minT(iminT),
+          eps(ieps),
+          errmax(ierrmax),
+          chi2max(ichi2max),
+          enableTransfer(ienableTransfer) {}
 
     ~Producer() { deallocate(); }
 
@@ -99,6 +109,10 @@ namespace gpuVertexFinder {
     OnCPU gpuProduct;
     ZVertices* gpu_d = nullptr;
     WorkSpace* ws_d = nullptr;
+
+    const bool useDensity_;
+    const bool useDBSCAN_;
+    const bool useIterative_;
 
     int minT;       // min number of neighbours to be "core"
     float eps;      // max absolute distance to cluster

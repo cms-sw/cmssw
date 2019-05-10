@@ -1,4 +1,7 @@
-#include "gpuClusterTracks.h"
+#include "RecoPixelVertexing/PixelVertexFinding/src/gpuClusterTracksByDensity.h"
+#include "RecoPixelVertexing/PixelVertexFinding/src/gpuClusterTracksDBSCAN.h"
+#include "RecoPixelVertexing/PixelVertexFinding/src/gpuClusterTracksIterative.h"
+
 #include "gpuFitVertices.h"
 #include "gpuSortByPt2.h"
 #include "gpuSplitVertices.h"
@@ -58,8 +61,13 @@ namespace gpuVertexFinder {
     auto numberOfBlocks = (CAConstants::maxTuples() + blockSize - 1) / blockSize;
     loadTracks<<<numberOfBlocks, blockSize, 0, stream>>>(tracks.gpu_d, ws_d, ptMin);
     cudaCheck(cudaGetLastError());
-
-    CLUSTERIZE<<<1, 1024 - 256, 0, stream>>>(gpu_d, ws_d, minT, eps, errmax, chi2max);
+    if (useDensity_) {
+      clusterTracksByDensity<<<1, 1024 - 256, 0, stream>>>(gpu_d, ws_d, minT, eps, errmax, chi2max);
+    } else if (useDBSCAN_) {
+      clusterTracksDBSCAN<<<1, 1024 - 256, 0, stream>>>(gpu_d, ws_d, minT, eps, errmax, chi2max);
+    } else if (useIterative_) {
+      clusterTracksIterative<<<1, 1024 - 256, 0, stream>>>(gpu_d, ws_d, minT, eps, errmax, chi2max);
+    }
     cudaCheck(cudaGetLastError());
     fitVertices<<<1, 1024 - 256, 0, stream>>>(gpu_d, ws_d, 50.);
     cudaCheck(cudaGetLastError());
