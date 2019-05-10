@@ -6,7 +6,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -23,16 +22,15 @@
 //
 
 class WriteEcalMiscalibConstants : public edm::EDAnalyzer {
- public:
+public:
   explicit WriteEcalMiscalibConstants(const edm::ParameterSet&);
   ~WriteEcalMiscalibConstants() override;
-  
-  
- private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-      // ----------member data ---------------------------
-      std::string newTagRequest_;
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  // ----------member data ---------------------------
+  std::string newTagRequest_;
 };

@@ -8,12 +8,11 @@
 
 #include "Alignment/SurveyAnalysis/test/SurveyTest.h"
 
-SurveyTest::SurveyTest(const edm::ParameterSet& cfg):
-  theBiasFlag( cfg.getUntrackedParameter<bool>("bias", false) ),
-  theIterations( cfg.getParameter<unsigned int>("iterator") ),
-  theAlgorithm ( cfg.getParameter<std::string>("algorith") ),
-  theOutputFile( cfg.getParameter<std::string>("fileName") )
-{
+SurveyTest::SurveyTest(const edm::ParameterSet& cfg)
+    : theBiasFlag(cfg.getUntrackedParameter<bool>("bias", false)),
+      theIterations(cfg.getParameter<unsigned int>("iterator")),
+      theAlgorithm(cfg.getParameter<std::string>("algorith")),
+      theOutputFile(cfg.getParameter<std::string>("fileName")) {
   typedef std::vector<std::string> Strings;
 
   const Strings& hierarchy = cfg.getParameter<Strings>("hierarch");
@@ -22,14 +21,12 @@ SurveyTest::SurveyTest(const edm::ParameterSet& cfg):
   //        - check this, when resurrecting this code in the future
   AlignableObjectId alignableObjectId{AlignableObjectId::Geometry::General};
 
-  for (unsigned int l = 0; l < hierarchy.size(); ++l)
-  {
-    theHierarchy.push_back(alignableObjectId.stringToId(hierarchy[l]) );
+  for (unsigned int l = 0; l < hierarchy.size(); ++l) {
+    theHierarchy.push_back(alignableObjectId.stringToId(hierarchy[l]));
   }
 }
 
-void SurveyTest::beginJob()
-{
+void SurveyTest::beginJob() {
   Alignable* det = SurveyInputBase::detector();
 
   align::Alignables sensors;
@@ -43,20 +40,17 @@ void SurveyTest::beginJob()
 
   algos[theAlgorithm]->iterate(theIterations, theOutputFile, theBiasFlag);
 
-  for (std::map<std::string, SurveyAlignment*>::iterator i = algos.begin();
-       i != algos.end(); ++i) delete i->second;
+  for (std::map<std::string, SurveyAlignment*>::iterator i = algos.begin(); i != algos.end(); ++i)
+    delete i->second;
 }
 
-void SurveyTest::getTerminals(align::Alignables& terminals,
-			      Alignable* ali)
-{
+void SurveyTest::getTerminals(align::Alignables& terminals, Alignable* ali) {
   const auto& comp = ali->components();
 
   unsigned int nComp = comp.size();
 
   if (nComp > 0)
-    for (unsigned int i = 0; i < nComp; ++i)
-    {
+    for (unsigned int i = 0; i < nComp; ++i) {
       getTerminals(terminals, comp[i]);
     }
   else
