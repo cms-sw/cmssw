@@ -28,7 +28,7 @@ class BeginOfEvent;
 class EndOfEvent;
 
 namespace edm {
-class ParameterSet;
+  class ParameterSet;
 }
 
 class SimG4HcalValidation : public SimProducer,
@@ -37,7 +37,6 @@ class SimG4HcalValidation : public SimProducer,
                             public Observer<const BeginOfEvent *>,
                             public Observer<const EndOfEvent *>,
                             public Observer<const G4Step *> {
-
 public:
   SimG4HcalValidation(const edm::ParameterSet &p);
   ~SimG4HcalValidation() override;
@@ -45,7 +44,7 @@ public:
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-  SimG4HcalValidation(const SimG4HcalValidation &) = delete; // stop default
+  SimG4HcalValidation(const SimG4HcalValidation &) = delete;  // stop default
   const SimG4HcalValidation &operator=(const SimG4HcalValidation &) = delete;
 
   void init();
@@ -78,7 +77,7 @@ private:
   HcalTestNumberingScheme *org;
 
   // Hit cache for cluster analysis
-  std::vector<CaloHit> hitcache; // e, eta, phi, time, layer, calo type
+  std::vector<CaloHit> hitcache;  // e, eta, phi, time, layer, calo type
 
   // scale factors :
   std::vector<float> scaleHB;
@@ -101,7 +100,7 @@ private:
   unsigned int count;
   double edepEB, edepEE, edepHB, edepHE, edepHO;
   double edepd[5], edepl[20];
-  double een, hen, hoen; // Energy sum in ECAL, HCAL, HO
+  double een, hen, hoen;  // Energy sum in ECAL, HCAL, HO
   double vhitec, vhithc, enEcal, enHcal;
 };
 

@@ -17,14 +17,15 @@
  */
 
 class TwoBodyDecayVirtualMeasurement {
-
 public:
   TwoBodyDecayVirtualMeasurement(const double primaryMass,
                                  const double primaryWidth,
                                  const double secondaryMass,
                                  const reco::BeamSpot &beamSpot)
-      : thePrimaryMass(primaryMass), thePrimaryWidth(primaryWidth),
-        theSecondaryMass(secondaryMass), theBeamSpot(beamSpot) {}
+      : thePrimaryMass(primaryMass),
+        thePrimaryWidth(primaryWidth),
+        theSecondaryMass(secondaryMass),
+        theBeamSpot(beamSpot) {}
 
   TwoBodyDecayVirtualMeasurement(const TwoBodyDecayVirtualMeasurement &other)
       : thePrimaryMass(other.thePrimaryMass),
@@ -37,12 +38,8 @@ public:
   inline const double &secondaryMass(void) const { return theSecondaryMass; }
 
   inline const reco::BeamSpot &beamSpot(void) const { return theBeamSpot; }
-  inline const AlgebraicVector beamSpotPosition(void) const {
-    return convertXYZPoint(theBeamSpot.position());
-  }
-  inline const AlgebraicSymMatrix beamSpotError(void) const {
-    return extractBeamSpotError();
-  }
+  inline const AlgebraicVector beamSpotPosition(void) const { return convertXYZPoint(theBeamSpot.position()); }
+  inline const AlgebraicSymMatrix beamSpotError(void) const { return extractBeamSpotError(); }
 
 private:
   inline const AlgebraicVector convertXYZPoint(const math::XYZPoint &p) const {

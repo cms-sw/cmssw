@@ -32,15 +32,13 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class SUSY_HLT_DiJet_MET : public DQMEDAnalyzer {
-
 public:
   SUSY_HLT_DiJet_MET(const edm::ParameterSet &ps);
   ~SUSY_HLT_DiJet_MET() override;
 
 protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
   void endRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
 

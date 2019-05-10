@@ -47,15 +47,13 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class SUSY_HLT_SingleLepton : public DQMEDAnalyzer {
-
 public:
   SUSY_HLT_SingleLepton(const edm::ParameterSet &ps);
   ~SUSY_HLT_SingleLepton() override;
 
 protected:
   void dqmBeginRun(const edm::Run &run, const edm::EventSetup &e) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &,
-                      const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &eSetup) override;
   void endRun(const edm::Run &run, const edm::EventSetup &eSetup) override;
 

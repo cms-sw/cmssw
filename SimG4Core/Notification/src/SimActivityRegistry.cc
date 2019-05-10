@@ -2,7 +2,7 @@
 //
 // Package:     Notification
 // Class  :     SimActivityRegistry
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -14,7 +14,6 @@
 
 // user include files
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
-
 
 //
 // constants, enums and typedefs
@@ -55,19 +54,17 @@
 //
 // member functions
 //
-void
-SimActivityRegistry::connect(SimActivityRegistry& iOther)
-{
-   beginOfJobSignal_.connect(iOther.beginOfJobSignal_);
-   dddWorldSignal_.connect(iOther.dddWorldSignal_);
-   beginOfRunSignal_.connect(iOther.beginOfRunSignal_);
-   beginOfEventSignal_.connect(iOther.beginOfEventSignal_);
-   beginOfTrackSignal_.connect(iOther.beginOfTrackSignal_);
-   g4StepSignal_.connect(iOther.g4StepSignal_);
+void SimActivityRegistry::connect(SimActivityRegistry& iOther) {
+  beginOfJobSignal_.connect(iOther.beginOfJobSignal_);
+  dddWorldSignal_.connect(iOther.dddWorldSignal_);
+  beginOfRunSignal_.connect(iOther.beginOfRunSignal_);
+  beginOfEventSignal_.connect(iOther.beginOfEventSignal_);
+  beginOfTrackSignal_.connect(iOther.beginOfTrackSignal_);
+  g4StepSignal_.connect(iOther.g4StepSignal_);
 
-   endOfRunSignal_.connect(iOther.endOfRunSignal_);
-   endOfEventSignal_.connect(iOther.endOfEventSignal_);
-   endOfTrackSignal_.connect(iOther.endOfTrackSignal_);
+  endOfRunSignal_.connect(iOther.endOfRunSignal_);
+  endOfEventSignal_.connect(iOther.endOfEventSignal_);
+  endOfTrackSignal_.connect(iOther.endOfTrackSignal_);
 }
 //
 // const member functions

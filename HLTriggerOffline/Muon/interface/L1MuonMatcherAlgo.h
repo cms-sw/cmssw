@@ -34,21 +34,15 @@ public:
 
   /// Extrapolate reco::Track to the muon station 2, return an invalid TSOS if
   /// it fails
-  TrajectoryStateOnSurface extrapolate(const reco::Track &tk) const {
-    return prop_.extrapolate(tk);
-  }
+  TrajectoryStateOnSurface extrapolate(const reco::Track &tk) const { return prop_.extrapolate(tk); }
 
   /// Extrapolate reco::Candidate to the muon station 2, return an invalid TSOS
   /// if it fails
-  TrajectoryStateOnSurface extrapolate(const reco::Candidate &tk) const {
-    return prop_.extrapolate(tk);
-  }
+  TrajectoryStateOnSurface extrapolate(const reco::Candidate &tk) const { return prop_.extrapolate(tk); }
 
   /// Extrapolate a FreeTrajectoryState to the muon station 2, return an invalid
   /// TSOS if it fails
-  TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState &state) const {
-    return prop_.extrapolate(state);
-  }
+  TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState &state) const { return prop_.extrapolate(state); }
 
   /// Return the propagator to second muon station (in case it's needed)
   PropagateToMuon &propagatorToMuon() { return prop_; }
@@ -58,30 +52,33 @@ public:
   /// Try to match one track to one L1. Return true if succeeded (and update
   /// deltaR, deltaPhi and propagated TSOS accordingly) The preselection cut on
   /// L1, if specified in the config, is applied before the match
-  bool match(const reco::Track &tk, const l1extra::L1MuonParticle &l1,
-             float &deltaR, float &deltaPhi,
+  bool match(const reco::Track &tk,
+             const l1extra::L1MuonParticle &l1,
+             float &deltaR,
+             float &deltaPhi,
              TrajectoryStateOnSurface &propagated) const {
     propagated = extrapolate(tk);
-    return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi)
-                                : false;
+    return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : false;
   }
 
   /// Try to match one track to one L1. Return true if succeeded (and update
   /// deltaR, deltaPhi and propagated TSOS accordingly) The preselection cut on
   /// L1, if specified in the config, is applied before the match
-  bool match(const reco::Candidate &c, const l1extra::L1MuonParticle &l1,
-             float &deltaR, float &deltaPhi,
+  bool match(const reco::Candidate &c,
+             const l1extra::L1MuonParticle &l1,
+             float &deltaR,
+             float &deltaPhi,
              TrajectoryStateOnSurface &propagated) const {
     propagated = extrapolate(c);
-    return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi)
-                                : false;
+    return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : false;
   }
 
   /// Try to match one track to one L1. Return true if succeeded (and update
   /// deltaR, deltaPhi accordingly) The preselection cut on L1, if specified in
   /// the config, is applied before the match
   bool match(TrajectoryStateOnSurface &propagated,
-             const l1extra::L1MuonParticle &l1, float &deltaR,
+             const l1extra::L1MuonParticle &l1,
+             float &deltaR,
              float &deltaPhi) const;
 
   /// Find the best match to L1, and return its index in the vector (and update
@@ -89,8 +86,10 @@ public:
   /// fails The preselection cut on L1, if specified in the config, is applied
   /// before the match
   int match(const reco::Track &tk,
-            const std::vector<l1extra::L1MuonParticle> &l1, float &deltaR,
-            float &deltaPhi, TrajectoryStateOnSurface &propagated) const {
+            const std::vector<l1extra::L1MuonParticle> &l1,
+            float &deltaR,
+            float &deltaPhi,
+            TrajectoryStateOnSurface &propagated) const {
     propagated = extrapolate(tk);
     return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : -1;
   }
@@ -100,8 +99,10 @@ public:
   /// fails The preselection cut on L1, if specified in the config, is applied
   /// before the match
   int match(const reco::Candidate &c,
-            const std::vector<l1extra::L1MuonParticle> &l1, float &deltaR,
-            float &deltaPhi, TrajectoryStateOnSurface &propagated) const {
+            const std::vector<l1extra::L1MuonParticle> &l1,
+            float &deltaR,
+            float &deltaPhi,
+            TrajectoryStateOnSurface &propagated) const {
     propagated = extrapolate(c);
     return propagated.isValid() ? match(propagated, l1, deltaR, deltaPhi) : -1;
   }
@@ -111,7 +112,8 @@ public:
   /// preselection cut on L1, if specified in the config, is applied before the
   /// match
   int match(TrajectoryStateOnSurface &propagated,
-            const std::vector<l1extra::L1MuonParticle> &l1, float &deltaR,
+            const std::vector<l1extra::L1MuonParticle> &l1,
+            float &deltaR,
             float &deltaPhi) const;
 
   /// Find the best match to L1, and return its index in the vector (and update
@@ -120,13 +122,14 @@ public:
   /// If you don't need a selector, just use an AnySelector (CommonTools/Utils)
   /// which accepts everything
   template <typename Collection, typename Selector>
-  int matchGeneric(const reco::Track &tk, const Collection &l1,
-                   const Selector &sel, float &deltaR, float &deltaPhi,
+  int matchGeneric(const reco::Track &tk,
+                   const Collection &l1,
+                   const Selector &sel,
+                   float &deltaR,
+                   float &deltaPhi,
                    TrajectoryStateOnSurface &propagated) const {
     propagated = extrapolate(tk);
-    return propagated.isValid()
-               ? matchGeneric(propagated, l1, sel, deltaR, deltaPhi)
-               : -1;
+    return propagated.isValid() ? matchGeneric(propagated, l1, sel, deltaR, deltaPhi) : -1;
   }
 
   /// Find the best match to L1, and return its index in the vector (and update
@@ -135,13 +138,14 @@ public:
   /// If you don't need a selector, just use an AnySelector (CommonTools/Utils)
   /// which accepts everything
   template <typename Collection, typename Selector>
-  int matchGeneric(const reco::Candidate &c, const Collection &l1,
-                   const Selector &sel, float &deltaR, float &deltaPhi,
+  int matchGeneric(const reco::Candidate &c,
+                   const Collection &l1,
+                   const Selector &sel,
+                   float &deltaR,
+                   float &deltaPhi,
                    TrajectoryStateOnSurface &propagated) const {
     propagated = extrapolate(c);
-    return propagated.isValid()
-               ? matchGeneric(propagated, l1, sel, deltaR, deltaPhi)
-               : -1;
+    return propagated.isValid() ? matchGeneric(propagated, l1, sel, deltaR, deltaPhi) : -1;
   }
 
   /// Find the best match to L1, and return its index in the vector (and update
@@ -150,8 +154,11 @@ public:
   /// defaults to an AnySelector (CommonTools/Utils) which just accepts
   /// everything
   template <typename Collection, typename Selector>
-  int matchGeneric(TrajectoryStateOnSurface &propagated, const Collection &l1,
-                   const Selector &sel, float &deltaR, float &deltaPhi) const;
+  int matchGeneric(TrajectoryStateOnSurface &propagated,
+                   const Collection &l1,
+                   const Selector &sel,
+                   float &deltaR,
+                   float &deltaPhi) const;
 
 private:
   PropagateToMuon prop_;
@@ -169,8 +176,10 @@ private:
 
 template <typename Collection, typename Selector>
 int L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated,
-                                    const Collection &l1s, const Selector &sel,
-                                    float &deltaR, float &deltaPhi) const {
+                                    const Collection &l1s,
+                                    const Selector &sel,
+                                    float &deltaR,
+                                    float &deltaPhi) const {
   typedef typename Collection::value_type obj;
   int match = -1;
   double minDeltaPhi = deltaPhi_;
@@ -180,12 +189,9 @@ int L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated,
     const obj &l1 = l1s[i];
     if (sel(l1)) {
       double thisDeltaPhi = ::deltaPhi(double(pos.phi()), l1.phi());
-      double thisDeltaR2 =
-          ::deltaR2(double(pos.eta()), double(pos.phi()), l1.eta(), l1.phi());
-      if ((fabs(thisDeltaPhi) < deltaPhi_) &&
-          (thisDeltaR2 < deltaR2_)) { // check both
-        if (sortByDeltaPhi_ ? (fabs(thisDeltaPhi) < fabs(minDeltaPhi))
-                            : (thisDeltaR2 < minDeltaR2)) { // sort on one
+      double thisDeltaR2 = ::deltaR2(double(pos.eta()), double(pos.phi()), l1.eta(), l1.phi());
+      if ((fabs(thisDeltaPhi) < deltaPhi_) && (thisDeltaR2 < deltaR2_)) {                               // check both
+        if (sortByDeltaPhi_ ? (fabs(thisDeltaPhi) < fabs(minDeltaPhi)) : (thisDeltaR2 < minDeltaR2)) {  // sort on one
           match = i;
           deltaR = std::sqrt(thisDeltaR2);
           deltaPhi = thisDeltaPhi;

@@ -31,7 +31,6 @@ typedef math::XYZTLorentzVectorD LorentzVector;
 typedef std::vector<LorentzVector> LorentzVectorCollection;
 
 class HLTTauMCProducer : public edm::EDProducer {
-
 public:
   explicit HLTTauMCProducer(const edm::ParameterSet &);
   ~HLTTauMCProducer() override;
@@ -39,9 +38,7 @@ public:
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-  void getGenDecayProducts(const reco::GenParticleRef &,
-                           reco::GenParticleRefVector &, int status = 1,
-                           int pdgId = 0);
+  void getGenDecayProducts(const reco::GenParticleRef &, reco::GenParticleRefVector &, int status = 1, int pdgId = 0);
 
   enum tauDecayModes {
     kElectron,

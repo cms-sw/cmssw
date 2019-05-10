@@ -16,8 +16,7 @@
 
 HcalNoiseRates::HcalNoiseRates(const edm::ParameterSet &iConfig) {
   // DQM ROOT output
-  outputFile_ =
-      iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
+  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
   // set parameters
   rbxCollName_ = iConfig.getUntrackedParameter<edm::InputTag>("rbxCollName");
@@ -28,8 +27,7 @@ HcalNoiseRates::HcalNoiseRates(const edm::ParameterSet &iConfig) {
   useAllHistos_ = iConfig.getUntrackedParameter<bool>("useAllHistos", false);
 
   // Hcal Noise Summary
-  noisetoken_ = consumes<HcalNoiseSummary>(
-      iConfig.getParameter<edm::InputTag>("noiselabel"));
+  noisetoken_ = consumes<HcalNoiseSummary>(iConfig.getParameter<edm::InputTag>("noiselabel"));
 }
 
 void HcalNoiseRates::bookHistograms(DQMStore::IBooker &ibooker,
@@ -37,7 +35,6 @@ void HcalNoiseRates::bookHistograms(DQMStore::IBooker &ibooker,
                                     edm::EventSetup const & /* iSetup */)
 
 {
-
   ibooker.setCurrentFolder("HcalNoiseRatesD/HcalNoiseRatesTask");
 
   Char_t histo[100];
@@ -103,9 +100,7 @@ HcalNoiseRates::~HcalNoiseRates() {}
 //
 
 // ------------ method called to for each event  ------------
-void HcalNoiseRates::analyze(const edm::Event &iEvent,
-                             const edm::EventSetup &evSetup) {
-
+void HcalNoiseRates::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetup) {
   // get the lumi section
   int lumiSection = iEvent.luminosityBlock();
   lumiCountMap_[lumiSection]++;
@@ -115,8 +110,7 @@ void HcalNoiseRates::analyze(const edm::Event &iEvent,
   iEvent.getByToken(tok_rbx_, handle);
   if (!handle.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
-        << " could not find HcalNoiseRBXCollection named " << rbxCollName_
-        << ".\n";
+        << " could not find HcalNoiseRBXCollection named " << rbxCollName_ << ".\n";
     return;
   }
 
@@ -124,8 +118,7 @@ void HcalNoiseRates::analyze(const edm::Event &iEvent,
   edm::Handle<HcalNoiseSummary> summary_h;
   iEvent.getByToken(noisetoken_, summary_h);
   if (!summary_h.isValid()) {
-    throw edm::Exception(edm::errors::ProductNotFound)
-        << " could not find HcalNoiseSummary.\n";
+    throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
     return;
   }
   const HcalNoiseSummary summary = *summary_h;
@@ -148,8 +141,7 @@ void HcalNoiseRates::analyze(const edm::Event &iEvent,
   hNoise_maxHPDNoOtherHits_->Fill(summary.maxHPDNoOtherHits());
 
   // loop over the RBXs and fill the histograms
-  for (reco::HcalNoiseRBXCollection::const_iterator it = handle->begin();
-       it != handle->end(); ++it) {
+  for (reco::HcalNoiseRBXCollection::const_iterator it = handle->begin(); it != handle->end(); ++it) {
     const reco::HcalNoiseRBX &rbx = (*it);
 
     double energy = rbx.recHitEnergy(minHitEnergy_);
@@ -170,7 +162,7 @@ void HcalNoiseRates::analyze(const edm::Event &iEvent,
 
     hRBXNHits_->Fill(nhits);
 
-  } // done looping over RBXs
+  }  // done looping over RBXs
 }
 
 // ------------ method called once each job just before starting event loop
@@ -180,7 +172,6 @@ void HcalNoiseRates::beginJob() {}
 // ------------ method called once each job just after ending the event loop
 // ------------
 void HcalNoiseRates::endJob() {
-
   if (useAllHistos_)
     hLumiBlockCount_->Fill(0.0, lumiCountMap_.size());
 }

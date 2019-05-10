@@ -16,18 +16,16 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 namespace popcon {
-class CSCFakeDBPedestalsImpl
-    : public popcon::PopConSourceHandler<CSCDBPedestals> {
+  class CSCFakeDBPedestalsImpl : public popcon::PopConSourceHandler<CSCDBPedestals> {
+  public:
+    void getNewObjects();
+    std::string id() const { return m_name; }
+    ~CSCFakeDBPedestalsImpl();
 
-public:
-  void getNewObjects();
-  std::string id() const { return m_name; }
-  ~CSCFakeDBPedestalsImpl();
+    CSCFakeDBPedestalsImpl(const edm::ParameterSet &pset);
 
-  CSCFakeDBPedestalsImpl(const edm::ParameterSet &pset);
-
-private:
-  std::string m_name;
-};
-} // namespace popcon
+  private:
+    std::string m_name;
+  };
+}  // namespace popcon
 #endif

@@ -12,30 +12,20 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 class SiStripCablingDQM : public SiStripBaseCondObjDQM {
-
 public:
-  SiStripCablingDQM(const edm::EventSetup &eSetup, edm::RunNumber_t iRun,
+  SiStripCablingDQM(const edm::EventSetup &eSetup,
+                    edm::RunNumber_t iRun,
                     edm::ParameterSet const &hPSet,
                     edm::ParameterSet const &fPSet);
 
   ~SiStripCablingDQM() override;
 
-  void fillModMEs(const std::vector<uint32_t> &selectedDetIds,
-                  const edm::EventSetup &es) override {
-    ;
-  }
-  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds,
-                      const edm::EventSetup &es) override {
-    ;
-  }
+  void fillModMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override { ; }
+  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override { ; }
 
-  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_,
-                     const TrackerTopology *tTopo) override {
-    ;
-  }
+  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) override { ; }
   void fillMEsForLayer(
-      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_,
-      const TrackerTopology *tTopo) override {
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology *tTopo) override {
     ;
   }
 

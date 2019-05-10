@@ -88,10 +88,8 @@ PFJetBenchmarkAnalyzer::PFJetBenchmarkAnalyzer(const edm::ParameterSet &iConfig)
 
 {
   // now do what ever initialization is needed
-  sGenJetAlgo_tok_ = consumes<reco::GenJetCollection>(
-      iConfig.getParameter<edm::InputTag>("InputTruthLabel"));
-  sJetAlgo_tok_ = consumes<reco::PFJetCollection>(
-      iConfig.getParameter<edm::InputTag>("InputRecoLabel"));
+  sGenJetAlgo_tok_ = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("InputTruthLabel"));
+  sJetAlgo_tok_ = consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("InputRecoLabel"));
   outjetfilename = iConfig.getUntrackedParameter<string>("OutputFile");
   pfjBenchmarkDebug = iConfig.getParameter<bool>("pfjBenchmarkDebug");
   plotAgainstReco = iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
@@ -103,9 +101,8 @@ PFJetBenchmarkAnalyzer::PFJetBenchmarkAnalyzer(const edm::ParameterSet &iConfig)
 
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  PFJetBenchmark_.setup(outjetfilename, pfjBenchmarkDebug, plotAgainstReco,
-                        onlyTwoJets, deltaRMax, benchmarkLabel_, recPt, maxEta,
-                        dbe_);
+  PFJetBenchmark_.setup(
+      outjetfilename, pfjBenchmarkDebug, plotAgainstReco, onlyTwoJets, deltaRMax, benchmarkLabel_, recPt, maxEta, dbe_);
 }
 
 PFJetBenchmarkAnalyzer::~PFJetBenchmarkAnalyzer() {
@@ -118,8 +115,7 @@ PFJetBenchmarkAnalyzer::~PFJetBenchmarkAnalyzer() {
 //
 
 // ------------ method called to for each event  ------------
-void PFJetBenchmarkAnalyzer::analyze(const edm::Event &iEvent,
-                                     const edm::EventSetup &iSetup) {
+void PFJetBenchmarkAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get gen jet collection
   Handle<GenJetCollection> genjets;
   bool isGen = iEvent.getByToken(sGenJetAlgo_tok_, genjets);

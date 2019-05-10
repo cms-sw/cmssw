@@ -19,8 +19,7 @@ public:
 private:
   void analyze(edm::Event const &, edm::EventSetup const &) override;
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   MonitorElement *eventId_;
 

@@ -37,44 +37,40 @@
 class SiPixelEDAClient;
 class SiPixelWebInterface;
 class SiPixelInformationExtractor {
-
 public:
   SiPixelInformationExtractor(bool offlineXMLfile);
   ~SiPixelInformationExtractor();
 
-  void computeStatus(MonitorElement *mE, double &colorValue,
-                     std::pair<double, double> &norm);
-  void getNormalization(MonitorElement *mE, std::pair<double, double> &norm,
-                        std::string theMEType);
-  void getNormalization2D(MonitorElement *mE, std::pair<double, double> &normX,
+  void computeStatus(MonitorElement *mE, double &colorValue, std::pair<double, double> &norm);
+  void getNormalization(MonitorElement *mE, std::pair<double, double> &norm, std::string theMEType);
+  void getNormalization2D(MonitorElement *mE,
+                          std::pair<double, double> &normX,
                           std::pair<double, double> &normY,
                           std::string theMEType);
   int getDetId(MonitorElement *mE);
   std::string getMEType(MonitorElement *mE);
 
   void readConfiguration();
-  bool readConfiguration(
-      std::map<std::string, std::vector<std::string>> &layoutMap,
-      std::map<std::string, std::map<std::string, std::string>> &qtestsMap,
-      std::map<std::string, std::vector<std::string>> &meQTestsMap);
+  bool readConfiguration(std::map<std::string, std::vector<std::string>> &layoutMap,
+                         std::map<std::string, std::map<std::string, std::string>> &qtestsMap,
+                         std::map<std::string, std::vector<std::string>> &meQTestsMap);
 
-  void bookNoisyPixels(DQMStore::IBooker &iBooker, float noiseRate,
-                       bool Tier0Flag);
+  void bookNoisyPixels(DQMStore::IBooker &iBooker, float noiseRate, bool Tier0Flag);
 
-  void findNoisyPixels(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter,
-                       bool init, float noiseRate, int noiseRateDenominator,
+  void findNoisyPixels(DQMStore::IBooker &iBooker,
+                       DQMStore::IGetter &iGetter,
+                       bool init,
+                       float noiseRate,
+                       int noiseRateDenominator,
                        edm::ESHandle<SiPixelFedCablingMap> theCablingMap);
 
 private:
   void getItemList(const std::multimap<std::string, std::string> &req_map,
-                   std::string item_name, std::vector<std::string> &items);
-  bool hasItem(std::multimap<std::string, std::string> &req_map,
-               std::string item_name);
-  std::string
-  getItemValue(const std::multimap<std::string, std::string> &req_map,
-               std::string item_name);
-  std::string getItemValue(std::multimap<std::string, std::string> &req_map,
-                           std::string item_name);
+                   std::string item_name,
+                   std::vector<std::string> &items);
+  bool hasItem(std::multimap<std::string, std::string> &req_map, std::string item_name);
+  std::string getItemValue(const std::multimap<std::string, std::string> &req_map, std::string item_name);
+  std::string getItemValue(std::multimap<std::string, std::string> &req_map, std::string item_name);
   void createDummiesFromLayout();
   void selectImage(std::string &name, int status);
   void selectImage(std::string &name, std::vector<QReport *> &reports);
@@ -104,8 +100,7 @@ private:
 
   std::ofstream myfile_;
   int nevents_;
-  std::map<uint32_t, std::vector<std::pair<std::pair<int, int>, float>>>
-      noisyDetIds_;
+  std::map<uint32_t, std::vector<std::pair<std::pair<int, int>, float>>> noisyDetIds_;
   bool endOfModules_;
 
   MonitorElement *EventRateBarrelPixels;

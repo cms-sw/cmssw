@@ -25,35 +25,29 @@ public:
   /** Jacobian for transformation from curvilinear to cartesian representation
    * (needs the z-component of magnetic field in inverse GeV as input).
    */
-  AlgebraicMatrix curvilinearToCartesianJacobian(double rho, double theta,
-                                                 double phi, double zMagField);
+  AlgebraicMatrix curvilinearToCartesianJacobian(double rho, double theta, double phi, double zMagField);
 
   /** Jacobian for transformation from curvilinear to cartesian representation
    * (needs the z-component of magnetic field in inverse GeV as input).
    */
-  AlgebraicMatrix curvilinearToCartesianJacobian(const AlgebraicVector &curv,
-                                                 double zMagField);
+  AlgebraicMatrix curvilinearToCartesianJacobian(const AlgebraicVector &curv, double zMagField);
 
   /** Convert vector from curvilinear to cartesian coordinates (needs the
    * z-component of magnetic field in inverse GeV as input).
    */
-  AlgebraicVector convertCurvilinearToCartesian(const AlgebraicVector &curv,
-                                                double zMagField);
+  AlgebraicVector convertCurvilinearToCartesian(const AlgebraicVector &curv, double zMagField);
 
   /** Momenta of the secondaries in cartesian repraesentation.
    */
-  const std::pair<AlgebraicVector, AlgebraicVector>
-  cartesianSecondaryMomenta(const AlgebraicVector &param);
+  const std::pair<AlgebraicVector, AlgebraicVector> cartesianSecondaryMomenta(const AlgebraicVector &param);
 
   /** Momenta of the secondaries in cartesian repraesentation.
    */
-  const std::pair<AlgebraicVector, AlgebraicVector>
-  cartesianSecondaryMomenta(const TwoBodyDecay &tbd);
+  const std::pair<AlgebraicVector, AlgebraicVector> cartesianSecondaryMomenta(const TwoBodyDecay &tbd);
 
   /** Momenta of the secondaries in cartesian repraesentation.
    */
-  const std::pair<AlgebraicVector, AlgebraicVector>
-  cartesianSecondaryMomenta(const TwoBodyDecayParameters &tbdparam);
+  const std::pair<AlgebraicVector, AlgebraicVector> cartesianSecondaryMomenta(const TwoBodyDecayParameters &tbdparam);
 
 private:
   double thePrimaryMass;

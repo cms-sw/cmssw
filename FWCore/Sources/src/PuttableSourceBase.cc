@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Sources
 // Class  :     PuttableSourceBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -35,55 +35,41 @@ using namespace edm;
 //
 // constructors and destructor
 //
-PuttableSourceBase::PuttableSourceBase(ParameterSet const& iPSet, InputSourceDescription const& iISD):
-InputSource(iPSet,iISD)
-{
-}
+PuttableSourceBase::PuttableSourceBase(ParameterSet const& iPSet, InputSourceDescription const& iISD)
+    : InputSource(iPSet, iISD) {}
 
-void
-PuttableSourceBase::registerProducts() {
-  registerProducts(this,&productRegistryUpdate(),moduleDescription());
-}
+void PuttableSourceBase::registerProducts() { registerProducts(this, &productRegistryUpdate(), moduleDescription()); }
 
-void
-PuttableSourceBase::beginJob() {
+void PuttableSourceBase::beginJob() {
   auto r = productRegistry();
   auto const runLookup = r->productLookup(InRun);
   auto const lumiLookup = r->productLookup(InLumi);
   auto const eventLookup = r->productLookup(InEvent);
   auto const& processName = moduleDescription().processName();
   auto const& moduleLabel = moduleDescription().moduleLabel();
-  
+
   auto const& runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
   auto const& lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
   auto const& eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
-  resolvePutIndicies(InRun,runModuleToIndicies,moduleLabel);
-  resolvePutIndicies(InLumi,lumiModuleToIndicies,moduleLabel);
-  resolvePutIndicies(InEvent,eventModuleToIndicies,moduleLabel);
+  resolvePutIndicies(InRun, runModuleToIndicies, moduleLabel);
+  resolvePutIndicies(InLumi, lumiModuleToIndicies, moduleLabel);
+  resolvePutIndicies(InEvent, eventModuleToIndicies, moduleLabel);
 }
 
-void
-PuttableSourceBase::doBeginRun(RunPrincipal& rp, ProcessContext const* ) {
+void PuttableSourceBase::doBeginRun(RunPrincipal& rp, ProcessContext const*) {
   Run run(rp, moduleDescription(), nullptr, false);
   run.setProducer(this);
-  callWithTryCatchAndPrint<void>( [this,&run](){ beginRun(run); }, "Calling Source::beginRun" );
+  callWithTryCatchAndPrint<void>([this, &run]() { beginRun(run); }, "Calling Source::beginRun");
   commit_(run);
 }
 
-void
-PuttableSourceBase::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const* ) {
+void PuttableSourceBase::doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*) {
   LuminosityBlock lb(lbp, moduleDescription(), nullptr, false);
   lb.setProducer(this);
-  callWithTryCatchAndPrint<void>( [this,&lb](){ beginLuminosityBlock(lb); }, "Calling Source::beginLuminosityBlock" );
+  callWithTryCatchAndPrint<void>([this, &lb]() { beginLuminosityBlock(lb); }, "Calling Source::beginLuminosityBlock");
   commit_(lb);
 }
 
-void
-PuttableSourceBase::beginRun(Run&) {
-}
+void PuttableSourceBase::beginRun(Run&) {}
 
-void
-PuttableSourceBase::beginLuminosityBlock(LuminosityBlock&) {
-}
-
-
+void PuttableSourceBase::beginLuminosityBlock(LuminosityBlock&) {}

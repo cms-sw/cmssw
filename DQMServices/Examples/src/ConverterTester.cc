@@ -8,13 +8,12 @@ ConverterTester::ConverterTester(const edm::ParameterSet &iPSet) {
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
 
   if (verbosity >= 0) {
-    edm::LogInfo(MsgLoggerCat)
-        << "\n===============================\n"
-        << "Initialized as EDAnalyzer with parameter values:\n"
-        << "    Name          = " << fName << "\n"
-        << "    Verbosity     = " << verbosity << "\n"
-        << "    Frequency     = " << frequency << "\n"
-        << "===============================\n";
+    edm::LogInfo(MsgLoggerCat) << "\n===============================\n"
+                               << "Initialized as EDAnalyzer with parameter values:\n"
+                               << "    Name          = " << fName << "\n"
+                               << "    Verbosity     = " << verbosity << "\n"
+                               << "    Frequency     = " << frequency << "\n"
+                               << "===============================\n";
   }
 
   dbe = nullptr;
@@ -26,7 +25,6 @@ ConverterTester::ConverterTester(const edm::ParameterSet &iPSet) {
 ConverterTester::~ConverterTester() {}
 
 void ConverterTester::beginJob() {
-
   if (dbe) {
     meTestString = nullptr;
     meTestInt = nullptr;
@@ -49,26 +47,20 @@ void ConverterTester::beginJob() {
     meTestFloat = dbe->bookFloat("TestFloat");
 
     dbe->setCurrentFolder("ConverterTest/TH1F");
-    meTestTH1FN =
-        dbe->book1D("Random1DN", "Random1D Numerator", 100, -10., 10.);
-    meTestTH1FD =
-        dbe->book1D("Random1DD", "Random1D Denominator", 100, -10., 10.);
+    meTestTH1FN = dbe->book1D("Random1DN", "Random1D Numerator", 100, -10., 10.);
+    meTestTH1FD = dbe->book1D("Random1DD", "Random1D Denominator", 100, -10., 10.);
 
     dbe->setCurrentFolder("ConverterTest/TH2F");
-    meTestTH2F =
-        dbe->book2D("Random2D", "Random2D", 100, -10, 10., 100, -10., 10.);
+    meTestTH2F = dbe->book2D("Random2D", "Random2D", 100, -10, 10., 100, -10., 10.);
 
     dbe->setCurrentFolder("ConverterTest/TH3F");
-    meTestTH3F = dbe->book3D("Random3D", "Random3D", 100, -10., 10., 100, -10.,
-                             10., 100, -10., 10.);
+    meTestTH3F = dbe->book3D("Random3D", "Random3D", 100, -10., 10., 100, -10., 10., 100, -10., 10.);
 
     dbe->setCurrentFolder("ConverterTest/TProfile");
-    meTestProfile1 = dbe->bookProfile("Profile1", "Profile1", 100, -10., 10.,
-                                      100, -10., 10.);
+    meTestProfile1 = dbe->bookProfile("Profile1", "Profile1", 100, -10., 10., 100, -10., 10.);
 
     dbe->setCurrentFolder("ConverterTest/TProfile2D");
-    meTestProfile2 = dbe->bookProfile2D("Profile2", "Profile2", 100, -10., 10.,
-                                        100, -10, 10., 100, -10., 10.);
+    meTestProfile2 = dbe->bookProfile2D("Profile2", "Profile2", 100, -10., 10., 100, -10, 10., 100, -10., 10.);
 
     dbe->tag(meTestTH1FN->getFullname(), 1);
     dbe->tag(meTestTH1FD->getFullname(), 2);
@@ -87,27 +79,20 @@ void ConverterTester::beginJob() {
 void ConverterTester::endJob() {
   std::string MsgLoggerCat = "ConverterTester_endJob";
   if (verbosity >= 0)
-    edm::LogInfo(MsgLoggerCat)
-        << "Terminating having processed " << count << " events.";
+    edm::LogInfo(MsgLoggerCat) << "Terminating having processed " << count << " events.";
   return;
 }
 
-void ConverterTester::beginRun(const edm::Run &iRun,
-                               const edm::EventSetup &iSetup) {
-  return;
-}
+void ConverterTester::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) { return; }
 
-void ConverterTester::endRun(const edm::Run &iRun,
-                             const edm::EventSetup &iSetup) {
+void ConverterTester::endRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   meTestInt->Fill(100);
   meTestFloat->Fill(3.141592);
 
   return;
 }
 
-void ConverterTester::analyze(const edm::Event &iEvent,
-                              const edm::EventSetup &iSetup) {
-
+void ConverterTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   ++count;
 
   for (int i = 0; i < 1000; ++i) {

@@ -17,7 +17,6 @@ ESSummaryClient::ESSummaryClient(const edm::ParameterSet &ps)
 ESSummaryClient::~ESSummaryClient() {}
 
 void ESSummaryClient::book(DQMStore::IBooker &_ibooker) {
-
   if (debug_)
     cout << "ESSummaryClient: setup" << endl;
 
@@ -39,8 +38,7 @@ void ESSummaryClient::book(DQMStore::IBooker &_ibooker) {
 
   _ibooker.setCurrentFolder(prefixME_ + "/EventInfo");
 
-  meReportSummaryMap_ = _ibooker.book2D("reportSummaryMap", "reportSummaryMap",
-                                        80, 0.5, 80.5, 80, 0.5, 80.5);
+  meReportSummaryMap_ = _ibooker.book2D("reportSummaryMap", "reportSummaryMap", 80, 0.5, 80.5, 80, 0.5, 80.5);
   meReportSummaryMap_->setAxisTitle("Si X", 1);
   meReportSummaryMap_->setAxisTitle("Si Y", 2);
 }
@@ -68,7 +66,6 @@ void ESSummaryClient::fillReportSummary(DQMStore::IGetter &_igetter) {
 
   for (int i = 0; i < 2; ++i) {
     for (int j = 0; j < 2; ++j) {
-
       int iz = (i == 0) ? 1 : -1;
 
       sprintf(histo, "ES Integrity Errors Z %d P %d", iz, j + 1);
@@ -76,8 +73,7 @@ void ESSummaryClient::fillReportSummary(DQMStore::IGetter &_igetter) {
       if (me)
         for (int x = 0; x < 40; ++x)
           for (int y = 0; y < 40; ++y)
-            nDI_FedErr[i * 40 + x][(1 - j) * 40 + y] =
-                me->getBinContent(x + 1, y + 1);
+            nDI_FedErr[i * 40 + x][(1 - j) * 40 + y] = me->getBinContent(x + 1, y + 1);
 
       sprintf(histo, "ES Integrity Summary 1 Z %d P %d", iz, j + 1);
       me = _igetter.get(prefixME_ + "/ESIntegrityClient/" + histo);
@@ -106,9 +102,8 @@ void ESSummaryClient::fillReportSummary(DQMStore::IGetter &_igetter) {
 
   for (int x = 0; x < 80; ++x) {
     if (eCount < 1)
-      break; // Fill reportSummaryMap after have 1 event
+      break;  // Fill reportSummaryMap after have 1 event
     for (int y = 0; y < 80; ++y) {
-
       int z = (x < 40) ? 0 : 1;
       int p = (y >= 40) ? 0 : 1;
 
@@ -116,8 +111,7 @@ void ESSummaryClient::fillReportSummary(DQMStore::IGetter &_igetter) {
         meReportSummaryMap_->setBinContent(x + 1, y + 1, -1.);
       } else {
         if (nDI_FedErr[x][y] >= 0) {
-          meReportSummaryMap_->setBinContent(x + 1, y + 1,
-                                             1 - (nDI_FedErr[x][y] / eCount));
+          meReportSummaryMap_->setBinContent(x + 1, y + 1, 1 - (nDI_FedErr[x][y] / eCount));
 
           nValidChannels++;
           nGlobalErrors += nDI_FedErr[x][y] / eCount;
@@ -135,8 +129,7 @@ void ESSummaryClient::fillReportSummary(DQMStore::IGetter &_igetter) {
     for (unsigned iD(0); iD != 2; ++iD) {
       float reportSummaryES(-1.);
       if (nValidChannelsES[iZ][iD] != 0)
-        reportSummaryES =
-            1. - nGlobalErrorsES[iZ][iD] / nValidChannelsES[iZ][iD];
+        reportSummaryES = 1. - nGlobalErrorsES[iZ][iD] / nValidChannelsES[iZ][iD];
 
       meReportSummaryContents_[iZ][iD]->Fill(reportSummaryES);
     }
@@ -150,15 +143,13 @@ void ESSummaryClient::fillReportSummary(DQMStore::IGetter &_igetter) {
 }
 
 void ESSummaryClient::endLumiAnalyze(DQMStore::IGetter &_igetter) {
-
   fillReportSummary(_igetter);
 
   // The following overwrites the report summary if LS-based Good Channel
   // Fraction histogram is available The source is turned off by default in
   // ESIntegrityTask
 
-  MonitorElement *source(
-      _igetter.get(prefixME_ + "/ESIntegrityTask/ES Good Channel Fraction"));
+  MonitorElement *source(_igetter.get(prefixME_ + "/ESIntegrityTask/ES Good Channel Fraction"));
   if (!source)
     return;
 
@@ -174,6 +165,4 @@ void ESSummaryClient::endLumiAnalyze(DQMStore::IGetter &_igetter) {
   meReportSummary_->Fill(source->getBinContent(3, 3));
 }
 
-void ESSummaryClient::endJobAnalyze(DQMStore::IGetter &_igetter) {
-  fillReportSummary(_igetter);
-}
+void ESSummaryClient::endJobAnalyze(DQMStore::IGetter &_igetter) { fillReportSummary(_igetter); }

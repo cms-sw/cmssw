@@ -8,11 +8,8 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-HcalRecHitsDQMClient::HcalRecHitsDQMClient(const edm::ParameterSet &iConfig)
-    : conf_(iConfig) {
-
-  outputFile_ =
-      iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
+HcalRecHitsDQMClient::HcalRecHitsDQMClient(const edm::ParameterSet &iConfig) : conf_(iConfig) {
+  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   debug_ = false;
   verbose_ = false;
   dirName_ = iConfig.getParameter<std::string>("DQMDirName");
@@ -22,9 +19,7 @@ HcalRecHitsDQMClient::~HcalRecHitsDQMClient() {}
 
 void HcalRecHitsDQMClient::beginJob() {}
 
-void HcalRecHitsDQMClient::beginRun(const edm::Run &run,
-                                    const edm::EventSetup &es) {
-
+void HcalRecHitsDQMClient::beginRun(const edm::Run &run, const edm::EventSetup &es) {
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   es.get<HcalRecNumberingRecord>().get(pHRNDC);
   hcons = &(*pHRNDC);
@@ -37,14 +32,10 @@ void HcalRecHitsDQMClient::beginRun(const edm::Run &run,
 
   es.get<CaloGeometryRecord>().get(geometry);
 
-  const std::vector<DetId> &hbCells =
-      geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  const std::vector<DetId> &heCells =
-      geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
-  const std::vector<DetId> &hoCells =
-      geometry->getValidDetIds(DetId::Hcal, HcalOuter);
-  const std::vector<DetId> &hfCells =
-      geometry->getValidDetIds(DetId::Hcal, HcalForward);
+  const std::vector<DetId> &hbCells = geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+  const std::vector<DetId> &heCells = geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+  const std::vector<DetId> &hoCells = geometry->getValidDetIds(DetId::Hcal, HcalOuter);
+  const std::vector<DetId> &hfCells = geometry->getValidDetIds(DetId::Hcal, HcalForward);
 
   nChannels_[1] = hbCells.size();
   nChannels_[2] = heCells.size();
@@ -62,18 +53,14 @@ void HcalRecHitsDQMClient::beginRun(const edm::Run &run,
 
   // We hardcode the HF depths because in the dual readout configuration,
   // rechits are not defined for depths 3&4
-  maxDepthHF_ =
-      (maxDepthHF_ > 2 ? 2 : maxDepthHF_); // We reatin the dynamic possibility
-                                           // that HF might have 0 or 1 depths
+  maxDepthHF_ = (maxDepthHF_ > 2 ? 2 : maxDepthHF_);  // We reatin the dynamic possibility
+                                                      // that HF might have 0 or 1 depths
 
-  maxDepthAll_ =
-      (maxDepthHB_ + maxDepthHO_ > maxDepthHE_ ? maxDepthHB_ + maxDepthHO_
-                                               : maxDepthHE_);
+  maxDepthAll_ = (maxDepthHB_ + maxDepthHO_ > maxDepthHE_ ? maxDepthHB_ + maxDepthHO_ : maxDepthHE_);
   maxDepthAll_ = (maxDepthAll_ > maxDepthHF_ ? maxDepthAll_ : maxDepthHF_);
 }
 
-void HcalRecHitsDQMClient::dqmEndJob(DQMStore::IBooker &ibooker,
-                                     DQMStore::IGetter &igetter) {
+void HcalRecHitsDQMClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
   igetter.setCurrentFolder(dirName_);
 
   if (verbose_)
@@ -86,25 +73,21 @@ void HcalRecHitsDQMClient::dqmEndJob(DQMStore::IBooker &ibooker,
   // NoiseRatesV/NoiseRatesTask.
   std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
   for (unsigned int i = 0; i < fullPathHLTFolders.size(); i++) {
-
     if (verbose_)
       std::cout << "\nfullPath: " << fullPathHLTFolders[i] << std::endl;
     igetter.setCurrentFolder(fullPathHLTFolders[i]);
 
     std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
     for (unsigned int j = 0; j < fullSubPathHLTFolders.size(); j++) {
-
       if (verbose_)
         std::cout << "fullSub: " << fullSubPathHLTFolders[j] << std::endl;
 
-      if (strcmp(fullSubPathHLTFolders[j].c_str(),
-                 "HcalRecHitsD/HcalRecHitTask") == 0) {
+      if (strcmp(fullSubPathHLTFolders[j].c_str(), "HcalRecHitsD/HcalRecHitTask") == 0) {
         hcalMEs = igetter.getContents(fullSubPathHLTFolders[j]);
         if (verbose_)
           std::cout << "hltMES size : " << hcalMEs.size() << std::endl;
         if (!HcalRecHitsEndjob(hcalMEs))
-          std::cout << "\nError in HcalRecHitsEndjob!" << std::endl
-                    << std::endl;
+          std::cout << "\nError in HcalRecHitsEndjob!" << std::endl << std::endl;
       }
     }
   }
@@ -112,9 +95,7 @@ void HcalRecHitsDQMClient::dqmEndJob(DQMStore::IBooker &ibooker,
 
 // called after entering the HcalRecHitsD/HcalRecHitTask directory
 // hcalMEs are within that directory
-int HcalRecHitsDQMClient::HcalRecHitsEndjob(
-    const std::vector<MonitorElement *> &hcalMEs) {
-
+int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement *> &hcalMEs) {
   MonitorElement *Nhf = nullptr;
 
   // Search for emap histograms, and collect them into this vector
@@ -145,7 +126,6 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
   std::vector<float> RecHit_Aux_StatusWord_Channels;
 
   for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
-
     // N_HF is not special, it is just convient to get the total number of
     // events The number of entries in N_HF is equal to the number of events
     if (hcalMEs[ih]->getName() == "N_HF") {
@@ -186,8 +166,7 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
       continue;
     }
 
-    if (hcalMEs[ih]->getName().find("occupancy_vs_ieta_H") !=
-        std::string::npos) {
+    if (hcalMEs[ih]->getName().find("occupancy_vs_ieta_H") != std::string::npos) {
       occupancy_vs_ieta.push_back(hcalMEs[ih]);
 
       // Use occupancy_vs_ietaID to save the subdetector and depth information
@@ -199,14 +178,12 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
 
       std::string prefix = "occupancy_vs_ieta_";
 
-      occupancy_vs_ietaID.push_back(
-          hcalMEs[ih]->getName().substr(prefix.size()));
+      occupancy_vs_ietaID.push_back(hcalMEs[ih]->getName().substr(prefix.size()));
 
       continue;
     }
 
-    if (hcalMEs[ih]->getName().find("HcalRecHitTask_RecHit_StatusWord_H") !=
-        std::string::npos) {
+    if (hcalMEs[ih]->getName().find("HcalRecHitTask_RecHit_StatusWord_H") != std::string::npos) {
       RecHit_StatusWord.push_back(hcalMEs[ih]);
 
       if (hcalMEs[ih]->getName().find("HB") != std::string::npos) {
@@ -224,8 +201,7 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
       continue;
     }
 
-    if (hcalMEs[ih]->getName().find("HcalRecHitTask_RecHit_Aux_StatusWord_H") !=
-        std::string::npos) {
+    if (hcalMEs[ih]->getName().find("HcalRecHitTask_RecHit_Aux_StatusWord_H") != std::string::npos) {
       RecHit_Aux_StatusWord.push_back(hcalMEs[ih]);
 
       if (hcalMEs[ih]->getName().find("HB") != std::string::npos) {
@@ -246,9 +222,8 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
 
   // mean energies and occupancies evaluation
 
-  double nevtot =
-      Nhf->getEntries(); // Use the number of entries in the Nhf histogram to
-                         // give the total number of events
+  double nevtot = Nhf->getEntries();  // Use the number of entries in the Nhf histogram to
+                                      // give the total number of events
 
   if (verbose_)
     std::cout << "nevtot : " << nevtot << std::endl;
@@ -260,7 +235,6 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
   // In this and the following histogram vectors, recognize that the for-loop
   // index does not have to correspond to any particular depth
   for (unsigned int depthIdx = 0; depthIdx < emap_depths.size(); depthIdx++) {
-
     int nx = emap_depths[depthIdx]->getNbinsX();
     int ny = emap_depths[depthIdx]->getNbinsY();
 
@@ -281,9 +255,7 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
 
   bool omatched = false;
 
-  for (unsigned int occupancyIdx = 0; occupancyIdx < occupancy_maps.size();
-       occupancyIdx++) {
-
+  for (unsigned int occupancyIdx = 0; occupancyIdx < occupancy_maps.size(); occupancyIdx++) {
     int nx = occupancy_maps[occupancyIdx]->getNbinsX();
     int ny = occupancy_maps[occupancyIdx]->getNbinsY();
 
@@ -298,12 +270,11 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
         omatched = true;
         break;
       }
-    } // match occupancy_vs_ieta histogram
+    }  // match occupancy_vs_ieta histogram
 
     for (int i = 1; i <= nx; i++) {
       for (int j = 1; j <= ny; j++) {
-        cnorm =
-            occupancy_maps[occupancyIdx]->getBinContent(i, j) * scaleBynevtot;
+        cnorm = occupancy_maps[occupancyIdx]->getBinContent(i, j) * scaleBynevtot;
         enorm = occupancy_maps[occupancyIdx]->getBinError(i, j) * scaleBynevtot;
         occupancy_maps[occupancyIdx]->setBinContent(i, j, cnorm);
         occupancy_maps[occupancyIdx]->setBinError(i, j, enorm);
@@ -313,7 +284,6 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
     // Fill occupancy_vs_ieta
 
     if (omatched) {
-
       // We run over all of the ieta values
       for (int ieta = -41; ieta <= 41; ieta++) {
         float phi_factor = 1.;
@@ -321,31 +291,23 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
         float sumphie = 0.;
 
         if (ieta == 0)
-          continue; // ieta=0 is not defined
+          continue;  // ieta=0 is not defined
 
         phi_factor = phifactor(ieta);
 
         // the rechits occupancy map defines iphi as 0..71
         for (int iphi = 0; iphi <= 71; iphi++) {
-          int binIeta =
-              occupancy_maps[occupancyIdx]->getTH2F()->GetXaxis()->FindBin(
-                  float(ieta));
-          int binIphi =
-              occupancy_maps[occupancyIdx]->getTH2F()->GetYaxis()->FindBin(
-                  float(iphi));
+          int binIeta = occupancy_maps[occupancyIdx]->getTH2F()->GetXaxis()->FindBin(float(ieta));
+          int binIphi = occupancy_maps[occupancyIdx]->getTH2F()->GetYaxis()->FindBin(float(iphi));
 
-          float content =
-              occupancy_maps[occupancyIdx]->getBinContent(binIeta, binIphi);
-          float econtent =
-              occupancy_maps[occupancyIdx]->getBinError(binIeta, binIphi);
+          float content = occupancy_maps[occupancyIdx]->getBinContent(binIeta, binIphi);
+          float econtent = occupancy_maps[occupancyIdx]->getBinError(binIeta, binIphi);
 
           sumphi += content;
           sumphie += econtent * econtent;
-        } // for loop over phi
+        }  // for loop over phi
 
-        int ietabin =
-            occupancy_vs_ieta[vsIetaIdx]->getTH1F()->GetXaxis()->FindBin(
-                float(ieta));
+        int ietabin = occupancy_vs_ieta[vsIetaIdx]->getTH1F()->GetXaxis()->FindBin(float(ieta));
 
         // fill occupancies vs ieta
         cnorm = sumphi / phi_factor;
@@ -353,45 +315,41 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
         occupancy_vs_ieta[vsIetaIdx]->setBinContent(ietabin, cnorm);
         occupancy_vs_ieta[vsIetaIdx]->setBinError(ietabin, enorm);
 
-      } // Fill occupancy_vs_ieta
-    }   // if omatched
+      }  // Fill occupancy_vs_ieta
+    }    // if omatched
   }
 
   // Status Word
   // Normalized by number of events and by number of channels per subdetector as
   // well
 
-  for (unsigned int StatusWordIdx = 0; StatusWordIdx < RecHit_StatusWord.size();
-       StatusWordIdx++) {
-
+  for (unsigned int StatusWordIdx = 0; StatusWordIdx < RecHit_StatusWord.size(); StatusWordIdx++) {
     int nx = RecHit_StatusWord[StatusWordIdx]->getNbinsX();
 
     float cnorm;
     float enorm;
 
     for (int i = 1; i <= nx; i++) {
-      cnorm = RecHit_StatusWord[StatusWordIdx]->getBinContent(i) *
-              scaleBynevtot / RecHit_StatusWord_Channels[StatusWordIdx];
-      enorm = RecHit_StatusWord[StatusWordIdx]->getBinError(i) * scaleBynevtot /
+      cnorm = RecHit_StatusWord[StatusWordIdx]->getBinContent(i) * scaleBynevtot /
               RecHit_StatusWord_Channels[StatusWordIdx];
+      enorm =
+          RecHit_StatusWord[StatusWordIdx]->getBinError(i) * scaleBynevtot / RecHit_StatusWord_Channels[StatusWordIdx];
       RecHit_StatusWord[StatusWordIdx]->setBinContent(i, cnorm);
       RecHit_StatusWord[StatusWordIdx]->setBinError(i, enorm);
     }
   }
 
-  for (unsigned int AuxStatusWordIdx = 0;
-       AuxStatusWordIdx < RecHit_Aux_StatusWord.size(); AuxStatusWordIdx++) {
-
+  for (unsigned int AuxStatusWordIdx = 0; AuxStatusWordIdx < RecHit_Aux_StatusWord.size(); AuxStatusWordIdx++) {
     int nx = RecHit_Aux_StatusWord[AuxStatusWordIdx]->getNbinsX();
 
     float cnorm;
     float enorm;
 
     for (int i = 1; i <= nx; i++) {
-      cnorm = RecHit_Aux_StatusWord[AuxStatusWordIdx]->getBinContent(i) *
-              scaleBynevtot / RecHit_Aux_StatusWord_Channels[AuxStatusWordIdx];
-      enorm = RecHit_Aux_StatusWord[AuxStatusWordIdx]->getBinError(i) *
-              scaleBynevtot / RecHit_Aux_StatusWord_Channels[AuxStatusWordIdx];
+      cnorm = RecHit_Aux_StatusWord[AuxStatusWordIdx]->getBinContent(i) * scaleBynevtot /
+              RecHit_Aux_StatusWord_Channels[AuxStatusWordIdx];
+      enorm = RecHit_Aux_StatusWord[AuxStatusWordIdx]->getBinError(i) * scaleBynevtot /
+              RecHit_Aux_StatusWord_Channels[AuxStatusWordIdx];
       RecHit_Aux_StatusWord[AuxStatusWordIdx]->setBinContent(i, cnorm);
       RecHit_Aux_StatusWord[AuxStatusWordIdx]->setBinError(i, enorm);
     }
@@ -401,7 +359,6 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(
 }
 
 float HcalRecHitsDQMClient::phifactor(int ieta) {
-
   float phi_factor_;
 
   if (ieta >= -20 && ieta <= 20) {

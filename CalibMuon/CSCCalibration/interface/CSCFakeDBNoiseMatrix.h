@@ -17,8 +17,7 @@
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCFakeDBNoiseMatrix : public edm::ESProducer,
-                             public edm::EventSetupRecordIntervalFinder {
+class CSCFakeDBNoiseMatrix : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCFakeDBNoiseMatrix(const edm::ParameterSet &);
   ~CSCFakeDBNoiseMatrix() override;
@@ -44,7 +43,7 @@ private:
 // to workaround plugin library
 inline CSCDBNoiseMatrix *CSCFakeDBNoiseMatrix::prefillDBNoiseMatrix() {
   int seed;
-  const int MAX_SIZE = 252288; // or 252288 for ME4/2 chambers
+  const int MAX_SIZE = 252288;  // or 252288 for ME4/2 chambers
   const int FACTOR = 1000;
 
   CSCDBNoiseMatrix *cndbmatrix = new CSCDBNoiseMatrix();

@@ -4,7 +4,6 @@
 #include "DQM/EcalPreshowerMonitorClient/interface/ESClient.h"
 
 class ESSummaryClient : public ESClient {
-
 public:
   /// Constructor
   ESSummaryClient(const edm::ParameterSet &ps);

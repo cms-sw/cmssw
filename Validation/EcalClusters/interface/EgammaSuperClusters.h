@@ -29,26 +29,20 @@ public:
   ~EgammaSuperClusters() override;
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // mc truth
   edm::EDGetTokenT<edm::HepMCProduct> MCTruthCollectionToken_;
 
   // barrel clusters
-  edm::EDGetTokenT<reco::SuperClusterCollection>
-      barrelRawSuperClusterCollectionToken_;
-  edm::EDGetTokenT<reco::SuperClusterCollection>
-      barrelCorSuperClusterCollectionToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> barrelRawSuperClusterCollectionToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> barrelCorSuperClusterCollectionToken_;
 
   // endcap clusters
-  edm::EDGetTokenT<reco::SuperClusterCollection>
-      endcapRawSuperClusterCollectionToken_;
-  edm::EDGetTokenT<reco::SuperClusterCollection>
-      endcapPreSuperClusterCollectionToken_;
-  edm::EDGetTokenT<reco::SuperClusterCollection>
-      endcapCorSuperClusterCollectionToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> endcapRawSuperClusterCollectionToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> endcapPreSuperClusterCollectionToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> endcapCorSuperClusterCollectionToken_;
 
   // collections of hits
   edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollectionToken_;
@@ -125,8 +119,7 @@ private:
   MonitorElement *hist_EE_CorSC_ET_vs_Phi_;
   MonitorElement *hist_EE_CorSC_ET_vs_R_;
 
-  void closestMCParticle(HepMC::GenEvent const *, reco::SuperCluster const &,
-                         double &, double &) const;
+  void closestMCParticle(HepMC::GenEvent const *, reco::SuperCluster const &, double &, double &) const;
 
   float ecalEta(float, float, float) const;
 };

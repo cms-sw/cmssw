@@ -17,8 +17,7 @@
 #include "CondFormats/DataRecord/interface/CSCBadWiresRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCBadWiresConditions : public edm::ESProducer,
-                              public edm::EventSetupRecordIntervalFinder {
+class CSCBadWiresConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCBadWiresConditions(const edm::ParameterSet &);
   ~CSCBadWiresConditions() override;
@@ -72,7 +71,7 @@ inline CSCBadWires *CSCBadWiresConditions::prefillBadWires() {
     std::cerr << "Error: badwires1.dat -> no such file!" << std::endl;
     exit(1);
   }
-  newdata2.open("badwires2.dat", std::ios::in); // channelcontainer
+  newdata2.open("badwires2.dat", std::ios::in);  // channelcontainer
   if (!newdata2) {
     std::cerr << "Error: badwires2.dat -> no such file!" << std::endl;
     exit(1);

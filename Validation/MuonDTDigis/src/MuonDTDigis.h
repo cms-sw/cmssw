@@ -41,13 +41,12 @@ class PSimHit;
 class hDigis;
 
 namespace edm {
-class ParameterSet;
-class Event;
-class EventSetup;
-} // namespace edm
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class MuonDTDigis : public DQMEDAnalyzer {
-
 public:
   // Constructor
   explicit MuonDTDigis(const edm::ParameterSet &pset);
@@ -56,11 +55,9 @@ public:
   ~MuonDTDigis() override;
 
 protected:
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   // Analysis
-  void analyze(const edm::Event &event,
-               const edm::EventSetup &eventSetup) override;
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
   hDigis *WheelHistos(int wheel);
 

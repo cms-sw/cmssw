@@ -16,17 +16,15 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 namespace popcon {
-class CSCDBNoiseMatrixImpl
-    : public popcon::PopConSourceHandler<CSCDBNoiseMatrix> {
+  class CSCDBNoiseMatrixImpl : public popcon::PopConSourceHandler<CSCDBNoiseMatrix> {
+  public:
+    void getNewObjects();
+    std::string id() const { return m_name; }
+    ~CSCDBNoiseMatrixImpl();
+    CSCDBNoiseMatrixImpl(const edm::ParameterSet &pset);
 
-public:
-  void getNewObjects();
-  std::string id() const { return m_name; }
-  ~CSCDBNoiseMatrixImpl();
-  CSCDBNoiseMatrixImpl(const edm::ParameterSet &pset);
-
-private:
-  std::string m_name;
-};
-} // namespace popcon
+  private:
+    std::string m_name;
+  };
+}  // namespace popcon
 #endif

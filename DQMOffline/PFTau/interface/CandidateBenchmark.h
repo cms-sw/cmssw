@@ -8,7 +8,6 @@
 
 /// To plot Candidate quantities
 class CandidateBenchmark : public Benchmark {
-
 public:
   CandidateBenchmark(Mode mode);
   ~CandidateBenchmark() override;
@@ -17,7 +16,8 @@ public:
   void setup(DQMStore::IBooker &b);
   void setup(DQMStore::IBooker &b, const edm::ParameterSet &parameterSet);
 
-  template <class C> void fill(const C &candidates);
+  template <class C>
+  void fill(const C &candidates);
 
   /// fill histograms with a given particle
   void fillOne(const reco::Candidate &candidate);
@@ -33,8 +33,8 @@ protected:
   bool histogramBooked_;
 };
 
-template <class C> void CandidateBenchmark::fill(const C &candCollection) {
-
+template <class C>
+void CandidateBenchmark::fill(const C &candCollection) {
   for (unsigned int i = 0; i < candCollection.size(); i++) {
     const reco::Candidate &cand = candCollection[i];
     fillOne(cand);

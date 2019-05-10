@@ -78,8 +78,7 @@ public:
 
   public:
     // default constructor
-    CountLSFifo_t(unsigned int sz = 3)
-        : std::deque<CountLS_t>(), targetSize_(sz) {}
+    CountLSFifo_t(unsigned int sz = 3) : std::deque<CountLS_t>(), targetSize_(sz) {}
     unsigned int targetSize() const { return targetSize_; };
     double getCount(int ls) {
       CountLSFifo_t::iterator p = std::find(this->begin(), this->end(), ls);
@@ -91,11 +90,10 @@ public:
 
     void update(const CountLS_t &T) {
       // do we already have data for this LS?
-      CountLSFifo_t::iterator p =
-          std::find(this->begin(), this->end(), T.first);
-      if (p != this->end()) { // we already have data for this LS
+      CountLSFifo_t::iterator p = std::find(this->begin(), this->end(), T.first);
+      if (p != this->end()) {  // we already have data for this LS
         p->second = T.second;
-      } else { // new data
+      } else {  // new data
         this->push_back(T);
       }
       trim_();
@@ -134,8 +132,7 @@ public:
 
   /// End LumiBlock
   /// DQM Client Diagnostic should be performed here
-  void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                          const edm::EventSetup &c) override;
+  void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
 
   // unused
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
@@ -143,8 +140,8 @@ public:
 private:
   DQMStore *dbe_;
 
-  int nev_;   // Number of events processed
-  int nLumi_; // number of lumi blocks
+  int nev_;    // Number of events processed
+  int nLumi_;  // number of lumi blocks
   int currentRun_;
 
   MonitorElement *currentRate_;
@@ -153,14 +150,14 @@ private:
   std::vector<MonitorElement *> countHistories_;
 
   std::vector<MonitorElement *> hltCurrentRate_;
-  MonitorElement *hltRate_;  // global rate - any accept
-  MonitorElement *hltCount_; // globalCounts
+  MonitorElement *hltRate_;   // global rate - any accept
+  MonitorElement *hltCount_;  // globalCounts
   //  MonitorElement *hltCountN_; // globalCounts normalized
   MonitorElement *updates_;
   MonitorElement *mergeCount_;
 
   // Normalized
-  MonitorElement *hltNormRate_; // global rate - any accept
+  MonitorElement *hltNormRate_;  // global rate - any accept
   MonitorElement *currentNormRate_;
   std::vector<MonitorElement *> rateNormHistories_;
   std::vector<MonitorElement *> hltCurrentNormRate_;
@@ -183,4 +180,4 @@ private:
   CountLSFifo_t recentNormedOverallCountsPerLS_;
 };
 
-#endif // HLTSCALERSCLIENT_H
+#endif  // HLTSCALERSCLIENT_H

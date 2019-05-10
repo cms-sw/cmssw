@@ -52,8 +52,8 @@ private:
   int counterEvt_;
   int counterLS_;
 
-  int prescaleEvt_; // every n events
-  int prescaleLS_;  // units of lumi sections
+  int prescaleEvt_;  // every n events
+  int prescaleLS_;   // units of lumi sections
 
   // ---------- member data ----------
 

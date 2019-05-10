@@ -24,18 +24,19 @@
 /// matching.
 /// - the benchmark mode, driving the size of the histograms.
 class PFCandidateManager : public Benchmark {
-
 public:
-  PFCandidateManager(float dRMax = 0.3, bool matchCharge = true,
-                     Benchmark::Mode mode = Benchmark::DEFAULT)
-      : Benchmark(mode), candBench_(mode), pfCandBench_(mode),
-        matchCandBench_(mode), dRMax_(dRMax), matchCharge_(matchCharge) {}
+  PFCandidateManager(float dRMax = 0.3, bool matchCharge = true, Benchmark::Mode mode = Benchmark::DEFAULT)
+      : Benchmark(mode),
+        candBench_(mode),
+        pfCandBench_(mode),
+        matchCandBench_(mode),
+        dRMax_(dRMax),
+        matchCharge_(matchCharge) {}
 
   ~PFCandidateManager() override;
 
   /// set the benchmark parameters
-  void setParameters(float dRMax = 0.3, bool matchCharge = true,
-                     Benchmark::Mode mode = Benchmark::DEFAULT);
+  void setParameters(float dRMax = 0.3, bool matchCharge = true, Benchmark::Mode mode = Benchmark::DEFAULT);
 
   /// set directory (to use in ROOT)
   void setDirectory(TDirectory *dir) override;
@@ -45,8 +46,7 @@ public:
 
   /// fill histograms with all particle
   template <class C>
-  void fill(const reco::PFCandidateCollection &candCollection,
-            const C &matchedCandCollection);
+  void fill(const reco::PFCandidateCollection &candCollection, const C &matchedCandCollection);
 
 protected:
   CandidateBenchmark candBench_;
@@ -60,12 +60,9 @@ protected:
 #include "DQMOffline/PFTau/interface/Matchers.h"
 
 template <class C>
-void PFCandidateManager::fill(const reco::PFCandidateCollection &candCollection,
-                              const C &matchCandCollection) {
-
+void PFCandidateManager::fill(const reco::PFCandidateCollection &candCollection, const C &matchCandCollection) {
   std::vector<int> matchIndices;
-  PFB::match(candCollection, matchCandCollection, matchIndices, matchCharge_,
-             dRMax_);
+  PFB::match(candCollection, matchCandCollection, matchIndices, matchCharge_, dRMax_);
 
   for (unsigned int i = 0; i < candCollection.size(); i++) {
     const reco::PFCandidate &cand = candCollection[i];

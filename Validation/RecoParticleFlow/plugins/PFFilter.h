@@ -27,4 +27,4 @@ private:
   std::vector<int> doMax_;
 };
 
-#endif // PFFILTER_H
+#endif  // PFFILTER_H

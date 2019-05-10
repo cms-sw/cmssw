@@ -24,10 +24,10 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 namespace edm {
-class ParameterSet;
-class EventSetup;
-class InputTag;
-} // namespace edm
+  class ParameterSet;
+  class EventSetup;
+  class InputTag;
+}  // namespace edm
 
 class TH1F;
 
@@ -41,7 +41,7 @@ public:
 
   // Book histograms
   void dqmEndJob(DQMStore::IBooker &,
-                 DQMStore::IGetter &) override; // performed in the endJob
+                 DQMStore::IGetter &) override;  // performed in the endJob
 
 private:
   // ----------member data ---------------------------

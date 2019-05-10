@@ -14,14 +14,10 @@
 
 #include <cmath>
 
-Hector::Hector(const edm::ParameterSet &param, bool verbosity,
-               bool FP420Transport, bool ZDCTransport)
-    : m_verbosity(verbosity), m_FP420Transport(FP420Transport),
-      m_ZDCTransport(ZDCTransport) {
-
+Hector::Hector(const edm::ParameterSet &param, bool verbosity, bool FP420Transport, bool ZDCTransport)
+    : m_verbosity(verbosity), m_FP420Transport(FP420Transport), m_ZDCTransport(ZDCTransport) {
   // Create LHC beam line
-  edm::ParameterSet hector_par =
-      param.getParameter<edm::ParameterSet>("Hector");
+  edm::ParameterSet hector_par = param.getParameter<edm::ParameterSet>("Hector");
 
   // User definitons
   lengthfp420 = hector_par.getParameter<double>("BeamLineLengthFP420");
@@ -43,62 +39,60 @@ Hector::Hector(const edm::ParameterSet &param, bool verbosity,
   theCorrespondenceMap.clear();
 
   if (m_verbosity) {
-    edm::LogInfo("HectorSetup")
-        << "==================================================================="
-           "\n"
-        << " * * * * * * * * * * * * * * * * * * * * * * * * * * * *           "
-           "\n"
-        << " *                                                         *       "
-           "\n"
-        << " *                   --<--<--  A fast simulator --<--<--     *     "
-           "\n"
-        << " *                 | --<--<--     of particle   --<--<--     *     "
-           "\n"
-        << " *  ----HECTOR----<                                          *     "
-           "\n"
-        << " *                 | -->-->-- transport through-->-->--      *     "
-           "\n"
-        << " *                   -->-->-- generic beamlines -->-->--     *     "
-           "\n"
-        << " *                                                           *     "
-           "\n"
-        << " * JINST 2:P09005 (2007)                                     *     "
-           "\n"
-        << " *      X Rouby, J de Favereau, K Piotrzkowski (CP3)         *     "
-           "\n"
-        << " *       http://www.fynu.ucl.ac.be/hector.html               *     "
-           "\n"
-        << " *                                                           *     "
-           "\n"
-        << " * Center for Cosmology, Particle Physics and Phenomenology  *     "
-           "\n"
-        << " *              Universite catholique de Louvain             *     "
-           "\n"
-        << " *                 Louvain-la-Neuve, Belgium                 *     "
-           "\n"
-        << " *                                                         *       "
-           "\n"
-        << " * * * * * * * * * * * * * * * * * * * * * * * * * * * *           "
-           "\n"
-        << " Hector configuration: \n"
-        << " m_FP420Transport = " << m_FP420Transport << "\n"
-        << " m_ZDCTransport   = " << m_ZDCTransport << "\n"
-        << " lengthfp420      = " << lengthfp420 << "\n"
-        << " m_rpp420_f       = " << m_rpp420_f << "\n"
-        << " m_rpp420_b       = " << m_rpp420_b << "\n"
-        << " lengthzdc        = " << lengthzdc << "\n"
-        << " lengthd1         = " << lengthd1 << "\n"
-        << "==================================================================="
-           "\n";
+    edm::LogInfo("HectorSetup") << "==================================================================="
+                                   "\n"
+                                << " * * * * * * * * * * * * * * * * * * * * * * * * * * * *           "
+                                   "\n"
+                                << " *                                                         *       "
+                                   "\n"
+                                << " *                   --<--<--  A fast simulator --<--<--     *     "
+                                   "\n"
+                                << " *                 | --<--<--     of particle   --<--<--     *     "
+                                   "\n"
+                                << " *  ----HECTOR----<                                          *     "
+                                   "\n"
+                                << " *                 | -->-->-- transport through-->-->--      *     "
+                                   "\n"
+                                << " *                   -->-->-- generic beamlines -->-->--     *     "
+                                   "\n"
+                                << " *                                                           *     "
+                                   "\n"
+                                << " * JINST 2:P09005 (2007)                                     *     "
+                                   "\n"
+                                << " *      X Rouby, J de Favereau, K Piotrzkowski (CP3)         *     "
+                                   "\n"
+                                << " *       http://www.fynu.ucl.ac.be/hector.html               *     "
+                                   "\n"
+                                << " *                                                           *     "
+                                   "\n"
+                                << " * Center for Cosmology, Particle Physics and Phenomenology  *     "
+                                   "\n"
+                                << " *              Universite catholique de Louvain             *     "
+                                   "\n"
+                                << " *                 Louvain-la-Neuve, Belgium                 *     "
+                                   "\n"
+                                << " *                                                         *       "
+                                   "\n"
+                                << " * * * * * * * * * * * * * * * * * * * * * * * * * * * *           "
+                                   "\n"
+                                << " Hector configuration: \n"
+                                << " m_FP420Transport = " << m_FP420Transport << "\n"
+                                << " m_ZDCTransport   = " << m_ZDCTransport << "\n"
+                                << " lengthfp420      = " << lengthfp420 << "\n"
+                                << " m_rpp420_f       = " << m_rpp420_f << "\n"
+                                << " m_rpp420_b       = " << m_rpp420_b << "\n"
+                                << " lengthzdc        = " << lengthzdc << "\n"
+                                << " lengthd1         = " << lengthd1 << "\n"
+                                << "==================================================================="
+                                   "\n";
   }
   edm::FileInPath b1(beam1filename.c_str());
   edm::FileInPath b2(beam2filename.c_str());
 
   // construct beam line for FP420: .
   if (m_FP420Transport && lengthfp420 > 0.) {
-    m_beamlineFP4201 =
-        new H_BeamLine(1, lengthfp420 + 0.1); // (direction, length)
-    m_beamlineFP4202 = new H_BeamLine(-1, lengthfp420 + 0.1); //
+    m_beamlineFP4201 = new H_BeamLine(1, lengthfp420 + 0.1);   // (direction, length)
+    m_beamlineFP4202 = new H_BeamLine(-1, lengthfp420 + 0.1);  //
     m_beamlineFP4201->fill(b1.fullPath(), 1, "IP5");
     m_beamlineFP4202->fill(b2.fullPath(), -1, "IP5");
     m_beamlineFP4201->offsetElements(120, -0.097);
@@ -107,14 +101,13 @@ Hector::Hector(const edm::ParameterSet &param, bool verbosity,
     m_beamlineFP4202->calcMatrix();
   } else {
     if (m_verbosity)
-      LogDebug("HectorSetup")
-          << "Hector: WARNING: lengthfp420=  " << lengthfp420;
+      LogDebug("HectorSetup") << "Hector: WARNING: lengthfp420=  " << lengthfp420;
   }
 
   if (m_ZDCTransport && lengthzdc > 0. && lengthd1 > 0.) {
     // construct beam line for ZDC: .
-    m_beamlineZDC1 = new H_BeamLine(1, lengthzdc + 0.1);  // (direction, length)
-    m_beamlineZDC2 = new H_BeamLine(-1, lengthzdc + 0.1); //
+    m_beamlineZDC1 = new H_BeamLine(1, lengthzdc + 0.1);   // (direction, length)
+    m_beamlineZDC2 = new H_BeamLine(-1, lengthzdc + 0.1);  //
     m_beamlineZDC1->fill(b1.fullPath(), 1, "IP5");
     m_beamlineZDC2->fill(b2.fullPath(), -1, "IP5");
     m_beamlineZDC1->offsetElements(120, -0.097);
@@ -123,8 +116,8 @@ Hector::Hector(const edm::ParameterSet &param, bool verbosity,
     m_beamlineZDC2->calcMatrix();
 
     // construct beam line for D1: .
-    m_beamlineD11 = new H_BeamLine(1, lengthd1 + 0.1);  // (direction, length)
-    m_beamlineD12 = new H_BeamLine(-1, lengthd1 + 0.1); //
+    m_beamlineD11 = new H_BeamLine(1, lengthd1 + 0.1);   // (direction, length)
+    m_beamlineD12 = new H_BeamLine(-1, lengthd1 + 0.1);  //
     m_beamlineD11->fill(b1.fullPath(), 1, "IP5");
     m_beamlineD12->fill(b2.fullPath(), -1, "IP5");
     m_beamlineD11->offsetElements(120, -0.097);
@@ -133,16 +126,12 @@ Hector::Hector(const edm::ParameterSet &param, bool verbosity,
     m_beamlineD12->calcMatrix();
   } else {
     if (m_verbosity)
-      LogDebug("HectorSetup") << "Hector: WARNING: lengthzdc=  " << lengthzdc
-                              << "lengthd1=  " << lengthd1;
+      LogDebug("HectorSetup") << "Hector: WARNING: lengthzdc=  " << lengthzdc << "lengthd1=  " << lengthd1;
   }
 }
 
 Hector::~Hector() {
-
-  for (std::map<unsigned int, H_BeamParticle *>::iterator it =
-           m_beamPart.begin();
-       it != m_beamPart.end(); ++it) {
+  for (std::map<unsigned int, H_BeamParticle *>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
     delete (*it).second;
   }
 
@@ -161,9 +150,7 @@ void Hector::clearApertureFlags() {
 }
 
 void Hector::clear() {
-  for (std::map<unsigned int, H_BeamParticle *>::iterator it =
-           m_beamPart.begin();
-       it != m_beamPart.end(); ++it) {
+  for (std::map<unsigned int, H_BeamParticle *>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
     delete (*it).second;
   };
   m_beamPart.clear();
@@ -186,19 +173,18 @@ void Hector::clear() {
   }
 */
 void Hector::add(const HepMC::GenEvent *evt, const edm::EventSetup &iSetup) {
-
   H_BeamParticle *h_p;
   unsigned int line;
 
-  for (HepMC::GenEvent::particle_const_iterator eventParticle =
-           evt->particles_begin();
-       eventParticle != evt->particles_end(); ++eventParticle) {
+  for (HepMC::GenEvent::particle_const_iterator eventParticle = evt->particles_begin();
+       eventParticle != evt->particles_end();
+       ++eventParticle) {
     if ((*eventParticle)->status() == 1) {
       if (abs((*eventParticle)->momentum().eta()) > etacut) {
         line = (*eventParticle)->barcode();
         if (m_beamPart.find(line) == m_beamPart.end()) {
           double charge = 1.;
-          m_isCharged[line] = false; // neutrals
+          m_isCharged[line] = false;  // neutrals
           HepMC::GenParticle *g = (*eventParticle);
           iSetup.getData(pdt);
           const ParticleData *part = pdt->particle(g->pdg_id());
@@ -206,7 +192,7 @@ void Hector::add(const HepMC::GenEvent *evt, const edm::EventSetup &iSetup) {
             charge = part->charge();
           }
           if (charge != 0)
-            m_isCharged[line] = true; // charged
+            m_isCharged[line] = true;  // charged
           double mass = (*eventParticle)->generatedMass();
 
           h_p = new H_BeamParticle(mass, charge);
@@ -219,22 +205,15 @@ void Hector::add(const HepMC::GenEvent *evt, const edm::EventSetup &iSetup) {
           h_p->set4Momentum(px, py, pz, (*eventParticle)->momentum().e());
 
           // from mm to um
-          double XforPosition =
-              (*eventParticle)->production_vertex()->position().x() /
-              micrometer; // um
-          double YforPosition =
-              (*eventParticle)->production_vertex()->position().y() /
-              micrometer; // um
-          double ZforPosition =
-              (*eventParticle)->production_vertex()->position().z() /
-              meter; // m
+          double XforPosition = (*eventParticle)->production_vertex()->position().x() / micrometer;  // um
+          double YforPosition = (*eventParticle)->production_vertex()->position().y() / micrometer;  // um
+          double ZforPosition = (*eventParticle)->production_vertex()->position().z() / meter;       // m
           // crossing angle (beam tilt) is not known a priory; keep now 0.0 but,
           // in principle, can be entered as parameters
-          double TXforPosition = 0.0, TYforPosition = 0.0; // urad
+          double TXforPosition = 0.0, TYforPosition = 0.0;  // urad
 
           // Clears H_BeamParticle::positions and sets the initial one
-          h_p->setPosition(XforPosition, YforPosition, TXforPosition,
-                           TYforPosition, ZforPosition);
+          h_p->setPosition(XforPosition, YforPosition, TXforPosition, TYforPosition, ZforPosition);
 
           m_beamPart[line] = h_p;
           m_direct[line] = 0;
@@ -245,17 +224,14 @@ void Hector::add(const HepMC::GenEvent *evt, const edm::EventSetup &iSetup) {
           m_pz[line] = (*eventParticle)->momentum().pz();
 
           if (m_verbosity) {
-            LogDebug("HectorEventProcessing")
-                << "Hector:add: barcode = " << line
-                << " status = " << g->status() << " PDG Id = " << g->pdg_id()
-                << " mass = " << mass << " pz = " << pz
-                << " charge = " << charge
-                << " m_isCharged[line] = " << m_isCharged[line];
+            LogDebug("HectorEventProcessing") << "Hector:add: barcode = " << line << " status = " << g->status()
+                                              << " PDG Id = " << g->pdg_id() << " mass = " << mass << " pz = " << pz
+                                              << " charge = " << charge << " m_isCharged[line] = " << m_isCharged[line];
           }
-        } // if find line
-      }   // if eta > 8.2
-    }     // if status
-  }       // for loop
+        }  // if find line
+      }    // if eta > 8.2
+    }      // if status
+  }        // for loop
 }
 
 void Hector::filterFP420(TRandom3 *rootEngine) {
@@ -270,14 +246,12 @@ void Hector::filterFP420(TRandom3 *rootEngine) {
   float y1_420;
 
   if (!m_beamPart.empty() && lengthfp420 > 0.) {
-
     for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
       line = (*it).first;
       part = (*it).second;
 
       if (m_verbosity) {
-        LogDebug("HectorEventProcessing")
-            << "Hector:filterFP420: barcode = " << line;
+        LogDebug("HectorEventProcessing") << "Hector:filterFP420: barcode = " << line;
       }
       if ((*m_isCharged.find(line)).second) {
         direction = (*m_direct.find(line)).second;
@@ -295,7 +269,7 @@ void Hector::filterFP420(TRandom3 *rootEngine) {
           if (m_sig_e) {
             part->smearE(m_sig_e, rootEngine);
           } else {
-            part->smearE(SBE, rootEngine); // in GeV, default is SBE=0.79
+            part->smearE(SBE, rootEngine);  // in GeV, default is SBE=0.79
           }
         }
         if (direction == 1 && m_beamlineFP4201 != nullptr) {
@@ -303,29 +277,25 @@ void Hector::filterFP420(TRandom3 *rootEngine) {
           is_stop = part->stopped(m_beamlineFP4201);
           if (m_verbosity)
             LogDebug("HectorEventProcessing")
-                << "Hector:filterFP420: barcode = " << line
-                << " positive is_stop=  " << is_stop;
+                << "Hector:filterFP420: barcode = " << line << " positive is_stop=  " << is_stop;
         } else if (direction == -1 && m_beamlineFP4202 != nullptr) {
           part->computePath(m_beamlineFP4202);
           is_stop = part->stopped(m_beamlineFP4202);
           if (m_verbosity)
             LogDebug("HectorEventProcessing")
-                << "Hector:filterFP420: barcode = " << line
-                << " negative is_stop=  " << is_stop;
+                << "Hector:filterFP420: barcode = " << line << " negative is_stop=  " << is_stop;
         } else {
           is_stop = true;
           if (m_verbosity)
             LogDebug("HectorEventProcessing")
-                << "Hector:filterFP420: barcode = " << line
-                << " 0        is_stop=  " << is_stop;
+                << "Hector:filterFP420: barcode = " << line << " 0        is_stop=  " << is_stop;
         }
 
         // propagating
         m_isStoppedfp420[line] = is_stop;
         if (m_verbosity)
           LogDebug("HectorEventProcessing")
-              << "Hector:filterFP420: barcode = " << line
-              << " isStopped=" << (*m_isStoppedfp420.find(line)).second;
+              << "Hector:filterFP420: barcode = " << line << " isStopped=" << (*m_isStoppedfp420.find(line)).second;
 
         if (!is_stop) {
           if (direction == 1)
@@ -336,8 +306,7 @@ void Hector::filterFP420(TRandom3 *rootEngine) {
           y1_420 = part->getY();
           if (m_verbosity)
             LogDebug("HectorEventProcessing")
-                << "Hector:filterFP420: barcode = " << line << " x=  " << x1_420
-                << " y= " << y1_420;
+                << "Hector:filterFP420: barcode = " << line << " x=  " << x1_420 << " y= " << y1_420;
 
           m_xAtTrPoint[line] = x1_420;
           m_yAtTrPoint[line] = y1_420;
@@ -345,18 +314,16 @@ void Hector::filterFP420(TRandom3 *rootEngine) {
           m_TyAtTrPoint[line] = part->getTY();
           m_eAtTrPoint[line] = part->getE();
         }
-      } // if isCharged
+      }  // if isCharged
       else {
-        m_isStoppedfp420[line] =
-            true; // imply that neutral particles stopped to reach 420m
+        m_isStoppedfp420[line] = true;  // imply that neutral particles stopped to reach 420m
         if (m_verbosity)
           LogDebug("HectorEventProcessing")
-              << "Hector:filterFP420: barcode = " << line
-              << " isStopped=" << (*m_isStoppedfp420.find(line)).second;
+              << "Hector:filterFP420: barcode = " << line << " isStopped=" << (*m_isStoppedfp420.find(line)).second;
       }
 
-    } // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ )
-  }   // if ( m_beamPart.size() )
+    }  // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ )
+  }    // if ( m_beamPart.size() )
 }
 
 void Hector::filterZDC(TRandom3 *rootEngine) {
@@ -368,31 +335,24 @@ void Hector::filterZDC(TRandom3 *rootEngine) {
   int direction;
 
   if (!m_beamPart.empty() && lengthzdc > 0.) {
-
     for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
       line = (*it).first;
       part = (*it).second;
       if (m_verbosity) {
         LogDebug("HectorEventProcessing")
-            << "Hector:filterZDC: barcode = " << line
-            << " charge  = " << (*m_isCharged.find(line)).second;
+            << "Hector:filterZDC: barcode = " << line << " charge  = " << (*m_isCharged.find(line)).second;
         if (m_FP420Transport)
-          LogDebug("HectorEventProcessing")
-              << " isStoppedFP420 =" << (*m_isStoppedfp420.find(line)).second;
+          LogDebug("HectorEventProcessing") << " isStoppedFP420 =" << (*m_isStoppedfp420.find(line)).second;
       }
       //      if ( ((*m_isStoppedfp420.find(line)).second) &&
       //      ((*m_isCharged.find(line)).second) ) {
       if (((*m_isCharged.find(line)).second)) {
-
         if (m_verbosity)
-          LogDebug("HectorEventProcessing")
-              << "Hector:filterZDC: barcode = " << line << " propagated ";
+          LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode = " << line << " propagated ";
 
         direction = (*m_direct.find(line)).second;
         if (m_verbosity)
-          LogDebug("HectorEventProcessing")
-              << "Hector:filterZDC: barcode = " << line
-              << " direction = " << direction;
+          LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode = " << line << " direction = " << direction;
         if (m_smearAng) {
           if (m_sigmaSTX > 0. && m_sigmaSTY > 0.) {
             // the beam transverse direction is centered on (TXforPosition,
@@ -407,7 +367,7 @@ void Hector::filterZDC(TRandom3 *rootEngine) {
           if (m_sig_e) {
             part->smearE(m_sig_e, rootEngine);
           } else {
-            part->smearE(SBE, rootEngine); // in GeV, default is SBE=0.79
+            part->smearE(SBE, rootEngine);  // in GeV, default is SBE=0.79
           }
         }
         if (direction == 1 && m_beamlineZDC1 != nullptr) {
@@ -416,22 +376,19 @@ void Hector::filterZDC(TRandom3 *rootEngine) {
           m_isStoppedzdc[line] = is_stop_zdc;
           if (m_verbosity)
             LogDebug("HectorEventProcessing")
-                << "Hector:filterZDC: barcode " << line
-                << " positive is_stop_zdc=  " << is_stop_zdc;
+                << "Hector:filterZDC: barcode " << line << " positive is_stop_zdc=  " << is_stop_zdc;
         } else if (direction == -1 && m_beamlineZDC2 != nullptr) {
           part->computePath(m_beamlineZDC2);
           is_stop_zdc = part->stopped(m_beamlineZDC2);
           m_isStoppedzdc[line] = is_stop_zdc;
           if (m_verbosity)
             LogDebug("HectorEventProcessing")
-                << "Hector:filterZDC: barcode " << line
-                << " negative is_stop_zdc=  " << is_stop_zdc;
+                << "Hector:filterZDC: barcode " << line << " negative is_stop_zdc=  " << is_stop_zdc;
         } else {
           m_isStoppedzdc[line] = true;
           if (m_verbosity)
             LogDebug("HectorEventProcessing")
-                << "Hector:filterZDC: barcode " << line
-                << " 0         is_stop_zdc=  " << is_stop_zdc;
+                << "Hector:filterZDC: barcode " << line << " 0         is_stop_zdc=  " << is_stop_zdc;
         }
       }
       // if stopfp420 charged particles
@@ -443,16 +400,15 @@ void Hector::filterZDC(TRandom3 *rootEngine) {
         line << " isStopped=" << (*m_isStoppedzdc.find(line)).second;
         } */
       else {
-        m_isStoppedzdc[line] = true; // neutrals particles considered as stopped
-                                     // in propagating to ZDC
+        m_isStoppedzdc[line] = true;  // neutrals particles considered as stopped
+                                      // in propagating to ZDC
         if (m_verbosity)
           LogDebug("HectorEventProcessing")
-              << "Hector:filterZDC: barcode = " << line
-              << " isStopped=" << (*m_isStoppedzdc.find(line)).second;
+              << "Hector:filterZDC: barcode = " << line << " isStopped=" << (*m_isStoppedzdc.find(line)).second;
       }
 
-    } // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ )
-  }   // if ( m_beamPart.size() )
+    }  // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ )
+  }    // if ( m_beamPart.size() )
 }
 
 void Hector::filterD1(TRandom3 *rootEngine) {
@@ -467,25 +423,19 @@ void Hector::filterD1(TRandom3 *rootEngine) {
   float y1_d1;
 
   if (!m_beamPart.empty() && lengthd1 > 0.) {
-
     for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
       line = (*it).first;
       part = (*it).second;
       if (m_verbosity)
         LogDebug("HectorEventProcessing")
-            << "Hector:filterD1: barcode = " << line
-            << " isStoppedZDC =" << (*m_isStoppedzdc.find(line)).second;
-      if (((*m_isStoppedzdc.find(line)).second) ||
-          !((*m_isCharged.find(line)).second)) {
-
+            << "Hector:filterD1: barcode = " << line << " isStoppedZDC =" << (*m_isStoppedzdc.find(line)).second;
+      if (((*m_isStoppedzdc.find(line)).second) || !((*m_isCharged.find(line)).second)) {
         if (m_verbosity)
-          LogDebug("HectorEventProcessing")
-              << "Hector:filterD1: barcode = " << line << " propagated ";
+          LogDebug("HectorEventProcessing") << "Hector:filterD1: barcode = " << line << " propagated ";
 
         direction = (*m_direct.find(line)).second;
         if (m_verbosity)
-          LogDebug("HectorEventProcessing")
-              << "Hector:filterD1:direction=" << direction;
+          LogDebug("HectorEventProcessing") << "Hector:filterD1:direction=" << direction;
         if (m_smearAng) {
           if (m_sigmaSTX > 0. && m_sigmaSTY > 0.) {
             // the beam transverse direction is centered on (TXforPosition,
@@ -500,7 +450,7 @@ void Hector::filterD1(TRandom3 *rootEngine) {
           if (m_sig_e) {
             part->smearE(m_sig_e, rootEngine);
           } else {
-            part->smearE(SBE, rootEngine); // in GeV, default is SBE=0.79
+            part->smearE(SBE, rootEngine);  // in GeV, default is SBE=0.79
           }
         }
         if (direction == 1 && m_beamlineD11 != nullptr) {
@@ -509,23 +459,20 @@ void Hector::filterD1(TRandom3 *rootEngine) {
           m_isStoppedd1[line] = is_stop_d1;
           if (m_verbosity)
             LogDebug("HectorEventProcessing")
-                << "Hector:filterD1 barcode " << line
-                << " positive is_stop_d1 =  " << is_stop_d1;
+                << "Hector:filterD1 barcode " << line << " positive is_stop_d1 =  " << is_stop_d1;
         } else if (direction == -1 && m_beamlineD12 != nullptr) {
           part->computePath(m_beamlineD12);
           is_stop_d1 = part->stopped(m_beamlineD12);
           m_isStoppedd1[line] = is_stop_d1;
           if (m_verbosity)
             LogDebug("HectorEventProcessing")
-                << "Hector:filterD1 barcode " << line
-                << " negative is_stop_d1 =  " << is_stop_d1;
+                << "Hector:filterD1 barcode " << line << " negative is_stop_d1 =  " << is_stop_d1;
         } else {
           is_stop_d1 = true;
           m_isStoppedd1[line] = is_stop_d1;
           if (m_verbosity)
             LogDebug("HectorEventProcessing")
-                << "Hector:filterD1 barcode " << line
-                << " 0        is_stop_d1 =  " << is_stop_d1;
+                << "Hector:filterD1 barcode " << line << " 0        is_stop_d1 =  " << is_stop_d1;
         }
         // propagating
         if (!is_stop_d1) {
@@ -538,18 +485,17 @@ void Hector::filterD1(TRandom3 *rootEngine) {
           m_TyAtTrPoint[line] = part->getTY();
           m_eAtTrPoint[line] = part->getE();
         }
-      } // if stopzdc
+      }  // if stopzdc
       else {
-        m_isStoppedd1[line] = false; // not stopped in propagating to ZDC and
-                                     // therefore in  propagation to D1 too.
+        m_isStoppedd1[line] = false;  // not stopped in propagating to ZDC and
+                                      // therefore in  propagation to D1 too.
         if (m_verbosity)
           LogDebug("HectorEventProcessing")
-              << "Hector:filterD1: barcode = " << line
-              << " isStopped=" << (*m_isStoppedd1.find(line)).second;
+              << "Hector:filterD1: barcode = " << line << " isStopped=" << (*m_isStoppedd1.find(line)).second;
       }
 
-    } // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ )
-  }   // if ( m_beamPart.size() )
+    }  // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ )
+  }    // if ( m_beamPart.size() )
 }
 
 int Hector::getDirect(unsigned int part_n) const {
@@ -561,15 +507,12 @@ int Hector::getDirect(unsigned int part_n) const {
 }
 
 void Hector::print() const {
-  for (std::map<unsigned int, H_BeamParticle *>::const_iterator it =
-           m_beamPart.begin();
-       it != m_beamPart.end(); ++it) {
+  for (std::map<unsigned int, H_BeamParticle *>::const_iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
     (*it).second->printProperties();
   };
 }
 
 HepMC::GenEvent *Hector::addPartToHepMC(HepMC::GenEvent *evt) {
-
   theCorrespondenceMap.clear();
 
   unsigned int line;
@@ -587,19 +530,15 @@ HepMC::GenEvent *Hector::addPartToHepMC(HepMC::GenEvent *evt) {
       m_isStoppedd1[line] = true;
     }
     if (m_verbosity) {
-      LogDebug("HectorEventProcessing")
-          << "Hector:addPartToHepMC: barcode = " << line << "\n"
-          << "Hector:addPartToHepMC: isStoppedfp420="
-          << (*m_isStoppedfp420.find(line)).second << "\n"
-          << "Hector:addPartToHepMC: isStoppedzdc="
-          << (*m_isStoppedzdc.find(line)).second << "\n"
-          << "Hector:addPartToHepMC: isStoppedd1="
-          << (*m_isStoppedd1.find(line)).second;
+      LogDebug("HectorEventProcessing") << "Hector:addPartToHepMC: barcode = " << line << "\n"
+                                        << "Hector:addPartToHepMC: isStoppedfp420="
+                                        << (*m_isStoppedfp420.find(line)).second << "\n"
+                                        << "Hector:addPartToHepMC: isStoppedzdc=" << (*m_isStoppedzdc.find(line)).second
+                                        << "\n"
+                                        << "Hector:addPartToHepMC: isStoppedd1=" << (*m_isStoppedd1.find(line)).second;
     }
     if (!((*m_isStoppedfp420.find(line)).second) ||
-        (!((*m_isStoppedd1.find(line)).second) &&
-         ((*m_isStoppedzdc.find(line)).second))) {
-
+        (!((*m_isStoppedd1.find(line)).second) && ((*m_isStoppedzdc.find(line)).second))) {
       gpart = evt->barcode_to_particle(line);
       if (gpart) {
         tx = (*m_TxAtTrPoint.find(line)).second / 1000000.;
@@ -619,56 +558,49 @@ HepMC::GenEvent *Hector::addPartToHepMC(HepMC::GenEvent *evt) {
             theta = TMath::Pi() - theta;
         }
 
-        fi = std::atan2(tx, ty); // tx, ty never == 0?
+        fi = std::atan2(tx, ty);  // tx, ty never == 0?
         energy = (*m_eAtTrPoint.find(line)).second;
 
-        time = (ddd * meter -
-                gpart->production_vertex()->position().z() * mm); // mm
+        time = (ddd * meter - gpart->production_vertex()->position().z() * mm);  // mm
 
         if (ddd != 0.) {
           if (m_verbosity) {
-            LogDebug("HectorEventProcessing")
-                << "Hector:: x= " << (*(m_xAtTrPoint.find(line))).second * 0.001
-                << "\n"
-                << "Hector:: y= " << (*(m_yAtTrPoint.find(line))).second * 0.001
-                << "\n"
-                << "Hector:: z= "
-                << ddd * (*(m_direct.find(line))).second * 1000. << "\n"
-                << "Hector:: t= " << time;
+            LogDebug("HectorEventProcessing") << "Hector:: x= " << (*(m_xAtTrPoint.find(line))).second * 0.001 << "\n"
+                                              << "Hector:: y= " << (*(m_yAtTrPoint.find(line))).second * 0.001 << "\n"
+                                              << "Hector:: z= " << ddd * (*(m_direct.find(line))).second * 1000. << "\n"
+                                              << "Hector:: t= " << time;
           }
 
-          HepMC::GenVertex *vert = new HepMC::GenVertex(
-              HepMC::FourVector((*(m_xAtTrPoint.find(line))).second * 0.001,
-                                (*(m_yAtTrPoint.find(line))).second * 0.001,
-                                ddd * (*(m_direct.find(line))).second * 1000.,
-                                time + .001 * time));
+          HepMC::GenVertex *vert = new HepMC::GenVertex(HepMC::FourVector((*(m_xAtTrPoint.find(line))).second * 0.001,
+                                                                          (*(m_yAtTrPoint.find(line))).second * 0.001,
+                                                                          ddd * (*(m_direct.find(line))).second * 1000.,
+                                                                          time + .001 * time));
 
           gpart->set_status(2);
           vert->add_particle_in(gpart);
-          vert->add_particle_out(new HepMC::GenParticle(
-              HepMC::FourVector(energy * std::sin(theta) * std::sin(fi),
-                                energy * std::sin(theta) * std::cos(fi),
-                                energy * std::cos(theta), energy),
-              gpart->pdg_id(), 1, gpart->flow()));
+          vert->add_particle_out(new HepMC::GenParticle(HepMC::FourVector(energy * std::sin(theta) * std::sin(fi),
+                                                                          energy * std::sin(theta) * std::cos(fi),
+                                                                          energy * std::cos(theta),
+                                                                          energy),
+                                                        gpart->pdg_id(),
+                                                        1,
+                                                        gpart->flow()));
           evt->add_vertex(vert);
 
           int ingoing = (*vert->particles_in_const_begin())->barcode();
           int outgoing = (*vert->particles_out_const_begin())->barcode();
           LHCTransportLink theLink(ingoing, outgoing);
           if (m_verbosity)
-            LogDebug("HectorEventProcessing")
-                << "Hector:addPartToHepMC: LHCTransportLink " << theLink;
+            LogDebug("HectorEventProcessing") << "Hector:addPartToHepMC: LHCTransportLink " << theLink;
           theCorrespondenceMap.push_back(theLink);
 
           if (m_verbosity)
-            LogDebug("HectorEventProcessing")
-                << "Hector::TRANSPORTED pz= " << gpart->momentum().pz()
-                << " eta= " << gpart->momentum().eta()
-                << " status= " << gpart->status();
+            LogDebug("HectorEventProcessing") << "Hector::TRANSPORTED pz= " << gpart->momentum().pz()
+                                              << " eta= " << gpart->momentum().eta() << " status= " << gpart->status();
 
-        } // ddd
-      }   // if gpart
-    }     // if !isStopped
+        }  // ddd
+      }    // if gpart
+    }      // if !isStopped
 
     else {
       gpart = evt->barcode_to_particle(line);
@@ -679,14 +611,12 @@ HepMC::GenEvent *Hector::addPartToHepMC(HepMC::GenEvent *evt) {
         //        vert->add_particle_out( gpart );
         //        evt->add_vertex( vert );
         if (m_verbosity)
-          LogDebug("HectorEventProcessing")
-              << "Hector::NON-transp. pz= " << gpart->momentum().pz()
-              << " eta= " << gpart->momentum().eta()
-              << " status= " << gpart->status();
+          LogDebug("HectorEventProcessing") << "Hector::NON-transp. pz= " << gpart->momentum().pz()
+                                            << " eta= " << gpart->momentum().eta() << " status= " << gpart->status();
       }
     }
 
-  } // for
+  }  // for
 
   return evt;
 }

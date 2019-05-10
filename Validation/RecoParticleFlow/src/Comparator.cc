@@ -14,9 +14,7 @@
 
 using namespace std;
 
-void Comparator::SetDirs(const char *file0, const char *dir0, const char *file1,
-                         const char *dir1) {
-
+void Comparator::SetDirs(const char *file0, const char *dir0, const char *file1, const char *dir1) {
   file0_ = new TFile(file0);
   if (file0_->IsZombie())
     exit(1);
@@ -32,8 +30,7 @@ void Comparator::SetDirs(const char *file0, const char *dir0, const char *file1,
     exit(1);
 }
 
-void Comparator::SetStyles(Style *s0, Style *s1, const char *leg0,
-                           const char *leg1) {
+void Comparator::SetStyles(Style *s0, Style *s1, const char *leg0, const char *leg1) {
   s0_ = s0;
   s1_ = s1;
 
@@ -42,9 +39,7 @@ void Comparator::SetStyles(Style *s0, Style *s1, const char *leg0,
   legend_.AddEntry(s1_, leg1, "mlf");
 }
 
-void Comparator::DrawSlice(const char *key, int binxmin, int binxmax,
-                           Mode mode) {
-
+void Comparator::DrawSlice(const char *key, int binxmin, int binxmax, Mode mode) {
   static int num = 0;
 
   ostringstream out0;
@@ -75,8 +70,7 @@ void Comparator::DrawSlice(const char *key, int binxmin, int binxmax,
   Draw(h0_slice, h1_slice, mode);
 }
 
-void Comparator::DrawMeanSlice(const char *key, const int rebinFactor,
-                               Mode mode) {
+void Comparator::DrawMeanSlice(const char *key, const int rebinFactor, Mode mode) {
   TDirectory *dir = dir1_;
   dir->cd();
   TH2D *h2 = (TH2D *)dir->Get(key);
@@ -92,8 +86,7 @@ void Comparator::DrawMeanSlice(const char *key, const int rebinFactor,
   Draw(hb, ha, mode);
 }
 
-void Comparator::DrawSigmaSlice(const char *key, const int rebinFactor,
-                                Mode mode) {
+void Comparator::DrawSigmaSlice(const char *key, const int rebinFactor, Mode mode) {
   TDirectory *dir = dir1_;
   dir->cd();
   TH2D *h2 = (TH2D *)dir->Get(key);
@@ -109,8 +102,7 @@ void Comparator::DrawSigmaSlice(const char *key, const int rebinFactor,
   Draw(hb, ha, mode);
 }
 
-void Comparator::DrawGaussSigmaSlice(const char *key, const int rebinFactor,
-                                     Mode mode) {
+void Comparator::DrawGaussSigmaSlice(const char *key, const int rebinFactor, Mode mode) {
   TDirectory *dir = dir1_;
   dir->cd();
   TH2D *h2 = (TH2D *)dir->Get(key);
@@ -128,23 +120,23 @@ void Comparator::DrawGaussSigmaSlice(const char *key, const int rebinFactor,
 
 Double_t fitFunction_f(Double_t *x, Double_t *par) {
   const Double_t value =
-      sqrt(par[0] * par[0] + par[1] * par[1] * (x[0] - par[3]) +
-           par[2] * par[2] * (x[0] - par[3]) * (x[0] - par[3])) /
+      sqrt(par[0] * par[0] + par[1] * par[1] * (x[0] - par[3]) + par[2] * par[2] * (x[0] - par[3]) * (x[0] - par[3])) /
       x[0];
   return value;
 }
 
-void Comparator::DrawGaussSigmaSlice(const char *key, const int rebinFactor,
-                                     const int binxmin, const int binxmax,
-                                     const bool cst_binning, Mode mode) {
+void Comparator::DrawGaussSigmaSlice(
+    const char *key, const int rebinFactor, const int binxmin, const int binxmax, const bool cst_binning, Mode mode) {
   TDirectory *dir = dir1_;
   dir->cd();
   TH2D *h2 = (TH2D *)dir->Get(key);
   TH2Analyzer TH2Ana(h2, binxmin, binxmax, rebinFactor, cst_binning);
   TH1D *hrms = TH2Ana.RMS();
-  TF1 *fitfcndgssrms3 = new TF1(
-      "fitfcndgssrms3", fitFunction_f, hrms->GetXaxis()->GetBinLowEdge(1),
-      hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()), 4);
+  TF1 *fitfcndgssrms3 = new TF1("fitfcndgssrms3",
+                                fitFunction_f,
+                                hrms->GetXaxis()->GetBinLowEdge(1),
+                                hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),
+                                4);
   fitfcndgssrms3->SetNpx(500);
   fitfcndgssrms3->SetLineWidth(3);
   fitfcndgssrms3->SetLineStyle(2);
@@ -152,9 +144,11 @@ void Comparator::DrawGaussSigmaSlice(const char *key, const int rebinFactor,
   hrms->Fit(fitfcndgssrms3, "0R");
 
   TH1D *ha = TH2Ana.SigmaGauss();
-  TF1 *fitfcndgsse3 =
-      new TF1("fitfcndgsse3", fitFunction_f, hrms->GetXaxis()->GetBinLowEdge(1),
-              hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()), 4);
+  TF1 *fitfcndgsse3 = new TF1("fitfcndgsse3",
+                              fitFunction_f,
+                              hrms->GetXaxis()->GetBinLowEdge(1),
+                              hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),
+                              4);
   fitfcndgsse3->SetNpx(500);
   fitfcndgsse3->SetLineWidth(3);
   fitfcndgsse3->SetLineStyle(1);
@@ -166,9 +160,11 @@ void Comparator::DrawGaussSigmaSlice(const char *key, const int rebinFactor,
   TH2D *h2b = (TH2D *)dir->Get(key);
   TH2Analyzer TH2Anab(h2b, binxmin, binxmax, rebinFactor, cst_binning);
   TH1D *hrmsb = TH2Anab.RMS();
-  TF1 *fitfcndgssrmsb3 = new TF1(
-      "fitfcndgssrmsb3", fitFunction_f, hrms->GetXaxis()->GetBinLowEdge(1),
-      hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()), 4);
+  TF1 *fitfcndgssrmsb3 = new TF1("fitfcndgssrmsb3",
+                                 fitFunction_f,
+                                 hrms->GetXaxis()->GetBinLowEdge(1),
+                                 hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),
+                                 4);
   fitfcndgssrmsb3->SetNpx(500);
   fitfcndgssrmsb3->SetLineWidth(3);
   fitfcndgssrmsb3->SetLineStyle(2);
@@ -176,9 +172,11 @@ void Comparator::DrawGaussSigmaSlice(const char *key, const int rebinFactor,
   hrmsb->Fit(fitfcndgssrmsb3, "0R");
 
   TH1D *hb = TH2Anab.SigmaGauss();
-  TF1 *fitfcndgsseb3 = new TF1(
-      "fitfcndgsseb3", fitFunction_f, hrms->GetXaxis()->GetBinLowEdge(1),
-      hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()), 4);
+  TF1 *fitfcndgsseb3 = new TF1("fitfcndgsseb3",
+                               fitFunction_f,
+                               hrms->GetXaxis()->GetBinLowEdge(1),
+                               hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),
+                               4);
   fitfcndgsseb3->SetNpx(500);
   fitfcndgsseb3->SetLineWidth(3);
   fitfcndgsseb3->SetLineStyle(1);
@@ -195,9 +193,7 @@ void Comparator::DrawGaussSigmaSlice(const char *key, const int rebinFactor,
 }
 
 void Comparator::DrawGaussSigmaOverMeanXSlice(
-    const char *key, const int rebinFactor, const int binxmin,
-    const int binxmax, const bool cst_binning, Mode mode) {
-
+    const char *key, const int rebinFactor, const int binxmin, const int binxmax, const bool cst_binning, Mode mode) {
   TDirectory *dir = dir1_;
   dir->cd();
   TH2D *h2 = (TH2D *)dir->Get(key);
@@ -214,9 +210,11 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(
   // Draw(meanXslice,meanXslice,mode);
   hrms->Divide(meanXslice);
 
-  TF1 *fitXfcndgssrms3 = new TF1(
-      "fitXfcndgssrms3", fitFunction_f, hrms->GetXaxis()->GetBinLowEdge(1),
-      hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()), 4);
+  TF1 *fitXfcndgssrms3 = new TF1("fitXfcndgssrms3",
+                                 fitFunction_f,
+                                 hrms->GetXaxis()->GetBinLowEdge(1),
+                                 hrms->GetXaxis()->GetBinUpEdge(hrms->GetNbinsX()),
+                                 4);
   fitXfcndgssrms3->SetNpx(500);
   fitXfcndgssrms3->SetLineWidth(3);
   fitXfcndgssrms3->SetLineStyle(2);
@@ -225,9 +223,11 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(
 
   TH1D *ha = TH2Ana.SigmaGauss();
   ha->Divide(meanXslice);
-  TF1 *fitXfcndgsse3 =
-      new TF1("fitXfcndgsse3", fitFunction_f, ha->GetXaxis()->GetBinLowEdge(1),
-              ha->GetXaxis()->GetBinUpEdge(ha->GetNbinsX()), 4);
+  TF1 *fitXfcndgsse3 = new TF1("fitXfcndgsse3",
+                               fitFunction_f,
+                               ha->GetXaxis()->GetBinLowEdge(1),
+                               ha->GetXaxis()->GetBinUpEdge(ha->GetNbinsX()),
+                               4);
   fitXfcndgsse3->SetNpx(500);
   fitXfcndgsse3->SetLineWidth(3);
   fitXfcndgsse3->SetLineStyle(1);
@@ -240,9 +240,11 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(
   TH2Analyzer TH2Anab(h2b, binxmin, binxmax, rebinFactor, cst_binning);
   TH1D *hrmsb = TH2Anab.RMS();
   hrmsb->Divide(meanXslice);
-  TF1 *fitXfcndgssrmsb3 = new TF1(
-      "fitXfcndgssrmsb3", fitFunction_f, hrmsb->GetXaxis()->GetBinLowEdge(1),
-      hrmsb->GetXaxis()->GetBinUpEdge(hrmsb->GetNbinsX()), 4);
+  TF1 *fitXfcndgssrmsb3 = new TF1("fitXfcndgssrmsb3",
+                                  fitFunction_f,
+                                  hrmsb->GetXaxis()->GetBinLowEdge(1),
+                                  hrmsb->GetXaxis()->GetBinUpEdge(hrmsb->GetNbinsX()),
+                                  4);
   fitXfcndgssrmsb3->SetNpx(500);
   fitXfcndgssrmsb3->SetLineWidth(3);
   fitXfcndgssrmsb3->SetLineStyle(2);
@@ -251,9 +253,11 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(
 
   TH1D *hb = TH2Anab.SigmaGauss();
   hb->Divide(meanXslice);
-  TF1 *fitXfcndgsseb3 =
-      new TF1("fitXfcndgsseb3", fitFunction_f, hb->GetXaxis()->GetBinLowEdge(1),
-              hb->GetXaxis()->GetBinUpEdge(hb->GetNbinsX()), 4);
+  TF1 *fitXfcndgsseb3 = new TF1("fitXfcndgsseb3",
+                                fitFunction_f,
+                                hb->GetXaxis()->GetBinLowEdge(1),
+                                hb->GetXaxis()->GetBinUpEdge(hb->GetNbinsX()),
+                                4);
   fitXfcndgsseb3->SetNpx(500);
   fitXfcndgsseb3->SetLineWidth(3);
   fitXfcndgsseb3->SetLineStyle(1);
@@ -269,8 +273,7 @@ void Comparator::DrawGaussSigmaOverMeanXSlice(
   fitXfcndgsseb3->Draw("same");
 }
 
-void Comparator::DrawGaussSigmaOverMeanSlice(const char *key, const char *key2,
-                                             const int rebinFactor, Mode mode) {
+void Comparator::DrawGaussSigmaOverMeanSlice(const char *key, const char *key2, const int rebinFactor, Mode mode) {
   TDirectory *dir = dir1_;
   dir->cd();
 
@@ -301,7 +304,6 @@ void Comparator::DrawGaussSigmaOverMeanSlice(const char *key, const char *key2,
 }
 
 void Comparator::Draw(const char *key, Mode mode) {
-
   TH1::AddDirectory(false);
   TH1 *h0 = Histo(key, 0);
   TH1 *h1 = (TH1 *)Histo(key, 1)->Clone("h1");
@@ -345,7 +347,7 @@ void Comparator::Draw(const char *key0, const char *key1, Mode mode) {
 }
 
 TH1 *Comparator::Histo(const char *key, unsigned dirIndex) {
-  if (dirIndex > 1U) { // dirIndex >= 0, since dirIndex is unsigned
+  if (dirIndex > 1U) {  // dirIndex >= 0, since dirIndex is unsigned
     cerr << "bad dir index: " << dirIndex << endl;
     return nullptr;
   }
@@ -396,9 +398,7 @@ void Comparator::Draw(TH1 *h0, TH1 *h1, Mode mode) {
   }
 
   if (mode != GRAPH) {
-
-    TPaveStats *ptstats =
-        new TPaveStats(0.7385057, 0.720339, 0.9396552, 0.8792373, "brNDC");
+    TPaveStats *ptstats = new TPaveStats(0.7385057, 0.720339, 0.9396552, 0.8792373, "brNDC");
     ptstats->SetName("stats");
     ptstats->SetBorderSize(1);
     ptstats->SetLineColor(2);
@@ -416,8 +416,7 @@ void Comparator::Draw(TH1 *h0, TH1 *h1, Mode mode) {
     // std::cout << "FL: h1_->GetMean() = " << h1_->GetMean() << std::endl;
     // std::cout << "FL: h1_->GetRMS() = " << h1_->GetRMS() << std::endl;
     // std::cout << "FL: test2" << std::endl;
-    TPaveStats *ptstats2 =
-        new TPaveStats(0.7399425, 0.529661, 0.941092, 0.6885593, "brNDC");
+    TPaveStats *ptstats2 = new TPaveStats(0.7399425, 0.529661, 0.941092, 0.6885593, "brNDC");
     ptstats2->SetName("stats");
     ptstats2->SetBorderSize(1);
     ptstats2->SetLineColor(4);
@@ -454,78 +453,78 @@ void Comparator::Draw(TH1 *h0, TH1 *h1, Mode mode) {
   float min = -999.;
   float max = +999.;
   switch (mode) {
-  case SCALE:
-    h1_->Scale(h0_->GetEntries() / h1_->GetEntries());
-  case NORMAL:
-    if (s0_)
-      Styles::FormatHisto(h0_, s0_);
-    if (s1_)
-      Styles::FormatHisto(h1_, s1_);
+    case SCALE:
+      h1_->Scale(h0_->GetEntries() / h1_->GetEntries());
+    case NORMAL:
+      if (s0_)
+        Styles::FormatHisto(h0_, s0_);
+      if (s1_)
+        Styles::FormatHisto(h1_, s1_);
 
-    if (h1_->GetMaximum() > h0_->GetMaximum()) {
-      h0_->SetMaximum(h1_->GetMaximum() * 1.15);
-    }
+      if (h1_->GetMaximum() > h0_->GetMaximum()) {
+        h0_->SetMaximum(h1_->GetMaximum() * 1.15);
+      }
 
-    h0_->Draw();
-    h1_->Draw("same");
+      h0_->Draw();
+      h1_->Draw("same");
 
-    break;
-  case EFF:
-    if (s0_)
-      Styles::FormatHisto(h0_, s0_);
-    if (s1_)
-      Styles::FormatHisto(h1_, s1_);
+      break;
+    case EFF:
+      if (s0_)
+        Styles::FormatHisto(h0_, s0_);
+      if (s1_)
+        Styles::FormatHisto(h1_, s1_);
 
-    // rather arbitrary but useful
-    max = h0_->GetMaximum();
-    if (h1_->GetMaximum() > max)
-      max = h1_->GetMaximum();
-    if (max > 0.8)
-      max = 1;
+      // rather arbitrary but useful
+      max = h0_->GetMaximum();
+      if (h1_->GetMaximum() > max)
+        max = h1_->GetMaximum();
+      if (max > 0.8)
+        max = 1;
 
-    max *= 1.1;
+      max *= 1.1;
 
-    min = h0_->GetMinimum();
-    if (h1_->GetMinimum() < min)
-      min = h1_->GetMinimum();
-    if (min > 0.2)
-      min = 0.;
+      min = h0_->GetMinimum();
+      if (h1_->GetMinimum() < min)
+        min = h1_->GetMinimum();
+      if (min > 0.2)
+        min = 0.;
 
-    min *= 0.8;
-    h0_->SetMaximum(max);
-    h0_->SetMinimum(min);
+      min *= 0.8;
+      h0_->SetMaximum(max);
+      h0_->SetMinimum(min);
 
-    h0_->Draw("E");
-    h1_->Draw("Esame");
-    break;
-  case GRAPH:
-    if (s0_)
-      Styles::FormatHisto(h0_, s0_);
-    if (s1_)
-      Styles::FormatHisto(h1_, s1_);
+      h0_->Draw("E");
+      h1_->Draw("Esame");
+      break;
+    case GRAPH:
+      if (s0_)
+        Styles::FormatHisto(h0_, s0_);
+      if (s1_)
+        Styles::FormatHisto(h1_, s1_);
 
-    if (h1_->GetMaximum() > h0_->GetMaximum()) {
-      h0_->SetMaximum(h1_->GetMaximum() * 1.15);
-    }
-    if (h1_->GetMinimum() < h0_->GetMinimum()) {
-      h0_->SetMinimum(h1_->GetMinimum() * 1.15);
-    }
-    h0_->SetMarkerStyle(21);
-    h0_->SetMarkerColor(2);
-    h1_->SetMarkerStyle(21);
-    h1_->SetMarkerColor(4);
+      if (h1_->GetMaximum() > h0_->GetMaximum()) {
+        h0_->SetMaximum(h1_->GetMaximum() * 1.15);
+      }
+      if (h1_->GetMinimum() < h0_->GetMinimum()) {
+        h0_->SetMinimum(h1_->GetMinimum() * 1.15);
+      }
+      h0_->SetMarkerStyle(21);
+      h0_->SetMarkerColor(2);
+      h1_->SetMarkerStyle(21);
+      h1_->SetMarkerColor(4);
 
-    h0_->Draw("E1");
-    h1_->Draw("E1same");
-    break;
-  case RATIO:
-    h0_->Sumw2();
-    h1_->Sumw2();
-    h0_->Divide(h1_);
-    if (s0_)
-      Styles::FormatHisto(h0_, s0_);
-    h0_->Draw();
-  default:
-    break;
+      h0_->Draw("E1");
+      h1_->Draw("E1same");
+      break;
+    case RATIO:
+      h0_->Sumw2();
+      h1_->Sumw2();
+      h0_->Divide(h1_);
+      if (s0_)
+        Styles::FormatHisto(h0_, s0_);
+      h0_->Draw();
+    default:
+      break;
   }
 }

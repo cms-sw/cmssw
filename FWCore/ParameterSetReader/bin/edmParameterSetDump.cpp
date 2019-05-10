@@ -2,7 +2,7 @@
 //
 // Package:     PythonParameterSet
 // Class  :     edmParameterSetDump
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -18,8 +18,8 @@
 #include <iostream>
 #include <string>
 
-int main (int argc, char **argv) try {
-  if(argc != 2) {
+int main(int argc, char** argv) try {
+  if (argc != 2) {
     std::cout << "Usage: edmParameterSetDump <cfgfile>" << std::endl;
   }
   std::string fileName(argv[1]);
@@ -27,10 +27,10 @@ int main (int argc, char **argv) try {
   std::cout << "====Main Process====" << std::endl;
   std::cout << parameterSet->dump() << std::endl;
   return 0;
-} catch(cms::Exception const& e) {
+} catch (cms::Exception const& e) {
   std::cout << e.explainSelf() << std::endl;
   return 1;
-} catch(std::exception const& e) {
+} catch (std::exception const& e) {
   std::cout << e.what() << std::endl;
   return 1;
 }

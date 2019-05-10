@@ -16,12 +16,11 @@
 #include <CalibMuon/CSCCalibration/interface/CSCIndexerRecord.h>
 
 #include <cmath>
-#include <iomanip> // for setw() etc.
+#include <iomanip>  // for setw() etc.
 #include <string>
 #include <vector>
 
 class CSCIndexerAnalyzer2 : public edm::EDAnalyzer {
-
 public:
   explicit CSCIndexerAnalyzer2(const edm::ParameterSet &);
   ~CSCIndexerAnalyzer2();
@@ -40,16 +39,16 @@ private:
 };
 
 CSCIndexerAnalyzer2::CSCIndexerAnalyzer2(const edm::ParameterSet &iConfig)
-    : dashedLineWidth_(146), dashedLine_(std::string(dashedLineWidth_, '-')),
-      myName_("CSCIndexerAnalyzer2"), algoName_("UNKNOWN") {
+    : dashedLineWidth_(146),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCIndexerAnalyzer2"),
+      algoName_("UNKNOWN") {
   std::cout << dashedLine_ << std::endl;
   std::cout << "Welcome to " << myName_ << std::endl;
   std::cout << dashedLine_ << std::endl;
-  std::cout << "At present my CSCIndexer algorithm is    " << myAlgo()
-            << std::endl;
+  std::cout << "At present my CSCIndexer algorithm is    " << myAlgo() << std::endl;
   std::cout << dashedLine_ << std::endl;
-  std::cout << "I will build the CSC geometry, then iterate over all layers."
-            << std::endl;
+  std::cout << "I will build the CSC geometry, then iterate over all layers." << std::endl;
   std::cout << "From each CSCDetId I will build the associated linear index, "
                "including ME1a layers."
             << std::endl;
@@ -71,15 +70,13 @@ CSCIndexerAnalyzer2::CSCIndexerAnalyzer2(const edm::ParameterSet &iConfig)
   std::cout << "If any of these tests fail, you will see assert failure "
                "messages in the output."
             << std::endl;
-  std::cout << "If there are no such failures then the tests passed."
-            << std::endl;
+  std::cout << "If there are no such failures then the tests passed." << std::endl;
   std::cout << dashedLine_ << std::endl;
 }
 
 CSCIndexerAnalyzer2::~CSCIndexerAnalyzer2() {}
 
-void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
+void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   CSCDetId testCSCDetId;
 
   const double dPi = Geom::pi();
@@ -107,8 +104,7 @@ void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent,
   algoName_ = theIndexer->name();
 
   std::cout << dashedLine_ << std::endl;
-  std::cout << "Found CSCIndexer algorithm    " << myAlgo()
-            << "    in EventSetup" << std::endl;
+  std::cout << "Found CSCIndexer algorithm    " << myAlgo() << "    in EventSetup" << std::endl;
   std::cout << dashedLine_ << std::endl;
 
   bool ganged = 1;
@@ -128,23 +124,22 @@ void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent,
 
   // Iterate over the DetUnits in the CSCGeometry
   for (const auto &it : pDD->detUnits()) {
-
     // Check each DetUnit really is a CSC layer
     auto layer = dynamic_cast<const CSCLayer *>(it);
 
     if (layer) {
-      ++icountAll; // how many layers we see
+      ++icountAll;  // how many layers we see
 
       // Get DetId in various ways
 
       DetId detId = layer->geographicalId();
-      int id = detId(); // or detId.rawId()
+      int id = detId();  // or detId.rawId()
       CSCDetId cscDetId = layer->id();
 
       // There is going to be a lot of messing with field width (and precision)
       // so save input values...
-      int iw = std::cout.width();     // save current width
-      int ip = std::cout.precision(); // save current precision
+      int iw = std::cout.width();      // save current width
+      int ip = std::cout.precision();  // save current precision
 
       short ie = CSCDetId::endcap(id);
       short is = CSCDetId::station(id);
@@ -154,34 +149,27 @@ void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent,
 
       ++icount;
 
-      std::cout << std::setw(4) << icount << std::setw(12) << id << std::oct
-                << std::setw(12) << id << std::dec << std::setw(iw) << "   E"
-                << ie << " S" << is << " R" << ir << " C" << std::setw(2) << ic
+      std::cout << std::setw(4) << icount << std::setw(12) << id << std::oct << std::setw(12) << id << std::dec
+                << std::setw(iw) << "   E" << ie << " S" << is << " R" << ir << " C" << std::setw(2) << ic
                 << std::setw(iw) << " L" << il;
 
       unsigned cind = theIndexer->chamberIndex(ie, is, ir, ic);
       unsigned lind = theIndexer->layerIndex(ie, is, ir, ic, il);
-      unsigned scind =
-          theIndexer->startChamberIndexInEndcap(ie, is, ir) + ic - 1;
+      unsigned scind = theIndexer->startChamberIndexInEndcap(ie, is, ir) + ic - 1;
       unsigned cind2 = theIndexer->chamberIndex(cscDetId);
       unsigned lind2 = theIndexer->layerIndex(cscDetId);
 
-      std::cout << std::setw(12) << lind << std::setw(12) << lind2
-                << std::setw(12) << scind << std::setw(12)
+      std::cout << std::setw(12) << lind << std::setw(12) << lind2 << std::setw(12) << scind << std::setw(12)
                 << theIndexer->chamberLabelFromChamberIndex(scind) << "     ";
 
       // Index a few strips
       unsigned short nchan = theIndexer->stripChannelsPerOnlineLayer(is, ir);
       unsigned int sc1 = theIndexer->stripChannelIndex(ie, is, ir, ic, il, 1);
-      unsigned int scm =
-          theIndexer->stripChannelIndex(ie, is, ir, ic, il, nchan / 2);
-      unsigned int scn =
-          theIndexer->stripChannelIndex(ie, is, ir, ic, il, nchan);
+      unsigned int scm = theIndexer->stripChannelIndex(ie, is, ir, ic, il, nchan / 2);
+      unsigned int scn = theIndexer->stripChannelIndex(ie, is, ir, ic, il, nchan);
 
-      std::cout << "      1  " << std::setw(6) << sc1 << "      "
-                << std::setw(2) << nchan / 2 << "  " << std::setw(6) << scm
-                << "      " << std::setw(2) << nchan << "  " << std::setw(6)
-                << scn << std::endl;
+      std::cout << "      1  " << std::setw(6) << sc1 << "      " << std::setw(2) << nchan / 2 << "  " << std::setw(6)
+                << scm << "      " << std::setw(2) << nchan << "  " << std::setw(6) << scn << std::endl;
 
       // Reset the values we changed
       std::cout << std::setprecision(ip) << std::setw(iw);
@@ -196,8 +184,7 @@ void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent,
 
       // Build CSCDetId from layer index and check it is same as original
 
-      CSCDetId cscDetId2 =
-          theIndexer->detIdFromLayerIndex(lind); // folds ME1/1a into ME1/1
+      CSCDetId cscDetId2 = theIndexer->detIdFromLayerIndex(lind);  // folds ME1/1a into ME1/1
 
       testCSCDetId = cscDetId;
 
@@ -209,18 +196,17 @@ void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent,
       // Build CSCDetId from the strip-channel index for strip "nchan" and check
       // it matches Ganged ME1/1a returns ME1/1 CSCDetId and channel 65-80
 
-      std::pair<CSCDetId, unsigned short int> p =
-          theIndexer->detIdFromStripChannelIndex(scn);
+      std::pair<CSCDetId, unsigned short int> p = theIndexer->detIdFromStripChannelIndex(scn);
       CSCDetId cscDetId3 = p.first;
       unsigned short iscn = p.second;
 
       if (ir == 4 && ganged)
-        iscn -= 64; // reset ganged ME1a channel from 65-80 to 1-16
+        iscn -= 64;  // reset ganged ME1a channel from 65-80 to 1-16
 
       assert(iscn == nchan);
 
       if (ir == 4 && !ganged)
-        testCSCDetId = cscDetId; // unganged ME1/1a needs its own CSCDetId
+        testCSCDetId = cscDetId;  // unganged ME1/1a needs its own CSCDetId
 
       assert(cscDetId3 == testCSCDetId);
 
@@ -231,10 +217,7 @@ void CSCIndexerAnalyzer2::analyze(const edm::Event &iEvent,
       const GeomDet *gd = pDD->idToDet(detId);
       assert(gd == layer);
     } else {
-      std::cout
-          << myName()
-          << ": something wrong ... could not dynamic_cast Det* to CSCLayer* "
-          << std::endl;
+      std::cout << myName() << ": something wrong ... could not dynamic_cast Det* to CSCLayer* " << std::endl;
     }
   }
 

@@ -5,15 +5,12 @@
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBCrosstalk.h"
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
 
-popcon::CSCFakeDBCrosstalkImpl::CSCFakeDBCrosstalkImpl(
-    const edm::ParameterSet &pset)
-    : m_name(pset.getUntrackedParameter<std::string>(
-          "name", "CSCFakeDBCrosstalkImpl")) {}
+popcon::CSCFakeDBCrosstalkImpl::CSCFakeDBCrosstalkImpl(const edm::ParameterSet &pset)
+    : m_name(pset.getUntrackedParameter<std::string>("name", "CSCFakeDBCrosstalkImpl")) {}
 
 popcon::CSCFakeDBCrosstalkImpl::~CSCFakeDBCrosstalkImpl() {}
 
 void popcon::CSCFakeDBCrosstalkImpl::getNewObjects() {
-
   std::cout << "------- CSC src - > getNewObjects\n" << m_name;
 
   // fill object from file
@@ -24,8 +21,7 @@ void popcon::CSCFakeDBCrosstalkImpl::getNewObjects() {
   // check whats already inside of database
 
   std::cerr << "got offlineInfo" << std::endl;
-  std::cerr << tagInfo().name << " , last object valid since "
-            << tagInfo().lastInterval.first << std::endl;
+  std::cerr << tagInfo().name << " , last object valid since " << tagInfo().lastInterval.first << std::endl;
 
   unsigned int snc;
 
@@ -34,6 +30,5 @@ void popcon::CSCFakeDBCrosstalkImpl::getNewObjects() {
 
   m_to_transfer.push_back(std::make_pair(cncrosstalk, snc));
 
-  std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"
-            << std::endl;
+  std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
 }

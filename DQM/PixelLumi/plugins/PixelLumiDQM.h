@@ -37,8 +37,7 @@
 
 class ConfigurationDescriptions;
 
-class PixelLumiDQM
-    : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class PixelLumiDQM : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit PixelLumiDQM(const edm::ParameterSet &);
   ~PixelLumiDQM() override;
@@ -46,11 +45,11 @@ public:
   static constexpr double SECONDS_PER_LS = double(0x40000) / double(FREQ_ORBIT);
 
   // Using all pixel clusters:
-  static constexpr double XSEC_PIXEL_CLUSTER = 10.08e-24; // in cm^2
+  static constexpr double XSEC_PIXEL_CLUSTER = 10.08e-24;  // in cm^2
   static constexpr double XSEC_PIXEL_CLUSTER_UNC = 0.17e-24;
 
   // Excluding the inner barrel layer.
-  static constexpr double rXSEC_PIXEL_CLUSTER = 9.4e-24; // in cm^2
+  static constexpr double rXSEC_PIXEL_CLUSTER = 9.4e-24;  // in cm^2
   static constexpr double rXSEC_PIXEL_CLUSTER_UNC = 0.119e-24;
   static constexpr double CM2_TO_NANOBARN = 1.0 / 1.e-33;
   static const unsigned int lastBunchCrossing = 3564;
@@ -59,22 +58,18 @@ public:
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void endRun(edm::Run const &, edm::EventSetup const &) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const &,
-                            edm::EventSetup const &) override;
-  void endLuminosityBlock(edm::LuminosityBlock const &,
-                          edm::EventSetup const &) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
   // This is a kludge method to infer the filled bunches from the cluster count;
   // notice that this cannot be used with random triggers.
   // The filling scheme should be acquired from the database once it's there.
 
   unsigned int calculateBunchMask(MonitorElement *, std::vector<bool> &);
-  unsigned int calculateBunchMask(std::vector<float> &, unsigned int,
-                                  std::vector<bool> &);
+  unsigned int calculateBunchMask(std::vector<float> &, unsigned int, std::vector<bool> &);
   // ---------- Member data ----------
 
   // Hard-coded numbers of layers and disks...
@@ -88,8 +83,12 @@ private:
     // O for outer and I for inner. Numbers used for layers.
   public:
     PixelClusterCount()
-        : numB(kNumLayers, 0), numFM(kNumDisks, 0), numFP(kNumDisks, 0),
-          dnumB(kNumLayers, 0.0), dnumFM(kNumDisks, 0.0), dnumFP(kNumDisks, 0.0)
+        : numB(kNumLayers, 0),
+          numFM(kNumDisks, 0),
+          numFP(kNumDisks, 0),
+          dnumB(kNumLayers, 0.0),
+          dnumFM(kNumDisks, 0.0),
+          dnumFP(kNumDisks, 0.0)
 
     {}
     void Reset() {

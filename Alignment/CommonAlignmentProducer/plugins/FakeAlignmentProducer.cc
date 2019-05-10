@@ -2,7 +2,7 @@
 //
 // Package:    FakeAlignmentProducer
 // Class:      FakeAlignmentProducer
-// 
+//
 /**\class FakeAlignmentProducer FakeAlignmentProducer.h Alignment/FakeAlignmentProducer/interface/FakeAlignmentProducer.h
 
 Description: Producer of fake alignment data for all geometries (currently: Tracker, DT and CSC)
@@ -19,7 +19,6 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 //
 //
 
-
 // System
 #include <memory>
 
@@ -27,8 +26,6 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -46,14 +43,10 @@ public:
   FakeAlignmentProducer(const edm::ParameterSet&);
   ~FakeAlignmentProducer() override {}
 
-  std::unique_ptr<Alignments>
-  produceTkAli(const TrackerAlignmentRcd&) { return std::make_unique<Alignments>();}
-  std::unique_ptr<Alignments> 
-  produceDTAli(const DTAlignmentRcd&) { return std::make_unique<Alignments>();}
-  std::unique_ptr<Alignments>
-  produceCSCAli(const CSCAlignmentRcd&)  { return std::make_unique<Alignments>();}
-  std::unique_ptr<Alignments>
-  produceGlobals(const GlobalPositionRcd&) {return std::make_unique<Alignments>();}
+  std::unique_ptr<Alignments> produceTkAli(const TrackerAlignmentRcd&) { return std::make_unique<Alignments>(); }
+  std::unique_ptr<Alignments> produceDTAli(const DTAlignmentRcd&) { return std::make_unique<Alignments>(); }
+  std::unique_ptr<Alignments> produceCSCAli(const CSCAlignmentRcd&) { return std::make_unique<Alignments>(); }
+  std::unique_ptr<Alignments> produceGlobals(const GlobalPositionRcd&) { return std::make_unique<Alignments>(); }
 
   std::unique_ptr<AlignmentErrorsExtended> produceTkAliErr(const TrackerAlignmentErrorExtendedRcd&) {
     return std::make_unique<AlignmentErrorsExtended>();
@@ -64,28 +57,24 @@ public:
   std::unique_ptr<AlignmentErrorsExtended> produceCSCAliErr(const CSCAlignmentErrorExtendedRcd&) {
     return std::make_unique<AlignmentErrorsExtended>();
   }
-
 };
 
-FakeAlignmentProducer::FakeAlignmentProducer(const edm::ParameterSet& iConfig) 
-{
+FakeAlignmentProducer::FakeAlignmentProducer(const edm::ParameterSet& iConfig) {
   // This 'appendToDataLabel' is used by the framework to distinguish providers
   // with different settings and to request a special one by e.g.
   // iSetup.get<TrackerDigiGeometryRecord>().get("theLabel", tkGeomHandle);
-  edm::LogInfo("Alignments") 
-    << "@SUB=FakeAlignmentProducer" << "Providing data with label '" 
-    << iConfig.getParameter<std::string>("appendToDataLabel") << "'.";
+  edm::LogInfo("Alignments") << "@SUB=FakeAlignmentProducer"
+                             << "Providing data with label '" << iConfig.getParameter<std::string>("appendToDataLabel")
+                             << "'.";
 
-  setWhatProduced( this, &FakeAlignmentProducer::produceTkAli );
-  setWhatProduced( this, &FakeAlignmentProducer::produceTkAliErr );
-  setWhatProduced( this, &FakeAlignmentProducer::produceDTAli );
-  setWhatProduced( this, &FakeAlignmentProducer::produceDTAliErr );
-  setWhatProduced( this, &FakeAlignmentProducer::produceCSCAli );
-  setWhatProduced( this, &FakeAlignmentProducer::produceCSCAliErr );
-  setWhatProduced( this, &FakeAlignmentProducer::produceGlobals );
-
+  setWhatProduced(this, &FakeAlignmentProducer::produceTkAli);
+  setWhatProduced(this, &FakeAlignmentProducer::produceTkAliErr);
+  setWhatProduced(this, &FakeAlignmentProducer::produceDTAli);
+  setWhatProduced(this, &FakeAlignmentProducer::produceDTAliErr);
+  setWhatProduced(this, &FakeAlignmentProducer::produceCSCAli);
+  setWhatProduced(this, &FakeAlignmentProducer::produceCSCAliErr);
+  setWhatProduced(this, &FakeAlignmentProducer::produceGlobals);
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(FakeAlignmentProducer);

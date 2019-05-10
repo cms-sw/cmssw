@@ -18,7 +18,6 @@
 //
 
 class IsolatedEcalPixelTrackCandidateProducer : public edm::global::EDProducer<> {
-
 public:
   explicit IsolatedEcalPixelTrackCandidateProducer(const edm::ParameterSet&);
   ~IsolatedEcalPixelTrackCandidateProducer() override;

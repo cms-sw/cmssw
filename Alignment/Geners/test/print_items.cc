@@ -24,8 +24,7 @@ using namespace gs;
 using namespace std;
 
 static void print_usage(const char *progname) {
-  cout << "\nUsage: " << progname
-       << " [-n] [-c] archive_name item_name item_category\n\n"
+  cout << "\nUsage: " << progname << " [-n] [-c] archive_name item_name item_category\n\n"
        << "Optional switches \"-n\" and \"-c\" turn on regular expression "
           "search for item\n"
        << "name and category, respectively. For each matching item, the "
@@ -36,27 +35,25 @@ static void print_usage(const char *progname) {
 }
 
 namespace {
-typedef unsigned long (*PrinterFunction)(MultiFileArchive &,
-                                         const SearchSpecifier &,
-                                         const SearchSpecifier &);
+  typedef unsigned long (*PrinterFunction)(MultiFileArchive &, const SearchSpecifier &, const SearchSpecifier &);
 
-template <class T> struct Printer {
-  static unsigned long print(MultiFileArchive &ar, const SearchSpecifier &name,
-                             const SearchSpecifier &category) {
-    ClassId id(ClassId::makeId<T>());
-    Reference<T> ref(ar, name, category);
-    const unsigned long nItems = ref.size();
-    for (unsigned long i = 0; i < nItems; ++i)
-      cout << id.name() << "  " << *ref.get(i) << endl;
-    return nItems;
-  }
-};
-} // namespace
+  template <class T>
+  struct Printer {
+    static unsigned long print(MultiFileArchive &ar, const SearchSpecifier &name, const SearchSpecifier &category) {
+      ClassId id(ClassId::makeId<T>());
+      Reference<T> ref(ar, name, category);
+      const unsigned long nItems = ref.size();
+      for (unsigned long i = 0; i < nItems; ++i)
+        cout << id.name() << "  " << *ref.get(i) << endl;
+      return nItems;
+    }
+  };
+}  // namespace
 
-#define printable_type(sometype)                                               \
-  do {                                                                         \
-    ClassId id(ClassId::makeId<sometype>());                                   \
-    typemap[id.name()] = &Printer<sometype>::print;                            \
+#define printable_type(sometype)                    \
+  do {                                              \
+    ClassId id(ClassId::makeId<sometype>());        \
+    typemap[id.name()] = &Printer<sometype>::print; \
   } while (0);
 
 int main(int argc, char const *argv[]) {
@@ -143,8 +140,7 @@ int main(int argc, char const *argv[]) {
   }
   if (nprinted != nfound) {
     const unsigned long notprinted = nfound - nprinted;
-    cout << "Found " << notprinted << " non-printable item"
-         << (notprinted == 1UL ? "" : "s") << endl;
+    cout << "Found " << notprinted << " non-printable item" << (notprinted == 1UL ? "" : "s") << endl;
   }
 
   return 0;

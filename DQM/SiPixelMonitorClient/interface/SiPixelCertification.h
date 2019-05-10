@@ -28,7 +28,8 @@ public:
   ~SiPixelCertification() override;
 
 private:
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &,
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
                              const edm::LuminosityBlock &,
                              const edm::EventSetup &) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;

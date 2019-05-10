@@ -38,8 +38,7 @@ public:
   void beginRun(const edm::Run &run, const edm::EventSetup &setup) override;
   void endRun(edm::Run const &, edm::EventSetup const &) override;
   void endJob() override;
-  void analyze(const edm::Event &event, const edm::EventSetup &setup) override {
-  }
+  void analyze(const edm::Event &event, const edm::EventSetup &setup) override {}
 
 protected:
 private:
@@ -49,8 +48,7 @@ private:
   // The DB label
   std::string labelDBRef_;
   std::string labelDB_;
-  std::string diffTestName_, wheelTestName_, stationTestName_, sectorTestName_,
-      layerTestName_;
+  std::string diffTestName_, wheelTestName_, stationTestName_, sectorTestName_, layerTestName_;
 
   bool outputMEsInRootFile_;
   std::string outputFileName_;

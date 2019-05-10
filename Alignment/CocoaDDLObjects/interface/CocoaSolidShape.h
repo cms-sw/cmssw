@@ -14,7 +14,6 @@
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 class CocoaSolidShape {
-
 public:
   //---------- Constructors / Destructor
   CocoaSolidShape(ALIstring type);

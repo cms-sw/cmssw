@@ -111,7 +111,8 @@ public:
       *os_ << msg;
   }
 
-  template <typename T> inline CmdLineError &operator<<(const T &obj) {
+  template <typename T>
+  inline CmdLineError &operator<<(const T &obj) {
     *os_ << obj;
     return *this;
   }
@@ -128,8 +129,7 @@ inline void OneShotExtract(std::istringstream &is, T &obj) {
 }
 
 template <>
-inline void OneShotExtract<std::string>(std::istringstream &is,
-                                        std::string &obj) {
+inline void OneShotExtract<std::string>(std::istringstream &is, std::string &obj) {
   obj = is.str();
   is.seekg(0, std::ios_base::end);
 }
@@ -138,27 +138,22 @@ class OneShotIStream {
 public:
   inline OneShotIStream() : valid_(false), readout_(false) {}
 
-  inline OneShotIStream(const std::string &s)
-      : str_(s), valid_(true), readout_(false) {}
+  inline OneShotIStream(const std::string &s) : str_(s), valid_(true), readout_(false) {}
 
-  inline operator void *() const {
-    return valid_ && !readout_ ? (void *)this : (void *)0;
-  }
+  inline operator void *() const { return valid_ && !readout_ ? (void *)this : (void *)0; }
 
-  template <typename T> inline bool operator>>(T &obj) {
+  template <typename T>
+  inline bool operator>>(T &obj) {
     if (readout_)
-      throw CmdLineError() << "can't reuse command line argument \"" << str_
-                           << '"';
+      throw CmdLineError() << "can't reuse command line argument \"" << str_ << '"';
     readout_ = true;
     if (valid_) {
       std::istringstream is(str_);
       OneShotExtract(is, obj);
       if (is.bad() || is.fail())
-        throw CmdLineError()
-            << "failed to parse command line argument \"" << str_ << '"';
+        throw CmdLineError() << "failed to parse command line argument \"" << str_ << '"';
       if (is.peek() != EOF)
-        throw CmdLineError()
-            << "extra characters in command line argument \"" << str_ << '"';
+        throw CmdLineError() << "extra characters in command line argument \"" << str_ << '"';
     }
     return valid_;
   }
@@ -192,8 +187,7 @@ class CmdLine {
   }
 
 public:
-  inline CmdLine(const unsigned argc, const char *const argv[])
-      : nprogargs_(0) {
+  inline CmdLine(const unsigned argc, const char *const argv[]) : nprogargs_(0) {
     // Parse the program name
     const char *progname = std::strrchr(argv[0], '/');
     if (progname)
@@ -248,8 +242,7 @@ public:
 
   inline bool has(const char *shortOpt, const char *longOpt = 0) {
     bool found = false;
-    for (Optlist::iterator it = find(shortOpt, longOpt); it != args_.end();
-         it = find(shortOpt, longOpt)) {
+    for (Optlist::iterator it = find(shortOpt, longOpt); it != args_.end(); it = find(shortOpt, longOpt)) {
       found = true;
       Optlist::iterator it0(it);
       if (++it != args_.end())
@@ -262,8 +255,7 @@ public:
 
   inline OneShotIStream option(const char *shortOpt, const char *longOpt = 0) {
     OneShotIStream result;
-    for (Optlist::iterator it = find(shortOpt, longOpt); it != args_.end();
-         it = find(shortOpt, longOpt)) {
+    for (Optlist::iterator it = find(shortOpt, longOpt); it != args_.end(); it = find(shortOpt, longOpt)) {
       Optlist::iterator it0(it);
       if (++it != args_.end())
         if (it->second == 0) {
@@ -272,8 +264,7 @@ public:
           --nprogargs_;
           continue;
         }
-      throw CmdLineError() << "missing command line argument for option \""
-                           << it0->first << '"';
+      throw CmdLineError() << "missing command line argument for option \"" << it0->first << '"';
     }
     return result;
   }
@@ -283,8 +274,7 @@ public:
     if (!is.isValid()) {
       const char empty[] = "";
       const char *s = shortOpt ? shortOpt : (longOpt ? longOpt : empty);
-      throw CmdLineError() << "required command line option \"" << s
-                           << "\" is missing";
+      throw CmdLineError() << "required command line option \"" << s << "\" is missing";
     }
     return is;
   }
@@ -292,17 +282,15 @@ public:
   inline void optend() const {
     for (Optlist::const_iterator it = args_.begin(); it != args_.end(); ++it)
       if (it->second == 1 || it->second == 2)
-        throw CmdLineError("invalid command line option \"")
-            << it->first << '"';
+        throw CmdLineError("invalid command line option \"") << it->first << '"';
   }
 
-  inline operator void *() const {
-    return (void *)(static_cast<unsigned long>(nprogargs_));
-  }
+  inline operator void *() const { return (void *)(static_cast<unsigned long>(nprogargs_)); }
 
   inline unsigned argc() const { return nprogargs_; }
 
-  template <typename T> inline CmdLine &operator>>(T &obj) {
+  template <typename T>
+  inline CmdLine &operator>>(T &obj) {
     if (!nprogargs_)
       throw CmdLineError("no more input available on the command line");
     Optlist::iterator it = args_.begin();
@@ -324,4 +312,4 @@ private:
   unsigned nprogargs_;
 };
 
-#endif // CMDLINE_HH_
+#endif  // CMDLINE_HH_

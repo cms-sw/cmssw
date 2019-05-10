@@ -40,7 +40,6 @@
 #include "TString.h"
 
 class GlobalHitsProdHistStripper : public edm::EDAnalyzer {
-
 public:
   // typedef std::vector<float> FloatVector;
 
@@ -154,6 +153,6 @@ private:
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
+};  // end class declaration
 
 #endif

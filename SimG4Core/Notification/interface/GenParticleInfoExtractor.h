@@ -5,10 +5,9 @@
 
 class G4PrimaryParticle;
 
-class GenParticleInfoExtractor 
-{
+class GenParticleInfoExtractor {
 public:
-    const GenParticleInfo& operator()(const G4PrimaryParticle * p) const;
+  const GenParticleInfo& operator()(const G4PrimaryParticle* p) const;
 };
 
 #endif

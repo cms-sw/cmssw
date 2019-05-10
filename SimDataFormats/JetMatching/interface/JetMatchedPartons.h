@@ -9,32 +9,27 @@
 
 namespace reco {
 
-typedef edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<reco::MatchedPartons> > JetMatchedPartonsCollectionBase;
+  typedef edm::AssociationVector<edm::RefToBaseProd<reco::Jet>, std::vector<reco::MatchedPartons> >
+      JetMatchedPartonsCollectionBase;
 
-class JetMatchedPartonsCollection : public JetMatchedPartonsCollectionBase {
-public:
-  JetMatchedPartonsCollection() :
-    JetMatchedPartonsCollectionBase()
-  { }
+  class JetMatchedPartonsCollection : public JetMatchedPartonsCollectionBase {
+  public:
+    JetMatchedPartonsCollection() : JetMatchedPartonsCollectionBase() {}
 
-  JetMatchedPartonsCollection(const reco::CaloJetRefProd & ref) :
-    JetMatchedPartonsCollectionBase(edm::RefToBaseProd<reco::Jet>(ref))
-  { }
+    JetMatchedPartonsCollection(const reco::CaloJetRefProd &ref)
+        : JetMatchedPartonsCollectionBase(edm::RefToBaseProd<reco::Jet>(ref)) {}
 
-  JetMatchedPartonsCollection(const JetMatchedPartonsCollectionBase &v) :
-    JetMatchedPartonsCollectionBase(v)
-  { }
-};
+    JetMatchedPartonsCollection(const JetMatchedPartonsCollectionBase &v) : JetMatchedPartonsCollectionBase(v) {}
+  };
 
-typedef  JetMatchedPartonsCollection::value_type       JetMatchedPartons;
+  typedef JetMatchedPartonsCollection::value_type JetMatchedPartons;
 
-typedef  edm::Ref<JetMatchedPartonsCollection>         JetMatchedPartonsRef;
+  typedef edm::Ref<JetMatchedPartonsCollection> JetMatchedPartonsRef;
 
-typedef  edm::RefProd<JetMatchedPartonsCollection>     JetMatchedPartonsRefProd;
+  typedef edm::RefProd<JetMatchedPartonsCollection> JetMatchedPartonsRefProd;
 
-typedef  edm::RefVector<JetMatchedPartonsCollection>   JetMatchedPartonsRefVector;
+  typedef edm::RefVector<JetMatchedPartonsCollection> JetMatchedPartonsRefVector;
 
-}
+}  // namespace reco
 
-#endif // SimDataFormats_JetMatching_JetMatchedPartons_h
-
+#endif  // SimDataFormats_JetMatching_JetMatchedPartons_h

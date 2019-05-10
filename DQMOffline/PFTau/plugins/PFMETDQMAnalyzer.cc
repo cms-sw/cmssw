@@ -47,9 +47,8 @@ void PFMETDQMAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
                                       edm::EventSetup const & /* iSetup */) {
   ibooker.setCurrentFolder(eventInfoFolder_);
 
-  edm::LogInfo("PFMETDQMAnalyzer")
-      << " PFMETDQMAnalyzer::bookHistograms "
-      << "Histogram Folder path set to " << eventInfoFolder_;
+  edm::LogInfo("PFMETDQMAnalyzer") << " PFMETDQMAnalyzer::bookHistograms "
+                                   << "Histogram Folder path set to " << eventInfoFolder_;
 
   pfMETMonitor_.setup(ibooker, pSet_);
 }
@@ -57,8 +56,7 @@ void PFMETDQMAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
 //
 // -- Analyze
 //
-void PFMETDQMAnalyzer::analyze(edm::Event const &iEvent,
-                               edm::EventSetup const &iSetup) {
+void PFMETDQMAnalyzer::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) {
   edm::Handle<edm::View<reco::MET>> metCollection;
   iEvent.getByToken(myMET_, metCollection);
 
@@ -68,8 +66,7 @@ void PFMETDQMAnalyzer::analyze(edm::Event const &iEvent,
   if (metCollection.isValid() && matchedMetCollection.isValid()) {
     float maxRes = 0.0;
     float minRes = 99.99;
-    pfMETMonitor_.fillOne((*metCollection)[0], (*matchedMetCollection)[0],
-                          minRes, maxRes);
+    pfMETMonitor_.fillOne((*metCollection)[0], (*matchedMetCollection)[0], minRes, maxRes);
   }
 }
 

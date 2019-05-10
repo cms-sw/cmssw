@@ -16,12 +16,9 @@
 #include <string>
 #include <vector>
 
-EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(
-    const edm::ParameterSet &ps)
-    : debug_(ps.getUntrackedParameter<bool>("debug")),
-      verbose_(ps.getUntrackedParameter<bool>("verbose")), clients_() {
-  std::vector<std::string> enabledClients(
-      ps.getUntrackedParameter<std::vector<std::string>>("enabledClients"));
+EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet &ps)
+    : debug_(ps.getUntrackedParameter<bool>("debug")), verbose_(ps.getUntrackedParameter<bool>("verbose")), clients_() {
+  std::vector<std::string> enabledClients(ps.getUntrackedParameter<std::vector<std::string>>("enabledClients"));
 
   if (verbose_) {
     std::cout << " Enabled Clients:";
@@ -32,24 +29,20 @@ EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(
   }
 
   // Setup Clients
-  if (find(enabledClients.begin(), enabledClients.end(), "Integrity") !=
-      enabledClients.end()) {
+  if (find(enabledClients.begin(), enabledClients.end(), "Integrity") != enabledClients.end()) {
     clients_.push_back(new ESIntegrityClient(ps));
   }
 
-  if (find(enabledClients.begin(), enabledClients.end(), "Pedestal") !=
-      enabledClients.end()) {
+  if (find(enabledClients.begin(), enabledClients.end(), "Pedestal") != enabledClients.end()) {
     clients_.push_back(new ESPedestalClient(ps));
   }
 
-  if (find(enabledClients.begin(), enabledClients.end(), "Summary") !=
-      enabledClients.end()) {
+  if (find(enabledClients.begin(), enabledClients.end(), "Summary") != enabledClients.end()) {
     clients_.push_back(new ESSummaryClient(ps));
   }
 }
 
 EcalPreshowerMonitorClient::~EcalPreshowerMonitorClient() {
-
   if (verbose_)
     std::cout << "Finish EcalPreshowerMonitorClient" << std::endl;
 
@@ -59,8 +52,7 @@ EcalPreshowerMonitorClient::~EcalPreshowerMonitorClient() {
 }
 
 /*static*/
-void EcalPreshowerMonitorClient::fillDescriptions(
-    edm::ConfigurationDescriptions &_descs) {
+void EcalPreshowerMonitorClient::fillDescriptions(edm::ConfigurationDescriptions &_descs) {
   edm::ParameterSetDescription desc;
 
   std::vector<std::string> clientsDefault;
@@ -78,9 +70,7 @@ void EcalPreshowerMonitorClient::fillDescriptions(
   _descs.addDefault(desc);
 }
 
-void EcalPreshowerMonitorClient::dqmEndJob(DQMStore::IBooker &_ibooker,
-                                           DQMStore::IGetter &_igetter) {
-
+void EcalPreshowerMonitorClient::dqmEndJob(DQMStore::IBooker &_ibooker, DQMStore::IGetter &_igetter) {
   if (debug_) {
     std::cout << "EcalPreshowerMonitorClient: endJob" << std::endl;
   }
@@ -91,10 +81,10 @@ void EcalPreshowerMonitorClient::dqmEndJob(DQMStore::IBooker &_ibooker,
   }
 }
 
-void EcalPreshowerMonitorClient::dqmEndLuminosityBlock(
-    DQMStore::IBooker &_ibooker, DQMStore::IGetter &_igetter,
-    const edm::LuminosityBlock &, const edm::EventSetup &) {
-
+void EcalPreshowerMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker &_ibooker,
+                                                       DQMStore::IGetter &_igetter,
+                                                       const edm::LuminosityBlock &,
+                                                       const edm::EventSetup &) {
   for (unsigned int i = 0; i < clients_.size(); i++) {
     clients_[i]->setup(_ibooker);
     clients_[i]->endLumiAnalyze(_igetter);

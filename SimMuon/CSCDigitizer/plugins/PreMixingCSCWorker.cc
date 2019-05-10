@@ -21,8 +21,7 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
     std::vector<int> StripList;
     std::vector<CSCStripDigiCollection::const_iterator> StripPointer;
 
-    for (CSCStripDigiCollection::const_iterator dtdigi = range.first;
-         dtdigi != range.second; ++dtdigi) {
+    for (CSCStripDigiCollection::const_iterator dtdigi = range.first; dtdigi != range.second; ++dtdigi) {
       StripList.push_back((*dtdigi).getStrip());
       StripPointer.push_back(dtdigi);
     }
@@ -30,25 +29,20 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
     int PrevStrip = -1;
     std::vector<int> DuplicateList;
 
-    std::vector<CSCStripDigiCollection::const_iterator>::const_iterator
-        StripPtr = StripPointer.begin();
+    std::vector<CSCStripDigiCollection::const_iterator>::const_iterator StripPtr = StripPointer.begin();
 
-    for (std::vector<int>::const_iterator istrip = StripList.begin();
-         istrip != StripList.end(); ++istrip) {
-
+    for (std::vector<int>::const_iterator istrip = StripList.begin(); istrip != StripList.end(); ++istrip) {
       const int CurrentStrip = *(istrip);
 
       if (CurrentStrip > PrevStrip) {
         PrevStrip = CurrentStrip;
 
         int dupl_count;
-        dupl_count =
-            std::count(StripList.begin(), StripList.end(), CurrentStrip);
+        dupl_count = std::count(StripList.begin(), StripList.end(), CurrentStrip);
         if (dupl_count > 1) {
           std::vector<int>::const_iterator duplicate = istrip;
           ++duplicate;
-          std::vector<CSCStripDigiCollection::const_iterator>::const_iterator
-              DuplPointer = StripPtr;
+          std::vector<CSCStripDigiCollection::const_iterator>::const_iterator DuplPointer = StripPtr;
           ++DuplPointer;
           for (; duplicate != StripList.end(); ++duplicate) {
             if ((*duplicate) == CurrentStrip) {
@@ -67,8 +61,7 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
 
               std::vector<int>::const_iterator newsig = signal_adc.begin();
 
-              for (std::vector<int>::const_iterator ibin = pileup_adc.begin();
-                   ibin != pileup_adc.end(); ++ibin) {
+              for (std::vector<int>::const_iterator ibin = pileup_adc.begin(); ibin != pileup_adc.end(); ++ibin) {
                 new_adc.push_back((*newsig) + (*ibin) - minvalue);
 
                 ++newsig;
@@ -82,23 +75,21 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
         } else {
           NewDigiList.push_back(**StripPtr);
         }
-      } // if strips monotonically increasing...  Haven't hit duplicates yet
-      else { // reached end of signal digis, or there was no overlap
-        PrevStrip = 1000; // now into pileup signals, stop looking forward for
-                          // duplicates
+      }                    // if strips monotonically increasing...  Haven't hit duplicates yet
+      else {               // reached end of signal digis, or there was no overlap
+        PrevStrip = 1000;  // now into pileup signals, stop looking forward for
+                           // duplicates
 
         // check if this digi was in the duplicate list
         int check;
-        check = std::count(DuplicateList.begin(), DuplicateList.end(),
-                           CurrentStrip);
+        check = std::count(DuplicateList.begin(), DuplicateList.end(), CurrentStrip);
         if (check == 0)
           NewDigiList.push_back(**StripPtr);
       }
       ++StripPtr;
     }
 
-    CSCStripDigiCollection::Range stripRange(NewDigiList.begin(),
-                                             NewDigiList.end());
+    CSCStripDigiCollection::Range stripRange(NewDigiList.begin(), NewDigiList.end());
 
     merged->put(stripRange, layerId);
   }
@@ -110,32 +101,28 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
 // CSC has three digi collections
 class PreMixingCSCWorker : public PreMixingWorker {
 public:
-  PreMixingCSCWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer,
-                     edm::ConsumesCollector &&iC)
+  PreMixingCSCWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer, edm::ConsumesCollector &&iC)
       : stripWorker_(ps.getParameter<edm::ParameterSet>("strip"), producer, iC),
         wireWorker_(ps.getParameter<edm::ParameterSet>("wire"), producer, iC),
-        comparatorWorker_(ps.getParameter<edm::ParameterSet>("comparator"),
-                          producer, iC) {}
+        comparatorWorker_(ps.getParameter<edm::ParameterSet>("comparator"), producer, iC) {}
   ~PreMixingCSCWorker() override = default;
 
-  void initializeEvent(edm::Event const &iEvent,
-                       edm::EventSetup const &iSetup) override {}
+  void initializeEvent(edm::Event const &iEvent, edm::EventSetup const &iSetup) override {}
 
-  void addSignals(edm::Event const &iEvent,
-                  edm::EventSetup const &iSetup) override {
+  void addSignals(edm::Event const &iEvent, edm::EventSetup const &iSetup) override {
     stripWorker_.addSignals(iEvent, iSetup);
     wireWorker_.addSignals(iEvent, iSetup);
     comparatorWorker_.addSignals(iEvent, iSetup);
   }
 
-  void addPileups(PileUpEventPrincipal const &pep,
-                  edm::EventSetup const &iSetup) override {
+  void addPileups(PileUpEventPrincipal const &pep, edm::EventSetup const &iSetup) override {
     stripWorker_.addPileups(pep, iSetup);
     wireWorker_.addPileups(pep, iSetup);
     comparatorWorker_.addPileups(pep, iSetup);
   }
 
-  void put(edm::Event &iEvent, edm::EventSetup const &iSetup,
+  void put(edm::Event &iEvent,
+           edm::EventSetup const &iSetup,
            std::vector<PileupSummaryInfo> const &ps,
            int bunchSpacing) override {
     stripWorker_.put(iEvent);

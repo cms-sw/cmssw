@@ -30,8 +30,7 @@ using namespace simwatcher;
 // constructors and destructor
 //
 BeginOfTrackCounter::BeginOfTrackCounter(const edm::ParameterSet &iPSet)
-    : m_count(0), m_label(iPSet.getUntrackedParameter<std::string>(
-                      "instanceLabel", "nBeginOfTracks")) {
+    : m_count(0), m_label(iPSet.getUntrackedParameter<std::string>("instanceLabel", "nBeginOfTracks")) {
   produces<int>(m_label);
 }
 

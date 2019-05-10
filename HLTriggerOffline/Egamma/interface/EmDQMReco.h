@@ -27,31 +27,31 @@
 
 class EmDQMReco;
 
-template <class T> class HistoFillerReco {
+template <class T>
+class HistoFillerReco {
 public:
   HistoFillerReco(EmDQMReco *d) : dqm(d){};
   ~HistoFillerReco(){};
 
   void fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &triggerObj,
-                  const edm::Event &iEvent, unsigned int n,
-                  std::vector<reco::Particle> &sortedReco, bool plotReco,
+                  const edm::Event &iEvent,
+                  unsigned int n,
+                  std::vector<reco::Particle> &sortedReco,
+                  bool plotReco,
                   bool plotMonpath);
-  std::vector<edm::EDGetTokenT<edm::AssociationMap<edm::OneToValue<T, float>>>>
-      isoNameTokens_;
+  std::vector<edm::EDGetTokenT<edm::AssociationMap<edm::OneToValue<T, float>>>> isoNameTokens_;
 
 private:
   EmDQMReco *dqm;
 };
 
 class EmDQMReco : public DQMEDAnalyzer {
-
   //----------------------------------------
 
   /** a class managing a set of MonitorElements for quantities of a fourvector
    *  we want to histogram.
    */
   class FourVectorMonitorElements {
-
   public:
     /** @param histogramNameTemplate should be a format string (like used in
      * printf(..) or boost::format(..) for the histogram NAME where the first %s
@@ -61,7 +61,8 @@ class EmDQMReco : public DQMEDAnalyzer {
      * histogramNameTemplate) for the histogram TITLE where the first %s is
      * replaced with et,eta or phi.
      */
-    FourVectorMonitorElements(EmDQMReco *_parent, DQMStore::IBooker &iBooker,
+    FourVectorMonitorElements(EmDQMReco *_parent,
+                              DQMStore::IBooker &iBooker,
                               const std::string &histogramNameTemplate,
                               const std::string &histogramTitleTemplate);
 
@@ -92,8 +93,7 @@ public:
   // Operations
   void analyze(const edm::Event &event, const edm::EventSetup &) override;
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // Input from cfg file
@@ -101,16 +101,14 @@ private:
   /** the HLT collections to be looked at */
   std::vector<edm::InputTag> theHLTCollectionLabels;
 
-  unsigned int numOfHLTCollectionLabels; // Will be size of above vector
+  unsigned int numOfHLTCollectionLabels;  // Will be size of above vector
 
   bool useHumanReadableHistTitles;
-  std::vector<std::string>
-      theHLTCollectionHumanNames; // Human-readable names for the collections
+  std::vector<std::string> theHLTCollectionHumanNames;  // Human-readable names for the collections
   // edm::InputTag theL1Seed;
   std::vector<int> theHLTOutputTypes;
   std::vector<bool> plotiso;
-  std::vector<std::vector<edm::InputTag>>
-      isoNames; // there has to be a better solution
+  std::vector<std::vector<edm::InputTag>> isoNames;  // there has to be a better solution
   std::vector<std::pair<double, double>> plotBounds;
   std::string theHltName;
   HLTConfigProvider hltConfig_;

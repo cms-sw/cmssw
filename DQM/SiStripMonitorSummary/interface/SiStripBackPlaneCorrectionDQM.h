@@ -7,7 +7,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
 
 class SiStripBackPlaneCorrectionDQM : public SiStripBaseCondObjDQM {
-
 public:
   SiStripBackPlaneCorrectionDQM(const edm::EventSetup &eSetup,
                                 edm::RunNumber_t iRun,
@@ -18,16 +17,12 @@ public:
 
   void getActiveDetIds(const edm::EventSetup &eSetup) override;
 
-  void fillModMEs(const std::vector<uint32_t> &selectedDetIds,
-                  const edm::EventSetup &es) override{};
-  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_,
-                     const TrackerTopology *tTopo) override{};
+  void fillModMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override{};
+  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_, const TrackerTopology *tTopo) override{};
 
-  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds,
-                      const edm::EventSetup &es) override;
+  void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds, const edm::EventSetup &es) override;
   void fillMEsForLayer(
-      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_,
-      const TrackerTopology *tTopo) override;
+      /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology *tTopo) override;
 
   unsigned long long getCache(const edm::EventSetup &eSetup) override {
     return eSetup.get<SiStripBackPlaneCorrectionRcd>().cacheIdentifier();

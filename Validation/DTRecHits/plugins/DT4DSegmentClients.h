@@ -13,7 +13,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DT4DSegmentClients : public DQMEDHarvester {
-
 public:
   /// Constructor
   DT4DSegmentClients(const edm::ParameterSet &ps);
@@ -28,4 +27,4 @@ private:
   bool doall_;
 };
 
-#endif // Validation_DTRecHits_DT4DSegmentClients_h
+#endif  // Validation_DTRecHits_DT4DSegmentClients_h

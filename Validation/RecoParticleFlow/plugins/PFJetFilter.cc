@@ -14,10 +14,8 @@ using namespace edm;
 using namespace std;
 
 PFJetFilter::PFJetFilter(const edm::ParameterSet &iConfig) {
-  inputTruthLabel_ = consumes<edm::View<reco::Candidate>>(
-      iConfig.getParameter<edm::InputTag>("InputTruthLabel"));
-  inputRecoLabel_ = consumes<edm::View<reco::Candidate>>(
-      iConfig.getParameter<edm::InputTag>("InputRecoLabel"));
+  inputTruthLabel_ = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("InputTruthLabel"));
+  inputRecoLabel_ = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("InputRecoLabel"));
 
   recPt_cut = iConfig.getParameter<double>("recPt");
   genPt_cut = iConfig.getParameter<double>("genPt");
@@ -43,7 +41,6 @@ void PFJetFilter::beginJob() {}
 void PFJetFilter::endJob() {}
 
 bool PFJetFilter::filter(edm::Event &iEvent, const edm::EventSetup &iESetup) {
-
   // Typedefs to use views
   typedef edm::View<reco::Candidate> candidateCollection;
   typedef edm::View<reco::Candidate> candidateCollection;
@@ -79,7 +76,6 @@ bool PFJetFilter::filter(edm::Event &iEvent, const edm::EventSetup &iESetup) {
   bool pass = false;
 
   for (unsigned int i = 0; i < reco_candidates->size(); i++) {
-
     const reco::Candidate *particle = &(*reco_candidates)[i];
 
     // This protection is meant at not being used !
@@ -115,13 +111,11 @@ bool PFJetFilter::filter(edm::Event &iEvent, const edm::EventSetup &iESetup) {
     double deltaRmin = 999.;
     double ptmin = 0.;
     for (unsigned int j = 0; j < reco_candidates->size(); j++) {
-
       if (i == j)
         continue;
       const reco::Candidate *other = &(*reco_candidates)[j];
       double deltaR = algo_->deltaR(particle, other);
-      if (deltaR < deltaRmin && other->pt() > 0.25 * particle->pt() &&
-          other->pt() > recPt_cut) {
+      if (deltaR < deltaRmin && other->pt() > 0.25 * particle->pt() && other->pt() > recPt_cut) {
         deltaRmin = deltaR;
         ptmin = other->pt();
       }
@@ -132,8 +126,7 @@ bool PFJetFilter::filter(edm::Event &iEvent, const edm::EventSetup &iESetup) {
       continue;
 
     // Find the closest genJet.
-    const reco::Candidate *gen_particle =
-        algo_->matchByDeltaR(particle, truth_candidates);
+    const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle, truth_candidates);
 
     // Check there is a genJet associated to the recoJet
     if (gen_particle == nullptr)
@@ -162,12 +155,9 @@ bool PFJetFilter::filter(edm::Event &iEvent, const edm::EventSetup &iESetup) {
     if (nSig > deltaEt_max || nSig < deltaEt_min) {
       /* */
       if (verbose)
-        std::cout << "Entry " << entry << " resPt = " << resPt
-                  << " sigma/avera/nSig = " << sigma << "/" << avera << "/"
-                  << nSig << " pT (T/R) " << true_pt << "/" << rec_pt
-                  << " Eta (T/R) " << true_eta << "/" << rec_eta
-                  << " Phi (T/R) " << true_phi << "/" << rec_phi
-                  << " deltaRMin/ptmin " << deltaRmin << "/" << ptmin
+        std::cout << "Entry " << entry << " resPt = " << resPt << " sigma/avera/nSig = " << sigma << "/" << avera << "/"
+                  << nSig << " pT (T/R) " << true_pt << "/" << rec_pt << " Eta (T/R) " << true_eta << "/" << rec_eta
+                  << " Phi (T/R) " << true_phi << "/" << rec_phi << " deltaRMin/ptmin " << deltaRmin << "/" << ptmin
                   << std::endl;
       /* */
       pass = true;
@@ -182,7 +172,6 @@ bool PFJetFilter::filter(edm::Event &iEvent, const edm::EventSetup &iESetup) {
 }
 
 double PFJetFilter::resolution(double pt, bool barrel) {
-
   double p0 = barrel ? 1.19200e-02 : 8.45341e-03;
   double p1 = barrel ? 1.06138e+00 : 7.96855e-01;
   double p2 = barrel ? -2.05929e+00 : -3.12076e-01;
@@ -192,7 +181,6 @@ double PFJetFilter::resolution(double pt, bool barrel) {
 }
 
 double PFJetFilter::response(double pt, bool barrel) {
-
   double p0 = barrel ? 1.09906E-1 : 6.91939E+1;
   double p1 = barrel ? -1.61443E-1 : -6.92733E+1;
   double p2 = barrel ? 3.45489E+3 : 1.58207E+6;

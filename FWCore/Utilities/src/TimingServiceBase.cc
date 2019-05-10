@@ -2,7 +2,7 @@
 //
 // Package:     Subsystem/Package
 // Class  :     TimingServiceBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -26,7 +26,7 @@ double TimingServiceBase::s_jobStartTime = 0.0;
 void TimingServiceBase::jobStarted() {
   if (0.0 == s_jobStartTime) {
     struct timeval t;
-    if(gettimeofday(&t, nullptr) < 0) {
+    if (gettimeofday(&t, nullptr) < 0) {
       return;
     }
     s_jobStartTime = static_cast<double>(t.tv_sec) + (static_cast<double>(t.tv_usec) * 1E-6);
@@ -36,10 +36,6 @@ void TimingServiceBase::jobStarted() {
 //
 // constructors and destructor
 //
-TimingServiceBase::TimingServiceBase()
-{
-}
+TimingServiceBase::TimingServiceBase() {}
 
-TimingServiceBase::~TimingServiceBase()
-{
-}
+TimingServiceBase::~TimingServiceBase() {}

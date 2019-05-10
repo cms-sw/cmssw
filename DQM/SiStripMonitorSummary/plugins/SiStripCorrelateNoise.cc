@@ -6,17 +6,15 @@
 #include "TCanvas.h"
 
 SiStripCorrelateNoise::SiStripCorrelateNoise(const edm::ParameterSet &iConfig)
-    : refNoise(nullptr), oldGain(nullptr), newGain(nullptr),
-      cacheID_noise(0xFFFFFFFF), cacheID_gain(0xFFFFFFFF) {
+    : refNoise(nullptr), oldGain(nullptr), newGain(nullptr), cacheID_noise(0xFFFFFFFF), cacheID_gain(0xFFFFFFFF) {
   // now do what ever initialization is needed
   if (!edm::Service<SiStripDetInfoFileReader>().isAvailable()) {
-    edm::LogError("TkLayerMap")
-        << "\n------------------------------------------"
-           "\nUnAvailable Service SiStripDetInfoFileReader: please insert in "
-           "the configuration file an instance like"
-           "\n\tprocess.SiStripDetInfoFileReader = "
-           "cms.Service(\"SiStripDetInfoFileReader\")"
-           "\n------------------------------------------";
+    edm::LogError("TkLayerMap") << "\n------------------------------------------"
+                                   "\nUnAvailable Service SiStripDetInfoFileReader: please insert in "
+                                   "the configuration file an instance like"
+                                   "\n\tprocess.SiStripDetInfoFileReader = "
+                                   "cms.Service(\"SiStripDetInfoFileReader\")"
+                                   "\n------------------------------------------";
   }
 
   fr = edm::Service<SiStripDetInfoFileReader>().operator->();
@@ -30,14 +28,11 @@ SiStripCorrelateNoise::~SiStripCorrelateNoise() {}
 
 //
 
-void SiStripCorrelateNoise::beginRun(const edm::Run &run,
-                                     const edm::EventSetup &es) {
-
+void SiStripCorrelateNoise::beginRun(const edm::Run &run, const edm::EventSetup &es) {
   if (getNoiseCache(es) == cacheID_noise)
     return;
 
-  edm::LogInfo("") << "[SiStripCorrelateNoise::beginRun]  cacheID_noise "
-                   << cacheID_noise << std::endl;
+  edm::LogInfo("") << "[SiStripCorrelateNoise::beginRun]  cacheID_noise " << cacheID_noise << std::endl;
 
   es.get<SiStripNoisesRcd>().get(noiseHandle_);
   SiStripNoises *aNoise = new SiStripNoises(*noiseHandle_.product());
@@ -77,8 +72,7 @@ void SiStripCorrelateNoise::checkGainCache(const edm::EventSetup &es) {
     if (cacheID_gain != 0xFFFFFFFF)
       equalGain = false;
     cacheID_gain = getGainCache(es);
-    edm::LogInfo("") << "[SiStripCorrelateNoise::checkGainCache]  cacheID_gain "
-                     << cacheID_gain << std::endl;
+    edm::LogInfo("") << "[SiStripCorrelateNoise::checkGainCache]  cacheID_gain " << cacheID_gain << std::endl;
   }
 }
 
@@ -146,8 +140,7 @@ void SiStripCorrelateNoise::DoAnalysis(const edm::EventSetup &es,
         if (apvNb < 6)
           gainRatio = getGainRatio(iter->detid, apvNb);
         else
-          edm::LogInfo("") << "[Doanalysis] detid " << iter->detid << " strip "
-                           << strip << " apvNb " << apvNb;
+          edm::LogInfo("") << "[Doanalysis] detid " << iter->detid << " strip " << strip << " apvNb " << apvNb;
       }
       // edm::LogInfo("") << "[Doanalysis] detid " << iter->detid << " strip "
       // << strip << " value " << iter->values[strip];
@@ -159,23 +152,19 @@ void SiStripCorrelateNoise::DoAnalysis(const edm::EventSetup &es,
   }
 }
 
-float SiStripCorrelateNoise::getGainRatio(const uint32_t &detid,
-                                          const uint16_t &apv) {
-
+float SiStripCorrelateNoise::getGainRatio(const uint32_t &detid, const uint16_t &apv) {
   SiStripApvGain::Range oldRange = oldGain->getRange(detid);
   SiStripApvGain::Range newRange = newGain->getRange(detid);
 
   if (oldRange.first == oldRange.second || newRange.first == newRange.second)
     return 1.;
 
-  return oldGain->getApvGain(apv, oldRange) /
-         newGain->getApvGain(apv, newRange);
+  return oldGain->getApvGain(apv, oldRange) / newGain->getApvGain(apv, newRange);
 }
 
-float SiStripCorrelateNoise::getMeanNoise(
-    const SiStripNoises::Range &noiseRange, const uint32_t &firstStrip,
-    const uint32_t &range) {
-
+float SiStripCorrelateNoise::getMeanNoise(const SiStripNoises::Range &noiseRange,
+                                          const uint32_t &firstStrip,
+                                          const uint32_t &range) {
   float mean = 0;
   for (size_t istrip = firstStrip; istrip < firstStrip + range; istrip++) {
     mean += noiseHandle_->getNoise(istrip, noiseRange);
@@ -186,7 +175,6 @@ float SiStripCorrelateNoise::getMeanNoise(
 void SiStripCorrelateNoise::getHistos(const uint32_t &detid,
                                       const TrackerTopology *tTopo,
                                       std::vector<TH1F *> &histos) {
-
   histos.clear();
 
   int subdet = -999;
@@ -197,15 +185,13 @@ void SiStripCorrelateNoise::getHistos(const uint32_t &detid,
     component = tTopo->tibLayer(detid);
   } else if (a.subdetId() == 4) {
     subdet = 1;
-    component = tTopo->tidSide(detid) == 2 ? tTopo->tidWheel(detid)
-                                           : tTopo->tidWheel(detid) + 3;
+    component = tTopo->tidSide(detid) == 2 ? tTopo->tidWheel(detid) : tTopo->tidWheel(detid) + 3;
   } else if (a.subdetId() == 5) {
     subdet = 2;
     component = tTopo->tobLayer(detid);
   } else if (a.subdetId() == 6) {
     subdet = 3;
-    component = tTopo->tecSide(detid) == 2 ? tTopo->tecWheel(detid)
-                                           : tTopo->tecWheel(detid) + 9;
+    component = tTopo->tecSide(detid) == 2 ? tTopo->tecWheel(detid) : tTopo->tecWheel(detid) + 9;
   }
 
   int index = 100 + subdet * 100 + component;

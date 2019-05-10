@@ -16,15 +16,11 @@ DT2DSegmentClients::DT2DSegmentClients(edm::ParameterSet const &pset) {
 
 DT2DSegmentClients::~DT2DSegmentClients() {}
 
-void DT2DSegmentClients::dqmEndJob(DQMStore::IBooker &booker,
-                                   DQMStore::IGetter &getter) {
+void DT2DSegmentClients::dqmEndJob(DQMStore::IBooker &booker, DQMStore::IGetter &getter) {
   MonitorElement *hResPos = getter.get("DT/2DSegments/Res/2D_SuperPhi_hResPos");
-  MonitorElement *hResAngle =
-      getter.get("DT/2DSegments/Res/2D_SuperPhi_hResAngle");
-  MonitorElement *hPullPos =
-      getter.get("DT/2DSegments/Pull/2D_SuperPhi_hPullPos");
-  MonitorElement *hPullAngle =
-      getter.get("DT/2DSegments/Pull/2D_SuperPhi_hPullAngle");
+  MonitorElement *hResAngle = getter.get("DT/2DSegments/Res/2D_SuperPhi_hResAngle");
+  MonitorElement *hPullPos = getter.get("DT/2DSegments/Pull/2D_SuperPhi_hPullPos");
+  MonitorElement *hPullAngle = getter.get("DT/2DSegments/Pull/2D_SuperPhi_hPullAngle");
 
   Tutils util;
   util.drawGFit(hResPos->getTH1(), -0.1, 0.1, -0.1, 0.1);

@@ -10,13 +10,11 @@ SiStripCablingDQM::SiStripCablingDQM(const edm::EventSetup &eSetup,
                                      edm::ParameterSet const &hPSet,
                                      edm::ParameterSet const &fPSet)
     : SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet) {
-
   // Build the Histo_TkMap:
   if (HistoMaps_On_) {
     edm::ESHandle<TkDetMap> tkDetMapHandle;
     eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-    Tk_HM_ = std::make_unique<TkHistoMap>(
-        tkDetMapHandle.product(), "SiStrip/Histo_Map", "Cabling_TkMap", 0.);
+    Tk_HM_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SiStrip/Histo_Map", "Cabling_TkMap", 0.);
   }
 }
 // -----
@@ -27,7 +25,6 @@ SiStripCablingDQM::~SiStripCablingDQM() {}
 
 // -----
 void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
-
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
@@ -70,73 +67,65 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
     if (HistoMaps_On_) {
       Tk_HM_->fill(detId, cablingHandle_->nApvPairs(detId) * 2);
     }
-    if (fPSet_.getParameter<bool>("TkMap_On") ||
-        hPSet_.getParameter<bool>("TkMap_On")) {
-
+    if (fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) {
       int32_t n_conn = 0;
-      for (uint32_t connDet_i = 0;
-           connDet_i < cablingHandle_->getConnections(detId).size();
-           connDet_i++) {
+      for (uint32_t connDet_i = 0; connDet_i < cablingHandle_->getConnections(detId).size(); connDet_i++) {
         if (cablingHandle_->getConnections(detId)[connDet_i] != nullptr &&
-            cablingHandle_->getConnections(detId)[connDet_i]->isConnected() !=
-                0)
+            cablingHandle_->getConnections(detId)[connDet_i]->isConnected() != 0)
           n_conn++;
       }
       fillTkMap(detId, n_conn * 2.);
     }
     switch (subdet.subdetId()) {
-    case StripSubdetector::TIB: {
-      int i = tTopo->tibLayer(detId) - 1;
-      counterTIB[i]++;
-      break;
-    }
-    case StripSubdetector::TID: {
-      int j = tTopo->tidWheel(detId) - 1;
-      int side = tTopo->tidSide(detId);
-      if (side == 2) {
-        counterTID[0][j]++;
-      } else if (side == 1) {
-        counterTID[1][j]++;
+      case StripSubdetector::TIB: {
+        int i = tTopo->tibLayer(detId) - 1;
+        counterTIB[i]++;
+        break;
       }
-      break;
-    }
-    case StripSubdetector::TOB: {
-      int i = tTopo->tobLayer(detId) - 1;
-      counterTOB[i]++;
-      break;
-    }
-    case StripSubdetector::TEC: {
-      int j = tTopo->tecWheel(detId) - 1;
-      int side = tTopo->tecSide(detId);
-      if (side == 2) {
-        counterTEC[0][j]++;
-      } else if (side == 1) {
-        counterTEC[1][j]++;
+      case StripSubdetector::TID: {
+        int j = tTopo->tidWheel(detId) - 1;
+        int side = tTopo->tidSide(detId);
+        if (side == 2) {
+          counterTID[0][j]++;
+        } else if (side == 1) {
+          counterTID[1][j]++;
+        }
+        break;
       }
-      break;
-    }
+      case StripSubdetector::TOB: {
+        int i = tTopo->tobLayer(detId) - 1;
+        counterTOB[i]++;
+        break;
+      }
+      case StripSubdetector::TEC: {
+        int j = tTopo->tecWheel(detId) - 1;
+        int side = tTopo->tecSide(detId);
+        if (side == 2) {
+          counterTEC[0][j]++;
+        } else if (side == 1) {
+          counterTEC[1][j]++;
+        }
+        break;
+      }
     }
 
-  } // idet
+  }  // idet
 
   // obtained from tracker.dat and hard-coded
   int TIBDetIds[4] = {672, 864, 540, 648};
   int TIDDetIds[2][3] = {{136, 136, 136}, {136, 136, 136}};
   int TOBDetIds[6] = {1008, 1152, 648, 720, 792, 888};
-  int TECDetIds[2][9] = {{408, 408, 408, 360, 360, 360, 312, 312, 272},
-                         {408, 408, 408, 360, 360, 360, 312, 312, 272}};
+  int TECDetIds[2][9] = {{408, 408, 408, 360, 360, 360, 312, 312, 272}, {408, 408, 408, 360, 360, 360, 312, 312, 272}};
 
   DQMStore *dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  std::string FolderName = fPSet_.getParameter<std::string>(
-      "FolderName_For_QualityAndCabling_SummaryHistos");
+  std::string FolderName = fPSet_.getParameter<std::string>("FolderName_For_QualityAndCabling_SummaryHistos");
 
   dqmStore_->setCurrentFolder(FolderName);
 
   //  dqmStore_->cd("SiStrip/MechanicalView/");
   MonitorElement *ME;
-  ME = dqmStore_->book2D("SummaryOfCabling", "SummaryOfCabling", 6, 0.5, 6.5, 9,
-                         0.5, 9.5);
+  ME = dqmStore_->book2D("SummaryOfCabling", "SummaryOfCabling", 6, 0.5, 6.5, 9, 0.5, 9.5);
   ME->setAxisTitle("Sub Det", 1);
   ME->setAxisTitle("Layer", 2);
 
@@ -168,7 +157,6 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
   }
 
   if (fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")) {
-
     TCanvas c1("c1");
     ME->getTH1()->Draw("TEXT");
     ME->getTH1()->SetStats(kFALSE);

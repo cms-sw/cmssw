@@ -10,10 +10,10 @@ SiPixelDcsInfo::SiPixelDcsInfo(const edm::ParameterSet &ps) { firstRun = true; }
 
 SiPixelDcsInfo::~SiPixelDcsInfo() {}
 
-void SiPixelDcsInfo::dqmEndLuminosityBlock(
-    DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter,
-    const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup) {
-
+void SiPixelDcsInfo::dqmEndLuminosityBlock(DQMStore::IBooker &iBooker,
+                                           DQMStore::IGetter &iGetter,
+                                           const edm::LuminosityBlock &lumiBlock,
+                                           const edm::EventSetup &iSetup) {
   if (firstRun) {
     iBooker.setCurrentFolder("Pixel/EventInfo");
     Fraction_ = iBooker.bookFloat("DCSSummary");
@@ -33,7 +33,6 @@ void SiPixelDcsInfo::dqmEndLuminosityBlock(
   }
 }
 
-void SiPixelDcsInfo::dqmEndJob(DQMStore::IBooker &iBooker,
-                               DQMStore::IGetter &iGetter) {
+void SiPixelDcsInfo::dqmEndJob(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter) {
   // Nothing actually happened in the old endJob/endRun, so this is left empty.
 }

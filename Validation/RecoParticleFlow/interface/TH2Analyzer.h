@@ -18,18 +18,24 @@ class TH2D;
 // (key) which starts with name_RMS
 
 class TH2Analyzer : public TObject {
-
 public:
   TH2Analyzer(const TH2 *h, int rebin = 1)
-      : hist2D_(h), rebinnedHist2D_(nullptr), average_(nullptr), RMS_(nullptr),
-        sigmaGauss_(nullptr), meanXslice_(nullptr) {
+      : hist2D_(h),
+        rebinnedHist2D_(nullptr),
+        average_(nullptr),
+        RMS_(nullptr),
+        sigmaGauss_(nullptr),
+        meanXslice_(nullptr) {
     Eval(rebin);
   }
 
-  TH2Analyzer(const TH2 *h, const int binxmin, const int binxmax,
-              const int rebin, const bool cst_binning = true)
-      : hist2D_(h), rebinnedHist2D_(nullptr), average_(nullptr), RMS_(nullptr),
-        sigmaGauss_(nullptr), meanXslice_(nullptr) {
+  TH2Analyzer(const TH2 *h, const int binxmin, const int binxmax, const int rebin, const bool cst_binning = true)
+      : hist2D_(h),
+        rebinnedHist2D_(nullptr),
+        average_(nullptr),
+        RMS_(nullptr),
+        sigmaGauss_(nullptr),
+        meanXslice_(nullptr) {
     Eval(rebin, binxmin, binxmax, cst_binning);
   }
 
@@ -40,8 +46,7 @@ public:
   void SetHisto(const TH2 *h) { hist2D_ = h; }
 
   void Eval(const int rebinFactor);
-  void Eval(const int rebinFactor, const int binxmin, const int binxmax,
-            const bool cst_binning);
+  void Eval(const int rebinFactor, const int binxmin, const int binxmax, const bool cst_binning);
 
   TH1D *Average() { return average_; }
   TH1D *RMS() { return RMS_; }

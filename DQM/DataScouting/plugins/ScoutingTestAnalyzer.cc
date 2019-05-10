@@ -5,38 +5,40 @@
 
 // A simple constructor which takes as inoput only the name of the PF jet
 // collection
-ScoutingTestAnalyzer::ScoutingTestAnalyzer(const edm::ParameterSet &conf)
-    : ScoutingAnalyzerBase(conf) {
-  m_pfJetsCollectionTag =
-      conf.getUntrackedParameter<edm::InputTag>("pfJetsCollectionName");
+ScoutingTestAnalyzer::ScoutingTestAnalyzer(const edm::ParameterSet &conf) : ScoutingAnalyzerBase(conf) {
+  m_pfJetsCollectionTag = conf.getUntrackedParameter<edm::InputTag>("pfJetsCollectionName");
   // set Token(-s)
-  m_pfJetsCollectionTagToken_ = consumes<reco::CaloJetCollection>(
-      conf.getUntrackedParameter<edm::InputTag>("pfJetsCollectionName"));
+  m_pfJetsCollectionTagToken_ =
+      consumes<reco::CaloJetCollection>(conf.getUntrackedParameter<edm::InputTag>("pfJetsCollectionName"));
 }
 
 ScoutingTestAnalyzer::~ScoutingTestAnalyzer() {}
 
 // Function to book the Monitoring Elements.
-void ScoutingTestAnalyzer::bookHistograms(DQMStore::IBooker &iBooker,
-                                          edm::Run const &,
-                                          edm::EventSetup const &) {
+void ScoutingTestAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
   ScoutingAnalyzerBase::prepareBooking(iBooker);
   std::string collection_name = m_pfJetsCollectionTag.label();
 
   /* This method allows us to book an Histogram in one line in a completely
    * transparent way. Take your time to put axis titles!!!!*/
-  m_jetPt = bookH1withSumw2(iBooker, collection_name + "_pt",
-                            collection_name + " Jet P_{T}", 50, 0., 500.,
-                            "Jet P_{T} [GeV]");
+  m_jetPt = bookH1withSumw2(
+      iBooker, collection_name + "_pt", collection_name + " Jet P_{T}", 50, 0., 500., "Jet P_{T} [GeV]");
 
-  m_jetEtaPhi = bookH2withSumw2(iBooker, collection_name + "_etaphi",
-                                collection_name + " #eta #phi", 50, -5, 5, 50,
-                                -3.1415, +3.1415, "#eta^{Jet}", "#phi^{Jet}");
+  m_jetEtaPhi = bookH2withSumw2(iBooker,
+                                collection_name + "_etaphi",
+                                collection_name + " #eta #phi",
+                                50,
+                                -5,
+                                5,
+                                50,
+                                -3.1415,
+                                +3.1415,
+                                "#eta^{Jet}",
+                                "#phi^{Jet}");
 }
 
 // Usual analyze method
-void ScoutingTestAnalyzer::analyze(const edm::Event &iEvent,
-                                   const edm::EventSetup &c) {
+void ScoutingTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &c) {
   edm::Handle<reco::CaloJetCollection> calojets_handle;
   iEvent.getByToken(m_pfJetsCollectionTagToken_, calojets_handle);
   /* This is an example of how C++11 can simplify or lifes. The auto keyword

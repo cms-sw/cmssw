@@ -42,8 +42,7 @@ public:
 
   /// End LumiBlock
   /// DQM Client Diagnostic should be performed here
-  void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                          const edm::EventSetup &c) override;
+  void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
 
   // unused
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
@@ -51,8 +50,8 @@ public:
 private:
   DQMStore *dbe_;
 
-  int nev_;   // Number of events processed
-  int nLumi_; // number of lumi blocks
+  int nev_;    // Number of events processed
+  int nLumi_;  // number of lumi blocks
   int currentRun_;
 
   float totAlgoPrevCount;
@@ -60,13 +59,13 @@ private:
 
   unsigned long int l1AlgoScalerCounters_[MAX_ALGOS];
   MonitorElement *l1AlgoCurrentRate_;
-  MonitorElement *l1AlgoRateHistories_[MAX_ALGOS]; // HARD CODE FOR NOW
+  MonitorElement *l1AlgoRateHistories_[MAX_ALGOS];  // HARD CODE FOR NOW
   MonitorElement *l1AlgoCurrentRatePerAlgo_[MAX_ALGOS];
   MonitorElement *totalAlgoRate_;
 
   unsigned long int l1TechTrigScalerCounters_[MAX_TT];
   MonitorElement *l1TechTrigCurrentRate_;
-  MonitorElement *l1TechTrigRateHistories_[MAX_TT]; // HARD CODE FOR NOW
+  MonitorElement *l1TechTrigRateHistories_[MAX_TT];  // HARD CODE FOR NOW
   MonitorElement *l1TechTrigCurrentRatePerAlgo_[MAX_TT];
   MonitorElement *totalTtRate_;
 
@@ -83,4 +82,4 @@ private:
   bool first_tt;
 };
 
-#endif // L1ScalersCLIENT_H
+#endif  // L1ScalersCLIENT_H

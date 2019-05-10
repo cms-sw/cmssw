@@ -43,8 +43,7 @@ harvesting
 //
 
 // ------------ method called for each event  ------------
-void B2GDoubleLeptonHLTValidation::analyze(const edm::Event &iEvent,
-                                           const edm::EventSetup &iSetup) {
+void B2GDoubleLeptonHLTValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
 
   isAll_ = false;
@@ -53,11 +52,9 @@ void B2GDoubleLeptonHLTValidation::analyze(const edm::Event &iEvent,
   // Electrons
   Handle<edm::View<reco::GsfElectron>> electrons;
   if (!iEvent.getByToken(tokElectrons_, electrons))
-    edm::LogWarning("B2GDoubleLeptonHLTValidation")
-        << "Electrons collection not found \n";
+    edm::LogWarning("B2GDoubleLeptonHLTValidation") << "Electrons collection not found \n";
   unsigned int nGoodE = 0;
-  for (edm::View<reco::GsfElectron>::const_iterator e = electrons->begin();
-       e != electrons->end(); ++e) {
+  for (edm::View<reco::GsfElectron>::const_iterator e = electrons->begin(); e != electrons->end(); ++e) {
     if (e->pt() < ptElectrons_)
       continue;
     if (fabs(e->eta()) > etaElectrons_)
@@ -70,11 +67,9 @@ void B2GDoubleLeptonHLTValidation::analyze(const edm::Event &iEvent,
   // Muons
   Handle<edm::View<reco::Muon>> muons;
   if (!iEvent.getByToken(tokMuons_, muons))
-    edm::LogWarning("B2GDoubleLeptonHLTValidation")
-        << "Muons collection not found \n";
+    edm::LogWarning("B2GDoubleLeptonHLTValidation") << "Muons collection not found \n";
   unsigned int nGoodM = 0;
-  for (edm::View<reco::Muon>::const_iterator m = muons->begin();
-       m != muons->end(); ++m) {
+  for (edm::View<reco::Muon>::const_iterator m = muons->begin(); m != muons->end(); ++m) {
     if (!m->isPFMuon() || !m->isGlobalMuon())
       continue;
     if (m->pt() < ptMuons_)
@@ -87,21 +82,18 @@ void B2GDoubleLeptonHLTValidation::analyze(const edm::Event &iEvent,
       mu_ = muons->ptrAt(m - muons->begin());
   }
 
-  if (nGoodE >= minElectrons_ && nGoodM >= minMuons_ &&
-      nGoodE + nGoodM >= minLeptons_)
+  if (nGoodE >= minElectrons_ && nGoodM >= minMuons_ && nGoodE + nGoodM >= minLeptons_)
     isAll_ = true;
 
   // Trigger
   Handle<edm::TriggerResults> triggerTable;
   if (!iEvent.getByToken(tokTrigger_, triggerTable))
-    edm::LogWarning("B2GDoubleLeptonHLTValidation")
-        << "Trigger collection not found \n";
+    edm::LogWarning("B2GDoubleLeptonHLTValidation") << "Trigger collection not found \n";
   const edm::TriggerNames &triggerNames = iEvent.triggerNames(*triggerTable);
   bool isInteresting = false;
   for (unsigned int i = 0; i < triggerNames.triggerNames().size(); ++i) {
     for (unsigned int j = 0; j < vsPaths_.size(); j++) {
-      if (triggerNames.triggerNames()[i].find(vsPaths_[j]) !=
-          std::string::npos) {
+      if (triggerNames.triggerNames()[i].find(vsPaths_[j]) != std::string::npos) {
         isInteresting = true;
         break;
       }
@@ -143,8 +135,7 @@ void B2GDoubleLeptonHLTValidation::analyze(const edm::Event &iEvent,
 
     for (unsigned int i = 0; i < triggerNames.triggerNames().size(); ++i) {
       for (unsigned int j = 0; j < vsPaths_.size(); j++) {
-        if (triggerNames.triggerNames()[i].find(vsPaths_[j]) !=
-            std::string::npos) {
+        if (triggerNames.triggerNames()[i].find(vsPaths_[j]) != std::string::npos) {
           hNumTriggerMon->Fill(j + 0.5);
         }
       }
@@ -153,9 +144,7 @@ void B2GDoubleLeptonHLTValidation::analyze(const edm::Event &iEvent,
 }
 
 // ------------ booking histograms -----------
-void B2GDoubleLeptonHLTValidation::bookHistograms(DQMStore::IBooker &dbe,
-                                                  edm::Run const &,
-                                                  edm::EventSetup const &) {
+void B2GDoubleLeptonHLTValidation::bookHistograms(DQMStore::IBooker &dbe, edm::Run const &, edm::EventSetup const &) {
   dbe.setCurrentFolder(sDir_);
   hDenLeptonPt = dbe.book1D("PtLeptonAll", "PtLeptonAll", 50, 0., 2500.);
   hDenLeptonEta = dbe.book1D("EtaLeptonAll", "EtaLeptonAll", 30, -3., 3.);
@@ -164,18 +153,15 @@ void B2GDoubleLeptonHLTValidation::bookHistograms(DQMStore::IBooker &dbe,
   // determine number of bins for trigger monitoring
   unsigned int nPaths = vsPaths_.size();
   // monitored trigger occupancy for single lepton triggers
-  hNumTriggerMon =
-      dbe.book1D("TriggerMonSel", "TriggerMonSel", nPaths, 0., nPaths);
-  hDenTriggerMon =
-      dbe.book1D("TriggerMonAll", "TriggerMonAll", nPaths, 0., nPaths);
+  hNumTriggerMon = dbe.book1D("TriggerMonSel", "TriggerMonSel", nPaths, 0., nPaths);
+  hDenTriggerMon = dbe.book1D("TriggerMonAll", "TriggerMonAll", nPaths, 0., nPaths);
   // set bin labels for trigger monitoring
   triggerBinLabels(vsPaths_);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the
 // module  ------------
-void B2GDoubleLeptonHLTValidation::fillDescriptions(
-    edm::ConfigurationDescriptions &descriptions) {
+void B2GDoubleLeptonHLTValidation::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // The following says we do not know what parameters are allowed so do no
   // validation
   // Please change this to state exactly what you do use, even if it is no

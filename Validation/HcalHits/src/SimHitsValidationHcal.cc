@@ -6,26 +6,20 @@
 #define DebugLog
 
 SimHitsValidationHcal::SimHitsValidationHcal(const edm::ParameterSet &ps) {
-
   g4Label_ = ps.getParameter<std::string>("ModuleLabel");
   hcalHits_ = ps.getParameter<std::string>("HitCollection");
   verbose_ = ps.getParameter<bool>("Verbose");
   testNumber_ = ps.getParameter<bool>("TestNumber");
 
-  tok_hits_ =
-      consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_));
+  tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_));
 
-  edm::LogInfo("HitsValidationHcal")
-      << "Module Label: " << g4Label_ << "   Hits: " << hcalHits_
-      << " TestNumbering " << testNumber_;
+  edm::LogInfo("HitsValidationHcal") << "Module Label: " << g4Label_ << "   Hits: " << hcalHits_ << " TestNumbering "
+                                     << testNumber_;
 }
 
 SimHitsValidationHcal::~SimHitsValidationHcal() {}
 
-void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib,
-                                           edm::Run const &run,
-                                           edm::EventSetup const &es) {
-
+void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   es.get<HcalRecNumberingRecord>().get(pHRNDC);
   hcons = &(*pHRNDC);
@@ -83,12 +77,10 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib,
   // int ieta_bins_HO = (int) (ieta_max_HO - ieta_min_HO);
 
 #ifdef DebugLog
-  edm::LogInfo("HitsValidationHcal")
-      << " Maximum Depths HB:" << maxDepthHB_ << " HE:" << maxDepthHE_
-      << " HO:" << maxDepthHO_ << " HF:" << maxDepthHF_;
+  edm::LogInfo("HitsValidationHcal") << " Maximum Depths HB:" << maxDepthHB_ << " HE:" << maxDepthHE_
+                                     << " HO:" << maxDepthHO_ << " HF:" << maxDepthHF_;
 #endif
-  std::vector<std::pair<std::string, std::string>> divisions =
-      getHistogramTypes();
+  std::vector<std::pair<std::string, std::string>> divisions = getHistogramTypes();
 
   edm::LogInfo("HitsValidationHcal") << "Booking the Histograms";
   ib.setCurrentFolder("HcalHitsV/SimHitsValidationHcal");
@@ -99,44 +91,32 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib,
   for (unsigned int i = 0; i < types.size(); ++i) {
     etaRange limit = getLimits(types[i]);
     sprintf(name, "HcalHitEta%s", divisions[i].first.c_str());
-    sprintf(title, "Hit energy as a function of eta tower index in %s",
-            divisions[i].second.c_str());
-    meHcalHitEta_.push_back(
-        ib.book1D(name, title, limit.bins, limit.low, limit.high));
+    sprintf(title, "Hit energy as a function of eta tower index in %s", divisions[i].second.c_str());
+    meHcalHitEta_.push_back(ib.book1D(name, title, limit.bins, limit.low, limit.high));
 
     sprintf(name, "HcalHitTimeAEta%s", divisions[i].first.c_str());
-    sprintf(title, "Hit time as a function of eta tower index in %s",
-            divisions[i].second.c_str());
-    meHcalHitTimeEta_.push_back(
-        ib.book1D(name, title, limit.bins, limit.low, limit.high));
+    sprintf(title, "Hit time as a function of eta tower index in %s", divisions[i].second.c_str());
+    meHcalHitTimeEta_.push_back(ib.book1D(name, title, limit.bins, limit.low, limit.high));
 
     sprintf(name, "HcalHitE25%s", divisions[i].first.c_str());
-    sprintf(title, "Energy in time window 0 to 25 for a tower in %s",
-            divisions[i].second.c_str());
-    meHcalEnergyl25_.push_back(ib.book2D(name, title, limit.bins, limit.low,
-                                         limit.high, iphi_bins, iphi_min,
-                                         iphi_max));
+    sprintf(title, "Energy in time window 0 to 25 for a tower in %s", divisions[i].second.c_str());
+    meHcalEnergyl25_.push_back(
+        ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
 
     sprintf(name, "HcalHitE50%s", divisions[i].first.c_str());
-    sprintf(title, "Energy in time window 0 to 50 for a tower in %s",
-            divisions[i].second.c_str());
-    meHcalEnergyl50_.push_back(ib.book2D(name, title, limit.bins, limit.low,
-                                         limit.high, iphi_bins, iphi_min,
-                                         iphi_max));
+    sprintf(title, "Energy in time window 0 to 50 for a tower in %s", divisions[i].second.c_str());
+    meHcalEnergyl50_.push_back(
+        ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
 
     sprintf(name, "HcalHitE100%s", divisions[i].first.c_str());
-    sprintf(title, "Energy in time window 0 to 100 for a tower in %s",
-            divisions[i].second.c_str());
-    meHcalEnergyl100_.push_back(ib.book2D(name, title, limit.bins, limit.low,
-                                          limit.high, iphi_bins, iphi_min,
-                                          iphi_max));
+    sprintf(title, "Energy in time window 0 to 100 for a tower in %s", divisions[i].second.c_str());
+    meHcalEnergyl100_.push_back(
+        ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
 
     sprintf(name, "HcalHitE250%s", divisions[i].first.c_str());
-    sprintf(title, "Energy in time window 0 to 250 for a tower in %s",
-            divisions[i].second.c_str());
-    meHcalEnergyl250_.push_back(ib.book2D(name, title, limit.bins, limit.low,
-                                          limit.high, iphi_bins, iphi_min,
-                                          iphi_max));
+    sprintf(title, "Energy in time window 0 to 250 for a tower in %s", divisions[i].second.c_str());
+    meHcalEnergyl250_.push_back(
+        ib.book2D(name, title, limit.bins, limit.low, limit.high, iphi_bins, iphi_min, iphi_max));
   }
 
   sprintf(name, "Energy_HB");
@@ -167,12 +147,9 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib,
   metime_enweighted_HF = ib.book1D(name, name, 300, -150, 150);
 }
 
-void SimHitsValidationHcal::analyze(const edm::Event &e,
-                                    const edm::EventSetup &) {
-
+void SimHitsValidationHcal::analyze(const edm::Event &e, const edm::EventSetup &) {
 #ifdef DebugLog
-  edm::LogInfo("HitsValidationHcal")
-      << "Run = " << e.id().run() << " Event = " << e.id().event();
+  edm::LogInfo("HitsValidationHcal") << "Run = " << e.id().run() << " Event = " << e.id().event();
 #endif
   std::vector<PCaloHit> caloHits;
   edm::Handle<edm::PCaloHitContainer> hitsHcal;
@@ -182,8 +159,7 @@ void SimHitsValidationHcal::analyze(const edm::Event &e,
   if (hitsHcal.isValid())
     getHits = true;
 #ifdef DebugLog
-  edm::LogInfo("HitsValidationHcal")
-      << "HitsValidationHcal.: Input flags Hits " << getHits;
+  edm::LogInfo("HitsValidationHcal") << "HitsValidationHcal.: Input flags Hits " << getHits;
 #endif
   if (getHits) {
     caloHits.insert(caloHits.end(), hitsHcal->begin(), hitsHcal->end());
@@ -201,15 +177,13 @@ void SimHitsValidationHcal::analyze(const edm::Event &e,
       }
     }
 #ifdef DebugLog
-    edm::LogInfo("HitsValidationHcal")
-        << "HitsValidationHcal: Hit buffer " << caloHits.size();
+    edm::LogInfo("HitsValidationHcal") << "HitsValidationHcal: Hit buffer " << caloHits.size();
 #endif
     analyzeHits(caloHits);
   }
 }
 
 void SimHitsValidationHcal::analyzeHits(std::vector<PCaloHit> &hits) {
-
   int nHit = hits.size();
   double entotHB = 0, entotHE = 0, entotHF = 0, entotHO = 0;
   double timetotHB = 0, timetotHE = 0, timetotHF = 0, timetotHO = 0;
@@ -266,12 +240,10 @@ void SimHitsValidationHcal::analyzeHits(std::vector<PCaloHit> &hits) {
     map_try[id0] = ensum;
 
 #ifdef DebugLog
-    edm::LogInfo("HitsValidationHcal")
-        << "Hit[" << i << "] ID " << std::dec << " " << id << std::dec
-        << " Det " << id.det() << " Sub " << subdet << " depth " << depth
-        << " depthX " << dep << " Eta " << eta << " Phi " << id.iphi() << " E "
-        << energy << " time " << time << " type " << types.first << " "
-        << types.second;
+    edm::LogInfo("HitsValidationHcal") << "Hit[" << i << "] ID " << std::dec << " " << id << std::dec << " Det "
+                                       << id.det() << " Sub " << subdet << " depth " << depth << " depthX " << dep
+                                       << " Eta " << eta << " Phi " << id.iphi() << " E " << energy << " time " << time
+                                       << " type " << types.first << " " << types.second;
 #endif
 
     double etax = eta - 0.5;
@@ -305,8 +277,7 @@ void SimHitsValidationHcal::analyzeHits(std::vector<PCaloHit> &hits) {
   for (itr = map_try.begin(); itr != map_try.end(); ++itr) {
     HcalDetId id = (*itr).first.first;
     energysum ensum = (*itr).second;
-    std::pair<int, int> types =
-        histId((int)(id.subdet()), id.ieta(), id.depth(), (*itr).first.second);
+    std::pair<int, int> types = histId((int)(id.subdet()), id.ieta(), id.depth(), (*itr).first.second);
     int eta = id.ieta();
     int phi = id.iphi();
     double etax = eta - 0.5;
@@ -325,18 +296,16 @@ void SimHitsValidationHcal::analyzeHits(std::vector<PCaloHit> &hits) {
     }
 
 #ifdef DebugLog
-    edm::LogInfo("HitsValidationHcal")
-        << " energy of tower =" << (*itr).first.first
-        << " in time 25ns is == " << (*itr).second.e25
-        << " in time 25-50ns == " << (*itr).second.e50
-        << " in time 50-100ns == " << (*itr).second.e100
-        << " in time 100-250 ns == " << (*itr).second.e250;
+    edm::LogInfo("HitsValidationHcal") << " energy of tower =" << (*itr).first.first
+                                       << " in time 25ns is == " << (*itr).second.e25
+                                       << " in time 25-50ns == " << (*itr).second.e50
+                                       << " in time 50-100ns == " << (*itr).second.e100
+                                       << " in time 100-250 ns == " << (*itr).second.e250;
 #endif
   }
 }
 
 SimHitsValidationHcal::etaRange SimHitsValidationHcal::getLimits(idType type) {
-
   int bins;
   std::pair<int, int> range;
   double low, high;
@@ -377,29 +346,24 @@ SimHitsValidationHcal::etaRange SimHitsValidationHcal::getLimits(idType type) {
     high = 41;
   }
 #ifdef DebugLog
-  edm::LogInfo("HitsValidationHcal")
-      << "Subdetector:" << type.subdet << " z:" << type.z
-      << " range.first:" << range.first << " and second:" << range.second;
-  edm::LogInfo("HitsValidationHcal")
-      << "bins: " << bins << " low:" << low << " high:" << high;
+  edm::LogInfo("HitsValidationHcal") << "Subdetector:" << type.subdet << " z:" << type.z
+                                     << " range.first:" << range.first << " and second:" << range.second;
+  edm::LogInfo("HitsValidationHcal") << "bins: " << bins << " low:" << low << " high:" << high;
 #endif
   return SimHitsValidationHcal::etaRange(bins, low, high);
 }
 
-std::pair<int, int> SimHitsValidationHcal::histId(int subdet, int eta,
-                                                  int depth, unsigned int dep) {
-
+std::pair<int, int> SimHitsValidationHcal::histId(int subdet, int eta, int depth, unsigned int dep) {
   int id1(-1), id2(-1);
   for (unsigned int k = 0; k < types.size(); ++k) {
     if (subdet == HcalForward) {
-      if (subdet == (int)(types[k].subdet) && depth == types[k].depth1 &&
-          eta * types[k].z > 0 && dep == (unsigned int)(types[k].depth2)) {
+      if (subdet == (int)(types[k].subdet) && depth == types[k].depth1 && eta * types[k].z > 0 &&
+          dep == (unsigned int)(types[k].depth2)) {
         id1 = k;
         break;
       }
     } else if (subdet == HcalEndcap) {
-      if (subdet == (int)(types[k].subdet) && depth == types[k].depth1 &&
-          eta * types[k].z > 0) {
+      if (subdet == (int)(types[k].subdet) && depth == types[k].depth1 && eta * types[k].z > 0) {
         id1 = k;
         break;
       }
@@ -421,9 +385,7 @@ std::pair<int, int> SimHitsValidationHcal::histId(int subdet, int eta,
   return std::pair<int, int>(id1, id2);
 }
 
-std::vector<std::pair<std::string, std::string>>
-SimHitsValidationHcal::getHistogramTypes() {
-
+std::vector<std::pair<std::string, std::string>> SimHitsValidationHcal::getHistogramTypes() {
   int maxDepth = std::max(maxDepthHB_, maxDepthHE_);
   maxDepth = std::max(maxDepth, maxDepthHF_);
   maxDepth = std::max(maxDepth, maxDepthHO_);
@@ -436,8 +398,7 @@ SimHitsValidationHcal::getHistogramTypes() {
   for (int depth = 0; depth < maxDepth; ++depth) {
     snprintf(name1, 40, "HC%d", depth);
     snprintf(name2, 40, "HCAL depth%d", depth + 1);
-    names = std::pair<std::string, std::string>(std::string(name1),
-                                                std::string(name2));
+    names = std::pair<std::string, std::string>(std::string(name1), std::string(name2));
     type = SimHitsValidationHcal::idType(HcalEmpty, 0, depth + 1, depth + 1);
     divisions.push_back(names);
     types.push_back(type);
@@ -446,8 +407,7 @@ SimHitsValidationHcal::getHistogramTypes() {
   for (int depth = 0; depth < maxDepthHB_; ++depth) {
     snprintf(name1, 40, "HB%d", depth);
     snprintf(name2, 40, "HB depth%d", depth + 1);
-    names = std::pair<std::string, std::string>(std::string(name1),
-                                                std::string(name2));
+    names = std::pair<std::string, std::string>(std::string(name1), std::string(name2));
     type = SimHitsValidationHcal::idType(HcalBarrel, 0, depth + 1, depth + 1);
     divisions.push_back(names);
     types.push_back(type);
@@ -456,15 +416,13 @@ SimHitsValidationHcal::getHistogramTypes() {
   for (int depth = 0; depth < maxDepthHE_; ++depth) {
     snprintf(name1, 40, "HE%d+z", depth);
     snprintf(name2, 40, "HE +z depth%d", depth + 1);
-    names = std::pair<std::string, std::string>(std::string(name1),
-                                                std::string(name2));
+    names = std::pair<std::string, std::string>(std::string(name1), std::string(name2));
     type = SimHitsValidationHcal::idType(HcalEndcap, 1, depth + 1, depth + 1);
     divisions.push_back(names);
     types.push_back(type);
     snprintf(name1, 40, "HE%d-z", depth);
     snprintf(name2, 40, "HE -z depth%d", depth + 1);
-    names = std::pair<std::string, std::string>(std::string(name1),
-                                                std::string(name2));
+    names = std::pair<std::string, std::string>(std::string(name1), std::string(name2));
     type = SimHitsValidationHcal::idType(HcalEndcap, -1, depth + 1, depth + 1);
     divisions.push_back(names);
     types.push_back(type);
@@ -474,8 +432,7 @@ SimHitsValidationHcal::getHistogramTypes() {
     int depth = maxDepthHO_;
     snprintf(name1, 40, "HO%d", depth);
     snprintf(name2, 40, "HO depth%d", depth);
-    names = std::pair<std::string, std::string>(std::string(name1),
-                                                std::string(name2));
+    names = std::pair<std::string, std::string>(std::string(name1), std::string(name2));
     type = SimHitsValidationHcal::idType(HcalOuter, 0, depth, depth);
     divisions.push_back(names);
     types.push_back(type);
@@ -488,17 +445,14 @@ SimHitsValidationHcal::getHistogramTypes() {
     for (int depth = 0; depth < maxDepthHF_; ++depth) {
       snprintf(name1, 40, "HF%s%d+z", hfty1[k].c_str(), depth);
       snprintf(name2, 40, "HF (%s) +z depth%d", hfty2[k].c_str(), depth + 1);
-      names = std::pair<std::string, std::string>(std::string(name1),
-                                                  std::string(name2));
+      names = std::pair<std::string, std::string>(std::string(name1), std::string(name2));
       type = SimHitsValidationHcal::idType(HcalForward, 1, depth + 1, dept0[k]);
       divisions.push_back(names);
       types.push_back(type);
       snprintf(name1, 40, "HF%s%d-z", hfty1[k].c_str(), depth);
       snprintf(name2, 40, "HF (%s) -z depth%d", hfty2[k].c_str(), depth + 1);
-      names = std::pair<std::string, std::string>(std::string(name1),
-                                                  std::string(name2));
-      type =
-          SimHitsValidationHcal::idType(HcalForward, -1, depth + 1, dept0[k]);
+      names = std::pair<std::string, std::string>(std::string(name1), std::string(name2));
+      type = SimHitsValidationHcal::idType(HcalForward, -1, depth + 1, dept0[k]);
       divisions.push_back(names);
       types.push_back(type);
     }
@@ -507,8 +461,7 @@ SimHitsValidationHcal::getHistogramTypes() {
   return divisions;
 }
 
-void SimHitsValidationHcal::fillDescriptions(
-    edm::ConfigurationDescriptions &descriptions) {
+void SimHitsValidationHcal::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("ModuleLabel", "g4SimHits");
   desc.add<std::string>("HitCollection", "HcalHits");

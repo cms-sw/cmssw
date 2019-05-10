@@ -63,16 +63,16 @@
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <boost/tuple/tuple.hpp>
-#include <utility> // for pair
+#include <utility>  // for pair
 #include <vector>
 
 class CSCIndexerBase {
 public:
   typedef uint16_t IndexType;
   typedef uint32_t LongIndexType;
-  typedef boost::tuple<CSCDetId,  // id
-                       IndexType, // HV segment
-                       IndexType  // chip
+  typedef boost::tuple<CSCDetId,   // id
+                       IndexType,  // HV segment
+                       IndexType   // chip
                        >
       GasGainIndexType;
 
@@ -102,7 +102,7 @@ public:
    * How many physical rings are there in station 'is'=1, 2, 3, 4 ?
    */
   IndexType ringsInStation(IndexType is) const {
-    const IndexType nrins[5] = {0, 3, 2, 2, 2}; // physical rings per station
+    const IndexType nrins[5] = {0, 3, 2, 2, 2};  // physical rings per station
     return nrins[is];
   }
 
@@ -119,7 +119,7 @@ public:
    * ME1a).
    */
   IndexType offlineRingsInStation(IndexType is) const {
-    const IndexType nrings[5] = {0, 4, 2, 2, 2}; // offline rings per station
+    const IndexType nrings[5] = {0, 4, 2, 2, 2};  // offline rings per station
     return nrings[is];
   }
 
@@ -128,8 +128,7 @@ public:
    * Works for ME1a (ring 4 of ME1) too.
    */
   IndexType chambersInRingOfStation(IndexType is, IndexType ir) const {
-    const IndexType nCinR[16] = {36, 36, 36, 36, 18, 36, 0, 0, 18,
-                                 36, 0,  0,  18, 36, 0,  0}; // chambers in ring
+    const IndexType nCinR[16] = {36, 36, 36, 36, 18, 36, 0, 0, 18, 36, 0, 0, 18, 36, 0, 0};  // chambers in ring
     return nCinR[(is - 1) * 4 + ir - 1];
   }
 
@@ -138,16 +137,14 @@ public:
    * with ring 'ir' and station 'is'.
    * Works for ME1a (ring 4 of ME1) too.
    */
-  virtual IndexType stripChannelsPerOfflineLayer(IndexType is,
-                                                 IndexType ir) const = 0;
+  virtual IndexType stripChannelsPerOfflineLayer(IndexType is, IndexType ir) const = 0;
 
   /**
    * Number of strip readout channels per layer in an online chamber
    * with ring 'ir' and station 'is'.
    * Works for ME1a (ring 4 of ME1) too.
    */
-  virtual IndexType stripChannelsPerOnlineLayer(IndexType is,
-                                                IndexType ir) const = 0;
+  virtual IndexType stripChannelsPerOnlineLayer(IndexType is, IndexType ir) const = 0;
 
   /**
    * Number of Buckeye chips per layer in an online chamber
@@ -179,11 +176,9 @@ public:
    * \warning: Considers both ME1a and ME1b to be part of one whole ME11 chamber
    *          (result would be the same for is=1 and ir=1 or 4).
    */
-  IndexType startChamberIndexInEndcap(IndexType ie, IndexType is,
-                                      IndexType ir) const {
-    const IndexType nschin[32] = {
-        1,   37,  73,  1,   109, 127, 0, 0, 163, 181, 0, 0, 217, 469, 0, 0,
-        235, 271, 307, 235, 343, 361, 0, 0, 397, 415, 0, 0, 451, 505, 0, 0};
+  IndexType startChamberIndexInEndcap(IndexType ie, IndexType is, IndexType ir) const {
+    const IndexType nschin[32] = {1,   37,  73,  1,   109, 127, 0, 0, 163, 181, 0, 0, 217, 469, 0, 0,
+                                  235, 271, 307, 235, 343, 361, 0, 0, 397, 415, 0, 0, 451, 505, 0, 0};
     return nschin[(ie - 1) * 16 + (is - 1) * 4 + ir - 1];
   }
 
@@ -195,10 +190,8 @@ public:
    * the output is the same for input {is=1, ir=1} and {is=1, ir=4}, i.e.
    * chamberIndex for ME1/1a is the same as for ME1/1b.
    */
-  IndexType chamberIndex(IndexType ie, IndexType is, IndexType ir,
-                         IndexType ic) const {
-    return startChamberIndexInEndcap(ie, is, ir) + ic -
-           1; // -1 so start index _is_ ic=1
+  IndexType chamberIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic) const {
+    return startChamberIndexInEndcap(ie, is, ir) + ic - 1;  // -1 so start index _is_ ic=1
   }
 
   /**
@@ -226,8 +219,7 @@ public:
    * the output is the same for input {is=1, ir=1} and {is=1, ir=4}, i.e.
    * layerIndex for ME1/1a is the same as for ME1/1b.
    */
-  IndexType layerIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic,
-                       IndexType il) const {
+  IndexType layerIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic, IndexType il) const {
     const IndexType layersInChamber = 6;
     return (chamberIndex(ie, is, ir, ic) - 1) * layersInChamber + il;
   }
@@ -243,8 +235,7 @@ public:
    * layerIndex for ME1/1a is the same as for ME1/1b.
    */
   IndexType layerIndex(const CSCDetId &id) const {
-    return layerIndex(id.endcap(), id.station(), id.ring(), id.chamber(),
-                      id.layer());
+    return layerIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer());
   }
   //@}
 
@@ -275,8 +266,7 @@ public:
    * Endcap label range 1-2, Station label range 1-4, Ring label range 1-4
    * (4=ME1a)
    */
-  virtual LongIndexType stripChannelStart(IndexType ie, IndexType is,
-                                          IndexType ir) const = 0;
+  virtual LongIndexType stripChannelStart(IndexType ie, IndexType is, IndexType ir) const = 0;
 
   /**
    * Linear index for strip channel istrip in layer 'il' of chamber 'ic' of ring
@@ -285,12 +275,9 @@ public:
    * \warning: You must input labels within hardware ranges. No trapping on
    * out-of-range values!
    */
-  LongIndexType stripChannelIndex(IndexType ie, IndexType is, IndexType ir,
-                                  IndexType ic, IndexType il,
-                                  IndexType istrip) const {
-    return stripChannelStart(ie, is, ir) +
-           ((ic - 1) * 6 + il - 1) * stripChannelsPerLayer(is, ir) +
-           (istrip - 1);
+  LongIndexType stripChannelIndex(
+      IndexType ie, IndexType is, IndexType ir, IndexType ic, IndexType il, IndexType istrip) const {
+    return stripChannelStart(ie, is, ir) + ((ic - 1) * 6 + il - 1) * stripChannelsPerLayer(is, ir) + (istrip - 1);
   }
 
   /**
@@ -300,8 +287,7 @@ public:
    * out-of-range values!
    */
   LongIndexType stripChannelIndex(const CSCDetId &id, IndexType istrip) const {
-    return stripChannelIndex(id.endcap(), id.station(), id.ring(), id.chamber(),
-                             id.layer(), istrip);
+    return stripChannelIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(), istrip);
   }
   //@}
 
@@ -322,8 +308,7 @@ public:
    * Endcap label range 1-2, Station label range 1-4, Ring label range 1-4
    * (4=ME1a)
    */
-  virtual IndexType chipStart(IndexType ie, IndexType is,
-                              IndexType ir) const = 0;
+  virtual IndexType chipStart(IndexType ie, IndexType is, IndexType ir) const = 0;
 
   /**
    * Linear index for Buckeye chip 'ichip' in layer 'il' of chamber 'ic' of ring
@@ -334,10 +319,8 @@ public:
    * still be treated the same as ir=1, but ichip must be 5 for it to make
    * sense!
    */
-  IndexType chipIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic,
-                      IndexType il, IndexType ichip) const {
-    return chipStart(ie, is, ir) +
-           ((ic - 1) * 6 + il - 1) * chipsPerLayer(is, ir) + (ichip - 1);
+  IndexType chipIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic, IndexType il, IndexType ichip) const {
+    return chipStart(ie, is, ir) + ((ic - 1) * 6 + il - 1) * chipsPerLayer(is, ir) + (ichip - 1);
   }
 
   /**
@@ -349,8 +332,7 @@ public:
    * ME11 id, but ichip must be 5 for it to make sense!
    */
   IndexType chipIndex(const CSCDetId &id, IndexType ichip) const {
-    return chipIndex(id.endcap(), id.station(), id.ring(), id.chamber(),
-                     id.layer(), ichip);
+    return chipIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(), ichip);
   }
 
   /**
@@ -376,8 +358,7 @@ public:
    * single HV segment
    */
   IndexType hvSegmentsPerLayer(IndexType is, IndexType ir) const {
-    const IndexType nSinL[16] = {1, 3, 3, 1, 3, 5, 0, 0,
-                                 3, 5, 0, 0, 3, 5, 0, 0};
+    const IndexType nSinL[16] = {1, 3, 3, 1, 3, 5, 0, 0, 3, 5, 0, 0, 3, 5, 0, 0};
     return nSinL[(is - 1) * 4 + ir - 1];
   }
 
@@ -417,8 +398,7 @@ public:
    * ir=1 upgraded:  ME1a has 3 own chips, which are appended to the end of the
    * index range, ME1b still keeps 5 chips with chip #5 index unused.
    */
-  virtual IndexType sectorStart(IndexType ie, IndexType is,
-                                IndexType ir) const = 0;
+  virtual IndexType sectorStart(IndexType ie, IndexType is, IndexType ir) const = 0;
 
   /**
    * Linear index for Gas gain sector, based on the HV segment# and the chip#
@@ -432,11 +412,14 @@ public:
    * still be treated the same as ir=1, but ichip must be 5 for it to make
    * sense!
    */
-  IndexType gasGainIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic,
-                         IndexType il, IndexType ihvsegment,
+  IndexType gasGainIndex(IndexType ie,
+                         IndexType is,
+                         IndexType ir,
+                         IndexType ic,
+                         IndexType il,
+                         IndexType ihvsegment,
                          IndexType ichip) const {
-    return sectorStart(ie, is, ir) +
-           ((ic - 1) * 6 + il - 1) * sectorsPerLayer(is, ir) +
+    return sectorStart(ie, is, ir) + ((ic - 1) * 6 + il - 1) * sectorsPerLayer(is, ir) +
            (ihvsegment - 1) * chipsPerLayer(is, ir) + (ichip - 1);
   }
 
@@ -450,11 +433,14 @@ public:
    * same as whole ME11 id, but istrip must be a h/w strip number in 64-80 in
    * that case!
    */
-  IndexType gasGainIndex(const CSCDetId &id, IndexType istrip,
-                         IndexType iwire) const {
-    return gasGainIndex(
-        id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(),
-        hvSegmentIndex(id.station(), id.ring(), iwire), chipIndex(istrip));
+  IndexType gasGainIndex(const CSCDetId &id, IndexType istrip, IndexType iwire) const {
+    return gasGainIndex(id.endcap(),
+                        id.station(),
+                        id.ring(),
+                        id.chamber(),
+                        id.layer(),
+                        hvSegmentIndex(id.station(), id.ring(), iwire),
+                        chipIndex(istrip));
   }
 
   /**
@@ -470,10 +456,8 @@ public:
    * provide ME1a id in ganged case, it would still be treated the same as whole
    * ME11 id, but ichip must be 5 for it to make sense!
    */
-  IndexType gasGainIndex(IndexType ihvsegment, IndexType ichip,
-                         const CSCDetId &id) const {
-    return gasGainIndex(id.endcap(), id.station(), id.ring(), id.chamber(),
-                        id.layer(), ihvsegment, ichip);
+  IndexType gasGainIndex(IndexType ihvsegment, IndexType ichip, const CSCDetId &id) const {
+    return gasGainIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(), ihvsegment, ichip);
   }
   //@}
 
@@ -504,8 +488,7 @@ public:
    * channel in range 65-80. <br> If ME1/1a is unganged then an ME1/1a strip
    * index returns ME1/1a CSCDetId + channel in range 1-48.
    */
-  virtual std::pair<CSCDetId, IndexType>
-  detIdFromStripChannelIndex(LongIndexType ichi) const = 0;
+  virtual std::pair<CSCDetId, IndexType> detIdFromStripChannelIndex(LongIndexType ichi) const = 0;
 
   /**
    * CSCDetId + chip within chamber from conditions data chip index.
@@ -515,8 +498,7 @@ public:
    * chip=5. <br> If ME1/1a is unganged then an ME1/1a chip index returns ME1/1a
    * CSCDetId + chip# in range 1-3.
    */
-  virtual std::pair<CSCDetId, IndexType>
-  detIdFromChipIndex(IndexType ichi) const = 0;
+  virtual std::pair<CSCDetId, IndexType> detIdFromChipIndex(IndexType ichi) const = 0;
 
   /**
    * CSCDetId + HV segment + chip within chamber from conditions data gas gain

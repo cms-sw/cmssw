@@ -27,39 +27,33 @@ CSCMapperTestPostls1::CSCMapperTestPostls1(const edm::ParameterSet &pset) {}
 
 CSCMapperTestPostls1::~CSCMapperTestPostls1() {}
 
-void CSCMapperTestPostls1::analyze(const edm::Event &ev,
-                                   const edm::EventSetup &esu) {
-  const int egeo[] = {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2}; // endcap 1=+z, 2=-z
-  const int sgeo[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // station 1-4
-  const int rgeo[] = {1, 1, 1, 4, 4, 4, 1, 1, 1, 4, 4, 4}; // ring 1-4
-  const int cgeo[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // chamber 1-18/36
-  const int lgeo[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // layer 1-6
-  const int tgeo[] = {1, 32, 64, 1, 24, 48,
-                      1, 32, 64, 1, 24, 48}; // strip 1-80 (16, 48 64)
+void CSCMapperTestPostls1::analyze(const edm::Event &ev, const edm::EventSetup &esu) {
+  const int egeo[] = {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};          // endcap 1=+z, 2=-z
+  const int sgeo[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};          // station 1-4
+  const int rgeo[] = {1, 1, 1, 4, 4, 4, 1, 1, 1, 4, 4, 4};          // ring 1-4
+  const int cgeo[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};          // chamber 1-18/36
+  const int lgeo[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};          // layer 1-6
+  const int tgeo[] = {1, 32, 64, 1, 24, 48, 1, 32, 64, 1, 24, 48};  // strip 1-80 (16, 48 64)
 
-  const int eraw[] = {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2}; // endcap 1=+z, 2=-z
-  const int sraw[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // station 1-4
-  const int rraw[] = {1, 1, 1, 4, 4, 4, 1, 1, 1, 4, 4, 4}; // ring 1-4
-  const int craw[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // chamber 1-18/36
-  const int lraw[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // layer 1-6
-  const int traw[] = {1, 32, 64, 1, 24, 48,
-                      1, 32, 64, 1, 24, 48}; // strip 1-80 (16, 48 64)
+  const int eraw[] = {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};          // endcap 1=+z, 2=-z
+  const int sraw[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};          // station 1-4
+  const int rraw[] = {1, 1, 1, 4, 4, 4, 1, 1, 1, 4, 4, 4};          // ring 1-4
+  const int craw[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};          // chamber 1-18/36
+  const int lraw[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};          // layer 1-6
+  const int traw[] = {1, 32, 64, 1, 24, 48, 1, 32, 64, 1, 24, 48};  // strip 1-80 (16, 48 64)
 
-  const int estrip[] = {1, 1, 1, 1, 1, 1,
-                        2, 2, 2, 2, 2, 2}; // endcap 1=+z, 2=-z
-  const int sstrip[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // station 1-4
-  const int rstrip[] = {1, 1, 1, 4, 4, 4, 1, 1, 1, 4, 4, 4}; // ring 1-4
-  const int cstrip[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // chamber 1-18/36
-  const int lstrip[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // layer 1-6
-  const int tstrip[] = {1, 32, 64, 1, 24, 48,
-                        1, 32, 64, 1, 24, 48}; // strip 1-80 (16, 48 64)
+  const int estrip[] = {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};          // endcap 1=+z, 2=-z
+  const int sstrip[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};          // station 1-4
+  const int rstrip[] = {1, 1, 1, 4, 4, 4, 1, 1, 1, 4, 4, 4};          // ring 1-4
+  const int cstrip[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};          // chamber 1-18/36
+  const int lstrip[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};          // layer 1-6
+  const int tstrip[] = {1, 32, 64, 1, 24, 48, 1, 32, 64, 1, 24, 48};  // strip 1-80 (16, 48 64)
 
-  const int edetid[] = {1, 1, 1, 1, 1, 1,
-                        2, 2, 2, 2, 2, 2}; // endcap 1=+z, 2=-z
-  const int sdetid[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // station 1-4
-  const int rdetid[] = {1, 1, 1, 4, 4, 4, 1, 1, 1, 4, 4, 4}; // ring 1-4
-  const int cdetid[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // chamber 1-18/36
-  const int ldetid[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; // layer 1-6
+  const int edetid[] = {1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};  // endcap 1=+z, 2=-z
+  const int sdetid[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};  // station 1-4
+  const int rdetid[] = {1, 1, 1, 4, 4, 4, 1, 1, 1, 4, 4, 4};  // ring 1-4
+  const int cdetid[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};  // chamber 1-18/36
+  const int ldetid[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};  // layer 1-6
 
   const CSCChannelMapperRecord &irec = esu.get<CSCChannelMapperRecord>();
   edm::ESHandle<CSCChannelMapperBase> mapper_;
@@ -67,8 +61,7 @@ void CSCMapperTestPostls1::analyze(const edm::Event &ev,
 
   algoName = mapper_->name();
 
-  std::cout << "CSCMapperTestPostls1: analyze sees algorithm " << algoName
-            << " in Event Setup" << std::endl;
+  std::cout << "CSCMapperTestPostls1: analyze sees algorithm " << algoName << " in Event Setup" << std::endl;
 
   size_t isiz = 12;
 
@@ -88,9 +81,8 @@ void CSCMapperTestPostls1::analyze(const edm::Event &ev,
     CSCDetId id(ie, is, ir, ic, il);
     int iraw = mapper_->rawStripChannel(id, igeo);
 
-    std::cout << std::setw(2) << ie << std::setw(4) << is << std::setw(4) << ir
-              << std::setw(4) << ic << std::setw(4) << il << std::setw(7)
-              << igeo << std::setw(7) << iraw << std::endl;
+    std::cout << std::setw(2) << ie << std::setw(4) << is << std::setw(4) << ir << std::setw(4) << ic << std::setw(4)
+              << il << std::setw(7) << igeo << std::setw(7) << iraw << std::endl;
   }
 
   std::cout << "\n" << algoName << "::geomStripChannel for:" << std::endl;
@@ -109,9 +101,8 @@ void CSCMapperTestPostls1::analyze(const edm::Event &ev,
     CSCDetId id(ie, is, ir, ic, il);
     int iraw = mapper_->geomStripChannel(id, igeo);
 
-    std::cout << std::setw(2) << ie << std::setw(4) << is << std::setw(4) << ir
-              << std::setw(4) << ic << std::setw(4) << il << std::setw(7)
-              << igeo << std::setw(7) << iraw << std::endl;
+    std::cout << std::setw(2) << ie << std::setw(4) << is << std::setw(4) << ir << std::setw(4) << ic << std::setw(4)
+              << il << std::setw(7) << igeo << std::setw(7) << iraw << std::endl;
   }
 
   std::cout << "\n" << algoName << "::channelFromStrip for:" << std::endl;
@@ -129,9 +120,8 @@ void CSCMapperTestPostls1::analyze(const edm::Event &ev,
     CSCDetId id(ie, is, ir, ic, il);
     int ichan = mapper_->channelFromStrip(id, istrip);
 
-    std::cout << std::setw(2) << ie << std::setw(4) << is << std::setw(4) << ir
-              << std::setw(4) << ic << std::setw(4) << il << std::setw(7)
-              << istrip << std::setw(7) << ichan << std::endl;
+    std::cout << std::setw(2) << ie << std::setw(4) << is << std::setw(4) << ir << std::setw(4) << ic << std::setw(4)
+              << il << std::setw(7) << istrip << std::setw(7) << ichan << std::endl;
   }
 
   std::cout << "\n" << algoName << "::rawCSCDetId for:" << std::endl;

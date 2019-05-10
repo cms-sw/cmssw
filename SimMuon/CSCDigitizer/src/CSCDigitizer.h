@@ -35,7 +35,7 @@ class CSCNeutronReader;
 class CSCStripConditions;
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CSCDigitizer : public boost::noncopyable {
@@ -53,7 +53,8 @@ public:
                 CSCWireDigiCollection &wireDigis,
                 CSCStripDigiCollection &stripDigis,
                 CSCComparatorDigiCollection &comparators,
-                DigiSimLinks &wireDigiSimLinks, DigiSimLinks &stripDigiSimLinks,
+                DigiSimLinks &wireDigiSimLinks,
+                DigiSimLinks &stripDigiSimLinks,
                 CLHEP::HepRandomEngine *);
 
   /// sets geometry

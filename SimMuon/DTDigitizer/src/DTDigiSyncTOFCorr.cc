@@ -16,19 +16,16 @@
 using namespace std;
 
 DTDigiSyncTOFCorr::DTDigiSyncTOFCorr(const edm::ParameterSet &pSet) {
-
-  theOffset = pSet.getParameter<double>("offset");    // 500ns
-  corrType = pSet.getParameter<int>("TOFCorrection"); // 1
+  theOffset = pSet.getParameter<double>("offset");     // 500ns
+  corrType = pSet.getParameter<int>("TOFCorrection");  // 1
 }
 
 DTDigiSyncTOFCorr::~DTDigiSyncTOFCorr() {}
 
 // Delays to be added to digi times during digitization, in ns.
-double DTDigiSyncTOFCorr::digitizerOffset(const DTWireId *id,
-                                          const DTLayer *layer) const {
-
+double DTDigiSyncTOFCorr::digitizerOffset(const DTWireId *id, const DTLayer *layer) const {
   double offset = theOffset;
-  const double cSpeed = 29.9792458; // cm/ns
+  const double cSpeed = 29.9792458;  // cm/ns
 
   if (corrType == 1) {
     // Subtraction of assumed TOF, per CHAMBER
@@ -51,13 +48,10 @@ double DTDigiSyncTOFCorr::digitizerOffset(const DTWireId *id,
     double flightL = layer->superLayer()->surface().position().mag();
     offset -= flightL / cSpeed;
   } else if (corrType != 0) {
-    cout << "ERROR: SimMuon:DTDigitizer:DTDigiSyncTOFCorr:TOFCorrection = "
-         << corrType << "is not defined " << endl;
+    cout << "ERROR: SimMuon:DTDigitizer:DTDigiSyncTOFCorr:TOFCorrection = " << corrType << "is not defined " << endl;
   }
   return offset;
 }
 
 // Offset to obtain "raw" TDCs for the L1 emulator from digis.
-double DTDigiSyncTOFCorr::emulatorOffset(const DTWireId *id) const {
-  return theOffset;
-}
+double DTDigiSyncTOFCorr::emulatorOffset(const DTWireId *id) const { return theOffset; }

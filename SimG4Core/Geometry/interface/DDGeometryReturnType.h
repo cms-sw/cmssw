@@ -7,7 +7,6 @@
 #include "G4LogicalVolume.hh"
 
 class DDGeometryReturnType {
-
 public:
   DDGeometryReturnType(G4LogicalVolume *log,
                        const G4LogicalVolumeToDDLogicalPartMap &map,

@@ -29,61 +29,50 @@
 #include "TFile.h"
 
 // defining as a macro instead of a function because inheritance doesn't work:
-#define FINDRECOPART(TYPE, COLLECTION1, COLLECTION2)                           \
-  const TYPE *RecoPart = NULL;                                                 \
-  double BestDist = 999.;                                                      \
-  for (uint i = 0; i < COLLECTION1->size(); i++) {                             \
-    const TYPE *ThisPart = &COLLECTION1->at(i);                                \
-    double ThisDist = reco::deltaR(GenPart->eta(), GenPart->phi(),             \
-                                   ThisPart->eta(), ThisPart->phi());          \
-    if (ThisDist < 1.0 && ThisDist < BestDist) {                               \
-      BestDist = ThisDist;                                                     \
-      RecoPart = ThisPart;                                                     \
-    }                                                                          \
-  }                                                                            \
-  if (COLLECTION1.product() != COLLECTION2.product()) {                        \
-    for (uint i = 0; i < COLLECTION2->size(); i++) {                           \
-      const TYPE *ThisPart = &COLLECTION2->at(i);                              \
-      double ThisDist = reco::deltaR(GenPart->eta(), GenPart->phi(),           \
-                                     ThisPart->eta(), ThisPart->phi());        \
-      if (ThisDist < 1.0 && ThisDist < BestDist) {                             \
-        BestDist = ThisDist;                                                   \
-        RecoPart = ThisPart;                                                   \
-      }                                                                        \
-    }                                                                          \
+#define FINDRECOPART(TYPE, COLLECTION1, COLLECTION2)                                                    \
+  const TYPE *RecoPart = NULL;                                                                          \
+  double BestDist = 999.;                                                                               \
+  for (uint i = 0; i < COLLECTION1->size(); i++) {                                                      \
+    const TYPE *ThisPart = &COLLECTION1->at(i);                                                         \
+    double ThisDist = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi());   \
+    if (ThisDist < 1.0 && ThisDist < BestDist) {                                                        \
+      BestDist = ThisDist;                                                                              \
+      RecoPart = ThisPart;                                                                              \
+    }                                                                                                   \
+  }                                                                                                     \
+  if (COLLECTION1.product() != COLLECTION2.product()) {                                                 \
+    for (uint i = 0; i < COLLECTION2->size(); i++) {                                                    \
+      const TYPE *ThisPart = &COLLECTION2->at(i);                                                       \
+      double ThisDist = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi()); \
+      if (ThisDist < 1.0 && ThisDist < BestDist) {                                                      \
+        BestDist = ThisDist;                                                                            \
+        RecoPart = ThisPart;                                                                            \
+      }                                                                                                 \
+    }                                                                                                   \
   }
 
 L1Validator::L1Validator(const edm::ParameterSet &iConfig) {
   _dirName = iConfig.getParameter<std::string>("dirName");
-  _GenSource = consumes<reco::GenParticleCollection>(
-      iConfig.getParameter<edm::InputTag>("GenSource"));
+  _GenSource = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("GenSource"));
 
-  _L1MuonBXSource = consumes<l1t::MuonBxCollection>(
-      iConfig.getParameter<edm::InputTag>("L1MuonBXSource"));
-  _L1EGammaBXSource = consumes<l1t::EGammaBxCollection>(
-      iConfig.getParameter<edm::InputTag>("L1EGammaBXSource"));
-  _L1TauBXSource = consumes<l1t::TauBxCollection>(
-      iConfig.getParameter<edm::InputTag>("L1TauBXSource"));
-  _L1JetBXSource = consumes<l1t::JetBxCollection>(
-      iConfig.getParameter<edm::InputTag>("L1JetBXSource"));
-  _srcToken = mayConsume<GenEventInfoProduct>(
-      iConfig.getParameter<edm::InputTag>("srcToken"));
-  _L1GenJetSource = consumes<reco::GenJetCollection>(
-      iConfig.getParameter<edm::InputTag>("L1GenJetSource"));
+  _L1MuonBXSource = consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("L1MuonBXSource"));
+  _L1EGammaBXSource = consumes<l1t::EGammaBxCollection>(iConfig.getParameter<edm::InputTag>("L1EGammaBXSource"));
+  _L1TauBXSource = consumes<l1t::TauBxCollection>(iConfig.getParameter<edm::InputTag>("L1TauBXSource"));
+  _L1JetBXSource = consumes<l1t::JetBxCollection>(iConfig.getParameter<edm::InputTag>("L1JetBXSource"));
+  _srcToken = mayConsume<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("srcToken"));
+  _L1GenJetSource = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("L1GenJetSource"));
 
   //_fileName = iConfig.getParameter<std::string>("fileName");
 }
 
 L1Validator::~L1Validator() {}
 
-void L1Validator::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &,
-                                 edm::EventSetup const &) {
+void L1Validator::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
   // iBooker.setCurrentFolder(_dirName);
   _Hists.Book(iBooker, _dirName);
 };
 
-void L1Validator::analyze(const edm::Event &iEvent,
-                          const edm::EventSetup &iSetup) {
+void L1Validator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace std;
   using namespace l1extra;
@@ -147,7 +136,6 @@ void L1Validator::analyze(const edm::Event &iEvent,
   // For gen jet
 
   for (auto &Genjet : *GenJets) {
-
     // eta within calorimeter acceptance 4.7
     if (fabs((&Genjet)->eta()) > 4.7)
       continue;
@@ -163,10 +151,8 @@ void L1Validator::analyze(const edm::Event &iEvent,
     for (int iBx = JetsBX->getFirstBX(); iBx <= JetsBX->getLastBX(); ++iBx) {
       if (iBx > 0)
         continue;
-      for (std::vector<l1t::Jet>::const_iterator jet = JetsBX->begin(iBx);
-           jet != JetsBX->end(iBx); ++jet) {
-        double idR = reco::deltaR((&Genjet)->eta(), (&Genjet)->phi(),
-                                  jet->eta(), jet->phi());
+      for (std::vector<l1t::Jet>::const_iterator jet = JetsBX->begin(iBx); jet != JetsBX->end(iBx); ++jet) {
+        double idR = reco::deltaR((&Genjet)->eta(), (&Genjet)->phi(), jet->eta(), jet->phi());
         if (idR < minDR) {
           minDR = idR;
           L1Part = &(*jet);
@@ -188,7 +174,7 @@ void L1Validator::analyze(const edm::Event &iEvent,
       continue;
 
     /// select the final state (i.e status==1) muons (pdg==+/-13)
-    if (status == 1 && abs(pdg) == 13) { // Muon
+    if (status == 1 && abs(pdg) == 13) {  // Muon
 
       // eta within tracker acceptance 2.4
       if (fabs(GenPart->eta()) > 2.4)
@@ -196,14 +182,11 @@ void L1Validator::analyze(const edm::Event &iEvent,
 
       // match L1T object
       const l1t::Muon *L1Part = nullptr;
-      for (int iBx = MuonsBX->getFirstBX(); iBx <= MuonsBX->getLastBX();
-           ++iBx) {
+      for (int iBx = MuonsBX->getFirstBX(); iBx <= MuonsBX->getLastBX(); ++iBx) {
         if (iBx > 0)
           continue;
-        for (std::vector<l1t::Muon>::const_iterator mu = MuonsBX->begin(iBx);
-             mu != MuonsBX->end(iBx); ++mu) {
-          double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), mu->eta(),
-                                    mu->phi());
+        for (std::vector<l1t::Muon>::const_iterator mu = MuonsBX->begin(iBx); mu != MuonsBX->end(iBx); ++mu) {
+          double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), mu->eta(), mu->phi());
           if (idR < minDR) {
             minDR = idR;
             L1Part = &(*mu);
@@ -214,7 +197,7 @@ void L1Validator::analyze(const edm::Event &iEvent,
 
       /// select the final state (i.e status==1) electrons (pdg==+/-11) and
       /// photons (pdg==22)
-    } else if (status == 1 && (abs(pdg) == 11 || pdg == 22)) { // Egamma
+    } else if (status == 1 && (abs(pdg) == 11 || pdg == 22)) {  // Egamma
 
       // eta within EM calorimeter acceptance 2.5
       if (fabs(GenPart->eta()) > 2.5)
@@ -226,15 +209,11 @@ void L1Validator::analyze(const edm::Event &iEvent,
 
       // match L1T object
       const l1t::EGamma *L1Part = nullptr;
-      for (int iBx = EGammasBX->getFirstBX(); iBx <= EGammasBX->getLastBX();
-           ++iBx) {
+      for (int iBx = EGammasBX->getFirstBX(); iBx <= EGammasBX->getLastBX(); ++iBx) {
         if (iBx > 0)
           continue;
-        for (std::vector<l1t::EGamma>::const_iterator eg =
-                 EGammasBX->begin(iBx);
-             eg != EGammasBX->end(iBx); ++eg) {
-          double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), eg->eta(),
-                                    eg->phi());
+        for (std::vector<l1t::EGamma>::const_iterator eg = EGammasBX->begin(iBx); eg != EGammasBX->end(iBx); ++eg) {
+          double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), eg->eta(), eg->phi());
           if (idR < minDR) {
             minDR = idR;
             L1Part = &(*eg);
@@ -245,7 +224,7 @@ void L1Validator::analyze(const edm::Event &iEvent,
 
       /// select the matrix element (i.e status==2) taus (pdg==+/-15) before
       /// decay
-    } else if (status == 2 && abs(pdg) == 15) { // Tau
+    } else if (status == 2 && abs(pdg) == 15) {  // Tau
 
       // eta within tracker acceptance 2.4
       if (fabs(GenPart->eta()) > 2.4)
@@ -256,10 +235,8 @@ void L1Validator::analyze(const edm::Event &iEvent,
       for (int iBx = TausBX->getFirstBX(); iBx <= TausBX->getLastBX(); ++iBx) {
         if (iBx > 0)
           continue;
-        for (std::vector<l1t::Tau>::const_iterator tau = TausBX->begin(iBx);
-             tau != TausBX->end(iBx); ++tau) {
-          double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), tau->eta(),
-                                    tau->phi());
+        for (std::vector<l1t::Tau>::const_iterator tau = TausBX->begin(iBx); tau != TausBX->end(iBx); ++tau) {
+          double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), tau->eta(), tau->phi());
           if (idR < minDR) {
             minDR = idR;
             L1Part = &(*tau);
@@ -273,17 +250,15 @@ void L1Validator::analyze(const edm::Event &iEvent,
 
 // The next three are exactly the same, but apparently inheritance doesn't work
 // like I thought it did.
-const reco::LeafCandidate *L1Validator::FindBest(
-    const reco::GenParticle *GenPart,
-    const std::vector<l1extra::L1EmParticle> *Collection1,
-    const std::vector<l1extra::L1EmParticle> *Collection2 = nullptr) {
+const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPart,
+                                                 const std::vector<l1extra::L1EmParticle> *Collection1,
+                                                 const std::vector<l1extra::L1EmParticle> *Collection2 = nullptr) {
   const reco::LeafCandidate *BestPart = nullptr;
   double BestDR = 999.;
 
   for (uint i = 0; i < Collection1->size(); i++) {
     const reco::LeafCandidate *ThisPart = &Collection1->at(i);
-    double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(),
-                                 ThisPart->eta(), ThisPart->phi());
+    double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi());
     if (ThisDR < BestDR) {
       BestDR = ThisDR;
       BestPart = ThisPart;
@@ -295,8 +270,7 @@ const reco::LeafCandidate *L1Validator::FindBest(
 
   for (uint i = 0; i < Collection2->size(); i++) {
     const reco::LeafCandidate *ThisPart = &Collection2->at(i);
-    double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(),
-                                 ThisPart->eta(), ThisPart->phi());
+    double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi());
     if (ThisDR < BestDR) {
       BestDR = ThisDR;
       BestPart = ThisPart;
@@ -306,17 +280,15 @@ const reco::LeafCandidate *L1Validator::FindBest(
   return BestPart;
 }
 
-const reco::LeafCandidate *L1Validator::FindBest(
-    const reco::GenParticle *GenPart,
-    const std::vector<l1extra::L1JetParticle> *Collection1,
-    const std::vector<l1extra::L1JetParticle> *Collection2 = nullptr) {
+const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPart,
+                                                 const std::vector<l1extra::L1JetParticle> *Collection1,
+                                                 const std::vector<l1extra::L1JetParticle> *Collection2 = nullptr) {
   const reco::LeafCandidate *BestPart = nullptr;
   double BestDR = 999.;
 
   for (uint i = 0; i < Collection1->size(); i++) {
     const reco::LeafCandidate *ThisPart = &Collection1->at(i);
-    double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(),
-                                 ThisPart->eta(), ThisPart->phi());
+    double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi());
     if (ThisDR < BestDR) {
       BestDR = ThisDR;
       BestPart = ThisPart;
@@ -328,8 +300,7 @@ const reco::LeafCandidate *L1Validator::FindBest(
 
   for (uint i = 0; i < Collection2->size(); i++) {
     const reco::LeafCandidate *ThisPart = &Collection2->at(i);
-    double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(),
-                                 ThisPart->eta(), ThisPart->phi());
+    double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi());
     if (ThisDR < BestDR) {
       BestDR = ThisDR;
       BestPart = ThisPart;
@@ -339,16 +310,14 @@ const reco::LeafCandidate *L1Validator::FindBest(
   return BestPart;
 }
 
-const reco::LeafCandidate *
-L1Validator::FindBest(const reco::GenParticle *GenPart,
-                      const std::vector<l1extra::L1MuonParticle> *Collection1) {
+const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPart,
+                                                 const std::vector<l1extra::L1MuonParticle> *Collection1) {
   const reco::LeafCandidate *BestPart = nullptr;
   double BestDR = 999.;
 
   for (uint i = 0; i < Collection1->size(); i++) {
     const reco::LeafCandidate *ThisPart = &Collection1->at(i);
-    double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(),
-                                 ThisPart->eta(), ThisPart->phi());
+    double ThisDR = reco::deltaR(GenPart->eta(), GenPart->phi(), ThisPart->eta(), ThisPart->phi());
     if (ThisDR < BestDR) {
       BestDR = ThisDR;
       BestPart = ThisPart;
@@ -360,8 +329,7 @@ L1Validator::FindBest(const reco::GenParticle *GenPart,
 
 // ------------ method fills 'descriptions' with the allowed parameters for the
 // module  ------------
-void L1Validator::fillDescriptions(
-    edm::ConfigurationDescriptions &descriptions) {
+void L1Validator::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // The following says we do not know what parameters are allowed so do no
   // validation
   // Please change this to state exactly what you do use, even if it is no

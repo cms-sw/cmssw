@@ -20,12 +20,10 @@ std::atomic<bool> DTHitQualityUtils::debug{false};
 
 // Return a map between simhits of a layer,superlayer or chamber and the wireId
 // of their cell
-map<DTWireId, PSimHitContainer>
-DTHitQualityUtils::mapSimHitsPerWire(const PSimHitContainer &simhits) {
+map<DTWireId, PSimHitContainer> DTHitQualityUtils::mapSimHitsPerWire(const PSimHitContainer &simhits) {
   map<DTWireId, PSimHitContainer> hitWireMapResult;
 
-  for (PSimHitContainer::const_iterator simhit = simhits.begin();
-       simhit != simhits.end(); simhit++) {
+  for (PSimHitContainer::const_iterator simhit = simhits.begin(); simhit != simhits.end(); simhit++) {
     hitWireMapResult[DTWireId((*simhit).detUnitId())].push_back(*simhit);
   }
 
@@ -35,13 +33,11 @@ DTHitQualityUtils::mapSimHitsPerWire(const PSimHitContainer &simhits) {
 // Extract mu simhits from a map of simhits by wire and map them by wire
 map<DTWireId, const PSimHit *> DTHitQualityUtils::mapMuSimHitsPerWire(
     const map<DTWireId, PSimHitContainer> &simHitWireMap) {
-
   map<DTWireId, const PSimHit *> ret;
 
-  for (map<DTWireId, PSimHitContainer>::const_iterator wireAndSimHit =
-           simHitWireMap.begin();
-       wireAndSimHit != simHitWireMap.end(); wireAndSimHit++) {
-
+  for (map<DTWireId, PSimHitContainer>::const_iterator wireAndSimHit = simHitWireMap.begin();
+       wireAndSimHit != simHitWireMap.end();
+       wireAndSimHit++) {
     const PSimHit *muHit = findMuSimHit((*wireAndSimHit).second);
     if (muHit != nullptr) {
       ret[(*wireAndSimHit).first] = (muHit);
@@ -57,18 +53,16 @@ const PSimHit *DTHitQualityUtils::findMuSimHit(const PSimHitContainer &hits) {
   vector<const PSimHit *> muHits;
 
   // Loop over simhits
-  for (PSimHitContainer::const_iterator hit = hits.begin(); hit != hits.end();
-       hit++) {
+  for (PSimHitContainer::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
     if (abs((*hit).particleType()) == 13)
       muHits.push_back(&(*hit));
   }
 
   if (muHits.empty())
-    return nullptr; // FIXME: Throw of exception???
+    return nullptr;  // FIXME: Throw of exception???
   else if (muHits.size() > 1)
     if (debug)
-      cout << "[DTHitQualityUtils]***WARNING: # muSimHits in a wire = "
-           << muHits.size() << endl;
+      cout << "[DTHitQualityUtils]***WARNING: # muSimHits in a wire = " << muHits.size() << endl;
 
   return (muHits.front());
 }
@@ -77,7 +71,6 @@ const PSimHit *DTHitQualityUtils::findMuSimHit(const PSimHitContainer &hits) {
 // simulated segment)
 pair<const PSimHit *, const PSimHit *> DTHitQualityUtils::findMuSimSegment(
     const map<DTWireId, const PSimHit *> &mapWireAndMuSimHit) {
-
   int outSL = 0;
   int inSL = 4;
   int outLayer = 0;
@@ -85,10 +78,9 @@ pair<const PSimHit *, const PSimHit *> DTHitQualityUtils::findMuSimSegment(
   const PSimHit *inSimHit = nullptr;
   const PSimHit *outSimHit = nullptr;
 
-  for (map<DTWireId, const PSimHit *>::const_iterator wireAndMuSimHit =
-           mapWireAndMuSimHit.begin();
-       wireAndMuSimHit != mapWireAndMuSimHit.end(); wireAndMuSimHit++) {
-
+  for (map<DTWireId, const PSimHit *>::const_iterator wireAndMuSimHit = mapWireAndMuSimHit.begin();
+       wireAndMuSimHit != mapWireAndMuSimHit.end();
+       wireAndMuSimHit++) {
     const DTWireId wireId = (*wireAndMuSimHit).first;
     const PSimHit *theMuHit = (*wireAndMuSimHit).second;
 
@@ -121,8 +113,7 @@ pair<const PSimHit *, const PSimHit *> DTHitQualityUtils::findMuSimSegment(
 
   if (inSimHit != nullptr) {
     if (debug)
-      cout << "Innermost SimHit on SL: " << inSL << " layer: " << inLayer
-           << endl;
+      cout << "Innermost SimHit on SL: " << inSL << " layer: " << inLayer << endl;
   } else {
     cout << "[DTHitQualityUtils]***Error: No Innermost SimHit found!!!" << endl;
     abort();
@@ -130,8 +121,7 @@ pair<const PSimHit *, const PSimHit *> DTHitQualityUtils::findMuSimSegment(
 
   if (outSimHit != nullptr) {
     if (debug)
-      cout << "Outermost SimHit on SL: " << outSL << " layer: " << outLayer
-           << endl;
+      cout << "Outermost SimHit on SL: " << outSL << " layer: " << outLayer << endl;
   } else {
     cout << "[DTHitQualityUtils]***Error: No Outermost SimHit found!!!" << endl;
     abort();
@@ -149,33 +139,24 @@ pair<const PSimHit *, const PSimHit *> DTHitQualityUtils::findMuSimSegment(
 // mu SimHit in the RF of object Det (Concrete implementation of Det are MuBarSL
 // and MuBarChamber)
 pair<LocalVector, LocalPoint> DTHitQualityUtils::findMuSimSegmentDirAndPos(
-    const pair<const PSimHit *, const PSimHit *> &inAndOutSimHit,
-    const DetId detId, const DTGeometry *muonGeom) {
-
+    const pair<const PSimHit *, const PSimHit *> &inAndOutSimHit, const DetId detId, const DTGeometry *muonGeom) {
   // FIXME: What should happen if outSimHit = inSimHit???? Now, this case is not
   // considered
   const PSimHit *innermostMuSimHit = inAndOutSimHit.first;
   const PSimHit *outermostMuSimHit = inAndOutSimHit.second;
 
   // Find simulated segment direction from SimHits position
-  const DTLayer *layerIn =
-      muonGeom->layer((DTWireId(innermostMuSimHit->detUnitId())).layerId());
-  const DTLayer *layerOut =
-      muonGeom->layer((DTWireId(outermostMuSimHit->detUnitId())).layerId());
-  GlobalPoint inGlobalPos =
-      layerIn->toGlobal(innermostMuSimHit->localPosition());
-  GlobalPoint outGlobalPos =
-      layerOut->toGlobal(outermostMuSimHit->localPosition());
-  LocalVector simHitDirection =
-      (muonGeom->idToDet(detId))->toLocal(inGlobalPos - outGlobalPos);
+  const DTLayer *layerIn = muonGeom->layer((DTWireId(innermostMuSimHit->detUnitId())).layerId());
+  const DTLayer *layerOut = muonGeom->layer((DTWireId(outermostMuSimHit->detUnitId())).layerId());
+  GlobalPoint inGlobalPos = layerIn->toGlobal(innermostMuSimHit->localPosition());
+  GlobalPoint outGlobalPos = layerOut->toGlobal(outermostMuSimHit->localPosition());
+  LocalVector simHitDirection = (muonGeom->idToDet(detId))->toLocal(inGlobalPos - outGlobalPos);
   simHitDirection = -simHitDirection.unit();
 
   // SimHit position extrapolated at z=0 in the Det RF
   LocalPoint outLocalPos = (muonGeom->idToDet(detId))->toLocal(outGlobalPos);
   LocalPoint simSegLocalPosition =
-      outLocalPos +
-      simHitDirection * (-outLocalPos.z() / (simHitDirection.mag() *
-                                             cos(simHitDirection.theta())));
+      outLocalPos + simHitDirection * (-outLocalPos.z() / (simHitDirection.mag() * cos(simHitDirection.theta())));
 
   return make_pair(simHitDirection, simSegLocalPosition);
 }
@@ -184,16 +165,13 @@ pair<LocalVector, LocalPoint> DTHitQualityUtils::findMuSimSegmentDirAndPos(
 // atan(dx/dz) = "phi"   angle in the chamber RF
 // atan(dy/dz) = "theta" angle in the chamber RF (note: this has opposite sign
 // in the SLZ RF!)
-pair<double, double>
-DTHitQualityUtils::findSegmentAlphaAndBeta(const LocalVector &direction) {
-  return make_pair(atan(direction.x() / direction.z()),
-                   atan(direction.y() / direction.z()));
+pair<double, double> DTHitQualityUtils::findSegmentAlphaAndBeta(const LocalVector &direction) {
+  return make_pair(atan(direction.x() / direction.z()), atan(direction.y() / direction.z()));
 }
 
 // Find error on angle (squared) from localDirectionError, which is the error on
 // tan(Angle)
 double DTHitQualityUtils::sigmaAngle(double Angle, double sigma2TanAngle) {
-
   double XdivZ = tan(Angle);
   double sigma2Angle = 1 / (1 + XdivZ * XdivZ);
   sigma2Angle *= sigma2Angle * sigma2TanAngle;

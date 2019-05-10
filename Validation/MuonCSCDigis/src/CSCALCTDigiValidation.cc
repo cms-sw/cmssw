@@ -6,8 +6,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 
-CSCALCTDigiValidation::CSCALCTDigiValidation(const edm::InputTag &inputTag,
-                                             edm::ConsumesCollector &&iC)
+CSCALCTDigiValidation::CSCALCTDigiValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC)
     : CSCBaseValidation(inputTag), theTimeBinPlots(), theNDigisPerLayerPlots() {
   alcts_Token_ = iC.consumes<CSCALCTDigiCollection>(inputTag);
 }
@@ -15,8 +14,7 @@ CSCALCTDigiValidation::CSCALCTDigiValidation(const edm::InputTag &inputTag,
 CSCALCTDigiValidation::~CSCALCTDigiValidation() {}
 
 void CSCALCTDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
-  theNDigisPerEventPlot = iBooker.book1D(
-      "CSCALCTDigisPerEvent", "CSC ALCT Digis per event", 100, 0, 100);
+  theNDigisPerEventPlot = iBooker.book1D("CSCALCTDigisPerEvent", "CSC ALCT Digis per event", 100, 0, 100);
   for (int i = 0; i < 10; ++i) {
     char title1[200], title2[200];
     sprintf(title1, "CSCALCTDigiTimeType%d", i + 1);
@@ -26,19 +24,16 @@ void CSCALCTDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
   }
 }
 
-void CSCALCTDigiValidation::analyze(const edm::Event &e,
-                                    const edm::EventSetup &) {
+void CSCALCTDigiValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
   edm::Handle<CSCALCTDigiCollection> alcts;
 
   e.getByToken(alcts_Token_, alcts);
   if (!alcts.isValid()) {
-    edm::LogError("CSCDigiDump")
-        << "Cannot get alcts by label " << theInputTag.encode();
+    edm::LogError("CSCDigiDump") << "Cannot get alcts by label " << theInputTag.encode();
   }
   unsigned nDigisPerEvent = 0;
 
-  for (CSCALCTDigiCollection::DigiRangeIterator j = alcts->begin();
-       j != alcts->end(); j++) {
+  for (CSCALCTDigiCollection::DigiRangeIterator j = alcts->begin(); j != alcts->end(); j++) {
     std::vector<CSCALCTDigi>::const_iterator beginDigi = (*j).second.first;
     std::vector<CSCALCTDigi>::const_iterator endDigi = (*j).second.second;
     CSCDetId detId((*j).first.rawId());
@@ -47,8 +42,7 @@ void CSCALCTDigiValidation::analyze(const edm::Event &e,
     nDigisPerEvent += nDigis;
     theNDigisPerLayerPlots[chamberType - 1]->Fill(nDigis);
 
-    for (std::vector<CSCALCTDigi>::const_iterator digiItr = beginDigi;
-         digiItr != endDigi; ++digiItr) {
+    for (std::vector<CSCALCTDigi>::const_iterator digiItr = beginDigi; digiItr != endDigi; ++digiItr) {
       theTimeBinPlots[chamberType - 1]->Fill(digiItr->getBX());
     }
   }

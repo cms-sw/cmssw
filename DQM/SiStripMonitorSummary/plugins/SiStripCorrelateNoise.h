@@ -57,10 +57,8 @@ private:
   void endJob() override;
 
   void DoPlots();
-  void DoAnalysis(const edm::EventSetup &, const SiStripNoises &,
-                  SiStripNoises &);
-  void getHistos(const uint32_t &detid, const TrackerTopology *tTopo,
-                 std::vector<TH1F *> &histos);
+  void DoAnalysis(const edm::EventSetup &, const SiStripNoises &, SiStripNoises &);
+  void getHistos(const uint32_t &detid, const TrackerTopology *tTopo, std::vector<TH1F *> &histos);
   TH1F *getHisto(const long unsigned int &index);
 
   unsigned long long getNoiseCache(const edm::EventSetup &eSetup) {
@@ -70,8 +68,7 @@ private:
     return eSetup.get<SiStripApvGainRcd>().cacheIdentifier();
   }
   void checkGainCache(const edm::EventSetup &es);
-  float getMeanNoise(const SiStripNoises::Range &noiseRange,
-                     const uint32_t &first, const uint32_t &range);
+  float getMeanNoise(const SiStripNoises::Range &noiseRange, const uint32_t &first, const uint32_t &range);
 
   float getGainRatio(const uint32_t &detid, const uint16_t &apv);
 

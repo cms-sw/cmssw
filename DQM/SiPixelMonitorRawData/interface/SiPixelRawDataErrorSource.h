@@ -50,8 +50,7 @@
 
 #include <boost/cstdint.hpp>
 
-class SiPixelRawDataErrorSource
-    : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class SiPixelRawDataErrorSource : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
 public:
   explicit SiPixelRawDataErrorSource(const edm::ParameterSet &conf);
   ~SiPixelRawDataErrorSource() override;
@@ -60,8 +59,7 @@ public:
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void dqmBeginRun(const edm::Run &, edm::EventSetup const &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   virtual void buildStructure(edm::EventSetup const &);
   virtual void bookMEs(DQMStore::IBooker &);

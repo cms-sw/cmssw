@@ -16,8 +16,7 @@
 #include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCCrosstalkConditions : public edm::ESProducer,
-                               public edm::EventSetupRecordIntervalFinder {
+class CSCCrosstalkConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCCrosstalkConditions(const edm::ParameterSet &);
   ~CSCCrosstalkConditions() override;

@@ -29,8 +29,7 @@ void testEllipticalTube::matched_g4_and_dd(void) {
 
   G4EllipticalTube g4(name, xSemiAxis, ySemiAxis, zHeight);
   DDI::EllipticalTube dd(xSemiAxis, ySemiAxis, zHeight);
-  DDEllipticalTube dds =
-      DDSolidFactory::ellipticalTube(name, xSemiAxis, ySemiAxis, zHeight);
+  DDEllipticalTube dds = DDSolidFactory::ellipticalTube(name, xSemiAxis, ySemiAxis, zHeight);
   cout << endl;
   dd.stream(cout);
   cout << endl;

@@ -24,19 +24,17 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 
 namespace reco {
-typedef std::vector<reco::Photon> PhotonCollection;
+  typedef std::vector<reco::Photon> PhotonCollection;
 }
 
 class SUSY_HLT_PhotonHT : public DQMEDAnalyzer {
-
 public:
   SUSY_HLT_PhotonHT(const edm::ParameterSet &ps);
   ~SUSY_HLT_PhotonHT() override;
 
 protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
   void endRun(edm::Run const &run, edm::EventSetup const &eSetup) override;
 

@@ -20,15 +20,11 @@
 // DQM Stuff
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-SiPixelPhase1DigisV::SiPixelPhase1DigisV(const edm::ParameterSet &iConfig)
-    : SiPixelPhase1Base(iConfig) {
-  srcToken_ = consumes<edm::DetSetVector<PixelDigi>>(
-      iConfig.getParameter<edm::InputTag>("src"));
+SiPixelPhase1DigisV::SiPixelPhase1DigisV(const edm::ParameterSet &iConfig) : SiPixelPhase1Base(iConfig) {
+  srcToken_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
 }
 
-void SiPixelPhase1DigisV::analyze(const edm::Event &iEvent,
-                                  const edm::EventSetup &iSetup) {
-
+void SiPixelPhase1DigisV::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<edm::DetSetVector<PixelDigi>> input;
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid())
@@ -38,7 +34,7 @@ void SiPixelPhase1DigisV::analyze(const edm::Event &iEvent,
   for (it = input->begin(); it != input->end(); ++it) {
     for (PixelDigi const &digi : *it) {
       histo[ADC].fill((double)digi.adc(), DetId(it->detId()), &iEvent);
-      histo[NDIGIS].fill(DetId(it->detId()), &iEvent); // count
+      histo[NDIGIS].fill(DetId(it->detId()), &iEvent);  // count
       histo[ROW].fill((double)digi.row(), DetId(it->detId()), &iEvent);
       histo[COLUMN].fill((double)digi.column(), DetId(it->detId()), &iEvent);
     }

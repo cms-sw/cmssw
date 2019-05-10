@@ -4,7 +4,7 @@
 //
 // Package:     Utilities
 // Class  :     TypeIDBase
-// 
+//
 /**\class TypeIDBase TypeIDBase.h FWCore/Utilities/interface/TypeIDBase.h
 
  Description: Base class for classes used to compare C++ types
@@ -26,54 +26,43 @@
 
 // forward declarations
 namespace edm {
-   class TypeIDBase 
-   {
-   
-    public:
-      struct Def { };
-   
-      TypeIDBase() :
-         t_(&(typeid(Def))) 
-      { }
-      
-      explicit TypeIDBase(const std::type_info& t) :
-         t_(&t)
-      { }
-            
-      explicit TypeIDBase(const std::type_info* t) :
-         t_(t == nullptr ? &(typeid(Def)) : t)
-      { }
-            
-      // ---------- const member functions ---------------------
-      
-      /** Returned C-style string owned by system; do not delete[] it.
+  class TypeIDBase {
+  public:
+    struct Def {};
+
+    TypeIDBase() : t_(&(typeid(Def))) {}
+
+    explicit TypeIDBase(const std::type_info& t) : t_(&t) {}
+
+    explicit TypeIDBase(const std::type_info* t) : t_(t == nullptr ? &(typeid(Def)) : t) {}
+
+    // ---------- const member functions ---------------------
+
+    /** Returned C-style string owned by system; do not delete[] it.
          This is the (horrible, mangled, platform-dependent) name of
          the type. */
-      const char* name() const { return t_->name(); }
-      
-      bool operator<(const TypeIDBase& b) const { return t_->before(*(b.t_)); }
-      bool operator==(const TypeIDBase& b) const { return (*t_) == *(b.t_); }
+    const char* name() const { return t_->name(); }
 
-    protected:
-      const std::type_info& typeInfo() const {return *t_;}
+    bool operator<(const TypeIDBase& b) const { return t_->before(*(b.t_)); }
+    bool operator==(const TypeIDBase& b) const { return (*t_) == *(b.t_); }
 
-    private:
-   
-      //const TypeIDBase& operator=(const TypeIDBase&); // stop default
+  protected:
+    const std::type_info& typeInfo() const { return *t_; }
 
-      // ---------- member data --------------------------------
-      //NOTE: since the compiler generates the type_info's and they have a lifetime
-      //  good for the entire application, we do not have to delete it
-      //  We also are using a pointer rather than a reference so that operator= will work
-      const std::type_info* t_;
-   };
+  private:
+    //const TypeIDBase& operator=(const TypeIDBase&); // stop default
 
-   inline bool operator>(const TypeIDBase& a, const TypeIDBase& b)
-   { return b<a; }
-   
-   inline bool operator!=(const TypeIDBase& a, const TypeIDBase& b)
-   { return !(a==b); }
-   
-}
+    // ---------- member data --------------------------------
+    //NOTE: since the compiler generates the type_info's and they have a lifetime
+    //  good for the entire application, we do not have to delete it
+    //  We also are using a pointer rather than a reference so that operator= will work
+    const std::type_info* t_;
+  };
+
+  inline bool operator>(const TypeIDBase& a, const TypeIDBase& b) { return b < a; }
+
+  inline bool operator!=(const TypeIDBase& a, const TypeIDBase& b) { return !(a == b); }
+
+}  // namespace edm
 
 #endif

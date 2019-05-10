@@ -1,82 +1,64 @@
 #include "Validation/MuonME0Validation/interface/ME0RecHitsValidation.h"
 #include <TMath.h>
 
-ME0RecHitsValidation::ME0RecHitsValidation(const edm::ParameterSet &cfg)
-    : ME0BaseValidation(cfg) {
-  InputTagToken_ = consumes<edm::PSimHitContainer>(
-      cfg.getParameter<edm::InputTag>("simInputLabel"));
-  InputTagToken_RecHit = consumes<ME0RecHitCollection>(
-      cfg.getParameter<edm::InputTag>("recHitInputLabel"));
+ME0RecHitsValidation::ME0RecHitsValidation(const edm::ParameterSet &cfg) : ME0BaseValidation(cfg) {
+  InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simInputLabel"));
+  InputTagToken_RecHit = consumes<ME0RecHitCollection>(cfg.getParameter<edm::InputTag>("recHitInputLabel"));
 }
 
 void ME0RecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker,
                                           edm::Run const &Run,
                                           edm::EventSetup const &iSetup) {
-
-  LogDebug("MuonME0RecHitsValidation")
-      << "Info : Loading Geometry information\n";
+  LogDebug("MuonME0RecHitsValidation") << "Info : Loading Geometry information\n";
   ibooker.setCurrentFolder("MuonME0RecHitsV/ME0RecHitsTask");
 
   unsigned int nregion = 2;
 
-  edm::LogInfo("MuonME0RecHitsValidation")
-      << "+++ Info : # of region : " << nregion << std::endl;
+  edm::LogInfo("MuonME0RecHitsValidation") << "+++ Info : # of region : " << nregion << std::endl;
 
-  LogDebug("MuonME0RecHitsValidation")
-      << "+++ Info : finish to get geometry information from ES.\n";
+  LogDebug("MuonME0RecHitsValidation") << "+++ Info : finish to get geometry information from ES.\n";
 
   for (unsigned int region_num = 0; region_num < nregion; region_num++) {
-    me0_rh_zr[region_num] =
-        BookHistZR(ibooker, "me0_rh_tot", "Digi", region_num);
+    me0_rh_zr[region_num] = BookHistZR(ibooker, "me0_rh_tot", "Digi", region_num);
     for (unsigned int layer_num = 0; layer_num < 6; layer_num++) {
-      me0_rh_xy[region_num][layer_num] =
-          BookHistXY(ibooker, "me0_rh", "RecHit", region_num, layer_num);
+      me0_rh_xy[region_num][layer_num] = BookHistXY(ibooker, "me0_rh", "RecHit", region_num, layer_num);
 
-      std::string histo_name_DeltaX = std::string("me0_rh_DeltaX_r") +
-                                      regionLabel[region_num] + "_l" +
-                                      layerLabel[layer_num];
-      std::string histo_name_DeltaY = std::string("me0_rh_DeltaY_r") +
-                                      regionLabel[region_num] + "_l" +
-                                      layerLabel[layer_num];
-      std::string histo_label_DeltaX =
-          "RecHit Delta X : region" + regionLabel[region_num] + " layer " +
-          layerLabel[layer_num] + " " + " ; x_{SimHit} - x_{RecHit} ; entries";
-      std::string histo_label_DeltaY =
-          "RecHit Delta Y : region" + regionLabel[region_num] + " layer " +
-          layerLabel[layer_num] + " " + " ; y_{SimHit} - y_{RecHit} ; entries";
+      std::string histo_name_DeltaX =
+          std::string("me0_rh_DeltaX_r") + regionLabel[region_num] + "_l" + layerLabel[layer_num];
+      std::string histo_name_DeltaY =
+          std::string("me0_rh_DeltaY_r") + regionLabel[region_num] + "_l" + layerLabel[layer_num];
+      std::string histo_label_DeltaX = "RecHit Delta X : region" + regionLabel[region_num] + " layer " +
+                                       layerLabel[layer_num] + " " + " ; x_{SimHit} - x_{RecHit} ; entries";
+      std::string histo_label_DeltaY = "RecHit Delta Y : region" + regionLabel[region_num] + " layer " +
+                                       layerLabel[layer_num] + " " + " ; y_{SimHit} - y_{RecHit} ; entries";
 
-      me0_rh_DeltaX[region_num][layer_num] = ibooker.book1D(
-          histo_name_DeltaX.c_str(), histo_label_DeltaX.c_str(), 100, -10, 10);
-      me0_rh_DeltaY[region_num][layer_num] = ibooker.book1D(
-          histo_name_DeltaY.c_str(), histo_label_DeltaY.c_str(), 100, -10, 10);
+      me0_rh_DeltaX[region_num][layer_num] =
+          ibooker.book1D(histo_name_DeltaX.c_str(), histo_label_DeltaX.c_str(), 100, -10, 10);
+      me0_rh_DeltaY[region_num][layer_num] =
+          ibooker.book1D(histo_name_DeltaY.c_str(), histo_label_DeltaY.c_str(), 100, -10, 10);
 
-      std::string histo_name_PullX = std::string("me0_rh_PullX_r") +
-                                     regionLabel[region_num] + "_l" +
-                                     layerLabel[layer_num];
-      std::string histo_name_PullY = std::string("me0_rh_PullY_r") +
-                                     regionLabel[region_num] + "_l" +
-                                     layerLabel[layer_num];
-      std::string histo_label_PullX =
-          "RecHit Pull X : region" + regionLabel[region_num] + " layer " +
-          layerLabel[layer_num] + " " +
-          " ; #frac{x_{SimHit} - x_{RecHit}}{#sigma_{x,RecHit}} ; entries";
-      std::string histo_label_PullY =
-          "RecHit Pull Y : region" + regionLabel[region_num] + " layer " +
-          layerLabel[layer_num] + " " +
-          " ; #frac{y_{SimHit} - y_{RecHit}}{#sigma_{y,RecHit}} ; entries";
+      std::string histo_name_PullX =
+          std::string("me0_rh_PullX_r") + regionLabel[region_num] + "_l" + layerLabel[layer_num];
+      std::string histo_name_PullY =
+          std::string("me0_rh_PullY_r") + regionLabel[region_num] + "_l" + layerLabel[layer_num];
+      std::string histo_label_PullX = "RecHit Pull X : region" + regionLabel[region_num] + " layer " +
+                                      layerLabel[layer_num] + " " +
+                                      " ; #frac{x_{SimHit} - x_{RecHit}}{#sigma_{x,RecHit}} ; entries";
+      std::string histo_label_PullY = "RecHit Pull Y : region" + regionLabel[region_num] + " layer " +
+                                      layerLabel[layer_num] + " " +
+                                      " ; #frac{y_{SimHit} - y_{RecHit}}{#sigma_{y,RecHit}} ; entries";
 
-      me0_rh_PullX[region_num][layer_num] = ibooker.book1D(
-          histo_name_PullX.c_str(), histo_label_DeltaX.c_str(), 100, -10, 10);
-      me0_rh_PullY[region_num][layer_num] = ibooker.book1D(
-          histo_name_PullY.c_str(), histo_label_DeltaY.c_str(), 100, -10, 10);
+      me0_rh_PullX[region_num][layer_num] =
+          ibooker.book1D(histo_name_PullX.c_str(), histo_label_DeltaX.c_str(), 100, -10, 10);
+      me0_rh_PullY[region_num][layer_num] =
+          ibooker.book1D(histo_name_PullY.c_str(), histo_label_DeltaY.c_str(), 100, -10, 10);
     }
   }
 }
 
 ME0RecHitsValidation::~ME0RecHitsValidation() {}
 
-void ME0RecHitsValidation::analyze(const edm::Event &e,
-                                   const edm::EventSetup &iSetup) {
+void ME0RecHitsValidation::analyze(const edm::Event &e, const edm::EventSetup &iSetup) {
   edm::ESHandle<ME0Geometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const ME0Geometry *ME0Geometry_ = (&*hGeom);
@@ -87,13 +69,11 @@ void ME0RecHitsValidation::analyze(const edm::Event &e,
   e.getByToken(InputTagToken_RecHit, ME0RecHits);
 
   if (!ME0Hits.isValid() | !ME0RecHits.isValid()) {
-    edm::LogError("ME0RecHitsValidation")
-        << "Cannot get ME0Hits/ME0RecHits by Token simInputTagToken";
+    edm::LogError("ME0RecHitsValidation") << "Cannot get ME0Hits/ME0RecHits by Token simInputTagToken";
     return;
   }
 
   for (auto hits = ME0Hits->begin(); hits != ME0Hits->end(); hits++) {
-
     const ME0DetId id(hits->detUnitId());
     Int_t sh_region = id.region();
     Int_t sh_layer = id.layer();
@@ -109,9 +89,7 @@ void ME0RecHitsValidation::analyze(const edm::Event &e,
 
     const LocalPoint hitLP(hits->localPosition());
 
-    for (ME0RecHitCollection::const_iterator recHit = ME0RecHits->begin();
-         recHit != ME0RecHits->end(); ++recHit) {
-
+    for (ME0RecHitCollection::const_iterator recHit = ME0RecHits->begin(); recHit != ME0RecHits->end(); ++recHit) {
       Float_t x = recHit->localPosition().x();
       Float_t xErr = recHit->localPositionError().xx();
       Float_t y = recHit->localPosition().y();
@@ -130,8 +108,7 @@ void ME0RecHitsValidation::analyze(const edm::Event &e,
       Short_t roll = (Short_t)id.roll();
 
       LocalPoint rhLP = recHit->localPosition();
-      GlobalPoint rhGP =
-          ME0Geometry_->idToDet((*recHit).me0Id())->surface().toGlobal(rhLP);
+      GlobalPoint rhGP = ME0Geometry_->idToDet((*recHit).me0Id())->surface().toGlobal(rhLP);
 
       Float_t globalR = rhGP.perp();
       Float_t globalX = rhGP.x();
@@ -147,18 +124,14 @@ void ME0RecHitsValidation::analyze(const edm::Event &e,
         continue;
 
       std::vector<int> stripsFired;
-      for (int i = firstClusterStrip; i < (firstClusterStrip + clusterSize);
-           i++) {
-
+      for (int i = firstClusterStrip; i < (firstClusterStrip + clusterSize); i++) {
         stripsFired.push_back(i);
       }
 
-      const bool cond1(sh_region == region and sh_layer == layer and
-                       sh_station == station);
+      const bool cond1(sh_region == region and sh_layer == layer and sh_station == station);
       const bool cond2(sh_chamber == chamber and sh_roll == roll);
       const bool cond3(
-          (std::find(stripsFired.begin(), stripsFired.end(),
-                     (firstClusterStrip + 1)) != stripsFired.end()) or
+          (std::find(stripsFired.begin(), stripsFired.end(), (firstClusterStrip + 1)) != stripsFired.end()) or
           clusterSize == 0);
 
       int region_num = 0;
@@ -169,7 +142,6 @@ void ME0RecHitsValidation::analyze(const edm::Event &e,
       int layer_num = layer - 1;
 
       if (cond1 and cond2 and cond3) {
-
         me0_rh_xy[region_num][layer_num]->Fill(globalX, globalY);
         me0_rh_zr[region_num]->Fill(globalZ, globalR);
 

@@ -21,8 +21,7 @@ class CSCLayer;
 class CSCStripHitSim {
 public:
   // make strip hits from the given wire hits
-  std::vector<CSCDetectorHit> &
-  simulate(const CSCLayer *layer, const std::vector<CSCDetectorHit> &wireHits);
+  std::vector<CSCDetectorHit> &simulate(const CSCLayer *layer, const std::vector<CSCDetectorHit> &wireHits);
 
 private:
   CSCGattiFunction theGattiFunction;

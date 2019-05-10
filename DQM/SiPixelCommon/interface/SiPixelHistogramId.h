@@ -23,7 +23,6 @@
 #include <string>
 
 class SiPixelHistogramId {
-
 public:
   /// Constructor
   SiPixelHistogramId();

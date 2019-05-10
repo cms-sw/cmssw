@@ -17,8 +17,7 @@ public:
 
   CaloTSamples<Ttype, Tsize>();
   CaloTSamples<Ttype, Tsize>(const CaloTSamples<Ttype, Tsize> &cs);
-  CaloTSamples<Ttype, Tsize>(const DetId &id, uint32_t size = 0,
-                             uint32_t pre = 0);
+  CaloTSamples<Ttype, Tsize>(const DetId &id, uint32_t size = 0, uint32_t pre = 0);
   ~CaloTSamples<Ttype, Tsize>() override;
 
   CaloTSamples<Ttype, Tsize> &operator=(const CaloTSamples<Ttype, Tsize> &cs);

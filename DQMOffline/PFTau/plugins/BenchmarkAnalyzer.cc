@@ -13,7 +13,6 @@
 using namespace std;
 
 BenchmarkAnalyzer::BenchmarkAnalyzer(const edm::ParameterSet &parameterSet) {
-
   inputLabel_ = parameterSet.getParameter<edm::InputTag>("InputCollection");
   benchmarkLabel_ = parameterSet.getParameter<std::string>("BenchmarkLabel");
 

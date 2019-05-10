@@ -21,7 +21,7 @@ class CSCGasCollisions;
 class CSCLayerGeometry;
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CSCWireHitSim {
@@ -38,9 +38,7 @@ public:
 
 private:
   // Helper functions
-  std::vector<Local3DPoint> getIonizationClusters(const PSimHit &hit,
-                                                  const CSCLayer *,
-                                                  CLHEP::HepRandomEngine *);
+  std::vector<Local3DPoint> getIonizationClusters(const PSimHit &hit, const CSCLayer *, CLHEP::HepRandomEngine *);
   CSCDetectorHit driftElectronsToWire();
 
   // member data

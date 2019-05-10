@@ -16,8 +16,7 @@
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCNoiseMatrixConditions : public edm::ESProducer,
-                                 public edm::EventSetupRecordIntervalFinder {
+class CSCNoiseMatrixConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCNoiseMatrixConditions(const edm::ParameterSet &);
   ~CSCNoiseMatrixConditions() override;

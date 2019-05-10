@@ -16,13 +16,14 @@
 class EcalSimPhotonMCTruth {
 public:
   EcalSimPhotonMCTruth()
-      : isAConversion_(0), thePhoton_(0., 0., 0., 0.), theR_(0.), theZ_(0.),
-        theConvVertex_(0., 0., 0., 0.){};
+      : isAConversion_(0), thePhoton_(0., 0., 0., 0.), theR_(0.), theZ_(0.), theConvVertex_(0., 0., 0., 0.){};
 
   EcalSimPhotonMCTruth(const math::XYZTLorentzVectorD &v) : thePhoton_(v){};
 
-  EcalSimPhotonMCTruth(int isAConversion, const math::XYZTLorentzVectorD &v,
-                       float rconv, float zconv,
+  EcalSimPhotonMCTruth(int isAConversion,
+                       const math::XYZTLorentzVectorD &v,
+                       float rconv,
+                       float zconv,
                        const math::XYZTLorentzVectorD &convVertex,
                        const math::XYZTLorentzVectorD &pV,
                        const std::vector<const SimTrack *> &tracks);

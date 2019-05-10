@@ -15,21 +15,15 @@
 
 LaserDQM::LaserDQM(edm::ParameterSet const &theConf)
     : theDebugLevel(theConf.getUntrackedParameter<int>("DebugLevel", 0)),
-      theSearchPhiTIB(
-          theConf.getUntrackedParameter<double>("SearchWindowPhiTIB", 0.05)),
-      theSearchPhiTOB(
-          theConf.getUntrackedParameter<double>("SearchWindowPhiTOB", 0.05)),
-      theSearchPhiTEC(
-          theConf.getUntrackedParameter<double>("SearchWindowPhiTEC", 0.05)),
-      theSearchZTIB(
-          theConf.getUntrackedParameter<double>("SearchWindowZTIB", 1.0)),
-      theSearchZTOB(
-          theConf.getUntrackedParameter<double>("SearchWindowZTOB", 1.0)),
-      theDigiProducersList(
-          theConf.getParameter<Parameters>("DigiProducersList")),
-      theDQMFileName(theConf.getUntrackedParameter<std::string>(
-          "DQMFileName", "testDQM.root")),
-      theDaqMonitorBEI(), theMEBeam0Ring4Disc1PosAdcCounts(nullptr),
+      theSearchPhiTIB(theConf.getUntrackedParameter<double>("SearchWindowPhiTIB", 0.05)),
+      theSearchPhiTOB(theConf.getUntrackedParameter<double>("SearchWindowPhiTOB", 0.05)),
+      theSearchPhiTEC(theConf.getUntrackedParameter<double>("SearchWindowPhiTEC", 0.05)),
+      theSearchZTIB(theConf.getUntrackedParameter<double>("SearchWindowZTIB", 1.0)),
+      theSearchZTOB(theConf.getUntrackedParameter<double>("SearchWindowZTOB", 1.0)),
+      theDigiProducersList(theConf.getParameter<Parameters>("DigiProducersList")),
+      theDQMFileName(theConf.getUntrackedParameter<std::string>("DQMFileName", "testDQM.root")),
+      theDaqMonitorBEI(),
+      theMEBeam0Ring4Disc1PosAdcCounts(nullptr),
       theMEBeam0Ring4Disc2PosAdcCounts(nullptr),
       theMEBeam0Ring4Disc3PosAdcCounts(nullptr),
       theMEBeam0Ring4Disc4PosAdcCounts(nullptr),
@@ -524,23 +518,21 @@ LaserDQM::LaserDQM(edm::ParameterSet const &theConf)
       theMEBeam7TIBPosition5AdcCounts(nullptr),
       theMEBeam7TIBPosition6AdcCounts(nullptr) {
   // load the configuration from the ParameterSet
-  edm::LogInfo("LaserDQM")
-      << "==========================================================="
-      << "\n===                Start configuration                  ==="
-      << "\n    theDebugLevel              = " << theDebugLevel
-      << "\n    theSearchPhiTIB            = " << theSearchPhiTIB
-      << "\n    theSearchPhiTOB            = " << theSearchPhiTOB
-      << "\n    theSearchPhiTEC            = " << theSearchPhiTEC
-      << "\n    theSearchZTIB              = " << theSearchZTIB
-      << "\n    theSearchZTOB              = " << theSearchZTOB
-      << "\n    DQM filename               = " << theDQMFileName
-      << "\n===========================================================";
+  edm::LogInfo("LaserDQM") << "==========================================================="
+                           << "\n===                Start configuration                  ==="
+                           << "\n    theDebugLevel              = " << theDebugLevel
+                           << "\n    theSearchPhiTIB            = " << theSearchPhiTIB
+                           << "\n    theSearchPhiTOB            = " << theSearchPhiTOB
+                           << "\n    theSearchPhiTEC            = " << theSearchPhiTEC
+                           << "\n    theSearchZTIB              = " << theSearchZTIB
+                           << "\n    theSearchZTOB              = " << theSearchZTOB
+                           << "\n    DQM filename               = " << theDQMFileName
+                           << "\n===========================================================";
 }
 
 LaserDQM::~LaserDQM() {}
 
-void LaserDQM::analyze(edm::Event const &theEvent,
-                       edm::EventSetup const &theSetup) {
+void LaserDQM::analyze(edm::Event const &theEvent, edm::EventSetup const &theSetup) {
   // do the Tracker Statistics
   trackerStatistics(theEvent, theSetup);
 }
@@ -555,10 +547,9 @@ void LaserDQM::beginJob() {
 
 void LaserDQM::endJob(void) { theDaqMonitorBEI->save(theDQMFileName); }
 
-void LaserDQM::fillAdcCounts(
-    MonitorElement *theMonitor,
-    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator,
-    edm::DetSet<SiStripDigi>::const_iterator digiRangeIteratorEnd) {
+void LaserDQM::fillAdcCounts(MonitorElement *theMonitor,
+                             edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator,
+                             edm::DetSet<SiStripDigi>::const_iterator digiRangeIteratorEnd) {
   // get the ROOT object from the MonitorElement
   TH1F *theMEHistogram = theMonitor->getTH1F();
 
@@ -567,14 +558,12 @@ void LaserDQM::fillAdcCounts(
     const SiStripDigi *digi = &*digiRangeIterator;
 
     if (theDebugLevel > 4) {
-      std::cout << " Channel " << digi->channel() << " has " << digi->adc()
-                << " adc counts " << std::endl;
+      std::cout << " Channel " << digi->channel() << " has " << digi->adc() << " adc counts " << std::endl;
     }
 
     // fill the number of adc counts in the histogram
     if (digi->channel() < 512) {
-      Double_t theBinContent =
-          theMEHistogram->GetBinContent(digi->channel()) + digi->adc();
+      Double_t theBinContent = theMEHistogram->GetBinContent(digi->channel()) + digi->adc();
       theMEHistogram->SetBinContent(digi->channel(), theBinContent);
     }
   }

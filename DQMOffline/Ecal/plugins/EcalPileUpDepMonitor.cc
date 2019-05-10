@@ -31,30 +31,26 @@
 // Framework
 
 EcalPileUpDepMonitor::EcalPileUpDepMonitor(const edm::ParameterSet &ps) {
-  VertexCollection_ = consumes<reco::VertexCollection>(
-      ps.getParameter<edm::InputTag>("VertexCollection"));
+  VertexCollection_ = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("VertexCollection"));
 
   if (ps.existsAs<edm::InputTag>("basicClusterCollection") &&
       !ps.getParameter<edm::InputTag>("basicClusterCollection").label().empty())
-    basicClusterCollection_ = consumes<edm::View<reco::CaloCluster>>(
-        ps.getParameter<edm::InputTag>("basicClusterCollection"));
+    basicClusterCollection_ =
+        consumes<edm::View<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("basicClusterCollection"));
   else {
-    basicClusterCollection_EE_ = consumes<edm::View<reco::CaloCluster>>(
-        ps.getParameter<edm::InputTag>("basicClusterCollection_EE"));
-    basicClusterCollection_EB_ = consumes<edm::View<reco::CaloCluster>>(
-        ps.getParameter<edm::InputTag>("basicClusterCollection_EB"));
+    basicClusterCollection_EE_ =
+        consumes<edm::View<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("basicClusterCollection_EE"));
+    basicClusterCollection_EB_ =
+        consumes<edm::View<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("basicClusterCollection_EB"));
   }
-  superClusterCollection_EB_ = consumes<reco::SuperClusterCollection>(
-      ps.getParameter<edm::InputTag>("superClusterCollection_EB"));
-  superClusterCollection_EE_ = consumes<reco::SuperClusterCollection>(
-      ps.getParameter<edm::InputTag>("superClusterCollection_EE"));
+  superClusterCollection_EB_ =
+      consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("superClusterCollection_EB"));
+  superClusterCollection_EE_ =
+      consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("superClusterCollection_EE"));
 
-  RecHitCollection_EB_ = consumes<EcalRecHitCollection>(
-      ps.getParameter<edm::InputTag>("RecHitCollection_EB"));
-  RecHitCollection_EE_ = consumes<EcalRecHitCollection>(
-      ps.getParameter<edm::InputTag>("RecHitCollection_EE"));
-  EleTag_ = consumes<reco::GsfElectronCollection>(
-      ps.getParameter<edm::InputTag>("EleTag"));
+  RecHitCollection_EB_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("RecHitCollection_EB"));
+  RecHitCollection_EE_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("RecHitCollection_EE"));
+  EleTag_ = consumes<reco::GsfElectronCollection>(ps.getParameter<edm::InputTag>("EleTag"));
 }
 
 EcalPileUpDepMonitor::~EcalPileUpDepMonitor() {}
@@ -106,15 +102,13 @@ void EcalPileUpDepMonitor::bookHistograms(DQMStore::IBooker &ibooker,
 
   prof_name = "recHitEtEB_PV";
   title = "Reconstructed Hit Et EB vs. PV";
-  recHitEtEB_PV =
-      ibooker.bookProfile(prof_name, title, 50, 0., 50., 50, 0., 350.);
+  recHitEtEB_PV = ibooker.bookProfile(prof_name, title, 50, 0., 50., 50, 0., 350.);
   recHitEtEB_PV->setAxisTitle("N_{pv}", 1);
   recHitEtEB_PV->setAxisTitle("Reconstructed hit E_{T} [GeV]", 2);
 
   prof_name = "recHitEtEE_PV";
   title = "Reconstructed Hit Et EE vs. PV";
-  recHitEtEE_PV =
-      ibooker.bookProfile(prof_name, title, 50, 0., 50., 50, 0., 350.);
+  recHitEtEE_PV = ibooker.bookProfile(prof_name, title, 50, 0., 50., 50, 0., 350.);
   recHitEtEE_PV->setAxisTitle("N_{pv}", 1);
   recHitEtEE_PV->setAxisTitle("Reconstructed hit E_{T} [GeV]", 2);
 
@@ -235,9 +229,7 @@ void EcalPileUpDepMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   recHitEtEE->setAxisTitle("Events", 2);
 }
 
-void EcalPileUpDepMonitor::analyze(const edm::Event &e,
-                                   const edm::EventSetup &) {
-
+void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &) {
   const CaloGeometry *geom = geomH.product();
   // Vertex collection:
   //-----------------------------------------
@@ -282,9 +274,8 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e,
 
     int nBarrel(0);
     int nEndcap(0);
-    for (edm::View<reco::CaloCluster>::const_iterator bcItr(
-             basicClusters_h->begin());
-         bcItr != basicClusters_h->end(); ++bcItr) {
+    for (edm::View<reco::CaloCluster>::const_iterator bcItr(basicClusters_h->begin()); bcItr != basicClusters_h->end();
+         ++bcItr) {
       if (bcItr->caloID().detector(reco::CaloID::DET_ECAL_BARREL))
         ++nBarrel;
       if (bcItr->caloID().detector(reco::CaloID::DET_ECAL_ENDCAP))
@@ -321,11 +312,10 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e,
   //--------- Fill Isolation -----------------
 
   if (electronCollection_h.isValid()) {
-    for (reco::GsfElectronCollection::const_iterator recoElectron =
-             electronCollection_h->begin();
-         recoElectron != electronCollection_h->end(); recoElectron++) {
-      double IsoEcal =
-          recoElectron->dr03EcalRecHitSumEt(); /// recoElectron->et()
+    for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection_h->begin();
+         recoElectron != electronCollection_h->end();
+         recoElectron++) {
+      double IsoEcal = recoElectron->dr03EcalRecHitSumEt();  /// recoElectron->et()
       emIso_PV->Fill(PVCollection_h->size(), IsoEcal);
       emIso->Fill(IsoEcal);
     }
@@ -334,11 +324,10 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e,
   // fill super clusters EE
   scEE_PV->Fill(PVCollection_h->size(), superClusters_EE_h->size());
 
-  for (reco::SuperClusterCollection::const_iterator itSC =
-           superClusters_EE_h->begin();
-       itSC != superClusters_EE_h->end(); ++itSC) {
-    double scEE_Et =
-        itSC->energy() * sin(2. * atan(exp(-itSC->position().eta())));
+  for (reco::SuperClusterCollection::const_iterator itSC = superClusters_EE_h->begin();
+       itSC != superClusters_EE_h->end();
+       ++itSC) {
+    double scEE_Et = itSC->energy() * sin(2. * atan(exp(-itSC->position().eta())));
     //    double scEE_E=itSC->energy();
 
     // fill super cluster endcap eta/phi
@@ -347,12 +336,11 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e,
 
     // get sigma eta_eta etc
 
-    CaloTopology const *p_topology = caloTop.product(); // get calo topology
+    CaloTopology const *p_topology = caloTop.product();  // get calo topology
     const EcalRecHitCollection *eeRecHits = RecHitsEE.product();
 
     reco::BasicCluster const &seedCluster(*itSC->seed());
-    std::vector<float> cov =
-        EcalClusterTools::localCovariances(seedCluster, eeRecHits, p_topology);
+    std::vector<float> cov = EcalClusterTools::localCovariances(seedCluster, eeRecHits, p_topology);
     float sigmaIetaIeta = std::sqrt(cov[0]);
     float sigmaIetaIphi = cov[1];
 
@@ -365,10 +353,10 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e,
 
     // std::cout  << " sigmaIetaIeta: " << sigmaIetaIeta << std::endl;
     scEtEE_PV->Fill(PVCollection_h->size(), scEE_Et);
-    scHitEtEE->Fill(scEE_Et); // super cluster Et historam
+    scHitEtEE->Fill(scEE_Et);  // super cluster Et historam
     //    scHitE_EE->Fill(scEE_E); //super cluster energy histogram
 
-  } // sc-EE loop
+  }  // sc-EE loop
 
   //----------------- Super Cluster Collection Ecal Barrel  ---------
 
@@ -379,14 +367,10 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e,
   }
   scEB_PV->Fill(PVCollection_h->size(), superClusters_EB_h->size());
 
-  for (reco::SuperClusterCollection::const_iterator itSC =
-           superClusters_EB_h->begin();
-       itSC != superClusters_EB_h->end(); ++itSC) {
-    double scEB_Et =
-        itSC->energy() *
-        sin(2. *
-            atan(exp(
-                -itSC->position().eta()))); // super cluster transverse energy
+  for (reco::SuperClusterCollection::const_iterator itSC = superClusters_EB_h->begin();
+       itSC != superClusters_EB_h->end();
+       ++itSC) {
+    double scEB_Et = itSC->energy() * sin(2. * atan(exp(-itSC->position().eta())));  // super cluster transverse energy
     //    double scEB_E= itSC->energy(); // super cluster energy
 
     // fill super cluster Barrel eta/phi
@@ -395,12 +379,11 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e,
 
     // sigma ietaieta etc
 
-    CaloTopology const *p_topology = caloTop.product(); // get calo topology
+    CaloTopology const *p_topology = caloTop.product();  // get calo topology
     const EcalRecHitCollection *ebRecHits = RecHitsEB.product();
 
     reco::BasicCluster const &seedCluster(*itSC->seed());
-    std::vector<float> cov =
-        EcalClusterTools::localCovariances(seedCluster, ebRecHits, p_topology);
+    std::vector<float> cov = EcalClusterTools::localCovariances(seedCluster, ebRecHits, p_topology);
     float sigmaIetaIeta = std::sqrt(cov[0]);
     float sigmaIetaIphi = cov[1];
 
@@ -414,19 +397,17 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e,
     scEtEB_PV->Fill(PVCollection_h->size(), scEB_Et);
     scHitEtEB->Fill(scEB_Et);
     //    scHitE_EB->Fill(scEB_E);
-  } // sc-EB loop
+  }  // sc-EB loop
 
   //-------------------Compute scalar sum of reconstructed hit Et
   double RecHitEt_EB = 0;
 
-  for (EcalRecHitCollection::const_iterator itr = RecHitsEB->begin();
-       itr != RecHitsEB->end(); ++itr) {
+  for (EcalRecHitCollection::const_iterator itr = RecHitsEB->begin(); itr != RecHitsEB->end(); ++itr) {
     // RecHitEt_EB +=itr->energy();
 
-    GlobalPoint const &position =
-        geom->getGeometry(itr->detid())->getPosition();
+    GlobalPoint const &position = geom->getGeometry(itr->detid())->getPosition();
     RecHitEt_EB += itr->energy() * sin(position.theta());
-  } // EB Rec Hit
+  }  // EB Rec Hit
 
   recHitEtEB->Fill(RecHitEt_EB);
   recHitEtEB_PV->Fill(PVCollection_h->size(), RecHitEt_EB);
@@ -434,12 +415,10 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e,
   //-------------------Compute scalar sum of reconstructed hit Et
   double RecHitEt_EE = 0;
 
-  for (EcalRecHitCollection::const_iterator itr = RecHitsEE->begin();
-       itr != RecHitsEE->end(); ++itr) {
-    GlobalPoint const &position =
-        geom->getGeometry(itr->detid())->getPosition();
+  for (EcalRecHitCollection::const_iterator itr = RecHitsEE->begin(); itr != RecHitsEE->end(); ++itr) {
+    GlobalPoint const &position = geom->getGeometry(itr->detid())->getPosition();
     RecHitEt_EE += itr->energy() * sin(position.theta());
-  } // EB Rec Hit
+  }  // EB Rec Hit
 
   recHitEtEE->Fill(RecHitEt_EE);
   recHitEtEE_PV->Fill(PVCollection_h->size(), RecHitEt_EE);

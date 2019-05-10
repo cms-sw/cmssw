@@ -33,7 +33,6 @@ detector segment (detID)
 #include <boost/cstdint.hpp>
 
 class SiPixelRecHitModule {
-
 public:
   /// Default constructor
   SiPixelRecHitModule();
@@ -45,18 +44,37 @@ public:
   // typedef edm::DetSet<PixelRecHit>::const_iterator  RecHitsIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet &iConfig, DQMStore::IBooker &iBooker,
-            const edm::EventSetup &iSetup, int type = 0, bool twoD = true,
-            bool reducedSet = false, bool isUpgrade = false);
+  void book(const edm::ParameterSet &iConfig,
+            DQMStore::IBooker &iBooker,
+            const edm::EventSetup &iSetup,
+            int type = 0,
+            bool twoD = true,
+            bool reducedSet = false,
+            bool isUpgrade = false);
   /// Fill histograms
-  void fill(const float &rechit_x, const float &rechit_y, const int &sizeX,
-            const int &sizeY, const float &lerr_x, const float &lerr_y,
-            bool modon = true, bool ladon = false, bool layon = false,
-            bool phion = false, bool bladeon = false, bool diskon = false,
-            bool ringon = false, bool twoD = true, bool reducedSet = false);
-  void nfill(const int &nrec, bool modon = true, bool ladon = false,
-             bool layon = false, bool phion = false, bool bladeon = false,
-             bool diskon = false, bool ringon = false);
+  void fill(const float &rechit_x,
+            const float &rechit_y,
+            const int &sizeX,
+            const int &sizeY,
+            const float &lerr_x,
+            const float &lerr_y,
+            bool modon = true,
+            bool ladon = false,
+            bool layon = false,
+            bool phion = false,
+            bool bladeon = false,
+            bool diskon = false,
+            bool ringon = false,
+            bool twoD = true,
+            bool reducedSet = false);
+  void nfill(const int &nrec,
+             bool modon = true,
+             bool ladon = false,
+             bool layon = false,
+             bool phion = false,
+             bool bladeon = false,
+             bool diskon = false,
+             bool ringon = false);
 
 private:
   uint32_t id_;
