@@ -14,8 +14,7 @@
 
 #include "Alignment/CommonAlignmentParametrization/interface/BeamSpotAlignmentDerivatives.h"
 
-AlgebraicMatrix BeamSpotAlignmentDerivatives::
-operator()(const TrajectoryStateOnSurface &tsos) const {
+AlgebraicMatrix BeamSpotAlignmentDerivatives::operator()(const TrajectoryStateOnSurface &tsos) const {
   AlgebraicMatrix aliderivs(4, 2);
 
   if (!tsos.isValid())

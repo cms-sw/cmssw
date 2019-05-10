@@ -13,42 +13,38 @@
 
 #include "G4SystemOfUnits.hh"
 
-LaserPrimaryGeneratorAction::LaserPrimaryGeneratorAction(
-    edm::ParameterSet const &theConf)
-    : thePhotonEnergy(0), thenParticleInGun(0), thenParticle(0),
-      theLaserBeamsInTEC1(), theLaserBeamsInTEC2(),
+LaserPrimaryGeneratorAction::LaserPrimaryGeneratorAction(edm::ParameterSet const &theConf)
+    : thePhotonEnergy(0),
+      thenParticleInGun(0),
+      thenParticle(0),
+      theLaserBeamsInTEC1(),
+      theLaserBeamsInTEC2(),
       theLaserBeamsInTECTIBTOBTEC() {
   // {{{ LaserPrimaryGeneratorAction constructor
 
   // get the PhotonEnergy from the parameter set
-  thePhotonEnergy =
-      theConf.getUntrackedParameter<double>("PhotonEnergy", 1.15) * eV;
+  thePhotonEnergy = theConf.getUntrackedParameter<double>("PhotonEnergy", 1.15) * eV;
 
   // number of particles in the Laser beam
-  thenParticleInGun =
-      theConf.getUntrackedParameter<int>("NumberOfPhotonsInParticleGun", 1);
+  thenParticleInGun = theConf.getUntrackedParameter<int>("NumberOfPhotonsInParticleGun", 1);
 
   // number of particles in one beam. ATTENTION: each beam contains
   // nParticleInGun with the same startpoint and direction. nParticle gives the
   // number of particles in the beam with a different startpoint. They are used
   // to simulate the gaussian beamprofile of the Laser Beams.
-  thenParticle =
-      theConf.getUntrackedParameter<int>("NumberOfPhotonsInEachBeam", 1);
+  thenParticle = theConf.getUntrackedParameter<int>("NumberOfPhotonsInEachBeam", 1);
 
   // create a messenger for this class
   //   theGunMessenger = new LaserPrimaryGeneratorMessenger(this);
 
   // create the beams in the right endcap
-  theLaserBeamsInTEC1 =
-      new LaserBeamsTEC1(thenParticleInGun, thenParticle, thePhotonEnergy);
+  theLaserBeamsInTEC1 = new LaserBeamsTEC1(thenParticleInGun, thenParticle, thePhotonEnergy);
 
   // create the beams in the left endcap
-  theLaserBeamsInTEC2 =
-      new LaserBeamsTEC2(thenParticleInGun, thenParticle, thePhotonEnergy);
+  theLaserBeamsInTEC2 = new LaserBeamsTEC2(thenParticleInGun, thenParticle, thePhotonEnergy);
 
   // create the beams to connect the TECs with TOB and TIB
-  theLaserBeamsInTECTIBTOBTEC =
-      new LaserBeamsBarrel(thenParticleInGun, thenParticle, thePhotonEnergy);
+  theLaserBeamsInTECTIBTOBTEC = new LaserBeamsBarrel(thenParticleInGun, thenParticle, thePhotonEnergy);
   // }}}
 }
 
@@ -72,9 +68,8 @@ void LaserPrimaryGeneratorAction::GeneratePrimaries(G4Event *myEvent) {
 
   // this function is called at the beginning of an Event in
   // LaserAlignment::upDate(const BeginOfEvent * myEvent)
-  LogDebug("LaserPrimaryGeneratorAction")
-      << "<LaserPrimaryGeneratorAction::GeneratePrimaries(G4Event*)>: create a "
-         "new Laser Event";
+  LogDebug("LaserPrimaryGeneratorAction") << "<LaserPrimaryGeneratorAction::GeneratePrimaries(G4Event*)>: create a "
+                                             "new Laser Event";
 
   // shoot in the right endcap
   theLaserBeamsInTEC1->GeneratePrimaries(myEvent);
@@ -102,8 +97,7 @@ void LaserPrimaryGeneratorAction::GeneratePrimaries(G4Event *myEvent) {
   // }}}
 }
 
-void LaserPrimaryGeneratorAction::setGeneratorId(G4PrimaryParticle *aParticle,
-                                                 int ID) const {
+void LaserPrimaryGeneratorAction::setGeneratorId(G4PrimaryParticle *aParticle, int ID) const {
   // {{{ SetGeneratorId(G4PrimaryParticle * aParticle, int ID) const
 
   /* *********************************************************************** */

@@ -16,8 +16,7 @@ using namespace gs;
 using namespace std;
 
 static void print_usage(const char *progname) {
-  cout << "\nUsage: " << progname
-       << " -o output_file input_file0 input_file1 ...\n\n"
+  cout << "\nUsage: " << progname << " -o output_file input_file0 input_file1 ...\n\n"
        << "This program merges the contents of several object catalogs stored "
           "in \"geners\"\n"
        << "binary metafiles. The output metafile can be used as a single "
@@ -26,8 +25,7 @@ static void print_usage(const char *progname) {
        << endl;
 }
 
-static const char *update_uri(const char *inputfile,
-                              const std::string &originalUri) {
+static const char *update_uri(const char *inputfile, const std::string &originalUri) {
   static std::string result, old_inputfile, old_URI;
 
   if (old_inputfile != inputfile || old_URI != originalUri) {
@@ -38,8 +36,7 @@ static const char *update_uri(const char *inputfile,
   return result.c_str();
 }
 
-static ItemLocation update_location(const char *inputfile,
-                                    const ItemLocation &original) {
+static ItemLocation update_location(const char *inputfile, const ItemLocation &original) {
   ItemLocation loc(original);
   loc.setURI(update_uri(inputfile, original.URI()));
   return loc;
@@ -108,11 +105,9 @@ int main(int argc, char const *argv[]) {
     CPP11_auto_ptr<ContiguousCatalog> cat;
     try {
       cat = CPP11_auto_ptr<ContiguousCatalog>(
-          readBinaryCatalog<ContiguousCatalog>(
-              in, &compressionCode, &mergeLevel, &annotations, true));
+          readBinaryCatalog<ContiguousCatalog>(in, &compressionCode, &mergeLevel, &annotations, true));
     } catch (std::exception &e) {
-      cerr << "Failed to read catalog from file \"" << inputfile << "\". "
-           << e.what() << endl;
+      cerr << "Failed to read catalog from file \"" << inputfile << "\". " << e.what() << endl;
       return 1;
     }
 
@@ -128,18 +123,18 @@ int main(int argc, char const *argv[]) {
     totalMergeLevel += mergeLevel;
 
     // Update annotations
-    std::copy(annotations.begin(), annotations.end(),
-              std::back_inserter(allAnnotations));
+    std::copy(annotations.begin(), annotations.end(), std::back_inserter(allAnnotations));
 
     const unsigned long long last = cat->largestId();
     for (unsigned long long id = cat->smallestId(); id <= last; ++id) {
       if (!cat->itemExists(id))
         continue;
       CPP11_shared_ptr<const CatalogEntry> e = cat->retrieveEntry(id);
-      const unsigned long long newid =
-          merged.makeEntry(*e, e->compressionCode(), e->itemLength(),
-                           update_location(inputfile.c_str(), e->location()),
-                           e->offset() + fileOffset);
+      const unsigned long long newid = merged.makeEntry(*e,
+                                                        e->compressionCode(),
+                                                        e->itemLength(),
+                                                        update_location(inputfile.c_str(), e->location()),
+                                                        e->offset() + fileOffset);
       assert(newid);
     }
   }
@@ -150,10 +145,8 @@ int main(int argc, char const *argv[]) {
     return 1;
   }
   const unsigned compress = compressionCodeMixed ? 1 : lastCompressionCode;
-  if (!writeBinaryCatalog(of, compress, totalMergeLevel, allAnnotations,
-                          merged)) {
-    cerr << "Error: failed to write merged catalog to file \"" << outputfile
-         << "\"" << endl;
+  if (!writeBinaryCatalog(of, compress, totalMergeLevel, allAnnotations, merged)) {
+    cerr << "Error: failed to write merged catalog to file \"" << outputfile << "\"" << endl;
     return 1;
   }
   of.close();

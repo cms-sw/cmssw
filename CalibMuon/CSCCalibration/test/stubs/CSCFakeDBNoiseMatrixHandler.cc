@@ -5,15 +5,12 @@
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBNoiseMatrix.h"
 #include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
 
-popcon::CSCFakeDBNoiseMatrixImpl::CSCFakeDBNoiseMatrixImpl(
-    const edm::ParameterSet &pset)
-    : m_name(pset.getUntrackedParameter<std::string>(
-          "name", "CSCFakeDBNoiseMatrixImpl")) {}
+popcon::CSCFakeDBNoiseMatrixImpl::CSCFakeDBNoiseMatrixImpl(const edm::ParameterSet &pset)
+    : m_name(pset.getUntrackedParameter<std::string>("name", "CSCFakeDBNoiseMatrixImpl")) {}
 
 popcon::CSCFakeDBNoiseMatrixImpl::~CSCFakeDBNoiseMatrixImpl() {}
 
 void popcon::CSCFakeDBNoiseMatrixImpl::getNewObjects() {
-
   std::cout << "------- CSC src - > getNewObjects\n" << m_name;
 
   // fill object from file
@@ -23,8 +20,7 @@ void popcon::CSCFakeDBNoiseMatrixImpl::getNewObjects() {
   // check whats already inside of database
 
   std::cerr << "got offlineInfo" << std::endl;
-  std::cerr << tagInfo().name << " , last object valid since "
-            << tagInfo().lastInterval.first << std::endl;
+  std::cerr << tagInfo().name << " , last object valid since " << tagInfo().lastInterval.first << std::endl;
 
   unsigned int snc;
 
@@ -33,6 +29,5 @@ void popcon::CSCFakeDBNoiseMatrixImpl::getNewObjects() {
 
   m_to_transfer.push_back(std::make_pair(cnmatrix, snc));
 
-  std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"
-            << std::endl;
+  std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
 }

@@ -19,27 +19,25 @@ class PixelModuleName;
 
 class PixelToLNKAssociateFromAscii : public PixelToFEDAssociate {
 public:
-
   typedef PixelToFEDAssociate::CablingRocId CablingRocId;
   typedef PixelToFEDAssociate::DetectorRocId DetectorRocId;
 
-  PixelToLNKAssociateFromAscii(const std::string & fileName, const bool phase1=false);
+  PixelToLNKAssociateFromAscii(const std::string& fileName, const bool phase1 = false);
 
-  const CablingRocId * operator()(const DetectorRocId& roc) const override;
+  const CablingRocId* operator()(const DetectorRocId& roc) const override;
 
   /// version
   std::string version() const override;
 
 private:
-  typedef TRange<int> Range; 
+  typedef TRange<int> Range;
 
   /// initialisatin (read file)
-  void init( const std::string & fileName);
-  void addConnections( int fedId, int linkId, std::string module, Range rocDetIds);
+  void init(const std::string& fileName);
+  void addConnections(int fedId, int linkId, std::string module, Range rocDetIds);
   std::string theVersion;
-  std::vector< std::pair<DetectorRocId,CablingRocId> > theConnection;
-  Range readRange( const std::string &) const;
-  bool phase1_; // signals phase1 detector
-    
+  std::vector<std::pair<DetectorRocId, CablingRocId> > theConnection;
+  Range readRange(const std::string&) const;
+  bool phase1_;  // signals phase1 detector
 };
-#endif 
+#endif

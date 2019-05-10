@@ -26,39 +26,41 @@ class CastorCalibrations;
 class CastorCalibrationWidths;
 
 class CastorDbService {
- public:
-  CastorDbService ();
+public:
+  CastorDbService();
 
-  const CastorCalibrations& getCastorCalibrations(const HcalGenericDetId& fId) const 
-  { return mCalibSet.getCalibrations(fId); }
-  const CastorCalibrationWidths& getCastorCalibrationWidths(const HcalGenericDetId& fId) const 
-  { return mCalibWidthSet.getCalibrationWidths(fId); }
+  const CastorCalibrations& getCastorCalibrations(const HcalGenericDetId& fId) const {
+    return mCalibSet.getCalibrations(fId);
+  }
+  const CastorCalibrationWidths& getCastorCalibrationWidths(const HcalGenericDetId& fId) const {
+    return mCalibWidthSet.getCalibrationWidths(fId);
+  }
 
-  const CastorPedestal* getPedestal (const HcalGenericDetId& fId) const;
-  const CastorPedestalWidth* getPedestalWidth (const HcalGenericDetId& fId) const;
-  const CastorGain* getGain (const HcalGenericDetId& fId) const;
-  const CastorGainWidth* getGainWidth (const HcalGenericDetId& fId) const;
-  const CastorQIECoder* getCastorCoder (const HcalGenericDetId& fId) const;
-  const CastorQIEShape* getCastorShape () const;
-  const CastorElectronicsMap* getCastorMapping () const;
-  const CastorChannelStatus* getCastorChannelStatus (const HcalGenericDetId& fId) const;
+  const CastorPedestal* getPedestal(const HcalGenericDetId& fId) const;
+  const CastorPedestalWidth* getPedestalWidth(const HcalGenericDetId& fId) const;
+  const CastorGain* getGain(const HcalGenericDetId& fId) const;
+  const CastorGainWidth* getGainWidth(const HcalGenericDetId& fId) const;
+  const CastorQIECoder* getCastorCoder(const HcalGenericDetId& fId) const;
+  const CastorQIEShape* getCastorShape() const;
+  const CastorElectronicsMap* getCastorMapping() const;
+  const CastorChannelStatus* getCastorChannelStatus(const HcalGenericDetId& fId) const;
 
-  void setData (const CastorPedestals* fItem) { mPedestals = fItem; }
-  void setData (const CastorPedestalWidths* fItem) { mPedestalWidths = fItem; }
-  void setData (const CastorGains* fItem) { mGains = fItem; }
-  void setData (const CastorGainWidths* fItem) {mGainWidths = fItem; }
-  void setData (const CastorQIEData* fItem) {mQIEData = fItem; }
-  void setData (const CastorChannelQuality* fItem) {mChannelQuality = fItem;}
-  void setData (const CastorElectronicsMap* fItem) {mElectronicsMap = fItem;}
+  void setData(const CastorPedestals* fItem) { mPedestals = fItem; }
+  void setData(const CastorPedestalWidths* fItem) { mPedestalWidths = fItem; }
+  void setData(const CastorGains* fItem) { mGains = fItem; }
+  void setData(const CastorGainWidths* fItem) { mGainWidths = fItem; }
+  void setData(const CastorQIEData* fItem) { mQIEData = fItem; }
+  void setData(const CastorChannelQuality* fItem) { mChannelQuality = fItem; }
+  void setData(const CastorElectronicsMap* fItem) { mElectronicsMap = fItem; }
 
   void buildCalibrations();
   void buildCalibWidths();
 
- private:
-  bool makeCastorCalibration (const HcalGenericDetId& fId, CastorCalibrations* fObject, 
-			    bool pedestalInADC) const;
-  bool makeCastorCalibrationWidth (const HcalGenericDetId& fId, CastorCalibrationWidths* fObject, 
-				 bool pedestalInADC) const;
+private:
+  bool makeCastorCalibration(const HcalGenericDetId& fId, CastorCalibrations* fObject, bool pedestalInADC) const;
+  bool makeCastorCalibrationWidth(const HcalGenericDetId& fId,
+                                  CastorCalibrationWidths* fObject,
+                                  bool pedestalInADC) const;
   const CastorPedestals* mPedestals;
   const CastorPedestalWidths* mPedestalWidths;
   const CastorGains* mGains;

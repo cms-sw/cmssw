@@ -33,21 +33,15 @@
 //--------------------------------------------------------------------------------------------------
 AlcaBeamSpotProducer::AlcaBeamSpotProducer(const edm::ParameterSet &iConfig) {
   // get parameter
-  write2DB_ =
-      iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters")
-          .getParameter<bool>("WriteToDB");
+  write2DB_ = iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters").getParameter<bool>("WriteToDB");
   runallfitters_ =
-      iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters")
-          .getParameter<bool>("RunAllFitters");
-  fitNLumi_ =
-      iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters")
-          .getUntrackedParameter<int>("fitEveryNLumi", -1);
-  resetFitNLumi_ =
-      iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters")
-          .getUntrackedParameter<int>("resetEveryNLumi", -1);
+      iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters").getParameter<bool>("RunAllFitters");
+  fitNLumi_ = iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters")
+                  .getUntrackedParameter<int>("fitEveryNLumi", -1);
+  resetFitNLumi_ = iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters")
+                       .getUntrackedParameter<int>("resetEveryNLumi", -1);
   runbeamwidthfit_ =
-      iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters")
-          .getParameter<bool>("RunBeamWidthFit");
+      iConfig.getParameter<edm::ParameterSet>("AlcaBeamSpotProducerParameters").getParameter<bool>("RunBeamWidthFit");
 
   theBeamFitter = new BeamFitter(iConfig, consumesCollector());
   theBeamFitter->resetTrkVector();
@@ -68,21 +62,18 @@ AlcaBeamSpotProducer::AlcaBeamSpotProducer(const edm::ParameterSet &iConfig) {
 AlcaBeamSpotProducer::~AlcaBeamSpotProducer() { delete theBeamFitter; }
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotProducer::produce(edm::Event &iEvent,
-                                   const edm::EventSetup &iSetup) {
+void AlcaBeamSpotProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   ftotalevents++;
   theBeamFitter->readEvent(iEvent);
   ftmprun = iEvent.id().run();
 }
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotProducer::beginLuminosityBlock(
-    edm::LuminosityBlock const &lumiSeg, const edm::EventSetup &iSetup) {
+void AlcaBeamSpotProducer::beginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, const edm::EventSetup &iSetup) {
   const edm::TimeValue_t fbegintimestamp = lumiSeg.beginTime().value();
   const std::time_t ftmptime = fbegintimestamp >> 32;
 
-  if (countLumi_ == 0 ||
-      (resetFitNLumi_ > 0 && countLumi_ % resetFitNLumi_ == 0)) {
+  if (countLumi_ == 0 || (resetFitNLumi_ > 0 && countLumi_ % resetFitNLumi_ == 0)) {
     ftmprun0 = lumiSeg.run();
     ftmprun = ftmprun0;
     beginLumiOfBSFit_ = lumiSeg.luminosityBlock();
@@ -93,12 +84,10 @@ void AlcaBeamSpotProducer::beginLuminosityBlock(
 }
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotProducer::endLuminosityBlock(
-    edm::LuminosityBlock const &lumiSeg, const edm::EventSetup &iSetup) {}
+void AlcaBeamSpotProducer::endLuminosityBlock(edm::LuminosityBlock const &lumiSeg, const edm::EventSetup &iSetup) {}
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotProducer::endLuminosityBlockProduce(
-    edm::LuminosityBlock &lumiSeg, const edm::EventSetup &iSetup) {
+void AlcaBeamSpotProducer::endLuminosityBlockProduce(edm::LuminosityBlock &lumiSeg, const edm::EventSetup &iSetup) {
   const edm::TimeValue_t fendtimestamp = lumiSeg.endTime().value();
   const std::time_t fendtime = fendtimestamp >> 32;
   refBStime[1] = fendtime;
@@ -120,26 +109,24 @@ void AlcaBeamSpotProducer::endLuminosityBlockProduce(
   reco::BeamSpot bs;
   if (theBeamFitter->runPVandTrkFitter()) {
     bs = theBeamFitter->getBeamSpot();
-    edm::LogInfo("AlcaBeamSpotProducer")
-        << "\n RESULTS OF DEFAULT FIT " << std::endl
-        << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl
-        << " for lumi blocks : " << LSRange.first << " - " << LSRange.second
-        << std::endl
-        << " lumi counter # " << countLumi_ << std::endl
-        << bs << std::endl
-        << "fit done. \n"
-        << std::endl;
-  } else { // Fill in empty beam spot if beamfit fails
+    edm::LogInfo("AlcaBeamSpotProducer") << "\n RESULTS OF DEFAULT FIT " << std::endl
+                                         << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl
+                                         << " for lumi blocks : " << LSRange.first << " - " << LSRange.second
+                                         << std::endl
+                                         << " lumi counter # " << countLumi_ << std::endl
+                                         << bs << std::endl
+                                         << "fit done. \n"
+                                         << std::endl;
+  } else {  // Fill in empty beam spot if beamfit fails
     bs.setType(reco::BeamSpot::Fake);
-    edm::LogInfo("AlcaBeamSpotProducer")
-        << "\n Empty Beam spot fit" << std::endl
-        << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl
-        << " for lumi blocks : " << LSRange.first << " - " << LSRange.second
-        << std::endl
-        << " lumi counter # " << countLumi_ << std::endl
-        << bs << std::endl
-        << "fit failed \n"
-        << std::endl;
+    edm::LogInfo("AlcaBeamSpotProducer") << "\n Empty Beam spot fit" << std::endl
+                                         << " for runs: " << ftmprun0 << " - " << ftmprun << std::endl
+                                         << " for lumi blocks : " << LSRange.first << " - " << LSRange.second
+                                         << std::endl
+                                         << " lumi counter # " << countLumi_ << std::endl
+                                         << bs << std::endl
+                                         << "fit failed \n"
+                                         << std::endl;
   }
 
   auto result = std::make_unique<reco::BeamSpot>();
@@ -148,10 +135,8 @@ void AlcaBeamSpotProducer::endLuminosityBlockProduce(
 
   if (resetFitNLumi_ > 0 && countLumi_ % resetFitNLumi_ == 0) {
     std::vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
-    edm::LogInfo("AlcaBeamSpotProducer")
-        << "Total number of tracks accumulated = " << theBSvector.size()
-        << std::endl
-        << "Reset track collection for beam fit" << std::endl;
+    edm::LogInfo("AlcaBeamSpotProducer") << "Total number of tracks accumulated = " << theBSvector.size() << std::endl
+                                         << "Reset track collection for beam fit" << std::endl;
     theBeamFitter->resetTrkVector();
     theBeamFitter->resetLSRange();
     theBeamFitter->resetCutFlow();

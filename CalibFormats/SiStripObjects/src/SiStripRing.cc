@@ -4,8 +4,7 @@
 
 // -----------------------------------------------------------------------------
 //
-SiStripRing::SiStripRing(const FedChannelConnection &conn)
-    : fecRing_(conn.fecRing()), ccus_() {
+SiStripRing::SiStripRing(const FedChannelConnection &conn) : fecRing_(conn.fecRing()), ccus_() {
   ccus_.reserve(256);
   addDevices(conn);
 }

@@ -4,8 +4,7 @@
 
 // -----------------------------------------------------------------------------
 //
-SiStripCcu::SiStripCcu(const FedChannelConnection &conn)
-    : ccuAddr_(conn.ccuAddr()), modules_() {
+SiStripCcu::SiStripCcu(const FedChannelConnection &conn) : ccuAddr_(conn.ccuAddr()), modules_() {
   modules_.reserve(32);
   addDevices(conn);
 }

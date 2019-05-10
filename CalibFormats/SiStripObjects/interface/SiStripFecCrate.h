@@ -12,7 +12,6 @@
     \author R.Bainbridge
 */
 class SiStripFecCrate {
-
 public:
   /** */
   SiStripFecCrate(const FedChannelConnection &conn);
@@ -47,4 +46,4 @@ const std::vector<SiStripFec> &SiStripFecCrate::fecs() const { return fecs_; }
 std::vector<SiStripFec> &SiStripFecCrate::fecs() { return fecs_; }
 const uint16_t &SiStripFecCrate::fecCrate() const { return fecCrate_; }
 
-#endif // CalibTracker_SiStripObjects_SiStripFecCrate_H
+#endif  // CalibTracker_SiStripObjects_SiStripFecCrate_H

@@ -2,17 +2,14 @@
 #include "CalibMuon/CSCCalibration/interface/CSCFakeNoiseMatrixConditions.h"
 
 CSCNoiseMatrix *CSCFakeNoiseMatrixConditions::prefillNoiseMatrix() {
-
   const CSCDetId &detId = CSCDetId();
   CSCNoiseMatrix *cnmatrix = new CSCNoiseMatrix();
 
   int max_istrip, id_layer, max_ring, max_cham;
   // endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6
 
-  for (int iendcap = detId.minEndcapId(); iendcap <= detId.maxEndcapId();
-       iendcap++) {
-    for (int istation = detId.minStationId(); istation <= detId.maxStationId();
-         istation++) {
+  for (int iendcap = detId.minEndcapId(); iendcap <= detId.maxEndcapId(); iendcap++) {
+    for (int istation = detId.minStationId(); istation <= detId.maxStationId(); istation++) {
       max_ring = detId.maxRingId();
       // station 4 ring 4 not there(36 chambers*2 missing)
       // 3 rings max this way of counting (ME1a & b)
@@ -45,21 +42,17 @@ CSCNoiseMatrix *CSCFakeNoiseMatrixConditions::prefillNoiseMatrix() {
         if (istation == 4 && iring == 1)
           max_cham = 18;
 
-        for (int ichamber = detId.minChamberId(); ichamber <= max_cham;
-             ichamber++) {
-          for (int ilayer = detId.minLayerId(); ilayer <= detId.maxLayerId();
-               ilayer++) {
+        for (int ichamber = detId.minChamberId(); ichamber <= max_cham; ichamber++) {
+          for (int ilayer = detId.minLayerId(); ilayer <= detId.maxLayerId(); ilayer++) {
             // station 1 ring 3 has 64 strips per layer instead of 80
             if (istation == 1 && iring == 3)
               max_istrip = 64;
 
             std::vector<CSCNoiseMatrix::Item> itemvector;
             itemvector.resize(max_istrip);
-            id_layer = 100000 * iendcap + 10000 * istation + 1000 * iring +
-                       10 * ichamber + ilayer;
+            id_layer = 100000 * iendcap + 10000 * istation + 1000 * iring + 10 * ichamber + ilayer;
 
             for (int istrip = 0; istrip < max_istrip; istrip++) {
-
               if (istation == 1 && iring == 1) {
                 itemvector[istrip].elem33 = 7.86675;
                 itemvector[istrip].elem34 = 2.07075;
@@ -196,9 +189,7 @@ CSCNoiseMatrix *CSCFakeNoiseMatrixConditions::prefillNoiseMatrix() {
   return cnmatrix;
 }
 
-CSCFakeNoiseMatrixConditions::CSCFakeNoiseMatrixConditions(
-    const edm::ParameterSet &iConfig) {
-
+CSCFakeNoiseMatrixConditions::CSCFakeNoiseMatrixConditions(const edm::ParameterSet &iConfig) {
   // tell the framework what data is being produced
   setWhatProduced(this, &CSCFakeNoiseMatrixConditions::produceNoiseMatrix);
 
@@ -217,15 +208,13 @@ CSCFakeNoiseMatrixConditions::~CSCFakeNoiseMatrixConditions() {
 //
 
 // ------------ method called to produce the data  ------------
-CSCFakeNoiseMatrixConditions::ReturnType
-CSCFakeNoiseMatrixConditions::produceNoiseMatrix(
+CSCFakeNoiseMatrixConditions::ReturnType CSCFakeNoiseMatrixConditions::produceNoiseMatrix(
     const CSCNoiseMatrixRcd &iRecord) {
   return CSCFakeNoiseMatrixConditions::ReturnType(prefillNoiseMatrix());
 }
 
-void CSCFakeNoiseMatrixConditions::setIntervalFor(
-    const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &,
-    edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
-                                    edm::IOVSyncValue::endOfTime());
+void CSCFakeNoiseMatrixConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                                                  const edm::IOVSyncValue &,
+                                                  edm::ValidityInterval &oValidity) {
+  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }

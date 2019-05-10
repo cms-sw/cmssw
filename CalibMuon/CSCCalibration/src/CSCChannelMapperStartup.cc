@@ -1,8 +1,6 @@
 #include "CalibMuon/CSCCalibration/interface/CSCChannelMapperStartup.h"
 
-int CSCChannelMapperStartup::rawStripChannel(const CSCDetId &id,
-                                             int igeo) const {
-
+int CSCChannelMapperStartup::rawStripChannel(const CSCDetId &id, int igeo) const {
   // Translate a geometry-oriented strip channel in range 1-80, igeo,
   // into corresponding raw channel.
 
@@ -15,19 +13,18 @@ int CSCChannelMapperStartup::rawStripChannel(const CSCDetId &id,
 
   if (me1a && zplus) {
     iraw = 17 - iraw;
-  } // 1-16 -> 16-1
+  }  // 1-16 -> 16-1
   if (me1b && !zplus) {
     iraw = 65 - iraw;
-  } // 1-64 -> 64-1
+  }  // 1-64 -> 64-1
   if (me1a) {
     iraw += 64;
-  } // set 1-16 to 65-80
+  }  // set 1-16 to 65-80
 
   return iraw;
 }
 
-int CSCChannelMapperStartup::geomStripChannel(const CSCDetId &id,
-                                              int iraw) const {
+int CSCChannelMapperStartup::geomStripChannel(const CSCDetId &id, int iraw) const {
   // Translate a raw strip channel in range 1-80, iraw,  into
   // corresponding geometry-oriented channel in which increasing
   // channel number <-> strip number increasing with +ve local x.
@@ -40,20 +37,19 @@ int CSCChannelMapperStartup::geomStripChannel(const CSCDetId &id,
   bool me1b = me11 && (iraw <= 64);
 
   if (me1a)
-    igeo -= 64; // 65-80 -> 1-16
+    igeo -= 64;  // 65-80 -> 1-16
   // if ( me1a ) igeo %= 64; // 65-80 -> 1-16
   if (me1a && zplus) {
     igeo = 17 - igeo;
-  } // 65-80 -> 16-1
+  }  // 65-80 -> 16-1
   if (me1b && !zplus) {
     igeo = 65 - igeo;
-  } // 1-64 -> 64-1
+  }  // 1-64 -> 64-1
 
   return igeo;
 }
 
-int CSCChannelMapperStartup::channelFromStrip(const CSCDetId &id,
-                                              int strip) const {
+int CSCChannelMapperStartup::channelFromStrip(const CSCDetId &id, int strip) const {
   // This just returns the electronics channel label to which a given strip is
   // connected In all chambers but ME1A this is just a direct 1-1
   // correspondence. In ME1A the 48 strips are ganged into 16 channels:
@@ -61,7 +57,7 @@ int CSCChannelMapperStartup::channelFromStrip(const CSCDetId &id,
   int ichan = strip;
   bool me1a = (id.station() == 1) && (id.ring() == 4);
   if (me1a && strip > 16)
-    ichan = (strip - 1) % 16 + 1; // gang the 48 to 16
+    ichan = (strip - 1) % 16 + 1;  // gang the 48 to 16
   return ichan;
 }
 

@@ -6,14 +6,13 @@
 #include <vector>
 
 namespace edm {
-class Event;
-class ParameterSet;
-} // namespace edm
+  class Event;
+  class ParameterSet;
+}  // namespace edm
 
 class TrackingRecHit;
 
 class CalibrationTrackSelector {
-
 public:
   typedef std::vector<const reco::Track *> Tracks;
 
@@ -40,9 +39,7 @@ private:
 
   /// compare two tracks in pt (used by theNHighestPtTracks)
   struct ComparePt {
-    bool operator()(const reco::Track *t1, const reco::Track *t2) const {
-      return t1->pt() > t2->pt();
-    }
+    bool operator()(const reco::Track *t1, const reco::Track *t2) const { return t1->pt() > t2->pt(); }
   };
   ComparePt ptComparator;
 
@@ -50,16 +47,14 @@ private:
   const int seedOnlyFromAbove_;
   const bool applyIsolation_, chargeCheck_;
   const int nHighestPt_, minMultiplicity_, maxMultiplicity_;
-  const bool multiplicityOnInput_; /// if true, cut min/maxMultiplicity on input
-                                   /// instead of on final result
-  const double ptMin_, ptMax_, etaMin_, etaMax_, phiMin_, phiMax_, nHitMin_,
-      nHitMax_, chi2nMax_;
+  const bool multiplicityOnInput_;  /// if true, cut min/maxMultiplicity on input
+                                    /// instead of on final result
+  const double ptMin_, ptMax_, etaMin_, etaMax_, phiMin_, phiMax_, nHitMin_, nHitMax_, chi2nMax_;
   const double minHitChargeStrip_, minHitIsolation_;
   const edm::InputTag rphirecHitsTag_;
   const edm::InputTag matchedrecHitsTag_;
   const unsigned int nHitMin2D_;
-  const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_,
-      minHitsinBPIX_, minHitsinFPIX_;
+  const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_;
 };
 
 #endif

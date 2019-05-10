@@ -37,16 +37,13 @@
 class FEDRawDataCollection;
 
 class PixelSLinkDataInputSource : public edm::ProducerSourceFromFiles {
-
 public:
-  explicit PixelSLinkDataInputSource(const edm::ParameterSet &pset,
-                                     const edm::InputSourceDescription &desc);
+  explicit PixelSLinkDataInputSource(const edm::ParameterSet &pset, const edm::InputSourceDescription &desc);
 
   ~PixelSLinkDataInputSource() override;
 
 private:
-  bool setRunAndEventInfo(edm::EventID &id, edm::TimeValue_t &time,
-                          edm::EventAuxiliary::ExperimentType &) override;
+  bool setRunAndEventInfo(edm::EventID &id, edm::TimeValue_t &time, edm::EventAuxiliary::ExperimentType &) override;
   void produce(edm::Event &event) override;
   uint32_t synchronizeEvents();
 
@@ -59,8 +56,7 @@ private:
   uint32_t m_currenttriggernumber;
   uint32_t m_globaleventnumber;
   int32_t m_eventnumber_shift;
-  int getEventNumberFromFillWords(const std::vector<uint64_t> &data,
-                                  uint32_t &totword);
+  int getEventNumberFromFillWords(const std::vector<uint64_t> &data, uint32_t &totword);
   std::unique_ptr<FEDRawDataCollection> buffers;
 };
 #endif

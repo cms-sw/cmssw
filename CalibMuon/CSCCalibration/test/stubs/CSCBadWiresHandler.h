@@ -16,17 +16,16 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 namespace popcon {
-class CSCBadWiresImpl : public popcon::PopConSourceHandler<CSCBadWires> {
+  class CSCBadWiresImpl : public popcon::PopConSourceHandler<CSCBadWires> {
+  public:
+    void getNewObjects();
+    std::string id() const { return m_name; }
+    ~CSCBadWiresImpl();
 
-public:
-  void getNewObjects();
-  std::string id() const { return m_name; }
-  ~CSCBadWiresImpl();
+    CSCBadWiresImpl(const edm::ParameterSet &pset);
 
-  CSCBadWiresImpl(const edm::ParameterSet &pset);
-
-private:
-  std::string m_name;
-};
-} // namespace popcon
+  private:
+    std::string m_name;
+  };
+}  // namespace popcon
 #endif

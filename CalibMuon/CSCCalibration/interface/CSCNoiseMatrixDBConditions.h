@@ -17,8 +17,7 @@
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCNoiseMatrixDBConditions : public edm::ESProducer,
-                                   public edm::EventSetupRecordIntervalFinder {
+class CSCNoiseMatrixDBConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCNoiseMatrixDBConditions(const edm::ParameterSet &);
   ~CSCNoiseMatrixDBConditions() override;
@@ -96,9 +95,8 @@ inline CSCDBNoiseMatrix *CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix() {
   }
 
   while (!dbdata.eof()) {
-    dbdata >> db_index >> db_elm33 >> db_elm34 >> db_elm44 >> db_elm35 >>
-        db_elm45 >> db_elm55 >> db_elm46 >> db_elm56 >> db_elm66 >> db_elm57 >>
-        db_elm67 >> db_elm77;
+    dbdata >> db_index >> db_elm33 >> db_elm34 >> db_elm44 >> db_elm35 >> db_elm45 >> db_elm55 >> db_elm46 >>
+        db_elm56 >> db_elm66 >> db_elm57 >> db_elm67 >> db_elm77;
     db_index_id.push_back(db_index);
     db_elem33.push_back(db_elm33);
     db_elem34.push_back(db_elm34);
@@ -124,9 +122,8 @@ inline CSCDBNoiseMatrix *CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix() {
   }
 
   while (!newdata.eof()) {
-    newdata >> new_index >> new_elm33 >> new_elm34 >> new_elm44 >> new_elm35 >>
-        new_elm45 >> new_elm55 >> new_elm46 >> new_elm56 >> new_elm66 >>
-        new_elm57 >> new_elm67 >> new_elm77;
+    newdata >> new_index >> new_elm33 >> new_elm34 >> new_elm44 >> new_elm35 >> new_elm45 >> new_elm55 >> new_elm46 >>
+        new_elm56 >> new_elm66 >> new_elm57 >> new_elm67 >> new_elm77;
     // new_cham_id.push_back(new_chamber_id);
     new_index_id.push_back(new_index);
     new_elem33.push_back(new_elm33);

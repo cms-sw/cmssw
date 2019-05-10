@@ -17,8 +17,7 @@
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCFakeDBPedestals : public edm::ESProducer,
-                           public edm::EventSetupRecordIntervalFinder {
+class CSCFakeDBPedestals : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCFakeDBPedestals(const edm::ParameterSet &);
   ~CSCFakeDBPedestals() override;
@@ -44,7 +43,7 @@ private:
 inline CSCDBPedestals *CSCFakeDBPedestals::prefillDBPedestals() {
   int seed;
   float meanped, meanrms;
-  const int MAX_SIZE = 217728; // or 252288 for ME4/2 chambers
+  const int MAX_SIZE = 217728;  // or 252288 for ME4/2 chambers
   const int PED_FACTOR = 10;
   const int RMS_FACTOR = 1000;
 
@@ -59,12 +58,9 @@ inline CSCDBPedestals *CSCFakeDBPedestals::prefillDBPedestals() {
 
   for (int i = 0; i < MAX_SIZE; i++) {
     cndbpedestals->pedestals[i].ped =
-        (short int)(((double)rand() / ((double)(RAND_MAX) + (double)(1))) *
-                        100 +
-                    meanped * PED_FACTOR + 0.5);
+        (short int)(((double)rand() / ((double)(RAND_MAX) + (double)(1))) * 100 + meanped * PED_FACTOR + 0.5);
     cndbpedestals->pedestals[i].rms =
-        (short int)(((double)rand() / ((double)(RAND_MAX) + (double)(1))) +
-                    meanrms * RMS_FACTOR + 0.5);
+        (short int)(((double)rand() / ((double)(RAND_MAX) + (double)(1))) + meanrms * RMS_FACTOR + 0.5);
   }
   return cndbpedestals;
 }

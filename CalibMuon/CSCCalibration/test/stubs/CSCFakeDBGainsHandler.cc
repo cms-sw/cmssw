@@ -6,13 +6,11 @@
 #include "CondFormats/CSCObjects/interface/CSCDBGains.h"
 
 popcon::CSCFakeDBGainsImpl::CSCFakeDBGainsImpl(const edm::ParameterSet &pset)
-    : m_name(pset.getUntrackedParameter<std::string>("name",
-                                                     "CSCFakeDBGainsImpl")) {}
+    : m_name(pset.getUntrackedParameter<std::string>("name", "CSCFakeDBGainsImpl")) {}
 
 popcon::CSCFakeDBGainsImpl::~CSCFakeDBGainsImpl() {}
 
 void popcon::CSCFakeDBGainsImpl::getNewObjects() {
-
   std::cout << "------- CSC src - > getNewObjects\n" << m_name;
 
   // fill object from file
@@ -22,8 +20,7 @@ void popcon::CSCFakeDBGainsImpl::getNewObjects() {
   // check whats already inside of database
 
   std::cerr << "got offlineInfo" << std::endl;
-  std::cerr << tagInfo().name << " , last object valid since "
-            << tagInfo().lastInterval.first << std::endl;
+  std::cerr << tagInfo().name << " , last object valid since " << tagInfo().lastInterval.first << std::endl;
 
   unsigned int snc;
 
@@ -32,6 +29,5 @@ void popcon::CSCFakeDBGainsImpl::getNewObjects() {
 
   m_to_transfer.push_back(std::make_pair(cngains, snc));
 
-  std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"
-            << std::endl;
+  std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
 }

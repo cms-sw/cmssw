@@ -20,13 +20,14 @@
 SiStripQuality::SiStripQuality()
     : toCleanUp(false),
       FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"),
-      SiStripDetCabling_(nullptr), printDebug_(false), useEmptyRunInfo_(false) {
+      SiStripDetCabling_(nullptr),
+      printDebug_(false),
+      useEmptyRunInfo_(false) {
   reader = new SiStripDetInfoFileReader(FileInPath_.fullPath());
 }
 
 SiStripQuality::SiStripQuality(edm::FileInPath &file)
-    : toCleanUp(false), FileInPath_(file), SiStripDetCabling_(nullptr),
-      printDebug_(false), useEmptyRunInfo_(false) {
+    : toCleanUp(false), FileInPath_(file), SiStripDetCabling_(nullptr), printDebug_(false), useEmptyRunInfo_(false) {
   reader = new SiStripDetInfoFileReader(FileInPath_.fullPath());
 }
 
@@ -62,34 +63,29 @@ SiStripQuality &SiStripQuality::operator-=(const SiStripQuality &other) {
   unsigned short Nstrips;
 
   for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
-
     detid = rp->detid;
     Nstrips = reader->getNumberOfApvsAndStripLength(detid).first * 128;
 
     SiStripBadStrip::Range orange =
-        SiStripBadStrip::Range(other.getDataVectorBegin() + rp->ibegin,
-                               other.getDataVectorBegin() + rp->iend);
+        SiStripBadStrip::Range(other.getDataVectorBegin() + rp->ibegin, other.getDataVectorBegin() + rp->iend);
 
     // Is this detid already in the collections owned by this class?
     SiStripBadStrip::Range range = getRange(detid);
-    if (range.first != range.second) { // yes, it is
+    if (range.first != range.second) {  // yes, it is
 
       vect.clear();
       ovect.clear();
 
       // if other full det is bad, remove det from this
       SiStripBadStrip::data data_ = decode(*(orange.first));
-      if (orange.second - orange.first != 1 || data_.firstStrip != 0 ||
-          data_.range < Nstrips) {
-
+      if (orange.second - orange.first != 1 || data_.firstStrip != 0 || data_.range < Nstrips) {
         ovect.insert(ovect.end(), orange.first, orange.second);
         vect.insert(vect.end(), range.first, range.second);
         subtract(vect, ovect);
       }
       SiStripBadStrip::Range newrange(vect.begin(), vect.end());
       if (!put_replace(detid, newrange))
-        edm::LogError("SiStripQuality")
-            << "[" << __PRETTY_FUNCTION__ << "] " << std::endl;
+        edm::LogError("SiStripQuality") << "[" << __PRETTY_FUNCTION__ << "] " << std::endl;
     }
   }
   cleanUp();
@@ -97,8 +93,7 @@ SiStripQuality &SiStripQuality::operator-=(const SiStripQuality &other) {
   return *this;
 }
 
-const SiStripQuality SiStripQuality::
-operator-(const SiStripQuality &other) const {
+const SiStripQuality SiStripQuality::operator-(const SiStripQuality &other) const {
   return SiStripQuality(*this) -= other;
 }
 
@@ -107,9 +102,7 @@ bool SiStripQuality::operator==(const SiStripQuality &other) const {
   return a.getRegistryVectorBegin() == a.getRegistryVectorEnd();
 }
 
-bool SiStripQuality::operator!=(const SiStripQuality &other) const {
-  return !(*this == other);
-}
+bool SiStripQuality::operator!=(const SiStripQuality &other) const { return !(*this == other); }
 
 void SiStripQuality::add(const SiStripDetVOff *Voff) {
   std::vector<unsigned int> vect;
@@ -125,9 +118,8 @@ void SiStripQuality::add(const SiStripDetVOff *Voff) {
   for (; iter != iterEnd; ++iter) {
     vect.clear();
     range = (short)(reader->getNumberOfApvsAndStripLength(*iter).first * 128.);
-    LogTrace("SiStripQuality")
-        << "[add Voff] add detid " << *iter << " first strip " << firstStrip
-        << " range " << range << std::endl;
+    LogTrace("SiStripQuality") << "[add Voff] add detid " << *iter << " first strip " << firstStrip << " range "
+                               << range << std::endl;
     vect.push_back(encode(firstStrip, range));
     SiStripBadStrip::Range Range(vect.begin(), vect.end());
     add(*iter, Range);
@@ -140,8 +132,7 @@ void SiStripQuality::add(const RunInfo *runInfo) {
     std::stringstream ss;
     ss << "WARNING: the full list of feds in RunInfo is empty. ";
     if (useEmptyRunInfo_) {
-      ss << " SiStripQuality will still use it and all tracker will be off."
-         << std::endl;
+      ss << " SiStripQuality will still use it and all tracker will be off." << std::endl;
     } else {
       ss << " SiStripQuality will not use it." << std::endl;
     }
@@ -156,14 +147,12 @@ void SiStripQuality::add(const RunInfo *runInfo) {
     // Take the list of active feds from RunInfo
     std::vector<int> activeFedsFromRunInfo;
     // Take only Tracker feds (remove all non Tracker)
-    std::remove_copy_if(
-        runInfo->m_fed_in.begin(), runInfo->m_fed_in.end(),
-        std::back_inserter(activeFedsFromRunInfo),
-        !boost::bind(std::logical_and<bool>(),
-                     boost::bind(std::greater_equal<int>(), _1,
-                                 int(FEDNumbering::MINSiStripFEDID)),
-                     boost::bind(std::less_equal<int>(), _1,
-                                 int(FEDNumbering::MAXSiStripFEDID))));
+    std::remove_copy_if(runInfo->m_fed_in.begin(),
+                        runInfo->m_fed_in.end(),
+                        std::back_inserter(activeFedsFromRunInfo),
+                        !boost::bind(std::logical_and<bool>(),
+                                     boost::bind(std::greater_equal<int>(), _1, int(FEDNumbering::MINSiStripFEDID)),
+                                     boost::bind(std::less_equal<int>(), _1, int(FEDNumbering::MAXSiStripFEDID))));
 
     // Compare the two. If a fedId from RunInfo is not present in the fedCabling
     // we need to get all the corresponding fedChannels and then the single apv
@@ -174,10 +163,11 @@ void SiStripQuality::add(const RunInfo *runInfo) {
     std::sort(activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end());
     std::vector<int> differentFeds;
     // Take the feds active for cabling but not for runInfo
-    std::set_difference(
-        activeFedsFromCabling.begin(), activeFedsFromCabling.end(),
-        activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end(),
-        std::back_inserter(differentFeds));
+    std::set_difference(activeFedsFromCabling.begin(),
+                        activeFedsFromCabling.end(),
+                        activeFedsFromRunInfo.begin(),
+                        activeFedsFromRunInfo.end(),
+                        std::back_inserter(differentFeds));
 
     // IGNORE for time being.
     // printActiveFedsInfo(activeFedsFromCabling, activeFedsFromRunInfo,
@@ -195,15 +185,14 @@ void SiStripQuality::add(const RunInfo *runInfo) {
     std::set_difference(activeFedsFromRunInfo.begin(),
                         activeFedsFromRunInfo.end(),
                         activeFedsFromCabling.begin(),
-                        activeFedsFromCabling.end(), std::back_inserter(check));
+                        activeFedsFromCabling.end(),
+                        std::back_inserter(check));
     // This must not happen
     if (!check.empty()) {
       // throw cms::Exception("LogicError")
-      edm::LogInfo("SiStripQuality")
-          << "The cabling should always include the active feds in runInfo and "
-             "possibly have some more"
-          << "there are instead " << check.size()
-          << " feds only active in runInfo";
+      edm::LogInfo("SiStripQuality") << "The cabling should always include the active feds in runInfo and "
+                                        "possibly have some more"
+                                     << "there are instead " << check.size() << " feds only active in runInfo";
       // The "false" means that we are only printing the output, but not setting
       // the strips as bad. The second bool means that we always want the debug
       // output in this case.
@@ -219,12 +208,9 @@ void SiStripQuality::add(const SiStripDetCabling *cab) {
 }
 
 void SiStripQuality::addNotConnectedConnectionFromCabling() {
-  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> allData =
-      reader->getAllData();
-  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator iter =
-      allData.begin();
-  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator
-      iterEnd = allData.end();
+  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> allData = reader->getAllData();
+  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator iter = allData.begin();
+  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator iterEnd = allData.end();
   std::vector<unsigned int> vect;
   short firstStrip = 0;
   short range = 0;
@@ -232,9 +218,7 @@ void SiStripQuality::addNotConnectedConnectionFromCabling() {
     if (!SiStripDetCabling_->IsConnected(iter->first)) {
       vect.clear();
       range = iter->second.nApvs * 128;
-      LogTrace("SiStripQuality")
-          << "[addNotConnectedConnectionFromCabling] add detid " << iter->first
-          << std::endl;
+      LogTrace("SiStripQuality") << "[addNotConnectedConnectionFromCabling] add detid " << iter->first << std::endl;
       vect.push_back(encode(firstStrip, range));
       SiStripBadStrip::Range Range(vect.begin(), vect.end());
       add(iter->first, Range);
@@ -249,12 +233,9 @@ void SiStripQuality::addInvalidConnectionFromCabling() {
   for (; itdet != itdetEnd; ++itdet) {
     // LogTrace("SiStripQuality") << "[addInvalidConnectionFromCabling] looking
     // at detid " <<*itdet << std::endl;
-    const std::vector<const FedChannelConnection *> &fedconns =
-        SiStripDetCabling_->getConnections(*itdet);
-    std::vector<const FedChannelConnection *>::const_iterator itconns =
-        fedconns.begin();
-    std::vector<const FedChannelConnection *>::const_iterator itconnsEnd =
-        fedconns.end();
+    const std::vector<const FedChannelConnection *> &fedconns = SiStripDetCabling_->getConnections(*itdet);
+    std::vector<const FedChannelConnection *>::const_iterator itconns = fedconns.begin();
+    std::vector<const FedChannelConnection *>::const_iterator itconnsEnd = fedconns.end();
 
     unsigned short nApvPairs = SiStripDetCabling_->nApvPairs(*itdet);
     short ngoodConn = 0, goodConn = 0;
@@ -263,8 +244,7 @@ void SiStripQuality::addInvalidConnectionFromCabling() {
       // apvpair " << (*itconns)->apvPairNumber() << " napvpair " <<
       // (*itconns)->nApvPairs()<< " detid " << (*itconns)->detId() <<
       // std::endl;
-      if ((*itconns == nullptr) ||
-          ((*itconns)->nApvPairs() == sistrip::invalid_))
+      if ((*itconns == nullptr) || ((*itconns)->nApvPairs() == sistrip::invalid_))
         continue;
       ngoodConn++;
       goodConn = goodConn | (0x1 << (*itconns)->apvPairNumber());
@@ -276,9 +256,8 @@ void SiStripQuality::addInvalidConnectionFromCabling() {
         if (!(goodConn & (0x1 << idx))) {
           short firstStrip = idx * 256;
           short range = 256;
-          LogTrace("SiStripQuality")
-              << "[addInvalidConnectionFromCabling] add detid " << *itdet
-              << "firstStrip " << firstStrip << std::endl;
+          LogTrace("SiStripQuality") << "[addInvalidConnectionFromCabling] add detid " << *itdet << "firstStrip "
+                                     << firstStrip << std::endl;
           vect.push_back(encode(firstStrip, range));
         }
       }
@@ -296,25 +275,21 @@ void SiStripQuality::add(const SiStripBadStrip *base) {
 
   // the Registry already contains data
   // Loop on detids
-  for (SiStripBadStrip::RegistryIterator basep = basebegin; basep != baseend;
-       ++basep) {
+  for (SiStripBadStrip::RegistryIterator basep = basebegin; basep != baseend; ++basep) {
     uint32_t detid = basep->detid;
     LogTrace("SiStripQuality") << "add detid " << detid << std::endl;
 
     SiStripBadStrip::Range baserange =
-        SiStripBadStrip::Range(base->getDataVectorBegin() + basep->ibegin,
-                               base->getDataVectorBegin() + basep->iend);
+        SiStripBadStrip::Range(base->getDataVectorBegin() + basep->ibegin, base->getDataVectorBegin() + basep->iend);
 
     add(detid, baserange);
   }
 }
 
-void SiStripQuality::add(const uint32_t &detid,
-                         const SiStripBadStrip::Range &baserange) {
+void SiStripQuality::add(const uint32_t &detid, const SiStripBadStrip::Range &baserange) {
   std::vector<unsigned int> vect, tmp;
 
-  unsigned short Nstrips =
-      reader->getNumberOfApvsAndStripLength(detid).first * 128;
+  unsigned short Nstrips = reader->getNumberOfApvsAndStripLength(detid).first * 128;
 
   // Is this detid already in the collections owned by this class?
   SiStripBadStrip::Range range = getRange(detid);
@@ -333,14 +308,11 @@ void SiStripQuality::add(const uint32_t &detid,
 
     // if full det is bad go to next detid
     SiStripBadStrip::data data_ = decode(*(range.first));
-    if (range.second - range.first == 1 && data_.firstStrip == 0 &&
-        data_.range >= Nstrips) {
-      LogTrace("SiStripQuality")
-          << "full det is bad.. " << range.second - range.first << " "
-          << decode(*(range.first)).firstStrip << " "
-          << decode(*(range.first)).range << " " << decode(*(range.first)).flag
-          << "\n"
-          << std::endl;
+    if (range.second - range.first == 1 && data_.firstStrip == 0 && data_.range >= Nstrips) {
+      LogTrace("SiStripQuality") << "full det is bad.. " << range.second - range.first << " "
+                                 << decode(*(range.first)).firstStrip << " " << decode(*(range.first)).range << " "
+                                 << decode(*(range.first)).flag << "\n"
+                                 << std::endl;
       return;
     }
 
@@ -353,25 +325,20 @@ void SiStripQuality::add(const uint32_t &detid,
   compact(tmp, vect, Nstrips);
   SiStripBadStrip::Range newrange(vect.begin(), vect.end());
   if (!put_replace(detid, newrange))
-    edm::LogError("SiStripQuality")
-        << "[" << __PRETTY_FUNCTION__ << "] " << std::endl;
+    edm::LogError("SiStripQuality") << "[" << __PRETTY_FUNCTION__ << "] " << std::endl;
 }
 
-void SiStripQuality::compact(unsigned int &detid,
-                             std::vector<unsigned int> &vect) {
+void SiStripQuality::compact(unsigned int &detid, std::vector<unsigned int> &vect) {
   std::vector<unsigned int> tmp = vect;
   vect.clear();
   std::stable_sort(tmp.begin(), tmp.end());
-  unsigned short Nstrips =
-      reader->getNumberOfApvsAndStripLength(detid).first * 128;
+  unsigned short Nstrips = reader->getNumberOfApvsAndStripLength(detid).first * 128;
   compact(tmp, vect, Nstrips);
 }
 
 bool SiStripQuality::put_replace(const uint32_t &DetId, Range input) {
   // put in SiStripQuality::v_badstrips of DetId
-  Registry::iterator p =
-      std::lower_bound(indexes.begin(), indexes.end(), DetId,
-                       SiStripBadStrip::StrictWeakOrdering());
+  Registry::iterator p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripBadStrip::StrictWeakOrdering());
 
   size_t sd = input.second - input.first;
   DetRegistry detregistry;
@@ -418,38 +385,31 @@ void SiStripQuality::ReduceGranularity(double threshold) {
     BadStripPerApv[5] = 0;
     ipos = 0;
 
-    SiStripBadStrip::Range sqrange = SiStripBadStrip::Range(
-        getDataVectorBegin() + rp->ibegin, getDataVectorBegin() + rp->iend);
+    SiStripBadStrip::Range sqrange =
+        SiStripBadStrip::Range(getDataVectorBegin() + rp->ibegin, getDataVectorBegin() + rp->iend);
 
     for (int it = 0; it < sqrange.second - sqrange.first; it++) {
-
       data_ = decode(*(sqrange.first + it));
-      LogTrace("SiStripQuality")
-          << "[SiStripQuality::ReduceGranularity] detid " << detid
-          << " first strip " << data_.firstStrip << " lastStrip "
-          << data_.firstStrip + data_.range - 1 << " range " << data_.range;
+      LogTrace("SiStripQuality") << "[SiStripQuality::ReduceGranularity] detid " << detid << " first strip "
+                                 << data_.firstStrip << " lastStrip " << data_.firstStrip + data_.range - 1 << " range "
+                                 << data_.range;
       ipos = data_.firstStrip / 128;
       while (ipos <= (data_.firstStrip + data_.range - 1) / 128) {
         BadStripPerApv[ipos] +=
-            std::min(data_.firstStrip + data_.range, (ipos + 1) * 128) -
-            std::max(data_.firstStrip * 1, ipos * 128);
-        LogTrace("SiStripQuality")
-            << "[SiStripQuality::ReduceGranularity] ipos " << ipos
-            << " Counter " << BadStripPerApv[ipos] << " min "
-            << std::min(data_.firstStrip + data_.range, (ipos + 1) * 128)
-            << " max " << std::max(data_.firstStrip * 1, ipos * 128)
-            << " added "
-            << std::min(data_.firstStrip + data_.range, (ipos + 1) * 128) -
-                   std::max(data_.firstStrip * 1, ipos * 128);
+            std::min(data_.firstStrip + data_.range, (ipos + 1) * 128) - std::max(data_.firstStrip * 1, ipos * 128);
+        LogTrace("SiStripQuality") << "[SiStripQuality::ReduceGranularity] ipos " << ipos << " Counter "
+                                   << BadStripPerApv[ipos] << " min "
+                                   << std::min(data_.firstStrip + data_.range, (ipos + 1) * 128) << " max "
+                                   << std::max(data_.firstStrip * 1, ipos * 128) << " added "
+                                   << std::min(data_.firstStrip + data_.range, (ipos + 1) * 128) -
+                                          std::max(data_.firstStrip * 1, ipos * 128);
         ipos++;
       }
     }
 
-    LogTrace("SiStripQuality")
-        << "[SiStripQuality::ReduceGranularity] Total for detid " << detid
-        << " values " << BadStripPerApv[0] << " " << BadStripPerApv[1] << " "
-        << BadStripPerApv[2] << " " << BadStripPerApv[3] << " "
-        << BadStripPerApv[4] << " " << BadStripPerApv[5];
+    LogTrace("SiStripQuality") << "[SiStripQuality::ReduceGranularity] Total for detid " << detid << " values "
+                               << BadStripPerApv[0] << " " << BadStripPerApv[1] << " " << BadStripPerApv[2] << " "
+                               << BadStripPerApv[3] << " " << BadStripPerApv[4] << " " << BadStripPerApv[5];
 
     vect.clear();
     for (size_t i = 0; i < 6; ++i) {
@@ -464,9 +424,7 @@ void SiStripQuality::ReduceGranularity(double threshold) {
   }
 }
 
-void SiStripQuality::compact(std::vector<unsigned int> &tmp,
-                             std::vector<unsigned int> &vect,
-                             unsigned short &Nstrips) {
+void SiStripQuality::compact(std::vector<unsigned int> &tmp, std::vector<unsigned int> &vect, unsigned short &Nstrips) {
   SiStripBadStrip::data fs_0, fs_1;
   vect.clear();
 
@@ -504,8 +462,7 @@ void SiStripQuality::compact(std::vector<unsigned int> &tmp,
   vect.push_back(encode(fs_0.firstStrip, fs_0.range));
 }
 
-void SiStripQuality::subtract(std::vector<unsigned int> &A,
-                              const std::vector<unsigned int> &B) {
+void SiStripQuality::subtract(std::vector<unsigned int> &A, const std::vector<unsigned int> &B) {
   ContainerIterator it = B.begin();
   ContainerIterator itend = B.end();
   for (; it != itend; ++it) {
@@ -513,8 +470,7 @@ void SiStripQuality::subtract(std::vector<unsigned int> &A,
   }
 }
 
-void SiStripQuality::subtraction(std::vector<unsigned int> &A,
-                                 const unsigned int &B) {
+void SiStripQuality::subtraction(std::vector<unsigned int> &A, const unsigned int &B) {
   SiStripBadStrip::data fs_A, fs_B, fs_m, fs_M;
   std::vector<unsigned int> tmp;
 
@@ -533,13 +489,11 @@ void SiStripQuality::subtraction(std::vector<unsigned int> &A,
     // A) Verify the range to be subtracted crosses the new range
     if (fs_m.firstStrip + fs_m.range > fs_M.firstStrip) {
       if (*jt < B) {
-        tmp.push_back(
-            encode(fs_A.firstStrip, fs_B.firstStrip - fs_A.firstStrip));
+        tmp.push_back(encode(fs_A.firstStrip, fs_B.firstStrip - fs_A.firstStrip));
       }
       if (fs_A.firstStrip + fs_A.range > fs_B.firstStrip + fs_B.range) {
-        tmp.push_back(encode(fs_B.firstStrip + fs_B.range,
-                             fs_A.firstStrip + fs_A.range -
-                                 (fs_B.firstStrip + fs_B.range)));
+        tmp.push_back(
+            encode(fs_B.firstStrip + fs_B.range, fs_A.firstStrip + fs_A.range - (fs_B.firstStrip + fs_B.range)));
       }
     } else {
       tmp.push_back(*jt);
@@ -557,10 +511,8 @@ bool SiStripQuality::cleanUp(bool force) {
   std::vector<unsigned int> v_badstrips_tmp = v_badstrips;
   std::vector<DetRegistry> indexes_tmp = indexes;
 
-  LogTrace("SiStripQuality")
-      << "[SiStripQuality::cleanUp] before cleanUp v_badstrips.size()= "
-      << v_badstrips.size() << " indexes.size()=" << indexes.size()
-      << std::endl;
+  LogTrace("SiStripQuality") << "[SiStripQuality::cleanUp] before cleanUp v_badstrips.size()= " << v_badstrips.size()
+                             << " indexes.size()=" << indexes.size() << std::endl;
 
   v_badstrips.clear();
   indexes.clear();
@@ -568,45 +520,35 @@ bool SiStripQuality::cleanUp(bool force) {
   SiStripBadStrip::RegistryIterator basebegin = indexes_tmp.begin();
   SiStripBadStrip::RegistryIterator baseend = indexes_tmp.end();
 
-  for (SiStripBadStrip::RegistryIterator basep = basebegin; basep != baseend;
-       ++basep) {
+  for (SiStripBadStrip::RegistryIterator basep = basebegin; basep != baseend; ++basep) {
     if (basep->ibegin != basep->iend) {
-      SiStripBadStrip::Range range(v_badstrips_tmp.begin() + basep->ibegin,
-                                   v_badstrips_tmp.begin() + basep->iend);
+      SiStripBadStrip::Range range(v_badstrips_tmp.begin() + basep->ibegin, v_badstrips_tmp.begin() + basep->iend);
       if (!put(basep->detid, range))
-        edm::LogError("SiStripQuality")
-            << "[" << __PRETTY_FUNCTION__ << "] " << std::endl;
+        edm::LogError("SiStripQuality") << "[" << __PRETTY_FUNCTION__ << "] " << std::endl;
     }
   }
 
-  LogTrace("SiStripQuality")
-      << "[SiStripQuality::cleanUp] after cleanUp v_badstrips.size()= "
-      << v_badstrips.size() << " indexes.size()=" << indexes.size()
-      << std::endl;
+  LogTrace("SiStripQuality") << "[SiStripQuality::cleanUp] after cleanUp v_badstrips.size()= " << v_badstrips.size()
+                             << " indexes.size()=" << indexes.size() << std::endl;
   return true;
 }
 
 void SiStripQuality::fillBadComponents() {
   BadComponentVect.clear();
 
-  for (SiStripBadStrip::RegistryIterator basep = indexes.begin();
-       basep != indexes.end(); ++basep) {
-
-    SiStripBadStrip::Range range(v_badstrips.begin() + basep->ibegin,
-                                 v_badstrips.begin() + basep->iend);
+  for (SiStripBadStrip::RegistryIterator basep = indexes.begin(); basep != indexes.end(); ++basep) {
+    SiStripBadStrip::Range range(v_badstrips.begin() + basep->ibegin, v_badstrips.begin() + basep->iend);
 
     // Fill BadModules, BadFibers, BadApvs vectors
     unsigned short resultA = 0, resultF = 0;
     BadComponent result;
 
     SiStripBadStrip::data fs;
-    unsigned short Nstrips =
-        reader->getNumberOfApvsAndStripLength(basep->detid).first * 128;
+    unsigned short Nstrips = reader->getNumberOfApvsAndStripLength(basep->detid).first * 128;
 
     // BadModules
     fs = decode(*(range.first));
-    if (basep->iend - basep->ibegin == 1 && fs.firstStrip == 0 &&
-        fs.range == Nstrips) {
+    if (basep->iend - basep->ibegin == 1 && fs.firstStrip == 0 && fs.range == Nstrips) {
       result.detid = basep->detid;
       result.BadModule = true;
       result.BadFibers = (1 << (Nstrips / 256)) - 1;
@@ -615,23 +557,19 @@ void SiStripQuality::fillBadComponents() {
       BadComponentVect.push_back(result);
 
     } else {
-
       // Bad Fibers and  Apvs
-      for (SiStripBadStrip::ContainerIterator it = range.first;
-           it != range.second; ++it) {
+      for (SiStripBadStrip::ContainerIterator it = range.first; it != range.second; ++it) {
         fs = decode(*it);
 
         // BadApvs
         for (short apvNb = 0; apvNb < 6; ++apvNb) {
-          if (fs.firstStrip <= apvNb * 128 &&
-              (apvNb + 1) * 128 <= fs.firstStrip + fs.range) {
+          if (fs.firstStrip <= apvNb * 128 && (apvNb + 1) * 128 <= fs.firstStrip + fs.range) {
             resultA = resultA | (1 << apvNb);
           }
         }
         // BadFibers
         for (short fiberNb = 0; fiberNb < 3; ++fiberNb) {
-          if (fs.firstStrip <= fiberNb * 256 &&
-              (fiberNb + 1) * 256 <= fs.firstStrip + fs.range) {
+          if (fs.firstStrip <= fiberNb * 256 && (fiberNb + 1) * 256 <= fs.firstStrip + fs.range) {
             resultF = resultF | (1 << fiberNb);
           }
         }
@@ -650,9 +588,8 @@ void SiStripQuality::fillBadComponents() {
 //--------------------------------------------------------------//
 
 bool SiStripQuality::IsModuleUsable(const uint32_t &detid) const {
-  std::vector<BadComponent>::const_iterator p =
-      std::lower_bound(BadComponentVect.begin(), BadComponentVect.end(), detid,
-                       SiStripQuality::BadComponentStrictWeakOrdering());
+  std::vector<BadComponent>::const_iterator p = std::lower_bound(
+      BadComponentVect.begin(), BadComponentVect.end(), detid, SiStripQuality::BadComponentStrictWeakOrdering());
   if (p != BadComponentVect.end() && p->detid == detid)
     if (p->BadModule)
       return false;
@@ -665,35 +602,30 @@ bool SiStripQuality::IsModuleUsable(const uint32_t &detid) const {
 }
 
 bool SiStripQuality::IsModuleBad(const uint32_t &detid) const {
-  std::vector<BadComponent>::const_iterator p =
-      std::lower_bound(BadComponentVect.begin(), BadComponentVect.end(), detid,
-                       SiStripQuality::BadComponentStrictWeakOrdering());
+  std::vector<BadComponent>::const_iterator p = std::lower_bound(
+      BadComponentVect.begin(), BadComponentVect.end(), detid, SiStripQuality::BadComponentStrictWeakOrdering());
   if (p != BadComponentVect.end() && p->detid == detid)
     return p->BadModule;
   return false;
 }
 
-bool SiStripQuality::IsFiberBad(const uint32_t &detid,
-                                const short &fiberNb) const {
-  std::vector<BadComponent>::const_iterator p =
-      std::lower_bound(BadComponentVect.begin(), BadComponentVect.end(), detid,
-                       SiStripQuality::BadComponentStrictWeakOrdering());
+bool SiStripQuality::IsFiberBad(const uint32_t &detid, const short &fiberNb) const {
+  std::vector<BadComponent>::const_iterator p = std::lower_bound(
+      BadComponentVect.begin(), BadComponentVect.end(), detid, SiStripQuality::BadComponentStrictWeakOrdering());
   if (p != BadComponentVect.end() && p->detid == detid)
     return ((p->BadFibers >> fiberNb) & 0x1);
   return false;
 }
 
 bool SiStripQuality::IsApvBad(const uint32_t &detid, const short &apvNb) const {
-  std::vector<BadComponent>::const_iterator p =
-      std::lower_bound(BadComponentVect.begin(), BadComponentVect.end(), detid,
-                       SiStripQuality::BadComponentStrictWeakOrdering());
+  std::vector<BadComponent>::const_iterator p = std::lower_bound(
+      BadComponentVect.begin(), BadComponentVect.end(), detid, SiStripQuality::BadComponentStrictWeakOrdering());
   if (p != BadComponentVect.end() && p->detid == detid)
     return ((p->BadApvs >> apvNb) & 0x1);
   return false;
 }
 
-bool SiStripQuality::IsStripBad(const uint32_t &detid,
-                                const short &strip) const {
+bool SiStripQuality::IsStripBad(const uint32_t &detid, const short &strip) const {
   SiStripBadStrip::Range range = getRange(detid);
   return IsStripBad(range, strip);
 }
@@ -701,8 +633,7 @@ bool SiStripQuality::IsStripBad(const uint32_t &detid,
 bool SiStripQuality::IsStripBad(const Range &range, const short &strip) const {
   bool result = false;
   SiStripBadStrip::data fs;
-  for (SiStripBadStrip::ContainerIterator it = range.first; it != range.second;
-       ++it) {
+  for (SiStripBadStrip::ContainerIterator it = range.first; it != range.second; ++it) {
     fs = decode(*it);
     if ((fs.firstStrip <= strip) & (strip < fs.firstStrip + fs.range)) {
       result = true;
@@ -712,12 +643,10 @@ bool SiStripQuality::IsStripBad(const Range &range, const short &strip) const {
   return result;
 }
 
-int SiStripQuality::nBadStripsOnTheLeft(const Range &range,
-                                        const short &strip) const {
+int SiStripQuality::nBadStripsOnTheLeft(const Range &range, const short &strip) const {
   int result = 0;
   SiStripBadStrip::data fs;
-  for (SiStripBadStrip::ContainerIterator it = range.first; it != range.second;
-       ++it) {
+  for (SiStripBadStrip::ContainerIterator it = range.first; it != range.second; ++it) {
     fs = decode(*it);
     if (fs.firstStrip <= strip && strip < fs.firstStrip + fs.range) {
       result = strip - fs.firstStrip + 1;
@@ -727,12 +656,10 @@ int SiStripQuality::nBadStripsOnTheLeft(const Range &range,
   return result;
 }
 
-int SiStripQuality::nBadStripsOnTheRight(const Range &range,
-                                         const short &strip) const {
+int SiStripQuality::nBadStripsOnTheRight(const Range &range, const short &strip) const {
   int result = 0;
   SiStripBadStrip::data fs;
-  for (SiStripBadStrip::ContainerIterator it = range.first; it != range.second;
-       ++it) {
+  for (SiStripBadStrip::ContainerIterator it = range.first; it != range.second; ++it) {
     fs = decode(*it);
     if (fs.firstStrip <= strip && strip < fs.firstStrip + fs.range) {
       result = fs.firstStrip + fs.range - strip;
@@ -743,18 +670,16 @@ int SiStripQuality::nBadStripsOnTheRight(const Range &range,
 }
 
 short SiStripQuality::getBadApvs(const uint32_t &detid) const {
-  std::vector<BadComponent>::const_iterator p =
-      std::lower_bound(BadComponentVect.begin(), BadComponentVect.end(), detid,
-                       SiStripQuality::BadComponentStrictWeakOrdering());
+  std::vector<BadComponent>::const_iterator p = std::lower_bound(
+      BadComponentVect.begin(), BadComponentVect.end(), detid, SiStripQuality::BadComponentStrictWeakOrdering());
   if (p != BadComponentVect.end() && p->detid == detid)
     return p->BadApvs;
   return 0;
 }
 
 short SiStripQuality::getBadFibers(const uint32_t &detid) const {
-  std::vector<BadComponent>::const_iterator p =
-      std::lower_bound(BadComponentVect.begin(), BadComponentVect.end(), detid,
-                       SiStripQuality::BadComponentStrictWeakOrdering());
+  std::vector<BadComponent>::const_iterator p = std::lower_bound(
+      BadComponentVect.begin(), BadComponentVect.end(), detid, SiStripQuality::BadComponentStrictWeakOrdering());
   if (p != BadComponentVect.end() && p->detid == detid)
     return p->BadFibers;
   return 0;
@@ -769,51 +694,48 @@ void SiStripQuality::printDetInfo(const TrackerTopology *const tTopo,
   int layer = tTopo->layer(detid);
   int stereo = 0;
   switch (detid.subdetId()) {
-  case StripSubdetector::TIB: {
-    stereo = tTopo->tibIsStereo(detid);
-    subDetName = "TIB";
-    break;
+    case StripSubdetector::TIB: {
+      stereo = tTopo->tibIsStereo(detid);
+      subDetName = "TIB";
+      break;
+    }
+    case StripSubdetector::TOB: {
+      stereo = tTopo->tobIsStereo(detid);
+      subDetName = "TOB";
+      break;
+    }
+    case StripSubdetector::TEC: {
+      stereo = tTopo->tecIsStereo(detid);
+      subDetName = "TEC";
+      break;
+    }
+    case StripSubdetector::TID: {
+      stereo = tTopo->tidIsStereo(detid);
+      subDetName = "TID";
+      break;
+    }
   }
-  case StripSubdetector::TOB: {
-    stereo = tTopo->tobIsStereo(detid);
-    subDetName = "TOB";
-    break;
-  }
-  case StripSubdetector::TEC: {
-    stereo = tTopo->tecIsStereo(detid);
-    subDetName = "TEC";
-    break;
-  }
-  case StripSubdetector::TID: {
-    stereo = tTopo->tidIsStereo(detid);
-    subDetName = "TID";
-    break;
-  }
-  }
-  ss << detId << " and apv = " << apvPairNumber << " of subDet = " << subDetName
-     << ", layer = " << layer << " stereo = " << stereo << std::endl;
+  ss << detId << " and apv = " << apvPairNumber << " of subDet = " << subDetName << ", layer = " << layer
+     << " stereo = " << stereo << std::endl;
 }
 
-void SiStripQuality::printActiveFedsInfo(
-    const std::vector<uint16_t> &activeFedsFromCabling,
-    const std::vector<int> &activeFedsFromRunInfo,
-    const std::vector<int> &differentFeds, const bool printDebug) {
+void SiStripQuality::printActiveFedsInfo(const std::vector<uint16_t> &activeFedsFromCabling,
+                                         const std::vector<int> &activeFedsFromRunInfo,
+                                         const std::vector<int> &differentFeds,
+                                         const bool printDebug) {
   std::ostringstream ss;
 
   if (printDebug) {
     ss << "activeFedsFromCabling:" << std::endl;
-    std::copy(activeFedsFromCabling.begin(), activeFedsFromCabling.end(),
-              std::ostream_iterator<uint16_t>(ss, " "));
+    std::copy(activeFedsFromCabling.begin(), activeFedsFromCabling.end(), std::ostream_iterator<uint16_t>(ss, " "));
     ss << std::endl;
     ss << "activeFedsFromRunInfo:" << std::endl;
-    std::copy(activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end(),
-              std::ostream_iterator<int>(ss, " "));
+    std::copy(activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end(), std::ostream_iterator<int>(ss, " "));
     ss << std::endl;
   }
   if (differentFeds.size() != 440) {
     ss << "differentFeds : " << std::endl;
-    std::copy(differentFeds.begin(), differentFeds.end(),
-              std::ostream_iterator<int>(ss, " "));
+    std::copy(differentFeds.begin(), differentFeds.end(), std::ostream_iterator<int>(ss, " "));
     ss << std::endl;
   } else {
     ss << "There are 440 feds (all) active for Cabling but off for RunInfo. "
@@ -823,10 +745,7 @@ void SiStripQuality::printActiveFedsInfo(
   edm::LogInfo("SiStripQuality") << ss.str() << std::endl;
 }
 
-void SiStripQuality::turnOffFeds(const std::vector<int> &fedsList,
-                                 const bool turnOffStrips,
-                                 const bool printDebug) {
-
+void SiStripQuality::turnOffFeds(const std::vector<int> &fedsList, const bool turnOffStrips, const bool printDebug) {
   std::stringstream ss;
   if (printDebug) {
     ss << "associated to detIds : " << std::endl;
@@ -836,17 +755,14 @@ void SiStripQuality::turnOffFeds(const std::vector<int> &fedsList,
   for (; fedIdIt != fedsList.end(); ++fedIdIt) {
     std::vector<FedChannelConnection>::const_iterator fedChIt =
         SiStripDetCabling_->fedCabling()->fedConnections(*fedIdIt).begin();
-    for (; fedChIt !=
-           SiStripDetCabling_->fedCabling()->fedConnections(*fedIdIt).end();
-         ++fedChIt) {
+    for (; fedChIt != SiStripDetCabling_->fedCabling()->fedConnections(*fedIdIt).end(); ++fedChIt) {
       uint32_t detId = fedChIt->detId();
       if (detId == 0 || detId == 0xFFFFFFFF)
         continue;
       uint16_t apvPairNumber = fedChIt->apvPairNumber();
 
       if (printDebug) {
-        printDetInfo(SiStripDetCabling_->trackerTopology(), detId,
-                     apvPairNumber, ss);
+        printDetInfo(SiStripDetCabling_->trackerTopology(), detId, apvPairNumber, ss);
       }
 
       if (turnOffStrips) {
@@ -855,9 +771,8 @@ void SiStripQuality::turnOffFeds(const std::vector<int> &fedsList,
         vect.push_back(encode(apvPairNumber * 256, 256));
         SiStripBadStrip::Range Range(vect.begin(), vect.end());
         add(detId, Range);
-        LogTrace("SiStripQuality") << "[addOffForRunInfo] adding apvPairNumber "
-                                   << apvPairNumber << " for detId " << detId
-                                   << " off according to RunInfo" << std::endl;
+        LogTrace("SiStripQuality") << "[addOffForRunInfo] adding apvPairNumber " << apvPairNumber << " for detId "
+                                   << detId << " off according to RunInfo" << std::endl;
       }
     }
   }

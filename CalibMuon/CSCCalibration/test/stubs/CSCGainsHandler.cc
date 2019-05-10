@@ -6,13 +6,11 @@
 #include "CondFormats/CSCObjects/interface/CSCDBGains.h"
 
 popcon::CSCDBGainsImpl::CSCDBGainsImpl(const edm::ParameterSet &pset)
-    : m_name(
-          pset.getUntrackedParameter<std::string>("name", "CSCDBGainsImpl")) {}
+    : m_name(pset.getUntrackedParameter<std::string>("name", "CSCDBGainsImpl")) {}
 
 popcon::CSCDBGainsImpl::~CSCDBGainsImpl() {}
 
 void popcon::CSCDBGainsImpl::getNewObjects() {
-
   std::cout << "CSCGainsHandler - time before filling object:" << std::endl;
   std::cout << "------- CSC src - > getNewObjects\n" << m_name;
 
@@ -24,8 +22,7 @@ void popcon::CSCDBGainsImpl::getNewObjects() {
 
   // check whats already inside of database
   std::cerr << "got offlineInfo" << std::endl;
-  std::cerr << tagInfo().name << " , last object valid since "
-            << tagInfo().lastInterval.first << std::endl;
+  std::cerr << tagInfo().name << " , last object valid since " << tagInfo().lastInterval.first << std::endl;
 
   unsigned int snc;
 
@@ -34,8 +31,7 @@ void popcon::CSCDBGainsImpl::getNewObjects() {
 
   m_to_transfer.push_back(std::make_pair(cngains, snc));
 
-  std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"
-            << std::endl;
+  std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
 
   std::cout << "CSCGainsHandler - time before writing into DB:" << std::endl;
 }
