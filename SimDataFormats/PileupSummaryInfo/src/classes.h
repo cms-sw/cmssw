@@ -3,6 +3,3 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupVertexContent.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
-
-
-

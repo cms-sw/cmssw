@@ -7,115 +7,86 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 
 template <class Traits>
-EcalTDigitizer<Traits>::EcalTDigitizer( EcalHitResponse* hitResponse    ,
-					ElectronicsSim*  electronicsSim ,
-					bool             addNoise         ) :
-   m_hitResponse    ( hitResponse    ) ,
-   m_electronicsSim ( electronicsSim ) ,
-   m_addNoise       ( addNoise       ) ,
-   theNoiseSignalGenerator (nullptr)
-{
-}
+EcalTDigitizer<Traits>::EcalTDigitizer(EcalHitResponse* hitResponse, ElectronicsSim* electronicsSim, bool addNoise)
+    : m_hitResponse(hitResponse),
+      m_electronicsSim(electronicsSim),
+      m_addNoise(addNoise),
+      theNoiseSignalGenerator(nullptr) {}
 
 template <class Traits>
-EcalTDigitizer<Traits>::~EcalTDigitizer()
-{
-}
+EcalTDigitizer<Traits>::~EcalTDigitizer() {}
 
 template <class Traits>
-void
-EcalTDigitizer<Traits>::add(const std::vector<PCaloHit> & hits, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
-  if(m_hitResponse->withinBunchRange(bunchCrossing)) {
-    for(std::vector<PCaloHit>::const_iterator it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
+void EcalTDigitizer<Traits>::add(const std::vector<PCaloHit>& hits, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
+  if (m_hitResponse->withinBunchRange(bunchCrossing)) {
+    for (std::vector<PCaloHit>::const_iterator it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
       m_hitResponse->add(*it, engine);
     }
   }
 }
 
 template <class Traits>
-void
-EcalTDigitizer<Traits>::initializeHits() {
+void EcalTDigitizer<Traits>::initializeHits() {
   m_hitResponse->initializeHits();
 }
 
-
 template <class Traits>
-void
-EcalTDigitizer<Traits>::setNoiseSignalGenerator(EcalBaseSignalGenerator* noiseSignalGenerator) {
-
-   theNoiseSignalGenerator = noiseSignalGenerator;
+void EcalTDigitizer<Traits>::setNoiseSignalGenerator(EcalBaseSignalGenerator* noiseSignalGenerator) {
+  theNoiseSignalGenerator = noiseSignalGenerator;
 }
 
-
-
 template <class Traits>
-void 
-EcalTDigitizer<Traits>::run( DigiCollection& output, CLHEP::HepRandomEngine* engine  )
-{
+void EcalTDigitizer<Traits>::run(DigiCollection& output, CLHEP::HepRandomEngine* engine) {
+  m_hitResponse->finalizeHits();
 
-   m_hitResponse->finalizeHits()  ;
-
-   if(theNoiseSignalGenerator != nullptr) {
-	addNoiseSignals();	
-   }
-
-   m_electronicsSim->newEvent() ;
-
-   const unsigned int ssize ( m_hitResponse->samplesSize() ) ;
-   output.reserve( ssize ) ;
-
-   for( unsigned int i ( 0 ) ; i != ssize ; ++i )
-   {
-      EcalSamples& analogSignal ( *static_cast<EcalSamples*>( (*m_hitResponse)[ i ]) ) ;
-      if( m_addNoise              ||    // digitize if real or adding noise
-	  !analogSignal.zero()       )
-      {
-	 output.push_back( analogSignal.id().rawId() ) ;
-	 Digi digi ( output.back() ) ;  // why does this work without &
-	 m_electronicsSim->analogToDigital( engine, analogSignal , digi ) ;
-	 Traits::fix( digi, output.back() ) ;
-      }
-   }
-}
-
-
-template <class Traits>
-void 
-EcalTDigitizer<Traits>::addNoiseSignals()
-  {
-    std::vector<CaloSamples> noiseSignals;
-    // noise signals need to be in units of photoelectrons.  Fractional is OK
-    theNoiseSignalGenerator->fillEvent();
-    theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
-    for(typename std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(),
-        signalEnd = noiseSignals.end(); signalItr != signalEnd; ++signalItr)
-    {
-      m_hitResponse->add(*signalItr);
-    }
+  if (theNoiseSignalGenerator != nullptr) {
+    addNoiseSignals();
   }
 
-template <class Traits>
-bool
-EcalTDigitizer<Traits>::addNoise() const 
-{
-   return m_addNoise ;
+  m_electronicsSim->newEvent();
+
+  const unsigned int ssize(m_hitResponse->samplesSize());
+  output.reserve(ssize);
+
+  for (unsigned int i(0); i != ssize; ++i) {
+    EcalSamples& analogSignal(*static_cast<EcalSamples*>((*m_hitResponse)[i]));
+    if (m_addNoise ||  // digitize if real or adding noise
+        !analogSignal.zero()) {
+      output.push_back(analogSignal.id().rawId());
+      Digi digi(output.back());  // why does this work without &
+      m_electronicsSim->analogToDigital(engine, analogSignal, digi);
+      Traits::fix(digi, output.back());
+    }
+  }
 }
 
-
 template <class Traits>
-const EcalHitResponse* 
-EcalTDigitizer<Traits>::hitResponse() const
-{
-   return m_hitResponse ;
+void EcalTDigitizer<Traits>::addNoiseSignals() {
+  std::vector<CaloSamples> noiseSignals;
+  // noise signals need to be in units of photoelectrons.  Fractional is OK
+  theNoiseSignalGenerator->fillEvent();
+  theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
+  for (typename std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(),
+                                                         signalEnd = noiseSignals.end();
+       signalItr != signalEnd;
+       ++signalItr) {
+    m_hitResponse->add(*signalItr);
+  }
 }
 
 template <class Traits>
-const typename Traits::ElectronicsSim*
-EcalTDigitizer<Traits>::elecSim() const 
-{
-   return m_electronicsSim ;
+bool EcalTDigitizer<Traits>::addNoise() const {
+  return m_addNoise;
 }
 
+template <class Traits>
+const EcalHitResponse* EcalTDigitizer<Traits>::hitResponse() const {
+  return m_hitResponse;
+}
+
+template <class Traits>
+const typename Traits::ElectronicsSim* EcalTDigitizer<Traits>::elecSim() const {
+  return m_electronicsSim;
+}
 
 #endif
-
