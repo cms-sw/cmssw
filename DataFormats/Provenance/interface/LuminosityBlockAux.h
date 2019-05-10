@@ -18,6 +18,6 @@ namespace edm {
     LuminosityBlockNumber_t id_;
     RunNumber_t runID_;
   };
-  void conversion(LuminosityBlockAux const& from, LuminosityBlockAuxiliary & to);
-}
+  void conversion(LuminosityBlockAux const& from, LuminosityBlockAuxiliary& to);
+}  // namespace edm
 #endif

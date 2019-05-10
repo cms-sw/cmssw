@@ -6,10 +6,10 @@
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  void conversion(EventAux const& from, EventAuxiliary & to) {
+  void conversion(EventAux const& from, EventAuxiliary& to) {
     to.processHistoryID_ = from.processHistoryID_;
     to.id_ = from.id_;
     to.time_ = from.time_;
     to.luminosityBlock_ = from.luminosityBlockID_;
   }
-}
+}  // namespace edm

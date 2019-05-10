@@ -13,22 +13,17 @@
 // user include files
 #include "DataFormats/FWLite/interface/LumiHistoryGetter.h"
 
-
 namespace fwlite {
 
-    //
-    // constructors and destructor
-    //
-    LumiHistoryGetter::LumiHistoryGetter(const LuminosityBlock* lumi) {
-        lumi_ = lumi;
-    }
+  //
+  // constructors and destructor
+  //
+  LumiHistoryGetter::LumiHistoryGetter(const LuminosityBlock* lumi) { lumi_ = lumi; }
 
-    LumiHistoryGetter::~LumiHistoryGetter() {}
+  LumiHistoryGetter::~LumiHistoryGetter() {}
 
-    //
-    // const member functions
-    //
-    const edm::ProcessHistory& LumiHistoryGetter::history() const {
-        return lumi_->history();
-    }
-}
+  //
+  // const member functions
+  //
+  const edm::ProcessHistory& LumiHistoryGetter::history() const { return lumi_->history(); }
+}  // namespace fwlite

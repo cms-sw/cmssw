@@ -13,11 +13,12 @@ class testValueMapNew : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
   typedef std::vector<int> CKey1;
   typedef std::vector<float> CKey2;
+
 public:
   testValueMapNew();
   void setUp() {}
   void tearDown() {}
-  void checkAll(); 
+  void checkAll();
   void test(const edm::ValueMap<int> &);
   CKey1 v1;
   CKey2 v2;
@@ -44,10 +45,10 @@ testValueMapNew::testValueMapNew() {
   ProductID const pidK2(1, 3);
   handleK2 = edm::TestHandle<CKey2>(&v2, pidK2);
 
-  const int ww1[4] = { 2, 1, 0, 2 };
+  const int ww1[4] = {2, 1, 0, 2};
   w1.resize(4);
   std::copy(ww1, ww1 + 4, w1.begin());
-  const int ww2[5] = { 1, 0, 2, 1, -1 };
+  const int ww2[5] = {1, 0, 2, 1, -1};
   w2.resize(5);
   std::copy(ww2, ww2 + 5, w2.begin());
 }
@@ -60,7 +61,8 @@ void testValueMapNew::checkAll() {
     filler.insert(handleK2, w2.begin(), w2.end());
     filler.fill();
     test(values);
-  } {
+  }
+  {
     edm::ValueMap<int> values;
     edm::ValueMap<int>::Filler filler1(values);
     filler1.insert(handleK1, w1.begin(), w1.end());
@@ -69,7 +71,8 @@ void testValueMapNew::checkAll() {
     filler2.insert(handleK2, w2.begin(), w2.end());
     filler2.fill();
     test(values);
-  } {
+  }
+  {
     edm::ValueMap<int> values1;
     edm::ValueMap<int>::Filler filler1(values1);
     filler1.insert(handleK1, w1.begin(), w1.end());
@@ -83,8 +86,8 @@ void testValueMapNew::checkAll() {
   }
 }
 
-void testValueMapNew::test(const edm::ValueMap<int> & values) {
-  CPPUNIT_ASSERT(values.idSize()==2);
+void testValueMapNew::test(const edm::ValueMap<int> &values) {
+  CPPUNIT_ASSERT(values.idSize() == 2);
   CPPUNIT_ASSERT(!values.contains(ProductID(1, 0)));
   CPPUNIT_ASSERT(!values.contains(ProductID(1, 1)));
   CPPUNIT_ASSERT(values.contains(ProductID(1, 2)));
@@ -109,26 +112,24 @@ void testValueMapNew::test(const edm::ValueMap<int> & values) {
   CPPUNIT_ASSERT(s3 == w2[2]);
   CPPUNIT_ASSERT(s4 == w2[3]);
   CPPUNIT_ASSERT(s5 == w2[4]);
-  CPPUNIT_ASSERT(values.size() == w1.size()+w2.size());
+  CPPUNIT_ASSERT(values.size() == w1.size() + w2.size());
   edm::ValueMap<int>::const_iterator b = values.begin(), e = values.end(), i;
-  CPPUNIT_ASSERT(e-b == 2);
-  CPPUNIT_ASSERT(b.id()==ProductID(1, 2));
-  CPPUNIT_ASSERT((b+1).id()==ProductID(1, 3));
-  ProductID pids[] = { ProductID(1, 2), ProductID(1, 3) };
-  const std::vector<int> * w[] = { &w1, &w2 }; 
-  for(i = b; i != e; ++i) {
+  CPPUNIT_ASSERT(e - b == 2);
+  CPPUNIT_ASSERT(b.id() == ProductID(1, 2));
+  CPPUNIT_ASSERT((b + 1).id() == ProductID(1, 3));
+  ProductID pids[] = {ProductID(1, 2), ProductID(1, 3)};
+  const std::vector<int> *w[] = {&w1, &w2};
+  for (i = b; i != e; ++i) {
     size_t idx = i - b;
     CPPUNIT_ASSERT(i.id() == pids[idx]);
     CPPUNIT_ASSERT(i.size() == w[idx]->size());
     {
       std::vector<int>::const_iterator b = i.begin(), e = i.end(), j;
-      for(j = b; j != e; ++j) {
-	size_t jdx = j - b;
-	CPPUNIT_ASSERT(*j == (*w[idx])[jdx]);
-	CPPUNIT_ASSERT(i[jdx] == (*w[idx])[jdx]);
+      for (j = b; j != e; ++j) {
+        size_t jdx = j - b;
+        CPPUNIT_ASSERT(*j == (*w[idx])[jdx]);
+        CPPUNIT_ASSERT(i[jdx] == (*w[idx])[jdx]);
       }
     }
   }
 }
-
-
