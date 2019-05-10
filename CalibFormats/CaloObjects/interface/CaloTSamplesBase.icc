@@ -4,8 +4,7 @@
 #include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.h"
 
 template <class Ttype>
-CaloTSamplesBase<Ttype>::CaloTSamplesBase(Ttype *mydata, uint32_t length)
-    : m_id(0), m_size(0), m_pre(0) {
+CaloTSamplesBase<Ttype>::CaloTSamplesBase(Ttype *mydata, uint32_t length) : m_id(0), m_size(0), m_pre(0) {
   std::fill(mydata, mydata + length, 0);
 }
 
@@ -19,34 +18,38 @@ CaloTSamplesBase<Ttype>::CaloTSamplesBase(const CaloTSamplesBase<Ttype> &cs) {
 }
 
 template <class Ttype>
-CaloTSamplesBase<Ttype>::CaloTSamplesBase(Ttype *mydata, uint32_t length,
-                                          const DetId &id, uint32_t size,
-                                          uint32_t pre)
+CaloTSamplesBase<Ttype>::CaloTSamplesBase(Ttype *mydata, uint32_t length, const DetId &id, uint32_t size, uint32_t pre)
     : m_id(id), m_size(size), m_pre(pre) {
   assert(length >= size);
   assert(pre <= size);
   std::fill(mydata, mydata + length, 0);
 }
 
-template <class Ttype> CaloTSamplesBase<Ttype>::~CaloTSamplesBase() {}
+template <class Ttype>
+CaloTSamplesBase<Ttype>::~CaloTSamplesBase() {}
 
-template <class Ttype> void CaloTSamplesBase<Ttype>::setZero() {
+template <class Ttype>
+void CaloTSamplesBase<Ttype>::setZero() {
   std::fill(data(0), data(0) + capacity(), 0);
 }
 
-template <class Ttype> DetId CaloTSamplesBase<Ttype>::id() const {
+template <class Ttype>
+DetId CaloTSamplesBase<Ttype>::id() const {
   return m_id;
 }
 
-template <class Ttype> uint32_t CaloTSamplesBase<Ttype>::size() const {
+template <class Ttype>
+uint32_t CaloTSamplesBase<Ttype>::size() const {
   return m_size;
 }
 
-template <class Ttype> uint32_t CaloTSamplesBase<Ttype>::pre() const {
+template <class Ttype>
+uint32_t CaloTSamplesBase<Ttype>::pre() const {
   return m_pre;
 }
 
-template <class Ttype> bool CaloTSamplesBase<Ttype>::zero() const {
+template <class Ttype>
+bool CaloTSamplesBase<Ttype>::zero() const {
   for (uint32_t i(0); i != capacity(); ++i) {
     if (0 != (*cdata(i)))
       return false;
@@ -54,7 +57,8 @@ template <class Ttype> bool CaloTSamplesBase<Ttype>::zero() const {
   return true;
 }
 
-template <class Ttype> Ttype &CaloTSamplesBase<Ttype>::operator[](uint32_t i) {
+template <class Ttype>
+Ttype &CaloTSamplesBase<Ttype>::operator[](uint32_t i) {
   assert(capacity() > i);
   return *data(i);
 }
@@ -66,8 +70,7 @@ const Ttype &CaloTSamplesBase<Ttype>::operator[](uint32_t i) const {
 }
 
 template <class Ttype>
-CaloTSamplesBase<Ttype> &CaloTSamplesBase<Ttype>::
-operator=(const CaloTSamplesBase<Ttype> &cs) {
+CaloTSamplesBase<Ttype> &CaloTSamplesBase<Ttype>::operator=(const CaloTSamplesBase<Ttype> &cs) {
   if (&cs != this) {
     m_id = cs.m_id;
     m_size = cs.m_size;
@@ -93,8 +96,7 @@ CaloTSamplesBase<Ttype> &CaloTSamplesBase<Ttype>::operator+=(Ttype value) {
 }
 
 template <class Ttype>
-CaloTSamplesBase<Ttype> &CaloTSamplesBase<Ttype>::
-operator+=(const CaloTSamplesBase<Ttype> &cs) {
+CaloTSamplesBase<Ttype> &CaloTSamplesBase<Ttype>::operator+=(const CaloTSamplesBase<Ttype> &cs) {
   assert(m_size == cs.size());
   assert(capacity() == cs.capacity());
 

@@ -42,8 +42,7 @@ class Alignable;
 
 class ParametersToParametersDerivatives {
 public:
-  ParametersToParametersDerivatives(const Alignable &component,
-                                    const Alignable &mother);
+  ParametersToParametersDerivatives(const Alignable &component, const Alignable &mother);
 
   /// Indicate whether able to provide the derivatives.
   bool isOK() const { return isOK_; }
@@ -59,8 +58,7 @@ public:
 private:
   /// init by choosing the correct detailed init method depending on parameter
   /// types
-  bool init(const Alignable &component, int typeComponent,
-            const Alignable &mother, int typeMother);
+  bool init(const Alignable &component, int typeComponent, const Alignable &mother, int typeMother);
   /// init for component and mother both with RigidBody parameters
   bool initRigidRigid(const Alignable &component, const Alignable &mother);
   /// init for component with BowedSurface and mother with RigidBody parameters
@@ -69,17 +67,15 @@ private:
   /// parameters
   bool init2BowedRigid(const Alignable &component, const Alignable &mother);
 
-  typedef ROOT::Math::SMatrix<double, 6, 9, ROOT::Math::MatRepStd<double, 6, 9>>
-      AlgebraicMatrix69;
+  typedef ROOT::Math::SMatrix<double, 6, 9, ROOT::Math::MatRepStd<double, 6, 9>> AlgebraicMatrix69;
   /// from d(rigid_mother)/d(rigid_component) to
   /// d(rigid_mother)/d(bowed_component) for bad input (length or width zero),
   /// set object to invalid: isOK_ = false
-  AlgebraicMatrix69 dRigid_dBowed(const AlgebraicMatrix66 &dRigidM2dRigidC,
-                                  double halfWidth, double halfLength);
+  AlgebraicMatrix69 dRigid_dBowed(const AlgebraicMatrix66 &dRigidM2dRigidC, double halfWidth, double halfLength);
 
   /// data members
-  bool isOK_;            /// can we provide the desired?
-  TMatrixD derivatives_; /// matrix of derivatives
+  bool isOK_;             /// can we provide the desired?
+  TMatrixD derivatives_;  /// matrix of derivatives
 };
 
 #endif

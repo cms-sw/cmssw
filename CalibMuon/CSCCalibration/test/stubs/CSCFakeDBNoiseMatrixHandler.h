@@ -16,18 +16,16 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 namespace popcon {
-class CSCFakeDBNoiseMatrixImpl
-    : public popcon::PopConSourceHandler<CSCDBNoiseMatrix> {
+  class CSCFakeDBNoiseMatrixImpl : public popcon::PopConSourceHandler<CSCDBNoiseMatrix> {
+  public:
+    void getNewObjects();
+    std::string id() const { return m_name; }
+    ~CSCFakeDBNoiseMatrixImpl();
 
-public:
-  void getNewObjects();
-  std::string id() const { return m_name; }
-  ~CSCFakeDBNoiseMatrixImpl();
+    CSCFakeDBNoiseMatrixImpl(const edm::ParameterSet &pset);
 
-  CSCFakeDBNoiseMatrixImpl(const edm::ParameterSet &pset);
-
-private:
-  std::string m_name;
-};
-} // namespace popcon
+  private:
+    std::string m_name;
+  };
+}  // namespace popcon
 #endif

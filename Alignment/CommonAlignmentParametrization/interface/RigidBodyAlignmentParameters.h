@@ -19,18 +19,9 @@ class AlignableDetOrUnitPtr;
 class TrajectoryStateOnSurface;
 
 class RigidBodyAlignmentParameters : public AlignmentParameters {
-
 public:
   /// Give parameters a name
-  enum AlignmentParameterName {
-    dx = 0,
-    dy,
-    dz,
-    dalpha,
-    dbeta,
-    dgamma,
-    N_PARAM
-  };
+  enum AlignmentParameterName { dx = 0, dy, dz, dalpha, dbeta, dgamma, N_PARAM };
 
   /// Constructor with empty parameters/covariance (if calcMis = false) or with
   /// parameters (no covariance) created from current (mis-)placement of
@@ -54,23 +45,19 @@ public:
   int type() const override;
 
   /// Clone all parameters (for update of parameters)
-  RigidBodyAlignmentParameters *
-  clone(const AlgebraicVector &parameters,
-        const AlgebraicSymMatrix &covMatrix) const override;
+  RigidBodyAlignmentParameters *clone(const AlgebraicVector &parameters,
+                                      const AlgebraicSymMatrix &covMatrix) const override;
 
   /// Clone selected parameters (for update of parameters)
-  RigidBodyAlignmentParameters *
-  cloneFromSelected(const AlgebraicVector &parameters,
-                    const AlgebraicSymMatrix &covMatrix) const override;
+  RigidBodyAlignmentParameters *cloneFromSelected(const AlgebraicVector &parameters,
+                                                  const AlgebraicSymMatrix &covMatrix) const override;
 
   /// Get all derivatives
-  AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos,
-                              const AlignableDetOrUnitPtr &) const override;
+  AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos, const AlignableDetOrUnitPtr &) const override;
 
   /// Get selected derivatives
-  AlgebraicMatrix
-  selectedDerivatives(const TrajectoryStateOnSurface &tsos,
-                      const AlignableDetOrUnitPtr &) const override;
+  AlgebraicMatrix selectedDerivatives(const TrajectoryStateOnSurface &tsos,
+                                      const AlignableDetOrUnitPtr &) const override;
 
   /// Get translation parameters
   AlgebraicVector translation(void) const;

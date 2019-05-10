@@ -23,8 +23,7 @@ public:
   /// default constructor
   LaserBeamsBarrel();
   /// constructor
-  LaserBeamsBarrel(G4int nPhotonsInGun, G4int nPhotonsInBeam,
-                   G4double PhotonEnergy);
+  LaserBeamsBarrel(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4double PhotonEnergy);
   /// destructor
   ~LaserBeamsBarrel() override;
 

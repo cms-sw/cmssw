@@ -16,19 +16,17 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 namespace popcon {
-class CSCDBGasGainCorrectionImpl
-    : public popcon::PopConSourceHandler<CSCDBGasGainCorrection> {
+  class CSCDBGasGainCorrectionImpl : public popcon::PopConSourceHandler<CSCDBGasGainCorrection> {
+  public:
+    void getNewObjects();
+    std::string id() const { return m_name; }
+    ~CSCDBGasGainCorrectionImpl();
+    CSCDBGasGainCorrectionImpl(const edm::ParameterSet &pset);
 
-public:
-  void getNewObjects();
-  std::string id() const { return m_name; }
-  ~CSCDBGasGainCorrectionImpl();
-  CSCDBGasGainCorrectionImpl(const edm::ParameterSet &pset);
-
-private:
-  std::string m_name;
-  bool isForMC;
-  std::string dataCorrFileName;
-};
-} // namespace popcon
+  private:
+    std::string m_name;
+    bool isForMC;
+    std::string dataCorrFileName;
+  };
+}  // namespace popcon
 #endif

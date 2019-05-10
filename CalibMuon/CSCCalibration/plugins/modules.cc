@@ -9,7 +9,5 @@
 DEFINE_EDM_PLUGIN(CSCIndexerFactory, CSCIndexerStartup, "CSCIndexerStartup");
 DEFINE_EDM_PLUGIN(CSCIndexerFactory, CSCIndexerPostls1, "CSCIndexerPostls1");
 
-DEFINE_EDM_PLUGIN(CSCChannelMapperFactory, CSCChannelMapperStartup,
-                  "CSCChannelMapperStartup");
-DEFINE_EDM_PLUGIN(CSCChannelMapperFactory, CSCChannelMapperPostls1,
-                  "CSCChannelMapperPostls1");
+DEFINE_EDM_PLUGIN(CSCChannelMapperFactory, CSCChannelMapperStartup, "CSCChannelMapperStartup");
+DEFINE_EDM_PLUGIN(CSCChannelMapperFactory, CSCChannelMapperPostls1, "CSCChannelMapperPostls1");

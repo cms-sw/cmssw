@@ -4,7 +4,6 @@
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixConditions.h"
 
 CSCNoiseMatrix *CSCNoiseMatrixConditions::prefillNoiseMatrix() {
-
   int old_chamber_id, old_strip, new_chamber_id, new_strip;
   float old_elm33, old_elm34, old_elm44, old_elm35, old_elm45, old_elm55;
   float old_elm46, old_elm56, old_elm66, old_elm57, old_elm67, old_elm77;
@@ -55,9 +54,8 @@ CSCNoiseMatrix *CSCNoiseMatrixConditions::prefillNoiseMatrix() {
   }
 
   while (!olddata.eof()) {
-    olddata >> old_chamber_id >> old_strip >> old_elm33 >> old_elm34 >>
-        old_elm44 >> old_elm35 >> old_elm45 >> old_elm55 >> old_elm46 >>
-        old_elm56 >> old_elm66 >> old_elm57 >> old_elm67 >> old_elm77;
+    olddata >> old_chamber_id >> old_strip >> old_elm33 >> old_elm34 >> old_elm44 >> old_elm35 >> old_elm45 >>
+        old_elm55 >> old_elm46 >> old_elm56 >> old_elm66 >> old_elm57 >> old_elm67 >> old_elm77;
     old_cham_id.push_back(old_chamber_id);
     old_strips.push_back(old_strip);
     old_elem33.push_back(old_elm33);
@@ -85,9 +83,8 @@ CSCNoiseMatrix *CSCNoiseMatrixConditions::prefillNoiseMatrix() {
   }
 
   while (!newdata.eof()) {
-    newdata >> new_chamber_id >> new_strip >> new_elm33 >> new_elm34 >>
-        new_elm44 >> new_elm35 >> new_elm45 >> new_elm55 >> new_elm46 >>
-        new_elm56 >> new_elm66 >> new_elm57 >> new_elm67 >> new_elm77;
+    newdata >> new_chamber_id >> new_strip >> new_elm33 >> new_elm34 >> new_elm44 >> new_elm35 >> new_elm45 >>
+        new_elm55 >> new_elm46 >> new_elm56 >> new_elm66 >> new_elm57 >> new_elm67 >> new_elm77;
     new_cham_id.push_back(new_chamber_id);
     new_strips.push_back(new_strip);
     new_elem33.push_back(new_elm33);
@@ -108,10 +105,8 @@ CSCNoiseMatrix *CSCNoiseMatrixConditions::prefillNoiseMatrix() {
 
   // endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6
 
-  for (int iendcap = detId.minEndcapId(); iendcap <= detId.maxEndcapId();
-       iendcap++) {
-    for (int istation = detId.minStationId(); istation <= detId.maxStationId();
-         istation++) {
+  for (int iendcap = detId.minEndcapId(); iendcap <= detId.maxEndcapId(); iendcap++) {
+    for (int istation = detId.minStationId(); istation <= detId.maxStationId(); istation++) {
       max_ring = detId.maxRingId();
       // station 4 ring 4 not there(36 chambers*2 missing)
       // 3 rings max this way of counting (ME1a & b)
@@ -144,21 +139,17 @@ CSCNoiseMatrix *CSCNoiseMatrixConditions::prefillNoiseMatrix() {
         if (istation == 4 && iring == 1)
           max_cham = 18;
 
-        for (int ichamber = detId.minChamberId(); ichamber <= max_cham;
-             ichamber++) {
-          for (int ilayer = detId.minLayerId(); ilayer <= detId.maxLayerId();
-               ilayer++) {
+        for (int ichamber = detId.minChamberId(); ichamber <= max_cham; ichamber++) {
+          for (int ilayer = detId.minLayerId(); ilayer <= detId.maxLayerId(); ilayer++) {
             // station 1 ring 3 has 64 strips per layer instead of 80
             if (istation == 1 && iring == 3)
               max_istrip = 64;
 
             std::vector<CSCNoiseMatrix::Item> itemvector;
             itemvector.resize(max_istrip);
-            id_layer = 100000 * iendcap + 10000 * istation + 1000 * iring +
-                       10 * ichamber + ilayer;
+            id_layer = 100000 * iendcap + 10000 * istation + 1000 * iring + 10 * ichamber + ilayer;
 
             for (int istrip = 0; istrip < max_istrip; istrip++) {
-
               if (istation == 1 && iring == 1) {
                 itemvector[istrip].elem33 = 7.86675;
                 itemvector[istrip].elem34 = 2.07075;
@@ -428,8 +419,7 @@ CSCNoiseMatrix *CSCNoiseMatrixConditions::prefillNoiseMatrix() {
   return cnmatrix;
 }
 
-CSCNoiseMatrixConditions::CSCNoiseMatrixConditions(
-    const edm::ParameterSet &iConfig) {
+CSCNoiseMatrixConditions::CSCNoiseMatrixConditions(const edm::ParameterSet &iConfig) {
   // the following line is needed to tell the framework what
   // data is being produced
   // added by Zhen (changed since 1_2_0)
@@ -439,7 +429,6 @@ CSCNoiseMatrixConditions::CSCNoiseMatrixConditions(
 }
 
 CSCNoiseMatrixConditions::~CSCNoiseMatrixConditions() {
-
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -449,15 +438,13 @@ CSCNoiseMatrixConditions::~CSCNoiseMatrixConditions() {
 //
 
 // ------------ method called to produce the data  ------------
-CSCNoiseMatrixConditions::ReturnType
-CSCNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd &iRecord) {
+CSCNoiseMatrixConditions::ReturnType CSCNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd &iRecord) {
   // Added by Zhen, need a new object so to not be deleted at exit
   return CSCNoiseMatrixConditions::ReturnType(prefillNoiseMatrix());
 }
 
-void CSCNoiseMatrixConditions::setIntervalFor(
-    const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &,
-    edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
-                                    edm::IOVSyncValue::endOfTime());
+void CSCNoiseMatrixConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                                              const edm::IOVSyncValue &,
+                                              edm::ValidityInterval &oValidity) {
+  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }

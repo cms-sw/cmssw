@@ -32,8 +32,7 @@ public:
   /// where u, v, w, a, b, g are shifts and rotations of the object
   /// and u_c, v_c, w_c, a_c, b_c, g_c those of the composed object.
 
-  AlgebraicMatrix frameToFrameDerivative(const Alignable *object,
-                                         const Alignable *composedObject) const;
+  AlgebraicMatrix frameToFrameDerivative(const Alignable *object, const Alignable *composedObject) const;
 
   /// Calculates derivatives DeltaFrame(object)/DeltaFrame(composedobject)
   /// using their positions and orientations, see method
@@ -59,8 +58,7 @@ private:
   AlgebraicVector linearEulerAngles(const AlgebraicMatrix &rotDelta) const;
 
   /// Calculates the derivative DPos/DPos
-  AlgebraicMatrix derivativePosPos(const AlgebraicMatrix &RotDet,
-                                   const AlgebraicMatrix &RotRot) const;
+  AlgebraicMatrix derivativePosPos(const AlgebraicMatrix &RotDet, const AlgebraicMatrix &RotRot) const;
 
   /// Calculates the derivative DPos/DRot
   AlgebraicMatrix derivativePosRot(const AlgebraicMatrix &RotDet,
@@ -68,12 +66,10 @@ private:
                                    const AlgebraicVector &S) const;
 
   /// Calculates the derivative DRot/DRot
-  AlgebraicMatrix derivativeRotRot(const AlgebraicMatrix &RotDet,
-                                   const AlgebraicMatrix &RotRot) const;
+  AlgebraicMatrix derivativeRotRot(const AlgebraicMatrix &RotDet, const AlgebraicMatrix &RotRot) const;
 };
 
-AlgebraicMatrix
-FrameToFrameDerivative::transform(const align::RotationType &rot) {
+AlgebraicMatrix FrameToFrameDerivative::transform(const align::RotationType &rot) {
   AlgebraicMatrix R(3, 3);
 
   R(1, 1) = rot.xx();
