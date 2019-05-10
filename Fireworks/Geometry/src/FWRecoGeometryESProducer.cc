@@ -583,6 +583,12 @@ FWRecoGeometryESProducer::addCaloGeometry( FWRecoGeometry& fwRecoGeometry )
         fwRecoGeometry.idToName[id].points[i*3+2] = cor[i].z();
       }
 
+      // center
+      auto center = geom->getPosition(*it);
+      fwRecoGeometry.idToName[id].points[(cor.size()-1)*3 + 0] = center.x();
+      fwRecoGeometry.idToName[id].points[(cor.size()-1)*3 + 1] = center.y();
+      fwRecoGeometry.idToName[id].points[(cor.size()-1)*3 + 2] = center.z();
+
       // thickness
       fwRecoGeometry.idToName[id].shape[3] = cor[cor.size()-1].z();
 
