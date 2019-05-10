@@ -17,56 +17,53 @@
 
 //class DQMStore;
 
-class L1EmulatorErrorFlagClient: public DQMEDHarvester {
-
+class L1EmulatorErrorFlagClient : public DQMEDHarvester {
 public:
+  /// Constructor
+  L1EmulatorErrorFlagClient(const edm::ParameterSet &);
 
-    /// Constructor
-    L1EmulatorErrorFlagClient(const edm::ParameterSet&);
-
-    /// Destructor
-    ~L1EmulatorErrorFlagClient() override;
+  /// Destructor
+  ~L1EmulatorErrorFlagClient() override;
 
 protected:
-    void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override;  //performed in the endLumi
-    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
-    
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;       //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 private:
+  /// input parameters
 
-    /// input parameters
+  bool m_verbose;
+  std::vector<edm::ParameterSet> m_l1Systems;
+  std::vector<std::string> m_maskL1Systems;
 
-    bool m_verbose;
-    std::vector<edm::ParameterSet> m_l1Systems;
-    std::vector<std::string> m_maskL1Systems;
+  bool m_runInEventLoop;
+  bool m_runInEndLumi;
+  bool m_runInEndRun;
+  bool m_runInEndJob;
 
-    bool m_runInEventLoop;
-    bool m_runInEndLumi;
-    bool m_runInEndRun;
-    bool m_runInEndJob;
+  /// private methods
 
+  void initialize();
 
+  Float_t setSummary(DQMStore::IGetter &igetter, const unsigned int &) const;
 
-    /// private methods
+  /// number of L1 trigger systems
+  size_t m_nrL1Systems;
 
-    void initialize();
+  std::vector<std::string> m_systemLabel;
+  std::vector<std::string> m_systemLabelExt;
+  std::vector<int> m_systemMask;
+  std::vector<std::string> m_systemFolder;
 
-    Float_t setSummary(DQMStore::IGetter &igetter, const unsigned int&) const;
+  std::vector<std::string> m_systemErrorFlag;
 
-    /// number of L1 trigger systems
-    size_t m_nrL1Systems;
+  /// summary report
 
-    std::vector<std::string> m_systemLabel;
-    std::vector<std::string> m_systemLabelExt;
-    std::vector<int> m_systemMask;
-    std::vector<std::string> m_systemFolder;
-
-    std::vector<std::string> m_systemErrorFlag;
-
-    /// summary report
-
-    std::vector<Float_t> m_summaryContent;
-    MonitorElement* m_meSummaryErrorFlagMap;
+  std::vector<Float_t> m_summaryContent;
+  MonitorElement *m_meSummaryErrorFlagMap;
 };
 
 #endif

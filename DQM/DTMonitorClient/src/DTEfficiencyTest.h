@@ -1,7 +1,6 @@
 #ifndef DTEfficiencyTest_H
 #define DTEfficiencyTest_H
 
-
 /** \class DTEfficiencyTest
  * *
  *  DQM Test Client
@@ -12,7 +11,6 @@
  * 
  *   
  */
-
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -29,7 +27,6 @@
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
-
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -42,41 +39,38 @@ class DTChamberId;
 class DTSuperLayerId;
 class DTLayerId;
 
-class DTEfficiencyTest: public DQMEDHarvester{
-
+class DTEfficiencyTest : public DQMEDHarvester {
 public:
-
   /// Constructor
-  DTEfficiencyTest(const edm::ParameterSet& ps);
-  
+  DTEfficiencyTest(const edm::ParameterSet &ps);
+
   /// Destructor
   ~DTEfficiencyTest() override;
 
 protected:
-
   /// beginrun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void beginRun(const edm::Run &r, const edm::EventSetup &c) override;
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// book the new ME
 
-  void bookHistos(DQMStore::IBooker &,const DTLayerId & ch, int firstWire, int lastWire);
+  void bookHistos(DQMStore::IBooker &, const DTLayerId &ch, int firstWire, int lastWire);
 
   /// book the summary histograms
-  void bookHistos(DQMStore::IBooker &,int wh);
+  void bookHistos(DQMStore::IBooker &, int wh);
 
   /// Get the ME name
-  std::string getMEName(std::string histoTag, const DTLayerId & lID);
+  std::string getMEName(std::string histoTag, const DTLayerId &lID);
 
-  
   /// DQM Client Diagnostic
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
-
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
 
 private:
-
   int nevents;
   unsigned int nLumiSegs;
   int prescaleFactor;
@@ -86,13 +80,12 @@ private:
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
 
-  std::map< DTLayerId , MonitorElement* > EfficiencyHistos;
-  std::map< DTLayerId , MonitorElement* > UnassEfficiencyHistos;
+  std::map<DTLayerId, MonitorElement *> EfficiencyHistos;
+  std::map<DTLayerId, MonitorElement *> UnassEfficiencyHistos;
 
-  // wheel summary histograms  
-  std::map< int, MonitorElement* > wheelHistos;  
-  std::map< int, MonitorElement* > wheelUnassHistos;
-  
+  // wheel summary histograms
+  std::map<int, MonitorElement *> wheelHistos;
+  std::map<int, MonitorElement *> wheelUnassHistos;
 };
 
 #endif
