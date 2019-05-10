@@ -20,6 +20,7 @@ public:
     float operator()(double time) const;
     float at(double time) const;
     float integrate(double tmin, double tmax) const;
+
   private:
     std::vector<float> shape_;
     int nbin_;

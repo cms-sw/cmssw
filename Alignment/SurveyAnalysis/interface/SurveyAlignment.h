@@ -13,33 +13,24 @@
 #include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 
-class SurveyAlignment
-{
-  protected:
-
-  public:
-
+class SurveyAlignment {
+protected:
+public:
   /// Constructor to set the sensors and residual levels.
-  SurveyAlignment(
-		  const align::Alignables& sensors,
-		  const std::vector<align::StructureType>& levels
-		  );
+  SurveyAlignment(const align::Alignables& sensors, const std::vector<align::StructureType>& levels);
 
   virtual ~SurveyAlignment() {}
 
   /// Run the iteration: find residuals, write to output, shift sensors.
-  void iterate(
-	       unsigned int nIteration,     // number of iterations
-	       const std::string& fileName, // name of output file
-	       bool bias = false            // true for biased residuals
-	       );
+  void iterate(unsigned int nIteration,      // number of iterations
+               const std::string& fileName,  // name of output file
+               bool bias = false             // true for biased residuals
+  );
 
-  protected:
-
+protected:
   /// Find the alignment parameters for all sensors.
-  virtual void findAlignPars(
-			     bool bias = false // true for biased residuals
-			     ) = 0;
+  virtual void findAlignPars(bool bias = false  // true for biased residuals
+                             ) = 0;
 
   /// Apply the alignment parameters to all sensors.
   virtual void shiftSensors();
