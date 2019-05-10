@@ -104,7 +104,7 @@ class CTPPSProtonProducer : public edm::stream::EDProducer<>
     ProtonReconstructionAlgorithm algorithm_;
 
     bool opticsValid_;
-    float currentCrossingAngle_;
+    edm::ESWatcher<CTPPSInterpolatedOpticsRcd> opticsWatcher_;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -126,8 +126,7 @@ CTPPSProtonProducer::CTPPSProtonProducer(const edm::ParameterSet& iConfig) :
   max_n_timing_tracks_        (iConfig.getParameter<unsigned int>("max_n_timing_tracks")),
 
   algorithm_                  (iConfig.getParameter<bool>("fitVtxY"), iConfig.getParameter<bool>("useImprovedInitialEstimate"), verbosity_),
-  opticsValid_(false),
-  currentCrossingAngle_(-1.)
+  opticsValid_(false)
 {
   for (const std::string &sector : { "45", "56" })
   {
@@ -219,10 +218,8 @@ void CTPPSProtonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     iSetup.get<VeryForwardRealGeometryRecord>().get(hGeometry);
 
     // re-initialise algorithm upon crossing-angle change
-    if (hLHCInfo->crossingAngle() != currentCrossingAngle_)
+    if (opticsWatcher_.check(iSetup))
     {
-      currentCrossingAngle_ = hLHCInfo->crossingAngle();
-
       if (hOpticalFunctions->empty()) {
         edm::LogInfo("CTPPSProtonProducer") << "No optical functions available, reconstruction disabled.";
         algorithm_.release();
