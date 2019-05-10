@@ -38,13 +38,14 @@ public:
   SiStripDelay(const SiStripDelay &) = delete;
   const SiStripDelay &operator=(const SiStripDelay &) = delete;
 
-  inline SiStripDelay(
-      const SiStripBaseDelay &baseDelay, const int sumSign,
-      const std::pair<std::string, std::string> &recordLabelPair) {
+  inline SiStripDelay(const SiStripBaseDelay &baseDelay,
+                      const int sumSign,
+                      const std::pair<std::string, std::string> &recordLabelPair) {
     fillNewDelay(baseDelay, sumSign, recordLabelPair);
   }
 
-  void fillNewDelay(const SiStripBaseDelay &baseDelay, const int sumSign,
+  void fillNewDelay(const SiStripBaseDelay &baseDelay,
+                    const int sumSign,
                     const std::pair<std::string, std::string> &recordLabelPair);
 
   /// Return the delay combining all the baseDelays
@@ -62,25 +63,16 @@ public:
    * (because we want to keep it very light) therefore it is the caller duty to
    * check that the index is in the correct range.
    */
-  inline const SiStripBaseDelay *getBaseDelay(const uint32_t index) const {
-    return baseDelayVector_[index];
-  }
+  inline const SiStripBaseDelay *getBaseDelay(const uint32_t index) const { return baseDelayVector_[index]; }
 
   inline size_t getNumberOfTags() const { return baseDelayVector_.size(); }
-  inline std::string getRcdName(const uint32_t index) const {
-    return recordLabelPair_[index].first;
-  }
-  inline std::string getLabelName(const uint32_t index) const {
-    return recordLabelPair_[index].second;
-  }
-  inline int getTagSign(const uint32_t index) const {
-    return sumSignVector_[index];
-  }
+  inline std::string getRcdName(const uint32_t index) const { return recordLabelPair_[index].first; }
+  inline std::string getLabelName(const uint32_t index) const { return recordLabelPair_[index].second; }
+  inline int getTagSign(const uint32_t index) const { return sumSignVector_[index]; }
 
   /// Prints the average value of the delays for all layers and wheels in the
   /// SiStripTracker
-  void printSummary(std::stringstream &ss,
-                    const TrackerTopology *trackerTopo) const;
+  void printSummary(std::stringstream &ss, const TrackerTopology *trackerTopo) const;
   /// Prints the delays for all the detIds
   void printDebug(std::stringstream &ss, const TrackerTopology *tTopo) const;
 

@@ -6,8 +6,7 @@ TwoBodyDecayModel::TwoBodyDecayModel(double mPrimary, double mSecondary)
 
 TwoBodyDecayModel::~TwoBodyDecayModel() {}
 
-AlgebraicMatrix TwoBodyDecayModel::rotationMatrix(double px, double py,
-                                                  double pz) {
+AlgebraicMatrix TwoBodyDecayModel::rotationMatrix(double px, double py, double pz) {
   // compute transverse and absolute momentum
   double pT2 = px * px + py * py;
   double p2 = pT2 + pz * pz;
@@ -32,8 +31,10 @@ AlgebraicMatrix TwoBodyDecayModel::rotationMatrix(double px, double py,
   return rotMat;
 }
 
-AlgebraicMatrix TwoBodyDecayModel::curvilinearToCartesianJacobian(
-    double rho, double theta, double phi, double zMagField) {
+AlgebraicMatrix TwoBodyDecayModel::curvilinearToCartesianJacobian(double rho,
+                                                                  double theta,
+                                                                  double phi,
+                                                                  double zMagField) {
   double q = ((rho < 0) ? -1. : 1.);
   double conv = q * zMagField;
 
@@ -61,16 +62,11 @@ AlgebraicMatrix TwoBodyDecayModel::curvilinearToCartesianJacobian(
   return curv2cart;
 }
 
-AlgebraicMatrix
-TwoBodyDecayModel::curvilinearToCartesianJacobian(const AlgebraicVector &curv,
-                                                  double zMagField) {
-  return this->curvilinearToCartesianJacobian(curv[0], curv[1], curv[2],
-                                              zMagField);
+AlgebraicMatrix TwoBodyDecayModel::curvilinearToCartesianJacobian(const AlgebraicVector &curv, double zMagField) {
+  return this->curvilinearToCartesianJacobian(curv[0], curv[1], curv[2], zMagField);
 }
 
-AlgebraicVector
-TwoBodyDecayModel::convertCurvilinearToCartesian(const AlgebraicVector &curv,
-                                                 double zMagField) {
+AlgebraicVector TwoBodyDecayModel::convertCurvilinearToCartesian(const AlgebraicVector &curv, double zMagField) {
   double rt = fabs(zMagField / curv[0]);
 
   AlgebraicVector cart(3);
@@ -81,8 +77,8 @@ TwoBodyDecayModel::convertCurvilinearToCartesian(const AlgebraicVector &curv,
   return cart;
 }
 
-const std::pair<AlgebraicVector, AlgebraicVector>
-TwoBodyDecayModel::cartesianSecondaryMomenta(const AlgebraicVector &param) {
+const std::pair<AlgebraicVector, AlgebraicVector> TwoBodyDecayModel::cartesianSecondaryMomenta(
+    const AlgebraicVector &param) {
   double px = param[TwoBodyDecayParameters::px];
   double py = param[TwoBodyDecayParameters::py];
   double pz = param[TwoBodyDecayParameters::pz];
@@ -122,13 +118,11 @@ TwoBodyDecayModel::cartesianSecondaryMomenta(const AlgebraicVector &param) {
   return std::make_pair(rotMat * pplus, rotMat * pminus);
 }
 
-const std::pair<AlgebraicVector, AlgebraicVector>
-TwoBodyDecayModel::cartesianSecondaryMomenta(const TwoBodyDecay &tbd) {
+const std::pair<AlgebraicVector, AlgebraicVector> TwoBodyDecayModel::cartesianSecondaryMomenta(const TwoBodyDecay &tbd) {
   return cartesianSecondaryMomenta(tbd.parameters());
 }
 
-const std::pair<AlgebraicVector, AlgebraicVector>
-TwoBodyDecayModel::cartesianSecondaryMomenta(
+const std::pair<AlgebraicVector, AlgebraicVector> TwoBodyDecayModel::cartesianSecondaryMomenta(
     const TwoBodyDecayParameters &tbdparam) {
   return cartesianSecondaryMomenta(tbdparam.parameters());
 }

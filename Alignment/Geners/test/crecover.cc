@@ -39,101 +39,98 @@ static void print_usage(const char *progname) {
 }
 
 namespace {
-class CatalogRecovery : public BinaryArchiveBase {
-  inline std::ostream &plainOutputStream() { return f_; }
+  class CatalogRecovery : public BinaryArchiveBase {
+    inline std::ostream &plainOutputStream() { return f_; }
 
-  inline std::istream &plainInputStream(unsigned long long /* id */,
-                                        unsigned * /* compressionCode */,
-                                        unsigned long long * /* length */) {
-    return f_;
-  }
+    inline std::istream &plainInputStream(unsigned long long /* id */,
+                                          unsigned * /* compressionCode */,
+                                          unsigned long long * /* length */) {
+      return f_;
+    }
 
-  inline void openFile(const unsigned long count) {
-    std::ostringstream os;
-    os << AbsArchive::name() << '.' << count << ".gsbd";
-    const std::string &fname = os.str();
-    openDataFile(f_, fname.c_str());
-    cout << "Processing file " << fname << "\n";
-    cout.flush();
-  }
+    inline void openFile(const unsigned long count) {
+      std::ostringstream os;
+      os << AbsArchive::name() << '.' << count << ".gsbd";
+      const std::string &fname = os.str();
+      openDataFile(f_, fname.c_str());
+      cout << "Processing file " << fname << "\n";
+      cout.flush();
+    }
 
-  inline unsigned long long addToCatalog(const AbsRecord & /* record */,
-                                         unsigned /* compressCode */,
-                                         unsigned long long /* itemLength */) {
-    return 0ULL;
-  }
+    inline unsigned long long addToCatalog(const AbsRecord & /* record */,
+                                           unsigned /* compressCode */,
+                                           unsigned long long /* itemLength */) {
+      return 0ULL;
+    }
 
-  fstream f_;
-  ContiguousCatalog cat_;
+    fstream f_;
+    ContiguousCatalog cat_;
 
-public:
-  inline CatalogRecovery(const char *name) : BinaryArchiveBase(name, "r") {}
+  public:
+    inline CatalogRecovery(const char *name) : BinaryArchiveBase(name, "r") {}
 
-  inline ~CatalogRecovery() {
-    if (f_.is_open())
-      f_.close();
-  }
+    inline ~CatalogRecovery() {
+      if (f_.is_open())
+        f_.close();
+    }
 
-  inline std::string catalogFileName() const {
-    return AbsArchive::name() + ".gsbmf";
-  }
+    inline std::string catalogFileName() const { return AbsArchive::name() + ".gsbmf"; }
 
-  inline unsigned long long processFile(const unsigned long fileNumber) {
-    openFile(fileNumber);
-    if (!injectMetadata())
-      throw IOInvalidData("Item metadata was not written into the data stream. "
-                          "Catalog can not be recovered.");
-    assert(catalogEntryClassId());
-    assert(itemLocationClassId());
+    inline unsigned long long processFile(const unsigned long fileNumber) {
+      openFile(fileNumber);
+      if (!injectMetadata())
+        throw IOInvalidData(
+            "Item metadata was not written into the data stream. "
+            "Catalog can not be recovered.");
+      assert(catalogEntryClassId());
+      assert(itemLocationClassId());
 
-    const std::streampos zeropos(0);
-    unsigned long long count = 0;
-    for (f_.peek(); !f_.eof(); f_.peek()) {
-      unsigned long long id = 0;
-      std::streampos jump(0);
-      read_pod(f_, &jump);
-      if (f_.fail() || jump == zeropos)
-        return count;
-      f_.seekp(jump);
-      if (f_.fail())
-        return count;
-      const CatalogEntry *entry = CatalogEntry::read(
-          *catalogEntryClassId(), *itemLocationClassId(), f_);
-      if (entry) {
-        id = cat_.makeEntry(*entry, entry->compressionCode(),
-                            entry->itemLength(), entry->location(),
-                            entry->offset());
-        delete entry;
+      const std::streampos zeropos(0);
+      unsigned long long count = 0;
+      for (f_.peek(); !f_.eof(); f_.peek()) {
+        unsigned long long id = 0;
+        std::streampos jump(0);
+        read_pod(f_, &jump);
+        if (f_.fail() || jump == zeropos)
+          return count;
+        f_.seekp(jump);
+        if (f_.fail())
+          return count;
+        const CatalogEntry *entry = CatalogEntry::read(*catalogEntryClassId(), *itemLocationClassId(), f_);
+        if (entry) {
+          id =
+              cat_.makeEntry(*entry, entry->compressionCode(), entry->itemLength(), entry->location(), entry->offset());
+          delete entry;
+        }
+        if (!id)
+          return count;
+        ++count;
       }
-      if (!id)
-        return count;
-      ++count;
-    }
-    return count;
-  }
-
-  inline void writeCatalog(const std::vector<std::string> &annotations) {
-    const std::string &catFile = catalogFileName();
-    ofstream cats(catFile.c_str());
-    if (!cats) {
-      std::ostringstream os;
-      os << "In CatalogRecovery::writeCatalog: "
-         << "failed to open catalog data file \"" << catFile << '"';
-      throw IOOpeningFailure(os.str());
+      return count;
     }
 
-    const unsigned compress = static_cast<unsigned>(compressionMode());
-    if (!writeBinaryCatalog(cats, compress, 1, annotations, cat_)) {
-      std::ostringstream os;
-      os << "In CatalogRecovery::writeCatalog: "
-         << "failed to write catalog data to file " << catFile;
-      throw IOWriteFailure(os.str());
-    }
-  }
+    inline void writeCatalog(const std::vector<std::string> &annotations) {
+      const std::string &catFile = catalogFileName();
+      ofstream cats(catFile.c_str());
+      if (!cats) {
+        std::ostringstream os;
+        os << "In CatalogRecovery::writeCatalog: "
+           << "failed to open catalog data file \"" << catFile << '"';
+        throw IOOpeningFailure(os.str());
+      }
 
-  inline void flush() {}
-};
-} // namespace
+      const unsigned compress = static_cast<unsigned>(compressionMode());
+      if (!writeBinaryCatalog(cats, compress, 1, annotations, cat_)) {
+        std::ostringstream os;
+        os << "In CatalogRecovery::writeCatalog: "
+           << "failed to write catalog data to file " << catFile;
+        throw IOWriteFailure(os.str());
+      }
+    }
+
+    inline void flush() {}
+  };
+}  // namespace
 
 int main(int argc, char const *argv[]) {
   CmdLine cmdline(argc, argv);
@@ -181,8 +178,7 @@ int main(int argc, char const *argv[]) {
       itemCount += recovery.processFile(fileCount);
   } catch (IOOpeningFailure &e) {
     if (!fileCount) {
-      cout << "Archive \"" << archiveName << "\" could not be open. "
-           << e.what() << endl;
+      cout << "Archive \"" << archiveName << "\" could not be open. " << e.what() << endl;
       return 1;
     }
   } catch (exception &e) {
@@ -198,8 +194,7 @@ int main(int argc, char const *argv[]) {
   }
 
   cout << "Wrote catalog file \"" << catFile << "\"\n"
-       << "The catalog contains metadata for " << itemCount
-       << " items found in " << fileCount << " data file"
+       << "The catalog contains metadata for " << itemCount << " items found in " << fileCount << " data file"
        << (fileCount == 1UL ? "" : "s") << endl;
   return 0;
 }

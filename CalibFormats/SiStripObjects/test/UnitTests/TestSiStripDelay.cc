@@ -46,8 +46,7 @@ public:
   }
 
   void testConstructor() {
-    SiStripDelay delay(*baseDelay1, baseDelaySign1,
-                       std::make_pair("baseDelay1", "delay1"));
+    SiStripDelay delay(*baseDelay1, baseDelaySign1, std::make_pair("baseDelay1", "delay1"));
     CPPUNIT_ASSERT(delay.getNumberOfTags() == 1);
     CPPUNIT_ASSERT(delay.getBaseDelay(0) == baseDelay1);
     CPPUNIT_ASSERT(delay.getTagSign(0) == 1);
@@ -56,10 +55,8 @@ public:
   }
 
   void testFillNewDelay() {
-    SiStripDelay delay(*baseDelay1, baseDelaySign1,
-                       std::make_pair("baseDelay1", "delay1"));
-    delay.fillNewDelay(*baseDelay2, baseDelaySign2,
-                       std::make_pair("baseDelay2", "delay2"));
+    SiStripDelay delay(*baseDelay1, baseDelaySign1, std::make_pair("baseDelay1", "delay1"));
+    delay.fillNewDelay(*baseDelay2, baseDelaySign2, std::make_pair("baseDelay2", "delay2"));
     CPPUNIT_ASSERT(delay.getNumberOfTags() == 2);
     CPPUNIT_ASSERT(delay.getBaseDelay(0) == baseDelay1);
     CPPUNIT_ASSERT(delay.getTagSign(0) == baseDelaySign1);
@@ -72,15 +69,12 @@ public:
   }
 
   void testMakeDelay() {
-    SiStripDelay delay(*baseDelay1, baseDelaySign1,
-                       std::make_pair("baseDelay1", "delay1"));
+    SiStripDelay delay(*baseDelay1, baseDelaySign1, std::make_pair("baseDelay1", "delay1"));
     CPPUNIT_ASSERT(delay.makeDelay());
     for (uint32_t i = 0; i < totalDelays; ++i) {
-      CPPUNIT_ASSERT(float(delay.getDelay(detIds[i])) ==
-                     float(baseDelay1->delay(detIds[i]) * baseDelaySign1));
+      CPPUNIT_ASSERT(float(delay.getDelay(detIds[i])) == float(baseDelay1->delay(detIds[i]) * baseDelaySign1));
     }
-    delay.fillNewDelay(*baseDelay2, baseDelaySign2,
-                       std::make_pair("baseDelay2", "delay2"));
+    delay.fillNewDelay(*baseDelay2, baseDelaySign2, std::make_pair("baseDelay2", "delay2"));
     CPPUNIT_ASSERT(delay.makeDelay());
     for (uint32_t i = 0; i < totalDelays; ++i) {
       //       std::cout << "float(delay.getDelay("<<detIds[i]<<")) = " <<
@@ -93,9 +87,8 @@ public:
       //       baseDelay2->delay("<<detIds[i]<<"))*"<<baseDelaySign2<<" = " <<
       //       float(baseDelay1->delay(detIds[i])*baseDelaySign1 +
       //       baseDelay2->delay(detIds[i])*baseDelaySign2) << std::endl;
-      CPPUNIT_ASSERT(float(delay.getDelay(detIds[i])) ==
-                     float(baseDelay1->delay(detIds[i]) * baseDelaySign1 +
-                           baseDelay2->delay(detIds[i]) * baseDelaySign2));
+      CPPUNIT_ASSERT(float(delay.getDelay(detIds[i])) == float(baseDelay1->delay(detIds[i]) * baseDelaySign1 +
+                                                               baseDelay2->delay(detIds[i]) * baseDelaySign2));
     }
   }
 

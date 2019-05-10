@@ -49,9 +49,8 @@ void NumberOfDevices::print(std::stringstream &ss) const {
      << "  FED slots    : " << nFedSlots_ << std::endl
      << "  FED ids      : " << nFedIds_ << std::endl
      << "  FED channels : " << nFedChans_ << std::endl
-     << "  Number of APV pairs (0/1/2/3/>3) per module     : " << nApvPairs0_
-     << "/" << nApvPairs1_ << "/" << nApvPairs2_ << "/" << nApvPairs3_ << "/"
-     << nApvPairsX_ << std::endl
+     << "  Number of APV pairs (0/1/2/3/>3) per module     : " << nApvPairs0_ << "/" << nApvPairs1_ << "/"
+     << nApvPairs2_ << "/" << nApvPairs3_ << "/" << nApvPairsX_ << std::endl
      << "  Total number of modules/channels (nApvPairs<=3) : "
      << (nApvPairs0_ + nApvPairs1_ + nApvPairs2_ + nApvPairs3_) << "/"
      << (0 * nApvPairs0_ + 1 * nApvPairs1_ + 2 * nApvPairs2_ + 3 * nApvPairs3_);

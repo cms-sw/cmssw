@@ -18,32 +18,28 @@
  */
 
 class TwoBodyDecayEstimator {
-
 public:
-  typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState
-      RefCountedLinearizedTrackState;
+  typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
   TwoBodyDecayEstimator(const edm::ParameterSet &config);
   virtual ~TwoBodyDecayEstimator(void) {}
 
-  virtual TwoBodyDecay
-  estimate(const std::vector<RefCountedLinearizedTrackState> &linTracks,
-           const TwoBodyDecayParameters &linearizationPoint,
-           const TwoBodyDecayVirtualMeasurement &vm) const;
+  virtual TwoBodyDecay estimate(const std::vector<RefCountedLinearizedTrackState> &linTracks,
+                                const TwoBodyDecayParameters &linearizationPoint,
+                                const TwoBodyDecayVirtualMeasurement &vm) const;
 
   inline int ndf(void) const { return theNdf; }
   inline const AlgebraicVector &pulls(void) const { return thePulls; }
 
-  virtual TwoBodyDecayEstimator *clone(void) const {
-    return new TwoBodyDecayEstimator(*this);
-  }
+  virtual TwoBodyDecayEstimator *clone(void) const { return new TwoBodyDecayEstimator(*this); }
 
 protected:
-  virtual bool constructMatrices(
-      const std::vector<RefCountedLinearizedTrackState> &linTracks,
-      const TwoBodyDecayParameters &linearizationPoint,
-      const TwoBodyDecayVirtualMeasurement &vm, AlgebraicVector &vecM,
-      AlgebraicSymMatrix &matG, AlgebraicMatrix &matA) const;
+  virtual bool constructMatrices(const std::vector<RefCountedLinearizedTrackState> &linTracks,
+                                 const TwoBodyDecayParameters &linearizationPoint,
+                                 const TwoBodyDecayVirtualMeasurement &vm,
+                                 AlgebraicVector &vecM,
+                                 AlgebraicSymMatrix &matG,
+                                 AlgebraicMatrix &matA) const;
 
 private:
   bool checkValues(const AlgebraicVector &vec) const;

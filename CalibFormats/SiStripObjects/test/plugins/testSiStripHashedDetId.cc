@@ -24,25 +24,22 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 testSiStripHashedDetId::testSiStripHashedDetId(const edm::ParameterSet &pset) {
-  edm::LogVerbatim(mlDqmCommon_)
-      << "[testSiStripHashedDetId::" << __func__ << "]"
-      << " Constructing object...";
+  edm::LogVerbatim(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
+                                 << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 testSiStripHashedDetId::~testSiStripHashedDetId() {
-  edm::LogVerbatim(mlDqmCommon_)
-      << "[testSiStripHashedDetId::" << __func__ << "]"
-      << " Destructing object...";
+  edm::LogVerbatim(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
+                                 << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
-  edm::LogVerbatim(mlDqmCommon_)
-      << "[SiStripHashedDetId::" << __func__ << "]"
-      << " Tests the generation of DetId hash map...";
+  edm::LogVerbatim(mlDqmCommon_) << "[SiStripHashedDetId::" << __func__ << "]"
+                                 << " Tests the generation of DetId hash map...";
 
   // Retrieve geometry
   edm::ESHandle<TrackerGeometry> geom;
@@ -58,9 +55,8 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
       dets.push_back((strip->geographicalId()).rawId());
     }
   }
-  edm::LogVerbatim(mlDqmCommon_)
-      << "[testSiStripHashedDetId::" << __func__ << "]"
-      << " Retrieved " << dets.size() << " strip DetIds from geometry!";
+  edm::LogVerbatim(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
+                                 << " Retrieved " << dets.size() << " strip DetIds from geometry!";
 
   // Sorted DetId list gives max performance, anything else is worse
   if (true) {
@@ -73,10 +69,10 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
   if (false) {
     if (dets.size() > 4) {
       uint32_t temp = dets.front();
-      dets.front() = dets.back();            // swapped
-      dets.back() = temp;                    // swapped
-      dets.at(1) = 0x00000001;               // wrong
-      dets.at(dets.size() - 2) = 0xFFFFFFFF; // wrong
+      dets.front() = dets.back();             // swapped
+      dets.back() = temp;                     // swapped
+      dets.at(1) = 0x00000001;                // wrong
+      dets.at(dets.size() - 2) = 0xFFFFFFFF;  // wrong
     }
   }
 
@@ -90,18 +86,17 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
   if (false) {
     if (dets.size() > 4) {
       uint32_t temp = dets.front();
-      dets.front() = dets.back();            // swapped
-      dets.back() = temp;                    // swapped
-      dets.at(1) = 0x00000001;               // wrong
-      dets.at(dets.size() - 2) = 0xFFFFFFFF; // wrong
+      dets.front() = dets.back();             // swapped
+      dets.back() = temp;                     // swapped
+      dets.at(1) = 0x00000001;                // wrong
+      dets.at(dets.size() - 2) = 0xFFFFFFFF;  // wrong
     }
   }
 
   // Retrieve hashed indices
   std::vector<uint32_t> hashes;
   uint32_t istart = time(NULL);
-  for (uint16_t tt = 0; tt < 10000;
-       ++tt) { // 10000 loops just to see some non-negligible time meaasurement!
+  for (uint16_t tt = 0; tt < 10000; ++tt) {  // 10000 loops just to see some non-negligible time meaasurement!
     hashes.clear();
     hashes.reserve(dets.size());
     std::vector<uint32_t>::const_iterator idet = dets.begin();
@@ -122,18 +117,14 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
       continue;
     }
     uint32_t detid = hash.unhashIndex(*ii);
-    std::vector<uint32_t>::const_iterator iter =
-        find(dets.begin(), dets.end(), detid);
+    std::vector<uint32_t>::const_iterator iter = find(dets.begin(), dets.end(), detid);
     if (iter == dets.end()) {
       cntr1++;
-      ss << std::endl
-         << " Did not find value " << detid << " at index "
-         << ii - hashes.begin() << " in vector!";
+      ss << std::endl << " Did not find value " << detid << " at index " << ii - hashes.begin() << " in vector!";
     } else if (*ii != static_cast<uint32_t>(iter - dets.begin())) {
       cntr1++;
       ss << std::endl
-         << " Found same value " << detid << " at different indices " << *ii
-         << " and " << iter - dets.begin();
+         << " Found same value " << detid << " at different indices " << *ii << " and " << iter - dets.begin();
     }
   }
   if (cntr1) {
@@ -143,17 +134,15 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
   }
   LogTrace(mlDqmCommon_) << ss.str();
 
-  edm::LogVerbatim(mlDqmCommon_)
-      << "[testSiStripHashedDetId::" << __func__ << "]"
-      << " Processed " << hashes.size() << " DetIds in "
-      << (time(NULL) - istart) << " seconds";
+  edm::LogVerbatim(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
+                                 << " Processed " << hashes.size() << " DetIds in " << (time(NULL) - istart)
+                                 << " seconds";
 
   // Retrieve DetIds
   std::vector<uint32_t> detids;
   uint32_t jstart = time(NULL);
-  for (uint16_t ttt = 0; ttt < 10000;
-       ++ttt) { // 10000 loops just to see some non-negligible time
-                // meaasurement!
+  for (uint16_t ttt = 0; ttt < 10000; ++ttt) {  // 10000 loops just to see some non-negligible time
+                                                // meaasurement!
     detids.clear();
     detids.reserve(dets.size());
     for (uint16_t idet = 0; idet < dets.size(); ++idet) {
@@ -170,8 +159,8 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
     if (*iii != dets.at(iii - detids.begin())) {
       cntr2++;
       sss << std::endl
-          << " Diff values " << *iii << " and " << dets.at(iii - detids.begin())
-          << " found at index " << iii - detids.begin() << " ";
+          << " Diff values " << *iii << " and " << dets.at(iii - detids.begin()) << " found at index "
+          << iii - detids.begin() << " ";
     }
   }
   if (cntr2) {
@@ -181,18 +170,15 @@ void testSiStripHashedDetId::initialize(const edm::EventSetup &setup) {
   }
   LogTrace(mlDqmCommon_) << sss.str();
 
-  edm::LogVerbatim(mlDqmCommon_)
-      << "[testSiStripHashedDetId::" << __func__ << "]"
-      << " Processed " << detids.size() << " hashed indices in "
-      << (time(NULL) - jstart) << " seconds";
+  edm::LogVerbatim(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
+                                 << " Processed " << detids.size() << " hashed indices in " << (time(NULL) - jstart)
+                                 << " seconds";
 }
 
 // -----------------------------------------------------------------------------
 //
-void testSiStripHashedDetId::analyze(const edm::Event &event,
-                                     const edm::EventSetup &setup) {
+void testSiStripHashedDetId::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   initialize(setup);
   LogTrace(mlDqmCommon_) << "[testSiStripHashedDetId::" << __func__ << "]"
-                         << " Analyzing run/event " << event.id().run() << "/"
-                         << event.id().event();
+                         << " Analyzing run/event " << event.id().run() << "/" << event.id().event();
 }

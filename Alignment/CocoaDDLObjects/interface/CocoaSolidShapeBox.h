@@ -11,11 +11,9 @@
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 
 class CocoaSolidShapeBox : public CocoaSolidShape {
-
 public:
   //---------- Constructors / Destructor
-  CocoaSolidShapeBox(ALIstring type, ALIfloat xdim, ALIfloat ydim,
-                     ALIfloat zdim);
+  CocoaSolidShapeBox(ALIstring type, ALIfloat xdim, ALIfloat ydim, ALIfloat zdim);
   ~CocoaSolidShapeBox() override{};
 
   ALIfloat getXHalfLength() const { return theXHalfLength; }

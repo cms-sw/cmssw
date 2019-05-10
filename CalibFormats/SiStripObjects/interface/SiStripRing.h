@@ -12,7 +12,6 @@
     \author R.Bainbridge
 */
 class SiStripRing {
-
 public:
   /** */
   SiStripRing(const FedChannelConnection &conn);
@@ -47,4 +46,4 @@ const std::vector<SiStripCcu> &SiStripRing::ccus() const { return ccus_; }
 std::vector<SiStripCcu> &SiStripRing::ccus() { return ccus_; }
 const uint16_t &SiStripRing::fecRing() const { return fecRing_; }
 
-#endif // CalibTracker_SiStripObjects_SiStripRing_H
+#endif  // CalibTracker_SiStripObjects_SiStripRing_H
