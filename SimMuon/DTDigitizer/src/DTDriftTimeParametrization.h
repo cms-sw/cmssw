@@ -36,9 +36,8 @@ public:
   } drift_time;
 
   /// Calculate drift time and spread
-  unsigned short MB_DT_drift_time(double x, double alpha, double by, double bz,
-                                  short ifl, drift_time *DT,
-                                  short interpolate) const;
+  unsigned short MB_DT_drift_time(
+      double x, double alpha, double by, double bz, short ifl, drift_time *DT, short interpolate) const;
 
 private:
   double MB_DT_time(double, double *) const;
@@ -46,20 +45,22 @@ private:
   double MB_DT_sigma_t_m(double, double *) const;
   double MB_DT_sigma_t_p(double, double *) const;
 
-  unsigned short MB_DT_Check_boundaries(double distime, double alpha, double by,
-                                        double bz, short ifl) const;
+  unsigned short MB_DT_Check_boundaries(double distime, double alpha, double by, double bz, short ifl) const;
 
-  void MB_DT_Get_grid_values(double Var, unsigned short *pi, unsigned short *pj,
-                             short Initial, unsigned short N,
-                             const double *Values) const;
+  void MB_DT_Get_grid_values(
+      double Var, unsigned short *pi, unsigned short *pj, short Initial, unsigned short N, const double *Values) const;
 
-  void MB_DT_Get_grid_points(double alpha, double by, double bz,
-                             unsigned short *p_alpha, unsigned short *p_By,
-                             unsigned short *p_Bz, unsigned short *q_alpha,
-                             unsigned short *q_By, unsigned short *q_Bz) const;
+  void MB_DT_Get_grid_points(double alpha,
+                             double by,
+                             double bz,
+                             unsigned short *p_alpha,
+                             unsigned short *p_By,
+                             unsigned short *p_Bz,
+                             unsigned short *q_alpha,
+                             unsigned short *q_By,
+                             unsigned short *q_Bz) const;
 
-  double MB_DT_MLInterpolation(double *al, double *by, double *bz,
-                               double *f) const;
+  double MB_DT_MLInterpolation(double *al, double *by, double *bz, double *f) const;
 
   /*** Points of the grid ***/
   static const double alpha_value[N_alpha];

@@ -66,7 +66,6 @@
 //
 
 class CSCChamberMasker : public edm::stream::EDProducer<> {
-
 public:
   explicit CSCChamberMasker(const edm::ParameterSet &);
   ~CSCChamberMasker() override;
@@ -81,13 +80,13 @@ private:
   void createMaskedChamberCollection(edm::ESHandle<CSCGeometry> &);
 
   template <typename T, typename C = MuonDigiCollection<CSCDetId, T>>
-  void ageDigis(edm::Event &event, edm::EDGetTokenT<C> &digiToken,
+  void ageDigis(edm::Event &event,
+                edm::EDGetTokenT<C> &digiToken,
                 CLHEP::HepRandomEngine &randGen,
                 std::unique_ptr<C> &filteredDigis);
 
   template <typename T, typename C = MuonDigiCollection<CSCDetId, T>>
-  void copyDigis(edm::Event &event, edm::EDGetTokenT<C> &digiToken,
-                 std::unique_ptr<C> &filteredDigis);
+  void copyDigis(edm::Event &event, edm::EDGetTokenT<C> &digiToken, std::unique_ptr<C> &filteredDigis);
 
   // ----------member data ---------------------------
 
@@ -110,15 +109,10 @@ private:
 // constructors and destructor
 //
 CSCChamberMasker::CSCChamberMasker(const edm::ParameterSet &iConfig)
-    : m_stripDigiToken(consumes<CSCStripDigiCollection>(
-          iConfig.getParameter<edm::InputTag>("stripDigiTag"))),
-      m_wireDigiToken(consumes<CSCWireDigiCollection>(
-          iConfig.getParameter<edm::InputTag>("wireDigiTag"))),
-      m_clctDigiToken(consumes<CSCCLCTDigiCollection>(
-          iConfig.getParameter<edm::InputTag>("clctDigiTag"))),
-      m_alctDigiToken(consumes<CSCALCTDigiCollection>(
-          iConfig.getParameter<edm::InputTag>("alctDigiTag"))) {
-
+    : m_stripDigiToken(consumes<CSCStripDigiCollection>(iConfig.getParameter<edm::InputTag>("stripDigiTag"))),
+      m_wireDigiToken(consumes<CSCWireDigiCollection>(iConfig.getParameter<edm::InputTag>("wireDigiTag"))),
+      m_clctDigiToken(consumes<CSCCLCTDigiCollection>(iConfig.getParameter<edm::InputTag>("clctDigiTag"))),
+      m_alctDigiToken(consumes<CSCALCTDigiCollection>(iConfig.getParameter<edm::InputTag>("alctDigiTag"))) {
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
@@ -132,20 +126,14 @@ CSCChamberMasker::~CSCChamberMasker() {}
 //
 
 // ------------ method called to produce the data  ------------
-void CSCChamberMasker::produce(edm::Event &event,
-                               const edm::EventSetup &conditions) {
-
+void CSCChamberMasker::produce(edm::Event &event, const edm::EventSetup &conditions) {
   edm::Service<edm::RandomNumberGenerator> randGenService;
   CLHEP::HepRandomEngine &randGen = randGenService->getEngine(event.streamID());
 
-  std::unique_ptr<CSCStripDigiCollection> filteredStripDigis(
-      new CSCStripDigiCollection());
-  std::unique_ptr<CSCWireDigiCollection> filteredWireDigis(
-      new CSCWireDigiCollection());
-  std::unique_ptr<CSCCLCTDigiCollection> filteredCLCTDigis(
-      new CSCCLCTDigiCollection());
-  std::unique_ptr<CSCALCTDigiCollection> filteredALCTDigis(
-      new CSCALCTDigiCollection());
+  std::unique_ptr<CSCStripDigiCollection> filteredStripDigis(new CSCStripDigiCollection());
+  std::unique_ptr<CSCWireDigiCollection> filteredWireDigis(new CSCWireDigiCollection());
+  std::unique_ptr<CSCCLCTDigiCollection> filteredCLCTDigis(new CSCCLCTDigiCollection());
+  std::unique_ptr<CSCALCTDigiCollection> filteredALCTDigis(new CSCALCTDigiCollection());
 
   // Handle wire and strip digis
   ageDigis<CSCStripDigi>(event, m_stripDigiToken, randGen, filteredStripDigis);
@@ -163,10 +151,7 @@ void CSCChamberMasker::produce(edm::Event &event,
 
 // ------------ method called to copy digis into aged collection  ------------
 template <typename T, typename C>
-void CSCChamberMasker::copyDigis(edm::Event &event,
-                                 edm::EDGetTokenT<C> &digiToken,
-                                 std::unique_ptr<C> &filteredDigis) {
-
+void CSCChamberMasker::copyDigis(edm::Event &event, edm::EDGetTokenT<C> &digiToken, std::unique_ptr<C> &filteredDigis) {
   if (!digiToken.isUninitialized()) {
     edm::Handle<C> digis;
     event.getByToken(digiToken, digis);
@@ -189,7 +174,6 @@ void CSCChamberMasker::ageDigis(edm::Event &event,
                                 edm::EDGetTokenT<C> &digiToken,
                                 CLHEP::HepRandomEngine &randGen,
                                 std::unique_ptr<C> &filteredDigis) {
-
   if (!digiToken.isUninitialized()) {
     edm::Handle<C> digis;
     event.getByToken(digiToken, digis);
@@ -201,25 +185,19 @@ void CSCChamberMasker::ageDigis(edm::Event &event,
       CSCDetId const cscDetId = j.first;
 
       // Since lookups are chamber-centric, make new DetId with layer=0
-      CSCDetId chId = CSCDetId(cscDetId.endcap(), cscDetId.station(),
-                               cscDetId.ring(), cscDetId.chamber(), 0);
+      CSCDetId chId = CSCDetId(cscDetId.endcap(), cscDetId.station(), cscDetId.ring(), cscDetId.chamber(), 0);
 
       for (; digiItr != last; ++digiItr) {
-
         auto chEffIt = m_CSCEffs.find(chId);
 
         if (chEffIt != m_CSCEffs.end()) {
-
           std::pair<unsigned int, float> typeEff = chEffIt->second;
-          int type =
-              typeEff.first % 10; // second digit gives type of inefficiency
-          int layer =
-              typeEff.first / 10; // first digit gives layer (0 = chamber level)
+          int type = typeEff.first % 10;   // second digit gives type of inefficiency
+          int layer = typeEff.first / 10;  // first digit gives layer (0 = chamber level)
 
           bool doRandomize = false;
           if (((std::is_same<T, CSCStripDigi>::value && type == EFF_WIRES) ||
-               (std::is_same<T, CSCWireDigi>::value && type == EFF_STRIPS) ||
-               type == EFF_CHAMBER) &&
+               (std::is_same<T, CSCWireDigi>::value && type == EFF_STRIPS) || type == EFF_CHAMBER) &&
               (layer == 0 || cscDetId.layer() == layer))
             doRandomize = true;
 
@@ -233,9 +211,7 @@ void CSCChamberMasker::ageDigis(edm::Event &event,
 }
 
 // ------------ method called when starting to processes a run  ------------
-void CSCChamberMasker::beginRun(edm::Run const &run,
-                                edm::EventSetup const &iSetup) {
-
+void CSCChamberMasker::beginRun(edm::Run const &run, edm::EventSetup const &iSetup) {
   m_CSCEffs.clear();
 
   edm::ESHandle<CSCGeometry> cscGeom;
@@ -247,10 +223,8 @@ void CSCChamberMasker::beginRun(edm::Run const &run,
   const auto chambers = cscGeom->chambers();
 
   for (const auto *ch : chambers) {
-
     CSCDetId chId = ch->id();
-    unsigned int rawId = chId.rawIdMaker(chId.endcap(), chId.station(),
-                                         chId.ring(), chId.chamber(), 0);
+    unsigned int rawId = chId.rawIdMaker(chId.endcap(), chId.station(), chId.ring(), chId.chamber(), 0);
     float eff = 1.;
     int type = 0;
     for (auto &agingPair : agingObj->m_CSCChambEffs) {
@@ -267,23 +241,14 @@ void CSCChamberMasker::beginRun(edm::Run const &run,
 
 // ------------ method fills 'descriptions' with the allowed parameters for the
 // module  ------------
-void CSCChamberMasker::fillDescriptions(
-    edm::ConfigurationDescriptions &descriptions) {
-
+void CSCChamberMasker::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("stripDigiTag",
-                          edm::InputTag("simMuonCSCDigis:MuonCSCStripDigi"));
-  desc.add<edm::InputTag>("wireDigiTag",
-                          edm::InputTag("simMuonCSCDigis:MuonCSCWireDigi"));
-  desc.add<edm::InputTag>(
-      "comparatorDigiTag",
-      edm::InputTag("simMuonCSCDigis:MuonCSCComparatorDigi"));
-  desc.add<edm::InputTag>("rpcDigiTag",
-                          edm::InputTag("simMuonCSCDigis:MuonCSCRPCDigi"));
-  desc.add<edm::InputTag>("alctDigiTag",
-                          edm::InputTag("simMuonCSCDigis:MuonCSCALCTDigi"));
-  desc.add<edm::InputTag>("clctDigiTag",
-                          edm::InputTag("simMuonCSCDigis:MuonCSCCLCTDigi"));
+  desc.add<edm::InputTag>("stripDigiTag", edm::InputTag("simMuonCSCDigis:MuonCSCStripDigi"));
+  desc.add<edm::InputTag>("wireDigiTag", edm::InputTag("simMuonCSCDigis:MuonCSCWireDigi"));
+  desc.add<edm::InputTag>("comparatorDigiTag", edm::InputTag("simMuonCSCDigis:MuonCSCComparatorDigi"));
+  desc.add<edm::InputTag>("rpcDigiTag", edm::InputTag("simMuonCSCDigis:MuonCSCRPCDigi"));
+  desc.add<edm::InputTag>("alctDigiTag", edm::InputTag("simMuonCSCDigis:MuonCSCALCTDigi"));
+  desc.add<edm::InputTag>("clctDigiTag", edm::InputTag("simMuonCSCDigis:MuonCSCCLCTDigi"));
   descriptions.add("cscChamberMasker", desc);
 }
 

@@ -16,9 +16,7 @@ DTDigiSyncFromTable::DTDigiSyncFromTable(const edm::ParameterSet &pSet) {}
 DTDigiSyncFromTable::~DTDigiSyncFromTable() {}
 
 // Delays to be added to digi times during digitization, in ns.
-double DTDigiSyncFromTable::digitizerOffset(const DTWireId *id,
-                                            const DTLayer *layer) const {
-
+double DTDigiSyncFromTable::digitizerOffset(const DTWireId *id, const DTLayer *layer) const {
   double result = 0;
 
   // ...
@@ -28,7 +26,6 @@ double DTDigiSyncFromTable::digitizerOffset(const DTWireId *id,
 
 // Offset to obtain "raw" TDCs for the L1 emulator from digis.
 double DTDigiSyncFromTable::emulatorOffset(const DTWireId *id) const {
-
   double result = 0;
 
   // ...

@@ -26,17 +26,15 @@
 #include "G4MagneticField.hh"
 
 class MonopoleEquation : public G4EquationOfMotion {
-public: // with description
+public:  // with description
   MonopoleEquation(G4MagneticField *emField);
 
   ~MonopoleEquation() override;
 
-  void SetChargeMomentumMass(G4ChargeState particleChargeState,
-                             G4double momentum, G4double mass) override;
+  void SetChargeMomentumMass(G4ChargeState particleChargeState, G4double momentum, G4double mass) override;
   // magnetic charge in e+ units
 
-  void EvaluateRhsGivenB(const G4double y[], const G4double Field[],
-                         G4double dydx[]) const override;
+  void EvaluateRhsGivenB(const G4double y[], const G4double Field[], G4double dydx[]) const override;
   // Given the value of the electromagnetic field, this function
   // calculates the value of the derivative dydx.
 

@@ -16,24 +16,20 @@
 #include "G4SimpleRunge.hh"
 #include "G4TsitourasRK45.hh"
 
-FieldStepper::FieldStepper(G4Mag_UsualEqRhs *eq, double del,
-                           const std::string &nam)
+FieldStepper::FieldStepper(G4Mag_UsualEqRhs *eq, double del, const std::string &nam)
     : G4MagIntegratorStepper(eq, 6), theEquation(eq), theDelta(del) {
   selectStepper(nam);
 }
 
 FieldStepper::~FieldStepper() {}
 
-void FieldStepper::Stepper(const G4double y[], const G4double dydx[],
-                           G4double h, G4double yout[], G4double yerr[]) {
+void FieldStepper::Stepper(const G4double y[], const G4double dydx[], G4double h, G4double yout[], G4double yerr[]) {
   theStepper->Stepper(y, dydx, h, yout, yerr);
 }
 
 G4double FieldStepper::DistChord() const { return theStepper->DistChord(); }
 
-G4int FieldStepper::IntegratorOrder() const {
-  return theStepper->IntegratorOrder();
-}
+G4int FieldStepper::IntegratorOrder() const { return theStepper->IntegratorOrder(); }
 
 void FieldStepper::selectStepper(const std::string &ss) {
   if (ss == "G4ClassicalRK4")
@@ -64,10 +60,8 @@ void FieldStepper::selectStepper(const std::string &ss) {
     theStepper = new G4HelixHeum(theEquation);
   else {
     edm::LogWarning("SimG4CoreMagneticField")
-        << " FieldStepper <" << ss
-        << "> is not known, defaulting to G4ClassicalRK4 ";
+        << " FieldStepper <" << ss << "> is not known, defaulting to G4ClassicalRK4 ";
     theStepper = new G4ClassicalRK4(theEquation);
   }
-  edm::LogVerbatim("SimG4CoreMagneticField")
-      << "### FieldStepper: <" << ss << ">";
+  edm::LogVerbatim("SimG4CoreMagneticField") << "### FieldStepper: <" << ss << ">";
 }

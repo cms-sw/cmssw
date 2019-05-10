@@ -26,7 +26,6 @@ class FieldStepWatcher : public SimWatcher,
                          public Observer<const BeginOfEvent *>,
                          public Observer<const EndOfEvent *>,
                          public Observer<const G4Step *> {
-
 public:
   FieldStepWatcher(edm::ParameterSet const &p);
   ~FieldStepWatcher() override;

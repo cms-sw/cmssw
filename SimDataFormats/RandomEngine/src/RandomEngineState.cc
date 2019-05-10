@@ -2,7 +2,7 @@
 //
 // Package:     RandomEngine
 // Class  :     RandomEngineState
-// 
+//
 // Implementation:
 //
 //
@@ -12,11 +12,6 @@
 
 #include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
 
+RandomEngineState::RandomEngineState() {}
 
-RandomEngineState::RandomEngineState()
-{
-}
-
-RandomEngineState::~RandomEngineState()
-{
-}
+RandomEngineState::~RandomEngineState() {}

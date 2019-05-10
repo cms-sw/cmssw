@@ -15,8 +15,7 @@ class ParametersDefinerForTPESProducer : public edm::ESProducer {
 public:
   ParametersDefinerForTPESProducer(const edm::ParameterSet &p);
   ~ParametersDefinerForTPESProducer() override;
-  std::unique_ptr<ParametersDefinerForTP>
-  produce(const TrackAssociatorRecord &);
+  std::unique_ptr<ParametersDefinerForTP> produce(const TrackAssociatorRecord &);
 
   edm::ParameterSet pset_;
 };

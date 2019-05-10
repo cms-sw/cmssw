@@ -66,8 +66,8 @@
 #include "G4BuilderType.hh"
 #include "G4SystemOfUnits.hh"
 
-CMSEmNoDeltaRay::CMSEmNoDeltaRay(const G4String& name, G4int ver, const std::string& reg):
-  G4VPhysicsConstructor(name), verbose(ver), region(reg) {
+CMSEmNoDeltaRay::CMSEmNoDeltaRay(const G4String& name, G4int ver, const std::string& reg)
+    : G4VPhysicsConstructor(name), verbose(ver), region(reg) {
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(verbose);
@@ -135,104 +135,72 @@ void CMSEmNoDeltaRay::ConstructProcess() {
 
   G4ParticleTable* table = G4ParticleTable::GetParticleTable();
   EmParticleList emList;
-  for(const auto& particleName : emList.PartNames()) {
+  for (const auto& particleName : emList.PartNames()) {
     G4ParticleDefinition* particle = table->FindParticle(particleName);
     G4ProcessManager* pmanager = particle->GetProcessManager();
-    if(verbose > 1)
-      G4cout << "### " << GetPhysicsName() << " instantiates for " 
-	     << particleName << " at " << particle << G4endl;
+    if (verbose > 1)
+      G4cout << "### " << GetPhysicsName() << " instantiates for " << particleName << " at " << particle << G4endl;
 
     if (particleName == "gamma") {
-
       pmanager->AddDiscreteProcess(new G4PhotoElectricEffect);
       pmanager->AddDiscreteProcess(new G4ComptonScattering);
       pmanager->AddDiscreteProcess(new G4GammaConversion);
 
     } else if (particleName == "e-") {
-
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
       if (reg != nullptr) {
-	G4UrbanMscModel* msc_el  = new G4UrbanMscModel();
-	msc_el->SetRangeFactor(0.04);
-	msc->AddEmModel(0,msc_el,reg);
+        G4UrbanMscModel* msc_el = new G4UrbanMscModel();
+        msc_el->SetRangeFactor(0.04);
+        msc->AddEmModel(0, msc_el, reg);
       }
-      pmanager->AddProcess(msc,                   -1, 1, 1);
-      pmanager->AddProcess(new G4hhIonisation,    -1, 2, 2);
-      pmanager->AddProcess(new G4eBremsstrahlung, -1,-3, 3);
+      pmanager->AddProcess(msc, -1, 1, 1);
+      pmanager->AddProcess(new G4hhIonisation, -1, 2, 2);
+      pmanager->AddProcess(new G4eBremsstrahlung, -1, -3, 3);
 
     } else if (particleName == "e+") {
-
       //      G4eIonisation* eioni = new G4eIonisation();
       //      eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
       if (reg != nullptr) {
-	G4UrbanMscModel* msc_pos  = new G4UrbanMscModel();
-	msc_pos->SetRangeFactor(0.04);
-	msc->AddEmModel(0,msc_pos,reg);
+        G4UrbanMscModel* msc_pos = new G4UrbanMscModel();
+        msc_pos->SetRangeFactor(0.04);
+        msc->AddEmModel(0, msc_pos, reg);
       }
-      pmanager->AddProcess(msc,                     -1, 1, 1);
-      pmanager->AddProcess(new G4hhIonisation,      -1, 2, 2);
-      pmanager->AddProcess(new G4eBremsstrahlung,   -1,-3, 3);
-      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1, 4);
+      pmanager->AddProcess(msc, -1, 1, 1);
+      pmanager->AddProcess(new G4hhIonisation, -1, 2, 2);
+      pmanager->AddProcess(new G4eBremsstrahlung, -1, -3, 3);
+      pmanager->AddProcess(new G4eplusAnnihilation, 0, -1, 4);
 
-    } else if (particleName == "mu+" ||
-               particleName == "mu-"    ) {
-
+    } else if (particleName == "mu+" || particleName == "mu-") {
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4hhIonisation,        -1, 2, 2);
-      pmanager->AddProcess(new G4MuBremsstrahlung,    -1,-3, 3);
-      pmanager->AddProcess(new G4MuPairProduction,    -1,-4, 4);
+      pmanager->AddProcess(new G4hhIonisation, -1, 2, 2);
+      pmanager->AddProcess(new G4MuBremsstrahlung, -1, -3, 3);
+      pmanager->AddProcess(new G4MuPairProduction, -1, -4, 4);
 
-    } else if (particleName == "alpha" ||
-               particleName == "He3" ||
-               particleName == "GenericIon") {
-
+    } else if (particleName == "alpha" || particleName == "He3" || particleName == "GenericIon") {
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4hhIonisation,        -1, 2, 2);
+      pmanager->AddProcess(new G4hhIonisation, -1, 2, 2);
 
-    } else if (particleName == "pi+" ||
-	       particleName == "kaon+" ||
-	       particleName == "kaon-" ||
-	       particleName == "proton" ||
-	       particleName == "pi-" ) {
-
+    } else if (particleName == "pi+" || particleName == "kaon+" || particleName == "kaon-" ||
+               particleName == "proton" || particleName == "pi-") {
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4hhIonisation,        -1, 2, 2);
-      pmanager->AddProcess(new G4hBremsstrahlung(),   -1,-3, 3);
-      pmanager->AddProcess(new G4hPairProduction(),   -1,-4, 4);
+      pmanager->AddProcess(new G4hhIonisation, -1, 2, 2);
+      pmanager->AddProcess(new G4hBremsstrahlung(), -1, -3, 3);
+      pmanager->AddProcess(new G4hPairProduction(), -1, -4, 4);
 
-    } else if (particleName == "B+" ||
-	       particleName == "B-" ||
-	       particleName == "D+" ||
-	       particleName == "D-" ||
-	       particleName == "Ds+" ||
-	       particleName == "Ds-" ||
-               particleName == "anti_lambda_c+" ||
-               particleName == "anti_omega-" ||
-               particleName == "anti_proton" ||
-               particleName == "anti_sigma_c+" ||
-               particleName == "anti_sigma_c++" ||
-               particleName == "anti_sigma+" ||
-               particleName == "anti_sigma-" ||
-               particleName == "anti_xi_c+" ||
-               particleName == "anti_xi-" ||
-               particleName == "deuteron" ||
-	       particleName == "lambda_c+" ||
-               particleName == "omega-" ||
-               particleName == "sigma_c+" ||
-               particleName == "sigma_c++" ||
-               particleName == "sigma+" ||
-               particleName == "sigma-" ||
-               particleName == "tau+" ||
-               particleName == "tau-" ||
-               particleName == "triton" ||
-               particleName == "xi_c+" ||
-               particleName == "xi-" ) {
-
+    } else if (particleName == "B+" || particleName == "B-" || particleName == "D+" || particleName == "D-" ||
+               particleName == "Ds+" || particleName == "Ds-" || particleName == "anti_lambda_c+" ||
+               particleName == "anti_omega-" || particleName == "anti_proton" || particleName == "anti_sigma_c+" ||
+               particleName == "anti_sigma_c++" || particleName == "anti_sigma+" || particleName == "anti_sigma-" ||
+               particleName == "anti_xi_c+" || particleName == "anti_xi-" || particleName == "deuteron" ||
+               particleName == "lambda_c+" || particleName == "omega-" || particleName == "sigma_c+" ||
+               particleName == "sigma_c++" || particleName == "sigma+" || particleName == "sigma-" ||
+               particleName == "tau+" || particleName == "tau-" || particleName == "triton" ||
+               particleName == "xi_c+" || particleName == "xi-") {
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4hhIonisation,        -1, 2, 2);
+      pmanager->AddProcess(new G4hhIonisation, -1, 2, 2);
     }
   }
 }

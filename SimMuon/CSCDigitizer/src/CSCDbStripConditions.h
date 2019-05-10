@@ -16,16 +16,17 @@ public:
   /// channels count from 1
   float gain(const CSCDetId &detId, int channel) const override;
   /// total calibration precision
-  float gainSigma(const CSCDetId &detId, int channel) const override {
-    return 0.005;
-  }
+  float gainSigma(const CSCDetId &detId, int channel) const override { return 0.005; }
 
   /// in ADC counts
   float pedestal(const CSCDetId &detId, int channel) const override;
   float pedestalSigma(const CSCDetId &detId, int channel) const override;
 
-  void crosstalk(const CSCDetId &detId, int channel, double stripLength,
-                 bool leftRight, float &capacitive,
+  void crosstalk(const CSCDetId &detId,
+                 int channel,
+                 double stripLength,
+                 bool leftRight,
+                 float &capacitive,
                  float &resistive) const override;
 
   /// check list of bad chambers from db

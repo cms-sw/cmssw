@@ -4,7 +4,6 @@
 #include "SimG4Core/PrintGeomInfo/interface/PrintSensitive.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-   
 
 DEFINE_SIMWATCHER(PrintGeomInfoAction);
 DEFINE_SIMWATCHER(PrintGeomSummary);

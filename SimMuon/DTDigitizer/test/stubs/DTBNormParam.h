@@ -30,7 +30,6 @@
 /* Class DTBNormParam Interface */
 
 class DTBNormParam {
-
 public:
   /** Constructor Field=0*/
   DTBNormParam();
@@ -51,7 +50,6 @@ private:
 
   /// private class to hold parameters for a Bnorm bin
   class ParamFunc {
-
   public:
     ParamFunc();
     ParamFunc(int bin);
@@ -64,11 +62,11 @@ private:
     float tcor(float xpos) const;
 
     // functions to compute normal B field component difference
-    inline float dist(float bnorm) const // to a given value
+    inline float dist(float bnorm) const  // to a given value
     {
       return bnorm - bin_bnorm;
     }
-    inline float dist(const ParamFunc &func) const // to another bin
+    inline float dist(const ParamFunc &func) const  // to another bin
     {
       return func.bin_bnorm - bin_bnorm;
     }
@@ -88,4 +86,4 @@ private:
 
 protected:
 };
-#endif // MUBARBNORMPARAM_H
+#endif  // MUBARBNORMPARAM_H

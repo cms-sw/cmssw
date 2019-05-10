@@ -15,7 +15,7 @@ class DDG4SolidConverter {
 public:
   DDG4SolidConverter();
   ~DDG4SolidConverter();
-  typedef G4VSolid *(*FNPTR)(const DDSolid &); // pointer to function
+  typedef G4VSolid *(*FNPTR)(const DDSolid &);  // pointer to function
   G4VSolid *convert(const DDSolid &);
 
 private:

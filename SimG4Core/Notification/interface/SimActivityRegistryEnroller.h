@@ -4,7 +4,7 @@
 //
 // Package:     Notification
 // Class  :     SimActivityRegistryEnroller
-// 
+//
 /**\class SimActivityRegistryEnroller SimActivityRegistryEnroller.h SimG4Core/Notification/interface/SimActivityRegistryEnroller.h
 
  Description: Based on what classes an object inherts, enrolls that object with the proper signal
@@ -35,65 +35,61 @@
 // forward declarations
 namespace enroller_helper {
   template <class T>
-    struct Enrollment {
-      static void enroll(SimActivityRegistry& iReg, Observer<const T*>* iObs){
-	iReg.connect(iObs);
-      }
-      static void enroll(SimActivityRegistry&, void*) {}
-    };
-   
+  struct Enrollment {
+    static void enroll(SimActivityRegistry& iReg, Observer<const T*>* iObs) { iReg.connect(iObs); }
+    static void enroll(SimActivityRegistry&, void*) {}
+  };
+
   //this class is used to terminate our recursion
   template <class T>
-    struct LastEnrollerHelper {
-      static void enroll(SimActivityRegistry&, T*) {
-      }
-    };
+  struct LastEnrollerHelper {
+    static void enroll(SimActivityRegistry&, T*) {}
+  };
 
-  template< class T, class TVector>
-    struct EnrollerHelper  {
-      typedef typename boost::mpl::pop_back<TVector>::type RemainingVector;
-      static void enroll(SimActivityRegistry& iReg, T* iT) {
-	//Try to enroll the object if it inherits from the class at the 
-	// end of TVector
-	Enrollment< typename boost::mpl::deref< typename boost::mpl::prior< typename boost::mpl::end< TVector >::type >::type >::type >::enroll(iReg, iT );
-	
-	//If TVector is not at its end, call EnrollerHelper with a vector
-	// that had our last type 'popped off' the end
-	typedef typename boost::mpl::eval_if<boost::mpl::empty<TVector>,
-	  boost::mpl::identity<LastEnrollerHelper<T> >,
-	  boost::mpl::identity<EnrollerHelper<T, typename boost::mpl::pop_back< TVector >::type > >
-	  >::type NextEnroller;
-	NextEnroller::enroll(iReg,iT);
-      }
-    };
-  
-}
+  template <class T, class TVector>
+  struct EnrollerHelper {
+    typedef typename boost::mpl::pop_back<TVector>::type RemainingVector;
+    static void enroll(SimActivityRegistry& iReg, T* iT) {
+      //Try to enroll the object if it inherits from the class at the
+      // end of TVector
+      Enrollment<typename boost::mpl::deref<
+          typename boost::mpl::prior<typename boost::mpl::end<TVector>::type>::type>::type>::enroll(iReg, iT);
 
-class SimActivityRegistryEnroller
-{
-  
- public:
+      //If TVector is not at its end, call EnrollerHelper with a vector
+      // that had our last type 'popped off' the end
+      typedef typename boost::mpl::eval_if<
+          boost::mpl::empty<TVector>,
+          boost::mpl::identity<LastEnrollerHelper<T> >,
+          boost::mpl::identity<EnrollerHelper<T, typename boost::mpl::pop_back<TVector>::type> > >::type NextEnroller;
+      NextEnroller::enroll(iReg, iT);
+    }
+  };
+
+}  // namespace enroller_helper
+
+class SimActivityRegistryEnroller {
+public:
   SimActivityRegistryEnroller() {}
-      //virtual ~SimActivityRegistryEnroller();
-      typedef boost::mpl::vector<BeginOfJob,DDDWorld,BeginOfRun,BeginOfEvent,BeginOfTrack,BeginOfStep,G4Step,EndOfTrack,EndOfEvent,EndOfRun> Signals;
-   
-      // ---------- const member functions ---------------------
+  //virtual ~SimActivityRegistryEnroller();
+  typedef boost::mpl::
+      vector<BeginOfJob, DDDWorld, BeginOfRun, BeginOfEvent, BeginOfTrack, BeginOfStep, G4Step, EndOfTrack, EndOfEvent, EndOfRun>
+          Signals;
 
-      // ---------- static member functions --------------------
-      template<class T>
-      static void enroll(SimActivityRegistry& iReg, T* iObj){
-         enroller_helper::EnrollerHelper<T,Signals>::enroll(iReg,iObj);
-      }
-      // ---------- member functions ---------------------------
+  // ---------- const member functions ---------------------
 
-   private:
-      SimActivityRegistryEnroller(const SimActivityRegistryEnroller&) = delete; // stop default
+  // ---------- static member functions --------------------
+  template <class T>
+  static void enroll(SimActivityRegistry& iReg, T* iObj) {
+    enroller_helper::EnrollerHelper<T, Signals>::enroll(iReg, iObj);
+  }
+  // ---------- member functions ---------------------------
 
-      const SimActivityRegistryEnroller& operator=(const SimActivityRegistryEnroller&) = delete; // stop default
+private:
+  SimActivityRegistryEnroller(const SimActivityRegistryEnroller&) = delete;  // stop default
 
-      // ---------- member data --------------------------------
+  const SimActivityRegistryEnroller& operator=(const SimActivityRegistryEnroller&) = delete;  // stop default
 
+  // ---------- member data --------------------------------
 };
-
 
 #endif

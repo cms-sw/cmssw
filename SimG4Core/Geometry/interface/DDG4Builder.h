@@ -20,7 +20,6 @@ class G4VSolid;
 class DDCompactView;
 
 class DDG4Builder {
-
 public:
   DDG4Builder(const DDCompactView *, bool check = false);
   ~DDG4Builder();

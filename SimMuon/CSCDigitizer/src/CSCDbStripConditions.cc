@@ -9,10 +9,10 @@
 #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
 
 CSCDbStripConditions::CSCDbStripConditions(const edm::ParameterSet &pset)
-    : CSCStripConditions(), theConditions(pset),
+    : CSCStripConditions(),
+      theConditions(pset),
       theCapacitiveCrosstalk(pset.getParameter<double>("capacativeCrosstalk")),
-      theResistiveCrosstalkScaling(
-          pset.getParameter<double>("resistiveCrosstalkScaling")),
+      theResistiveCrosstalkScaling(pset.getParameter<double>("resistiveCrosstalkScaling")),
       theGainsConstant(pset.getParameter<double>("gainsConstant")),
       doCorrelatedNoise_(pset.getParameter<bool>("doCorrelatedNoise")) {
   //  theCapacitiveCrosstalk = = 1/maxslope/maxsignal) = 1/ (0.00231/0.143);
@@ -24,9 +24,7 @@ CSCDbStripConditions::~CSCDbStripConditions() {
     delete theNoisifier;
 }
 
-void CSCDbStripConditions::initializeEvent(const edm::EventSetup &es) {
-  theConditions.initializeEvent(es);
-}
+void CSCDbStripConditions::initializeEvent(const edm::EventSetup &es) { theConditions.initializeEvent(es); }
 
 float CSCDbStripConditions::gain(const CSCDetId &id, int channel) const {
   return theConditions.gain(id, channel) * theGainsConstant;
@@ -36,17 +34,13 @@ float CSCDbStripConditions::pedestal(const CSCDetId &id, int channel) const {
   return theConditions.pedestal(id, channel);
 }
 
-float CSCDbStripConditions::pedestalSigma(const CSCDetId &id,
-                                          int channel) const {
+float CSCDbStripConditions::pedestalSigma(const CSCDetId &id, int channel) const {
   return theConditions.pedestalSigma(id, channel);
 }
 
-void CSCDbStripConditions::crosstalk(const CSCDetId &id, int channel,
-                                     double stripLength, bool leftRight,
-                                     float &capacitive,
-                                     float &resistive) const {
-  resistive = theConditions.crosstalkIntercept(id, channel, leftRight) *
-              theResistiveCrosstalkScaling;
+void CSCDbStripConditions::crosstalk(
+    const CSCDetId &id, int channel, double stripLength, bool leftRight, float &capacitive, float &resistive) const {
+  resistive = theConditions.crosstalkIntercept(id, channel, leftRight) * theResistiveCrosstalkScaling;
   float slope = theConditions.crosstalkSlope(id, channel, leftRight);
   // ns before the peak where slope is max
   float maxSlopeTime = 60.;
@@ -57,25 +51,25 @@ void CSCDbStripConditions::crosstalk(const CSCDetId &id, int channel,
 }
 
 void CSCDbStripConditions::fetchNoisifier(const CSCDetId &id, int istrip) {
-  std::vector<float> me(12); // buffer for matrix elements
-  theConditions.noiseMatrixElements(id, istrip, me); // fill it
+  std::vector<float> me(12);                          // buffer for matrix elements
+  theConditions.noiseMatrixElements(id, istrip, me);  // fill it
 
   CSCCorrelatedNoiseMatrix matrix;
   // TODO get the pedestals right
-  matrix(2, 2) = me[0];  // item.elem33;
-  matrix(3, 3) = me[3];  // item.elem44;
-  matrix(4, 4) = me[6];  // item.elem55;
-  matrix(5, 5) = me[9];  // item.elem66;
-  matrix(6, 6) = me[11]; // item.elem77;
+  matrix(2, 2) = me[0];   // item.elem33;
+  matrix(3, 3) = me[3];   // item.elem44;
+  matrix(4, 4) = me[6];   // item.elem55;
+  matrix(5, 5) = me[9];   // item.elem66;
+  matrix(6, 6) = me[11];  // item.elem77;
 
   if (doCorrelatedNoise_) {
-    matrix(2, 3) = me[1];  // item.elem34;
-    matrix(2, 4) = me[2];  // item.elem35;
-    matrix(3, 4) = me[4];  // item.elem45;
-    matrix(3, 5) = me[5];  // item.elem46;
-    matrix(4, 5) = me[7];  // item.elem56;
-    matrix(4, 6) = me[8];  // item.elem57;
-    matrix(5, 6) = me[10]; // item.elem67;
+    matrix(2, 3) = me[1];   // item.elem34;
+    matrix(2, 4) = me[2];   // item.elem35;
+    matrix(3, 4) = me[4];   // item.elem45;
+    matrix(3, 5) = me[5];   // item.elem46;
+    matrix(4, 5) = me[7];   // item.elem56;
+    matrix(4, 6) = me[8];   // item.elem57;
+    matrix(5, 6) = me[10];  // item.elem67;
   }
 
   // the other diagonal elements can just come from the pedestal sigma
@@ -100,6 +94,4 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId &id, int istrip) {
   theNoisifier = new CSCCorrelatedNoisifier(matrix);
 }
 
-bool CSCDbStripConditions::isInBadChamber(const CSCDetId &id) const {
-  return theConditions.isInBadChamber(id);
-}
+bool CSCDbStripConditions::isInBadChamber(const CSCDetId &id) const { return theConditions.isInBadChamber(id); }

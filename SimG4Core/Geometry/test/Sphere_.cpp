@@ -30,13 +30,9 @@ void testSphere::matched_g4_and_dd(void) {
   double deltaTheta = 180. * deg;
   string name("fred1");
 
-  G4Sphere g4(name, innerRadius, outerRadius, startPhi, deltaPhi, startTheta,
-              deltaTheta);
-  DDI::Sphere dd(innerRadius, outerRadius, startPhi, deltaPhi, startTheta,
-                 deltaTheta);
-  DDSphere dds =
-      DDSolidFactory::sphere(name, innerRadius, outerRadius, startPhi, deltaPhi,
-                             startTheta, deltaTheta);
+  G4Sphere g4(name, innerRadius, outerRadius, startPhi, deltaPhi, startTheta, deltaTheta);
+  DDI::Sphere dd(innerRadius, outerRadius, startPhi, deltaPhi, startTheta, deltaTheta);
+  DDSphere dds = DDSolidFactory::sphere(name, innerRadius, outerRadius, startPhi, deltaPhi, startTheta, deltaTheta);
   cout << endl;
   dd.stream(cout);
   cout << endl;

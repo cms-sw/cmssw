@@ -3,26 +3,24 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "SimMuon/CSCDigitizer/src/CSCConfigurableStripConditions.h"
 
-CSCConfigurableStripConditions::CSCConfigurableStripConditions(
-    const edm::ParameterSet &p)
+CSCConfigurableStripConditions::CSCConfigurableStripConditions(const edm::ParameterSet &p)
     : theGain(p.getParameter<double>("gain")),
       theME11Gain(p.getParameter<double>("me11gain")),
       theGainSigma(p.getParameter<double>("ampGainSigma")),
       thePedestal(p.getParameter<double>("pedestal")),
       thePedestalSigma(p.getParameter<double>("pedestalSigma")),
-      theCapacitiveCrosstalk(0.0167), theResistiveCrosstalk(0.02) {
+      theCapacitiveCrosstalk(0.0167),
+      theResistiveCrosstalk(0.02) {
   theNoisifiers.resize(9);
   makeNoisifier(1, p.getParameter<std::vector<double>>("me11a"));
   makeNoisifier(2, p.getParameter<std::vector<double>>("me11"));
   makeNoisifier(3, p.getParameter<std::vector<double>>("me12"));
-  makeNoisifier(4, p.getParameter<std::vector<double>>(
-                       "me13")); // not sure about this one
+  makeNoisifier(4, p.getParameter<std::vector<double>>("me13"));  // not sure about this one
   makeNoisifier(5, p.getParameter<std::vector<double>>("me21"));
   makeNoisifier(6, p.getParameter<std::vector<double>>("me22"));
   makeNoisifier(7, p.getParameter<std::vector<double>>("me31"));
   makeNoisifier(8, p.getParameter<std::vector<double>>("me32"));
-  makeNoisifier(9, p.getParameter<std::vector<double>>(
-                       "me31")); // for lack of a better idea
+  makeNoisifier(9, p.getParameter<std::vector<double>>("me31"));  // for lack of a better idea
 }
 
 CSCConfigurableStripConditions::~CSCConfigurableStripConditions() {
@@ -31,8 +29,7 @@ CSCConfigurableStripConditions::~CSCConfigurableStripConditions() {
   }
 }
 
-float CSCConfigurableStripConditions::gain(const CSCDetId &detId,
-                                           int channel) const {
+float CSCConfigurableStripConditions::gain(const CSCDetId &detId, int channel) const {
   if (detId.station() == 1 && (detId.ring() == 1 || detId.ring() == 4)) {
     return theME11Gain;
   } else {
@@ -40,23 +37,18 @@ float CSCConfigurableStripConditions::gain(const CSCDetId &detId,
   }
 }
 
-void CSCConfigurableStripConditions::fetchNoisifier(const CSCDetId &detId,
-                                                    int istrip) {
+void CSCConfigurableStripConditions::fetchNoisifier(const CSCDetId &detId, int istrip) {
   // TODO get this moved toCSCDetId
-  int chamberType =
-      CSCChamberSpecs::whatChamberType(detId.station(), detId.ring());
+  int chamberType = CSCChamberSpecs::whatChamberType(detId.station(), detId.ring());
   theNoisifier = theNoisifiers[chamberType - 1];
 }
 
-void CSCConfigurableStripConditions::makeNoisifier(
-    int chamberType, const std::vector<double> &correlations) {
-
+void CSCConfigurableStripConditions::makeNoisifier(int chamberType, const std::vector<double> &correlations) {
   // format is 33, 34, 44, 35, 45, 55
   //           46, 56, 66, 57, 67, 77
   if (correlations.size() != 12) {
     throw cms::Exception("CSCConfigurableStripConditions")
-        << "Expect 12 noise correlation coefficients, but got "
-        << correlations.size();
+        << "Expect 12 noise correlation coefficients, but got " << correlations.size();
   }
 
   CSCCorrelatedNoiseMatrix matrix;
@@ -82,11 +74,8 @@ void CSCConfigurableStripConditions::makeNoisifier(
   theNoisifiers[chamberType - 1] = new CSCCorrelatedNoisifier(matrix);
 }
 
-void CSCConfigurableStripConditions::crosstalk(const CSCDetId &detId,
-                                               int channel, double stripLength,
-                                               bool leftRight,
-                                               float &capacitive,
-                                               float &resistive) const {
+void CSCConfigurableStripConditions::crosstalk(
+    const CSCDetId &detId, int channel, double stripLength, bool leftRight, float &capacitive, float &resistive) const {
   capacitive = theCapacitiveCrosstalk * stripLength;
   resistive = theResistiveCrosstalk;
 }

@@ -7,13 +7,13 @@
 //                    verbosity class in order to keep necessary
 //                    verbosity options when G4VERBOSE flag is disabled.
 //                    The goal is to provide easy way to print
-//                    per event, per track, per step. 
+//                    per event, per track, per step.
 //
 // V.Ivanchenko 10.06.2016
 //
 //---------------------------------------------------------------
 
-#include "globals.hh"   
+#include "globals.hh"
 #include <vector>
 
 class G4Event;
@@ -22,25 +22,19 @@ class G4Step;
 class G4SteppingManager;
 class G4SteppingVerbose;
 
-class CMSSteppingVerbose 
-{
-public:  
-
-  explicit CMSSteppingVerbose(G4int verb, G4double ekin,
-			      std::vector<G4int>& evtNum,
-			      std::vector<G4int>& primV,
-			      std::vector<G4int>& trNum);
+class CMSSteppingVerbose {
+public:
+  explicit CMSSteppingVerbose(
+      G4int verb, G4double ekin, std::vector<G4int>& evtNum, std::vector<G4int>& primV, std::vector<G4int>& trNum);
   ~CMSSteppingVerbose();
 
   void BeginOfEvent(const G4Event*);
   void TrackStarted(const G4Track*, bool isKilled);
   void TrackEnded(const G4Track*) const;
   void StackFilled(const G4Track*, bool isKilled) const;
-  void NextStep(const G4Step*, const G4SteppingManager* ptr, 
-		bool isKilled) const;
+  void NextStep(const G4Step*, const G4SteppingManager* ptr, bool isKilled) const;
 
 private:
-
   G4bool m_PrintEvent;
   G4bool m_PrintTrack;
   G4bool m_smInitialized;
