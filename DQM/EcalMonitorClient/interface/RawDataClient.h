@@ -18,7 +18,6 @@ namespace ecaldqm {
     float synchErrThresholdFactor_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

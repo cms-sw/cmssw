@@ -3,8 +3,7 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class LaserClient : public DQWorkerClient {
   public:
     LaserClient();
@@ -30,6 +29,6 @@ namespace ecaldqm
     float tolerancePNRMSRatio_;
     float forwardFactor_;
   };
-}
+}  // namespace ecaldqm
 
 #endif

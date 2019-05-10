@@ -20,7 +20,6 @@ namespace ecaldqm {
     float fedBadFraction_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

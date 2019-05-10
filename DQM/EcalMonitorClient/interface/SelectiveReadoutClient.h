@@ -13,6 +13,6 @@ namespace ecaldqm {
     void producePlots(ProcessType) override;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif

@@ -19,31 +19,29 @@
 
 #include <bitset>
 
-class RPCMonitorRaw :public DQMEDAnalyzer{
+class RPCMonitorRaw : public DQMEDAnalyzer {
 public:
-  
-  explicit RPCMonitorRaw( const edm::ParameterSet& cfg);
+  explicit RPCMonitorRaw(const edm::ParameterSet& cfg);
   ~RPCMonitorRaw() override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-private:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-  
+private:
   MonitorElement* me_t[3];
   MonitorElement* me_e[3];
   MonitorElement* me_mapGoodEvents;
   MonitorElement* me_mapBadEvents;
 
   edm::ParameterSet theConfig;
-  std::vector<MonitorElement* > theWatchedErrorHistos[3]; // histos with physical locations 
+  std::vector<MonitorElement*> theWatchedErrorHistos[3];  // histos with physical locations
                                                           // (RMB,LINK)of selected  ReadoutErrors
 
-  unsigned int theWatchedErrorHistoPos[10];               // for a give error type show its position
-                                                          // (1..10) in theWatchedErrorHistos
-                                                          // to get index one has to subtract -1
-                                                          // 0 is not selected error type 
-                                                  
+  unsigned int theWatchedErrorHistoPos[10];  // for a give error type show its position
+                                             // (1..10) in theWatchedErrorHistos
+                                             // to get index one has to subtract -1
+                                             // 0 is not selected error type
+
   edm::EDGetTokenT<RPCRawDataCounts> rpcRawDataCountsTag_;
 };
 

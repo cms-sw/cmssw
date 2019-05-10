@@ -40,14 +40,14 @@ class MonitorElement;
 class SiStripDetVOff;
 class SiStripDetCabling;
 
-class SiStripDcsInfo: public edm::EDAnalyzer {
+class SiStripDcsInfo : public edm::EDAnalyzer {
 public:
   SiStripDcsInfo(const edm::ParameterSet& ps);
 
 private:
   void beginJob() override;
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override ;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -61,12 +61,12 @@ private:
 
   MonitorElement* DcsFraction_{nullptr};
 
-  struct SubDetMEs{
+  struct SubDetMEs {
     std::string folder_name;
     MonitorElement* DcsFractionME;
     int TotalDetectors;
     std::vector<uint32_t> FaultyDetectors;
-    std::unordered_map<uint32_t,uint16_t> NLumiDetectorIsFaulty;
+    std::unordered_map<uint32_t, uint16_t> NLumiDetectorIsFaulty;
   };
 
   std::map<std::string, SubDetMEs> SubDetMEsMap{};

@@ -8,10 +8,7 @@
 //
 // Get a list of MEs in a folder
 //
-int
-SiStripUtility::getMEList(std::string const& name,
-                          std::vector<std::string>& values)
-{
+int SiStripUtility::getMEList(std::string const& name, std::vector<std::string>& values) {
   values.clear();
   auto prefix_str = name.substr(0, (name.find(":")));
   prefix_str += "/";
@@ -25,13 +22,9 @@ SiStripUtility::getMEList(std::string const& name,
 //
 // Get a list of MEs in a folder and the path name
 //
-int
-SiStripUtility::getMEList(std::string const& name,
-                          std::string& dir_path,
-                          std::vector<std::string>& values)
-{
+int SiStripUtility::getMEList(std::string const& name, std::string& dir_path, std::vector<std::string>& values) {
   values.clear();
-  dir_path = name.substr(0,(name.find(":")));
+  dir_path = name.substr(0, (name.find(":")));
   dir_path += "/";
   auto const temp_str = name.substr(name.find(":") + 1);
   split(temp_str, values, ",");
@@ -39,12 +32,9 @@ SiStripUtility::getMEList(std::string const& name,
 }
 
 // Check if the requested ME exists in a folder
-bool
-SiStripUtility::checkME(std::string const& name,
-                        std::string const& me_name,
-                        std::string& full_path)
-{
-  if (name.find(name) == std::string::npos) return false;
+bool SiStripUtility::checkME(std::string const& name, std::string const& me_name, std::string& full_path) {
+  if (name.find(name) == std::string::npos)
+    return false;
   auto prefix_str = name.substr(0, (name.find(":")));
   prefix_str += "/";
   auto const temp_str = name.substr(name.find(":") + 1);
@@ -69,7 +59,7 @@ void SiStripUtility::split(const std::string& str, std::vector<std::string>& tok
   // Find first "non-delimiter".
   std::string::size_type pos = str.find_first_of(delimiters, lastPos);
 
-  while (std::string::npos != pos || std::string::npos != lastPos)  {
+  while (std::string::npos != pos || std::string::npos != lastPos) {
     // Found a token, add it to the std::vector.
     tokens.push_back(str.substr(lastPos, pos - lastPos));
 
@@ -83,19 +73,27 @@ void SiStripUtility::split(const std::string& str, std::vector<std::string>& tok
 //
 // -- Get Color code from Status
 //
-void SiStripUtility::getMEStatusColor(int status, int& rval, int&gval, int& bval) {
+void SiStripUtility::getMEStatusColor(int status, int& rval, int& gval, int& bval) {
   if (status == dqm::qstatus::STATUS_OK) {
     rval = 0;
     gval = 255;
     bval = 0;
   } else if (status == dqm::qstatus::WARNING) {
-    rval = 255; gval = 255; bval = 0;
+    rval = 255;
+    gval = 255;
+    bval = 0;
   } else if (status == dqm::qstatus::ERROR) {
-    rval = 255; gval = 0;  bval = 0;
+    rval = 255;
+    gval = 0;
+    bval = 0;
   } else if (status == dqm::qstatus::OTHER) {
-    rval = 255; gval = 150;  bval = 0;
+    rval = 255;
+    gval = 150;
+    bval = 0;
   } else {
-    rval = 0; gval = 0;  bval = 255;
+    rval = 0;
+    gval = 0;
+    bval = 255;
   }
 }
 //
@@ -122,10 +120,12 @@ void SiStripUtility::getMEStatusColor(int status, int& icol, std::string& tag) {
 //
 // -- Get Color code from Status
 //
-void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int& bval) {
+void SiStripUtility::getDetectorStatusColor(int status, int& rval, int& gval, int& bval) {
   // No Error
   if (status == 0) {
-    rval = 0; gval = 255;bval = 0;
+    rval = 0;
+    gval = 255;
+    bval = 0;
     return;
   }
   // Error detected in FED Channel
@@ -151,9 +151,12 @@ void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int
   }
   // Digi and Cluster Problem
   if (((status >> 1) & 0x1) > 0) {
-    rval = 255; bval = 0;
-    if (((status >> 2) & 0x1) > 0) gval = 0;
-    else gval = 100;
+    rval = 255;
+    bval = 0;
+    if (((status >> 2) & 0x1) > 0)
+      gval = 0;
+    else
+      gval = 100;
   } else {
     rval = 251;
     gval = 0;
@@ -164,9 +167,7 @@ void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int
 //
 // -- Get Status of Monitor Element
 //
-int
-SiStripUtility::getMEStatus(MonitorElement const* me)
-{
+int SiStripUtility::getMEStatus(MonitorElement const* me) {
   int status = 0;
   if (me->getQReports().empty()) {
     return status;
@@ -184,12 +185,8 @@ SiStripUtility::getMEStatus(MonitorElement const* me)
 //
 // --  Fill Module Names
 //
-void
-SiStripUtility::getModuleFolderList(DQMStore& dqm_store,
-                                    std::vector<std::string>& mfolders)
-{
-  if (auto currDir = dqm_store.pwd();
-      currDir.find("module_") != std::string::npos) {
+void SiStripUtility::getModuleFolderList(DQMStore& dqm_store, std::vector<std::string>& mfolders) {
+  if (auto currDir = dqm_store.pwd(); currDir.find("module_") != std::string::npos) {
     mfolders.push_back(currDir);
   } else {
     auto const subdirs = dqm_store.getSubdirs();
@@ -201,13 +198,10 @@ SiStripUtility::getModuleFolderList(DQMStore& dqm_store,
   }
 }
 
-void
-SiStripUtility::getModuleFolderList(DQMStore::IBooker& ibooker,
-                                    DQMStore::IGetter& igetter,
-                                    std::vector<std::string>& mfolders)
-{
-  if (auto currDir = ibooker.pwd();
-      currDir.find("module_") != std::string::npos) {
+void SiStripUtility::getModuleFolderList(DQMStore::IBooker& ibooker,
+                                         DQMStore::IGetter& igetter,
+                                         std::vector<std::string>& mfolders) {
+  if (auto currDir = ibooker.pwd(); currDir.find("module_") != std::string::npos) {
     mfolders.push_back(currDir);
   } else {
     auto const subdirs = igetter.getSubdirs();
@@ -221,15 +215,13 @@ SiStripUtility::getModuleFolderList(DQMStore::IBooker& ibooker,
 //
 // -- Get Status of Monitor Element
 //
-int
-SiStripUtility::getMEStatus(MonitorElement const* me, int& bad_channels)
-{
+int SiStripUtility::getMEStatus(MonitorElement const* me, int& bad_channels) {
   int status = 0;
   if (me->getQReports().empty()) {
     bad_channels = -1;
   } else {
-    std::vector<QReport *> qreports = me->getQReports();
-    bad_channels =qreports[0]->getBadChannels().size();
+    std::vector<QReport*> qreports = me->getQReports();
+    bad_channels = qreports[0]->getBadChannels().size();
     if (me->hasError()) {
       status = dqm::qstatus::ERROR;
     } else if (me->hasWarning()) {
@@ -245,33 +237,26 @@ SiStripUtility::getMEStatus(MonitorElement const* me, int& bad_channels)
 //
 // -- Get Status of Monitor Element
 //
-void
-SiStripUtility::getMEValue(MonitorElement const* me, std::string& val)
-{
+void SiStripUtility::getMEValue(MonitorElement const* me, std::string& val) {
   val = "";
-  if (me && (me->kind() == MonitorElement::DQM_KIND_REAL ||
-             me->kind() == MonitorElement::DQM_KIND_INT)) {
+  if (me && (me->kind() == MonitorElement::DQM_KIND_REAL || me->kind() == MonitorElement::DQM_KIND_INT)) {
     val = me->valueString();
-    val = val.substr(val.find("=")+1);
+    val = val.substr(val.find("=") + 1);
   }
 }
 //
 // -- go to a given Directory
 //
-bool
-SiStripUtility::goToDir(DQMStore& dqm_store, std::string const& name)
-{
+bool SiStripUtility::goToDir(DQMStore& dqm_store, std::string const& name) {
   std::string currDir = dqm_store.pwd();
-  std::string dirName = currDir.substr(currDir.find_last_of("/")+1);
+  std::string dirName = currDir.substr(currDir.find_last_of("/") + 1);
   if (dirName.find(name) == 0) {
     return true;
   }
   auto const subdirs = dqm_store.getSubdirs();
   for (auto const& fname : subdirs) {
-    if ((fname.find("Reference") != std::string::npos) ||
-        (fname.find("AlCaReco") != std::string::npos) ||
-        (fname.find("HLT") != std::string::npos) ||
-        (fname.find("IsolatedBunches") != std::string::npos))
+    if ((fname.find("Reference") != std::string::npos) || (fname.find("AlCaReco") != std::string::npos) ||
+        (fname.find("HLT") != std::string::npos) || (fname.find("IsolatedBunches") != std::string::npos))
       continue;
     dqm_store.cd(fname);
     if (!goToDir(dqm_store, name)) {
@@ -283,11 +268,7 @@ SiStripUtility::goToDir(DQMStore& dqm_store, std::string const& name)
   return false;
 }
 
-bool
-SiStripUtility::goToDir(DQMStore::IBooker& ibooker,
-                        DQMStore::IGetter& igetter,
-                        std::string const& name)
-{
+bool SiStripUtility::goToDir(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string const& name) {
   std::string currDir = ibooker.pwd();
   std::string dirName = currDir.substr(currDir.find_last_of("/") + 1);
   if (dirName.find(name) == 0) {
@@ -295,10 +276,8 @@ SiStripUtility::goToDir(DQMStore::IBooker& ibooker,
   }
   auto const subdirs = igetter.getSubdirs();
   for (auto const& fname : subdirs) {
-    if ((fname.find("Reference") != std::string::npos) ||
-        (fname.find("AlCaReco") != std::string::npos) ||
-        (fname.find("HLT") != std::string::npos) ||
-        (fname.find("IsolatedBunches") != std::string::npos))
+    if ((fname.find("Reference") != std::string::npos) || (fname.find("AlCaReco") != std::string::npos) ||
+        (fname.find("HLT") != std::string::npos) || (fname.find("IsolatedBunches") != std::string::npos))
       continue;
     igetter.cd(fname);
     if (!goToDir(ibooker, igetter, name)) {
@@ -312,72 +291,73 @@ SiStripUtility::goToDir(DQMStore::IBooker& ibooker,
 //
 // -- Get Sub Detector tag from DetId
 //
-void
-SiStripUtility::getSubDetectorTag(uint32_t const det_id,
-                                  std::string& subdet_tag,
-                                  const TrackerTopology* tTopo)
-{
+void SiStripUtility::getSubDetectorTag(uint32_t const det_id, std::string& subdet_tag, const TrackerTopology* tTopo) {
   StripSubdetector const subdet(det_id);
   subdet_tag = "";
   switch (subdet.subdetId()) {
-  case StripSubdetector::TIB: {
-    subdet_tag = "TIB";
-    return;
-  }
-  case StripSubdetector::TID: {
-    if (tTopo->tidSide(det_id) == 2) {
-      subdet_tag = "TIDF";
-    } else if (tTopo->tidSide(det_id) == 1) {
-      subdet_tag = "TIDB";
+    case StripSubdetector::TIB: {
+      subdet_tag = "TIB";
+      return;
     }
-    return;
-  }
-  case StripSubdetector::TOB: {
-    subdet_tag = "TOB";
-    return;
-  }
-  case StripSubdetector::TEC: {
-    if (tTopo->tecSide(det_id) == 2) {
-      subdet_tag = "TECF";
-    } else if (tTopo->tecSide(det_id) == 1) {
-      subdet_tag = "TECB";
+    case StripSubdetector::TID: {
+      if (tTopo->tidSide(det_id) == 2) {
+        subdet_tag = "TIDF";
+      } else if (tTopo->tidSide(det_id) == 1) {
+        subdet_tag = "TIDB";
+      }
+      return;
     }
-  }
+    case StripSubdetector::TOB: {
+      subdet_tag = "TOB";
+      return;
+    }
+    case StripSubdetector::TEC: {
+      if (tTopo->tecSide(det_id) == 2) {
+        subdet_tag = "TECF";
+      } else if (tTopo->tecSide(det_id) == 1) {
+        subdet_tag = "TECB";
+      }
+    }
   }
 }
 //
 // -- Set Bad Channel Flag from hname
 //
-void SiStripUtility::setBadModuleFlag(std::string & hname, uint16_t& flg){
-
-  if (hname.find("FractionOfBadChannels")   != std::string::npos) flg |= (1<<0);
-  else if (hname.find("NumberOfDigi")       != std::string::npos) flg |= (1<<1);
-  else if (hname.find("NumberOfCluster")    != std::string::npos) flg |= (1<<2);
-  else if (hname.find("ExcludedFedChannel") != std::string::npos) flg |= (1<<3);
+void SiStripUtility::setBadModuleFlag(std::string& hname, uint16_t& flg) {
+  if (hname.find("FractionOfBadChannels") != std::string::npos)
+    flg |= (1 << 0);
+  else if (hname.find("NumberOfDigi") != std::string::npos)
+    flg |= (1 << 1);
+  else if (hname.find("NumberOfCluster") != std::string::npos)
+    flg |= (1 << 2);
+  else if (hname.find("ExcludedFedChannel") != std::string::npos)
+    flg |= (1 << 3);
   else if (hname.find("DCSError") != std::string::npos)
     flg |= (1 << 4);
 }
 //
 // -- Get the Status Message from Bad Module Flag
 //
-void SiStripUtility::getBadModuleStatus(uint16_t flag, std::string & message){
-  if (flag == 0) message += " No Error";
+void SiStripUtility::getBadModuleStatus(uint16_t flag, std::string& message) {
+  if (flag == 0)
+    message += " No Error";
   else {
-    if (((flag >> 0) & 0x1) > 0) message += " Fed BadChannel : ";
-    if (((flag >> 1) & 0x1) > 0) message += " # of Digi : ";
-    if (((flag >> 2) & 0x1) > 0) message += " # of Clusters :";
-    if (((flag >> 3) & 0x1) > 0) message += " Excluded FED Channel ";
-    if (((flag >> 4) & 0x1) > 0) message += " DCSError ";
+    if (((flag >> 0) & 0x1) > 0)
+      message += " Fed BadChannel : ";
+    if (((flag >> 1) & 0x1) > 0)
+      message += " # of Digi : ";
+    if (((flag >> 2) & 0x1) > 0)
+      message += " # of Clusters :";
+    if (((flag >> 3) & 0x1) > 0)
+      message += " Excluded FED Channel ";
+    if (((flag >> 4) & 0x1) > 0)
+      message += " DCSError ";
   }
 }
 //
 // -- Set Event Info Folder
 //
-void
-SiStripUtility::getTopFolderPath(DQMStore& dqm_store,
-                                 std::string const& top_dir,
-                                 std::string& path)
-{
+void SiStripUtility::getTopFolderPath(DQMStore& dqm_store, std::string const& top_dir, std::string& path) {
   path = "";
   dqm_store.cd();
   if (dqm_store.dirExists(top_dir)) {
@@ -394,12 +374,10 @@ SiStripUtility::getTopFolderPath(DQMStore& dqm_store,
   }
 }
 
-void
-SiStripUtility::getTopFolderPath(DQMStore::IBooker& ibooker,
-                                 DQMStore::IGetter& igetter,
-                                 std::string const& top_dir,
-                                 std::string& path)
-{
+void SiStripUtility::getTopFolderPath(DQMStore::IBooker& ibooker,
+                                      DQMStore::IGetter& igetter,
+                                      std::string const& top_dir,
+                                      std::string& path) {
   path = "";
   ibooker.cd();
   if (igetter.dirExists(top_dir)) {

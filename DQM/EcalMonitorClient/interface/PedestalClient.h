@@ -3,8 +3,7 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class PedestalClient : public DQWorkerClient {
   public:
     PedestalClient();
@@ -28,6 +27,6 @@ namespace ecaldqm
     std::vector<float> tolerancePNRMS_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif

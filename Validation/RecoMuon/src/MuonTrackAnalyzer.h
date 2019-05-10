@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -27,11 +26,17 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
-namespace reco {class TransientTrack;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
+namespace reco {
+  class TransientTrack;
+}
 
 class TFile;
-class TH1F; 
+class TH1F;
 class TH2F;
 class HTrackVariables;
 class HTrack;
@@ -44,14 +49,13 @@ class TrajectorySeed;
 class MuonUpdatorAtVertex;
 class DQMStore;
 
+class MuonTrackAnalyzer : public DQMEDAnalyzer {
+public:
+  enum EtaRange { all, barrel, endcap };
 
-class MuonTrackAnalyzer: public DQMEDAnalyzer {
- public:
-  enum EtaRange{all,barrel,endcap};
-
- public:
+public:
   /// Constructor
-  MuonTrackAnalyzer(const edm::ParameterSet& pset);
+  MuonTrackAnalyzer(const edm::ParameterSet &pset);
 
   /// Destructor
   ~MuonTrackAnalyzer() override;
@@ -59,36 +63,34 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
   // Operations
 
   void beginJob() override;
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
-  void tracksAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,
-		      edm::Handle<edm::SimTrackContainer> simTracks);
-  void seedsAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,
-		     edm::Handle<edm::SimTrackContainer> simTracks);
-    
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
+  void tracksAnalysis(const edm::Event &event,
+                      const edm::EventSetup &eventSetup,
+                      edm::Handle<edm::SimTrackContainer> simTracks);
+  void seedsAnalysis(const edm::Event &event,
+                     const edm::EventSetup &eventSetup,
+                     edm::Handle<edm::SimTrackContainer> simTracks);
+
   using DQMEDAnalyzer::endRun;
-  void endRun(DQMStore::IBooker & ibooker) ;
+  void endRun(DQMStore::IBooker &ibooker);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
- protected:
 
- private:
+protected:
+private:
   bool isInTheAcceptance(double eta);
-  bool checkMuonSimHitPresence(const edm::Event & event,
-			       edm::Handle<edm::SimTrackContainer> simTracks);
+  bool checkMuonSimHitPresence(const edm::Event &event, edm::Handle<edm::SimTrackContainer> simTracks);
 
-  std::pair<SimTrack,double> getSimTrack(TrajectoryStateOnSurface &tsos,
-				       edm::Handle<edm::SimTrackContainer> simTracks);  
+  std::pair<SimTrack, double> getSimTrack(TrajectoryStateOnSurface &tsos,
+                                          edm::Handle<edm::SimTrackContainer> simTracks);
 
   void fillPlots(const edm::Event &event, edm::Handle<edm::SimTrackContainer> &simTracks);
   void fillPlots(reco::TransientTrack &track, SimTrack &simTrack);
-  void fillPlots(TrajectoryStateOnSurface &recoTSOS,SimTrack &simState,
-		 HTrack*, MuonPatternRecoDumper&);
-  void fillPlots(FreeTrajectoryState &recoFTS,SimTrack &simTrack,
-		 HTrack *histo, MuonPatternRecoDumper &debug);
+  void fillPlots(TrajectoryStateOnSurface &recoTSOS, SimTrack &simState, HTrack *, MuonPatternRecoDumper &);
+  void fillPlots(FreeTrajectoryState &recoFTS, SimTrack &simTrack, HTrack *histo, MuonPatternRecoDumper &debug);
 
+  TrajectoryStateOnSurface getSeedTSOS(const TrajectorySeed &seed);
 
-  TrajectoryStateOnSurface getSeedTSOS(const TrajectorySeed& seed);
-
-  DQMStore* dbe_;
+  DQMStore *dbe_;
   std::string dirName_;
 
   std::string out;
@@ -97,12 +99,12 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
   //TFile* theFile;
 
   EtaRange theEtaRange;
-  
+
   edm::InputTag theSimTracksLabel;
   edm::InputTag theSeedsLabel;
   edm::InputTag theTracksLabel;
   edm::InputTag theCSCSimHitLabel;
-  edm::InputTag theDTSimHitLabel; 
+  edm::InputTag theDTSimHitLabel;
   edm::InputTag theRPCSimHitLabel;
 
   edm::EDGetTokenT<edm::SimTrackContainer> theSimTracksToken;
@@ -111,7 +113,6 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
   edm::EDGetTokenT<std::vector<PSimHit> > theCSCSimHitToken;
   edm::EDGetTokenT<std::vector<PSimHit> > theDTSimHitToken;
   edm::EDGetTokenT<std::vector<PSimHit> > theRPCSimHitToken;
-
 
   bool doTracksAnalysis;
   bool doSeedsAnalysis;
@@ -136,7 +137,7 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
   MonitorElement *hChi2VsEta;
   MonitorElement *hChi2NormVsEta;
   MonitorElement *hHitsPerTrackVsEta;
-  MonitorElement *hDofVsEta; 
+  MonitorElement *hDofVsEta;
   MonitorElement *hChi2ProbVsEta;
   MonitorElement *hDeltaPtVsEta;
   MonitorElement *hDeltaPt_In_Out_VsEta;
@@ -145,7 +146,7 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
 
   HTrack *hRecoSeedInner;
   HTrack *hRecoSeedPCA;
-  HTrack *hRecoTracksPCA; 
+  HTrack *hRecoTracksPCA;
   HTrack *hRecoTracksInner;
   HTrack *hRecoTracksOuter;
 
@@ -154,5 +155,3 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
   int numberOfRecTracks;
 };
 #endif
-
- 

@@ -19,7 +19,6 @@ namespace ecaldqm {
     float deviationThreshold_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

@@ -26,7 +26,6 @@ namespace ecaldqm {
     float dcsStatus_[nDCC];
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-
