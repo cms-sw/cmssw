@@ -57,6 +57,8 @@ class Reco(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
+        if ('nThreads' in args) :
+            options.nThreads=args['nThreads']
 
         miniAODStep=''
 
