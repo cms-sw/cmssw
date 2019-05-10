@@ -231,7 +231,7 @@ HistogramManager::makePathName(SummationSpecification const& s,
     for (auto it = significantvalues.begin();
               it != (significantvalues.end()-1); ++it) {
       auto name = geometryInterface.formatValue(it->first, it->second);
-      if (name == "") continue;
+      if (name.empty()) continue;
       dir << name << "/";
     }
     auto e = significantvalues[significantvalues.size()-1];
@@ -584,7 +584,7 @@ void HistogramManager::executeExtend(SummationStep const& step, Table& t,
     int& n = nbins[significantvalues];
     assert(e.second.th1 || !"invalid histogram");
     // if we reduce, every histogram only needs one bin
-    int bins = reduce_type != "" ? 1 : e.second.th1->GetXaxis()->GetNbins();
+    int bins = !reduce_type.empty() ? 1 : e.second.th1->GetXaxis()->GetNbins();
     if (bins > 1) separators[significantvalues] += std::to_string(n) + ",";
     n += bins;
   }
@@ -607,8 +607,8 @@ void HistogramManager::executeExtend(SummationStep const& step, Table& t,
       auto name = makePathName(s, significantvalues, &step);
       auto title = std::string("") + th1->GetTitle() + " per " + colname + ";" +
                  colname + separator + 
-                 (reduce_type != "" ? th1->GetYaxis()->GetTitle() : th1->GetXaxis()->GetTitle()) + ";" +
-                 (reduce_type != "" ? reduce_type + " of " + th1->GetXaxis()->GetTitle() : th1->GetYaxis()->GetTitle());
+                 (!reduce_type.empty() ? th1->GetYaxis()->GetTitle() : th1->GetXaxis()->GetTitle()) + ";" +
+                 (!reduce_type.empty() ? reduce_type + " of " + th1->GetXaxis()->GetTitle() : th1->GetYaxis()->GetTitle());
       iBooker.setCurrentFolder(name.first);
 
       if (th1->GetDimension() == 1) {
@@ -625,7 +625,7 @@ void HistogramManager::executeExtend(SummationStep const& step, Table& t,
 
     // now add data.
     if (new_histo.th1->GetDimension() == 1) {
-      if (reduce_type == "") { // no reduction, concatenate
+      if (reduce_type.empty()) { // no reduction, concatenate
         for (int i = 1; i <= th1->GetXaxis()->GetNbins(); i++) {
           new_histo.th1->SetBinContent(new_histo.count, th1->GetBinContent(i));
           new_histo.th1->SetBinError(new_histo.count, th1->GetBinError(i));

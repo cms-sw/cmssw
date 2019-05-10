@@ -336,7 +336,7 @@ map<string,string> L1TMenuHelper::testAlgos(const map<string,string>& _iAlgos){
     string tCategory = (*i).first;
     string tTrigger  = (*i).second;
 
-    if(tTrigger == "" ){iAlgos[tCategory] = "Undefined";}
+    if(tTrigger.empty() ){iAlgos[tCategory] = "Undefined";}
     else{
       if(theAlgoMap->find(tTrigger) == theAlgoMap->end()){iAlgos[tCategory] = "Undefined (Wrong Name)";}
     }
