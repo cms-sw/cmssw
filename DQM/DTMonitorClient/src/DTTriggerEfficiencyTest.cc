@@ -211,7 +211,7 @@ void DTTriggerEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker,string hTag
   bool isTM = hwSource=="TM" ;  
   basedir = topFolder(isTM);   //Book summary histo outside Task directory 
 
-  if (folder != "") {
+  if (!folder.empty()) {
     basedir += folder +"/" ;
   }
 
@@ -236,7 +236,7 @@ void DTTriggerEfficiencyTest::bookWheelHistos(DQMStore::IBooker & ibooker,int wh
     basedir = topFolder(isTM) + "Wheel" + wh.str() + "/" ;
 
   }
-  if (folder != "") {
+  if (!folder.empty()) {
     basedir += folder +"/" ;
   }
 

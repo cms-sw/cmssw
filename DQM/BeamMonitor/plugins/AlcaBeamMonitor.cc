@@ -42,7 +42,7 @@ AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ) :
   numberOfValuesToSave_ (0)
 {
 
-  if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
+  if (!monitorName_.empty() ) monitorName_ = monitorName_+"/" ;
 
   theBeamFitter_ = new BeamFitter(parameters_, consumesCollector() );
   theBeamFitter_->resetTrkVector();

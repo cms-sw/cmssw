@@ -270,7 +270,7 @@ void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker & ibooker,
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
   string folder = topFolder(isTM) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
-  if ( subfolder!="") { folder += "7" + subfolder; }
+  if ( !subfolder.empty()) { folder += "7" + subfolder; }
 
   ibooker.setCurrentFolder(folder);
 
