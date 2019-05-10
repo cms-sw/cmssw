@@ -15,11 +15,6 @@
 #include "CAConstants.h"
 #include "GPUCACell.h"
 
-// useful for benchmark
-// #define ONLY_PHICUT
-// #define NO_ZCUT
-// #define NO_CLSCUT
-
 namespace gpuPixelDoubletsAlgos {
 
   constexpr uint32_t MaxNumOfDoublets = CAConstants::maxNumberOfDoublets();  // not really relevant
@@ -43,14 +38,18 @@ namespace gpuPixelDoubletsAlgos {
                                                     float const* __restrict__ minz,
                                                     float const* __restrict__ maxz,
                                                     float const* __restrict__ maxr,
-                                                    bool ideal_cond) {
-#ifndef NO_CLSCUT
+                                                    bool ideal_cond,
+                                                    bool doClusterCut,
+                                                    bool doZCut,
+                                                    bool doPhiCut) {
     // ysize cuts (z in the barrel)  times 8
+    // these are used if doClusterCut is true
     constexpr int minYsizeB1 = 36;
     constexpr int minYsizeB2 = 28;
     constexpr int maxDYsize12 = 28;
     constexpr int maxDYsize = 20;
-#endif
+    int16_t mes;
+    bool isOuterLadder = ideal_cond;
 
     using Hist = TrackingRecHit2DSOAView::Hist;
 
@@ -107,29 +106,25 @@ namespace gpuPixelDoubletsAlgos {
       // found hit corresponding to our cuda thread, now do the job
       auto mez = hh.zGlobal(i);
 
-#ifndef NO_ZCUT
-      if (mez < minz[pairLayerId] || mez > maxz[pairLayerId])
+      if (doZCut && (mez < minz[pairLayerId] || mez > maxz[pairLayerId]))
         continue;
-#endif
 
-#ifndef NO_CLSCUT
-      auto mes = hh.clusterSizeY(i);
+      if (doClusterCut) {
+        auto mes = hh.clusterSizeY(i);
 
-      // if ideal treat inner ladder as outer
-      auto mi = hh.detectorIndex(i);
-      if (inner == 0)
-        assert(mi < 96);
-      const bool isOuterLadder =
-          ideal_cond ? true : 0 == (mi / 8) % 2;  // only for B1/B2/B3 B4 is opposite, FPIX:noclue...
+        // if ideal treat inner ladder as outer
+        auto mi = hh.detectorIndex(i);
+        if (inner == 0)
+          assert(mi < 96);
+        isOuterLadder = ideal_cond ? true : 0 == (mi / 8) % 2;  // only for B1/B2/B3 B4 is opposite, FPIX:noclue...
 
-      if (inner == 0 && outer > 3 && isOuterLadder)  // B1 and F1
-        if (mes > 0 && mes < minYsizeB1)
-          continue;                 // only long cluster  (5*8)
-      if (inner == 1 && outer > 3)  // B2 and F1
-        if (mes > 0 && mes < minYsizeB2)
-          continue;
-#endif  // NO_CLSCUT
-
+        if (inner == 0 && outer > 3 && isOuterLadder)  // B1 and F1
+          if (mes > 0 && mes < minYsizeB1)
+            continue;                 // only long cluster  (5*8)
+        if (inner == 1 && outer > 3)  // B2 and F1
+          if (mes > 0 && mes < minYsizeB2)
+            continue;
+      }
       auto mep = hh.iphi(i);
       auto mer = hh.rGlobal(i);
 
@@ -153,14 +148,12 @@ namespace gpuPixelDoubletsAlgos {
         return dr > maxr[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > z0cut * dr;
       };
 
-#ifndef NO_CLSCUT
       auto zsizeCut = [&](int j) {
         auto onlyBarrel = outer < 4;
         auto so = hh.clusterSizeY(j);
         auto dy = inner == 0 ? (isOuterLadder ? maxDYsize12 : 100) : maxDYsize;
         return onlyBarrel && mes > 0 && so > 0 && std::abs(so - mes) > dy;
       };
-#endif
 
       auto iphicut = phicuts[pairLayerId];
 
@@ -191,14 +184,12 @@ namespace gpuPixelDoubletsAlgos {
 
           if (std::min(std::abs(int16_t(hh.iphi(oi) - mep)), std::abs(int16_t(mep - hh.iphi(oi)))) > iphicut)
             continue;
-#ifndef ONLY_PHICUT
-#ifndef NO_CLSCUT
-          if (zsizeCut(oi))
-            continue;
-#endif
-          if (z0cutoff(oi) || ptcut(oi))
-            continue;
-#endif
+          if (doPhiCut) {
+            if (doClusterCut && zsizeCut(oi))
+              continue;
+            if (z0cutoff(oi) || ptcut(oi))
+              continue;
+          }
           auto ind = atomicAdd(nCells, 1);
           if (ind >= MaxNumOfDoublets) {
             atomicSub(nCells, 1);
