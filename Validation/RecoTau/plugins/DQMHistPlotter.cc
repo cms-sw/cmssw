@@ -684,7 +684,7 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg)
       for ( vParameterSet::const_iterator plot = plots.begin(); 
 	    plot != plots.end(); ++plot ) {
 
-	if ( process == "" || plot->exists("process")) {
+	if ( process.empty() || plot->exists("process")) {
 	  process = plot->getParameter<std::string>("process");
 	  //std::cout << "process (locally set) = " << process << std::endl;
 	}
@@ -849,7 +849,7 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg)
   //std::cout << " outputFileName = " << outputFileName_ << std::endl;
 
   indOutputFileName_ = ( cfg.exists("indOutputFileName") ) ? cfg.getParameter<std::string>("indOutputFileName") : "";
-  if ( indOutputFileName_ != "" && indOutputFileName_.find('.') == std::string::npos ) {
+  if ( !indOutputFileName_.empty() && indOutputFileName_.find('.') == std::string::npos ) {
     edm::LogError ("TauDQMHistPlotter") << " Failed to determine type of graphics format from indOutputFileName = " << indOutputFileName_ << " !!";
     cfgError_ = 1;
   }
@@ -860,12 +860,12 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg)
 //     or postscript file displaying all plots on successive pages;
 //     cannot create both types of output simultaneously,
 //     as TCanvas::Print seems to interfere with TPostScript::NewPage)
-  if ( outputFileName_ == "" && indOutputFileName_ == "" ) {
+  if ( outputFileName_.empty() && indOutputFileName_.empty() ) {
     edm::LogError ("TauDQMHistPlotter") << " Either outputFileName or indOutputFileName must be specified !!";
     cfgError_ = 1;
   }
 
-  if ( outputFileName_ != "" && indOutputFileName_ != "" ) {
+  if ( !outputFileName_.empty() && !indOutputFileName_.empty() ) {
     edm::LogError ("TauDQMHistPlotter") << " Must not specify outputFileName and indOutputFileName simultaneously !!";
     cfgError_ = 1;
   }
@@ -924,8 +924,8 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
   //pad.cd(1);
 
   TPostScript* ps = nullptr;
-  if ( outputFileName_ != "" ) {
-    std::string psFileName = ( outputFilePath_ != "" ) ? std::string(outputFilePath_).append("/").append(outputFileName_) : outputFileName_;
+  if ( !outputFileName_.empty() ) {
+    std::string psFileName = ( !outputFilePath_.empty() ) ? std::string(outputFilePath_).append("/").append(outputFileName_) : outputFileName_;
     ps = new TPostScript(psFileName.data(), 112);
   }
     
@@ -1073,7 +1073,7 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 	return;
       }
       
-      if ( drawJob->title_ != "" ) histogram->SetTitle(drawJob->title_.data());
+      if ( !drawJob->title_.empty() ) histogram->SetTitle(drawJob->title_.data());
 
       xAxisConfig->applyTo(histogram);
       yAxisConfig->applyTo(histogram,yAxisNorm);
@@ -1102,10 +1102,10 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 
       std::string legendEntry, legendDrawOption;
       if ( drawOption->isErrorBand_ ) {
-	legendEntry = ( drawOption->legendEntryErrorBand_ != "" ) ? drawOption->legendEntryErrorBand_ : processConfig->legendEntryErrorBand_;
+	legendEntry = ( !drawOption->legendEntryErrorBand_.empty() ) ? drawOption->legendEntryErrorBand_ : processConfig->legendEntryErrorBand_;
 	legendDrawOption = "f";
       } else {
-	legendEntry = ( drawOption->legendEntry_ != "" ) ? drawOption->legendEntry_ : processConfig->legendEntry_;
+	legendEntry = ( !drawOption->legendEntry_.empty() ) ? drawOption->legendEntry_ : processConfig->legendEntry_;
 	legendDrawOption = drawOptionConfig->drawOptionLegend_;
       } 
 
@@ -1158,11 +1158,11 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
     canvas.Update();
     //pad.Update();
 
-    if ( indOutputFileName_ != "" && toFile_) {
+    if ( !indOutputFileName_.empty() && toFile_) {
       int errorFlag = 0;
       std::string modIndOutputFileName = replace_string(indOutputFileName_, plotKeyword, drawJobName, 1, 1, errorFlag);
       if ( !errorFlag ) {
-	std::string fullFileName = ( outputFilePath_ != "" ) ? 
+	std::string fullFileName = ( !outputFilePath_.empty() ) ? 
 	  std::string(outputFilePath_).append("/").append(modIndOutputFileName) : modIndOutputFileName;
 	canvas.Print(fullFileName.data());
       } else {

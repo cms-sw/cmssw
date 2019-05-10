@@ -8,7 +8,7 @@ namespace ecaldqm
   class PNIntegrityClient : public DQWorkerClient {
   public:
     PNIntegrityClient();
-    ~PNIntegrityClient() {}
+    ~PNIntegrityClient() override {}
 
     void producePlots(ProcessType) override;
 

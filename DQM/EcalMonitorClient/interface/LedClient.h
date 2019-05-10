@@ -8,7 +8,7 @@ namespace ecaldqm
   class LedClient : public DQWorkerClient {
   public:
     LedClient();
-    ~LedClient() {}
+    ~LedClient() override {}
 
     void producePlots(ProcessType) override;
 
