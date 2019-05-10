@@ -52,18 +52,17 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <boost/tuple/tuple.hpp>
 #include <iosfwd>
-#include <utility> // for pair
+#include <utility>  // for pair
 #include <vector>
 
 class CSCIndexerOldPostls1 {
-
 public:
   typedef uint16_t IndexType;
   typedef uint32_t LongIndexType;
 
-  typedef boost::tuple<CSCDetId,  // id
-                       IndexType, // HV segment
-                       IndexType  // chip
+  typedef boost::tuple<CSCDetId,   // id
+                       IndexType,  // HV segment
+                       IndexType   // chip
                        >
       GasGainTuple;
 
@@ -83,11 +82,9 @@ public:
    * WARNING: Considers both ME1a and ME1b to be part of one ME11 chamber
    *          (result would be the same for is=1 and ir=1 or 4).
    */
-  IndexType startChamberIndexInEndcap(IndexType ie, IndexType is,
-                                      IndexType ir) const {
-    const IndexType nschin[32] = {
-        1,   37,  73,  1,   109, 127, 0, 0, 163, 181, 0, 0, 217, 469, 0, 0,
-        235, 271, 307, 235, 343, 361, 0, 0, 397, 415, 0, 0, 451, 505, 0, 0};
+  IndexType startChamberIndexInEndcap(IndexType ie, IndexType is, IndexType ir) const {
+    const IndexType nschin[32] = {1,   37,  73,  1,   109, 127, 0, 0, 163, 181, 0, 0, 217, 469, 0, 0,
+                                  235, 271, 307, 235, 343, 361, 0, 0, 397, 415, 0, 0, 451, 505, 0, 0};
     return nschin[(ie - 1) * 16 + (is - 1) * 4 + ir - 1];
   }
 
@@ -98,10 +95,8 @@ public:
    * WARNING: Considers both ME1a and ME1b to be part of one ME11 chamber
    *          (result would be the same for is=1 and ir=1 or 4).
    */
-  IndexType chamberIndex(IndexType ie, IndexType is, IndexType ir,
-                         IndexType ic) const {
-    return startChamberIndexInEndcap(ie, is, ir) + ic -
-           1; // -1 so start index _is_ ic=1
+  IndexType chamberIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic) const {
+    return startChamberIndexInEndcap(ie, is, ir) + ic - 1;  // -1 so start index _is_ ic=1
   }
 
   /**
@@ -127,8 +122,7 @@ public:
    * chamber (result would be the same for is=1 and ir=1 or 4).
    */
   IndexType layerIndex(const CSCDetId &id) const {
-    return layerIndex(id.endcap(), id.station(), id.ring(), id.chamber(),
-                      id.layer());
+    return layerIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer());
   }
 
   /**
@@ -138,8 +132,7 @@ public:
    * WARNING: Considers both ME1a and ME1b to share layers of single ME11
    * chamber (result would be the same for is=1 and ir=1 or 4).
    */
-  IndexType layerIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic,
-                       IndexType il) const {
+  IndexType layerIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic, IndexType il) const {
     return (chamberIndex(ie, is, ir, ic) - 1) * 6 + il;
   }
 
@@ -152,7 +145,7 @@ public:
    * - Includes ME42 so claims 2 rings in station 4.
    */
   IndexType ringsInStation(IndexType is) const {
-    const IndexType nrings[5] = {0, 3, 2, 2, 2}; // rings per station
+    const IndexType nrings[5] = {0, 3, 2, 2, 2};  // rings per station
     return nrings[is];
   }
 
@@ -165,7 +158,7 @@ public:
    * - Includes ME42 so claims 2 rings in station 4.
    */
   IndexType offlineRingsInStation(IndexType is) const {
-    const IndexType nrings[5] = {0, 4, 2, 2, 2}; // rings per station
+    const IndexType nrings[5] = {0, 4, 2, 2, 2};  // rings per station
     return nrings[is];
   }
 
@@ -175,8 +168,7 @@ public:
    * Works for ME1a (virtual ring 4 of ME1) too.
    */
   IndexType chambersInRingOfStation(IndexType is, IndexType ir) const {
-    const IndexType nCinR[16] = {36, 36, 36, 36, 18, 36, 0, 0, 18,
-                                 36, 0,  0,  18, 36, 0,  0}; // chambers in ring
+    const IndexType nCinR[16] = {36, 36, 36, 36, 18, 36, 0, 0, 18, 36, 0, 0, 18, 36, 0, 0};  // chambers in ring
     return nCinR[(is - 1) * 4 + ir - 1];
   }
 
@@ -192,8 +184,7 @@ public:
    * are ignored in the unganged case.
    */
   IndexType stripChannelsPerLayer(IndexType is, IndexType ir) const {
-    const IndexType nSCinC[16] = {80, 80, 64, 48, 80, 80, 0, 0,
-                                  80, 80, 0,  0,  80, 80, 0, 0};
+    const IndexType nSCinC[16] = {80, 80, 64, 48, 80, 80, 0, 0, 80, 80, 0, 0, 80, 80, 0, 0};
     return nSCinC[(is - 1) * 4 + ir - 1];
   }
 
@@ -206,8 +197,7 @@ public:
    * WARNING: ME1a channels are  NOT  considered the last 16 of the 80 total in
    * each layer of an ME11 chamber!
    */
-  LongIndexType stripChannelStart(IndexType ie, IndexType is,
-                                  IndexType ir) const {
+  LongIndexType stripChannelStart(IndexType ie, IndexType is, IndexType ir) const {
     // These are in the ranges 1-217728 (CSCs 2008), 217729-252288 (ME42), and
     // 252289-273024 (unganged ME1a) There are 1-108884 channels per endcap
     // (CSCs 2008), 17280 channels per endcap (ME42), and 10368 channels per
@@ -216,11 +206,9 @@ public:
     // of -z (ME42) is 217728 + 1 + 17280          = 235009 Start of +z
     // (unganged ME1a) is 252288 + 1         = 252289 Start of -z (unganged
     // ME1a) is 252288 + 1 + 10368 = 262657
-    const LongIndexType nStart[32] = {
-        1,      17281,  34561,  252289, 48385,  57025,  0, 0,
-        74305,  82945,  0,      0,      100225, 217729, 0, 0,
-        108865, 126145, 143425, 262657, 157249, 165889, 0, 0,
-        183169, 191809, 0,      0,      209089, 235009, 0, 0};
+    const LongIndexType nStart[32] = {1, 17281,  34561,  252289, 48385, 57025,  0,      0,      74305,  82945,  0,
+                                      0, 100225, 217729, 0,      0,     108865, 126145, 143425, 262657, 157249, 165889,
+                                      0, 0,      183169, 191809, 0,     0,      209089, 235009, 0,      0};
     return nStart[(ie - 1) * 16 + (is - 1) * 4 + ir - 1];
   }
 
@@ -235,12 +223,9 @@ public:
    * WARNING: Use at your own risk! You must input labels within hardware
    * ranges. No trapping on out-of-range values!
    */
-  LongIndexType stripChannelIndex(IndexType ie, IndexType is, IndexType ir,
-                                  IndexType ic, IndexType il,
-                                  IndexType istrip) const {
-    return stripChannelStart(ie, is, ir) +
-           ((ic - 1) * 6 + il - 1) * stripChannelsPerLayer(is, ir) +
-           (istrip - 1);
+  LongIndexType stripChannelIndex(
+      IndexType ie, IndexType is, IndexType ir, IndexType ic, IndexType il, IndexType istrip) const {
+    return stripChannelStart(ie, is, ir) + ((ic - 1) * 6 + il - 1) * stripChannelsPerLayer(is, ir) + (istrip - 1);
   }
 
   /**
@@ -253,8 +238,7 @@ public:
    * No trapping on out-of-range values!
    */
   LongIndexType stripChannelIndex(const CSCDetId &id, IndexType istrip) const {
-    return stripChannelIndex(id.endcap(), id.station(), id.ring(), id.chamber(),
-                             id.layer(), istrip);
+    return stripChannelIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(), istrip);
   }
 
   /**
@@ -272,8 +256,7 @@ public:
    * chip #5 are ignored in the unganged case.
    */
   IndexType chipsPerLayer(IndexType is, IndexType ir) const {
-    const IndexType nCinL[16] = {5, 5, 4, 3, 5, 5, 0, 0,
-                                 5, 5, 0, 0, 5, 5, 0, 0};
+    const IndexType nCinL[16] = {5, 5, 4, 3, 5, 5, 0, 0, 5, 5, 0, 0, 5, 5, 0, 0};
     return nCinL[(is - 1) * 4 + ir - 1];
   }
 
@@ -288,17 +271,14 @@ public:
    * an ME11 chamber,
    */
   IndexType chipStart(IndexType ie, IndexType is, IndexType ir) const {
-
     // These are in the ranges 1-13608 (CSCs 2008) and 13609-15768 (ME42) and
     // 15769-17064 (ME1a). There are 1-6804 chips per endcap (CSCs 2008) and
     // 1080 chips per endcap (ME42) and 648 chips per endcap (ME1a). Start of -z
     // channels (CSCs 2008) is 6804 + 1 = 6805 Start of +z (ME42) is 13608 + 1 =
     // 13609 Start of -z (ME42) is 13608 + 1 + 1080 = 14689 Start of +z (ME1a)
     // is 15768 + 1 = 15769 Start of -z (ME1a) is 15768 + 1 + 648 = 16417
-    const IndexType nStart[32] = {
-        1, 1081, 2161,  15769, 3025, 3565, 0,     0,     4645,  5185, 0,
-        0, 6265, 13609, 0,     0,    6805, 7885,  8965,  16417, 9829, 10369,
-        0, 0,    11449, 11989, 0,    0,    13069, 14689, 0,     0};
+    const IndexType nStart[32] = {1,    1081, 2161, 15769, 3025, 3565,  0, 0, 4645,  5185,  0, 0, 6265,  13609, 0, 0,
+                                  6805, 7885, 8965, 16417, 9829, 10369, 0, 0, 11449, 11989, 0, 0, 13069, 14689, 0, 0};
     return nStart[(ie - 1) * 16 + (is - 1) * 4 + ir - 1];
   }
 
@@ -311,13 +291,11 @@ public:
    * WARNING: Use at your own risk! You must input labels within hardware
    * ranges. No trapping on out-of-range values!
    */
-  IndexType chipIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic,
-                      IndexType il, IndexType ichip) const {
+  IndexType chipIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic, IndexType il, IndexType ichip) const {
     // printf("ME%d/%d/%d/%d layer %d  chip %d chipindex
     // %d\n",ie,is,ir,ic,il,ichip,chipStart(ie,is,ir)+( (ic-1)*6 + il - 1
     // )*chipsPerLayer(is,ir) + (ichip-1));
-    return chipStart(ie, is, ir) +
-           ((ic - 1) * 6 + il - 1) * chipsPerLayer(is, ir) + (ichip - 1);
+    return chipStart(ie, is, ir) + ((ic - 1) * 6 + il - 1) * chipsPerLayer(is, ir) + (ichip - 1);
   }
 
   /**
@@ -329,8 +307,7 @@ public:
    * No trapping on out-of-range values!
    */
   IndexType chipIndex(const CSCDetId &id, IndexType ichip) const {
-    return chipIndex(id.endcap(), id.station(), id.ring(), id.chamber(),
-                     id.layer(), ichip);
+    return chipIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(), ichip);
   }
 
   /**
@@ -355,8 +332,7 @@ public:
    * same single HV segment
    */
   IndexType hvSegmentsPerLayer(IndexType is, IndexType ir) const {
-    const IndexType nSinL[16] = {1, 3, 3, 1, 3, 5, 0, 0,
-                                 3, 5, 0, 0, 3, 5, 0, 0};
+    const IndexType nSinL[16] = {1, 3, 3, 1, 3, 5, 0, 0, 3, 5, 0, 0, 3, 5, 0, 0};
     return nSinL[(is - 1) * 4 + ir - 1];
   }
 
@@ -403,23 +379,14 @@ public:
     // Start of -z (ME42) is 45144 + 1 + 5400 = 50545
     // Start of +z (ME1a) is 45144 + 1 + 2*5400 = 55945
     // Start of -z (ME42) is 45144 + 1 + 2*5400 + 648 = 56593
-    const IndexType nStart[32] = {
-        1,     1081,
-        4321,  55945, // ME+1/1,ME+1/2,ME+1/3,ME+1/a
-        6913,  8533,
-        0,     0, // ME+2/1,ME+2/2
-        13933, 15553,
-        0,     0, // ME+3/1,ME+3/2
-        20953, 45145,
-        0,     0, // ME+4/1,ME+4/2 (note, ME+4/2 index follows ME-4/1...)
-        22573, 23653,
-        26893, 56593, // ME-1/1,ME-1/2,ME-1/3,ME+1/a
-        29485, 31105,
-        0,     0, // ME-2/1,ME-2/2
-        36505, 38125,
-        0,     0, // ME-3/1,ME-3/2
-        43525, 50545,
-        0,     0}; // ME-4/1,ME-4/2 (note, ME-4/2 index follows ME+4/2...)
+    const IndexType nStart[32] = {1,     1081,  4321,  55945,  // ME+1/1,ME+1/2,ME+1/3,ME+1/a
+                                  6913,  8533,  0,     0,      // ME+2/1,ME+2/2
+                                  13933, 15553, 0,     0,      // ME+3/1,ME+3/2
+                                  20953, 45145, 0,     0,      // ME+4/1,ME+4/2 (note, ME+4/2 index follows ME-4/1...)
+                                  22573, 23653, 26893, 56593,  // ME-1/1,ME-1/2,ME-1/3,ME+1/a
+                                  29485, 31105, 0,     0,      // ME-2/1,ME-2/2
+                                  36505, 38125, 0,     0,      // ME-3/1,ME-3/2
+                                  43525, 50545, 0,     0};     // ME-4/1,ME-4/2 (note, ME-4/2 index follows ME+4/2...)
     return nStart[(ie - 1) * 16 + (is - 1) * 4 + ir - 1];
   }
 
@@ -433,11 +400,14 @@ public:
    * ranges (e.g., 'id' must correspond to a specific layer 1-6). No trapping on
    * out-of-range values!
    */
-  IndexType gasGainIndex(const CSCDetId &id, IndexType istrip,
-                         IndexType iwire) const {
-    return gasGainIndex(
-        id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(),
-        hvSegmentIndex(id.station(), id.ring(), iwire), chipIndex(istrip));
+  IndexType gasGainIndex(const CSCDetId &id, IndexType istrip, IndexType iwire) const {
+    return gasGainIndex(id.endcap(),
+                        id.station(),
+                        id.ring(),
+                        id.chamber(),
+                        id.layer(),
+                        hvSegmentIndex(id.station(), id.ring(), iwire),
+                        chipIndex(istrip));
   }
 
   /**
@@ -450,10 +420,8 @@ public:
    * WARNING: Use at your own risk! You must input labels within hardware
    * ranges. No trapping on out-of-range values!
    */
-  IndexType gasGainIndex(IndexType ihvsegment, IndexType ichip,
-                         const CSCDetId &id) const {
-    return gasGainIndex(id.endcap(), id.station(), id.ring(), id.chamber(),
-                        id.layer(), ihvsegment, ichip);
+  IndexType gasGainIndex(IndexType ihvsegment, IndexType ichip, const CSCDetId &id) const {
+    return gasGainIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(), ihvsegment, ichip);
   }
 
   /**
@@ -466,11 +434,14 @@ public:
    * WARNING: Use at your own risk! You must input labels within hardware
    * ranges. No trapping on out-of-range values!
    */
-  IndexType gasGainIndex(IndexType ie, IndexType is, IndexType ir, IndexType ic,
-                         IndexType il, IndexType ihvsegment,
+  IndexType gasGainIndex(IndexType ie,
+                         IndexType is,
+                         IndexType ir,
+                         IndexType ic,
+                         IndexType il,
+                         IndexType ihvsegment,
                          IndexType ichip) const {
-    return sectorStart(ie, is, ir) +
-           ((ic - 1) * 6 + il - 1) * sectorsPerLayer(is, ir) +
+    return sectorStart(ie, is, ir) + ((ic - 1) * 6 + il - 1) * sectorsPerLayer(is, ir) +
            (ihvsegment - 1) * chipsPerLayer(is, ir) + (ichip - 1);
   }
 
@@ -481,13 +452,11 @@ public:
   CSCDetId detIdFromChamberIndex(IndexType ici) const;
   CSCDetId detIdFromChamberIndex_OLD(IndexType ici) const;
   CSCDetId detIdFromChamberLabel(IndexType ie, IndexType icl) const;
-  std::pair<CSCDetId, IndexType>
-  detIdFromStripChannelIndex(LongIndexType ichi) const;
+  std::pair<CSCDetId, IndexType> detIdFromStripChannelIndex(LongIndexType ichi) const;
   std::pair<CSCDetId, IndexType> detIdFromChipIndex(IndexType ichi) const;
   GasGainTuple detIdFromGasGainIndex(IndexType igg) const;
 
-  IndexType
-      chamberLabelFromChamberIndex(IndexType) const; // just for cross-checks
+  IndexType chamberLabelFromChamberIndex(IndexType) const;  // just for cross-checks
 
   /**
    * Build index used internally in online CSC conditions databases (the 'Igor
@@ -502,11 +471,10 @@ public:
   int dbIndex(const CSCDetId &id, int &channel);
 
 private:
-  void fillChamberLabel() const; // const so it can be called in const function
-                                 // detIdFromChamberIndex
+  void fillChamberLabel() const;  // const so it can be called in const function
+                                  // detIdFromChamberIndex
 
-  mutable std::vector<IndexType>
-      chamberLabel; // mutable so can be filled by fillChamberLabel
+  mutable std::vector<IndexType> chamberLabel;  // mutable so can be filled by fillChamberLabel
 };
 
 #endif

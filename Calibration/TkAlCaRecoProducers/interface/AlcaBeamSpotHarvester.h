@@ -27,10 +27,8 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void endRun(const edm::Run &, const edm::EventSetup &) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock &,
-                            const edm::EventSetup &) override;
-  void endLuminosityBlock(const edm::LuminosityBlock &,
-                          const edm::EventSetup &) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
+  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
 
 protected:
 private:

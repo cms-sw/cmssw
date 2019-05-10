@@ -18,43 +18,36 @@
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 //__________________________________________________________________________________________________
-RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable *ali,
-                                                           bool calcMis)
-    : AlignmentParameters(ali,
-                          displacementFromAlignable(calcMis ? ali : nullptr),
-                          AlgebraicSymMatrix(N_PARAM, 0)) {}
+RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable *ali, bool calcMis)
+    : AlignmentParameters(ali, displacementFromAlignable(calcMis ? ali : nullptr), AlgebraicSymMatrix(N_PARAM, 0)) {}
 
 //__________________________________________________________________________________________________
-RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(
-    Alignable *alignable, const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix)
+RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable *alignable,
+                                                           const AlgebraicVector &parameters,
+                                                           const AlgebraicSymMatrix &covMatrix)
     : AlignmentParameters(alignable, parameters, covMatrix) {
-
   if (parameters.num_row() != N_PARAM) {
     throw cms::Exception("BadParameters")
-        << "in RigidBodyAlignmentParameters(): " << parameters.num_row()
-        << " instead of " << N_PARAM << " parameters.";
+        << "in RigidBodyAlignmentParameters(): " << parameters.num_row() << " instead of " << N_PARAM << " parameters.";
   }
 }
 
 //__________________________________________________________________________________________________
-RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(
-    Alignable *alignable, const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix, const std::vector<bool> &selection)
+RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable *alignable,
+                                                           const AlgebraicVector &parameters,
+                                                           const AlgebraicSymMatrix &covMatrix,
+                                                           const std::vector<bool> &selection)
     : AlignmentParameters(alignable, parameters, covMatrix, selection) {
   if (parameters.num_row() != N_PARAM) {
     throw cms::Exception("BadParameters")
-        << "in RigidBodyAlignmentParameters(): " << parameters.num_row()
-        << " instead of " << N_PARAM << " parameters.";
+        << "in RigidBodyAlignmentParameters(): " << parameters.num_row() << " instead of " << N_PARAM << " parameters.";
   }
 }
 
 //__________________________________________________________________________________________________
-RigidBodyAlignmentParameters *
-RigidBodyAlignmentParameters::clone(const AlgebraicVector &parameters,
-                                    const AlgebraicSymMatrix &covMatrix) const {
-  RigidBodyAlignmentParameters *rbap = new RigidBodyAlignmentParameters(
-      alignable(), parameters, covMatrix, selector());
+RigidBodyAlignmentParameters *RigidBodyAlignmentParameters::clone(const AlgebraicVector &parameters,
+                                                                  const AlgebraicSymMatrix &covMatrix) const {
+  RigidBodyAlignmentParameters *rbap = new RigidBodyAlignmentParameters(alignable(), parameters, covMatrix, selector());
 
   if (userVariables())
     rbap->setUserVariables(userVariables()->clone());
@@ -65,11 +58,9 @@ RigidBodyAlignmentParameters::clone(const AlgebraicVector &parameters,
 
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters *RigidBodyAlignmentParameters::cloneFromSelected(
-    const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix) const {
+    const AlgebraicVector &parameters, const AlgebraicSymMatrix &covMatrix) const {
   RigidBodyAlignmentParameters *rbap = new RigidBodyAlignmentParameters(
-      alignable(), expandVector(parameters, selector()),
-      expandSymMatrix(covMatrix, selector()), selector());
+      alignable(), expandVector(parameters, selector()), expandSymMatrix(covMatrix, selector()), selector());
 
   if (userVariables())
     rbap->setUserVariables(userVariables()->clone());
@@ -79,14 +70,13 @@ RigidBodyAlignmentParameters *RigidBodyAlignmentParameters::cloneFromSelected(
 }
 
 //__________________________________________________________________________________________________
-AlgebraicMatrix RigidBodyAlignmentParameters::derivatives(
-    const TrajectoryStateOnSurface &tsos,
-    const AlignableDetOrUnitPtr &alidet) const {
-  const Alignable *ali = this->alignable(); // Alignable of these parameters
+AlgebraicMatrix RigidBodyAlignmentParameters::derivatives(const TrajectoryStateOnSurface &tsos,
+                                                          const AlignableDetOrUnitPtr &alidet) const {
+  const Alignable *ali = this->alignable();  // Alignable of these parameters
 
-  if (ali == alidet) { // same alignable => same frame
+  if (ali == alidet) {  // same alignable => same frame
     return KarimakiAlignmentDerivatives()(tsos);
-  } else { // different alignable => transform into correct frame
+  } else {  // different alignable => transform into correct frame
     const AlgebraicMatrix deriv = KarimakiAlignmentDerivatives()(tsos);
     FrameToFrameDerivative ftfd;
     return ftfd.frameToFrameDerivative(alidet, ali).T() * deriv;
@@ -94,9 +84,8 @@ AlgebraicMatrix RigidBodyAlignmentParameters::derivatives(
 }
 
 //__________________________________________________________________________________________________
-AlgebraicMatrix RigidBodyAlignmentParameters::selectedDerivatives(
-    const TrajectoryStateOnSurface &tsos,
-    const AlignableDetOrUnitPtr &alignableDet) const {
+AlgebraicMatrix RigidBodyAlignmentParameters::selectedDerivatives(const TrajectoryStateOnSurface &tsos,
+                                                                  const AlignableDetOrUnitPtr &alignableDet) const {
   const AlgebraicMatrix dev = this->derivatives(tsos, alignableDet);
 
   int ncols = dev.num_col();
@@ -139,12 +128,11 @@ AlgebraicVector RigidBodyAlignmentParameters::rotation(void) const {
 void RigidBodyAlignmentParameters::apply() {
   Alignable *alignable = this->alignable();
   if (!alignable) {
-    throw cms::Exception("BadParameters")
-        << "RigidBodyAlignmentParameters::apply: parameters without alignable";
+    throw cms::Exception("BadParameters") << "RigidBodyAlignmentParameters::apply: parameters without alignable";
   }
 
   // Translation in local frame
-  AlgebraicVector shift = this->translation(); // fixme: should be LocalVector
+  AlgebraicVector shift = this->translation();  // fixme: should be LocalVector
 
   // Translation local->global
   align::LocalVector lv(shift[0], shift[1], shift[2]);
@@ -155,23 +143,19 @@ void RigidBodyAlignmentParameters::apply() {
   // original code:
   //  alignable->rotateInLocalFrame( align::toMatrix(angles) );
   // correct for rounding errors:
-  align::RotationType rot =
-      alignable->surface().toGlobal(align::toMatrix(angles));
+  align::RotationType rot = alignable->surface().toGlobal(align::toMatrix(angles));
   align::rectify(rot);
   alignable->rotateInGlobalFrame(rot);
 }
 
 //__________________________________________________________________________________________________
-int RigidBodyAlignmentParameters::type() const {
-  return AlignmentParametersFactory::kRigidBody;
-}
+int RigidBodyAlignmentParameters::type() const { return AlignmentParametersFactory::kRigidBody; }
 
 //__________________________________________________________________________________________________
 AlgebraicVector RigidBodyAlignmentParameters::globalParameters(void) const {
   AlgebraicVector m_GlobalParameters(N_PARAM, 0);
 
-  const AlgebraicVector shift =
-      translation(); // fixme: should return LocalVector
+  const AlgebraicVector shift = translation();  // fixme: should return LocalVector
 
   const align::LocalVector lv(shift[0], shift[1], shift[2]);
   const align::GlobalVector dg = theAlignable->surface().toGlobal(lv);
@@ -180,8 +164,7 @@ AlgebraicVector RigidBodyAlignmentParameters::globalParameters(void) const {
   m_GlobalParameters[1] = dg.y();
   m_GlobalParameters[2] = dg.z();
 
-  const align::EulerAngles eulerglob =
-      theAlignable->surface().toGlobal(rotation());
+  const align::EulerAngles eulerglob = theAlignable->surface().toGlobal(rotation());
 
   m_GlobalParameters[3] = eulerglob(1);
   m_GlobalParameters[4] = eulerglob(2);
@@ -192,26 +175,20 @@ AlgebraicVector RigidBodyAlignmentParameters::globalParameters(void) const {
 
 //__________________________________________________________________________________________________
 void RigidBodyAlignmentParameters::print(void) const {
-
   std::cout << "Contents of RigidBodyAlignmentParameters:"
-            << "\nParameters: " << theData->parameters()
-            << "\nCovariance: " << theData->covariance() << std::endl;
+            << "\nParameters: " << theData->parameters() << "\nCovariance: " << theData->covariance() << std::endl;
 }
 
 //__________________________________________________________________________________________________
-AlgebraicVector
-RigidBodyAlignmentParameters::displacementFromAlignable(const Alignable *ali) {
+AlgebraicVector RigidBodyAlignmentParameters::displacementFromAlignable(const Alignable *ali) {
   AlgebraicVector displacement(N_PARAM);
 
   if (ali) {
     const align::RotationType &dR = ali->rotation();
 
-    const align::LocalVector shifts(
-        ali->globalRotation() *
-        (dR.transposed() * ali->displacement().basicVector()));
+    const align::LocalVector shifts(ali->globalRotation() * (dR.transposed() * ali->displacement().basicVector()));
 
-    const align::EulerAngles angles =
-        align::toAngles(ali->surface().toLocal(dR));
+    const align::EulerAngles angles = align::toAngles(ali->surface().toLocal(dR));
 
     displacement[0] = shifts.x();
     displacement[1] = shifts.y();

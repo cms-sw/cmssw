@@ -40,8 +40,7 @@ Tracker DetIds
 // class decleration
 //
 
-class dso_hidden CalibrationTrackSelectorFromDetIdList final
-    : public edm::stream::EDProducer<> {
+class dso_hidden CalibrationTrackSelectorFromDetIdList final : public edm::stream::EDProducer<> {
 public:
   explicit CalibrationTrackSelectorFromDetIdList(const edm::ParameterSet &);
   ~CalibrationTrackSelectorFromDetIdList() override;
@@ -50,10 +49,9 @@ private:
   void beginRun(edm::Run const &run, const edm::EventSetup &) override;
   void produce(edm::Event &, const edm::EventSetup &) override;
   edm::EDGetTokenT<reco::TrackCollection> m_label;
-  TrackCandidate
-  makeCandidate(const reco::Track &tk,
-                std::vector<const TrackingRecHit *>::iterator hitsBegin,
-                std::vector<const TrackingRecHit *>::iterator hitsEnd);
+  TrackCandidate makeCandidate(const reco::Track &tk,
+                               std::vector<const TrackingRecHit *>::iterator hitsBegin,
+                               std::vector<const TrackingRecHit *>::iterator hitsEnd);
 
   std::vector<DetIdSelector> detidsels_;
   bool m_verbose;
@@ -62,36 +60,29 @@ private:
   edm::ESHandle<MagneticField> theMagField;
 };
 
-CalibrationTrackSelectorFromDetIdList::CalibrationTrackSelectorFromDetIdList(
-    const edm::ParameterSet &iConfig)
+CalibrationTrackSelectorFromDetIdList::CalibrationTrackSelectorFromDetIdList(const edm::ParameterSet &iConfig)
     : detidsels_() {
+  std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet>>("selections");
 
-  std::vector<edm::ParameterSet> selconfigs =
-      iConfig.getParameter<std::vector<edm::ParameterSet>>("selections");
-
-  for (std::vector<edm::ParameterSet>::const_iterator selconfig =
-           selconfigs.begin();
-       selconfig != selconfigs.end(); ++selconfig) {
+  for (std::vector<edm::ParameterSet>::const_iterator selconfig = selconfigs.begin(); selconfig != selconfigs.end();
+       ++selconfig) {
     DetIdSelector selection(*selconfig);
     detidsels_.push_back(selection);
   }
 
   m_verbose = iConfig.getUntrackedParameter<bool>("verbose");
-  m_label = consumes<reco::TrackCollection>(
-      iConfig.getParameter<edm::InputTag>("Input"));
+  m_label = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("Input"));
   produces<TrackCandidateCollection>();
 }
 
-CalibrationTrackSelectorFromDetIdList::
-    ~CalibrationTrackSelectorFromDetIdList() {}
+CalibrationTrackSelectorFromDetIdList::~CalibrationTrackSelectorFromDetIdList() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void CalibrationTrackSelectorFromDetIdList::produce(
-    edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void CalibrationTrackSelectorFromDetIdList::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
   using namespace std;
 
@@ -103,7 +94,6 @@ void CalibrationTrackSelectorFromDetIdList::produce(
 
   // loop on tracks
   for (auto &trk : tracks) {
-
     std::vector<const TrackingRecHit *> hits;
 
     bool saveTrack(false);
@@ -113,8 +103,7 @@ void CalibrationTrackSelectorFromDetIdList::produce(
 
       for (const auto &detidsel : detidsels_) {
         if (detidsel.isSelected(detid)) {
-          LogDebug("CalibrationTrackSelectorFromDetIdList")
-              << "Selected by selection " << detid;
+          LogDebug("CalibrationTrackSelectorFromDetIdList") << "Selected by selection " << detid;
           saveTrack = true;
           break;
         }
@@ -135,28 +124,21 @@ TrackCandidate CalibrationTrackSelectorFromDetIdList::makeCandidate(
     const reco::Track &tk,
     std::vector<const TrackingRecHit *>::iterator hitsBegin,
     std::vector<const TrackingRecHit *>::iterator hitsEnd) {
-
   PropagationDirection pdir = tk.seedDirection();
   PTrajectoryStateOnDet state;
   if (pdir == anyDirection)
-    throw cms::Exception("UnimplementedFeature")
-        << "Cannot work with tracks that have 'anyDirecton' \n";
+    throw cms::Exception("UnimplementedFeature") << "Cannot work with tracks that have 'anyDirecton' \n";
 
-  if ((pdir == alongMomentum) ==
-      ((tk.outerPosition() - tk.innerPosition()).Dot(tk.momentum()) >= 0)) {
+  if ((pdir == alongMomentum) == ((tk.outerPosition() - tk.innerPosition()).Dot(tk.momentum()) >= 0)) {
     // use inner state
     TrajectoryStateOnSurface originalTsosIn(
-        trajectoryStateTransform::innerStateOnSurface(tk, *theGeometry,
-                                                      &*theMagField));
-    state = trajectoryStateTransform::persistentState(originalTsosIn,
-                                                      DetId(tk.innerDetId()));
+        trajectoryStateTransform::innerStateOnSurface(tk, *theGeometry, &*theMagField));
+    state = trajectoryStateTransform::persistentState(originalTsosIn, DetId(tk.innerDetId()));
   } else {
     // use outer state
     TrajectoryStateOnSurface originalTsosOut(
-        trajectoryStateTransform::outerStateOnSurface(tk, *theGeometry,
-                                                      &*theMagField));
-    state = trajectoryStateTransform::persistentState(originalTsosOut,
-                                                      DetId(tk.outerDetId()));
+        trajectoryStateTransform::outerStateOnSurface(tk, *theGeometry, &*theMagField));
+    state = trajectoryStateTransform::persistentState(originalTsosOut, DetId(tk.outerDetId()));
   }
   TrajectorySeed seed(state, TrackCandidate::RecHitContainer(), pdir);
   TrackCandidate::RecHitContainer ownHits;
@@ -170,8 +152,7 @@ TrackCandidate CalibrationTrackSelectorFromDetIdList::makeCandidate(
   return cand;
 }
 
-void CalibrationTrackSelectorFromDetIdList::beginRun(
-    edm::Run const &run, const edm::EventSetup &iSetup) {
+void CalibrationTrackSelectorFromDetIdList::beginRun(edm::Run const &run, const edm::EventSetup &iSetup) {
   iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
@@ -180,8 +161,7 @@ void CalibrationTrackSelectorFromDetIdList::beginRun(
       auto theDetIds = theGeometry.product()->detIds();
       for (const auto &theDet : theDetIds) {
         if (detidsel.isSelected(theDet)) {
-          LogDebug("CalibrationTrackSelectorFromDetIdList")
-              << "detid: " << theDet.rawId() << " is taken" << std::endl;
+          LogDebug("CalibrationTrackSelectorFromDetIdList") << "detid: " << theDet.rawId() << " is taken" << std::endl;
         }
       }
     }

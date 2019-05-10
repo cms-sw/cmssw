@@ -17,8 +17,7 @@
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCFakeDBCrosstalk : public edm::ESProducer,
-                           public edm::EventSetupRecordIntervalFinder {
+class CSCFakeDBCrosstalk : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCFakeDBCrosstalk(const edm::ParameterSet &);
   ~CSCFakeDBCrosstalk() override;
@@ -46,7 +45,7 @@ inline CSCDBCrosstalk *CSCFakeDBCrosstalk::prefillDBCrosstalk() {
   int seed;
   float mean, min;
   int ii, jj, iii, jjj;
-  const int MAX_SIZE = 217728; // or 252288 for ME4/2 chambers
+  const int MAX_SIZE = 217728;  // or 252288 for ME4/2 chambers
   const int SLOPE_FACTOR = 10000000;
   const int INTERCEPT_FACTOR = 100000;
 
@@ -63,29 +62,13 @@ inline CSCDBCrosstalk *CSCFakeDBCrosstalk::prefillDBCrosstalk() {
 
   for (int i = 0; i < MAX_SIZE; i++) {
     cndbcrosstalk->crosstalk[i].xtalk_slope_right =
-        (short int)((-((double)rand() / ((double)(RAND_MAX) + (double)(1))) /
-                         10000 +
-                     mean) *
-                        SLOPE_FACTOR +
-                    0.5);
+        (short int)((-((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 10000 + mean) * SLOPE_FACTOR + 0.5);
     cndbcrosstalk->crosstalk[i].xtalk_intercept_right =
-        (short int)((((double)rand() / ((double)(RAND_MAX) + (double)(1))) /
-                         100 +
-                     min) *
-                        INTERCEPT_FACTOR +
-                    0.5);
+        (short int)((((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 100 + min) * INTERCEPT_FACTOR + 0.5);
     cndbcrosstalk->crosstalk[i].xtalk_slope_left =
-        (short int)((-((double)rand() / ((double)(RAND_MAX) + (double)(1))) /
-                         10000 +
-                     mean) *
-                        SLOPE_FACTOR +
-                    0.5);
+        (short int)((-((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 10000 + mean) * SLOPE_FACTOR + 0.5);
     cndbcrosstalk->crosstalk[i].xtalk_intercept_left =
-        (short int)((((double)rand() / ((double)(RAND_MAX) + (double)(1))) /
-                         100 +
-                     min) *
-                        INTERCEPT_FACTOR +
-                    0.5);
+        (short int)((((double)rand() / ((double)(RAND_MAX) + (double)(1))) / 100 + min) * INTERCEPT_FACTOR + 0.5);
 
     // 80 strips per chamber
     if (i < 34561 && i % 80 == 0) {

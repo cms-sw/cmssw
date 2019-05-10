@@ -32,9 +32,9 @@ public:
     dx = BowedDerivs::dx,
     dy = BowedDerivs::dy,
     dz = BowedDerivs::dz,
-    dslopeX = BowedDerivs::dslopeX, // NOTE: slope(u) -> k*tan(beta),
-    dslopeY = BowedDerivs::dslopeY, //       slope(v) -> l*tan(alpha)
-    drotZ = BowedDerivs::drotZ,     //       rot(w)   -> m*gamma
+    dslopeX = BowedDerivs::dslopeX,  // NOTE: slope(u) -> k*tan(beta),
+    dslopeY = BowedDerivs::dslopeY,  //       slope(v) -> l*tan(alpha)
+    drotZ = BowedDerivs::drotZ,      //       rot(w)   -> m*gamma
     dsagittaX = BowedDerivs::dsagittaX,
     dsagittaXY = BowedDerivs::dsagittaXY,
     dsagittaY = BowedDerivs::dsagittaY,
@@ -61,19 +61,15 @@ public:
   int type() const override;
 
   /// Clone all parameters (for update of parameters)
-  BowedSurfaceAlignmentParameters *
-  clone(const AlgebraicVector &parameters,
-        const AlgebraicSymMatrix &covMatrix) const override;
+  BowedSurfaceAlignmentParameters *clone(const AlgebraicVector &parameters,
+                                         const AlgebraicSymMatrix &covMatrix) const override;
 
   /// Clone selected parameters (for update of parameters)
-  BowedSurfaceAlignmentParameters *
-  cloneFromSelected(const AlgebraicVector &parameters,
-                    const AlgebraicSymMatrix &covMatrix) const override;
+  BowedSurfaceAlignmentParameters *cloneFromSelected(const AlgebraicVector &parameters,
+                                                     const AlgebraicSymMatrix &covMatrix) const override;
 
   /// Get all derivatives
-  AlgebraicMatrix
-  derivatives(const TrajectoryStateOnSurface &tsos,
-              const AlignableDetOrUnitPtr &aliDet) const override;
+  AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos, const AlignableDetOrUnitPtr &aliDet) const override;
 
   /// Get translation parameters in double precision
   align::LocalVector translation() const;

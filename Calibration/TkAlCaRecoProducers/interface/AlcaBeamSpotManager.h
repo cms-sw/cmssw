@@ -24,26 +24,18 @@ public:
   void reset(void);
   void readLumi(const edm::LuminosityBlock &);
   void createWeightedPayloads(void);
-  const std::map<edm::LuminosityBlockNumber_t,
-                 std::pair<edm::Timestamp, reco::BeamSpot>> &
-  getPayloads(void) {
+  const std::map<edm::LuminosityBlockNumber_t, std::pair<edm::Timestamp, reco::BeamSpot>> &getPayloads(void) {
     return beamSpotMap_;
   }
 
-  typedef std::map<edm::LuminosityBlockNumber_t,
-                   std::pair<edm::Timestamp, reco::BeamSpot>>::iterator
-      bsMap_iterator;
+  typedef std::map<edm::LuminosityBlockNumber_t, std::pair<edm::Timestamp, reco::BeamSpot>>::iterator bsMap_iterator;
 
 private:
   reco::BeamSpot weight(const bsMap_iterator &begin, const bsMap_iterator &end);
-  void weight(double &mean, double &meanError, const double &val,
-              const double &valError);
-  std::pair<float, float> delta(const float &x, const float &xError,
-                                const float &nextX, const float &nextXError);
+  void weight(double &mean, double &meanError, const double &val, const double &valError);
+  std::pair<float, float> delta(const float &x, const float &xError, const float &nextX, const float &nextXError);
   float deltaSig(const float &num, const float &den);
-  std::map<edm::LuminosityBlockNumber_t,
-           std::pair<edm::Timestamp, reco::BeamSpot>>
-      beamSpotMap_;
+  std::map<edm::LuminosityBlockNumber_t, std::pair<edm::Timestamp, reco::BeamSpot>> beamSpotMap_;
 
   std::string beamSpotOutputBase_;
   std::string beamSpotModuleName_;

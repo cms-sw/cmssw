@@ -34,7 +34,6 @@
 #include <vector>
 
 class testChannel : public edm::EDAnalyzer {
-
 public:
   //! Constructor
   testChannel(const edm::ParameterSet &ps);
@@ -48,8 +47,7 @@ public:
   void unsubscribe(void);
 
   ///! Analyze
-  void analyze(edm::Event const &event,
-               edm::EventSetup const &eventSetup) override;
+  void analyze(edm::Event const &event, edm::EventSetup const &eventSetup) override;
 
   //! BeginJob
   void beginJob() override;
@@ -60,12 +58,11 @@ public:
 private:
   int getHeaderSMId(const int headerId);
 
-  std::string m_digiCollection; //! secondary name given to collection of digis
-  std::string m_digiProducer;   //! name of module/plugin/producer making digis
-  std::string
-      m_headerProducer; //! name of module/plugin/producer making headers
+  std::string m_digiCollection;  //! secondary name given to collection of digis
+  std::string m_digiProducer;    //! name of module/plugin/producer making digis
+  std::string m_headerProducer;  //! name of module/plugin/producer making headers
 
-  std::string m_xmlFile; //! name of the xml file to be saved
+  std::string m_xmlFile;  //! name of the xml file to be saved
 
   int m_DACmin;
   int m_DACmax;

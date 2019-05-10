@@ -18,33 +18,29 @@
 #include "Alignment/CommonAlignmentParametrization/interface/BeamSpotAlignmentParameters.h"
 
 //__________________________________________________________________________________________________
-BeamSpotAlignmentParameters::BeamSpotAlignmentParameters(Alignable *ali,
-                                                         bool calcMis)
-    : AlignmentParameters(ali,
-                          displacementFromAlignable(calcMis ? ali : nullptr),
-                          AlgebraicSymMatrix(N_PARAM, 0)) {}
+BeamSpotAlignmentParameters::BeamSpotAlignmentParameters(Alignable *ali, bool calcMis)
+    : AlignmentParameters(ali, displacementFromAlignable(calcMis ? ali : nullptr), AlgebraicSymMatrix(N_PARAM, 0)) {}
 
 //__________________________________________________________________________________________________
-BeamSpotAlignmentParameters::BeamSpotAlignmentParameters(
-    Alignable *alignable, const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix)
+BeamSpotAlignmentParameters::BeamSpotAlignmentParameters(Alignable *alignable,
+                                                         const AlgebraicVector &parameters,
+                                                         const AlgebraicSymMatrix &covMatrix)
     : AlignmentParameters(alignable, parameters, covMatrix) {
   if (parameters.num_row() != N_PARAM) {
     throw cms::Exception("BadParameters")
-        << "in BeamSpotAlignmentParameters(): " << parameters.num_row()
-        << " instead of " << N_PARAM << " parameters.";
+        << "in BeamSpotAlignmentParameters(): " << parameters.num_row() << " instead of " << N_PARAM << " parameters.";
   }
 }
 
 //__________________________________________________________________________________________________
-BeamSpotAlignmentParameters::BeamSpotAlignmentParameters(
-    Alignable *alignable, const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix, const std::vector<bool> &selection)
+BeamSpotAlignmentParameters::BeamSpotAlignmentParameters(Alignable *alignable,
+                                                         const AlgebraicVector &parameters,
+                                                         const AlgebraicSymMatrix &covMatrix,
+                                                         const std::vector<bool> &selection)
     : AlignmentParameters(alignable, parameters, covMatrix, selection) {
   if (parameters.num_row() != N_PARAM) {
     throw cms::Exception("BadParameters")
-        << "in BeamSpotAlignmentParameters(): " << parameters.num_row()
-        << " instead of " << N_PARAM << " parameters.";
+        << "in BeamSpotAlignmentParameters(): " << parameters.num_row() << " instead of " << N_PARAM << " parameters.";
   }
 }
 
@@ -52,11 +48,9 @@ BeamSpotAlignmentParameters::BeamSpotAlignmentParameters(
 BeamSpotAlignmentParameters::~BeamSpotAlignmentParameters() {}
 
 //__________________________________________________________________________________________________
-BeamSpotAlignmentParameters *
-BeamSpotAlignmentParameters::clone(const AlgebraicVector &parameters,
-                                   const AlgebraicSymMatrix &covMatrix) const {
-  BeamSpotAlignmentParameters *rbap = new BeamSpotAlignmentParameters(
-      alignable(), parameters, covMatrix, selector());
+BeamSpotAlignmentParameters *BeamSpotAlignmentParameters::clone(const AlgebraicVector &parameters,
+                                                                const AlgebraicSymMatrix &covMatrix) const {
+  BeamSpotAlignmentParameters *rbap = new BeamSpotAlignmentParameters(alignable(), parameters, covMatrix, selector());
 
   if (userVariables())
     rbap->setUserVariables(userVariables()->clone());
@@ -66,12 +60,10 @@ BeamSpotAlignmentParameters::clone(const AlgebraicVector &parameters,
 }
 
 //__________________________________________________________________________________________________
-BeamSpotAlignmentParameters *BeamSpotAlignmentParameters::cloneFromSelected(
-    const AlgebraicVector &parameters,
-    const AlgebraicSymMatrix &covMatrix) const {
+BeamSpotAlignmentParameters *BeamSpotAlignmentParameters::cloneFromSelected(const AlgebraicVector &parameters,
+                                                                            const AlgebraicSymMatrix &covMatrix) const {
   BeamSpotAlignmentParameters *rbap = new BeamSpotAlignmentParameters(
-      alignable(), expandVector(parameters, selector()),
-      expandSymMatrix(covMatrix, selector()), selector());
+      alignable(), expandVector(parameters, selector()), expandSymMatrix(covMatrix, selector()), selector());
 
   if (userVariables())
     rbap->setUserVariables(userVariables()->clone());
@@ -81,27 +73,24 @@ BeamSpotAlignmentParameters *BeamSpotAlignmentParameters::cloneFromSelected(
 }
 
 //__________________________________________________________________________________________________
-AlgebraicMatrix BeamSpotAlignmentParameters::derivatives(
-    const TrajectoryStateOnSurface &tsos,
-    const AlignableDetOrUnitPtr &alidet) const {
-  const Alignable *ali = this->alignable(); // Alignable of these parameters
+AlgebraicMatrix BeamSpotAlignmentParameters::derivatives(const TrajectoryStateOnSurface &tsos,
+                                                         const AlignableDetOrUnitPtr &alidet) const {
+  const Alignable *ali = this->alignable();  // Alignable of these parameters
 
-  if (ali == alidet) { // same alignable => same frame
+  if (ali == alidet) {  // same alignable => same frame
     return BeamSpotAlignmentDerivatives()(tsos);
   } else {
-    throw cms::Exception("MisMatch")
-        << "BeamSpotAlignmentParameters::derivatives: The hit alignable must "
-           "match the "
-        << "aligned one, i.e. these parameters make only sense for "
-           "AlignableBeamSpot.\n";
-    return AlgebraicMatrix(N_PARAM, 2); // please compiler
+    throw cms::Exception("MisMatch") << "BeamSpotAlignmentParameters::derivatives: The hit alignable must "
+                                        "match the "
+                                     << "aligned one, i.e. these parameters make only sense for "
+                                        "AlignableBeamSpot.\n";
+    return AlgebraicMatrix(N_PARAM, 2);  // please compiler
   }
 }
 
 //__________________________________________________________________________________________________
-AlgebraicMatrix BeamSpotAlignmentParameters::selectedDerivatives(
-    const TrajectoryStateOnSurface &tsos,
-    const AlignableDetOrUnitPtr &alignableDet) const {
+AlgebraicMatrix BeamSpotAlignmentParameters::selectedDerivatives(const TrajectoryStateOnSurface &tsos,
+                                                                 const AlignableDetOrUnitPtr &alignableDet) const {
   const AlgebraicMatrix dev = this->derivatives(tsos, alignableDet);
 
   int ncols = dev.num_col();
@@ -141,11 +130,9 @@ AlgebraicVector BeamSpotAlignmentParameters::rotation(void) const {
   double angleY = std::atan(dxdz);
   double angleX = -std::atan(dydz);
 
-  align::RotationType rotY(std::cos(angleY), 0., -std::sin(angleY), 0., 1., 0.,
-                           std::sin(angleY), 0., std::cos(angleY));
+  align::RotationType rotY(std::cos(angleY), 0., -std::sin(angleY), 0., 1., 0., std::sin(angleY), 0., std::cos(angleY));
 
-  align::RotationType rotX(1., 0., 0., 0., std::cos(angleX), std::sin(angleX),
-                           0., -std::sin(angleX), std::cos(angleX));
+  align::RotationType rotX(1., 0., 0., 0., std::cos(angleX), std::sin(angleX), 0., -std::sin(angleX), std::cos(angleX));
 
   align::EulerAngles angles = align::toAngles(rotY * rotX);
 
@@ -160,12 +147,11 @@ AlgebraicVector BeamSpotAlignmentParameters::rotation(void) const {
 void BeamSpotAlignmentParameters::apply() {
   Alignable *alignable = this->alignable();
   if (!alignable) {
-    throw cms::Exception("BadParameters")
-        << "BeamSpotAlignmentParameters::apply: parameters without alignable";
+    throw cms::Exception("BadParameters") << "BeamSpotAlignmentParameters::apply: parameters without alignable";
   }
 
   // Translation in local frame
-  AlgebraicVector shift = this->translation(); // fixme: should be LocalVector
+  AlgebraicVector shift = this->translation();  // fixme: should be LocalVector
 
   // Translation local->global
   align::GlobalVector gv(shift[0], shift[1], shift[2]);
@@ -176,23 +162,19 @@ void BeamSpotAlignmentParameters::apply() {
   // original code:
   //  alignable->rotateInLocalFrame( align::toMatrix(angles) );
   // correct for rounding errors:
-  align::RotationType rot =
-      alignable->surface().toGlobal(align::toMatrix(angles));
+  align::RotationType rot = alignable->surface().toGlobal(align::toMatrix(angles));
   align::rectify(rot);
   alignable->rotateInGlobalFrame(rot);
 }
 
 //__________________________________________________________________________________________________
-int BeamSpotAlignmentParameters::type() const {
-  return AlignmentParametersFactory::kBeamSpot;
-}
+int BeamSpotAlignmentParameters::type() const { return AlignmentParametersFactory::kBeamSpot; }
 
 //__________________________________________________________________________________________________
 AlgebraicVector BeamSpotAlignmentParameters::globalParameters(void) const {
   AlgebraicVector m_GlobalParameters(N_PARAM, 0);
 
-  const AlgebraicVector shift =
-      translation(); // fixme: should return LocalVector
+  const AlgebraicVector shift = translation();  // fixme: should return LocalVector
 
   const align::GlobalVector dg(shift[0], shift[1], 0);
 
@@ -213,23 +195,18 @@ AlgebraicVector BeamSpotAlignmentParameters::globalParameters(void) const {
 
 //__________________________________________________________________________________________________
 void BeamSpotAlignmentParameters::print(void) const {
-
   std::cout << "Contents of BeamSpotAlignmentParameters:"
-            << "\nParameters: " << theData->parameters()
-            << "\nCovariance: " << theData->covariance() << std::endl;
+            << "\nParameters: " << theData->parameters() << "\nCovariance: " << theData->covariance() << std::endl;
 }
 
 //__________________________________________________________________________________________________
-AlgebraicVector
-BeamSpotAlignmentParameters::displacementFromAlignable(const Alignable *ali) {
+AlgebraicVector BeamSpotAlignmentParameters::displacementFromAlignable(const Alignable *ali) {
   AlgebraicVector displacement(N_PARAM);
 
   if (ali) {
     const align::RotationType &dR = ali->rotation();
 
-    const align::LocalVector shifts(
-        ali->globalRotation() *
-        (dR.transposed() * ali->displacement().basicVector()));
+    const align::LocalVector shifts(ali->globalRotation() * (dR.transposed() * ali->displacement().basicVector()));
 
     align::GlobalVector gv(0.0, 0.0, 1.0);
     align::LocalVector lv(dR.transposed() * gv.basicVector());

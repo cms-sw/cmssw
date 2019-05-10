@@ -17,8 +17,7 @@
 #include "CondFormats/DataRecord/interface/CSCBadStripsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCBadStripsConditions : public edm::ESProducer,
-                               public edm::EventSetupRecordIntervalFinder {
+class CSCBadStripsConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   CSCBadStripsConditions(const edm::ParameterSet &);
   ~CSCBadStripsConditions() override;
@@ -67,12 +66,12 @@ inline CSCBadStrips *CSCBadStripsConditions::prefillBadStrips() {
   std::ifstream newdata1;
   std::ifstream newdata2;
 
-  newdata1.open("badstrips1.dat", std::ios::in); // chambercontainer
+  newdata1.open("badstrips1.dat", std::ios::in);  // chambercontainer
   if (!newdata1) {
     std::cerr << "Error: badstrips1.dat -> no such file!" << std::endl;
     exit(1);
   }
-  newdata2.open("badstrips2.dat", std::ios::in); // channelcontainer
+  newdata2.open("badstrips2.dat", std::ios::in);  // channelcontainer
   if (!newdata2) {
     std::cerr << "Error: badstrips2.dat -> no such file!" << std::endl;
     exit(1);

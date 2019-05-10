@@ -28,9 +28,9 @@ public:
     dx = 0,
     dy,
     dz,
-    dslopeX, // NOTE: slope(u) -> k*tan(beta),
-    dslopeY, //       slope(v) -> k*tan(alpha)
-    drotZ,   // rotation around w axis, scaled by gammaScale
+    dslopeX,  // NOTE: slope(u) -> k*tan(beta),
+    dslopeY,  //       slope(v) -> k*tan(alpha)
+    drotZ,    // rotation around w axis, scaled by gammaScale
     dsagittaX,
     dsagittaXY,
     dsagittaY,
@@ -39,8 +39,10 @@ public:
 
   /// Returns 9x2 jacobian matrix
   AlgebraicMatrix operator()(const TrajectoryStateOnSurface &tsos,
-                             double uWidth, double vLength,
-                             bool doSplit = false, double ySplit = 0.) const;
+                             double uWidth,
+                             double vLength,
+                             bool doSplit = false,
+                             double ySplit = 0.) const;
 
   /// scale to apply to convert drotZ to karimaki-gamma,
   /// depending on module width and length (the latter after splitting!)

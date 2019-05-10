@@ -6,8 +6,7 @@ void CSCIndexerOldStartup::fillChamberLabel() const {
   // Logically const since initializes cache only,
   // Beware that the ME42 indices 235-270 within this vector do NOT correspond
   // to their 'real' linear indices (which are 469-504 for +z)
-  chamberLabel.resize(
-      271); // one more than #chambers per endcap. Includes ME42.
+  chamberLabel.resize(271);  // one more than #chambers per endcap. Includes ME42.
   IndexType count = 0;
   chamberLabel[count] = 0;
 
@@ -23,7 +22,6 @@ void CSCIndexerOldStartup::fillChamberLabel() const {
 }
 
 CSCDetId CSCIndexerOldStartup::detIdFromChamberIndex_OLD(IndexType ici) const {
-
   // Will not work as is for ME42
   // ============================
 
@@ -67,15 +65,15 @@ CSCDetId CSCIndexerOldStartup::detIdFromChamberIndex(IndexType ici) const {
   IndexType ie = 1;
   if (ici > 468) {
     // ME42
-    ici -= 234;      // now in range 235-306
-    if (ici > 270) { // -z
+    ici -= 234;       // now in range 235-306
+    if (ici > 270) {  // -z
       ie = 2;
-      ici -= 36; // now in range 235-270
+      ici -= 36;  // now in range 235-270
     }
-  } else {           // in range 1-468
-    if (ici > 234) { // -z
+  } else {            // in range 1-468
+    if (ici > 234) {  // -z
       ie = 2;
-      ici -= 234; // now in range 1-234
+      ici -= 234;  // now in range 1-234
     }
   }
   if (chamberLabel.empty())
@@ -84,8 +82,7 @@ CSCDetId CSCIndexerOldStartup::detIdFromChamberIndex(IndexType ici) const {
   return detIdFromChamberLabel(ie, label);
 }
 
-CSCIndexerOldStartup::IndexType
-CSCIndexerOldStartup::chamberLabelFromChamberIndex(IndexType ici) const {
+CSCIndexerOldStartup::IndexType CSCIndexerOldStartup::chamberLabelFromChamberIndex(IndexType ici) const {
   // This is just for cross-checking
 
   // Expected range of input range argument is 1-540.
@@ -93,13 +90,13 @@ CSCIndexerOldStartup::chamberLabelFromChamberIndex(IndexType ici) const {
 
   if (ici > 468) {
     // ME42
-    ici -= 234;      // now in range 235-306
-    if (ici > 270) { // -z
-      ici -= 36;     // now in range 235-270
+    ici -= 234;       // now in range 235-306
+    if (ici > 270) {  // -z
+      ici -= 36;      // now in range 235-270
     }
-  } else {           // in range 1-468
-    if (ici > 234) { // -z
-      ici -= 234;    // now in range 1-234
+  } else {            // in range 1-468
+    if (ici > 234) {  // -z
+      ici -= 234;     // now in range 1-234
     }
   }
   if (chamberLabel.empty())
@@ -107,9 +104,7 @@ CSCIndexerOldStartup::chamberLabelFromChamberIndex(IndexType ici) const {
   return chamberLabel[ici];
 }
 
-CSCDetId CSCIndexerOldStartup::detIdFromChamberLabel(IndexType ie,
-                                                     IndexType label) const {
-
+CSCDetId CSCIndexerOldStartup::detIdFromChamberLabel(IndexType ie, IndexType label) const {
   IndexType is = label / 1000;
   label -= is * 1000;
   IndexType ir = label / 100;
@@ -120,7 +115,6 @@ CSCDetId CSCIndexerOldStartup::detIdFromChamberLabel(IndexType ie,
 }
 
 CSCDetId CSCIndexerOldStartup::detIdFromLayerIndex(IndexType ili) const {
-
   IndexType il = (ili - 1) % 6 + 1;
   IndexType ici = (ili - 1) / 6 + 1;
   CSCDetId id = detIdFromChamberIndex(ici);
@@ -128,20 +122,17 @@ CSCDetId CSCIndexerOldStartup::detIdFromLayerIndex(IndexType ili) const {
   return CSCDetId(id.endcap(), id.station(), id.ring(), id.chamber(), il);
 }
 
-std::pair<CSCDetId, CSCIndexerOldStartup::IndexType>
-CSCIndexerOldStartup::detIdFromStripChannelIndex(LongIndexType isi) const {
-
-  const LongIndexType lastnonme42 =
-      217728; // channels in 2008 installed chambers
-  const LongIndexType lastplusznonme42 = 108864; // = 217728/2
-  const LongIndexType firstme13 = 34561;         // First channel of ME13
-  const LongIndexType lastme13 = 48384;          // Last channel of ME13
+std::pair<CSCDetId, CSCIndexerOldStartup::IndexType> CSCIndexerOldStartup::detIdFromStripChannelIndex(
+    LongIndexType isi) const {
+  const LongIndexType lastnonme42 = 217728;       // channels in 2008 installed chambers
+  const LongIndexType lastplusznonme42 = 108864;  // = 217728/2
+  const LongIndexType firstme13 = 34561;          // First channel of ME13
+  const LongIndexType lastme13 = 48384;           // Last channel of ME13
 
   const IndexType lastnonme42layer = 2808;
-  const IndexType lastplusznonme42layer = 1404; // = 2808/2
-  const IndexType firstme13layer =
-      433; // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
-  const IndexType lastme13layer = 648; // = 108*6
+  const IndexType lastplusznonme42layer = 1404;  // = 2808/2
+  const IndexType firstme13layer = 433;          // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
+  const IndexType lastme13layer = 648;           // = 108*6
 
   // All chambers but ME13 have 80 channels
   IndexType nchan = 80;
@@ -161,10 +152,10 @@ CSCIndexerOldStartup::detIdFromStripChannelIndex(LongIndexType isi) const {
       isi -= lastplusznonme42;
     }
 
-    if (isi > lastme13) { // after ME13
+    if (isi > lastme13) {  // after ME13
       istart = lastme13;
       layerOffset = lastme13layer;
-    } else if (isi >= firstme13) { // ME13
+    } else if (isi >= firstme13) {  // ME13
       istart = firstme13 - 1;
       layerOffset = firstme13layer - 1;
       nchan = 64;
@@ -176,30 +167,27 @@ CSCIndexerOldStartup::detIdFromStripChannelIndex(LongIndexType isi) const {
     layerOffset = lastnonme42layer;
   }
 
-  isi -= istart; // remove earlier group(s)
+  isi -= istart;  // remove earlier group(s)
   IndexType ichan = (isi - 1) % nchan + 1;
   IndexType ili = (isi - 1) / nchan + 1;
-  ili += layerOffset; // add appropriate offset for earlier group(s)
+  ili += layerOffset;  // add appropriate offset for earlier group(s)
   if (ie != 1)
-    ili += lastplusznonme42layer; // add offset to -z endcap; ME42 doesn't need
-                                  // this.
+    ili += lastplusznonme42layer;  // add offset to -z endcap; ME42 doesn't need
+                                   // this.
 
   return std::pair<CSCDetId, IndexType>(detIdFromLayerIndex(ili), ichan);
 }
 
-std::pair<CSCDetId, CSCIndexerOldStartup::IndexType>
-CSCIndexerOldStartup::detIdFromChipIndex(IndexType ici) const {
-
-  const LongIndexType lastnonme42 = 13608; // chips in 2008 installed chambers
-  const LongIndexType lastplusznonme42 = 6804; // = 13608/2
-  const LongIndexType firstme13 = 2161;        // First channel of ME13
-  const LongIndexType lastme13 = 3024;         // Last channel of ME13
+std::pair<CSCDetId, CSCIndexerOldStartup::IndexType> CSCIndexerOldStartup::detIdFromChipIndex(IndexType ici) const {
+  const LongIndexType lastnonme42 = 13608;      // chips in 2008 installed chambers
+  const LongIndexType lastplusznonme42 = 6804;  // = 13608/2
+  const LongIndexType firstme13 = 2161;         // First channel of ME13
+  const LongIndexType lastme13 = 3024;          // Last channel of ME13
 
   const IndexType lastnonme42layer = 2808;
-  const IndexType lastplusznonme42layer = 1404; // = 2808/2
-  const IndexType firstme13layer =
-      433; // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
-  const IndexType lastme13layer = 648; // = 108*6
+  const IndexType lastplusznonme42layer = 1404;  // = 2808/2
+  const IndexType firstme13layer = 433;          // = 72*6 + 1 (ME13 chambers are 72-108 in range 1-234)
+  const IndexType lastme13layer = 648;           // = 108*6
 
   // All chambers but ME13 have 5 chips/layer
   IndexType nchipPerLayer = 5;
@@ -219,10 +207,10 @@ CSCIndexerOldStartup::detIdFromChipIndex(IndexType ici) const {
       ici -= lastplusznonme42;
     }
 
-    if (ici > lastme13) { // after ME13
+    if (ici > lastme13) {  // after ME13
       istart = lastme13;
       layerOffset = lastme13layer;
-    } else if (ici >= firstme13) { // ME13
+    } else if (ici >= firstme13) {  // ME13
       istart = firstme13 - 1;
       layerOffset = firstme13layer - 1;
       nchipPerLayer = 4;
@@ -234,13 +222,13 @@ CSCIndexerOldStartup::detIdFromChipIndex(IndexType ici) const {
     layerOffset = lastnonme42layer;
   }
 
-  ici -= istart; // remove earlier group(s)
+  ici -= istart;  // remove earlier group(s)
   IndexType ichip = (ici - 1) % nchipPerLayer + 1;
   IndexType ili = (ici - 1) / nchipPerLayer + 1;
-  ili += layerOffset; // add appropriate offset for earlier group(s)
+  ili += layerOffset;  // add appropriate offset for earlier group(s)
   if (ie != 1)
-    ili += lastplusznonme42layer; // add offset to -z endcap; ME42 doesn't need
-                                  // this.
+    ili += lastplusznonme42layer;  // add offset to -z endcap; ME42 doesn't need
+                                   // this.
 
   return std::pair<CSCDetId, IndexType>(detIdFromLayerIndex(ili), ichip);
 }
@@ -256,7 +244,7 @@ int CSCIndexerOldStartup::dbIndex(const CSCDetId &id, int &channel) {
   if (st == 1 && rg == 4) {
     rg = 1;
     if (channel <= 16)
-      channel += 64; // no trapping for any bizarreness
+      channel += 64;  // no trapping for any bizarreness
   }
   return ec * 100000 + st * 10000 + rg * 1000 + ch * 10 + la;
 }

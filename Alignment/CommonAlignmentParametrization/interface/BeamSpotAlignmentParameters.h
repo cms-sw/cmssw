@@ -19,7 +19,6 @@ class AlignableDetOrUnitPtr;
 class TrajectoryStateOnSurface;
 
 class BeamSpotAlignmentParameters : public AlignmentParameters {
-
 public:
   /// Give parameters a name
   enum AlignmentParameterName { dx = 0, dy, dxslope, dyslope, N_PARAM };
@@ -46,23 +45,19 @@ public:
   int type() const override;
 
   /// Clone all parameters (for update of parameters)
-  BeamSpotAlignmentParameters *
-  clone(const AlgebraicVector &parameters,
-        const AlgebraicSymMatrix &covMatrix) const override;
+  BeamSpotAlignmentParameters *clone(const AlgebraicVector &parameters,
+                                     const AlgebraicSymMatrix &covMatrix) const override;
 
   /// Clone selected parameters (for update of parameters)
-  BeamSpotAlignmentParameters *
-  cloneFromSelected(const AlgebraicVector &parameters,
-                    const AlgebraicSymMatrix &covMatrix) const override;
+  BeamSpotAlignmentParameters *cloneFromSelected(const AlgebraicVector &parameters,
+                                                 const AlgebraicSymMatrix &covMatrix) const override;
 
   /// Get all derivatives
-  AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos,
-                              const AlignableDetOrUnitPtr &) const override;
+  AlgebraicMatrix derivatives(const TrajectoryStateOnSurface &tsos, const AlignableDetOrUnitPtr &) const override;
 
   /// Get selected derivatives
-  AlgebraicMatrix
-  selectedDerivatives(const TrajectoryStateOnSurface &tsos,
-                      const AlignableDetOrUnitPtr &) const override;
+  AlgebraicMatrix selectedDerivatives(const TrajectoryStateOnSurface &tsos,
+                                      const AlignableDetOrUnitPtr &) const override;
 
   /// Get translation parameters
   AlgebraicVector translation(void) const;

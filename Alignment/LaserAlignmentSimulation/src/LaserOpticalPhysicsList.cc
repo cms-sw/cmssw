@@ -19,9 +19,14 @@
 #include "G4Scintillation.hh"
 
 LaserOpticalPhysicsList::LaserOpticalPhysicsList(const G4String &name)
-    : G4VPhysicsConstructor(name), wasActivated(false), theScintProcess(),
-      theCerenkovProcess(), theAbsorptionProcess(), theRayleighScattering(),
-      theBoundaryProcess(), theWLSProcess() {
+    : G4VPhysicsConstructor(name),
+      wasActivated(false),
+      theScintProcess(),
+      theCerenkovProcess(),
+      theAbsorptionProcess(),
+      theRayleighScattering(),
+      theBoundaryProcess(),
+      theWLSProcess() {
   if (verboseLevel > 0)
     std::cout << "<LaserOpticalPhysicsList::LaserOpticalPhysicsList(...)> "
                  "entering constructor ..."
