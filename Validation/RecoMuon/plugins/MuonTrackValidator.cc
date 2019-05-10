@@ -30,11 +30,11 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       ibooker.cd();
       InputTag algo = label[www];
       string dirName=dirName_;
-      if (algo.process()!="")
+      if (!algo.process().empty())
 	dirName+=algo.process()+"_";
-      if(algo.label()!="")
+      if(!algo.label().empty())
 	dirName+=algo.label();
-      if(algo.instance()!="")
+      if(!algo.instance().empty())
         dirName+=("_"+algo.instance());
       if (dirName.find("Tracks")<dirName.length()){
 	dirName.replace(dirName.find("Tracks"),6,"Trks");

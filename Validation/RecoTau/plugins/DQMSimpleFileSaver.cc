@@ -19,7 +19,7 @@ TauDQMSimpleFileSaver::TauDQMSimpleFileSaver(const edm::ParameterSet& cfg)
   cfgError_ = 0;
 
   outputFileName_ = cfg.getParameter<std::string>("outputFileName");
-  if ( outputFileName_ == "" ) {
+  if ( outputFileName_.empty() ) {
     edm::LogError("TauDQMSimpleFileSaver") << " No outputFileName specified --> histograms will NOT be saved !!";
     cfgError_ = 1;
   } else if ( outputFileName_.find(".root") == std::string::npos ) {

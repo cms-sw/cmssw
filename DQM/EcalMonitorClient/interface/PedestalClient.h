@@ -8,7 +8,7 @@ namespace ecaldqm
   class PedestalClient : public DQWorkerClient {
   public:
     PedestalClient();
-    ~PedestalClient() {}
+    ~PedestalClient() override {}
 
     void producePlots(ProcessType) override;
 

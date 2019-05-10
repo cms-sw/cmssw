@@ -8,7 +8,7 @@ namespace ecaldqm
   class LaserClient : public DQWorkerClient {
   public:
     LaserClient();
-    ~LaserClient() {}
+    ~LaserClient() override {}
 
     void producePlots(ProcessType) override;
 

@@ -8,7 +8,7 @@ namespace ecaldqm {
   class OccupancyClient : public DQWorkerClient {
   public:
     OccupancyClient();
-    ~OccupancyClient() {}
+    ~OccupancyClient() override {}
 
     void producePlots(ProcessType) override;
 

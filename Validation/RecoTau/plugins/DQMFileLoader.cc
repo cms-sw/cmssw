@@ -135,7 +135,7 @@ TauDQMFileLoader::TauDQMFileLoader(const edm::ParameterSet& cfg)
 //     once histograms of the next fileSet are loaded)
   for ( std::map<std::string, cfgEntryFileSet>::const_iterator fileSet = fileSets_.begin();
 	fileSet != fileSets_.end(); ++fileSet ) {
-    if ( fileSet->second.dqmDirectory_store_ == "" && fileSets_.size() > 1 ) {
+    if ( fileSet->second.dqmDirectory_store_.empty() && fileSets_.size() > 1 ) {
       edm::LogError ("TauDQMFileLoader") << " dqmDirectory_store undefined for fileSet = " << fileSet->second.name_ << " !!";
       cfgError_ = 1;
       break;
@@ -231,7 +231,7 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c)
 //    move histograms from dqmRootDirectory to dqmDirectory_store
 //    (if the histograms are not moved, the histograms get overwritten,
 //     the next time DQMStore::open is called)
-      if ( fileSet->second.dqmDirectory_store_ != "" ) {
+      if ( !fileSet->second.dqmDirectory_store_.empty() ) {
 	std::string inputDirectory = dqmRootDirectory;
 	//std::cout << "inputDirectory = " << inputDirectory << std::endl;
 	std::string outputDirectory = dqmDirectoryName(std::string(inputDirectory)).append(fileSet->second.dqmDirectory_store_);
