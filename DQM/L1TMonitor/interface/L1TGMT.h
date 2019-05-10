@@ -41,28 +41,26 @@
 //
 
 class L1TGMT : public DQMEDAnalyzer {
-
 public:
+  // Constructor
+  L1TGMT(const edm::ParameterSet& ps);
 
-// Constructor
-L1TGMT(const edm::ParameterSet& ps);
-
-// Destructor
-~L1TGMT() override;
+  // Destructor
+  ~L1TGMT() override;
 
 protected:
-// Analyze
+  // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-// BeginJob
+  // BeginJob
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------
-  
-  enum ensubs { DTTF=0, RPCb, CSCTF, RPCf, GMT };
+
+  enum ensubs { DTTF = 0, RPCb, CSCTF, RPCf, GMT };
 
   MonitorElement* subs_nbx[5];
   MonitorElement* subs_eta[5];
@@ -72,9 +70,9 @@ private:
   MonitorElement* subs_etaphi[5];
   MonitorElement* subs_etaqty[5];
   MonitorElement* subs_bits[5];
-  
+
   MonitorElement* regional_triggers;
-  
+
   MonitorElement* bx_number;
   MonitorElement* dbx_chip;
   MonitorElement* eta_dtcsc_and_rpc;
@@ -95,20 +93,20 @@ private:
   MonitorElement* bx_dt_rpc;
   MonitorElement* bx_csc_rpc;
   MonitorElement* bx_dt_csc;
-  
-  MonitorElement* n_rpcb_vs_dttf ;
+
+  MonitorElement* n_rpcb_vs_dttf;
   MonitorElement* n_rpcf_vs_csctf;
   MonitorElement* n_csctf_vs_dttf;
-  
-  MonitorElement* subs_dbx[4];  
+
+  MonitorElement* subs_dbx[4];
 
   const bool verbose_;
   std::ofstream logFile_;
-  const edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtSource_ ;
-  
-  int bxnum_old_; // bx of previous event
-  int obnum_old_; // orbit of previous event
-  int trsrc_old_; // code of trigger source ( bits: 0 DT, 1 bRPC, 2 CSC, 3 fRPC )
+  const edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtSource_;
+
+  int bxnum_old_;  // bx of previous event
+  int obnum_old_;  // orbit of previous event
+  int trsrc_old_;  // code of trigger source ( bits: 0 DT, 1 bRPC, 2 CSC, 3 fRPC )
 
   static const double piconv_;
   double phiconv_(float phi);

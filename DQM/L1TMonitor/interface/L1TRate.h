@@ -47,73 +47,68 @@
 //
 
 class L1TRate : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+public:
+  L1TRate(const edm::ParameterSet& ps);  // Constructor
+  ~L1TRate() override;                   // Destructor
 
-  public:
+protected:
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
+  //void beginJob();                                                   // BeginJob
+  //void endJob  ();                                                   // EndJob
+  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
+  //void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
 
-    L1TRate(const edm::ParameterSet& ps);   // Constructor
-    ~L1TRate() override;                     // Destructor
-
-  protected:
-
-    void analyze (const edm::Event& e, const edm::EventSetup& c) override;      // Analyze
-    //void beginJob();                                                   // BeginJob
-    //void endJob  ();                                                   // EndJob
-    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    //void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
-
-    void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
-    void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
-    void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
   // Private methods
-  private:
-
-    bool getXSexFitsOMDS  (const edm::ParameterSet& ps); 
-    bool getXSexFitsPython(const edm::ParameterSet& ps);
+private:
+  bool getXSexFitsOMDS(const edm::ParameterSet& ps);
+  bool getXSexFitsPython(const edm::ParameterSet& ps);
 
   // Private variables
-  private:
+private:
+  // bool
+  bool m_verbose;
 
-    // bool
-    bool  m_verbose;
-    
-    // int
-    int  m_refPrescaleSet; // What is the reference prescale index to use for trigger choice
-    int  m_maxNbins;       // Maximum number of bins for MonitorElement
-    int  m_lsShiftGTRates; // What shift (if any) to be applied to GT Rates LS number
+  // int
+  int m_refPrescaleSet;  // What is the reference prescale index to use for trigger choice
+  int m_maxNbins;        // Maximum number of bins for MonitorElement
+  int m_lsShiftGTRates;  // What shift (if any) to be applied to GT Rates LS number
 
-    // string
-    std::string  m_outputFile; // External output file name (for testiting)
-    
-    // Vectors
-    const std::vector< std::vector<int> >* m_listsPrescaleFactors; // Collection os all sets of prescales
+  // string
+  std::string m_outputFile;  // External output file name (for testiting)
 
-    // Maps
-    std::map<int,int>                       m_lsPrescaleIndex;        // Map of precale index for each LS
-    std::map<int,double>                    m_lsLuminosity;           // Map of luminosity recorded for each LS
-    std::map<int,std::map<TString,double> > m_lsRates;                // Map of rates (by bit) recorded for each LS
-    std::map<TString,int>                   m_algoBit;                // Map of bit associated with a L1 Algo alias
-    std::map<std::string,bool>              m_inputCategories;        // Map of categories to monitor
-    std::map<std::string,std::string>       m_selectedTriggers;       // Map of what trigger to monitor for each category
-    std::map<TString,MonitorElement*>       m_xSecObservedToExpected; // Monitor Elements for Observed to Expected Algo XSec 
-    std::map<TString,MonitorElement*>       m_xSecVsInstLumi;         // Monitor Elements for Algo XSec vs Instant Luminosity
-    std::map<TString,TF1*>                  m_templateFunctions;      // For each trigger template f(InstLumi)=XSec
+  // Vectors
+  const std::vector<std::vector<int> >* m_listsPrescaleFactors;  // Collection os all sets of prescales
 
-    // Input tags
-    edm::EDGetTokenT<LumiScalersCollection> m_scalersSource_colLScal;                      // Where to get L1 Scalers
-    edm::EDGetTokenT<Level1TriggerScalersCollection> m_scalersSource_triggerScalers;       // Where to get L1 Scalers
-    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputTag; // Where to get L1 GT Data DAQ
+  // Maps
+  std::map<int, int> m_lsPrescaleIndex;                         // Map of precale index for each LS
+  std::map<int, double> m_lsLuminosity;                         // Map of luminosity recorded for each LS
+  std::map<int, std::map<TString, double> > m_lsRates;          // Map of rates (by bit) recorded for each LS
+  std::map<TString, int> m_algoBit;                             // Map of bit associated with a L1 Algo alias
+  std::map<std::string, bool> m_inputCategories;                // Map of categories to monitor
+  std::map<std::string, std::string> m_selectedTriggers;        // Map of what trigger to monitor for each category
+  std::map<TString, MonitorElement*> m_xSecObservedToExpected;  // Monitor Elements for Observed to Expected Algo XSec
+  std::map<TString, MonitorElement*> m_xSecVsInstLumi;          // Monitor Elements for Algo XSec vs Instant Luminosity
+  std::map<TString, TF1*> m_templateFunctions;                  // For each trigger template f(InstLumi)=XSec
 
-    // ParameterSet
-    edm::ParameterSet m_parameters;
-    
-    // MonitorElement
-    MonitorElement* m_ErrorMonitor;
-    
-    // Others
-    //DQMStore* dbe;  // The DQM Service Handle
+  // Input tags
+  edm::EDGetTokenT<LumiScalersCollection> m_scalersSource_colLScal;                 // Where to get L1 Scalers
+  edm::EDGetTokenT<Level1TriggerScalersCollection> m_scalersSource_triggerScalers;  // Where to get L1 Scalers
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputTag;             // Where to get L1 GT Data DAQ
 
-    L1GtUtils m_l1GtUtils;
+  // ParameterSet
+  edm::ParameterSet m_parameters;
+
+  // MonitorElement
+  MonitorElement* m_ErrorMonitor;
+
+  // Others
+  //DQMStore* dbe;  // The DQM Service Handle
+
+  L1GtUtils m_l1GtUtils;
 };
 
 #endif

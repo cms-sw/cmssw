@@ -5,8 +5,8 @@
 // Package:    SiPixelPhase1Common
 // Class:      AbstractHistogram
 //
-// This is a spaceholder for a histogram in 0, 1, or 2 Dimensions. May or may 
-// not be backed by a TH1 or similar. May not be there at all and created on 
+// This is a spaceholder for a histogram in 0, 1, or 2 Dimensions. May or may
+// not be backed by a TH1 or similar. May not be there at all and created on
 // demand. Mainly designed as a value in std::map.
 //
 // Original Author:  Marcel Schneider
@@ -19,8 +19,7 @@
 #include <cassert>
 
 struct AbstractHistogram {
-
-  int count = 0; // how many things where inserted already. For concat.
+  int count = 0;  // how many things where inserted already. For concat.
   MonitorElement* me = nullptr;
   TH1* th1 = nullptr;
   // This is needed for re-grouping, which happens for counters and harvesting
@@ -34,8 +33,6 @@ struct AbstractHistogram {
       delete th1;
     }
   };
-
 };
-
 
 #endif

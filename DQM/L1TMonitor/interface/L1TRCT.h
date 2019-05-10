@@ -5,11 +5,9 @@
 #include <memory>
 #include <unistd.h>
 
-
 #include <iostream>
 #include <fstream>
 #include <vector>
-
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -29,7 +27,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
 // GCT and RCT data formats
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
@@ -38,26 +35,24 @@
 //
 
 class L1TRCT : public DQMEDAnalyzer {
-
 public:
-
-// Constructor
+  // Constructor
   L1TRCT(const edm::ParameterSet& ps);
 
-// Destructor
- ~L1TRCT() override;
+  // Destructor
+  ~L1TRCT() override;
 
 protected:
-// Analyze
+  // Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
- 
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) override;
+
 private:
   // ----------member data ---------------------------
 
   // trigger type information
-  MonitorElement *triggerType_;
+  MonitorElement* triggerType_;
 
   // RCT
   // regions
@@ -71,8 +66,8 @@ private:
   MonitorElement* rctHfPlusTauEtaPhi_;
 
   // Bx
-  MonitorElement *rctRegionBx_;
-  MonitorElement *rctEmBx_;
+  MonitorElement* rctRegionBx_;
+  MonitorElement* rctEmBx_;
 
   // em
   MonitorElement* rctIsoEmEtEtaPhi_;
@@ -89,7 +84,6 @@ private:
   MonitorElement* rctNotCentralNonIsoEmEtEtaPhi_;
   MonitorElement* rctNotCentralNonIsoEmOccEtaPhi_;
 
-
   // Layer2
   // regions
   MonitorElement* layer2RegionsEtEtaPhi_;
@@ -102,8 +96,8 @@ private:
   MonitorElement* layer2HfPlusTauEtaPhi_;
 
   // Bx
-  MonitorElement *layer2RegionBx_;
-  MonitorElement *layer2EmBx_;
+  MonitorElement* layer2RegionBx_;
+  MonitorElement* layer2EmBx_;
 
   // em
   MonitorElement* layer2IsoEmEtEtaPhi_;
@@ -117,15 +111,14 @@ private:
   MonitorElement* runId_;
   MonitorElement* lumisecId_;
 
-
   std::string histFolder_;
   bool verbose_;
-  
+
   edm::EDGetTokenT<L1CaloRegionCollection> rctSource_L1CRCollection_;
   edm::EDGetTokenT<L1CaloEmCollection> rctSource_L1CEMCollection_;
   edm::EDGetTokenT<L1CaloRegionCollection> rctSource_GCT_L1CRCollection_;
   edm::EDGetTokenT<L1CaloEmCollection> rctSource_GCT_L1CEMCollection_;
-  
+
   /// filter TriggerType
   int filterTriggerType_;
   int selectBX_;

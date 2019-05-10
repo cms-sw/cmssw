@@ -13,22 +13,17 @@
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
-
 class L1TStage2EMTF : public DQMEDAnalyzer {
-
- public:
-
+public:
   L1TStage2EMTF(const edm::ParameterSet& ps);
   ~L1TStage2EMTF() override;
 
- protected:
-
+protected:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   edm::EDGetTokenT<l1t::EMTFDaqOutCollection> daqToken;
   edm::EDGetTokenT<l1t::EMTFHitCollection> hitToken;
   edm::EDGetTokenT<l1t::EMTFTrackCollection> trackToken;
@@ -46,27 +41,27 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* cscChamberStrip[20];
   MonitorElement* cscChamberWire[20];
   MonitorElement* cscLCTOccupancy;
-  MonitorElement* cscDQMOccupancy; 
+  MonitorElement* cscDQMOccupancy;
   MonitorElement* cscLCTTiming[5];
   MonitorElement* cscLCTTimingFrac[5];
   MonitorElement* cscTimingTot;
- 
+
   MonitorElement* emtfnTracks;
   MonitorElement* emtfTracknHits;
   MonitorElement* emtfTrackBX;
   MonitorElement* emtfTrackBXVsCSCLCT[3];
   MonitorElement* emtfTrackBXVsRPCHit[3];
   MonitorElement* emtfTrackPt;
-  MonitorElement* emtfTrackPtHighQuality;//Chad Freer May 8 2018
+  MonitorElement* emtfTrackPtHighQuality;  //Chad Freer May 8 2018
   MonitorElement* emtfTrackPtHighQualityHighPT;
   MonitorElement* emtfTrackEta;
-  MonitorElement* emtfTrackEtaHighQuality;//Chad Freer May 8 2018
+  MonitorElement* emtfTrackEtaHighQuality;  //Chad Freer May 8 2018
   MonitorElement* emtfTrackEtaHighQualityHighPT;
   MonitorElement* emtfTrackPhi;
   MonitorElement* emtfTrackPhiHighQuality;
   MonitorElement* emtfTrackPhiHighQualityHighPT;
   MonitorElement* emtfTrackOccupancy;
-  MonitorElement* emtfTrackOccupancyHighQuality;//Chad Freer May 8 2018
+  MonitorElement* emtfTrackOccupancyHighQuality;  //Chad Freer May 8 2018
   MonitorElement* emtfTrackOccupancyHighQualityHighPT;
   MonitorElement* emtfTrackMode;
   MonitorElement* emtfTrackQuality;
@@ -88,7 +83,7 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* rpcHitTheta[12];
   MonitorElement* rpcChamberPhi[12];
   MonitorElement* rpcChamberTheta[12];
-  
+
   MonitorElement* rpcHitTimingInTrack;
 };
 
