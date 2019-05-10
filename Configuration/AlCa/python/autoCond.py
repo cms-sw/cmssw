@@ -67,6 +67,8 @@ autoCond = {
     'phase1_2021_design'       : '106X_postLS2_design_v4', # GT containing design conditions for postLS2
     # GlobalTag for MC production with realistic conditions for Phase1 2021
     'phase1_2021_realistic'    : '106X_postLS2_realistic_v4', # GT containing realistic conditions for postLS2
+    # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2021,  Strip tracker in DECO mode
+    'phase1_2021_cosmics'      : '106X_upgrade2021cosmics_realistic_deco_v1',
     # GlobalTag for MC production with realistic conditions for Phase2 2023
     'phase2_realistic'         : '106X_upgrade2023_realistic_v2'
 }
