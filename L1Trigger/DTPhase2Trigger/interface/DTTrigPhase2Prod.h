@@ -107,56 +107,6 @@ class DTTrigPhase2Prod: public edm::EDProducer{
     
     edm::ESHandle<DTGeometry> dtGeo;
 
-    //plots
-    TFile * theFileOut;
-    
-    TH1F * Nsegments;
-    TH1F * NmetaPrimitives;
-    TH1F * NfilteredMetaPrimitives;
-    TH1F * NcorrelatedMetaPrimitives;
-    TH1F * Ngroups;
-    TH1F * Nquality;
-    TH1F * Nquality_matched;
-    TH1F * Nsegosl;
-    TH1F * Nsegosl31;
-    TH1F * Nmd;
-    TH1F * Nmd31;
-    TH2F * Nhits_segment_tp;
-    
-    TH1F * TIMEPhase2[5][4][14][10];
-    TH1F * T0Phase2[5][4][14][10];
-
-    TH2F * segment_vs_jm_x[5][4][14][10];
-    TH1F * segment_vs_jm_x_gauss[5][4][14][10];
-
-    TH2F * segment_vs_jm_tanPhi[5][4][14][10];
-    TH1F * segment_vs_jm_tanPhi_gauss[5][4][14][10];
-    
-    TH2F * segment_vs_jm_T0[5][4][14][10];
-    TH1F * segment_vs_jm_T0_gauss[5][4][14][10];
-    TH1F * segment_vs_jm_T0_gauss_all[5][4][14][10];
-    
-    TH1F * expected_tanPsi[5][4][14];
-    TH1F * observed_tanPsi[5][4][14][10];
-    TH1F * all_observed_tanPsi[5][4][14][10];
-
-    TH1F * expected_x[5][4][14];
-    TH1F * observed_x[5][4][14][10];
-    TH1F * all_observed_x[5][4][14][10];
-
-    TH1F * expected_t0[5][4][14];
-    TH1F * observed_t0[5][4][14][10];
-    TH1F * all_observed_t0[5][4][14][10];
-    
-    TH1F * chi2[5][4][14][10];
-
-    TH1F * TPphi[5][4][14][10];
-    TH1F * TPphiB[5][4][14][10];
-
-    TH2F * MP_x_back[5][4][14][10];
-    TH2F * MP_psi_back[5][4][14][10];
-
-    
     //ttrig
     std::string ttrig_filename;
     std::map<int,float> ttriginfo;
@@ -219,7 +169,6 @@ class DTTrigPhase2Prod: public edm::EDProducer{
 
     // Debug Flag
     bool debug;
-    bool pinta;
     double tanPhiTh;
     double chi2Th;
     double dT0_correlate_TP;

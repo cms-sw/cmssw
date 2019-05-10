@@ -91,7 +91,6 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset):
     produces<L1Phase2MuDTPhContainer>();
     
     debug = pset.getUntrackedParameter<bool>("debug");
-    pinta = pset.getUntrackedParameter<bool>("pinta");
     tanPhiTh = pset.getUntrackedParameter<double>("tanPhiTh");
     chi2Th = pset.getUntrackedParameter<double>("chi2Th");
     dT0_correlate_TP = pset.getUntrackedParameter<double>("dT0_correlate_TP");
@@ -105,7 +104,6 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset):
     
     txt_ttrig_bc0 = pset.getUntrackedParameter<bool>("apply_txt_ttrig_bc0");
     
-    dt4DSegmentsToken = consumes<DTRecSegment4DCollection>(pset.getParameter < edm::InputTag > ("dt4DSegments"));
     dtDigisToken = consumes< DTDigiCollection >(pset.getParameter<edm::InputTag>("digiTag"));
 
     rpcRecHitsLabel = consumes<RPCRecHitCollection>(pset.getUntrackedParameter < edm::InputTag > ("rpcRecHits"));
@@ -122,124 +120,6 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset):
     
     setChiSquareThreshold(chi2Th*100.); 
     
-    if(pinta){
-	std::cout<<"BOOKING HISTOS"<<std::endl;
-	
-	theFileOut = new TFile("dt_phase2.root", "RECREATE");
-	
-	Nsegments = new TH1F("Nsegments","Nsegments",21,-0.5,20.5);
-	NmetaPrimitives = new TH1F("NmetaPrimitives","NmetaPrimitives",201,-0.5,200.5);
-	NfilteredMetaPrimitives = new TH1F("NfilteredMetaPrimitives","NfilteredMetaPrimitives",201,-0.5,200.5);
-	NcorrelatedMetaPrimitives = new TH1F("NcorrelatedMetaPrimitives","NcorrelatedMetaPrimitives",201,-0.5,200.5);
-	Ngroups = new TH1F("Ngroups","Ngroups",201,-0.5,200.5);
-	Nquality = new TH1F("Nquality","Nquality",9,0.5,9.5);
-	Nquality_matched = new TH1F("Nquality_matched","Nquality_matched",9,0.5,9.5);
-	Nsegosl = new TH1F("Nsegosl","Nsegosl",100,-10,10);
-	Nsegosl31 = new TH1F("Nsegosl31","Nsegosl31",100,-10,10);
-	Nmd = new TH1F("Nmd","Nmd",11,-0.5,10.5);
-	Nmd31 = new TH1F("Nmd31","Nmd31",11,-0.5,10.5);
-	Nhits_segment_tp = new TH2F("Nhits_segment_tp","Nhits_segment_tp",10,-0.5,9.5,10,-0.5,9.5);
-	
-	char name [128];
-
-	for(int wh=-2;wh<=2;wh++){
-	    int iwh=wh+2;
-	    auto swh = std::to_string(wh);
-	    for(int st=1;st<=4;st++){
-		int ist=st-1;
-		auto sst = std::to_string(st);
-		for(int se=1;se<=14;se++){
-		    if(se>=13&&st!=4)continue;
-		    int ise=se-1;
-		    auto sse = std::to_string(se);
-		    for(int qu=1;qu<=9;qu++){
-			int iqu=qu-1;
-			auto squ = std::to_string(qu);
-			  
-			std::string nameSL = "Wh"+swh+"_St"+sst+"_Se"+sse+"_Qu"+squ;
-			  
-			//TIME
-			sprintf(name,"TIMEPhase2_%s",nameSL.c_str());
-			TIMEPhase2[iwh][ist][ise][iqu] = new TH1F(name,name,100,-0.5,89075.5);
-			      
-			//T0
-			sprintf(name,"TOPhase2_%s",nameSL.c_str());
-			T0Phase2[iwh][ist][ise][iqu] = new TH1F(name,name,100,-0.5,89075.5);
-    
-			//2D
-			sprintf(name,"segment_vs_jm_x_%s",nameSL.c_str());
-			segment_vs_jm_x[iwh][ist][ise][iqu] = new TH2F(name,name,250,-250,250,250,-250,250);
-			  
-			sprintf(name,"segment_vs_jm_x_gauss_%s",nameSL.c_str());
-			segment_vs_jm_x_gauss[iwh][ist][ise][iqu] = new TH1F(name,name,300,-0.04,0.04);
-
-			sprintf(name,"segment_vs_jm_tanPhi_%s",nameSL.c_str());
-			segment_vs_jm_tanPhi[iwh][ist][ise][iqu] = new TH2F(name,name,100,-1.5,1.5,100,-1.5,1.5);
-
-			sprintf(name,"segment_vs_jm_tanPhi_gauss_%s",nameSL.c_str());
-			segment_vs_jm_tanPhi_gauss[iwh][ist][ise][iqu] = new TH1F(name,name,300,-0.5,0.5); //for single ones resolution
-			//segment_vs_jm_tanPhi_gauss[iwh][ist][ise][iqu] = new TH1F(name,name,300,-0.01,0.01); //for correlated
-			  
-			sprintf(name,"segment_vs_jm_T0_%s",nameSL.c_str());
-			segment_vs_jm_T0[iwh][ist][ise][iqu] = new TH2F(name,name,100,0,90000,100,0,90000);
-
-			sprintf(name,"segment_vs_jm_T0_gauss_%s",nameSL.c_str());
-			segment_vs_jm_T0_gauss[iwh][ist][ise][iqu] = new TH1F(name,name,300,-100,100);
-
-			sprintf(name,"segment_vs_jm_T0_gauss_all_%s",nameSL.c_str());
-			segment_vs_jm_T0_gauss_all[iwh][ist][ise][iqu] = new TH1F(name,name,300,-100,100);
-			
-			sprintf(name,"observed_tanPsi_%s",nameSL.c_str());
-			observed_tanPsi[iwh][ist][ise][iqu] = new TH1F(name,name,100,-1.5,1.5);
-
-			sprintf(name,"all_observed_tanPsi_%s",nameSL.c_str());
-			all_observed_tanPsi[iwh][ist][ise][iqu] = new TH1F(name,name,100,-1.5,1.5);
-			
-			sprintf(name,"observed_x_%s",nameSL.c_str());
-			observed_x[iwh][ist][ise][iqu] = new TH1F(name,name,250,-250,250);
-
-			sprintf(name,"all_observed_x_%s",nameSL.c_str());
-			all_observed_x[iwh][ist][ise][iqu] = new TH1F(name,name,250,-250,250);
-
-			sprintf(name,"observed_t0_%s",nameSL.c_str());
-			observed_t0[iwh][ist][ise][iqu] = new TH1F(name,name,100,0,90000);
-
-			sprintf(name,"all_observed_t0_%s",nameSL.c_str());
-			all_observed_t0[iwh][ist][ise][iqu] = new TH1F(name,name,100,-100,100);
-			
-			sprintf(name,"chi2_%s",nameSL.c_str());
-			chi2[iwh][ist][ise][iqu] = new TH1F(name,name,100,0.,0.02);
-
-			sprintf(name,"TPphi_%s",nameSL.c_str());
-			TPphi[iwh][ist][ise][iqu] = new TH1F(name,name,250,-1.5,1.5);
-
-			sprintf(name,"TPphiB_%s",nameSL.c_str());
-			TPphiB[iwh][ist][ise][iqu] = new TH1F(name,name,250,-1.5,1.5);
-
-			sprintf(name,"MP_x_back_%s",nameSL.c_str());
-			MP_x_back[iwh][ist][ise][iqu] = new TH2F(name,name,100,-250,250,100,-250,250);
-
-			sprintf(name,"MP_psi_back_%s",nameSL.c_str());
-			MP_psi_back[iwh][ist][ise][iqu] = new TH2F(name,name,100,-1.5,1.5,100,-1.5,1.5);
-
-			
-		    }
-		    std::string nameSL = "Wh"+swh+"_St"+sst+"_Se"+sse;
-		    sprintf(name,"expected_tanPsi_%s",nameSL.c_str());
-		    expected_tanPsi[iwh][ist][ise] = new TH1F(name,name,100,-1.5,1.5);
-
-		    sprintf(name,"expected_x_%s",nameSL.c_str());
-		    expected_x[iwh][ist][ise] = new TH1F(name,name,250,-250,250);
-
-		    sprintf(name,"expected_t0_%s",nameSL.c_str());
-		    expected_t0[iwh][ist][ise] = new TH1F(name,name,100,0,90000);
-		    
-		}
-	    }
-	}
-	
-    }	  
-
     int rawId;
     
     //ttrig
@@ -287,148 +167,7 @@ DTTrigPhase2Prod::~DTTrigPhase2Prod(){
     
     if(debug) std::cout<<"DTp2: calling destructor"<<std::endl;
 
-    if(pinta){
-	if(debug) std::cout<<"DTp2: writing histograms and files"<<std::endl;
-	
-	theFileOut->cd();
-
-	for(int wh=-2;wh<=2;wh++){
-	    int iwh=wh+2;
-	    for(int st=1;st<=4;st++){
-		int ist=st-1;
-		for(int se=1;se<=14;se++){
-		    int ise=se-1;
-		    if(se>=13&&st!=4)continue;
-		    for(int qu=1;qu<=9;qu++){
-			int iqu=qu-1;
-
-			//digi TIME
-			TIMEPhase2[iwh][ist][ise][iqu]->Write();
-			      
-			//digiT0
-			T0Phase2[iwh][ist][ise][iqu]->Write();
-    
-			//2D
-			segment_vs_jm_x[iwh][ist][ise][iqu]->Write();
-			  
-			segment_vs_jm_x_gauss[iwh][ist][ise][iqu]->Write();
-
-			segment_vs_jm_tanPhi[iwh][ist][ise][iqu]->Write();
-
-			segment_vs_jm_tanPhi_gauss[iwh][ist][ise][iqu]->Write();
-			  
-			segment_vs_jm_T0[iwh][ist][ise][iqu]->Write();
-
-			segment_vs_jm_T0_gauss[iwh][ist][ise][iqu]->Write();
-			segment_vs_jm_T0_gauss_all[iwh][ist][ise][iqu]->Write();
-
-			observed_tanPsi[iwh][ist][ise][iqu]->Write();
-			
-			all_observed_tanPsi[iwh][ist][ise][iqu]->Write();
-
-			observed_x[iwh][ist][ise][iqu]->Write();
-			
-			all_observed_x[iwh][ist][ise][iqu]->Write();
-
-			observed_t0[iwh][ist][ise][iqu]->Write();
-			
-			all_observed_t0[iwh][ist][ise][iqu]->Write();
-
-			chi2[iwh][ist][ise][iqu]->Write();
-			
-			TPphi[iwh][ist][ise][iqu]->Write();
-			TPphiB[iwh][ist][ise][iqu]->Write();
-
-			MP_x_back[iwh][ist][ise][iqu]->Write();
-			MP_psi_back[iwh][ist][ise][iqu]->Write();
-
-		    }
-		    expected_tanPsi[iwh][ist][ise]->Write();
-		    expected_x[iwh][ist][ise]->Write();
-		    expected_t0[iwh][ist][ise]->Write();
-		}
-	    }
-	}
-
-	Nsegments->Write();
-	NmetaPrimitives->Write();
-	NfilteredMetaPrimitives->Write();
-	NcorrelatedMetaPrimitives->Write();
-	Ngroups->Write();
-	Nquality->Write();
-	Nquality_matched->Write();
-	Nsegosl->Write();
-	Nsegosl31->Write();
-	Nmd->Write();
-	Nmd31->Write();
-	Nhits_segment_tp->Write();
-	
-	theFileOut->Write();
-	theFileOut->Close();
-
-	delete Nsegments;
-	delete NmetaPrimitives;
-	delete NfilteredMetaPrimitives;
-	delete NcorrelatedMetaPrimitives;
-	delete Ngroups;
-	delete Nquality;
-	delete Nquality_matched;
-	delete Nsegosl;
-	delete Nsegosl31;
-	delete Nmd;
-	delete Nmd31;
-	delete Nhits_segment_tp;
-    
-	for(int wh=-2;wh<=2;wh++){
-	    int iwh=wh+2;
-	    for(int st=1;st<=4;st++){
-		int ist=st-1;
-		for(int se=1;se<=14;se++){
-		    int ise=se-1;
-		    if(se>=13&&st!=4)continue;
-		    for(int qu=1;qu<=9;qu++){
-			int iqu=qu-1;
-	    
-			//digi TIME
-			delete TIMEPhase2[iwh][ist][ise][iqu];
-	    
-			//digiT0
-			delete T0Phase2[iwh][ist][ise][iqu];
-	    
-			//2D
-			delete segment_vs_jm_x[iwh][ist][ise][iqu];    
-			delete segment_vs_jm_x_gauss[iwh][ist][ise][iqu];
-			delete segment_vs_jm_tanPhi[iwh][ist][ise][iqu];
-			delete segment_vs_jm_tanPhi_gauss[iwh][ist][ise][iqu];
-			delete segment_vs_jm_T0[iwh][ist][ise][iqu];
-			delete segment_vs_jm_T0_gauss[iwh][ist][ise][iqu];
-			delete segment_vs_jm_T0_gauss_all[iwh][ist][ise][iqu];
-			delete observed_tanPsi[iwh][ist][ise][iqu];
-			delete all_observed_tanPsi[iwh][ist][ise][iqu];
-			delete observed_x[iwh][ist][ise][iqu];
-			delete all_observed_x[iwh][ist][ise][iqu];
-			delete observed_t0[iwh][ist][ise][iqu];
-			delete all_observed_t0[iwh][ist][ise][iqu];
-			
-			delete chi2[iwh][ist][ise][iqu];
-			delete TPphi[iwh][ist][ise][iqu];
-			delete TPphiB[iwh][ist][ise][iqu];
-
-			delete MP_x_back[iwh][ist][ise][iqu];
-			delete MP_psi_back[iwh][ist][ise][iqu];
-			
-		    }
-		    delete expected_tanPsi[iwh][ist][ise];
-		    delete expected_x[iwh][ist][ise];
-		    delete expected_t0[iwh][ist][ise];
-		}
-	    }
-	}
-    
-	delete theFileOut; 
-    }
-  
-  delete grouping_obj; // Grouping destructor
+    delete grouping_obj; // Grouping destructor
 }
 
 
@@ -467,49 +206,38 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
 void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     edm::Handle<DTDigiCollection> dtdigis;
     iEvent.getByToken(dtDigisToken, dtdigis);
-    
-    edm::Handle<DTRecSegment4DCollection> all4DSegments;
-    if(pinta){
-	iEvent.getByToken(dt4DSegmentsToken, all4DSegments);
-	if(debug) std::cout<<"DTp2: I got the segments"<<std::endl;
-    }
-    //int bx32 = iEvent.eventAuxiliary().bunchCrossing()*32;
-    int bx25 = iEvent.eventAuxiliary().bunchCrossing()*25;
     timeFromP1ToP2 = iEvent.eventAuxiliary().bunchCrossing();
-
     if(debug) std::cout <<"\t Getting the RPC RecHits"<<std::endl;
     Handle<RPCRecHitCollection> rpcHits;
     iEvent.getByToken(rpcRecHitsLabel,rpcHits);
 
   
-  //Santi's code
-  // GROUPING BEGIN
-  DTDigiMap digiMap;
-  DTDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt=dtdigis->begin(); detUnitIt!=dtdigis->end(); ++detUnitIt) {
-    const DTLayerId& layId               = (*detUnitIt).first;
-    const DTChamberId chambId            = layId.superlayerId().chamberId();
-    const DTDigiCollection::Range& range = (*detUnitIt).second; 
-    digiMap[chambId].put(range,layId);
-  }
+    //Santi's code
+    // GROUPING BEGIN
+    DTDigiMap digiMap;
+    DTDigiCollection::DigiRangeIterator detUnitIt;
+    for (detUnitIt=dtdigis->begin(); detUnitIt!=dtdigis->end(); ++detUnitIt) {
+	const DTLayerId& layId               = (*detUnitIt).first;
+	const DTChamberId chambId            = layId.superlayerId().chamberId();
+	const DTDigiCollection::Range& range = (*detUnitIt).second; 
+	digiMap[chambId].put(range,layId);
+    }
 
-  // generate a list muon paths for each event!!!
-  std::vector<MuonPath*> muonpaths;
+    // generate a list muon paths for each event!!!
+    std::vector<MuonPath*> muonpaths;
     for (std::vector<const DTChamber*>::const_iterator ich = dtGeo->chambers().begin(); ich != dtGeo->chambers().end(); ich++) {
-    const DTChamber* chamb  = (*ich);
-    DTChamberId chid        = chamb->id();
-    DTDigiMap_iterator dmit = digiMap.find(chid);
+	const DTChamber* chamb  = (*ich);
+	DTChamberId chid        = chamb->id();
+	DTDigiMap_iterator dmit = digiMap.find(chid);
     
-//     if (dmit !=digiMap.end()) buildMuonPathCandidates((*dmit).second, &muonpaths);              // Old grouping implementation
-    if (dmit !=digiMap.end()) grouping_obj->run(iEvent, iEventSetup, (*dmit).second, &muonpaths);  // New grouping implementation
-  }
+	//     if (dmit !=digiMap.end()) buildMuonPathCandidates((*dmit).second, &muonpaths);              // Old grouping implementation
+	if (dmit !=digiMap.end()) grouping_obj->run(iEvent, iEventSetup, (*dmit).second, &muonpaths);  // New grouping implementation
+    }
 
-  digiMap.clear();
-  // GROUPING ENDS
-
+    digiMap.clear();
+    // GROUPING ENDS
+    
     if (debug) cout << "MUON PATHS found: " << muonpaths.size() <<" in event"<<iEvent.id().event()<<endl;
-    if(pinta) Ngroups->Fill(muonpaths.size());
-    
     //filtro por groupos de TDC times en las mismas celdas... corrobarar si sucede... esta implementacion no existe en software pero existe en firmware
     // loop over vector of muonpahts produced by grouping
     int iGroup=1;
@@ -552,8 +280,6 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     
     if(debug) std::cout<<"filling NmetaPrimtives"<<std::endl;
     
-    if(pinta) NmetaPrimitives->Fill(metaPrimitives.size());
-
     if(debug) std::cout<<"deleting muonpaths"<<std::endl;    
     for (unsigned int i=0; i<muonpaths.size(); i++){
       delete muonpaths[i];
@@ -563,7 +289,6 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     //FILTER SECTIONS:
     //filtro de duplicados puro popdr'ia ir ac'a mpredundantfilter.cpp primos?
     //filtro en |tanPhi|<~1.?
-    //filtro de calidad por chi2 qualityenhancefilter.cpp mirar el metodo filter
 
     if(debug) std::cout<<"declaring new vector for filtered"<<std::endl;    
 
@@ -635,8 +360,6 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     metaPrimitives.clear();
     metaPrimitives.erase(metaPrimitives.begin(),metaPrimitives.end());
 
-    if(pinta) NfilteredMetaPrimitives->Fill(filteredMetaPrimitives.size());
-    
     
     if(debug) std::cout<<"filteredMetaPrimitives: starting correlations"<<std::endl;    
     if(!do_correlation){
@@ -681,7 +404,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 						(int)round((*metaPrimitiveIt).chi2),  // uchi2 (m_chi2Segment)
 						-10    // urpc (m_rpcFlag)
 						));
-	    }else if(p2_df==3){
+	    }else if(p2_df==2){
 		if(debug)std::cout<<"pushing back phase-2 dataformat carlo-federica dataformat"<<std::endl;
 		outP2Ph.push_back(L1Phase2MuDTPhDigi((int)round((*metaPrimitiveIt).t0/25.),   // ubx (m_bx) //bx en la orbita
 						     slId.wheel(),   // uwh (m_wheel)     // FIXME: It is not clear who provides this?
@@ -817,7 +540,6 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 				    int x_wire = shiftinfo[wireId.rawId()]+((*digiIt).time()-SL1metaPrimitive->t0)*0.00543; 
 				    int x_wire_left = shiftinfo[wireId.rawId()]-((*digiIt).time()-SL1metaPrimitive->t0)*0.00543; 
 				    if(fabs(x_inSL3-x_wire)>fabs(x_inSL3-x_wire_left)) x_wire=x_wire_left; //choose the closest laterality
-				    if(pinta) Nsegosl->Fill(x_inSL3-x_wire);
 				    if(fabs(x_inSL3-x_wire)<minx){
 					minx=fabs(x_inSL3-x_wire);
 					next_wire=best_wire;
@@ -832,7 +554,6 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 				}
 				
 			    }
-			    if(pinta) Nmd->Fill(matched_digis);    
 			    if(matched_digis>=2 and best_layer!=-1 and next_layer!=-1){
 				int new_quality=7;
 				if(SL1metaPrimitive->quality<=2) new_quality=5;
@@ -907,7 +628,6 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 				    int x_wire = shiftinfo[wireId.rawId()]+((*digiIt).time()-SL3metaPrimitive->t0)*0.00543; 
 				    int x_wire_left = shiftinfo[wireId.rawId()]-((*digiIt).time()-SL3metaPrimitive->t0)*0.00543; 
 				    if(fabs(x_inSL1-x_wire)>fabs(x_inSL1-x_wire_left)) x_wire=x_wire_left; //choose the closest laterality
-				    if(pinta) Nsegosl31->Fill(x_inSL1-x_wire);
 				    if(fabs(x_inSL1-x_wire)<minx){
 					minx=fabs(x_inSL1-x_wire);
 					next_wire=best_wire;
@@ -922,7 +642,6 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 				}
 				    
 			    }
-			    if(pinta) Nmd31->Fill(matched_digis);    
 			    if(matched_digis>=2 and best_layer!=-1 and next_layer!=-1){
 				int new_quality=7;
 				if(SL3metaPrimitive->quality<=2) new_quality=5;
@@ -1002,7 +721,6 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 		}
 	    }
 	}
-	if(pinta) NcorrelatedMetaPrimitives->Fill(correlatedMetaPrimitives.size());
 
 	filteredMetaPrimitives.clear();
 	filteredMetaPrimitives.erase(filteredMetaPrimitives.begin(),filteredMetaPrimitives.end());
@@ -1039,24 +757,6 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 				      0
 				      );
 	    
-	    if(pinta){
-		all_observed_tanPsi[chId.wheel()+2][chId.station()-1][chId.sector()-1][(*metaPrimitiveIt).quality-1]->Fill((*metaPrimitiveIt).tanPhi);
-		all_observed_x[chId.wheel()+2][chId.station()-1][chId.sector()-1][(*metaPrimitiveIt).quality-1]->Fill((*metaPrimitiveIt).x);
-		all_observed_t0[chId.wheel()+2][chId.station()-1][chId.sector()-1][(*metaPrimitiveIt).quality-1]->Fill((*metaPrimitiveIt).t0);
- 		chi2[chId.wheel()+2][chId.station()-1][chId.sector()-1][(*metaPrimitiveIt).quality-1]->Fill((*metaPrimitiveIt).chi2);
- 		TPphi[chId.wheel()+2][chId.station()-1][chId.sector()-1][(*metaPrimitiveIt).quality-1]->Fill((*metaPrimitiveIt).phi);
- 		TPphiB[chId.wheel()+2][chId.station()-1][chId.sector()-1][(*metaPrimitiveIt).quality-1]->Fill((*metaPrimitiveIt).phiB);
-		
-		double x_back = trigPos((*metaPrimitiveIt));
-		double psi_back = trigDir((*metaPrimitiveIt));
-		
-		MP_x_back[chId.wheel()+2][chId.station()-1][chId.sector()-1][(*metaPrimitiveIt).quality-1]->Fill((*metaPrimitiveIt).x,x_back);
- 		MP_psi_back[chId.wheel()+2][chId.station()-1][chId.sector()-1][(*metaPrimitiveIt).quality-1]->Fill( TMath::ATan((*metaPrimitiveIt).tanPhi) ,psi_back);
-
-		if(debug)std::cout<<"back:(x,x_back)= "<<(*metaPrimitiveIt).x<<","<<x_back<<std::endl;
-		if(debug)std::cout<<"back:(psi,psi_back)= "<<TMath::ATan((*metaPrimitiveIt).tanPhi)<<","<<psi_back<<std::endl;
-	    }
-
 	    
 	    if(p2_df==0){
 		outPhiCH.push_back(thisTP);
@@ -1095,7 +795,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 		
 	    }
 	}
-
+	
 	if(p2_df==0){ 
 	    std::unique_ptr<L1MuDTChambPhContainer> resultPhiCH (new L1MuDTChambPhContainer);
 	    resultPhiCH->setContainer(outPhiCH); iEvent.put(std::move(resultPhiCH));
@@ -1112,121 +812,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 	    outP2PhCH.clear();
 	    outP2PhCH.erase(outP2PhCH.begin(),outP2PhCH.end());
 	}
-
-	if(pinta){
-
-	    //ploting all qualities before correlation
-	    for (auto metaPrimitiveIt = correlatedMetaPrimitives.begin(); metaPrimitiveIt != correlatedMetaPrimitives.end(); ++metaPrimitiveIt){
-		Nquality->Fill(metaPrimitiveIt->quality);
-	    }
-
-	    DTRecSegment4DCollection::const_iterator segment;
-
-	    if(pinta) Nsegments->Fill(all4DSegments->size());
-	    
-	    //if(debug) std::cout<<"min_phinhits_match_segment="<<min_phinhits_match_segment<<std::endl;
-	    for (segment = all4DSegments->begin();segment!=all4DSegments->end(); ++segment){
-		if(!segment->hasPhi()) continue;
-		if(int(segment->phiSegment()->recHits().size())<min_phinhits_match_segment) continue;
-		DTChamberId chId(segment->chamberId());
-		
-	  
-		//filter CH correlated MP
-		std::vector<metaPrimitive> CHmetaPrimitives;
-		for(auto metaprimitiveIt = correlatedMetaPrimitives.begin();metaprimitiveIt!=correlatedMetaPrimitives.end();++metaprimitiveIt)
-		    if(metaprimitiveIt->rawId==chId.rawId())
-			CHmetaPrimitives.push_back(*metaprimitiveIt);
-	  
-		if(debug) std::cout<<"plots: In Chamber "<<chId<<" we have a phi segment and "<<CHmetaPrimitives.size()<<" correlatedMetaPrimitives"<<std::endl;
-		if(CHmetaPrimitives.size()==0)continue;
 	
-		//T0
-		double segment_t0=segment->phiSegment()->t0();
-		double segment_t0Phase2=segment_t0+bx25;
-	  
-		//tanPhi
-		LocalVector segmentDirection=segment->localDirection();
-		double dx=segmentDirection.x();          
-		double dz=segmentDirection.z();          
-		double segment_tanPhi=dx/dz;          
-		//cassert(TMath::ATan(segment_tanPhi)==TMath::ACos(dx));
-
-		//x
-		LocalPoint segmentPosition= segment->localPosition();
-		//if(debug) std::cout<<"building wireId inside sl loop wire="<<1<<std::endl;
-		//DTWireId wireId(wh,st,se,sl,2,1);//sl,la,wi          
-		double segment_x=segmentPosition.x();          
-		
-		int i=-1;
-		double minT=9999;
-	      
-		for(auto metaprimitiveIt = CHmetaPrimitives.begin();metaprimitiveIt!=CHmetaPrimitives.end();++metaprimitiveIt){
-		    double deltaT0=metaprimitiveIt->t0-segment_t0Phase2;
-		    if(fabs(deltaT0)<minT){
-			i=std::distance(CHmetaPrimitives.begin(),metaprimitiveIt);
-			minT=fabs(deltaT0);
-		    }
-		}
-
-		int iwh=chId.wheel()+2;
-		int ist=chId.station()-1;
-		int ise=chId.sector()-1;
-		int iqu=CHmetaPrimitives[i].quality-1;
-	      
-		expected_tanPsi[iwh][ist][ise]->Fill(segment_tanPhi);
-		expected_x[iwh][ist][ise]->Fill(segment_x);
-		expected_t0[iwh][ist][ise]->Fill(segment_t0Phase2);
-		
-		double z1=11.75;
-		double z3=-1.*z1;
-		//if (chId.station == 3 or chId.station == 4){
-		//z1=9.95;
-		//z3=-13.55;
-		//}
-
-		if (chId.station()==3 or chId.station()==4) segment_x = segment_x-segment_tanPhi*1.8; //extrapolating segment position from chamber reference frame to chamber middle SL plane in MB3&MB4
-		
-		if(!(CHmetaPrimitives[i].quality == 9 or CHmetaPrimitives[i].quality == 8 or CHmetaPrimitives[i].quality == 6)){
-		    if(inner(CHmetaPrimitives[i])) segment_x = segment_x+segment_tanPhi*z1;
-		    if(outer(CHmetaPrimitives[i])) segment_x = segment_x+segment_tanPhi*z3;
-		}
-		
-		if(minT<min_dT0_match_segment){//the closest segment should be within min_dT0_match_segment 
-		    observed_tanPsi[iwh][ist][ise][iqu]->Fill(segment_tanPhi);
-		    observed_x[iwh][ist][ise][iqu]->Fill(segment_x);
-		    observed_t0[iwh][ist][ise][iqu]->Fill(segment_t0Phase2);
-		    
-		    if(debug) std::cout<<"seg mpm "<<chId<<" -> "
-				       <<segment_x<<" "<<CHmetaPrimitives[i].x<<" "	  
-				       <<segment_tanPhi<<" "<<CHmetaPrimitives[i].tanPhi<<" "	    
-				       <<segment_t0Phase2<<" "<<CHmetaPrimitives[i].t0<<" "<<std::endl;	  
-		    
-		    //correlation and matched plots
-		    segment_vs_jm_x[iwh][ist][ise][iqu]->Fill(segment_x,CHmetaPrimitives[i].x);	  
-		    segment_vs_jm_tanPhi[iwh][ist][ise][iqu]->Fill(segment_tanPhi,CHmetaPrimitives[i].tanPhi);
-		    segment_vs_jm_T0[iwh][ist][ise][iqu]->Fill(segment_t0Phase2,CHmetaPrimitives[i].t0);
-		    
-		    segment_vs_jm_x_gauss[iwh][ist][ise][iqu]->Fill(segment_x-CHmetaPrimitives[i].x);
-		    segment_vs_jm_tanPhi_gauss[iwh][ist][ise][iqu]->Fill(segment_tanPhi-CHmetaPrimitives[i].tanPhi);
-		    segment_vs_jm_T0_gauss[iwh][ist][ise][iqu]->Fill(segment_t0Phase2-CHmetaPrimitives[i].t0);
-		    segment_vs_jm_T0_gauss_all[iwh][ist][ise][iqu]->Fill(segment_t0Phase2-CHmetaPrimitives[i].t0);
-
-		    Nquality_matched->Fill(CHmetaPrimitives[i].quality);
-		    Nhits_segment_tp->Fill(segment->phiSegment()->recHits().size(),CHmetaPrimitives[i].quality);
-		}else{
-		    //segment could not be matched
-		    if(debug) std::cout<<segment_x<<" "<<segment_tanPhi<<" "<<segment_t0Phase2<<" "<<std::endl;
-		    segment_vs_jm_T0_gauss_all[iwh][ist][ise][iqu]->Fill(segment_t0Phase2-CHmetaPrimitives[i].t0);
-		    Nhits_segment_tp->Fill(segment->phiSegment()->recHits().size(),0);
-		    if(segment->phiSegment()->recHits().size()==4)
-			if(debug)std::cout<<chId<<" ineficient event with 4 hits segments in event"<<iEvent.id().event()<<endl;
-
-		}
-	    }
-	    
-	    correlatedMetaPrimitives.clear();
-	    correlatedMetaPrimitives.erase(correlatedMetaPrimitives.begin(),correlatedMetaPrimitives.end());
-	}
     }
 }
 
@@ -1264,13 +850,7 @@ void DTTrigPhase2Prod::setInChannels(DTDigiCollection *digis, int sl){
 	    int layer = dtLId.layer()-1;
 	    int wire = (*digiIt).wire()-1;
 	    int digiTIME = (*digiIt).time();
-	    //if(txt_ttrig_bc0) digiTIME = digiTIME -ttriginfo[thisWireId.rawId()];
 	    int digiTIMEPhase2 =  digiTIME;
-	    //if(txt_ttrig_bc0) digiTIMEPhase2 = digiTIMEPhase2 + bx25;//correction done in previous step to be updated!
-
-      
-	    // if (debug) cout << "DTp2::setInChannels --> reading digis in L"<<layer << " Ch" << wire << endl;
-      
 	    DTPrimitive dtpAux = DTPrimitive();
 	    dtpAux.setTDCTime(digiTIMEPhase2); 
 	    dtpAux.setChannelId(wire);	    // NOT SURE IF THE WANT TO INCREASE THIS VALUE BY ONE OR NOT

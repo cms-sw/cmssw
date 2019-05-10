@@ -16,13 +16,11 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                ttrig_filename = cms.untracked.string('data/wire_rawId_ttrig.txt'),
                                                z_filename = cms.untracked.string('data/wire_rawId_z.txt'),
                                                shift_filename = cms.untracked.string('data/wire_rawId_x.txt'),
-                                               #debugging
-                                               debug = cms.untracked.bool(False),
-                                               pinta = cms.untracked.bool(False),
-                                               dt4DSegments = cms.InputTag('dt4DSegments'),
                                                grouping_code = cms.untracked.int32(0),       # 0 = initial grouping, 1 = Hough transform
                                                min_phinhits_match_segment = cms.untracked.int32(8),
                                                min_dT0_match_segment = cms.untracked.double(12.5),
+                                               #debugging
+                                               debug = cms.untracked.bool(False),
                                                #RPC
                                                rpcRecHits = cms.untracked.InputTag("rpcRecHits")
                                                )
