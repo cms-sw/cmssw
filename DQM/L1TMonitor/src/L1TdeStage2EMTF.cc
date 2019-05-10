@@ -2,7 +2,6 @@
 
 #include "DQM/L1TMonitor/interface/L1TdeStage2EMTF.h"
 
-
 L1TdeStage2EMTF::L1TdeStage2EMTF(const edm::ParameterSet& ps)
     : dataToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("dataSource"))),
       emulToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emulSource"))),
@@ -13,12 +12,11 @@ L1TdeStage2EMTF::~L1TdeStage2EMTF() {}
 
 void L1TdeStage2EMTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
-
 void L1TdeStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
-
   ibooker.setCurrentFolder(monitorDir);
 
-  emtfComparenMuonsEvent = ibooker.book2D("emtfComparenMuonsEvent", "Number of EMTF Muon Cands per Event", 12, 0, 12, 12, 0, 12);
+  emtfComparenMuonsEvent =
+      ibooker.book2D("emtfComparenMuonsEvent", "Number of EMTF Muon Cands per Event", 12, 0, 12, 12, 0, 12);
   for (int axis = 1; axis <= 2; ++axis) {
     std::string axisTitle = (axis == 1) ? "Data" : "Emulator";
     emtfComparenMuonsEvent->setAxisTitle(axisTitle, axis);
@@ -92,8 +90,8 @@ void L1TdeStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&
 }
 
 void L1TdeStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
-
-  if (verbose) edm::LogInfo("L1TdeStage2EMTF") << "L1TdeStage2EMTF: analyze..." << std::endl;
+  if (verbose)
+    edm::LogInfo("L1TdeStage2EMTF") << "L1TdeStage2EMTF: analyze..." << std::endl;
 
   edm::Handle<l1t::RegionalMuonCandBxCollection> dataMuons;
   e.getByToken(dataToken, dataMuons);
@@ -104,7 +102,9 @@ void L1TdeStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   emtfComparenMuonsEvent->Fill(dataMuons->size(), emulMuons->size());
 
   for (int itBX = dataMuons->getFirstBX(); itBX <= dataMuons->getLastBX(); ++itBX) {
-    for (l1t::RegionalMuonCandBxCollection::const_iterator dataMuon = dataMuons->begin(itBX); dataMuon != dataMuons->end(itBX); ++dataMuon) {
+    for (l1t::RegionalMuonCandBxCollection::const_iterator dataMuon = dataMuons->begin(itBX);
+         dataMuon != dataMuons->end(itBX);
+         ++dataMuon) {
       emtfDataBX->Fill(itBX);
       emtfDatahwPt->Fill(dataMuon->hwPt());
       emtfDatahwEta->Fill(dataMuon->hwEta());
@@ -114,7 +114,9 @@ void L1TdeStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 
   for (int itBX = emulMuons->getFirstBX(); itBX <= emulMuons->getLastBX(); ++itBX) {
-    for (l1t::RegionalMuonCandBxCollection::const_iterator emulMuon = emulMuons->begin(itBX); emulMuon != emulMuons->end(itBX); ++emulMuon) {
+    for (l1t::RegionalMuonCandBxCollection::const_iterator emulMuon = emulMuons->begin(itBX);
+         emulMuon != emulMuons->end(itBX);
+         ++emulMuon) {
       emtfEmulBX->Fill(itBX);
       emtfEmulhwPt->Fill(emulMuon->hwPt());
       emtfEmulhwEta->Fill(emulMuon->hwEta());
@@ -123,4 +125,3 @@ void L1TdeStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 }
-

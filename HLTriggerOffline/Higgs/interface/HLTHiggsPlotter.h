@@ -40,58 +40,71 @@
 #include <map>
 #include <set>
 
-const unsigned int kNull = (unsigned int) -1;
+const unsigned int kNull = (unsigned int)-1;
 
 struct EVTColContainer;
 
-class HLTHiggsPlotter 
-{
-    public:
-        HLTHiggsPlotter(const edm::ParameterSet & pset, const std::string & hltPath,
-                        //const std::string & lastFilter,
-                        const std::vector<unsigned int> & objectsType,
-                        const unsigned int & minCandidates,
-                        const std::vector<double> & NminOneCuts);
-        ~HLTHiggsPlotter();
-        void beginJob();
-        void beginRun(const edm::Run &, const edm::EventSetup &);
-        void bookHistograms(DQMStore::IBooker &, const bool &);
-        void analyze(const bool & isPassTrigger,const std::string & source,
-        const std::vector<MatchStruct> & matches, const unsigned int & minCandidates);
-        void analyze(const bool & isPassTrigger, const std::string & source, const std::vector<MatchStruct> & matches, std::map<std::string,bool> & nMinOne,
-                     const float & dEtaqq, const float & mqq, const float & dPhibb, const float & CSV1, const float & CSV2, const float & CSV3, const bool & passAllCuts);
+class HLTHiggsPlotter {
+public:
+  HLTHiggsPlotter(const edm::ParameterSet &pset,
+                  const std::string &hltPath,
+                  //const std::string & lastFilter,
+                  const std::vector<unsigned int> &objectsType,
+                  const unsigned int &minCandidates,
+                  const std::vector<double> &NminOneCuts);
+  ~HLTHiggsPlotter();
+  void beginJob();
+  void beginRun(const edm::Run &, const edm::EventSetup &);
+  void bookHistograms(DQMStore::IBooker &, const bool &);
+  void analyze(const bool &isPassTrigger,
+               const std::string &source,
+               const std::vector<MatchStruct> &matches,
+               const unsigned int &minCandidates);
+  void analyze(const bool &isPassTrigger,
+               const std::string &source,
+               const std::vector<MatchStruct> &matches,
+               std::map<std::string, bool> &nMinOne,
+               const float &dEtaqq,
+               const float &mqq,
+               const float &dPhibb,
+               const float &CSV1,
+               const float &CSV2,
+               const float &CSV3,
+               const bool &passAllCuts);
 
-        inline const std::string gethltpath() const { return _hltPath; }
+  inline const std::string gethltpath() const { return _hltPath; }
 
-    private:
-        void bookHist(const std::string & source, const std::string & objType, const std::string & variable,  DQMStore::IBooker &);
-        void fillHist(const bool & passTrigger, const std::string & source, 
-                      const std::string & objType, const std::string & var,
-                      const float & value);
+private:
+  void bookHist(const std::string &source, const std::string &objType, const std::string &variable, DQMStore::IBooker &);
+  void fillHist(const bool &passTrigger,
+                const std::string &source,
+                const std::string &objType,
+                const std::string &var,
+                const float &value);
 
-        std::string _hltPath;
-        //std::string _lastFilter;
-        std::string _hltProcessName;
+  std::string _hltPath;
+  //std::string _lastFilter;
+  std::string _hltProcessName;
 
-        std::set<unsigned int> _objectsType;
-        // Number of objects (elec,muons, ...) needed in the hlt path
-        unsigned int _nObjects; 
+  std::set<unsigned int> _objectsType;
+  // Number of objects (elec,muons, ...) needed in the hlt path
+  unsigned int _nObjects;
 
-        std::vector<double> _parametersEta;
-        std::vector<double> _parametersPhi;
-        std::vector<double> _parametersTurnOn;
+  std::vector<double> _parametersEta;
+  std::vector<double> _parametersPhi;
+  std::vector<double> _parametersTurnOn;
 
-        std::map<unsigned int,double> _cutMinPt;
-        std::map<unsigned int,double> _cutMaxEta;
-        std::map<unsigned int,unsigned int> _cutMotherId;
-        std::map<unsigned int,std::vector<double> > _cutsDr;
+  std::map<unsigned int, double> _cutMinPt;
+  std::map<unsigned int, double> _cutMaxEta;
+  std::map<unsigned int, unsigned int> _cutMotherId;
+  std::map<unsigned int, std::vector<double> > _cutsDr;
 
-        // The amount of Pt plots needed for the hlt path
-        unsigned int _NptPlots;
+  // The amount of Pt plots needed for the hlt path
+  unsigned int _NptPlots;
 
-        //N-1 cut values
-        std::vector<double> _NminOneCuts;
+  //N-1 cut values
+  std::vector<double> _NminOneCuts;
 
-        std::map<std::string, MonitorElement *> _elements;
+  std::map<std::string, MonitorElement *> _elements;
 };
 #endif
