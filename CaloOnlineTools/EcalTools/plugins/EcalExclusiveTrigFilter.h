@@ -2,7 +2,7 @@
 //
 // Package:    EcalExclusiveTrigFilter
 // Class:      EcalExclusiveTrigFilter
-// 
+//
 /**\class EcalExclusiveTrigFilter EcalExclusiveTrigFilter.cc CaloOnlineTools/EcalExclusiveTrigFilter/src/EcalExclusiveTrigFilter.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Thu May 22 11:40:12 CEST 2008
 //
 //
-
 
 // system include files
 #include <memory>
@@ -36,15 +35,15 @@
 //
 
 class EcalExclusiveTrigFilter : public edm::EDFilter {
-   public:
-      explicit EcalExclusiveTrigFilter(const edm::ParameterSet&);
-      ~EcalExclusiveTrigFilter() override;
+public:
+  explicit EcalExclusiveTrigFilter(const edm::ParameterSet&);
+  ~EcalExclusiveTrigFilter() override;
 
-   private:
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      
-      // ----------member data ---------------------------
-        edm::InputTag l1GTReadoutRecTag_;        
-        std::vector<int> l1Accepts_;
-        std::vector<std::string> l1Names_;
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+
+  // ----------member data ---------------------------
+  edm::InputTag l1GTReadoutRecTag_;
+  std::vector<int> l1Accepts_;
+  std::vector<std::string> l1Names_;
 };
