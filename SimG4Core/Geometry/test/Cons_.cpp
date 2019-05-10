@@ -33,8 +33,7 @@ void testCons::matched_g4_and_dd(void) {
 
   G4Cons g4(name, rIn1, rOut1, rIn2, rOut2, zhalf, startPhi, deltaPhi);
   DDI::Cons dd(zhalf, rIn1, rOut1, rIn2, rOut2, startPhi, deltaPhi);
-  DDCons dds = DDSolidFactory::cons(name, zhalf, rIn1, rOut1, rIn2, rOut2,
-                                    startPhi, deltaPhi);
+  DDCons dds = DDSolidFactory::cons(name, zhalf, rIn1, rOut1, rIn2, rOut2, startPhi, deltaPhi);
   cout << endl;
   dd.stream(cout);
   cout << endl;

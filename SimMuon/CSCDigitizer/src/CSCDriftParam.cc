@@ -8,8 +8,7 @@
 double CSCDriftSim::avgDrift() const {
   /* Initialized data */
 
-  static const double coeff[6] = {-.08618265,   -.0020471805,  -7.7771331e-4,
-                                  -.0058433565, -5.0241491e-4, .0010223353};
+  static const double coeff[6] = {-.08618265, -.0020471805, -7.7771331e-4, -.0058433565, -5.0241491e-4, .0010223353};
 
   /* ! Parameterization of Lorentz drift in CSCs */
   /* ***********************************************************************
@@ -57,8 +56,8 @@ double CSCDriftSim::avgDrift() const {
   // if drifting up (neg zcell), and to the left if it drifts down.  It doesn't.
   // the first-order term here is -0.08 * bz/40 * zcell
 
-  return -1 * (coeff[0] * x11 * x21 + coeff[1] * x17 * x21 + coeff[2] * x21 +
-               coeff[3] * x11 * x27 + coeff[4] * x22 + coeff[5] * x19);
+  return -1 * (coeff[0] * x11 * x21 + coeff[1] * x17 * x21 + coeff[2] * x21 + coeff[3] * x11 * x27 + coeff[4] * x22 +
+               coeff[5] * x19);
 }
 
 double CSCDriftSim::driftSigma() const {

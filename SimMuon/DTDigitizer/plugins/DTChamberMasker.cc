@@ -60,7 +60,6 @@
 //
 
 class DTChamberMasker : public edm::stream::EDProducer<> {
-
 public:
   explicit DTChamberMasker(const edm::ParameterSet &);
   ~DTChamberMasker() override;
@@ -88,9 +87,7 @@ private:
 // constructors and destructor
 //
 DTChamberMasker::DTChamberMasker(const edm::ParameterSet &iConfig)
-    : m_digiToken(consumes<DTDigiCollection>(
-          iConfig.getParameter<edm::InputTag>("digiTag"))) {
-
+    : m_digiToken(consumes<DTDigiCollection>(iConfig.getParameter<edm::InputTag>("digiTag"))) {
   produces<DTDigiCollection>();
 }
 
@@ -101,9 +98,7 @@ DTChamberMasker::~DTChamberMasker() {}
 //
 
 // ------------ method called to produce the data  ------------
-void DTChamberMasker::produce(edm::Event &event,
-                              const edm::EventSetup &conditions) {
-
+void DTChamberMasker::produce(edm::Event &event, const edm::EventSetup &conditions) {
   edm::Service<edm::RandomNumberGenerator> randGenService;
   CLHEP::HepRandomEngine &randGen = randGenService->getEngine(event.streamID());
 
@@ -114,7 +109,6 @@ void DTChamberMasker::produce(edm::Event &event,
     event.getByToken(m_digiToken, dtDigis);
 
     for (const auto &dtLayerId : (*dtDigis)) {
-
       uint32_t rawId = (dtLayerId.first).chamberId().rawId();
       auto chEffIt = m_ChEffs.find(rawId);
 
@@ -127,9 +121,7 @@ void DTChamberMasker::produce(edm::Event &event,
 }
 
 // ------------ method called when starting to processes a run  ------------
-void DTChamberMasker::beginRun(edm::Run const &run,
-                               edm::EventSetup const &iSetup) {
-
+void DTChamberMasker::beginRun(edm::Run const &run, edm::EventSetup const &iSetup) {
   m_ChEffs.clear();
 
   edm::ESHandle<MuonSystemAging> agingObj;
@@ -140,9 +132,7 @@ void DTChamberMasker::beginRun(edm::Run const &run,
 
 // ------------ method fills 'descriptions' with the allowed parameters for the
 // module  ------------
-void DTChamberMasker::fillDescriptions(
-    edm::ConfigurationDescriptions &descriptions) {
-
+void DTChamberMasker::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("digiTag", edm::InputTag("simMuonDTDigis"));
   descriptions.add("dtChamberMasker", desc);

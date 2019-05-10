@@ -21,8 +21,7 @@
 
 class PreMixingHcalWorker : public PreMixingWorker {
 public:
-  PreMixingHcalWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer,
-                      edm::ConsumesCollector &&iC);
+  PreMixingHcalWorker(const edm::ParameterSet &ps, edm::ProducerBase &producer, edm::ConsumesCollector &&iC);
   ~PreMixingHcalWorker() override = default;
 
   PreMixingHcalWorker(const PreMixingHcalWorker &) = delete;
@@ -31,30 +30,25 @@ public:
   void beginRun(const edm::Run &run, const edm::EventSetup &ES) override;
   void initializeEvent(const edm::Event &e, const edm::EventSetup &ES) override;
   void addSignals(const edm::Event &e, const edm::EventSetup &ES) override;
-  void addPileups(const PileUpEventPrincipal &,
-                  const edm::EventSetup &ES) override;
-  void put(edm::Event &e, const edm::EventSetup &ES,
-           std::vector<PileupSummaryInfo> const &ps, int bs) override;
+  void addPileups(const PileUpEventPrincipal &, const edm::EventSetup &ES) override;
+  void put(edm::Event &e, const edm::EventSetup &ES, std::vector<PileupSummaryInfo> const &ps, int bs) override;
 
 private:
-  edm::InputTag HBHEPileInputTag_;   // InputTag for Pileup Digis collection
-  edm::InputTag HOPileInputTag_;     // InputTag for Pileup Digis collection
-  edm::InputTag HFPileInputTag_;     // InputTag for Pileup Digis collection
-  edm::InputTag ZDCPileInputTag_;    // InputTag for Pileup Digis collection
-  edm::InputTag QIE10PileInputTag_;  // InputTag for Pileup Digis collection
-  edm::InputTag QIE11PileInputTag_;  // InputTag for Pileup Digis collection
-  std::string HBHEDigiCollectionDM_; // secondary name to be given to collection
-                                     // of digis
-  std::string
-      HODigiCollectionDM_; // secondary name to be given to collection of digis
-  std::string
-      HFDigiCollectionDM_; // secondary name to be given to collection of digis
-  std::string
-      ZDCDigiCollectionDM_; // secondary name to be given to collection of digis
-  std::string QIE10DigiCollectionDM_; // secondary name to be given to
-                                      // collection of digis
-  std::string QIE11DigiCollectionDM_; // secondary name to be given to
-                                      // collection of digis
+  edm::InputTag HBHEPileInputTag_;     // InputTag for Pileup Digis collection
+  edm::InputTag HOPileInputTag_;       // InputTag for Pileup Digis collection
+  edm::InputTag HFPileInputTag_;       // InputTag for Pileup Digis collection
+  edm::InputTag ZDCPileInputTag_;      // InputTag for Pileup Digis collection
+  edm::InputTag QIE10PileInputTag_;    // InputTag for Pileup Digis collection
+  edm::InputTag QIE11PileInputTag_;    // InputTag for Pileup Digis collection
+  std::string HBHEDigiCollectionDM_;   // secondary name to be given to collection
+                                       // of digis
+  std::string HODigiCollectionDM_;     // secondary name to be given to collection of digis
+  std::string HFDigiCollectionDM_;     // secondary name to be given to collection of digis
+  std::string ZDCDigiCollectionDM_;    // secondary name to be given to collection of digis
+  std::string QIE10DigiCollectionDM_;  // secondary name to be given to
+                                       // collection of digis
+  std::string QIE11DigiCollectionDM_;  // secondary name to be given to
+                                       // collection of digis
 
   edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
@@ -83,24 +77,19 @@ PreMixingHcalWorker::PreMixingHcalWorker(const edm::ParameterSet &ps,
       QIE10PileInputTag_(ps.getParameter<edm::InputTag>("QIE10PileInputTag")),
       QIE11PileInputTag_(ps.getParameter<edm::InputTag>("QIE11PileInputTag")),
       myHcalDigitizer_(ps, iC) {
-  tok_hbhe_ =
-      iC.consumes<HBHEDigitizerTraits::DigiCollection>(HBHEPileInputTag_);
+  tok_hbhe_ = iC.consumes<HBHEDigitizerTraits::DigiCollection>(HBHEPileInputTag_);
   tok_ho_ = iC.consumes<HODigitizerTraits::DigiCollection>(HOPileInputTag_);
   tok_hf_ = iC.consumes<HFDigitizerTraits::DigiCollection>(HFPileInputTag_);
   tok_zdc_ = iC.consumes<ZDCDigitizerTraits::DigiCollection>(ZDCPileInputTag_);
-  tok_qie10_ =
-      iC.consumes<HcalQIE10DigitizerTraits::DigiCollection>(QIE10PileInputTag_);
-  tok_qie11_ =
-      iC.consumes<HcalQIE11DigitizerTraits::DigiCollection>(QIE11PileInputTag_);
+  tok_qie10_ = iC.consumes<HcalQIE10DigitizerTraits::DigiCollection>(QIE10PileInputTag_);
+  tok_qie11_ = iC.consumes<HcalQIE11DigitizerTraits::DigiCollection>(QIE11PileInputTag_);
 
   theHBHESignalGenerator = HBHESignalGenerator(HBHEPileInputTag_, tok_hbhe_);
   theHOSignalGenerator = HOSignalGenerator(HOPileInputTag_, tok_ho_);
   theHFSignalGenerator = HFSignalGenerator(HFPileInputTag_, tok_hf_);
   theZDCSignalGenerator = ZDCSignalGenerator(ZDCPileInputTag_, tok_zdc_);
-  theQIE10SignalGenerator =
-      QIE10SignalGenerator(QIE10PileInputTag_, tok_qie10_);
-  theQIE11SignalGenerator =
-      QIE11SignalGenerator(QIE11PileInputTag_, tok_qie11_);
+  theQIE10SignalGenerator = QIE10SignalGenerator(QIE10PileInputTag_, tok_qie10_);
+  theQIE11SignalGenerator = QIE11SignalGenerator(QIE11PileInputTag_, tok_qie11_);
 
   // Hcal
   // Signal inputs now handled by HcalDigitizer - gets pSimHits directly
@@ -109,10 +98,8 @@ PreMixingHcalWorker::PreMixingHcalWorker(const edm::ParameterSet &ps,
   HODigiCollectionDM_ = ps.getParameter<std::string>("HODigiCollectionDM");
   HFDigiCollectionDM_ = ps.getParameter<std::string>("HFDigiCollectionDM");
   ZDCDigiCollectionDM_ = ps.getParameter<std::string>("ZDCDigiCollectionDM");
-  QIE10DigiCollectionDM_ =
-      ps.getParameter<std::string>("QIE10DigiCollectionDM");
-  QIE11DigiCollectionDM_ =
-      ps.getParameter<std::string>("QIE11DigiCollectionDM");
+  QIE10DigiCollectionDM_ = ps.getParameter<std::string>("QIE10DigiCollectionDM");
+  QIE11DigiCollectionDM_ = ps.getParameter<std::string>("QIE11DigiCollectionDM");
 
   producer.produces<HBHEDigiCollection>();
   producer.produces<HODigiCollection>();
@@ -131,27 +118,22 @@ PreMixingHcalWorker::PreMixingHcalWorker(const edm::ParameterSet &ps,
   myHcalDigitizer_.setQIE11NoiseSignalGenerator(&theQIE11SignalGenerator);
 }
 
-void PreMixingHcalWorker::beginRun(const edm::Run &run,
-                                   const edm::EventSetup &ES) {
+void PreMixingHcalWorker::beginRun(const edm::Run &run, const edm::EventSetup &ES) {
   myHcalDigitizer_.beginRun(run, ES);
 }
 
-void PreMixingHcalWorker::initializeEvent(const edm::Event &e,
-                                          const edm::EventSetup &ES) {
+void PreMixingHcalWorker::initializeEvent(const edm::Event &e, const edm::EventSetup &ES) {
   myHcalDigitizer_.initializeEvent(e, ES);
 }
 
-void PreMixingHcalWorker::addSignals(const edm::Event &e,
-                                     const edm::EventSetup &ES) {
+void PreMixingHcalWorker::addSignals(const edm::Event &e, const edm::EventSetup &ES) {
   myHcalDigitizer_.accumulate(e, ES);
 }
 
-void PreMixingHcalWorker::addPileups(const PileUpEventPrincipal &pep,
-                                     const edm::EventSetup &ES) {
+void PreMixingHcalWorker::addPileups(const PileUpEventPrincipal &pep, const edm::EventSetup &ES) {
   const auto &ep = pep.principal();
-  LogDebug("PreMixingHcalWorker")
-      << "\n===============> adding pileups from event  " << ep.id()
-      << " for bunchcrossing " << pep.bunchCrossing();
+  LogDebug("PreMixingHcalWorker") << "\n===============> adding pileups from event  " << ep.id()
+                                  << " for bunchcrossing " << pep.bunchCrossing();
 
   theHBHESignalGenerator.initializeEvent(&ep, &ES);
   theHOSignalGenerator.initializeEvent(&ep, &ES);
@@ -170,7 +152,8 @@ void PreMixingHcalWorker::addPileups(const PileUpEventPrincipal &pep,
   theQIE11SignalGenerator.fill(mcc);
 }
 
-void PreMixingHcalWorker::put(edm::Event &e, const edm::EventSetup &ES,
+void PreMixingHcalWorker::put(edm::Event &e,
+                              const edm::EventSetup &ES,
                               std::vector<PileupSummaryInfo> const &ps,
                               int bs) {
   myHcalDigitizer_.finalizeEvent(e, ES);

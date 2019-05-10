@@ -38,11 +38,9 @@
 class TRandom3;
 
 class Hector {
-
 public:
   //  Hector(const edm::ParameterSet & ps);
-  Hector(const edm::ParameterSet &ps, bool verbosity, bool FP420Transport,
-         bool ZDCTransport);
+  Hector(const edm::ParameterSet &ps, bool verbosity, bool FP420Transport, bool ZDCTransport);
   //  Hector();
   virtual ~Hector();
 
@@ -72,9 +70,7 @@ public:
 
   HepMC::GenEvent *addPartToHepMC(HepMC::GenEvent *event);
 
-  std::vector<LHCTransportLink> &getCorrespondenceMap() {
-    return theCorrespondenceMap;
-  }
+  std::vector<LHCTransportLink> &getCorrespondenceMap() { return theCorrespondenceMap; }
 
   /*
       private:

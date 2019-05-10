@@ -15,10 +15,9 @@
 #include "SimMuon/DTDigitizer/interface/DTDigiSyncBase.h"
 
 namespace edm {
-class ParameterSet;
+  class ParameterSet;
 }
 
-typedef edmplugin::PluginFactory<DTDigiSyncBase *(const edm::ParameterSet &)>
-    DTDigiSyncFactory;
+typedef edmplugin::PluginFactory<DTDigiSyncBase *(const edm::ParameterSet &)> DTDigiSyncFactory;
 
 #endif

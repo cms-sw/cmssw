@@ -33,11 +33,9 @@ void testPolyhedra::matched_g4_and_dd(void) {
   vector<double> z(pl, pl + sizeof(pl) / sizeof(double));
   string name("fred1");
 
-  G4Polyhedra g4(name, phiStart, phiTotal, sides, z.size(), &z[0], &rInner[0],
-                 &rOuter[0]);
+  G4Polyhedra g4(name, phiStart, phiTotal, sides, z.size(), &z[0], &rInner[0], &rOuter[0]);
   DDI::Polyhedra dd(sides, phiStart, phiTotal, z, rInner, rOuter);
-  DDPolyhedra dds = DDSolidFactory::polyhedra(name, sides, phiStart, phiTotal,
-                                              z, rInner, rOuter);
+  DDPolyhedra dds = DDSolidFactory::polyhedra(name, sides, phiStart, phiTotal, z, rInner, rOuter);
   cout << endl;
   dd.stream(cout);
   cout << endl;

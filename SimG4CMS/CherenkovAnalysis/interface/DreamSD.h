@@ -8,15 +8,16 @@
 
 #include <map>
 
-const int MAXPHOTONS = 500; // Maximum number of photons we can store
+const int MAXPHOTONS = 500;  // Maximum number of photons we can store
 
 class G4LogicalVolume;
 
 class DreamSD : public CaloSD {
-
 public:
-  DreamSD(const std::string &, const DDCompactView &,
-          const SensitiveDetectorCatalog &, edm::ParameterSet const &,
+  DreamSD(const std::string &,
+          const DDCompactView &,
+          const SensitiveDetectorCatalog &,
+          edm::ParameterSet const &,
           const SimTrackManager *);
   ~DreamSD() override {}
 
@@ -38,19 +39,19 @@ private:
   /// Returns the total energy due to Cherenkov radiation
   double cherenkovDeposit_(const G4Step *aStep);
   /// Returns average number of photons created by track
-  double getAverageNumberOfPhotons_(const double charge, const double beta,
+  double getAverageNumberOfPhotons_(const double charge,
+                                    const double beta,
                                     const G4Material *aMaterial,
                                     const G4MaterialPropertyVector *rIndex);
   /// Returns energy deposit for a given photon
-  double getPhotonEnergyDeposit_(const G4ParticleMomentum &p,
-                                 const G4ThreeVector &x, const G4Step *aStep);
+  double getPhotonEnergyDeposit_(const G4ParticleMomentum &p, const G4ThreeVector &x, const G4Step *aStep);
   /// Sets material properties at run-time...
   bool setPbWO2MaterialProperties_(G4Material *aMaterial);
 
   bool useBirk, doCherenkov_, readBothSide_;
   double birk1, birk2, birk3;
   double slopeLY;
-  DimensionMap xtalLMap; // Store length and width
+  DimensionMap xtalLMap;  // Store length and width
 
   int side;
 
@@ -61,4 +62,4 @@ private:
   int nphotons_;
 };
 
-#endif // DreamSD_h
+#endif  // DreamSD_h

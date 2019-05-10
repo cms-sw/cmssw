@@ -18,7 +18,7 @@ class G4MagIntegratorStepper;
 class G4Region;
 
 namespace sim {
-class Field;
+  class Field;
 }
 
 class CMSFieldManager : public G4FieldManager {
@@ -29,10 +29,14 @@ public:
 
   void ConfigureForTrack(const G4Track *) override;
 
-  void InitialiseForVolume(const edm::ParameterSet &, sim::Field *,
-                           G4ChordFinder *cfDefault, G4ChordFinder *cfMonopole,
-                           const std::string &vol, const std::string &fieldType,
-                           const std::string &stepperName, double delta,
+  void InitialiseForVolume(const edm::ParameterSet &,
+                           sim::Field *,
+                           G4ChordFinder *cfDefault,
+                           G4ChordFinder *cfMonopole,
+                           const std::string &vol,
+                           const std::string &fieldType,
+                           const std::string &stepperName,
+                           double delta,
                            G4PropagatorInField *);
 
   void SetMonopoleTracking(G4bool);

@@ -10,17 +10,14 @@
 
 class ResolutionModel {
 public:
-  ResolutionModel(const edm::ParameterSet &conf)
-      : _modelName(conf.getParameter<std::string>("modelName")) {}
+  ResolutionModel(const edm::ParameterSet &conf) : _modelName(conf.getParameter<std::string>("modelName")) {}
   virtual ~ResolutionModel() {}
   // get rid of things we should never use...
   ResolutionModel(const ResolutionModel &) = delete;
   ResolutionModel &operator=(const ResolutionModel &) = delete;
 
   virtual float getTimeResolution(const reco::Track &) const { return -1.f; }
-  virtual float getTimeResolution(const reco::PFCluster &) const {
-    return -1.f;
-  }
+  virtual float getTimeResolution(const reco::PFCluster &) const { return -1.f; }
 
   const std::string &name() const { return _modelName; }
 
@@ -29,7 +26,6 @@ private:
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory<ResolutionModel *(const edm::ParameterSet &)>
-    ResolutionModelFactory;
+typedef edmplugin::PluginFactory<ResolutionModel *(const edm::ParameterSet &)> ResolutionModelFactory;
 
 #endif

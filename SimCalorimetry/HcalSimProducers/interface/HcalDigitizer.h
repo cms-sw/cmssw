@@ -36,27 +36,23 @@ class PileUpEventPrincipal;
 class HcalTopology;
 
 namespace edm {
-class ConsumesCollector;
+  class ConsumesCollector;
 }
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class HcalDigitizer {
 public:
-  explicit HcalDigitizer(const edm::ParameterSet &ps,
-                         edm::ConsumesCollector &iC);
+  explicit HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector &iC);
   virtual ~HcalDigitizer();
 
   /**Produces the EDM products,*/
   void initializeEvent(edm::Event const &e, edm::EventSetup const &c);
-  void accumulate(edm::Event const &e, edm::EventSetup const &c,
-                  CLHEP::HepRandomEngine *);
-  void accumulate(PileUpEventPrincipal const &e, edm::EventSetup const &c,
-                  CLHEP::HepRandomEngine *);
-  void finalizeEvent(edm::Event &e, edm::EventSetup const &c,
-                     CLHEP::HepRandomEngine *);
+  void accumulate(edm::Event const &e, edm::EventSetup const &c, CLHEP::HepRandomEngine *);
+  void accumulate(PileUpEventPrincipal const &e, edm::EventSetup const &c, CLHEP::HepRandomEngine *);
+  void finalizeEvent(edm::Event &e, edm::EventSetup const &c, CLHEP::HepRandomEngine *);
 
   void setHBHENoiseSignalGenerator(HcalBaseSignalGenerator *noiseGenerator);
   void setHFNoiseSignalGenerator(HcalBaseSignalGenerator *noiseGenerator);
@@ -69,7 +65,8 @@ private:
   void setup(const edm::EventSetup &es);
   void accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const &hcalHits,
                           edm::Handle<std::vector<PCaloHit>> const &zdcHits,
-                          int bunchCrossing, CLHEP::HepRandomEngine *,
+                          int bunchCrossing,
+                          CLHEP::HepRandomEngine *,
                           const HcalTopology *h);
 
   /// some hits in each subdetector, just for testing purposes
@@ -83,27 +80,20 @@ private:
   const HcalDDDRecConstants *theRecNumber;
   void updateGeometry(const edm::EventSetup &eventSetup);
 
-  void buildHOSiPMCells(const std::vector<DetId> &allCells,
-                        const edm::EventSetup &eventSetup);
-  void buildHFQIECells(const std::vector<DetId> &allCells,
-                       const edm::EventSetup &eventSetup);
-  void buildHBHEQIECells(const std::vector<DetId> &allCells,
-                         const edm::EventSetup &eventSetup);
+  void buildHOSiPMCells(const std::vector<DetId> &allCells, const edm::EventSetup &eventSetup);
+  void buildHFQIECells(const std::vector<DetId> &allCells, const edm::EventSetup &eventSetup);
+  void buildHBHEQIECells(const std::vector<DetId> &allCells, const edm::EventSetup &eventSetup);
 
   // function to evaluate aging at the digi level
   void darkening(std::vector<PCaloHit> &hcalHits);
 
   /** Reconstruction algorithm*/
-  typedef CaloTDigitizer<HBHEDigitizerTraits, CaloTDigitizerQIE8Run>
-      HBHEDigitizer;
+  typedef CaloTDigitizer<HBHEDigitizerTraits, CaloTDigitizerQIE8Run> HBHEDigitizer;
   typedef CaloTDigitizer<HODigitizerTraits, CaloTDigitizerQIE8Run> HODigitizer;
   typedef CaloTDigitizer<HFDigitizerTraits, CaloTDigitizerQIE8Run> HFDigitizer;
-  typedef CaloTDigitizer<ZDCDigitizerTraits, CaloTDigitizerQIE8Run>
-      ZDCDigitizer;
-  typedef CaloTDigitizer<HcalQIE10DigitizerTraits, CaloTDigitizerQIE1011Run>
-      QIE10Digitizer;
-  typedef CaloTDigitizer<HcalQIE11DigitizerTraits, CaloTDigitizerQIE1011Run>
-      QIE11Digitizer;
+  typedef CaloTDigitizer<ZDCDigitizerTraits, CaloTDigitizerQIE8Run> ZDCDigitizer;
+  typedef CaloTDigitizer<HcalQIE10DigitizerTraits, CaloTDigitizerQIE1011Run> QIE10Digitizer;
+  typedef CaloTDigitizer<HcalQIE11DigitizerTraits, CaloTDigitizerQIE1011Run> QIE11Digitizer;
 
   HcalSimParameterMap theParameterMap;
   HcalShapes theShapes;
