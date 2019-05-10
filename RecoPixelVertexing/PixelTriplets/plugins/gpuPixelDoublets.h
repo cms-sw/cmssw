@@ -95,7 +95,10 @@ namespace gpuPixelDoublets {
                                                                     CellTracksVector* cellTracks,
                                                                     TrackingRecHit2DSOAView const* __restrict__ hhp,
                                                                     GPUCACell::OuterHitOfCell* isOuterHitOfCell,
-                                                                    bool ideal_cond) {
+                                                                    bool ideal_cond,
+                                                                    bool doClusterCut,
+                                                                    bool doZCut,
+                                                                    bool doPhiCut) {
     auto const& __restrict__ hh = *hhp;
     doubletsFromHisto(layerPairs,
                       nPairs,
@@ -109,7 +112,10 @@ namespace gpuPixelDoublets {
                       minz,
                       maxz,
                       maxr,
-                      ideal_cond);
+                      ideal_cond,
+                      doClusterCut,
+                      doZCut,
+                      doPhiCut);
   }
 
 }  // namespace gpuPixelDoublets

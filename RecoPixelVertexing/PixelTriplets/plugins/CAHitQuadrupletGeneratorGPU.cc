@@ -35,6 +35,9 @@ CAHitQuadrupletGeneratorGPU::CAHitQuadrupletGeneratorGPU(const edm::ParameterSet
               cfg.getParameter<bool>("lateFishbone"),
               cfg.getParameter<bool>("idealConditions"),
               cfg.getParameter<bool>("fillStatistics"),
+              cfg.getParameter<bool>("doClusterCut"),
+              cfg.getParameter<bool>("doZCut"),
+              cfg.getParameter<bool>("doPhiCut"),
               cfg.getParameter<double>("ptmin"),
               cfg.getParameter<double>("CAThetaCutBarrel"),
               cfg.getParameter<double>("CAThetaCutForward"),
@@ -64,6 +67,9 @@ void CAHitQuadrupletGeneratorGPU::fillDescriptions(edm::ParameterSetDescription 
   desc.add<bool>("idealConditions", true), desc.add<bool>("fillStatistics", false),
       desc.add<unsigned int>("minHitsPerNtuplet", 4);
   desc.add<bool>("fit5as4", true);
+  desc.add<bool>("doClusterCut", true);
+  desc.add<bool>("doZCut", true);
+  desc.add<bool>("doPhiCut", true);
 }
 
 void CAHitQuadrupletGeneratorGPU::initEvent(edm::Event const &ev, edm::EventSetup const &es) {

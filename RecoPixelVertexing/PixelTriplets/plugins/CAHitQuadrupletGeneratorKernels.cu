@@ -582,7 +582,10 @@ void CAHitQuadrupletGeneratorKernels::buildDoublets(HitsOnCPU const &hh, cuda::s
                                                                          device_theCellTracks_,
                                                                          hh.view(),
                                                                          device_isOuterHitOfCell_.get(),
-                                                                         idealConditions_);
+                                                                         idealConditions_,
+                                                                         doClusterCut_,
+                                                                         doZCut_,
+                                                                         doPhiCut_);
   cudaCheck(cudaGetLastError());
 }
 
