@@ -1,7 +1,6 @@
 #ifndef MuonRecoTest_H
 #define MuonRecoTest_H
 
-
 /** \class MuonRecoTest
  * *
  *  DQMOffline Test Client
@@ -31,25 +30,19 @@
 #include <vector>
 #include <map>
 
-
-
-class MuonRecoTest: public DQMEDHarvester{
-
+class MuonRecoTest : public DQMEDHarvester {
 public:
-
   /// Constructor
   MuonRecoTest(const edm::ParameterSet& ps);
-  
+
   /// Destructor
-  ~MuonRecoTest() override {};
+  ~MuonRecoTest() override{};
 
 protected:
-
   /// Endjob
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;  //performed in the endJob
 
 private:
-
   // counters
   int nevents;
   unsigned int nLumiSegs;
@@ -59,7 +52,7 @@ private:
   std::string metname;
   edm::ParameterSet parameters;
 
-   //histo binning parameters
+  //histo binning parameters
   std::string EfficiencyCriterionName;
   int etaBin;
   double etaMin;
@@ -74,7 +67,6 @@ private:
   MonitorElement* phiEfficiency;
   // aligment plot
   std::vector<MonitorElement*> globalRotation;
-
 };
 
 #endif

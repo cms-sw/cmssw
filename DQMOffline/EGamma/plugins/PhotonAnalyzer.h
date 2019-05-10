@@ -86,7 +86,6 @@
  **     
  ***/
 
-
 // forward declarations
 class TFile;
 class TH1F;
@@ -96,44 +95,59 @@ class TTree;
 class SimVertex;
 class SimTrack;
 
-
-class PhotonAnalyzer : public DQMEDAnalyzer
-{
- public:
-  explicit PhotonAnalyzer( const edm::ParameterSet& );
+class PhotonAnalyzer : public DQMEDAnalyzer {
+public:
+  explicit PhotonAnalyzer(const edm::ParameterSet&);
   ~PhotonAnalyzer() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;      
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
- 
- private:
-  void bookHistogramsForHistogramCounts(DQMStore::IBooker &);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  void bookHistogramsEfficiency(DQMStore::IBooker &);
-  void bookHistogramsInvMass(DQMStore::IBooker &);
-  void bookHistogramsPhotons(DQMStore::IBooker &);  
-  void bookHistogramsConversions(DQMStore::IBooker &);
+private:
+  void bookHistogramsForHistogramCounts(DQMStore::IBooker&);
 
-  void fillHistogramsForHistogramCounts(DQMStore::IBooker &);
-  
-  MonitorElement* bookHisto(DQMStore::IBooker &,
-                            std::string histoName, std::string title,
-                            int bin, double min, double max);
-  void book2DHistoVector(DQMStore::IBooker &,
-                         std::vector<std::vector<MonitorElement*> > & toFill,
-                         std::string histoType, std::string histoName, std::string title,			 
-                         int xbin, double xmin, double xmax,
-                         int ybin=1,double ymin=1, double ymax=2);
-  void book3DHistoVector(DQMStore::IBooker &,
-                         std::vector<std::vector<std::vector<MonitorElement*> > > & toFill,
-                         std::string histoType, std::string histoName, std::string title, 
-                         int xbin, double xmin, double xmax,
-                         int ybin=1,double ymin=1, double ymax=2);
+  void bookHistogramsEfficiency(DQMStore::IBooker&);
+  void bookHistogramsInvMass(DQMStore::IBooker&);
+  void bookHistogramsPhotons(DQMStore::IBooker&);
+  void bookHistogramsConversions(DQMStore::IBooker&);
 
-  void fill2DHistoVector(std::vector<std::vector<MonitorElement*> >& histoVector,double x, int cut, int type);
-  void fill2DHistoVector(std::vector<std::vector<MonitorElement*> >& histoVector,double x, double y, int cut, int type);
+  void fillHistogramsForHistogramCounts(DQMStore::IBooker&);
 
-  void fill3DHistoVector(std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector,double x, int cut, int type, int part);
-  void fill3DHistoVector(std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector,double x, double y, int cut, int type, int part);
+  MonitorElement* bookHisto(
+      DQMStore::IBooker&, std::string histoName, std::string title, int bin, double min, double max);
+  void book2DHistoVector(DQMStore::IBooker&,
+                         std::vector<std::vector<MonitorElement*> >& toFill,
+                         std::string histoType,
+                         std::string histoName,
+                         std::string title,
+                         int xbin,
+                         double xmin,
+                         double xmax,
+                         int ybin = 1,
+                         double ymin = 1,
+                         double ymax = 2);
+  void book3DHistoVector(DQMStore::IBooker&,
+                         std::vector<std::vector<std::vector<MonitorElement*> > >& toFill,
+                         std::string histoType,
+                         std::string histoName,
+                         std::string title,
+                         int xbin,
+                         double xmin,
+                         double xmax,
+                         int ybin = 1,
+                         double ymin = 1,
+                         double ymax = 2);
+
+  void fill2DHistoVector(std::vector<std::vector<MonitorElement*> >& histoVector, double x, int cut, int type);
+  void fill2DHistoVector(std::vector<std::vector<MonitorElement*> >& histoVector, double x, double y, int cut, int type);
+
+  void fill3DHistoVector(
+      std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector, double x, int cut, int type, int part);
+  void fill3DHistoVector(std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector,
+                         double x,
+                         double y,
+                         int cut,
+                         int type,
+                         int part);
 
   bool photonSelection(const reco::Photon* p);
   bool photonSelectionSlimmed(const reco::Photon* p);
@@ -148,11 +162,11 @@ class PhotonAnalyzer : public DQMEDAnalyzer
   edm::EDGetTokenT<std::vector<reco::Photon> > photon_token_;
   edm::EDGetTokenT<edm::ValueMap<bool> > PhotonIDLoose_token_;
   edm::EDGetTokenT<edm::ValueMap<bool> > PhotonIDTight_token_;
-  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > barrelRecHit_token_;
-  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapRecHit_token_;
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> > > barrelRecHit_token_;
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> > > endcapRecHit_token_;
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_token_;
   edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
-  
+
   double minPhoEtCut_;
   double photonMaxEta_;
   double invMassEtCut_;
@@ -163,14 +177,14 @@ class PhotonAnalyzer : public DQMEDAnalyzer
   bool useBinning_;
   bool useTriggerFiltering_;
   bool standAlone_;
-  
+
   bool minimalSetOfHistos_;
   bool excludeBkgHistos_;
 
-  int isolationStrength_; 
+  int isolationStrength_;
 
   bool isHeavyIon_;
-           
+
   ////////
 
   std::stringstream currentFolder_;
@@ -186,73 +200,73 @@ class PhotonAnalyzer : public DQMEDAnalyzer
   std::vector<std::string> parts_;
 
   //////////
-  
+
   // Histogram parameters
-  int    etaBin_;
+  int etaBin_;
   double etaMin_;
   double etaMax_;
-  
-  int    etBin_;
+
+  int etBin_;
   double etMin_;
   double etMax_;
 
-  int    phiBin_;
+  int phiBin_;
   double phiMin_;
   double phiMax_;
 
-  int    eBin_;
+  int eBin_;
   double eMin_;
   double eMax_;
 
-  int    numberBin_;
+  int numberBin_;
   double numberMin_;
   double numberMax_;
 
-  int    r9Bin_;
+  int r9Bin_;
   double r9Min_;
   double r9Max_;
 
-  int    sigmaIetaBin_;
+  int sigmaIetaBin_;
   double sigmaIetaMin_;
   double sigmaIetaMax_;
 
-  int    sumBin_;
+  int sumBin_;
   double sumMin_;
   double sumMax_;
-  
-  int    hOverEBin_;
+
+  int hOverEBin_;
   double hOverEMin_;
   double hOverEMax_;
 
-  int    eOverPBin_;
+  int eOverPBin_;
   double eOverPMin_;
   double eOverPMax_;
 
-  int    dPhiTracksBin_;
+  int dPhiTracksBin_;
   double dPhiTracksMin_;
   double dPhiTracksMax_;
-  
-  int    dEtaTracksBin_;
+
+  int dEtaTracksBin_;
   double dEtaTracksMin_;
   double dEtaTracksMax_;
 
-  int    chi2Bin_;
+  int chi2Bin_;
   double chi2Min_;
   double chi2Max_;
 
-  int    zBin_;
+  int zBin_;
   double zMin_;
   double zMax_;
 
-  int    rBin_;
+  int rBin_;
   double rMin_;
   double rMax_;
 
-  int    xBin_;
+  int xBin_;
   double xMin_;
   double xMax_;
 
-  int    yBin_;
+  int yBin_;
   double yMin_;
   double yMax_;
 

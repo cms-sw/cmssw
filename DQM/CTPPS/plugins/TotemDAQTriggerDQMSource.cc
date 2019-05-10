@@ -23,25 +23,24 @@
 #include <string>
 
 //----------------------------------------------------------------------------------------------------
- 
-class TotemDAQTriggerDQMSource: public DQMEDAnalyzer
-{
-  public:
-    TotemDAQTriggerDQMSource(const edm::ParameterSet& ps);
-    ~TotemDAQTriggerDQMSource() override;
-  
-  protected:
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
-  private:
-    unsigned int verbosity;
+class TotemDAQTriggerDQMSource : public DQMEDAnalyzer {
+public:
+  TotemDAQTriggerDQMSource(const edm::ParameterSet &ps);
+  ~TotemDAQTriggerDQMSource() override;
 
-    edm::EDGetTokenT<std::vector<TotemFEDInfo>> tokenFEDInfo;
-    
-    MonitorElement *daq_bx_diff;
-    MonitorElement *daq_event_bx_diff;
-    MonitorElement *daq_event_bx_diff_vs_fed;
+protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
+
+private:
+  unsigned int verbosity;
+
+  edm::EDGetTokenT<std::vector<TotemFEDInfo>> tokenFEDInfo;
+
+  MonitorElement *daq_bx_diff;
+  MonitorElement *daq_event_bx_diff;
+  MonitorElement *daq_event_bx_diff_vs_fed;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -52,35 +51,31 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-TotemDAQTriggerDQMSource::TotemDAQTriggerDQMSource(const edm::ParameterSet& ps) :
-  verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0))
-{
+TotemDAQTriggerDQMSource::TotemDAQTriggerDQMSource(const edm::ParameterSet &ps)
+    : verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)) {
   tokenFEDInfo = consumes<vector<TotemFEDInfo>>(ps.getParameter<edm::InputTag>("tagFEDInfo"));
 }
 
 //----------------------------------------------------------------------------------------------------
 
-TotemDAQTriggerDQMSource::~TotemDAQTriggerDQMSource()
-{
-}
+TotemDAQTriggerDQMSource::~TotemDAQTriggerDQMSource() {}
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemDAQTriggerDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &)
-{
+void TotemDAQTriggerDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {
   ibooker.cd();
-  
+
   ibooker.setCurrentFolder("CTPPS/DAQ/");
 
   daq_bx_diff = ibooker.book1D("bx_diff", ";OptoRx_{i}.BX - OptoRx_{j}.BX", 21, -10.5, +10.5);
   daq_event_bx_diff = ibooker.book1D("daq_event_bx_diff", ";OptoRx_{i}.BX - Event.BX", 21, -10.5, +10.5);
-  daq_event_bx_diff_vs_fed = ibooker.book2D("daq_event_bx_diff_vs_fed", ";OptoRx.ID;OptoRx.BX - Event.BX", 10, 575.5, 585.5, 21, -10.5, +10.5);
+  daq_event_bx_diff_vs_fed =
+      ibooker.book2D("daq_event_bx_diff_vs_fed", ";OptoRx.ID;OptoRx.BX - Event.BX", 10, 575.5, 585.5, 21, -10.5, +10.5);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemDAQTriggerDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
-{
+void TotemDAQTriggerDQMSource::analyze(edm::Event const &event, edm::EventSetup const &eventSetup) {
   // get input
   Handle<vector<TotemFEDInfo>> fedInfo;
   event.getByToken(tokenFEDInfo, fedInfo);
@@ -88,29 +83,24 @@ void TotemDAQTriggerDQMSource::analyze(edm::Event const& event, edm::EventSetup 
   // check validity
   bool daqValid = fedInfo.isValid();
 
-  if (!daqValid)
-  {
-    if (verbosity)
-    {
-      LogPrint("TotemDAQTriggerDQMSource") <<
-        "WARNING in TotemDAQTriggerDQMSource::analyze > some of the inputs are not valid.\n"
-        << "    fedInfo.isValid = " << fedInfo.isValid();
+  if (!daqValid) {
+    if (verbosity) {
+      LogPrint("TotemDAQTriggerDQMSource")
+          << "WARNING in TotemDAQTriggerDQMSource::analyze > some of the inputs are not valid.\n"
+          << "    fedInfo.isValid = " << fedInfo.isValid();
     }
   }
 
   // DAQ plots
-  if (daqValid)
-  {
-    for (auto &it1 : *fedInfo)
-    {
+  if (daqValid) {
+    for (auto &it1 : *fedInfo) {
       daq_event_bx_diff->Fill(it1.getBX() - event.bunchCrossing());
       daq_event_bx_diff_vs_fed->Fill(it1.getFEDId(), it1.getBX() - event.bunchCrossing());
-  
-      for (auto &it2 : *fedInfo)
-      {
+
+      for (auto &it2 : *fedInfo) {
         if (it2.getFEDId() <= it1.getFEDId())
           continue;
-  
+
         daq_bx_diff->Fill(it2.getBX() - it1.getBX());
       }
     }

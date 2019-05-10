@@ -26,96 +26,92 @@ class SiPixelRecHit;
 class TrackerTopology;
 
 class SiPixelRecHitsValid : public DQMEDAnalyzer {
+public:
+  //Constructor
+  SiPixelRecHitsValid(const edm::ParameterSet& conf);
 
-   public:
-	//Constructor
-	SiPixelRecHitsValid(const edm::ParameterSet& conf);
+  //Destructor
+  ~SiPixelRecHitsValid() override;
 
-	//Destructor
-	~SiPixelRecHitsValid() override;
+protected:
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void beginJob() override;
+  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) override;
 
-   protected:
+private:
+  void fillBarrel(const SiPixelRecHit&, const PSimHit&, DetId, const PixelGeomDetUnit*, const TrackerTopology* tTopo);
+  void fillForward(const SiPixelRecHit&, const PSimHit&, DetId, const PixelGeomDetUnit*, const TrackerTopology* tTopo);
 
-	void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-	void beginJob() override;
-	void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
+  //Clusters BPIX
+  MonitorElement* clustYSizeModule[8];
+  MonitorElement* clustXSizeLayer[3];
+  MonitorElement* clustChargeLayer1Modules[8];
+  MonitorElement* clustChargeLayer2Modules[8];
+  MonitorElement* clustChargeLayer3Modules[8];
 
-   private:
-	void fillBarrel(const SiPixelRecHit &,const PSimHit &, DetId, const PixelGeomDetUnit *,	
-			 const TrackerTopology *tTopo);
-	void fillForward(const SiPixelRecHit &, const PSimHit &, DetId, const PixelGeomDetUnit *,
-			 const TrackerTopology *tTopo);
+  //Cluster FPIX
+  MonitorElement* clustXSizeDisk1Plaquettes[7];
+  MonitorElement* clustXSizeDisk2Plaquettes[7];
+  MonitorElement* clustYSizeDisk1Plaquettes[7];
+  MonitorElement* clustYSizeDisk2Plaquettes[7];
+  MonitorElement* clustChargeDisk1Plaquettes[7];
+  MonitorElement* clustChargeDisk2Plaquettes[7];
 
-	//Clusters BPIX
-	MonitorElement* clustYSizeModule[8];
-	MonitorElement* clustXSizeLayer[3];
-	MonitorElement* clustChargeLayer1Modules[8];
-	MonitorElement* clustChargeLayer2Modules[8];
-	MonitorElement* clustChargeLayer3Modules[8];
+  //RecHits BPIX
+  MonitorElement* recHitXResAllB;
+  MonitorElement* recHitYResAllB;
+  MonitorElement* recHitXFullModules;
+  MonitorElement* recHitXHalfModules;
+  MonitorElement* recHitYAllModules;
+  MonitorElement* recHitXResFlippedLadderLayers[3];
+  MonitorElement* recHitXResNonFlippedLadderLayers[3];
+  MonitorElement* recHitYResLayer1Modules[8];
+  MonitorElement* recHitYResLayer2Modules[8];
+  MonitorElement* recHitYResLayer3Modules[8];
+  MonitorElement* recHitBunchB;
+  MonitorElement* recHitEventB;
+  MonitorElement* recHitNsimHitLayer[3];
 
-	//Cluster FPIX
-	MonitorElement* clustXSizeDisk1Plaquettes[7];
-	MonitorElement* clustXSizeDisk2Plaquettes[7];
-	MonitorElement* clustYSizeDisk1Plaquettes[7];
-	MonitorElement* clustYSizeDisk2Plaquettes[7];
-	MonitorElement* clustChargeDisk1Plaquettes[7];
-	MonitorElement* clustChargeDisk2Plaquettes[7];
+  //RecHits FPIX
+  MonitorElement* recHitXResAllF;
+  MonitorElement* recHitYResAllF;
+  MonitorElement* recHitXPlaquetteSize1;
+  MonitorElement* recHitXPlaquetteSize2;
+  MonitorElement* recHitYPlaquetteSize2;
+  MonitorElement* recHitYPlaquetteSize3;
+  MonitorElement* recHitYPlaquetteSize4;
+  MonitorElement* recHitYPlaquetteSize5;
+  MonitorElement* recHitXResDisk1Plaquettes[7];
+  MonitorElement* recHitXResDisk2Plaquettes[7];
+  MonitorElement* recHitYResDisk1Plaquettes[7];
+  MonitorElement* recHitYResDisk2Plaquettes[7];
+  MonitorElement* recHitBunchF;
+  MonitorElement* recHitEventF;
+  MonitorElement* recHitNsimHitDisk1;
+  MonitorElement* recHitNsimHitDisk2;
 
-	//RecHits BPIX
-	MonitorElement* recHitXResAllB;
-	MonitorElement* recHitYResAllB;
-	MonitorElement* recHitXFullModules;
-	MonitorElement* recHitXHalfModules;
-	MonitorElement* recHitYAllModules;
-	MonitorElement* recHitXResFlippedLadderLayers[3];
-	MonitorElement* recHitXResNonFlippedLadderLayers[3];
-	MonitorElement* recHitYResLayer1Modules[8];
-	MonitorElement* recHitYResLayer2Modules[8];
-	MonitorElement* recHitYResLayer3Modules[8];
-	MonitorElement* recHitBunchB;
-	MonitorElement* recHitEventB;
-	MonitorElement* recHitNsimHitLayer[3];
+  // Pull distributions
+  //RecHits BPIX
+  MonitorElement* recHitXPullAllB;
+  MonitorElement* recHitYPullAllB;
 
-	//RecHits FPIX
-	MonitorElement* recHitXResAllF;
-	MonitorElement* recHitYResAllF;
-	MonitorElement* recHitXPlaquetteSize1;
-	MonitorElement* recHitXPlaquetteSize2;
-	MonitorElement* recHitYPlaquetteSize2;
-	MonitorElement* recHitYPlaquetteSize3;
-	MonitorElement* recHitYPlaquetteSize4;
-	MonitorElement* recHitYPlaquetteSize5;
-	MonitorElement* recHitXResDisk1Plaquettes[7];
-	MonitorElement* recHitXResDisk2Plaquettes[7];
-	MonitorElement* recHitYResDisk1Plaquettes[7];
-	MonitorElement* recHitYResDisk2Plaquettes[7];
-	MonitorElement* recHitBunchF;
-	MonitorElement* recHitEventF;
-	MonitorElement* recHitNsimHitDisk1;
-	MonitorElement* recHitNsimHitDisk2;
+  MonitorElement* recHitXPullFlippedLadderLayers[3];
+  MonitorElement* recHitXPullNonFlippedLadderLayers[3];
+  MonitorElement* recHitYPullLayer1Modules[8];
+  MonitorElement* recHitYPullLayer2Modules[8];
+  MonitorElement* recHitYPullLayer3Modules[8];
 
-	// Pull distributions
-	//RecHits BPIX
-	MonitorElement* recHitXPullAllB;
-	MonitorElement* recHitYPullAllB;
+  //RecHits FPIX
+  MonitorElement* recHitXPullAllF;
+  MonitorElement* recHitYPullAllF;
 
-	MonitorElement* recHitXPullFlippedLadderLayers[3];
-	MonitorElement* recHitXPullNonFlippedLadderLayers[3];
-	MonitorElement* recHitYPullLayer1Modules[8];
-	MonitorElement* recHitYPullLayer2Modules[8];
-	MonitorElement* recHitYPullLayer3Modules[8];
+  MonitorElement* recHitXPullDisk1Plaquettes[7];
+  MonitorElement* recHitXPullDisk2Plaquettes[7];
+  MonitorElement* recHitYPullDisk1Plaquettes[7];
+  MonitorElement* recHitYPullDisk2Plaquettes[7];
 
-	//RecHits FPIX
-	MonitorElement* recHitXPullAllF;
-	MonitorElement* recHitYPullAllF;
-
-	MonitorElement* recHitXPullDisk1Plaquettes[7];
-	MonitorElement* recHitXPullDisk2Plaquettes[7];
-	MonitorElement* recHitYPullDisk1Plaquettes[7];
-	MonitorElement* recHitYPullDisk2Plaquettes[7];
-
-        TrackerHitAssociator::Config trackerHitAssociatorConfig_;
-        edm::EDGetTokenT<SiPixelRecHitCollection> siPixelRecHitCollectionToken_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  edm::EDGetTokenT<SiPixelRecHitCollection> siPixelRecHitCollectionToken_;
 };
 
 #endif

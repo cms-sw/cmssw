@@ -1,14 +1,12 @@
 #ifndef SegmentTrackAnalyzer_H
 #define SegmentTrackAnalyzer_H
 
-
 /** \class SegmentTrackAnalyzer
  *
  *  DQM monitoring source for segments associated to the muon track
  *
  *  \author G. Mila - INFN Torino
  */
-
 
 #include <memory>
 #include <fstream>
@@ -30,42 +28,41 @@
 class MuonServiceProxy;
 
 class SegmentTrackAnalyzer : public DQMEDAnalyzer {
- public:
-
+public:
   /// Constructor
   SegmentTrackAnalyzer(const edm::ParameterSet&);
-  
+
   /// Destructor
   ~SegmentTrackAnalyzer() override {
     delete theService;
     delete theSegmentsAssociator;
   };
-  
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
- private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+private:
   // ----------member data ---------------------------
-  MuonServiceProxy *theService;
+  MuonServiceProxy* theService;
   edm::ParameterSet parameters;
   edm::EDGetTokenT<reco::TrackCollection> theMuTrackCollectionLabel_;
-  
+
   // Switch for verbosity
   std::string metname;
   std::string trackCollection;
   // Find the segments associated to the track
   SegmentsTrackAssociator* theSegmentsAssociator;
 
-  int    etaBin;
+  int etaBin;
   double etaMin;
   double etaMax;
-  int    phiBin;
+  int phiBin;
   double phiMin;
   double phiMax;
-  int     ptBin;
-  double  ptMin;
-  double  ptMax;
-  
+  int ptBin;
+  double ptMin;
+  double ptMax;
+
   // the histos
   MonitorElement* hitsNotUsed;
   MonitorElement* hitsNotUsedPercentual;
@@ -81,6 +78,5 @@ class SegmentTrackAnalyzer : public DQMEDAnalyzer {
   MonitorElement* cscTrackHitPercentualVsEta;
   MonitorElement* cscTrackHitPercentualVsPhi;
   MonitorElement* cscTrackHitPercentualVsPt;
-
- };
-#endif  
+};
+#endif
