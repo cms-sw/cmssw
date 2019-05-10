@@ -28,8 +28,7 @@
 #include <fstream>
 #include <memory>
 
-class HepPDTESSource : public edm::ESProducer,
-                       public edm::EventSetupRecordIntervalFinder {
+class HepPDTESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   /// constructor from parameter set
   HepPDTESSource(const edm::ParameterSet &);

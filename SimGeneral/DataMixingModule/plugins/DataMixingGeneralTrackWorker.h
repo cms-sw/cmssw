@@ -31,45 +31,43 @@
 #include <vector>
 
 namespace edm {
-class ModuleCallingContext;
+  class ModuleCallingContext;
 
-class DataMixingGeneralTrackWorker {
-public:
-  DataMixingGeneralTrackWorker();
+  class DataMixingGeneralTrackWorker {
+  public:
+    DataMixingGeneralTrackWorker();
 
-  /** standard constructor*/
-  explicit DataMixingGeneralTrackWorker(const edm::ParameterSet &ps,
-                                        edm::ConsumesCollector &&iC);
+    /** standard constructor*/
+    explicit DataMixingGeneralTrackWorker(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC);
 
-  /**Default destructor*/
-  virtual ~DataMixingGeneralTrackWorker();
+    /**Default destructor*/
+    virtual ~DataMixingGeneralTrackWorker();
 
-  void putGeneralTrack(edm::Event &e);
-  void addGeneralTrackSignals(const edm::Event &e);
-  void addGeneralTrackPileups(const int bcr, const edm::EventPrincipal *,
-                              unsigned int EventId,
-                              ModuleCallingContext const *);
+    void putGeneralTrack(edm::Event &e);
+    void addGeneralTrackSignals(const edm::Event &e);
+    void addGeneralTrackPileups(const int bcr,
+                                const edm::EventPrincipal *,
+                                unsigned int EventId,
+                                ModuleCallingContext const *);
 
-private:
-  // data specifiers
+  private:
+    // data specifiers
 
-  edm::InputTag GeneralTrackcollectionSig_; // primary name given to collection
-                                            // of GeneralTracks
-  edm::InputTag GeneralTrackLabelSig_; // secondary name given to collection of
-                                       // GeneralTracks
-  edm::InputTag GeneralTrackPileInputTag_; // InputTag for pileup tracks
-  std::string GeneralTrackCollectionDM_;   // secondary name to be given to new
-                                           // GeneralTrack
+    edm::InputTag GeneralTrackcollectionSig_;  // primary name given to collection
+                                               // of GeneralTracks
+    edm::InputTag GeneralTrackLabelSig_;       // secondary name given to collection of
+                                               // GeneralTracks
+    edm::InputTag GeneralTrackPileInputTag_;   // InputTag for pileup tracks
+    std::string GeneralTrackCollectionDM_;     // secondary name to be given to new
+                                               // GeneralTrack
 
-  edm::EDGetTokenT<reco::TrackCollection>
-      GTrackSigToken_; // Token to retrieve information
-  edm::EDGetTokenT<reco::TrackCollection>
-      GTrackPileToken_; // Token to retrieve information
+    edm::EDGetTokenT<reco::TrackCollection> GTrackSigToken_;   // Token to retrieve information
+    edm::EDGetTokenT<reco::TrackCollection> GTrackPileToken_;  // Token to retrieve information
 
-  //
+    //
 
-  std::unique_ptr<reco::TrackCollection> NewTrackList_;
-};
-} // namespace edm
+    std::unique_ptr<reco::TrackCollection> NewTrackList_;
+  };
+}  // namespace edm
 
-#endif // SimDataMixingGeneralTrackWorker_h
+#endif  // SimDataMixingGeneralTrackWorker_h

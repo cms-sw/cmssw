@@ -22,9 +22,13 @@
 static const int N_INTEGRAL_STEPS = 700;
 
 CSCDriftSim::CSCDriftSim()
-    : bz(0.), // should make these local variables
-      ycell(0.), zcell(0.), dNdEIntegral(N_INTEGRAL_STEPS, 0.), STEP_SIZE(0.01),
-      ELECTRON_DIFFUSION_COEFF(0.0161), theMagneticField(nullptr) {
+    : bz(0.),  // should make these local variables
+      ycell(0.),
+      zcell(0.),
+      dNdEIntegral(N_INTEGRAL_STEPS, 0.),
+      STEP_SIZE(0.01),
+      ELECTRON_DIFFUSION_COEFF(0.0161),
+      theMagneticField(nullptr) {
   // just initialize avalanche sim.  There has to be a better
   // way to take the integral of a function!
   double sum = 0.;
@@ -49,10 +53,10 @@ CSCDriftSim::CSCDriftSim()
 CSCDriftSim::~CSCDriftSim() {}
 
 CSCDetectorHit CSCDriftSim::getWireHit(const Local3DPoint &pos,
-                                       const CSCLayer *layer, int nearestWire,
+                                       const CSCLayer *layer,
+                                       int nearestWire,
                                        const PSimHit &simHit,
                                        CLHEP::HepRandomEngine *engine) {
-
   const CSCChamberSpecs *specs = layer->chamber()->specs();
   const CSCLayerGeometry *geom = layer->geometry();
   math::LocalPoint clusterPos(pos.x(), pos.y(), pos.z());
@@ -77,9 +81,8 @@ CSCDetectorHit CSCDriftSim::getWireHit(const Local3DPoint &pos,
   ycell = clusterPos.z() / specs->anodeCathodeSpacing();
   zcell = 2. * clusterPos.y() / specs->wireSpacing();
 
-  LogTrace("CSCDriftSim") << "CSCDriftSim: bz " << bz << " avgDrift "
-                          << avgDrift() << " wireAngle " << geom->wireAngle()
-                          << " ycell " << ycell << " zcell " << zcell;
+  LogTrace("CSCDriftSim") << "CSCDriftSim: bz " << bz << " avgDrift " << avgDrift() << " wireAngle "
+                          << geom->wireAngle() << " ycell " << ycell << " zcell " << zcell;
 
   double avgPathLength, pathSigma, avgDriftTime, driftTimeSigma;
   static const float B_FIELD_CUT = 15.f;
@@ -96,18 +99,15 @@ CSCDetectorHit CSCDriftSim::getWireHit(const Local3DPoint &pos,
   }
 
   // electron drift path length
-  double pathLength =
-      std::max(CLHEP::RandGaussQ::shoot(engine, avgPathLength, pathSigma), 0.);
+  double pathLength = std::max(CLHEP::RandGaussQ::shoot(engine, avgPathLength, pathSigma), 0.);
 
   // electron drift distance along the anode wire, including diffusion
   double diffusionSigma = ELECTRON_DIFFUSION_COEFF * sqrt(pathLength);
-  double x = clusterPos.x() +
-             CLHEP::RandGaussQ::shoot(engine, avgDrift(), driftSigma()) +
+  double x = clusterPos.x() + CLHEP::RandGaussQ::shoot(engine, avgDrift(), driftSigma()) +
              CLHEP::RandGaussQ::shoot(engine, 0., diffusionSigma);
 
   // electron drift time
-  double driftTime = std::max(
-      CLHEP::RandGaussQ::shoot(engine, avgDriftTime, driftTimeSigma), 0.);
+  double driftTime = std::max(CLHEP::RandGaussQ::shoot(engine, avgDriftTime, driftTimeSigma), 0.);
 
   //@@ Parameters which should be defined outside the code
   // f_att is the fraction of drift electrons lost due to attachment
@@ -119,13 +119,11 @@ CSCDetectorHit CSCDriftSim::getWireHit(const Local3DPoint &pos,
   // double charge = avalancheCharge() * f_att * f_collected *
   // gasGain(layer->id()) * e_SI * 1.e15;
   // doing fattachment by random chance of killing
-  double charge = avalancheCharge(engine) * f_collected * gasGain(layer->id()) *
-                  e_SI * 1.e15;
+  double charge = avalancheCharge(engine) * f_collected * gasGain(layer->id()) * e_SI * 1.e15;
 
   float t = simHit.tof() + driftTime;
-  LogTrace("CSCDriftSim") << "CSCDriftSim: tof = " << simHit.tof()
-                          << " driftTime = " << driftTime << " MEDH = "
-                          << CSCDetectorHit(nearestWire, charge, x, t, &simHit);
+  LogTrace("CSCDriftSim") << "CSCDriftSim: tof = " << simHit.tof() << " driftTime = " << driftTime
+                          << " MEDH = " << CSCDetectorHit(nearestWire, charge, x, t, &simHit);
   return CSCDetectorHit(nearestWire, charge, x, t, &simHit);
 }
 
@@ -143,8 +141,7 @@ double CSCDriftSim::avalancheCharge(CLHEP::HepRandomEngine *engine) {
   }
   */
   // return position of first element with a value >= x
-  std::vector<double>::const_iterator p =
-      lower_bound(dNdEIntegral.begin(), dNdEIntegral.end(), x);
+  std::vector<double>::const_iterator p = lower_bound(dNdEIntegral.begin(), dNdEIntegral.end(), x);
   if (p == dNdEIntegral.end())
     i = isiz - 1;
   else
@@ -159,19 +156,18 @@ double CSCDriftSim::avalancheCharge(CLHEP::HepRandomEngine *engine) {
     double x2 = dNdEIntegral[i + 1];
     returnVal = STEP_SIZE * (double(i) + (x - x1) / (x2 - x1));
   }
-  LogTrace("CSCDriftSim") << "CSCDriftSim: avalanche fluc " << returnVal << "  "
-                          << x;
+  LogTrace("CSCDriftSim") << "CSCDriftSim: avalanche fluc " << returnVal << "  " << x;
 
   return returnVal;
 }
 
 double CSCDriftSim::gasGain(const CSCDetId &detId) const {
-  double result = 130000.; // 1.30 E05
+  double result = 130000.;  // 1.30 E05
   // if ME1/1, add some extra gas gain to compensate
   // for a smaller gas gap
   int ring = detId.ring();
   if (detId.station() == 1 && (ring == 1 || ring == 4)) {
-    result = 213000.; // 2.13 E05 ( to match real world as of Jan-2011)
+    result = 213000.;  // 2.13 E05 ( to match real world as of Jan-2011)
   }
   return result;
 }

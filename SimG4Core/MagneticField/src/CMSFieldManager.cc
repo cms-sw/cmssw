@@ -11,11 +11,21 @@
 #include "G4Track.hh"
 
 CMSFieldManager::CMSFieldManager()
-    : G4FieldManager(), m_currChordFinder(nullptr), m_chordFinder(nullptr),
-      m_chordFinderMonopole(nullptr), m_propagator(nullptr), m_dChord(0.001),
-      m_dOneStep(0.001), m_dIntersection(0.0001), m_stepMax(1000000.),
-      m_energyThreshold(0.0), m_dChordSimple(0.1), m_dOneStepSimple(0.1),
-      m_dIntersectionSimple(0.01), m_stepMaxSimple(1000.), m_cfVacuum(false) {}
+    : G4FieldManager(),
+      m_currChordFinder(nullptr),
+      m_chordFinder(nullptr),
+      m_chordFinderMonopole(nullptr),
+      m_propagator(nullptr),
+      m_dChord(0.001),
+      m_dOneStep(0.001),
+      m_dIntersection(0.0001),
+      m_stepMax(1000000.),
+      m_energyThreshold(0.0),
+      m_dChordSimple(0.1),
+      m_dOneStepSimple(0.1),
+      m_dIntersectionSimple(0.01),
+      m_stepMaxSimple(1000.),
+      m_cfVacuum(false) {}
 
 CMSFieldManager::~CMSFieldManager() {
   if (m_chordFinder != m_currChordFinder) {
@@ -26,16 +36,18 @@ CMSFieldManager::~CMSFieldManager() {
   }
 }
 
-void CMSFieldManager::InitialiseForVolume(
-    const edm::ParameterSet &p, sim::Field *field, G4ChordFinder *cf,
-    G4ChordFinder *cfmon, const std::string &vol, const std::string &type,
-    const std::string &stepper, double delta, G4PropagatorInField *pf) {
+void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet &p,
+                                          sim::Field *field,
+                                          G4ChordFinder *cf,
+                                          G4ChordFinder *cfmon,
+                                          const std::string &vol,
+                                          const std::string &type,
+                                          const std::string &stepper,
+                                          double delta,
+                                          G4PropagatorInField *pf) {
   double minstep = p.getParameter<double>("MinStep") * CLHEP::mm;
-  double minEpsStep =
-      p.getUntrackedParameter<double>("MinimumEpsilonStep", 0.00001) *
-      CLHEP::mm;
-  double maxEpsStep =
-      p.getUntrackedParameter<double>("MaximumEpsilonStep", 0.01) * CLHEP::mm;
+  double minEpsStep = p.getUntrackedParameter<double>("MinimumEpsilonStep", 0.00001) * CLHEP::mm;
+  double maxEpsStep = p.getUntrackedParameter<double>("MaximumEpsilonStep", 0.01) * CLHEP::mm;
   int maxLC = (int)p.getUntrackedParameter<double>("MaximumLoopCounts", 1000.);
 
   // double
@@ -49,8 +61,7 @@ void CMSFieldManager::InitialiseForVolume(
   // double
   m_dChordSimple = p.getParameter<double>("DeltaChordSimple") * CLHEP::mm;
   m_dOneStepSimple = p.getParameter<double>("DeltaOneStepSimple") * CLHEP::mm;
-  m_dIntersectionSimple =
-      p.getParameter<double>("DeltaIntersectionSimple") * CLHEP::mm;
+  m_dIntersectionSimple = p.getParameter<double>("DeltaIntersectionSimple") * CLHEP::mm;
   m_stepMaxSimple = p.getParameter<double>("MaxStepSimple") * CLHEP::cm;
 
   edm::LogVerbatim("SimG4CoreApplication")
@@ -62,22 +73,15 @@ void CMSFieldManager::InitialiseForVolume(
       << "               MinimumEpsilonStep          " << minEpsStep << "\n"
       << "               MaximumEpsilonStep          " << maxEpsStep << "\n"
       << "               MinStep                     " << minstep << " mm\n"
-      << "               MaxStep                     " << m_stepMax / CLHEP::cm
-      << " cm\n"
+      << "               MaxStep                     " << m_stepMax / CLHEP::cm << " cm\n"
       << "               DeltaChord                  " << m_dChord << " mm\n"
       << "               DeltaOneStep                " << m_dOneStep << " mm\n"
-      << "               DeltaIntersection           " << m_dIntersection
-      << " mm\n"
-      << "               EnergyThreshold             " << m_energyThreshold
-      << " MeV\n"
-      << "               DeltaChordSimple            " << m_dChordSimple
-      << " mm\n"
-      << "               DeltaOneStepSimple          " << m_dOneStepSimple
-      << " mm\n"
-      << "               DeltaIntersectionSimple     " << m_dIntersectionSimple
-      << " mm\n"
-      << "               MaxStepInVacuum             "
-      << m_stepMaxSimple / CLHEP::cm << " cm";
+      << "               DeltaIntersection           " << m_dIntersection << " mm\n"
+      << "               EnergyThreshold             " << m_energyThreshold << " MeV\n"
+      << "               DeltaChordSimple            " << m_dChordSimple << " mm\n"
+      << "               DeltaOneStepSimple          " << m_dOneStepSimple << " mm\n"
+      << "               DeltaIntersectionSimple     " << m_dIntersectionSimple << " mm\n"
+      << "               MaxStepInVacuum             " << m_stepMaxSimple / CLHEP::cm << " cm";
 
   // initialisation of chord finders
   m_chordFinder = cf;
@@ -102,8 +106,7 @@ void CMSFieldManager::InitialiseForVolume(
   SetMonopoleTracking(false);
 
   // define regions
-  std::vector<std::string> rnames =
-      p.getParameter<std::vector<std::string>>("VacRegions");
+  std::vector<std::string> rnames = p.getParameter<std::vector<std::string>>("VacRegions");
   if (!rnames.empty()) {
     std::stringstream ss;
     std::vector<G4Region *> *rs = G4RegionStore::GetInstance();
@@ -115,17 +118,13 @@ void CMSFieldManager::InitialiseForVolume(
         }
       }
     }
-    edm::LogVerbatim("SimG4CoreApplication")
-        << "Simple field integration in G4Regions:\n"
-        << ss.str() << "\n";
+    edm::LogVerbatim("SimG4CoreApplication") << "Simple field integration in G4Regions:\n" << ss.str() << "\n";
   }
 }
 
 void CMSFieldManager::ConfigureForTrack(const G4Track *track) {
   // run time parameters per track
-  if ((track->GetKineticEnergy() <= m_energyThreshold &&
-       track->GetParentID() > 0) ||
-      isInsideVacuum(track)) {
+  if ((track->GetKineticEnergy() <= m_energyThreshold && track->GetParentID() > 0) || isInsideVacuum(track)) {
     if (!m_cfVacuum) {
       setChordFinderForVacuum();
     }

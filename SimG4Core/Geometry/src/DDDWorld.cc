@@ -12,15 +12,14 @@ using namespace edm;
 
 DDDWorld::DDDWorld(const DDCompactView *cpv,
                    G4LogicalVolumeToDDLogicalPartMap &map,
-                   SensitiveDetectorCatalog &catalog, bool check) {
-
+                   SensitiveDetectorCatalog &catalog,
+                   bool check) {
   std::unique_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
 
   DDGeometryReturnType ret = theBuilder->BuildGeometry();
   G4LogicalVolume *world = ret.logicalVolume();
 
-  m_world = new G4PVPlacement(nullptr, G4ThreeVector(), world, "DDDWorld",
-                              nullptr, false, 0);
+  m_world = new G4PVPlacement(nullptr, G4ThreeVector(), world, "DDDWorld", nullptr, false, 0);
   SetAsWorld(m_world);
   map = ret.lvToDDLPMap();
   catalog = ret.sdCatalog();
@@ -43,8 +42,7 @@ void DDDWorld::WorkerSetAsWorld(G4VPhysicalVolume *pv) {
     kernel->WorkerDefineWorldVolume(pv);
     // The following does not get done in WorkerDefineWorldVolume()
     // because we don't use G4MTRunManager
-    G4TransportationManager *transM =
-        G4TransportationManager::GetTransportationManager();
+    G4TransportationManager *transM = G4TransportationManager::GetTransportationManager();
     transM->SetWorldForTracking(pv);
   } else
     edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";

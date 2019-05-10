@@ -36,11 +36,8 @@ private:
   bool isExotic(int pdgcode) const;
   bool isExoticNonDetectable(int pdgcode) const;
   bool IsInTheFilterList(int pdgcode) const;
-  void particleAssignDaughters(G4PrimaryParticle *p, HepMC::GenParticle *hp,
-                               double length);
-  void setGenId(G4PrimaryParticle *p, int id) const {
-    p->SetUserInformation(new GenParticleInfo(id));
-  }
+  void particleAssignDaughters(G4PrimaryParticle *p, HepMC::GenParticle *hp, double length);
+  void setGenId(G4PrimaryParticle *p, int id) const { p->SetUserInformation(new GenParticleInfo(id)); }
 
 private:
   bool fPCuts;

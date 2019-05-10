@@ -31,7 +31,6 @@
 /* Class DTAngleParam Interface */
 
 class DTAngleParam {
-
 public:
   /** Constructor with angle 0.*/
   DTAngleParam();
@@ -56,7 +55,6 @@ private:
 
   /// private class to hold parameters for an angle bin
   class ParamFunc {
-
   public:
     ParamFunc();
     ParamFunc(int bin);
@@ -69,11 +67,11 @@ private:
     float time(float bwire, float xcoor) const;
 
     // functions to compute angle difference
-    inline float dist(float angle) const // to a given value
+    inline float dist(float angle) const  // to a given value
     {
       return angle - bin_angle;
     }
-    inline float dist(const ParamFunc &func) const // to another bin
+    inline float dist(const ParamFunc &func) const  // to another bin
     {
       return func.bin_angle - bin_angle;
     }
@@ -96,4 +94,4 @@ private:
 
 protected:
 };
-#endif // MUBARANGLEPARAM_H
+#endif  // MUBARANGLEPARAM_H

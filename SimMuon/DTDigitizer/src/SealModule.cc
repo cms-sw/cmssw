@@ -12,8 +12,7 @@ DEFINE_FWK_MODULE(DTDigiReader);
 #include "SimMuon/DTDigitizer/src/DTDigiSyncTOFCorr.h"
 
 #include "SimMuon/DTDigitizer/interface/DTDigiSyncFactory.h"
-DEFINE_EDM_PLUGIN(DTDigiSyncFactory, DTDigiSyncFromTable,
-                  "DTDigiSyncFromTable");
+DEFINE_EDM_PLUGIN(DTDigiSyncFactory, DTDigiSyncFromTable, "DTDigiSyncFromTable");
 DEFINE_EDM_PLUGIN(DTDigiSyncFactory, DTDigiSyncTOFCorr, "DTDigiSyncTOFCorr");
 
 #include "SimMuon/DTDigitizer/src/DTNeutronWriter.h"

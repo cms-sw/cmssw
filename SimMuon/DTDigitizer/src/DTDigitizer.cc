@@ -55,11 +55,9 @@ using namespace std;
 
 // Constructor
 DTDigitizer::DTDigitizer(const ParameterSet &conf_)
-    : // Sync Algo
-      theSync{DTDigiSyncFactory::get()->create(
-          conf_.getParameter<string>("SyncName"),
-          conf_.getParameter<ParameterSet>("pset"))} {
-
+    :  // Sync Algo
+      theSync{DTDigiSyncFactory::get()->create(conf_.getParameter<string>("SyncName"),
+                                               conf_.getParameter<ParameterSet>("pset"))} {
   // Set verbose output
   debug = conf_.getUntrackedParameter<bool>("debug");
 
@@ -69,7 +67,7 @@ DTDigitizer::DTDigitizer(const ParameterSet &conf_)
   // register the Producer with a label
   // produces<DTDigiCollection>("MuonDTDigis"); // FIXME: Do I pass it by
   // ParameterSet?
-  produces<DTDigiCollection>(); // FIXME: Do I pass it by ParameterSet?
+  produces<DTDigiCollection>();  // FIXME: Do I pass it by ParameterSet?
   //  produces<DTDigiSimLinkCollection>("MuonDTDigiSimLinks");
   produces<DTDigiSimLinkCollection>();
 
@@ -85,13 +83,13 @@ DTDigitizer::DTDigitizer(const ParameterSet &conf_)
   // For the default value
   // cfr. CMS-IN 2000-021:   (2.56+-0.17)x1e8 m/s
   //      CMS NOTE 2003-17:  (0.244)  m/ns
-  vPropWire = conf_.getParameter<double>("vPropWire"); // 24.4
+  vPropWire = conf_.getParameter<double>("vPropWire");  // 24.4
 
   // Dead time for signals on the same wire (number from M. Pegoraro)
-  deadTime = conf_.getParameter<double>("deadTime"); // 150
+  deadTime = conf_.getParameter<double>("deadTime");  // 150
 
   // further configurable smearing
-  smearing = conf_.getParameter<double>("Smearing"); // 3.
+  smearing = conf_.getParameter<double>("Smearing");  // 3.
 
   // Debug flag to switch to the Ideal model
   // it uses a constant drift velocity and doesn't set any external delay
@@ -99,29 +97,26 @@ DTDigitizer::DTDigitizer(const ParameterSet &conf_)
 
   // Constant drift velocity needed by the above flag
   if (IdealModel)
-    theConstVDrift = conf_.getParameter<double>(
-        "IdealModelConstantDriftVelocity"); // 55 um/ns
+    theConstVDrift = conf_.getParameter<double>("IdealModelConstantDriftVelocity");  // 55 um/ns
   else
     theConstVDrift = 55.;
 
   // get random engine
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-        << "RandomNumberGeneratorService for DTDigitizer missing in cfg file";
+    throw cms::Exception("Configuration") << "RandomNumberGeneratorService for DTDigitizer missing in cfg file";
   }
 
   // MultipleLinks=false ==> one-to-one correspondence between digis and SimHits
   MultipleLinks = conf_.getParameter<bool>("MultipleLinks");
   // MultipleLinks=true ==> association of SimHits within a time window
   // LinksTimeWindow (of the order of the resolution)
-  LinksTimeWindow = conf_.getParameter<double>("LinksTimeWindow"); // (10 ns)
+  LinksTimeWindow = conf_.getParameter<double>("LinksTimeWindow");  // (10 ns)
 
   // Name of Collection used for create the XF
   mix_ = conf_.getParameter<std::string>("mixLabel");
   collection_for_XF = conf_.getParameter<std::string>("InputCollection");
-  cf_token =
-      consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
+  cf_token = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
 
   // String to choice between ideal (the deafult) and (mis)aligned geometry for
   // the digitization step
@@ -130,13 +125,11 @@ DTDigitizer::DTDigitizer(const ParameterSet &conf_)
 
 // method called to produce the data
 void DTDigitizer::produce(Event &iEvent, const EventSetup &iSetup) {
-
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine *engine = &rng->getEngine(iEvent.streamID());
 
   if (debug)
-    LogPrint("DTDigitizer") << "--- Run: " << iEvent.id().run()
-                            << " Event: " << iEvent.id().event() << endl;
+    LogPrint("DTDigitizer") << "--- Run: " << iEvent.id().run() << " Event: " << iEvent.id().event() << endl;
 
   //************ 1 ***************
   // create the container for the SimHits
@@ -147,14 +140,12 @@ void DTDigitizer::produce(Event &iEvent, const EventSetup &iSetup) {
   Handle<CrossingFrame<PSimHit>> xFrame;
   iEvent.getByToken(cf_token, xFrame);
 
-  unique_ptr<MixCollection<PSimHit>> simHits(
-      new MixCollection<PSimHit>(xFrame.product()));
+  unique_ptr<MixCollection<PSimHit>> simHits(new MixCollection<PSimHit>(xFrame.product()));
 
   // create the pointer to the Digi container
   unique_ptr<DTDigiCollection> output(new DTDigiCollection());
   // pointer to the DigiSimLink container
-  unique_ptr<DTDigiSimLinkCollection> outputLinks(
-      new DTDigiSimLinkCollection());
+  unique_ptr<DTDigiSimLinkCollection> outputLinks(new DTDigiSimLinkCollection());
 
   // Muon Geometry
   ESHandle<DTGeometry> muonGeom;
@@ -170,9 +161,7 @@ void DTDigitizer::produce(Event &iEvent, const EventSetup &iSetup) {
   //  map<DTDetId, vector<const PSimHit*> > wireMap;
   DTWireIdMap wireMap;
 
-  for (MixCollection<PSimHit>::MixItr simHit = simHits->begin();
-       simHit != simHits->end(); simHit++) {
-
+  for (MixCollection<PSimHit>::MixItr simHit = simHits->begin(); simHit != simHits->end(); simHit++) {
     // Create the id of the wire, the simHits in the DT known also the wireId
 
     DTWireId wireId((*simHit).detUnitId());
@@ -184,12 +173,11 @@ void DTDigitizer::produce(Event &iEvent, const EventSetup &iSetup) {
 
   //************ 3 ***************
   // Loop over the wires
-  for (DTWireIdMapConstIter wire = wireMap.begin(); wire != wireMap.end();
-       wire++) {
+  for (DTWireIdMapConstIter wire = wireMap.begin(); wire != wireMap.end(); wire++) {
     // SimHit Container associated to the wire
     const vector<const PSimHit *> &vhit = (*wire).second;
     if (!vhit.empty()) {
-      TDContainer tdCont; // It is a vector<pair<const PSimHit*,float> >;
+      TDContainer tdCont;  // It is a vector<pair<const PSimHit*,float> >;
 
       //************ 4 ***************
       DTWireId wireId = (*wire).first;
@@ -199,13 +187,11 @@ void DTDigitizer::produce(Event &iEvent, const EventSetup &iSetup) {
       const DTLayer *layer = muonGeom->layer(wireId.layerId());
 
       // Loop on the hits of this wire
-      for (vector<const PSimHit *>::const_iterator hit = vhit.begin();
-           hit != vhit.end(); hit++) {
+      for (vector<const PSimHit *>::const_iterator hit = vhit.begin(); hit != vhit.end(); hit++) {
         //************ 5 ***************
         LocalPoint locPos = (*hit)->localPosition();
 
-        const LocalVector BLoc = layer->surface().toLocal(
-            magnField->inTesla(layer->surface().toGlobal(locPos)));
+        const LocalVector BLoc = layer->surface().toLocal(magnField->inTesla(layer->surface().toGlobal(locPos)));
 
         time = computeTime(layer, wireId, *hit, BLoc, engine);
 
@@ -240,7 +226,6 @@ pair<float, bool> DTDigitizer::computeTime(const DTLayer *layer,
                                            const PSimHit *hit,
                                            const LocalVector &BLoc,
                                            CLHEP::HepRandomEngine *engine) {
-
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
   int partType = hit->particleType();
@@ -250,20 +235,17 @@ pair<float, bool> DTDigitizer::computeTime(const DTLayer *layer,
   // Pay attention: in CMSSW the rf of the SimHit is in the layer's rf
 
   if (debug)
-    LogPrint("DTDigitizer") << "Hit local entry point: " << entryP << endl
-                            << "Hit local exit point: " << exitP << endl;
+    LogPrint("DTDigitizer") << "Hit local entry point: " << entryP << endl << "Hit local exit point: " << exitP << endl;
 
   float xwire = topo.wirePosition(wireId.wire());
   float xEntry = entryP.x() - xwire;
   float xExit = exitP.x() - xwire;
 
   if (debug)
-    LogPrint("DTDigitizer")
-        << "wire position: " << xwire << " x entry in cell rf: " << xEntry
-        << " x exit in cell rf: " << xExit << endl;
+    LogPrint("DTDigitizer") << "wire position: " << xwire << " x entry in cell rf: " << xEntry
+                            << " x exit in cell rf: " << xExit << endl;
 
-  DTTopology::Side entrySide =
-      topo.onWhichBorder(xEntry, entryP.y(), entryP.z());
+  DTTopology::Side entrySide = topo.onWhichBorder(xEntry, entryP.y(), entryP.z());
   DTTopology::Side exitSide = topo.onWhichBorder(xExit, exitP.y(), exitP.z());
 
   if (debug)
@@ -300,8 +282,7 @@ pair<float, bool> DTDigitizer::computeTime(const DTLayer *layer,
   // (just for printing)
   float halfd = d.mag() / 2.;
   float BMag = BLoc.mag();
-  LocalVector pT =
-      (pHat - (BLoc.unit() * pHat.dot(BLoc.unit()))) * (hit->pabs());
+  LocalVector pT = (pHat - (BLoc.unit() * pHat.dot(BLoc.unit()))) * (hit->pabs());
   float radius_B = (pT.mag() / (0.3 * BMag)) * 100.;
   float sagitta_B;
   if (radius_B > halfd) {
@@ -314,45 +295,38 @@ pair<float, bool> DTDigitizer::computeTime(const DTLayer *layer,
   // (just for printing)
   float delta = pHat.dot(d.unit());
   if (debug)
-    LogPrint("DTDigitizer")
-        << "   delta                 = " << delta << endl
-        << "   cosAlpha              = " << cosAlpha << endl
-        << "   sinAlpha              = " << sinAlpha << endl
-        << "   pMag                  = " << pT.mag() << endl
-        << "   bMag                  = " << BMag << endl
-        << "   pT                    = " << pT << endl
-        << "   halfd                 = " << halfd << endl
-        << "   radius_P  (cm)        = " << radius_P << endl
-        << "   sagitta_P (um)        = " << sagitta_P * 10000. << endl
-        << "   radius_B  (cm)        = " << radius_B << endl
-        << "   sagitta_B (um)        = " << sagitta_B * 10000. << endl;
+    LogPrint("DTDigitizer") << "   delta                 = " << delta << endl
+                            << "   cosAlpha              = " << cosAlpha << endl
+                            << "   sinAlpha              = " << sinAlpha << endl
+                            << "   pMag                  = " << pT.mag() << endl
+                            << "   bMag                  = " << BMag << endl
+                            << "   pT                    = " << pT << endl
+                            << "   halfd                 = " << halfd << endl
+                            << "   radius_P  (cm)        = " << radius_P << endl
+                            << "   sagitta_P (um)        = " << sagitta_P * 10000. << endl
+                            << "   radius_B  (cm)        = " << radius_B << endl
+                            << "   sagitta_B (um)        = " << sagitta_B * 10000. << endl;
 
   // Select cases where parametrization can not be used.
-  bool noParametrisation =
-      ((entrySide == DTTopology::none ||
-        exitSide == DTTopology::none) // case # 2,3,8,9 or 11
-       || (entrySide == exitSide)     // case # 4 or 10
-       || ((entrySide == DTTopology::xMin && exitSide == DTTopology::xMax) ||
-           (entrySide == DTTopology::xMax &&
-            exitSide == DTTopology::xMin)) // Hit is case # 7
-      );
+  bool noParametrisation = ((entrySide == DTTopology::none || exitSide == DTTopology::none)  // case # 2,3,8,9 or 11
+                            || (entrySide == exitSide)                                       // case # 4 or 10
+                            || ((entrySide == DTTopology::xMin && exitSide == DTTopology::xMax) ||
+                                (entrySide == DTTopology::xMax && exitSide == DTTopology::xMin))  // Hit is case # 7
+  );
 
   // FIXME: now, debug warning only; consider treating those
   // with TM algo.
-  if (delta < 0.99996 // Track is not straight. FIXME: use sagitta?
+  if (delta < 0.99996  // Track is not straight. FIXME: use sagitta?
       && (noParametrisation == false)) {
     if (debug)
-      LogPrint("DTDigitizer")
-          << "*** WARNING: hit is not straight, type = " << partType << endl;
+      LogPrint("DTDigitizer") << "*** WARNING: hit is not straight, type = " << partType << endl;
   }
 
   //************ 5A ***************
 
   if (!noParametrisation) {
-
-    LocalVector dir =
-        hit->momentumAtEntry(); // ex Measurement3DVector dir =
-                                // hit->measurementDirection(); //FIXME?
+    LocalVector dir = hit->momentumAtEntry();  // ex Measurement3DVector dir =
+                                               // hit->measurementDirection(); //FIXME?
     float theta = atan(dir.x() / -dir.z()) * 180 / M_PI;
 
     // FIXME: use dir if M.S. is included as GARFIELD option...
@@ -361,9 +335,8 @@ pair<float, bool> DTDigitizer::computeTime(const DTLayer *layer,
     //    float theta = atan(dir0.x()/-dir0.z())*180/M_PI;
     float x;
 
-    Local3DPoint pt =
-        hit->localPosition(); // ex Measurement3DPoint pt =
-                              // hit->measurementPosition(); // FIXME?
+    Local3DPoint pt = hit->localPosition();  // ex Measurement3DPoint pt =
+                                             // hit->measurementPosition(); // FIXME?
 
     if (fabs(pt.z()) < 0.002) {
       // hit center within 20 um from z=0, no need to extrapolate.
@@ -395,64 +368,54 @@ pair<float, bool> DTDigitizer::computeTime(const DTLayer *layer,
 //************ 5A ***************
 
 pair<float, bool> DTDigitizer::driftTimeFromParametrization(
-    float x, float theta, float By, float Bz,
-    CLHEP::HepRandomEngine *engine) const {
-
+    float x, float theta, float By, float Bz, CLHEP::HepRandomEngine *engine) const {
   // Convert from CMSSW frame/units r.f. to parametrization ones.
-  x *= 10.; // cm -> mm
+  x *= 10.;  // cm -> mm
 
   // FIXME: Current parametrisation can extrapolate above 21 mm,
   // however a detailed study is needed before using this.
   if (fabs(x) > 21.) {
     if (debug)
-      LogPrint("DTDigitizer")
-          << "*** WARNING: parametrisation: x out of range = " << x
-          << ", skipping" << endl;
+      LogPrint("DTDigitizer") << "*** WARNING: parametrisation: x out of range = " << x << ", skipping" << endl;
     return pair<float, bool>(0.f, false);
   }
 
   // Different r.f. of the parametrization:
   // X_par = X_ORCA; Y_par=Z_ORCA; Z_par = -Y_ORCA
 
-  float By_par = Bz;  // Bnorm
-  float Bz_par = -By; // Bwire
+  float By_par = Bz;   // Bnorm
+  float Bz_par = -By;  // Bwire
   float theta_par = theta;
 
   // Parametrisation uses interpolation up to |theta|=45 deg,
   // |Bwire|=0.4, |Bnorm|=0.75; extrapolation above.
   if (fabs(theta_par) > 45.) {
     if (debug)
-      LogPrint("DTDigitizer")
-          << "*** WARNING: extrapolating theta > 45: " << theta << endl;
+      LogPrint("DTDigitizer") << "*** WARNING: extrapolating theta > 45: " << theta << endl;
     // theta_par = min(fabs(theta_par),45.f)*((theta_par<0.)?-1.:1.);
   }
   if (fabs(By_par) > 0.75) {
     if (debug)
-      LogPrint("DTDigitizer")
-          << "*** WARNING: extrapolating Bnorm > 0.75: " << By_par << endl;
+      LogPrint("DTDigitizer") << "*** WARNING: extrapolating Bnorm > 0.75: " << By_par << endl;
     // By_par = min(fabs(By_par),0.75f)*((By_par<0.)?-1.:1.);
   }
   if (fabs(Bz_par) > 0.4) {
     if (debug)
-      LogPrint("DTDigitizer")
-          << "*** WARNING: extrapolating Bwire >0.4: " << Bz_par << endl;
+      LogPrint("DTDigitizer") << "*** WARNING: extrapolating Bwire >0.4: " << Bz_par << endl;
     // Bz_par = min(fabs(Bz_par),0.4)*((Bz_par<0.)?-1.:1.);
   }
 
   DTDriftTimeParametrization::drift_time DT;
   static const DTDriftTimeParametrization par;
-  unsigned short flag =
-      par.MB_DT_drift_time(x, theta_par, By_par, Bz_par, 0, &DT, interpolate);
+  unsigned short flag = par.MB_DT_drift_time(x, theta_par, By_par, Bz_par, 0, &DT, interpolate);
 
   if (debug) {
-    LogPrint("DTDigitizer")
-        << "    Parametrisation: x, theta, Bnorm, Bwire = " << x << " "
-        << theta_par << " " << By_par << " " << Bz_par << endl
-        << "  time=" << DT.t_drift << "  sigma_m=" << DT.t_width_m
-        << "  sigma_p=" << DT.t_width_p << endl;
+    LogPrint("DTDigitizer") << "    Parametrisation: x, theta, Bnorm, Bwire = " << x << " " << theta_par << " "
+                            << By_par << " " << Bz_par << endl
+                            << "  time=" << DT.t_drift << "  sigma_m=" << DT.t_width_m << "  sigma_p=" << DT.t_width_p
+                            << endl;
     if (flag != 1) {
-      LogPrint("DTDigitizer")
-          << "*** WARNING: call to parametrisation failed" << endl;
+      LogPrint("DTDigitizer") << "*** WARNING: call to parametrisation failed" << endl;
       return pair<float, bool>(0.f, false);
     }
   }
@@ -476,10 +439,10 @@ pair<float, bool> DTDigitizer::driftTimeFromParametrization(
   return pair<float, bool>(time, true);
 }
 
-float DTDigitizer::asymGausSmear(double mean, double sigmaLeft,
+float DTDigitizer::asymGausSmear(double mean,
+                                 double sigmaLeft,
                                  double sigmaRight,
                                  CLHEP::HepRandomEngine *engine) const {
-
   double f = sigmaLeft / (sigmaLeft + sigmaRight);
   double t;
 
@@ -502,15 +465,12 @@ pair<float, bool> DTDigitizer::driftTimeFromTimeMap() const {
 
 //************ 5B ***************
 
-float DTDigitizer::externalDelays(const DTLayer *layer, const DTWireId &wireId,
-                                  const PSimHit *hit) const {
-
+float DTDigitizer::externalDelays(const DTLayer *layer, const DTWireId &wireId, const PSimHit *hit) const {
   // Time of signal propagation along wire.
 
   float wireCoord = hit->localPosition().y();
   float halfL = (layer->specificTopology().cellLenght()) / 2.;
-  float propgL =
-      halfL - wireCoord; // the FE is always located at the pos coord.
+  float propgL = halfL - wireCoord;  // the FE is always located at the pos coord.
 
   float propDelay = propgL / vPropWire;
 
@@ -522,8 +482,7 @@ float DTDigitizer::externalDelays(const DTLayer *layer, const DTWireId &wireId,
   double sync = theSync->digitizerOffset(&wireId, layer);
 
   if (debug) {
-    LogPrint("DTDigitizer") << "    propDelay =" << propDelay << "; TOF=" << tof
-                            << "; sync= " << sync << endl;
+    LogPrint("DTDigitizer") << "    propDelay =" << propDelay << "; TOF=" << tof << "; sync= " << sync << endl;
   }
 
   return propDelay + tof + sync;
@@ -531,10 +490,10 @@ float DTDigitizer::externalDelays(const DTLayer *layer, const DTWireId &wireId,
 
 // accumulate digis by layer
 
-void DTDigitizer::storeDigis(DTWireId &wireId, TDContainer &hits,
+void DTDigitizer::storeDigis(DTWireId &wireId,
+                             TDContainer &hits,
                              DTDigiCollection &output,
                              DTDigiSimLinkCollection &outputLinks) {
-
   //************ 7A ***************
 
   // sort signal times
@@ -544,13 +503,11 @@ void DTDigitizer::storeDigis(DTWireId &wireId, TDContainer &hits,
 
   float wakeTime = -999999.0;
   float resolTime = -999999.0;
-  int digiN = -1; // Digi identifier within the cell (for multiple digis)
+  int digiN = -1;  // Digi identifier within the cell (for multiple digis)
   DTDigi digi;
 
   // loop over signal times and drop signals inside dead time
-  for (TDContainer::const_iterator hit = hits.begin(); hit != hits.end();
-       hit++) {
-
+  for (TDContainer::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
     if (onlyMuHits && abs((*hit).first->particleType()) != 13)
       continue;
 
@@ -572,17 +529,14 @@ void DTDigitizer::storeDigis(DTWireId &wireId, TDContainer &hits,
         LogPrint("DTDigitizer") << endl << "---- DTDigitizer ----" << endl;
         LogPrint("DTDigitizer") << "wireId: " << wireId << endl;
         LogPrint("DTDigitizer") << "sim. time = " << time << endl;
-        LogPrint("DTDigitizer")
-            << "digi number = " << digi.number()
-            << ", digi time = " << digi.time()
-            << ", linked to SimTrack Id = " << SimTrackId << endl;
+        LogPrint("DTDigitizer") << "digi number = " << digi.number() << ", digi time = " << digi.time()
+                                << ", linked to SimTrack Id = " << SimTrackId << endl;
       }
 
       //************ 7D ***************
       if (digi.countsTDC() < pow(2., 16)) {
-        DTLayerId layerID =
-            wireId.layerId(); // taking the layer in which reside the wire
-        output.insertDigi(layerID, digi); // ordering Digis by layer
+        DTLayerId layerID = wireId.layerId();  // taking the layer in which reside the wire
+        output.insertDigi(layerID, digi);      // ordering Digis by layer
         outputLinks.insertDigi(layerID, digisimLink);
         wakeTime = time + deadTime;
         resolTime = time + LinksTimeWindow;
@@ -598,59 +552,49 @@ void DTDigitizer::storeDigis(DTWireId &wireId, TDContainer &hits,
       outputLinks.insertDigi(layerID, digisimLink);
 
       if (debug) {
-        LogPrint("DTDigitizer")
-            << "\nAdded multiple link: \n"
-            << "digi number = " << digi.number()
-            << ", digi time = " << digi.time() << " (sim. time = " << time
-            << ")"
-            << ", linked to SimTrack Id = " << SimTrackId << endl;
+        LogPrint("DTDigitizer") << "\nAdded multiple link: \n"
+                                << "digi number = " << digi.number() << ", digi time = " << digi.time()
+                                << " (sim. time = " << time << ")"
+                                << ", linked to SimTrack Id = " << SimTrackId << endl;
       }
     }
   }
 }
 
-void DTDigitizer::dumpHit(const PSimHit *hit, float xEntry, float xExit,
-                          const DTTopology &topo) {
-
+void DTDigitizer::dumpHit(const PSimHit *hit, float xEntry, float xExit, const DTTopology &topo) {
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
 
-  DTTopology::Side entrySide =
-      topo.onWhichBorder(xEntry, entryP.y(), entryP.z());
+  DTTopology::Side entrySide = topo.onWhichBorder(xEntry, entryP.y(), entryP.z());
   DTTopology::Side exitSide = topo.onWhichBorder(xExit, exitP.y(), exitP.z());
   //  ProcessTypeEnumerator pTypes;
 
-  LogPrint("DTDigitizer")
-      << endl
-      << "------- SimHit: " << endl
-      << "   Particle type         = " << hit->particleType() << endl
-      << "   process type          = " << hit->processType() << endl
-      << "   process type          = " << hit->processType()
-      << endl
-      // << "   packedTrackId         = " << hit->packedTrackId() << endl
-      << "   trackId               = " << hit->trackId()
-      << endl // new,is the same as the
-              // previous?? FIXME-Check
-      << "   |p|                   = " << hit->pabs() << endl
-      << "   Energy loss           = " << hit->energyLoss()
-      << endl
-      // << "   timeOffset            = " << hit->timeOffset() << endl
-      // << "   measurementPosition   = " << hit->measurementPosition() << endl
-      // << "   measurementDirection  = " << hit->measurementDirection() << endl
-      // //FIXME
-      << "   localDirection        = " << hit->momentumAtEntry().unit()
-      << endl // FIXME is it a versor?
-      << "   Entry point           = " << entryP << " cell x = " << xEntry
-      << endl
-      << "   Exit point            = " << exitP << " cell x = " << xExit << endl
-      << "   DR =                  = " << (exitP - entryP).mag() << endl
-      << "   Dx =                  = " << (exitP - entryP).x() << endl
-      << "   Cell w,h,l            = (" << topo.cellWidth() << " , "
-      << topo.cellHeight() << " , " << topo.cellLenght() << ") cm" << endl
-      << "   DY entry from edge    = "
-      << topo.cellLenght() / 2. - fabs(entryP.y())
-      << "   DY exit  from edge    = "
-      << topo.cellLenght() / 2. - fabs(exitP.y())
-      << "   entrySide = " << (int)entrySide
-      << " ; exitSide = " << (int)exitSide << endl;
+  LogPrint("DTDigitizer") << endl
+                          << "------- SimHit: " << endl
+                          << "   Particle type         = " << hit->particleType() << endl
+                          << "   process type          = " << hit->processType() << endl
+                          << "   process type          = " << hit->processType()
+                          << endl
+                          // << "   packedTrackId         = " << hit->packedTrackId() << endl
+                          << "   trackId               = " << hit->trackId()
+                          << endl  // new,is the same as the
+                                   // previous?? FIXME-Check
+                          << "   |p|                   = " << hit->pabs() << endl
+                          << "   Energy loss           = " << hit->energyLoss()
+                          << endl
+                          // << "   timeOffset            = " << hit->timeOffset() << endl
+                          // << "   measurementPosition   = " << hit->measurementPosition() << endl
+                          // << "   measurementDirection  = " << hit->measurementDirection() << endl
+                          // //FIXME
+                          << "   localDirection        = " << hit->momentumAtEntry().unit()
+                          << endl  // FIXME is it a versor?
+                          << "   Entry point           = " << entryP << " cell x = " << xEntry << endl
+                          << "   Exit point            = " << exitP << " cell x = " << xExit << endl
+                          << "   DR =                  = " << (exitP - entryP).mag() << endl
+                          << "   Dx =                  = " << (exitP - entryP).x() << endl
+                          << "   Cell w,h,l            = (" << topo.cellWidth() << " , " << topo.cellHeight() << " , "
+                          << topo.cellLenght() << ") cm" << endl
+                          << "   DY entry from edge    = " << topo.cellLenght() / 2. - fabs(entryP.y())
+                          << "   DY exit  from edge    = " << topo.cellLenght() / 2. - fabs(exitP.y())
+                          << "   entrySide = " << (int)entrySide << " ; exitSide = " << (int)exitSide << endl;
 }

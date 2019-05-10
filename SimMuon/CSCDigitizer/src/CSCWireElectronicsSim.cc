@@ -13,8 +13,7 @@
 #include <iostream>
 
 CSCWireElectronicsSim::CSCWireElectronicsSim(const edm::ParameterSet &p)
-    : CSCBaseElectronicsSim(p), theFraction(0.5), theWireNoise(0.0),
-      theWireThreshold(0.) {
+    : CSCBaseElectronicsSim(p), theFraction(0.5), theWireNoise(0.0), theWireThreshold(0.) {
   fillAmpResponse();
 }
 
@@ -24,30 +23,23 @@ void CSCWireElectronicsSim::initParameters() {
   theWireThreshold = theWireNoise * 8;
 }
 
-int CSCWireElectronicsSim::readoutElement(int element) const {
-  return theLayerGeometry->wireGroup(element);
-}
+int CSCWireElectronicsSim::readoutElement(int element) const { return theLayerGeometry->wireGroup(element); }
 
-void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection &digis,
-                                      CLHEP::HepRandomEngine *engine) {
-
+void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection &digis, CLHEP::HepRandomEngine *engine) {
   if (theSignalMap.empty()) {
     return;
   }
 
   // Loop over analog signals, run the fractional discriminator on each one,
   // and save the DIGI in the layer.
-  for (CSCSignalMap::iterator mapI = theSignalMap.begin(),
-                              lastSignal = theSignalMap.end();
-       mapI != lastSignal; ++mapI) {
+  for (CSCSignalMap::iterator mapI = theSignalMap.begin(), lastSignal = theSignalMap.end(); mapI != lastSignal;
+       ++mapI) {
     int wireGroup = (*mapI).first;
     const CSCAnalogSignal &signal = (*mapI).second;
-    LogTrace("CSCWireElectronicsSim")
-        << "CSCWireElectronicsSim: dump of wire signal follows... " << signal;
+    LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: dump of wire signal follows... " << signal;
     int signalSize = signal.getSize();
 
-    int timeWord =
-        0; // and this will remain if too early or late (<bx-6 or >bx+9)
+    int timeWord = 0;  // and this will remain if too early or late (<bx-6 or >bx+9)
 
     // the way we handle noise in this chamber is by randomly varying
     // the threshold
@@ -109,14 +101,10 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection &digis,
 
         float fdTime = theSignalStartTime + theSamplingTime * bin_firing_FD;
         if (doNoise_) {
-          fdTime += theTimingCalibrationError[chamberType] *
-                    CLHEP::RandGaussQ::shoot(engine);
+          fdTime += theTimingCalibrationError[chamberType] * CLHEP::RandGaussQ::shoot(engine);
         }
 
-        float bxFloat =
-            (fdTime - tofOffset - theBunchTimingOffsets[chamberType]) /
-                theBunchSpacing +
-            theOffsetOfBxZero;
+        float bxFloat = (fdTime - tofOffset - theBunchTimingOffsets[chamberType]) / theBunchSpacing + theOffsetOfBxZero;
         int bxInt = static_cast<int>(bxFloat);
         if (bxFloat >= 0 && bxFloat < 16) {
           timeWord |= (1 << bxInt);
@@ -140,8 +128,8 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection &digis,
 
         // skip over all the time bins used for this digi
         ibin = lastbin;
-      } // if over threshold
-    }   // loop over time bins in signal
+      }  // if over threshold
+    }    // loop over time bins in signal
 
     // Only create a wire digi if there is a wire hit within [-6 bx, +9 bx]
     if (timeWord != 0) {
@@ -150,7 +138,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection &digis,
       digis.insertDigi(layerId(), newDigi);
       addLinks(channelIndex(wireGroup));
     }
-  } // loop over wire signals
+  }  // loop over wire signals
 }
 
 float CSCWireElectronicsSim::calculateAmpResponse(float t) const {
@@ -168,11 +156,9 @@ float CSCWireElectronicsSim::calculateAmpResponse(float t) const {
   static const float norm = -12 * resistor * p1 * pow(p0 / dp, 4) / fC_by_ns;
 
   float enable_disc_volts =
-      norm *
-      (exp(-p0 * t) * (1 + t * dp + pow(t * dp, 2) / 2 + pow(t * dp, 3) / 6) -
-       exp(-p1 * t));
+      norm * (exp(-p0 * t) * (1 + t * dp + pow(t * dp, 2) / 2 + pow(t * dp, 3) / 6) - exp(-p1 * t));
   static const float collectionFraction = 0.12;
-  static const float igain = 1. / 0.005; // volts per fC
+  static const float igain = 1. / 0.005;  // volts per fC
   return enable_disc_volts * igain * collectionFraction;
 }
 
@@ -186,12 +172,11 @@ float CSCWireElectronicsSim::timeOfFlightCalibration(int wireGroup) const {
 
   GlobalPoint centerOfGroupGroup = theLayer->centerOfWireGroup(middleWireGroup);
   float averageDist = centerOfGroupGroup.mag();
-  float averageTOF = averageDist * cm / c_light; // Units of c_light: mm/ns
+  float averageTOF = averageDist * cm / c_light;  // Units of c_light: mm/ns
 
-  LogTrace("CSCWireElectronicsSim")
-      << "CSCWireElectronicsSim: TofCalib  wg = " << wireGroup
-      << " mid wg = " << middleWireGroup << " av dist = " << averageDist
-      << " av tof = " << averageTOF;
+  LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: TofCalib  wg = " << wireGroup
+                                    << " mid wg = " << middleWireGroup << " av dist = " << averageDist
+                                    << " av tof = " << averageTOF;
 
   return averageTOF;
 }

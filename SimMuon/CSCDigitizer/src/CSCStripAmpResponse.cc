@@ -9,7 +9,6 @@ CSCStripAmpResponse::CSCStripAmpResponse(int shapingTime, int tailShaping)
     : theShapingTime(shapingTime), theTailShaping(tailShaping) {}
 
 float CSCStripAmpResponse::calculateAmpResponse(float t) const {
-
   // Local variables
   double t1, t3, t5, t7, cat = 0.;
 
@@ -47,13 +46,12 @@ float CSCStripAmpResponse::calculateAmpResponse(float t) const {
   //            approx) using 2 zeros and 2 poles
 
   if (theTailShaping != 0 && theTailShaping != 1 && theTailShaping != 2) {
-    edm::LogError("CSCStripElectronicsSim")
-        << "Bad TailShaping CSCStripElectronicsSim" << theTailShaping;
+    edm::LogError("CSCStripElectronicsSim") << "Bad TailShaping CSCStripElectronicsSim" << theTailShaping;
     return 0.;
   }
 
   switch (theShapingTime) {
-    /*
+      /*
         case 10:
     // no tail cancellation, tp= 10,t0=2.1
             if (theTailShaping == NONE) {
@@ -127,45 +125,36 @@ float CSCStripAmpResponse::calculateAmpResponse(float t) const {
             }
             break;
     */
-  case 30:
-    // no tail cancellation, tp= 30,t0=2.1
-    if (theTailShaping == NONE) {
-      // Computing 2nd power
-      t5 = t * t;
-      t7 = exp(t * -.1);
-      cat = exp(t * -.06523809524) * 16.18007335 +
-            exp(t * -.400952381) * .01096643477 +
-            exp(t * -.01333333333) * .0924451733 +
-            exp(t * -.002285714286) * .01409456303 -
-            t5 * 7.567748611e-5 * t * t7 - t5 * .01068701841 * t7 -
-            t * .5685389492 * t7 - t7 * 16.29757952;
-    }
-    //  tail cancellation, tp= 30,t0=2.1
-    if (theTailShaping == CONSERVATIVE) {
-      // Computing 2nd power
-      t1 = t * t;
-      t3 = exp(t * -.1);
-      cat = t1 * -7.656495508e-5 * t * t3 - t1 * .01083991133 * t3 -
-            t * .5783722846 * t3 - t3 * 16.59051472 +
-            exp(t * -.01333333333) * .1030053814 +
-            exp(t * -.400952381) * .01099767919 +
-            exp(t * -.06523809524) * 16.47651166 +
-            exp(t * -.003418326524) * 4.197333487e-11;
-    }
-    //  radical tail cancellation, tp= 30,t0=2.1
-    if (theTailShaping == RADICAL) {
-      // Computing 2nd power
-      t1 = t * t;
-      t3 = exp(t * -.1);
-      cat = t1 * -8.37792502e-5 * t * t3 - t1 * .0121345525 * t3 -
-            t * .6655605456 * t3 - t3 * 19.25455777 -
-            exp(t * -.0207962661) * 9.823832281e-10 +
-            exp(t * -.003418326524) * 2.394794269e-11 +
-            exp(t * -.400952381) * .01121357717 +
-            exp(t * -.06523809524) * 19.2433442;
-    }
-    break;
-    /*
+    case 30:
+      // no tail cancellation, tp= 30,t0=2.1
+      if (theTailShaping == NONE) {
+        // Computing 2nd power
+        t5 = t * t;
+        t7 = exp(t * -.1);
+        cat = exp(t * -.06523809524) * 16.18007335 + exp(t * -.400952381) * .01096643477 +
+              exp(t * -.01333333333) * .0924451733 + exp(t * -.002285714286) * .01409456303 -
+              t5 * 7.567748611e-5 * t * t7 - t5 * .01068701841 * t7 - t * .5685389492 * t7 - t7 * 16.29757952;
+      }
+      //  tail cancellation, tp= 30,t0=2.1
+      if (theTailShaping == CONSERVATIVE) {
+        // Computing 2nd power
+        t1 = t * t;
+        t3 = exp(t * -.1);
+        cat = t1 * -7.656495508e-5 * t * t3 - t1 * .01083991133 * t3 - t * .5783722846 * t3 - t3 * 16.59051472 +
+              exp(t * -.01333333333) * .1030053814 + exp(t * -.400952381) * .01099767919 +
+              exp(t * -.06523809524) * 16.47651166 + exp(t * -.003418326524) * 4.197333487e-11;
+      }
+      //  radical tail cancellation, tp= 30,t0=2.1
+      if (theTailShaping == RADICAL) {
+        // Computing 2nd power
+        t1 = t * t;
+        t3 = exp(t * -.1);
+        cat = t1 * -8.37792502e-5 * t * t3 - t1 * .0121345525 * t3 - t * .6655605456 * t3 - t3 * 19.25455777 -
+              exp(t * -.0207962661) * 9.823832281e-10 + exp(t * -.003418326524) * 2.394794269e-11 +
+              exp(t * -.400952381) * .01121357717 + exp(t * -.06523809524) * 19.2433442;
+      }
+      break;
+      /*
         case 40:
     // no tail cancellation, tp= 40,t0=2.1
             if (theTailShaping == NONE) {
@@ -377,45 +366,36 @@ float CSCStripAmpResponse::calculateAmpResponse(float t) const {
             }
             break;
     */
-  case 100:
-    // no tail cancellation, tp=100,t0=2.1
-    if (theTailShaping == NONE) {
-      // Computing 2nd power
-      t5 = t * t;
-      t7 = exp(t * -.03);
-      cat = exp(t * -.06523809524) * .4137221868 +
-            exp(t * -.400952381) * 1.282766787e-4 +
-            exp(t * -.01333333333) * 1.824993745 +
-            exp(t * -.002285714286) * .05880752038 +
-            t5 * 2.491640871e-6 * t * t7 - t5 * 5.417458918e-4 * t7 -
-            t * .01742000448 * t7 - t7 * 2.297651729;
-    }
-    //  tail cancellation, tp=100,t0=2.1
-    if (theTailShaping == CONSERVATIVE) {
-      // Computing 2nd power
-      t1 = t * t;
-      t3 = exp(t * -.03);
-      cat = t1 * 2.597806608e-6 * t * t3 - t1 * 5.528471798e-4 * t3 -
-            t * .0189975081 * t3 - t3 * 2.454897362 +
-            exp(t * -.01333333333) * 2.033466647 +
-            exp(t * -.400952381) * 1.28642151e-4 +
-            exp(t * -.06523809524) * .4213020729 +
-            exp(t * -.003418326524) * 1.975089906e-10;
-    }
-    //  radical tail cancellation, tp=100,t0=2.1
-    if (theTailShaping == RADICAL) {
-      // Computing 2nd power
-      t1 = t * t;
-      t3 = exp(t * -.03);
-      cat = t1 * 4.704262123e-6 * t * t3 - t1 * 3.14519427e-4 * t3 +
-            t * .01738754854 * t3 - t3 * .4921806115 -
-            exp(t * -.0207962661) * 1.454692205e-7 +
-            exp(t * -.003418326524) * 1.126890204e-10 +
-            exp(t * -.400952381) * 1.311675549e-4 +
-            exp(t * -.06523809524) * .4920495894;
-    }
-    break;
-    /*
+    case 100:
+      // no tail cancellation, tp=100,t0=2.1
+      if (theTailShaping == NONE) {
+        // Computing 2nd power
+        t5 = t * t;
+        t7 = exp(t * -.03);
+        cat = exp(t * -.06523809524) * .4137221868 + exp(t * -.400952381) * 1.282766787e-4 +
+              exp(t * -.01333333333) * 1.824993745 + exp(t * -.002285714286) * .05880752038 +
+              t5 * 2.491640871e-6 * t * t7 - t5 * 5.417458918e-4 * t7 - t * .01742000448 * t7 - t7 * 2.297651729;
+      }
+      //  tail cancellation, tp=100,t0=2.1
+      if (theTailShaping == CONSERVATIVE) {
+        // Computing 2nd power
+        t1 = t * t;
+        t3 = exp(t * -.03);
+        cat = t1 * 2.597806608e-6 * t * t3 - t1 * 5.528471798e-4 * t3 - t * .0189975081 * t3 - t3 * 2.454897362 +
+              exp(t * -.01333333333) * 2.033466647 + exp(t * -.400952381) * 1.28642151e-4 +
+              exp(t * -.06523809524) * .4213020729 + exp(t * -.003418326524) * 1.975089906e-10;
+      }
+      //  radical tail cancellation, tp=100,t0=2.1
+      if (theTailShaping == RADICAL) {
+        // Computing 2nd power
+        t1 = t * t;
+        t3 = exp(t * -.03);
+        cat = t1 * 4.704262123e-6 * t * t3 - t1 * 3.14519427e-4 * t3 + t * .01738754854 * t3 - t3 * .4921806115 -
+              exp(t * -.0207962661) * 1.454692205e-7 + exp(t * -.003418326524) * 1.126890204e-10 +
+              exp(t * -.400952381) * 1.311675549e-4 + exp(t * -.06523809524) * .4920495894;
+      }
+      break;
+      /*
         case 150:
     // no tail cancellation, tp=150,t0=2.1
             if (theTailShaping == NONE) {
@@ -557,10 +537,9 @@ float CSCStripAmpResponse::calculateAmpResponse(float t) const {
             }
             break;
     */
-  default:
-    edm::LogError("CSCStripElectronicsSim")
-        << "Bad shaping time CSCStripElectronicsSim " << theShapingTime;
-    break;
+    default:
+      edm::LogError("CSCStripElectronicsSim") << "Bad shaping time CSCStripElectronicsSim " << theShapingTime;
+      break;
   }
   return cat;
 }

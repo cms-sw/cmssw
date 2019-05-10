@@ -54,8 +54,8 @@ public:
   float length() const { return theGap.mag(); }
 
 private:
-  double theBeta2; // Lorentz beta^2
-  double theGamma; // Lorentz gamma
+  double theBeta2;  // Lorentz beta^2
+  double theGamma;  // Lorentz gamma
   double loggam;
   LocalVector theGap;
 

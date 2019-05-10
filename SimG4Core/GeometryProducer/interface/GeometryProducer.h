@@ -18,7 +18,7 @@
 #include <memory>
 
 namespace sim {
-class FieldBuilder;
+  class FieldBuilder;
 }
 
 class SimWatcher;
@@ -27,8 +27,7 @@ class DDDWorld;
 class G4RunManagerKernel;
 class SimTrackManager;
 
-class GeometryProducer : public edm::one::EDProducer<edm::one::SharedResources,
-                                                     edm::one::WatchRuns> {
+class GeometryProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   typedef std::vector<std::shared_ptr<SimProducer>> Producers;
 
@@ -39,13 +38,9 @@ public:
   void produce(edm::Event &e, const edm::EventSetup &c) override;
   void beginLuminosityBlock(edm::LuminosityBlock &, edm::EventSetup const &);
 
-  std::vector<std::shared_ptr<SimProducer>> producers() const {
-    return m_producers;
-  }
+  std::vector<std::shared_ptr<SimProducer>> producers() const { return m_producers; }
   std::vector<SensitiveTkDetector *> &sensTkDetectors() { return m_sensTkDets; }
-  std::vector<SensitiveCaloDetector *> &sensCaloDetectors() {
-    return m_sensCaloDets;
-  }
+  std::vector<SensitiveCaloDetector *> &sensCaloDetectors() { return m_sensCaloDets; }
 
 private:
   void updateMagneticField(edm::EventSetup const &es);

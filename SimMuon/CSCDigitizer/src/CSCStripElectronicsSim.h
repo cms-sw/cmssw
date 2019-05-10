@@ -22,7 +22,7 @@ class CSCStripConditions;
 #include <vector>
 
 namespace CLHEP {
-class HepRandomEngine;
+  class HepRandomEngine;
 }
 
 class CSCStripElectronicsSim : public CSCBaseElectronicsSim {
@@ -32,24 +32,21 @@ public:
 
   ~CSCStripElectronicsSim() override;
 
-  void fillDigis(CSCStripDigiCollection &digis,
-                 CSCComparatorDigiCollection &comparators,
-                 CLHEP::HepRandomEngine *);
+  void fillDigis(CSCStripDigiCollection &digis, CSCComparatorDigiCollection &comparators, CLHEP::HepRandomEngine *);
 
   void fillMissingLayer(const CSCLayer *layer,
                         const CSCComparatorDigiCollection &comparators,
                         CSCStripDigiCollection &digis,
                         CLHEP::HepRandomEngine *);
 
-  void setStripConditions(CSCStripConditions *cond) {
-    theStripConditions = cond;
-  }
+  void setStripConditions(CSCStripConditions *cond) { theStripConditions = cond; }
 
-  CSCAnalogSignal makeNoiseSignal(int element,
-                                  CLHEP::HepRandomEngine *) override;
+  CSCAnalogSignal makeNoiseSignal(int element, CLHEP::HepRandomEngine *) override;
 
-  void createDigi(int istrip, const CSCAnalogSignal &signal,
-                  std::vector<CSCStripDigi> &result, CLHEP::HepRandomEngine *);
+  void createDigi(int istrip,
+                  const CSCAnalogSignal &signal,
+                  std::vector<CSCStripDigi> &result,
+                  CLHEP::HepRandomEngine *);
 
 private:
   /// initialization for each layer
@@ -60,33 +57,27 @@ private:
   float calculateAmpResponse(float t) const override;
   CSCStripAmpResponse theAmpResponse;
 
-  void runComparator(std::vector<CSCComparatorDigi> &result,
-                     CLHEP::HepRandomEngine *);
+  void runComparator(std::vector<CSCComparatorDigi> &result, CLHEP::HepRandomEngine *);
 
   /// calculates the comparator reading, including saturation and offsets
-  float comparatorReading(const CSCAnalogSignal &signal, float time,
-                          CLHEP::HepRandomEngine *) const;
+  float comparatorReading(const CSCAnalogSignal &signal, float time, CLHEP::HepRandomEngine *) const;
 
   // tells which strips to read out around the input strip
   void getReadoutRange(int inputStrip, int &minStrip, int &maxStrip);
 
   /// finds the key strips from these comparators
-  std::list<int>
-  getKeyStrips(const std::vector<CSCComparatorDigi> &comparators) const;
+  std::list<int> getKeyStrips(const std::vector<CSCComparatorDigi> &comparators) const;
 
   /// get ths strips that have detector hits
   std::list<int> getKeyStripsFromMC() const;
   /// finds what strips to read.  Will either take 5 strips around
   /// the keystrip, or the whole CFEB, based on doSuppression_
-  std::list<int> channelsToRead(const std::list<int> &keyStrips,
-                                int window) const;
+  std::list<int> channelsToRead(const std::list<int> &keyStrips, int window) const;
 
-  void fillStripDigis(const std::list<int> &keyStrips,
-                      CSCStripDigiCollection &digis, CLHEP::HepRandomEngine *);
+  void fillStripDigis(const std::list<int> &keyStrips, CSCStripDigiCollection &digis, CLHEP::HepRandomEngine *);
 
   void addCrosstalk(CLHEP::HepRandomEngine *);
-  void addCrosstalk(const CSCAnalogSignal &signal, int thisStrip,
-                    int otherStrip, CLHEP::HepRandomEngine *);
+  void addCrosstalk(const CSCAnalogSignal &signal, int thisStrip, int otherStrip, CLHEP::HepRandomEngine *);
 
   void selfTest() const;
 
@@ -94,7 +85,7 @@ private:
   void doSaturation(CSCStripDigi &digi);
 
   // useful constants
-  float theComparatorThreshold; // in fC
+  float theComparatorThreshold;  // in fC
   float theComparatorNoise;
   float theComparatorRMSOffset;
   // note that we don't implement the effect of the x3.5 amplifier
