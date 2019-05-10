@@ -73,17 +73,17 @@ class TTree;
 class SimVertex;
 class SimTrack;
 
-class PiZeroAnalyzer : public DQMEDAnalyzer
-{
-
- public:
-  explicit PiZeroAnalyzer( const edm::ParameterSet& ) ;
+class PiZeroAnalyzer : public DQMEDAnalyzer {
+public:
+  explicit PiZeroAnalyzer(const edm::ParameterSet&);
   ~PiZeroAnalyzer() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze( const edm::Event&, const edm::EventSetup& ) override ;
- 
- private:
-  void makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> eb, const edm::Handle<EcalRecHitCollection> ee ); 
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  void makePizero(const edm::EventSetup& es,
+                  const edm::Handle<EcalRecHitCollection> eb,
+                  const edm::Handle<EcalRecHitCollection> ee);
 
   std::string fName_;
   unsigned int prescaleFactor_;
@@ -92,8 +92,8 @@ class PiZeroAnalyzer : public DQMEDAnalyzer
 
   edm::ParameterSet posCalcParameters_;
 
-  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > barrelEcalHits_token_;
-  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapEcalHits_token_;
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> > > barrelEcalHits_token_;
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> > > endcapEcalHits_token_;
   double minPhoEtCut_;
 
   double cutStep_;
@@ -124,11 +124,11 @@ class PiZeroAnalyzer : public DQMEDAnalyzer
 
   std::stringstream currentFolder_;
 
-  MonitorElement*  hMinvPi0EB_;
-  MonitorElement*  hPt1Pi0EB_;
-  MonitorElement*  hPt2Pi0EB_;
-  MonitorElement*  hIsoPi0EB_;
-  MonitorElement*  hPtPi0EB_;
+  MonitorElement* hMinvPi0EB_;
+  MonitorElement* hPt1Pi0EB_;
+  MonitorElement* hPt2Pi0EB_;
+  MonitorElement* hIsoPi0EB_;
+  MonitorElement* hPtPi0EB_;
 };
 
 #endif

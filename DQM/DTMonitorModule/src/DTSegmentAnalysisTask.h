@@ -34,15 +34,12 @@
 #include <map>
 #include <vector>
 
-
 class DTGeometry;
 class DQMStore;
 class MonitorElement;
 class DTTimeEvolutionHisto;
 
-class DTSegmentAnalysisTask: public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>{
-
-
+class DTSegmentAnalysisTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTSegmentAnalysisTask(const edm::ParameterSet& pset);
@@ -51,7 +48,7 @@ public:
   ~DTSegmentAnalysisTask() override;
 
   /// BeginRun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
@@ -60,18 +57,15 @@ public:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
 
-
 protected:
-
   // Book the histograms
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-
   // Switch for detailed analysis
   bool detailedAnalysis;
 
-   // Get the DT Geometry
+  // Get the DT Geometry
   edm::ESHandle<DTGeometry> dtGeom;
 
   // Lable of 4D segments in the event
@@ -83,20 +77,18 @@ private:
   edm::ParameterSet parameters;
 
   // book the histos
-  void bookHistos(DQMStore::IBooker & ibooker, DTChamberId chamberId);
+  void bookHistos(DQMStore::IBooker& ibooker, DTChamberId chamberId);
   // Fill a set of histograms for a given chamber
-  void fillHistos(DTChamberId chamberId,
-		  int nHits,
-		  float chi2);
+  void fillHistos(DTChamberId chamberId, int nHits, float chi2);
 
   //  the histos
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
-  std::map< int, MonitorElement* > summaryHistos;
+  std::map<int, MonitorElement*> summaryHistos;
   std::map<int, std::map<int, DTTimeEvolutionHisto*> > histoTimeEvol;
 
   int nevents;
   int nEventsInLS;
-  DTTimeEvolutionHisto*hNevtPerLS;
+  DTTimeEvolutionHisto* hNevtPerLS;
 
   // # of bins in the time histos
   int nTimeBins;
@@ -114,10 +106,8 @@ private:
   int nhitsCut;
 
   MonitorElement* nEventMonitor;
-
 };
 #endif
-
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */
