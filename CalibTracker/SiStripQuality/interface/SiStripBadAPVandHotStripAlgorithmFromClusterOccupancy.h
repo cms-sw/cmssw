@@ -2,7 +2,7 @@
 //
 // Package:    SiStripQuality
 // Class:      SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy
-// 
+//
 /**\class SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy.h CalibTracker/SiStripQuality/src/SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy.cc
 
  Description: <one line class summary>
@@ -41,33 +41,38 @@
 class SiStripQuality;
 class TrackerTopology;
 
-class SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy{
-
+class SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy {
 public:
-  typedef SiStrip::QualityHistosMap HistoMap;  
-  
+  typedef SiStrip::QualityHistosMap HistoMap;
+
   SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet&, const TrackerTopology*);
 
   virtual ~SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy();
 
-  void setProbabilityThreshold(long double prob){prob_=prob;}
-  void setMinNumEntries(unsigned short m){MinNumEntries_=m;}
-  void setMinNumEntriesPerStrip(unsigned short m){MinNumEntriesPerStrip_=m;}
-  void setLowOccupancyThreshold(long double low_occupancy){lowoccupancy_=low_occupancy;}
-  void setHighOccupancyThreshold(long double high_occupancy){highoccupancy_=high_occupancy;}
-  void setAbsoluteLowThreshold(long double absolute_low){absolutelow_=absolute_low;}
-  void setNumberIterations(int number_iterations){numberiterations_=number_iterations;}
-  void setAbsoluteOccupancyThreshold(long double absolute_occupancy){absolute_occupancy_=absolute_occupancy;}
-  void setNumberOfEvents(double Nevents){Nevents_=Nevents;}
+  void setProbabilityThreshold(long double prob) { prob_ = prob; }
+  void setMinNumEntries(unsigned short m) { MinNumEntries_ = m; }
+  void setMinNumEntriesPerStrip(unsigned short m) { MinNumEntriesPerStrip_ = m; }
+  void setLowOccupancyThreshold(long double low_occupancy) { lowoccupancy_ = low_occupancy; }
+  void setHighOccupancyThreshold(long double high_occupancy) { highoccupancy_ = high_occupancy; }
+  void setAbsoluteLowThreshold(long double absolute_low) { absolutelow_ = absolute_low; }
+  void setNumberIterations(int number_iterations) { numberiterations_ = number_iterations; }
+  void setAbsoluteOccupancyThreshold(long double absolute_occupancy) { absolute_occupancy_ = absolute_occupancy; }
+  void setNumberOfEvents(double Nevents) { Nevents_ = Nevents; }
   void setMinNumOfEvents();
-  void setOutputFileName(std::string OutputFileName, bool WriteOutputFile, std::string DQMOutfileName, bool WriteDQMHistograms){OutFileName_=OutputFileName; WriteOutputFile_=WriteOutputFile; DQMOutfileName_=DQMOutfileName; WriteDQMHistograms_=WriteDQMHistograms;}
-  void setTrackerGeometry(const TrackerGeometry* tkgeom){TkGeom = tkgeom;}
-  void extractBadAPVSandStrips(SiStripQuality*,HistoMap&,edm::ESHandle<SiStripQuality>&);
+  void setOutputFileName(std::string OutputFileName,
+                         bool WriteOutputFile,
+                         std::string DQMOutfileName,
+                         bool WriteDQMHistograms) {
+    OutFileName_ = OutputFileName;
+    WriteOutputFile_ = WriteOutputFile;
+    DQMOutfileName_ = DQMOutfileName;
+    WriteDQMHistograms_ = WriteDQMHistograms;
+  }
+  void setTrackerGeometry(const TrackerGeometry* tkgeom) { TkGeom = tkgeom; }
+  void extractBadAPVSandStrips(SiStripQuality*, HistoMap&, edm::ESHandle<SiStripQuality>&);
 
- private:
-
-  struct Apv{   
-
+private:
+  struct Apv {
     uint32_t detrawId;
     int modulePosition;
     int numberApvs;
@@ -78,13 +83,17 @@ public:
     int NEmptyBins[6];
   };
 
-  void CalculateMeanAndRMS(const std::vector<Apv>&, std::pair<double,double>*, int);
+  void CalculateMeanAndRMS(const std::vector<Apv>&, std::pair<double, double>*, int);
 
-  void AnalyzeOccupancy(SiStripQuality*, std::vector<Apv>&, std::pair<double,double>*, std::vector<unsigned int>&, edm::ESHandle<SiStripQuality>&);
+  void AnalyzeOccupancy(SiStripQuality*,
+                        std::vector<Apv>&,
+                        std::pair<double, double>*,
+                        std::vector<unsigned int>&,
+                        edm::ESHandle<SiStripQuality>&);
 
-  void iterativeSearch(Apv&,std::vector<unsigned int>&,int);
+  void iterativeSearch(Apv&, std::vector<unsigned int>&, int);
 
-  void evaluatePoissonian(std::vector<long double>& , long double& meanVal);
+  void evaluatePoissonian(std::vector<long double>&, long double& meanVal);
 
   void setBasicTreeParameters(int detid);
 
@@ -111,51 +120,84 @@ public:
   const TrackerGeometry* TkGeom;
   const TrackerTopology* tTopo;
 
-  SiStripQuality *pQuality;
+  SiStripQuality* pQuality;
 
   double stripOccupancy[6][128];
   double stripWeight[6][128];
 
-  std::vector<Apv> medianValues_TIB_Layer1; std::pair<double,double> MeanAndRms_TIB_Layer1[7];
-  std::vector<Apv> medianValues_TIB_Layer2; std::pair<double,double> MeanAndRms_TIB_Layer2[7];
-  std::vector<Apv> medianValues_TIB_Layer3; std::pair<double,double> MeanAndRms_TIB_Layer3[7];
-  std::vector<Apv> medianValues_TIB_Layer4; std::pair<double,double> MeanAndRms_TIB_Layer4[7];
+  std::vector<Apv> medianValues_TIB_Layer1;
+  std::pair<double, double> MeanAndRms_TIB_Layer1[7];
+  std::vector<Apv> medianValues_TIB_Layer2;
+  std::pair<double, double> MeanAndRms_TIB_Layer2[7];
+  std::vector<Apv> medianValues_TIB_Layer3;
+  std::pair<double, double> MeanAndRms_TIB_Layer3[7];
+  std::vector<Apv> medianValues_TIB_Layer4;
+  std::pair<double, double> MeanAndRms_TIB_Layer4[7];
 
-  std::vector<Apv> medianValues_TOB_Layer1; std::pair<double,double> MeanAndRms_TOB_Layer1[7];
-  std::vector<Apv> medianValues_TOB_Layer2; std::pair<double,double> MeanAndRms_TOB_Layer2[7];
-  std::vector<Apv> medianValues_TOB_Layer3; std::pair<double,double> MeanAndRms_TOB_Layer3[7];
-  std::vector<Apv> medianValues_TOB_Layer4; std::pair<double,double> MeanAndRms_TOB_Layer4[7];
-  std::vector<Apv> medianValues_TOB_Layer5; std::pair<double,double> MeanAndRms_TOB_Layer5[7];
-  std::vector<Apv> medianValues_TOB_Layer6; std::pair<double,double> MeanAndRms_TOB_Layer6[7];
+  std::vector<Apv> medianValues_TOB_Layer1;
+  std::pair<double, double> MeanAndRms_TOB_Layer1[7];
+  std::vector<Apv> medianValues_TOB_Layer2;
+  std::pair<double, double> MeanAndRms_TOB_Layer2[7];
+  std::vector<Apv> medianValues_TOB_Layer3;
+  std::pair<double, double> MeanAndRms_TOB_Layer3[7];
+  std::vector<Apv> medianValues_TOB_Layer4;
+  std::pair<double, double> MeanAndRms_TOB_Layer4[7];
+  std::vector<Apv> medianValues_TOB_Layer5;
+  std::pair<double, double> MeanAndRms_TOB_Layer5[7];
+  std::vector<Apv> medianValues_TOB_Layer6;
+  std::pair<double, double> MeanAndRms_TOB_Layer6[7];
 
-  std::vector<Apv> medianValues_TIDPlus_Disc1; std::pair<double,double> MeanAndRms_TIDPlus_Disc1[7];
-  std::vector<Apv> medianValues_TIDPlus_Disc2; std::pair<double,double> MeanAndRms_TIDPlus_Disc2[7];
-  std::vector<Apv> medianValues_TIDPlus_Disc3; std::pair<double,double> MeanAndRms_TIDPlus_Disc3[7];
+  std::vector<Apv> medianValues_TIDPlus_Disc1;
+  std::pair<double, double> MeanAndRms_TIDPlus_Disc1[7];
+  std::vector<Apv> medianValues_TIDPlus_Disc2;
+  std::pair<double, double> MeanAndRms_TIDPlus_Disc2[7];
+  std::vector<Apv> medianValues_TIDPlus_Disc3;
+  std::pair<double, double> MeanAndRms_TIDPlus_Disc3[7];
 
-  std::vector<Apv> medianValues_TIDMinus_Disc1; std::pair<double,double> MeanAndRms_TIDMinus_Disc1[7];
-  std::vector<Apv> medianValues_TIDMinus_Disc2; std::pair<double,double> MeanAndRms_TIDMinus_Disc2[7];
-  std::vector<Apv> medianValues_TIDMinus_Disc3; std::pair<double,double> MeanAndRms_TIDMinus_Disc3[7];
+  std::vector<Apv> medianValues_TIDMinus_Disc1;
+  std::pair<double, double> MeanAndRms_TIDMinus_Disc1[7];
+  std::vector<Apv> medianValues_TIDMinus_Disc2;
+  std::pair<double, double> MeanAndRms_TIDMinus_Disc2[7];
+  std::vector<Apv> medianValues_TIDMinus_Disc3;
+  std::pair<double, double> MeanAndRms_TIDMinus_Disc3[7];
 
-  std::vector<Apv> medianValues_TECPlus_Disc1; std::pair<double,double> MeanAndRms_TECPlus_Disc1[7];
-  std::vector<Apv> medianValues_TECPlus_Disc2; std::pair<double,double> MeanAndRms_TECPlus_Disc2[7];
-  std::vector<Apv> medianValues_TECPlus_Disc3; std::pair<double,double> MeanAndRms_TECPlus_Disc3[7];
-  std::vector<Apv> medianValues_TECPlus_Disc4; std::pair<double,double> MeanAndRms_TECPlus_Disc4[7];
-  std::vector<Apv> medianValues_TECPlus_Disc5; std::pair<double,double> MeanAndRms_TECPlus_Disc5[7];
-  std::vector<Apv> medianValues_TECPlus_Disc6; std::pair<double,double> MeanAndRms_TECPlus_Disc6[7];
-  std::vector<Apv> medianValues_TECPlus_Disc7; std::pair<double,double> MeanAndRms_TECPlus_Disc7[7];
-  std::vector<Apv> medianValues_TECPlus_Disc8; std::pair<double,double> MeanAndRms_TECPlus_Disc8[7];
-  std::vector<Apv> medianValues_TECPlus_Disc9; std::pair<double,double> MeanAndRms_TECPlus_Disc9[7];
+  std::vector<Apv> medianValues_TECPlus_Disc1;
+  std::pair<double, double> MeanAndRms_TECPlus_Disc1[7];
+  std::vector<Apv> medianValues_TECPlus_Disc2;
+  std::pair<double, double> MeanAndRms_TECPlus_Disc2[7];
+  std::vector<Apv> medianValues_TECPlus_Disc3;
+  std::pair<double, double> MeanAndRms_TECPlus_Disc3[7];
+  std::vector<Apv> medianValues_TECPlus_Disc4;
+  std::pair<double, double> MeanAndRms_TECPlus_Disc4[7];
+  std::vector<Apv> medianValues_TECPlus_Disc5;
+  std::pair<double, double> MeanAndRms_TECPlus_Disc5[7];
+  std::vector<Apv> medianValues_TECPlus_Disc6;
+  std::pair<double, double> MeanAndRms_TECPlus_Disc6[7];
+  std::vector<Apv> medianValues_TECPlus_Disc7;
+  std::pair<double, double> MeanAndRms_TECPlus_Disc7[7];
+  std::vector<Apv> medianValues_TECPlus_Disc8;
+  std::pair<double, double> MeanAndRms_TECPlus_Disc8[7];
+  std::vector<Apv> medianValues_TECPlus_Disc9;
+  std::pair<double, double> MeanAndRms_TECPlus_Disc9[7];
 
-  std::vector<Apv> medianValues_TECMinus_Disc1; std::pair<double,double> MeanAndRms_TECMinus_Disc1[7];
-  std::vector<Apv> medianValues_TECMinus_Disc2; std::pair<double,double> MeanAndRms_TECMinus_Disc2[7];
-  std::vector<Apv> medianValues_TECMinus_Disc3; std::pair<double,double> MeanAndRms_TECMinus_Disc3[7];
-  std::vector<Apv> medianValues_TECMinus_Disc4; std::pair<double,double> MeanAndRms_TECMinus_Disc4[7];
-  std::vector<Apv> medianValues_TECMinus_Disc5; std::pair<double,double> MeanAndRms_TECMinus_Disc5[7];
-  std::vector<Apv> medianValues_TECMinus_Disc6; std::pair<double,double> MeanAndRms_TECMinus_Disc6[7];
-  std::vector<Apv> medianValues_TECMinus_Disc7; std::pair<double,double> MeanAndRms_TECMinus_Disc7[7];
-  std::vector<Apv> medianValues_TECMinus_Disc8; std::pair<double,double> MeanAndRms_TECMinus_Disc8[7];
-  std::vector<Apv> medianValues_TECMinus_Disc9; std::pair<double,double> MeanAndRms_TECMinus_Disc9[7];
-
+  std::vector<Apv> medianValues_TECMinus_Disc1;
+  std::pair<double, double> MeanAndRms_TECMinus_Disc1[7];
+  std::vector<Apv> medianValues_TECMinus_Disc2;
+  std::pair<double, double> MeanAndRms_TECMinus_Disc2[7];
+  std::vector<Apv> medianValues_TECMinus_Disc3;
+  std::pair<double, double> MeanAndRms_TECMinus_Disc3[7];
+  std::vector<Apv> medianValues_TECMinus_Disc4;
+  std::pair<double, double> MeanAndRms_TECMinus_Disc4[7];
+  std::vector<Apv> medianValues_TECMinus_Disc5;
+  std::pair<double, double> MeanAndRms_TECMinus_Disc5[7];
+  std::vector<Apv> medianValues_TECMinus_Disc6;
+  std::pair<double, double> MeanAndRms_TECMinus_Disc6[7];
+  std::vector<Apv> medianValues_TECMinus_Disc7;
+  std::pair<double, double> MeanAndRms_TECMinus_Disc7[7];
+  std::vector<Apv> medianValues_TECMinus_Disc8;
+  std::pair<double, double> MeanAndRms_TECMinus_Disc8[7];
+  std::vector<Apv> medianValues_TECMinus_Disc9;
+  std::pair<double, double> MeanAndRms_TECMinus_Disc9[7];
 
   TFile* f;
   TTree* apvtree;
@@ -181,9 +223,9 @@ public:
   float strip_global_position_y;
   float strip_global_position_z;
 
-  int    apvAbsoluteOccupancy;
+  int apvAbsoluteOccupancy;
   double apvMedianOccupancy;
-  int    isBad;
+  int isBad;
 
   TTree* striptree;
   int strip_number;
@@ -220,7 +262,7 @@ public:
   // indexes in these arrays are [SubDetId-2][LayerN]
   // histograms for [SubDetId-2][0] are global for the subdetector
   // histogram for [0][0] is global for the tracker
-  
+
   TH2F* medianVsAbsoluteOccupancy[5][10];
   TH1F* medianOccupancy[5][10];
   TH1F* absoluteOccupancy[5][10];
@@ -249,7 +291,7 @@ public:
   std::vector<TH2F*> poissonProbGoodStripsVsStripNumber;
   std::vector<TProfile*> pfxPoissonProbGoodStripsVsStripNumber;
   std::vector<TH1F*> projYPoissonProbGoodStripsVsStripNumber;
-   
+
   std::vector<TH2F*> nHitsVsStripNumber;
   std::vector<TProfile*> pfxNHitsVsStripNumber;
   std::vector<TH1F*> projXNHitsVsStripNumber;
@@ -274,4 +316,3 @@ public:
   std::string outfilename;
 };
 #endif
-

@@ -5,17 +5,16 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include <vector>
 
-namespace edm { class Event; }
+namespace edm {
+  class Event;
+}
 
-class AlignmentSeedSelector
-{
-
- public:
-
-  typedef std::vector<const TrajectorySeed*> Seeds; 
+class AlignmentSeedSelector {
+public:
+  typedef std::vector<const TrajectorySeed*> Seeds;
 
   /// constructor
-  AlignmentSeedSelector(const edm::ParameterSet & cfg);
+  AlignmentSeedSelector(const edm::ParameterSet& cfg);
 
   /// destructor
   ~AlignmentSeedSelector();
@@ -23,13 +22,10 @@ class AlignmentSeedSelector
   /// select tracks
   Seeds select(const Seeds& seeds, const edm::Event& evt) const;
 
- private:
- 
+private:
   /// private data members
   bool applySeedNumber;
-  int minNSeeds,maxNSeeds;
-
+  int minNSeeds, maxNSeeds;
 };
 
 #endif
-
