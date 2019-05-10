@@ -2,7 +2,7 @@
 //
 // Package:     EDProduct
 // Module:      Timestamp
-// 
+//
 // Description: <one line class summary>
 //
 // Implementation:
