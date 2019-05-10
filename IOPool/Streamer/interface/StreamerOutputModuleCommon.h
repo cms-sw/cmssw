@@ -21,7 +21,7 @@ namespace edm {
   public:
     explicit StreamerOutputModuleCommon(ParameterSet const& ps, SelectedProducts const* selections);
     ~StreamerOutputModuleCommon();
-    static void fillDescription(ParameterSetDescription & desc);
+    static void fillDescription(ParameterSetDescription& desc);
 
     std::unique_ptr<InitMsgBuilder> serializeRegistry(BranchIDLists const& branchLists,
                                                       ThinnedAssociationsHelper const& helper,
@@ -39,7 +39,9 @@ namespace edm {
     }
 
   private:
-    void setHltMask(EventForOutput const& e, Handle<TriggerResults> const& triggerResults, std::vector<unsigned char>& hltbits) const;
+    void setHltMask(EventForOutput const& e,
+                    Handle<TriggerResults> const& triggerResults,
+                    std::vector<unsigned char>& hltbits) const;
 
     StreamSerializer serializer_;
 
@@ -48,7 +50,7 @@ namespace edm {
     int compressionLevel_;
 
     // test luminosity sections
-    int lumiSectionInterval_;  
+    int lumiSectionInterval_;
     double timeInSecSinceUTC;
 
     SerializeDataBuffer serializeDataBuffer_;
@@ -60,8 +62,8 @@ namespace edm {
     Strings hltTriggerSelections_;
     uint32 outputModuleId_;
 
-  }; //end-of-class-def
+  };  //end-of-class-def
 
-} // end of namespace-edm
+}  // namespace edm
 
 #endif
