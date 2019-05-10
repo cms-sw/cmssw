@@ -1,0 +1,21 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="dd4hep-geant4"/>
+<use name="DetectorDescription/DDCMS"/>
+
+<library name="DD4hepGeometryPlugins" file="*.cc">
+  <use name="DataFormats/GeometryVector"/>
+  <use name="SimG4Core/Notification"/>
+  <use name="SimG4Core/Watcher"/>
+  <use name="SimG4Core/DD4hepGeometry"/>
+  <use name="SimG4Core/SensitiveDetector"/>
+  <use name="SimG4Core/MagneticField"/>
+  <use name="MagneticField/Engine"/>
+  <use name="MagneticField/Records"/>
+  <use name="geant4core"/>
+  <use name="Geometry/Records"/>
+  <lib name="Geom"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
