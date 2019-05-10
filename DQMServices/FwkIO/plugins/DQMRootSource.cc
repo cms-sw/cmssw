@@ -71,7 +71,117 @@ namespace {
     //std::cout <<"create: hist size "<<iName <<" "<<iHist->GetEffectiveEntries()<<std::endl;
     return iStore.book1D(iName, iHist);
   }
-  //NOTE: the merge logic comes from DataFormats/Histograms/interface/MEtoEDMFormat.h
+
+  // The following functions are taken from ROOT's TH1.cxx
+  // Almost unchanged, except for removing the exceptions thrown there, and 
+  // making the Labels check more strict since we can't access IsEmpty.
+  // We run these checks before ROOT does to avoid going the TH1::Merge() path
+  // inside TH1::Add(), since Merge has more complicated semantics and failure
+  // modes that we usually don't want.
+  bool TH1_CheckAxisLimits(const TAxis *a1, const TAxis *a2 )
+  {
+    double firstBin = a1->GetBinWidth(1);
+    double lastBin = a1->GetBinWidth( a1->GetNbins() ); 
+    if ( ! TMath::AreEqualAbs(a1->GetXmin(), a2->GetXmin(), firstBin* 1.E-10) ||
+         ! TMath::AreEqualAbs(a1->GetXmax(), a2->GetXmax(), lastBin*1.E-10) ) {
+       return false;
+    }
+    return true;
+  }
+
+  bool TH1_CheckBinLimits(const TAxis* a1, const TAxis * a2)
+  {
+    const TArrayD * h1Array = a1->GetXbins();
+    const TArrayD * h2Array = a2->GetXbins();
+    Int_t fN = h1Array->fN;
+    if ( fN != 0 ) {
+       if ( h2Array->fN != fN ) {
+          return false;
+       }
+       else {
+          for ( int i = 0; i < fN; ++i ) {
+             // for i==fN (nbin+1) a->GetBinWidth() returns last bin width
+             // we do not need to exclude that case
+             double binWidth = a1->GetBinWidth(i); 
+             if ( ! TMath::AreEqualAbs( h1Array->GetAt(i), h2Array->GetAt(i), binWidth*1E-10 ) ) {
+                return false;
+             }
+          }
+       }
+    }
+ 
+    return true;
+  }
+
+  bool TH1_CheckBinLabels(const TAxis* a1, const TAxis * a2)
+  {
+    THashList *l1 = a1->GetLabels();
+    THashList *l2 = a2->GetLabels();
+ 
+    if (!l1 && !l2 )
+       return true;
+    if (!l1 ||  !l2 ) {
+       return false;
+    }
+    // check now labels sizes  are the same
+    if (l1->GetSize() != l2->GetSize() ) {
+       return false;
+    }
+    for (int i = 1; i <= a1->GetNbins(); ++i) {
+       TString label1 = a1->GetBinLabel(i);
+       TString label2 = a2->GetBinLabel(i);
+       if (label1 != label2) {
+          return false;
+       }
+    }
+ 
+    return true;
+  }
+
+  bool TH1_CheckConsistency(const TH1* h1, const TH1* h2)
+  {
+    if (h1 == h2) return true;
+ 
+    if (h1->GetDimension() != h2->GetDimension() ) {
+       return false;
+    }
+    Int_t dim = h1->GetDimension();
+ 
+    // returns kTRUE if number of bins and bin limits are identical
+    Int_t nbinsx = h1->GetNbinsX();
+    Int_t nbinsy = h1->GetNbinsY();
+    Int_t nbinsz = h1->GetNbinsZ();
+ 
+    // Check whether the histograms have the same number of bins.
+    if (nbinsx != h2->GetNbinsX() ||
+        (dim > 1 && nbinsy != h2->GetNbinsY())  ||
+        (dim > 2 && nbinsz != h2->GetNbinsZ()) ) {
+       return false;
+    }
+ 
+    bool ret = true;
+ 
+    // check axis limits
+    ret &= TH1_CheckAxisLimits(h1->GetXaxis(), h2->GetXaxis());
+    if (dim > 1) ret &= TH1_CheckAxisLimits(h1->GetYaxis(), h2->GetYaxis());
+    if (dim > 2) ret &= TH1_CheckAxisLimits(h1->GetZaxis(), h2->GetZaxis());
+ 
+    // check bin limits
+    ret &= TH1_CheckBinLimits(h1->GetXaxis(), h2->GetXaxis());
+    if (dim > 1) ret &= TH1_CheckBinLimits(h1->GetYaxis(), h2->GetYaxis());
+    if (dim > 2) ret &= TH1_CheckBinLimits(h1->GetZaxis(), h2->GetZaxis());
+ 
+    // check labels if histograms are both not empty
+    if (/* !h1->IsEmpty() && !h2->IsEmpty() */ true) {
+       ret &= TH1_CheckBinLabels(h1->GetXaxis(), h2->GetXaxis());
+       if (dim > 1) ret &= TH1_CheckBinLabels(h1->GetYaxis(), h2->GetYaxis());
+       if (dim > 2) ret &= TH1_CheckBinLabels(h1->GetZaxis(), h2->GetZaxis());
+    }
+ 
+    return ret;
+  }
+  // end ROOT code
+
   void mergeTogether(TH1* iOriginal,TH1* iToAdd) {
     if(iOriginal->CanExtendAllAxes() && iToAdd->CanExtendAllAxes()) {
       TList list;
@@ -80,21 +190,13 @@ namespace {
         edm::LogError("MergeFailure")<<"Failed to merge DQM element "<<iOriginal->GetName();
       }
     } else {
-      if (iOriginal->GetNbinsX() == iToAdd->GetNbinsX() &&
-          iOriginal->GetXaxis()->GetXmin() == iToAdd->GetXaxis()->GetXmin() &&
-          iOriginal->GetXaxis()->GetXmax() == iToAdd->GetXaxis()->GetXmax() &&
-          iOriginal->GetNbinsY() == iToAdd->GetNbinsY() &&
-          iOriginal->GetYaxis()->GetXmin() == iToAdd->GetYaxis()->GetXmin() &&
-          iOriginal->GetYaxis()->GetXmax() == iToAdd->GetYaxis()->GetXmax() &&
-          iOriginal->GetNbinsZ() == iToAdd->GetNbinsZ() &&
-          iOriginal->GetZaxis()->GetXmin() == iToAdd->GetZaxis()->GetXmin() &&
-          iOriginal->GetZaxis()->GetXmax() == iToAdd->GetZaxis()->GetXmax() &&
-	  MonitorElement::CheckBinLabels(iOriginal->GetXaxis(),iToAdd->GetXaxis()) &&
-	  MonitorElement::CheckBinLabels(iOriginal->GetYaxis(),iToAdd->GetYaxis()) &&
-	  MonitorElement::CheckBinLabels(iOriginal->GetZaxis(),iToAdd->GetZaxis())) {
-	iOriginal->Add(iToAdd);
+      if (TH1_CheckConsistency(iOriginal, iToAdd)) {
+	bool ok = iOriginal->Add(iToAdd);
+        if (!ok) {
+          edm::LogError("MergeFailure")<<"ROOT failed to Add histograms, even though they seemed consistent: '"<<iOriginal->GetName()<<"' not merged.";
+        }
       } else {
-	edm::LogError("MergeFailure")<<"Found histograms with different axis limits or different labels'"<<iOriginal->GetName()<<"' not merged.";
+	edm::LogError("MergeFailure")<<"Found histograms with different axis limits or different labels: '"<<iOriginal->GetName()<<"' not merged.";
       } 
     }
   }
