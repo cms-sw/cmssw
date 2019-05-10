@@ -788,8 +788,7 @@ private:
         const auto addObject = [&](size_t n, double deta, double dphi, CellGrid& grid) {
             const auto& obj = objects.at(n);
             const CellObjectType obj_type = GetCellObjectType(obj);
-            if(obj_type  == CellObjectType::Other)
-                return;
+            if(obj_type  == CellObjectType::Other) return;
             CellIndex cell_index;
             if(grid.tryGetCellIndex(deta, dphi, cell_index)) {
                 Cell& cell = grid[cell_index];
@@ -1597,6 +1596,7 @@ private:
         return std::max(cone_opening_coef / std::max(pt, min_pt), min_radius);
     }
 
+     // Copied from https://github.com/cms-sw/cmssw/blob/CMSSW_9_4_X/RecoTauTag/RecoTau/plugins/PATTauDiscriminationByMVAIsolationRun2.cc#L218
     static bool calculateGottfriedJacksonAngleDifference(const pat::Tau& tau, double& gj_diff)
     {
         if(tau.hasSecondaryVertex()) {
@@ -1623,7 +1623,6 @@ private:
             return static_cast<float>(gj_diff);
         return default_value;
     }
-
 
     static bool isInEcalCrack(double eta)
     {
