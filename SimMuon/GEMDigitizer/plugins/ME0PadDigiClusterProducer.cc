@@ -1,4 +1,6 @@
-#include "SimMuon/GEMDigitizer/interface/ME0PadDigiClusterProducer.h"
+#include "SimMuon/GEMDigitizer/plugins/ME0PadDigiClusterProducer.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -104,3 +106,5 @@ void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection &det_pa
     }
   } // end of chamber loop
 }
+
+DEFINE_FWK_MODULE(ME0PadDigiClusterProducer);

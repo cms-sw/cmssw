@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 
-#include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoProducer.h"
+#include "SimMuon/GEMDigitizer/plugins/ME0DigiPreRecoProducer.h"
 #include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoModelFactory.h"
 #include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoModel.h"
 
@@ -95,3 +95,4 @@ void ME0DigiPreRecoProducer::produce(edm::Event& e, const edm::EventSetup& event
   e.put(std::move(digis));
 }
 
+DEFINE_FWK_MODULE(ME0DigiPreRecoProducer);
