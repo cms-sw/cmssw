@@ -21,13 +21,11 @@ class DDLElementRegistry;
  *                                                                         
  */
 
-class DDLEllipticalTube final : public DDLSolid
-{
- public:
+class DDLEllipticalTube final : public DDLSolid {
+public:
+  DDLEllipticalTube(DDLElementRegistry* myreg);
 
-  DDLEllipticalTube( DDLElementRegistry* myreg );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif

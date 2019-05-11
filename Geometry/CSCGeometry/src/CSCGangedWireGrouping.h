@@ -16,20 +16,18 @@
 #include <vector>
 
 class CSCGangedWireGrouping : public CSCWireGrouping {
-
- public:
-
+public:
   typedef std::vector<int> Container;
   typedef Container::const_iterator CIterator;
 
   ~CSCGangedWireGrouping() override {}
-     
+
   /**
    * Constructor from endcap muon wire information parsed from DDD
    */
-  CSCGangedWireGrouping( const Container& consecutiveGroups, 
-		 const Container& wiresInConsecutiveGroups, 
-		 int numberOfGroups );
+  CSCGangedWireGrouping(const Container& consecutiveGroups,
+                        const Container& wiresInConsecutiveGroups,
+                        int numberOfGroups);
 
   /**
    * Total number of (virtual) wires.
@@ -37,24 +35,22 @@ class CSCGangedWireGrouping : public CSCWireGrouping {
    * This is the number which would fill the region covered
    * by wires, assuming the constant wire spacing.
    */
-  int numberOfWires() const override {
-    return theNumberOfWires; }
+  int numberOfWires() const override { return theNumberOfWires; }
 
   /**
    * How many wire groups
    */
-  int numberOfWireGroups() const override {
-    return theNumberOfGroups; }
+  int numberOfWireGroups() const override { return theNumberOfGroups; }
 
   /**
    * How many wires in a wiregroup
    */
-  int numberOfWiresPerGroup( int wireGroup ) const override;
+  int numberOfWiresPerGroup(int wireGroup) const override;
 
   /**
    * Wire group containing a given wire
    */
-  int wireGroup( int wire ) const override;
+  int wireGroup(int wire) const override;
 
   /**
    * Middle of wire-group.
@@ -62,23 +58,20 @@ class CSCGangedWireGrouping : public CSCWireGrouping {
    * This is a pseudo-wire no. for a group with an even no. of wires.
    * Accordingly, it is non-integer.
    */
-  float middleWireOfGroup( int wireGroup ) const override;
+  float middleWireOfGroup(int wireGroup) const override;
 
   /**
    * Clone to handle correct copy of component objects referenced
    * by base class pointer.
    */
-  CSCWireGrouping* clone() const override {
-    return new CSCGangedWireGrouping(*this);
-  }
+  CSCWireGrouping* clone() const override { return new CSCGangedWireGrouping(*this); }
 
- private:
+private:
   // Expanded information from DDD
   int theNumberOfWires;
   int theNumberOfGroups;
   Container theFirstWireOfEachWireGroup;
   Container theNumberOfWiresPerWireGroup;
-
 };
 
 #endif

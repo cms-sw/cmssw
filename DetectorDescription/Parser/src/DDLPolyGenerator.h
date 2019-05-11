@@ -25,14 +25,12 @@ class DDLElementRegistry;
  *
  */
 
-class DDLPolyGenerator final : public DDLSolid
-{
- public:
+class DDLPolyGenerator final : public DDLSolid {
+public:
+  DDLPolyGenerator(DDLElementRegistry* myreg);
 
-  DDLPolyGenerator( DDLElementRegistry* myreg );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
+  void preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif
