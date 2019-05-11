@@ -12,8 +12,8 @@ namespace cond {
   class RunInfoUtils : public cond::Utilities {
     public:
       RunInfoUtils();
-      ~RunInfoUtils();
-      int execute();
+      ~RunInfoUtils() override;
+      int execute() override;
   };
 }
 

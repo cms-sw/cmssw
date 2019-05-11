@@ -16,7 +16,7 @@ SiStripApvGainReader::SiStripApvGainReader( const edm::ParameterSet& iConfig ):
   printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",true)),
   formatedOutput_(iConfig.getUntrackedParameter<std::string>("outputFile","")),
   gainType_ (iConfig.getUntrackedParameter<uint32_t>("gainType",1)),
-  tree_(0){
+  tree_(nullptr){
   if (fs_.isAvailable()){
     tree_=fs_->make<TTree>("Gains","Gains");
 
@@ -39,7 +39,7 @@ void SiStripApvGainReader::analyze( const edm::Event& e, const edm::EventSetup& 
   edm::LogInfo("Number of detids ")  << detid.size() << std::endl;
 
   FILE* pFile=nullptr;
-  if(formatedOutput_!="")pFile=fopen(formatedOutput_.c_str(), "w");
+  if(!formatedOutput_.empty())pFile=fopen(formatedOutput_.c_str(), "w");
   for (size_t id=0;id<detid.size();id++){
     SiStripApvGain::Range range=SiStripApvGain_->getRange(detid[id], gainType_);	
     if(printdebug_){
