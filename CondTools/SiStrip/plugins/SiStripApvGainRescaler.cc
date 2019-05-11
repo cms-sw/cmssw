@@ -47,15 +47,15 @@
 class SiStripApvGainRescaler : public edm::one::EDAnalyzer<>  {
    public:
       explicit SiStripApvGainRescaler(const edm::ParameterSet&);
-      ~SiStripApvGainRescaler();
+      ~SiStripApvGainRescaler() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       std::unique_ptr<SiStripApvGain> getNewObject(const std::map<std::pair<uint32_t,int>,float>& theMap);
-      virtual void endJob() override;
+      void endJob() override;
 
       // ----------member data ---------------------------
       const std::string m_Record;  
