@@ -13,7 +13,7 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h" 
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -22,54 +22,53 @@
 
 //#define EDM_ML_DEBUG
 
-HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name, 
-			       const DDCompactView & cpv,
-			       const SensitiveDetectorCatalog & clg,
-			       edm::ParameterSet const & p, 
-			       const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager) {
-
+HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name,
+                               const DDCompactView& cpv,
+                               const SensitiveDetectorCatalog& clg,
+                               edm::ParameterSet const& p,
+                               const SimTrackManager* manager)
+    : CaloSD(name, cpv, clg, p, manager) {
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HcalTB06BeamSD");
-  useBirk    = m_HC.getParameter<bool>("UseBirkLaw");
-  birk1      = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
-  birk2      = m_HC.getParameter<double>("BirkC2");
-  birk3      = m_HC.getParameter<double>("BirkC3");
+  useBirk = m_HC.getParameter<bool>("UseBirkLaw");
+  birk1 = m_HC.getParameter<double>("BirkC1") * (g / (MeV * cm2));
+  birk2 = m_HC.getParameter<double>("BirkC2");
+  birk3 = m_HC.getParameter<double>("BirkC3");
 
   edm::LogInfo("HcalTB06BeamSD") << "HcalTB06BeamSD:: Use of Birks law is set "
-				 << "to " << useBirk << "  with three "
-				 << "constants kB = " << birk1 << ", C1 = " 
-				 << birk2 << ", C2 = " << birk3;
+                                 << "to " << useBirk << "  with three "
+                                 << "constants kB = " << birk1 << ", C1 = " << birk2 << ", C2 = " << birk3;
 
   std::string attribute, value;
 
   // Wire Chamber volume names
   attribute = "Volume";
-  value     = "WireChamber";
-  DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
-  DDFilteredView fv1(cpv,filter1);
+  value = "WireChamber";
+  DDSpecificsMatchesValueFilter filter1{DDValue(attribute, value, 0)};
+  DDFilteredView fv1(cpv, filter1);
   wcNames = getNames(fv1);
-  edm::LogInfo("HcalTB06BeamSD") << "HcalTB06BeamSD:: Names to be tested for " 
-				 << attribute << " = " << value << ": " 
-				 << wcNames.size() << " paths";
-  for (unsigned int i=0; i<wcNames.size(); i++)
-    edm::LogInfo("HcalTB06BeamSD") << "HcalTB06BeamSD:: (" << i << ") " 
-				   << wcNames[i];
+  edm::LogInfo("HcalTB06BeamSD") << "HcalTB06BeamSD:: Names to be tested for " << attribute << " = " << value << ": "
+                                 << wcNames.size() << " paths";
+  for (unsigned int i = 0; i < wcNames.size(); i++)
+    edm::LogInfo("HcalTB06BeamSD") << "HcalTB06BeamSD:: (" << i << ") " << wcNames[i];
 
   //Material list for scintillator detector
   attribute = "ReadOutName";
-  DDSpecificsMatchesValueFilter filter2{DDValue(attribute,name,0)};
-  DDFilteredView fv2(cpv,filter2);
+  DDSpecificsMatchesValueFilter filter2{DDValue(attribute, name, 0)};
+  DDFilteredView fv2(cpv, filter2);
   bool dodet = fv2.firstChild();
 
   std::vector<G4String> matNames;
-  std::vector<int>      nocc;
+  std::vector<int> nocc;
   while (dodet) {
-    const DDLogicalPart & log = fv2.logicalPart();
+    const DDLogicalPart& log = fv2.logicalPart();
     matName = log.material().name().name();
     bool notIn = true;
-    for (unsigned int i=0; i<matNames.size(); i++) {
-      if (matName == matNames[i]) {notIn = false; nocc[i]++;}
+    for (unsigned int i = 0; i < matNames.size(); i++) {
+      if (matName == matNames[i]) {
+        notIn = false;
+        nocc[i]++;
+      }
     }
     if (notIn) {
       matNames.push_back(matName);
@@ -82,75 +81,73 @@ HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name,
     int occ = nocc[0];
     for (unsigned int i = 0; i < matNames.size(); i++) {
       if (nocc[i] > occ) {
-	occ     = nocc[i];
-	matName = matNames[i];
+        occ = nocc[i];
+        matName = matNames[i];
       }
     }
   } else {
     matName = "Not Found";
   }
-  edm::LogInfo("HcalTB06BeamSD") << "HcalTB06BeamSD: Material name for " 
-				 << attribute << " = " << name << ":" 
-				 << matName;
+  edm::LogInfo("HcalTB06BeamSD") << "HcalTB06BeamSD: Material name for " << attribute << " = " << name << ":"
+                                 << matName;
 }
 
 HcalTB06BeamSD::~HcalTB06BeamSD() {}
 
 double HcalTB06BeamSD::getEnergyDeposit(const G4Step* aStep) {
-
   double destep = aStep->GetTotalEnergyDeposit();
   double weight = 1;
   if (useBirk && matName == aStep->GetPreStepPoint()->GetMaterial()->GetName())
     weight *= getAttenuation(aStep, birk1, birk2, birk3);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTB06BeamSD") << "HcalTB06BeamSD: Detector " 
-				     << aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName()
-				     << " weight " << weight;
+  edm::LogVerbatim("HcalTB06BeamSD") << "HcalTB06BeamSD: Detector "
+                                     << aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName() << " weight "
+                                     << weight;
 #endif
-  return weight*destep;
+  return weight * destep;
 }
 
-uint32_t HcalTB06BeamSD::setDetUnitId(const G4Step * aStep) { 
-
-  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
+uint32_t HcalTB06BeamSD::setDetUnitId(const G4Step* aStep) {
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
   const G4VTouchable* touch = preStepPoint->GetTouchable();
-  G4String name             = preStepPoint->GetPhysicalVolume()->GetName();
+  G4String name = preStepPoint->GetPhysicalVolume()->GetName();
 
   int det = 1;
   int lay = 0, x = 0, y = 0;
   if (!isItWireChamber(name)) {
-    lay     = (touch->GetReplicaNumber(0));
+    lay = (touch->GetReplicaNumber(0));
   } else {
     det = 2;
     lay = (touch->GetReplicaNumber(1));
-    G4ThreeVector localPoint  = setToLocal(preStepPoint->GetPosition(), touch);
-    x   = (int)(localPoint.x()/(0.2*mm));
-    y   = (int)(localPoint.y()/(0.2*mm));
+    G4ThreeVector localPoint = setToLocal(preStepPoint->GetPosition(), touch);
+    x = (int)(localPoint.x() / (0.2 * mm));
+    y = (int)(localPoint.y() / (0.2 * mm));
   }
 
-  return HcalTestBeamNumbering::packIndex (det, lay, x, y);
+  return HcalTestBeamNumbering::packIndex(det, lay, x, y);
 }
 
 std::vector<G4String> HcalTB06BeamSD::getNames(DDFilteredView& fv) {
- 
   std::vector<G4String> tmp;
   bool dodet = fv.firstChild();
   while (dodet) {
-    const DDLogicalPart & log = fv.logicalPart();
+    const DDLogicalPart& log = fv.logicalPart();
     G4String name = log.name().name();
     bool ok = true;
-    for (unsigned int i=0; i<tmp.size(); i++)
-      if (name == tmp[i]) ok = false;
-    if (ok) tmp.push_back(name);
+    for (unsigned int i = 0; i < tmp.size(); i++)
+      if (name == tmp[i])
+        ok = false;
+    if (ok)
+      tmp.push_back(name);
     dodet = fv.next();
   }
   return tmp;
 }
- 
-bool HcalTB06BeamSD::isItWireChamber (const G4String& name) {
- 
+
+bool HcalTB06BeamSD::isItWireChamber(const G4String& name) {
   std::vector<G4String>::const_iterator it = wcNames.begin();
   for (; it != wcNames.end(); it++)
-    if (name == *it) return true;
+    if (name == *it)
+      return true;
   return false;
 }

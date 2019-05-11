@@ -12,34 +12,31 @@
  Usage: Sets up unique identifier for HB towers in 2002 test beam
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Fri May 20 10:14:34 CEST 2006
 //
-  
+
 // system include files
- 
+
 // user include files
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02NumberingScheme.h"
 
 class HcalTB02HcalNumberingScheme : public HcalTB02NumberingScheme {
-
 public:
   HcalTB02HcalNumberingScheme();
   ~HcalTB02HcalNumberingScheme() override;
   int getUnitID(const G4Step* aStep) const override;
 
-  int getphiScaleF() const { return phiScale;}
-  int getetaScaleF() const { return etaScale;}
+  int getphiScaleF() const { return phiScale; }
+  int getetaScaleF() const { return etaScale; }
 
   int getlayerID(int sID) const;
-  int getphiID  (int sID) const;
-  int getetaID  (int sID) const;
+  int getphiID(int sID) const;
+  int getetaID(int sID) const;
 
 private:
-
   int phiScale;
   int etaScale;
-
 };
 
 #endif

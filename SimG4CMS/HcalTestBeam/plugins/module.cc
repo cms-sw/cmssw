@@ -3,10 +3,9 @@
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB06Analysis.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
- 
+
 typedef HcalTB02SD HcalTB02SensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(HcalTB02SensitiveDetector);
 typedef HcalTB06BeamSD HcalTB06BeamDetector;
 DEFINE_SENSITIVEDETECTOR(HcalTB06BeamDetector);
 DEFINE_FWK_MODULE(HcalTB06Analysis);
-

@@ -11,27 +11,26 @@
 
 //#define debug
 //-------------------------------------------------------------------
-BHMSD::BHMSD(const std::string& name, const DDCompactView & cpv,
-	     const SensitiveDetectorCatalog & clg, 
-	     edm::ParameterSet const & p, const SimTrackManager* manager) :
-  TimingSD(name, cpv, clg, p, manager), numberingScheme(nullptr) { 
-    
+BHMSD::BHMSD(const std::string& name,
+             const DDCompactView& cpv,
+             const SensitiveDetectorCatalog& clg,
+             edm::ParameterSet const& p,
+             const SimTrackManager* manager)
+    : TimingSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BHMSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
-    
+
   SetVerboseLevel(verbn);
-    
+
   if (verbn > 0) {
-    edm::LogInfo("BHMSim") << "name = " <<name <<" and new BHMNumberingScheme";
+    edm::LogInfo("BHMSim") << "name = " << name << " and new BHMNumberingScheme";
   }
-  numberingScheme = new BHMNumberingScheme() ;
+  numberingScheme = new BHMNumberingScheme();
 }
 
-BHMSD::~BHMSD() { 
-  delete numberingScheme;
-}
+BHMSD::~BHMSD() { delete numberingScheme; }
 
-uint32_t BHMSD::setDetUnitId(const G4Step * aStep) { 
+uint32_t BHMSD::setDetUnitId(const G4Step* aStep) {
   return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
