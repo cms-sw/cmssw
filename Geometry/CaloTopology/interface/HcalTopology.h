@@ -144,6 +144,7 @@ public:
 
   int maxDepthHB() const { return maxDepthHB_;}
   int maxDepthHE() const { return maxDepthHE_;}
+  int maxDepth( void ) const;
   int maxDepth(HcalSubdetector subdet) const;
   double etaMax(HcalSubdetector subdet) const;
   std::pair<double,double> etaRange(HcalSubdetector subdet, int ieta) const;
