@@ -23,14 +23,11 @@ class DDLElementRegistry;
  *
  */
 
-class DDLSpecPar final : public DDXMLElement
-{
- public:
+class DDLSpecPar final : public DDXMLElement {
+public:
+  DDLSpecPar(DDLElementRegistry* myreg);
 
-  DDLSpecPar( DDLElementRegistry* myreg );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif
-
