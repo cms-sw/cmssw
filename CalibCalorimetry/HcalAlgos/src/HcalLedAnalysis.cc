@@ -210,7 +210,7 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
   double dtime2=0; double dtime1=0; double dtime3=0; double dtime4=0;
   char output[256]{0};
 
-  if (m_outputFileText!=""){
+  if (!m_outputFileText.empty()){
     if(m_fitflag==0 || m_fitflag==2) m_outFile<<"Det Eta,Phi,D   Mean    Error"<<std::endl;
     else if(m_fitflag==1 || m_fitflag==3) m_outFile<<"Det Eta,Phi,D   Peak    Error"<<std::endl;
     else if(m_fitflag==4) m_outFile<<"Det Eta,Phi,D   Mean    Error      Peak    Error       MeanEv  Error       PeakEv  Error"<<std::endl;
@@ -277,7 +277,7 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
 // Ascii printout (need to modify to include new info)
     HcalDetId detid = _meol->first;
 
-    if (m_outputFileText!=""){
+    if (!m_outputFileText.empty()){
       if(m_fitflag==0) {
 	m_outFile<<detid<<"   "<<time1<<" "<<dtime1<<std::endl;
         m_outputFileXML << "  <DATA_SET>" << endl;
