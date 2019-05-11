@@ -6,9 +6,8 @@
 
 class L1GctJetFinderParams;
 
-class produceTrivialCalibrationLut
-{
- public:
+class produceTrivialCalibrationLut {
+public:
   //Typedefs
   typedef boost::shared_ptr<L1GctJetEtCalibrationLut> lutPtr;
   typedef std::vector<lutPtr> lutPtrVector;
@@ -23,22 +22,21 @@ class produceTrivialCalibrationLut
 
   const L1GctJetFinderParams* jfPars() const { return m_jfPars; }
 
- private:
-
+private:
   // PARAMETERS TO BE STORED IN THE CalibrationFunction
   /// scale and threshold parameters
   double m_htScaleLSB;
 
-  /// the calibration function - converts jet Et to linear 
-  std::vector< std::vector<double> > m_jetCalibFunc;
-  std::vector< std::vector<double> > m_tauCalibFunc;
+  /// the calibration function - converts jet Et to linear
+  std::vector<std::vector<double> > m_jetCalibFunc;
+  std::vector<std::vector<double> > m_tauCalibFunc;
 
   double m_jetEtScaleInputLsb;
   std::vector<double> m_jetEtThresholds;
 
-  unsigned m_corrFunType; 
+  unsigned m_corrFunType;
   L1GctJetFinderParams* m_jfPars;
-    
+
   /// member functions to set up the ORCA-style calibrations (if needed)
   /// (Copied from L1TriggerConfig/GctConfigProducers
   void setOrcaStyleParams();
@@ -46,4 +44,3 @@ class produceTrivialCalibrationLut
 
   void setupJfPars();
 };
-

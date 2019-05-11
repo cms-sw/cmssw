@@ -25,8 +25,7 @@
     are also enumerated so that multiple columns with identical names
     end up with consecutive names ("muon" becomes "muon1", "muon2" etc).
 */
-class L1GtPatternLine
-{
+class L1GtPatternLine {
 public:
   /** Add a new column with the specified name prefix and value.
       @param prefix The name prefix of the new column. The final column name
@@ -51,7 +50,7 @@ public:
   bool has(const std::string& colname) const;
 
   /** Returns the next free column name for a given prefix. */
-  std::string nextName(const std::string& prefix); 
+  std::string nextName(const std::string& prefix);
 
   /** Forms a column name from a prefix and a number. */
   std::string name(const std::string& prefix, unsigned int i) const;
@@ -63,6 +62,5 @@ private:
   typedef std::map<std::string, boost::uint32_t> ColumnMap;
   ColumnMap m_columns;
 };
-
 
 #endif /*GlobalTriggerAnalyzer_L1GtPatternLine_h*/

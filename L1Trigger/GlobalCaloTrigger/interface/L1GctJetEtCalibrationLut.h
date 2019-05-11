@@ -25,19 +25,18 @@ class L1CaloEtScale;
  *
  */
 
-class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_CAL_LUT_DAT_BITS>
-{
- public:
+class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS, JET_ET_CAL_LUT_DAT_BITS> {
+public:
   static const int NAddress;
   static const int NData;
-  static const unsigned JET_ENERGY_BITWIDTH;   ///< Input bitwidth of jet energy; must be 10 or more
+  static const unsigned JET_ENERGY_BITWIDTH;  ///< Input bitwidth of jet energy; must be 10 or more
 
   L1GctJetEtCalibrationLut();
   ~L1GctJetEtCalibrationLut() override;
 
   // set components
-  void setFunction(const L1GctJetFinderParams * const lutfn);
-  void setOutputEtScale(const L1CaloEtScale * const scale);
+  void setFunction(const L1GctJetFinderParams* const lutfn);
+  void setOutputEtScale(const L1CaloEtScale* const scale);
   void setEtaBin(const unsigned eta);
 
   // get components
@@ -46,22 +45,18 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
   unsigned etaBin() const { return static_cast<unsigned>(m_etaBin); }
 
   /// Overload << operator
-  friend std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut);
-  
- protected:
-  
+  friend std::ostream& operator<<(std::ostream& os, const L1GctJetEtCalibrationLut& lut);
 
-  uint16_t value (const uint16_t lutAddress) const override;
+protected:
+  uint16_t value(const uint16_t lutAddress) const override;
 
- private:
-
+private:
   const L1GctJetFinderParams* m_lutFunction;
-  const L1CaloEtScale * m_outputEtScale;
+  const L1CaloEtScale* m_outputEtScale;
 
   uint8_t m_etaBin;
-
 };
 
-std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut);
+std::ostream& operator<<(std::ostream& os, const L1GctJetEtCalibrationLut& lut);
 
 #endif /*L1GCTJETETCALIBRATIONLUT_H_*/
