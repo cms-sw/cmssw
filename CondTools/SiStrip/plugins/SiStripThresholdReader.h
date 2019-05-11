@@ -23,14 +23,13 @@
 #include <sys/time.h>
 
 class SiStripThresholdReader : public edm::EDAnalyzer {
-
- public:
-  explicit SiStripThresholdReader( const edm::ParameterSet& );
+public:
+  explicit SiStripThresholdReader(const edm::ParameterSet&);
   ~SiStripThresholdReader() override;
-  
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
- private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
   uint32_t printdebug_;
 };
 #endif

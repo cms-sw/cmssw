@@ -6,12 +6,12 @@
 #include <string>
 
 class RunInfoRead {
- public:
-  RunInfoRead(const std::string& connectionString,
-	      const edm::ParameterSet& connectionPset);
+public:
+  RunInfoRead(const std::string& connectionString, const edm::ParameterSet& connectionPset);
   ~RunInfoRead();
   RunInfo readData(const std::string& runinfo_schema, const std::string& dcsenv_schema, const int r_number);
- private:
+
+private:
   std::string m_connectionString;
   edm::ParameterSet m_connectionPset;
 };
