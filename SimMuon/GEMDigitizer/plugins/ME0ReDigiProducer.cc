@@ -6,7 +6,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimMuon/GEMDigitizer/interface/ME0ReDigiProducer.h"
+#include "SimMuon/GEMDigitizer/plugins/ME0ReDigiProducer.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
@@ -424,3 +424,4 @@ unsigned int ME0ReDigiProducer::fillDigiMap(ChamberDigiMap& chDigiMap, unsigned 
 	return it1->second;
 }
 
+DEFINE_FWK_MODULE(ME0ReDigiProducer);

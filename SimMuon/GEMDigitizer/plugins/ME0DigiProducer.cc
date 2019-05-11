@@ -10,7 +10,7 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
-#include "SimMuon/GEMDigitizer/interface/ME0DigiProducer.h"
+#include "SimMuon/GEMDigitizer/plugins/ME0DigiProducer.h"
 #include "SimMuon/GEMDigitizer/interface/ME0DigiModelFactory.h"
 #include "SimMuon/GEMDigitizer/interface/ME0DigiModel.h"
 
@@ -107,3 +107,4 @@ void ME0DigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   e.put(std::move(me0DigiSimLinks),"ME0");
 }
 
+DEFINE_FWK_MODULE(ME0DigiProducer);

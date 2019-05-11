@@ -1,5 +1,6 @@
-#include "SimMuon/GEMDigitizer/interface/ME0PadDigiProducer.h"
+#include "SimMuon/GEMDigitizer/plugins/ME0PadDigiProducer.h"
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -73,3 +74,5 @@ void ME0PadDigiProducer::buildPads(const ME0DigiCollection &det_digis, ME0PadDig
     }
   }
 }
+
+DEFINE_FWK_MODULE(ME0PadDigiProducer);
