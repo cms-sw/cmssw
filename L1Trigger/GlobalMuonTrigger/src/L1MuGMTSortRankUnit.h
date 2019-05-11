@@ -30,7 +30,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -41,23 +40,21 @@ class L1MuRegionalCand;
 //              ---------------------
 
 class L1MuGMTSortRankUnit {
+public:
+  /// constructor
+  L1MuGMTSortRankUnit();
 
-  public:  
+  /// destructor
+  virtual ~L1MuGMTSortRankUnit();
 
-    /// constructor
-    L1MuGMTSortRankUnit();
+  /// Sort Rank Table
+  static unsigned sort_rank(const L1MuRegionalCand*);
 
-    /// destructor
-    virtual ~L1MuGMTSortRankUnit();
-     
-    /// Sort Rank Table
-    static unsigned sort_rank(const L1MuRegionalCand*); 
- 
-    /// Very low quality bits
-    static unsigned getVeryLowQualityLevel(const L1MuRegionalCand*); 
+  /// Very low quality bits
+  static unsigned getVeryLowQualityLevel(const L1MuRegionalCand*);
 
-    /// Diable bit
-    static bool isDisabled(const L1MuRegionalCand*); 
+  /// Diable bit
+  static bool isDisabled(const L1MuRegionalCand*);
 };
-  
+
 #endif
