@@ -23,14 +23,13 @@
 #include <sys/time.h>
 
 class SiStripPedestalsReader : public edm::EDAnalyzer {
-
- public:
-  explicit SiStripPedestalsReader( const edm::ParameterSet& );
+public:
+  explicit SiStripPedestalsReader(const edm::ParameterSet&);
   ~SiStripPedestalsReader() override;
-  
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
- private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
   uint32_t printdebug_;
 };
 #endif
