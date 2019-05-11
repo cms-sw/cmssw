@@ -49,7 +49,7 @@ namespace {
       for (int eta = -HcalDetId::kHcalEtaMask2; 
            eta <= (int)(HcalDetId::kHcalEtaMask2); eta++) {
         for (unsigned int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
-          for (int depth = 1; depth < maxDepthHB + maxDepthHE; depth++) {
+          for (int depth = 1; depth <= std::max(maxDepthHB,maxDepthHE); depth++) {
             for (int det = 1; det <= HcalForward; det++) {
 	      HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
 	      if( killHE && HcalEndcap == cell.subdetId() ) continue;
