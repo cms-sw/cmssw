@@ -23,7 +23,7 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
                                                                                  userNS_(p.getUntrackedParameter<bool>("userControlledNamespace", false)),
                                                                                  geoConfig_(p)
 {
-  if ( rootNodeName_ == "" || rootNodeName_ == "\\" ) {
+  if ( rootNodeName_.empty() || rootNodeName_ == "\\" ) {
     throw cms::Exception("DDException") << "XMLIdealGeometryESSource must have a root node name.";
   }
   
