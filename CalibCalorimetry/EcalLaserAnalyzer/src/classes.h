@@ -17,6 +17,5 @@
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/TMem.h"
 
 namespace CalibCalorimetry_EcalLaserAnalyzer {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace CalibCalorimetry_EcalLaserAnalyzer
