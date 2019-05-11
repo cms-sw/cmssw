@@ -680,7 +680,7 @@ void BscTest::update(const EndOfEvent * evt) {
     }   // no MI end:
     for (int j=0; j<theCAFI->entries(); j++) {
       BscG4Hit* aHit = (*theCAFI)[j];
-      CLHEP::Hep3Vector hitPoint = aHit->getEntry();
+      const CLHEP::Hep3Vector& hitPoint = aHit->getEntry();
       double   zz    = hitPoint.z();
       TheHistManager->GetHisto("zHits")->Fill(zz);
       if(tracklength0>8300.) TheHistManager->GetHisto("zHitsTrLoLe")->Fill(zz);
@@ -692,9 +692,9 @@ void BscTest::update(const EndOfEvent * evt) {
       for (int j=0; j<theCAFI->entries(); j++) {
 	BscG4Hit* aHit = (*theCAFI)[j];
 
-	CLHEP::Hep3Vector hitEntryLocalPoint = aHit->getEntryLocalP();
-	CLHEP::Hep3Vector hitExitLocalPoint = aHit->getExitLocalP();
-	CLHEP::Hep3Vector hitPoint = aHit->getEntry();
+	const CLHEP::Hep3Vector& hitEntryLocalPoint = aHit->getEntryLocalP();
+	const CLHEP::Hep3Vector& hitExitLocalPoint = aHit->getExitLocalP();
+	const CLHEP::Hep3Vector& hitPoint = aHit->getEntry();
 	int trackIDhit  = aHit->getTrackID();
 	unsigned int unitID = aHit->getUnitID();
 	double  losenergy = aHit->getEnergyLoss();
