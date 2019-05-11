@@ -836,6 +836,12 @@ int HcalTopology::nPhiBins(HcalSubdetector bc, int etaRing) const {
   return lastPhiBin;
 }
 
+int HcalTopology::maxDepth() const {
+  int maxd1 = std::max(maxDepthHB_,maxDepthHE_);
+  int maxd2 = std::max(maxDepthHF_,8);
+  return std::max(maxd1,maxd2);
+}
+
 int HcalTopology::maxDepth(HcalSubdetector bc) const {
   if      (bc == HcalBarrel)  return maxDepthHB_;
   else if (bc == HcalEndcap)  return maxDepthHE_;
