@@ -27,58 +27,51 @@
 
 //#define EDM_ML_DEBUG
 //-------------------------------------------------------------------
-FastTimerSD::FastTimerSD(const std::string& name, const DDCompactView & cpv,
-			 const SensitiveDetectorCatalog & clg, 
-			 edm::ParameterSet const & p, 
-			 const SimTrackManager* manager) :
-  TimingSD(name, cpv, clg, p, manager), ftcons(nullptr) {
-    
+FastTimerSD::FastTimerSD(const std::string& name,
+                         const DDCompactView& cpv,
+                         const SensitiveDetectorCatalog& clg,
+                         edm::ParameterSet const& p,
+                         const SimTrackManager* manager)
+    : TimingSD(name, cpv, clg, p, manager), ftcons(nullptr) {
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("FastTimerSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
-    
+
   SetVerboseLevel(verbn);
-        
+
   std::string attribute = "ReadOutName";
-  DDSpecificsMatchesValueFilter filter{DDValue(attribute,name,0)};
-  DDFilteredView fv(cpv,filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, name, 0)};
+  DDFilteredView fv(cpv, filter);
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
-  std::vector<int> temp = dbl_to_int(getDDDArray("Type",sv));
+  std::vector<int> temp = dbl_to_int(getDDDArray("Type", sv));
   type_ = temp[0];
 
   setTimeFactor(100.);
 
-  edm::LogInfo("FastTimerSim") << "FastTimerSD: Instantiation completed for "
-			       << name << " of type " << type_;
+  edm::LogInfo("FastTimerSim") << "FastTimerSD: Instantiation completed for " << name << " of type " << type_;
 }
 
-FastTimerSD::~FastTimerSD() { 
-}
+FastTimerSD::~FastTimerSD() {}
 
-uint32_t FastTimerSD::setDetUnitId(const G4Step * aStep) { 
-
+uint32_t FastTimerSD::setDetUnitId(const G4Step* aStep) {
   //Find the depth segment
   const G4ThreeVector& global = getGlobalEntryPoint();
-  const G4ThreeVector& local  = getLocalEntryPoint();
-  int        iz = (global.z() > 0) ? 1 : -1;
-  std::pair<int,int> izphi = ((ftcons) ? ((type_ == 1) ? 
-					  (ftcons->getZPhi(std::abs(local.z()),local.phi())) : 
-					  (ftcons->getEtaPhi(local.perp(),local.phi()))) :
-			      (std::pair<int,int>(0,0)));
-  uint32_t id = FastTimeDetId(type_,izphi.first,izphi.second,iz).rawId();
+  const G4ThreeVector& local = getLocalEntryPoint();
+  int iz = (global.z() > 0) ? 1 : -1;
+  std::pair<int, int> izphi = ((ftcons) ? ((type_ == 1) ? (ftcons->getZPhi(std::abs(local.z()), local.phi()))
+                                                        : (ftcons->getEtaPhi(local.perp(), local.phi())))
+                                        : (std::pair<int, int>(0, 0)));
+  uint32_t id = FastTimeDetId(type_, izphi.first, izphi.second, iz).rawId();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("FastTimerSD") 
-    << "Volume " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() 
-    << ": " << global.z()
-    << " Iz(eta)phi " << izphi.first << ":"  << izphi.second << ":" 
-    << iz  << " id " << std::hex << id << std::dec;
+  edm::LogVerbatim("FastTimerSD") << "Volume " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << ": "
+                                  << global.z() << " Iz(eta)phi " << izphi.first << ":" << izphi.second << ":" << iz
+                                  << " id " << std::hex << id << std::dec;
 #endif
   return id;
 }
 
-void FastTimerSD::update(const BeginOfJob * job) {
-
+void FastTimerSD::update(const BeginOfJob* job) {
   const edm::EventSetup* es = (*job)();
   edm::ESHandle<FastTimeDDDConstants> fdc;
   es->get<IdealGeometryRecord>().get(fdc);
@@ -89,21 +82,17 @@ void FastTimerSD::update(const BeginOfJob * job) {
     throw cms::Exception("Unknown", "FastTimerSD") << "Cannot find FastTimeDDDConstants\n";
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("FastTimerSD") 
-    << "FastTimerSD::Initialized with FastTimeDDDConstants\n";
+  edm::LogVerbatim("FastTimerSD") << "FastTimerSD::Initialized with FastTimeDDDConstants\n";
 #endif
 }
 
-std::vector<double> FastTimerSD::getDDDArray(const std::string & str, 
-					     const DDsvalues_type & sv) {
-
+std::vector<double> FastTimerSD::getDDDArray(const std::string& str, const DDsvalues_type& sv) {
   DDValue value(str);
-  if (DDfetch(&sv,value)) {
-    const std::vector<double> & fvec = value.doubles();
+  if (DDfetch(&sv, value)) {
+    const std::vector<double>& fvec = value.doubles();
     int nval = fvec.size();
     if (nval < 1) {
-      edm::LogError("FastTimerSim") << "FastTimerSD : # of " << str
-				    << " bins " << nval << " < 1 ==> illegal";
+      edm::LogError("FastTimerSim") << "FastTimerSD : # of " << str << " bins " << nval << " < 1 ==> illegal";
       throw cms::Exception("DDException") << "FastTimerSD: cannot get array " << str;
     }
     return fvec;

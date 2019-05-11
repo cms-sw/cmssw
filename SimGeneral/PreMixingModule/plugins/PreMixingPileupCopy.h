@@ -23,7 +23,7 @@
 #include <string>
 
 namespace reco {
-  class GenParticle; 
+  class GenParticle;
 }
 class PileUpEventPrincipal;
 
@@ -32,7 +32,7 @@ namespace edm {
 
   class PreMixingPileupCopy {
   public:
-    PreMixingPileupCopy(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector && iC);
+    PreMixingPileupCopy(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector&& iC);
     ~PreMixingPileupCopy() = default;
 
     float getTrueNumInteractions(PileUpEventPrincipal const& pep) const;
@@ -40,15 +40,15 @@ namespace edm {
     void addPileupInfo(PileUpEventPrincipal const& pep);
     const std::vector<PileupSummaryInfo>& getPileupSummaryInfo() const { return pileupSummaryStorage_; }
     int getBunchSpacing() const { return bsStorage_; }
-    void putPileupInfo(edm::Event &e) ;
+    void putPileupInfo(edm::Event& e);
 
   private:
-    edm::InputTag pileupInfoInputTag_ ;     // InputTag for PileupSummaryInfo
-    edm::InputTag bunchSpacingInputTag_ ;     // InputTag for bunch spacing int
-    edm::InputTag cfPlaybackInputTag_   ;   // InputTag for CrossingFrame Playback information
+    edm::InputTag pileupInfoInputTag_;    // InputTag for PileupSummaryInfo
+    edm::InputTag bunchSpacingInputTag_;  // InputTag for bunch spacing int
+    edm::InputTag cfPlaybackInputTag_;    // InputTag for CrossingFrame Playback information
 
-    std::vector<edm::InputTag> genPUProtonsInputTags_ ;
-   
+    std::vector<edm::InputTag> genPUProtonsInputTags_;
+
     // deliver data from addPileupInfo() to getPileupInfo() and putPileupInfo()
     CrossingFramePlaybackInfoNew crossingFramePlaybackStorage_;
     std::vector<PileupSummaryInfo> pileupSummaryStorage_;
@@ -59,6 +59,6 @@ namespace edm {
 
     bool foundPlayback_;
   };
-}//edm
+}  // namespace edm
 
 #endif

@@ -16,43 +16,41 @@ class G4Step;
 class G4HCofThisEvent;
 
 class HFWedgeSD : public SensitiveCaloDetector {
-
-public:    
-  
-  explicit HFWedgeSD(const std::string&, const DDCompactView & cpv,
-		     const SensitiveDetectorCatalog & clg,
-		     edm::ParameterSet const &p, const SimTrackManager*);
+public:
+  explicit HFWedgeSD(const std::string&,
+                     const DDCompactView& cpv,
+                     const SensitiveDetectorCatalog& clg,
+                     edm::ParameterSet const& p,
+                     const SimTrackManager*);
   ~HFWedgeSD() override;
-  
-  void     Initialize(G4HCofThisEvent * HCE) override;
-  bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
-  void     EndOfEvent(G4HCofThisEvent * eventHC) override;
-  void     clear() override;
-  void     DrawAll() override;
-  void     PrintAll() override;
 
-  void     clearHits() override;
+  void Initialize(G4HCofThisEvent* HCE) override;
+  bool ProcessHits(G4Step* step, G4TouchableHistory* tHistory) override;
+  void EndOfEvent(G4HCofThisEvent* eventHC) override;
+  void clear() override;
+  void DrawAll() override;
+  void PrintAll() override;
+
+  void clearHits() override;
   uint32_t setDetUnitId(const G4Step*) override;
-  void     fillHits(edm::PCaloHitContainer&, const std::string&) override;
+  void fillHits(edm::PCaloHitContainer&, const std::string&) override;
 
 protected:
-
-  G4bool           hitExists();
-  HFShowerG4Hit*   createNewHit();
-  void             updateHit(HFShowerG4Hit*);
+  G4bool hitExists();
+  HFShowerG4Hit* createNewHit();
+  void updateHit(HFShowerG4Hit*);
 
 private:
-
   const SimTrackManager* m_trackManager;
 
-  int                          hcID;
-  HFShowerG4HitsCollection*    theHC; 
-  std::map<int,HFShowerG4Hit*> hitMap;
+  int hcID;
+  HFShowerG4HitsCollection* theHC;
+  std::map<int, HFShowerG4Hit*> hitMap;
 
-  int                          currentID, previousID, trackID;
-  double                       edep, time;
-  G4ThreeVector                globalPos, localPos, momDir;
-  HFShowerG4Hit*               currentHit;
+  int currentID, previousID, trackID;
+  double edep, time;
+  G4ThreeVector globalPos, localPos, momDir;
+  HFShowerG4Hit* currentHit;
 };
 
-#endif 
+#endif
