@@ -12,7 +12,7 @@
 //#include <boost/cstdint.hpp>
 
 class RawFile {
- public:
+public:
   /// Default constructor
   RawFile();
 
@@ -58,9 +58,8 @@ class RawFile {
   /// Tell instruction
   long tell();
 
- private:
-
+private:
   FILE* inputFile;
-  bool  xrootdFlag;
+  bool xrootdFlag;
 };
 #endif

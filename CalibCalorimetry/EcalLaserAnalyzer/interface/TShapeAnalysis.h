@@ -7,18 +7,15 @@ class TTree;
 
 #define fNchsel 1700
 
-class TShapeAnalysis: public TObject 
-{
-
- private:
-
+class TShapeAnalysis : public TObject {
+private:
   char filename[80];
-  long int timestart,timestop;
-  int index[fNchsel],npass[fNchsel];
-  int nsamplecristal,sampbmax,sampamax,nevt;
+  long int timestart, timestop;
+  int index[fNchsel], npass[fNchsel];
+  int nsamplecristal, sampbmax, sampamax, nevt;
   int presample;
   double noise;
-  double alpha0,beta0;
+  double alpha0, beta0;
   double alpha_val[fNchsel], beta_val[fNchsel], width_val[fNchsel], chi2_val[fNchsel];
   int flag_val[fNchsel];
   double alpha_init[fNchsel], beta_init[fNchsel], width_init[fNchsel], chi2_init[fNchsel];
@@ -28,8 +25,8 @@ class TShapeAnalysis: public TObject
 
   double rawsglu[fNchsel][200][10];
   double npassok[fNchsel];
- 
-  TTree *tABinit; 
+
+  TTree *tABinit;
   TTree *tABout;
 
   double chi2cut;
@@ -38,7 +35,7 @@ class TShapeAnalysis: public TObject
   void init(double, double, double, double);
   void init(TTree *tAB, double, double, double, double);
 
- public:
+public:
   // Default Constructor, mainly for Root
   TShapeAnalysis(double, double, double, double);
   // Default Constructor, mainly for Root
@@ -47,35 +44,35 @@ class TShapeAnalysis: public TObject
   // Destructor: Does nothing
   ~TShapeAnalysis() override;
 
-  void set_const(int,int,int,int,int,double,double);
+  void set_const(int, int, int, int, int, double, double);
   void set_presample(int);
   void set_nch(int);
-  void assignChannel(int,int);
+  void assignChannel(int, int);
   void putDateStart(long int);
   void putDateStop(long int);
   void getDateStart();
   void getDateStop();
-  void putAllVals(int,double*, int, int);
-  void putAllVals(int,double*, int, int, int, int, int, int);
-  void putalphaVal(int,double);
-  void putbetaVal(int,double);
-  void putwidthVal(int,double);
-  void putchi2Val(int,double);
-  void putflagVal(int,int);
-  void putalphaInit(int,double);
-  void putbetaInit(int,double);
-  void putwidthInit(int,double);
-  void putchi2Init(int,double);
-  void putflagInit(int,int);
-  void putetaInit(int,int);
-  void putphiInit(int,int);
-  void computeShape(std::string namefile, TTree*);
-  void computetmaxVal(int,double*);
+  void putAllVals(int, double *, int, int);
+  void putAllVals(int, double *, int, int, int, int, int, int);
+  void putalphaVal(int, double);
+  void putbetaVal(int, double);
+  void putwidthVal(int, double);
+  void putchi2Val(int, double);
+  void putflagVal(int, int);
+  void putalphaInit(int, double);
+  void putbetaInit(int, double);
+  void putwidthInit(int, double);
+  void putchi2Init(int, double);
+  void putflagInit(int, int);
+  void putetaInit(int, int);
+  void putphiInit(int, int);
+  void computeShape(std::string namefile, TTree *);
+  void computetmaxVal(int, double *);
   void printshapeData(int);
   std::vector<double> getVals(int);
   std::vector<double> getInitVals(int);
 
-  ClassDefOverride(TShapeAnalysis,0)
+  ClassDefOverride(TShapeAnalysis, 0)
 };
 
 #endif
