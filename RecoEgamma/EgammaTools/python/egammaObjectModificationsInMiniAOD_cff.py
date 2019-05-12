@@ -112,7 +112,8 @@ egamma9X105XUpdateModifier = cms.PSet(
     phoNeutralHadIso = cms.InputTag("photonIDValueMapProducer","phoNeutralHadronIsolation"),
     phoChargedHadIso = cms.InputTag("photonIDValueMapProducer","phoChargedIsolation"),
     phoChargedHadWorstVtxIso = cms.InputTag("photonIDValueMapProducer","phoWorstChargedIsolation"),
-    phoChargedHadWorstVtxConeVetoIso = cms.InputTag("photonIDValueMapProducer","phoWorstChargedIsolationConeVeto")
+    phoChargedHadWorstVtxConeVetoIso = cms.InputTag("photonIDValueMapProducer","phoWorstChargedIsolationConeVeto"),
+    allowGsfTrackForConvs = cms.bool(False) 
 )
 
 #############################################################
@@ -147,5 +148,7 @@ from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_
 run2_miniAOD_94XFall17.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
    
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+#80X doesnt have the bug which prevents GsfTracks used to match conversions so set true
+run2_miniAOD_80XLegacy.toModify(egamma9X105XUpdateModifier,allowGsfTrackForConvs = True)
 run2_miniAOD_80XLegacy.toModify(egamma_modifications,appendEgamma8XLegacyAppendableModifiers)
 run2_miniAOD_80XLegacy.toModify(egamma_modifications,prependEgamma8XObjectUpdateModifier)
