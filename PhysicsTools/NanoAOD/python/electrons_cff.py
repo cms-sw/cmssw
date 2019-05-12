@@ -14,7 +14,8 @@ ele9X105XUpdateModifier=egamma9X105XUpdateModifier.clone(
     phoNeutralHadIso = "",
     phoChargedHadIso = "",
     phoChargedHadWorstVtxIso = "",
-    phoChargedHadWorstVtxConeVetoIso = ""
+    phoChargedHadWorstVtxConeVetoIso = "",
+    phoChargedHadPFPVIso = ""
 )
 #we have dataformat changes to 106X so to read older releases we use egamma updators
 slimmedElectronsTo106X = cms.EDProducer("ModifiedElectronProducer",

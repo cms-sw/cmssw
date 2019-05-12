@@ -113,7 +113,9 @@ egamma9X105XUpdateModifier = cms.PSet(
     phoChargedHadIso = cms.InputTag("photonIDValueMapProducer","phoChargedIsolation"),
     phoChargedHadWorstVtxIso = cms.InputTag("photonIDValueMapProducer","phoWorstChargedIsolation"),
     phoChargedHadWorstVtxConeVetoIso = cms.InputTag("photonIDValueMapProducer","phoWorstChargedIsolationConeVeto"),
-    allowGsfTrackForConvs = cms.bool(False) 
+    phoChargedHadPFPVIso = cms.InputTag("egmPhotonIsolation","h+-DR030-"),
+    allowGsfTrackForConvs = cms.bool(False),
+    updateChargedHadPFPVIso = cms.bool(True)
 )
 
 #############################################################

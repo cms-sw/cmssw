@@ -69,7 +69,7 @@ private:
   TokenHandlePair<edm::ValueMap<float> > phoChargedHadIso_;
   TokenHandlePair<edm::ValueMap<float> > phoChargedHadWorstVtxIso_;
   TokenHandlePair<edm::ValueMap<float> > phoChargedHadWorstVtxConeVetoIso_;
-
+  TokenHandlePair<edm::ValueMap<float> > phoChargedHadPFPVIso_;
   //there is a bug which GsfTracks are now allowed to be a match for conversions
   //due to improper linking of references in the miniAOD since 94X
   //this allows us to emulate it or not
@@ -77,7 +77,12 @@ private:
   //till upto whenever this is fixed (11X?) as the GsfTrack references point to a different
   //collection to the conversion track references
   bool allowGsfTrkMatchForConvs_;
-  
+  //this allows us to update the charged hadron PF PV isolation
+  //chargedHadPFPVIso is filled in iorules but when running on miniAOD, the value used in IDs
+  //is remade on the miniAOD packedcandidates which differs due to rounding
+  //its still the same variable but can have differences hence inorder to allow IDs calculated on miniAOD
+  //on the same file to be exactly reproduced, this option is set true
+  bool updateChargedHadPFPVIso_;
   
 };
 
@@ -96,7 +101,9 @@ EG9X105XObjectUpdateModifier::EG9X105XObjectUpdateModifier(const edm::ParameterS
   phoChargedHadIso_(conf,"phoChargedHadIso",cc),
   phoChargedHadWorstVtxIso_(conf,"phoChargedHadWorstVtxIso",cc),
   phoChargedHadWorstVtxConeVetoIso_(conf,"phoChargedHadWorstVtxConeVetoIso",cc),
-  allowGsfTrkMatchForConvs_(conf.getParameter<bool>("allowGsfTrackForConvs"))
+  phoChargedHadPFPVIso_(conf,"phoChargedHadPFPVIso",cc),
+  allowGsfTrkMatchForConvs_(conf.getParameter<bool>("allowGsfTrackForConvs")),
+  updateChargedHadPFPVIso_(conf.getParameter<bool>("updateChargedHadPFPVIso"))
 {
   
 
@@ -117,6 +124,7 @@ void EG9X105XObjectUpdateModifier::setEvent(const edm::Event& iEvent)
   phoChargedHadIso_.setHandle(iEvent);
   phoChargedHadWorstVtxIso_.setHandle(iEvent);
   phoChargedHadWorstVtxConeVetoIso_.setHandle(iEvent);
+  if(updateChargedHadPFPVIso_) phoChargedHadPFPVIso_.setHandle(iEvent);
 }
 
 void EG9X105XObjectUpdateModifier::setEventContent(const edm::EventSetup& iSetup)
@@ -160,6 +168,9 @@ void EG9X105XObjectUpdateModifier::modifyObject(reco::Photon& pho)const
   pfIso.chargedHadronIso = (*phoChargedHadIso_.handle())[ptrForVM];
   pfIso.chargedHadronWorstVtxIso = (*phoChargedHadWorstVtxIso_.handle())[ptrForVM];
   pfIso.chargedHadronWorstVtxGeomVetoIso = (*phoChargedHadWorstVtxConeVetoIso_.handle())[ptrForVM];
+  if(updateChargedHadPFPVIso_){
+    pfIso.chargedHadronPFPVIso = (*phoChargedHadPFPVIso_.handle())[ptrForVM];
+  }
   pho.setPflowIsolationVariables(pfIso);
 
   reco::Photon::ShowerShape fracSS = pho.showerShapeVariables();
