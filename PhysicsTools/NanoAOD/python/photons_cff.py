@@ -4,7 +4,6 @@ from PhysicsTools.NanoAOD.common_cff import *
 from math import ceil,log
 
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
@@ -77,6 +76,8 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
         EAFile_PFIso_Pho = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"),
     )
 
+seedGainPho = cms.EDProducer("PhotonSeedGainProducer", src = cms.InputTag("slimmedPhotons"))
+
 import RecoEgamma.EgammaTools.calibratedEgammas_cff
 calibratedPatPhotons94Xv1 = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatPhotons.clone(
     produceCalibratedObjs = False,
@@ -110,6 +111,7 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     ),
     userInts = cms.PSet(
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForPho"),
+        seedGain = cms.InputTag("seedGainPho"),
     ),
 )
 run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
@@ -188,6 +190,7 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8),
         isScEtaEB = Var("abs(superCluster().eta()) < 1.4442",bool,doc="is supercluster eta within barrel acceptance"),
         isScEtaEE = Var("abs(superCluster().eta()) > 1.566 && abs(superCluster().eta()) < 2.5",bool,doc="is supercluster eta within endcap acceptance"),
+        seedGain = Var("userInt('seedGain')","uint8",doc="Gain of the seed crystal"),
     )
 )
 
@@ -250,7 +253,7 @@ photonMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 photons or electrons"),
 )
 
-photonSequence = cms.Sequence(bitmapVIDForPho + isoForPho + slimmedPhotonsWithUserData + finalPhotons)
+photonSequence = cms.Sequence(bitmapVIDForPho + isoForPho + seedGainPho + slimmedPhotonsWithUserData + finalPhotons)
 photonTables = cms.Sequence ( photonTable)
 photonMC = cms.Sequence(photonsMCMatchForTable + photonMCTable)
 
