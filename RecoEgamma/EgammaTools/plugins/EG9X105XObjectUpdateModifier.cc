@@ -69,6 +69,14 @@ private:
   TokenHandlePair<edm::ValueMap<float> > phoChargedHadIso_;
   TokenHandlePair<edm::ValueMap<float> > phoChargedHadWorstVtxIso_;
   TokenHandlePair<edm::ValueMap<float> > phoChargedHadWorstVtxConeVetoIso_;
+
+  //there is a bug which GsfTracks are now allowed to be a match for conversions
+  //due to improper linking of references in the miniAOD since 94X
+  //this allows us to emulate it or not
+  //note: even if this enabled, it will do nothing on miniAOD produced with 94X, 102X 
+  //till upto whenever this is fixed (11X?) as the GsfTrack references point to a different
+  //collection to the conversion track references
+  bool allowGsfTrkMatchForConvs_;
   
   
 };
@@ -87,7 +95,8 @@ EG9X105XObjectUpdateModifier::EG9X105XObjectUpdateModifier(const edm::ParameterS
   phoNeutralHadIso_(conf,"phoNeutralHadIso",cc),
   phoChargedHadIso_(conf,"phoChargedHadIso",cc),
   phoChargedHadWorstVtxIso_(conf,"phoChargedHadWorstVtxIso",cc),
-  phoChargedHadWorstVtxConeVetoIso_(conf,"phoChargedHadWorstVtxConeVetoIso",cc)
+  phoChargedHadWorstVtxConeVetoIso_(conf,"phoChargedHadWorstVtxConeVetoIso",cc),
+  allowGsfTrkMatchForConvs_(conf.getParameter<bool>("allowGsfTrackForConvs"))
 {
   
 
@@ -122,8 +131,12 @@ void EG9X105XObjectUpdateModifier::modifyObject(reco::GsfElectron& ele)const
     throw cms::Exception("LogicError") <<" in EG9X105ObjectUpdateModifier, line "<<__LINE__<<" electron "<<ele.et()<<" "<<ele.eta()<<" "<<ele.superCluster()->seed()->seed().rawId()<<" failed to match to the electrons the key map was keyed to, check the map collection is correct";
   }
   reco::GsfElectron::ConversionRejection convRejVars = ele.conversionRejectionVariables();
-  //its rather important to use the core function here to get the org trk ref
-  convRejVars.vtxFitProb = ConversionTools::getVtxFitProb(ConversionTools::matchedConversion(ele.core()->ctfTrack(),*conversions_.handle(),beamspot_.handle()->position(),2.0,1e-6,0));
+  if(allowGsfTrkMatchForConvs_){
+    convRejVars.vtxFitProb = ConversionTools::getVtxFitProb(ConversionTools::matchedConversion(ele.core(),*conversions_.handle(),beamspot_.handle()->position()));
+  }else{
+    //its rather important to use the core function here to get the org trk ref
+    convRejVars.vtxFitProb = ConversionTools::getVtxFitProb(ConversionTools::matchedConversion(ele.core()->ctfTrack(),*conversions_.handle(),beamspot_.handle()->position(),2.0,1e-6,0));
+  }
   ele.setConversionRejectionVariables(convRejVars);
   
   reco::GsfElectron::IsolationVariables isolVars03 = ele.dr03IsolationVariables();
