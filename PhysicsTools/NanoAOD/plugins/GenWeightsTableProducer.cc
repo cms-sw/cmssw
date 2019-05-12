@@ -6,6 +6,7 @@
 #include "DataFormats/NanoAOD/interface/MergeableCounterTable.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
@@ -21,17 +22,17 @@ namespace {
     ///  ---- Cache object for running sums of weights ----
     struct Counter {
         Counter() : 
-            num(0), sumw(0), sumw2(0), sumPDF(), sumScale(), sumNamed(), sumPS() {}
+            num(0), sumw(0), sumw2(0), sumPDF(), sumScale(), sumRwgt(), sumNamed(), sumPS() {}
 
         // the counters
         long long num;
         long double sumw;
         long double sumw2;
-        std::vector<long double> sumPDF, sumScale, sumNamed, sumPS;
+        std::vector<long double> sumPDF, sumScale, sumRwgt, sumNamed, sumPS;
 
         void clear() { 
             num = 0; sumw = 0; sumw2 = 0;
-            sumPDF.clear(); sumScale.clear(); sumNamed.clear(), sumPS.clear();
+            sumPDF.clear(); sumScale.clear(); sumRwgt.clear(); sumNamed.clear(), sumPS.clear();
         }
 
         // inc the counters
@@ -46,7 +47,7 @@ namespace {
             }
         }
 
-        void incLHE(double w0, const std::vector<double> & wScale, const std::vector<double> & wPDF, const std::vector<double> & wNamed, const std::vector<double> & wPS) {
+        void incLHE(double w0, const std::vector<double> & wScale, const std::vector<double> & wPDF, const std::vector<double> & wRwgt, const std::vector<double> & wNamed, const std::vector<double> & wPS) {
             // add up weights
             incGenOnly(w0);
             // then add up variations
@@ -57,6 +58,10 @@ namespace {
             if (!wPDF.empty()) {
                 if (sumPDF.empty()) sumPDF.resize(wPDF.size(), 0);
                 for (unsigned int i = 0, n = wPDF.size(); i < n; ++i) sumPDF[i] += (w0 * wPDF[i]);
+            }
+            if (!wRwgt.empty()) {
+                if (sumRwgt.empty()) sumRwgt.resize(wRwgt.size(), 0);
+                for (unsigned int i = 0, n = wRwgt.size(); i < n; ++i) sumRwgt[i] += (w0 * wRwgt[i]);
             }
             if (!wNamed.empty()) {
                 if (sumNamed.empty()) sumNamed.resize(wNamed.size(), 0);
@@ -69,12 +74,14 @@ namespace {
             num += other.num; sumw += other.sumw; sumw2 += other.sumw2; 
             if (sumScale.empty() && !other.sumScale.empty()) sumScale.resize(other.sumScale.size(),0);
             if (sumPDF.empty() && !other.sumPDF.empty()) sumPDF.resize(other.sumPDF.size(),0);
+            if (sumRwgt.empty() && !other.sumRwgt.empty()) sumRwgt.resize(other.sumRwgt.size(),0);
             if (sumNamed.empty() && !other.sumNamed.empty()) sumNamed.resize(other.sumNamed.size(),0);
             if (sumPS.empty() && !other.sumPS.empty()) sumPS.resize(other.sumPS.size(),0);
-            for (unsigned int i = 0, n = sumScale.size(); i < n; ++i) sumScale[i] += other.sumScale[i];
-            for (unsigned int i = 0, n = sumPDF.size(); i < n; ++i) sumPDF[i] += other.sumPDF[i];
-            for (unsigned int i = 0, n = sumNamed.size(); i < n; ++i) sumNamed[i] += other.sumNamed[i];
-            for (unsigned int i = 0, n = sumPS.size(); i < n; ++i) sumPS[i] += other.sumPS[i];
+            if (!other.sumScale.empty()) for (unsigned int i = 0, n = sumScale.size(); i < n; ++i) sumScale[i] += other.sumScale[i];
+            if (!other.sumPDF.empty()) for (unsigned int i = 0, n = sumPDF.size(); i < n; ++i) sumPDF[i] += other.sumPDF[i];
+            if (!other.sumRwgt.empty()) for (unsigned int i = 0, n = sumRwgt.size(); i < n; ++i) sumRwgt[i] += other.sumRwgt[i];
+            if (!other.sumNamed.empty()) for (unsigned int i = 0, n = sumNamed.size(); i < n; ++i) sumNamed[i] += other.sumNamed[i];
+            if (!other.sumPS.empty()) for (unsigned int i = 0, n = sumPS.size(); i < n; ++i) sumPS[i] += other.sumPS[i];
         }
     };
 
@@ -87,6 +94,9 @@ namespace {
         // ---- pdf ----
         std::vector<std::string> pdfWeightIDs; 
         std::string pdfWeightsDoc;
+        // ---- rwgt ----
+        std::vector<std::string> rwgtIDs;
+        std::string rwgtWeightDoc;
     };
 
     float stof_fortrancomp(const std::string &str) {
@@ -132,9 +142,9 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
     public:
         GenWeightsTableProducer( edm::ParameterSet const & params ) :
             genTag_(consumes<GenEventInfoProduct>(params.getParameter<edm::InputTag>("genEvent"))),
-            lheLabel_(params.getParameter<edm::InputTag>("lheInfo")),
-            lheTag_(consumes<LHEEventProduct>(lheLabel_)),
-            lheRunTag_(consumes<LHERunInfoProduct, edm::InRun>(lheLabel_)),
+            lheLabel_(params.getParameter<std::vector<edm::InputTag>>("lheInfo")),
+            lheTag_(edm::vector_transform(lheLabel_, [this](const edm::InputTag & tag) { return mayConsume<LHEEventProduct>(tag); })),
+            lheRunTag_(edm::vector_transform(lheLabel_, [this](const edm::InputTag & tag) { return mayConsume<LHERunInfoProduct, edm::InRun>(tag); })),
             namedWeightIDs_(params.getParameter<std::vector<std::string>>("namedWeightIDs")),
             namedWeightLabels_(params.getParameter<std::vector<std::string>>("namedWeightLabels")),
             lheWeightPrecision_(params.getParameter<int32_t>("lheWeightPrecision")),
@@ -145,6 +155,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             produces<nanoaod::FlatTable>();
             produces<nanoaod::FlatTable>("LHEScale");
             produces<nanoaod::FlatTable>("LHEPdf");
+            produces<nanoaod::FlatTable>("LHEReweighting");
             produces<nanoaod::FlatTable>("LHENamed");
             produces<nanoaod::FlatTable>("PS");
             produces<nanoaod::MergeableCounterTable,edm::Transition::EndRun>();
@@ -178,21 +189,28 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             iEvent.put(std::move(out));
 
             // tables for LHE weights, may not be filled
-            std::unique_ptr<nanoaod::FlatTable> lheScaleTab, lhePdfTab, lheNamedTab;
+            std::unique_ptr<nanoaod::FlatTable> lheScaleTab, lhePdfTab, lheRwgtTab, lheNamedTab;
             std::unique_ptr<nanoaod::FlatTable> genPSTab;
 
             edm::Handle<LHEEventProduct> lheInfo;
-            if (iEvent.getByToken(lheTag_, lheInfo)) {
+            for (const auto & lheTag: lheTag_) {
+                iEvent.getByToken(lheTag, lheInfo);
+                if (lheInfo.isValid()) {
+                    break;
+                }
+            }
+            if (lheInfo.isValid()) {
                 // get the dynamic choice of weights
                 const DynamicWeightChoice * weightChoice = runCache(iEvent.getRun().index());
                 // go fill tables
-                fillLHEWeightTables(counter, weightChoice, weight, *lheInfo, *genInfo, lheScaleTab, lhePdfTab, lheNamedTab, genPSTab);
+                fillLHEWeightTables(counter, weightChoice, weight, *lheInfo, *genInfo, lheScaleTab, lhePdfTab, lheRwgtTab, lheNamedTab, genPSTab);
             } else {
                 // Still try to add the PS weights
                 fillOnlyPSWeightTable(counter, weight, *genInfo, genPSTab);
                 // make dummy values 
                 lheScaleTab.reset(new nanoaod::FlatTable(1, "LHEScaleWeights", true));
                 lhePdfTab.reset(new nanoaod::FlatTable(1, "LHEPdfWeights", true));
+                lheRwgtTab.reset(new nanoaod::FlatTable(1, "LHEReweightingWeights", true));
                 lheNamedTab.reset(new nanoaod::FlatTable(1, "LHENamedWeights", true));
                 if (!hasIssuedWarning_.exchange(true)) {
                     edm::LogWarning("LHETablesProducer") << "No LHEEventProduct, so there will be no LHE Tables\n";
@@ -201,6 +219,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
 
             iEvent.put(std::move(lheScaleTab), "LHEScale");
             iEvent.put(std::move(lhePdfTab), "LHEPdf");
+            iEvent.put(std::move(lheRwgtTab), "LHEReweighting");
             iEvent.put(std::move(lheNamedTab), "LHENamed");
             iEvent.put(std::move(genPSTab), "PS");
         }
@@ -212,7 +231,8 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                 const LHEEventProduct & lheProd, 
                 const GenEventInfoProduct & genProd,
                 std::unique_ptr<nanoaod::FlatTable> & outScale, 
-                std::unique_ptr<nanoaod::FlatTable> & outPdf, 
+                std::unique_ptr<nanoaod::FlatTable> & outPdf,
+                std::unique_ptr<nanoaod::FlatTable> & outRwgt,
                 std::unique_ptr<nanoaod::FlatTable> & outNamed,
                 std::unique_ptr<nanoaod::FlatTable> & outPS ) const
         {
@@ -220,10 +240,11 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
 
             const std::vector<std::string> & scaleWeightIDs = weightChoice->scaleWeightIDs;
             const std::vector<std::string> & pdfWeightIDs   = weightChoice->pdfWeightIDs;
+            const std::vector<std::string> & rwgtWeightIDs  = weightChoice->rwgtIDs;
 
             double w0 = lheProd.originalXWGTUP();
 
-            std::vector<double> wScale(scaleWeightIDs.size(), 1), wPDF(pdfWeightIDs.size(), 1), wNamed(namedWeightIDs_.size(), 1);
+            std::vector<double> wScale(scaleWeightIDs.size(), 1), wPDF(pdfWeightIDs.size(), 1), wRwgt(rwgtWeightIDs.size(), 1), wNamed(namedWeightIDs_.size(), 1);
             for (auto & weight : lheProd.weights()) {
                 if (lheDebug) printf("Weight  %+9.5f   rel %+9.5f   for id %s\n", weight.wgt, weight.wgt/w0,  weight.id.c_str());
                 // now we do it slowly, can be optimized
@@ -232,6 +253,9 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
 
                 auto mPDF = std::find(pdfWeightIDs.begin(), pdfWeightIDs.end(), weight.id);
                 if (mPDF != pdfWeightIDs.end()) wPDF[mPDF-pdfWeightIDs.begin()] = weight.wgt/w0;
+
+                auto mRwgt = std::find(rwgtWeightIDs.begin(), rwgtWeightIDs.end(), weight.id);
+                if (mRwgt != rwgtWeightIDs.end()) wRwgt[mRwgt-rwgtWeightIDs.begin()] = weight.wgt/w0;
 
                 auto mNamed = std::find(namedWeightIDs_.begin(), namedWeightIDs_.end(), weight.id);
                 if (mNamed != namedWeightIDs_.end()) wNamed[mNamed-namedWeightIDs_.begin()] = weight.wgt/w0;
@@ -251,7 +275,10 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             outScale->addColumn<float>("", wScale, weightChoice->scaleWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_); 
 
             outPdf.reset(new nanoaod::FlatTable(wPDF.size(), "LHEPdfWeight", false));
-            outPdf->addColumn<float>("", wPDF, weightChoice->pdfWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_); 
+            outPdf->addColumn<float>("", wPDF, weightChoice->pdfWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
+
+            outRwgt.reset(new nanoaod::FlatTable(wRwgt.size(), "LHEReweightingWeight", false));
+            outRwgt->addColumn<float>("", wRwgt, weightChoice->rwgtWeightDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
 
             outNamed.reset(new nanoaod::FlatTable(1, "LHEWeight", true));
             outNamed->addColumnValue<float>("originalXWGTUP", lheProd.originalXWGTUP(), "Nominal event weight in the LHE file", nanoaod::FlatTable::FloatColumn);
@@ -259,7 +286,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                 outNamed->addColumnValue<float>(namedWeightLabels_[i], wNamed[i], "LHE weight for id "+namedWeightIDs_[i]+", relative to nominal", nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
             }
             
-            counter->incLHE(genWeight, wScale, wPDF, wNamed, wPS);
+            counter->incLHE(genWeight, wScale, wPDF, wRwgt, wNamed, wPS);
         }
 
         void fillOnlyPSWeightTable(
@@ -295,18 +322,27 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
 
             // getByToken throws since we're not in the endRun (see https://github.com/cms-sw/cmssw/pull/18499)
             //if (iRun.getByToken(lheRunTag_, lheInfo)) {
-            if (iRun.getByLabel(lheLabel_, lheInfo)) { 
+            for (const auto & lheLabel: lheLabel_) {
+                iRun.getByLabel(lheLabel, lheInfo);
+                if (lheInfo.isValid()) {
+                    break;
+                }
+            }
+            if (lheInfo.isValid()) {
                 std::vector<ScaleVarWeight> scaleVariationIDs;
                 std::vector<PDFSetWeights>  pdfSetWeightIDs;
+                std::vector<std::string>    lheReweighingIDs;
                 
                 std::regex weightgroupmg26x("<weightgroup\\s+(?:name|type)=\"(.*)\"\\s+combine=\"(.*)\"\\s*>");
                 std::regex weightgroup("<weightgroup\\s+combine=\"(.*)\"\\s+(?:name|type)=\"(.*)\"\\s*>");
+                std::regex weightgroupRwgt("<weightgroup\\s+(?:name|type)=\"(.*)\"\\s*>");
                 std::regex endweightgroup("</weightgroup>");
                 std::regex scalewmg26x("<weight\\s+(?:.*\\s+)?id=\"(\\d+)\"\\s*(?:lhapdf=\\d+|dyn=\\s*-?\\d+)?\\s*((?:[mM][uU][rR]|renscfact)=\"(\\S+)\"\\s+(?:[mM][uU][Ff]|facscfact)=\"(\\S+)\")(\\s+.*)?</weight>");
                 std::regex scalew("<weight\\s+(?:.*\\s+)?id=\"(\\d+)\">\\s*(?:lhapdf=\\d+|dyn=\\s*-?\\d+)?\\s*((?:mu[rR]|renscfact)=(\\S+)\\s+(?:mu[Ff]|facscfact)=(\\S+)(\\s+.*)?)</weight>");
                 std::regex pdfw("<weight\\s+id=\"(\\d+)\">\\s*(?:PDF set|lhapdf|PDF|pdfset)\\s*=\\s*(\\d+)\\s*(?:\\s.*)?</weight>");
                 std::regex pdfwOld("<weight\\s+(?:.*\\s+)?id=\"(\\d+)\">\\s*Member \\s*(\\d+)\\s*(?:.*)</weight>");
                 std::regex pdfwmg26x("<weight\\s+id=\"(\\d+)\"\\s*MUR=\"(?:\\S+)\"\\s*MUF=\"(?:\\S+)\"\\s*(?:PDF set|lhapdf|PDF|pdfset)\\s*=\\s*\"(\\d+)\"\\s*>\\s*(?:PDF=(\\d+)\\s*MemberID=(\\d+))?\\s*(?:\\s.*)?</weight>");
+                std::regex rwgt("<weight\\s+id=\"(.+)\">(.+)?(</weight>)?");
                 std::smatch groups;
                 for (auto iter=lheInfo->headers_begin(), end = lheInfo->headers_end(); iter != end; ++iter) {
                     if (iter->tag() != "initrwgt") {
@@ -450,6 +486,32 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                     }
                                 }
                             }
+                        } else if(std::regex_search(lines[iLine], groups, weightgroupRwgt) ) {
+                            std::string groupname = groups.str(1);
+                            if (groupname == "mg_reweighting") {
+                                if (lheDebug) std::cout << ">>> Looks like a LHE weights for reweighting" << std::endl;
+                                for ( ++iLine; iLine < nLines; ++iLine) {
+                                    if (lheDebug) std::cout << "    " << lines[iLine];
+                                    if (std::regex_search(lines[iLine], groups, rwgt)) {
+                                        std::string rwgtID = groups.str(1);
+                                        if (lheDebug) std::cout << "    >>> LHE reweighting weight: " << rwgtID << std::endl;
+                                        if (std::find(lheReweighingIDs.begin(), lheReweighingIDs.end(), rwgtID) == lheReweighingIDs.end()) {
+                                            // we're only interested in the beggining of the block
+                                            lheReweighingIDs.emplace_back(rwgtID);
+                                        }
+                                    } else if (std::regex_search(lines[iLine], endweightgroup)) {
+                                        if (lheDebug) std::cout << ">>> Looks like the end of a weight group" << std::endl;
+                                        if (!missed_weightgroup){
+                                            break;
+                                        } else missed_weightgroup=false;
+                                    } else if (std::regex_search(lines[iLine], ismg26x ? weightgroupmg26x : weightgroup)) {
+                                        if (lheDebug) std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end of the group." << std::endl;
+                                        if (ismg26x) missed_weightgroup=true;
+                                        --iLine; // rewind by one, and go back to the outer loop
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
                     //std::cout << "============= END [ " << iter->tag() << " ] ============ \n\n" << std::endl;
@@ -472,6 +534,12 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                         std::cout << "Found " << pdfSetWeightIDs.size() << " PDF set errors: " << std::endl;
                         for (const auto & pw : pdfSetWeightIDs) printf("lhaIDs %6d - %6d (%3lu weights: %s, ... )\n", pw.lhaIDs.first, pw.lhaIDs.second, pw.wids.size(), pw.wids.front().c_str());
                     }
+
+                    // ------ LHE REWEIGHTING -------
+                    if (lheDebug) {
+                        std::cout << "Found " << lheReweighingIDs.size() << " reweighting weights" << std::endl;
+                    }
+                    std::copy(lheReweighingIDs.begin(), lheReweighingIDs.end(), std::back_inserter(weightChoice->rwgtIDs));
                     
                     std::stringstream pdfDoc; pdfDoc << "LHE pdf variation weights (w_var / w_nominal) for LHA IDs ";
                     bool found = false;
@@ -527,6 +595,10 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
             out->addVFloat("LHEScaleSumw", "Sum of genEventWeight * LHEScaleWeight[i], divided by genEventSumw", sumScales);
             auto sumPDFs = runCounter->sumPDF; for (auto & val : sumPDFs) val *= norm;
             out->addVFloat("LHEPdfSumw", "Sum of genEventWeight * LHEPdfWeight[i], divided by genEventSumw", sumPDFs);
+            if (!runCounter->sumRwgt.empty()) {
+                auto sumRwgts = runCounter->sumRwgt; for (auto & val : sumRwgts) val *= norm;
+                out->addVFloat("LHEReweightingSumw", "Sum of genEventWeight * LHEReweightingWeight[i], divided by genEventSumw", sumRwgts);
+            }
             if (!runCounter->sumNamed.empty()) { // it could be empty if there's no LHE info in the sample
                 for (unsigned int i = 0, n = namedWeightLabels_.size(); i < n; ++i) {
                     out->addFloat("LHESumw_"+namedWeightLabels_[i], "Sum of genEventWeight * LHEWeight_"+namedWeightLabels_[i]+", divided by genEventSumw", runCounter->sumNamed[i] * norm);
@@ -540,7 +612,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
         static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
             edm::ParameterSetDescription desc;
             desc.add<edm::InputTag>("genEvent", edm::InputTag("generator"))->setComment("tag for the GenEventInfoProduct, to get the main weight");
-            desc.add<edm::InputTag>("lheInfo", edm::InputTag("externalLHEProducer"))->setComment("tag for the LHE information (LHEEventProduct and LHERunInfoProduct)");
+            desc.add<std::vector<edm::InputTag>>("lheInfo", std::vector<edm::InputTag>{{"externalLHEProducer"},{"source"}})->setComment("tag(s) for the LHE information (LHEEventProduct and LHERunInfoProduct)");
 
             edm::ParameterSetDescription prefpdf;
             prefpdf.add<std::string>("name");
@@ -557,9 +629,9 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
 
     protected:
         const edm::EDGetTokenT<GenEventInfoProduct> genTag_;
-        const edm::InputTag lheLabel_;
-        const edm::EDGetTokenT<LHEEventProduct> lheTag_;
-        const edm::EDGetTokenT<LHERunInfoProduct> lheRunTag_;
+        const std::vector<edm::InputTag> lheLabel_;
+        const std::vector<edm::EDGetTokenT<LHEEventProduct>> lheTag_;
+        const std::vector<edm::EDGetTokenT<LHERunInfoProduct>> lheRunTag_;
 
         std::vector<uint32_t> preferredPDFLHAIDs_;
         std::unordered_map<std::string,uint32_t> lhaNameToID_;
