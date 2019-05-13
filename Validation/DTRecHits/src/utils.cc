@@ -1,24 +1,25 @@
-#include "Validation/DTRecHits/interface/utils.h"
 #include "TF1.h"
 #include "TProfile.h"
+#include "Validation/DTRecHits/interface/utils.h"
 //#include "TLine.h"
-void Tutils::drawGFit(TH1 * h1, float min, float max, float minfit, float maxfit) {
+void Tutils::drawGFit(TH1 *h1, float min, float max, float minfit, float maxfit) {
   setStyle(h1);
   static int i = 0;
   i++;
-  //h1->SetGrid(1,1);
-  //h1->SetGridColor(15);
-  h1->GetXaxis()->SetRangeUser(min,max);
-  TString  fitName = "g";
+  // h1->SetGrid(1,1);
+  // h1->SetGridColor(15);
+  h1->GetXaxis()->SetRangeUser(min, max);
+  TString fitName = "g";
   fitName += i;
-    TF1* g1 = new TF1(fitName.Data(),"gaus",minfit,maxfit);
+  TF1 *g1 = new TF1(fitName.Data(), "gaus", minfit, maxfit);
   g1->SetLineColor(2);
   g1->SetLineWidth(2);
-  h1->Fit(g1,"RQ");
+  h1->Fit(g1, "RQ");
   h1->Draw();
-//   TPaveStats *st = (TPaveStats*)h1->GetListOfFunctions()->FindObject("stats");
-//   st->SetX2NDC(0.905);
-//   st->SetY2NDC(0.905);
+  //   TPaveStats *st =
+  //   (TPaveStats*)h1->GetListOfFunctions()->FindObject("stats");
+  //   st->SetX2NDC(0.905);
+  //   st->SetY2NDC(0.905);
 }
 void Tutils::setStyle(TH1 *histo) {
   mystyle = getStyle("tdr");
@@ -46,10 +47,9 @@ void Tutils::setStyle(TH2 *histo) {
   histo->GetYaxis()->SetLabelSize(mystyle->GetLabelSize());
 }
 
-TStyle * Tutils::getStyle(const TString& name)
-{
+TStyle *Tutils::getStyle(const TString &name) {
   TStyle *theStyle;
-  if ( name == "mstyle" ) {
+  if (name == "mstyle") {
     theStyle = new TStyle("mstyle", "mstyle");
     //    theStyle->SetOptStat(0);
     theStyle->SetPadBorderMode(0);
@@ -65,15 +65,15 @@ TStyle * Tutils::getStyle(const TString& name)
     theStyle->SetTitleBorderSize(1);
     theStyle->SetPalette(1);
 
-  } else if( name == "tdr" ) {
-    theStyle = new TStyle("tdrStyle","Style for P-TDR");
+  } else if (name == "tdr") {
+    theStyle = new TStyle("tdrStyle", "Style for P-TDR");
 
     // For the canvas:
     theStyle->SetCanvasBorderMode(0);
     theStyle->SetCanvasColor(kWhite);
-    theStyle->SetCanvasDefH(600); //Height of canvas
-    theStyle->SetCanvasDefW(600); //Width of canvas
-    theStyle->SetCanvasDefX(0);   //POsition on screen
+    theStyle->SetCanvasDefH(600);  // Height of canvas
+    theStyle->SetCanvasDefW(600);  // Width of canvas
+    theStyle->SetCanvasDefX(0);    // POsition on screen
     theStyle->SetCanvasDefY(0);
 
     // For the Pad:
@@ -105,26 +105,27 @@ TStyle * Tutils::getStyle(const TString& name)
     // theStyle->SetNumberContours(Int_t number = 20);
 
     theStyle->SetEndErrorSize(2);
-//     theStyle->SetErrorMarker(20);
+    //     theStyle->SetErrorMarker(20);
     theStyle->SetErrorX(0.);
-  
+
     theStyle->SetMarkerStyle(20);
 
-    //For the fit/function:
+    // For the fit/function:
     theStyle->SetOptFit(1);
     theStyle->SetFitFormat("5.4g");
     theStyle->SetFuncColor(2);
     theStyle->SetFuncStyle(1);
     theStyle->SetFuncWidth(1);
 
-    //For the date:
+    // For the date:
     theStyle->SetOptDate(0);
     // theStyle->SetDateX(Float_t x = 0.01);
     // theStyle->SetDateY(Float_t y = 0.01);
 
     // For the statistics box:
     theStyle->SetOptFile(0);
-//     theStyle->SetOptStat(0); // To display the mean and RMS:   SetOptStat("mr");
+    //     theStyle->SetOptStat(0); // To display the mean and RMS:
+    //     SetOptStat("mr");
     theStyle->SetOptStat(10);
     theStyle->SetStatColor(kWhite);
     theStyle->SetStatFont(42);
@@ -164,8 +165,8 @@ TStyle * Tutils::getStyle(const TString& name)
     theStyle->SetTitleColor(1, "XYZ");
     theStyle->SetTitleFont(42, "XYZ");
     theStyle->SetTitleSize(0.06, "XYZ");
-    // theStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
-    // theStyle->SetTitleYSize(Float_t size = 0.02);
+    // theStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the
+    // size? theStyle->SetTitleYSize(Float_t size = 0.02);
     theStyle->SetTitleXOffset(0.9);
     theStyle->SetTitleYOffset(1.25);
     // theStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
@@ -192,7 +193,7 @@ TStyle * Tutils::getStyle(const TString& name)
     theStyle->SetOptLogz(0);
 
     // Postscript options:
-    theStyle->SetPaperSize(20.,20.);
+    theStyle->SetPaperSize(20., 20.);
     // theStyle->SetLineScalePS(Float_t scale = 3);
     // theStyle->SetLineStyleString(Int_t i, const char* text);
     // theStyle->SetHeaderPS(const char* header);
@@ -205,9 +206,8 @@ TStyle * Tutils::getStyle(const TString& name)
     // theStyle->SetTimeOffset(Double_t toffset);
     // theStyle->SetHistMinimumZero(kTRUE);
 
-
     //   style->SetOptFit(101);
-    //   style->SetOptStat(1111111); 
+    //   style->SetOptStat(1111111);
 
   } else {
     // Avoid modifying the default style!
@@ -216,19 +216,20 @@ TStyle * Tutils::getStyle(const TString& name)
   return theStyle;
 }
 
-void Tutils::plotAndProfileX (TH2* h2, float min, float max,bool profile) {
+void Tutils::plotAndProfileX(TH2 *h2, float min, float max, bool profile) {
   setStyle(h2);
   //  gPad->SetGrid(1,1);
-  //gStyle->SetGridColor(15);
-  h2->GetYaxis()->SetRangeUser(min,max);
+  // gStyle->SetGridColor(15);
+  h2->GetYaxis()->SetRangeUser(min, max);
   h2->Draw();
   if (profile) {
-    TProfile* prof = h2->ProfileX();
+    TProfile *prof = h2->ProfileX();
     prof->SetMarkerColor(2);
     prof->SetLineColor(2);
     prof->Draw("same");
   }
-  //TLine * l = new TLine(h2->GetXaxis()->GetXmin(),0,h2->GetXaxis()->GetXmax(),0);
-  //l->SetLineColor(3);
-  //l->Draw();
+  // TLine * l = new
+  // TLine(h2->GetXaxis()->GetXmin(),0,h2->GetXaxis()->GetXmax(),0);
+  // l->SetLineColor(3);
+  // l->Draw();
 }

@@ -4,7 +4,7 @@
 //
 // Package:     HeteroContainer
 // Module:      HCTypeTag
-// 
+//
 // Description: <one line class summary>
 //
 // Implementation:
@@ -67,73 +67,68 @@
 // constants, enums and typedefs
 //
 namespace edm {
-   namespace eventsetup {
-      namespace heterocontainer {
-         
-         //
-         // static data member definitions
-         //
-                  
-         //
-         // constructors and destructor
-         //
-         //HCTypeTag::HCTypeTag()
-         //{
-         //}
-         
-         // HCTypeTag::HCTypeTag(const HCTypeTag& rhs)
-         // {
-         //    // do actual copying here; if you implemented
-         //    // operator= correctly, you may be able to use just say      
-         //    *this = rhs;
-         // }
-         
-         //HCTypeTag::~HCTypeTag()
-         //{
-         //}
-         
-         //
-         // assignment operators
-         //
-         // const HCTypeTag& HCTypeTag::operator=(const HCTypeTag& rhs)
-         // {
-         //   if(this != &rhs) {
-         //      // do actual copying here, plus:
-         //      // "SuperClass"::operator=(rhs);
-         //   }
-         //
-         //   return *this;
-         // }
-         
-         //
-         // member functions
-         //
-         
-         //
-         // const member functions
-         //
-         
-         //
-         // static member functions
-         //
-         HCTypeTag
-         HCTypeTag::findType(const std::string& iTypeName) {
-            return HCTypeTag::findType(iTypeName.c_str());
-         }
-         
-         HCTypeTag
-         HCTypeTag::findType(const char* iTypeName)
-         {
-            std::pair<const char*,const std::type_info*> p = typelookup::findType(iTypeName);
-            
-            if(nullptr == p.second) {
-               return HCTypeTag();
-            }
-            //need to take name from the 'findType' since that address is guaranteed to be long lived
-            return HCTypeTag(*p.second, p.first);
-         }         
+  namespace eventsetup {
+    namespace heterocontainer {
+
+      //
+      // static data member definitions
+      //
+
+      //
+      // constructors and destructor
+      //
+      //HCTypeTag::HCTypeTag()
+      //{
+      //}
+
+      // HCTypeTag::HCTypeTag(const HCTypeTag& rhs)
+      // {
+      //    // do actual copying here; if you implemented
+      //    // operator= correctly, you may be able to use just say
+      //    *this = rhs;
+      // }
+
+      //HCTypeTag::~HCTypeTag()
+      //{
+      //}
+
+      //
+      // assignment operators
+      //
+      // const HCTypeTag& HCTypeTag::operator=(const HCTypeTag& rhs)
+      // {
+      //   if(this != &rhs) {
+      //      // do actual copying here, plus:
+      //      // "SuperClass"::operator=(rhs);
+      //   }
+      //
+      //   return *this;
+      // }
+
+      //
+      // member functions
+      //
+
+      //
+      // const member functions
+      //
+
+      //
+      // static member functions
+      //
+      HCTypeTag HCTypeTag::findType(const std::string& iTypeName) { return HCTypeTag::findType(iTypeName.c_str()); }
+
+      HCTypeTag HCTypeTag::findType(const char* iTypeName) {
+        std::pair<const char*, const std::type_info*> p = typelookup::findType(iTypeName);
+
+        if (nullptr == p.second) {
+          return HCTypeTag();
+        }
+        //need to take name from the 'findType' since that address is guaranteed to be long lived
+        return HCTypeTag(*p.second, p.first);
       }
-   }
-}
+    }  // namespace heterocontainer
+  }    // namespace eventsetup
+}  // namespace edm
 
 #endif

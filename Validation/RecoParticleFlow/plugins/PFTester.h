@@ -9,33 +9,30 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include <string>
 #include <map>
+#include <string>
 
-class PFTester: public edm::EDAnalyzer {
+class PFTester : public edm::EDAnalyzer {
 public:
-
-  explicit PFTester(const edm::ParameterSet&);
+  explicit PFTester(const edm::ParameterSet &);
   ~PFTester() override;
 
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginJob() override ;
-  void endJob() override ;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginJob() override;
+  void endJob() override;
 
- private:
-
+private:
   // DAQ Tools
-  DQMStore* dbe_;
-  std::map<std::string, MonitorElement*> me;
+  DQMStore *dbe_;
+  std::map<std::string, MonitorElement *> me;
 
   // Inputs from Configuration File
   std::string outputFile_;
-  edm::EDGetTokenT<reco::PFCandidateCollection> inputPFlowLabel_tok_ ;
-
+  edm::EDGetTokenT<reco::PFCandidateCollection> inputPFlowLabel_tok_;
 };
 
-#endif // PFTESTER_H
+#endif  // PFTESTER_H

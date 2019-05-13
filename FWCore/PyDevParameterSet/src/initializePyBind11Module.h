@@ -7,10 +7,9 @@
 
 // forward declarations
 namespace edm {
-   namespace python3 {
-      void initializePyBind11Module();
-   }
-}
-
+  namespace python3 {
+    void initializePyBind11Module();
+  }
+}  // namespace edm
 
 #endif

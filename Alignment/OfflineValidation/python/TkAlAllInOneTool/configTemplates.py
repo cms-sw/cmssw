@@ -7,6 +7,7 @@ from .monteCarloValidationTemplates import *
 from .trackSplittingValidationTemplates import *
 from .zMuMuValidationTemplates import *
 from .TkAlExceptions import AllInOneError
+from .overlapValidationTemplates import *
 
 ######################################################################
 ######################################################################

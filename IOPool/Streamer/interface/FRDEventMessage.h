@@ -57,8 +57,7 @@
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 
-struct FRDEventHeader_V5
-{
+struct FRDEventHeader_V5 {
   uint32 version_;
   uint32 run_;
   uint32 lumi_;
@@ -69,8 +68,7 @@ struct FRDEventHeader_V5
   uint32 crc32c_;
 };
 
-struct FRDEventHeader_V4
-{
+struct FRDEventHeader_V4 {
   uint32 version_;
   uint32 run_;
   uint32 lumi_;
@@ -81,8 +79,7 @@ struct FRDEventHeader_V4
   uint32 adler32_;
 };
 
-struct FRDEventHeader_V3
-{
+struct FRDEventHeader_V3 {
   uint32 version_;
   uint32 run_;
   uint32 lumi_;
@@ -92,33 +89,23 @@ struct FRDEventHeader_V3
   uint32 adler32_;
 };
 
-struct FRDEventHeader_V2
-{
+struct FRDEventHeader_V2 {
   uint32 version_;
   uint32 run_;
   uint32 lumi_;
   uint32 event_;
 };
 
-struct FRDEventHeader_V1
-{
+struct FRDEventHeader_V1 {
   uint32 run_;
   uint32 event_;
 };
 
 const uint32 FRDHeaderVersionSize[6] = {
-  0,
-  2*sizeof(uint32),
-  (4 + 1024) * sizeof(uint32),
-  7*sizeof(uint32),
-  8*sizeof(uint32),
-  6*sizeof(uint32)
-};
+    0, 2 * sizeof(uint32), (4 + 1024) * sizeof(uint32), 7 * sizeof(uint32), 8 * sizeof(uint32), 6 * sizeof(uint32)};
 
-class FRDEventMsgView
-{
- public:
-
+class FRDEventMsgView {
+public:
   FRDEventMsgView(void* buf);
 
   uint8* startAddress() const { return buf_; }
@@ -134,8 +121,7 @@ class FRDEventMsgView
   uint32 adler32() const { return adler32_; }
   uint32 crc32c() const { return crc32c_; }
 
- private:
-
+private:
   uint8* buf_;
   void* payload_;
   uint32 size_;

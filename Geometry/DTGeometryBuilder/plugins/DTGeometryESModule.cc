@@ -7,21 +7,10 @@
 #include <Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h>
 #include <Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromCondDB.h>
 
-#include <Geometry/Records/interface/IdealGeometryRecord.h>
-#include <Geometry/Records/interface/MuonNumberingRecord.h>
-#include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
-#include "Geometry/Records/interface/DTRecoGeometryRcd.h"
-
 // Alignments
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
-#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/ESTransientHandle.h>
 #include <FWCore/Framework/interface/ModuleFactory.h>
 
@@ -39,7 +28,19 @@ DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p)
 
   applyAlignment_ = p.getParameter<bool>("applyAlignment");
 
-  setWhatProduced(this);
+  auto cc = setWhatProduced(this);
+  if(applyAlignment_) {
+    globalPositionToken_ = cc.consumesFrom<Alignments, GlobalPositionRcd>(edm::ESInputTag{"", alignmentsLabel_});
+    alignmentsToken_ = cc.consumesFrom<Alignments, DTAlignmentRcd>(edm::ESInputTag{"", alignmentsLabel_});
+    alignmentErrorsToken_ = cc.consumesFrom<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd>(edm::ESInputTag{"", alignmentsLabel_});
+  }
+  if(fromDDD_) {
+    mdcToken_ = cc.consumesFrom<MuonDDDConstants, MuonNumberingRecord>(edm::ESInputTag{});
+    cpvToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
+  }
+  else {
+    rigToken_ = cc.consumesFrom<RecoIdealGeometry, DTRecoGeometryRcd>(edm::ESInputTag{});
+  }
 
   edm::LogInfo("Geometry") << "@SUB=DTGeometryESModule"
     << "Label '" << myLabel_ << "' "
@@ -73,14 +74,11 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
   if ( applyAlignment_ ) {
     // applyAlignment_ is scheduled for removal. 
     // Ideal geometry obtained by using 'fake alignment' (with applyAlignment_ = true)
-    edm::ESHandle<Alignments> globalPosition;
-    record.getRecord<GlobalPositionRcd>().get(alignmentsLabel_, globalPosition);
-    edm::ESHandle<Alignments> alignments;
-    record.getRecord<DTAlignmentRcd>().get(alignmentsLabel_, alignments);
-    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-    record.getRecord<DTAlignmentErrorExtendedRcd>().get(alignmentsLabel_, alignmentErrors);
+    const auto& globalPosition = record.get(globalPositionToken_);
+    const auto& alignments = record.get(alignmentsToken_);
+    const auto& alignmentErrors = record.get(alignmentErrorsToken_);
     // Only apply alignment if values exist
-    if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
+    if (alignments.empty() && alignmentErrors.empty() && globalPosition.empty()) {
       edm::LogInfo("Config") << "@SUB=DTGeometryRecord::produce"
         << "Alignment(Error)s and global position (label '"
         << alignmentsLabel_ << "') empty: Geometry producer (label "
@@ -88,8 +86,8 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
     } else {
       GeometryAligner aligner;
       aligner.applyAlignments<DTGeometry>( &(*host),
-                                           &(*alignments), &(*alignmentErrors),
-                                           align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
+                                           &alignments, &alignmentErrors,
+                                           align::DetectorGlobalPosition(globalPosition, DetId(DetId::Muon)));
     }
   }
 
@@ -105,14 +103,11 @@ void DTGeometryESModule::setupGeometry( const MuonNumberingRecord& record,
 
   host->clear();
 
-  edm::ESHandle<MuonDDDConstants> mdc;
-  record.get( mdc );
-
-  edm::ESTransientHandle<DDCompactView> cpv;
-  record.getRecord<IdealGeometryRecord>().get(cpv);
+  const auto& mdc = record.get(mdcToken_);
+  edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(cpvToken_);
 
   DTGeometryBuilderFromDDD builder;
-  builder.build(*host, &(*cpv), *mdc);
+  builder.build(*host, cpv.product(), mdc);
 }
 
 void DTGeometryESModule::setupDBGeometry( const DTRecoGeometryRcd& record,
@@ -123,11 +118,10 @@ void DTGeometryESModule::setupDBGeometry( const DTRecoGeometryRcd& record,
 
   host->clear();
 
-  edm::ESHandle<RecoIdealGeometry> rig;
-  record.get(rig);
+  const auto& rig = record.get(rigToken_);
   
   DTGeometryBuilderFromCondDB builder;
-  builder.build(host, *rig);
+  builder.build(host, rig);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(DTGeometryESModule);

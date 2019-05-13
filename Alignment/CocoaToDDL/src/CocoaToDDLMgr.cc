@@ -333,7 +333,7 @@ std::string solidType = so->getType();
       file_ << " <Polycone name=\"" << name<< "\"";
       bool isOpen = pc->IsOpen();
       G4int numRZCorner = (dynamic_cast < G4Polycone * > (so))->getNumRZCorner();
-      
+
       file_ << " startPhi=\"" << UC(pc->getStartPhi(),"Angle") << "\""
 	    //<< " deltaPhi=\"" << UC(fabs((pc->getEndPhi()/deg - pc->getStartPhi()/deg))*deg,"Angle")   << "\"" 
 	    //<< " deltaPhi=\"" << UC(pc->getEndPhi(),"Angle")   << "\"" 
@@ -342,7 +342,7 @@ std::string solidType = so->getType();
 	    << " >" << std::endl;
 
       G4PolyconeSideRZ rz;
-      
+
       //liendl: FIXME put a switch which decides whether RZ or Rmin,Rmax,Z types should
       //              by generated ....
       //outPolyZSections(rz, (dynamic_cast < G4Polycone * > (so)), numRZCorner);
@@ -362,7 +362,7 @@ std::string solidType = so->getType();
       //      bool isOpen = (dynamic_cast < G4Polyhedra * > (so))->IsOpen();
       G4Polyhedra * ph = (dynamic_cast < G4Polyhedra * > (so));
       G4int numRZCorner = ph->getNumRZCorner();
- 
+
       file_ << " <Polyhedra name=\"" << name<< "\""
             << " numSide=\"" << ph->getNumSide() << "\""
             << " startPhi=\"" << UC(ph->getStartPhi(),"Angle") << "\""

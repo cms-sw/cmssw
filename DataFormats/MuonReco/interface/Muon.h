@@ -185,7 +185,7 @@ namespace reco {
 
     enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned,
 			   RPCHitAndTrackArbitration, GEMSegmentAndTrackArbitration, ME0SegmentAndTrackArbitration };
-    
+
     ///
     /// ====================== STANDARD SELECTORS ===========================
     ///
@@ -219,13 +219,17 @@ namespace reco {
       MultiIsoMedium         = 1UL<<26,   // miniIso with ptRatio and ptRel 
       PuppiIsoLoose          = 1UL<<27,
       PuppiIsoMedium         = 1UL<<28,
-      PuppiIsoTight          = 1UL<<29
+      PuppiIsoTight          = 1UL<<29, 
+      MvaVTight              = 1UL<<30,
+      MvaVVTight             = 1UL<<31,
+      LowPtMvaLoose          = 1UL<<32,
+      LowPtMvaMedium         = 1UL<<33,
     };
     
-    bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }
+    bool passed( uint64_t selection ) const { return (selectors_ & selection)==selection; }
     bool passed( Selector selection ) const { return passed(static_cast<unsigned int>(selection)); }
-    unsigned int selectors() const { return selectors_; }
-    void setSelectors( unsigned int selectors ){ selectors_ = selectors; }
+    uint64_t selectors() const { return selectors_; }
+    void setSelectors( uint64_t selectors ){ selectors_ = selectors; }
     void setSelector(Selector selector, bool passed){ 
       if (passed)
 	selectors_ |= selector;
@@ -260,7 +264,13 @@ namespace reco {
     unsigned int stationGapMaskDistance( float distanceCut = 10. ) const;
     /// same as above for given number of sigmas
     unsigned int stationGapMaskPull( float sigmaCut = 3. ) const;
-     
+    /// # of digis in a given station layer
+    int nDigisInStation( int station, int muonSubdetId) const;
+    /// tag a shower in a given station layer
+    bool hasShowerInStation( int station, int muonSubdetId, int nDtDigisCut = 20, int nCscDigisCut = 36 ) const;
+    /// count the number of showers along a muon track
+    int numberOfShowers( int nDtDigisCut = 20, int nCscDigisCut = 36 ) const;
+
     /// muon type - type of the algorithm that reconstructed this muon
     /// multiple algorithms can reconstruct the same muon
     static const unsigned int GlobalMuon     =  1<<1;
@@ -345,7 +355,7 @@ namespace reco {
     std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> pair( const std::vector<const MuonChamberMatch*> &,
 								     ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// selector bitmap
-    unsigned int selectors_;
+    uint64_t selectors_;
    public:
      /// get number of segments
     int numberOfSegments( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;

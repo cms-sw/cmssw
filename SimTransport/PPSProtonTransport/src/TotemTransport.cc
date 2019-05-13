@@ -134,7 +134,7 @@ bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
      double py = out_momentum[1];  // this need to be checked again, since it seems an invertion is occuring in  the prop.
      double pz = out_momentum[2];
      double e = sqrt(px*px+py*py+pz*pz+ProtonMassSQ);
-     TLorentzVector* p_out = new TLorentzVector(px,py,pz,e);
+     TLorentzVector p_out(px,py,pz,e);
      double x1_ctpps = -out_position[0]*meter; // Totem parameterization uses meter, one need it in millimeter
      double y1_ctpps = -out_position[1]*meter;
 

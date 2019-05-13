@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include <atomic>
+
 namespace pat { namespace helper {
 class BaseIsolator {
     public:
@@ -34,7 +36,7 @@ class BaseIsolator {
         edm::InputTag input_;
         edm::EDGetTokenT<Isolation> inputToken_;
         float cut_;
-        mutable uint64_t try_, fail_;
+        mutable std::atomic<uint64_t> try_, fail_;
 }; // class BaseIsolator
 } } // namespaces
 

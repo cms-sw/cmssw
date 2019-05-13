@@ -17,8 +17,8 @@
 // C++ Headers --
 //---------------
 
-#include <string>
 #include <fstream>
+#include <string>
 
 //----------------------
 // Base Class Headers --
@@ -34,52 +34,49 @@
 
 class DTTPGLutFile {
 
-  public:
- 
-    /// constructor
-    DTTPGLutFile(const std::string name = "" );
-    
-    /// copy constructor
-    DTTPGLutFile(const DTTPGLutFile& ); 
+public:
+  /// constructor
+  DTTPGLutFile(const std::string name = "");
 
-    /// destructor
-    virtual ~DTTPGLutFile();
- 
-    /// assignment operator
-    DTTPGLutFile& operator=(const DTTPGLutFile&);
+  /// copy constructor
+  DTTPGLutFile(const DTTPGLutFile &);
 
-    /// return filename
-    inline std::string getName() const { return m_file; }
-    
-    /// open file
-    int open();
-    
-    /// return status of file stream
-    inline bool good() { return m_fin.good(); }
+  /// destructor
+  virtual ~DTTPGLutFile();
 
-    /// return status of file stream
-    inline bool bad() { return m_fin.bad(); }
-    
-    /// close file
-    inline void close() { m_fin.close(); }
+  /// assignment operator
+  DTTPGLutFile &operator=(const DTTPGLutFile &);
 
-    /// read and ignore n lines from file
-    void ignoreLines(int n);
-    
-    /// read one integer from file
-    int readInteger();
+  /// return filename
+  inline std::string getName() const { return m_file; }
 
-    /// read one hex from file
-    int readHex();
+  /// open file
+  int open();
 
-    /// read one string from file
-	std::string readString();
+  /// return status of file stream
+  inline bool good() { return m_fin.good(); }
 
-  private:
- 
-	std::ifstream m_fin;	   // input file stream
-	std::string   m_file;      // file name
+  /// return status of file stream
+  inline bool bad() { return m_fin.bad(); }
 
-}; 
+  /// close file
+  inline void close() { m_fin.close(); }
+
+  /// read and ignore n lines from file
+  void ignoreLines(int n);
+
+  /// read one integer from file
+  int readInteger();
+
+  /// read one hex from file
+  int readHex();
+
+  /// read one string from file
+  std::string readString();
+
+private:
+  std::ifstream m_fin; // input file stream
+  std::string m_file;  // file name
+};
 
 #endif

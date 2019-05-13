@@ -3,37 +3,36 @@
 
 // -*- C++ -*-
 //
-// 
+//
 /*
- Description: This is a RecHits client meant to plot rechits quantities 
+ Description: This is a RecHits client meant to plot rechits quantities
 */
 
 //
-// Originally create by: Hongxuan Liu 
+// Originally create by: Hongxuan Liu
 //                        May 2010
 //
 
-#include <memory>
-#include <unistd.h>
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
+#include <memory>
+#include <unistd.h>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <vector>
 
 class MonitorElement;
 
 class HcalRecHitsClient : public DQMEDHarvester {
- 
- private:
+private:
   std::string outputFile_;
 
   edm::ParameterSet conf_;
@@ -45,14 +44,13 @@ class HcalRecHitsClient : public DQMEDHarvester {
   std::string dirNameJet_;
   std::string dirNameMET_;
 
- public:
-  explicit HcalRecHitsClient(const edm::ParameterSet& );
+public:
+  explicit HcalRecHitsClient(const edm::ParameterSet &);
   ~HcalRecHitsClient() override;
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
-  
-  int HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 
+  int HcalRecHitsEndjob(const std::vector<MonitorElement *> &hcalMEs);
 };
- 
+
 #endif

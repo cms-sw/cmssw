@@ -5,9 +5,9 @@
 # with command line options: step2 --conditions auto:phase2_realistic -s DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:@fake2 --datatier GEN-SIM-DIGI-RAW -n 10 --geometry Extended2023D22 --era Phase2 --eventcontent FEVTDEBUGHLT --filein file:step1.root --fileout file:step2.root
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('L1',eras.Phase2)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process('L1',Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

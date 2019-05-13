@@ -37,4 +37,3 @@ struct GEMCSCLCTDigiCollection {};
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 #include <map>
-

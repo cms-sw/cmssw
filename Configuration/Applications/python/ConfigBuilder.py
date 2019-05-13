@@ -1935,6 +1935,8 @@ class ConfigBuilder(object):
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
 
+        # any 'DQM' job should use DQMStore in non-legacy mode (but not HARVESTING)
+        self.loadAndRemember("DQMServices/Core/DQMStoreNonLegacy_cff")
         self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
         sequenceList=sequence.split('.')[-1].split('+')
         postSequenceList=sequence.split('.')[-1].split('+')
@@ -2070,13 +2072,14 @@ class ConfigBuilder(object):
         # now set up the modifies
         modifiers=[]
         modifierStrings=[]
-        modifierImports=['from Configuration.StandardSequences.Eras import eras']
+        modifierImports=[]
 
         if hasattr(self._options,"era") and self._options.era :
         # Multiple eras can be specified in a comma seperated list
             from Configuration.StandardSequences.Eras import eras
             for requestedEra in self._options.era.split(",") :
-                modifierStrings.append("eras."+requestedEra)
+                modifierStrings.append(requestedEra)
+                modifierImports.append(eras.pythonCfgLines[requestedEra])
                 modifiers.append(getattr(eras,requestedEra))
 
 

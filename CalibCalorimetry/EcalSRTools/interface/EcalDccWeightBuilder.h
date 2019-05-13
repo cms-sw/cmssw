@@ -4,7 +4,6 @@
 #ifndef ECALDCCWEIGHTBUILDER_CC
 #define ECALDCCWEIGHTBUILDER_CC
 
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
@@ -24,24 +23,23 @@ class EcalElectronicsMapping;
 
 /**
  */
-class EcalDccWeightBuilder: public edm::EDAnalyzer {
+class EcalDccWeightBuilder : public edm::EDAnalyzer {
 private:
-  enum mode_t { WEIGHTS_FROM_CONFIG, COMPUTE_WEIGHTS};
-  
+  enum mode_t { WEIGHTS_FROM_CONFIG, COMPUTE_WEIGHTS };
+
   //constructor(s) and destructor(s)
 public:
   /** Constructs an EcalDccWeightBuilder
    * @param ps CMSSW mondule configuration
    */
   EcalDccWeightBuilder(edm::ParameterSet const& ps);
-  
+
   /**Destructor
    */
   ~EcalDccWeightBuilder() override{};
 
   //method(s)
 public:
-
   /** Analyze method called by the event loop.
    * @param event CMSSW event
    * @param es event setup
@@ -49,7 +47,6 @@ public:
   void analyze(const edm::Event& event, const edm::EventSetup& es) override;
 
 private:
-
   /** Weight computation
    * @param shape signal shape to use for weight computation
    * @param binOfMax time bin which shall contain the pulse peak
@@ -63,34 +60,34 @@ private:
    * @param result [out] vector filled with computed weights. The vector is
    * resized to the number of weights
    */
-  void
-  computeWeights(const EcalShapeBase& shape,
-		 int binOfMax, double timePhase, 
-		 int iFirst0, int nWeights, int iSkip0,
-                 std::vector<double>& result);
+  void computeWeights(const EcalShapeBase& shape,
+                      int binOfMax,
+                      double timePhase,
+                      int iFirst0,
+                      int nWeights,
+                      int iSkip0,
+                      std::vector<double>& result);
 
   void computeAllWeights(bool withIntercalib, const edm::EventSetup& es);
-  
+
   int encodeWeight(double w);
 
   double decodeWeight(int W);
 
-  void unbiasWeights(std::vector<double>& weights,
-                     std::vector<int32_t>* encodedWeigths);
+  void unbiasWeights(std::vector<double>& weights, std::vector<int32_t>* encodedWeigths);
 
   /** Retrieve intercalibration coefficent for channel detId.
    * @param detId ID of the channel the intercalibration coef. must be
    * retrieved for.
    */
   double intercalib(const DetId& detId);
-  
+
   void writeWeightToAsciiFile();
-  void writeWeightToRootFile();   
+  void writeWeightToRootFile();
   void writeWeightToDB();
 
   //converts DetId to IDs used by DB:
-  void dbId(const DetId& detId, int& fedId, int& smId, int& ruId,
-           int& xtalId) const;
+  void dbId(const DetId& detId, int& fedId, int& smId, int& ruId, int& xtalId) const;
 
   /** Vector index sorting.
    * @param vector of values
@@ -98,12 +95,9 @@ private:
    * @param decreasingOrder switch to use decreasing order instead of
    * default increasing order
    */
-  template<class T>
-  void sort(const std::vector<T>& a,
-	    std::vector<int>& s,
-	    bool decreasingOrder = false);
+  template <class T>
+  void sort(const std::vector<T>& a, std::vector<int>& s, bool decreasingOrder = false);
 
-  
   //attribute(s)
 protected:
 private:
@@ -127,9 +121,9 @@ private:
   std::string dbTag_;
   int dbVersion_;
   bool sqlMode_;
-  
+
   edm::ESHandle<CaloGeometry> geom_;
-  
+
   EcalIntercalibConstantMap& calibMap_;
   EcalIntercalibConstantMap emptyCalibMap_;
   std::map<DetId, std::vector<int> > encodedWeights_;
@@ -139,7 +133,7 @@ private:
 
   static const int ecalDccFedIdMin = 601;
   static const int ecalDccFedIdMax = 654;
-  static const int nDccs = ecalDccFedIdMax-ecalDccFedIdMin+1;
+  static const int nDccs = ecalDccFedIdMax - ecalDccFedIdMin + 1;
 };
 
-#endif //ECALDCCWEIGHTBUILDER_CC not defined
+#endif  //ECALDCCWEIGHTBUILDER_CC not defined

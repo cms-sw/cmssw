@@ -27,20 +27,20 @@
   <Constant name="ChoiceType"            value="0"/>
   <Constant name="NCornerCut"            value="2"/>
   <Constant name="FracAreaMin"           value="0.2"/>
-  <Constant name="radMixL0"              value="1450.0*mm"/>
-  <Constant name="radMixL1"              value="1450.0*mm"/>
-  <Constant name="radMixL2"              value="1450.0*mm"/>
-  <Constant name="radMixL3"              value="1450.0*mm"/>
-  <Constant name="radMixL4"              value="1305.0*mm"/>
-  <Constant name="radMixL5"              value="1305.0*mm"/>
-  <Constant name="radMixL6"              value="1160.0*mm"/>
-  <Constant name="radMixL7"              value="1160.0*mm"/>
-  <Constant name="radMixL8"              value="1160.0*mm"/>
-  <Constant name="radMixL9"              value="1160.0*mm"/>
-  <Constant name="radMixL10"             value="1005.0*mm"/>
-  <Constant name="radMixL11"             value="1005.0*mm"/>
-  <Constant name="radMixL12"             value="1005.0*mm"/>
-  <Constant name="radMixL13"             value="1005.0*mm"/>
+  <Constant name="radMixL0"              value="1537.0*mm"/>
+  <Constant name="radMixL1"              value="1537.0*mm"/>
+  <Constant name="radMixL2"              value="1537.0*mm"/>
+  <Constant name="radMixL3"              value="1537.0*mm"/>
+  <Constant name="radMixL4"              value="1378.2*mm"/>
+  <Constant name="radMixL5"              value="1378.2*mm"/>
+  <Constant name="radMixL6"              value="1183.0*mm"/>
+  <Constant name="radMixL7"              value="1183.0*mm"/>
+  <Constant name="radMixL8"              value="1183.0*mm"/>
+  <Constant name="radMixL9"              value="1183.0*mm"/>
+  <Constant name="radMixL10"             value="1037.8*mm"/>
+  <Constant name="radMixL11"             value="1037.8*mm"/>
+  <Constant name="radMixL12"             value="1037.8*mm"/>
+  <Constant name="radMixL13"             value="1037.8*mm"/>
   <Constant name="slope1"                value="[etaMax:slope]"/>
   <Constant name="slope2"                value="[caloBase:slope20]"/>
   <Constant name="slope3"                value="[caloBase:slope30]"/>

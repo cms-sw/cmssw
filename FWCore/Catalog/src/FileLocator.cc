@@ -20,9 +20,7 @@ using namespace cms::xerces;
 
 namespace {
 
-  std::string
-  replaceWithRegexp(std::smatch const& matches,
-                    std::string const& outputFormat) {
+  std::string replaceWithRegexp(std::smatch const& matches, std::string const& outputFormat) {
     std::string result = outputFormat;
     std::stringstream str;
 
@@ -38,27 +36,25 @@ namespace {
     // std::cerr << "Final string: " << result << std::endl;
     return result;
   }
-}
+}  // namespace
 
 namespace edm {
 
   int FileLocator::s_numberOfInstances = 0;
 
-  FileLocator::FileLocator(std::string const& catUrl, bool fallback)
-    : m_destination("any") {
+  FileLocator::FileLocator(std::string const& catUrl, bool fallback) : m_destination("any") {
     try {
       //  << "Xerces-c initialization Number "
       //   << s_numberOfInstances <<
       if (s_numberOfInstances == 0) {
         cms::concurrency::xercesInitialize();
       }
-    }
-    catch (XMLException const& e) {
+    } catch (XMLException const& e) {
       // << "Xerces-c error in initialization \n"
       //      << "Exception message is:  \n"
       //      << toString(e.getMessage()) <<
-      throw
-        cms::Exception("TrivialFileCatalog", std::string("Fatal Error on edm::FileLocator:")+ toString(e.getMessage()));
+      throw cms::Exception("TrivialFileCatalog",
+                           std::string("Fatal Error on edm::FileLocator:") + toString(e.getMessage()));
     }
     ++s_numberOfInstances;
 
@@ -68,21 +64,13 @@ namespace edm {
     // std::cout << m_directRules[m_protocols[0]].size() << " rules" << std::endl;
   }
 
-  FileLocator::~FileLocator()
-  {}
+  FileLocator::~FileLocator() {}
 
-  std::string
-  FileLocator::pfn(std::string const& ilfn) const {
-    return convert(ilfn, m_directRules, true);
-  }
+  std::string FileLocator::pfn(std::string const& ilfn) const { return convert(ilfn, m_directRules, true); }
 
-  std::string
-  FileLocator::lfn(std::string const& ipfn) const {
-    return convert(ipfn, m_inverseRules, false);
-  }
+  std::string FileLocator::lfn(std::string const& ipfn) const { return convert(ipfn, m_inverseRules, false); }
 
-  std::string
-  FileLocator::convert(std::string const& input, ProtocolRules const& rules, bool direct) const {
+  std::string FileLocator::convert(std::string const& input, ProtocolRules const& rules, bool direct) const {
     std::string out = "";
 
     for (size_t pi = 0, pe = m_protocols.size(); pi != pe; ++pi) {
@@ -93,15 +81,14 @@ namespace edm {
     return out;
   }
 
-  void
-  FileLocator::parseRule(DOMNode* ruleNode, ProtocolRules& rules) {
+  void FileLocator::parseRule(DOMNode* ruleNode, ProtocolRules& rules) {
     if (!ruleNode) {
       throw cms::Exception("TrivialFileCatalog", std::string("TrivialFileCatalog::connect: Malformed trivial catalog"));
     }
 
     // ruleNode is actually always a DOMElement because it's the result of
     // a `getElementsByTagName()` in the calling method.
-    DOMElement* ruleElement = static_cast<DOMElement *>(ruleNode);
+    DOMElement* ruleElement = static_cast<DOMElement*>(ruleNode);
 
     std::string const protocol = toString(ruleElement->getAttribute(uStr("protocol").ptr()));
     std::string destinationMatchRegexp = toString(ruleElement->getAttribute(uStr("destination-match").ptr()));
@@ -110,12 +97,9 @@ namespace edm {
       destinationMatchRegexp = ".*";
     }
 
-    std::string const pathMatchRegexp
-      = toString(ruleElement->getAttribute(uStr("path-match").ptr()));
-    std::string const result
-      = toString(ruleElement->getAttribute(uStr("result").ptr()));
-    std::string const chain
-      = toString(ruleElement->getAttribute(uStr("chain").ptr()));
+    std::string const pathMatchRegexp = toString(ruleElement->getAttribute(uStr("path-match").ptr()));
+    std::string const result = toString(ruleElement->getAttribute(uStr("result").ptr()));
+    std::string const chain = toString(ruleElement->getAttribute(uStr("chain").ptr()));
 
     Rule rule;
     rule.pathMatch.assign(pathMatchRegexp);
@@ -125,14 +109,13 @@ namespace edm {
     rules[protocol].push_back(rule);
   }
 
-  void
-  FileLocator::init(std::string const& catUrl, bool fallback) {
+  void FileLocator::init(std::string const& catUrl, bool fallback) {
     std::string m_url = catUrl;
-      
+
     if (m_url.empty()) {
       Service<SiteLocalConfig> localconfservice;
       if (!localconfservice.isAvailable())
-              throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available");
+        throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available");
 
       m_url = (fallback ? localconfservice->fallbackDataCatalog() : localconfservice->dataCatalog());
     }
@@ -140,7 +123,8 @@ namespace edm {
     // std::cout << "Connecting to the catalog " << m_url << std::endl;
 
     if (m_url.find("file:") == std::string::npos) {
-      throw cms::Exception("TrivialFileCatalog", "TrivialFileCatalog::connect: Malformed url for file catalog configuration");
+      throw cms::Exception("TrivialFileCatalog",
+                           "TrivialFileCatalog::connect: Malformed url for file catalog configuration");
     }
 
     m_url = m_url.erase(0, m_url.find(":") + 1);
@@ -163,7 +147,8 @@ namespace edm {
         boost::algorithm::split(argTokens, option, boost::is_any_of(equalSign));
 
         if (argTokens.size() != 2) {
-          throw  cms::Exception("TrivialFileCatalog", "TrivialFileCatalog::connect: Malformed url for file catalog configuration");
+          throw cms::Exception("TrivialFileCatalog",
+                               "TrivialFileCatalog::connect: Malformed url for file catalog configuration");
         }
 
         if (argTokens[0] == "protocol") {
@@ -175,7 +160,8 @@ namespace edm {
     }
 
     if (m_protocols.empty()) {
-      throw cms::Exception("TrivialFileCatalog", "TrivialFileCatalog::connect: protocol was not supplied in the contact string");
+      throw cms::Exception("TrivialFileCatalog",
+                           "TrivialFileCatalog::connect: protocol was not supplied in the contact string");
     }
 
     std::ifstream configFile;
@@ -185,7 +171,8 @@ namespace edm {
     // std::cout << "Using catalog configuration " << m_filename << std::endl;
 
     if (!configFile.good() || !configFile.is_open()) {
-      throw cms::Exception("TrivialFileCatalog", "TrivialFileCatalog::connect: Unable to open trivial file catalog " + m_filename);
+      throw cms::Exception("TrivialFileCatalog",
+                           "TrivialFileCatalog::connect: Unable to open trivial file catalog " + m_filename);
     }
 
     configFile.close();
@@ -212,39 +199,37 @@ namespace edm {
 
       /*first of all do the lfn-to-pfn bit*/
       {
-	DOMNodeList* rules = doc->getElementsByTagName(uStr("lfn-to-pfn").ptr());
-	XMLSize_t const ruleTagsNum = rules->getLength();
+        DOMNodeList* rules = doc->getElementsByTagName(uStr("lfn-to-pfn").ptr());
+        XMLSize_t const ruleTagsNum = rules->getLength();
 
-	// FIXME: we should probably use a DTD for checking validity
+        // FIXME: we should probably use a DTD for checking validity
 
-	for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
-	  DOMNode* ruleNode = rules->item(i);
-	  parseRule(ruleNode, m_directRules);
-	}
+        for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
+          DOMNode* ruleNode = rules->item(i);
+          parseRule(ruleNode, m_directRules);
+        }
       }
       /*Then we handle the pfn-to-lfn bit*/
       {
-	DOMNodeList* rules = doc->getElementsByTagName(uStr("pfn-to-lfn").ptr());
-	XMLSize_t ruleTagsNum = rules->getLength();
-	
-	for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
-	  DOMNode* ruleNode = rules->item(i);
-	  parseRule(ruleNode, m_inverseRules);
-	}
+        DOMNodeList* rules = doc->getElementsByTagName(uStr("pfn-to-lfn").ptr());
+        XMLSize_t ruleTagsNum = rules->getLength();
+
+        for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
+          DOMNode* ruleNode = rules->item(i);
+          parseRule(ruleNode, m_inverseRules);
+        }
       }
-    }
-    catch (xercesc::DOMException const& e) {
-      throw cms::Exception("TrivialFileCatalog") << "Xerces XML parser threw this exception: " << cStr(e.getMessage()).ptr() << std::endl;
+    } catch (xercesc::DOMException const& e) {
+      throw cms::Exception("TrivialFileCatalog")
+          << "Xerces XML parser threw this exception: " << cStr(e.getMessage()).ptr() << std::endl;
     }
   }
 
-  std::string
-  FileLocator::applyRules(ProtocolRules const& protocolRules,
-                          std::string const& protocol,
-                          std::string const& destination,
-                          bool direct,
-                          std::string name) const {
-
+  std::string FileLocator::applyRules(ProtocolRules const& protocolRules,
+                                      std::string const& protocol,
+                                      std::string const& destination,
+                                      bool direct,
+                                      std::string name) const {
     // std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
 
     ProtocolRules::const_iterator const rulesIterator = protocolRules.find(protocol);
@@ -259,7 +244,6 @@ namespace edm {
 
     /* Look up for a matching rule*/
     for (Rules::const_iterator i = rules.begin(); i != rules.end(); ++i) {
-
       if (!std::regex_match(destination, destinationMatches, i->destinationMatch)) {
         continue;
       }
@@ -271,7 +255,7 @@ namespace edm {
       // std::cerr << "Rule " << i->pathMatch << "matched! " << std::endl;
 
       std::string const chain = i->chain;
-      if ((direct == true) && (chain != "")) {
+      if ((direct == true) && (!chain.empty())) {
         name = applyRules(protocolRules, chain, destination, direct, name);
         if (name.empty()) {
           return "";
@@ -281,11 +265,11 @@ namespace edm {
       std::regex_match(name, nameMatches, i->pathMatch);
       name = replaceWithRegexp(nameMatches, i->result);
 
-      if ((direct == false) && (chain != "")) {
+      if ((direct == false) && (!chain.empty())) {
         name = applyRules(protocolRules, chain, destination, direct, name);
       }
       return name;
     }
     return "";
   }
-}
+}  // namespace edm

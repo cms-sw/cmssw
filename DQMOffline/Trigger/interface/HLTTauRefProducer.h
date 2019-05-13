@@ -27,8 +27,6 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 // MUON includes
@@ -68,7 +66,6 @@ private:
 
   edm::EDGetTokenT<reco::GsfElectronCollection> Electrons_;
   bool doElectrons_;
-  edm::EDGetTokenT<reco::ElectronIDAssociationCollection> e_idAssocProd_;
   edm::EDGetTokenT<reco::TrackCollection> e_ctfTrackCollection_;
   edm::InputTag e_ctfTrackCollectionSrc_;
   double ptMinElectron_;

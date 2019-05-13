@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 // The example source module
 #include "DQMServices/Examples/interface/DQMSourceExample.h"
-// The example client module for running the client in the same application as 
+// The example client module for running the client in the same application as
 // the source
 #include "DQMServices/Examples/interface/DQMClientExample.h"
 DEFINE_FWK_MODULE(DQMClientExample);

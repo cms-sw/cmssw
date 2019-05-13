@@ -96,9 +96,9 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   auto ps_cl_for_pi0_disc_y = std::make_unique<reco::PreshowerClusterShapeCollection>();
 
 
-  CaloSubdetectorTopology* topology_p=nullptr;
+  std::unique_ptr<CaloSubdetectorTopology> topology_p;
   if (geometry)
-      topology_p = new EcalPreshowerTopology(geoHandle);
+    topology_p = std::make_unique<EcalPreshowerTopology>();
 
   
   // fetch the Preshower product (RecHits)
@@ -156,8 +156,8 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 	      ESDetId stripX = (tmp_stripX == DetId(0)) ? ESDetId(0) : ESDetId(tmp_stripX);
 	      ESDetId stripY = (tmp_stripY == DetId(0)) ? ESDetId(0) : ESDetId(tmp_stripY);
 	      
-	      vector<float> vout_stripE1 = presh_pi0_algo->findPreshVector(stripX, &rechits_map, topology_p);
-	      vector<float> vout_stripE2 = presh_pi0_algo->findPreshVector(stripY, &rechits_map, topology_p);
+	      vector<float> vout_stripE1 = presh_pi0_algo->findPreshVector(stripX, &rechits_map, topology_p.get());
+	      vector<float> vout_stripE2 = presh_pi0_algo->findPreshVector(stripY, &rechits_map, topology_p.get());
 	      
 	      LogTrace("EcalClusters") << "PreshowerClusterShapeProducer : ES Energy vector associated to the given SC = " ;
 	      for(int k1=0;k1<11;k1++) {
@@ -187,9 +187,6 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   evt.put(std::move(ps_cl_for_pi0_disc_x), PreshowerClusterShapeCollectionX_);
   evt.put(std::move(ps_cl_for_pi0_disc_y), PreshowerClusterShapeCollectionY_);  
   LogTrace("EcalClusters") << "PreshowerClusterShapeCollection added to the event" ;
-  
-  if (topology_p)
-    delete topology_p;
 
   nEvt_++;
 

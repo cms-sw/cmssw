@@ -276,6 +276,10 @@ namespace pat {
       float mvaValue() const { return mvaValue_; }
       void  setMvaValue(float mva){ mvaValue_ = mva; }
 
+      // Low pt Muon MVA
+      float lowptMvaValue() const { return lowptMvaValue_; }
+      void  setLowPtMvaValue(float lowptmva){ lowptMvaValue_ = lowptmva; }
+
       /// Soft Muon MVA
       float softMvaValue() const { return softMvaValue_; }
       void  setSoftMvaValue(float softmva){ softMvaValue_ = softmva; }
@@ -292,11 +296,13 @@ namespace pat {
       int simPdgId() const { return simPdgId_;}
       int simMotherPdgId() const { return simMotherPdgId_;}
       int simBX() const { return simBX_;}
+      int simTpEvent() const {   return simTpEvent_;}
       float simProdRho() const { return simProdRho_;}
       float simProdZ() const {   return simProdZ_;}
       float simPt() const {      return simPt_;}
       float simEta() const {     return simEta_;}
       float simPhi() const {     return simPhi_;}
+      float simMatchQuality() const {     return simMatchQuality_;}
 
       void initSimInfo(void); 
       void setSimType(reco::MuonSimType type){ simType_ = type; }
@@ -306,11 +312,13 @@ namespace pat {
       void setSimPdgId(int id){ simPdgId_ = id;}
       void setSimMotherPdgId(int id){ simMotherPdgId_ = id;}
       void setSimBX(int bx){ simBX_ = bx;}
+      void setSimTpEvent(int tpEvent){ simTpEvent_ = tpEvent;}
       void setSimProdRho(float rho){ simProdRho_ = rho;}
       void setSimProdZ(float z){ simProdZ_ = z;}
       void setSimPt(float pt){ simPt_ = pt;}
       void setSimEta(float eta){ simEta_ = eta;}
       void setSimPhi(float phi){ simPhi_ = phi;}
+      void setSimMatchQuality(float quality){ simMatchQuality_ = quality;}
       
       /// Trigger information
       const pat::TriggerObjectStandAlone* l1Object(const size_t idx=0)  const { 
@@ -397,6 +405,7 @@ namespace pat {
 
       /// Muon MVA
       float mvaValue_;
+      float lowptMvaValue_;
       float softMvaValue_;
 
       /// MC matching information
@@ -407,11 +416,13 @@ namespace pat {
       int simPdgId_;
       int simMotherPdgId_;
       int simBX_;
+      int simTpEvent_;
       float simProdRho_;
       float simProdZ_;
       float simPt_;
       float simEta_;
       float simPhi_;
+      float simMatchQuality_;
   };
 
 

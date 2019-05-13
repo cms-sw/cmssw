@@ -52,7 +52,6 @@ class TriggerMatchMonitor : public DQMEDAnalyzer {
   
   // ----------member data ---------------------------
   MuonServiceProxy *theService;
-  DQMStore* theDbe;
   edm::ParameterSet parameters;
  
   // triggerNames to be passed from config

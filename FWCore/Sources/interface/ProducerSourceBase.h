@@ -24,22 +24,21 @@ namespace edm {
     explicit ProducerSourceBase(ParameterSet const& pset, InputSourceDescription const& desc, bool realData);
     ~ProducerSourceBase() noexcept(false) override;
 
-    unsigned int numberEventsInRun() const {return numberEventsInRun_;} 
-    unsigned int numberEventsInLumi() const {return numberEventsInLumi_;} 
-    TimeValue_t presentTime() const {return presentTime_;}
-    unsigned int timeBetweenEvents() const {return timeBetweenEvents_;}
-    unsigned int eventCreationDelay() const {return eventCreationDelay_;}
-    unsigned int numberEventsInThisRun() const {return numberEventsInThisRun_;}
-    unsigned int numberEventsInThisLumi() const {return numberEventsInThisLumi_;}
-    EventID const& eventID() const {return eventID_;}
-    RunNumber_t run() const {return eventID_.run();}
-    EventNumber_t event() const {return eventID_.event();}
-    LuminosityBlockNumber_t luminosityBlock() const {return eventID_.luminosityBlock();}
+    unsigned int numberEventsInRun() const { return numberEventsInRun_; }
+    unsigned int numberEventsInLumi() const { return numberEventsInLumi_; }
+    TimeValue_t presentTime() const { return presentTime_; }
+    unsigned int timeBetweenEvents() const { return timeBetweenEvents_; }
+    unsigned int eventCreationDelay() const { return eventCreationDelay_; }
+    unsigned int numberEventsInThisRun() const { return numberEventsInThisRun_; }
+    unsigned int numberEventsInThisLumi() const { return numberEventsInThisLumi_; }
+    EventID const& eventID() const { return eventID_; }
+    RunNumber_t run() const { return eventID_.run(); }
+    EventNumber_t event() const { return eventID_.event(); }
+    LuminosityBlockNumber_t luminosityBlock() const { return eventID_.luminosityBlock(); }
 
     static void fillDescription(ParameterSetDescription& desc);
-    
-  protected:
 
+  protected:
   private:
     ItemType getNextItemType() final;
     virtual void initialize(EventID& id, TimeValue_t& time, TimeValue_t& interval);
@@ -48,7 +47,7 @@ namespace edm {
     virtual bool noFiles() const;
     virtual size_t fileIndex() const;
     void beginJob() override;
-    
+
     void readEvent_(EventPrincipal& eventPrincipal) override;
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
@@ -65,7 +64,7 @@ namespace edm {
     TimeValue_t presentTime_;
     TimeValue_t origTime_;
     TimeValue_t timeBetweenEvents_;
-    unsigned int eventCreationDelay_;  /* microseconds */
+    unsigned int eventCreationDelay_; /* microseconds */
 
     unsigned int numberEventsInThisRun_;
     unsigned int numberEventsInThisLumi_;
@@ -75,5 +74,5 @@ namespace edm {
     bool isRealData_;
     EventAuxiliary::ExperimentType eType_;
   };
-}
+}  // namespace edm
 #endif

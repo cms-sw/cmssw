@@ -1,6 +1,6 @@
 #include "Alignment/OfflineValidation/macros/PlotAlignmentValidation.h"
 
-#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
+#include "Alignment/OfflineValidation/macros/TkAlStyle.cc"
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
 
 #include "Math/ProbFunc.h"

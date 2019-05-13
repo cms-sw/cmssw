@@ -34,10 +34,9 @@ namespace edm {
 
   class UnscheduledCallProducer {
   public:
-    
     using worker_container = std::vector<Worker*>;
     using const_iterator = worker_container::const_iterator;
-    
+
     UnscheduledCallProducer(ActivityRegistry& iReg) : unscheduledWorkers_() {
       aux_.preModuleDelayedGetSignal_.connect(std::cref(iReg.preModuleEventDelayedGetSignal_));
       aux_.postModuleDelayedGetSignal_.connect(std::cref(iReg.postModuleEventDelayedGetSignal_));
@@ -49,24 +48,25 @@ namespace edm {
         accumulatorWorkers_.push_back(aWorker);
       }
     }
-    
-    void setEventSetup(EventSetupImpl const& iSetup) {
-      aux_.setEventSetup(&iSetup);
-    }
+
+    void setEventSetup(EventSetupImpl const& iSetup) { aux_.setEventSetup(&iSetup); }
 
     UnscheduledAuxiliary const& auxiliary() const { return aux_; }
 
     const_iterator begin() const { return unscheduledWorkers_.begin(); }
     const_iterator end() const { return unscheduledWorkers_.end(); }
-    
+
     template <typename T, typename U>
     void runNowAsync(WaitingTask* task,
-                     typename T::MyPrincipal& p, EventSetupImpl const& es,
-                     ServiceToken const& token, StreamID streamID,
-                     typename T::Context const* topContext, U const* context) const {
+                     typename T::MyPrincipal& p,
+                     EventSetupImpl const& es,
+                     ServiceToken const& token,
+                     StreamID streamID,
+                     typename T::Context const* topContext,
+                     U const* context) const {
       //do nothing for event since we will run when requested
-      if(!T::isEvent_) {
-        for(auto worker: unscheduledWorkers_) {
+      if (!T::isEvent_) {
+        for (auto worker : unscheduledWorkers_) {
           ParentContext parentContext(context);
 
           // We do not need to run prefetching here because this only handles
@@ -96,7 +96,7 @@ namespace edm {
     template <typename T, typename ID>
     void addContextToException(cms::Exception& ex, Worker const* worker, ID const& id) const {
       std::ostringstream ost;
-      ost << "Processing " << T::transitionName()<<" "<< id;
+      ost << "Processing " << T::transitionName() << " " << id;
       ex.addContext(ost.str());
     }
     worker_container unscheduledWorkers_;
@@ -104,7 +104,6 @@ namespace edm {
     UnscheduledAuxiliary aux_;
   };
 
-}
+}  // namespace edm
 
 #endif
-

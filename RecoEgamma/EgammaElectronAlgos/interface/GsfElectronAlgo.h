@@ -7,7 +7,8 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h" 
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
@@ -66,6 +67,7 @@ class GsfElectronAlgo {
        edm::EDGetTokenT<reco::BeamSpot> beamSpotTag ;
        edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag ;
        edm::EDGetTokenT<reco::VertexCollection> vtxCollectionTag;
+       edm::EDGetTokenT<reco::ConversionCollection> conversions;
 
       //IsoVals (PF and EcalDriven)
       edm::ParameterSet pfIsoVals;
@@ -97,6 +99,9 @@ class GsfElectronAlgo {
       // GED-Regression (ECAL and combination)
       bool useEcalRegression;
       bool useCombinationRegression;  
+      //heavy ion in 2015 has no conversions and so cant fill conv vtx fit prob so this bool
+      //stops it from being filled
+      bool fillConvVtxFitProb;
      } ;
 
     struct CutsConfiguration
@@ -194,7 +199,9 @@ class GsfElectronAlgo {
       EcalClusterFunctionBaseClass * crackCorrectionFunction,
       const RegressionHelper::Configuration & regCfg,
       const edm::ParameterSet& tkIsol03Cfg,
-      const edm::ParameterSet& tkIsol04Cfg
+      const edm::ParameterSet& tkIsol04Cfg,
+      const edm::ParameterSet& tkIsolHEEP03Cfg,
+      const edm::ParameterSet& tkIsolHEEP04Cfg
       
       ) ;
 
@@ -279,6 +286,7 @@ class GsfElectronAlgo {
       edm::Handle<reco::ElectronSeedCollection> seeds ;
       edm::Handle<reco::GsfPFRecTrackCollection> gsfPfRecTracks ;
       edm::Handle<reco::VertexCollection> vertices;
+      edm::Handle<reco::ConversionCollection> conversions;
 
       // isolation helpers
       EgammaTowerIsolation hadDepth1Isolation03, hadDepth1Isolation04 ;
@@ -346,6 +354,8 @@ class GsfElectronAlgo {
 
     EleTkIsolFromCands tkIsol03Calc_;
     EleTkIsolFromCands tkIsol04Calc_;
+    EleTkIsolFromCands tkIsolHEEP03Calc_;
+    EleTkIsolFromCands tkIsolHEEP04Calc_;
 
     void checkSetup( edm::EventSetup const& eventSetup ) ;
     EventData beginEvent( edm::Event const& event ) ;

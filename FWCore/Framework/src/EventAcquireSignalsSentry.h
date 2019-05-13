@@ -27,23 +27,19 @@
 // forward declarations
 namespace edm {
   class EventAcquireSignalsSentry {
-
   public:
-    EventAcquireSignalsSentry(ActivityRegistry* iReg,
-                       ModuleCallingContext const * iContext) :
-      m_reg(iReg),
-      m_context(iContext)
-    { iReg->preModuleEventAcquireSignal_( *(iContext->getStreamContext()), *iContext);}
-
-    ~EventAcquireSignalsSentry() {
-      m_reg->postModuleEventAcquireSignal_( *(m_context->getStreamContext()), *m_context);
+    EventAcquireSignalsSentry(ActivityRegistry* iReg, ModuleCallingContext const* iContext)
+        : m_reg(iReg), m_context(iContext) {
+      iReg->preModuleEventAcquireSignal_(*(iContext->getStreamContext()), *iContext);
     }
+
+    ~EventAcquireSignalsSentry() { m_reg->postModuleEventAcquireSignal_(*(m_context->getStreamContext()), *m_context); }
 
   private:
     // ---------- member data --------------------------------
-    ActivityRegistry* m_reg; // We do not use propagate_const because the registry itself is mutable.
+    ActivityRegistry* m_reg;  // We do not use propagate_const because the registry itself is mutable.
     ModuleCallingContext const* m_context;
   };
-}
+}  // namespace edm
 
 #endif

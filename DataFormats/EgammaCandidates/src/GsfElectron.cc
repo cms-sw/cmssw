@@ -244,4 +244,3 @@ float GsfElectron::p4Error( P4Kind kind ) const
     default: throw cms::Exception("GsfElectron")<<"unexpected p4 kind: "<<kind ;
    }
  }
-

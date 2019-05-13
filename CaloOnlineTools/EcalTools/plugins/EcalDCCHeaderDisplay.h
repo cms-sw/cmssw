@@ -15,19 +15,13 @@
 #include <iostream>
 #include <vector>
 
-
-
-class EcalDCCHeaderDisplay: public edm::EDAnalyzer{
-  
+class EcalDCCHeaderDisplay : public edm::EDAnalyzer {
 public:
   EcalDCCHeaderDisplay(const edm::ParameterSet& ps);
-  
-protected:
 
-  void analyze( const edm::Event & e, const  edm::EventSetup& c) override;
+protected:
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
   edm::InputTag EcalDCCHeaderCollection_;
-
 };
-

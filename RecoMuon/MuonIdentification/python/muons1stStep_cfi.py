@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.MuonIdentification.isolation_cff import *
 from RecoMuon.MuonIdentification.caloCompatibility_cff import *
 from RecoMuon.MuonIdentification.MuonTimingFiller_cfi import *
+from RecoMuon.MuonIdentification.MuonShowerDigiFiller_cfi import *
 from RecoMuon.MuonIdentification.TrackerKinkFinder_cfi import *
 from TrackingTools.TrackAssociator.default_cfi import *
 muons1stStep = cms.EDProducer("MuonIdProducer",
@@ -15,6 +16,8 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
     MIdIsoExtractorPSetBlock,
     # MuonTiming
     TimingFillerBlock,
+    # MuonShowerDigi
+    MuonShowerDigiFillerBlock,
     # Kink finder
     TrackerKinkFinderParametersBlock,
 
@@ -55,6 +58,7 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
     writeIsoDeposits = cms.bool(True),
     minNumberOfMatches = cms.int32(1),
     fillMatching = cms.bool(True),
+    fillShowerDigis = cms.bool(True),
 
     # global fit for candidate p4 requirements
     ptThresholdToFillCandidateP4WithGlobalFit = cms.double(200.0),
@@ -96,3 +100,11 @@ muonEcalDetIds = cms.EDProducer("InterestingEcalDetIdProducer",
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toModify(muons1stStep, minPt = 0.8)
+
+from Configuration.ProcessModifiers.recoFromReco_cff import recoFromReco
+recoFromReco.toModify(muons1stStep,fillShowerDigis = False)
+
+
+
+
+   

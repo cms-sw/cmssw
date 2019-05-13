@@ -13,75 +13,79 @@
  *           from the HLTriggerOffline/Muon package.
  */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include <vector>
 #include <cstring>
 #include <map>
 #include <set>
+#include <vector>
 
-//const unsigned int kNull = (unsigned int) - 1;
+// const unsigned int kNull = (unsigned int) - 1;
 
 struct EVTColContainer;
 
 class HLTExoticaPlotter {
 public:
-    HLTExoticaPlotter(const edm::ParameterSet & pset, const std::string & hltPath,
-                      const std::vector<unsigned int> & objectsType);
-    ~HLTExoticaPlotter();
-    void beginJob();
-    void beginRun(const edm::Run &, const edm::EventSetup &);
-    void plotterBookHistos(DQMStore::IBooker & iBooker, const edm::Run & iRun, const edm::EventSetup & iSetup);
-    void analyze(const bool & isPassTrigger, const std::string & source,
-                 const std::vector<reco::LeafCandidate> & matches,
-		 std::map<int,double> theSumEt,
-                 std::vector<float> & dxys);
+  HLTExoticaPlotter(const edm::ParameterSet &pset,
+                    const std::string &hltPath,
+                    const std::vector<unsigned int> &objectsType);
+  ~HLTExoticaPlotter();
+  void beginJob();
+  void beginRun(const edm::Run &, const edm::EventSetup &);
+  void plotterBookHistos(DQMStore::IBooker &iBooker, const edm::Run &iRun, const edm::EventSetup &iSetup);
+  void analyze(const bool &isPassTrigger,
+               const std::string &source,
+               const std::vector<reco::LeafCandidate> &matches,
+               std::map<int, double> theSumEt,
+               std::vector<float> &dxys);
 
-    inline const std::string gethltpath() const
-    {
-        return _hltPath;
-    }
+  inline const std::string gethltpath() const { return _hltPath; }
 
 private:
-    void bookHist(DQMStore::IBooker & iBooker, const std::string & source, const std::string & objType, const std::string & variable);
-    void fillHist(const bool & passTrigger, const std::string & source,
-                  const std::string & objType, const std::string & var,
-                  const float & value);
+  void bookHist(DQMStore::IBooker &iBooker,
+                const std::string &source,
+                const std::string &objType,
+                const std::string &variable);
+  void fillHist(const bool &passTrigger,
+                const std::string &source,
+                const std::string &objType,
+                const std::string &var,
+                const float &value);
 
-    std::string _hltPath;
-    std::string _hltProcessName;
+  std::string _hltPath;
+  std::string _hltProcessName;
 
-    std::set<unsigned int> _objectsType;
-    // Number of objects (elec,muons, ...) needed in the hlt path
-    unsigned int _nObjects;
+  std::set<unsigned int> _objectsType;
+  // Number of objects (elec,muons, ...) needed in the hlt path
+  unsigned int _nObjects;
 
-    std::vector<double> _parametersEta;
-    std::vector<double> _parametersPhi;
-    std::vector<double> _parametersTurnOn;
-    std::vector<double> _parametersTurnOnSumEt;
-    std::vector<double> _parametersDxy;
+  std::vector<double> _parametersEta;
+  std::vector<double> _parametersPhi;
+  std::vector<double> _parametersTurnOn;
+  std::vector<double> _parametersTurnOnSumEt;
+  std::vector<double> _parametersDxy;
 
-    // flag to switch off
-    bool _drop_pt2;
-    bool _drop_pt3;
+  // flag to switch off
+  bool _drop_pt2;
+  bool _drop_pt3;
 
-    std::map<std::string, MonitorElement *> _elements;
+  std::map<std::string, MonitorElement *> _elements;
 };
 #endif

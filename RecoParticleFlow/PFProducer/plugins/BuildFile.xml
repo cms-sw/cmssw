@@ -1,4 +1,5 @@
 <library   name="RecoParticleFlowPFProducerPlugins_kdtrees" file="kdtrees/*.cc">
+  <use   name="CommonTools/RecoAlgos"/>
   <use   name="CondFormats/DataRecord"/>
   <use   name="CondFormats/PhysicsToolsObjects"/>
   <use   name="DataFormats/CaloRecHit"/>
