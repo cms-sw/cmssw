@@ -686,7 +686,7 @@ class TauIDEmbedder(object):
                 vertices               = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
                 rho                    = self.cms.InputTag('fixedGridRhoAll'),
                 graph_file             = self.cms.string(file_name),
-                mem_mapped             = self.cms.bool(False),
+                mem_mapped             = self.cms.bool(True),
                 version                = self.cms.uint32(self.getDeepTauVersion(file_name)[1]),
                 debug_level            = self.cms.int32(0)
 
