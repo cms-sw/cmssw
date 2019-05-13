@@ -1,6 +1,8 @@
 #ifndef ANALTYPDEFS_H
 #define ANALTYPDEFS_H
 #include "constants.h"
+#include <stdint.h>
+
 /* Posibles calidades de la trayectoria:
    NOPATH => No es una trayectoria válida
    LOWQGHOST => Igual que LOWQ con múltiples casos simultáneos
