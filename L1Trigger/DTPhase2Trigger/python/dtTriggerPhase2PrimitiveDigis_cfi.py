@@ -6,6 +6,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                digiTag = cms.InputTag("CalibratedDigis"),
                                                trigger_with_sl = cms.untracked.int32(4),
                                                tanPhiTh = cms.untracked.double(10.),
+                                               chi2Th = cms.untracked.double(0.01), #in cm^2
                                                do_correlation = cms.untracked.bool(True),
                                                dT0_correlate_TP = cms.untracked.double(25.),
                                                minx_match_2digis = cms.untracked.double(2.1),
@@ -15,13 +16,11 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                ttrig_filename = cms.untracked.string('data/wire_rawId_ttrig.txt'),
                                                z_filename = cms.untracked.string('data/wire_rawId_z.txt'),
                                                shift_filename = cms.untracked.string('data/wire_rawId_x.txt'),
-                                               #debugging
-                                               debug = cms.untracked.bool(False),
-                                               pinta = cms.untracked.bool(False),
-                                               dt4DSegments = cms.InputTag('dt4DSegments'),
                                                grouping_code = cms.untracked.int32(0),       # 0 = initial grouping, 1 = Hough transform
                                                min_phinhits_match_segment = cms.untracked.int32(8),
                                                min_dT0_match_segment = cms.untracked.double(12.5),
+                                               #debugging
+                                               debug = cms.untracked.bool(False),
                                                #RPC
                                                rpcRecHits = cms.untracked.InputTag("rpcRecHits")
                                                )
