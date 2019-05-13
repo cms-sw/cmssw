@@ -3,7 +3,8 @@
 
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/LocalErrorExtended.h"
 
 class MuonGeomDet : public GeomDet {
 protected :
