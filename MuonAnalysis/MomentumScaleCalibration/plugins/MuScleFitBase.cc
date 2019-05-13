@@ -127,8 +127,8 @@ void MuScleFitBase::writeHistoMap( const unsigned int iLoop ) {
 
 void MuScleFitBase::readProbabilityDistributionsFromFile()
 {
-  std::array<TH2D*, 6> GLZ;
-  std::array<TH2D*, 6> GL;
+  std::array<TH2D*, 6> GLZ = {{nullptr}};
+  std::array<TH2D*, 6> GL = {{nullptr}};
   std::unique_ptr<TFile>  ProbsFile;
   if( probabilitiesFile_ != "" ) {
     ProbsFile = std::make_unique<TFile>(probabilitiesFile_.c_str());
