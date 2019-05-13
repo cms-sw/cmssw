@@ -17,6 +17,7 @@
 */
 //
 // Original Author:  Sal Rappoccio
+// Further editing:  Hannu Siikonen
 //
 //
 
@@ -42,23 +43,25 @@
 
 template <typename T>
 class BetaStarVarProducer : public edm::global::EDProducer<> {
-   public:
+public:
   explicit BetaStarVarProducer(const edm::ParameterSet &iConfig):
     srcJet_(consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("srcJet"))),
     srcPF_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("srcPF"))),
     maxDR_( iConfig.getParameter<double>("maxDR") )
   {
-    produces<edm::ValueMap<float>>("chargedHadronPUEnergyFraction");
-    produces<edm::ValueMap<float>>("chargedHadronCHSEnergyFraction");
+    produces<edm::ValueMap<float>>("chargedFromPV0EnergyFraction");
+    produces<edm::ValueMap<float>>("chargedFromPV1EnergyFraction");
+    produces<edm::ValueMap<float>>("chargedFromPV2EnergyFraction");
+    produces<edm::ValueMap<float>>("chargedFromPV3EnergyFraction");
   }
   ~BetaStarVarProducer() override {};
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
+private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  std::tuple<float,float> calculateCHSEnergies( edm::Ptr<pat::Jet> const & jet, edm::View<T> const & cands) const;
+  std::tuple<float,float,float,float> calculateCHSEnergies( edm::Ptr<pat::Jet> const & jet, double chefrompv0 ) const;
 
   edm::EDGetTokenT<edm::View<pat::Jet>> srcJet_;
   edm::EDGetTokenT<edm::View<T>> srcPF_;
@@ -69,7 +72,6 @@ template <typename T>
 void
 BetaStarVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
-
   edm::Handle<edm::View<pat::Jet>> srcJet;
   iEvent.getByToken(srcJet_, srcJet);
   edm::Handle<edm::View<T>> srcPF;
@@ -77,81 +79,96 @@ BetaStarVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, cons
 
   unsigned int nJet = srcJet->size();
 
-  std::vector<float> chargedHadronPUEnergyFraction(nJet,-1);
-  std::vector<float> chargedHadronCHSEnergyFraction(nJet,-1);
-
-  for ( unsigned int ij = 0; ij < nJet; ++ij ) {
-    auto jet = srcJet->ptrAt(ij);
-    std::tuple<float,float> vals = calculateCHSEnergies( jet, *srcPF );
-    auto chpuf = std::get<0>(vals);
-    auto chef  = std::get<1>(vals);
-    chargedHadronPUEnergyFraction[ij] = chpuf;
-    chargedHadronCHSEnergyFraction[ij] = chef;
+  // Create an injective mapping from jets to charged PF candidates with fromPV==0 within the jet cone.
+  // These are the PF candidates supposedly removed by the CHS method - i.e. removed charged pileup.
+  std::vector< double > jet2pue(nJet,0);
+  for ( unsigned int icand = 0; icand < srcPF->size(); ++icand ) {
+    auto cand = srcPF->ptrAt(icand);
+    if (cand->charge()==0 or cand->fromPV()!=0) continue;
+    // Looking for the closest match for this charged frompv==0 candidate
+    float dRMin = 999.;
+    int bestjet = -1;
+    for ( auto ijet=srcJet->begin(); ijet!=srcJet->end(); ++ijet ) {
+      float dR = reco::deltaR(*ijet,*cand);
+      if (dR<dRMin) {
+        dRMin = dR;
+        bestjet = ijet-srcJet->begin();
+      }
+    }
+    // If the candidate is closer than the jet radius to the jet axis, this is a PU particle of interest for the selected jet
+    if (dRMin<maxDR_) jet2pue[bestjet] += cand->energy();
   }
 
-  std::unique_ptr<edm::ValueMap<float>> chargedHadronPUEnergyFractionV(new edm::ValueMap<float>());
-  edm::ValueMap<float>::Filler fillerPU(*chargedHadronPUEnergyFractionV);
-  fillerPU.insert(srcJet,chargedHadronPUEnergyFraction.begin(),chargedHadronPUEnergyFraction.end());
-  fillerPU.fill();
-  iEvent.put(std::move(chargedHadronPUEnergyFractionV),"chargedHadronPUEnergyFraction");
-  
-  std::unique_ptr<edm::ValueMap<float>> chargedHadronCHSEnergyFractionV(new edm::ValueMap<float>());
-  edm::ValueMap<float>::Filler fillerCHE(*chargedHadronCHSEnergyFractionV);
-  fillerCHE.insert(srcJet,chargedHadronCHSEnergyFraction.begin(),chargedHadronCHSEnergyFraction.end());
-  fillerCHE.fill();
-  iEvent.put(std::move(chargedHadronCHSEnergyFractionV),"chargedHadronCHSEnergyFraction");
+  std::vector<float> chargedFromPV0EnergyFraction(nJet,-1);
+  std::vector<float> chargedFromPV1EnergyFraction(nJet,-1);
+  std::vector<float> chargedFromPV2EnergyFraction(nJet,-1);
+  std::vector<float> chargedFromPV3EnergyFraction(nJet,-1);
 
+  for ( unsigned int ij = 0; ij < nJet; ++ij ) {
+    auto ijet = srcJet->ptrAt(ij);
+    auto vals = calculateCHSEnergies( ijet, jet2pue[ij] );
+    auto chpuf0 = std::get<0>(vals);
+    auto chpuf1 = std::get<1>(vals);
+    auto chpuf2 = std::get<2>(vals);
+    auto chpuf3 = std::get<3>(vals);
+    //auto chef   = std::get<2>(vals);
+    chargedFromPV0EnergyFraction[ij] = chpuf0;
+    chargedFromPV1EnergyFraction[ij] = chpuf1;
+    chargedFromPV2EnergyFraction[ij] = chpuf2;
+    chargedFromPV3EnergyFraction[ij] = chpuf3;
+  }
+
+  std::unique_ptr<edm::ValueMap<float>> valuesFPV0(new edm::ValueMap<float>());
+  edm::ValueMap<float>::Filler fillerFPV0(*valuesFPV0);
+  fillerFPV0.insert(srcJet,chargedFromPV0EnergyFraction.begin(),chargedFromPV0EnergyFraction.end());
+  fillerFPV0.fill();
+  iEvent.put(std::move(valuesFPV0),"chargedFromPV0EnergyFraction");
+
+  std::unique_ptr<edm::ValueMap<float>> valuesFPV1(new edm::ValueMap<float>());
+  edm::ValueMap<float>::Filler fillerFPV1(*valuesFPV1);
+  fillerFPV1.insert(srcJet,chargedFromPV1EnergyFraction.begin(),chargedFromPV1EnergyFraction.end());
+  fillerFPV1.fill();
+  iEvent.put(std::move(valuesFPV1),"chargedFromPV1EnergyFraction");
+
+  std::unique_ptr<edm::ValueMap<float>> valuesFPV2(new edm::ValueMap<float>());
+  edm::ValueMap<float>::Filler fillerFPV2(*valuesFPV2);
+  fillerFPV2.insert(srcJet,chargedFromPV2EnergyFraction.begin(),chargedFromPV2EnergyFraction.end());
+  fillerFPV2.fill();
+  iEvent.put(std::move(valuesFPV2),"chargedFromPV2EnergyFraction");
+
+  std::unique_ptr<edm::ValueMap<float>> valuesFPV3(new edm::ValueMap<float>());
+  edm::ValueMap<float>::Filler fillerFPV3(*valuesFPV3);
+  fillerFPV3.insert(srcJet,chargedFromPV3EnergyFraction.begin(),chargedFromPV3EnergyFraction.end());
+  fillerFPV3.fill();
+  iEvent.put(std::move(valuesFPV3),"chargedFromPV3EnergyFraction");
 }
 
 template <typename T>
-std::tuple<float,float>
-BetaStarVarProducer<T>::calculateCHSEnergies( edm::Ptr<pat::Jet> const & ijet, edm::View<T> const & cands ) const {
-
-  auto rawP4 = ijet->correctedP4(0);
-  std::vector<unsigned int> jet2pu;
-
-  // Get all of the PF candidates within a cone of dR to the jet that
-  // do NOT belong to the primary vertex.
-  // Store their indices. 
-  for ( unsigned int icand = 0; icand < cands.size(); ++icand ) {
-    auto cand = cands.ptrAt(icand);
-    if (cand->fromPV()!=0) continue;
-    float dR = reco::deltaR(*ijet,*cand);
-    if (dR<maxDR_) {
-      jet2pu.emplace_back( cand.key() );
-    }
-  }
-  
-  // Keep track of energy for PU stuff
-  double che = 0.0;
-  double pue = 0.0; 
+std::tuple<float,float,float,float>
+BetaStarVarProducer<T>::calculateCHSEnergies( edm::Ptr<pat::Jet> const & ijet, double chefrompv0 ) const {
+  // Keep track of energy (present in the jet) for PU stuff
+  double chefrompv1 = 0.0;
+  double chefrompv2 = 0.0;
+  double chefrompv3 = 0.0;
 
   // Loop through the PF candidates within the jet.
   // Store the sum of their energy, and their indices. 
-  std::vector<unsigned int> used;
-  auto jetConstituents = ijet->daughterPtrVector();
-  for (auto const & ic : jetConstituents ) {
-    auto icpc = dynamic_cast<pat::PackedCandidate const *>(ic.get());
-    if ( icpc->charge()!=0) {
-      che += icpc->energy();
-      if (icpc->fromPV()==0) {
-	used.push_back( ic.key() );
-      }
-    }
-  }
-  // Loop through the pileup PF candidates within the jet.
-  for (auto pidx : jet2pu) {
-    auto const & dtr = cands.ptrAt(pidx);
-    // We take the candidates that have not appeared before: these were removed by CHS
-    if (dtr->charge()!=0 and std::find(used.begin(),used.end(),dtr.key() )==used.end())
-      pue += dtr->energy();
+  for (auto pidx = 0u; pidx < ijet->numberOfDaughters(); ++pidx) {
+    auto *dtr = dynamic_cast<const pat::PackedCandidate*>(ijet->daughter(pidx));
+    if (dtr->charge()==0) continue;
+    if      (dtr->fromPV()==1) chefrompv1 += dtr->energy();
+    else if (dtr->fromPV()==2) chefrompv2 += dtr->energy();
+    else if (dtr->fromPV()==3) chefrompv3 += dtr->energy();
   }
   
   // Now get the fractions relative to the raw jet. 
-  auto puf = pue / rawP4.energy();
-  auto chf = che / rawP4.energy();
+  auto rawP4 = ijet->correctedP4(0);
+  double chffpv0 = chefrompv0 / rawP4.energy();
+  double chffpv1 = chefrompv1 / rawP4.energy(); 
+  double chffpv2 = chefrompv2 / rawP4.energy(); 
+  double chffpv3 = chefrompv3 / rawP4.energy(); 
   
-  return std::tuple<float,float>(puf,chf);
+  return std::tuple<float,float,float,float>(chffpv0,chffpv1,chffpv2,chffpv3);
 }
 
 template <typename T>
