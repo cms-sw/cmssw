@@ -147,7 +147,7 @@ int AngleConverterBase::getProcessorPhi(int phiZero, l1t::tftype part, const RPC
   int halfStrip = lround ( ( (stripPhi1+stripPhi2)/2.)/hsPhiPitch);
   halfStrip = config->foldPhi(halfStrip); //only for the case when the two strips are on different sides of phi = pi
 
-//  LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" roll "<<rollId<<" cluster: firstStrip "<<digi1<<" stripPhi1 "<<stripPhi1
+//  LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" roll "<<rollId<<" cluster: firstStrip "<<digi1<<" stripPhi1 "<<stripPhi1
 //      <<" lastStrip "<<digi2<<" stripPhi2 "<<stripPhi2<<" halfStrip "<<halfStrip<<std::endl;
 
   return config->foldPhi(halfStrip - phiZero);

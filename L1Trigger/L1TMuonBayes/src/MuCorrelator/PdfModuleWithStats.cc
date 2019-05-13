@@ -29,7 +29,7 @@ PdfModuleWithStats::PdfModuleWithStats(MuCorrelatorConfigPtr& config): PdfModule
   }
 
   sigmaFactor = 1.3;
-  edm::LogImportant("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" PdfModuleWithStats: sigmaFactor: " <<sigmaFactor<<std::endl;
+  edm::LogImportant("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" PdfModuleWithStats: sigmaFactor: " <<sigmaFactor<<std::endl;
 
 }
 

@@ -30,7 +30,6 @@
 L1TMuonBayesMuCorrelatorTrackProducer::L1TMuonBayesMuCorrelatorTrackProducer(const edm::ParameterSet& cfg)
   :edmParameterSet(cfg), muCorrelatorConfig(std::make_shared<MuCorrelatorConfig>()) {
 
-  produces<l1t::RegionalMuonCandBxCollection >("MuCorr");
   produces<l1t::BayesMuCorrTrackBxCollection >("BayesMuCorrTracks");
 
   muStubsInputTokens.inputTokenDTPh = consumes<L1MuDTChambPhContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTPh"));
@@ -59,7 +58,7 @@ L1TMuonBayesMuCorrelatorTrackProducer::L1TMuonBayesMuCorrelatorTrackProducer(con
   }
 
   for(unsigned int ptBin = 0; ptBin < muCorrelatorConfig->getPtHwBins().size(); ++ptBin) {
-    edm::LogImportant("L1TMuonBayesMuCorrelatorTrackProducer")<<"ptBin "<<setw(2)<<ptBin<<" range Hw: "<<muCorrelatorConfig->ptBinString(ptBin, 0)<<" = "<<muCorrelatorConfig->ptBinString(ptBin, 1)<<std::endl;
+    edm::LogImportant("l1tMuBayesEventPrint")<<"ptBin "<<setw(2)<<ptBin<<" range Hw: "<<muCorrelatorConfig->ptBinString(ptBin, 0)<<" = "<<muCorrelatorConfig->ptBinString(ptBin, 1)<<std::endl;
   }
 }
 /////////////////////////////////////////////////////
@@ -132,11 +131,11 @@ void L1TMuonBayesMuCorrelatorTrackProducer::beginRun(edm::Run const& run, edm::E
 
     if(pdfModuleType == "PdfModule") {
       pdfModule = new PdfModule(muCorrelatorConfig);
-      edm::LogImportant("L1TMuonBayesMuCorrelatorTrackProducer")<<" creating PdfModule for muCorrelatorProcessor"<<std::endl;
+      edm::LogImportant("l1tMuBayesEventPrint")<<" creating PdfModule for muCorrelatorProcessor"<<std::endl;
     }
     else if(pdfModuleType == "PdfModuleWithStats") {
+      edm::LogImportant("l1tMuBayesEventPrint")<<" creating PdfModuleWithStats for muCorrelatorProcessor"<<std::endl;
       pdfModule = new PdfModuleWithStats(muCorrelatorConfig);
-      edm::LogImportant("L1TMuonBayesMuCorrelatorTrackProducer")<<" creating PdfModuleWithStats for muCorrelatorProcessor"<<std::endl;
     }
     else {
       throw cms::Exception("L1TMuonBayesMuCorrelatorTrackProducer::beginRun: unknown pdfModuleType: " + pdfModuleType);
@@ -148,7 +147,7 @@ void L1TMuonBayesMuCorrelatorTrackProducer::beginRun(edm::Run const& run, edm::E
     }
     else if(edmParameterSet.exists("pdfModuleFile") ) {//if we read the patterns directly from the xml, we do it only once, at the beginning of the first run, not every run
       pdfModuleFile = edmParameterSet.getParameter<edm::FileInPath>("pdfModuleFile").fullPath();
-      edm::LogImportant("L1TMuonBayesMuCorrelatorTrackProducer")<<" reading the pdfModule from file "<<pdfModuleFile<<std::endl;
+      edm::LogImportant("l1tMuBayesEventPrint")<<" reading the pdfModule from file "<<pdfModuleFile<<std::endl;
       readPdfs(pdfModule, pdfModuleFile);
     }
 
@@ -163,14 +162,14 @@ void L1TMuonBayesMuCorrelatorTrackProducer::beginRun(edm::Run const& run, edm::E
     }
     else if(edmParameterSet.exists("timingModuleFile") ) {
       string timingModuleFile = edmParameterSet.getParameter<edm::FileInPath>("timingModuleFile").fullPath();
-      edm::LogImportant("L1TMuonBayesMuCorrelatorTrackProducer")<<" reading the MuTimingModule from file "<<timingModuleFile<<std::endl;
+      edm::LogImportant("l1tMuBayesEventPrint")<<" reading the MuTimingModule from file "<<timingModuleFile<<std::endl;
 
       std::unique_ptr<MuTimingModule> muTimingModuleUniqPtr = std::make_unique<MuTimingModule>(muCorrelatorConfig.get());
       readTimingModule(muTimingModuleUniqPtr.get(), timingModuleFile);
       muCorrelatorProcessor->setMuTimingModule(muTimingModuleUniqPtr);
     }
 
-    edm::LogImportant("L1TMuonBayesMuCorrelatorTrackProducer")<<" muCorrelatorProcessor constructed"<<std::endl;
+    edm::LogImportant("l1tMuBayesEventPrint")<<" muCorrelatorProcessor constructed"<<std::endl;
 
   }
 }
@@ -178,9 +177,6 @@ void L1TMuonBayesMuCorrelatorTrackProducer::beginRun(edm::Run const& run, edm::E
 /////////////////////////////////////////////////////
 void L1TMuonBayesMuCorrelatorTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
   inputMaker->loadAndFilterDigis(iEvent);
-
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> candidates(new l1t::RegionalMuonCandBxCollection);
-  candidates->setBXRange(bxRangeMin, bxRangeMax);
 
   std::unique_ptr<l1t::BayesMuCorrTrackBxCollection> bayesMuCorrTracks(new l1t::BayesMuCorrTrackBxCollection);
   bayesMuCorrTracks->setBXRange(bxRangeMin, bxRangeMax);
@@ -193,11 +189,11 @@ void L1TMuonBayesMuCorrelatorTrackProducer::produce(edm::Event& iEvent, const ed
 
     auto ttTRacks = ttTracksInputMaker->loadTTTracks(iEvent, bx, edmParameterSet, muCorrelatorConfig.get());
 
-    LogTrace("omtfEventPrintout")<<"\n\nEvent "<<iEvent.id().event()<<" muonStubsInput bx "<<bx<<": \n "<<muonStubsInput<<endl;
+    LogTrace("l1tMuBayesEventPrint")<<"\n\nEvent "<<iEvent.id().event()<<" muonStubsInput bx "<<bx<<": \n "<<muonStubsInput<<endl;
     for(auto& ttTRack : ttTRacks) {
-      LogTrace("omtfEventPrintout")<<*ttTRack<<endl;
+      LogTrace("l1tMuBayesEventPrint")<<*ttTRack<<endl;
     }
-    LogTrace("omtfEventPrintout")<<"\n";
+    LogTrace("l1tMuBayesEventPrint")<<"\n";
 
     //for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
     {
@@ -205,10 +201,6 @@ void L1TMuonBayesMuCorrelatorTrackProducer::produce(edm::Event& iEvent, const ed
       std::vector<l1t::RegionalMuonCand> procCandidates = muCorrelatorProcessor->getFinalCandidates(0, l1t::bmtf, algoTTMuons); //processor type is just ignored
 
       //fill outgoing collection
-      for (auto & candMuon :  procCandidates) {
-        candidates->push_back(bx, candMuon);
-      }
-
       l1t::BayesMuCorrTrackCollection bayesMuCorrTracksInBx = muCorrelatorProcessor->getMuCorrTrackCollection(0, algoTTMuons);
       for (auto & muTrack :  bayesMuCorrTracksInBx) {
         bayesMuCorrTracks->push_back(bx, muTrack);
@@ -216,10 +208,8 @@ void L1TMuonBayesMuCorrelatorTrackProducer::produce(edm::Event& iEvent, const ed
 
     }
 
-    //edm::LogInfo("L1TMuonBayesMuCorrelatorTrackProducer") <<"MuCorr:  Number of candidates in BX="<<bx<<": "<<candidates->size(bx) << std::endl;;
   }
 
-  iEvent.put(std::move(candidates), "MuCorr");
   iEvent.put(std::move(bayesMuCorrTracks), "BayesMuCorrTracks");
 }
 
@@ -234,10 +224,11 @@ void L1TMuonBayesMuCorrelatorTrackProducer::readPdfs(IPdfModule* pdfModule, std:
 
   PdfModule* pdfModuleImpl = dynamic_cast<PdfModule*>(pdfModule);
   if(pdfModuleImpl) {
+    LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<": "<<__LINE__<<" readPdfs from file "<<fileName<<endl;
     PdfModule& pdfModuleRef = *pdfModuleImpl;
     ia >> BOOST_SERIALIZATION_NVP(pdfModuleRef);
 
-    LogTrace("omtfEventPrintout")<<__FUNCTION__<<": "<<__LINE__<<" pdfModule->getCoefficients().size() "<<pdfModuleRef.getCoefficients().size()<<endl;
+    LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<": "<<__LINE__<<" pdfModule->getCoefficients().size() "<<pdfModuleRef.getCoefficients().size()<<endl;
   }
   else {
     throw cms::Exception("L1TMuonBayesMuCorrelatorTrackProducer::readPdfs: pdfModule is not of the type PdfModule*");
@@ -253,7 +244,7 @@ void L1TMuonBayesMuCorrelatorTrackProducer::writePdfs(const IPdfModule* pdfModul
   const PdfModule* pdfModuleImpl = dynamic_cast<const PdfModule*>(pdfModule);
   // write class instance to archive
   if(pdfModuleImpl) {
-    cout<<__FUNCTION__<<": "<<__LINE__<<" writing pdf to file "<<fileName<<endl;
+    edm::LogImportant("l1tMuBayesEventPrint")<<__FUNCTION__<<": "<<__LINE__<<" writing pdf to file "<<fileName<<endl;
     const PdfModule& pdfModuleRef = *pdfModuleImpl;
     xmlOutArch << BOOST_SERIALIZATION_NVP(pdfModuleRef);
     //txtOutArch << (*pdfModuleImpl);
@@ -272,10 +263,9 @@ void L1TMuonBayesMuCorrelatorTrackProducer::readTimingModule(MuTimingModule* muT
   //PdfModule* pdfModuleImpl = dynamic_cast<PdfModule*>(pdfModule);
   // write class instance to archive
   if(muTimingModule) {
+    LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<": "<<__LINE__<<" readTimingModule from file "<<fileName<<endl;
     MuTimingModule& muTimingModuleRef = *muTimingModule;
     ia >> BOOST_SERIALIZATION_NVP(muTimingModuleRef);
-
-    LogTrace("omtfEventPrintout")<<__FUNCTION__<<": "<<__LINE__<<" readTimingModule from file "<<fileName<<endl;
   }
   else {
     throw cms::Exception("L1TMuonBayesMuCorrelatorTrackProducer::readTimingModule: muTimingModule is 0");
@@ -291,7 +281,7 @@ void L1TMuonBayesMuCorrelatorTrackProducer::writeTimingModule(const MuTimingModu
   //const PdfModule* pdfModuleImpl = dynamic_cast<const PdfModule*>(pdfModule);
   // write class instance to archive
   if(muTimingModule) {
-    cout<<__FUNCTION__<<": "<<__LINE__<<" writing MuTimingModule to file "<<fileName<<endl;
+    edm::LogImportant("l1tMuBayesEventPrint")<<__FUNCTION__<<": "<<__LINE__<<" writing MuTimingModule to file "<<fileName<<endl;
     const MuTimingModule& muTimingModuleRef = *muTimingModule;
     xmlOutArch << BOOST_SERIALIZATION_NVP(muTimingModuleRef);
     //txtOutArch << (*pdfModuleImpl);

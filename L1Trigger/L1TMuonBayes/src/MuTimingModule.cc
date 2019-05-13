@@ -28,7 +28,7 @@ MuTimingModule::~MuTimingModule() {
 void MuTimingModule::process(AlgoMuonBase* algoMuon) {
   std::vector<unsigned int> one_betaHist(betaBins, 0);
 
-  LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<std::endl;
+  LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<std::endl;
   for(auto& stubResult : algoMuon->getStubResults() ) {
     if(!stubResult.getValid())
       continue;
@@ -41,7 +41,7 @@ void MuTimingModule::process(AlgoMuonBase* algoMuon) {
     for(unsigned int iOne_beta = 0; iOne_beta < betaBins; iOne_beta++) {
       int logPVal = timigTo1_Beta.at(layer).at(roll).at(etaBin).at(hitTimingBin).at(iOne_beta);
 
-//      LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" layer "<<layer<<" roll "<<roll<<" etaBin "<<etaBin<<" hitTiming "<<stubResult.getMuonStub()->timing<<" hitTimingBin "<<hitTimingBin<<" = one_beta "<<iOne_beta<<" logPVal "<<logPVal
+//      LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" layer "<<layer<<" roll "<<roll<<" etaBin "<<etaBin<<" hitTiming "<<stubResult.getMuonStub()->timing<<" hitTimingBin "<<hitTimingBin<<" = one_beta "<<iOne_beta<<" logPVal "<<logPVal
 //          <<" "<<(*(stubResult.getMuonStub()))<<std::endl;
       one_betaHist.at(iOne_beta) += logPVal;
     }
@@ -60,7 +60,7 @@ void MuTimingModule::process(AlgoMuonBase* algoMuon) {
   }
 
   float beta = one_betaBinToBeta(maxBin);
-  LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" maxBin "<<maxBin<<" maxVal "<<maxVal<<" beta "<<beta<<std::endl;
+  LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" maxBin "<<maxBin<<" maxVal "<<maxVal<<" beta "<<beta<<std::endl;
   if(maxVal >= 3) {
     algoMuon->setBeta(beta);
     algoMuon->setBetaLikelihood(maxVal);

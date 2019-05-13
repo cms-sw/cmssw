@@ -128,7 +128,7 @@ void MuonStubMakerBase::processRPC(MuonStubPtrs2D& muonStubsInLayers, const RPCD
 //    if(roll.region() != 0  &&  abs(roll.station()) >= 3 && roll.ring() == 1 ) {
 //      //iRPC
 //      for (auto pDigi=rollDigis.second.first; pDigi != rollDigis.second.second; pDigi++) {
-//        LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" roll "<<roll
+//        LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" roll "<<roll
 //            <<" strip "<<pDigi->strip()
 //            <<" hasX "<<pDigi->hasX()<<" coordinateX "<<pDigi->coordinateX()<<" hasY "<<pDigi->hasY()<<" coordinateY "<<pDigi->coordinateY()
 //            <<" bx "<<pDigi->bx()<<" time "<<pDigi->time()<<" irpc"<<std::endl;
@@ -152,7 +152,7 @@ void MuonStubMakerBase::processRPC(MuonStubPtrs2D& muonStubsInLayers, const RPCD
     std::vector<RpcCluster> clusters = rpcClusterization.getClusters(roll, digisCopy);
 
     for (auto & cluster: clusters) {
-      LogTrace("omtfEventPrintout")<<__FUNCTION__<<":"<<__LINE__<<" roll "<<roll<<" cluster: firstStrip "<<cluster.firstStrip<<" lastStrip "<<cluster.lastStrip<<" halfStrip "<<cluster.halfStrip()<<std::endl;
+      LogTrace("l1tMuBayesEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" roll "<<roll<<" cluster: firstStrip "<<cluster.firstStrip<<" lastStrip "<<cluster.lastStrip<<" halfStrip "<<cluster.halfStrip()<<std::endl;
       addRPCstub(muonStubsInLayers, roll, cluster, iProcessor, procTyp);
     }
   }

@@ -183,7 +183,7 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstruct(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  LogTrace("omtfEventPrintout")<<"\n"<<__FUNCTION__<<":"<<__LINE__<<" iEvent "<<iEvent.id().event()<<endl;
+  LogTrace("l1tMuBayesEventPrint")<<"\n"<<__FUNCTION__<<":"<<__LINE__<<" iEvent "<<iEvent.id().event()<<endl;
   m_OMTF->loadAndFilterDigis(iEvent, m_Config);
 
   //if(dumpResultToXML) aTopElement = m_Writer->writeEventHeader(iEvent.id().event());

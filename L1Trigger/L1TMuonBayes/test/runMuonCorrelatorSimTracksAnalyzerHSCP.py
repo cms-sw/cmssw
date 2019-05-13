@@ -19,14 +19,14 @@ if verbose:
                                                #'cerr',
                                                'omtfEventDump'
                     ),
-       categories        = cms.untracked.vstring('MuTimingModule', 'omtfEventPrintout'), #, 
+       categories        = cms.untracked.vstring('MuTimingModule', 'l1tMuBayesEventPrint'), #, 
        omtfEventDump = cms.untracked.PSet(    
                          extension = cms.untracked.string('.txt'),                
                          threshold = cms.untracked.string('DEBUG'),
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
                          #INFO   =  cms.untracked.int32(0),
                          #DEBUG   = cms.untracked.int32(0),
-                         omtfEventPrintout = cms.untracked.PSet( limit = cms.untracked.int32(100000000) )
+                         l1tMuBayesEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(100000000) )
                        ),
        debugModules = cms.untracked.vstring('L1TMuonOverlapTTMergerTrackProducer', 'OmtfTTAnalyzer', 'simOmtfDigis', 'omtfTTAnalyzer', 'simBayesMuCorrelatorTrackProducer') 
        #debugModules = cms.untracked.vstring('*')

@@ -55,7 +55,7 @@ AlgoTTMuons MuCorrelatorProcessor::processTracks(const MuonStubsInput& muonStubs
       algoTTMuon->setValid(true);
       algoTTMuons.emplace_back(algoTTMuon);
 
-      LogTrace("omtfEventPrintout")<<">>>>>>>>>>>>>>>>>>>>> algoTTMuon found for the ttTrack: \n "
+      LogTrace("l1tMuBayesEventPrint")<<">>>>>>>>>>>>>>>>>>>>> algoTTMuon found for the ttTrack: \n "
           //<<" ttTrack Pt "<<ttTrack->getPt()<<" charge "<<ttTrack->getCharge()
           //<<" eta "<<ttTrack->getEta()<<" phi "<<ttTrack->getPhi()<<" index  "<<ttTrack->getIndex()<<"\n"
           <<*algoTTMuon<<endl;
@@ -74,7 +74,7 @@ AlgoTTMuons MuCorrelatorProcessor::processTracks(const MuonStubsInput& muonStubs
 
   //only debug
   for(auto& ghostBustedTTmuon : ghostBustedTTmuons) {
-    LogTrace("omtfEventPrintout")<<">>>>>>>>>>>>>>>>>>>>> ghostBustedTTmuon: \n "
+    LogTrace("l1tMuBayesEventPrint")<<">>>>>>>>>>>>>>>>>>>>> ghostBustedTTmuon: \n "
         <<*ghostBustedTTmuon<<endl;
   }
 
@@ -243,7 +243,7 @@ AlgoTTMuons MuCorrelatorProcessor::processTracks(const StandaloneCandWithStubsVe
     if(algoTTMuon->getFiredLayerCnt() >= config->nMinFiredLayers()) {
       algoTTMuons.emplace_back(algoTTMuon);
 
-      LogTrace("omtfEventPrintout")<<">>>>>>>>>>>>>>>>>>>>> algoTTMuon found for the ttTrack: \n "
+      LogTrace("l1tMuBayesEventPrint")<<">>>>>>>>>>>>>>>>>>>>> algoTTMuon found for the ttTrack: \n "
           <<" ttTrack Pt "<<ttTrack->getPt()<<" charge "<<ttTrack->getCharge()
           <<" eta "<<ttTrack->getEta()<<" phi "<<ttTrack->getPhi()<<" index  "<<ttTrack->getIndex()
           <<*algoTTMuon<<endl;
@@ -254,7 +254,7 @@ AlgoTTMuons MuCorrelatorProcessor::processTracks(const StandaloneCandWithStubsVe
 
   //only debug
   for(auto& ghostBustedTTmuon : ghostBustedTTmuons) {
-    LogTrace("omtfEventPrintout")<<">>>>>>>>>>>>>>>>>>>>> ghostBustedTTmuon: \n "
+    LogTrace("l1tMuBayesEventPrint")<<">>>>>>>>>>>>>>>>>>>>> ghostBustedTTmuon: \n "
         <<*ghostBustedTTmuon<<endl;
   }
 
@@ -363,7 +363,7 @@ bool MuCorrelatorProcessor::assignQuality(AlgoTTMuons& algoTTMuons) {
       algoTTMuon->setQuality(13); //Default quality
       if(firedLayers.second == algoTTMuon->getFiredLayerBits()) {
         algoTTMuon->setQuality(firedLayers.first);
-        //LogTrace("omtfEventPrintout")<<"demoting quality for "<<*algoTTMuon<<endl;
+        //LogTrace("l1tMuBayesEventPrint")<<"demoting quality for "<<*algoTTMuon<<endl;
         break;
       }
     }
