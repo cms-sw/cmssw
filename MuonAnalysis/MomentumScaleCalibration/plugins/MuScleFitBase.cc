@@ -143,27 +143,28 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   }
 
   ProbsFile->cd();
-  if( MuScleFitUtils::rapidityBinsForZ_ && MuScleFitUtils::resfind[0]) {
+  bool resfindEmpty = true;
+  if( MuScleFitUtils::rapidityBinsForZ_ && MuScleFitUtils::resfind[0] && theMuonType_!=2 ) {
+    resfindEmpty=false;
     for ( unsigned char i=0; i<6; i++ ) {
       char nameh[6];
-      sprintf (nameh,"GLZ%hhu",i);
+      snprintf (nameh,6,"GLZ%hhu",i);
       GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh));
     }
   }
-  else if(MuScleFitUtils::resfind[0]) {
+  else if(MuScleFitUtils::resfind[0] && theMuonType_==2 ) {
     GL[0] = dynamic_cast<TH2D*> (ProbsFile->Get("GL0"));
+    resfindEmpty=false;
   }
-  else if(MuScleFitUtils::resfind[1]) 
-    GL[1] = dynamic_cast<TH2D*> (ProbsFile->Get("GL1"));
-  else if(MuScleFitUtils::resfind[2]) 
-    GL[2] = dynamic_cast<TH2D*> (ProbsFile->Get("GL2"));
-  else if(MuScleFitUtils::resfind[3]) 
-    GL[3] = dynamic_cast<TH2D*> (ProbsFile->Get("GL3"));
-  else if(MuScleFitUtils::resfind[4]) 
-    GL[4] = dynamic_cast<TH2D*> (ProbsFile->Get("GL4"));
-  else if(MuScleFitUtils::resfind[5]) 
-    GL[5] = dynamic_cast<TH2D*> (ProbsFile->Get("GL5"));
-  else {
+  for(unsigned char i=1; i<6; ++i) {
+    if(MuScleFitUtils::resfind[i]) {
+      char nameh[6];
+      snprintf(nameh,6,"GL%hhu",i);
+      GL[i] = dynamic_cast<TH2D*> (ProbsFile->Get(nameh));
+      resfindEmpty=false;
+    }
+  }
+  if( resfindEmpty ) {
     std::cout<<"[MuScleFit-Constructor]: No resonance selected, please fill the resfind array"<<std::endl;
     exit(1);
   }
@@ -171,7 +172,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   // Read the limits for M and Sigma axis for each pdf
   // Note: we assume all the Z histograms to have the same limits
   // x is mass, y is sigma
-  if(MuScleFitUtils::resfind[0] && theMuonType_!=2) {
+  if(MuScleFitUtils::rapidityBinsForZ_ && MuScleFitUtils::resfind[0] && theMuonType_!=2) {
     MuScleFitUtils::ResHalfWidth[0] = (GLZ[0]->GetXaxis()->GetXmax() - GLZ[0]->GetXaxis()->GetXmin())/2.;
     MuScleFitUtils::ResMaxSigma[0] = (GLZ[0]->GetYaxis()->GetXmax() - GLZ[0]->GetYaxis()->GetXmin());
     MuScleFitUtils::ResMinMass[0] = (GLZ[0]->GetXaxis()->GetXmin());
