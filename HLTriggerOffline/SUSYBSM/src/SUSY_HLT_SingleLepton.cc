@@ -47,13 +47,14 @@ namespace {
     const float sigmaietaieta = el.full5x5_sigmaIetaIeta();
     const float hOverE = el.hcalOverEcal();
     float d0 = 0.0, dz = 0.0;
-    try {
-      d0 = -(el.gsfTrack()->dxy(pv_position));
-      dz = el.gsfTrack()->dz(pv_position);
-    } catch (...) {
+
+    if (el.gsfTrack().isNull()) {
       edm::LogError("SUSY_HLT_SingleLepton") << "Could not read electron.gsfTrack().\n";
       return false;
     }
+    d0 = -(el.gsfTrack()->dxy(pv_position));
+    dz = el.gsfTrack()->dz(pv_position);
+
     float ooemoop = 1e30;
     if (el.ecalEnergy() > 0.0 && std::isfinite(el.ecalEnergy())) {
       ooemoop = fabs(1.0 / el.ecalEnergy() - el.eSuperClusterOverP() / el.ecalEnergy());
@@ -74,12 +75,11 @@ namespace {
     }
 
     float etasc = 0.0;
-    try {
-      etasc = el.superCluster()->eta();
-    } catch (...) {
+    if (el.superCluster().isNull()) {
       edm::LogError("SUSY_HLT_SingleLepton") << "Could not read electron.superCluster().\n";
       return false;
     }
+    etasc = el.superCluster()->eta();
     if (fabs(etasc) > 2.5) {
       return false;
     } else if (fabs(etasc) > 1.479) {
@@ -129,35 +129,33 @@ namespace {
       return false;
     if (!mu.isPFMuon())
       return false;
-    try {
-      if (mu.globalTrack()->normalizedChi2() >= 10.)
-        return false;
-      if (mu.globalTrack()->hitPattern().numberOfValidMuonHits() <= 0)
-        return false;
-    } catch (...) {
+    if (mu.globalTrack().isNull()) {
       edm::LogWarning("SUSY_HLT_SingleLepton") << "Could not read muon.globalTrack().\n";
       return false;
     }
+    if (mu.globalTrack()->normalizedChi2() >= 10.)
+      return false;
+    if (mu.globalTrack()->hitPattern().numberOfValidMuonHits() <= 0)
+      return false;
     if (mu.numberOfMatchedStations() <= 1)
       return false;
-    try {
-      if (fabs(mu.muonBestTrack()->dxy(pv_position)) >= 0.2)
-        return false;
-      if (fabs(mu.muonBestTrack()->dz(pv_position)) >= 0.5)
-        return false;
-    } catch (...) {
+    if (mu.muonBestTrack().isNull()) {
       edm::LogWarning("SUSY_HLT_SingleLepton") << "Could not read muon.muonBestTrack().\n";
       return false;
     }
-    try {
-      if (mu.innerTrack()->hitPattern().numberOfValidPixelHits() <= 0)
-        return false;
-      if (mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() <= 5)
-        return false;
-    } catch (...) {
+    if (fabs(mu.muonBestTrack()->dxy(pv_position)) >= 0.2)
+      return false;
+    if (fabs(mu.muonBestTrack()->dz(pv_position)) >= 0.5)
+      return false;
+    if (mu.innerTrack().isNull()) {
       edm::LogWarning("SUSY_HLT_SingleLepton") << "Could not read muon.innerTrack().\n";
       return false;
     }
+    if (mu.innerTrack()->hitPattern().numberOfValidPixelHits() <= 0)
+      return false;
+    if (mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() <= 5)
+      return false;
+
     return true;
   }
 }  // namespace
