@@ -12,7 +12,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
