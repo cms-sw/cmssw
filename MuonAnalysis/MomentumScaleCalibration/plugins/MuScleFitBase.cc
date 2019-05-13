@@ -3,6 +3,7 @@
 
 #include "MuScleFitBase.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include <memory>
 
 void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   //Reconstructed muon kinematics
@@ -127,9 +128,9 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
 {
   TH2D * GLZ[6];
   TH2D * GL[6];
-  TFile * ProbsFile;
+  std::unique_ptr<TFile>  ProbsFile;
   if( probabilitiesFile_ != "" ) {
-    ProbsFile = new TFile (probabilitiesFile_.c_str());
+    ProbsFile = std::make_unique<TFile>(probabilitiesFile_.c_str());
     std::cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFile_ << std::endl;
   }
   else {
@@ -137,7 +138,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     // edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root");
     // edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_merge.root");
     edm::FileInPath file(probabilitiesFileInPath_.c_str());
-    ProbsFile = new TFile (file.fullPath().c_str());
+    ProbsFile = std::make_unique<TFile>(file.fullPath().c_str());
     std::cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFileInPath_ << std::endl;
   }
 
@@ -271,7 +272,6 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     if(MuScleFitUtils::resfind[ires])
       delete GL[ires];
   }
-  delete ProbsFile;
 }
 
 #endif
