@@ -49,7 +49,7 @@ DDTestNavigateGeometry::analyze(const Event&, const EventSetup& iEventSetup)
 
   const DDVectorRegistryRcd& regRecord = iEventSetup.get<DDVectorRegistryRcd>();
   ESTransientHandle<DDVectorRegistry> reg;
-  regRecord.get(m_tag.module(), reg);
+  regRecord.get(m_tag, reg);
 
   LogVerbatim("Geometry").log([&reg](auto& log) {
       for(const auto& p: reg->vectors) {
@@ -61,7 +61,7 @@ DDTestNavigateGeometry::analyze(const Event&, const EventSetup& iEventSetup)
   
   const GeometryFileRcd& ddRecord = iEventSetup.get<GeometryFileRcd>();
   ESTransientHandle<DDDetector> ddd;
-  ddRecord.get(m_tag.module(), ddd);
+  ddRecord.get(m_tag, ddd);
     
   const dd4hep::Detector& detector = *ddd->description();
  

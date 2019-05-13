@@ -24,7 +24,7 @@ process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer"
                                                     )
 
 process.test = cms.EDAnalyzer("DDCMSDetector",
-                              DDDetector = cms.ESInputTag('CMS')
+                              DDDetector = cms.ESInputTag('','CMS')
                               )
 
 process.DDVectorRegistryESProducer2 = cms.ESProducer("DDVectorRegistryESProducer",
@@ -32,17 +32,17 @@ process.DDVectorRegistryESProducer2 = cms.ESProducer("DDVectorRegistryESProducer
                                                      )
 
 process.test2 = cms.EDAnalyzer("DDCMSDetector",
-                               DDDetector = cms.ESInputTag('MagneticField')
+                               DDDetector = cms.ESInputTag('','MagneticField')
                                )
 
 process.testVectors = cms.EDAnalyzer("DDTestVectors",
-                                     DDDetector = cms.ESInputTag('CMS')
+                                     DDDetector = cms.ESInputTag('','CMS')
                                      )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile")
 
 process.testGeoIter = cms.EDAnalyzer("DDTestDumpGeometry",
-                                     DDDetector = cms.ESInputTag('CMS')
+                                     DDDetector = cms.ESInputTag('','CMS')
                                      )
 
 process.p = cms.Path(
