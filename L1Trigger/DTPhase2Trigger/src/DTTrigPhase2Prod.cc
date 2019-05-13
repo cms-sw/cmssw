@@ -150,24 +150,25 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset):
         ifin3 >> rawId >> shift;
         shiftinfo[rawId]=shift;
     }
-
+    
+    
     chosen_sl = pset.getUntrackedParameter<int>("trigger_with_sl");
     
     if(chosen_sl!=1 && chosen_sl!=3 && chosen_sl!=4){
-	std::cout<<"chosen sl must be 1,3 or 4(both superlayers)"<<std::endl;
-	assert(chosen_sl!=1 && chosen_sl!=3 && chosen_sl!=4); //4 means run using the two superlayers
+      std::cout<<"chosen sl must be 1,3 or 4(both superlayers)"<<std::endl;
+      assert(chosen_sl!=1 && chosen_sl!=3 && chosen_sl!=4); //4 means run using the two superlayers
     }
-	
+    
 }
 
 DTTrigPhase2Prod::~DTTrigPhase2Prod(){
 
-    //delete inMuonPath;
-    //delete outValidMuonPath;
+  //delete inMuonPath;
+  //delete outValidMuonPath;
+  
+  if(debug) std::cout<<"DTp2: calling destructor"<<std::endl;
     
-    if(debug) std::cout<<"DTp2: calling destructor"<<std::endl;
-
-    delete grouping_obj; // Grouping destructor
+  delete grouping_obj; // Grouping destructor
 }
 
 
@@ -206,6 +207,8 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
 void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
     edm::Handle<DTDigiCollection> dtdigis;
     iEvent.getByToken(dtDigisToken, dtdigis);
+    
+    int bx25 = iEvent.eventAuxiliary().bunchCrossing()*25;
     timeFromP1ToP2 = iEvent.eventAuxiliary().bunchCrossing();
     if(debug) std::cout <<"\t Getting the RPC RecHits"<<std::endl;
     Handle<RPCRecHitCollection> rpcHits;
@@ -236,6 +239,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 
     digiMap.clear();
     // GROUPING ENDS
+    if (debug) cout << "MUON PATHS found: " << muonpaths.size() <<" in event"<<iEvent.id().event()<<endl;
     
     if (debug) cout << "MUON PATHS found: " << muonpaths.size() <<" in event"<<iEvent.id().event()<<endl;
     //filtro por groupos de TDC times en las mismas celdas... corrobarar si sucede... esta implementacion no existe en software pero existe en firmware
@@ -757,7 +761,7 @@ void DTTrigPhase2Prod::produce(Event & iEvent, const EventSetup& iEventSetup){
 				      0
 				      );
 	    
-	    
+    
 	    if(p2_df==0){
 		outPhiCH.push_back(thisTP);
 	    }else if(p2_df==1){
